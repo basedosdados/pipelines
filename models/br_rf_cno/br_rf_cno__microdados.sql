@@ -4,7 +4,7 @@
         schema="br_rf_cno",
         materialized="incremental",
         partition_by={
-            "field": "data_extracao",
+            "field": "data",
             "data_type": "date",
         },
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
@@ -12,7 +12,7 @@
 }}
 
 select
-    safe_cast(data as date) data_extracao,
+    safe_cast(data as date) data,
     safe_cast(data_situacao as date) data_situacao,
     safe_cast(data_registro as date) data_registro,
     safe_cast(data_inicio as date) data_inicio,
@@ -46,5 +46,6 @@ left join
     on ltrim(microdados.id_municipio_rf, '0') = b.id_municipio_rf
 
 {% if is_incremental() %}
-    where safe_cast(data as date) > (select max(data_extracao) from {{ this }})
+    where
+        safe_cast(data as date) > (select max(safe_cast(data as date)) from {{ this }})
 {% endif %}
