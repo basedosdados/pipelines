@@ -212,7 +212,7 @@ with Flow(
     )
 
     documents_metadata = get_documents_metadata(table_id)
-    documents_metadata = None
+
     # Checando se os metadados foram carregados
     with case(documents_metadata is None, False):
         data_source_download_url, data_source_max_date = get_latest_file(
