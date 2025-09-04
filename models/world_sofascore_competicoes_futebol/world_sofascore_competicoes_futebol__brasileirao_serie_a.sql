@@ -8,12 +8,23 @@
             "data_type": "int64",
             "range": {"start": 2016, "end": 2024, "interval": 1},
         },
+        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
+        post_hook=[
+            'CREATE OR REPLACE ROW ACCESS POLICY allusers_filter ON {{this}} GRANT TO ("allUsers") FILTER USING (DATE_DIFF(DATE("{{ run_started_at.strftime("%Y-%m-%d") }}"), DATE(data), MONTH) > 6)',
+            'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter ON {{this}} GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (DATE_DIFF(DATE("{{ run_started_at.strftime("%Y-%m-%d") }}"), DATE(data), MONTH) <= 6)',
+        ],
     )
 }}
 select
     safe_cast(ano as int64) ano,
     safe_cast(id_partida as string) id_partida,
-    safe_cast(data as date) data,
+    safe_cast(
+        case
+            when extract(year from safe_cast(data as date)) = 2024
+            then date_add(safe_cast(data as date), interval 1 year)
+            else safe_cast(data as date)
+        end as date
+    ) as data,
     safe_cast(hora as time) hora,
     safe_cast(temporada as string) temporada,
     safe_cast(rodada as string) rodada,
