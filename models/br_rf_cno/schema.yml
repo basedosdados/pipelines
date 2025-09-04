@@ -11,7 +11,7 @@ models:
           config:
             where: __most_recent_date_cno__
     columns:
-      - name: data
+      - name: data_extracao
         description: Data de extração dos dados na fonte original
         tests:
           - relationships:
@@ -69,7 +69,7 @@ models:
           config:
             where: __most_recent_date_cno__
     columns:
-      - name: data
+      - name: data_extracao
         description: Data de extração dos dados na fonte original
         tests:
           - relationships:
@@ -95,7 +95,7 @@ models:
     description: Esta tabela apresenta a subclasse do Código Nacional de Atividades
       Econômicas (CNAE) relacionado a uma determinada obra.
     columns:
-      - name: data
+      - name: data_extracao
         description: Data de extração dos dados na fonte original
         tests:
           - relationships:
@@ -136,7 +136,7 @@ models:
           config:
             where: __most_recent_date_cno__
     columns:
-      - name: data
+      - name: data_extracao
         description: Data de extração dos dados na fonte original
         tests:
           - relationships:
