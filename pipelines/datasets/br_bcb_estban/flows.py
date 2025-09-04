@@ -23,6 +23,7 @@ from pipelines.datasets.br_bcb_estban.tasks import (
     get_documents_metadata,
     get_id_municipio,
     get_latest_file,
+    raise_none_metadata_exception,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -169,7 +170,10 @@ with Flow(
                         bq_project="basedosdados",
                         upstream_tasks=[wait_for_materialization],
                     )
-
+    with case(documents_metadata is None, True):
+        raise_none_metadata_exception(
+            "BCB metadata was not loaded! It was not possible to determine if the dataset is up to date."
+        )
 br_bcb_estban_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_municipio.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
@@ -208,7 +212,7 @@ with Flow(
     )
 
     documents_metadata = get_documents_metadata(table_id)
-
+    documents_metadata = None
     # Checando se os metadados foram carregados
     with case(documents_metadata is None, False):
         data_source_download_url, data_source_max_date = get_latest_file(
@@ -302,7 +306,10 @@ with Flow(
                         bq_project="basedosdados",
                         upstream_tasks=[wait_for_materialization],
                     )
-
+    with case(documents_metadata is None, True):
+        raise_none_metadata_exception(
+            "BCB metadata was not loaded! It was not possible to determine if the dataset is up to date."
+        )
 br_bcb_estban_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_estban_agencia.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value

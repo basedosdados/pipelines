@@ -362,3 +362,9 @@ def extract_urls_list(
         docs_index += 1
     log(f"Extracted URLs:{list_result}")
     return list_result
+
+
+@task
+def raise_none_metadata_exception(message: str):
+    log(message, "error")
+    raise Exception()

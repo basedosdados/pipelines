@@ -18,6 +18,7 @@ from pipelines.datasets.br_bcb_agencia.tasks import (
     get_api_max_date,
     get_documents_metadata,
     get_latest_file,
+    raise_none_metadata_exception,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -158,10 +159,9 @@ with Flow(
                         upstream_tasks=[wait_for_materialization],
                     )
     with case(documents_metadata is None, True):
-        log_task(
+        raise_none_metadata_exception(
             "BCB metadata was not loaded! It was not possible to determine if the dataset is up to date."
         )
-
 br_bcb_agencia_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_agencia_agencia.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
