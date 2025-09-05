@@ -15,12 +15,12 @@ from pipelines.constants import constants
 from pipelines.datasets.br_rf_cno.constants import (
     constants as br_rf_cno_constants,
 )
-from pipelines.datasets.br_rf_cno.schedules import schedule_br_rf_cno
 from pipelines.datasets.br_rf_cno.tasks import (
     check_need_for_update,
     crawl_cno,
     create_parameters_list,
-    wrangling,
+    list_files,
+    process_file,
 )
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
@@ -48,16 +48,16 @@ with Flow(
         default=["microdados", "areas", "cnaes", "vinculos"],
         required=False,
     )
-    paths = Parameter(
-        "paths",
-        default=[
-            "output/microdados",
-            "output/areas",
-            "output/cnaes",
-            "output/vinculos",
-        ],
-        required=False,
-    )
+    # paths = Parameter(
+    #     "paths",
+    #     default=[
+    #         "output/microdados",
+    #         "output/areas",
+    #         "output/cnaes",
+    #         "output/vinculos",
+    #     ],
+    #     required=False,
+    # )
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
@@ -93,13 +93,24 @@ with Flow(
     with case(check_if_outdated, True):
         log_task("Existem atualizações! A run será inciada")
 
-        data = crawl_cno(root="input", url=br_rf_cno_constants.URL.value)
+        data = crawl_cno(
+            root="input",
+            url=br_rf_cno_constants.URL.value,
+            upstream_tasks=[check_if_outdated, last_update_original_source],
+        )
 
-        files = wrangling(
+        files = list_files(
             input_dir="input",
-            output_dir="output",
-            partition_date=last_update_original_source,
             upstream_tasks=[data],
+        )
+
+        paths = process_file.map(
+            files,
+            input_dir=unmapped("input"),
+            output_dir=unmapped("output"),
+            partition_date=unmapped(last_update_original_source),
+            chunksize=unmapped(100000),
+            upstream_tasks=[unmapped(files)],
         )
 
         # 3. subir tabelas para o Storage e materilizar no BQ usando map
@@ -168,5 +179,10 @@ with Flow(
 
 
 br_rf_cno_tables.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_rf_cno_tables.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_rf_cno_tables.schedule = schedule_br_rf_cno
+br_rf_cno_tables.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value,
+    memory_limit="1Gi",
+    memory_request="2Gi",
+    cpu_limit=1,
+)
+# br_rf_cno_tables.schedule = schedule_br_rf_cno
