@@ -14,8 +14,10 @@ import prefect
 from prefect import task
 from prefect.backend import FlowRunView
 from prefect.client import Client
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.utils import (
     dump_header_to_csv,
     get_credentials_from_secret,
@@ -47,24 +49,13 @@ def get_credentials(secret_path: str):
     return get_credentials_from_secret(secret_path)
 
 
-###############
-#
-# Upload to GCS
-#
-###############
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def create_table_and_upload_to_gcs(
+def upload_to_gcs(
     data_path: Union[str, Path],
     dataset_id: str,
     table_id: str,
     dump_mode: str,
+    bucket_name: str = "basedosdados",
     source_format: str = "csv",
-    wait=None,  # pylint: disable=unused-argument
 ) -> None:
     """
     Create table using BD+ and upload to GCS.
@@ -72,10 +63,14 @@ def create_table_and_upload_to_gcs(
     bd_version = bd.__version__
     log(f"USING BASEDOSDADOS {bd_version}")
     # pylint: disable=C0103
-    tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
+    tb = bd.Table(
+        dataset_id=dataset_id, table_id=table_id, bucket_name=bucket_name
+    )
     table_staging = f"{tb.table_full_name['staging']}"
     # pylint: disable=C0103
-    st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
+    st = bd.Storage(
+        dataset_id=dataset_id, table_id=table_id, bucket_name=bucket_name
+    )
     storage_path = f"{st.bucket_name}.staging.{dataset_id}.{table_id}"
     storage_path_link = f"https://console.cloud.google.com/storage/browser/{st.bucket_name}/staging/{dataset_id}/{table_id}"
 
@@ -184,7 +179,11 @@ def create_table_and_upload_to_gcs(
     log("STARTING UPLOAD TO GCS")
     if tb.table_exists(mode="staging"):
         # the name of the files need to be the same or the data doesn't get overwritten
-        tb.append(filepath=data_path, if_exists="replace")
+        st.upload(
+            path=data_path,
+            mode="staging",
+            if_exists="replace",
+        )
 
         log(
             f"STEP UPLOAD: Successfully uploaded {data_path} to Storage:\n"
@@ -195,6 +194,157 @@ def create_table_and_upload_to_gcs(
         # pylint: disable=C0301
         log(
             "STEP UPLOAD: Table does not exist in STAGING, need to create first"
+        )
+
+
+def is_prod_agent() -> bool:
+    flow_run_id = prefect.context.get("flow_run_id")
+
+    if flow_run_id is None:
+        return False
+
+    labels = FlowRunView.from_flow_run_id(flow_run_id).labels
+
+    if len(labels) == 0:
+        raise Exception(f"Dont found label for flow: {flow_run_id}")
+    if len(labels) > 1:
+        raise Exception(
+            f"Found more than one label {labels=}, flow {flow_run_id}"
+        )
+
+    for label in labels:
+        if label == "basedosdados":
+            return True
+
+    return False
+
+
+@task
+def dbt_materialize(
+    dataset_id: str,
+    table_id: str,
+    prod_agent: bool,
+    dbt_command: str,
+    dbt_target: str,
+    dbt_alias: bool,
+    download_csv_file: bool,
+) -> None:
+    # Run and test dbt on basedosdados prod agent but materialize in dev (target == dev)
+    run_name = f"Materialize {dataset_id}.{table_id}"
+
+    materialization_flow = create_flow_run.run(
+        flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,  # type: ignore
+        project_name=constants.PREFECT_DEFAULT_PROJECT.value  # type: ignore
+        if prod_agent
+        else constants.PREFECT_STAGING_PROJECT.value,
+        parameters={  # type: ignore
+            "dataset_id": dataset_id,
+            "table_id": table_id,
+            "target": dbt_target,
+            "dbt_command": dbt_command,
+            "dbt_alias": dbt_alias,
+            "disable_elementary": False,
+            "download_csv_file": download_csv_file,
+        },
+        labels=constants.BASEDOSDADOS_PROD_AGENT_LABEL.value  # type: ignore
+        if prod_agent
+        else constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+        run_name=run_name,  # type: ignore
+    )
+
+    wait_for_flow_run.run(
+        materialization_flow,  # type: ignore
+        stream_states=True,  # type: ignore
+        stream_logs=True,  # type: ignore
+        raise_final_state=True,  # type: ignore
+    )
+
+
+###############
+#
+# Upload to GCS
+#
+###############
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def create_table_and_upload_to_gcs(
+    data_path: Union[str, Path],
+    dataset_id: str,
+    table_id: str,
+    dump_mode: str,
+    target: str,
+    dbt_alias: bool = True,
+    source_format: str = "csv",
+    wait=None,
+) -> None:
+    """
+    Create table using BD+ and upload to GCS.
+    """
+    prod_agent = is_prod_agent()
+
+    # Upload data to basedosdados-dev bucket
+    upload_to_gcs(
+        data_path=data_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode=dump_mode,
+        source_format=source_format,
+        bucket_name="basedosdados-dev",
+    )
+
+    log(f"{prod_agent=}")
+
+    log("Starting dbt run and test with target dev")
+
+    # Run and test dbt with target dev
+    dbt_materialize.run(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        prod_agent=prod_agent,
+        dbt_command="run/test",
+        dbt_target=target,
+        dbt_alias=dbt_alias,
+        download_csv_file=False,
+    )
+
+
+@task
+def create_table_and_upload_to_gcs_prod(
+    data_path: Union[str, Path],
+    dataset_id: str,
+    table_id: str,
+    dump_mode: str,
+    target: str,
+    dbt_alias: bool = True,
+    source_format: str = "csv",
+    wait=None,
+) -> None:
+    prod_agent = is_prod_agent()
+    if prod_agent:
+        log("Running in prod agent. Uploading data to basedosdados-staging")
+        upload_to_gcs(
+            data_path=data_path,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode=dump_mode,
+            source_format=source_format,
+        )
+
+        dbt_materialize.run(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            prod_agent=prod_agent,
+            dbt_command="run",
+            dbt_target=target,
+            dbt_alias=dbt_alias,
+            download_csv_file=True,
+        )
+    else:
+        log(
+            "Create table and upload to gcs prod skip because running outside prod agent",
+            level="warn",
         )
 
 
