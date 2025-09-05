@@ -3,7 +3,6 @@
         alias="microdados",
         schema="br_rf_cno",
         materialized="incremental",
-        unique_key="id_cno",
         partition_by={
             "field": "data_extracao",
             "data_type": "date",
