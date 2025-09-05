@@ -14,6 +14,8 @@
 with
     cnpj_empresas as (
         select
+            safe_cast(extract(year from date(data)) as int64) as ano,
+            safe_cast(extract(month from date(data)) as int64) as mes,
             safe_cast(data as date) data,
             safe_cast(lpad(cnpj_basico, 8, '0') as string) cnpj_basico,
             safe_cast(razao_social as string) razao_social,

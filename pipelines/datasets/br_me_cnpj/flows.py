@@ -122,8 +122,8 @@ with Flow(
             update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                date_column_name={"date": "data"},
-                date_format="%Y-%m-%d",
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
                 coverage_type="part_bdpro",
                 time_delta={"months": 6},
                 prefect_mode=target,
@@ -224,8 +224,8 @@ with Flow(
             update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                date_column_name={"date": "data"},
-                date_format="%Y-%m-%d",
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
                 coverage_type="part_bdpro",
                 time_delta={"months": 6},
                 prefect_mode=target,
@@ -330,8 +330,8 @@ with Flow(
             update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                date_column_name={"date": "data"},
-                date_format="%Y-%m-%d",
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
                 coverage_type="part_bdpro",
                 time_delta={"months": 6},
                 prefect_mode=target,
