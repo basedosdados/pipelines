@@ -229,7 +229,6 @@ def dbt_materialize(
     dbt_alias: bool,
     download_csv_file: bool,
 ) -> None:
-    # Run and test dbt on basedosdados prod agent but materialize in dev (target == dev)
     run_name = f"Materialize {dataset_id}.{table_id}"
 
     materialization_flow = create_flow_run.run(
@@ -294,11 +293,6 @@ def create_table_and_upload_to_gcs(
         bucket_name="basedosdados-dev",
     )
 
-    log(f"{prod_agent=}")
-
-    log("Starting dbt run and test with target dev")
-
-    # Run and test dbt with target dev
     dbt_materialize.run(
         dataset_id=dataset_id,
         table_id=table_id,

@@ -1,0 +1,21 @@
+---
+version: 2
+models:
+  - name: dataset_new_arch__tabela_new_arch
+    description: Descrição
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - accepted_values:
+              values:
+                - [2021, 2022, 2023, 2024]
+              quote: false
+      - name: equipe_dados
+        description: Equipe dados
+      - name: github
+        description: github
+      - name: idade
+        description: Idade
+      - name: sexo
+        description: Sexo
