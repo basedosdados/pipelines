@@ -7,6 +7,7 @@
             "field": "data",
             "data_type": "date",
         },
+        cluster_by=["ano", "mes"],
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
