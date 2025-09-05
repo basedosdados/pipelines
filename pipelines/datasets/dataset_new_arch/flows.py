@@ -46,7 +46,6 @@ with Flow(
         data_path=data_path,
         dataset_id=dataset_id,
         table_id=table_id,
-        target=target,
         dump_mode="append",
         wait=[data_path],
     )
@@ -55,7 +54,6 @@ with Flow(
         data_path=data_path,
         dataset_id=dataset_id,
         table_id=table_id,
-        target=target,
         dump_mode="append",
         wait=[wait_upload_table_dev],
     )

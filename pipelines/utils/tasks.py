@@ -273,7 +273,6 @@ def create_table_and_upload_to_gcs(
     dataset_id: str,
     table_id: str,
     dump_mode: str,
-    target: str = "dev",
     dbt_alias: bool = True,
     source_format: str = "csv",
     wait=None,
@@ -298,7 +297,7 @@ def create_table_and_upload_to_gcs(
         table_id=table_id,
         prod_agent=prod_agent,
         dbt_command="run/test",
-        dbt_target=target,
+        dbt_target="dev",
         dbt_alias=dbt_alias,
         download_csv_file=False,
     )
@@ -331,7 +330,7 @@ def create_table_and_upload_to_gcs_prod(
             table_id=table_id,
             prod_agent=prod_agent,
             dbt_command="run",
-            dbt_target=target,
+            dbt_target="prod",
             dbt_alias=dbt_alias,
             download_csv_file=True,
         )
