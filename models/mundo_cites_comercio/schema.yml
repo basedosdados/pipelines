@@ -1,0 +1,121 @@
+---
+version: 2
+models:
+  - name: mundo_cites_comercio__especies_ameacadas
+    description: Base de Dados de comércio internacional de animais silvestres administrada
+      pelo UNEP-WCMC (UN Environment Programme – World Conservation Monitoring Centre)Add
+      commentMore actions para o secretariado da CITES (Convention on International
+      Trade in Endangered Species of Wild Fauna and Flora). Reúne registros oficiais
+      de comércio internacional de espécies ameaçadas desde 1975, enviados anualmente
+      por países signatários. Com mais de 23 milhões de entradas, é a fonte mais abrangente
+      e reconhecida
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - apendice_cites
+            - nome_cientifico
+            - classe_taxonomica
+            - ordem_taxonomica
+            - familia_taxonomica
+            - genero_taxonomico
+            - pais_importador
+            - pais_exportador
+            - pais_origem
+            - quantidade_importada_reportada
+            - quantidade_exportada_reportada
+            - termo
+            - unidade_de_medida
+            - finalidade
+            - fonte
+      - not_null_proportion_multiple_columns:
+          at_least: 0.10
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: apendice_cities
+        description: Apêndice CITES que regula a espécie (I, II, III)
+      - name: nome_cientifico
+        description: Nome científico completo da espécie
+      - name: classe_taxonomica
+        description: Classe taxonômica da espécie
+      - name: ordem_taxonomica
+        description: Ordem taxonômica da espécie
+      - name: familia_taxonomica
+        description: Família taxonômica da espécie
+      - name: genero_taxonomico
+        description: Categoria Administrativa
+      - name: pais_importador
+        description: Código ISO do país importador
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_pais_iso2
+              ignore_values:
+                - SU
+                - AN
+                - XX
+                - XV
+                - DD
+                - YU
+                - PC
+                - NT
+                - HS
+                - NT
+                - KV
+                - YD
+      - name: pais_exportador
+        description: Código ISO do país exportador
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_pais_iso2
+              ignore_values:
+                - XX
+                - DD
+                - SU
+                - XV
+                - HS
+                - ZC
+                - YU
+                - YD
+                - AN
+                - PC
+                - CS
+                - YD
+                - NT
+      - name: pais_origem
+        description: Código ISO do país de origem (quando diferente do exportador)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_pais_iso2
+              ignore_values:
+                - ZC
+                - SU
+                - XX
+                - XV
+                - DD
+                - AN
+                - YU
+                - HS
+                - PC
+                - CS
+                - YD
+                - NT
+      - name: quantidade_importada_reportada
+        description: Quantidade reportada pelo país importador
+      - name: quantidade_exportada_reportada
+        description: Quantidade reportada pelo país exportador
+      - name: termo
+        description: Termo que descreve o tipo de produto negociado
+      - name: unidade_de_medida
+        description: 'Unidade de medida da quantidade (ex: número de espécimes)'
+      - name: finalidade
+        description: Finalidade declarada da transação
+      - name: fonte
+        description: 'Origem do espécime ou produto (ex: silvestre, cativeiro)'
