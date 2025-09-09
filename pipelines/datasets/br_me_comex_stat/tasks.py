@@ -71,7 +71,8 @@ def download_br_me_comex_stat(
     table_name: str,
     year_download: str,
 ) -> ZipFile:
-    """This task creates directories to temporary input and output files
+    """
+    This task creates directories to temporary input and output files
     and downloads the data from the source
 
     Args:
@@ -88,7 +89,7 @@ def download_br_me_comex_stat(
         table_name=table_name,
     )
 
-    log("paths created!")
+    log("Paths created!")
 
     download_data(
         path=comex_constants.PATH.value,
@@ -96,7 +97,7 @@ def download_br_me_comex_stat(
         table_name=table_name,
         year_download=year_download,
     )
-    log("data downloaded!")
+    log("Data downloaded!")
 
     tm.sleep(10)
 
@@ -107,7 +108,8 @@ def clean_br_me_comex_stat(
     table_type: str,
     table_name: str,
 ) -> pd.DataFrame:
-    """this task reads a zip file donwload by the upstream task download_br_me_comex_stat and
+    """
+    This task reads a zip file donwload by the upstream task download_br_me_comex_stat and
     unpacks it into a csv file. Then, it cleans the data and returns a pandas dataframe partitioned by year and month
     or by year, month and sigla_uf.
 
@@ -150,13 +152,13 @@ def clean_br_me_comex_stat(
 
     for file in file_list:
         if table_type == "mun":
-            log(f"doing file {file}")
+            log(f"Doing file {file}")
 
             df = pd.read_csv(f"{path}{table_name}/input/{file}", sep=";")
 
             df.rename(columns=rename_mun, inplace=True)
 
-            log("df was renamed")
+            log("Dataframe was renamed.")
 
             condicao = [
                 ((df["sigla_uf"] == "SP") & (df["id_municipio"] < 3500000)),
@@ -175,7 +177,7 @@ def clean_br_me_comex_stat(
             df["id_municipio"] = np.select(
                 condicao, valores, default=df["id_municipio"]
             )
-            log("Id_municipio column updated")
+            log("The id_municipio was column updated.")
 
             to_partitions(
                 data=df,
@@ -183,24 +185,24 @@ def clean_br_me_comex_stat(
                 savepath=comex_constants.PATH.value + table_name + "/output/",
             )
 
-            log("df partitioned and saved")
+            log("Dataframe partitioned and saved")
 
             del df
 
         else:
-            log(f"doing file {file}")
+            log(f"Doing file {file}")
 
             df = pd.read_csv(f"{path}{table_name}/input/{file}", sep=";")
 
             df.rename(columns=rename_ncm, inplace=True)
-            log("df renamed")
+            log("Dataframe renamed")
 
             to_partitions(
                 data=df,
                 partition_columns=["ano", "mes"],
                 savepath=comex_constants.PATH.value + table_name + "/output/",
             )
-            log("df partitioned and saved")
+            log("Dataframe partitioned and saved")
 
             del df
 
