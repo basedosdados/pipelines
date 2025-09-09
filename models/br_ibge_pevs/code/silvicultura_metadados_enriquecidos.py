@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from collections import OrderedDict
 
 import pandas as pd
@@ -7,6 +8,10 @@ import requests
 METADADOS_URL = (
     "https://servicodados.ibge.gov.br/api/v3/agregados/291/metadados"
 )
+
+# Mudando o diretório de trabalho para o diretório do script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
 
 
 def get_metadados_categorias(row):

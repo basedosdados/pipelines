@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import json
+import os
 from pathlib import Path
 
 import aiohttp
@@ -9,8 +10,16 @@ from aiohttp import ClientTimeout, TCPConnector
 from tqdm import tqdm
 from tqdm.asyncio import tqdm  # noqa: F811
 
+# Mudando o diretório de trabalho para o diretório do script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+
+# Criando a pasta de output
+path_json_output = "output/silvicultura/json"
+os.makedirs(path_json_output, exist_ok=True)
+
 API_URL_BASE = "https://servicodados.ibge.gov.br/api/v3/agregados/291/periodos/{}/variaveis/{}?localidades=N6[all]&classificacao=194[{}]"
-PERIODOS = range(1986, 2022 + 1)  # De 1986 a 2022
+PERIODOS = range(2023, 2023 + 1)  # Ano de 2023
 VARIAVEIS = "142|143"  # 142: Quantidade produzida na silvicultura + 143: Valor da produção na silvicultura
 CATEGORIAS = pd.read_csv("silvicultura_metadados_enriquecidos.csv", dtype=str)[
     "id"
