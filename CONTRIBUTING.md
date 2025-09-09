@@ -467,7 +467,7 @@ models:
           combination_of_columns: [column_1, column_2]
           proportion_allowed_failures: 0.05
           config:
-            where: date_column = '2024-01-01'
+            where: 'date_column = '2024-01-01''
 ```
 
 ###### `where + keyword`
