@@ -3,6 +3,7 @@
 Custom script for registering flows.
 """
 
+import argparse
 import ast
 import glob
 import hashlib
@@ -23,9 +24,7 @@ from loguru import logger
 from prefect.run_configs import UniversalRun
 from prefect.storage import Local
 from prefect.utilities.graphql import EnumValue, compress, with_args
-from typer import Typer
 
-app = Typer()
 FlowLike = box.Box | prefect.Flow
 
 
@@ -566,13 +565,12 @@ def pipeline_project_file_relevant_changed(files: list[str]) -> bool:
     return result
 
 
-@app.command(name="register", help="Register a flow")
 def main(
-    project: str | None = None,
-    path: str | None = None,
+    project: str,
+    path: str,
     max_retries: int = 5,
     retry_interval: int = 5,
-    schedule: bool = True,
+    schedule: bool = False,
     filter_affected_flows: bool = False,
     modified_files: str | None = None,
 ) -> None:
@@ -586,9 +584,6 @@ def main(
         - max_retries (int, optional): The maximum number of retries to attempt.
         - retry_interval (int, optional): The number of seconds to wait between
     """
-
-    if not (project and path):
-        raise ValueError("Must specify a project and path")
 
     # Expands paths to find all python files
     paths = expand_paths([path])
@@ -688,4 +683,52 @@ def main(
 
 
 if __name__ == "__main__":
-    app()
+    parser = argparse.ArgumentParser(
+        prog="register", description="Register a flow"
+    )
+
+    parser.add_argument(
+        "--project", type=str, required=True, help="Name of project"
+    )
+    parser.add_argument(
+        "--path", type=str, required=True, help="Path to pipelines"
+    )
+    parser.add_argument(
+        "--max-retries",
+        type=int,
+        required=False,
+        default=5,
+        help="The maximum number of retries to attempt",
+    )
+    parser.add_argument(
+        "--retry-interval",
+        type=int,
+        required=False,
+        default=5,
+        help="The number of seconds to wait between",
+    )
+    parser.add_argument(
+        "--schedule",
+        action="store_true",
+        help="Schedule pipelines.",
+    )
+    parser.add_argument(
+        "--filter-affected-flows",
+        action="store_true",
+        help="Filter affected flows to register.",
+    )
+    parser.add_argument(
+        "--modified-files", type=str, required=False, help="Modified files"
+    )
+
+    args = parser.parse_args()
+
+    main(
+        project=args.project,
+        path=args.path,
+        max_retries=args.max_retries,
+        retry_interval=args.retry_interval,
+        schedule=args.schedule,
+        filter_affected_flows=args.filter_affected_flows,
+        modified_files=args.modified_files,
+    )
