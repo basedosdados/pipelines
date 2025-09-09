@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import json
+import os
 from pathlib import Path
 
 import aiohttp
@@ -9,8 +10,15 @@ from aiohttp import ClientTimeout, TCPConnector
 from tqdm import tqdm
 from tqdm.asyncio import tqdm  # noqa: F811
 
+# Mudando o diretório de trabalho para o diretório do script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+
+path_json_output = "output/extracao_vegetal/json"
+os.makedirs(path_json_output, exist_ok=True)
+
 API_URL_BASE = "https://servicodados.ibge.gov.br/api/v3/agregados/289/periodos/{}/variaveis/{}?localidades=N6[all]&classificacao=193[{}]"
-PERIODOS = range(1986, 2022 + 1)  # De 1986 a 2022
+PERIODOS = range(2023, 2024 + 1)  # De 2023 a 2024
 VARIAVEIS = "144|145"  # 144: Quantidade produzida na extração vegetal + 145: Valor da produção na extração vegetal
 CATEGORIAS = pd.read_csv(
     "extracao_vegetal_metadados_enriquecidos.csv", dtype=str
@@ -44,7 +52,7 @@ async def main(years, categories):
                     responses.append(response)
                 except asyncio.TimeoutError:
                     print(f"Request timed out for {url}")
-            with open(f"./output/extracao_vegetal/json/{year}.json", "a") as f:
+            with open(f"./output/extracao_vegetal/json/{year}.json", "w") as f:
                 json.dump(responses, f)
 
 

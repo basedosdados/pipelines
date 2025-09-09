@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
 import json
+import os
 from collections import OrderedDict
 from pathlib import Path
 
 import pandas as pd
+
+# Mudando o diretório de trabalho para o diretório do script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+
+path_parquet_output = "output/extracao_vegetal/parquet"
+os.makedirs(path_parquet_output, exist_ok=True)
 
 
 def parse_file(file_path):
@@ -127,7 +135,12 @@ if __name__ == "__main__":
     for json_path in JSON_FALTANTES:
         print(f"ANO = {json_path.stem}")
         print("Criando DataFrame com os dados do arquivo...")
-        df = pd.DataFrame.from_dict(parse_file(json_path), dtype=str)
+        df = pd.DataFrame.from_dict(
+            parse_file(
+                f"./output/extracao_vegetal/json/{json_path.stem}.json"
+            ),
+            dtype=str,
+        )
         print("Transformando o DataFrame...")
         df = transform_df(df)
         print("Exportando o DataFrame para .parquet...")
