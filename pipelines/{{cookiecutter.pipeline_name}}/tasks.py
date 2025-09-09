@@ -1,19 +1,15 @@
-# -*- coding: utf-8 -*-
 """
-Tasks for {{cookiecutter.project_name}}
+Tasks for {{cookiecutter.pipeline_name}}
 """
 
 ###############################################################################
 #
-# Aqui é onde devem ser definidas as tasks para os flows do projeto.
+# Aqui é onde devem ser definidas as tasks para os flows da pipeline.
 # Cada task representa um passo da pipeline. Não é estritamente necessário
 # tratar todas as exceções que podem ocorrer durante a execução de uma task,
 # mas é recomendável, ainda que não vá implicar em  uma quebra no sistema.
 # Mais informações sobre tasks podem ser encontradas na documentação do
 # Prefect: https://docs.prefect.io/core/concepts/tasks.html
-#
-# De modo a manter consistência na codebase, todo o código escrito passará
-# pelo pylint. Todos os warnings e erros devem ser corrigidos.
 #
 # As tasks devem ser definidas como funções comuns ao Python, com o decorador
 # @task acima. É recomendado inserir type hints para as variáveis.
@@ -52,7 +48,7 @@ Tasks for {{cookiecutter.project_name}}
 from prefect import task
 
 
-@task  # noqa
+@task
 def say_hello(name: str = "World") -> str:
     """
     Greeting task.

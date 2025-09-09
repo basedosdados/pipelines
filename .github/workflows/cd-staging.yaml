@@ -79,7 +79,6 @@ jobs:
           uv run .github/workflows/scripts/register_flows.py \
             --project $PREFECT__SERVER__PROJECT \
             --path pipelines/ \
-            --no-schedule \
             --filter-affected-flows \
             --modified-files "${{ steps.changed-files.outputs.all_modified_files }}"
   test-dbt-dev-model:

@@ -1,35 +1,31 @@
-# -*- coding: utf-8 -*-
 """
-Schedules for {{cookiecutter.workspace_name}}
+Schedules for {{cookiecutter.pipeline_name}}
 """
 
 ###############################################################################
 #
-# Aqui é onde devem ser definidos os schedules para os flows do projeto.
+# Aqui é onde devem ser definidos os schedules para os flows da pipeline.
 # Cada schedule indica o intervalo de tempo entre as execuções.
 # Um schedule pode ser definido para um ou mais flows.
 # Mais informações sobre schedules podem ser encontradas na documentação do
 # Prefect: https://docs.prefect.io/core/concepts/schedules.html
 #
-# De modo a manter consistência na codebase, todo o código escrito passará
-# pelo pylint. Todos os warnings e erros devem ser corrigidos.
-#
 # Os schedules devem ser definidos de acordo com a sintaxe do Prefect, como,
 # por exemplo, o seguinte (para executar a cada 1 minuto):
 #
 # -----------------------------------------------------------------------------
-# from datetime import timedelta, datetime
+# from datetime import datetime
 # from prefect.schedules import Schedule
-# from prefect.schedules.clocks import IntervalClock
+# from prefect.schedules.clocks import CronClock
 # from pipelines.constants import constants
 #
 # minute_schedule = Schedule(
 #     clocks=[
-#         IntervalClock(
-#             interval=timedelta(minutes=1),
-#             start_date=datetime(2021, 1, 1),
+#         CronClock(
+#             cron="* * * * *", # At every minute
+#             start_date=datetime(2025, 1, 1, tz="America/Sao_Paulo"),
 #             labels=[
-#                 constants.{{cookiecutter.project_name|upper}}_AGENT_LABEL.value,
+#                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
 #             ]
 #         ),
 #     ]
@@ -39,26 +35,24 @@ Schedules for {{cookiecutter.workspace_name}}
 # Vale notar que o parâmetro `labels` é obrigatório e deve ser uma lista com
 # apenas um elemento, correspondendo ao label do agente que será executado.
 # O label do agente é definido em `constants.py` e deve ter o formato
-# `{{cookiecutter.project_name|upper}}_AGENT_LABEL`.
+# `constants.BASEDOSDADOS_{PROD,DEV}.value,`.
 #
 # Outro exemplo, para executar todos os dias à meia noite, segue abaixo:
 #
 # -----------------------------------------------------------------------------
 # from prefect import task
-# from datetime import timedelta
-# import pendulum
+# from datetime import datetime
 # from prefect.schedules import Schedule
-# from prefect.schedules.clocks import IntervalClock
+# from prefect.schedules.clocks import CronClock
 # from pipelines.constants import constants
 #
 # every_day_at_midnight = Schedule(
 #     clocks=[
-#         IntervalClock(
-#             interval=timedelta(days=1),
-#             start_date=pendulum.datetime(
-#                 2021, 1, 1, 0, 0, 0, tz="America/Sao_Paulo"),
+#         CronClock(
+#             cron="0 0 * * *", # At 00:00
+#             start_date=datetime(2021, 1, 1, 0, 0, 0, tz="America/Sao_Paulo"),
 #             labels=[
-#                 constants.K8S_AGENT_LABEL.value,
+#                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
 #             ]
 #         )
 #     ]
@@ -70,20 +64,21 @@ Schedules for {{cookiecutter.workspace_name}}
 ###############################################################################
 
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from prefect.schedules import Schedule
-from prefect.schedules.clocks import IntervalClock
+from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
-every_two_weeks = Schedule(
+schedule = Schedule(
     clocks=[
-        IntervalClock(
-            interval=timedelta(weeks=2),
-            start_date=datetime(2021, 1, 1),
+        CronClock(
+            # See https://crontab.guru/
+            cron="0 14 * * 1", # At 14:00 on Monday.
+            start_date=datetime(2025, 1, 1, tz="America/Sao_Paulo"),
             labels=[
-                constants.{{cookiecutter.project_name | upper}}_AGENT_LABEL.value,
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ]
         ),
     ]
