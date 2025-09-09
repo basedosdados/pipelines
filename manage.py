@@ -44,13 +44,11 @@ def add_pipeline(name: str) -> None:
         output_dir=(PIPELINES_DIR / "datasets").as_posix(),
     )
 
-    with open(DATASETS_INIT_FILE, "r") as flows_file:
-        flows_text = flows_file.read()
+    flows_text = DATASETS_INIT_FILE.read_text()
 
-    with open(DATASETS_INIT_FILE, "w") as flows_file:
-        flows_file.write(
-            "\n".join([flows_text, f"from pipelines.{name}.flows import *"])
-        )
+    DATASETS_INIT_FILE.write_text(
+        "\n".join([flows_text, f"from pipelines.{name}.flows import *"])
+    )
 
     print(f"Pipeline {name} created.")
 
