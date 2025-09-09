@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_cgu_terceirizados
 """
@@ -33,7 +32,6 @@ ROOT = "/tmp/data"
 URL = "https://www.gov.br/cgu/pt-br/acesso-a-informacao/dados-abertos/arquivos/terceirizados"
 
 
-# pylint: disable=C0103
 with Flow(
     name="br_cgu_pessoal_executivo_federal.terceirizados",
     code_owners=["ath67"],

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 from datetime import datetime, timedelta
 
@@ -98,7 +97,7 @@ def clean_data(
     # rename columns
     link_arquitetura = isp_constants.dict_arquitetura.value[novo_nome]
     nomes_colunas = change_columns_name(link_arquitetura)
-    df.rename(columns=nomes_colunas, inplace=True)
+    df = df.rename(columns=nomes_colunas)
 
     log("creating columns order")
     ordem_colunas = create_columns_order(nomes_colunas)

@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_tse_eleicoes
 """
 
-# pylint: disable=invalid-name,line-too-long
-
 from datetime import datetime, timedelta
-from typing import Type, TypeVar
+from typing import TypeVar
 
 from prefect import task
 
@@ -19,7 +16,7 @@ T = TypeVar("T")
 
 @task
 # Classes de formatação
-def flows_control(table_id: str, mode: str) -> Type[T]:
+def flows_control(table_id: str, mode: str) -> type[T]:
     catalog = flows_catalog()
 
     select_flow = catalog.get(table_id)["flow"]

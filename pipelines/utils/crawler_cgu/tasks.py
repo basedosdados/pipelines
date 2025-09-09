@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_cgu_cartao_pagamento
 """
@@ -142,9 +141,8 @@ def read_and_partition_beneficios_cidadao(table_id):
                         )
                     ),
                 ) as reader:
-                    number = 0
-                    for chunk in tqdm(reader):
-                        chunk.rename(
+                    for number, chunk in enumerate(tqdm(reader)):
+                        chunk = chunk.rename(
                             columns=(
                                 constants.RENAMER_NOVO_BOLSA_FAMILIA.value
                                 if table_id == "novo_bolsa_familia"
@@ -153,14 +151,12 @@ def read_and_partition_beneficios_cidadao(table_id):
                                     if table_id == "garantia_safra"
                                     else constants.RENAMER_BPC.value
                                 )
-                            ),
-                            inplace=True,
+                            )
                         )
                         os.makedirs(
                             constants_cgu_beneficios_cidadao["OUTPUT"],
                             exist_ok=True,
                         )
-                        number += 1
                         log(f"Chunk {number} carregando.")
                         if table_id == "novo_bolsa_familia":
                             partition_data_beneficios_cidadao(
@@ -274,7 +270,7 @@ def verify_all_url_exists_to_download(
 
 @task
 def dict_for_table(table_id: str) -> dict:
-    DICT_FOR_TABLE = {
+    dict_for_table = {
         "novo_bolsa_familia": {
             "year": "ano_competencia",
             "month": "mes_competencia",
@@ -286,4 +282,4 @@ def dict_for_table(table_id: str) -> dict:
         "bpc": {"year": "ano_competencia", "month": "mes_competencia"},
     }
 
-    return DICT_FOR_TABLE[table_id]
+    return dict_for_table[table_id]

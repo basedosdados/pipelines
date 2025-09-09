@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_tse_eleicoes project
 """
-# pylint: disable=invalid-name,line-too-long
 
 import tempfile
 import unicodedata
@@ -154,7 +152,7 @@ class BrTseEleicoes:
             from_file=True,
             billing_project_id=self.billing_project_id,
         )
-        prod_len, last_modified = df_prod.iloc[0].values
+        prod_len, last_modified = df_prod.iloc[0].to_numpy()
 
         if self.df_main.shape[0] > prod_len:
             return datetime.today()
@@ -165,7 +163,7 @@ class BrTseEleicoes:
         base = self.form_df_base()
         # Etapa de salvar a base
 
-        base.drop_duplicates(inplace=True)
+        base = base.drop_duplicates()
 
         path_output = self.path_output / f"ano={self.year}"
 
@@ -190,8 +188,7 @@ class Candidatos(BrTseEleicoes):
             billing_project_id=self.billing_project_id,
         )
 
-        temp_merge_left = pd.merge(
-            self.df_main,
+        temp_merge_left = self.df_main.merge(
             self.df_complement,
             left_on="SQ_CANDIDATO",
             right_on="SQ_CANDIDATO",
@@ -202,8 +199,7 @@ class Candidatos(BrTseEleicoes):
             "0"
         )  # Precisamos limpas alguns zero a esquerda
 
-        temp_merge_left = pd.merge(
-            temp_merge_left,
+        temp_merge_left = temp_merge_left.merge(
             municipios,
             left_on="SG_UE",
             right_on="id_municipio_tse",
@@ -214,11 +210,11 @@ class Candidatos(BrTseEleicoes):
 
         base = temp_merge_left.loc[:, tse_constants.ORDER.value.values()]
 
-        base.fillna("", inplace=True)
+        base = base.fillna("")
 
         base.columns = tse_constants.ORDER.value.keys()
 
-        base.replace(self.remove, regex=False, inplace=True)
+        base = base.replace(self.remove, regex=False)
 
         # Formatar datas
 
@@ -297,8 +293,7 @@ class DespesasCandidato(BrTseEleicoes):
                 "0"
             )
 
-        self.df_main = pd.merge(
-            self.df_main,
+        self.df_main = self.df_main.merge(
             municipios,
             left_on="SG_UE",
             right_on="id_municipio_tse",
@@ -320,11 +315,11 @@ class DespesasCandidato(BrTseEleicoes):
 
         del self.df_main
 
-        base.fillna("", inplace=True)
+        base = base.fillna("")
 
         base.columns = tse_constants.ORDER_DESPESAS.value.keys()
 
-        base.replace(self.remove, regex=False, inplace=True)
+        base = base.replace(self.remove, regex=False)
 
         slug_columns_format = [
             "tipo_eleicao",
@@ -374,8 +369,7 @@ class ReceitasCandidato(BrTseEleicoes):
                 "0"
             )
 
-        self.df_main = pd.merge(
-            self.df_main,
+        self.df_main = self.df_main.merge(
             municipios,
             left_on="SG_UE",
             right_on="id_municipio_tse",
@@ -407,13 +401,13 @@ class ReceitasCandidato(BrTseEleicoes):
 
         del self.df_main
 
-        base.fillna("", inplace=True)
+        base = base.fillna("")
 
         base.columns = tse_constants.ORDER_RECEITA.value.keys()
 
         # Remover nulos e não divulgaveis
 
-        base.replace(self.remove, regex=False, inplace=True)
+        base = base.replace(self.remove, regex=False)
 
         # Gerar slugs
         slug_columns_format = [

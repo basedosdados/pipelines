@@ -1,19 +1,19 @@
-# -*- coding: utf-8 -*-
 """
 Constants for utils.
 """
 
 from enum import Enum
+from typing import ClassVar
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constants for the database dump stuff.
     """
 
     WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS = 3
     WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL = 5
-    DISABLE_ELEMENTARY_VARS = {
+    DISABLE_ELEMENTARY_VARS: ClassVar[dict[str, bool]] = {
         "disable_dbt_artifacts_autoupload": True,
         "disable_run_results": True,
         "disable_tests_results": True,

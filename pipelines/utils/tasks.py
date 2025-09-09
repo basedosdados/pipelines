@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Helper tasks that could fit any pipeline.
 """
-# pylint: disable=C0103, C0301, invalid-name, E1101, R0913
 
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, List, Union
+from typing import Any
 
 import basedosdados as bd
 import pandas as pd
@@ -59,22 +57,22 @@ def get_credentials(secret_path: str):
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def create_table_and_upload_to_gcs(
-    data_path: Union[str, Path],
+    data_path: str | Path,
     dataset_id: str,
     table_id: str,
     dump_mode: str,
     source_format: str = "csv",
-    wait=None,  # pylint: disable=unused-argument
+    wait=None,
 ) -> None:
     """
     Create table using BD+ and upload to GCS.
     """
     bd_version = bd.__version__
     log(f"USING BASEDOSDADOS {bd_version}")
-    # pylint: disable=C0103
+
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
     table_staging = f"{tb.table_full_name['staging']}"
-    # pylint: disable=C0103
+
     st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
     storage_path = f"{st.bucket_name}.staging.{dataset_id}.{table_id}"
     storage_path_link = f"https://console.cloud.google.com/storage/browser/{st.bucket_name}/staging/{dataset_id}/{table_id}"
@@ -112,7 +110,7 @@ def create_table_and_upload_to_gcs(
                 "MODE APPEND: Sucessfully CREATED A NEW TABLE:\n"
                 f"{table_staging}\n"
                 f"{storage_path_link}"
-            )  # pylint: disable=C0301
+            )
 
             st.delete_table(
                 mode="staging", bucket_name=st.bucket_name, not_found_ok=True
@@ -121,14 +119,14 @@ def create_table_and_upload_to_gcs(
                 "MODE APPEND: Sucessfully REMOVED HEADER DATA from Storage:\n"
                 f"{storage_path}\n"
                 f"{storage_path_link}"
-            )  # pylint: disable=C0301
+            )
     elif dump_mode == "overwrite":
         if tb.table_exists(mode="staging"):
             log(
                 "MODE OVERWRITE: Table ALREADY EXISTS, DELETING OLD DATA!\n"
                 f"{storage_path}\n"
                 f"{storage_path_link}"
-            )  # pylint: disable=C0301
+            )
             st.delete_table(
                 mode="staging", bucket_name=st.bucket_name, not_found_ok=True
             )
@@ -136,13 +134,13 @@ def create_table_and_upload_to_gcs(
                 "MODE OVERWRITE: Sucessfully DELETED OLD DATA from Storage:\n"
                 f"{storage_path}\n"
                 f"{storage_path_link}"
-            )  # pylint: disable=C0301
+            )
             tb.delete(mode="all")
             log(
                 "MODE OVERWRITE: Sucessfully DELETED TABLE:\n"
                 f"{table_staging}\n"
                 f"{tb.table_full_name['prod']}"
-            )  # pylint: disable=C0301
+            )
 
         # the header is needed to create a table when dosen't exist
         # in overwrite mode the header is always created
@@ -173,7 +171,7 @@ def create_table_and_upload_to_gcs(
             f"MODE OVERWRITE: Sucessfully REMOVED HEADER DATA from Storage\n:"
             f"{storage_path}\n"
             f"{storage_path_link}"
-        )  # pylint: disable=C0301
+        )
 
     #####################################
     #
@@ -192,7 +190,6 @@ def create_table_and_upload_to_gcs(
             f"{storage_path_link}"
         )
     else:
-        # pylint: disable=C0301
         log(
             "STEP UPLOAD: Table does not exist in STAGING, need to create first"
         )
@@ -231,7 +228,7 @@ def get_temporal_coverage(
         df = pd.read_csv(filepath, usecols=[year, month])
         df["date"] = [
             datetime.strptime(str(x) + "-" + str(y) + "-" + "1", "%Y-%m-%d")
-            for x, y in zip(df[year], df[month])
+            for x, y in zip(df[year], df[month], strict=False)
         ]
         dates = df["date"].to_list()
         # keep only valid dates
@@ -246,7 +243,7 @@ def get_temporal_coverage(
         df = pd.read_csv(filepath, usecols=[year, month])
         df["date"] = [
             datetime.strptime(str(x) + "-" + str(y) + "-" + str(y), "%Y-%m-%d")
-            for x, y in zip(df[year], df[month], df[day])
+            for x, y in zip(df[year], df[month], df[day], strict=False)
         ]
         dates = df["date"].to_list()
         # keep only valid dates
@@ -277,8 +274,7 @@ def get_temporal_coverage(
     )
 
 
-# pylint: disable=W0613
-@task  # noqa
+@task
 def rename_current_flow_run(msg: str, wait=None) -> bool:
     """
     Rename the current flow run.
@@ -288,7 +284,7 @@ def rename_current_flow_run(msg: str, wait=None) -> bool:
     return client.set_flow_run_name(flow_run_id, msg)
 
 
-@task  # noqa
+@task
 def rename_current_flow_run_dataset_table(
     prefix: str, dataset_id, table_id, wait=None
 ) -> bool:
@@ -302,8 +298,8 @@ def rename_current_flow_run_dataset_table(
     )
 
 
-@task  # noqa
-def get_current_flow_labels() -> List[str]:
+@task
+def get_current_flow_labels() -> list[str]:
     """
     Get the labels of the current flow.
     """
@@ -312,7 +308,7 @@ def get_current_flow_labels() -> List[str]:
     return flow_run_view.labels
 
 
-@task  # noqa
+@task
 def get_date_time_str(wait=None) -> str:
     """
     Get current time as string

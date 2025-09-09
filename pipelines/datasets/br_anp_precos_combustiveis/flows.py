@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_anp_precos_combustiveis
 """
@@ -74,7 +73,6 @@ with Flow(
         df = download_and_transform(upstream_tasks=[rename_flow_run])
         output_path = make_partitions(df=df, upstream_tasks=[df])
 
-        # pylint: disable=C0103
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=output_path,
             dataset_id=dataset_id,

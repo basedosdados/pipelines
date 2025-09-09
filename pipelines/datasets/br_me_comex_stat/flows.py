@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_me_comex_stat
 """
 
-# pylint: disable=invalid-name
 from datetime import timedelta
 
 from prefect import Parameter, case

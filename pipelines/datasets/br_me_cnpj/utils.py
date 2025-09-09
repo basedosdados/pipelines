@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_me_cnpj project
 """
@@ -395,7 +394,7 @@ def process_csv_estabelecimentos(
                 chunk = chunk.loc[:, ordem]
                 for uf in ufs:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
-                    df_particao.drop(["sigla_uf"], axis=1, inplace=True)
+                    df_particao = df_particao.drop(["sigla_uf"], axis=1)
                     particao_path = os.path.join(save_path, f"sigla_uf={uf}")
                     particao_filename = f"estabelecimentos_{i}.csv"
                     particao_file_path = os.path.join(

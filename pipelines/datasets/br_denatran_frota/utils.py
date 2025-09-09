@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_denatran_frota project.
 """
@@ -65,7 +64,9 @@ def guess_header(
         raise ValueError("Unrecognized type of dataframe.")
     current_header = [c for c in df.columns]
     equal_column_names = [
-        (x, y) for x, y in zip(expected_header, current_header) if x == y
+        (x, y)
+        for x, y in zip(expected_header, current_header, strict=False)
+        if x == y
     ]
     if len(equal_column_names) / len(expected_header) >= 0.6:
         return -1
@@ -75,7 +76,9 @@ def guess_header(
             break
         current_row = df.iloc[header_guess].to_list()
         equal_column_names = [
-            (x, y) for x, y in zip(expected_header, current_row) if x == y
+            (x, y)
+            for x, y in zip(expected_header, current_row, strict=False)
+            if x == y
         ]
         if (
             len(equal_column_names) / len(expected_header) >= 0.6
@@ -102,7 +105,7 @@ def change_df_header(df: pd.DataFrame, header_row: int) -> pd.DataFrame:
         return df
     new_header = df.iloc[header_row]
     new_df = df[(header_row + 1) :].reset_index(drop=True)
-    new_df.rename(columns=new_header, inplace=True)
+    new_df = new_df.rename(columns=new_header)
     return new_df
 
 
@@ -547,7 +550,7 @@ def call_r_to_read_excel(file: str) -> pd.DataFrame:
     # Convert the R dataframe to a pandas dataframe
     df = robjects.r["df"]
 
-    df = pd.DataFrame(dict(zip(df.names, list(df))))
+    df = pd.DataFrame(dict(zip(df.names, list(df), strict=False)))
     return df
 
 

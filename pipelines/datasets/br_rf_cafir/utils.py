@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_ms_cnes project
 """
@@ -38,7 +37,7 @@ def remove_ascii_zero_from_df(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
+def parse_api_metadata(url: str, headers: dict | None = None) -> pd.DataFrame:
     """
     Faz uma requisição para a URL fornecida e extrai metadados de arquivos CSV.
     Args:
@@ -97,7 +96,7 @@ def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
 
 def decide_files_to_download(
     df: pd.DataFrame,
-    data_especifica: datetime.date = None,
+    data_especifica: datetime.date | None = None,
     data_maxima: bool = True,
 ) -> tuple[list[str], list[datetime]]:
     """

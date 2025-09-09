@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Tasks for br_me_comex_stat
 """
@@ -7,8 +5,6 @@ Tasks for br_me_comex_stat
 import os
 import re
 import time as tm
-
-# pylint: disable=invalid-name,too-many-nested-blocks
 from zipfile import ZipFile
 
 import numpy as np
@@ -154,7 +150,7 @@ def clean_br_me_comex_stat(
 
             df = pd.read_csv(f"{path}{table_name}/input/{file}", sep=";")
 
-            df.rename(columns=rename_mun, inplace=True)
+            df = df.rename(columns=rename_mun)
 
             log("df was renamed")
 
@@ -192,7 +188,7 @@ def clean_br_me_comex_stat(
 
             df = pd.read_csv(f"{path}{table_name}/input/{file}", sep=";")
 
-            df.rename(columns=rename_ncm, inplace=True)
+            df = df.rename(columns=rename_ncm)
             log("df renamed")
 
             to_partitions(

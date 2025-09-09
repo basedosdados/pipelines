@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_sfb_sicar
 """
 
-# pylint: disable=invalid-name
 from datetime import timedelta
 
 from prefect import Parameter, case, unmapped
@@ -13,7 +11,7 @@ from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_sfb_sicar.constants import (
-    Constants as car_constants,
+    Constants,
 )
 from pipelines.datasets.br_sfb_sicar.schedules import (
     schedule_br_sfb_sicar_area_imovel,
@@ -37,9 +35,9 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-INPUTPATH = car_constants.INPUT_PATH.value
-OUTPUTPATH = car_constants.OUTPUT_PATH.value
-SIGLAS_UF = car_constants.UF_SIGLAS.value
+INPUTPATH = Constants.INPUT_PATH.value
+OUTPUTPATH = Constants.OUTPUT_PATH.value
+SIGLAS_UF = Constants.UF_SIGLAS.value
 
 
 with Flow(

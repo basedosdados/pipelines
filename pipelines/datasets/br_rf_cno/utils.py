@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 import asyncio
 import os
-from typing import List
 
 import httpx
 from tqdm import tqdm
@@ -78,7 +76,7 @@ async def download_file_async(root: str, url: str) -> None:
         f.write(b"\0" * total_size)
 
     chunk_size = 1024 * 1024 * 16  # 16 MB chunks
-    tasks: List[asyncio.Task] = []
+    tasks: list[asyncio.Task] = []
     semaphore = asyncio.Semaphore(5)  # 5 downloads at the same time
 
     with tqdm(

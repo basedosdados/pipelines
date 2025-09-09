@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_ons_estimativa_custos
 """
 
-# pylint: disable=invalid-name
 from datetime import timedelta
 
 from prefect import Parameter, case

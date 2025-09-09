@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
 """
 Flows for mercadolivre_ofertas
 """
 
 import datetime
-
-# pylint: disable=invalid-name
 from datetime import timedelta
 
 from prefect import Parameter, case

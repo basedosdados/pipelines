@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_rf_cno
 """
@@ -55,7 +54,7 @@ def check_need_for_update(url: str) -> str:
             else:
                 raise
         except HTTPError as e:
-            raise requests.HTTPError(f"HTTP error occurred: {e}")
+            raise requests.HTTPError(f"HTTP error occurred: {e}") from e
 
     soup = BeautifulSoup(response.content, "html.parser")
     rows = soup.find_all("tr")

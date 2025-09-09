@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Handlers for br_denatran_frota.
 
@@ -110,7 +109,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     valid_ufs = list(DICT_UFS.keys()) + list(DICT_UFS.values())
     filename = os.path.split(file)[1]
     try:
-        correct_sheet = [
+        correct_sheet = [  # noqa: RUF015
             sheet
             for sheet in pd.ExcelFile(file).sheet_names
             if sheet != "Glossário"
@@ -124,8 +123,8 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     )
     # This is ad hoc for UF_tipo.
 
-    new_df.rename(
-        columns={new_df.columns[0]: "sigla_uf"}, inplace=True
+    new_df = new_df.rename(
+        columns={new_df.columns[0]: "sigla_uf"}
     )  # Rename for ease of use.
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
     clean_df = new_df[new_df.sigla_uf.isin(valid_ufs)].reset_index(
@@ -133,7 +132,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     )  # Now we get all the actual RELEVANT uf data.
     year, month = get_year_month_from_filename(filename)
     # If the df is all strings, try to get numbers where it makes sense.
-    clean_df.replace(" -   ", 0, inplace=True)
+    clean_df = clean_df.replace(" -   ", 0)
 
     # Create a reverse dictionary to replace uf names with uf sigla
     reverse_dict = {v: k for k, v in DICT_UFS.items()}
@@ -268,7 +267,7 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
 
     filename = os.path.split(file)[1]
     year, month = get_year_month_from_filename(filename)
-    correct_sheet = [
+    correct_sheet = [  # noqa: RUF015
         sheet
         for sheet in pd.ExcelFile(file).sheet_names
         if sheet != "Glossário"
@@ -276,15 +275,14 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
     df = pd.read_excel(file, sheet_name=correct_sheet)
     # Some very janky historical files have an entire first empty column that will break EVERYTHING
     # This checks if they exist and drops them
-    if df[df.columns[0]].isnull().sum() == len(df):
-        df.drop(columns=df.columns[0], inplace=True)
+    if df[df.columns[0]].isna().sum() == len(df):
+        df = df.drop(columns=df.columns[0])
     new_df = change_df_header(df, guess_header(df, DenatranType.Municipio))
-    new_df.rename(
+    new_df = new_df.rename(
         columns={
             new_df.columns[0]: "sigla_uf",
             new_df.columns[1]: "nome_denatran",
-        },
-        inplace=True,
+        }
     )  # Rename for ease of use.
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
     new_pl_df = pl.from_pandas(new_df)
@@ -330,9 +328,7 @@ def should_process_data(bq_year: int, bq_month: int, filename: str) -> bool:
         bool: Whether or not the data obtained from the website is recent enough to be updated.
     """
     crawled_year, crawled_month = get_year_month_from_filename(filename)
-    if crawled_year > bq_year or (
+
+    return crawled_year > bq_year or (
         crawled_year == bq_year and crawled_month >= bq_month
-    ):
-        return True
-    else:
-        return False
+    )

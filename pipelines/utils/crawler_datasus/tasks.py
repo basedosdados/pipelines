@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_ms_cnes
 """
@@ -77,10 +76,7 @@ def check_files_to_parse(
 
     year = year[2:4]
 
-    if month <= 9:
-        month = "0" + str(month)
-    else:
-        month = str(month)
+    month = "0" + str(month) if month <= 9 else str(month)
 
     year_month_to_parse = year + month
 
@@ -362,10 +358,7 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
 
 @task
 def is_empty(lista):
-    if len(lista) == 0:
-        return True
-    else:
-        return False
+    return len(lista) == 0
 
 
 @task

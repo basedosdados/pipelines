@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Tasks related to DBT flows.
 """
 
 import json
 import os
-from typing import Any, Optional, Union
+from typing import Any
 
 from dbt.cli.main import dbtRunner
 from prefect import task
@@ -24,12 +23,12 @@ from pipelines.utils.utils import log
 @task
 def run_dbt(
     dataset_id: str,
-    table_id: Optional[str] = None,
+    table_id: str | None = None,
     dbt_alias: bool = True,
     dbt_command: str = "run",
     target: str = "dev",
-    flags: Optional[str] = None,
-    _vars: Optional[Union[dict[str, Any], str]] = None,
+    flags: str | None = None,
+    _vars: dict[str, Any] | str | None = None,
     disable_elementary: bool = False,
 ) -> bool:
     """
@@ -88,7 +87,7 @@ def run_dbt(
     log_file_path = os.path.join("logs", "dbt.log")
 
     if target == "prod":
-        with open("/credentials-prod/prod.json", "r") as f:
+        with open("/credentials-prod/prod.json") as f:
             service_account = json.loads(f.read())
             project_id = service_account["project_id"]
             client_email = service_account["client_email"]

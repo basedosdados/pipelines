@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import gc  # noqa: I001
 import os
 from zipfile import ZipFile
@@ -53,7 +52,7 @@ def unzip_file():
         with ZipFile(zip_file_path, "r") as zip_ref:
             zip_ref.extractall(anatel_constants.INPUT_PATH.value)
     except Exception as e:
-        print(f"Erro ao baixar ou extrair o arquivo ZIP: {str(e)}")
+        print(f"Erro ao baixar ou extrair o arquivo ZIP: {e!s}")
 
     os.remove(zip_file_path)
     gc.collect()
@@ -85,19 +84,13 @@ def treatment(table_id: str, ano: int):
         encoding="utf-8",
     )
     df = check_and_create_column(df, "Tipo de Produto")
-    df.rename(
-        columns=anatel_constants.RENAME_MICRODADOS.value,
-        inplace=True,
-    )
-    df.drop(
-        anatel_constants.DROP_COLUMNS_MICRODADOS.value, axis=1, inplace=True
-    )
+    df = df.rename(columns=anatel_constants.RENAME_MICRODADOS.value)
+    df = df.drop(anatel_constants.DROP_COLUMNS_MICRODADOS.value, axis=1)
     df = df[anatel_constants.ORDER_COLUMNS_MICRODADOS.value]
-    df.sort_values(
+    df = df.sort_values(
         anatel_constants.SORT_VALUES_MICRODADOS.value,
-        inplace=True,
     )
-    df.replace(np.nan, "", inplace=True)
+    df = df.replace(np.nan, "")
     df["transmissao"] = df["transmissao"].apply(
         lambda x: x.replace("Cabo Metálico", "Cabo Metalico")
         .replace("Satélite", "Satelite")
@@ -124,9 +117,7 @@ def treatment_br(table_id: str):
         sep=";",
         encoding="utf-8",
     )
-    df.rename(
-        columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True
-    )
+    df = df.rename(columns={"Nível Geográfico Densidade": "Geografia"})
     df_brasil = df[df["Geografia"] == "Brasil"]
     df_brasil = df_brasil.drop(
         anatel_constants.DROP_COLUMNS_BRASIL.value, axis=1
@@ -134,9 +125,8 @@ def treatment_br(table_id: str):
     df_brasil["Densidade"] = df_brasil["Densidade"].apply(
         lambda x: float(x.replace(",", "."))
     )
-    df_brasil.rename(
+    df_brasil = df_brasil.rename(
         columns=anatel_constants.RENAME_COLUMNS_BRASIL.value,
-        inplace=True,
     )
     log("Salvando o arquivo densidade brasil da Anatel")
     df_brasil.to_csv(
@@ -155,17 +145,14 @@ def treatment_uf(table_id: str):
         sep=";",
         encoding="utf-8",
     )
-    df.rename(
-        columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True
-    )
+    df = df.rename(columns={"Nível Geográfico Densidade": "Geografia"})
     df_uf = df[df["Geografia"] == "UF"]
-    df_uf.drop(anatel_constants.DROP_COLUMNS_UF.value, axis=1, inplace=True)
+    df_uf = df_uf.drop(anatel_constants.DROP_COLUMNS_UF.value, axis=1)
     df_uf["Densidade"] = df_uf["Densidade"].apply(
         lambda x: float(x.replace(",", "."))
     )
-    df_uf.rename(
+    df_uf = df_uf.rename(
         columns=anatel_constants.RENAME_COLUMNS_UF.value,
-        inplace=True,
     )
     log("Iniciando o particionado do arquivo densidade uf da Anatel")
     df_uf.to_csv(
@@ -184,17 +171,14 @@ def treatment_municipio(table_id: str):
         sep=";",
         encoding="utf-8",
     )
-    df.rename(
-        columns={"Nível Geográfico Densidade": "Geografia"}, inplace=True
-    )
+    df = df.rename(columns={"Nível Geográfico Densidade": "Geografia"})
     df_municipio = df[df["Geografia"] == "Municipio"]
-    df_municipio.drop(["Município", "Geografia"], axis=1, inplace=True)
+    df_municipio = df_municipio.drop(["Município", "Geografia"], axis=1)
     df_municipio["Densidade"] = df_municipio["Densidade"].apply(
         lambda x: float(x.replace(",", "."))
     )
-    df_municipio.rename(
+    df_municipio = df_municipio.rename(
         columns=anatel_constants.RENAME_COLUMNS_MUNICIPIO.value,
-        inplace=True,
     )
     log("Salvando o arquivo densidade municipio da Anatel")
     to_partitions(

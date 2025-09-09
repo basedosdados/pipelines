@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_ms_cnes project
 """
@@ -10,7 +9,6 @@ import struct
 from datetime import datetime
 from ftplib import FTP
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 import aioftp
 import pandas as pd
@@ -111,7 +109,7 @@ def dbf_to_parquet(
 
 def list_datasus_dbc_files(
     datasus_database: str,
-    datasus_database_table: str = None,
+    datasus_database_table: str | None = None,
 ) -> list:
     """
     Enters FTP server and lists all DBCs files found for a
@@ -171,7 +169,7 @@ def list_datasus_dbc_files(
 
 async def download_chunks(
     dataset_id: str,
-    files: List[str],
+    files: list[str],
     output_dir: str,
     chunk_size: int,
     max_parallel: int,
@@ -253,7 +251,7 @@ async def download_file(file: str, output_path: str) -> None:
         log(e.expected_codes, e.received_codes, e.info)
 
 
-def line_file_parser(file_line) -> Tuple[List, Dict]:
+def line_file_parser(file_line) -> tuple[list, dict]:
     """This function is used to parse the file line from the FTP server
 
     Returns:
@@ -299,8 +297,8 @@ def year_month_sigla_uf_parser(file: str) -> str:
         # parse and build state
         sigla_uf = file[2:4]
 
-    except IndexError:
-        raise ValueError("Unable to parse month and year from file")
+    except IndexError as e:
+        raise ValueError("Unable to parse month and year from file") from e
 
     return f"ano={year}/mes={month}/sigla_uf={sigla_uf}"
 
@@ -321,8 +319,8 @@ def just_the_year_parser(file: str) -> str:
     try:
         file = file.split("/")[-1]
         year = "20" + file[6:8]
-    except IndexError:
-        raise ValueError("Unable to parse year from file")
+    except IndexError as e:
+        raise ValueError("Unable to parse year from file") from e
 
     return f"ano={year}"
 
@@ -473,7 +471,7 @@ def post_process_equipe(df: pd.DataFrame) -> pd.DataFrame:
         "AREA_EQP": "ID_AREA",
     }
 
-    df.rename(columns=standardize_colums, inplace=True)
+    df = df.rename(columns=standardize_colums)
 
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["EQ"]]
 
@@ -597,5 +595,5 @@ def post_process_microdados_dengue(df: pd.DataFrame) -> pd.DataFrame:
             df[new_column] = ""
     df = df[datasus_constants.COLUMNS_TO_KEEP.value["DENG"]]
     # df.drop(columns=['ano'], inplace=True)
-    df.rename(columns={"SG_UF_NOT": "sigla_uf_notificacao"}, inplace=True)
+    df = df.rename(columns={"SG_UF_NOT": "sigla_uf_notificacao"})
     return df

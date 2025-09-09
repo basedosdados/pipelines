@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_me_cnpj
 """
@@ -86,7 +85,7 @@ def main(
                 url_download = f"https://arquivos.receitafederal.gov.br/cnpj/dados_abertos_cnpj/{max_folder_date}/{tabela}{i}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
-                    asyncio.run((download_unzip_csv(url_download, input_path)))
+                    asyncio.run(download_unzip_csv(url_download, input_path))
                     if tabela == "Estabelecimentos":
                         process_csv_estabelecimentos(
                             input_path, output_path, max_last_modified_date, i
@@ -104,7 +103,7 @@ def main(
                 url_download = f"https://arquivos.receitafederal.gov.br/cnpj/dados_abertos_cnpj/{max_folder_date}/{tabela}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
-                    asyncio.run((download_unzip_csv(url_download, input_path)))
+                    asyncio.run(download_unzip_csv(url_download, input_path))
                     process_csv_simples(
                         input_path, output_path, max_last_modified_date, sufixo
                     )

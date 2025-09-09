@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Schedules for br_rj_isp_estatisticas_seguranca
 """

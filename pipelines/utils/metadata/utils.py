@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the metadata project
 """
 
 from datetime import datetime, time
 from time import sleep
-from typing import Dict, Tuple
 
 import basedosdados as bd
 import requests
@@ -29,14 +27,14 @@ from pipelines.utils.utils import (
 
 
 def check_if_values_are_accepted(
-    coverage_type: str, time_delta: Dict, date_column_name: Dict
+    coverage_type: str, time_delta: dict, date_column_name: dict
 ):
     if time_delta:
         if len(time_delta) != 1:
             raise ValueError(
                 "Dicionário de delta tempo inválido. O dicionário deve conter apenas uma chave e um valor"
             )
-        key = list(time_delta)[0]
+        key = list(time_delta)[0]  # noqa: RUF015
         if key not in metadata_constants.ACCEPTED_TIME_UNITS.value:
             raise ValueError(
                 f"Unidade temporal inválida. Escolha entre {metadata_constants.ACCEPTED_TIME_UNITS.value}"
@@ -136,7 +134,7 @@ def get_id(
     query_class: str,
     query_parameters: dict,
     backend: bd.Backend,
-) -> Tuple:
+) -> tuple:
     """
     Returns the ID based on the query parameters
     Raise an Error if the query parameters yield multiple matching items
@@ -163,7 +161,7 @@ def get_id(
                         }}
                     }}"""
 
-    variables = dict(zip(keys, values))
+    variables = dict(zip(keys, values, strict=False))
 
     response = backend._execute_query(query, variables=variables)
     nodes = response[query_class]["items"]
@@ -274,7 +272,7 @@ def extract_last_date_from_bq(
 
         return last_date
     except Exception as e:
-        log(f"An error occurred while extracting the last date: {str(e)}")
+        log(f"An error occurred while extracting the last date: {e!s}")
         raise
 
 
@@ -331,9 +329,7 @@ def update_date_from_bq_metadata(
         log(f"Última data: {last_date}")
         return last_date
     except Exception as e:
-        log(
-            f"An error occurred while extracting the last update date: {str(e)}"
-        )
+        log(f"An error occurred while extracting the last update date: {e!s}")
         raise
 
 
@@ -541,7 +537,7 @@ def get_coverage_value(
 
     except Exception as e:
         log(
-            f"Error occurred while retrieving Table IDs values or Coverage values from the PROD API: {str(e)}"
+            f"Error occurred while retrieving Table IDs values or Coverage values from the PROD API: {e!s}"
         )
         raise
 
@@ -786,7 +782,7 @@ def get_api_last_update_date(
 
     except Exception as e:
         log(
-            f"Error occurred while retrieving last update date from the PROD API: {str(e)}"
+            f"Error occurred while retrieving last update date from the PROD API: {e!s}"
         )
         raise
 
@@ -901,7 +897,7 @@ def update_data_source_poll(
         )
 
 
-def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
+def get_credentials_utils(secret_path: str) -> tuple[str, str]:
     """
     Returns the user and password for the given secret path.
     """

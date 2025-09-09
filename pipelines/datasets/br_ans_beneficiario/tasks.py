@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_ans_beneficiario
 """
@@ -39,7 +38,6 @@ def extract_links_and_dates(url) -> pd.DataFrame:
 
     # Encontra todos os links dentro do HTML
     links = soup.find_all("a")
-    links
     links_zip = []
     for link in links:
         if link.has_attr("href") and link["href"].startswith("20"):
@@ -72,10 +70,7 @@ def extract_links_and_dates(url) -> pd.DataFrame:
 
 @task
 def check_if_update_date_is_today(df):
-    if max(df["data_hoje"]) == max(df["ultima_atualizacao"]):
-        return True
-    else:
-        return False
+    return max(df["data_hoje"]) == max(df["ultima_atualizacao"])
 
 
 @task
@@ -139,7 +134,4 @@ def crawler_ans(files):
 
 @task
 def is_empty(lista):
-    if len(lista) == 0:
-        return True
-    else:
-        return False
+    return len(lista) == 0

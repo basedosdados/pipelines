@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_ms_cnes
 """
@@ -38,7 +37,7 @@ def task_parse_api_metadata(url: str, headers: dict) -> pd.DataFrame:
 )
 def task_decide_files_to_download(
     df: pd.DataFrame,
-    data_especifica: datetime.date = None,
+    data_especifica: datetime.date | None = None,
     data_maxima: bool = True,
 ) -> tuple[list[str], list[datetime]]:
     return decide_files_to_download(
