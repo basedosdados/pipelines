@@ -8,23 +8,29 @@ import os
 import shutil
 import time
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from prefect import task
 from requests.exceptions import ConnectionError, HTTPError
+from tqdm import tqdm
 
 from pipelines.constants import constants
 from pipelines.datasets.br_rf_cno.constants import constants as br_rf_cno
-from pipelines.datasets.br_rf_cno.utils import *  # noqa: F403
+from pipelines.datasets.br_rf_cno.utils import (
+    download_file_async,
+    process_chunk,
+)  # noqa: F403
 from pipelines.utils.utils import log
 
 
 @task
 def check_need_for_update(url: str) -> str:
     """
-    Checks the need for an update by extracting the most recent update date for 'cno.zip' from the CNO FTP.
+    Checks the need for an update by extracting the most recent update date
+    for 'cno.zip' from the CNO FTP directory listing.
 
     Args:
         url (str): The URL of the CNO FTP site.
@@ -36,9 +42,11 @@ def check_need_for_update(url: str) -> str:
         requests.HTTPError: If there is an HTTP error when making the request.
         ValueError: If the file 'cno.zip' is not found in the URL.
 
-    #NOTE: O crawler falhará se o nome do arquivo mudar.
+    Notes:
+        - O crawler falhará se o nome do arquivo mudar.
+        - Implementa retries com backoff exponencial para falhas de conexão.
     """
-    log("---- Extracting most recent update date from CNO FTP")
+    log("---- Checking most recent update date for 'cno.zip' in CNO FTP")
     retries = 5
     delay = 2
 
@@ -62,11 +70,11 @@ def check_need_for_update(url: str) -> str:
 
     max_file_date = None
 
-    # A lógica é simples: processa cada 'table data' (td) de cada linha 'tr'
+    # Percorre linhas da tabela do FTP procurando o arquivo alvo
     for row in rows:
         cells = row.find_all("td")
 
-        if len(cells) < 4:
+        if len(cells) < 4:  # Espera estrutura <td> com link e data
             continue
 
         link = cells[1].find("a")
@@ -85,89 +93,129 @@ def check_need_for_update(url: str) -> str:
 
     if not max_file_date:
         raise ValueError(
-            "File 'cno.zip' not found on the FTP site. Check the API endpoint to see if the folder structure or file name has changed."
+            "File 'cno.zip' not found on the FTP site. "
+            "Check if the folder structure or file name has changed."
         )
 
-    log(f"---- Most recent update date for 'cno.zip': {max_file_date}")
-
+    log(f"Most recent update date for 'cno.zip': {max_file_date}")
     return max_file_date
 
 
 @task
-def wrangling(input_dir: str, output_dir: str, partition_date: str) -> None:
+def list_files(input_dir: str) -> list:
     """
-    Processes and converts CSV files to Parquet format, renaming tables and columns as specified.
+    Lists all CSV files present in the input directory.
 
     Args:
-        input_dir (str): The directory where the input CSV files are located.
-        output_dir (str): The directory where the output Parquet files will be saved.
-        partition_date (str): The partition date to be used in the output directory structure.
+        input_dir (str): Directory where input CSVs are stored.
+
+    Returns:
+        list: List of filenames (only names, no paths).
+    """
+    log(f"---- Listing CSV files in {input_dir}")
+    paths = [fp.name for fp in Path(input_dir).glob("*.csv")]
+    paths_string = "\n".join(paths)
+    log(f"Found {len(paths)} CSV files:\n{paths_string}")
+    return paths
+
+
+@task
+def process_file(
+    file: str,
+    input_dir: str,
+    output_dir: str,
+    partition_date: str,
+    chunksize: int = 1000000,
+) -> str | None:
+    """
+    Processes and converts a CSV file to Parquet format in chunks.
+    Applies renaming of tables and columns as specified.
+
+    Args:
+        file (str): Filename (must exist in input_dir).
+        input_dir (str): Directory containing input CSVs.
+        output_dir (str): Directory where Parquet files will be saved.
+        partition_date (str): Partition date (YYYY-MM-DD).
+        chunksize (int): Number of rows per chunk when reading CSV.
 
     Returns:
         None
     """
-    table_rename = br_rf_cno.TABLES_RENAME.value
-    columns_rename = br_rf_cno.COLUMNS_RENAME.value
-
     try:
-        partition_date = datetime.strptime(partition_date, "%Y-%m-%d")
-        partition_date = partition_date.strftime("%Y-%m-%d")
+        partition_date = datetime.strptime(
+            partition_date, "%Y-%m-%d"
+        ).strftime("%Y-%m-%d")
+        log(f"Partition date {partition_date}.")
     except ValueError:
-        log("Invalid partition_date format.")
+        log("Invalid partition_date format. Using raw value.")
 
-    paths = os.listdir(input_dir)
+    table_rename = br_rf_cno.TABLES_RENAME.value
+    filename = Path(file).name
+    log(f"Processing file: {filename}")
 
-    for file in paths:
-        if file.endswith(".csv") and file in table_rename:
-            k = file
-            v = table_rename[file]
-            log(f"----- Processing file {k}")
-            file_path = os.path.join(input_dir, file)
+    if filename.endswith(".csv") and filename in table_rename:
+        filepath = os.path.join(input_dir, filename)
+        table_name = table_rename[filename]
+        output_path = os.path.join(output_dir, table_name)
+        os.makedirs(output_path, exist_ok=True)
 
-            df = pd.read_csv(file_path, dtype=str, encoding="latin-1", sep=",")
+        try:
+            log(f"---- Processing file {filename} as table {table_name}")
 
-            if v in columns_rename:
-                df = df.rename(columns=columns_rename[v])
+            # N Chunks
+            with open(filepath, encoding="latin-1") as fp:
+                total_rows = sum(1 for _ in fp) - 1  # -1 header
+                total_chunks = (total_rows // chunksize) + 1
 
-            df = df.applymap(str)
+            with tqdm(
+                total=total_chunks, desc=f"{table_name}", unit="chunk"
+            ) as pbar:
+                for i, chunk in enumerate(
+                    pd.read_csv(
+                        filepath,
+                        dtype=str,
+                        encoding="latin-1",
+                        sep=",",
+                        chunksize=chunksize,
+                    )
+                ):
+                    process_chunk(
+                        chunk, i, output_dir, partition_date, table_name
+                    )  # noqa: F405
+                    pbar.update(1)
 
-            parquet_file = v + ".parquet"
-            partition_folder = f"data={partition_date}"
-            output_folder = os.path.join(output_dir, v, partition_folder)
-
-            os.makedirs(output_folder, exist_ok=True)
-
-            parquet_path = os.path.join(output_folder, parquet_file)
-
-            df.to_parquet(parquet_path, index=False)
-
-            os.remove(file_path)
-
-    log("----- Wrangling completed")
+            os.remove(filepath)
+            log(f"Removed temporary CSV {filename}")
+        except Exception as e:
+            log(f"Unable to process file: {e}", "error")
+    else:
+        log(f"File {file} not recognized in TABLES_RENAME, skipped.")
+    return output_path
 
 
 @task(
-    max_retries=5,
+    max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def crawl_cno(root: str, url: str) -> None:
     """
-    Downloads and unpacks a ZIP file from the given URL.
+    Downloads and unpacks the 'cno.zip' file from the given URL.
 
     Args:
-        root (str): The root directory where the file will be saved and unpacked.
-        url (str): The URL of the ZIP file to be downloaded.
+        root (str): Root directory to save and unpack the file.
+        url (str): URL of the ZIP file.
 
     Returns:
         None
     """
+    log(f"---- Downloading CNO file from {url}")
     asyncio.run(download_file_async(root, url))  # noqa: F405
 
     filepath = f"{root}/data.zip"
-    print(f"----- Unzipping files from {filepath}")
+    log(f"---- Unzipping files from {filepath}")
     shutil.unpack_archive(filepath, extract_dir=root)
     os.remove(filepath)
-    print("----- Download and unpack completed")
+    log("Download and unpack completed successfully")
 
 
 @task
@@ -184,19 +232,19 @@ def create_parameters_list(
     Generates a list of parameters for the DBT materialization flow.
 
     Args:
-        dataset_id (str): The dataset ID.
-        table_ids (list): A list of table IDs.
-        target (str): The materialization target.
-        dbt_alias (str): The DBT alias.
-        dbt_command (str): The DBT command.
-        disable_elementary (bool): Whether to disable elementary.
-        download_csv_file (bool): Whether to download the CSV file.
+        dataset_id (str): Dataset ID in BigQuery.
+        table_ids (list): List of table IDs to materialize.
+        target (str): Materialization target (e.g., prod, dev).
+        dbt_alias (str): DBT alias for execution.
+        dbt_command (str): DBT command to run (e.g., run, build).
+        disable_elementary (bool): Whether to disable elementary checks.
+        download_csv_file (bool): Whether to include CSV download flag.
 
     Returns:
-        list: A list of dictionaries containing the parameters for each table.
+        list: A list of parameter dicts, one per table.
     """
-    log("----- Generating DBT parameters for Materialization Flow")
-    return [
+    log("---- Generating DBT parameters for Materialization Flow")
+    params = [
         {
             "dataset_id": dataset_id,
             "table_id": table_id,
@@ -208,3 +256,5 @@ def create_parameters_list(
         }
         for table_id in table_ids
     ]
+    log(f"Generated parameters for {len(table_ids)} tables")
+    return params
