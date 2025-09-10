@@ -1,5 +1,5 @@
 -- https://github.com/basedosdados/pipelines/wiki/Incluindo-testes-no-seu-modelo#dicionários
-{% test custom_dictionary_coverage(
+{% test custom_dictionary_coverage_eng(
     model, dictionary_model, columns_covered_by_dictionary
 ) %}
     {{ config(severity="error") }}
@@ -26,17 +26,17 @@
                 where {{ column_name }} is not null
             ),
             {{ right_table_name }} as (
-                select chave
+                select key
                 from {{ dictionary_model}}
-                where valor is not null
-                and id_tabela = '{{ table_id }}'
-                and nome_coluna = '{{ column_name }}'
+                where value is not null
+                and table_id = '{{ table_id }}'
+                and column_name = '{{ column_name }}'
             ),
             {{ subquery_name }} as (
                 select '{{ column_name }}' as failed_column, id as missing_value
                 from {{ left_table_name }}
-                left join {{ right_table_name }} on {{ left_table_name }}.id = {{ right_table_name }}.chave
-                where {{ right_table_name }}.chave is null
+                left join {{ right_table_name }} on {{ left_table_name }}.id = {{ right_table_name }}.key
+                where {{ right_table_name }}.key is null
             )
         {% endset %}
 
