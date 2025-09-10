@@ -23,6 +23,7 @@ from pipelines.datasets.br_me_comex_stat.constants import (
 from pipelines.datasets.br_me_comex_stat.utils import (
     create_paths,
     download_data,
+    validate_table,
 )
 from pipelines.utils.utils import log, to_partitions
 
@@ -95,7 +96,7 @@ def download_br_me_comex_stat(
         path=comex_constants.PATH.value,
         table_type=table_type,
         table_name=table_name,
-        year_download=year_download,
+        years_download=[year_download],
     )
     log("Data downloaded!")
 
@@ -187,6 +188,13 @@ def clean_br_me_comex_stat(
 
             log("Dataframe partitioned and saved")
 
+            log("Starting dataframe validation:")
+            validate_table(
+                filename=file,
+                dataframe=df,
+                table_type="mun",
+                path=comex_constants.PATH.value,
+            )
             del df
 
         else:
@@ -204,6 +212,13 @@ def clean_br_me_comex_stat(
             )
             log("Dataframe partitioned and saved")
 
+            log("Starting dataframe validation:")
+            validate_table(
+                filename=file,
+                dataframe=df,
+                table_type="ncm",
+                path=comex_constants.PATH.value,
+            )
             del df
 
     return f"/tmp/br_me_comex_stat/{table_name}/output"
