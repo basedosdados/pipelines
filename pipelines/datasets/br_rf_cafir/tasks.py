@@ -2,8 +2,8 @@
 Tasks for br_ms_cnes
 """
 
+import datetime
 import os
-from datetime import datetime, timedelta
 
 import pandas as pd
 from prefect import task
@@ -25,7 +25,7 @@ from pipelines.utils.utils import log
 
 @task(
     max_retries=2,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    retry_delay=datetime.timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def task_parse_api_metadata(url: str, headers: dict) -> pd.DataFrame:
     return parse_api_metadata(url=url, headers=headers)
@@ -33,13 +33,13 @@ def task_parse_api_metadata(url: str, headers: dict) -> pd.DataFrame:
 
 @task(
     max_retries=2,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    retry_delay=datetime.timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def task_decide_files_to_download(
     df: pd.DataFrame,
     data_especifica: datetime.date | None = None,
     data_maxima: bool = True,
-) -> tuple[list[str], list[datetime]]:
+) -> tuple[list[str], list[datetime.date]]:
     return decide_files_to_download(
         df=df, data_especifica=data_especifica, data_maxima=data_maxima
     )
@@ -47,12 +47,12 @@ def task_decide_files_to_download(
 
 @task(
     max_retries=3,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    retry_delay=datetime.timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def task_download_files(
     url: str,
     file_list: list[str],
-    data_atualizacao: [datetime.date],
+    data_atualizacao: list[datetime.date],
     headers: dict,
 ) -> str:
     """Essa task faz o download dos arquivos do FTP, faz o parse dos dados e salva os arquivos em um diretório temporário.

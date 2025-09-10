@@ -3,8 +3,8 @@ Tasks for br_me_cnpj
 """
 
 import asyncio
+import datetime
 import os
-from datetime import datetime, timedelta
 
 from prefect import task
 
@@ -28,9 +28,9 @@ headers = constants_cnpj.HEADERS.value
 
 @task(
     max_retries=3,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    retry_delay=datetime.timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_data_source_max_date() -> tuple[datetime, datetime.date]:
+def get_data_source_max_date() -> tuple[datetime.datetime, datetime.date]:
     """
     Checks if there are available updates for a specific dataset and table.
 
@@ -45,11 +45,11 @@ def get_data_source_max_date() -> tuple[datetime, datetime.date]:
 
 @task(
     max_retries=3,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    retry_delay=datetime.timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def main(
-    tabelas: [str],
-    max_folder_date: datetime,
+    tabelas: list[str],
+    max_folder_date: datetime.datetime,
     max_last_modified_date: datetime.date,
 ) -> str:
     """

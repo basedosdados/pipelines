@@ -2,8 +2,8 @@
 General purpose functions for the br_ms_cnes project
 """
 
+import datetime
 import os
-from datetime import datetime
 
 import pandas as pd
 import requests
@@ -98,7 +98,7 @@ def decide_files_to_download(
     df: pd.DataFrame,
     data_especifica: datetime.date | None = None,
     data_maxima: bool = True,
-) -> tuple[list[str], list[datetime]]:
+) -> tuple[list[str], list[datetime.datetime]]:
     """
     Decide quais arquivos baixar a depender da necessidade de atualização
 

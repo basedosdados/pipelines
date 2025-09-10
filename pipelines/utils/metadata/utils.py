@@ -2,7 +2,7 @@
 General purpose functions for the metadata project
 """
 
-from datetime import datetime, time
+import datetime
 from time import sleep
 
 import basedosdados as bd
@@ -245,7 +245,7 @@ def extract_last_date_from_bq(
             billing_project_id=billing_project_id,
             project_id=project_id,
         )
-        last_date = datetime.strftime(last_date_dt, date_format)
+        last_date = datetime.datetime.strftime(last_date_dt, date_format)
 
         return last_date
 
@@ -325,7 +325,7 @@ def update_date_from_bq_metadata(
         timestamp = (
             t["last_modified_time"][0] / 1000
         )  # Convert to seconds by dividing by 1000
-        last_date = datetime.fromtimestamp(timestamp)
+        last_date = datetime.datetime.fromtimestamp(timestamp)
         log(f"Última data: {last_date}")
         return last_date
     except Exception as e:
@@ -373,7 +373,7 @@ def get_coverage_parameters(
 
         delta = relativedelta(**time_delta)
         free_access_max_date = (
-            datetime.strptime(last_date, date_format) - delta
+            datetime.datetime.strptime(last_date, date_format) - delta
         )
         free_access_max_date = free_access_max_date.strftime(date_format)
         free_parameters = get_date_parameters(
@@ -398,16 +398,16 @@ def get_date_parameters(position: str, date_str: str):
     date_len = len(date_str.split("-") if date_str != "" else 0)
     date_parameters = {}
     if date_len == 3:
-        date = datetime.strptime(date_str, "%Y-%m-%d")
+        date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
         date_parameters[f"{position}Year"] = date.year
         date_parameters[f"{position}Month"] = date.month
         date_parameters[f"{position}Day"] = date.day
     elif date_len == 2:
-        date = datetime.strptime(date_str, "%Y-%m")
+        date = datetime.datetime.strptime(date_str, "%Y-%m")
         date_parameters[f"{position}Year"] = date.year
         date_parameters[f"{position}Month"] = date.month
     elif date_len == 1:
-        date = datetime.strptime(date_str, "%Y")
+        date = datetime.datetime.strptime(date_str, "%Y")
         date_parameters[f"{position}Year"] = date.year
     return date_parameters
 
@@ -709,7 +709,9 @@ def get_api_most_recent_date(
     # Convert the date strings to date objects
     date_objects = {}
     for key, date_string in coverages.items():
-        date_objects[key] = datetime.strptime(date_string, date_format)
+        date_objects[key] = datetime.datetime.strptime(
+            date_string, date_format
+        )
 
     max_date_key = max(date_objects, key=date_objects.get)
     max_date_value = date_objects[max_date_key].date()
@@ -776,7 +778,7 @@ def get_api_last_update_date(
         response = backend._execute_query(query, variables)
         clean_response = response["allUpdate"]["items"][0]["latest"]
         date_result = (
-            datetime.strptime(clean_response[:10], "%Y-%m-%d")
+            datetime.datetime.strptime(clean_response[:10], "%Y-%m-%d")
         ).date()
         return date_result
 
@@ -810,9 +812,11 @@ def update_data_source_update_date(
     )
 
     if date_type == "last_update_date":
-        latest = datetime.combine(data_source_max_date, time()).isoformat()
+        latest = datetime.datetime.combine(
+            data_source_max_date, datetime.time()
+        ).isoformat()
     else:
-        latest = datetime.today().isoformat()
+        latest = datetime.datetime.today().isoformat()
 
     mutation_parameters = {"latest": latest}
 
@@ -865,7 +869,7 @@ def update_data_source_poll(
         backend=backend,
     )
 
-    latest = datetime.today().isoformat()
+    latest = datetime.datetime.today().isoformat()
     mutation_parameters = {"latest": latest}
 
     if not django_poll_id:

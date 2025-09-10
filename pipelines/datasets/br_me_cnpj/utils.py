@@ -2,10 +2,10 @@
 General purpose functions for the br_me_cnpj project
 """
 
+import datetime
 import os
 import zipfile
 from asyncio import Semaphore, gather, sleep
-from datetime import datetime
 
 import pandas as pd
 import requests
@@ -21,7 +21,9 @@ headers = constants_cnpj.HEADERS.value
 timeout = constants_cnpj.TIMEOUT.value
 
 
-def data_url(url: str, headers: dict) -> tuple[datetime, datetime.date]:
+def data_url(
+    url: str, headers: dict
+) -> tuple[datetime.datetime, datetime.date]:
     """
     Fetches data from a URL, parses the HTML to find the latest folder date, and compares it to today's date.
 
@@ -43,9 +45,9 @@ def data_url(url: str, headers: dict) -> tuple[datetime, datetime.date]:
 
     max_folder_date = max(
         [
-            datetime.strptime(link["href"].strip("/"), "%Y-%m").strftime(
-                "%Y-%m"
-            )
+            datetime.datetime.strptime(
+                link["href"].strip("/"), "%Y-%m"
+            ).strftime("%Y-%m")
             for link in soup.find_all("a", href=True)
             if link["href"].strip("/").startswith("202")
         ]
@@ -53,9 +55,9 @@ def data_url(url: str, headers: dict) -> tuple[datetime, datetime.date]:
 
     max_last_modified_date = max(
         [
-            datetime.strptime(x.get_text().strip(), "%Y-%m-%d %H:%M").strftime(
-                "%Y-%m-%d"
-            )
+            datetime.datetime.strptime(
+                x.get_text().strip(), "%Y-%m-%d %H:%M"
+            ).strftime("%Y-%m-%d")
             for x in soup.find_all("td", align="right")
             # exclui linhas que não possuem datas
             if x.get_text().strip().count(":") == 1
@@ -74,7 +76,7 @@ def data_url(url: str, headers: dict) -> tuple[datetime, datetime.date]:
 
 
 # ! Cria o caminho do output
-def destino_output(sufixo: str, data_coleta: datetime) -> str:
+def destino_output(sufixo: str, data_coleta: datetime.datetime) -> str:
     """
     Constructs the output directory path based on the suffix and collection date.
 
@@ -107,7 +109,9 @@ def destino_output(sufixo: str, data_coleta: datetime) -> str:
 
 
 # ! Adiciona zero a esquerda nas colunas
-def fill_left_zeros(df: datetime, column, num_digits: int) -> pd.DataFrame:
+def fill_left_zeros(
+    df: datetime.datetime, column, num_digits: int
+) -> pd.DataFrame:
     """
     Adds left zeros to the specified column of a DataFrame to meet the required digit count.
 
