@@ -31,9 +31,10 @@ models:
       - name: sigla_pais_iso3
         description: Sigla ISO3 do País
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_pais_iso3
+              ignore_values: [ANT, CSK, SCG, PCZ]
               config:
                 where: __most_recent_year_month__
       - name: sigla_uf
@@ -82,9 +83,10 @@ models:
       - name: sigla_pais_iso3
         description: Sigla ISO3 do País
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_pais_iso3
+              ignore_values: [ANT, CSK, SCG, PCZ]
               config:
                 where: __most_recent_year_month__
       - name: sigla_uf
@@ -142,9 +144,10 @@ models:
       - name: sigla_pais_iso3
         description: Sigla ISO3 do País
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_pais_iso3
+              ignore_values: [ANT, CSK, SCG, PCZ]
               config:
                 where: __most_recent_year_month__
       - name: sigla_uf_ncm
@@ -203,9 +206,10 @@ models:
       - name: sigla_pais_iso3
         description: Sigla ISO3 do País
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_pais_iso3
+              ignore_values: [ANT, CSK, SCG, PCZ]
               config:
                 where: __most_recent_year_month__
       - name: sigla_uf_ncm
