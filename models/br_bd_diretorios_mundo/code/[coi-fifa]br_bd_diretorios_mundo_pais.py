@@ -1,6 +1,11 @@
-import os
+from pathlib import Path
 
 import pandas as pd
+
+CURRENT_DIR = Path(__file__).parent
+PARENT_DIR = CURRENT_DIR.parent
+TMP_DIR = PARENT_DIR / "tmp"
+TMP_DIR.mkdir(exist_ok=True, parents=True)
 
 # Antigo arquivo de pais sem COI e FIFA
 original = pd.read_csv(
@@ -21,7 +26,4 @@ ico_fifa.columns = ["sigla_pais_coi", "sigla_pais_fifa", "sigla_pais_iso3"]
 merge_df = original.merge(
     ico_fifa, left_on="sigla_pais_iso3", right_on="sigla_pais_iso3", how="left"
 )
-
-os.makedirs("output", exist_ok=True)
-
-merge_df.to_csv("output/pais.csv", index=False)
+merge_df.to_csv(str(TMP_DIR / "pais.csv"), index=False)
