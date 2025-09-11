@@ -6,7 +6,6 @@ import datetime
 import polars as pl
 from prefect import task
 
-from pipelines.datasets.br_denatran_frota.constants import constants
 from pipelines.datasets.br_denatran_frota.handlers import (
     crawl,
     get_desired_file,
@@ -18,11 +17,6 @@ from pipelines.datasets.br_denatran_frota.handlers import (
     treat_uf_tipo,
 )
 from pipelines.utils.utils import log
-
-MONTHS = constants.MONTHS.value
-DATASET = constants.DATASET.value
-DICT_UFS = constants.DICT_UFS.value
-OUTPUT_PATH = constants.OUTPUT_PATH.value
 
 
 @task()  # noqa

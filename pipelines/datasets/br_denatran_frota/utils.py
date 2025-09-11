@@ -21,18 +21,10 @@ from rarfile import RarFile
 from rpy2.robjects.vectors import StrVector
 from string_utils import asciify
 
-from pipelines.datasets.br_denatran_frota.constants import constants
+from pipelines.datasets.br_denatran_frota.constants import (
+    constants as denatran_constants,
+)
 from pipelines.utils.utils import log
-
-DICT_UFS = constants.DICT_UFS.value
-SUBSTITUTIONS = constants.SUBSTITUTIONS.value
-HEADERS = constants.HEADERS.value
-MONTHS = constants.MONTHS.value
-UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME.value
-MONTHS_SHORT = constants.MONTHS_SHORT.value
-MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
-UF_TIPO_HEADER = constants.UF_TIPO_HEADER.value
-MUNICIPIO_TIPO_HEADER = constants.MUNICIPIO_TIPO_HEADER.value
 
 
 class DenatranType(Enum):
@@ -58,9 +50,9 @@ def guess_header(
     """
     possible_headers = []
     if type_of_file == DenatranType.UF:
-        expected_header = UF_TIPO_HEADER
+        expected_header = denatran_constants.UF_TIPO_HEADER.value
     elif type_of_file == DenatranType.Municipio:
-        expected_header = MUNICIPIO_TIPO_HEADER
+        expected_header = denatran_constants.MUNICIPIO_TIPO_HEADER.value
     else:
         raise ValueError("Unrecognized type of dataframe.")
     current_header = [c for c in df.columns]
@@ -229,8 +221,8 @@ def fix_suggested_nome_ibge(row: tuple[str, ...]) -> str:
     key = (row[0], row[1])
     if (not isinstance(row[0], str)) or (not isinstance(row[1], str)):
         raise ValueError("This is not a valid key to be checked.")
-    if key in SUBSTITUTIONS:
-        return SUBSTITUTIONS[key]
+    if key in denatran_constants.SUBSTITUTIONS.value:
+        return denatran_constants.SUBSTITUTIONS.value[key]
     else:
         return row[-1]
 
@@ -300,7 +292,9 @@ def download_file(url: str, filename: str) -> None:
     # Send a GET request to the URL
 
     new_url = url.replace("arquivos-denatran", "arquivos-senatran")
-    response = requests.get(new_url, headers=HEADERS)
+    log(new_url)
+    response = requests.get(new_url, headers=denatran_constants.HEADERS.value)
+    response.raise_for_status()
     # Save the contents of the response to a file
     with open(filename, "wb") as f:
         f.write(response.content)
@@ -375,6 +369,7 @@ def call_downloader(i: dict):
         i (dict): Dictionary with the file's information.
     """
     filename = make_filename(i)
+    log(f"Filename: {filename}")
     if i["filetype"] in ["xlsx", "xls"]:
         download_file(i["href"], filename)
     elif i["filetype"] == "zip" or i["filetype"] == "rar":
@@ -386,13 +381,13 @@ def make_filename_pre_2012(
     type_of_file: str, year: int, filename: str, year_dir_name: str, month: int
 ):
     if type_of_file == DenatranType.UF:
-        basic_filename = UF_TIPO_BASIC_FILENAME
+        basic_filename = denatran_constants.UF_TIPO_BASIC_FILENAME.value
         if year > 2005:
             regex_to_search = r"UF\s+([^\s\d]+\s*)*([12]\d{3})"
         else:
             regex_to_search = rf"UF[_\s]?([^\s\d]+\s*)_{str(year)[2:4]}"
     elif type_of_file == DenatranType.Municipio:
-        basic_filename = MUNIC_TIPO_BASIC_FILENAME
+        basic_filename = denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value
         if year > 2003:
             regex_to_search = rf"Munic\.?\s*(.*?)\s*\.?{year}"
         else:
@@ -407,8 +402,10 @@ def make_filename_pre_2012(
             month_value = int(match.group(1))
         else:
             month_in_file = match.group(1).lower().replace(".", "")
-            month_value = MONTHS.get(month_in_file) or MONTHS_SHORT.get(
-                month_in_file
+            month_value = denatran_constants.MONTHS.value.get(
+                str(month_in_file).lower()
+            ) or denatran_constants.MONTHS_SHORT.value.get(
+                str(month_in_file).lower()
             )
         extension = filename.split(".")[-1]
         new_filename = f"{year_dir_name}/{basic_filename}_{month_value}-{year}.{extension}"
@@ -427,39 +424,56 @@ def extract_links_post_2012(
     """
     url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}"
     soup = BeautifulSoup(urlopen(url), "html.parser")
+
     # Só queremos os dados de frota nacional.
-    nodes = soup.select("p:contains('rota por ') > a")
-
+    parent_nodes = soup.select("p:contains('rota')")
     valid_links = []
-    for node in nodes:
-        txt = node.text
-        href = node.get("href")
-        # Pega a parte relevante do arquivo em questão.
-        match = re.search(
-            r"(?i)\/([\w-]+)\/(\d{4})\/(\w+)\/([\w-]+)\.(?:xls|xlsx|rar|zip)$",
-            href,
+    i = 0
+    while i < len(parent_nodes):
+        matched_year = None
+        matched_month = None
+        parent_txt = parent_nodes[i].text
+        parent_match = re.search(
+            r"(?i)\(([\w]+)(?:\s\w*\s*)(\d{4})\)", parent_txt
         )
+        if parent_match:
+            matched_month = parent_match.group(1)
+            matched_year = parent_match.group(2)
+            i += 1
 
-        if match and re.search("tipo|município", txt, flags=re.IGNORECASE):
-            matched_month = match.group(3)
-            matched_year = match.group(2)
-            if MONTHS.get(matched_month) == month and matched_year == str(
-                year
-            ):
-                filetype = match.group(0).split(".")[-1].lower()
+            if i >= len(parent_nodes):
+                break
+            for child_node in parent_nodes[i].select("a"):
+                txt = child_node.text
+                href = child_node.get("href")
+                # Pega a parte relevante do arquivo em questão.
+                match = re.search(
+                    r"(?i)([\w\-\d\/]+)\.(xls|xlsx|rar|zip)$",
+                    href,
+                )
+                search = re.search("tipo|município", txt, flags=re.IGNORECASE)
+                if match and search:
+                    if denatran_constants.MONTHS.value.get(
+                        str(matched_month).lower()
+                    ) == int(month) and matched_year == str(year):
+                        filetype = match.group(2).lower()
 
-                info = {
-                    "txt": txt,
-                    "href": href,
-                    "mes_name": matched_month,
-                    "mes": month,
-                    "ano": year,
-                    "filetype": filetype,
-                    "destination_dir": directory,
-                }
+                        info = {
+                            "txt": txt,
+                            "href": href,
+                            "mes_name": matched_month,
+                            "mes": month,
+                            "ano": year,
+                            "filetype": filetype,
+                            "destination_dir": str(directory),
+                        }
 
-                valid_links.append(info)
+                        valid_links.append(info)
+            i += 1
 
+        else:
+            i += 1
+    log(f"There are {len(valid_links)} valid links.")
     return valid_links
 
 
@@ -500,17 +514,6 @@ def extraction_pre_2012(
             if new_filename:
                 g.extract(file, path=year_dir_name)
                 os.rename(f"{year_dir_name}/{file.filename}", new_filename)
-
-
-def make_dir_when_not_exists(dir_name: str) -> None:
-    """Auxiliary function to create a subdirectory when it is not present.
-
-    Args:
-        dir_name (str): Name of the subdirectory to be created.
-    """
-    if not os.path.exists(dir_name):
-        os.makedirs(dir_name)
-    return None
 
 
 def call_r_to_read_excel(file: str) -> pd.DataFrame:

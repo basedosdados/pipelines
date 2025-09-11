@@ -8,7 +8,9 @@ import unittest
 import polars as pl
 from parameterized import parameterized
 
-from pipelines.datasets.br_denatran_frota.constants import constants
+from pipelines.datasets.br_denatran_frota.constants import (
+    constants as denatran_constants,
+)
 from pipelines.datasets.br_denatran_frota.handlers import (
     crawl,
     get_desired_file,
@@ -16,13 +18,6 @@ from pipelines.datasets.br_denatran_frota.handlers import (
     treat_municipio_tipo,
     treat_uf_tipo,
 )
-
-DATASET = constants.DATASET.value
-DOWNLOAD_PATH = constants.DOWNLOAD_PATH.value
-MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
-UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME.value
-DICT_UFS = constants.DICT_UFS.value
-
 
 # Classes to test br_denatran_frota tasks with unnittest
 
@@ -41,7 +36,7 @@ class TestExtractingAllPossibleYears(unittest.TestCase):
 
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory(
-            dir=os.path.join(f"{DOWNLOAD_PATH}")
+            dir=os.path.join(f"{denatran_constants.DOWNLOAD_PATH.value}")
         )
 
     def tearDown(self):
@@ -72,7 +67,7 @@ class TestUFTreatmentPostCrawl(unittest.TestCase):
 
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory(
-            dir=os.path.join(f"{DOWNLOAD_PATH}")
+            dir=os.path.join(f"{denatran_constants.DOWNLOAD_PATH.value}")
         )
 
     def tearDown(self):
@@ -88,11 +83,15 @@ class TestUFTreatmentPostCrawl(unittest.TestCase):
         directory_to_search = os.path.join(
             self.temp_dir.name, "files", f"{year}"
         )
-        get_desired_file(year, self.temp_dir.name, UF_TIPO_BASIC_FILENAME)
+        get_desired_file(
+            year,
+            self.temp_dir.name,
+            denatran_constants.UF_TIPO_BASIC_FILENAME.value,
+        )
         for file in os.listdir(directory_to_search):
-            if re.search(UF_TIPO_BASIC_FILENAME, file) and file.split(".")[
-                -1
-            ] in [
+            if re.search(
+                denatran_constants.UF_TIPO_BASIC_FILENAME.value, file
+            ) and file.split(".")[-1] in [
                 "xls",
                 "xlsx",
             ]:
@@ -103,12 +102,14 @@ class TestUFTreatmentPostCrawl(unittest.TestCase):
 
     def test_flow(self):
         year = 2021
-        crawl(month=2, year=year, temp_dir=constants.DOWNLOAD_PATH.value)
+        crawl(
+            month=2, year=year, temp_dir=denatran_constants.DOWNLOAD_PATH.value
+        )
         # Now get the downloaded file:
         uf_tipo_file = get_desired_file(
             year=year,
-            download_directory=constants.DOWNLOAD_PATH.value,
-            filetype=constants.UF_TIPO_BASIC_FILENAME.value,
+            download_directory=denatran_constants.DOWNLOAD_PATH.value,
+            filetype=denatran_constants.UF_TIPO_BASIC_FILENAME.value,
         )
         print(uf_tipo_file)
         df = treat_uf_tipo(file=uf_tipo_file)
@@ -131,7 +132,7 @@ class TestMunicipioTreatmentPostCrawl(unittest.TestCase):
 
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory(
-            dir=os.path.join(f"{DOWNLOAD_PATH}")
+            dir=os.path.join(f"{denatran_constants.DOWNLOAD_PATH.value}")
         )
 
     def tearDown(self):
@@ -147,11 +148,15 @@ class TestMunicipioTreatmentPostCrawl(unittest.TestCase):
         directory_to_search = os.path.join(
             self.temp_dir.name, "files", f"{year}"
         )
-        get_desired_file(year, self.temp_dir.name, MUNIC_TIPO_BASIC_FILENAME)
+        get_desired_file(
+            year,
+            self.temp_dir.name,
+            denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value,
+        )
         for file in os.listdir(directory_to_search):
-            if re.search(MUNIC_TIPO_BASIC_FILENAME, file) and file.split(".")[
-                -1
-            ] in [
+            if re.search(
+                denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value, file
+            ) and file.split(".")[-1] in [
                 "xls",
                 "xlsx",
             ]:
@@ -163,7 +168,7 @@ class TestMunicipioTreatmentPostCrawl(unittest.TestCase):
                 # Every state should be there
                 self.assertSetEqual(
                     set(treated_df["sigla_uf"].unique().to_list()),
-                    set(DICT_UFS.keys()),
+                    set(denatran_constants.DICT_UFS.value.keys()),
                 )
                 # I expect AT LEAST 5450 cities out of 5570. It's normally higher but historical data.
                 self.assertGreaterEqual(
@@ -172,12 +177,14 @@ class TestMunicipioTreatmentPostCrawl(unittest.TestCase):
 
     def test_flow(self):
         year = 2021
-        crawl(month=2, year=year, temp_dir=constants.DOWNLOAD_PATH.value)
+        crawl(
+            month=2, year=year, temp_dir=denatran_constants.DOWNLOAD_PATH.value
+        )
         # Now get the downloaded file:
         uf_tipo_file = get_desired_file(
             year=year,
-            download_directory=constants.DOWNLOAD_PATH.value,
-            filetype=constants.MUNIC_TIPO_BASIC_FILENAME.value,
+            download_directory=denatran_constants.DOWNLOAD_PATH.value,
+            filetype=denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value,
         )
         print(uf_tipo_file)
         df = treat_municipio_tipo(file=uf_tipo_file)

@@ -7,6 +7,7 @@ This is merely a way to have functions that are called by tasks but can be teste
 
 import os
 import re
+from pathlib import Path
 from zipfile import ZipFile
 
 import basedosdados as bd
@@ -14,7 +15,9 @@ import pandas as pd
 import polars as pl
 from string_utils import asciify
 
-from pipelines.datasets.br_denatran_frota.constants import constants
+from pipelines.datasets.br_denatran_frota.constants import (
+    constants as denatran_constants,
+)
 from pipelines.datasets.br_denatran_frota.utils import (
     DenatranType,
     call_downloader,
@@ -25,23 +28,14 @@ from pipelines.datasets.br_denatran_frota.utils import (
     extraction_pre_2012,
     get_year_month_from_filename,
     guess_header,
-    make_dir_when_not_exists,
     treat_uf,
     verify_total,
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 from pipelines.utils.utils import log, to_partitions
 
-MONTHS = constants.MONTHS.value
-DATASET = constants.DATASET.value
-DICT_UFS = constants.DICT_UFS.value
-OUTPUT_PATH = constants.OUTPUT_PATH.value
-MONTHS_SHORT = constants.MONTHS_SHORT.value
-UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME.value
-MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
 
-
-def crawl(month: int, year: int, temp_dir: str = "") -> bool:
+def crawl(month: int, year: int, temp_dir: str | Path = "") -> bool:
     """
     Main function to extract data from *frota por município e tipo* and *frota por UF e tipo*.
 
@@ -52,13 +46,12 @@ def crawl(month: int, year: int, temp_dir: str = "") -> bool:
     Raises:
         ValueError: Errors if the month is not a valid one.
     """
-    if month not in MONTHS.values():
+    if month not in denatran_constants.MONTHS.value.values():
         raise ValueError("Mês inválido.")
     log("Downloading file")
-    files_dir = os.path.join(temp_dir, "files")
-    make_dir_when_not_exists(files_dir)
-    year_dir_name = os.path.join(files_dir, f"{year}")
-    make_dir_when_not_exists(year_dir_name)
+    files_dir = os.path.join(str(temp_dir), "files")
+    year_dir_name = os.path.join(str(files_dir), f"{year}")
+    Path(year_dir_name).mkdir(exist_ok=True, parents=True)
     if year > 2012:
         try:
             files_to_download = extract_links_post_2012(
@@ -107,7 +100,9 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     """
 
     log(f"------- Cleaning {file}")
-    valid_ufs = list(DICT_UFS.keys()) + list(DICT_UFS.values())
+    valid_ufs = list(denatran_constants.DICT_UFS.value.keys()) + list(
+        denatran_constants.DICT_UFS.value.values()
+    )
     filename = os.path.split(file)[1]
     try:
         correct_sheet = [
@@ -136,7 +131,7 @@ def treat_uf_tipo(file: str) -> pl.DataFrame:
     clean_df.replace(" -   ", 0, inplace=True)
 
     # Create a reverse dictionary to replace uf names with uf sigla
-    reverse_dict = {v: k for k, v in DICT_UFS.items()}
+    reverse_dict = {v: k for k, v in denatran_constants.DICT_UFS.value.items()}
     clean_df["sigla_uf"] = clean_df["sigla_uf"].map(reverse_dict)
 
     # clean_df.replace()
@@ -170,8 +165,7 @@ def output_file_to_parquet(df: pl.DataFrame) -> None:
     Returns:
         _type_: None
     """
-
-    make_dir_when_not_exists(OUTPUT_PATH)
+    output_path = denatran_constants.OUTPUT_PATH.value
 
     pd_df = df.to_pandas()
     pd_df = pd_df.astype(str)
@@ -179,18 +173,20 @@ def output_file_to_parquet(df: pl.DataFrame) -> None:
     to_partitions(
         pd_df,
         partition_columns=["ano", "mes"],
-        savepath=OUTPUT_PATH,
+        savepath=output_path,
         file_type="parquet",
     )
-    return OUTPUT_PATH
+    return output_path
 
 
-def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
+def get_desired_file(
+    year: int, download_directory: str | Path, filetype: str
+) -> str:
     """Função para pegar o arquivo desejado de uf_tipo ou municipio_tipo em um diretório
 
     Args:
         year (int): file year
-        download_directory (str): donwload directory
+        download_directory (str | Path): donwload directory
         filetype (str): filetype
 
     Raises:
@@ -201,7 +197,9 @@ def get_desired_file(year: int, download_directory: str, filetype: str) -> str:
     """
 
     log(f"-------- Accessing download directory {download_directory}")
-    directory_to_search = os.path.join(download_directory, "files", f"{year}")
+    directory_to_search = os.path.join(
+        str(download_directory), "files", f"{year}"
+    )
 
     for file in os.listdir(directory_to_search):
         if re.search(filetype, file) and file.split(".")[-1] in [
@@ -302,7 +300,7 @@ def treat_municipio_tipo(file: str) -> pl.DataFrame:
             f"Atenção: a base do Denatran tem {new_pl_df.shape[0]} linhas e isso é mais municípios do que a BD com {bd_municipios.shape[0]}"
         )
     dfs = []
-    for uf in DICT_UFS:
+    for uf in denatran_constants.DICT_UFS.value:
         dfs.append(treat_uf(new_pl_df, bd_municipios, uf))
     full_pl_df = pl.concat(dfs)
     full_pl_df = full_pl_df.select(
