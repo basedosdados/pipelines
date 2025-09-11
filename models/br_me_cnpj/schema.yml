@@ -14,6 +14,18 @@ models:
           config:
             where: __most_recent_date__
     columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: data
         description: Data
         tests: [is_row_count_increasing]
@@ -55,6 +67,18 @@ models:
           config:
             where: __most_recent_date__
     columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: data
         description: Data
       - name: cnpj_basico
@@ -122,6 +146,18 @@ models:
           config:
             where: __most_recent_date__
     columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: data
         description: Data
         tests: [is_row_count_increasing]
