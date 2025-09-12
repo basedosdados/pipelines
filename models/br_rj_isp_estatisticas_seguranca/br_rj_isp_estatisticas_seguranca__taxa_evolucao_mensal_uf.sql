@@ -3,7 +3,6 @@
         alias="taxa_evolucao_mensal_uf", schema="br_rj_isp_estatisticas_seguranca"
     )
 }}
-
 select
     safe_cast(ano as int64) ano,
     safe_cast(mes as int64) mes,
