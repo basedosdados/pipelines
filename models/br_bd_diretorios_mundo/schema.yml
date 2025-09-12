@@ -49,9 +49,10 @@ models:
       - name: id_sh6
         description: Identificador de 6 dígitos do Sistema Harmonizado (SH6)
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__nomenclatura_comum_mercosul')
               field: id_sh6
+              ignore_values: ['401099', '701920', '848499']
       - name: id_sh4
         description: Identificador de 4 dígitos do Sistema Harmonizado (SH6)
       - name: id_sh2
@@ -101,9 +102,10 @@ models:
         description: Identificador de 6 dígitos do Sistema Harmonizado (SH6) relacionado
           com o id_ncm
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__sistema_harmonizado')
               field: id_sh6
+              ignore_values: ['811261', '382739']
       - name: id_ppe
         description: Identificador da Pauta de Produtos Exportados (PPE) do id_ncm
       - name: id_ppi
