@@ -27,7 +27,6 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
 )
 
-# ! Evolucao_mensal_cisp
 with Flow(
     name="BD Template - Estatísticas de Segurança",
     code_owners=[
