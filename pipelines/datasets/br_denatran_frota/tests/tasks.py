@@ -60,6 +60,16 @@ class TestExtractingAllPossibleYears(unittest.TestCase):
         self.assertTrue(expected_files.issubset(files))
 
 
+class TestDownloadFrota(unittest.TestCase):
+    """
+    Class to test function download_file
+    """
+
+    def test_download_frota_with_invalid_month(self):
+        with self.assertRaises(ValueError):
+            crawl(13, 2013)
+
+
 class TestUFTreatmentPostCrawl(unittest.TestCase):
     """
     Classe para testar task treat_uf_tipo_task
