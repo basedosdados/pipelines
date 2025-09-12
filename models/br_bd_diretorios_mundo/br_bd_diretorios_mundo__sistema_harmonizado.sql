@@ -1,23 +1,51 @@
 {{ config(alias="sistema_harmonizado", schema="br_bd_diretorios_mundo") }}
 
-
+with
+    safe_select as (
+        select
+            safe_cast(co_sh6 as string) id_sh6,
+            safe_cast(co_sh4 as string) id_sh4,
+            safe_cast(co_sh2 as string) id_sh2,
+            safe_cast(co_ncm_secrom as string) id_ncm_secrom,
+            safe_cast(no_sh6_por as string) nome_sh6_portugues,
+            safe_cast(no_sh4_por as string) nome_sh4_portugues,
+            safe_cast(no_sh2_por as string) nome_sh2_portugues,
+            safe_cast(no_sec_por as string) nome_sec_portugues,
+            safe_cast(no_sh6_esp as string) nome_sh6_espanhol,
+            safe_cast(no_sh4_esp as string) nome_sh4_espanhol,
+            safe_cast(no_sh2_esp as string) nome_sh2_espanhol,
+            safe_cast(no_sec_esp as string) nome_sec_espanhol,
+            safe_cast(no_sh6_ing as string) nome_sh6_ingles,
+            safe_cast(no_sh4_ing as string) nome_sh4_ingles,
+            safe_cast(no_sh2_ing as string) nome_sh2_ingles,
+            safe_cast(no_sec_ing as string) nome_sec_ingles
+        from
+            {{
+                set_datalake_project(
+                    "br_bd_diretorios_mundo_staging.sistema_harmonizado"
+                )
+            }} as x
+    )
 select
-    safe_cast(co_sh6 as string) id_sh6,
-    safe_cast(co_sh4 as string) id_sh4,
-    safe_cast(co_sh2 as string) id_sh2,
-    safe_cast(co_ncm_secrom as string) id_ncm_secrom,
-    safe_cast(no_sh6_por as string) nome_sh6_portugues,
-    safe_cast(no_sh4_por as string) nome_sh4_portugues,
-    safe_cast(no_sh2_por as string) nome_sh2_portugues,
-    safe_cast(no_sec_por as string) nome_sec_portugues,
-    safe_cast(no_sh6_esp as string) nome_sh6_espanhol,
-    safe_cast(no_sh4_esp as string) nome_sh4_espanhol,
-    safe_cast(no_sh2_esp as string) nome_sh2_espanhol,
-    safe_cast(no_sec_esp as string) nome_sec_espanhol,
-    safe_cast(no_sh6_ing as string) nome_sh6_ingles,
-    safe_cast(no_sh4_ing as string) nome_sh4_ingles,
-    safe_cast(no_sh2_ing as string) nome_sh2_ingles,
-    safe_cast(no_sec_ing as string) nome_sec_ingles,
-from
-    {{ set_datalake_project("br_bd_diretorios_mundo_staging.sistema_harmonizado") }}
-    as x
+    {% set cols = [
+        "id_sh6",
+        "id_sh4",
+        "id_sh2",
+        "id_ncm_secrom",
+        "nome_sh6_portugues",
+        "nome_sh4_portugues",
+        "nome_sh2_portugues",
+        "nome_sec_portugues",
+        "nome_sh6_espanhol",
+        "nome_sh4_espanhol",
+        "nome_sh2_espanhol",
+        "nome_sec_espanhol",
+        "nome_sh6_ingles",
+        "nome_sh4_ingles",
+        "nome_sh2_ingles",
+        "nome_sec_ingles",
+    ] %}
+    {% for col in cols %}
+        {{ validate_null_cols(col) }} as {{ col }}{% if not loop.last %},{% endif %}
+    {% endfor %}
+from safe_select
