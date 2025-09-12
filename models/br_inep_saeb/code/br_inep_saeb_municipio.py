@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 
 import basedosdados as bd
@@ -101,7 +100,7 @@ mun_saeb_nivel_long_fmt = (
 
 mun_saeb_latest_output = (
     (
-        mun_saeb_nivel_long_fmt.pivot(
+        mun_saeb_nivel_long_fmt.pivot_table(
             index=[
                 "nome_uf",
                 "id_municipio",
@@ -186,11 +185,7 @@ mun_saeb_latest_output = (
     .drop(columns=["nome_uf"])
 )
 
-mun_saeb_latest_output.shape
-
 mun_saeb_latest_output = drop_empty_lines(mun_saeb_latest_output)
-
-mun_saeb_latest_output.shape
 
 mun_saeb_latest_output["ano"] = 2021
 

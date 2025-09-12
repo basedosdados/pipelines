@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import datetime
 
 import polars as pl
@@ -25,7 +22,7 @@ DICT_UFS = constants.DICT_UFS.value
 OUTPUT_PATH = constants.OUTPUT_PATH.value
 
 
-@task()  # noqa
+@task()
 def crawl_task(month: int, year: int, temp_dir: str = "") -> tuple:
     return crawl(month, year, temp_dir)
 

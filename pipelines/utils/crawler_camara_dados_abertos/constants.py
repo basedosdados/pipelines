@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # register constants
 from datetime import datetime
 from enum import Enum

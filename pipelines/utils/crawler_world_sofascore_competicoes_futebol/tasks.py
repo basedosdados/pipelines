@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for world_sofascore_competicoes_futebol
 """
-
-# pylint: disable=invalid-name,line-too-long
 
 from datetime import timedelta
 

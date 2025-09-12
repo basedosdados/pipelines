@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-
 import asyncio
 import os
-from typing import List
 
 import httpx
 import pandas as pd
@@ -99,7 +96,7 @@ async def download_file_async(root: str, url: str) -> None:
         f.write(b"\0" * total_size)
 
     chunk_size = 1024 * 1024 * 16  # 16 MB per chunk
-    tasks: List[asyncio.Task] = []
+    tasks: list[asyncio.Task] = []
     semaphore = asyncio.Semaphore(5)  # allow max 5 simultaneous downloads
 
     # Step 3: schedule downloads

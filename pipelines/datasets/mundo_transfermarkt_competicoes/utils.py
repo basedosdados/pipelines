@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the mundo_transfermarkt_competicoes project
 """
@@ -597,7 +596,7 @@ async def execucao_coleta():
     del df["test"]
 
     df["data"] = pd.to_datetime(df["data"]).dt.date
-    df.fillna("", inplace=True)
+    df = df.fillna("")
 
     # renomear colunas
     df = rename_columns(df)
@@ -1027,7 +1026,7 @@ async def execucao_coleta_copa():
     for gol in gols:
         penalti.append(1 if "on pens" in gol else 0)
 
-    pares = zip(links, penalti)
+    pares = zip(links, penalti, strict=False)
     for link, valor_penalti in pares:
         # Verifica se a partida teve cobrança de pênaltis (valor_penalti igual a 1)
         if valor_penalti == 1:
@@ -1219,7 +1218,7 @@ async def execucao_coleta_copa():
     df["tipo_fase"] = df["fase"].str.extract(r"(.+)\s*-\s*(.*)")[1]
 
     # Substituir as células vazias na coluna 'tipo_fase' por "Jogo único"
-    df["tipo_fase"].fillna("Jogo único", inplace=True)
+    df["tipo_fase"] = df["tipo_fase"].fillna("Jogo único")
 
     # Atualizar a coluna 'fase' com a parte antes do traço ou a própria 'fase' se não houver traço
     df["fase"] = (
@@ -1235,7 +1234,7 @@ async def execucao_coleta_copa():
 
     # Concatenando os dados dos dois loops
     df = pd.concat([df, df_valor], axis=1)
-    df.fillna("", inplace=True)
+    df = df.fillna("")
     df["publico_max"] = df["publico_max"].str.replace("\n", "")
     df = df[mundo_constants.ORDEM_COPA_BRASIL.value]
     df = df[df.data <= datetime.today()]  # Retirar posiveis jogos futuros

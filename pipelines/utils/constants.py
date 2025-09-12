@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constants for utils.
 """
@@ -6,7 +5,7 @@ Constants for utils.
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constants for utils.
     """

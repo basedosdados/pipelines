@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 
 import basedosdados as bd
@@ -92,7 +91,7 @@ ufs_saeb_nivel_long_fmt = (
 
 ufs_saeb_latest_output = (
     (
-        ufs_saeb_nivel_long_fmt.pivot(
+        ufs_saeb_nivel_long_fmt.pivot_table(
             index=["nome_uf", "rede", "localizacao", "disciplina", "serie"],
             columns="nivel",
             values="value",
@@ -161,10 +160,6 @@ ufs_saeb_latest_output.head()
 
 ufs_saeb_latest_output.info()
 
-ufs_saeb_latest_output.shape
-
-drop_empty_lines(ufs_saeb_latest_output).shape
-
 ufs_saeb_latest_output = drop_empty_lines(ufs_saeb_latest_output)
 
 tb = bd.Table(dataset_id="br_inep_saeb", table_id="uf")
@@ -190,8 +185,6 @@ upstream_df = bd.read_sql(
 assert isinstance(upstream_df, pd.DataFrame)
 
 upstream_df["serie"].unique()
-
-upstream_df.shape
 
 upstream_df = drop_empty_lines(upstream_df)
 

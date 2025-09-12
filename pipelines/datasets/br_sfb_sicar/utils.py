@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Utils for br_sfb_sicar
 """
@@ -109,7 +108,7 @@ def convert_shp_to_parquet(
                         )
                         raise RuntimeError(
                             f"Erro na conversão de geometria para WKT: {e}"
-                        )
+                        ) from e
 
                     # Adicionar a data de atualização
                     gdf_chunk["data_atualizacao_car"] = date

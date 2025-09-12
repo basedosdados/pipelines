@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Utility functions for the Mercado Livre Ofertas dataset."""
 
 import asyncio
@@ -480,7 +479,7 @@ async def get_seller_async(url, seller_id):
     info["title"] = (
         " ".join(re.findall(r"([A-Z]+)+", url.split("?")[0])).strip().title()
     )
-    for key, value in dict(zip(keys, results)).items():
+    for key, value in dict(zip(keys, results, strict=False)).items():
         info[key] = value
     info["opinions"] = await asyncio.gather(
         get_features_seller(url, attempts=2)
@@ -504,7 +503,7 @@ async def main_seller(seller_ids, seller_links, file_dest):
         file_dest (str): Destination file to save the processed seller data.
     """
     # get list of unique sellers
-    dict_id_link = dict(zip(seller_ids, seller_links))
+    dict_id_link = dict(zip(seller_ids, seller_links, strict=False))
 
     sellers = []
     for seller_id, link in tqdm(dict_id_link.items()):

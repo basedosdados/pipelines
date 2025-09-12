@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import tempfile
 import zipfile
 from io import BytesIO
@@ -84,7 +83,7 @@ def convert_shp_to_parquet(
                         )
                         raise RuntimeError(
                             f"Erro na conversão de geometria para WKT: {e}"
-                        )
+                        ) from e
 
                     # Converter para pandas DataFrame
                     df_chunk = pd.DataFrame(gdf_chunk)

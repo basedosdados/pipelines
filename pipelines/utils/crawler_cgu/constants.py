@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constant values for the datasets projects
 """
@@ -8,7 +7,7 @@ from enum import Enum
 import numpy as np
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     # ! ================================ CGU - Cartão de Pagamento ===========================================
     """
     Constant values for the br_cgu_cartao_pagamento project

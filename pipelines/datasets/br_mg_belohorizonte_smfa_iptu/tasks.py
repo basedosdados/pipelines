@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_mg_belohorizonte_smfa_iptu
 """
@@ -25,7 +24,7 @@ from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.utils import (
 from pipelines.utils.utils import log, to_partitions
 
 
-@task  # noqa
+@task
 def download_and_transform():
     log("Iniciando o web scrapping e download dos arquivos csv")
     scrapping_download_csv(input_path=constants.INPUT_PATH.value)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import os
 import re
@@ -20,12 +19,12 @@ def parse_file(file_path):
         temp_od = OrderedDict()
         temp_variavel = j[0]["variavel"]
         for r in j[0]["resultados"]:
-            temp_produto = list(r["classificacoes"][0]["categoria"].values())[
+            temp_produto = list(r["classificacoes"][0]["categoria"].values())[  # noqa: RUF015
                 0
             ]
             for s in r["series"]:
-                temp_ano = list(s["serie"].keys())[0]
-                temp_valor = list(s["serie"].values())[0]
+                temp_ano = list(s["serie"].keys())[0]  # noqa: RUF015
+                temp_valor = list(s["serie"].values())[0]  # noqa: RUF015
                 temp_sigla_uf = s["localidade"]["nome"].split("-")[-1].strip()
                 temp_id_municipio = s["localidade"]["id"]
 
@@ -94,7 +93,7 @@ def treat_columns(dataframe):
             "valor_producao",
         ]
     ]
-    COLUNAS_PARA_TRATAR = [
+    colunas_para_tratar = [
         "ano",
         "area_destinada_colheita",
         "area_colhida",
@@ -103,7 +102,7 @@ def treat_columns(dataframe):
         "valor_producao",
     ]
 
-    for coluna in COLUNAS_PARA_TRATAR:
+    for coluna in colunas_para_tratar:
         dataframe[coluna] = dataframe[coluna].apply(
             lambda x: np.nan if x in ("-", "..", "...", "X") else x
         )
@@ -125,7 +124,7 @@ def products_weight_ratio_fix(row):
     de conversão fruto x quilograma.
     """
 
-    DICIONARIO_DE_PROPORCOES = {
+    dicionario_de_proporcoes = {
         "Abacate": 0.38,
         "Banana (cacho)": 10.20,
         "Caqui": 0.18,
@@ -157,11 +156,11 @@ def products_weight_ratio_fix(row):
     ):
         return row
 
-    if row["produto"] not in DICIONARIO_DE_PROPORCOES.keys():
+    if row["produto"] not in dicionario_de_proporcoes:
         return row
 
     quantidade_produzida = (
-        row["quantidade_produzida"] * DICIONARIO_DE_PROPORCOES[row["produto"]]
+        row["quantidade_produzida"] * dicionario_de_proporcoes[row["produto"]]
     )
     rendimento_medio_producao = (
         quantidade_produzida / row["area_colhida"] * 1000
@@ -184,9 +183,7 @@ def currency_fix(row):
         return row["valor_producao"] / (1000**4 * 2.75)
     elif 1986 <= row["ano"] <= 1988:
         return row["valor_producao"] / (1000**3 * 2.75)
-    elif row["ano"] == 1989:
-        return row["valor_producao"] / (1000**2 * 2.75)
-    elif 1990 <= row["ano"] <= 1992:
+    elif row["ano"] == 1989 or 1990 <= row["ano"] <= 1992:
         return row["valor_producao"] / (1000**2 * 2.75)
     elif row["ano"] == 1993:
         return row["valor_producao"] / (1000 * 2.75)
@@ -242,7 +239,7 @@ if __name__ == "__main__":
         print("Transformações finalizadas!")
         temp_ano = df["ano"].max()
         print("Deletando a coluna ano para possibilitar o particionamento...")
-        df.drop(columns=["ano"], inplace=True)
+        df = df.drop(columns=["ano"])
         print("Transformações finalizadas!")
         temp_export_file_path = f"../parquet/ano={temp_ano}/data.parquet"
         print(

@@ -149,8 +149,36 @@ target-version = "py310"
 extend-exclude = ['\{\{cookiecutter.pipeline_name\}\}']
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
-ignore = ["E501"]
+select = [
+  # pycodestyle
+  "E",
+  # Pyflakes
+  "F",
+  # pyupgrade
+  "UP",
+  # flake8-bugbear
+  "B",
+  # flake8-simplify
+  "SIM",
+  # isort
+  "I",
+  # ruff
+  "RUF",
+  # Pandas
+  "PD",
+  # pep8-naming
+  "N"
+]
+ignore = [
+  # line-to-long
+  "E501",
+  # pandas-df-variable-name (deprecated)
+  "PD901",
+  # invalid-class-name
+  "N801",
+  # mutable-class-default
+  "RUF012"
+]
 
 [tool.sqlfmt]
 exclude = ["target/**/*", "dbt_packages/**/*", ".venv/**/*"]

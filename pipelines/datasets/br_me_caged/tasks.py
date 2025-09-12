@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_me_novo_caged
 """
 
 import os
-
-# pylint: disable=invalid-name
 import re
 from datetime import timedelta
 from glob import glob
@@ -90,7 +87,7 @@ def build_partitions(table_id: str) -> str:
 
         for state in dict_uf.values():
             data = df[df["uf"] == state]
-            data.drop(["competenciamov", "uf"], axis=1, inplace=True)
+            data = data.drop(["competenciamov", "uf"], axis=1)
             data.to_csv(
                 f"/tmp/caged/{table_id}/ano={ano}/mes={mes}/sigla_uf={state}/data.csv",
                 index=False,

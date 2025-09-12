@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flow definition for the delete_flows pipeline
 """

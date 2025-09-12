@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 import os
 from pathlib import Path
-from typing import List
 
 import pandas as pd
 
@@ -112,7 +110,7 @@ def get_region_letters(region_names):
 
 def to_partitions(
     data: pd.DataFrame,
-    partition_columns: List[str],
+    partition_columns: list[str],
     savepath: str,
     file_type: str = "csv",
 ):

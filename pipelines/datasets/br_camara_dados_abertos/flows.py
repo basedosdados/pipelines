@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # register flow in prefect
 
 from copy import deepcopy

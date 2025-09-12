@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the world_sofascore_competicoes_futebol project
 """
-# pylint: disable=invalid-name,line-too-long
 
 import concurrent.futures
 import http.client
@@ -30,14 +28,16 @@ def form_row_match_halve(statistics: dict) -> dict:
         ]
     )
 
-    mandante_columns = [f"mandante_{key}" for key in temp_df_tempo.key.values]
+    mandante_columns = [
+        f"mandante_{key}" for key in temp_df_tempo.key.to_numpy()
+    ]
     visitante_columns = [
-        f"visitante_{key}" for key in temp_df_tempo.key.values
+        f"visitante_{key}" for key in temp_df_tempo.key.to_numpy()
     ]
 
-    data = dict(zip(mandante_columns, temp_df_tempo.home.values)) | dict(
-        zip(visitante_columns, temp_df_tempo.away.values)
-    )
+    data = dict(
+        zip(mandante_columns, temp_df_tempo.home.values, strict=False)
+    ) | dict(zip(visitante_columns, temp_df_tempo.away.values, strict=False))
 
     return data
 
@@ -83,7 +83,7 @@ def form_period_dict(response_event_short: dict, date_match: datetime) -> dict:
 
         period_control["regular_period_list"].append(period_scores)
 
-        if period_extra_key in response_event_short["homeScore"].keys():
+        if period_extra_key in response_event_short["homeScore"]:
             period_extra_scores = {
                 "mandante_score": response_event_short["homeScore"][
                     period_extra_key
@@ -133,7 +133,7 @@ def get_event_score(event_dict: dict) -> list:
 
 def get_statistics_rows_match_halves(event_dict: dict) -> list | bool:
     # Existe a possibilidade da primeira requisição voltar vazia.
-    for _try_ in range(2):
+    for _ in range(2):
         try:
             url_statistics = f"https://www.sofascore.com/api/v1/event/{event_dict['id_event']}/statistics"
 
@@ -240,7 +240,7 @@ def form_extract_season(
         for index_url in range(games_count)
     ]
     # Filtramos apenas os rounds que estão pronto para coleta
-    rounds = [round for round in rounds_raw if "events" in round.keys()]
+    rounds = [round for round in rounds_raw if "events" in round]
 
     try:
         id_events = [

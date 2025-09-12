@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the mundo_transfermarkt_competicoes_internacionais project
 """
@@ -812,7 +811,7 @@ async def execucao_coleta():
             and publico.endswith(" esgotado")
         ):
             valor = publico.replace(" esgotado", "")
-            df.at[index, "publico"] = valor
+            df.loc[index, "publico"] = valor
 
     df["tipo_fase"] = df["fase"].apply(definir_tipo_fase)
     df["fase"] = df["fase"].apply(definir_fase)
@@ -828,7 +827,7 @@ async def execucao_coleta():
     )
 
     df = pd.concat([df, df_valor], axis=1)
-    df.fillna("", inplace=True)
+    df = df.fillna("")
     df["temporada"] = obter_temporada()
     df = df.loc[:, mundo_constants.ORDEM_COLUNA_FINAL.value]
 

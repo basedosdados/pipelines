@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     URL = "https://portaldatransparencia.gov.br/download-de-dados/emendas-parlamentares/UNICO"
     INPUT = "/tmp/input/"
     OUTPUT = "/tmp/output/"

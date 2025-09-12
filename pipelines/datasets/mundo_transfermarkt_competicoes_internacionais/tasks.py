@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for mundo_transfermarkt_competicoes_internacionais
 """

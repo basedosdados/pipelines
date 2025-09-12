@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constants for br_me_comex_stat
 """
@@ -6,7 +5,7 @@ Constants for br_me_comex_stat
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constants for br_me_comex_stat
     """

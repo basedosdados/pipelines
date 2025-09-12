@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for to_download
 """
 
 import asyncio
 import os
-from typing import List
 
 from prefect import task
 
@@ -13,9 +11,9 @@ from pipelines.utils.to_download.utils import download_files_async
 from pipelines.utils.utils import log
 
 
-@task  # noqa
+@task
 def to_download(
-    url: List[str],
+    url: list[str],
     save_path: str,
     file_type: str,
     params=None,

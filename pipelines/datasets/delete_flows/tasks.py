@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for delete_flows
 """
-
-from typing import Dict, List
 
 import pendulum
 from prefect import task
@@ -23,7 +20,7 @@ def get_prefect_client() -> Client:
 @task
 def get_old_flows_runs(
     days_old: int, client: Client = None
-) -> List[Dict[str, str]]:
+) -> list[dict[str, str]]:
     """
     Fetches old flow runs from the API.
     Args:
@@ -69,7 +66,7 @@ def get_old_flows_runs(
 
 @task
 def delete_flow_run(
-    flow_run_dict: Dict[str, str], client: Client = None
+    flow_run_dict: dict[str, str], client: Client = None
 ) -> None:
     """
     Deletes a flow run from the API.

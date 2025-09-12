@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_rf_cno
 """
@@ -22,7 +21,7 @@ from pipelines.datasets.br_rf_cno.constants import constants as br_rf_cno
 from pipelines.datasets.br_rf_cno.utils import (
     download_file_async,
     process_chunk,
-)  # noqa: F403
+)
 from pipelines.utils.utils import log
 
 
@@ -63,7 +62,7 @@ def check_need_for_update(url: str) -> str:
             else:
                 raise
         except HTTPError as e:
-            raise requests.HTTPError(f"HTTP error occurred: {e}")
+            raise requests.HTTPError(f"HTTP error occurred: {e}") from e
 
     soup = BeautifulSoup(response.content, "html.parser")
     rows = soup.find_all("tr")
@@ -181,7 +180,7 @@ def process_file(
                 ):
                     process_chunk(
                         chunk, i, output_dir, partition_date, table_name
-                    )  # noqa: F405
+                    )
                     pbar.update(1)
 
             os.remove(filepath)
@@ -209,7 +208,7 @@ def crawl_cno(root: str, url: str) -> None:
         None
     """
     log(f"---- Downloading CNO file from {url}")
-    asyncio.run(download_file_async(root, url))  # noqa: F405
+    asyncio.run(download_file_async(root, url))
 
     filepath = f"{root}/data.zip"
     log(f"---- Unzipping files from {filepath}")

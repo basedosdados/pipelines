@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the process_df_with_architecture project
 """
@@ -64,7 +63,7 @@ def read_architecture_table(url_architecture: str) -> pd.DataFrame:
         StringIO(requests.get(url, timeout=10).content.decode("utf-8"))
     )
 
-    df_architecture.query("name != '(excluido)'", inplace=True)
+    df_architecture = df_architecture.query("name != '(excluido)'")
 
     return df_architecture.replace(np.nan, "", regex=True)
 
@@ -100,7 +99,7 @@ def rename_columns(
     )
 
     # Create a dictionary 'dict_columns' with column name mappings
-    dict_columns = dict(zip(aux.original_name, aux.name))
+    dict_columns = dict(zip(aux.original_name, aux.name, strict=False))
 
     # Rename columns of the DataFrame 'df' based on the dictionary 'dict_columns'
     return df.rename(columns=dict_columns)
