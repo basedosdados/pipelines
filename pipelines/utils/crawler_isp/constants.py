@@ -29,7 +29,7 @@ class constants(Enum):  # pylint: disable=c0103
             "sheets_name": "https://docs.google.com/spreadsheets/d/1VKorutzmHUl71a2J--auChJm8tC-652i/edit#gid=199121203",
         },
         "armas_apreendidas_mensal": {  # Errado
-            "name_table": "ArmasApreendidasEvolucaoCisp.xlsx",
+            "name_table": "ArmasApreendidasEvolucaoCisp.csv",
             "sheets_name": "https://docs.google.com/spreadsheets/d/14wV3BkjG_9GDWKDUAbOVe2KOh0Bi6FAA/edit#gid=1673208544",
         },
         "evolucao_policial_morto_servico_mensal": {  # Normal

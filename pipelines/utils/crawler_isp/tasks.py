@@ -69,7 +69,6 @@ def clean_data(
     )
 
     df = read_data(file_name=file_name)
-
     log("renaming columns")
     # rename columns
     link_arquitetura = isp_constants.dict_table.value[file_name]["sheets_name"]
