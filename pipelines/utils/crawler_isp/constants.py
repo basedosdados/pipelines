@@ -16,17 +16,9 @@ class constants(Enum):  # pylint: disable=c0103
             "name_table": "DOMensalEstadoDesde1991.csv",  # Normal
             "sheets_name": "https://docs.google.com/spreadsheets/d/1seN6LQ9WQnobVNpFw6KX5BMhYr0yyZa2/edit#gid=1349095453",
         },
-        "taxa_evolucao_mensal_uf": {
-            "name_table": "BaseEstadoTaxaMes.csv",  # Descontuinado
-            "sheets_name": "https://docs.google.com/spreadsheets/d/1fQ7MnfHm8vrlfdUhAYlU7F-CJouORKkc/edit#gid=1414191356",
-        },
         "evolucao_mensal_municipio": {  # Normal
             "name_table": "BaseMunicipioMensal.csv",
             "sheets_name": "https://docs.google.com/spreadsheets/d/1cHPcIBfmFwSxgMTsvGX-Ha-Efz7ZIDpn/edit#gid=347509921",
-        },
-        "taxa_evolucao_mensal_municipio": {  # Descontinuada
-            "name_table": "BaseMunicipioTaxaMes.csv",
-            "sheets_name": "https://docs.google.com/spreadsheets/d/1VKorutzmHUl71a2J--auChJm8tC-652i/edit#gid=199121203",
         },
         "armas_apreendidas_mensal": {  # Errado
             "name_table": "ArmasApreendidasEvolucaoCisp.csv",

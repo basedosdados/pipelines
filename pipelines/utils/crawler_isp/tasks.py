@@ -64,9 +64,7 @@ def read_data(file_name: str) -> pd.DataFrame:
 def clean_data(
     file_name: str,
 ):
-    output_path = os.path.join(
-        f"{isp_constants.OUTPUT_PATH.value}, {file_name}.csv"
-    )
+    output_path = f"{isp_constants.OUTPUT_PATH.value}{file_name}.csv"
 
     df = read_data(file_name=file_name)
     log("renaming columns")
