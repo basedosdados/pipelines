@@ -12,7 +12,6 @@ from pipelines.datasets.br_denatran_frota.handlers import (
     get_latest_data,
     get_year_month_from_filename,
     output_file_to_parquet,
-    should_process_data,
     treat_municipio_tipo,
     treat_uf_tipo,
 )
@@ -31,8 +30,8 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
 
 
 @task()
-def output_file_to_parquet_task(df: pl.DataFrame, filename: str) -> None:
-    return output_file_to_parquet(df, filename)
+def output_file_to_parquet_task(df: pl.DataFrame) -> None:
+    return output_file_to_parquet(df)
 
 
 @task()
@@ -50,13 +49,6 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
 @task()
 def get_latest_data_task(table_id: str, dataset_id: str) -> tuple[int, int]:
     return get_latest_data(table_id=table_id, dataset_id=dataset_id)
-
-
-@task()
-def should_process_data_task(
-    bq_year: int, bq_month: int, filename: str
-) -> bool:
-    return should_process_data(bq_year, bq_month, filename)
 
 
 @task()

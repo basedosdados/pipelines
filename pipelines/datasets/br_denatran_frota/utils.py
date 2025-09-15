@@ -377,6 +377,7 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
             )
             if ext:
                 file_path += f".{file_info['file_extension']}"
+            print(f"FILEPATH:{file_path}")
             return file_path
 
         ## Make file path pre 2012
@@ -398,6 +399,7 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
                 else:
                     regex_to_search = rf"Mun\w*_(.*?)_{str(year)[2:4]}"
             else:
+                print(file_info)
                 raise ValueError
             match = re.search(regex_to_search, file_info["raw_file_name"])
             if match:
@@ -412,12 +414,13 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
                     ) or denatran_constants.MONTHS_SHORT.value.get(
                         str(month_in_file).lower()
                     )
-                extension = str(file_info["raw_filename"]).split(".")[-1]
+                extension = str(file_info["raw_file_name"]).split(".")[-1]
                 file_path = (
                     file_info["destination_dir"]
                     + f"{raw_filename}_{month_value}-{year}.{extension}"
                 )
-                if month_value == str(file_info["month"]):
+                if month_value == str(file_info["ano"]):
+                    print(f"FILEPATH:{file_path}")
                     return file_path
 
 
@@ -515,8 +518,7 @@ def extract_links_post_2012(
 def extraction_pre_2012(
     month: int, year: int, year_dir_name: str, zip_file: str
 ):
-    """_summary_
-
+    """
     Args:
         month (int): _description_
         year (int): _description_
@@ -529,11 +531,11 @@ def extraction_pre_2012(
     with ZipFile(zip_file, "r") as g:
         compressed_files = [file for file in g.infolist() if not file.is_dir()]
 
-        for file in compressed_files:
+        for i, file in enumerate(compressed_files):
             file_path = None
-            raw_filename = file.filename.split("/")[-1]
+            raw_file_name = file.filename.split("/")[-1]
             file_info = {
-                "raw_file_name": raw_filename,
+                "raw_file_name": raw_file_name,
                 "file_url": None,
                 "mes": month,
                 "ano": year,
@@ -541,14 +543,18 @@ def extraction_pre_2012(
                 "type_of_file": "",
                 "destination_dir": str(year_dir_name),
             }
-            if re.search("Tipo", raw_filename, re.IGNORECASE) or re.search(
+            if re.search("Tipo", raw_file_name, re.IGNORECASE) or re.search(
                 r"Tipo[-\s]UF", zip_file.split("/")[-1]
             ):
                 file_info["type_of_file"] = DenatranType.UF
-            elif re.search(r"Mun\w*", raw_filename, re.IGNORECASE):
+            elif re.search(r"Mun\w*", raw_file_name, re.IGNORECASE):
                 file_info["type_of_file"] = DenatranType.Municipio
-            file_path = make_file_path(file_info=file_info, ext=False)
+            try:
+                file_path = make_file_path(file_info=file_info, ext=False)
+            except Exception as e:
+                print(e)
             if file_path:
+                print(file_path)
                 g.extract(file, path=year_dir_name)
                 os.rename(f"{year_dir_name}/{file.filename}", file_path)
 

@@ -65,7 +65,6 @@ with Flow(
         table_id="uf_tipo", dataset_id=dataset_id
     )
     # search for most recent year in the API
-
     crawled = crawl_task(
         month=date_to_fetch[1],
         year=date_to_fetch[0],
@@ -92,7 +91,6 @@ with Flow(
 
         parquet_output = output_file_to_parquet_task(
             df,
-            denatran_constants.UF_TIPO_BASIC_FILENAME.value,
             upstream_tasks=[df],
         )
 
@@ -188,15 +186,15 @@ with Flow(
         wait=table_id,
     )
 
-    year_to_fetch = get_latest_data_task(
+    date_to_fetch = get_latest_data_task(
         table_id="municipio_tipo", dataset_id=dataset_id
     )
 
     crawled = crawl_task(
-        month=year_to_fetch[1],
-        year=year_to_fetch[0],
+        month=date_to_fetch[1],
+        year=date_to_fetch[0],
         temp_dir=denatran_constants.DOWNLOAD_PATH.value,
-        upstream_tasks=[year_to_fetch],
+        upstream_tasks=[date_to_fetch],
     )
 
     with case(crawled, False):
@@ -205,7 +203,7 @@ with Flow(
     with case(crawled, True):
         # Now get the downloaded file:
         desired_file = get_desired_file_task(
-            year=year_to_fetch[0],
+            year=date_to_fetch[0],
             download_directory=denatran_constants.DOWNLOAD_PATH.value,
             filetype=denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value,
             upstream_tasks=[crawled],
@@ -217,7 +215,6 @@ with Flow(
 
         parquet_output = output_file_to_parquet_task(
             df,
-            denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value,
             upstream_tasks=[df],
         )
         wait_upload_table = create_table_and_upload_to_gcs(
