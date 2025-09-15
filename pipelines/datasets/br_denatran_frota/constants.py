@@ -84,9 +84,8 @@ class constants(Enum):  # pylint: disable=c0103
     }
 
     ## Paths
-    CURRENT_DIR = Path(__file__).parent
-    DOWNLOAD_PATH = Path(CURRENT_DIR / f"tmp/input/{DATASET}")
-    OUTPUT_PATH = Path(CURRENT_DIR / f"tmp/output/{DATASET}")
+    DOWNLOAD_PATH = Path(f"tmp/input/{DATASET}")
+    OUTPUT_PATH = Path(f"tmp/output/{DATASET}")
     DOWNLOAD_PATH.mkdir(exist_ok=True, parents=True)
     OUTPUT_PATH.mkdir(exist_ok=True, parents=True)
 
