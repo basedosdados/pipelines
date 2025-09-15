@@ -89,6 +89,11 @@ class constants(Enum):  # pylint: disable=c0103
     DOWNLOAD_PATH.mkdir(exist_ok=True, parents=True)
     OUTPUT_PATH.mkdir(exist_ok=True, parents=True)
 
+    DOWNLOAD_FILES_PATH = Path(DOWNLOAD_PATH / "files")
+    OUTPUT_FILES_PATH = Path(OUTPUT_PATH / "files")
+    DOWNLOAD_FILES_PATH.mkdir(exist_ok=True, parents=True)
+    DOWNLOAD_FILES_PATH.mkdir(exist_ok=True, parents=True)
+
     UF_TIPO_BASIC_FILENAME = "frota_por_uf_e_tipo_de_veiculo"
     MUNIC_TIPO_BASIC_FILENAME = "frota_por_municipio_e_tipo"
 

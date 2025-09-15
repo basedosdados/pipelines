@@ -34,9 +34,7 @@ from pipelines.utils.tasks import (
 
 with Flow(
     name="br_denatran_frota.uf_tipo",
-    code_owners=[
-        "Gabriel Pisa",
-    ],
+    code_owners=["Gabriel Pisa", "Luiza"],
 ) as br_denatran_frota_uf_tipo:
     dataset_id = Parameter("dataset_id", default="br_denatran_frota")
     table_id = Parameter("table_id", default="uf_tipo")
@@ -159,9 +157,7 @@ br_denatran_frota_uf_tipo.run_config = KubernetesRun(
 
 with Flow(
     name="br_denatran_frota.municipio_tipo",
-    code_owners=[
-        "Gabriel Pisa",
-    ],
+    code_owners=["Gabriel Pisa", "Luiza"],
 ) as br_denatran_frota_municipio_tipo:
     dataset_id = Parameter("dataset_id", default="br_denatran_frota")
     table_id = Parameter("table_id", default="municipio_tipo")
@@ -189,7 +185,6 @@ with Flow(
     date_to_fetch = get_latest_data_task(
         table_id="municipio_tipo", dataset_id=dataset_id
     )
-
     crawled = crawl_task(
         month=date_to_fetch[1],
         year=date_to_fetch[0],

@@ -357,9 +357,8 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
     """
     if "ano" in file_info:
         year = int(file_info["ano"])
-
         ## Make file path post 2012
-        if year >= 2012:
+        if year > 2012:
             raw_file_name = asciify(file_info["raw_file_name"])
             if year == 2013:
                 # Need to treat this specific difference because name is misleading. This should solve
@@ -402,6 +401,7 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
                 print(file_info)
                 raise ValueError
             match = re.search(regex_to_search, file_info["raw_file_name"])
+
             if match:
                 if (year == 2004 or year == 2005) and file_info[
                     "type_of_file"
@@ -414,12 +414,16 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
                     ) or denatran_constants.MONTHS_SHORT.value.get(
                         str(month_in_file).lower()
                     )
-                extension = str(file_info["raw_file_name"]).split(".")[-1]
+                if file_info["file_extension"] == "":
+                    extension = str(file_info["raw_file_name"]).split(".")[-1]
+                else:
+                    extension = file_info["file_extension"]
+                breakpoint()
                 file_path = (
                     file_info["destination_dir"]
-                    + f"{raw_filename}_{month_value}-{year}.{extension}"
+                    + f"/{raw_filename}_{month_value}-{year}.{extension}"
                 )
-                if month_value == str(file_info["ano"]):
+                if month_value == int(file_info["mes"]):
                     print(f"FILEPATH:{file_path}")
                     return file_path
 
@@ -530,27 +534,30 @@ def extraction_pre_2012(
         return
     with ZipFile(zip_file, "r") as g:
         compressed_files = [file for file in g.infolist() if not file.is_dir()]
-
         for i, file in enumerate(compressed_files):
             file_path = None
-            raw_file_name = file.filename.split("/")[-1]
+            split_file_name = file.filename.split("/")[-1]
+            split_file_name = split_file_name.split(".")
+            raw_file_name = ".".join([split for split in split_file_name[:-1]])
             file_info = {
                 "raw_file_name": raw_file_name,
                 "file_url": None,
                 "mes": month,
                 "ano": year,
-                "file_extension": "",
+                "file_extension": split_file_name[-1],
                 "type_of_file": "",
                 "destination_dir": str(year_dir_name),
             }
+
             if re.search("Tipo", raw_file_name, re.IGNORECASE) or re.search(
                 r"Tipo[-\s]UF", zip_file.split("/")[-1]
             ):
                 file_info["type_of_file"] = DenatranType.UF
             elif re.search(r"Mun\w*", raw_file_name, re.IGNORECASE):
                 file_info["type_of_file"] = DenatranType.Municipio
+
             try:
-                file_path = make_file_path(file_info=file_info, ext=False)
+                file_path = make_file_path(file_info=file_info, ext=True)
             except Exception as e:
                 print(e)
             if file_path:
