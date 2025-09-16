@@ -13,6 +13,8 @@ models:
             - id_pais
             - sigla_uf
             - id_municipio
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano
