@@ -41,7 +41,7 @@ from pipelines.utils.tasks import (
 )
 
 with Flow(
-    name="br_me_comex_stat.municipio_exportacao", code_owners=["Gabriel Pisa"]
+    name="br_me_comex_stat.municipio_exportacao", code_owners=["Luiza"]
 ) as br_comex_municipio_exportacao:
     # Parameters
     dataset_id = Parameter(
@@ -160,7 +160,7 @@ br_comex_municipio_exportacao.schedule = schedule_municipio_exportacao
 
 
 with Flow(
-    name="br_me_comex_stat.municipio_importacao", code_owners=["Gabriel Pisa"]
+    name="br_me_comex_stat.municipio_importacao", code_owners=["Luiza"]
 ) as br_comex_municipio_importacao:
     # Parameters
     dataset_id = Parameter(
@@ -277,7 +277,7 @@ br_comex_municipio_importacao.schedule = schedule_municipio_importacao
 
 
 with Flow(
-    name="br_me_comex_stat.ncm_exportacao", code_owners=["Gabriel Pisa"]
+    name="br_me_comex_stat.ncm_exportacao", code_owners=["Luiza"]
 ) as br_comex_ncm_exportacao:
     # Parameters
     dataset_id = Parameter(
@@ -393,7 +393,7 @@ br_comex_ncm_exportacao.schedule = schedule_ncm_exportacao
 
 
 with Flow(
-    name="br_me_comex_stat.ncm_importacao", code_owners=["Gabriel Pisa"]
+    name="br_me_comex_stat.ncm_importacao", code_owners=["Luiza"]
 ) as br_comex_ncm_importacao:
     # Parameters
     dataset_id = Parameter(
