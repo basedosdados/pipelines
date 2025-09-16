@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 """
 Flows for world_sofascore_competicoes_futebol
 """
 
-# pylint: disable=invalid-name,line-too-long
 from datetime import timedelta
 
 from prefect import Parameter, case

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for transfer_files_to_prod
 """

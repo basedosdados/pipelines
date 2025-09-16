@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ufs = {
     "Acre": "AC",
     "Alagoas": "AL",

@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_sfb_sicar
 """
 
 import os
 from datetime import timedelta
-from typing import Dict
 
 import httpx
 from prefect import task
@@ -55,7 +53,7 @@ def download_car(inputpath, outputpath, sigla_uf, polygon):
     max_retries=10,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_each_uf_release_date() -> Dict:
+def get_each_uf_release_date() -> dict:
     car = Sicar()
     log("Extraindo a data de atualização dos dados de cada UF")
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_cvm_oferta_publica_distribuicao
 """
@@ -16,7 +15,6 @@ from unidecode import unidecode
 
 @task
 def crawl(root: str, url: str) -> None:
-    # pylint: disable=invalid-name
     """Get table 'oferta_distribuicao' from CVM website"""
     os.makedirs(root, exist_ok=True)
 
@@ -27,7 +25,6 @@ def crawl(root: str, url: str) -> None:
 
 @task
 def clean_table_oferta_distribuicao(root: str) -> str:
-    # pylint: disable=invalid-name,no-member,unsubscriptable-object, E1137
     """Standardizes column names and selected variables"""
     in_filepath = f"{root}/oferta_distribuicao.csv"
     ou_filepath = f"{root}/output/br_cvm_oferta_publica_distribuicao.csv"

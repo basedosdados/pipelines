@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
 """Tasks for Mercado Livre Ofertas dataset"""
-# pylint: disable=invalid-name
 
 import asyncio
 import os
 import time
-from typing import List, Tuple
 
 import pandas as pd
 from prefect import task
@@ -221,7 +218,7 @@ def clean_seller(filepath_raw):
 
 
 @task(nout=2)
-def get_today_sellers(filepath_raw) -> Tuple[List[str], List[str]]:
+def get_today_sellers(filepath_raw) -> tuple[list[str], list[str]]:
     """
     Extracts unique seller IDs and their corresponding links from cleaned seller data.
     The extracted information is returned as two lists: one containing unique seller IDs
@@ -247,13 +244,13 @@ def get_today_sellers(filepath_raw) -> Tuple[List[str], List[str]]:
     if df.empty:
         return [], []
     # get list of unique sellers
-    dict_id_link = dict(zip(df["seller_id"], df["seller_link"]))
+    dict_id_link = dict(zip(df["seller_id"], df["seller_link"], strict=False))
 
     return list(dict_id_link.keys()), list(dict_id_link.values())
 
 
 @task
-def is_empty_list(list_sellers: List[str]) -> bool:
+def is_empty_list(list_sellers: list[str]) -> bool:
     """
     Checks if a list of sellers is empty.
 

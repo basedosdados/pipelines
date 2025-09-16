@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constant values for the br_b3_cotacoes project
     """

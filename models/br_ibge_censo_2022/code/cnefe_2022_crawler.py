@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import zipfile
 from io import BytesIO
@@ -48,17 +47,14 @@ def process_sp_file(file: BytesIO, uf: str) -> None:
     os.makedirs(output_dir, exist_ok=True)
     chunk_number = 0
 
-    with zipfile.ZipFile(file) as z:
-        with z.open(z.namelist()[0]) as f:
-            for chunk in pd.read_csv(f, chunksize=1000000, sep=";", dtype=str):
-                chunk_number += 1
-                chunk.to_parquet(
-                    os.path.join(
-                        output_dir, f"{uf}_chunk_{chunk_number}.parquet"
-                    ),
-                    compression="gzip",
-                )
-                print(f"Chunk {chunk_number} de {uf} salvo com sucesso.")
+    with zipfile.ZipFile(file) as z, z.open(z.namelist()[0]) as f:
+        for chunk in pd.read_csv(f, chunksize=1000000, sep=";", dtype=str):
+            chunk_number += 1
+            chunk.to_parquet(
+                os.path.join(output_dir, f"{uf}_chunk_{chunk_number}.parquet"),
+                compression="gzip",
+            )
+            print(f"Chunk {chunk_number} de {uf} salvo com sucesso.")
 
 
 # Função para descompactar o arquivo na sessão
@@ -72,9 +68,8 @@ def unzip_file_in_session(file: BytesIO) -> pd.DataFrame:
     Retorna:
     pd.DataFrame: DataFrame com os dados do arquivo descompactado.
     """
-    with zipfile.ZipFile(file) as z:
-        with z.open(z.namelist()[0]) as f:
-            df = pd.read_csv(f, sep=";", dtype=str)
+    with zipfile.ZipFile(file) as z, z.open(z.namelist()[0]) as f:
+        df = pd.read_csv(f, sep=";", dtype=str)
     return df
 
 

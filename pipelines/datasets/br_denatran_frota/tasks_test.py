@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import re
 import shutil
@@ -28,10 +27,11 @@ DICT_UFS = constants.DICT_UFS.value
 
 
 def custom_name_func(testcase_func, param_num, param):
-    return "%s_%s" % (
-        testcase_func.__name__,
-        parameterized.to_safe_name("_".join(str(x) for x in param.args)),
+    first_arg = testcase_func.__name__
+    second_arg = parameterized.to_safe_name(
+        "_".join(str(x) for x in param.args)
     )
+    return f"{first_arg}_{second_arg}"
 
 
 class TestExtractingAllPossibleYears(unittest.TestCase):

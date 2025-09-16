@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_cvm_administradores_carteira
 """
 
-# pylint: disable=C0103, E1123, invalid-name
 from datetime import timedelta
 
 from prefect import Parameter, case

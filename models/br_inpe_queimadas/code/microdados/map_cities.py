@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 import difflib
 
 import pandas as pd
 
 
-def getStateLetters(data):
+def get_state_letters(data):
     state_lower = data["estado"].str.lower()
     states = {
         "acre": "AC",
@@ -40,19 +39,19 @@ def getStateLetters(data):
     return data
 
 
-def getCityUfField(data):
+def get_city_uf_field(data):
     data["cidade_uf"] = (
         data["municipio"].str.title() + " - " + data["sigla_uf"]
     )
     return data[["cidade_uf"]]
 
 
-def getUniqueCities(data):
+def get_unique_cities(data):
     data["cidade_uf"] = data["cidade_uf"].drop_duplicates()
     return data.dropna()
 
 
-def getInpeCities():
+def get_inpe_cities():
     year_data = pd.read_csv("./input/year_fire_data.csv")[
         ["municipio", "estado"]
     ]
@@ -61,14 +60,14 @@ def getInpeCities():
     ]
 
     cities = pd.concat([month_data, year_data], axis=0)
-    cities = getStateLetters(cities)
-    cities = getCityUfField(cities)
-    cities = getUniqueCities(cities)
+    cities = get_state_letters(cities)
+    cities = get_city_uf_field(cities)
+    cities = get_unique_cities(cities)
 
     return cities
 
 
-def getDirCities():
+def get_dir_cities():
     dir_data = pd.read_csv(
         "./extra/diretorio_municipios.csv"
     )  # Tabela de Municípios do Diretório da Base dos Dados
@@ -76,7 +75,7 @@ def getDirCities():
     return dir_data
 
 
-def getSimilarCities(city, dir_data):
+def get_similiar_cities(city, dir_data):
     results = difflib.get_close_matches(
         city, dir_data["cidade_uf"], cutoff=0.8
     )
@@ -86,18 +85,18 @@ def getSimilarCities(city, dir_data):
         return None
 
 
-def mapCityNames(inpe_data, dir_data):
+def map_city_names(inpe_data, dir_data):
     inpe_data["cidade_uf_dir"] = inpe_data["cidade_uf"].apply(
-        lambda x: getSimilarCities(x, dir_data)
+        lambda x: get_similiar_cities(x, dir_data)
     )
     inpe_data["cidade_uf"] = inpe_data["cidade_uf"].str.upper()
     return inpe_data
 
 
 if __name__ == "__main__":
-    inpe_data = getInpeCities()
-    dir_data = getDirCities()
-    inpe_data = mapCityNames(inpe_data, dir_data)
+    inpe_data = get_inpe_cities()
+    dir_data = get_dir_cities()
+    inpe_data = map_city_names(inpe_data, dir_data)
 
     # Após a geração do arquivo, recomenda-se uma validação manual para checar
     # se os casos onde não houveram um mapeamento exato do nome do município

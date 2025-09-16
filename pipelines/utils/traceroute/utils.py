@@ -1,27 +1,23 @@
-# -*- coding: utf-8 -*-
 """
 Utilities related to the traceroute flow.
 """
 
 import subprocess
-from typing import List, Tuple, Union
 
 import requests
 
-# pylint: disable=invalid-name
-
 
 def get_ip_location(
-    ip_address: Union[List[str], str] = None,
-) -> Union[
-    List[Tuple[str, str, str, float, float]],
-    Tuple[str, str, str, float, float],
-]:
+    ip_address: list[str] | str | None = None,
+) -> (
+    list[tuple[str, str, str, float, float]]
+    | tuple[str, str, str, float, float]
+):
     """
     Get the location of an IP address.
     """
 
-    def parse_data(data: dict) -> Tuple[str, str, str, float, float]:
+    def parse_data(data: dict) -> tuple[str, str, str, float, float]:
         return (
             data.get("query", ""),
             data.get("country", "Unknown"),
@@ -39,8 +35,7 @@ def get_ip_location(
         return [parse_data(d) for d in data]
     # If it's a list of length 1, a string or None
     if (
-        isinstance(ip_address, list)
-        and len(ip_address) == 1
+        (isinstance(ip_address, list) and len(ip_address) == 1)
         or isinstance(ip_address, str)
         or ip_address is None
     ):
@@ -62,20 +57,18 @@ def traceroute(hostname: str):
     """
     Launches traceroute command and parses results.
     """
-    traceroute = (  # pylint: disable=redefined-outer-name
-        subprocess.Popen(  # pylint: disable=consider-using-with
-            ["traceroute", hostname],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
+    traceroute = subprocess.Popen(
+        ["traceroute", hostname],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
     )
-    ipList = []
+    ip_list = []
     for line in iter(traceroute.stdout.readline, b""):
         line = line.decode("UTF-8")
-        IP = line.split("  ")
-        if len(IP) > 1:
-            IP = IP[1].split("(")
-            if len(IP) > 1:
-                IP = IP[1].split(")")
-                ipList.append(IP[0])
-    return ipList
+        ip = line.split("  ")
+        if len(ip) > 1:
+            ip = ip[1].split("(")
+            if len(ip) > 1:
+                ip = ip[1].split(")")
+                ip_list.append(ip[0])
+    return ip_list

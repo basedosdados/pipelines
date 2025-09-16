@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_cvm_fi
 """
@@ -8,7 +7,6 @@ import os
 import re
 import zipfile
 from datetime import datetime, timedelta
-from typing import Tuple
 
 import pandas as pd
 import requests
@@ -32,7 +30,7 @@ from pipelines.utils.utils import log, to_partitions
 @task(
     max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)  # noqa
+)
 def download_unzip_csv(
     url: str, files, chunk_size: int = 128, mkdir: bool = True, id="teste"
 ) -> str:
@@ -120,7 +118,7 @@ def download_unzip_csv(
     max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def extract_links_and_dates(url) -> Tuple[pd.DataFrame, str]:
+def extract_links_and_dates(url) -> tuple[pd.DataFrame, str]:
     """
     Extracts all file names and their respective last update dates in a pandas dataframe.
     """
@@ -219,10 +217,7 @@ def check_for_updates_ext(df):
 
 @task
 def is_empty(lista):
-    if len(lista) == 0:
-        return True
-    else:
-        return False
+    return len(lista) == 0
 
 
 @task
@@ -243,7 +238,7 @@ def clean_data_and_make_partitions(path: str, table_id: str) -> str:
             r"[/.-]", ""
         )
 
-        df.drop("ID_SUBCLASSE", axis=1, inplace=True)
+        df = df.drop("ID_SUBCLASSE", axis=1)
 
         df = rename_columns(df_arq, df)
 
@@ -435,9 +430,9 @@ def download_csv_cvm(
 @task
 def clean_data_make_partitions_perfil(diretorio, table_id):
     df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_PERFIL_MENSAL.value)
-    colunas_totais = df_arq["original_name"].to_list() + ["ano", "mes"]
-    colunas_finais = df_arq["name"].to_list() + ["ano", "mes"]
-    colunas_mapeamento = df_arq[df_arq["observations"].notnull()][
+    colunas_totais = [*df_arq["original_name"].to_list(), "ano", "mes"]
+    colunas_finais = [*df_arq["name"].to_list(), "ano", "mes"]
+    colunas_mapeamento = df_arq[df_arq["observations"].notna()][
         "original_name"
     ].to_list()
     df_final = pd.DataFrame()
@@ -531,7 +526,7 @@ def clean_data_make_partitions_cad(diretorio, table_id):
     df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_CAD.value)
     colunas_totais = df_arq["original_name"].to_list()
     colunas_finais = df_arq["name"].to_list()
-    colunas_mapeamento = df_arq[df_arq["observations"].notnull()][
+    colunas_mapeamento = df_arq[df_arq["observations"].notna()][
         "original_name"
     ].to_list()
     df_final = pd.DataFrame()

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_bcb_agencia project
 """
@@ -70,7 +69,7 @@ def download_file(
     url: str,
     download_dir: Path,
     session: requests.Session = None,
-    filename: str = None,
+    filename: str | None = None,
 ) -> Path | None:
     """
     Downloads a file from the specified URL and saves it to a given directory.

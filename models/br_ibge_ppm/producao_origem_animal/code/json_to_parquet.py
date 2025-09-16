@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import os
 import re
@@ -21,12 +20,12 @@ def parse_file(file_path):
         temp_variavel = j["data"][0]["variavel"]
         temp_unidade = j["data"][0]["unidade"]
         for r in j["data"][0]["resultados"]:
-            temp_caracteristica = list(
+            temp_caracteristica = list(  # noqa: RUF015
                 r["classificacoes"][0]["categoria"].values()
             )[0]
             for s in r["series"]:
-                temp_ano = list(s["serie"].keys())[0]
-                temp_valor = list(s["serie"].values())[0]
+                temp_ano = list(s["serie"].keys())[0]  # noqa: RUF015
+                temp_valor = list(s["serie"].values())[0]  # noqa: RUF015
                 temp_sigla_uf = s["localidade"]["nome"].split("-")[-1].strip()
                 temp_id_municipio = s["localidade"]["id"]
 
@@ -86,9 +85,9 @@ def treat_columns(dataframe):
             "valor",
         ]
     ]
-    COLUNAS_PARA_TRATAR = ["ano", "quantidade", "valor"]
+    colunas_para_tratar = ["ano", "quantidade", "valor"]
 
-    for coluna in COLUNAS_PARA_TRATAR:
+    for coluna in colunas_para_tratar:
         dataframe[coluna] = dataframe[coluna].apply(
             lambda x: np.nan if x in ("-", "..", "...", "X") else x
         )
@@ -107,9 +106,7 @@ def currency_fix(row):
         return row["valor"] / (1000**4 * 2.75)
     elif 1986 <= row["ano"] <= 1988:
         return row["valor"] / (1000**3 * 2.75)
-    elif row["ano"] == 1989:
-        return row["valor"] / (1000**2 * 2.75)
-    elif 1990 <= row["ano"] <= 1992:
+    elif row["ano"] == 1989 or 1990 <= row["ano"] <= 1992:
         return row["valor"] / (1000**2 * 2.75)
     elif row["ano"] == 1993:
         return row["valor"] / (1000 * 2.75)
@@ -159,7 +156,7 @@ if __name__ == "__main__":
         print("Transformações finalizadas!")
         temp_ano = df["ano"].max()
         print("Deletando a coluna ano para possibilitar o particionamento...")
-        df.drop(columns=["ano"], inplace=True)
+        df = df.drop(columns=["ano"])
         print("Transformações finalizadas!")
         temp_export_file_path = f"../parquet/ano={temp_ano}/data.parquet"
         print(

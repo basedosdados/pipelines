@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Schedules for dataset br_anatel_banda_larga_fixa
 """

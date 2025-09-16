@@ -47,7 +47,7 @@ renames = {
     ][["original_name_2023", "name"]].to_dict("records")  # type: ignore
 }
 
-missing_cols = [i for i in renames.keys() if i not in df_turma_2024.columns]
+missing_cols = [i for i in renames if i not in df_turma_2024.columns]
 
 df_turma_2024[missing_cols] = None
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_ons_avaliacao_operacao
 """
@@ -6,7 +5,6 @@ Tasks for br_ons_avaliacao_operacao
 import os
 import time as tm
 from datetime import date, datetime
-from typing import Union
 
 import pandas as pd
 from prefect import task
@@ -111,7 +109,7 @@ def download_data(
 def wrang_data(
     table_name: str,
     data_mais_recente_do_bq: str,
-) -> tuple[bool, str, Union[date, datetime]]:
+) -> tuple[bool, str, date | datetime]:
     """Essa task realiza o tratamento dos dados das tabelas do ONS
 
     Args:

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Schedules for world_sofascore_competicoes_futebol
 """

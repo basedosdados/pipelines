@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_cvm_oferta_publica_distribuicao
 """
 
-# pylint: disable=C0103, E1123, invalid-name
 from datetime import timedelta
 
 from prefect import Parameter, case

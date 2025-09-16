@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_mg_belohorizonte_smfa_iptu project
 """
@@ -61,13 +60,13 @@ def concat_csv(input_path: str) -> pd.DataFrame:
             log(df.shape)
 
     df = pd.concat(lista_dataframe)
-    df.fillna("", inplace=True)
+    df = df.fillna("")
 
     return df
 
 
 def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
-    df.rename(columns=constants.RENAME.value, inplace=True)
+    df = df.rename(columns=constants.RENAME.value)
     return df
 
 

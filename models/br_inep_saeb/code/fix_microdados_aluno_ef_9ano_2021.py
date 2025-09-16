@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import zipfile
 
@@ -209,15 +208,13 @@ df = (
 )
 
 
-empty_cols_to_add = [i for i in cols_dict.keys() if i not in df.columns]
+empty_cols_to_add = [i for i in cols_dict if i not in df.columns]
 
 len(empty_cols_to_add)
 
 df = (
     df.with_columns([pl.lit(None).alias(col) for col in empty_cols_to_add])
-    .with_columns(
-        [pl.col(col_name).cast(pl.String) for col_name in cols_dict.keys()]
-    )
+    .with_columns([pl.col(col_name).cast(pl.String) for col_name in cols_dict])
     .select(*cols_dict.keys())
     .filter(pl.col("disciplina") == "MT")
 )

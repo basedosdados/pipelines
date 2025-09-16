@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constant values for the datasets projects
 """
@@ -8,7 +7,7 @@ import datetime
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constant values for the mundo_transfermarkt_competicoes_internacionais project
     """

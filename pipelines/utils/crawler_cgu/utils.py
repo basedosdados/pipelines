@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_cgu_cartao_pagamento project
 """
@@ -8,7 +7,6 @@ import gc
 import os
 import shutil
 from functools import lru_cache
-from typing import List
 
 import basedosdados as bd
 import pandas as pd
@@ -57,9 +55,7 @@ def build_urls(
 
     elif dataset_id == "br_cgu_servidores_executivo_federal":
         list_url = []
-        for table_name in constants.TABELA_SERVIDORES.value[table_id][
-            "READ"
-        ].keys():
+        for table_name in constants.TABELA_SERVIDORES.value[table_id]["READ"]:
             url_completa = f"{url}{year}{str(month).zfill(2)}_{table_name}/"
             list_url.append(url_completa)
         return list_url
@@ -84,7 +80,7 @@ def build_input(table_id):
         KeyError: If the table_id is not found in constants.TABELA_SERVIDORES.
     """
     list_input = []
-    for input in constants.TABELA_SERVIDORES.value[table_id]["READ"].keys():
+    for input in constants.TABELA_SERVIDORES.value[table_id]["READ"]:
         value_input = f"{input}"
         if not os.path.exists(value_input):
             os.makedirs(value_input)
@@ -183,7 +179,7 @@ def download_file(
         input_dirs = build_input(table_id)
         log(url)
         log(input_dirs)
-        for urls, input_dir in zip(url, input_dirs):
+        for urls, input_dir in zip(url, input_dirs, strict=False):
             if requests.get(urls).status_code == 200:
                 destino = f"{constants_cgu['INPUT']}/{input_dir}"
                 download_and_unzip_file(urls, destino)
@@ -221,7 +217,7 @@ def get_similar_cities_process(city):
 
 
 def read_csv(
-    dataset_id: str, table_id: str, column_replace: List = ["VALOR_TRANSACAO"]
+    dataset_id: str, table_id: str, column_replace: list[str] | None
 ) -> pd.DataFrame:
     """
     Reads a CSV file from a specified path and processes its columns.
@@ -241,12 +237,16 @@ def read_csv(
             - For columns specified in `column_replace`, commas in their values are replaced  with dots and the values are converted to float.
     """
 
+    column_replace = (
+        ["VALOR_TRANSACAO"] if column_replace is None else column_replace
+    )
+
     if dataset_id == "br_cgu_cartao_pagamento":
         value_constants = constants.TABELA.value[table_id]
 
         os.listdir(value_constants["INPUT"])
 
-        csv_file = [
+        csv_file = [  # noqa: RUF015
             f
             for f in os.listdir(value_constants["INPUT"])
             if f.endswith(".csv")
@@ -276,7 +276,7 @@ def read_csv(
             constants.TABELA_LICITACAO_CONTRATO.value[table_id]
         )
         print(os.listdir(constants_cgu_licitacao_contrato["INPUT"]))
-        csv_file = [
+        csv_file = [  # noqa: RUF015
             f
             for f in os.listdir(constants_cgu_licitacao_contrato["INPUT"])
             if f.endswith(constants_cgu_licitacao_contrato["READ"])
@@ -300,9 +300,9 @@ def read_csv(
             df["cidade_uf_dir"] = df["cidade_uf"].apply(
                 lambda x: get_similar_cities_process(x)
             )
-            df.drop(["cidade_uf", "municipio"], axis=1, inplace=True)
+            df = df.drop(["cidade_uf", "municipio"], axis=1)
 
-            df.rename(columns={"cidade_uf_dir": "municipio"}, inplace=True)
+            df = df.rename(columns={"cidade_uf_dir": "municipio"})
 
             df["municipio"] = df["municipio"].apply(
                 lambda x: x if x is None else x.split("-")[0]
@@ -439,14 +439,12 @@ def read_and_clean_csv(table_id: str) -> pd.DataFrame:
 
     if len(append_dataframe) > 1:
         df = pd.concat(append_dataframe)
-    else:
-        df
 
     return df
 
 
 def get_source(table_name: str, source: str) -> str:
-    ORIGINS = {
+    origins = {
         "cadastro_aposentados": {
             "Aposentados_BACEN": "BACEN",
             "Aposentados_SIAPE": "SIAPE",
@@ -489,7 +487,7 @@ def get_source(table_name: str, source: str) -> str:
         },
     }
 
-    return ORIGINS[table_name][source]
+    return origins[table_name][source]
 
 
 def partition_data_beneficios_cidadao(

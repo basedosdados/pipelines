@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for dumping data directly from BigQuery to GCS.
 """
 
 from datetime import datetime
 from time import sleep
-from typing import Union
 
 import basedosdados as bd
 import jinja2
@@ -26,13 +24,13 @@ from pipelines.utils.utils import (
 
 
 @task
-def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
+def download_data_to_gcs(
     dataset_id: str,
     table_id: str,
-    project_id: str = None,
-    query: Union[str, jinja2.Template] = None,
+    project_id: str | None = None,
+    query: str | jinja2.Template | None = None,
     bd_project_mode: str = "prod",
-    billing_project_id: str = None,
+    billing_project_id: str | None = None,
     location: str = "US",
 ):
     """
@@ -99,7 +97,6 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
             f"Billing project ID was inferred from environment variables: {billing_project_id}"
         )
 
-    # pylint: disable=E1124
     client = _google_client(billing_project_id, from_file=True, reauth=False)
 
     bq_table_ref = TableReference.from_string(
@@ -182,7 +179,7 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
             else:
                 raise (e)
         except Exception as e:
-            raise ValueError(e)
+            raise ValueError(e) from e
 
         log("Querying open data from BigQuery")
 
@@ -222,8 +219,8 @@ def download_data_to_gcs(  # pylint: disable=R0912,R0913,R0914,R0915
 
 @task
 def get_project_id(
-    project_id: str = None,
-    bd_project_mode: str = "prod",
+    project_id: str | None = None,
+    bd_project_mode: str | None = "prod",
 ):
     """
     Get the project ID.

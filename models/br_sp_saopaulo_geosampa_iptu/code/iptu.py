@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from pathlib import Path
 
 import numpy as np
@@ -141,7 +140,7 @@ for anos in range(1995, 2024):
         "fator_obsolescencia",
     ]
 
-    df.rename(columns=rename, inplace=True)
+    df = df.rename(columns=rename)
 
     # Substituir vírgulas por pontos em colunas específicas
     colunas_virgula = [

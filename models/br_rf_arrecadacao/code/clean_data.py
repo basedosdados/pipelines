@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 
 import pandas as pd
@@ -13,7 +12,7 @@ def read_data():
     return pd.read_csv(data_directory, sep=";")
 
 
-def removeEmptyRows(df):
+def remove_empty_rows(df):
     return df.dropna(axis=0, how="all")
 
 
@@ -130,7 +129,7 @@ def save_data(df):
 
 if __name__ == "__main__":
     df = read_data()
-    df = removeEmptyRows(df)
+    df = remove_empty_rows(df)
     df = rename_columns(df)
     df = change_types(df)
     save_data(df)

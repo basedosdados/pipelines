@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constant values for the datasets projects
 """
@@ -8,7 +7,7 @@ Constant values for the datasets projects
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     URL = (
         "https://dados.gov.br/dados/conjuntos-dados/acessos---banda-larga-fixa"
     )

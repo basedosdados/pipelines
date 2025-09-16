@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 TRATAMENTO ― Índice Brasileiro de Conectividade (IBC) · Anatel
 --------------------------------------------------------------
@@ -48,7 +47,7 @@ NUM_COLS = [
 # ------------------------------------------------------------------
 def download_zip(url: str, dest: Path) -> None:
     if dest.exists():
-        print("Zip já existe – pulando download")
+        print("Zip já existe - pulando download")
         return
     print("Baixando zip …")
     dest.write_bytes(requests.get(url, timeout=90).content)

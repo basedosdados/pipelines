@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_cvm_fi project
 """
@@ -32,7 +31,9 @@ def rename_columns(df_origem, df_destino):
     colunas = df_origem[["name", "original_name"]]
 
     # Cria um dicionário que mapeia as colunas do dataframe de origem para as colunas do dataframe de destino
-    mapeamento_colunas = dict(zip(colunas["original_name"], colunas["name"]))
+    mapeamento_colunas = dict(
+        zip(colunas["original_name"], colunas["name"], strict=False)
+    )
 
     # Renomeia as colunas do dataframe de destino com base no dicionário de mapeamento
     df_destino = df_destino.rename(columns=mapeamento_colunas)
@@ -46,11 +47,11 @@ def obter_anos_meses(diretorio):
     Retorna uma lista com todos os arquivos AAAAMM presentes no diretório.
     """
     lista_arquivos = os.listdir(diretorio)
-    padrao_AAAAMM = re.compile(r"cda_fi_BLC_\d+_(\d{6}).csv")
+    padrao_aaaamm = re.compile(r"cda_fi_BLC_\d+_(\d{6}).csv")
 
     anos_meses = set()
     for arquivo in lista_arquivos:
-        match = padrao_AAAAMM.match(arquivo)
+        match = padrao_aaaamm.match(arquivo)
         if match:
             ano_mes = match.group(1)
             anos_meses.add(ano_mes)

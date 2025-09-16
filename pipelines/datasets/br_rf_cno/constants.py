@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constants for br_rf_cno
 """

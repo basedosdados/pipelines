@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_ons_avaliacao_operacao project
 """
@@ -9,7 +8,6 @@ import time as tm
 import unicodedata
 from datetime import date, datetime
 from io import StringIO
-from typing import List, Union
 
 import pandas as pd
 import requests
@@ -19,9 +17,7 @@ from bs4 import BeautifulSoup
 from pipelines.utils.utils import log
 
 
-def extrai_data_recente(
-    df: pd.DataFrame, table_name: str
-) -> Union[datetime, date]:
+def extrai_data_recente(df: pd.DataFrame, table_name: str) -> datetime | date:
     """Essa função é utilizada durante a task wrang_data para extrair a data
     mais recente da tabela baixada pela task download_data
 
@@ -157,7 +153,7 @@ def download_data(
 
 def crawler_ons(
     url: str,
-) -> List[str]:
+) -> list[str]:
     """this function extract all download links from ONS  website
     Args:
         url (str): bcb url https://www.bcb.gov.br/fis/info/agencias.asp?frame=1
@@ -277,7 +273,7 @@ def get_columns_pattern_across_files(
 
 def check_and_create_column(
     df: pd.DataFrame,
-    col_name: List[str],
+    col_name: list[str],
 ) -> pd.DataFrame:
     """
     Check if a column exists in a Pandas DataFrame. If it doesn't, create a new column with the given name
@@ -328,7 +324,7 @@ def change_columns_name(df: pd.DataFrame, url: str) -> pd.DataFrame:
 
         values = df_architecture["name"]
         keys = df_architecture["original_name"]
-        my_dict = {k: v for k, v in zip(keys, values)}
+        my_dict = {k: v for k, v in zip(keys, values, strict=False)}
 
         print(my_dict)
         # Cria um dicionário de nomes de colunas e tipos de dados a partir do dataframe df_architecture
@@ -336,13 +332,13 @@ def change_columns_name(df: pd.DataFrame, url: str) -> pd.DataFrame:
 
         for key, value in my_dict.items():
             if value:  # Check if value is not empty
-                df.rename(columns={key: value}, inplace=True)
+                df = df.rename(columns={key: value})
 
         print("cols renamed")
         print(df.columns)
 
     except Exception as e:
-        print(f"Algum erro ocorreu: {str(e)}")
+        print(f"Algum erro ocorreu: {e!s}")
 
     return df
 

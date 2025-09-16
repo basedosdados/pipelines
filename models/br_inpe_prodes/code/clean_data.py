@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import glob
 
 import pandas as pd
@@ -12,16 +11,19 @@ def gerar_individual_table(file_name: str):
     bioma, year = file_name.split("_")
     df["bioma"] = bioma
     df["ano"] = int(year)
-    df.drop("Nr", axis=1, inplace=True)
+    df.drop("Nr", axis=1)
     df["desmatamento"] = (df[df.columns[7:-5]].sum(axis=1)).round(1)
     df = df[df.columns[[3, 6]].to_list() + df.columns[-6:].to_list()]
-    columns_order = [
-        "ano",
-        "CodIbge",
-        "bioma",
-        "AreaKm2",
-        "desmatamento",
-    ] + df.columns[2:5].to_list()
+    columns_order = (
+        [  # noqa: RUF005
+            "ano",
+            "CodIbge",
+            "bioma",
+            "AreaKm2",
+            "desmatamento",
+        ]
+        + df.columns[2:5].to_list()
+    )
     df = df[columns_order]
 
     columns_name = [
@@ -37,7 +39,7 @@ def gerar_individual_table(file_name: str):
     df.columns = columns_name
 
     df["floresta"] = (
-        df["area"].values
+        df["area"].to_numpy()
         - df[["desmatamento", "nao_floresta", "hidrografia"]].sum(axis=1)
     ).round(1)
     df["area"] = df["area"].astype(float)

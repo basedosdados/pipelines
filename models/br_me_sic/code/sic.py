@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Importing
 import datetime
 import json
@@ -116,8 +115,8 @@ for ano in [*range(2015, todays_year + 1)]:
             transferencia["ano_lancamento"] == ano
         ].copy()  # O .copy não é necessário é apenas uma boa prática
         df_particao = df_particao[df_particao["mes_lancamento"] == mes]
-        df_particao.drop(
-            ["ano_lancamento", "mes_lancamento"], axis=1, inplace=True
+        df_particao = df_particao.drop(
+            ["ano_lancamento", "mes_lancamento"], axis=1
         )  # É preciso excluir as colunas utilizadas para partição
         particao = (
             output + f"transferencia/ano={ano}/mes={mes}/transferencia.csv"

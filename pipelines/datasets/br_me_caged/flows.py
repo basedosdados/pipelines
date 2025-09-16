@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_me_novo_caged
 """
 
 from prefect import Parameter
 from prefect.run_configs import KubernetesRun
-
-# pylint: disable=invalid-name
 from prefect.storage import GCS
 
 from pipelines.constants import constants

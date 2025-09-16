@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Opens the `constants.py` file and updates the
 `DOCKER_TAG` variable with the provided argument.

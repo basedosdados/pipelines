@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_bcb_estban
 """
@@ -7,7 +6,6 @@ import datetime as dt
 import os
 import zipfile
 from datetime import timedelta
-from typing import Tuple
 
 import basedosdados as bd
 import pandas as pd
@@ -55,7 +53,7 @@ def get_documents_metadata(table_id: str) -> dict:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_latest_file(data: dict) -> Tuple[str | None, str | None]:
+def get_latest_file(data: dict) -> tuple[str | None, str | None]:
     """
     Extracts the most recent download link from the BCB API JSON structure.
 
@@ -162,37 +160,37 @@ def cleaning_data(table_id: str, df_diretorios: pd.DataFrame) -> str:
     Returns:
         str: File path to a standardized partitioned estban dataset.
     """
-    ZIP_PATH = br_bcb_estban_constants.TABLES_CONFIGS.value[table_id][
+    zip_path = br_bcb_estban_constants.TABLES_CONFIGS.value[table_id][
         "zipfile_path"
     ]
-    INPUT_PATH = br_bcb_estban_constants.TABLES_CONFIGS.value[table_id][
+    input_path = br_bcb_estban_constants.TABLES_CONFIGS.value[table_id][
         "input_path"
     ]
-    OUTPUT_PATH = br_bcb_estban_constants.TABLES_CONFIGS.value[table_id][
+    output_path = br_bcb_estban_constants.TABLES_CONFIGS.value[table_id][
         "output_path"
     ]
 
     log("Building paths")
-    if not os.path.exists(INPUT_PATH):
-        os.makedirs(INPUT_PATH, exist_ok=True)
+    if not os.path.exists(input_path):
+        os.makedirs(input_path, exist_ok=True)
 
-    if not os.path.exists(OUTPUT_PATH):
-        os.makedirs(OUTPUT_PATH, exist_ok=True)
+    if not os.path.exists(output_path):
+        os.makedirs(output_path, exist_ok=True)
 
-    zip_files = os.listdir(ZIP_PATH)
+    zip_files = os.listdir(zip_path)
     log(f"Unzipping files ----> {zip_files}")
     for file in zip_files:
         if file.endswith(".csv.zip"):
             log(f"Unzipping file ----> : {file}")
-            with zipfile.ZipFile(os.path.join(ZIP_PATH, file), "r") as z:
-                z.extractall(INPUT_PATH)
+            with zipfile.ZipFile(os.path.join(zip_path, file), "r") as z:
+                z.extractall(input_path)
 
-    csv_files = os.listdir(INPUT_PATH)
+    csv_files = os.listdir(input_path)
 
     for file in csv_files:
         log(f"The file being cleaned is: {file}")
 
-        file_path = os.path.join(INPUT_PATH, file)
+        file_path = os.path.join(input_path, file)
 
         log(f"Building {file_path}")
 
@@ -224,8 +222,8 @@ def cleaning_data(table_id: str, df_diretorios: pd.DataFrame) -> str:
         log("Creating id_verbete column.")
         df_long = create_month_year_columns(df_long, date_column="data_base")
         log("Creating month and year columns.")
-        df_long["id_municipio"].fillna(
-            df_long["id_municipio_original"], inplace=True
+        df_long["id_municipio"] = df_long["id_municipio"].fillna(
+            df_long["id_municipio_original"]
         )
         df_long.loc[
             df_long["municipio"].str.lower().str.startswith("brasilia"),
@@ -238,12 +236,12 @@ def cleaning_data(table_id: str, df_diretorios: pd.DataFrame) -> str:
         to_partitions(
             df_ordered,
             partition_columns=["ano", "mes", "sigla_uf"],
-            savepath=OUTPUT_PATH,
+            savepath=output_path,
         )
 
         del (df_wide, df_long, df_raw)
 
-    return OUTPUT_PATH
+    return output_path
 
 
 def validate_date(

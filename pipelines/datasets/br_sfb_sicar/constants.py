@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constants for br_sfb_sicar
 """
@@ -6,7 +5,7 @@ Constants for br_sfb_sicar
 from enum import Enum
 
 
-class Constants(Enum):  # pylint: disable=c0103
+class Constants(Enum):
     INPUT_PATH = "/tmp/car/input"
     OUTPUT_PATH = "/tmp/car/output"
 

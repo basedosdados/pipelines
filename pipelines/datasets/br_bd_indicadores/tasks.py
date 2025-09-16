@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_twitter
 """
 
-# pylint: disable=invalid-name,too-many-branches,too-many-nested-blocks
 import os
 from datetime import datetime, timedelta
 from functools import reduce
 from pathlib import Path
-from typing import Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -38,7 +35,6 @@ from pipelines.utils.utils import (
 )
 
 
-# pylint: disable=C0103
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -50,11 +46,10 @@ def echo(message: str) -> None:
     log(message)
 
 
-# pylint: disable=W0613
 @task(checkpoint=False, nout=5)
 def get_twitter_credentials(
     secret_path: str, wait=None
-) -> Tuple[str, str, str, str, str]:
+) -> tuple[str, str, str, str, str]:
     """
     Returns the user and password for the given secret path.
     """
@@ -75,7 +70,6 @@ def get_twitter_credentials(
     )
 
 
-# pylint: disable=R0914
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -92,7 +86,7 @@ def has_new_tweets(bearer_token: str, table_id: str) -> bool:
     start_time = before.strftime("%Y-%m-%dT00:00:00.000Z")
     end_time = now.strftime("%Y-%m-%dT00:00:00.000Z")
     max_results = 100
-    # pylint: disable=E1121
+
     url = create_url(start_time, end_time, max_results)
     json_response = connect_to_endpoint(url[0], headers, url[1])
     data = [flatten(i) for i in json_response["data"]]
@@ -201,7 +195,7 @@ def crawler_metricas(
     df["tweet_count"] = result["tweet_count"]
     df["listed_count"] = result["listed_count"]
 
-    df.reset_index(inplace=True)
+    df = df.reset_index()
 
     df = df.reindex(
         [
@@ -223,8 +217,7 @@ def crawler_metricas(
         axis=1,
     )
 
-    # pylint: disable=C0301
-    full_filepath = f"/tmp/data/{table_id}/upload_ts={str(int(datetime.now().timestamp()))}/{table_id}.csv"
+    full_filepath = f"/tmp/data/{table_id}/upload_ts={int(datetime.now().timestamp())!s}/{table_id}.csv"
     folder = full_filepath.replace(table_id + ".csv", "")
     log(folder)
     os.system(f"mkdir -p {folder}")
@@ -276,7 +269,7 @@ def get_ga_credentials(secret_path: str, key: str, wait=None) -> str:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawler_report_ga(view_id: str, metrics: list = None) -> str:
+def crawler_report_ga(view_id: str, metrics: list | None = None) -> str:
     """
     Extract data from Google Analytics API for the specified view_id and metrics.
     All metrics are computed by date and merged in a DataFrame.
@@ -305,10 +298,10 @@ def crawler_report_ga(view_id: str, metrics: list = None) -> str:
         dfs.append(df)
 
     df = reduce(
-        lambda left, right: pd.merge(left, right, on="date", how="outer"), dfs
+        lambda left, right: left.merge(right, on="date", how="outer"), dfs
     )
 
-    df.drop(columns=["date"], inplace=True)
+    df = df.drop(columns=["date"])
 
     df.columns = [
         "users_1_day",
@@ -336,17 +329,16 @@ def crawler_report_ga(view_id: str, metrics: list = None) -> str:
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def get_data_from_sheet(
-    sheet_id: str, sheet_name: str, usecols: Optional[int] = None
+    sheet_id: str, sheet_name: str, usecols: int | None = None
 ) -> pd.DataFrame:
     """Get the data from a Google Sheet, and return a DataFrame."""
     google_sheet = create_google_sheet_url(sheet_id, sheet_name)
     if isinstance(usecols, int):
         usecols = list(range(usecols))
     dff = pd.read_csv(google_sheet, usecols=usecols)
-    if "valor" in dff.columns:
-        if dff["valor"].dtype == "object":
-            dff["valor"] = dff["valor"].str.replace(",", ".")
-            dff["valor"] = dff["valor"].astype(float)
+    if "valor" in dff.columns and dff["valor"].dtype == "object":
+        dff["valor"] = dff["valor"].str.replace(",", ".")
+        dff["valor"] = dff["valor"].astype(float)
 
     return dff
 

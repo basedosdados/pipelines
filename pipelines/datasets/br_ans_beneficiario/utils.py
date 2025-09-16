@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_ans_beneficiario project
 """
@@ -83,7 +82,7 @@ def download_unzip_csv(
     }
 
     if isinstance(urls, list):
-        for url, file in zip(urls, zips):
+        for url, file in zip(urls, zips, strict=False):
             log(f"Baixando o arquivo {file}")
             download_url = url
             save_path = f"/tmp/data/br_ans_beneficiario/{id}/input/{file}"
@@ -161,12 +160,11 @@ def parquet_partition(path):
             df["MODALIDADE_OPERADORA"] = df["MODALIDADE_OPERADORA"].apply(
                 remove_accents
             )
-            df.rename(
+            df = df.rename(
                 columns={
                     "SG_UF": "sigla_uf",
                     "MODALIDADE_OPERADORA": "modalidade_operadora",
-                },
-                inplace=True,
+                }
             )
 
             log("Lendo dataset")

@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 import warnings
 from pathlib import Path
-from typing import List
 
 import numpy as np
 import pandas as pd
@@ -11,7 +9,7 @@ warnings.filterwarnings("ignore")
 
 def to_partitions(
     data: pd.DataFrame,
-    partition_columns: List[str],
+    partition_columns: list[str],
     savepath: str,
     file_type: str = "csv",
 ):
@@ -99,7 +97,7 @@ def read_csv_enem():
     ):
         valor = valor + 1
         print(valor)
-        RENAME = {
+        rename = {
             "NU_INSCRICAO": "id_inscricao",
             "NU_ANO": "ano",
             "TP_FAIXA_ETARIA": "faixa_etaria",
@@ -148,7 +146,7 @@ def read_csv_enem():
             "NU_NOTA_COMP5": "nota_redacao_competencia_5",
             "NU_NOTA_REDACAO": "nota_redacao",
         }
-        df.rename(columns=RENAME, inplace=True)
+        df = df.rename(columns=rename)
 
         lista = [
             "id_inscricao",

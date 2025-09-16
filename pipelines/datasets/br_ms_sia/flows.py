@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_ms_sia
 """
-# pylint: disable=C0103, E1123, invalid-name
 
 from copy import deepcopy
 

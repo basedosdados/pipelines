@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ###
 ## Módulo de funções para fazer interagir de forma assíncrona com a api.
 ###
@@ -205,7 +203,7 @@ async def create_quality_check_async(
     parameters = {
         "name": name,
         "description": description,
-        "passed": True if passed == "pass" else False,
+        "passed": passed == "pass",
         "table": id,
     }
 

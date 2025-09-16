@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 import os
 import zipfile
 from asyncio import Semaphore, gather
-from typing import List
 
 import httpx
 
@@ -31,9 +29,7 @@ async def unzip_file(zip_path, extract_to):
             f"The ZIP file {os.path.basename(zip_path)} is too large to be processed."
         )
     except zipfile.error as e:
-        log(
-            f"Error extracting ZIP file {os.path.basename(zip_path)}: {str(e)}"
-        )
+        log(f"Error extracting ZIP file {os.path.basename(zip_path)}: {e!s}")
     os.remove(zip_path)
 
 
@@ -111,7 +107,7 @@ async def download(
     params=None,
     credentials=None,
     auth_method=None,
-    file_type: str = None,
+    file_type: str | None = None,
 ) -> bytes:
     request_head = httpx.head(url)
 
@@ -183,7 +179,7 @@ async def download_from_url(
 
 
 async def download_files_async(
-    urls: List[str],
+    urls: list[str],
     save_path: str,
     file_type: str,
     params=None,

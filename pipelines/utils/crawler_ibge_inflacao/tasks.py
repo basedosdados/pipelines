@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_ibge_inpc
 """
 
 import errno
-
-# pylint: disable=line-too-long, W0702, E1101, W0212,unnecessary-dunder-call,invalid-name,too-many-statements
 import glob
 import os
 import ssl
@@ -23,9 +20,6 @@ from pipelines.utils.utils import log
 
 # necessary for use wget, see: https://stackoverflow.com/questions/35569042/ssl-certificate-verify-failed-with-python3
 ssl._create_default_https_context = ssl._create_unverified_context
-# pylint: disable=C0206
-# pylint: disable=C0201
-# pylint: disable=R0914
 # https://sidra.ibge.gov.br/tabela/7062
 # https://sidra.ibge.gov.br/tabela/7063
 # https://sidra.ibge.gov.br/tabela/7060
@@ -96,7 +90,7 @@ def check_for_updates(
                 with open(f"/tmp/check_for_updates/{key}.csv", "wb") as f:
                     f.write(response.content)
                 success_dwnl.append(key)
-            except Exception as e:  # pylint: disable=redefined-outer-name
+            except Exception as e:
                 log(e)
 
     log(f"success_dwnl: {success_dwnl}")
@@ -308,7 +302,7 @@ def crawler(indice: str, folder: str) -> bool:
                     with open(f"/tmp/data/input/{key}.csv", "wb") as f:
                         f.write(response.content)
                     success_dwnl.append(key)
-                except Exception as e:  # pylint: disable=redefined-outer-name
+                except Exception as e:
                     log(e)
 
     log(os.system("tree /tmp/data"))
@@ -392,7 +386,7 @@ def clean_mes_brasil(indice: str) -> None:
             arq, skipfooter=14, skiprows=2, sep=";", dtype="str"
         )
         # renomear colunas
-        dataframe.rename(columns=rename, inplace=True)
+        dataframe = dataframe.rename(columns=rename)
         # substituir "..." por vazio
         dataframe = dataframe.replace("...", "")
         dataframe = dataframe.replace("-", "")
@@ -445,7 +439,6 @@ def clean_mes_brasil(indice: str) -> None:
             dataframe = dataframe[ordem]
             geral = pd.DataFrame(dataframe)
 
-    # pylint: disable=E0602
     # Add only dataframes defined in previous loop. Download failure leads to some dataframe not being defined
     files_dict = {
         "grupo": grupo if "grupo" in locals() else "",
@@ -456,7 +449,7 @@ def clean_mes_brasil(indice: str) -> None:
     }
 
     downloaded = [
-        k for k in files_dict.keys() if isinstance(files_dict[k], pd.DataFrame)
+        k for k in files_dict if isinstance(files_dict[k], pd.DataFrame)
     ]
     dataframe = pd.concat([files_dict[k] for k in downloaded])
     filepath = f"/tmp/data/output/{indice}/categoria_brasil.csv"
@@ -549,7 +542,7 @@ def clean_mes_rm(indice: str):
             )
             break
         # renomear colunas.
-        dataframe.rename(columns=rename, inplace=True)
+        dataframe = dataframe.rename(columns=rename)
         # substituir "..." por vazio
         dataframe = dataframe.replace("...", "")
         dataframe = dataframe.replace("-", "")
@@ -647,7 +640,7 @@ def clean_mes_rm(indice: str):
     }
 
     downloaded = [
-        k for k in files_dict.keys() if isinstance(files_dict[k], pd.DataFrame)
+        k for k in files_dict if isinstance(files_dict[k], pd.DataFrame)
     ]
     dataframe = pd.concat([files_dict[k] for k in downloaded])
     filepath = f"/tmp/data/output/{indice}/categoria_rm.csv"
@@ -730,7 +723,7 @@ def clean_mes_municipio(indice: str):
             arq, skipfooter=14, skiprows=2, sep=";", dtype="str"
         )
         # renomear colunas
-        dataframe.rename(columns=rename, inplace=True)
+        dataframe = dataframe.rename(columns=rename)
         # substituir "..." por vazio
         dataframe = dataframe.replace("...", "")
         dataframe = dataframe.replace("-", "")
@@ -829,7 +822,7 @@ def clean_mes_municipio(indice: str):
     }
 
     downloaded = [
-        k for k in files_dict.keys() if isinstance(files_dict[k], pd.DataFrame)
+        k for k in files_dict if isinstance(files_dict[k], pd.DataFrame)
     ]
     dataframe = pd.concat([files_dict[k] for k in downloaded])
     filepath = f"/tmp/data/output/{indice}/categoria_municipio.csv"
@@ -918,7 +911,7 @@ def clean_mes_geral(indice: str):
         dataframe["mes"] = dataframe["mes"].map(n_mes)
 
         # renomear colunas
-        dataframe.rename(columns=rename, inplace=True)
+        dataframe = dataframe.rename(columns=rename)
         dataframe = dataframe.replace("...", "")
         dataframe = dataframe.replace("-", "")
 

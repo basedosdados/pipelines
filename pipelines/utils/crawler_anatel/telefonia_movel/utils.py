@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_anatel_telefonia_movel project of the pipelines
 """
-# pylint: disable=too-few-public-methods,invalid-name
 
 import gc
 import os
@@ -58,7 +56,7 @@ def unzip_file():
         with ZipFile(zip_file_path, "r") as zip_ref:
             zip_ref.extractall(anatel_constants.INPUT_PATH.value)
     except Exception as e:
-        print(f"Erro ao baixar ou extrair o arquivo ZIP: {str(e)}")
+        print(f"Erro ao baixar ou extrair o arquivo ZIP: {e!s}")
 
     os.remove(zip_file_path)
     gc.collect()
@@ -75,13 +73,9 @@ def clean_csv_microdados(ano, semestre, table_id):
         encoding="utf-8",
     )
 
-    df.rename(
-        columns=anatel_constants.RENAME_COLUMNS_MICRODADOS.value, inplace=True
-    )
+    df = df.rename(columns=anatel_constants.RENAME_COLUMNS_MICRODADOS.value)
 
-    df.drop(
-        anatel_constants.DROP_COLUMNS_MICRODADOS.value, axis=1, inplace=True
-    )
+    df = df.drop(anatel_constants.DROP_COLUMNS_MICRODADOS.value, axis=1)
 
     df["produto"] = df["produto"].str.lower()
 
@@ -108,8 +102,8 @@ def clean_csv_brasil(table_id):
         encoding="utf-8",
     )
 
-    densidade.rename(
-        columns={"Nível Geográfico Densidade": "geografia"}, inplace=True
+    densidade = densidade.rename(
+        columns={"Nível Geográfico Densidade": "geografia"}
     )
 
     densidade_brasil = densidade[densidade["geografia"] == "Brasil"]
@@ -146,8 +140,8 @@ def clean_csv_uf(table_id):
         encoding="utf-8",
     )
 
-    densidade.rename(
-        columns={"Nível Geográfico Densidade": "geografia"}, inplace=True
+    densidade = densidade.rename(
+        columns={"Nível Geográfico Densidade": "geografia"}
     )
 
     densidade_uf = densidade[densidade["geografia"] == "UF"]
@@ -180,8 +174,8 @@ def clean_csv_municipio(table_id):
         sep=";",
         encoding="utf-8",
     )
-    densidade.rename(
-        columns={"Nível Geográfico Densidade": "geografia"}, inplace=True
+    densidade = densidade.rename(
+        columns={"Nível Geográfico Densidade": "geografia"}
     )
     densidade_municipio = densidade[densidade["geografia"] == "Municipio"]
     densidade_municipio = densidade_municipio[

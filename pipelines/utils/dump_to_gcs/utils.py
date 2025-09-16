@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from time import sleep
 
 from basedosdados.download.download import _google_client

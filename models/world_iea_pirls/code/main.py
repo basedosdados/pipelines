@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import io
 import os
 import zipfile
@@ -81,8 +80,7 @@ def read_pirls_files(tables: list[str]):
             result[table].append(df)
 
     return {
-        table: pd.concat(result[table], ignore_index=True)
-        for table in result.keys()
+        table: pd.concat(result[table], ignore_index=True) for table in result
     }
 
 
@@ -120,7 +118,7 @@ def read_codebooks() -> dict[str, pd.DataFrame]:
             .drop_duplicates(subset=["Variable"])
         )
 
-    return {k: read_sheets(k) for k in PIRLS_TABLES_DESC.keys()}
+    return {k: read_sheets(k) for k in PIRLS_TABLES_DESC}
 
 
 def get_item_informations() -> pd.DataFrame:
@@ -150,7 +148,7 @@ def gen_archs(codebooks: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         if variable == "IDCNTRY":
             return "Six-digit country identification code based on the ISO classification"
 
-        if pd.isnull(label_from_item):
+        if pd.isna(label_from_item):
             if (
                 table in LABELS_FROM_CONTEXT_QUESTIONNAIRES
                 and variable in LABELS_FROM_CONTEXT_QUESTIONNAIRES[table]
@@ -185,14 +183,14 @@ def gen_archs(codebooks: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         ]:
             return "string"
 
-        if not pd.isnull(scheme) and scheme.strip() in [
+        if not pd.isna(scheme) and scheme.strip() in [
             "1: Yes; 2: No",
             "0: False; 1: True",
         ]:
             return "bool"
 
         if decimals > 0:
-            assert pd.isnull(scheme)
+            assert pd.isna(scheme)
             return "float64"
         else:
             return "int64" if level == "Scale" else "string"
@@ -238,7 +236,7 @@ def gen_archs(codebooks: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
             if variable == "IDCNTRY":
                 return "yes"
             return (
-                "no" if bigquery_type == "bool" or pd.isnull(scheme) else "yes"
+                "no" if bigquery_type == "bool" or pd.isna(scheme) else "yes"
             )
 
         df["covered_by_dictionary"] = df[
@@ -300,21 +298,21 @@ def gen_archs(codebooks: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
 
     result = dict(acg=[], asa=[], asg=[], ash=[], asr=[], ast=[], atg=[])
 
-    for table in codebooks.keys():
+    for table in codebooks:
         df = codebooks[table]
 
         result[table].append(process_table(df, table))
 
     return {
         table: pd.concat(result[table]).drop_duplicates(subset=["name"])
-        for table in result.keys()
+        for table in result
     }  # type: ignore
 
 
 tables_archs = gen_archs(codebooks)
 
 # Save architecture tables
-for table in tables_archs.keys():
+for table in tables_archs:
     df = tables_archs[table]
     table_name = (
         f"{CWD}/extra/architecture/{PIRLS_TABLES_DESC[table]}_{table}.xlsx"
@@ -340,7 +338,7 @@ def clean_data(df: pd.DataFrame, table: str):
         df = df.drop(columns=["isDummy"])
 
     def to_bool(value):
-        return True if value == 1 else False
+        return value == 1
 
     for col in cols_bool_type:
         df[col] = np.vectorize(to_bool)(df[col])
@@ -382,7 +380,7 @@ def parse_scheme(table: str, variable: str) -> list[tuple[str, str]]:
     df = codebooks[table]
     value = (
         df[df["Variable"] == variable]["Value Scheme Detailed"]
-        .values[0]
+        .to_numpy()[0]
         .strip()
     )
 
@@ -429,7 +427,7 @@ def build_dict(table: str) -> pd.DataFrame:
 
 # Save dictionary table
 dictionary = pd.concat(
-    [build_dict(table_name) for table_name in PIRLS_TABLES_DESC.keys()]
+    [build_dict(table_name) for table_name in PIRLS_TABLES_DESC]
 )
 dictionary.to_parquet(f"{OUTPUT}/dictionary.parquet", index=False)
 

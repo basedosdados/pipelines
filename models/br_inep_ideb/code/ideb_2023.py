@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import zipfile
 
@@ -139,7 +138,7 @@ df_regioes_ufs_latest = pd.concat(
         pd.read_excel(XLSX_REGIOES_UFS, sheet_name=sheet_name, skiprows=9)[
             [
                 *["Unnamed: 0", "Unnamed: 1"],
-                *[i for i in COMMON_RENAMES.keys() if i != "rede"],
+                *[i for i in COMMON_RENAMES if i != "rede"],
             ]
         ]  # type: ignore
         .rename(columns={"Unnamed: 0": "uf_regiao", "Unnamed: 1": "rede"})
@@ -322,7 +321,7 @@ df_municipio_latest = (
         [
             pd.read_excel(path, skiprows=9)[
                 [
-                    *[i for i in COMMON_RENAMES.keys() if i != "rede"],
+                    *[i for i in COMMON_RENAMES if i != "rede"],
                     *["SG_UF", "CO_MUNICIPIO", "REDE"],
                 ]
             ]
@@ -452,7 +451,7 @@ df_escolas_latest = (
         [
             pd.read_excel(path, skiprows=9)[
                 [
-                    *[i for i in COMMON_RENAMES.keys() if i != "rede"],
+                    *[i for i in COMMON_RENAMES if i != "rede"],
                     *["SG_UF", "CO_MUNICIPIO", "REDE", "ID_ESCOLA"],
                 ]
             ]

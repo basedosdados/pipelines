@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General utilities for interacting with dbt-rpc
 """
@@ -28,9 +27,7 @@ def process_dbt_log_file(log_path: str) -> pd.DataFrame:
         return pd.DataFrame(columns=["time", "level", "text"])
 
     try:
-        with open(
-            log_path, "r", encoding="utf-8", errors="ignore"
-        ) as log_file:
+        with open(log_path, encoding="utf-8", errors="ignore") as log_file:
             log_content = log_file.read()
 
         log(f"Log file size: {len(log_content)} bytes", level="debug")
@@ -101,7 +98,7 @@ def process_dbt_log_file(log_path: str) -> pd.DataFrame:
         return pd.DataFrame(columns=["time", "level", "text"])
 
     except Exception as e:
-        log(f"Error parsing DBT log file: {str(e)}", level="error")
+        log(f"Error parsing DBT log file: {e!s}", level="error")
         return pd.DataFrame(columns=["time", "level", "text"])
 
 
@@ -138,7 +135,7 @@ def extract_model_execution_status_from_logs(logs_df: pd.DataFrame) -> dict:
             model_status[model_name] = "success"
 
         if "FAIL" in row["text"].upper():
-            for model_name in model_status.keys():
+            for model_name in model_status:
                 if model_name in row["text"]:
                     model_status[model_name] = "fail"
 

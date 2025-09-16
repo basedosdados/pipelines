@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_cgu_licitacao_contrato
 """

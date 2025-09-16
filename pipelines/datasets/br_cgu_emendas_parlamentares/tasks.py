@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import zipfile
 from datetime import datetime
@@ -62,7 +61,7 @@ def get_last_modified_time():
         from_file=True,
     )
 
-    date = data.iloc[0].values
+    date = data.iloc[0].to_numpy()
     log("Data da última atualização: " + str(date[1]))
     log("Quantidade de linhas na tabela: " + str(date[0]))
     log("Quantidade de linhas no arquivo: " + str(emendas.shape[0]))
