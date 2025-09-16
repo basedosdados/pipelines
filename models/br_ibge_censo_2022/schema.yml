@@ -9153,3 +9153,51 @@ models:
           que possuem deficiência
       - name: pessoas_deficiecia
         description: Estudantes indígenas de 6 anos ou mais de idade que possuem deficiência
+  - name: br_ibge_censo_2022__taxa_escolarizacao_tea_sexo_grupo_idade
+    description: Taxa de escolarização das pessoas de 6 anos ou mais de idade, total
+      e pessoas diagnosticadas com autismo, por sexo e grupo de idade
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, diagnostico, grupo_idade, sexo]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: diagnostico
+        description: Possui ou não TEA
+      - name: grupo_idade
+        description: Grupo de Idade dos estudantes diagnósticados com autismo
+      - name: sexo
+        description: Sexo dos estudantes diagnósticados com autismo
+      - name: taxa_escolarizacao
+        description: Taxa de escolarização das pessoas de 6 ou mais de idade diagnosticados
+          com autismo
+  - name: br_ibge_censo_2022__taxa_escolarizacao_tea_raca_cor_grupo_idade
+    description: Taxa de escolarização das pessoas de 6 anos ou mais de idade, total
+      e pessoas diagnosticadas com autismo, por cor ou raça e grupo de idade
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, diagnostico, raca_cor, grupo_idade]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: diagnostico
+        description: Possui ou não TEA
+      - name: grupo_idade
+        description: Grupo de Idade dos estudantes diagnósticados com autismo
+      - name: raca_cor
+        description: Autodeclaração sobre cor e/ou raça
+      - name: taxa_escolarizacao
+        description: Taxa de escolarização das pessoas de 6 ou mais de idade diagnosticados
+          com autismo
