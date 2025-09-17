@@ -11,6 +11,10 @@ from pipelines.constants import constants as pipelines_constants
 from pipelines.datasets.br_denatran_frota.constants import (
     constants as denatran_constants,
 )
+from pipelines.datasets.br_denatran_frota.schedules import (
+    every_month_municipio,
+    every_month_uf,
+)
 from pipelines.datasets.br_denatran_frota.tasks import (
     crawl_task,
     get_desired_file_task,
@@ -59,9 +63,7 @@ with Flow(
         wait=table_id,
     )
 
-    date_to_fetch = get_latest_data_task(
-        table_id="uf_tipo", dataset_id=dataset_id
-    )
+    date_to_fetch = get_latest_data_task
     # search for most recent year in the API
     crawled = crawl_task(
         month=date_to_fetch[1],
@@ -152,7 +154,7 @@ br_denatran_frota_uf_tipo.storage = GCS(
 br_denatran_frota_uf_tipo.run_config = KubernetesRun(
     image=pipelines_constants.DOCKER_IMAGE.value
 )
-# br_denatran_frota_uf_tipo.schedule = every_month_uf
+br_denatran_frota_uf_tipo.schedule = every_month_uf
 
 
 with Flow(
@@ -272,4 +274,4 @@ br_denatran_frota_municipio_tipo.storage = GCS(
 br_denatran_frota_municipio_tipo.run_config = KubernetesRun(
     image=pipelines_constants.DOCKER_IMAGE.value
 )
-# br_denatran_frota_municipio_tipo.schedule = every_month_municipio
+br_denatran_frota_municipio_tipo.schedule = every_month_municipio
