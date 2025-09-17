@@ -4,7 +4,6 @@
         schema="br_rj_isp_estatisticas_seguranca",
     )
 }}
-
 select
     safe_cast(ano as int64) ano,
     safe_cast(mes as int64) mes,
@@ -74,7 +73,7 @@ select
     safe_cast(
         taxa_policial_civil_morto_servico as float64
     ) taxa_policial_civil_morto_servico,
-    safe_cast(taxa_registro_ocorrencia as int64) taxa_registro_ocorrencia,
+    safe_cast(taxa_registro_ocorrencia as float64) taxa_registro_ocorrencia,
     safe_cast(tipo_fase as string) tipo_fase
 from
     {{
