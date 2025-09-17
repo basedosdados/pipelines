@@ -7,16 +7,16 @@ import unittest
 
 import polars as pl
 from parameterized import parameterized
-
-from pipelines.datasets.br_denatran_frota.constants import (
-    constants as denatran_constants,
-)
 from pipelines.datasets.br_denatran_frota.handlers import (
     crawl,
     get_desired_file,
     get_latest_data,
     treat_municipio_tipo,
     treat_uf_tipo,
+)
+
+from pipelines.datasets.br_denatran_frota.constants import (
+    constants as denatran_constants,
 )
 
 # Classes to test br_denatran_frota tasks with unnittest
