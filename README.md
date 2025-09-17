@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://basedosdados.org">
-        <img src="https://github.com/basedosdados/sdk/blob/master/docs/docs/pt/images/bd_minilogo.png" width="340" alt="Base dos Dados">
+        <img src="https://storage.googleapis.com/basedosdados-website/logos/bd_minilogo.png" width="340" alt="Base dos Dados">
     </a>
 </p>
 
