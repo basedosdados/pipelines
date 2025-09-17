@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
+import os
 from io import StringIO
 from typing import Dict, List
 
 import pandas as pd
 import requests
+
+from pipelines.utils.crawler_isp.constants import (
+    constants as isp_constants,
+)
 
 # build a dict that maps a table name to a architectura and
 # another dict that maps an original table name to a
@@ -81,3 +86,36 @@ def check_tipo_fase(df: pd.DataFrame) -> pd.DataFrame:
             pass
 
     return df
+
+
+def download_files(file_name: str, save_dir: str) -> str:
+    """
+    Downloads CSV files from a list of URLs and saves them to a specified directory.
+
+    Args:
+        urls (list): List of URLs to download CSV files from.
+        save_dir (str): Path of directory to save the downloaded CSV files to.
+    """
+
+    # create path
+    os.makedirs(save_dir, exist_ok=True)
+
+    # create full url
+    url = os.path.join(isp_constants.URL.value, file_name)
+
+    print(f"Downloading file from {url}")
+    # Extract the filename from the URL
+    filename = os.path.basename(url)
+
+    # Create the full path of the file
+    file_path = os.path.join(save_dir, filename)
+
+    # Send a GET request to the URL
+    response = requests.get(url)
+
+    # Raise an exception if the response was not successful
+    response.raise_for_status()
+
+    # Write the content of the response to a file
+    with open(file_path, "wb") as f:
+        f.write(response.content)
