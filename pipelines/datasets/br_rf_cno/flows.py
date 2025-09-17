@@ -15,6 +15,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_rf_cno.constants import (
     constants as br_rf_cno_constants,
 )
+from pipelines.datasets.br_rf_cno.schedules import schedule_br_rf_cno
 from pipelines.datasets.br_rf_cno.tasks import (
     check_need_for_update,
     crawl_cno,
@@ -48,20 +49,11 @@ with Flow(
         default=["microdados", "areas", "cnaes", "vinculos"],
         required=False,
     )
-    # paths = Parameter(
-    #     "paths",
-    #     default=[
-    #         "output/microdados",
-    #         "output/areas",
-    #         "output/cnaes",
-    #         "output/vinculos",
-    #     ],
-    #     required=False,
-    # )
+
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
-    # url = Parameter("url", default=br_rf_cno_constants.URL.value, required=True)
+
     target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -185,4 +177,4 @@ br_rf_cno_tables.run_config = KubernetesRun(
     memory_request="2Gi",
     cpu_limit=1,
 )
-# br_rf_cno_tables.schedule = schedule_br_rf_cno
+br_rf_cno_tables.schedule = schedule_br_rf_cno
