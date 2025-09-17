@@ -58,7 +58,7 @@ schedule_municipio_importacao = Schedule(
 schedule_ncm_importacao = Schedule(
     clocks=[
         CronClock(
-            cron="30 21 * * *",  # At 21:30 on every day-of-month
+            cron="0 8,17 * * *",  # At 8 and 17 on every day-of-month
             start_date=datetime(2023, 11, 22, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -80,7 +80,7 @@ schedule_ncm_importacao = Schedule(
 schedule_ncm_exportacao = Schedule(
     clocks=[
         CronClock(
-            cron="0 22 * * *",  # At 22:00 on every day-of-month
+            cron="0 8,17 * * *",  # At 8 and 17 on every day-of-month
             start_date=datetime(2023, 11, 22, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
