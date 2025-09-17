@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://basedosdados.org">
-        <img src="https://github.com/basedosdados/sdk/blob/master/docs/docs/pt/images/bd_minilogo.png" width="340" alt="Base dos Dados">
+        <img src="https://storage.googleapis.com/basedosdados-website/logos/bd_minilogo.png" width="340" alt="Base dos Dados">
     </a>
 </p>
 
@@ -147,15 +147,6 @@ Para listar os órgãos existentes e nomes reservados
 
 ```sh
 uv run manage.py list-pipelines
-```
-
-Em seguida, leia com atenção os comentários em cada um dos arquivos do seu projeto, de modo a evitar conflitos e erros.
-Links para a documentação do Prefect também encontram-se nos comentários.
-
-Caso o órgão para o qual você desenvolverá um projeto já exista
-
-```sh
-uv run manage.py add-project datasets nome-do-projeto
 ```
 
 ### Testar uma pipeline localmente
