@@ -8,11 +8,11 @@ import ftplib
 
 # pylint: disable=invalid-name
 import re
+from datetime import timedelta
 from glob import glob
 
 import basedosdados as bd
 import pandas as pd
-import timedelta
 from dateutil.relativedelta import relativedelta
 from prefect import task
 from tqdm import tqdm
@@ -272,6 +272,7 @@ def build_partitions(table_id: str) -> str:
         for state in caged_constants.UF_DICT.value.values():
             data = df[df["uf"] == state]
             data.drop(["competenciamov", "uf"], axis=1, inplace=True)
+            log(df.head(5))
             data.to_csv(
                 f"/tmp/caged/{table_id}/ano={ano}/mes={mes}/sigla_uf={state}/data.csv",
                 index=False,

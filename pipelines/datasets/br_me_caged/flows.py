@@ -78,7 +78,7 @@ with Flow(
         log_task(f"No updates for table {table_id}!")
 
     with case(check_if_outdated, True):
-        table_last_date = get_table_last_date()
+        table_last_date = get_table_last_date(dataset_id, table_id)
 
         yearmonths = generate_yearmonth_range(
             table_last_date, source_last_date
