@@ -5,6 +5,7 @@ Tasks related to DBT flows.
 
 import json
 import os
+from pathlib import Path
 from typing import Any, Optional, Union
 
 from dbt.cli.main import dbtRunner
@@ -55,13 +56,25 @@ def run_dbt(
     if dbt_command not in ["run", "test", "run and test", "run/test"]:
         raise ValueError(f"Invalid dbt_command: {dbt_command}")
 
-    if table_id:
+    models_folder = Path("models") / dataset_id
+
+    if table_id is not None:
         if dbt_alias:
-            selected_table = f"{dataset_id}.{dataset_id}__{table_id}"
+            selected_table = models_folder / f"{dataset_id}__{table_id}.sql"
         else:
-            selected_table = f"{dataset_id}.{table_id}"
+            selected_table = models_folder / f"{table_id}.sql"
     else:
-        selected_table = dataset_id
+        selected_table = models_folder
+
+    # dbtRunner report success when model file dont exists
+    # We check if sql file exists
+    if not selected_table.is_dir() and not selected_table.exists():
+        msg = f"{selected_table.as_posix()} model file dont exists"
+        raise Exception(msg)
+
+    if table_id is None and len(list(selected_table.iterdir())) == 0:
+        msg = f"{selected_table.as_posix()} is empty"
+        raise Exception(msg)
 
     vars_deserialize = (
         json.loads(_vars)
@@ -97,7 +110,13 @@ def run_dbt(
             )
 
     for cmd in commands_to_run:
-        cli_args = [cmd, "--select", selected_table, "--target", target]
+        cli_args = [
+            cmd,
+            "--select",
+            selected_table.as_posix(),
+            "--target",
+            target,
+        ]
 
         if flags and flags.startswith("--full-refresh") and cmd == "run":
             cli_args.insert(1, "--full-refresh")
