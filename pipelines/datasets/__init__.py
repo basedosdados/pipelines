@@ -63,4 +63,5 @@ from pipelines.datasets.delete_flows.flows import *
 from pipelines.datasets.fundacao_lemann.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.flows import *
+from pipelines.datasets.test_cd.flows import *
 from pipelines.datasets.world_sofascore_competicoes_futebol.flows import *
