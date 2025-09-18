@@ -10,9 +10,9 @@ from pipelines.utils.utils import log
 
 
 @task
-def logs_stuff(str) -> Client:
+def logs_stuff(string) -> Client:
     """
     Just logs some stuff
     """
 
-    log(str)
+    log(string)

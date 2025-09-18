@@ -11,7 +11,7 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.delete_flows.tasks import logs_stuff
+from pipelines.datasets.test_cd.tasks import logs_stuff
 from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import (
@@ -45,7 +45,7 @@ with Flow(
     )
 
     # Get the Prefect client
-    test = logs_stuff(str="Hola Amigo")
+    test = logs_stuff(string="Hola Amigo")
 
     # Delete the old flow runs
 
