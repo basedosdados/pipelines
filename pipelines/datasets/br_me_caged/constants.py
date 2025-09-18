@@ -9,6 +9,7 @@ from enum import Enum
 class constants(Enum):  # pylint: disable=c0103
     FTP_HOST = "ftp.mtps.gov.br"
     REMOTE_DIR = "pdet/microdados/NOVO CAGED"
+    FILE_TYPES = ["EXC", "FOR", "MOV"]
     RENAME_DICT = {
         "uf": "sigla_uf",
         "municipio": "id_municipio",
