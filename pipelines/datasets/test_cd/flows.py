@@ -65,7 +65,7 @@ with Flow(
             },
             labels=current_flow_labels,
             run_name=f"Materialize {dataset_id}.{table_id}",
-            upstream_tasks=[logs_stuff],
+            upstream_tasks=[test],
         )
 
         wait_for_materialization = wait_for_flow_run(
