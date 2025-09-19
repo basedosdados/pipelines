@@ -1,0 +1,225 @@
+---
+version: 2
+models:
+  - name: br_inep_avaliacao_alfabetizacao__municipio
+    description: A tabela contém dados das avaliações de alfabetização censitárias
+      aplicadas pelas secretarias de Educação estaduais a nível de município - e só
+      contempla a rede municipal. A definição do padrão nacional de alfabetização
+      e o estabelecimento de metas são fundamentais para o monitoramento do Compromisso
+      Nacional Criança Alfabetizada, assim como a implementação dos sistemas estaduais
+      de avaliação, em articulação com o Inep. Essa iniciativa permite a divulgação,
+      em 2024, dos primeiros resultados, alinhados nacionalmente, que indicam o percentual
+      de estudantes alfabetizados no país e em cada rede de ensino.
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: rede
+        description: Rede Escolar
+      - name: taxa_alfabetizacao
+        description: Percentual de crianças alfabetizadas
+      - name: meta_alfabetizacao_2024
+        description: Meta de alfabetização para 2024
+      - name: meta_alfabetizacao_2025
+        description: Meta de alfabetização para 2025
+      - name: meta_alfabetizacao_2026
+        description: Meta de alfabetização para 2026
+      - name: meta_alfabetizacao_2027
+        description: Meta de alfabetização para 2027
+      - name: meta_alfabetizacao_2028
+        description: Meta de alfabetização para 2028
+      - name: meta_alfabetizacao_2029
+        description: Meta de alfabetização para 2029
+      - name: meta_alfabetizacao_2030
+        description: Meta de alfabetização para 2030
+      - name: nivel_alfabetizacao
+        description: Nível de alfabetização dos alunos
+      - name: percentual_participacao
+        description: Percentual de alunos que participou da avaliação
+  - name: br_inep_avaliacao_alfabetizacao__uf
+    description: A tabela contém dados das avaliações de alfabetização censitárias
+      aplicadas pelas secretarias de Educação estaduais a nível de estado - e só contempla
+      a rede pública. A definição do padrão nacional de alfabetização e o estabelecimento
+      de metas são fundamentais para o monitoramento do Compromisso Nacional Criança
+      Alfabetizada, assim como a implementação dos sistemas estaduais de avaliação,
+      em articulação com o Inep. Essa iniciativa permite a divulgação, em 2024, dos
+      primeiros resultados, alinhados nacionalmente, que indicam o percentual de estudantes
+      alfabetizados no país e em cada rede de ensino.
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: rede
+        description: Rede Escolar
+      - name: taxa_alfabetizacao
+        description: Percentual de crianças alfabetizadas
+      - name: meta_alfabetizacao_2024
+        description: Meta de alfabetização para 2024
+      - name: meta_alfabetizacao_2025
+        description: Meta de alfabetização para 2025
+      - name: meta_alfabetizacao_2026
+        description: Meta de alfabetização para 2026
+      - name: meta_alfabetizacao_2027
+        description: Meta de alfabetização para 2027
+      - name: meta_alfabetizacao_2028
+        description: Meta de alfabetização para 2028
+      - name: meta_alfabetizacao_2029
+        description: Meta de alfabetização para 2029
+      - name: meta_alfabetizacao_2030
+        description: Meta de alfabetização para 2030
+      - name: percentual_participacao
+        description: Percentual de alunos que participou da avaliação
+  - name: br_inep_avaliacao_alfabetizacao__municipio
+    description: A tabela contém dados das avaliações de alfabetização censitárias
+      aplicadas pelas secretarias de Educação estaduais a nível de município - e só
+      contempla a rede municipal. A definição do padrão nacional de alfabetização
+      e o estabelecimento de metas são fundamentais para o monitoramento do Compromisso
+      Nacional Criança Alfabetizada, assim como a implementação dos sistemas estaduais
+      de avaliação, em articulação com o Inep. Essa iniciativa permite a divulgação,
+      em 2024, dos primeiros resultados, alinhados nacionalmente, que indicam o percentual
+      de estudantes alfabetizados no país e em cada rede de ensino.
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: nome_municipio
+        description: Nome do município
+      - name: rede
+        description: Rede Escolar
+      - name: media_taxa_alfabetizacao
+        description: Média do percentual de crianças alfabetizadas
+      - name: meta_alfabetizacao_2024
+        description: Meta de alfabetização para 2024
+      - name: meta_alfabetizacao_2025
+        description: Meta de alfabetização para 2025
+      - name: meta_alfabetizacao_2026
+        description: Meta de alfabetização para 2026
+      - name: meta_alfabetizacao_2027
+        description: Meta de alfabetização para 2027
+      - name: meta_alfabetizacao_2028
+        description: Meta de alfabetização para 2028
+      - name: meta_alfabetizacao_2029
+        description: Meta de alfabetização para 2029
+      - name: meta_alfabetizacao_2030
+        description: Meta de alfabetização para 2030
+      - name: nivel_alfabetizacao
+        description: Nível de alfabetização dos alunos
+      - name: media_percentual_participacao
+        description: Média do percentual de alunos que participaram da avaliação
+  - name: br_inep_avaliacao_alfabetizacao__uf
+    description: A tabela contém dados das avaliações de alfabetização censitárias
+      aplicadas pelas secretarias de Educação estaduais a nível de estado - e só contempla
+      a rede pública. A definição do padrão nacional de alfabetização e o estabelecimento
+      de metas são fundamentais para o monitoramento do Compromisso Nacional Criança
+      Alfabetizada, assim como a implementação dos sistemas estaduais de avaliação,
+      em articulação com o Inep. Essa iniciativa permite a divulgação, em 2024, dos
+      primeiros resultados, alinhados nacionalmente, que indicam o percentual de estudantes
+      alfabetizados no país e em cada rede de ensino.
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: rede
+        description: Rede Escolar
+      - name: media_taxa_alfabetizacao
+        description: Média do percentual de crianças alfabetizadas
+      - name: meta_alfabetizacao_2024
+        description: Meta de alfabetização para 2024
+      - name: meta_alfabetizacao_2025
+        description: Meta de alfabetização para 2025
+      - name: meta_alfabetizacao_2026
+        description: Meta de alfabetização para 2026
+      - name: meta_alfabetizacao_2027
+        description: Meta de alfabetização para 2027
+      - name: meta_alfabetizacao_2028
+        description: Meta de alfabetização para 2028
+      - name: meta_alfabetizacao_2029
+        description: Meta de alfabetização para 2029
+      - name: meta_alfabetizacao_2030
+        description: Meta de alfabetização para 2030
+      - name: media_percentual_participacao
+        description: Média do percentual de alunos que participaram da avaliação
+  - name: br_inep_avaliacao_alfabetizacao__brasil
+    description: A tabela contém dados das avaliações de alfabetização censitárias
+      aplicadas pelas secretarias de Educação estaduais a nível nacional - e só contempla
+      a rede pública. A definição do padrão nacional de alfabetização e o estabelecimento
+      de metas são fundamentais para o monitoramento do Compromisso Nacional Criança
+      Alfabetizada, assim como a implementação dos sistemas estaduais de avaliação,
+      em articulação com o Inep. Essa iniciativa permite a divulgação, em 2024, dos
+      primeiros resultados, alinhados nacionalmente, que indicam o percentual de estudantes
+      alfabetizados no país e em cada rede de ensino.
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: rede
+        description: Rede Escolar
+      - name: media_taxa_alfabetizacao
+        description: Média do percentual de crianças alfabetizadas
+      - name: meta_alfabetizacao_2024
+        description: Meta de alfabetização para 2024
+      - name: meta_alfabetizacao_2025
+        description: Meta de alfabetização para 2025
+      - name: meta_alfabetizacao_2026
+        description: Meta de alfabetização para 2026
+      - name: meta_alfabetizacao_2027
+        description: Meta de alfabetização para 2027
+      - name: meta_alfabetizacao_2028
+        description: Meta de alfabetização para 2028
+      - name: meta_alfabetizacao_2029
+        description: Meta de alfabetização para 2029
+      - name: meta_alfabetizacao_2030
+        description: Meta de alfabetização para 2030
+      - name: media_percentual_participacao
+        description: Média do percentual de alunos que participaram da avaliação
