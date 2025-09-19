@@ -116,7 +116,6 @@ def get_table_last_date(
         backend=backend,
         date_format="%Y-%m",
     )
-    data_api = datetime.datetime(year=2025, month=2, day=1).date()
     return data_api
 
 

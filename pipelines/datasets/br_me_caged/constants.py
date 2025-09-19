@@ -42,6 +42,8 @@ class constants(Enum):  # pylint: disable=c0103
         "origemdainformacao": "origem_informacao",
         "indicadordeforadoprazo": "indicador_fora_prazo",
         "indicadordeexclusao": "indicador_exclusao",
+        "competenciamov": "competencia_movimentacao",
+        "competenciadec": "competencia_declarada",
     }
 
     UF_DICT = {
