@@ -21,8 +21,8 @@ def download_file(
         bool: True if file downloaded and extracted successfully, False otherwise
     """
     global CORRUPT_FILES
-
-    Path(local_dir).mkdir(parents=True, exist_ok=True)
+    local_dir = Path(local_dir)
+    local_dir.mkdir(parents=True, exist_ok=True)
     output_path = local_dir / filename
 
     try:

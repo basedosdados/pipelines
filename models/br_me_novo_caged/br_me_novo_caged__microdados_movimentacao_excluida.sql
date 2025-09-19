@@ -1,14 +1,8 @@
 {{
     config(
-        schema="br_me_caged",
-        materialized="incremental",
-        alias="microdados_movimentacao",
-        partition_by={
-            "field": "ano",
-            "data_type": "int64",
-            "range": {"start": 2020, "end": 2025, "interval": 1},
-        },
-        cluster_by=["mes", "sigla_uf"],
+        schema="br_me_novo_caged",
+        materialized="table",
+        alias="microdados_movimentacao_excluida",
         labels={"project_id": "basedosdados", "tema": "economia"},
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
@@ -18,6 +12,10 @@
 select
     safe_cast(ano as int64) ano,
     safe_cast(mes as int64) mes,
+    safe_cast(substring(competenciamov, 1, 4) as int64) ano_competencia_movimentacao,
+    safe_cast(substring(competenciamov, 5, 6) as int64) mes_competencia_movimentacao,
+    safe_cast(substring(competenciadec, 1, 4) as int64) ano_declaracao_movimentacao,
+    safe_cast(substring(competenciadec, 5, 6) as int64) mes_declaracao_movimentacao,
     safe_cast(a.sigla_uf as string) sigla_uf,
     safe_cast(b.id_municipio as string) id_municipio,
     safe_cast(cnae_2_secao as string) cnae_2_secao,
@@ -48,14 +46,14 @@ select
     ) tamanho_estabelecimento_janeiro,
     safe_cast(indicador_aprendiz as string) indicador_aprendiz,
     safe_cast(origem_informacao as string) origem_informacao,
+    safe_cast(indicador_exclusao as int64) indicador_exclusao,
     safe_cast(indicador_fora_prazo as int64) indicador_fora_prazo
-from {{ set_datalake_project("br_me_caged_staging.microdados_movimentacao") }} a
+from
+    {{
+        set_datalake_project(
+            "br_me_novo_caged_staging.microdados_movimentacao_excluida"
+        )
+    }} a
 left join
     `basedosdados.br_bd_diretorios_brasil.municipio` b
     on a.id_municipio = b.id_municipio_6
-
-{% if is_incremental() %}
-    where
-        date(cast(ano as int64), cast(mes as int64), 1)
-        > (select max(date(cast(ano as int64), cast(mes as int64), 1)) from {{ this }})
-{% endif %}

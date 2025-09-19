@@ -9,25 +9,48 @@ import ftplib
 # pylint: disable=invalid-name
 import re
 from datetime import timedelta
-from glob import glob
+from pathlib import Path
+from typing import Tuple
 
 import basedosdados as bd
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 from dateutil.relativedelta import relativedelta
 from prefect import task
 from tqdm import tqdm
 from unidecode import unidecode
 
 from pipelines.constants import constants
-from pipelines.datasets.br_me_caged.constants import (
+from pipelines.datasets.br_me_novo_caged.constants import (
     constants as caged_constants,
 )
-from pipelines.datasets.br_me_caged.utils import (
+from pipelines.datasets.br_me_novo_caged.utils import (
     download_file,
     verify_yearmonth,
 )
+from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import log
+
+
+@task
+def build_table_paths(
+    table_id: str, parent_dir: str | Path = caged_constants.DATASET_DIR.value
+) -> Tuple[Path]:
+    if not Path(parent_dir).exists():
+        parent_dir = Path(parent_dir)
+        parent_dir.mkdir(parents=True)
+
+    table_dir = parent_dir / table_id
+    table_dir.mkdir()
+    table_input_dir = table_dir / "input"
+    table_output_dir = table_dir / "output"
+
+    table_input_dir.mkdir()
+    table_output_dir.mkdir()
+
+    return table_input_dir, table_output_dir
 
 
 @task
@@ -64,10 +87,10 @@ def get_source_last_date(
             if re.search(r"^(?:\d{4})(\d{2})$", item)
         ]
         month_folders.sort(reverse=True)
-        last_date = datetime(
+        last_date = datetime.datetime(
             year=year_folders[0], month=month_folders[0], day=1
         )
-        return last_date.date
+        return last_date.date()
     except Exception as ErrorNlst:
         log(f"Unable to access CAGED subfolders due to {ErrorNlst}")
 
@@ -87,14 +110,16 @@ def get_table_last_date(
         str: table most recent date
     """
 
-    backend = bd.Backend(graphql_url=constants.API_URL.value["prod"])
+    backend = bd.Backend(graphql_url=utils_constants.API_URL.value["prod"])
 
     data_api = get_api_most_recent_date(
         dataset_id=dataset_id,
         table_id=table_id,
         backend=backend,
-        date_format="%Y-%m-%d",
+        date_format="%Y-%m",
     )
+
+    data_api = datetime(year=2024, month=12, day=1).date()
     return data_api
 
 
@@ -131,8 +156,8 @@ def generate_yearmonth_range(
         raise ValueError("Dates must be in 'YYYYMM' format")
 
     # Convert to datetime objects
-    start = datetime.strptime(start_date, "%Y%m")
-    end = datetime.strptime(end_date, "%Y%m")
+    start = datetime.datetime.strptime(start_date, "%Y%m")
+    end = datetime.datetime.strptime(end_date, "%Y%m")
 
     # Validate date order
     if start > end:
@@ -151,9 +176,9 @@ def generate_yearmonth_range(
 @task
 def crawl_novo_caged_ftp(
     yearmonth: str,
+    table_id: str,
     ftp_host: str = caged_constants.FTP_HOST.value,
-    file_types: list = caged_constants.FILE_TYPES.value,
-) -> list:
+):
     """
     Downloads specified .7z files from a CAGED dataset FTP server.
 
@@ -171,12 +196,6 @@ def crawl_novo_caged_ftp(
     CORRUPT_FILES = []
 
     verify_yearmonth(yearmonth)
-
-    if file_types:
-        file_types = [ft.upper() for ft in file_types]
-        valid_types = ["MOV", "FOR", "EXC"]
-        if not all(ft in valid_types for ft in file_types):
-            raise ValueError(f"Invalid file types. Choose from {valid_types}")
 
     ftp = ftplib.FTP(ftp_host)
     ftp.login()
@@ -197,37 +216,49 @@ def crawl_novo_caged_ftp(
     failed_downloads = []
 
     for file in filenames:
-        if "CAGEDMOV" in file and (not file_types or "MOV" in file_types):
+        if "CAGEDMOV" in file and table_id == "microdados_movimentacao":
             log(f"Baixando o arquivo: {file}")
             success = download_file(
                 ftp,
                 yearmonth,
                 file,
-                "/tmp/caged/microdados_movimentacao/input/",
+                caged_constants.DATASET_DIR.value
+                / "microdados_movimentacao"
+                / "input",
             )
             (successful_downloads if success else failed_downloads).append(
                 file
             )
 
-        elif "CAGEDFOR" in file and (not file_types or "FOR" in file_types):
+        elif (
+            "CAGEDFOR" in file
+            and table_id == "microdados_movimentacao_fora_prazo"
+        ):
             log(f"Baixando o arquivo: {file}")
             success = download_file(
                 ftp,
                 yearmonth,
                 file,
-                "/tmp/caged/microdados_movimentacao_fora_prazo/input/",
+                caged_constants.DATASET_DIR.value
+                / "microdados_movimentacao_fora_prazo"
+                / "input",
             )
             (successful_downloads if success else failed_downloads).append(
                 file
             )
 
-        elif "CAGEDEXC" in file and (not file_types or "EXC" in file_types):
+        elif (
+            "CAGEDEXC" in file
+            and table_id == "microdados_movimentacao_excluida"
+        ):
             log(f"Baixando o arquivo: {file}")
             success = download_file(
                 ftp,
                 yearmonth,
                 file,
-                "/tmp/caged/microdados_movimentacao_excluida/input/",
+                caged_constants.DATASET_DIR.value
+                / "microdados_movimentacao_excluida"
+                / "input",
             )
             (successful_downloads if success else failed_downloads).append(
                 file
@@ -252,13 +283,15 @@ def crawl_novo_caged_ftp(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def build_partitions(table_id: str) -> str:
+def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
     """
     build partitions from gtup files
 
     table_id: microdados_movimentacao | microdados_movimentacao_fora_prazo | microdados_movimentacao_excluida
     """
-    input_files = glob(f"/tmp/caged/{table_id}/input/*txt")
+    input_files = Path(
+        caged_constants.DATASET_DIR.value / table_id / "input"
+    ).glob("*txt")
     for filename in tqdm(input_files):
         df = pd.read_csv(filename, sep=";", dtype={"uf": str})
         date = re.search(r"\d+", filename).group()
@@ -273,11 +306,53 @@ def build_partitions(table_id: str) -> str:
             data = df[df["uf"] == state]
             data.drop(["competenciamov", "uf"], axis=1, inplace=True)
             log(df.head(5))
+            output_dir = (
+                Path(table_output_dir)
+                / f"ano={ano}"
+                / f"mes={mes}"
+                / f"sigla_uf={state}"
+            )
+            output_dir.mkdir(exist_ok=True, parents=True)
+            output_path = str(output_dir / "data.csv")
             data.to_csv(
-                f"/tmp/caged/{table_id}/ano={ano}/mes={mes}/sigla_uf={state}/data.csv",
+                output_path,
                 index=False,
             )
             del data
         del df
 
-    return f"/tmp/caged/{table_id}/"
+    return table_output_dir
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def get_caged_schedule():
+    response = requests.get(caged_constants.URL_SCHEDULE.value)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.content, "html.parser")
+    elements = soup.select(caged_constants.CSS_SELECTOR_SCHEDULES.value)
+    match_elements = [
+        re.search(
+            r"(\d{2}\/\d{2}\/\d{4})(?:\s?\-\s?Competência\:\s?)(\w+)(?:\s+de\s?)(\d{4})",
+            element.text,
+        )
+        for element in elements
+    ]
+
+    date_elements = [
+        {
+            "data": datetime.datetime.strptime(
+                match_element.group(1), "%d/%m/%Y"
+            ),
+            "data_competencia": datetime.datetime.strptime(
+                f"01/{caged_constants.FULL_MONTHS.value[match_element.group(2)]}/{match_element.group(3)}",
+                "%d/%m/%Y",
+            ),
+        }
+        for match_element in match_elements
+        if match_element
+    ]
+    date_elements.sort(key="competencia", reverse=True)
+    return date_elements

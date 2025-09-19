@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: br_me_caged__microdados_movimentacao
+  - name: br_me_novo_caged__microdados_movimentacao
     description: Contém dados de movimentações declaradas dentro do prazo com competência
       de declaração.
     tests:
@@ -79,7 +79,7 @@ models:
         description: Origem da Informação
       - name: indicador_fora_prazo
         description: Indicador fora do prazo
-  - name: br_me_caged__microdados_movimentacao_fora_prazo
+  - name: br_me_novo_caged__microdados_movimentacao_fora_prazo
     description: Contém dados de movimentações declaradas fora do prazo com competência
       de declaração.
     tests:
@@ -159,7 +159,7 @@ models:
         description: Origem da Informação
       - name: indicador_fora_prazo
         description: Indicador fora do prazo
-  - name: br_me_caged__microdados_movimentacao_excluida
+  - name: br_me_novo_caged__microdados_movimentacao_excluida
     description: Contém dados de movimentações excluídas com competência de declaração.
     tests:
       - not_null_proportion_multiple_columns:
@@ -241,9 +241,9 @@ models:
         description: Indicador Exclusão
       - name: indicador_fora_prazo
         description: Indicador fora do prazo
-  - name: br_me_caged__dicionario
-    description: Dicionário para tradução dos códigos do conjunto br_me_caged. Para
-      taduzir códigos compartilhados entre instituições, como id_municipio, buscar
+  - name: br_me_novo_caged__dicionario
+    description: Dicionário para tradução dos códigos do conjunto br_me_novo_caged.
+      Para taduzir códigos compartilhados entre instituições, como id_municipio, buscar
       por diretórios
     tests:
       - dbt_utils.unique_combination_of_columns:

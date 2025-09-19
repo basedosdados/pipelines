@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 """
-Constants for br_me_caged
+Constants for br_me_novo_caged
 """
 
 from enum import Enum
+from pathlib import Path
 
 
 class constants(Enum):  # pylint: disable=c0103
     FTP_HOST = "ftp.mtps.gov.br"
     REMOTE_DIR = "pdet/microdados/NOVO CAGED"
+
+    URL_SCHEDULE = "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/estatisticas-trabalho/o-pdet/calendario-de-divulgacao-do-novo-caged"
+    CSS_SELECTOR_SCHEDULES = (
+        "#c0c7e623-d6c5-41c0-b9cc-acb0acd78ac7 > div > div > ul > li"
+    )
+
     FILE_TYPES = ["EXC", "FOR", "MOV"]
     RENAME_DICT = {
         "uf": "sigla_uf",
@@ -68,6 +75,20 @@ class constants(Enum):  # pylint: disable=c0103
         "99": "UF não identificada",
     }
 
+    FULL_MONTHS = {
+        "janeiro": 1,
+        "fevereiro": 2,
+        "março": 3,
+        "abril": 4,
+        "maio": 5,
+        "junho": 6,
+        "julho": 7,
+        "agosto": 8,
+        "setembro": 9,
+        "outubro": 10,
+        "novembro": 11,
+        "dezembro": 12,
+    }
     COLUMNS_TO_DROP = {
         "microdados_movimentacao": [
             "sigla_uf",
@@ -88,3 +109,9 @@ class constants(Enum):  # pylint: disable=c0103
             "valorsalariofixo",
         ],
     }
+
+    TMP_DIR = Path("tmp")
+    DATASET_DIR = TMP_DIR / "br_me_novo_caged"
+
+    TMP_DIR.mkdir(exist_ok=True, parents=True)
+    DATASET_DIR.mkdir(exist_ok=True, parents=True)
