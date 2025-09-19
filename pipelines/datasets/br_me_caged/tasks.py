@@ -116,7 +116,6 @@ def get_table_last_date(
         backend=backend,
         date_format="%Y-%m",
     )
-    data_api = datetime.datetime(year=2024, month=8, day=1).date()
     return data_api
 
 
@@ -291,8 +290,8 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
         caged_constants.DATASET_DIR.value / table_id / "input"
     ).glob("*txt")
     for filepath in tqdm(input_files):
-        filename = filepath.stem
-        df = pd.read_csv(filename, sep=";", dtype={"uf": str})
+        filename = filepath.name
+        df = pd.read_csv(filepath, sep=";", dtype={"uf": str})
         date = re.search(r"\d+", filename).group()
         ano = date[:4]
         mes = int(date[-2:])
