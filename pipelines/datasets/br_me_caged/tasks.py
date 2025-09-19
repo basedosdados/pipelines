@@ -116,6 +116,7 @@ def get_table_last_date(
         backend=backend,
         date_format="%Y-%m",
     )
+    data_api = datetime.datetime(year=2025, month=2, day=1).date()
     return data_api
 
 
@@ -174,7 +175,7 @@ def crawl_novo_caged_ftp(
     yearmonth: str,
     table_id: str,
     ftp_host: str = caged_constants.FTP_HOST.value,
-):
+) -> bool:
     """
     Downloads specified .7z files from a CAGED dataset FTP server.
 
@@ -265,7 +266,8 @@ def crawl_novo_caged_ftp(
     log("\nDownload Summary:")
     log(f"Successfully downloaded: {successful_downloads}")
     log(f"Failed downloads: {failed_downloads}")
-
+    if len(successful_downloads) == 0:
+        return False
     if CORRUPT_FILES:
         log("\nCorrupt Files Details:")
         for corrupt_file in CORRUPT_FILES:
@@ -273,6 +275,7 @@ def crawl_novo_caged_ftp(
             log(f"Local Path: {corrupt_file['local_path']}")
             log(f"Error: {corrupt_file['error']}")
             log("---")
+    return True
 
 
 @task(
@@ -303,7 +306,6 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
         for state in caged_constants.UF_DICT.value.values():
             data = df[df["uf"] == state]
             data.drop(["competenciamov", "uf"], axis=1, inplace=True)
-            log(df.head(5))
             output_dir = (
                 Path(table_output_dir)
                 / f"ano={ano}"

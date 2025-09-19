@@ -93,7 +93,7 @@ with Flow(
             table_last_date, source_last_date, upstream_tasks=[table_last_date]
         )
 
-        crawl_novo_caged_ftp.map(
+        crawl_caged = crawl_novo_caged_ftp.map(
             yearmonths,
             unmapped(table_id),
             upstream_tasks=[yearmonths],
@@ -102,7 +102,7 @@ with Flow(
         filepath = build_partitions(
             table_id=table_id,
             table_output_dir=output_dir,
-            upstream_tasks=[crawl_novo_caged_ftp],
+            upstream_tasks=[crawl_caged],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
