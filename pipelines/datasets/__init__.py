@@ -38,9 +38,9 @@ from pipelines.datasets.br_ibge_ipca.flows import *
 from pipelines.datasets.br_ibge_ipca15.flows import *
 from pipelines.datasets.br_ibge_pnadc.flows import *
 from pipelines.datasets.br_inmet_bdmep.flows import *
+from pipelines.datasets.br_me_caged.flows import *
 from pipelines.datasets.br_me_cnpj.flows import *
 from pipelines.datasets.br_me_comex_stat.flows import *
-from pipelines.datasets.br_me_novo_caged.flows import *
 from pipelines.datasets.br_mercadolivre_ofertas.flows import *
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.flows import *
 from pipelines.datasets.br_mp_pep_cargos_funcoes.flows import *

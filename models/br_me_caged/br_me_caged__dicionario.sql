@@ -1,4 +1,4 @@
-{{ config(alias="dicionario", schema="br_me_novo_caged") }}
+{{ config(alias="dicionario", schema="br_me_caged") }}
 select
     safe_cast(
         replace(
@@ -9,4 +9,4 @@ select
     safe_cast(chave as string) chave,
     safe_cast(cobertura_temporal as string) cobertura_temporal,
     safe_cast(valor as string) valor,
-from {{ set_datalake_project("br_me_novo_caged_staging.dicionario") }} as t
+from {{ set_datalake_project("br_me_caged_staging.dicionario") }} as t

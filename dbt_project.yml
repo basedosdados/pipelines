@@ -262,9 +262,6 @@ models:
     br_mdr_snis:
       +materialized: table
       +schema: br_mdr_snis
-    br_me_novo_caged:
-      +materialized: table
-      +schema: br_me_novo_caged
     br_me_caged:
       +materialized: table
       +schema: br_me_caged

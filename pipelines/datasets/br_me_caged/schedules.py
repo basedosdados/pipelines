@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Schedules for br_me_novo_caged
+Schedules for br_me_caged
 """
 
 from datetime import datetime, timedelta
