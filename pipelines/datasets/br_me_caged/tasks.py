@@ -14,8 +14,6 @@ from typing import Tuple
 
 import basedosdados as bd
 import pandas as pd
-import requests
-from bs4 import BeautifulSoup
 from dateutil.relativedelta import relativedelta
 from prefect import task
 from tqdm import tqdm
@@ -118,7 +116,6 @@ def get_table_last_date(
         date_format="%Y-%m",
     )
 
-    data_api = datetime(year=2024, month=12, day=1).date()
     return data_api
 
 
@@ -321,37 +318,3 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
         del df
 
     return table_output_dir
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def get_caged_schedule():
-    response = requests.get(caged_constants.URL_SCHEDULE.value)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.content, "html.parser")
-    elements = soup.select(caged_constants.CSS_SELECTOR_SCHEDULES.value)
-    match_elements = [
-        re.search(
-            r"(\d{2}\/\d{2}\/\d{4})(?:\s?\-\s?Competência\:\s?)(\w+)(?:\s+de\s?)(\d{4})",
-            element.text,
-        )
-        for element in elements
-    ]
-
-    date_elements = [
-        {
-            "data": datetime.datetime.strptime(
-                match_element.group(1), "%d/%m/%Y"
-            ),
-            "data_competencia": datetime.datetime.strptime(
-                f"01/{caged_constants.FULL_MONTHS.value[match_element.group(2)]}/{match_element.group(3)}",
-                "%d/%m/%Y",
-            ),
-        }
-        for match_element in match_elements
-        if match_element
-    ]
-    date_elements.sort(key="competencia", reverse=True)
-    return date_elements
