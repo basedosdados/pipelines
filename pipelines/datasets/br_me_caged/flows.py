@@ -39,19 +39,15 @@ from pipelines.utils.tasks import (
 
 with Flow(
     "br_me_caged.microdados_movimentacao", code_owners=["Luiza"]
-) as br_me_caged__microdados_movimentacao:
+) as br_me_caged_microdados_movimentacao:
     dataset_id = Parameter("dataset_id", default="br_me_caged", required=True)
-
     table_id = Parameter(
         "table_id", default="microdados_movimentacao", required=True
     )
-
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
-
     target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -81,10 +77,6 @@ with Flow(
         log_task(f"No updates for table {table_id}!")
 
     with case(table_last_date < source_last_date, True):
-        input_path, output_path = build_table_paths(
-            table_id, upstream_tasks=[check_if_outdated]
-        )
-
         input_dir, output_dir = build_table_paths(
             table_id, upstream_tasks=[source_last_date]
         )
@@ -158,29 +150,24 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-br_me_caged__microdados_movimentacao.storage = GCS(
+br_me_caged_microdados_movimentacao.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
-br_me_caged__microdados_movimentacao.run_config = KubernetesRun(
+br_me_caged_microdados_movimentacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
 
-
 with Flow(
     "br_me_caged.microdados_movimentacao_excluida", code_owners=["Luiza"]
-) as br_me_caged__microdados_movimentacao_excluida:
+) as br_me_caged_microdados_movimentacao_excluida:
     dataset_id = Parameter("dataset_id", default="br_me_caged", required=True)
-
     table_id = Parameter(
         "table_id", default="microdados_movimentacao_excluida", required=True
     )
-
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
-
     target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -210,10 +197,6 @@ with Flow(
         log_task(f"No updates for table {table_id}!")
 
     with case(table_last_date < source_last_date, True):
-        input_path, output_path = build_table_paths(
-            table_id, upstream_tasks=[check_if_outdated]
-        )
-
         input_dir, output_dir = build_table_paths(
             table_id, upstream_tasks=[source_last_date]
         )
@@ -287,27 +270,24 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-br_me_caged__microdados_movimentacao_excluida.storage = GCS(
+br_me_caged_microdados_movimentacao_excluida.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
-br_me_caged__microdados_movimentacao_excluida.run_config = KubernetesRun(
+br_me_caged_microdados_movimentacao_excluida.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
 
 
 with Flow(
     "br_me_caged.microdados_movimentacao_fora_prazo", code_owners=["Luiza"]
-) as br_me_caged__microdados_movimentacao_fora_prazo:
+) as br_me_caged_microdados_movimentacao_fora_prazo:
     dataset_id = Parameter("dataset_id", default="br_me_caged", required=True)
-
     table_id = Parameter(
         "table_id", default="microdados_movimentacao_fora_prazo", required=True
     )
-
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
-
     target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
@@ -339,10 +319,6 @@ with Flow(
         log_task(f"No updates for table {table_id}!")
 
     with case(table_last_date < source_last_date, True):
-        input_path, output_path = build_table_paths(
-            table_id, upstream_tasks=[check_if_outdated]
-        )
-
         input_dir, output_dir = build_table_paths(
             table_id, upstream_tasks=[source_last_date]
         )
@@ -416,9 +392,9 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
-br_me_caged__microdados_movimentacao_fora_prazo.storage = GCS(
+br_me_caged_microdados_movimentacao_fora_prazo.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
-br_me_caged__microdados_movimentacao_fora_prazo.run_config = KubernetesRun(
+br_me_caged_microdados_movimentacao_fora_prazo.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
