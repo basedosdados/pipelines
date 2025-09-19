@@ -35,8 +35,8 @@ with
             and pf.mes = st.mes1
     )
 select
-    cast(substr(competen, 1, 4) as int64) as ano,
-    cast(substr(competen, 5, 2) as int64) as mes,
+    safe_cast(ano as int64) ano,
+    safe_cast(mes as int64) mes,
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(id_municipio as string) id_municipio,
     safe_cast(cnes as string) id_estabelecimento_cnes,
