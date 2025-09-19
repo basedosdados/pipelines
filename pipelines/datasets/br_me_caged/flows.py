@@ -9,7 +9,6 @@ from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
-from prefect.triggers import all_finished
 
 from pipelines.constants import constants
 
@@ -66,6 +65,9 @@ with Flow(
     )
 
     source_last_date = get_source_last_date()
+    table_last_date = get_table_last_date(
+        dataset_id, table_id, upstream_tasks=[source_last_date]
+    )
 
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -75,20 +77,16 @@ with Flow(
         upstream_tasks=[source_last_date],
     )
 
-    with case(check_if_outdated, False):
+    with case(table_last_date < source_last_date, False):
         log_task(f"No updates for table {table_id}!")
 
-    with case(check_if_outdated, True):
+    with case(table_last_date < source_last_date, True):
         input_path, output_path = build_table_paths(
             table_id, upstream_tasks=[check_if_outdated]
         )
 
         input_dir, output_dir = build_table_paths(
             table_id, upstream_tasks=[source_last_date]
-        )
-
-        table_last_date = get_table_last_date(
-            dataset_id, table_id, upstream_tasks=[input_dir, output_dir]
         )
 
         yearmonths = generate_yearmonth_range(
@@ -105,7 +103,6 @@ with Flow(
             table_id=table_id,
             table_output_dir=output_dir,
             upstream_tasks=[crawl_novo_caged_ftp],
-            trigger=all_finished,
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(

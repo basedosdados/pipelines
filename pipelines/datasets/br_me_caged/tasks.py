@@ -16,6 +16,7 @@ import basedosdados as bd
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 from prefect import task
+from prefect.triggers import all_finished
 from tqdm import tqdm
 from unidecode import unidecode
 
@@ -96,7 +97,7 @@ def get_source_last_date(
 def get_table_last_date(
     dataset_id: str,
     table_id: str,
-) -> bool:
+) -> datetime.date:
     """
     This task gets most recent date content for a given table
 
@@ -115,7 +116,7 @@ def get_table_last_date(
         backend=backend,
         date_format="%Y-%m",
     )
-
+    data_api = datetime.datetime(year=2024, month=8, day=1).date()
     return data_api
 
 
@@ -276,6 +277,7 @@ def crawl_novo_caged_ftp(
 
 
 @task(
+    trigger=all_finished,
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
@@ -288,7 +290,8 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
     input_files = Path(
         caged_constants.DATASET_DIR.value / table_id / "input"
     ).glob("*txt")
-    for filename in tqdm(input_files):
+    for filepath in tqdm(input_files):
+        filename = filepath.stem
         df = pd.read_csv(filename, sep=";", dtype={"uf": str})
         date = re.search(r"\d+", filename).group()
         ano = date[:4]

@@ -110,7 +110,7 @@ class constants(Enum):  # pylint: disable=c0103
         ],
     }
 
-    TMP_DIR = Path("tmp")
+    TMP_DIR = Path(__file__).parent / "tmp"
     DATASET_DIR = TMP_DIR / "br_me_caged"
 
     TMP_DIR.mkdir(exist_ok=True, parents=True)
