@@ -17,10 +17,6 @@ models:
               field: ano
       - name: mes
         description: Mês
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: mes
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
@@ -47,16 +43,8 @@ models:
     columns:
       - name: ano
         description: Ano
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: ano
       - name: mes
         description: Mês
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: mes
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:

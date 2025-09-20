@@ -8,7 +8,13 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants as pipelines_constants
-from pipelines.datasets.br_denatran_frota.constants import constants
+from pipelines.datasets.br_denatran_frota.constants import (
+    constants as denatran_constants,
+)
+from pipelines.datasets.br_denatran_frota.schedules import (
+    every_month_municipio,
+    every_month_uf,
+)
 from pipelines.datasets.br_denatran_frota.tasks import (
     crawl_task,
     get_desired_file_task,
@@ -32,9 +38,7 @@ from pipelines.utils.tasks import (
 
 with Flow(
     name="br_denatran_frota.uf_tipo",
-    code_owners=[
-        "Gabriel Pisa",
-    ],
+    code_owners=["Gabriel Pisa", "Luiza"],
 ) as br_denatran_frota_uf_tipo:
     dataset_id = Parameter("dataset_id", default="br_denatran_frota")
     table_id = Parameter("table_id", default="uf_tipo")
@@ -59,16 +63,13 @@ with Flow(
         wait=table_id,
     )
 
-    year_to_fetch = get_latest_data_task(
-        table_id="uf_tipo", dataset_id=dataset_id
-    )
+    date_to_fetch = get_latest_data_task
     # search for most recent year in the API
-
     crawled = crawl_task(
-        month=year_to_fetch[1],
-        year=year_to_fetch[0],
-        temp_dir=constants.DOWNLOAD_PATH.value,
-        upstream_tasks=[year_to_fetch],
+        month=date_to_fetch[1],
+        year=date_to_fetch[0],
+        temp_dir=denatran_constants.DOWNLOAD_PATH.value,
+        upstream_tasks=[date_to_fetch],
     )
 
     with case(crawled, False):
@@ -78,9 +79,9 @@ with Flow(
         # Now get the downloaded file:
         # Used primarly to backfill data
         desired_file = get_desired_file_task(
-            year=year_to_fetch[0],
-            download_directory=constants.DOWNLOAD_PATH.value,
-            filetype=constants.UF_TIPO_BASIC_FILENAME.value,
+            year=date_to_fetch[0],
+            download_directory=denatran_constants.DOWNLOAD_PATH.value,
+            filetype=denatran_constants.UF_TIPO_BASIC_FILENAME.value,
             upstream_tasks=[crawled],
         )
 
@@ -89,7 +90,8 @@ with Flow(
         )
 
         parquet_output = output_file_to_parquet_task(
-            df, constants.UF_TIPO_BASIC_FILENAME.value, upstream_tasks=[df]
+            df,
+            upstream_tasks=[df],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -152,14 +154,12 @@ br_denatran_frota_uf_tipo.storage = GCS(
 br_denatran_frota_uf_tipo.run_config = KubernetesRun(
     image=pipelines_constants.DOCKER_IMAGE.value
 )
-# br_denatran_frota_uf_tipo.schedule = every_month_uf
+br_denatran_frota_uf_tipo.schedule = every_month_uf
 
 
 with Flow(
     name="br_denatran_frota.municipio_tipo",
-    code_owners=[
-        "Gabriel Pisa",
-    ],
+    code_owners=["Gabriel Pisa", "Luiza"],
 ) as br_denatran_frota_municipio_tipo:
     dataset_id = Parameter("dataset_id", default="br_denatran_frota")
     table_id = Parameter("table_id", default="municipio_tipo")
@@ -184,15 +184,14 @@ with Flow(
         wait=table_id,
     )
 
-    year_to_fetch = get_latest_data_task(
+    date_to_fetch = get_latest_data_task(
         table_id="municipio_tipo", dataset_id=dataset_id
     )
-
     crawled = crawl_task(
-        month=year_to_fetch[1],
-        year=year_to_fetch[0],
-        temp_dir=constants.DOWNLOAD_PATH.value,
-        upstream_tasks=[year_to_fetch],
+        month=date_to_fetch[1],
+        year=date_to_fetch[0],
+        temp_dir=denatran_constants.DOWNLOAD_PATH.value,
+        upstream_tasks=[date_to_fetch],
     )
 
     with case(crawled, False):
@@ -201,9 +200,9 @@ with Flow(
     with case(crawled, True):
         # Now get the downloaded file:
         desired_file = get_desired_file_task(
-            year=year_to_fetch[0],
-            download_directory=constants.DOWNLOAD_PATH.value,
-            filetype=constants.MUNIC_TIPO_BASIC_FILENAME.value,
+            year=date_to_fetch[0],
+            download_directory=denatran_constants.DOWNLOAD_PATH.value,
+            filetype=denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value,
             upstream_tasks=[crawled],
         )
 
@@ -212,7 +211,8 @@ with Flow(
         )
 
         parquet_output = output_file_to_parquet_task(
-            df, constants.MUNIC_TIPO_BASIC_FILENAME.value, upstream_tasks=[df]
+            df,
+            upstream_tasks=[df],
         )
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=parquet_output,
@@ -274,4 +274,4 @@ br_denatran_frota_municipio_tipo.storage = GCS(
 br_denatran_frota_municipio_tipo.run_config = KubernetesRun(
     image=pipelines_constants.DOCKER_IMAGE.value
 )
-# br_denatran_frota_municipio_tipo.schedule = every_month_municipio
+br_denatran_frota_municipio_tipo.schedule = every_month_municipio
