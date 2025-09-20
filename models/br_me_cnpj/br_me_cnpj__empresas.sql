@@ -21,7 +21,9 @@ with
             safe_cast(lpad(cnpj_basico, 8, '0') as string) cnpj_basico,
             safe_cast(razao_social as string) razao_social,
             safe_cast(natureza_juridica as string) natureza_juridica,
-            safe_cast(qualificacao_responsavel as string) qualificacao_responsavel,
+            safe_cast(
+                regexp_replace(qualificacao_responsavel, '^0', '') as string
+            ) qualificacao_responsavel,
             safe_cast(capital_social as float64) capital_social,
             safe_cast(regexp_replace(porte, '^0', '') as string) porte,
             safe_cast(ente_federativo as string) ente_federativo
