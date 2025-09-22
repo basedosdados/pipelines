@@ -26,6 +26,7 @@ from pipelines.datasets.br_me_caged.constants import (
 )
 from pipelines.datasets.br_me_caged.utils import (
     download_file,
+    get_caged_schedule,
     verify_yearmonth,
 )
 from pipelines.utils.constants import constants as utils_constants
@@ -264,6 +265,7 @@ def crawl_novo_caged_ftp(
     log(f"Failed downloads: {failed_downloads}")
 
     if len(successful_downloads) == 0:
+        log(failed_downloads)
         raise Exception("No successful downloads!")
     return failed_downloads
 
@@ -290,13 +292,15 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
             date = re.search(r"\d+", filename).group()
             ano = date[:4]
             mes = int(date[-2:])
-
+            log(f"DF COLUMNS: {df.columns}")
             df.columns = [unidecode(col) for col in df.columns]
             df.rename(columns=caged_constants.RENAME_DICT.value, inplace=True)
 
+            log(f"DF COLUMNS: {df.columns}")
             df["sigla_uf"] = df["sigla_uf"].map(caged_constants.UF_DICT.value)
 
             for state in caged_constants.UF_DICT.value.values():
+                log(f"Partitioning for {state}")
                 data = df[df["sigla_uf"] == state]
                 data.drop(
                     caged_constants.COLUMNS_TO_DROP.value[table_id],
@@ -316,6 +320,7 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
                 ]
                 output_dir.mkdir(exist_ok=True, parents=True)
                 output_path = str(output_dir / "data.csv")
+                log(data[columns_to_select])
                 data[columns_to_select].to_csv(
                     output_path,
                     index=False,
@@ -325,3 +330,57 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
         except Exception as e:
             log(f"Failed to read: {filepath} due to: {e}", "error")
     return table_output_dir
+
+
+@task
+def update_caged_schedule(
+    table_last_date: str | datetime.date,
+    schedules_file: str = "/pipelines/datasets/br_me_caged/schedules.py",
+    schedule_url: str = caged_constants.URL_SCHEDULE.value,
+):
+    """
+    This task fetches a specific page to extract html data
+    containing CAGED monhtly releasing dates.
+    """
+    log(f"Looking for schedule info on CAGED releasing on {schedule_url}")
+    date_elements = get_caged_schedule(
+        url=schedule_url,
+        css_selector=caged_constants.CSS_SELECTOR_SCHEDULES.value,
+    )
+    this_month = datetime.datetime.strptime(table_last_date, "%d/%m/%Y").month
+    log(f"This month {this_month}")
+    next_start_date = date_elements[0]["data"]
+    index = 1
+    while index < len(date_elements) - 1:
+        log(f"Current next start date {next_start_date}")
+        if date_elements[index]["data_competencia"].month > this_month:
+            next_start_date = date_elements[index]["data"]
+        else:
+            break
+        index += 1
+
+    with open(schedules_file, "w", encoding="utf-8") as f:
+        f.write(f'''# -*- coding: utf-8 -*-
+    """
+    Schedules for br_me_caged
+    """
+
+    from datetime import datetime, timedelta
+    from prefect.schedules import Schedule
+    from prefect.schedules.clocks import IntervalClock
+    from pipelines.constants import constants
+
+    every_month = Schedule(
+        clocks=[
+            IntervalClock(
+                interval=timedelta(days=30),
+                start_date=datetime({next_start_date.year}, {next_start_date.month}, {next_start_date.day}),
+                labels=[
+                    constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
+                ],
+            )
+        ]
+    )
+    ''')
+
+    return next_start_date

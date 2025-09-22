@@ -206,10 +206,10 @@ with Flow(
             table_id, upstream_tasks=[source_last_date]
         )
 
-        yearmonths = generate_yearmonth_range(
-            table_last_date, source_last_date, upstream_tasks=[table_last_date]
-        )
-
+        # yearmonths = generate_yearmonth_range(
+        #     table_last_date, source_last_date, upstream_tasks=[table_last_date]
+        # )
+        yearmonths = ["202001"]
         failed_crawl = crawl_novo_caged_ftp.map(
             yearmonths,
             unmapped(table_id),

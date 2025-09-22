@@ -7,8 +7,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          config:
-            where: __most_recent_year_month__
+          # config:
+          #   where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano da divulgação do dado no FTP do CAGED. Para esta tabela,
@@ -24,8 +24,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
-              config:
-                where: __most_recent_year_month__
+              # config:
+              #   where: __most_recent_year_month__
       - name: cnae_2_secao
         description: Classificação Nacional de Atividades Econômicas (CNAE) 2.0 Seção
       - name: cnae_2_subclasse
@@ -36,8 +36,8 @@ models:
               field: subclasse
               ignore_values: ['9999999', '8630505']
               proportion_allowed_failures: 0
-              config:
-                where: __most_recent_year_month__
+              # config:
+              #   where: __most_recent_year_month__
       - name: cbo_2002
         description: Classificação Brasileira de Ocupações (CBO) - 2002
       - name: saldo_movimentacao
@@ -85,8 +85,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          config:
-            where: __most_recent_year_month__
+          # config:
+          #   where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano da divulgação do dado no FTP do CAGED.
@@ -104,8 +104,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
-              config:
-                where: __most_recent_year_month__
+              # config:
+              #   where: __most_recent_year_month__
       - name: cnae_2_secao
         description: Classificação Nacional de Atividades Econômicas (CNAE) 2.0 Seção
       - name: cnae_2_subclasse
@@ -116,8 +116,8 @@ models:
               field: subclasse
               ignore_values: ['9999999', '8630505']
               proportion_allowed_failures: 0
-              config:
-                where: __most_recent_year_month__
+              # config:
+              #   where: __most_recent_year_month__
       - name: cbo_2002
         description: Classificação Brasileira de Ocupações (CBO) - 2002
       - name: saldo_movimentacao
@@ -164,8 +164,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          config:
-            where: __most_recent_year_month__
+          # config:
+          #   where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano da divulgação do dado no FTP do CAGED.
@@ -187,8 +187,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
-              config:
-                where: __most_recent_year_month__
+              # config:
+              #   where: __most_recent_year_month__
       - name: cnae_2_secao
         description: Classificação Nacional de Atividades Econômicas (CNAE 2.0 - Seção)
       - name: cnae_2_subclasse
@@ -199,8 +199,8 @@ models:
               field: subclasse
               ignore_values: ['9999999', '8630505']
               proportion_allowed_failures: 0
-              config:
-                where: __most_recent_year_month__
+              # config:
+              #   where: __most_recent_year_month__
       - name: cbo_2002
         description: Classificação Brasileira de Ocupações (CBO) - 2002
       - name: saldo_movimentacao
