@@ -10,7 +10,7 @@ import ftplib
 import re
 from datetime import timedelta
 from pathlib import Path
-from typing import Tuple
+from typing import List, Tuple
 
 import basedosdados as bd
 import pandas as pd
@@ -175,7 +175,7 @@ def crawl_novo_caged_ftp(
     yearmonth: str,
     table_id: str,
     ftp_host: str = caged_constants.FTP_HOST.value,
-) -> bool:
+) -> Tuple[List, List]:
     """
     Downloads specified .7z files from a CAGED dataset FTP server.
 

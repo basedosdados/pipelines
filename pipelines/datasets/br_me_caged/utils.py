@@ -1,5 +1,6 @@
 import ftplib
 from pathlib import Path
+from typing import List
 
 import py7zr
 
@@ -8,7 +9,7 @@ from pipelines.utils.utils import log
 
 def download_file(
     ftp: ftplib.FTP, remote_dir: str, filename: str, local_dir: str | Path
-):
+) -> List:
     """
     Downloads and extracts a .7z file from an FTP server with error handling.
 
