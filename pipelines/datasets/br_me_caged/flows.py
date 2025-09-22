@@ -85,14 +85,14 @@ with Flow(
             table_last_date, source_last_date, upstream_tasks=[table_last_date]
         )
 
-        successful_crawl, failed_crawl = crawl_novo_caged_ftp.map(
+        failed_crawl = crawl_novo_caged_ftp.map(
             yearmonths,
             unmapped(table_id),
             upstream_tasks=[yearmonths],
         )
 
         log_download = log_task.map(
-            f"Successful Downloads: {successful_crawl}\n\nFailed Downloads: {failed_crawl}",
+            f"Failed Downloads: {failed_crawl}",
             upstream_tasks=[crawl_novo_caged_ftp],
         )
 
@@ -210,14 +210,14 @@ with Flow(
             table_last_date, source_last_date, upstream_tasks=[table_last_date]
         )
 
-        successful_crawl, failed_crawl = crawl_novo_caged_ftp.map(
+        failed_crawl = crawl_novo_caged_ftp.map(
             yearmonths,
             unmapped(table_id),
             upstream_tasks=[yearmonths],
         )
 
         log_download = log_task.map(
-            f"Successful Downloads: {successful_crawl}\n\nFailed Downloads: {failed_crawl}",
+            f"Failed Downloads: {failed_crawl}",
             upstream_tasks=[crawl_novo_caged_ftp],
         )
 
@@ -337,14 +337,14 @@ with Flow(
             table_last_date, source_last_date, upstream_tasks=[table_last_date]
         )
 
-        successful_crawl, failed_crawl = crawl_novo_caged_ftp.map(
+        failed_crawl = crawl_novo_caged_ftp.map(
             yearmonths,
             unmapped(table_id),
             upstream_tasks=[yearmonths],
         )
 
         log_download = log_task.map(
-            f"Successful Downloads: {successful_crawl}\n\nFailed Downloads: {failed_crawl}",
+            f"Failed Downloads: {failed_crawl}",
             upstream_tasks=[crawl_novo_caged_ftp],
         )
 

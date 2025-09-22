@@ -175,19 +175,16 @@ def crawl_novo_caged_ftp(
     yearmonth: str,
     table_id: str,
     ftp_host: str = caged_constants.FTP_HOST.value,
-) -> Tuple[List, List]:
+) -> List:
     """
     Downloads specified .7z files from a CAGED dataset FTP server.
 
     Parameters:
         yearmonth (str): the month to download data from (e.g., '202301' for January 2023)
         ftp_host (str): the FTP host to connect to (default: "ftp.mtps.gov.br")
-        file_types (list): list of file types to download.
-                           Options: 'MOV' (movement), 'FOR' (out of deadline), 'EXC' (excluded)
-                           If None, downloads all files
 
     Returns:
-        list: List of successfully and unsuccessfully downloaded files
+        List: Lists of unsuccessfully downloaded files
     """
     verify_yearmonth(yearmonth)
     ftp = ftplib.FTP(ftp_host)
@@ -268,7 +265,7 @@ def crawl_novo_caged_ftp(
 
     if len(successful_downloads) == 0:
         raise Exception("No successful downloads!")
-    return successful_downloads, failed_downloads
+    return failed_downloads
 
 
 @task(
