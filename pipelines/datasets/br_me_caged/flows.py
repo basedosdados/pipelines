@@ -49,9 +49,9 @@ with Flow(
     )
     target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+        "materialize_after_dump", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -85,16 +85,21 @@ with Flow(
             table_last_date, source_last_date, upstream_tasks=[table_last_date]
         )
 
-        crawl_caged = crawl_novo_caged_ftp.map(
+        successful_crawl, failed_crawl = crawl_novo_caged_ftp.map(
             yearmonths,
             unmapped(table_id),
             upstream_tasks=[yearmonths],
         )
 
+        log_download = log_task.map(
+            f"Successful Downloads: {successful_crawl}\n\nFailed Downloads: {failed_crawl}",
+            upstream_tasks=[crawl_novo_caged_ftp],
+        )
+
         filepath = build_partitions(
             table_id=table_id,
             table_output_dir=output_dir,
-            upstream_tasks=[crawl_caged],
+            upstream_tasks=[log_download],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -171,7 +176,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -205,16 +210,21 @@ with Flow(
             table_last_date, source_last_date, upstream_tasks=[table_last_date]
         )
 
-        crawl_caged = crawl_novo_caged_ftp.map(
+        successful_crawl, failed_crawl = crawl_novo_caged_ftp.map(
             yearmonths,
             unmapped(table_id),
             upstream_tasks=[yearmonths],
         )
 
+        log_download = log_task.map(
+            f"Successful Downloads: {successful_crawl}\n\nFailed Downloads: {failed_crawl}",
+            upstream_tasks=[crawl_novo_caged_ftp],
+        )
+
         filepath = build_partitions(
             table_id=table_id,
             table_output_dir=output_dir,
-            upstream_tasks=[crawl_caged],
+            upstream_tasks=[log_download],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -293,7 +303,7 @@ with Flow(
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -327,16 +337,21 @@ with Flow(
             table_last_date, source_last_date, upstream_tasks=[table_last_date]
         )
 
-        crawl_caged = crawl_novo_caged_ftp.map(
+        successful_crawl, failed_crawl = crawl_novo_caged_ftp.map(
             yearmonths,
             unmapped(table_id),
             upstream_tasks=[yearmonths],
         )
 
+        log_download = log_task.map(
+            f"Successful Downloads: {successful_crawl}\n\nFailed Downloads: {failed_crawl}",
+            upstream_tasks=[crawl_novo_caged_ftp],
+        )
+
         filepath = build_partitions(
             table_id=table_id,
             table_output_dir=output_dir,
-            upstream_tasks=[crawl_caged],
+            upstream_tasks=[log_download],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(

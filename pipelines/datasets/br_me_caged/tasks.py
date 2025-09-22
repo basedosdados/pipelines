@@ -116,6 +116,7 @@ def get_table_last_date(
         backend=backend,
         date_format="%Y-%m",
     )
+    data_api = datetime.datetime(year=2020, month=1, day=1).date()
     return data_api
 
 
@@ -188,11 +189,7 @@ def crawl_novo_caged_ftp(
     Returns:
         list: List of successfully and unsuccessfully downloaded files
     """
-    global CORRUPT_FILES
-    CORRUPT_FILES = []
-
     verify_yearmonth(yearmonth)
-
     ftp = ftplib.FTP(ftp_host)
     ftp.login()
     ftp.cwd(f"{caged_constants.REMOTE_DIR.value}/{int(yearmonth[0:4])}/")
@@ -214,7 +211,7 @@ def crawl_novo_caged_ftp(
     for file in filenames:
         if "CAGEDMOV" in file and table_id == "microdados_movimentacao":
             log(f"Baixando o arquivo: {file}")
-            success = download_file(
+            success, corrupt_file = download_file(
                 ftp,
                 yearmonth,
                 file,
@@ -222,16 +219,17 @@ def crawl_novo_caged_ftp(
                 / "microdados_movimentacao"
                 / "input",
             )
-            (successful_downloads if success else failed_downloads).append(
-                file
-            )
+            if success:
+                successful_downloads.append(file)
+            else:
+                failed_downloads.append(corrupt_file)
 
         elif (
             "CAGEDFOR" in file
             and table_id == "microdados_movimentacao_fora_prazo"
         ):
             log(f"Baixando o arquivo: {file}")
-            success = download_file(
+            success, corrupt_file = download_file(
                 ftp,
                 yearmonth,
                 file,
@@ -239,16 +237,17 @@ def crawl_novo_caged_ftp(
                 / "microdados_movimentacao_fora_prazo"
                 / "input",
             )
-            (successful_downloads if success else failed_downloads).append(
-                file
-            )
+            if success:
+                successful_downloads.append(file)
+            else:
+                failed_downloads.append(corrupt_file)
 
         elif (
             "CAGEDEXC" in file
             and table_id == "microdados_movimentacao_excluida"
         ):
             log(f"Baixando o arquivo: {file}")
-            success = download_file(
+            success, corrupt_file = download_file(
                 ftp,
                 yearmonth,
                 file,
@@ -256,25 +255,20 @@ def crawl_novo_caged_ftp(
                 / "microdados_movimentacao_excluida"
                 / "input",
             )
-            (successful_downloads if success else failed_downloads).append(
-                file
-            )
+            if success:
+                successful_downloads.append(file)
+            else:
+                failed_downloads.append(corrupt_file)
 
     ftp.quit()
 
     log("\nDownload Summary:")
     log(f"Successfully downloaded: {successful_downloads}")
     log(f"Failed downloads: {failed_downloads}")
+
     if len(successful_downloads) == 0:
-        return False
-    if CORRUPT_FILES:
-        log("\nCorrupt Files Details:")
-        for corrupt_file in CORRUPT_FILES:
-            log(f"Filename: {corrupt_file['filename']}")
-            log(f"Local Path: {corrupt_file['local_path']}")
-            log(f"Error: {corrupt_file['error']}")
-            log("---")
-    return True
+        raise Exception("No successful downloads!")
+    return successful_downloads, failed_downloads
 
 
 @task(
@@ -292,32 +286,45 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
         caged_constants.DATASET_DIR.value / table_id / "input"
     ).glob("*txt")
     for filepath in tqdm(input_files):
+        log(f"Reading: {filepath}")
         filename = filepath.name
-        df = pd.read_csv(filepath, sep=";", dtype={"uf": str})
-        date = re.search(r"\d+", filename).group()
-        ano = date[:4]
-        mes = int(date[-2:])
+        try:
+            df = pd.read_csv(filepath, sep=";", dtype={"uf": str})
+            date = re.search(r"\d+", filename).group()
+            ano = date[:4]
+            mes = int(date[-2:])
 
-        df.columns = [unidecode(col) for col in df.columns]
+            df.columns = [unidecode(col) for col in df.columns]
+            df.rename(columns=caged_constants.RENAME_DICT.value, inplace=True)
 
-        df["uf"] = df["uf"].map(caged_constants.UF_DICT.value)
+            df["sigla_uf"] = df["sigla_uf"].map(caged_constants.UF_DICT.value)
 
-        for state in caged_constants.UF_DICT.value.values():
-            data = df[df["uf"] == state]
-            data.drop(["competenciamov", "uf"], axis=1, inplace=True)
-            output_dir = (
-                Path(table_output_dir)
-                / f"ano={ano}"
-                / f"mes={mes}"
-                / f"sigla_uf={state}"
-            )
-            output_dir.mkdir(exist_ok=True, parents=True)
-            output_path = str(output_dir / "data.csv")
-            data.to_csv(
-                output_path,
-                index=False,
-            )
-            del data
-        del df
-
+            for state in caged_constants.UF_DICT.value.values():
+                data = df[df["sigla_uf"] == state]
+                data.drop(
+                    caged_constants.COLUMNS_TO_DROP.value[table_id],
+                    axis=1,
+                    inplace=True,
+                )
+                output_dir = (
+                    Path(table_output_dir)
+                    / f"ano={ano}"
+                    / f"mes={mes}"
+                    / f"sigla_uf={state}"
+                )
+                columns_to_select = [
+                    col
+                    for col in caged_constants.COLUMNS_TO_SELECT.value
+                    if col in data.columns
+                ]
+                output_dir.mkdir(exist_ok=True, parents=True)
+                output_path = str(output_dir / "data.csv")
+                data[columns_to_select].to_csv(
+                    output_path,
+                    index=False,
+                )
+                del data
+            del df
+        except Exception as e:
+            log(f"Failed to read: {filepath} due to: {e}", "error")
     return table_output_dir

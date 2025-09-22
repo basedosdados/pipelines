@@ -1,8 +1,9 @@
 import ftplib
-import os
 from pathlib import Path
 
 import py7zr
+
+from pipelines.utils.utils import log
 
 
 def download_file(
@@ -20,7 +21,7 @@ def download_file(
     Returns:
         bool: True if file downloaded and extracted successfully, False otherwise
     """
-    global CORRUPT_FILES
+    CORRUPT_FILE = []
     local_dir = Path(local_dir)
     local_dir.mkdir(parents=True, exist_ok=True)
     output_path = local_dir / filename
@@ -33,40 +34,35 @@ def download_file(
             with py7zr.SevenZipFile(output_path, "r") as archive:
                 archive.extractall(path=local_dir)
 
-            os.remove(output_path)
-            return True
+            output_path.unlink()
+            return True, CORRUPT_FILE
 
         except py7zr.Bad7zFile as extract_error:
-            print(f"Error extracting file {filename}: {extract_error}")
-            CORRUPT_FILES.append(
-                {
-                    "filename": filename,
-                    "local_path": output_path,
-                    "error": str(extract_error),
-                }
-            )
-
-            return False
-
-    except Exception as download_error:
-        print(f"Error downloading file {filename}: {download_error}")
-        CORRUPT_FILES.append(
-            {
+            log(f"Error extracting file {filename}: {extract_error}")
+            CORRUPT_FILE = {
                 "filename": filename,
                 "local_path": output_path,
-                "error": str(download_error),
+                "error": str(extract_error),
             }
-        )
+            return False, CORRUPT_FILE
 
-        print(f"removendo zip corrompido {output_path}")
-        if os.path.exists(output_path):
-            os.remove(output_path)
+    except Exception as download_error:
+        log(f"Error downloading file {filename}: {download_error}")
+        CORRUPT_FILE = {
+            "filename": filename,
+            "local_path": output_path,
+            "error": str(download_error),
+        }
 
-        txt_output_path = output_path.replace(".7z", ".txt")
-        print(f"removendo txt corrompido {txt_output_path}")
-        if os.path.exists(txt_output_path):
-            os.remove(txt_output_path)
-        return False
+        log(f"removendo zip corrompido {output_path}")
+        if output_path.exists():
+            output_path.unlink()
+
+        txt_output_path = Path(str(output_path).replace(".7z", ".txt"))
+        log(f"removendo txt corrompido {txt_output_path}")
+        if txt_output_path.exists():
+            txt_output_path.unlink()
+        return False, CORRUPT_FILE
 
 
 def verify_yearmonth(yearmonth: str):

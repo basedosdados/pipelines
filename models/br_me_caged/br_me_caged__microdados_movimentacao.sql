@@ -1,7 +1,7 @@
 {{
     config(
         schema="br_me_caged",
-        materialized="incremental",
+        materialized="table",
         alias="microdados_movimentacao",
         partition_by={
             "field": "ano",
