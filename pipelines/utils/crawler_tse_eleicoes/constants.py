@@ -14,8 +14,8 @@ class constants(Enum):  # pylint: disable=c0103
     QUERY_COUNT_MODIFIED = """SELECT
   (SELECT count(*) as total FROM `{mode}.br_tse_eleicoes.{table_id}` WHERE ano={year}) AS total,
   (SELECT TIMESTAMP_MILLIS(creation_time) as last_modified_time
-   FROM `{mode}.br_tse_eleicoes.__TABLES_SUMMARY__`
-   WHERE table_id = '{table_id}') AS last_modified_time;"""
+  FROM `{mode}.br_tse_eleicoes.__TABLES_SUMMARY__`
+  WHERE table_id = '{table_id}') AS last_modified_time;"""
 
     MODE_TO_PROJECT_DICT = {"prod": "basedosdados", "dev": "basedosdados-dev"}
 
