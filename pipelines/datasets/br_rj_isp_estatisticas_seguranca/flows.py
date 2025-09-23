@@ -9,6 +9,9 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
+from pipelines.crawler.isp.flows import (
+    flow_isp,
+)
 from pipelines.datasets.br_rj_isp_estatisticas_seguranca.schedules import (
     every_month_armas_apreendidas_mensal,
     every_month_evolucao_mensal_cisp,
@@ -16,9 +19,6 @@ from pipelines.datasets.br_rj_isp_estatisticas_seguranca.schedules import (
     every_month_evolucao_mensal_uf,
     every_month_evolucao_policial_morto_servico_mensal,
     every_month_feminicidio_mensal_cisp,
-)
-from pipelines.utils.crawler_isp.flows import (
-    flow_isp,
 )
 
 evolucao_mensal_cisp = deepcopy(flow_isp)

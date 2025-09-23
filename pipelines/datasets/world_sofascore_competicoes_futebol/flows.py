@@ -10,7 +10,7 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.utils.crawler_world_sofascore_competicoes_futebol.flows import (
+from pipelines.crawler.world_sofascore_competicoes_futebol.flows import (
     flow_world_sofascore_competicoes_futebol,
 )
 
