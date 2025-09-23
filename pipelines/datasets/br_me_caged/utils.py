@@ -8,7 +8,9 @@ import py7zr
 import requests
 from bs4 import BeautifulSoup
 
-from pipelines.datasets.br_me_caged import constants as caged_constants
+from pipelines.datasets.br_me_caged.constants import (
+    constants as caged_constants,
+)
 from pipelines.utils.utils import log
 
 

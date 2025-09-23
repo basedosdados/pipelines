@@ -292,11 +292,10 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
             date = re.search(r"\d+", filename).group()
             ano = date[:4]
             mes = int(date[-2:])
-            log(f"DF COLUMNS: {df.columns}")
             df.columns = [unidecode(col) for col in df.columns]
             df.rename(columns=caged_constants.RENAME_DICT.value, inplace=True)
 
-            log(f"DF COLUMNS: {df.columns}")
+            log(f"Renaming dataframe columns to: {df.columns}")
             df["sigla_uf"] = df["sigla_uf"].map(caged_constants.UF_DICT.value)
 
             for state in caged_constants.UF_DICT.value.values():
@@ -320,7 +319,6 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
                 ]
                 output_dir.mkdir(exist_ok=True, parents=True)
                 output_path = str(output_dir / "data.csv")
-                log(data[columns_to_select])
                 data[columns_to_select].to_csv(
                     output_path,
                     index=False,
