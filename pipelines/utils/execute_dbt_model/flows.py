@@ -8,16 +8,15 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.dump_to_gcs.tasks import download_data_to_gcs
-from pipelines.utils.execute_dbt_model.tasks import (
+from pipelines.utils.tasks import (
+    download_data_to_gcs,
+    rename_current_flow_run_dataset_table,
     run_dbt,
 )
-from pipelines.utils.tasks import rename_current_flow_run_dataset_table
 
 with Flow(
-    name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value
+    name=constants.FLOW_EXECUTE_DBT_MODEL_NAME.value
 ) as run_dbt_model_flow:
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", default=None, required=False)

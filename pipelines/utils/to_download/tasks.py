@@ -14,7 +14,7 @@ from pipelines.utils.utils import log
 
 
 @task  # noqa
-def to_download(
+def download_async(
     url: List[str],
     save_path: str,
     file_type: str,
