@@ -111,8 +111,8 @@ def crawler_novo_caged_ftp(
         yearmonth (str): the month to download data from (e.g., '202301' for January 2023)
         ftp_host (str): the FTP host to connect to (default: "ftp.mtps.gov.br")
         file_types (list): list of file types to download.
-                           Options: 'MOV' (movement), 'FOR' (out of deadline), 'EXC' (excluded)
-                           If None, downloads all files
+                          Options: 'MOV' (movement), 'FOR' (out of deadline), 'EXC' (excluded)
+                          If None, downloads all files
 
     Returns:
         list: List of successfully and unsuccessfully downloaded files
