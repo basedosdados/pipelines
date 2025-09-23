@@ -27,8 +27,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
 from pipelines.constants import constants as c
-from pipelines.datasets.br_mp_pep_cargos_funcoes.constants import constants
-from pipelines.datasets.br_mp_pep_cargos_funcoes.utils import (
+from pipelines.datasets.br_mp_pep.constants import constants
+from pipelines.datasets.br_mp_pep.utils import (
     get_normalized_values_by_col,
     try_find_element,
     try_find_elements,
