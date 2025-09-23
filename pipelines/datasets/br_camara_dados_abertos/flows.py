@@ -8,6 +8,9 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
+from pipelines.crawler.camara_dados_abertos.flows import (
+    flow_camara_dados_abertos,
+)
 from pipelines.datasets.br_camara_dados_abertos.schedules import (
     schedules_br_camara_dados_abertos_deputado,
     schedules_br_camara_dados_abertos_deputado_ocupacao,
@@ -35,9 +38,6 @@ from pipelines.datasets.br_camara_dados_abertos.schedules import (
     schedules_br_camara_dados_abertos_votacao_orientacao_bancada,
     schedules_br_camara_dados_abertos_votacao_parlamentar,
     schedules_br_camara_dados_abertos_votacao_proposicao,
-)
-from pipelines.utils.crawler_camara_dados_abertos.flows import (
-    flow_camara_dados_abertos,
 )
 
 # ! -- > Flow: br_camara_dados_abertos__votacao
