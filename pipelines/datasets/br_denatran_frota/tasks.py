@@ -26,6 +26,7 @@ from pipelines.datasets.br_denatran_frota.utils import (
     get_year_month_from_filename,
     guess_header,
     treat_uf,
+    verify_file,
     verify_total,
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
@@ -33,9 +34,13 @@ from pipelines.utils.utils import log, to_partitions
 
 
 @task()  # noqa
-def crawl_task(month: int, year: int, temp_dir: str | Path = "") -> bool:
+def crawl_task(
+    month: int,
+    year: int,
+    temp_dir: str | Path = denatran_constants.DOWNLOAD_PATH.value,
+) -> bool:
     """
-    Main taskto extract data from *frota por município e tipo* and *frota por UF e tipo*.
+    Main task to extract data from *frota por município e tipo* and *frota por UF e tipo*.
 
     Args:
         month (int): Desired month
@@ -288,15 +293,14 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
 
 
 @task()
-def get_latest_data_task(table_id: str, dataset_id: str) -> tuple[int, int]:
-    """Task to extract the latest data from GRAPHIQL API
-
+def get_latest_date_task(table_id: str, dataset_id: str) -> tuple[int, int]:
+    """Task to extract the latest data from available on the data source
     Args:
         table_id (str): table_id from BQ
         dataset_id (str): table_id from BQ
 
     Returns:
-        _type_: most recente date
+        [year, month]: most recente date
     """
     backend = bd.Backend(graphql_url=get_url("prod"))
 
@@ -311,13 +315,46 @@ def get_latest_data_task(table_id: str, dataset_id: str) -> tuple[int, int]:
     year = denatran_data.year
     month = denatran_data.month
 
+    flag_new_data = True
     if month == 12:
         year += 1
         month = 1
     else:
         month += 1
+    while flag_new_data:
+        if year > 2012:
+            files_dir = os.path.join(
+                str(denatran_constants.DOWNLOAD_PATH.value), "files"
+            )
+            year_dir_name = os.path.join(str(files_dir), f"{year}")
+            try:
+                files_to_download = extract_links_post_2012(
+                    month, year, year_dir_name
+                )
+                files_to_download.sort(key="mes", reverse=True)
+                file_dict = files_to_download[0]
+                if verify_file(file_dict["file_url"]):
+                    if month == 12:
+                        year += 1
+                        month = 1
+                    else:
+                        month += 1
+                else:
+                    flag_new_data = False
+            except Exception as e:
+                log(e, "error")
+                break
+        else:
+            url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
+            if verify_file(url):
+                if month == 12:
+                    year += 1
+                    month = 1
+                else:
+                    month += 1
+            else:
+                flag_new_data = False
     log(f"Ano: {year}, mês: {month}")
-
     return year, month
 
 

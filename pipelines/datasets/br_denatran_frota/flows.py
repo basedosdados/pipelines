@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 from datetime import timedelta
 
 from prefect import Parameter, case
@@ -18,7 +19,7 @@ from pipelines.datasets.br_denatran_frota.schedules import (
 from pipelines.datasets.br_denatran_frota.tasks import (
     crawl_task,
     get_desired_file_task,
-    get_latest_data_task,
+    get_latest_date_task,
     output_file_to_parquet_task,
     treat_municipio_tipo_task,
     treat_uf_tipo_task,
@@ -28,7 +29,10 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.execute_dbt_model.constants import (
     constants as dump_db_constants,
 )
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     get_current_flow_labels,
@@ -63,26 +67,33 @@ with Flow(
         wait=table_id,
     )
 
-    date_to_fetch = get_latest_data_task
-    # search for most recent year in the API
-    crawled = crawl_task(
-        month=date_to_fetch[1],
-        year=date_to_fetch[0],
-        temp_dir=denatran_constants.DOWNLOAD_PATH.value,
-        upstream_tasks=[date_to_fetch],
+    source_max_date = get_latest_date_task(
+        table_id=table_id, dataset_id=dataset_id
     )
 
-    with case(crawled, False):
+    check_if_outdated = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=datetime.datetime(
+            year=source_max_date[0], month=source_max_date[1], day=1
+        ).date(),
+    )
+
+    with case(check_if_outdated, False):
         log_task("No new data to be downloaded")
 
-    with case(crawled, True):
-        # Now get the downloaded file:
+    with case(check_if_outdated, True):
+        crawled = crawl_task(
+            month=source_max_date[1],
+            year=source_max_date[0],
+            temp_dir=denatran_constants.DOWNLOAD_PATH.value,
+        )
         # Used primarly to backfill data
         desired_file = get_desired_file_task(
-            year=date_to_fetch[0],
+            year=source_max_date[0],
             download_directory=denatran_constants.DOWNLOAD_PATH.value,
             filetype=denatran_constants.UF_TIPO_BASIC_FILENAME.value,
-            upstream_tasks=[crawled],
+            upstream_tasks=[check_if_outdated],
         )
 
         df = treat_uf_tipo_task(
@@ -140,13 +151,12 @@ with Flow(
                     table_id=table_id,
                     date_column_name={"year": "ano", "month": "mes"},
                     date_format="%Y-%m",
-                    coverage_type="all_free",
-                    # time_delta={"months": 6},
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
                     prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],
                 )
-
 
 br_denatran_frota_uf_tipo.storage = GCS(
     pipelines_constants.GCS_FLOWS_BUCKET.value
@@ -184,23 +194,29 @@ with Flow(
         wait=table_id,
     )
 
-    date_to_fetch = get_latest_data_task(
-        table_id="municipio_tipo", dataset_id=dataset_id
+    source_max_date = get_latest_date_task(
+        table_id=table_id, dataset_id=dataset_id
     )
-    crawled = crawl_task(
-        month=date_to_fetch[1],
-        year=date_to_fetch[0],
-        temp_dir=denatran_constants.DOWNLOAD_PATH.value,
-        upstream_tasks=[date_to_fetch],
+    check_if_outdated = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=datetime.datetime(
+            year=source_max_date[0], month=source_max_date[1], day=1
+        ).date(),
     )
 
-    with case(crawled, False):
+    with case(check_if_outdated, False):
         log_task("There's no new data to be downloaded")
 
-    with case(crawled, True):
+    with case(check_if_outdated, True):
+        crawled = crawl_task(
+            month=source_max_date[1],
+            year=source_max_date[0],
+            temp_dir=denatran_constants.DOWNLOAD_PATH.value,
+        )
         # Now get the downloaded file:
         desired_file = get_desired_file_task(
-            year=date_to_fetch[0],
+            year=source_max_date[0],
             download_directory=denatran_constants.DOWNLOAD_PATH.value,
             filetype=denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value,
             upstream_tasks=[crawled],
@@ -260,8 +276,8 @@ with Flow(
                     table_id=table_id,
                     date_column_name={"year": "ano", "month": "mes"},
                     date_format="%Y-%m",
-                    coverage_type="all_free",
-                    # time_delta={"months": 6},
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
                     prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_for_materialization],

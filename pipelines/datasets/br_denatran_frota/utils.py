@@ -309,6 +309,28 @@ def download_file(url: str, filename: str) -> None:
     print(f"Download of {filename} complete")
 
 
+def verify_file(
+    url: str,
+) -> bool:
+    """
+    Task to verify if a file from a url exists.
+
+    Only necessary because some problematic URLs report a 404 despite the files being there.
+
+    Args:
+        url (str): URL where the desired file is located.
+    """
+    # Send a GET request to the URL
+
+    new_url = url.replace("arquivos-denatran", "arquivos-senatran")
+    log(new_url)
+    response = requests.get(new_url, headers=denatran_constants.HEADERS.value)
+    if response.status_code == 200:
+        return True
+    else:
+        return False
+
+
 def generic_extractor(dest_path_file: str):
     """
     Extracts the desired DENATRAN compressed files from .rar or .zip file.
