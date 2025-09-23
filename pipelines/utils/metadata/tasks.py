@@ -10,8 +10,7 @@ import basedosdados as bd
 import pandas as pd
 from prefect import task
 
-from pipelines.constants import constants as constants_root
-from pipelines.utils.constants import constants
+from pipelines.constants import constants
 from pipelines.utils.metadata.utils import (
     able_to_query_bigquery_metadata,
     check_if_values_are_accepted,
@@ -185,8 +184,8 @@ def update_django_metadata(
 
 
 @task(
-    max_retries=constants_root.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants_root.TASK_RETRY_DELAY.value),
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def check_if_data_is_outdated(
     dataset_id: str,

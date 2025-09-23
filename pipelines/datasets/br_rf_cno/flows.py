@@ -4,12 +4,10 @@ Flows for br_rf_cno
 """
 
 # pylint: disable=invalid-name
-from datetime import timedelta
 
 from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_rf_cno.constants import (
@@ -23,20 +21,17 @@ from pipelines.datasets.br_rf_cno.tasks import (
     list_files,
     process_file,
 )
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import (
-    constants as dump_db_constants,
-)
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    get_current_flow_labels,
+    download_data_to_gcs,
     log_task,
     rename_current_flow_run_dataset_table,
+    run_dbt,
 )
 
 with Flow(
@@ -129,31 +124,18 @@ with Flow(
         )
 
         with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run.map(
-                flow_name=unmapped(
-                    utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value
-                ),
-                project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
-                parameters=dbt_parameters,
-                labels=unmapped(current_flow_labels),
-                run_name=f"Materialize {dataset_id}.{table_ids}",
-                upstream_tasks=[unmapped(dbt_parameters)],
+            wait_for_materialization = run_dbt(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                target=target,
+                dbt_alias=dbt_alias,
+                upstream_tasks=[dbt_parameters],
             )
 
-            wait_for_materialization = wait_for_flow_run.map(
-                materialization_flow,
-                stream_states=unmapped(True),
-                stream_logs=unmapped(True),
-                raise_final_state=unmapped(True),
-                upstream_tasks=[unmapped(materialization_flow)],
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            wait_for_dowload_data_to_gcs = download_data_to_gcs(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                upstream_tasks=[wait_for_materialization],
             )
 
             with case(update_metadata, True):
@@ -166,7 +148,7 @@ with Flow(
                     time_delta=unmapped({"months": 6}),
                     prefect_mode=unmapped(target),
                     bq_project=unmapped("basedosdados"),
-                    upstream_tasks=[unmapped(wait_for_materialization)],
+                    upstream_tasks=[unmapped(wait_for_dowload_data_to_gcs)],
                 )
 
 
