@@ -9,14 +9,14 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
+from pipelines.crawler.anatel.banda_larga_fixa.flows import (
+    flow_anatel_banda_larga_fixa,
+)
 from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
     schedule_br_anatel_banda_larga_fixa__densidade_brasil,
     schedule_br_anatel_banda_larga_fixa__densidade_municipio,
     schedule_br_anatel_banda_larga_fixa__densidade_uf,
     schedule_br_anatel_banda_larga_fixa__microdados,
-)
-from pipelines.utils.crawler_anatel.banda_larga_fixa.flows import (
-    flow_anatel_banda_larga_fixa,
 )
 
 # Microdados

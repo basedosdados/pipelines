@@ -10,7 +10,7 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.utils.crawler_tse_eleicoes.flows import flow_br_tse_eleicoes
+from pipelines.crawler.tse_eleicoes.flows import flow_br_tse_eleicoes
 
 # Tabela: candidatos
 
