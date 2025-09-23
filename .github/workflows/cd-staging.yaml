@@ -115,6 +115,11 @@ jobs:
       - name: Install dbt deps
         if: steps.changed-files.outputs.all_changed_files != ''
         run: uv run dbt deps
+      - name: Write service account to json file
+        if: steps.changed-files.outputs.all_changed_files != ''
+        run: echo '${{ secrets.DBT_SA_DEV }}' | jq '.' > dbt_sa_dev.json
       - name: Run dbt test
         if: steps.changed-files.outputs.all_changed_files != ''
         run: uv run dbt test --select ${{ steps.changed-files.outputs.all_changed_files }}
+        env:
+          BD_SERVICE_ACCOUNT_DEV: dbt-sa-dev.json
