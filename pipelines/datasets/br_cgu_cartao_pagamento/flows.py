@@ -5,12 +5,12 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
+from pipelines.crawler.cgu.flows import flow_cgu_cartao_pagamento
 from pipelines.datasets.br_cgu_cartao_pagamento.schedules import (
     every_day_microdados_compras_centralizadas,
     every_day_microdados_defesa_civil,
     every_day_microdados_governo_federal,
 )
-from pipelines.utils.crawler_cgu.flows import flow_cgu_cartao_pagamento
 
 br_cgu_cartao_pagamento__governo_federal = copy(flow_cgu_cartao_pagamento)
 br_cgu_cartao_pagamento__governo_federal.name = (
