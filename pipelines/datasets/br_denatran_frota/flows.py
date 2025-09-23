@@ -67,16 +67,17 @@ with Flow(
         wait=table_id,
     )
 
-    source_max_date = get_latest_date_task(
+    source_max_date_year, source_max_date_month = get_latest_date_task(
         table_id=table_id, dataset_id=dataset_id
     )
 
+    log_task(f"Source Max Date: {source_max_date_year, source_max_date_month}")
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
         data_source_max_date=datetime.datetime(
-            year=source_max_date[0], month=source_max_date[1], day=1
-        ).date(),
+            year=source_max_date_year, month=source_max_date_month, day=1
+        ),
     )
 
     with case(check_if_outdated, False):
@@ -84,13 +85,13 @@ with Flow(
 
     with case(check_if_outdated, True):
         crawled = crawl_task(
-            month=source_max_date[1],
-            year=source_max_date[0],
+            year=source_max_date_year,
+            month=source_max_date_month,
             temp_dir=denatran_constants.DOWNLOAD_PATH.value,
         )
         # Used primarly to backfill data
         desired_file = get_desired_file_task(
-            year=source_max_date[0],
+            year=source_max_date_year,
             download_directory=denatran_constants.DOWNLOAD_PATH.value,
             filetype=denatran_constants.UF_TIPO_BASIC_FILENAME.value,
             upstream_tasks=[check_if_outdated],
@@ -194,15 +195,17 @@ with Flow(
         wait=table_id,
     )
 
-    source_max_date = get_latest_date_task(
+    source_max_date_year, source_max_date_month = get_latest_date_task(
         table_id=table_id, dataset_id=dataset_id
     )
+
+    log_task(f"Source Max Date: {source_max_date_year, source_max_date_month}")
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
         data_source_max_date=datetime.datetime(
-            year=source_max_date[0], month=source_max_date[1], day=1
-        ).date(),
+            year=source_max_date_year, month=source_max_date_month, day=1
+        ),
     )
 
     with case(check_if_outdated, False):
@@ -210,13 +213,13 @@ with Flow(
 
     with case(check_if_outdated, True):
         crawled = crawl_task(
-            month=source_max_date[1],
-            year=source_max_date[0],
+            month=source_max_date_month,
+            year=source_max_date_year,
             temp_dir=denatran_constants.DOWNLOAD_PATH.value,
         )
         # Now get the downloaded file:
         desired_file = get_desired_file_task(
-            year=source_max_date[0],
+            year=source_max_date_year,
             download_directory=denatran_constants.DOWNLOAD_PATH.value,
             filetype=denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value,
             upstream_tasks=[crawled],
