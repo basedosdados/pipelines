@@ -10,7 +10,7 @@ import json
 import aiohttp
 import pandas as pd
 
-from pipelines.utils.constants import constants
+from pipelines.constants import constants
 from pipelines.utils.metadata.utils import (
     get_credentials_utils,
     get_id,

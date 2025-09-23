@@ -37,8 +37,27 @@ class constants(Enum):  # pylint: disable=c0103
     TASK_RETRY_DELAY = 10  # seconds
     PREFECT_DEFAULT_PROJECT = "main"
     PREFECT_STAGING_PROJECT = "staging"
-    # run_dbt_model
+
+    FLOW_DUMP_TO_GCS_NAME = "BD template: Ingerir tabela zipada para GCS"
+    FLOW_EXECUTE_DBT_MODEL_NAME = "BD template: Executa DBT model"
+
+    # dbt constants
     RUN_DBT_MODEL_MAX_RETRIES = 1
+    WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS = 3
+    WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL = 5
+    DISABLE_ELEMENTARY_VARS = {
+        "disable_dbt_artifacts_autoupload": True,
+        "disable_run_results": True,
+        "disable_tests_results": True,
+        "disable_dbt_invocation_autoupload": True,
+    }
+
+    GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
+
+    API_URL = {
+        "staging": "https://staging.backend.basedosdados.org/api/v1/graphql",
+        "prod": "https://backend.basedosdados.org/api/v1/graphql",
+    }
     # Code Owners #
 
     ######################################
