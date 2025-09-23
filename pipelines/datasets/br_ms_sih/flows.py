@@ -10,11 +10,11 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
+from pipelines.crawler.datasus.flows import flow_sihsus
 from pipelines.datasets.br_ms_sih.schedules import (
     everyday_sih_aihs_reduzidas,
     everyday_sih_servicos_profissionais,
 )
-from pipelines.utils.crawler_datasus.flows import flow_sihsus
 
 br_ms_sih_servicos_profissionais = deepcopy(flow_sihsus)
 br_ms_sih_servicos_profissionais.name = "br_ms_sih.servicos_profissionais"
