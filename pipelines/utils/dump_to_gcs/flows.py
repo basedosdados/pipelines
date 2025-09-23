@@ -9,18 +9,19 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.dump_to_gcs.tasks import (
-    download_data_to_gcs,
     get_project_id,
 )
 
 # from pipelines.datasets.cross_update.tasks import get_all_eligible_in_selected_year
-from pipelines.utils.tasks import rename_current_flow_run_dataset_table
+from pipelines.utils.tasks import (
+    download_data_to_gcs,
+    rename_current_flow_run_dataset_table,
+)
 
 with Flow(
-    name=utils_constants.FLOW_DUMP_TO_GCS_NAME.value,
+    name=constants.FLOW_DUMP_TO_GCS_NAME.value,
     code_owners=["lauris"],
 ) as dump_to_gcs_flow:
     project_id = Parameter("project_id", required=False)  # basedosdados
