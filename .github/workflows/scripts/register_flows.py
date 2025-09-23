@@ -727,10 +727,6 @@ def main(
             ]
             source_to_flows[key].extend(flows_instance)
 
-    for source, flows in source_to_flows.items():
-        for f in flows:
-            print(f.name)
-    exit(0)
     # Iterate through each file, building all storage and registering all flows
     # Log errors as they happen, but only exit once all files have been processed
     stats = Counter(registered=0, errored=0, skipped=0)
