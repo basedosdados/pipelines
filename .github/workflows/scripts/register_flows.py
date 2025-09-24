@@ -25,6 +25,8 @@ from prefect.run_configs import UniversalRun
 from prefect.storage import Local
 from prefect.utilities.graphql import EnumValue, compress, with_args
 
+from pipelines.constants import constants
+
 FlowLike = box.Box | prefect.Flow
 
 
@@ -472,12 +474,19 @@ def evaluate_declaration(declared: str) -> Any:
     return eval(declared, {"pipelines": importlib.import_module("pipelines")})
 
 
-def get_affected_flows() -> list[FlowLike]:
+def get_flows_from_dependent_files() -> list[Path]:
+    """
+    Reads the 'dependent_files.txt' file and returns a list of Path objects for each Python file listed.
+
+    Returns:
+      A list of Path objects corresponding to files with a '.py' extension found in 'dependent_files.txt'.
+            If the file does not exist, returns an empty list.
+    """
     # dependent_files.txt is created by step code tree analysis
     dependent_files_txt = Path("dependent_files.txt")
-    dependend_files = (
+    return (
         [
-            fname
+            Path(fname)
             for fname in dependent_files_txt.read_text().splitlines()
             if fname.endswith(".py")
         ]
@@ -485,10 +494,27 @@ def get_affected_flows() -> list[FlowLike]:
         else []
     )
 
+
+def get_affected_flows(pipelines_files: list[Path]) -> list[FlowLike]:
+    """
+    Identifies and returns Prefect Flow objects affected by a list of pipeline files.
+
+    Given a list of pipeline file paths, this function locates corresponding 'flows.py' files,
+    extracts declared flow objects, evaluates them, and returns a list of valid Prefect Flow instances.
+
+    Args:
+      pipelines_files: List of Path objects pointing to pipeline files.
+
+    Returns:
+      List of evaluated Prefect Flow objects found in the associated 'flows.py' files.
+
+    Logs:
+      Issues a warning if a declaration cannot be evaluated as a Prefect Flow.
+    """
     flow_files = set()
 
-    for file in dependend_files:
-        flow_file = Path(file).parent / "flows.py"
+    for file in pipelines_files:
+        flow_file = file.parent / "flows.py"
         if flow_file.exists():
             flow_files.add(flow_file)
 
@@ -503,43 +529,82 @@ def get_affected_flows() -> list[FlowLike]:
             if isinstance(evaluate, prefect.Flow):
                 flows.append(evaluate)
         except Exception as e:
-            logger.warning(f"Could not evaluate {declaration}: {e}")
+            msg = f"Could not evaluate {declaration}: {e}"
+            raise Exception(msg)
     return flows
 
 
-def has_dbt_related_files_changed(files: list[str]) -> bool:
-    result = False
+def dbt_project_files_relevant_changed(files: list[str]) -> bool:
+    """
+    Determines if any file in the provided list is related to dbt configuration or SQL files.
 
+    Args:
+      files: A list of file paths or names to check.
+
+    Returns:
+      True if any file is a dbt configuration file ('profiles.yml', 'dbt_project.yml', 'packages.yml'),
+          or if the file is an SQL file within 'test-dbt' or 'macros' directories; False otherwise.
+    """
     for file in files:
-        if file.endswith("schema.yml"):
-            result = True
-            break
+        if (
+            file in ["profiles.yml", "dbt_project.yml", "packages.yml"]
+            or (file.startswith("test-dbt") and file.endswith(".sql"))
+            or (file.startswith("macros") and file.endswith(".sql"))
+        ):
+            return True
 
-        if file == "profiles.yml":
-            result = True
-            break
+    return False
 
-        if file == "dbt_project.yml":
-            result = True
-            break
 
-        if file == "packages.yml":
-            result = True
-            break
+def pipelines_to_force_registration(
+    modified_files: list[str],
+) -> list[Path]:
+    """
+    Identifies pipelines that require forced registration.
 
-        if file.startswith("models") and file.endswith(".sql"):
-            result = True
-            break
+    Args:
+      modified_files: List of modified file paths as strings.
 
-        if file.startswith("test-dbt") and file.endswith(".sql"):
-            result = True
-            break
+    Returns:
+        - A list of Path objects pointing to flow files that should be registered.
 
-        if file.startswith("macros") and file.endswith(".sql"):
-            result = True
-            break
+    Notes:
+      - A pipeline is considered for forced registration if only DBT files (SQL or schema files) have changed.
+    """
 
-    return result
+    flows_folder_names = set(
+        [
+            file.parts[2:][0]
+            for file in get_flows_from_dependent_files()
+            if file.is_relative_to(Path("pipelines") / "datasets")
+        ]
+    )
+
+    dbt_dataset_folder_name = set(
+        [
+            Path(file).parts[1:][0]
+            for file in modified_files
+            if file.startswith("models")
+            and file.endswith(".sql")
+            or file.endswith(("schema.yml", "schema.yaml"))
+        ]
+    )
+
+    flows_to_register: list[Path] = []
+
+    for dbt_dataset_folder in dbt_dataset_folder_name:
+        if dbt_dataset_folder not in flows_folder_names:
+            flow_file = (
+                Path("pipelines")
+                / "datasets"
+                / dbt_dataset_folder
+                / "flows.py"
+            )
+
+            if flow_file.exists():
+                flows_to_register.append(flow_file)
+
+    return flows_to_register
 
 
 def pipeline_project_file_relevant_changed(files: list[str]) -> bool:
@@ -552,17 +617,11 @@ def pipeline_project_file_relevant_changed(files: list[str]) -> bool:
     Returns:
         bool: Return true if uv.lock or pyproject.toml is changed.
     """
-    result = False
-
     for file in files:
-        if file == "uv.lock":
-            result = True
-            break
-        if file == "pyproject.toml":
-            result = True
-            break
+        if file in ["uv.lock", "pyproject.toml"]:
+            return True
 
-    return result
+    return False
 
 
 def main(
@@ -579,10 +638,13 @@ def main(
     attend to our needs, unfortunately, because of no retry policy.
 
     Args:
-        - project (str): The project to register the flows to.
-        - path (str): The paths to the flows to register.
-        - max_retries (int, optional): The maximum number of retries to attempt.
-        - retry_interval (int, optional): The number of seconds to wait between
+        - project: The project to register the flows to.
+        - path: The paths to the flows to register.
+        - max_retries: The maximum number of retries to attempt.
+        - retry_interval: The number of seconds to wait between.
+        - schedule: Schedule the flows
+        - filter_affected_flows: Filter affected flows or register all flows.
+        - modified_files: List of modified files on pull request
     """
 
     # Expands paths to find all python files
@@ -604,13 +666,26 @@ def main(
         pipeline_project_file_relevant_changed(modified_files_list)
     )
 
-    # Filter affected flow if not important pipeline project file changed
+    is_dbt_file_relevant_changed = dbt_project_files_relevant_changed(
+        modified_files_list
+    )
+
+    pipelines_files = get_flows_from_dependent_files()
+
+    pipelines_files_force_registration = pipelines_to_force_registration(
+        modified_files_list
+    )
+
+    # Filter affected flow only if not important pipeline or dbt project file changed
     if (
         filter_affected_flows
         and not is_pipelines_project_file_relevant_changed
+        and not is_dbt_file_relevant_changed
     ):
         # Filter out flows that are not affected by the change
-        affected_flows = get_affected_flows()
+        affected_flows = get_affected_flows(
+            [*pipelines_files, *pipelines_files_force_registration]
+        )
         for key in source_to_flows.keys():
             filtered_flows = []
             for flow in source_to_flows[key]:
@@ -618,27 +693,22 @@ def main(
                     filtered_flows.append(flow)
             source_to_flows[key] = filtered_flows
 
-    # Force registration of flow execute_dbt_model if some dbt related files is changed
-    EXECUTE_DBT_MODEL_FLOW_NAME = "BD template: Executa DBT model"
     flow_execute_dbt_model_changed = (
         len(
             [
                 flows
                 for flows in source_to_flows.values()
                 for flow in flows
-                if flow.name == EXECUTE_DBT_MODEL_FLOW_NAME
+                if flow.name == constants.FLOW_EXECUTE_DBT_MODEL_NAME.value
             ]
         )
         > 0
     )
 
-    dbt_related_files_has_modified = has_dbt_related_files_changed(
-        modified_files_list
-    )
-
-    if not flow_execute_dbt_model_changed and dbt_related_files_has_modified:
-        logger.warning(
-            f"Registering {EXECUTE_DBT_MODEL_FLOW_NAME} because dbt related files is changed",
+    # Force registration of flow execute_dbt_model if some relevant dbt project file changed
+    if not flow_execute_dbt_model_changed and is_dbt_file_relevant_changed:
+        logger.info(
+            f"Force-registering flow '{constants.FLOW_EXECUTE_DBT_MODEL_NAME.value}' due to changes detected in the dbt files"
         )
         execute_dbt_model_flow = (
             Path("pipelines") / "utils" / "execute_dbt_model" / "flows.py"
