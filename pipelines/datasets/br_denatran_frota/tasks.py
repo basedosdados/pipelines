@@ -35,8 +35,7 @@ from pipelines.utils.utils import log, to_partitions
 
 @task()  # noqa
 def crawl_task(
-    month: int,
-    year: int,
+    source_max_date: datetime,
     temp_dir: str | Path = denatran_constants.DOWNLOAD_PATH.value,
 ) -> bool:
     """
@@ -49,6 +48,9 @@ def crawl_task(
     Raises:
         ValueError: Errors if the month is not a valid one.
     """
+    year = source_max_date.year
+    month = source_max_date.moth
+
     if month not in denatran_constants.MONTHS.value.values():
         raise ValueError("Mês inválido.")
     log("Downloading file")
@@ -186,7 +188,7 @@ def output_file_to_parquet_task(df: pl.DataFrame) -> Path:
 
 @task()
 def get_desired_file_task(
-    year: int, download_directory: str, filetype: str
+    source_max_date: datetime, download_directory: str, filetype: str
 ) -> str:
     """
     Task to search for the desired file at a specific folder, being it uf_tipo or municipio_tipo
@@ -202,7 +204,7 @@ def get_desired_file_task(
     Returns:
         str: File path
     """
-
+    year = source_max_date.year
     log(f"-------- Accessing download directory {download_directory}")
     directory_to_search = os.path.join(
         str(download_directory), "files", f"{year}"
@@ -293,7 +295,7 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
 
 
 @task()
-def get_latest_date_task(table_id: str, dataset_id: str) -> tuple[int, int]:
+def get_latest_date_task(table_id: str, dataset_id: str):
     """Task to extract the latest data from available on the data source
     Args:
         table_id (str): table_id from BQ
@@ -331,7 +333,10 @@ def get_latest_date_task(table_id: str, dataset_id: str) -> tuple[int, int]:
                 files_to_download = extract_links_post_2012(
                     month, year, year_dir_name
                 )
-                files_to_download.sort(key="mes", reverse=True)
+                if len(files_to_download) == 0:
+                    flag_new_data = False
+                    break
+                files_to_download.sort(key=lambda x: x["mes"], reverse=True)
                 file_dict = files_to_download[0]
                 if verify_file(file_dict["file_url"]):
                     if month == 12:
@@ -355,7 +360,7 @@ def get_latest_date_task(table_id: str, dataset_id: str) -> tuple[int, int]:
             else:
                 flag_new_data = False
     log(f"Ano: {year}, mês: {month}")
-    return year, month
+    return datetime.datetime(year, month, 1)
 
 
 @task()

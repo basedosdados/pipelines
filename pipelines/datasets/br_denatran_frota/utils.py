@@ -321,7 +321,7 @@ def verify_file(
         url (str): URL where the desired file is located.
     """
     # Send a GET request to the URL
-
+    log(f"Verify {url}")
     new_url = url.replace("arquivos-denatran", "arquivos-senatran")
     log(new_url)
     response = requests.get(new_url, headers=denatran_constants.HEADERS.value)
