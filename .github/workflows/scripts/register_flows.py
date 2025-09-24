@@ -534,7 +534,7 @@ def get_affected_flows(pipelines_files: list[Path]) -> list[FlowLike]:
     return flows
 
 
-def dbt_related_files_changed(files: list[str]) -> bool:
+def dbt_project_files_relevant_changed(files: list[str]) -> bool:
     """
     Determines if any file in the provided list is related to dbt configuration or SQL files.
 
@@ -548,8 +548,6 @@ def dbt_related_files_changed(files: list[str]) -> bool:
     for file in files:
         if (
             file in ["profiles.yml", "dbt_project.yml", "packages.yml"]
-            or file.endswith(("schema.yml", "schema.yaml"))
-            or (file.startswith("models") and file.endswith(".sql"))
             or (file.startswith("test-dbt") and file.endswith(".sql"))
             or (file.startswith("macros") and file.endswith(".sql"))
         ):
@@ -668,7 +666,7 @@ def main(
         pipeline_project_file_relevant_changed(modified_files_list)
     )
 
-    is_dbt_file_relevant_changed = dbt_related_files_changed(
+    is_dbt_file_relevant_changed = dbt_project_files_relevant_changed(
         modified_files_list
     )
 
