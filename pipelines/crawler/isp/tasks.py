@@ -110,7 +110,7 @@ def get_count_lines(file_name: str) -> bool:
 
     data = bd.read_sql(
         QUERY(file_name),
-        billing_project_id="basedosdados-dev",  #
+        billing_project_id="basedosdados",  #
         from_file=True,
     )
 
