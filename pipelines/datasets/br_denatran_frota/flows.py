@@ -43,21 +43,20 @@ with Flow(
     name="br_denatran_frota.uf_tipo",
     code_owners=["Gabriel Pisa", "Luiza"],
 ) as br_denatran_frota_uf_tipo:
-    dataset_id = Parameter("dataset_id", default="br_denatran_frota")
-    table_id = Parameter("table_id", default="uf_tipo")
-
-    # Materialization mode
-    target = Parameter("target", default="prod", required=False)
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=False
+    dataset_id = Parameter(
+        "dataset_id", default="br_denatran_frota", required=True
     )
+    table_id = Parameter("table_id", default="uf_tipo", required=True)
 
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
-
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
+    target = Parameter("target", default="prod", required=False)
+
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -66,21 +65,24 @@ with Flow(
         wait=table_id,
     )
 
-    source_max_date = get_latest_date_task(
+    source_max_date, source_max_date_str = get_latest_date_task(
         table_id=table_id, dataset_id=dataset_id
     )
-    log_task(f"Source Max Date: {source_max_date}")
+
+    log_task(source_max_date_str)
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=source_max_date,
-        upstream_tasks=[source_max_date],
+        data_source_max_date=source_max_date_str,
+        date_format="%Y-%m",
+        upstream_tasks=[source_max_date_str],
     )
 
     with case(check_if_outdated, False):
         log_task("No new data to be downloaded")
 
     with case(check_if_outdated, True):
+        log_task("Updates found! The run will be started.")
         crawled = crawl_task(
             source_max_date=source_max_date,
             temp_dir=denatran_constants.DOWNLOAD_PATH.value,
@@ -169,21 +171,21 @@ with Flow(
     name="br_denatran_frota.municipio_tipo",
     code_owners=["Gabriel Pisa", "Luiza"],
 ) as br_denatran_frota_municipio_tipo:
-    dataset_id = Parameter("dataset_id", default="br_denatran_frota")
-    table_id = Parameter("table_id", default="municipio_tipo")
-
-    # Materialization mode
-    target = Parameter("target", default="prod", required=False)
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=False
+    dataset_id = Parameter(
+        "dataset_id", default="br_denatran_frota", required=True
     )
+    table_id = Parameter("table_id", default="municipio_tipo", required=True)
 
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
+    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+    target = Parameter("target", default="prod", required=False)
+
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -192,22 +194,24 @@ with Flow(
         wait=table_id,
     )
 
-    source_max_date = get_latest_date_task(
+    source_max_date, source_max_date_str = get_latest_date_task(
         table_id=table_id, dataset_id=dataset_id
     )
 
-    log_task(f"Source Max Date: {source_max_date}")
-    check_if_outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=source_max_date,
-        upstream_tasks=[source_max_date],
-    )
-
+    log_task(source_max_date_str)
+    # check_if_outdated = check_if_data_is_outdated(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     data_source_max_date=source_max_date_str,
+    #     date_format="%Y-%m",
+    #     upstream_tasks=[source_max_date_str],
+    # )
+    check_if_outdated = True
     with case(check_if_outdated, False):
         log_task("There's no new data to be downloaded")
 
     with case(check_if_outdated, True):
+        log_task("Updates found! The run will be started.")
         crawled = crawl_task(
             source_max_date=source_max_date,
             temp_dir=denatran_constants.DOWNLOAD_PATH.value,

@@ -4,6 +4,7 @@ import datetime
 import os
 import re
 from pathlib import Path
+from typing import Tuple
 from zipfile import ZipFile
 
 import basedosdados as bd
@@ -49,7 +50,7 @@ def crawl_task(
         ValueError: Errors if the month is not a valid one.
     """
     year = source_max_date.year
-    month = source_max_date.moth
+    month = source_max_date.month
 
     if month not in denatran_constants.MONTHS.value.values():
         raise ValueError("Mês inválido.")
@@ -295,7 +296,9 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
 
 
 @task()
-def get_latest_date_task(table_id: str, dataset_id: str):
+def get_latest_date_task(
+    table_id: str, dataset_id: str
+) -> Tuple[int | None, str | None]:
     """Task to extract the latest data from available on the data source
     Args:
         table_id (str): table_id from BQ
@@ -360,7 +363,9 @@ def get_latest_date_task(table_id: str, dataset_id: str):
             else:
                 flag_new_data = False
     log(f"Ano: {year}, mês: {month}")
-    return datetime.datetime(year, month, 1)
+    date_return = datetime.datetime(year, month, 1)
+    str_return = date_return.strftime("%Y-%m")
+    return date_return, str_return
 
 
 @task()
