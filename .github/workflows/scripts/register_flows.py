@@ -705,8 +705,8 @@ def main(
         > 0
     )
 
-    # Force registration of flow execute_dbt_model if dbt models is outside pipelines
-    if not flow_execute_dbt_model_changed:
+    # Force registration of flow execute_dbt_model if some relevant dbt project file changed
+    if not flow_execute_dbt_model_changed and is_dbt_file_relevant_changed:
         logger.info(
             f"Force-registering flow '{constants.FLOW_EXECUTE_DBT_MODEL_NAME.value}' due to changes detected in the dbt files"
         )
