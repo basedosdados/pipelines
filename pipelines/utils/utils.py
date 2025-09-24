@@ -28,6 +28,7 @@ import requests
 from google.cloud import storage
 from google.cloud.storage.blob import Blob
 from google.oauth2 import service_account
+from prefect.backend import FlowRunView
 from prefect.client import Client
 from prefect.engine.state import State
 from prefect.run_configs import KubernetesRun, VertexRun
@@ -108,6 +109,31 @@ def set_default_parameters(
         if parameter.name in default_parameters:
             parameter.default = default_parameters[parameter.name]
     return flow
+
+
+def is_running_in_prod() -> bool:
+    flow_run_id = prefect.context.get("flow_run_id")
+
+    if flow_run_id is None:
+        return False
+
+    try:
+        labels = FlowRunView.from_flow_run_id(flow_run_id).labels
+    except ValueError:
+        return False
+
+    if len(labels) == 0:
+        raise Exception(f"Not found label for flow: {flow_run_id}")
+    if len(labels) > 1:
+        raise Exception(
+            f"Found more than one label {labels=} for flow {flow_run_id}"
+        )
+
+    for label in labels:
+        if label == "basedosdados":
+            return True
+
+    return False
 
 
 def run_local(flow: prefect.Flow, parameters: Dict[str, Any] = None):
