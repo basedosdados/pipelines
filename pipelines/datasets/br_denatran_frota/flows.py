@@ -22,9 +22,6 @@ from pipelines.datasets.br_denatran_frota.tasks import (
     treat_uf_tipo_task,
 )
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import (
-    constants as dump_db_constants,
-)
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
     update_django_metadata,
@@ -187,7 +184,7 @@ with Flow(
         date_format="%Y-%m",
         upstream_tasks=[source_max_date_str],
     )
-    
+
     with case(check_if_outdated, False):
         log_task("There's no new data to be downloaded")
 
