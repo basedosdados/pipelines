@@ -1,28 +1,22 @@
 # -*- coding: utf-8 -*-
-import os
-import shutil
-import tempfile
 import unittest
 
 from pipelines.datasets.br_denatran_frota.constants import constants
-from pipelines.datasets.br_denatran_frota.tasks import crawl
 from pipelines.datasets.br_denatran_frota.utils import (
     get_year_month_from_filename,
-    make_dir_when_not_exists,
-    make_filename,
+    make_file_path,
 )
 
 DOWNLOAD_PATH = constants.DOWNLOAD_PATH.value
 
+
 # Classes to test br_denatran_frota functions with unnittest
-
-
 class TestMakeFilename(unittest.TestCase):
     """
-    Class to test function make_filename
+    Class to test function make_file_path
     """
 
-    def test_make_filename(self):
+    def test_make_file_path(self):
         month = 2
         year = 2013
         i = {
@@ -32,13 +26,13 @@ class TestMakeFilename(unittest.TestCase):
             "filetype": "xlsx",
             "destination_dir": DOWNLOAD_PATH,
         }
-        filename = make_filename(i)
+        filename = make_file_path(i)
         self.assertEqual(
             filename,
             f"{DOWNLOAD_PATH}/frota-de-veiculos-por-municipio-tipo-e-combustivel_{month}-{year}.xlsx",
         )
 
-    def test_make_filename_without_ext(self):
+    def test_make_file_path_without_ext(self):
         month = 2
         year = 2013
         i = {
@@ -48,39 +42,11 @@ class TestMakeFilename(unittest.TestCase):
             "filetype": "xlsx",
             "destination_dir": DOWNLOAD_PATH,
         }
-        filename = make_filename(i, ext=False)
+        filename = make_file_path(i, ext=False)
         self.assertEqual(
             filename,
             f"{DOWNLOAD_PATH}/frota-de-veiculos-por-municipio-tipo-e-combustivel_{month}-{year}",
         )
-
-
-class TestMakeDirWhenNotExists(unittest.TestCase):
-    """
-    Class to test function
-    """
-
-    def setUp(self):
-        self.temp_dir = tempfile.mkdtemp()
-
-    def tearDown(self):
-        shutil.rmtree(self.temp_dir)
-
-    def test_make_dir_when_not_exists(self):
-        new_dir = os.path.join(self.temp_dir, "new_dir")
-        self.assertFalse(os.path.exists(new_dir))
-        make_dir_when_not_exists(new_dir)
-        self.assertTrue(os.path.exists(new_dir))
-
-
-class TestDownloadFrota(unittest.TestCase):
-    """
-    Class to test function download_file
-    """
-
-    def test_download_frota_with_invalid_month(self):
-        with self.assertRaises(ValueError):
-            crawl(13, 2013)
 
 
 class TestFilenameExtraction(unittest.TestCase):
