@@ -8,7 +8,7 @@
             "data_type": "int64",
             "range": {
                 "start": 2003,
-                "end": 2024,
+                "end": 2025,
                 "interval": 1,
             },
         },
