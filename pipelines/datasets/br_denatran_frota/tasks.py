@@ -337,6 +337,7 @@ def get_latest_date_task(
                     month, year, year_dir_name
                 )
                 if len(files_to_download) == 0:
+                    month -= 1
                     flag_new_data = False
                     break
                 files_to_download.sort(key=lambda x: x["mes"], reverse=True)
@@ -348,6 +349,7 @@ def get_latest_date_task(
                     else:
                         month += 1
                 else:
+                    month -= 1
                     flag_new_data = False
             except Exception as e:
                 log(e, "error")
