@@ -29,8 +29,8 @@ from pipelines.datasets.br_me_caged.utils import (
     get_caged_schedule,
     verify_yearmonth,
 )
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.metadata.utils import get_api_most_recent_date
+from pipelines.utils.utils import constants as utils_constants
 from pipelines.utils.utils import log
 
 

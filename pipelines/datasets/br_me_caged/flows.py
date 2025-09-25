@@ -18,6 +18,7 @@ from pipelines.datasets.br_me_caged.tasks import (
     generate_yearmonth_range,
     get_source_last_date,
     get_table_last_date,
+    update_caged_schedule,
 )
 
 # pylint: disable=invalid-name
@@ -106,6 +107,10 @@ with Flow(
             dump_mode="append",
             wait=filepath,
             upstream_tasks=[filepath],
+        )
+
+        update_caged_schedule(
+            source_last_date, table_id, upstream_tasks=[wait_upload_table]
         )
 
     with case(materialize_after_dump, True):
@@ -234,6 +239,9 @@ with Flow(
             wait=filepath,
             upstream_tasks=[filepath],
         )
+        update_caged_schedule(
+            source_last_date, table_id, upstream_tasks=[wait_upload_table]
+        )
 
     with case(materialize_after_dump, True):
         # Trigger DBT flow run
@@ -361,6 +369,9 @@ with Flow(
             dump_mode="append",
             wait=filepath,
             upstream_tasks=[filepath],
+        )
+        update_caged_schedule(
+            source_last_date, table_id, upstream_tasks=[wait_upload_table]
         )
 
     with case(materialize_after_dump, True):
