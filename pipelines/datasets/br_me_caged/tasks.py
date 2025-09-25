@@ -346,7 +346,11 @@ def update_caged_schedule(
         url=schedule_url,
         css_selector=caged_constants.CSS_SELECTOR_SCHEDULES.value,
     )
-    this_month = datetime.datetime.strptime(table_last_date, "%d/%m/%Y").month
+    if isinstance(table_last_date, str):
+        table_last_date = datetime.datetime.strptime(
+            table_last_date, "%d/%m/%Y"
+        ).date()
+    this_month = table_last_date.month
     log(f"This date {table_last_date}")
     next_start_date = date_elements[0]["data"]
     index = 1

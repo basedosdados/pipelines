@@ -1,5 +1,5 @@
 {% test not_null_proportion_multiple_columns(model, ignore_values="", at_least=0.05) %}
-
+    {%- set model = ref(model) if model is string else model -%}
     {%- set columns = adapter.get_columns_in_relation(model) -%}
     {% set suffix = "_nulls" %}
     {% set pivot_columns_query %}
