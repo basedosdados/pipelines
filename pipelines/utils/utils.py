@@ -228,7 +228,7 @@ def notify_discord_on_failure(
         + f'\n  - State message: *"{state.message}"*'
         + "\n  - Link to the failed flow: "
         + f"https://prefect.basedosdados.org/flow-run/{flow_run_id}"
-        + "\n  - Use this link to document pipeline errors:  https://forms.gle/uhyuHGDahpkgfsXs8"
+        + f"\n  - Open an issue on GitHub: [new issue](<https://github.com/basedosdados/pipelines/issues/new?template=bug-report.yml&title=[bug]%20{flow.name} flow failed>)"
         + "\n  - Extra attention:\n"
         + "".join(at_code_owners)
     )
