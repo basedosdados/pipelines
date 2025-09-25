@@ -20,7 +20,6 @@ vars:
 model-paths: [models]
 analysis-paths: [analysis]
 test-paths: [tests-dbt]
-seed-paths: [data]
 macro-paths: [macros]
 snapshot-paths: [snapshots]
 target-path: target  # directory which will store compiled SQL files
