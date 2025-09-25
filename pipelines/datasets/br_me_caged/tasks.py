@@ -333,6 +333,7 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
 @task
 def update_caged_schedule(
     table_last_date: str | datetime.date,
+    table_id: str,
     schedules_file: str = "/pipelines/datasets/br_me_caged/schedules.py",
     schedule_url: str = caged_constants.URL_SCHEDULE.value,
 ):
@@ -346,7 +347,7 @@ def update_caged_schedule(
         css_selector=caged_constants.CSS_SELECTOR_SCHEDULES.value,
     )
     this_month = datetime.datetime.strptime(table_last_date, "%d/%m/%Y").month
-    log(f"This month {this_month}")
+    log(f"This date {table_last_date}")
     next_start_date = date_elements[0]["data"]
     index = 1
     while index < len(date_elements) - 1:
@@ -357,28 +358,29 @@ def update_caged_schedule(
             break
         index += 1
 
+    # Read schedule file to match table_id schedule pattern
+    with open(schedules_file, "r", encoding="utf-8") as f:
+        code = f.read()
+    schedule_name = f"every_month{table_id.replace('microdados', '')}"
+    schedule_pattern = rf"({schedule_name}\s*=\s*Schedule\(\s*clocks\s*=\s*\[\s*IntervalClock\(\s*interval\s*=\s*timedelta\([\w=\d\,\s]+\)\,\s*start_date\s*=\s*datetime\([\w=\d\,\s]+\)\,\s*labels\s*=\s*\[\s*constants\.BASEDOSDADOS_DEV_AGENT_LABEL\.value[\,\s\)\]]+)"
+    start_date_pattern = r"start_date\s*=\s*datetime\([\w=\d\,\s]+\)"
+    match = re.search(schedule_pattern, code)
+
+    if not match:
+        raise ValueError(
+            f"Schedule {schedule_name} não encontrado no arquivo."
+        )
+
+    schedule_block = match.group(1)
+
+    if next_start_date is not None:
+        schedule_block = re.sub(
+            start_date_pattern,
+            f"start_date=datetime({next_start_date.year}, {next_start_date.month}, {next_start_date.day})",
+            schedule_block,
+        )
+    new_code = code[: match.start(1)] + schedule_block + code[match.end(1) :]
     with open(schedules_file, "w", encoding="utf-8") as f:
-        f.write(f'''# -*- coding: utf-8 -*-
-    """
-    Schedules for br_me_caged
-    """
-
-    from datetime import datetime, timedelta
-    from prefect.schedules import Schedule
-    from prefect.schedules.clocks import IntervalClock
-    from pipelines.constants import constants
-
-    every_month = Schedule(
-        clocks=[
-            IntervalClock(
-                interval=timedelta(days=30),
-                start_date=datetime({next_start_date.year}, {next_start_date.month}, {next_start_date.day}),
-                labels=[
-                    constants.BASEDOSDADOS_DEV_AGENT_LABEL.value,
-                ],
-            )
-        ]
-    )
-    ''')
+        f.write(new_code)
 
     return next_start_date
