@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
+import os
 from collections import OrderedDict
 
 import pandas as pd
 import requests
+
+# Mudando o diretório de trabalho para o diretório do script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
 
 METADADOS_URL = (
     "https://servicodados.ibge.gov.br/api/v3/agregados/289/metadados"
