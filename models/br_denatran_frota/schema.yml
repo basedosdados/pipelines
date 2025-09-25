@@ -6,8 +6,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, mes, id_municipio, tipo_veiculo]
+          config:
+            where: __most_recent_year_month__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano
@@ -15,24 +19,26 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: ano
+              config:
+                where: __most_recent_year_month__
       - name: mes
         description: Mês
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: mes
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year_month__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year_month__
       - name: tipo_veiculo
         description: Tipo de veículo
       - name: quantidade
@@ -42,27 +48,25 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, mes, sigla_uf, tipo_veiculo]
+          config:
+            where: __most_recent_year_month__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: ano
       - name: mes
         description: Mês
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: mes
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year_month__
       - name: tipo_veiculo
         description: Tipo de veículo
       - name: quantidade
