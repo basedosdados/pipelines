@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
 import json
+import os
 from collections import OrderedDict
 from pathlib import Path
 
 import pandas as pd
+
+# Mudando o diretório de trabalho para o diretório do script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+
+# Criando a pasta de output
+path_json_output = "output/silvicultura/parquet/"
+os.makedirs(path_json_output, exist_ok=True)
 
 
 def parse_file(file_path):
