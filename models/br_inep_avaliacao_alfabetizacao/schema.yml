@@ -98,7 +98,7 @@ models:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
       - name: id_municipio
-        description: ID Município
+        description: ID Município de 7 dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
@@ -107,11 +107,11 @@ models:
         description: Máscara do códigoo da escola (códigos fictícios)
       - name: id_aluno
         description: Código do aluno
-      - name: id_caderno
+      - name: caderno
         description: Código do caderno atribuído ao aluno na prova de língua portuguesa
       - name: serie
         description: Ano escolar
-      - name: dependencia
+      - name: rede
         description: Dependência administrativa da escola
       - name: presenca
         description: Indicador de presença na prova de língua portuguesa
