@@ -12,7 +12,6 @@ from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.crawler.datasus.flows import flow_siasus
 from pipelines.datasets.br_ms_sia.schedules import (
-    schedule_br_ms_sia_producao_ambulatorial,
     schedule_br_ms_sia_psicossocial,
 )
 
@@ -23,9 +22,9 @@ br_ms_sia_producao_ambulatorial.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_sia_producao_ambulatorial.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_ms_sia_producao_ambulatorial.schedule = (
-    schedule_br_ms_sia_producao_ambulatorial
-)
+# br_ms_sia_producao_ambulatorial.schedule = (
+#     schedule_br_ms_sia_producao_ambulatorial
+# )
 
 
 br_ms_sia_psicossocial = deepcopy(flow_siasus)
