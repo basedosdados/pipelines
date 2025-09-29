@@ -9,7 +9,6 @@
 
     {{ config(severity="error") }}
 
-    {%- set model = ref(model) if model is string else model -%}
     with
         child as (
             select {{ column_name }} as child_value

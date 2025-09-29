@@ -334,7 +334,7 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
 def update_caged_schedule(
     table_last_date: str | datetime.date,
     table_id: str,
-    schedules_file: str = "/pipelines/datasets/br_me_caged/schedules.py",
+    schedules_file: str = "./pipelines/datasets/br_me_caged/schedules.py",
     schedule_url: str = caged_constants.URL_SCHEDULE.value,
 ):
     """
