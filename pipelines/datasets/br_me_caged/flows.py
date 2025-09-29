@@ -11,6 +11,11 @@ from prefect.storage import GCS
 from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
+from pipelines.datasets.br_me_caged.schedules import (
+    every_month_movimentacao,
+    every_month_movimentacao_excluida,
+    every_month_movimentacao_fora_prazo,
+)
 from pipelines.datasets.br_me_caged.tasks import (
     build_partitions,
     build_table_paths,
@@ -163,6 +168,7 @@ br_me_caged_microdados_movimentacao.storage = GCS(
 br_me_caged_microdados_movimentacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
+br_me_caged_microdados_movimentacao.schedule = every_month_movimentacao
 
 with Flow(
     "br_me_caged.microdados_movimentacao_excluida", code_owners=["Luiza"]
@@ -293,7 +299,9 @@ br_me_caged_microdados_movimentacao_excluida.storage = GCS(
 br_me_caged_microdados_movimentacao_excluida.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-
+br_me_caged_microdados_movimentacao_excluida.schedule = (
+    every_month_movimentacao_excluida
+)
 
 with Flow(
     "br_me_caged.microdados_movimentacao_fora_prazo", code_owners=["Luiza"]
@@ -423,4 +431,7 @@ br_me_caged_microdados_movimentacao_fora_prazo.storage = GCS(
 )
 br_me_caged_microdados_movimentacao_fora_prazo.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
+)
+br_me_caged_microdados_movimentacao_fora_prazo.schedule = (
+    every_month_movimentacao_fora_prazo
 )
