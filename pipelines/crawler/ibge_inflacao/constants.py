@@ -32,3 +32,6 @@ class constants(Enum):
         "mes_categoria_municipio": "N6[all]",  # Município
         "mes_categoria_rm": "N7[all]",  # Região Metropolitana
     }
+
+    OUTPUT = "tmp/output"
+    INPUT = "tmp/json"

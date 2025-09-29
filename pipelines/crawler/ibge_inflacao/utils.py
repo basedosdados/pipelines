@@ -7,6 +7,8 @@ import aiohttp
 from aiohttp import ClientTimeout, TCPConnector
 from tqdm.asyncio import tqdm as tqdm_asyncio
 
+from pipelines.crawler.ibge_inflacao.constants import constants
+
 
 def build_url(
     aggregate: int, period: str, variable: int, geo_level: str
@@ -34,11 +36,14 @@ def save_json(
 ) -> None:
     """Salva os dados em arquivo JSON no diretório definido."""
     output_path = os.path.join(output_dir, dataset_id, table_id, period)
-    os.makedirs(output_path, exist_ok=True)
+    if os.path.exists(output_path):
+        pass
+    else:
+        os.makedirs(output_path, exist_ok=True)
 
-    file_path = f"{output_path}/data.json"
-    with open(file_path, "a") as f:
-        json.dump(data, f)
+        file_path = f"{output_path}/data.json"
+        with open(file_path, "a") as f:
+            json.dump(data, f)
 
 
 async def collect_data(
@@ -54,7 +59,7 @@ async def collect_data(
         connector=TCPConnector(limit=100, force_close=True),
         timeout=ClientTimeout(total=1200),
     ) as session:
-        for period in periods:
+        for period in [periods]:
             print(
                 f"Consultando período {period} | tabela: {table_id} | dataset_id: {dataset_id}"
             )
@@ -78,6 +83,6 @@ async def collect_data(
                 data=results,
                 dataset_id=dataset_id,
                 table_id=table_id,
-                period=period,  # ← só o período atual
-                output_dir=os.path.join(os.getcwd(), "tmp/json"),
-            )  # ← troquei nome do parâmetro
+                period=period,
+                output_dir=os.path.join(os.getcwd(), constants.INPUT.value),
+            )
