@@ -1,42 +1,426 @@
 # -*- coding: utf-8 -*-
 """
-Flows for br_me_novo_caged
+Flows for br_me_caged
 """
 
-from prefect import Parameter
-from prefect.run_configs import KubernetesRun
+from datetime import timedelta
 
-# pylint: disable=invalid-name
+from prefect import Parameter, case, unmapped
+from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_me_caged.schedules import every_month
 from pipelines.datasets.br_me_caged.tasks import (
     build_partitions,
-    get_caged_data,
+    build_table_paths,
+    crawl_novo_caged_ftp,
+    generate_yearmonth_range,
+    get_source_last_date,
+    get_table_last_date,
+    update_caged_schedule,
 )
-from pipelines.utils.decorators import Flow
-from pipelines.utils.tasks import create_table_and_upload_to_gcs
 
-with Flow("br_me_caged.microdados_mov", code_owners=["lucas_cr"]) as cagedmov:
+# pylint: disable=invalid-name
+from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+    update_django_metadata,
+)
+from pipelines.utils.tasks import (
+    create_table_and_upload_to_gcs,
+    get_current_flow_labels,
+    log_task,
+    rename_current_flow_run_dataset_table,
+)
+
+with Flow(
+    "br_me_caged.microdados_movimentacao", code_owners=["Luiza"]
+) as br_me_caged_microdados_movimentacao:
     dataset_id = Parameter("dataset_id", default="br_me_caged", required=True)
     table_id = Parameter(
         "table_id", default="microdados_movimentacao", required=True
     )
-    year = Parameter("year", default=2022, required=True)
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
+    target = Parameter("target", default="prod", required=False)
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=False, required=False
+    )
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    get_data = get_caged_data(table_id=table_id, year=year)
-
-    filepath = build_partitions(table_id=table_id, upstream_tasks=[get_data])
-
-    wait_upload_table = create_table_and_upload_to_gcs(
-        data_path=filepath,
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ",
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode="append",
-        wait=filepath,
+        wait=table_id,
     )
 
-cagedmov.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-cagedmov.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-cagedmov.schedule = every_month
+    source_last_date = get_source_last_date()
+    table_last_date = get_table_last_date(
+        dataset_id, table_id, upstream_tasks=[source_last_date]
+    )
+
+    check_if_outdated = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=source_last_date,
+        date_format="%Y-%m",
+        upstream_tasks=[source_last_date],
+    )
+
+    with case(table_last_date < source_last_date, False):
+        log_task(f"No updates for table {table_id}!")
+
+    with case(table_last_date < source_last_date, True):
+        input_dir, output_dir = build_table_paths(
+            table_id, upstream_tasks=[check_if_outdated]
+        )
+        yearmonths = generate_yearmonth_range(
+            table_last_date,
+            source_last_date,
+            upstream_tasks=[check_if_outdated],
+        )
+
+        failed_crawl = crawl_novo_caged_ftp.map(
+            yearmonths,
+            unmapped(table_id),
+            upstream_tasks=[yearmonths, input_dir],
+        )
+
+        log_download = log_task.map(
+            f"Failed Downloads: {failed_crawl}",
+            upstream_tasks=[failed_crawl],
+        )
+
+        filepath = build_partitions(
+            table_id=table_id,
+            table_output_dir=output_dir,
+            upstream_tasks=[log_download],
+        )
+
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            wait=filepath,
+            upstream_tasks=[filepath],
+        )
+
+        update_caged_schedule(
+            source_last_date, table_id, upstream_tasks=[wait_upload_table]
+        )
+
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "target": target,
+                "dbt_alias": dbt_alias,
+                "dbt_command": "run/test",
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id}",
+            upstream_tasks=[wait_upload_table],
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=target,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
+
+br_me_caged_microdados_movimentacao.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
+br_me_caged_microdados_movimentacao.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+
+with Flow(
+    "br_me_caged.microdados_movimentacao_excluida", code_owners=["Luiza"]
+) as br_me_caged_microdados_movimentacao_excluida:
+    dataset_id = Parameter("dataset_id", default="br_me_caged", required=True)
+    table_id = Parameter(
+        "table_id", default="microdados_movimentacao_excluida", required=True
+    )
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
+    target = Parameter("target", default="prod", required=False)
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
+    )
+
+    source_last_date = get_source_last_date()
+    table_last_date = get_table_last_date(
+        dataset_id, table_id, upstream_tasks=[source_last_date]
+    )
+
+    check_if_outdated = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=source_last_date,
+        date_format="%Y-%m",
+        upstream_tasks=[source_last_date],
+    )
+
+    with case(table_last_date < source_last_date, False):
+        log_task(f"No updates for table {table_id}!")
+
+    with case(table_last_date < source_last_date, True):
+        input_dir, output_dir = build_table_paths(
+            table_id, upstream_tasks=[check_if_outdated]
+        )
+
+        yearmonths = generate_yearmonth_range(
+            table_last_date,
+            source_last_date,
+            upstream_tasks=[check_if_outdated],
+        )
+
+        failed_crawl = crawl_novo_caged_ftp.map(
+            yearmonths,
+            unmapped(table_id),
+            upstream_tasks=[yearmonths, input_dir],
+        )
+
+        log_download = log_task.map(
+            f"Failed Downloads: {failed_crawl}",
+            upstream_tasks=[failed_crawl],
+        )
+
+        filepath = build_partitions(
+            table_id=table_id,
+            table_output_dir=output_dir,
+            upstream_tasks=[log_download],
+        )
+
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            wait=filepath,
+            upstream_tasks=[filepath],
+        )
+        update_caged_schedule(
+            source_last_date, table_id, upstream_tasks=[wait_upload_table]
+        )
+
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "target": target,
+                "dbt_alias": dbt_alias,
+                "dbt_command": "run/test",
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id}",
+            upstream_tasks=[wait_upload_table],
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=target,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
+
+br_me_caged_microdados_movimentacao_excluida.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
+br_me_caged_microdados_movimentacao_excluida.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+
+
+with Flow(
+    "br_me_caged.microdados_movimentacao_fora_prazo", code_owners=["Luiza"]
+) as br_me_caged_microdados_movimentacao_fora_prazo:
+    dataset_id = Parameter("dataset_id", default="br_me_caged", required=True)
+    table_id = Parameter(
+        "table_id", default="microdados_movimentacao_fora_prazo", required=True
+    )
+    update_metadata = Parameter(
+        "update_metadata", default=False, required=False
+    )
+    target = Parameter("target", default="prod", required=False)
+
+    materialize_after_dump = Parameter(
+        "materialize_after_dump", default=True, required=False
+    )
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+
+    rename_flow_run = rename_current_flow_run_dataset_table(
+        prefix="Dump: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
+        wait=table_id,
+    )
+
+    source_last_date = get_source_last_date()
+    table_last_date = get_table_last_date(
+        dataset_id, table_id, upstream_tasks=[source_last_date]
+    )
+
+    check_if_outdated = check_if_data_is_outdated(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        data_source_max_date=source_last_date,
+        date_format="%Y-%m",
+        upstream_tasks=[source_last_date],
+    )
+
+    with case(table_last_date < source_last_date, False):
+        log_task(f"No updates for table {table_id}!")
+
+    with case(table_last_date < source_last_date, True):
+        input_dir, output_dir = build_table_paths(
+            table_id, upstream_tasks=[check_if_outdated]
+        )
+        yearmonths = generate_yearmonth_range(
+            table_last_date,
+            source_last_date,
+            upstream_tasks=[check_if_outdated],
+        )
+
+        failed_crawl = crawl_novo_caged_ftp.map(
+            yearmonths,
+            unmapped(table_id),
+            upstream_tasks=[yearmonths, input_dir],
+        )
+
+        log_download = log_task.map(
+            f"Failed Downloads: {failed_crawl}",
+            upstream_tasks=[failed_crawl],
+        )
+
+        filepath = build_partitions(
+            table_id=table_id,
+            table_output_dir=output_dir,
+            upstream_tasks=[log_download],
+        )
+
+        wait_upload_table = create_table_and_upload_to_gcs(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            wait=filepath,
+            upstream_tasks=[filepath],
+        )
+        update_caged_schedule(
+            source_last_date, table_id, upstream_tasks=[wait_upload_table]
+        )
+
+    with case(materialize_after_dump, True):
+        # Trigger DBT flow run
+        current_flow_labels = get_current_flow_labels()
+        materialization_flow = create_flow_run(
+            flow_name=constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
+            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "target": target,
+                "dbt_alias": dbt_alias,
+                "dbt_command": "run/test",
+            },
+            labels=current_flow_labels,
+            run_name=f"Materialize {dataset_id}.{table_id}",
+            upstream_tasks=[wait_upload_table],
+        )
+
+        wait_for_materialization = wait_for_flow_run(
+            materialization_flow,
+            stream_states=True,
+            stream_logs=True,
+            raise_final_state=True,
+        )
+        wait_for_materialization.max_retries = (
+            constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
+        )
+        wait_for_materialization.retry_delay = timedelta(
+            seconds=constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=target,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_materialization],
+            )
+
+br_me_caged_microdados_movimentacao_fora_prazo.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
+br_me_caged_microdados_movimentacao_fora_prazo.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
