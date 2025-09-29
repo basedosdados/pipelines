@@ -4,8 +4,8 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
+from pipelines.crawler.datasus.flows import flow_sinan
 from pipelines.datasets.br_ms_sinan.schedules import everyday_sinan_microdados
-from pipelines.utils.crawler_datasus.flows import flow_sinan
 
 # Pipeline Sinan
 br_ms_sinan__microdados_dengue = deepcopy(flow_sinan)

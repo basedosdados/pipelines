@@ -25,6 +25,7 @@ import requests
 from google.cloud import storage
 from google.cloud.storage.blob import Blob
 from google.oauth2 import service_account
+from prefect.backend import FlowRunView
 from prefect.client import Client
 from prefect.engine.state import State
 from prefect.run_configs import KubernetesRun, VertexRun
@@ -105,6 +106,34 @@ def set_default_parameters(
         if parameter.name in default_parameters:
             parameter.default = default_parameters[parameter.name]
     return flow
+
+
+def is_running_in_prod() -> bool:
+    """
+    Determines if the current Prefect flow is running in the production environment.
+
+    Returns:
+      bool: True if the flow is running with the "basedosdados" label, indicating production; False otherwise.
+
+    Notes:
+      - Relies on Prefect's context to obtain the current flow run ID.
+      - Uses FlowRunView to retrieve labels associated with the flow run.
+    """
+    flow_run_id = prefect.context.get("flow_run_id")
+
+    if flow_run_id is None:
+        return False
+
+    try:
+        labels = FlowRunView.from_flow_run_id(flow_run_id).labels
+    except ValueError:
+        return False
+
+    for label in labels:
+        if label.strip() == constants.BASEDOSDADOS_PROD_AGENT_LABEL.value:
+            return True
+
+    return False
 
 
 def run_local(flow: prefect.Flow, parameters: dict[str, Any] | None = None):
@@ -195,8 +224,12 @@ def notify_discord_on_failure(
     code_owners: list[str] | None = None,
 ):
     """
-    Notifies a Discord channel when a flow fails.
+    Notifies a Discord channel when a flow fails in prod only.
     """
+
+    if not is_running_in_prod():
+        return None
+
     url = get_vault_secret(secret_path)["data"]["url"]
     flow_run_id = prefect.context.get("flow_run_id")
     labels = prefect.context.config.cloud.agent.labels
@@ -225,7 +258,7 @@ def notify_discord_on_failure(
         + f'\n  - State message: *"{state.message}"*'
         + "\n  - Link to the failed flow: "
         + f"https://prefect.basedosdados.org/flow-run/{flow_run_id}"
-        + "\n  - Use this link to document pipeline errors:  https://forms.gle/uhyuHGDahpkgfsXs8"
+        + f"\n  - Open an issue on GitHub: [new issue](<https://github.com/basedosdados/pipelines/issues/new?template=bug-report.yml&title=[bug]%20{flow.name} flow failed>)"
         + "\n  - Extra attention:\n"
         + "".join(at_code_owners)
     )
@@ -243,6 +276,9 @@ def notify_discord(
     """
     Notifies a Discord channel.
     """
+    if not is_running_in_prod():
+        return None
+
     url = get_vault_secret(secret_path)["data"]["url"]
     code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
     code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value

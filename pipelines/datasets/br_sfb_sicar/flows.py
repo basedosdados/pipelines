@@ -2,12 +2,11 @@
 Flows for br_sfb_sicar
 """
 
-from datetime import timedelta
+# pylint: disable=invalid-name
 
 from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_sfb_sicar.constants import (
@@ -21,18 +20,15 @@ from pipelines.datasets.br_sfb_sicar.tasks import (
     get_each_uf_release_date,
     unzip_to_parquet,
 )
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import (
-    constants as dump_db_constants,
-)
 from pipelines.utils.metadata.tasks import (
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    get_current_flow_labels,
+    download_data_to_gcs,
     rename_current_flow_run_dataset_table,
+    run_dbt,
 )
 
 INPUTPATH = Constants.INPUT_PATH.value
@@ -90,34 +86,20 @@ with Flow(
     )
 
     with case(materialize_after_dump, True):
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-                "dbt_command": "run/test",
-                "disable_elementary": False,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            target=target,
+            dbt_alias=dbt_alias,
+            dbt_command="run/test",
+            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        wait_for_dowload_data_to_gcs = download_data_to_gcs(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            upstream_tasks=[wait_for_materialization],
         )
 
         with case(update_metadata, True):
@@ -132,7 +114,7 @@ with Flow(
                 time_delta={"months": 6},
                 prefect_mode=target,
                 bq_project="basedosdados",
-                upstream_tasks=[wait_for_materialization],
+                upstream_tasks=[wait_for_dowload_data_to_gcs],
             )
 
 

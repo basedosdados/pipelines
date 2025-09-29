@@ -8,6 +8,7 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
+from pipelines.crawler.datasus.flows import flow_cnes
 from pipelines.datasets.br_ms_cnes.schedules import (
     schedule_br_ms_cnes_dados_complementares,
     schedule_br_ms_cnes_equipamento,
@@ -18,9 +19,9 @@ from pipelines.datasets.br_ms_cnes.schedules import (
     schedule_br_ms_cnes_habilitacao,
     schedule_br_ms_cnes_incentivos,
     schedule_br_ms_cnes_leito,
+    schedule_br_ms_cnes_profissional,
     schedule_br_ms_cnes_servico_especializado,
 )
-from pipelines.utils.crawler_datasus.flows import flow_cnes
 
 br_ms_cnes_profissional = deepcopy(flow_cnes)
 br_ms_cnes_profissional.name = "br_ms_cnes.profissional"
@@ -29,7 +30,7 @@ br_ms_cnes_profissional.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ms_cnes_profissional.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_ms_cnes_profissional.schedule = schedule_br_ms_cnes_profissional
+br_ms_cnes_profissional.schedule = schedule_br_ms_cnes_profissional
 
 br_ms_cnes_estabelecimento = deepcopy(flow_cnes)
 br_ms_cnes_estabelecimento.name = "br_ms_cnes.estabelecimento"

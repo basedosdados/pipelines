@@ -3,6 +3,7 @@ Constant values for the datasets projects
 """
 
 from enum import Enum
+from pathlib import Path
 
 
 class constants(Enum):
@@ -23,23 +24,11 @@ class constants(Enum):
         "outubro": 10,
         "novembro": 11,
         "dezembro": 12,
-        # some months have capital letters deppending on the year
-        "Janeiro": 1,
-        "Fevereiro": 2,
-        "Marco": 3,
-        "Abril": 4,
-        "Maio": 5,
-        "Junho": 6,
-        "Julho": 7,
-        "Agosto": 8,
-        "Setembro": 9,
-        "Outubro": 10,
-        "Novembro": 11,
-        "Dezembro": 12,
     }
 
-    DATASET = "br_denatran_frota"
+    MONTHS_SHORT = {month[:3]: number for month, number in MONTHS.items()}
 
+    DATASET = "br_denatran_frota"
     HEADERS = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36"
     }
@@ -93,15 +82,19 @@ class constants(Enum):
         ("SC", "barra do sul"): "balneario barra do sul",
     }
 
-    DOWNLOAD_PATH = f"/tmp/input/{DATASET}"
+    ## Paths
+    DOWNLOAD_PATH = Path(f"tmp/input/{DATASET}")
+    OUTPUT_PATH = Path(f"tmp/output/{DATASET}")
+    DOWNLOAD_PATH.mkdir(exist_ok=True, parents=True)
+    OUTPUT_PATH.mkdir(exist_ok=True, parents=True)
 
-    OUTPUT_PATH = f"/tmp/output/{DATASET}"
+    DOWNLOAD_FILES_PATH = Path(DOWNLOAD_PATH / "files")
+    OUTPUT_FILES_PATH = Path(OUTPUT_PATH / "files")
+    DOWNLOAD_FILES_PATH.mkdir(exist_ok=True, parents=True)
+    DOWNLOAD_FILES_PATH.mkdir(exist_ok=True, parents=True)
 
     UF_TIPO_BASIC_FILENAME = "frota_por_uf_e_tipo_de_veiculo"
-
     MUNIC_TIPO_BASIC_FILENAME = "frota_por_municipio_e_tipo"
-
-    MONTHS_SHORT = {month[:3]: number for month, number in MONTHS.items()}
 
     UF_TIPO_HEADER = [
         "Grandes Regiões e\nUnidades da Federação",

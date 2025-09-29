@@ -10,8 +10,7 @@ import requests
 from basedosdados.download.download import _google_client
 from dateutil.relativedelta import relativedelta
 
-from pipelines.constants import constants as pipeline_constants
-from pipelines.utils.constants import constants
+from pipelines.constants import constants
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.utils import (
     get_credentials_from_secret,
@@ -838,7 +837,7 @@ def update_data_source_update_date(
 
     if not django_update_raw_datasource_id:
         notify_discord(
-            secret_path=pipeline_constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
+            secret_path=constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
             message=(
                 "ATENÇÃO"
                 + f"Foi criado um metadado de 'Update' para o RawDataSource da tabela `{dataset_id}.{table_id}`\n"
@@ -890,7 +889,7 @@ def update_data_source_poll(
 
     if not django_poll_id:
         notify_discord(
-            secret_path=pipeline_constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
+            secret_path=constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
             message=(
                 "ATENÇÃO\n"
                 + f"* Foi criado um metadado de 'Poll' para o RawDataSource da tabela `{dataset_id}.{table_id}` com id: `{new_id}`\n"

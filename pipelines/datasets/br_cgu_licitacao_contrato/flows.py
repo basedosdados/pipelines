@@ -8,6 +8,7 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
+from pipelines.crawler.cgu.flows import flow_cgu_licitacao_contrato
 from pipelines.datasets.br_cgu_licitacao_contrato.schedules import (
     every_day_contrato_compra,
     every_day_contrato_item,
@@ -16,7 +17,6 @@ from pipelines.datasets.br_cgu_licitacao_contrato.schedules import (
     every_day_licitacao_item,
     every_day_licitacao_participante,
 )
-from pipelines.utils.crawler_cgu.flows import flow_cgu_licitacao_contrato
 
 # ! ------------------ Contrato Compra --------------------
 

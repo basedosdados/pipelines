@@ -111,7 +111,7 @@ def files_to_download(df):
 @task
 def crawler_ans(files):
     for file in tqdm(files):
-        urls, zips = get_url_from_template(file)
+        urls, _ = get_url_from_template(file)
 
         save_path = "/tmp/data/br_ans_beneficiario/beneficiario/input/"
         os.makedirs(save_path, exist_ok=True)

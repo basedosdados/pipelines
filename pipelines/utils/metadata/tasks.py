@@ -9,8 +9,7 @@ import basedosdados as bd
 import pandas as pd
 from prefect import task
 
-from pipelines.constants import constants as constants_root
-from pipelines.utils.constants import constants
+from pipelines.constants import constants
 from pipelines.utils.metadata.utils import (
     able_to_query_bigquery_metadata,
     check_if_values_are_accepted,
@@ -57,20 +56,20 @@ def update_django_metadata(
           Updates temporal coverage Django metadata. Version 1.3.
 
     Args:
-           dataset_id (str): O ID do conjunto de dados.
-           table_id (str): O ID da tabela dentro do conjunto de dados.
-           nome_coluna_data (dict): Um dicionário especificando os nomes das colunas usadas para extrair a cobertura temporal.
-               Chaves válidas estão descritas no arquivo 'constants.py'.
-           date_format (str): O formato da data a ser atualizado no Django.
-           coverage_type (str): pode ser "part_bdpro", "all_bdpro" ou "all_free"
-           time_delta (dict): dicionário com unidade temporal e valor do delta a ser aplicado caso 'part_bdpro'
-           prefect_mode (str): colocar o materialization_mode do flow
-           api_mode (str): pode ser 'prod ou 'staging'
-           bq_project (str): projeto que será consultado para obter a cobertura temporal
-           historical_database (bool): marcar como False para casos em que a base nao possua uma coluna que represente a data de cobertura
+          dataset_id (str): O ID do conjunto de dados.
+          table_id (str): O ID da tabela dentro do conjunto de dados.
+          nome_coluna_data (dict): Um dicionário especificando os nomes das colunas usadas para extrair a cobertura temporal.
+              Chaves válidas estão descritas no arquivo 'constants.py'.
+          date_format (str): O formato da data a ser atualizado no Django.
+          coverage_type (str): pode ser "part_bdpro", "all_bdpro" ou "all_free"
+          time_delta (dict): dicionário com unidade temporal e valor do delta a ser aplicado caso 'part_bdpro'
+          prefect_mode (str): colocar o materialization_mode do flow
+          api_mode (str): pode ser 'prod ou 'staging'
+          bq_project (str): projeto que será consultado para obter a cobertura temporal
+          historical_database (bool): marcar como False para casos em que a base nao possua uma coluna que represente a data de cobertura
 
-       Returns:
-           -   None
+      Returns:
+          -   None
 
           Raises:
               -   Exception: If the  coverage_type, time_delta or date_column_name is not supported.
@@ -191,8 +190,8 @@ def update_django_metadata(
 
 
 @task(
-    max_retries=constants_root.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants_root.TASK_RETRY_DELAY.value),
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def check_if_data_is_outdated(
     dataset_id: str,

@@ -16,7 +16,7 @@ from google.analytics.data_v1beta.types import (
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
 
-from pipelines.utils.constants import constants
+from pipelines.constants import constants
 
 
 def create_headers(bearer_token: str) -> dict:

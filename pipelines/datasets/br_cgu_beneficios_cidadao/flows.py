@@ -4,12 +4,12 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
+from pipelines.crawler.cgu.flows import flow_cgu_beneficios_cidadao
 from pipelines.datasets.br_cgu_beneficios_cidadao.schedules import (
     every_day_bolsa_familia,
     every_day_bpc,
     every_day_garantia_safra,
 )
-from pipelines.utils.crawler_cgu.flows import flow_cgu_beneficios_cidadao
 
 # ! - > Flow: br_cgu_beneficios_cidadao__novo_bolsa_familia
 br_cgu_beneficios_cidadao_bolsa_familia = deepcopy(flow_cgu_beneficios_cidadao)

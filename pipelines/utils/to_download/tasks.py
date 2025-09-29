@@ -12,7 +12,7 @@ from pipelines.utils.utils import log
 
 
 @task
-def to_download(
+def download_async(
     url: list[str],
     save_path: str,
     file_type: str,

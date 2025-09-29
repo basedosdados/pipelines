@@ -172,8 +172,6 @@ select = [
 ignore = [
   # line-to-long
   "E501",
-  # pandas-df-variable-name (deprecated)
-  "PD901",
   # invalid-class-name
   "N801",
   # mutable-class-default

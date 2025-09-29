@@ -8,7 +8,7 @@ from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.to_download.tasks import to_download
+from pipelines.utils.to_download.tasks import download_async
 
 with Flow(
     name="test_to_download_task",
@@ -31,7 +31,7 @@ with Flow(
         required=False,
     )
     file_type = Parameter("file_type", default="zip", required=False)
-    to_download(url, save_path, file_type)
+    download_async(url, save_path, file_type)
 
 utils_to_download_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 utils_to_download_flow.run_config = KubernetesRun(

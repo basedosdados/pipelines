@@ -78,7 +78,7 @@ def get_id(input_string, dictionary):
 
     Returns:
         Any: The value associated with the key that has the closest Levenshtein distance to the input string.
-             Returns None if the input_string is not a string, the dictionary is empty, or no match is found.
+            Returns None if the input_string is not a string, the dictionary is empty, or no match is found.
     """
     if input_string is None:
         return None

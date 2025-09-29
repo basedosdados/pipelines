@@ -6,6 +6,7 @@ import difflib
 import os
 import re
 from enum import Enum
+from pathlib import Path
 from urllib.request import urlopen
 from zipfile import ZipFile
 
@@ -20,18 +21,10 @@ from rarfile import RarFile
 from rpy2.robjects.vectors import StrVector
 from string_utils import asciify
 
-from pipelines.datasets.br_denatran_frota.constants import constants
+from pipelines.datasets.br_denatran_frota.constants import (
+    constants as denatran_constants,
+)
 from pipelines.utils.utils import log
-
-DICT_UFS = constants.DICT_UFS.value
-SUBSTITUTIONS = constants.SUBSTITUTIONS.value
-HEADERS = constants.HEADERS.value
-MONTHS = constants.MONTHS.value
-UF_TIPO_BASIC_FILENAME = constants.UF_TIPO_BASIC_FILENAME.value
-MONTHS_SHORT = constants.MONTHS_SHORT.value
-MUNIC_TIPO_BASIC_FILENAME = constants.MUNIC_TIPO_BASIC_FILENAME.value
-UF_TIPO_HEADER = constants.UF_TIPO_HEADER.value
-MUNICIPIO_TIPO_HEADER = constants.MUNICIPIO_TIPO_HEADER.value
 
 
 class DenatranType(Enum):
@@ -57,9 +50,9 @@ def guess_header(
     """
     possible_headers = []
     if type_of_file == DenatranType.UF:
-        expected_header = UF_TIPO_HEADER
+        expected_header = denatran_constants.UF_TIPO_HEADER.value
     elif type_of_file == DenatranType.Municipio:
-        expected_header = MUNICIPIO_TIPO_HEADER
+        expected_header = denatran_constants.MUNICIPIO_TIPO_HEADER.value
     else:
         raise ValueError("Unrecognized type of dataframe.")
     current_header = [c for c in df.columns]
@@ -147,7 +140,8 @@ def get_year_month_from_filename(filename: str) -> tuple[int, int]:
 
 
 def verify_total(df: pl.DataFrame) -> pl.DataFrame:
-    """Verify that we can pivot from wide to long.
+    """
+    Verify that we can pivot from wide to long.
 
     Essentially, gets a Wide dataframe, excludes all string columns and the TOTAL column and sums it all row wise.
     Some historical data from Denatran seems to have a rounding error.
@@ -201,7 +195,8 @@ def verify_total(df: pl.DataFrame) -> pl.DataFrame:
 def clean_dirty_data(
     df: pl.DataFrame, column_name: str = "QUADRICICLO"
 ) -> pl.DataFrame:
-    """Divide the column_name column by 10 when the data is dirty.
+    """
+    Divide the column_name column by 10 when the data is dirty.
 
     Args:
         df (pl.DataFrame): Denatran data to be cleaned
@@ -215,7 +210,8 @@ def clean_dirty_data(
 
 
 def fix_suggested_nome_ibge(row: tuple[str, ...]) -> str:
-    """Get a row from a dataframe and applies the SUBSTITUTIONS constant ruleset where applicable.
+    """
+    Get a row from a dataframe and applies the SUBSTITUTIONS constant ruleset where applicable.
 
     This fixes the dataframe to have the names of municipalities according to IBGE.
     The fixes are necessary because match_ibge() will fail where the DENATRAN data has typos in city names.
@@ -232,8 +228,8 @@ def fix_suggested_nome_ibge(row: tuple[str, ...]) -> str:
     key = (row[0], row[1])
     if (not isinstance(row[0], str)) or (not isinstance(row[1], str)):
         raise ValueError("This is not a valid key to be checked.")
-    if key in SUBSTITUTIONS:
-        return SUBSTITUTIONS[key]
+    if key in denatran_constants.SUBSTITUTIONS.value:
+        return denatran_constants.SUBSTITUTIONS.value[key]
     else:
         return row[-1]
 
@@ -241,7 +237,8 @@ def fix_suggested_nome_ibge(row: tuple[str, ...]) -> str:
 def verify_match_ibge(
     denatran_uf: pl.DataFrame, ibge_uf: pl.DataFrame
 ) -> None:
-    """Take a dataframe of the Denatran data and an IBGE dataframe of municipalities.
+    """
+    Take a dataframe of the Denatran data and an IBGE dataframe of municipalities.
 
     Joins them using the IBGE name of both. The IBGE name of denatran_uf is ideally filled via get_city_name().
     This verifies if there are any municipalities in denatran_uf that have no corresponding municipality in the IBGE database.
@@ -270,7 +267,8 @@ def verify_match_ibge(
 
 
 def get_city_name_ibge(denatran_name: str, ibge_uf: pl.DataFrame) -> str:
-    """Get the closest match to the denatran name of the municipality in the IBGE dataframe of the same state.
+    """
+    Get the closest match to the denatran name of the municipality in the IBGE dataframe of the same state.
 
     This ibge_uf dataframe is pulled directly from Base dos Dados to ensure correctness.
     Returns either the match or an empty string in case no match is found.
@@ -292,7 +290,8 @@ def get_city_name_ibge(denatran_name: str, ibge_uf: pl.DataFrame) -> str:
 
 
 def download_file(url: str, filename: str) -> None:
-    """Download a file from a url using a simple open + get request.
+    """
+    Download a file from a url using a simple open + get request.
 
     Only necessary because some problematic URLs report a 404 despite the files being there.
 
@@ -303,7 +302,9 @@ def download_file(url: str, filename: str) -> None:
     # Send a GET request to the URL
 
     new_url = url.replace("arquivos-denatran", "arquivos-senatran")
-    response = requests.get(new_url, headers=HEADERS)
+    log(new_url)
+    response = requests.get(new_url, headers=denatran_constants.HEADERS.value)
+    response.raise_for_status()
     # Save the contents of the response to a file
     with open(filename, "wb") as f:
         f.write(response.content)
@@ -311,8 +312,28 @@ def download_file(url: str, filename: str) -> None:
     print(f"Download of {filename} complete")
 
 
+def verify_file(
+    url: str,
+) -> bool:
+    """
+    Task to verify if a file from a url exists.
+
+    Only necessary because some problematic URLs report a 404 despite the files being there.
+
+    Args:
+        url (str): URL where the desired file is located.
+    """
+    # Send a GET request to the URL
+    log(f"Verify {url}")
+    new_url = url.replace("arquivos-denatran", "arquivos-senatran")
+    log(new_url)
+    response = requests.get(new_url, headers=denatran_constants.HEADERS.value)
+    return response.status_code == 200
+
+
 def generic_extractor(dest_path_file: str):
-    """Extract the desired DENATRAN compressed files from .rar or .zip file.
+    """
+    Extracts the desired DENATRAN compressed files from .rar or .zip file.
 
     Args:
         dest_path_file (str): Filepath of the compressed file whose contents should be extracted.
@@ -345,82 +366,111 @@ def generic_extractor(dest_path_file: str):
                 os.rename(f"{directory}/{file.filename}", new_filename)
 
 
-def make_filename(i: dict, ext: bool = True) -> str:
+def make_file_path(file_info: dict, ext: bool = True) -> str:
     """Create the filename using the sent dictionary.
 
     Args:
-        i (dict): Dictionary with all the file's info.
-        ext (bool, optional): Specifies if the generated file name needs the filetype at the end. Defaults to True.
+        file_info (dict): Dictionary with all the file's info.
+        ext (bool, optional): Specifies if the generated file name needs the file
+            extension at the end. Defaults to True.
 
     Returns:
         str: The full filename.
     """
-    txt = asciify(i["txt"])
-    mes = i["mes"]
-    ano = i["ano"]
-    if ano == 2013:
-        # Need to treat this specific difference because name is misleading. This should solve
-        txt = txt.replace("tipo", "uf e tipo")
-        txt = txt.replace("Municipio", "municipio e tipo")
-    directory = i["destination_dir"]
-    filetype = i["filetype"]
-    filename = re.sub("\\s+", "_", txt, flags=re.UNICODE).lower()
-    filename = f"{directory}/{filename}_{mes}-{ano}"
-    if ext:
-        filename += f".{filetype}"
-    return filename
+    if "ano" in file_info:
+        year = int(file_info["ano"])
+        ## Make file path post 2012
+        if year > 2012:
+            raw_file_name = asciify(file_info["raw_file_name"])
+            if year == 2013:
+                # Need to treat this specific difference because name is misleading. This should solve
+                raw_file_name = raw_file_name.replace(
+                    "tipo", "uf e tipo"
+                ).replace("Municipio", "municipio e tipo")
+            file_name = re.sub(
+                "\\s+", "_", raw_file_name, flags=re.UNICODE
+            ).lower()
+            file_path = (
+                file_info["destination_dir"]
+                + f"/{file_name}"
+                + f"_{file_info['mes']}"
+                + f"-{year}"
+            )
+            if ext:
+                file_path += f".{file_info['file_extension']}"
+            print(f"FILEPATH:{file_path}")
+            return file_path
+
+        ## Make file path pre 2012
+        else:
+            if file_info["type_of_file"] == DenatranType.UF:
+                raw_filename = denatran_constants.UF_TIPO_BASIC_FILENAME.value
+                if year > 2005:
+                    regex_to_search = r"UF\s+([^\s\d]+\s*)*([12]\d{3})"
+                else:
+                    regex_to_search = (
+                        rf"UF[_\s]?([^\s\d]+\s*)_{str(year)[2:4]}"
+                    )
+            elif file_info["type_of_file"] == DenatranType.Municipio:
+                raw_filename = (
+                    denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value
+                )
+                if year > 2003:
+                    regex_to_search = rf"Munic\.?\s*(.*?)\s*\.?{year}"
+                else:
+                    regex_to_search = rf"Mun\w*_(.*?)_{str(year)[2:4]}"
+            else:
+                print(file_info)
+                raise ValueError
+            match = re.search(regex_to_search, file_info["raw_file_name"])
+
+            if match:
+                if (year == 2004 or year == 2005) and file_info[
+                    "type_of_file"
+                ] == DenatranType.Municipio:
+                    month_value = int(match.group(1))
+                else:
+                    month_in_file = match.group(1).lower().replace(".", "")
+                    month_value = denatran_constants.MONTHS.value.get(
+                        str(month_in_file).lower()
+                    ) or denatran_constants.MONTHS_SHORT.value.get(
+                        str(month_in_file).lower()
+                    )
+                if file_info["file_extension"] == "":
+                    extension = str(file_info["raw_file_name"]).split(".")[-1]
+                else:
+                    extension = file_info["file_extension"]
+                breakpoint()
+                file_path = (
+                    file_info["destination_dir"]
+                    + f"/{raw_filename}_{month_value}-{year}.{extension}"
+                )
+                if month_value == int(file_info["mes"]):
+                    print(f"FILEPATH:{file_path}")
+                    return file_path
 
 
-def call_downloader(i: dict):
-    """Call other download functions in the correct order according to filetype.
+def call_downloader(file_info: dict):
+    """
+    Call other download functions in the correct order according to file extension.
 
     Args:
-        i (dict): Dictionary with the file's information.
+        file_info (dict): Dictionary with the file's information.
     """
-    filename = make_filename(i)
-    if i["filetype"] in ["xlsx", "xls"]:
-        download_file(i["href"], filename)
-    elif i["filetype"] == "zip" or i["filetype"] == "rar":
-        download_file(i["href"], filename)
-        generic_extractor(filename)
-
-
-def make_filename_pre_2012(
-    type_of_file: str, year: int, filename: str, year_dir_name: str, month: int
-):
-    if type_of_file == DenatranType.UF:
-        basic_filename = UF_TIPO_BASIC_FILENAME
-        if year > 2005:
-            regex_to_search = r"UF\s+([^\s\d]+\s*)*([12]\d{3})"
-        else:
-            regex_to_search = rf"UF[_\s]?([^\s\d]+\s*)_{str(year)[2:4]}"
-    elif type_of_file == DenatranType.Municipio:
-        basic_filename = MUNIC_TIPO_BASIC_FILENAME
-        if year > 2003:
-            regex_to_search = rf"Munic\.?\s*(.*?)\s*\.?{year}"
-        else:
-            regex_to_search = rf"Mun\w*_(.*?)_{str(year)[2:4]}"
-    else:
-        raise ValueError
-    match = re.search(regex_to_search, filename)
-    if match:
-        if (
-            year == 2004 or year == 2005
-        ) and type_of_file == DenatranType.Municipio:
-            month_value = int(match.group(1))
-        else:
-            month_in_file = match.group(1).lower().replace(".", "")
-            month_value = MONTHS.get(month_in_file) or MONTHS_SHORT.get(
-                month_in_file
-            )
-        extension = filename.split(".")[-1]
-        new_filename = f"{year_dir_name}/{basic_filename}_{month_value}-{year}.{extension}"
-        if month_value == month:
-            return new_filename
+    file_path = make_file_path(file_info)
+    log(f"File path: {file_path}")
+    if file_info["file_extension"] in ["xlsx", "xls"]:
+        download_file(file_info["file_url"], file_path)
+    elif (
+        file_info["file_extension"] == "zip"
+        or file_info["file_extension"] == "rar"
+    ):
+        download_file(file_info["file_url"], file_path)
+        generic_extractor(file_path)
 
 
 def extract_links_post_2012(
-    month: int, year: int, directory: str
+    month: int, year: int, directory: str | Path
 ) -> list[dict]:
     """Extract links of the Denatran files post 2012.
 
@@ -430,47 +480,76 @@ def extract_links_post_2012(
     """
     url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}"
     soup = BeautifulSoup(urlopen(url), "html.parser")
-    # Só queremos os dados de frota nacional.
-    nodes = soup.select("p:contains('rota por ') > a")
 
+    ## First level of html elements
+    # Searching for html elements with text 'frota'
+    parent_nodes = soup.select("p:contains('rota')")
     valid_links = []
-    for node in nodes:
-        txt = node.text
-        href = node.get("href")
-        # Pega a parte relevante do arquivo em questão.
-        match = re.search(
-            r"(?i)\/([\w-]+)\/(\d{4})\/(\w+)\/([\w-]+)\.(?:xls|xlsx|rar|zip)$",
-            href,
+    i = 0
+    while i < len(parent_nodes):
+        matched_year = None
+        matched_month = None
+        parent_txt = parent_nodes[i].text
+
+        # Parent node text contains month and year info
+        parent_match = re.search(
+            r"(?i)\(([\w]+)(?:\s\w*\s*)(\d{4})\)", parent_txt
         )
+        if parent_match:
+            matched_month = parent_match.group(1)
+            matched_year = parent_match.group(2)
+            i += 1
 
-        if match and re.search("tipo|município", txt, flags=re.IGNORECASE):
-            matched_month = match.group(3)
-            matched_year = match.group(2)
-            if MONTHS.get(matched_month) == month and matched_year == str(
-                year
-            ):
-                filetype = match.group(0).split(".")[-1].lower()
+            if i >= len(parent_nodes):
+                break
 
-                info = {
-                    "txt": txt,
-                    "href": href,
-                    "mes_name": matched_month,
-                    "mes": month,
-                    "ano": year,
-                    "filetype": filetype,
-                    "destination_dir": directory,
-                }
-
-                valid_links.append(info)
-
+            ## Second level of html elements
+            for child_node in parent_nodes[i].select("a"):
+                txt = child_node.text
+                file_url = child_node.get("href")
+                match = re.search(
+                    r"(?i)([\w\-\d\/]+)\.(xls|xlsx|rar|zip)$",
+                    file_url,
+                )
+                # 'Municipio' type of file contains 'município' in its html element's text
+                search_municipio = re.search(
+                    "município", txt, flags=re.IGNORECASE
+                )
+                # 'UF' type of file contains 'UF' or 'tipo' in its html element's text
+                search_uf = re.search("tipo|uf", txt, flags=re.IGNORECASE)
+                if (
+                    match
+                    and (search_uf or search_municipio)
+                    and denatran_constants.MONTHS.value.get(
+                        str(matched_month).lower()
+                    )
+                    == int(month)
+                    and matched_year == str(year)
+                ):
+                    # All file metadata aggregated at the info dict
+                    info = {
+                        "raw_file_name": txt,
+                        "file_url": file_url,
+                        "mes": month,
+                        "ano": year,
+                        "file_extension": match.group(2).lower(),
+                        "type_of_file": DenatranType.Municipio
+                        if search_municipio
+                        else DenatranType.UF,
+                        "destination_dir": str(directory),
+                    }
+                    valid_links.append(info)
+            i += 1
+        else:
+            i += 1
+    log(f"There are {len(valid_links)} valid links.")
     return valid_links
 
 
 def extraction_pre_2012(
     month: int, year: int, year_dir_name: str, zip_file: str
 ):
-    """_summary_
-
+    """
     Args:
         month (int): _description_
         year (int): _description_
@@ -482,38 +561,36 @@ def extraction_pre_2012(
         return
     with ZipFile(zip_file, "r") as g:
         compressed_files = [file for file in g.infolist() if not file.is_dir()]
+        for _, file in enumerate(compressed_files):
+            file_path = None
+            split_file_name = file.filename.split("/")[-1]
+            split_file_name = split_file_name.split(".")
+            raw_file_name = ".".join([split for split in split_file_name[:-1]])
+            file_info = {
+                "raw_file_name": raw_file_name,
+                "file_url": None,
+                "mes": month,
+                "ano": year,
+                "file_extension": split_file_name[-1],
+                "type_of_file": "",
+                "destination_dir": str(year_dir_name),
+            }
 
-        for file in compressed_files:
-            new_filename = None
-            filename = file.filename.split("/")[-1]
-            if re.search("Tipo", filename, re.IGNORECASE) or re.search(
+            if re.search("Tipo", raw_file_name, re.IGNORECASE) or re.search(
                 r"Tipo[-\s]UF", zip_file.split("/")[-1]
             ):
-                new_filename = make_filename_pre_2012(
-                    DenatranType.UF, year, filename, year_dir_name, month
-                )
-            elif re.search(r"Mun\w*", filename, re.IGNORECASE):
-                new_filename = make_filename_pre_2012(
-                    DenatranType.Municipio,
-                    year,
-                    filename,
-                    year_dir_name,
-                    month,
-                )
-            if new_filename:
+                file_info["type_of_file"] = DenatranType.UF
+            elif re.search(r"Mun\w*", raw_file_name, re.IGNORECASE):
+                file_info["type_of_file"] = DenatranType.Municipio
+
+            try:
+                file_path = make_file_path(file_info=file_info, ext=True)
+            except Exception as e:
+                print(e)
+            if file_path:
+                print(file_path)
                 g.extract(file, path=year_dir_name)
-                os.rename(f"{year_dir_name}/{file.filename}", new_filename)
-
-
-def make_dir_when_not_exists(dir_name: str) -> None:
-    """Auxiliary function to create a subdirectory when it is not present.
-
-    Args:
-        dir_name (str): Name of the subdirectory to be created.
-    """
-    if not os.path.exists(dir_name):
-        os.makedirs(dir_name)
-    return None
+                os.rename(f"{year_dir_name}/{file.filename}", file_path)
 
 
 def call_r_to_read_excel(file: str) -> pd.DataFrame:

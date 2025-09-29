@@ -10,8 +10,8 @@ from google.cloud import storage
 from prefect import task
 from tqdm import tqdm
 
+from pipelines.constants import constants
 from pipelines.datasets.cross_update.utils import find_closed_tables, save_file
-from pipelines.utils.constants import constants
 from pipelines.utils.utils import log
 
 

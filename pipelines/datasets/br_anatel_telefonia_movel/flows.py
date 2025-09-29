@@ -8,14 +8,14 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
+from pipelines.crawler.anatel.telefonia_movel.flows import (
+    flow_anatel_telefonia_movel,
+)
 from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
     schedule_br_anatel_telefonia_movel__brasil,
     schedule_br_anatel_telefonia_movel__microdados,
     schedule_br_anatel_telefonia_movel__municipio,
     schedule_br_anatel_telefonia_movel__uf,
-)
-from pipelines.utils.crawler_anatel.telefonia_movel.flows import (
-    flow_anatel_telefonia_movel,
 )
 
 # -------------------------------> Microdados

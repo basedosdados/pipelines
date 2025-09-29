@@ -7,8 +7,9 @@ import json
 
 import aiohttp
 import pandas as pd
+from basedosdados import Backend
 
-from pipelines.utils.constants import constants
+from pipelines.constants import constants
 from pipelines.utils.metadata.utils import (
     get_credentials_utils,
     get_id,
@@ -61,6 +62,8 @@ async def create_update_async(
         api_mode=api_mode,
     )
 
+    backend = Backend(constants.API_URL.value[api_mode])
+
     header = {
         "Authorization": f"Bearer {token}",
     }
@@ -68,10 +71,7 @@ async def create_update_async(
     r, id = get_id(
         query_class=query_class,
         query_parameters=query_parameters,
-        email=email,
-        password=password,
-        cloud_table=False,
-        api_mode=api_mode,
+        backend=backend,
     )
     if id is not None:
         r["r"] = "query"
@@ -173,28 +173,25 @@ async def create_quality_check_async(
     Raises:
     - ValueError: If the table ID is not found.
     """
-    table_result, id = get_id(
-        email=email,
-        password=password,
+
+    backend = Backend(constants.API_URL.value[api_mode])
+
+    _, id = get_id(
         query_class="allCloudtable",
         query_parameters={
             "$gcpDatasetId: String": dataset_id,
             "$gcpTableId: String": table_id,
         },
-        cloud_table=True,
-        api_mode=api_mode,
+        backend=backend,
     )
 
-    quality_check, quality_check_id = get_id(
-        email=email,
-        password=password,
+    _, quality_check_id = get_id(
         query_class="allQualitycheck",
         query_parameters={
             "$name: String": name,
             "$table_Id: ID": id,
         },
-        cloud_table=False,
-        api_mode=api_mode,
+        backend=backend,
     )
 
     if not id:

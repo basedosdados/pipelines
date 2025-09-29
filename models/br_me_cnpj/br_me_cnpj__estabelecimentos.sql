@@ -7,12 +7,15 @@
             "field": "data",
             "data_type": "date",
         },
+        cluster_by=["ano", "mes"],
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
 with
     cnpj_estabelecimentos as (
         select
+            safe_cast(extract(year from date(data)) as int64) as ano,
+            safe_cast(extract(month from date(data)) as int64) as mes,
             safe_cast(data as date) data,
             safe_cast(lpad(cnpj, 14, "0") as string) cnpj,
             safe_cast(lpad(cnpj_basico, 8, '0') as string) cnpj_basico,
@@ -24,7 +27,9 @@ with
             safe_cast(nome_fantasia as string) nome_fantasia,
             safe_cast(cast(situacao_cadastral as int64) as string) situacao_cadastral,
             safe_cast(data_situacao_cadastral as date) data_situacao_cadastral,
-            safe_cast(motivo_situacao_cadastral as string) motivo_situacao_cadastral,
+            safe_cast(
+                regexp_replace(motivo_situacao_cadastral, '^0', '') as string
+            ) motivo_situacao_cadastral,
             safe_cast(nome_cidade_exterior as string) nome_cidade_exterior,
             safe_cast(cast(id_pais as int64) as string) id_pais,
             safe_cast(data_inicio_atividade as date) data_inicio_atividade,
