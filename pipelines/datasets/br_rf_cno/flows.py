@@ -152,7 +152,7 @@ with Flow(
 br_rf_cno_tables.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_rf_cno_tables.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value,
-    memory_limit="1Gi",
+    memory_limit="4Gi",
     memory_request="2Gi",
     cpu_limit=1,
 )
