@@ -2,8 +2,6 @@
 Flows for br_cvm_oferta_publica_distribuicao
 """
 
-# pylint: disable=C0103, E1123, invalid-name
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS

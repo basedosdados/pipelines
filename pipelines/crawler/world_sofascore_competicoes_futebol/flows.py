@@ -2,8 +2,6 @@
 Flows for world_sofascore_competicoes_futebol
 """
 
-# pylint: disable=invalid-name,line-too-long
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS

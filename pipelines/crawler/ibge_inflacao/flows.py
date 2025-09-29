@@ -2,8 +2,6 @@
 Flows for ibge inflacao
 """
 
-# pylint: disable=C0103, E1123, invalid-name, duplicate-code, R0801
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS

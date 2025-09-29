@@ -2,8 +2,6 @@
 Flows for br_me_comex_stat
 """
 
-# pylint: disable=invalid-name
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS

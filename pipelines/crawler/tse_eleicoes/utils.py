@@ -1,7 +1,6 @@
 """
 General purpose functions for the br_tse_eleicoes project
 """
-# pylint: disable=invalid-name,line-too-long
 
 import tempfile
 import unicodedata

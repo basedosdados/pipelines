@@ -5,7 +5,7 @@ Constants for world_sofascore_competicoes_futebol pipeline.
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constants for utils.
     """

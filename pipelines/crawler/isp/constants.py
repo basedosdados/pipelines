@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constant values for the br_isp_estatisticas_seguranca project
     """

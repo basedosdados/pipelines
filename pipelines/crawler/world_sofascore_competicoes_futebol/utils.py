@@ -1,7 +1,6 @@
 """
 General purpose functions for the world_sofascore_competicoes_futebol project
 """
-# pylint: disable=invalid-name,line-too-long
 
 import concurrent.futures
 import http.client

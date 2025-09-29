@@ -792,7 +792,6 @@ def download_data_to_gcs(
             f"Billing project ID was inferred from environment variables: {billing_project_id}"
         )
 
-    # pylint: disable=E1124
     client = _google_client(billing_project_id, from_file=True, reauth=False)
 
     bq_table_ref = TableReference.from_string(

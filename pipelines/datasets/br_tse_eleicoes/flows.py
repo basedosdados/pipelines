@@ -2,7 +2,6 @@
 Flows for br_tse_eleicoes
 """
 
-# pylint: disable=invalid-name,line-too-long
 from copy import deepcopy
 
 from prefect.run_configs import KubernetesRun

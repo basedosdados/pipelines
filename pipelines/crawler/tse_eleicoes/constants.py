@@ -5,7 +5,7 @@ Constants for br_tse_eleicoes pipeline.
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constants for utils.
     """

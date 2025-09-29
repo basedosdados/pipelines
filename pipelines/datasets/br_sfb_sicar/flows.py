@@ -2,8 +2,6 @@
 Flows for br_sfb_sicar
 """
 
-# pylint: disable=invalid-name
-
 from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
