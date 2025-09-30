@@ -14,7 +14,9 @@ select
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(id_categoria as string) id_categoria,
     safe_cast(categoria as string) categoria,
-    safe_cast(peso_mensal as float64) peso_mensal,
+    case
+        when peso_mensal = "..." then null else safe_cast(peso_mensal as float64)
+    end as peso_mensal,
     safe_cast(variacao_mensal as float64) variacao_mensal,
     safe_cast(variacao_anual as float64) variacao_anual,
     safe_cast(variacao_doze_meses as float64) variacao_doze_meses

@@ -9,12 +9,28 @@
 select
     safe_cast(ano as int64) ano,
     safe_cast(mes as int64) mes,
-    safe_cast(indice as float64) indice,
-    safe_cast(variacao_mensal as float64) variacao_mensal,
-    safe_cast(variacao_trimestral as float64) variacao_trimestral,
-    safe_cast(variacao_semestral as float64) variacao_semestral,
-    safe_cast(variacao_anual as float64) variacao_anual,
-    safe_cast(variacao_doze_meses as float64) variacao_doze_meses
+    case when indice = "..." then 0 else safe_cast(indice as float64) end as indice,
+    case
+        when variacao_mensal = "..." then 0 else safe_cast(variacao_mensal as float64)
+    end as variacao_mensal,
+    case
+        when variacao_trimestral = "..."
+        then 0
+        else safe_cast(variacao_trimestral as float64)
+    end as variacao_trimestral,
+    case
+        when variacao_semestral = "..."
+        then 0
+        else safe_cast(variacao_semestral as float64)
+    end as variacao_semestral,
+    case
+        when variacao_anual = "..." then 0 else safe_cast(variacao_anual as float64)
+    end as variacao_anual,
+    case
+        when variacao_doze_meses = "..."
+        then 0
+        else safe_cast(variacao_doze_meses as float64)
+    end as variacao_doze_meses
 from
     {{ set_datalake_project("br_ibge_ipca_staging.mes_brasil") }}
 
