@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 
 import basedosdados as bd
@@ -91,7 +90,7 @@ br_saeb_nivel_long_fmt = (
 
 br_saeb_latest_output = (
     (
-        br_saeb_nivel_long_fmt.pivot(
+        br_saeb_nivel_long_fmt.pivot_table(
             index=["rede", "localizacao", "disciplina", "serie"],
             columns="nivel",
             values="value",
@@ -144,8 +143,6 @@ br_saeb_latest_output.head()
 
 br_saeb_latest_output.info()
 
-br_saeb_latest_output.shape
-
 tb = bd.Table(dataset_id="br_inep_saeb", table_id="brasil")
 
 bq_cols = tb._get_columns_from_bq(mode="prod")
@@ -168,15 +165,7 @@ upstream_df = bd.read_sql(
 
 assert isinstance(upstream_df, pd.DataFrame)
 
-upstream_df.shape
-
 upstream_df = drop_empty_lines(upstream_df)
-
-upstream_df.shape
-
-br_saeb_latest_output.shape
-
-drop_empty_lines(br_saeb_latest_output).shape
 
 pd.concat([br_saeb_latest_output, upstream_df]).to_csv(  # type: ignore
     os.path.join(OUTPUT, "brasil.csv"), index=False

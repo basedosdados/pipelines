@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_ibge_pnadc
 """
@@ -25,7 +24,6 @@ from pipelines.utils.tasks import (
 )
 from pipelines.utils.to_download.tasks import download_async
 
-# pylint: disable=C0103
 with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
     # Parameters
     dataset_id = Parameter(

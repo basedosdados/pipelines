@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Flows for ibge inflacao
 """
-
-# pylint: disable=C0103, E1123, invalid-name, duplicate-code, R0801
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
@@ -59,7 +56,6 @@ with Flow(
         was_downloaded = crawler(
             indice=INDICE, folder=FOLDER, upstream_tasks=[needs_to_update]
         )
-    # pylint: disable=E1123
 
     filepath = clean_mes_brasil(indice=INDICE, upstream_tasks=[was_downloaded])
 
@@ -134,7 +130,6 @@ with Flow("BD Template - IBGE Inflação: mes_rm") as flow_ibge_inflacao_mes_rm:
         was_downloaded = crawler(
             indice=INDICE, folder=FOLDER, upstream_tasks=[needs_to_update]
         )
-    # pylint: disable=E1123
 
     filepath = clean_mes_rm(indice=INDICE, upstream_tasks=[was_downloaded])
 
@@ -210,7 +205,6 @@ with Flow(
         was_downloaded = crawler(
             indice=INDICE, folder=FOLDER, upstream_tasks=[needs_to_update]
         )
-    # pylint: disable=E1123
 
     filepath = clean_mes_municipio(
         indice=INDICE, upstream_tasks=[was_downloaded]
@@ -294,7 +288,6 @@ with Flow(
         was_downloaded = crawler(
             indice=INDICE, folder=FOLDER, upstream_tasks=[needs_to_update]
         )
-    # pylint: disable=E1123
 
     filepath = clean_mes_geral(indice=INDICE, upstream_tasks=[was_downloaded])
 

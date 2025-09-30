@@ -2,7 +2,6 @@ import datetime
 import ftplib
 import re
 from pathlib import Path
-from typing import List
 
 import py7zr
 import requests
@@ -16,7 +15,7 @@ from pipelines.utils.utils import log
 
 def download_file(
     ftp: ftplib.FTP, remote_dir: str, filename: str, local_dir: str | Path
-) -> List:
+):
     """
     Downloads and extracts a .7z file from an FTP server with error handling.
 
@@ -29,7 +28,7 @@ def download_file(
     Returns:
         bool: True if file downloaded and extracted successfully, False otherwise
     """
-    CORRUPT_FILE = []
+    corrupt_file = []
     local_dir = Path(local_dir)
     local_dir.mkdir(parents=True, exist_ok=True)
     output_path = local_dir / filename
@@ -43,20 +42,20 @@ def download_file(
                 archive.extractall(path=local_dir)
 
             output_path.unlink()
-            return True, CORRUPT_FILE
+            return True, corrupt_file
 
         except py7zr.Bad7zFile as extract_error:
             log(f"Error extracting file {filename}: {extract_error}")
-            CORRUPT_FILE = {
+            corrupt_file = {
                 "filename": filename,
                 "local_path": output_path,
                 "error": str(extract_error),
             }
-            return False, CORRUPT_FILE
+            return False, corrupt_file
 
     except Exception as download_error:
         log(f"Error downloading file {filename}: {download_error}")
-        CORRUPT_FILE = {
+        corrupt_file = {
             "filename": filename,
             "local_path": output_path,
             "error": str(download_error),
@@ -70,7 +69,7 @@ def download_file(
         log(f"removendo txt corrompido {txt_output_path}")
         if txt_output_path.exists():
             txt_output_path.unlink()
-        return False, CORRUPT_FILE
+        return False, corrupt_file
 
 
 def verify_yearmonth(yearmonth: str):

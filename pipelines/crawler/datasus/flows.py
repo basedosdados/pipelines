@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_ms_cnes
 """
-# pylint: disable=invalid-name
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun

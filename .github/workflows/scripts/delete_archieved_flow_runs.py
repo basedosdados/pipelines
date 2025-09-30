@@ -1,18 +1,19 @@
-# -*- coding: utf-8 -*-
 import pandas as pd
 from prefect import Client
 
 
 def delete_flow_run(client: Client, flow: dict) -> bool:
     mutation = """
-        mutation {
-        delete_flow_run(input: {flow_run_id: "%s"}) {
+        mutation($flow_id: UUID) {
+        delete_flow_run(input: {flow_run_id: flow_id}) {
             success
         }
         }
-        """ % flow["id"]
+        """
 
-    return client.graphql(query=mutation)["data"]["delete_flow_run"]
+    return client.graphql(query=mutation, variables={"flow_id": flow["id"]})[
+        "data"
+    ]["delete_flow_run"]
 
 
 def delete_archieved_flow_runs():

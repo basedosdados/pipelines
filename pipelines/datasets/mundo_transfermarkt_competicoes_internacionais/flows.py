@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for mundo_transfermarkt_competicoes_internacionais
 """

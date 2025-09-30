@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_me_caged
 """
@@ -10,7 +9,6 @@ import ftplib
 import re
 from datetime import timedelta
 from pathlib import Path
-from typing import List, Tuple
 
 import basedosdados as bd
 import pandas as pd
@@ -37,7 +35,7 @@ from pipelines.utils.utils import log
 @task
 def build_table_paths(
     table_id: str, parent_dir: str | Path = caged_constants.DATASET_DIR.value
-) -> Tuple[Path, Path]:
+) -> tuple[Path, Path]:
     parent_dir = Path(parent_dir)
     parent_dir.mkdir(parents=True, exist_ok=True)
 
@@ -176,7 +174,7 @@ def crawl_novo_caged_ftp(
     yearmonth: str,
     table_id: str,
     ftp_host: str = caged_constants.FTP_HOST.value,
-) -> List:
+) -> list:
     """
     Downloads specified .7z files from a CAGED dataset FTP server.
 
@@ -293,7 +291,7 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
             ano = date[:4]
             mes = int(date[-2:])
             df.columns = [unidecode(col) for col in df.columns]
-            df.rename(columns=caged_constants.RENAME_DICT.value, inplace=True)
+            df = df.rename(columns=caged_constants.RENAME_DICT.value)
 
             log(f"Renaming dataframe columns to: {df.columns}")
             df["sigla_uf"] = df["sigla_uf"].map(caged_constants.UF_DICT.value)
@@ -301,10 +299,9 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
             for state in caged_constants.UF_DICT.value.values():
                 log(f"Partitioning for {state}")
                 data = df[df["sigla_uf"] == state]
-                data.drop(
+                data = data.drop(
                     caged_constants.COLUMNS_TO_DROP.value[table_id],
                     axis=1,
-                    inplace=True,
                 )
                 output_dir = (
                     Path(table_output_dir)
@@ -363,7 +360,7 @@ def update_caged_schedule(
         index += 1
 
     # Read schedule file to match table_id schedule pattern
-    with open(schedules_file, "r", encoding="utf-8") as f:
+    with open(schedules_file, encoding="utf-8") as f:
         code = f.read()
     schedule_name = f"every_month{table_id.replace('microdados', '')}"
     schedule_pattern = rf"({schedule_name}\s*=\s*Schedule\(\s*clocks\s*=\s*\[\s*IntervalClock\(\s*interval\s*=\s*timedelta\([\w=\d\,\s]+\)\,\s*start_date\s*=\s*datetime\([\w=\d\,\s]+\)\,\s*labels\s*=\s*\[\s*constants\.BASEDOSDADOS_DEV_AGENT_LABEL\.value[\,\s\)\]]+)"
