@@ -5,12 +5,21 @@ Constant values for the datasets projects
 
 # pylint: disable=invalid-name, too-many-lines
 from enum import Enum
+from pathlib import Path
 
 
 class constants(Enum):  # pylint: disable=c0103
     """
     Constants for utils.
     """
+
+    URL_PREFIX = "https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/{year}/"
+
+    TMP_DIR = Path("tmp")
+    DATASET_DIR = TMP_DIR / "br_ibge_pnadc"
+
+    TMP_DIR.mkdir(exist_ok=True, parents=True)
+    DATASET_DIR.mkdir(exist_ok=True, parents=True)
 
     COLUMNS_ORDER = [
         "id_uf",
@@ -468,7 +477,6 @@ class constants(Enum):  # pylint: disable=c0103
         "53": "DF",
     }
 
-    URL_PREFIX = "https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/{year}/"
     COLUMNS_WIDTHS = [
         4,
         1,
@@ -891,6 +899,7 @@ class constants(Enum):  # pylint: disable=c0103
         15,
         15,
     ]
+
     COLUMNS_NAMES = [
         "Ano",
         "Trimestre",

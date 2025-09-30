@@ -9,6 +9,8 @@ import os
 import zipfile
 from datetime import datetime
 from glob import glob
+from pathlib import Path
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -22,6 +24,24 @@ from pipelines.datasets.br_ibge_pnadc.constants import (
 )
 from pipelines.datasets.br_ibge_pnadc.utils import get_extraction_year
 from pipelines.utils.utils import log
+
+
+@task
+def build_table_paths(
+    table_id: str, parent_dir: str | Path = pnad_constants.DATASET_DIR.value
+) -> Tuple[Path, Path]:
+    parent_dir = Path(parent_dir)
+    parent_dir.mkdir(parents=True, exist_ok=True)
+
+    table_dir = parent_dir / table_id
+    table_dir.mkdir(exist_ok=True)
+    table_input_dir = table_dir / "input"
+    table_output_dir = table_dir / "output"
+
+    table_input_dir.mkdir(exist_ok=True)
+    table_output_dir.mkdir(exist_ok=True)
+
+    return table_input_dir, table_output_dir
 
 
 @task
@@ -57,6 +77,7 @@ def get_data_source_date_and_url() -> tuple[datetime, str]:
 
     last_modified = datetime.strptime(last_update, "%Y-%m-%d")
     url = download_page + f"{filename}"
+    log(f"LAST MODIFIED: {last_modified}\nURL: {url}")
 
     return last_modified, url
 
@@ -90,15 +111,17 @@ def download_txt(url, chunk_size=128, mkdir=False) -> str:
 
 
 @task
-def build_parquet_files(save_path: str) -> str:
+def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
     """
     Build parquets from txt original file.
     """
-    filepath = glob(f"{save_path}*.txt")[0]
-    os.system("mkdir -p /tmp/data/staging/")
-    os.system("mkdir -p /tmp/data/output/")
-    output_dir = "/tmp/data/output/"
-    # read file
+
+    filepaths = glob(f"{input_path}*.txt")
+    if len(filepaths) > 0:
+        filepath = filepaths[0]
+    else:
+        filepath = filepaths
+
     chunks = pd.read_fwf(
         filepath,
         widths=pnad_constants.COLUMNS_WIDTHS.value,
