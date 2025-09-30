@@ -61,10 +61,7 @@ with Flow(
         wait=table_id,
     )
 
-    source_last_date = get_source_last_date()
-    table_last_date = get_table_last_date(
-        dataset_id, table_id, upstream_tasks=[source_last_date]
-    )
+    source_last_date = get_source_last_date(upstream_tasks=[table_id])
 
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -74,34 +71,37 @@ with Flow(
         upstream_tasks=[source_last_date],
     )
 
-    with case(table_last_date < source_last_date, False):
+    with case(check_if_outdated, False):
         log_task(f"No updates for table {table_id}!")
 
-    with case(table_last_date < source_last_date, True):
+    with case(check_if_outdated, True):
+        table_last_date = get_table_last_date(
+            dataset_id, table_id, upstream_tasks=[check_if_outdated]
+        )
         input_dir, output_dir = build_table_paths(
             table_id, upstream_tasks=[check_if_outdated]
         )
         yearmonths = generate_yearmonth_range(
             table_last_date,
             source_last_date,
-            upstream_tasks=[check_if_outdated],
+            upstream_tasks=[table_last_date],
         )
 
-        failed_crawl = crawl_novo_caged_ftp.map(
+        failed_crawls = crawl_novo_caged_ftp.map(
             yearmonths,
             unmapped(table_id),
-            upstream_tasks=[yearmonths, input_dir],
+            upstream_tasks=[unmapped(input_dir)],
         )
 
         log_download = log_task.map(
-            f"Failed Downloads: {failed_crawl}",
-            upstream_tasks=[failed_crawl],
+            failed_crawls,
+            upstream_tasks=[failed_crawls],
         )
 
         filepath = build_partitions(
             table_id=table_id,
             table_output_dir=output_dir,
-            upstream_tasks=[log_download],
+            upstream_tasks=[failed_crawls],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -192,10 +192,7 @@ with Flow(
         wait=table_id,
     )
 
-    source_last_date = get_source_last_date()
-    table_last_date = get_table_last_date(
-        dataset_id, table_id, upstream_tasks=[source_last_date]
-    )
+    source_last_date = get_source_last_date(upstream_tasks=[table_id])
 
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -205,35 +202,37 @@ with Flow(
         upstream_tasks=[source_last_date],
     )
 
-    with case(table_last_date < source_last_date, False):
+    with case(check_if_outdated, False):
         log_task(f"No updates for table {table_id}!")
 
-    with case(table_last_date < source_last_date, True):
+    with case(check_if_outdated, True):
+        table_last_date = get_table_last_date(
+            dataset_id, table_id, upstream_tasks=[check_if_outdated]
+        )
         input_dir, output_dir = build_table_paths(
             table_id, upstream_tasks=[check_if_outdated]
         )
-
         yearmonths = generate_yearmonth_range(
             table_last_date,
             source_last_date,
-            upstream_tasks=[check_if_outdated],
+            upstream_tasks=[table_last_date],
         )
 
-        failed_crawl = crawl_novo_caged_ftp.map(
+        failed_crawls = crawl_novo_caged_ftp.map(
             yearmonths,
             unmapped(table_id),
-            upstream_tasks=[yearmonths, input_dir],
+            upstream_tasks=[unmapped(input_dir)],
         )
 
         log_download = log_task.map(
-            f"Failed Downloads: {failed_crawl}",
-            upstream_tasks=[failed_crawl],
+            failed_crawls,
+            upstream_tasks=[failed_crawls],
         )
 
         filepath = build_partitions(
             table_id=table_id,
             table_output_dir=output_dir,
-            upstream_tasks=[log_download],
+            upstream_tasks=[failed_crawls],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -244,6 +243,7 @@ with Flow(
             wait=filepath,
             upstream_tasks=[filepath],
         )
+
         update_caged_schedule(
             source_last_date, table_id, upstream_tasks=[wait_upload_table]
         )
@@ -326,10 +326,7 @@ with Flow(
         wait=table_id,
     )
 
-    source_last_date = get_source_last_date()
-    table_last_date = get_table_last_date(
-        dataset_id, table_id, upstream_tasks=[source_last_date]
-    )
+    source_last_date = get_source_last_date(upstream_tasks=[table_id])
 
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
@@ -339,34 +336,37 @@ with Flow(
         upstream_tasks=[source_last_date],
     )
 
-    with case(table_last_date < source_last_date, False):
+    with case(check_if_outdated, False):
         log_task(f"No updates for table {table_id}!")
 
-    with case(table_last_date < source_last_date, True):
+    with case(check_if_outdated, True):
+        table_last_date = get_table_last_date(
+            dataset_id, table_id, upstream_tasks=[check_if_outdated]
+        )
         input_dir, output_dir = build_table_paths(
             table_id, upstream_tasks=[check_if_outdated]
         )
         yearmonths = generate_yearmonth_range(
             table_last_date,
             source_last_date,
-            upstream_tasks=[check_if_outdated],
+            upstream_tasks=[table_last_date],
         )
 
-        failed_crawl = crawl_novo_caged_ftp.map(
+        failed_crawls = crawl_novo_caged_ftp.map(
             yearmonths,
             unmapped(table_id),
-            upstream_tasks=[yearmonths, input_dir],
+            upstream_tasks=[unmapped(input_dir)],
         )
 
         log_download = log_task.map(
-            f"Failed Downloads: {failed_crawl}",
-            upstream_tasks=[failed_crawl],
+            failed_crawls,
+            upstream_tasks=[failed_crawls],
         )
 
         filepath = build_partitions(
             table_id=table_id,
             table_output_dir=output_dir,
-            upstream_tasks=[log_download],
+            upstream_tasks=[failed_crawls],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -377,6 +377,7 @@ with Flow(
             wait=filepath,
             upstream_tasks=[filepath],
         )
+
         update_caged_schedule(
             source_last_date, table_id, upstream_tasks=[wait_upload_table]
         )

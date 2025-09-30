@@ -185,6 +185,7 @@ def crawl_novo_caged_ftp(
     Returns:
         List: Lists of unsuccessfully downloaded files
     """
+    log(f"Verificando dados do mês: {yearmonth}")
     verify_yearmonth(yearmonth)
     ftp = ftplib.FTP(ftp_host)
     ftp.login()
