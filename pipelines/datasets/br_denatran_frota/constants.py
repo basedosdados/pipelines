@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constant values for the datasets projects
 """
@@ -7,7 +6,7 @@ from enum import Enum
 from pathlib import Path
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constant values for the br_denatran_frota project
     """

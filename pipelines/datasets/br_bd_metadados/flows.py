@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_bd_metadados
 """
-
-# pylint: disable=invalid-name
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
@@ -56,7 +53,6 @@ with Flow(
 
     filepath = crawler_flow_runs()
 
-    # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -116,7 +112,6 @@ with Flow(
 
     filepath = crawler_flows()
 
-    # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,

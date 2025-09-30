@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Schedules for br_mg_belohorizonte_smfa_iptu
 """

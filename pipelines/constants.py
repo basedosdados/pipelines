@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constants for all flows
 """
@@ -6,7 +5,7 @@ Constants for all flows
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constants used in the BD flows.
     """

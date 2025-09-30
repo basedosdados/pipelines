@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-
 import datetime
 import os
 import re
 from pathlib import Path
-from typing import Tuple
 from zipfile import ZipFile
 
 import basedosdados as bd
@@ -34,7 +31,7 @@ from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 from pipelines.utils.utils import log, to_partitions
 
 
-@task()  # noqa
+@task()
 def crawl_task(
     source_max_date: datetime,
     temp_dir: str | Path = denatran_constants.DOWNLOAD_PATH.value,
@@ -112,7 +109,7 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
     )
     filename = os.path.split(file)[1]
     try:
-        correct_sheet = [
+        correct_sheet = [  # noqa: RUF015
             sheet
             for sheet in pd.ExcelFile(file).sheet_names
             if sheet != "Glossário"
@@ -126,8 +123,8 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
     )
     # This is ad hoc for UF_tipo.
 
-    new_df.rename(
-        columns={new_df.columns[0]: "sigla_uf"}, inplace=True
+    new_df = new_df.rename(
+        columns={new_df.columns[0]: "sigla_uf"}
     )  # Rename for ease of use.
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
     clean_df = new_df[new_df.sigla_uf.isin(valid_ufs)].reset_index(
@@ -135,7 +132,7 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
     )  # Now we get all the actual RELEVANT uf data.
     year, month = get_year_month_from_filename(filename)
     # If the df is all strings, try to get numbers where it makes sense.
-    clean_df.replace(" -   ", 0, inplace=True)
+    clean_df = clean_df.replace(" -   ", 0)
 
     # Create a reverse dictionary to replace uf names with uf sigla
     reverse_dict = {v: k for k, v in denatran_constants.DICT_UFS.value.items()}
@@ -245,7 +242,7 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
 
     filename = os.path.split(file)[1]
     year, month = get_year_month_from_filename(filename)
-    correct_sheet = [
+    correct_sheet = [  # noqa: RUF015
         sheet
         for sheet in pd.ExcelFile(file).sheet_names
         if sheet != "Glossário"
@@ -253,15 +250,14 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
     df = pd.read_excel(file, sheet_name=correct_sheet)
     # Some very janky historical files have an entire first empty column that will break EVERYTHING
     # This checks if they exist and drops them
-    if df[df.columns[0]].isnull().sum() == len(df):
-        df.drop(columns=df.columns[0], inplace=True)
+    if df[df.columns[0]].isna().sum() == len(df):
+        df = df.drop(columns=df.columns[0])
     new_df = change_df_header(df, guess_header(df, DenatranType.Municipio))
-    new_df.rename(
+    new_df = new_df.rename(
         columns={
             new_df.columns[0]: "sigla_uf",
             new_df.columns[1]: "nome_denatran",
         },
-        inplace=True,
     )  # Rename for ease of use.
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
     new_pl_df = pl.from_pandas(new_df)
@@ -298,7 +294,7 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
 @task()
 def get_latest_date_task(
     table_id: str, dataset_id: str
-) -> Tuple[int | None, str | None]:
+) -> tuple[int | None, str | None]:
     """Task to extract the latest data from available on the data source
     Args:
         table_id (str): table_id from BQ

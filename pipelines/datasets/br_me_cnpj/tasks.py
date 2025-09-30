@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_me_cnpj
 """
 
 import asyncio
+import datetime
 import os
-from datetime import datetime, timedelta
 
 from prefect import task
 
@@ -29,9 +28,9 @@ headers = constants_cnpj.HEADERS.value
 
 @task(
     max_retries=3,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    retry_delay=datetime.timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_data_source_max_date() -> tuple[datetime, datetime.date]:
+def get_data_source_max_date() -> tuple[datetime.datetime, datetime.date]:
     """
     Checks if there are available updates for a specific dataset and table.
 
@@ -46,11 +45,11 @@ def get_data_source_max_date() -> tuple[datetime, datetime.date]:
 
 @task(
     max_retries=3,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    retry_delay=datetime.timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def main(
-    tabelas: [str],
-    max_folder_date: datetime,
+    tabelas: list[str],
+    max_folder_date: datetime.datetime,
     max_last_modified_date: datetime.date,
 ) -> str:
     """
@@ -86,7 +85,7 @@ def main(
                 url_download = f"https://arquivos.receitafederal.gov.br/cnpj/dados_abertos_cnpj/{max_folder_date}/{tabela}{i}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
-                    asyncio.run((download_unzip_csv(url_download, input_path)))
+                    asyncio.run(download_unzip_csv(url_download, input_path))
                     if tabela == "Estabelecimentos":
                         process_csv_estabelecimentos(
                             input_path, output_path, max_last_modified_date, i
@@ -104,7 +103,7 @@ def main(
                 url_download = f"https://arquivos.receitafederal.gov.br/cnpj/dados_abertos_cnpj/{max_folder_date}/{tabela}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
-                    asyncio.run((download_unzip_csv(url_download, input_path)))
+                    asyncio.run(download_unzip_csv(url_download, input_path))
                     process_csv_simples(
                         input_path, output_path, max_last_modified_date, sufixo
                     )

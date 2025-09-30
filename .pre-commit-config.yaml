@@ -8,6 +8,8 @@ repos:
       - id: detect-private-key  # detects private keys
       - id: fix-byte-order-marker  # fixes BOM
       - id: no-commit-to-branch  # prevents committing to protected branches
+      - id: mixed-line-ending
+        args: [--fix=lf]  # Ensures all line endings are LF
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
     rev: 0.8.17

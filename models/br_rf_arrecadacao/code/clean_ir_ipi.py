@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from clean_functions import *  # noqa: F403
 
 

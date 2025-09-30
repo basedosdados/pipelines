@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_bd_indicadores
 """
-
-# pylint: disable=invalid-name
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
@@ -77,7 +74,6 @@ with Flow(
         echo("No tweets to update")
 
     with case(cond, True):
-        # pylint: disable=C0103
         filepath = crawler_metricas(
             access_secret,
             access_token,
@@ -85,9 +81,8 @@ with Flow(
             consumer_secret,
             upstream_tasks=[cond],
             table_id=table_id,
-        )  # pylint: disable=C0103
+        )
 
-        # pylint: disable=C0103
         wait_upload_table = create_table_and_upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,

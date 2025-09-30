@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for dataset br_anatel_telefonia_movel
 """

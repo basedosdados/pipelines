@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 columns_order = [
     "ano",
     "sigla_uf",

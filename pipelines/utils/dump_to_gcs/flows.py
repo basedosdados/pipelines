@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ! register flow
 """
 Flows for dumping data directly from BigQuery to GCS.
@@ -51,7 +50,7 @@ with Flow(
     dataset_ids, table_ids = get_all_eligible_in_selected_year(year, mode)
 
     # with case(trigger_download, True):
-    download_task = download_data_to_gcs.map(  # pylint: disable=C0103
+    download_task = download_data_to_gcs.map(
         project_id=unmapped(project_id),
         dataset_id=dataset_ids,
         table_id=table_ids,
@@ -61,7 +60,7 @@ with Flow(
     )
     """
 
-    download_task = download_data_to_gcs(  # pylint: disable=C0103
+    download_task = download_data_to_gcs(
         project_id=project_id,
         dataset_id=dataset_id,
         table_id=table_id,

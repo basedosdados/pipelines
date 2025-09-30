@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constant values for the br_isp_estatisticas_seguranca project
     """
@@ -40,7 +39,7 @@ class constants(Enum):  # pylint: disable=c0103
     URL = "http://www.ispdados.rj.gov.br/Arquivos/"
 
 
-def QUERY(file_name):
+def query(file_name):
     print(
         f"SELECT COUNT(*) AS total FROM `basedosdados-dev.br_rj_isp_estatisticas_seguranca.{file_name}`"
     )

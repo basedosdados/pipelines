@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import logging
 import re
 
@@ -36,12 +35,12 @@ def sidra_to_dataframe(url: str) -> pd.DataFrame:
                 f"Erro de requisição: status code {response.raise_for_status()}"
             )
     except requests.exceptions.RequestException as e:
-        raise SystemExit(e)
+        raise SystemExit(e) from e
     return pd.json_normalize(response.json())
 
 
 def rename_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    df.columns = df.loc[0, :].values.flatten().tolist()
+    df.columns = df.loc[0, :].to_numpy().flatten().tolist()
     return df.iloc[1:, :]
 
 

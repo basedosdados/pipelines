@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for dataset br_b3_cotacoes dataset
 """
@@ -48,7 +47,6 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
     )
     data_max = data_max_b3(delta_day=delta_day, upstream_tasks=[output_path])
 
-    # pylint: disable=C0103
     wait_upload_table = create_table_and_upload_to_gcs(
         data_path=output_path,
         dataset_id=dataset_id,
