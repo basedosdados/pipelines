@@ -153,7 +153,7 @@ br_rf_cno_tables.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_rf_cno_tables.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value,
     memory_limit="4Gi",
-    memory_request="2Gi",
+    memory_request="1Gi",
     cpu_limit=1,
 )
 br_rf_cno_tables.schedule = schedule_br_rf_cno
