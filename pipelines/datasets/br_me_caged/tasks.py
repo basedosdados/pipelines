@@ -349,12 +349,12 @@ def update_caged_schedule(
         ).date()
     this_month = table_last_date.month
     log(f"This date {table_last_date}")
-    next_start_date = date_elements[0]["data"]
+    next_date = date_elements[0]["data"]
     index = 1
     while index < len(date_elements) - 1:
-        log(f"Current next start date {next_start_date}")
+        log(f"Current next start date {next_date}")
         if date_elements[index]["data_competencia"].month > this_month:
-            next_start_date = date_elements[index]["data"]
+            next_date = date_elements[index]["data"]
         else:
             break
         index += 1
@@ -363,8 +363,8 @@ def update_caged_schedule(
     with open(schedules_file, encoding="utf-8") as f:
         code = f.read()
     schedule_name = f"every_month{table_id.replace('microdados', '')}"
-    schedule_pattern = rf"({schedule_name}\s*=\s*Schedule\(\s*clocks\s*=\s*\[\s*IntervalClock\(\s*interval\s*=\s*timedelta\([\w=\d\,\s]+\)\,\s*start_date\s*=\s*datetime\([\w=\d\,\s]+\)\,\s*labels\s*=\s*\[\s*constants\.BASEDOSDADOS_DEV_AGENT_LABEL\.value[\,\s\)\]]+)"
-    start_date_pattern = r"start_date\s*=\s*datetime\([\w=\d\,\s]+\)"
+    schedule_pattern = rf"^({schedule_name}\s*=\s*Schedule\(\s*clocks\s*=\s*\[\s*CronClock\(\s*cron\s*=\s*\"([\*\d\,\s]+)\"\,\s*[\s\S]+\))$"
+    cron_pattern = r"cron\s*=\s*\"([\*\d\,\s]+)\""
     match = re.search(schedule_pattern, code)
 
     if not match:
@@ -374,14 +374,14 @@ def update_caged_schedule(
 
     schedule_block = match.group(1)
 
-    if next_start_date is not None:
+    if next_date is not None:
         schedule_block = re.sub(
-            start_date_pattern,
-            f"start_date=datetime({next_start_date.year}, {next_start_date.month}, {next_start_date.day})",
+            cron_pattern,
+            f'cron="0 8,17 {next_date.day} * *"',
             schedule_block,
         )
     new_code = code[: match.start(1)] + schedule_block + code[match.end(1) :]
     with open(schedules_file, "w", encoding="utf-8") as f:
         f.write(new_code)
-
-    return next_start_date
+    log(f"New Schedules: {new_code}")
+    return next_date
