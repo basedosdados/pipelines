@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ! register flow
 """
 Flows for dumping data directly from BigQuery to GCS.
@@ -9,18 +8,19 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
 from pipelines.utils.dump_to_gcs.tasks import (
-    download_data_to_gcs,
     get_project_id,
 )
 
 # from pipelines.datasets.cross_update.tasks import get_all_eligible_in_selected_year
-from pipelines.utils.tasks import rename_current_flow_run_dataset_table
+from pipelines.utils.tasks import (
+    download_data_to_gcs,
+    rename_current_flow_run_dataset_table,
+)
 
 with Flow(
-    name=utils_constants.FLOW_DUMP_TO_GCS_NAME.value,
+    name=constants.FLOW_DUMP_TO_GCS_NAME.value,
     code_owners=["lauris"],
 ) as dump_to_gcs_flow:
     project_id = Parameter("project_id", required=False)  # basedosdados
@@ -50,7 +50,7 @@ with Flow(
     dataset_ids, table_ids = get_all_eligible_in_selected_year(year, mode)
 
     # with case(trigger_download, True):
-    download_task = download_data_to_gcs.map(  # pylint: disable=C0103
+    download_task = download_data_to_gcs.map(
         project_id=unmapped(project_id),
         dataset_id=dataset_ids,
         table_id=table_ids,
@@ -60,7 +60,7 @@ with Flow(
     )
     """
 
-    download_task = download_data_to_gcs(  # pylint: disable=C0103
+    download_task = download_data_to_gcs(
         project_id=project_id,
         dataset_id=dataset_id,
         table_id=table_id,

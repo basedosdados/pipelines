@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 import unicodedata
 from io import StringIO
-from typing import Dict
 
 import pandas as pd
 import requests
@@ -9,7 +7,7 @@ import requests
 # ---- mudar nome das colunas ----#
 
 
-def change_column_name(url_architecture: str) -> Dict[str, str]:
+def change_column_name(url_architecture: str) -> dict[str, str]:
     """Essa função recebe como input uma string com link para uma tabela de arquitetura
     e retorna um dicionário com os nomes das colunas originais e os nomes das colunas
     padronizados
@@ -26,7 +24,11 @@ def change_column_name(url_architecture: str) -> Dict[str, str]:
 
     # Cria um dicionário de nomes de colunas e tipos de dados a partir do dataframe df_architecture
     column_name_dict = dict(
-        zip(df_architecture["original_name"], df_architecture["name"])
+        zip(
+            df_architecture["original_name"],
+            df_architecture["name"],
+            strict=False,
+        )
     )
 
     # Retorna o dicionário
@@ -37,7 +39,7 @@ def change_column_name(url_architecture: str) -> Dict[str, str]:
 # ---- mudar tipos de dados ----#
 
 
-def change_dtypes(url_architecture: str) -> Dict[str, str]:
+def change_dtypes(url_architecture: str) -> dict[str, str]:
     """Essa função recebe como input uma string com link para uma tabela de arquitetura
     e retorna um dicionário com os nomes das colunas originais e os nomes das colunas
     padronizados
@@ -54,7 +56,11 @@ def change_dtypes(url_architecture: str) -> Dict[str, str]:
 
     # Cria um dicionário de nomes de colunas e tipos de dados a partir do dataframe df_architecture
     column_name_dict = dict(
-        zip(df_architecture["original_name"], df_architecture["bigquery_type"])
+        zip(
+            df_architecture["original_name"],
+            df_architecture["bigquery_type"],
+            strict=False,
+        )
     )
 
     # O pandas não consegue ler ints que tenham NAs
@@ -63,9 +69,7 @@ def change_dtypes(url_architecture: str) -> Dict[str, str]:
 
     # loop para padronizar os tipos de dados e converter in para string
     for key, value in column_name_dict.items():
-        if value == "string":
-            column_name_dict[key] = str
-        elif value == "int64":
+        if value == "string" or value == "int64":
             column_name_dict[key] = str
         elif value == "float64":
             column_name_dict[key] = float

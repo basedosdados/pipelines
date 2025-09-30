@@ -27,7 +27,9 @@ with
             safe_cast(nome_fantasia as string) nome_fantasia,
             safe_cast(cast(situacao_cadastral as int64) as string) situacao_cadastral,
             safe_cast(data_situacao_cadastral as date) data_situacao_cadastral,
-            safe_cast(motivo_situacao_cadastral as string) motivo_situacao_cadastral,
+            safe_cast(
+                regexp_replace(motivo_situacao_cadastral, '^0', '') as string
+            ) motivo_situacao_cadastral,
             safe_cast(nome_cidade_exterior as string) nome_cidade_exterior,
             safe_cast(cast(id_pais as int64) as string) id_pais,
             safe_cast(data_inicio_atividade as date) data_inicio_atividade,

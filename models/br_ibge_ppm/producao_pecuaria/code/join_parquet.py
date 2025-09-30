@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 
 import pandas as pd
@@ -17,7 +16,7 @@ for temp_ano in ANOS:
     print(
         f"Criando o DataFrame com os dados consolidados, referente ao ano de {temp_ano}..."
     )
-    df_join = pd.merge(df_ovinos, df_vacas, on=["sigla_uf", "id_municipio"])
+    df_join = df_ovinos.merge(df_vacas, on=["sigla_uf", "id_municipio"])
 
     temp_export_file_path = f"../parquet/ano={temp_ano}/data.parquet"
     print(f"Exportando o DataFrame particionado em {temp_export_file_path}...")

@@ -1,22 +1,20 @@
-# -*- coding: utf-8 -*-
 """
 Flows for world_sofascore_competicoes_futebol
 """
 
-# pylint: disable=invalid-name,line-too-long
 from copy import deepcopy
 
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.utils.crawler_world_sofascore_competicoes_futebol.flows import (
-    world_sofascore_competicoes_futebol,
+from pipelines.crawler.world_sofascore_competicoes_futebol.flows import (
+    flow_world_sofascore_competicoes_futebol,
 )
 
 # Tabela: uefa_champions_league
 
-uefa_champions_league = deepcopy(world_sofascore_competicoes_futebol)
+uefa_champions_league = deepcopy(flow_world_sofascore_competicoes_futebol)
 uefa_champions_league.name = (
     "world_sofascore_competicoes_futebol.uefa_champions_league"
 )
@@ -28,7 +26,7 @@ uefa_champions_league.run_config = KubernetesRun(
 # uefa_champions_league.schedule = schedule_uefa_champions_league
 
 # Tabela: brasileirao_serie_a
-brasileirao_serie_a = deepcopy(world_sofascore_competicoes_futebol)
+brasileirao_serie_a = deepcopy(flow_world_sofascore_competicoes_futebol)
 brasileirao_serie_a.name = (
     "world_sofascore_competicoes_futebol.brasileirao_serie_a"
 )

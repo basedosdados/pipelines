@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 from copy import deepcopy
 
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
+from pipelines.crawler.cgu.flows import flow_cgu_servidores_publicos
 from pipelines.datasets.br_cgu_servidores_executivo_federal.schedules import (
     every_day_afastamentos,
     every_day_cadastro_aposentados,
@@ -14,7 +14,6 @@ from pipelines.datasets.br_cgu_servidores_executivo_federal.schedules import (
     every_day_observacoes,
     every_day_remuneracao,
 )
-from pipelines.utils.crawler_cgu.flows import flow_cgu_servidores_publicos
 
 # ! br_cgu_servidores_federal__afastamentos
 

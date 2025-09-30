@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_ibge_inpc
     - mes_categoria_brasil
@@ -6,7 +5,6 @@ Flows for br_ibge_inpc
     - mes_categoria_municipio
     - mes_brasil
 """
-# pylint: disable=C0103, E1123, invalid-name
 
 from copy import deepcopy
 
@@ -14,7 +12,7 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.utils.crawler_ibge_inflacao.flows import (
+from pipelines.crawler.ibge_inflacao.flows import (
     flow_ibge_inflacao_mes_brasil_,
     flow_ibge_inflacao_mes_geral,
     flow_ibge_inflacao_mes_municipio_,

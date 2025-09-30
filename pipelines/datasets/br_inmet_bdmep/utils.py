@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_inmet_bdmep project
 """
-
-# pylint: disable=too-few-public-methods,invalid-name
 
 import os
 import re
@@ -44,7 +41,7 @@ def new_names(base: pd.DataFrame, oldname: str, newname: str):
         return base.columns.tolist()
 
     else:
-        base.rename(columns={oldname: newname}, inplace=True)
+        base = base.rename(columns={oldname: newname})
         return base.columns.tolist()
 
 
@@ -174,7 +171,7 @@ def get_clima_info(file: str) -> pd.DataFrame:
     )
 
     # remove a coluna V20 do dataframe clima
-    clima.drop(columns=["Unnamed: 19"], inplace=True)
+    clima = clima.drop(columns=["Unnamed: 19"])
 
     # renomeia as colunas do dataframe clima
     clima = change_names(clima)
@@ -183,7 +180,7 @@ def get_clima_info(file: str) -> pd.DataFrame:
     clima["id_estacao"] = caract.loc[3, "value"]
 
     # substitui valores -9999 por NaN
-    clima.replace(to_replace=-9999, value=np.nan, inplace=True)
+    clima = clima.replace(to_replace=-9999, value=np.nan)
 
     # converte a coluna data para datetime
     if all(clima["data"].str.contains("/")):
@@ -217,7 +214,7 @@ def download_inmet(year: int) -> None:
     """
     os.system("mkdir -p /tmp/data/input/")
     if year <= 2019:
-        temp = tempfile.NamedTemporaryFile(delete=False)
+        temp = tempfile.NamedTemporaryFile(delete=False)  # noqa: SIM115
         url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
         urllib.request.urlretrieve(url, temp.name)
         with zipfile.ZipFile(temp.name, "r") as zip_ref:
@@ -225,7 +222,7 @@ def download_inmet(year: int) -> None:
         temp.close()
 
     else:
-        temp = tempfile.NamedTemporaryFile(delete=False)
+        temp = tempfile.NamedTemporaryFile(delete=False)  # noqa: SIM115
         url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
         urllib.request.urlretrieve(url, temp.name)
         with zipfile.ZipFile(temp.name, "r") as zip_ref:

@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
 from prefect import Client
 
 
 def delete_flow_run(client: Client, flow: dict[str, str]) -> bool:
     mutation = """
-        mutation {
-        delete_flow_run(input: {flow_run_id: "%s"}) {
+        mutation($flow_id: UUID) {
+        delete_flow_run(input: {flow_run_id: flow_id}) {
             success
         }
         }
-        """ % flow["id"]
+        """
 
     return client.graphql(query=mutation)["data"]["delete_flow_run"]["success"]
 
