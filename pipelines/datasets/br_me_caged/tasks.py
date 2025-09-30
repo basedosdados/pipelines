@@ -363,7 +363,7 @@ def update_caged_schedule(
     with open(schedules_file, encoding="utf-8") as f:
         code = f.read()
     schedule_name = f"every_month{table_id.replace('microdados', '')}"
-    schedule_pattern = rf"^({schedule_name}\s*=\s*Schedule\(\s*clocks\s*=\s*\[\s*CronClock\(\s*cron\s*=\s*\"([\*\d\,\s]+)\"\,\s*[\s\S]+\))$"
+    schedule_pattern = rf"({schedule_name}\s*=\s*Schedule\(\s*clocks\s*=\s*\[\s*CronClock\(\s*cron\s*=\s*\"([\*\d\,\s]+)\"\,\s*[\s\S]+\))"
     cron_pattern = r"cron\s*=\s*\"([\*\d\,\s]+)\""
     match = re.search(schedule_pattern, code)
 

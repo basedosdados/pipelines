@@ -12,7 +12,7 @@ from pipelines.constants import constants
 every_month_movimentacao = Schedule(
     clocks=[
         CronClock(
-            cron="0 8,17 25 * *",
+            cron="0 8,23 25 * *",
             start_date=datetime(2025, 2, 26),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -32,7 +32,7 @@ every_month_movimentacao = Schedule(
 every_month_movimentacao_fora_prazo = Schedule(
     clocks=[
         CronClock(
-            cron="0 8,17 25 * *",
+            cron="0 8,17 26 * *",
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -52,7 +52,7 @@ every_month_movimentacao_fora_prazo = Schedule(
 every_month_movimentacao_excluida = Schedule(
     clocks=[
         CronClock(
-            cron="0 8,17 25 * *",
+            cron="0 8,17 26 * *",
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
