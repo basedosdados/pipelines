@@ -123,7 +123,6 @@ with Flow(
         with case(materialize_after_dump, True):
             wait_for_materialization = run_dbt(
                 dataset_id=dataset_id,
-                table_id=table_id,
                 target=target,
                 dbt_alias=dbt_alias,
                 upstream_tasks=[dbt_parameters],
