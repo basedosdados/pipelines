@@ -413,7 +413,6 @@ def check_for_updates(
                 success_dwnl.append(key)
             except Exception as e:  # pylint: disable=redefined-outer-name
                 log(e)
-    breakpoint()
     log(f"success_dwnl: {success_dwnl}")
     if len(links_keys) == len(success_dwnl):
         log("All files were successfully downloaded")
