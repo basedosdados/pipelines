@@ -138,6 +138,19 @@ with Flow(
                     upstream_tasks=[wait_for_materialization],
                 )
 
+            with case(update_metadata, True):
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=target,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
+
 br_me_caged_microdados_movimentacao.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -221,7 +234,7 @@ with Flow(
             upstream_tasks=[filepath],
         )
 
-        with case(materialize_after_dump, True):
+        with case(materialize_after_dump, True):      
             wait_for_materialization = run_dbt(
                 dataset_id=dataset_id,
                 table_id=table_id,
