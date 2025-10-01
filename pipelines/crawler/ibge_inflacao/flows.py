@@ -10,7 +10,7 @@ from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.crawler.ibge_inflacao.tasks import (
-    check_for_updates_task,
+    check_for_updates,
     collect_data_utils,
     json_to_csv,
 )
@@ -42,12 +42,14 @@ with Flow(name="BD Template - IBGE Inflação") as flow_ibge:
         wait=table_id,
     )
 
-    needs_to_update, needs_to_date = check_for_updates_task(
+    needs_to_update = check_for_updates(
         dataset_id=dataset_id, table_id=table_id
     )
 
-    with case(needs_to_update, True):
-        periodo = Parameter("periodo", default=needs_to_date, required=False)
+    with case(needs_to_update[0], True):
+        periodo = Parameter(
+            "periodo", default=needs_to_update[1], required=False
+        )
 
         download_data = collect_data_utils(
             dataset_id=dataset_id,
