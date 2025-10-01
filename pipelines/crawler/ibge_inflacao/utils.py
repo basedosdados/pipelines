@@ -381,12 +381,12 @@ def check_for_updates(
     )
 
     links = {
-        "ipca": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n1/all/v/all/p/last%201/c315/7169/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
-        "inpc": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n1/all/v/all/p/last%201/c315/7169/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
-        "ip15": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7062.csv&terr=NC&rank=-&query=t/7062/n1/all/v/all/p/last%201/c315/7169/d/v355%202,v356%202,v357%204,v1120%202/l/,v,t%2Bp%2Bc315",
+        "br_ibge_ipca": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n1/all/v/all/p/last%201/c315/7169/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
+        "br_ibge_inpc": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7063.csv&terr=NC&rank=-&query=t/7063/n1/all/v/all/p/last%201/c315/7169/d/v44%202,v45%204,v68%202,v2292%202/l/,v,t%2Bp%2Bc315",
+        "br_ibge_ipca15": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7062.csv&terr=NC&rank=-&query=t/7062/n1/all/v/all/p/last%201/c315/7169/d/v355%202,v356%202,v357%204,v1120%202/l/,v,t%2Bp%2Bc315",
     }
 
-    links = {k: v for k, v in links.items() if k.__contains__(table_id)}
+    links = {k: v for k, v in links.items() if k.__contains__(dataset_id)}
 
     links_keys = list(links.keys())
     log(links_keys)
@@ -413,7 +413,7 @@ def check_for_updates(
                 success_dwnl.append(key)
             except Exception as e:  # pylint: disable=redefined-outer-name
                 log(e)
-
+    breakpoint()
     log(f"success_dwnl: {success_dwnl}")
     if len(links_keys) == len(success_dwnl):
         log("All files were successfully downloaded")
@@ -424,7 +424,8 @@ def check_for_updates(
         log(f"The file was not downloaded {rems}")
 
     file_name = os.listdir("/tmp/check_for_updates")
-    file_path = "/tmp/check_for_updates/" + file_name[0]
+    log(file_name)
+    file_path = os.path.join("/tmp/check_for_updates/", file_name[0])
 
     dataframe = pd.read_csv(file_path, skiprows=2, skipfooter=14, sep=";")
 
