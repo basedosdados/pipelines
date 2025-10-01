@@ -71,16 +71,7 @@ models:
       detalhadas por estado, município, rede e ano.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - ano
-            - id_municipio
-            - id_escola
-            - id_aluno
-            - caderno
-            - serie
-            - presenca
-            - preenchimento_caderno
-            - alfabetizado
+          combination_of_columns: [ano, id_municipio, id_escola, id_aluno]
       - not_null_proportion_multiple_columns:
           at_least: 0.86
       - custom_dictionary_coverage:
