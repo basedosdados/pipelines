@@ -240,7 +240,7 @@ def json_categoria(table_id: str, dataset_id: str, periodo: str):
                 dados_agrupados[chave_unica]["id_categoria"] = id_categoria
                 dados_agrupados[chave_unica]["categoria"] = categoria
 
-                return dados_agrupados
+    return dados_agrupados
 
 
 def json_mes_brasil(table_id: str, dataset_id: str, periodo: str):
