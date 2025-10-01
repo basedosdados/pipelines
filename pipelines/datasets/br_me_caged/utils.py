@@ -1,15 +1,8 @@
-import datetime
 import ftplib
-import re
 from pathlib import Path
 
 import py7zr
-import requests
-from bs4 import BeautifulSoup
 
-from pipelines.datasets.br_me_caged.constants import (
-    constants as caged_constants,
-)
 from pipelines.utils.utils import log
 
 
@@ -75,38 +68,3 @@ def download_file(
 def verify_yearmonth(yearmonth: str):
     if len(yearmonth) != 6 or not yearmonth.isdigit():
         raise ValueError("yearmonth must be a string in the format 'YYYYMM'")
-
-
-def get_caged_schedule(
-    url: str = caged_constants.URL_SCHEDULE.value,
-    css_selector: str = caged_constants.CSS_SELECTOR_SCHEDULES.value,
-):
-    response = requests.get(url)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.content, "html.parser")
-    elements = soup.select(css_selector)
-    match_elements = [
-        re.search(
-            r"(\d{2}\/\d{2}\/\d{4})(?:\s?\-\s?Competência\:\s?)(\w+)(?:\s+de\s?)(\d{4})",
-            element.text,
-        )
-        for element in elements
-    ]
-    date_elements = []
-    try:
-        date_elements = [
-            {
-                "data": datetime.datetime.strptime(
-                    match_element.group(1), "%d/%m/%Y"
-                ),
-                "data_competencia": datetime.datetime.strptime(
-                    f"01/{caged_constants.FULL_MONTHS.value[match_element.group(2)]}/{match_element.group(3)}",
-                    "%d/%m/%Y",
-                ),
-            }
-            for match_element in match_elements
-            if match_element
-        ]
-    except Exception as e:
-        log(f"Unable to get CAGED schedule: {e}", "error")
-    return date_elements
