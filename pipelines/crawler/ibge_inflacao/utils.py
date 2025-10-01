@@ -400,13 +400,15 @@ def check_for_updates(
             response = get_legacy_session().get(links[key])
             # download the csv
             path_key = f"/tmp/check_for_updates/{key}.csv"
-            with open(path_key, "wb") as f:
-                if os.path.exists(path_key):
-                    pass
-                else:
+            if os.path.exists(path_key):
+                pass
+            else:
+                with open(path_key, "wb") as f:
                     f.write(response.content)
-            success_dwnl.append(key)
-            sleep(5)
+                success_dwnl.append(key)
+                log(links[key])
+                sleep(5)
+                breakpoint()
         except Exception as e:
             log(e)
             try:
