@@ -220,3 +220,4 @@ def json_to_csv(table_id: str, dataset_id: str, periodo: str):
     )
 
     return output_path
+

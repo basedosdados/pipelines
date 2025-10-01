@@ -27,7 +27,6 @@ from pipelines.utils.tasks import (
 with Flow(name="BD Template - IBGE Inflação") as flow_ibge:
     dataset_id = Parameter("dataset_id")
     table_id = Parameter("table_id")
-    periodo = Parameter("periodo", required=False)
     target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -82,7 +81,7 @@ with Flow(name="BD Template - IBGE Inflação") as flow_ibge:
                 table_id=table_id,
                 target=target,
                 dbt_alias=dbt_alias,
-                # upstream_tasks=[wait_upload_table],
+                upstream_tasks=[wait_upload_table],
             )
             wait_for_dowload_data_to_gcs = download_data_to_gcs(
                 dataset_id=dataset_id,
@@ -105,3 +104,4 @@ with Flow(name="BD Template - IBGE Inflação") as flow_ibge:
 
 flow_ibge.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_ibge.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
+

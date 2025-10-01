@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 from datetime import timedelta
 
@@ -8,10 +7,10 @@ from prefect import task
 
 from pipelines.constants import constants
 from pipelines.crawler.isp.constants import (
-    QUERY,
+    constants as isp_constants,
 )
 from pipelines.crawler.isp.constants import (
-    constants as isp_constants,
+    query,
 )
 from pipelines.crawler.isp.utils import (
     change_columns_name,
@@ -71,7 +70,7 @@ def clean_data(
     # rename columns
     link_arquitetura = isp_constants.dict_table.value[file_name]["sheets_name"]
     nomes_colunas = change_columns_name(link_arquitetura)
-    df.rename(columns=nomes_colunas, inplace=True)
+    df = df.rename(columns=nomes_colunas)
 
     log("creating columns order")
     ordem_colunas = create_columns_order(nomes_colunas)
@@ -109,8 +108,8 @@ def get_count_lines(file_name: str) -> bool:
     df = read_data(file_name=file_name)
 
     data = bd.read_sql(
-        QUERY(file_name),
-        billing_project_id="basedosdados-dev",
+        query(file_name),
+        billing_project_id="basedosdados",  #
         from_file=True,
     )
 

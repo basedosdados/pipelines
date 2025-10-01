@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Flows for br_rj_isp_estatisticas_seguranca.
-"""
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS

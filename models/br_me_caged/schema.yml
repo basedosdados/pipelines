@@ -7,8 +7,6 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          config:
-            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano da divulgação do dado no FTP do CAGED. Para esta tabela,
@@ -85,8 +83,6 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          config:
-            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano da divulgação do dado no FTP do CAGED.
@@ -164,8 +160,6 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          config:
-            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano da divulgação do dado no FTP do CAGED.

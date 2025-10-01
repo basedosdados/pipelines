@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_jota
 """
@@ -24,7 +23,7 @@ with Flow(
 
     table_ids = get_table_ids()
 
-    for n, table_id in enumerate(table_ids):
+    for _, table_id in enumerate(table_ids):
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,

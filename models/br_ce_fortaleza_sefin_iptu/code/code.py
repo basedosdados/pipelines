@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import time
 
 import geopandas as gpd
@@ -61,9 +60,11 @@ df["pavimentacao"] = (
     .replace("Sem", "Sem Pavimentação")
 )
 
-df.replace("nan", "", inplace=True)
+df = df.replace("nan", "")
 df["logradouro"] = df["logradouro"].apply(lambda x: " ".join(str(x).split()))
-geometry = [Point(xy) for xy in zip(df["longitude"], df["latitude"])]
+geometry = [
+    Point(xy) for xy in zip(df["longitude"], df["latitude"], strict=False)
+]
 gdf = gpd.GeoDataFrame(df, geometry=geometry)
 crs = {"init": "epsg:4326"}  # sistema de coordenadas
 # Convertendo Point
@@ -77,7 +78,9 @@ df["latitude"] = df["latitude"].astype(np.float64)
 # Assigning the geometry variables
 from shapely.geometry.polygon import Point  # noqa: E402
 
-geometry = [Point(xy) for xy in zip(df["longitude"], df["latitude"])]
+geometry = [
+    Point(xy) for xy in zip(df["longitude"], df["latitude"], strict=False)
+]
 
 # For being a point, it became point, if polygon, assign polygon and so on
 geo_df = gpd.GeoDataFrame(df, crs=crs, geometry=geometry)

@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_fgv_igp project
 """
 
-# pylint: disable=invalid-name,too-many-instance-attributes
 import ipeadatapy as idpy
 import numpy as np
 import pandas as pd
@@ -51,10 +49,10 @@ class IGPData:
             pd.DataFrame
         """
         df = self._get_ipea_data()
-        df.rename({df.columns[-1]: "indice"}, axis=1, inplace=True)
+        df = df.rename({df.columns[-1]: "indice"}, axis=1)
         df["indice"] = df["indice"].astype(float, errors="ignore")
-        df.rename(columns={"YEAR": "ano", "MONTH": "mes"}, inplace=True)
-        df.drop(columns=["DAY", "CODE", "RAW DATE"], inplace=True)
+        df = df.rename(columns={"YEAR": "ano", "MONTH": "mes"})
+        df = df.drop(columns=["DAY", "CODE", "RAW DATE"])
 
         if self.period == "mes":
             df = self.month_dataframe(df)
@@ -76,7 +74,7 @@ class IGPData:
         dfm["variacao_12_meses"] = dfm["indice"].pct_change(periods=12) * 100
         if self.first_dec and self.second_dec:
             decendios = self._get_decendios()
-            dfm = pd.merge(dfm, decendios, how="outer", on="DATE")
+            dfm = dfm.merge(decendios, how="outer", on="DATE")
         # noinspection PyUnresolvedReferences
         dfm["variacao_acumulada_ano"] = (
             dfm[["variacao_mensal"]]
@@ -87,7 +85,7 @@ class IGPData:
         dfm["indice_fechamento_mensal"] = round(
             np.sqrt(dfm["indice"] * dfm["next_month"]), ndigits=6
         )
-        dfm.drop(columns=["next_month"], inplace=True)
+        dfm = dfm.drop(columns=["next_month"])
         return dfm
 
     def year_dataframe(self, dff: pd.DataFrame) -> pd.DataFrame:
@@ -102,21 +100,21 @@ class IGPData:
         """
         # noinspection PyUnresolvedReferences
         grouped_df = dff.groupby(dff.index.year).mean()
-        grouped_df.rename(columns={"indice": "indice_medio"}, inplace=True)
+        grouped_df = grouped_df.rename(columns={"indice": "indice_medio"})
         grouped_df.index.name = "YEAR"
-        grouped_df.drop(columns=["mes"], inplace=True)
+        grouped_df = grouped_df.drop(columns=["mes"])
         last_days = dff.loc[dff["mes"] == 12]
-        last_days.set_index("ano", inplace=True)
+        last_days = last_days.set_index("ano")
         last_days.index.name = "YEAR"
-        last_days.drop(columns=["mes"], inplace=True)
-        dfy = pd.merge(grouped_df, last_days, how="outer", on="YEAR")
-        dfy.drop(dfy.tail(1).index, inplace=True)
+        last_days = last_days.drop(columns=["mes"])
+        dfy = grouped_df.merge(last_days, how="outer", on="YEAR")
+        dfy = dfy.drop(dfy.tail(1).index)
         dfy["variacao_anual"] = dfy["indice"].pct_change(periods=1) * 100
         dfy["next_month"] = dfy["indice"].shift(-1)
         dfy["indice_fechamento_anual"] = round(
             np.sqrt(dfy["indice"] * dfy["next_month"]), ndigits=6
         )
-        dfy.drop(columns=["next_month"], inplace=True)
+        dfy = dfy.drop(columns=["next_month"])
         dfy["ano"] = pd.to_numeric(dfy["ano"], downcast="integer")
         return dfy
 
@@ -127,20 +125,17 @@ class IGPData:
             pd.DataFrame: DataFrame with 1st and 2nd tenths
         """
         dec1 = idpy.timeseries(self.decendios[0])
-        dec1.rename(
+        dec1 = dec1.rename(
             {dec1.columns[-1]: "variacao_primeiro_decendio"},
             axis=1,
-            inplace=True,
         )
         dec1 = dec1[["variacao_primeiro_decendio"]]
         dec2 = idpy.timeseries(self.decendios[1])
-        dec2.rename(
-            {dec2.columns[-1]: "variacao_segundo_decendio"},
-            axis=1,
-            inplace=True,
+        dec2 = dec2.rename(
+            {dec2.columns[-1]: "variacao_segundo_decendio"}, axis=1
         )
         dec2 = dec2[["variacao_segundo_decendio"]]
-        return pd.merge(dec1, dec2, how="outer", on="DATE")
+        return dec1.merge(dec2, how="outer", on="DATE")
 
     @staticmethod
     def _calculate_year_accum(row: pd.Series) -> pd.Series:

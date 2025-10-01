@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constant values for the datasets projects of the pipelines
 """
@@ -6,7 +5,7 @@ Constant values for the datasets projects of the pipelines
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constant values for the br_anatel_telefonia_movel project
     """

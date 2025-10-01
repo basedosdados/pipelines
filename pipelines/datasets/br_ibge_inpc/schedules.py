@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Schedules for br_ibge_inpc
     - mes_categoria_brasil

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # register flow
 
 from prefect import Parameter, case

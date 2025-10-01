@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_cgu_terceirizados
 """
@@ -6,7 +5,6 @@ Tasks for br_cgu_terceirizados
 import os
 import re
 from io import BytesIO
-from typing import Tuple
 
 import pandas as pd
 import requests
@@ -14,9 +12,8 @@ from bs4 import BeautifulSoup
 from prefect import task
 
 
-# pylint: disable=C0103
 @task(nout=2)
-def crawl(url: str) -> Tuple[str, str]:
+def crawl(url: str) -> tuple[str, str]:
     """
     Get all table urls from CGU website and extract temporal covarage
     """
@@ -35,7 +32,6 @@ def crawl(url: str) -> Tuple[str, str]:
     return urls, temporal_coverage
 
 
-# pylint: disable=C0103
 @task
 def clean_save_table(root: str, url_list: list):
     """Standardizes column names and selected variables"""
@@ -115,8 +111,8 @@ def clean_save_table(root: str, url_list: list):
         "cd_orgao_siape": "codigo_siape_trabalho",
     }
 
-    df.drop(columns=["Mes_Carga"], inplace=True)
-    df.rename(columns=new_cols_names, inplace=True)
+    df = df.drop(columns=["Mes_Carga"])
+    df = df.rename(columns=new_cols_names)
 
     selected_cols = [
         "ano",
