@@ -386,7 +386,7 @@ def check_for_updates(
         "br_ibge_ipca15": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7062.csv&terr=NC&rank=-&query=t/7062/n1/all/v/all/p/last%201/c315/7169/d/v355%202,v356%202,v357%204,v1120%202/l/,v,t%2Bp%2Bc315",
     }
 
-    links = {k: v for k, v in links.items() if k.__contains__(dataset_id)}
+    links = {key: value for key, value in links.items() if key == dataset_id}
 
     links_keys = list(links.keys())
     log(links_keys)
