@@ -68,8 +68,10 @@ def save_json(
     output_path = os.path.join(output_dir, dataset_id, table_id, period)
     if os.path.exists(output_path):
         pass
+        log("O Arquivo já existe!")
     else:
         os.makedirs(output_path, exist_ok=True)
+        log("Criando o arquivo!")
 
         file_path = f"{output_path}/data.json"
         with open(file_path, "a") as f:
@@ -90,12 +92,12 @@ async def collect_data(
         timeout=ClientTimeout(total=1200),
     ) as session:
         for period in [periods]:
-            print(
+            log(
                 f"Consultando período {period} | tabela: {table_id} | dataset_id: {dataset_id}"
             )
             for aggregate in aggregates:
                 for variable in variables:
-                    print(
+                    log(
                         build_url(
                             aggregate, period, variable, geo_level, table_id
                         )
@@ -134,6 +136,8 @@ def json_categoria(table_id: str, dataset_id: str, periodo: str):
     )
     with open(input) as f:
         df = json.load(f)
+
+        log(df)
 
     # dicionário auxiliar para juntar na mesma linha
     dados_agrupados = defaultdict(dict)
@@ -373,12 +377,10 @@ def check_for_updates(
 
     if dataset_id not in ["br_ibge_inpc", "br_ibge_ipca", "br_ibge_ipca15"]:
         raise ValueError(
-            "indice argument must be one of the following: 'inpc', 'ipca', 'ipca15'"
+            "indice argument must be one of the following: 'br_ibge_inpc', 'br_ibge_ipca', 'br_ibge_ipca15'"
         )
 
-    log(
-        f"Checking for updates in {dataset_id} index for {dataset_id}.{table_id}"
-    )
+    log(f"Checking for updates in {dataset_id} index for {dataset_id}")
 
     links = {
         "br_ibge_ipca": "https://sidra.ibge.gov.br/geratabela?format=br.csv&name=tabela7060.csv&terr=NC&rank=-&query=t/7060/n1/all/v/all/p/last%201/c315/7169/d/v63%202,v66%204,v69%202,v2265%202/l/,v,t%2Bp%2Bc315",
@@ -389,17 +391,20 @@ def check_for_updates(
     links = {key: value for key, value in links.items() if key == dataset_id}
 
     links_keys = list(links.keys())
-    log(links_keys)
     success_dwnl = []
 
     os.system('mkdir -p "/tmp/check_for_updates/"')
-    #
+
     for key in tqdm(links_keys):
         try:
             response = get_legacy_session().get(links[key])
             # download the csv
-            with open(f"/tmp/check_for_updates/{key}.csv", "wb") as f:
-                f.write(response.content)
+            path_key = f"/tmp/check_for_updates/{key}.csv"
+            with open(path_key, "wb") as f:
+                if os.path.exists(path_key):
+                    pass
+                else:
+                    f.write(response.content)
             success_dwnl.append(key)
             sleep(5)
         except Exception as e:
@@ -408,12 +413,11 @@ def check_for_updates(
                 sleep(5)
                 response = get_legacy_session().get(links[key])
                 # download the csv
-                with open(f"/tmp/check_for_updates/{key}.csv", "wb") as f:
+                with open(path_key, "wb") as f:
                     f.write(response.content)
                 success_dwnl.append(key)
             except Exception as e:  # pylint: disable=redefined-outer-name
                 log(e)
-    log(f"success_dwnl: {success_dwnl}")
     if len(links_keys) == len(success_dwnl):
         log("All files were successfully downloaded")
 
@@ -423,7 +427,7 @@ def check_for_updates(
         log(f"The file was not downloaded {rems}")
 
     file_name = os.listdir("/tmp/check_for_updates")
-    log(file_name)
+
     file_path = os.path.join("/tmp/check_for_updates/", file_name[0])
 
     dataframe = pd.read_csv(file_path, skiprows=2, skipfooter=14, sep=";")
