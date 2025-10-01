@@ -19,8 +19,6 @@ schedule_br_ibge_ipca_mes_categoria_brasil = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "indice": "ipca",
-                "folder": "br",
                 "dataset_id": "br_ibge_ipca",
                 "table_id": "mes_categoria_brasil",
                 "target": "prod",
@@ -43,8 +41,6 @@ schedule_br_ibge_ipca_mes_categoria_rm = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "indice": "ipca",
-                "folder": "rm",
                 "dataset_id": "br_ibge_ipca",
                 "table_id": "mes_categoria_rm",
                 "target": "prod",
@@ -68,8 +64,6 @@ schedule_br_ibge_ipca_mes_categoria_municipio = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "indice": "ipca",
-                "folder": "mun",
                 "dataset_id": "br_ibge_ipca",
                 "table_id": "mes_categoria_municipio",
                 "target": "prod",
@@ -93,8 +87,6 @@ schedule_br_ibge_ipca_mes_brasil = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "indice": "ipca",
-                "folder": "mes",
                 "dataset_id": "br_ibge_ipca",
                 "table_id": "mes_brasil",
                 "target": "prod",

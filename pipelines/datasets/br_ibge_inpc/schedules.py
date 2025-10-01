@@ -47,8 +47,6 @@ schedule_br_ibge_inpc_mes_categoria_rm = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "indice": "inpc",
-                "folder": "rm",
                 "dataset_id": "br_ibge_inpc",
                 "table_id": "mes_categoria_rm",
                 "target": "prod",
@@ -72,8 +70,6 @@ schedule_br_ibge_inpc_mes_categoria_municipio = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "indice": "inpc",
-                "folder": "mun",
                 "dataset_id": "br_ibge_inpc",
                 "table_id": "mes_categoria_municipio",
                 "target": "prod",
@@ -97,8 +93,6 @@ schedule_br_ibge_inpc_mes_brasil = Schedule(
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
             parameter_defaults={
-                "indice": "inpc",
-                "folder": "mes",
                 "dataset_id": "br_ibge_inpc",
                 "table_id": "mes_brasil",
                 "target": "prod",
