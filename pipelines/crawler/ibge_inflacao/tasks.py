@@ -30,14 +30,20 @@ ssl._create_default_https_context = ssl._create_unverified_context
 # https://sidra.ibge.gov.br/tabela/7060
 
 
+def check_for_update_date(dataset_id, table_id):
+    value = check_for_updates(dataset_id=dataset_id, table_id=table_id)
+
+    return value[1]
+
+
 @task
 def check_for_updates_task(
     table_id: str,
     dataset_id: str,
 ) -> tuple[bool, Any]:
-    verify, data = check_for_updates(table_id=table_id, dataset_id=dataset_id)
+    verify = check_for_updates(table_id=table_id, dataset_id=dataset_id)
 
-    return verify, data
+    return verify[0]
 
 
 @task

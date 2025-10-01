@@ -474,3 +474,9 @@ def check_for_updates(
             f"A tabela {table_id} não foi atualizada no site do IBGE. O Flow de atualização não será executado!"
         )
         return False, str(max_date_ibge)
+
+
+def check_for_update_date(dataset_id, table_id):
+    value = check_for_updates(dataset_id=dataset_id, table_id=table_id)
+
+    return value[1]
