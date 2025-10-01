@@ -393,7 +393,7 @@ def check_for_updates(
     links_keys = list(links.keys())
     success_dwnl = []
 
-    os.system('mkdir -p "/tmp/check_for_updates/"')
+    os.makedirs("/tmp/check_for_updates/", exist_ok=True)
 
     for key in tqdm(links_keys):
         try:
