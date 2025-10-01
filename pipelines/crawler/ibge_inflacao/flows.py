@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for ibge inflacao
 """
@@ -104,4 +103,3 @@ with Flow(name="BD Template - IBGE Inflação") as flow_ibge:
 
 flow_ibge.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_ibge.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-

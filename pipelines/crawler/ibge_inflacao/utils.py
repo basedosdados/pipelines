@@ -3,7 +3,7 @@ import json
 import os
 import ssl
 from collections import defaultdict
-from typing import Any, Dict, List
+from typing import Any
 
 import aiohttp
 import numpy as np
@@ -33,14 +33,14 @@ def build_url(
         )
 
 
-async def fetch(session: aiohttp.ClientSession, url: str) -> Dict[str, Any]:
+async def fetch(session: aiohttp.ClientSession, url: str) -> dict[str, Any]:
     """Executa requisição GET e retorna a resposta em JSON."""
     async with session.get(url) as response:
         return await response.json()
 
 
 def save_json(
-    data: List[Dict[str, Any]],
+    data: list[dict[str, Any]],
     dataset_id: str,
     table_id: str,
     period: str,
@@ -61,9 +61,9 @@ def save_json(
 async def collect_data(
     dataset_id: str,
     table_id: str,
-    aggregates: List[int],
-    variables: List[int],
-    periods: List[str],
+    aggregates: list[int],
+    variables: list[int],
+    periods: list[str],
     geo_level: str,
 ) -> None:
     """Consulta dados da API IBGE e salva os resultados em JSON."""
@@ -114,7 +114,7 @@ def json_categoria(table_id: str, dataset_id: str, periodo: str):
     input = os.path.join(
         constants.INPUT.value, dataset_id, table_id, periodo, "data.json"
     )
-    with open(input, "r") as f:
+    with open(input) as f:
         df = json.load(f)
 
     # dicionário auxiliar para juntar na mesma linha
@@ -227,7 +227,7 @@ def json_mes_brasil(table_id: str, dataset_id: str, periodo: str):
     input = os.path.join(
         "tmp/json", dataset_id, table_id, periodo, "data.json"
     )
-    with open(input, "r") as f:
+    with open(input) as f:
         df = json.load(f)
     # usamos dicionário auxiliar para juntar na mesma linha
     dados_agrupados = defaultdict(dict)
@@ -326,4 +326,3 @@ def get_legacy_session():
     session = requests.session()
     session.mount("https://", CustomHttpAdapter(ctx))
     return session
-
