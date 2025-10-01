@@ -408,7 +408,6 @@ def check_for_updates(
                 success_dwnl.append(key)
                 log(links[key])
                 sleep(5)
-                breakpoint()
         except Exception as e:
             log(e)
             try:
@@ -466,7 +465,7 @@ def check_for_updates(
             f"A tabela {table_id} foi atualizada no site do IBGE. O Flow de atualização será executado!"
         )
 
-        data_base = datetime.strptime(max_date_ibge, "%Y-%m").date()
+        data_base = datetime.strptime(str(max_date_bd), "%Y-%m-%d").date()
 
         data_proxima = data_base + relativedelta(months=+1)
         ano = str(data_proxima.year)
