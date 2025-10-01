@@ -10,11 +10,6 @@ class constants(Enum):  # pylint: disable=c0103
     FTP_HOST = "ftp.mtps.gov.br"
     REMOTE_DIR = "pdet/microdados/NOVO CAGED"
 
-    URL_SCHEDULE = "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/estatisticas-trabalho/o-pdet/calendario-de-divulgacao-do-novo-caged"
-    CSS_SELECTOR_SCHEDULES = (
-        "#c0c7e623-d6c5-41c0-b9cc-acb0acd78ac7 > div > div > ul > li"
-    )
-
     FILE_TYPES = ["EXC", "FOR", "MOV"]
     RENAME_DICT = {
         "uf": "sigla_uf",
@@ -28,7 +23,6 @@ class constants(Enum):  # pylint: disable=c0103
         "idade": "idade",
         "horascontratuais": "horas_contratuais",
         "racacor": "raca_cor",
-        "sexo": "sexo",
         "salario": "salario_mensal",
         "tipoempregador": "tipo_empregador",
         "tipoestabelecimento": "tipo_estabelecimento",
@@ -41,36 +35,38 @@ class constants(Enum):  # pylint: disable=c0103
         "origemdainformacao": "origem_informacao",
         "indicadordeforadoprazo": "indicador_fora_prazo",
         "indicadordeexclusao": "indicador_exclusao",
-        "competenciamov": "competencia_movimentacao",
-        "competenciadec": "competencia_declarada",
     }
+
     COLUMNS_TO_SELECT = [
-        "sigla_uf",
+        "competenciamov",
         "id_municipio",
         "cnae_2_secao",
         "cnae_2_subclasse",
-        "cbo_2002",
         "saldo_movimentacao",
+        "cbo_2002",
         "categoria",
         "grau_instrucao",
         "idade",
+        "horas_contratuais",
         "raca_cor",
         "sexo",
-        "horas_contratuais",
-        "salario_mensal",
         "tipo_empregador",
         "tipo_estabelecimento",
         "tipo_movimentacao",
         "tipo_deficiencia",
         "indicador_trabalho_intermitente",
         "indicador_trabalho_parcial",
+        "salario_mensal",
         "tamanho_estabelecimento_janeiro",
         "indicador_aprendiz",
         "origem_informacao",
-        "indicador_fora_prazo",
+        "competenciadec",
+        "competenciaexc",
         "indicador_exclusao",
-        "competencia_movimentacao",
-        "competencia_declarada",
+        "indicador_fora_prazo",
+        "ano",
+        "mes",
+        "sigla_uf",
     ]
 
     UF_DICT = {
