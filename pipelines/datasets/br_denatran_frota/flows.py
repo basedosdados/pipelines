@@ -154,7 +154,7 @@ with Flow(
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     target = Parameter("target", default="prod", required=False)
 
