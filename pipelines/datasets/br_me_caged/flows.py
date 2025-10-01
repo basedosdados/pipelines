@@ -234,7 +234,7 @@ with Flow(
             upstream_tasks=[filepath],
         )
 
-        with case(materialize_after_dump, True):      
+        with case(materialize_after_dump, True):
             wait_for_materialization = run_dbt(
                 dataset_id=dataset_id,
                 table_id=table_id,
