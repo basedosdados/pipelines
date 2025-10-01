@@ -137,8 +137,6 @@ def json_categoria(table_id: str, dataset_id: str, periodo: str):
     with open(input) as f:
         df = json.load(f)
 
-        log(df)
-
     # dicionário auxiliar para juntar na mesma linha
     dados_agrupados = defaultdict(dict)
 
@@ -253,7 +251,7 @@ def json_mes_brasil(table_id: str, dataset_id: str, periodo: str):
         df = json.load(f)
     # usamos dicionário auxiliar para juntar na mesma linha
     dados_agrupados = defaultdict(dict)
-    print(f"Tratando dataset: {dataset_id} l table_id: {table_id}")
+
     for indice_bloco in range(len(df)):
         total_resultados = len(df[indice_bloco][0]["resultados"])
         for indice_resultado in range(total_resultados):
@@ -406,7 +404,6 @@ def check_for_updates(
                 with open(path_key, "wb") as f:
                     f.write(response.content)
                 success_dwnl.append(key)
-                log(links[key])
                 sleep(5)
         except Exception as e:
             log(e)
