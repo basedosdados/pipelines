@@ -5,7 +5,6 @@ Tasks for br_ibge_inpc
 import asyncio
 import os
 import ssl
-from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -13,6 +12,7 @@ from prefect import task
 
 from pipelines.crawler.ibge_inflacao.constants import constants
 from pipelines.crawler.ibge_inflacao.utils import (
+    check_for_update_date,
     check_for_updates,
     collect_data,
     json_categoria,
@@ -30,24 +30,23 @@ ssl._create_default_https_context = ssl._create_unverified_context
 # https://sidra.ibge.gov.br/tabela/7060
 
 
-def check_for_update_date(dataset_id, table_id):
-    value = check_for_updates(dataset_id=dataset_id, table_id=table_id)
-
-    return value[1]
-
-
 @task
 def check_for_updates_task(
     table_id: str,
     dataset_id: str,
-) -> tuple[bool, Any]:
+) -> bool:
     verify = check_for_updates(table_id=table_id, dataset_id=dataset_id)
 
     return verify[0]
 
 
 @task
-def collect_data_utils(dataset_id: str, table_id: str, periodo: str) -> None:
+def collect_data_utils(dataset_id: str, table_id: str, periodo=None) -> None:
+    if periodo is None:
+        periodo = check_for_update_date(
+            dataset_id=dataset_id, table_id=table_id
+        )
+
     if table_id == "mes_brasil":
         asyncio.run(
             collect_data(
@@ -78,6 +77,10 @@ def collect_data_utils(dataset_id: str, table_id: str, periodo: str) -> None:
 
 @task
 def json_to_csv(table_id: str, dataset_id: str, periodo: str):
+    if periodo is None:
+        periodo = check_for_update_date(
+            dataset_id=dataset_id, table_id=table_id
+        )
     if table_id == "mes_brasil":
         dados_agrupados = json_mes_brasil(
             dataset_id=dataset_id, table_id=table_id, periodo=periodo
