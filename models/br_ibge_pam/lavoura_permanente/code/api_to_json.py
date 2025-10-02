@@ -11,7 +11,7 @@ from tqdm.asyncio import tqdm  # noqa: F811
 
 API_URL_BASE = "https://servicodados.ibge.gov.br/api/v3/agregados/{}/periodos/{}/variaveis/{}?localidades={}[{}]&classificacao={}[{}]"
 AGREGADO = "1613"  # É a tabela no SIDRA
-PERIODOS = range(2024, 2024 + 1)
+PERIODOS = range(1974, 2022 + 1)
 VARIAVEIS = [
     "2313",
     "1002313",
