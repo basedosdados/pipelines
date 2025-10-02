@@ -185,7 +185,7 @@ def lower_colunm_produto(precos_combustiveis: pd.DataFrame):
 
 def creating_column_ano(precos_combustiveis: pd.DataFrame):
     precos_combustiveis["ano"] = precos_combustiveis["data_coleta"].str[0:4]
-    precos_combustiveis = precos_combustiveis["ano"].replace("nan", "")
+    precos_combustiveis["ano"] = precos_combustiveis["ano"].replace("nan", "")
 
     return precos_combustiveis
 
