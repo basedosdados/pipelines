@@ -260,11 +260,21 @@ def verify_all_url_exists_to_download(
 
     for url in urls:
         log(f"Verificando se a URL {url=} existe")
-        if requests.get(url).status_code != 200:
+        r = requests.get(url)
+        if r.status_code != 200:
             log(f"A URL {url=} não existe!")
             return False
 
-        log(f"A URL {url=} existe!")
+        elif r.status_code == 200:
+            with open("texto.txt", "wb") as f:
+                f.write(r.content)
+
+            with open("texto.txt", "r") as f:  # noqa: UP015
+                if "Estamos passando por uma instabilidade" in f.read():
+                    log("O Site está fora do ar")
+                    return False
+
+    log(f"A URL {url=} existe!")
     return True
 
 
