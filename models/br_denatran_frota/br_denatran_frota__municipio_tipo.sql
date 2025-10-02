@@ -15,8 +15,8 @@
             },
             cluster_by=["mes"],
         ),
-        pre_hook,
-    ) = ("DROP ALL ROW ACCESS POLICIES ON {{ this }}",)
+        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
+    )
 }}
 
 with
