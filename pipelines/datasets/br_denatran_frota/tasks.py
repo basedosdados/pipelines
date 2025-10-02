@@ -205,6 +205,7 @@ def get_desired_file_task(
         str: File path
     """
     year = source_max_date.year
+    month = source_max_date.month
     log(f"-------- Accessing download directory {download_directory}")
     directory_to_search = os.path.join(
         str(download_directory), "files", f"{year}"
@@ -212,10 +213,14 @@ def get_desired_file_task(
     log(f"-------- Directory to search {directory_to_search}")
 
     for file in os.listdir(directory_to_search):
-        if re.search(filetype, file) and file.split(".")[-1] in [
-            "xls",
-            "xlsx",
-        ]:
+        if (
+            re.search(filetype, file)
+            and file.split(".")[-1]
+            in [
+                "xls",
+                "xlsx",
+            ]
+        ) and (month in file.name):
             log(f"-------- The file {file} was selected")
             return os.path.join(directory_to_search, file)
     raise ValueError("No files found!")
@@ -317,14 +322,12 @@ def get_latest_date_task(
     log(f"{denatran_data}")
     year = denatran_data.year
     month = denatran_data.month
-    today = datetime.datetime.now()
-    month_now = today.month
-    year_now = today.year
+    today = datetime.datetime.now().date()
 
     dates = []
     dates_str = []
     year, month = update_yearmonth(year, month)
-    while year <= year_now and month <= month_now:
+    while datetime.date(int(year), int(month), 1) <= today:
         if year > 2012:
             files_dir = os.path.join(
                 str(denatran_constants.DOWNLOAD_PATH.value), "files"
@@ -334,6 +337,7 @@ def get_latest_date_task(
                 files_to_download = extract_links_post_2012(
                     month, year, year_dir_name
                 )
+                log(f"files_to_download:{files_to_download}")
                 if len(files_to_download) > 0:
                     files_to_download.sort(
                         key=lambda x: x["mes"], reverse=True
@@ -346,6 +350,7 @@ def get_latest_date_task(
                         dates_str.append(str_return)
             except Exception as e:
                 log(e, "error")
+                raise
         else:
             url = f"{denatran_constants.BASE_URL_PRE_2012.value}/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
             if verify_file(url):

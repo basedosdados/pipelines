@@ -1,7 +1,6 @@
 {{
-    (
-        config(alias="uf_tipo", schema="br_denatran_frota", materialization="table"),
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}")
+    config(alias="uf_tipo", schema="br_denatran_frota", materialization="table"
+    pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}")
 }}
 
 

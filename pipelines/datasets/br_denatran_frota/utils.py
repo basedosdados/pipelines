@@ -2,6 +2,7 @@
 General purpose functions for the br_denatran_frota project.
 """
 
+import datetime
 import difflib
 import os
 import re
@@ -323,7 +324,7 @@ def download_file(url: str, filename: str) -> None:
     with open(filename, "wb") as f:
         f.write(response.content)
 
-    print(f"Download of {filename} complete")
+    log(f"Download of {filename} complete")
 
 
 def verify_file(
@@ -369,7 +370,7 @@ def generic_extractor(dest_path_file: str):
             compressed_filename_split[: len(compressed_filename_split) - 1]
         )
         for file in f.infolist():
-            print(file)
+            log(file)
             if (
                 re.search("UF|munic", file.filename, re.IGNORECASE)
                 and not file.is_dir()
@@ -401,6 +402,11 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
                 raw_file_name = raw_file_name.replace(
                     "tipo", "uf e tipo"
                 ).replace("Municipio", "municipio e tipo")
+            file_name = (
+                re.sub(r"\d+|\-", "", raw_file_name, flags=re.UNICODE)
+                .lower()
+                .strip()
+            )
             file_name = re.sub(
                 "\\s+", "_", raw_file_name, flags=re.UNICODE
             ).lower()
@@ -412,7 +418,7 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
             )
             if ext:
                 file_path += f".{file_info['file_extension']}"
-            print(f"FILEPATH:{file_path}")
+            log(f"FILEPATH:{file_path}")
             return file_path
 
         ## Make file path pre 2012
@@ -434,7 +440,7 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
                 else:
                     regex_to_search = rf"Mun\w*_(.*?)_{str(year)[2:4]}"
             else:
-                print(file_info)
+                log(file_info)
                 raise ValueError
             match = re.search(regex_to_search, file_info["raw_file_name"])
 
@@ -454,13 +460,12 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
                     extension = str(file_info["raw_file_name"]).split(".")[-1]
                 else:
                     extension = file_info["file_extension"]
-                breakpoint()
                 file_path = (
                     file_info["destination_dir"]
                     + f"/{raw_filename}_{month_value}-{year}.{extension}"
                 )
                 if month_value == int(file_info["mes"]):
-                    print(f"FILEPATH:{file_path}")
+                    log(f"FILEPATH:{file_path}")
                     return file_path
 
 
@@ -497,74 +502,121 @@ def extract_links_post_2012(
 
     ## First level of html elements
     # Searching for html elements with text 'frota'
-    parent_nodes = soup.select("p:contains('rota')")
-    parent_nodes.reverse()
-    valid_links = []
-    matched_year = year
-    matched_month = [
-        key
-        for key, value in denatran_constants.MONTHS.value.items()
-        if value == month - 1
-    ]
-    matched_month = matched_month[0]
-    i = 0
-    while (
-        i < len(parent_nodes)
-        and int(matched_year) <= year
-        and int(
-            denatran_constants.MONTHS.value.get(str(matched_month).lower())
+    tags = soup.find_all(
+        lambda tag: (tag.name == "div" and "pageBreak" in tag.get("class", []))
+        or tag.name == "p"
+    )
+    tags_of_interest = [
+        tag
+        for tag in tags
+        if (
+            tag.a
+            and not re.search(
+                re.compile(
+                    r"Q*uantidade\s*.+",
+                    re.I,
+                ),
+                tag.a.text,
+            )
+            and re.search(
+                re.compile(
+                    r"(F*rota\s*(por)*\s*(UF\s*e*\s*Tipo\s*(de)*\s*Veículo)|(Município\s*e*\s*Tipo))",
+                    re.I,
+                ),
+                tag.a.text,
+            )
         )
-        <= month
-    ):
-        parent_txt = parent_nodes[i].text
+        or (
+            tag.find("strong")
+            and re.search(
+                re.compile(r"F*rota\s*.+", re.I), tag.find("strong").text
+            )
+            and not re.search(
+                re.compile(r"Q*uantidade\s*.+", re.I), tag.find("strong").text
+            )
+        )
+    ]
+    tags_of_interest.reverse()
+    valid_links = []
+    matched_year = None
+    matched_month = None
+    matched_date = datetime.date(year=year, month=month, day=1)
+    ref_date = datetime.date(year=year, month=month, day=1)
+    i = 0
+    while i < len(tags_of_interest) and matched_date <= ref_date:
+        current_tag = tags_of_interest[i]
+        title_index = i + 1
+        parent_txt = tags_of_interest[
+            title_index if title_index < len(tags_of_interest) else i
+        ].get_text(" ", strip=True)
+
         # Parent node text contains month and year info
         parent_match = re.search(
-            r"(?i)\(([\w]+)(?:\s\w*\s*)(\d{4})\)", parent_txt
+            r"(?i)\(\s*([\w]+)(?:\s\w*\s*)(\d{4})\s*\)", parent_txt
         )
-        if parent_match and i > 0:
+
+        # Try again for subsection title
+        if not parent_match and i < len(tags_of_interest) + 2:
+            title_index += 1
+            parent_txt = tags_of_interest[title_index].get_text(
+                " ", strip=True
+            )
+            # Parent node text contains month and year info
+            parent_match = re.search(
+                r"(?i)\(\s*([\w]+)(?:\s\w*\s*)(\d{4})\s*\)", parent_txt
+            )
+        if parent_match:
             matched_month = parent_match.group(1)
             matched_year = parent_match.group(2)
-            i -= 1
-
-            ## Second level of html elements
-            for child_node in parent_nodes[i].select("a"):
-                txt = child_node.text
-                file_url = child_node.get("href")
-                match = re.search(
-                    r"(?i)([\w\-\d\/]+)\.(xls|xlsx|rar|zip)$",
-                    file_url,
-                )
-                # 'Municipio' type of file contains 'município' in its html element's text
-                search_municipio = re.search(
-                    "município", txt, flags=re.IGNORECASE
-                )
-                # 'UF' type of file contains 'UF' or 'tipo' in its html element's text
-                search_uf = re.search("tipo|uf", txt, flags=re.IGNORECASE)
-                if (
-                    match
-                    and (search_uf or search_municipio)
-                    and denatran_constants.MONTHS.value.get(
+            matched_date = datetime.date(
+                year=int(matched_year),
+                month=int(
+                    denatran_constants.MONTHS.value.get(
                         str(matched_month).lower()
                     )
-                    == int(month)
-                    and matched_year == str(year)
-                ):
-                    # All file metadata aggregated at the info dict
-                    info = {
-                        "raw_file_name": txt,
-                        "file_url": file_url,
-                        "mes": month,
-                        "ano": year,
-                        "file_extension": match.group(2).lower(),
-                        "type_of_file": DenatranType.Municipio
-                        if search_municipio
-                        else DenatranType.UF,
-                        "destination_dir": str(directory),
-                    }
-                    valid_links.append(info)
-            i += 2
-        else:
-            i += 1
+                ),
+                day=1,
+            )
+
+        if current_tag.find("a"):
+            ## Second level of html elements
+            for child_node in current_tag.select("a"):
+                txt = child_node.text
+                if "quantidade" not in txt.lower():
+                    file_url = child_node.get("href")
+                    match = re.search(
+                        r"(?i)([\w\-\d\/]+)\.(xls|xlsx|rar|zip)$",
+                        file_url,
+                    )
+                    # 'Municipio' type of file contains 'município' in its html element's text
+                    search_municipio = re.search(
+                        "município", txt, flags=re.IGNORECASE
+                    )
+                    # 'UF' type of file contains 'UF' or 'tipo' in its html element's text
+                    search_uf = re.search("tipo|uf", txt, flags=re.IGNORECASE)
+                    if (
+                        match
+                        and (search_uf or search_municipio)
+                        and denatran_constants.MONTHS.value.get(
+                            str(matched_month).lower()
+                        )
+                        == int(month)
+                        and matched_year == str(year)
+                    ):
+                        # All file metadata aggregated at the info dict
+                        info = {
+                            "raw_file_name": txt,
+                            "file_url": file_url,
+                            "mes": month,
+                            "ano": year,
+                            "file_extension": match.group(2).lower(),
+                            "type_of_file": DenatranType.Municipio
+                            if search_municipio
+                            else DenatranType.UF,
+                            "destination_dir": str(directory),
+                        }
+                        valid_links.append(info)
+        i += 1
     log(f"There are {len(valid_links)} valid links.")
     return valid_links
 
@@ -609,9 +661,9 @@ def extraction_pre_2012(
             try:
                 file_path = make_file_path(file_info=file_info, ext=True)
             except Exception as e:
-                print(e)
+                log(e)
             if file_path:
-                print(file_path)
+                log(file_path)
                 g.extract(file, path=year_dir_name)
                 os.rename(f"{year_dir_name}/{file.filename}", file_path)
 

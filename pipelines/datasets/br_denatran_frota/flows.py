@@ -15,7 +15,6 @@ from pipelines.datasets.br_denatran_frota.tasks import (
     get_desired_file_task,
     get_latest_date_task,
     output_file_to_parquet_task,
-    treat_municipio_tipo_task,
     treat_uf_tipo_task,
 )
 from pipelines.utils.decorators import Flow
@@ -90,16 +89,16 @@ with Flow(
                 denatran_constants.DOWNLOAD_PATH.value
             ),
             filetype=unmapped(denatran_constants.UF_TIPO_BASIC_FILENAME.value),
-            upstream_tasks=[crawled],
+            upstream_tasks=[unmapped(crawled)],
         )
 
         dataframes = treat_uf_tipo_task.map(
-            file=desired_file, upstream_tasks=[desired_file]
+            file=desired_file, upstream_tasks=[unmapped(desired_file)]
         )
 
         parquet_output = output_file_to_parquet_task.map(
             dataframes,
-            upstream_tasks=[dataframes],
+            upstream_tasks=[unmapped(dataframes)],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -107,7 +106,7 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=parquet_output,
+            upstream_tasks=[unmapped(parquet_output)],
         )
 
         with case(materialize_after_dump, True):
@@ -209,16 +208,16 @@ with Flow(
             filetype=unmapped(
                 denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value
             ),
-            upstream_tasks=[crawled],
+            upstream_tasks=[unmapped(crawled)],
         )
 
-        dataframes = treat_municipio_tipo_task.map(
-            file=desired_file, upstream_tasks=[desired_file]
+        dataframes = treat_uf_tipo_task.map(
+            file=desired_file, upstream_tasks=[unmapped(desired_file)]
         )
 
         parquet_output = output_file_to_parquet_task.map(
             dataframes,
-            upstream_tasks=[dataframes],
+            upstream_tasks=[unmapped(dataframes)],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -226,7 +225,7 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=parquet_output,
+            upstream_tasks=[unmapped(parquet_output)],
         )
 
         with case(materialize_after_dump, True):
