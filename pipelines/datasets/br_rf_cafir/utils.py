@@ -74,7 +74,7 @@ def parse_api_metadata(url: str, headers: dict | None = None) -> pd.DataFrame:
         if data_atualizacao.find_next_sibling("td").get("align") == "right"
     ]
     data_atualizacao_arquivos_formatada = [
-        datetime.strptime(a.text.strip(), "%Y-%m-%d %H:%M").date()
+        datetime.datetime.strptime(a.text.strip(), "%Y-%m-%d %H:%M").date()
         for a in data_atualizacao_arquivos
     ]
 
