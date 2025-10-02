@@ -484,24 +484,33 @@ def extract_links_post_2012(
     ## First level of html elements
     # Searching for html elements with text 'frota'
     parent_nodes = soup.select("p:contains('rota')")
+    parent_nodes.reverse()
     valid_links = []
+    matched_year = year
+    matched_month = [
+        key
+        for key, value in denatran_constants.MONTHS.value.items()
+        if value == month - 1
+    ]
+    matched_month = matched_month[0]
     i = 0
-    while i < len(parent_nodes):
-        matched_year = None
-        matched_month = None
+    while (
+        i < len(parent_nodes)
+        and int(matched_year) <= year
+        and int(
+            denatran_constants.MONTHS.value.get(str(matched_month).lower())
+        )
+        <= month
+    ):
         parent_txt = parent_nodes[i].text
-
         # Parent node text contains month and year info
         parent_match = re.search(
             r"(?i)\(([\w]+)(?:\s\w*\s*)(\d{4})\)", parent_txt
         )
-        if parent_match:
+        if parent_match and i > 0:
             matched_month = parent_match.group(1)
             matched_year = parent_match.group(2)
-            i += 1
-
-            if i >= len(parent_nodes):
-                break
+            i -= 1
 
             ## Second level of html elements
             for child_node in parent_nodes[i].select("a"):
@@ -539,7 +548,7 @@ def extract_links_post_2012(
                         "destination_dir": str(directory),
                     }
                     valid_links.append(info)
-            i += 1
+            i += 2
         else:
             i += 1
     log(f"There are {len(valid_links)} valid links.")

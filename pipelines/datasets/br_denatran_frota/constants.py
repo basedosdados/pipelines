@@ -15,6 +15,7 @@ class constants(Enum):
         "janeiro": 1,
         "fevereiro": 2,
         "marco": 3,
+        "março": 3,
         "abril": 4,
         "maio": 5,
         "junho": 6,
