@@ -32,6 +32,20 @@ class DenatranType(Enum):
     UF = "UF"
 
 
+def update_yearmonth(year: str | int, month: str | int):
+    if isinstance(year, str):
+        year = int(year)
+    if isinstance(month, str):
+        month = int(month)
+
+    if month == 12:
+        year += 1
+        month = 1
+    else:
+        month += 1
+    return year, month
+
+
 def guess_header(
     df: pd.DataFrame, type_of_file: DenatranType, max_header_guess: int = 10
 ) -> int:
@@ -478,7 +492,7 @@ def extract_links_post_2012(
         year (int): A year starting from 2013 onwards.
         month (int): A month from 1 to 12.
     """
-    url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}"
+    url = f"{denatran_constants.BASE_URL_POST_2012.value}/frota-de-veiculos-{year}"
     soup = BeautifulSoup(urlopen(url), "html.parser")
 
     ## First level of html elements

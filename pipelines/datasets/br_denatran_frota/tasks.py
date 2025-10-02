@@ -8,6 +8,7 @@ import basedosdados as bd
 import pandas as pd
 import polars as pl
 from prefect import task
+from prefect.triggers import all_finished
 from string_utils import asciify
 
 from pipelines.datasets.br_denatran_frota.constants import (
@@ -24,6 +25,7 @@ from pipelines.datasets.br_denatran_frota.utils import (
     get_year_month_from_filename,
     guess_header,
     treat_uf,
+    update_yearmonth,
     verify_file,
     verify_total,
 )
@@ -71,7 +73,7 @@ def crawl_task(
             return False
 
     else:
-        url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
+        url = f"{denatran_constants.BASE_URL_PRE_2012.value}/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
         filename = f"{year_dir_name}/dados_anuais.zip"
         download_file(url, filename)
         if year < 2010:
@@ -91,7 +93,7 @@ def crawl_task(
     return True
 
 
-@task()
+@task(trigger=all_finished)
 def treat_uf_tipo_task(file) -> pl.DataFrame:
     """Task to treat data from  frota por UF e tipo.
 
@@ -160,7 +162,7 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
     return clean_pl_df
 
 
-@task()
+@task(trigger=all_finished)
 def output_file_to_parquet_task(df: pl.DataFrame) -> Path:
     """Task to save .parquet uf_tipo and municipio_tipo files
 
@@ -184,7 +186,7 @@ def output_file_to_parquet_task(df: pl.DataFrame) -> Path:
     return output_path
 
 
-@task()
+@task(trigger=all_finished)
 def get_desired_file_task(
     source_max_date: datetime, download_directory: str, filetype: str
 ) -> str:
@@ -294,7 +296,7 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
 @task()
 def get_latest_date_task(
     table_id: str, dataset_id: str
-) -> tuple[int | None, str | None]:
+) -> tuple[list, list, int | None, str | None]:
     """Task to extract the latest data from available on the data source
     Args:
         table_id (str): table_id from BQ
@@ -315,14 +317,14 @@ def get_latest_date_task(
     log(f"{denatran_data}")
     year = denatran_data.year
     month = denatran_data.month
+    today = datetime.datetime.now()
+    month_now = today.month
+    year_now = today.year
 
-    flag_new_data = True
-    if month == 12:
-        year += 1
-        month = 1
-    else:
-        month += 1
-    while flag_new_data:
+    dates = []
+    dates_str = []
+    year, month = update_yearmonth(year, month)
+    while year <= year_now and month <= month_now:
         if year > 2012:
             files_dir = os.path.join(
                 str(denatran_constants.DOWNLOAD_PATH.value), "files"
@@ -332,38 +334,29 @@ def get_latest_date_task(
                 files_to_download = extract_links_post_2012(
                     month, year, year_dir_name
                 )
-                if len(files_to_download) == 0:
-                    month -= 1
-                    flag_new_data = False
-                    break
-                files_to_download.sort(key=lambda x: x["mes"], reverse=True)
-                file_dict = files_to_download[0]
-                if verify_file(file_dict["file_url"]):
-                    if month == 12:
-                        year += 1
-                        month = 1
-                    else:
-                        month += 1
-                else:
-                    month -= 1
-                    flag_new_data = False
+                if len(files_to_download) > 0:
+                    files_to_download.sort(
+                        key=lambda x: x["mes"], reverse=True
+                    )
+                    file_dict = files_to_download[0]
+                    if verify_file(file_dict["file_url"]):
+                        date_return = datetime.datetime(year, month, 1)
+                        str_return = date_return.strftime("%Y-%m")
+                        dates.append(date_return)
+                        dates_str.append(str_return)
             except Exception as e:
                 log(e, "error")
-                break
         else:
-            url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
+            url = f"{denatran_constants.BASE_URL_PRE_2012.value}/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
             if verify_file(url):
-                if month == 12:
-                    year += 1
-                    month = 1
-                else:
-                    month += 1
-            else:
-                flag_new_data = False
+                date_return = datetime.datetime(year, month, 1)
+                str_return = date_return.strftime("%Y-%m")
+                dates.append(date_return)
+                dates_str.append(str_return)
+
+        year, month = update_yearmonth(year, month)
     log(f"Ano: {year}, mês: {month}")
-    date_return = datetime.datetime(year, month, 1)
-    str_return = date_return.strftime("%Y-%m")
-    return date_return, str_return
+    return dates, dates_str, dates[0], dates_str[0]
 
 
 @task()

@@ -11,6 +11,8 @@ class constants(Enum):
     Constant values for the br_denatran_frota project
     """
 
+    BASE_URL_PRE_2012 = "https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam"
+    BASE_URL_POST_2012 = "https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran"
     MONTHS = {
         "janeiro": 1,
         "fevereiro": 2,
