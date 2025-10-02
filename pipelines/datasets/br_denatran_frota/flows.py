@@ -14,7 +14,6 @@ from pipelines.datasets.br_denatran_frota.tasks import (
     crawl_task,
     get_desired_file_task,
     get_latest_date_task,
-    output_file_to_parquet_task,
     treat_uf_tipo_task,
 )
 from pipelines.utils.decorators import Flow
@@ -92,13 +91,8 @@ with Flow(
             upstream_tasks=[unmapped(crawled)],
         )
 
-        dataframes = treat_uf_tipo_task.map(
+        parquet_output = treat_uf_tipo_task.map(
             file=desired_file, upstream_tasks=[unmapped(desired_file)]
-        )
-
-        parquet_output = output_file_to_parquet_task.map(
-            dataframes,
-            upstream_tasks=[unmapped(dataframes)],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
@@ -211,13 +205,8 @@ with Flow(
             upstream_tasks=[unmapped(crawled)],
         )
 
-        dataframes = treat_uf_tipo_task.map(
+        parquet_output = treat_uf_tipo_task.map(
             file=desired_file, upstream_tasks=[unmapped(desired_file)]
-        )
-
-        parquet_output = output_file_to_parquet_task.map(
-            dataframes,
-            upstream_tasks=[unmapped(dataframes)],
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(

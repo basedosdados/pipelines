@@ -25,7 +25,7 @@ from string_utils import asciify
 from pipelines.datasets.br_denatran_frota.constants import (
     constants as denatran_constants,
 )
-from pipelines.utils.utils import log
+from pipelines.utils.utils import log, to_partitions
 
 
 class DenatranType(Enum):
@@ -755,6 +755,29 @@ def treat_uf(
         # The set difference might occur the other way around, but still, better safe.
         raise ValueError(f"Existem municípios em {uf} que não estão na BD.")
     return verify_match_ibge(denatran_uf, ibge_uf)
+
+
+def output_file_to_parquet(df: pl.DataFrame) -> Path:
+    """Task to save .parquet uf_tipo and municipio_tipo files
+
+    Args:
+        df (pl.DataFrame): Polars DataFrame to be saved
+
+    Returns:
+        _type_: None
+    """
+    output_path = denatran_constants.OUTPUT_PATH.value
+
+    pd_df = df.to_pandas()
+    pd_df = pd_df.astype(str)
+
+    to_partitions(
+        pd_df,
+        partition_columns=["ano", "mes"],
+        savepath=output_path,
+        file_type="parquet",
+    )
+    return output_path
 
 
 def get_data_from_prod(dataset_id: str, table_id: str) -> list:

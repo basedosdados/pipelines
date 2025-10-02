@@ -24,13 +24,14 @@ from pipelines.datasets.br_denatran_frota.utils import (
     extraction_pre_2012,
     get_year_month_from_filename,
     guess_header,
+    output_file_to_parquet,
     treat_uf,
     update_yearmonth,
     verify_file,
     verify_total,
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
-from pipelines.utils.utils import log, to_partitions
+from pipelines.utils.utils import log
 
 
 @task()
@@ -91,6 +92,46 @@ def crawl_task(
             extraction_pre_2012(month, year, year_dir_name, filename)
 
     return True
+
+
+@task(trigger=all_finished)
+def get_desired_file_task(
+    source_max_date: datetime, download_directory: str, filetype: str
+) -> str:
+    """
+    Task to search for the desired file at a specific folder, being it uf_tipo or municipio_tipo
+
+    Args:
+        year (int): file year
+        download_directory (str | Path): donwload directory
+        filetype (str): filetype
+
+    Raises:
+        ValueError: No files found
+
+    Returns:
+        str: File path
+    """
+    year = source_max_date.year
+    month = source_max_date.month
+    log(f"-------- Accessing download directory {download_directory}")
+    directory_to_search = os.path.join(
+        str(download_directory), "files", f"{year}"
+    )
+    log(f"-------- Directory to search {directory_to_search}")
+
+    for file in os.listdir(directory_to_search):
+        if (
+            re.search(filetype, file)
+            and file.split(".")[-1]
+            in [
+                "xls",
+                "xlsx",
+            ]
+        ) and (month in file.name):
+            log(f"-------- The file {file} was selected")
+            return os.path.join(directory_to_search, file)
+    raise ValueError("No files found!")
 
 
 @task(trigger=all_finished)
@@ -159,71 +200,8 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
     )  # Long format.
 
     log("-------- Data Wrangling finished")
-    return clean_pl_df
-
-
-@task(trigger=all_finished)
-def output_file_to_parquet_task(df: pl.DataFrame) -> Path:
-    """Task to save .parquet uf_tipo and municipio_tipo files
-
-    Args:
-        df (pl.DataFrame): Polars DataFrame to be saved
-
-    Returns:
-        _type_: None
-    """
-    output_path = denatran_constants.OUTPUT_PATH.value
-
-    pd_df = df.to_pandas()
-    pd_df = pd_df.astype(str)
-
-    to_partitions(
-        pd_df,
-        partition_columns=["ano", "mes"],
-        savepath=output_path,
-        file_type="parquet",
-    )
+    output_path = output_file_to_parquet(clean_pl_df)
     return output_path
-
-
-@task(trigger=all_finished)
-def get_desired_file_task(
-    source_max_date: datetime, download_directory: str, filetype: str
-) -> str:
-    """
-    Task to search for the desired file at a specific folder, being it uf_tipo or municipio_tipo
-
-    Args:
-        year (int): file year
-        download_directory (str | Path): donwload directory
-        filetype (str): filetype
-
-    Raises:
-        ValueError: No files found
-
-    Returns:
-        str: File path
-    """
-    year = source_max_date.year
-    month = source_max_date.month
-    log(f"-------- Accessing download directory {download_directory}")
-    directory_to_search = os.path.join(
-        str(download_directory), "files", f"{year}"
-    )
-    log(f"-------- Directory to search {directory_to_search}")
-
-    for file in os.listdir(directory_to_search):
-        if (
-            re.search(filetype, file)
-            and file.split(".")[-1]
-            in [
-                "xls",
-                "xlsx",
-            ]
-        ) and (month in file.name):
-            log(f"-------- The file {file} was selected")
-            return os.path.join(directory_to_search, file)
-    raise ValueError("No files found!")
 
 
 @task()
@@ -295,7 +273,9 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
     )  # Long format.
 
     log("-------- Data Wrangling finished")
-    return full_pl_df
+
+    output_path = output_file_to_parquet(full_pl_df)
+    return output_path
 
 
 @task()
