@@ -37,6 +37,7 @@ from pipelines.utils.utils import log
 @task()
 def crawl_task(
     source_max_date: datetime,
+    table_id: str,
     temp_dir: str | Path = denatran_constants.DOWNLOAD_PATH.value,
 ) -> bool:
     """
@@ -55,8 +56,8 @@ def crawl_task(
     if month not in denatran_constants.MONTHS.value.values():
         raise ValueError("Mês inválido.")
     log("Downloading file")
-    files_dir = os.path.join(str(temp_dir), "files")
-    year_dir_name = os.path.join(str(files_dir), f"{year}")
+    table_dir = os.path.join(str(temp_dir), table_id)
+    year_dir_name = os.path.join(str(table_dir), f"{year}")
     Path(year_dir_name).mkdir(exist_ok=True, parents=True)
     if year > 2012:
         try:
@@ -96,7 +97,10 @@ def crawl_task(
 
 @task(trigger=all_finished)
 def get_desired_file_task(
-    source_max_date: datetime, download_directory: str, filetype: str
+    source_max_date: datetime,
+    download_directory: str,
+    table_id: str,
+    filetype: str,
 ) -> str:
     """
     Task to search for the desired file at a specific folder, being it uf_tipo or municipio_tipo
@@ -116,21 +120,20 @@ def get_desired_file_task(
     month = source_max_date.month
     log(f"-------- Accessing download directory {download_directory}")
     directory_to_search = os.path.join(
-        str(download_directory), "files", f"{year}"
+        str(download_directory), table_id, f"{year}"
     )
     log(f"-------- Directory to search {directory_to_search}")
 
     for file in os.listdir(directory_to_search):
-        if (
-            re.search(filetype, file)
-            and file.split(".")[-1]
-            in [
-                "xls",
-                "xlsx",
-            ]
-        ) and (str(month) in file):
-            log(f"-------- The file {file} was selected")
-            return os.path.join(directory_to_search, file)
+        split = file.split(".")
+        if re.search(filetype, file) and split[-1] in [
+            "xls",
+            "xlsx",
+        ]:
+            match = re.search(r"_(\d+)-\d{4}$", split[0])
+            if match and match.group(1) == str(month):
+                log(f"-------- The file {file} was selected")
+                return os.path.join(directory_to_search, file)
     raise ValueError("No files found!")
 
 
@@ -203,7 +206,8 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
     )  # Long format.
 
     log("-------- Data Wrangling finished")
-    output_path = output_file_to_parquet(clean_pl_df)
+    output_path = output_file_to_parquet(clean_pl_df, table_id="uf_tipo")
+    log(f"-------- Data Saved: {output_path}")
     return output_path
 
 
@@ -282,7 +286,8 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
 
     log("-------- Data Wrangling finished")
 
-    output_path = output_file_to_parquet(full_pl_df)
+    output_path = output_file_to_parquet(full_pl_df, table_id="municipio_tipo")
+    log(f"-------- Data Saved: {output_path}")
     return output_path
 
 
@@ -325,7 +330,6 @@ def get_latest_date_task(
                 files_to_download = extract_links_post_2012(
                     month, year, year_dir_name
                 )
-                log(f"files_to_download:{files_to_download}")
                 if len(files_to_download) > 0:
                     files_to_download.sort(
                         key=lambda x: x["mes"], reverse=True
@@ -349,6 +353,7 @@ def get_latest_date_task(
 
         year, month = update_yearmonth(year, month)
     log(f"Ano: {year}, mês: {month}")
+    log(f"Available dates: {dates_str}")
     return dates, dates_str, dates[0], dates_str[0]
 
 

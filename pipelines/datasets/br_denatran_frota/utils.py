@@ -758,7 +758,11 @@ def treat_uf(
     return verify_match_ibge(denatran_uf, ibge_uf)
 
 
-def output_file_to_parquet(df: pl.DataFrame) -> Path:
+def output_file_to_parquet(
+    df: pl.DataFrame,
+    table_id: str,
+    output_path: str | Path = denatran_constants.OUTPUT_PATH.value,
+) -> Path:
     """Task to save .parquet uf_tipo and municipio_tipo files
 
     Args:
@@ -767,18 +771,16 @@ def output_file_to_parquet(df: pl.DataFrame) -> Path:
     Returns:
         _type_: None
     """
-    output_path = denatran_constants.OUTPUT_PATH.value
 
     pd_df = df.to_pandas()
     pd_df = pd_df.astype(str)
-
     to_partitions(
         pd_df,
         partition_columns=["ano", "mes"],
-        savepath=output_path,
+        savepath=os.path.join(output_path, table_id),
         file_type="parquet",
     )
-    return output_path
+    return os.path.join(output_path, table_id)
 
 
 def get_data_from_prod(dataset_id: str, table_id: str) -> list:

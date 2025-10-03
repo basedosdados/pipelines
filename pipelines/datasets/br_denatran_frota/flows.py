@@ -79,6 +79,7 @@ with Flow(
         log_task("Updates found! The run will be started.")
         crawled = crawl_task.map(
             source_max_date=source_available_dates,
+            table_id=unmapped(table_id),
             temp_dir=unmapped(denatran_constants.DOWNLOAD_PATH.value),
             upstream_tasks=[unmapped(check_if_outdated)],
         )
@@ -88,6 +89,7 @@ with Flow(
             download_directory=unmapped(
                 denatran_constants.DOWNLOAD_PATH.value
             ),
+            table_id=unmapped(table_id),
             filetype=unmapped(denatran_constants.UF_TIPO_BASIC_FILENAME.value),
             upstream_tasks=[unmapped(crawled)],
         )
@@ -97,11 +99,11 @@ with Flow(
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=denatran_constants.OUTPUT_PATH.value,
+            data_path=parquet_output[0],
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            upstream_tasks=[unmapped(parquet_output)],
+            upstream_tasks=[parquet_output],
         )
 
         with case(materialize_after_dump, True):
@@ -191,6 +193,7 @@ with Flow(
         log_task("Updates found! The run will be started.")
         crawled = crawl_task.map(
             source_max_date=source_available_dates,
+            table_id=unmapped(table_id),
             temp_dir=unmapped(denatran_constants.DOWNLOAD_PATH.value),
             upstream_tasks=[unmapped(check_if_outdated)],
         )
@@ -200,6 +203,7 @@ with Flow(
             download_directory=unmapped(
                 denatran_constants.DOWNLOAD_PATH.value
             ),
+            table_id=unmapped(table_id),
             filetype=unmapped(
                 denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value
             ),
@@ -211,7 +215,7 @@ with Flow(
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=denatran_constants.OUTPUT_PATH.value,
+            data_path=parquet_output[0],
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
