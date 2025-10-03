@@ -9,7 +9,6 @@ from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.datasets.br_ibge_pnadc.tasks import (
-    build_partitions,
     build_table_paths,
     get_data_source_date_and_url,
 )
@@ -24,7 +23,6 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     run_dbt,
 )
-from pipelines.utils.to_download.tasks import download_async
 
 # pylint: disable=C0103
 with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
@@ -65,21 +63,21 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
         input_dir, output_dir = build_table_paths(
             table_id=table_id, upstream_tasks=[outdated]
         )
-        input_filepath = download_async(
-            url, input_dir, "zip", upstream_tasks=[input_dir, output_dir]
-        )
+        # input_filepath = download_async(
+        #     url, input_dir, "zip", upstream_tasks=[input_dir, output_dir]
+        # )
 
-        output_filepath = build_partitions(
-            input_filepath, output_dir, upstream_tasks=[input_filepath]
-        )
+        # output_filepath = build_partitions(
+        #     input_dir, output_dir, upstream_tasks=[input_dir]
+        # )
 
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=output_filepath,
+            data_path=output_dir,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=output_filepath,
-            upstream_tasks=[output_filepath],
+            wait=output_dir,
+            upstream_tasks=[output_dir],
         )
         with case(materialize_after_dump, True):
             wait_for_materialization = run_dbt(

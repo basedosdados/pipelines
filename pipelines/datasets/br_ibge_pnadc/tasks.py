@@ -116,11 +116,13 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
     Build parquets from txt original file.
     """
 
-    filepaths = glob(f"{input_path}*.txt")
+    log(f"Input_path: {input_path}")
+    filepaths = glob(f"{input_path}/*.txt")
+    log(f"Filepaths: {filepaths}")
     if len(filepaths) > 0:
         filepath = filepaths[0]
     else:
-        filepath = filepaths
+        log("Arquivo(s) não encontrado(s)", "error")
 
     chunks = pd.read_fwf(
         filepath,
@@ -131,7 +133,6 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
         dtype=str,
         chunksize=25000,
     )
-
     for i, chunk in enumerate(chunks):
         # partition by year, quarter and region
         chunk.rename(
@@ -177,11 +178,11 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
 
             # Save to CSV incrementally
             df_uf.to_csv(
-                f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/microdados.csv",
+                f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/data.csv",
                 index=False,
                 mode="a",
                 header=not os.path.exists(
-                    f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/microdados.csv"
+                    f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/data.csv"
                 ),
             )
 
