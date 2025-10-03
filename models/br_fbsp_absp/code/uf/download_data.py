@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 import os
 from time import sleep
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 
 
@@ -62,7 +61,9 @@ def create_website():
 
     website.get("http://forumseguranca.org.br:3838/")
     wait.until(
-        EC.visibility_of_element_located((By.ID, "tableau_mvi-downloadData"))
+        expected_conditions.visibility_of_element_located(
+            (By.ID, "tableau_mvi-downloadData")
+        )
     )
 
     return website

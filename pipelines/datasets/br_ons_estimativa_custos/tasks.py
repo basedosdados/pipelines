@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_ons_avaliacao_operacao
 """
@@ -6,7 +5,6 @@ Tasks for br_ons_avaliacao_operacao
 import os
 import time as tm
 from datetime import date, datetime
-from typing import Union
 
 import pandas as pd
 from prefect import task
@@ -103,8 +101,8 @@ def download_data(
 @task
 def wrang_data(
     table_name: str,
-    data_mais_recente_do_bq: Union[date, datetime],
-) -> tuple[bool, str, Union[date, datetime]]:
+    data_mais_recente_do_bq: date | datetime,
+) -> tuple[bool, str, date | datetime]:
     """Essa task realiza o tratamento dos dados das tabelas do ONS
 
     Args:
@@ -229,7 +227,7 @@ def wrang_data(
                 log("O flow será terminado")
                 return False, False
 
-            df.rename(columns={"id_subsistena": "id_subsistema"}, inplace=True)
+            df = df.rename(columns={"id_subsistena": "id_subsistema"})
 
             log("criando colunas de ano e mes")
             df = process_date_column(

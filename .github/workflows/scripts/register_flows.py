@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Custom script for registering flows.
 """
@@ -70,7 +69,7 @@ def build_and_register(
             logger.info(f"  Building `{type(storage).__name__}` storage...")
             try:
                 storage.build()
-            except Exception:  # pylint: disable=broad-except
+            except Exception:
                 logger.error("    Error building storage:")
                 logger.error(traceback.format_exc())
                 for flow in _flows:
@@ -101,7 +100,7 @@ def build_and_register(
                             schedule=schedule,
                         )
                         break
-                    except Exception:  # pylint: disable=broad-except
+                    except Exception:
                         logger.error("Error registering flow:")
                         logger.error(traceback.format_exc())
                         if attempts < max_retries:
@@ -113,7 +112,7 @@ def build_and_register(
                             stats["errored"] += 1
                             continue
 
-            except Exception:  # pylint: disable=broad-except
+            except Exception:
                 logger.error(" Error")
                 logger.error(traceback.format_exc())
                 stats["errored"] += 1
@@ -144,7 +143,7 @@ def collect_flows(
     """
 
     out = {}
-    for p in paths:  # pylint: disable=invalid-name
+    for p in paths:
         flows = load_flows_from_script(p)
         out[p] = flows
 
@@ -235,7 +234,7 @@ def load_flows_from_script(path: str) -> list[prefect.Flow]:
 
     flows = [f for f in namespace.values() if isinstance(f, prefect.Flow)]
     if flows:
-        for f in flows:  # pylint: disable=invalid-name
+        for f in flows:
             if f.storage is None:
                 f.storage = Local(path=abs_path, stored_as_script=True)
     return flows
@@ -441,27 +440,22 @@ def get_declared(python_file: Path) -> list[str]:
     # Then, iterate over the imports.
     declared = []
     for node in tree.body:
-        # print(type(node))
         if isinstance(node, ast.Assign):
             for target in node.targets:
                 if isinstance(target, ast.Name):
                     declared.append(f"{file_path}.{target.id}")
-        elif isinstance(node, ast.AugAssign):
-            if isinstance(node.target, ast.Name):
-                declared.append(f"{file_path}.{node.target.id}")
-        elif isinstance(node, ast.AnnAssign):
+        elif isinstance(node, ast.AugAssign | ast.AnnAssign):
             if isinstance(node.target, ast.Name):
                 declared.append(f"{file_path}.{node.target.id}")
         elif isinstance(node, ast.With):
             for item in node.items:
-                if isinstance(item, ast.withitem):
-                    if isinstance(item.optional_vars, ast.Name):
-                        declared.append(f"{file_path}.{item.optional_vars.id}")
-        elif isinstance(node, ast.FunctionDef):
-            declared.append(f"{file_path}.{node.name}")
-        elif isinstance(node, ast.AsyncFunctionDef):
-            declared.append(f"{file_path}.{node.name}")
-        elif isinstance(node, ast.ClassDef):
+                if isinstance(item, ast.withitem) and isinstance(
+                    item.optional_vars, ast.Name
+                ):
+                    declared.append(f"{file_path}.{item.optional_vars.id}")
+        elif isinstance(
+            node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef
+        ):
             declared.append(f"{file_path}.{node.name}")
 
     return declared
@@ -530,7 +524,7 @@ def get_affected_flows(pipelines_files: list[Path]) -> list[FlowLike]:
                 flows.append(evaluate)
         except Exception as e:
             msg = f"Could not evaluate {declaration}: {e}"
-            raise Exception(msg)
+            raise Exception(msg) from e
     return flows
 
 
@@ -584,8 +578,7 @@ def pipelines_to_force_registration(
         [
             Path(file).parts[1:][0]
             for file in modified_files
-            if file.startswith("models")
-            and file.endswith(".sql")
+            if (file.startswith("models") and file.endswith(".sql"))
             or file.endswith(("schema.yml", "schema.yaml"))
         ]
     )
@@ -617,11 +610,7 @@ def pipeline_project_file_relevant_changed(files: list[str]) -> bool:
     Returns:
         bool: Return true if uv.lock or pyproject.toml is changed.
     """
-    for file in files:
-        if file in ["uv.lock", "pyproject.toml"]:
-            return True
-
-    return False
+    return any(file in ["uv.lock", "pyproject.toml"] for file in files)
 
 
 def main(
@@ -686,7 +675,7 @@ def main(
         affected_flows = get_affected_flows(
             [*pipelines_files, *pipelines_files_force_registration]
         )
-        for key in source_to_flows.keys():
+        for key in source_to_flows:
             filtered_flows = []
             for flow in source_to_flows[key]:
                 if flow in affected_flows:
@@ -717,7 +706,7 @@ def main(
             evaluate_declaration(declaration)
             for declaration in get_declared(execute_dbt_model_flow)
         ]
-        for key in source_to_flows.keys():
+        for key in source_to_flows:
             flows_instance = [
                 e
                 for e in evals_execute_dbt_model

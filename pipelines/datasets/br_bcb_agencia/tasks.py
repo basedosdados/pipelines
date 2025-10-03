@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_bcb_agencia
 """
@@ -7,7 +6,6 @@ import datetime as dt
 import os
 import zipfile
 from datetime import timedelta
-from typing import Tuple
 
 import basedosdados as bd
 import pandas as pd
@@ -62,7 +60,7 @@ def get_documents_metadata() -> dict:
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def get_latest_file(data: dict) -> Tuple[str | None, str | None]:
+def get_latest_file(data: dict) -> tuple[str | None, str | None]:
     """
     Extract the most recent download link and its reference date from BCB metadata.
 
@@ -159,34 +157,34 @@ def clean_data():
     This task wrangles the data from the downloaded files.
     """
 
-    ZIP_PATH = agencia_constants.ZIPFILE_PATH_AGENCIA.value
-    INPUT_PATH = agencia_constants.INPUT_PATH_AGENCIA.value
-    OUTPUT_PATH = agencia_constants.OUTPUT_PATH_AGENCIA.value
+    zip_path = agencia_constants.ZIPFILE_PATH_AGENCIA.value
+    input_path = agencia_constants.INPUT_PATH_AGENCIA.value
+    output_path = agencia_constants.OUTPUT_PATH_AGENCIA.value
 
     log("Ensuring creation of Input/Output folders")
-    if not os.path.exists(INPUT_PATH):
-        os.makedirs(INPUT_PATH, exist_ok=True)
+    if not os.path.exists(input_path):
+        os.makedirs(input_path, exist_ok=True)
 
-    if not os.path.exists(OUTPUT_PATH):
-        os.makedirs(OUTPUT_PATH, exist_ok=True)
+    if not os.path.exists(output_path):
+        os.makedirs(output_path, exist_ok=True)
 
-    zip_files = os.listdir(ZIP_PATH)
+    zip_files = os.listdir(zip_path)
     log("Extracting zip files")
     for file in zip_files:
         log(f"File --> : {file}")
-        with zipfile.ZipFile(os.path.join(ZIP_PATH, file), "r") as z:
-            z.extractall(INPUT_PATH)
+        with zipfile.ZipFile(os.path.join(zip_path, file), "r") as z:
+            z.extractall(input_path)
 
-    files = os.listdir(INPUT_PATH)
+    files = os.listdir(input_path)
 
     for file in files:
         if file.endswith(".xls") or file.endswith(".xlsx"):
-            file_path = os.path.join(INPUT_PATH, file)
+            file_path = os.path.join(input_path, file)
             df = read_file(file_path=file_path, file_name=file)
 
             # Standardize column names
             df = clean_column_names(df)
-            df.rename(columns=rename_cols(), inplace=True)
+            df = df.rename(columns=rename_cols())
 
             # Fill with leading zeros
             df["id_compe_bcb_agencia"] = (
@@ -209,7 +207,7 @@ def clean_data():
             df = check_and_create_column(df, col_name="id_compe_bcb_agencia")
 
             # Remove ddd to add later
-            df.drop(columns=["ddd"], inplace=True)
+            df = df.drop(columns=["ddd"])
 
             # Some files do not have the 'id_municipio' column, only 'nome'.
             # It is necessary to join by 'nome'
@@ -227,8 +225,7 @@ def clean_data():
             df["sigla_uf"] = df["sigla_uf"].str.strip()
 
             if "id_municipio" not in df.columns:
-                df = pd.merge(
-                    df,
+                df = df.merge(
                     municipio[["nome", "sigla_uf", "id_municipio", "ddd"]],
                     left_on=["nome", "sigla_uf"],
                     right_on=["nome", "sigla_uf"],
@@ -237,8 +234,7 @@ def clean_data():
 
             # Check if DDD column exists
             if "ddd" not in df.columns:
-                df = pd.merge(
-                    df,
+                df = df.merge(
                     municipio[["id_municipio", "ddd"]],
                     left_on=["id_municipio"],
                     right_on=["id_municipio"],
@@ -278,11 +274,11 @@ def clean_data():
 
             to_partitions(
                 data=df,
-                savepath=OUTPUT_PATH,
+                savepath=output_path,
                 partition_columns=["ano", "mes"],
             )
 
-    return OUTPUT_PATH
+    return output_path
 
 
 def validate_date(

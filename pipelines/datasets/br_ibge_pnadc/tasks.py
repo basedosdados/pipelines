@@ -1,16 +1,12 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_ibge_pnadc
 """
 
 import os
-
-# pylint: disable=invalid-name,unnecessary-dunder-call
 import zipfile
 from datetime import datetime
 from glob import glob
 from pathlib import Path
-from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -29,7 +25,7 @@ from pipelines.utils.utils import log
 @task
 def build_table_paths(
     table_id: str, parent_dir: str | Path = pnad_constants.DATASET_DIR.value
-) -> Tuple[Path, Path]:
+) -> tuple[Path, Path]:
     parent_dir = Path(parent_dir)
     parent_dir.mkdir(parents=True, exist_ok=True)
 
@@ -71,7 +67,7 @@ def get_data_source_date_and_url() -> tuple[datetime, str]:
         row.text.strip().split(" ")[0]
         for row in soup.select("table td:nth-child(3)")
     ]
-    dados = dict(zip(dates, hrefs))
+    dados = dict(zip(dates, hrefs, strict=False))
     last_update = max(dados.keys())
     filename = dados[last_update]
 
@@ -116,14 +112,8 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
     Build parquets from txt original file.
     """
 
-    log(f"Input_path: {input_path}")
-    filepaths = glob(f"{input_path}/*.txt")
-    log(f"Filepaths: {filepaths}")
-    if len(filepaths) > 0:
-        filepath = filepaths[0]
-    else:
-        log("Arquivo(s) não encontrado(s)", "error")
-
+    filepaths = glob(f"{input_path}*/.txt")
+    filepath = filepaths[0] if len(filepaths) > 0 else filepaths
     chunks = pd.read_fwf(
         filepath,
         widths=pnad_constants.COLUMNS_WIDTHS.value,
@@ -133,9 +123,10 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
         dtype=str,
         chunksize=25000,
     )
-    for i, chunk in enumerate(chunks):
+
+    for _, chunk in enumerate(chunks):
         # partition by year, quarter and region
-        chunk.rename(
+        chunk = chunk.rename(
             columns={
                 "UF": "id_uf",
                 "Estrato": "id_estrato",
@@ -144,8 +135,7 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
                 "RM_RIDE": "rm_ride",
                 "Trimestre": "trimestre",
                 "Ano": "ano",
-            },
-            inplace=True,
+            }
         )
         chunk["sigla_uf"] = chunk["id_uf"].map(
             pnad_constants.map_codigo_sigla_uf.value
@@ -161,12 +151,12 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
 
         trimestre = chunk["trimestre"].unique()[0]
         ano = chunk["ano"].unique()[0]
-        chunk.drop(columns=["trimestre", "ano"], inplace=True)
+        chunk = chunk.drop(columns=["trimestre", "ano"])
         ufs = chunk["sigla_uf"].unique()
 
         for uf in ufs:
             df_uf = chunk[chunk["sigla_uf"] == uf]
-            df_uf.drop(columns=["sigla_uf"], inplace=True)
+            df_uf = df_uf.drop(columns=["sigla_uf"])
 
             os.makedirs(
                 os.path.join(

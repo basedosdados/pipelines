@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for botdosdados
 """
@@ -26,7 +25,7 @@ with Flow(
 ) as inflation_flow:
     dataset_id = Parameter("dataset_id", default="br_ibge_ipca", required=True)
     table_id = Parameter("table_id", default="mes_brasil", required=True)
-    # pylint: disable=C0103
+
     now = get_date_time_str()
     rename_flow_run = rename_current_flow_run(
         msg=f"botdosdados - {now}", wait=now
@@ -78,7 +77,7 @@ with Flow(
             is_reply=True,
             reply_id=twt_media_id,
             upstream_tasks=[texts],
-        )  # pylint: disable=C0103
+        )
 
 
 inflation_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

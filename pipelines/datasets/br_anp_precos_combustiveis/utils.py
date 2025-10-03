@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_anp_precos_combustiveis project
 """
@@ -127,7 +126,7 @@ def partition_data(
 
         df_partition = df[df[column_name] == value].copy()
 
-        df_partition.drop([column_name], axis=1, inplace=True)
+        df_partition = df_partition.drop([column_name], axis=1)
         csv_path = os.path.join(partition_path, "data.csv")
         df_partition.to_csv(csv_path, index=False, encoding="utf-8", na_rep="")
         log(f"Arquivo {csv_path} salvo com sucesso!")
@@ -137,8 +136,7 @@ def merge_table_id_municipio(
     id_municipio: pd.DataFrame, pd_precos_combustiveis: pd.DataFrame
 ):
     log("Iniciando tratamento dos dados precos_combustiveis")
-    precos_combustiveis = pd.merge(
-        id_municipio,
+    precos_combustiveis = id_municipio.merge(
         pd_precos_combustiveis,
         how="right",
         left_on=["nome", "sigla_uf"],
@@ -160,9 +158,9 @@ def rename_and_to_create_endereco(precos_combustiveis: pd.DataFrame):
         + " "
         + precos_combustiveis["Complemento"].fillna("")
     )
-    precos_combustiveis.drop(columns=["sigla_uf"], inplace=True)
-    precos_combustiveis.rename(
-        columns={"Data da Coleta": "data_coleta"}, inplace=True
+    precos_combustiveis = precos_combustiveis.drop(columns=["sigla_uf"])
+    precos_combustiveis = precos_combustiveis.rename(
+        columns={"Data da Coleta": "data_coleta"}
     )
 
     return precos_combustiveis
@@ -187,14 +185,14 @@ def lower_colunm_produto(precos_combustiveis: pd.DataFrame):
 
 def creating_column_ano(precos_combustiveis: pd.DataFrame):
     precos_combustiveis["ano"] = precos_combustiveis["data_coleta"].str[0:4]
-    precos_combustiveis["ano"].replace("nan", "", inplace=True)
+    precos_combustiveis["ano"] = precos_combustiveis["ano"].replace("nan", "")
 
     return precos_combustiveis
 
 
 def rename_and_reordening(precos_combustiveis: pd.DataFrame):
-    precos_combustiveis.rename(
-        columns=anp_constants.RENAME.value, inplace=True
+    precos_combustiveis = precos_combustiveis.rename(
+        columns=anp_constants.RENAME.value
     )
     precos_combustiveis = precos_combustiveis[anp_constants.ORDEM.value]
 
@@ -228,6 +226,6 @@ def rename_columns(precos_combustiveis: pd.DataFrame):
     precos_combustiveis["preco_compra"] = precos_combustiveis[
         "preco_compra"
     ].replace("nan", "")
-    precos_combustiveis.replace(np.nan, "", inplace=True)
+    precos_combustiveis = precos_combustiveis.replace(np.nan, "")
 
     return precos_combustiveis

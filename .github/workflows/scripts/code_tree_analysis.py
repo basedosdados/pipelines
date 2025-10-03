@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import ast
 import sys
 from pathlib import Path
@@ -102,7 +101,7 @@ def get_dependencies(python_file: str | Path) -> list[str]:
         list: A list of dependencies from the Python file.
     """
     # We need to get the contents of the Python file.
-    with open(python_file, "r") as f:
+    with open(python_file) as f:
         content = f.read()
 
     # Parse it into an AST.
@@ -161,7 +160,7 @@ def get_declared(python_file: str) -> list[str]:
         return []
 
     # We need to get the contents of the Python file.
-    with open(python_file, "r") as f:
+    with open(python_file) as f:
         content = f.read()
 
     # Get file path in Python module format.
@@ -173,27 +172,22 @@ def get_declared(python_file: str) -> list[str]:
     # Then, iterate over the imports.
     declared = []
     for node in tree.body:
-        # print(type(node))
         if isinstance(node, ast.Assign):
             for target in node.targets:
                 if isinstance(target, ast.Name):
                     declared.append(f"{file_path}.{target.id}")
-        elif isinstance(node, ast.AugAssign):
-            if isinstance(node.target, ast.Name):
-                declared.append(f"{file_path}.{node.target.id}")
-        elif isinstance(node, ast.AnnAssign):
+        elif isinstance(node, ast.AugAssign | ast.AnnAssign):
             if isinstance(node.target, ast.Name):
                 declared.append(f"{file_path}.{node.target.id}")
         elif isinstance(node, ast.With):
             for item in node.items:
-                if isinstance(item, ast.withitem):
-                    if isinstance(item.optional_vars, ast.Name):
-                        declared.append(f"{file_path}.{item.optional_vars.id}")
-        elif isinstance(node, ast.FunctionDef):
-            declared.append(f"{file_path}.{node.name}")
-        elif isinstance(node, ast.AsyncFunctionDef):
-            declared.append(f"{file_path}.{node.name}")
-        elif isinstance(node, ast.ClassDef):
+                if isinstance(item, ast.withitem) and isinstance(
+                    item.optional_vars, ast.Name
+                ):
+                    declared.append(f"{file_path}.{item.optional_vars.id}")
+        elif isinstance(
+            node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef
+        ):
             declared.append(f"{file_path}.{node.name}")
 
     return declared

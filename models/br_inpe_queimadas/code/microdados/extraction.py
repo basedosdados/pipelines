@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
 
-def getHtmlTable(url, nRows):
+def get_html_table(url, n_rows):
     response = requests.get(url)
     response.raise_for_status()
 
@@ -21,8 +20,8 @@ def getHtmlTable(url, nRows):
             )
         ]
 
-        if nRows is not None:
-            rows = table.find_all("div", class_="row")[1 : nRows + 1]
+        if n_rows is not None:
+            rows = table.find_all("div", class_="row")[1 : n_rows + 1]
         else:
             rows = table.find_all("div", class_="row")[1:]
 
@@ -37,28 +36,28 @@ def getHtmlTable(url, nRows):
         return df
 
 
-def requestData(url, fileName):
-    url = f"{url}{fileName}"
+def request_data(url, filename):
+    url = f"{url}{filename}"
     data = pd.read_csv(url)
     return data
 
 
-def extractAllData(url, nRows=None):
-    fullData = pd.DataFrame()
-    table = getHtmlTable(url, nRows)
+def extract_all_data(url, n_rows=None):
+    full_data = pd.DataFrame()
+    table = get_html_table(url, n_rows)
     for row in table["Nome"]:
-        fileData = requestData(url, row)
-        fullData = pd.concat([fullData, fileData], axis=0)
-    return fullData
+        file_data = request_data(url, row)
+        full_data = pd.concat([full_data, file_data], axis=0)
+    return full_data
 
 
 if __name__ == "__main__":
     # Month Data
     month_url = "https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/mensal/Brasil/"
-    month_data = extractAllData(month_url)
+    month_data = extract_all_data(month_url)
     month_data.to_csv("./input/month_fire_data.csv")
 
     # Year Data
     year_url = "https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/Brasil_sat_ref/"
-    year_data = extractAllData(year_url, 20)
+    year_data = extract_all_data(year_url, 20)
     year_data.to_csv("./input/year_fire_data.csv")

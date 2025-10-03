@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_sp_saopaulo_dieese_icv
 """
@@ -6,7 +5,6 @@ Tasks for br_sp_saopaulo_dieese_icv
 import os
 
 import ipeadatapy as idpy
-import pandas as pd
 from prefect import task
 
 
@@ -29,15 +27,14 @@ def clean_dieese_icv():
     }
 
     indice = idpy.timeseries(codes[0]).reset_index()
-    indice.drop(drop_m, axis=1, inplace=True)
-    indice.rename(columns=rename_m, inplace=True)
+    indice = indice.drop(drop_m, axis=1)
+    indice = indice.rename(columns=rename_m)
 
     variacao_mensal = idpy.timeseries(codes[1]).reset_index()
-    variacao_mensal.drop(drop_m, axis=1, inplace=True)
-    variacao_mensal.rename(columns=rename_m, inplace=True)
+    variacao_mensal = variacao_mensal.drop(drop_m, axis=1)
+    variacao_mensal = variacao_mensal.rename(columns=rename_m)
 
-    icv_mes = pd.merge(
-        indice,
+    icv_mes = indice.merge(
         variacao_mensal,
         how="left",
         left_on=["ano", "mes"],

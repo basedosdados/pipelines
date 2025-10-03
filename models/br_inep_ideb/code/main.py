@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import zipfile
 
@@ -20,7 +19,7 @@ URLS = {
 }
 
 
-for name, url in URLS.items():
+for _, url in URLS.items():
     os.system(f"cd {INPUT}; curl -O -k {url}")
 
 for file in os.listdir(INPUT):
