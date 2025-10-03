@@ -1,10 +1,4 @@
-"""
-Schedules for br_ibge_inpc
-    - mes_categoria_brasil
-    - mes_categoria_rm
-    - mes_categoria_municipio
-    - mes_brasil
-"""
+# Referência dos dias de publicação: https://www.ibge.gov.br/calendario-indicadores-novoportal.html
 
 from datetime import datetime
 

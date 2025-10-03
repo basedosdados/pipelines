@@ -1,6 +1,5 @@
-"""
-Schedules for br_ibge_ipca
-"""
+# Referência dos dias de publicação: https://www.ibge.gov.br/calendario-indicadores-novoportal.html
+
 
 from datetime import datetime
 
