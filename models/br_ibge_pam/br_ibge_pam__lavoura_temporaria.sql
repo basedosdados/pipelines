@@ -1,3 +1,4 @@
+-- - Lavoura Temporaria
 {{
     config(
         alias="lavoura_temporaria",
