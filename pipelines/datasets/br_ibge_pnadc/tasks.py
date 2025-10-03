@@ -10,7 +10,6 @@ import zipfile
 from datetime import datetime
 from glob import glob
 from pathlib import Path
-from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -29,7 +28,7 @@ from pipelines.utils.utils import log
 @task
 def build_table_paths(
     table_id: str, parent_dir: str | Path = pnad_constants.DATASET_DIR.value
-) -> Tuple[Path, Path]:
+) -> tuple[Path, Path]:
     parent_dir = Path(parent_dir)
     parent_dir.mkdir(parents=True, exist_ok=True)
 
