@@ -16,7 +16,7 @@ from pipelines.constants import constants
 schedule_br_ibge_ipca15_mes_categoria_brasil = Schedule(
     clocks=[
         CronClock(
-            cron="30 13 * * *",  # everyday at 13:30:00
+            cron="30 13 8,9,10,11,12,13 * *",  # “At 13:30 on day-of-month 8, 9, 10, 11, 12, and 13.”
             start_date=datetime(2023, 10, 6, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -38,7 +38,7 @@ schedule_br_ibge_ipca15_mes_categoria_brasil = Schedule(
 schedule_br_ibge_ipca15_mes_categoria_rm = Schedule(
     clocks=[
         CronClock(
-            cron="20 13 * * *",  # everyday at 13:20:00
+            cron="20 13 8,9,10,11,12,13 * *",  # “At 13:20 on day-of-month 8, 9, 10, 11, 12, and 13.”
             start_date=datetime(2023, 10, 6, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -61,7 +61,7 @@ schedule_br_ibge_ipca15_mes_categoria_rm = Schedule(
 schedule_br_ibge_ipca15_mes_categoria_municipio = Schedule(
     clocks=[
         CronClock(
-            cron="10 13 * * *",  # everyday at 13:10:00
+            cron="10 13 8,9,10,11,12,13 * *",  # “At 13:10 on day-of-month 8, 9, 10, 11, 12, and 13.”
             start_date=datetime(2023, 10, 6, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -84,7 +84,7 @@ schedule_br_ibge_ipca15_mes_categoria_municipio = Schedule(
 schedule_br_ibge_ipca15_mes_brasil = Schedule(
     clocks=[
         CronClock(
-            cron="15 13 * * *",  # everyday at 13:00:00
+            cron="15 13 8,9,10,11,12,13 * *",  # “At 13:15 on day-of-month 8, 9, 10, 11, 12, and 13.”
             start_date=datetime(2023, 10, 6, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
