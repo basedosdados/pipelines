@@ -318,7 +318,7 @@ def order_by_columns(df: pd.DataFrame, table_id: str) -> list:
         rename = [
             "ano",
             "mes",
-            "id_categoria",
+            "categoria",
             "categoria",
             "peso_mensal",
             "variacao_mensal",
