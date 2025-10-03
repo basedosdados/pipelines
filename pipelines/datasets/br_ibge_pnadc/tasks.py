@@ -113,11 +113,7 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
     """
 
     filepaths = glob(f"{input_path}*.txt")
-    if len(filepaths) > 0:
-        filepath = filepaths[0]
-    else:
-        filepath = filepaths
-
+    filepath = filepaths[0] if len(filepaths) > 0 else filepaths
     chunks = pd.read_fwf(
         filepath,
         widths=pnad_constants.COLUMNS_WIDTHS.value,
