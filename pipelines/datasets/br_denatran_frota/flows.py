@@ -1,4 +1,4 @@
-from prefect import Parameter, case
+from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
@@ -14,7 +14,6 @@ from pipelines.datasets.br_denatran_frota.tasks import (
     crawl_task,
     get_desired_file_task,
     get_latest_date_task,
-    output_file_to_parquet_task,
     treat_municipio_tipo_task,
     treat_uf_tipo_task,
 )
@@ -57,17 +56,20 @@ with Flow(
         wait=table_id,
     )
 
-    source_max_date, source_max_date_str = get_latest_date_task(
-        table_id=table_id, dataset_id=dataset_id
-    )
+    (
+        source_available_dates,
+        source_available_dates_str,
+        source_first_available_date,
+        source_first_available_date_str,
+    ) = get_latest_date_task(table_id=table_id, dataset_id=dataset_id)
 
-    log_task(source_max_date_str)
+    log_task(source_first_available_date_str)
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=source_max_date_str,
+        data_source_max_date=source_first_available_date_str,
         date_format="%Y-%m",
-        upstream_tasks=[source_max_date_str],
+        upstream_tasks=[source_first_available_date_str],
     )
 
     with case(check_if_outdated, False):
@@ -75,34 +77,33 @@ with Flow(
 
     with case(check_if_outdated, True):
         log_task("Updates found! The run will be started.")
-        crawled = crawl_task(
-            source_max_date=source_max_date,
-            temp_dir=denatran_constants.DOWNLOAD_PATH.value,
-            upstream_tasks=[check_if_outdated],
+        crawled = crawl_task.map(
+            source_max_date=source_available_dates,
+            table_id=unmapped(table_id),
+            temp_dir=unmapped(denatran_constants.DOWNLOAD_PATH.value),
+            upstream_tasks=[unmapped(check_if_outdated)],
         )
         # Used primarly to backfill data
-        desired_file = get_desired_file_task(
-            source_max_date=source_max_date,
-            download_directory=denatran_constants.DOWNLOAD_PATH.value,
-            filetype=denatran_constants.UF_TIPO_BASIC_FILENAME.value,
-            upstream_tasks=[crawled],
+        desired_file = get_desired_file_task.map(
+            source_max_date=source_available_dates,
+            download_directory=unmapped(
+                denatran_constants.DOWNLOAD_PATH.value
+            ),
+            table_id=unmapped(table_id),
+            filetype=unmapped(denatran_constants.UF_TIPO_BASIC_FILENAME.value),
+            upstream_tasks=[unmapped(crawled)],
         )
 
-        df = treat_uf_tipo_task(
-            file=desired_file, upstream_tasks=[desired_file]
-        )
-
-        parquet_output = output_file_to_parquet_task(
-            df,
-            upstream_tasks=[df],
+        parquet_output = treat_uf_tipo_task.map(
+            file=desired_file, upstream_tasks=[unmapped(desired_file)]
         )
 
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=parquet_output,
+            data_path=parquet_output[0],
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=parquet_output,
+            upstream_tasks=[parquet_output],
         )
 
         with case(materialize_after_dump, True):
@@ -169,51 +170,56 @@ with Flow(
         wait=table_id,
     )
 
-    source_max_date, source_max_date_str = get_latest_date_task(
-        table_id=table_id, dataset_id=dataset_id
-    )
+    (
+        source_available_dates,
+        source_available_dates_str,
+        source_first_available_date,
+        source_first_available_date_str,
+    ) = get_latest_date_task(table_id=table_id, dataset_id=dataset_id)
 
-    log_task(source_max_date_str)
+    log_task(source_first_available_date_str)
     check_if_outdated = check_if_data_is_outdated(
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=source_max_date_str,
+        data_source_max_date=source_first_available_date_str,
         date_format="%Y-%m",
-        upstream_tasks=[source_max_date_str],
+        upstream_tasks=[source_first_available_date_str],
     )
 
     with case(check_if_outdated, False):
-        log_task("There's no new data to be downloaded")
+        log_task("No new data to be downloaded")
 
     with case(check_if_outdated, True):
         log_task("Updates found! The run will be started.")
-        crawled = crawl_task(
-            source_max_date=source_max_date,
-            temp_dir=denatran_constants.DOWNLOAD_PATH.value,
-            upstream_tasks=[check_if_outdated],
+        crawled = crawl_task.map(
+            source_max_date=source_available_dates,
+            table_id=unmapped(table_id),
+            temp_dir=unmapped(denatran_constants.DOWNLOAD_PATH.value),
+            upstream_tasks=[unmapped(check_if_outdated)],
         )
-        # Now get the downloaded file:
-        desired_file = get_desired_file_task(
-            source_max_date=source_max_date,
-            download_directory=denatran_constants.DOWNLOAD_PATH.value,
-            filetype=denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value,
-            upstream_tasks=[crawled],
+        # Used primarly to backfill data
+        desired_file = get_desired_file_task.map(
+            source_max_date=source_available_dates,
+            download_directory=unmapped(
+                denatran_constants.DOWNLOAD_PATH.value
+            ),
+            table_id=unmapped(table_id),
+            filetype=unmapped(
+                denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value
+            ),
+            upstream_tasks=[unmapped(crawled)],
         )
 
-        df = treat_municipio_tipo_task(
-            file=desired_file, upstream_tasks=[desired_file]
+        parquet_output = treat_municipio_tipo_task.map(
+            file=desired_file, upstream_tasks=[unmapped(desired_file)]
         )
 
-        parquet_output = output_file_to_parquet_task(
-            df,
-            upstream_tasks=[df],
-        )
         wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=parquet_output,
+            data_path=parquet_output[0],
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=parquet_output,
+            upstream_tasks=[unmapped(parquet_output)],
         )
 
         with case(materialize_after_dump, True):
