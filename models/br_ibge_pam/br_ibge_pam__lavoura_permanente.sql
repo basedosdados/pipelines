@@ -1,3 +1,4 @@
+-- - Lavoura Permanente
 {{
     config(
         alias="lavoura_permanente",
