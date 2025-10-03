@@ -263,8 +263,9 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
         pl.col("nome_denatran") != "municipio nao informado"
     )
     if new_pl_df.shape[0] > bd_municipios.shape[0]:
-        raise ValueError(
-            f"Atenção: a base do Denatran tem {new_pl_df.shape[0]} linhas e isso é mais municípios do que a BD com {bd_municipios.shape[0]}"
+        log(
+            f"Atenção: a base do Denatran tem {new_pl_df.shape[0]} linhas e isso é mais municípios do que a BD com {bd_municipios.shape[0]}",
+            "warning",
         )
     dfs = []
     for uf in denatran_constants.DICT_UFS.value:
