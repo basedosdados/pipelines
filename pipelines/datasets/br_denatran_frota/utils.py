@@ -277,7 +277,7 @@ def verify_match_ibge(
         error_message = "Os seguintes municípios falharam: \n"
         for row in mismatched_rows.rows(named=True):
             error_message += f"{row['nome_denatran']} ({row['sigla_uf']})\n"
-        raise ValueError(error_message)
+        log(error_message, "error")
     return joined_df
 
 
@@ -747,13 +747,14 @@ def treat_uf(
         .filter(pl.col("count") > 1)
     )
     if not municipios_duplicados.is_empty():
-        raise ValueError(
-            f"Existem municípios com mesmo nome do IBGE em {uf}! São eles {municipios_duplicados['suggested_nome_ibge'].to_list()}"
+        log(
+            f"Existem municípios com mesmo nome do IBGE em {uf}! São eles {municipios_duplicados['suggested_nome_ibge'].to_list()}",
+            "warning",
         )
     if d:
         # This here is probably impossible and shouldn't happen due to the matching coming from the BD data.
         # The set difference might occur the other way around, but still, better safe.
-        raise ValueError(f"Existem municípios em {uf} que não estão na BD.")
+        log(f"Existem municípios em {uf} que não estão na BD.", "warning")
     return verify_match_ibge(denatran_uf, ibge_uf)
 
 
