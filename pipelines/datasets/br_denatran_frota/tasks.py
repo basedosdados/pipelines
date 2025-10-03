@@ -128,7 +128,7 @@ def get_desired_file_task(
                 "xls",
                 "xlsx",
             ]
-        ) and (month in file.name):
+        ) and (str(month) in file):
             log(f"-------- The file {file} was selected")
             return os.path.join(directory_to_search, file)
     raise ValueError("No files found!")
@@ -151,6 +151,7 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
         denatran_constants.DICT_UFS.value.values()
     )
     filename = os.path.split(file)[1]
+
     try:
         correct_sheet = [  # noqa: RUF015
             sheet
@@ -158,6 +159,7 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
             if sheet != "Glossário"
         ][0]
         df = pd.read_excel(file, sheet_name=correct_sheet)
+
     except UnicodeDecodeError:
         df = call_r_to_read_excel(file)
 
@@ -169,6 +171,7 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
     new_df = new_df.rename(
         columns={new_df.columns[0]: "sigla_uf"}
     )  # Rename for ease of use.
+
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
     clean_df = new_df[new_df.sigla_uf.isin(valid_ufs)].reset_index(
         drop=True
@@ -226,17 +229,20 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
     bd_municipios = pl.from_pandas(bd_municipios)
 
     filename = os.path.split(file)[1]
+
     year, month = get_year_month_from_filename(filename)
     correct_sheet = [  # noqa: RUF015
         sheet
         for sheet in pd.ExcelFile(file).sheet_names
         if sheet != "Glossário"
     ][0]
+
     df = pd.read_excel(file, sheet_name=correct_sheet)
     # Some very janky historical files have an entire first empty column that will break EVERYTHING
     # This checks if they exist and drops them
     if df[df.columns[0]].isna().sum() == len(df):
         df = df.drop(columns=df.columns[0])
+
     new_df = change_df_header(df, guess_header(df, DenatranType.Municipio))
     new_df = new_df.rename(
         columns={
@@ -244,6 +250,7 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
             new_df.columns[1]: "nome_denatran",
         },
     )  # Rename for ease of use.
+
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
     new_pl_df = pl.from_pandas(new_df)
     new_pl_df = verify_total(new_pl_df)

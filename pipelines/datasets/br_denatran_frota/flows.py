@@ -11,9 +11,9 @@ from pipelines.datasets.br_denatran_frota.schedules import (
     every_month_uf,
 )
 from pipelines.datasets.br_denatran_frota.tasks import (
-    crawl_task,
     get_desired_file_task,
     get_latest_date_task,
+    treat_municipio_tipo_task,
     treat_uf_tipo_task,
 )
 from pipelines.utils.decorators import Flow
@@ -76,11 +76,11 @@ with Flow(
 
     with case(check_if_outdated, True):
         log_task("Updates found! The run will be started.")
-        crawled = crawl_task.map(
-            source_max_date=source_available_dates,
-            temp_dir=unmapped(denatran_constants.DOWNLOAD_PATH.value),
-            upstream_tasks=[unmapped(check_if_outdated)],
-        )
+        # crawled = crawl_task.map(
+        #     source_max_date=source_available_dates,
+        #     temp_dir=unmapped(denatran_constants.DOWNLOAD_PATH.value),
+        #     upstream_tasks=[unmapped(check_if_outdated)],
+        # )
         # Used primarly to backfill data
         desired_file = get_desired_file_task.map(
             source_max_date=source_available_dates,
@@ -88,7 +88,7 @@ with Flow(
                 denatran_constants.DOWNLOAD_PATH.value
             ),
             filetype=unmapped(denatran_constants.UF_TIPO_BASIC_FILENAME.value),
-            upstream_tasks=[unmapped(crawled)],
+            upstream_tasks=[unmapped(check_if_outdated)],
         )
 
         parquet_output = treat_uf_tipo_task.map(
@@ -188,11 +188,11 @@ with Flow(
 
     with case(check_if_outdated, True):
         log_task("Updates found! The run will be started.")
-        crawled = crawl_task.map(
-            source_max_date=source_available_dates,
-            temp_dir=unmapped(denatran_constants.DOWNLOAD_PATH.value),
-            upstream_tasks=[unmapped(check_if_outdated)],
-        )
+        # crawled = crawl_task.map(
+        #     source_max_date=source_available_dates,
+        #     temp_dir=unmapped(denatran_constants.DOWNLOAD_PATH.value),
+        #     upstream_tasks=[unmapped(check_if_outdated)],
+        # )
         # Used primarly to backfill data
         desired_file = get_desired_file_task.map(
             source_max_date=source_available_dates,
@@ -202,10 +202,10 @@ with Flow(
             filetype=unmapped(
                 denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value
             ),
-            upstream_tasks=[unmapped(crawled)],
+            upstream_tasks=[unmapped(check_if_outdated)],
         )
 
-        parquet_output = treat_uf_tipo_task.map(
+        parquet_output = treat_municipio_tipo_task.map(
             file=desired_file, upstream_tasks=[unmapped(desired_file)]
         )
 
