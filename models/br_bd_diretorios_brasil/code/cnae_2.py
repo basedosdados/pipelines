@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pandas as pd
 
 # linka nome das versoes com nome dos arquivos baixados de :https://concla.ibge.gov.br/classificacoes/download-concla.html
@@ -257,9 +256,9 @@ def criar_dataframe_indicadores(df_concatenado, versoes):
         df_indicadores[indicador_col] = df_indicadores["subclasse"].apply(
             lambda x: 1
             if x
-            in df_concatenado[df_concatenado["versao_cnae"] == versao][
+            in df_concatenado[df_concatenado["versao_cnae"] == versao][  # noqa: B023
                 "subclasse"
-            ].values
+            ].to_numpy()
             else 0
         )
     return df_indicadores
@@ -304,8 +303,8 @@ def processar_cnae(files):
 def main(files, nome_arquivo_saida):
     """Função principal que orquestra o processo de extração e transformação dos dados."""
     df_final = processar_cnae(files)
-    df_final.drop("versao_cnae", axis=1, inplace=True)
-    df_final.drop_duplicates(subset=["subclasse"], inplace=True)
+    df_final = df_final.drop("versao_cnae", axis=1)
+    df_final = df_final.drop_duplicates(subset=["subclasse"])
     salvar_para_csv(df_final, nome_arquivo_saida)
 
 

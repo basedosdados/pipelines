@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_fgv_igp
 """
 
-# pylint: disable=invalid-name
 from pathlib import Path
 
 from prefect import Parameter, case

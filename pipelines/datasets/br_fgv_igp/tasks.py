@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_fgv_igp
 """
-# pylint: disable=invalid-name
 
 import csv
 import pathlib
@@ -12,7 +10,7 @@ from prefect import task
 from pipelines.datasets.br_fgv_igp.utils import IGPData
 
 
-@task  # noqa
+@task
 def crawler_fgv(code: tuple, period: str) -> IGPData:
     """
     Crawl data from ipeadata
@@ -28,7 +26,7 @@ def crawler_fgv(code: tuple, period: str) -> IGPData:
     return ipea_data
 
 
-@task  # noqa
+@task
 def clean_fgv_df(igp_data: IGPData) -> pathlib.Path:
     """
     Clean FGV results

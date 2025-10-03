@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Script para baixar is dados da taxa de alfabetização divulgado pelo SAEB.
 Fonte: https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/saeb/resultados
@@ -30,8 +29,6 @@ os.system(f"cd {INPUT}; curl -O -k {URL}")
 df_br = pd.read_excel(
     os.path.join(INPUT, os.path.basename(URL)), sheet_name="Brasil"
 )
-
-df_br.columns
 
 df_br["ID"].unique()
 

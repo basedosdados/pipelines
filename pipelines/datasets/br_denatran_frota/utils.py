@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_denatran_frota project.
 """
@@ -58,7 +57,9 @@ def guess_header(
         raise ValueError("Unrecognized type of dataframe.")
     current_header = [c for c in df.columns]
     equal_column_names = [
-        (x, y) for x, y in zip(expected_header, current_header) if x == y
+        (x, y)
+        for x, y in zip(expected_header, current_header, strict=False)
+        if x == y
     ]
     if len(equal_column_names) / len(expected_header) >= 0.6:
         return -1
@@ -68,7 +69,9 @@ def guess_header(
             break
         current_row = df.iloc[header_guess].to_list()
         equal_column_names = [
-            (x, y) for x, y in zip(expected_header, current_row) if x == y
+            (x, y)
+            for x, y in zip(expected_header, current_row, strict=False)
+            if x == y
         ]
         if (
             len(equal_column_names) / len(expected_header) >= 0.6
@@ -95,7 +98,7 @@ def change_df_header(df: pd.DataFrame, header_row: int) -> pd.DataFrame:
         return df
     new_header = df.iloc[header_row]
     new_df = df[(header_row + 1) :].reset_index(drop=True)
-    new_df.rename(columns=new_header, inplace=True)
+    new_df = new_df.rename(columns=new_header)
     return new_df
 
 
@@ -325,10 +328,7 @@ def verify_file(
     new_url = url.replace("arquivos-denatran", "arquivos-senatran")
     log(new_url)
     response = requests.get(new_url, headers=denatran_constants.HEADERS.value)
-    if response.status_code == 200:
-        return True
-    else:
-        return False
+    return response.status_code == 200
 
 
 def generic_extractor(dest_path_file: str):
@@ -517,23 +517,28 @@ def extract_links_post_2012(
                 )
                 # 'UF' type of file contains 'UF' or 'tipo' in its html element's text
                 search_uf = re.search("tipo|uf", txt, flags=re.IGNORECASE)
-                if match and (search_uf or search_municipio):
-                    if denatran_constants.MONTHS.value.get(
+                if (
+                    match
+                    and (search_uf or search_municipio)
+                    and denatran_constants.MONTHS.value.get(
                         str(matched_month).lower()
-                    ) == int(month) and matched_year == str(year):
-                        # All file metadata aggregated at the info dict
-                        info = {
-                            "raw_file_name": txt,
-                            "file_url": file_url,
-                            "mes": month,
-                            "ano": year,
-                            "file_extension": match.group(2).lower(),
-                            "type_of_file": DenatranType.Municipio
-                            if search_municipio
-                            else DenatranType.UF,
-                            "destination_dir": str(directory),
-                        }
-                        valid_links.append(info)
+                    )
+                    == int(month)
+                    and matched_year == str(year)
+                ):
+                    # All file metadata aggregated at the info dict
+                    info = {
+                        "raw_file_name": txt,
+                        "file_url": file_url,
+                        "mes": month,
+                        "ano": year,
+                        "file_extension": match.group(2).lower(),
+                        "type_of_file": DenatranType.Municipio
+                        if search_municipio
+                        else DenatranType.UF,
+                        "destination_dir": str(directory),
+                    }
+                    valid_links.append(info)
             i += 1
         else:
             i += 1
@@ -556,7 +561,7 @@ def extraction_pre_2012(
         return
     with ZipFile(zip_file, "r") as g:
         compressed_files = [file for file in g.infolist() if not file.is_dir()]
-        for i, file in enumerate(compressed_files):
+        for _, file in enumerate(compressed_files):
             file_path = None
             split_file_name = file.filename.split("/")[-1]
             split_file_name = split_file_name.split(".")
@@ -622,7 +627,7 @@ def call_r_to_read_excel(file: str) -> pd.DataFrame:
     # Convert the R dataframe to a pandas dataframe
     df = robjects.r["df"]
 
-    df = pd.DataFrame(dict(zip(df.names, list(df))))
+    df = pd.DataFrame(dict(zip(df.names, list(df), strict=False)))
     return df
 
 

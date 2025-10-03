@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_ms_cnes project
 """
 
+import datetime
 import os
-from datetime import datetime
 
 import pandas as pd
 import requests
@@ -38,7 +37,7 @@ def remove_ascii_zero_from_df(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
+def parse_api_metadata(url: str, headers: dict | None = None) -> pd.DataFrame:
     """
     Faz uma requisição para a URL fornecida e extrai metadados de arquivos CSV.
     Args:
@@ -75,7 +74,7 @@ def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
         if data_atualizacao.find_next_sibling("td").get("align") == "right"
     ]
     data_atualizacao_arquivos_formatada = [
-        datetime.strptime(a.text.strip(), "%Y-%m-%d %H:%M").date()
+        datetime.datetime.strptime(a.text.strip(), "%Y-%m-%d %H:%M").date()
         for a in data_atualizacao_arquivos
     ]
 
@@ -97,9 +96,9 @@ def parse_api_metadata(url: str, headers: dict = None) -> pd.DataFrame:
 
 def decide_files_to_download(
     df: pd.DataFrame,
-    data_especifica: datetime.date = None,
+    data_especifica: datetime.date | None = None,
     data_maxima: bool = True,
-) -> tuple[list[str], list[datetime]]:
+) -> tuple[list[str], list[datetime.datetime]]:
     """
     Decide quais arquivos baixar a depender da necessidade de atualização
 

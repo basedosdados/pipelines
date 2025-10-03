@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_poder360_pesquisas
 """
@@ -19,7 +18,6 @@ from pipelines.utils.tasks import (
     run_dbt,
 )
 
-# pylint: disable=C0103
 with Flow(
     name="br_poder360_pesquisas.microdados", code_owners=["lucas_cr"]
 ) as br_poder360:

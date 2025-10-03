@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_cvm_fi
 

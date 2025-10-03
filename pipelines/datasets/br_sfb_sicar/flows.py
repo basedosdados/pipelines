@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_sfb_sicar
 """
-
-# pylint: disable=invalid-name
 
 from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
@@ -11,7 +8,7 @@ from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.datasets.br_sfb_sicar.constants import (
-    Constants as car_constants,
+    Constants,
 )
 from pipelines.datasets.br_sfb_sicar.schedules import (
     schedule_br_sfb_sicar_area_imovel,
@@ -32,9 +29,9 @@ from pipelines.utils.tasks import (
     run_dbt,
 )
 
-INPUTPATH = car_constants.INPUT_PATH.value
-OUTPUTPATH = car_constants.OUTPUT_PATH.value
-SIGLAS_UF = car_constants.UF_SIGLAS.value
+INPUTPATH = Constants.INPUT_PATH.value
+OUTPUTPATH = Constants.OUTPUT_PATH.value
+SIGLAS_UF = Constants.UF_SIGLAS.value
 
 
 with Flow(

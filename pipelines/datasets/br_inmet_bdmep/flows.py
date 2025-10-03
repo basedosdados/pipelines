@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_inmet_bdmep
 """
@@ -27,7 +26,7 @@ from pipelines.utils.tasks import (
 
 # from pipelines.datasets.br_ibge_pnadc.schedules import every_quarter
 
-# pylint: disable=C0103
+
 with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
     # Parameters
     dataset_id = Parameter(

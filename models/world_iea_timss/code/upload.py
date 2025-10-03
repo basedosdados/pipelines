@@ -37,7 +37,7 @@ def upload_file_to_bq(dataset_id, table_id, file_path):
             f"Arquivo {file_path} enviado com sucesso como {dataset_id}.{table_id}"
         )
     except Exception as e:
-        print(f"Erro ao enviar {file_path}: {str(e)}")
+        print(f"Erro ao enviar {file_path}: {e!s}")
 
 
 # Processar cada arquivo

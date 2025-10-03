@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Script para criar dicionario dos microdados e questionarios
 import io
 import os
@@ -27,7 +26,7 @@ if not os.path.exists(OUTPUT):
 
 
 def extract_dicts() -> tuple[str, str]:
-    zip_file = [file for file in os.listdir(INPUT) if file.endswith(".zip")][0]
+    zip_file = [file for file in os.listdir(INPUT) if file.endswith(".zip")][0]  # noqa: RUF015
     z = zipfile.ZipFile(f"{INPUT}/{zip_file}")
     z.extractall(TMP)
     return (f"{TMP}/dicionarios", "Dicionário_Microdados_ENEM_")
@@ -104,7 +103,7 @@ def build_dictionary(year: int, path: str) -> pd.DataFrame:
     for col in cols_with_empty_value:
         valid_value = df.loc[
             (df["nome_coluna"] == col) & (df["valor"].notna()), "valor"
-        ].values
+        ].to_numpy()
         assert len(valid_value) == 1
         df.loc[df["nome_coluna"] == col, "valor"] = valid_value[0]
 
@@ -142,7 +141,7 @@ def get_original_name(col_name: str, year: int) -> str:
     target_col_year = f"original_name_{year}"
     values = microdados_arch.loc[
         microdados_arch["name"] == col_name, target_col_year
-    ].values
+    ].to_numpy()
     assert len(values) == 1
     return values[0]
 
@@ -258,12 +257,14 @@ def gen_unique_key_value(col_name: str, df: pd.DataFrame):
     def make_ranges(key, value):
         values_by_key = df.loc[
             (df["chave"] == key) & (df["valor"] == value), "valor"
-        ].values
+        ].to_numpy()
         assert len(set(values_by_key)) == 1, f"{col_name=}, {values_by_key=}"
 
-        years = df.loc[
-            (df["chave"] == key) & (df["valor"] == value), "ano"
-        ].values.astype(int)
+        years = (
+            df.loc[(df["chave"] == key) & (df["valor"] == value), "ano"]
+            .to_numpy()
+            .astype(int)
+        )
 
         intervals = [
             list(set(interval)) for interval in create_intervals(years)

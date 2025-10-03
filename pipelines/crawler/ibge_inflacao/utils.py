@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 """
 Schedules for ibge inflacao
 """
 
-# pylint: disable=arguments-differ
 import ssl
 from datetime import datetime
 
