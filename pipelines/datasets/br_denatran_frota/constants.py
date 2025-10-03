@@ -83,8 +83,8 @@ class constants(Enum):
         ("RO", "jamari"): "itapua do oeste",
         ("SC", "picarras"): "balneario picarras",
         ("SC", "barra do sul"): "balneario barra do sul",
-        ("MT", "boa esperanca do norte"): "",
-        ("SP", "ibitiuva"): "",
+        ("MT", "boa esperanca do norte"): "sorriso",
+        ("SP", "ibitiuva"): "pitangueiras",
     }
 
     ## Paths
