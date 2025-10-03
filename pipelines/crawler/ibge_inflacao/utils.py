@@ -8,7 +8,6 @@ from typing import Any
 
 import aiohttp
 import numpy as np
-import pandas as pd
 from aiohttp import ClientTimeout, TCPConnector
 from dateutil.relativedelta import relativedelta
 from tqdm.asyncio import tqdm as tqdm_asyncio
@@ -302,7 +301,7 @@ def json_mes_brasil(table_id: str, dataset_id: str) -> defaultdict:
     return dados_agrupados
 
 
-def order_by_columns(df: pd.DataFrame, table_id: str) -> list:
+def order_by_columns(table_id: str) -> list:
     if table_id == "mes_brasil":
         rename = [
             "ano",
