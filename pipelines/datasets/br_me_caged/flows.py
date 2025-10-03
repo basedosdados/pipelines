@@ -2,12 +2,9 @@
 Flows for br_me_caged
 """
 
-from datetime import timedelta
-
 from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_me_caged.schedules import (
@@ -32,9 +29,10 @@ from pipelines.utils.metadata.tasks import (
 )
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
-    get_current_flow_labels,
+    download_data_to_gcs,
     log_task,
     rename_current_flow_run_dataset_table,
+    run_dbt,
 )
 
 with Flow(
@@ -113,35 +111,32 @@ with Flow(
         )
 
         with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "target": target,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
+            wait_for_materialization = run_dbt(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                target=target,
+                dbt_alias=dbt_alias,
                 upstream_tasks=[wait_upload_table],
             )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
+            wait_for_dowload_data_to_gcs = download_data_to_gcs(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                upstream_tasks=[wait_for_materialization],
             )
-            wait_for_materialization.max_retries = (
-                constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
+
+            with case(update_metadata, True):
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"year": "ano", "month": "mes"},
+                    date_format="%Y-%m",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    prefect_mode=target,
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_for_materialization],
+                )
 
             with case(update_metadata, True):
                 update_django_metadata(
@@ -240,34 +235,18 @@ with Flow(
         )
 
         with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "target": target,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
+            wait_for_materialization = run_dbt(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                target=target,
+                dbt_alias=dbt_alias,
                 upstream_tasks=[wait_upload_table],
             )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            wait_for_dowload_data_to_gcs = download_data_to_gcs(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                upstream_tasks=[wait_for_materialization],
             )
 
             with case(update_metadata, True):
@@ -370,34 +349,18 @@ with Flow(
         )
 
         with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "target": target,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
+            wait_for_materialization = run_dbt(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                target=target,
+                dbt_alias=dbt_alias,
                 upstream_tasks=[wait_upload_table],
             )
 
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            wait_for_dowload_data_to_gcs = download_data_to_gcs(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                upstream_tasks=[wait_for_materialization],
             )
 
             with case(update_metadata, True):
