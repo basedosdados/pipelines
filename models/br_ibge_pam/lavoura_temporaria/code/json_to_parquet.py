@@ -206,8 +206,8 @@ def get_existing_years(directory):
 
 
 if __name__ == "__main__":
-    ANOS_TRANSFORMADOS = get_existing_years("../parquet")
-    ARQUIVOS_JSON = list(Path("../json/").glob("*.json"))
+    ANOS_TRANSFORMADOS = get_existing_years("tmp/parquet")
+    ARQUIVOS_JSON = list(Path("tmp/json/").glob("*.json"))
     JSON_FALTANTES = [
         arquivo
         for arquivo in ARQUIVOS_JSON
@@ -241,7 +241,7 @@ if __name__ == "__main__":
         print("Deletando a coluna ano para possibilitar o particionamento...")
         df = df.drop(columns=["ano"])
         print("Transformações finalizadas!")
-        temp_export_file_path = f"../parquet/ano={temp_ano}/data.parquet"
+        temp_export_file_path = f"tmp/parquet/ano={temp_ano}/data.parquet"
         print(
             f"Exportando o DataFrame particionado em {temp_export_file_path}..."
         )
