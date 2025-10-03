@@ -2,20 +2,21 @@
 Flows for ibge inflacao
 """
 
-# pylint: disable=C0103, E1123, invalid-name, duplicate-code, R0801
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.crawler.ibge_inflacao.tasks import (
-    check_for_updates_task,
+    check_for_updates,
     collect_data_utils,
     json_to_csv,
 )
 from pipelines.utils.decorators import Flow
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.metadata.tasks import (
+    # check_if_data_is_outdated,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     download_data_to_gcs,
@@ -43,59 +44,69 @@ with Flow(name="BD Template - IBGE Inflação") as flow_ibge:
         wait=table_id,
     )
 
-    needs_to_update = check_for_updates_task(
-        dataset_id=dataset_id, table_id=table_id
+    download_data_periods = collect_data_utils(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        periodo=periodo,
+        upstream_tasks=[rename_flow_run],
     )
 
-    with case(needs_to_update, True):
-        download_data = collect_data_utils(
+    needs_to_update = check_for_updates(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        upstream_tasks=[download_data_periods],
+    )
+
+    # outdated = check_if_data_is_outdated(
+    # dataset_id = dataset_id,
+    # table_id = table_id,
+    # data_source_max_date = needs_to_update,
+    # date_format = "%Y-%m",
+    # upstream_tasks=[needs_to_update]
+
+    # )
+
+    # with case(outdated, True):
+    filepath = json_to_csv(
+        table_id=table_id,
+        dataset_id=dataset_id,
+        upstream_tasks=[needs_to_update],
+    )
+
+    wait_upload_table = create_table_and_upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        wait=filepath,
+        upstream_tasks=[filepath],
+    )
+
+    with case(materialize_after_dump, True):
+        wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            periodo=periodo,
-            upstream_tasks=[rename_flow_run],
+            target=target,
+            dbt_alias=dbt_alias,
+            upstream_tasks=[wait_upload_table],
         )
-
-        filepath = json_to_csv(
-            table_id=table_id,
-            dataset_id=dataset_id,
-            periodo=periodo,
-            upstream_tasks=[download_data],
-        )
-
-        wait_upload_table = create_table_and_upload_to_gcs(
-            data_path=filepath,
+        wait_for_dowload_data_to_gcs = download_data_to_gcs(
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="append",
-            wait=filepath,
-            upstream_tasks=[filepath],
+            upstream_tasks=[wait_for_materialization],
         )
-
-        with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
+        with case(update_metadata, True):
+            update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                upstream_tasks=[wait_upload_table],
+                date_column_name={"year": "ano", "month": "mes"},
+                date_format="%Y-%m",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                prefect_mode=target,
+                bq_project="basedosdados",
+                upstream_tasks=[wait_for_dowload_data_to_gcs],
             )
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                upstream_tasks=[wait_for_materialization],
-            )
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    prefect_mode=target,
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_for_dowload_data_to_gcs],
-                )
 
 
 flow_ibge.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

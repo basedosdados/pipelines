@@ -5,7 +5,7 @@ models:
     description: Inflação - Índice Nacional de Preços ao Consumidor Amplo - IPCA
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [ano, mes, indice]
+          combination_of_columns: [ano, mes]
       - not_null_proportion_multiple_columns:
           at_least: 0.50
     columns:

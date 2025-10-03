@@ -1,10 +1,5 @@
-"""
-Tasks for br_ibge_inpc
-"""
-
 import asyncio
 import os
-import ssl
 
 import numpy as np
 import pandas as pd
@@ -12,39 +7,32 @@ from prefect import task
 
 from pipelines.crawler.ibge_inflacao.constants import constants
 from pipelines.crawler.ibge_inflacao.utils import (
-    check_for_update_date,
-    check_for_updates,
     collect_data,
+    get_date_api,
     json_categoria,
     json_mes_brasil,
+    next_date_update,
+    order_by_columns,
 )
 from pipelines.utils.utils import to_partitions
 
-# necessary for use wget, see: https://stackoverflow.com/questions/35569042/ssl-certificate-verify-failed-with-python3
-ssl._create_default_https_context = ssl._create_unverified_context
-# pylint: disable=C0206
-# pylint: disable=C0201
-# pylint: disable=R0914
-# https://sidra.ibge.gov.br/tabela/7062
-# https://sidra.ibge.gov.br/tabela/7063
-# https://sidra.ibge.gov.br/tabela/7060
-
 
 @task
-def check_for_updates_task(
+def check_for_updates(
     table_id: str,
     dataset_id: str,
-) -> bool:
-    verify = check_for_updates(table_id=table_id, dataset_id=dataset_id)
-
-    return verify[0]
+) -> None:
+    return get_date_api(table_id=table_id, dataset_id=dataset_id)
 
 
 @task
-def collect_data_utils(dataset_id: str, table_id: str, periodo=None) -> None:
+def collect_data_utils(
+    dataset_id: str, table_id: str, periodo: str | None = None
+) -> str:
     if periodo is None:
-        periodo = check_for_update_date(
-            dataset_id=dataset_id, table_id=table_id
+        periodo = next_date_update(
+            dataset_id=dataset_id,
+            table_id=table_id,
         )
 
     if table_id == "mes_brasil":
@@ -74,24 +62,24 @@ def collect_data_utils(dataset_id: str, table_id: str, periodo=None) -> None:
             )
         )
 
+    return periodo
+
 
 @task
-def json_to_csv(table_id: str, dataset_id: str, periodo: str):
-    if periodo is None:
-        periodo = check_for_update_date(
-            dataset_id=dataset_id, table_id=table_id
-        )
+def json_to_csv(table_id: str, dataset_id: str) -> str:
     if table_id == "mes_brasil":
         dados_agrupados = json_mes_brasil(
-            dataset_id=dataset_id, table_id=table_id, periodo=periodo
+            dataset_id=dataset_id, table_id=table_id
         )
     else:
         dados_agrupados = json_categoria(
-            dataset_id=dataset_id, table_id=table_id, periodo=periodo
+            dataset_id=dataset_id, table_id=table_id
         )
 
     df = pd.DataFrame(list(dados_agrupados.values()))
     df = df.apply(lambda x: x.replace("-", np.nan))
+
+    df = df[order_by_columns(df=df, table_id=table_id)]
 
     output_path = os.path.join(constants.OUTPUT.value, dataset_id, table_id)
     to_partitions(
