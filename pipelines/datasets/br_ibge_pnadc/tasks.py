@@ -22,7 +22,7 @@ from pipelines.datasets.br_ibge_pnadc.utils import (
     get_extraction_year,
     replace_null_strings,
 )
-from pipelines.utils.utils import log, str
+from pipelines.utils.utils import log
 
 
 @task
