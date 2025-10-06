@@ -1,6 +1,8 @@
 import asyncio
 import glob
 import json
+import os
+from typing import Any
 
 import aiohttp
 from aiohttp import ClientTimeout, TCPConnector
@@ -60,12 +62,12 @@ CATEGORIAS = [
 ]  # Produtos
 ANOS_BAIXADOS = [
     int(glob.os.path.basename(f).split(".")[0])
-    for f in glob.glob("../json/*.json")
+    for f in glob.glob("tmp/json/*.json")
 ]
 ANOS_RESTANTES = [int(ANO) for ANO in PERIODOS if ANO not in ANOS_BAIXADOS]
 
 
-async def fetch(session: aiohttp.ClientSession, url: str) -> Dict[str, Any]:  # noqa: F821
+async def fetch(session: aiohttp.ClientSession, url: str) -> dict[str, Any]:
     """
     Faz uma requisição GET à API e retorna a resposta em formato JSON.
 
@@ -81,9 +83,9 @@ async def fetch(session: aiohttp.ClientSession, url: str) -> Dict[str, Any]:  # 
 
 
 async def main(
-    years: List[int],  # noqa: F821
-    variables: List[str],  # noqa: F821
-    categories: List[str],  # noqa: F821
+    years: list[int],
+    variables: list[str],
+    categories: list[str],
 ) -> None:
     """
     Faz requisições para a API para cada ano, variável e categoria, salvando as respostas em arquivos JSON.
@@ -123,7 +125,8 @@ async def main(
                     responses.append(response)
                 except asyncio.TimeoutError:
                     print(f"Request timed out for {url}")
-            with open(f"../json/{year}.json", "a") as f:
+            os.makedirs("tmp/json", exist_ok=True)
+            with open(f"tmp/json/{year}.json", "a") as f:
                 json.dump(responses, f)
 
 
