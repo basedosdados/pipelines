@@ -18,8 +18,11 @@ from tqdm import tqdm
 from pipelines.datasets.br_ibge_pnadc.constants import (
     constants as pnad_constants,
 )
-from pipelines.datasets.br_ibge_pnadc.utils import get_extraction_year
-from pipelines.utils.utils import log
+from pipelines.datasets.br_ibge_pnadc.utils import (
+    get_extraction_year,
+    replace_null_strings,
+)
+from pipelines.utils.utils import log, str
 
 
 @task
@@ -112,7 +115,7 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
     Build parquets from txt original file.
     """
 
-    filepaths = glob(f"{input_path}*/.txt")
+    filepaths = glob(f"{input_path}/*.txt")
     filepath = filepaths[0] if len(filepaths) > 0 else filepaths
     chunks = pd.read_fwf(
         filepath,
@@ -124,8 +127,12 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
         chunksize=25000,
     )
 
-    for _, chunk in enumerate(chunks):
+    for i, chunk in enumerate(chunks):
+        log(
+            f"------------------------------ Chunk {i + 1} ------------------------------"
+        )
         # partition by year, quarter and region
+
         chunk = chunk.rename(
             columns={
                 "UF": "id_uf",
@@ -137,6 +144,9 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
                 "Ano": "ano",
             }
         )
+
+        log("Renaming Columns...")
+
         chunk["sigla_uf"] = chunk["id_uf"].map(
             pnad_constants.map_codigo_sigla_uf.value
         )
@@ -148,12 +158,14 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
         chunk["efetivo"] = [np.nan] * len(chunk)
         ordered_columns = pnad_constants.COLUMNS_ORDER.value
         chunk = chunk[ordered_columns]
+        chunk = replace_null_strings(chunk)
 
         trimestre = chunk["trimestre"].unique()[0]
         ano = chunk["ano"].unique()[0]
         chunk = chunk.drop(columns=["trimestre", "ano"])
         ufs = chunk["sigla_uf"].unique()
 
+        log("Partitioning chunk...")
         for uf in ufs:
             df_uf = chunk[chunk["sigla_uf"] == uf]
             df_uf = df_uf.drop(columns=["sigla_uf"])
