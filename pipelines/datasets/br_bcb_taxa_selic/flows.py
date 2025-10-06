@@ -7,9 +7,6 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.datasets.br_bcb_taxa_selic.schedules import (
-    schedule_every_weekday_taxa_selic,
-)
 from pipelines.datasets.br_bcb_taxa_selic.tasks import (
     get_data_taxa_selic,
     treat_data_taxa_selic,
@@ -97,6 +94,6 @@ datasets_br_bcb_taxa_selic_diaria_flow.storage = GCS(
 datasets_br_bcb_taxa_selic_diaria_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-datasets_br_bcb_taxa_selic_diaria_flow.schedule = (
-    schedule_every_weekday_taxa_selic
-)
+# datasets_br_bcb_taxa_selic_diaria_flow.schedule = (
+#     schedule_every_weekday_taxa_selic
+# )

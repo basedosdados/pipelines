@@ -11,11 +11,8 @@ from pipelines.constants import constants
 from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 from pipelines.datasets.br_cvm_fi.schedules import (
     every_day_balancete,
-    every_day_carteiras,
     every_day_extratos,
     every_day_informacao_cadastral,
-    every_day_informe,
-    every_day_perfil,
 )
 from pipelines.datasets.br_cvm_fi.tasks import (
     clean_data_and_make_partitions,
@@ -146,7 +143,7 @@ br_cvm_fi_documentos_informe_diario.storage = GCS(
 br_cvm_fi_documentos_informe_diario.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cvm_fi_documentos_informe_diario.schedule = every_day_informe
+# br_cvm_fi_documentos_informe_diario.schedule = every_day_informe
 
 
 with Flow(
@@ -249,9 +246,9 @@ br_cvm_fi_documentos_carteiras_fundos_investimento.storage = GCS(
 br_cvm_fi_documentos_carteiras_fundos_investimento.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cvm_fi_documentos_carteiras_fundos_investimento.schedule = (
-    every_day_carteiras
-)
+# br_cvm_fi_documentos_carteiras_fundos_investimento.schedule = (
+#     every_day_carteiras
+# )
 
 
 with Flow(
@@ -462,7 +459,7 @@ br_cvm_fi_documentos_perfil_mensal.storage = GCS(
 br_cvm_fi_documentos_perfil_mensal.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cvm_fi_documentos_perfil_mensal.schedule = every_day_perfil
+# br_cvm_fi_documentos_perfil_mensal.schedule = every_day_perfil
 
 
 with Flow(
