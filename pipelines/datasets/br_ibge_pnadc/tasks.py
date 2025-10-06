@@ -72,6 +72,7 @@ def get_data_source_date_and_url() -> tuple[datetime, str]:
     ]
     dados = dict(zip(dates, hrefs, strict=False))
     last_update = max(dados.keys())
+    last_update = "2025-08-15"
     filename = dados[last_update]
 
     last_modified = datetime.strptime(last_update, "%Y-%m-%d")
@@ -116,6 +117,7 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
     """
 
     filepaths = glob(f"{input_path}/*.txt")
+    log(f"Found filepaths of interest {filepaths}")
     filepath = filepaths[0] if len(filepaths) > 0 else filepaths
     chunks = pd.read_fwf(
         filepath,
