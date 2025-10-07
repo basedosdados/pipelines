@@ -77,8 +77,9 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
             table_id=table_id,
             dump_mode="append",
             wait=output_dir,
-            upstream_tasks=[output_dir],
+            upstream_tasks=[output_filepath],
         )
+
         with case(materialize_after_dump, True):
             wait_for_materialization = run_dbt(
                 dataset_id=dataset_id,
