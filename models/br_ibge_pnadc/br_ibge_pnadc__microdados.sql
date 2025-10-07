@@ -2,7 +2,7 @@
     config(
         alias="microdados",
         schema="br_ibge_pnadc",
-        materialized="table",
+        materialized="incremental",
         partition_by={
             "field": "ano",
             "data_type": "int64",
@@ -450,6 +450,11 @@ with
             safe_cast(habitual as float64) habitual,
             safe_cast(efetivo as float64) efetivo
         from {{ set_datalake_project("br_ibge_pnadc_staging.microdados") }} as t
+        {% if is_incremental() %}
+            where
+                ano > (select max(ano) from {{ this }})
+                and trimestre > (select max(trimestre) from {{ this }})
+        {% endif %}
     )
 -- verifica se a coluna é do tipo STRING e, caso seja, limpa as observações que
 -- começam com 0 (ie. transforma '05' em '5')
