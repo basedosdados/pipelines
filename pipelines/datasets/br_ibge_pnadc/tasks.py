@@ -72,7 +72,6 @@ def get_data_source_date_and_url() -> tuple[datetime, str]:
     ]
     dados = dict(zip(dates, hrefs, strict=False))
     last_update = max(dados.keys())
-    last_update = "2025-08-15"
     filename = dados[last_update]
 
     last_modified = datetime.strptime(last_update, "%Y-%m-%d")
