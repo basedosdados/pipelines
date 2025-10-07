@@ -2,7 +2,7 @@
 version: 2
 models:
   - name: br_ibge_inpc__mes_brasil
-    description: Inflação - Índice Nacional de Preços ao Consumidor - INPC
+    description: Inflação - Índice Nacional de Preços ao Consumidor - INPC.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, mes]

@@ -1,3 +1,4 @@
+-- - Register
 {{
     config(
         alias="mes_categoria_municipio",

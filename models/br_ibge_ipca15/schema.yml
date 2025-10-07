@@ -3,7 +3,7 @@ version: 2
 models:
   - name: br_ibge_ipca15__mes_brasil
     description: Inflação - Índice Nacional de Preços ao Consumidor Amplo 15 - IPCA15
-      - Índice Geral para Brasil (a partir de maio/2000)
+      - Índice Geral para Brasil (a partir de maio/2000).
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, mes]
