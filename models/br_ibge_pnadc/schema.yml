@@ -169,7 +169,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__trimestre')
-              field: trimestre
+              field: trimestre.trimestre
       - name: id_uf
         description: ID Unidade da Federação
         tests:
