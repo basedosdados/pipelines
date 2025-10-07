@@ -550,6 +550,26 @@ def dbt_project_files_relevant_changed(files: list[str]) -> bool:
     return False
 
 
+def dbt_schema_or_model_changed(files: list[str]) -> bool:
+    """
+    Check if any file in provided list of files is a `schema.yml`, `schema.yaml` or a SQL file in `models/`
+
+    Args:
+        files: A list of file paths
+
+    Returns:
+        True if any file is a `schema.yml`, `schema.yaml` or a SQL files in `models/` directory.
+    """
+    for file in files:
+        p = Path(file)
+        if p.is_relative_to("models/") and (
+            p.suffix == ".sql" or p.name in ["schema.yaml", "schema.yml"]
+        ):
+            return True
+
+    return False
+
+
 def pipelines_to_force_registration(
     modified_files: list[str],
 ) -> list[Path]:
@@ -694,8 +714,10 @@ def main(
         > 0
     )
 
-    # Force registration of flow execute_dbt_model if some relevant dbt project file changed
-    if not flow_execute_dbt_model_changed and is_dbt_file_relevant_changed:
+    # Force registration of flow execute_dbt_model if some schema or model is changed
+    if not flow_execute_dbt_model_changed and dbt_schema_or_model_changed(
+        modified_files_list
+    ):
         logger.info(
             f"Force-registering flow '{constants.FLOW_EXECUTE_DBT_MODEL_NAME.value}' due to changes detected in the dbt files"
         )
