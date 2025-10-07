@@ -2,7 +2,13 @@
 version: 2
 models:
   - name: br_ibge_ipca15__mes_brasil
-    description: dbt model for table mes_brasil
+    description: Inflação - Índice Nacional de Preços ao Consumidor Amplo 15 - IPCA15
+      - Índice Geral para Brasil (a partir de maio/2000)
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.50
     columns:
       - name: ano
         description: Ano
@@ -21,17 +27,20 @@ models:
       - name: variacao_doze_meses
         description: Variação percentual doze meses
   - name: br_ibge_ipca15__mes_categoria_brasil
-    description: dbt model for table mes_categoria_brasil
+    description: Tabela com as variações da inflação (IPCA15) e peso dos produtos
+      e serviços na cesta de inflação do IBGE (a partir de fevereiro/2020)
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, id_categoria]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.50
     columns:
       - name: ano
         description: Ano
       - name: mes
-        description: Mês
+        description: Mes
       - name: id_categoria
-        description: Código identificador grupo
-      - name: id_categoria_bd
-        description: Código identificador grupo - Base dos dados - Baseado em id_categoria
-          para criação de estrutura hierárquica
+        description: Código identificador grupo para criação de estrutura hierárquica
       - name: categoria
         description: Descrição da categoria
       - name: peso_mensal
@@ -43,19 +52,33 @@ models:
       - name: variacao_doze_meses
         description: Variação percentual acumulada em doze meses
   - name: br_ibge_ipca15__mes_categoria_municipio
-    description: dbt model for table mes_categoria_municipio
+    description: Tabela com as variações da inflação (IPCA15) e peso dos produtos
+      e serviços na cesta de inflação do IBGE para municípios selecionados onde a
+      pesquisa é realizada (a partir de fevereiro/2020)
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, id_categoria, id_municipio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.50
     columns:
       - name: ano
         description: Ano
       - name: mes
-        description: Mês
+        description: Mes
       - name: id_municipio
         description: ID do Município IBGE - 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: id_categoria
-        description: Código identificador grupo
-      - name: id_categoria_bd
-        description: Código identificador grupo - Base dos dados - Baseado em id_categoria
-          para criação de estrutura hierárquica
+        description: Código identificador grupo para criação de estrutura hierárquica
       - name: categoria
         description: Descrição da categoria
       - name: peso_mensal
@@ -67,19 +90,33 @@ models:
       - name: variacao_doze_meses
         description: Variação percentual acumulada em doze meses
   - name: br_ibge_ipca15__mes_categoria_rm
-    description: dbt model for table mes_categoria_rm
+    description: Tabela com as variações da inflação (IPCA15) e peso dos produtos
+      e serviços na cesta de inflação do IBGE para regiões metropolitanas selecionados
+      onde a pesquisa é realizada (a partir de fevereiro/2020)
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - regiao_metropolitana
+            - id_categoria
+      - not_null_proportion_multiple_columns:
+          at_least: 0.50
     columns:
       - name: ano
         description: Ano
       - name: mes
-        description: Mês
-      - name: id_regiao_metropolitana
-        description: ID da Região Metropolitana - IBGE
+        description: Mes
+      - name: regiao_metropolitana
+        description: Região Metropolitana
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: id_categoria
-        description: Código identificador grupo
-      - name: id_categoria_bd
-        description: Código identificador grupo - Base dos dados - Baseado em id_categoria
-          para criação de estrutura hierárquica
+        description: Código identificador grupo para criação de estrutura hierárquica
       - name: categoria
         description: Descrição da categoria
       - name: peso_mensal
