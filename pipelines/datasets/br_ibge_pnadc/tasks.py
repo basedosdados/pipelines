@@ -181,11 +181,11 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
 
             # Save to CSV incrementally
             df_uf.to_csv(
-                f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/microdados.csv",
+                f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/data.csv",
                 index=False,
                 mode="a",
                 header=not os.path.exists(
-                    f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/microdados.csv"
+                    f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/data.csv"
                 ),
             )
 
