@@ -6,6 +6,7 @@ import os
 import zipfile
 from datetime import datetime
 from glob import glob
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -17,8 +18,29 @@ from tqdm import tqdm
 from pipelines.datasets.br_ibge_pnadc.constants import (
     constants as pnad_constants,
 )
-from pipelines.datasets.br_ibge_pnadc.utils import get_extraction_year
+from pipelines.datasets.br_ibge_pnadc.utils import (
+    get_extraction_year,
+    replace_null_strings,
+)
 from pipelines.utils.utils import log
+
+
+@task
+def build_table_paths(
+    table_id: str, parent_dir: str | Path = pnad_constants.DATASET_DIR.value
+) -> tuple[Path, Path]:
+    parent_dir = Path(parent_dir)
+    parent_dir.mkdir(parents=True, exist_ok=True)
+
+    table_dir = parent_dir / table_id
+    table_dir.mkdir(exist_ok=True)
+    table_input_dir = table_dir / "input"
+    table_output_dir = table_dir / "output"
+
+    table_input_dir.mkdir(exist_ok=True)
+    table_output_dir.mkdir(exist_ok=True)
+
+    return table_input_dir, table_output_dir
 
 
 @task
@@ -54,6 +76,7 @@ def get_data_source_date_and_url() -> tuple[datetime, str]:
 
     last_modified = datetime.strptime(last_update, "%Y-%m-%d")
     url = download_page + f"{filename}"
+    log(f"LAST MODIFIED: {last_modified}\nURL: {url}")
 
     return last_modified, url
 
@@ -87,15 +110,14 @@ def download_txt(url, chunk_size=128, mkdir=False) -> str:
 
 
 @task
-def build_parquet_files(save_path: str) -> str:
+def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
     """
     Build parquets from txt original file.
     """
-    filepath = glob(f"{save_path}*.txt")[0]
-    os.system("mkdir -p /tmp/data/staging/")
-    os.system("mkdir -p /tmp/data/output/")
-    output_dir = "/tmp/data/output/"
-    # read file
+
+    filepaths = glob(f"{input_path}/*.txt")
+    log(f"Found filepaths of interest {filepaths}")
+    filepath = filepaths[0] if len(filepaths) > 0 else filepaths
     chunks = pd.read_fwf(
         filepath,
         widths=pnad_constants.COLUMNS_WIDTHS.value,
@@ -106,8 +128,12 @@ def build_parquet_files(save_path: str) -> str:
         chunksize=25000,
     )
 
-    for _, chunk in enumerate(chunks):
+    for i, chunk in enumerate(chunks):
+        log(
+            f"------------------------------ Chunk {i + 1} ------------------------------"
+        )
         # partition by year, quarter and region
+
         chunk = chunk.rename(
             columns={
                 "UF": "id_uf",
@@ -119,6 +145,9 @@ def build_parquet_files(save_path: str) -> str:
                 "Ano": "ano",
             }
         )
+
+        log("Renaming Columns...")
+
         chunk["sigla_uf"] = chunk["id_uf"].map(
             pnad_constants.map_codigo_sigla_uf.value
         )
@@ -130,12 +159,14 @@ def build_parquet_files(save_path: str) -> str:
         chunk["efetivo"] = [np.nan] * len(chunk)
         ordered_columns = pnad_constants.COLUMNS_ORDER.value
         chunk = chunk[ordered_columns]
+        chunk = replace_null_strings(chunk)
 
         trimestre = chunk["trimestre"].unique()[0]
         ano = chunk["ano"].unique()[0]
         chunk = chunk.drop(columns=["trimestre", "ano"])
         ufs = chunk["sigla_uf"].unique()
 
+        log("Partitioning chunk...")
         for uf in ufs:
             df_uf = chunk[chunk["sigla_uf"] == uf]
             df_uf = df_uf.drop(columns=["sigla_uf"])
@@ -150,11 +181,11 @@ def build_parquet_files(save_path: str) -> str:
 
             # Save to CSV incrementally
             df_uf.to_csv(
-                f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/microdados.csv",
+                f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/data.csv",
                 index=False,
                 mode="a",
                 header=not os.path.exists(
-                    f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/microdados.csv"
+                    f"{output_dir}/ano={ano}/trimestre={trimestre}/sigla_uf={uf}/data.csv"
                 ),
             )
 
