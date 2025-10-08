@@ -452,8 +452,9 @@ with
         from {{ set_datalake_project("br_ibge_pnadc_staging.microdados") }} as t
         {% if is_incremental() %}
             where
-                ano > (select max(ano) from {{ this }})
-                and trimestre > (select max(trimestre) from {{ this }})
+                safe_cast(ano as int64) > (select max(ano) from {{ this }})
+                and safe_cast(trimestre as int64)
+                > (select max(trimestre) from {{ this }})
         {% endif %}
     )
 -- verifica se a coluna é do tipo STRING e, caso seja, limpa as observações que
