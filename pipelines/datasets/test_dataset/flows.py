@@ -98,7 +98,7 @@ with Flow(name="test_flow") as test_flow:
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="overwrite",
-        wait=[path],
+        upstream_tasks=[path],
     )
 
 test_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
