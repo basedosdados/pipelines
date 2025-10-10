@@ -7,12 +7,13 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.datasets.br_bd_indicadores.schedules import (
-    schedule_contabilidade,
-    schedule_equipes,
-    schedule_pessoas,
-    schedule_receitas,
-)
+
+# from pipelines.datasets.br_bd_indicadores.schedules import (
+#     schedule_contabilidade,
+#     schedule_equipes,
+#     schedule_pessoas,
+#     schedule_receitas,
+# )
 from pipelines.datasets.br_bd_indicadores.tasks import (
     crawler_metricas,
     crawler_real_time,
@@ -347,7 +348,7 @@ bd_indicadores_contabilidade.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_indicadores_contabilidade.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-bd_indicadores_contabilidade.schedule = schedule_contabilidade
+# bd_indicadores_contabilidade.schedule = schedule_contabilidade
 
 
 with Flow(
@@ -428,7 +429,7 @@ bd_indicadores_receitas_planejadas.storage = GCS(
 bd_indicadores_receitas_planejadas.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-bd_indicadores_receitas_planejadas.schedule = schedule_receitas
+# bd_indicadores_receitas_planejadas.schedule = schedule_receitas
 
 
 with Flow(
@@ -506,7 +507,7 @@ bd_indicadores_equipes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_indicadores_equipes.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-bd_indicadores_equipes.schedule = schedule_equipes
+# bd_indicadores_equipes.schedule = schedule_equipes
 
 
 with Flow(
@@ -581,4 +582,4 @@ bd_indicadores_pessoas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_indicadores_pessoas.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-bd_indicadores_pessoas.schedule = schedule_pessoas
+# bd_indicadores_pessoas.schedule = schedule_pessoas
