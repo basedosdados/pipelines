@@ -10,28 +10,97 @@ class constants(Enum):
     Constant values for the br_cvm_fii project
     """
 
-    CDA_URL = "https://dados.cvm.gov.br/dados/FI/DOC/CDA/DADOS/"
-
-    INFORME_DIARIO_URL = (
+    # URLs
+    URL_CDA = "https://dados.cvm.gov.br/dados/FI/DOC/CDA/DADOS/"
+    URL_INFORME_DIARIO = (
         "https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/"
     )
+    URL_INFO_CADASTRAL = "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/"
+    URL_BALANCETE = "https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS/"
+    URL_EXTRATO = "https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/"
+    URL_PERFIL_MENSAL = (
+        "https://dados.cvm.gov.br/dados/FI/DOC/PERFIL_MENSAL/DADOS/"
+    )
 
-    LISTA = [
-        "indicador_emissor_ligado",
-        "quantidade_vendas_negocios_mes",
-        "quantidade_aquisicoes_negocios_mes",
-        "quantidade_posicao_final",
-        "indicador_titulo_pos_fixado",
-        "indicador_emissor_pessoa_fisica_juridica",
-        "indicador_codigo_identificacao_emissor_pessoa_fisica_juridica",
-        "indicador_titulo_registrado_cetip",
-        "indicador_titulo_possui_garantia_seguro",
-        "indicador_investimento_coletivo",
-        "indicador_gestao_carteira_influencia_gestor",
-        "quantidade_ativos_exterior",
+    # Architectures
+    URL_ARCH_CDA = "https://docs.google.com/spreadsheets/d/1V2XHBXBB_biC0cLoMZ3FxtbC7CPLxQXZhIY7iJDtsSw/edit#gid=0"
+    URL_ARCH_INFORME = "https://docs.google.com/spreadsheets/d/1W739_mLZNBPYhBqGyjsuuWFBOqCrhrDl/edit#gid=1045172528"
+    URL_ARCH_INFO_CAD = "https://docs.google.com/spreadsheets/d/1OdPdDRnZ9sh3tEdSUo64wsSxVuf5atHP/edit#gid=1045172528"
+    URL_ARCH_BALANCETE = "https://docs.google.com/spreadsheets/d/1eIMo_hYHy89oh6kHRN9Kh0NytUZzr8__/edit#gid=1045172528"
+    URL_ARCH_EXTRATO = "https://docs.google.com/spreadsheets/d/1b94RdASfwXMgJuVMhFeY6Xbph4n4_MVt/edit#gid=1045172528"
+    URL_ARCH_PERFIL_MENSAL = "https://docs.google.com/spreadsheets/d/1IN7enHe6K-StD_sDfCaqhJ7XfUNXe-W8/edit#gid=1045172528"
+
+    # Tables supposed to be found in CSV files
+    CSV_LIST = [
+        "https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/",
+        "https://dados.cvm.gov.br/dados/FI/DOC/PERFIL_MENSAL/DADOS/",
+        "https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS",
     ]
 
-    COLUNAS_TOTAIS = [
+    CAD_FILE = "cad_fi.csv"
+    FILE_EXT = "extrato_fi.csv"
+
+    MAPEAMENTO = {"S": "1", "N": "0"}
+
+    ORIGINAL_COLS_CDA = [
+        "TP_FUNDO",
+        "CNPJ_FUNDO",
+        "DENOM_SOCIAL",
+        "DT_COMPTC",
+        "TP_APLIC",
+        "TP_ATIVO",
+        "EMISSOR_LIGADO",
+        "TP_NEGOC",
+        "QT_VENDA_NEGOC",
+        "VL_VENDA_NEGOC",
+        "QT_AQUIS_NEGOC",
+        "VL_AQUIS_NEGOC",
+        "QT_POS_FINAL",
+        "VL_MERC_POS_FINAL",
+        "VL_CUSTO_POS_FINAL",
+        "DT_CONFID_APLIC",
+        "TP_TITPUB",
+        "CD_ISIN",
+        "CD_SELIC",
+        "DT_EMISSAO",
+        "DT_VENC",
+        "CNPJ_FUNDO_COTA",
+        "NM_FUNDO_COTA",
+        "CD_SWAP",
+        "DS_SWAP",
+        "CD_ATIVO",
+        "DS_ATIVO",
+        "DT_INI_VIGENCIA",
+        "DT_FIM_VIGENCIA",
+        "CNPJ_EMISSOR",
+        "EMISSOR",
+        "TITULO_POSFX",
+        "CD_INDEXADOR_POSFX",
+        "DS_INDEXADOR_POSFX",
+        "PR_INDEXADOR_POSFX",
+        "PR_CUPOM_POSFX",
+        "PR_TAXA_PREFX",
+        "RISCO_EMISSOR",
+        "AG_RISCO",
+        "DT_RISCO",
+        "GRAU_RISCO",
+        "PF_PJ_EMISSOR",
+        "CPF_CNPJ_EMISSOR",
+        "TITULO_CETIP",
+        "TITULO_GARANTIA",
+        "CNPJ_INSTITUICAO_FINANC_COOBR",
+        "INVEST_COLETIVO",
+        "INVEST_COLETIVO_GESTOR",
+        "CD_PAIS",
+        "PAIS",
+        "CD_BV_MERC",
+        "BV_MERC",
+        "CD_ATIVO_BV_MERC",
+        "DS_ATIVO_EXTERIOR",
+        "QT_ATIVO_EXTERIOR",
+        "VL_ATIVO_EXTERIOR",
+    ]
+    FINAL_COLS_CDA = [
         "id_fundo",
         "cnpj",
         "denominacao_social",
@@ -92,69 +161,7 @@ class constants(Enum):
         "ano",
         "mes",
     ]
-
-    COLUNAS_FINAL = [
-        "TP_FUNDO",
-        "CNPJ_FUNDO",
-        "DENOM_SOCIAL",
-        "DT_COMPTC",
-        "TP_APLIC",
-        "TP_ATIVO",
-        "EMISSOR_LIGADO",
-        "TP_NEGOC",
-        "QT_VENDA_NEGOC",
-        "VL_VENDA_NEGOC",
-        "QT_AQUIS_NEGOC",
-        "VL_AQUIS_NEGOC",
-        "QT_POS_FINAL",
-        "VL_MERC_POS_FINAL",
-        "VL_CUSTO_POS_FINAL",
-        "DT_CONFID_APLIC",
-        "TP_TITPUB",
-        "CD_ISIN",
-        "CD_SELIC",
-        "DT_EMISSAO",
-        "DT_VENC",
-        "CNPJ_FUNDO_COTA",
-        "NM_FUNDO_COTA",
-        "CD_SWAP",
-        "DS_SWAP",
-        "CD_ATIVO",
-        "DS_ATIVO",
-        "DT_INI_VIGENCIA",
-        "DT_FIM_VIGENCIA",
-        "CNPJ_EMISSOR",
-        "EMISSOR",
-        "TITULO_POSFX",
-        "CD_INDEXADOR_POSFX",
-        "DS_INDEXADOR_POSFX",
-        "PR_INDEXADOR_POSFX",
-        "PR_CUPOM_POSFX",
-        "PR_TAXA_PREFX",
-        "RISCO_EMISSOR",
-        "AG_RISCO",
-        "DT_RISCO",
-        "GRAU_RISCO",
-        "PF_PJ_EMISSOR",
-        "CPF_CNPJ_EMISSOR",
-        "TITULO_CETIP",
-        "TITULO_GARANTIA",
-        "CNPJ_INSTITUICAO_FINANC_COOBR",
-        "INVEST_COLETIVO",
-        "INVEST_COLETIVO_GESTOR",
-        "CD_PAIS",
-        "PAIS",
-        "CD_BV_MERC",
-        "BV_MERC",
-        "CD_ATIVO_BV_MERC",
-        "DS_ATIVO_EXTERIOR",
-        "QT_ATIVO_EXTERIOR",
-        "VL_ATIVO_EXTERIOR",
-    ]
-
-    MAPEAMENTO = {"S": "1", "N": "0"}
-
-    COLUNAS = [
+    TO_MAP_COLS_CDA = [
         "EMISSOR_LIGADO",
         "TITULO_POSFX",
         "RISCO_EMISSOR",
@@ -165,8 +172,7 @@ class constants(Enum):
         "INVEST_COLETIVO",
         "INVEST_COLETIVO_GESTOR",
     ]
-
-    COLUNAS_ASCI = [
+    ASCII_COLS_CDA = [
         "denominacao_social",
         "tipo_aplicacao",
         "tipo_ativo",
@@ -182,9 +188,7 @@ class constants(Enum):
         "codigo_ativo_bolsa_mercado_balcao_local_aquisicao",
     ]
 
-    ARQUITETURA_URL = "https://docs.google.com/spreadsheets/d/1W739_mLZNBPYhBqGyjsuuWFBOqCrhrDl/edit#gid=1045172528"
-
-    COLUNAS_FINAL_INF = [
+    FINAL_COLS_INFORME = [
         "id_fundo",
         "cnpj",
         "data_competencia",
@@ -198,29 +202,52 @@ class constants(Enum):
         "mes",
     ]
 
-    ARQUITETURA_URL_INF = "https://docs.google.com/spreadsheets/d/1W739_mLZNBPYhBqGyjsuuWFBOqCrhrDl/edit#gid=1045172528"
-
-    COLUNAS_ASCI_EXT = [
+    ASCII_COLS_CAD = [
+        "id_fundo",
+        "cnpj",
         "denominacao_social",
-        "condominio",
-        "nome_mercado",
-        "tipo_prazo",
-        "prazo",
-        "publico_alvo",
-        "classificacao_anbima",
-        "forma_distribuicao",
-        "politica_investimento",
-        "prazo_atualizacao_valor_cota",
-        "cota_emissao",
-        "patrimonio_liquido_cota",
-        "tipo_prazo_pagamento_resgates",
-        "parametro_taxa_performance",
-        "metodo_calculo_taxa_performance",
+        "codigo_cvm",
+        "situacao",
+        "classe",
+        "tipo_rentabilidade",
+        "tipo_condominio",
         "informacoes_adicionais_taxa_performance",
-        "finalidade_operacoes_derivativos",
+        "informacoes_adicionais_taxa_administracao",
+        "nome_diretor",
+        "cnpj_administrador",
+        "nome_administrador",
+        "indicador_pessoa_fisica_ou_juridica",
+        "cpf_cnpj_gestor",
+        "nome_gestor",
+        "cnpj_auditor",
+        "nome_auditor",
+        "cnpj_custodiante",
+        "nome_custodiante",
+        "cnpj_controlador",
+        "nome_controlador",
     ]
 
-    COLUNAS_TOTAIS_EXT = [
+    RENAME_MAPPING_BALANCETE = {
+        "CNPJ_FUNDO": "cnpj",
+        "CNPJ_FUNDO_CLASSE": "cnpj",
+        "DT_COMPTC": "data_competencia",
+        "PLANO_CONTA_BALCTE": "plano_contabil_balancete",
+        "TP_FUNDO_CLASSE": "tipo_fundo",
+        "CD_CONTA_BALCTE": "codigo_conta",
+        "VL_SALDO_BALCTE": "valor_saldo",
+    }
+    FINAL_COLS_BALANCETE = [
+        "cnpj",
+        "data_competencia",
+        "plano_contabil_balancete",
+        "tipo_fundo",
+        "codigo_conta",
+        "valor_saldo",
+        "ano",
+        "mes",
+    ]
+
+    ORIGINAL_COLS_EXTRATO = [
         "CNPJ_FUNDO",
         "DENOM_SOCIAL",
         "DT_COMPTC",
@@ -340,8 +367,7 @@ class constants(Enum):
         "ano",
         "mes",
     ]
-
-    COLUNAS_FINAIS_EXT = [
+    FINAL_COLS_EXTRATO = [
         "cnpj",
         "denominacao_social",
         "data_competencia",
@@ -461,8 +487,7 @@ class constants(Enum):
         "ano",
         "mes",
     ]
-
-    COLUNAS_MAPEAMENTO_EXT = [
+    TO_MAP_COLS_EXTRATO = [
         "NEGOC_MERC",
         "REG_ANBIMA",
         "RESULT_CART_INCORP_PL",
@@ -479,26 +504,27 @@ class constants(Enum):
         "INVEST_EXTERIOR",
         "ATIVO_CRED_PRIV",
     ]
-
-    ARQUITETURA_URL_EXT = "https://docs.google.com/spreadsheets/d/1b94RdASfwXMgJuVMhFeY6Xbph4n4_MVt/edit#gid=1045172528"
-
-    URL_EXT = "https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/"
-
-    FILE_EXT = "extrato_fi.csv"
-
-    URL_PERFIL_MENSAL = (
-        "https://dados.cvm.gov.br/dados/FI/DOC/PERFIL_MENSAL/DADOS/"
-    )
-
-    ARQUITETURA_URL_PERFIL_MENSAL = "https://docs.google.com/spreadsheets/d/1IN7enHe6K-StD_sDfCaqhJ7XfUNXe-W8/edit#gid=1045172528"
-
-    CSV_LIST = [
-        "https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/",
-        "https://dados.cvm.gov.br/dados/FI/DOC/PERFIL_MENSAL/DADOS/",
-        "https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS",
+    ASCII_COLS_EXTRATO = [
+        "denominacao_social",
+        "condominio",
+        "nome_mercado",
+        "tipo_prazo",
+        "prazo",
+        "publico_alvo",
+        "classificacao_anbima",
+        "forma_distribuicao",
+        "politica_investimento",
+        "prazo_atualizacao_valor_cota",
+        "cota_emissao",
+        "patrimonio_liquido_cota",
+        "tipo_prazo_pagamento_resgates",
+        "parametro_taxa_performance",
+        "metodo_calculo_taxa_performance",
+        "informacoes_adicionais_taxa_performance",
+        "finalidade_operacoes_derivativos",
     ]
 
-    COLUNAS_ASCI_PERFIL_MENSAL = [
+    ASCII_COLS_PERFIL_MENSAL = [
         "cnpj",
         "denominacao_social",
         "versao",
@@ -527,61 +553,3 @@ class constants(Enum):
         "tipo_pessoa_emissor_3",
         "cpf_cnpj_emissor_3",
     ]
-
-    URL_INFO_CADASTRAL = "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/"
-
-    CAD_FILE = "cad_fi.csv"
-
-    ARQUITETURA_URL_CAD = "https://docs.google.com/spreadsheets/d/1OdPdDRnZ9sh3tEdSUo64wsSxVuf5atHP/edit#gid=1045172528"
-
-    COLUNAS_ASCI_CAD = [
-        "id_fundo",
-        "cnpj",
-        "denominacao_social",
-        "codigo_cvm",
-        "situacao",
-        "classe",
-        "tipo_rentabilidade",
-        "tipo_condominio",
-        "informacoes_adicionais_taxa_performance",
-        "informacoes_adicionais_taxa_administracao",
-        "nome_diretor",
-        "cnpj_administrador",
-        "nome_administrador",
-        "indicador_pessoa_fisica_ou_juridica",
-        "cpf_cnpj_gestor",
-        "nome_gestor",
-        "cnpj_auditor",
-        "nome_auditor",
-        "cnpj_custodiante",
-        "nome_custodiante",
-        "cnpj_controlador",
-        "nome_controlador",
-    ]
-
-    URL_BALANCETE = "https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS/"
-
-    ARQUITETURA_URL_BALANCETE = "https://docs.google.com/spreadsheets/d/1eIMo_hYHy89oh6kHRN9Kh0NytUZzr8__/edit#gid=1045172528"
-
-    DICIONARIO_DOCUMENTOS_BALANCETE = {
-        "CNPJ_FUNDO": "cnpj",
-        "CNPJ_FUNDO_CLASSE": "cnpj",
-        "DT_COMPTC": "data_competencia",
-        "PLANO_CONTA_BALCTE": "plano_contabil_balancete",
-        "TP_FUNDO_CLASSE": "tipo_fundo",
-        "CD_CONTA_BALCTE": "codigo_conta",
-        "VL_SALDO_BALCTE": "valor_saldo",
-    }
-
-    ORDEM_DOCUMENTOS_BALANCETE = [
-        "cnpj",
-        "data_competencia",
-        "plano_contabil_balancete",
-        "tipo_fundo",
-        "codigo_conta",
-        "valor_saldo",
-        "ano",
-        "mes",
-    ]
-
-    ARQUITETURA_URL_CDA = "https://docs.google.com/spreadsheets/d/1V2XHBXBB_biC0cLoMZ3FxtbC7CPLxQXZhIY7iJDtsSw/edit#gid=0"

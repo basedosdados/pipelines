@@ -2,6 +2,7 @@
 Tasks for br_cvm_fi
 """
 
+import csv
 import glob
 import os
 import re
@@ -160,8 +161,10 @@ def extract_links_and_dates(url) -> tuple[pd.DataFrame, str]:
             "ultima_atualizacao": datas_atualizacao[1:],
             "data_hoje": datetime.now().strftime("%Y-%m-%d"),
         }
-
     df = pd.DataFrame(dados)
+    df = df[(df["ultima_atualizacao"] != "13-Oct-2025 00:48")]
+    df = df[(df["ultima_atualizacao"] != "13-Oct-2025 00:50")]
+    log(df)
     df.ultima_atualizacao = df.ultima_atualizacao.apply(
         lambda x: datetime.strptime(x, "%d-%b-%Y %H:%M").strftime("%Y-%m-%d")
     )
@@ -228,7 +231,7 @@ def clean_data_and_make_partitions(path: str, table_id: str) -> str:
 
     os.chdir(path)
     files = glob.glob("*.csv")
-    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_INF.value)
+    df_arq = sheet_to_df(cvm_constants.URL_ARCH_INFORME.value)
 
     for file in files:
         df = pd.read_csv(f"{path}{file}", sep=";")
@@ -243,7 +246,7 @@ def clean_data_and_make_partitions(path: str, table_id: str) -> str:
         df = rename_columns(df_arq, df)
 
         df = check_and_create_column(
-            df, colunas_totais=cvm_constants.COLUNAS_FINAL_INF.value
+            df, colunas_totais=cvm_constants.FINAL_COLS_INFORME.value
         )
         df["ano"] = df["data_competencia"].apply(
             lambda x: datetime.strptime(x, "%Y-%m-%d").year
@@ -267,7 +270,7 @@ def clean_data_and_make_partitions(path: str, table_id: str) -> str:
 
 @task
 def clean_data_make_partitions_cda(diretorio, table_id):
-    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_CDA.value)
+    df_arq = sheet_to_df(cvm_constants.URL_ARCH_CDA.value)
     anos_meses = obter_anos_meses(diretorio)
 
     for i in anos_meses:
@@ -280,7 +283,11 @@ def clean_data_make_partitions_cda(diretorio, table_id):
             log(f"Baixando o arquivo ------> {file}")
 
             df = pd.read_csv(
-                file, sep=";", encoding="ISO-8859-1", dtype="string"
+                file,
+                sep=";",
+                encoding="ISO-8859-1",
+                dtype="string",
+                quoting=csv.QUOTE_NONE,
             )
             df["ano"] = df["DT_COMPTC"].apply(
                 lambda x: datetime.strptime(x, "%Y-%m-%d").year
@@ -297,10 +304,10 @@ def clean_data_make_partitions_cda(diretorio, table_id):
             df_final = pd.concat([df_final, df], ignore_index=True)
 
         df_final = check_and_create_column(
-            df_final, colunas_totais=cvm_constants.COLUNAS_FINAL.value
+            df_final, colunas_totais=cvm_constants.ORIGINAL_COLS_CDA.value
         )
-        df_final[cvm_constants.COLUNAS.value] = df_final[
-            cvm_constants.COLUNAS.value
+        df_final[cvm_constants.TO_MAP_COLS_CDA.value] = df_final[
+            cvm_constants.TO_MAP_COLS_CDA.value
         ].applymap(lambda x: cvm_constants.MAPEAMENTO.value.get(x, x))
 
         df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(
@@ -323,15 +330,15 @@ def clean_data_make_partitions_cda(diretorio, table_id):
         df_final = rename_columns(df_arq, df_final)
         df_final = df_final.replace(",", ".", regex=True)
 
-        df_final[cvm_constants.COLUNAS_ASCI.value] = df_final[
-            cvm_constants.COLUNAS_ASCI.value
+        df_final[cvm_constants.ASCII_COLS_CDA.value] = df_final[
+            cvm_constants.ASCII_COLS_CDA.value
         ].fillna("")
 
-        df_final[cvm_constants.COLUNAS_ASCI.value] = df_final[
-            cvm_constants.COLUNAS_ASCI.value
+        df_final[cvm_constants.ASCII_COLS_CDA.value] = df_final[
+            cvm_constants.ASCII_COLS_CDA.value
         ].applymap(limpar_string)
 
-        df_final = df_final[cvm_constants.COLUNAS_TOTAIS.value]
+        df_final = df_final[cvm_constants.FINAL_COLS_CDA.value]
 
         log(f"Fazendo partições para o ano ------> {i}")
 
@@ -348,11 +355,17 @@ def clean_data_make_partitions_cda(diretorio, table_id):
 
 @task
 def clean_data_make_partitions_ext(diretorio, table_id):
-    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_EXT.value)
+    df_arq = sheet_to_df(cvm_constants.URL_ARCH_EXTRATO.value)
     df_final = pd.DataFrame()
     arquivos = glob.glob(f"{diretorio}*.csv")[0]
 
-    df = pd.read_csv(arquivos, sep=";", encoding="ISO-8859-1", dtype="string")
+    df = pd.read_csv(
+        arquivos,
+        sep=";",
+        encoding="ISO-8859-1",
+        dtype="string",
+        quoting=csv.QUOTE_NONE,
+    )
     df["ano"] = df["DT_COMPTC"].apply(
         lambda x: datetime.strptime(x, "%Y-%m-%d").year
     )
@@ -363,22 +376,22 @@ def clean_data_make_partitions_ext(diretorio, table_id):
     df_final = df
     log(df_final.head())
     df_final = check_and_create_column(
-        df_final, colunas_totais=cvm_constants.COLUNAS_TOTAIS_EXT.value
+        df_final, colunas_totais=cvm_constants.ORIGINAL_COLS_EXTRATO.value
     )
-    df_final[cvm_constants.COLUNAS_MAPEAMENTO_EXT.value] = df_final[
-        cvm_constants.COLUNAS_MAPEAMENTO_EXT.value
+    df_final[cvm_constants.TO_MAP_COLS_EXTRATO.value] = df_final[
+        cvm_constants.TO_MAP_COLS_EXTRATO.value
     ].applymap(lambda x: cvm_constants.MAPEAMENTO.value.get(x, x))
     df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
     df_final = rename_columns(df_arq, df_final)
     df_final = df_final.replace(",", ".", regex=True)
-    df_final[cvm_constants.COLUNAS_ASCI_EXT.value] = df_final[
-        cvm_constants.COLUNAS_ASCI_EXT.value
+    df_final[cvm_constants.ASCII_COLS_EXTRATO.value] = df_final[
+        cvm_constants.ASCII_COLS_EXTRATO.value
     ].fillna("")
     log(df_final.head())
-    df_final[cvm_constants.COLUNAS_ASCI_EXT.value] = df_final[
-        cvm_constants.COLUNAS_ASCI_EXT.value
+    df_final[cvm_constants.ASCII_COLS_EXTRATO.value] = df_final[
+        cvm_constants.ASCII_COLS_EXTRATO.value
     ].applymap(limpar_string)
-    df_final = df_final[cvm_constants.COLUNAS_FINAIS_EXT.value]
+    df_final = df_final[cvm_constants.FINAL_COLS_EXTRATO.value]
     log(df_final.head())
     # log(f"Fazendo partições para o ano ------> {i}")
     os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
@@ -429,7 +442,7 @@ def download_csv_cvm(
 
 @task
 def clean_data_make_partitions_perfil(diretorio, table_id):
-    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_PERFIL_MENSAL.value)
+    df_arq = sheet_to_df(cvm_constants.URL_ARCH_PERFIL_MENSAL.value)
     colunas_totais = [*df_arq["original_name"].to_list(), "ano", "mes"]
     colunas_finais = [*df_arq["name"].to_list(), "ano", "mes"]
     colunas_mapeamento = df_arq[df_arq["observations"].notna()][
@@ -504,11 +517,11 @@ def clean_data_make_partitions_perfil(diretorio, table_id):
         ].str.replace(r"[/.-]", "")
         df_final = rename_columns(df_arq, df_final)
         df_final = df_final.replace(",", ".", regex=True)
-        df_final[cvm_constants.COLUNAS_ASCI_PERFIL_MENSAL.value] = df_final[
-            cvm_constants.COLUNAS_ASCI_PERFIL_MENSAL.value
+        df_final[cvm_constants.ASCII_COLS_PERFIL_MENSAL.value] = df_final[
+            cvm_constants.ASCII_COLS_PERFIL_MENSAL.value
         ].fillna("")
-        df_final[cvm_constants.COLUNAS_ASCI_PERFIL_MENSAL.value] = df_final[
-            cvm_constants.COLUNAS_ASCI_PERFIL_MENSAL.value
+        df_final[cvm_constants.ASCII_COLS_PERFIL_MENSAL.value] = df_final[
+            cvm_constants.ASCII_COLS_PERFIL_MENSAL.value
         ].applymap(limpar_string)
         df_final = df_final[colunas_finais]
         os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
@@ -523,7 +536,7 @@ def clean_data_make_partitions_perfil(diretorio, table_id):
 
 @task
 def clean_data_make_partitions_cad(diretorio, table_id):
-    df_arq = sheet_to_df(cvm_constants.ARQUITETURA_URL_CAD.value)
+    df_arq = sheet_to_df(cvm_constants.URL_ARCH_INFO_CAD.value)
     colunas_totais = df_arq["original_name"].to_list()
     colunas_finais = df_arq["name"].to_list()
     colunas_mapeamento = df_arq[df_arq["observations"].notna()][
@@ -532,7 +545,13 @@ def clean_data_make_partitions_cad(diretorio, table_id):
     df_final = pd.DataFrame()
     arquivos = glob.glob(f"{diretorio}*.csv")[0]
 
-    df = pd.read_csv(arquivos, sep=";", encoding="ISO-8859-1", dtype="string")
+    df = pd.read_csv(
+        arquivos,
+        sep=";",
+        encoding="ISO-8859-1",
+        dtype="string",
+        quoting=csv.QUOTE_NONE,
+    )
     # df["ano"] = df["DT_COMPTC"].apply(
     #    lambda x: datetime.strptime(x, "%Y-%m-%d").year
     # )
@@ -563,11 +582,11 @@ def clean_data_make_partitions_cad(diretorio, table_id):
 
     df_final = rename_columns(df_arq, df_final)
     df_final = df_final.replace(",", ".", regex=True)
-    df_final[cvm_constants.COLUNAS_ASCI_CAD.value] = df_final[
-        cvm_constants.COLUNAS_ASCI_CAD.value
+    df_final[cvm_constants.ASCII_COLS_CAD.value] = df_final[
+        cvm_constants.ASCII_COLS_CAD.value
     ].fillna("")
-    df_final[cvm_constants.COLUNAS_ASCI_CAD.value] = df_final[
-        cvm_constants.COLUNAS_ASCI_CAD.value
+    df_final[cvm_constants.ASCII_COLS_CAD.value] = df_final[
+        cvm_constants.ASCII_COLS_CAD.value
     ].applymap(limpar_string)
     df_final = df_final[colunas_finais]
     # log(f"Fazendo partições para o ano ------> {i}")
@@ -588,7 +607,13 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
     for file in tqdm(arquivos):
         log(f"Baixando o arquivo ------> {file}")
 
-        df = pd.read_csv(file, sep=";", encoding="ISO-8859-1", dtype="string")
+        df = pd.read_csv(
+            file,
+            sep=";",
+            encoding="ISO-8859-1",
+            dtype="string",
+            quoting=csv.QUOTE_NONE,
+        )
         df["ano"] = df["DT_COMPTC"].apply(
             lambda x: datetime.strptime(x, "%Y-%m-%d").year
         )
@@ -598,11 +623,9 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
 
         df = check_and_create_column(df, colunas_totais=["TP_FUNDO_CLASSE"])
 
-        df = df.rename(
-            cvm_constants.DICIONARIO_DOCUMENTOS_BALANCETE.value, axis=1
-        )
+        df = df.rename(cvm_constants.RENAME_MAPPING_BALANCETE.value, axis=1)
 
-        df = df[cvm_constants.ORDEM_DOCUMENTOS_BALANCETE.value]
+        df = df[cvm_constants.FINAL_COLS_BALANCETE.value]
 
         df["cnpj"] = df["cnpj"].str.replace(r"[/.-]", "", regex=True)
 

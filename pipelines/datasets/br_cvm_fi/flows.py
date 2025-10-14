@@ -62,7 +62,7 @@ with Flow(
 
     url = Parameter(
         "url",
-        default=cvm_constants.INFORME_DIARIO_URL.value,
+        default=cvm_constants.URL_INFORME_DIARIO.value,
         required=False,
     )
 
@@ -170,7 +170,7 @@ with Flow(
     )
     url = Parameter(
         "url",
-        default=cvm_constants.CDA_URL.value,
+        default=cvm_constants.URL_CDA.value,
         required=False,
     )
 
@@ -272,7 +272,7 @@ with Flow(
     )
     url = Parameter(
         "url",
-        default=cvm_constants.URL_EXT.value,
+        default=cvm_constants.URL_EXTRATO.value,
         required=False,
     )
 
