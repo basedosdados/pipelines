@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 import asyncio
 import glob
 import json
-from typing import Any, Dict, List
+from typing import Any
 
 import aiohttp
 from aiohttp import ClientTimeout, TCPConnector
@@ -24,7 +23,7 @@ ANOS_BAIXADOS = [
 ANOS_RESTANTES = [int(ANO) for ANO in PERIODOS if ANO not in ANOS_BAIXADOS]
 
 
-async def fetch(session: aiohttp.ClientSession, url: str) -> Dict[str, Any]:
+async def fetch(session: aiohttp.ClientSession, url: str) -> dict[str, Any]:
     """
     Faz uma requisição GET à API e retorna a resposta em formato JSON, incluindo a URL usada.
 
@@ -41,7 +40,7 @@ async def fetch(session: aiohttp.ClientSession, url: str) -> Dict[str, Any]:
 
 
 async def main(
-    years: List[int], variables: List[str], categories: List[str]
+    years: list[int], variables: list[str], categories: list[str]
 ) -> None:
     """
     Faz requisições para a API para cada ano, variável e categoria, salvando as respostas em arquivos JSON.

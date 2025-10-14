@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constant values for the datasets projects
 """
@@ -7,15 +6,18 @@ from enum import Enum
 from pathlib import Path
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constant values for the br_denatran_frota project
     """
 
+    BASE_URL_PRE_2012 = "https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam"
+    BASE_URL_POST_2012 = "https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran"
     MONTHS = {
         "janeiro": 1,
         "fevereiro": 2,
         "marco": 3,
+        "março": 3,
         "abril": 4,
         "maio": 5,
         "junho": 6,
@@ -81,6 +83,8 @@ class constants(Enum):  # pylint: disable=c0103
         ("RO", "jamari"): "itapua do oeste",
         ("SC", "picarras"): "balneario picarras",
         ("SC", "barra do sul"): "balneario barra do sul",
+        ("MT", "boa esperanca do norte"): "sorriso",
+        ("SP", "ibitiuva"): "pitangueiras",
     }
 
     ## Paths

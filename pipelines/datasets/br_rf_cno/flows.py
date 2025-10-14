@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_rf_cno
 """
-
-# pylint: disable=invalid-name
 
 from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
@@ -126,7 +123,6 @@ with Flow(
         with case(materialize_after_dump, True):
             wait_for_materialization = run_dbt(
                 dataset_id=dataset_id,
-                table_id=table_id,
                 target=target,
                 dbt_alias=dbt_alias,
                 upstream_tasks=[dbt_parameters],
@@ -155,8 +151,8 @@ with Flow(
 br_rf_cno_tables.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_rf_cno_tables.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value,
-    memory_limit="1Gi",
-    memory_request="2Gi",
+    memory_limit="4Gi",
+    memory_request="1Gi",
     cpu_limit=1,
 )
 br_rf_cno_tables.schedule = schedule_br_rf_cno

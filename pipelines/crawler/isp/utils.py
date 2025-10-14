@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 import os
 from io import StringIO
-from typing import Dict, List
 
 import pandas as pd
 import requests
@@ -16,7 +14,7 @@ from pipelines.crawler.isp.constants import (
 
 
 # ---- build rename dicts
-def change_columns_name(url_architecture: str) -> Dict[str, str]:
+def change_columns_name(url_architecture: str) -> dict[str, str]:
     """Essa função recebe como input uma string com link para uma tabela de arquitetura
     e retorna um dicionário com os nomes das colunas originais e os nomes das colunas
     padronizados
@@ -34,7 +32,11 @@ def change_columns_name(url_architecture: str) -> Dict[str, str]:
 
     # Cria um dicionário de nomes de colunas e tipos de dados a partir do dataframe df_architecture
     column_name_dict = dict(
-        zip(df_architecture["original_name"], df_architecture["name"])
+        zip(
+            df_architecture["original_name"],
+            df_architecture["name"],
+            strict=False,
+        )
     )
 
     # Retorna o dicionário
@@ -45,7 +47,7 @@ def change_columns_name(url_architecture: str) -> Dict[str, str]:
 # ---- function to order columns
 
 
-def create_columns_order(dict: Dict[str, str]) -> List[str]:
+def create_columns_order(dict: dict[str, str]) -> list[str]:
     """This function receives a dictionary with the
     original column names and the standardized column names
     and returns a list with the standardized order column names.

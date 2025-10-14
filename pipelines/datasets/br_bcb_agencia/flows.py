@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS

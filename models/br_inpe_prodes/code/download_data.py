@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import concurrent.futures
 import os
 from itertools import product

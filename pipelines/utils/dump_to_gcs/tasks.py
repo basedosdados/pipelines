@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for dumping data directly from BigQuery to GCS.
 """

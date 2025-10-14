@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for botdosdados
 """
@@ -6,7 +5,6 @@ Tasks for botdosdados
 import os
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,7 +21,6 @@ from pipelines.utils.utils import (
 )
 
 
-# pylint: disable=C0103
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -36,7 +33,7 @@ def echo(message: str) -> None:
 
 
 @task(checkpoint=False, nout=5)
-def get_credentials(secret_path: str) -> Tuple[str, str, str, str, str]:
+def get_credentials(secret_path: str) -> tuple[str, str, str, str, str]:
     """
     Returns the user and password for the given secret path.
     """
@@ -57,9 +54,6 @@ def get_credentials(secret_path: str) -> Tuple[str, str, str, str, str]:
     )
 
 
-# pylint: disable=R0914
-# pylint: disable=R0913
-# pylint: disable=W0613
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
@@ -71,7 +65,6 @@ def was_table_updated(
     Checks if there are tables updated within last hour. If True, saves table locally.
     """
 
-    # pylint: disable=R0915
     datasets_links = defaultdict(lambda: "not selected")
     datasets_links["mundo_transfermarkt_competicoes"] = (
         "https://basedosdados.org/dataset/mundo-transfermarkt-competicoes"
@@ -136,7 +129,7 @@ def was_table_updated(
         dataset_resources = [
             dataset_dict["resources"][k]
             for k in range(n_tables)
-            if "last_updated" in dataset_dict["resources"][k].keys()
+            if "last_updated" in dataset_dict["resources"][k]
         ]
         dataset_resources = [
             dataset_resource
@@ -193,15 +186,14 @@ def was_table_updated(
             df["last_updated"], errors="coerce"
         ).dt.strftime("%Y-%m-%d %H:%M:%S")
     ]
-    df.dropna(
+    df = df.dropna(
         subset=["last_updated", "temporal_coverage", "updated_frequency"],
-        inplace=True,
     )
     df["temporal_coverage"] = [
         k[0] if len(k) > 0 else k for k in df["temporal_coverage"]
     ]
-    df.reset_index(drop=True, inplace=True)
-    df.sort_values("last_updated", ascending=False, inplace=True)
+    df = df.reset_index(drop=True)
+    df = df.sort_values("last_updated", ascending=False)
     df = df[df.dataset.isin(selected_datasets)]
     df = df[
         df["last_updated"].apply(lambda x: x.timestamp())
@@ -249,19 +241,13 @@ def message_last_tables() -> list:
         }
         i = 1
         for table, coverage, updated_frequency in zip(
-            tables, coverages, updated_frequencies
+            tables, coverages, updated_frequencies, strict=False
         ):
-            if len(coverage.split("(")[0]) == 4:
-                thread = (
-                    thread
-                    + f"{str(i) + ')'} {table}. Esses dados são {dict_frequency[updated_frequency]} e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
-                )
-            elif len(coverage.split("(")[0]) == 7:
-                thread = (
-                    thread
-                    + f"{str(i) + ')'} {table}. Esses dados são {dict_frequency[updated_frequency]} e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
-                )
-            elif len(coverage.split("(")[0]) == 10:
+            if (
+                len(coverage.split("(")[0]) == 4
+                or len(coverage.split("(")[0]) == 7
+                or len(coverage.split("(")[0]) == 10
+            ):
                 thread = (
                     thread
                     + f"{str(i) + ')'} {table}. Esses dados são {dict_frequency[updated_frequency]} e agora cobrem o período entre {coverage.split('(')[0]} e {coverage.split(')')[1]}\n"
@@ -275,7 +261,7 @@ def message_last_tables() -> list:
         next_tweets = thread.split("\n")
         next_tweets = [tweet for tweet in next_tweets if len(tweet) > 0]
         texts = (
-            [main_tweet]
+            [main_tweet]  # noqa: RUF005
             + [next_tweets[0] + "\n" + next_tweets[1]]
             + next_tweets[2:]
         )
@@ -302,7 +288,6 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> str:
             df = pd.read_csv(url_data, dtype={"id": str})
             dfs.append(df)
 
-    # pylint: disable=W0108
     df["date"] = (
         df["ano"].apply(lambda x: str(x))
         + "-"
@@ -323,7 +308,7 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> str:
         12: "Dezembro",
     }
     df["mes"] = df["mes"].map(dict_month)
-    df.sort_values("date", inplace=True)
+    df = df.sort_values("date")
     last_data = df.iloc[-1, :]["variacao_doze_meses"]
     last_month = df.iloc[-1, :]["mes"]
     indice = "IPCA"
@@ -331,7 +316,7 @@ def message_inflation_plot(dataset_id: str, table_id: str) -> str:
     text = f"Em {last_month}, a inflação acumulada nos últimos 12 meses medida pelo {indice} foi de {str(last_data).replace('.', ',')}%"
 
     log(last_data)
-    df.set_index("date", inplace=True)
+    df = df.set_index("date")
     df = df[df.index.year.isin(list(range(2015, 2022)))]
 
     fig, ax = plt.subplots()

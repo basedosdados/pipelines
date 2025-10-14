@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for temporal_coverage_updater
 """

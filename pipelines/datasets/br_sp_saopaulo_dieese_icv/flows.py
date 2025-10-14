@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_sp_saopaulo_dieese_icv
 """
-# pylint: disable=C0103, E1123
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun

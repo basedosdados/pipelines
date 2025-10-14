@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Schedules for mundo_transfermarkt_competicoes
 """

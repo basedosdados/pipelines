@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constants for all flows
 """
@@ -6,7 +5,7 @@ Constants for all flows
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constants used in the BD flows.
     """
@@ -141,4 +140,5 @@ class constants(Enum):  # pylint: disable=c0103
         },
         "aspeddro": {"user_id": "767136614140346389", "type": "user_nickname"},
         "luiz": {"user_id": "322508262303989760", "type": "user_nickname"},
+        "Luiza": {"user_id": "818259139221913611", "type": "user_nickname"},
     }
