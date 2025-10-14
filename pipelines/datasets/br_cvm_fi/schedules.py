@@ -24,7 +24,7 @@ every_day_informe = Schedule(
                 "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "url": cvm_constants.INFORME_DIARIO_URL.value,
+                "url": cvm_constants.URL_INFORME_DIARIO.value,
                 "update_metadata": True,
             },
         ),
