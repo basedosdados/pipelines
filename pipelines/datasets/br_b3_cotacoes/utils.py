@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_bcb_estban project
 """
@@ -68,7 +67,7 @@ def partition_data(
 
         df_partition = df[df[column_name] == value].copy()
 
-        df_partition.drop([column_name], axis=1, inplace=True)
+        df_partition = df_partition.drop([column_name], axis=1)
 
         csv_path = os.path.join(partition_path, "data.csv")
         mode = "a" if os.path.exists(csv_path) else "w"
@@ -102,9 +101,7 @@ def process_chunk_csv(input_path, chunk_size: int = 100000):
         ),
         desc="lendo o arquivo CSV",
     ):
-        chunk.rename(
-            columns=br_b3_cotacoes_constants.RENAME.value, inplace=True
-        )
+        chunk = chunk.rename(columns=br_b3_cotacoes_constants.RENAME.value)
         chunk = chunk.replace(np.nan, "")
         chunk["codigo_participante_vendedor"] = chunk[
             "codigo_participante_vendedor"

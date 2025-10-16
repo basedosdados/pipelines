@@ -136,7 +136,6 @@ dev = [
   "ruff<1.0.0,>=0.9.3",
   "yamlfix<2.0.0,>=1.16.0",
   "shandy-sqlfmt[jinjafmt]<1.0.0,>=0.20.0",
-  "typer<1.0.0,>=0.4.0",
   "cookiecutter<2.0.0,>=1.7.3",
   "networkx==2.6.3",
   "databasers-utils @ git+https://github.com/basedosdados/databasers-utils.git@monorepo-migration",
@@ -147,11 +146,37 @@ dev = [
 [tool.ruff]
 line-length = 79
 target-version = "py310"
-extend-exclude = ['\{\{cookiecutter.project_name\}\}']
+extend-exclude = ['\{\{cookiecutter.pipeline_name\}\}']
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
-ignore = ["E501"]
+select = [
+  # pycodestyle
+  "E",
+  # Pyflakes
+  "F",
+  # pyupgrade
+  "UP",
+  # flake8-bugbear
+  "B",
+  # flake8-simplify
+  "SIM",
+  # isort
+  "I",
+  # ruff
+  "RUF",
+  # Pandas
+  "PD",
+  # pep8-naming
+  "N"
+]
+ignore = [
+  # line-to-long
+  "E501",
+  # invalid-class-name
+  "N801",
+  # mutable-class-default
+  "RUF012"
+]
 
 [tool.sqlfmt]
 exclude = ["target/**/*", "dbt_packages/**/*", ".venv/**/*"]

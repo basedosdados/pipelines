@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import os
 import re
@@ -21,8 +20,8 @@ def parse_file(file_path):
         temp_variavel = j["data"][0]["variavel"]
         for r in j["data"][0]["resultados"]:
             for s in r["series"]:
-                temp_ano = list(s["serie"].keys())[0]
-                temp_valor = list(s["serie"].values())[0]
+                temp_ano = list(s["serie"].keys())[0]  # noqa: RUF015
+                temp_valor = list(s["serie"].values())[0]  # noqa: RUF015
                 temp_sigla_uf = s["localidade"]["nome"].split("-")[-1].strip()
                 temp_id_municipio = s["localidade"]["id"]
 
@@ -53,9 +52,9 @@ def treat_columns(dataframe):
     dataframe = dataframe[
         ["ano", "sigla_uf", "id_municipio", "ovinos_tosquiados"]
     ]
-    COLUNAS_PARA_TRATAR = ["ovinos_tosquiados"]
+    colunas_para_tratar = ["ovinos_tosquiados"]
 
-    for coluna in COLUNAS_PARA_TRATAR:
+    for coluna in colunas_para_tratar:
         dataframe[coluna] = dataframe[coluna].apply(
             lambda x: np.nan if x in ("-", "..", "...", "X") else x
         )
@@ -97,7 +96,7 @@ if __name__ == "__main__":
         print("Transformações finalizadas!")
         temp_ano = df["ano"].max()
         print("Deletando a coluna ano para possibilitar o particionamento...")
-        df.drop(columns=["ano"], inplace=True)
+        df = df.drop(columns=["ano"])
         print("Transformações finalizadas!")
         temp_export_file_path = f"../parquet/ano={temp_ano}/data.parquet"
         print(

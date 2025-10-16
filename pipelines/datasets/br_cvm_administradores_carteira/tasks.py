@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_cvm_administradores_carteira
 """
-# pylint: disable=line-too-long, W0702, E1101, E1136, E1137
 
 import os
 import shutil
@@ -32,7 +30,6 @@ def crawl(root: str, url: str, chunk_size=128) -> None:
 
 @task
 def clean_table_responsavel(root: str) -> str:
-    # pylint: disable=invalid-name
     """Clean table responsavel"""
     in_filepath = f"{root}/cad_adm_cart_resp.csv"
     ou_filepath = f"{root}/cleaned/bd_responsavel.csv"
@@ -65,7 +62,6 @@ def clean_table_responsavel(root: str) -> str:
 
 @task
 def clean_table_pessoa_fisica(root: str) -> str:
-    # pylint: disable=invalid-name
     """Clean table pessoa_fisica"""
     in_filepath = f"{root}/cad_adm_cart_pf.csv"
     ou_filepath = f"{root}/cleaned/bd_pessoa_fisica.csv"
@@ -101,7 +97,6 @@ def clean_table_pessoa_fisica(root: str) -> str:
 
 @task
 def clean_table_pessoa_juridica(root: str) -> str:
-    # pylint: disable=invalid-name
     """Clean table pessoa_fisica"""
     in_filepath = f"{root}/cad_adm_cart_pj.csv"
     ou_filepath = f"{root}/cleaned/bd_pessoa_juridica.csv"

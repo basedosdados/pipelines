@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_bcb_agencia
 """
@@ -7,19 +6,10 @@ import datetime as dt
 import os
 import zipfile
 from datetime import timedelta
-from time import sleep
 
 import basedosdados as bd
 import pandas as pd
-from bs4 import BeautifulSoup
 from prefect import task
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
 
 from pipelines.constants import constants
 from pipelines.datasets.br_bcb_agencia.constants import (
@@ -30,6 +20,8 @@ from pipelines.datasets.br_bcb_agencia.utils import (
     clean_column_names,
     clean_nome_municipio,
     create_cnpj_col,
+    download_file,
+    fetch_bcb_documents,
     format_date,
     order_cols,
     read_file,
@@ -37,9 +29,12 @@ from pipelines.datasets.br_bcb_agencia.utils import (
     remove_latin1_accents_from_df,
     remove_non_numeric_chars,
     rename_cols,
+    sort_documents_by_date,
     str_to_title,
     strip_dataframe_columns,
 )
+from pipelines.utils.metadata.tasks import get_api_most_recent_date
+from pipelines.utils.metadata.utils import get_url
 from pipelines.utils.utils import log, to_partitions
 
 
@@ -47,183 +42,110 @@ from pipelines.utils.utils import log, to_partitions
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def extract_last_date(table_id: str) -> str:
-    """This task will extract the last date of agencias or municipios ESTBAN table from
-    BACEN website using selenium webdriver
-
-    Args:
-        table_id (str): Table identifier (agencia or municipio)
-
-    Returns:
-        str: The last release date of the table (Y%-m%) and the raw version (m%/%Y)
-    """
-
-    options = webdriver.ChromeOptions()
-
-    # https://github.com/SeleniumHQ/selenium/issues/11637
-    prefs = {
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "safebrowsing.enabled": True,
+def get_documents_metadata() -> dict:
+    folder = agencia_constants.PASTA.value
+    url = agencia_constants.BASE_URL.value
+    headers = agencia_constants.HEADERS.value
+    params = {
+        "tronco": agencia_constants.TRONCO.value,
+        "guidLista": agencia_constants.GUID_LISTA.value,
+        "ordem": "DataDocumento desc",
+        "pasta": folder,
     }
-
-    options.add_experimental_option(
-        "prefs",
-        prefs,
-    )
-
-    options.add_argument("--headless=new")
-    # NOTE: The traditional --headless, and since version 96, Chrome has a new headless mode that allows users to get the full browser functionality (even run extensions). Between versions 96 to 108 it was --headless=chrome, after version 109 --headless=new
-    options.add_argument("--test-type")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-first-run")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--no-default-browser-check")
-    options.add_argument("--ignore-certificate-errors")
-    options.add_argument("--start-maximized")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
-    )
-
-    driver = webdriver.Chrome(
-        service=ChromeService(ChromeDriverManager().install()), options=options
-    )
-
-    log("iniatilizing drivermanager")
-    log(f"using url {agencia_constants.AGENCIA_URL.value}")
-    driver.get(agencia_constants.AGENCIA_URL.value)
-
-    # select input field and click on it
-    log(
-        f" Searching for ---- {agencia_constants.CSS_INPUT_FIELD_DICT.value[table_id]} to click on"
-    )
-    input_field = WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable(
-            (
-                By.CSS_SELECTOR,
-                agencia_constants.CSS_INPUT_FIELD_DICT.value[table_id],
-            )
-        )
-    )
-
-    assert input_field.is_displayed()
-
-    input_field.click()
-
-    # parse source code
-    page_source = driver.page_source
-
-    # find class ng-option ng-option-marked
-    soup = BeautifulSoup(page_source, "html.parser")
-    raw_date = soup.find("div", class_="ng-option ng-option-marked").get_text()
-
-    # select date string
-    raw_date = raw_date[0:7]
-
-    # format it to %Y-%m
-    date = dt.datetime.strptime(raw_date, "%m/%Y").strftime("%Y-%m")
-
-    log(f"The most recent file date is ->>>> {date}")
-
-    # quit driver session
-    driver.quit()
-
-    # return date, raw_date
-    return date, raw_date
+    data = fetch_bcb_documents(url, headers, params)
+    return data
 
 
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download_table(save_path: str, table_id: str, date: str) -> str:
-    """This function downloads ESTBAN data from BACEN url using selenium webdriver
-    and downloads it
-
+def get_latest_file(data: dict) -> tuple[str | None, str | None]:
+    """
+    Extract the most recent download link and its reference date from BCB metadata.
 
     Args:
-        save_path (str): a temporary path to save the estban files
+        data (dict): JSON loaded from the BCB API.
 
     Returns:
-        str: The path to the estban files
+        tuple[str | None, str | None]:
+            - Absolute URL of the most recent file.
+            - Date string in YYYY-MM format.
     """
-
-    if not os.path.exists(save_path):
-        os.makedirs(save_path, exist_ok=True)
-
-    options = webdriver.ChromeOptions()
-
-    # https://github.com/SeleniumHQ/selenium/issues/11637
-    prefs = {
-        "download.default_directory": save_path,
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "safebrowsing.enabled": True,
-    }
-
-    options.add_experimental_option(
-        "prefs",
-        prefs,
-    )
-
-    options.add_argument("--headless=new")
-    options.add_argument("--test-type")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-first-run")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--no-default-browser-check")
-    options.add_argument("--ignore-certificate-errors")
-    options.add_argument("--start-maximized")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
-    )
-    log("iniatilizing drivermanager")
-    log(f"using url {agencia_constants.AGENCIA_URL.value}")
-
-    driver = webdriver.Chrome(
-        service=ChromeService(ChromeDriverManager().install()), options=options
-    )
-
-    driver.get(agencia_constants.AGENCIA_URL.value)
-    driver.implicitly_wait(2)
-
-    # select input field and send keys
-    log("looking for input field and sending keys")
-    input_field = WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable(
-            (
-                By.CSS_SELECTOR,
-                agencia_constants.CSS_INPUT_FIELD_DICT.value[table_id],
-            )
+    documents = data.get("conteudo", [])
+    if not documents:
+        log("No documents found in the JSON.")
+    else:
+        # Sort by DataDocumento field (most recent first)
+        documents.sort(
+            key=lambda d: dt.datetime.fromisoformat(
+                d["DataDocumento"].replace("Z", "")
+            ),
+            reverse=True,
         )
-    )
 
-    assert input_field.is_displayed()
-
-    driver.execute_script("arguments[0].scrollIntoView();", input_field)
-    input_field.click()
-    input_field.send_keys(date)
-    input_field.send_keys(Keys.ENTER)
-
-    # click  button to download file
-    sleep(2)
-    download_button = WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable(
-            (
-                By.CSS_SELECTOR,
-                agencia_constants.CSS_DOWNLOAD_BUTTON.value[table_id],
-            )
+        # Get the first (most recent)
+        latest = documents[0]
+        relative_url = latest["Url"]
+        last_date = dt.datetime.strptime(latest["Titulo"], "%m/%Y").strftime(
+            "%Y-%m"
         )
+        return (
+            agencia_constants.BASE_DOWNLOAD_URL.value + relative_url,
+            last_date,
+        )
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def get_api_max_date(dataset_id, table_id):
+    """
+    Get the most recent date available in the API for a given dataset/table.
+
+    Args:
+        dataset_id (str): ID of the dataset in Basedosdados.
+        table_id (str): ID of the table in Basedosdados.
+
+    Returns:
+        str: Maximum date available in the API, formatted as "%Y-%m".
+    """
+    backend = bd.Backend(graphql_url=get_url("prod"))
+    api_max_date = get_api_most_recent_date(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        backend=backend,
+        date_format="%Y-%m",
     )
-    download_button.click()
-    # Sleep time to wait the download
-    sleep(9)
 
-    log(f"files {os.listdir(save_path)} were downloaded")
+    return api_max_date
 
-    return save_path
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def download_table(
+    url: str, download_dir: str = agencia_constants.ZIPFILE_PATH_AGENCIA.value
+) -> str:
+    """
+    Download a ZIP file from the given URL and save it to the specified directory.
+
+    Args:
+        url (str): Download URL for the ZIP file.
+        download_dir (str, optional): Local path to store the file.
+            Defaults to `ZIPFILE_PATH_AGENCIA`.
+
+    Returns:
+        str: Path to the downloaded file.
+    """
+    if not os.path.exists(download_dir):
+        os.makedirs(download_dir, exist_ok=True)
+
+    file_path = download_file(url, download_dir)
+
+    return file_path
 
 
 @task(
@@ -232,45 +154,42 @@ def download_table(save_path: str, table_id: str, date: str) -> str:
 )
 def clean_data():
     """
-    This task wrang the data from the downloaded files
+    This task wrangles the data from the downloaded files.
     """
 
-    ZIP_PATH = agencia_constants.ZIPFILE_PATH_AGENCIA.value
-    INPUT_PATH = agencia_constants.INPUT_PATH_AGENCIA.value
-    OUTPUT_PATH = agencia_constants.OUTPUT_PATH_AGENCIA.value
+    zip_path = agencia_constants.ZIPFILE_PATH_AGENCIA.value
+    input_path = agencia_constants.INPUT_PATH_AGENCIA.value
+    output_path = agencia_constants.OUTPUT_PATH_AGENCIA.value
 
-    log("building folders")
-    if not os.path.exists(INPUT_PATH):
-        os.makedirs(INPUT_PATH, exist_ok=True)
+    log("Ensuring creation of Input/Output folders")
+    if not os.path.exists(input_path):
+        os.makedirs(input_path, exist_ok=True)
 
-    if not os.path.exists(OUTPUT_PATH):
-        os.makedirs(OUTPUT_PATH, exist_ok=True)
+    if not os.path.exists(output_path):
+        os.makedirs(output_path, exist_ok=True)
 
-    zip_files = os.listdir(ZIP_PATH)
-    log(f"unziping files ----> {zip_files}")
+    zip_files = os.listdir(zip_path)
+    log("Extracting zip files")
     for file in zip_files:
-        log(f"Unziping file ----> : {file}")
-        with zipfile.ZipFile(os.path.join(ZIP_PATH, file), "r") as z:
-            z.extractall(INPUT_PATH)
+        log(f"File --> : {file}")
+        with zipfile.ZipFile(os.path.join(zip_path, file), "r") as z:
+            z.extractall(input_path)
 
-    files = os.listdir(INPUT_PATH)
-    log(f"The following files were unzipped: {files}")
+    files = os.listdir(input_path)
 
     for file in files:
-        # the files format change across the year
         if file.endswith(".xls") or file.endswith(".xlsx"):
-            file_path = os.path.join(INPUT_PATH, file)
+            file_path = os.path.join(input_path, file)
             df = read_file(file_path=file_path, file_name=file)
-            # general columns stardantization
-            df = clean_column_names(df)
-            # rename columns
-            df.rename(columns=rename_cols(), inplace=True)
 
-            # fill left zeros with field range
+            # Standardize column names
+            df = clean_column_names(df)
+            df = df.rename(columns=rename_cols())
+
+            # Fill with leading zeros
             df["id_compe_bcb_agencia"] = (
                 df["id_compe_bcb_agencia"].astype(str).str.zfill(4)
             )
-
             df["dv_do_cnpj"] = df["dv_do_cnpj"].astype(str).str.zfill(2)
             df["sequencial_cnpj"] = (
                 df["sequencial_cnpj"].astype(str).str.zfill(4)
@@ -278,7 +197,7 @@ def clean_data():
             df["cnpj"] = df["cnpj"].astype(str).str.zfill(8)
             df["fone"] = df["fone"].astype(str).str.zfill(8)
 
-            # check existence and create columns
+            # Create columns if they do not exist
             df = check_and_create_column(df, col_name="data_inicio")
             df = check_and_create_column(df, col_name="instituicao")
             df = check_and_create_column(df, col_name="id_instalacao")
@@ -287,14 +206,12 @@ def clean_data():
             )
             df = check_and_create_column(df, col_name="id_compe_bcb_agencia")
 
-            # drop ddd column thats going to be added later
-            df.drop(columns=["ddd"], inplace=True)
-            log("ddd removed")
+            # Remove ddd to add later
+            df = df.drop(columns=["ddd"])
 
-            # some files doesnt have 'id_municipio', just 'nome'.
-            # to add new ids is necessary to join by name
-            # clean nome municipio
-            log("cleaning municipio name")
+            # Some files do not have the 'id_municipio' column, only 'nome'.
+            # It is necessary to join by 'nome'
+            log("Standardizing municipality names")
             df = clean_nome_municipio(df, "nome")
 
             municipio = bd.read_sql(
@@ -305,41 +222,35 @@ def clean_data():
             municipio = municipio[["nome", "sigla_uf", "id_municipio", "ddd"]]
 
             municipio = clean_nome_municipio(municipio, "nome")
-            # check if id_municipio already exists
             df["sigla_uf"] = df["sigla_uf"].str.strip()
 
             if "id_municipio" not in df.columns:
-                # read municipio from bd datalake
-                # join id_municipio to df
-                df = pd.merge(
-                    df,
+                df = df.merge(
                     municipio[["nome", "sigla_uf", "id_municipio", "ddd"]],
                     left_on=["nome", "sigla_uf"],
                     right_on=["nome", "sigla_uf"],
                     how="left",
                 )
 
-            # check if ddd already exists, if it doesnt, add it
+            # Check if DDD column exists
             if "ddd" not in df.columns:
-                df = pd.merge(
-                    df,
+                df = df.merge(
                     municipio[["id_municipio", "ddd"]],
                     left_on=["id_municipio"],
                     right_on=["id_municipio"],
                     how="left",
                 )
 
-            # clean cep column
+            # Standardize CEP to only numbers
             df["cep"] = df["cep"].astype(str)
             df["cep"] = df["cep"].apply(remove_non_numeric_chars)
 
-            # cnpj cleaning working
+            # Create unique CNPJ column
             df = create_cnpj_col(df)
-
             df["cnpj"] = df["cnpj"].apply(remove_non_numeric_chars)
             df["cnpj"] = df["cnpj"].apply(remove_empty_spaces)
 
-            # select cols to title
+            # Columns to convert to title() (first letter uppercase, rest lowercase)
             col_list_to_title = [
                 "endereco",
                 "complemento",
@@ -351,23 +262,105 @@ def clean_data():
                 str_to_title(df, column_name=col)
                 log(f"column - {col} converted to title")
 
-            # remove latin1 accents from all cols
+            # Remove accents
             df = remove_latin1_accents_from_df(df)
 
-            # format data_inicio
+            # Date formatting
             df["data_inicio"] = df["data_inicio"].apply(format_date)
 
-            # strip all df columns
             df = strip_dataframe_columns(df)
-
-            # order columns
             df = df[order_cols()]
-            log("cols ordered")
+            log("Columns ordered")
 
             to_partitions(
                 data=df,
-                savepath=OUTPUT_PATH,
+                savepath=output_path,
                 partition_columns=["ano", "mes"],
             )
 
-    return OUTPUT_PATH
+    return output_path
+
+
+def validate_date(
+    original_date: dt.datetime | str | pd.Timestamp,
+    date_format: str = "%Y-%m",
+):
+    """
+    Normalize date input to a `datetime.date` object.
+
+    Args:
+        original_date (datetime | str | pd.Timestamp): Date input in different formats.
+        date_format (str, optional): Format to parse strings. Defaults to "%Y-%m".
+
+    Returns:
+        datetime.date | pd.Timestamp: Normalized date object.
+    """
+    if isinstance(original_date, dt.datetime):
+        return original_date.date()
+    if isinstance(original_date, str):
+        final_date = dt.datetime.strptime(original_date, date_format)
+        return final_date.date()
+    if isinstance(original_date, pd.Timestamp):
+        return original_date
+    log("Unable to validate date.", "warning")
+    return original_date
+
+
+@task
+def extract_urls_list(
+    docs_metadata: dict,
+    date_one: dt.datetime | str,
+    date_two: dt.datetime | str,
+    date_format: str = "%Y-%m",
+) -> list:
+    """
+    Extract list of document download URLs between two reference dates.
+
+    Args:
+        docs_metadata (dict): Metadata JSON returned from BCB API.
+        date_one (datetime | str): Start date.
+        date_two (datetime | str): End date.
+        date_format (str, optional): Expected format for parsing string dates.
+            Defaults to "%Y-%m".
+
+    Returns:
+        list[str]: List of absolute URLs within the given date range.
+    """
+
+    date_one = validate_date(date_one, date_format)
+    date_two = validate_date(date_two, date_format)
+    if date_two >= date_one:
+        start, end = date_one, date_two
+    else:
+        start, end = date_two, date_one
+    sorted_docs = sort_documents_by_date(docs_metadata)
+
+    # First step
+    docs_index = 0
+    current_doc = sorted_docs[docs_index]
+    relative_url = current_doc["Url"]
+    current_date = dt.datetime.strptime(current_doc["Titulo"], "%m/%Y").date()
+    list_result = []
+    while (
+        (current_date <= end)
+        and (current_date > start)
+        and docs_index < len(sorted_docs)
+    ):
+        current_doc = sorted_docs[docs_index]
+        relative_url = current_doc["Url"]
+        current_date = dt.datetime.strptime(
+            current_doc["Titulo"], "%m/%Y"
+        ).date()
+        log(f"Current Document URL: {relative_url}\nLast Date: {current_date}")
+        list_result.append(
+            agencia_constants.BASE_DOWNLOAD_URL.value + relative_url
+        )
+        docs_index += 1
+    log(f"Extracted URLs:{list_result}")
+    return list_result
+
+
+@task
+def raise_none_metadata_exception(message: str):
+    log(message, "error")
+    raise Exception()

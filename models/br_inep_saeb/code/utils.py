@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pandas as pd
 
 
@@ -23,7 +22,7 @@ def convert_to_pd_dtype(type: str) -> str:
     elif type == "FLOAT":
         return "float64"
     else:
-        assert False
+        raise AssertionError
 
 
 def drop_empty_lines(df: pd.DataFrame) -> pd.DataFrame:

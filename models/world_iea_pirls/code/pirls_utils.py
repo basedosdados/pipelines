@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# ruff: noqa: RUF001
+
 LABELS_FROM_CONTEXT_QUESTIONNAIRES = {
     "asg": {
         "ASBG01": "Which of these describes you?",

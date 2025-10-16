@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Schedules for br_bcb_agencia
 """
@@ -13,8 +12,8 @@ from pipelines.constants import constants
 every_month_agencia = Schedule(
     clocks=[
         CronClock(
-            cron="0 22 * * 1-5",  # At 22:00 on every day-of-week from Monday through Friday.
-            start_date=datetime(2023, 11, 30, 0, 0),
+            cron="0 22 25-31 * *",  # At 22:00, at the 7 last days the month.
+            start_date=datetime(2025, 7, 30, 0, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],

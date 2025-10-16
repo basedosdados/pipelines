@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constants for br_me_comex_stat
 """
@@ -6,12 +5,13 @@ Constants for br_me_comex_stat
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     """
     Constants for br_me_comex_stat
     """
 
     DOWNLOAD_LINK = "https://www.gov.br/mdic/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta"
+    VALIDATION_LINK = "https://balanca.economia.gov.br/balanca/bd/comexstat-bd"
 
     PATH = "/tmp/br_me_comex_stat/"
 

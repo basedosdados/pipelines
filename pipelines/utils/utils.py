@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 General utilities for all pipelines.
 """
 
 import base64
 import json
-
-# pylint: disable=too-many-arguments
 import logging
 import zipfile
 from datetime import datetime
@@ -14,7 +11,7 @@ from io import BytesIO
 from os import getenv, walk
 from os.path import join
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 from urllib.request import urlopen
 from uuid import uuid4
 
@@ -28,6 +25,7 @@ import requests
 from google.cloud import storage
 from google.cloud.storage.blob import Blob
 from google.oauth2 import service_account
+from prefect.backend import FlowRunView
 from prefect.client import Client
 from prefect.engine.state import State
 from prefect.run_configs import KubernetesRun, VertexRun
@@ -54,14 +52,14 @@ def log(msg: Any, level: str = "info") -> None:
 
     if level not in levels:
         raise ValueError(f"Invalid log level: {level}")
-    prefect.context.logger.log(levels[level], msg)  # pylint: disable=E1101
+    prefect.context.logger.log(levels[level], msg)
 
 
 @prefect.task(checkpoint=False)
 def log_task(
     msg: Any,
     level: str = "info",
-    wait=None,  # pylint: disable=unused-argument
+    wait=None,
 ):
     """
     Logs a message to prefect's logger.
@@ -110,7 +108,35 @@ def set_default_parameters(
     return flow
 
 
-def run_local(flow: prefect.Flow, parameters: Dict[str, Any] = None):
+def is_running_in_prod() -> bool:
+    """
+    Determines if the current Prefect flow is running in the production environment.
+
+    Returns:
+      bool: True if the flow is running with the "basedosdados" label, indicating production; False otherwise.
+
+    Notes:
+      - Relies on Prefect's context to obtain the current flow run ID.
+      - Uses FlowRunView to retrieve labels associated with the flow run.
+    """
+    flow_run_id = prefect.context.get("flow_run_id")
+
+    if flow_run_id is None:
+        return False
+
+    try:
+        labels = FlowRunView.from_flow_run_id(flow_run_id).labels
+    except ValueError:
+        return False
+
+    for label in labels:
+        if label.strip() == constants.BASEDOSDADOS_PROD_AGENT_LABEL.value:
+            return True
+
+    return False
+
+
+def run_local(flow: prefect.Flow, parameters: dict[str, Any] | None = None):
     """
     Runs a flow locally.
     """
@@ -127,8 +153,8 @@ def run_local(flow: prefect.Flow, parameters: Dict[str, Any] = None):
 
 def run_cloud(
     flow: prefect.Flow,
-    labels: List[str],
-    parameters: Dict[str, Any] = None,
+    labels: list[str],
+    parameters: dict[str, Any] | None = None,
     run_description: str = "",
     agent_type: str = "kubernetes",
     machine_type: str = "f1-micro",
@@ -195,11 +221,15 @@ def notify_discord_on_failure(
     flow: prefect.Flow,
     state: State,
     secret_path: str,
-    code_owners: Optional[List[str]] = None,
+    code_owners: list[str] | None = None,
 ):
     """
-    Notifies a Discord channel when a flow fails.
+    Notifies a Discord channel when a flow fails in prod only.
     """
+
+    if not is_running_in_prod():
+        return None
+
     url = get_vault_secret(secret_path)["data"]["url"]
     flow_run_id = prefect.context.get("flow_run_id")
     labels = prefect.context.config.cloud.agent.labels
@@ -228,7 +258,7 @@ def notify_discord_on_failure(
         + f'\n  - State message: *"{state.message}"*'
         + "\n  - Link to the failed flow: "
         + f"https://prefect.basedosdados.org/flow-run/{flow_run_id}"
-        + "\n  - Use this link to document pipeline errors:  https://forms.gle/uhyuHGDahpkgfsXs8"
+        + f"\n  - Open an issue on GitHub: [new issue](<https://github.com/basedosdados/pipelines/issues/new?template=bug-report.yml&title=[bug]%20{flow.name}%20flow%20failed>)"
         + "\n  - Extra attention:\n"
         + "".join(at_code_owners)
     )
@@ -241,11 +271,14 @@ def notify_discord_on_failure(
 def notify_discord(
     secret_path: str,
     message: str,
-    code_owners: Optional[List[str]] = None,
+    code_owners: list[str] | None = None,
 ):
     """
     Notifies a Discord channel.
     """
+    if not is_running_in_prod():
+        return None
+
     url = get_vault_secret(secret_path)["data"]["url"]
     code_owners = code_owners or constants.DEFAULT_CODE_OWNERS.value
     code_owner_dict = constants.OWNERS_DISCORD_MENTIONS.value
@@ -276,7 +309,7 @@ def smart_split(
     text: str,
     max_length: int,
     separator: str = " ",
-) -> List[str]:
+) -> list[str]:
     """
     Splits a string into a list of strings.
     """
@@ -316,9 +349,9 @@ def untuple_clocks(clocks):
 
 
 def human_readable(
-    value: Union[int, float],
+    value: int | float,
     unit: str = "",
-    unit_prefixes: List[str] = None,
+    unit_prefixes: list[str] | None = None,
     unit_divider: int = 1000,
     decimal_places: int = 2,
 ):
@@ -345,7 +378,7 @@ def human_readable(
 ###############
 
 
-def dataframe_to_csv(dataframe: pd.DataFrame, path: Union[str, Path]) -> None:
+def dataframe_to_csv(dataframe: pd.DataFrame, path: str | Path) -> None:
     """
     Writes a dataframe to a CSV file.
     """
@@ -358,7 +391,7 @@ def dataframe_to_csv(dataframe: pd.DataFrame, path: Union[str, Path]) -> None:
 
 
 def batch_to_dataframe(
-    batch: Tuple[Tuple], columns: List[str]
+    batch: tuple[tuple], columns: list[str]
 ) -> pd.DataFrame:
     """
     Converts a batch of rows to a dataframe.
@@ -405,7 +438,7 @@ def remove_columns_accents(dataframe: pd.DataFrame) -> list:
 
 def to_partitions(
     data: pd.DataFrame,
-    partition_columns: List[str],
+    partition_columns: list[str],
     savepath: str,
     file_type: str = "csv",
 ):
@@ -553,7 +586,7 @@ def parser_blobs_to_partition_dict(blobs: list) -> dict:
     return partitions_dict
 
 
-def dump_header_to_csv(data_path: Union[str, Path], source_format: str):
+def dump_header_to_csv(data_path: str | Path, source_format: str):
     """
     Writes the header of a CSV or Parquet file to a new file.
 
@@ -590,12 +623,11 @@ def dump_header_to_csv(data_path: Union[str, Path], source_format: str):
                     found = True
                     break
 
-            elif source_format == "parquet":
-                if fname.endswith(".parquet"):
-                    file = join(subdir, fname)
-                    log(f"Found Parquet file: {file}")
-                    found = True
-                    break
+            elif source_format == "parquet" and fname.endswith(".parquet"):
+                file = join(subdir, fname)
+                log(f"Found Parquet file: {file}")
+                found = True
+                break
         if found:
             break
 
@@ -665,16 +697,14 @@ def determine_whether_to_execute_or_not(
         cron_expression, datetime_last_execution
     )
     next_cron_expression_time = cron_expression_iterator.get_next(datetime)
-    if next_cron_expression_time <= datetime_now:
-        return True
-    return False
+    return next_cron_expression_time <= datetime_now
 
 
 def get_redis_client(
     host: str = "redis.redis.svc.cluster.local",
     port: int = 6379,
-    db: int = 0,  # pylint: disable=C0103
-    password: str = None,
+    db: int = 0,
+    password: str | None = None,
 ) -> RedisPal:
     """
     Returns a Redis client.
@@ -689,7 +719,7 @@ def get_redis_client(
 
 def list_blobs_with_prefix(
     bucket_name: str, prefix: str, mode: str = "prod"
-) -> List[Blob]:
+) -> list[Blob]:
     """
     Lists all the blobs in the bucket that begin with the prefix.
     This can be used to list all blobs in a "folder", e.g. "public/".
@@ -706,7 +736,7 @@ def list_blobs_with_prefix(
 
 
 def get_credentials_from_env(
-    mode: str = "prod", scopes: List[str] = None
+    mode: str = "prod", scopes: list[str] | None = None
 ) -> service_account.Credentials:
     """
     Gets credentials from env vars

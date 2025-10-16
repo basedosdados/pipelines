@@ -1,3 +1,4 @@
+# ruff: noqa: RUF001
 """
 Esse script atualiza as seguintes tabelas do dataset br_inep_sinopse_estatistica_educacao_basica
 para 2024.
@@ -18,7 +19,6 @@ para 2024.
 import os
 import zipfile
 from pathlib import Path
-from typing import Optional
 
 import basedosdados as bd
 import pandas as pd
@@ -312,7 +312,7 @@ def create_etapa_ensino(value: str) -> str:
     raise Exception(f"Invalid {number=}, {value=}")
 
 
-def etapa_ensino_to_serie(value: str) -> Optional[str]:
+def etapa_ensino_to_serie(value: str) -> str | None:
     serie = value.split("_")
 
     if serie[0].isdigit() and int(serie[0]) in range(1, 10):
@@ -478,7 +478,7 @@ df_faixa_etaria = pd.concat(
     [
         df.pipe(
             lambda d: d.loc[
-                (d["id_municipio"].notna()) & (df["id_municipio"] != " "),
+                (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
             ]
         )
         .pipe(
@@ -599,7 +599,7 @@ df_localizacao = pd.concat(
     [
         df.pipe(
             lambda d: d.loc[
-                (d["id_municipio"].notna()) & (df["id_municipio"] != " "),
+                (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
             ]
         )
         .pipe(
@@ -708,7 +708,7 @@ df_tempo_ensino = pd.concat(
     [
         df.pipe(
             lambda d: d.loc[
-                (d["id_municipio"].notna()) & (df["id_municipio"] != " "),
+                (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
             ]
         )
         .pipe(
@@ -823,7 +823,7 @@ df_sexo_raca_cor = pd.concat(
     [
         df.pipe(
             lambda d: d.loc[
-                (d["id_municipio"].notna()) & (df["id_municipio"] != " "),
+                (d["id_municipio"].notna()) & (d["id_municipio"] != " "),
             ]
         )
         .pipe(

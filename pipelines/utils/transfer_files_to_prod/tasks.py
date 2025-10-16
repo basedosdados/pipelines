@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for transfer_files_to_prod
 """
 
 import os
 import pathlib
-from typing import List, Union
 
 from google.cloud import storage
 from prefect import task
@@ -15,8 +13,8 @@ from prefect import task
 def download_files_from_bucket_folders(
     dataset_id: str,
     table_id: str,
-    folders: Union[str, List[str]],
-    extension: str = None,
+    folders: str | list[str],
+    extension: str | None = None,
 ):
     """
     Downloads files with a specified extension from specified folders within a Google Cloud Storage bucket

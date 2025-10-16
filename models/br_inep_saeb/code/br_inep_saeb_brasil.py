@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import zipfile
 from pathlib import Path
@@ -155,8 +154,6 @@ br_saeb_latest_output["ano"] = 2023
 br_saeb_latest_output.head()
 
 br_saeb_latest_output.info()
-
-br_saeb_latest_output.shape
 
 tb = bd.Table(dataset_id="br_inep_saeb", table_id="brasil")
 
