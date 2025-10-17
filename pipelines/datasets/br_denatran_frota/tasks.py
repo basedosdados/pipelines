@@ -7,6 +7,7 @@ from zipfile import ZipFile
 import basedosdados as bd
 import pandas as pd
 import polars as pl
+from dateutil.relativedelta import relativedelta
 from prefect import task
 from prefect.triggers import all_finished
 from string_utils import asciify
@@ -340,6 +341,15 @@ def get_latest_date_task(
                         str_return = date_return.strftime("%Y-%m")
                         dates.append(date_return)
                         dates_str.append(str_return)
+                        year, month = update_yearmonth(year, month)
+                elif (
+                    datetime.date(int(year), int(month), 1)
+                    + relativedelta(month=1)
+                    > today
+                ):
+                    break
+                else:
+                    year, month = update_yearmonth(year, month)
             except Exception as e:
                 log(e, "error")
                 raise
@@ -350,15 +360,23 @@ def get_latest_date_task(
                 str_return = date_return.strftime("%Y-%m")
                 dates.append(date_return)
                 dates_str.append(str_return)
+                year, month = update_yearmonth(year, month)
+            elif (
+                datetime.date(int(year), int(month), 1)
+                + relativedelta(month=1)
+                > today
+            ):
+                break
+            else:
+                year, month = update_yearmonth(year, month)
 
-        year, month = update_yearmonth(year, month)
+    if len(dates) == 0:
+        date_return = denatran_data
+        str_return = date_return.strftime("%Y-%m")
+        dates = [date_return]
+        dates_str = [str_return]
     log(f"Ano: {year}, mês: {month}")
     log(f"Available dates: {dates_str}")
-    if len(dates) == 0:
-        date_return = datetime.datetime(year, month, 1)
-        str_return = date_return.strftime("%Y-%m")
-        dates.append(date_return)
-        dates_str.append(str_return)
     return dates, dates_str, dates[0], dates_str[0]
 
 
