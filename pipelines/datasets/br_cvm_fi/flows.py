@@ -89,10 +89,13 @@ with Flow(
         log_task(f"Arquivos: {arquivos}")
 
         input_filepath = download_unzip_csv(
-            files=arquivos, url=url, id=table_id, upstream_tasks=[arquivos]
+            url=url,
+            table_id=table_id,
+            files=arquivos,
+            upstream_tasks=[arquivos],
         )
         output_filepath = clean_data_and_make_partitions(
-            path=input_filepath,
+            input_dir=input_filepath,
             table_id=table_id,
             upstream_tasks=[input_filepath],
         )
@@ -194,10 +197,15 @@ with Flow(
         arquivos = generate_links_to_download(df=df, max_date=max_date)
 
         input_filepath = download_unzip_csv(
-            url=url, files=arquivos, id=table_id, upstream_tasks=[arquivos]
+            url=url,
+            table_id=table_id,
+            files=arquivos,
+            upstream_tasks=[arquivos],
         )
         output_filepath = clean_data_make_partitions_cda(
-            input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
+            input_dir=input_filepath,
+            table_id=table_id,
+            upstream_tasks=[input_filepath],
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
@@ -308,7 +316,9 @@ with Flow(
             upstream_tasks=[arquivos],
         )
         output_filepath = clean_data_make_partitions_ext(
-            input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
+            input_dir=input_filepath,
+            table_id=table_id,
+            upstream_tasks=[input_filepath],
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
@@ -411,7 +421,9 @@ with Flow(
             upstream_tasks=[arquivos],
         )
         output_filepath = clean_data_make_partitions_perfil(
-            input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
+            input_dir=input_filepath,
+            table_id=table_id,
+            upstream_tasks=[input_filepath],
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(
@@ -498,10 +510,10 @@ with Flow(
 
     with case(is_empty(files), False):
         input_filepath = download_csv_cvm(
-            url=url, files=files, table_id=table_id
+            url=url, table_id=table_id, files=files
         )
         output_filepath = clean_data_make_partitions_cad(
-            diretorio=input_filepath,
+            input_dir=input_filepath,
             table_id=table_id,
             upstream_tasks=[input_filepath],
         )
@@ -602,10 +614,12 @@ with Flow(
         arquivos = generate_links_to_download(df=df, max_date=max_date)
 
         input_filepath = download_unzip_csv(
-            url=url, files=arquivos, id=table_id
+            url=url, table_id=table_id, files=arquivos
         )
         output_filepath = clean_data_make_partitions_balancete(
-            input_filepath, table_id=table_id, upstream_tasks=[input_filepath]
+            input_dir=input_filepath,
+            table_id=table_id,
+            upstream_tasks=[input_filepath],
         )
 
         rename_flow_run = rename_current_flow_run_dataset_table(

@@ -3,11 +3,10 @@ Tasks for br_cvm_fi
 """
 
 import csv
-import glob
-import os
 import re
 import zipfile
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pandas as pd
 import requests
@@ -20,10 +19,10 @@ from pipelines.constants import constants
 from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
 from pipelines.datasets.br_cvm_fi.utils import (
     check_and_create_column,
+    create_year_month_columns,
+    format_cnpj_columns,
     limpar_string,
     obter_anos_meses,
-    rename_columns,
-    sheet_to_df,
 )
 from pipelines.utils.utils import log, to_partitions
 
@@ -32,145 +31,65 @@ from pipelines.utils.utils import log, to_partitions
     max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def download_unzip_csv(
-    url: str, files, chunk_size: int = 128, mkdir: bool = True, id="teste"
-) -> str:
-    """
-    Downloads and unzips a .csv file from a given list of files and saves it to a local directory.
-    Parameters:
-    -----------
-    url: str
-        The base URL from which to download the files.
-    files: list or str
-        The .zip file names or a single .zip file name to download the csv file from.
-    chunk_size: int, optional
-        The size of each chunk to download in bytes. Default is 128 bytes.
-    mkdir: bool, optional
-        Whether to create a new directory for the downloaded file. Default is False.
-    Returns:
-    --------
-    str
-        The path to the directory where the downloaded file was saved.
-    """
-
-    if mkdir:
-        os.makedirs(f"/tmp/data/br_cvm_fi/{id}/input/", exist_ok=True)
-
-    request_headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
-    }
-
-    if isinstance(files, list):
-        for file in files:
-            log(f"Baixando o arquivo {file}")
-            download_url = f"{url}{file}"
-            save_path = f"/tmp/data/br_cvm_fi/{id}/input/{file}"
-
-            r = requests.get(
-                download_url, headers=request_headers, stream=True, timeout=50
-            )
-            with open(save_path, "wb") as fd:
-                for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
-                    fd.write(chunk)
-
-            try:
-                with zipfile.ZipFile(save_path) as z:
-                    z.extractall(f"/tmp/data/br_cvm_fi/{id}/input")
-                log("Dados extraídos com sucesso!")
-
-            except zipfile.BadZipFile:
-                log(f"O arquivo {file} não é um arquivo ZIP válido.")
-
-            os.system(
-                f'cd /tmp/data/br_cvm_fi/{id}/input; find . -type f ! -iname "*.csv" -delete'
-            )
-
-    elif isinstance(files, str):
-        log(f"Baixando o arquivo {files}")
-        download_url = f"{url}{files}"
-        save_path = f"/tmp/data/br_cvm_fi/{id}/input/{files}"
-
-        r = requests.get(
-            download_url, headers=request_headers, stream=True, timeout=10
-        )
-        with open(save_path, "wb") as fd:
-            for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
-                fd.write(chunk)
-
-        try:
-            with zipfile.ZipFile(save_path) as z:
-                z.extractall(f"/tmp/data/br_cvm_fi/{id}/input")
-            log("Dados extraídos com sucesso!")
-
-        except zipfile.BadZipFile:
-            log(f"O arquivo {files} não é um arquivo ZIP válido.")
-
-        os.system(
-            f'cd /tmp/data/br_cvm_fi/{id}/input; find . -type f ! -iname "*.csv" -delete'
-        )
-
-    else:
-        raise ValueError("O argumento 'files' possui um tipo inadequado.")
-
-    return f"/tmp/data/br_cvm_fi/{id}/input/"
-
-
-@task(
-    max_retries=2,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def extract_links_and_dates(url) -> tuple[pd.DataFrame, str]:
+def extract_links_and_dates(url: str) -> tuple[pd.DataFrame, str]:
     """
     Extracts all file names and their respective last update dates in a pandas dataframe.
+
+    Parameters:
+
+    url: str
+        The base URL from which files will be downloaded.
+
+    Returns:
+        tuple[pd.DataFrame, str]: The files and dates data frame, along with the max date (last update)
     """
 
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
 
     # Encontra todos os links dentro do HTML
-    links = soup.find_all("a")
-    links_zip = []
+    filename_pattern = r"^[\w_]+\.[\w]{3,}$"
+    date_pattern = r"([\d\w]{2,}-[\d\w]{2,}-[\d\w]{2,})\s?\d{2}:\d{2}"
+    links = soup.find_all(
+        "a", string=lambda text: re.findall(filename_pattern, text)
+    )
+    links_filtered = []
+    dates_update = []
 
     if url in cvm_constants.CSV_LIST.value:
         for link in links:
             if link.has_attr("href") and link["href"].endswith(".csv"):
-                links_zip.append(link["href"])
+                log(link)
+                links_filtered.append(link["href"])
+                data = str(link.next_element.next_element.text)
+                log(data.strip())
+                if data and re.match(date_pattern, data.strip()):
+                    dates_update.append(
+                        re.match(date_pattern, data.strip()).group(0)
+                    )
     else:
         for link in links:
             if link.has_attr("href") and link["href"].endswith(".zip"):
-                links_zip.append(link["href"])
+                log(link)
+                links_filtered.append(link["href"])
+                data = str(link.next_element.next_element.text)
+                log(data.strip())
+                if data and re.match(date_pattern, data.strip()):
+                    dates_update.append(
+                        re.match(date_pattern, data.strip()).group(0)
+                    )
 
-    # Encontra todas as datas de atualização dentro do HTML
-    padrao = r"\d{2}-\w{3}-\d{4} \d{2}:\d{2}"
-    datas = soup.find_all(string=lambda text: re.findall(padrao, text))
-    datas_atualizacao = []
-
-    for data in datas:
-        data_atualizacao = re.findall(padrao, data)[0]
-        datas_atualizacao.append(data_atualizacao)
-
-    if url in cvm_constants.CSV_LIST.value:
-        dados = {
-            "arquivo": links_zip,
-            "ultima_atualizacao": datas_atualizacao[0:],
-            "data_hoje": datetime.now().strftime("%Y-%m-%d"),
-        }
-    else:
-        dados = {
-            "arquivo": links_zip,
-            "ultima_atualizacao": datas_atualizacao[1:],
-            "data_hoje": datetime.now().strftime("%Y-%m-%d"),
-        }
+    dados = {
+        "arquivo": links_filtered,
+        "ultima_atualizacao": dates_update,
+        "data_hoje": datetime.now().strftime("%Y-%m-%d"),
+    }
     df = pd.DataFrame(dados)
-    df = df[(df["ultima_atualizacao"] != "13-Oct-2025 00:48")]
-    df = df[(df["ultima_atualizacao"] != "13-Oct-2025 00:50")]
-    log(df)
     df.ultima_atualizacao = df.ultima_atualizacao.apply(
         lambda x: datetime.strptime(x, "%d-%b-%Y %H:%M").strftime("%Y-%m-%d")
     )
 
     data_maxima = df["ultima_atualizacao"].max()
-
     return df, data_maxima
 
 
@@ -184,11 +103,8 @@ def generate_links_to_download(
     """
     Checks for outdated tables.
     """
-
     lists = df.query(f"ultima_atualizacao == '{max_date}'").arquivo.to_list()
-
     log(f"The following files will be downloaded: {lists}")
-
     return lists
 
 
@@ -196,26 +112,93 @@ def generate_links_to_download(
     max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def check_for_updates(df: pd.DataFrame):
+def download_unzip_csv(
+    url: str,
+    table_id: str,
+    files: list | str,
+    chunk_size: int = 128,
+) -> str:
     """
-    Checks for outdated tables.
+    Downloads and unzips a .csv file from a given list of files and saves it to a local directory.
+
+    Parameters:
+
+    url: str
+        The base URL from which files will be downloaded.
+    table_id: str
+        The BigQuery Table ID.
+    files: list or str
+        The .zip file names or a single .zip file name to extract the csv file from.
+    chunk_size: int, optional
+        The size of each chunk to download in bytes. Default is 128 bytes.
+
+    Returns:
+    str
+        The path to the downloaded file(s) directory.
     """
-    # trocar desatualizado == TRUE por, ultima_atualizacao > max_date
-    return df.query("ultima_atualizacao == '1'").arquivo.to_list()
+
+    input_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "input"
+    input_dir.mkdir(parents=True, exist_ok=True)
+
+    request_headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
+    }
+
+    if isinstance(files, str):
+        files = [files]
+    elif not isinstance(files, list):
+        raise ValueError("O argumento 'files' possui um tipo inadequado.")
+
+    for file in files:
+        log(f"Baixando o arquivo {file}")
+        download_url = f"{url}{file}"
+        save_path = input_dir / str(file)
+
+        r = requests.get(
+            download_url, headers=request_headers, stream=True, timeout=50
+        )
+        with open(save_path, "wb") as fd:
+            for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
+                fd.write(chunk)
+
+        try:
+            with zipfile.ZipFile(save_path) as z:
+                z.extractall(input_dir)
+            log("Dados extraídos com sucesso!")
+
+        except zipfile.BadZipFile:
+            log(f"O arquivo {file} não é um arquivo ZIP válido.")
+
+    return input_dir
 
 
-@task(
-    max_retries=2,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def check_for_updates_ext(df):
-    """
-    Checks for outdated tables in documentos_extratos_informacoes table.
-    """
+@task
+def download_csv_cvm(
+    url: str, table_id: str, files: list | str, chunk_size: int = 128
+) -> str:
+    input_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "input"
+    input_dir.mkdir(parents=True, exist_ok=True)
 
-    return df.query(
-        "desatualizado == True and arquivo == 'extrato_fi.csv'"
-    ).arquivo.to_list()
+    request_headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
+    }
+    if isinstance(files, str):
+        files = [files]
+    elif not isinstance(files, list):
+        raise ValueError("O argumento 'files' possui um tipo inadequado.")
+    for file in files:
+        log(f"Baixando o arquivo {file}")
+        download_url = f"{url}{file}"
+        save_path = input_dir / str(file)
+
+        r = requests.get(
+            download_url, headers=request_headers, stream=True, timeout=10
+        )
+        with open(save_path, "wb") as fd:
+            for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
+                fd.write(chunk)
+
+    return input_dir
 
 
 @task
@@ -224,60 +207,53 @@ def is_empty(lista):
 
 
 @task
-def clean_data_and_make_partitions(path: str, table_id: str) -> str:
+def clean_data_and_make_partitions(
+    input_dir: str | Path, table_id: str
+) -> str:
     """
-    Clean cvm data based on architecture file and make partitions.
+    Cleans CVM Informe Diário data based on the specified schema at constants.py file and makes partitions.
     """
-
-    os.chdir(path)
-    files = glob.glob("*.csv")
-    df_arq = sheet_to_df(cvm_constants.URL_ARCH_INFORME.value)
+    files = Path(input_dir).glob("*.csv")
 
     for file in files:
-        df = pd.read_csv(f"{path}{file}", sep=";")
+        df = pd.read_csv(file, sep=";")
         log(f"File {file} read.")
-
-        df["CNPJ_FUNDO_CLASSE"] = df["CNPJ_FUNDO_CLASSE"].str.replace(
-            r"[/.-]", ""
+        # Rename columns to fit standard
+        df_final = df.rename(
+            columns=cvm_constants.RENAME_MAPPING_INFORME.value
         )
-
-        df = df.drop("ID_SUBCLASSE", axis=1)
-
-        df = rename_columns(df_arq, df)
-
-        df = check_and_create_column(
-            df, colunas_totais=cvm_constants.FINAL_COLS_INFORME.value
+        # Create year and month partiton columns
+        df_final = create_year_month_columns(df_final)
+        # Ensure final columns
+        df_final = check_and_create_column(
+            df_final, colunas_totais=cvm_constants.FINAL_COLS_INFORME.value
         )
-        df["ano"] = df["data_competencia"].apply(
-            lambda x: datetime.strptime(x, "%Y-%m-%d").year
-        )
-        df["mes"] = df["data_competencia"].apply(
-            lambda x: datetime.strptime(x, "%Y-%m-%d").month
-        )
+        df_final = format_cnpj_columns(df_final, ["cnpj"])
+        df_final = df_final[cvm_constants.FINAL_COLS_INFORME.value]
+        log(f"File {file.name} cleaned.")
 
-        log(f"File {file} cleaned.")
-
-        os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
+        output_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "output"
+        output_dir.mkdir(parents=True, exist_ok=True)
         to_partitions(
-            df,
+            df_final,
             partition_columns=["ano", "mes"],
-            savepath=f"/tmp/data/br_cvm_fi/{table_id}/output/",
-        )  # constant
+            savepath=output_dir,
+        )
         log("Partition created.")
 
-    return f"/tmp/data/br_cvm_fi/{table_id}/output/"
+    return output_dir
 
 
 @task
-def clean_data_make_partitions_cda(diretorio, table_id):
-    df_arq = sheet_to_df(cvm_constants.URL_ARCH_CDA.value)
-    anos_meses = obter_anos_meses(diretorio)
-
+def clean_data_make_partitions_cda(input_dir: str | Path, table_id: str):
+    anos_meses = obter_anos_meses(input_dir)
     for i in anos_meses:
-        df_final = pd.DataFrame()
-        arquivos = glob.glob(f"{diretorio}*.csv")
-        padrao = diretorio + f"cda_fi_BLC_[1-8]_{i}.csv"
-        arquivos_filtrados = [arq for arq in arquivos if re.match(padrao, arq)]
+        df_concat = pd.DataFrame()
+        arquivos = Path(input_dir).glob("*.csv")
+        padrao = f"cda_fi_BLC_[1-8]_{i}.csv"
+        arquivos_filtrados = [
+            arq for arq in arquivos if re.match(padrao, arq.name)
+        ]
 
         for file in tqdm(arquivos_filtrados):
             log(f"Baixando o arquivo ------> {file}")
@@ -289,324 +265,228 @@ def clean_data_make_partitions_cda(diretorio, table_id):
                 dtype="string",
                 quoting=csv.QUOTE_NONE,
             )
-            df["ano"] = df["DT_COMPTC"].apply(
-                lambda x: datetime.strptime(x, "%Y-%m-%d").year
+            # Rename columns to fit standard
+            df_final = df.rename(
+                columns=cvm_constants.RENAME_MAPPING_CDA.value
             )
-            df["mes"] = df["DT_COMPTC"].apply(
-                lambda x: datetime.strptime(x, "%Y-%m-%d").month
-            )
+            # Create year and month partiton columns
+            create_year_month_columns(df_final)
+            # Files are partitioned by block. They must be concatenated
+            match = re.search(r"(BLC_[1-8])", file.name)
+            df_final["bloco"] = match.group(1)
+            df_concat = pd.concat([df_concat, df_final], ignore_index=True)
 
-            # pattern = r"(BLC_[1-8])"
-
-            match = re.search(r"(BLC_[1-8])", file)
-            df["bloco"] = match.group(1)
-
-            df_final = pd.concat([df_final, df], ignore_index=True)
-
-        df_final = check_and_create_column(
-            df_final, colunas_totais=cvm_constants.ORIGINAL_COLS_CDA.value
+        # Ensure final columns
+        df_concat = check_and_create_column(
+            df_concat, colunas_totais=cvm_constants.FINAL_COLS_CDA.value
         )
-        df_final[cvm_constants.TO_MAP_COLS_CDA.value] = df_final[
+        df_concat[cvm_constants.TO_MAP_COLS_CDA.value] = df_concat[
             cvm_constants.TO_MAP_COLS_CDA.value
-        ].applymap(lambda x: cvm_constants.MAPEAMENTO.value.get(x, x))
+        ].map(lambda x: cvm_constants.MAPEAMENTO.value.get(x, x))
 
-        df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(
-            r"[/.-]", ""
-        )
+        cnpj_cols = [
+            "cnpj",
+            "cnpj_instituicao_financeira_coobrigacao",
+            "indicador_codigo_identificacao_emissor_pessoa_fisica_juridica",
+            "cnpj_emissor",
+            "cnpj_fundo_investido",
+        ]
+        df_concat = format_cnpj_columns(df_concat, cnpj_cols)
 
-        df_final["CNPJ_INSTITUICAO_FINANC_COOBR"] = df_final[
-            "CNPJ_INSTITUICAO_FINANC_COOBR"
-        ].str.replace(r"[/.-]", "")
-
-        df_final["CPF_CNPJ_EMISSOR"] = df_final[
-            "CPF_CNPJ_EMISSOR"
-        ].str.replace(r"[/.-]", "")
-        df_final["CNPJ_EMISSOR"] = df_final["CNPJ_EMISSOR"].str.replace(
-            r"[/.-]", ""
-        )
-        df_final["CNPJ_FUNDO_COTA"] = df_final["CNPJ_FUNDO_COTA"].str.replace(
-            r"[/.-]", ""
-        )
-        df_final = rename_columns(df_arq, df_final)
-        df_final = df_final.replace(",", ".", regex=True)
-
-        df_final[cvm_constants.ASCII_COLS_CDA.value] = df_final[
+        df_concat = df_concat.replace(",", ".", regex=True)
+        df_concat[cvm_constants.ASCII_COLS_CDA.value] = df_concat[
             cvm_constants.ASCII_COLS_CDA.value
         ].fillna("")
-
-        df_final[cvm_constants.ASCII_COLS_CDA.value] = df_final[
+        df_concat[cvm_constants.ASCII_COLS_CDA.value] = df_concat[
             cvm_constants.ASCII_COLS_CDA.value
-        ].applymap(limpar_string)
-
-        df_final = df_final[cvm_constants.FINAL_COLS_CDA.value]
+        ].map(limpar_string)
+        df_concat = df_concat[cvm_constants.FINAL_COLS_CDA.value]
 
         log(f"Fazendo partições para o ano ------> {i}")
 
-        os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
+        output_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "output"
+        output_dir.mkdir(parents=True, exist_ok=True)
 
         to_partitions(
-            df_final,
+            df_concat,
             partition_columns=["ano", "mes"],
-            savepath=f"/tmp/data/br_cvm_fi/{table_id}/output/",
+            savepath=output_dir,
         )  # constant
 
-    return f"/tmp/data/br_cvm_fi/{table_id}/output/"
+    return output_dir
 
 
 @task
-def clean_data_make_partitions_ext(diretorio, table_id):
-    df_arq = sheet_to_df(cvm_constants.URL_ARCH_EXTRATO.value)
+def clean_data_make_partitions_ext(input_dir: str | Path, table_id: str):
     df_final = pd.DataFrame()
-    arquivos = glob.glob(f"{diretorio}*.csv")[0]
-
+    arquivos = [arq for arq in Path(input_dir).glob("*.csv")]
+    arquivo = arquivos[0]
     df = pd.read_csv(
-        arquivos,
+        arquivo,
         sep=";",
         encoding="ISO-8859-1",
         dtype="string",
         quoting=csv.QUOTE_NONE,
     )
-    df["ano"] = df["DT_COMPTC"].apply(
-        lambda x: datetime.strptime(x, "%Y-%m-%d").year
-    )
-    df["mes"] = df["DT_COMPTC"].apply(
-        lambda x: datetime.strptime(x, "%Y-%m-%d").month
-    )
-
-    df_final = df
-    log(df_final.head())
+    # Rename columns to fit standard
+    df_final = df.rename(columns=cvm_constants.RENAME_MAPPING_EXTRATO.value)
+    # Create year and month partiton columns
+    df_final = create_year_month_columns(df_final)
+    # Ensure final columns
     df_final = check_and_create_column(
-        df_final, colunas_totais=cvm_constants.ORIGINAL_COLS_EXTRATO.value
+        df_final, colunas_totais=cvm_constants.FINAL_COLS_EXTRATO.value
     )
     df_final[cvm_constants.TO_MAP_COLS_EXTRATO.value] = df_final[
         cvm_constants.TO_MAP_COLS_EXTRATO.value
-    ].applymap(lambda x: cvm_constants.MAPEAMENTO.value.get(x, x))
-    df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
-    df_final = rename_columns(df_arq, df_final)
+    ].map(lambda x: cvm_constants.MAPEAMENTO.value.get(x, x))
+    df_final = format_cnpj_columns(df_final, ["cnpj"])
     df_final = df_final.replace(",", ".", regex=True)
     df_final[cvm_constants.ASCII_COLS_EXTRATO.value] = df_final[
         cvm_constants.ASCII_COLS_EXTRATO.value
     ].fillna("")
-    log(df_final.head())
     df_final[cvm_constants.ASCII_COLS_EXTRATO.value] = df_final[
         cvm_constants.ASCII_COLS_EXTRATO.value
-    ].applymap(limpar_string)
+    ].map(limpar_string)
     df_final = df_final[cvm_constants.FINAL_COLS_EXTRATO.value]
-    log(df_final.head())
-    # log(f"Fazendo partições para o ano ------> {i}")
-    os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
+
+    output_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "output"
+    output_dir.mkdir(parents=True, exist_ok=True)
     to_partitions(
         df_final,
         partition_columns=["ano", "mes"],
-        savepath=f"/tmp/data/br_cvm_fi/{table_id}/output/",
-    )  # constant
+        savepath=output_dir,
+    )
 
-    return f"/tmp/data/br_cvm_fi/{table_id}/output/"
-
-
-@task
-def download_csv_cvm(
-    url: str, table_id: str, files, chunk_size: int = 128, mkdir: bool = True
-) -> str:
-    if mkdir:
-        os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/input/", exist_ok=True)
-    request_headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
-    }
-    if isinstance(files, list):
-        for file in files:
-            log(f"Baixando o arquivo {file}")
-            download_url = f"{url}{file}"
-            save_path = f"/tmp/data/br_cvm_fi/{table_id}/input/{file}"
-
-            r = requests.get(
-                download_url, headers=request_headers, stream=True, timeout=10
-            )
-            with open(save_path, "wb") as fd:
-                for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
-                    fd.write(chunk)
-
-    elif isinstance(files, str):
-        log(f"Baixando o arquivo {files}")
-        download_url = f"{url}{files}"
-        save_path = f"/tmp/data/br_cvm_fi/{table_id}/input/{files}"
-        r = requests.get(
-            download_url, headers=request_headers, stream=True, timeout=10
-        )
-        with open(save_path, "wb") as fd:
-            for chunk in tqdm(r.iter_content(chunk_size=chunk_size)):
-                fd.write(chunk)
-
-    return f"/tmp/data/br_cvm_fi/{table_id}/input/"
+    return output_dir
 
 
 @task
-def clean_data_make_partitions_perfil(diretorio, table_id):
-    df_arq = sheet_to_df(cvm_constants.URL_ARCH_PERFIL_MENSAL.value)
-    colunas_totais = [*df_arq["original_name"].to_list(), "ano", "mes"]
-    colunas_finais = [*df_arq["name"].to_list(), "ano", "mes"]
-    colunas_mapeamento = df_arq[df_arq["observations"].notna()][
-        "original_name"
-    ].to_list()
+def clean_data_make_partitions_perfil(input_dir: str | Path, table_id: str):
     df_final = pd.DataFrame()
-    arquivos = glob.glob(f"{diretorio}*.csv")
+    arquivos = Path(input_dir).glob("*.csv")
 
-    # import R's utility package
+    df_final = pd.DataFrame()
+    arquivos = Path(input_dir).glob("*.csv")
+
+    # Import R's utility package
     utils = rpackages.importr("utils")
-
-    # select a mirror for R packages
+    # Select a mirror for R packages
     utils.chooseCRANmirror(ind=1)
     # R package names
     packnames = "readr"
     utils.install_packages(packnames)
-    # R vector of strings
-    # names_to_install = [x for x in packnames if not rpackages.isinstalled(x)]
-    # if len(names_to_install) > 0:
 
     # Import readr
-
     readr = rpackages.importr("readr")
+
     for file in tqdm(arquivos):
         log(f"Baixando o arquivo ------> {file}")
-        ## reading with R
-
+        ## Reading with R
         df_r = readr.read_delim(
             file, delim=";", locale=readr.locale(encoding="ISO-8859-1")
         )
         readr.write_delim(df_r, file, na="", delim=";")
 
         ## Return to python
-
-        df = pd.read_csv(file, sep=";")
-
-        df["ano"] = df["DT_COMPTC"].apply(
-            lambda x: datetime.strptime(x, "%Y-%m-%d").year
+        df = pd.read_csv(
+            file, sep=";", encoding="ISO-8859-1", quoting=csv.QUOTE_NONE
         )
-        df["mes"] = df["DT_COMPTC"].apply(
-            lambda x: datetime.strptime(x, "%Y-%m-%d").month
-        )
-
-        df_final = df
-
+        # Rename columns to fit standard
+        df_final = df.rename(columns=cvm_constants.RENAME_MAPPING_PERFIL.value)
+        # Create year and month partiton columns
+        df_final = create_year_month_columns(df_final)
+        # Ensure final columns
         df_final = check_and_create_column(
-            df_final, colunas_totais=colunas_totais
+            df_final, colunas_totais=cvm_constants.FINAL_COLS_PERFIL.value
         )
-        df_final[colunas_mapeamento] = df_final[colunas_mapeamento].applymap(
-            lambda x: cvm_constants.MAPEAMENTO.value.get(x, x)
-        )
-        df_final["CNPJ_FUNDO_CLASSE"] = df_final[
-            "CNPJ_FUNDO_CLASSE"
-        ].str.replace(r"[/.-]", "")
-        df_final["CPF_CNPJ_COMITENTE_1"] = df_final[
-            "CPF_CNPJ_COMITENTE_1"
-        ].str.replace(r"[/.-]", "")
-        df_final["CPF_CNPJ_COMITENTE_2"] = df_final[
-            "CPF_CNPJ_COMITENTE_2"
-        ].str.replace(r"[/.-]", "")
-        df_final["CPF_CNPJ_COMITENTE_3"] = df_final[
-            "CPF_CNPJ_COMITENTE_3"
-        ].str.replace(r"[/.-]", "")
-        df_final["CPF_CNPJ_EMISSOR_1"] = df_final[
-            "CPF_CNPJ_EMISSOR_1"
-        ].str.replace(r"[/.-]", "")
-        df_final["CPF_CNPJ_EMISSOR_2"] = df_final[
-            "CPF_CNPJ_EMISSOR_2"
-        ].str.replace(r"[/.-]", "")
-        df_final["CPF_CNPJ_EMISSOR_3"] = df_final[
-            "CPF_CNPJ_EMISSOR_3"
-        ].str.replace(r"[/.-]", "")
-        df_final = rename_columns(df_arq, df_final)
+        df_final[cvm_constants.TO_MAP_COLS_PERFIL.value] = df_final[
+            cvm_constants.TO_MAP_COLS_PERFIL.value
+        ].map(lambda x: cvm_constants.MAPEAMENTO.value.get(x, x))
+        cnpj_cols = [
+            "cnpj",
+            "cpf_cnpj_comitente_1",
+            "cpf_cnpj_comitente_2",
+            "cpf_cnpj_comitente_3",
+            "cpf_cnpj_emissor_1",
+            "cpf_cnpj_emissor_2",
+            "cpf_cnpj_emissor_3",
+        ]
+        df_final = format_cnpj_columns(df_final, cnpj_cols)
         df_final = df_final.replace(",", ".", regex=True)
         df_final[cvm_constants.ASCII_COLS_PERFIL_MENSAL.value] = df_final[
             cvm_constants.ASCII_COLS_PERFIL_MENSAL.value
         ].fillna("")
         df_final[cvm_constants.ASCII_COLS_PERFIL_MENSAL.value] = df_final[
             cvm_constants.ASCII_COLS_PERFIL_MENSAL.value
-        ].applymap(limpar_string)
-        df_final = df_final[colunas_finais]
-        os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
+        ].map(limpar_string)
+        df_final = df_final[cvm_constants.FINAL_COLS_PERFIL.value]
+
+        output_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "output"
+        output_dir.mkdir(parents=True, exist_ok=True)
         to_partitions(
             df_final,
             partition_columns=["ano", "mes"],
-            savepath=f"/tmp/data/br_cvm_fi/{table_id}/output/",
+            savepath=output_dir,
         )  # constant
-        log(f"Partições feitas para o ano ------> {file}")
-    return f"/tmp/data/br_cvm_fi/{table_id}/output/"
+        log(f"Partições feitas para o ano ------> {file.name}")
+    return output_dir
 
 
 @task
-def clean_data_make_partitions_cad(diretorio, table_id):
-    df_arq = sheet_to_df(cvm_constants.URL_ARCH_INFO_CAD.value)
-    colunas_totais = df_arq["original_name"].to_list()
-    colunas_finais = df_arq["name"].to_list()
-    colunas_mapeamento = df_arq[df_arq["observations"].notna()][
-        "original_name"
-    ].to_list()
+def clean_data_make_partitions_cad(input_dir: Path | str, table_id: str):
     df_final = pd.DataFrame()
-    arquivos = glob.glob(f"{diretorio}*.csv")[0]
+    arquivos = [arq for arq in Path(input_dir).glob("*.csv")]
+    arquivo = arquivos[0]
 
     df = pd.read_csv(
-        arquivos,
+        arquivo,
         sep=";",
         encoding="ISO-8859-1",
         dtype="string",
         quoting=csv.QUOTE_NONE,
     )
-    # df["ano"] = df["DT_COMPTC"].apply(
-    #    lambda x: datetime.strptime(x, "%Y-%m-%d").year
-    # )
-    # df["mes"] = df["DT_COMPTC"].apply(
-    #     lambda x: datetime.strptime(x, "%Y-%m-%d").month
-    # )
-
-    df_final = df
-
-    df_final = check_and_create_column(df_final, colunas_totais=colunas_totais)
-    df_final[colunas_mapeamento] = df_final[colunas_mapeamento].applymap(
-        lambda x: cvm_constants.MAPEAMENTO.value.get(x, x)
-    )
-    df_final["CNPJ_FUNDO"] = df_final["CNPJ_FUNDO"].str.replace(r"[/.-]", "")
-    df_final["CNPJ_ADMIN"] = df_final["CNPJ_ADMIN"].str.replace(r"[/.-]", "")
-    df_final["CPF_CNPJ_GESTOR"] = df_final["CPF_CNPJ_GESTOR"].str.replace(
-        r"[/.-]", ""
-    )
-    df_final["CNPJ_AUDITOR"] = df_final["CNPJ_AUDITOR"].str.replace(
-        r"[/.-]", ""
-    )
-    df_final["CNPJ_CUSTODIANTE"] = df_final["CNPJ_CUSTODIANTE"].str.replace(
-        r"[/.-]", ""
-    )
-    df_final["CNPJ_CONTROLADOR"] = df_final["CNPJ_CONTROLADOR"].str.replace(
-        r"[/.-]", ""
+    # Rename columns to fit standard
+    df_final = df.rename(columns=cvm_constants.RENAME_MAPPING_CAD.value)
+    # Ensure final columns
+    df_final = check_and_create_column(
+        df_final, colunas_totais=cvm_constants.FINAL_COLS_CAD.value
     )
 
-    df_final = rename_columns(df_arq, df_final)
+    cnpj_cols = cnpj_cols = [
+        "cnpj",
+        "cnpj_administrador",
+        "cpf_cnpj_gestor",
+        "cnpj_auditor",
+        "cnpj_custodiante",
+        "cnpj_controlador",
+    ]
+    df_final = format_cnpj_columns(df_final, cnpj_cols)
     df_final = df_final.replace(",", ".", regex=True)
     df_final[cvm_constants.ASCII_COLS_CAD.value] = df_final[
         cvm_constants.ASCII_COLS_CAD.value
     ].fillna("")
     df_final[cvm_constants.ASCII_COLS_CAD.value] = df_final[
         cvm_constants.ASCII_COLS_CAD.value
-    ].applymap(limpar_string)
-    df_final = df_final[colunas_finais]
-    # log(f"Fazendo partições para o ano ------> {i}")
-    os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
+    ].map(limpar_string)
+    df_final = df_final[cvm_constants.FINAL_COLS_CAD.value]
+
+    output_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "output"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     df_final.to_csv(
-        f"/tmp/data/br_cvm_fi/{table_id}/output/data.csv",
+        output_dir / "data.csv",
         encoding="utf-8",
         index=False,
     )
 
-    return f"/tmp/data/br_cvm_fi/{table_id}/output/data.csv"
+    return output_dir / "data.csv"
 
 
 @task
-def clean_data_make_partitions_balancete(diretorio, table_id):
-    arquivos = glob.glob(f"{diretorio}*.csv")
-
+def clean_data_make_partitions_balancete(input_dir: str | Path, table_id: str):
+    arquivos = Path(input_dir).glob("*.csv")
     for file in tqdm(arquivos):
         log(f"Baixando o arquivo ------> {file}")
-
         df = pd.read_csv(
             file,
             sep=";",
@@ -614,30 +494,28 @@ def clean_data_make_partitions_balancete(diretorio, table_id):
             dtype="string",
             quoting=csv.QUOTE_NONE,
         )
-        df["ano"] = df["DT_COMPTC"].apply(
-            lambda x: datetime.strptime(x, "%Y-%m-%d").year
+        # Rename columns to fit standard
+        df_final = df.rename(
+            columns=cvm_constants.RENAME_MAPPING_BALANCETE.value
         )
-        df["mes"] = df["DT_COMPTC"].apply(
-            lambda x: datetime.strptime(x, "%Y-%m-%d").month
+        # Create year and month partiton columns
+        df_final = create_year_month_columns(df_final)
+        # Ensure final columns
+        df_final = check_and_create_column(
+            df, colunas_totais=cvm_constants.FINAL_COLS_BALANCETE.value
         )
+        df_final = df_final[cvm_constants.FINAL_COLS_BALANCETE.value]
+        df_final = format_cnpj_columns(df_final, ["cnpj"])
+        df_final = df_final.replace(",", ".", regex=True)
 
-        df = check_and_create_column(df, colunas_totais=["TP_FUNDO_CLASSE"])
-
-        df = df.rename(cvm_constants.RENAME_MAPPING_BALANCETE.value, axis=1)
-
-        df = df[cvm_constants.FINAL_COLS_BALANCETE.value]
-
-        df["cnpj"] = df["cnpj"].str.replace(r"[/.-]", "", regex=True)
-
-        df = df.replace(",", ".", regex=True)
-
-        os.makedirs(f"/tmp/data/br_cvm_fi/{table_id}/output/", exist_ok=True)
+        output_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "output"
+        output_dir.mkdir(parents=True, exist_ok=True)
 
         to_partitions(
-            df,
+            df_final,
             partition_columns=["ano", "mes"],
-            savepath=f"/tmp/data/br_cvm_fi/{table_id}/output/",
+            savepath=output_dir,
         )
         log(f"Partições feitas para o ano ------> {file}")
 
-    return f"/tmp/data/br_cvm_fi/{table_id}/output/"
+    return output_dir

@@ -2,13 +2,16 @@
 General purpose functions for the br_cvm_fi project
 """
 
-import os
 import re
+from datetime import datetime
 from io import StringIO
+from pathlib import Path
 
 import pandas as pd
 import requests
 from unidecode import unidecode
+
+from pipelines.utils.utils import log
 
 
 def sheet_to_df(columns_config_url_or_path):
@@ -23,17 +26,18 @@ def sheet_to_df(columns_config_url_or_path):
     )
 
 
-def rename_columns(df_origem, df_destino):
+def rename_columns(df_origem: pd.DataFrame, df_destino: pd.DataFrame):
     """
     Rename DataFrame columns based on architecture
     """
     # Seleciona as colunas "name" e "original_name" do dataframe de origem
-    colunas = df_origem[["name", "original_name"]]
+    colunas = df_origem[["name", "original_name"]].copy()
 
     # Cria um dicionário que mapeia as colunas do dataframe de origem para as colunas do dataframe de destino
     mapeamento_colunas = dict(
         zip(colunas["original_name"], colunas["name"], strict=False)
     )
+    log(f"Mapping:{mapeamento_colunas}")
 
     # Renomeia as colunas do dataframe de destino com base no dicionário de mapeamento
     df_destino = df_destino.rename(columns=mapeamento_colunas)
@@ -42,16 +46,17 @@ def rename_columns(df_origem, df_destino):
     return df_destino
 
 
-def obter_anos_meses(diretorio):
+def obter_anos_meses(diretorio: str | Path):
     """
     Retorna uma lista com todos os arquivos AAAAMM presentes no diretório.
     """
-    lista_arquivos = os.listdir(diretorio)
+
+    lista_arquivos = Path(diretorio).iterdir()
     padrao_aaaamm = re.compile(r"cda_fi_BLC_\d+_(\d{6}).csv")
 
     anos_meses = set()
     for arquivo in lista_arquivos:
-        match = padrao_aaaamm.match(arquivo)
+        match = padrao_aaaamm.match(arquivo.name)
         if match:
             ano_mes = match.group(1)
             anos_meses.add(ano_mes)
@@ -87,4 +92,22 @@ def check_and_create_column(
     for col_name in colunas_totais:
         if col_name not in df.columns:
             df[col_name] = ""
+    return df
+
+
+def create_year_month_columns(df: pd.DataFrame) -> pd.DataFrame:
+    df["ano"] = df["data_competencia"].apply(
+        lambda x: datetime.strptime(x, "%Y-%m-%d").year
+    )
+    df["mes"] = df["data_competencia"].apply(
+        lambda x: datetime.strptime(x, "%Y-%m-%d").month
+    )
+    return df
+
+
+def format_cnpj_columns(
+    df: pd.DataFrame, cnpj_columns: list[str]
+) -> pd.DataFrame:
+    for col in cnpj_columns:
+        df[col] = df[col].str.replace(r"[/.-]", "")
     return df
