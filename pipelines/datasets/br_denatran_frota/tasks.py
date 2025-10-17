@@ -354,6 +354,11 @@ def get_latest_date_task(
         year, month = update_yearmonth(year, month)
     log(f"Ano: {year}, mês: {month}")
     log(f"Available dates: {dates_str}")
+    if len(dates) == 0:
+        date_return = datetime.datetime(year, month, 1)
+        str_return = date_return.strftime("%Y-%m")
+        dates.append(date_return)
+        dates_str.append(str_return)
     return dates, dates_str, dates[0], dates_str[0]
 
 
