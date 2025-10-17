@@ -244,13 +244,13 @@ def read_csv(
     if dataset_id == "br_cgu_cartao_pagamento":
         value_constants = constants.TABELA.value[table_id]
 
-        os.listdir(value_constants["INPUT"])
+        log(os.listdir(value_constants["INPUT"]))
 
-        csv_file = [  # noqa: RUF015
+        csv_file = next(
             f
             for f in os.listdir(value_constants["INPUT"])
             if f.endswith(".csv")
-        ][0]
+        )
         log(f"CSV files: {csv_file}")
 
         df = pd.read_csv(
