@@ -17,12 +17,14 @@ from pipelines.crawler.cvm.tasks import (
 from pipelines.utils.decorators import Flow
 from pipelines.utils.metadata.tasks import (
     check_if_data_is_outdated,
+    update_django_metadata,
+)
+from pipelines.utils.tasks import (
     create_table_and_upload_to_gcs,
     download_data_to_gcs,
     log_task,
     rename_current_flow_run_dataset_table,
     run_dbt,
-    update_django_metadata,
 )
 
 with Flow(name="BD - Template CVM") as flow_cvm:
