@@ -10,7 +10,6 @@ from pathlib import Path
 
 import pandas as pd
 import requests
-import rpy2.robjects.packages as rpackages
 from bs4 import BeautifulSoup
 from prefect import task
 from tqdm import tqdm
@@ -371,29 +370,8 @@ def clean_data_make_partitions_perfil(input_dir: str | Path, table_id: str):
     df_final = pd.DataFrame()
     arquivos = Path(input_dir).glob("*.csv")
 
-    df_final = pd.DataFrame()
-    arquivos = Path(input_dir).glob("*.csv")
-
-    # Import R's utility package
-    utils = rpackages.importr("utils")
-    # Select a mirror for R packages
-    utils.chooseCRANmirror(ind=1)
-    # R package names
-    packnames = "readr"
-    utils.install_packages(packnames)
-
-    # Import readr
-    readr = rpackages.importr("readr")
-
     for file in tqdm(arquivos):
         log(f"Baixando o arquivo ------> {file}")
-        ## Reading with R
-        df_r = readr.read_delim(
-            file, delim=";", locale=readr.locale(encoding="ISO-8859-1")
-        )
-        readr.write_delim(df_r, file, na="", delim=";")
-
-        ## Return to python
         df = pd.read_csv(
             file, sep=";", encoding="ISO-8859-1", quoting=csv.QUOTE_NONE
         )
