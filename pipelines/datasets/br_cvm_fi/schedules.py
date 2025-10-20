@@ -111,7 +111,7 @@ every_day_informacao_cadastral = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "url": cvm_constants.URL_INFO_CADASTRAL.value,
-                "files": cvm_constants.CAD_FILE.value,
+                "files": cvm_constants.FILE_CAD.value,
                 "update_metadata": True,
             },
         ),

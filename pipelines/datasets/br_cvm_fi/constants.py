@@ -43,7 +43,7 @@ class constants(Enum):
         "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/",
     ]
 
-    CAD_FILE = "cad_fi.csv"
+    FILE_CAD = "cad_fi.csv"
     FILE_EXT = "extrato_fi.csv"
 
     MAPEAMENTO = {"S": "1", "N": "0"}

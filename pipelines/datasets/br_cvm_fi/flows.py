@@ -500,7 +500,7 @@ with Flow(
     )
 
     files = Parameter(
-        "files", default=cvm_constants.CAD_FILE.value, required=False
+        "files", default=cvm_constants.FILE_CAD.value, required=False
     )
 
     with case(is_empty(files), True):

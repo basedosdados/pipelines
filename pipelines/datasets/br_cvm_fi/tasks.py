@@ -317,12 +317,18 @@ def clean_data_make_partitions_cda(input_dir: str | Path, table_id: str):
 
 
 @task
-def clean_data_make_partitions_ext(input_dir: str | Path, table_id: str):
+def clean_data_make_partitions_ext(
+    input_dir: str | Path,
+    table_id: str,
+    filename: str = cvm_constants.FILE_EXT.value,
+):
     df_final = pd.DataFrame()
-    arquivos = [arq for arq in Path(input_dir).glob("*.csv")]
-    arquivo = arquivos[0]
+    files = [
+        file for file in Path(input_dir).glob("*.csv") if file.name == filename
+    ]
+    filepath = files[0]
     df = pd.read_csv(
-        arquivo,
+        filepath,
         sep=";",
         encoding="ISO-8859-1",
         dtype="string",
@@ -433,13 +439,19 @@ def clean_data_make_partitions_perfil(input_dir: str | Path, table_id: str):
 
 
 @task
-def clean_data_make_partitions_cad(input_dir: Path | str, table_id: str):
+def clean_data_make_partitions_cad(
+    input_dir: Path | str,
+    table_id: str,
+    filename: str = cvm_constants.FILE_CAD.value,
+):
     df_final = pd.DataFrame()
-    arquivos = [arq for arq in Path(input_dir).glob("*.csv")]
-    arquivo = arquivos[0]
+    files = [
+        file for file in Path(input_dir).glob("*.csv") if file.name == filename
+    ]
+    filepath = files[0]
 
     df = pd.read_csv(
-        arquivo,
+        filepath,
         sep=";",
         encoding="ISO-8859-1",
         dtype="string",
