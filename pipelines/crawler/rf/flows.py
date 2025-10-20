@@ -47,8 +47,8 @@ with Flow(name="BD Template - Receita Federal") as flow_rf:
     )
 
     last_update_original_source = check_need_for_update(
-        dataset_id=dataset_id,
-        wait=dataset_id,
+        dataset_id,
+        upstream_tasks=[dataset_id],
     )
 
     check_if_outdated = check_if_data_is_outdated(
