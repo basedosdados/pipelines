@@ -158,10 +158,10 @@ def process_file(
 
     table_rename = br_rf_constants.TABLES_RENAME.value[dataset_id]
     filename = Path(file).name
-    log(f"Processing file: {filename}")
+    log(f"Processing file: {file}")
 
-    if filename.endswith(".csv") and filename in table_rename:
-        filepath = os.path.join(input_dir, filename)
+    if filename.endswith(".csv") and filename in table_rename.values():
+        filepath = os.path.join(dataset_id, input_dir, filename)
         output_path = os.path.join(dataset_id, output_dir, table_id)
         os.makedirs(output_path, exist_ok=True)
 
@@ -197,11 +197,11 @@ def process_file(
 
             os.remove(filepath)
             log(f"Removed temporary CSV {filename}")
+            return output_path
         except Exception as e:
             log(f"Unable to process file: {e}", "error")
     else:
         log(f"File {file} not recognized in TABLES_RENAME, skipped.")
-    return output_path
 
 
 @task(
@@ -225,7 +225,10 @@ def crawl(dataset_id: str, input_dir: str, url: str | None = None) -> None:
     log(f"---- Downloading CNO file from {url}")
     os.makedirs(dataset_id, exist_ok=True)
 
-    asyncio.run(download_file_async(f"{dataset_id}/{input_dir}", url))
+    filename = "cno.zip"
+    asyncio.run(
+        download_file_async(f"{dataset_id}/{input_dir}", f"{url}{filename}")
+    )
 
     filepath = f"{dataset_id}/{input_dir}/data.zip"
     log(f"---- Unzipping files from {filepath}")
