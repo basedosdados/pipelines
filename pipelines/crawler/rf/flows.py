@@ -50,6 +50,7 @@ with Flow(name="BD Template - Receita Federal") as flow_rf:
     )
 
     last_update_original_source = check_need_for_update(
+        dataset_id=dataset_id,
         url=br_rf_constants.URLS.value[dataset_id],
         wait=dataset_id,
     )
@@ -80,7 +81,9 @@ with Flow(name="BD Template - Receita Federal") as flow_rf:
         )
 
         path = process_file(
-            br_rf_constants.TABLES_RENAME.value[dataset_id][table_id],
+            dataset_id=dataset_id,
+            table_id=table_id,
+            file=br_rf_constants.TABLES_RENAME.value[dataset_id][table_id],
             input_dir="input",
             output_dir="output",
             partition_date=last_update_original_source,
