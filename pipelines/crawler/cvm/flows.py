@@ -29,8 +29,9 @@ from pipelines.utils.tasks import (
 
 with Flow(name="BD - Template CVM") as flow_cvm:
     # Parameters
-    dataset_id = Parameter("dataset_id")
-    table_id = Parameter("table_id")
+    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
+    table_id = Parameter("table_id", required=True)
+    url = Parameter("url", required=False)
     target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
@@ -40,7 +41,9 @@ with Flow(name="BD - Template CVM") as flow_cvm:
         "update_metadata", default=False, required=False
     )
 
-    df, max_date = extract_links_and_dates(table_id, upstream_tasks=[table_id])
+    df, max_date = extract_links_and_dates(
+        table_id, url=url, upstream_tasks=[table_id, url]
+    )
 
     log_task(f"Links e datas: {df}")
 
@@ -65,6 +68,7 @@ with Flow(name="BD - Template CVM") as flow_cvm:
         input_filepath = download_unzip(
             table_id=table_id,
             files=arquivos,
+            url=url,
             upstream_tasks=[arquivos],
         )
         output_filepath = clean_cvm_data(

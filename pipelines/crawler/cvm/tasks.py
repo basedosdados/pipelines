@@ -29,7 +29,9 @@ from pipelines.utils.utils import log
     max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def extract_links_and_dates(url: str) -> tuple[pd.DataFrame, str]:
+def extract_links_and_dates(
+    table_id: str, url: str | None = None
+) -> tuple[pd.DataFrame, str]:
     """
     Extracts all file names and their respective last update dates in a pandas dataframe.
 
@@ -44,7 +46,8 @@ def extract_links_and_dates(url: str) -> tuple[pd.DataFrame, str]:
 
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
-
+    if url is None:
+        url = TABLE_CONFIGS[table_id][url]
     # Encontra todos os links dentro do HTML
     filename_pattern = r"^[\w_]+\.[\w]{3,}$"
     date_pattern = r"([\d\w]{2,}-[\d\w]{2,}-[\d\w]{2,})\s?\d{2}:\d{2}"
