@@ -26,14 +26,13 @@ from pipelines.utils.utils import log
 
 
 @task
-def check_need_for_update(dataset_id: str, url: str) -> str:
+def check_need_for_update(dataset_id: str, url: str | None = None) -> str:
     """
     Checks the need for an update by extracting the most recent update date
     for  source files from the url listing.
 
     Args:
         dataset_id (str): RF specific dataset name.
-        url (str): The URL of the data source.
 
     Returns:
         str: The date of the last update in 'YYYY-MM-DD' format.
@@ -50,6 +49,8 @@ def check_need_for_update(dataset_id: str, url: str) -> str:
     retries = 5
     delay = 2
 
+    if url is None:
+        url = br_rf_constants.URLS.value[dataset_id]
     for attempt in range(retries):
         try:
             response = requests.get(url, timeout=10)
@@ -123,10 +124,10 @@ def list_files(input_dir: str) -> list:
 def process_file(
     dataset_id: str,
     table_id: str,
-    file: str,
     input_dir: str,
     output_dir: str,
     partition_date: str,
+    file: str | None = None,
     chunksize: int = 1000000,
 ) -> str | None:
     """
@@ -135,15 +136,18 @@ def process_file(
 
     Args:
         dataset_id (str): RF specific dataset name.
-        file (str): Filename (must exist in input_dir).
         input_dir (str): Directory containing input CSVs.
         output_dir (str): Directory where Parquet files will be saved.
         partition_date (str): Partition date (YYYY-MM-DD).
+        file (str): Filename (must exist in input_dir).
         chunksize (int): Number of rows per chunk when reading CSV.
 
     Returns:
         None
     """
+
+    if file is None:
+        file = br_rf_constants.TABLES_RENAME.value[dataset_id][table_id]
     try:
         partition_date = datetime.strptime(
             partition_date, "%Y-%m-%d"
@@ -204,7 +208,7 @@ def process_file(
     max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawl(dataset_id: str, input_dir: str, url: str) -> None:
+def crawl(dataset_id: str, input_dir: str, url: str | None = None) -> None:
     """
     Downloads and unpacks the 'cno.zip' file from the given URL.
 
@@ -216,6 +220,8 @@ def crawl(dataset_id: str, input_dir: str, url: str) -> None:
     Returns:
         None
     """
+    if url is None:
+        url = br_rf_constants.URLS.value[dataset_id]
     log(f"---- Downloading CNO file from {url}")
     os.makedirs(dataset_id, exist_ok=True)
 

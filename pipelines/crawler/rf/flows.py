@@ -7,9 +7,6 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.crawler.rf.constants import (
-    constants as br_rf_constants,
-)
 from pipelines.crawler.rf.tasks import (
     check_need_for_update,
     crawl,
@@ -51,7 +48,6 @@ with Flow(name="BD Template - Receita Federal") as flow_rf:
 
     last_update_original_source = check_need_for_update(
         dataset_id=dataset_id,
-        url=br_rf_constants.URLS.value[dataset_id],
         wait=dataset_id,
     )
 
@@ -73,7 +69,6 @@ with Flow(name="BD Template - Receita Federal") as flow_rf:
         data = crawl(
             dataset_id=dataset_id,
             input_dir="input",
-            url=br_rf_constants.URLS.value[dataset_id],
             upstream_tasks=[
                 check_if_outdated,
                 last_update_original_source,
@@ -83,7 +78,6 @@ with Flow(name="BD Template - Receita Federal") as flow_rf:
         path = process_file(
             dataset_id=dataset_id,
             table_id=table_id,
-            file=br_rf_constants.TABLES_RENAME.value[dataset_id][table_id],
             input_dir="input",
             output_dir="output",
             partition_date=last_update_original_source,
