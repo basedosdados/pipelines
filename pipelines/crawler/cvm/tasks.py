@@ -111,9 +111,9 @@ def generate_links_to_download(
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def download_unzip(
-    url: str,
     table_id: str,
     files: list | str,
+    url: str | None = None,
     chunk_size: int = 128,
 ) -> str:
     """
@@ -145,7 +145,8 @@ def download_unzip(
         files = [files]
     elif not isinstance(files, list):
         raise ValueError("O argumento 'files' possui um tipo inadequado.")
-
+    if url is None:
+        url = TABLE_CONFIGS[table_id][url]
     for file in files:
         log(f"Baixando o arquivo {file}")
         download_url = f"{url}{file}"
