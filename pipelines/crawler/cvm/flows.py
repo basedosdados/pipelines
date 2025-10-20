@@ -40,7 +40,7 @@ with Flow(name="BD - Template CVM") as flow_cvm:
         "update_metadata", default=False, required=False
     )
 
-    df, max_date = extract_links_and_dates(table_id, wait=table_id)
+    df, max_date = extract_links_and_dates(table_id, upstream_tasks=[table_id])
 
     log_task(f"Links e datas: {df}")
 
