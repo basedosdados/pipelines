@@ -28,14 +28,6 @@ class constants(Enum):
     URL_INFO_CADASTRAL = "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/"
     URL_BALANCETE = "https://dados.cvm.gov.br/dados/FI/DOC/BALANCETE/DADOS/"
 
-    # Architectures
-    URL_ARCH_CDA = "https://docs.google.com/spreadsheets/d/1V2XHBXBB_biC0cLoMZ3FxtbC7CPLxQXZhIY7iJDtsSw/edit#gid=0"
-    URL_ARCH_INFORME = "https://docs.google.com/spreadsheets/d/1W739_mLZNBPYhBqGyjsuuWFBOqCrhrDl/edit#gid=1045172528"
-    URL_ARCH_INFO_CAD = "https://docs.google.com/spreadsheets/d/1OdPdDRnZ9sh3tEdSUo64wsSxVuf5atHP/edit#gid=1045172528"
-    URL_ARCH_BALANCETE = "https://docs.google.com/spreadsheets/d/1eIMo_hYHy89oh6kHRN9Kh0NytUZzr8__/edit#gid=1045172528"
-    URL_ARCH_EXTRATO = "https://docs.google.com/spreadsheets/d/1b94RdASfwXMgJuVMhFeY6Xbph4n4_MVt/edit#gid=1045172528"
-    URL_ARCH_PERFIL_MENSAL = "https://docs.google.com/spreadsheets/d/1IN7enHe6K-StD_sDfCaqhJ7XfUNXe-W8/edit#gid=1045172528"
-
     # Tables supposed to be found in CSV files
     CSV_LIST = [
         "https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/",
