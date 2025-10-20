@@ -8,7 +8,7 @@ from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
-from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
+from pipelines.crawler.cvm.constants import constants as cvm_constants
 
 every_day_informe = Schedule(
     clocks=[
