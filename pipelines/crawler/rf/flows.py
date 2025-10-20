@@ -30,8 +30,8 @@ from pipelines.utils.tasks import (
 
 with Flow(name="BD Template - Receita Federal") as flow_rf:
     # Common parameters
-    dataset_id = Parameter("dataset_id")
-    table_id = Parameter("table_id")
+    dataset_id = Parameter("dataset_id", default="br_rf_cno", required=True)
+    table_id = Parameter("table_id", required=True)
     chunksize = Parameter("chunksize", default=100000, required=False)
     target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
