@@ -203,7 +203,7 @@ def _clean_standard_data(
     all_data = []
 
     for file in files:
-        df = process_file(cconfig=config, file_path=file)
+        df = process_file(config=config, file_path=file)
         df = apply_common_transformations(config, df)
         all_data.append(df)
 
