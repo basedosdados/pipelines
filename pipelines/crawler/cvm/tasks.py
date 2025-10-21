@@ -43,11 +43,11 @@ def extract_links_and_dates(
     Returns:
         tuple[pd.DataFrame, str]: The files and dates data frame, along with the max date (last update)
     """
+    if url is None:
+        url = TABLE_CONFIGS[table_id][url]
 
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
-    if url is None:
-        url = TABLE_CONFIGS[table_id][url]
     # Encontra todos os links dentro do HTML
     filename_pattern = r"^[\w_]+\.[\w]{3,}$"
     date_pattern = r"([\d\w]{2,}-[\d\w]{2,}-[\d\w]{2,})\s?\d{2}:\d{2}"
@@ -203,7 +203,7 @@ def _clean_standard_data(
     all_data = []
 
     for file in files:
-        df = process_file(config, file)
+        df = process_file(cconfig=config, file_path=file)
         df = apply_common_transformations(config, df)
         all_data.append(df)
 
@@ -233,7 +233,7 @@ def _clean_cda_data(config: dict, input_dir: str | Path, table_id: str) -> str:
         ]
 
         for file in arquivos_filtrados:
-            df = process_file(file)
+            df = process_file(config=config, file_path=file)
 
             # CDA-specific: add block information
             match = re.search(r"(BLC_[1-8])", file.name)
@@ -256,7 +256,7 @@ def _clean_perfil_data(
 
     for file in files:
         # Standard processing
-        df = process_file(config, file)
+        df = process_file(config=config, file_path=file)
         df = apply_common_transformations(config, df)
         save_output(config, df, table_id, use_partitions=True)
 
