@@ -7,7 +7,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 from tqdm import tqdm
 
-from pipelines.datasets.br_rf_cno.constants import constants as br_rf_cno
+from pipelines.crawler.rf.constants import constants as br_rf_cosnstants
 from pipelines.utils.utils import log
 
 
@@ -117,6 +117,7 @@ async def download_file_async(root: str, url: str) -> None:
 
 
 def process_chunk(
+    dataset_id: str,
     df_chunk: pd.DataFrame,
     chunk_index: int,
     output_dir: str,
@@ -138,7 +139,7 @@ def process_chunk(
         None
     """
 
-    columns_rename = br_rf_cno.COLUMNS_RENAME.value
+    columns_rename = br_rf_cosnstants.COLUMNS_RENAME.value[dataset_id]
     if table_name in columns_rename:
         df_chunk = df_chunk.rename(columns=columns_rename[table_name])
 
@@ -147,7 +148,9 @@ def process_chunk(
 
     parquet_file = f"{table_name}_{chunk_index}.parquet"
     partition_folder = f"data={partition_date}"
-    output_folder = os.path.join(output_dir, table_name, partition_folder)
+    output_folder = os.path.join(
+        dataset_id, output_dir, table_name, partition_folder
+    )
     parquet_path = os.path.join(output_folder, parquet_file)
 
     os.makedirs(output_folder, exist_ok=True)

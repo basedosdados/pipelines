@@ -18,6 +18,7 @@ import requests
 import rpy2.robjects as robjects
 import rpy2.robjects.packages as rpackages
 from bs4 import BeautifulSoup
+from dateutil import relativedelta
 from rarfile import RarFile
 from rpy2.robjects.vectors import StrVector
 from string_utils import asciify
@@ -38,13 +39,12 @@ def update_yearmonth(year: str | int, month: str | int):
         year = int(year)
     if isinstance(month, str):
         month = int(month)
+    new_date = (
+        datetime.datetime(year=year, month=month, day=1)
+        + relativedelta(month=1).date()
+    )
 
-    if month == 12:
-        year += 1
-        month = 1
-    else:
-        month += 1
-    return year, month
+    return new_date.year, new_date.moth
 
 
 def guess_header(
