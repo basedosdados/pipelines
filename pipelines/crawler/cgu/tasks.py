@@ -43,7 +43,9 @@ def partition_data(table_id: str, dataset_id: str) -> str:
         log(
             "---------------------------- Read data ----------------------------"
         )
-        df = read_csv(dataset_id=dataset_id, table_id=table_id)
+        df = read_csv(
+            dataset_id=dataset_id, table_id=table_id, column_replace=None
+        )
         if dataset_id == "br_cgu_cartao_pagamento":
             log(
                 " ---------------------------- Partiting data -----------------------"
@@ -265,17 +267,9 @@ def verify_all_url_exists_to_download(
             log(f"A URL {url=} não existe!")
             return False
 
-        elif r.status_code == 200:
-            with open("texto.txt", "wb") as f:
-                f.write(r.content)
-
-            with open("texto.txt", "r") as f:  # noqa: UP015
-                if "Estamos passando por uma instabilidade" in f.read():
-                    log("O Site está fora do ar")
-                    return False
-
-    log(f"A URL {url=} existe!")
-    return True
+        else:
+            log(f"A URL {url=} existe!")
+            return True
 
 
 @task
