@@ -8,7 +8,7 @@ from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
-from pipelines.datasets.br_cvm_fi.constants import constants as cvm_constants
+from pipelines.crawler.cvm.constants import constants as cvm_constants
 
 every_day_informe = Schedule(
     clocks=[
@@ -24,7 +24,7 @@ every_day_informe = Schedule(
                 "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "url": cvm_constants.INFORME_DIARIO_URL.value,
+                "url": cvm_constants.URL_INFORME_DIARIO.value,
                 "update_metadata": True,
             },
         ),
@@ -45,7 +45,7 @@ every_day_carteiras = Schedule(
                 "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "url": cvm_constants.CDA_URL.value,
+                "url": cvm_constants.URL_CDA.value,
                 "update_metadata": True,
             },
         ),
@@ -66,8 +66,7 @@ every_day_extratos = Schedule(
                 "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "url": cvm_constants.URL_EXT.value,
-                "file": cvm_constants.FILE_EXT.value,
+                "url": cvm_constants.URL_EXTRATO.value,
                 "update_metadata": True,
             },
         ),
@@ -111,7 +110,6 @@ every_day_informacao_cadastral = Schedule(
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "url": cvm_constants.URL_INFO_CADASTRAL.value,
-                "files": cvm_constants.CAD_FILE.value,
                 "update_metadata": True,
             },
         ),
