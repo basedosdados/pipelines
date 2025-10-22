@@ -181,8 +181,6 @@ mun_saeb_latest_output = (
 
 mun_saeb_latest_output = drop_empty_lines(mun_saeb_latest_output)
 
-mun_saeb_latest_output.shape
-
 mun_saeb_latest_output["ano"] = 2023
 
 mun_saeb_latest_output.head()

@@ -112,7 +112,7 @@ br_saeb_nivel_long_fmt = (
 
 br_saeb_latest_output = (
     (
-        br_saeb_nivel_long_fmt.pivot(
+        br_saeb_nivel_long_fmt.pivot_table(
             index=["DEPENDENCIA_ADM", "LOCALIZACAO", "disciplina", "serie"],
             columns="nivel",
             values="value",
@@ -174,10 +174,6 @@ upstream_df = bd.read_sql(
     "select * from `basedosdados-dev.br_inep_saeb.brasil`",
     billing_project_id="basedosdados-dev",
 )
-
-upstream_df.shape
-
-br_saeb_latest_output.shape
 
 pd.concat([br_saeb_latest_output, upstream_df]).to_csv(  # type: ignore
     os.path.join(OUTPUT, "brasil.csv"), index=False

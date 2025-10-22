@@ -88,7 +88,7 @@ def batch_process(
             ),
         )
 
-        batch_df_wide = batch_df_long.pivot(
+        batch_df_wide = batch_df_long.pivot_table(
             index=[
                 col
                 for col in batch_df_long.columns

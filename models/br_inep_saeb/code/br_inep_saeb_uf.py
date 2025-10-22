@@ -95,7 +95,7 @@ ufs_saeb_nivel_long_fmt = (
 
 ufs_saeb_latest_output = (
     (
-        ufs_saeb_nivel_long_fmt.pivot(
+        ufs_saeb_nivel_long_fmt.pivot_table(
             index=[
                 "NO_UF",
                 "DEPENDENCIA_ADM",
@@ -168,8 +168,6 @@ ufs_saeb_latest_output["ano"] = 2023
 ufs_saeb_latest_output.head()
 
 ufs_saeb_latest_output.info()
-
-ufs_saeb_latest_output.shape
 
 ufs_saeb_latest_output = drop_empty_lines(ufs_saeb_latest_output)
 
