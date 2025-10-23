@@ -1,5 +1,5 @@
 """
-Tasks for br_rf_cno
+Generic Tasks for br_rf
 """
 
 import asyncio
@@ -17,8 +17,8 @@ from requests.exceptions import ConnectionError, HTTPError
 from tqdm import tqdm
 
 from pipelines.constants import constants
-from pipelines.datasets.br_rf_cno.constants import constants as br_rf_cno
-from pipelines.datasets.br_rf_cno.utils import (
+from pipelines.crawler.rf.constants import constants as br_rf_constants
+from pipelines.crawler.rf.utils import (
     download_file_async,
     process_chunk,
 )
@@ -26,13 +26,13 @@ from pipelines.utils.utils import log
 
 
 @task
-def check_need_for_update(url: str) -> str:
+def check_need_for_update(dataset_id: str, url: str | None = None) -> str:
     """
     Checks the need for an update by extracting the most recent update date
-    for 'cno.zip' from the CNO FTP directory listing.
+    for  source files from the url listing.
 
     Args:
-        url (str): The URL of the CNO FTP site.
+        dataset_id (str): RF specific dataset name.
 
     Returns:
         str: The date of the last update in 'YYYY-MM-DD' format.
@@ -45,10 +45,12 @@ def check_need_for_update(url: str) -> str:
         - O crawler falhará se o nome do arquivo mudar.
         - Implementa retries com backoff exponencial para falhas de conexão.
     """
-    log("---- Checking most recent update date for 'cno.zip' in CNO FTP")
+    log(f"---- Checking most recent update date for {dataset_id}")
     retries = 5
     delay = 2
 
+    if url is None:
+        url = br_rf_constants.URLS.value[dataset_id]
     for attempt in range(retries):
         try:
             response = requests.get(url, timeout=10)
@@ -81,7 +83,7 @@ def check_need_for_update(url: str) -> str:
             continue
 
         name = link.get_text(strip=True)
-        if name != "cno.zip":
+        if str(name).split(".")[0] not in dataset_id:
             continue
 
         date = cells[2].get_text(strip=True)
@@ -92,11 +94,11 @@ def check_need_for_update(url: str) -> str:
 
     if not max_file_date:
         raise ValueError(
-            "File 'cno.zip' not found on the FTP site. "
+            f"File not found on {url}."
             "Check if the folder structure or file name has changed."
         )
 
-    log(f"Most recent update date for 'cno.zip': {max_file_date}")
+    log(f"Most recent update date: {max_file_date}")
     return max_file_date
 
 
@@ -120,10 +122,12 @@ def list_files(input_dir: str) -> list:
 
 @task
 def process_file(
-    file: str,
+    dataset_id: str,
+    table_id: str,
     input_dir: str,
     output_dir: str,
     partition_date: str,
+    file: str | None = None,
     chunksize: int = 1000000,
 ) -> str | None:
     """
@@ -131,15 +135,19 @@ def process_file(
     Applies renaming of tables and columns as specified.
 
     Args:
-        file (str): Filename (must exist in input_dir).
+        dataset_id (str): RF specific dataset name.
         input_dir (str): Directory containing input CSVs.
         output_dir (str): Directory where Parquet files will be saved.
         partition_date (str): Partition date (YYYY-MM-DD).
+        file (str): Filename (must exist in input_dir).
         chunksize (int): Number of rows per chunk when reading CSV.
 
     Returns:
         None
     """
+
+    if file is None:
+        file = br_rf_constants.TABLES_RENAME.value[dataset_id][table_id]
     try:
         partition_date = datetime.strptime(
             partition_date, "%Y-%m-%d"
@@ -148,18 +156,17 @@ def process_file(
     except ValueError:
         log("Invalid partition_date format. Using raw value.")
 
-    table_rename = br_rf_cno.TABLES_RENAME.value
+    table_rename = br_rf_constants.TABLES_RENAME.value[dataset_id]
     filename = Path(file).name
-    log(f"Processing file: {filename}")
+    log(f"Processing file: {file}")
 
-    if filename.endswith(".csv") and filename in table_rename:
-        filepath = os.path.join(input_dir, filename)
-        table_name = table_rename[filename]
-        output_path = os.path.join(output_dir, table_name)
+    if filename.endswith(".csv") and filename in table_rename.values():
+        filepath = os.path.join(dataset_id, input_dir, filename)
+        output_path = os.path.join(dataset_id, output_dir, table_id)
         os.makedirs(output_path, exist_ok=True)
 
         try:
-            log(f"---- Processing file {filename} as table {table_name}")
+            log(f"---- Processing file {filename} as table {table_id}")
 
             # N Chunks
             with open(filepath, encoding="latin-1") as fp:
@@ -167,7 +174,7 @@ def process_file(
                 total_chunks = (total_rows // chunksize) + 1
 
             with tqdm(
-                total=total_chunks, desc=f"{table_name}", unit="chunk"
+                total=total_chunks, desc=f"{table_id}", unit="chunk"
             ) as pbar:
                 for i, chunk in enumerate(
                     pd.read_csv(
@@ -179,81 +186,52 @@ def process_file(
                     )
                 ):
                     process_chunk(
-                        chunk, i, output_dir, partition_date, table_name
+                        dataset_id,
+                        chunk,
+                        i,
+                        output_dir,
+                        partition_date,
+                        table_id,
                     )
                     pbar.update(1)
 
             os.remove(filepath)
             log(f"Removed temporary CSV {filename}")
+            return output_path
         except Exception as e:
             log(f"Unable to process file: {e}", "error")
     else:
         log(f"File {file} not recognized in TABLES_RENAME, skipped.")
-    return output_path
 
 
 @task(
     max_retries=2,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def crawl_cno(root: str, url: str) -> None:
+def crawl(dataset_id: str, input_dir: str, url: str | None = None) -> None:
     """
     Downloads and unpacks the 'cno.zip' file from the given URL.
 
     Args:
-        root (str): Root directory to save and unpack the file.
+        dataset_id (str): RF specific dataset name.
+        input_dir (str): Input directory to save and unpack the file.
         url (str): URL of the ZIP file.
 
     Returns:
         None
     """
+    if url is None:
+        url = br_rf_constants.URLS.value[dataset_id]
     log(f"---- Downloading CNO file from {url}")
-    asyncio.run(download_file_async(root, url))
+    os.makedirs(dataset_id, exist_ok=True)
 
-    filepath = f"{root}/data.zip"
+    filename = "cno.zip"
+    asyncio.run(
+        download_file_async(f"{dataset_id}/{input_dir}", f"{url}{filename}")
+    )
+
+    filepath = f"{dataset_id}/{input_dir}/data.zip"
     log(f"---- Unzipping files from {filepath}")
-    shutil.unpack_archive(filepath, extract_dir=root)
+    shutil.unpack_archive(filepath, extract_dir=f"{dataset_id}/{input_dir}")
     os.remove(filepath)
     log("Download and unpack completed successfully")
-
-
-@task
-def create_parameters_list(
-    dataset_id: str,
-    table_ids: list,
-    target: str,
-    dbt_alias: str,
-    dbt_command: str,
-    disable_elementary: bool,
-    download_csv_file: bool,
-) -> list:
-    """
-    Generates a list of parameters for the DBT materialization flow.
-
-    Args:
-        dataset_id (str): Dataset ID in BigQuery.
-        table_ids (list): List of table IDs to materialize.
-        target (str): Materialization target (e.g., prod, dev).
-        dbt_alias (str): DBT alias for execution.
-        dbt_command (str): DBT command to run (e.g., run, build).
-        disable_elementary (bool): Whether to disable elementary checks.
-        download_csv_file (bool): Whether to include CSV download flag.
-
-    Returns:
-        list: A list of parameter dicts, one per table.
-    """
-    log("---- Generating DBT parameters for Materialization Flow")
-    params = [
-        {
-            "dataset_id": dataset_id,
-            "table_id": table_id,
-            "target": target,
-            "dbt_alias": dbt_alias,
-            "dbt_command": dbt_command,
-            "disable_elementary": disable_elementary,
-            "download_csv_file": download_csv_file,
-        }
-        for table_id in table_ids
-    ]
-    log(f"Generated parameters for {len(table_ids)} tables")
-    return params
