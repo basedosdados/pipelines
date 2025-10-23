@@ -35,8 +35,6 @@ with Flow(
     )
     table_id = Parameter("table_id", default="microdados", required=True)
 
-    target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -79,7 +77,6 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            target=target,
             dbt_alias=dbt_alias,
             upstream_tasks=[wait_upload_table],
         )
@@ -101,7 +98,6 @@ with Flow(
                     date_format="%Y-%m-%d",
                     coverage_type="part_bdpro",
                     time_delta={"weeks": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )

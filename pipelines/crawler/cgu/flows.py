@@ -37,7 +37,7 @@ with Flow(
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
     relative_month = Parameter("relative_month", default=1, required=False)
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -84,7 +84,6 @@ with Flow(
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
             dbt_command="run/test",
             dbt_alias=dbt_alias,
             disable_elementary=False,
@@ -110,7 +109,6 @@ with Flow(
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )
@@ -132,7 +130,7 @@ with Flow(
         required=True,
     )
     table_id = Parameter("table_id", required=True)
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -189,7 +187,6 @@ with Flow(
             wait_for_materialization = run_dbt(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                target=target,
                 dbt_command="run/test",
                 dbt_alias=dbt_alias,
                 disable_elementary=False,
@@ -212,7 +209,6 @@ with Flow(
                         date_format="%Y-%m",
                         coverage_type="part_bdpro",
                         time_delta={"months": 6},
-                        prefect_mode=target,
                         bq_project="basedosdados",
                         upstream_tasks=[wait_upload_prod],
                     )
@@ -235,7 +231,7 @@ with Flow(
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
     relative_month = Parameter("relative_month", default=1, required=False)
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -283,7 +279,6 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            target=target,
             dbt_alias=dbt_alias,
             disable_elementary=False,
             upstream_tasks=[wait_upload_table],
@@ -306,7 +301,6 @@ with Flow(
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_table],
                 )
@@ -329,7 +323,7 @@ with Flow(
     # Relative_month =  1 means that the data will be downloaded for the current month
     ####
     relative_month = Parameter("relative_month", default=1, required=False)
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -376,7 +370,6 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            target=target,
             dbt_alias=dbt_alias,
             disable_elementary=False,
             upstream_tasks=[wait_upload_table],
@@ -398,7 +391,6 @@ with Flow(
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_table],
                 )

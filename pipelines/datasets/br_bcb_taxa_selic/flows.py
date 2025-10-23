@@ -30,7 +30,7 @@ with Flow(
         "dataset_id", default="br_bcb_taxa_selic", required=True
     )
     table_id = Parameter("table_id", default="taxa_selic", required=True)
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -65,7 +65,6 @@ with Flow(
     wait_for_materialization = run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
-        target=target,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
         upstream_tasks=[wait_upload_table],
@@ -87,7 +86,6 @@ with Flow(
                 date_column_name={"date": "data"},
                 date_format="%Y-%m-%d",
                 coverage_type="all_bdpro",
-                prefect_mode=target,
                 bq_project="basedosdados",
                 upstream_tasks=[wait_upload_prod],
             )

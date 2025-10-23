@@ -41,7 +41,7 @@ with Flow(
     ],
 ) as bd_twt_metricas:
     # Parameters
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
@@ -97,7 +97,6 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            target=target,
             dbt_alias=dbt_alias,
             upstream_tasks=[wait_upload_table],
         )
@@ -125,13 +124,12 @@ with Flow(
     table_id = Parameter(
         "table_id", default="twitter_metrics_agg", required=True
     )
-    target = Parameter("target", default="prod", required=False)
+
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     wait_for_materialization = run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
-        target=target,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
         upstream_tasks=[wait_upload_table],
@@ -206,8 +204,6 @@ with Flow(
     )
     table_id = Parameter("table_id", default="website_user", required=True)
 
-    target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
@@ -257,7 +253,6 @@ with Flow(
     wait_for_materialization = run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
-        target=target,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
         upstream_tasks=[wait_upload_table],
@@ -297,8 +292,6 @@ with Flow(
     sheet_name = Parameter(
         "sheet_name", default="transacoes_anonimizado", required=True
     )
-
-    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -341,7 +334,6 @@ with Flow(
     wait_for_materialization = run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
-        target=target,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
         upstream_tasks=[wait_upload_table],
@@ -382,8 +374,6 @@ with Flow(
         "sheet_name", default="receitas_planejadas_anonimizado", required=True
     )
 
-    target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -423,7 +413,6 @@ with Flow(
     wait_for_materialization = run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
-        target=target,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
         upstream_tasks=[wait_upload_table],
@@ -465,8 +454,6 @@ with Flow(
     sheet_name = Parameter("sheet_name", default="equipes", required=True)
     bd_indicadores_equipes.add_task(sheet_name)
 
-    target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -506,7 +493,6 @@ with Flow(
     wait_for_materialization = run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
-        target=target,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
         upstream_tasks=[wait_upload_table],
@@ -542,8 +528,6 @@ with Flow(
         required=True,
     )
     sheet_name = Parameter("sheet_name", default="pessoas", required=True)
-
-    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -584,7 +568,6 @@ with Flow(
     wait_for_materialization = run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
-        target=target,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
         upstream_tasks=[wait_upload_table],

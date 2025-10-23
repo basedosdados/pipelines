@@ -35,7 +35,7 @@ with Flow(
         default=["mes_competencia=202306", "mes_competencia=202305"],
         required=False,
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -62,7 +62,6 @@ with Flow(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        target=target,
         dbt_alias=dbt_alias,
         upstream_tasks=[wait_upload_table],
     )

@@ -39,7 +39,6 @@ with Flow(
         "update_metadata", default=False, required=False
     )
 
-    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -80,7 +79,6 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            target=target,
             dbt_alias=dbt_alias,
             upstream_tasks=[wait_upload_table],
         )
@@ -101,7 +99,6 @@ with Flow(
                     date_column_name={"date": "data"},
                     date_format="%Y-%m-%d",
                     coverage_type="all_free",
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )
@@ -129,7 +126,7 @@ with Flow(
         "update_metadata", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -170,7 +167,6 @@ with Flow(
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
             disable_elementary=False,
@@ -193,7 +189,6 @@ with Flow(
                     date_column_name={"date": "data"},
                     date_format="%Y-%m-%d",
                     coverage_type="all_free",
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )
@@ -223,7 +218,7 @@ with Flow(
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -264,7 +259,6 @@ with Flow(
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
             disable_elementary=False,
@@ -287,7 +281,6 @@ with Flow(
                     date_column_name={"date": "data"},
                     date_format="%Y-%m-%d",
                     coverage_type="all_free",
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )
@@ -313,7 +306,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="energia_natural_afluente", required=True
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -359,7 +352,6 @@ with Flow(
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
             disable_elementary=False,
@@ -382,7 +374,6 @@ with Flow(
                     date_column_name={"date": "data"},
                     date_format="%Y-%m-%d",
                     coverage_type="all_free",
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_uplaod_prod],
                 )
@@ -408,7 +399,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="energia_armazenada_reservatorio", required=True
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -453,7 +444,6 @@ with Flow(
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
             disable_elementary=False,
@@ -476,7 +466,6 @@ with Flow(
                     date_column_name={"date": "data"},
                     date_format="%Y-%m-%d",
                     coverage_type="all_free",
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )
@@ -502,7 +491,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="restricao_operacao_usinas_eolicas", required=True
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -547,7 +536,6 @@ with Flow(
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
             disable_elementary=False,
@@ -570,7 +558,6 @@ with Flow(
                     date_column_name={"date": "data"},
                     date_format="%Y-%m-%d",
                     coverage_type="all_free",
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )

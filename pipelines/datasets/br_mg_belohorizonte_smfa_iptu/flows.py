@@ -32,7 +32,7 @@ with Flow(
         "dataset_id", default="br_mg_belohorizonte_smfa_iptu", required=True
     )
     table_id = Parameter("table_id", default="iptu", required=True)
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -73,7 +73,6 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            target=target,
             dbt_alias=dbt_alias,
             upstream_tasks=[wait_upload_table],
         )
@@ -94,7 +93,6 @@ with Flow(
                     date_column_name={"year": "ano", "month": "mes"},
                     date_format="%Y-%m",
                     coverage_type="all_bdpro",
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )

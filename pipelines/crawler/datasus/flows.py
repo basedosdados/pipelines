@@ -41,7 +41,6 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
         "year_month_to_extract", default="", required=False
     )
 
-    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -100,7 +99,6 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
             dbt_command="run/test",
             dbt_alias=dbt_alias,
             disable_elementary=False,
@@ -125,7 +123,6 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )
@@ -144,7 +141,7 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
     year_month_to_extract = Parameter(
         "year_month_to_extract", default="", required=False
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -198,7 +195,6 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
             disable_elementary=False,
@@ -222,7 +218,6 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )
@@ -246,7 +241,7 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
     year_month_to_extract = Parameter(
         "year_month_to_extract", default="", required=False
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -302,7 +297,6 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
             disable_elementary=False,
@@ -327,7 +321,6 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )
@@ -344,7 +337,6 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
         "update_metadata", default=True, required=False
     )
 
-    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -405,7 +397,6 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
             dbt_command="run/test",
             dbt_alias=dbt_alias,
             disable_elementary=False,
@@ -429,7 +420,6 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
                     date_format="%Y-%m-%d",
                     coverage_type="all_free",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )

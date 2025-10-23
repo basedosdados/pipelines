@@ -34,7 +34,7 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -82,7 +82,6 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
             disable_elementary=False,
@@ -104,7 +103,6 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
                     date_column_name={"year": "ano", "quarter": "trimestre"},
                     date_format="%Y-%m",
                     coverage_type="all_free",
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )

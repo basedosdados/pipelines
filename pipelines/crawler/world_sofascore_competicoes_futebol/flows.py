@@ -36,8 +36,6 @@ with Flow(
 
     table_id = Parameter("table_id", required=True)
 
-    target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -81,7 +79,6 @@ with Flow(
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
             disable_elementary=False,
@@ -105,7 +102,6 @@ with Flow(
                     table_id=table_id,
                     date_column_name={"date": "data"},
                     date_format="%Y-%m-%d",
-                    prefect_mode=target,
                     coverage_type="all_free",
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],

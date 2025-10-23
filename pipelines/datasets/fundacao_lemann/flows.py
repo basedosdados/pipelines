@@ -23,14 +23,13 @@ with Flow(
         default="ano_escola_serie_educacao_aprendizagem_adequada",
         required=True,
     )
-    target = Parameter("target", default="prod", required=False)
+
     dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
     wait_for_materialization = run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_commad="run/test",
-        target=target,
         dbt_alias=dbt_alias,
     )
     wait_for_dowload_data_to_gcs = download_data_to_gcs(

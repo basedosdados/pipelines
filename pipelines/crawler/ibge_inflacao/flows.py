@@ -24,7 +24,7 @@ with Flow(name="BD Template - IBGE Inflação") as flow_ibge:
     dataset_id = Parameter("dataset_id")
     table_id = Parameter("table_id")
     periodo = Parameter("periodo", default=None, required=False)
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -79,7 +79,6 @@ with Flow(name="BD Template - IBGE Inflação") as flow_ibge:
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
             dbt_command="run/test",
             dbt_alias=dbt_alias,
             upstream_tasks=[wait_upload_table],
@@ -101,7 +100,6 @@ with Flow(name="BD Template - IBGE Inflação") as flow_ibge:
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
                     upstream_tasks=[wait_upload_prod],
                 )
