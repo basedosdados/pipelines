@@ -29,7 +29,7 @@ with Flow(
     wait_for_materialization = run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
-        dbt_commad="run/test",
+        dbt_command="run/test",
         dbt_alias=dbt_alias,
     )
     wait_for_dowload_data_to_gcs = download_data_to_gcs(
