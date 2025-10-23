@@ -515,16 +515,10 @@ models:
     columns:
       - name: id_fundo
         description: Tipo do Fundo
-        tests:
-          - not_null:
-              config:
-                where: __most_recent_year_month__
+        tests: [not_null]
       - name: cnpj
         description: CNPJ do Fundo
-        tests:
-          - not_null:
-              config:
-                where: __most_recent_year_month__
+        tests: [not_null]
       - name: cnpj_basico
         description: CNPJ Básico do Fundo
       - name: denominacao_social
