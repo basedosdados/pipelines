@@ -115,7 +115,7 @@ with Flow(
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="overwrite",
-        wait=filepath,
+        upstream_tasks=[filepath],
     )
 
     wait_for_materialization = run_dbt(
