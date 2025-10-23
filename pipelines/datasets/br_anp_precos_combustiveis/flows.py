@@ -83,7 +83,7 @@ with Flow(
 
         with case(materialize_after_dump, True):
             wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                ata_path=output_path,
+                data_path=output_path,
                 dataset_id=dataset_id,
                 table_id=table_id,
                 dump_mode="append",
