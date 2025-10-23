@@ -28,6 +28,7 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             target=target,
+            dbt_command="run/test",
             dbt_alias=dbt_alias,
             upstream_tasks=[table_ids],
         )

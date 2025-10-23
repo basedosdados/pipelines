@@ -29,6 +29,7 @@ with Flow(
     wait_for_materialization = run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
+        dbt_commad="run/test",
         target=target,
         dbt_alias=dbt_alias,
     )

@@ -25,7 +25,7 @@ from pipelines.utils.metadata.tasks import (
 )
 from pipelines.utils.tasks import (
     create_table_dev_and_upload_to_gcs,
-    download_data_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     log_task,
     rename_current_flow_run_dataset_table,
     run_dbt,
@@ -120,18 +120,22 @@ with Flow(
             upstream_tasks=[unmapped(wait_upload_table)],
         )
 
-        with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
-                dataset_id=dataset_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                upstream_tasks=[dbt_parameters],
-            )
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            dbt_command="run/test",
+            target=target,
+            dbt_alias=dbt_alias,
+            upstream_tasks=[dbt_parameters],
+        )
 
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                upstream_tasks=[wait_for_materialization],
+        with case(materialize_after_dump, True):
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt.map(
+                data_path=paths,
+                dataset_id=unmapped(dataset_id),
+                table_id=table_ids,
+                dump_mode=unmapped("append"),
+                source_format=unmapped("parquet"),
+                upstream_tasks=[unmapped(wait_for_materialization)],
             )
 
             with case(update_metadata, True):
@@ -144,7 +148,7 @@ with Flow(
                     time_delta=unmapped({"months": 6}),
                     prefect_mode=unmapped(target),
                     bq_project=unmapped("basedosdados"),
-                    upstream_tasks=[unmapped(wait_for_dowload_data_to_gcs)],
+                    upstream_tasks=[unmapped(wait_upload_prod)],
                 )
 
 

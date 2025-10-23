@@ -663,7 +663,7 @@ with Flow(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 dump_mode="append",
-                upstream_tasks=[output_filepath],
+                upstream_tasks=[wait_for_materialization],
             )
 
             with case(update_metadata, True):

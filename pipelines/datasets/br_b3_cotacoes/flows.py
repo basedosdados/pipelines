@@ -69,7 +69,7 @@ with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            upstream_tasks=[output_path],
+            upstream_tasks=[wait_for_materialization],
         )
         data_max = data_max_b3(
             delta_day=delta_day, upstream_tasks=[wait_upload_prod]
