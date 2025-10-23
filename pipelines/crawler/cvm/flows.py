@@ -39,7 +39,9 @@ with Flow(name="BD - Template CVM") as flow_cvm:
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
-
+    date_column_name = Parameter(
+        "date_column_name", default={"date": "data_competencia"}, required=True
+    )
     df, max_date = extract_links_and_dates(
         table_id, url=url, upstream_tasks=[table_id, url]
     )
@@ -95,12 +97,13 @@ with Flow(name="BD - Template CVM") as flow_cvm:
         wait_for_materialization = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
+            dbt_command="run/test",
             dbt_alias=dbt_alias,
             upstream_tasks=[wait_upload_table],
         )
 
         with case(materialize_after_dump, True):
-            wait_for_dowload_data_to_gcs = create_table_prod_gcs_and_run_dbt(
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
                 data_path=output_filepath,
                 dataset_id=dataset_id,
                 table_id=table_id,
@@ -111,11 +114,11 @@ with Flow(name="BD - Template CVM") as flow_cvm:
                 update_django_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
-                    date_column_name={"date": "data_competencia"},
+                    date_column_name=date_column_name,
                     date_format="%Y-%m-%d",
                     coverage_type="all_bdpro",
                     bq_project="basedosdados",
-                    upstream_tasks=[wait_for_dowload_data_to_gcs],
+                    upstream_tasks=[wait_upload_prod],
                 )
 
 
