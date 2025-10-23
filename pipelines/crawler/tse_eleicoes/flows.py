@@ -18,8 +18,8 @@ from pipelines.utils.metadata.tasks import (
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    download_data_to_gcs,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     rename_current_flow_run_dataset_table,
     run_dbt,
 )
@@ -34,8 +34,6 @@ with Flow(
     )
 
     table_id = Parameter("table_id", required=True)
-
-    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
@@ -57,7 +55,7 @@ with Flow(
 
     flow = flows_control(
         table_id=table_id,
-        mode=target,
+        mode="prod",
         upstream_tasks=[rename_flow_run],
     )
 
@@ -78,7 +76,7 @@ with Flow(
             flow_class=flow, upstream_tasks=[outdated]
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=ready_data_path,
             dataset_id=dataset_id,
             table_id=table_id,
@@ -86,20 +84,22 @@ with Flow(
             upstream_tasks=[ready_data_path],
         )
 
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_alias=dbt_alias,
+            dbt_command="run/test",
+            disable_elementary=False,
+            upstream_tasks=[wait_upload_table],
+        )
+
         # materialize municipio_exportacao
         with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=ready_data_path,
                 dataset_id=dataset_id,
                 table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                dbt_command="run/test",
-                disable_elementary=False,
-                upstream_tasks=[wait_upload_table],
-            )
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
-                dataset_id=dataset_id,
-                table_id=table_id,
+                dump_mode="append",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -111,10 +111,9 @@ with Flow(
                     table_id=table_id,
                     date_column_name={"date": "data_eleicao"},
                     date_format="%Y",
-                    prefect_mode=target,
                     coverage_type="all_free",
                     bq_project="basedosdados",
-                    upstream_tasks=[wait_for_dowload_data_to_gcs],
+                    upstream_tasks=[wait_upload_prod],
                 )
 
 flow_br_tse_eleicoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
