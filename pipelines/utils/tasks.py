@@ -206,7 +206,7 @@ def _upload_to_gcs(
 
 
 @task
-def create_table_upload_to_gcs_and_run_dbt(
+def create_table_prod_gcs_and_run_dbt(
     data_path: str | Path,
     dataset_id: str,
     table_id: str,
@@ -250,21 +250,17 @@ def create_table_upload_to_gcs_and_run_dbt(
 # Upload to GCS
 #
 ###############
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def create_table_and_upload_to_gcs(
+@task
+def create_table_dev_and_upload_to_gcs(
     data_path: str | Path,
     dataset_id: str,
     table_id: str,
     dump_mode: str,
     dbt_alias: bool = True,
     source_format: str = "csv",
-    wait=None,
 ) -> None:
     """
-    Create table in basedosdados-dev and upload to GCS.
+    Upload files or folders to the GCS bucket and create a table in basedosdados-dev.staging in BigQuery
     """
 
     # Upload data to basedosdados-dev bucket

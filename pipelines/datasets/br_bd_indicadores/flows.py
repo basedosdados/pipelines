@@ -27,7 +27,8 @@ from pipelines.datasets.br_bd_indicadores.tasks import (
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     download_data_to_gcs,
     rename_current_flow_run_dataset_table,
     run_dbt,
@@ -84,26 +85,29 @@ with Flow(
             table_id=table_id,
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=filepath,
+            upstream_tasks=[filepath],
+        )
+
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            target=target,
+            dbt_alias=dbt_alias,
+            upstream_tasks=[wait_upload_table],
         )
 
         with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
+            create_table_prod_gcs_and_run_dbt(
+                data_path=filepath,
                 dataset_id=dataset_id,
                 table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                upstream_tasks=[wait_upload_table],
-            )
-
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
-                dataset_id=dataset_id,
-                table_id=table_id,
+                dump_mode="append",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -177,12 +181,12 @@ with Flow(
         property_id=property_id,
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
+        upstream_tasks=[filepath],
     )
 
 
@@ -232,12 +236,12 @@ with Flow(
         upstream_tasks=[view_id],
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
+        upstream_tasks=[filepath],
     )
 
     # wait_update_metadata = update_metadata(
@@ -249,17 +253,21 @@ with Flow(
     #     upstream_tasks=[wait_upload_table],
     # )
 
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        target=target,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
+
     with case(materialize_after_dump, True):
-        wait_for_materialization = run_dbt(
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-        wait_for_dowload_data_to_gcs = download_data_to_gcs(
-            dataset_id=dataset_id,
-            table_id=table_id,
+            dump_mode="append",
             upstream_tasks=[wait_for_materialization],
         )
 
@@ -312,12 +320,11 @@ with Flow(
         upstream_tasks=[df_contabilidade],
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
         upstream_tasks=[filepath],
     )
 
@@ -330,17 +337,21 @@ with Flow(
     #     upstream_tasks=[wait_upload_table],
     # )
 
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        target=target,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
+
     with case(materialize_after_dump, True):
-        wait_for_materialization = run_dbt(
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-        wait_for_dowload_data_to_gcs = download_data_to_gcs(
-            dataset_id=dataset_id,
-            table_id=table_id,
+            dump_mode="append",
             upstream_tasks=[wait_for_materialization],
         )
 
@@ -391,12 +402,11 @@ with Flow(
         upstream_tasks=[df_receitas],
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
         upstream_tasks=[filepath],
     )
 
@@ -409,17 +419,21 @@ with Flow(
     #     upstream_tasks=[wait_upload_table],
     # )
 
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        target=target,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
+
     with case(materialize_after_dump, True):
-        wait_for_materialization = run_dbt(
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-        wait_for_dowload_data_to_gcs = download_data_to_gcs(
-            dataset_id=dataset_id,
-            table_id=table_id,
+            dump_mode="append",
             upstream_tasks=[wait_for_materialization],
         )
 
@@ -471,12 +485,11 @@ with Flow(
         df=df_equipes, filename="equipes", upstream_tasks=[df_equipes]
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
         upstream_tasks=[filepath],
     )
 
@@ -489,17 +502,21 @@ with Flow(
     #     upstream_tasks=[wait_upload_table],
     # )
 
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        target=target,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
+
     with case(materialize_after_dump, True):
-        wait_for_materialization = run_dbt(
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-        wait_for_dowload_data_to_gcs = download_data_to_gcs(
-            dataset_id=dataset_id,
-            table_id=table_id,
+            dump_mode="append",
             upstream_tasks=[wait_for_materialization],
         )
 
@@ -546,12 +563,11 @@ with Flow(
         df=df_pessoas, filename="pessoas", upstream_tasks=[df_pessoas]
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
         upstream_tasks=[filepath],
     )
 
@@ -564,17 +580,21 @@ with Flow(
     #     upstream_tasks=[wait_upload_table],
     # )
 
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        target=target,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
+
     with case(materialize_after_dump, True):
-        wait_for_materialization = run_dbt(
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-        wait_for_dowload_data_to_gcs = download_data_to_gcs(
-            dataset_id=dataset_id,
-            table_id=table_id,
+            dump_mode="append",
             upstream_tasks=[wait_for_materialization],
         )
 

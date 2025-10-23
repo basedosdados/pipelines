@@ -24,7 +24,7 @@ from pipelines.utils.metadata.tasks import (
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
+    create_table_dev_and_upload_to_gcs,
     download_data_to_gcs,
     log_task,
     rename_current_flow_run_dataset_table,
@@ -98,7 +98,7 @@ with Flow(
         )
 
         # 3. subir tabelas para o Storage e materilizar no BQ usando map
-        wait_upload_table = create_table_and_upload_to_gcs.map(
+        wait_upload_table = create_table_dev_and_upload_to_gcs.map(
             data_path=paths,
             dataset_id=unmapped(dataset_id),
             table_id=table_ids,

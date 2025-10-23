@@ -64,8 +64,8 @@ from pipelines.constants import constants
 from pipelines.datasets.test_dataset.tasks import get_data_path
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    create_table_upload_to_gcs_and_run_dbt,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     run_dbt,
 )
 
@@ -79,12 +79,12 @@ with Flow(name="test_flow") as test_flow:
 
     path = get_data_path()
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=path,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="overwrite",
-        wait=[path],
+        upstream_tasks=[path],
     )
 
     wait_for_materialization = run_dbt(
@@ -94,7 +94,7 @@ with Flow(name="test_flow") as test_flow:
         upstream_tasks=[wait_upload_table],
     )
 
-    create_table_upload_to_gcs_and_run_dbt(
+    create_table_prod_gcs_and_run_dbt(
         data_path=path,
         dataset_id=dataset_id,
         table_id=table_id,

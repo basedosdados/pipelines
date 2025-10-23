@@ -22,7 +22,8 @@ from pipelines.utils.metadata.tasks import (
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     download_data_to_gcs,
     log_task,
     rename_current_flow_run_dataset_table,
@@ -70,26 +71,29 @@ with Flow(
             max_folder_date=max_folder_date,
             max_last_modified_date=max_last_modified_date,
         )
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=output_filepath,
+            upstream_tasks=[output_filepath],
+        )
+
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            target=target,
+            dbt_alias=dbt_alias,
+            dbt_command="run/test",
+            disable_elementary=False,
+            upstream_tasks=[wait_upload_table],
         )
         with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=output_filepath,
                 dataset_id=dataset_id,
                 table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                dbt_command="run/test",
-                disable_elementary=False,
-                upstream_tasks=[wait_upload_table],
-            )
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
-                dataset_id=dataset_id,
-                table_id=table_id,
+                dump_mode="append",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -102,7 +106,7 @@ with Flow(
                 time_delta={"months": 6},
                 prefect_mode=target,
                 bq_project="basedosdados",
-                upstream_tasks=[wait_for_dowload_data_to_gcs],
+                upstream_tasks=[wait_upload_prod],
             )
 
 
@@ -153,27 +157,28 @@ with Flow(
             max_folder_date=max_folder_date,
             max_last_modified_date=max_last_modified_date,
         )
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=output_filepath,
+            upstream_tasks=[output_filepath],
+        )
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            target=target,
+            dbt_alias=dbt_alias,
+            dbt_command="run/test",
+            disable_elementary=False,
+            upstream_tasks=[wait_upload_table],
         )
         with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=output_filepath,
                 dataset_id=dataset_id,
                 table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                dbt_command="run/test",
-                disable_elementary=False,
-                upstream_tasks=[wait_upload_table],
-            )
-
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
-                dataset_id=dataset_id,
-                table_id=table_id,
+                dump_mode="append",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -186,7 +191,7 @@ with Flow(
                 time_delta={"months": 6},
                 prefect_mode=target,
                 bq_project="basedosdados",
-                upstream_tasks=[wait_for_dowload_data_to_gcs],
+                upstream_tasks=[wait_upload_prod],
             )
 
 br_me_cnpj_socios.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -241,27 +246,30 @@ with Flow(
             max_last_modified_date=max_last_modified_date,
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=output_filepath,
+            upstream_tasks=[output_filepath],
         )
-        with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                dbt_command="run/test",
-                disable_elementary=False,
-                upstream_tasks=[wait_upload_table],
-            )
 
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            target=target,
+            dbt_alias=dbt_alias,
+            dbt_command="run/test",
+            disable_elementary=False,
+            upstream_tasks=[wait_upload_table],
+        )
+
+        with case(materialize_after_dump, True):
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=output_filepath,
                 dataset_id=dataset_id,
                 table_id=table_id,
+                dump_mode="append",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -274,7 +282,7 @@ with Flow(
                 time_delta={"months": 6},
                 prefect_mode=target,
                 bq_project="basedosdados",
-                upstream_tasks=[wait_for_dowload_data_to_gcs],
+                upstream_tasks=[wait_upload_prod],
             )
 
             ## atualiza o diretório de empresas
@@ -352,26 +360,30 @@ with Flow(
             max_folder_date=max_folder_date,
             max_last_modified_date=max_last_modified_date,
         )
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=output_filepath,
+            upstream_tasks=[output_filepath],
         )
-        with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                upstream_tasks=[wait_upload_table],
-            )
 
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            target=target,
+            dbt_alias=dbt_alias,
+            upstream_tasks=[wait_upload_table],
+        )
+
+        with case(materialize_after_dump, True):
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=output_filepath,
                 dataset_id=dataset_id,
                 table_id=table_id,
-                upstream_tasks=[wait_for_materialization],
+                dump_mode="append",
+                upstream_tasks=[output_filepath],
             )
 
             update_django_metadata(
@@ -381,7 +393,7 @@ with Flow(
                 prefect_mode=target,
                 bq_project="basedosdados",
                 historical_database=False,
-                upstream_tasks=[wait_for_dowload_data_to_gcs],
+                upstream_tasks=[wait_upload_prod],
             )
 
 br_me_cnpj_simples.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

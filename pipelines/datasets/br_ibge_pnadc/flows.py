@@ -19,8 +19,7 @@ from pipelines.utils.metadata.tasks import (
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    download_data_to_gcs,
+    create_table_dev_and_upload_to_gcs,
     rename_current_flow_run_dataset_table,
     run_dbt,
 )
@@ -72,28 +71,30 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
             input_dir, output_dir, upstream_tasks=[input_filepath]
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=output_dir,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=output_dir,
             upstream_tasks=[output_filepath],
         )
 
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            target=target,
+            dbt_alias=dbt_alias,
+            dbt_command="run/test",
+            disable_elementary=False,
+            upstream_tasks=[wait_upload_table],
+        )
+
         with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
+            wait_upload_prod = create_table_dev_and_upload_to_gcs(
+                data_path=output_dir,
                 dataset_id=dataset_id,
                 table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                dbt_command="run/test",
-                disable_elementary=False,
-                upstream_tasks=[wait_upload_table],
-            )
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
-                dataset_id=dataset_id,
-                table_id=table_id,
+                dump_mode="append",
                 upstream_tasks=[wait_for_materialization],
             )
             with case(update_metadata, True):
@@ -105,7 +106,7 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
                     coverage_type="all_free",
                     prefect_mode=target,
                     bq_project="basedosdados",
-                    upstream_tasks=[wait_for_dowload_data_to_gcs],
+                    upstream_tasks=[wait_upload_prod],
                 )
 
 br_pnadc.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
