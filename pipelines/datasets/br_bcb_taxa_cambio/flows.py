@@ -62,7 +62,7 @@ with Flow(
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=file_info,
+        upstream_tasks=[file_info],
     )
 
     wait_for_materialization = run_dbt(
