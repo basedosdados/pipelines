@@ -362,15 +362,22 @@ def get_date_api(dataset_id: str, table_id: str) -> tuple[date, str]:
     with open(input) as f:
         df = json.load(f)
 
-    chave_serie = next(
-        iter(df[0][0]["resultados"][0]["series"][0]["serie"].keys())
-    )
-    ano = chave_serie[0:4]
-    mes = chave_serie[4:6]
+    try:
+        chave_serie = next(
+            iter(df[0][0]["resultados"][0]["series"][0]["serie"].keys())
+        )
+        ano = chave_serie[0:4]
+        mes = chave_serie[4:6]
 
-    date_original = f"{ano}-{mes}-01"
+        date_original = f"{ano}-{mes}-01"
 
-    return dt.strptime(str(date_original), "%Y-%m-%d").date()
+        return dt.strptime(str(date_original), "%Y-%m-%d").date()
+
+    except Exception as e:
+        log(f"Não há dados recentes na API: {e}")
+        return task_get_api_most_recent_date.run(
+            dataset_id=dataset_id, table_id=table_id, date_format="%Y-%m"
+        )
 
 
 def next_date_update(
@@ -384,5 +391,7 @@ def next_date_update(
     data_proxima = dt + relativedelta(months=+1)
     ano = str(data_proxima.year)
     mes = f"{data_proxima.month:02d}"
+
+    log(f"Próximo período a ser atualizado: {ano}-{mes}")
 
     return ano + mes
