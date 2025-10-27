@@ -56,7 +56,7 @@ br_ibge_ipca15_mes_categoria_municipio.schedule = (
 
 
 br_ibge_ipca15_mes_brasil = deepcopy(flow_ibge)
-br_ibge_ipca15_mes_brasil.name = "br_ibge_ipca15_.mes_brasil"
+br_ibge_ipca15_mes_brasil.name = "br_ibge_ipca15.mes_brasil"
 br_ibge_ipca15_mes_brasil.code_owners = ["trick"]
 br_ibge_ipca15_mes_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ibge_ipca15_mes_brasil.run_config = KubernetesRun(

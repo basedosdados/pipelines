@@ -39,7 +39,7 @@ br_ibge_inpc_mes_categoria_rm.schedule = schedule_br_ibge_inpc_mes_categoria_rm
 
 br_ibge_inpc_mes_categoria_municipio = deepcopy(flow_ibge)
 br_ibge_inpc_mes_categoria_municipio.name = (
-    "br_ibge_inpc_.mes_categoria_municipio"
+    "br_ibge_inpc.mes_categoria_municipio"
 )
 br_ibge_inpc_mes_categoria_municipio.code_owners = ["trick"]
 br_ibge_inpc_mes_categoria_municipio.storage = GCS(
