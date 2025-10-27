@@ -328,7 +328,7 @@ def order_by_columns(table_id: str) -> list:
         rename = [
             "ano",
             "mes",
-            "id_municipio",
+            "municipio",
             "sigla_uf",
             "id_categoria",
             "categoria",
