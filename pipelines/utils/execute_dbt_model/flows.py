@@ -26,7 +26,7 @@ with Flow(
     disable_elementary = Parameter(
         "disable_elementary", default=True, required=False
     )
-    target = Parameter("target", default="prod", required=False)
+
     download_csv_file = Parameter(
         "download_csv_file", default=True, required=False
     )
@@ -44,7 +44,6 @@ with Flow(
             table_id=table_id,
             dbt_alias=dbt_alias,
             dbt_command=dbt_command,
-            target=target,
             flags=flags,
             _vars=_vars,
             disable_elementary=disable_elementary,
@@ -56,7 +55,6 @@ with Flow(
             table_id=table_id,
             dbt_alias=dbt_alias,
             dbt_command=dbt_command,
-            target=target,
             flags=flags,
             _vars=_vars,
             disable_elementary=disable_elementary,
