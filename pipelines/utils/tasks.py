@@ -595,9 +595,14 @@ def run_dbt(
 
     variables = (
         constants.DISABLE_ELEMENTARY_VARS.value
-        if disable_elementary and vars_deserialize is None
+        if disable_elementary
+        else constants.ENABLE_ELEMENTARY_VARS.value
+    )
+    variables = (
+        variables
+        if vars_deserialize is None
         else {
-            **constants.DISABLE_ELEMENTARY_VARS.value,
+            **variables,
             **vars_deserialize,
         }
     )
