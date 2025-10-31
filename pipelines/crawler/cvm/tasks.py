@@ -44,7 +44,8 @@ def extract_links_and_dates(
         tuple[pd.DataFrame, str]: The files and dates data frame, along with the max date (last update)
     """
     if url is None:
-        url = TABLE_CONFIGS[table_id][url]
+        url = TABLE_CONFIGS[table_id]["url"]
+
     log(f"Buscando dados na url: {url}")
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -149,7 +150,7 @@ def download_unzip(
     elif not isinstance(files, list):
         raise ValueError("O argumento 'files' possui um tipo inadequado.")
     if url is None:
-        url = TABLE_CONFIGS[table_id][url]
+        url = TABLE_CONFIGS[table_id]["url"]
     for file in files:
         log(f"Baixando o arquivo {file} de {url}")
         download_url = f"{url}{file}"
