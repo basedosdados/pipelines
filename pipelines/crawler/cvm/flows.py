@@ -31,7 +31,7 @@ with Flow(name="BD - Template CVM") as flow_cvm:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
     table_id = Parameter("table_id", required=True)
-    url = Parameter("url", required=False)
+    url = Parameter("url", default=None, required=False)
     target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
@@ -41,7 +41,9 @@ with Flow(name="BD - Template CVM") as flow_cvm:
         "update_metadata", default=False, required=False
     )
     date_column_name = Parameter(
-        "date_column_name", default={"date": "data_competencia"}, required=True
+        "date_column_name",
+        default={"date": "data_competencia"},
+        required=False,
     )
     dbt_command = Parameter("dbt_command", default="run", required=False)
     df, max_date = extract_links_and_dates(
