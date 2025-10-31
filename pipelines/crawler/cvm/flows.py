@@ -41,7 +41,9 @@ with Flow(name="BD - Template CVM") as flow_cvm:
         "update_metadata", default=False, required=False
     )
     date_column_name = Parameter(
-        "date_column_name", default={"date": "data_competencia"}, required=True
+        "date_column_name",
+        default={"date": "data_competencia"},
+        required=False,
     )
     dbt_command = Parameter("dbt_command", default="run", required=False)
     df, max_date = extract_links_and_dates(

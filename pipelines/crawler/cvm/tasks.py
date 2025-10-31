@@ -45,7 +45,7 @@ def extract_links_and_dates(
     """
     if url is None:
         url = TABLE_CONFIGS[table_id][url]
-
+    log(f"Buscando dados na url: {url}")
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
     # Encontra todos os links dentro do HTML
@@ -151,7 +151,7 @@ def download_unzip(
     if url is None:
         url = TABLE_CONFIGS[table_id][url]
     for file in files:
-        log(f"Baixando o arquivo {file}")
+        log(f"Baixando o arquivo {file} de {url}")
         download_url = f"{url}{file}"
         save_path = input_dir / str(file)
 
