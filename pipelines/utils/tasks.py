@@ -296,6 +296,22 @@ def rename_current_flow_run(msg: str, wait=None) -> bool:
     return client.set_flow_run_name(flow_run_id, msg)
 
 
+def get_flow_metadata(_vars: dict | None = None):
+    """
+    Gets flow metadata to send to Elementary as _vars
+    """
+    flow_name = prefect.context.get("flow_name", None)
+    flow_id = prefect.context.get("flow_id")
+    flow_run_id = prefect.context.get("flow_run_id", None)
+
+    flow_metadata_vars = {
+        "job_name": flow_name,
+        "job_id": flow_id,
+        "job_run_id": flow_run_id,
+    }
+    return {**_vars, **flow_metadata_vars}
+
+
 @task
 def rename_current_flow_run_dataset_table(
     prefix: str, dataset_id, table_id, wait=None
@@ -606,6 +622,7 @@ def run_dbt(
             **vars_deserialize,
         }
     )
+    variables = get_flow_metadata(variables)
 
     commands_to_run = []
 
