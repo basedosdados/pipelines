@@ -24,7 +24,7 @@ TABLE_CONFIGS = {
         "create_partition_columns": True,
     },
     "documentos_carteiras_fundos_investimento": {
-        "url": cvm_constants.URL_CDA,
+        "url": cvm_constants.URL_CDA.value,
         "files": [],
         "rename_mapping": cvm_constants.RENAME_MAPPING_CDA.value,
         "final_columns": cvm_constants.FINAL_COLS_CDA.value,
