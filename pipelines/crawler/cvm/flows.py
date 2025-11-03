@@ -45,7 +45,7 @@ with Flow(name="BD - Template CVM") as flow_cvm:
         default={"date": "data_competencia"},
         required=False,
     )
-    dbt_command = Parameter("dbt_command", default="run", required=False)
+    dbt_command = Parameter("dbt_command", default="run/test", required=False)
     df, max_date = extract_links_and_dates(
         table_id, url=url, upstream_tasks=[table_id, url]
     )
