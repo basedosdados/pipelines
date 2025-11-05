@@ -92,7 +92,7 @@ br_cvm_fi__documentos_informacao_cadastral.schedule = (
 )
 
 
-# Informação Cadastral
+# Balancete
 br_cvm_fi__documentos_balancete = deepcopy(flow_cvm)
 br_cvm_fi__documentos_balancete.name = "br_cvm_fi.documentos_balancete"
 br_cvm_fi__documentos_balancete.code_owners = ["Luiza"]
