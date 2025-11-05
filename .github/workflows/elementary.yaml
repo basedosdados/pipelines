@@ -18,9 +18,11 @@ jobs:
           warehouse-type: bigquery
           adapter-version: 1.5.9
           profiles-yml: ${{ secrets.ELEMENTARY_PROFILES_YML }}
-          edr-command: edr report --file-path "report.html" --days-back 90 && edr
-            send-report --gcs-bucket-name "basedosdados-dev" --update-bucket-website
-            "true" --days-back 90
+          edr-command: uv run edr report  \ --file-path "report.html" \ --project-dir
+            ./ \ --profiles-dir ./ \ --profile-target elementary \ --project-profile-target
+            dev \ --exclude-elementary-models True\ --update-dbt-package True\ ----days-back
+            90 \ --env dev &&\ edr send-report \ --gcs-bucket-name "basedosdados-dev"
+            \ --update-bucket-website "true" \ --days-back 90
           bigquery-keyfile: ${{ secrets.ELEMENTARY_GCS_BIGQUERY_SA }}
           gcs-keyfile: ${{ secrets.ELEMENTARY_GCS_BIGQUERY_SA }}
       - name: Upload report

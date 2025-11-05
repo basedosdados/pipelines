@@ -19,12 +19,12 @@ default:
       threads: 2
       keyfile: "{{ env_var('BD_SERVICE_ACCOUNT_DEV', '/credentials-prod/prod.json') }}"
 elementary:
-  target: dev
   outputs:
-    dev:
+    default:
       type: bigquery
-      project: basedosdados-dev
-      dataset: elementary
       method: service-account
       keyfile: /home/luizavbo/.basedosdados/credentials/staging.json
+      project: basedosdados-dev
+      dataset: elementary
+      location: US
       threads: 2

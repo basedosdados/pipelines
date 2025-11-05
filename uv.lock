@@ -2406,7 +2406,7 @@ requires-dist = [
     { name = "distributed", specifier = "==2021.11.2" },
     { name = "docker", specifier = ">=6,<7" },
     { name = "docopt", specifier = "==0.6.2" },
-    { name = "elementary-data", extras = ["big-query"], specifier = ">=0.6.10" },
+    { name = "elementary-data", extras = ["big-query"], specifier = "==0.6.10" },
     { name = "fake-useragent", specifier = ">=1.1.3,<2.0.0" },
     { name = "fastparquet", specifier = ">=2023.7.0,<2024.0.0" },
     { name = "fiona", specifier = ">=1.10.1,<2.0.0" },
