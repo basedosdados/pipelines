@@ -42,10 +42,9 @@ with Flow(name="BD - Template CVM") as flow_cvm:
     )
     date_column_name = Parameter(
         "date_column_name",
-        default={"date": "data_competencia"},
+        default=None,
         required=False,
     )
-    dbt_command = Parameter("dbt_command", default="run/test", required=False)
     df, max_date = extract_links_and_dates(
         table_id, url=url, upstream_tasks=[table_id, url]
     )
@@ -101,7 +100,7 @@ with Flow(name="BD - Template CVM") as flow_cvm:
             wait_for_materialization = run_dbt(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dbt_command=dbt_command,
+                dbt_command="run/test",
                 target=target,
                 dbt_alias=dbt_alias,
                 upstream_tasks=[wait_upload_table],

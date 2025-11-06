@@ -89,6 +89,7 @@ def build_and_register(
                 while attempts < max_retries:
                     attempts += 1
                     try:
+                        logger.info(f"serialized_flow:{serialized_flow}")
                         (
                             flow_id,
                             flow_version,
