@@ -22,7 +22,7 @@ from pipelines.datasets.br_cvm_fi.schedules import (
 # Informe Diário
 br_cvm_fi__documentos_informe_diario = deepcopy(flow_cvm)
 br_cvm_fi__documentos_informe_diario.name = (
-    "br_cvm_fi.documentos_informe_diario"
+    "br_cvm_fi__documentos_informe_diario"
 )
 br_cvm_fi__documentos_informe_diario.code_owners = ["Luiza"]
 br_cvm_fi__documentos_informe_diario.storage = GCS(
@@ -36,7 +36,7 @@ br_cvm_fi__documentos_informe_diario.schedule = every_day_informe
 # Carteiras Fundos de Investimento (CDA)
 br_cvm_fi__documentos_carteiras_fundos_investimento = deepcopy(flow_cvm)
 br_cvm_fi__documentos_carteiras_fundos_investimento.name = (
-    "br_cvm_fi.documentos_carteiras_fundos_investimento"
+    "br_cvm_fi__documentos_carteiras_fundos_investimento"
 )
 br_cvm_fi__documentos_carteiras_fundos_investimento.code_owners = ["Luiza"]
 br_cvm_fi__documentos_carteiras_fundos_investimento.storage = GCS(
@@ -52,7 +52,7 @@ br_cvm_fi__documentos_carteiras_fundos_investimento.schedule = (
 # Extratos
 br_cvm_fi__documentos_extratos_informacoes = deepcopy(flow_cvm)
 br_cvm_fi__documentos_extratos_informacoes.name = (
-    "br_cvm_fi.documentos_extratos_informacoes"
+    "br_cvm_fi__documentos_extratos_informacoes"
 )
 br_cvm_fi__documentos_extratos_informacoes.code_owners = ["Luiza"]
 br_cvm_fi__documentos_extratos_informacoes.storage = GCS(
@@ -65,7 +65,9 @@ br_cvm_fi__documentos_extratos_informacoes.schedule = every_day_extratos
 
 # Perfil Mensal
 br_cvm_fi__documentos_perfil_mensal = deepcopy(flow_cvm)
-br_cvm_fi__documentos_perfil_mensal.name = "br_cvm_fi.documentos_perfil_mensal"
+br_cvm_fi__documentos_perfil_mensal.name = (
+    "br_cvm_fi__documentos_perfil_mensal"
+)
 br_cvm_fi__documentos_perfil_mensal.code_owners = ["Luiza"]
 br_cvm_fi__documentos_perfil_mensal.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
@@ -78,7 +80,7 @@ br_cvm_fi__documentos_perfil_mensal.schedule = every_day_perfil
 # Informação Cadastral
 br_cvm_fi__documentos_informacao_cadastral = deepcopy(flow_cvm)
 br_cvm_fi__documentos_informacao_cadastral.name = (
-    "br_cvm_fi.documentos_informacao_cadastral"
+    "br_cvm_fi__documentos_informacao_cadastral"
 )
 br_cvm_fi__documentos_informacao_cadastral.code_owners = ["Luiza"]
 br_cvm_fi__documentos_informacao_cadastral.storage = GCS(
@@ -94,7 +96,7 @@ br_cvm_fi__documentos_informacao_cadastral.schedule = (
 
 # Balancete
 br_cvm_fi__documentos_balancete = deepcopy(flow_cvm)
-br_cvm_fi__documentos_balancete.name = "br_cvm_fi.documentos_balancete"
+br_cvm_fi__documentos_balancete.name = "br_cvm_fi__documentos_balancete"
 br_cvm_fi__documentos_balancete.code_owners = ["Luiza"]
 br_cvm_fi__documentos_balancete.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_fi__documentos_balancete.run_config = KubernetesRun(
