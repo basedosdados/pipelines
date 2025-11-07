@@ -23,7 +23,7 @@ elementary:
     default:
       type: bigquery
       method: service-account
-      keyfile: /home/luizavbo/.basedosdados/credentials/staging.json
+      keyfile: /tmp/bigquery_keyfile.json
       project: basedosdados-dev
       dataset: elementary
       location: US
