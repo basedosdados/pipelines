@@ -665,12 +665,12 @@ def run_dbt(
 
         if result.success:
             log(
-                f"DBT runner reports success for {cmd} command",
+                f"DBT runner reports success for {cmd} command.\nJob Name: {variables['job_name']}\nJob ID: {variables['job_id']}\nJob Run ID: {variables['job_run_id']}",
                 level="info",
             )
         else:
             log(
-                f"DBT runner reports failure for {cmd} command. {result.result}",
+                f"DBT runner reports failure for {cmd} command.\nJob Name: {variables['job_name']}\nJob ID: {variables['job_id']}\nJob Run ID: {variables['job_run_id']}",
                 level="error",
             )
 
