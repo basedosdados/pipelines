@@ -85,7 +85,7 @@ dependencies = [
   "rsa==4.8",
   "ruamel-yaml==0.17.10",
   "ruamel-yaml-clib==0.2.6",
-  "rpy2<4.0.0,>=3.5.11",
+  "rpy2>=3.5.11,<4.0.0",
   "seaborn<1.0.0,>=0.11.2",
   "six==1.16.0",
   "sortedcontainers==2.4.0",
@@ -106,7 +106,7 @@ dependencies = [
   "selenium<5.0.0,>=4.11.2",
   "fastparquet<2024.0.0,>=2023.7.0",
   "rarfile<5.0,>=4.0",
-  "setuptools<71.0,>=69.0.0",
+  "setuptools>=69.0.0,<71.0",
   "python-string-utils<2.0.0,>=1.0.0",
   "geopandas==1.0.1",
   "shapely==2.0.1",
@@ -129,6 +129,8 @@ dependencies = [
   "sicar @ git+https://github.com/urbanogilson/SICAR.git@v0.7.4",
   "py7zr<2.0.0,>=1.0.0",
   "elementary-data[big-query]==0.6.10",
+  "pip>=25.3",
+  "wheel>=0.45.1",
 ]
 
 [dependency-groups]

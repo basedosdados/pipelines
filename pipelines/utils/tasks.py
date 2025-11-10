@@ -608,7 +608,8 @@ def run_dbt(
         if isinstance(_vars, str)
         else (_vars if _vars is not None else {})
     )
-
+    if target == "prod":
+        disable_elementary = True
     variables = (
         constants.DISABLE_ELEMENTARY_VARS.value
         if disable_elementary
