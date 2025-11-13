@@ -87,7 +87,7 @@ every_day_informacao_cadastral = Schedule(
                 "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "date_column_name": {"date": "data_inicio_status"},
+                "date_column_name": {"date": "data_inicio_situacao"},
                 "update_metadata": True,
             },
         ),
