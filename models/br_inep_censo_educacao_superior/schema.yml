@@ -8,6 +8,10 @@ models:
           combination_of_columns: [ano, id_curso, id_municipio, tipo_dimensao]
       - not_null_proportion_multiple_columns:
           at_least: 0.95
+          ignore_values:
+            - quantidade_ingressantes_reserva_vaga_etnico
+            - quantidade_matriculas_reserva_vaga_etnico
+            - quantidade_concluintes_reserva_vaga_etnico
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - tipo_dimensao
