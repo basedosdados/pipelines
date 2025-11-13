@@ -59,8 +59,7 @@ def parse_last_date(link: str) -> str:
         f"dezembro de {ano}": f"{ano}-12",
     }
     # retorna uma string com data no formato Y%-%m
-    # return conversor[mes_ano]
-    return conversor[f"outubro de {ano}"]
+    return conversor[mes_ano]
 
 
 @task
