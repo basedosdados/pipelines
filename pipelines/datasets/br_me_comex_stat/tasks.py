@@ -73,7 +73,6 @@ def download_br_me_comex_stat(
     and downloads the data from the source
 
     Args:
-        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
         mun for 'município'.
         table_name (str): the table name is the original name of the zip file with raw data from comex stat website
 
