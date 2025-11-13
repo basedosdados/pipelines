@@ -65,7 +65,6 @@ def parse_last_date(link: str) -> str:
 
 @task
 def download_br_me_comex_stat(
-    table_type: str,
     table_name: str,
     year_download: str,
 ) -> ZipFile:
