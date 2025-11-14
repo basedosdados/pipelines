@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 from pathlib import Path
 
 import aiohttp
@@ -9,7 +10,7 @@ from tqdm import tqdm
 from tqdm.asyncio import tqdm  # noqa: F811
 
 API_URL_BASE = "https://servicodados.ibge.gov.br/api/v3/agregados/291/periodos/{}/variaveis/{}?localidades=N6[all]&classificacao=194[{}]"
-PERIODOS = range(1986, 2022 + 1)  # De 1986 a 2022
+PERIODOS = range(2022, 2024 + 1)  # De 1986 a 2022
 VARIAVEIS = "142|143"  # 142: Quantidade produzida na silvicultura + 143: Valor da produção na silvicultura
 CATEGORIAS = pd.read_csv("silvicultura_metadados_enriquecidos.csv", dtype=str)[
     "id"
@@ -43,6 +44,7 @@ async def main(years, categories):
                     responses.append(response)
                 except asyncio.TimeoutError:
                     print(f"Request timed out for {url}")
+            os.makedirs("./output/silvicultura/json/", exist_ok=True)
             with open(f"./output/silvicultura/json/{year}.json", "a") as f:
                 json.dump(responses, f)
 
