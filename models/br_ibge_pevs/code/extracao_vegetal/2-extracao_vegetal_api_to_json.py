@@ -10,7 +10,7 @@ from tqdm import tqdm
 from tqdm.asyncio import tqdm  # noqa: F811
 
 API_URL_BASE = "https://servicodados.ibge.gov.br/api/v3/agregados/289/periodos/{}/variaveis/{}?localidades=N6[all]&classificacao=193[{}]"
-PERIODOS = range(2022, 2024 + 1)  # De 1986 a 2022
+PERIODOS = range(1986, 2024 + 1)  # De 1986 a 2022
 VARIAVEIS = "144|145"  # 144: Quantidade produzida na extração vegetal + 145: Valor da produção na extração vegetal
 CATEGORIAS = pd.read_csv(
     "extracao_vegetal_metadados_enriquecidos.csv", dtype=str
