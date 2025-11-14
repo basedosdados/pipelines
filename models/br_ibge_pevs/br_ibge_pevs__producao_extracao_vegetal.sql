@@ -1,3 +1,8 @@
+-- - Durante a análise, identificamos que vários produtos não possuíam qualquer
+-- registro de produção nos municípios. Isso resultava em uma tabela pouco útil, já
+-- que cerca de 90% das linhas estavam vazias. Para melhorar a qualidade dos dados e
+-- reduzir o peso da tabela, optamos por remover esses produtos sem produção, mantendo
+-- apenas informações realmente relevantes para as consultas e análises.
 {{
     config(
         alias="producao_extracao_vegetal",

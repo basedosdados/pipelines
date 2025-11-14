@@ -1,4 +1,5 @@
 import json
+import os
 from collections import OrderedDict
 from pathlib import Path
 
@@ -27,9 +28,20 @@ def parse_file(file_path):
                     temp_valor = list(serie["serie"].values())[0]  # noqa: RUF015
 
                     temp_od["id_municipio"] = temp_id_municipio
+                    temp_od["categoria_produto"] = (
+                        df_metadados_enriquecidos.loc[
+                            df_metadados_enriquecidos["id"]
+                            == temp_id_categoria,
+                            "categoria_produto",
+                        ].to_numpy()[0]
+                    )
                     temp_od["tipo_produto"] = df_metadados_enriquecidos.loc[
                         df_metadados_enriquecidos["id"] == temp_id_categoria,
                         "tipo_produto",
+                    ].to_numpy()[0]
+                    temp_od["subtipo_produto"] = df_metadados_enriquecidos.loc[
+                        df_metadados_enriquecidos["id"] == temp_id_categoria,
+                        "subtipo_produto",
                     ].to_numpy()[0]
                     temp_od["produto"] = df_metadados_enriquecidos.loc[
                         df_metadados_enriquecidos["id"] == temp_id_categoria,
@@ -68,7 +80,7 @@ def currency_fix(row):
 
 
 def transform_df(df):
-    df_quantidade, df_valor = split_df(df, "variavel", ["144", "145"])
+    df_quantidade, df_valor = split_df(df, "variavel", ["142", "143"])
     del df
 
     df_quantidade = df_quantidade.rename(columns={"valor": "quantidade"})
@@ -87,8 +99,20 @@ def transform_df(df):
 
     temp_df = df_quantidade.merge(
         df_valor,
-        left_on=["id_municipio", "tipo_produto", "produto"],
-        right_on=["id_municipio", "tipo_produto", "produto"],
+        left_on=[
+            "id_municipio",
+            "categoria_produto",
+            "tipo_produto",
+            "subtipo_produto",
+            "produto",
+        ],
+        right_on=[
+            "id_municipio",
+            "categoria_produto",
+            "tipo_produto",
+            "subtipo_produto",
+            "produto",
+        ],
     )
     del df_quantidade
     del df_valor
@@ -96,7 +120,9 @@ def transform_df(df):
     temp_df = temp_df[
         [
             "id_municipio",
+            "categoria_produto",
             "tipo_produto",
+            "subtipo_produto",
             "produto",
             "unidade",
             "quantidade",
@@ -107,13 +133,12 @@ def transform_df(df):
 
 
 if __name__ == "__main__":
-    SUBPASTAS = Path("./output/extracao_vegetal/parquet/")
+    os.makedirs("./output/silvicultura/parquet/", exist_ok=True)
+    SUBPASTAS = Path("./output/silvicultura/parquet/")
     ANOS_TRANSFORMADOS = [
         int(p.name.split("=")[-1]) for p in SUBPASTAS.glob("ano=*")
     ]
-    ARQUIVOS_JSON = list(
-        Path("./output/extracao_vegetal/json/").glob("*.json")
-    )
+    ARQUIVOS_JSON = list(Path("./output/silvicultura/json/").glob("*.json"))
     JSON_FALTANTES = [
         arquivo
         for arquivo in ARQUIVOS_JSON
@@ -121,7 +146,7 @@ if __name__ == "__main__":
     ]
 
     df_metadados_enriquecidos = pd.read_csv(
-        "extracao_vegetal_metadados_enriquecidos.csv", dtype=str
+        "silvicultura_metadados_enriquecidos.csv", dtype=str
     )
 
     for json_path in JSON_FALTANTES:
@@ -132,7 +157,7 @@ if __name__ == "__main__":
         df = transform_df(df)
         print("Exportando o DataFrame para .parquet...")
         output_path = Path(
-            f"./output/extracao_vegetal/parquet/ano={json_path.stem}"
+            f"./output/silvicultura/parquet/ano={json_path.stem}"
         )
         output_path.mkdir(parents=True, exist_ok=True)
         print(df.info())
