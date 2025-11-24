@@ -64,7 +64,6 @@ def parse_last_date(link: str) -> str:
 
 @task
 def download_br_me_comex_stat(
-    table_type: str,
     table_name: str,
     year_download: str,
 ) -> ZipFile:
@@ -73,7 +72,6 @@ def download_br_me_comex_stat(
     and downloads the data from the source
 
     Args:
-        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
         mun for 'município'.
         table_name (str): the table name is the original name of the zip file with raw data from comex stat website
 
@@ -90,7 +88,6 @@ def download_br_me_comex_stat(
 
     download_data(
         path=comex_constants.PATH.value,
-        table_type=table_type,
         table_name=table_name,
         years_download=[year_download],
     )
@@ -118,33 +115,6 @@ def clean_br_me_comex_stat(
         pd.DataFrame: a partitioned standardized pandas dataframe
     """
 
-    rename_ncm = {
-        "CO_ANO": "ano",
-        "CO_MES": "mes",
-        "CO_NCM": "id_ncm",
-        "CO_UNID": "id_unidade",
-        "CO_PAIS": "id_pais",
-        "SG_UF_NCM": "sigla_uf_ncm",
-        "CO_VIA": "id_via",
-        "CO_URF": "id_urf",
-        "QT_ESTAT": "quantidade_estatistica",
-        "KG_LIQUIDO": "peso_liquido_kg",
-        "VL_FOB": "valor_fob_dolar",
-        "VL_FRETE": "valor_frete",
-        "VL_SEGURO": "valor_seguro",
-    }
-
-    rename_mun = {
-        "CO_ANO": "ano",
-        "CO_MES": "mes",
-        "SH4": "id_sh4",
-        "CO_PAIS": "id_pais",
-        "SG_UF_MUN": "sigla_uf",
-        "CO_MUN": "id_municipio",
-        "KG_LIQUIDO": "peso_liquido_kg",
-        "VL_FOB": "valor_fob_dolar",
-    }
-
     file_list = os.listdir(f"{path}{table_name}/input/")
 
     for file in file_list:
@@ -153,7 +123,7 @@ def clean_br_me_comex_stat(
 
             df = pd.read_csv(f"{path}{table_name}/input/{file}", sep=";")
 
-            df = df.rename(columns=rename_mun)
+            df = df.rename(columns=comex_constants.RENAME_MUN.value)
 
             log("Dataframe was renamed.")
 
@@ -198,7 +168,7 @@ def clean_br_me_comex_stat(
 
             df = pd.read_csv(f"{path}{table_name}/input/{file}", sep=";")
 
-            df = df.rename(columns=rename_ncm)
+            df = df.rename(columns=comex_constants.RENAME_NCM.value)
             log("Dataframe renamed")
 
             to_partitions(
