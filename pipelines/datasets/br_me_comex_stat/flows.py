@@ -79,7 +79,6 @@ with Flow(
         log_task("Existem atualizações! A run será iniciada")
 
         download_data = download_br_me_comex_stat(
-            table_type=comex_constants.TABLE_TYPE.value[0],
             table_name=comex_constants.TABLE_NAME.value[1],
             year_download=last_date,
             upstream_tasks=[check_if_outdated],
@@ -181,7 +180,6 @@ with Flow(
         log_task("Existem atualizações! A run será iniciada")
 
         download_data = download_br_me_comex_stat(
-            table_type=comex_constants.TABLE_TYPE.value[0],
             table_name=comex_constants.TABLE_NAME.value[0],
             year_download=last_date,
             upstream_tasks=[check_if_outdated],
@@ -281,7 +279,6 @@ with Flow(
         log_task("Existem atualizações! A run será iniciada")
 
         download_data = download_br_me_comex_stat(
-            table_type=comex_constants.TABLE_TYPE.value[1],
             table_name=comex_constants.TABLE_NAME.value[3],
             year_download=last_date,
             upstream_tasks=[check_if_outdated],
@@ -381,7 +378,6 @@ with Flow(
         log_task("Existem atualizações! A run será iniciada")
 
         download_data = download_br_me_comex_stat(
-            table_type=comex_constants.TABLE_TYPE.value[1],
             table_name=comex_constants.TABLE_NAME.value[2],
             year_download=last_date,
             upstream_tasks=[check_if_outdated],
