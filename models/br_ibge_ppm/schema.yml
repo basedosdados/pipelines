@@ -6,8 +6,7 @@ models:
       tosquiados.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - [ano, sigla_uf, id_municipio, produto]
+          combination_of_columns: [ano, id_municipio]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -37,7 +36,7 @@ models:
     description: Efetivo dos rebanhos (cabeça), por tipo de rebanho.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns: [ano, id_municipio, tipo_rebanho]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -67,7 +66,7 @@ models:
     description: Produção de origem animal, por tipo de produto e valor da produção.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns: [ano, id_municipio, produto]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -102,7 +101,7 @@ models:
       quilogramas e valor da produção em mil reais.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns: [ano, id_municipio, produto]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:

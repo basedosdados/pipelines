@@ -1,6 +1,8 @@
 import asyncio
 import glob
 import json
+import os
+from pathlib import Path
 from typing import Any
 
 import aiohttp
@@ -10,13 +12,15 @@ from tqdm.asyncio import tqdm  # noqa: F811
 
 API_URL_BASE = "https://servicodados.ibge.gov.br/api/v3/agregados/{}/periodos/{}/variaveis/{}?localidades={}[{}]"
 AGREGADO = "95"  # É a tabela no SIDRA
-PERIODOS = range(1974, 2022 + 1)
+PERIODOS = range(1974, 2024 + 1)
 VARIAVEIS = ["108"]  # As variáveis da tabela
 NIVEL_GEOGRAFICO = "N6"  # N6 = Municipal
 LOCALIDADES = "all"
 ANOS_BAIXADOS = [
     int(glob.os.path.basename(f).split(".")[0])
-    for f in glob.glob("../json/*.json")
+    for f in glob.glob(
+        f"{Path.cwd()}/output/producao_pecuaria/ovinos_tosquiados/json/*.json"
+    )
 ]
 ANOS_RESTANTES = [int(ANO) for ANO in PERIODOS if ANO not in ANOS_BAIXADOS]
 
@@ -68,7 +72,14 @@ async def main(years: list[int], variables: list[str]) -> None:
                     responses.append(response)
                 except asyncio.TimeoutError:
                     print(f"Request timed out for {url}")
-            with open(f"../json/{year}.json", "a") as f:
+            os.makedirs(
+                f"{Path.cwd()}/output/producao_pecuaria/ovinos_tosquiados/json/",
+                exist_ok=True,
+            )
+            with open(
+                f"{Path.cwd()}/output/producao_pecuaria/ovinos_tosquiados/json/{year}.json",
+                "a",
+            ) as f:
                 json.dump(responses, f)
 
 
