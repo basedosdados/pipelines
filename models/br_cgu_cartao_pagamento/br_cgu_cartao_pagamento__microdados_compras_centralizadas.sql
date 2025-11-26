@@ -1,3 +1,4 @@
+-- - register model
 {{
     config(
         alias="microdados_compras_centralizadas",

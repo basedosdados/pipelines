@@ -42,14 +42,12 @@ def build_urls(
         list: A list of URL strings if the model is 'TABELA_SERVIDORES'.
     """
 
-    log(f"{dataset_id=}")
-
     if dataset_id in [
         "br_cgu_cartao_pagamento",
         "br_cgu_licitacao_contrato",
         "br_cgu_beneficios_cidadao",
     ]:
-        log(f"{url}{year}{str(month).zfill(2)}/")
+        log(f"URL -> {url}{year}{str(month).zfill(2)}/")
 
         return f"{url}{year}{str(month).zfill(2)}/"
 
@@ -57,6 +55,7 @@ def build_urls(
         list_url = []
         for table_name in constants.TABELA_SERVIDORES.value[table_id]["READ"]:
             url_completa = f"{url}{year}{str(month).zfill(2)}_{table_name}/"
+            log(f"URL -> {url_completa}")
             list_url.append(url_completa)
         return list_url
 
@@ -86,13 +85,12 @@ def build_input(table_id):
             os.makedirs(value_input)
             print(value_input)
         list_input.append(value_input)
-    log(f"Lista de inputs: {list_input}")
     return list_input
 
 
 def download_file(
-    dataset_id: str, table_id: str, year: int, month: int, relative_month=int
-) -> None:
+    dataset_id: str, table_id: str, relative_month=int
+) -> datetime.date:
     """
     Downloads and unzips a file from a specified URL based on the given table ID, year, and month.
 
@@ -108,6 +106,12 @@ def download_file(
     str: The last date in the API if the URL is not found.
     """
 
+    last_date_in_api, next_date_in_api = last_date_in_metadata(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        relative_month=relative_month,
+    )
+
     if dataset_id in [
         "br_cgu_cartao_pagamento",
         "br_cgu_licitacao_contrato",
@@ -117,14 +121,17 @@ def download_file(
             value_constants = constants.TABELA.value[
                 table_id
             ]  # ! CGU - Cartão de Pagamento
+
         elif dataset_id == "br_cgu_licitacao_contrato":
             value_constants = constants.TABELA_LICITACAO_CONTRATO.value[
                 table_id
             ]
+
         elif dataset_id == "br_cgu_beneficios_cidadao":
             value_constants = constants.TABELA_BENEFICIOS_CIDADAO.value[
                 table_id
             ]
+
         input = value_constants["INPUT"]
 
         if not os.path.exists(input):
@@ -132,35 +139,22 @@ def download_file(
 
         url: str = build_urls(
             url=value_constants["URL"],
-            year=year,
-            month=month,
+            year=next_date_in_api.year,
+            month=next_date_in_api.month,
             table_id=table_id,
             dataset_id=dataset_id,
         )
-        log(url)
 
         status = requests.get(url).status_code == 200
         if status:
             log(f"------------------ URL = {url} ------------------")
             download_and_unzip_file(url, value_constants["INPUT"])
 
-            last_date_in_api, next_date_in_api = last_date_in_metadata(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                relative_month=relative_month,
-            )
-
             return next_date_in_api
 
         else:
             log("URL não encontrada. Fazendo uma query na BD")
             log(f"------------------ URL = {url} ------------------")
-
-            last_date_in_api, next_date_in_api = last_date_in_metadata(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                relative_month=relative_month,
-            )
 
             return last_date_in_api
 
@@ -170,15 +164,14 @@ def download_file(
         ]  # ! CGU - Servidores Públicos do Executivo Federal
 
         url = build_urls(
-            dataset_id,
-            constants.URL_SERVIDORES.value,
-            year,
-            month,
-            table_id,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            url=constants.URL_SERVIDORES.value,
+            year=next_date_in_api.year,
+            month=next_date_in_api.month,
         )
         input_dirs = build_input(table_id)
-        log(url)
-        log(input_dirs)
+        log(f"------------------ URL = {url} ------------------")
         for urls, input_dir in zip(url, input_dirs, strict=False):
             if requests.get(urls).status_code == 200:
                 destino = f"{constants_cgu['INPUT']}/{input_dir}"
@@ -312,8 +305,8 @@ def read_csv(
 
 
 def last_date_in_metadata(
-    dataset_id: str, table_id: str, relative_month
-) -> datetime.date:
+    dataset_id: str, table_id: str, relative_month: int
+) -> tuple[datetime.date, datetime.date]:
     """
     Retrieves the most recent date from the metadata of a specified dataset and table,
     and calculates the next date based on a relative month offset.
@@ -337,8 +330,34 @@ def last_date_in_metadata(
         backend=backend,
     )
 
-    next_date_in_api = last_date_in_api + relativedelta(months=relative_month)
+    if table_id == "microdados_compras_centralizadas":
+        for month in range(14, 20):
+            next_date_in_api = last_date_in_api + relativedelta(months=month)
 
+            value_constants = constants.TABELA.value[table_id]
+
+            url: str = build_urls(
+                url=value_constants["URL"],
+                year=next_date_in_api.year,
+                month=next_date_in_api.month,
+                table_id=table_id,
+                dataset_id=dataset_id,
+            )
+            if requests.get(url).status_code == 200:
+                log(f"Last date in API: {last_date_in_api}")
+                log(f"Next date in API: {next_date_in_api}")
+
+                return last_date_in_api, next_date_in_api
+
+            else:
+                log(f"URL não encontrada: {url}")
+        return last_date_in_api, next_date_in_api
+    else:
+        next_date_in_api = last_date_in_api + relativedelta(
+            months=relative_month
+        )
+        log(f"Last date in API: {last_date_in_api}")
+        log(f"Next date in API: {next_date_in_api}")
     return last_date_in_api, next_date_in_api
 
 
@@ -418,7 +437,6 @@ def read_and_clean_csv(table_id: str) -> pd.DataFrame:
         path = f"{constants_cgu_servidores['INPUT']}/{csv_path}"
         for get_csv in os.listdir(path):
             if get_csv.endswith(f"{constants_cgu_servidores['NAME_TABLE']}"):
-                log(f"Reading {table_id=}, {csv_path=}, {get_csv=}")
                 df = pd.read_csv(
                     os.path.join(path, get_csv),
                     sep=";",
