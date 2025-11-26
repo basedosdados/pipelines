@@ -38,18 +38,12 @@ def partition_data(table_id: str, dataset_id: str) -> str:
     Returns:
         str: The path where the partitioned data is saved.
     """
-
+    log("---------------------------- Read data ----------------------------")
     if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato"]:
-        log(
-            "---------------------------- Read data ----------------------------"
-        )
         df = read_csv(
             dataset_id=dataset_id, table_id=table_id, column_replace=None
         )
         if dataset_id == "br_cgu_cartao_pagamento":
-            log(
-                " ---------------------------- Partiting data -----------------------"
-            )
             to_partitions(
                 data=df,
                 partition_columns=["ANO_EXTRATO", "MES_EXTRATO"],
@@ -57,15 +51,9 @@ def partition_data(table_id: str, dataset_id: str) -> str:
                 file_type="csv",
             )
 
-            log(
-                "---------------------------- Data partitioned ----------------------"
-            )
             return constants.TABELA.value[table_id]["OUTPUT"]
 
         if dataset_id == "br_cgu_licitacao_contrato":
-            log(
-                " ---------------------------- Partiting data -----------------------"
-            )
             to_partitions(
                 data=df,
                 partition_columns=["ano", "mes"],
@@ -74,29 +62,20 @@ def partition_data(table_id: str, dataset_id: str) -> str:
                 ],
                 file_type="csv",
             )
-            log(
-                "---------------------------- Data partitioned ----------------------"
-            )
+
             return constants.TABELA_LICITACAO_CONTRATO.value[table_id][
                 "OUTPUT"
             ]
 
     elif dataset_id == "br_cgu_servidores_executivo_federal":
-        log(
-            "---------------------------- Read data ----------------------------"
-        )
         df = read_and_clean_csv(table_id=table_id)
-        log(
-            " ---------------------------- Partiting data -----------------------"
-        )
+
         to_partitions(
             data=df,
             partition_columns=["ano", "mes"],
             savepath=constants.TABELA_SERVIDORES.value[table_id]["OUTPUT"],
         )
-        log(
-            "---------------------------- Data partitioned ----------------------"
-        )
+
         return constants.TABELA_SERVIDORES.value[table_id]["OUTPUT"]
 
 
@@ -210,23 +189,13 @@ def get_current_date_and_download_file(
     Returns:
         datetime: The maximum date as a datetime object.
     """
-    last_date_in_api, next_date_in_api = last_date_in_metadata(
-        dataset_id=dataset_id, table_id=table_id, relative_month=relative_month
-    )
-    log(f"Last date in API: {last_date_in_api}")
-    log(f"Next date in API: {next_date_in_api}")
-
     max_date = str(
         download_file(
             table_id=table_id,
             dataset_id=dataset_id,
-            year=next_date_in_api.year,
-            month=next_date_in_api.month,
             relative_month=relative_month,
         )
     )
-
-    log(f"Max date: {max_date}")
 
     date = datetime.strptime(max_date, "%Y-%m-%d")
 
