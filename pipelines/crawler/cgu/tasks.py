@@ -177,7 +177,7 @@ def read_and_partition_beneficios_cidadao(table_id):
 @task
 def get_current_date_and_download_file(
     table_id: str, dataset_id: str, relative_month: int = 1
-) -> datetime:
+) -> datetime.date:
     """
     Get the maximum date from a given table for a specific year and month.
 

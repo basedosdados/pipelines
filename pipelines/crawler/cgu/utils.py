@@ -322,17 +322,18 @@ def last_date_in_metadata(
             - next_date_in_api (datetime.date): The date obtained by adding the relative month to the most recent date.
     """
 
-    if table_id == "microdados_compras_centralizadas":
-        for month in range(1, 6):
-            backend = bd.Backend(graphql_url=get_url("prod"))
-            last_date_in_api = get_api_most_recent_date(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                date_format="%Y-%m",
-                backend=backend,
-            )
+    backend = bd.Backend(graphql_url=get_url("prod"))
+    last_date_in_api = get_api_most_recent_date(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        date_format="%Y-%m",
+        backend=backend,
+    )
 
+    if table_id == "microdados_compras_centralizadas":
+        for month in range(14, 20):
             next_date_in_api = last_date_in_api + relativedelta(months=month)
+
             value_constants = constants.TABELA.value[table_id]
 
             url: str = build_urls(
@@ -342,26 +343,16 @@ def last_date_in_metadata(
                 table_id=table_id,
                 dataset_id=dataset_id,
             )
-
             if requests.get(url).status_code == 200:
                 log(f"Last date in API: {last_date_in_api}")
                 log(f"Next date in API: {next_date_in_api}")
 
-                return next_date_in_api
+                return last_date_in_api, next_date_in_api
 
             else:
                 log(f"URL não encontrada: {url}")
-                return last_date_in_api, next_date_in_api
-
+        return last_date_in_api, next_date_in_api
     else:
-        backend = bd.Backend(graphql_url=get_url("prod"))
-        last_date_in_api = get_api_most_recent_date(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            date_format="%Y-%m",
-            backend=backend,
-        )
-
         next_date_in_api = last_date_in_api + relativedelta(
             months=relative_month
         )
