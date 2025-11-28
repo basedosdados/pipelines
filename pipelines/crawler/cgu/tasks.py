@@ -230,15 +230,16 @@ def verify_all_url_exists_to_download(
     )
 
     for url in urls:
-        log(f"Verificando se a URL {url=} existe")
         r = requests.get(url)
+
         if r.status_code != 200:
             log(f"A URL {url=} não existe!")
             return False
 
         else:
             log(f"A URL {url=} existe!")
-            return True
+
+    return True
 
 
 @task
