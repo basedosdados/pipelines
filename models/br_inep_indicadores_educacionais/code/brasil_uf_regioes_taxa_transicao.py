@@ -1,36 +1,33 @@
 import os
-import zipfile
 
 import basedosdados as bd
 import pandas as pd
 
-URLS = [
-    "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/taxa_transicao/tx_transicao_brasil_regioes_ufs_2019_2020.zip",
-    "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/taxa_transicao/tx_transicao_brasil_regioes_ufs_2020_2021.zip",
-]
+# URLS = [
+#     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/taxa_transicao/tx_transicao_brasil_regioes_ufs_2019_2020.zip",
+#     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/taxa_transicao/tx_transicao_brasil_regioes_ufs_2020_2021.zip",
+#     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/taxa_transicao/tx_transicao_brasil_regioes_ufs_2021_2022.zip"
+# ]
 
 
-INPUT = os.path.join(os.getcwd(), "tmp")
-
-if not os.path.exists(INPUT):
-    os.mkdir(INPUT)
-
-INPUT_TX_TRAN = os.path.join(INPUT, "taxa_transicao_br_regioes_uf")
-
-OUTPUT = os.path.join(os.getcwd(), "output")
-
-if not os.path.exists(OUTPUT):
-    os.mkdir(OUTPUT)
-
-os.mkdir(INPUT_TX_TRAN)
-
-for url in URLS:
-    os.system(f"cd {INPUT_TX_TRAN}; curl -O -k {url}")
+INPUT = os.path.join(os.getcwd(), "tmp/taxa_transicao_br_regioes_uf/input")
+INPUT_TX_TRAN = os.path.join(INPUT, "temp/taxa_transicao_br_regioes_uf")
+OUTPUT = os.path.join(os.getcwd(), "tmp/taxa_transicao_br_regioes_uf/output")
+os.makedirs(INPUT, exist_ok=True)
+os.makedirs(INPUT_TX_TRAN, exist_ok=True)
+os.makedirs(OUTPUT, exist_ok=True)
 
 
-for file in os.listdir(INPUT_TX_TRAN):
-    with zipfile.ZipFile(os.path.join(INPUT_TX_TRAN, file)) as z:
-        z.extractall(INPUT_TX_TRAN)
+# for url in URLS:
+#     print(f"Downloading {url}...")
+#     os.system(f"cd {INPUT_TX_TRAN}; curl -O -k {url}")
+#     breakpoint()
+
+
+# for file in os.listdir(INPUT_TX_TRAN):
+#     with zipfile.ZipFile(os.path.join(INPUT_TX_TRAN, file)) as z:
+#         z.extractall(INPUT_TX_TRAN)
+#         os.remove(os.path.join(INPUT_TX_TRAN, file))
 
 tx_trans_2019_2020 = pd.read_excel(
     os.path.join(
@@ -50,7 +47,18 @@ tx_trans_2020_2021 = pd.read_excel(
     skiprows=8,
 )
 
-tx_trans_updated = pd.concat([tx_trans_2019_2020, tx_trans_2020_2021])
+tx_trans_2021_2022 = pd.read_excel(
+    os.path.join(
+        INPUT_TX_TRAN,
+        "TX_TRANSICAO_BRASIL_REGIOES_UFS_2021_2022",
+        "TX_TRANSICAO_BRASIL_REGIOES_UFS_2021_2022.xlsx",
+    ),
+    skiprows=8,
+)
+
+tx_trans_updated = pd.concat(
+    [tx_trans_2019_2020, tx_trans_2020_2021, tx_trans_2021_2022]
+)
 
 bq_uf_tx_trans = bd.read_sql(
     "SELECT * FROM `basedosdados-dev.br_inep_indicadores_educacionais.uf_taxa_transicao`",
@@ -139,7 +147,9 @@ renames = {
 tx_trans_updated = tx_trans_updated.rename(columns=renames, errors="raise")
 
 tx_trans_updated = tx_trans_updated.loc[
-    tx_trans_updated["NU_ANO_CENSO"].isin(["2019/2020", "2020/2021"]),
+    tx_trans_updated["NU_ANO_CENSO"].isin(
+        ["2019/2020", "2020/2021", "2021/2022"]
+    ),
 ]
 
 tx_trans_updated["NU_ANO_CENSO"] = tx_trans_updated["NU_ANO_CENSO"].str.split(
@@ -170,15 +180,15 @@ brasil_tx_trans_updated = tx_trans_updated.loc[
 assert brasil_tx_trans_updated.shape[1] == bq_brasil_tx_trans.shape[1]  # type: ignore
 
 brasil_output_path = os.path.join(OUTPUT, "brasil_taxa_transicao")
-os.makedirs(brasil_output_path)
-
+os.makedirs(brasil_output_path, exist_ok=True)
+breakpoint()
 pd.concat([bq_brasil_tx_trans, brasil_tx_trans_updated]).to_csv(  # type: ignore
     os.path.join(brasil_output_path, "tx_transicao_brasil.csv"), index=False
 )
 
-bq_uf_tx_trans = bq_uf_tx_trans.drop(columns=["ano_de"]).rename(  # type: ignore
-    columns={"ano_para": "ano"}  # type: ignore
-)
+# bq_uf_tx_trans = bq_uf_tx_trans.drop(columns=["ano_de"]).rename(  # type: ignore
+#     columns={"ano_para": "ano"}  # type: ignore
+# )
 
 uf_tx_trans_updated = (
     tx_trans_updated.loc[tx_trans_updated["CODIGO"].isin(estados),]
@@ -201,9 +211,9 @@ for sigla_uf, df in pd.concat([bq_uf_tx_trans, uf_tx_trans_updated]).groupby(  #
     )
 
 
-bq_regiao_tx_trans = bq_regiao_tx_trans.drop(columns=["ano_de"]).rename(  # type: ignore
-    columns={"ano_para": "ano"}  # type: ignore
-)
+# bq_regiao_tx_trans = bq_regiao_tx_trans.drop(columns=["ano_de"]).rename(  # type: ignore
+#     columns={"ano_para": "ano"}  # type: ignore
+# )
 
 regiao_tx_trans_updated = (
     tx_trans_updated.loc[tx_trans_updated["CODIGO"].isin(regioes),].rename(
@@ -214,7 +224,7 @@ regiao_tx_trans_updated = (
 assert regiao_tx_trans_updated.shape[1] == bq_regiao_tx_trans.shape[1]  # type: ignore
 
 regiao_output_path = os.path.join(OUTPUT, "regiao_taxa_transicao")
-os.makedirs(regiao_output_path)
+os.makedirs(regiao_output_path, exist_ok=True)
 
 pd.concat([bq_regiao_tx_trans, regiao_tx_trans_updated]).to_csv(  # type: ignore
     os.path.join(regiao_output_path, "tx_transicao_regiao.csv"), index=False
