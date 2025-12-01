@@ -23,8 +23,8 @@ from pipelines.utils.metadata.tasks import (
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    download_data_to_gcs,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     log_task,
     rename_current_flow_run_dataset_table,
     run_dbt,
@@ -43,7 +43,6 @@ with Flow(
         "update_metadata", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -98,7 +97,7 @@ with Flow(
             file=desired_file, upstream_tasks=[unmapped(desired_file)]
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=parquet_output[0],
             dataset_id=dataset_id,
             table_id=table_id,
@@ -106,18 +105,20 @@ with Flow(
             upstream_tasks=[parquet_output],
         )
 
-        with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                upstream_tasks=[wait_upload_table],
-            )
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            dbt_alias=dbt_alias,
+            upstream_tasks=[wait_upload_table],
+        )
 
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
+        with case(materialize_after_dump, True):
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=parquet_output[0],
                 dataset_id=dataset_id,
                 table_id=table_id,
+                dump_mode="append",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -129,9 +130,8 @@ with Flow(
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
-                    upstream_tasks=[wait_for_dowload_data_to_gcs],
+                    upstream_tasks=[wait_upload_prod],
                 )
 
 br_denatran_frota_uf_tipo.storage = GCS(
@@ -156,8 +156,6 @@ with Flow(
         "update_metadata", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
-    target = Parameter("target", default="prod", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -214,7 +212,7 @@ with Flow(
             file=desired_file, upstream_tasks=[unmapped(desired_file)]
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=parquet_output[0],
             dataset_id=dataset_id,
             table_id=table_id,
@@ -222,19 +220,21 @@ with Flow(
             upstream_tasks=[unmapped(parquet_output)],
         )
 
-        with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                upstream_tasks=[wait_upload_table],
-            )
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            dbt_alias=dbt_alias,
+            upstream_tasks=[wait_upload_table],
+        )
 
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
+        with case(materialize_after_dump, True):
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=parquet_output[0],
                 dataset_id=dataset_id,
                 table_id=table_id,
-                upstream_tasks=[wait_for_materialization],
+                dump_mode="append",
+                upstream_tasks=[unmapped(wait_for_materialization)],
             )
 
             with case(update_metadata, True):
@@ -245,9 +245,8 @@ with Flow(
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
-                    upstream_tasks=[wait_for_dowload_data_to_gcs],
+                    upstream_tasks=[wait_upload_prod],
                 )
 
 

@@ -85,7 +85,7 @@ every_five_minutes = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "test_dataset",
-                "table_id": "test_prefect",
+                "table_id": "test_table",
             },
         ),
     ]
