@@ -118,7 +118,7 @@ flow_cgu_cartao_pagamento.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
 
-# ! ============================================== CGU - Servidores Públicos do Executivo Federal =============================================
+# ! ============================================== CGU - Servidores Públicos do Executivo Federal ===========================================
 
 with Flow(
     name="CGU - Servidores Públicos do Executivo Federal",

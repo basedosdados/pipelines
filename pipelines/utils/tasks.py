@@ -363,6 +363,22 @@ def rename_current_flow_run(msg: str, wait=None) -> bool:
     return client.set_flow_run_name(flow_run_id, msg)
 
 
+def get_flow_metadata(_vars: dict | None = None):
+    """
+    Gets flow metadata to send to Elementary as _vars
+    """
+    flow_name = prefect.context.get("flow_name", None)
+    flow_id = prefect.context.get("flow_id")
+    flow_run_id = prefect.context.get("flow_run_id", None)
+
+    flow_metadata_vars = {
+        "job_name": flow_name,
+        "job_id": flow_id,
+        "job_run_id": flow_run_id,
+    }
+    return {**_vars, **flow_metadata_vars}
+
+
 @task
 def rename_current_flow_run_dataset_table(
     prefix: str, dataset_id, table_id, wait=None
@@ -659,15 +675,22 @@ def run_dbt(
         if isinstance(_vars, str)
         else (_vars if _vars is not None else {})
     )
-
+    if target == "prod":
+        disable_elementary = True
     variables = (
         constants.DISABLE_ELEMENTARY_VARS.value
-        if disable_elementary and vars_deserialize is None
+        if disable_elementary
+        else constants.ENABLE_ELEMENTARY_VARS.value
+    )
+    variables = (
+        variables
+        if vars_deserialize is None
         else {
-            **constants.DISABLE_ELEMENTARY_VARS.value,
+            **variables,
             **vars_deserialize,
         }
     )
+    variables = get_flow_metadata(variables)
 
     commands_to_run = []
 
@@ -710,12 +733,12 @@ def run_dbt(
 
         if result.success:
             log(
-                f"DBT runner reports success for {cmd} command",
+                f"DBT runner reports success for {cmd} command.\nJob Name: {variables['job_name']}\nJob ID: {variables['job_id']}\nJob Run ID: {variables['job_run_id']}",
                 level="info",
             )
         else:
             log(
-                f"DBT runner reports failure for {cmd} command. {result.result}",
+                f"DBT runner reports failure for {cmd} command.\nJob Name: {variables['job_name']}\nJob ID: {variables['job_id']}\nJob Run ID: {variables['job_run_id']}",
                 level="error",
             )
 

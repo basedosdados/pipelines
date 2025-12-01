@@ -8,7 +8,6 @@ from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
-from pipelines.crawler.cvm.constants import constants as cvm_constants
 
 every_day_informe = Schedule(
     clocks=[
@@ -24,7 +23,7 @@ every_day_informe = Schedule(
                 "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "url": cvm_constants.URL_INFORME_DIARIO.value,
+                "date_column_name": {"date": "data_competencia"},
                 "update_metadata": True,
             },
         ),
@@ -45,7 +44,7 @@ every_day_carteiras = Schedule(
                 "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "url": cvm_constants.URL_CDA.value,
+                "date_column_name": {"date": "data_competencia"},
                 "update_metadata": True,
             },
         ),
@@ -66,34 +65,13 @@ every_day_extratos = Schedule(
                 "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "url": cvm_constants.URL_EXTRATO.value,
+                "date_column_name": {"date": "data_competencia"},
                 "update_metadata": True,
             },
         ),
     ],
 )
 
-
-every_day_perfil = Schedule(
-    clocks=[
-        CronClock(
-            cron="30 17 * * *",  # At 17:00 on every day-of-week from Monday through Friday.
-            start_date=datetime(2025, 10, 27, 17, 30),
-            labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            ],
-            parameter_defaults={
-                "dataset_id": "br_cvm_fi",
-                "table_id": "documentos_perfil_mensal",
-                "target": "prod",
-                "materialize_after_dump": True,
-                "dbt_alias": True,
-                "url": cvm_constants.URL_PERFIL_MENSAL.value,
-                "update_metadata": True,
-            },
-        ),
-    ],
-)
 
 every_day_informacao_cadastral = Schedule(
     clocks=[
@@ -109,8 +87,7 @@ every_day_informacao_cadastral = Schedule(
                 "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "date_column_name": None,
-                "url": cvm_constants.URL_INFO_CADASTRAL.value,
+                "date_column_name": {"date": "data_inicio_situacao"},
                 "update_metadata": True,
             },
         ),
@@ -120,8 +97,8 @@ every_day_informacao_cadastral = Schedule(
 every_day_balancete = Schedule(
     clocks=[
         CronClock(
-            cron="50 17 * * *",  # At 17:50 on every day-of-week from Monday through Friday.
-            start_date=datetime(2025, 10, 27, 17, 50),
+            cron="30 17 * * *",  # At 17:00 on every day-of-week from Monday through Friday.
+            start_date=datetime(2025, 10, 27, 17, 30),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
             ],
@@ -131,8 +108,29 @@ every_day_balancete = Schedule(
                 "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
-                "dbt_command": "run/test",
-                "url": cvm_constants.URL_BALANCETE.value,
+                "date_column_name": {"date": "data_competencia"},
+                "update_metadata": True,
+            },
+        ),
+    ],
+)
+
+
+every_day_perfil = Schedule(
+    clocks=[
+        CronClock(
+            cron="50 17 * * *",  # At 17:50 on every day-of-week from Monday through Friday.
+            start_date=datetime(2025, 10, 27, 17, 50),
+            labels=[
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_cvm_fi",
+                "table_id": "documentos_perfil_mensal",
+                "target": "prod",
+                "materialize_after_dump": True,
+                "dbt_alias": True,
+                "date_column_name": {"date": "data_competencia"},
                 "update_metadata": True,
             },
         ),
