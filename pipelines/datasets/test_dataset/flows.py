@@ -55,37 +55,52 @@ test flow for basedosdados
 # Abaixo segue um código para exemplificação, que pode ser removido.
 #
 ###############################################################################
-from uuid import uuid4
 
 from prefect import Parameter
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.datasets.test_pipeline.tasks import (
-    dataframe_to_csv,
-    get_random_expression,
-    upload_to_gcs,
-)
+from pipelines.datasets.test_dataset.tasks import get_data_path
 from pipelines.utils.decorators import Flow
+from pipelines.utils.tasks import (
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
+    run_dbt,
+)
 
 # from pipelines.datasets.test_pipeline.schedules import every_five_minutes
 
 
 with Flow(name="test_flow") as test_flow:
     # BigQuery parameters
-    dataset_id = Parameter("dataset_id")
-    table_id = Parameter("table_id")
+    dataset_id = Parameter("dataset_id", default="test_dataset")
+    table_id = Parameter("table_id", default="test_table")
 
-    path = f"data/{uuid4()}/"
+    path = get_data_path()
 
-    dataframe, time_stamp = get_random_expression()
-
-    path = dataframe_to_csv(
-        dataframe=dataframe, path=path, time_stamp=time_stamp
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
+        data_path=path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="overwrite",
+        upstream_tasks=[path],
     )
 
-    upload_to_gcs(path=path, dataset_id=dataset_id, table_id=table_id)
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        upstream_tasks=[wait_upload_table],
+    )
+
+    create_table_prod_gcs_and_run_dbt(
+        data_path=path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="overwrite",
+        upstream_tasks=[wait_for_materialization],
+    )
 
 test_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 test_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
