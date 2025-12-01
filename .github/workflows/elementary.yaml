@@ -13,10 +13,9 @@ jobs:
       - name: Checkout dbt project
         uses: actions/checkout@v3
       - name: Run Elementary
-        uses: elementary-data/run-elementary-action@v1.12
+        uses: elementary-data/run-elementary-action@v1
         with:
           warehouse-type: bigquery
-          adapter-version: 1.5.9
           profiles-yml: ${{ secrets.ELEMENTARY_PROFILES_YML }}
           edr-command: edr report --file-path "report.html" --exclude-elementary-models
             "true" --days-back 90 && edr send-report --google-service-account-path
