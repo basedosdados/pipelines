@@ -17,8 +17,8 @@ from pipelines.datasets.br_bd_metadados.tasks import (
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    download_data_to_gcs,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     rename_current_flow_run_dataset_table,
     run_dbt,
 )
@@ -37,8 +37,6 @@ with Flow(
         "table_id", default="prefect_flow_runs", required=True
     )
 
-    target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -53,27 +51,29 @@ with Flow(
 
     filepath = crawler_flow_runs()
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
+        upstream_tasks=[filepath],
+    )
+
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_alias=dbt_alias,
+        dbt_command="run/test",
+        disable_elementary=False,
+        upstream_tasks=[wait_upload_table],
     )
 
     with case(materialize_after_dump, True):
-        wait_for_materialization = run_dbt(
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
-            dbt_alias=dbt_alias,
-            dbt_command="run/test",
-            disable_elementary=False,
-            upstream_tasks=[wait_upload_table],
-        )
-        wait_for_dowload_data_to_gcs = download_data_to_gcs(
-            dataset_id=dataset_id,
-            table_id=table_id,
+            dump_mode="append",
             upstream_tasks=[wait_for_materialization],
         )
 
@@ -96,8 +96,6 @@ with Flow(
     )
     table_id = Parameter("table_id", default="prefect_flows", required=True)
 
-    target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -112,27 +110,29 @@ with Flow(
 
     filepath = crawler_flows()
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="overwrite",
-        wait=filepath,
+        upstream_tasks=[filepath],
+    )
+
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_alias=dbt_alias,
+        dbt_command="run/test",
+        disable_elementary=False,
+        upstream_tasks=[wait_upload_table],
     )
 
     with case(materialize_after_dump, True):
-        wait_for_materialization = run_dbt(
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
-            dbt_alias=dbt_alias,
-            dbt_command="run/test",
-            disable_elementary=False,
-            upstream_tasks=[wait_upload_table],
-        )
-        wait_for_dowload_data_to_gcs = download_data_to_gcs(
-            dataset_id=dataset_id,
-            table_id=table_id,
+            dump_mode="overwrite",
             upstream_tasks=[wait_for_materialization],
         )
 

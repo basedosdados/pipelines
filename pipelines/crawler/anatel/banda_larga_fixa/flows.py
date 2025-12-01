@@ -14,8 +14,8 @@ from pipelines.utils.metadata.tasks import (
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    download_data_to_gcs,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     rename_current_flow_run_dataset_table,
     run_dbt,
 )
@@ -31,7 +31,7 @@ with Flow(
         "table_id",
         required=True,
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -72,31 +72,31 @@ with Flow(
             table_id=table_id, ano=new_ano, upstream_tasks=[get_max_date]
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=filepath,
             upstream_tasks=[
                 filepath
             ],  # Fix: Wrap filepath in a list to make it iterable
         )
 
-        with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                dbt_command="run/test",
-                disable_elementary=False,
-                upstream_tasks=[wait_upload_table],
-            )
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_alias=dbt_alias,
+            dbt_command="run/test",
+            disable_elementary=False,
+            upstream_tasks=[wait_upload_table],
+        )
 
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
+        with case(materialize_after_dump, True):
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=filepath,
                 dataset_id=dataset_id,
                 table_id=table_id,
+                dump_mode="append",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -108,9 +108,8 @@ with Flow(
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
-                    upstream_tasks=[wait_for_dowload_data_to_gcs],
+                    upstream_tasks=[wait_upload_prod],
                 )
 
 flow_anatel_banda_larga_fixa.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

@@ -10,7 +10,7 @@ from pipelines.utils.utils import log
 def get_skipped_upload_to_gcs_column(flow_runs_df):
     skipped_upload_filter = {
         "state": "Skipped",
-        "task": {"name": "create_table_and_upload_to_gcs"},
+        "task": {"name": "create_table_dev_and_upload_to_gcs"},
     }
 
     flow_runs_df["skipped_upload_to_gcs"] = flow_runs_df["task_runs"].apply(

@@ -21,8 +21,8 @@ from pipelines.datasets.br_mercadolivre_ofertas.tasks import (
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    download_data_to_gcs,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
     run_dbt,
@@ -39,7 +39,7 @@ with Flow(
     table_id_sellers = Parameter(
         "table_id_sellers", default="vendedor", required=True
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -64,25 +64,28 @@ with Flow(
 
     filepath = clean_item(filepath_raw)
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
+        upstream_tasks=[filepath],
+    )
+
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
     )
 
     with case(materialize_after_dump, True):
-        wait_for_materialization = run_dbt(
+        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-        wait_for_dowload_data_to_gcs = download_data_to_gcs(
-            dataset_id=dataset_id,
-            table_id=table_id,
+            dump_mode="append",
             upstream_tasks=[wait_for_materialization],
         )
         # update_django_metadata(
@@ -91,13 +94,13 @@ with Flow(
         #     date_column_name={"date": "dia"},
         #     date_format="%Y-%m-%d",
         #     coverage_type="all_bdpro",
-        #     prefect_mode=target,
+        #
         #     bq_project="basedosdados",
-        #     upstream_tasks=[wait_for_materialization],
+        #     upstream_tasks=[wait_upload_prod],
         # )
 
     with case(get_sellers, True) and case(is_empty_list(seller_ids), False):
-        # Trigger DBT flow run
+        # Run br_mercadolivre_ofertas.vendedor flow
         current_flow_labels = get_current_flow_labels()
         sellers_flow = create_flow_run(
             flow_name="br_mercadolivre_ofertas.vendedor",
@@ -105,7 +108,7 @@ with Flow(
             parameters={
                 "dataset_id": dataset_id,
                 "table_id": table_id_sellers,
-                "target": target,
+                "target": "prod",
                 "dbt_alias": dbt_alias,
                 "seller_ids": seller_ids,
                 "seller_links": seller_links,
@@ -133,7 +136,7 @@ with Flow(
         #     date_column_name={"date": "dia"},
         #     date_format="%Y-%m-%d",
         #     coverage_type="all_bdpro",
-        #     prefect_mode=target,
+        #
         #     bq_project="basedosdados",
         #     upstream_tasks=[wait_for_materialization],
         # )
@@ -154,7 +157,7 @@ with Flow(
         "dataset_id", default="br_mercadolivre_ofertas", required=True
     )
     table_id = Parameter("table_id", default="vendedor", required=True)
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -174,25 +177,28 @@ with Flow(
 
     filepath = clean_seller(filepath_raw)
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
+        upstream_tasks=[filepath],
+    )
+
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
     )
 
     with case(materialize_after_dump, True):
-        wait_for_materialization = run_dbt(
+        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-        wait_for_dowload_data_to_gcs = download_data_to_gcs(
-            dataset_id=dataset_id,
-            table_id=table_id,
+            dump_mode="append",
             upstream_tasks=[wait_for_materialization],
         )
         # update_django_metadata(
@@ -201,9 +207,9 @@ with Flow(
         #     date_column_name={"date": "dia"},
         #     date_format="%Y-%m-%d",
         #     coverage_type="all_bdpro",
-        #     prefect_mode=target,
+        #
         #     bq_project="basedosdados",
-        #     upstream_tasks=[wait_for_materialization],
+        #     upstream_tasks=[wait_upload_prod],
         # )
 
 br_mercadolivre_ofertas_vendedor.storage = GCS(
