@@ -2,7 +2,7 @@
 name: Deploy Elementary Report
 on:
   push:
-    branches: [main, master, bugfix/elementary-deploy]
+    branches: [main, master]
   schedule:
     - cron: 00 22 * * 1-5
   workflow_dispatch:
