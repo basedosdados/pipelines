@@ -1,3 +1,4 @@
+-- - update 2024 - 2025-12-02
 {{
     config(
         alias="uf", materialized="table", schema="br_inep_indicadores_educacionais"

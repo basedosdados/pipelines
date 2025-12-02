@@ -161,3 +161,8 @@ models/**/tmp/
 models/**/input/
 models/**/output/
 models/**/extra/
+
+
+# temp
+
+tmp/
