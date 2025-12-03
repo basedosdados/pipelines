@@ -14,8 +14,8 @@
 select
     safe_cast(ano as int64) ano,
     safe_cast(id_municipio as string) id_municipio,
-    safe_cast(localizacao as string) localizacao,
-    safe_cast(rede as string) rede,
+    initcap(safe_cast(localizacao as string)) localizacao,
+    initcap(safe_cast(rede as string)) rede,
     safe_cast(taxa_evasao_ef as float64) taxa_evasao_ef,
     safe_cast(taxa_evasao_ef_1_ano as float64) taxa_evasao_ef_1_ano,
     safe_cast(taxa_evasao_ef_2_ano as float64) taxa_evasao_ef_2_ano,

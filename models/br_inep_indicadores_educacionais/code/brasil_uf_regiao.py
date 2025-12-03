@@ -251,7 +251,7 @@ def brasil(ano: int, tabela: str) -> None:
         ),
         escola,
     )
-    breakpoint()
+
     df.replace("--", None, inplace=True)
 
     for year in df["ano"].unique():

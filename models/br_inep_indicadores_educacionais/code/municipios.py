@@ -64,7 +64,10 @@ def municipios(ano: int) -> None:
     )
 
     afd = afd.loc[afd["ano"] == ano,]
-    afd["localizacao"] = afd["localizacao"].str.lower()
+    afd["localizacao"] = afd["localizacao"].str.capitalize()
+    afd["rede"] = (
+        afd["rede"].str.replace("pública", "publica").str.capitalize()
+    )
 
     atu = pd.read_excel(
         os.path.join(
@@ -78,8 +81,10 @@ def municipios(ano: int) -> None:
     )
 
     atu = atu.loc[atu["ano"] == ano,]
-    atu["localizacao"] = atu["localizacao"].str.lower()
-    atu["rede"] = atu["rede"].str.lower().replace("pública", "publica")
+    atu["localizacao"] = atu["localizacao"].str.capitalize()
+    atu["rede"] = (
+        atu["rede"].str.replace("pública", "publica").str.capitalize()
+    )
 
     dsu = pd.read_excel(
         os.path.join(
@@ -93,7 +98,10 @@ def municipios(ano: int) -> None:
     )
 
     dsu = dsu.loc[dsu["ano"] == ano,]
-    dsu["localizacao"] = dsu["localizacao"].str.lower()
+    dsu["localizacao"] = dsu["localizacao"].str.capitalize()
+    dsu["rede"] = (
+        dsu["rede"].str.replace("pública", "publica").str.capitalize()
+    )
 
     had = pd.read_excel(
         os.path.join(
@@ -117,7 +125,10 @@ def municipios(ano: int) -> None:
     )
 
     had = had.loc[had["ano"] == ano,]
-    had["localizacao"] = had["localizacao"].str.lower()
+    had["localizacao"] = had["localizacao"].str.capitalize()
+    had["rede"] = (
+        had["rede"].str.replace("pública", "publica").str.capitalize()
+    )
 
     icg = pd.read_excel(
         os.path.join(
@@ -131,7 +142,10 @@ def municipios(ano: int) -> None:
     )
 
     icg = icg.loc[icg["ano"] == ano,]
-    icg["localizacao"] = icg["localizacao"].str.lower()
+    icg["localizacao"] = icg["localizacao"].str.capitalize()
+    icg["rede"] = (
+        icg["rede"].str.replace("pública", "publica").str.capitalize()
+    )
 
     ied = pd.read_excel(
         os.path.join(
@@ -145,7 +159,10 @@ def municipios(ano: int) -> None:
     )
 
     ied = ied.loc[ied["ano"] == ano,]
-    ied["localizacao"] = ied["localizacao"].str.lower()
+    ied["localizacao"] = ied["localizacao"].str.capitalize()
+    ied["rede"] = (
+        ied["rede"].str.replace("pública", "publica").str.capitalize()
+    )
 
     ird = pd.read_excel(
         os.path.join(
@@ -159,7 +176,10 @@ def municipios(ano: int) -> None:
     )
 
     ird = ird.loc[ird["ano"] == ano,]
-    ird["localizacao"] = ird["localizacao"].str.lower()
+    ird["localizacao"] = ird["localizacao"].str.capitalize()
+    ird["rede"] = (
+        ird["rede"].str.replace("pública", "publica").str.capitalize()
+    )
 
     tdi = pd.read_excel(
         os.path.join(
@@ -173,7 +193,10 @@ def municipios(ano: int) -> None:
     )
 
     tdi = tdi.loc[tdi["ano"] == ano,]
-    tdi["localizacao"] = tdi["localizacao"].str.lower()
+    tdi["localizacao"] = tdi["localizacao"].str.capitalize()
+    tdi["rede"] = (
+        tdi["rede"].str.replace("pública", "publica").str.capitalize()
+    )
 
     tnr = pd.read_excel(
         os.path.join(
@@ -187,7 +210,10 @@ def municipios(ano: int) -> None:
     )
 
     tnr = tnr.loc[tnr["ano"] == ano,]
-    tnr["localizacao"] = tnr["localizacao"].str.lower()
+    tnr["localizacao"] = tnr["localizacao"].str.capitalize()
+    tnr["rede"] = (
+        tnr["rede"].str.replace("pública", "publica").str.capitalize()
+    )
 
     tx = pd.read_excel(
         os.path.join(
@@ -203,12 +229,12 @@ def municipios(ano: int) -> None:
     )
 
     tx = tx.loc[tx["ano"] == ano]
-    tx["localizacao"] = tx["localizacao"].str.lower()
+    tx["localizacao"] = tx["localizacao"].str.capitalize()
+    tx["rede"] = tx["rede"].str.replace("pública", "publica").str.capitalize()
 
     keys_col_merge = ["ano", "id_municipio", "localizacao", "rede"]
 
     escola = [afd, atu, dsu, had, icg, ied, ird, tdi, tx, tnr]
-
     for columns in escola:
         columns["id_municipio"] = (
             columns["id_municipio"].astype("Int64").astype("str")
@@ -220,18 +246,13 @@ def municipios(ano: int) -> None:
         ),
         escola,
     )
-
     df = df.apply(lambda x: x.replace("--", None))
-    breakpoint()
-    df["rede"] = (
-        df["rede"].str.lower().str.replace("pública", "publica", regex=False)
-    )
 
     df = df.drop(columns="ano")
 
     escola_output_path = os.path.join(OUTPUT, f"ano={ano}")
     os.makedirs(escola_output_path, exist_ok=True)
-    df.to_csv(os.path.join(escola_output_path, "escola.csv"), index=False)
+    df.to_csv(os.path.join(escola_output_path, "municipio.csv"), index=False)
 
 
-municipios(ano=2023)
+municipios(ano=2018)
