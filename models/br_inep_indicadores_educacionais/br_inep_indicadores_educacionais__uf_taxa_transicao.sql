@@ -1,3 +1,5 @@
+-- Table approve - 05/12/2025
+
 {{
     config(
         alias="uf_taxa_transicao",
