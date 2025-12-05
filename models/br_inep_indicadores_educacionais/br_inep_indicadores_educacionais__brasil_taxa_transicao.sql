@@ -1,3 +1,4 @@
+-- Table approve - 05/12/2025
 {{
     config(
         alias="brasil_taxa_transicao",
