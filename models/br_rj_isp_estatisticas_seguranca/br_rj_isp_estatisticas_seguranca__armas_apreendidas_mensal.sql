@@ -80,5 +80,4 @@ from
             "br_rj_isp_estatisticas_seguranca_staging.armas_apreendidas_mensal"
         )
     }}
-where ano is not null
-  and mes is not null
+where ano is not null and mes is not null
