@@ -1,34 +1,32 @@
 import os
+from pathlib import Path
 
 import basedosdados as bd
 import pandas as pd
 from utils import (
-    RENAMES_UFS,
     convert_to_pd_dtype,
     drop_empty_lines,
     get_disciplina_serie,
     get_nivel_serie_disciplina,
 )
 
-CWD = os.path.dirname(os.getcwd())
+CWD = Path(os.getcwd()).parent
 
-INPUT = os.path.join(CWD, "input")
-OUTPUT = os.path.join(CWD, "output")
+INPUT = CWD / "input"
+OUTPUT = CWD / "output"
 
 os.makedirs(INPUT, exist_ok=True)
 os.makedirs(OUTPUT, exist_ok=True)
 
 ufs_saeb_latest = pd.read_excel(
-    os.path.join(INPUT, "saeb_2021_brasil_estados_municipios.xlsx"),
+    INPUT / "PLANILHAS DE RESULTADOS_20250507" / "TS_UF_20250507.xlsx",
     dtype=str,
-    sheet_name="Estados",
 )
 
 ufs_saeb_latest.head()
 
 ufs_saeb_latest = (
     ufs_saeb_latest.drop(0, axis="index")
-    .rename(columns=RENAMES_UFS, errors="raise")
     .pipe(lambda df: df.loc[df["CAPITAL"] == "Total"])
     .drop(columns=["CAPITAL", "CO_UF"])
 )
@@ -38,9 +36,9 @@ ufs_saeb_latest.columns.tolist()
 ufs_saeb_nivel_long_fmt = pd.melt(
     ufs_saeb_latest,
     id_vars=[
-        "nome_uf",
-        "rede",
-        "localizacao",
+        "NO_UF",
+        "DEPENDENCIA_ADM",
+        "LOCALIZACAO",
     ],
     value_vars=[
         col
@@ -52,14 +50,14 @@ ufs_saeb_nivel_long_fmt = pd.melt(
 ufs_saeb_media_long_fmt = pd.melt(
     ufs_saeb_latest,
     id_vars=[
-        "nome_uf",
-        "rede",
-        "localizacao",
+        "NO_UF",
+        "DEPENDENCIA_ADM",
+        "LOCALIZACAO",
     ],
     value_vars=[
         col
         for col in ufs_saeb_latest.columns.tolist()
-        if col.startswith("media")
+        if col.startswith("MEDIA")
     ],
 )
 
@@ -69,7 +67,9 @@ ufs_saeb_media_long_fmt = (
     )
     .assign(
         disciplina=lambda df: df["parsed_variable"].apply(lambda v: v[0]),
-        serie=lambda df: df["parsed_variable"].apply(lambda v: v[1]),
+        serie=lambda df: df["parsed_variable"]
+        .apply(lambda v: v[1])
+        .astype("Int64"),
     )
     .drop(columns=["parsed_variable"])
 )
@@ -84,7 +84,11 @@ ufs_saeb_nivel_long_fmt = (
     .assign(
         nivel=lambda df: df["parsed_variable"].apply(lambda v: v[0]),
         disciplina=lambda df: df["parsed_variable"].apply(lambda v: v[1]),
-        serie=lambda df: df["parsed_variable"].apply(lambda v: v[2]),
+        serie=lambda df: df["parsed_variable"]
+        .apply(lambda v: v[2])
+        .replace({"EMT": 12, "EMI": 13, "EM": 14})
+        .astype("string")
+        .astype("Int64"),
     )
     .drop(columns=["parsed_variable"])
 )
@@ -92,15 +96,33 @@ ufs_saeb_nivel_long_fmt = (
 ufs_saeb_latest_output = (
     (
         ufs_saeb_nivel_long_fmt.pivot_table(
-            index=["nome_uf", "rede", "localizacao", "disciplina", "serie"],
+            index=[
+                "NO_UF",
+                "DEPENDENCIA_ADM",
+                "LOCALIZACAO",
+                "disciplina",
+                "serie",
+            ],
             columns="nivel",
             values="value",
         )
         .reset_index()
         .merge(
             ufs_saeb_media_long_fmt.rename(columns={"value": "media"}),
-            left_on=["nome_uf", "rede", "localizacao", "disciplina", "serie"],
-            right_on=["nome_uf", "rede", "localizacao", "disciplina", "serie"],
+            left_on=[
+                "NO_UF",
+                "DEPENDENCIA_ADM",
+                "LOCALIZACAO",
+                "disciplina",
+                "serie",
+            ],
+            right_on=[
+                "NO_UF",
+                "DEPENDENCIA_ADM",
+                "LOCALIZACAO",
+                "disciplina",
+                "serie",
+            ],
         )
     )
     .drop(columns=["variable"])
@@ -114,8 +136,6 @@ ufs_saeb_latest_output.head()
 
 ufs_saeb_latest_output["serie"].unique()
 ufs_saeb_latest_output["disciplina"].unique()
-ufs_saeb_latest_output["localizacao"].unique()
-ufs_saeb_latest_output["rede"].unique()
 
 bd_dirs_ufs = bd.read_sql(
     "select sigla, nome from `basedosdados.br_bd_diretorios_brasil.uf`",
@@ -125,23 +145,12 @@ bd_dirs_ufs = bd.read_sql(
 ufs_saeb_latest_output = (
     # Apenas MT e LP. Não sei porque não subiram outras disciplinas
     ufs_saeb_latest_output.loc[
-        ufs_saeb_latest_output["disciplina"].isin(["mt", "lp"])
+        ufs_saeb_latest_output["disciplina"].isin(["MT", "LP"])
     ]
     .assign(
-        disciplina=lambda df: df["disciplina"].str.upper(),
-        rede=lambda df: df["rede"].str.lower(),
-        localizacao=lambda df: df["localizacao"].str.lower(),
-        serie=lambda df: df["serie"].replace(
-            {
-                # em é 12
-                "em": "12",
-                # em_integral (Ensino Medio Integrado) é 13
-                "em_integral": "13",
-                # em_regular (Ensino Médio Tradicional + Integrado) é 14
-                "em_regular": "14",
-            }
-        ),
-        sigla_uf=lambda df: df["nome_uf"].replace(
+        rede=lambda df: df["DEPENDENCIA_ADM"].str.lower(),
+        localizacao=lambda df: df["LOCALIZACAO"].str.lower(),
+        sigla_uf=lambda df: df["NO_UF"].replace(
             dict(
                 [
                     (i["nome"], i["sigla"])
@@ -150,11 +159,11 @@ ufs_saeb_latest_output = (
             )  # type: ignore
         ),
     )
-    .drop(columns=["nome_uf"])
+    .drop(columns=["NO_UF", "DEPENDENCIA_ADM", "LOCALIZACAO"])
 )
 
-# Add column ano = 2021
-ufs_saeb_latest_output["ano"] = 2021
+# Add column ano
+ufs_saeb_latest_output["ano"] = 2023
 
 ufs_saeb_latest_output.head()
 
@@ -178,15 +187,11 @@ ufs_saeb_latest_output = ufs_saeb_latest_output.astype(col_dtypes)[
 ]
 
 upstream_df = bd.read_sql(
-    "select * from `basedosdados-dev.br_inep_saeb.uf` where ano <> 2021",
+    "select * from `basedosdados-dev.br_inep_saeb.uf`",
     billing_project_id="basedosdados-dev",
 )
 
-assert isinstance(upstream_df, pd.DataFrame)
-
 upstream_df["serie"].unique()
-
-upstream_df = drop_empty_lines(upstream_df)
 
 pd.concat([ufs_saeb_latest_output, upstream_df]).to_csv(  # type: ignore
     os.path.join(OUTPUT, "uf.csv"), index=False
