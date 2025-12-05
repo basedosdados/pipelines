@@ -1,5 +1,4 @@
 -- Table approve - 05/12/2025
-
 {{
     config(
         alias="uf", materialized="table", schema="br_inep_indicadores_educacionais"
