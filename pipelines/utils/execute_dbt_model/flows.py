@@ -22,6 +22,7 @@ with Flow(
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     dbt_command = Parameter("dbt_command", default="run", required=True)
     flags = Parameter("flags", default=None, required=False)
+    target = Parameter("target", default=None, required=False)
     _vars = Parameter("_vars", default=None, required=False)
     disable_elementary = Parameter(
         "disable_elementary", default=True, required=False
@@ -46,6 +47,7 @@ with Flow(
             dbt_command=dbt_command,
             flags=flags,
             _vars=_vars,
+            target=target,
             disable_elementary=disable_elementary,
         )
 
@@ -58,6 +60,7 @@ with Flow(
             flags=flags,
             _vars=_vars,
             disable_elementary=disable_elementary,
+            target=target,
         )
         download_data_to_gcs(
             dataset_id=dataset_id, table_id=table_id, upstream_tasks=[dbt]
