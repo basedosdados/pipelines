@@ -8,14 +8,12 @@ from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.utils.decorators import Flow
+from pipelines.utils.materialize_prod.tasks import (
+    download_files_from_bucket_folders,
+)
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
     create_table_prod_gcs_and_run_dbt,
     rename_current_flow_run_dataset_table,
-    run_dbt,
-)
-from pipelines.utils.transfer_files_to_prod.tasks import (
-    download_files_from_bucket_folders,
 )
 
 with Flow(
@@ -51,27 +49,14 @@ with Flow(
     output_filepath = download_files_from_bucket_folders(
         dataset_id=dataset_id, table_id=table_id, folders=folders
     )
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
-        data_path=output_filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        upstream_tasks=[output_filepath],
-    )
-    wait_for_materialization = run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        dbt_alias=dbt_alias,
-        upstream_tasks=[wait_upload_table],
-    )
+
     with case(materialize_after_dump, True):
         create_table_prod_gcs_and_run_dbt(
             data_path=output_filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            upstream_tasks=[wait_for_materialization],
+            upstream_tasks=[output_filepath],
         )
 
 
