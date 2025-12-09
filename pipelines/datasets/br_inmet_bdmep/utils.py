@@ -224,9 +224,9 @@ def download_inmet(year: int) -> None:
     else:
         url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
         if requests.get(url).status_code != 200:
-          year = year - 1
-          url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
-          breakpoint()
+            year = year - 1
+            url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
+            breakpoint()
         r = requests.get(url)
         with open(f"/tmp/data/input/{year}.zip", "wb") as f:
             f.write(r.content)
