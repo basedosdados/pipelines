@@ -211,7 +211,7 @@ def download_inmet(year: int) -> None:
     Returns:
         None
     """
-    os.makedirs("temp/data/input", exist_ok=True)
+    os.makedirs("/tmp/data/input/", exist_ok=True)
     if year <= 2019:
         url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
         r = requests.get(url)
@@ -223,12 +223,18 @@ def download_inmet(year: int) -> None:
 
     else:
         url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
+        if requests.get(url).status_code != 200:
+          year = year - 1
+          url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
+          breakpoint()
         r = requests.get(url)
         with open(f"/tmp/data/input/{year}.zip", "wb") as f:
             f.write(r.content)
         with zipfile.ZipFile(f"/tmp/data/input/{year}.zip", "r") as zip_ref:
             zip_ref.extractall(f"/tmp/data/input/{year}")
             os.remove(f"/tmp/data/input/{year}.zip")
+
+        breakpoint()
 
 
 def year_list(start=2000):
