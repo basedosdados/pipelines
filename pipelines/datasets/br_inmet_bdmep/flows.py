@@ -24,9 +24,6 @@ from pipelines.utils.tasks import (
     run_dbt,
 )
 
-# from pipelines.datasets.br_ibge_pnadc.schedules import every_quarter
-
-
 with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
     # Parameters
     dataset_id = Parameter(

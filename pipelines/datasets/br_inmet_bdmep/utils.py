@@ -11,6 +11,7 @@ from datetime import datetime, time
 
 import numpy as np
 import pandas as pd
+import requests
 from unidecode import unidecode
 
 
@@ -212,24 +213,25 @@ def download_inmet(year: int) -> None:
     Returns:
         None
     """
-    os.system("mkdir -p /tmp/data/input/")
+    os.makedirs("temp/data/input", exist_ok=True)
     if year <= 2019:
-        temp = tempfile.NamedTemporaryFile(delete=False)  # noqa: SIM115
         url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
-        urllib.request.urlretrieve(url, temp.name)
-        with zipfile.ZipFile(temp.name, "r") as zip_ref:
-            zip_ref.extractall("/tmp/data/input/")
-        temp.close()
+        r = requests.get(url)
+        with open(f"/tmp/data/input/{year}.zip", "wb") as f:
+            f.write(r.content)
+        with zipfile.ZipFile(f"/tmp/data/input/{year}.zip", "r") as zip_ref:
+            zip_ref.extractall("/tmp/data/input")
+            os.remove(f"/tmp/data/input/{year}.zip")
 
     else:
-        temp = tempfile.NamedTemporaryFile(delete=False)  # noqa: SIM115
         url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
-        urllib.request.urlretrieve(url, temp.name)
-        with zipfile.ZipFile(temp.name, "r") as zip_ref:
+        r = requests.get(url)
+        with open(f"/tmp/data/input/{year}.zip", "wb") as f:
+            f.write(r.content)
+        with zipfile.ZipFile(f"/tmp/data/input/{year}.zip", "r") as zip_ref:
             zip_ref.extractall(f"/tmp/data/input/{year}")
-        temp.close()
-    # remove o arquivo temporário
-    os.remove(temp.name)
+            os.remove(f"/tmp/data/input/{year}.zip")
+
 
 
 def year_list(start=2000):
