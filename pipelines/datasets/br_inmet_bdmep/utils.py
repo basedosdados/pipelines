@@ -4,8 +4,6 @@ General purpose functions for the br_inmet_bdmep project
 
 import os
 import re
-import tempfile
-import urllib.request
 import zipfile
 from datetime import datetime, time
 
@@ -231,7 +229,6 @@ def download_inmet(year: int) -> None:
         with zipfile.ZipFile(f"/tmp/data/input/{year}.zip", "r") as zip_ref:
             zip_ref.extractall(f"/tmp/data/input/{year}")
             os.remove(f"/tmp/data/input/{year}.zip")
-
 
 
 def year_list(start=2000):
