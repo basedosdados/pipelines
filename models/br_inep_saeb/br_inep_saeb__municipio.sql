@@ -1,3 +1,4 @@
+-- - Atualização 10/12/2025
 {{
     config(
         alias="municipio",

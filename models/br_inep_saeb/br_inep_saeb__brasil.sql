@@ -1,3 +1,4 @@
+-- - Atualização 10/12/2025
 {{ config(alias="brasil", schema="br_inep_saeb", materialized="table") }}
 
 select
