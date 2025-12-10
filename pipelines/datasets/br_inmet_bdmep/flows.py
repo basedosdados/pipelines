@@ -1,7 +1,3 @@
-"""
-Flows for br_inmet_bdmep
-"""
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
@@ -23,9 +19,6 @@ from pipelines.utils.tasks import (
     rename_current_flow_run_dataset_table,
     run_dbt,
 )
-
-# from pipelines.datasets.br_ibge_pnadc.schedules import every_quarter
-
 
 with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
     # Parameters
