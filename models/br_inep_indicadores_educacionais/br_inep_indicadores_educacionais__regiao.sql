@@ -1,3 +1,4 @@
+-- Table approve - 05/12/2025
 {{
     config(
         alias="regiao",
@@ -8,8 +9,8 @@
 select
     safe_cast(ano as int64) ano,
     safe_cast(regiao as string) regiao,
-    safe_cast(localizacao as string) localizacao,
-    safe_cast(rede as string) rede,
+    initcap(safe_cast(localizacao as string)) localizacao,
+    initcap(safe_cast(rede as string)) rede,
     safe_cast(atu_ei as float64) atu_ei,
     safe_cast(atu_ei_creche as float64) atu_ei_creche,
     safe_cast(atu_ei_pre_escola as float64) atu_ei_pre_escola,

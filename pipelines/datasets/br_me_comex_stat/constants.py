@@ -33,3 +33,30 @@ class constants(Enum):
         "ncm_imp",
         "ncm_exp",
     ]
+
+    RENAME_NCM = {
+        "CO_ANO": "ano",
+        "CO_MES": "mes",
+        "CO_NCM": "id_ncm",
+        "CO_UNID": "id_unidade",
+        "CO_PAIS": "id_pais",
+        "SG_UF_NCM": "sigla_uf_ncm",
+        "CO_VIA": "id_via",
+        "CO_URF": "id_urf",
+        "QT_ESTAT": "quantidade_estatistica",
+        "KG_LIQUIDO": "peso_liquido_kg",
+        "VL_FOB": "valor_fob_dolar",
+        "VL_FRETE": "valor_frete",
+        "VL_SEGURO": "valor_seguro",
+    }
+
+    RENAME_MUN = {
+        "CO_ANO": "ano",
+        "CO_MES": "mes",
+        "SH4": "id_sh4",
+        "CO_PAIS": "id_pais",
+        "SG_UF_MUN": "sigla_uf",
+        "CO_MUN": "id_municipio",
+        "KG_LIQUIDO": "peso_liquido_kg",
+        "VL_FOB": "valor_fob_dolar",
+    }

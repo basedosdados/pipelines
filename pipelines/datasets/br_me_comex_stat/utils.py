@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Literal
 
 import pandas as pd
-import wget
+import requests
 
 from pipelines.datasets.br_me_comex_stat.constants import (
     constants as comex_constants,
@@ -38,7 +38,6 @@ def create_paths(
 
 def download_data(
     path: str,
-    table_type: str,
     table_name: str,
     years_download: list[str],
 ):
@@ -46,7 +45,6 @@ def download_data(
 
     Args:
         path (str): the path to store the data
-        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
         mun for 'município'.
         table_name (str): the table name is the original name of the zip file with raw data from comex stat website
     """
@@ -56,19 +54,22 @@ def download_data(
 
         log(f"Donwloading year ->>> {year}")
         table_name_urls = {
-            "mun_imp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/IMP_{year}_MUN.csv",
-            "mun_exp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/EXP_{year}_MUN.csv",
-            "ncm_imp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/IMP_{year}.csv",
-            "ncm_exp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/EXP_{year}.csv",
+            "mun_imp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/mun/IMP_{year}_MUN.csv",
+            "mun_exp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/mun/EXP_{year}_MUN.csv",
+            "ncm_imp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/IMP_{year}.csv",
+            "ncm_exp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_{year}.csv",
         }
 
         # Selects a url given a table name
         url = table_name_urls[table_name]
-
+        filename = url.split("/")[-1]
         log(f"Downloading {url}")
 
-        # Downloads the file and saves it
-        wget.download(url, out=path + table_name + "/input")
+        response = requests.get(url, verify=False)
+        response.raise_for_status()  # Raise an error for bad responses
+
+        with open(path + table_name + "/input/" + filename, "wb") as f:
+            f.write(response.content)
 
         # Sleep for 8 secs in between iterations
         tm.sleep(8)
@@ -92,7 +93,13 @@ def download_validation(
 
     output_path = path + table_name + "/input"
     url = f"{base_url_validation}/{table_type!s}/{str(trade_type).upper()}_TOTAIS_CONFERENCIA{suffix}.csv"
-    wget.download(url, out=output_path)
+    filename = url.split("/")[-1]
+
+    response = requests.get(url, verify=False)
+    response.raise_for_status()  # Raise an error for bad responses
+
+    with open(f"{output_path}/{filename}", "wb") as f:
+        f.write(response.content)
     return output_path
 
 
