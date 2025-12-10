@@ -226,15 +226,12 @@ def download_inmet(year: int) -> None:
         if requests.get(url).status_code != 200:
             year = year - 1
             url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
-            breakpoint()
         r = requests.get(url)
         with open(f"/tmp/data/input/{year}.zip", "wb") as f:
             f.write(r.content)
         with zipfile.ZipFile(f"/tmp/data/input/{year}.zip", "r") as zip_ref:
             zip_ref.extractall(f"/tmp/data/input/{year}")
             os.remove(f"/tmp/data/input/{year}.zip")
-
-        breakpoint()
 
 
 def year_list(start=2000):
