@@ -1,5 +1,4 @@
-# pylint: disable=C0103, E1123, invalid-name
-
+# register flow
 from copy import deepcopy
 
 from prefect.run_configs import KubernetesRun
