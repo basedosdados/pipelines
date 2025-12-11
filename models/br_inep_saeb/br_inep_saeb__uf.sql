@@ -1,4 +1,6 @@
+-- - Atualização 10/12/2025
 {{ config(alias="uf", schema="br_inep_saeb", materialized="table") }}
+
 
 select
     safe_cast(ano as int64) ano,

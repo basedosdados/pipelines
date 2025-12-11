@@ -1,3 +1,4 @@
+-- - Atualização 10/12/2025
 {{
     config(
         alias="aluno_ef_2ano",
@@ -6,7 +7,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1995, "end": 2023, "interval": 1},
+            "range": {"start": 2019, "end": 2023, "interval": 2},
         },
         cluster_by=["sigla_uf"],
         labels={"tema": "educacao"},

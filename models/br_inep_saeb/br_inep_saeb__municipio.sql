@@ -1,3 +1,4 @@
+-- - Atualização 10/12/2025
 {{
     config(
         alias="municipio",
@@ -5,7 +6,6 @@
         materialized="table",
     )
 }}
-
 
 select
     safe_cast(ano as int64) ano,
