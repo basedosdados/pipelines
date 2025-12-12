@@ -30,4 +30,5 @@
     "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/1.5/dbt_yml_files-1.5.json": "schema.yml",
     "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/1.5/dbt_project-1.5.json": "dbt_project.yml"
   },
+  "r.lsp.promptToInstall": false,
 }
