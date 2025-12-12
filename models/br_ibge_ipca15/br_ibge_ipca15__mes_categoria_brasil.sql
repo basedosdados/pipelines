@@ -1,4 +1,4 @@
--- - Register
+-- Register
 {{
     config(
         alias="mes_categoria_brasil",
