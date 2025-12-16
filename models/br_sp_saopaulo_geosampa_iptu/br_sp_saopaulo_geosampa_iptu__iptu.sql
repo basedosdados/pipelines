@@ -11,7 +11,6 @@
     )
 }}
 
-
 select distinct
     safe_cast(ano as int64) ano,
     safe_cast(data_cadastramento as date) data_cadastramento,
