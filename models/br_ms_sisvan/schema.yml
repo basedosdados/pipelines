@@ -40,7 +40,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
-              field: id_municipio_6
+              field: id_municipio
       - name: acompanhamento
         description: Código do acompanhamento
       - name: id_individuo
