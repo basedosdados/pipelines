@@ -143,9 +143,6 @@ models:
         description: Estágio de desempenho
       - name: disciplina
         description: Disciplina
-        tests:
-          - accepted_values:
-              values: [LP, MT]
       - name: entendimento_ensino
         description: Você entende o que o professor ensina nas aulas?
       - name: erro_padrao
