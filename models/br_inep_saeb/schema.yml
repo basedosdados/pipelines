@@ -1595,3 +1595,395 @@ models:
         description: 'Área onde a escola está localizada: interior, capital ou total'
       - name: taxa_alfabetizacao
         description: Taxa de alfabetização
+  - name: br_inep_saeb__aluno_em_34ano
+    description: A tabela contém informações dos alunos avaliados no SAEB no 3º e
+      4º ano do Ensino Médio. Os registros são anonimizados e seguem os padrões de
+      divulgação do INEP.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_aluno, disciplina]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - id_regiao
+            - area
+            - escola_publica
+            - localizacao
+            - serie
+            - situacao_censo
+            - preenchimento_caderno
+            - disciplina
+            - presenca
+            - indicador_proficiencia
+            - amostra
+            - proficiencia
+            - preenchimento_questionario
+            - indicador_inse
+            - nivel_inse
+            - sexo
+            - idade
+            - idioma_domicilio
+            - raca_cor
+            - possui_deficiencia
+            - possui_tea
+            - possui_altas_habilidades_superdotacao
+            - quantidade_pessoas_domicilio
+            - mora_mae
+            - mora_pai
+            - mora_avos
+            - mora_avo
+            - mora_outros_parentes
+            - escolaridade_mae
+            - escolaridade_pai
+            - responsaveis_leem
+            - responsaveis_conversam_escola
+            - responsaveis_incentivam_estudo
+            - responsvaveis_incentivam_tarefa_casa
+            - responsaveis_incentivam_comparecer_aulas
+            - responsaveis_comparecem_reuniao_pais
+            - possui_moradia_rua_urbanizada
+            - possui_agua_encanada
+            - possui_eletricidade
+            - possui_geladeira
+            - possui_computador
+            - possui_casa_quartos
+            - possui_casa_televisao
+            - possui_casa_banheiro
+            - possui_casa_carro
+            - posui_smartphone_com_internet
+            - possui_tv_assinatura
+            - possui_wifi
+            - possui_casa_quarto_individual
+            - possui_escrivaninha
+            - possui_microondas
+            - possui_aspirador
+            - possui_maquina_lavar_roupa
+            - possui_freezer
+            - possui_casa_garagem
+            - tempo_chegada_escola
+            - transporte_escolar
+            - possui_passe_escolar
+            - forma_chegada_escola
+            - inicio_estudos
+            - rede_ef
+            - reprovacao
+            - evasao_escolar_ate_final_ano
+            - tempo_estudos
+            - tempo_cursos
+            - tempo_trabalho_domestico
+            - tempo_trabalho
+            - tempo_lazer
+            - professor_informa_conteudo_inicio_ano
+            - professor_investiga_conhecimento_previo
+            - professor_contextualiza_conteudo_cotidiano
+            - professor_aborda_desigualdade_racial
+            - professor_aborda_desigualdade_genero
+            - professor_aborda_bullying_violencia
+            - professor_desenvolve_trabalho_grupo
+            - professor_aborda_futuro_profissional
+            - aluno_interesse_conteudos
+            - aluno_motivacao_aplicar_aprendizado
+            - sala_espaco_diferentes_opinioes
+            - aluno_sente_seguranca_escola
+            - aluno_conforto_discordar_professor
+            - aluno_capacidade_argumentacao
+            - avaliacao_representa_aprendizado
+            - professor_acredita_capacidade_aluno
+            - professor_motiva_continuidade_estudos
+            - pretensao_futura
+            - concluiu_fundamental_eja
+          dictionary_model: ref('br_inep_saeb__dicionario')
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_regiao
+        description: ID da Região
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Máscaras dos IDs de Municípios (são IDs fictícios)
+      - name: area
+        description: Área, indica se a escola está localizada na capital ou no interior.
+      - name: id_escola
+        description: Máscaras dos IDs de Escola (são IDs fictícios)
+      - name: escola_publica
+        description: Indica se a escola é pública ou não
+      - name: localizacao
+        description: Localização
+      - name: id_turma
+        description: ID da turma no Saeb
+      - name: serie
+        description: Ano Escolar
+      - name: id_aluno
+        description: ID do aluno no Saeb
+      - name: situacao_censo
+        description: Indicador de consistência entre os dados da aplicação do Saeb
+          com o Censo da Educação Básica finalizado
+      - name: preenchimento_caderno
+        description: Indicador de preenchimento da prova
+      - name: disciplina
+        description: Disciplina (Língua Portuguesa e Matemática)
+      - name: presenca
+        description: Indicador de presença na prova
+      - name: caderno
+        description: Número do caderno de prova
+      - name: bloco_1
+        description: Identificador do Bloco 1
+      - name: bloco_2
+        description: Identificador do Bloco 2
+      - name: respostas_bloco_1
+        description: Resposta do aluno ao Bloco 1
+      - name: respostas_bloco_2
+        description: Resposta do aluno ao Bloco 2
+      - name: indicador_proficiencia
+        description: Indicador para cálculo da proficiência (no mínimo três itens
+          respondidos no caderno de prova de Língua Portuguesa e Matemática)
+      - name: amostra
+        description: Indicador de participação da amostra
+      - name: estrato
+        description: Descrição dos estratos
+      - name: peso_aluno
+        description: Peso do aluno
+      - name: proficiencia
+        description: Proficiência do aluno em Língua Portuguesa calculada na escala
+          única do SAEB, com média = 0 e desvio = 1 na população de referência. Proficiência
+          do aluno em Matemática calculada na escala única do SAEB, com média = 0
+          e desvio = 1 na população de referência
+      - name: erro_padrao
+        description: Erro padrão da proficiência em Língua Portuguesa
+      - name: erro_padrao_saeb
+        description: Erro padrão da proficiência transformada em Língua Portuguesa
+      - name: proficiencia_saeb
+        description: Proficiência em Língua Portuguesa transformada na escala única
+          do SAEB, com média = 250, desvio = 50 (do SAEB/97). Proficiência do aluno
+          em Matemática transformada na escala única do SAEB, com média = 250, desvio
+          = 50 (do SAEB/97)
+      - name: preenchimento_questionario
+        description: Indicador de preenchimento do questionário
+      - name: indicador_inse
+        description: Indicador para cálculo do INSE (São considerados válidos os estudantes
+          que responderam pelo menos 8 itens, dentre os 17 utilizados para o cálculo
+          do indicador)
+      - name: inse
+        description: Resultado individual do INSE para o aluno
+      - name: nivel_inse
+        description: Classificação do Indicador de Nível Socioeconômico em 8 Grupos
+          (para melhor entendimento dos grupos, consultar a nota técnica disponível
+          no portal do Inep em <https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/nivel-socioeconomico>)
+      - name: peso_inse
+        description: Peso do Aluno para cálculo do INSE 2023
+      - name: sexo
+        description: Qual é o seu sexo?
+      - name: idade
+        description: Qual é a sua idade?
+      - name: idioma_domicilio
+        description: Qual língua que seus pais falam com mais frequência em casa?
+      - name: raca_cor
+        description: Qual é a sua cor ou raça?
+      - name: possui_deficiencia
+        description: Você possui deficiência, transtorno do espectro autista ou superdotação?
+          - Deficiência.
+      - name: possui_tea
+        description: Você possui deficiência, transtorno do espectro autista ou superdotação?
+          - Transtorno do espectro autista.
+      - name: possui_altas_habilidades_superdotacao
+        description: Você possui deficiência, transtorno do espectro autista ou superdotação?
+          - Altas habilidades ou superdotação.
+      - name: quantidade_pessoas_domicilio
+        description: Quantas pessoas moram na sua casa, contando com você?
+      - name: mora_mae
+        description: Normalmente, quem mora na sua casa? - Mãe(s) ou madrasta(s).
+      - name: mora_pai
+        description: Normalmente, quem mora na sua casa? - Pai(s) ou padrasto(s).
+      - name: mora_avos
+        description: Normalmente, quem mora na sua casa? - Avó(s).
+      - name: mora_avo
+        description: Normalmente, quem mora na sua casa? - Avô(s).
+      - name: mora_outros_parentes
+        description: Normalmente, quem mora na sua casa? - Outros familiares, irmãos(ãs),
+          tios(as), primos(as) etc.
+      - name: escolaridade_mae
+        description: Qual é a maior escolaridade da sua mãe (ou madastra ou mulher
+          responsável por você)?
+      - name: escolaridade_pai
+        description: Qual é a maior escolaridade de seu pai (ou padrasto homem responsável
+          por você)?
+      - name: responsaveis_leem
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Ler
+          em casa.'
+      - name: responsaveis_conversam_escola
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Conversar
+          com você sobre o que acontece na escola.'
+      - name: responsaveis_incentivam_estudo
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Incentivar
+          você a estudar.'
+      - name: responsvaveis_incentivam_tarefa_casa
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Incentivar
+          você a fazer a tarefa de casa.'
+      - name: responsaveis_incentivam_comparecer_aulas
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Incentivar
+          você a comparecer às aulas.'
+      - name: responsaveis_comparecem_reuniao_pais
+        description: 'Com que frequência seus pais ou responsáveis costumam: - Ir
+          às reuniões de pais na escola.'
+      - name: possui_moradia_rua_urbanizada
+        description: 'Na rua em que você mora tem: - Asfalto ou calçamento.'
+      - name: possui_agua_encanada
+        description: 'Na rua em que você mora tem: - Água tratada.'
+      - name: possui_eletricidade
+        description: 'Na rua em que você mora tem: - Iluminação.'
+      - name: possui_geladeira
+        description: Dos itens relacionados abaixo, quantos existem na sua casa? -
+          Geladeira.
+      - name: possui_computador
+        description: Dos itens relacionados abaixo, quantos existem na sua casa? -
+          Computador (ou notebook).
+      - name: possui_casa_quartos
+        description: Dos itens relacionados abaixo, quantos existem na sua casa? -
+          Quartos para dormir.
+      - name: possui_casa_televisao
+        description: Dos itens relacionados abaixo, quantos existem na sua casa? -
+          Televisão.
+      - name: possui_casa_banheiro
+        description: Dos itens relacionados abaixo, quantos existem na sua casa? -
+          Banheiro.
+      - name: possui_casa_carro
+        description: Dos itens relacionados abaixo, quantos existem na sua casa? -
+          Carro.
+      - name: posui_smartphone_com_internet
+        description: Dos itens relacionados abaixo, quantos existem na sua casa? -
+          Celular com internet (smartphone).
+      - name: possui_tv_assinatura
+        description: 'Na sua casa tem: - Tv por internet (Netflix, GloboPlay, etc.).'
+      - name: possui_wifi
+        description: 'Na sua casa tem: - Rede Wi-Fi.'
+      - name: possui_casa_quarto_individual
+        description: 'Na sua casa tem: - Um quarto só seu.'
+      - name: possui_escrivaninha
+        description: 'Na sua casa tem: - Mesa para estudar.'
+      - name: possui_microondas
+        description: 'Na sua casa tem: - Forno de microondas.'
+      - name: possui_aspirador
+        description: 'Na sua casa tem: - Aspirador de pó.'
+      - name: possui_maquina_lavar_roupa
+        description: 'Na sua casa tem: - Máquina de lavar roupa.'
+      - name: possui_freezer
+        description: 'Na sua casa tem: - Freezer (independente ou segunda porta da
+          geladeira).'
+      - name: possui_casa_garagem
+        description: 'Na sua casa tem: - Garagem.'
+      - name: tempo_chegada_escola
+        description: Quanto tempo você demora para chegar à sua escola?
+      - name: transporte_escolar
+        description: 'Você utiliza para ir à escola: - Transporte gratuito escolar.'
+      - name: possui_passe_escolar
+        description: 'Você utiliza para ir à escola: - Passe escolar.'
+      - name: forma_chegada_escola
+        description: Considerando a maior distância percorrida, normalmente de que
+          forma você chega à sua escola?
+      - name: inicio_estudos
+        description: Com que idade você entrou na escola?
+      - name: rede_ef
+        description: A partir do primeiro ano do ensino fundamental, em que tipo de
+          escola você estudou?
+      - name: reprovacao
+        description: Você já foi reprovado(a)?
+      - name: evasao_escolar_ate_final_ano
+        description: Alguma vez você abandonou a escola deixando de frequentá-la até
+          o final do ano escolar?
+      - name: tempo_estudos
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          - Estudar (lição de casa, trabalhos escolares, etc.).'
+      - name: tempo_cursos
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          - Fazer cursos ou atividades extracurriculares (idioma, artes, informática
+          etc.).'
+      - name: tempo_trabalho_domestico
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          - Trabalhar em casa (lavar louça, limpar quintal, cuidar dos irmãos, etc.).'
+      - name: tempo_trabalho
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          - Trabalhar fora de casa (recebendo ou não um salário).'
+      - name: tempo_lazer
+        description: 'Fora da escola em dias de aula, quanto tempo você usa para:
+          -  Lazer (TV, brincar, internet, música etc.).'
+      - name: professor_informa_conteudo_inicio_ano
+        description: 'Para os próximos itens, indique qual é a proporção de professores(as)
+          da sua turma que abordam os seguintes temas em sala de aula: - No início
+          do ano, eles(as) informaram sobre o que seria ensinado e aprendido?'
+      - name: professor_investiga_conhecimento_previo
+        description: 'Para os próximos itens, indique qual é a proporção de professores(as)
+          da sua turma que abordam os seguintes temas em sala de aula: - Antes de
+          iniciar um novo conteúdo, eles(as) perguntam o que vocês sabem sobre o conteúdo?'
+      - name: professor_contextualiza_conteudo_cotidiano
+        description: 'Para os próximos itens, indique qual é a proporção de professores(as)
+          da sua turma que abordam os seguintes temas em sala de aula: - Eles(as)
+          trazem temas do cotidiano para serem debatidos em sala de aula?'
+      - name: professor_aborda_desigualdade_racial
+        description: 'Para os próximos itens, indique qual é a proporção de professores(as)
+          da sua turma que abordam os seguintes temas em sala de aula: - Eles(as)
+          abordam temas sobre desigualdade racial?'
+      - name: professor_aborda_desigualdade_genero
+        description: 'Para os próximos itens, indique qual é a proporção de professores(as)
+          da sua turma que abordam os seguintes temas em sala de aula: - Eles(as)
+          abordam temas sobre desigualdade de gênero?'
+      - name: professor_aborda_bullying_violencia
+        description: 'Para os próximos itens, indique qual é a proporção de professores(as)
+          da sua turma que abordam os seguintes temas em sala de aula: - Eles(as)
+          abordam temas como bullying e outras formas de violência?'
+      - name: professor_desenvolve_trabalho_grupo
+        description: 'Para os próximos itens, indique qual é a proporção de professores(as)
+          da sua turma que abordam os seguintes temas em sala de aula: - Eles(as)
+          desenvolvem trabalhos em grupos?'
+      - name: professor_aborda_futuro_profissional
+        description: 'Para os próximos itens, indique qual é a proporção de professores(as)
+          da sua turma que abordam os seguintes temas em sala de aula: - Eles(as)
+          abordam questões relacionadas ao futuro profissional dos(as) estudantes?'
+      - name: aluno_interesse_conteudos
+        description: 'Sobre sua escola, indique o quanto você concorda ou discorda
+          das afirmações abaixo: - Eu me interesso sobre o que foi ensinado na escola
+          neste ano.'
+      - name: aluno_motivacao_aplicar_aprendizado
+        description: 'Sobre sua escola, indique o quanto você concorda ou discorda
+          das afirmações abaixo: - Eu me sinto motivado(a), no dia a dia, a usar o
+          que foi ensinado.'
+      - name: sala_espaco_diferentes_opinioes
+        description: 'Sobre sua escola, indique o quanto você concorda ou discorda
+          das afirmações abaixo: - Há espaço para diferentes opiniões na minha sala
+          de aula.'
+      - name: aluno_sente_seguranca_escola
+        description: 'Sobre sua escola, indique o quanto você concorda ou discorda
+          das afirmações abaixo: - Eu me sinto seguro(a) quando estou na escola.'
+      - name: aluno_conforto_discordar_professor
+        description: 'Sobre sua escola, indique o quanto você concorda ou discorda
+          das afirmações abaixo: - Eu me sinto à vontade para discordar dos(as) meus(minhas)
+          professores(as).'
+      - name: aluno_capacidade_argumentacao
+        description: 'Sobre sua escola, indique o quanto você concorda ou discorda
+          das afirmações abaixo: - Eu consigo argumentar sobre conteúdos difíceis.'
+      - name: avaliacao_representa_aprendizado
+        description: 'Sobre sua escola, indique o quanto você concorda ou discorda
+          das afirmações abaixo: - Os resultados das avaliações representam o quanto
+          eu aprendi.'
+      - name: professor_acredita_capacidade_aluno
+        description: 'Sobre sua escola, indique o quanto você concorda ou discorda
+          das afirmações abaixo: -Meus (Minhas) professores(as) acreditam que eu sou
+          capaz de aprender.'
+      - name: professor_motiva_continuidade_estudos
+        description: 'Sobre sua escola, indique o quanto você concorda ou discorda
+          das afirmações abaixo: -Meus (Minhas) professores(as) me motivam a continuar
+          meus estudos.'
+      - name: pretensao_futura
+        description: 'Quando terminar o Ensino Médio, você pretende:'
+      - name: concluiu_fundamental_eja
+        description: Você concluiu o Ensino Fundamental na Educação de Jovens e Adultos
+          (EJA), antigo supletivo?
