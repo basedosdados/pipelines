@@ -1617,7 +1617,6 @@ models:
             - presenca
             - indicador_proficiencia
             - amostra
-            - proficiencia
             - preenchimento_questionario
             - indicador_inse
             - nivel_inse
