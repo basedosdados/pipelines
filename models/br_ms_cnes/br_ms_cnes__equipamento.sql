@@ -46,7 +46,7 @@ select
     safe_cast(id_municipio as string) as id_municipio,
     safe_cast(cnes as string) as id_estabelecimento_cnes,
     ltrim(safe_cast(codequip as string), '0') as id_equipamento,
-    safe_cast(tipequip as string) as tipo_equipamento,
+    ltrim(safe_cast(tipequip as string), '0') as tipo_equipamento,
     safe_cast(qt_exist as string) as quantidade_equipamentos,
     safe_cast(qt_uso as string) as quantidade_equipamentos_ativos,
     safe_cast(ind_sus as int64) as indicador_equipamento_disponivel_sus,

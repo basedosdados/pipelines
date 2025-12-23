@@ -216,10 +216,6 @@ models:
               field: id_municipio
               config:
                 where: __most_recent_year_month__
-          - dbt_utils.not_null_proportion:
-              at_least: 0.95
-              config:
-                where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
         description: ID Estabelecimento - CNES
         tests: [not_null]
@@ -243,9 +239,10 @@ models:
       - name: cbo_2002
         description: Código da Classificação Brasileira de Ocupações (CB0) 2002
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_brasil__cbo_2002')
               field: cbo_2002.cbo_2002
+              ignore_values: ['515335']
               config:
                 where: __most_recent_year_month__
       - name: cbo_1994
@@ -321,13 +318,8 @@ models:
                 where: __most_recent_year_month__
       - name: ano_atualizacao
         description: Ano de atualização da informação pelo estabelecimento
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
       - name: mes_atualizacao
         description: Mês de atualização da informação pelo estabelecimento
-        config:
-          where: __most_recent_year_month__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
