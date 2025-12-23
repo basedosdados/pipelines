@@ -45,7 +45,7 @@ select
     safe_cast(regexp_replace(ufmunres, '0{6}', '') as string) id_municipio_6_residencia,
     safe_cast(nomeprof as string) nome,
     case
-        when vinculac = 'nan' then null else safe_cast(vinculac as string)
+        when vinculac = 'nan' then null else regexp_replace(vinculac, r'^0+', '')
     end as tipo_vinculo,
     case
         when registro = 'nan' then null else safe_cast(registro as string)
@@ -81,9 +81,9 @@ select
     safe_cast(horahosp as int64) carga_horaria_hospitalar,
     safe_cast(hora_amb as int64) carga_horaria_ambulatorial
 from profissional_x_estabelecimento
+where ano is not null and mes is not null
 {% if is_incremental() %}
     where
-
         safe.date(cast(ano as int64), cast(mes as int64), 1) > (
             select max(safe.date(cast(ano as int64), cast(mes as int64), 1))
             from {{ this }}
