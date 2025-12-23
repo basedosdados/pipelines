@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2016, "end": 2025, "interval": 1},
+            "range": {"start": 2016, "end": 2024, "interval": 1},
         },
         cluster_by="sigla_uf",
         labels={"project_id": "basedosdados"},
@@ -15,14 +15,18 @@
 select
     safe_cast(ano as int64) ano,
     safe_cast(trimestre as int64) trimestre,
-    safe_cast(id_uf as string) id_uf,
+    safe_cast(id_uf as string) as id_uf,
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(capital as string) capital,
     safe_cast(rm_ride as string) rm_ride,
     safe_cast(id_upa as string) id_upa,
     safe_cast(id_estrato as string) id_estrato,
     safe_cast(id_domicilio as string) id_domicilio,
-    safe_cast(id_pessoa as string) id_pessoa,
+    safe_cast(
+        concat(
+            id_upa, lpad(v1008, 2, '0'), lpad(v1014, 2, '0'), lpad(v2003, 2, '0')
+        ) as string
+    ) id_pessoa,
     safe_cast(v1008 as string) v1008,
     safe_cast(v1014 as string) v1014,
     safe_cast(v1016 as int64) v1016,
