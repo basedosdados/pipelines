@@ -1,4 +1,4 @@
--- materialized dictionary
+-- materialized dictionary table for br_ms_cnes
 {{ config(alias="dicionario", schema="br_ms_cnes") }}
 
 select
