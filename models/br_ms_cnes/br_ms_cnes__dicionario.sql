@@ -1,5 +1,5 @@
+-- materialized dictionary
 {{ config(alias="dicionario", schema="br_ms_cnes") }}
-
 
 select
     safe_cast(id_tabela as string) id_tabela,
