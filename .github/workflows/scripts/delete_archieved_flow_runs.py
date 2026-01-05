@@ -1,4 +1,8 @@
+import prefect
 from prefect import Client
+
+# Increase prefect client request timeout to 60 seconds. Default is 15
+prefect.context.config.cloud.request_timeout = 60
 
 
 def delete_flow_run(client: Client, flow: dict[str, str]) -> bool:

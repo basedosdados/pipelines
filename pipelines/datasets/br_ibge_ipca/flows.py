@@ -1,6 +1,4 @@
-"""
-Flows for br_ibge_ipca
-"""
+# register flow
 
 from copy import deepcopy
 
