@@ -29,6 +29,7 @@ from pipelines.utils.metadata.utils import get_url
 from pipelines.utils.utils import (
     dump_header_to_csv,
     get_credentials_from_secret,
+    is_running_in_prod,
     log,
 )
 
@@ -57,35 +58,28 @@ def get_credentials(secret_path: str):
     return get_credentials_from_secret(secret_path)
 
 
-###############
-#
-# Upload to GCS
-#
-###############
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def create_table_and_upload_to_gcs(
+def _upload_to_gcs(
     data_path: str | Path,
     dataset_id: str,
     table_id: str,
     dump_mode: str,
+    bucket_name: str,
     source_format: str = "csv",
-    wait=None,
 ) -> None:
     """
     Create table using BD+ and upload to GCS.
     """
     bd_version = bd.__version__
     log(f"USING BASEDOSDADOS {bd_version}")
-
-    tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
+    # pylint: disable=C0103
+    tb = bd.Table(
+        dataset_id=dataset_id, table_id=table_id, bucket_name=bucket_name
+    )
     table_staging = f"{tb.table_full_name['staging']}"
-
-    st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
+    # pylint: disable=C0103
+    st = bd.Storage(
+        dataset_id=dataset_id, table_id=table_id, bucket_name=bucket_name
+    )
     storage_path = f"{st.bucket_name}.staging.{dataset_id}.{table_id}"
     storage_path_link = f"https://console.cloud.google.com/storage/browser/{st.bucket_name}/staging/{dataset_id}/{table_id}"
 
@@ -194,7 +188,11 @@ def create_table_and_upload_to_gcs(
     log("STARTING UPLOAD TO GCS")
     if tb.table_exists(mode="staging"):
         # the name of the files need to be the same or the data doesn't get overwritten
-        tb.append(filepath=data_path, if_exists="replace")
+        st.upload(
+            path=data_path,
+            mode="staging",
+            if_exists="replace",
+        )
 
         log(
             f"STEP UPLOAD: Successfully uploaded {data_path} to Storage:\n"
@@ -205,6 +203,75 @@ def create_table_and_upload_to_gcs(
         log(
             "STEP UPLOAD: Table does not exist in STAGING, need to create first"
         )
+
+
+@task
+def create_table_prod_gcs_and_run_dbt(
+    data_path: str | Path,
+    dataset_id: str,
+    table_id: str,
+    dump_mode: str,
+    dbt_alias: bool = True,
+    source_format: str = "csv",
+) -> bool:
+    """
+    Create table in basedosdados-staging and run dbt with prod target if running in prod.
+    """
+    if is_running_in_prod():
+        log("Running in prod agent. Uploading data to basedosdados-staging")
+
+        _upload_to_gcs(
+            data_path=data_path,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode=dump_mode,
+            source_format=source_format,
+            bucket_name="basedosdados",
+        )
+
+        run_dbt.run(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+            target="prod",
+        )
+
+        download_data_to_gcs.run(dataset_id=dataset_id, table_id=table_id)
+
+        return True
+    else:
+        log("Running outside the prod environment", level="warning")
+        return False
+
+
+###############
+#
+# Upload to GCS
+#
+###############
+@task
+def create_table_dev_and_upload_to_gcs(
+    data_path: str | Path,
+    dataset_id: str,
+    table_id: str,
+    dump_mode: str,
+    dbt_alias: bool = True,
+    source_format: str = "csv",
+) -> None:
+    """
+    Upload files or folders to the GCS bucket and create a table in basedosdados-dev.staging in BigQuery
+    """
+
+    # Upload data to basedosdados-dev bucket
+    _upload_to_gcs(
+        data_path=data_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode=dump_mode,
+        source_format=source_format,
+        bucket_name="basedosdados-dev",
+    )
 
 
 @task(
@@ -294,6 +361,22 @@ def rename_current_flow_run(msg: str, wait=None) -> bool:
     flow_run_id = prefect.context.get("flow_run_id")
     client = Client()
     return client.set_flow_run_name(flow_run_id, msg)
+
+
+def get_flow_metadata(_vars: dict | None = None):
+    """
+    Gets flow metadata to send to Elementary as _vars
+    """
+    flow_name = prefect.context.get("flow_name", None)
+    flow_id = prefect.context.get("flow_id")
+    flow_run_id = prefect.context.get("flow_run_id", None)
+
+    flow_metadata_vars = {
+        "job_name": flow_name,
+        "job_id": flow_id,
+        "job_run_id": flow_run_id,
+    }
+    return {**_vars, **flow_metadata_vars}
 
 
 @task
@@ -592,15 +675,22 @@ def run_dbt(
         if isinstance(_vars, str)
         else (_vars if _vars is not None else {})
     )
-
+    if target == "prod":
+        disable_elementary = True
     variables = (
         constants.DISABLE_ELEMENTARY_VARS.value
-        if disable_elementary and vars_deserialize is None
+        if disable_elementary
+        else constants.ENABLE_ELEMENTARY_VARS.value
+    )
+    variables = (
+        variables
+        if vars_deserialize is None
         else {
-            **constants.DISABLE_ELEMENTARY_VARS.value,
+            **variables,
             **vars_deserialize,
         }
     )
+    variables = get_flow_metadata(variables)
 
     commands_to_run = []
 
@@ -643,12 +733,12 @@ def run_dbt(
 
         if result.success:
             log(
-                f"DBT runner reports success for {cmd} command",
+                f"DBT runner reports success for {cmd} command.\nJob Name: {variables['job_name']}\nJob ID: {variables['job_id']}\nJob Run ID: {variables['job_run_id']}",
                 level="info",
             )
         else:
             log(
-                f"DBT runner reports failure for {cmd} command. {result.result}",
+                f"DBT runner reports failure for {cmd} command.\nJob Name: {variables['job_name']}\nJob ID: {variables['job_id']}\nJob Run ID: {variables['job_run_id']}",
                 level="error",
             )
 

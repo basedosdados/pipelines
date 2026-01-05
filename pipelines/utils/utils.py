@@ -568,6 +568,11 @@ def get_storage_blobs(dataset_id: str, table_id: str) -> list:
     )
 
 
+def parse_dbt_run_results(run_results: dict):
+    """It transforms a dbt run result dictionary into legible mesage"""
+    pass
+
+
 def parser_blobs_to_partition_dict(blobs: list) -> dict:
     """
     Extracts the partition information from the blobs.
