@@ -1,0 +1,30 @@
+---
+version: 2
+models:
+  - name: br_ms_populacao__municipio
+    description: Estimativas anuais de população para os municípios, desagregadas
+      por sexo e grupos de idade.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, grupo_idade, sexo]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID do Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sexo
+        description: Sexo
+      - name: grupo_idade
+        description: Faixa etária de 5 em 5 anos
+      - name: populacao
+        description: Projeção populacional para cada faixa etária
