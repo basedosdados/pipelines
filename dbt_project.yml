@@ -309,6 +309,9 @@ models:
     br_ms_pns:
       +materialized: table
       +schema: br_ms_pns
+    br_ms_populacao:
+      +materialized: table
+      +schema: br_ms_populacao
     br_ms_sia:
       +materialized: table
       +schema: br_ms_sia
