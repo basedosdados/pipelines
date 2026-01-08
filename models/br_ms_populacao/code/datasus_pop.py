@@ -160,6 +160,7 @@ tb.create(
 )
 
 # Criar arquivos DBT
+
 arch = TableArchitecture(
     dataset_id="br_ms_populacao",
     tables={
