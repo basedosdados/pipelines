@@ -8,25 +8,18 @@ Original file is located at
 
 import ftplib
 import io
-import os
 import tempfile
 import zipfile
 
-import basedosdados as bd
 import pandas as pd
 from databasers_utils import TableArchitecture
 from dbfread import DBF
 
-FTP_HOST = "ftp.datasus.gov.br"
-FTP_PATH = "/dissemin/publicos/IBGE/POPSVS/"
-ENCODING = "latin1"
-BASE_PATH = "br_ms_populacao/output"
-
 
 def resgata_arquivo(ano):
-    ftp = ftplib.FTP(FTP_HOST)
+    ftp = ftplib.FTP("ftp.datasus.gov.br")
     ftp.login()
-    ftp.cwd(FTP_PATH)
+    ftp.cwd("/dissemin/publicos/IBGE/POPSVS/")
 
     zip_filename = f"POPSBR{ano}.zip"
     zip_bytes = io.BytesIO()
@@ -50,21 +43,21 @@ def resgata_arquivo(ano):
 
     # lê .dbf usando dbfread
     dbf_data = DBF(
-        temp_dbf_path, encoding=ENCODING
+        temp_dbf_path, encoding="latin1"
     )  # tente 'cp1252' se necessário
-    dados = pd.DataFrame(iter(dbf_data))
-    return dados
+    df = pd.DataFrame(iter(dbf_data))
+    return df
 
 
-def organiza_dados(dados):
-    dados.columns = ["id_municipio", "ano", "sexo", "idade", "populacao"]
-    dados = dados[["ano", "id_municipio", "sexo", "idade", "populacao"]]
-    dados["sexo"] = (
-        dados["sexo"].astype("int").replace({1: "masculino", 2: "feminino"})
+def organiza_df(df):
+    df.columns = ["id_municipio", "ano", "sexo", "idade", "populacao"]
+    df = df[["ano", "id_municipio", "sexo", "idade", "populacao"]]
+    df["sexo"] = (
+        df["sexo"].astype("int").replace({1: "masculino", 2: "feminino"})
     )
 
     # Passo 1: Converter a idade para inteiro
-    dados["idade_int"] = dados["idade"].astype(int)
+    df["idade_int"] = df["idade"].astype(int)
 
     # Passo 2: Criar a faixa etária de 5 em 5 anos
     # Ex: 0-4, 5-9, ..., 75-79, 80+
@@ -76,13 +69,13 @@ def organiza_dados(dados):
             faixa_fim = faixa_inicio + 4
             return f"{faixa_inicio}-{faixa_fim} anos"
 
-    dados["grupo_idade"] = dados["idade_int"].apply(faixa_etaria)
+    df["grupo_idade"] = df["idade_int"].apply(faixa_etaria)
 
     # Passo 3: Agrupar por cidade, sexo e faixa etária
-    dados_agrupado = dados.groupby(
+    df_agrupado = df.groupby(
         ["ano", "id_municipio", "sexo", "grupo_idade"], as_index=False
     )["populacao"].sum()
-    return dados_agrupado
+    return df_agrupado
 
 
 dados = pd.DataFrame()
@@ -114,9 +107,9 @@ anos = [
     "24",
 ]
 for ano in anos:
-    dados = resgata_arquivo(ano)
-    dados_agrupado = organiza_dados(dados)
-    dados = pd.concat([dados, dados_agrupado])
+    df = resgata_arquivo(ano)
+    df_agrupado = organiza_df(df)
+    dados = pd.concat([dados, df_agrupado])
 
 dados["ano"] = dados.ano.astype("int")
 dados["id_municipio"] = dados.id_municipio.astype("int")
@@ -129,27 +122,32 @@ dados.to_csv("populacao_ms.csv", index=False)
 # dados[dados['ano']>2020].to_csv('dados_desde_2021.csv',index=False)
 
 # Particionamento
-for ano, dados_ano in dados[dados["ano"] >= 2022].groupby("ano"):
-    pasta_ano = os.path.join(BASE_PATH, f"ano={ano}")
+import os  # noqa: E402
+
+base_path = "br_ms_populacao/output"
+
+for ano, df_ano in df[df["ano"] >= 2022].groupby("ano"):
+    pasta_ano = os.path.join(base_path, f"ano={ano}")
     os.makedirs(pasta_ano, exist_ok=True)
 
     nome_arquivo = f"br_ms_populacao_{ano}.csv"
 
-    dados_ano = dados_ano.assign(
-        ano=dados_ano["ano"].astype("int64"),
-        id_municipio=dados_ano["id_municipio"].astype("string"),
-        sexo=dados_ano["sexo"].astype("string"),
-        grupo_idade=dados_ano["grupo_idade"].astype("string"),
-        populacao=dados_ano["populacao"].astype("int64"),
+    df_ano = df_ano.assign(
+        ano=df_ano["ano"].astype("int64"),
+        id_municipio=df_ano["id_municipio"].astype("string"),
+        sexo=df_ano["sexo"].astype("string"),
+        grupo_idade=df_ano["grupo_idade"].astype("string"),
+        populacao=df_ano["populacao"].astype("int64"),
     )
 
-    dados_ano = dados_ano[["id_municipio", "sexo", "grupo_idade", "populacao"]]
+    df_ano = df_ano[["id_municipio", "sexo", "grupo_idade", "populacao"]]
 
-    dados_ano.to_csv(
-        os.path.join(pasta_ano, nome_arquivo), index=False, sep=","
-    )
+    df_ano.to_csv(os.path.join(pasta_ano, nome_arquivo), index=False, sep=",")
 
 # Subir na BD
+
+import basedosdados as bd  # noqa: E402
+
 tb = bd.Table(dataset_id="br_ms_populacao", table_id="municipio")
 
 tb.create(
@@ -160,6 +158,7 @@ tb.create(
 )
 
 # Criar arquivos DBT
+
 arch = TableArchitecture(
     dataset_id="br_ms_populacao",
     tables={
