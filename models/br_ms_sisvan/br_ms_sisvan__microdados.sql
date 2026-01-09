@@ -47,5 +47,5 @@ select
     safe_cast(co_sistema_origem_acomp as string) as sistema_origem
 from {{ set_datalake_project("br_ms_sisvan_staging.microdados") }} as t
 left join
-    {{ set_datalake_project("br_bd_diretorios_brasil.municipio") }} as m
+    `basedosdados.br_bd_diretorios_brasil.municipio` as m
     on t.co_municipio_ibge = m.id_municipio_6
