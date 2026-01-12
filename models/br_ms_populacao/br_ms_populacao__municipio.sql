@@ -1,4 +1,6 @@
 {{ config(alias="municipio", schema="br_ms_populacao", materialized="table") }}
+
+
 select
     safe_cast(ano as int64) ano,
     safe_cast(id_municipio as string) id_municipio,
