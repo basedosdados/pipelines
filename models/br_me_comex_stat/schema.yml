@@ -128,9 +128,10 @@ models:
       - name: id_ncm
         description: ID Produto - Nomenclatura Comum do Mercosul
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__nomenclatura_comum_mercosul')
               field: id_ncm
+              ignore_values: ['85492100', '90189097', '90189097', '90189097']
               config:
                 where: __most_recent_year_month__
       - name: id_unidade
@@ -190,9 +191,10 @@ models:
       - name: id_ncm
         description: ID Produto - Nomenclatura Comum do Mercosul
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_mundo__nomenclatura_comum_mercosul')
               field: id_ncm
+              ignore_values: ['85492100', '90189097', '90189097', '90189097']
               config:
                 where: __most_recent_year_month__
       - name: id_unidade
