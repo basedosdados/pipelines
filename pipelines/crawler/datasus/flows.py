@@ -22,8 +22,8 @@ from pipelines.utils.decorators import Flow
 from pipelines.utils.metadata.flows import update_django_metadata
 from pipelines.utils.metadata.tasks import check_if_data_is_outdated
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    download_data_to_gcs,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     log_task,
     rename_current_flow_run_dataset_table,
     run_dbt,
@@ -41,7 +41,6 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
         "year_month_to_extract", default="", required=False
     )
 
-    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -91,27 +90,28 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
             upstream_tasks=[csv_files, dbf_files, dbc_files],
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=files_path,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=files_path,
+        )
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            dbt_alias=dbt_alias,
+            disable_elementary=False,
+            upstream_tasks=[wait_upload_table],
         )
 
         # estabelecimento
         with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=files_path,
                 dataset_id=dataset_id,
                 table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                disable_elementary=False,
-                upstream_tasks=[wait_upload_table],
-            )
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
-                dataset_id=dataset_id,
-                table_id=table_id,
+                dump_mode="append",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -123,9 +123,8 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
-                    upstream_tasks=[wait_for_dowload_data_to_gcs],
+                    upstream_tasks=[wait_upload_prod],
                 )
 flow_cnes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_cnes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -142,7 +141,7 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
     year_month_to_extract = Parameter(
         "year_month_to_extract", default="", required=False
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -185,28 +184,29 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
             upstream_tasks=[dbc_files, dbf_files],
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=files_path,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=files_path,
+            upstream_tasks=[files_path],
+        )
+
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_alias=dbt_alias,
+            dbt_command="run/test",
+            disable_elementary=False,
+            upstream_tasks=[wait_upload_table],
         )
 
         with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=files_path,
                 dataset_id=dataset_id,
                 table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                dbt_command="run/test",
-                disable_elementary=False,
-                upstream_tasks=[wait_upload_table],
-            )
-
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
-                dataset_id=dataset_id,
-                table_id=table_id,
+                dump_mode="append",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -218,9 +218,8 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
-                    upstream_tasks=[wait_for_dowload_data_to_gcs],
+                    upstream_tasks=[wait_upload_prod],
                 )
 flow_siasus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_siasus.run_config = KubernetesRun(
@@ -242,7 +241,7 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
     year_month_to_extract = Parameter(
         "year_month_to_extract", default="", required=False
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -286,29 +285,31 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
             upstream_tasks=[dbc_files, dbf_files],
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=files_path,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=files_path,
             source_format="parquet",
+            upstream_tasks=[files_path],
+        )
+
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_alias=dbt_alias,
+            dbt_command="run/test",
+            disable_elementary=False,
+            upstream_tasks=[wait_upload_table],
         )
 
         with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=files_path,
                 dataset_id=dataset_id,
                 table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                dbt_command="run/test",
-                disable_elementary=False,
-                upstream_tasks=[wait_upload_table],
-            )
-
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
-                dataset_id=dataset_id,
-                table_id=table_id,
+                dump_mode="append",
+                source_format="parquet",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -320,9 +321,8 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
                     date_format="%Y-%m",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
-                    upstream_tasks=[wait_for_dowload_data_to_gcs],
+                    upstream_tasks=[wait_upload_prod],
                 )
 flow_sihsus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_sihsus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
@@ -337,7 +337,6 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
         "update_metadata", default=True, required=False
     )
 
-    target = Parameter("target", default="prod", required=False)
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -387,28 +386,29 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
             upstream_tasks=[dbf_files, dbc_files],
         )
 
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=files_path,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=files_path,
             upstream_tasks=[files_path],
         )
 
-        with case(materialize_after_dump, True):
-            wait_for_materialization = run_dbt(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                target=target,
-                dbt_alias=dbt_alias,
-                disable_elementary=False,
-                upstream_tasks=[wait_upload_table],
-            )
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            dbt_alias=dbt_alias,
+            disable_elementary=False,
+            upstream_tasks=[wait_upload_table],
+        )
 
-            wait_for_dowload_data_to_gcs = download_data_to_gcs(
+        with case(materialize_after_dump, True):
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=files_path,
                 dataset_id=dataset_id,
                 table_id=table_id,
+                dump_mode="append",
                 upstream_tasks=[wait_for_materialization],
             )
 
@@ -420,9 +420,8 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
                     date_format="%Y-%m-%d",
                     coverage_type="all_free",
                     time_delta={"months": 6},
-                    prefect_mode=target,
                     bq_project="basedosdados",
-                    upstream_tasks=[wait_for_dowload_data_to_gcs],
+                    upstream_tasks=[wait_upload_prod],
                 )
 
 flow_sinan.storage = GCS(constants.GCS_FLOWS_BUCKET.value)

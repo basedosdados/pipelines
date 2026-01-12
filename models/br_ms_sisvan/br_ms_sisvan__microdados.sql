@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2008, "end": 2023, "interval": 1},
+            "range": {"start": 2008, "end": 2024, "interval": 1},
         },
         cluster_by=["mes", "sigla_uf"],
     )
@@ -16,7 +16,7 @@ select
     safe_cast(ano as int64) as ano,
     safe_cast(mes as int64) as mes,
     safe_cast(sg_uf as string) as sigla_uf,
-    safe_cast(co_municipio_ibge as string) as id_municipio,
+    m.id_municipio as id_municipio,
     safe_cast(co_acompanhamento as string) as acompanhamento,
     safe_cast(co_pessoa_sisvan as string) as id_individuo,
     safe_cast(co_cnes as string) as cnes,
@@ -46,3 +46,6 @@ select
     safe_cast(co_estado_nutri_imc_semgest as string) as estado_nutricional_gestantes,
     safe_cast(co_sistema_origem_acomp as string) as sistema_origem
 from {{ set_datalake_project("br_ms_sisvan_staging.microdados") }} as t
+left join
+    `basedosdados.br_bd_diretorios_brasil.municipio` as m
+    on t.co_municipio_ibge = m.id_municipio_6

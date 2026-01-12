@@ -79,7 +79,7 @@ def json_to_csv(table_id: str, dataset_id: str) -> str:
     df = pd.DataFrame(list(dados_agrupados.values()))
     df = df.apply(lambda x: x.replace("-", np.nan))
 
-    df = df[order_by_columns(df=df, table_id=table_id)]
+    df = df[order_by_columns(table_id=table_id)]
 
     output_path = os.path.join(constants.OUTPUT.value, dataset_id, table_id)
     to_partitions(

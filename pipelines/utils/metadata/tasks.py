@@ -47,7 +47,7 @@ def update_django_metadata(
     date_format: str = "%Y-%m",
     coverage_type: str = "part_bdpro",
     time_delta: dict | None = None,
-    prefect_mode: str = "dev",
+    prefect_mode: str = "prod",
     api_mode: str = "prod",
     bq_project: str = "basedosdados",
     historical_database: bool = True,
