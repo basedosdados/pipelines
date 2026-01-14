@@ -1,0 +1,338 @@
+---
+version: 2
+models:
+  - name: br_inep_avaliacao_alfabetizacao__uf
+    description: Tabela que reúne as taxas de alfabetização da rede pública por estado
+      e rede, junto com as metas definidas para os anos de 2024 a 2030 e o percentual
+      de participação dos alunos nas avaliações, permitindo acompanhar o progresso
+      do Compromisso Nacional Criança Alfabetizada.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, rede]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.51
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [serie, rede]
+          dictionary_model: ref('br_inep_avaliacao_alfabetizacao__dicionario')
+    columns:
+      - name: ano
+        description: Ano de aplicação da avaliação estadual
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: serie
+        description: Ano escolar
+      - name: rede
+        description: Rede de ensino avaliada para construção do resultado
+      - name: taxa_alfabetizacao
+        description: Percentual dos alunos avaliados no estado que foram considerados,
+          mediante o resultado da avaliação estadual, como alfabetizados
+      - name: media_portugues
+        description: Média ponderada do estado na avaliação estadual na disciplina
+          Língua Portuguesa equalizada com o SAEB
+      - name: proporcao_aluno_nivel_0
+        description: Percentual de alunos avaliados na UF que foram alocados no nível
+          de desempenho 0
+      - name: proporcao_aluno_nivel_1
+        description: Percentual de alunos avaliados na UF que foram alocados no nível
+          de desempenho 1
+      - name: proporcao_aluno_nivel_2
+        description: Percentual de alunos avaliados na UF que foram alocados no nível
+          de desempenho 2
+      - name: proporcao_aluno_nivel_3
+        description: Percentual de alunos avaliados na UF que foram alocados no nível
+          de desempenho 3
+      - name: proporcao_aluno_nivel_4
+        description: Percentual de alunos avaliados na UF que foram alocados no nível
+          de desempenho 4
+      - name: proporcao_aluno_nivel_5
+        description: Percentual de alunos avaliados na UF que foram alocados no nível
+          de desempenho 5
+      - name: proporcao_aluno_nivel_6
+        description: Percentual de alunos avaliados na UF que foram alocados no nível
+          de desempenho 6
+      - name: proporcao_aluno_nivel_7
+        description: Percentual de alunos avaliados na UF que foram alocados no nível
+          de desempenho 7
+      - name: proporcao_aluno_nivel_8
+        description: Percentual de alunos avaliados na UF que foram alocados no nível
+          de desempenho 8
+  - name: br_inep_avaliacao_alfabetizacao__alunos
+    description: Tabela que reúne os dados individuais dos alunos participantes das
+      avaliações de alfabetização censitárias no Brasil, incluindo informações de
+      série, escola, presença, caderno, proficiência e peso do aluno, permitindo análises
+      detalhadas por estado, município, rede e ano.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, id_escola, id_aluno]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.86
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - serie
+            - presenca
+            - preenchimento_caderno
+            - alfabetizado
+          dictionary_model: ref('br_inep_avaliacao_alfabetizacao__dicionario')
+    columns:
+      - name: ano
+        description: Ano de aplicação da avaliação estadual
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_escola
+        description: Máscara do códigoo da escola (códigos fictícios)
+      - name: id_aluno
+        description: Código do aluno
+      - name: caderno
+        description: Código do caderno atribuído ao aluno na prova de língua portuguesa
+      - name: serie
+        description: Ano escolar
+      - name: rede
+        description: Dependência administrativa da escola
+      - name: presenca
+        description: Indicador de presença na prova de língua portuguesa
+      - name: preenchimento_caderno
+        description: Indicador de preenchimento da prova de língua portuguesa
+      - name: alfabetizado
+        description: Indica se o aluno, mediante o resultado da avaliação estadual,
+          é considerado alfabetizado
+      - name: proficiencia
+        description: Proficiência do aluno em língua portuguesa calculada na escala
+          equalizada com o SAEB
+      - name: peso_aluno
+        description: Peso do aluno na prova de língua portuguesa
+  - name: br_inep_avaliacao_alfabetizacao__meta_alfabetizacao_brasil
+    description: Tabela que reúne os resultados do ICA, mostrando o desempenho dos
+      estudantes da rede pública brasileira em alfabetização a nível Brasil.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, rede]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano da avaliação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: rede
+        description: Rede de ensino
+      - name: taxa_alfabetizacao
+        description: Percentual dos alunos avaliados no estado que foram considerados,
+          mediante o resultado da avaliação estadual, como alfabetizados
+      - name: meta_alfabetizacao_2024
+        description: Meta de alfabetização no ano de 2024
+      - name: meta_alfabetizacao_2025
+        description: Meta de alfabetização no ano de 2025
+      - name: meta_alfabetizacao_2026
+        description: Meta de alfabetização no ano de 2026
+      - name: meta_alfabetizacao_2027
+        description: Meta de alfabetização no ano de 2027
+      - name: meta_alfabetizacao_2028
+        description: Meta de alfabetização no ano de 2028
+      - name: meta_alfabetizacao_2029
+        description: Meta de alfabetização no ano de 2029
+      - name: meta_alfabetizacao_2030
+        description: Meta de alfabetização no ano de 2030
+      - name: percentual_participacao
+        description: Percentual de participação no estado
+  - name: br_inep_avaliacao_alfabetizacao__dicionario
+    description: Tabela de referência que detalha códigos, categorias e descrições
+      das colunas das avaliações de alfabetização censitárias da rede pública, usadas
+      para interpretar os resultados nacionais e estaduais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 1.00
+    columns:
+      - name: id_tabela
+        description: Nome da tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Código ou identificador da categoria
+      - name: cobertura_temporal
+        description: Cobertura temporal
+      - name: valor
+        description: Descrição correspondente à chave
+  - name: br_inep_avaliacao_alfabetizacao__meta_alfabetizacao_uf
+    description: A tabela contém dados das avaliações de alfabetização censitárias
+      aplicadas pelas secretarias de Educação estaduais a nível de estado - e só contempla
+      a rede pública. A definição do padrão nacional de alfabetização e o estabelecimento
+      de metas são fundamentais para o monitoramento do Compromisso Nacional Criança
+      Alfabetizada, assim como a implementação dos sistemas estaduais de avaliação,
+      em articulação com o Inep. Essa iniciativa permite a divulgação, em 2024, dos
+      primeiros resultados, alinhados nacionalmente, que indicam o percentual de estudantes
+      alfabetizados no país e em cada rede de ensino.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, rede]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.88
+    columns:
+      - name: ano
+        description: Ano da avaliação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: rede
+        description: Rede de ensino
+      - name: taxa_alfabetizacao
+        description: Percentual dos alunos avaliados no estado que foram considerados,
+          mediante o resultado da avaliação estadual, como alfabetizados
+      - name: meta_alfabetizacao_2024
+        description: Meta de alfabetização no ano de 2024
+      - name: meta_alfabetizacao_2025
+        description: Meta de alfabetização no ano de 2025
+      - name: meta_alfabetizacao_2026
+        description: Meta de alfabetização no ano de 2026
+      - name: meta_alfabetizacao_2027
+        description: Meta de alfabetização no ano de 2027
+      - name: meta_alfabetizacao_2028
+        description: Meta de alfabetização no ano de 2028
+      - name: meta_alfabetizacao_2029
+        description: Meta de alfabetização no ano de 2029
+      - name: meta_alfabetizacao_2030
+        description: Meta de alfabetização no ano de 2030
+      - name: percentual_participacao
+        description: Percentual de participação no estado
+  - name: br_inep_avaliacao_alfabetizacao__meta_alfabetizacao_municipio
+    description: A tabela contém dados das avaliações de alfabetização censitárias
+      aplicadas pelas secretarias de Educação estaduais a nível de município - e só
+      contempla a rede municipal. A definição do padrão nacional de alfabetização
+      e o estabelecimento de metas são fundamentais para o monitoramento do Compromisso
+      Nacional Criança Alfabetizada, assim como a implementação dos sistemas estaduais
+      de avaliação, em articulação com o Inep. Essa iniciativa permite a divulgação,
+      em 2024, dos primeiros resultados, alinhados nacionalmente, que indicam o percentual
+      de estudantes alfabetizados no país e em cada rede de ensino.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, rede]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano da avaliação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID município de 7 dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: rede
+        description: Rede de ensino
+      - name: taxa_alfabetizacao
+        description: Taxa de alfabetização
+      - name: meta_alfabetizacao_2024
+        description: Meta de alfabetização no ano de 2024
+      - name: meta_alfabetizacao_2025
+        description: Meta de alfabetização no ano de 2025
+      - name: meta_alfabetizacao_2026
+        description: Meta de alfabetização no ano de 2026
+      - name: meta_alfabetizacao_2027
+        description: Meta de alfabetização no ano de 2027
+      - name: meta_alfabetizacao_2028
+        description: Meta de alfabetização no ano de 2028
+      - name: meta_alfabetizacao_2029
+        description: Meta de alfabetização no ano de 2029
+      - name: meta_alfabetizacao_2030
+        description: Meta de alfabetização no ano de 2030
+      - name: nivel_alfabetizacao
+        description: Nível de alfabetização
+      - name: percentual_participacao
+        description: Percentual de participação no município
+  - name: br_inep_avaliacao_alfabetizacao__municipio
+    description: Tabela que reúne as taxas de alfabetização da rede pública por município
+      e rede, junto com as metas definidas para os anos de 2024 a 2030 e o percentual
+      de participação dos alunos nas avaliações, permitindo acompanhar o progresso
+      do Compromisso Nacional Criança Alfabetizada.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio, rede]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.51
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [serie, rede]
+          dictionary_model: ref('br_inep_avaliacao_alfabetizacao__dicionario')
+    columns:
+      - name: ano
+        description: Ano de aplicação da avaliação estadual
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio
+        description: ID Município
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: serie
+        description: Ano escolar
+      - name: rede
+        description: Rede de ensino
+      - name: taxa_alfabetizacao
+        description: Percentual dos alunos avaliados no município que foram considerados,
+          mediante o resultado da avaliação estadual, como alfabetizados
+      - name: media_portugues
+        description: Média ponderada do município na avaliação estadual na disciplina
+          Língua Portuguesa (LP) equalizada com o SAEB
+      - name: proporcao_aluno_nivel_0
+        description: Percentual de alunos avaliados no município que foram alocados
+          no nível de desempenho 0 na avaliação estadual de Lingua Portuguesa (LP)
+      - name: proporcao_aluno_nivel_1
+        description: Percentual de alunos avaliados no município que foram alocados
+          no nível de desempenho 1 na avaliação estadual de Lingua Portuguesa (LP)
+      - name: proporcao_aluno_nivel_2
+        description: Percentual de alunos avaliados no município que foram alocados
+          no nível de desempenho 2 na avaliação estadual de Lingua Portuguesa (LP)
+      - name: proporcao_aluno_nivel_3
+        description: Percentual de alunos avaliados no município que foram alocados
+          no nível de desempenho 3 na avaliação estadual de Lingua Portuguesa (LP)
+      - name: proporcao_aluno_nivel_4
+        description: Percentual de alunos avaliados no município que foram alocados
+          no nível de desempenho 4 na avaliação estadual de Lingua Portuguesa (LP)
+      - name: proporcao_aluno_nivel_5
+        description: Percentual de alunos avaliados no município que foram alocados
+          no nível de desempenho 5 na avaliação estadual de Lingua Portuguesa (LP)
+      - name: proporcao_aluno_nivel_6
+        description: Percentual de alunos avaliados no município que foram alocados
+          no nível de desempenho 6 na avaliação estadual de Lingua Portuguesa (LP)
+      - name: proporcao_aluno_nivel_7
+        description: Percentual de alunos avaliados no município que foram alocados
+          no nível de desempenho 7 na avaliação estadual de Lingua Portuguesa (LP)
+      - name: proporcao_aluno_nivel_8
+        description: Percentual de alunos avaliados no município que foram alocados
+          no nível de desempenho 8 na avaliação estadual de Lingua Portuguesa (LP)
