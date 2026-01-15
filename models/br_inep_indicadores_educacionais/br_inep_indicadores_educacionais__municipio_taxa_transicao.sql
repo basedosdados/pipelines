@@ -1,3 +1,4 @@
+-- Table approve - 05/12/2025
 {{
     config(
         alias="municipio_taxa_transicao",
@@ -6,15 +7,15 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2008, "end": 2021, "interval": 1},
+            "range": {"start": 2008, "end": 2022, "interval": 1},
         },
     )
 }}
 select
     safe_cast(ano as int64) ano,
     safe_cast(id_municipio as string) id_municipio,
-    safe_cast(localizacao as string) localizacao,
-    safe_cast(rede as string) rede,
+    initcap(safe_cast(localizacao as string)) localizacao,
+    initcap(safe_cast(rede as string)) rede,
     safe_cast(taxa_evasao_ef as float64) taxa_evasao_ef,
     safe_cast(taxa_evasao_ef_1_ano as float64) taxa_evasao_ef_1_ano,
     safe_cast(taxa_evasao_ef_2_ano as float64) taxa_evasao_ef_2_ano,

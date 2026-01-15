@@ -18,6 +18,7 @@ import requests
 import rpy2.robjects as robjects
 import rpy2.robjects.packages as rpackages
 from bs4 import BeautifulSoup
+from dateutil import relativedelta
 from rarfile import RarFile
 from rpy2.robjects.vectors import StrVector
 from string_utils import asciify
@@ -38,13 +39,12 @@ def update_yearmonth(year: str | int, month: str | int):
         year = int(year)
     if isinstance(month, str):
         month = int(month)
+    new_date = (
+        datetime.datetime(year=year, month=month, day=1)
+        + relativedelta.relativedelta(months=1)
+    ).date()
 
-    if month == 12:
-        year += 1
-        month = 1
-    else:
-        month += 1
-    return year, month
+    return new_date.year, new_date.month
 
 
 def guess_header(
@@ -142,7 +142,7 @@ def get_year_month_from_filename(filename: str) -> tuple[int, int]:
         ValueError: Errors out if nothing is found, which likely means the filename is not the correct format.
 
     Returns:
-        tuple[int, int]: Month, year.
+        tuple[int, int]: year, month.
     """
     match = re.search(r"(\w+)_(\d{1,2})-(\d{4})\.(xls|xlsx)$", filename)
     if match:
@@ -408,7 +408,7 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
                 .strip()
             )
             file_name = re.sub(
-                "\\s+", "_", raw_file_name, flags=re.UNICODE
+                "\\s+", "_", file_name, flags=re.UNICODE
             ).lower()
             file_path = (
                 file_info["destination_dir"]

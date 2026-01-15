@@ -1,3 +1,4 @@
+-- Table approve - 05/12/2025
 {{
     config(
         alias="regiao_taxa_transicao",
@@ -8,8 +9,8 @@
 select
     safe_cast(ano as int64) ano,
     safe_cast(regiao as string) regiao,
-    safe_cast(localizacao as string) localizacao,
-    safe_cast(rede as string) rede,
+    initcap(safe_cast(localizacao as string)) localizacao,
+    initcap(safe_cast(rede as string)) rede,
     safe_cast(taxa_promocao_ef as float64) taxa_promocao_ef,
     safe_cast(taxa_promocao_ef_anos_iniciais as float64) taxa_promocao_ef_anos_iniciais,
     safe_cast(taxa_promocao_ef_anos_finais as float64) taxa_promocao_ef_anos_finais,

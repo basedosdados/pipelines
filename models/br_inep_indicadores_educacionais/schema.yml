@@ -5,7 +5,7 @@ models:
     description: Indicadores educacionais do Inep a nível Brasil
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns: [ano, localizacao, rede]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -474,7 +474,7 @@ models:
       operacionalizada em níveis de ensino.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns: [ano, rede, localizacao]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -620,7 +620,7 @@ models:
     description: Indicadores educacionais do Inep a nível escola
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns: [ano, id_escola]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -1081,7 +1081,7 @@ models:
     description: Indicadores educacionais do Inep a nível escola
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns: [ano, localizacao, rede, id_municipio]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -1556,7 +1556,7 @@ models:
       operacionalizada em níveis de ensino.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns: [ano, localizacao, rede, id_municipio]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -1708,7 +1708,7 @@ models:
     description: Indicadores educacionais do Inep a nível de região
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns: [ano, rede, localizacao, regiao]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -1720,10 +1720,6 @@ models:
               field: ano.ano
       - name: regiao
         description: Região
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__regiao')
-              field: nome
       - name: localizacao
         description: Localização
       - name: rede
@@ -2183,18 +2179,12 @@ models:
       operacionalizada em níveis de ensino.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns: [ano, rede, localizacao, regiao]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
-      - name: ano_de
-        description: Ano base
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano.ano
-      - name: ano_para
-        description: Próximo ano
+      - name: ano
+        description: Ano
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
@@ -2341,7 +2331,7 @@ models:
     description: Indicadores educacionais do Inep a nível de UF
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns: [ano, sigla_uf, localizacao, rede]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -2816,18 +2806,12 @@ models:
       operacionalizada em níveis de ensino.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+          combination_of_columns: [ano, sigla_uf, localizacao, rede]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
-      - name: ano_de
-        description: Ano base
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano.ano
-      - name: ano_para
-        description: Próximo ano
+      - name: ano
+        description: Ano
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
