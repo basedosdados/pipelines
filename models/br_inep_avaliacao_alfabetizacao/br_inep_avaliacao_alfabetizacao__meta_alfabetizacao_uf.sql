@@ -19,5 +19,8 @@ select
     safe_cast(meta_alfabetizacao_2030 as float64) meta_alfabetizacao_2030,
     safe_cast(percentual_participacao as float64) percentual_participacao,
 from
-    {{ set_datalake_project("br_inep_avaliacao_alfabetizacao.meta_alfabetizacao_uf") }}
-    as t
+    {{
+        set_datalake_project(
+            "br_inep_avaliacao_alfabetizacao_staging.meta_alfabetizacao_uf"
+        )
+    }} as t
