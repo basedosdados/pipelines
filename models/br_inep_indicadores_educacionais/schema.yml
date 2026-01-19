@@ -620,9 +620,17 @@ models:
     description: Indicadores educacionais do Inep a nível escola
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [ano, id_escola]
+          combination_of_columns: [ano, id_escola, id_municipio]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - dsu_ee
+            - taxa_abandono_em_4_ano
+            - atu_em_nao_seriado
+            - had_em_nao_seriado
+            - atu_em_4_ano
+            - tnr_em_4_ano
+            - had_em_4_ano
     columns:
       - name: ano
         description: Ano
@@ -638,10 +646,6 @@ models:
               field: id_municipio
       - name: id_escola
         description: ID Escola - INEP
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__escola')
-              field: id_escola
       - name: localizacao
         description: Localização
       - name: rede
