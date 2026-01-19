@@ -255,7 +255,7 @@ def download_inmet(latest_dowload_link: str) -> None:
 
     ConstantsMicrodados.PATH_INPUT.value.mkdir(parents=True, exist_ok=True)
 
-    log("Dados baixados.")
+    log("Iniciando Download...")
 
     with open(save_path, "wb") as fd:
         for chunk in response.iter_content(chunk_size=1024 * 1024):
@@ -263,3 +263,5 @@ def download_inmet(latest_dowload_link: str) -> None:
 
     with zipfile.ZipFile(save_path) as z:
         z.extractall(ConstantsMicrodados.PATH_INPUT.value)
+
+    log("Dados baixados.")
