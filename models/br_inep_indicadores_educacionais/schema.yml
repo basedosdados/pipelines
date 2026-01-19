@@ -2954,3 +2954,95 @@ models:
         description: Taxa de Migração para o EJA - Ensino Médio 2º Ano
       - name: taxa_migracao_eja_em_3_ano
         description: Taxa de Migração para o EJA - Ensino Médio 3º Ano
+  - name: br_inep_indicadores_educacionais__uf_remuneracao_docentes
+    description: Remuneração média dos docentes em exercício na educação básica por
+      escolaridade
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, rede, escolaridade]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: rede
+        description: Rede escolar
+        tests:
+          - accepted_values:
+              values: [federal, estadual, privada, publica, total]
+      - name: escolaridade
+        description: Escolaridade do docente
+        tests:
+          - accepted_values:
+              values: [sem superior, superior, total]
+      - name: numero_docentes
+        description: Número de docentes - Censo Escolar
+      - name: prop_docentes_rais
+        description: Porcentagem de docentes localizados na RAIS
+      - name: rem_bruta_rais_1_quartil
+        description: Remuneração Bruta em R$ - 1º quartil
+      - name: rem_bruta_rais_mediana
+        description: Remuneração Bruta em R$ - Mediana
+      - name: rem_bruta_rais_media
+        description: Remuneração Bruta em R$ - Média
+      - name: rem_bruta_rais_3_quartil
+        description: Remuneração Bruta em R$ - 3º quartil
+      - name: rem_bruta_rais_desvio_padrao
+        description: Remuneração Bruta em R$ - Desvio Padrão
+      - name: carga_horaria_media_semanal
+        description: Carga horária média semanal
+      - name: rem_media_40_horas_semanais
+        description: Remuneração média padronizada para 40h semanais em R$
+  - name: br_inep_indicadores_educacionais__brasil_remuneracao_docentes
+    description: Remuneração média dos docentes em exercício na educação básica por
+      escolaridade
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, rede, escolaridade]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: rede
+        description: Rede escolar
+        tests:
+          - accepted_values:
+              values: [federal, estadual, municipal, privada, publica]
+      - name: escolaridade
+        description: Escolaridade do docente
+        tests:
+          - accepted_values:
+              values: [sem superior, superior, total]
+      - name: numero_docentes
+        description: Número de docentes - Censo Escolar
+      - name: prop_docentes_rais
+        description: Porcentagem de docentes localizados na RAIS
+      - name: rem_bruta_rais_1_quartil
+        description: Remuneração Bruta em R$ - 1º quartil
+      - name: rem_bruta_rais_mediana
+        description: Remuneração Bruta em R$ - Mediana
+      - name: rem_bruta_rais_media
+        description: Remuneração Bruta em R$ - Média
+      - name: rem_bruta_rais_3_quartil
+        description: Remuneração Bruta em R$ - 3º quartil
+      - name: rem_bruta_rais_desvio_padrao
+        description: Remuneração Bruta em R$ - Desvio Padrão
+      - name: carga_horaria_media_semanal
+        description: Carga horária média semanal
+      - name: rem_media_40_horas_semanais
+        description: Remuneração média padronizada para 40h semanais em R$
