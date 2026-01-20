@@ -116,7 +116,7 @@ select
         tipo_responsavel_regulamentacao as string
     ) tipo_responsavel_regulamentacao,
     safe_cast(id_escola_sede as string) id_escola_sede,
-    safe_cast(id_ies_ofertante as string) id_ies_ofertante,
+    safe_cast(safe_cast(id_ies_ofertante as int64) as string) id_ies_ofertante,
     safe_cast(
         local_funcionamento_predio_escolar as int64
     ) local_funcionamento_predio_escolar,
