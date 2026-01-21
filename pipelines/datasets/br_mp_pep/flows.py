@@ -9,7 +9,6 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.datasets.br_mp_pep.schedules import every_month
 from pipelines.datasets.br_mp_pep.tasks import (
     clean_data,
     download_xlsx,
