@@ -1,19 +1,15 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_inmet_bdmep project
 """
 
-# pylint: disable=too-few-public-methods,invalid-name
-
 import os
 import re
-import tempfile
-import urllib.request
 import zipfile
 from datetime import datetime, time
 
 import numpy as np
 import pandas as pd
+import requests
 from unidecode import unidecode
 
 
@@ -44,7 +40,7 @@ def new_names(base: pd.DataFrame, oldname: str, newname: str):
         return base.columns.tolist()
 
     else:
-        base.rename(columns={oldname: newname}, inplace=True)
+        base = base.rename(columns={oldname: newname})
         return base.columns.tolist()
 
 
@@ -174,7 +170,7 @@ def get_clima_info(file: str) -> pd.DataFrame:
     )
 
     # remove a coluna V20 do dataframe clima
-    clima.drop(columns=["Unnamed: 19"], inplace=True)
+    clima = clima.drop(columns=["Unnamed: 19"])
 
     # renomeia as colunas do dataframe clima
     clima = change_names(clima)
@@ -183,7 +179,7 @@ def get_clima_info(file: str) -> pd.DataFrame:
     clima["id_estacao"] = caract.loc[3, "value"]
 
     # substitui valores -9999 por NaN
-    clima.replace(to_replace=-9999, value=np.nan, inplace=True)
+    clima = clima.replace(to_replace=-9999, value=np.nan)
 
     # converte a coluna data para datetime
     if all(clima["data"].str.contains("/")):
@@ -215,24 +211,27 @@ def download_inmet(year: int) -> None:
     Returns:
         None
     """
-    os.system("mkdir -p /tmp/data/input/")
+    os.makedirs("/tmp/data/input/", exist_ok=True)
     if year <= 2019:
-        temp = tempfile.NamedTemporaryFile(delete=False)
         url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
-        urllib.request.urlretrieve(url, temp.name)
-        with zipfile.ZipFile(temp.name, "r") as zip_ref:
-            zip_ref.extractall("/tmp/data/input/")
-        temp.close()
+        r = requests.get(url)
+        with open(f"/tmp/data/input/{year}.zip", "wb") as f:
+            f.write(r.content)
+        with zipfile.ZipFile(f"/tmp/data/input/{year}.zip", "r") as zip_ref:
+            zip_ref.extractall("/tmp/data/input")
+            os.remove(f"/tmp/data/input/{year}.zip")
 
     else:
-        temp = tempfile.NamedTemporaryFile(delete=False)
         url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
-        urllib.request.urlretrieve(url, temp.name)
-        with zipfile.ZipFile(temp.name, "r") as zip_ref:
+        if requests.get(url).status_code != 200:
+            year = year - 1
+            url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
+        r = requests.get(url)
+        with open(f"/tmp/data/input/{year}.zip", "wb") as f:
+            f.write(r.content)
+        with zipfile.ZipFile(f"/tmp/data/input/{year}.zip", "r") as zip_ref:
             zip_ref.extractall(f"/tmp/data/input/{year}")
-        temp.close()
-    # remove o arquivo temporário
-    os.remove(temp.name)
+            os.remove(f"/tmp/data/input/{year}.zip")
 
 
 def year_list(start=2000):

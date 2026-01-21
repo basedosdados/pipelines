@@ -3,7 +3,6 @@
         alias="evolucao_mensal_municipio", schema="br_rj_isp_estatisticas_seguranca"
     )
 }}
-
 select
     safe_cast(ano as int64) ano,
     safe_cast(mes as int64) mes,
@@ -93,3 +92,4 @@ from
             "br_rj_isp_estatisticas_seguranca_staging.evolucao_mensal_municipio"
         )
     }} t
+where not (id_municipio = '3304557' and regiao = 'Baixada Fluminense')  -- Exclui a linha do municipio do Rio de Janeiro que está como se fosse da Baixada Fluminense

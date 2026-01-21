@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Schedules for br-bcb-taxa-selic
 """
@@ -24,7 +23,7 @@ schedule_every_weekday_taxa_selic = Schedule(
                 "target": "prod",
                 "materialize_after_dump": True,
                 "update_metadata": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],

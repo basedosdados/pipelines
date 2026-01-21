@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 rename_afd = {
     "NU_ANO_CENSO": "ano",
     "NO_CATEGORIA": "localizacao",

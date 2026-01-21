@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Schedules for bd_tweet_data
 """
@@ -23,7 +22,7 @@ schedule_users = Schedule(
                 "table_id": "website_user",
                 "target": "prod",
                 "materialize after dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         ),
     ],
@@ -43,7 +42,7 @@ every_day = Schedule(
                 "table_id": "twitter_metrics",
                 "target": "prod",
                 "materialize after dump": True,
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         ),
     ],
@@ -84,6 +83,7 @@ schedule_contabilidade = Schedule(
                 "sheet_id": "1jtZAV2SFEdEX99DumpUQ1LjZE2vcSgvL4DNo4n6HIec",
                 "sheet_name": "transacoes_anonimizado",
                 "target": "prod",
+                "dbt_alias": True,
                 "materialize_after_dump": True,
             },
         ),
@@ -106,6 +106,7 @@ schedule_receitas = Schedule(
                 "sheet_id": "1fHp1NNUyhFIAAJ9bZOdZ2i9PSLIbkjSjMcGAlaxur90",
                 "sheet_name": "receitas_planejadas_anonimizado",
                 "target": "prod",
+                "dbt_alias": True,
                 "materialize_after_dump": True,
             },
         ),
@@ -128,6 +129,7 @@ schedule_equipes = Schedule(
                 "sheet_id": "1gLJyoxiFeIRn7FKiP3Fpbr04bScVuhmF",
                 "sheet_name": "equipes",
                 "target": "prod",
+                "dbt_alias": True,
                 "materialize_after_dump": True,
             },
         ),
@@ -150,6 +152,7 @@ schedule_pessoas = Schedule(
                 "sheet_id": "1cQj9ItJoO_AQElRT2ngpHZXhFCSpQCrV",
                 "sheet_name": "pessoas",
                 "target": "prod",
+                "dbt_alias": True,
                 "materialize_after_dump": True,
             },
         ),

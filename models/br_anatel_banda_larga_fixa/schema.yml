@@ -14,13 +14,13 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: mes
         description: Mês
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: mes
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -63,13 +63,13 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: mes
         description: Mês
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: mes
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: densidade
         description: Densidade de acessos por 100 domicílios
   - name: br_anatel_banda_larga_fixa__densidade_uf
@@ -86,13 +86,13 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: mes
         description: Mês
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: mes
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -115,13 +115,13 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: mes
         description: Mês
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_data_tempo__data')
-              field: mes
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:

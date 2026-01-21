@@ -9,10 +9,18 @@
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    }
   },
   "jupyter.notebookFileRoot": "${workspaceFolder}",
   "notebook.defaultFormatter": "charliermarsh.ruff",
   "notebook.formatOnSave.enabled": true,
+  "notebook.codeActionsOnSave": {
+    "notebook.source.fixAll.ruff": "explicit",
+    "notebook.source.organizeImports.ruff": "explicit"
+  },
   // Disable default formatter for yaml files
   "[yaml]": {
     "editor.defaultFormatter": null
@@ -22,4 +30,5 @@
     "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/1.5/dbt_yml_files-1.5.json": "schema.yml",
     "https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/1.5/dbt_project-1.5.json": "dbt_project.yml"
   },
+  "r.lsp.promptToInstall": false,
 }

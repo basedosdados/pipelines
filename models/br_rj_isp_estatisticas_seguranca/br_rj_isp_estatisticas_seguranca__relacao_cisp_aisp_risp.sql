@@ -1,5 +1,4 @@
 {{ config(alias="relacao_cisp_aisp_risp", schema="br_rj_isp_estatisticas_seguranca") }}
-
 select
     safe_cast(id_risp as string) id_risp,
     safe_cast(id_aisp as string) id_aisp,

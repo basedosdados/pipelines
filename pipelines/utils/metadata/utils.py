@@ -1,19 +1,16 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the metadata project
 """
 
-from datetime import datetime, time
+import datetime
 from time import sleep
-from typing import Dict, Tuple
 
 import basedosdados as bd
 import requests
 from basedosdados.download.download import _google_client
 from dateutil.relativedelta import relativedelta
 
-from pipelines.constants import constants as pipeline_constants
-from pipelines.utils.constants import constants
+from pipelines.constants import constants
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.utils import (
     get_credentials_from_secret,
@@ -29,14 +26,14 @@ from pipelines.utils.utils import (
 
 
 def check_if_values_are_accepted(
-    coverage_type: str, time_delta: Dict, date_column_name: Dict
+    coverage_type: str, time_delta: dict, date_column_name: dict
 ):
     if time_delta:
         if len(time_delta) != 1:
             raise ValueError(
                 "Dicionário de delta tempo inválido. O dicionário deve conter apenas uma chave e um valor"
             )
-        key = list(time_delta)[0]
+        key = list(time_delta)[0]  # noqa: RUF015
         if key not in metadata_constants.ACCEPTED_TIME_UNITS.value:
             raise ValueError(
                 f"Unidade temporal inválida. Escolha entre {metadata_constants.ACCEPTED_TIME_UNITS.value}"
@@ -136,7 +133,7 @@ def get_id(
     query_class: str,
     query_parameters: dict,
     backend: bd.Backend,
-) -> Tuple:
+) -> tuple:
     """
     Returns the ID based on the query parameters
     Raise an Error if the query parameters yield multiple matching items
@@ -163,7 +160,7 @@ def get_id(
                         }}
                     }}"""
 
-    variables = dict(zip(keys, values))
+    variables = dict(zip(keys, values, strict=False))
 
     response = backend._execute_query(query, variables=variables)
     nodes = response[query_class]["items"]
@@ -247,7 +244,7 @@ def extract_last_date_from_bq(
             billing_project_id=billing_project_id,
             project_id=project_id,
         )
-        last_date = datetime.strftime(last_date_dt, date_format)
+        last_date = datetime.datetime.strftime(last_date_dt, date_format)
 
         return last_date
 
@@ -274,7 +271,7 @@ def extract_last_date_from_bq(
 
         return last_date
     except Exception as e:
-        log(f"An error occurred while extracting the last date: {str(e)}")
+        log(f"An error occurred while extracting the last date: {e!s}")
         raise
 
 
@@ -327,13 +324,11 @@ def update_date_from_bq_metadata(
         timestamp = (
             t["last_modified_time"][0] / 1000
         )  # Convert to seconds by dividing by 1000
-        last_date = datetime.fromtimestamp(timestamp)
+        last_date = datetime.datetime.fromtimestamp(timestamp)
         log(f"Última data: {last_date}")
         return last_date
     except Exception as e:
-        log(
-            f"An error occurred while extracting the last update date: {str(e)}"
-        )
+        log(f"An error occurred while extracting the last update date: {e!s}")
         raise
 
 
@@ -377,7 +372,7 @@ def get_coverage_parameters(
 
         delta = relativedelta(**time_delta)
         free_access_max_date = (
-            datetime.strptime(last_date, date_format) - delta
+            datetime.datetime.strptime(last_date, date_format) - delta
         )
         free_access_max_date = free_access_max_date.strftime(date_format)
         free_parameters = get_date_parameters(
@@ -402,16 +397,16 @@ def get_date_parameters(position: str, date_str: str):
     date_len = len(date_str.split("-") if date_str != "" else 0)
     date_parameters = {}
     if date_len == 3:
-        date = datetime.strptime(date_str, "%Y-%m-%d")
+        date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
         date_parameters[f"{position}Year"] = date.year
         date_parameters[f"{position}Month"] = date.month
         date_parameters[f"{position}Day"] = date.day
     elif date_len == 2:
-        date = datetime.strptime(date_str, "%Y-%m")
+        date = datetime.datetime.strptime(date_str, "%Y-%m")
         date_parameters[f"{position}Year"] = date.year
         date_parameters[f"{position}Month"] = date.month
     elif date_len == 1:
-        date = datetime.strptime(date_str, "%Y")
+        date = datetime.datetime.strptime(date_str, "%Y")
         date_parameters[f"{position}Year"] = date.year
     return date_parameters
 
@@ -541,7 +536,7 @@ def get_coverage_value(
 
     except Exception as e:
         log(
-            f"Error occurred while retrieving Table IDs values or Coverage values from the PROD API: {str(e)}"
+            f"Error occurred while retrieving Table IDs values or Coverage values from the PROD API: {e!s}"
         )
         raise
 
@@ -713,7 +708,9 @@ def get_api_most_recent_date(
     # Convert the date strings to date objects
     date_objects = {}
     for key, date_string in coverages.items():
-        date_objects[key] = datetime.strptime(date_string, date_format)
+        date_objects[key] = datetime.datetime.strptime(
+            date_string, date_format
+        )
 
     max_date_key = max(date_objects, key=date_objects.get)
     max_date_value = date_objects[max_date_key].date()
@@ -780,13 +777,13 @@ def get_api_last_update_date(
         response = backend._execute_query(query, variables)
         clean_response = response["allUpdate"]["items"][0]["latest"]
         date_result = (
-            datetime.strptime(clean_response[:10], "%Y-%m-%d")
+            datetime.datetime.strptime(clean_response[:10], "%Y-%m-%d")
         ).date()
         return date_result
 
     except Exception as e:
         log(
-            f"Error occurred while retrieving last update date from the PROD API: {str(e)}"
+            f"Error occurred while retrieving last update date from the PROD API: {e!s}"
         )
         raise
 
@@ -814,9 +811,11 @@ def update_data_source_update_date(
     )
 
     if date_type == "last_update_date":
-        latest = datetime.combine(data_source_max_date, time()).isoformat()
+        latest = datetime.datetime.combine(
+            data_source_max_date, datetime.time()
+        ).isoformat()
     else:
-        latest = datetime.today().isoformat()
+        latest = datetime.datetime.today().isoformat()
 
     mutation_parameters = {"latest": latest}
 
@@ -838,7 +837,7 @@ def update_data_source_update_date(
 
     if not django_update_raw_datasource_id:
         notify_discord(
-            secret_path=pipeline_constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
+            secret_path=constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
             message=(
                 "ATENÇÃO"
                 + f"Foi criado um metadado de 'Update' para o RawDataSource da tabela `{dataset_id}.{table_id}`\n"
@@ -869,7 +868,7 @@ def update_data_source_poll(
         backend=backend,
     )
 
-    latest = datetime.today().isoformat()
+    latest = datetime.datetime.today().isoformat()
     mutation_parameters = {"latest": latest}
 
     if not django_poll_id:
@@ -890,7 +889,7 @@ def update_data_source_poll(
 
     if not django_poll_id:
         notify_discord(
-            secret_path=pipeline_constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
+            secret_path=constants.BD_DISCORD_WEBHOOK_SECRET_PATH.value,
             message=(
                 "ATENÇÃO\n"
                 + f"* Foi criado um metadado de 'Poll' para o RawDataSource da tabela `{dataset_id}.{table_id}` com id: `{new_id}`\n"
@@ -901,7 +900,7 @@ def update_data_source_poll(
         )
 
 
-def get_credentials_utils(secret_path: str) -> Tuple[str, str]:
+def get_credentials_utils(secret_path: str) -> tuple[str, str]:
     """
     Returns the user and password for the given secret path.
     """

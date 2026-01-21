@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Schedules for br_cgu_terceirizados
 """
@@ -21,7 +20,7 @@ every_four_months = Schedule(
                 "target": "prod",
                 "materialize after dump": True,
                 "table_id": "terceirizados",
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],

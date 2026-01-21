@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for temporal_coverage_updater
 """
@@ -23,7 +22,7 @@ with Flow(
 ) as temporal_coverage_updater_flow:
     dataset_id = Parameter("dataset_id", required=True)
     table_id = Parameter("table_id", required=True)
-    target = Parameter("target", default="prod", required=False)
+
     coverage_type = Parameter(
         "coverage_type", default="part_bdpro", required=False
     )
@@ -42,7 +41,6 @@ with Flow(
         date_format=date_format,
         coverage_type=coverage_type,
         time_delta=time_delta,
-        prefect_mode=target,
         bq_project="basedosdados",
     )
 

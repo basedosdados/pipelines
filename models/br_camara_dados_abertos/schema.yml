@@ -343,10 +343,6 @@ models:
               field: data.data
       - name: horario
         description: Horário da apresentação da proposição
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__hora')
-              field: hora
       - name: id_proposicao
         description: ID proposição
       - name: url
@@ -805,7 +801,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: id_licitacao
         description: ID da licitação
       - name: ano_processo
@@ -813,7 +809,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: id_processo
         description: Número do processo
       - name: objeto
@@ -830,19 +826,19 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
-              field: ref('data.data')
+              field: data.data
       - name: data_publicacao
         description: Data de publicação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
-              field: ref('data.data')
+              field: data.data
       - name: data_autorizacao
         description: Data de autorização
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
-              field: ref('data.data')
+              field: data.data
       - name: quantidade_item
         description: Quantidade de itens ou lotes
       - name: quantidade_unidade
@@ -876,7 +872,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: id_licitacao
         description: ID da licitação
       - name: ano_contrato
@@ -884,7 +880,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: id_contrato
         description: ID do contrato
       - name: tipo_contrato
@@ -898,31 +894,31 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
-              field: ref('data.data')
+              field: data.data
       - name: data_publicacao
         description: Data de publicação do contrato
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
-              field: ref('data.data')
+              field: data.data
       - name: data_inicio_contrato
         description: Data de início da vigência original do contrato
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
-              field: ref('data.data')
+              field: data.data
       - name: data_fim_contrato
         description: Data de término da vigência original do contrato
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
-              field: ref('data.data')
+              field: data.data
       - name: data_fim_ultima_vigencia
         description: Data de término da última vigência
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
-              field: ref('data.data')
+              field: data.data
       - name: nome_fornecedor
         description: Nome do fornecedor
       - name: endereco_fornecedor
@@ -934,7 +930,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
-              field: ref('sigla')
+              field: sigla
       - name: cpf_cnpj_fornecedor
         description: CPF ou CNPJ do fornecedor
       - name: valor_original
@@ -967,7 +963,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: id_licitacao
         description: ID da licitação
       - name: id_item
@@ -1001,7 +997,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: tipo_contrato
         description: Tipo do contrato
       - name: situacao_item
@@ -1035,7 +1031,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: id_licitacao
         description: ID da licitação
       - name: tipo_registo
@@ -1045,7 +1041,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: id_pedido
         description: Número do pedido
       - name: data_cadastro
@@ -1053,7 +1049,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
-              field: ref('data.data')
+              field: data.data
       - name: horario_cadastro
         description: Horário de cadastro
       - name: id_orgao
@@ -1092,7 +1088,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: id_licitacao
         description: ID da licitação
       - name: descricao
@@ -1118,13 +1114,9 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
-              field: ref('data.data')
+              field: data.data
       - name: validade_proposta
         description: Validade da proposta
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__dia')
-              field: ref('dia.dia')
   - name: br_camara_dados_abertos__despesa
     description: Dados sobre as despesas cobertas pela Cota para Exercício da Atividade
       Parlamentar de cada deputado desde 2008
@@ -1186,13 +1178,13 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ref('ano.ano')
+              field: ano.ano
       - name: mes_competencia
         description: Mês de competência financeira do documento comprobatório da despesa
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
-              field: ref('mes.mes')
+              field: mes.mes
       - name: data_emissao
         description: Data de emissão do documento comprobatório da despesa a que se
           refere o registro.

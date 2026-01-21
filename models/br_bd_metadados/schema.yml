@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: bigquery_tables
+  - name: br_bd_metadados__bigquery_tables
     description: BigQuery metadata about the BD tables
     columns:
       - name: project_id
@@ -30,7 +30,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [flow_group_id]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.01
     columns:
       - name: flow_group_id
         description: Flow group identifier

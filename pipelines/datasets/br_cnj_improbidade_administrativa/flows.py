@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
-import datetime
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 
@@ -15,16 +11,13 @@ from pipelines.datasets.br_cnj_improbidade_administrativa.tasks import (
     main_task,
     write_csv_file,
 )
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import (
-    constants as dump_db_constants,
-)
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    get_current_flow_labels,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     rename_current_flow_run_dataset_table,
+    run_dbt,
 )
 from pipelines.utils.utils import log_task
 
@@ -43,7 +36,7 @@ with Flow(
     update_metadata = Parameter(
         "update_metadata", default=True, required=False
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
@@ -74,59 +67,43 @@ with Flow(
 
         output_filepath = write_csv_file(df, upstream_tasks=[max_date])
 
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=output_filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="overwrite",
-            wait=output_filepath,
+            upstream_tasks=[output_filepath],
+        )
+
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_alias=dbt_alias,
+            dbt_command="run/test",
+            disable_elementary=False,
+            upstream_tasks=[wait_upload_table],
         )
 
         with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "target": target,
-                    "dbt_alias": dbt_alias,
-                    "dbt_command": "run/test",
-                    "disable_elementary": False,
-                },
-                labels=current_flow_labels,
-                run_name=r"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[wait_upload_table],
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-                upstream_tasks=[wait_upload_table],
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = datetime.timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-            )
-
-        with case(update_metadata, True):
-            update_django_metadata(
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=output_filepath,
                 dataset_id=dataset_id,
                 table_id=table_id,
-                date_column_name={"date": "data_propositura"},
-                date_format="%Y-%m-%d",
-                coverage_type="part_bdpro",
-                prefect_mode=target,
-                time_delta={"months": 6},
-                bq_project="basedosdados",
+                dump_mode="overwrite",
                 upstream_tasks=[wait_for_materialization],
             )
+
+            with case(update_metadata, True):
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={"date": "data_propositura"},
+                    date_format="%Y-%m-%d",
+                    coverage_type="part_bdpro",
+                    time_delta={"months": 6},
+                    bq_project="basedosdados",
+                    upstream_tasks=[wait_upload_prod],
+                )
 
 br_cnj_improbidade_administrativa_flow.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value

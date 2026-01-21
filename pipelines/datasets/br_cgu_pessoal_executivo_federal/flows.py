@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_cgu_terceirizados
 """
 
-from datetime import timedelta
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
 from pipelines.datasets.br_cgu_pessoal_executivo_federal.schedules import (
@@ -18,22 +14,18 @@ from pipelines.datasets.br_cgu_pessoal_executivo_federal.tasks import (
     clean_save_table,
     crawl,
 )
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import (
-    constants as dump_db_constants,
-)
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    get_current_flow_labels,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     rename_current_flow_run_dataset_table,
+    run_dbt,
 )
 
 ROOT = "/tmp/data"
 URL = "https://www.gov.br/cgu/pt-br/acesso-a-informacao/dados-abertos/arquivos/terceirizados"
 
 
-# pylint: disable=C0103
 with Flow(
     name="br_cgu_pessoal_executivo_federal.terceirizados",
     code_owners=["ath67"],
@@ -43,7 +35,7 @@ with Flow(
         "dataset_id", default="br_cgu_pessoal_executivo_federal", required=True
     )
     table_id = Parameter("table_id", default="terceirizados", required=True)
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
@@ -59,12 +51,20 @@ with Flow(
     crawl_urls, temporal_coverage = crawl(URL)
     filepath = clean_save_table(ROOT, crawl_urls)
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="overwrite",
-        wait=filepath,
+        upstream_tasks=[filepath],
+    )
+
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
     )
 
     # wait_update_metadata = update_metadata(
@@ -78,32 +78,12 @@ with Flow(
     # )
 
     with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="overwrite",
+            upstream_tasks=[wait_for_materialization],
         )
 
 

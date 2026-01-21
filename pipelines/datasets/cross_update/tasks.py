@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for cross update of metadata.
 """
 
 import re
-
-# pylint: disable=invalid-name, too-many-locals
-from typing import Dict, List
 
 import basedosdados as bd
 import pandas as pd
@@ -14,13 +10,13 @@ from google.cloud import storage
 from prefect import task
 from tqdm import tqdm
 
+from pipelines.constants import constants
 from pipelines.datasets.cross_update.utils import find_closed_tables, save_file
-from pipelines.utils.constants import constants
 from pipelines.utils.utils import log
 
 
 @task
-def query_tables(year: int = 2024, mode: str = "dev") -> List[Dict[str, str]]:
+def query_tables(year: int = 2024, mode: str = "dev") -> list[dict[str, str]]:
     """
     Queries BigQuery Tables metadata to find elegible tables to zip.
     """
@@ -125,7 +121,7 @@ def get_metadata_data(mode: str = "dev") -> str:
 
 
 @task
-def filter_eligible_download_tables(eligible_download_tables: List) -> List:
+def filter_eligible_download_tables(eligible_download_tables: list) -> list:
     """
     Filters a list of tables to include only those that meet the following criteria:
         - Registered in Django database

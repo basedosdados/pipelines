@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Customizing stuff for the pipelines package.
 """
 
+from collections.abc import Callable, Iterable
 from functools import partial
-from typing import Callable, Iterable, List, Optional, Set
 
 from prefect.core.edge import Edge
 from prefect.core.flow import Flow
@@ -27,24 +26,25 @@ class CustomFlow(Flow):
     notify people when a FlowRun fails.
     """
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         name: str,
-        schedule: Schedule = None,
-        executor: Executor = None,
-        environment: Environment = None,
-        run_config: RunConfig = None,
-        storage: Storage = None,
-        tasks: Iterable[Task] = None,
-        edges: Iterable[Edge] = None,
-        reference_tasks: Iterable[Task] = None,
-        state_handlers: List[Callable] = None,
-        validate: bool = None,
-        result: Optional[Result] = None,
-        terminal_state_handler: Optional[
-            Callable[["Flow", State, Set[State]], Optional[State]]
-        ] = None,
-        code_owners: Optional[List[str]] = None,
+        schedule: Schedule | None = None,
+        executor: Executor | None = None,
+        environment: Environment | None = None,
+        run_config: RunConfig | None = None,
+        storage: Storage | None = None,
+        tasks: Iterable[Task] | None = None,
+        edges: Iterable[Edge] | None = None,
+        reference_tasks: Iterable[Task] | None = None,
+        state_handlers: list[Callable] | None = None,
+        validate: bool | None = None,
+        result: Result | None = None,
+        terminal_state_handler: Callable[
+            ["Flow", State, set[State]], State | None
+        ]
+        | None = None,
+        code_owners: list[str] | None = None,
     ):
         super().__init__(
             name=name,

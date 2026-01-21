@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 from prefect import task
 
 
 @task
-def get_table_ids() -> tuple[str, str, str, str]:
+def get_table_ids() -> tuple[str, str, str, str]:  # Disable
     table_ids = (
         "eleicao_perfil_candidato_2024",
         "eleicao_prestacao_contas_candidato_origem_2024",

@@ -1,25 +1,28 @@
 ---
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files  # prevents adding large files
         args: [--maxkb=4000]
       - id: detect-private-key  # detects private keys
       - id: fix-byte-order-marker  # fixes BOM
       - id: no-commit-to-branch  # prevents committing to protected branches
-  - repo: https://github.com/python-poetry/poetry
-    rev: 1.8.5
+      - id: mixed-line-ending
+        args: [--fix=lf]  # Ensures all line endings are LF
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.9.17
     hooks:
-      - id: poetry-check
+      - id: uv-lock
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.3
+    rev: v0.14.9
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: [--fix]
       - id: ruff-format
   - repo: https://github.com/lyz-code/yamlfix/
-    rev: 1.17.0
+    rev: 1.19.0
     hooks:
       - id: yamlfix
         args:
@@ -30,7 +33,7 @@ repos:
           - --exclude
           - target/**/*
   - repo: https://github.com/tconbeer/sqlfmt
-    rev: v0.20.0
+    rev: v0.28.2
     hooks:
       - id: sqlfmt
         language_version: python

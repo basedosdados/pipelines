@@ -141,7 +141,9 @@ dmypy.json
 notebooks/
 /tests/
 
-
+input/
+tmp/
+output/
 
 
 .DS_Store
@@ -161,3 +163,4 @@ models/**/tmp/
 models/**/input/
 models/**/output/
 models/**/extra/
+dbt_internal_packages/*

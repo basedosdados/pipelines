@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Schedules for br_sp_saopaulo_dieese_icv
 """
@@ -23,7 +22,7 @@ every_month = Schedule(
                 "target": "prod",
                 "materialize after dump": True,
                 "table_id": "mes",
-                "dbt_alias": False,
+                "dbt_alias": True,
             },
         )
     ],

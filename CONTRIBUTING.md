@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://basedosdados.org">
-        <img src="https://github.com/basedosdados/sdk/blob/master/docs/docs/pt/images/bd_minilogo.png" width="340" alt="Base dos Dados">
+        <img src="https://storage.googleapis.com/basedosdados-website/logos/bd_minilogo.png" width="340" alt="Base dos Dados">
     </a>
 </p>
 
@@ -14,7 +14,6 @@ Neste documento, mostra-se como configurar o ambiente para executar os 2 process
 
 Este guia é dedicado para novos integrantes da equipe da BD e voluntários que desejam colaborar com o projeto.
 
-
 ## Configuração de ambiente para desenvolvimento
 
 ### Requisitos
@@ -22,11 +21,11 @@ Este guia é dedicado para novos integrantes da equipe da BD e voluntários que 
 > [!WARNING]
 > Você precisa ter uma conta no [GitHub](https://github.com/) e ter o `git` configurado.
 
+- [git](https://git-scm.com/)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - Um editor de texto (recomendado [VS Code](https://code.visualstudio.com/))
 - WSL 2, apenas para usuário Windows
-- [`git`](https://git-scm.com/)
-- [`pyenv`](https://github.com/pyenv/pyenv): Para gerenciar versões do `python`
-- [`poetry`](https://python-poetry.org/): Para gerenciar as dependências
+  - Se você usa o Windows é essencial Instalar o WSL 2 (Ubuntu). Siga esse [passo a passo](https://learn.microsoft.com/pt-br/windows/wsl/install)
 
 Clone esse repositório
 
@@ -40,79 +39,25 @@ Entre no repositório clonado
 cd pipelines
 ```
 
-#### Instalar o WSL 2 (Ubuntu) - (Apenas usuário Windows)
-
-Se você usa o Windows é essencial Instalar o WSL 2 (Ubuntu). Siga esse [passo a passo](https://learn.microsoft.com/pt-br/windows/wsl/install)
-
-#### Instalar o `pyenv`
-
-É importante instalar o `pyenv` para garantir que a versão de python é padrão. Escrevemos uma versão resumida, mas recomendamos [esse material](https://realpython.com/intro-to-pyenv/) e [esse](https://gist.github.com/luzfcb/ef29561ff81e81e348ab7d6824e14404) para mais informações.
-
-Instale as dependências:
-
-```sh
-sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl
-```
-
-Instale o `pyenv`
-
-```sh
-curl https://pyenv.run | bash
-```
-
-> [!IMPORTANT]
-> Leia atentamente os avisos depois desse comando, existe um passo a passo essencial para que o `pyenv` funcione
-
-Instale o `python`
-
-> [!NOTE]
-> `pyenv` vai instalar a versão em [`.python-version`](/.python-version)
-
-```sh
-pyenv install
-```
-
-#### Instale o poetry
-
-```sh
-curl -sSL https://install.python-poetry.org | POETRY_VERSION=1.8.5 python3 -
-```
-
-Configure o poetry para criar o ambiente virtual (venv) no projeto
-
-```sh
-poetry config virtualenvs.in-project true
-```
-
-Crie o ambiente virtual e/ou ative se já existir
-
-```sh
-poetry shell
-```
-
-> [!TIP]
-> Existe duas forma de ativar um ambiente virtual (venv). Usando `source .venv/bin/activate` (Linux/MacOS) ou `poetry shell`.
-> Para desativar o ambiente virtual comando `deactivate`.
-
 #### Instalar as dependências
 
 ```sh
-poetry install --with dev --with test --no-root
+uv sync
 ```
 
 > [!WARNING]
-> Caso a instalação do `poetry` de erro no pacote `rpy2`, é recomendado rodar a seguinte linha para instalar o `r-base`: `sudo apt-get update & apt-get install -y r-base r-base-dev libtirpc-dev libcurl4-openssl-dev libpcre2-dev`
+> Caso a instalação das dependências apresente um erro no pacote `rpy2`, é recomendado rodar a seguinte linha para instalar o `r-base`: `sudo apt-get update & apt-get install -y r-base r-base-dev libtirpc-dev libcurl4-openssl-dev libpcre2-dev`
 
 Instalar os hooks de pré-commit (ver https://pre-commit.com/ para entendimento dos hooks)
 
 ```sh
-pre-commit install --install-hooks
+uv run pre-commit install --install-hooks
 ```
 
 Instale as dependências do `dbt`
 
 ```sh
-dbt deps
+uv run dbt deps
 ```
 
 #### Configurar as credenciais do DBT
@@ -133,12 +78,12 @@ Salve, feche e execute `exec bash`
 ### Erros comuns
 
 - Se atente para sempre carregar o arquivo `.env` com o comando `source .env`
-    - Há a extensão do vscode chamada Python Environment Manager que você consegue ver e configurar as envs. Segue o link: [Python Environment Manager](https://marketplace.visualstudio.com/items?itemName=donjayamanne.python-environment-manager)
-    - Garanta que o arquivo `.env` está certinho:
-    - Não deve ter espaços após o `:`
-    - Não pode ter `_` a mais nem a menos
+  - Há a extensão do vscode chamada Python Environment Manager que você consegue ver e configurar as envs. Segue o link: [Python Environment Manager](https://marketplace.visualstudio.com/items?itemName=donjayamanne.python-environment-manager)
+  - Garanta que o arquivo `.env` está certinho:
+  - Não deve ter espaços após o `:`
+  - Não pode ter `_` a mais nem a menos
 - Não se esqueça de criar o arquivo `auth.toml` na pasta `$HOME/.prefect` conforme descrito no `README.md`
-    - Caso você não tenha a api_key do arquivo auth.toml, mande mensagem para a Laura, uma vez que é uma chave pessoal.
+  - Caso você não tenha a api_key do arquivo auth.toml, mande mensagem para a Laura, uma vez que é uma chave pessoal.
 
 ## Pipelines
 
@@ -182,35 +127,26 @@ constants.py                 # valores constantes para todos os órgãos
 
 ### Adicionando órgãos e projetos
 
-O script `manage.py` é responsável por criar e listar projetos desse repositório.
+O script `manage.py` é responsável por criar e listar pipelines desse repositório.
 
 Você pode obter mais informações sobre os comandos com
 
 ```sh
-poetry run python manage.py --help
+uv run manage.py --help
 ```
 
-O comando `add-agency` permite que você adicione um novo órgão a partir do template padrão. Para fazê-lo, basta executar
+O comando `add-pipeline` permite que você adicione uma nova pipeline a partir do template padrão. Para fazê-lo, basta executar
 
 ```sh
-poetry run python manage.py add-agency nome-do-orgao
+uv run manage.py add-pipeline nome_da_pipeline
 ```
 
-Isso irá criar um diretório com o nome `nome-do-orgao` em `pipelines/` com o template padrão, já adaptado ao nome do órgão. O nome do órgão deve estar em [snake case](https://en.wikipedia.org/wiki/Snake_case) e deve ser único. Qualquer conflito com um projeto já existente será reportado.
+Isso irá criar um diretório com o nome da pipeline em `pipelines/datasets/` com o template padrão, já adaptado ao nome do órgão. O nome do órgão deve estar em [snake case](https://en.wikipedia.org/wiki/Snake_case) e deve ser único. Qualquer conflito com um projeto já existente será reportado.
 
 Para listar os órgãos existentes e nomes reservados
 
 ```sh
-poetry run python manage.py list-projects
-```
-
-Em seguida, leia com atenção os comentários em cada um dos arquivos do seu projeto, de modo a evitar conflitos e erros.
-Links para a documentação do Prefect também encontram-se nos comentários.
-
-Caso o órgão para o qual você desenvolverá um projeto já exista
-
-```sh
-poetry run python manage.py add-project datasets nome-do-projeto
+uv run manage.py list-pipelines
 ```
 
 ### Testar uma pipeline localmente
@@ -218,10 +154,10 @@ poetry run python manage.py add-project datasets nome-do-projeto
 Escolha a pipeline que deseja executar (exemplo `pipelines.rj_escritorio.test_pipeline.flows.flow`). Crie um arquivo `test.py` na pasta e importe o flow
 
 ```python
-from pipelines.utils.utils import run_local
 from pipelines.datasets.test_pipeline.flows import flow
+from pipelines.utils.utils import run_local
 
-run_local(flow, parameters = {"param": "val"})
+run_local(flow, parameters={"param": "val"})
 ```
 
 ### Testar uma pipeline na nuvem
@@ -235,7 +171,7 @@ cp .env.example .env
 Substitua os valores das seguintes variáveis pelos seus respectivos valores:
 
 - `GOOGLE_APPLICATION_CREDENTIALS`: Path para um arquivo JSON com as credenciais da API do Google Cloud
-    de uma conta de serviço com acesso de escrita ao bucket `basedosdados-dev` no Google Cloud Storage.
+  de uma conta de serviço com acesso de escrita ao bucket `basedosdados-dev` no Google Cloud Storage.
 - `VAULT_TOKEN`: deve ter o valor do token do órgão para o qual você está desenvolvendo. Caso não saiba o token, entre em contato.
 
 Carregue as variáveis de ambiente do arquivo `.env`:
@@ -256,9 +192,9 @@ O valor da chave `tenant_id` pode ser coletada através da seguinte URL: https:/
 
 ```graphql
 query {
-    tenant {
-        id
-    }
+  tenant {
+    id
+  }
 }
 ```
 
@@ -284,7 +220,7 @@ run_cloud(
 Execute a pipeline com:
 
 ```sh
-poetry run python test.py
+uv run test.py
 ```
 
 A saída deverá se assemelhar ao exemplo abaixo:
@@ -309,12 +245,12 @@ Essa seção explica como enviar dados para o datalake da BD.
 
 1. Escolher a base e entender mais dos dados
 2. Preencher as tabelas de arquitetura
-    - As tabelas de arquitetura determinam qual a estrutura de cada tabela do seu conjunto de dados. Elas definem, por exemplo, o nome, ordem e metadados das variáveis, além de compatibilizações quando há mudanças em versões (por exemplo, se uma variável muda de nome de um ano para o outro).
-    - [Template da tabela de arquitetura para preencher](https://docs.google.com/spreadsheets/d/1sReQvLG6s53BUcvfoeQOS6SOvXRGdv1Li1qFD9oWMds/edit?gid=1596237098#gid=1596237098)
-    - Leia o [Manual de estido da BD](https://basedosdados.org/docs/style_data) para preencher a tabela de arquitetura
-    - Compartilhe a tabela com a equipe de dados da BD para aprovar.
+   - As tabelas de arquitetura determinam qual a estrutura de cada tabela do seu conjunto de dados. Elas definem, por exemplo, o nome, ordem e metadados das variáveis, além de compatibilizações quando há mudanças em versões (por exemplo, se uma variável muda de nome de um ano para o outro).
+   - [Template da tabela de arquitetura para preencher](https://docs.google.com/spreadsheets/d/1sReQvLG6s53BUcvfoeQOS6SOvXRGdv1Li1qFD9oWMds/edit?gid=1596237098#gid=1596237098)
+   - Leia o [Manual de estido da BD](https://basedosdados.org/docs/style_data) para preencher a tabela de arquitetura
+   - Compartilhe a tabela com a equipe de dados da BD para aprovar.
 3. Escrever código de captura e limpeza de dados
-    - Os arquivos devem estar no formato CSV ou Parquet
+   - Os arquivos devem estar no formato CSV ou Parquet
 4. Chave de acesso ao Google Cloud dos voluntários
 
 ### Upload dos dados brutos no BigQuery
@@ -326,13 +262,10 @@ Para subir os dados, use o módulo da BD.
 ```python
 import basedosdados as bd
 
-DATASET_ID = "dataset_id" # Nome do dataset
-TABLE_ID = "table_id" # Nome da tabela
+DATASET_ID = "dataset_id"  # Nome do dataset
+TABLE_ID = "table_id"  # Nome da tabela
 
-tb = bd.Table(
-    dataset_id=DATASET_ID,
-    table_id=TABLE_ID
-)
+tb = bd.Table(dataset_id=DATASET_ID, table_id=TABLE_ID)
 ```
 
 No próximo passo carregamos os dados para o Storage da BD e criamos uma tabela BigQuery que por uma conexão externa acessa esses dados diretamente do Storage
@@ -341,10 +274,10 @@ No próximo passo carregamos os dados para o Storage da BD e criamos uma tabela 
 
 ```python
 tb.create(
-    path=path_to_data, # Caminho para o arquivo csv ou parquet
-    if_storage_data_exists='raise',
-    if_table_exists='replace',
-    source_format='csv'
+    path=path_to_data,  # Caminho para o arquivo csv ou parquet
+    if_storage_data_exists="raise",
+    if_table_exists="replace",
+    source_format="csv",
 )
 ```
 
@@ -356,7 +289,7 @@ from databasers_utils import TableArchitecture
 arch = TableArchitecture(
     dataset_id="<dataset-id>",
     tables={
-        "<table-id>": "URL da arquiterura do Google Sheet", # Exemplo https://docs.google.com/spreadsheets/d/1K1svie4Gyqe6NnRjBgJbapU5sTsLqXWTQUmTRVIRwQc/edit?usp=drive_link
+        "<table-id>": "URL da arquiterura do Google Sheet",  # Exemplo https://docs.google.com/spreadsheets/d/1K1svie4Gyqe6NnRjBgJbapU5sTsLqXWTQUmTRVIRwQc/edit?usp=drive_link
     },
 )
 
@@ -380,7 +313,6 @@ arch.upload_columns()
 
 Os arquivos sql do dbt usam a macro [`set_datalake_project`](./macros/set_datalake_project.sql) que indica de qual projeto (basedosdados-staging ou basedosdados-dev) serão consumidos os dados. Ao criar os arquivos usando a função `create_sql_files` a macro será inserida.
 
-
 ```sql
 select
     col_name
@@ -390,11 +322,10 @@ from {{ set_datalake_project("<DATASET_ID>_staging.<TABLE_ID>") }}
 > [!IMPORTANT]
 > Não use a macro para fazer join, joins devem ser feitos com a tabelas na zona de produção usando o projeto basedosdados `basedosdados.<DATASET_ID>.<TABLE_ID>` Exemplo: [modelo br_bd_diretorios_brasil__distrito_2022.sql](https://github.com/basedosdados/pipelines/blob/main/models/br_bd_diretorios_brasil/br_bd_diretorios_brasil__distrito_2022.sql)
 
-
 ## Usando o DBT
 
 > [!IMPORTANT]
-> Ative o ambiente virtual (venv) com `source .venv/bin/activate` ou  `poetry shell` para executar os comandos `dbt`.
+> Ative o ambiente virtual (venv) com `source .venv/bin/activate` para executar os comandos `dbt`.
 
 ### Materializando o modelo no BigQuery
 
@@ -419,7 +350,6 @@ Materializa todos os modelos no caminho em basedosdados-dev consumindo os dados 
 dbt run --select models/dataset_id
 ```
 
-
 Materializa um único modelo pelo caminho do arquivo sql em basedosdados-dev consumindo os dados de basedosdados-dev.{table_id}_staging
 
 ```sh
@@ -435,6 +365,7 @@ Os testes do modelo são definidos no arquivo `schema.yml`
 ##### Conexão com diretórios
 
 ```yaml
+---
 models:
   - name: orders
     columns:
@@ -448,13 +379,12 @@ models:
 ##### Chaves únicas
 
 ```yaml
+---
 models:
   - name: orders
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - country_code
-            - order_id
+          combination_of_columns: [country_code, order_id]
 ```
 
 > [!NOTE]
@@ -463,6 +393,7 @@ models:
 ##### Não nulidade das colunas
 
 ```yaml
+---
 models:
   - name: dataset_id__table_id
     description:
@@ -479,6 +410,7 @@ Permite explicitar valores que vão ser ignorados no momento de realizar o teste
 > Caso utilize esse teste é essencial documentar nos metadados da tabela quais exceções foram aplicadas e porque elas são aceitáveis. De preferência adicionar essas informações na descrição da tabela para que o usuário seja informado dessas exceções
 
 ```yaml
+---
 models:
   - name: dataset_id__table_id
     description: Table description
@@ -486,7 +418,7 @@ models:
       - custom_relationships:
         to: ref('br_bd_diretorios_mundo__sistema_harmonizado')
         field: id_sh4
-        ignore_values: ["5410"] # O valor 5410 será ignorado
+        ignore_values: ['5410']  # O valor 5410 será ignorado
         proportion_allowed_failures: 0
 ```
 
@@ -498,14 +430,13 @@ Permite inserir uma proporção de chaves únicas que repetidas que pode ser tol
 > Caso utilize esse teste é essencial documentar nos metadados da tabela quais exceções foram aplicadas e porque elas são aceitáveis. De preferência adicionar essas informações na descrição da tabela para que o usuário seja informado dessas exceções
 
 ```yaml
+---
 models:
   - name: dataset_id__table_id
     description: Table description
     tests:
       - custom_unique_combinations_of_columns:
-          combination_of_columns:
-            - column_1
-            - column_2
+          combination_of_columns: [column_1, column_2]
           proportion_allowed_failures: 0.05
 ```
 
@@ -518,17 +449,16 @@ Para tabelas muito grandes é importante que o teste rode apenas nas linhas nova
 É inserido à nível do teste e permite inserir lógica SQL para filtrar os dados.
 
 ```yaml
+---
 models:
   - name: dataset_id__table_id
     description: Table description
     tests:
       - custom_unique_combinations_of_columns:
-          combination_of_columns:
-            - column_1
-            - column_2
+          combination_of_columns: [column_1, column_2]
           proportion_allowed_failures: 0.05
           config:
-                where: "date_column = '2024-01-01'"
+            where: 'date_column = '2024-01-01''
 ```
 
 ###### `where + keyword`
@@ -540,13 +470,13 @@ A macro [`custom_get_where_subquery`](macros/custom_get_where_subquery.sql) dete
 - `__most_recent_year__` : A macro faz um query usando a coluna `ano` para identificar o ano
 
 ```yaml
+---
 models:
   - name: dataset_id__table_id
     description: Table description
     tests:
       - custom_unique_combinations_of_columns:
-          combination_of_columns:
-            - column_1
+          combination_of_columns: [column_1]
           proportion_allowed_failures: 0.05
           config:
             where: __most_recent_year_month__

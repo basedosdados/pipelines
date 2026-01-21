@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_stf_corte_aberta project
 """
@@ -12,7 +11,7 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -62,7 +61,7 @@ def web_scrapping():
     driver.maximize_window()
     time.sleep(45)
     WebDriverWait(driver, 180).until(
-        EC.element_to_be_clickable(
+        expected_conditions.element_to_be_clickable(
             (By.XPATH, '//*[@id="EXPORT-BUTTON-PADRAO"]')
         )
     ).click()
@@ -112,7 +111,7 @@ def column_bool(df):
 
 
 def rename_ordening_columns(df):
-    df.rename(columns=stf_constants.RENAME.value, inplace=True)
+    df = df.rename(columns=stf_constants.RENAME.value)
     df = df[stf_constants.ORDEM.value]
     return df
 
@@ -146,7 +145,7 @@ def partition_data(
         if not os.path.exists(partition_path):
             os.makedirs(partition_path)
         df_partition = df[df[column_name] == value].copy()
-        df_partition.drop([column_name], axis=1, inplace=True)
+        df_partition = df_partition.drop([column_name], axis=1)
         csv_path = os.path.join(partition_path, "data.csv")
         # mode = "a" if os.path.exists(csv_path) else "w"
         df_partition.to_csv(

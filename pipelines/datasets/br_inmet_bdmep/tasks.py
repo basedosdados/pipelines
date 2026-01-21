@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_inmet_bdmep
 """
@@ -26,7 +25,6 @@ from pipelines.datasets.br_inmet_bdmep.utils import (
 from pipelines.utils.utils import log
 
 
-# pylint: disable=C0103
 @task(
     max_retries=constants.TASK_MAX_RETRIES.value,
     retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),

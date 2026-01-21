@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_tse_eleicoes
 """
-# pylint: disable=invalid-name,line-too-long
-
-from datetime import timedelta
 
 from prefect import Parameter, case, unmapped
 from prefect.run_configs import KubernetesRun
@@ -20,16 +16,14 @@ from pipelines.datasets.cross_update.tasks import (
     get_metadata_data,
     query_tables,
 )
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import (
-    constants as dump_db_constants,
-)
 from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     get_current_flow_labels,
     rename_current_flow_run_dataset_table,
+    run_dbt,
 )
 
 with Flow(
@@ -40,7 +34,7 @@ with Flow(
         "update_metadata_table", default=False, required=False
     )
     year = Parameter("year", default=2024, required=False)
-    target = Parameter("target", default="prod", required=False)
+
     current_flow_labels = get_current_flow_labels()
 
     # Atualiza a tabela que contem os metadados do BQ
@@ -48,7 +42,7 @@ with Flow(
         update_metadata_table_flow = create_flow_run(
             flow_name="cross_update.update_metadata_table",
             project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={"materialization_mode": target},
+            parameters={"materialization_mode": "prod"},
             labels=current_flow_labels,
         )
 
@@ -61,7 +55,7 @@ with Flow(
 
     # Consulta e  seleciona apenas as tabelas que atendem os critérios de tamanho e abertura(bdpro)
 
-    eligible_to_zip_tables = query_tables(year=year, mode=target)
+    eligible_to_zip_tables = query_tables(year=year, mode="prod")
     tables_to_zip = filter_eligible_download_tables(
         eligible_to_zip_tables, upstream_tasks=[eligible_to_zip_tables]
     )
@@ -69,7 +63,7 @@ with Flow(
     # Para cada tabela selecionada cria um flow de dump para gcs
     with case(dump_to_gcs, True):
         dump_to_gcs_flow = create_flow_run.map(
-            flow_name=unmapped(utils_constants.FLOW_DUMP_TO_GCS_NAME.value),
+            flow_name=unmapped(constants.FLOW_DUMP_TO_GCS_NAME.value),
             project_name=unmapped(constants.PREFECT_DEFAULT_PROJECT.value),
             parameters=tables_to_zip,
             labels=unmapped(current_flow_labels),
@@ -100,7 +94,7 @@ with Flow(
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
@@ -114,10 +108,10 @@ with Flow(
     )
 
     file_path = get_metadata_data(
-        mode=target,
+        mode="prod",
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=file_path,
         dataset_id=dataset_id,
         table_id=table_id,
@@ -125,47 +119,32 @@ with Flow(
         upstream_tasks=[file_path],
     )
 
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
+
     with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-            upstream_tasks=[wait_upload_table],
-        )
-
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
-        )
-
-    with case(update_metadata, True):
-        update_django_metadata(
+        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+            data_path=file_path,
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage_type="all_free",
-            prefect_mode=target,
-            bq_project="basedosdados",
-            historical_database=False,
+            dump_mode="append",
+            upstream_tasks=[wait_for_materialization],
         )
+
+        with case(update_metadata, True):
+            update_django_metadata(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                coverage_type="all_free",
+                bq_project="basedosdados",
+                historical_database=False,
+                upstream_tasks=[wait_upload_prod],
+            )
 
 
 crossupdate_update_metadata_table.storage = GCS(
