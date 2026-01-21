@@ -127,4 +127,4 @@ datasets_br_mp_pep_cargos_funcoes_flow.storage = GCS(
 datasets_br_mp_pep_cargos_funcoes_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-datasets_br_mp_pep_cargos_funcoes_flow.schedule = every_month
+# datasets_br_mp_pep_cargos_funcoes_flow.schedule = every_month
