@@ -14,7 +14,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: populacao
         description: População residente
   - name: br_ibge_populacao__uf
@@ -30,7 +30,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -52,7 +52,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
