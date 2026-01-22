@@ -8,12 +8,24 @@ models:
         description: Country abbreviation (3-letter code)
       - name: year
         description: Year
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: month
         description: Month (1-12)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: type
         description: Type
       - name: date
         description: Date
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
       - name: source
         description: Data source
       - name: total_seats
@@ -487,11 +499,23 @@ models:
         description: Country abbreviation (3-letter code)
       - name: year
         description: Year
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: month
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
         description: Month (1-12)
       - name: type
         description: Type
       - name: date
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
         description: Date
       - name: source
         description: Data source
