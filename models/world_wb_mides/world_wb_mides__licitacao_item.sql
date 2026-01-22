@@ -1,7 +1,7 @@
 {{
     config(
-        alias="licitacao_item",
         schema="world_wb_mides",
+        alias="licitacao_item",
         materialized="table",
         partition_by={
             "field": "ano",
