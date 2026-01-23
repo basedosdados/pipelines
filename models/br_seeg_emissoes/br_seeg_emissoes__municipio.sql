@@ -1,7 +1,7 @@
 {{
     config(
-        schema="br_seeg_emissoes",
         alias="municipio",
+        schema="br_seeg_emissoes",
         materialized="table",
         partition_by={
             "field": "ano",
