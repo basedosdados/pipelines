@@ -1,7 +1,7 @@
 # ruff: noqa: RUF001
 """
 Esse script atualiza as seguintes tabelas do dataset br_inep_sinopse_estatistica_educacao_basica
-para 2024.
+para 2025.
 
 - tempo_ensino
 - localizacao
@@ -24,32 +24,31 @@ import basedosdados as bd
 import pandas as pd
 import requests
 
-ROOT = Path("models") / "br_inep_sinopse_estatistica_educacao_basica"
-INPUT = ROOT / "input"
-OUTPUT = ROOT / "output"
+INPUT = Path("input") / "br_inep_sinopse_estatistica_educacao_basica"
+OUTPUT = Path("output") / "br_inep_sinopse_estatistica_educacao_basica"
 
-os.makedirs(INPUT, exist_ok=True)
-os.makedirs(OUTPUT, exist_ok=True)
+INPUT.mkdir(parents=True, exist_ok=True)
+OUTPUT.mkdir(parents=True, exist_ok=True)
 
-URL = "https://download.inep.gov.br/dados_abertos/sinopses_estatisticas/sinopses_estatisticas_censo_escolar_2024.zip"
+URL = "https://download.inep.gov.br/dados_abertos/sinopses_estatisticas/sinopses_estatisticas_censo_escolar_2025.zip"
 
 r = requests.get(
     URL, headers={"User-Agent": "Mozilla/5.0"}, verify=False, stream=True
 )
 
-with open(INPUT / "2024.zip", "wb") as fd:
+with open(INPUT / "2025.zip", "wb") as fd:
     for chunk in r.iter_content(chunk_size=128):
         fd.write(chunk)
 
-with zipfile.ZipFile(INPUT / "2024.zip") as z:
+with zipfile.ZipFile(INPUT / "2025.zip") as z:
     z.extractall(INPUT)
 
 
 def read_sheet(sheet_name: str, skiprows: int = 8) -> pd.DataFrame:
     return pd.read_excel(
         INPUT
-        / "sinopse_estatistica_censo_escolar_2024"
-        / "Sinopse_Estatistica_da_Educação_Basica_2024.xlsx",
+        / "sinopse_estatistica_censo_escolar_2025"
+        / "Sinopse_Estatistica_da_Educação_Basica_2025.xlsx",
         skiprows=skiprows,
         sheet_name=sheet_name,
     )
@@ -378,7 +377,7 @@ df_etapa_ensino_serie = (
 
 for sigla_uf, df in df_etapa_ensino_serie.groupby("sigla_uf"):
     save_path_uf = (
-        OUTPUT / "etapa_ensino_serie" / "ano=2024" / f"sigla_uf={sigla_uf}"
+        OUTPUT / "etapa_ensino_serie" / "ano=2025" / f"sigla_uf={sigla_uf}"
     )
     os.makedirs(save_path_uf, exist_ok=True)
     df.drop(columns=["sigla_uf"]).to_csv(
@@ -556,7 +555,7 @@ df_faixa_etaria["quantidade_matricula"] = df_faixa_etaria[
 ].astype("Int64")
 
 for sigla_uf, df in df_faixa_etaria.groupby("sigla_uf"):
-    path = OUTPUT / "faixa_etaria" / "ano=2024" / f"sigla_uf={sigla_uf}"
+    path = OUTPUT / "faixa_etaria" / "ano=2025" / f"sigla_uf={sigla_uf}"
     os.makedirs(path, exist_ok=True)
     df.drop(columns=["sigla_uf"]).to_csv((path / "data.csv"), index=False)
 
@@ -666,7 +665,7 @@ df_localizacao = df_localizacao.rename(columns={"uf": "sigla_uf"})[
 ]
 
 for sigla_uf, df in df_localizacao.groupby("sigla_uf"):
-    path = OUTPUT / "localizacao" / "ano=2024" / f"sigla_uf={sigla_uf}"
+    path = OUTPUT / "localizacao" / "ano=2025" / f"sigla_uf={sigla_uf}"
     os.makedirs(path, exist_ok=True)
     df.drop(columns=["sigla_uf"]).to_csv((path / "data.csv"), index=False)
 
@@ -775,7 +774,7 @@ df_tempo_ensino = df_tempo_ensino.rename(columns={"uf": "sigla_uf"})[
 ]
 
 for sigla_uf, df in df_tempo_ensino.groupby("sigla_uf"):
-    path = OUTPUT / "tempo_ensino" / "ano=2024" / f"sigla_uf={sigla_uf}"
+    path = OUTPUT / "tempo_ensino" / "ano=2025" / f"sigla_uf={sigla_uf}"
     os.makedirs(path, exist_ok=True)
     df.drop(columns=["sigla_uf"]).to_csv((path / "data.csv"), index=False)
 
@@ -909,7 +908,7 @@ df_sexo_raca_cor = df_sexo_raca_cor.rename(columns={"uf": "sigla_uf"})[
 ]
 
 for sigla_uf, df in df_sexo_raca_cor.groupby("sigla_uf"):
-    path = OUTPUT / "sexo_raca_cor" / "ano=2024" / f"sigla_uf={sigla_uf}"
+    path = OUTPUT / "sexo_raca_cor" / "ano=2025" / f"sigla_uf={sigla_uf}"
     os.makedirs(path, exist_ok=True)
     df.drop(columns=["sigla_uf"]).to_csv((path / "data.csv"), index=False)
 
@@ -1186,7 +1185,7 @@ df_docente_etapa_ensino = (
 
 for sigla_uf, df in df_docente_etapa_ensino.groupby("sigla_uf"):
     save_path_uf = (
-        OUTPUT / "docente_etapa_ensino" / "ano=2024" / f"sigla_uf={sigla_uf}"
+        OUTPUT / "docente_etapa_ensino" / "ano=2025" / f"sigla_uf={sigla_uf}"
     )
     os.makedirs(save_path_uf, exist_ok=True)
     df.drop(columns=["sigla_uf"]).to_csv(
@@ -1504,7 +1503,7 @@ df_docente_localizacao = pd.concat(
 
 for sigla_uf, df in df_docente_localizacao.groupby("sigla_uf"):
     save_path_uf = (
-        OUTPUT / "docente_localizacao" / "ano=2024" / f"sigla_uf={sigla_uf}"
+        OUTPUT / "docente_localizacao" / "ano=2025" / f"sigla_uf={sigla_uf}"
     )
     os.makedirs(save_path_uf, exist_ok=True)
     df.drop(columns=["sigla_uf"]).to_csv(
@@ -1710,7 +1709,7 @@ df_docente_escolaridade = (
 
 for sigla_uf, df in df_docente_escolaridade.groupby("sigla_uf"):
     save_path_uf = (
-        OUTPUT / "docente_escolaridade" / "ano=2024" / f"sigla_uf={sigla_uf}"
+        OUTPUT / "docente_escolaridade" / "ano=2025" / f"sigla_uf={sigla_uf}"
     )
     os.makedirs(save_path_uf, exist_ok=True)
     df.drop(columns=["sigla_uf"]).to_csv(
@@ -1815,7 +1814,7 @@ df_docente_deficiencia = (
 
 for sigla_uf, df in df_docente_deficiencia.groupby("sigla_uf"):
     save_path_uf = (
-        OUTPUT / "docente_deficiencia" / "ano=2024" / f"sigla_uf={sigla_uf}"
+        OUTPUT / "docente_deficiencia" / "ano=2025" / f"sigla_uf={sigla_uf}"
     )
     os.makedirs(save_path_uf, exist_ok=True)
     df.drop(columns=["sigla_uf"]).to_csv(
@@ -2103,7 +2102,7 @@ for sigla_uf, df in df_docente_faixa_etaria_sexo.groupby("sigla_uf"):
     save_path_uf = (
         OUTPUT
         / "docente_faixa_etaria_sexo"
-        / "ano=2024"
+        / "ano=2025"
         / f"sigla_uf={sigla_uf}"
     )
     os.makedirs(save_path_uf, exist_ok=True)
@@ -2368,7 +2367,7 @@ for sigla_uf, df in df_docente_regime_contrato.groupby("sigla_uf"):
     save_path_uf = (
         OUTPUT
         / "docente_regime_contrato"
-        / "ano=2024"
+        / "ano=2025"
         / f"sigla_uf={sigla_uf}"
     )
     os.makedirs(save_path_uf, exist_ok=True)
