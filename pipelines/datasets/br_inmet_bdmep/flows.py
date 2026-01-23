@@ -26,7 +26,6 @@ with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
         "dataset_id", default="br_inmet_bdmep", required=False
     )
     table_id = Parameter("table_id", default="microdados", required=False)
-    year = Parameter("year", default=2024, required=False)
     update_metadata = Parameter(
         "update_metadata", default=True, required=False
     )
@@ -54,9 +53,7 @@ with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
     )
 
     with case(coverage_check, True):
-        output_filepath = get_base_inmet(
-            year=year, upstream_tasks=[coverage_check]
-        )
+        output_filepath = get_base_inmet(upstream_tasks=[coverage_check])
 
         wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=output_filepath,

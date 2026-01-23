@@ -3,11 +3,22 @@ version: 2
 models:
   - name: br_inmet_bdmep__microdados  ## modelo dbt.sql que está no diretório
     description: Microdados do Instituto Nacional de Meteorologia
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.40
     columns:
       - name: ano
         description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: data
         description: Data
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
       - name: hora
         description: Hora (UTC)
       - name: id_estacao
