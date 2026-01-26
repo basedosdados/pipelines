@@ -1,3 +1,4 @@
+# ruff: noqa: RUF001
 # %%
 import os
 
@@ -84,7 +85,6 @@ df = df[
     )  # Include only rows where 'dependencia' is "Total"
     & (df["regiao"] == "Brasil")  # Include only rows for the whole country
 ]
-df
 
 # %%
 # Filters the DataFrame to keep only rows where 'regiao' is "Brasil"
@@ -105,9 +105,6 @@ melted_dataframe = pd.concat(
         )
     ]
 )
-
-# %%
-melted_dataframe
 
 # %%
 melted_dataframe["etapa_ensino"] = melted_dataframe["metrica"].apply(
@@ -164,14 +161,8 @@ df_bq = bd.read_sql(
 )
 
 # %%
-df_bq
-
-# %%
 # Concatenate two DataFrames:
 df_updated = pd.concat([df_bq, melted_dataframe])
-
-# %%
-df_updated
 
 # %%
 # Convert all values in df_updated to strings and save as a CSV file.
