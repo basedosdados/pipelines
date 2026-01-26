@@ -1,7 +1,7 @@
 {{
     config(
-        schema="br_seeg_emissoes",
         alias="dicionario",
+        schema="br_seeg_emissoes",
         materialized="table",
     )
 }}
