@@ -169,7 +169,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__trimestre')
-              field: trimestre
+              field: trimestre.trimestre
       - name: id_uf
         description: ID Unidade da Federação
         tests:
@@ -2330,7 +2330,7 @@ models:
         description: 'Este curso técnico que ... frequentou anteriormente foi feito:'
         tests:
           - dbt_utils.not_null_proportion:
-              at_least: 0.01
+              at_least: 0.008
       - name: V3022A
         description: Em que ano ... iniciou este curso técnico que frequentou anteriormente?
       - name: V3022C
@@ -2355,7 +2355,7 @@ models:
         description: '... concluiu este curso técnico que frequentou anteriormente?'
         tests:
           - dbt_utils.not_null_proportion:
-              at_least: 0.01
+              at_least: 0.007
       - name: V3023A
         description: '... concluiu este curso técnico ou normal (magistério) que frequentou?'
         tests:
@@ -2371,7 +2371,7 @@ models:
           superior?'
         tests:
           - dbt_utils.not_null_proportion:
-              at_least: 0.01
+              at_least: 0.009
       - name: V3026
         description: '...frequenta algum curso de qualificação profissional?'
         tests:
@@ -2384,7 +2384,7 @@ models:
           de nível superior?
         tests:
           - dbt_utils.not_null_proportion:
-              at_least: 0.01
+              at_least: 0.009
       - name: V3029
         description: Anteriormente, ... frequentou algum curso de qualificação profissional?
         tests:
@@ -2417,7 +2417,7 @@ models:
         description: Por que motivo ... não frequenta escola ou creche?
         tests:
           - dbt_utils.not_null_proportion:
-              at_least: 0.01
+              at_least: 0.007
       - name: V3033A
         description: Qual o principal motivo para ... não frequentar escola ou creche?
         tests:

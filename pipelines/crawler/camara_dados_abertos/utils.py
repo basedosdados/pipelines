@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 from io import BytesIO
 from urllib.request import urlopen
@@ -24,7 +23,9 @@ def download_table_despesa(table_id: str) -> None:
         constants_camara.INPUT_PATH.value,
     ]
 
-    for url_year, input_path_year in dict(zip(url, input_path)).items():
+    for url_year, input_path_year in dict(
+        zip(url, input_path, strict=False)
+    ).items():
         try:
             log(
                 f"Downloading {table_id} from {url_year} and extracting to {input_path_year}"
@@ -34,7 +35,7 @@ def download_table_despesa(table_id: str) -> None:
             zipfile.extractall(path=input_path_year)
             log(f"File downloaded successfully to {input_path_year}")
         except requests.exceptions.RequestException as e:
-            raise Exception(f"Error in request: {e}")
+            raise Exception(f"Error in request: {e}") from e
 
 
 def download_all_table(table_id: str) -> None:
@@ -59,7 +60,9 @@ def download_all_table(table_id: str) -> None:
         constants_camara.TABLES_INPUT_PATH_ANO_ANTERIOR.value[table_id],
     ]
 
-    for url_year, input_path_year in dict(zip(url, input_path)).items():
+    for url_year, input_path_year in dict(
+        zip(url, input_path, strict=False)
+    ).items():
         os.makedirs(constants_camara.INPUT_PATH.value, exist_ok=True)
 
         log(
@@ -75,7 +78,7 @@ def download_all_table(table_id: str) -> None:
 
             log(f"File downloaded successfully to {input_path_year}")
         except requests.exceptions.RequestException as e:
-            raise Exception(f"Error in request: {e}")
+            raise Exception(f"Error in request: {e}") from e
 
 
 def download_and_read_data(table_id: str) -> pd.DataFrame:

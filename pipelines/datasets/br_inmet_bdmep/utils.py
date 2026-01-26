@@ -1,20 +1,48 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_inmet_bdmep project
 """
 
-# pylint: disable=too-few-public-methods,invalid-name
-
-import os
 import re
-import tempfile
-import urllib.request
 import zipfile
 from datetime import datetime, time
 
 import numpy as np
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 from unidecode import unidecode
+
+from pipelines.datasets.br_inmet_bdmep.constants import ConstantsMicrodados
+from pipelines.utils.utils import log
+
+
+def get_latest_dowload_link() -> str:
+    try:
+        reponse = requests.get(ConstantsMicrodados.URL.value)
+
+        soup = BeautifulSoup(reponse.text, "html.parser")
+        latest_dowload_link = soup.select("article.post-preview a:last-child")[
+            -1
+        ].get("href")
+
+        return latest_dowload_link
+
+    except IndexError:
+        raise Exception(
+            "Nenhum link para download foi encontrado. Verifique o site e o select usado"
+        ) from None
+
+
+def get_date_from_path(path: str) -> datetime:
+    try:
+        match_data = re.compile(r"(\d{2}-\d{2}-\d{4})\.CSV$").search(path)
+        date = datetime.strptime(match_data.group(1), "%d-%m-%Y")
+        return date
+
+    except AttributeError:
+        raise Exception(
+            "O 'path' que foi passado não respeita mais o padrão estabecelido. Data não encontrada!"
+        ) from None
 
 
 def new_names(base: pd.DataFrame, oldname: str, newname: str):
@@ -44,7 +72,7 @@ def new_names(base: pd.DataFrame, oldname: str, newname: str):
         return base.columns.tolist()
 
     else:
-        base.rename(columns={oldname: newname}, inplace=True)
+        base = base.rename(columns={oldname: newname})
         return base.columns.tolist()
 
 
@@ -174,7 +202,7 @@ def get_clima_info(file: str) -> pd.DataFrame:
     )
 
     # remove a coluna V20 do dataframe clima
-    clima.drop(columns=["Unnamed: 19"], inplace=True)
+    clima = clima.drop(columns=["Unnamed: 19"])
 
     # renomeia as colunas do dataframe clima
     clima = change_names(clima)
@@ -183,7 +211,7 @@ def get_clima_info(file: str) -> pd.DataFrame:
     clima["id_estacao"] = caract.loc[3, "value"]
 
     # substitui valores -9999 por NaN
-    clima.replace(to_replace=-9999, value=np.nan, inplace=True)
+    clima = clima.replace(to_replace=-9999, value=np.nan)
 
     # converte a coluna data para datetime
     if all(clima["data"].str.contains("/")):
@@ -204,51 +232,36 @@ def get_clima_info(file: str) -> pd.DataFrame:
     return clima
 
 
-def download_inmet(year: int) -> None:
+def download_inmet(latest_dowload_link: str) -> None:
     """
     Realiza o download dos dados históricos de uma determinado ano do INMET (Instituto Nacional de Meteorologia)
     e descompacta o arquivo em um diretório local.
 
     Args:
-        year (int): O ano para o qual deseja-se baixar os dados históricos.
+        latest_dowload_link (str): O link para o qual deseja-se baixar os dados históricos.
 
     Returns:
         None
     """
-    os.system("mkdir -p /tmp/data/input/")
-    if year <= 2019:
-        temp = tempfile.NamedTemporaryFile(delete=False)
-        url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
-        urllib.request.urlretrieve(url, temp.name)
-        with zipfile.ZipFile(temp.name, "r") as zip_ref:
-            zip_ref.extractall("/tmp/data/input/")
-        temp.close()
 
-    else:
-        temp = tempfile.NamedTemporaryFile(delete=False)
-        url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
-        urllib.request.urlretrieve(url, temp.name)
-        with zipfile.ZipFile(temp.name, "r") as zip_ref:
-            zip_ref.extractall(f"/tmp/data/input/{year}")
-        temp.close()
-    # remove o arquivo temporário
-    os.remove(temp.name)
+    response = requests.get(latest_dowload_link, stream=True)
 
+    response.raise_for_status()
 
-def year_list(start=2000):
-    """
-    Retorna uma lista com uma sequência de anos, onde a última observação é sempre o ano mais atual.
+    save_path = (
+        ConstantsMicrodados.PATH_INPUT.value
+        / latest_dowload_link.split("/")[-1]
+    )
 
-    Args:
-    - inicio (int): o ano inicial da sequência (padrão: 2000)
+    ConstantsMicrodados.PATH_INPUT.value.mkdir(parents=True, exist_ok=True)
 
-    Returns:
-    - lista de inteiros: uma lista com uma sequência de anos que começa em "inicio" e termina no ano atual.
-    """
-    # Obter o ano atual
-    actual_year = datetime.now().year
+    log("Iniciando Download...")
 
-    # Criar uma lista com uma sequência de anos
-    years = [year for year in range(start, actual_year + 1)]
+    with open(save_path, "wb") as fd:
+        for chunk in response.iter_content(chunk_size=1024 * 1024):
+            fd.write(chunk)
 
-    return years
+    with zipfile.ZipFile(save_path) as z:
+        z.extractall(ConstantsMicrodados.PATH_INPUT.value)
+
+    log("Dados baixados.")

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import warnings
 
@@ -47,7 +46,7 @@ def read_csv_enem_questionario():
                 "Q025",
             ]
         ]
-        df.rename(columns={"NU_INSCRICAO": "id_inscricao"}, inplace=True)
+        df = df.rename(columns={"NU_INSCRICAO": "id_inscricao"})
 
         path = "/home/tricktx/dados/br_inep_enem/output/questionario/"
 

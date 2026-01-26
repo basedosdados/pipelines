@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_cgu_terceirizados
 """
@@ -17,8 +16,8 @@ from pipelines.datasets.br_cgu_pessoal_executivo_federal.tasks import (
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    download_data_to_gcs,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
     rename_current_flow_run_dataset_table,
     run_dbt,
 )
@@ -27,7 +26,6 @@ ROOT = "/tmp/data"
 URL = "https://www.gov.br/cgu/pt-br/acesso-a-informacao/dados-abertos/arquivos/terceirizados"
 
 
-# pylint: disable=C0103
 with Flow(
     name="br_cgu_pessoal_executivo_federal.terceirizados",
     code_owners=["ath67"],
@@ -37,7 +35,7 @@ with Flow(
         "dataset_id", default="br_cgu_pessoal_executivo_federal", required=True
     )
     table_id = Parameter("table_id", default="terceirizados", required=True)
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
@@ -53,12 +51,20 @@ with Flow(
     crawl_urls, temporal_coverage = crawl(URL)
     filepath = clean_save_table(ROOT, crawl_urls)
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="overwrite",
-        wait=filepath,
+        upstream_tasks=[filepath],
+    )
+
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
     )
 
     # wait_update_metadata = update_metadata(
@@ -72,16 +78,11 @@ with Flow(
     # )
 
     with case(materialize_after_dump, True):
-        wait_for_materialization = run_dbt(
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            target=target,
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-        wait_for_dowload_data_to_gcs = download_data_to_gcs(
-            dataset_id=dataset_id,
-            table_id=table_id,
+            dump_mode="overwrite",
             upstream_tasks=[wait_for_materialization],
         )
 

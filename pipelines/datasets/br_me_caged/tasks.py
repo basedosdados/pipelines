@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_me_caged
 """
@@ -10,7 +9,6 @@ import ftplib
 import re
 from datetime import timedelta
 from pathlib import Path
-from typing import List, Tuple
 
 import basedosdados as bd
 import pandas as pd
@@ -26,7 +24,6 @@ from pipelines.datasets.br_me_caged.constants import (
 )
 from pipelines.datasets.br_me_caged.utils import (
     download_file,
-    get_caged_schedule,
     verify_yearmonth,
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date
@@ -37,7 +34,7 @@ from pipelines.utils.utils import log
 @task
 def build_table_paths(
     table_id: str, parent_dir: str | Path = caged_constants.DATASET_DIR.value
-) -> Tuple[Path, Path]:
+) -> tuple[Path, Path]:
     parent_dir = Path(parent_dir)
     parent_dir.mkdir(parents=True, exist_ok=True)
 
@@ -117,7 +114,7 @@ def get_table_last_date(
         backend=backend,
         date_format="%Y-%m",
     )
-    data_api = datetime.datetime(year=2020, month=1, day=1).date()
+    log(f"Table Last Date: {data_api}")
     return data_api
 
 
@@ -164,9 +161,12 @@ def generate_yearmonth_range(
     # Generate list of yearmonths
     yearmonths = []
     current = start
+    current += relativedelta(months=1)
     while current <= end:
         yearmonths.append(current.strftime("%Y%m"))
         current += relativedelta(months=1)
+
+    log(f"Yearnonths to be searched: {yearmonths}")
 
     return yearmonths
 
@@ -176,7 +176,7 @@ def crawl_novo_caged_ftp(
     yearmonth: str,
     table_id: str,
     ftp_host: str = caged_constants.FTP_HOST.value,
-) -> List:
+) -> list:
     """
     Downloads specified .7z files from a CAGED dataset FTP server.
 
@@ -187,6 +187,7 @@ def crawl_novo_caged_ftp(
     Returns:
         List: Lists of unsuccessfully downloaded files
     """
+    log(f"Verificando dados do mês: {yearmonth}")
     verify_yearmonth(yearmonth)
     ftp = ftplib.FTP(ftp_host)
     ftp.login()
@@ -293,18 +294,16 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
             ano = date[:4]
             mes = int(date[-2:])
             df.columns = [unidecode(col) for col in df.columns]
-            df.rename(columns=caged_constants.RENAME_DICT.value, inplace=True)
+            df = df.rename(columns=caged_constants.RENAME_DICT.value)
 
             log(f"Renaming dataframe columns to: {df.columns}")
             df["sigla_uf"] = df["sigla_uf"].map(caged_constants.UF_DICT.value)
 
             for state in caged_constants.UF_DICT.value.values():
-                log(f"Partitioning for {state}")
                 data = df[df["sigla_uf"] == state]
-                data.drop(
+                data = data.drop(
                     caged_constants.COLUMNS_TO_DROP.value[table_id],
                     axis=1,
-                    inplace=True,
                 )
                 output_dir = (
                     Path(table_output_dir)
@@ -328,63 +327,3 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
         except Exception as e:
             log(f"Failed to read: {filepath} due to: {e}", "error")
     return table_output_dir
-
-
-@task
-def update_caged_schedule(
-    table_last_date: str | datetime.date,
-    table_id: str,
-    schedules_file: str = "./pipelines/datasets/br_me_caged/schedules.py",
-    schedule_url: str = caged_constants.URL_SCHEDULE.value,
-):
-    """
-    This task fetches a specific page to extract html data
-    containing CAGED monhtly releasing dates.
-    """
-    log(f"Looking for schedule info on CAGED releasing on {schedule_url}")
-    date_elements = get_caged_schedule(
-        url=schedule_url,
-        css_selector=caged_constants.CSS_SELECTOR_SCHEDULES.value,
-    )
-    if isinstance(table_last_date, str):
-        table_last_date = datetime.datetime.strptime(
-            table_last_date, "%d/%m/%Y"
-        ).date()
-    this_month = table_last_date.month
-    log(f"This date {table_last_date}")
-    next_start_date = date_elements[0]["data"]
-    index = 1
-    while index < len(date_elements) - 1:
-        log(f"Current next start date {next_start_date}")
-        if date_elements[index]["data_competencia"].month > this_month:
-            next_start_date = date_elements[index]["data"]
-        else:
-            break
-        index += 1
-
-    # Read schedule file to match table_id schedule pattern
-    with open(schedules_file, "r", encoding="utf-8") as f:
-        code = f.read()
-    schedule_name = f"every_month{table_id.replace('microdados', '')}"
-    schedule_pattern = rf"({schedule_name}\s*=\s*Schedule\(\s*clocks\s*=\s*\[\s*IntervalClock\(\s*interval\s*=\s*timedelta\([\w=\d\,\s]+\)\,\s*start_date\s*=\s*datetime\([\w=\d\,\s]+\)\,\s*labels\s*=\s*\[\s*constants\.BASEDOSDADOS_DEV_AGENT_LABEL\.value[\,\s\)\]]+)"
-    start_date_pattern = r"start_date\s*=\s*datetime\([\w=\d\,\s]+\)"
-    match = re.search(schedule_pattern, code)
-
-    if not match:
-        raise ValueError(
-            f"Schedule {schedule_name} não encontrado no arquivo."
-        )
-
-    schedule_block = match.group(1)
-
-    if next_start_date is not None:
-        schedule_block = re.sub(
-            start_date_pattern,
-            f"start_date=datetime({next_start_date.year}, {next_start_date.month}, {next_start_date.day})",
-            schedule_block,
-        )
-    new_code = code[: match.start(1)] + schedule_block + code[match.end(1) :]
-    with open(schedules_file, "w", encoding="utf-8") as f:
-        f.write(new_code)
-
-    return next_start_date

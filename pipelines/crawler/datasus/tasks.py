@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for br_ms_cnes
 """
 
 import asyncio
 import os
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from ftplib import FTP
 
 import basedosdados as bd
@@ -77,10 +76,7 @@ def check_files_to_parse(
 
     year = year[2:4]
 
-    if month <= 9:
-        month = "0" + str(month)
-    else:
-        month = str(month)
+    month = "0" + str(month) if month <= 9 else str(month)
 
     year_month_to_parse = year + month
 
@@ -362,10 +358,7 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
 
 @task
 def is_empty(lista):
-    if len(lista) == 0:
-        return True
-    else:
-        return False
+    return len(lista) == 0
 
 
 @task
@@ -400,34 +393,58 @@ def read_dbf_save_parquet_chunks(
 def get_last_modified_date_in_sinan_tablen(
     datasus_database: str,
     datasus_database_table: str,
-) -> None:
+) -> datetime:
+    latest_date = None
+
+    files_info = []
+
     ftp = FTP("ftp.datasus.gov.br")
+
     ftp.login()
 
     if datasus_database == "SINAN":
         if not datasus_database_table:
             raise ValueError("No group assigned to SINAN_group")
-        # Obtendo ano atual
 
-        date_current = str(date.today().year)
-        year = date_current[2:4]
-        # Obtendo a lista de arquivos do diretório
-        files = []
-        ftp.dir(
-            f"dissemin/publicos/SINAN/DADOS/PRELIM/{datasus_database_table}{year}.DBC",
-            files.append,
-        )
+        # Diretório onde os arquivos estão localizados
+        remote_path = "dissemin/publicos/SINAN/DADOS/PRELIM/"
 
-        # Extraindo a data do primeiro arquivo listado
-        if files:
-            first_file = files[0]
-            file_info = first_file.split()
-            if len(file_info) >= 4:
-                select_date = file_info[0]  # A data está na primeira posição
-                file_date = datetime.strptime(
-                    select_date, "%m-%d-%y"
-                ).strftime("%y-%m-%d")
-                final_date = pd.to_datetime(file_date, format="%y-%m-%d")
-                # sys.stdout.write(file_date + "\n")
+        # Obtendo a lista de arquivos do diretório FTP
+        files = ftp.nlst(remote_path)
+
+        # Filtrando arquivos que contém "datasus_database_table" no nome
+        datasus_database_table_files = [
+            file for file in files if datasus_database_table in file
+        ]
+
+        if not datasus_database_table_files:
+            raise ValueError(
+                f"Nenhum arquivo com '{datasus_database_table}' encontrado no diretório."
+            )
+
+        # Obtendo informações detalhadas sobre os arquivos filtrados
+        for file_name in datasus_database_table_files:
+            # Usando ftp.dir para pegar informações detalhadas (como data)
+            ftp.dir(file_name, files_info.append)
+
+        for file_info in files_info:
+            file_info_parts = file_info.split()
+
+            # A data está na primeira posição no formato "MM-DD-YY"
+            if len(file_info_parts) >= 4:
+                file_date_str = file_info_parts[0]
+                file_date = datetime.strptime(file_date_str, "%m-%d-%y")
+
+                # Se for o primeiro arquivo ou se o arquivo atual for mais recente, atualiza
+                if latest_date is None or file_date > latest_date:
+                    latest_date = file_date
+
+        if latest_date:
+            final_date = pd.to_datetime(latest_date).strftime("%Y-%m-%d")
+        else:
+            raise ValueError(
+                f"Nenhum arquivo com '{datasus_database_table}' encontrado com data válida."
+            )
+
     ftp.close()
     return final_date

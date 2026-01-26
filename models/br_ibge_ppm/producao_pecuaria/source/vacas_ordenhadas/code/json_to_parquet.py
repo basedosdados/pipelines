@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import os
 import re
@@ -21,8 +20,8 @@ def parse_file(file_path):
         temp_variavel = j["data"][0]["variavel"]
         for r in j["data"][0]["resultados"]:
             for s in r["series"]:
-                temp_ano = list(s["serie"].keys())[0]
-                temp_valor = list(s["serie"].values())[0]
+                temp_ano = list(s["serie"].keys())[0]  # noqa: RUF015
+                temp_valor = list(s["serie"].values())[0]  # noqa: RUF015
                 temp_sigla_uf = s["localidade"]["nome"].split("-")[-1].strip()
                 temp_id_municipio = s["localidade"]["id"]
 
@@ -51,9 +50,9 @@ def treat_columns(dataframe):
     dataframe = dataframe[
         ["ano", "sigla_uf", "id_municipio", "vacas_ordenhadas"]
     ]
-    COLUNAS_PARA_TRATAR = ["vacas_ordenhadas"]
+    colunas_para_tratar = ["vacas_ordenhadas"]
 
-    for coluna in COLUNAS_PARA_TRATAR:
+    for coluna in colunas_para_tratar:
         dataframe[coluna] = dataframe[coluna].apply(
             lambda x: np.nan if x in ("-", "..", "...", "X") else x
         )
@@ -75,8 +74,14 @@ def get_existing_years(directory):
 
 
 if __name__ == "__main__":
-    ANOS_TRANSFORMADOS = get_existing_years("../parquet")
-    ARQUIVOS_JSON = list(Path("../json/").glob("*.json"))
+    ANOS_TRANSFORMADOS = get_existing_years(
+        f"{Path.cwd()}/output/producao_pecuaria/vacas_ordenhadas/parquet"
+    )
+    ARQUIVOS_JSON = list(
+        Path(
+            f"{Path.cwd()}/output/producao_pecuaria/vacas_ordenhadas/json/"
+        ).glob("*.json")
+    )
     JSON_FALTANTES = [
         arquivo
         for arquivo in ARQUIVOS_JSON
@@ -95,9 +100,9 @@ if __name__ == "__main__":
         print("Transformações finalizadas!")
         temp_ano = df["ano"].max()
         print("Deletando a coluna ano para possibilitar o particionamento...")
-        df.drop(columns=["ano"], inplace=True)
+        df = df.drop(columns=["ano"])
         print("Transformações finalizadas!")
-        temp_export_file_path = f"../parquet/ano={temp_ano}/data.parquet"
+        temp_export_file_path = f"{Path.cwd()}/output/producao_pecuaria/vacas_ordenhadas/parquet/ano={temp_ano}/data.parquet"
         print(
             f"Exportando o DataFrame particionado em {temp_export_file_path}..."
         )

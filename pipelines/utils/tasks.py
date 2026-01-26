@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """
 Helper tasks that could fit any pipeline.
 """
-# pylint: disable=C0103, C0301, invalid-name, E1101, R0913
 
 import json
 import os
@@ -10,7 +8,7 @@ import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
-from typing import Any, List, Union
+from typing import Any
 
 import basedosdados as bd
 import jinja2
@@ -31,6 +29,7 @@ from pipelines.utils.metadata.utils import get_url
 from pipelines.utils.utils import (
     dump_header_to_csv,
     get_credentials_from_secret,
+    is_running_in_prod,
     log,
 )
 
@@ -59,24 +58,13 @@ def get_credentials(secret_path: str):
     return get_credentials_from_secret(secret_path)
 
 
-###############
-#
-# Upload to GCS
-#
-###############
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def create_table_and_upload_to_gcs(
-    data_path: Union[str, Path],
+def _upload_to_gcs(
+    data_path: str | Path,
     dataset_id: str,
     table_id: str,
     dump_mode: str,
+    bucket_name: str,
     source_format: str = "csv",
-    wait=None,  # pylint: disable=unused-argument
 ) -> None:
     """
     Create table using BD+ and upload to GCS.
@@ -84,10 +72,14 @@ def create_table_and_upload_to_gcs(
     bd_version = bd.__version__
     log(f"USING BASEDOSDADOS {bd_version}")
     # pylint: disable=C0103
-    tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
+    tb = bd.Table(
+        dataset_id=dataset_id, table_id=table_id, bucket_name=bucket_name
+    )
     table_staging = f"{tb.table_full_name['staging']}"
     # pylint: disable=C0103
-    st = bd.Storage(dataset_id=dataset_id, table_id=table_id)
+    st = bd.Storage(
+        dataset_id=dataset_id, table_id=table_id, bucket_name=bucket_name
+    )
     storage_path = f"{st.bucket_name}.staging.{dataset_id}.{table_id}"
     storage_path_link = f"https://console.cloud.google.com/storage/browser/{st.bucket_name}/staging/{dataset_id}/{table_id}"
 
@@ -124,7 +116,7 @@ def create_table_and_upload_to_gcs(
                 "MODE APPEND: Sucessfully CREATED A NEW TABLE:\n"
                 f"{table_staging}\n"
                 f"{storage_path_link}"
-            )  # pylint: disable=C0301
+            )
 
             st.delete_table(
                 mode="staging", bucket_name=st.bucket_name, not_found_ok=True
@@ -133,14 +125,14 @@ def create_table_and_upload_to_gcs(
                 "MODE APPEND: Sucessfully REMOVED HEADER DATA from Storage:\n"
                 f"{storage_path}\n"
                 f"{storage_path_link}"
-            )  # pylint: disable=C0301
+            )
     elif dump_mode == "overwrite":
         if tb.table_exists(mode="staging"):
             log(
                 "MODE OVERWRITE: Table ALREADY EXISTS, DELETING OLD DATA!\n"
                 f"{storage_path}\n"
                 f"{storage_path_link}"
-            )  # pylint: disable=C0301
+            )
             st.delete_table(
                 mode="staging", bucket_name=st.bucket_name, not_found_ok=True
             )
@@ -148,13 +140,13 @@ def create_table_and_upload_to_gcs(
                 "MODE OVERWRITE: Sucessfully DELETED OLD DATA from Storage:\n"
                 f"{storage_path}\n"
                 f"{storage_path_link}"
-            )  # pylint: disable=C0301
+            )
             tb.delete(mode="all")
             log(
                 "MODE OVERWRITE: Sucessfully DELETED TABLE:\n"
                 f"{table_staging}\n"
                 f"{tb.table_full_name['prod']}"
-            )  # pylint: disable=C0301
+            )
 
         # the header is needed to create a table when dosen't exist
         # in overwrite mode the header is always created
@@ -185,7 +177,7 @@ def create_table_and_upload_to_gcs(
             f"MODE OVERWRITE: Sucessfully REMOVED HEADER DATA from Storage\n:"
             f"{storage_path}\n"
             f"{storage_path_link}"
-        )  # pylint: disable=C0301
+        )
 
     #####################################
     #
@@ -196,7 +188,11 @@ def create_table_and_upload_to_gcs(
     log("STARTING UPLOAD TO GCS")
     if tb.table_exists(mode="staging"):
         # the name of the files need to be the same or the data doesn't get overwritten
-        tb.append(filepath=data_path, if_exists="replace")
+        st.upload(
+            path=data_path,
+            mode="staging",
+            if_exists="replace",
+        )
 
         log(
             f"STEP UPLOAD: Successfully uploaded {data_path} to Storage:\n"
@@ -204,10 +200,78 @@ def create_table_and_upload_to_gcs(
             f"{storage_path_link}"
         )
     else:
-        # pylint: disable=C0301
         log(
             "STEP UPLOAD: Table does not exist in STAGING, need to create first"
         )
+
+
+@task
+def create_table_prod_gcs_and_run_dbt(
+    data_path: str | Path,
+    dataset_id: str,
+    table_id: str,
+    dump_mode: str,
+    dbt_alias: bool = True,
+    source_format: str = "csv",
+) -> bool:
+    """
+    Create table in basedosdados-staging and run dbt with prod target if running in prod.
+    """
+    if is_running_in_prod():
+        log("Running in prod agent. Uploading data to basedosdados-staging")
+
+        _upload_to_gcs(
+            data_path=data_path,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode=dump_mode,
+            source_format=source_format,
+            bucket_name="basedosdados",
+        )
+
+        run_dbt.run(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_alias=dbt_alias,
+            dbt_command="run",
+            target="prod",
+        )
+
+        download_data_to_gcs.run(dataset_id=dataset_id, table_id=table_id)
+
+        return True
+    else:
+        log("Running outside the prod environment", level="warning")
+        return False
+
+
+###############
+#
+# Upload to GCS
+#
+###############
+@task
+def create_table_dev_and_upload_to_gcs(
+    data_path: str | Path,
+    dataset_id: str,
+    table_id: str,
+    dump_mode: str,
+    dbt_alias: bool = True,
+    source_format: str = "csv",
+) -> None:
+    """
+    Upload files or folders to the GCS bucket and create a table in basedosdados-dev.staging in BigQuery
+    """
+
+    # Upload data to basedosdados-dev bucket
+    _upload_to_gcs(
+        data_path=data_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode=dump_mode,
+        source_format=source_format,
+        bucket_name="basedosdados-dev",
+    )
 
 
 @task(
@@ -243,7 +307,7 @@ def get_temporal_coverage(
         df = pd.read_csv(filepath, usecols=[year, month])
         df["date"] = [
             datetime.strptime(str(x) + "-" + str(y) + "-" + "1", "%Y-%m-%d")
-            for x, y in zip(df[year], df[month])
+            for x, y in zip(df[year], df[month], strict=False)
         ]
         dates = df["date"].to_list()
         # keep only valid dates
@@ -258,7 +322,7 @@ def get_temporal_coverage(
         df = pd.read_csv(filepath, usecols=[year, month])
         df["date"] = [
             datetime.strptime(str(x) + "-" + str(y) + "-" + str(y), "%Y-%m-%d")
-            for x, y in zip(df[year], df[month], df[day])
+            for x, y in zip(df[year], df[month], df[day], strict=False)
         ]
         dates = df["date"].to_list()
         # keep only valid dates
@@ -289,8 +353,7 @@ def get_temporal_coverage(
     )
 
 
-# pylint: disable=W0613
-@task  # noqa
+@task
 def rename_current_flow_run(msg: str, wait=None) -> bool:
     """
     Rename the current flow run.
@@ -300,7 +363,23 @@ def rename_current_flow_run(msg: str, wait=None) -> bool:
     return client.set_flow_run_name(flow_run_id, msg)
 
 
-@task  # noqa
+def get_flow_metadata(_vars: dict | None = None):
+    """
+    Gets flow metadata to send to Elementary as _vars
+    """
+    flow_name = prefect.context.get("flow_name", None)
+    flow_id = prefect.context.get("flow_id")
+    flow_run_id = prefect.context.get("flow_run_id", None)
+
+    flow_metadata_vars = {
+        "job_name": flow_name,
+        "job_id": flow_id,
+        "job_run_id": flow_run_id,
+    }
+    return {**_vars, **flow_metadata_vars}
+
+
+@task
 def rename_current_flow_run_dataset_table(
     prefix: str, dataset_id, table_id, wait=None
 ) -> bool:
@@ -314,8 +393,8 @@ def rename_current_flow_run_dataset_table(
     )
 
 
-@task  # noqa
-def get_current_flow_labels() -> List[str]:
+@task
+def get_current_flow_labels() -> list[str]:
     """
     Get the labels of the current flow.
     """
@@ -324,7 +403,7 @@ def get_current_flow_labels() -> List[str]:
     return flow_run_view.labels
 
 
-@task  # noqa
+@task
 def get_date_time_str(wait=None) -> str:
     """
     Get current time as string
@@ -349,9 +428,7 @@ def _process_dbt_log_file(log_path: str) -> pd.DataFrame:
         return pd.DataFrame(columns=["time", "level", "text"])
 
     try:
-        with open(
-            log_path, "r", encoding="utf-8", errors="ignore"
-        ) as log_file:
+        with open(log_path, encoding="utf-8", errors="ignore") as log_file:
             log_content = log_file.read()
 
         log(f"Log file size: {len(log_content)} bytes", level="debug")
@@ -422,7 +499,7 @@ def _process_dbt_log_file(log_path: str) -> pd.DataFrame:
         return pd.DataFrame(columns=["time", "level", "text"])
 
     except Exception as e:
-        log(f"Error parsing DBT log file: {str(e)}", level="error")
+        log(f"Error parsing DBT log file: {e!s}", level="error")
         return pd.DataFrame(columns=["time", "level", "text"])
 
 
@@ -459,7 +536,7 @@ def _extract_model_execution_status_from_logs(logs_df: pd.DataFrame) -> dict:
             model_status[model_name] = "success"
 
         if "FAIL" in row["text"].upper():
-            for model_name in model_status.keys():
+            for model_name in model_status:
                 if model_name in row["text"]:
                     model_status[model_name] = "fail"
 
@@ -598,15 +675,22 @@ def run_dbt(
         if isinstance(_vars, str)
         else (_vars if _vars is not None else {})
     )
-
+    if target == "prod":
+        disable_elementary = True
     variables = (
         constants.DISABLE_ELEMENTARY_VARS.value
-        if disable_elementary and vars_deserialize is None
+        if disable_elementary
+        else constants.ENABLE_ELEMENTARY_VARS.value
+    )
+    variables = (
+        variables
+        if vars_deserialize is None
         else {
-            **constants.DISABLE_ELEMENTARY_VARS.value,
+            **variables,
             **vars_deserialize,
         }
     )
+    variables = get_flow_metadata(variables)
 
     commands_to_run = []
 
@@ -618,7 +702,7 @@ def run_dbt(
     log_file_path = os.path.join("logs", "dbt.log")
 
     if target == "prod":
-        with open("/credentials-prod/prod.json", "r") as f:
+        with open("/credentials-prod/prod.json") as f:
             service_account = json.loads(f.read())
             project_id = service_account["project_id"]
             client_email = service_account["client_email"]
@@ -649,12 +733,12 @@ def run_dbt(
 
         if result.success:
             log(
-                f"DBT runner reports success for {cmd} command",
+                f"DBT runner reports success for {cmd} command.\nJob Name: {variables['job_name']}\nJob ID: {variables['job_id']}\nJob Run ID: {variables['job_run_id']}",
                 level="info",
             )
         else:
             log(
-                f"DBT runner reports failure for {cmd} command. {result.result}",
+                f"DBT runner reports failure for {cmd} command.\nJob Name: {variables['job_name']}\nJob ID: {variables['job_id']}\nJob Run ID: {variables['job_run_id']}",
                 level="error",
             )
 
@@ -729,7 +813,7 @@ def download_data_to_gcs(
     dataset_id: str,
     table_id: str,
     project_id: str | None = None,
-    query: Union[str, jinja2.Template] | None = None,
+    query: str | jinja2.Template | None = None,
     bd_project_mode: str = "prod",
     billing_project_id: str | None = None,
     location: str = "US",
@@ -798,7 +882,6 @@ def download_data_to_gcs(
             f"Billing project ID was inferred from environment variables: {billing_project_id}"
         )
 
-    # pylint: disable=E1124
     client = _google_client(billing_project_id, from_file=True, reauth=False)
 
     bq_table_ref = TableReference.from_string(
@@ -881,7 +964,7 @@ def download_data_to_gcs(
             else:
                 raise (e)
         except Exception as e:
-            raise ValueError(e)
+            raise ValueError(e) from e
 
         log("Querying open data from BigQuery")
 

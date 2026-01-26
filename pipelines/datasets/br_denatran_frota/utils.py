@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
 """
 General purpose functions for the br_denatran_frota project.
 """
 
+import datetime
 import difflib
 import os
 import re
@@ -18,6 +18,7 @@ import requests
 import rpy2.robjects as robjects
 import rpy2.robjects.packages as rpackages
 from bs4 import BeautifulSoup
+from dateutil import relativedelta
 from rarfile import RarFile
 from rpy2.robjects.vectors import StrVector
 from string_utils import asciify
@@ -25,12 +26,25 @@ from string_utils import asciify
 from pipelines.datasets.br_denatran_frota.constants import (
     constants as denatran_constants,
 )
-from pipelines.utils.utils import log
+from pipelines.utils.utils import log, to_partitions
 
 
 class DenatranType(Enum):
     Municipio = "Municipio"
     UF = "UF"
+
+
+def update_yearmonth(year: str | int, month: str | int):
+    if isinstance(year, str):
+        year = int(year)
+    if isinstance(month, str):
+        month = int(month)
+    new_date = (
+        datetime.datetime(year=year, month=month, day=1)
+        + relativedelta.relativedelta(months=1)
+    ).date()
+
+    return new_date.year, new_date.month
 
 
 def guess_header(
@@ -58,7 +72,9 @@ def guess_header(
         raise ValueError("Unrecognized type of dataframe.")
     current_header = [c for c in df.columns]
     equal_column_names = [
-        (x, y) for x, y in zip(expected_header, current_header) if x == y
+        (x, y)
+        for x, y in zip(expected_header, current_header, strict=False)
+        if x == y
     ]
     if len(equal_column_names) / len(expected_header) >= 0.6:
         return -1
@@ -68,7 +84,9 @@ def guess_header(
             break
         current_row = df.iloc[header_guess].to_list()
         equal_column_names = [
-            (x, y) for x, y in zip(expected_header, current_row) if x == y
+            (x, y)
+            for x, y in zip(expected_header, current_row, strict=False)
+            if x == y
         ]
         if (
             len(equal_column_names) / len(expected_header) >= 0.6
@@ -95,7 +113,7 @@ def change_df_header(df: pd.DataFrame, header_row: int) -> pd.DataFrame:
         return df
     new_header = df.iloc[header_row]
     new_df = df[(header_row + 1) :].reset_index(drop=True)
-    new_df.rename(columns=new_header, inplace=True)
+    new_df = new_df.rename(columns=new_header)
     return new_df
 
 
@@ -124,7 +142,7 @@ def get_year_month_from_filename(filename: str) -> tuple[int, int]:
         ValueError: Errors out if nothing is found, which likely means the filename is not the correct format.
 
     Returns:
-        tuple[int, int]: Month, year.
+        tuple[int, int]: year, month.
     """
     match = re.search(r"(\w+)_(\d{1,2})-(\d{4})\.(xls|xlsx)$", filename)
     if match:
@@ -259,7 +277,7 @@ def verify_match_ibge(
         error_message = "Os seguintes municípios falharam: \n"
         for row in mismatched_rows.rows(named=True):
             error_message += f"{row['nome_denatran']} ({row['sigla_uf']})\n"
-        raise ValueError(error_message)
+        log(error_message, "error")
     return joined_df
 
 
@@ -306,7 +324,7 @@ def download_file(url: str, filename: str) -> None:
     with open(filename, "wb") as f:
         f.write(response.content)
 
-    print(f"Download of {filename} complete")
+    log(f"Download of {filename} complete")
 
 
 def verify_file(
@@ -325,10 +343,7 @@ def verify_file(
     new_url = url.replace("arquivos-denatran", "arquivos-senatran")
     log(new_url)
     response = requests.get(new_url, headers=denatran_constants.HEADERS.value)
-    if response.status_code == 200:
-        return True
-    else:
-        return False
+    return response.status_code == 200
 
 
 def generic_extractor(dest_path_file: str):
@@ -355,7 +370,7 @@ def generic_extractor(dest_path_file: str):
             compressed_filename_split[: len(compressed_filename_split) - 1]
         )
         for file in f.infolist():
-            print(file)
+            log(file)
             if (
                 re.search("UF|munic", file.filename, re.IGNORECASE)
                 and not file.is_dir()
@@ -387,8 +402,13 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
                 raw_file_name = raw_file_name.replace(
                     "tipo", "uf e tipo"
                 ).replace("Municipio", "municipio e tipo")
+            file_name = (
+                re.sub(r"\d+|\-", "", raw_file_name, flags=re.UNICODE)
+                .lower()
+                .strip()
+            )
             file_name = re.sub(
-                "\\s+", "_", raw_file_name, flags=re.UNICODE
+                "\\s+", "_", file_name, flags=re.UNICODE
             ).lower()
             file_path = (
                 file_info["destination_dir"]
@@ -398,7 +418,7 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
             )
             if ext:
                 file_path += f".{file_info['file_extension']}"
-            print(f"FILEPATH:{file_path}")
+            log(f"FILEPATH:{file_path}")
             return file_path
 
         ## Make file path pre 2012
@@ -420,7 +440,7 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
                 else:
                     regex_to_search = rf"Mun\w*_(.*?)_{str(year)[2:4]}"
             else:
-                print(file_info)
+                log(file_info)
                 raise ValueError
             match = re.search(regex_to_search, file_info["raw_file_name"])
 
@@ -440,13 +460,12 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
                     extension = str(file_info["raw_file_name"]).split(".")[-1]
                 else:
                     extension = file_info["file_extension"]
-                breakpoint()
                 file_path = (
                     file_info["destination_dir"]
                     + f"/{raw_filename}_{month_value}-{year}.{extension}"
                 )
                 if month_value == int(file_info["mes"]):
-                    print(f"FILEPATH:{file_path}")
+                    log(f"FILEPATH:{file_path}")
                     return file_path
 
 
@@ -478,49 +497,112 @@ def extract_links_post_2012(
         year (int): A year starting from 2013 onwards.
         month (int): A month from 1 to 12.
     """
-    url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-{year}"
+    url = f"{denatran_constants.BASE_URL_POST_2012.value}/frota-de-veiculos-{year}"
     soup = BeautifulSoup(urlopen(url), "html.parser")
 
     ## First level of html elements
     # Searching for html elements with text 'frota'
-    parent_nodes = soup.select("p:contains('rota')")
+    tags = soup.find_all(
+        lambda tag: (tag.name == "div" and "pageBreak" in tag.get("class", []))
+        or tag.name == "p"
+    )
+    tags_of_interest = [
+        tag
+        for tag in tags
+        if (
+            tag.a
+            and not re.search(
+                re.compile(
+                    r"Q*uantidade\s*.+",
+                    re.I,
+                ),
+                tag.a.text,
+            )
+            and re.search(
+                re.compile(
+                    r"(F*rota\s*(por)*\s*(UF\s*e*\s*Tipo\s*(de)*\s*Veículo)|(Município\s*e*\s*Tipo))",
+                    re.I,
+                ),
+                tag.a.text,
+            )
+        )
+        or (
+            tag.find("strong")
+            and re.search(
+                re.compile(r"F*rota\s*.+", re.I), tag.find("strong").text
+            )
+            and not re.search(
+                re.compile(r"Q*uantidade\s*.+", re.I), tag.find("strong").text
+            )
+        )
+    ]
+    tags_of_interest.reverse()
     valid_links = []
+    matched_year = None
+    matched_month = None
+    matched_date = datetime.date(year=year, month=month, day=1)
+    ref_date = datetime.date(year=year, month=month, day=1)
     i = 0
-    while i < len(parent_nodes):
-        matched_year = None
-        matched_month = None
-        parent_txt = parent_nodes[i].text
+    while i < len(tags_of_interest) and matched_date <= ref_date:
+        current_tag = tags_of_interest[i]
+        title_index = i + 1
+        parent_txt = tags_of_interest[
+            title_index if title_index < len(tags_of_interest) else i
+        ].get_text(" ", strip=True)
 
         # Parent node text contains month and year info
         parent_match = re.search(
-            r"(?i)\(([\w]+)(?:\s\w*\s*)(\d{4})\)", parent_txt
+            r"(?i)\(\s*([\w]+)(?:\s\w*\s*)(\d{4})\s*\)", parent_txt
         )
+
+        # Try again for subsection title
+        if not parent_match and i < len(tags_of_interest) + 2:
+            title_index += 1
+            parent_txt = tags_of_interest[title_index].get_text(
+                " ", strip=True
+            )
+            # Parent node text contains month and year info
+            parent_match = re.search(
+                r"(?i)\(\s*([\w]+)(?:\s\w*\s*)(\d{4})\s*\)", parent_txt
+            )
         if parent_match:
             matched_month = parent_match.group(1)
             matched_year = parent_match.group(2)
-            i += 1
-
-            if i >= len(parent_nodes):
-                break
-
-            ## Second level of html elements
-            for child_node in parent_nodes[i].select("a"):
-                txt = child_node.text
-                file_url = child_node.get("href")
-                match = re.search(
-                    r"(?i)([\w\-\d\/]+)\.(xls|xlsx|rar|zip)$",
-                    file_url,
-                )
-                # 'Municipio' type of file contains 'município' in its html element's text
-                search_municipio = re.search(
-                    "município", txt, flags=re.IGNORECASE
-                )
-                # 'UF' type of file contains 'UF' or 'tipo' in its html element's text
-                search_uf = re.search("tipo|uf", txt, flags=re.IGNORECASE)
-                if match and (search_uf or search_municipio):
-                    if denatran_constants.MONTHS.value.get(
+            matched_date = datetime.date(
+                year=int(matched_year),
+                month=int(
+                    denatran_constants.MONTHS.value.get(
                         str(matched_month).lower()
-                    ) == int(month) and matched_year == str(year):
+                    )
+                ),
+                day=1,
+            )
+
+        if current_tag.find("a"):
+            ## Second level of html elements
+            for child_node in current_tag.select("a"):
+                txt = child_node.text
+                if "quantidade" not in txt.lower():
+                    file_url = child_node.get("href")
+                    match = re.search(
+                        r"(?i)([\w\-\d\/]+)\.(xls|xlsx|rar|zip)$",
+                        file_url,
+                    )
+                    # 'Municipio' type of file contains 'município' in its html element's text
+                    search_municipio = re.search(
+                        "município", txt, flags=re.IGNORECASE
+                    )
+                    # 'UF' type of file contains 'UF' or 'tipo' in its html element's text
+                    search_uf = re.search("tipo|uf", txt, flags=re.IGNORECASE)
+                    if (
+                        match
+                        and (search_uf or search_municipio)
+                        and denatran_constants.MONTHS.value.get(
+                            str(matched_month).lower()
+                        )
+                        == int(month)
+                        and matched_year == str(year)
+                    ):
                         # All file metadata aggregated at the info dict
                         info = {
                             "raw_file_name": txt,
@@ -534,9 +616,7 @@ def extract_links_post_2012(
                             "destination_dir": str(directory),
                         }
                         valid_links.append(info)
-            i += 1
-        else:
-            i += 1
+        i += 1
     log(f"There are {len(valid_links)} valid links.")
     return valid_links
 
@@ -556,7 +636,7 @@ def extraction_pre_2012(
         return
     with ZipFile(zip_file, "r") as g:
         compressed_files = [file for file in g.infolist() if not file.is_dir()]
-        for i, file in enumerate(compressed_files):
+        for _, file in enumerate(compressed_files):
             file_path = None
             split_file_name = file.filename.split("/")[-1]
             split_file_name = split_file_name.split(".")
@@ -581,9 +661,9 @@ def extraction_pre_2012(
             try:
                 file_path = make_file_path(file_info=file_info, ext=True)
             except Exception as e:
-                print(e)
+                log(e)
             if file_path:
-                print(file_path)
+                log(file_path)
                 g.extract(file, path=year_dir_name)
                 os.rename(f"{year_dir_name}/{file.filename}", file_path)
 
@@ -622,7 +702,7 @@ def call_r_to_read_excel(file: str) -> pd.DataFrame:
     # Convert the R dataframe to a pandas dataframe
     df = robjects.r["df"]
 
-    df = pd.DataFrame(dict(zip(df.names, list(df))))
+    df = pd.DataFrame(dict(zip(df.names, list(df), strict=False)))
     return df
 
 
@@ -667,14 +747,40 @@ def treat_uf(
         .filter(pl.col("count") > 1)
     )
     if not municipios_duplicados.is_empty():
-        raise ValueError(
-            f"Existem municípios com mesmo nome do IBGE em {uf}! São eles {municipios_duplicados['suggested_nome_ibge'].to_list()}"
+        log(
+            f"Existem municípios com mesmo nome do IBGE em {uf}! São eles {municipios_duplicados['suggested_nome_ibge'].to_list()}",
+            "warning",
         )
     if d:
         # This here is probably impossible and shouldn't happen due to the matching coming from the BD data.
         # The set difference might occur the other way around, but still, better safe.
-        raise ValueError(f"Existem municípios em {uf} que não estão na BD.")
+        log(f"Existem municípios em {uf} que não estão na BD.", "warning")
     return verify_match_ibge(denatran_uf, ibge_uf)
+
+
+def output_file_to_parquet(
+    df: pl.DataFrame,
+    table_id: str,
+    output_path: str | Path = denatran_constants.OUTPUT_PATH.value,
+) -> Path:
+    """Task to save .parquet uf_tipo and municipio_tipo files
+
+    Args:
+        df (pl.DataFrame): Polars DataFrame to be saved
+
+    Returns:
+        _type_: None
+    """
+
+    pd_df = df.to_pandas()
+    pd_df = pd_df.astype(str)
+    to_partitions(
+        pd_df,
+        partition_columns=["ano", "mes"],
+        savepath=os.path.join(output_path, table_id),
+        file_type="parquet",
+    )
+    return os.path.join(output_path, table_id)
 
 
 def get_data_from_prod(dataset_id: str, table_id: str) -> list:

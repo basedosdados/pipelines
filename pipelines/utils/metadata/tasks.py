@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for metadata
 """
@@ -40,15 +39,15 @@ def get_today_date():
     return d.strftime("%Y-%m-%d")
 
 
-@task  # noqa
+@task
 def update_django_metadata(
     dataset_id: str,
     table_id: str,
-    date_column_name: dict = {"year": "ano", "month": "mes"},
+    date_column_name: dict | None = None,
     date_format: str = "%Y-%m",
     coverage_type: str = "part_bdpro",
-    time_delta: dict = {"months": 6},
-    prefect_mode: str = "dev",
+    time_delta: dict | None = None,
+    prefect_mode: str = "prod",
     api_mode: str = "prod",
     bq_project: str = "basedosdados",
     historical_database: bool = True,
@@ -77,6 +76,13 @@ def update_django_metadata(
               -   Exception: If try to update published table with non prod data
 
     """
+
+    date_column_name = (
+        {"year": "ano", "month": "mes"}
+        if date_column_name is None
+        else date_column_name
+    )
+    time_delta = {"months": 6} if time_delta is None else time_delta
 
     check_if_values_are_accepted(
         coverage_type=coverage_type,

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Prefect flows for basedosdados project
 """
@@ -64,4 +63,4 @@ from pipelines.datasets.fundacao_lemann.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.flows import *
 from pipelines.datasets.world_sofascore_competicoes_futebol.flows import *
-from pipelines.datasets.test_pipeline.flows import *
+from pipelines.datasets.test_dataset.flows import *

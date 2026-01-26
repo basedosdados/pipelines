@@ -1,16 +1,15 @@
-# -*- coding: utf-8 -*-
-
 import datetime
 import os
 import re
 from pathlib import Path
-from typing import Tuple
 from zipfile import ZipFile
 
 import basedosdados as bd
 import pandas as pd
 import polars as pl
+from dateutil.relativedelta import relativedelta
 from prefect import task
+from prefect.triggers import all_finished
 from string_utils import asciify
 
 from pipelines.datasets.br_denatran_frota.constants import (
@@ -26,17 +25,20 @@ from pipelines.datasets.br_denatran_frota.utils import (
     extraction_pre_2012,
     get_year_month_from_filename,
     guess_header,
+    output_file_to_parquet,
     treat_uf,
+    update_yearmonth,
     verify_file,
     verify_total,
 )
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
-from pipelines.utils.utils import log, to_partitions
+from pipelines.utils.utils import log
 
 
-@task()  # noqa
+@task()
 def crawl_task(
     source_max_date: datetime,
+    table_id: str,
     temp_dir: str | Path = denatran_constants.DOWNLOAD_PATH.value,
 ) -> bool:
     """
@@ -55,8 +57,8 @@ def crawl_task(
     if month not in denatran_constants.MONTHS.value.values():
         raise ValueError("Mês inválido.")
     log("Downloading file")
-    files_dir = os.path.join(str(temp_dir), "files")
-    year_dir_name = os.path.join(str(files_dir), f"{year}")
+    table_dir = os.path.join(str(temp_dir), table_id)
+    year_dir_name = os.path.join(str(table_dir), f"{year}")
     Path(year_dir_name).mkdir(exist_ok=True, parents=True)
     if year > 2012:
         try:
@@ -74,7 +76,7 @@ def crawl_task(
             return False
 
     else:
-        url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
+        url = f"{denatran_constants.BASE_URL_PRE_2012.value}/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
         filename = f"{year_dir_name}/dados_anuais.zip"
         download_file(url, filename)
         if year < 2010:
@@ -94,7 +96,49 @@ def crawl_task(
     return True
 
 
-@task()
+@task(trigger=all_finished)
+def get_desired_file_task(
+    source_max_date: datetime,
+    download_directory: str,
+    table_id: str,
+    filetype: str,
+) -> str:
+    """
+    Task to search for the desired file at a specific folder, being it uf_tipo or municipio_tipo
+
+    Args:
+        year (int): file year
+        download_directory (str | Path): donwload directory
+        filetype (str): filetype
+
+    Raises:
+        ValueError: No files found
+
+    Returns:
+        str: File path
+    """
+    year = source_max_date.year
+    month = source_max_date.month
+    log(f"-------- Accessing download directory {download_directory}")
+    directory_to_search = os.path.join(
+        str(download_directory), table_id, f"{year}"
+    )
+    log(f"-------- Directory to search {directory_to_search}")
+
+    for file in os.listdir(directory_to_search):
+        split = file.split(".")
+        if re.search(filetype, file) and split[-1] in [
+            "xls",
+            "xlsx",
+        ]:
+            match = re.search(r"_(\d+)-\d{4}$", split[0])
+            if match and match.group(1) == str(month):
+                log(f"-------- The file {file} was selected")
+                return os.path.join(directory_to_search, file)
+    raise ValueError("No files found!")
+
+
+@task(trigger=all_finished)
 def treat_uf_tipo_task(file) -> pl.DataFrame:
     """Task to treat data from  frota por UF e tipo.
 
@@ -111,13 +155,15 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
         denatran_constants.DICT_UFS.value.values()
     )
     filename = os.path.split(file)[1]
+
     try:
-        correct_sheet = [
+        correct_sheet = [  # noqa: RUF015
             sheet
             for sheet in pd.ExcelFile(file).sheet_names
             if sheet != "Glossário"
         ][0]
         df = pd.read_excel(file, sheet_name=correct_sheet)
+
     except UnicodeDecodeError:
         df = call_r_to_read_excel(file)
 
@@ -126,16 +172,17 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
     )
     # This is ad hoc for UF_tipo.
 
-    new_df.rename(
-        columns={new_df.columns[0]: "sigla_uf"}, inplace=True
+    new_df = new_df.rename(
+        columns={new_df.columns[0]: "sigla_uf"}
     )  # Rename for ease of use.
+
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
     clean_df = new_df[new_df.sigla_uf.isin(valid_ufs)].reset_index(
         drop=True
     )  # Now we get all the actual RELEVANT uf data.
     year, month = get_year_month_from_filename(filename)
     # If the df is all strings, try to get numbers where it makes sense.
-    clean_df.replace(" -   ", 0, inplace=True)
+    clean_df = clean_df.replace(" -   ", 0)
 
     # Create a reverse dictionary to replace uf names with uf sigla
     reverse_dict = {v: k for k, v in denatran_constants.DICT_UFS.value.items()}
@@ -160,66 +207,9 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
     )  # Long format.
 
     log("-------- Data Wrangling finished")
-    return clean_pl_df
-
-
-@task()
-def output_file_to_parquet_task(df: pl.DataFrame) -> Path:
-    """Task to save .parquet uf_tipo and municipio_tipo files
-
-    Args:
-        df (pl.DataFrame): Polars DataFrame to be saved
-
-    Returns:
-        _type_: None
-    """
-    output_path = denatran_constants.OUTPUT_PATH.value
-
-    pd_df = df.to_pandas()
-    pd_df = pd_df.astype(str)
-
-    to_partitions(
-        pd_df,
-        partition_columns=["ano", "mes"],
-        savepath=output_path,
-        file_type="parquet",
-    )
+    output_path = output_file_to_parquet(clean_pl_df, table_id="uf_tipo")
+    log(f"-------- Data Saved: {output_path}")
     return output_path
-
-
-@task()
-def get_desired_file_task(
-    source_max_date: datetime, download_directory: str, filetype: str
-) -> str:
-    """
-    Task to search for the desired file at a specific folder, being it uf_tipo or municipio_tipo
-
-    Args:
-        year (int): file year
-        download_directory (str | Path): donwload directory
-        filetype (str): filetype
-
-    Raises:
-        ValueError: No files found
-
-    Returns:
-        str: File path
-    """
-    year = source_max_date.year
-    log(f"-------- Accessing download directory {download_directory}")
-    directory_to_search = os.path.join(
-        str(download_directory), "files", f"{year}"
-    )
-    log(f"-------- Directory to search {directory_to_search}")
-
-    for file in os.listdir(directory_to_search):
-        if re.search(filetype, file) and file.split(".")[-1] in [
-            "xls",
-            "xlsx",
-        ]:
-            log(f"-------- The file {file} was selected")
-            return os.path.join(directory_to_search, file)
-    raise ValueError("No files found!")
 
 
 @task()
@@ -244,25 +234,28 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
     bd_municipios = pl.from_pandas(bd_municipios)
 
     filename = os.path.split(file)[1]
+
     year, month = get_year_month_from_filename(filename)
-    correct_sheet = [
+    correct_sheet = [  # noqa: RUF015
         sheet
         for sheet in pd.ExcelFile(file).sheet_names
         if sheet != "Glossário"
     ][0]
+
     df = pd.read_excel(file, sheet_name=correct_sheet)
     # Some very janky historical files have an entire first empty column that will break EVERYTHING
     # This checks if they exist and drops them
-    if df[df.columns[0]].isnull().sum() == len(df):
-        df.drop(columns=df.columns[0], inplace=True)
+    if df[df.columns[0]].isna().sum() == len(df):
+        df = df.drop(columns=df.columns[0])
+
     new_df = change_df_header(df, guess_header(df, DenatranType.Municipio))
-    new_df.rename(
+    new_df = new_df.rename(
         columns={
             new_df.columns[0]: "sigla_uf",
             new_df.columns[1]: "nome_denatran",
         },
-        inplace=True,
     )  # Rename for ease of use.
+
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
     new_pl_df = pl.from_pandas(new_df)
     new_pl_df = verify_total(new_pl_df)
@@ -275,8 +268,9 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
         pl.col("nome_denatran") != "municipio nao informado"
     )
     if new_pl_df.shape[0] > bd_municipios.shape[0]:
-        raise ValueError(
-            f"Atenção: a base do Denatran tem {new_pl_df.shape[0]} linhas e isso é mais municípios do que a BD com {bd_municipios.shape[0]}"
+        log(
+            f"Atenção: a base do Denatran tem {new_pl_df.shape[0]} linhas e isso é mais municípios do que a BD com {bd_municipios.shape[0]}",
+            "warning",
         )
     dfs = []
     for uf in denatran_constants.DICT_UFS.value:
@@ -292,13 +286,16 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
     )  # Long format.
 
     log("-------- Data Wrangling finished")
-    return full_pl_df
+
+    output_path = output_file_to_parquet(full_pl_df, table_id="municipio_tipo")
+    log(f"-------- Data Saved: {output_path}")
+    return output_path
 
 
 @task()
 def get_latest_date_task(
     table_id: str, dataset_id: str
-) -> Tuple[int | None, str | None]:
+) -> tuple[list, list, int | None, str | None]:
     """Task to extract the latest data from available on the data source
     Args:
         table_id (str): table_id from BQ
@@ -319,14 +316,12 @@ def get_latest_date_task(
     log(f"{denatran_data}")
     year = denatran_data.year
     month = denatran_data.month
+    today = datetime.datetime.now().date()
 
-    flag_new_data = True
-    if month == 12:
-        year += 1
-        month = 1
-    else:
-        month += 1
-    while flag_new_data:
+    dates = []
+    dates_str = []
+    year, month = update_yearmonth(year, month)
+    while datetime.date(int(year), int(month), 1) <= today:
         if year > 2012:
             files_dir = os.path.join(
                 str(denatran_constants.DOWNLOAD_PATH.value), "files"
@@ -336,38 +331,53 @@ def get_latest_date_task(
                 files_to_download = extract_links_post_2012(
                     month, year, year_dir_name
                 )
-                if len(files_to_download) == 0:
-                    month -= 1
-                    flag_new_data = False
+                if len(files_to_download) > 0:
+                    files_to_download.sort(
+                        key=lambda x: x["mes"], reverse=True
+                    )
+                    file_dict = files_to_download[0]
+                    if verify_file(file_dict["file_url"]):
+                        date_return = datetime.datetime(year, month, 1)
+                        str_return = date_return.strftime("%Y-%m")
+                        dates.append(date_return)
+                        dates_str.append(str_return)
+                        year, month = update_yearmonth(year, month)
+                elif (
+                    datetime.date(int(year), int(month), 1)
+                    + relativedelta(month=1)
+                    > today
+                ):
                     break
-                files_to_download.sort(key=lambda x: x["mes"], reverse=True)
-                file_dict = files_to_download[0]
-                if verify_file(file_dict["file_url"]):
-                    if month == 12:
-                        year += 1
-                        month = 1
-                    else:
-                        month += 1
                 else:
-                    month -= 1
-                    flag_new_data = False
+                    year, month = update_yearmonth(year, month)
             except Exception as e:
                 log(e, "error")
-                break
+                raise
         else:
-            url = f"https://www.gov.br/infraestrutura/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
+            url = f"{denatran_constants.BASE_URL_PRE_2012.value}/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
             if verify_file(url):
-                if month == 12:
-                    year += 1
-                    month = 1
-                else:
-                    month += 1
+                date_return = datetime.datetime(year, month, 1)
+                str_return = date_return.strftime("%Y-%m")
+                dates.append(date_return)
+                dates_str.append(str_return)
+                year, month = update_yearmonth(year, month)
+            elif (
+                datetime.date(int(year), int(month), 1)
+                + relativedelta(month=1)
+                > today
+            ):
+                break
             else:
-                flag_new_data = False
+                year, month = update_yearmonth(year, month)
+
+    if len(dates) == 0:
+        date_return = denatran_data
+        str_return = date_return.strftime("%Y-%m")
+        dates = [date_return]
+        dates_str = [str_return]
     log(f"Ano: {year}, mês: {month}")
-    date_return = datetime.datetime(year, month, 1)
-    str_return = date_return.strftime("%Y-%m")
-    return date_return, str_return
+    log(f"Available dates: {dates_str}")
+    return dates, dates_str, dates[0], dates_str[0]
 
 
 @task()
