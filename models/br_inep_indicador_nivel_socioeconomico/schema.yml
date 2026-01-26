@@ -25,3 +25,55 @@ models:
         description: Cobertura Temporal
       - name: valor
         description: Valor
+  - name: br_inep_indicador_nivel_socioeconomico__escola
+    description: 'O Indicador de Nível Socioeconômico (INSE) trata-se de uma medida
+      cujo objetivo é situar o conjunto dos alunos atendidos por cada escola em um
+      estrato, definido pela posse de bens domésticos, renda e contratação de serviços
+      pela família dos alunos e pelo nível de escolaridade de seus pais. Observação:
+      Não há dados para o ano de 2017.'
+    columns:
+      - name: ano
+        description: Ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID do Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: area
+        description: Área da escola (relacionada ao município)
+      - name: rede
+        description: Rede Escolar
+      - name: id_escola
+        description: ID Escola - INEP
+      - name: tipo_localizacao
+        description: Tipo de localização da escola
+      - name: quantidade_alunos_inse
+        description: Quantidade de Alunos com INSE calculado utilizado para o cálculo
+          das médias por escola
+      - name: inse
+        description: Média do Indicador de Nível Socioeconômico dos alunos da escola
+      - name: percentual_nivel_1
+        description: Percentual de alunos no nível 1
+      - name: percentual_nivel_2
+        description: Percentual de alunos no nível 2
+      - name: percentual_nivel_3
+        description: Percentual de alunos no nível 3
+      - name: percentual_nivel_4
+        description: Percentual de alunos no nível 4
+      - name: percentual_nivel_5
+        description: Percentual de alunos no nível 5
+      - name: percentual_nivel_6
+        description: Percentual de alunos no nível 6
+      - name: percentual_nivel_7
+        description: Percentual de alunos no nível 7
+      - name: percentual_nivel_8
+        description: Percentual de alunos no nível 8
+      - name: classificacao
+        description: Classificação do Indicador de Nível Socioeconômico

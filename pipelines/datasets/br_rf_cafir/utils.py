@@ -117,7 +117,7 @@ def decide_files_to_download(
     if data_maxima:
         max_date = df["data_atualizacao"].max()
         log(
-            f"Os arquivos serão selecionados utiliozando a data de atualização mais recente: {max_date}"
+            f"Os arquivos serão selecionados utilizando a data de atualização mais recente: {max_date}"
         )
         return df[df["data_atualizacao"] == max_date][
             "nome_arquivo"
