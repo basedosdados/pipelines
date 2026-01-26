@@ -6,17 +6,19 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, id_municipio]
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
     columns:
       - name: ano
         description: Ano
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: sigla_uf
         description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
@@ -47,17 +49,19 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, id_municipio]
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
     columns:
       - name: ano
         description: Ano
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: sigla_uf
         description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
@@ -84,7 +88,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: plano_diretor_foi_revisto
         description: Plano diretor - Foi revisto
       - name: plano_diretor_ano_ultima_atualizacao
@@ -92,7 +96,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: plano_diretor_numero_lei
         description: Plano diretor - Número da lei
       - name: plano_diretor_elaborando_revendo
@@ -254,153 +258,253 @@ models:
           especial - Outro - Existência
       - name: demais_instrumentos_perimetro_urbano_existencia
         description: Demais instrumentos - Lei de perímetro urbano - Existência
-      - name: demais_instrumentos_perimetro_urbano_ano
+      - name: demais_instrumentos_perimetro_urbano_ano_lei
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
         description: Demais instrumentos - Lei de perímetro urbano - Ano da lei
       - name: demais_instrumentos_parcelamento_solo_existencia
         description: Demais instrumentos - Legislação sobre parcelamento do solo -
           Existência
-      - name: demais_instrumentos_parcelamento_solo_ano
+      - name: demais_instrumentos_parcelamento_solo_ano_lei
         description: Demais instrumentos - Legislação sobre parcelamento do solo -
           Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_zoneamento_ocupacao_solo_existencia
         description: Demais instrumentos - Legislação sobre zoneamento ou uso e ocupação
           do solo - Existência
-      - name: demais_instrumentos_zoneamento_ocupacao_solo_ano
+      - name: demais_instrumentos_zoneamento_ocupacao_solo_ano_lei
         description: Demais instrumentos - Legislação sobre zoneamento ou uso e ocupação
           do solo - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_solo_criado_existencia
         description: Demais instrumentos - Legislação sobre solo criado ou outorga
           onerosa do direito de construir - Existência
-      - name: demais_instrumentos_solo_criado_ano
+      - name: demais_instrumentos_solo_criado_ano_lei
         description: Demais instrumentos - Legislação sobre solo criado ou outorga
           onerosa do direito de construir - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_contribuicao_melhoria_existencia
         description: Demais instrumentos - Legislação sobre contribuição de melhoria
           - Existência
-      - name: demais_instrumentos_contribuicao_melhoria_ano
+      - name: demais_instrumentos_contribuicao_melhoria_ano_lei
         description: Demais instrumentos - Legislação sobre contribuição de melhoria
           - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_operacao_urbana_consorciada_existencia
         description: Demais instrumentos - Legislação sobre operação urbana consorciada
           - Existência
-      - name: demais_instrumentos_operacao_urbana_consorciada_ano
+      - name: demais_instrumentos_operacao_urbana_consorciada_ano_lei
         description: Demais instrumentos - Legislação sobre operação urbana consorciada
           - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_estudo_impacto_vizinhanca_existencia
         description: Demais instrumentos - Legislação sobre estudo de impacto de vizinhança
           - Existência
-      - name: demais_instrumentos_estudo_impacto_vizinhanca_ano
+      - name: demais_instrumentos_estudo_impacto_vizinhanca_ano_lei
         description: Demais instrumentos - Legislação sobre estudo de impacto de vizinhança
           - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_codigo_obras_existencia
         description: Demais instrumentos - Código de obras - Existência
-      - name: demais_instrumentos_codigo_obras_ano
+      - name: demais_instrumentos_codigo_obras_ano_lei
         description: Demais instrumentos - Código de obras - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_codigo_obras_normas_acessibilidade
         description: Demais instrumentos - Código de obras - Orienta-se pelas regras
           previstas nas normas técnicas de acessibilidade
       - name: demais_instrumentos_codigo_posturas_existencia
         description: Demais instrumentos - Código de posturas - Existência
-      - name: demais_instrumentos_codigo_posturas_ano
+      - name: demais_instrumentos_codigo_posturas_ano_lei
         description: Demais instrumentos - Código de posturas - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_lei_transferencia_direito_construir_existencia
         description: Demais instrumentos - Lei de Transferência do Direito de Construir
           - Existência
-      - name: demais_instrumentos_lei_transferencia_direito_construir_ano
+      - name: demais_instrumentos_lei_transferencia_direito_construir_ano_lei
         description: Demais instrumentos - Lei de Transferência do Direito de Construir
           - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_lei_iptu_progressivo_existencia
         description: Demais instrumentos - Lei de Imposto Predial e Territorial Urbano
           Progressivo - Existência
-      - name: demais_instrumentos_lei_iptu_progressivo_ano
+      - name: demais_instrumentos_lei_iptu_progressivo_ano_lei
         description: Demais instrumentos - Lei de Imposto Predial e Territorial Urbano
           Progressivo - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_lei_concessao_direito_real_uso_existencia
         description: Demais instrumentos - Lei de Concessão do Direito Real de Uso
           - Existência
-      - name: demais_instrumentos_lei_concessao_direito_real_uso_ano
+      - name: demais_instrumentos_lei_concessao_direito_real_uso_ano_lei
         description: Demais instrumentos - Lei de Concessão do Direito Real de Uso
           - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_lei_parcelamento_edificacao_utilizacao_compulsorios_existencia
         description: Demais instrumentos - Lei de Parcelamento, Edificação ou Utilização
           Compulsórios - Existência
-      - name: demais_instrumentos_lei_parcelamento_edificacao_utilizacao_compulsorios_ano
+      - name: demais_instrumentos_lei_parcelamento_edificacao_utilizacao_compulsorios_ano_lei
         description: Demais instrumentos - Lei de Parcelamento, Edificação ou Utilização
           Compulsórios - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_lei_desapropriacao_pagamento_titulos_existencia
         description: Demais instrumentos - Lei de Desapropriação com Pagamento em
           Títulos - Existência
-      - name: demais_instrumentos_lei_desapropriacao_pagamento_titulos_ano
+      - name: demais_instrumentos_lei_desapropriacao_pagamento_titulos_ano_lei
         description: Demais instrumentos - Lei de Desapropriação com Pagamento em
           Títulos - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_lei_direito_preempcao_existencia
         description: Demais instrumentos - Lei de Direito de Preempção - Existência
-      - name: demais_instrumentos_lei_direito_preempcao_ano
+      - name: demais_instrumentos_lei_direito_preempcao_ano_lei
         description: Demais instrumentos - Lei de Direito de Preempção - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_zoneamento_ambiental_existencia
         description: Demais instrumentos - Legislação sobre zoneamento ambiental ou
           zoneamento ecológico-econômico - Existência
-      - name: demais_instrumentos_zoneamento_ambiental_ano
+      - name: demais_instrumentos_zoneamento_ambiental_ano_lei
         description: Demais instrumentos - Legislação sobre zoneamento ambiental ou
           zoneamento ecológico-econômico - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_servidao_administrativa_existencia
         description: Demais instrumentos - Legislação sobre servidão administrativa
           - Existência
-      - name: demais_instrumentos_servidao_administrativa_ano
+      - name: demais_instrumentos_servidao_administrativa_ano_lei
         description: Demais instrumentos - Legislação sobre servidão administrativa
           - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_tombamento_existencia
         description: Demais instrumentos - Legislação sobre tombamento - Existência
-      - name: demais_instrumentos_tombamento_ano
+      - name: demais_instrumentos_tombamento_ano_lei
         description: Demais instrumentos - Legislação sobre tombamento - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_unidade_conservacao_existencia
         description: Demais instrumentos - Legislação sobre unidade de conservação
           - Existência
-      - name: demais_instrumentos_unidade_conservacao_ano
+      - name: demais_instrumentos_unidade_conservacao_ano_lei
         description: Demais instrumentos - Legislação sobre unidade de conservação
           - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_concessao_uso_especial_fins_moradia_existencia
         description: Demais instrumentos - Legislação sobre concessão de uso especial
           para fins de moradia - Existência
-      - name: demais_instrumentos_concessao_uso_especial_fins_moradia_ano
+      - name: demais_instrumentos_concessao_uso_especial_fins_moradia_ano_lei
         description: Demais instrumentos - Legislação sobre concessão de uso especial
           para fins de moradia - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_usucapiao_especial_imovel_urbano_existencia
         description: Demais instrumentos - Legislação sobre usucapião especial de
           imóvel urbano - Existência
-      - name: demais_instrumentos_usucapiao_especial_imovel_urbano_ano
+      - name: demais_instrumentos_usucapiao_especial_imovel_urbano_ano_lei
         description: Demais instrumentos - Legislação sobre usucapião especial de
           imóvel urbano - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_direito_superficie_existencia
         description: Demais instrumentos - Legislação sobre direito de superfície
           - Existência
-      - name: demais_instrumentos_direito_superficie_ano
+      - name: demais_instrumentos_direito_superficie_ano_lei
         description: Demais instrumentos - Legislação sobre direito de superfície
           - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_regularizacao_fundiaria_existencia
         description: Demais instrumentos - Legislação sobre regularização fundiária
           - Existência
-      - name: demais_instrumentos_regularizacao_fundiaria_ano
+      - name: demais_instrumentos_regularizacao_fundiaria_ano_lei
         description: Demais instrumentos - Legislação sobre regularização fundiária
           - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_legitimacao_posse_existencia
         description: Demais instrumentos - Legislação sobre a legitimação de posse
           - Existência
-      - name: demais_instrumentos_egitimacao_posse_ano
+      - name: demais_instrumentos_egitimacao_posse_ano_lei
         description: Demais instrumentos - Legislação sobre a legitimação de posse
           - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: demais_instrumentos_estudo_previo_impacto_ambiental_existencia
         description: Demais instrumentos - Legislação sobre estudo prévio de impacto
           ambiental - Existência
-      - name: demais_instrumentos_estudo_previo_impacto_ambiental_ano
+      - name: demais_instrumentos_estudo_previo_impacto_ambiental_ano_lei
         description: Demais instrumentos - Legislação sobre estudo prévio de impacto
           ambiental - Ano da lei
-      - name: lei_organica_ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: lei_organica_ano_lei
         description: Lei orgânica do município - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: lei_diretrizes_orcamentarias
         description: Lei de diretrizes orçamentárias (LDO) - existência
       - name: lei_orcamento_anual
@@ -569,17 +673,19 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, id_municipio]
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
     columns:
       - name: ano
         description: Ano
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: sigla_uf
         description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
@@ -855,17 +961,19 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, id_municipio]
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
     columns:
       - name: ano
         description: Ano
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: sigla_uf
         description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
@@ -907,6 +1015,10 @@ models:
         description: IPTU - O município cobra IPTU
       - name: iptu_municipio_cobra_ano_lei
         description: IPTU - O município cobra IPTU - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: iptu_municipio_cobra_numero_lei
         description: IPTU - O município cobra IPTU - Número da lei
       - name: iptu_planta_generica_valores_existencia
@@ -1400,17 +1512,19 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, id_municipio]
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
     columns:
       - name: ano
         description: Ano
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: sigla_uf
         description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:

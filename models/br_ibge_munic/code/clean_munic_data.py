@@ -160,6 +160,7 @@ def map_to_id_municipio_7(
             zip(
                 directory_df["id_municipio_6"].astype(str),
                 directory_df["id_municipio"].astype(str),
+                strict=False,
             )
         )
 
@@ -256,6 +257,27 @@ def cast_series(series: pd.Series, bigquery_type: object) -> pd.Series:
     if "float" in dtype or "numeric" in dtype or "double" in dtype:
         return pd.to_numeric(series, errors="coerce")
     return series.astype("string")
+
+
+def validate_year_values(series: pd.Series, column_name: str) -> pd.Series:
+    """Replace invalid year values (like 8888) with null.
+
+    Only applies to columns with 'ano' in the name that are int64 type.
+    """
+    # Only validate columns with "ano" in the name
+    if not isinstance(column_name, str) or "ano" not in column_name.lower():
+        return series
+
+    if series.dtype.name != "Int64" and not pd.api.types.is_integer_dtype(
+        series
+    ):
+        return series
+
+    # Replace invalid year values (outside reasonable range 1900-2100, or special codes like 8888)
+    invalid_years = (series < 1900) | (series > 2100) | (series == 8888)
+    series = series.copy()
+    series.loc[invalid_years] = pd.NA
+    return series
 
 
 def load_year_master(year: int) -> tuple[pd.DataFrame | None, dict[str, str]]:
@@ -392,7 +414,11 @@ def build_section_year(
 
         if clean_name == "idade" and str(bq_type).lower().startswith("int"):
             series = series.replace({"Ignorado": pd.NA, "ignorado": pd.NA})
-        output_columns[clean_name] = cast_series(series, bq_type)
+        series = cast_series(series, bq_type)
+        # Validate year columns (columns with "ano" in name that are int64)
+        if str(bq_type).lower() == "int64":
+            series = validate_year_values(series, clean_name)
+        output_columns[clean_name] = series
 
     return pd.DataFrame(output_columns)
 
