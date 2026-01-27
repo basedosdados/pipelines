@@ -1,11 +1,10 @@
 import os
 import zipfile
 from datetime import datetime
-from io import BytesIO
-from urllib.request import urlopen
 
 import basedosdados as bd
 import pandas as pd
+import requests
 from prefect import task
 
 from pipelines.datasets.br_cgu_emendas_parlamentares.constants import constants
@@ -15,10 +14,26 @@ from pipelines.utils.utils import log
 def download_unzip_file():
     if not os.path.exists(constants.INPUT.value):
         os.mkdir(constants.INPUT.value)
+
     try:
-        r = urlopen(constants.URL.value)
-        zip = zipfile.ZipFile(BytesIO(r.read()))
-        zip.extractall(path=constants.INPUT.value)
+        r = requests.get(
+            constants.URL.value,
+            headers={"User-Agent": "Mozilla/5.0"},
+            verify=False,
+        )
+        with open(  # nosec
+            f"{constants.INPUT.value}emendas_parlamentares.zip", "wb"
+        ) as code:
+            code.write(r.content)
+
+        with zipfile.ZipFile(
+            f"{constants.INPUT.value}emendas_parlamentares.zip", "r"
+        ) as zp:
+            zp.extractall(constants.INPUT.value)
+
+        os.remove(f"{constants.INPUT.value}emendas_parlamentares.zip")
+
+        log("Arquivo baixado e descompactado com sucesso")
     except Exception as e:
         print(e)
         log("Erro ao baixar e descompactar arquivo")
