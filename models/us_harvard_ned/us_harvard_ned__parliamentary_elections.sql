@@ -1,7 +1,7 @@
 {{
     config(
-        alias="parliamentary_elections",
         schema="us_harvard_ned",
+        alias="parliamentary_elections",
         materialized="table",
         partition_by={
             "field": "year",
