@@ -1,3 +1,4 @@
+# ruff: noqa: RUF001
 # %%
 import os
 
@@ -31,9 +32,6 @@ print(excel_data.sheet_names)
 
 # %%
 df = excel_data.parse()
-
-# %%
-df
 
 # %%
 # Print the column names of the DataFrame to see what was read from the Excel sheet
@@ -78,7 +76,6 @@ print(df.columns)
 # %%
 # Filters only years equal to or greater than 2022
 df = df[df["ano"] >= 2022]
-df
 
 # %%
 # Filters the DataFrame to keep only rows where 'regiao' is "Brasil"
@@ -100,8 +97,6 @@ melted_dataframe = pd.concat(
     ]
 )
 
-# %%
-melted_dataframe
 
 # %%
 melted_dataframe["etapa_ensino"] = melted_dataframe["metrica"].apply(
@@ -122,9 +117,6 @@ df_final = melted_dataframe.pivot_table(
 ).reset_index()
 
 # %%
-melted_dataframe
-
-# %%
 # Dictionary used to rename columns in the melted DataFrame
 # to a more standardized format.
 RENAME_COLUMNS_MELTED = {
@@ -139,9 +131,6 @@ etapa_ensino = {
     "anosfinais": "Ensino Fundamental – Anos Finais",
     "ensinomedio": "Ensino Médio Regular",
 }
-
-# %%
-df_final
 
 # %%
 # Rename columns in df_final using the mapping defined in RENAME_COLUMNS_MELTED
@@ -168,9 +157,6 @@ df_final = df_final[
 ]
 
 # %%
-df_final
-
-# %%
 # Define the output file path by joining the OUTPUT directory with a subfolder name
 path = os.path.join(OUTPUT, "educacao_especial_brasil_taxa_rendimento")
 # Create the directory if it does not already exist
@@ -188,9 +174,6 @@ df_bq = bd.read_sql(
     "select * from basedosdados.br_inep_educacao_especial.brasil_taxa_rendimento",
     billing_project_id="basedosdados-dev",
 )
-
-# %%
-df_bq
 
 # %%
 # Concatenate two DataFrames.

@@ -1,3 +1,4 @@
+# ruff: noqa: RUF001
 # %%
 import os
 
@@ -77,7 +78,6 @@ df = df[
     & (df["dependencia"] == "Total")
     & (df["sigla_uf"].notna())
 ]
-df
 
 # %%
 # Filters the DataFrame to keep only rows where 'regiao' is "Brasil"
@@ -98,9 +98,6 @@ melted_dataframe = pd.concat(
         )
     ]
 )
-
-# %%
-melted_dataframe
 
 # %%
 melted_dataframe["sigla_uf"].unique()
@@ -124,9 +121,6 @@ df_final = melted_dataframe.pivot_table(
 ).reset_index()
 
 # %%
-melted_dataframe
-
-# %%
 # Remove all rows where the column 'valor' has missing (NaN) values.
 melted_dataframe = melted_dataframe.dropna(subset=["tdi"])
 
@@ -141,9 +135,6 @@ melted_dataframe = melted_dataframe[
         "tdi",
     ]
 ]
-
-# %%
-melted_dataframe
 
 # %%
 # Define the output file path by joining the OUTPUT directory with a subfolder name
@@ -165,9 +156,6 @@ df_bq = bd.read_sql(
     "select * from basedosdados.br_inep_educacao_especial.uf_distorcao_idade_serie",
     billing_project_id="basedosdados-dev",
 )
-
-# %%
-df_bq
 
 # %%
 # Concatenate two DataFrames.
