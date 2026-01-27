@@ -5,6 +5,7 @@
         date_nrows as (
             select {{ column_name }} as date_column, count(1) as nrows
             from {{ model }}
+            where {{ column_name }} >= date_sub(current_date(), interval 6 month)
             group by {{ column_name }}
         ),
 
