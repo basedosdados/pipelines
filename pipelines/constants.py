@@ -46,7 +46,7 @@ class constants(Enum):
     WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL = 5
     DISABLE_ELEMENTARY_VARS = {
         "disable_dbt_artifacts_autoupload": True,
-        "disable_run_results": True,
+        "disable_run_results": False,
         "disable_tests_results": True,
         "disable_dbt_invocation_autoupload": True,
     }

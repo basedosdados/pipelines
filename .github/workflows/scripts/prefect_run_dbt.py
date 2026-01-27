@@ -513,7 +513,7 @@ if __name__ == "__main__":
             "_vars": {
                 "job_name": f"{dataset_id}.{table_id}",
                 "job_id": flow_id,
-                "disable_run_results": False,
+                "disable_run_results": True,
                 "disable_tests_results": False,
                 "disable_dbt_artifacts_autoupload": False,
                 "disable_dbt_invocation_autoupload": True,
