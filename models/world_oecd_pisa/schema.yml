@@ -19,13 +19,13 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_pais_iso3
+              field: sigla_iso3
       - name: country_id_m49
         description: Country Identifier
         tests:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: id_pais_m49
+              field: id_m49
       - name: school_id
         description: School ID
       - name: student_id

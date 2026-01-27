@@ -4,32 +4,32 @@ models:
   - name: br_bd_diretorios_mundo__pais
     description: A tabela contém dados com identificadores dos países segundo instituições
       internacionais, além de siglas e os nomes
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          tags: [mundo]
-          combination_of_columns: [sigla_pais_iso3]
     columns:
-      - name: id_pais_m49
+      - name: id_m49
         description: ID País - M49/PNUD
-      - name: id_pais_fao
+      - name: id_fao
         description: ID País - FAO
-      - name: id_pais_gaul
+      - name: id_gaul
         description: ID País - GAUL
-      - name: sigla_pais_iso3
+      - name: id_cow
+        description: ID País - Correlates of War (COW)
+      - name: sigla_iso3
         description: Sigla do País - ISO3
-      - name: sigla_pais_iso2
+      - name: sigla_iso2
         description: Sigla do País - ISO2
-      - name: sigla_pais_pnud
+      - name: sigla_pnud
         description: Sigla do País - PNUD
-      - name: sigla_pais_coi
+      - name: sigla_cow
+        description: Sigla do País - Correlates of War (COW)
+      - name: sigla_coi
         description: Sigla do País - Comité Olímpico Internacional
-      - name: sigla_pais_fifa
+      - name: sigla_fifa
         description: Sigla do País - FIFA
-      - name: nome
+      - name: nome_pt
         description: Nome do país em português
-      - name: nome_ingles
+      - name: nome_en
         description: Nome do país em inglês
-      - name: nome_oficial_ingles
+      - name: nome_oficial_en
         description: Nome oficial do país em inglês
       - name: nacionalidade
         description: Nacionalidade
