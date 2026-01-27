@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Script para alterar o formato da cobertura temporal do dicionario saeb
 # O formato será expandido, cada linha será um ano
 import itertools

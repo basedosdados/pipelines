@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 utils for br_bd_indicadores
 """
 
-# pylint: disable=too-few-public-methods
 import collections
 import os
-from typing import List, Tuple
 
 import pandas as pd
 import requests
@@ -19,7 +16,7 @@ from google.analytics.data_v1beta.types import (
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
 
-from pipelines.utils.constants import constants
+from pipelines.constants import constants
 
 
 def create_headers(bearer_token: str) -> dict:
@@ -32,12 +29,12 @@ def create_headers(bearer_token: str) -> dict:
 
 def create_url(
     start_date: str, end_date: str, max_results=10
-) -> Tuple[str, dict]:
+) -> tuple[str, dict]:
     """
     Creates parameterized url
     """
     ttid = 1184334528837574656
-    # pylint: disable=C0301
+
     search_url = f"https://api.twitter.com/2/users/{ttid}/tweets"  # Change to the endpoint you want to collect data from
 
     # change params based on the endpoint you are using
@@ -70,7 +67,6 @@ def connect_to_endpoint(
     return response.json()
 
 
-# pylint: disable=C0103
 def flatten(d: dict, parent_key="", sep="_") -> dict:
     """
     Flatten a dict recursively
@@ -85,7 +81,7 @@ def flatten(d: dict, parent_key="", sep="_") -> dict:
     return dict(items)
 
 
-class GA4Exception(Exception):
+class GA4Error(Exception):
     """base class for GA4 exceptions"""
 
 
@@ -100,8 +96,8 @@ class GA4RealTimeReport:
 
     def query_report(
         self,
-        dimensions: List[str],
-        metrics: List[Metric],
+        dimensions: list[str],
+        metrics: list[Metric],
         row_limit: int = 10000,
         quota_usage: bool = False,
     ):
@@ -151,7 +147,7 @@ class GA4RealTimeReport:
             output["rows"] = rows
             return output
         except Exception as e:
-            raise GA4Exception(e) from e
+            raise GA4Error(e) from e
 
 
 def initialize_analyticsreporting():
@@ -159,10 +155,10 @@ def initialize_analyticsreporting():
     Returns:
       An authorized Analytics Reporting API V4 service object.
     """
-    KEY_FILE_LOCATION = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
-    SCOPES = ["https://www.googleapis.com/auth/analytics.readonly"]
+    key_file_location = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+    scopes = ["https://www.googleapis.com/auth/analytics.readonly"]
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        KEY_FILE_LOCATION, SCOPES
+        key_file_location, scopes
     )
 
     # Build the service object.
@@ -171,7 +167,7 @@ def initialize_analyticsreporting():
     return analytics
 
 
-def get_report(analytics, dimension: str, metric: str, VIEW_ID: str):
+def get_report(analytics, dimension: str, metric: str, view_id: str):
     """Queries the Analytics Reporting API V4.
     Args:
         analytics: An authorized Analytics Reporting API V4 service object.
@@ -187,7 +183,7 @@ def get_report(analytics, dimension: str, metric: str, VIEW_ID: str):
             body={
                 "reportRequests": [
                     {
-                        "viewId": VIEW_ID,
+                        "viewId": view_id,
                         "dateRanges": [
                             {"startDate": "today", "endDate": "today"}
                         ],
@@ -211,22 +207,23 @@ def parse_data(response) -> pd.DataFrame:
         Dataframe with the response data.
     """
     reports = response["reports"][0]
-    columnHeader = reports["columnHeader"]["dimensions"]
-    metricHeader = reports["columnHeader"]["metricHeader"][
+    column_header = reports["columnHeader"]["dimensions"]
+    metric_header = reports["columnHeader"]["metricHeader"][
         "metricHeaderEntries"
     ]
     # Get dimenssion names
     dim_names = [
-        columnHeader[n].split(":")[1] for n in range(len(columnHeader))
+        column_header[n].split(":")[1] for n in range(len(column_header))
     ]
     # Get metric names
     metric_names = [
-        metricHeader[n]["name"].split(":")[1] for n in range(len(metricHeader))
+        metric_header[n]["name"].split(":")[1]
+        for n in range(len(metric_header))
     ]
     column_names = dim_names + metric_names
 
-    columns = columnHeader
-    for metric in metricHeader:
+    columns = column_header
+    for metric in metric_header:
         columns.append(metric["name"])
 
     data = pd.json_normalize(reports["data"]["rows"])

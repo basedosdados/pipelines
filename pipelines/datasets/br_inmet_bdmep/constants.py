@@ -1,15 +1,25 @@
-# -*- coding: utf-8 -*-
 """
 Constant values for the datasets projects
 """
 
 from enum import Enum
+from pathlib import Path
 
 
-class constants(Enum):  # pylint: disable=c0103
+class ConstantsMicrodados(Enum):
     """
     Constant values for the br_inmet_bdmep project
     """
+
+    URL = "https://portal.inmet.gov.br/dadoshistoricos/"
+
+    BASE_PATH = Path("tmp") / "data" / "microdados"
+
+    PATH_INPUT = BASE_PATH / "input"
+
+    PATH_OUTPUT = BASE_PATH / "output"
+
+    PATH_REGEX = str(PATH_INPUT) + "/*.CSV"
 
     COLUMNS_ORDER = [
         "data",

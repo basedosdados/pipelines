@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Schedules for br_rj_isp_estatisticas_seguranca
 """
@@ -33,7 +32,7 @@ every_month_evolucao_mensal_cisp = Schedule(
 every_month_feminicidio_mensal_cisp = Schedule(
     clocks=[
         CronClock(
-            cron="5 10 * * *",
+            cron="40 10 * * *",
             start_date=datetime(2023, 4, 25, 10, 15, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,

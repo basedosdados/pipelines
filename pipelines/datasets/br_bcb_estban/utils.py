@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 General-purpose functions for the br_bcb_estban project.
 """
@@ -73,7 +72,7 @@ def download_file(
     url: str,
     download_dir: Path,
     session: requests.Session = None,
-    filename: str = None,
+    filename: str | None = None,
 ) -> Path | None:
     """
     Download a file from a given URL and save it to the specified directory.
@@ -125,7 +124,7 @@ def rename_columns(
     mapping = br_bcb_estban_constants.TABLES_CONFIGS.value[table_id][
         "rename_mapping"
     ]
-    for col in mapping.keys():
+    for col in mapping:
         if col not in dataframe.columns.to_list():
             log("Invalid column mapping provided!", "warning")
             return None
@@ -158,9 +157,8 @@ def pre_cleaning_for_pivot_long(
     else:
         log("Could not rename columns!", "error")
         raise ValueError("Column renaming failed")
-    dataframe.drop(
+    dataframe = dataframe.drop(
         columns={"MUNICIPIO", "CODMUN_IBGE", "CODMUN"},
-        inplace=True,
         errors="ignore",
     )
 

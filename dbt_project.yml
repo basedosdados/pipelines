@@ -20,7 +20,6 @@ vars:
 model-paths: [models]
 analysis-paths: [analysis]
 test-paths: [tests-dbt]
-seed-paths: [data]
 macro-paths: [macros]
 snapshot-paths: [snapshots]
 target-path: target  # directory which will store compiled SQL files
@@ -211,6 +210,9 @@ models:
     br_inep_ana:
       +materialized: table
       +schema: br_inep_ana
+    br_inep_avaliacao_alfabetizacao:
+      +materialized: table
+      +schema: br_inep_avaliacao_alfabetizacao
     br_inep_censo_educacao_superior:
       +materialized: table
       +schema: br_inep_censo_educacao_superior
@@ -310,6 +312,9 @@ models:
     br_ms_pns:
       +materialized: table
       +schema: br_ms_pns
+    br_ms_populacao:
+      +materialized: table
+      +schema: br_ms_populacao
     br_ms_sia:
       +materialized: table
       +schema: br_ms_sia
@@ -403,12 +408,12 @@ models:
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
-    world_iea_timss:
-      +materialized: table
-      +schema: world_iea_timss
     world_iea_pirls:
       +materialized: table
       +schema: world_iea_pirls
+    world_iea_timss:
+      +materialized: table
+      +schema: world_iea_timss
     world_imdb_movies:
       +materialized: table
       +schema: world_imdb_movies

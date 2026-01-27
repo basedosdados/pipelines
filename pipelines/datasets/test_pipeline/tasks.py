@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Tasks for basedosdados
 """
-# pylint: disable=line-too-long, W0702, E1101, C0103
 
 import datetime
 import os
 from pathlib import Path
-from typing import Union
 
 import basedosdados as bd
 import numpy as np
@@ -23,8 +20,8 @@ def get_random_expression() -> pd.DataFrame:
     """
     Get random data
     """
-    URL = "https://x-math.herokuapp.com/api/random"
-    response = requests.get(URL, timeout=5)
+    url = "https://x-math.herokuapp.com/api/random"
+    response = requests.get(url, timeout=5)
 
     cols = ["date", "first", "second", "operation", "expression", "answer"]
     time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -46,8 +43,8 @@ def get_random_expression() -> pd.DataFrame:
 
 @task
 def dataframe_to_csv(
-    dataframe: pd.DataFrame, path: Union[str, Path], time_stamp
-) -> Union[str, Path]:
+    dataframe: pd.DataFrame, path: str | Path, time_stamp
+) -> str | Path:
     """
     Writes a dataframe to a CSV file.
     """
@@ -67,9 +64,7 @@ def dataframe_to_csv(
 
 
 @task
-def upload_to_gcs(
-    path: Union[str, Path], dataset_id: str, table_id: str
-) -> None:
+def upload_to_gcs(path: str | Path, dataset_id: str, table_id: str) -> None:
     """
     Uploads a bunch of CSVs using BD+
     """

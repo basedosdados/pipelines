@@ -22,8 +22,9 @@ elementary:
   outputs:
     default:
       type: bigquery
-      project: basedosdados
-      dataset: elementary
       method: service-account
       keyfile: /tmp/bigquery_keyfile.json
+      project: basedosdados-dev
+      dataset: elementary
+      location: US
       threads: 2

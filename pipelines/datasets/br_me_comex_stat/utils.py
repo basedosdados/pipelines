@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
 """Utils for the Brazilian Comex Stat pipeline."""
 
-# pylint: disable=invalid-name
 import os
 import time as tm
 from datetime import datetime
-from typing import List, Literal
+from typing import Literal
 
 import pandas as pd
-import wget
+import requests
 
 from pipelines.datasets.br_me_comex_stat.constants import (
     constants as comex_constants,
@@ -40,15 +38,13 @@ def create_paths(
 
 def download_data(
     path: str,
-    table_type: str,
     table_name: str,
-    years_download: List[str],
+    years_download: list[str],
 ):
     """A simple crawler to download data from comex stat website.
 
     Args:
         path (str): the path to store the data
-        table_type (str): the table type is either ncm or mun. ncm stands for 'nomenclatura comum do mercosul' and
         mun for 'município'.
         table_name (str): the table name is the original name of the zip file with raw data from comex stat website
     """
@@ -58,19 +54,22 @@ def download_data(
 
         log(f"Donwloading year ->>> {year}")
         table_name_urls = {
-            "mun_imp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/IMP_{year}_MUN.csv",
-            "mun_exp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/EXP_{year}_MUN.csv",
-            "ncm_imp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/IMP_{year}.csv",
-            "ncm_exp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/{table_type}/EXP_{year}.csv",
+            "mun_imp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/mun/IMP_{year}_MUN.csv",
+            "mun_exp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/mun/EXP_{year}_MUN.csv",
+            "ncm_imp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/IMP_{year}.csv",
+            "ncm_exp": f"https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_{year}.csv",
         }
 
         # Selects a url given a table name
         url = table_name_urls[table_name]
-
+        filename = url.split("/")[-1]
         log(f"Downloading {url}")
 
-        # Downloads the file and saves it
-        wget.download(url, out=path + table_name + "/input")
+        response = requests.get(url, verify=False)
+        response.raise_for_status()  # Raise an error for bad responses
+
+        with open(path + table_name + "/input/" + filename, "wb") as f:
+            f.write(response.content)
 
         # Sleep for 8 secs in between iterations
         tm.sleep(8)
@@ -93,8 +92,14 @@ def download_validation(
     create_paths(path, table_name)
 
     output_path = path + table_name + "/input"
-    url = f"{base_url_validation}/{str(table_type)}/{str(trade_type).upper()}_TOTAIS_CONFERENCIA{suffix}.csv"
-    wget.download(url, out=output_path)
+    url = f"{base_url_validation}/{table_type!s}/{str(trade_type).upper()}_TOTAIS_CONFERENCIA{suffix}.csv"
+    filename = url.split("/")[-1]
+
+    response = requests.get(url, verify=False)
+    response.raise_for_status()  # Raise an error for bad responses
+
+    with open(f"{output_path}/{filename}", "wb") as f:
+        f.write(response.content)
     return output_path
 
 
@@ -154,7 +159,7 @@ def validate_table(
                 "VL_FOB": "valor_fob_dolar",
                 "NUMERO_LINHAS": "linhas",
             }
-            df_validation.rename(columns=rename_validation, inplace=True)
+            df_validation = df_validation.rename(columns=rename_validation)
 
             # Ensure the dataframe has only one reference year
             if len(dataframe["ano"].unique()) == 1:
@@ -173,7 +178,7 @@ def validate_table(
 
                 # Aggregate dataframe values for comparison
                 df_grouped = dataframe[cols_to_evaluate].sum().to_frame().T
-                df_grouped.reset_index(drop=True, inplace=True)
+                df_grouped = df_grouped.reset_index(drop=True)
 
                 # Extract validation totals for the same year
                 df_val = df_validation.loc[
@@ -182,8 +187,8 @@ def validate_table(
 
                 # Column-by-column validation
                 for col in cols_to_evaluate:
-                    wrangled_value = df_grouped.at[0, col]
-                    validation_value = df_val.at[0, col]
+                    wrangled_value = df_grouped.loc[0, col]
+                    validation_value = df_val.loc[0, col]
 
                     if wrangled_value == validation_value:
                         log(
@@ -203,7 +208,7 @@ def validate_table(
                 validation_rows = int(
                     df_validation.loc[
                         df_validation["ano"] == ano, "linhas"
-                    ].values[0]
+                    ].to_numpy()[0]
                 )
                 dataframe_rows = len(dataframe)
 

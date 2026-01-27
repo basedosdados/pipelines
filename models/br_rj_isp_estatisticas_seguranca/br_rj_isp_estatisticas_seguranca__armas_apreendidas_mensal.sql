@@ -79,4 +79,5 @@ from
         set_datalake_project(
             "br_rj_isp_estatisticas_seguranca_staging.armas_apreendidas_mensal"
         )
-    }} as t
+    }}
+where ano is not null and mes is not null

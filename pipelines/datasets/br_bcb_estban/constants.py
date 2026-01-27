@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Constants for br_bcb_estban pipeline.
 """
@@ -6,7 +5,7 @@ Constants for br_bcb_estban pipeline.
 from enum import Enum
 
 
-class constants(Enum):  # pylint: disable=c0103
+class constants(Enum):
     # ==== General tasks constants ==== #
     HEADERS = {
         "sec-ch-ua-platform": '"Windows"',

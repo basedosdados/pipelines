@@ -8,19 +8,21 @@ repos:
       - id: detect-private-key  # detects private keys
       - id: fix-byte-order-marker  # fixes BOM
       - id: no-commit-to-branch  # prevents committing to protected branches
+      - id: mixed-line-ending
+        args: [--fix=lf]  # Ensures all line endings are LF
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.8.17
+    rev: 0.9.17
     hooks:
       - id: uv-lock
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.13.0
+    rev: v0.14.9
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
   - repo: https://github.com/lyz-code/yamlfix/
-    rev: 1.18.0
+    rev: 1.19.0
     hooks:
       - id: yamlfix
         args:
@@ -31,7 +33,7 @@ repos:
           - --exclude
           - target/**/*
   - repo: https://github.com/tconbeer/sqlfmt
-    rev: v0.27.0
+    rev: v0.28.2
     hooks:
       - id: sqlfmt
         language_version: python

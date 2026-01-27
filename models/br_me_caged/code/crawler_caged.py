@@ -102,7 +102,9 @@ def download_file(ftp, remote_dir, filename, local_dir):
 
 
 def crawler_novo_caged_ftp(
-    yearmonth: str, ftp_host: str = "ftp.mtps.gov.br", file_types: list = None
+    yearmonth: str,
+    ftp_host: str = "ftp.mtps.gov.br",
+    file_types: list | None = None,
 ) -> list:
     """
     Downloads specified .7z files from a CAGED dataset FTP server.
@@ -111,8 +113,8 @@ def crawler_novo_caged_ftp(
         yearmonth (str): the month to download data from (e.g., '202301' for January 2023)
         ftp_host (str): the FTP host to connect to (default: "ftp.mtps.gov.br")
         file_types (list): list of file types to download.
-                           Options: 'MOV' (movement), 'FOR' (out of deadline), 'EXC' (excluded)
-                           If None, downloads all files
+                          Options: 'MOV' (movement), 'FOR' (out of deadline), 'EXC' (excluded)
+                          If None, downloads all files
 
     Returns:
         list: List of successfully and unsuccessfully downloaded files
@@ -258,32 +260,16 @@ def build_partitions(table_id: str, yearmonth: str) -> str:
 
         df["uf"] = df["uf"].map(dict_uf)
 
-        df.rename(columns=RENAME_DICT, inplace=True)
+        df.rename(columns=RENAME_DICT)
 
         for state in dict_uf.values():
             data = df[df["sigla_uf"] == state]
 
-            if table_id == "microdados_movimentacao":
-                data = data.drop(
-                    [
-                        "sigla_uf",
-                        "regiao",
-                        "unidadesalariocodigo",
-                        "valorsalariofixo",
-                    ],
-                    axis=1,
-                )
-            elif table_id == "microdados_movimentacao_fora_prazo":
-                data = data.drop(
-                    [
-                        "sigla_uf",
-                        "regiao",
-                        "unidadesalariocodigo",
-                        "valorsalariofixo",
-                    ],
-                    axis=1,
-                )
-            elif table_id == "microdados_movimentacao_excluida":
+            if (
+                table_id == "microdados_movimentacao"
+                or table_id == "microdados_movimentacao_fora_prazo"
+                or table_id == "microdados_movimentacao_excluida"
+            ):
                 data = data.drop(
                     [
                         "sigla_uf",

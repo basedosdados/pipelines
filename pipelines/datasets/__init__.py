@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Prefect flows for basedosdados project
 """
@@ -6,7 +5,7 @@ Prefect flows for basedosdados project
 ###############################################################################
 # Automatically managed, please do not touch
 ###############################################################################
-# ruff: noqa: F403
+# ruff: noqa
 from pipelines.datasets.botdosdados.flows import *
 from pipelines.datasets.br_anatel_banda_larga_fixa.flows import *
 from pipelines.datasets.br_anatel_telefonia_movel.flows import *
@@ -43,7 +42,7 @@ from pipelines.datasets.br_me_cnpj.flows import *
 from pipelines.datasets.br_me_comex_stat.flows import *
 from pipelines.datasets.br_mercadolivre_ofertas.flows import *
 from pipelines.datasets.br_mg_belohorizonte_smfa_iptu.flows import *
-from pipelines.datasets.br_mp_pep_cargos_funcoes.flows import *
+from pipelines.datasets.br_mp_pep.flows import *
 from pipelines.datasets.br_ms_cnes.flows import *
 from pipelines.datasets.br_ms_sia.flows import *
 from pipelines.datasets.br_ms_sih.flows import *
@@ -64,3 +63,4 @@ from pipelines.datasets.fundacao_lemann.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes.flows import *
 from pipelines.datasets.mundo_transfermarkt_competicoes_internacionais.flows import *
 from pipelines.datasets.world_sofascore_competicoes_futebol.flows import *
+from pipelines.datasets.test_dataset.flows import *

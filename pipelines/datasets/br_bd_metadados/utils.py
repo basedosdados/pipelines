@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import datetime
 
 import pandas as pd
@@ -11,7 +10,7 @@ from pipelines.utils.utils import log
 def get_skipped_upload_to_gcs_column(flow_runs_df):
     skipped_upload_filter = {
         "state": "Skipped",
-        "task": {"name": "create_table_and_upload_to_gcs"},
+        "task": {"name": "create_table_dev_and_upload_to_gcs"},
     }
 
     flow_runs_df["skipped_upload_to_gcs"] = flow_runs_df["task_runs"].apply(
@@ -64,7 +63,7 @@ def parse_schedule_information(flows_df):
     clocks_df = parse_schedule_clocks_column(flows_df)
     parameters_df = parse_schedule_parameter_column(clocks_df)
 
-    flows_df.drop(columns=["schedule_clocks"], inplace=True)
+    flows_df = flows_df.drop(columns=["schedule_clocks"])
 
     return pd.concat([parameters_df, clocks_df, flows_df], axis=1)
 
@@ -74,7 +73,7 @@ def parse_schedule_clocks_column(flows_df):
         flows_df["schedule_clocks"].str[0], max_level=0, sep="_"
     ).add_prefix("schedule_")
 
-    clocks_df.drop(columns=["schedule___version__"], inplace=True)
+    clocks_df = clocks_df.drop(columns=["schedule___version__"])
 
     return clocks_df
 

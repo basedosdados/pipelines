@@ -1,23 +1,19 @@
-# -*- coding: utf-8 -*-
 """
 Flows for br_bd_indicadores
 """
 
-# pylint: disable=invalid-name
-from datetime import timedelta
-
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
-from prefect.tasks.prefect import create_flow_run, wait_for_flow_run
 
 from pipelines.constants import constants
-from pipelines.datasets.br_bd_indicadores.schedules import (
-    schedule_contabilidade,
-    schedule_equipes,
-    schedule_pessoas,
-    schedule_receitas,
-)
+
+# from pipelines.datasets.br_bd_indicadores.schedules import (
+#     schedule_contabilidade,
+#     schedule_equipes,
+#     schedule_pessoas,
+#     schedule_receitas,
+# )
 from pipelines.datasets.br_bd_indicadores.tasks import (
     crawler_metricas,
     crawler_real_time,
@@ -29,15 +25,13 @@ from pipelines.datasets.br_bd_indicadores.tasks import (
     has_new_tweets,
     save_data_to_csv,
 )
-from pipelines.utils.constants import constants as utils_constants
 from pipelines.utils.decorators import Flow
-from pipelines.utils.execute_dbt_model.constants import (
-    constants as dump_db_constants,
-)
 from pipelines.utils.tasks import (
-    create_table_and_upload_to_gcs,
-    get_current_flow_labels,
+    create_table_dev_and_upload_to_gcs,
+    create_table_prod_gcs_and_run_dbt,
+    download_data_to_gcs,
     rename_current_flow_run_dataset_table,
+    run_dbt,
 )
 
 with Flow(
@@ -47,11 +41,11 @@ with Flow(
     ],
 ) as bd_twt_metricas:
     # Parameters
-    target = Parameter("target", default="prod", required=False)
+
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
     dataset_id = Parameter(
         "dataset_id", default="br_bd_indicadores", required=True
     )
@@ -82,7 +76,6 @@ with Flow(
         echo("No tweets to update")
 
     with case(cond, True):
-        # pylint: disable=C0103
         filepath = crawler_metricas(
             access_secret,
             access_token,
@@ -90,45 +83,31 @@ with Flow(
             consumer_secret,
             upstream_tasks=[cond],
             table_id=table_id,
-        )  # pylint: disable=C0103
+        )
 
-        # pylint: disable=C0103
-        wait_upload_table = create_table_and_upload_to_gcs(
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            wait=filepath,
+            upstream_tasks=[filepath],
+        )
+
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            dbt_alias=dbt_alias,
+            upstream_tasks=[wait_upload_table],
         )
 
         with case(materialize_after_dump, True):
-            # Trigger DBT flow run
-            current_flow_labels = get_current_flow_labels()
-            materialization_flow = create_flow_run(
-                flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-                project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-                parameters={
-                    "dataset_id": dataset_id,
-                    "table_id": table_id,
-                    "target": target,
-                    "dbt_alias": dbt_alias,
-                },
-                labels=current_flow_labels,
-                run_name=f"Materialize {dataset_id}.{table_id}",
-                upstream_tasks=[wait_upload_table],
-            )
-
-            wait_for_materialization = wait_for_flow_run(
-                materialization_flow,
-                stream_states=True,
-                stream_logs=True,
-                raise_final_state=True,
-            )
-            wait_for_materialization.max_retries = (
-                dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-            )
-            wait_for_materialization.retry_delay = timedelta(
-                seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+            create_table_prod_gcs_and_run_dbt(
+                data_path=filepath,
+                dataset_id=dataset_id,
+                table_id=table_id,
+                dump_mode="append",
+                upstream_tasks=[wait_for_materialization],
             )
 
 bd_twt_metricas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -145,34 +124,21 @@ with Flow(
     table_id = Parameter(
         "table_id", default="twitter_metrics_agg", required=True
     )
-    target = Parameter("target", default="prod", required=False)
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
-    current_flow_labels = get_current_flow_labels()
-    materialization_flow = create_flow_run(
-        flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-        project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-        parameters={
-            "dataset_id": dataset_id,
-            "table_id": table_id,
-            "target": target,
-            "dbt_alias": dbt_alias,
-        },
-        labels=current_flow_labels,
-        run_name=f"Materialize {dataset_id}.{table_id}",
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
     )
 
-    wait_for_materialization = wait_for_flow_run(
-        materialization_flow,
-        stream_states=True,
-        stream_logs=True,
-        raise_final_state=True,
-    )
-    wait_for_materialization.max_retries = (
-        dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-    )
-    wait_for_materialization.retry_delay = timedelta(
-        seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    wait_for_dowload_data_to_gcs = download_data_to_gcs(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        upstream_tasks=[wait_for_materialization],
     )
 
 bd_twt_metricas_agg.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -214,12 +180,12 @@ with Flow(
         property_id=property_id,
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
+        upstream_tasks=[filepath],
     )
 
 
@@ -238,12 +204,10 @@ with Flow(
     )
     table_id = Parameter("table_id", default="website_user", required=True)
 
-    target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize after dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -269,12 +233,12 @@ with Flow(
         upstream_tasks=[view_id],
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
+        upstream_tasks=[filepath],
     )
 
     # wait_update_metadata = update_metadata(
@@ -286,33 +250,21 @@ with Flow(
     #     upstream_tasks=[wait_upload_table],
     # )
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-        )
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    with case(materialize_after_dump, True):
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            upstream_tasks=[wait_for_materialization],
         )
 
 
@@ -341,12 +293,10 @@ with Flow(
         "sheet_name", default="transacoes_anonimizado", required=True
     )
 
-    target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -364,12 +314,11 @@ with Flow(
         upstream_tasks=[df_contabilidade],
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
         upstream_tasks=[filepath],
     )
 
@@ -382,45 +331,28 @@ with Flow(
     #     upstream_tasks=[wait_upload_table],
     # )
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        if target == "dev":
-            project_name = "staging"
-        else:
-            project_name = constants.PREFECT_DEFAULT_PROJECT.value
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=project_name,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-            upstream_tasks=[wait_upload_table],
-        )
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    with case(materialize_after_dump, True):
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            upstream_tasks=[wait_for_materialization],
         )
 
 bd_indicadores_contabilidade.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_indicadores_contabilidade.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-bd_indicadores_contabilidade.schedule = schedule_contabilidade
+# bd_indicadores_contabilidade.schedule = schedule_contabilidade
 
 
 with Flow(
@@ -442,12 +374,10 @@ with Flow(
         "sheet_name", default="receitas_planejadas_anonimizado", required=True
     )
 
-    target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -463,12 +393,11 @@ with Flow(
         upstream_tasks=[df_receitas],
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
         upstream_tasks=[filepath],
     )
 
@@ -481,34 +410,21 @@ with Flow(
     #     upstream_tasks=[wait_upload_table],
     # )
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-            upstream_tasks=[wait_upload_table],
-        )
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    with case(materialize_after_dump, True):
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            upstream_tasks=[wait_for_materialization],
         )
 
 bd_indicadores_receitas_planejadas.storage = GCS(
@@ -517,7 +433,7 @@ bd_indicadores_receitas_planejadas.storage = GCS(
 bd_indicadores_receitas_planejadas.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-bd_indicadores_receitas_planejadas.schedule = schedule_receitas
+# bd_indicadores_receitas_planejadas.schedule = schedule_receitas
 
 
 with Flow(
@@ -538,12 +454,10 @@ with Flow(
     sheet_name = Parameter("sheet_name", default="equipes", required=True)
     bd_indicadores_equipes.add_task(sheet_name)
 
-    target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -559,12 +473,11 @@ with Flow(
         df=df_equipes, filename="equipes", upstream_tasks=[df_equipes]
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
         upstream_tasks=[filepath],
     )
 
@@ -577,41 +490,28 @@ with Flow(
     #     upstream_tasks=[wait_upload_table],
     # )
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-            upstream_tasks=[wait_upload_table],
-        )
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    with case(materialize_after_dump, True):
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            upstream_tasks=[wait_for_materialization],
         )
 
 bd_indicadores_equipes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_indicadores_equipes.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-bd_indicadores_equipes.schedule = schedule_equipes
+# bd_indicadores_equipes.schedule = schedule_equipes
 
 
 with Flow(
@@ -629,12 +529,10 @@ with Flow(
     )
     sheet_name = Parameter("sheet_name", default="pessoas", required=True)
 
-    target = Parameter("target", default="prod", required=False)
-
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -650,12 +548,11 @@ with Flow(
         df=df_pessoas, filename="pessoas", upstream_tasks=[df_pessoas]
     )
 
-    wait_upload_table = create_table_and_upload_to_gcs(
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         dump_mode="append",
-        wait=filepath,
         upstream_tasks=[filepath],
     )
 
@@ -668,38 +565,25 @@ with Flow(
     #     upstream_tasks=[wait_upload_table],
     # )
 
-    with case(materialize_after_dump, True):
-        # Trigger DBT flow run
-        current_flow_labels = get_current_flow_labels()
-        materialization_flow = create_flow_run(
-            flow_name=utils_constants.FLOW_EXECUTE_DBT_MODEL_NAME.value,
-            project_name=constants.PREFECT_DEFAULT_PROJECT.value,
-            parameters={
-                "dataset_id": dataset_id,
-                "table_id": table_id,
-                "target": target,
-                "dbt_alias": dbt_alias,
-            },
-            labels=current_flow_labels,
-            run_name=f"Materialize {dataset_id}.{table_id}",
-            upstream_tasks=[wait_upload_table],
-        )
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
 
-        wait_for_materialization = wait_for_flow_run(
-            materialization_flow,
-            stream_states=True,
-            stream_logs=True,
-            raise_final_state=True,
-        )
-        wait_for_materialization.max_retries = (
-            dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS.value
-        )
-        wait_for_materialization.retry_delay = timedelta(
-            seconds=dump_db_constants.WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL.value
+    with case(materialize_after_dump, True):
+        create_table_prod_gcs_and_run_dbt(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            upstream_tasks=[wait_for_materialization],
         )
 
 bd_indicadores_pessoas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_indicadores_pessoas.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-bd_indicadores_pessoas.schedule = schedule_pessoas
+# bd_indicadores_pessoas.schedule = schedule_pessoas

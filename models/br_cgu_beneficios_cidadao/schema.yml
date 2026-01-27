@@ -79,6 +79,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
       - name: sigla_uf
         description: Sigla da Unidade Federativa do beneficiário do BPC
       - name: nis_favorecido
