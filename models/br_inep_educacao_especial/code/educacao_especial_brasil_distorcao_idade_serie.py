@@ -37,6 +37,7 @@ df = excel_data.parse()
 # Print the column names of the DataFrame to see what was read from the Excel sheet
 print(df.columns)
 
+
 # %%
 # -----------------------------
 # Rename and filter columns

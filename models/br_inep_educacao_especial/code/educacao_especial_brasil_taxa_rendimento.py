@@ -75,7 +75,7 @@ print(df.columns)
 
 # %%
 # Filters only years equal to or greater than 2022
-df = df[df["ano"] >= 2022]
+df: pd.DataFrame = df[df["ano"] >= 2022]
 
 # %%
 # Filters the DataFrame to keep only rows where 'regiao' is "Brasil"
