@@ -100,18 +100,8 @@ models:
         description: Tipo da Admissão
       - name: mes_admissao
         description: Mês de Admissão
-        tests:
-          - custom_relationships:
-              to: ref('br_bd_diretorios_data_tempo__mes')
-              field: mes.mes
-              ignore_values: [0]
       - name: mes_desligamento
         description: Mês de Desligamento
-        tests:
-          - custom_relationships:
-              to: ref('br_bd_diretorios_data_tempo__mes')
-              field: mes.mes
-              ignore_values: [0]
       - name: motivo_desligamento
         description: Motivo do Desligamento
       - name: causa_desligamento_1

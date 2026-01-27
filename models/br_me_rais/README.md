@@ -113,3 +113,11 @@ Em novembro de 2025, o ano de 2024 apresenta aproximadamente 46 milhões de vín
 
 > **Importante**
 > Essa diferença não indica queda no número de vínculos, mas sim que os dados do ano mais recente ainda não foram totalmente disponibilizados.
+
+## 8. Verificação
+
+**Observação: Recomendamos fortemente que se utilize a plataforma Dardo (https://bi.mte.gov.br/bgcaged/) para fazer a verificação dos dados antes de leva-lo para produção.**
+
+> **Importante**
+> O Dardo é uma plataforma do Governo, onde você conseguimos validar nossos dados (https://acesso.mte.gov.br/portal-pdet/o-pdet/portifolio-de-produtos/bases-de-dados.htm)
+
