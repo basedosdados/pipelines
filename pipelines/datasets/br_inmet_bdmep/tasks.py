@@ -2,27 +2,20 @@
 Tasks for br_inmet_bdmep
 """
 
-import glob
-import os
-import re
-from datetime import datetime, timedelta
+from datetime import timedelta
+from glob import glob
 
 import pandas as pd
 from prefect import task
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
 
 from pipelines.constants import constants
-from pipelines.datasets.br_inmet_bdmep.constants import (
-    constants as inmet_constants,
-)
+from pipelines.datasets.br_inmet_bdmep.constants import ConstantsMicrodados
 from pipelines.datasets.br_inmet_bdmep.utils import (
     download_inmet,
     get_clima_info,
+    get_date_from_path,
+    get_latest_dowload_link,
 )
-from pipelines.utils.utils import log
 
 
 @task(
@@ -33,78 +26,46 @@ def extract_last_date_from_source():
     """
     Extrai última data de atualização dos dados históricos do site do INMET.
     """
-    padrao = r"(\d{2}/\d{2}/\d{4})"
-    options = webdriver.ChromeOptions()
 
-    # https://github.com/SeleniumHQ/selenium/issues/11637
-    prefs = {
-        "download.default_directory": "/tmp/",
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "safebrowsing.enabled": True,
-    }
-    options.add_experimental_option(
-        "prefs",
-        prefs,
-    )
+    latest_dowload_link = get_latest_dowload_link()
 
-    options.add_argument("--headless")
-    options.add_argument("--test-type")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-first-run")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--no-default-browser-check")
-    options.add_argument("--ignore-certificate-errors")
-    options.add_argument("--start-maximized")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
-    )
+    download_inmet(latest_dowload_link)
 
-    driver = webdriver.Chrome(
-        service=ChromeService(ChromeDriverManager().install()), options=options
-    )
+    paths = glob(ConstantsMicrodados.PATH_REGEX.value)
+    datas = [get_date_from_path(path) for path in paths]
 
-    driver.get("https://portal.inmet.gov.br/dadoshistoricos/")
-
-    elements = driver.find_elements(
-        By.XPATH, '//*[@id="main"]/div/div/article'
-    )
-    last_element = elements[-1].text
-    last_date = re.findall(padrao, last_element)
-    return datetime.strptime(last_date[-1], "%d/%m/%Y").date()
+    return max(datas).date()
 
 
 @task
-def get_base_inmet(year: int) -> str:
+def get_base_inmet() -> str:
     """
     Faz o download dos dados meteorológicos do INMET, processa-os e salva os dataframes resultantes em arquivos CSV.
 
     Retorna:
     - str: o caminho para o diretório que contém os arquivos CSV de saída.
     """
-    log(f"Baixando os dados para o ano {year}.")
 
-    download_inmet(year)
-    log("Dados baixados.")
-
-    files = glob.glob(os.path.join(f"/tmp/data/input/{year}/", "*.CSV"))
+    files = glob(ConstantsMicrodados.PATH_REGEX.value)
 
     base = pd.concat(
         [get_clima_info(file) for file in files], ignore_index=True
     )
 
     # ordena as colunas
-    ordem = inmet_constants.COLUMNS_ORDER.value
+    ordem = ConstantsMicrodados.COLUMNS_ORDER.value
+
     base = base[ordem]
 
-    # Salva o dataframe resultante em um arquivo CSV
-    os.makedirs(
-        os.path.join(f"/tmp/data/output/microdados/ano={year}"), exist_ok=True
-    )
-    name = os.path.join(
-        f"/tmp/data/output/microdados/ano={year}/", f"microdados_{year}.csv"
-    )
-    base.to_csv(name, index=False)
+    year = base.data.max().year
 
-    return "/tmp/data/output/microdados/"
+    # Salva o dataframe resultante em um arquivo CSV
+    path_output = ConstantsMicrodados.PATH_OUTPUT.value / f"ano={year}"
+
+    path_output.mkdir(parents=True, exist_ok=True)
+
+    file_path = path_output / f"microdados_{year}.csv"
+
+    base.to_csv(file_path, index=False)
+
+    return ConstantsMicrodados.PATH_OUTPUT.value

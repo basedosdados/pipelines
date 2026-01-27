@@ -6,13 +6,13 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2007, "end": 2023, "interval": 1},
+            "range": {"start": 2007, "end": 2024, "interval": 1},
         },
     )
 }}
 select
     safe_cast(ano as int64) ano,
-    safe_cast(id_municipio as string) id_municipio,
+    safe_cast(safe_cast(id_municipio as int64) as string) id_municipio,
     safe_cast(id_escola as string) id_escola,
     safe_cast(localizacao as string) localizacao,
     safe_cast(rede as string) rede,

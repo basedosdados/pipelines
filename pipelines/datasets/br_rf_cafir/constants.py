@@ -2,11 +2,14 @@
 Constant values for the datasets projects
 """
 
+from datetime import datetime
 from enum import Enum
 
 
 class constants(Enum):
-    URL = ["https://arquivos.receitafederal.gov.br/cafir/"]
+    URL = [
+        f"https://arquivos.receitafederal.gov.br/cafir/{datetime.now().year}"
+    ]
 
     HEADERS = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",

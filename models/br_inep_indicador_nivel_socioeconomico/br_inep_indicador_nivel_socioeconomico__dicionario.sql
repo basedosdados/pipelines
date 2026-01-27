@@ -1,4 +1,5 @@
 {{ config(alias="dicionario", schema="br_inep_indicador_nivel_socioeconomico") }}
+
 -- Dicionário de dados do Indicador de Nível Socioeconômico
 select
     safe_cast(id_tabela as string) id_tabela,
