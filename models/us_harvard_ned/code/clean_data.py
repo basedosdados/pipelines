@@ -19,7 +19,9 @@ def clean_parliamentary_elections():
 
     # Create mapping from original_name to new name (excluding "(excluded)" rows)
     valid_cols = arch_df[arch_df["name"] != "(excluded)"]
-    rename_map = dict(zip(valid_cols["original_name"], valid_cols["name"]))
+    rename_map = dict(
+        zip(valid_cols["original_name"], valid_cols["name"], strict=True)
+    )
 
     # Get columns to exclude
     excluded_cols = arch_df[arch_df["name"] == "(excluded)"][
@@ -162,7 +164,9 @@ def clean_presidential_elections():
 
     # Create mapping from original_name to new name (excluding "(excluded)" rows)
     valid_cols = arch_df[arch_df["name"] != "(excluded)"]
-    rename_map = dict(zip(valid_cols["original_name"], valid_cols["name"]))
+    rename_map = dict(
+        zip(valid_cols["original_name"], valid_cols["name"], strict=True)
+    )
 
     # Get columns to exclude
     excluded_cols = arch_df[arch_df["name"] == "(excluded)"][
