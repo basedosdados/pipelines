@@ -8,7 +8,6 @@ import os
 import re
 from enum import Enum
 from pathlib import Path
-from urllib.request import urlopen
 from zipfile import ZipFile
 
 import basedosdados as bd
@@ -498,7 +497,8 @@ def extract_links_post_2012(
         month (int): A month from 1 to 12.
     """
     url = f"{denatran_constants.BASE_URL_POST_2012.value}/frota-de-veiculos-{year}"
-    soup = BeautifulSoup(urlopen(url), "html.parser")
+    response = requests.get(url, headers=denatran_constants.HEADERS.value)
+    soup = BeautifulSoup(response.text, "html.parser")
 
     ## First level of html elements
     # Searching for html elements with text 'frota'
