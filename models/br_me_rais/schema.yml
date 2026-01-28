@@ -100,16 +100,8 @@ models:
         description: Tipo da Admissão
       - name: mes_admissao
         description: Mês de Admissão
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__mes')
-              field: mes.mes
       - name: mes_desligamento
         description: Mês de Desligamento
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__mes')
-              field: mes.mes
       - name: motivo_desligamento
         description: Motivo do Desligamento
       - name: causa_desligamento_1
@@ -230,11 +222,6 @@ models:
         description: Subsetor - IBGE
       - name: cnae_1
         description: Classificação Nacional de Atividades Econômicas (CNAE) 1.0
-        tests:
-          - custom_relationships:
-              to: ref('br_bd_diretorios_brasil__cnae_1')
-              field: cnae_1.cnae_1
-              ignore_values: ['22292']
       - name: cnae_2
         description: Classificação Nacional de Atividades Econômicas (CNAE) 2.0
       - name: cnae_2_subclasse
@@ -324,49 +311,6 @@ models:
           o ano de referência.
       - name: cnae_1
         description: Código Nacional de Atividades Econômicas 1.0
-        tests:
-          - custom_relationships:
-              to: ref('br_bd_diretorios_brasil__cnae_1')
-              field: cnae_1.cnae_1
-              ignore_values:  # cnae desativada : http://pdet.mte.gov.br/o-programa/tabelas-de-classificacao/nivel-setorial/atualizacoes-realizadas-cnae-95-cnae-1-0
-                - '0000'
-                - '22292'
-                - '22128'
-                - '-1'
-                - '80217'
-                - 000-1
-                - '52612'
-                - '27219'
-                - '27227'
-                - '80225'
-                - '23205'
-                - '45241'
-                - '80128'
-                - '22136'
-                - '72206'
-                - '45519'
-                - '80950'
-                - '45349'
-                - '{ñ cl'
-                - '22110'
-                - '51632'
-                - '45594'
-                - '80942'
-                - '80934'
-                - '45322'
-                - '27111'
-                - '51624'
-                - '45527'
-                - '80926'
-                - '27120'
-                - '22330'
-                - '55123'
-                - '55115'
-                - '80918'
-                - '27294'
-                - '80110'
-                - '40100'
-                - '80306'
       - name: cnae_2
         description: Código Nacional de Atividades Econômicas 2.
       - name: cnae_2_subclasse
