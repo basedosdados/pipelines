@@ -1,0 +1,1159 @@
+---
+version: 2
+models:
+  - name: us_harvard_ned__parliamentary_elections
+    description: Parliamentary elections data from the National Elections Database
+    columns:
+      - name: country_id
+        description: Country abbreviation (3-letter code)
+      - name: year
+        description: Year
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Month (1-12)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: type
+        description: Type
+      - name: date
+        description: Date
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: source
+        description: Data source
+      - name: total_seats
+        description: Total number of seats
+      - name: party_1
+        description: Name of party ranked 1 by seats
+      - name: seats_1
+        description: Number of seats won by party ranked 1
+      - name: seat_share_1
+        description: Share of seats won by party ranked 1
+      - name: party_2
+        description: Name of party ranked 2 by seats
+      - name: seats_2
+        description: Number of seats won by party ranked 2
+      - name: seat_share_2
+        description: Share of seats won by party ranked 2
+      - name: party_3
+        description: Name of party ranked 3 by seats
+      - name: seats_3
+        description: Number of seats won by party ranked 3
+      - name: seat_share_3
+        description: Share of seats won by party ranked 3
+      - name: party_4
+        description: Name of party ranked 4 by seats
+      - name: seats_4
+        description: Number of seats won by party ranked 4
+      - name: seat_share_4
+        description: Share of seats won by party ranked 4
+      - name: party_5
+        description: Name of party ranked 5 by seats
+      - name: seats_5
+        description: Number of seats won by party ranked 5
+      - name: seat_share_5
+        description: Share of seats won by party ranked 5
+      - name: party_6
+        description: Name of party ranked 6 by seats
+      - name: seats_6
+        description: Number of seats won by party ranked 6
+      - name: seat_share_6
+        description: Share of seats won by party ranked 6
+      - name: party_7
+        description: Name of party ranked 7 by seats
+      - name: seats_7
+        description: Number of seats won by party ranked 7
+      - name: seat_share_7
+        description: Share of seats won by party ranked 7
+      - name: party_8
+        description: Name of party ranked 8 by seats
+      - name: seats_8
+        description: Number of seats won by party ranked 8
+      - name: seat_share_8
+        description: Share of seats won by party ranked 8
+      - name: party_9
+        description: Name of party ranked 9 by seats
+      - name: seats_9
+        description: Number of seats won by party ranked 9
+      - name: seat_share_9
+        description: Share of seats won by party ranked 9
+      - name: party_10
+        description: Name of party ranked 10 by seats
+      - name: seats_10
+        description: Number of seats won by party ranked 10
+      - name: seat_share_10
+        description: Share of seats won by party ranked 10
+      - name: party_11
+        description: Name of party ranked 11 by seats
+      - name: seats_11
+        description: Number of seats won by party ranked 11
+      - name: seat_share_11
+        description: Share of seats won by party ranked 11
+      - name: party_12
+        description: Name of party ranked 12 by seats
+      - name: seats_12
+        description: Number of seats won by party ranked 12
+      - name: seat_share_12
+        description: Share of seats won by party ranked 12
+      - name: party_13
+        description: Name of party ranked 13 by seats
+      - name: seats_13
+        description: Number of seats won by party ranked 13
+      - name: seat_share_13
+        description: Share of seats won by party ranked 13
+      - name: party_14
+        description: Name of party ranked 14 by seats
+      - name: seats_14
+        description: Number of seats won by party ranked 14
+      - name: seat_share_14
+        description: Share of seats won by party ranked 14
+      - name: party_15
+        description: Name of party ranked 15 by seats
+      - name: seats_15
+        description: Number of seats won by party ranked 15
+      - name: seat_share_15
+        description: Share of seats won by party ranked 15
+      - name: party_16
+        description: Name of party ranked 16 by seats
+      - name: seats_16
+        description: Number of seats won by party ranked 16
+      - name: seat_share_16
+        description: Share of seats won by party ranked 16
+      - name: party_17
+        description: Name of party ranked 17 by seats
+      - name: seats_17
+        description: Number of seats won by party ranked 17
+      - name: seat_share_17
+        description: Share of seats won by party ranked 17
+      - name: party_18
+        description: Name of party ranked 18 by seats
+      - name: seats_18
+        description: Number of seats won by party ranked 18
+      - name: seat_share_18
+        description: Share of seats won by party ranked 18
+      - name: party_19
+        description: Name of party ranked 19 by seats
+      - name: seats_19
+        description: Number of seats won by party ranked 19
+      - name: seat_share_19
+        description: Share of seats won by party ranked 19
+      - name: party_20
+        description: Name of party ranked 20 by seats
+      - name: seats_20
+        description: Number of seats won by party ranked 20
+      - name: seat_share_20
+        description: Share of seats won by party ranked 20
+      - name: party_21
+        description: Name of party ranked 21 by seats
+      - name: seats_21
+        description: Number of seats won by party ranked 21
+      - name: seat_share_21
+        description: Share of seats won by party ranked 21
+      - name: party_22
+        description: Name of party ranked 22 by seats
+      - name: seats_22
+        description: Number of seats won by party ranked 22
+      - name: seat_share_22
+        description: Share of seats won by party ranked 22
+      - name: party_23
+        description: Name of party ranked 23 by seats
+      - name: seats_23
+        description: Number of seats won by party ranked 23
+      - name: seat_share_23
+        description: Share of seats won by party ranked 23
+      - name: party_24
+        description: Name of party ranked 24 by seats
+      - name: seats_24
+        description: Number of seats won by party ranked 24
+      - name: seat_share_24
+        description: Share of seats won by party ranked 24
+      - name: party_25
+        description: Name of party ranked 25 by seats
+      - name: seats_25
+        description: Number of seats won by party ranked 25
+      - name: seat_share_25
+        description: Share of seats won by party ranked 25
+      - name: party_26
+        description: Name of party ranked 26 by seats
+      - name: seats_26
+        description: Number of seats won by party ranked 26
+      - name: seat_share_26
+        description: Share of seats won by party ranked 26
+      - name: party_27
+        description: Name of party ranked 27 by seats
+      - name: seats_27
+        description: Number of seats won by party ranked 27
+      - name: seat_share_27
+        description: Share of seats won by party ranked 27
+      - name: party_28
+        description: Name of party ranked 28 by seats
+      - name: seats_28
+        description: Number of seats won by party ranked 28
+      - name: seat_share_28
+        description: Share of seats won by party ranked 28
+      - name: party_29
+        description: Name of party ranked 29 by seats
+      - name: seats_29
+        description: Number of seats won by party ranked 29
+      - name: seat_share_29
+        description: Share of seats won by party ranked 29
+      - name: party_30
+        description: Name of party ranked 30 by seats
+      - name: seats_30
+        description: Number of seats won by party ranked 30
+      - name: seat_share_30
+        description: Share of seats won by party ranked 30
+      - name: party_31
+        description: Name of party ranked 31 by seats
+      - name: seats_31
+        description: Number of seats won by party ranked 31
+      - name: seat_share_31
+        description: Share of seats won by party ranked 31
+      - name: party_32
+        description: Name of party ranked 32 by seats
+      - name: seats_32
+        description: Number of seats won by party ranked 32
+      - name: seat_share_32
+        description: Share of seats won by party ranked 32
+      - name: party_33
+        description: Name of party ranked 33 by seats
+      - name: seats_33
+        description: Number of seats won by party ranked 33
+      - name: seat_share_33
+        description: Share of seats won by party ranked 33
+      - name: party_34
+        description: Name of party ranked 34 by seats
+      - name: seats_34
+        description: Number of seats won by party ranked 34
+      - name: seat_share_34
+        description: Share of seats won by party ranked 34
+      - name: party_35
+        description: Name of party ranked 35 by seats
+      - name: seats_35
+        description: Number of seats won by party ranked 35
+      - name: seat_share_35
+        description: Share of seats won by party ranked 35
+      - name: party_36
+        description: Name of party ranked 36 by seats
+      - name: seats_36
+        description: Number of seats won by party ranked 36
+      - name: seat_share_36
+        description: Share of seats won by party ranked 36
+      - name: party_37
+        description: Name of party ranked 37 by seats
+      - name: seats_37
+        description: Number of seats won by party ranked 37
+      - name: seat_share_37
+        description: Share of seats won by party ranked 37
+      - name: party_38
+        description: Name of party ranked 38 by seats
+      - name: seats_38
+        description: Number of seats won by party ranked 38
+      - name: seat_share_38
+        description: Share of seats won by party ranked 38
+      - name: party_39
+        description: Name of party ranked 39 by seats
+      - name: seats_39
+        description: Number of seats won by party ranked 39
+      - name: seat_share_39
+        description: Share of seats won by party ranked 39
+      - name: party_40
+        description: Name of party ranked 40 by seats
+      - name: seats_40
+        description: Number of seats won by party ranked 40
+      - name: seat_share_40
+        description: Share of seats won by party ranked 40
+      - name: party_41
+        description: Name of party ranked 41 by seats
+      - name: seats_41
+        description: Number of seats won by party ranked 41
+      - name: seat_share_41
+        description: Share of seats won by party ranked 41
+      - name: party_42
+        description: Name of party ranked 42 by seats
+      - name: seats_42
+        description: Number of seats won by party ranked 42
+      - name: seat_share_42
+        description: Share of seats won by party ranked 42
+      - name: party_43
+        description: Name of party ranked 43 by seats
+      - name: seats_43
+        description: Number of seats won by party ranked 43
+      - name: seat_share_43
+        description: Share of seats won by party ranked 43
+      - name: party_44
+        description: Name of party ranked 44 by seats
+      - name: seats_44
+        description: Number of seats won by party ranked 44
+      - name: seat_share_44
+        description: Share of seats won by party ranked 44
+      - name: party_45
+        description: Name of party ranked 45 by seats
+      - name: seats_45
+        description: Number of seats won by party ranked 45
+      - name: seat_share_45
+        description: Share of seats won by party ranked 45
+      - name: party_46
+        description: Name of party ranked 46 by seats
+      - name: seats_46
+        description: Number of seats won by party ranked 46
+      - name: seat_share_46
+        description: Share of seats won by party ranked 46
+      - name: party_47
+        description: Name of party ranked 47 by seats
+      - name: seats_47
+        description: Number of seats won by party ranked 47
+      - name: seat_share_47
+        description: Share of seats won by party ranked 47
+      - name: party_48
+        description: Name of party ranked 48 by seats
+      - name: seats_48
+        description: Number of seats won by party ranked 48
+      - name: seat_share_48
+        description: Share of seats won by party ranked 48
+      - name: party_49
+        description: Name of party ranked 49 by seats
+      - name: seats_49
+        description: Number of seats won by party ranked 49
+      - name: seat_share_49
+        description: Share of seats won by party ranked 49
+      - name: party_50
+        description: Name of party ranked 50 by seats
+      - name: seats_50
+        description: Number of seats won by party ranked 50
+      - name: seat_share_50
+        description: Share of seats won by party ranked 50
+      - name: party_51
+        description: Name of party ranked 51 by seats
+      - name: seats_51
+        description: Number of seats won by party ranked 51
+      - name: seat_share_51
+        description: Share of seats won by party ranked 51
+      - name: party_52
+        description: Name of party ranked 52 by seats
+      - name: seats_52
+        description: Number of seats won by party ranked 52
+      - name: seat_share_52
+        description: Share of seats won by party ranked 52
+      - name: party_53
+        description: Name of party ranked 53 by seats
+      - name: seats_53
+        description: Number of seats won by party ranked 53
+      - name: seat_share_53
+        description: Share of seats won by party ranked 53
+      - name: party_54
+        description: Name of party ranked 54 by seats
+      - name: seats_54
+        description: Number of seats won by party ranked 54
+      - name: seat_share_54
+        description: Share of seats won by party ranked 54
+      - name: party_55
+        description: Name of party ranked 55 by seats
+      - name: seats_55
+        description: Number of seats won by party ranked 55
+      - name: seat_share_55
+        description: Share of seats won by party ranked 55
+      - name: party_56
+        description: Name of party ranked 56 by seats
+      - name: seats_56
+        description: Number of seats won by party ranked 56
+      - name: seat_share_56
+        description: Share of seats won by party ranked 56
+      - name: party_57
+        description: Name of party ranked 57 by seats
+      - name: seats_57
+        description: Number of seats won by party ranked 57
+      - name: seat_share_57
+        description: Share of seats won by party ranked 57
+      - name: party_58
+        description: Name of party ranked 58 by seats
+      - name: seats_58
+        description: Number of seats won by party ranked 58
+      - name: seat_share_58
+        description: Share of seats won by party ranked 58
+      - name: party_59
+        description: Name of party ranked 59 by seats
+      - name: seats_59
+        description: Number of seats won by party ranked 59
+      - name: seat_share_59
+        description: Share of seats won by party ranked 59
+      - name: party_60
+        description: Name of party ranked 60 by seats
+      - name: seats_60
+        description: Number of seats won by party ranked 60
+      - name: seat_share_60
+        description: Share of seats won by party ranked 60
+      - name: party_61
+        description: Name of party ranked 61 by seats
+      - name: seats_61
+        description: Number of seats won by party ranked 61
+      - name: seat_share_61
+        description: Share of seats won by party ranked 61
+      - name: party_62
+        description: Name of party ranked 62 by seats
+      - name: seats_62
+        description: Number of seats won by party ranked 62
+      - name: seat_share_62
+        description: Share of seats won by party ranked 62
+      - name: party_63
+        description: Name of party ranked 63 by seats
+      - name: seats_63
+        description: Number of seats won by party ranked 63
+      - name: seat_share_63
+        description: Share of seats won by party ranked 63
+      - name: party_64
+        description: Name of party ranked 64 by seats
+      - name: seats_64
+        description: Number of seats won by party ranked 64
+      - name: seat_share_64
+        description: Share of seats won by party ranked 64
+      - name: party_65
+        description: Name of party ranked 65 by seats
+      - name: seats_65
+        description: Number of seats won by party ranked 65
+      - name: seat_share_65
+        description: Share of seats won by party ranked 65
+      - name: party_66
+        description: Name of party ranked 66 by seats
+      - name: seats_66
+        description: Number of seats won by party ranked 66
+      - name: seat_share_66
+        description: Share of seats won by party ranked 66
+      - name: party_67
+        description: Name of party ranked 67 by seats
+      - name: seats_67
+        description: Number of seats won by party ranked 67
+      - name: seat_share_67
+        description: Share of seats won by party ranked 67
+      - name: party_68
+        description: Name of party ranked 68 by seats
+      - name: seats_68
+        description: Number of seats won by party ranked 68
+      - name: seat_share_68
+        description: Share of seats won by party ranked 68
+      - name: party_69
+        description: Name of party ranked 69 by seats
+      - name: seats_69
+        description: Number of seats won by party ranked 69
+      - name: seat_share_69
+        description: Share of seats won by party ranked 69
+      - name: party_70
+        description: Name of party ranked 70 by seats
+      - name: seats_70
+        description: Number of seats won by party ranked 70
+      - name: seat_share_70
+        description: Share of seats won by party ranked 70
+      - name: party_71
+        description: Name of party ranked 71 by seats
+      - name: seats_71
+        description: Number of seats won by party ranked 71
+      - name: seat_share_71
+        description: Share of seats won by party ranked 71
+      - name: party_72
+        description: Name of party ranked 72 by seats
+      - name: seats_72
+        description: Number of seats won by party ranked 72
+      - name: seat_share_72
+        description: Share of seats won by party ranked 72
+      - name: party_73
+        description: Name of party ranked 73 by seats
+      - name: seats_73
+        description: Number of seats won by party ranked 73
+      - name: seat_share_73
+        description: Share of seats won by party ranked 73
+      - name: party_74
+        description: Name of party ranked 74 by seats
+      - name: seats_74
+        description: Number of seats won by party ranked 74
+      - name: seat_share_74
+        description: Share of seats won by party ranked 74
+      - name: flag_constituent
+        description: Flag indicating constituent assembly election
+      - name: flag_inconsequential
+        description: Flag indicating inconsequential election
+      - name: flag_inconsequential_note
+        description: Note explaining why election is inconsequential
+      - name: flag_coup
+        description: Flag indicating election occurred after coup
+      - name: flag_vacant_seats
+        description: Flag indicating presence of vacant seats
+      - name: flag_vacant_seats_nb
+        description: Number of vacant seats
+      - name: flag_appointed
+        description: Flag indicating presence of appointed seats
+      - name: flag_appointed_nb
+        description: Number of appointed seats
+      - name: flag_non_partisan
+        description: Flag indicating non-partisan election
+  - name: us_harvard_ned__presidential_elections
+    description: Presidential elections data from the National Elections Database
+    columns:
+      - name: country_id
+        description: Country abbreviation (3-letter code)
+      - name: year
+        description: Year
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+        description: Month (1-12)
+      - name: type
+        description: Type
+      - name: date
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+        description: Date
+      - name: source
+        description: Data source
+      - name: candidate_1
+        description: Name of candidate ranked 1 by votes
+      - name: party_1
+        description: Party of candidate ranked 1
+      - name: votes1_1
+        description: First round votes for candidate ranked 1
+      - name: votes2_1
+        description: Second round votes for candidate ranked 1
+      - name: vote_share1_1
+        description: First round vote share for candidate ranked 1
+      - name: vote_share2_1
+        description: Second round vote share for candidate ranked 1
+      - name: e_votes_1
+        description: Electoral votes for candidate ranked 1
+      - name: e_vote_share_1
+        description: Electoral vote share for candidate ranked 1
+      - name: candidate_2
+        description: Name of candidate ranked 2 by votes
+      - name: party_2
+        description: Party of candidate ranked 2
+      - name: votes1_2
+        description: First round votes for candidate ranked 2
+      - name: votes2_2
+        description: Second round votes for candidate ranked 2
+      - name: vote_share1_2
+        description: First round vote share for candidate ranked 2
+      - name: vote_share2_2
+        description: Second round vote share for candidate ranked 2
+      - name: e_votes_2
+        description: Electoral votes for candidate ranked 2
+      - name: e_vote_share_2
+        description: Electoral vote share for candidate ranked 2
+      - name: candidate_3
+        description: Name of candidate ranked 3 by votes
+      - name: party_3
+        description: Party of candidate ranked 3
+      - name: votes1_3
+        description: First round votes for candidate ranked 3
+      - name: votes2_3
+        description: Second round votes for candidate ranked 3
+      - name: vote_share1_3
+        description: First round vote share for candidate ranked 3
+      - name: vote_share2_3
+        description: Second round vote share for candidate ranked 3
+      - name: e_votes_3
+        description: Electoral votes for candidate ranked 3
+      - name: e_vote_share_3
+        description: Electoral vote share for candidate ranked 3
+      - name: candidate_4
+        description: Name of candidate ranked 4 by votes
+      - name: party_4
+        description: Party of candidate ranked 4
+      - name: votes1_4
+        description: First round votes for candidate ranked 4
+      - name: votes2_4
+        description: Second round votes for candidate ranked 4
+      - name: vote_share1_4
+        description: First round vote share for candidate ranked 4
+      - name: vote_share2_4
+        description: Second round vote share for candidate ranked 4
+      - name: e_votes_4
+        description: Electoral votes for candidate ranked 4
+      - name: e_vote_share_4
+        description: Electoral vote share for candidate ranked 4
+      - name: candidate_5
+        description: Name of candidate ranked 5 by votes
+      - name: party_5
+        description: Party of candidate ranked 5
+      - name: votes1_5
+        description: First round votes for candidate ranked 5
+      - name: votes2_5
+        description: Second round votes for candidate ranked 5
+      - name: vote_share1_5
+        description: First round vote share for candidate ranked 5
+      - name: vote_share2_5
+        description: Second round vote share for candidate ranked 5
+      - name: e_votes_5
+        description: Electoral votes for candidate ranked 5
+      - name: e_vote_share_5
+        description: Electoral vote share for candidate ranked 5
+      - name: candidate_6
+        description: Name of candidate ranked 6 by votes
+      - name: party_6
+        description: Party of candidate ranked 6
+      - name: votes1_6
+        description: First round votes for candidate ranked 6
+      - name: votes2_6
+        description: Second round votes for candidate ranked 6
+      - name: vote_share1_6
+        description: First round vote share for candidate ranked 6
+      - name: vote_share2_6
+        description: Second round vote share for candidate ranked 6
+      - name: e_votes_6
+        description: Electoral votes for candidate ranked 6
+      - name: e_vote_share_6
+        description: Electoral vote share for candidate ranked 6
+      - name: candidate_7
+        description: Name of candidate ranked 7 by votes
+      - name: party_7
+        description: Party of candidate ranked 7
+      - name: votes1_7
+        description: First round votes for candidate ranked 7
+      - name: votes2_7
+        description: Second round votes for candidate ranked 7
+      - name: vote_share1_7
+        description: First round vote share for candidate ranked 7
+      - name: vote_share2_7
+        description: Second round vote share for candidate ranked 7
+      - name: e_votes_7
+        description: Electoral votes for candidate ranked 7
+      - name: e_vote_share_7
+        description: Electoral vote share for candidate ranked 7
+      - name: candidate_8
+        description: Name of candidate ranked 8 by votes
+      - name: party_8
+        description: Party of candidate ranked 8
+      - name: votes1_8
+        description: First round votes for candidate ranked 8
+      - name: votes2_8
+        description: Second round votes for candidate ranked 8
+      - name: vote_share1_8
+        description: First round vote share for candidate ranked 8
+      - name: vote_share2_8
+        description: Second round vote share for candidate ranked 8
+      - name: e_votes_8
+        description: Electoral votes for candidate ranked 8
+      - name: e_vote_share_8
+        description: Electoral vote share for candidate ranked 8
+      - name: candidate_9
+        description: Name of candidate ranked 9 by votes
+      - name: party_9
+        description: Party of candidate ranked 9
+      - name: votes1_9
+        description: First round votes for candidate ranked 9
+      - name: votes2_9
+        description: Second round votes for candidate ranked 9
+      - name: vote_share1_9
+        description: First round vote share for candidate ranked 9
+      - name: vote_share2_9
+        description: Second round vote share for candidate ranked 9
+      - name: e_votes_9
+        description: Electoral votes for candidate ranked 9
+      - name: e_vote_share_9
+        description: Electoral vote share for candidate ranked 9
+      - name: candidate_10
+        description: Name of candidate ranked 10 by votes
+      - name: party_10
+        description: Party of candidate ranked 10
+      - name: votes1_10
+        description: First round votes for candidate ranked 10
+      - name: votes2_10
+        description: Second round votes for candidate ranked 10
+      - name: vote_share1_10
+        description: First round vote share for candidate ranked 10
+      - name: vote_share2_10
+        description: Second round vote share for candidate ranked 10
+      - name: e_votes_10
+        description: Electoral votes for candidate ranked 10
+      - name: e_vote_share_10
+        description: Electoral vote share for candidate ranked 10
+      - name: candidate_11
+        description: Name of candidate ranked 11 by votes
+      - name: party_11
+        description: Party of candidate ranked 11
+      - name: votes1_11
+        description: First round votes for candidate ranked 11
+      - name: votes2_11
+        description: Second round votes for candidate ranked 11
+      - name: vote_share1_11
+        description: First round vote share for candidate ranked 11
+      - name: vote_share2_11
+        description: Second round vote share for candidate ranked 11
+      - name: e_votes_11
+        description: Electoral votes for candidate ranked 11
+      - name: e_vote_share_11
+        description: Electoral vote share for candidate ranked 11
+      - name: candidate_12
+        description: Name of candidate ranked 12 by votes
+      - name: party_12
+        description: Party of candidate ranked 12
+      - name: votes1_12
+        description: First round votes for candidate ranked 12
+      - name: votes2_12
+        description: Second round votes for candidate ranked 12
+      - name: vote_share1_12
+        description: First round vote share for candidate ranked 12
+      - name: vote_share2_12
+        description: Second round vote share for candidate ranked 12
+      - name: e_votes_12
+        description: Electoral votes for candidate ranked 12
+      - name: e_vote_share_12
+        description: Electoral vote share for candidate ranked 12
+      - name: candidate_13
+        description: Name of candidate ranked 13 by votes
+      - name: party_13
+        description: Party of candidate ranked 13
+      - name: votes1_13
+        description: First round votes for candidate ranked 13
+      - name: votes2_13
+        description: Second round votes for candidate ranked 13
+      - name: vote_share1_13
+        description: First round vote share for candidate ranked 13
+      - name: vote_share2_13
+        description: Second round vote share for candidate ranked 13
+      - name: e_votes_13
+        description: Electoral votes for candidate ranked 13
+      - name: e_vote_share_13
+        description: Electoral vote share for candidate ranked 13
+      - name: candidate_14
+        description: Name of candidate ranked 14 by votes
+      - name: party_14
+        description: Party of candidate ranked 14
+      - name: votes1_14
+        description: First round votes for candidate ranked 14
+      - name: votes2_14
+        description: Second round votes for candidate ranked 14
+      - name: vote_share1_14
+        description: First round vote share for candidate ranked 14
+      - name: vote_share2_14
+        description: Second round vote share for candidate ranked 14
+      - name: e_votes_14
+        description: Electoral votes for candidate ranked 14
+      - name: e_vote_share_14
+        description: Electoral vote share for candidate ranked 14
+      - name: candidate_15
+        description: Name of candidate ranked 15 by votes
+      - name: party_15
+        description: Party of candidate ranked 15
+      - name: votes1_15
+        description: First round votes for candidate ranked 15
+      - name: votes2_15
+        description: Second round votes for candidate ranked 15
+      - name: vote_share1_15
+        description: First round vote share for candidate ranked 15
+      - name: vote_share2_15
+        description: Second round vote share for candidate ranked 15
+      - name: e_votes_15
+        description: Electoral votes for candidate ranked 15
+      - name: e_vote_share_15
+        description: Electoral vote share for candidate ranked 15
+      - name: candidate_16
+        description: Name of candidate ranked 16 by votes
+      - name: party_16
+        description: Party of candidate ranked 16
+      - name: votes1_16
+        description: First round votes for candidate ranked 16
+      - name: votes2_16
+        description: Second round votes for candidate ranked 16
+      - name: vote_share1_16
+        description: First round vote share for candidate ranked 16
+      - name: vote_share2_16
+        description: Second round vote share for candidate ranked 16
+      - name: e_votes_16
+        description: Electoral votes for candidate ranked 16
+      - name: e_vote_share_16
+        description: Electoral vote share for candidate ranked 16
+      - name: candidate_17
+        description: Name of candidate ranked 17 by votes
+      - name: party_17
+        description: Party of candidate ranked 17
+      - name: votes1_17
+        description: First round votes for candidate ranked 17
+      - name: votes2_17
+        description: Second round votes for candidate ranked 17
+      - name: vote_share1_17
+        description: First round vote share for candidate ranked 17
+      - name: vote_share2_17
+        description: Second round vote share for candidate ranked 17
+      - name: e_votes_17
+        description: Electoral votes for candidate ranked 17
+      - name: e_vote_share_17
+        description: Electoral vote share for candidate ranked 17
+      - name: candidate_18
+        description: Name of candidate ranked 18 by votes
+      - name: party_18
+        description: Party of candidate ranked 18
+      - name: votes1_18
+        description: First round votes for candidate ranked 18
+      - name: votes2_18
+        description: Second round votes for candidate ranked 18
+      - name: vote_share1_18
+        description: First round vote share for candidate ranked 18
+      - name: vote_share2_18
+        description: Second round vote share for candidate ranked 18
+      - name: e_votes_18
+        description: Electoral votes for candidate ranked 18
+      - name: e_vote_share_18
+        description: Electoral vote share for candidate ranked 18
+      - name: candidate_19
+        description: Name of candidate ranked 19 by votes
+      - name: party_19
+        description: Party of candidate ranked 19
+      - name: votes1_19
+        description: First round votes for candidate ranked 19
+      - name: votes2_19
+        description: Second round votes for candidate ranked 19
+      - name: vote_share1_19
+        description: First round vote share for candidate ranked 19
+      - name: vote_share2_19
+        description: Second round vote share for candidate ranked 19
+      - name: e_votes_19
+        description: Electoral votes for candidate ranked 19
+      - name: e_vote_share_19
+        description: Electoral vote share for candidate ranked 19
+      - name: candidate_20
+        description: Name of candidate ranked 20 by votes
+      - name: party_20
+        description: Party of candidate ranked 20
+      - name: votes1_20
+        description: First round votes for candidate ranked 20
+      - name: votes2_20
+        description: Second round votes for candidate ranked 20
+      - name: vote_share1_20
+        description: First round vote share for candidate ranked 20
+      - name: vote_share2_20
+        description: Second round vote share for candidate ranked 20
+      - name: e_votes_20
+        description: Electoral votes for candidate ranked 20
+      - name: e_vote_share_20
+        description: Electoral vote share for candidate ranked 20
+      - name: candidate_21
+        description: Name of candidate ranked 21 by votes
+      - name: party_21
+        description: Party of candidate ranked 21
+      - name: votes1_21
+        description: First round votes for candidate ranked 21
+      - name: votes2_21
+        description: Second round votes for candidate ranked 21
+      - name: vote_share1_21
+        description: First round vote share for candidate ranked 21
+      - name: vote_share2_21
+        description: Second round vote share for candidate ranked 21
+      - name: e_votes_21
+        description: Electoral votes for candidate ranked 21
+      - name: e_vote_share_21
+        description: Electoral vote share for candidate ranked 21
+      - name: candidate_22
+        description: Name of candidate ranked 22 by votes
+      - name: party_22
+        description: Party of candidate ranked 22
+      - name: votes1_22
+        description: First round votes for candidate ranked 22
+      - name: votes2_22
+        description: Second round votes for candidate ranked 22
+      - name: vote_share1_22
+        description: First round vote share for candidate ranked 22
+      - name: vote_share2_22
+        description: Second round vote share for candidate ranked 22
+      - name: e_votes_22
+        description: Electoral votes for candidate ranked 22
+      - name: e_vote_share_22
+        description: Electoral vote share for candidate ranked 22
+      - name: candidate_23
+        description: Name of candidate ranked 23 by votes
+      - name: party_23
+        description: Party of candidate ranked 23
+      - name: votes1_23
+        description: First round votes for candidate ranked 23
+      - name: votes2_23
+        description: Second round votes for candidate ranked 23
+      - name: vote_share1_23
+        description: First round vote share for candidate ranked 23
+      - name: vote_share2_23
+        description: Second round vote share for candidate ranked 23
+      - name: e_votes_23
+        description: Electoral votes for candidate ranked 23
+      - name: e_vote_share_23
+        description: Electoral vote share for candidate ranked 23
+      - name: candidate_24
+        description: Name of candidate ranked 24 by votes
+      - name: party_24
+        description: Party of candidate ranked 24
+      - name: votes1_24
+        description: First round votes for candidate ranked 24
+      - name: votes2_24
+        description: Second round votes for candidate ranked 24
+      - name: vote_share1_24
+        description: First round vote share for candidate ranked 24
+      - name: vote_share2_24
+        description: Second round vote share for candidate ranked 24
+      - name: e_votes_24
+        description: Electoral votes for candidate ranked 24
+      - name: e_vote_share_24
+        description: Electoral vote share for candidate ranked 24
+      - name: candidate_25
+        description: Name of candidate ranked 25 by votes
+      - name: party_25
+        description: Party of candidate ranked 25
+      - name: votes1_25
+        description: First round votes for candidate ranked 25
+      - name: votes2_25
+        description: Second round votes for candidate ranked 25
+      - name: vote_share1_25
+        description: First round vote share for candidate ranked 25
+      - name: vote_share2_25
+        description: Second round vote share for candidate ranked 25
+      - name: e_votes_25
+        description: Electoral votes for candidate ranked 25
+      - name: e_vote_share_25
+        description: Electoral vote share for candidate ranked 25
+      - name: candidate_26
+        description: Name of candidate ranked 26 by votes
+      - name: party_26
+        description: Party of candidate ranked 26
+      - name: votes1_26
+        description: First round votes for candidate ranked 26
+      - name: votes2_26
+        description: Second round votes for candidate ranked 26
+      - name: vote_share1_26
+        description: First round vote share for candidate ranked 26
+      - name: vote_share2_26
+        description: Second round vote share for candidate ranked 26
+      - name: e_votes_26
+        description: Electoral votes for candidate ranked 26
+      - name: e_vote_share_26
+        description: Electoral vote share for candidate ranked 26
+      - name: candidate_27
+        description: Name of candidate ranked 27 by votes
+      - name: party_27
+        description: Party of candidate ranked 27
+      - name: votes1_27
+        description: First round votes for candidate ranked 27
+      - name: votes2_27
+        description: Second round votes for candidate ranked 27
+      - name: vote_share1_27
+        description: First round vote share for candidate ranked 27
+      - name: vote_share2_27
+        description: Second round vote share for candidate ranked 27
+      - name: e_votes_27
+        description: Electoral votes for candidate ranked 27
+      - name: e_vote_share_27
+        description: Electoral vote share for candidate ranked 27
+      - name: candidate_28
+        description: Name of candidate ranked 28 by votes
+      - name: party_28
+        description: Party of candidate ranked 28
+      - name: votes1_28
+        description: First round votes for candidate ranked 28
+      - name: votes2_28
+        description: Second round votes for candidate ranked 28
+      - name: vote_share1_28
+        description: First round vote share for candidate ranked 28
+      - name: vote_share2_28
+        description: Second round vote share for candidate ranked 28
+      - name: e_votes_28
+        description: Electoral votes for candidate ranked 28
+      - name: e_vote_share_28
+        description: Electoral vote share for candidate ranked 28
+      - name: candidate_29
+        description: Name of candidate ranked 29 by votes
+      - name: party_29
+        description: Party of candidate ranked 29
+      - name: votes1_29
+        description: First round votes for candidate ranked 29
+      - name: votes2_29
+        description: Second round votes for candidate ranked 29
+      - name: vote_share1_29
+        description: First round vote share for candidate ranked 29
+      - name: vote_share2_29
+        description: Second round vote share for candidate ranked 29
+      - name: e_votes_29
+        description: Electoral votes for candidate ranked 29
+      - name: e_vote_share_29
+        description: Electoral vote share for candidate ranked 29
+      - name: candidate_30
+        description: Name of candidate ranked 30 by votes
+      - name: party_30
+        description: Party of candidate ranked 30
+      - name: votes1_30
+        description: First round votes for candidate ranked 30
+      - name: votes2_30
+        description: Second round votes for candidate ranked 30
+      - name: vote_share1_30
+        description: First round vote share for candidate ranked 30
+      - name: vote_share2_30
+        description: Second round vote share for candidate ranked 30
+      - name: e_votes_30
+        description: Electoral votes for candidate ranked 30
+      - name: e_vote_share_30
+        description: Electoral vote share for candidate ranked 30
+      - name: candidate_31
+        description: Name of candidate ranked 31 by votes
+      - name: party_31
+        description: Party of candidate ranked 31
+      - name: votes1_31
+        description: First round votes for candidate ranked 31
+      - name: votes2_31
+        description: Second round votes for candidate ranked 31
+      - name: vote_share1_31
+        description: First round vote share for candidate ranked 31
+      - name: vote_share2_31
+        description: Second round vote share for candidate ranked 31
+      - name: e_votes_31
+        description: Electoral votes for candidate ranked 31
+      - name: e_vote_share_31
+        description: Electoral vote share for candidate ranked 31
+      - name: candidate_32
+        description: Name of candidate ranked 32 by votes
+      - name: party_32
+        description: Party of candidate ranked 32
+      - name: votes1_32
+        description: First round votes for candidate ranked 32
+      - name: votes2_32
+        description: Second round votes for candidate ranked 32
+      - name: vote_share1_32
+        description: First round vote share for candidate ranked 32
+      - name: vote_share2_32
+        description: Second round vote share for candidate ranked 32
+      - name: e_votes_32
+        description: Electoral votes for candidate ranked 32
+      - name: e_vote_share_32
+        description: Electoral vote share for candidate ranked 32
+      - name: candidate_33
+        description: Name of candidate ranked 33 by votes
+      - name: party_33
+        description: Party of candidate ranked 33
+      - name: votes1_33
+        description: First round votes for candidate ranked 33
+      - name: votes2_33
+        description: Second round votes for candidate ranked 33
+      - name: vote_share1_33
+        description: First round vote share for candidate ranked 33
+      - name: vote_share2_33
+        description: Second round vote share for candidate ranked 33
+      - name: e_votes_33
+        description: Electoral votes for candidate ranked 33
+      - name: e_vote_share_33
+        description: Electoral vote share for candidate ranked 33
+      - name: candidate_34
+        description: Name of candidate ranked 34 by votes
+      - name: party_34
+        description: Party of candidate ranked 34
+      - name: votes1_34
+        description: First round votes for candidate ranked 34
+      - name: votes2_34
+        description: Second round votes for candidate ranked 34
+      - name: vote_share1_34
+        description: First round vote share for candidate ranked 34
+      - name: vote_share2_34
+        description: Second round vote share for candidate ranked 34
+      - name: e_votes_34
+        description: Electoral votes for candidate ranked 34
+      - name: e_vote_share_34
+        description: Electoral vote share for candidate ranked 34
+      - name: candidate_35
+        description: Name of candidate ranked 35 by votes
+      - name: party_35
+        description: Party of candidate ranked 35
+      - name: votes1_35
+        description: First round votes for candidate ranked 35
+      - name: votes2_35
+        description: Second round votes for candidate ranked 35
+      - name: vote_share1_35
+        description: First round vote share for candidate ranked 35
+      - name: vote_share2_35
+        description: Second round vote share for candidate ranked 35
+      - name: e_votes_35
+        description: Electoral votes for candidate ranked 35
+      - name: e_vote_share_35
+        description: Electoral vote share for candidate ranked 35
+      - name: candidate_36
+        description: Name of candidate ranked 36 by votes
+      - name: party_36
+        description: Party of candidate ranked 36
+      - name: votes1_36
+        description: First round votes for candidate ranked 36
+      - name: votes2_36
+        description: Second round votes for candidate ranked 36
+      - name: vote_share1_36
+        description: First round vote share for candidate ranked 36
+      - name: vote_share2_36
+        description: Second round vote share for candidate ranked 36
+      - name: e_votes_36
+        description: Electoral votes for candidate ranked 36
+      - name: e_vote_share_36
+        description: Electoral vote share for candidate ranked 36
+      - name: candidate_37
+        description: Name of candidate ranked 37 by votes
+      - name: party_37
+        description: Party of candidate ranked 37
+      - name: votes1_37
+        description: First round votes for candidate ranked 37
+      - name: votes2_37
+        description: Second round votes for candidate ranked 37
+      - name: vote_share1_37
+        description: First round vote share for candidate ranked 37
+      - name: vote_share2_37
+        description: Second round vote share for candidate ranked 37
+      - name: e_votes_37
+        description: Electoral votes for candidate ranked 37
+      - name: e_vote_share_37
+        description: Electoral vote share for candidate ranked 37
+      - name: candidate_38
+        description: Name of candidate ranked 38 by votes
+      - name: party_38
+        description: Party of candidate ranked 38
+      - name: votes1_38
+        description: First round votes for candidate ranked 38
+      - name: votes2_38
+        description: Second round votes for candidate ranked 38
+      - name: vote_share1_38
+        description: First round vote share for candidate ranked 38
+      - name: vote_share2_38
+        description: Second round vote share for candidate ranked 38
+      - name: e_votes_38
+        description: Electoral votes for candidate ranked 38
+      - name: e_vote_share_38
+        description: Electoral vote share for candidate ranked 38
+      - name: candidate_39
+        description: Name of candidate ranked 39 by votes
+      - name: party_39
+        description: Party of candidate ranked 39
+      - name: votes1_39
+        description: First round votes for candidate ranked 39
+      - name: votes2_39
+        description: Second round votes for candidate ranked 39
+      - name: vote_share1_39
+        description: First round vote share for candidate ranked 39
+      - name: vote_share2_39
+        description: Second round vote share for candidate ranked 39
+      - name: e_votes_39
+        description: Electoral votes for candidate ranked 39
+      - name: e_vote_share_39
+        description: Electoral vote share for candidate ranked 39
+      - name: flag_two_round
+        description: Flag indicating two-round election
+      - name: flag_inconsequential
+        description: Flag indicating inconsequential election
+      - name: flag_inconsequential_note
+        description: Note explaining why election is inconsequential
+      - name: flag_coup
+        description: Flag indicating election occurred after coup
+      - name: flag_plebiscite
+        description: Flag indicating plebiscite election
+      - name: flag_unopposed
+        description: Flag indicating unopposed election
+      - name: flag_indirect
+        description: Flag indicating indirect election
