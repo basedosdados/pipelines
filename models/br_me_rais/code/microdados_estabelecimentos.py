@@ -15,26 +15,6 @@ def to_partitions(
     savepath: str,
     file_type: str = "csv",
 ):
-    """Save data in to hive patitions schema, given a dataframe and a list of partition columns.
-    Args:
-        data (pandas.core.frame.DataFrame): Dataframe to be partitioned.
-        partition_columns (list): List of columns to be used as partitions.
-        savepath (str, pathlib.PosixPath): folder path to save the partitions.
-        file_type (str): default to csv. Accepts parquet.
-    Exemple:
-        data = {
-            "ano": [2020, 2021, 2020, 2021, 2020, 2021, 2021,2025],
-            "mes": [1, 2, 3, 4, 5, 6, 6,9],
-            "sigla_uf": ["SP", "SP", "RJ", "RJ", "PR", "PR", "PR","PR"],
-            "dado": ["a", "b", "c", "d", "e", "f", "g",'h'],
-        }
-        to_partitions(
-            data=pd.DataFrame(data),
-            partition_columns=['ano','mes','sigla_uf'],
-            savepath='partitions/',
-        )
-    """
-
     if isinstance(data, (pd.core.frame.DataFrame)):
         savepath = Path(savepath)
         # create unique combinations between partition columns
@@ -97,7 +77,7 @@ def load_and_process_rais_estabelecimento(
         pd.read_csv(
             input,
             encoding="latin1",
-            sep=";",
+            sep=",",
             dtype=str,
             chunksize=1000000,
         )
@@ -105,33 +85,52 @@ def load_and_process_rais_estabelecimento(
         df = df.rename(
             columns={
                 "Bairros SP": "bairros_sp",
+                "Bairros SP - Código": "bairros_sp",
                 "Bairros Fortaleza": "bairros_fortaleza",
+                "Bairros Fortaleza - Código": "bairros_fortaleza",
                 "Bairros RJ": "bairros_rj",
+                "Bairros RJ - Código": "bairros_rj",
                 "CNAE 2.0 Classe": "cnae_2",
+                "CNAE 2.0 Classe - Código": "cnae_2",
                 "CNAE 95 Classe": "cnae_1",
+                "CNAE 95 Classe - Código": "cnae_1",
                 "Distritos SP": "distritos_sp",
+                "Distritos SP - Código": "distritos_sp",
                 "Qtd Vínculos CLT": "quantidade_vinculos_clt",
                 "Qtd Vínculos Ativos": "quantidade_vinculos_ativos",
                 "Qtd Vínculos Estatutários": "quantidade_vinculos_estatutarios",
                 "Ind Atividade Ano": "indicador_atividade_ano",
+                "Ind Atividade Ano - Código": "indicador_atividade_ano",
                 "Ind CEI Vinculado": "indicador_cei_vinculado",
+                "Ind CEI Vinculado - Código": "indicador_cei_vinculado",
                 "Ind Estab Participa PAT": "indicador_pat",
+                "Ind Estab Participante PAT - Código": "indicador_pat",
                 "Ind Rais Negativa": "indicador_rais_negativa",
+                "Ind RAIS Negativa - Código": "indicador_rais_negativa",
                 "Ind Simples": "indicador_simples",
+                "Ind Estab Participante SIMPLES - Código": "indicador_simples",
                 "Município": "municipio",
+                "Município - Código": "municipio",
                 "Natureza Jurídica": "natureza_juridica",
+                "Natureza Jurídica - Código": "natureza_juridica",
                 "Regiões Adm DF": "regioes_administrativas_df",
+                "Região Adm DF - Código": "regioes_administrativas_df",
                 "CNAE 2.0 Subclasse": "cnae_2_subclasse",
+                "CNAE 2.0 Subclasse - Código": "cnae_2_subclasse",
                 "Tamanho Estabelecimento": "tamanho",
+                "Tamanho Estabelecimento - Código": "tamanho",
                 "Tipo Estab": "tipo",
+                "Tipo Estabelecimento - Código": "tipo",
                 "UF": "uf",
+                "UF - Código": "uf",
                 "IBGE Subsetor": "subsetor_ibge",
+                "IBGE Subsetor - Código": "subsetor_ibge",
                 "CEP Estab": "cep",
             },
         )
 
         df["ano"] = ano
-
+        breakpoint()
         df["municipio"] = df["municipio"].astype(str)
 
         # Carregar os arquivos
@@ -294,7 +293,7 @@ def load_and_process_rais_estabelecimento(
 
 
 load_and_process_rais_estabelecimento(
-    input="tmp/input/RAIS_ESTAB_PUB/RAIS_ESTAB_PUB.txt",
+    input="tmp/input/RAIS_ESTAB_PUB.COMT",
     partition_columns=["ano", "sigla_uf"],
     ano=2024,
 )
