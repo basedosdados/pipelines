@@ -10,9 +10,6 @@ from pipelines.constants import constants
 from pipelines.datasets.br_rf_cafir.constants import (
     constants as br_rf_cafir_constants,
 )
-from pipelines.datasets.br_rf_cafir.schedules import (
-    schedule_br_rf_cafir_imoveis_rurais,
-)
 from pipelines.datasets.br_rf_cafir.tasks import (
     task_decide_files_to_download,
     task_download_files,
@@ -127,4 +124,4 @@ br_rf_cafir_imoveis_rurais.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_rf_cafir_imoveis_rurais.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_rf_cafir_imoveis_rurais.schedule = schedule_br_rf_cafir_imoveis_rurais
+# br_rf_cafir_imoveis_rurais.schedule = schedule_br_rf_cafir_imoveis_rurais
