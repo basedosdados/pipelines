@@ -9,12 +9,6 @@ from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.crawler.rf.flows import flow_rf
-from pipelines.datasets.br_rf_cno.schedules import (
-    schedule_br_rf_cno_areas,
-    schedule_br_rf_cno_cnaes,
-    schedule_br_rf_cno_microdados,
-    schedule_br_rf_cno_vinculos,
-)
 
 # Microdados
 br_rf_cno_microdados = deepcopy(flow_rf)
@@ -27,7 +21,7 @@ br_rf_cno_microdados.run_config = KubernetesRun(
     memory_request="512Mi",
     cpu_limit=0.5,
 )
-br_rf_cno_microdados.schedule = schedule_br_rf_cno_microdados
+# br_rf_cno_microdados.schedule = schedule_br_rf_cno_microdados
 
 # Vínculos
 br_rf_cno_vinculos = deepcopy(flow_rf)
@@ -39,7 +33,7 @@ br_rf_cno_vinculos.run_config = KubernetesRun(
     memory_request="512Mi",
     cpu_limit=0.5,
 )
-br_rf_cno_vinculos.schedule = schedule_br_rf_cno_vinculos
+# br_rf_cno_vinculos.schedule = schedule_br_rf_cno_vinculos
 
 # Áreas
 br_rf_cno_areas = deepcopy(flow_rf)
@@ -51,7 +45,7 @@ br_rf_cno_areas.run_config = KubernetesRun(
     memory_request="512Mi",
     cpu_limit=0.5,
 )
-br_rf_cno_areas.schedule = schedule_br_rf_cno_areas
+# br_rf_cno_areas.schedule = schedule_br_rf_cno_areas
 
 # Cnaes
 br_rf_cno_cnaes = deepcopy(flow_rf)
@@ -63,4 +57,4 @@ br_rf_cno_cnaes.run_config = KubernetesRun(
     memory_request="512Mi",
     cpu_limit=0.5,
 )
-br_rf_cno_cnaes.schedule = schedule_br_rf_cno_cnaes
+# br_rf_cno_cnaes.schedule = schedule_br_rf_cno_cnaes
