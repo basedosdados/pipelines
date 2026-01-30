@@ -119,10 +119,9 @@ models:
               at_least: 0.01
               config:
                 where: __most_recent_year_month__
-          - custom_relationships:
-              to: ref('br_bd_diretorios_brasil__empresa')
+          - relationships:
+              to: ref('br_me_cnpj__estabelecimentos')
               field: cnpj
-              ignore_values: ['92702067069633', '92702067068742']
               config:
                 where: __most_recent_year_month__
       - name: id_verbete
