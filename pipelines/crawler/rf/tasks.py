@@ -45,7 +45,7 @@ def check_need_for_update(dataset_id: str, url: str | None = None) -> str:
         - O crawler falhará se o nome do arquivo mudar.
         - Implementa retries com backoff exponencial para falhas de conexão.
     """
-    print(f"---- Checking most recent update date for {dataset_id}")
+    log(f"---- Checking most recent update date for {dataset_id}")
     retries = 5
     delay = 2
 
@@ -63,7 +63,7 @@ def check_need_for_update(dataset_id: str, url: str | None = None) -> str:
             response.raise_for_status()
             break
         except ConnectionError as e:
-            print(f"Connection attempt {attempt + 1}/{retries} failed: {e}")
+            log(f"Connection attempt {attempt + 1}/{retries} failed: {e}")
             if attempt < retries - 1:
                 time.sleep(delay)
                 delay *= 2
@@ -88,7 +88,7 @@ def check_need_for_update(dataset_id: str, url: str | None = None) -> str:
             "Check if the folder structure or file name has changed."
         )
 
-    print(f"Most recent update date: {most_recent_date}")
+    log(f"Most recent update date: {most_recent_date}")
     return most_recent_date
 
 
