@@ -164,7 +164,7 @@ async def download(
         try:
             request_head = await client.head(url, timeout=timeout)
             request_head.raise_for_status()
-            breakpoint()
+            log(request_head.headers["content-length"])
             content_length = int(request_head.headers["content-length"])
             chunk_ranges = chunk_range(content_length, chunk_size)
             total_chunks = len(chunk_ranges)
