@@ -39,7 +39,7 @@ def get_data_source_max_date() -> tuple[datetime.datetime, datetime.date]:
         to be used as partition
     """
 
-    max_folder_date, max_table_date = data_url(url=url, headers=headers)
+    max_folder_date, max_table_date = data_url(url=url)
     return max_folder_date, max_table_date
 
 
@@ -82,25 +82,25 @@ def main(
         for i in range(0, 10):
             if tabela != "Simples":
                 nome_arquivo = f"{tabela}{i}"
-                url_download = f"https://arquivos.receitafederal.gov.br/cnpj/dados_abertos_cnpj/{max_folder_date}/{tabela}{i}.zip"
+                url_download = f"{constants_cnpj.URL.value}{max_last_modified_date}/{tabela}{i}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run(download_unzip_csv(url_download, input_path))
                     if tabela == "Estabelecimentos":
                         process_csv_estabelecimentos(
-                            input_path, output_path, max_last_modified_date, i
+                            input_path, output_path, max_folder_date, i
                         )
                     elif tabela == "Socios":
                         process_csv_socios(
-                            input_path, output_path, max_last_modified_date, i
+                            input_path, output_path, max_folder_date, i
                         )
                     elif tabela == "Empresas":
                         process_csv_empresas(
-                            input_path, output_path, max_last_modified_date, i
+                            input_path, output_path, max_folder_date, i
                         )
             else:
                 nome_arquivo = f"{tabela}"
-                url_download = f"https://arquivos.receitafederal.gov.br/cnpj/dados_abertos_cnpj/{max_folder_date}/{tabela}.zip"
+                url_download = f"{constants_cnpj.URL.value}{max_last_modified_date}/{tabela}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run(download_unzip_csv(url_download, input_path))
