@@ -82,7 +82,7 @@ def main(
         for i in range(0, 10):
             if tabela != "Simples":
                 nome_arquivo = f"{tabela}{i}"
-                url_download = f"{constants_cnpj.URL.value}{max_folder_date}/{tabela}{i}.zip"
+                url_download = f"{constants_cnpj.URL.value}{max_last_modified_date}/{tabela}{i}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run(download_unzip_csv(url_download, input_path))
@@ -100,9 +100,7 @@ def main(
                         )
             else:
                 nome_arquivo = f"{tabela}"
-                url_download = (
-                    f"{constants_cnpj.URL.value}{max_folder_date}/{tabela}.zip"
-                )
+                url_download = f"{constants_cnpj.URL.value}{max_last_modified_date}/{tabela}.zip"
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run(download_unzip_csv(url_download, input_path))
