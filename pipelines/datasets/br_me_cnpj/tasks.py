@@ -82,30 +82,34 @@ def main(
         for i in range(0, 10):
             if tabela != "Simples":
                 nome_arquivo = f"{tabela}{i}"
-                url_download = f"{constants_cnpj.URL.value}{max_last_modified_date}/{tabela}{i}.zip"
+                url_download = f"{constants_cnpj.URL.value}{max_folder_date}/{tabela}{i}.zip"
+
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run(download_unzip_csv(url_download, input_path))
                     if tabela == "Estabelecimentos":
                         process_csv_estabelecimentos(
-                            input_path, output_path, max_folder_date, i
+                            input_path, output_path, max_last_modified_date, i
                         )
                     elif tabela == "Socios":
                         process_csv_socios(
-                            input_path, output_path, max_folder_date, i
+                            input_path, output_path, max_last_modified_date, i
                         )
                     elif tabela == "Empresas":
                         process_csv_empresas(
-                            input_path, output_path, max_folder_date, i
+                            input_path, output_path, max_last_modified_date, i
                         )
             else:
                 nome_arquivo = f"{tabela}"
-                url_download = f"{constants_cnpj.URL.value}{max_last_modified_date}/{tabela}.zip"
+                url_download = (
+                    f"{constants_cnpj.URL.value}{max_folder_date}/{tabela}.zip"
+                )
+
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run(download_unzip_csv(url_download, input_path))
                     process_csv_simples(
-                        input_path, output_path, max_folder_date, sufixo
+                        input_path, output_path, max_last_modified_date, sufixo
                     )
 
     return output_path

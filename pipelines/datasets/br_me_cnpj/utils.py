@@ -44,7 +44,7 @@ def data_url(url: str) -> datetime.date:
 
     soup = BeautifulSoup(link_data.text, "html.parser")
 
-    max_folder_date = max(
+    max_last_modified_date = max(
         datetime.datetime.strptime(
             p.find("d:getlastmodified").text, "%a, %d %b %Y %H:%M:%S GMT"
         )
@@ -52,7 +52,7 @@ def data_url(url: str) -> datetime.date:
         if p.find("d:getlastmodified")
     ).date()
 
-    max_last_modified_date = max_folder_date.strftime("%Y-%m")
+    max_folder_date = max_last_modified_date.strftime("%Y-%m")
 
     log(
         f"A data máxima extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD: {max_folder_date}"
