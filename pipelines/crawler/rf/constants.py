@@ -6,7 +6,22 @@ from enum import Enum
 
 
 class constants(Enum):
-    URLS = {"br_rf_cno": "https://arquivos.receitafederal.gov.br/dados/cno/"}
+    XML_BODY = """<?xml version="1.0" encoding="utf-8" ?>
+              <d:propfind xmlns:d="DAV:">
+                <d:allprop/>
+              </d:propfind>
+              """
+
+    HEADERS = {
+        "Depth": "1",
+        "Content-Type": "application/xml",
+        "Accept": "application/xml",
+        "User-Agent": "Mozilla/5.0",
+    }
+    URLS = {
+        "url_base": "https://arquivos.receitafederal.gov.br/public.php/dav/files/gn672Ad4CF8N6TK/Dados/Cadastros/CNO/",
+        "url_download": "https://arquivos.receitafederal.gov.br/public.php/dav/files/gn672Ad4CF8N6TK/Dados/Cadastros/CNO/cno.zip",
+    }
 
     TABLES_RENAME = {
         "br_rf_cno": {
