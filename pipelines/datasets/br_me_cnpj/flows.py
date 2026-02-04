@@ -1,5 +1,5 @@
 """
-Flows for br_me_cnpj
+Flows for br_me_cnpj - register 03/02/2026
 """
 
 from prefect import Parameter, case
@@ -9,6 +9,12 @@ from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
+from pipelines.datasets.br_me_cnpj.schedules import (
+    every_day_empresas,
+    every_day_estabelecimentos,
+    every_day_simples,
+    every_day_socios,
+)
 from pipelines.datasets.br_me_cnpj.tasks import get_data_source_max_date, main
 from pipelines.utils.decorators import Flow
 from pipelines.utils.metadata.tasks import (
@@ -106,7 +112,7 @@ br_me_cnpj_empresas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_empresas.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_me_cnpj_empresas.schedule = every_day_empresas
+br_me_cnpj_empresas.schedule = every_day_empresas
 
 with Flow(
     name="br_me_cnpj.socios",
@@ -188,7 +194,7 @@ br_me_cnpj_socios.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_socios.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_me_cnpj_socios.schedule = every_day_socios
+br_me_cnpj_socios.schedule = every_day_socios
 
 
 with Flow(
@@ -302,7 +308,7 @@ br_me_cnpj_estabelecimentos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_estabelecimentos.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_me_cnpj_estabelecimentos.schedule = every_day_estabelecimentos
+br_me_cnpj_estabelecimentos.schedule = every_day_estabelecimentos
 
 
 with Flow(
@@ -384,4 +390,4 @@ br_me_cnpj_simples.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_simples.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_me_cnpj_simples.schedule = every_day_simples
+br_me_cnpj_simples.schedule = every_day_simples
