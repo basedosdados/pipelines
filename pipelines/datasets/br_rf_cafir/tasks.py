@@ -27,8 +27,8 @@ from pipelines.utils.utils import log
     max_retries=2,
     retry_delay=datetime.timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
-def task_parse_api_metadata(url: str, headers: dict) -> pd.DataFrame:
-    return parse_api_metadata(url=url, headers=headers)
+def task_parse_api_metadata(url: str) -> pd.DataFrame:
+    return parse_api_metadata(url=url)
 
 
 @task(
@@ -53,7 +53,6 @@ def task_download_files(
     url: str,
     file_list: list[str],
     data_atualizacao: list[datetime.date],
-    headers: dict,
 ) -> str:
     """Essa task faz o download dos arquivos do FTP, faz o parse dos dados e salva os arquivos em um diretório temporário.
 
@@ -74,12 +73,11 @@ def task_download_files(
 
         # monta url
         complete_url = url + file
-
+        breakpoint()
         # baixa arquivo
         download_csv_files(
             file_name=file,
             url=complete_url,
-            headers=headers,
             download_directory=br_rf_cafir_constants.PATH.value[0],
         )
 
