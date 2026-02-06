@@ -20,13 +20,11 @@ from pipelines.datasets.br_rf_cafir.tasks import (
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
     update_django_metadata,
 )
 from pipelines.utils.tasks import (
     create_table_dev_and_upload_to_gcs,
     create_table_prod_gcs_and_run_dbt,
-    log_task,
     rename_current_flow_run_dataset_table,
     run_dbt,
 )
@@ -61,64 +59,64 @@ with Flow(
         upstream_tasks=[df_metadata],
     )
 
-    is_outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=data_atualizacao,
-        date_format="%Y-%m-%d",
-        upstream_tasks=[arquivos],
+    # is_outdated = check_if_data_is_outdated(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     data_source_max_date=data_atualizacao,
+    #     date_format="%Y-%m-%d",
+    #     upstream_tasks=[arquivos],
+    # )
+
+    # with case(is_outdated, False):
+    #     log_task(f"Não há atualizações para a tabela de {table_id}!")
+
+    # with case(is_outdated, True):
+    #     log_task("Existem atualizações! A run será inciada")
+
+    file_path = task_download_files(
+        url=br_rf_cafir_constants.URL.value,
+        file_list=arquivos,
+        data_atualizacao=data_atualizacao,
+        upstream_tasks=[arquivos, data_atualizacao],
     )
 
-    with case(is_outdated, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
+        data_path=file_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        upstream_tasks=[file_path],
+    )
 
-    with case(is_outdated, True):
-        log_task("Existem atualizações! A run será inciada")
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
 
-        file_path = task_download_files(
-            url=br_rf_cafir_constants.URL.value,
-            file_list=arquivos,
-            data_atualizacao=data_atualizacao,
-            upstream_tasks=[arquivos, is_outdated],
-        )
-
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
+    # imoveis_rurais
+    with case(materialize_after_dump, True):
+        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
             data_path=file_path,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            upstream_tasks=[file_path],
+            upstream_tasks=[wait_for_materialization],
         )
 
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-
-        # imoveis_rurais
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=file_path,
+        with case(update_metadata, True):
+            update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
+                date_column_name={"date": "data_referencia"},
+                date_format="%Y-%m-%d",
+                coverage_type="part_bdpro",
+                time_delta={"months": 6},
+                bq_project="basedosdados",
+                upstream_tasks=[wait_upload_prod],
             )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"date": "data_referencia"},
-                    date_format="%Y-%m-%d",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
 
 
 br_rf_cafir_imoveis_rurais.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
