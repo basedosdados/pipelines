@@ -15,12 +15,15 @@ from pipelines.datasets.br_rf_cafir.constants import (
 from pipelines.datasets.br_rf_cafir.utils import (
     decide_files_to_download,
     download_csv_files,
+    get_last_update_date,
     parse_api_metadata,
     preserve_zeros,
     remove_ascii_zero_from_df,
     strip_string,
 )
 from pipelines.utils.utils import log
+
+last_update_date = get_last_update_date(url=br_rf_cafir_constants.URL.value)
 
 
 @task(
@@ -41,7 +44,10 @@ def task_decide_files_to_download(
     data_maxima: bool = True,
 ) -> tuple[list[str], list[datetime.date]]:
     return decide_files_to_download(
-        df=df, data_especifica=data_especifica, data_maxima=data_maxima
+        df=df,
+        data_especifica=data_especifica,
+        data_maxima=data_maxima,
+        last_update_date=last_update_date,
     )
 
 
@@ -61,7 +67,11 @@ def task_download_files(
     """
 
     date = data_atualizacao
+
     log(f"------ Extraindo dados para data: {date}")
+    log(
+        f"------ A data máxima extraida da API da Receita Federal que será utilizada para gerar partições no Storage: {last_update_date}"
+    )
 
     files_list = file_list
     log(
@@ -109,7 +119,7 @@ def task_download_files(
         # constroi diretório
         os.makedirs(
             br_rf_cafir_constants.PATH.value[1]
-            + f"/imoveis_rurais/data={date}/",
+            + f"/imoveis_rurais/data={last_update_date}/",
             exist_ok=True,
         )
 
@@ -118,7 +128,7 @@ def task_download_files(
 
         save_path = (
             br_rf_cafir_constants.PATH.value[1]
-            + f"/imoveis_rurais/data={date}/"
+            + f"/imoveis_rurais/data={last_update_date}/"
             + "imoveis_rurais_"
             # extrai uf e numeração do nome do arquivo
             + file.split(".")[-2]

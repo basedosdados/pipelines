@@ -103,7 +103,22 @@ def parse_api_metadata(url: str | None = None) -> pd.DataFrame:
     return pd.DataFrame(csvs_com_data)
 
 
+def get_last_update_date(url: str) -> str:
+    soup = BeautifulSoup(requests_url(url).text, "lxml")
+
+    return str(
+        max(
+            datetime.datetime.strptime(
+                p.find("d:getlastmodified").text, "%a, %d %b %Y %H:%M:%S GMT"
+            )
+            for p in soup.find_all("d:prop")
+            if p.find("d:getlastmodified")
+        ).date()
+    )
+
+
 def decide_files_to_download(
+    last_update_date: str,
     df: pd.DataFrame,
     data_especifica: datetime.date | None = None,
     data_maxima: bool = True,
@@ -126,8 +141,13 @@ def decide_files_to_download(
     if data_maxima:
         max_date = df["data_atualizacao"].max()
         log(
-            f"Os arquivos serão selecionados utilizando a data de atualização mais recente: {max_date}"
+            f"A data máxima extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD: {max_date}"
         )
+
+        log(
+            f"A data máxima extraida da API da Receita Federal que será utilizada para gerar partições no Storage: {last_update_date}"
+        )
+
         return df[df["data_atualizacao"] == max_date][
             "nome_arquivo"
         ].tolist(), max_date
