@@ -19,7 +19,7 @@ with
         select *
         from {{ set_datalake_project("br_ms_sia_staging.producao_ambulatorial") }}
 
-        {% if is_incremental() %} where ano >= 2025 {% endif %}
+        {% if is_incremental() %} where cast(ano as int64) >= 2025 {% endif %}
     ),
 
     sia_add_municipios as (
