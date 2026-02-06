@@ -37,7 +37,38 @@ def remove_ascii_zero_from_df(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def parse_api_metadata(url: str, headers: dict | None = None) -> pd.DataFrame:
+def requests_url(url: str) -> requests.Response:
+    xml_body = """<?xml version="1.0" encoding="utf-8" ?>
+    <d:propfind xmlns:d="DAV:">
+      <d:allprop/>
+    </d:propfind>
+    """
+
+    headers = {
+        "Depth": "1",
+        "Content-Type": "application/xml",
+        "Accept": "application/xml",
+        "User-Agent": "Mozilla/5.0",
+    }
+    try:
+        response = requests.request(
+            method="PROPFIND",
+            url=url,
+            headers=headers,
+            data=xml_body,
+            timeout=30,
+        )
+
+        response.raise_for_status()
+
+    except requests.exceptions.RequestException as e:
+        log(f"Erro durante a requisição: {e}")
+        raise
+
+    return response
+
+
+def parse_api_metadata(url: str | None = None) -> pd.DataFrame:
     """
     Faz uma requisição para a URL fornecida e extrai metadados de arquivos CSV.
     Args:
@@ -49,52 +80,45 @@ def parse_api_metadata(url: str, headers: dict | None = None) -> pd.DataFrame:
         ValueError: Se a quantidade de arquivos extraídos for diferente da quantidade de datas de atualização.
     """
 
-    log(f"Fazendo request para a url: {url}")
+    soup = BeautifulSoup(requests_url(url).text, "lxml")
 
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
+    csvs_com_data = []
 
-    soup = BeautifulSoup(response.text, "html.parser")
-    elementos = soup.find_all("a")
+    for x in soup.find_all("d:href"):
+        href = x.text
+        if not href.endswith(".csv"):
+            continue
 
-    log("Extraindo nomes de arquivos e datas de atualização")
+        data_raw = href.split(".")[-3]
+        data_raw = data_raw.replace("D", "202")
 
-    linhas_arquivos_datas = [
-        arquivo.find_parent("td")
-        for arquivo in elementos
-        if arquivo.has_attr("href") and "csv" in arquivo["href"]
-    ]
-    nomes_arquivos = [
-        arquivo.find("a").get("href") for arquivo in linhas_arquivos_datas
-    ]
-
-    data_atualizacao_arquivos = [
-        data_atualizacao.find_next_sibling("td")
-        for data_atualizacao in linhas_arquivos_datas
-        if data_atualizacao.find_next_sibling("td").get("align") == "right"
-    ]
-    data_atualizacao_arquivos_formatada = [
-        datetime.datetime.strptime(a.text.strip(), "%Y-%m-%d %H:%M").date()
-        for a in data_atualizacao_arquivos
-    ]
-
-    if len(nomes_arquivos) != len(data_atualizacao_arquivos_formatada):
-        raise ValueError(
-            f"A quantidade de arquivos ({len(nomes_arquivos)}) difere da quantidade de datas ({len(data_atualizacao_arquivos_formatada)}). Verifique o FTP da Receita Federal {url}"
+        data = datetime.datetime.strptime(data_raw, "%Y%m%d").strftime(
+            "%Y-%m-%d"
         )
 
-    df = pd.DataFrame(
-        {
-            "nome_arquivo": nomes_arquivos,
-            "data_atualizacao": data_atualizacao_arquivos_formatada,
-        }
-    )
+        csvs_com_data.append(
+            {"nome_arquivo": href.split("/")[-1], "data_atualizacao": data}
+        )
 
-    log("Extração finalizada")
-    return df
+    return pd.DataFrame(csvs_com_data)
+
+
+def get_last_update_date(url: str) -> str:
+    soup = BeautifulSoup(requests_url(url).text, "lxml")
+
+    return str(
+        max(
+            datetime.datetime.strptime(
+                p.find("d:getlastmodified").text, "%a, %d %b %Y %H:%M:%S GMT"
+            )
+            for p in soup.find_all("d:prop")
+            if p.find("d:getlastmodified")
+        ).date()
+    )
 
 
 def decide_files_to_download(
+    last_update_date: str,
     df: pd.DataFrame,
     data_especifica: datetime.date | None = None,
     data_maxima: bool = True,
@@ -104,7 +128,7 @@ def decide_files_to_download(
 
     Parâmetros:
     df (pd.DataFrame): DataFrame contendo informações dos arquivos, incluindo a data de atualização e o nome do arquivo.
-    data_especifica (datetime.date, opcional): Data específica para filtrar os arquivos.
+    data_especifica (datetime.date, opcional): Data específica para filtrar os arquivos. O Padrão é "%yyyy-%mm-%dd".
     data_maxima (bool): Se True, retorna os arquivos com a data de atualização mais recente. Padrão é True.
 
     Retorna:
@@ -117,8 +141,13 @@ def decide_files_to_download(
     if data_maxima:
         max_date = df["data_atualizacao"].max()
         log(
-            f"Os arquivos serão selecionados utilizando a data de atualização mais recente: {max_date}"
+            f"A data máxima extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD: {max_date}"
         )
+
+        log(
+            f"A data máxima extraida da API da Receita Federal que será utilizada para gerar partições no Storage: {last_update_date}"
+        )
+
         return df[df["data_atualizacao"] == max_date][
             "nome_arquivo"
         ].tolist(), max_date
@@ -138,7 +167,7 @@ def decide_files_to_download(
 
 
 def download_csv_files(
-    url: str, file_name: str, download_directory: str, headers: dict
+    url: str, file_name: str, download_directory: str
 ) -> None:
     """
     Faz o download de um arquivo CSV a partir de uma URL e salva em um diretório especificado.
@@ -162,15 +191,15 @@ def download_csv_files(
     file_path = os.path.join(download_directory, file_name)
 
     # faz request
-    response = requests.get(url, headers=headers)
+    response = requests.get(url)
 
     if response.status_code == 200:
         # Salva no diretório especificado
         with open(file_path, "wb") as f:
             f.write(response.content)
-        print(f"Downloaded {file_name}")
+        log(f"Downloaded {file_name}")
     else:
-        print(
+        log(
             f"Failed to download {file_name}. Status code: {response.status_code}"
         )
 
