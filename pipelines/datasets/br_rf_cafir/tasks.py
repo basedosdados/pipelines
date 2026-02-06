@@ -73,7 +73,7 @@ def task_download_files(
 
         # monta url
         complete_url = url + file
-        breakpoint()
+
         # baixa arquivo
         download_csv_files(
             file_name=file,

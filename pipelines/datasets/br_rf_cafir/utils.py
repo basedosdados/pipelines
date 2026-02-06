@@ -60,7 +60,7 @@ def requests_url(url: str) -> requests.Response:
         )
 
         response.raise_for_status()
-        breakpoint()
+
     except requests.exceptions.RequestException as e:
         log(f"Erro durante a requisição: {e}")
         raise
