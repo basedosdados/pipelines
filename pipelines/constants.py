@@ -69,7 +69,7 @@ class constants(Enum):
     # Discord code owners constants
     ######################################
     BD_DISCORD_WEBHOOK_SECRET_PATH = "prefect-discord-webhook"
-    DEFAULT_CODE_OWNERS = ["equipe_pipelines"]
+    DEFAULT_CODE_OWNERS = ["equipe_dados"]
     OWNERS_DISCORD_MENTIONS = {
         # Register all code owners, users_id and type
         #     - possible types: https://docs.discord.club/embedg/reference/mentions
@@ -80,40 +80,8 @@ class constants(Enum):
             "user_id": "865034571469160458",
             "type": "role",
         },
-        "equipe_pipelines": {
-            "user_id": "1097527101952901231",
-            "type": "role",
-        },
-        "equipe_platforma": {
-            "user_id": "865223885031997455",
-            "type": "role",
-        },
-        "diego": {
-            "user_id": "272581753829326849",
-            "type": "user_nickname",
-        },
-        "lucas_cr": {
-            "user_id": "776914459545436200",
-            "type": "user_nickname",
-        },
-        "crislanealves": {
-            "user_id": "740986161652301886",
-            "type": "user_nickname",
-        },
-        "ath67": {
-            "user_id": "467788821527003136",
-            "type": "user_nickname",
-        },
-        "guialvesp1": {
-            "user_id": "307722006818979840",
-            "type": "user_nickname",
-        },
         "lauris": {
             "user_id": "725799350516842636",
-            "type": "user_nickname",
-        },
-        "Mauricio Fagundes": {
-            "user_id": "238816891337048064",
             "type": "user_nickname",
         },
         "rdahis": {
@@ -124,24 +92,8 @@ class constants(Enum):
             "user_id": "313757164747358209",
             "type": "user_nickname",
         },
-        "arthurfg": {
-            "user_id": "1011467113682190427",
-            "type": "user_nickname",
-        },
         "trick": {
             "user_id": "252923443052281856",
-            "type": "user_nickname",
-        },
-        "lucasmoreira": {
-            "user_id": "765511326675763233",
-            "type": "user_nickname",
-        },
-        "Gabs": {
-            "user_id": "690361518973649006",
-            "type": "user_nickname",
-        },
-        "gustavoalcantara": {
-            "user_id": "951646117584592946",
             "type": "user_nickname",
         },
         "aspeddro": {"user_id": "767136614140346389", "type": "user_nickname"},
