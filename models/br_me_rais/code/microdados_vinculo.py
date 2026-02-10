@@ -6,6 +6,12 @@ import numpy as np
 import pandas as pd
 import tqdm
 
+df_municipio = bd.read_sql(
+    "SELECT id_municipio, id_municipio_6, sigla_uf FROM `basedosdados.br_bd_diretorios_brasil.municipio`",
+    billing_project_id="basedosdados",
+    reauth=False,
+)
+
 
 def to_partitions(
     data: pd.DataFrame,
@@ -71,12 +77,6 @@ def load_and_process_rais_vinculos(
     savepath="tmp/Vinculos/output",
     file_type="csv",
 ):
-    df_municipio = bd.read_sql(
-        "SELECT id_municipio, id_municipio_6, sigla_uf FROM `basedosdados.br_bd_diretorios_brasil.municipio`",
-        billing_project_id="basedosdados",
-        reauth=False,
-    )
-
     valor = 0
 
     for df in tqdm.tqdm(
@@ -436,7 +436,7 @@ def load_and_process_rais_vinculos(
 
 
 load_and_process_rais_vinculos(
-    input="tmp/Vinculos/input/RAIS_VINC_PUB_SP/RAIS_VINC_PUB_SP.COMT",
+    input="tmp/input/RAIS_VINC_PUB_SP/RAIS_VINC_PUB_SP.COMT",
     partition_columns=["ano", "sigla_uf"],
-    ano="2024",
+    ano="2023",
 )

@@ -8,6 +8,17 @@ import tqdm
 
 pd.set_option("display.max_columns", None)
 
+df_municipio = bd.read_sql(
+    "SELECT id_municipio, id_municipio_6 FROM `basedosdados.br_bd_diretorios_brasil.municipio`",
+    billing_project_id="basedosdados",
+    reauth=False,
+)
+df_uf = bd.read_sql(
+    "SELECT id_uf, sigla FROM `basedosdados.br_bd_diretorios_brasil.uf`",
+    billing_project_id="basedosdados",
+    reauth=False,
+)
+
 
 def to_partitions(
     data: pd.DataFrame,
@@ -130,21 +141,8 @@ def load_and_process_rais_estabelecimento(
         )
 
         df["ano"] = ano
-        breakpoint()
+
         df["municipio"] = df["municipio"].astype(str)
-
-        # Carregar os arquivos
-
-        df_municipio = bd.read_sql(
-            "SELECT id_municipio, id_municipio_6 FROM `basedosdados.br_bd_diretorios_brasil.municipio`",
-            billing_project_id="basedosdados",
-            reauth=False,
-        )
-        df_uf = bd.read_sql(
-            "SELECT id_uf, sigla FROM `basedosdados.br_bd_diretorios_brasil.uf`",
-            billing_project_id="basedosdados",
-            reauth=False,
-        )
 
         # Mescla com o arquivo de municípios
         df = df.merge(
@@ -293,7 +291,7 @@ def load_and_process_rais_estabelecimento(
 
 
 load_and_process_rais_estabelecimento(
-    input="tmp/input/RAIS_ESTAB_PUB.COMT",
+    input="tmp/input/RAIS_ESTAB_PUB/RAIS_ESTAB_PUB.COMT",
     partition_columns=["ano", "sigla_uf"],
-    ano=2024,
+    ano=2023,
 )
