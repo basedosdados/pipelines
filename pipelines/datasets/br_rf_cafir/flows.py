@@ -53,8 +53,7 @@ with Flow(
     )
 
     df_metadata = task_parse_api_metadata(
-        url=br_rf_cafir_constants.URL.value[0],
-        headers=br_rf_cafir_constants.HEADERS.value,
+        url=br_rf_cafir_constants.URL.value,
     )
 
     arquivos, data_atualizacao = task_decide_files_to_download(
@@ -77,11 +76,10 @@ with Flow(
         log_task("Existem atualizações! A run será inciada")
 
         file_path = task_download_files(
-            url=br_rf_cafir_constants.URL.value[0],
+            url=br_rf_cafir_constants.URL.value,
             file_list=arquivos,
-            headers=br_rf_cafir_constants.HEADERS.value,
             data_atualizacao=data_atualizacao,
-            upstream_tasks=[arquivos, is_outdated],
+            upstream_tasks=[arquivos, data_atualizacao],
         )
 
         wait_upload_table = create_table_dev_and_upload_to_gcs(

@@ -17,13 +17,10 @@ from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
 from pipelines.utils.utils import log
 
 ufs = constants_cnpj.UFS.value
-headers = constants_cnpj.HEADERS.value
 timeout = constants_cnpj.TIMEOUT.value
 
 
-def data_url(
-    url: str, headers: dict
-) -> tuple[datetime.datetime, datetime.date]:
+def data_url(url: str) -> datetime.date:
     """
     Fetches data from a URL, parses the HTML to find the latest folder date, and compares it to today's date.
 
@@ -36,33 +33,32 @@ def data_url(
         tuple[datetime, datetime]: The maximum date found in the folders (max_folder_date) and max last modified date (max_last_modified_date).
     """
 
-    link_data = requests.get(
-        url, headers=headers, timeout=timeout, verify=False
+    link_data = requests.request(
+        method="PROPFIND",
+        url=url,
+        headers=constants_cnpj.HEADERS.value,
+        data=constants_cnpj.XML_BODY.value,
+        timeout=30,
     )
     link_data.raise_for_status()
 
     soup = BeautifulSoup(link_data.text, "html.parser")
 
-    max_folder_date = max(
-        [
-            datetime.datetime.strptime(
-                link["href"].strip("/"), "%Y-%m"
-            ).strftime("%Y-%m")
-            for link in soup.find_all("a", href=True)
-            if link["href"].strip("/").startswith("202")
-        ]
-    )
-
     max_last_modified_date = max(
-        [
-            datetime.datetime.strptime(
-                x.get_text().strip(), "%Y-%m-%d %H:%M"
-            ).strftime("%Y-%m-%d")
-            for x in soup.find_all("td", align="right")
-            # exclui linhas que não possuem datas
-            if x.get_text().strip().count(":") == 1
-        ]
-    )
+        datetime.datetime.strptime(
+            p.find("d:getlastmodified").text, "%a, %d %b %Y %H:%M:%S GMT"
+        )
+        for p in soup.find_all("d:prop")
+        if p.find("d:getlastmodified")
+    ).date()
+
+    value = []
+
+    for x in soup.find_all("d:href"):
+        urls = x.get_text(strip=True).split("/")[-2]
+        if len(urls) == 7:
+            value.append(urls)
+    max_folder_date = max(value)
 
     log(
         f"A data máxima extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD: {max_folder_date}"
@@ -174,8 +170,7 @@ async def download(
         try:
             request_head = await client.head(url, timeout=timeout)
             request_head.raise_for_status()
-
-            assert request_head.headers["accept-ranges"] == "bytes"
+            log(request_head.headers["content-length"])
             content_length = int(request_head.headers["content-length"])
             chunk_ranges = chunk_range(content_length, chunk_size)
             total_chunks = len(chunk_ranges)
