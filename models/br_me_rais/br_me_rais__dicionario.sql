@@ -1,4 +1,4 @@
--- register 10/02/2026
+-- register 12/02/2026
 {{ config(alias="dicionario", schema="br_me_rais") }}
 select
     safe_cast(id_tabela as string) id_tabela,
