@@ -231,6 +231,7 @@ models:
               to: ref('br_bd_diretorios_brasil__cnae_2')
               field: subclasse
               ignore_values: ['9999999', '8630505']
+              tags: [cnae_2_subclasse]
       - name: tamanho_estabelecimento
         description: Tamanho do Estabelecimento
       - name: tipo_estabelecimento
@@ -320,6 +321,7 @@ models:
               to: ref('br_bd_diretorios_brasil__cnae_2')
               field: subclasse
               ignore_values: ['9999997', 00000-1, '8630505', '3312101', '9999999']  # cnae excluídas: https://www.lefisc.com.br/dim/plantoes/22-07-2020/Decreto10410.htm
+              tags: [cnae_2_subclasse]
       - name: subsetor_ibge
         description: Subsetor IBGE
       - name: subatividade_ibge

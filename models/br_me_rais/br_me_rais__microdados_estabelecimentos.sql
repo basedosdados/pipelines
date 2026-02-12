@@ -32,7 +32,11 @@ select
     safe_cast(indicador_atividade_ano as int64) indicador_atividade_ano,
     safe_cast(cnae_1 as string) cnae_1,
     safe_cast(cnae_2 as string) cnae_2,
-    safe_cast(cnae_2_subclasse as string) cnae_2_subclasse,
+    case
+        when length(cnae_2_subclasse) = 6
+        then lpad(cnae_2_subclasse, 7, '0')
+        else cnae_2_subclasse
+    end as cnae_2_subclasse,
     safe_cast(regexp_replace(subsetor_ibge, r'^0+', '') as string) as subsetor_ibge,
     safe_cast(subatividade_ibge as string) subatividade_ibge,
     case

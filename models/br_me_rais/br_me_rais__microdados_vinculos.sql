@@ -175,7 +175,11 @@ select
     safe_cast(cbo_2002 as string) cbo_2002,
     safe_cast(cnae_1 as string) cnae_1,
     safe_cast(cnae_2 as string) cnae_2,
-    safe_cast(cnae_2_subclasse as string) cnae_2_subclasse,
+    case
+        when length(cnae_2_subclasse) = 6
+        then lpad(cnae_2_subclasse, 7, '0')
+        else cnae_2_subclasse
+    end as cnae_2_subclasse,
     case
         when faixa_etaria = '00'
         then '0'
