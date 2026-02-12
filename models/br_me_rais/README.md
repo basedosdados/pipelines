@@ -82,15 +82,16 @@ Nos dados oficiais de 2024, a coluna `cnae_1` passou a conter apenas 4 caractere
 
 Essa divergência inviabiliza a validação do relacionamento conforme os critérios anteriormente adotados.
 
+### 6.2 Coluna `cnae_2_subclasse`
+
+Em relação à coluna cnae_2_subclasse, a partir de 2023 observou-se inconsistência no tamanho do código: parte dos registros passou a apresentar 6 dígitos, enquanto outros mantiveram 7 dígitos. Para padronização, aplicamos left padding com zero à esquerda nos códigos de 6 dígitos, garantindo que todos passem a ter 7 dígitos. Com essa normalização, os valores tornam-se compatíveis com o diretório `br_bd_diretorios_brasil.cnae:subclasse`.
+
 **Recomendação:**
 Para análises e relacionamentos, utilizar as colunas:
 
-- `cnae_2`
 - `cnae_2_subclasse`
 
-Essas classificações permanecem consistentes ao longo da série histórica.
-
-### 6.2 Comentários gerais:
+### 6.3 Comentários gerais:
 
 **Comentários:**
   • Alguns valores relacionados à conexão com o diretório foram desconsiderados durante os testes.
