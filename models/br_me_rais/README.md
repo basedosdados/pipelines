@@ -85,8 +85,8 @@ Entretanto, nos microdados oficiais da RAIS (tabelas de Vínculos e Estabelecime
 
 Essa alteração quebra a compatibilidade estrutural entre as bases, impedindo a validação do relacionamento segundo os critérios historicamente utilizados. Dado que a inconsistência se origina na fonte oficial, entendemos tratar-se de um problema upstream que inviabiliza a validação do relacionamento conforme os critérios anteriormente adotados.
 
-> Hipéteses:
-> 1. Testamos a padronização dos códigos por meio da adição de zero à esquerda nos registros com 4 caracteres, com o objetivo de restabelecer o padrão de 5 dígitos adotado no diretório `basedosdados.br_bd_diretorios_brasil.cnae_1:classe`, conforme a estrutura definida pela CONCLA. A estratégia resultou em compatibilização apenas parcial: alguns códigos passaram a coincidir com o diretório, enquanto outros permaneceram sem correspondência válida. Segue os códigos abaixo:
+> Hipóteses:
+> 1. Testamos a padronização dos códigos por meio da adição de zero à esquerda nos registros com 4 caracteres, com o objetivo de restabelecer o padrão de 5 dígitos adotado no diretório `basedosdados.br_bd_diretorios_brasil.cnae_1:classe`, conforme a estrutura definida pela CONCLA. A estratégia resultou em compatibilização apenas parcial: Para o ano de 2023, apenas 4 códigos passaram a coincidir com o diretório, enquanto outros permaneceram sem correspondência válida. Segue os códigos abaixo:
 
 Para verificar a porcentagem de cruzamento, rode o seguinte comando no BigQuery:
 
@@ -119,6 +119,12 @@ LEFT JOIN parent p2
     ON LPAD(c.cnae_1, 5, '0') = p2.parent_value;
 
 ```
+Resultado:
+| Total de CNAEs distintos (RAIS 2023) | CNAEs que cruzaram após LPAD | Percentual de cruzamento |
+| :--- | :---: | ---: |
+| 535 | 4 | 0.748 |
+
+---
 
 Para verificar quais códigos foram cruzados, rode o seguinte comando no BigQuery:
 
@@ -148,7 +154,19 @@ JOIN parent p2
 WHERE p1.parent_value IS NULL
 ORDER BY 1;
 ```
+
+| cnae_original (RAIS 2023) | CNAEs que cruzaram após LPAD
+| :--- | :---:
+| 1120 | 01120 |
+| 1325 | 01325 |
+| 1422 | 01422 |
+| 5118 | 05118 |
+
+----
+
 ### 6.2 Coluna `cnae_2_subclasse`
+
+
 
 Em relação à coluna cnae_2_subclasse, a partir de 2023 observou-se inconsistência no tamanho do código: parte dos registros passou a apresentar 6 dígitos, enquanto outros mantiveram 7 dígitos. Para padronização, aplicamos left padding com zero à esquerda nos códigos de 6 dígitos, garantindo que todos passem a ter 7 dígitos. Com essa normalização, os valores tornam-se compatíveis com o diretório `br_bd_diretorios_brasil.cnae:subclasse`.
 
