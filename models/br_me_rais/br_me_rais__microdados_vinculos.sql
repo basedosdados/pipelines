@@ -175,7 +175,11 @@ select
     safe_cast(cbo_2002 as string) cbo_2002,
     safe_cast(cnae_1 as string) cnae_1,
     safe_cast(cnae_2 as string) cnae_2,
-    safe_cast(cnae_2_subclasse as string) cnae_2_subclasse,
+    case
+        when length(cnae_2_subclasse) = 6
+        then lpad(cnae_2_subclasse, 7, '0')
+        else cnae_2_subclasse
+    end as cnae_2_subclasse,
     case
         when faixa_etaria = '00'
         then '0'
@@ -312,4 +316,4 @@ select
         safe_cast(regexp_replace(regioes_administrativas_df, r'^0+', '') as string)
     ) as regioes_administrativas_df
 from {{ set_datalake_project("br_me_rais_staging.microdados_vinculos") }}
-{% if is_incremental() %} where safe_cast(ano as int64) >= 2024 {% endif %}
+{% if is_incremental() %} where safe_cast(ano as int64) >= 2023 {% endif %}
