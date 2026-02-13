@@ -503,8 +503,10 @@ def extract_links_post_2012(
     ## First level of html elements
     # Searching for html elements with text 'frota'
     tags = soup.find_all(
-        lambda tag: (tag.name == "div" and "pageBreak" in tag.get("class", []))
-        or tag.name == "p"
+        lambda tag: (
+            (tag.name == "div" and "pageBreak" in tag.get("class", []))
+            or tag.name == "p"
+        )
     )
     tags_of_interest = [
         tag
