@@ -14,12 +14,9 @@ import basedosdados as bd
 import pandas as pd
 import polars as pl
 import requests
-import rpy2.robjects as robjects
-import rpy2.robjects.packages as rpackages
 from bs4 import BeautifulSoup
 from dateutil import relativedelta
 from rarfile import RarFile
-from rpy2.robjects.vectors import StrVector
 from string_utils import asciify
 
 from pipelines.datasets.br_denatran_frota.constants import (
@@ -668,44 +665,6 @@ def extraction_pre_2012(
                 log(file_path)
                 g.extract(file, path=year_dir_name)
                 os.rename(f"{year_dir_name}/{file.filename}", file_path)
-
-
-def call_r_to_read_excel(file: str) -> pd.DataFrame:
-    """Use rpy2 to call R's readxl for problematic Excel files and then keep reading them as dataframes.
-
-    Args:
-        file (str): The full filepath that needs to be opened.
-
-    Raises:
-        ValueError: If the desired file is not an actual file.
-
-    Returns:
-        pd.DataFrame: Returns a pandas dataframe with the excel file's content.
-    """
-    if not os.path.isfile(file):
-        raise ValueError("Invalid file")
-    packages = "readxl"
-    r_utils = rpackages.importr("utils", suppress_messages=True)
-    r_utils.chooseCRANmirror(ind=1)
-    r_utils.install_packages(StrVector(packages))
-    rpackages.importr("readxl", suppress_messages=True)
-
-    # Read the Excel file
-    robjects.r(
-        f"""
-        library(readxl)
-
-        sheets <- excel_sheets('{file}')
-        correct_sheet <- sheets[sheets != "Glossário"][1]
-        df <- read_excel('{file}', sheet = correct_sheet)
-
-    """
-    )
-    # Convert the R dataframe to a pandas dataframe
-    df = robjects.r["df"]
-
-    df = pd.DataFrame(dict(zip(df.names, list(df), strict=False)))
-    return df
 
 
 def treat_uf(
