@@ -78,19 +78,104 @@ O formato `.comt` é um arquivo de texto estruturado, equivalente ao padrão `.c
 O teste de relacionamento com a coluna `cnae_1` foi removido das tabelas de Estabelecimentos e Vínculos.
 
 **Motivo:**
-Nos dados oficiais de 2024, a coluna `cnae_1` passou a conter apenas 4 caracteres, enquanto nos anos anteriores e na base de diretórios da Base dos Dados (BD) o padrão era de 5 caracteres.
 
-Essa divergência inviabiliza a validação do relacionamento conforme os critérios anteriormente adotados.
+O diretório `basedosdados.br_bd_diretorios_brasil.cnae_1:classe` está estruturado conforme a classificação oficial da [CONCLA](https://concla.ibge.gov.br/busca-online-cnae.html?view=estrutura), cuja hierarquia e códigos seguem o padrão divulgado pelo IBGE.
+
+Entretanto, nos microdados oficiais da RAIS (tabelas de Vínculos e Estabelecimentos) observamos que, a partir dos dados definitivos de 2023, a coluna cnae_1 passou a apresentar códigos com 4 caracteres. Nos anos anteriores, bem como no diretório da Base dos Dados (BD), o padrão adotado era de 5 caracteres.
+
+Essa alteração quebra a compatibilidade estrutural entre as bases, impedindo a validação do relacionamento segundo os critérios historicamente utilizados. Dado que a inconsistência se origina na fonte oficial, entendemos tratar-se de um problema upstream que inviabiliza a validação do relacionamento conforme os critérios anteriormente adotados.
+
+> Hipóteses:
+> 1. Testamos a padronização dos códigos por meio da adição de zero à esquerda nos registros com 4 caracteres, com o objetivo de restabelecer o padrão de 5 dígitos adotado no diretório `basedosdados.br_bd_diretorios_brasil.cnae_1:classe`, conforme a estrutura definida pela CONCLA. A estratégia resultou em compatibilização apenas parcial: Para o ano de 2023, apenas 4 códigos passaram a coincidir com o diretório, enquanto outros permaneceram sem correspondência válida. Segue os códigos abaixo:
+
+Para verificar a porcentagem de cruzamento, rode o seguinte comando no BigQuery:
+
+```sql
+WITH child AS (
+    SELECT DISTINCT cnae_1
+    FROM `basedosdados-dev.br_me_rais.microdados_estabelecimentos`
+    WHERE
+        cnae_1 IS NOT NULL
+        AND ano = 2023
+),
+
+parent AS (
+    SELECT DISTINCT cnae_1 AS parent_value
+    FROM `basedosdados-dev.br_bd_diretorios_brasil.cnae_1`
+)
+
+SELECT
+    COUNTIF(p1.parent_value IS NOT NULL) AS matches_original,
+    COUNTIF(p2.parent_value IS NOT NULL) AS matches_lpad,
+    COUNT(*) AS total_registros,
+    ROUND(
+        COUNTIF(p2.parent_value IS NOT NULL) / COUNT(*) * 100,
+        3
+    ) AS percentage_lpad
+FROM child c
+LEFT JOIN parent p1
+    ON c.cnae_1 = p1.parent_value
+LEFT JOIN parent p2
+    ON LPAD(c.cnae_1, 5, '0') = p2.parent_value;
+
+```
+Resultado:
+| Total de CNAEs distintos (RAIS 2023) | CNAEs que cruzaram após LPAD | Percentual de cruzamento |
+| :--- | :---: | ---: |
+| 535 | 4 | 0.748 |
+
+---
+
+Para verificar quais códigos foram cruzados, rode o seguinte comando no BigQuery:
+
+```sql
+WITH child AS (
+    SELECT DISTINCT cnae_1
+    FROM `basedosdados-dev.br_me_rais.microdados_estabelecimentos`
+    WHERE
+        cnae_1
+        cnae_1 IS NOT NULL
+        AND ano = 2023
+),
+
+parent AS (
+    SELECT DISTINCT cnae_1 AS parent_value
+    FROM `basedosdados-dev.br_bd_diretorios_brasil.cnae_1`
+)
+
+SELECT
+    distinct c.cnae_1 AS cnae_original,
+    LPAD(c.cnae_1, 5, '0') AS cnae_padronizado
+FROM child c
+LEFT JOIN parent p1
+    ON c.cnae_1 = p1.parent_value
+JOIN parent p2
+    ON LPAD(c.cnae_1, 5, '0') = p2.parent_value
+WHERE p1.parent_value IS NULL
+ORDER BY 1;
+```
+
+| cnae_original (RAIS 2023) | CNAEs que cruzaram após LPAD
+| :--- | :---:
+| 1120 | 01120 |
+| 1325 | 01325 |
+| 1422 | 01422 |
+| 5118 | 05118 |
+
+----
+
+### 6.2 Coluna `cnae_2_subclasse`
+
+
+
+Em relação à coluna cnae_2_subclasse, a partir de 2023 observou-se inconsistência no tamanho do código: parte dos registros passou a apresentar 6 dígitos, enquanto outros mantiveram 7 dígitos. Para padronização, aplicamos left padding com zero à esquerda nos códigos de 6 dígitos, garantindo que todos passem a ter 7 dígitos. Com essa normalização, os valores tornam-se compatíveis com o diretório `br_bd_diretorios_brasil.cnae:subclasse`.
 
 **Recomendação:**
 Para análises e relacionamentos, utilizar as colunas:
 
-- `cnae_2`
 - `cnae_2_subclasse`
 
-Essas classificações permanecem consistentes ao longo da série histórica.
-
-### 6.2 Comentários gerais:
+### 6.3 Comentários gerais:
 
 **Comentários:**
   • Alguns valores relacionados à conexão com o diretório foram desconsiderados durante os testes.
@@ -121,3 +206,6 @@ Em novembro de 2025, o ano de 2024 apresenta aproximadamente 46 milhões de vín
 > **Importante**
 > O Dardo é uma plataforma do Governo, onde você conseguimos validar nossos dados (https://acesso.mte.gov.br/portal-pdet/o-pdet/portifolio-de-produtos/bases-de-dados.htm)
 
+## 9. Materialização
+
+- Quando for atualizar os dados definitivos da RAIS, aconselhamos a adicionar a seguinte estratégia incremental: `incremental_strategy="insert_overwrite` nas configs do dbt, uma vez que ela irá subrescrever os dados existentes na tabela com os novos dados definitivos da RAIS. Para maiores informações, leia: https://docs.getdbt.com/docs/build/incremental-strategy e https://downloads.apache.org/spark/docs/3.1.1/sql-ref-syntax-dml-insert-overwrite-table.html
