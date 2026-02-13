@@ -65,7 +65,7 @@ jobs:
           mkdir -p $HOME/.prefect
           echo $PREFECT_AUTH_TOML | base64 --decode > $HOME/.prefect/auth.toml
       - name: Wait for Docker image to be available
-        uses: lewagon/wait-on-check-action@v1
+        uses: lewagon/wait-on-check-action@v1.5.0
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           check-name: Build Docker image
