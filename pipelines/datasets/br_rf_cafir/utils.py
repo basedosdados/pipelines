@@ -33,7 +33,7 @@ def remove_ascii_zero_from_df(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: DataFrame sem ascii 0 (\x00).
     """
     return df.applymap(
-        lambda x: (x.replace("\x00", "") if isinstance(x, str) else x)
+        lambda x: x.replace("\x00", "") if isinstance(x, str) else x
     )
 
 

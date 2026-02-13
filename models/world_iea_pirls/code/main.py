@@ -210,9 +210,9 @@ def gen_archs(codebooks: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         ]
 
         df["name"] = df["Variable"].apply(
-            lambda var: RENAMES[table][var]
-            if var in RENAMES[table]
-            else var.lower()
+            lambda var: (
+                RENAMES[table][var] if var in RENAMES[table] else var.lower()
+            )
         )
         df = df.merge(
             item_informations,
@@ -222,9 +222,9 @@ def gen_archs(codebooks: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         )
 
         df["description"] = df[["Variable", "Label_x", "Label_y"]].apply(
-            lambda cols: find_label(table, cols[0], cols[1], cols[2])
-            .title()
-            .strip(),
+            lambda cols: (
+                find_label(table, cols[0], cols[1], cols[2]).title().strip()
+            ),
             axis=1,
         )
 
