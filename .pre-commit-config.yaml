@@ -12,11 +12,11 @@ repos:
         args: [--fix=lf]  # Ensures all line endings are LF
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.10.0
+    rev: 0.10.2
     hooks:
       - id: uv-lock
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.0
+    rev: v0.15.1
     hooks:
       - id: ruff-check
         args: [--fix]
