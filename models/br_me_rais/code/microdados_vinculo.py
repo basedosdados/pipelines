@@ -1,67 +1,17 @@
 import gc
-from pathlib import Path
 
 import basedosdados as bd  # type: ignore
 import numpy as np
 import pandas as pd
 import tqdm
 
+from pipelines.utils.utils import to_partitions
 
-def to_partitions(
-    data: pd.DataFrame,
-    partition_columns: list[str],
-    savepath: str,
-    file_type: str = "csv",
-):
-    if isinstance(data, (pd.core.frame.DataFrame)):
-        savepath = Path(savepath)
-        # create unique combinations between partition columns
-        unique_combinations = (
-            data[partition_columns]
-            # .astype(str)
-            .drop_duplicates(subset=partition_columns)
-            .to_dict(orient="records")
-        )
-
-        for filter_combination in unique_combinations:
-            patitions_values = [
-                f"{partition}={value}"
-                for partition, value in filter_combination.items()
-            ]
-
-            # get filtered data
-            df_filter = data.loc[
-                data[filter_combination.keys()]
-                .isin(filter_combination.values())
-                .all(axis=1),
-                :,
-            ]
-            df_filter = df_filter.drop(columns=partition_columns)
-
-            # create folder tree
-            filter_save_path = Path(savepath / "/".join(patitions_values))
-            filter_save_path.mkdir(parents=True, exist_ok=True)
-
-            if file_type == "csv":
-                # append data to csv
-                file_filter_save_path = Path(filter_save_path) / "data.csv"
-                df_filter.to_csv(
-                    file_filter_save_path,
-                    sep=",",
-                    encoding="utf-8",
-                    na_rep="",
-                    index=False,
-                    mode="a",
-                    header=not file_filter_save_path.exists(),
-                )
-            elif file_type == "parquet":
-                # append data to parquet
-                file_filter_save_path = Path(filter_save_path) / "data.parquet"
-                df_filter.to_parquet(
-                    file_filter_save_path, index=False, compression="gzip"
-                )
-    else:
-        raise BaseException("Data need to be a pandas DataFrame")
+df_municipio = bd.read_sql(
+    "SELECT id_municipio, id_municipio_6, sigla_uf FROM `basedosdados.br_bd_diretorios_brasil.municipio`",
+    billing_project_id="basedosdados",
+    reauth=False,
+)
 
 
 def load_and_process_rais_vinculos(
@@ -71,12 +21,6 @@ def load_and_process_rais_vinculos(
     savepath="tmp/Vinculos/output",
     file_type="csv",
 ):
-    df_municipio = bd.read_sql(
-        "SELECT id_municipio, id_municipio_6, sigla_uf FROM `basedosdados.br_bd_diretorios_brasil.municipio`",
-        billing_project_id="basedosdados",
-        reauth=False,
-    )
-
     valor = 0
 
     for df in tqdm.tqdm(
@@ -436,7 +380,7 @@ def load_and_process_rais_vinculos(
 
 
 load_and_process_rais_vinculos(
-    input="tmp/Vinculos/input/RAIS_VINC_PUB_SP/RAIS_VINC_PUB_SP.COMT",
+    input="tmp/input/RAIS_VINC_PUB_SP/RAIS_VINC_PUB_SP.COMT",
     partition_columns=["ano", "sigla_uf"],
-    ano="2024",
+    ano="2023",
 )
