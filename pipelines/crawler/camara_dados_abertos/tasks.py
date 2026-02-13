@@ -35,21 +35,25 @@ def save_data(table_id: str) -> str:
             df_year["ultimoStatus_despacho"] = df_year[
                 "ultimoStatus_despacho"
             ].apply(
-                lambda x: str(x)
-                .replace(";", ",")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", ",")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
             df_year["ementa"] = df_year["ementa"].apply(
-                lambda x: str(x)
-                .replace(";", ",")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", ",")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
             df_year["ano"] = df_year.apply(
-                lambda x: x["dataApresentacao"][0:4]
-                if x["ano"] == 0
-                else x["ano"],
+                lambda x: (
+                    x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"]
+                ),
                 axis=1,
             )
 
@@ -70,46 +74,56 @@ def save_data(table_id: str) -> str:
             df_year["ultimaApresentacaoProposicao_descricao"] = df_year[
                 "ultimaApresentacaoProposicao_descricao"
             ].apply(
-                lambda x: str(x)
-                .replace(";", " ")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
 
         if table_id == "votacao_objeto":
             df_year[["descricao", "proposicao_ementa"]] = df_year[
                 ["descricao", "proposicao_ementa"]
             ].apply(
-                lambda x: str(x)
-                .replace(";", " ")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
 
         if table_id == "votacao_proposicao":
             df_year[["proposicao_ementa"]] = df_year[
                 ["proposicao_ementa"]
             ].apply(
-                lambda x: str(x)
-                .replace(";", " ")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
 
         if table_id == "licitacao_pedido":
             df_year[["observacoes"]] = df_year[["observacoes"]].apply(
-                lambda x: str(x)
-                .replace(";", " ")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
 
         if table_id == "licitacao_item":
             df_year[["especificacao"]] = df_year[["especificacao"]].apply(
-                lambda x: str(x)
-                .replace(";", " ")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
 
         log(f"Saving {table_id} to {output_path_year}")
