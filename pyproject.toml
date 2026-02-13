@@ -85,7 +85,6 @@ dependencies = [
   "rsa==4.8",
   "ruamel-yaml==0.17.10",
   "ruamel-yaml-clib==0.2.6",
-  "rpy2>=3.5.11,<4.0.0",
   "seaborn<1.0.0,>=0.11.2",
   "six==1.16.0",
   "sortedcontainers==2.4.0",
@@ -131,6 +130,7 @@ dependencies = [
   "elementary-data[big-query]==0.6.10",
   "pip>=25.3",
   "wheel>=0.45.1",
+  "python-calamine>=0.6.1",
 ]
 
 [dependency-groups]

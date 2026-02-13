@@ -2319,6 +2319,7 @@ dependencies = [
     { name = "pymssql" },
     { name = "pyparsing" },
     { name = "python-box" },
+    { name = "python-calamine" },
     { name = "python-dateutil" },
     { name = "python-levenshtein" },
     { name = "python-slugify" },
@@ -2330,7 +2331,6 @@ dependencies = [
     { name = "redis-pal" },
     { name = "requests" },
     { name = "requests-oauthlib" },
-    { name = "rpy2" },
     { name = "rsa" },
     { name = "ruamel-yaml" },
     { name = "ruamel-yaml-clib" },
@@ -2457,6 +2457,7 @@ requires-dist = [
     { name = "pymssql", specifier = "==2.2.5" },
     { name = "pyparsing", specifier = "==3.0.6" },
     { name = "python-box", specifier = "==5.4.1" },
+    { name = "python-calamine", specifier = ">=0.6.1" },
     { name = "python-dateutil", specifier = "==2.8.2" },
     { name = "python-levenshtein", specifier = ">=0.21.1,<1.0.0" },
     { name = "python-slugify", specifier = "==5.0.2" },
@@ -2468,7 +2469,6 @@ requires-dist = [
     { name = "redis-pal", specifier = ">=1.0.0,<2.0.0" },
     { name = "requests", specifier = "==2.26.0" },
     { name = "requests-oauthlib", specifier = "==1.3.0" },
-    { name = "rpy2", specifier = ">=3.5.11,<4.0.0" },
     { name = "rsa", specifier = "==4.8" },
     { name = "ruamel-yaml", specifier = "==0.17.10" },
     { name = "ruamel-yaml-clib", specifier = "==0.2.6" },
@@ -2978,6 +2978,27 @@ wheels = [
 ]
 
 [[package]]
+name = "python-calamine"
+version = "0.6.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9b/32/99a794a1ca7b654cecdb76d4d61f21658b6f76574321341eb47df4365807/python_calamine-0.6.1.tar.gz", hash = "sha256:5974989919aa0bb55a136c1822d6f8b967d13c0fd0f245e3293abb4e63ab0f4b", size = 138354, upload-time = "2025-11-26T10:48:35.331Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2f/fe/55545f6e894d1e92bd550fad72f3c8e6099a27d2357bbe71842ee1407c79/python_calamine-0.6.1-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:cd24545548af25803399cdea1f4451db11b54287effca1182d12b5a40fe2eb88", size = 878570, upload-time = "2025-11-26T10:45:43.033Z" },
+    { url = "https://files.pythonhosted.org/packages/7a/61/049bd7b8f9f5603585da8c7d37ea5dd839b1ae847714b66ad9cd0ccda607/python_calamine-0.6.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:2c4f76491bf59cf73e6835c7555b931a6779f8e7a5e109d128561181de57cce4", size = 857751, upload-time = "2025-11-26T10:45:44.857Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/85/8faace3177d73006ce1ea9c1eae4c6268a45689976e83049aaf51b227351/python_calamine-0.6.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e325af6769948143f782346525d4e24ed3cdbef623a74328c7ba5b3bd26f7beb", size = 932159, upload-time = "2025-11-26T10:45:46.238Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/64/cff0782b01f7b0f7269980632c8974c635ccd553bff0ebfee33352aa8fc0/python_calamine-0.6.1-cp310-cp310-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:e4a53f7bd80f08c7b7cce95cb77fc7bd088262e31bc016e6f21a22e0bd9be47b", size = 913822, upload-time = "2025-11-26T10:45:47.59Z" },
+    { url = "https://files.pythonhosted.org/packages/4e/b0/2e2ccb21cb5ea223bc13f0401150cfeab4610b9af64627abb476a1ef2fd3/python_calamine-0.6.1-cp310-cp310-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:ceb7a37dd3f91b45f205a84172c54d4309be6e87a428815db18ceca81709a8fb", size = 1076525, upload-time = "2025-11-26T10:45:49.16Z" },
+    { url = "https://files.pythonhosted.org/packages/16/7f/d51d417f8aec81dc47ae4996e44b6f0f2d0285a584749835135019cd7511/python_calamine-0.6.1-cp310-cp310-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:203850fe0783ee90d5d1503fccd55d1747abc59e0981e01eb5e4f9ea438344c8", size = 964370, upload-time = "2025-11-26T10:45:50.774Z" },
+    { url = "https://files.pythonhosted.org/packages/c5/bd/8ae5ab481a572c7ff1bbf5e739b7fec41d4b1d7400df30ff9d7fec1a1344/python_calamine-0.6.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5979e33f5f1b9cd1b82731f2a645ce15c21fa92eedb098e481ab9a06bd3ef4e4", size = 935412, upload-time = "2025-11-26T10:45:52.534Z" },
+    { url = "https://files.pythonhosted.org/packages/38/95/36febd4036327dacf3341838fa29ec9bc70d9b5d42f6b8e956044b8bc1c5/python_calamine-0.6.1-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:76030f53a44da4dcd8cd66b908fe4928b4ad6ed309fad59e6027f063e5462120", size = 978486, upload-time = "2025-11-26T10:45:53.931Z" },
+    { url = "https://files.pythonhosted.org/packages/91/36/12efeae8af92b2b21c435c531d5d128a6da3dddcbcf9704bc90ae88194a7/python_calamine-0.6.1-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:4a5940abf188a1b3ab6529af3bbee564bbe017bf57047075cbcfb61cb461ce43", size = 1113459, upload-time = "2025-11-26T10:45:55.735Z" },
+    { url = "https://files.pythonhosted.org/packages/fc/75/1ec06e9418037c6785085f6e5892eddc2d91b93ca963a43269ed770f3279/python_calamine-0.6.1-cp310-cp310-musllinux_1_1_armv7l.whl", hash = "sha256:4f2d996a06468b6f604841118bed58f59f843b9e932192a38badf615d9aff8d9", size = 1181327, upload-time = "2025-11-26T10:45:57.399Z" },
+    { url = "https://files.pythonhosted.org/packages/f4/4d/ffa06b672257c14d5d1b7d624e758e25b58bd1034bc1b9e574e92949aac5/python_calamine-0.6.1-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:f6052cdea8c0aac45367645b62090efabcb953038ef64c000bd99a1ec53cd425", size = 1110884, upload-time = "2025-11-26T10:45:58.989Z" },
+    { url = "https://files.pythonhosted.org/packages/1b/40/40255011169695bebee9eb3388d27a4804545b63ee78aca092d3487ca655/python_calamine-0.6.1-cp310-cp310-win32.whl", hash = "sha256:24a558fc8ae2cd426d478864f5a5156d1427b0fa38b9a0d7f40edccca2fb0623", size = 696881, upload-time = "2025-11-26T10:46:00.663Z" },
+    { url = "https://files.pythonhosted.org/packages/26/05/b05c9174bacfd86289d4690a1523826d859871adebcff785a1d1e22fdf28/python_calamine-0.6.1-cp310-cp310-win_amd64.whl", hash = "sha256:8c6a49388e41002bfe86082e19c8e20b008c9fb0eb356e060f112c047e7b72b9", size = 749377, upload-time = "2025-11-26T10:46:02.136Z" },
+]
+
+[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 source = { registry = "https://pypi.org/simple" }
@@ -3298,49 +3319,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/18/b0/a19743e0763caf0c89f6fc6ba6fbd9a353b24ffb4256a492420c5517da5a/rpds_py-0.28.0-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:c2a34fd26588949e1e7977cfcbb17a9a42c948c100cab890c6d8d823f0586457", size = 550052, upload-time = "2025-10-22T22:21:34.702Z" },
     { url = "https://files.pythonhosted.org/packages/de/bc/ec2c004f6c7d6ab1e25dae875cdb1aee087c3ebed5b73712ed3000e3851a/rpds_py-0.28.0-cp310-cp310-win32.whl", hash = "sha256:f9174471d6920cbc5e82a7822de8dfd4dcea86eb828b04fc8c6519a77b0ee51e", size = 215110, upload-time = "2025-10-22T22:21:36.645Z" },
     { url = "https://files.pythonhosted.org/packages/6c/de/4ce8abf59674e17187023933547d2018363e8fc76ada4f1d4d22871ccb6e/rpds_py-0.28.0-cp310-cp310-win_amd64.whl", hash = "sha256:6e32dd207e2c4f8475257a3540ab8a93eff997abfa0a3fdb287cae0d6cd874b8", size = 223850, upload-time = "2025-10-22T22:21:38.006Z" },
-]
-
-[[package]]
-name = "rpy2"
-version = "3.6.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "packaging", marker = "sys_platform == 'win32'" },
-    { name = "rpy2-rinterface" },
-    { name = "rpy2-robjects" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/df/ba/393d5aaf21204d7678e59f7e7cd54d9a929d5f7ad8218f172100c8c7a6c8/rpy2-3.6.4.tar.gz", hash = "sha256:a24e8dda5c5ff8cbd2b8ebd1ccf6f1a5a0a576623700cf91e2cce98d41a79fd3", size = 53247, upload-time = "2025-09-26T00:31:37.986Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/09/93/d49eccd6662ff5cec439f9de716e6520c990cec031fcdd8d08e7fd530681/rpy2-3.6.4-py3-none-any.whl", hash = "sha256:edf437d6637b89311f860fb3e44144ea5eff286a65c48645805833baff090621", size = 9895, upload-time = "2025-09-26T00:31:36.841Z" },
-]
-
-[[package]]
-name = "rpy2-rinterface"
-version = "3.6.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "cffi" },
-    { name = "packaging", marker = "sys_platform == 'win32'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ff/2a/6ced3b62a9cbfd1f3c24f7005f6eca492d906a4b6a6d56d097a116f14539/rpy2_rinterface-3.6.3.tar.gz", hash = "sha256:477bc2f51d007ad1b8567c5d4ba1af0f59951686ee7f10576a06d0834de5776f", size = 79406, upload-time = "2025-09-04T22:50:50.048Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4e/37/693585c2f245cd2f55e13e76474cf91387bcf87aa7aab0fed34ff6a38a98/rpy2_rinterface-3.6.3-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:164a0bce6ce01569a5c6088e51c1c4f8731929da6ace4a9e196eb68cddde234a", size = 173186, upload-time = "2025-09-04T22:52:31.223Z" },
-    { url = "https://files.pythonhosted.org/packages/c3/ce/98a476a958489d26a1ea77e0191fb05936197295fab7eed20f5b78a92a0c/rpy2_rinterface-3.6.3-cp310-cp310-win_amd64.whl", hash = "sha256:d8c9b03ea5e70b4ee57393dd470646e9219a7a0a3a3c62a5ba030b8a2639e75a", size = 174111, upload-time = "2025-09-04T22:53:29.189Z" },
-]
-
-[[package]]
-name = "rpy2-robjects"
-version = "3.6.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "jinja2" },
-    { name = "packaging", marker = "sys_platform == 'win32'" },
-    { name = "rpy2-rinterface" },
-    { name = "tzlocal" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/01/58/107252dab2d342eb77bd84d672abc6ecb57428758e251cfccf841c4b6a69/rpy2_robjects-3.6.3.tar.gz", hash = "sha256:731aa1a4905c4b25c0564d72cbfd85f9230102f989e7a22515885e91d4df3d40", size = 105849, upload-time = "2025-09-26T00:31:27.792Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/94/af/a794c935ddd3dd8b47a8931e0c8cee1b756ff983db288284786ad29a8bf8/rpy2_robjects-3.6.3-py3-none-any.whl", hash = "sha256:de58c7126dbcd66c4692e7aef91d3cc57a96134828d37a268669f78ee64b974d", size = 125862, upload-time = "2025-09-26T00:31:26.623Z" },
 ]
 
 [[package]]
