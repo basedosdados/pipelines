@@ -455,7 +455,7 @@ with
             where
                 date(safe_cast(ano as int64), safe_cast(trimestre as int64), 1) > (
                     select max(date(cast(ano as int64), cast(trimestre as int64), 1))
-                    from `basedosdados-dev.br_ibge_pnadc.microdados`
+                    from `basedosdados.br_ibge_pnadc.microdados`
                 )
         {% endif %}
     )
