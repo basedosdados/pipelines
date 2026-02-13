@@ -92,11 +92,13 @@ def treatment(table_id: str, ano: int):
     )
     df = df.replace(np.nan, "")
     df["transmissao"] = df["transmissao"].apply(
-        lambda x: x.replace("Cabo Metálico", "Cabo Metalico")
-        .replace("Satélite", "Satelite")
-        .replace("Híbrido", "Hibrido")
-        .replace("Fibra Óptica", "Fibra Optica")
-        .replace("Rádio", "Radio")
+        lambda x: (
+            x.replace("Cabo Metálico", "Cabo Metalico")
+            .replace("Satélite", "Satelite")
+            .replace("Híbrido", "Hibrido")
+            .replace("Fibra Óptica", "Fibra Optica")
+            .replace("Rádio", "Radio")
+        )
     )
     df["acessos"] = df["acessos"].apply(lambda x: str(x).replace(".0", ""))
     df["produto"] = df["produto"].apply(

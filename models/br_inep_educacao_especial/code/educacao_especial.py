@@ -127,9 +127,13 @@ df_etapa_ensino = (
         [df_etapa_ensino_classes_exclusisas, df_etapa_ensino_classes_comuns]
     )
     .assign(
-        sigla_uf=lambda d: d["uf"]
-        .apply(lambda uf: uf.strip())
-        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
+        sigla_uf=lambda d: (
+            d["uf"]
+            .apply(lambda uf: uf.strip())
+            .replace(
+                {i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}
+            )
+        ),
         quantidade_matricula=lambda d: d["quantidade_matricula"].astype(
             "Int64"
         ),
@@ -219,9 +223,13 @@ df_faixa_etaria = (
         [df_faixa_etaria_classes_exclusisas, df_faixa_etaria_classes_comuns]
     )
     .assign(
-        sigla_uf=lambda d: d["uf"]
-        .apply(lambda uf: uf.strip())
-        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
+        sigla_uf=lambda d: (
+            d["uf"]
+            .apply(lambda uf: uf.strip())
+            .replace(
+                {i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}
+            )
+        ),
         quantidade_matricula=lambda d: d["quantidade_matricula"].astype(
             "Int64"
         ),
@@ -317,9 +325,11 @@ df_localizacao_classes_exclusisas = (
 df_localizacao = pd.concat(
     [df_localizacao_classes_exclusisas, df_localizacao_classes_comuns]
 ).assign(
-    sigla_uf=lambda d: d["uf"]
-    .apply(lambda uf: uf.strip())
-    .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
+    sigla_uf=lambda d: (
+        d["uf"]
+        .apply(lambda uf: uf.strip())
+        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})
+    ),
     quantidade_matricula=lambda d: d["quantidade_matricula"].astype("Int64"),
     rede=lambda d: d["localizacao"].apply(
         lambda v: v.split("_")[-1].title().strip()
@@ -416,9 +426,11 @@ df_tempo_ensino_classes_exclusisas = (
 df_tempo_ensino = pd.concat(
     [df_tempo_ensino_classes_exclusisas, df_tempo_ensino_classes_comuns]
 ).assign(
-    sigla_uf=lambda d: d["uf"]
-    .apply(lambda uf: uf.strip())
-    .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
+    sigla_uf=lambda d: (
+        d["uf"]
+        .apply(lambda uf: uf.strip())
+        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})
+    ),
     quantidade_matricula=lambda d: d["quantidade_matricula"].astype("Int64"),
     rede=lambda d: d["tempo_ensino"].apply(
         lambda v: v.split("_")[-1].title().strip()
@@ -521,9 +533,11 @@ df_sexo_raca_cor_classes_exclusisas = (
 df_sexo_raca_cor = pd.concat(
     [df_sexo_raca_cor_classes_exclusisas, df_sexo_raca_cor_classes_comuns]
 ).assign(
-    sigla_uf=lambda d: d["uf"]
-    .apply(lambda uf: uf.strip())
-    .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
+    sigla_uf=lambda d: (
+        d["uf"]
+        .apply(lambda uf: uf.strip())
+        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})
+    ),
     quantidade_matricula=lambda d: d["quantidade_matricula"].astype("Int64"),
     raca_cor=lambda d: d["sexo_raca_cor"].apply(
         lambda v: v.split("_")[-1].title().strip()
@@ -628,9 +642,13 @@ df_tipo_deficiencia = (
         ]
     )
     .assign(
-        sigla_uf=lambda d: d["uf"]
-        .apply(lambda uf: uf.strip())
-        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
+        sigla_uf=lambda d: (
+            d["uf"]
+            .apply(lambda uf: uf.strip())
+            .replace(
+                {i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}
+            )
+        ),
         quantidade_matricula=lambda d: d["quantidade_matricula"].astype(
             "Int64"
         ),

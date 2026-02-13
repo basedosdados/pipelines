@@ -3,7 +3,6 @@
         alias="producao_ambulatorial",
         schema="br_ms_sia",
         materialized="incremental",
-        incremental_strategy="insert_overwrite",
         partition_by={
             "field": "ano",
             "data_type": "int64",
@@ -19,7 +18,13 @@ with
         select *
         from {{ set_datalake_project("br_ms_sia_staging.producao_ambulatorial") }}
 
-        {% if is_incremental() %} where cast(ano as int64) = 2024 {% endif %}
+        {% if is_incremental() %}
+            where
+                date(cast(ano as int64), cast(mes as int64), 1) > (
+                    select max(date(cast(ano as int64), cast(mes as int64), 1))
+                    from {{ this }}
+                )
+        {% endif %}
     ),
 
     sia_add_municipios as (
