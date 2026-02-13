@@ -4,7 +4,6 @@
         alias="microdados_vinculos",
         schema="br_me_rais",
         materialized="incremental",
-        incremental_strategy="insert_overwrite",
         partition_by={
             "field": "ano",
             "data_type": "int64",
