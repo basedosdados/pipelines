@@ -6,10 +6,10 @@ on:
 jobs:
   lint:
     name: Lint dockerfile
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Run hadolint
         uses: reviewdog/action-hadolint@v1
         with:

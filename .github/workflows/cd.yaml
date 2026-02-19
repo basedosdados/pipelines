@@ -32,17 +32,17 @@ env:
 jobs:
   deploy-production:
     name: deploy (production)
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
       - name: Set up Python
         run: uv python install
       - name: Install dependencies
         run: uv sync --locked
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           export_environment_variables: true
           credentials_json: ${{ secrets.GCP_SA_KEY }}
@@ -50,19 +50,19 @@ jobs:
       - name: Update image tag in constants
         run: |-
           uv run .github/workflows/scripts/replace_docker_tag.py $IMAGE_NAME $GITHUB_SHA
-      - name: Get changed files for code tree analysis
-        id: files
-        uses: Ana06/get-changed-files@v2.1.0
+      - name: Get all changed files using a space separator
+        id: changed-files
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47
       - name: Perform code tree analysis
         id: code-tree-analysis
         run: |
-          uv run .github/workflows/scripts/code_tree_analysis.py "${{ steps.files.outputs.all }}" --write-to-file
+          uv run .github/workflows/scripts/code_tree_analysis.py "${{ steps.changed-files.outputs.all_modified_files }}" --write-to-file
       - name: Write auth.toml
         run: |-
           mkdir -p $HOME/.prefect
           echo $PREFECT_AUTH_TOML | base64 --decode > $HOME/.prefect/auth.toml
       - name: Wait for Docker image to be available
-        uses: lewagon/wait-on-check-action@v1.3.1
+        uses: lewagon/wait-on-check-action@v1.5.0
         with:
           ref: ${{ github.ref }}
           check-name: Build Docker image
@@ -79,12 +79,12 @@ jobs:
   delete-archivied-flows:
     needs: deploy-production
     name: delete-archivied-flows
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
       - name: Set up Python
         run: uv python install
       - name: Write auth.toml
@@ -98,11 +98,11 @@ jobs:
   table-approve:
     needs: deploy-production
     name: table approve
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Get PR that triggered the push
         id: get_pr
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const commits = await github.rest.repos.listCommits({
@@ -126,7 +126,7 @@ jobs:
             }
       - name: Get PR labels
         id: check_label
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const pr_number = core.getInput("pr_number") || '${{ steps.get_pr.outputs.pr_number }}';
@@ -141,7 +141,7 @@ jobs:
       - name: Get changed files in PR
         if: steps.check_label.outputs.table-approve == 'true'
         id: changed_files
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const pr_number = core.getInput("pr_number") || '${{ steps.get_pr.outputs.pr_number }}';
@@ -158,10 +158,10 @@ jobs:
             core.setOutput("files", fileNames);
       - name: Checkout
         if: steps.check_label.outputs.table-approve == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install uv
         if: steps.check_label.outputs.table-approve == 'true'
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
       - name: Set up python
         if: steps.check_label.outputs.table-approve == 'true'
         run: uv python install
