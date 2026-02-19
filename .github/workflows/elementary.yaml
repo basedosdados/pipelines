@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dbt project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
       - name: Run Elementary
         uses: elementary-data/run-elementary-action@v1
         with:
@@ -24,13 +24,13 @@ jobs:
           bigquery-keyfile: ${{ secrets.ELEMENTARY_GCS_BIGQUERY_SA }}
           gcs-keyfile: ${{ secrets.ELEMENTARY_GCS_BIGQUERY_SA }}
       - name: Upload report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: report.html
           path: report.html
       - name: Upload log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: edr.log
           path: edr.log
