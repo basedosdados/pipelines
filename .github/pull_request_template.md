@@ -63,11 +63,11 @@ A nomeação de cada Pull Request (PR) deve seguir o seguinte padrão:
 ## Dependências:
 
 - Liste quaisquer dependências externas, como bibliotecas, outros PRs ou mudanças que precisam ser feitas antes deste merge.
-  - Dependências: <!-- Cite dependências, bibliotecas e outros PRs que são relacionados a esse Pull Requests antes de mergear -->
-  - Nenhuma dependencias adicional
-
+  - Dependências: <!-- Cite dependências, bibliotecas e outros PRs que são relacionados a esse Pull Requests antes de mesclar -->
+  - Nenhuma dependência adicional
 
 ## Revisadores:
-- Quando o PR estiver pronto para ser revisado, retire o **Draft** através do **Ready for reviews**, marque os revisadores de repositório, envie o PR no nosso [discord](https://discord.gg/V3yTWRYWZZ) na aba **Correções de PRs, arquiteturas e afins** e marque a **@equipe_dados**:
+
+- Quando o PR estiver pronto para ser revisado, retire o **Draft** através do **Ready for reviews**, marque os revisadores de repositório, envie o PR no nosso [discord](https://discord.gg/V3yTWRYWZZ) no canal **Plataforma > Dados** e marque a **@equipe_dados**:
   - Revisadores recomendados no github:
     - basedosdados/dados
