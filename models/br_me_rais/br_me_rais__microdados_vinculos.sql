@@ -316,5 +316,5 @@ select
     ) as regioes_administrativas_df
 from {{ set_datalake_project("br_me_rais_staging.microdados_vinculos") }}
 {% if is_incremental() %}
-    where safe_cast(ano as int64) >= (select max(ano) from {{ this }})
+    where safe_cast(ano as int64) > (select max(ano) from {{ this }})
 {% endif %}
