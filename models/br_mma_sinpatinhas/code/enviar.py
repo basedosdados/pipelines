@@ -6,7 +6,7 @@ TABLE_ID = "patinhas_registradas"
 
 tb = bd.Table(dataset_id=DATASET_ID, table_id=TABLE_ID)
 
-path_to_data = "/home/laribrito/BD/pipelines/models/br_mma_sinpatinhas/output/data.parquet"
+path_to_data = "/models/br_mma_sinpatinhas/output/data.parquet"
 
 tb.create(
     path=path_to_data,
