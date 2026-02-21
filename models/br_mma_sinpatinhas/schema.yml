@@ -1,0 +1,40 @@
+---
+version: 2
+models:
+  - name: br_mma_sinpatinhas__patinhas_registradas
+    description: É um sistema inovador desenvolvido pelo Governo Federal para gerenciar
+      e monitorar a política pública de controle populacional de animais. Focado em
+      iniciativas de castração e microchipagem, o sistema permite o cadastro de animais,
+      o acompanhamento detalhado dos procedimentos realizados e a geração de relatórios
+      abrangentes. Tem por objetivo centralizar as informações sobre cães e gatos
+      e seus tutores, em conformidade com a Lei nº 15.046, de 17 de dezembro de 2024,
+      e com o Decreto Federal nº 12.439, de 17 de abril de 2025, que regulamenta a
+      criação do Cadastro Nacional de Animais Domésticos. nclui dados de identificação,
+      endereço e contato dos responsáveis e de seus animais, além de detalhes dos
+      animais, como espécie, raça, idade, vacinas e doenças, representando um avanço
+      significativo no combate aos maus-tratos e no controle de zoonoses. Permite
+      o cadastro de animais que se destinam à companhia ou são criados como de estimação.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_cadastro, id_animal]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: data_cadastro
+        description: Data de cadastro no sistema
+      - name: id_animal
+        description: ID Mascarado
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: especie
+        description: Espécie
+      - name: idade
+        description: Idade
+      - name: sexo
+        description: Sexo
+      - name: cor_pelagem
+        description: Cor da pelagem
