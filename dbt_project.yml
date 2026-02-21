@@ -300,6 +300,9 @@ models:
     br_mg_belohorizonte_smfa_iptu:
       +materialized: table
       +schema: br_mg_belohorizonte_smfa_iptu
+    br_mma_sinpatinhas:
+      +materialized: table
+      +schema: br_mma_sinpatinhas
     br_mme_consumo_energia_eletrica:
       +materialized: table
       +schema: br_mme_consumo_energia_eletrica
