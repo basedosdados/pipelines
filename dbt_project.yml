@@ -17,7 +17,7 @@ vars:
 # These configurations specify where dbt should look for different types of files.
 # The `source-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!
-model-paths: [models]
+model-paths: [models, models-data-api]
 analysis-paths: [analysis]
 test-paths: [tests-dbt]
 macro-paths: [macros]
@@ -437,3 +437,17 @@ models:
       +schema: world_wwf_hydrosheds
   elementary:
     +schema: elementary
+  basedosdados-data-api:
+    +schema: basedosdados-data-api
+    +persist_docs:
+      relation: true
+      columns: true
+    municipality:
+      +materialized: table
+      +schema: municipality
+    economy:
+      +materialized: table
+      +schema: economy
+    school:
+      +materialized: table
+      +schema: school
