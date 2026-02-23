@@ -1,0 +1,2083 @@
+---
+version: 2
+models:
+  - name: br_ibge_munic__atual_prefeito
+    description: Informações sobre o prefeito atual
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio]
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: nome
+        description: Nome
+      - name: exercendo_mandato
+        description: Estava em exercício do mandato de prefeito(a) neste município
+          na última eleição
+      - name: sexo
+        description: Sexo
+      - name: idade
+        description: Idade
+      - name: escolaridade
+        description: Escolaridade
+      - name: cor_raca
+        description: Cor/raça do(a) do(a) prefeito(a)
+      - name: cor_raca_respondido_pelo_proprio_prefeito
+        description: Foi respondido pelo próprio prefeito(a)
+      - name: partido_eleito
+        description: Partido pelo qual foi eleito
+      - name: partido_atual
+        description: Partido atual
+  - name: br_ibge_munic__habitacao
+    description: Habitação
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio]
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: caracterizacao_orgao_gestor_planejamento_urbano
+        description: Caracterização do órgão gestor do planejamento urbano no município
+      - name: informacoes_gestor_sexo
+        description: Informações sobre o gestor - Sexo
+      - name: informacoes_gestor_idade
+        description: Informações sobre o gestor - Idade
+      - name: informacoes_gestor_cor_raca
+        description: Informações sobre o gestor - Cor ou raça
+      - name: informacoes_gestor_cor_raca_respondido_titular
+        description: Informações sobre o gestor - Cor ou raça - Respondido pelo próprio
+          titular do órgão gestor
+      - name: informacoes_gestor_escolaridade
+        description: Informações sobre o gestor - Escolaridade
+      - name: plano_diretor_existencia
+        description: Plano diretor - Existência
+      - name: plano_diretor_ano
+        description: Plano diretor - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: plano_diretor_foi_revisto
+        description: Plano diretor - Foi revisto
+      - name: plano_diretor_ano_ultima_atualizacao
+        description: Plano diretor - Ano da última atualização
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: plano_diretor_numero_lei
+        description: Plano diretor - Número da lei
+      - name: plano_diretor_elaborando_revendo
+        description: O município está elaborando ou revendo o Plano Diretor
+      - name: plano_diretor_revendo
+        description: O município está revendo o Plano Diretor
+      - name: plano_diretor_elaborando
+        description: O município está elaborando o Plano Diretor
+      - name: plano_diretor_instrumentos_participacao_coordenacao_compartilhada
+        description: Instrumentos de participaçao utilizados no processo de revisão
+          ou elaboração do Plano Diretor - Coordenação compartilhada com efetiva participação
+          do poder público e da sociedade
+      - name: plano_diretor_instrumentos_participacao_conselho_politica_urbana
+        description: Instrumentos de participaçao utilizados no processo de revisão
+          ou elaboração do Plano Diretor - Conselho de Política Urbana ou da Cidade
+      - name: plano_diretor_instrumentos_participacao_conferencia_cidade
+        description: Instrumentos de participaçao utilizados no processo de revisão
+          ou elaboração do Plano Diretor - Conferência ou congresso da cidade
+      - name: plano_diretor_instrumentos_participacao_discussao_segmentos_especificos
+        description: Instrumentos de participaçao utilizados no processo de revisão
+          ou elaboração do Plano Diretor - Discussão em segmentos sociais específicos
+      - name: plano_diretor_instrumentos_participacao_discussao_tematica
+        description: Instrumentos de participaçao utilizados no processo de revisão
+          ou elaboração do Plano Diretor - Discussão ou debate temático
+      - name: plano_diretor_instrumentos_participacao_discussao_bairros_distritos_setores
+        description: Instrumentos de participaçao utilizados no processo de revisão
+          ou elaboração do Plano Diretor - Discussão por bairros, distritos, setores
+          ou outra divisão territorial do município
+      - name: plano_diretor_instrumentos_participacao_atividades_capacitacao
+        description: Instrumentos de participaçao utilizados no processo de revisão
+          ou elaboração do Plano Diretor - Atividades de capacitação sobre o Estatuto
+          da Cidade e Plano Diretor Participativo
+      - name: plano_diretor_instrumentos_participacao_outros
+        description: Instrumentos de participaçao utilizados no processo de revisão
+          ou elaboração do Plano Diretor - Outros
+      - name: plano_diretor_instrumentos_participacao_nenhum
+        description: Instrumentos de participaçao utilizados no processo de revisão
+          ou elaboração do Plano Diretor - Nenhum instrumento de participação
+      - name: plano_diretor_orientacao_normas_tecnicas_acessibilidade
+        description: Plano diretor - Orienta-se pelas regras previstas nas normas
+          técnicas de acessibilidade
+      - name: plano_diretor_contempla_instrumentos_parcelamento_solo
+        description: Plano diretor - Contempla os instrumentos de planejamento municipal
+          e urbano - Parcelamento do solo
+      - name: plano_diretor_contempla_instrumentos_zoneamento_ocupacao_solo
+        description: Plano diretor - Contempla os instrumentos de planejamento municipal
+          e urbano - Zoneamento ou equivalente
+      - name: plano_diretor_contempla_instrumentos_codigo_obras
+        description: Plano diretor - Contempla os instrumentos de planejamento municipal
+          e urbano - Código de obras
+      - name: plano_diretor_contempla_instrumentos_contribuicao_melhorias
+        description: Plano diretor - Contempla os instrumentos de planejamento municipal
+          e urbano - Contribuição de melhoria
+      - name: plano_diretor_contempla_instrumentos_operacao_urbana_consorciada
+        description: Plano diretor - Contempla os instrumentos de planejamento municipal
+          e urbano - Operação urbana consorciada
+      - name: plano_diretor_contempla_instrumentos_lei_solo_criado
+        description: Plano diretor - Contempla os instrumentos de planejamento municipal
+          e urbano - Existência de lei específica de solo criado
+      - name: plano_diretor_contempla_instrumentos_estudo_impacto_vizinhanca
+        description: Plano diretor - Contempla os instrumentos de planejamento municipal
+          e urbano - Estudo de impacto de vizinhança
+      - name: plano_diretor_contempla_instrumentos_codigo_posturas
+        description: Plano diretor - Contempla os instrumentos de planejamento municipal
+          e urbano - Código de Posturas
+      - name: plano_diretor_contempla_instrumentos_zona_area_interesse_social
+        description: Plano diretor - Contempla os instrumentos de planejamento municipal
+          e urbano - Zonas especiais de interesse social
+      - name: plano_diretor_contempla_instrumentos_zona_area_especial
+        description: Plano diretor - Contempla os instrumentos de planejamento municipal
+          e urbano - Outras zonas especiais
+      - name: plano_diretor_contempla_instrumentos_solo_criado
+        description: Plano diretor - Contempla os instrumentos de planejamento municipal
+          e urbano - Solo criado
+      - name: plano_municipal_habitacao_existencia
+        description: Plano Municipal de Habitação - Existência
+      - name: plano_municipal_habitacao_articulado_plano_diretor
+        description: Plano Municipal de Habitação é articulado ao Plano Diretor
+      - name: plano_municipal_habitacao_integrar_acoes_demais_politicas
+        description: Aspectos do Plano Municipal de Habitação - Integrar as ações
+          em habitação com as demais políticas urbanas e sociais de forma a garantir
+          o direito à habitação como direito à cidade
+      - name: plano_municipal_habitacao_promover_urbanizacao_recuperacao
+        description: Aspectos do Plano Municipal de Habitação - Promover a urbanização
+          e recuperação física de favelas e loteamentos precários, bem como a regularização
+          fundiária desses assentamentos e a melhoria das moradias existentes
+      - name: plano_municipal_habitacao_coibir_novas_ocupacoes_assentamentos
+        description: Aspectos do Plano Municipal de Habitação - Coibir novas ocupações
+          por assentamentos habitacionais nas áreas inadequadas para essa finalidade
+      - name: plano_municipal_habitacao_articular_instancias
+        description: Aspectos do Plano Municipal de Habitação - Articular as instâncias
+          municipal, estadual e federal de política e financiamento habitacional,
+          visando a otimização dos recursos disponíveis
+      - name: plano_municipal_habitacao_garantir_melhor_aproveitamento_infraestrutura
+        description: Aspectos do Plano Municipal de Habitação - Garantir o melhor
+          aproveitamento da infraestrutura instalada e das edificações existentes
+      - name: plano_municipal_habitacao_garantir_atendimento_habitacional_familias_removidas
+        description: Aspectos do Plano Municipal de Habitação - Garantir, no caso
+          de necessidade de remoção de área de risco ou por necessidade de obra de
+          urbanização, o atendimento habitacional das famílias a serem removidas
+      - name: plano_municipal_habitacao_producao_novas_unidades_habitacionais
+        description: Aspectos do Plano Municipal de Habitação - Produção de novas
+          unidades habitacionais de interesse social
+      - name: plano_municipal_habitacao_priorizar_acoes_areas_risco
+        description: Aspectos do Plano Municipal de Habitação - Priorizar ações nas
+          áreas de risco
+      - name: plano_municipal_habitacao_quilombolas
+        description: Aspectos do Plano Municipal de Habitação - Programas e/ou ações
+          voltadas para quilombolas
+      - name: plano_municipal_habitacao_programas_povos_ciganos
+        description: Aspectos do Plano Municipal de Habitação - Programas e/ou ações
+          voltadas para povos ciganos
+      - name: plano_municipal_habitacao_povos_africanos
+        description: Aspectos do Plano Municipal de Habitação - Programas e/ou ações
+          voltadas para povos e comunidades de matriz africana ou povos de terreiros
+      - name: plano_municipal_habitacao_outros
+        description: Aspectos do Plano Municipal de Habitação - Outros
+      - name: conferencia_municipal_habitacao_realizada_ultimos_4anos
+        description: Conferência Municipal de Habitação - O município realizou alguma
+          nos últimos 4 anos
+      - name: conferencia_municipal_habitacao_elementos_elaboracao
+        description: Conferência Municipal de Habitação - Foram consideradas como
+          elementos de referência para a elaboração e desenvolvimento do Plano Municipal
+          de Habitação as deliberações das conferências realizadas
+      - name: demais_instrumentos
+        description: Demais instrumentos
+      - name: demais_instrumentos_zona_area_interesse_social_existencia
+        description: Demais instrumentos - Legislação sobre zona e/ou área de interesse
+          social - Existência
+      - name: demais_instrumentos_zona_area_interesse_social_ano_lei
+        description: Demais instrumentos - Legislação sobre zona e/ou área de interesse
+          social - Ano da lei
+      - name: demais_instrumentos_zona_area_interesse_especial_existencia
+        description: Demais instrumentos - Legislação sobre zona e/ou área de interesse
+          especial - Existência
+      - name: demais_instrumentos_zona_area_interesse_especial_ano_lei
+        description: Demais instrumentos - Legislação sobre zona e/ou área de interesse
+          especial - Ano da lei
+      - name: demais_instrumentos_zona_area_interesse_especial_ambiental_existencia
+        description: Demais instrumentos - Legislação sobre zona e/ou área de interesse
+          especial - Ambiental - Existência
+      - name: demais_instrumentos_zona_area_interesse_especial_historico_existencia
+        description: Demais instrumentos - Legislação sobre zona e/ou área de interesse
+          especial - Histórico - Existência
+      - name: demais_instrumentos_zona_area_interesse_especial_cultural_existencia
+        description: Demais instrumentos - Legislação sobre zona e/ou área de interesse
+          especial - Cultural - Existência
+      - name: demais_instrumentos_zona_area_interesse_especial_paisagistico_existencia
+        description: Demais instrumentos - Legislação sobre zona e/ou área de interesse
+          especial - Paisagístico - Existência
+      - name: demais_instrumentos_zona_area_interesse_especial_arquitetonico_existencia
+        description: Demais instrumentos - Legislação sobre zona e/ou área de interesse
+          especial - Arquitetônico - Existência
+      - name: demais_instrumentos_zona_area_interesse_especial_arqueologico_existencia
+        description: Demais instrumentos - Legislação sobre zona e/ou área de interesse
+          especial - Arqueológico - Existência
+      - name: demais_instrumentos_zona_area_interesse_especial_outra_existencia
+        description: Demais instrumentos - Legislação sobre zona e/ou área de interesse
+          especial - Outro - Existência
+      - name: demais_instrumentos_perimetro_urbano_existencia
+        description: Demais instrumentos - Lei de perímetro urbano - Existência
+      - name: demais_instrumentos_perimetro_urbano_ano_lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+        description: Demais instrumentos - Lei de perímetro urbano - Ano da lei
+      - name: demais_instrumentos_parcelamento_solo_existencia
+        description: Demais instrumentos - Legislação sobre parcelamento do solo -
+          Existência
+      - name: demais_instrumentos_parcelamento_solo_ano_lei
+        description: Demais instrumentos - Legislação sobre parcelamento do solo -
+          Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_zoneamento_ocupacao_solo_existencia
+        description: Demais instrumentos - Legislação sobre zoneamento ou uso e ocupação
+          do solo - Existência
+      - name: demais_instrumentos_zoneamento_ocupacao_solo_ano_lei
+        description: Demais instrumentos - Legislação sobre zoneamento ou uso e ocupação
+          do solo - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_solo_criado_existencia
+        description: Demais instrumentos - Legislação sobre solo criado ou outorga
+          onerosa do direito de construir - Existência
+      - name: demais_instrumentos_solo_criado_ano_lei
+        description: Demais instrumentos - Legislação sobre solo criado ou outorga
+          onerosa do direito de construir - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_contribuicao_melhoria_existencia
+        description: Demais instrumentos - Legislação sobre contribuição de melhoria
+          - Existência
+      - name: demais_instrumentos_contribuicao_melhoria_ano_lei
+        description: Demais instrumentos - Legislação sobre contribuição de melhoria
+          - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_operacao_urbana_consorciada_existencia
+        description: Demais instrumentos - Legislação sobre operação urbana consorciada
+          - Existência
+      - name: demais_instrumentos_operacao_urbana_consorciada_ano_lei
+        description: Demais instrumentos - Legislação sobre operação urbana consorciada
+          - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_estudo_impacto_vizinhanca_existencia
+        description: Demais instrumentos - Legislação sobre estudo de impacto de vizinhança
+          - Existência
+      - name: demais_instrumentos_estudo_impacto_vizinhanca_ano_lei
+        description: Demais instrumentos - Legislação sobre estudo de impacto de vizinhança
+          - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_codigo_obras_existencia
+        description: Demais instrumentos - Código de obras - Existência
+      - name: demais_instrumentos_codigo_obras_ano_lei
+        description: Demais instrumentos - Código de obras - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_codigo_obras_normas_acessibilidade
+        description: Demais instrumentos - Código de obras - Orienta-se pelas regras
+          previstas nas normas técnicas de acessibilidade
+      - name: demais_instrumentos_codigo_posturas_existencia
+        description: Demais instrumentos - Código de posturas - Existência
+      - name: demais_instrumentos_codigo_posturas_ano_lei
+        description: Demais instrumentos - Código de posturas - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_lei_transferencia_direito_construir_existencia
+        description: Demais instrumentos - Lei de Transferência do Direito de Construir
+          - Existência
+      - name: demais_instrumentos_lei_transferencia_direito_construir_ano_lei
+        description: Demais instrumentos - Lei de Transferência do Direito de Construir
+          - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_lei_iptu_progressivo_existencia
+        description: Demais instrumentos - Lei de Imposto Predial e Territorial Urbano
+          Progressivo - Existência
+      - name: demais_instrumentos_lei_iptu_progressivo_ano_lei
+        description: Demais instrumentos - Lei de Imposto Predial e Territorial Urbano
+          Progressivo - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_lei_concessao_direito_real_uso_existencia
+        description: Demais instrumentos - Lei de Concessão do Direito Real de Uso
+          - Existência
+      - name: demais_instrumentos_lei_concessao_direito_real_uso_ano_lei
+        description: Demais instrumentos - Lei de Concessão do Direito Real de Uso
+          - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_lei_parcelamento_edificacao_utilizacao_compulsorios_existencia
+        description: Demais instrumentos - Lei de Parcelamento, Edificação ou Utilização
+          Compulsórios - Existência
+      - name: demais_instrumentos_lei_parcelamento_edificacao_utilizacao_compulsorios_ano_lei
+        description: Demais instrumentos - Lei de Parcelamento, Edificação ou Utilização
+          Compulsórios - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_lei_desapropriacao_pagamento_titulos_existencia
+        description: Demais instrumentos - Lei de Desapropriação com Pagamento em
+          Títulos - Existência
+      - name: demais_instrumentos_lei_desapropriacao_pagamento_titulos_ano_lei
+        description: Demais instrumentos - Lei de Desapropriação com Pagamento em
+          Títulos - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_lei_direito_preempcao_existencia
+        description: Demais instrumentos - Lei de Direito de Preempção - Existência
+      - name: demais_instrumentos_lei_direito_preempcao_ano_lei
+        description: Demais instrumentos - Lei de Direito de Preempção - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_zoneamento_ambiental_existencia
+        description: Demais instrumentos - Legislação sobre zoneamento ambiental ou
+          zoneamento ecológico-econômico - Existência
+      - name: demais_instrumentos_zoneamento_ambiental_ano_lei
+        description: Demais instrumentos - Legislação sobre zoneamento ambiental ou
+          zoneamento ecológico-econômico - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_servidao_administrativa_existencia
+        description: Demais instrumentos - Legislação sobre servidão administrativa
+          - Existência
+      - name: demais_instrumentos_servidao_administrativa_ano_lei
+        description: Demais instrumentos - Legislação sobre servidão administrativa
+          - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_tombamento_existencia
+        description: Demais instrumentos - Legislação sobre tombamento - Existência
+      - name: demais_instrumentos_tombamento_ano_lei
+        description: Demais instrumentos - Legislação sobre tombamento - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_unidade_conservacao_existencia
+        description: Demais instrumentos - Legislação sobre unidade de conservação
+          - Existência
+      - name: demais_instrumentos_unidade_conservacao_ano_lei
+        description: Demais instrumentos - Legislação sobre unidade de conservação
+          - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_concessao_uso_especial_fins_moradia_existencia
+        description: Demais instrumentos - Legislação sobre concessão de uso especial
+          para fins de moradia - Existência
+      - name: demais_instrumentos_concessao_uso_especial_fins_moradia_ano_lei
+        description: Demais instrumentos - Legislação sobre concessão de uso especial
+          para fins de moradia - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_usucapiao_especial_imovel_urbano_existencia
+        description: Demais instrumentos - Legislação sobre usucapião especial de
+          imóvel urbano - Existência
+      - name: demais_instrumentos_usucapiao_especial_imovel_urbano_ano_lei
+        description: Demais instrumentos - Legislação sobre usucapião especial de
+          imóvel urbano - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_direito_superficie_existencia
+        description: Demais instrumentos - Legislação sobre direito de superfície
+          - Existência
+      - name: demais_instrumentos_direito_superficie_ano_lei
+        description: Demais instrumentos - Legislação sobre direito de superfície
+          - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_regularizacao_fundiaria_existencia
+        description: Demais instrumentos - Legislação sobre regularização fundiária
+          - Existência
+      - name: demais_instrumentos_regularizacao_fundiaria_ano_lei
+        description: Demais instrumentos - Legislação sobre regularização fundiária
+          - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_legitimacao_posse_existencia
+        description: Demais instrumentos - Legislação sobre a legitimação de posse
+          - Existência
+      - name: demais_instrumentos_egitimacao_posse_ano_lei
+        description: Demais instrumentos - Legislação sobre a legitimação de posse
+          - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: demais_instrumentos_estudo_previo_impacto_ambiental_existencia
+        description: Demais instrumentos - Legislação sobre estudo prévio de impacto
+          ambiental - Existência
+      - name: demais_instrumentos_estudo_previo_impacto_ambiental_ano_lei
+        description: Demais instrumentos - Legislação sobre estudo prévio de impacto
+          ambiental - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: lei_organica_ano_lei
+        description: Lei orgânica do município - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: lei_diretrizes_orcamentarias
+        description: Lei de diretrizes orçamentárias (LDO) - existência
+      - name: lei_orcamento_anual
+        description: Lei de orçamento anual (LOA) - existência
+      - name: debates_audiencias_consultas_publicas_ppa_ldo_loa
+        description: Está havendo debates, audiências e consultas públicas sobre as
+          propostas do plano plurianual - PPA, da lei de diretrizes orçamentárias
+          - LDO e do orçamento anual - LOA
+      - name: utiliza_instrumentos_politica_urbana_estatuto_cidades
+        description: O município utiliza os instrumentos de política urbana previstos
+          no Estatuto das cidades
+      - name: conselho_municipal_politica_urbana_existencia
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Existência
+      - name: conselho_municipal_politica_urbana_lei_criacao
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Lei de criação
+      - name: conselho_municipal_politica_urbana_ano_criacao
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Ano de criação
+      - name: conselho_municipal_politica_urbana_situacao
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Situação
+      - name: conselho_municipal_politica_urbana_paridade
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Conselho é paritário
+      - name: conselho_municipal_politica_urbana_formacao
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Formação
+      - name: conselho_municipal_politica_urbana_periodicidade_reunioes
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Periodicidade das reuniões
+      - name: conselho_municipal_politica_urbana_reuniao_ultimos_12meses
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Realizou reunião nos últimos 12 meses
+      - name: conselho_municipal_politica_urbana_reunioes_ultimos_12meses
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Número de reuniões nos últimos 12 meses
+      - name: conselho_municipal_politica_urbana_carater_consultivo
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Caráter consultivo
+      - name: conselho_municipal_politica_urbana_carater_deliberativo
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Caráter deliberativo
+      - name: conselho_municipal_politica_urbana_carater_normativo
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Caráter normativo
+      - name: conselho_municipal_politica_urbana_carater_fiscalizador
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Caráter fiscalizador
+      - name: conselho_municipal_politica_urbana_conselheiros
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Número de conselheiros (titulares e suplentes)
+      - name: conselho_municipal_politica_urbana_capacitacao_membros_periodicamente
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Capacitação dos membros -  Periodicamente
+      - name: conselho_municipal_politica_urbana_capacitacao_membros_ocasionalmente
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Capacitação dos membros - Ocasionalmente
+      - name: conselho_municipal_politica_urbana_capacitacao_membros_nao_realiza
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Capacitação dos membros - Não realiza
+      - name: conselho_municipal_politica_urbana_infraestrutura
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Município disponibiliza infraestrutura
+      - name: conselho_municipal_politica_urbana_infraestrutura_sala
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Município disponibiliza infraestrutura - Sala
+      - name: conselho_municipal_politica_urbana_infraestrutura_computador
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Município disponibiliza infraestrutura - Computador
+      - name: conselho_municipal_politica_urbana_infraestrutura_impressora
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Município disponibiliza infraestrutura - Impressora
+      - name: conselho_municipal_politica_urbana_infraestrutura_internet
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Município disponibiliza infraestrutura - Acesso à
+          internet
+      - name: conselho_municipal_politica_urbana_infraestrutura_veiculo
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Município disponibiliza infraestrutura - Veículo
+      - name: conselho_municipal_politica_urbana_infraestrutura_telefone
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Município disponibiliza infraestrutura - Telefone
+      - name: conselho_municipal_politica_urbana_infraestrutura_diarias
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Município disponibiliza infraestrutura - Diárias
+      - name: conselho_municipal_politica_urbana_infraestrutura_dotacao_orcamentaria
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Município disponibiliza infraestrutura - Dotação
+          orçamentária própria
+      - name: conselho_municipal_politica_urbana_infraestrutura_transporte
+        description: Conselho Municipal de Política urbana, Desenvolvimento Urbano,
+          da Cidade ou similar - Município disponibiliza infraestrutura - Transporte
+          ou locomoção
+      - name: fundo_municipal_habitacao_existencia
+        description: Fundo Municipal de Habitação - Existência
+      - name: fundo_municipal_habitacao_gestor_conselho
+        description: Fundo Municipal de Habitação - O conselho gestor do Fundo é o
+          Conselho Municipal de Habitação
+      - name: fundo_municipal_habitacao_reune_todos_recursos_orcamentarios
+        description: Fundo Municipal de Habitação - O fundo reúne todos os recursos
+          orçamentários e de outras fontes destinados aos programas habitacionais
+      - name: cadastro_familias_interessadas_existencia
+        description: Cadastro ou levantamento de famílias interessadas em programas
+          habitacionais - Existência
+      - name: cadastro_familias_interessadas_ano
+        description: Cadastro ou levantamento de famílias interessadas em programas
+          habitacionais - Em que ano foi realizado
+      - name: cadastro_familias_interessadas_informatizado
+        description: Cadastro ou levantamento de famílias interessadas em programas
+          habitacionais - O cadastro é informatizado
+      - name: cadastro_familias_interessadas_inclui_natureza_beneficio
+        description: Cadastro ou levantamento de famílias interessadas em programas
+          habitacionais - O cadastro inclui a natureza do benefício habitacional pretendido
+          pelas famílias
+      - name: municipio_contem_favelas_mocambos_palafitas
+        description: Existem no município - Favelas, mocambos, palafitas ou assemelhados
+      - name: municipio_contem_corticos_casas_comodos
+        description: Existem no município - Cortiços, casas de cômodos ou cabeças-de-porco
+      - name: municipio_contem_loteamentos_irregulares
+        description: Existem no município - Loteamentos irregulares e/ou clandestinos
+      - name: municipio_contem_occupacoes_terreno_predios
+        description: Existem no município - Ocupações de terrenos ou prédios por movimentos
+          de moradia
+      - name: municipio_contem_nenhum_acima
+        description: Existem no município - Nenhum dos itens acima
+      - name: programas_construcao_unidades_habitacionais
+        description: Foram realizados pela prefeitura, no ano de 2015 e/ou 2016, programas
+          ou ações de - Construção de unidades habitacionais
+      - name: programas_aquisicao_unidades_habitacionais
+        description: Foram realizados pela prefeitura, no ano de 2015 e/ou 2016, programas
+          ou ações de - Aquisição de unidades habitacionais
+      - name: programas_melhorias_unidades_habitacionais
+        description: Foram realizados pela prefeitura, no ano de 2015 e/ou 2016, programas
+          ou ações de - Melhoria de unidades habitacionais
+      - name: programas_oferta_material_construcao
+        description: Foram realizados pela prefeitura, no ano de 2015 e/ou 2016, programas
+          ou ações de - Oferta de material de construção
+      - name: programas_oferta_lotes
+        description: Foram realizados pela prefeitura, no ano de 2015 e/ou 2016, programas
+          ou ações de - Oferta de lotes
+      - name: programas_regularizacao_fundiaria
+        description: Foram realizados pela prefeitura, no ano de 2015 e/ou 2016, programas
+          ou ações de - Regularização fundiária
+      - name: programas_urbanizacao_assentamentos
+        description: Foram realizados pela prefeitura, no ano de 2015 e/ou 2016, programas
+          ou ações de - Urbanização de assentamentos
+      - name: programas_nenhum
+        description: Foram realizados pela prefeitura, no ano de 2015 e/ou 2016, programas
+          ou ações de - Nenhum dos programas ou ações
+      - name: programas_concede_beneficio_aluguel_social
+        description: A prefeitura tem algum programa que conceda o benefício do aluguel
+          social
+      - name: integra_aglomeracao_urbana
+        description: O município integra - Aglomeração urbana
+      - name: integra_area_interesse_turistico
+        description: O município integra - Área de interesse turístico
+      - name: integra_area_influencia_empreendimentos
+        description: O município integra - Área de influência de empreendimentos com
+          significativo impacto ambiental de âmbito regional ou nacional
+      - name: integra_nada
+        description: O município integra - Não integra as áreas citadas
+  - name: br_ibge_munic__recursos_humanos
+    description: Recursos humanos
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio]
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: adm_direta
+        description: Total de funcionários ativos da administração direta
+      - name: adm_direta_sem_instrucao
+        description: Número de funcionários ativos da administração direta - Sem instrução
+      - name: adm_direta_ensino_fundamental
+        description: Número de funcionários ativos da administração direta - Ensino
+          fundamental
+      - name: adm_direta_ensino_medio
+        description: Número de funcionários ativos da administração direta - Ensino
+          médio
+      - name: adm_direta_ensino_superior
+        description: Número de funcionários ativos da administração direta - Ensino
+          superior
+      - name: adm_direta_pos_graduacao
+        description: Número de funcionários ativos da administração direta - Pós-graduação
+      - name: adm_direta_nivel_auxiliar
+        description: Número de funcionários ativos da administração direta - Nível
+          auxiliar
+      - name: estatutario_adm_direta
+        description: Total de funcionários ativos com vínculo Estatutário da administração
+          direta
+      - name: estatutario_adm_direta_sem_instrucao
+        description: Número de funcionários ativos com vínculo Estatutário da administração
+          direta - Sem instrução
+      - name: estatutario_adm_direta_ensino_fundamental
+        description: Número de funcionários ativos com vínculo Estatutário da administração
+          direta - Ensino fundamental
+      - name: estatutario_adm_direta_ensino_medio
+        description: Número de funcionários ativos com vínculo Estatutário da administração
+          direta - Ensino médio
+      - name: estatutario_adm_direta_ensino_superior
+        description: Número de funcionários ativos com vínculo Estatutário da administração
+          direta - Ensino superior
+      - name: estatutario_adm_direta_pos_graduacao
+        description: Número de funcionários ativos com vínculo Estatutário da administração
+          direta - Pós-graduação
+      - name: clt_adm_direta
+        description: Total de funcionários ativos com vínculo CLT da administração
+          direta
+      - name: clt_adm_direta_sem_instrucao
+        description: Número de funcionários ativos com vínculo CLT da administração
+          direta - Sem instrução
+      - name: clt_adm_direta_ensino_fundamental
+        description: Número de funcionários ativos com vínculo CLT da administração
+          direta - Ensino fundamental
+      - name: clt_adm_direta_ensino_medio
+        description: Número de funcionários ativos com vínculo CLT da administração
+          direta - Ensino médio
+      - name: clt_adm_direta_ensino_superior
+        description: Número de funcionários ativos com vínculo CLT da administração
+          direta - Ensino superior
+      - name: clt_adm_direta_pos_graduacao
+        description: Número de funcionários ativos com vínculo CLT da administração
+          direta - Pós-graduação
+      - name: comissionado_adm_direta
+        description: Total de funcionários ativos com vínculo somente Comissionado
+          da administração direta
+      - name: comissionado_adm_direta_sem_instrucao
+        description: Número de funcionários ativos com vínculo somente Comissionado
+          da administração direta - Sem instrução
+      - name: comissionado_adm_direta_ensino_fundamental
+        description: Número de funcionários ativos com vínculo somente Comissionado
+          da administração direta - Ensino fundamental
+      - name: comissionado_adm_direta_ensino_medio
+        description: Número de funcionários ativos com vínculo somente Comissionado
+          da administração direta - Ensino médio
+      - name: comissionado_adm_direta_ensino_superior
+        description: Número de funcionários ativos com vínculo somente Comissionado
+          da administração direta - Ensino superior
+      - name: comissionado_adm_direta_pos_graduacao
+        description: Número de funcionários ativos com vínculo somente Comissionado
+          da administração direta - Pós-graduação
+      - name: estagio_adm_direta
+        description: Total de funcionários ativos com vínculo de Estagiário da administração
+          direta
+      - name: estagio_adm_direta_ensino_fundamental
+        description: Número de funcionários ativos com vínculo de Estagiário da administração
+          direta - Ensino fundamental
+      - name: estagio_adm_direta_ensino_medio
+        description: Número de funcionários ativos com vínculo de Estagiário da administração
+          direta - Ensino médio
+      - name: estagio_adm_direta_ensino_superior
+        description: Número de funcionários ativos com vínculo de Estagiário da administração
+          direta - Ensino superior
+      - name: estagio_adm_direta_pos_graduacao
+        description: Número de funcionários ativos com vínculo de Estagiário da administração
+          direta - Pós-graduação
+      - name: sem_vinculo_permanente_adm_direta
+        description: Total de funcionários ativos sem vínculo permanente da administração
+          direta
+      - name: sem_vinculo_permanente_adm_direta_sem_instrucao
+        description: Número de funcionários ativos sem vínculo permanente da administração
+          direta - Sem instrução
+      - name: sem_vinculo_permanente_adm_direta_ensino_fundamental
+        description: Número de funcionários ativos sem vínculo permanente da administração
+          direta - Ensino fundamental
+      - name: sem_vinculo_permanente_adm_direta_ensino_medio
+        description: Número de funcionários ativos sem vínculo permanente da administração
+          direta - Ensino médio
+      - name: sem_vinculo_permanente_adm_direta_ensino_superior
+        description: Número de funcionários ativos sem vínculo permanente da administração
+          direta - Ensino superior
+      - name: sem_vinculo_permanente_adm_direta_pos_graduacao
+        description: Número de funcionários ativos sem vínculo permanente da administração
+          direta - Pós-graduação
+      - name: outro_vinculo_adm_direta
+        description: Total de funcionários ativos da administração direta - Outros
+      - name: existencia_unidade_chefiada_mulher_adm_direta
+        description: Existência de unidades administrativas chefiadas por mulheres
+          na administração direta
+      - name: existencia_registro_deficiencia_adm_direta
+        description: Existência de registro na administração direta de forma a identificar
+          a quantidade de pessoas com deficiência
+      - name: registro_deficiencia_adm_direta
+        description: Número total de funcionarios com deficiência na administração
+          direta
+      - name: existencia_adm_indireta
+        description: Existência administração indireta
+      - name: adm_indireta
+        description: Total de funcionários ativos da administração indireta
+      - name: adm_indireta_sem_instrucao
+        description: Número de funcionários ativos da administração indireta - Sem
+          instrução
+      - name: adm_indireta_ensino_fundamental
+        description: Número de funcionários ativos da administração indireta - Ensino
+          fundamental
+      - name: adm_indireta_ensino_medio
+        description: Número de funcionários ativos da administração indireta - Ensino
+          médio
+      - name: adm_indireta_ensino_superior
+        description: Número de funcionários ativos da administração indireta - Ensino
+          superior
+      - name: adm_indireta_pos_graduacao
+        description: Número de funcionários ativos da administração indireta - Pós-graduação
+      - name: adm_indireta_nivel_auxiliar
+        description: Número de funcionários ativos da administração indireta - Nível
+          auxiliar
+      - name: estatutario_adm_indireta
+        description: Total de funcionários ativos com vínculo Estatutário da administração
+          indireta
+      - name: estatutario_adm_indireta_sem_instrucao
+        description: Número de funcionários ativos com vínculo Estatutário da administração
+          indireta - Sem instrução
+      - name: estatutario_adm_indireta_ensino_fundamental
+        description: Número de funcionários ativos com vínculo Estatutário da administração
+          indireta - Ensino fundamental
+      - name: estatutario_adm_indireta_ensino_medio
+        description: Número de funcionários ativos com vínculo Estatutário da administração
+          indireta - Ensino médio
+      - name: estatutario_adm_indireta_ensino_superior
+        description: Número de funcionários ativos com vínculo Estatutário da administração
+          indireta - Ensino superior
+      - name: estatutario_adm_indireta_pos_graduacao
+        description: Número de funcionários ativos com vínculo Estatutário da administração
+          indireta - Pós-graduação
+      - name: clt_adm_indireta
+        description: Total de funcionários ativos com vínculo CLT da administração
+          indireta
+      - name: clt_adm_indireta_sem_instrucao
+        description: Número de funcionários ativos com vínculo CLT da administração
+          indireta - Sem instrução
+      - name: clt_adm_indireta_ensino_fundamental
+        description: Número de funcionários ativos com vínculo CLT da administração
+          indireta - Ensino fundamental
+      - name: clt_adm_indireta_ensino_medio
+        description: Número de funcionários ativos com vínculo CLT da administração
+          indireta - Ensino médio
+      - name: clt_adm_indireta_ensino_superior
+        description: Número de funcionários ativos com vínculo CLT da administração
+          indireta - Ensino superior
+      - name: clt_adm_indireta_pos_graduacao
+        description: Número de funcionários ativos com vínculo CLT da administração
+          indireta - Pós-graduação
+      - name: comissionado_adm_indireta
+        description: Total de funcionários ativos com vínculo somente Comissionado
+          da administração indireta
+      - name: comissionado_adm_indireta_sem_instrucao
+        description: Número de funcionários ativos com vínculo somente Comissionado
+          da administração indireta - Sem instrução
+      - name: comissionado_adm_indireta_ensino_fundamental
+        description: Número de funcionários ativos com vínculo somente Comissionado
+          da administração indireta - Ensino fundamental
+      - name: comissionado_adm_indireta_ensino_medio
+        description: Número de funcionários ativos com vínculo somente Comissionado
+          da administração indireta - Ensino médio
+      - name: comissionado_adm_indireta_ensino_superior
+        description: Número de funcionários ativos com vínculo somente Comissionado
+          da administração indireta - Ensino superior
+      - name: comissionado_adm_indireta_pos_graduacao
+        description: Número de funcionários ativos com vínculo somente Comissionado
+          da administração indireta - Pós-graduação
+      - name: estagio_adm_indireta
+        description: Total de funcionários ativos com vínculo de Estagiário da administração
+          indireta
+      - name: estagio_adm_indireta_ensino_fundamental
+        description: Número de funcionários ativos com vínculo de Estagiário da administração
+          indireta - Ensino fundamental
+      - name: estagio_adm_indireta_ensino_medio
+        description: Número de funcionários ativos com vínculo de Estagiário da administração
+          indireta - Ensino médio
+      - name: estagio_adm_indireta_ensino_superior
+        description: Número de funcionários ativos com vínculo de Estagiário da administração
+          indireta - Ensino superior
+      - name: estagio_adm_indireta_pos_graduacao
+        description: Número de funcionários ativos com vínculo de Estagiário da administração
+          indireta - Pós-graduação
+      - name: sem_vinculo_permanente_adm_indireta
+        description: Total de funcionários ativos sem vínculo permanente da administração
+          indireta
+      - name: sem_vinculo_permanente_adm_indireta_sem_instrucao
+        description: Número de funcionários ativos sem vínculo permanente da administração
+          indireta - Sem instrução
+      - name: sem_vinculo_permanente_adm_indireta_ensino_fundamental
+        description: Número de funcionários ativos sem vínculo permanente da administração
+          indireta - Ensino fundamental
+      - name: sem_vinculo_permanente_adm_indireta_ensino_medio
+        description: Número de funcionários ativos sem vínculo permanente da administração
+          indireta - Ensino médio
+      - name: sem_vinculo_permanente_adm_indireta_ensino_superior
+        description: Número de funcionários ativos sem vínculo permanente da administração
+          indireta - Ensino superior
+      - name: sem_vinculo_permanente_adm_indireta_pos_graduacao
+        description: Número de funcionários ativos sem vínculo permanente da administração
+          indireta - Pós-graduação
+      - name: outro_vinculo_adm_indireta
+        description: Total de funcionários ativos da administração indireta - Outros
+      - name: fundacao_adm_indireta
+        description: Total de fundações na administração indireta
+      - name: autarquia_adm_indireta
+        description: Total de autarquias na administração indireta
+      - name: empresa_publica_adm_indireta
+        description: Total de empresas públicas na administração indireta
+      - name: sociedade_economia_mista_adm_indireta
+        description: Total de sociedades de economia mista na administração indireta
+      - name: existencia_contratacao_24_meses
+        description: Existência de contratação nos últimos 24 meses
+      - name: existencia_realizacao_concurso_24_meses
+        description: Existência de realização de concurso nos últimos 24 meses
+      - name: existencia_reserva_concurso_deficientes
+        description: Existência da reserva de cargo para pessoas com deficiência no
+          concurso público
+      - name: existencia_reserva_concurso_negros
+        description: Existência da reserva de cargo para negros no concurso público
+      - name: existencia_reserva_concurso_quilombolas
+        description: Existência da reserva de cargo para quilombolas no concurso público
+      - name: existencia_reserva_concurso_indigenas
+        description: Existência da reserva de cargo para indígenas no concurso público
+      - name: existencia_reserva_concurso_ciganos
+        description: Existência da reserva de cargo para ciganos no concurso público
+      - name: existencia_reserva_concurso_nao_sabia_informar
+        description: Não sabia informar se existia uma reserva de cargos no concurso
+          público
+      - name: existencia_reserva_concurso_nao_houve
+        description: Não houve uma reserva de cargo no concurso público
+      - name: existencia_priorizacao_cargo_mulher
+        description: Existência política de priorização de cargos para mulheres em
+          chefia e assessoramento
+      - name: existencia_fundo_municipal_previdencia
+        description: Existência de Instituto ou Fundo Municipal de Previdência para
+          os funcionários da Prefeitura
+      - name: aposentado
+        description: Total de aposentados
+      - name: pesionista
+        description: Total de pensionistas
+  - name: br_ibge_munic__recursos_gestao
+    description: Recursos para gestão
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio]
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: iptu_cadastro_imobiliario_existencia
+        description: IPTU - Cadastro imobiliário - Existência
+      - name: iptu_cadastro_imobiliario_informatizado_existencia
+        description: IPTU - Cadastro imobiliário informatizado - Existência
+      - name: iptu_cadastro_imobiliario_informatizado_unidades_prediais_territoriais
+        description: IPTU - Cadastro imobiliário informatizado - Tem Unidades prediais
+          e territoriais cadastradas
+      - name: iptu_cadastro_imobiliario_informatizado_total_unidades_prediais
+        description: IPTU - Cadastro imobiliário informatizado - Tem Total de unidades
+          prediais no cadastro
+      - name: iptu_cadastro_imobiliario_informatizado_total_unidades_territoriais
+        description: IPTU - Cadastro imobiliário informatizado - Tem Total de unidades
+          territoriais no cadastro
+      - name: iptu_cadastro_imobiliario_georrefenciado_existencia
+        description: IPTU - Cadastro imobiliário georreferenciado - Existência
+      - name: iptu_cadastro_imobiliario_publico
+        description: IPTU - Cadastro imobiliário - A prefeitura disponibiliza o cadastro
+          para acesso público
+      - name: iptu_cadastro_imobiliario_atualizacao_anual_menor
+        description: IPTU - Cadastro imobiliário - A atualização do cadastro imobiliário
+          é feita - Anualmente ou período menor do que um ano
+      - name: iptu_cadastro_imobiliario_atualizacao_maior
+        description: IPTU - Cadastro imobiliário - A atualização do cadastro imobiliário
+          é feita - Período maior do que um ano
+      - name: iptu_cadastro_imobiliario_atualizacao_sob_demanda
+        description: IPTU - Cadastro imobiliário - A atualização do cadastro imobiliário
+          é feita - Sob demanda do proprietário
+      - name: iptu_planta_valores_ano_ultima_atualizacao
+        description: IPTU - Ano da última atualização da planta de valores
+      - name: iptu_ultimo_recadastramento_ano
+        description: IPTU - Ano de realização do último recadastramento
+      - name: iptu_municipio_cobra
+        description: IPTU - O município cobra IPTU
+      - name: iptu_municipio_cobra_ano_lei
+        description: IPTU - O município cobra IPTU - Ano da lei
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: iptu_municipio_cobra_numero_lei
+        description: IPTU - O município cobra IPTU - Número da lei
+      - name: iptu_planta_generica_valores_existencia
+        description: IPTU - Planta Genérica de Valores - Existência
+      - name: iptu_planta_generica_valores_informatizada_existencia
+        description: IPTU - Planta Genérica de Valores informatizada - Existência
+      - name: iptu_planta_generica_valores_ano_atualizada_ultimos_10anos
+        description: IPTU - Planta Genérica de Valores - Atualizada nos últimos 10
+          anos
+      - name: iptu_planta_generica_valores_ano_ultima_atualizacao
+        description: IPTU - Planta Genérica de Valores - Último ano de atualização
+          completa da planta
+      - name: iss_cadastro_prestadores_servico_existencia
+        description: ISS - Cadastro de prestadores de serviço - Existência
+      - name: iss_cadastro_prestadores_servico_informatizado
+        description: ISS - Cadastro de prestadores de serviço informatizado - Existência
+      - name: iss_cadastro_prestadores_servico_ano_ultimo_recadastramento
+        description: ISS - Ano do último recadastramento
+      - name: iss_contribuintes_inscritos_empresas
+        description: ISS - Contribuintes inscritos - Número de contribuintes - empresas
+      - name: iss_contribuintes_inscritos_outros
+        description: ISS - Contribuintes inscritos - Número de contribuintes - outros
+      - name: issqn_cadastro_existencia
+        description: ISSQN - Cadastro de ISSQN - existência
+      - name: issqn_cadastro_informatizado_existencia
+        description: ISSQN - Cadastro de ISSQN informatizado
+      - name: issqn_cadastro_ano_ultima_atualizacao
+        description: ISSQN - Último ano de atualização completa do cadastro
+      - name: taxas_existencia
+        description: Taxas - Cobrança de taxas - Existência
+      - name: taxas_iluminacao_existencia
+        description: Taxas - Iluminação pública - Existência
+      - name: taxas_coleta_lixo_existencia
+        description: Taxas - Coleta de lixo - Existência
+      - name: taxas_limpeza_urbana_existencia
+        description: Taxas - Limpeza urbana - Existência
+      - name: taxas_incendio_combate_sinistros_existencia
+        description: Taxas - Incêndio ou combate a sinistros - Existência
+      - name: taxas_poder_policia_existencia
+        description: Taxas - Poder de polícia - Existência
+      - name: taxas_outras_existencia
+        description: Taxas - Outros tipos - Existência
+      - name: taxas_nao_cobra
+        description: Taxas - Não cobra nenhuma
+      - name: mecanismos_incentivos_existencia
+        description: Mecanismos de incentivo à implantação de empreendimento - Existência
+      - name: mecanismos_incentivos_ultimos_24meses_reducao_iptu
+        description: Mecanismos utilizados nos últimos 24 meses - Redução do IPTU
+      - name: mecanismos_incentivos_ultimos_24meses_isencao_iptu
+        description: Mecanismos utilizados nos últimos 24 meses - Isenção total do
+          IPTU
+      - name: mecanismos_incentivos_ultimos_24meses_reducao_issqn
+        description: Mecanismos utilizados nos últimos 24 meses - Redução do ISSQN
+      - name: mecanismos_incentivos_ultimos_24meses_isencao_issqn
+        description: Mecanismos utilizados nos últimos 24 meses - Isenção do ISSQN
+      - name: mecanismos_incentivos_ultimos_24meses_isencao_taxas
+        description: Mecanismos utilizados nos últimos 24 meses - Isenção de taxas
+      - name: mecanismos_incentivos_ultimos_24meses_cessao_terrenos
+        description: Mecanismos utilizados nos últimos 24 meses - Cessão de terrenos
+      - name: mecanismos_incentivos_ultimos_24meses_doacao_terrenos
+        description: Mecanismos utilizados nos últimos 24 meses - Doação de terrenos
+      - name: mecanismos_incentivos_ultimos_24meses_outros
+        description: Mecanismos utilizados nos últimos 24 meses - Outros
+      - name: mecanismos_incentivos_ultimos_24meses_nenhum
+        description: Mecanismos utilizados nos últimos 24 meses - Não utilizou
+      - name: mecanismos_incentivos_tipo_beneficiado_ultimos_24meses_industrial
+        description: Tipo de empreendimento beneficiado nos últimos 24 meses - Industrial
+      - name: mecanismos_incentivos_tipo_beneficiado_ultimos_24meses_comercial_servicos
+        description: Tipo de empreendimento beneficiado nos últimos 24 meses - Comercial
+          e serviços
+      - name: mecanismos_incentivos_tipo_beneficiado_ultimos_24meses_turismo_esporte_lazer
+        description: Tipo de empreendimento beneficiado nos últimos 24 meses - Turismo,
+          esporte e lazer
+      - name: mecanismos_incentivos_tipo_beneficiado_ultimos_24meses_agropecuario
+        description: Tipo de empreendimento beneficiado nos últimos 24 meses - Agropecuário
+      - name: mecanismos_incentivos_tipo_beneficiado_ultimos_24meses_outros
+        description: Tipo de empreendimento beneficiado nos últimos 24 meses - Outros
+      - name: mecanismos_incentivos_tipo_beneficiado_ano_anterior_industrial
+        description: Tipo de empreendimento beneficiado no ano anterior - Industrial
+      - name: mecanismos_incentivos_tipo_beneficiado_ano_anterior_comercial_servicos
+        description: Tipo de empreendimento beneficiado no ano anterior- Comercial
+          e serviços
+      - name: mecanismos_incentivos_tipo_beneficiado_ano_anterior_turismo_esporte_lazer
+        description: Tipo de empreendimento beneficiado no ano anterior - Turismo,
+          esporte e lazer
+      - name: mecanismos_incentivos_tipo_beneficiado_ano_anterior_agropecuario
+        description: Tipo de empreendimento beneficiado no ano anterior - Agropecuário
+      - name: mecanismos_incentivos_tipo_beneficiado_ano_anterior_outros
+        description: Tipo de empreendimento beneficiado no ano anterior - Outros
+      - name: mecanismos_incentivos_tipo_beneficiado_ano_anterior_nenhum
+        description: Tipo de empreendimento beneficiado no ano anterior - Nenhum
+      - name: mecanismos_restricao_existencia
+        description: Mecanismos de restrição à implantação de empreendimento - Existência
+      - name: mecanismos_restricao_ultimos_24meses_legislacao
+        description: Mecanismos utilizados nos últimos 24 meses - Legislação
+      - name: mecanismos_restricao_ultimos_24meses_tributacao
+        description: Mecanismos utilizados nos últimos 24 meses - Tributação
+      - name: mecanismos_restricao_ultimos_24meses_outros
+        description: Mecanismos utilizados nos últimos 24 meses - Outros
+      - name: mecanismos_restricao_ultimos_24meses_nenhum
+        description: Mecanismos utilizados nos últimos 24 meses - Não utilizou
+      - name: mecanismos_restricao_tipo_aplicado_ultimos_24meses_industria_poluidora
+        description: Tipo de empreendimento onde foi aplicado nos últimos 24 meses
+          - Indústria poluidora
+      - name: mecanismos_restricao_tipo_aplicado_ultimos_24meses_industria_extrativa
+        description: Tipo de empreendimento onde foi aplicado nos últimos 24 meses
+          - Indústria extrativa
+      - name: mecanismos_restricao_tipo_aplicado_ultimos_24meses_comercial_servicos
+        description: Tipo de empreendimento onde foi aplicado nos últimos 24 meses
+          - Comercial e serviços
+      - name: mecanismos_restricao_tipo_aplicado_ultimos_24meses_turismo_esporte_lazer
+        description: Tipo de empreendimento onde foi aplicado nos últimos 24 meses
+          - Turismo, esporte e lazer
+      - name: mecanismos_restricao_tipo_aplicado_ultimos_24meses_empreendimentos_poluidores
+        description: Tipo de empreendimento onde foi aplicado nos últimos 24 meses
+          - Empreendimentos com impacto ambiental
+      - name: mecanismos_restricao_tipo_aplicado_ultimos_24meses_outros
+        description: Tipo de empreendimento onde foi aplicado nos últimos 24 meses
+          - Outros
+      - name: mecanismos_restricao_tipo_aplicado_ano_anterior_industria_poluidora
+        description: Tipo de empreendimento onde foi aplicado no ano anterior - Indústria
+          poluidora
+      - name: mecanismos_restricao_tipo_aplicado_ano_anterior_industria_extrativa
+        description: Tipo de empreendimento onde foi aplicado no ano anterior - Indústria
+          extrativa
+      - name: mecanismos_restricao_tipo_aplicado_ano_anterior_comercial_servicos
+        description: Tipo de empreendimento onde foi aplicado no ano anterior - Comercial
+          e serviços
+      - name: mecanismos_restricao_tipo_aplicado_ano_anterior_turismo_esporte_lazer
+        description: Tipo de empreendimento onde foi aplicado no ano anterior - Turismo,
+          esporte e lazer
+      - name: mecanismos_restricao_tipo_aplicado_ano_anterior_empreendimentos_poluidores
+        description: Tipo de empreendimento onde foi aplicado no ano anterior - Empreendimentos
+          com impacto ambiental
+      - name: mecanismos_restricao_tipo_aplicado_ano_anterior_outros
+        description: Tipo de empreendimento onde foi aplicado no ano anterior - Outros
+      - name: mecanismos_restricao_tipo_aplicado_ano_anterior_nenhum
+        description: Tipo de empreendimento onde foi aplicado no ano anterior - Nenhum
+      - name: distrito_industrial_regulamentado_existencia
+        description: Distrito industrial regulamentado por lei específica estadual
+          ou municipal - Existência
+      - name: distrito_industrial_regulamentado_distritos_implantados
+        description: Número de distritos - Implantados
+      - name: distrito_industrial_regulamentado_distritos_obras
+        description: Número de distritos - Em obras de implantação
+      - name: programas_geracao_trabalho_renda_existencia
+        description: Programas ou ações de geração de trabalho e renda - Existência
+      - name: programas_geracao_trabalho_renda_publico_alvo_adolescentes
+        description: Público alvo desses programas ou ações - Adolescente
+      - name: programas_geracao_trabalho_renda_publico_alvo_jovens
+        description: Público alvo desses programas ou ações - Jovens
+      - name: programas_geracao_trabalho_renda_publico_alvo_indigenas
+        description: Público alvo desses programas ou ações - Indígena
+      - name: programas_geracao_trabalho_renda_publico_alvo_deficientes
+        description: Público alvo desses programas ou ações - Pessoas com deficiência
+      - name: programas_geracao_trabalho_renda_publico_alvo_idosos
+        description: Público alvo desses programas ou ações - Idosos
+      - name: programas_geracao_trabalho_renda_publico_alvo_populacao_baixa_renda
+        description: Público alvo desses programas ou ações - População de baixa renda
+      - name: programas_geracao_trabalho_renda_publico_alvo_populacao_residente
+        description: Público alvo desses programas ou ações - População residente
+      - name: programas_geracao_trabalho_renda_publico_alvo_outros
+        description: Público alvo desses programas ou ações - Outros
+      - name: politica_primeiro_emprego_jovens_adolescentes_existencia
+        description: Política de apoio ao primeiro emprego de jovens e adolescentes
+          no município - Existência
+      - name: arranjo_produtivo_local_existencia
+        description: Arranjo Produtivo Local - Existência dentro do território do
+          município
+      - name: arranjo_produtivo_local_outros_municipios
+        description: Arranjo Produtivo Local - Outro(s) município(s) participa(m)
+          deste Arranjo Produtivo Local
+      - name: territorios_cidadania
+        description: O município faz parte de Território da Cidadania
+      - name: desestatizacao_ultimos_24meses
+        description: Desestatização - A atual gestão tomou alguma iniciativa de desestatização
+          nos últimos 24 meses
+      - name: desestatizacao_ultimos_24meses_forma_venda_ativos_imobiliarios
+        description: Desestatização - Forma utilizada - Venda de ativos imobiliários
+      - name: desestatizacao_ultimos_24meses_forma_privatizacao
+        description: Desestatização - Forma utilizada - Privatização
+      - name: desestatizacao_ultimos_24meses_forma_concessao
+        description: Desestatização - Forma utilizada - Concessão
+      - name: desestatizacao_ultimos_24meses_forma_concessao_comum
+        description: Desestatização - Forma utilizada - Concessão - Concessão comum
+      - name: desestatizacao_ultimos_24meses_forma_concessao_ppp
+        description: Desestatização - Forma utilizada - Concessão - Parceria público-privada
+          (PPP)
+      - name: desestatizacao_ultimos_24meses_forma_concessao_ppp_administrativa
+        description: Desestatização - Forma utilizada - Concessão - Parceria público-privada
+          (PPP) - Concessão administrativa
+      - name: desestatizacao_ultimos_24meses_forma_concessao_ppp_patrocinada
+        description: Desestatização - Forma utilizada - Concessão - Parceria público-privada
+          (PPP) - Concessão patrocinada
+      - name: desestatizacao_ultimos_24meses_area_cultura_esporte_lazer_turismo
+        description: Desestatização - Área dos serviços que foram privatizados e/ou
+          concedidos - Cultura, esporte, lazer e turismo
+      - name: desestatizacao_ultimos_24meses_area_educacao
+        description: Desestatização - Área dos serviços que foram privatizados e/ou
+          concedidos - Educação
+      - name: desestatizacao_ultimos_24meses_area_manutencao_reparo_logradouros
+        description: Desestatização - Área dos serviços que foram privatizados e/ou
+          concedidos - Manutenção e reparos de logradouros públicos
+      - name: desestatizacao_ultimos_24meses_area_saneamento_basico
+        description: Desestatização - Área dos serviços que foram privatizados e/ou
+          concedidos - Saneamento básico
+      - name: desestatizacao_ultimos_24meses_area_saude
+        description: Desestatização - Área dos serviços que foram privatizados e/ou
+          concedidos - Saúde
+      - name: desestatizacao_ultimos_24meses_area_servicos_funerarios
+        description: Desestatização - Área dos serviços que foram privatizados e/ou
+          concedidos - Serviços funerários
+      - name: desestatizacao_ultimos_24meses_area_transporte
+        description: Desestatização - Área dos serviços que foram privatizados e/ou
+          concedidos - Transporte
+      - name: desestatizacao_ultimos_24meses_area_outros
+        description: Desestatização - Área dos serviços que foram privatizados e/ou
+          concedidos - Outros serviços
+      - name: articulacao_desenvolvimento_urbano_consorcio_publico_intermunicipal
+        description: Na política de desenvolvimento urbano o município participa de
+          - Consórcio público intermunicipal
+      - name: articulacao_desenvolvimento_urbano_consorcio_publico_estado
+        description: Na política de desenvolvimento urbano o município participa de
+          - Consórcio público com o Estado
+      - name: articulacao_desenvolvimento_urbano_consorcio_publico_uniao
+        description: Na política de desenvolvimento urbano o município participa de
+          - Consórcio público com o Governo Federal
+      - name: articulacao_desenvolvimento_urbano_consorcio_administrativo_intermunicipal
+        description: Na política de desenvolvimento urbano o município participa de
+          - Consórcio administrativo intermunicipal
+      - name: articulacao_desenvolvimento_urbano_consorcio_administrativo_estado
+        description: Na política de desenvolvimento urbano o município participa de
+          - Consórcio administrativo com o Estado
+      - name: articulacao_desenvolvimento_urbano_consorcio_administrativo_uniao
+        description: Na política de desenvolvimento urbano o município participa de
+          - Consórcio administrativo com o Governo Federal
+      - name: articulacao_desenvolvimento_urbano_convenio_setor_privado
+        description: Na política de desenvolvimento urbano o município participa de
+          - Convênio de parceria com o setor privado
+      - name: articulacao_desenvolvimento_urbano_apoio_setor_privado_comunidades
+        description: Na política de desenvolvimento urbano o município participa de
+          - Apoio do setor privado ou de comunidades
+      - name: articulacao_politica_emprego_consorcio_publico_intermunicipal
+        description: Na política de emprego e/ou trabalho o município participa de
+          - Consórcio público intermunicipal
+      - name: articulacao_politica_emprego_consorcio_publico_estado
+        description: Na política de emprego e/ou trabalho o município participa de
+          - Consórcio público com o Estado
+      - name: articulacao_politica_emprego_consorcio_publico_uniao
+        description: Na política de emprego e/ou trabalho o município participa de
+          - Consórcio público com o Governo Federal
+      - name: articulacao_politica_emprego_consorcio_administrativo_intermunicipal
+        description: Na política de emprego e/ou trabalho o município participa de
+          - Consórcio administrativo intermunicipal
+      - name: articulacao_politica_emprego_consorcio_administrativo_estado
+        description: Na política de emprego e/ou trabalho o município participa de
+          - Consórcio administrativo com o Estado
+      - name: articulacao_politica_emprego_consorcio_administrativo_uniao
+        description: Na política de emprego e/ou trabalho o município participa de
+          - Consórcio administrativo com o Governo Federal
+      - name: articulacao_politica_emprego_convenio_setor_privado
+        description: Na política de emprego e/ou trabalho o município participa de
+          - Convênio de parceria com o setor privado
+      - name: articulacao_politica_emprego_apoio_setor_privado_comunidades
+        description: Na política de emprego e/ou trabalho o município participa de
+          - Apoio do setor privado ou de comunidades
+      - name: articulacao_educacao_consorcio_publico_intermunicipal
+        description: Em educação o município participa de - Consórcio público intermunicipal
+      - name: articulacao_educacao_consorcio_publico_estado
+        description: Em educação o município participa de - Consórcio público com
+          o Estado
+      - name: articulacao_educacao_consorcio_publico_uniao
+        description: Em educação o município participa de - Consórcio público com
+          o Governo Federal
+      - name: articulacao_educacao_consorcio_administrativo_intermunicipal
+        description: Em educação o município participa de - Consórcio administrativo
+          intermunicipal
+      - name: articulacao_educacao_consorcio_administrativo_estado
+        description: Em educação o município participa de - Consórcio administrativo
+          com o Estado
+      - name: articulacao_educacao_consorcio_administrativo_uniao
+        description: Em educação o município participa de - Consórcio administrativo
+          com o Governo Federal
+      - name: articulacao_educacao_convenio_setor_privado
+        description: Em educação o município participa de - Convênio de parceria com
+          o setor privado
+      - name: articulacao_educacao_apoio_setor_privado_comunidades
+        description: Em educação o município participa de - Apoio do setor privado
+          ou de comunidades
+      - name: articulacao_saude_consorcio_publico_intermunicipal
+        description: Em saúde o município participa de - Consórcio público intermunicipal
+      - name: articulacao_saude_consorcio_publico_estado
+        description: Em saúde o município participa de - Consórcio público com o Estado
+      - name: articulacao_saude_consorcio_publico_uniao
+        description: Em saúde o município participa de - Consórcio público com o Governo
+          Federal
+      - name: articulacao_saude_consorcio_admnistrativo_intermunicipal
+        description: Em saúde o município participa de - Consórcio admnistrativo intermunicipal
+      - name: articulacao_saude_consorcio_admnistrativo_estado
+        description: Em saúde o município participa de - Consórcio admnistrativo com
+          o Estado
+      - name: articulacao_saude_consorcio_admnistrativo_uniao
+        description: Em saúde o município participa de - Consórcio admnistrativo com
+          o Governo Federal
+      - name: articulacao_saude_convenio_setor_privado
+        description: Em saúde o município participa de - Convênio de parceria com
+          o setor privado
+      - name: articulacao_saude_apoio_setor_privado_comunidades
+        description: Em saúde o município participa de - Apoio do setor privado ou
+          de comunidades
+      - name: articulacao_assistencia_social_consorcio_publico_intermunicipal
+        description: Em assistência e desenvolvimento social o município participa
+          de - Consórcio público intermunicipal
+      - name: articulacao_assistencia_social_consorcio_publico_estado
+        description: Em assistência e desenvolvimento social o município participa
+          de - Consórcio público com o Estado
+      - name: articulacao_assistencia_social_consorcio_publico_uniao
+        description: Em assistência e desenvolvimento social o município participa
+          de - Consórcio público com o Governo Federal
+      - name: articulacao_assistencia_social_consorcio_administrativo_intermunicipal
+        description: Em assistência e desenvolvimento social o município participa
+          de - Consórcio administrativo intermunicipal
+      - name: articulacao_assistencia_social_consorcio_administrativo_estado
+        description: Em assistência e desenvolvimento social o município participa
+          de - Consórcio administrativo com o Estado
+      - name: articulacao_assistencia_social_consorcio_administrativo_uniao
+        description: Em assistência e desenvolvimento social o município participa
+          de - Consórcio administrativo com o Governo Federal
+      - name: articulacao_assistencia_social_convenio_setor_privado
+        description: Em assistência e desenvolvimento social o município participa
+          de - Convênio de parceria com o setor privado
+      - name: articulacao_assistencia_social_apoio_setor_privado_comunidades
+        description: Em assistência e desenvolvimento social o município participa
+          de - Apoio do setor privado ou de comunidades
+      - name: articulacao_direito_crianca_adolescente_consorcio_publico_intermunicipal
+        description: Em Direito da criança e adolescente o município participa de
+          - Consórcio público intermunicipal
+      - name: articulacao_direito_crianca_adolescente_consorcio_publico_estado
+        description: Em Direito da criança e adolescente o município participa de
+          - Consórcio público com o Estado
+      - name: articulacao_direito_crianca_adolescente_consorcio_publico_uniao
+        description: Em Direito da criança e adolescente o município participa de
+          - Consórcio público com o Governo Federal
+      - name: articulacao_direito_crianca_adolescente_convenio_setor_privado
+        description: Em Direito da criança e adolescente o município participa de
+          - Convênio de parceria com o setor privado
+      - name: articulacao_direito_crianca_adolescente_apoio_setor_privado_comunidades
+        description: Em Direito da criança e adolescente o município participa de
+          - Apoio do setor privado ou de comunidades
+      - name: articulacao_turismo_consorcio_publico_intermunicipal
+        description: Em turismo o município participa de - Consórcio público intermunicipal
+      - name: articulacao_turismo_consorcio_publico_estado
+        description: Em turismo o município participa de - Consórcio público com o
+          Estado
+      - name: articulacao_turismo_consorcio_publico_uniao
+        description: Em turismo o município participa de - Consórcio público com o
+          Governo Federal
+      - name: articulacao_turismo_consorcio_administrativo_intermunicipal
+        description: Em turismo o município participa de - Consórcio administrativo
+          intermunicipal
+      - name: articulacao_turismo_consorcio_administrativo_estado
+        description: Em turismo o município participa de - Consórcio administrativo
+          com o Estado
+      - name: articulacao_turismo_consorcio_administrativo_uniao
+        description: Em turismo o município participa de - Consórcio administrativo
+          com o Governo Federal
+      - name: articulacao_turismo_convenio_setor_privado
+        description: Em turismo o município participa de - Convênio de parceria com
+          o setor privado
+      - name: articulacao_turismo_apoio_setor_privado_comunidades
+        description: Em turismo o município participa de - Apoio do setor privado
+          ou de comunidades
+      - name: articulacao_cultura_consorcio_publico_intermunicipal
+        description: Em cultura o município participa de - Consórcio público intermunicipal
+      - name: articulacao_cultura_consorcio_publico_estado
+        description: Em cultura o município participa de - Consórcio público com o
+          Estado
+      - name: articulacao_cultura_consorcio_publico_uniao
+        description: Em cultura o município participa de - Consórcio público com o
+          Governo Federal
+      - name: articulacao_cultura_consorcio_administrativo_intermunicipal
+        description: Em cultura o município participa de - Consórcio administrativo
+          intermunicipal
+      - name: articulacao_cultura_consorcio_administrativo_estado
+        description: Em cultura o município participa de - Consórcio administrativo
+          com o Estado
+      - name: articulacao_cultura_consorcio_administrativo_uniao
+        description: Em cultura o município participa de - Consórcio administrativo
+          com o Governo Federal
+      - name: articulacao_cultura_convenio_setor_privado
+        description: Em cultura o município participa de - Convênio de parceria com
+          o setor privado
+      - name: articulacao_cultura_apoio_setor_privado_comunidades
+        description: Em cultura o município participa de - Apoio do setor privado
+          ou de comunidades
+      - name: articulacao_habitacao_consorcio_publico_intermunicipal
+        description: Em habitação o município participa de - Consórcio público intermunicipal
+      - name: articulacao_habitacao_consorcio_publico_estado
+        description: Em habitação o município participa de - Consórcio público com
+          o Estado
+      - name: articulacao_habitacao_consorcio_publico_uniao
+        description: Em habitação o município participa de - Consórcio público com
+          o Governo Federal
+      - name: articulacao_habitacao_consorcio_administrativo_intermunicipal
+        description: Em habitação o município participa de - Consórcio administrativo
+          intermunicipal
+      - name: articulacao_habitacao_consorcio_administrativo_estado
+        description: Em habitação o município participa de - Consórcio administrativo
+          com o Estado
+      - name: articulacao_habitacao_consorcio_administrativo_uniao
+        description: Em habitação o município participa de - Consórcio administrativo
+          com o Governo Federal
+      - name: articulacao_habitacao_convenio_setor_privado
+        description: Em habitação o município participa de - Convênio de parceria
+          com o setor privado
+      - name: articulacao_habitacao_apoio_setor_privado_comunidades
+        description: Em habitação o município participa de - Apoio do setor privado
+          ou de comunidades
+      - name: articulacao_meio_ambiente_consorcio_publico_intermunicipal
+        description: Em meio ambiente o município participa de - Consórcio público
+          intermunicipal
+      - name: articulacao_meio_ambiente_consorcio_publico_estado
+        description: Em meio ambiente o município participa de - Consórcio público
+          com o Estado
+      - name: articulacao_meio_ambiente_consorcio_publico_uniao
+        description: Em meio ambiente o município participa de - Consórcio público
+          com o Governo Federal
+      - name: articulacao_meio_ambiente_consorcio_administrativo_intermunicipal
+        description: Em meio ambiente o município participa de - Consórcio administrativo
+          intermunicipal
+      - name: articulacao_meio_ambiente_consorcio_administrativo_estado
+        description: Em meio ambiente o município participa de - Consórcio administrativo
+          com o Estado
+      - name: articulacao_meio_ambiente_consorcio_administrativo_uniao
+        description: Em meio ambiente o município participa de - Consórcio administrativo
+          com o Governo Federal
+      - name: articulacao_meio_ambiente_convenio_setor_privado
+        description: Em meio ambiente o município participa de - Convênio de parceria
+          com o setor privado
+      - name: articulacao_meio_ambiente_apoio_setor_privado_comunidades
+        description: Em meio ambiente o município participa de - Apoio do setor privado
+          ou de comunidades
+      - name: articulacao_transporte_consorcio_publico_intermunicipal
+        description: Em transporte o município participa de - Consórcio público intermunicipal
+      - name: articulacao_transporte_consorcio_publico_estado
+        description: Em transporte o município participa de - Consórcio público com
+          o Estado
+      - name: articulacao_transporte_consorcio_publico_uniao
+        description: Em transporte o município participa de - Consórcio público com
+          o Governo Federal
+      - name: articulacao_transporte_consorcio_administrativo_intermunicipal
+        description: Em transporte o município participa de - Consórcio administrativo
+          intermunicipal
+      - name: articulacao_transporte_consorcio_administrativo_estado
+        description: Em transporte o município participa de - Consórcio administrativo
+          com o Estado
+      - name: articulacao_transporte_consorcio_administrativo_uniao
+        description: Em transporte o município participa de - Consórcio administrativo
+          com o Governo Federal
+      - name: articulacao_transporte_convenio_setor_privado
+        description: Em transporte o município participa de - Convênio de parceria
+          com o setor privado
+      - name: articulacao_transporte_apoio_setor_privado_comunidades
+        description: Em transporte o município participa de - Apoio do setor privado
+          ou de comunidades
+      - name: articulacao_saneamento_consorcio_publico_intermunicipal
+        description: Em saneamento o município participa de - Consórcio público intermunicipal
+      - name: articulacao_saneamento_consorcio_publico_estado
+        description: Em saneamento o município participa de - Consórcio público com
+          o Estado
+      - name: articulacao_saneamento_consorcio_publico_uniao
+        description: Em saneamento o município participa de - Consórcio público com
+          o Governo Federal
+      - name: articulacao_saneamento_consorcio_administrativo_intermunicipal
+        description: Em saneamento o município participa de - Consórcio administrativo
+          intermunicipal
+      - name: articulacao_saneamento_consorcio_administrativo_estado
+        description: Em saneamento o município participa de - Consórcio administrativo
+          com o Estado
+      - name: articulacao_saneamento_consorcio_administrativo_uniao
+        description: Em saneamento o município participa de - Consórcio administrativo
+          com o Governo Federal
+      - name: articulacao_saneamento_convenio_setor_privado
+        description: Em saneamento o município participa de - Convênio de parceria
+          com o setor privado
+      - name: articulacao_saneamento_apoio_setor_privado_comunidades
+        description: Em saneamento o município participa de - Apoio do setor privado
+          ou de comunidades
+  - name: br_ibge_munic__meio_ambiente
+    description: Meio Ambiente
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio]
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: caracterizacao_orgao_gestor
+        description: Caracterização do órgão gestor do meio ambiente no município
+      - name: informacoes_gestor_escolaridade
+        description: Informações sobre o gestor - Escolaridade
+      - name: informacoes_gestor_sexo
+        description: Informações sobre o gestor - Sexo
+      - name: informacoes_gestor_idade
+        description: Informações sobre o gestor - Idade
+      - name: informacoes_gestor_cor_raca
+        description: Informações sobre o gestor - Cor ou raça
+      - name: informacoes_gestor_cor_raca_respondido_gestor
+        description: Informações sobre o gestor - Cor ou raça - Foi respondido pelo
+          próprio titular do órgão gestor
+      - name: secretaria_existencia
+        description: Secretaria de meio ambiente - Existência
+      - name: secretaria_trata_unicamiente_meio_ambiente
+        description: Secretaria de meio ambiente - Trata unicamente de meio ambiente
+      - name: departamento_similar_existencia
+        description: Departamento ou órgão similar para tratar da questão ambiental
+          - Existência
+      - name: secretaria_associada_subordinada_agricultura
+        description: Secretaria que a área de meio ambiente está associada/subordinada
+          - Agricultura
+      - name: secretaria_associada_subordinada_defesa_civil
+        description: Secretaria que a área de meio ambiente está associada/subordinada
+          - Defesa Civil
+      - name: secretaria_associada_subordinada_educacao_cultura
+        description: Secretaria que a área de meio ambiente está associada/subordinada
+          - Educação/Cultura
+      - name: secretaria_associada_subordinada_industria
+        description: Secretaria que a área de meio ambiente está associada/subordinada
+          - Indústria
+      - name: secretaria_associada_subordinada_obras
+        description: Secretaria que a área de meio ambiente está associada/subordinada
+          - Obras
+      - name: secretaria_associada_subordinada_pesca
+        description: Secretaria que a área de meio ambiente está associada/subordinada
+          - Pesca
+      - name: secretaria_associada_subordinada_planejamento
+        description: Secretaria que a área de meio ambiente está associada/subordinada
+          - Planejamento
+      - name: secretaria_associada_subordinada_saude
+        description: Secretaria que a área de meio ambiente está associada/subordinada
+          - Saúde
+      - name: secretaria_associada_subordinada_turismo
+        description: Secretaria que a área de meio ambiente está associada/subordinada
+          - Turismo
+      - name: secretaria_associada_subordinada_outras
+        description: Secretaria que a área de meio ambiente está associada/subordinada
+          - Outras
+      - name: pessoal_ocupado_total
+        description: Pessoal ocupado na área de meio ambiente - Total
+      - name: pessoal_ocupado_estatutario
+        description: Pessoal ocupado na área de meio ambiente - Estatutário
+      - name: pessoal_ocupado_celetista
+        description: Pessoal ocupado na área de meio ambiente - Celetista
+      - name: pessoal_ocupado_estagiario
+        description: Pessoal ocupado na área de meio ambiente - Estagiário
+      - name: pessoal_ocupado_somente_comissionado
+        description: Pessoal ocupado na área de meio ambiente - Somente comissionado
+      - name: pessoal_ocupado_outros
+        description: Pessoal ocupado na área de meio ambiente - Outros
+      - name: pessoal_ocupado_sem_vinculo_permanente
+        description: Pessoal ocupado na área de meio ambiente - Sem vínculo permanente
+      - name: capacitacao_uniao_ultimos_4anos
+        description: Nos últimos quatro anos servidores do município participaram
+          de capacitação promovida pelo governo federal na área de meio ambiente
+      - name: capacitacao_area_estruturacao_gestao
+        description: Em qual(is) área(s) temática(s) se deu(ram) essa(s) capacitação(ões)
+          - Estruturação da gestão municipal de meio ambiente
+      - name: capacitacao_area_licensiamento
+        description: Em qual(is) área(s) temática(s) se deu(ram) essa(s) capacitação(ões)
+          - Licenciamento
+      - name: capacitacao_area_educacao_ambiental
+        description: Em qual(is) área(s) temática(s) se deu(ram) essa(s) capacitação(ões)
+          - Educação ambiental
+      - name: capacitacao_area_educacao_ambiental_agricultura_familiar
+        description: Em qual(is) área(s) temática(s) se deu(ram) essa(s) capacitação(ões)
+          - Educação ambiental voltada para a agricultura familiar
+      - name: capacitacao_area_car
+        description: Em qual(is) área(s) temática(s) se deu(ram) essa(s) capacitação(ões)
+          - Cadastro Ambiental Rural
+      - name: capacitacao_area_residuos_solidos
+        description: Em qual(is) área(s) temática(s) se deu(ram) essa(s) capacitação(ões)
+          - Resíduos Sólidos
+      - name: capacitacao_area_producao_consumo_sustentaveis
+        description: Em qual(is) área(s) temática(s) se deu(ram) essa(s) capacitação(ões)
+          - Produção e consumo sustentáveis
+      - name: capacitacao_area_mudanca_clima
+        description: Em qual(is) área(s) temática(s) se deu(ram) essa(s) capacitação(ões)
+          - Mudança do clima
+      - name: capacitacao_area_recursos_hidricos
+        description: Em qual(is) área(s) temática(s) se deu(ram) essa(s) capacitação(ões)
+          - Recursos Hídricos
+      - name: capacitacao_area_participacao_social_foruns
+        description: Em qual(is) área(s) temática(s) se deu(ram) essa(s) capacitação(ões)
+          - Participação social em fóruns e colegiados de meio ambiente
+      - name: capacitacao_area_outras
+        description: Em qual(is) área(s) temática(s) se deu(ram) essa(s) capacitação(ões)
+          - Outras
+      - name: conselho_existencia
+        description: Conselho municipal de meio ambiente - Existência
+      - name: conselho_ano_criacao
+        description: Conselho municipal de meio ambiente - Ano de criação
+      - name: conselho_formacao
+        description: Conselho municipal de meio ambiente - Formação
+      - name: conselho_paritario
+        description: Conselho municipal de meio ambiente - É paritário
+      - name: conselho_realizacao_reunioes
+        description: Conselho municipal de meio ambiente - Realização de reuniões
+      - name: conselho_realizou_reuniao_ultimos_12meses
+        description: Conselho municipal de meio ambiente - Realizou uma reunião nos
+          últimos 12 meses
+      - name: conselho_reunioes_ultimos_12meses
+        description: Conselho municipal de meio ambiente - Número de reuniões nos
+          últimos 12 meses
+      - name: conselho_carater_consultivo
+        description: Conselho municipal de meio ambiente - Caráter - Consultivo
+      - name: conselho_carater_deliberativo
+        description: Conselho municipal de meio ambiente - Caráter - Deliberativo
+      - name: conselho_carater_normativo
+        description: Conselho municipal de meio ambiente - Caráter - Normativo
+      - name: conselho_carater_fiscalizador
+        description: Conselho municipal de meio ambiente - Caráter - Fiscalizador
+      - name: conselho_conselheiros
+        description: Conselho municipal de meio ambiente - Número de conselheiros
+          (titulares e suplentes)
+      - name: conselho_capacitacao_membros_periodicamente
+        description: Conselho municipal de meio ambiente - Capacitação dos membros
+          - Periodicamente
+      - name: conselho_capacitacao_membros_ocasionalmente
+        description: Conselho municipal de meio ambiente - Capacitação dos membros
+          - Ocasionalmente
+      - name: conselho_capacitacao_membros_nao_realiza
+        description: Conselho municipal de meio ambiente - Capacitação dos membros
+          - Não realiza
+      - name: conselho_infraestrutura
+        description: Conselho municipal de meio ambiente - Município disponibiliza
+          infraestrutura
+      - name: conselho_infraestrutura_sala
+        description: Conselho municipal de meio ambiente - Município disponibiliza
+          infraestrutura - Sala
+      - name: conselho_infraestrutura_computador
+        description: Conselho municipal de meio ambiente - Município disponibiliza
+          infraestrutura - Computador
+      - name: conselho_infraestrutura_impressora
+        description: Conselho municipal de meio ambiente - Município disponibiliza
+          infraestrutura - Impressora
+      - name: conselho_infraestrutura_internet
+        description: Conselho municipal de meio ambiente - Município disponibiliza
+          infraestrutura - Acesso à internet
+      - name: conselho_infraestrutura_veiculo
+        description: Conselho municipal de meio ambiente - Município disponibiliza
+          infraestrutura - Veículo
+      - name: conselho_infraestrutura_telefone
+        description: Conselho municipal de meio ambiente - Município disponibiliza
+          infraestrutura - Telefone
+      - name: conselho_infraestrutura_diarias
+        description: Conselho municipal de meio ambiente - Município disponibiliza
+          infraestrutura - Diárias
+      - name: conselho_infraestrutura_dotacao_orcamentaria
+        description: Conselho municipal de meio ambiente - Município disponibiliza
+          infraestrutura - Dotação orçamentária própria
+      - name: fundo_municipal_existencia
+        description: Fundo municipal de meio ambiente - Existência
+      - name: fundo_municipal_gestao_conselho_municipal
+        description: O conselho gestor do Fundo é o Conselho Municipal de Meio Ambiente
+          ou similar
+      - name: fundo_municipal_financiou_acoes_ano_anterior
+        description: O fundo municipal de meio ambiente tem financiado ações e projetos
+          para questões ambientais no ano anterior
+      - name: recursos_especificos_meio_ambiente
+        description: A área responsável pelo tema meio ambiente dispõe de recursos
+          financeiros específicos para serem utilizados no desenvolvimento de suas
+          ações
+      - name: licensiamento_impacto_local
+        description: O município realiza licenciamento ambiental de impacto local
+      - name: licensiamento_instrumentos_delegacao_outros_impactos
+        description: O município tem algum instrumento de cooperação com órgão estadual
+          de meio ambiente para delegação de competência de licenciamento ambiental
+          relacionado a atividades que vão além do impacto local
+      - name: licensiamento_concedeu_ano_anterior
+        description: O município realiza licenciamento ambiental - Concedeu no ano
+          anterior
+      - name: licensiamento_concedeu_ano_anterior_licencas_previas
+        description: O município realiza licenciamento ambiental - Concedeu no ano
+          anterior - Licenças Prévias (LP)
+      - name: licensiamento_concedeu_ano_anterior_licencas_instalacao
+        description: O município realiza licenciamento ambiental - Concedeu no ano
+          anterior - Licenças Instalação (LI)
+      - name: licensiamento_concedeu_ano_anterior_licencas_operacao
+        description: O município realiza licenciamento ambiental - Concedeu no ano
+          anterior - Licenças de Operação (LO)
+      - name: base_cartografica_digitalizada_existencia
+        description: Base cartográfica digitalizada - Existência
+      - name: sistema_informacao_geografica_existencia
+        description: Sistema de Informação Geográfica - Existência
+      - name: agenda21_processo_elaboracao_local
+        description: Agenda 21 local - Iniciou o processo de elaboração
+      - name: agenda21_estagio_atual
+        description: Agenda 21 local - Estágio atual da agenda local
+      - name: agenda21_forum_frequencia_ultimos_12meses
+        description: Agenda 21 local - Fórum se reuniu com que frequência nos últimos
+          12 meses
+      - name: cadastro_ambiental_rural
+        description: O município implantou o Cadastro Ambiental Rural (CAR)
+      - name: legislacao_questao_ambiental
+        description: Legislação específica para tratar de questão ambiental
+      - name: legislacao_questao_ambiental_forma
+        description: Legislação específica para tratar de questão ambiental - A legislação
+          está organizada sob forma de
+      - name: legislacao_coleta_seletiva
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre coleta seletiva de resíduos sólidos domésticos
+      - name: legislacao_coleta_seletiva_ano_criacao
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre coleta seletiva de resíduos sólidos domésticos - Ano de criação
+      - name: legislacao_saneamento_basico
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre saneamento básico
+      - name: legislacao_saneamento_basico_ano_criacao
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre saneamento básico - Ano de criação
+      - name: legislacao_gestao_bacias_hidrograficas
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre gestão de bacias hidrográficas
+      - name: legislacao_gestao_bacias_hidrograficas_ano_criacao
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre gestão de bacias hidrográficas - Ano de criação
+      - name: legislacao_area_protecao_ambiental
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre área e/ou zona de proteção ou controle ambiental
+      - name: legislacao_area_protecao_ambiental_ano_criacao
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre área e/ou zona de proteção ou controle ambiental - Ano de criação
+      - name: legislacao_destino_embalagens_agrotoxicos
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre destino das embalagens utilizadas em produtos agrotóxicos
+      - name: legislacao_destino_embalagens_agrotoxicos_ano_criacao
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre destino das embalagens utilizadas em produtos agrotóxicos - Ano
+          de criação
+      - name: legislacao_poluicao_ar
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre poluição do ar
+      - name: legislacao_poluicao_ar_ano_criacao
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre poluição do ar - Ano de criação
+      - name: legislacao_permissao_atividades_extrativas_minerais
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre permissão de atividades extrativas minerais
+      - name: legislacao_permissao_atividades_extrativas_minerais_ano_criacao
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre permissão de atividades extrativas minerais - Ano de criação
+      - name: legislacao_fauna_silvestre
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre fauna silvestre
+      - name: legislacao_fauna_silvestre_ano_criacao
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre fauna silvestre - Ano de criação
+      - name: legislacao_florestas
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre florestas
+      - name: legislacao_florestas_ano_criacao
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre florestas - Ano de criação
+      - name: legislacao_protecao_biodiversidade
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre proteção à biodiversidade
+      - name: legislacao_protecao_biodiversidade_ano_criacao
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre proteção à biodiversidade - Ano de criação
+      - name: legislacao_adaptacao_mitigacao_mudanca_clima
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre adaptação e mitigação de mudança do clima
+      - name: legislacao_adaptacao_mitigacao_mudanca_clima_ano_criacao
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Sobre adaptação e mitigação de mudança do clima - Ano de criação
+      - name: legislacao_nenhuma_citada
+        description: Legislação ou instrumento de gestão ambiental existente no município
+          - Nenhuma legislação citada
+      - name: implementacao_convenio_parceria
+        description: Implementação pela prefeitura de convênio, cooperação técnica
+          ou outro tipo de parceria com vistas a desenvolver ações na área ambiental
+      - name: implementacao_convenio_parceria_orgao_publico
+        description: Implementação pela prefeitura de convênio ou parceria - Implementado
+          com órgão público
+      - name: implementacao_convenio_parceria_empresa_estatal
+        description: Implementação pela prefeitura de convênio ou parceria - Implementado
+          com empresa estatal
+      - name: implementacao_convenio_parceria_iniciativa_privada
+        description: Implementação pela prefeitura de convênio ou parceria - Implementado
+          com iniciativa privada
+      - name: implementacao_convenio_parceria_instituicao_internacional
+        description: Implementação pela prefeitura de convênio ou parceria - Implementado
+          com instituição/órgão internacional
+      - name: implementacao_convenio_parceria_ong
+        description: Implementação pela prefeitura de convênio ou parceria - Implementado
+          com organização não governamental
+      - name: implementacao_convenio_parceria_universidade_orgao_ensino_pesquisa
+        description: Implementação pela prefeitura de convênio ou parceria - Implementado
+          com universidade/órgão de ensino e pesquisa
+      - name: implementacao_convenio_parceria_outro
+        description: Implementação pela prefeitura de convênio ou parceria - Implementado
+          com outro
+      - name: articulacao_intermunicipal_consorcio
+        description: O município participa de articulação intermunicipal na área de
+          meio ambiente na forma de - Consórcio intermunicipal
+      - name: articulacao_principais_temas_abordados_consorcio_1
+        description: 3 principais temas abordados nos referidos consórcios - Um
+      - name: articulacao_principais_temas_abordados_consorcio_2
+        description: 3 principais temas abordados nos referidos consórcios - Dois
+      - name: articulacao_principais_temas_abordados_consorcio_3
+        description: 3 principais temas abordados nos referidos consórcios - Três
+      - name: articulacao_intermunicipal_comite_bacia_hidrografica
+        description: O município participa de articulação intermunicipal na área de
+          meio ambiente na forma de - Comitê de bacia hidrográfica
+      - name: articulacao_intermunicipal_comite_bacia_hidrografica_quantidade_comites
+        description: O município participa de articulação intermunicipal - Quantidade
+          de comitês de que o município participa
+      - name: articulacao_intermunicipal_outro
+        description: O município participa de articulação intermunicipal na área de
+          meio ambiente na forma de - Outro tipo de associação/parceria
+      - name: articulacao_temas_abordados_disposicao_residuos_solidos
+        description: Temas abordados nos referidos consórcios - Disposição de resíduos
+          sólidos (lixo) doméstico e/ou industrial
+      - name: articulacao_temas_abordados_recuperacao_recurso_hidrico
+        description: Temas abordados nos referidos consórcios - Recuperação da qualidade
+          de recurso hídrico
+      - name: articulacao_temas_abordados_tratamento_esgoto_domestico
+        description: Temas abordados nos referidos consórcios - Tratamento de esgoto
+          doméstico
+      - name: articulacao_temas_abordados_recuperacao_areas_degradadas
+        description: Temas abordados nos referidos consórcios - Recuperação de áreas
+          degradadas
+      - name: articulacao_temas_abordados_outros
+        description: Temas abordados nos referidos consórcios - Outros
+      - name: articulacao_consorcio_publico_intermunicipal
+        description: Na política de meio ambiente o município participa de - Consórcio
+          público intermunicipal
+      - name: articulacao_consorcio_publico_estado
+        description: Na política de meio ambiente o município participa de - Consórcio
+          público com o Estado
+      - name: articulacao_consorcio_publico_uniao
+        description: Na política de meio ambiente o município participa de - Consórcio
+          público com o Governo Federal
+      - name: articulacao_consorcio_administrativo_intermunicipal
+        description: Na política de meio ambiente o município participa de - Consórcio
+          administrativo intermunicipal
+      - name: articulacao_consorcio_administrativo_estado
+        description: Na política de meio ambiente o município participa de - Consórcio
+          administrativo com o Estado
+      - name: articulacao_consorcio_administrativo_uniao
+        description: Na política de meio ambiente o município participa de - Consórcio
+          administrativo com o Governo Federal
+      - name: articulacao_convenio_setor_privado
+        description: Na política de meio ambiente o município participa de - Convênio
+          de parceria com o setor privado
+      - name: articulacao_apoio_setor_privado_comunidades
+        description: Na política de meio ambiente o município participa de - Apoio
+          do setor privado ou de comunidades
+      - name: articulacao_nao_participa
+        description: Na política de meio ambiente o município participa de - Não participa
+      - name: parceria_governo_federal_programas
+        description: O governo municipal está implementando em parceria com o Governo
+          Federal algum dos programas abaixo
+      - name: parceria_governo_federal_programas_coletivo_educador
+        description: Parceria com o Governo Federal - Coletivo educador
+      - name: parceria_governo_federal_programas_sala_verde
+        description: Parceria com o Governo Federal - Sala Verde
+      - name: parceria_governo_federal_programas_circuito_tela_verde
+        description: Parceria com o Governo Federal - Circuito Tela Verde
+      - name: parceria_governo_federal_programas_conferencia_infanto_juvenil
+        description: Parceria com o Governo Federal - Etapa municipal da Conferência
+          Infanto-juvenil pelo Meio Ambiente
+      - name: parceria_governo_federal_programas_educacao_ambiental_pgrs
+        description: Parceria com o Governo Federal - Educação Ambiental no Plano
+          de Gestão de Resíduos Sólidos (PGIRS)
+      - name: parceria_governo_federal_programas_sustentabilidade_instituicoes_publicas
+        description: Parceria com o Governo Federal - Sustentabilidade ambiental das
+          instituições públicas
+      - name: parceria_governo_federal_programas_peaaf
+        description: Parceria com o Governo Federal - Programa de Educação Ambiental
+          e Agricultura Familiar – PEAAF
+      - name: parceria_governo_federal_programas_conferencia_nacional_meio_ambiente
+        description: Parceria com o Governo Federal - Etapa municipal da Conferência
+          Nacional de Meio Ambiente
+      - name: parceria_governo_federal_programas_nenhum
+        description: Parceria com o Governo Federal - Nenhum dos programas
+      - name: ceia_estadual
+        description: O município participa de Comissão Interinstitucional de Educação
+          Ambiental (CIEA) de âmbito estadual ou similar
+      - name: ceia_estadual_reuniao_ultimos_12meses
+        description: Participou de alguma reunião da CIEA ou similar nos últimos 12
+          meses
+      - name: plano_gestao_integrada_residuos_solidos_pnrs
+        description: O município possui Plano de Gestão Integrada de Resíduos Sólidos
+          nos termos estabelecidos na Política Nacional de Resíduos Sólidos
+      - name: plano_gestao_integrada_residuos_solidos_pnrs_apenas_municipio
+        description: Esse plano abrange apenas esse município
+      - name: iniciativas_consumo_sustentavel
+        description: O governo municipal está implementando alguma iniciativa na área
+          de consumo sustentável
+      - name: iniciativas_consumo_sustentavel_reducao_sacolas_plasticas
+        description: Iniciativas de consumo sustentável - Redução do uso de sacolas
+          plásticas
+      - name: iniciativas_consumo_sustentavel_sustentabilidade_instituicoes_publicas
+        description: Iniciativas de consumo sustentável - Sustentabilidade ambiental
+          das instituições públicas
+      - name: iniciativas_consumo_sustentavel_reducao_consumo_agua_energia
+        description: Iniciativas de consumo sustentável - Redução do consumo de água
+          ou energia elétrica
+      - name: iniciativas_consumo_sustentavel_criterio_ambiental_compra_publica
+        description: Iniciativas de consumo sustentável - Uso de critério ambiental
+          em compra ou concorrência pública
+      - name: iniciativas_consumo_sustentavel_outras
+        description: Iniciativas de consumo sustentável - Outras iniciativas
+      - name: unidade_conservacao_municipal_existencia
+        description: Unidade de Conservação Municipal - Existência
+      - name: recursos_especificos_meio_ambiente_licensiamento
+        description: O município contou com recursos específicos para a área ambiental
+          nos últimos 12 meses
+      - name: recursos_oriundos_institiuicao_internacional
+        description: Recursos oriundos de Instituição/órgão internacional
+      - name: recursos_oriundos_empresa_publica
+        description: Recursos oriundos de Empresa pública
+      - name: recursos_oriundos_entidades_ensino_pesquisa
+        description: Recursos oriundos de Entidades de ensino e pesquisa
+      - name: recursos_oriundos_ong
+        description: Recursos oriundos de Organização não governamental
+      - name: recursos_oriundos_iniciativa_privada
+        description: Recursos oriundos de Iniciativa privada
+      - name: recursos_oriundos_outros
+        description: Recursos oriundos de Outros
+      - name: recursos_oriundos_orgao_publico
+        description: Recursos oriundos de Órgão público
+      - name: recursos_oriundos_orgao_publico_taxa_licensiamento
+        description: Recursos oriundos de Órgão público - Taxa de licenciamento/fiscalização
+      - name: recursos_oriundos_orgao_publico_multas
+        description: Recursos oriundos de Órgão público - Multas
+      - name: recursos_oriundos_orgao_publico_icms_ecologico
+        description: Recursos oriundos de Órgão público - ICMS Ecológico
+      - name: recursos_oriundos_orgao_publico_royalties
+        description: Recursos oriundos de Órgão público - Royalties
+      - name: recursos_oriundos_orgao_publico_outros
+        description: Recursos oriundos de Órgão público - Outros
+      - name: ocorrencia_impactante_ultimos_24meses
+        description: Ocorrências impactantes observadas com frequência no meio ambiente
+          municipal nos últimos 24 meses
+      - name: ocorrencia_impactante_ultimos_24meses_condicoes_extremas
+        description: Tipo de ocorrência - Condições climáticas extremas (secas, enxurradas)
+      - name: ocorrencia_impactante_ultimos_24meses_poluicao_ar
+        description: Tipo de ocorrência - Poluição do ar
+      - name: ocorrencia_impactante_ultimos_24meses_poluicao_agua
+        description: Tipo de ocorrência - Poluição do recurso água
+      - name: ocorrencia_impactante_ultimos_24meses_escassez_agua
+        description: Tipo de ocorrência - Escassez do recurso água
+      - name: ocorrencia_impactante_ultimos_24meses_assoreamento_agua
+        description: Tipo de ocorrência - Assoreamento de corpo d'água no município
+      - name: ocorrencia_impactante_ultimos_24meses_diminuicao_vazao_agua
+        description: Tipo de ocorrência - Diminuição de vazão de algum corpo d'água
+      - name: ocorrencia_impactante_ultimos_24meses_contaminacao_solo
+        description: Tipo de ocorrência - Contaminação do solo (por agrotóxicos, fertilizantes)
+      - name: ocorrencia_impactante_ultimos_24meses_perda_solo
+        description: Tipo de ocorrência - Perda de solos por erosão e/ou desertificação
+      - name: ocorrencia_impactante_ultimos_24meses_degradacao_areas_protegidas
+        description: Tipo de ocorrência - Degradação de áreas legalmente protegidas
+      - name: ocorrencia_impactante_ultimos_24meses_desmatamento
+        description: Tipo de ocorrência - Desmatamento
+      - name: ocorrencia_impactante_ultimos_24meses_alteracao_paisagem
+        description: Tipo de ocorrência - Alteração que tenha prejudicado a paisagem
+      - name: ocorrencia_impactante_ultimos_24meses_queimadas
+        description: Tipo de ocorrência - Queimadas
+      - name: ocorrencia_impactante_ultimos_24meses_reducao_biodiversidade
+        description: Tipo de ocorrência - Diminuição da biodiversidade (fauna e flora)
+      - name: ocorrencia_impactante_ultimos_24meses_reducao_quantidade_diversidade_pescado
+        description: Tipo de ocorrência - Redução da quantidade/diversidade ou perda
+          da qualidade do pescado
+      - name: ocorrencia_impactante_ultimos_24meses_agricultura_prejudicada
+        description: Tipo de ocorrência - Atividade agrícola prejudicada por problema
+          ambiental
+      - name: ocorrencia_impactante_ultimos_24meses_pecuaria_prejudicada
+        description: Tipo de ocorrência - Atividade pecuária prejudicada por problema
+          ambiental
+      - name: ocorrencia_impactante_ultimos_24meses_moradia_risco_ambiental
+        description: Tipo de ocorrência - Existência de moradia em situação de risco
+          ambiental
+      - name: ocorrencia_impactante_ultimos_24meses_falta_saneamento
+        description: Tipo de ocorrência - Falta de saneamento (destinação inadequada
+          do esgoto doméstico)
+      - name: ocorrencia_impactante_ultimos_24meses_outras
+        description: Tipo de ocorrência - Outras
+      - name: ocorrencia_impactante_ultimos_24meses_nenhuma
+        description: Tipo de ocorrência - Nenhuma ocorrência
+      - name: servicos_recebe_recursos_pagamento
+        description: O município recebe recursos com vistas ao pagamento de serviços
+          ambientais
+      - name: servicos_recebe_recursos_pagamento_municipio
+        description: Recebe recursos - Orçamento municipal
+      - name: servicos_recebe_recursos_pagamento_uniao
+        description: Recebe recursos - Governo federal
+      - name: servicos_recebe_recursos_pagamento_estado
+        description: Recebe recursos - Governo estadual
+      - name: servicos_recebe_recursos_pagamento_outro_municipio
+        description: Recebe recursos - Outro governo municipal
+      - name: servicos_recebe_recursos_pagamento_iniciativa_privada
+        description: Recebe recursos - Iniciativa privada
+      - name: servicos_recebe_recursos_pagamento_ong
+        description: Recebe recursos - Organizações não governamentais
+      - name: servicos_recebe_recursos_pagamento_doacoes
+        description: Recebe recursos - Doações
+      - name: servicos_recebe_recursos_pagamento_outros
+        description: Recebe recursos - Outros
+      - name: servicos_paga
+        description: O município paga por serviços ambientais (PSA) prestados por
+          entidades ou pessoas físicas residentes no município
+      - name: servicos_paga_instrumento_conservacao_melhoria_agua
+        description: PSA - Pagamento por ações que promovam a conservação e o melhoramento
+          da quantidade e da qualidade dos recursos hídricos
+      - name: servicos_paga_instrumento_conservacao_vegetacao_vida_silvestre
+        description: PSA - Pagamento por ações de conservação e preservação da vegetação
+          nativa e da vida silvestre
+      - name: servicos_paga_instrumento_unidades_conservacao
+        description: PSA - Pagamento por ações que promovam a conservação nas áreas
+          de Unidades de Conservação
+      - name: servicos_paga_instrumento_recuperacao_solos_areas_degradadas
+        description: PSA - Pagamento por ações de recuperação e conservação dos solos
+          e recomposição da cobertura vegetal de áreas degradadas
+      - name: servicos_paga_instrumento_conservacao_vegetacao_urbana
+        description: PSA - Pagamento por ações de conservação de remanescentes vegetais
+          em áreas urbanas
+      - name: servicos_paga_instrumento_captura_carbono
+        description: PSA - Pagamento por ações de captura e retenção de carbono
+      - name: servicos_paga_instrumento_outros
+        description: PSA - Outros
+      - name: servicos_instrumento
+        description: Instrumento legal que ampara o pagamento do serviço ambiental
+          pelo município
+      - name: lei_parcelamento_solo_define_zonas_prioritarias
+        description: Lei de parcelamento do solo para fins urbanos define zonas prioritárias
+          para a proteção ambiental em áreas urbanas
+      - name: lei_parcelamento_solo_define_zonas_prioritarias_quantas
+        description: Quantas zonas prioritárias para a proteção ambiental em áreas
+          urbanas
+      - name: terceirizacao_ano_anterior
+        description: No ano anterior a Prefeitura teve contrato de prestação de serviços
+          (terceirização) com empresas na área de meio ambiente
+      - name: plano_contingencia_desastres_naturais_existencia
+        description: Plano de Contingência ou Emergência para casos de desastres ambientais
+          - Existência
