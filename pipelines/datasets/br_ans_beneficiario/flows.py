@@ -43,6 +43,8 @@ with Flow(
         "update_metadata", default=False, required=False
     )
 
+    year = Parameter("year", default="2020", required=False)
+
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -63,7 +65,7 @@ with Flow(
     # Se update == True, força o update dos dados.
     # with case(force_update, True):
     files = files_to_download(
-        links_and_dates, upstream_tasks=[links_and_dates]
+        links_and_dates, year=year, upstream_tasks=[links_and_dates]
     )
 
     # with case(force_update, False):

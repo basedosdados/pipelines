@@ -98,10 +98,10 @@ def check_for_updates(df):
 
 
 @task
-def files_to_download(df):
+def files_to_download(df, year):
     log("Arquivos na fila para o download -->")
+    df = df[df["arquivo"].str.contains(year)]
     log(df["arquivo"].unique().tolist())
-
     return df["arquivo"].unique().tolist()
 
 
