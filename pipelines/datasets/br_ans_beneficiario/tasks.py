@@ -114,6 +114,10 @@ def crawler_ans(files):
 
         # log(f"DOWNLOADED FILE ->>> {file}")
 
+        os.makedirs(
+            "/tmp/data/br_ans_beneficiario/beneficiario/input/", exist_ok=True
+        )
+
         parquet_partition(
             path="/tmp/data/br_ans_beneficiario/beneficiario/input/"
         )
