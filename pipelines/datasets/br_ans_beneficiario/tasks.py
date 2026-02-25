@@ -2,6 +2,7 @@
 Tasks for br_ans_beneficiario
 """
 
+import asyncio
 import gc
 import os
 import re
@@ -14,8 +15,10 @@ from prefect import task
 from tqdm import tqdm
 
 from pipelines.datasets.br_ans_beneficiario.utils import (
+    get_url_from_template,
     parquet_partition,
 )
+from pipelines.utils.to_download.utils import download_files_async
 from pipelines.utils.utils import log
 
 
@@ -105,14 +108,14 @@ def files_to_download(df):
 @task
 def crawler_ans(files):
     for file in tqdm(files):
-        # urls, _ = get_url_from_template(file)
+        urls, _ = get_url_from_template(file)
 
-        # save_path = "/tmp/data/br_ans_beneficiario/beneficiario/input/"
-        # os.makedirs(save_path, exist_ok=True)
-        # log(f"`mkdir = True` >>> {save_path} directory was created.")
-        # asyncio.run(download_files_async(urls, save_path, "zip"))
+        save_path = "/tmp/data/br_ans_beneficiario/beneficiario/input/"
+        os.makedirs(save_path, exist_ok=True)
+        log(f"`mkdir = True` >>> {save_path} directory was created.")
+        asyncio.run(download_files_async(urls, save_path, "zip"))
 
-        # log(f"DOWNLOADED FILE ->>> {file}")
+        log(f"DOWNLOADED FILE ->>> {file}")
 
         os.makedirs(
             "/tmp/data/br_ans_beneficiario/beneficiario/input/", exist_ok=True
