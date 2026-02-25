@@ -2,6 +2,7 @@
 General purpose functions for the br_ans_beneficiario project
 """
 
+import gc
 import os
 import zipfile
 
@@ -106,6 +107,8 @@ def download_unzip_csv(
                 f'cd /tmp/data/br_ans_beneficiario/{id}/input; find . -type f ! -iname "*.csv" -delete'
             )
 
+            gc.collect()
+
     elif isinstance(urls, str):
         log(f"Baixando o arquivo {urls}")
         download_url = urls
@@ -143,7 +146,7 @@ def parquet_partition(path):
             df = pd.read_csv(
                 f"{path}{nome_arquivo}",
                 sep=";",
-                encoding="latin1",
+                encoding="utf-8",
                 dtype=ans_constants.RAW_COLLUNS_TYPE.value,
             )
             # df = process(df)

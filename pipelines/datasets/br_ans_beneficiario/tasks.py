@@ -2,7 +2,7 @@
 Tasks for br_ans_beneficiario
 """
 
-import asyncio
+import gc
 import os
 import re
 from datetime import datetime
@@ -14,10 +14,8 @@ from prefect import task
 from tqdm import tqdm
 
 from pipelines.datasets.br_ans_beneficiario.utils import (
-    get_url_from_template,
     parquet_partition,
 )
-from pipelines.utils.to_download.utils import download_files_async
 from pipelines.utils.utils import log
 
 
@@ -65,6 +63,7 @@ def extract_links_and_dates(url) -> pd.DataFrame:
 
     df["desatualizado"] = df["data_hoje"] == df["ultima_atualizacao"]
     # df['desatualizado'] = df['arquivo'].apply(lambda x: True if x in ['inf_diario_fi_202201.zip','inf_diario_fi_202305.zip'] else False)
+
     return df
 
 
@@ -83,8 +82,8 @@ def get_file_max_date(df):
 
 
 @task
-def check_condition(con1: bool, con2: bool):
-    return con1 is True or con2 is True
+def check_condition(con1: bool):
+    return con1 is True
 
 
 @task
@@ -98,27 +97,22 @@ def check_for_updates(df):
 @task
 def files_to_download(df):
     log("Arquivos na fila para o download -->")
-    log(
-        df[
-            df["ultima_atualizacao"] == max(df["ultima_atualizacao"])
-        ].arquivo.to_list()
-    )
-    return df[
-        df["ultima_atualizacao"] == max(df["ultima_atualizacao"])
-    ].arquivo.to_list()
+    log(df["arquivo"].unique().tolist())
+
+    return df["arquivo"].unique().tolist()
 
 
 @task
 def crawler_ans(files):
     for file in tqdm(files):
-        urls, _ = get_url_from_template(file)
+        # urls, _ = get_url_from_template(file)
 
-        save_path = "/tmp/data/br_ans_beneficiario/beneficiario/input/"
-        os.makedirs(save_path, exist_ok=True)
-        log(f"`mkdir = True` >>> {save_path} directory was created.")
-        asyncio.run(download_files_async(urls, save_path, "zip"))
+        # save_path = "/tmp/data/br_ans_beneficiario/beneficiario/input/"
+        # os.makedirs(save_path, exist_ok=True)
+        # log(f"`mkdir = True` >>> {save_path} directory was created.")
+        # asyncio.run(download_files_async(urls, save_path, "zip"))
 
-        log(f"DOWNLOADED FILE ->>> {file}")
+        # log(f"DOWNLOADED FILE ->>> {file}")
 
         parquet_partition(
             path="/tmp/data/br_ans_beneficiario/beneficiario/input/"
@@ -129,9 +123,12 @@ def crawler_ans(files):
         )
         log(f"CSV`s files have been deleted for ->>> {file}")
 
+        gc.collect()
+
     return "/tmp/data/br_ans_beneficiario/output/"
 
 
 @task
 def is_empty(lista):
+    log(f"Lista de arquivos para download: {lista}")
     return len(lista) == 0
