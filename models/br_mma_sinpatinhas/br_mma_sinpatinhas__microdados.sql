@@ -1,6 +1,6 @@
 {{
     config(
-        alias="patinhas_registradas",
+        alias="microdados",
         schema="br_mma_sinpatinhas",
         materialized="table",
     )
@@ -13,4 +13,4 @@ select
     safe_cast(idade as int64) idade,
     safe_cast(sexo as string) sexo,
     safe_cast(cor_pelagem as string) cor_pelagem,
-from {{ set_datalake_project("br_mma_sinpatinhas_staging.patinhas_registradas") }} as t
+from {{ set_datalake_project("br_mma_sinpatinhas_staging.microdados") }} as t

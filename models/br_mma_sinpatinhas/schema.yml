@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: br_mma_sinpatinhas__patinhas_registradas
+  - name: br_mma_sinpatinhas__microdados
     description: É um sistema inovador desenvolvido pelo Governo Federal para gerenciar
       e monitorar a política pública de controle populacional de animais. Focado em
       iniciativas de castração e microchipagem, o sistema permite o cadastro de animais,
