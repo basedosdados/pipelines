@@ -1,0 +1,153 @@
+from enum import Enum
+
+
+class Constants(Enum):
+    URL = "https://www.bcb.gov.br/estabilidadefinanceira/tabelas-credito-rural-proagro"
+    DATASET_ID = "br_bcb_sicor"
+    INPUT_FOLDER = f"input/{DATASET_ID}"
+    OUTPUT_FOLDER = f"output/{DATASET_ID}"
+
+    sicor_to_bd_table_names = {
+        "microdados_operacao": {
+            "table_raw_name": "OPERACAO_BASICA_ESTADO",
+            "table_schema": {
+                "#REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "CD_ESTADO": "sigla_uf",
+                "CD_CATEG_EMITENTE": "id_categoria_emitente",
+                "CD_EMPREENDIMENTO": "id_empreendimento",
+                "CD_FASE_CICLO_PRODUCAO": "id_fase_ciclo_producao",
+                "CD_FONTE_RECURSO": "id_fonte_recurso",
+                "CD_INST_CREDITO": "id_instrumento_credito",
+                "CD_PROGRAMA": "id_programa",
+                "CD_REF_BACEN_INVESTIMENTO": "id_referencia_bacen_investimento",
+                "CD_SUBPROGRAMA": "id_subprograma",
+                "CD_TIPO_AGRICULTURA": "id_tipo_agricultura",
+                "CD_TIPO_CULTIVO": "id_tipo_cultivo",
+                "CD_TIPO_ENCARG_FINANC": "id_tipo_encargo_financeiro",
+                "CD_TIPO_GRAO_SEMENTE": "id_tipo_grao_semente",
+                "CD_TIPO_INTGR_CONSOR": "id_tipo_integracao_consorcio",
+                "CD_TIPO_IRRIGACAO": "id_tipo_irrigacao",
+                "CD_TIPO_SEGURO": "id_tipo_seguro",
+                "CNPJ_AGENTE_INVEST": "cnpj_agente_investimento",
+                "CNPJ_IF": "cnpj_basico_instituicao_financeira",
+                "DT_EMISSAO": "data_emissao",
+                "DT_VENCIMENTO": "data_vencimento",
+                "DT_FIM_COLHEITA": "data_fim_colheita",
+                "DT_FIM_PLANTIO": "data_fim_plantio",
+                "DT_INIC_COLHEITA": "data_inicio_colheita",
+                "DT_INIC_PLANTIO": "data_inicio_plantio",
+                "VL_AREA_FINANC": "area_financiada",
+                "VL_ALIQ_PROAGRO": "valor_aliquota_proagro",
+                "VL_PARC_CREDITO": "valor_parcela_credito",
+                "VL_PRESTACAO_INVESTIMENTO": "valor_prestacao_investimento",
+                "VL_REC_PROPRIO": "valor_recurso_proprio",
+                "VL_RECEITA_BRUTA_ESPERADA": "valor_receita_bruta_esperada",
+                "VL_REC_PROPRIO_SRV": "valor_recurso_proprio_srv",
+                "VL_QUANTIDADE": "valor_quantidade_itens_financiados",
+                "VL_PRODUTIV_OBTIDA": "valor_produtividade_obtida",
+                "VL_PREV_PROD": "valor_previsao_producao",
+                "VL_JUROS": "taxa_juro",
+                "VL_JUROS_ENC_FINAN_POSFIX": "taxa_juro_encargo_financeiro_posfixado",
+                "VL_PERC_RISCO_STN": "valor_percentual_risco_stn",
+                "VL_PERC_CUSTO_EFET_TOTAL": "valor_percentual_custo_efetivo_total",
+                "VL_PERC_RISCO_FUNDO_CONST": "valor_percentual_risco_fundo_constitucional",
+                "CD_CONTRATO_STN": "id_contrato_sistema_tesouro_nacional",
+                "CD_CNPJ_CADASTRANTE": "cnpj_cadastrante",
+            },
+        },
+        "microdados_saldo": {
+            "table_raw_name": "SALDOS",
+            "table_schema": {
+                "#REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "CD_SITUACAO_OPERACAO": "id_situacao_operacao",
+                "ANO_BASE": "ano",
+                "MES_BASE": "mes",
+                "VL_MEDIO_DIARIO": "valor_medio_diario",
+                "VL_MEDIO_DIARIO_VINCENDO": "valor_medio_diario_vincendo",
+                "VL_ULTIMO_DIA": "valor_ultimo_dia",
+            },
+        },
+        "microdados_liberacao": {
+            "table_raw_name": "LIBERACAO_RECURSOS",
+            "table_schema": {
+                "#LIR_DT_LIBERACAO": "data_liberacao",
+                "LIR_VL_LIBERADO": "valor_liberado",
+                "REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+            },
+        },
+        "microdados_recurso_publico_complemento_operacao": {
+            "table_raw_name": "SICOR_COMPLEMENTO_OPERACAO_BASICA",
+            "table_schema": {
+                "#REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "CD_IBGE_MUNICIPIO": "id_municipio",
+                "REF_BACEN_EFETIVO": "id_referencia_bacen_efetivo",
+                "AGENCIA_IF": "id_agencia",
+                "NUM_CEDULA_IF": "id_cedula",
+            },
+        },
+        "microdados_recurso_publico_cooperado": {
+            "table_raw_name": "SICOR_LISTA_COOPERADOS",
+            "table_schema": {
+                "#REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "CD_PROGRAMA": "id_programa",
+                "CPF_CNPJ": "tipo_cpf_cnpj",
+                "TIPO_PESSOA": "tipo_pessoa",
+                "VL_PARCELA": "valor_parcela",
+            },
+        },
+        "microdados_recurso_publico_gleba": {
+            "table_raw_name": "sicor_glebas_wkt",
+            "table_schema": {
+                "#REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "NU_INDICE": "GT_GEOMETRIA",
+            },
+        },
+        "microdados_recurso_publico_mutuario": {
+            "table_raw_name": "SICOR_MUTUARIOS",
+            "table_schema": {
+                "REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "#CD_SEXO": "indicador_sexo",
+                "CD_CPF_CNPJ": "tipo_cpf_cnpj",
+                "CD_TIPO_BENEFICIARIO": "tipo_beneficiario",
+                "CD_DAP": "id_dap",
+            },
+        },
+        "microdados_recurso_publico_propriedade": {
+            "table_raw_name": "SICOR_PROPRIEDADES",
+            "table_schema": {
+                "#REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "CD_CNPJ_CPF": "tipo_cpf_cnpj",
+                "CD_SNCR": "id_sncr",
+                "CD_NIRF": "id_nirf",
+                "CD_CAR": "id_car",
+            },
+        },
+        "empreendimento": {
+            "table_raw_name": "Empreendimento",
+            "table_schema": {
+                "#CODIGO": "id_empreendimento",
+                "DATA_INICIO": "data_inicio",
+                "DATA_FIM": "data_fim",
+                "FINALIDADE": "finalidade",
+                "ATIVIDADE": "atividade",
+                "MODALIDADE": "modalidade",
+                "PRODUTO": "produto",
+                "VARIEDADE": "variedade",
+                "CESTA": "cesta",
+                "ZONEAMENTO": "zoneamento",
+                "UNIDADE_MEDIDA": "unidade_medida",
+                "UNIDADE_MEDIDA_PREVISAO": "unidade_medida_previsao_producao",
+                "CONSORCIO": "consorcio",
+                "CEDULA_MAE": "cedula_mae",
+                "CD_TIPO_CULTURA": "id_tipo_cultura",
+            },
+        },
+    }
