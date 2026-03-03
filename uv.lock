@@ -200,7 +200,7 @@ wheels = [
 
 [[package]]
 name = "basedosdados"
-version = "2.0.2"
+version = "2.0.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "google-api-python-client" },
@@ -208,16 +208,19 @@ dependencies = [
     { name = "google-cloud-bigquery-connection" },
     { name = "google-cloud-bigquery-storage" },
     { name = "google-cloud-storage" },
+    { name = "gql" },
     { name = "loguru" },
     { name = "pandas" },
     { name = "pandas-gbq" },
+    { name = "pandavro" },
     { name = "pydata-google-auth" },
+    { name = "requests-toolbelt" },
     { name = "tomlkit" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0d/b4/2838753de69a4833eec1238c6c9011e479752bf617787917f2b508497030/basedosdados-2.0.2.tar.gz", hash = "sha256:7881b1f9218dcb17c0d2fa27da3f2dfec4acdda543ce2a02ee488402475d1bcc", size = 32475, upload-time = "2025-03-20T18:27:03.746Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c9/7b/7cdd911f2782cfaa41696d2f79da0aae5e601cac521bdf4e6883aa57f2f3/basedosdados-2.0.3.tar.gz", hash = "sha256:5bbe6860e8c052547238af2ac57b96de57c8962e549078c68fb5019236075043", size = 12171043, upload-time = "2026-03-03T13:57:57.407Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/48/18/b9613cdb4e2ceef62815488906d1c2e7e2b13e77ef5ef1b18ef405dff171/basedosdados-2.0.2-py3-none-any.whl", hash = "sha256:f1f79636e1b25fd452019a32bfd9a297062a05d674b47a2a8367e158a7bdf31d", size = 38431, upload-time = "2025-03-20T18:27:02.104Z" },
+    { url = "https://files.pythonhosted.org/packages/10/65/b35f3e82093022ea5a690e30312f9a1a00ae8e5cac0afafa135d28541b87/basedosdados-2.0.3-py3-none-any.whl", hash = "sha256:f6f3375938fc6c57d0c1f320629075682157b92d7cd2da0796ce0d1fdbfd64af", size = 39823, upload-time = "2026-03-03T13:57:59.84Z" },
 ]
 
 [package.optional-dependencies]
