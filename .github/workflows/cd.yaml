@@ -75,7 +75,7 @@ jobs:
             --path pipelines/ \
             --schedule \
             --filter-affected-flows \
-            --modified-files "${{ steps.files.outputs.all }}"
+            --modified-files "${{ steps.changed-files.outputs.all_modified_files }}"
   delete-archivied-flows:
     needs: deploy-production
     name: delete-archivied-flows
