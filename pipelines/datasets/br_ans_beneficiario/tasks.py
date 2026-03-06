@@ -72,13 +72,11 @@ def extract_links_and_dates(url) -> pd.DataFrame:
 
 @task
 def check_if_update_date_is_today(df):
-    breakpoint()
     return max(df["data_hoje"]) == max(df["ultima_atualizacao"])
 
 
 @task
 def get_file_max_date(df):
-    breakpoint()
     lista = df[
         df["ultima_atualizacao"] == max(df["ultima_atualizacao"])
     ].arquivo.to_list()
@@ -105,11 +103,10 @@ def files_to_download(df, year):
         log("Arquivos na fila para o download -->")
         df = df[df["arquivo"].str.contains(year)]
         log(df["arquivo"].unique().tolist())
-        breakpoint()
+
         return df["arquivo"].unique().tolist()
 
     elif year is None:
-        breakpoint()
         log(
             df[
                 df["ultima_atualizacao"] == max(df["ultima_atualizacao"])
@@ -152,6 +149,5 @@ def crawler_ans(files):
 
 @task
 def is_empty(lista):
-    breakpoint()
     log(f"Lista de arquivos para download: {lista}")
     return len(lista) == 0
