@@ -1,16 +1,15 @@
 """
-Flows for br_ans_beneficiario
+Flows for br_ans_beneficiario - 06/03/2026 -> 16:43
 """
 
 from prefect import Parameter, case
 from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
+from prefect.tasks.control_flow import merge
 
 from pipelines.constants import constants
 from pipelines.datasets.br_ans_beneficiario.schedules import every_day_ans
 from pipelines.datasets.br_ans_beneficiario.tasks import (
-    check_condition,
-    check_if_update_date_is_today,
     crawler_ans,
     extract_links_and_dates,
     files_to_download,
@@ -19,8 +18,10 @@ from pipelines.datasets.br_ans_beneficiario.tasks import (
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.metadata.flows import update_django_metadata
-from pipelines.utils.metadata.tasks import check_if_data_is_outdated
-from pipelines.utils.tasks import (  # update_django_metadata,
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated,
+)
+from pipelines.utils.tasks import (
     create_table_dev_and_upload_to_gcs,
     create_table_prod_gcs_and_run_dbt,
     rename_current_flow_run_dataset_table,
@@ -30,7 +31,7 @@ from pipelines.utils.tasks import (  # update_django_metadata,
 with Flow(
     name="br_ans_beneficiario.informacao_consolidada",
     code_owners=[
-        "equipe_pipelines",
+        "trick",
     ],
 ) as datasets_br_ans_beneficiario_flow:
     dataset_id = Parameter(
@@ -47,6 +48,8 @@ with Flow(
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
+
+    year = Parameter("year", default=None, required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
@@ -67,8 +70,8 @@ with Flow(
 
     # Se update == True, força o update dos dados.
     with case(force_update, True):
-        files = files_to_download(
-            links_and_dates, upstream_tasks=[links_and_dates]
+        files_force_true = files_to_download(
+            links_and_dates, year=year, upstream_tasks=[links_and_dates]
         )
 
     with case(force_update, False):
@@ -76,11 +79,7 @@ with Flow(
         # Essa condição é verificada na task `check_condition()` abaixo.
 
         file_last_date = get_file_max_date(
-            links_and_dates, upstream_tasks=[links_and_dates]
-        )
-
-        update_date_check = check_if_update_date_is_today(
-            links_and_dates, upstream_tasks=[links_and_dates]
+            links_and_dates, upstream_tasks=[files_force_true]
         )
 
         coverage_check = check_if_data_is_outdated(
@@ -91,12 +90,13 @@ with Flow(
             upstream_tasks=[links_and_dates, file_last_date],
         )
 
-        with case(check_condition(update_date_check, coverage_check), True):
-            # Se check_condition = True, cria a lista com os arquivos para o download.
-            files = files_to_download(
-                links_and_dates, upstream_tasks=[links_and_dates]
+        with case(coverage_check, True):
+            files_force_false = files_to_download(
+                df=links_and_dates, year=None, upstream_tasks=[links_and_dates]
             )
-
+    # ! Nesse caso, foi preciso utilizar o merge() para mesclar o resultado de files_to_download() tanto no caso de force_update == True ou False.
+    # ! Dessa forma, ele retorna o primeiro cenário que não é None.
+    files = merge(files_force_true, files_force_false)
     with case(is_empty(files), False):
         output_filepath = crawler_ans(files, upstream_tasks=[files])
         wait_upload_table = create_table_dev_and_upload_to_gcs(
