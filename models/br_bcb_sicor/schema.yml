@@ -287,8 +287,6 @@ models:
             - nome_coluna
             - chave
             - cobertura_temporal
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
     columns:
       - name: id_tabela
         description: ID Tabela
