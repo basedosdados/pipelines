@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: informacao_consolidada
+  - name: br_ans_beneficiario__informacao_consolidada
     description: O conjunto contém Informações consolidadas de beneficiários por competência.
       Este será alterado para inclusão de dados acima de 5 anos e melhorias na qualidade
       dos dados.
@@ -12,10 +12,27 @@ models:
         description: Competência dos dados (MM)
       - name: sigla_uf
         description: Sigla da Unidade da Federação
-      - name: id_municipio_6
-        description: ID do Município IBGE - 6 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_year_month__
+      - name: id_municipio
+        description: ID do Município IBGE - 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__
       - name: sexo
         description: Sexo (M, F)
+        tests:
+          - accepted_values:
+              values: [M, F]
+              config:
+                where: __most_recent_year_month__
       - name: faixa_etaria
         description: Faixa etária do beneficiário
       - name: faixa_etaria_reajuste
@@ -30,6 +47,18 @@ models:
       - name: modalidade_operadora
         description: Classificação das operadoras de planos privados de assistência
           à saúde de acordo com seu estatuto jurídico
+        tests:
+          - accepted_values:
+              values:
+                - Filantropia
+                - Autogestao
+                - Medicina De Grupo
+                - Odontologia De Grupo
+                - Cooperativa Odontologica
+                - Seguradora Especializada Em Saude
+                - Cooperativa Medica
+              config:
+                where: __most_recent_year_month__
       - name: codigo_plano
         description: Código do plano registrado ou cadastrado na ANS no qual o beneficiário
           possui vínculo
@@ -43,8 +72,18 @@ models:
         description: Tipo de abrangência do plano do beneficiário
       - name: cobertura_assistencia_beneficiario
         description: Tipo de cobertura de plano do beneficiário
+        tests:
+          - accepted_values:
+              values: [Medico-Hospitalar, Odontologico]
+              config:
+                where: __most_recent_year_month__
       - name: tipo_vinculo
         description: Tipo de vinculo do beneficiário
+        tests:
+          - accepted_values:
+              values: [Titular, Dependente, Nao Identificado]
+              config:
+                where: __most_recent_year_month__
       - name: quantidade_beneficiario_ativo
         description: Quantidade de beneficiários ativos na competência
       - name: quantidade_beneficiario_aderido
