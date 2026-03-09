@@ -36,7 +36,7 @@ with Flow(
         "materialize_after_dump", default=True, required=False
     )
 
-    append_overwrite = Parameter("append", default="append")
+    append_overwrite = Parameter("append_overwrite", default="append")
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",

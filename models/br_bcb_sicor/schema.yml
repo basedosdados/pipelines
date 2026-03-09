@@ -161,6 +161,9 @@ models:
       Recomenda-se que ela seja utilizada em conjunto com os microdadados de operações
       de crédito (microdados_operacao) para se ter uma visão completa dos produtos,
       atividades e demais atributos da operação de crédito que foram alvo de financiamento.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_empreendimento]
     columns:
       - name: id_empreendimento
         description: Código do empreendimento

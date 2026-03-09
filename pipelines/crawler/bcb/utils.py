@@ -137,7 +137,7 @@ def create_folder_structure(id_tabela: str) -> Path:
 
 def download_standardize(
     data: pd.DataFrame, id_tabela: str, download_dir: Path
-) -> list[Path]:
+) -> str:
     data = data[data["id_tabela"] == id_tabela]
 
     config = Constants.sicor_to_bd_table_names.value.get(id_tabela)
@@ -158,17 +158,28 @@ def download_standardize(
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
 
-    downloaded_paths = []
+    partitioned_tables = [
+        "microdados_operacao",
+        "microdados_saldo",
+        "microdados_recurso_publico_gleba",
+    ]
 
     for _, row in data.iterrows():
         link = row["link"]
+        ano = row.get("ano")
         filename = (
             link.split("/")[-1]
             .replace(".csv.gz", ".parquet")
             .replace(".gz", ".parquet")
         )
-        filepath = Path(download_dir) / filename
-        downloaded_paths.append(filepath)
+
+        if id_tabela in partitioned_tables and ano:
+            # Create the ano={ano} directory
+            partition_dir = download_dir / f"ano={ano}"
+            partition_dir.mkdir(parents=True, exist_ok=True)
+            filepath = partition_dir / filename
+        else:
+            filepath = Path(download_dir) / filename
 
         log(f"Baixando, transformando e salvando {link} em {filepath}...")
 
@@ -202,10 +213,8 @@ def download_standardize(
 
         log(f"Parquet salvo com sucesso em: {filename}")
 
-    return downloaded_paths
 
-
-def create_empreendimento(id_tabela: str, download_dir: Path) -> list[Path]:
+def create_empreendimento(id_tabela: str, download_dir: Path) -> str:
     """
     Create empreendimento table
     """
@@ -242,8 +251,6 @@ def create_empreendimento(id_tabela: str, download_dir: Path) -> list[Path]:
 
     log(f"CSV salvo com sucesso em: {filename}")
 
-    return filepath
-
 
 def parse_cobertura(row):
     """Utilizada para gerar a coluna de cobertura temporal para algumas colunas do dicionário"""
@@ -273,12 +280,12 @@ def parse_cobertura(row):
         return "(1)"
 
 
-def create_dictionary() -> pd.DataFrame:
+def create_dictionary() -> str:
     """
     Creates the dicionario table using the metadata defined in Constants.dicionario.
 
     Returns:
-        pd.DataFrame: The generated dictionary DataFrame.
+        str: The generated dictionary directory path.
     """
     all_data = []
     dicionario_config = Constants.dicionario.value
@@ -288,15 +295,13 @@ def create_dictionary() -> pd.DataFrame:
     }
 
     for entry in dicionario_config:
-        nome_tabela = entry["nome_tabela"]
+        id_tabela = entry["id_tabela"]
         nome_coluna = entry["nome_coluna"]
         url = entry["url"]
         colunas_map = entry["colunas"]
         sep = entry.get("sep")
 
-        log(
-            f"Processing dictionary for {nome_tabela}.{nome_coluna} from {url}"
-        )
+        log(f"Processing dictionary for {id_tabela}.{nome_coluna} from {url}")
 
         try:
             # SICOR CSVs usam latin-1 encoding e ; ou , como sep
@@ -334,7 +339,7 @@ def create_dictionary() -> pd.DataFrame:
             temp_df = pd.DataFrame()
             temp_df["chave"] = df[chave_src_col].str.strip()
             temp_df["valor"] = df[valor_src_col].str.strip()
-            temp_df["nome_tabela"] = nome_tabela
+            temp_df["id_tabela"] = id_tabela
             temp_df["nome_coluna"] = nome_coluna
 
             # Esses dicionários tem colunas de início e final da validade do código;
@@ -361,7 +366,7 @@ def create_dictionary() -> pd.DataFrame:
 
     # Reorder columns to the requested model
     final_df = final_df[
-        ["nome_tabela", "nome_coluna", "chave", "cobertura_temporal", "valor"]
+        ["id_tabela", "nome_coluna", "chave", "cobertura_temporal", "valor"]
     ]
 
     # Save the output CSV
@@ -371,4 +376,4 @@ def create_dictionary() -> pd.DataFrame:
 
     log(f"Dicionario CSV saved to {output_path}")
 
-    return output_path
+    return str(output_dir.absolute())
