@@ -108,9 +108,4 @@ with
             on t.cd_municipio = bd.id_municipio_6
     )
 select *
-from
-    ans
-    {# from ans
-{% if is_incremental() %}
-    where data_carga > (select max(data_carga) from {{ this }})
-{% endif %} #}
+from ans
