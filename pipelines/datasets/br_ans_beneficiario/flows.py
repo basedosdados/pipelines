@@ -90,12 +90,13 @@ with Flow(
             upstream_tasks=[links_and_dates, file_last_date],
         )
 
-        with case(coverage_check, True):
-            files_force_false = files_to_download(
-                df=links_and_dates, year=None, upstream_tasks=[links_and_dates]
-            )
+        # with case(coverage_check, True):
+        files_force_false = files_to_download(
+            df=links_and_dates, year=None, upstream_tasks=[links_and_dates]
+        )
     # ! Nesse caso, foi preciso utilizar o merge() para mesclar o resultado de files_to_download() tanto no caso de force_update == True ou False.
     # ! Dessa forma, ele retorna o primeiro cenário que não é None.
+    # ! https://linen.prefect.io/t/2436757/hi-everyone-i-just-realized-something-about-merge-and-i-find
     files = merge(files_force_true, files_force_false)
     with case(is_empty(files), False):
         output_filepath = crawler_ans(files, upstream_tasks=[files])
