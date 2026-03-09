@@ -131,6 +131,7 @@ dependencies = [
   "pip>=25.3",
   "wheel>=0.45.1",
   "python-calamine>=0.6.1",
+  "pydantic>=1.10.24",
 ]
 
 [dependency-groups]
