@@ -30,7 +30,7 @@ with Flow(
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False
@@ -68,6 +68,7 @@ with Flow(
         table_id=table_id,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
+        disable_elementary=True,
         upstream_tasks=[wait_upload_table],
     )
 
@@ -98,7 +99,7 @@ with Flow(
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=True, required=False

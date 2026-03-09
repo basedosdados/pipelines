@@ -249,12 +249,28 @@ def parse_cobertura(row):
     """Utilizada para gerar a coluna de cobertura temporal para algumas colunas do dicionário"""
     try:
         # Formato da data nas tabelas é dd/mm/yyyy
-        start_year = row["DATA_INICIO"].split("/")[-1]
-        end_year = row["DATA_FIM"].split("/")[-1]
-        return f"{start_year}(1){end_year}"
+        start_year = (
+            str(row["DATA_INICIO"]).split("/")[-1]
+            if pd.notna(row["DATA_INICIO"])
+            else ""
+        )
+        end_year = (
+            str(row["DATA_FIM"]).split("/")[-1]
+            if pd.notna(row["DATA_FIM"])
+            else ""
+        )
+
+        if start_year and end_year:
+            return f"{start_year}(1){end_year}"
+        elif start_year:
+            return f"{start_year}(1)"
+        elif end_year:
+            return f"(1){end_year}"
+        else:
+            return "(1)"
     except Exception as e:
-        log(e)
-        return None
+        log(f"Error parsing date in parse_cobertura: {e}")
+        return "(1)"
 
 
 def create_dictionary() -> pd.DataFrame:
