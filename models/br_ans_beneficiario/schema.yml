@@ -5,6 +5,29 @@ models:
     description: O conjunto contém Informações consolidadas de beneficiários por competência.
       Este será alterado para inclusão de dados acima de 5 anos e melhorias na qualidade
       dos dados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - sigla_uf
+            - id_municipio
+            - codigo_operadora
+            - razao_social
+            - cnpj
+            - modalidade_operadora
+            - sexo
+            - faixa_etaria
+            - faixa_etaria_reajuste
+            - codigo_plano
+            - tipo_vigencia_plano
+            - contratacao_beneficiario
+            - segmentacao_beneficiario
+            - abrangencia_beneficiario
+            - cobertura_assistencia_beneficiario
+            - tipo_vinculo
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Competência dos dados (AAAA)
