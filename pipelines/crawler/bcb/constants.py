@@ -117,7 +117,7 @@ class Constants(Enum):
             "table_raw_name": "SICOR_MUTUARIOS",
             "table_schema": {
                 "REF_BACEN": "id_referencia_bacen",
-                "NU_ORDEM": "numero_ordem",
+                "CD_PRIMEIRO": "id_primeiro",
                 "#CD_SEXO": "indicador_sexo",
                 "CD_CPF_CNPJ": "tipo_cpf_cnpj",
                 "CD_TIPO_BENEFICIARIO": "tipo_beneficiario",
