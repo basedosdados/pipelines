@@ -670,7 +670,7 @@ def dump_header_to_csv(data_path: str | Path, source_format: str):
 
     # Read just first row
     if source_format == "csv":
-        dataframe = pd.read_csv(file, nrows=1)
+        dataframe = pd.read_csv(file, nrows=1, dtype=str)
 
         # Write dataframe to CSV
         dataframe.to_csv(save_header_file_path, index=False, encoding="utf-8")
@@ -678,7 +678,7 @@ def dump_header_to_csv(data_path: str | Path, source_format: str):
         # Read only the first row using pyarrow for memory efficiency
         pf = pq.ParquetFile(file)
         table = pf.read_row_group(0).slice(0, 1)
-        dataframe = table.to_pandas()
+        dataframe = table.to_pandas().astype(str)
 
         # Write dataframe to Parquet
         dataframe.to_parquet(save_header_file_path, index=False)
