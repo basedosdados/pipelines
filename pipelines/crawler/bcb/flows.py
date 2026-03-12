@@ -36,7 +36,8 @@ with Flow(
         "materialize_after_dump", default=True, required=False
     )
 
-    append_overwrite = Parameter("append_overwrite", default="append")
+    append_overwrite = Parameter("append_overwrite", default="overwrite")
+    source_format = Parameter("source_format", default="parquet")
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -61,7 +62,7 @@ with Flow(
         table_id=table_id,
         dump_mode=append_overwrite,
         upstream_tasks=[download_table],
-        source_format="parquet",
+        source_format=source_format,
     )
 
     wait_for_materialization = run_dbt(

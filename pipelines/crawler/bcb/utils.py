@@ -383,6 +383,7 @@ def create_dictionary() -> str:
             temp_df["nome_coluna"] = nome_coluna
 
             # These dictionaries have columns for the start and end of code validity;
+            # it implies that some cols have values for cobertural_temporal different from (1)
             # A Program, like PRONAF, has a start date and a possible end date.
             if nome_coluna in [
                 "id_fonte_recurso",
