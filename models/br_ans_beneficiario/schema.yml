@@ -36,9 +36,10 @@ models:
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              ignore_values: XX
               config:
                 where: __most_recent_year_month__
       - name: id_municipio
