@@ -2,19 +2,13 @@
     config(
         schema="br_ans_beneficiario",
         alias="informacao_consolidada",
-        materialized="incremental",
+        materialized="table",
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2014, "end": 2024, "interval": 1},
+            "range": {"start": 2014, "end": 2026, "interval": 1},
         },
-        cluster_by=["id_municipio", "mes", "sigla_uf"],
-        labels={"project_id": "basedosdados"},
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
-        post_hook=[
-            'CREATE OR REPLACE ROW ACCESS POLICY allusers_filter ON {{this}} GRANT TO ("allUsers") FILTER USING (DATE_DIFF(CURRENT_DATE(),DATE(CAST(ano AS INT64),CAST(mes AS INT64),1), MONTH) > 6)',
-            'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter ON {{this}} GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (DATE_DIFF(CURRENT_DATE(),DATE(CAST(ano AS INT64),CAST(mes AS INT64),1), MONTH) <= 6)',
-        ],
+        cluster_by=["mes", "sigla_uf"],
     )
 }}
 
@@ -24,7 +18,7 @@ with
             cast(ano as int64) ano,
             cast(mes as int64) mes,
             cast(t.sigla_uf as string) sigla_uf,
-            id_municipio,
+            bd.id_municipio as id_municipio,
             cast(cd_operadora as string) codigo_operadora,
             cast(
                 initcap(
@@ -36,7 +30,7 @@ with
                 ) as string
             ) razao_social,
             cast(lpad(nr_cnpj, 14, '0') as string) cnpj,
-            modalidade_operadora,
+            initcap(modalidade_operadora) as modalidade_operadora,
             cast(tp_sexo as string) sexo,
             cast(
                 lower(
@@ -108,12 +102,9 @@ with
                     "br_ans_beneficiario_staging.informacao_consolidada"
                 )
             }} t
-        join
+        left join
             `basedosdados.br_bd_diretorios_brasil.municipio` bd
             on t.cd_municipio = bd.id_municipio_6
     )
 select *
 from ans
-{% if is_incremental() %}
-    where data_carga > (select max(data_carga) from {{ this }})
-{% endif %}
