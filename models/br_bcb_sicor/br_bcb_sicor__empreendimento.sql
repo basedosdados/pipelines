@@ -7,8 +7,8 @@
 }}
 select
     safe_cast(id_empreendimento as string) id_empreendimento,
-    safe_cast(data_inicio_empreendimento as date) data_inicio,
-    safe_cast(data_fim_empreendimento as date) data_fim,
+    safe_cast(parse_date("%d/%m/%Y", data_inicio) as date) data_inicio,
+    safe_cast(parse_date("%d/%m/%Y", data_fim) as date) data_fim,
     safe_cast(finalidade as string) finalidade,
     safe_cast(atividade as string) atividade,
     safe_cast(modalidade as string) modalidade,
