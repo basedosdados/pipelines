@@ -2,7 +2,7 @@
     config(
         alias="microdados_operacao",
         schema="br_bcb_sicor",
-        materialized="table",
+        materialized="incremental",
         partition_by={
             "field": "ano_emissao",
             "data_type": "int64",
@@ -12,6 +12,7 @@
     )
 }}
 
+-- pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
 with
     sicor as (
         select
@@ -94,14 +95,14 @@ select
     safe_cast(ltrim(id_tipo_irrigacao, '0') as string) id_tipo_irrigacao,
     safe_cast(ltrim(id_fase_ciclo_producao, '0') as string) id_fase_ciclo_producao,
     safe_cast(ltrim(id_tipo_seguro, '0') as string) id_tipo_seguro,
-    safe_cast(cnpj_agente_investimento as string) cnpj_agente_investimento,
-    safe_cast(
-        cnpj_basico_instituicao_financeira as string
-    ) cnpj_basico_instituicao_financeira,
     safe_cast(
         id_contrato_sistema_tesouro_nacional as string
     ) id_contrato_sistema_tesouro_nacional,
-    safe_cast(cnpj_cadastrante as string) cnpj_cadastrante,
+    safe_cast(cnpj_agente_investimento as string) cnpj_basico_agente_investimento,
+    safe_cast(
+        cnpj_basico_instituicao_financeira as string
+    ) cnpj_basico_instituicao_financeira,
+    safe_cast(cnpj_cadastrante as string) cnpj_basico_cadastrante,
     -- converte datas preenchidas erradas para nulos. Existem cerca de 35 casos nas
     -- colunas abaixo com anos que não fazem sentido eg. 5026; 8218
     case
@@ -150,3 +151,10 @@ select
     ) valor_percentual_risco_fundo_constitucional,
     safe_cast(valor_percentual_risco_stn as float64) valor_percentual_risco_stn
 from sicor
+{% if is_incremental() %}
+    where
+        date(cast(_ano_emissao as int64), cast(_mes_emissao as int64), 1) > (
+            select max(date(cast(ano_emissao as int64), cast(mes_emissao as int64), 1))
+            from {{ this }}
+        )
+{% endif %}

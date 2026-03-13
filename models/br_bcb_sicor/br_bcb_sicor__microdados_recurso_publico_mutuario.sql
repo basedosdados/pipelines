@@ -8,8 +8,12 @@
 
 
 select
-    safe_cast(id_referencia_bacen as string) id_referencia_bacen,
-    safe_cast(id_dap as string) id_dap,
+    safe_cast(ano_emissao as int64) ano_emissao,
+    safe_cast(mes_emissao as int64) mes_emissao,
+    safe_cast(t.id_referencia_bacen as string) id_referencia_bacen,
+    safe_cast(
+        case when regexp_contains(id_dap, '^0+$') then null else id_dap end as string
+    ) id_dap,
     safe_cast(
         case when length(tipo_cpf_cnpj) = 11 then tipo_cpf_cnpj else null end as string
     ) as cpf,
@@ -24,4 +28,4 @@ from
         set_datalake_project(
             "br_bcb_sicor_staging.microdados_recurso_publico_mutuario"
         )
-    }} as t
+    }} as t {{ add_ano_mes_operacao_data(["id_referencia_bacen"]) }}

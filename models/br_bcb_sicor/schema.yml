@@ -13,6 +13,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_referencia_bacen, numero_ordem]
+          config:
+            where: __most_recent_year_month_sicor__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - id_categoria_emitente
@@ -38,30 +40,40 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year_month_sicor__
       - name: mes_emissao
         description: Mês de emissão da operação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
               field: mes.mes
+              config:
+                where: __most_recent_year_month_sicor__
       - name: data_emissao
         description: Data de emissão da operação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent_year_month_sicor__
       - name: data_vencimento
         description: Data de vencimento da operação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent_year_month_sicor__
       - name: ano_vencimento
         description: Ano de vencimento da operação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year_month_sicor__
       - name: mes_vencimento
         description: Mês de vencimento da operação
         tests:
@@ -78,6 +90,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year_month_sicor__
       - name: id_referencia_bacen
         description: Identificador único de cada operação de crédito
         tests: [not_null]
@@ -119,13 +133,19 @@ models:
         description: Identificador da fase ciclo de produção
       - name: id_tipo_seguro
         description: Identificador do tipo de seguro
-      - name: cnpj_agente_investimento
+      - name: id_contrato_sistema_tesouro_nacional
+        description: Código da Secretaria do Tesouro Nacional
+      - name: cnpj_basico_agente_investimento
         description: Concedente da operação de investimento
       - name: cnpj_basico_instituicao_financeira
         description: CNPJ da instituição financeira concedente do crédito
-      - name: id_contrato_sistema_tesouro_nacional
-        description: Código da Secretaria do Tesouro Nacional
-      - name: cnpj_cadastrante
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__empresa')
+              field: cnpj_basico
+              config:
+                where: __most_recent_year_month_sicor__
+      - name: cnpj_basico_cadastrante
         description: O BACEN não fornece descrição dessa variável nos metadados
       - name: data_fim_colheita
         description: Data do fim de colheita
@@ -133,24 +153,32 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent_year_month_sicor__
       - name: data_fim_plantio
         description: Data do fim de plantio
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent_year_month_sicor__
       - name: data_inicio_colheita
         description: Data do início de colheita
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent_year_month_sicor__
       - name: data_inicio_plantio
         description: Data do início de plantio
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
+              config:
+                where: __most_recent_year_month_sicor__
       - name: area_financiada
         description: Área financiada
       - name: area_informada
@@ -197,16 +225,38 @@ models:
             - mes
             - id_referencia_bacen
             - numero_ordem
+          config:
+            where: __most_recent_year_month_sicor__
       - not_null_proportion_multiple_columns:
           at_least: 1
+          config:
+            where: __most_recent_year_month_sicor__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [id_situacao_operacao]
           dictionary_model: ref('br_bcb_sicor__dicionario')
     columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+              config:
+                where: __most_recent_year_month_sicor__
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+              config:
+                where: __most_recent_year_month_sicor__
       - name: ano
         description: Ano base de referência do saldo
+        tests: [not_null]
       - name: mes
         description: Mês base de referência do saldo
+        tests: [not_null]
       - name: id_referencia_bacen
         description: Identificador único de cada operação de crédito
       - name: numero_ordem
@@ -238,6 +288,18 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 1
     columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: ano
         description: Ano de referência do valor liberado total ou parcial
         tests:
@@ -314,8 +376,20 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_referencia_bacen, numero_ordem]
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 0.99
     columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: id_referencia_bacen
         description: Identificador único de cada operação de crédito
       - name: numero_ordem
@@ -329,8 +403,14 @@ models:
               field: id_municipio
       - name: id_referencia_bacen_efetivo
         description: Identificador único de cada operação de crédito explícito
-      - name: id_agencia
-        description: Identificador da agência da Instituição Financeira
+      - name: cnpj_agencia
+        description: CNPJ da agencia bancária responsável pela concessão do empréstimo
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__empresa')
+              field: cnpj
+      - name: numero_cedula
+        description: Número da Operação
   - name: br_bcb_sicor__microdados_operacoes_desclassificadas
     description: Esta tabela contém dados de operações de crédito rural que foram
       desclassificas por não cumprimento de obrigações do mutuário.
@@ -347,6 +427,18 @@ models:
           columns_covered_by_dictionary: [id_motivo_desclassificacao]
           dictionary_model: ref('br_bcb_sicor__dicionario')
     columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: data_desclassificacao
         description: Data da desclassificação da operação
         tests:
@@ -368,14 +460,19 @@ models:
     description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
       das operações de crédito que foram financiadas com recursos públicos. Esta tabela
       contém dados adicionais do imóvel rural de aplicação do crédito.
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - id_referencia_bacen
-            - numero_ordem
-            - cpf
-            - cnpj
     columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: id_referencia_bacen
         description: Identificador único de cada operação de crédito
         tests: [not_null]
@@ -387,6 +484,10 @@ models:
         description: CPF do poprietário
       - name: cnpj
         description: CNPJ do proprietário
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__empresa')
+              field: cnpj
       - name: id_sncr
         description: Identificar do Imóvel no Sistema Nacional de Cadastro Rural (SNCR)
       - name: id_nirf
@@ -404,6 +505,18 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_referencia_bacen, cpf, cnpj]
     columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: id_referencia_bacen
         description: Identificador único de cada operação de crédito
         tests: [not_null]
@@ -413,12 +526,19 @@ models:
         description: CPF do mutuário
       - name: cnpj
         description: CNPJ do mutuário
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__empresa')
+              field: cnpj
       - name: tipo_beneficiario
         description: Tipo do Beneficiário
       - name: primeiro_mutuario
-        description: Primeiro mutuário informado
+        description: Esta coluna não possui um dicionário na fonte original que explica
+          o significado dos valores. Ela esta descrita somente como "Primeiro mutuário
+          informado"
       - name: sexo
-        description: Sexo do mutuário
+        description: Esta coluna não possui um dicionário na fonte original que explica
+          o significado dos valores. Ela esta descrita somente como "Sexo do mutuário"
   - name: br_bcb_sicor__microdados_recurso_publico_gleba
     description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
       das operações de crédito que foram financiadas com recursos públicos. Esta tabela
@@ -430,7 +550,25 @@ models:
             - id_referencia_bacen
             - numero_ordem
             - indice_gleba
+          config:
+            where: __most_recent_year_month_sicor__
     columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+              config:
+                where: __most_recent_year_month_sicor__
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+              config:
+                where: __most_recent_year_month_sicor__
       - name: id_referencia_bacen
         description: Identificador único de cada operação de crédito
         tests: [not_null]
@@ -441,15 +579,15 @@ models:
       - name: indice_gleba
         description: índice da gleba
         tests: [not_null]
-      - name: geometria
-        description: Geometria da gleba extraida da fonte original sem tratamento
+      - name: geometria_original
+        description: Geometria da gleba extraída da fonte original sem tratamento
       - name: geometria
         description: Geometria da gleba padronizada pela Base dos Dados. O tratamento
-          remove a dimensão Z (altitude), corrige coordenadas para o hemisfério Sul/Oeste
-          (Brasil), aplica 'make_valid' para reparar topologias inválidas e anula
-          registros cujos centroides caem fora do Bounding Box do território brasileiro
-          (Longitude (ST_X) Deve estar entre -74 e -34. Latitude (ST_Y) Deve estar
-          entre -34 e +6.)
+          remove a dimensão Z (altitude), não suportada pelo Big Query, corrige coordenadas
+          para o hemisfério Sul/Oeste (Brasil), aplica 'make_valid' para reparar topologias
+          inválidas e anula registros cujos centroides caem fora do Bounding Box do
+          território brasileiro (Longitude (ST_X) Deve estar entre -74 e -34. Latitude
+          (ST_Y) Deve estar entre -34 e +6.)
   - name: br_bcb_sicor__microdados_recurso_publico_cooperado
     description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
       das operações de crédito que foram financiadas com recursos públicos. Esta tabela
@@ -459,15 +597,27 @@ models:
           columns_covered_by_dictionary: [id_programa]
           dictionary_model: ref('br_bcb_sicor_dicionario')
     columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: id_referencia_bacen
         description: Identificador único de cada operação de crédito
         tests: [not_null]
-      - name: id_programa
-        description: Identificador do programa cujo crédito concedido está relacionado
       - name: numero_ordem
         description: Identificador da quantidade de ordens que compõem uma operação
           de crédito
         tests: [not_null]
+      - name: id_programa
+        description: Identificador do programa cujo crédito concedido está relacionado
       - name: tipo_pessoa
         description: Tipo da entidade jurídica
       - name: tipo_cpf_cnpj
@@ -476,6 +626,10 @@ models:
         description: CPF do cooperado
       - name: cnpj
         description: CNPJ do cooperado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__empresa')
+              field: cnpj
       - name: valor_parcela
         description: Valor da parcela de crédito do cooperado
   - name: br_bcb_sicor__dicionario

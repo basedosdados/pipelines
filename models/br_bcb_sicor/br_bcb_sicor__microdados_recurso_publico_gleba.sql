@@ -2,7 +2,12 @@
     config(
         alias="microdados_recurso_publico_gleba",
         schema="br_bcb_sicor",
-        materialized="table",
+        materialized="incremental",
+        partition_by={
+            "field": "ano_emissao",
+            "data_type": "int64",
+            "range": {"start": 2013, "end": 2026, "interval": 1},
+        },
     )
 }}
 
@@ -60,8 +65,10 @@ with
     )
 
 select
-    id_referencia_bacen,
-    numero_ordem,
+    safe_cast(ano_emissao as int64) ano_emissao,
+    safe_cast(mes_emissao as int64) mes_emissao,
+    t.id_referencia_bacen,
+    t.numero_ordem,
     indice_gleba,
     geometria_original,
 
@@ -76,4 +83,13 @@ select
         else null
     end as geometria
 
-from geography_cast
+from
+    geography_cast as t
+    {{ add_ano_mes_operacao_data(["id_referencia_bacen", "numero_ordem"]) }}
+{% if is_incremental() %}
+    where
+        date(cast(ano_emissao as int64), cast(mes_emissao as int64), 1) > (
+            select max(date(cast(ano_emissao as int64), cast(mes_emissao as int64), 1))
+            from {{ this }}
+        )
+{% endif %}
