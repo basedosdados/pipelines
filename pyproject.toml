@@ -145,6 +145,7 @@ dev = [
   "databasers-utils @ git+https://github.com/basedosdados/databasers-utils.git@monorepo-migration",
   "ipykernel>=6.29.5",
   "basedosdados[all]>=2.0.2",
+  "pytest>=8.4.2",
 ]
 
 [tool.ruff]

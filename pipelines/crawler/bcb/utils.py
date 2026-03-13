@@ -84,15 +84,20 @@ def get_sicor_download_links():
 def build_sicor_download_df(links: list) -> pd.DataFrame:
     """
     Creates a DataFrame with download link information, mapping raw names to standardized table IDs.
+    Also extracts the Content-Length of each file.
 
     Args:
         links (list): List of download links.
 
     Returns:
-        pd.DataFrame: DataFrame with columns [id_tabela, link, tipo_liberacao_arquivo, ano, mes]
+        pd.DataFrame: DataFrame with columns [id_tabela, link, tipo_liberacao_arquivo, ano, mes, content_length]
     """
     data = []
     mapping = Constants.sicor_to_bd_table_names.value
+
+    storage_options = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
 
     for link in links:
         filename = link.split("/")[-1]
@@ -118,6 +123,10 @@ def build_sicor_download_df(links: list) -> pd.DataFrame:
                 if period_match:
                     indice_arquivo = period_match.group(1)
 
+            response = requests.head(link, headers=storage_options, timeout=10)
+            response.raise_for_status()
+            content_length = int(response.headers["Content-Length"])
+
             data.append(
                 {
                     "id_tabela": id_tabela,
@@ -125,10 +134,60 @@ def build_sicor_download_df(links: list) -> pd.DataFrame:
                     "tipo_liberacao_arquivo": tipo_liberacao_arquivo,
                     "ano": ano,
                     "mindice_arquivos": indice_arquivo,
+                    "content_length": content_length,
                 }
             )
 
     return pd.DataFrame(data)
+
+
+def filter_sicor_links(
+    links_df: pd.DataFrame, table_id: str, download_all_files: bool = False
+) -> pd.DataFrame:
+    """
+    Filters the links DataFrame for a specific table, keeping only the most recent year by default.
+
+    Args:
+        links_df (pd.DataFrame): The full links DataFrame.
+        table_id (str): The ID of the table.
+        download_all_files (bool): If True, keeps all years. Default is False.
+
+    Returns:
+        pd.DataFrame: Filtered DataFrame for the specific table.
+    """
+    table_df = links_df[links_df["id_tabela"] == table_id].copy()
+
+    if table_id == "empreendimento":
+        # Empreendimento is special and handled separately, but we ensure its link info is returnable
+        link = "https://www.bcb.gov.br/htms/sicor/Empreendimento.csv"
+        storage_options = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+        response = requests.head(link, headers=storage_options, timeout=10)
+        response.raise_for_status()
+        content_length = int(response.headers["Content-Length"])
+        return pd.DataFrame(
+            [
+                {
+                    "id_tabela": "empreendimento",
+                    "link": link,
+                    "content_length": content_length,
+                }
+            ]
+        )
+
+    # Those tables are realeased by the origal source in early files;
+    yearly_tables = [
+        "microdados_operacao",
+        "microdados_saldo",
+        "microdados_recurso_publico_gleba",
+    ]
+
+    if not download_all_files and table_id in yearly_tables:
+        max_year = table_df["ano"].astype(float).max()
+        table_df = table_df[table_df["ano"].astype(float) == max_year]
+
+    return table_df
 
 
 def create_folder_structure(id_tabela: str) -> Path:
@@ -154,17 +213,16 @@ def create_tables(
 ) -> str:
     """
     Downloads, transforms, and saves tables in Parquet format.
+    Expects data to be already filtered for the specific table.
 
     Args:
-        data (pd.DataFrame): DataFrame containing link information.
+        data (pd.DataFrame): DataFrame containing link information for the table.
         id_tabela (str): The ID of the table to process.
         download_dir (Path): The directory where files will be saved.
 
     Returns:
         str: The download directory path.
     """
-    data = data[data["id_tabela"] == id_tabela]
-
     config = Constants.sicor_to_bd_table_names.value.get(id_tabela)
 
     renames = config["table_schema"]
@@ -221,7 +279,7 @@ def create_tables(
         )
 
         for chunk in chunk_iterator:
-            # Validate that the source columns match the expected schema
+            # Validate that the source columns match the expected schema in constants
             validate_schema(chunk.columns.tolist(), colunas_originais)
 
             chunk = chunk.rename(columns=renames)
@@ -286,7 +344,8 @@ def create_empreendimento(id_tabela: str, download_dir: Path) -> str:
 
 def parse_cobertura(row):
     """
-    Parses the temporal coverage from a dictionary row.
+    Parses the temporal coverage from a dictionary row. Sicor tables have several deprecated dictionavary values.
+    This function parser sicor deprecated keys pattern to basedosdados pattern.
 
     Args:
         row (pd.Series): A row from the dictionary DataFrame.
@@ -317,7 +376,7 @@ def parse_cobertura(row):
             return "(1)"
     except Exception as e:
         log(f"Error parsing date in parse_cobertura: {e}")
-        return "(1)"
+        raise ValueError(e) from e
 
 
 def create_dictionary() -> str:

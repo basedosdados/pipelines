@@ -20,11 +20,10 @@ every_day_microdados_operacao = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
                 "table_id": "microdados_operacao",
-                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
-                "append_overwrite": "append_overwrite",
+                "append_overwrite": "append",
             },
         )
     ],
@@ -43,11 +42,10 @@ every_day_microdados_saldo = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
                 "table_id": "microdados_saldo",
-                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
-                "append_overwrite": "append_overwrite",
+                "append_overwrite": "append",
             },
         )
     ],
@@ -66,11 +64,9 @@ every_day_microdados_liberacao = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
                 "table_id": "microdados_liberacao",
-                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
-                "append_overwrite": "overwrite",
             },
         )
     ],
@@ -89,11 +85,9 @@ every_day_microdados_recurso_publico_complemento_operacao = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
                 "table_id": "microdados_recurso_publico_complemento_operacao",
-                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
-                "append_overwrite": "overwrite",
             },
         )
     ],
@@ -112,11 +106,9 @@ every_day_microdados_recurso_publico_cooperado = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
                 "table_id": "microdados_recurso_publico_cooperado",
-                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
-                "append_overwrite": "overwrite",
             },
         )
     ],
@@ -135,11 +127,10 @@ every_day_microdados_recurso_publico_gleba = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
                 "table_id": "microdados_recurso_publico_gleba",
-                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
-                "append_overwrite": "overwrite",
+                "append_overwrite": "append",
             },
         )
     ],
@@ -158,11 +149,9 @@ every_day_microdados_recurso_publico_mutuario = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
                 "table_id": "microdados_recurso_publico_mutuario",
-                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
-                "append_overwrite": "overwrite",
             },
         )
     ],
@@ -181,11 +170,9 @@ every_day_microdados_recurso_publico_propriedade = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
                 "table_id": "microdados_recurso_publico_propriedade",
-                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
-                "append_overwrite": "overwrite",
             },
         )
     ],
@@ -204,11 +191,9 @@ every_day_operacoes_desclassificadas = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
                 "table_id": "operacoes_desclassificadas",
-                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
-                "append_overwrite": "overwrite",
             },
         )
     ],
@@ -227,11 +212,12 @@ every_day_empreendimento = Schedule(
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
                 "table_id": "empreendimento",
-                "target": "prod",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
-                "append_overwrite": "overwrite",
+                "coverage_type": "all_free",
+                "source_format": "csv",
+                "historical_database": False,
             },
         )
     ],

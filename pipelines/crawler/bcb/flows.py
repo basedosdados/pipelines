@@ -6,9 +6,14 @@ from pipelines.constants import constants
 from pipelines.crawler.bcb.tasks import (
     create_load_dictionary,
     download_table,
+    get_sicor_table_size,
     search_sicor_links,
 )
 from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.tasks import (
+    check_if_data_is_outdated_by_size,
+    update_django_metadata,
+)
 from pipelines.utils.tasks import (
     create_table_dev_and_upload_to_gcs,
     create_table_prod_gcs_and_run_dbt,
@@ -39,6 +44,19 @@ with Flow(
     append_overwrite = Parameter("append_overwrite", default="overwrite")
     source_format = Parameter("source_format", default="parquet")
 
+    download_all_files = Parameter(
+        "download_all_files", default=False, required=False
+    )
+    local_redis_execution = Parameter(
+        "local_redis_execution", default=False, required=False
+    )
+    historical_database = Parameter(
+        "historical_database", default=True, required=False
+    )
+    coverage_type = Parameter(
+        "coverage_type", default="part_bdpro", required=False
+    )
+
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
         dataset_id=dataset_id,
@@ -47,41 +65,78 @@ with Flow(
     )
 
     download_links = search_sicor_links()
-    download_table = download_table(download_links, table_id=table_id)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
+    table_size = get_sicor_table_size(
+        download_links,
         table_id=table_id,
-        wait=table_id,
+        download_all_files=download_all_files,
+        upstream_tasks=[download_links],
     )
 
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
-        data_path=download_table,
+    is_outdated = check_if_data_is_outdated_by_size(
         dataset_id=dataset_id,
         table_id=table_id,
-        dump_mode=append_overwrite,
-        upstream_tasks=[download_table],
-        source_format=source_format,
+        byte_length=table_size,
+        local_execution=local_redis_execution,
+        upstream_tasks=[table_size],
     )
 
-    wait_for_materialization = run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        dbt_alias=dbt_alias,
-        disable_elementary=True,
-        upstream_tasks=[wait_upload_table],
-    )
+    with case(is_outdated, True):
+        download_table_task = download_table(
+            download_links,
+            table_id=table_id,
+            download_all_files=download_all_files,
+        )
 
-    with case(materialize_after_dump, True):
-        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-            data_path=download_table,
+        rename_flow_run = rename_current_flow_run_dataset_table(
+            prefix="Dump: ",
+            dataset_id=dataset_id,
+            table_id=table_id,
+            wait=table_id,
+        )
+
+        wait_upload_table = create_table_dev_and_upload_to_gcs(
+            data_path=download_table_task,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode=append_overwrite,
-            upstream_tasks=[wait_for_materialization],
+            upstream_tasks=[download_table_task],
+            source_format=source_format,
         )
+
+        wait_for_materialization = run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            dbt_alias=dbt_alias,
+            disable_elementary=True,
+            upstream_tasks=[wait_upload_table],
+        )
+
+        with case(materialize_after_dump, True):
+            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+                data_path=download_table_task,
+                dataset_id=dataset_id,
+                table_id=table_id,
+                dump_mode=append_overwrite,
+                upstream_tasks=[wait_for_materialization],
+            )
+
+            with case(update_metadata, True):
+                update_django_metadata(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    date_column_name={
+                        "year": "ano_emissao",
+                        "month": "mes_emissao",
+                    },
+                    date_format="%Y-%m",
+                    coverage_type=coverage_type,
+                    time_delta={"months": 6},
+                    bq_project="basedosdados",
+                    historical_database=historical_database,
+                    upstream_tasks=[wait_upload_prod],
+                )
 
 
 br_bcb_sicor_template.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
