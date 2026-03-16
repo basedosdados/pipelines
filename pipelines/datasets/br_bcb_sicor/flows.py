@@ -24,7 +24,7 @@ from pipelines.datasets.br_bcb_sicor.schedules import (
     every_day_microdados_recurso_publico_mutuario,
     every_day_microdados_recurso_publico_propriedade,
     every_day_microdados_saldo,
-    every_day_operacoes_desclassificadas,
+    # every_day_operacoes_desclassificadas,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
@@ -178,9 +178,9 @@ br_bcb_sicor__operacoes_desclassificadas.storage = GCS(
 br_bcb_sicor__operacoes_desclassificadas.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__operacoes_desclassificadas.schedule = (
-    every_day_operacoes_desclassificadas
-)
+# br_bcb_sicor__operacoes_desclassificadas.schedule = (
+#     every_day_operacoes_desclassificadas
+# )
 
 # br_bcb_sicor__empreendimento
 br_bcb_sicor__empreendimento = deepcopy(br_bcb_sicor_template)
