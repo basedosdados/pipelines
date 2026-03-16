@@ -366,6 +366,9 @@ models:
     br_simet_educacao_conectada:
       +materialized: table
       +schema: br_simet_educacao_conectada
+    br_sou_da_paz_armas_municoes:
+      +materialized: table
+      +schema: br_sou_da_paz_armas_municoes
     br_sp_saopaulo_dieese_icv:
       +materialized: table
       +schema: br_sp_saopaulo_dieese_icv
