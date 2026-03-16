@@ -103,9 +103,6 @@ select * from validation_errors;
 
 ### br_bcb_sicor__microdados_recurso_publico_mutuario
 
-**Descrição:**
-Dados sobre os mutuários que acessam recursos públicos no crédito rural.
-
 **Problemas Identificados:**
 - **Ausência de dicionários:** As colunas `primeiro_mutuario` (valores 'N'/'S') e `sexo` (valores '1'/'2') não possuem dicionário oficial de tradução na fonte.
 - **Nulos em CNPJ:** A coluna `cnpj` possui 99,78% de valores nulos (consistente com operações de PF/Pronaf).
@@ -117,9 +114,6 @@ Dados sobre os mutuários que acessam recursos públicos no crédito rural.
 ---
 
 ### br_bcb_sicor__microdados_recurso_publico_complemento_operacao
-
-**Descrição:**
-Informações complementares sobre operações com recursos públicos.
 
 **Problemas Identificados:**
 - Existência de 172 linhas com `id_municipio` nulo na fonte original.
@@ -137,9 +131,6 @@ Informações sobre cooperados vinculados às operações.
 ---
 
 ### br_bcb_sicor__microdados_recurso_publico_gleba
-
-**Descrição:**
-Dados geoespaciais (geometrias das glebas) vinculadas às operações de crédito.
 
 **Problemas Identificados:**
 1. **Erros de WKT:** Falhas massivas na formatação Well-Known Text.
@@ -230,9 +221,6 @@ order by 1 desc;
 
 ### br_bcb_sicor__microdados_recurso_publico_propriedade
 
-**Descrição:**
-Informações sobre as propriedades rurais vinculadas às operações.
-
 **Problemas Identificados:**
 - **Inexistência de chave única:** Multiplicidade de propriedades para o mesmo vínculo operacional.
 - **Dados temporais:** O CAR só existe consistentemente a partir de 2018.
@@ -240,9 +228,6 @@ Informações sobre as propriedades rurais vinculadas às operações.
 ---
 
 ### br_bcb_sicor__microdados_liberacao
-
-**Descrição:**
-Registra as liberações financeiras das operações de crédito.
 
 **Problemas Identificados:**
 - **Anomalias de Data:** Datas de liberação em anos impossíveis (1905, 2011) ou futuros (2028).
@@ -259,3 +244,11 @@ order by ano_liberacao;
 
 **Decisões e Tratamento:**
 - Linhas com anos inconsistentes com a existência do sistema (anteriores a 2013) ou futuros foram removidas.
+
+---
+### br_bcb_sicor__microdados_operacoes_desclassificadas
+
+Nenhum valor de id_referencia_bacen presente nesta tabela existe na tabela de microdados operações. Isto torna esta tabela praticamente inutilizável e não faz sentido que ela esteja no BQ de Prod e no Site
+
+- Verifiquei se existiam problemas de perda de 0 a esquerda ou espaços em brancos;
+- Verifiquei os valores extraidos diretamente da fonte original sem nenhuma alteração e nenhum bate;
