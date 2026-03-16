@@ -243,7 +243,11 @@ def check_if_data_is_outdated(
     if data_source_max_date > data_api:
         log("Há atualizações disponíveis")
         update_data_source_update_date(
-            dataset_id, table_id, date_type, data_source_max_date, backend
+            dataset_id,
+            table_id,
+            date_type,
+            data_source_max_date,
+            backend,
         )
         return True  # Há atualizações disponíveis
     else:
@@ -274,7 +278,7 @@ def check_if_data_is_outdated_by_size(
         bool: TRUE se o tamanho for maior que o registrado e FALSE caso contrário.
     """
     # NOTE: Hardcodei igual o padrão da task check_if_data_is_outdated
-    # backend = bd.Backend(graphql_url=constants.API_URL.value["prod"])
+    backend = bd.Backend(graphql_url=constants.API_URL.value["prod"])
 
     if local_execution:
         redis_client = get_redis_client(host="localhost")
@@ -299,7 +303,7 @@ def check_if_data_is_outdated_by_size(
             table_data[today] = byte_length
         elif byte_length == latest_byte_length:
             log("Não há novas atualizações disponíveis (tamanho igual)")
-            # update_data_source_poll(dataset_id, table_id, backend)
+            update_data_source_poll(dataset_id, table_id, backend)
             return False
         else:
             log(
@@ -324,6 +328,21 @@ def check_if_data_is_outdated_by_size(
     # Save back to Redis
     dataset_data[table_id] = table_data
     redis_client.set(dataset_id, dataset_data)
+
+    ##NOTE:       #essa funcao tem um fallback que, se o date_type informado não é last_update_date
+    # ela gera um today date adiciona hh:mm:ss e usa como data para subir o dado...
+    # Não faz sentido;
+    # para mim, no fundo, seria somente passar qualquer tipo de parametro e ele geraria um todfay date
+    # que é o quie a minha task deve fazer......
+
+    # isto é, fornecendo params aleatórios para date_type e data_spurce_max_date ela cria a today date kk
+    update_data_source_update_date(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        date_type="today_date",
+        data_source_max_date="1990-01-01",
+        backend=backend,
+    )
 
     return True
 
