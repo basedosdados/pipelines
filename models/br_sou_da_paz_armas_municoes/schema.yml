@@ -1,0 +1,41 @@
+---
+version: 2
+models:
+  - name: br_sou_da_paz_armas_municoes__cac_novos_registros
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2020/total ou 2020/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: id_regiao_metropolitana
+        description: Código da Região Metropolitana
+      - name: area_regiao_metropolitana
+        description: Área da Região Metropolitana
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+      - name: categoria_informada
+        description: Categoria Informada
+      - name: categoria_principal
+        description: Categoria Principal
+      - name: macrocategoria
+        description: Macrocategoria
