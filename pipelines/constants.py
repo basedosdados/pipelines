@@ -53,7 +53,7 @@ class constants(Enum):
     ENABLE_ELEMENTARY_VARS = {
         "disable_dbt_artifacts_autoupload": True,
         "disable_run_results": True,
-        "disable_tests_results": True,
+        "disable_tests_results": False,
         "disable_dbt_invocation_autoupload": True,
     }
 
