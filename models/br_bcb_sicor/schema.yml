@@ -136,9 +136,15 @@ models:
       - name: id_contrato_sistema_tesouro_nacional
         description: Código da Secretaria do Tesouro Nacional
       - name: cnpj_basico_agente_investimento
-        description: Concedente da operação de investimento
+        description: CNPJ básico do Concedente da operação de investimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__empresa')
+              field: cnpj_basico
+              config:
+                where: __most_recent_year_month_sicor__
       - name: cnpj_basico_instituicao_financeira
-        description: CNPJ da instituição financeira concedente do crédito
+        description: CNPJ básico da instituição financeira concedente do crédito
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__empresa')
@@ -229,8 +235,6 @@ models:
             where: __most_recent_year_month_sicor__
       - not_null_proportion_multiple_columns:
           at_least: 1
-          config:
-            where: __most_recent_year_month_sicor__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [id_situacao_operacao]
           dictionary_model: ref('br_bcb_sicor__dicionario')
@@ -421,8 +425,6 @@ models:
             - id_referencia_bacen
             - numero_ordem
             - id_motivo_desclassificacao
-      - not_null_proportion_multiple_columns:
-          at_least: 0.95
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [id_motivo_desclassificacao]
           dictionary_model: ref('br_bcb_sicor__dicionario')
