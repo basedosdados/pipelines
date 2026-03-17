@@ -15,7 +15,7 @@ from pipelines.utils.metadata.tasks import (
 )
 
 with Flow(
-    name="update_temporal_coverage_teste",
+    name="update_temporal_coverage",
     code_owners=[
         "lauris",
     ],
