@@ -1,6 +1,6 @@
 {{
     config(
-        alias="microdados_operacoes_desclassificadas",
+        alias="operacoes_desclassificadas",
         schema="br_bcb_sicor",
         materialized="table",
     )
@@ -17,8 +17,5 @@ select
     safe_cast(valor_desclassificado as float64) valor_desclassificado,
     safe_cast(initcap(tipo_desclassificacao) as string) tipo_desclassificacao,
 from
-    {{
-        set_datalake_project(
-            "br_bcb_sicor_staging.microdados_operacoes_desclassificadas"
-        )
-    }} as t {{ add_ano_mes_operacao_data(["id_referencia_bacen", "numero_ordem"]) }}
+    {{ set_datalake_project("br_bcb_sicor_staging.operacoes_desclassificadas") }}
+    as t {{ add_ano_mes_operacao_data(["id_referencia_bacen", "numero_ordem"]) }}

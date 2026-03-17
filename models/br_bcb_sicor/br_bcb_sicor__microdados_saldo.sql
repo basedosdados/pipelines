@@ -1,6 +1,6 @@
 {{
     config(
-        alias="microdados_saldo",
+        alias="saldo",
         schema="br_bcb_sicor",
         materialized="incremental",
         partition_by={
@@ -25,7 +25,7 @@ select distinct
     safe_cast(valor_medio_diario_vincendo as float64) valor_medio_diario_vincendo,
     safe_cast(valor_ultimo_dia as float64) valor_ultimo_dia
 from
-    {{ set_datalake_project("br_bcb_sicor_staging.microdados_saldo") }} as t
+    {{ set_datalake_project("br_bcb_sicor_staging.saldo") }} as t
     {{ add_ano_mes_operacao_data(["id_referencia_bacen", "numero_ordem"]) }}
 where
     ano_emissao is not null

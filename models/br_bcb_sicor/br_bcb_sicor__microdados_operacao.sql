@@ -1,6 +1,6 @@
 {{
     config(
-        alias="microdados_operacao",
+        alias="operacao",
         schema="br_bcb_sicor",
         materialized="incremental",
         partition_by={
@@ -29,7 +29,7 @@ with
             safe_cast(
                 extract(month from parse_date("%d/%m/%Y", data_vencimento)) as int64
             ) as _mes_vencimento,
-        from {{ set_datalake_project("br_bcb_sicor_staging.microdados_operacao") }}
+        from {{ set_datalake_project("br_bcb_sicor_staging.operacao") }}
     )
 
 select

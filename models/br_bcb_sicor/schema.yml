@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: br_bcb_sicor__microdados_operacao
+  - name: br_bcb_sicor__operacao
     description: A tabela de Operações contém os microdados das contratações de crédito
       de cada estado brasileiro. Nela, estão presentes principais informações (categoria
       de produtor; fonte de recursos; instituição credora; produto financiado e etc)
@@ -219,11 +219,11 @@ models:
         description: Valor percentual do risco do fundo constitucional
       - name: percentual_risco_stn
         description: Valor percentual risco da Secretaria do Tesouro Nacional (STN)
-  - name: br_bcb_sicor__microdados_saldo
+  - name: br_bcb_sicor__saldo
     description: Esta tabela contém microdados sobre a evolução contábil mensal das
       operações de crédito rural em curso e já quitadas. Para o aproveitamento completo,
-      sugere-se que esta seja utilizada em conjunto com as tabelas de Operações (microdados_operacao)
-      e liberações (microdados_liberacao) a depender das necessidades de análise.
+      sugere-se que esta seja utilizada em conjunto com as tabelas de Operações (operacao)
+      e liberações (liberacao) a depender das necessidades de análise.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -274,14 +274,14 @@ models:
         description: Saldo médio diário vincendo
       - name: valor_ultimo_dia
         description: Saldo do último dia
-  - name: br_bcb_sicor__microdados_liberacao
+  - name: br_bcb_sicor__liberacao
     description: Esta tabela contém o registro dos recursos liberados pelas instituições
       financeiras no decorrer de uma operação de crédito, durante 2013 a julho de
       2022. A liberação obedece o cronograma de liberação de recursos estipulado no
       ato da assinatura do contrato que formaliza a operação de crédito rural. Por
       meio desta base é possível descobrir o montante de recursos efetivamente liberado
       bem como o status da operação de crédito. Recomenda-se que seja utilizado em
-      conjunto com a tabela de Operações (microdados_operações) e de Saldos (microdados_saldos)
+      conjunto com a tabela de Operações (microdados_operações) e de Saldos (saldos)
       a depender das necessidades de análise.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -332,8 +332,8 @@ models:
   - name: br_bcb_sicor__empreendimento
     description: A tabela de empreendimentos é um catálogo do que foi e do que é financiado.
       Recomenda-se que ela seja utilizada em conjunto com os microdadados de operações
-      de crédito (microdados_operacao) para se ter uma visão completa dos produtos,
-      atividades e demais atributos da operação de crédito que foram alvo de financiamento.
+      de crédito (operacao) para se ter uma visão completa dos produtos, atividades
+      e demais atributos da operação de crédito que foram alvo de financiamento.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_empreendimento]
@@ -373,7 +373,7 @@ models:
         description: Indica se o empreendimento refere-se a uma cédula mãe
       - name: id_tipo_cultura
         description: Código do tipo de cultura do empreendimento
-  - name: br_bcb_sicor__microdados_recurso_publico_complemento_operacao
+  - name: br_bcb_sicor__recurso_publico_complemento_operacao
     description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
       das operações de crédito que foram financiadas com recursos públicos.
     tests:
@@ -415,7 +415,7 @@ models:
               field: cnpj
       - name: numero_cedula
         description: Número da Operação
-  - name: br_bcb_sicor__microdados_operacoes_desclassificadas
+  - name: br_bcb_sicor__operacoes_desclassificadas
     description: Esta tabela contém dados de operações de crédito rural que foram
       desclassificas por não cumprimento de obrigações do mutuário.
     tests:
@@ -458,7 +458,7 @@ models:
         description: Valor desclassificado
       - name: tipo_desclassificacao
         description: Tipo da desclassificação
-  - name: br_bcb_sicor__microdados_recurso_publico_propriedade
+  - name: br_bcb_sicor__recurso_publico_propriedade
     description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
       das operações de crédito que foram financiadas com recursos públicos. Esta tabela
       contém dados adicionais do imóvel rural de aplicação do crédito.
@@ -506,7 +506,7 @@ models:
         description: Identificador do Imóvel na Receita Federal (NIRF)
       - name: id_car
         description: Identificador do Cadastro da Área Rural (CAR)
-  - name: br_bcb_sicor__microdados_recurso_publico_mutuario
+  - name: br_bcb_sicor__recurso_publico_mutuario
     description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
       das operações de crédito que foram financiadas com recursos públicos. Esta tabela
       contém dados adicionais sobre o mutuário (tomador do empréstimo).
@@ -561,7 +561,7 @@ models:
       - name: sexo
         description: Esta coluna não possui um dicionário na fonte original que explica
           o significado dos valores. Ela esta descrita somente como "Sexo do mutuário"
-  - name: br_bcb_sicor__microdados_recurso_publico_gleba
+  - name: br_bcb_sicor__recurso_publico_gleba
     description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
       das operações de crédito que foram financiadas com recursos públicos. Esta tabela
       contém dados adicionais sobre as coordenadas geográficas das glebas do imóvel
@@ -610,7 +610,7 @@ models:
           inválidas e anula registros cujos centroides caem fora do Bounding Box do
           território brasileiro (Longitude (ST_X) Deve estar entre -74 e -34. Latitude
           (ST_Y) Deve estar entre -34 e +6.)
-  - name: br_bcb_sicor__microdados_recurso_publico_cooperado
+  - name: br_bcb_sicor__recurso_publico_cooperado
     description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
       das operações de crédito que foram financiadas com recursos públicos. Esta tabela
       identifica o repasse do crédito a cada menbro de uma cooperativa, caso exista.

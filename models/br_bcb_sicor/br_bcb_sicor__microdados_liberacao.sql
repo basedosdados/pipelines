@@ -1,6 +1,6 @@
 {{
     config(
-        alias="microdados_liberacao",
+        alias="liberacao",
         schema="br_bcb_sicor",
         materialized="table",
         partition_by={
@@ -25,7 +25,7 @@ select
     safe_cast(numero_ordem as string) numero_ordem,
     safe_cast(valor_liberado as float64) valor_liberado
 from
-    {{ set_datalake_project("br_bcb_sicor_staging.microdados_liberacao") }} as t
+    {{ set_datalake_project("br_bcb_sicor_staging.liberacao") }} as t
     {{ add_ano_mes_operacao_data(["id_referencia_bacen", "numero_ordem"]) }}
 where
     safe_cast(extract(month from parse_date("%d/%m/%Y", data_liberacao)) as int64)

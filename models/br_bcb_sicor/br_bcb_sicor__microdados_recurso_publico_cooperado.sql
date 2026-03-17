@@ -1,6 +1,6 @@
 {{
     config(
-        alias="microdados_recurso_publico_cooperado",
+        alias="recurso_publico_cooperado",
         schema="br_bcb_sicor",
         materialized="table",
     )
@@ -30,8 +30,5 @@ select
 
     safe_cast(valor_parcela as float64) valor_parcela
 from
-    {{
-        set_datalake_project(
-            "br_bcb_sicor_staging.microdados_recurso_publico_cooperado"
-        )
-    }} as t {{ add_ano_mes_operacao_data(["id_referencia_bacen", "numero_ordem"]) }}
+    {{ set_datalake_project("br_bcb_sicor_staging.recurso_publico_cooperado") }}
+    as t {{ add_ano_mes_operacao_data(["id_referencia_bacen", "numero_ordem"]) }}

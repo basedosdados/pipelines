@@ -29,9 +29,7 @@ with Flow(
 ) as br_bcb_sicor_template:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_bcb_sicor", required=True)
-    table_id = Parameter(
-        "table_id", default="microdados_operacao", required=True
-    )
+    table_id = Parameter("table_id", default="operacao", required=True)
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )

@@ -1,6 +1,6 @@
 {{
     config(
-        alias="microdados_recurso_publico_gleba",
+        alias="recurso_publico_gleba",
         schema="br_bcb_sicor",
         materialized="incremental",
         partition_by={
@@ -18,12 +18,7 @@ with
             numero_ordem,
             indice_gleba,
             geometria as geometria_original
-        from
-            {{
-                set_datalake_project(
-                    "br_bcb_sicor_staging.microdados_recurso_publico_gleba"
-                )
-            }}
+        from {{ set_datalake_project("br_bcb_sicor_staging.recurso_publico_gleba") }}
     ),
 
     cleaned_wkt as (

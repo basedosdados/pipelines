@@ -16,15 +16,15 @@ from pipelines.crawler.bcb.tasks import (
 )
 from pipelines.datasets.br_bcb_sicor.schedules import (
     every_day_empreendimento,
-    every_day_microdados_liberacao,
-    every_day_microdados_operacao,
-    every_day_microdados_recurso_publico_complemento_operacao,
-    every_day_microdados_recurso_publico_cooperado,
-    every_day_microdados_recurso_publico_gleba,
-    every_day_microdados_recurso_publico_mutuario,
-    every_day_microdados_recurso_publico_propriedade,
-    every_day_microdados_saldo,
+    every_day_liberacao,
+    every_day_operacao,
     every_day_operacoes_desclassificadas,
+    every_day_recurso_publico_complemento_operacao,
+    every_day_recurso_publico_cooperado,
+    every_day_recurso_publico_gleba,
+    every_day_recurso_publico_mutuario,
+    every_day_recurso_publico_propriedade,
+    every_day_saldo,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
@@ -34,136 +34,116 @@ from pipelines.utils.tasks import (
     run_dbt,
 )
 
-# br_bcb_sicor__microdados_operacao
-br_bcb_sicor__microdados_operacao = deepcopy(br_bcb_sicor_template)
-br_bcb_sicor__microdados_operacao.name = "br_bcb_sicor__microdados_operacao"
-br_bcb_sicor__microdados_operacao.code_owners = ["Gabriel Pisa"]
-br_bcb_sicor__microdados_operacao.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_bcb_sicor__microdados_operacao.run_config = KubernetesRun(
+# br_bcb_sicor__operacao
+br_bcb_sicor__operacao = deepcopy(br_bcb_sicor_template)
+br_bcb_sicor__operacao.name = "br_bcb_sicor__operacao"
+br_bcb_sicor__operacao.code_owners = ["Gabriel Pisa"]
+br_bcb_sicor__operacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_bcb_sicor__operacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__microdados_operacao.schedule = every_day_microdados_operacao
+br_bcb_sicor__operacao.schedule = every_day_operacao
 
-# br_bcb_sicor__microdados_saldo
-br_bcb_sicor__microdados_saldo = deepcopy(br_bcb_sicor_template)
-br_bcb_sicor__microdados_saldo.name = "br_bcb_sicor__microdados_saldo"
-br_bcb_sicor__microdados_saldo.code_owners = ["Gabriel Pisa"]
-br_bcb_sicor__microdados_saldo.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_sicor__microdados_saldo.run_config = KubernetesRun(
+# br_bcb_sicor__saldo
+br_bcb_sicor__saldo = deepcopy(br_bcb_sicor_template)
+br_bcb_sicor__saldo.name = "br_bcb_sicor__saldo"
+br_bcb_sicor__saldo.code_owners = ["Gabriel Pisa"]
+br_bcb_sicor__saldo.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_bcb_sicor__saldo.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__microdados_saldo.schedule = every_day_microdados_saldo
+br_bcb_sicor__saldo.schedule = every_day_saldo
 
-# br_bcb_sicor__microdados_liberacao
-br_bcb_sicor__microdados_liberacao = deepcopy(br_bcb_sicor_template)
-br_bcb_sicor__microdados_liberacao.name = "br_bcb_sicor__microdados_liberacao"
-br_bcb_sicor__microdados_liberacao.code_owners = ["Gabriel Pisa"]
-br_bcb_sicor__microdados_liberacao.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_bcb_sicor__microdados_liberacao.run_config = KubernetesRun(
+# br_bcb_sicor__liberacao
+br_bcb_sicor__liberacao = deepcopy(br_bcb_sicor_template)
+br_bcb_sicor__liberacao.name = "br_bcb_sicor__liberacao"
+br_bcb_sicor__liberacao.code_owners = ["Gabriel Pisa"]
+br_bcb_sicor__liberacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
+br_bcb_sicor__liberacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__microdados_liberacao.schedule = every_day_microdados_liberacao
+br_bcb_sicor__liberacao.schedule = every_day_liberacao
 
-# br_bcb_sicor__microdados_recurso_publico_complemento_operacao
-br_bcb_sicor__microdados_recurso_publico_complemento_operacao = deepcopy(
+# br_bcb_sicor__recurso_publico_complemento_operacao
+br_bcb_sicor__recurso_publico_complemento_operacao = deepcopy(
     br_bcb_sicor_template
 )
-br_bcb_sicor__microdados_recurso_publico_complemento_operacao.name = (
-    "br_bcb_sicor__microdados_recurso_publico_complemento_operacao"
+br_bcb_sicor__recurso_publico_complemento_operacao.name = (
+    "br_bcb_sicor__recurso_publico_complemento_operacao"
 )
-br_bcb_sicor__microdados_recurso_publico_complemento_operacao.code_owners = [
+br_bcb_sicor__recurso_publico_complemento_operacao.code_owners = [
     "Gabriel Pisa"
 ]
-br_bcb_sicor__microdados_recurso_publico_complemento_operacao.storage = GCS(
+br_bcb_sicor__recurso_publico_complemento_operacao.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
-br_bcb_sicor__microdados_recurso_publico_complemento_operacao.run_config = (
-    KubernetesRun(image=constants.DOCKER_IMAGE.value)
-)
-br_bcb_sicor__microdados_recurso_publico_complemento_operacao.schedule = (
-    every_day_microdados_recurso_publico_complemento_operacao
-)
-
-# br_bcb_sicor__microdados_recurso_publico_cooperado
-br_bcb_sicor__microdados_recurso_publico_cooperado = deepcopy(
-    br_bcb_sicor_template
-)
-br_bcb_sicor__microdados_recurso_publico_cooperado.name = (
-    "br_bcb_sicor__microdados_recurso_publico_cooperado"
-)
-br_bcb_sicor__microdados_recurso_publico_cooperado.code_owners = [
-    "Gabriel Pisa"
-]
-br_bcb_sicor__microdados_recurso_publico_cooperado.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_bcb_sicor__microdados_recurso_publico_cooperado.run_config = KubernetesRun(
+br_bcb_sicor__recurso_publico_complemento_operacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__microdados_recurso_publico_cooperado.schedule = (
-    every_day_microdados_recurso_publico_cooperado
+br_bcb_sicor__recurso_publico_complemento_operacao.schedule = (
+    every_day_recurso_publico_complemento_operacao
 )
 
-# br_bcb_sicor__microdados_recurso_publico_gleba
-br_bcb_sicor__microdados_recurso_publico_gleba = deepcopy(
-    br_bcb_sicor_template
+# br_bcb_sicor__recurso_publico_cooperado
+br_bcb_sicor__recurso_publico_cooperado = deepcopy(br_bcb_sicor_template)
+br_bcb_sicor__recurso_publico_cooperado.name = (
+    "br_bcb_sicor__recurso_publico_cooperado"
 )
-br_bcb_sicor__microdados_recurso_publico_gleba.name = (
-    "br_bcb_sicor__microdados_recurso_publico_gleba"
-)
-br_bcb_sicor__microdados_recurso_publico_gleba.code_owners = ["Gabriel Pisa"]
-br_bcb_sicor__microdados_recurso_publico_gleba.storage = GCS(
+br_bcb_sicor__recurso_publico_cooperado.code_owners = ["Gabriel Pisa"]
+br_bcb_sicor__recurso_publico_cooperado.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
-br_bcb_sicor__microdados_recurso_publico_gleba.run_config = KubernetesRun(
+br_bcb_sicor__recurso_publico_cooperado.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__microdados_recurso_publico_gleba.schedule = (
-    every_day_microdados_recurso_publico_gleba
+br_bcb_sicor__recurso_publico_cooperado.schedule = (
+    every_day_recurso_publico_cooperado
 )
 
-# br_bcb_sicor__microdados_recurso_publico_mutuario
-br_bcb_sicor__microdados_recurso_publico_mutuario = deepcopy(
-    br_bcb_sicor_template
+# br_bcb_sicor__recurso_publico_gleba
+br_bcb_sicor__recurso_publico_gleba = deepcopy(br_bcb_sicor_template)
+br_bcb_sicor__recurso_publico_gleba.name = (
+    "br_bcb_sicor__recurso_publico_gleba"
 )
-br_bcb_sicor__microdados_recurso_publico_mutuario.name = (
-    "br_bcb_sicor__microdados_recurso_publico_mutuario"
-)
-br_bcb_sicor__microdados_recurso_publico_mutuario.code_owners = [
-    "Gabriel Pisa"
-]
-br_bcb_sicor__microdados_recurso_publico_mutuario.storage = GCS(
+br_bcb_sicor__recurso_publico_gleba.code_owners = ["Gabriel Pisa"]
+br_bcb_sicor__recurso_publico_gleba.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
-br_bcb_sicor__microdados_recurso_publico_mutuario.run_config = KubernetesRun(
+br_bcb_sicor__recurso_publico_gleba.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__microdados_recurso_publico_mutuario.schedule = (
-    every_day_microdados_recurso_publico_mutuario
-)
+br_bcb_sicor__recurso_publico_gleba.schedule = every_day_recurso_publico_gleba
 
-# br_bcb_sicor__microdados_recurso_publico_propriedade
-br_bcb_sicor__microdados_recurso_publico_propriedade = deepcopy(
-    br_bcb_sicor_template
+# br_bcb_sicor__recurso_publico_mutuario
+br_bcb_sicor__recurso_publico_mutuario = deepcopy(br_bcb_sicor_template)
+br_bcb_sicor__recurso_publico_mutuario.name = (
+    "br_bcb_sicor__recurso_publico_mutuario"
 )
-br_bcb_sicor__microdados_recurso_publico_propriedade.name = (
-    "br_bcb_sicor__microdados_recurso_publico_propriedade"
-)
-br_bcb_sicor__microdados_recurso_publico_propriedade.code_owners = [
-    "Gabriel Pisa"
-]
-br_bcb_sicor__microdados_recurso_publico_propriedade.storage = GCS(
+br_bcb_sicor__recurso_publico_mutuario.code_owners = ["Gabriel Pisa"]
+br_bcb_sicor__recurso_publico_mutuario.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
-br_bcb_sicor__microdados_recurso_publico_propriedade.run_config = (
-    KubernetesRun(image=constants.DOCKER_IMAGE.value)
+br_bcb_sicor__recurso_publico_mutuario.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__microdados_recurso_publico_propriedade.schedule = (
-    every_day_microdados_recurso_publico_propriedade
+br_bcb_sicor__recurso_publico_mutuario.schedule = (
+    every_day_recurso_publico_mutuario
+)
+
+# br_bcb_sicor__recurso_publico_propriedade
+br_bcb_sicor__recurso_publico_propriedade = deepcopy(br_bcb_sicor_template)
+br_bcb_sicor__recurso_publico_propriedade.name = (
+    "br_bcb_sicor__recurso_publico_propriedade"
+)
+br_bcb_sicor__recurso_publico_propriedade.code_owners = ["Gabriel Pisa"]
+br_bcb_sicor__recurso_publico_propriedade.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
+br_bcb_sicor__recurso_publico_propriedade.run_config = KubernetesRun(
+    image=constants.DOCKER_IMAGE.value
+)
+br_bcb_sicor__recurso_publico_propriedade.schedule = (
+    every_day_recurso_publico_propriedade
 )
 
 # br_bcb_sicor__operacoes_desclassificadas

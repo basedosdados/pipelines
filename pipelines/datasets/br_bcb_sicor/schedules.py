@@ -9,7 +9,7 @@ from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
-every_day_microdados_operacao = Schedule(
+every_day_operacao = Schedule(
     clocks=[
         CronClock(
             cron="5 2 * * 1-5",  # “At 02:05 on every day-of-week from Monday through Friday.”
@@ -19,7 +19,7 @@ every_day_microdados_operacao = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
-                "table_id": "microdados_operacao",
+                "table_id": "operacao",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -31,7 +31,7 @@ every_day_microdados_operacao = Schedule(
     adjustments=[adjustments.next_weekday],
 )
 
-every_day_microdados_saldo = Schedule(
+every_day_saldo = Schedule(
     clocks=[
         CronClock(
             cron="15 4 * * 1-5",  # “At 04:15 on every day-of-week from Monday through Friday.”
@@ -41,7 +41,7 @@ every_day_microdados_saldo = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
-                "table_id": "microdados_saldo",
+                "table_id": "saldo",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -53,7 +53,7 @@ every_day_microdados_saldo = Schedule(
     adjustments=[adjustments.next_weekday],
 )
 
-every_day_microdados_liberacao = Schedule(
+every_day_liberacao = Schedule(
     clocks=[
         CronClock(
             cron="25 4 * * 1-5",  # “At 04:25 on every day-of-week from Monday through Friday.”
@@ -63,7 +63,7 @@ every_day_microdados_liberacao = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
-                "table_id": "microdados_liberacao",
+                "table_id": "liberacao",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -74,7 +74,7 @@ every_day_microdados_liberacao = Schedule(
     adjustments=[adjustments.next_weekday],
 )
 
-every_day_microdados_recurso_publico_complemento_operacao = Schedule(
+every_day_recurso_publico_complemento_operacao = Schedule(
     clocks=[
         CronClock(
             cron="35 4 * * 1-5",  # “At 04:35 on every day-of-week from Monday through Friday.”
@@ -84,7 +84,7 @@ every_day_microdados_recurso_publico_complemento_operacao = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
-                "table_id": "microdados_recurso_publico_complemento_operacao",
+                "table_id": "recurso_publico_complemento_operacao",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -95,7 +95,7 @@ every_day_microdados_recurso_publico_complemento_operacao = Schedule(
     adjustments=[adjustments.next_weekday],
 )
 
-every_day_microdados_recurso_publico_cooperado = Schedule(
+every_day_recurso_publico_cooperado = Schedule(
     clocks=[
         CronClock(
             cron="45 4 * * 1-5",  # “At 04:45 on every day-of-week from Monday through Friday.”
@@ -105,7 +105,7 @@ every_day_microdados_recurso_publico_cooperado = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
-                "table_id": "microdados_recurso_publico_cooperado",
+                "table_id": "recurso_publico_cooperado",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -116,7 +116,7 @@ every_day_microdados_recurso_publico_cooperado = Schedule(
     adjustments=[adjustments.next_weekday],
 )
 
-every_day_microdados_recurso_publico_gleba = Schedule(
+every_day_recurso_publico_gleba = Schedule(
     clocks=[
         CronClock(
             cron="55 4 * * 1-5",  # “At 04:55 on every day-of-week from Monday through Friday.”
@@ -126,7 +126,7 @@ every_day_microdados_recurso_publico_gleba = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
-                "table_id": "microdados_recurso_publico_gleba",
+                "table_id": "recurso_publico_gleba",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -138,7 +138,7 @@ every_day_microdados_recurso_publico_gleba = Schedule(
     adjustments=[adjustments.next_weekday],
 )
 
-every_day_microdados_recurso_publico_mutuario = Schedule(
+every_day_recurso_publico_mutuario = Schedule(
     clocks=[
         CronClock(
             cron="5 5 * * 1-5",  # “At 05:05 on every day-of-week from Monday through Friday.”
@@ -148,7 +148,7 @@ every_day_microdados_recurso_publico_mutuario = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
-                "table_id": "microdados_recurso_publico_mutuario",
+                "table_id": "recurso_publico_mutuario",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -159,7 +159,7 @@ every_day_microdados_recurso_publico_mutuario = Schedule(
     adjustments=[adjustments.next_weekday],
 )
 
-every_day_microdados_recurso_publico_propriedade = Schedule(
+every_day_recurso_publico_propriedade = Schedule(
     clocks=[
         CronClock(
             cron="15 5 * * 1-5",  # “At 05:15 on every day-of-week from Monday through Friday.”
@@ -169,7 +169,7 @@ every_day_microdados_recurso_publico_propriedade = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
-                "table_id": "microdados_recurso_publico_propriedade",
+                "table_id": "recurso_publico_propriedade",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,
@@ -190,7 +190,7 @@ every_day_operacoes_desclassificadas = Schedule(
             ],
             parameter_defaults={
                 "dataset_id": "br_bcb_sicor",
-                "table_id": "microdados_operacoes_desclassificadas",
+                "table_id": "operacoes_desclassificadas",
                 "materialize_after_dump": True,
                 "dbt_alias": True,
                 "update_metadata": True,

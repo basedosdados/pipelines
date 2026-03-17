@@ -1,6 +1,6 @@
 {{
     config(
-        alias="microdados_recurso_publico_complemento_operacao",
+        alias="recurso_publico_complemento_operacao",
         schema="br_bcb_sicor",
         materialized="table",
         partition_by={
@@ -25,7 +25,7 @@ select distinct
 from
     {{
         set_datalake_project(
-            "br_bcb_sicor_staging.microdados_recurso_publico_complemento_operacao"
+            "br_bcb_sicor_staging.recurso_publico_complemento_operacao"
         )
     }} t
 left join
@@ -36,5 +36,5 @@ left join
             ano_emissao,
             mes_emissao,
             cnpj_basico_instituicao_financeira
-        from {{ ref("br_bcb_sicor__microdados_operacao") }}
+        from {{ ref("br_bcb_sicor__operacao") }}
     ) as mo using (id_referencia_bacen, numero_ordem)

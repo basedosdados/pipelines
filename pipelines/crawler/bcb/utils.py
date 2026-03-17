@@ -178,9 +178,9 @@ def filter_sicor_links(
 
     # Those tables are realeased by the origal source in early files;
     yearly_tables = [
-        "microdados_operacao",
-        "microdados_saldo",
-        "microdados_recurso_publico_gleba",
+        "operacao",
+        "saldo",
+        "recurso_publico_gleba",
     ]
 
     if not download_all_files and table_id in yearly_tables:
@@ -242,9 +242,9 @@ def create_tables(
     }
 
     partitioned_tables = [
-        "microdados_operacao",
-        "microdados_saldo",
-        "microdados_recurso_publico_gleba",
+        "operacao",
+        "saldo",
+        "recurso_publico_gleba",
     ]
 
     for _, row in data.iterrows():

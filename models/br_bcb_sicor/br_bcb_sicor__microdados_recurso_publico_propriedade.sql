@@ -1,6 +1,6 @@
 {{
     config(
-        alias="microdados_recurso_publico_propriedade",
+        alias="recurso_publico_propriedade",
         schema="br_bcb_sicor",
         materialized="table",
         partition_by={
@@ -27,8 +27,5 @@ select
     safe_cast(nullif(id_nirf, '-1') as string) id_nirf,
     safe_cast(nullif(id_car, '-1') as string) id_car
 from
-    {{
-        set_datalake_project(
-            "br_bcb_sicor_staging.microdados_recurso_publico_propriedade"
-        )
-    }} as t {{ add_ano_mes_operacao_data(["id_referencia_bacen", "numero_ordem"]) }}
+    {{ set_datalake_project("br_bcb_sicor_staging.recurso_publico_propriedade") }}
+    as t {{ add_ano_mes_operacao_data(["id_referencia_bacen", "numero_ordem"]) }}

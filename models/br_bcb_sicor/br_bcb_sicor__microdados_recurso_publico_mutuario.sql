@@ -1,6 +1,6 @@
 {{
     config(
-        alias="microdados_recurso_publico_mutuario",
+        alias="recurso_publico_mutuario",
         schema="br_bcb_sicor",
         materialized="table",
     )
@@ -27,8 +27,5 @@ select
     safe_cast(primeiro_mutuario as string) primeiro_mutuario,
     safe_cast(sexo as string) sexo
 from
-    {{
-        set_datalake_project(
-            "br_bcb_sicor_staging.microdados_recurso_publico_mutuario"
-        )
-    }} as t {{ add_ano_mes_operacao_data(["id_referencia_bacen"]) }}
+    {{ set_datalake_project("br_bcb_sicor_staging.recurso_publico_mutuario") }}
+    as t {{ add_ano_mes_operacao_data(["id_referencia_bacen"]) }}

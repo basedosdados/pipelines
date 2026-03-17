@@ -8,7 +8,7 @@ class Constants(Enum):
     OUTPUT_FOLDER = f"output/{DATASET_ID}"
 
     sicor_to_bd_table_names = {
-        "microdados_operacao": {
+        "operacao": {
             "table_raw_name": "OPERACAO_BASICA_ESTADO",
             "table_schema": {
                 "#REF_BACEN": "id_referencia_bacen",
@@ -60,7 +60,7 @@ class Constants(Enum):
                 "CD_CNPJ_CADASTRANTE": "cnpj_cadastrante",
             },
         },
-        "microdados_saldo": {
+        "saldo": {
             "table_raw_name": "SALDOS",
             "table_schema": {
                 "#REF_BACEN": "id_referencia_bacen",
@@ -73,7 +73,7 @@ class Constants(Enum):
                 "VL_ULTIMO_DIA": "valor_ultimo_dia",
             },
         },
-        "microdados_liberacao": {
+        "liberacao": {
             "table_raw_name": "LIBERACAO_RECURSOS",
             "table_schema": {
                 "#LIR_DT_LIBERACAO": "data_liberacao",
@@ -82,7 +82,7 @@ class Constants(Enum):
                 "NU_ORDEM": "numero_ordem",
             },
         },
-        "microdados_recurso_publico_complemento_operacao": {
+        "recurso_publico_complemento_operacao": {
             "table_raw_name": "SICOR_COMPLEMENTO_OPERACAO_BASICA",
             "table_schema": {
                 "#REF_BACEN": "id_referencia_bacen",
@@ -93,7 +93,7 @@ class Constants(Enum):
                 "NUM_CEDULA_IF": "numero_cedula",
             },
         },
-        "microdados_recurso_publico_cooperado": {
+        "recurso_publico_cooperado": {
             "table_raw_name": "SICOR_LISTA_COOPERADOS",
             "table_schema": {
                 "#REF_BACEN": "id_referencia_bacen",
@@ -104,7 +104,7 @@ class Constants(Enum):
                 "VL_PARCELA": "valor_parcela",
             },
         },
-        "microdados_recurso_publico_gleba": {
+        "recurso_publico_gleba": {
             "table_raw_name": "sicor_glebas_wkt",
             "table_schema": {
                 "#REF_BACEN": "id_referencia_bacen",
@@ -113,7 +113,7 @@ class Constants(Enum):
                 "GT_GEOMETRIA": "geometria",
             },
         },
-        "microdados_recurso_publico_mutuario": {
+        "recurso_publico_mutuario": {
             "table_raw_name": "SICOR_MUTUARIOS",
             "table_schema": {
                 "REF_BACEN": "id_referencia_bacen",
@@ -124,7 +124,7 @@ class Constants(Enum):
                 "CD_DAP": "id_dap",
             },
         },
-        "microdados_recurso_publico_propriedade": {
+        "recurso_publico_propriedade": {
             "table_raw_name": "SICOR_PROPRIEDADES",
             "table_schema": {
                 "#REF_BACEN": "id_referencia_bacen",
@@ -135,7 +135,7 @@ class Constants(Enum):
                 "CD_CAR": "id_car",
             },
         },
-        "microdados_operacoes_desclassificadas": {
+        "operacoes_desclassificadas": {
             "table_raw_name": "SICOR_DESCLASSIFICACAO",
             "table_schema": {
                 "#REF_BACEN": "id_referencia_bacen",
@@ -171,42 +171,42 @@ class Constants(Enum):
     dicionario = [
         # Este dicionário foi
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_categoria_emitente",
             "url": "https://www.bcb.gov.br/htms/sicor/CategoriaEmitente.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ";",
         },
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_fase_ciclo_producao",
             "url": "https://www.bcb.gov.br/htms/sicor/FaseCicloProducao.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ";",
         },
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_fonte_recurso",
             "url": "https://www.bcb.gov.br/htms/sicor/FonteRecursos.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ";",
         },
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_instrumento_credito",
             "url": "https://www.bcb.gov.br/htms/sicor/InstrumentoCredito.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ";",
         },
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_programa",
             "url": "https://www.bcb.gov.br/htms/sicor/Programa.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ";",
         },
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_subprograma",
             "url": "https://www.bcb.gov.br/htms/sicor/Subprogramas.csv",
             "colunas": {
@@ -216,21 +216,21 @@ class Constants(Enum):
             "sep": ";",
         },
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_tipo_agricultura",
             "url": "https://www.bcb.gov.br/htms/sicor/TipoAgropecuaria.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ";",
         },
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_tipo_cultivo",
             "url": "https://www.bcb.gov.br/htms/sicor/TipoCultivo.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ";",
         },
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_tipo_solo",
             "url": "https://www.bcb.gov.br/htms/sicor/TipoSoloProagro.csv",
             "colunas": {
@@ -240,42 +240,42 @@ class Constants(Enum):
             "sep": ";",
         },
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_tipo_ciclo_cultivar",
             "url": "https://www.bcb.gov.br/htms/sicor/CicloCultivarProagro.csv",
             "colunas": {"#CODIGO_CICLO": "chave", "DESCRICAO_CICLO": "valor"},
             "sep": ";",
         },
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_tipo_encargo_financeiro",
             "url": "https://www.bcb.gov.br/htms/sicor/EncargosFinanceirosComplementares.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ",",
         },
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_tipo_grao_semente",
             "url": "https://www.bcb.gov.br/htms/sicor/GraoSemente.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ",",
         },
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_tipo_integracao_consorcio",
             "url": "https://www.bcb.gov.br/htms/sicor/TipoIntegracao.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ";",
         },
         {
-            "id_tabela": "microdados_operacao",
+            "id_tabela": "operacao",
             "nome_coluna": "id_tipo_irrigacao",
             "url": "https://www.bcb.gov.br/htms/sicor/TipoIrrigacao.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ";",
         },
         {
-            "id_tabela": "microdados_saldo",
+            "id_tabela": "saldo",
             "nome_coluna": "id_situacao_operacao",
             "url": "https://www.bcb.gov.br/htms/sicor/SituacaoOperacao.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
@@ -289,21 +289,21 @@ class Constants(Enum):
             "sep": ",",
         },
         {
-            "id_tabela": "microdados_operacoes_desclassificadas",
+            "id_tabela": "operacoes_desclassificadas",
             "nome_coluna": "id_motivo_desclassificacao",
             "url": "https://www.bcb.gov.br/htms/sicor/motivoDesclassificacao.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ",",
         },
         {
-            "id_tabela": "microdados_recurso_publico_mutuario",
+            "id_tabela": "recurso_publico_mutuario",
             "nome_coluna": "tipo_beneficiario",
             "url": "https://www.bcb.gov.br/htms/sicor/motivoDesclassificacao.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ",",
         },
         {
-            "id_tabela": "microdados_recurso_publico_cooperado",
+            "id_tabela": "recurso_publico_cooperado",
             "nome_coluna": "id_programa",
             "url": "https://www.bcb.gov.br/htms/sicor/Programa.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},

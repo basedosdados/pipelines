@@ -22,7 +22,7 @@ A fonte original divulga os dados seguindo quatro padrões de periodicidade:
 
 ## Permissionamento e Estrutura de Vínculos
 
-Este conjunto de dados possui uma tabela mestre: `br_bcb_sicor__microdados_operacao`.
+Este conjunto de dados possui uma tabela mestre: `br_bcb_sicor__operacao`.
 
 - Esta tabela contém os dados cadastrais básicos de todas as operações de crédito financiadas com fontes públicas e privadas.
 - O vínculo entre tabelas deve ser realizado via `id_referencia_bacen` e `numero_ordem`.
@@ -32,7 +32,7 @@ Este conjunto de dados possui uma tabela mestre: `br_bcb_sicor__microdados_opera
 
 ## Tabelas e Particularidades
 
-### br_bcb_sicor__microdados_operacao
+### br_bcb_sicor__operacao
 
 Tabela principal do conjunto de dados, contendo informações cadastrais básicas de todas as operações de crédito rural registradas no SICOR.
 
@@ -43,7 +43,7 @@ Esse comportamento é esperado. A base abriga registro de operações de crédit
 
 **Log de Erro:**
 ```bash
-Failure in test not_null_proportion_multiple_columns_br_bcb_sicor__microdados_operacao_0_65 (models/br_bcb_sicor/schema.yml)
+Failure in test not_null_proportion_multiple_columns_br_bcb_sicor__operacao_0_65 (models/br_bcb_sicor/schema.yml)
 12:48:22    Got 25 results, configured to fail if != 0
 ```
 
@@ -53,7 +53,7 @@ Failure in test not_null_proportion_multiple_columns_br_bcb_sicor__microdados_op
 
 ---
 
-### br_bcb_sicor__microdados_saldo
+### br_bcb_sicor__saldo
 
 **Problemas Identificados:**
 - Identificou-se cerca de 397 mil linhas com valores nulos para `ano_emissao` e `mes_emissao` após o join com a tabela de operações.
@@ -71,28 +71,28 @@ Failure in test not_null_proportion_multiple_columns_br_bcb_sicor__microdados_op
 
 **Queries de Debug:**
 ```sql
---- Verifica id_referencia_bacen que tem ano_emissao nulos após join com tabela microdados_operacao
+--- Verifica id_referencia_bacen que tem ano_emissao nulos após join com tabela operacao
 select distinct
 id_referencia_bacen
-from basedosdados-dev.br_bcb_sicor.microdados_saldo
+from basedosdados-dev.br_bcb_sicor.saldo
 where ano_emissao is null;
 
 --- Verifica se IDs fantasmas existem na tabela de liberação
 with id_ref_bacen_mic_saldo as (
     select
     distinct id_referencia_bacen
-    from basedosdados-dev.br_bcb_sicor.microdados_saldo
-    where id_referencia_bacen not in (select distinct id_referencia_bacen from basedosdados-dev.br_bcb_sicor.microdados_operacao)
+    from basedosdados-dev.br_bcb_sicor.saldo
+    where id_referencia_bacen not in (select distinct id_referencia_bacen from basedosdados-dev.br_bcb_sicor.operacao)
 )
 select id_referencia_bacen
-from basedosdados-dev.br_bcb_sicor.microdados_liberacao
+from basedosdados-dev.br_bcb_sicor.liberacao
 where id_referencia_bacen in (select id_referencia_bacen from id_ref_bacen_mic_saldo);
 
 --- Identifica duplicidade de saldo por período e operação
 with validation_errors as (
     select
         ano, mes, id_referencia_bacen, numero_ordem
-    from `basedosdados-dev`.`br_bcb_sicor`.`microdados_saldo`
+    from `basedosdados-dev`.`br_bcb_sicor`.`saldo`
     group by ano, mes, id_referencia_bacen, numero_ordem
     having count(*) > 1
 )
@@ -101,7 +101,7 @@ select * from validation_errors;
 
 ---
 
-### br_bcb_sicor__microdados_recurso_publico_mutuario
+### br_bcb_sicor__recurso_publico_mutuario
 
 **Problemas Identificados:**
 - **Ausência de dicionários:** As colunas `primeiro_mutuario` (valores 'N'/'S') e `sexo` (valores '1'/'2') não possuem dicionário oficial de tradução na fonte.
@@ -109,31 +109,31 @@ select * from validation_errors;
 
 **Decisões e Tratamento:**
 - **Manutenção de valores originais:** Valores mantidos conforme a fonte com descrições explicativas.
+- **Criação de colunas:**
 
 ```sql
 select
 countif(length(tipo_cpf_cnpj) = 14) cnpj,
 countif(length(tipo_cpf_cnpj) = 11) cpf,
 countif(length(tipo_cpf_cnpj) = 8) cnpj_basico,
-from `basedosdados-dev`.`br_bcb_sicor_staging`.`microdados_recurso_publico_mutuario`
+from `basedosdados-dev`.`br_bcb_sicor_staging`.`recurso_publico_mutuario`
 ```
 
 - cnpj = 38.917
 - cpf = 17697916
 - cnpj_basico = 293
 
-1. Existem casos onde o valor preenchido equivale a um cnpj_basico de 8 dígitos;
 
 ---
 
-### br_bcb_sicor__microdados_recurso_publico_complemento_operacao
+### br_bcb_sicor__recurso_publico_complemento_operacao
 
 **Problemas Identificados:**
 - Existência de 172 linhas de 22.968.008 com `id_municipio` nulo na fonte original.
 
 ---
 
-### br_bcb_sicor__microdados_recurso_publico_cooperado
+### br_bcb_sicor__recurso_publico_cooperado
 
 **Descrição:**
 Informações sobre cooperados vinculados às operações.
@@ -143,7 +143,7 @@ Informações sobre cooperados vinculados às operações.
 
 ---
 
-### br_bcb_sicor__microdados_recurso_publico_gleba
+### br_bcb_sicor__recurso_publico_gleba
 
 **Problemas Identificados:**
 1. **Erros de WKT:** Falhas massivas na formatação Well-Known Text.
@@ -155,7 +155,7 @@ Informações sobre cooperados vinculados às operações.
 SELECT
     geometry as raw_string,
     safe_cast(id_referencia_bacen as string) as id_ref
-FROM `basedosdados-dev.br_bcb_sicor_staging.microdados_recurso_publico_gleba`
+FROM `basedosdados-dev.br_bcb_sicor_staging.recurso_publico_gleba`
 WHERE SAFE.ST_GEOGFROMTEXT(geometry, make_valid=>TRUE) IS NULL;
 ```
 
@@ -170,7 +170,7 @@ with
             ano,
             geometria as geometria_original
         from
-            basedosdados-dev.br_bcb_sicor_staging.microdados_recurso_publico_gleba
+            basedosdados-dev.br_bcb_sicor_staging.recurso_publico_gleba
     ),
     cleaned_wkt as (
         select
@@ -251,7 +251,7 @@ order by 1 desc;
 
 ---
 
-### br_bcb_sicor__microdados_recurso_publico_propriedade
+### br_bcb_sicor__recurso_publico_propriedade
 
 
 
@@ -260,7 +260,7 @@ order by 1 desc;
 
 ---
 
-### br_bcb_sicor__microdados_liberacao
+### br_bcb_sicor__liberacao
 
 **Problemas Identificados:**
 - **Anomalias de Data:** Datas de liberação em anos impossíveis (1905, 2011) ou futuros (2028).
@@ -270,7 +270,7 @@ order by 1 desc;
 select
     EXTRACT(YEAR FROM PARSE_DATE("%d/%m/%Y", data_liberacao)) AS ano_liberacao,
     count(*)
-from basedosdados-dev.br_bcb_sicor_staging.microdados_liberacao
+from basedosdados-dev.br_bcb_sicor_staging.liberacao
 group by all
 order by ano_liberacao;
 ```
@@ -279,7 +279,7 @@ order by ano_liberacao;
 - Linhas com anos inconsistentes com a existência do sistema (anteriores a 2013) ou futuros foram removidas.
 
 ---
-### br_bcb_sicor__microdados_operacoes_desclassificadas
+### br_bcb_sicor__operacoes_desclassificadas
 
 **Problemas Identificados:**
 - O único problema é a existência de valor da coluna id_motivo_desclassificacao que não existem no dicionário oficial do sicor
