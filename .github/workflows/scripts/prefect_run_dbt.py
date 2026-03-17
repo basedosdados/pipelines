@@ -129,6 +129,7 @@ def push_table_to_bq(
     source_bucket_name="basedosdados-dev",
     destination_bucket_name="basedosdados",
     backup_bucket_name="basedosdados-backup",
+    user_project: str = "basedosdados",
 ) -> bool:
     # copy proprosed data between storage buckets
     # create a backup of old data, then delete it and copies new data into the destination bucket
@@ -143,6 +144,7 @@ def push_table_to_bq(
                 table_id=table_id,
                 destination_bucket_name=destination_bucket_name,
                 backup_bucket_name=backup_bucket_name,
+                user_project=user_project,
                 mode=mode,
             )
         except Exception:
@@ -154,7 +156,9 @@ def push_table_to_bq(
         print(f"Table {dataset_id}.{table_id} does not have data in storage.")
         return False
 
-    file_path = save_header_files(dataset_id, table_id)
+    file_path = save_header_files(
+        dataset_id, table_id, user_project=user_project
+    )
 
     # create table object of selected table and dataset ID
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
@@ -190,13 +194,15 @@ def push_table_to_bq(
     return True
 
 
-def save_header_files(dataset_id: str, table_id: str) -> str:
+def save_header_files(
+    dataset_id: str, table_id: str, user_project: str
+) -> str:
     print("GET FIRST BLOB PATH")
 
     ref = bd.Storage(dataset_id=dataset_id, table_id=table_id)
     blobs = (
         ref.client["storage_staging"]
-        .bucket("basedosdados-dev")
+        .bucket("basedosdados-dev", user_project=user_project)
         .list_blobs(prefix=f"staging/{dataset_id}/{table_id}/")
     )
 
@@ -252,6 +258,7 @@ def sync_bucket(
     table_id: str,
     destination_bucket_name: str,
     backup_bucket_name: str,
+    user_project: str = "basedosdados",
     mode: str = "staging",
 ) -> bool:
     """Copies proprosed data between storage buckets.
@@ -285,7 +292,7 @@ def sync_bucket(
 
     source_ref = (
         ref.client["storage_staging"]
-        .bucket(source_bucket_name)
+        .bucket(source_bucket_name, user_project=user_project)
         .list_blobs(prefix=prefix)
     )
 
@@ -300,7 +307,7 @@ def sync_bucket(
     if len(list(destination_ref)):
         backup_bucket_blobs = list(
             ref.client["storage_staging"]
-            .bucket(backup_bucket_name)
+            .bucket(backup_bucket_name, user_project=user_project)
             .list_blobs(prefix=prefix)
         )
         if len(backup_bucket_blobs):
