@@ -595,6 +595,12 @@ models:
       das operações de crédito que foram financiadas com recursos públicos. Esta tabela
       identifica o repasse do crédito a cada menbro de uma cooperativa, caso exista.
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_referencia_bacen
+            - numero_ordem
+            - cpf
+            - cnpj
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [id_programa]
           dictionary_model: ref('br_bcb_sicor_dicionario')
@@ -622,8 +628,6 @@ models:
         description: Identificador do programa cujo crédito concedido está relacionado
       - name: tipo_pessoa
         description: Tipo da entidade jurídica
-      - name: tipo_cpf_cnpj
-        description: CPF ou CNPJ do cooperado
       - name: cpf
         description: CPF do cooperado
       - name: cnpj
@@ -631,7 +635,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__empresa')
-              field: cnpj
+              field: cnpj_basico
       - name: valor_parcela
         description: Valor da parcela de crédito do cooperado
   - name: br_bcb_sicor__dicionario

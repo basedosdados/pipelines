@@ -16,7 +16,7 @@ select
         case when length(tipo_cpf_cnpj) = 11 then tipo_cpf_cnpj else null end as string
     ) as cpf,
     safe_cast(
-        case when length(tipo_cpf_cnpj) = 14 then tipo_cpf_cnpj else null end as string
+        case when length(tipo_cpf_cnpj) = 8 then tipo_cpf_cnpj else null end as string
     ) as cnpj,
     safe_cast(
         case
