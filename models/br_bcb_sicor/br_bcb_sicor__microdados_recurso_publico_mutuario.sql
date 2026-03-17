@@ -20,6 +20,9 @@ select
     safe_cast(
         case when length(tipo_cpf_cnpj) = 14 then tipo_cpf_cnpj else null end as string
     ) as cnpj,
+    safe_cast(
+        case when length(tipo_cpf_cnpj) = 8 then tipo_cpf_cnpj else null end as string
+    ) as cnpj_basico,
     safe_cast(tipo_beneficiario as string) tipo_beneficiario,
     safe_cast(primeiro_mutuario as string) primeiro_mutuario,
     safe_cast(sexo as string) sexo

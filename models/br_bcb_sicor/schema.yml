@@ -462,6 +462,16 @@ models:
     description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
       das operações de crédito que foram financiadas com recursos públicos. Esta tabela
       contém dados adicionais do imóvel rural de aplicação do crédito.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_referencia_bacen
+            - numero_ordem
+            - cpf
+            - cnpj_basico
+            - id_sncr
+            - id_nirf
+            - id_car
     columns:
       - name: ano_emissao
         description: Ano da emissão da operação
@@ -484,12 +494,12 @@ models:
         tests: [not_null]
       - name: cpf
         description: CPF do poprietário
-      - name: cnpj
-        description: CNPJ do proprietário
+      - name: cnpj_basico
+        description: CNPJ Básico do proprietário
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__empresa')
-              field: cnpj
+              field: cnpj_basico
       - name: id_sncr
         description: Identificar do Imóvel no Sistema Nacional de Cadastro Rural (SNCR)
       - name: id_nirf
@@ -505,7 +515,11 @@ models:
           columns_covered_by_dictionary: [tipo_beneficiario]
           dictionary_model: ref('br_bcb_sicor_dicionario')
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [id_referencia_bacen, cpf, cnpj]
+          combination_of_columns:
+            - id_referencia_bacen
+            - cpf
+            - cnpj
+            - cnpj_basico
     columns:
       - name: ano_emissao
         description: Ano da emissão da operação
@@ -532,6 +546,12 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__empresa')
               field: cnpj
+      - name: cnpj_basico
+        description: CNPJ básico do mutuário
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__empresa')
+              field: cnpj_basico
       - name: tipo_beneficiario
         description: Tipo do Beneficiário
       - name: primeiro_mutuario
@@ -600,7 +620,7 @@ models:
             - id_referencia_bacen
             - numero_ordem
             - cpf
-            - cnpj
+            - cnpj_basico
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [id_programa]
           dictionary_model: ref('br_bcb_sicor_dicionario')
@@ -630,8 +650,8 @@ models:
         description: Tipo da entidade jurídica
       - name: cpf
         description: CPF do cooperado
-      - name: cnpj
-        description: CNPJ do cooperado
+      - name: cnpj_basico
+        description: CNPJ Básico do cooperado
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__empresa')

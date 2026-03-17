@@ -17,7 +17,7 @@ select
     ) as cpf,
     safe_cast(
         case when length(tipo_cpf_cnpj) = 8 then tipo_cpf_cnpj else null end as string
-    ) as cnpj,
+    ) as cnpj_basico,
     safe_cast(
         case
             when tipo_pessoa = 'F'

@@ -20,8 +20,8 @@ select
         case when length(tipo_cpf_cnpj) = 11 then tipo_cpf_cnpj else null end as string
     ) as cpf,
     safe_cast(
-        case when length(tipo_cpf_cnpj) = 14 then tipo_cpf_cnpj else null end as string
-    ) as cnpj,
+        case when length(tipo_cpf_cnpj) = 8 then tipo_cpf_cnpj else null end as string
+    ) as cnpj_basico,
     -- valores estranhos que vem por padrão da fonte original
     safe_cast(nullif(id_sncr, '-1') as string) id_sncr,
     safe_cast(nullif(id_nirf, '-1') as string) id_nirf,
