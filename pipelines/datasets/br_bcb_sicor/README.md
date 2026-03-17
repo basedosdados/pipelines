@@ -105,18 +105,31 @@ select * from validation_errors;
 
 **Problemas Identificados:**
 - **Ausência de dicionários:** As colunas `primeiro_mutuario` (valores 'N'/'S') e `sexo` (valores '1'/'2') não possuem dicionário oficial de tradução na fonte.
-- **Nulos em CNPJ:** A coluna `cnpj` possui 99,78% de valores nulos (consistente com operações de PF/Pronaf).
+- **colunas cpf, cnpj_basico e cnpj:** A coluna `cnpj` possui 99,78% de valores nulos (consistente com operações de PF/Pronaf).
 
 **Decisões e Tratamento:**
 - **Manutenção de valores originais:** Valores mantidos conforme a fonte com descrições explicativas.
-- **Ajuste de testes:** Remoção do teste `not_null` no CNPJ.
+
+```sql
+select
+countif(length(tipo_cpf_cnpj) = 14) cnpj,
+countif(length(tipo_cpf_cnpj) = 11) cpf,
+countif(length(tipo_cpf_cnpj) = 8) cnpj_basico,
+from `basedosdados-dev`.`br_bcb_sicor_staging`.`microdados_recurso_publico_mutuario`
+```
+
+- cnpj = 38.917
+- cpf = 17697916
+- cnpj_basico = 293
+
+1. Existem casos onde o valor preenchido equivale a um cnpj_basico de 8 dígitos;
 
 ---
 
 ### br_bcb_sicor__microdados_recurso_publico_complemento_operacao
 
 **Problemas Identificados:**
-- Existência de 172 linhas com `id_municipio` nulo na fonte original.
+- Existência de 172 linhas de 22.968.008 com `id_municipio` nulo na fonte original.
 
 ---
 
@@ -126,7 +139,7 @@ select * from validation_errors;
 Informações sobre cooperados vinculados às operações.
 
 **Problemas Identificados:**
-- **Inexistência de chave única:** Um mesmo `id_referencia_bacen` e `numero_ordem` pode ter múltiplas parcelas (`valor_parcela`) de mesmo valor para um único CPF/CNPJ.
+- Mais do que um problema, é um ponto de atenção. O CNPJ informado é o CNPJ básico de 8 dígitos.
 
 ---
 
@@ -217,13 +230,33 @@ group by 1
 order by 1 desc;
 ```
 
+**Resultados da Validação:**
+
+| Row | ano | qty_validated | qty_problematic | qty_null_source | total_rows | success_rate_pct |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1 | 2026 | 79228 | 0 | 0 | 79228 | 100.0 |
+| 2 | 2025 | 1008405 | 0 | 0 | 1008405 | 100.0 |
+| 3 | 2024 | 1167995 | 0 | 0 | 1167995 | 100.0 |
+| 4 | 2023 | 1109957 | 0 | 0 | 1109957 | 100.0 |
+| 5 | 2022 | 1062339 | 0 | 0 | 1062339 | 100.0 |
+| 6 | 2021 | 980803 | 0 | 0 | 980803 | 100.0 |
+| 7 | 2020 | 888805 | 0 | 0 | 888805 | 100.0 |
+| 8 | 2019 | 608728 | 0 | 0 | 608728 | 100.0 |
+| 9 | 2018 | 395235 | 0 | 0 | 395235 | 100.0 |
+| 10 | 2017 | 313718 | 26 | 0 | 313744 | 99.99 |
+| 11 | 2016 | 91071 | 28 | 0 | 91099 | 99.97 |
+| 12 | 2015 | 8914 | 35 | 0 | 8949 | 99.61 |
+| 13 | 2014 | 1880 | 91 | 0 | 1971 | 95.38 |
+| 14 | 2013 | 501 | 146 | 0 | 647 | 77.43 |
+
 ---
 
 ### br_bcb_sicor__microdados_recurso_publico_propriedade
 
+
+
 **Problemas Identificados:**
-- **Inexistência de chave única:** Multiplicidade de propriedades para o mesmo vínculo operacional.
-- **Dados temporais:** O CAR só existe consistentemente a partir de 2018.
+-  O CAR só existe consistentemente a partir de 2018; apenas em 2018 o banco central passou a cobrar o preenchimento do CAR como exigência para a concessão do empréstimo;
 
 ---
 
@@ -248,7 +281,6 @@ order by ano_liberacao;
 ---
 ### br_bcb_sicor__microdados_operacoes_desclassificadas
 
-Nenhum valor de id_referencia_bacen presente nesta tabela existe na tabela de microdados operações. Isto torna esta tabela praticamente inutilizável e não faz sentido que ela esteja no BQ de Prod e no Site
-
-- Verifiquei se existiam problemas de perda de 0 a esquerda ou espaços em brancos;
-- Verifiquei os valores extraidos diretamente da fonte original sem nenhuma alteração e nenhum bate;
+**Problemas Identificados:**
+- O único problema é a existência de valor da coluna id_motivo_desclassificacao que não existem no dicionário oficial do sicor
+São eles: ["0", "201", "14"]
