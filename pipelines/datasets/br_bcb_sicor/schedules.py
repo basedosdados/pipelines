@@ -180,26 +180,26 @@ every_day_microdados_recurso_publico_propriedade = Schedule(
     adjustments=[adjustments.next_weekday],
 )
 
-# every_day_operacoes_desclassificadas = Schedule(
-#     clocks=[
-#         CronClock(
-#             cron="25 5 * * 1-5",  # “At 05:25 on every day-of-week from Monday through Friday.”
-#             start_date=datetime(2026, 3, 3, 0, 0),
-#             labels=[
-#                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-#             ],
-#             parameter_defaults={
-#                 "dataset_id": "br_bcb_sicor",
-#                 "table_id": "microdados_operacoes_desclassificadas",
-#                 "materialize_after_dump": True,
-#                 "dbt_alias": True,
-#                 "update_metadata": True,
-#             },
-#         )
-#     ],
-#     filters=[filters.is_weekday],
-#     adjustments=[adjustments.next_weekday],
-# )
+every_day_operacoes_desclassificadas = Schedule(
+    clocks=[
+        CronClock(
+            cron="25 5 * * 1-5",  # “At 05:25 on every day-of-week from Monday through Friday.”
+            start_date=datetime(2026, 3, 3, 0, 0),
+            labels=[
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_bcb_sicor",
+                "table_id": "microdados_operacoes_desclassificadas",
+                "materialize_after_dump": True,
+                "dbt_alias": True,
+                "update_metadata": True,
+            },
+        )
+    ],
+    filters=[filters.is_weekday],
+    adjustments=[adjustments.next_weekday],
+)
 
 every_day_empreendimento = Schedule(
     clocks=[
