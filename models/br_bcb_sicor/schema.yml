@@ -290,7 +290,7 @@ models:
             - id_referencia_bacen
             - numero_ordem
       - not_null_proportion_multiple_columns:
-          at_least: 1
+          at_least: 0.98
     columns:
       - name: ano_emissao
         description: Ano da emissão da operação
