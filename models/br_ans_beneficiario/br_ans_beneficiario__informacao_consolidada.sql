@@ -1,3 +1,4 @@
+-- Register ANS - 18/03/2026 10:28
 {{
     config(
         schema="br_ans_beneficiario",
