@@ -5,6 +5,8 @@
         materialized="table",
     )
 }}
+
+
 select
     safe_cast(data_cadastro as datetime) data_cadastro,
     safe_cast(id_animal as string) id_animal,
