@@ -2,12 +2,15 @@ from models.br_sou_da_paz_armas_municoes.code.constants import constants
 from models.br_sou_da_paz_armas_municoes.code.main import (
     capitalize,
     change_columns_name,
+    column_br,
     consolidado,
+    create_output,
     download_file,
+    fix_quant,
 )
 
 
-def outras_categorias_eb_pessoa_fisica(
+def pessoa_fisica_cac(
     real_file_id: str, sheet_name: str, url_architecture: str
 ):
 
@@ -21,11 +24,11 @@ def outras_categorias_eb_pessoa_fisica(
     df = capitalize(df=df)
 
     df = consolidado(df=df)
-
+    df = column_br(df=df)
+    df = fix_quant(df=df)
+    create_output()
     df.to_csv(
-        constants.tabelas.value["outras_categorias_eb_pessoa_fisica"][
-            "save_table"
-        ],
+        constants.tabelas.value["pessoa_fisica_cac"]["save_table"],
         sep=",",
         encoding="utf-8",
         index=False,
@@ -33,14 +36,12 @@ def outras_categorias_eb_pessoa_fisica(
 
 
 if __name__ == "__main__":
-    outras_categorias_eb_pessoa_fisica(
-        real_file_id=constants.tabelas.value[
-            "outras_categorias_eb_pessoa_fisica"
-        ]["real_file_id"],
-        sheet_name=constants.tabelas.value[
-            "outras_categorias_eb_pessoa_fisica"
-        ]["sheet_name"],
-        url_architecture=constants.tabelas.value[
-            "outras_categorias_eb_pessoa_fisica"
-        ]["url_architecture"],
+    pessoa_fisica_cac(
+        real_file_id=constants.tabelas.value["pessoa_fisica_cac"][
+            "real_file_id"
+        ],
+        sheet_name=constants.tabelas.value["pessoa_fisica_cac"]["sheet_name"],
+        url_architecture=constants.tabelas.value["pessoa_fisica_cac"][
+            "url_architecture"
+        ],
     )

@@ -2,14 +2,15 @@ from models.br_sou_da_paz_armas_municoes.code.constants import constants
 from models.br_sou_da_paz_armas_municoes.code.main import (
     capitalize,
     change_columns_name,
+    column_br,
     consolidado,
+    create_output,
     download_file,
+    fix_quant,
 )
 
 
-def entidades_registros_ativos_eb(
-    real_file_id: str, sheet_name: str, url_architecture: str
-):
+def municoes(real_file_id: str, sheet_name: str, url_architecture: str):
 
     df = download_file(real_file_id=real_file_id, sheet_name=sheet_name)
 
@@ -21,9 +22,11 @@ def entidades_registros_ativos_eb(
     df = capitalize(df=df)
 
     df = consolidado(df=df)
-
+    df = column_br(df=df)
+    df = fix_quant(df=df)
+    create_output()
     df.to_csv(
-        constants.tabelas.value["entidades_registros_ativos_eb"]["save_table"],
+        constants.tabelas.value["municoes"]["save_table"],
         sep=",",
         encoding="utf-8",
         index=False,
@@ -31,14 +34,10 @@ def entidades_registros_ativos_eb(
 
 
 if __name__ == "__main__":
-    entidades_registros_ativos_eb(
-        real_file_id=constants.tabelas.value["entidades_registros_ativos_eb"][
-            "real_file_id"
+    municoes(
+        real_file_id=constants.tabelas.value["municoes"]["real_file_id"],
+        sheet_name=constants.tabelas.value["municoes"]["sheet_name"],
+        url_architecture=constants.tabelas.value["municoes"][
+            "url_architecture"
         ],
-        sheet_name=constants.tabelas.value["entidades_registros_ativos_eb"][
-            "sheet_name"
-        ],
-        url_architecture=constants.tabelas.value[
-            "entidades_registros_ativos_eb"
-        ]["url_architecture"],
     )

@@ -2,12 +2,15 @@ from models.br_sou_da_paz_armas_municoes.code.constants import constants
 from models.br_sou_da_paz_armas_municoes.code.main import (
     capitalize,
     change_columns_name,
+    column_br,
     consolidado,
+    create_output,
     download_file,
+    fix_quant,
 )
 
 
-def cac_acervos_armas(
+def armas_acervo_cac(
     real_file_id: str, sheet_name: str, url_architecture: str
 ):
 
@@ -22,8 +25,14 @@ def cac_acervos_armas(
 
     df = consolidado(df=df)
 
+    df = column_br(df=df)
+
+    df = fix_quant(df=df)
+
+    create_output()
+
     df.to_csv(
-        constants.tabelas.value["cac_acervos_armas"]["save_table"],
+        constants.tabelas.value["armas_acervo_cac"]["save_table"],
         sep=",",
         encoding="utf-8",
         index=False,
@@ -31,12 +40,12 @@ def cac_acervos_armas(
 
 
 if __name__ == "__main__":
-    cac_acervos_armas(
-        real_file_id=constants.tabelas.value["cac_acervos_armas"][
+    armas_acervo_cac(
+        real_file_id=constants.tabelas.value["armas_acervo_cac"][
             "real_file_id"
         ],
-        sheet_name=constants.tabelas.value["cac_acervos_armas"]["sheet_name"],
-        url_architecture=constants.tabelas.value["cac_acervos_armas"][
+        sheet_name=constants.tabelas.value["armas_acervo_cac"]["sheet_name"],
+        url_architecture=constants.tabelas.value["armas_acervo_cac"][
             "url_architecture"
         ],
     )

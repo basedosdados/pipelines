@@ -2,12 +2,17 @@ from models.br_sou_da_paz_armas_municoes.code.constants import constants
 from models.br_sou_da_paz_armas_municoes.code.main import (
     capitalize,
     change_columns_name,
+    column_br,
     consolidado,
+    create_output,
     download_file,
+    fix_quant,
 )
 
 
-def cac_pessoas(real_file_id: str, sheet_name: str, url_architecture: str):
+def registros_novos_cac(
+    real_file_id: str, sheet_name: str, url_architecture: str
+):
 
     df = download_file(real_file_id=real_file_id, sheet_name=sheet_name)
 
@@ -19,9 +24,11 @@ def cac_pessoas(real_file_id: str, sheet_name: str, url_architecture: str):
     df = capitalize(df=df)
 
     df = consolidado(df=df)
-
+    df = column_br(df=df)
+    df = fix_quant(df=df)
+    create_output()
     df.to_csv(
-        constants.tabelas.value["cac_pessoas"]["save_table"],
+        constants.tabelas.value["registros_novos_cac"]["save_table"],
         sep=",",
         encoding="utf-8",
         index=False,
@@ -29,10 +36,14 @@ def cac_pessoas(real_file_id: str, sheet_name: str, url_architecture: str):
 
 
 if __name__ == "__main__":
-    cac_pessoas(
-        real_file_id=constants.tabelas.value["cac_pessoas"]["real_file_id"],
-        sheet_name=constants.tabelas.value["cac_pessoas"]["sheet_name"],
-        url_architecture=constants.tabelas.value["cac_pessoas"][
+    registros_novos_cac(
+        real_file_id=constants.tabelas.value["registros_novos_cac"][
+            "real_file_id"
+        ],
+        sheet_name=constants.tabelas.value["registros_novos_cac"][
+            "sheet_name"
+        ],
+        url_architecture=constants.tabelas.value["registros_novos_cac"][
             "url_architecture"
         ],
     )

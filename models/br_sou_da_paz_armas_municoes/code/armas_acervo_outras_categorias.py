@@ -2,12 +2,15 @@ from models.br_sou_da_paz_armas_municoes.code.constants import constants
 from models.br_sou_da_paz_armas_municoes.code.main import (
     capitalize,
     change_columns_name,
+    column_br,
     consolidado,
+    create_output,
     download_file,
+    fix_quant,
 )
 
 
-def novos_registros_pf(
+def armas_acervo_outras_categorias(
     real_file_id: str, sheet_name: str, url_architecture: str
 ):
 
@@ -21,9 +24,13 @@ def novos_registros_pf(
     df = capitalize(df=df)
 
     df = consolidado(df=df)
-
+    df = column_br(df=df)
+    df = fix_quant(df=df)
+    create_output()
     df.to_csv(
-        constants.tabelas.value["novos_registros_pf"]["save_table"],
+        constants.tabelas.value["armas_acervo_outras_categorias"][
+            "save_table"
+        ],
         sep=",",
         encoding="utf-8",
         index=False,
@@ -31,12 +38,14 @@ def novos_registros_pf(
 
 
 if __name__ == "__main__":
-    novos_registros_pf(
-        real_file_id=constants.tabelas.value["novos_registros_pf"][
+    armas_acervo_outras_categorias(
+        real_file_id=constants.tabelas.value["armas_acervo_outras_categorias"][
             "real_file_id"
         ],
-        sheet_name=constants.tabelas.value["novos_registros_pf"]["sheet_name"],
-        url_architecture=constants.tabelas.value["novos_registros_pf"][
-            "url_architecture"
+        sheet_name=constants.tabelas.value["armas_acervo_outras_categorias"][
+            "sheet_name"
         ],
+        url_architecture=constants.tabelas.value[
+            "armas_acervo_outras_categorias"
+        ]["url_architecture"],
     )

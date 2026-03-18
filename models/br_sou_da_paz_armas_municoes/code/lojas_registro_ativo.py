@@ -2,12 +2,15 @@ from models.br_sou_da_paz_armas_municoes.code.constants import constants
 from models.br_sou_da_paz_armas_municoes.code.main import (
     capitalize,
     change_columns_name,
+    column_br,
     consolidado,
+    create_output,
     download_file,
+    fix_quant,
 )
 
 
-def registros_ativos_pf(
+def lojas_registro_ativo(
     real_file_id: str, sheet_name: str, url_architecture: str
 ):
 
@@ -21,9 +24,11 @@ def registros_ativos_pf(
     df = capitalize(df=df)
 
     df = consolidado(df=df)
-
+    df = column_br(df=df)
+    df = fix_quant(df=df)
+    create_output()
     df.to_csv(
-        constants.tabelas.value["registros_ativos_pf"]["save_table"],
+        constants.tabelas.value["lojas_registro_ativo"]["save_table"],
         sep=",",
         encoding="utf-8",
         index=False,
@@ -31,14 +36,14 @@ def registros_ativos_pf(
 
 
 if __name__ == "__main__":
-    registros_ativos_pf(
-        real_file_id=constants.tabelas.value["registros_ativos_pf"][
+    lojas_registro_ativo(
+        real_file_id=constants.tabelas.value["lojas_registro_ativo"][
             "real_file_id"
         ],
-        sheet_name=constants.tabelas.value["registros_ativos_pf"][
+        sheet_name=constants.tabelas.value["lojas_registro_ativo"][
             "sheet_name"
         ],
-        url_architecture=constants.tabelas.value["registros_ativos_pf"][
+        url_architecture=constants.tabelas.value["lojas_registro_ativo"][
             "url_architecture"
         ],
     )

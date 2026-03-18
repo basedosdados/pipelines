@@ -4,14 +4,17 @@ from models.br_sou_da_paz_armas_municoes.code.constants import constants
 from models.br_sou_da_paz_armas_municoes.code.main import (
     capitalize,
     change_columns_name,
+    column_br,
     consolidado,
+    create_output,
     download_file,
+    fix_quant,
 )
 
 warnings.filterwarnings("ignore")
 
 
-def entidades_novas_eb(
+def armas_destruidas(
     real_file_id: str, sheet_name: str, url_architecture: str
 ):
 
@@ -26,8 +29,11 @@ def entidades_novas_eb(
 
     df = consolidado(df=df)
 
+    df = column_br(df=df)
+    df = fix_quant(df=df)
+    create_output()
     df.to_csv(
-        constants.tabelas.value["entidades_novas_eb"]["save_table"],
+        constants.tabelas.value["armas_destruidas"]["save_table"],
         sep=",",
         encoding="utf-8",
         index=False,
@@ -35,12 +41,12 @@ def entidades_novas_eb(
 
 
 if __name__ == "__main__":
-    entidades_novas_eb(
-        real_file_id=constants.tabelas.value["entidades_novas_eb"][
+    armas_destruidas(
+        real_file_id=constants.tabelas.value["armas_destruidas"][
             "real_file_id"
         ],
-        sheet_name=constants.tabelas.value["entidades_novas_eb"]["sheet_name"],
-        url_architecture=constants.tabelas.value["entidades_novas_eb"][
+        sheet_name=constants.tabelas.value["armas_destruidas"]["sheet_name"],
+        url_architecture=constants.tabelas.value["armas_destruidas"][
             "url_architecture"
         ],
     )

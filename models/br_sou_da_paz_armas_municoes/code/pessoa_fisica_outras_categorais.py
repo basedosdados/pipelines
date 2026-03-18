@@ -2,12 +2,15 @@ from models.br_sou_da_paz_armas_municoes.code.constants import constants
 from models.br_sou_da_paz_armas_municoes.code.main import (
     capitalize,
     change_columns_name,
+    column_br,
     consolidado,
+    create_output,
     download_file,
+    fix_quant,
 )
 
 
-def municoes_vendidas(
+def pessoa_fisica_outras_categorais(
     real_file_id: str, sheet_name: str, url_architecture: str
 ):
 
@@ -21,9 +24,13 @@ def municoes_vendidas(
     df = capitalize(df=df)
 
     df = consolidado(df=df)
-
+    df = column_br(df=df)
+    df = fix_quant(df=df)
+    create_output()
     df.to_csv(
-        constants.tabelas.value["municoes_vendidas"]["save_table"],
+        constants.tabelas.value["pessoa_fisica_outras_categorais"][
+            "save_table"
+        ],
         sep=",",
         encoding="utf-8",
         index=False,
@@ -31,12 +38,14 @@ def municoes_vendidas(
 
 
 if __name__ == "__main__":
-    municoes_vendidas(
-        real_file_id=constants.tabelas.value["municoes_vendidas"][
-            "real_file_id"
+    pessoa_fisica_outras_categorais(
+        real_file_id=constants.tabelas.value[
+            "pessoa_fisica_outras_categorais"
+        ]["real_file_id"],
+        sheet_name=constants.tabelas.value["pessoa_fisica_outras_categorais"][
+            "sheet_name"
         ],
-        sheet_name=constants.tabelas.value["municoes_vendidas"]["sheet_name"],
-        url_architecture=constants.tabelas.value["municoes_vendidas"][
-            "url_architecture"
-        ],
+        url_architecture=constants.tabelas.value[
+            "pessoa_fisica_outras_categorais"
+        ]["url_architecture"],
     )

@@ -1,6 +1,8 @@
 import io
+import os
 from io import StringIO
 
+import numpy as np
 import pandas as pd
 import requests
 from googleapiclient.discovery import build
@@ -24,7 +26,7 @@ def download_file(real_file_id: str, sheet_name: str) -> pd.DataFrame:
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
-    filename = "service-account-sou-da-paz.json"  # ! Path para o Json da service account
+    filename = "/home/tricktx/.service-account/service-account-sou-da-paz.json"  # ! Path para o Json da service account
     creds = ServiceAccountCredentials.from_json_keyfile_name(
         filename=filename, scopes=scopes
     )
@@ -43,7 +45,7 @@ def download_file(real_file_id: str, sheet_name: str) -> pd.DataFrame:
         while done is False:
             status, done = downloader.next_chunk()
             print(f"Download {int(status.progress() * 100)}.")
-            breakpoint()
+
             df = pd.read_excel(file, sheet_name, dtype=str)
             df.columns = df.columns.str.strip()
     except HttpError as error:
@@ -73,7 +75,7 @@ def change_columns_name(url_architecture: str) -> dict[str, str]:
     )
 
     df_architecture.columns = df_architecture.columns.str.strip()
-    breakpoint()
+
     # Cria um dicionário de nomes de colunas e tipos de dados a partir do dataframe df_architecture
     column_name_dict = dict(
         zip(
@@ -112,16 +114,54 @@ def capitalize(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def consolidado(df: pd.DataFrame) -> pd.DataFrame:
-    breakpoint()
+
     df["consolidado"] = (
         df["consolidado"].apply(lambda x: str(x)).apply(unidecode)
     )
     df["consolidado"] = (
-        df["consolidado"].replace("nao", False).replace("sim", True)
+        df["consolidado"]
+        .replace("nao", False)
+        .replace("sim", True)
+        .replace("nan", np.nan)
     )
+
     # consolidade = set(df['consolidado'].unique())
     # breakpoint()
     # assert consolidade == {False, True}
+
+    return df
+
+
+def column_br(df: pd.DataFrame) -> pd.DataFrame:
+    if "sigla_uf" in df.columns:  # noqa: SIM102
+        if "Z - BR" in df["sigla_uf"].unique():
+            df["sigla_uf"] = df["sigla_uf"].str.strip()
+
+            df["pais"] = df["sigla_uf"].apply(
+                lambda x: "BR" if x in ("Z - BR", "Z- BR") else None
+            )
+
+            df["sigla_uf"] = (
+                df["sigla_uf"]
+                .astype(str)
+                .str.replace(" ", "", regex=False)
+                .replace("Z-BR", np.nan)
+            )
+
+    return df
+
+
+def create_output(
+    output: str = "models/br_sou_da_paz_armas_municoes/output/",
+) -> None:
+    print(f"{os.getcwd()}/{output}")
+    os.makedirs(f"{os.getcwd()}/{output}", exist_ok=True)
+
+    return None
+
+
+def fix_quant(df: pd.DataFrame) -> pd.DataFrame:
+    df["quantidade"] = df["quantidade"].replace("-", None)
 
     return df
 

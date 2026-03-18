@@ -1,17 +1,18 @@
-import warnings
-
 from models.br_sou_da_paz_armas_municoes.code.constants import constants
 from models.br_sou_da_paz_armas_municoes.code.main import (
     capitalize,
     change_columns_name,
+    column_br,
     consolidado,
+    create_output,
     download_file,
+    fix_quant,
 )
 
-warnings.filterwarnings("ignore")
 
-
-def destruicoes_eb(real_file_id: str, sheet_name: str, url_architecture: str):
+def registros_ativos_cac(
+    real_file_id: str, sheet_name: str, url_architecture: str
+):
 
     df = download_file(real_file_id=real_file_id, sheet_name=sheet_name)
 
@@ -23,9 +24,11 @@ def destruicoes_eb(real_file_id: str, sheet_name: str, url_architecture: str):
     df = capitalize(df=df)
 
     df = consolidado(df=df)
-
+    df = column_br(df=df)
+    df = fix_quant(df=df)
+    create_output()
     df.to_csv(
-        constants.tabelas.value["destruicoes_eb"]["save_table"],
+        constants.tabelas.value["registros_ativos_cac"]["save_table"],
         sep=",",
         encoding="utf-8",
         index=False,
@@ -33,10 +36,14 @@ def destruicoes_eb(real_file_id: str, sheet_name: str, url_architecture: str):
 
 
 if __name__ == "__main__":
-    destruicoes_eb(
-        real_file_id=constants.tabelas.value["destruicoes_eb"]["real_file_id"],
-        sheet_name=constants.tabelas.value["destruicoes_eb"]["sheet_name"],
-        url_architecture=constants.tabelas.value["destruicoes_eb"][
+    registros_ativos_cac(
+        real_file_id=constants.tabelas.value["registros_ativos_cac"][
+            "real_file_id"
+        ],
+        sheet_name=constants.tabelas.value["registros_ativos_cac"][
+            "sheet_name"
+        ],
+        url_architecture=constants.tabelas.value["registros_ativos_cac"][
             "url_architecture"
         ],
     )
