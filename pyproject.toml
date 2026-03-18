@@ -190,3 +190,4 @@ allow-direct-references = true
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
