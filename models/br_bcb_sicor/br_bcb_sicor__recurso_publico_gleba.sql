@@ -13,6 +13,7 @@
     )
 }}
 
+
 with
     raw_data as (
         select

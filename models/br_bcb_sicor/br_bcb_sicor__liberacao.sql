@@ -9,6 +9,7 @@
             "range": {"start": 2013, "end": 2026, "interval": 1},
         },
         cluster_by=["mes"],
+        pre_hook="             BEGIN                 DROP ALL ROW ACCESS POLICIES ON {{ this }};             EXCEPTION WHEN ERROR THEN                 SELECT 1;              END;         ",
     )
 }}
 
