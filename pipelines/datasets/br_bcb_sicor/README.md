@@ -28,6 +28,10 @@ Este conjunto de dados possui uma tabela mestre: `br_bcb_sicor__operacao`.
 - O vínculo entre tabelas deve ser realizado via `id_referencia_bacen` e `numero_ordem`.
 - Para permissionamento no BD PRO, utiliza-se as colunas `ano_emissao` e `mes_emissao` (adicionadas via macro `add_ano_mes_operacao_data` em quase todas as tabelas). Isso garante que usuários do plano gratuito tenham acesso a todos os dados referentes a um par de `id_referencia_bacen` e `numero_ordem` específico dentro das janelas permitidas.
 
+## Lógica da materialização incremental das tabelas operacao, saldo e gleba;
+
+A fonte original divulga esses dados em arquivos anuais. Para facilitar a lógica de atualização incremental, decidi manter esse padrão. Dessa forma, a estratégia utilizada não é append, mas insert_overwrite; a lógica é sobrescrever o ano máximo da tabela atualizada com o arquivo do ano atual que está sendo atualizado.
+
 ---
 
 ## Tabelas e Particularidades
