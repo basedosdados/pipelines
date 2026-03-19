@@ -3,6 +3,8 @@
         alias="operacao",
         schema="br_bcb_sicor",
         materialized="incremental",
+        incremental_strategy="insert_overwrite",
+        pre_hook="             BEGIN                 DROP ALL ROW ACCESS POLICIES ON {{ this }};             EXCEPTION WHEN ERROR THEN                 SELECT 1;              END;         ",
         partition_by={
             "field": "ano_emissao",
             "data_type": "int64",
@@ -12,7 +14,6 @@
     )
 }}
 
--- pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
 with
     sicor as (
         select
@@ -150,11 +151,12 @@ select
         valor_percentual_risco_fundo_constitucional as float64
     ) valor_percentual_risco_fundo_constitucional,
     safe_cast(valor_percentual_risco_stn as float64) valor_percentual_risco_stn
-from sicor
-{% if is_incremental() %}
-    where
-        date(cast(_ano_emissao as int64), cast(_mes_emissao as int64), 1) > (
-            select max(date(cast(ano_emissao as int64), cast(mes_emissao as int64), 1))
-            from {{ this }}
-        )
-{% endif %}
+from
+    sicor
+    {% if is_incremental() %}
+        -- a pipeline é settada para atualizar sempre um arquivo de ano; logo, precisa
+        -- de um insert_overwrite que sobrescreva o ano atual com os dados mais
+        -- recentes;
+        and cast(_ano_emissao as int64) = (select max(ano_emissao) from {{ this }})
+
+    {% endif %}

@@ -3,6 +3,7 @@
         alias="saldo",
         schema="br_bcb_sicor",
         materialized="incremental",
+        incremental_strategy="insert_overwrite",
         partition_by={
             "field": "ano",
             "data_type": "int64",
@@ -30,6 +31,8 @@ from
 where
     ano_emissao is not null
     {% if is_incremental() %}
-        and date(cast(ano_base as int64), cast(mes_base as int64), 1)
-        > (select max(date(cast(ano as int64), cast(mes as int64), 1)) from {{ this }})
+        -- a pipeline é settada para atualizar sempre um arquivo de ano; logo, precisa
+        -- de um insert_overwrite que sobrescreva o ano atual com os dados mais
+        -- recentes;
+        and cast(ano_base as int64) = (select max(ano_emissao) from {{ this }})
     {% endif %}

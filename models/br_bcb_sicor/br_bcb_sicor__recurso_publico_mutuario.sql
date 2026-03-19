@@ -3,6 +3,7 @@
         alias="recurso_publico_mutuario",
         schema="br_bcb_sicor",
         materialized="table",
+        pre_hook="             BEGIN                 DROP ALL ROW ACCESS POLICIES ON {{ this }};             EXCEPTION WHEN ERROR THEN                 SELECT 1;              END;         ",
     )
 }}
 

@@ -5,7 +5,7 @@ models:
     description: A tabela de Operações contém os microdados das contratações de crédito
       de cada estado brasileiro. Nela, estão presentes principais informações (categoria
       de produtor; fonte de recursos; instituição credora; produto financiado e etc)
-      das mais de 19 milhôes de operações de crédito rural registradas no SICOR no
+      das mais de 23 milhôes de operações de crédito rural registradas no SICOR no
       período. É importante salientar que cada linha não necessariamente representa
       uma operação completa. É possível que uma unica operação (identificada pelo
       id_referencia_bacen) contenha diversos itens e, portanto, seja subdividida em
