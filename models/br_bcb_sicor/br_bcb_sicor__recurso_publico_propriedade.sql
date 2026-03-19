@@ -3,12 +3,12 @@
         alias="recurso_publico_propriedade",
         schema="br_bcb_sicor",
         materialized="table",
-        pre_hook="             BEGIN                 DROP ALL ROW ACCESS POLICIES ON {{ this }};             EXCEPTION WHEN ERROR THEN                 SELECT 1;              END;         ",
         partition_by={
             "field": "ano_emissao",
             "data_type": "int64",
             "range": {"start": 2013, "end": 2026, "interval": 1},
         },
+        pre_hook="             BEGIN                 DROP ALL ROW ACCESS POLICIES ON {{ this }};             EXCEPTION WHEN ERROR THEN                 SELECT 1;              END;         ",
     )
 }}
 

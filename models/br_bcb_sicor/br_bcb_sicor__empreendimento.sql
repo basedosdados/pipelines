@@ -5,6 +5,8 @@
         materialized="table",
     )
 }}
+
+
 select
     safe_cast(id_empreendimento as string) id_empreendimento,
     safe_cast(parse_date("%d/%m/%Y", data_inicio) as date) data_inicio,
