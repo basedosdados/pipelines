@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/models/br_me_siconfi/code/download_raw_data.py", line 1308, in download_all_files
+    human_delay(4.0, 6.0)
+NameError: name 'human_delay' is not defined
+🚀 Starting SICONFI download process...
+📁 Download directory: /Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/models/br_me_siconfi/code/input
+🔧 Setting up ChromeDriver for Chrome 144...
+🌐 Opened URL: https://siconfi.tesouro.gov.br/siconfi/pages/public/consulta_finbra/finbra_list.jsf
+
+❌ Fatal error: name 'human_delay' is not defined
+
+🔒 Closing browser...
