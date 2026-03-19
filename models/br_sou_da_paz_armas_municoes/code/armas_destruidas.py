@@ -21,6 +21,7 @@ def armas_destruidas(
     df = download_file(real_file_id=real_file_id, sheet_name=sheet_name)
 
     rename, order = change_columns_name(url_architecture=url_architecture)
+
     df = df.rename(columns=rename)
 
     df = df[order]
@@ -32,6 +33,7 @@ def armas_destruidas(
     df = column_br(df=df)
     df = fix_quant(df=df)
     create_output()
+
     df.to_csv(
         constants.tabelas.value["armas_destruidas"]["save_table"],
         sep=",",

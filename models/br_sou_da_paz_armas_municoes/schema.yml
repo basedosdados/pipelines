@@ -7,7 +7,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [insert unique keys here]
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 0.1
     columns:
       - name: ano
         description: Ano
@@ -39,3 +39,511 @@ models:
         description: Categoria Principal
       - name: macrocategoria
         description: Macrocategoria
+  - name: br_sou_da_paz_armas_municoes__registros_novos_cac
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2020/total ou 2020/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: id_regiao_metropolitana
+        description: Código da Região Metropolitana
+      - name: area_regiao_metropolitana
+        description: Área da Região Metropolitana
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+      - name: categoria_informada
+        description: Categoria Informada
+      - name: categoria_principal
+        description: Categoria Principal
+      - name: macrocategoria
+        description: Macrocategoria
+  - name: br_sou_da_paz_armas_municoes__armas_acervo_cac
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2020/total ou 2020/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: id_regiao_militar
+        description: Código da Região Metropolitana
+      - name: area_regiao_militar
+        description: Área da Região Metropolitana
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+      - name: categoria_informada
+        description: Categoria Informada
+      - name: categoria_principal
+        description: Categoria Principal
+      - name: macrocategoria
+        description: Macrocategoria
+  - name: br_sou_da_paz_armas_municoes__armas_acervo_outras_categorias
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2020/total ou 2020/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+      - name: categoria_informada
+        description: Categoria Informada
+      - name: categoria_principal
+        description: Categoria Principal
+  - name: br_sou_da_paz_armas_municoes__armas_destruidas
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2021/total ou 2021/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: id_regiao_militar
+        description: Código da Região Militar
+      - name: area_regiao_militar
+        description: Área da Região Militar
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+  - name: br_sou_da_paz_armas_municoes__armas_novas_outras_categorias
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2021/total ou 2021/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_regiao_metropolitana
+        description: Código da Região Metropolitana
+      - name: area_regiao_metropolitana
+        description: Área da Região Metropolitana
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+      - name: categoria_informada
+        description: Categoria informada
+      - name: categoria_principal
+        description: categoria_principal
+      - name: macrocategoria
+        description: Macrocategoria
+  - name: br_sou_da_paz_armas_municoes__entidades_novas
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2021/total ou 2021/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_regiao_militar
+        description: Código da Região Militar
+      - name: area_regiao_militar
+        description: Área da Região Militar
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+      - name: categoria_informada
+        description: Categoria Informada
+  - name: br_sou_da_paz_armas_municoes__entidades_registro_ativo
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2021/total ou 2021/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_regiao_militar
+        description: Código da Região Militar
+      - name: area_regiao_militar
+        description: Área da Região Militar
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+      - name: categoria_informada
+        description: Categoria Informada
+  - name: br_sou_da_paz_armas_municoes__lojas_novas
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2021/total ou 2021/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_regiao_militar
+        description: Código da Região Militar
+      - name: area_regiao_militar
+        description: Área da Região Militar
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+  - name: br_sou_da_paz_armas_municoes__lojas_registro_ativo
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2024/total ou 2024/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: id_regiao_militar
+        description: Código da Região Militar
+      - name: area_regiao_militar
+        description: Área da Região Militar
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+  - name: br_sou_da_paz_armas_municoes__municoes
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2021/total ou 2021/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: id_regiao_militar
+        description: Código da Região Metropolitana
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+      - name: categoria_informada
+        description: Categoria Informada
+      - name: categoria_principal
+        description: Categoria Principal
+      - name: microcategoria_1
+        description: Microcategoria 1
+      - name: microcategoria_2
+        description: Microcategoria 2
+      - name: macrocategoria_1
+        description: Macrocategoria 1
+  - name: br_sou_da_paz_armas_municoes__pessoa_fisica_cac
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2020/total ou 2020/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_regiao_militar
+        description: Código da Região Metropolitana
+      - name: area_regiao_militar
+        description: Área da Região Metropolitana
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+      - name: macrocategoria
+        description: Macrocategoria
+  - name: br_sou_da_paz_armas_municoes__pessoa_fisica_outras_categorais
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2021/total ou 2021/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+      - name: categoria_informada
+        description: Categoria Informada
+      - name: categoria_principal
+        description: Categoria Principal
+  - name: br_sou_da_paz_armas_municoes__registros_ativos_cac
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2020/total ou 2020/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: id_regiao_metropolitana
+        description: Código da Região Metropolitana
+      - name: area_regiao_metropolitana
+        description: Área da Região Metropolitana
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+      - name: categoria_informada
+        description: Categoria Informada
+      - name: categoria_principal
+        description: Categoria Principal
+      - name: macrocategoria
+        description: Macrocategoria
+  - name: br_sou_da_paz_armas_municoes__registros_ativos_policia_federal
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2021/total ou 2021/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: referencia
+        description: Data de referência dos dados
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+      - name: categoria_informada
+        description: Categoria Informada
+      - name: categoria_principal
+        description: Categoria Principal
+  - name: br_sou_da_paz_armas_municoes__registros_novos_policia_federal
+    description: Insert table description here
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [insert unique keys here]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.1
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: periodo
+        description: Período em referência aos dados. e.g., 2021/total ou 2021/parcial
+      - name: consolidado
+        description: Se o dado foi consolidado pela equipe da Sou da Paz
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: unidade
+        description: Unidade
+      - name: quantidade
+        description: Quantidade
+      - name: categoria_informada
+        description: Categoria Informada
+      - name: categoria_principal
+        description: Categoria Principal

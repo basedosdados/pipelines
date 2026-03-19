@@ -161,14 +161,8 @@ def create_output(
 
 
 def fix_quant(df: pd.DataFrame) -> pd.DataFrame:
-    df["quantidade"] = df["quantidade"].replace("-", None)
+    df["quantidade"] = (
+        df["quantidade"].replace("-", str(np.nan)).replace("0*", (np.nan))
+    )
 
     return df
-
-
-if __name__ == "__main__":
-    rename_columns, orderning_columns = change_columns_name(
-        url_architecture="https://docs.google.com/spreadsheets/d/1uWgQeqa4Nd8ikNiqx75FVgroZHn1jXtH0cIDmd_I2pA/edit#gid=0"
-    )
-    print(rename_columns)
-    print(orderning_columns)
