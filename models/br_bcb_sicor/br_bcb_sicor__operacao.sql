@@ -151,12 +151,11 @@ select
         valor_percentual_risco_fundo_constitucional as float64
     ) valor_percentual_risco_fundo_constitucional,
     safe_cast(valor_percentual_risco_stn as float64) valor_percentual_risco_stn
-from
-    sicor
-    {% if is_incremental() %}
-        -- a pipeline é settada para atualizar sempre um arquivo de ano; logo, precisa
-        -- de um insert_overwrite que sobrescreva o ano atual com os dados mais
-        -- recentes;
-        and cast(_ano_emissao as int64) = (select max(ano_emissao) from {{ this }})
+from sicor
+{% if is_incremental() %}
+    -- a pipeline é settada para atualizar sempre um arquivo de ano; logo, precisa
+    -- de um insert_overwrite que sobrescreva o ano atual com os dados mais
+    -- recentes;
+    where cast(_ano_emissao as int64) = (select max(ano_emissao) from {{ this }})
 
-    {% endif %}
+{% endif %}

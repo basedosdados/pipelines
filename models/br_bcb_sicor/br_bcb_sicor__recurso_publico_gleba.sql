@@ -88,5 +88,5 @@ from
         -- a pipeline é settada para atualizar sempre um arquivo de ano; logo, precisa
         -- de um insert_overwrite que sobrescreva o ano atual com os dados mais
         -- recentes;
-        and cast(ano_emissao as int64) = (select max(ano_emissao) from {{ this }})
+        cast(ano_emissao as int64) = (select max(ano_emissao) from {{ this }})
 {% endif %}
