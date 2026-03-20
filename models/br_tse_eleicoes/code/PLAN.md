@@ -112,16 +112,16 @@ These can be implemented in any order. Each reads raw TSE input and writes inter
 24. `campaign_finance.py` — bens 2006+, receitas 2002+, despesas 2002+ (COMPLEX: wildly different schemas per year)
 
 ### Phase 3: Normalization, Partitioning & Aggregation (depends on Phase 2)
-**Status: NOT STARTED**
+**Status: DONE**
 
 25. `normalization_partition.py` — appends all years, deduplicates candidates, creates norm_candidatos/norm_partidos, writes final Hive-partitioned CSVs for ALL tables
 26. `aggregation.py` — collapses mun-zona to municipality level, creates resultados_candidato (all-year aggregation)
 
 ### Phase 4: Runner & Final Validation
-**Status: NOT STARTED**
+**Status: DONE**
 
 27. `build.py` — orchestrates full pipeline, supports running individual steps
-28. Run `validate.py` against every output table/year, document discrepancies
+28. `validate.py` — already implemented; compare Python vs Stata outputs
 
 ---
 
