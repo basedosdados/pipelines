@@ -117,6 +117,7 @@ with Flow(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 dump_mode=append_overwrite,
+                source_format=source_format,
                 upstream_tasks=[wait_for_materialization],
             )
 
