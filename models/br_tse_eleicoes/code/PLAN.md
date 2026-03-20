@@ -93,7 +93,7 @@ python/
 11. `fix_candidate.py` — manual candidate corrections
 
 ### Phase 2: Core Table Builders (sub/) — no interdependencies
-**Status: NOT STARTED**
+**Status: DONE**
 
 These can be implemented in any order. Each reads raw TSE input and writes intermediate parquet + validates against existing .dta:
 
