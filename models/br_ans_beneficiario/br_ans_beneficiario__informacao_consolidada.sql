@@ -3,13 +3,14 @@
     config(
         schema="br_ans_beneficiario",
         alias="informacao_consolidada",
-        materialized="table",
+        materialized="incremental",
         partition_by={
             "field": "ano",
             "data_type": "int64",
             "range": {"start": 2014, "end": 2026, "interval": 1},
         },
         cluster_by=["mes", "sigla_uf"],
+        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
 
@@ -109,3 +110,6 @@ with
     )
 select *
 from ans
+{% if is_incremental() %}
+    where data_carga > (select max(data_carga) from {{ this }})
+{% endif %}
