@@ -27,7 +27,7 @@ from prefect.client import Client
 from pipelines.constants import constants
 from pipelines.utils.metadata.utils import get_url
 from pipelines.utils.utils import (
-    dump_header_to_csv,
+    dump_header,
     get_credentials_from_secret,
     is_running_in_prod,
     log,
@@ -100,7 +100,7 @@ def _upload_to_gcs(
                 "MODE APPEND: Table DOSEN'T EXISTS\n"
                 + "Start to CREATE HEADER file"
             )
-            header_path = dump_header_to_csv(
+            header_path = dump_header(
                 data_path=data_path, source_format=source_format
             )
             log(f"MODE APPEND: Created HEADER file:\n{header_path}")
@@ -154,7 +154,7 @@ def _upload_to_gcs(
             "MODE OVERWRITE: Table DOSEN'T EXISTS\n"
             + "Start to CREATE HEADER file"
         )
-        header_path = dump_header_to_csv(
+        header_path = dump_header(
             data_path=data_path, source_format=source_format
         )
         log(f"MODE OVERWRITE: Created HEADER file:\n{header_path}")
