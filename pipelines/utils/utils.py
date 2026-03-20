@@ -592,7 +592,7 @@ def parser_blobs_to_partition_dict(blobs: list) -> dict:
     return partitions_dict
 
 
-def dump_header_to_csv(data_path: str | Path, source_format: str):
+def dump_header(data_path: str | Path, source_format: str):
     """
     Writes the header of a CSV or Parquet file to a new file.
 
@@ -638,7 +638,9 @@ def dump_header_to_csv(data_path: str | Path, source_format: str):
             break
 
     if file is None:
-        raise FileNotFoundError("No parquet or csv file found")
+        raise FileNotFoundError(
+            f"The function tried to find a {source_format} file type. This file tipe doesnt exist. Check if input source_format param is correct"
+        )
 
     save_header_path = f"data/{uuid4()}"
     # discover if it's a partitioned table
