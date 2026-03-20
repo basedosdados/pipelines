@@ -51,10 +51,10 @@ class constants(Enum):
         "disable_dbt_invocation_autoupload": True,
     }
     ENABLE_ELEMENTARY_VARS = {
-        "disable_dbt_artifacts_autoupload": False,
+        "disable_dbt_artifacts_autoupload": True,
         "disable_run_results": True,
         "disable_tests_results": False,
-        "disable_dbt_invocation_autoupload": False,
+        "disable_dbt_invocation_autoupload": True,
     }
 
     GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
