@@ -14,6 +14,7 @@ from pipelines.datasets.br_ans_beneficiario.flows import *
 from pipelines.datasets.br_b3_cotacoes.flows import *
 from pipelines.datasets.br_bcb_agencia.flows import *
 from pipelines.datasets.br_bcb_estban.flows import *
+from pipelines.datasets.br_bcb_sicor.flows import *
 from pipelines.datasets.br_bcb_taxa_cambio.flows import *
 from pipelines.datasets.br_bcb_taxa_selic.flows import *
 from pipelines.datasets.br_bd_indicadores.flows import *

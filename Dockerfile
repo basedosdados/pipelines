@@ -45,7 +45,6 @@ RUN apt-get update && \
     libxt6 \
     libpci-dev \
     && \
-    apt-get install -y r-base && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

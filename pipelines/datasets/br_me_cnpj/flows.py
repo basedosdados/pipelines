@@ -1,5 +1,5 @@
 """
-Flows for br_me_cnpj
+Flows for br_me_cnpj - register 03/02/2026
 """
 
 from prefect import Parameter, case
@@ -11,7 +11,7 @@ from pipelines.constants import constants
 from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
 from pipelines.datasets.br_me_cnpj.schedules import (
     every_day_empresas,
-    # every_day_estabelecimentos,
+    every_day_estabelecimentos,
     every_day_simples,
     every_day_socios,
 )
@@ -308,7 +308,7 @@ br_me_cnpj_estabelecimentos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_estabelecimentos.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# br_me_cnpj_estabelecimentos.schedule = every_day_estabelecimentos
+br_me_cnpj_estabelecimentos.schedule = every_day_estabelecimentos
 
 
 with Flow(
