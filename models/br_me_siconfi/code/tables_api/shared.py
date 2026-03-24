@@ -48,6 +48,30 @@ ORDEM_MUNICIPIO = [
     "valor",
 ]
 
+ORDEM_BRASIL = [
+    "ano",
+    "estagio",
+    "portaria",
+    "conta",
+    "estagio_bd",
+    "id_conta_bd",
+    "conta_bd",
+    "valor",
+]
+
+ORDEM_UF = [
+    "ano",
+    "sigla_uf",
+    "id_uf",
+    "estagio",
+    "portaria",
+    "conta",
+    "estagio_bd",
+    "id_conta_bd",
+    "conta_bd",
+    "valor",
+]
+
 ORDEM_MUNICIPIO_BALANCO = [
     "ano",
     "sigla_uf",
@@ -98,6 +122,59 @@ def load_api_json(json_path):
     df["sigla_uf"] = df["uf"].astype(str)
     df["estagio"] = df["coluna"].astype(str)
     df["valor"] = pd.to_numeric(df["valor"], errors="coerce")
+    # Drop state-level aggregate rows (2-digit cod_ibge) that appear in municipality files
+    df = df[df["id_municipio"].str.len() > 2]
+    return df
+
+
+def load_api_json_uf(json_path):
+    """Load one API JSON file and return only state-level rows (2-digit cod_ibge)."""
+    with open(json_path) as f:
+        d = json.load(f)
+    items = d["data"].get("items", [])
+    if not items:
+        return pd.DataFrame()
+    df = pd.DataFrame(items)
+    df["id_uf"] = df["cod_ibge"].astype(str)
+    df["sigla_uf"] = df["uf"].astype(str)
+    df["estagio"] = df["coluna"].astype(str)
+    df["valor"] = pd.to_numeric(df["valor"], errors="coerce")
+    # Keep only state-level rows (2-digit cod_ibge)
+    df = df[df["id_uf"].str.len() == 2]
+    return df
+
+
+def load_api_json_brasil(json_path):
+    """Load one API JSON file and return only national-level rows (cod_ibge == '1')."""
+    with open(json_path) as f:
+        d = json.load(f)
+    items = d["data"].get("items", [])
+    if not items:
+        return pd.DataFrame()
+    df = pd.DataFrame(items)
+    df["cod_ibge_str"] = df["cod_ibge"].astype(str)
+    df["estagio"] = df["coluna"].astype(str)
+    df["valor"] = pd.to_numeric(df["valor"], errors="coerce")
+    # Keep only national rows (cod_ibge == 1)
+    df = df[df["cod_ibge_str"] == "1"]
+    return df
+
+
+def apply_conta_split_funcao(df):
+    """Split despesas_funcao conta strings ('CODE - NAME') using simple delimiter split.
+
+    Function/subfunction codes are short (e.g. '01.031'), so the fixed-width
+    approach in _split_2018_plus cuts into the name.  We always split on ' -'.
+    """
+    portarias, contas = [], []
+    for val in df["conta"]:
+        p, c = _split_2013_2017(str(val) if val else "")
+        portarias.append(p)
+        contas.append(c)
+    df["portaria"] = pd.array(portarias, dtype="string")
+    df["conta"] = pd.array(contas, dtype="string")
+    df["conta"] = df["conta"].str.replace("\ufffd", "-", regex=False)
+    df["conta"] = df["conta"].str.replace("\u00bf", "-", regex=False)
     return df
 
 
@@ -114,6 +191,7 @@ def apply_conta_split(df, ano):
     df["portaria"] = pd.array(portarias, dtype="string")
     df["conta"] = pd.array(contas, dtype="string")
     df["conta"] = df["conta"].str.replace("\ufffd", "-", regex=False)
+    df["conta"] = df["conta"].str.replace("\u00bf", "-", regex=False)
     return df
 
 
@@ -144,16 +222,35 @@ def partition_and_save(df, table_name, ano, path_dados):
         part.to_csv(out_path, index=False, encoding="utf-8", na_rep="")
 
 
+def partition_and_save_brasil(df, table_name, ano, path_dados):
+    """Save brasil-level CSV (no UF partition), dropping ano column."""
+    out_path = os.path.join(
+        path_dados,
+        f"output_API/{table_name}/ano={ano}/{table_name}.csv",
+    )
+    df.drop("ano", axis=1).to_csv(
+        out_path, index=False, encoding="utf-8", na_rep=""
+    )
+
+
 def setup_output_dirs(path_dados, first_year, last_year):
-    """Create all output_API partition directories for municipal tables."""
-    tables_municipal = [
-        ("municipio_receitas_orcamentarias", first_year),
-        ("municipio_despesas_orcamentarias", first_year),
-        ("municipio_despesas_funcao", first_year),
-        ("municipio_balanco_patrimonial", first_year),
+    """Create all output_API partition directories for municipal and UF tables."""
+    uf_tables = [
+        "municipio_receitas_orcamentarias",
+        "municipio_despesas_orcamentarias",
+        "municipio_despesas_funcao",
+        "municipio_balanco_patrimonial",
+        "uf_receitas_orcamentarias",
+        "uf_despesas_orcamentarias",
+        "uf_despesas_funcao",
     ]
-    for table, start in tables_municipal:
-        for ano in range(start, last_year + 1):
+    brasil_tables = [
+        "brasil_receitas_orcamentarias",
+        "brasil_despesas_orcamentarias",
+        "brasil_despesas_funcao",
+    ]
+    for table in uf_tables:
+        for ano in range(first_year, last_year + 1):
             for uf in UFS:
                 os.makedirs(
                     os.path.join(
@@ -162,3 +259,9 @@ def setup_output_dirs(path_dados, first_year, last_year):
                     ),
                     exist_ok=True,
                 )
+    for table in brasil_tables:
+        for ano in range(first_year, last_year + 1):
+            os.makedirs(
+                os.path.join(path_dados, f"output_API/{table}/ano={ano}"),
+                exist_ok=True,
+            )

@@ -18,7 +18,12 @@ def build(path_dados, path_queries, comp, api_dir, first_year, last_year):
 
     for ano in range(first_year, last_year + 1):
         json_files = sorted(
-            glob.glob(os.path.join(api_dir, f"dca_{ano}_*.json"))
+            glob.glob(
+                os.path.join(
+                    api_dir,
+                    f"dca_{ano}_[0-9][0-9][0-9][0-9][0-9][0-9][0-9].json",
+                )
+            )
         )
         if not json_files:
             print(

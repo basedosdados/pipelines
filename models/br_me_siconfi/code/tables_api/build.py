@@ -19,31 +19,52 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from tables_api import (
+    brasil_despesas_funcao,
+    brasil_despesas_orcamentarias,
+    brasil_receitas_orcamentarias,
     municipio_balanco_patrimonial,
     municipio_despesas_funcao,
     municipio_despesas_orcamentarias,
     municipio_receitas_orcamentarias,
+    uf_despesas_funcao,
+    uf_despesas_orcamentarias,
+    uf_receitas_orcamentarias,
 )
 from tables_api.shared import load_compatibilizacao, setup_output_dirs
 
 # (table_module, first_year, last_year)
+# All tables read from input/api/ — entity level distinguished by cod_ibge length
 TABLE_BUILDERS = {
     "municipio_receitas_orcamentarias": (
         municipio_receitas_orcamentarias,
         2013,
-        2023,
+        2026,
     ),
     "municipio_despesas_orcamentarias": (
         municipio_despesas_orcamentarias,
         2013,
-        2023,
+        2026,
     ),
-    "municipio_despesas_funcao": (municipio_despesas_funcao, 2013, 2023),
+    "municipio_despesas_funcao": (municipio_despesas_funcao, 2013, 2026),
     "municipio_balanco_patrimonial": (
         municipio_balanco_patrimonial,
         2013,
-        2023,
+        2026,
     ),
+    "uf_receitas_orcamentarias": (uf_receitas_orcamentarias, 2013, 2026),
+    "uf_despesas_orcamentarias": (uf_despesas_orcamentarias, 2013, 2026),
+    "uf_despesas_funcao": (uf_despesas_funcao, 2013, 2026),
+    "brasil_receitas_orcamentarias": (
+        brasil_receitas_orcamentarias,
+        2013,
+        2026,
+    ),
+    "brasil_despesas_orcamentarias": (
+        brasil_despesas_orcamentarias,
+        2013,
+        2026,
+    ),
+    "brasil_despesas_funcao": (brasil_despesas_funcao, 2013, 2026),
 }
 
 
@@ -59,7 +80,7 @@ def main():
     parser.add_argument(
         "--api_dir",
         default=None,
-        help="Directory containing API JSON files (default: {path_dados}/input/api)",
+        help="Directory containing API JSON files (default: code/input/api)",
     )
     parser.add_argument("--table", default=None, help="Build only this table")
     parser.add_argument(
@@ -68,16 +89,10 @@ def main():
     args = parser.parse_args()
 
     path_dados = args.path_dados
-    # build.py lives at code/tables_API/build.py; path_queries = br_me_siconfi/
+    # build.py lives at code/tables_api/build.py; path_queries = br_me_siconfi/
     _here = os.path.dirname(os.path.abspath(__file__))
-    path_queries = os.path.dirname(os.path.dirname(_here))
-    api_dir = args.api_dir or os.path.join(
-        os.path.dirname(_here), "input", "api"
-    )
-
-    if not os.path.isdir(api_dir):
-        print(f"ERROR: API directory not found: {api_dir}")
-        sys.exit(1)
+    code_dir = os.path.dirname(_here)
+    path_queries = os.path.dirname(code_dir)
 
     tables = [args.table] if args.table else list(TABLE_BUILDERS.keys())
 
@@ -89,6 +104,11 @@ def main():
     if args.ano:
         first_year = last_year = args.ano
     setup_output_dirs(path_dados, first_year, last_year)
+
+    api_dir = args.api_dir or os.path.join(code_dir, "input", "api")
+    if not os.path.isdir(api_dir):
+        print(f"ERROR: API directory not found: {api_dir}")
+        sys.exit(1)
 
     for table in tables:
         module, tbl_first, tbl_last = TABLE_BUILDERS[table]

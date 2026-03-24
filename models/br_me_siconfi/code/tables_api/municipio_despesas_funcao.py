@@ -5,7 +5,7 @@ import pandas as pd
 
 from .shared import (
     ORDEM_MUNICIPIO,
-    apply_conta_split,
+    apply_conta_split_funcao,
     load_api_json,
     partition_and_save,
 )
@@ -18,7 +18,12 @@ def build(path_dados, path_queries, comp, api_dir, first_year, last_year):
 
     for ano in range(first_year, last_year + 1):
         json_files = sorted(
-            glob.glob(os.path.join(api_dir, f"dca_{ano}_*.json"))
+            glob.glob(
+                os.path.join(
+                    api_dir,
+                    f"dca_{ano}_[0-9][0-9][0-9][0-9][0-9][0-9][0-9].json",
+                )
+            )
         )
         if not json_files:
             print(f"  municipio_despesas_funcao {ano}: no API files, skipping")
@@ -32,7 +37,7 @@ def build(path_dados, path_queries, comp, api_dir, first_year, last_year):
             df = df[df["anexo"] == ANEXO].copy()
             if df.empty:
                 continue
-            df = apply_conta_split(df, ano)
+            df = apply_conta_split_funcao(df)
             # Function codes have leading zeros in API (e.g. "01", "04.122") — strip them
             df["portaria"] = df["portaria"].str.lstrip("0")
             df["ano"] = str(ano)

@@ -4,47 +4,41 @@ import os
 import pandas as pd
 
 from .shared import (
-    ORDEM_MUNICIPIO,
-    apply_conta_split,
-    load_api_json,
+    ORDEM_UF,
+    apply_conta_split_funcao,
+    load_api_json_uf,
     partition_and_save,
 )
 
-ANEXO = "DCA-Anexo I-C"
+ANEXO = "DCA-Anexo I-E"
 
 
 def build(path_dados, path_queries, comp, api_dir, first_year, last_year):
-    df_comp = comp["receitas"]
+    df_comp = comp["despesas_funcao"]
 
     for ano in range(first_year, last_year + 1):
         json_files = sorted(
-            glob.glob(
-                os.path.join(
-                    api_dir,
-                    f"dca_{ano}_[0-9][0-9][0-9][0-9][0-9][0-9][0-9].json",
-                )
-            )
+            glob.glob(os.path.join(api_dir, f"dca_{ano}_[0-9][0-9].json"))
         )
         if not json_files:
-            print(
-                f"  municipio_receitas_orcamentarias {ano}: no API files, skipping"
-            )
+            print(f"  uf_despesas_funcao {ano}: no API files, skipping")
             continue
 
         rows = []
         for jpath in json_files:
-            df = load_api_json(jpath)
+            df = load_api_json_uf(jpath)
             if df.empty:
                 continue
             df = df[df["anexo"] == ANEXO].copy()
             if df.empty:
                 continue
-            df = apply_conta_split(df, ano)
+            df = apply_conta_split_funcao(df)
+            df["portaria"] = df["portaria"].str.lstrip("0")
             df["ano"] = str(ano)
             rows.append(
                 df[
                     [
-                        "id_municipio",
+                        "id_uf",
                         "sigla_uf",
                         "ano",
                         "estagio",
@@ -57,7 +51,7 @@ def build(path_dados, path_queries, comp, api_dir, first_year, last_year):
 
         if not rows:
             print(
-                f"  municipio_receitas_orcamentarias {ano}: no data in API files, skipping"
+                f"  uf_despesas_funcao {ano}: no data in API files, skipping"
             )
             continue
 
@@ -71,11 +65,10 @@ def build(path_dados, path_queries, comp, api_dir, first_year, last_year):
         df_all["valor"] = pd.to_numeric(
             df_all["valor"], errors="coerce"
         ).astype("float")
-        df_all = df_all[ORDEM_MUNICIPIO]
+        df_all = df_all[ORDEM_UF]
 
+        n_states = df_all["id_uf"].nunique()
         print(
-            f"  municipio_receitas_orcamentarias {ano}: {len(df_all):,} rows from {len(json_files)} municipalities"
+            f"  uf_despesas_funcao {ano}: {len(df_all):,} rows from {n_states} states"
         )
-        partition_and_save(
-            df_all, "municipio_receitas_orcamentarias", ano, path_dados
-        )
+        partition_and_save(df_all, "uf_despesas_funcao", ano, path_dados)

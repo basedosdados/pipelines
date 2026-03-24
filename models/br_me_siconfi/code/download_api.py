@@ -1,18 +1,20 @@
 """
 Download raw SICONFI DCA data from the Tesouro Nacional API.
 
-Each municipality-year is saved as input/api/dca_{year}_{cod_ibge}.json.
+Downloads all government levels: Brasil (ID=1), states (2-digit IDs),
+and municipalities (7-digit IDs) into one unified directory.
+
+Each entity-year is saved as input/api/dca_{year}_{cod_ibge}.json.
 Resumable: already-downloaded files are skipped automatically.
 
 API docs: https://apidatalake.tesouro.gov.br/docs/siconfi/
 
 Usage:
-    python download_api.py                          # all municipalities, 2013-current year
-    python download_api.py --workers 5              # parallel download with 5 workers
-    python download_api.py --start-year 2020        # from 2020 onward
-    python download_api.py --co-esfera E            # states instead of municipalities
-    python download_api.py --force                  # re-download everything (full refresh)
-    python download_api.py --test                   # verify API connection and exit
+    python download_api.py                      # all entities, 2013-current year
+    python download_api.py --workers 5          # parallel download with 5 workers
+    python download_api.py --start-year 2020    # from 2020 onward
+    python download_api.py --force              # re-download everything (full refresh)
+    python download_api.py --test               # verify API connection and exit
 """
 
 import argparse
@@ -30,6 +32,37 @@ from urllib3.util.retry import Retry
 API_BASE = "https://apidatalake.tesouro.gov.br/ords/siconfi/tt"
 RATE_LIMIT = 1.1  # seconds between requests
 
+# 2-digit IBGE codes for all 26 states + DF
+UF_CODES = [
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    31,
+    32,
+    33,
+    35,
+    41,
+    42,
+    43,
+    50,
+    51,
+    52,
+    53,
+]
+
 
 def make_session():
     s = requests.Session()
@@ -44,8 +77,8 @@ def make_session():
     return s
 
 
-def get_entes(session, co_esfera="M"):
-    """Return list of all entities for the given sphere."""
+def get_municipios(session):
+    """Return list of all municipalities from /entes."""
     url = f"{API_BASE}/entes"
     entes = []
     offset = 0
@@ -54,11 +87,7 @@ def get_entes(session, co_esfera="M"):
         time.sleep(RATE_LIMIT)
         r = session.get(
             url,
-            params={
-                "co_esfera": co_esfera,
-                "offset": offset,
-                "limit": page_size,
-            },
+            params={"offset": offset, "limit": page_size},
             timeout=30,
         )
         r.raise_for_status()
@@ -71,8 +100,16 @@ def get_entes(session, co_esfera="M"):
     return entes
 
 
+def get_all_entes(session):
+    """Return full entity list: Brasil + states + municipalities."""
+    nacional = [{"cod_ibge": "1", "ente": "Brasil"}]
+    estados = [{"cod_ibge": str(c), "ente": f"UF_{c}"} for c in UF_CODES]
+    municipios = get_municipios(session)
+    return nacional + estados + municipios
+
+
 def download_dca(session, exercicio, id_ente):
-    """Download all DCA data for one municipality-year. Returns dict or None."""
+    """Download all DCA data for one entity-year. Returns dict or None."""
     time.sleep(RATE_LIMIT)
     r = session.get(
         f"{API_BASE}/dca",
@@ -107,12 +144,12 @@ def download_dca(session, exercicio, id_ente):
 
 
 def run_worker(args, chunk_i, n_chunks, out_dir):
-    """Fetch entity list, slice this worker's chunk, and download."""
+    """Fetch full entity list, slice this worker's chunk, and download."""
     session = make_session()
     years = list(range(args.start_year, args.end_year + 1))
 
     print(f"[worker {chunk_i}/{n_chunks}] Fetching entity list...")
-    entes = get_entes(session, co_esfera=args.co_esfera)
+    entes = get_all_entes(session)
 
     # Slice this worker's chunk (0-indexed internally)
     chunk_start = (chunk_i - 1) * len(entes) // n_chunks
@@ -198,15 +235,10 @@ def run_worker(args, chunk_i, n_chunks, out_dir):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Download SICONFI DCA data from API"
+        description="Download SICONFI DCA data from API (all government levels)"
     )
     parser.add_argument(
         "--out-dir", default=None, help="Output directory for JSON files"
-    )
-    parser.add_argument(
-        "--co-esfera",
-        default="M",
-        help="M=Municipios, E=Estados e DF (default: M)",
     )
     parser.add_argument("--start-year", type=int, default=2013)
     parser.add_argument("--end-year", type=int, default=datetime.now().year)
@@ -260,7 +292,6 @@ def main():
 
     # Single-worker mode
     if args.workers == 1:
-        args.chunk = 1
         run_worker(args, chunk_i=1, n_chunks=1, out_dir=out_dir)
         return
 
@@ -274,8 +305,6 @@ def main():
         __file__,
         "--workers",
         str(n),
-        "--co-esfera",
-        args.co_esfera,
         "--start-year",
         str(args.start_year),
         "--end-year",
