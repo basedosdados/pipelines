@@ -5,6 +5,8 @@
         materialized="table",
     )
 }}
+
+
 select
     safe_cast(ano as int64) ano,
     safe_cast(rede as string) rede,
