@@ -11,6 +11,7 @@ Usage:
     python download_api.py --workers 5              # parallel download with 5 workers
     python download_api.py --start-year 2020        # from 2020 onward
     python download_api.py --co-esfera E            # states instead of municipalities
+    python download_api.py --force                  # re-download everything (full refresh)
     python download_api.py --test                   # verify API connection and exit
 """
 
@@ -136,7 +137,7 @@ def run_worker(args, chunk_i, n_chunks, out_dir):
             done += 1
             out_file = out_dir / f"dca_{ano}_{cod_ibge}.json"
 
-            if out_file.exists():
+            if out_file.exists() and not args.force:
                 skipped += 1
                 continue
 
@@ -216,6 +217,11 @@ def main():
         help="Number of parallel download workers",
     )
     parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Re-download files even if they already exist",
+    )
+    parser.add_argument(
         "--chunk", type=int, default=None, help=argparse.SUPPRESS
     )  # internal use
     parser.add_argument(
@@ -277,6 +283,8 @@ def main():
     ]
     if args.out_dir:
         base_cmd += ["--out-dir", args.out_dir]
+    if args.force:
+        base_cmd += ["--force"]
 
     procs = []
     for i in range(1, n + 1):
