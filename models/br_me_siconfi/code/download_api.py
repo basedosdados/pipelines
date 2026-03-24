@@ -8,6 +8,7 @@ API docs: https://apidatalake.tesouro.gov.br/docs/siconfi/
 
 Usage:
     python download_api.py                          # all municipalities, 2013-current year
+    python download_api.py --workers 5              # parallel download with 5 workers
     python download_api.py --start-year 2020        # from 2020 onward
     python download_api.py --co-esfera E            # states instead of municipalities
     python download_api.py --test                   # verify API connection and exit
@@ -15,6 +16,8 @@ Usage:
 
 import argparse
 import json
+import subprocess
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -102,64 +105,26 @@ def download_dca(session, exercicio, id_ente):
     return data
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Download SICONFI DCA data from API"
-    )
-    parser.add_argument(
-        "--out-dir", default=None, help="Output directory for JSON files"
-    )
-    parser.add_argument(
-        "--co-esfera",
-        default="M",
-        help="M=Municípios, E=Estados e DF (default: M)",
-    )
-    parser.add_argument("--start-year", type=int, default=2013)
-    parser.add_argument("--end-year", type=int, default=datetime.now().year)
-    parser.add_argument(
-        "--test", action="store_true", help="Test API connection and exit"
-    )
-    args = parser.parse_args()
-
-    # Resolve output directory relative to this script
-    script_dir = Path(__file__).parent
-    out_dir = (
-        Path(args.out_dir) if args.out_dir else script_dir / "input" / "api"
-    )
-    out_dir.mkdir(parents=True, exist_ok=True)
-
+def run_worker(args, chunk_i, n_chunks, out_dir):
+    """Fetch entity list, slice this worker's chunk, and download."""
     session = make_session()
-
-    if args.test:
-        print("Testing API connection...")
-        time.sleep(RATE_LIMIT)
-        r = session.get(f"{API_BASE}/entes", params={"limit": 2}, timeout=30)
-        print(f"  /entes status: {r.status_code}")
-        data = r.json()
-        print(f"  items: {len(data.get('items', []))}")
-        if data.get("items"):
-            ente = data["items"][0]
-            print(
-                f"  sample: cod_ibge={ente.get('cod_ibge')}, ente={ente.get('ente')}"
-            )
-        print("OK")
-        return
-
     years = list(range(args.start_year, args.end_year + 1))
-    print(f"Fetching entity list (co_esfera={args.co_esfera})...")
+
+    print(f"[worker {chunk_i}/{n_chunks}] Fetching entity list...")
     entes = get_entes(session, co_esfera=args.co_esfera)
-    print(f"  Found {len(entes)} entities")
+
+    # Slice this worker's chunk (0-indexed internally)
+    chunk_start = (chunk_i - 1) * len(entes) // n_chunks
+    chunk_end = chunk_i * len(entes) // n_chunks
+    entes = entes[chunk_start:chunk_end]
 
     total = len(entes) * len(years)
     done, skipped, failed = 0, 0, 0
-
     print(
-        f"Downloading {total} files ({len(entes)} entities x {len(years)} years)"
+        f"[worker {chunk_i}/{n_chunks}] "
+        f"{len(entes)} entities, {total} files, "
+        f"ETA ~{total * RATE_LIMIT / 3600:.1f}h"
     )
-    print(
-        f"Estimated time: {total * RATE_LIMIT / 3600:.1f} hours at {RATE_LIMIT}s/request"
-    )
-    print(f"Output: {out_dir}\n")
 
     for ente in entes:
         cod_ibge = ente.get("cod_ibge")
@@ -179,11 +144,10 @@ def main():
                 data = download_dca(session, ano, cod_ibge)
             except Exception as e:
                 failed += 1
-                print(f"  ERROR {ano}/{nome}: {e}")
+                print(f"[worker {chunk_i}/{n_chunks}] ERROR {ano}/{nome}: {e}")
                 continue
 
             if data is None or not data.get("items"):
-                # No data for this combo — write an empty sentinel to avoid re-requesting
                 out_file.write_text(
                     json.dumps(
                         {
@@ -212,22 +176,123 @@ def main():
             }
             out_file.write_text(json.dumps(payload, ensure_ascii=False))
 
-        # Progress report every 100 entities
+        # Progress every 100 entities
         n_entes_done = done // len(years)
         if n_entes_done % 100 == 0 and done % len(years) == 0:
             remaining = total - done
-            eta_h = remaining * RATE_LIMIT / 3600
             pct = 100 * done / total
             print(
-                f"  [{done:,}/{total:,} ({pct:.1f}%)] "
-                f"done={done - skipped - failed} skipped={skipped} failed={failed} "
-                f"ETA={eta_h:.1f}h"
+                f"[worker {chunk_i}/{n_chunks}] "
+                f"[{done:,}/{total:,} ({pct:.1f}%)] "
+                f"downloaded={done - skipped - failed} skipped={skipped} failed={failed} "
+                f"ETA={remaining * RATE_LIMIT / 3600:.1f}h"
             )
 
     print(
-        f"\nFinished. done={done - skipped - failed} skipped={skipped} failed={failed}"
+        f"[worker {chunk_i}/{n_chunks}] Finished. "
+        f"downloaded={done - skipped - failed} skipped={skipped} failed={failed}"
     )
     session.close()
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Download SICONFI DCA data from API"
+    )
+    parser.add_argument(
+        "--out-dir", default=None, help="Output directory for JSON files"
+    )
+    parser.add_argument(
+        "--co-esfera",
+        default="M",
+        help="M=Municipios, E=Estados e DF (default: M)",
+    )
+    parser.add_argument("--start-year", type=int, default=2013)
+    parser.add_argument("--end-year", type=int, default=datetime.now().year)
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="Number of parallel download workers",
+    )
+    parser.add_argument(
+        "--chunk", type=int, default=None, help=argparse.SUPPRESS
+    )  # internal use
+    parser.add_argument(
+        "--test", action="store_true", help="Test API connection and exit"
+    )
+    args = parser.parse_args()
+
+    script_dir = Path(__file__).parent
+    out_dir = (
+        Path(args.out_dir) if args.out_dir else script_dir / "input" / "api"
+    )
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    if args.test:
+        session = make_session()
+        print("Testing API connection...")
+        time.sleep(RATE_LIMIT)
+        r = session.get(f"{API_BASE}/entes", params={"limit": 2}, timeout=30)
+        print(f"  /entes status: {r.status_code}")
+        data = r.json()
+        print(f"  items: {len(data.get('items', []))}")
+        if data.get("items"):
+            ente = data["items"][0]
+            print(
+                f"  sample: cod_ibge={ente.get('cod_ibge')}, ente={ente.get('ente')}"
+            )
+        print("OK")
+        return
+
+    # Worker mode: called internally by --workers
+    if args.chunk is not None:
+        run_worker(
+            args, chunk_i=args.chunk, n_chunks=args.workers, out_dir=out_dir
+        )
+        return
+
+    # Single-worker mode
+    if args.workers == 1:
+        args.chunk = 1
+        run_worker(args, chunk_i=1, n_chunks=1, out_dir=out_dir)
+        return
+
+    # Multi-worker mode: spawn N subprocesses, each handling one chunk
+    n = args.workers
+    print(f"Launching {n} workers (logs: /tmp/siconfi_worker_{{1..{n}}}.log)")
+
+    base_cmd = [
+        sys.executable,
+        "-u",
+        __file__,
+        "--workers",
+        str(n),
+        "--co-esfera",
+        args.co_esfera,
+        "--start-year",
+        str(args.start_year),
+        "--end-year",
+        str(args.end_year),
+    ]
+    if args.out_dir:
+        base_cmd += ["--out-dir", args.out_dir]
+
+    procs = []
+    for i in range(1, n + 1):
+        log_path = f"/tmp/siconfi_worker_{i}.log"
+        log_file = open(log_path, "w")  # noqa: SIM115
+        cmd = [*base_cmd, "--chunk", str(i)]
+        p = subprocess.Popen(cmd, stdout=log_file, stderr=log_file)
+        procs.append((i, p, log_path))
+        print(f"  worker {i}: PID {p.pid}, log: {log_path}")
+
+    print("All workers started. Waiting for completion...")
+    for i, p, _log_path in procs:
+        p.wait()
+        print(f"  worker {i} finished (exit code {p.returncode})")
+
+    print("All workers done.")
 
 
 if __name__ == "__main__":
