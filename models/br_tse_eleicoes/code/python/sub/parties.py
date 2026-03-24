@@ -8,7 +8,7 @@ from config import INPUT_DIR, OUTPUT_PYTHON, UFS_PARTIDOS
 from utils.clean_election_type import clean_election_type_series
 from utils.clean_party import clean_party_series
 from utils.clean_string import clean_string_series
-from utils.helpers import merge_municipio, parse_date_br
+from utils.helpers import merge_municipio
 
 
 def _try_read_partidos(ano: int, uf: str) -> pd.DataFrame:
@@ -29,7 +29,7 @@ def _try_read_partidos(ano: int, uf: str) -> pd.DataFrame:
                     sep=";",
                     header=None,
                     dtype=str,
-                    encoding="utf-8",
+                    encoding="latin-1",
                     keep_default_na=False,
                     quotechar='"',
                     on_bad_lines="warn",
@@ -347,10 +347,6 @@ def build_partidos(ano: int) -> pd.DataFrame:
         )
         df["sigla"] = clean_party_series(df["sigla"], ano)
 
-        # parse dates
-        if "data_eleicao" in df.columns:
-            df["data_eleicao"] = parse_date_br(df["data_eleicao"])
-
         frames.append(df)
 
     result = pd.concat(frames, ignore_index=True)
@@ -401,6 +397,35 @@ def build_partidos(ano: int) -> pd.DataFrame:
         "numero",
     ]
     result = result.drop_duplicates(subset=strict_keys, keep="first")
+
+    # Column reorder to match Stata (order commands at lines 149, 177, 217):
+    # Final order: ano turno id_eleicao tipo_eleicao data_eleicao sigla_uf
+    #   id_municipio_tse cargo id_municipio ... then rest with tipo_agremiacao after nome
+    cols = list(result.columns)
+
+    # Move tipo_agremiacao after nome
+    if "tipo_agremiacao" in cols and "nome" in cols:
+        cols.remove("tipo_agremiacao")
+        idx = cols.index("nome") + 1
+        cols.insert(idx, "tipo_agremiacao")
+
+    # Build desired prefix order
+    prefix = []
+    for c in [
+        "ano",
+        "turno",
+        "id_eleicao",
+        "tipo_eleicao",
+        "data_eleicao",
+        "sigla_uf",
+        "id_municipio_tse",
+        "cargo",
+        "id_municipio",
+    ]:
+        if c in cols:
+            prefix.append(c)
+            cols.remove(c)
+    result = result[prefix + cols]
 
     return result
 

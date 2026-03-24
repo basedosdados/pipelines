@@ -132,6 +132,8 @@ def build_bens(ano: int) -> pd.DataFrame:
             df["tipo_eleicao"], ano
         )
         df.loc[df["descricao_item"] == "#NULO#", "descricao_item"] = ""
+        # Stata truncates multiline fields at the first newline
+        df["descricao_item"] = df["descricao_item"].str.split("\n").str[0]
         df["valor_item"] = _clean_valor(df["valor_item"])
         df["ano"] = pd.to_numeric(df["ano"], errors="coerce")
         df["data_eleicao"] = parse_date_br(df["data_eleicao"])
@@ -214,7 +216,7 @@ def _build_receitas_2004() -> pd.DataFrame:
         sep=";",
         header=None,
         dtype=str,
-        encoding="utf-8",
+        encoding="latin-1",
         keep_default_na=False,
         quotechar='"',
         on_bad_lines="warn",
@@ -414,6 +416,9 @@ def _build_receitas_2008() -> pd.DataFrame:
     df["valor_receita"] = _clean_valor(df["valor_receita"])
     df["id_municipio_tse"] = pd.to_numeric(
         df["id_municipio_tse"], errors="coerce"
+    )
+    df["id_municipio_tse_doador"] = pd.to_numeric(
+        df["id_municipio_tse_doador"], errors="coerce"
     )
     df["id_eleicao"] = ""
     df["tipo_eleicao"] = "eleicao ordinaria"
@@ -1229,13 +1234,16 @@ def _build_despesas_2004() -> pd.DataFrame:
         sep=";",
         header=None,
         dtype=str,
-        encoding="utf-8",
+        encoding="latin-1",
         keep_default_na=False,
         quotechar='"',
         on_bad_lines="warn",
         quoting=3,
     )
     df.columns = [f"v{i + 1}" for i in range(len(df.columns))]
+    # Stata stripquotes(yes): remove embedded quotes from all fields
+    for col in df.columns:
+        df[col] = df[col].str.replace('"', "", regex=False)
     df = df.iloc[1:].reset_index(drop=True)
     df = df[
         [

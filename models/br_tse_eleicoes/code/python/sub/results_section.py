@@ -221,22 +221,8 @@ def build_resultados_secao(ano: int) -> tuple[pd.DataFrame, pd.DataFrame]:
         ]
         legenda = legenda[leg_cols]
 
-        # merge nominais + legenda
-        merge_keys = [
-            c
-            for c in [
-                "ano",
-                "id_eleicao",
-                "turno",
-                "sigla_uf",
-                "id_municipio_tse",
-                "zona",
-                "secao",
-                "cargo",
-                "numero_partido",
-            ]
-            if c in nom_agg.columns
-        ]
+        # merge nominais + legenda — use all shared group columns as keys
+        merge_keys = [c for c in available_group if c in legenda.columns]
         partido = nom_agg.merge(legenda, on=merge_keys, how="outer")
         partido["votos_nominais"] = (
             partido["votos_nominais"].fillna(0).astype(int)
@@ -262,6 +248,45 @@ def build_resultados_secao(ano: int) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     # Assemble partido
     part_result = pd.concat(part_frames, ignore_index=True)
+
+    # Enforce column order to match Stata output
+    cand_cols = [
+        "ano",
+        "turno",
+        "id_eleicao",
+        "tipo_eleicao",
+        "data_eleicao",
+        "sigla_uf",
+        "id_municipio",
+        "id_municipio_tse",
+        "zona",
+        "secao",
+        "cargo",
+        "numero_candidato",
+        "votos",
+    ]
+    part_cols = [
+        "ano",
+        "turno",
+        "id_eleicao",
+        "tipo_eleicao",
+        "data_eleicao",
+        "sigla_uf",
+        "id_municipio",
+        "id_municipio_tse",
+        "zona",
+        "secao",
+        "cargo",
+        "numero_partido",
+        "votos_nominais",
+        "votos_legenda",
+    ]
+    cand_result = cand_result[
+        [c for c in cand_cols if c in cand_result.columns]
+    ]
+    part_result = part_result[
+        [c for c in part_cols if c in part_result.columns]
+    ]
 
     return cand_result, part_result
 

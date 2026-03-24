@@ -63,10 +63,18 @@ _HIST_NULLS = {"#NULO#", "#NULO", "#NE#", "#NE", "#AVULSO#", "-1", "-3"}
 
 def _try_read(ano: int, uf: str, folder: str) -> pd.DataFrame:
     """Try multiple file naming patterns for historical result files."""
+    # The folder name inside the parent may drop parts of the name
+    # e.g. votacao_candidato_uf → VOTACAO_CANDIDATO_1986 (no _UF)
+    folder_upper = folder.upper()
+    # Also try dropping the last segment (e.g. _UF) from the subfolder name
+    parts = folder_upper.rsplit("_", 1)
+    short = parts[0] if len(parts) > 1 else folder_upper
     candidates = [
-        f"{folder}/{folder.upper()}_{ano}_br/{folder.upper()}_{ano}_{uf}",
-        f"{folder}/{folder.upper()}_{ano}/{folder.upper()}_{ano}_{uf}",
-        f"{folder}/{folder.upper()}_{ano}/{folder.upper()}_{ano}",
+        f"{folder}/{folder_upper}_{ano}_br/{folder_upper}_{ano}_{uf}",
+        f"{folder}/{folder_upper}_{ano}/{folder_upper}_{ano}_{uf}",
+        f"{folder}/{folder_upper}_{ano}/{folder_upper}_{ano}",
+        f"{folder}/{short}_{ano}/{folder_upper}_{ano}_{uf}",
+        f"{folder}/{short}_{ano}/{folder_upper}_{ano}",
     ]
     for pattern in candidates:
         base = INPUT_DIR / pattern
@@ -78,7 +86,7 @@ def _try_read(ano: int, uf: str, folder: str) -> pd.DataFrame:
                     sep=";",
                     header=None,
                     dtype=str,
-                    encoding="utf-8",
+                    encoding="latin-1",
                     keep_default_na=False,
                     quotechar='"',
                     on_bad_lines="warn",
@@ -213,7 +221,22 @@ def build_candidato(ano: int) -> pd.DataFrame:
             if col in df.columns:
                 df[col] = clean_string_series(df[col])
         if "nome_candidato" in df.columns:
-            df["nome_candidato"] = df["nome_candidato"].str.title()
+            df["nome_candidato"] = (
+                df["nome_candidato"]
+                .str.title()
+                # Stata proper() does NOT capitalize after apostrophes: D'Oliveira→D'oliveira
+                .str.replace(
+                    r"'([A-Z])",
+                    lambda m: "'" + m.group(1).lower(),
+                    regex=True,
+                )
+                # Also handle U+00B4 acute accent: e.g. X\u00b4A → X\u00b4a
+                .str.replace(
+                    r"(?<=[A-Za-zÀ-ÿ])\u00b4([A-Z])",
+                    lambda m: "\u00b4" + m.group(1).lower(),
+                    regex=True,
+                )
+            )
 
         df["tipo_eleicao"] = clean_election_type_series(
             df["tipo_eleicao"], ano
@@ -229,6 +252,40 @@ def build_candidato(ano: int) -> pd.DataFrame:
         return pd.DataFrame()
 
     result = pd.concat(frames, ignore_index=True)
+
+    # Stata: `order votos, a(resultado)` — move votos after resultado
+    if "numero_candidato" in result.columns:
+        col_order = [
+            "ano",
+            "turno",
+            "tipo_eleicao",
+            "sigla_uf",
+            "numero_candidato",
+            "nome_candidato",
+            "cargo",
+            "resultado",
+            "votos",
+            "numero_partido",
+            "sigla_partido",
+            "coligacao",
+            "composicao",
+        ]
+    else:
+        col_order = [
+            "ano",
+            "turno",
+            "tipo_eleicao",
+            "sigla_uf",
+            "nome_candidato",
+            "cargo",
+            "resultado",
+            "votos",
+            "sigla_partido",
+            "coligacao",
+            "composicao",
+        ]
+    result = result[[c for c in col_order if c in result.columns]]
+
     return result
 
 

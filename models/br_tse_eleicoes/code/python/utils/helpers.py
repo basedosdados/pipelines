@@ -3,7 +3,6 @@ Shared helper functions for the br_tse_eleicoes pipeline.
 Mirrors patterns from the Stata .do files.
 """
 
-import re
 from pathlib import Path
 
 import pandas as pd
@@ -18,7 +17,7 @@ def read_raw_csv(
     filepath_pattern: str,
     *,
     drop_first_row: bool = True,
-    encoding: str = "utf-8",
+    encoding: str = "latin-1",
 ) -> pd.DataFrame:
     """
     Read a raw TSE semicolon-delimited file.
@@ -50,16 +49,32 @@ def read_raw_csv(
     else:
         raise FileNotFoundError(f"Neither {txt_path} nor {csv_path} found.")
 
-    df = pd.read_csv(
-        path,
-        sep=";",
-        header=None,
-        dtype=str,
-        encoding=encoding,
-        quotechar='"',
-        keep_default_na=False,
-        on_bad_lines="warn",
-    )
+    try:
+        df = pd.read_csv(
+            path,
+            sep=";",
+            header=None,
+            dtype=str,
+            encoding=encoding,
+            quotechar='"',
+            keep_default_na=False,
+            on_bad_lines="warn",
+        )
+    except (pd.errors.ParserError, Exception):
+        # Fallback for malformed files (e.g. SP 2014 has truncated last line
+        # with unclosed quote). Use python engine which handles edge cases
+        # better, and skip bad lines.
+        df = pd.read_csv(
+            path,
+            sep=";",
+            header=None,
+            dtype=str,
+            encoding=encoding,
+            quotechar='"',
+            keep_default_na=False,
+            on_bad_lines="skip",
+            engine="python",
+        )
 
     # Stata-style positional column names: v1, v2, ...
     df.columns = [f"v{i + 1}" for i in range(len(df.columns))]
@@ -92,24 +107,30 @@ def clean_nulls(df: pd.DataFrame) -> pd.DataFrame:
 
 def parse_date_br(s: pd.Series) -> pd.Series:
     """
-    Convert DD/MM/YYYY → YYYY-MM-DD.
-    Returns empty string for malformed or pre-1900 dates.
-    Mirrors Stata:
-        replace data = substr(data, 7, 4) + "-" + substr(data, 4, 2) + "-" + substr(data, 1, 2)
+    Convert DD/MM/YYYY → YYYY-MM-DD using Stata-compatible substring logic.
+
+    Mirrors Stata exactly:
+        replace data = substr(data, 7, 4) + "-" + substr(data, 4, 2) + "-" + substr(data, 1, 2) if length(data) > 0
         replace data = "" if real(substr(data, 1, 4)) < 1900
     """
 
     def _convert(val):
-        if not isinstance(val, str) or len(val) < 10:
+        if not isinstance(val, str) or len(val) == 0:
             return ""
-        # Try DD/MM/YYYY
-        match = re.match(r"^(\d{2})/(\d{2})/(\d{4})$", val.strip())
-        if not match:
-            return val  # leave as-is if not matching pattern
-        day, month, year = match.groups()
-        if int(year) < 1900:
-            return ""
-        return f"{year}-{month}-{day}"
+        # Stata: substr uses 1-based indexing
+        # substr(val, 7, 4) = val[6:10], substr(val, 4, 2) = val[3:5], substr(val, 1, 2) = val[0:2]
+        yyyy = val[6:10]
+        mm = val[3:5]
+        dd = val[0:2]
+        result = f"{yyyy}-{mm}-{dd}"
+        # Stata: replace data = "" if real(substr(data, 1, 4)) < 1900
+        try:
+            year_val = float(result[:4])
+            if year_val < 1900:
+                return ""
+        except ValueError:
+            pass  # real() returns . for non-numeric → condition is false → keep value
+        return result
 
     return s.map(_convert)
 
@@ -126,15 +147,17 @@ def pad_cpf(s: pd.Series) -> pd.Series:
         if not val or not val.strip():
             return ""
         val = val.strip()
-        if val in ("0", "00000000000"):
-            return ""
         return val.zfill(11)
 
     return s.map(_pad)
 
 
 def pad_titulo(s: pd.Series) -> pd.Series:
-    """Left-pad título eleitoral to 12 digits with zeros. Empty/null stays empty."""
+    """Left-pad título eleitoral to 12 digits with zeros. Empty/null stays empty.
+
+    Also handles embedded spaces in old-format titulos, mirroring the Stata
+    space-replacement logic (candidatos.do lines 236-252).
+    """
 
     def _pad(val):
         if not val or not val.strip():
@@ -142,7 +165,24 @@ def pad_titulo(s: pd.Series) -> pd.Series:
         val = val.strip()
         if val in ("0", "000000000000"):
             return ""
-        return val.zfill(12)
+        val = val.zfill(12)
+
+        # Stata space-replacement logic for 12-char titulos with embedded spaces
+        if len(val) == 12:
+            # Part 1: trailing space blocks before last 2 digits
+            # e.g. "12345     67" → "000001234567"
+            for start in range(5, 10):
+                space_len = 12 - start - 2
+                if val[start : start + space_len] == " " * space_len:
+                    digits_before = val[:start]
+                    digits_after = val[10:12]
+                    val = digits_before.zfill(10) + digits_after
+                    break
+
+            # Part 2: replace individual embedded spaces with "0"
+            val = val.replace(" ", "0")
+
+        return val
 
     return s.map(_pad)
 
@@ -167,9 +207,31 @@ def merge_municipio(df: pd.DataFrame) -> pd.DataFrame:
     """
     Left-join on id_municipio_tse to add id_municipio.
     Mirrors Stata: merge m:1 id_municipio_tse using `municipio' / drop if _merge == 2 / drop _merge
+
+    Stata's merge sorts by the merge key, so we replicate that with a stable sort.
+    Also places id_municipio before id_municipio_tse (Stata: order id_municipio, b(id_municipio_tse)).
     """
+    # Stata merge sorts master by merge key (stable sort, NaN last)
+    df = df.assign(
+        _sort_key=pd.to_numeric(df["id_municipio_tse"], errors="coerce")
+    )
+    df = (
+        df.sort_values("_sort_key", kind="stable", na_position="last")
+        .drop(columns=["_sort_key"])
+        .reset_index(drop=True)
+    )
+
     mun = load_municipio_directory()
     merged = df.merge(mun, on="id_municipio_tse", how="left")
+
+    # Most tables: order id_municipio, b(id_municipio_tse)
+    cols = list(merged.columns)
+    if "id_municipio" in cols and "id_municipio_tse" in cols:
+        cols.remove("id_municipio")
+        idx = cols.index("id_municipio_tse")
+        cols.insert(idx, "id_municipio")
+        merged = merged[cols]
+
     return merged
 
 

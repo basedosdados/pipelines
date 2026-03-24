@@ -61,7 +61,7 @@ def build_voting_details_state(ano: int) -> pd.DataFrame:
                         sep=";",
                         header=None,
                         dtype=str,
-                        encoding="utf-8",
+                        encoding="latin-1",
                         keep_default_na=False,
                         quotechar='"',
                         on_bad_lines="warn",
@@ -154,19 +154,15 @@ def build_voting_details_state(ano: int) -> pd.DataFrame:
             df["tipo_eleicao"], ano
         )
 
-        # computed proportions
+        # computed proportions (guard against division by zero)
+        aptos_safe = df["aptos"].replace(0, pd.NA)
+        comp_safe = df["comparecimento"].replace(0, pd.NA)
         df["proporcao_comparecimento"] = (
-            100 * df["comparecimento"] / df["aptos"]
+            100 * df["comparecimento"] / aptos_safe
         )
-        df["proporcao_votos_validos"] = (
-            100 * df["votos_validos"] / df["comparecimento"]
-        )
-        df["proporcao_votos_brancos"] = (
-            100 * df["votos_brancos"] / df["comparecimento"]
-        )
-        df["proporcao_votos_nulos"] = (
-            100 * df["votos_nulos"] / df["comparecimento"]
-        )
+        df["proporcao_votos_validos"] = 100 * df["votos_validos"] / comp_safe
+        df["proporcao_votos_brancos"] = 100 * df["votos_brancos"] / comp_safe
+        df["proporcao_votos_nulos"] = 100 * df["votos_nulos"] / comp_safe
 
         df = df.drop_duplicates()
         frames.append(df)
@@ -174,7 +170,40 @@ def build_voting_details_state(ano: int) -> pd.DataFrame:
     if not frames:
         return pd.DataFrame()
 
-    return pd.concat(frames, ignore_index=True)
+    result = pd.concat(frames, ignore_index=True)
+
+    # Column order to match Stata (detalhes_votacao_uf.do line 141-144)
+    desired_order = [
+        "ano",
+        "turno",
+        "id_eleicao",
+        "tipo_eleicao",
+        "data_eleicao",
+        "sigla_uf",
+        "cargo",
+        "secoes_anuladas",
+        "secoes_sem_funcionamento",
+        "zonas_eleitorais",
+        "juntas_apuradoras",
+        "votos_anulados_apurado_separado",
+        "secoes_totalizadas",
+        "aptos",
+        "comparecimento",
+        "abstencoes",
+        "votos_validos",
+        "votos_brancos",
+        "votos_nulos",
+        "votos_legenda",
+        "proporcao_comparecimento",
+        "proporcao_votos_validos",
+        "proporcao_votos_brancos",
+        "proporcao_votos_nulos",
+    ]
+    cols = [c for c in desired_order if c in result.columns]
+    cols += [c for c in result.columns if c not in cols]
+    result = result[cols]
+
+    return result
 
 
 def build_all():

@@ -205,7 +205,19 @@ def build_candidatos(ano: int) -> pd.DataFrame:
 
         for col in ["nome", "nome_urna", "municipio_nascimento"]:
             if col in df.columns:
-                df[col] = df[col].str.title()
+                # Use str.title() which matches Stata's ustrtitle() for most
+                # chars (capitalizes after hyphens, dots, parens, slashes).
+                # Then fix U+00B4 (acute accent): Stata treats it as part
+                # of the word, so D\u00b4Avila should be D\u00b4avila.
+                df[col] = (
+                    df[col]
+                    .str.title()
+                    .str.replace(
+                        r"(?<=[A-Za-zÀ-ÿ])\u00b4([A-Z])",
+                        lambda m: "\u00b4" + m.group(1).lower(),
+                        regex=True,
+                    )
+                )
 
         if "email" in df.columns:
             df["email"] = df["email"].str.lower()
@@ -323,6 +335,15 @@ def build_candidatos(ano: int) -> pd.DataFrame:
         df = df[df["ano"].notna()]
 
         df = df.drop_duplicates()
+
+        # Reorder: idade after data_nascimento (Stata: order idade, a(data_nascimento))
+        cols = list(df.columns)
+        if "idade" in cols:
+            cols.remove("idade")
+            idx = cols.index("data_nascimento") + 1
+            cols.insert(idx, "idade")
+            df = df[cols]
+
         frames.append(df)
 
     result = pd.concat(frames, ignore_index=True)

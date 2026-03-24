@@ -9,6 +9,8 @@ import pandas as pd
 def fix_candidate(df: pd.DataFrame) -> pd.DataFrame:
     """Apply manual corrections to specific candidate rows."""
     # Paulo Peixer — fix CPF and titulo_eleitoral (year 2000, municipio 4202909)
+    if "id_municipio" not in df.columns:
+        return df
     mask = (
         (df["ano"] == "2000")
         & (df["id_municipio"] == "4202909")

@@ -25,22 +25,14 @@ UFS = {
 
 def _read_perfil_secao(ano: int, uf: str) -> pd.DataFrame:
     """Read a single voter profile section file (has named headers)."""
-    if ano <= 2010:
-        base_dir = INPUT_DIR / "perfil_eleitorado_secao"
-        patterns = [
-            base_dir / f"perfil_eleitor_secao_{ano}_{uf}.txt",
-            base_dir / f"perfil_eleitor_secao_{ano}_{uf}.csv",
-        ]
-    else:
-        base_dir = (
-            INPUT_DIR
-            / "perfil_eleitorado_secao"
-            / f"perfil_eleitor_secao_{ano}_{uf}"
-        )
-        patterns = [
-            base_dir / f"perfil_eleitor_secao_{ano}_{uf}.txt",
-            base_dir / f"perfil_eleitor_secao_{ano}_{uf}.csv",
-        ]
+    parent = INPUT_DIR / "perfil_eleitorado_secao"
+    sub = parent / f"perfil_eleitor_secao_{ano}_{uf}"
+    patterns = [
+        parent / f"perfil_eleitor_secao_{ano}_{uf}.txt",
+        parent / f"perfil_eleitor_secao_{ano}_{uf}.csv",
+        sub / f"perfil_eleitor_secao_{ano}_{uf}.txt",
+        sub / f"perfil_eleitor_secao_{ano}_{uf}.csv",
+    ]
 
     path = None
     for p in patterns:
@@ -52,9 +44,11 @@ def _read_perfil_secao(ano: int, uf: str) -> pd.DataFrame:
             f"No file found for perfil_eleitorado_secao {ano} {uf}"
         )
 
-    return pd.read_csv(
-        path, sep=";", dtype=str, encoding="utf-8", keep_default_na=False
+    df = pd.read_csv(
+        path, sep=";", dtype=str, encoding="latin-1", keep_default_na=False
     )
+    df.columns = df.columns.str.lower().str.strip('"')
+    return df
 
 
 def build_perfil_secao(ano: int) -> pd.DataFrame:
@@ -174,6 +168,27 @@ def build_perfil_secao(ano: int) -> pd.DataFrame:
         frames.append(df)
 
     result = pd.concat(frames, ignore_index=True)
+
+    # Enforce column order to match Stata output
+    col_order = [
+        "ano",
+        "sigla_uf",
+        "id_municipio",
+        "id_municipio_tse",
+        "zona",
+        "secao",
+        "genero",
+        "estado_civil",
+        "grupo_idade",
+        "instrucao",
+        "situacao_biometria",
+        "eleitores",
+        "eleitores_biometria",
+        "eleitores_deficiencia",
+        "eleitores_inclusao_nome_social",
+    ]
+    result = result[[c for c in col_order if c in result.columns]]
+
     return result
 
 

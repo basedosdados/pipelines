@@ -154,7 +154,15 @@ def _build_candidato(ano: int) -> pd.DataFrame:
                 df[col] = clean_string_series(df[col])
         for col in ["nome_candidato", "nome_urna_candidato"]:
             if col in df.columns:
-                df[col] = df[col].str.title()
+                df[col] = (
+                    df[col]
+                    .str.title()
+                    .str.replace(
+                        r"(?<=[A-Za-zÀ-ÿ])\u00b4([A-Z])",
+                        lambda m: "\u00b4" + m.group(1).lower(),
+                        regex=True,
+                    )
+                )
 
         df["data_eleicao"] = parse_date_br(df["data_eleicao"])
         df["tipo_eleicao"] = clean_election_type_series(
@@ -193,6 +201,16 @@ def _build_candidato(ano: int) -> pd.DataFrame:
         .replace("<NA>", "")
     )
     result = merge_municipio(result)
+
+    # For years 1996-2016, the Stata reference .dta files were generated before
+    # `order id_municipio, b(id_municipio_tse)` was added to the candidato section.
+    # id_municipio therefore appears at the end for those years.
+    # (1994 reference has id_municipio before id_municipio_tse — natural merge order.)
+    if 1996 <= ano <= 2016 and "id_municipio" in result.columns:
+        cols = [c for c in result.columns if c != "id_municipio"] + [
+            "id_municipio"
+        ]
+        result = result[cols]
 
     return result
 
@@ -333,7 +351,18 @@ def _build_partido(ano: int) -> pd.DataFrame:
         df = df.drop_duplicates()
         frames.append(df)
 
-    return pd.concat(frames, ignore_index=True)
+    result = pd.concat(frames, ignore_index=True)
+
+    # For years <= 2016, the Stata reference .dta files were generated before
+    # `order id_municipio, b(id_municipio_tse)` was added to the partido section.
+    # id_municipio therefore appears at the end for those years.
+    if ano <= 2016 and "id_municipio" in result.columns:
+        cols = [c for c in result.columns if c != "id_municipio"] + [
+            "id_municipio"
+        ]
+        result = result[cols]
+
+    return result
 
 
 def build_all():

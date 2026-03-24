@@ -15,7 +15,6 @@ def clean_election_type(val: str, ano: int) -> str:
         "ordinaria",
         f"eleicoes ordinarias - {ano_s}",
         f"eleicoes {ano_s}",
-        f"eleicao {ano_s}",
         f"eleicao municipal {ano_s}",
         f"eleicoes gerais {ano_s}",
         f"eleicoes gerais {ano_s} primeiro turno",
@@ -30,6 +29,8 @@ def clean_election_type(val: str, ano: int) -> str:
         f"eleicoes gerais estaduais {ano_s}",
         f"eleicao geral federal {ano_s}",
     }
+    # Map "eleicao YYYY" → "eleicao ordinaria" for all years.
+    ordinaria_variants.add(f"eleicao {ano_s}")
 
     if val in ordinaria_variants:
         return "eleicao ordinaria"
