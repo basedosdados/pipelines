@@ -1,5 +1,6 @@
-"""Shared utilities for tables_API — reads per-municipality API JSON files."""
+"""Shared utilities for tables_API."""
 
+import glob
 import json
 import os
 
@@ -101,6 +102,8 @@ def load_compatibilizacao(path_queries):
     df_balanco = pd.read_excel(
         os.path.join(comp_dir, "balanco_patrimonial.xlsx"), dtype="string"
     ).fillna("")
+    for df in [df_receitas, df_despesas, df_despesas_funcao, df_balanco]:
+        df["_in_comp"] = True
     return {
         "municipio": df_municipio,
         "receitas": df_receitas,
@@ -110,104 +113,124 @@ def load_compatibilizacao(path_queries):
     }
 
 
-def load_api_json(json_path):
-    """Load one per-municipality API JSON file and return a flat DataFrame."""
-    with open(json_path) as f:
-        d = json.load(f)
-    items = d["data"].get("items", [])
-    if not items:
-        return pd.DataFrame()
-    df = pd.DataFrame(items)
-    df["id_municipio"] = df["cod_ibge"].astype(str)
-    df["sigla_uf"] = df["uf"].astype(str)
-    df["estagio"] = df["coluna"].astype(str)
-    df["valor"] = pd.to_numeric(df["valor"], errors="coerce")
-    # Drop state-level aggregate rows (2-digit cod_ibge) that appear in municipality files
-    df = df[df["id_municipio"].str.len() > 2]
-    return df
+def load_year_data(ano, api_dir):
+    """Single-pass loader: read every file for a year once and partition by level/anexo.
+
+    Returns:
+        {
+            "municipio": {anexo: DataFrame, ...},
+            "uf":        {anexo: DataFrame, ...},
+            "brasil":    {anexo: DataFrame, ...},
+        }
+
+    Entity columns set per level:
+        municipio → id_municipio, sigla_uf
+        uf        → id_uf, sigla_uf
+        brasil    → (none extra)
+    All levels get: estagio (= coluna), valor (numeric).
+    """
+    json_files = sorted(glob.glob(os.path.join(api_dir, f"dca_{ano}_*.json")))
+    buckets = {}  # (level, anexo) -> list[DataFrame]
+
+    for jpath in json_files:
+        fname = os.path.basename(jpath)
+        cod_str = fname[len(f"dca_{ano}_") : -5]  # strip prefix + ".json"
+        n = len(cod_str)
+        if n == 1:
+            level = "brasil"
+        elif n == 2:
+            level = "uf"
+        else:
+            level = "municipio"
+
+        with open(jpath) as f:
+            d = json.load(f)
+        items = d["data"].get("items", [])
+        if not items:
+            continue
+
+        df = pd.DataFrame(items)
+        df["estagio"] = df["coluna"].astype(str)
+        df["valor"] = pd.to_numeric(df["valor"], errors="coerce")
+
+        if level == "municipio":
+            df["id_municipio"] = df["cod_ibge"].astype(str)
+            df["sigla_uf"] = df["uf"].astype(str)
+            keep = [
+                "estagio",
+                "valor",
+                "conta",
+                "anexo",
+                "id_municipio",
+                "sigla_uf",
+            ]
+        elif level == "uf":
+            df["id_uf"] = df["cod_ibge"].astype(str)
+            df["sigla_uf"] = df["uf"].astype(str)
+            keep = ["estagio", "valor", "conta", "anexo", "id_uf", "sigla_uf"]
+        else:
+            keep = ["estagio", "valor", "conta", "anexo"]
+
+        df = df[keep]
+
+        for anexo_val, grp in df.groupby("anexo"):
+            buckets.setdefault((level, anexo_val), []).append(grp)
+
+    result = {}
+    for (level, anexo_val), dfs in buckets.items():
+        result.setdefault(level, {})[anexo_val] = pd.concat(
+            dfs, ignore_index=True
+        )
+
+    return result
 
 
-def load_api_json_uf(json_path):
-    """Load one API JSON file and return only state-level rows (2-digit cod_ibge)."""
-    with open(json_path) as f:
-        d = json.load(f)
-    items = d["data"].get("items", [])
-    if not items:
-        return pd.DataFrame()
-    df = pd.DataFrame(items)
-    df["id_uf"] = df["cod_ibge"].astype(str)
-    df["sigla_uf"] = df["uf"].astype(str)
-    df["estagio"] = df["coluna"].astype(str)
-    df["valor"] = pd.to_numeric(df["valor"], errors="coerce")
-    # Keep only state-level rows (2-digit cod_ibge)
-    df = df[df["id_uf"].str.len() == 2]
-    return df
+def apply_conta_split(df):
+    """Vectorized split of 'CODE - NAME' conta strings into portaria and conta columns.
 
+    Extracts portaria by matching the numeric code layout pattern (digits separated by dots)
+    at the start of the string, then takes everything after it as the conta name.
+    Handles all separator variants: 'CODE - Name', 'CODE- Name', 'CODE    Name', 'CODE Name'.
+    """
+    s = df["conta"].fillna("").astype(str)
+    extracted = s.str.extract(r"^(\d+(?:\.\d+)*)\s*-?\s*(.*)", expand=True)
+    matched = extracted[0].notna()
 
-def load_api_json_brasil(json_path):
-    """Load one API JSON file and return only national-level rows (cod_ibge == '1')."""
-    with open(json_path) as f:
-        d = json.load(f)
-    items = d["data"].get("items", [])
-    if not items:
-        return pd.DataFrame()
-    df = pd.DataFrame(items)
-    df["cod_ibge_str"] = df["cod_ibge"].astype(str)
-    df["estagio"] = df["coluna"].astype(str)
-    df["valor"] = pd.to_numeric(df["valor"], errors="coerce")
-    # Keep only national rows (cod_ibge == 1)
-    df = df[df["cod_ibge_str"] == "1"]
+    portaria = extracted[0].where(matched, "").str.strip()
+    conta = (
+        extracted[1]
+        .fillna("")
+        .where(matched, s)
+        .str.strip()
+        .str.replace("\ufffd", "-", regex=False)
+        .str.replace("\u00bf", "-", regex=False)
+    )
+
+    df = df.copy()
+    df["portaria"] = portaria.astype("string")
+    df["conta"] = conta.astype("string")
     return df
 
 
 def apply_conta_split_funcao(df):
-    """Split despesas_funcao conta strings ('CODE - NAME') using simple delimiter split.
+    """Alias for apply_conta_split — identical logic for despesas_funcao tables."""
+    return apply_conta_split(df)
 
-    Function/subfunction codes are short (e.g. '01.031'), so the fixed-width
-    approach in _split_2018_plus cuts into the name.  We always split on ' -'.
+
+def get_unmatched(df, keys=("ano", "estagio", "portaria", "conta")):
+    """Return unique key combinations where compatibilizacao join found no match.
+
+    Checks for NaN in id_conta_bd — must be called before fillna("").
     """
-    portarias, contas = [], []
-    for val in df["conta"]:
-        p, c = _split_2013_2017(str(val) if val else "")
-        portarias.append(p)
-        contas.append(c)
-    df["portaria"] = pd.array(portarias, dtype="string")
-    df["conta"] = pd.array(contas, dtype="string")
-    df["conta"] = df["conta"].str.replace("\ufffd", "-", regex=False)
-    df["conta"] = df["conta"].str.replace("\u00bf", "-", regex=False)
-    return df
-
-
-def apply_conta_split(df, ano):
-    """Split 'portaria - conta_name' strings into separate portaria and conta columns."""
-    split_fn = _split_2013_2017 if ano <= 2017 else _split_2018_plus
-
-    portarias, contas = [], []
-    for val in df["conta"]:
-        p, c = split_fn(str(val) if val else "")
-        portarias.append(p)
-        contas.append(c)
-
-    df["portaria"] = pd.array(portarias, dtype="string")
-    df["conta"] = pd.array(contas, dtype="string")
-    df["conta"] = df["conta"].str.replace("\ufffd", "-", regex=False)
-    df["conta"] = df["conta"].str.replace("\u00bf", "-", regex=False)
-    return df
-
-
-def _split_2013_2017(s):
-    if s and s[0].isnumeric():
-        parts = s.split(" -", 1)
-        return parts[0].strip(), parts[1].strip() if len(parts) > 1 else ""
-    return "", s
-
-
-def _split_2018_plus(s):
-    if s and s[0].isnumeric():
-        portaria = s[:14].strip()
-        conta = s[16:].strip() if "0 -" in s else s[15:].strip()
-        return portaria, conta
-    return "", s
+    mask = df["_in_comp"].isna()
+    if not mask.any():
+        return pd.DataFrame()
+    return (
+        df.loc[mask, list(keys)]
+        .drop_duplicates()
+        .sort_values(list(keys))
+        .reset_index(drop=True)
+    )
 
 
 def partition_and_save(df, table_name, ano, path_dados):

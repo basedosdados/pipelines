@@ -1,8 +1,9 @@
 """
-Build cleaned output CSVs from per-municipality API JSON files.
+Build cleaned output CSVs from per-entity API JSON files.
 
 Input:  input/api/dca_{year}_{cod_ibge}.json
-Output: output_API/{table}/ano={ano}/sigla_uf={uf}/{table}.csv
+Output: output_API/{table}/ano={ano}/sigla_uf={uf}/{table}.csv  (municipio/UF)
+        output_API/{table}/ano={ano}/{table}.csv                 (brasil)
 
 Usage:
     python build.py --path_dados /path/to/dados_SICONFI
@@ -14,6 +15,8 @@ Usage:
 import argparse
 import os
 import sys
+
+import pandas as pd
 
 # Allow running as a script from any directory
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -30,10 +33,27 @@ from tables_api import (
     uf_despesas_orcamentarias,
     uf_receitas_orcamentarias,
 )
-from tables_api.shared import load_compatibilizacao, setup_output_dirs
+from tables_api.shared import (
+    load_compatibilizacao,
+    load_year_data,
+    setup_output_dirs,
+)
+
+# Maps each table to the compatibilizacao file it draws from.
+COMP_FILE = {
+    "municipio_receitas_orcamentarias": "receitas_orcamentarias",
+    "uf_receitas_orcamentarias": "receitas_orcamentarias",
+    "brasil_receitas_orcamentarias": "receitas_orcamentarias",
+    "municipio_despesas_orcamentarias": "despesas_orcamentarias",
+    "uf_despesas_orcamentarias": "despesas_orcamentarias",
+    "brasil_despesas_orcamentarias": "despesas_orcamentarias",
+    "municipio_despesas_funcao": "despesas_funcao",
+    "uf_despesas_funcao": "despesas_funcao",
+    "brasil_despesas_funcao": "despesas_funcao",
+    "municipio_balanco_patrimonial": "balanco_patrimonial",
+}
 
 # (table_module, first_year, last_year)
-# All tables read from input/api/ — entity level distinguished by cod_ibge length
 TABLE_BUILDERS = {
     "municipio_receitas_orcamentarias": (
         municipio_receitas_orcamentarias,
@@ -98,7 +118,6 @@ def main():
 
     comp = load_compatibilizacao(path_queries)
 
-    # Determine year range across selected tables for directory setup
     first_year = min(TABLE_BUILDERS[t][1] for t in tables)
     last_year = max(TABLE_BUILDERS[t][2] for t in tables)
     if args.ano:
@@ -110,15 +129,44 @@ def main():
         print(f"ERROR: API directory not found: {api_dir}")
         sys.exit(1)
 
-    for table in tables:
-        module, tbl_first, tbl_last = TABLE_BUILDERS[table]
-        first = args.ano if args.ano else tbl_first
-        last = args.ano if args.ano else tbl_last
-        print(f"Building: {table} ({first}-{last})")
-        module.build(path_dados, path_queries, comp, api_dir, first, last)
-        print("  Done.")
+    all_unmatched = {}  # comp_file -> [df, ...]
 
-    print("All done.")
+    for ano in range(first_year, last_year + 1):
+        print(f"\n=== {ano} ===")
+        year_data = load_year_data(ano, api_dir)
+
+        for table in tables:
+            module, tbl_first, tbl_last = TABLE_BUILDERS[table]
+            if not (tbl_first <= ano <= tbl_last):
+                continue
+            unmatched = module.build(
+                path_dados, path_queries, comp, year_data, ano
+            )
+            if unmatched is not None and not unmatched.empty:
+                all_unmatched.setdefault(COMP_FILE[table], []).append(
+                    unmatched
+                )
+
+    if all_unmatched:
+        print(
+            "\nERROR: unmatched rows detected — add these to compatibilizacao files:"
+        )
+        comp_dir = os.path.join(path_queries, "code", "compatibilizacao")
+        for comp_file, dfs in sorted(all_unmatched.items()):
+            combined = (
+                pd.concat(dfs, ignore_index=True)
+                .drop_duplicates()
+                .sort_values(list(dfs[0].columns))
+                .reset_index(drop=True)
+            )
+            out_path = os.path.join(comp_dir, f"missing_{comp_file}.xlsx")
+            combined.to_excel(out_path, index=False)
+            print(
+                f"  {comp_file}.xlsx: {len(combined)} missing rows → {out_path}"
+            )
+        sys.exit(1)
+
+    print("\nAll done.")
 
 
 if __name__ == "__main__":

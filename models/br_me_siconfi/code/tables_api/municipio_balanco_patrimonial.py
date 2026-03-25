@@ -1,91 +1,52 @@
-import glob
-import os
-
 import pandas as pd
 
 from .shared import (
     ORDEM_MUNICIPIO_BALANCO,
     apply_conta_split,
-    load_api_json,
+    get_unmatched,
     partition_and_save,
 )
 
+LEVEL = "municipio"
 ANEXO = "DCA-Anexo I-AB"
 
 
-def build(path_dados, path_queries, comp, api_dir, first_year, last_year):
+def build(path_dados, path_queries, comp, year_data, ano):
     df_comp = comp["balanco"]
+    df = year_data.get(LEVEL, {}).get(ANEXO)
+    if df is None or df.empty:
+        print(f"  municipio_balanco_patrimonial {ano}: no data, skipping")
+        return pd.DataFrame()
 
-    for ano in range(first_year, last_year + 1):
-        json_files = sorted(
-            glob.glob(
-                os.path.join(
-                    api_dir,
-                    f"dca_{ano}_[0-9][0-9][0-9][0-9][0-9][0-9][0-9].json",
-                )
-            )
-        )
-        if not json_files:
-            print(
-                f"  municipio_balanco_patrimonial {ano}: no API files, skipping"
-            )
-            continue
-
-        rows = []
-        for jpath in json_files:
-            df = load_api_json(jpath)
-            if df.empty:
-                continue
-            df = df[df["anexo"] == ANEXO].copy()
-            if df.empty:
-                continue
-            # Validate that coluna is end-of-year (balanco is a stock measure)
-            df = df[df["coluna"] == f"31/12/{ano}"].copy()
-            if df.empty:
-                continue
-            df = apply_conta_split(df, ano)
-            df["ano"] = str(ano)
-            rows.append(
-                df[
-                    [
-                        "id_municipio",
-                        "sigla_uf",
-                        "ano",
-                        "portaria",
-                        "conta",
-                        "valor",
-                    ]
-                ]
-            )
-
-        if not rows:
-            print(
-                f"  municipio_balanco_patrimonial {ano}: no data in API files, skipping"
-            )
-            continue
-
-        df_all = pd.concat(rows, ignore_index=True)
-        df_all["ano"] = str(ano)
-
-        # Merge key for balanco 2013+: ["ano", "portaria"]
-        chaves = ["ano", "portaria"]
-        df_all = df_all.merge(df_comp, how="left", on=chaves)
-
-        # Resolve conta conflict from merge (df has conta, comp also has conta)
-        if "conta_x" in df_all.columns:
-            df_all["conta"] = df_all["conta_x"]
-            df_all = df_all.drop(["conta_x", "conta_y"], axis=1)
-
-        df_all["conta"] = df_all["conta"].astype("string")
-        df_all = df_all.fillna("")
-        df_all["valor"] = pd.to_numeric(
-            df_all["valor"], errors="coerce"
-        ).astype("float")
-        df_all = df_all[ORDEM_MUNICIPIO_BALANCO]
-
+    # Balanco is a stock measure — keep only end-of-year snapshot
+    df = df[df["estagio"] == f"31/12/{ano}"].copy()
+    if df.empty:
         print(
-            f"  municipio_balanco_patrimonial {ano}: {len(df_all):,} rows from {len(json_files)} municipalities"
+            f"  municipio_balanco_patrimonial {ano}: no end-of-year data, skipping"
         )
-        partition_and_save(
-            df_all, "municipio_balanco_patrimonial", ano, path_dados
-        )
+        return pd.DataFrame()
+
+    df = apply_conta_split(df)
+    df["ano"] = str(ano)
+
+    chaves = ["ano", "portaria"]
+    df = df[
+        ["id_municipio", "sigla_uf", "ano", "portaria", "conta", "valor"]
+    ].merge(df_comp, how="left", on=chaves)
+    # Resolve conta conflict: keep the API's conta value
+    if "conta_x" in df.columns:
+        df["conta"] = df["conta_x"]
+        df = df.drop(["conta_x", "conta_y"], axis=1)
+
+    unmatched = get_unmatched(df, keys=("ano", "portaria", "conta"))
+    df["conta"] = df["conta"].astype("string")
+    df = df.fillna("")
+    df["valor"] = pd.to_numeric(df["valor"], errors="coerce").astype("float")
+    df = df[ORDEM_MUNICIPIO_BALANCO]
+
+    n = df["id_municipio"].nunique()
+    print(
+        f"  municipio_balanco_patrimonial {ano}: {len(df):,} rows from {n} municipalities"
+    )
+    partition_and_save(df, "municipio_balanco_patrimonial", ano, path_dados)
+    return unmatched
