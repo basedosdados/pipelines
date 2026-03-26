@@ -7,7 +7,6 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.datasets.br_ans_beneficiario.schedules import every_day_ans
 from pipelines.datasets.br_ans_beneficiario.tasks import (
     check_condition,
     check_if_update_date_is_today,
@@ -143,4 +142,4 @@ datasets_br_ans_beneficiario_flow.storage = GCS(
 datasets_br_ans_beneficiario_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-datasets_br_ans_beneficiario_flow.schedule = every_day_ans
+# datasets_br_ans_beneficiario_flow.schedule = every_day_ans
