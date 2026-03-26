@@ -1,4 +1,4 @@
--- Register ANS - 18/03/2026 10:28
+-- Register ANS - 26/03/2026 - 20:34
 {{
     config(
         schema="br_ans_beneficiario",
