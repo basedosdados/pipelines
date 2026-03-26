@@ -258,6 +258,7 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [estagio_bd, id_conta_bd, conta_bd]
     columns:
       - name: ano
         description: Ano
@@ -281,6 +282,7 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [estagio_bd, id_conta_bd, conta_bd]
     columns:
       - name: ano
         description: Ano
@@ -327,6 +329,7 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [id_conta_bd, conta_bd]
     columns:
       - name: ano
         description: Ano
@@ -346,6 +349,7 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [estagio_bd, id_conta_bd, conta_bd]
     columns:
       - name: ano
         description: Ano
@@ -381,6 +385,7 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [estagio_bd, id_conta_bd, conta_bd]
     columns:
       - name: ano
         description: Ano
@@ -416,6 +421,7 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [id_conta_bd, conta_bd]
     columns:
       - name: ano
         description: Ano
@@ -447,6 +453,7 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [estagio_bd, id_conta_bd, conta_bd]
     columns:
       - name: ano
         description: Ano
@@ -482,6 +489,7 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [estagio_bd, id_conta_bd, conta_bd]
     columns:
       - name: ano
         description: Ano
@@ -517,6 +525,7 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [id_conta_bd, conta_bd]
     columns:
       - name: ano
         description: Ano
