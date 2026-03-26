@@ -35,7 +35,7 @@ from tables_final.shared import _init_worker, process_year_task  # noqa: E402
 # ---------------------------------------------------------------------------
 # Table registry
 # (first_year, last_year, comp_file)
-# comp_file: compatibilizacao key used for missing-row error reports;
+# comp_file: crosswalk key used for missing-row error reports;
 #            empty string means no unmatched-row tracking for that table.
 # ---------------------------------------------------------------------------
 
@@ -144,8 +144,8 @@ def run_build(tables, path_dados, path_queries, workers, ano_filter):
                 _aggregate_unmatched(all_unmatched, ano_result)
 
     if all_unmatched:
-        print("\nERROR: unmatched rows — add these to compatibilizacao files:")
-        comp_dir = os.path.join(path_queries, "code", "compatibilizacao")
+        print("\nERROR: unmatched rows — add these to crosswalk files:")
+        comp_dir = os.path.join(path_queries, "code", "crosswalk")
         for comp_file, dfs in sorted(all_unmatched.items()):
             combined = (
                 pd.concat(dfs, ignore_index=True)

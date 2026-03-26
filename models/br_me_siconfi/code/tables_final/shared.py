@@ -161,8 +161,8 @@ ORDEM_BRASIL_VARIACOES = [
 # ---------------------------------------------------------------------------
 
 
-def load_compatibilizacao(path_queries):
-    comp_dir = os.path.join(path_queries, "code", "compatibilizacao")
+def load_crosswalk(path_queries):
+    comp_dir = os.path.join(path_queries, "code", "crosswalk")
     df_municipio = pd.read_excel(
         os.path.join(comp_dir, "municipio.xlsx"), dtype="string"
     )
@@ -296,7 +296,7 @@ def apply_conta_split_funcao(df):
 
 
 def get_unmatched(df, keys=("ano", "estagio", "portaria", "conta")):
-    """Return unique key combinations where compatibilizacao join found no match."""
+    """Return unique key combinations where crosswalk join found no match."""
     mask = df["_in_comp"].isna()
     if not mask.any():
         return pd.DataFrame()
@@ -433,12 +433,12 @@ def _init_worker(code_dir, path_queries):
 
     Runs once per worker process. Inserts code_dir into sys.path (needed when
     the OS uses 'spawn' to create worker processes, e.g. macOS Python 3.8+)
-    and loads the compatibilizacao tables into the module-level _comp cache.
+    and loads the crosswalk tables into the module-level _comp cache.
     """
     if code_dir not in sys.path:
         sys.path.insert(0, code_dir)
     global _comp, _created_dirs
-    _comp = load_compatibilizacao(path_queries)
+    _comp = load_crosswalk(path_queries)
     _created_dirs = set()
 
 
