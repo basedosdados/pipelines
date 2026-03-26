@@ -48,6 +48,7 @@ def download_file(real_file_id: str, sheet_name: str) -> pd.DataFrame:
 
             df = pd.read_excel(file, sheet_name, dtype=str)
             df.columns = df.columns.str.strip()
+
     except HttpError as error:
         print(f"An error occurred: {error}")
         file = None
@@ -69,7 +70,6 @@ def change_columns_name(url_architecture: str) -> dict[str, str]:
 
     url = url_architecture.replace("edit#gid=", "export?format=csv&gid=")
     # Coloca a arquitetura em um dataframe
-    print(url)
     df_architecture = pd.read_csv(
         StringIO(requests.get(url, timeout=10).content.decode("utf-8"))
     )
@@ -100,15 +100,80 @@ def change_columns_name(url_architecture: str) -> dict[str, str]:
 
 
 def capitalize(df: pd.DataFrame) -> pd.DataFrame:
+
+    mapping_columns = {
+        "cacs, clubes e federações": "Cacs, clubes e federações",
+        "Integ": "Integrantes da",
+        "uso institucional": "Uso institucional",
+        "Indústria": "Indústria",
+        "industria oem": "Indústria oem",
+        "integrantes órgãos públicos": "Integrantes Órgãos públicos",
+        "integrantes de orgãos públicos": "Integrantes Órgãos públicos",
+        "segurança privada": "Segurança privada",
+        "varejo": "Varejo",
+        "varejo/comércio": "Varejo",
+        "pessoa física": "Pessoa física",
+        "abin": "abin",
+        "agente abin": "abin",
+        "agente gsi": "gsi",
+        "gsi": "gsi",
+        "aeronautica": "aeronaútica",
+        "aeronaútica": "aeronaútica",
+        "bm": "bombeiro militar",
+        "bombeiros militar": "bombeiro militar",
+        "bombeiros militares": "bombeiro militar",
+        "exercito": "exército brasileiro",
+        "eb": "exército brasileiro",
+        "exército": "exército brasileiro",
+        "pm": "policial militar",
+        "policiais militares": "policial militar",
+        "Policial militar": "policial militar",
+        "pertimido": "permitido",
+        "munição marcada com lote": "munições marcadas com lote",
+        "integ gcm": "integrante gcm",
+        "instrut tiro pf-cbc": "instrutor de tiro pf-cbc",
+        "integr policiais e rm": "integrante policial e rm",
+        "uso institucional polícias": "uso institucional policial",
+        "usos institucionais policias": "uso institucional policial",
+        "uso institucional policias": "uso institucional policial",
+        "orgão publico": "órgão público",
+        "Atiradores ( cac)": "Atiradores (cac)",
+    }
+
     colunas = [
         "unidade",
-        "categoria_informada",
         "categoria_principal",
+        "categoria_informada",
         "macrocategoria",
+        "microcategoria_1",
+        "macrocategoria_1",
+        "microcategoria_2",
     ]
-    for cap in df.columns:
-        if cap in colunas:
-            df[cap] = df[cap].str.capitalize()
+
+    cols_existentes = [c for c in colunas if c in df.columns]
+    cols_sem_informada = [
+        c for c in cols_existentes if c != "categoria_informada"
+    ]
+
+    df[cols_sem_informada] = (
+        df[cols_sem_informada]
+        .apply(lambda s: s.str.lower().str.strip())
+        .replace(mapping_columns)
+    )
+
+    df[cols_existentes] = df[cols_existentes].apply(
+        lambda s: s.astype("string").str.capitalize()
+    )
+
+    if "id_regiao_militar" in df.columns:
+        df["id_regiao_militar"] = (
+            df["id_regiao_militar"]
+            .astype(str)
+            .str.replace("ª RM", "", regex=False)
+            .str.replace("RM", "", regex=False)
+            .replace("nan", np.nan, regex=False)
+            .str.strip()
+        )
 
     return df
 
@@ -125,10 +190,6 @@ def consolidado(df: pd.DataFrame) -> pd.DataFrame:
         .replace("nan", np.nan)
     )
 
-    # consolidade = set(df['consolidado'].unique())
-    # breakpoint()
-    # assert consolidade == {False, True}
-
     return df
 
 
@@ -137,15 +198,12 @@ def column_br(df: pd.DataFrame) -> pd.DataFrame:
         if "Z - BR" in df["sigla_uf"].unique():
             df["sigla_uf"] = df["sigla_uf"].str.strip()
 
-            df["pais"] = df["sigla_uf"].apply(
-                lambda x: "BR" if x in ("Z - BR", "Z- BR") else None
-            )
-
             df["sigla_uf"] = (
                 df["sigla_uf"]
                 .astype(str)
                 .str.replace(" ", "", regex=False)
-                .replace("Z-BR", np.nan)
+                .replace("Z-BR", "BR")
+                .replace("nan", np.nan)
             )
 
     return df
@@ -164,5 +222,11 @@ def fix_quant(df: pd.DataFrame) -> pd.DataFrame:
     df["quantidade"] = (
         df["quantidade"].replace("-", str(np.nan)).replace("0*", (np.nan))
     )
+
+    return df
+
+
+def where_not_null(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.dropna(subset=["ano", "periodo", "quantidade"])
 
     return df

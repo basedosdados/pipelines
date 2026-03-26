@@ -1,111 +1,126 @@
-import models.br_sou_da_paz_armas_municoes.code.armas_acervo_cac as armas_acervo_cac
-import models.br_sou_da_paz_armas_municoes.code.armas_acervo_outras_categorias as armas_acervo_outras_categorias
-import models.br_sou_da_paz_armas_municoes.code.armas_destruidas as armas_destruidas
-import models.br_sou_da_paz_armas_municoes.code.armas_novas_outras_categorias as armas_novas_outras_categorias
-import models.br_sou_da_paz_armas_municoes.code.entidades_novas as entidades_novas
-import models.br_sou_da_paz_armas_municoes.code.entidades_registro_ativo as entidades_registro_ativo
-import models.br_sou_da_paz_armas_municoes.code.lojas_novas as lojas_novas
-import models.br_sou_da_paz_armas_municoes.code.lojas_registro_ativo as lojas_registro_ativo
-import models.br_sou_da_paz_armas_municoes.code.municoes as municoes
+import models.br_sou_da_paz_armas_municoes.code.acervo_arma_cac as acervo_arma_cac
+import models.br_sou_da_paz_armas_municoes.code.descarte.acervo_arma_outras_categorias_exercito_brasileiro as acervo_arma_outras_categorias_exercito_brasileiro
+import models.br_sou_da_paz_armas_municoes.code.destruicao_exercito_brasileiro as destruicao_exercito_brasileiro
+import models.br_sou_da_paz_armas_municoes.code.municao_vendida as municao_vendida
+import models.br_sou_da_paz_armas_municoes.code.nova_arma_cac as nova_arma_cac
+import models.br_sou_da_paz_armas_municoes.code.nova_arma_outras_categorias_exercito_brasileiro as nova_arma_outras_categorias_exercito_brasileiro
+import models.br_sou_da_paz_armas_municoes.code.nova_arma_registro_cac as nova_arma_registro_cac
+import models.br_sou_da_paz_armas_municoes.code.nova_entidade_exercito_brasileiro as nova_entidade_exercito_brasileiro
+import models.br_sou_da_paz_armas_municoes.code.nova_loja_exercito_brasileiro as nova_loja_exercito_brasileiro
+import models.br_sou_da_paz_armas_municoes.code.novo_registro_policia_federal as novo_registro_policia_federal
 import models.br_sou_da_paz_armas_municoes.code.pessoa_fisica_cac as pessoa_fisica_cac
-import models.br_sou_da_paz_armas_municoes.code.pessoa_fisica_outras_categorais as pessoa_fisica_outras_categorais
-import models.br_sou_da_paz_armas_municoes.code.registros_ativos_cac as registros_ativos_cac
-import models.br_sou_da_paz_armas_municoes.code.registros_ativos_policia_federal as registros_ativos_policia_federal
-import models.br_sou_da_paz_armas_municoes.code.registros_novos_cac as registros_novos_cac
-import models.br_sou_da_paz_armas_municoes.code.registros_novos_policia_federal as registros_novos_policia_federal
+import models.br_sou_da_paz_armas_municoes.code.pessoa_fisica_outras_categorias_exercito_brasileiro as pessoa_fisica_outras_categorias_exercito_brasileiro
+import models.br_sou_da_paz_armas_municoes.code.pessoa_fisica_policia_federal as pessoa_fisica_policia_federal
+import models.br_sou_da_paz_armas_municoes.code.registro_ativo_cac as registro_ativo_cac
+import models.br_sou_da_paz_armas_municoes.code.registro_ativo_entidade_exercito_brasileiro as registro_ativo_entidade_exercito_brasileiro
+import models.br_sou_da_paz_armas_municoes.code.registro_ativo_loja_exercito_brasileiro as registro_ativo_loja_exercito_brasileiro
+import models.br_sou_da_paz_armas_municoes.code.registro_ativo_policia_federal as registro_ativo_policia_federal
+import models.br_sou_da_paz_armas_municoes.code.registro_emitido_policia_federal as registro_emitido_policia_federal
+import models.br_sou_da_paz_armas_municoes.code.registro_vencido_exercito_brasileiro as registro_vencido_exercito_brasileiro
+import models.br_sou_da_paz_armas_municoes.code.visita_fiscalizacao_exercito_brasileiro as visita_fiscalizacao_exercito_brasileiro
 from models.br_sou_da_paz_armas_municoes.code.constants import constants
 
 if __name__ == "__main__":
-    armas_acervo_cac.armas_acervo_cac(
-        real_file_id=constants.tabelas.value["armas_acervo_cac"][
+    acervo_arma_cac.acervo_arma_cac(
+        real_file_id=constants.tabelas.value["acervo_arma_cac"][
             "real_file_id"
         ],
-        sheet_name=constants.tabelas.value["armas_acervo_cac"]["sheet_name"],
-        url_architecture=constants.tabelas.value["armas_acervo_cac"][
+        sheet_name=constants.tabelas.value["acervo_arma_cac"]["sheet_name"],
+        url_architecture=constants.tabelas.value["acervo_arma_cac"][
             "url_architecture"
         ],
     )
 
-    armas_acervo_outras_categorias.armas_acervo_outras_categorias(
-        real_file_id=constants.tabelas.value["armas_acervo_outras_categorias"][
-            "real_file_id"
-        ],
-        sheet_name=constants.tabelas.value["armas_acervo_outras_categorias"][
-            "sheet_name"
-        ],
+    acervo_arma_outras_categorias_exercito_brasileiro.acervo_arma_outras_categorias_exercito_brasileiro(
+        real_file_id=constants.tabelas.value[
+            "acervo_arma_outras_categorias_exercito_brasileiro"
+        ]["real_file_id"],
+        sheet_name=constants.tabelas.value[
+            "acervo_arma_outras_categorias_exercito_brasileiro"
+        ]["sheet_name"],
         url_architecture=constants.tabelas.value[
-            "armas_acervo_outras_categorias"
+            "acervo_arma_outras_categorias_exercito_brasileiro"
         ]["url_architecture"],
     )
 
-    armas_destruidas.armas_destruidas(
-        real_file_id=constants.tabelas.value["armas_destruidas"][
+    destruicao_exercito_brasileiro.destruicao_exercito_brasileiro(
+        real_file_id=constants.tabelas.value["destruicao_exercito_brasileiro"][
             "real_file_id"
         ],
-        sheet_name=constants.tabelas.value["armas_destruidas"]["sheet_name"],
-        url_architecture=constants.tabelas.value["armas_destruidas"][
-            "url_architecture"
-        ],
-    )
-
-    armas_novas_outras_categorias.armas_novas_outras_categorias(
-        real_file_id=constants.tabelas.value["armas_novas_outras_categorias"][
-            "real_file_id"
-        ],
-        sheet_name=constants.tabelas.value["armas_novas_outras_categorias"][
+        sheet_name=constants.tabelas.value["destruicao_exercito_brasileiro"][
             "sheet_name"
         ],
         url_architecture=constants.tabelas.value[
-            "armas_novas_outras_categorias"
+            "destruicao_exercito_brasileiro"
         ]["url_architecture"],
     )
 
-    entidades_novas.entidades_novas(
-        real_file_id=constants.tabelas.value["entidades_novas"][
-            "real_file_id"
-        ],
-        sheet_name=constants.tabelas.value["entidades_novas"]["sheet_name"],
-        url_architecture=constants.tabelas.value["entidades_novas"][
-            "url_architecture"
-        ],
+    nova_arma_outras_categorias_exercito_brasileiro.nova_arma_outras_categorias_exercito_brasileiro(
+        real_file_id=constants.tabelas.value[
+            "nova_arma_outras_categorias_exercito_brasileiro"
+        ]["real_file_id"],
+        sheet_name=constants.tabelas.value[
+            "nova_arma_outras_categorias_exercito_brasileiro"
+        ]["sheet_name"],
+        url_architecture=constants.tabelas.value[
+            "nova_arma_outras_categorias_exercito_brasileiro"
+        ]["url_architecture"],
     )
 
-    entidades_registro_ativo.entidades_registro_ativo(
-        real_file_id=constants.tabelas.value["entidades_registro_ativo"][
+    nova_entidade_exercito_brasileiro.nova_entidade_exercito_brasileiro(
+        real_file_id=constants.tabelas.value[
+            "nova_entidade_exercito_brasileiro"
+        ]["real_file_id"],
+        sheet_name=constants.tabelas.value[
+            "nova_entidade_exercito_brasileiro"
+        ]["sheet_name"],
+        url_architecture=constants.tabelas.value[
+            "nova_entidade_exercito_brasileiro"
+        ]["url_architecture"],
+    )
+
+    registro_ativo_entidade_exercito_brasileiro.registro_ativo_entidade_exercito_brasileiro(
+        real_file_id=constants.tabelas.value[
+            "registro_ativo_entidade_exercito_brasileiro"
+        ]["real_file_id"],
+        sheet_name=constants.tabelas.value[
+            "registro_ativo_entidade_exercito_brasileiro"
+        ]["sheet_name"],
+        url_architecture=constants.tabelas.value[
+            "registro_ativo_entidade_exercito_brasileiro"
+        ]["url_architecture"],
+    )
+
+    nova_loja_exercito_brasileiro.nova_loja_exercito_brasileiro(
+        real_file_id=constants.tabelas.value["nova_loja_exercito_brasileiro"][
             "real_file_id"
         ],
-        sheet_name=constants.tabelas.value["entidades_registro_ativo"][
+        sheet_name=constants.tabelas.value["nova_loja_exercito_brasileiro"][
             "sheet_name"
         ],
-        url_architecture=constants.tabelas.value["entidades_registro_ativo"][
-            "url_architecture"
-        ],
+        url_architecture=constants.tabelas.value[
+            "nova_loja_exercito_brasileiro"
+        ]["url_architecture"],
     )
 
-    lojas_novas.lojas_novas(
-        real_file_id=constants.tabelas.value["lojas_novas"]["real_file_id"],
-        sheet_name=constants.tabelas.value["lojas_novas"]["sheet_name"],
-        url_architecture=constants.tabelas.value["lojas_novas"][
-            "url_architecture"
-        ],
+    registro_ativo_loja_exercito_brasileiro.registro_ativo_loja_exercito_brasileiro(
+        real_file_id=constants.tabelas.value[
+            "registro_ativo_loja_exercito_brasileiro"
+        ]["real_file_id"],
+        sheet_name=constants.tabelas.value[
+            "registro_ativo_loja_exercito_brasileiro"
+        ]["sheet_name"],
+        url_architecture=constants.tabelas.value[
+            "registro_ativo_loja_exercito_brasileiro"
+        ]["url_architecture"],
     )
 
-    lojas_registro_ativo.lojas_registro_ativo(
-        real_file_id=constants.tabelas.value["lojas_registro_ativo"][
+    municao_vendida.municao_vendida(
+        real_file_id=constants.tabelas.value["municao_vendida"][
             "real_file_id"
         ],
-        sheet_name=constants.tabelas.value["lojas_registro_ativo"][
-            "sheet_name"
-        ],
-        url_architecture=constants.tabelas.value["lojas_registro_ativo"][
-            "url_architecture"
-        ],
-    )
-
-    municoes.municoes(
-        real_file_id=constants.tabelas.value["municoes"]["real_file_id"],
-        sheet_name=constants.tabelas.value["municoes"]["sheet_name"],
-        url_architecture=constants.tabelas.value["municoes"][
+        sheet_name=constants.tabelas.value["municao_vendida"]["sheet_name"],
+        url_architecture=constants.tabelas.value["municao_vendida"][
             "url_architecture"
         ],
     )
@@ -120,62 +135,116 @@ if __name__ == "__main__":
         ],
     )
 
-    pessoa_fisica_outras_categorais.pessoa_fisica_outras_categorais(
+    pessoa_fisica_outras_categorias_exercito_brasileiro.pessoa_fisica_outras_categorias_exercito_brasileiro(
         real_file_id=constants.tabelas.value[
-            "pessoa_fisica_outras_categorais"
+            "pessoa_fisica_outras_categorias_exercito_brasileiro"
         ]["real_file_id"],
-        sheet_name=constants.tabelas.value["pessoa_fisica_outras_categorais"][
-            "sheet_name"
-        ],
+        sheet_name=constants.tabelas.value[
+            "pessoa_fisica_outras_categorias_exercito_brasileiro"
+        ]["sheet_name"],
         url_architecture=constants.tabelas.value[
-            "pessoa_fisica_outras_categorais"
+            "pessoa_fisica_outras_categorias_exercito_brasileiro"
         ]["url_architecture"],
     )
 
-    registros_ativos_cac.registros_ativos_cac(
-        real_file_id=constants.tabelas.value["registros_ativos_cac"][
+    registro_ativo_cac.registro_ativo_cac(
+        real_file_id=constants.tabelas.value["registro_ativo_cac"][
             "real_file_id"
         ],
-        sheet_name=constants.tabelas.value["registros_ativos_cac"][
-            "sheet_name"
-        ],
-        url_architecture=constants.tabelas.value["registros_ativos_cac"][
+        sheet_name=constants.tabelas.value["registro_ativo_cac"]["sheet_name"],
+        url_architecture=constants.tabelas.value["registro_ativo_cac"][
             "url_architecture"
         ],
     )
 
-    registros_ativos_policia_federal.registros_ativos_policia_federal(
-        real_file_id=constants.tabelas.value[
-            "registros_ativos_policia_federal"
-        ]["real_file_id"],
-        sheet_name=constants.tabelas.value["registros_ativos_policia_federal"][
+    registro_ativo_policia_federal.registro_ativo_policia_federal(
+        real_file_id=constants.tabelas.value["registro_ativo_policia_federal"][
+            "real_file_id"
+        ],
+        sheet_name=constants.tabelas.value["registro_ativo_policia_federal"][
             "sheet_name"
         ],
         url_architecture=constants.tabelas.value[
-            "registros_ativos_policia_federal"
+            "registro_ativo_policia_federal"
         ]["url_architecture"],
     )
 
-    registros_novos_cac.registros_novos_cac(
-        real_file_id=constants.tabelas.value["registros_novos_cac"][
+    nova_arma_registro_cac.nova_arma_registro_cac(
+        real_file_id=constants.tabelas.value["nova_arma_registro_cac"][
             "real_file_id"
         ],
-        sheet_name=constants.tabelas.value["registros_novos_cac"][
+        sheet_name=constants.tabelas.value["nova_arma_registro_cac"][
             "sheet_name"
         ],
-        url_architecture=constants.tabelas.value["registros_novos_cac"][
+        url_architecture=constants.tabelas.value["nova_arma_registro_cac"][
             "url_architecture"
         ],
     )
 
-    registros_novos_policia_federal.registros_novos_policia_federal(
-        real_file_id=constants.tabelas.value[
-            "registros_novos_policia_federal"
-        ]["real_file_id"],
-        sheet_name=constants.tabelas.value["registros_novos_policia_federal"][
+    novo_registro_policia_federal.novo_registro_policia_federal(
+        real_file_id=constants.tabelas.value["novo_registro_policia_federal"][
+            "real_file_id"
+        ],
+        sheet_name=constants.tabelas.value["novo_registro_policia_federal"][
             "sheet_name"
         ],
         url_architecture=constants.tabelas.value[
-            "registros_novos_policia_federal"
+            "novo_registro_policia_federal"
+        ]["url_architecture"],
+    )
+
+    nova_arma_cac.nova_arma_cac(
+        real_file_id=constants.tabelas.value["nova_arma_cac"]["real_file_id"],
+        sheet_name=constants.tabelas.value["nova_arma_cac"]["sheet_name"],
+        url_architecture=constants.tabelas.value["nova_arma_cac"][
+            "url_architecture"
+        ],
+    )
+
+    pessoa_fisica_policia_federal.pessoa_fisica_policia_federal(
+        real_file_id=constants.tabelas.value["pessoa_fisica_policia_federal"][
+            "real_file_id"
+        ],
+        sheet_name=constants.tabelas.value["pessoa_fisica_policia_federal"][
+            "sheet_name"
+        ],
+        url_architecture=constants.tabelas.value[
+            "pessoa_fisica_policia_federal"
+        ]["url_architecture"],
+    )
+
+    registro_emitido_policia_federal.registro_emitido_policia_federal(
+        real_file_id=constants.tabelas.value[
+            "registro_emitido_policia_federal"
+        ]["real_file_id"],
+        sheet_name=constants.tabelas.value["registro_emitido_policia_federal"][
+            "sheet_name"
+        ],
+        url_architecture=constants.tabelas.value[
+            "registro_emitido_policia_federal"
+        ]["url_architecture"],
+    )
+
+    registro_vencido_exercito_brasileiro.registro_vencido_exercito_brasileiro(
+        real_file_id=constants.tabelas.value[
+            "registro_vencido_exercito_brasileiro"
+        ]["real_file_id"],
+        sheet_name=constants.tabelas.value[
+            "registro_vencido_exercito_brasileiro"
+        ]["sheet_name"],
+        url_architecture=constants.tabelas.value[
+            "registro_vencido_exercito_brasileiro"
+        ]["url_architecture"],
+    )
+
+    visita_fiscalizacao_exercito_brasileiro.visita_fiscalizacao_exercito_brasileiro(
+        real_file_id=constants.tabelas.value[
+            "visita_fiscalizacao_exercito_brasileiro"
+        ]["real_file_id"],
+        sheet_name=constants.tabelas.value[
+            "visita_fiscalizacao_exercito_brasileiro"
+        ]["sheet_name"],
+        url_architecture=constants.tabelas.value[
+            "visita_fiscalizacao_exercito_brasileiro"
         ]["url_architecture"],
     )

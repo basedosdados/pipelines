@@ -7,13 +7,10 @@ from models.br_sou_da_paz_armas_municoes.code.main import (
     create_output,
     download_file,
     fix_quant,
-    where_not_null,
 )
 
 
-def pessoa_fisica_cac(
-    real_file_id: str, sheet_name: str, url_architecture: str
-):
+def acervo_arma_cac(real_file_id: str, sheet_name: str, url_architecture: str):
 
     df = download_file(real_file_id=real_file_id, sheet_name=sheet_name)
 
@@ -25,12 +22,15 @@ def pessoa_fisica_cac(
     df = capitalize(df=df)
 
     df = consolidado(df=df)
+
     df = column_br(df=df)
+
     df = fix_quant(df=df)
-    df = where_not_null(df=df)
+
     create_output()
+
     df.to_csv(
-        constants.tabelas.value["pessoa_fisica_cac"]["save_table"],
+        constants.tabelas.value["acervo_arma_cac"]["save_table"],
         sep=",",
         encoding="utf-8",
         index=False,
@@ -38,12 +38,12 @@ def pessoa_fisica_cac(
 
 
 if __name__ == "__main__":
-    pessoa_fisica_cac(
-        real_file_id=constants.tabelas.value["pessoa_fisica_cac"][
+    acervo_arma_cac(
+        real_file_id=constants.tabelas.value["acervo_arma_cac"][
             "real_file_id"
         ],
-        sheet_name=constants.tabelas.value["pessoa_fisica_cac"]["sheet_name"],
-        url_architecture=constants.tabelas.value["pessoa_fisica_cac"][
+        sheet_name=constants.tabelas.value["acervo_arma_cac"]["sheet_name"],
+        url_architecture=constants.tabelas.value["acervo_arma_cac"][
             "url_architecture"
         ],
     )
