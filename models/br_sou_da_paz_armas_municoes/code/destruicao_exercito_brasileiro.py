@@ -1,7 +1,7 @@
 import warnings
 
 from models.br_sou_da_paz_armas_municoes.code.constants import constants
-from models.br_sou_da_paz_armas_municoes.code.main import (
+from models.br_sou_da_paz_armas_municoes.code.tasks import (
     capitalize,
     change_columns_name,
     column_br,
