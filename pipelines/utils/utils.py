@@ -5,7 +5,9 @@ General utilities for all pipelines.
 import base64
 import json
 import logging
+import os
 import zipfile
+from collections.abc import Generator
 from datetime import datetime
 from io import BytesIO
 from os import getenv, walk
@@ -765,3 +767,117 @@ def get_credentials_from_env(
     if scopes:
         cred = cred.with_scopes(scopes)
     return cred
+
+
+class DBTArtifactUploader:
+    """
+    Classe responsável por subir os artifacts do DBT (compiled e run) para um bucket GCS.
+
+    Comportamento:
+    - Em Kubernetes: sempre roda
+    - Local: só roda se enable_upload=True (para debug/testes)
+    - Sobrescreve apenas o diretório do modelo no bucket
+    """
+
+    # Constantes
+    DEFAULT_SOURCE_DIR = "target"
+    DEFAULT_SUBFOLDERS = ("compiled", "run")
+    DESTINATION_PREFIX = "dbt-artifacts"
+
+    def __init__(
+        self,
+        bucket_name: str = "basedosdados-dev",
+        user_project: str = "basedosdados-dev",
+        source_dir: str = DEFAULT_SOURCE_DIR,
+        subfolders: tuple = DEFAULT_SUBFOLDERS,
+        enable_upload: bool = False,  # debug local override
+    ):
+        self.bucket_name = bucket_name
+        self.user_project = user_project
+        self.source_dir = source_dir
+        self.subfolders = subfolders
+        self.enable_upload = enable_upload
+
+        self._client = None
+        self._bucket = None
+        self._deleted_prefixes: set[str] = set()
+
+    # Método principal
+    def run(self):
+        if not self._should_run():
+            log("Upload não rodou (não em Kubernetes e enable_upload=False)")
+            return
+
+        self._init_gcs()
+
+        log("Fazendo upload dos arquivos da pasta target gerada pelo DBT!")
+
+        for local_path in self._list_target_files():
+            relative_path = self._get_relative_path(local_path)
+            prefix = self._get_model_prefix(relative_path)
+
+            self._delete_if_needed(prefix)
+            self._upload_file(local_path, relative_path)
+
+    # Setup GCS
+    def _init_gcs(self):
+        self._client = storage.Client()
+        self._bucket = self._client.bucket(
+            bucket_name=self.bucket_name,
+            user_project=self.user_project,
+        )
+
+    # Lógica de execução
+    def _should_run(self) -> bool:
+        """
+        Controla se o upload deve rodar:
+        - Kubernetes: sempre True
+        - Local: apenas se enable_upload=True
+        """
+        if self._is_running_in_kubernetes():
+            return True
+        return self.enable_upload
+
+    def _is_running_in_kubernetes(self) -> bool:
+        return os.path.exists("/var/run/secrets/kubernetes.io")
+
+    # Listagem de arquivos a subir
+    def _list_target_files(self) -> Generator[str, None, None]:
+        for subfolder in self.subfolders:
+            full_path = os.path.join(self.source_dir, subfolder)
+
+            if not os.path.exists(full_path):
+                continue
+
+            for root, _, files in os.walk(full_path):
+                for file in files:
+                    yield os.path.join(root, file)
+
+    # Path helpers
+    def _get_relative_path(self, local_path: str) -> str:
+        return os.path.relpath(local_path, self.source_dir)
+
+    def _get_model_prefix(self, relative_path: str) -> str:
+        # último diretório do modelo
+        model_dir = os.path.dirname(relative_path)
+        return f"{self.DESTINATION_PREFIX}/{model_dir}/"
+
+    def _get_blob_path(self, relative_path: str) -> str:
+        return f"{self.DESTINATION_PREFIX}/{relative_path}"
+
+    # Deletar apenas se ainda não deletado
+    def _delete_if_needed(self, prefix: str):
+        if prefix in self._deleted_prefixes:
+            return
+        self._delete_prefix(prefix)
+        self._deleted_prefixes.add(prefix)
+
+    def _delete_prefix(self, prefix: str):
+        for blob in self._bucket.list_blobs(prefix=prefix):
+            blob.delete()
+
+    # Upload
+    def _upload_file(self, local_path: str, relative_path: str):
+        blob_path = self._get_blob_path(relative_path)
+        blob = self._bucket.blob(blob_path)
+        blob.upload_from_filename(local_path)
