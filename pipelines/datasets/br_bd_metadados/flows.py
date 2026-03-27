@@ -7,10 +7,6 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.datasets.br_bd_metadados.schedules import (
-    every_day_prefect_flow_runs,
-    every_day_prefect_flows,
-)
 from pipelines.datasets.br_bd_metadados.tasks import (
     crawler_flow_runs,
     crawler_flows,
@@ -81,7 +77,7 @@ bd_prefect_flow_runs.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_prefect_flow_runs.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-bd_prefect_flow_runs.schedule = every_day_prefect_flow_runs
+# bd_prefect_flow_runs.schedule = every_day_prefect_flow_runs
 
 
 with Flow(
@@ -138,4 +134,4 @@ with Flow(
 
 bd_prefect_flows.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 bd_prefect_flows.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-bd_prefect_flows.schedule = every_day_prefect_flows
+# bd_prefect_flows.schedule = every_day_prefect_flows
