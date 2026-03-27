@@ -24,7 +24,7 @@ def build(path_dados, path_queries, comp, year_data, ano):
 
     chaves = ["ano", "estagio", "portaria", "conta"]
     df = df[
-        ["id_uf", "sigla_uf", "ano", "estagio", "portaria", "conta", "valor"]
+        ["sigla_uf", "ano", "estagio", "portaria", "conta", "valor"]
     ].merge(df_comp, how="left", on=chaves)
     unmatched = get_unmatched(df)
     df["conta"] = df["conta"].astype("string")
@@ -32,7 +32,6 @@ def build(path_dados, path_queries, comp, year_data, ano):
     df["valor"] = pd.to_numeric(df["valor"], errors="coerce").astype("float")
     df = df[ORDEM_UF]
 
-    n = df["id_uf"].nunique()
-    print(f"  uf_despesas_funcao {ano}: {len(df):,} rows from {n} states")
+    print(f"  uf_despesas_funcao {ano}: {len(df):,} rows")
     partition_and_save(df, "uf_despesas_funcao", ano, path_dados)
     return unmatched

@@ -22,9 +22,6 @@ def build(path_dados, path_queries, comp, year_data, ano):
     df = df[ORDEM_UF_SIMPLES]
     df["valor"] = pd.to_numeric(df["valor"], errors="coerce").astype("float")
 
-    n = df["id_uf"].nunique()
-    print(
-        f"  uf_execucao_restos_pagar_funcao {ano}: {len(df):,} rows from {n} states"
-    )
+    print(f"  uf_execucao_restos_pagar_funcao {ano}: {len(df):,} rows")
     partition_and_save(df, "uf_execucao_restos_pagar_funcao", ano, path_dados)
     return pd.DataFrame()

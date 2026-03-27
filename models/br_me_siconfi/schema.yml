@@ -152,12 +152,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-      - name: id_uf
-        description: ID da Unidade da Federação
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__uf')
-              field: id_uf
       - name: estagio
         description: Estágio
       - name: portaria
@@ -187,12 +181,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-      - name: id_uf
-        description: ID da Unidade da Federação
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__uf')
-              field: id_uf
       - name: estagio
         description: Estágio
       - name: portaria
@@ -464,12 +452,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-      - name: id_uf
-        description: ID da Unidade da Federação
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__uf')
-              field: id_uf
       - name: estagio
         description: Estágio
       - name: portaria
@@ -500,12 +482,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-      - name: id_uf
-        description: ID da Unidade da Federação
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__uf')
-              field: id_uf
       - name: estagio
         description: Estágio
       - name: portaria
@@ -536,12 +512,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-      - name: id_uf
-        description: ID da Unidade da Federação
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__uf')
-              field: id_uf
       - name: portaria
         description: Portaria
       - name: conta
@@ -567,12 +537,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-      - name: id_uf
-        description: ID da Unidade da Federação
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__uf')
-              field: id_uf
       - name: estagio
         description: Estágio
       - name: portaria

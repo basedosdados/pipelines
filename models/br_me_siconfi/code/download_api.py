@@ -2,9 +2,9 @@
 Download raw SICONFI DCA data from the Tesouro Nacional API.
 
 Downloads all government levels: Brasil (ID=1), states (2-digit IDs),
-and municipalities (7-digit IDs) into one unified directory.
+and municipalities (7-digit IDs) into level-specific subdirectories.
 
-Each entity-year is saved as input/api/dca_{year}_{cod_ibge}.json.
+Each entity-year is saved as input/api/{brasil|uf|municipio}/dca_{year}_{cod_ibge}.json.
 Resumable: already-downloaded files are skipped automatically.
 
 API docs: https://apidatalake.tesouro.gov.br/docs/siconfi/
@@ -170,9 +170,17 @@ def run_worker(args, chunk_i, n_chunks, out_dir):
         if not cod_ibge:
             continue
 
+        n_digits = len(str(cod_ibge))
+        if n_digits == 1:
+            sub = "brasil"
+        elif n_digits == 2:
+            sub = "uf"
+        else:
+            sub = "municipio"
+
         for ano in years:
             done += 1
-            out_file = out_dir / f"dca_{ano}_{cod_ibge}.json"
+            out_file = out_dir / sub / f"dca_{ano}_{cod_ibge}.json"
 
             if out_file.exists() and not args.force:
                 skipped += 1
@@ -265,7 +273,8 @@ def main():
     out_dir = (
         Path(args.out_dir) if args.out_dir else script_dir / "input" / "api"
     )
-    out_dir.mkdir(parents=True, exist_ok=True)
+    for sub in ("brasil", "uf", "municipio"):
+        (out_dir / sub).mkdir(parents=True, exist_ok=True)
 
     if args.test:
         session = make_session()

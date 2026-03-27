@@ -66,7 +66,6 @@ ORDEM_BRASIL = [
 ORDEM_UF = [
     "ano",
     "sigla_uf",
-    "id_uf",
     "estagio",
     "portaria",
     "conta",
@@ -103,7 +102,6 @@ ORDEM_MUNICIPIO_SIMPLES = [
 ORDEM_UF_SIMPLES = [
     "ano",
     "sigla_uf",
-    "id_uf",
     "estagio",
     "portaria",
     "conta",
@@ -138,7 +136,6 @@ ORDEM_MUNICIPIO_VARIACOES = [
 ORDEM_UF_VARIACOES = [
     "ano",
     "sigla_uf",
-    "id_uf",
     "portaria",
     "conta",
     "id_conta_bd",
@@ -194,8 +191,12 @@ def load_crosswalk(path_queries):
 # ---------------------------------------------------------------------------
 
 
-def load_year_data(ano, api_dir):
+def load_year_data(ano, api_dir, levels=None):
     """Single-pass loader: read every JSON file for a year, partition by level/anexo.
+
+    Args:
+        levels: iterable of level names to load, e.g. {"uf", "brasil"}.
+                Defaults to all three: {"brasil", "uf", "municipio"}.
 
     Returns:
         {
@@ -206,7 +207,13 @@ def load_year_data(ano, api_dir):
 
     Returns {} if no JSON files exist for the year (e.g., pre-2013).
     """
-    json_files = sorted(glob.glob(os.path.join(api_dir, f"dca_{ano}_*.json")))
+    if levels is None:
+        levels = {"brasil", "uf", "municipio"}
+    json_files = sorted(
+        f
+        for lvl in levels
+        for f in glob.glob(os.path.join(api_dir, lvl, f"dca_{ano}_*.json"))
+    )
     buckets = {}
 
     for jpath in json_files:
@@ -220,8 +227,11 @@ def load_year_data(ano, api_dir):
         else:
             level = "municipio"
 
-        with open(jpath) as f:
-            d = json.load(f)
+        try:
+            with open(jpath) as f:
+                d = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            continue
         items = d["data"].get("items", [])
         if not items:
             continue
@@ -242,9 +252,8 @@ def load_year_data(ano, api_dir):
                 "sigla_uf",
             ]
         elif level == "uf":
-            df["id_uf"] = df["cod_ibge"].astype(str)
             df["sigla_uf"] = df["uf"].astype(str)
-            keep = ["estagio", "valor", "conta", "anexo", "id_uf", "sigla_uf"]
+            keep = ["estagio", "valor", "conta", "anexo", "sigla_uf"]
         else:
             keep = ["estagio", "valor", "conta", "anexo"]
 
@@ -456,7 +465,16 @@ def process_year_task(args):
     """
     ano, api_dir, path_dados, path_queries, table_configs = args
 
-    year_data = load_year_data(ano, api_dir)
+    needed_levels = set()
+    for table_name, _, _, _ in table_configs:
+        if table_name.startswith("municipio_"):
+            needed_levels.add("municipio")
+        elif table_name.startswith("uf_"):
+            needed_levels.add("uf")
+        elif table_name.startswith("brasil_"):
+            needed_levels.add("brasil")
+
+    year_data = load_year_data(ano, api_dir, levels=needed_levels or None)
     unmatched_by_comp = {}
 
     for table_name, first_year, last_year, comp_file in table_configs:
