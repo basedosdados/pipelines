@@ -55,7 +55,7 @@ models:
       +materialized: table
       +schema: br_anp_precos_combustiveis
     br_ans_beneficiario:
-      +materialized: incremental
+      +materialized: table
       +schema: br_ans_beneficiario
     br_b3_cotacoes:
       +materialized: table
