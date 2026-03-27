@@ -64,19 +64,16 @@ def change_columns_name(url_architecture: str) -> dict[str, str]:
     Returns:
         dict: com chaves sendo os nomes originais e valores sendo os nomes padronizados
     """
-    # Converte a URL de edição para um link de exportação em formato csv
 
     rename_columns = []
 
     url = url_architecture.replace("edit#gid=", "export?format=csv&gid=")
-    # Coloca a arquitetura em um dataframe
     df_architecture = pd.read_csv(
         StringIO(requests.get(url, timeout=10).content.decode("utf-8"))
     )
 
     df_architecture.columns = df_architecture.columns.str.strip()
 
-    # Cria um dicionário de nomes de colunas e tipos de dados a partir do dataframe df_architecture
     column_name_dict = dict(
         zip(
             df_architecture["original_name"],
@@ -96,10 +93,31 @@ def change_columns_name(url_architecture: str) -> dict[str, str]:
     return rename_columns, orderning_columns
 
 
-# df = change_columns_name(url_architecture='https://docs.google.com/spreadsheets/d/1awbiZiSUeyeG3j0wIuAT0m8iFBJ_YnffAnHLnN5qnmM/edit#gid=0')
-
-
 def capitalize(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Standardize and capitalize text values in DataFrame columns related to weapons and ammunition categories.
+
+    This function applies several transformations to the input DataFrame:
+    1. Converts specified columns to lowercase and strips whitespace
+    2. Replaces predefined text mappings to standardize category names
+    3. Capitalizes the first letter of each word in relevant columns
+    4. Cleans military region identifiers by removing "ª RM" and "RM" suffixes
+
+    Args:
+      df (pd.DataFrame): Input DataFrame containing columns with text values to be standardized.
+        Expected columns include: 'unidade', 'categoria_principal', 'categoria_informada',
+        'macrocategoria', 'microcategoria_1', 'macrocategoria_1', 'microcategoria_2',
+        and optionally 'id_regiao_militar'.
+
+    Returns:
+      pd.DataFrame: DataFrame with standardized and capitalized text values in the processed columns.
+
+    Notes:
+      - Only processes columns that exist in the input DataFrame
+      - The 'categoria_informada' column is not transformed to lowercase before mapping
+      - Military region IDs are converted to string type and whitespace is stripped
+      - NaN values in 'id_regiao_militar' are preserved as np.nan
+    """
 
     mapping_columns = {
         "cacs, clubes e federações": "Cacs, clubes e federações",
@@ -179,6 +197,21 @@ def capitalize(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def consolidado(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Convert and normalize the 'consolidado' column in the DataFrame.
+
+    Transforms the 'consolidado' column by:
+    1. Converting all values to strings
+    2. Removing diacritical marks (accents) using unidecode
+    3. Mapping string values to boolean: 'nao' -> False, 'sim' -> True
+    4. Preserving NaN values as NaN
+
+    Args:
+      df (pd.DataFrame): Input DataFrame containing a 'consolidado' column.
+
+    Returns:
+      pd.DataFrame: DataFrame with the normalized 'consolidado' column.
+    """
 
     df["consolidado"] = (
         df["consolidado"].apply(lambda x: str(x)).apply(unidecode)
@@ -194,6 +227,22 @@ def consolidado(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def column_br(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Standardize the 'sigla_uf' column by cleaning and normalizing state abbreviations.
+
+    This function processes the 'sigla_uf' column if it exists in the DataFrame by:
+    - Stripping whitespace from all values
+    - Removing internal spaces
+    - Converting 'Z-BR' entries to 'BR'
+    - Converting 'nan' string literals to actual NaN values
+
+    Args:
+      df (pd.DataFrame): Input DataFrame containing a 'sigla_uf' column.
+
+    Returns:
+      pd.DataFrame: DataFrame with standardized 'sigla_uf' values.
+    """
+
     if "sigla_uf" in df.columns:  # noqa: SIM102
         if "Z - BR" in df["sigla_uf"].unique():
             df["sigla_uf"] = df["sigla_uf"].str.strip()
@@ -212,6 +261,21 @@ def column_br(df: pd.DataFrame) -> pd.DataFrame:
 def create_output(
     output: str = "models/br_sou_da_paz_armas_municoes/output/",
 ) -> None:
+    """
+    Create an output directory if it does not already exist.
+
+    This function prints the full path of the output directory and creates it
+    with all necessary parent directories. If the directory already exists,
+    no error is raised.
+
+    Args:
+      output (str): The relative path to the output directory.
+        Defaults to "models/br_sou_da_paz_armas_municoes/output/".
+
+    Returns:
+      None
+    """
+
     print(f"{os.getcwd()}/{output}")
     os.makedirs(f"{os.getcwd()}/{output}", exist_ok=True)
 
@@ -219,6 +283,21 @@ def create_output(
 
 
 def fix_quant(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean and standardize the 'quantidade' column by replacing invalid values with NaN.
+
+    Replaces the string "-" and "0*" with NaN (np.nan) to handle missing or invalid
+    quantity values in the DataFrame.
+
+    Args:
+      df (pd.DataFrame): A DataFrame containing a 'quantidade' column with potentially
+                invalid values like "-" or "0*".
+
+    Returns:
+      pd.DataFrame: The input DataFrame with the 'quantidade' column cleaned, where
+            "-" and "0*" values have been replaced with NaN.
+    """
+
     df["quantidade"] = (
         df["quantidade"].replace("-", str(np.nan)).replace("0*", (np.nan))
     )
@@ -227,6 +306,20 @@ def fix_quant(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def where_not_null(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Remove rows with null values in key columns.
+
+    Filters out rows where 'ano', 'periodo', or 'quantidade' columns
+    contain missing (NaN) values.
+
+    Args:
+      df (pd.DataFrame): Input DataFrame to be filtered.
+
+    Returns:
+      pd.DataFrame: DataFrame with rows containing null values in 'ano',
+              'periodo', or 'quantidade' columns removed.
+    """
+
     df = df.dropna(subset=["ano", "periodo", "quantidade"])
 
     return df
