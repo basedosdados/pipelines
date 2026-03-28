@@ -775,23 +775,33 @@ class DBTArtifactUploader:
 
     Comportamento:
     - Em Kubernetes: sempre roda
-    - Local: só roda se enable_upload=True (para debug/testes)
-    - Sobrescreve apenas o diretório do modelo no bucket
+    - Local: só roda se enable_upload=True
+    - Estrutura no GCS:
+        dbt-artifacts/{dataset_id}/{table_id}/{target}/{subfolder}/{filename}
+    - Deleção ocorre apenas no nível de dataset_id/table_id/target
     """
 
     # Constantes
     DEFAULT_SOURCE_DIR = "target"
     DEFAULT_SUBFOLDERS = ("compiled", "run")
     DESTINATION_PREFIX = "dbt-artifacts"
+    DEFAULT_TARGET = "dev"
 
     def __init__(
         self,
+        dataset_id: str,
+        table_id: str,
+        target: str = DEFAULT_TARGET,
         bucket_name: str = "basedosdados-dev",
         user_project: str = "basedosdados-dev",
         source_dir: str = DEFAULT_SOURCE_DIR,
         subfolders: tuple = DEFAULT_SUBFOLDERS,
-        enable_upload: bool = False,  # debug local override
+        enable_upload: bool = False,
     ):
+        self.dataset_id = dataset_id
+        self.table_id = table_id
+        self.target = target
+
         self.bucket_name = bucket_name
         self.user_project = user_project
         self.source_dir = source_dir
@@ -810,14 +820,14 @@ class DBTArtifactUploader:
 
         self._init_gcs()
 
-        log("Fazendo upload dos arquivos da pasta target gerada pelo DBT!")
+        log("Fazendo upload dos artifacts do DBT!")
 
-        for local_path in self._list_target_files():
-            relative_path = self._get_relative_path(local_path)
-            prefix = self._get_model_prefix(relative_path)
+        table_prefix = self._get_table_prefix()
+        self._delete_if_needed(table_prefix)
 
-            self._delete_if_needed(prefix)
-            self._upload_file(local_path, relative_path)
+        for local_path, subfolder in self._list_target_files():
+            filename = os.path.basename(local_path)
+            self._upload_file(local_path, subfolder, filename)
 
     # Setup GCS
     def _init_gcs(self):
@@ -829,11 +839,6 @@ class DBTArtifactUploader:
 
     # Lógica de execução
     def _should_run(self) -> bool:
-        """
-        Controla se o upload deve rodar:
-        - Kubernetes: sempre True
-        - Local: apenas se enable_upload=True
-        """
         if self._is_running_in_kubernetes():
             return True
         return self.enable_upload
@@ -841,8 +846,11 @@ class DBTArtifactUploader:
     def _is_running_in_kubernetes(self) -> bool:
         return os.path.exists("/var/run/secrets/kubernetes.io")
 
-    # Listagem de arquivos a subir
-    def _list_target_files(self) -> Generator[str, None, None]:
+    # Listagem de arquivos
+    def _list_target_files(self) -> Generator[tuple[str, str], None, None]:
+        """
+        Retorna (caminho_local, subfolder)
+        """
         for subfolder in self.subfolders:
             full_path = os.path.join(self.source_dir, subfolder)
 
@@ -851,21 +859,28 @@ class DBTArtifactUploader:
 
             for root, _, files in os.walk(full_path):
                 for file in files:
-                    yield os.path.join(root, file)
+                    yield os.path.join(root, file), subfolder
 
-    # Path helpers
-    def _get_relative_path(self, local_path: str) -> str:
-        return os.path.relpath(local_path, self.source_dir)
+    # Paths
+    def _get_table_prefix(self) -> str:
+        return (
+            f"{self.DESTINATION_PREFIX}/"
+            f"{self.dataset_id}/"
+            f"{self.table_id}/"
+            f"{self.target}/"
+        )
 
-    def _get_model_prefix(self, relative_path: str) -> str:
-        # último diretório do modelo
-        model_dir = os.path.dirname(relative_path)
-        return f"{self.DESTINATION_PREFIX}/{model_dir}/"
+    def _get_blob_path(self, subfolder: str, filename: str) -> str:
+        return (
+            f"{self.DESTINATION_PREFIX}/"
+            f"{self.dataset_id}/"
+            f"{self.table_id}/"
+            f"{self.target}/"
+            f"{subfolder}/"
+            f"{filename}"
+        )
 
-    def _get_blob_path(self, relative_path: str) -> str:
-        return f"{self.DESTINATION_PREFIX}/{relative_path}"
-
-    # Deletar apenas se ainda não deletado
+    # Deleção
     def _delete_if_needed(self, prefix: str):
         if prefix in self._deleted_prefixes:
             return
@@ -877,7 +892,7 @@ class DBTArtifactUploader:
             blob.delete()
 
     # Upload
-    def _upload_file(self, local_path: str, relative_path: str):
-        blob_path = self._get_blob_path(relative_path)
+    def _upload_file(self, local_path: str, subfolder: str, filename: str):
+        blob_path = self._get_blob_path(subfolder, filename)
         blob = self._bucket.blob(blob_path)
         blob.upload_from_filename(local_path)

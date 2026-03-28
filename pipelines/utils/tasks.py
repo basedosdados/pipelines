@@ -786,7 +786,9 @@ def run_dbt(
 
     finally:
         try:
-            DBTArtifactUploader().run()
+            DBTArtifactUploader(
+                dataset_id=dataset_id, table_id=table_id, target=target
+            ).run()
             log("DBT artifacts uploaded successfully.", level="info")
         except Exception as e:
             log(f"Failed to upload DBT artifacts: {e}", level="error")
