@@ -27,6 +27,7 @@ from prefect.client import Client
 from pipelines.constants import constants
 from pipelines.utils.metadata.utils import get_url
 from pipelines.utils.utils import (
+    DBTArtifactUploader,
     dump_header,
     get_credentials_from_secret,
     is_running_in_prod,
@@ -647,138 +648,150 @@ def run_dbt(
         ValueError: If dbt_command is invalid.
         FAIL: If dbt execution fails.
     """
-    if dbt_command not in ["run", "test", "run and test", "run/test"]:
-        raise ValueError(f"Invalid dbt_command: {dbt_command}")
+    try:
+        if dbt_command not in ["run", "test", "run and test", "run/test"]:
+            raise ValueError(f"Invalid dbt_command: {dbt_command}")
 
-    models_folder = Path("models") / dataset_id
+        models_folder = Path("models") / dataset_id
 
-    if table_id is not None:
-        if dbt_alias:
-            selected_table = models_folder / f"{dataset_id}__{table_id}.sql"
+        if table_id is not None:
+            if dbt_alias:
+                selected_table = (
+                    models_folder / f"{dataset_id}__{table_id}.sql"
+                )
+            else:
+                selected_table = models_folder / f"{table_id}.sql"
         else:
-            selected_table = models_folder / f"{table_id}.sql"
-    else:
-        selected_table = models_folder
+            selected_table = models_folder
 
-    # dbtRunner report success when model file dont exists
-    # We check if sql file exists
-    if not selected_table.is_dir() and not selected_table.exists():
-        msg = f"{selected_table.as_posix()} model file dont exists"
-        raise Exception(msg)
+        # dbtRunner report success when model file dont exists
+        # We check if sql file exists
+        if not selected_table.is_dir() and not selected_table.exists():
+            msg = f"{selected_table.as_posix()} model file dont exists"
+            raise Exception(msg)
 
-    if table_id is None and len(list(selected_table.iterdir())) == 0:
-        msg = f"{selected_table.as_posix()} is empty"
-        raise Exception(msg)
+        if table_id is None and len(list(selected_table.iterdir())) == 0:
+            msg = f"{selected_table.as_posix()} is empty"
+            raise Exception(msg)
 
-    vars_deserialize = (
-        json.loads(_vars)
-        if isinstance(_vars, str)
-        else (_vars if _vars is not None else {})
-    )
-    if target == "prod":
-        disable_elementary = True
-    variables = (
-        constants.DISABLE_ELEMENTARY_VARS.value
-        if disable_elementary
-        else constants.ENABLE_ELEMENTARY_VARS.value
-    )
-    variables = (
-        variables
-        if vars_deserialize is None
-        else {
-            **variables,
-            **vars_deserialize,
-        }
-    )
-    variables = get_flow_metadata(variables)
+        vars_deserialize = (
+            json.loads(_vars)
+            if isinstance(_vars, str)
+            else (_vars if _vars is not None else {})
+        )
+        if target == "prod":
+            disable_elementary = True
+        variables = (
+            constants.DISABLE_ELEMENTARY_VARS.value
+            if disable_elementary
+            else constants.ENABLE_ELEMENTARY_VARS.value
+        )
+        variables = (
+            variables
+            if vars_deserialize is None
+            else {
+                **variables,
+                **vars_deserialize,
+            }
+        )
+        variables = get_flow_metadata(variables)
 
-    commands_to_run = []
+        commands_to_run = []
 
-    if "run" in dbt_command:
-        commands_to_run.append("run")
-    if "test" in dbt_command:
-        commands_to_run.append("test")
+        if "run" in dbt_command:
+            commands_to_run.append("run")
+        if "test" in dbt_command:
+            commands_to_run.append("test")
 
-    log_file_path = os.path.join("logs", "dbt.log")
+        log_file_path = os.path.join("logs", "dbt.log")
 
-    if target == "prod":
-        with open("/credentials-prod/prod.json") as f:
-            service_account = json.loads(f.read())
-            project_id = service_account["project_id"]
-            client_email = service_account["client_email"]
-            log(
-                f"Service account for prod: project_id: `{project_id}`, client_email: `{client_email}`"
-            )
-
-    for cmd in commands_to_run:
-        cli_args = [
-            cmd,
-            "--select",
-            selected_table.as_posix(),
-            "--target",
-            target,
-        ]
-
-        if flags and flags.startswith("--full-refresh") and cmd == "run":
-            cli_args.insert(1, "--full-refresh")
-        elif flags:
-            cli_args.extend(flags.split())
-
-        cli_args.extend(["--vars", f"{json.dumps(variables)}"])
-
-        log(f"Executing dbt command: {' '.join(cli_args)}", level="info")
-
-        dbt_runner = dbtRunner()
-        result = dbt_runner.invoke(cli_args)
-
-        if result.success:
-            log(
-                f"DBT runner reports success for {cmd} command.\nJob Name: {variables['job_name']}\nJob ID: {variables['job_id']}\nJob Run ID: {variables['job_run_id']}",
-                level="info",
-            )
-        else:
-            log(
-                f"DBT runner reports failure for {cmd} command.\nJob Name: {variables['job_name']}\nJob ID: {variables['job_id']}\nJob Run ID: {variables['job_run_id']}",
-                level="error",
-            )
-
-        if os.path.exists(log_file_path):
-            log(f"Processing DBT log file: {log_file_path}", level="info")
-
-            logs_df = _process_dbt_log_file(log_file_path)
-
-            if not logs_df.empty:
+        if target == "prod":
+            with open("/credentials-prod/prod.json") as f:
+                service_account = json.loads(f.read())
+                project_id = service_account["project_id"]
+                client_email = service_account["client_email"]
                 log(
-                    f"Found {len(logs_df)} log entries in log file",
+                    f"Service account for prod: project_id: `{project_id}`, client_email: `{client_email}`"
+                )
+
+        for cmd in commands_to_run:
+            cli_args = [
+                cmd,
+                "--select",
+                selected_table.as_posix(),
+                "--target",
+                target,
+            ]
+
+            if flags and flags.startswith("--full-refresh") and cmd == "run":
+                cli_args.insert(1, "--full-refresh")
+            elif flags:
+                cli_args.extend(flags.split())
+
+            cli_args.extend(["--vars", f"{json.dumps(variables)}"])
+
+            log(f"Executing dbt command: {' '.join(cli_args)}", level="info")
+
+            dbt_runner = dbtRunner()
+            result = dbt_runner.invoke(cli_args)
+
+            if result.success:
+                log(
+                    f"DBT runner reports success for {cmd} command.\nJob Name: {variables['job_name']}\nJob ID: {variables['job_id']}\nJob Run ID: {variables['job_run_id']}",
                     level="info",
                 )
-
-                log_summary = _log_dbt_from_file(log_file_path)
-
-                model_status = _extract_model_execution_status_from_logs(
-                    logs_df
+            else:
+                log(
+                    f"DBT runner reports failure for {cmd} command.\nJob Name: {variables['job_name']}\nJob ID: {variables['job_id']}\nJob Run ID: {variables['job_run_id']}",
+                    level="error",
                 )
 
-                if len(model_status) > 0:
+            if os.path.exists(log_file_path):
+                log(f"Processing DBT log file: {log_file_path}", level="info")
+
+                logs_df = _process_dbt_log_file(log_file_path)
+
+                if not logs_df.empty:
                     log(
-                        f"Model execution status: {model_status}",
+                        f"Found {len(logs_df)} log entries in log file",
                         level="info",
                     )
 
-                if log_summary["error_count"] > 0 or not result.success:
-                    msg = f"DBT '{cmd}' command failed with {log_summary['error_count']} errors. See logs for details."
-                    raise Exception(msg)
-            else:
-                log("No log entries found in log file", level="warning")
-        else:
-            log(
-                f"DBT log file not found at {log_file_path}",
-                level="warning",
-            )
-            if not result.success:
-                raise Exception(result.result)
+                    log_summary = _log_dbt_from_file(log_file_path)
 
-    return True
+                    model_status = _extract_model_execution_status_from_logs(
+                        logs_df
+                    )
+
+                    if len(model_status) > 0:
+                        log(
+                            f"Model execution status: {model_status}",
+                            level="info",
+                        )
+
+                    if log_summary["error_count"] > 0 or not result.success:
+                        msg = f"DBT '{cmd}' command failed with {log_summary['error_count']} errors. See logs for details."
+                        raise Exception(msg)
+                else:
+                    log("No log entries found in log file", level="warning")
+            else:
+                log(
+                    f"DBT log file not found at {log_file_path}",
+                    level="warning",
+                )
+                if not result.success:
+                    raise Exception(result.result)
+
+        return True
+
+    finally:
+        try:
+            DBTArtifactUploader(
+                dataset_id=dataset_id, table_id=table_id, target=target
+            ).run()
+            log("DBT artifacts uploaded successfully.", level="info")
+        except Exception as e:
+            log(f"Failed to upload DBT artifacts: {e}", level="error")
 
 
 def _execute_query_in_bigquery(billing_project_id, query, path, location):
