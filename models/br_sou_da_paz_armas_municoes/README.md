@@ -1,4 +1,4 @@
-# Documentação relacionado ao Projeto de parceria entre a Base Dos Dados e Sou da Paz.
+# Documentação técnica do projeto desenvolvido em parceria entre a Base dos Dados e o Instituto Sou da Paz.
 
 ---
 
@@ -19,7 +19,7 @@ Após a validação, os dados tornam-se disponíveis no ambiente de desenvolvime
 
 Para que os dados sejam publicados na Base dos Dados e posteriormente consumidos pelo projeto da Sou da Paz, é necessário que um Analista ou Engenheiro com acesso à service account do grupo `subidores-de-dados` esteja disponível. Esse acesso é indispensável para autenticação e permissões de escrita tanto no Storage quanto no BigQuery.
 
-Com as credenciais devidamente configuradas, siga o fluxo abaixo:
+Com as credenciais e o repositório devidamente configurados, siga o fluxo abaixo:
 
 ### 1. Configuração do ambiente
 
@@ -58,8 +58,7 @@ uv run dbt test --select models/br_sou_da_paz_armas_municoes/
 
 Esse comando roda os testes definidos no projeto, validando integridade, consistência e regras de negócio das tabelas.
 
-> [!WARNING]
-
+> [!NOTE]
 > Como os modelos finais são materializados como views, qualquer atualização nos dados de origem ou ajustes nos dados será refletida automaticamente no projeto da Sou da Paz, sem necessidade de republicação manual adicional.
 
 ---
@@ -70,11 +69,12 @@ Esse comando roda os testes definidos no projeto, validando integridade, consist
   * Permissões concedidas:
     * Proprietário do projeto
 
-- **Subidor de dados** → Capaz de conectar as tabelas da BD no projeto da Sou da Paz e realizar consultas nestes dados (Thais, Malu e Nathalia)
+- **Subidor de dados** → Capaz de conectar as tabelas da BD no projeto da Sou da Paz e realizar consultas nestes dados
   * Permissões concedidas:
     * Leitor de dados do BigQuery
     * Leitor de metadados do BigQuery
     * Usuário de jobs do BigQuery
+    * Editor de dados BigQuery
 
 - **Analistas de dados** → Capaz de realizar consultas nos dados disponíveis
 
@@ -104,4 +104,5 @@ O disco da VM possui uma política de backup configurada para garantir a recuper
 - **Dia:** sexta-feira
 - **Horário:** entre 22:00 e 23:00
 
-Esses backups são realizados automaticamente e armazenados como snapshots do disco.
+> [!NOTE]
+> Esses backups são realizados automaticamente e armazenados como snapshots do disco.
