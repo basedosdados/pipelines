@@ -1,3 +1,7 @@
+import os
+
+import basedosdados as bd
+
 import models.br_sou_da_paz_armas_municoes.code.acervo_arma_cac as acervo_arma_cac
 import models.br_sou_da_paz_armas_municoes.code.acervo_arma_outras_categorias_exercito_brasileiro as acervo_arma_outras_categorias_exercito_brasileiro
 import models.br_sou_da_paz_armas_municoes.code.destruicao_exercito_brasileiro as destruicao_exercito_brasileiro
@@ -248,3 +252,18 @@ if __name__ == "__main__":
             "visita_fiscalizacao_exercito_brasileiro"
         ]["url_architecture"],
     )
+
+    for sub in os.listdir("models/br_sou_da_paz_armas_municoes/output"):
+        tb = bd.Table(
+            dataset_id="br_sou_da_paz_armas_municoes",
+            table_id=sub,
+        )
+
+        tb.create(
+            path=constants.tabelas.value[sub]["save_table"],
+            if_storage_data_exists="replace",
+            if_table_exists="replace",
+            source_format="csv",
+            dataset_is_public=False,
+            folder="sou_da_paz",
+        )

@@ -1,3 +1,5 @@
+import basedosdados as bd
+
 from models.br_sou_da_paz_armas_municoes.code.constants import constants
 from models.br_sou_da_paz_armas_municoes.code.tasks import (
     capitalize,
@@ -53,4 +55,19 @@ if __name__ == "__main__":
         url_architecture=constants.tabelas.value[
             "registro_vencido_exercito_brasileiro"
         ]["url_architecture"],
+    )
+    tb = bd.Table(
+        dataset_id="br_sou_da_paz_armas_municoes",
+        table_id="registro_vencido_exercito_brasileiro",
+    )
+
+    tb.create(
+        path=constants.tabelas.value["registro_vencido_exercito_brasileiro"][
+            "save_table"
+        ],
+        if_storage_data_exists="replace",
+        if_table_exists="replace",
+        source_format="csv",
+        dataset_is_public=False,
+        folder="sou_da_paz",
     )
