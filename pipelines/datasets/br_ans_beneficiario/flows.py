@@ -8,6 +8,7 @@ from prefect.storage import GCS
 from prefect.tasks.control_flow import merge
 
 from pipelines.constants import constants
+from pipelines.datasets.br_ans_beneficiario.schedules import every_day_ans
 from pipelines.datasets.br_ans_beneficiario.tasks import (
     crawler_ans,
     extract_links_and_dates,
@@ -48,7 +49,7 @@ with Flow(
         "update_metadata", default=False, required=False
     )
 
-    year = Parameter("year", default=None, required=False)
+    year = Parameter("year", required=False)
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
@@ -143,4 +144,4 @@ datasets_br_ans_beneficiario_flow.storage = GCS(
 datasets_br_ans_beneficiario_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-# datasets_br_ans_beneficiario_flow.schedule = every_day_ans
+datasets_br_ans_beneficiario_flow.schedule = every_day_ans
