@@ -4,9 +4,9 @@
 ---
 ## Resumo do Projeto
 
-O projeto contemplou a ingestão, padronização e disponibilização dos dados obtidos pela Sou da Paz via Lei de Acesso à Informação (LAI) no Data Lakehouse da Base dos Dados, seguindo rigorosamente os padrões de modelagem, qualidade e governança da organização. Os dados foram tratados, estruturados e validados com testes de qualidade implementados via dbt, garantindo integridade e confiabilidade ao longo de todo o pipeline.
+O projeto contemplou a ingestão, padronização e disponibilização dos dados obtidos pela Sou da Paz via Lei de Acesso à Informação (LAI) no Data Lakehouse da Base dos Dados, seguindo rigorosamente os padrões de modelagem, qualidade e governança da organização. Os dados foram tratados, estruturados e validados com testes de qualidade implementados via dbt, garantindo integridade e confiabilidade ao longo de todo o processo.
 
-A infraestrutura foi construída de forma a assegurar segurança e controle de acesso, com armazenamento no Google Cloud Storage e disponibilização controlada no ambiente analítico, acessível exclusivamente à equipe da Sou da Paz. Além disso, foi estruturado um Data Warehouse dedicado ao Instituto, integrado ao ambiente da Base dos Dados, permitindo o consumo eficiente e escalável das informações.
+A infraestrutura foi construída de forma a assegurar segurança e controle de acesso, com armazenamento no Google Cloud Storage e disponibilização controlada no ambiente analítico, acessível exclusivamente à equipe da Sou da Paz. Além disso, foi estruturado um Data Warehouse dedicado ao Instituto, integrado ao ambiente da Base dos Dados, permitindo o consumo eficiente e escalável dos dados.
 
 Por fim, os dados foram integrados ao Metabase, viabilizando a criação de dashboards e análises interativas.
 
