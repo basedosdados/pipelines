@@ -78,6 +78,17 @@ Esse comando roda os testes definidos no projeto, validando integridade, consist
 
 - **Analistas de dados** → Capaz de realizar consultas nos dados disponíveis
 
+
+## Quotas e Alertas
+
+Com o objetivo de garantir previsibilidade de custos e evitar surpresas ao final do mês, foram configuradas quotas e alertas no nível do projeto.
+
+No caso do BigQuery, foi definida uma quota diária de processamento de 150 GB. Esse limite pode ser ajustado pelo gestor do projeto conforme a evolução das demandas e necessidades da organização.
+
+Adicionalmente, foram implementados alertas de faturamento que são acionados quando o consumo atinge 50%, 80% e 100% do orçamento definido mensalmente. Essas notificações são enviadas aos administradores e ao proprietário do projeto, permitindo acompanhamento contínuo dos gastos.
+
+Com essa abordagem, asseguramos maior controle financeiro e visibilidade sobre o uso dos recursos ao longo do tempo.
+
 ---
 
 ## Estrutura da VM
@@ -86,7 +97,7 @@ A máquina virtual (VM) é o ambiente computacional responsável por hospedar o 
 
 Abaixo estão os detalhes da configuração atual:
 
-- **Nome da instância:** `metabase-sou-da-paz`
+- **Nome da máquina:** `metabase-sou-da-paz`
 - **Zona de hospedagem:** `us-central1-b`
 - **Sistema operacional:** `Linux (Debian 12)`
 - **Tipo de máquina:** `e2-small`
