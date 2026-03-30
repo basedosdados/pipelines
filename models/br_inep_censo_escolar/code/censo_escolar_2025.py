@@ -35,7 +35,7 @@ csv_path = (
     INPUT
     / "microdados_censo_escolar_2025"
     / "dados"
-    / "microdados_ed_basica_2025.csv"
+    / "Tabela_Escola_2025.csv"
 )
 
 
@@ -233,12 +233,12 @@ def column_order_and_selection(df, architecture):
 url_architecture = "https://docs.google.com/spreadsheets/d/1WmKRJjOmcG9uFL0LaBx4EwZUA_o2VpZK2MO3hFfTnmM/edit#gid=0"
 
 # %%
-censo = apply_architecture_to_dataframe(
+censo: pd.DataFrame = apply_architecture_to_dataframe(
     df=censo,
     url_architecture=url_architecture,
     apply_rename_columns=True,
-    apply_column_order_and_selection=True,
-    apply_include_missing_columns=True,
+    apply_column_order_and_selection=False,
+    apply_include_missing_columns=False,
 )
 
 # %%
@@ -258,25 +258,150 @@ cols_to_drop = [i for i in censo.columns if i not in bq_censo_cols]
 print(cols_to_drop)
 
 # %%
-censo: pd.DataFrame = censo.drop(columns=cols_to_drop)
+# censo: pd.DataFrame = censo.drop(columns=cols_to_drop)
 
 # %%
 assert len(bq_censo_cols) == len(censo.columns)
 
 # %%
 # Colunas nulas para adicionar porque elas não existem mais no censo de 2025
-cols_to_add = [i for i in bq_censo_cols if i not in censo.columns]
+# cols_to_add = [i for i in bq_censo_cols if i not in censo.columns]
+
+
+df_arch = read_architecture_table(url_architecture).drop(
+    columns=["Unnamed: 0", "Unnamed: 1"]
+)
+
+# Matricula
+
+csv_path_matricula = (
+    INPUT
+    / "microdados_censo_escolar_2025"
+    / "dados"
+    / "Tabela_Matricula_2025.csv"
+)
+
+detect_delimiter(csv_path_matricula)
+
+df_matricula: pd.DataFrame = pd.read_csv(
+    csv_path_matricula,
+    delimiter=";",
+    dtype="string",
+    encoding="iso-8859-1",
+)
+
+df_matricula.columns.to_list()
+
+coluns_to_get = [
+    i for i in df_arch["original_name"].to_list() if i in df_matricula.columns
+]
+
+renames_matricula = {
+    i["original_name"]: i["name"]
+    for i in df_arch[["name", "original_name"]].to_dict("records")
+    if i["original_name"] in df_matricula.columns
+}
+
+df_matricula = df_matricula[coluns_to_get].rename(
+    columns=renames_matricula, errors="raise"
+)
+
+
+# Turma
+
+csv_path_turma = (
+    INPUT / "microdados_censo_escolar_2025" / "dados" / "Tabela_Turma_2025.csv"
+)
+
+detect_delimiter(csv_path_turma)
+
+df_turma: pd.DataFrame = pd.read_csv(
+    csv_path_turma,
+    delimiter=";",
+    dtype="string",
+    encoding="iso-8859-1",
+)
+
+coluns_to_get_turma = [
+    i for i in df_arch["original_name"].to_list() if i in df_turma.columns
+]
+
+renames_turma = {
+    i["original_name"]: i["name"]
+    for i in df_arch[["name", "original_name"]].to_dict("records")
+    if i["original_name"] in df_turma.columns
+}
+
+df_turma = df_turma[coluns_to_get_turma].rename(
+    columns=renames_turma, errors="raise"
+)
+
+# Docente
+
+csv_path_docente = (
+    INPUT
+    / "microdados_censo_escolar_2025"
+    / "dados"
+    / "Tabela_Docente_2025.csv"
+)
+
+detect_delimiter(csv_path_docente)
+
+df_docente: pd.DataFrame = pd.read_csv(
+    csv_path_docente,
+    delimiter=";",
+    dtype="string",
+    encoding="iso-8859-1",
+)
+
+coluns_to_get_docente = [
+    i for i in df_arch["original_name"].to_list() if i in df_docente.columns
+]
+
+renames_docente = {
+    i["original_name"]: i["name"]
+    for i in df_arch[["name", "original_name"]].to_dict("records")
+    if i["original_name"] in df_docente.columns
+}
+
+df_docente = df_docente[coluns_to_get_docente].rename(
+    columns=renames_docente, errors="raise"
+)
+
+
+# Merge
+
+len(censo.columns)
+len(bq_censo_cols)
+
+censo_output = (
+    censo.merge(df_matricula, on="id_escola", how="left")
+    .merge(df_turma, on="id_escola", how="left")
+    .merge(df_docente.drop(columns=["ano"]), on="id_escola", how="left")
+)
+
+len(bq_censo_cols)
+
+cols_to_add = [i for i in bq_censo_cols if i not in censo_output.columns]
+
+for i in cols_to_add:
+    print(i)
 
 if len(cols_to_add) > 0:
-    censo[cols_to_add] = None
+    censo_output[cols_to_add] = None
 
-censo: pd.DataFrame = censo[bq_censo_cols]
+censo_output: pd.DataFrame = censo_output[bq_censo_cols]
+
+censo_output.loc[censo_output["ano"].isna()]
+
+censo_output["ano"].unique()
+censo_output["sigla_uf"].unique()
 
 # %%
 output_dir = OUTPUT / "escola" / "ano=2025"
 output_dir.mkdir(exist_ok=True, parents=True)
 # %%
-for sigla_uf, df_uf in censo.groupby("sigla_uf"):
+for sigla_uf, df_uf in censo_output.groupby("sigla_uf"):
     path = output_dir / f"sigla_uf={sigla_uf}"
     path.mkdir(exist_ok=True)
     df_uf.drop(columns=["ano", "sigla_uf"]).to_csv(
@@ -287,4 +412,8 @@ for sigla_uf, df_uf in censo.groupby("sigla_uf"):
 tb = bd.Table(dataset_id="br_inep_censo_escolar", table_id="escola")
 
 # %%
-tb.create(OUTPUT / "escola")
+tb.create(
+    OUTPUT / "escola",
+    if_table_exists="replace",
+    if_storage_data_exists="replace",
+)
