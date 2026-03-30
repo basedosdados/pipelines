@@ -47,13 +47,13 @@ Call `create_update_table` with:
 - `description_pt / en / es`: from step 0
 - `dataset_id`: from discover step (dataset must exist first — create if needed via `create_update_dataset`)
 - `status_id`: use `status.published` from discovered IDs
-- `published_by_ids`: skip — see TODO below
-- `data_cleaned_by_ids`: skip — see TODO below
+- `published_by_ids`: authenticated account ID (from `get_authenticated_account`)
+- `data_cleaned_by_ids`: authenticated account ID (from `get_authenticated_account`)
 - `id`: existing table ID if updating
 
 Do **not** pass `raw_data_source_ids` here — see step 8.
 
-> **TODO (M2M fields broken in `CreateUpdateTable`):** `raw_data_source_ids`, `published_by_ids`, and `data_cleaned_by_ids` are Django `ManyToManyField`s on the `Table` model. The auto-generated `CreateUpdateMutation` in `backend/custom/graphql_auto.py` delegates to `DjangoModelFormMutation`, which calls `form.save()` (via `get_form_kwargs` and `mutate_and_get_payload`) but the `perform_mutate` classmethod does **not** call `form.save_m2m()` afterwards. M2M assignments are therefore silently dropped on every call. `raw_data_source_ids` in step 8 may appear to work if the upstream `graphene-django` version happens to call `_save_m2m` internally, but `published_by_ids` and `data_cleaned_by_ids` reliably fail. The backend fix is to override `perform_mutate` in `CreateUpdateMutation` (in `graphql_auto.py`) to call `form.save_m2m()` after `form.save(commit=True)`. Until then, skip these two fields.
+> **Known issue (M2M fields in `CreateUpdateTable`):** `raw_data_source_ids`, `published_by_ids`, and `data_cleaned_by_ids` are Django `ManyToManyField`s. A fix was applied to `perform_mutate` in `backend/custom/graphql_auto.py` (using `form.save(commit=False)` + `form.save_m2m()`) and confirmed working locally, but as of 2026-03-30 the behavior on the dev backend is inconsistent — mutations succeed without error but M2M assignments are sometimes silently dropped. Pass these fields and verify in the admin; if they don't appear, it is a backend deployment/environment issue rather than a code problem.
 
 **Name translation:** If only Portuguese names are available, translate to English and Spanish:
 - Translate accurately using domain knowledge of Brazilian public finance / the relevant domain
@@ -132,7 +132,12 @@ Wrap in try/except — log failures but continue.
 ### 8. Link raw data sources (deferred update)
 
 Call `create_update_table` again with the same `id` and `slug`, passing only:
-- `raw_data_source_ids`: relevant sources from `get_raw_data_sources` (see step 1 for selection guidance)
+- `raw_data_source_ids`: select from `get_raw_data_sources` using the table's temporal coverage and broader context (e.g. what the raw source actually contains, whether the table topic existed before 2013):
+  - `start_year >= 2013` → include only the post-2013 source
+  - `start_year < 2013` → include both sources (pre-2013 and post-2013)
+  - When in doubt, cross-check with the raw source descriptions and the dataset documentation
+- `published_by_ids`: authenticated account ID (from `get_authenticated_account`)
+- `data_cleaned_by_ids`: authenticated account ID (from `get_authenticated_account`)
 
 All other fields must be re-passed as well (the API requires them). This deferred call ensures the table record is fully persisted before the relationship is written.
 
