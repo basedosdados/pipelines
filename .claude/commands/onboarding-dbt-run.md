@@ -13,7 +13,7 @@ Parse `--target` (default: dev) and `--tables` (default: all tables in the datas
 
 Check for `/tmp/dbt_env/bin/dbt`. If missing, create it:
 ```bash
-~/.pyenv/versions/3.11.6/bin/python -m venv /tmp/dbt_env
+python -m venv /tmp/dbt_env
 /tmp/dbt_env/bin/pip install dbt-bigquery
 ```
 
@@ -53,7 +53,7 @@ For each failing test:
 ## Step 5 — Report
 
 Output a summary:
-```
+```text
 Models:  X passed, Y failed
 Tests:   X passed, Y failed
 ```

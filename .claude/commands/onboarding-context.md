@@ -34,7 +34,7 @@ Present your findings and ask the user to confirm or fill in:
 
 Once all information is gathered, output a context block in this format for use by downstream skills:
 
-```
+```text
 === DATASET CONTEXT: <slug> ===
 Organization:      <org_slug>
 License:           <license_slug>

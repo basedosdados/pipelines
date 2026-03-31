@@ -35,7 +35,7 @@ gh pr create \
 ```
 
 PR body format:
-```
+```text
 ## Dataset
 **Slug:** <slug>
 **Tables:** <list>

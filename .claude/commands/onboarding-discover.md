@@ -13,7 +13,7 @@ Parse `--env` (default: dev) from arguments.
 
 Use the `discover_ids` MCP tool (env from argument):
 
-```
+```text
 discover_ids(env=<env>)
 ```
 
@@ -38,7 +38,7 @@ Use `get_raw_data_sources(dataset_slug=<dataset_slug>, env=<env>)` to find any r
 
 Output a block in this format:
 
-```
+```text
 === DISCOVERED IDs (env=<env>) ===
 
 Reference IDs:

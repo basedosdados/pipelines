@@ -15,7 +15,7 @@ All Data Basis backend API calls go through the `mcp` MCP server. Always use the
 
 The agent responds to natural-language onboarding requests. Canonical form:
 
-```
+```text
 Onboard dataset <slug>. Raw files at <path>. Drive folder: BD/Dados/Conjuntos/<slug>/.
 ```
 
@@ -25,7 +25,7 @@ Anything missing from the request is gathered in `onboarding-context` before pro
 
 Work through these steps in order. Do not skip steps. Use the corresponding skill for each step.
 
-```
+```text
 1. /onboarding-context       gather raw source URLs, docs, org, license, coverage
 2. /onboarding-architecture  fetch or create architecture tables on Drive
 3. /onboarding-clean         write and run data cleaning code → partitioned parquet
@@ -43,7 +43,7 @@ Work through these steps in order. Do not skip steps. Use the corresponding skil
 
 After step 8 succeeds, output a verification checklist and wait for explicit approval before promoting to prod:
 
-```
+```text
 ✓ Dataset registered in dev: <slug>
 ✓ Tables: <list>
 ✓ Columns: <counts>

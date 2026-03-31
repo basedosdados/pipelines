@@ -145,7 +145,7 @@ All other fields must be re-passed as well (the API requires them). This deferre
 
 After processing all tables, output:
 
-```
+```text
 === METADATA REGISTRATION COMPLETE (env=<env>) ===
 
 Dataset: <slug> (id=<id>)

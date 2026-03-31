@@ -239,7 +239,7 @@ dbt test --select models/<dataset_id>
 
 To onboard a new dataset (raw data → BigQuery → metadata), spawn the `onboarding` agent:
 
-```
+```text
 Onboard dataset <slug>. Raw files at <path>. Drive folder: BD/Dados/Conjuntos/<slug>/.
 ```
 

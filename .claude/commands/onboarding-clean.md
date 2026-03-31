@@ -11,7 +11,7 @@ Write and run data cleaning code for a Data Basis dataset.
 
 Work in a folder **external to the `pipelines/` repo**:
 
-```
+```text
 <dataset_root>/
 ├── input/          ← raw files (CSV, Excel, JSON, etc.) — do not modify
 ├── output/
