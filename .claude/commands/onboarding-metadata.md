@@ -68,6 +68,15 @@ For each entity in the table's observation level list (from architecture design 
 
 Track returned OL IDs — needed for column updates.
 
+**Ordering checkpoint:** After all OLs for this table are created, ask the human:
+
+```text
+OLs created for <table_slug>: <entity_slug_1>, <entity_slug_2>, ...
+Should I set a specific display order for these observation levels? If yes, reply with the desired order (e.g. "year, municipality, financing_account"). Otherwise reply "default" to skip.
+```
+
+Wait for the reply before proceeding. If the human specifies an order, call `reorder_observation_levels` with the corresponding OL IDs in the requested order.
+
 ### 3. Upload columns from architecture table
 
 Call `upload_columns_from_sheet` with:
@@ -140,6 +149,17 @@ Call `create_update_table` again with the same `id` and `slug`, passing only:
 - `data_cleaned_by_ids`: authenticated account ID (from `get_authenticated_account`)
 
 All other fields must be re-passed as well (the API requires them). This deferred call ensures the table record is fully persisted before the relationship is written.
+
+## Table ordering checkpoint
+
+After all tables are created/updated, ask the human:
+
+```text
+All tables registered for <dataset_slug>: <table_slug_1>, <table_slug_2>, ...
+Should I set a specific display order for these tables? If yes, reply with the desired order (one slug per line or comma-separated). Otherwise reply "default" to skip.
+```
+
+Wait for the reply. If the human specifies an order, call `reorder_tables` with the requested slug order.
 
 ## Summary output
 
