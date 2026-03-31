@@ -2,7 +2,6 @@
 General purpose functions for the br_inmet_bdmep project
 """
 
-import os
 import re
 import zipfile
 from datetime import datetime, time
@@ -10,7 +9,40 @@ from datetime import datetime, time
 import numpy as np
 import pandas as pd
 import requests
+from bs4 import BeautifulSoup
 from unidecode import unidecode
+
+from pipelines.datasets.br_inmet_bdmep.constants import ConstantsMicrodados
+from pipelines.utils.utils import log
+
+
+def get_latest_dowload_link() -> str:
+    try:
+        reponse = requests.get(ConstantsMicrodados.URL.value)
+
+        soup = BeautifulSoup(reponse.text, "html.parser")
+        latest_dowload_link = soup.select("article.post-preview a:last-child")[
+            -1
+        ].get("href")
+
+        return latest_dowload_link
+
+    except IndexError:
+        raise Exception(
+            "Nenhum link para download foi encontrado. Verifique o site e o select usado"
+        ) from None
+
+
+def get_date_from_path(path: str) -> datetime:
+    try:
+        match_data = re.compile(r"(\d{2}-\d{2}-\d{4})\.CSV$").search(path)
+        date = datetime.strptime(match_data.group(1), "%d-%m-%Y")
+        return date
+
+    except AttributeError:
+        raise Exception(
+            "O 'path' que foi passado não respeita mais o padrão estabecelido. Data não encontrada!"
+        ) from None
 
 
 def new_names(base: pd.DataFrame, oldname: str, newname: str):
@@ -200,54 +232,36 @@ def get_clima_info(file: str) -> pd.DataFrame:
     return clima
 
 
-def download_inmet(year: int) -> None:
+def download_inmet(latest_dowload_link: str) -> None:
     """
     Realiza o download dos dados históricos de uma determinado ano do INMET (Instituto Nacional de Meteorologia)
     e descompacta o arquivo em um diretório local.
 
     Args:
-        year (int): O ano para o qual deseja-se baixar os dados históricos.
+        latest_dowload_link (str): O link para o qual deseja-se baixar os dados históricos.
 
     Returns:
         None
     """
-    os.makedirs("/tmp/data/input/", exist_ok=True)
-    if year <= 2019:
-        url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
-        r = requests.get(url)
-        with open(f"/tmp/data/input/{year}.zip", "wb") as f:
-            f.write(r.content)
-        with zipfile.ZipFile(f"/tmp/data/input/{year}.zip", "r") as zip_ref:
-            zip_ref.extractall("/tmp/data/input")
-            os.remove(f"/tmp/data/input/{year}.zip")
 
-    else:
-        url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
-        if requests.get(url).status_code != 200:
-            year = year - 1
-            url = f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
-        r = requests.get(url)
-        with open(f"/tmp/data/input/{year}.zip", "wb") as f:
-            f.write(r.content)
-        with zipfile.ZipFile(f"/tmp/data/input/{year}.zip", "r") as zip_ref:
-            zip_ref.extractall(f"/tmp/data/input/{year}")
-            os.remove(f"/tmp/data/input/{year}.zip")
+    response = requests.get(latest_dowload_link, stream=True)
 
+    response.raise_for_status()
 
-def year_list(start=2000):
-    """
-    Retorna uma lista com uma sequência de anos, onde a última observação é sempre o ano mais atual.
+    save_path = (
+        ConstantsMicrodados.PATH_INPUT.value
+        / latest_dowload_link.split("/")[-1]
+    )
 
-    Args:
-    - inicio (int): o ano inicial da sequência (padrão: 2000)
+    ConstantsMicrodados.PATH_INPUT.value.mkdir(parents=True, exist_ok=True)
 
-    Returns:
-    - lista de inteiros: uma lista com uma sequência de anos que começa em "inicio" e termina no ano atual.
-    """
-    # Obter o ano atual
-    actual_year = datetime.now().year
+    log("Iniciando Download...")
 
-    # Criar uma lista com uma sequência de anos
-    years = [year for year in range(start, actual_year + 1)]
+    with open(save_path, "wb") as fd:
+        for chunk in response.iter_content(chunk_size=1024 * 1024):
+            fd.write(chunk)
 
-    return years
+    with zipfile.ZipFile(save_path) as z:
+        z.extractall(ConstantsMicrodados.PATH_INPUT.value)
+
+    log("Dados baixados.")

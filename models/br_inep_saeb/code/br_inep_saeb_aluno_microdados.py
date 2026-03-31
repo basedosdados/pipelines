@@ -183,10 +183,12 @@ upstream_2ano_columns = bd.read_sql(
 df_wide_2ano = (
     df_wide_2ano.rename(columns=renames_2ano, errors="raise")
     .assign(
-        sigla_uf=lambda d: d["id_uf"]
-        .astype("string")
-        .replace(
-            {i["id_uf"]: i["sigla"] for i in bd_dir_uf.to_dict("records")}
+        sigla_uf=lambda d: (
+            d["id_uf"]
+            .astype("string")
+            .replace(
+                {i["id_uf"]: i["sigla"] for i in bd_dir_uf.to_dict("records")}
+            )
         )
     )
     .drop(columns=["id_uf"])

@@ -18,7 +18,6 @@ from pipelines.datasets.br_denatran_frota.constants import (
 from pipelines.datasets.br_denatran_frota.utils import (
     DenatranType,
     call_downloader,
-    call_r_to_read_excel,
     change_df_header,
     download_file,
     extract_links_post_2012,
@@ -165,7 +164,11 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
         df = pd.read_excel(file, sheet_name=correct_sheet)
 
     except UnicodeDecodeError:
-        df = call_r_to_read_excel(file)
+        excel = pd.ExcelFile(file, engine="calamine")
+        correct_sheet = next(
+            name for name in excel.sheet_names if name != "Glossário"
+        )
+        df = pd.read_excel(excel, sheet_name=correct_sheet)
 
     new_df = change_df_header(
         df, guess_header(df=df, type_of_file=DenatranType.UF)

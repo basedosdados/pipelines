@@ -21,6 +21,7 @@ import hvac
 import numpy as np
 import pandas as pd
 import prefect
+import pyarrow.parquet as pq
 import requests
 from google.cloud import storage
 from google.cloud.storage.blob import Blob
@@ -591,7 +592,7 @@ def parser_blobs_to_partition_dict(blobs: list) -> dict:
     return partitions_dict
 
 
-def dump_header_to_csv(data_path: str | Path, source_format: str):
+def dump_header(data_path: str | Path, source_format: str):
     """
     Writes the header of a CSV or Parquet file to a new file.
 
@@ -637,7 +638,9 @@ def dump_header_to_csv(data_path: str | Path, source_format: str):
             break
 
     if file is None:
-        raise FileNotFoundError("No parquet or csv file found")
+        raise FileNotFoundError(
+            f"The function tried to find a {source_format} file type. This file tipe doesnt exist. Check if input source_format param is correct"
+        )
 
     save_header_path = f"data/{uuid4()}"
     # discover if it's a partitioned table
@@ -659,28 +662,30 @@ def dump_header_to_csv(data_path: str | Path, source_format: str):
     else:
         if source_format == "csv":
             save_header_file_path = Path(f"{save_header_path}/header.csv")
-            log(f"Do not found partition path: {save_header_file_path}")
+            log(f"Did not find partition path: {save_header_file_path}")
         elif source_format == "parquet":
             save_header_file_path = Path(f"{save_header_path}/header.parquet")
-            log(f"Do not found partition path: {save_header_file_path}")
+            log(f"Did not find partition path: {save_header_file_path}")
 
     # Create directory if it doesn't exist
     save_header_file_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Read just first row
     if source_format == "csv":
-        dataframe = pd.read_csv(file, nrows=1)
+        dataframe = pd.read_csv(file, nrows=1, dtype=str)
 
         # Write dataframe to CSV
         dataframe.to_csv(save_header_file_path, index=False, encoding="utf-8")
     elif source_format == "parquet":
-        dataframe = pd.read_parquet(file)
-        dataframe = dataframe.head(1)
+        # Read only the first row using pyarrow for memory efficiency
+        pf = pq.ParquetFile(file)
+        table = pf.read_row_group(0).slice(0, 1)
+        dataframe = table.to_pandas().astype(str)
 
         # Write dataframe to Parquet
         dataframe.to_parquet(save_header_file_path, index=False)
 
-    log(f"Wrote header Parquet: {save_header_file_path}")
+    log(f"Wrote header {source_format.upper()}: {save_header_file_path}")
     return save_header_path
 
 

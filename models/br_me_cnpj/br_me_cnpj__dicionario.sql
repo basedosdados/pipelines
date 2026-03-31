@@ -1,5 +1,5 @@
 {{ config(alias="dicionario", schema="br_me_cnpj") }}
-
+-- update 2026-02-12
 select
     safe_cast(id_tabela as string) id_tabela,
     safe_cast(nome_coluna as string) nome_coluna,

@@ -38,8 +38,9 @@ def download_files_from_bucket_folders(
 
     for folder in folders:
         # List blobs (files) within the specified folder in the bucket
-        blobs_in_bucket = storage_client.list_blobs(
-            "basedosdados-dev",
+        blobs_in_bucket = storage_client.bucket(
+            bucket_name="basedosdados-dev", user_project="basedosdados-dev"
+        ).list_blobs(
             prefix=f"staging/{dataset_id}/{table_id}/{folder}/",
         )
         blob_list = list(blobs_in_bucket)

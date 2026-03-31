@@ -49,11 +49,20 @@ class constants(Enum):
         "TO",
     ]
 
-    URL = "https://arquivos.receitafederal.gov.br/cnpj/dados_abertos_cnpj/?C=N;O=D"
+    URL = "https://arquivos.receitafederal.gov.br/public.php/dav/files/gn672Ad4CF8N6TK/Dados/Cadastros/CNPJ/"
 
     HEADERS = {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
+        "Depth": "1",
+        "Content-Type": "application/xml",
+        "Accept": "application/xml",
+        "User-Agent": "Mozilla/5.0",
     }
+
+    XML_BODY = """<?xml version="1.0" encoding="utf-8" ?>
+<d:propfind xmlns:d="DAV:">
+  <d:allprop/>
+</d:propfind>
+"""
 
     COLUNAS_EMPRESAS = [
         "cnpj_basico",

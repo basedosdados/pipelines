@@ -12,6 +12,7 @@
         labels={"tema": "economia"},
     )
 }}
+
 {%- set columns = adapter.get_columns_in_relation(this) -%}
 with
     microdados as (
@@ -452,9 +453,10 @@ with
         from {{ set_datalake_project("br_ibge_pnadc_staging.microdados") }} as t
         {% if is_incremental() %}
             where
-                safe_cast(ano as int64) > (select max(ano) from {{ this }})
-                and safe_cast(trimestre as int64)
-                > (select max(trimestre) from {{ this }})
+                date(safe_cast(ano as int64), safe_cast(trimestre as int64), 1) > (
+                    select max(date(cast(ano as int64), cast(trimestre as int64), 1))
+                    from {{ this }}
+                )
         {% endif %}
     )
 -- verifica se a coluna é do tipo STRING e, caso seja, limpa as observações que

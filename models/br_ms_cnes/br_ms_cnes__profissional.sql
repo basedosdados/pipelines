@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2005, "end": 2025, "interval": 1},
+            "range": {"start": 2005, "end": 2026, "interval": 1},
         },
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
@@ -57,7 +57,11 @@ with
                 when registro = 'nan' then null else safe_cast(registro as string)
             end as id_registro_conselho,
             case
-                when conselho = 'nan' then null else safe_cast(conselho as string)
+                when conselho = 'nan'
+                then null
+                when conselho = '0'
+                then conselho
+                else regexp_replace(conselho, r'^0', '')
             end as tipo_conselho,
             -- replace de valores de linha com 15 zeros para null. 15 zeros é valor do
             -- campo

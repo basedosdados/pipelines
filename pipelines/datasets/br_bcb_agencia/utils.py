@@ -202,9 +202,11 @@ def clean_column_names(dataframe: pd.DataFrame) -> pd.DataFrame:
     log("Cleaning column names...")
     dataframe.columns = dataframe.columns.str.strip()
     dataframe.columns = dataframe.columns.map(
-        lambda x: unicodedata.normalize("NFKD", str(x))
-        .encode("ascii", "ignore")
-        .decode("utf-8")
+        lambda x: (
+            unicodedata.normalize("NFKD", str(x))
+            .encode("ascii", "ignore")
+            .decode("utf-8")
+        )
     )
     dataframe.columns = dataframe.columns.str.replace(
         r"[^\w\s]+", "_", regex=True
@@ -337,9 +339,11 @@ def clean_nome_municipio(
         pd.DataFrame: Updated DataFrame.
     """
     dataframe[col_name] = dataframe[col_name].apply(
-        lambda x: unicodedata.normalize("NFKD", str(x))
-        .encode("ascii", "ignore")
-        .decode("utf-8")
+        lambda x: (
+            unicodedata.normalize("NFKD", str(x))
+            .encode("ascii", "ignore")
+            .decode("utf-8")
+        )
     )
     dataframe[col_name] = dataframe[col_name].apply(
         lambda x: re.sub(r"[^\w\s]", "", x)

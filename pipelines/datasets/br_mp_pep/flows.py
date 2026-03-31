@@ -9,7 +9,6 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.datasets.br_mp_pep.schedules import every_month
 from pipelines.datasets.br_mp_pep.tasks import (
     clean_data,
     download_xlsx,
@@ -127,4 +126,4 @@ datasets_br_mp_pep_cargos_funcoes_flow.storage = GCS(
 datasets_br_mp_pep_cargos_funcoes_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-datasets_br_mp_pep_cargos_funcoes_flow.schedule = every_month
+# datasets_br_mp_pep_cargos_funcoes_flow.schedule = every_month

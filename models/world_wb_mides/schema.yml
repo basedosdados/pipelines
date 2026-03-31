@@ -8,8 +8,16 @@ models:
         description: Descrição da ação orçamentária.
       - name: ano
         description: Número do ano de referência da informação.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: data
         description: Data do empenho.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
       - name: descricao
         description: Descrição do empenho
       - name: elemento_despesa
@@ -26,6 +34,10 @@ models:
         description: Sequencial identificador único da licitação
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
       - name: id_unidade_gestora
         description: Código da unidade orçamentária.
       - name: mes
@@ -42,6 +54,10 @@ models:
         description: Descrição do programa orçamentário.
       - name: sigla_uf
         description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: subfuncao
         description: Descrição da subfunção orçamentária.
       - name: valor_ajuste
@@ -60,8 +76,16 @@ models:
     columns:
       - name: ano
         description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: ano_processo
         description: Ano do processo
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: carona
         description: Licitação Carona
       - name: contratacao
@@ -70,12 +94,28 @@ models:
         description: Licitação ou dispensa no âmbito da COVID-19
       - name: data_abertura
         description: Data de Abertura
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
       - name: data_edital
         description: Data de Emissão do Edital
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
       - name: data_homologacao
         description: Data de Publicação da Homologação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
       - name: data_publicacao_dispensa
         description: Data de Publicação da Dispensa
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
       - name: descricao_objeto
         description: Especificação do Objeto Licitado
       - name: estagio
@@ -92,10 +132,18 @@ models:
         description: ID Licitação
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
       - name: id_unidade_gestora
         description: ID Unidade Gestora
       - name: mes
         description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: modalidade
         description: Modalidade da Licitação
       - name: natureza_objeto
@@ -111,6 +159,10 @@ models:
         description: Número de convidados (modalidade convite)
       - name: sigla_uf
         description: Sigla da Unidade de Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: situacao
         description: Situação da Licitação
       - name: tipo
@@ -128,6 +180,10 @@ models:
     columns:
       - name: ano
         description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: descricao
         description: Descrição do Item
       - name: documento
@@ -144,6 +200,10 @@ models:
         description: ID Licitação
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
       - name: id_unidade_gestora
         description: ID Unidade Gestora
       - name: nome_vencedor
@@ -162,6 +222,10 @@ models:
         description: Quantidade da proposta
       - name: sigla_uf
         description: Sigla da Unidade de Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: unidade_medida
         description: Unidade de medida
       - name: valor_proposta
@@ -179,8 +243,16 @@ models:
     columns:
       - name: ano
         description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: cep
         description: CEP
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cep')
+              field: cep.cep
       - name: classificado
         description: Participante classificado
       - name: documento
@@ -197,6 +269,10 @@ models:
         description: ID Licitação
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
       - name: id_unidade_gestora
         description: ID Unidade Gestora
       - name: municipio_participante
@@ -207,6 +283,10 @@ models:
         description: Razão Social
       - name: sigla_uf
         description: Sigla da Unidade de Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: tipo
         description: PF ou PJ
       - name: vencedor
@@ -216,10 +296,18 @@ models:
     columns:
       - name: ano
         description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: esfera
         description: Esfera (e.g. municipal, intermunicipal, estadual, federal)
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
       - name: id_unidade_gestora
         description: Código da unidade gestora a qual a operação está vinculada
       - name: nome_orgao
@@ -231,19 +319,39 @@ models:
           ou licitação) está vinculada
       - name: sigla_uf
         description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
   - name: world_wb_mides__pagamento
     description: Dados a nível de pagamento
     columns:
       - name: ano
         description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: mes
         description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: data
         description: Data do pagamento
       - name: sigla_uf
         description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
       - name: orgao
         description: Sequencial identificador do órgão
       - name: id_unidade_gestora
@@ -291,14 +399,30 @@ models:
     columns:
       - name: ano
         description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: mes
         description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: data
         description: Data da liquidação
       - name: sigla_uf
         description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
       - name: orgao
         description: Sequencial identificador do órgão
       - name: id_unidade_gestora
