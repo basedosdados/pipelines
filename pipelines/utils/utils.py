@@ -6,6 +6,7 @@ import base64
 import json
 import logging
 import os
+import shutil
 import zipfile
 from collections.abc import Generator
 from datetime import datetime
@@ -781,7 +782,8 @@ class DBTArtifactUploader:
         dbt-artifacts/{dataset_id}/{table_id}/{target}/{subfolder}/{filename}
 
     Observações:
-        - A deleção ocorre no nível de dataset_id/table_id/target antes do upload.
+        - A deleção ocorre no nível de dataset_id/table_id/target antes do upload
+        - O diretório local `target` é removido ao final para evitar reuso entre execuções
     """
 
     # Constantes
@@ -837,6 +839,7 @@ class DBTArtifactUploader:
             - Inicialização do cliente GCS
             - Remoção de artifacts antigos (no nível dataset/table/target)
             - Upload dos arquivos da pasta target
+            - Limpeza do diretório local ao final
         """
         if not self._should_run():
             log("Upload não rodou (não em Kubernetes e enable_upload=False)")
@@ -846,12 +849,16 @@ class DBTArtifactUploader:
 
         log("Fazendo upload dos artifacts do DBT!")
 
-        table_prefix = self._get_table_prefix()
-        self._delete_if_needed(table_prefix)
+        try:
+            table_prefix = self._get_table_prefix()
+            self._delete_if_needed(table_prefix)
 
-        for local_path, subfolder in self._list_target_files():
-            filename = os.path.basename(local_path)
-            self._upload_file(local_path, subfolder, filename)
+            for local_path, subfolder in self._list_target_files():
+                filename = os.path.basename(local_path)
+                self._upload_file(local_path, subfolder, filename)
+
+        finally:
+            self._cleanup_target_dir()
 
     def _init_gcs(self) -> None:
         """
@@ -996,3 +1003,31 @@ class DBTArtifactUploader:
         blob_path = self._get_blob_path(subfolder, filename)
         blob = self._bucket.blob(blob_path)
         blob.upload_from_filename(local_path)
+
+    def _cleanup_target_dir(self) -> None:
+        """
+        Remove o diretório local de artifacts do DBT (`target`) após o upload.
+
+        Isso evita reutilização de arquivos entre execuções no mesmo ambiente
+        (ex: rodar dev e depois prod no mesmo pod).
+
+        Exemplo:
+            Antes:
+                target/compiled/*
+                target/run/*
+
+            Depois:
+                target/ (removido)
+
+        A remoção é segura:
+            - Só ocorre se o diretório existir
+            - Não levanta erro caso falhe
+        """
+        if not os.path.exists(self.source_dir):
+            return
+
+        try:
+            shutil.rmtree(self.source_dir)
+            log(f"Diretório removido após upload: {self.source_dir}")
+        except Exception as e:
+            log(f"Erro ao remover diretório {self.source_dir}: {e}")
