@@ -1,7 +1,7 @@
 {{
     config(
         schema="br_me_siconfi",
-        alias="uf_despesas_funcao",
+        alias="uf_execucao_restos_pagar_funcao",
         materialized="table",
         partition_by={
             "field": "ano",
@@ -20,4 +20,6 @@ select
     safe_cast(id_conta_bd as string) id_conta_bd,
     safe_cast(conta_bd as string) conta_bd,
     safe_cast(valor as float64) valor
-from {{ set_datalake_project("br_me_siconfi_staging.uf_despesas_funcao") }} as t
+from
+    {{ set_datalake_project("br_me_siconfi_staging.uf_execucao_restos_pagar_funcao") }}
+    as t
