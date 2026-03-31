@@ -42,6 +42,17 @@ from
 
 Column order must match the architecture table exactly.
 
+### Geometry columns
+
+If the dataset has a WKT geometry column, cast it to GEOGRAPHY — not STRING:
+
+```sql
+st_geogfromtext(safe_cast(geometria as string), make_valid => true) geometria,
+```
+
+`make_valid => true` handles degenerate polygons (rings with fewer than 3 unique
+vertices) that may exist in source shapefiles.
+
 ## Step 3 — Write schema.yaml
 
 One file: `models/<dataset_slug>/schema.yml`
@@ -52,8 +63,12 @@ Template:
 version: 2
 models:
   - name: <dataset_slug>__<table_slug>
-    description: <description in Portuguese from architecture>
+    description: >
+      <description in Portuguese from architecture — use > block scalar whenever
+      the description spans multiple lines or contains a colon>
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [<partition_col>, <primary_key_col>]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -69,10 +84,30 @@ models:
 ```
 
 Rules:
-- Add `not_null` test to partition columns and primary keys
-- Add `relationships` test to any column with a `directory_column` in the architecture
-- Add `not_null_proportion_multiple_columns` at 0.05 to every model
-- Use Portuguese descriptions from architecture
+- **Always use `>` block scalar** for multi-line descriptions or any description
+  that may contain a `:` — bare scalars with `:` in continuation lines break YAML
+  parsing (e.g. `"Fonte: MMA"` on a continuation line triggers a parse error).
+- Add `not_null` test to partition columns and primary keys.
+- Add `relationships` test to any column with a `directory_column` in the architecture.
+- Add `not_null_proportion_multiple_columns` at 0.05 to every model.
+- Use Portuguese descriptions from architecture.
+- For the uniqueness test, prefer a stable string identifier (e.g. `codigo_uc`)
+  over an integer ID that may be NULL in older snapshots.
+
+### Excluding columns from `not_null_proportion_multiple_columns`
+
+The test macro supports an `ignore_values` parameter (not `exclude`):
+
+```yaml
+- not_null_proportion_multiple_columns:
+    at_least: 0.05
+    ignore_values:
+      - column_that_is_legitimately_empty
+      - another_sparse_column
+```
+
+Use this for columns that are 100 % null in the source (headers present but never
+populated by the provider).
 
 ## Step 4 — Check dbt_project.yml
 
