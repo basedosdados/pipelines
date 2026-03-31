@@ -1,0 +1,134 @@
+---
+version: 2
+models:
+  - name: br_mma_cnuc__unidades_conservacao
+    description: >
+      Cadastro Nacional de Unidades de Conservação (CNUC) — registro semestral de
+      todas as unidades de conservação brasileiras, com atributos administrativos,
+      legais, de cobertura de biomas e georreferenciamento.
+      Fonte: Ministério do Meio Ambiente e Mudança do Clima (MMA).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, semestre, codigo_uc]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - razao_diferenca_area
+            - data_ultima_certificacao
+            - lei_mata_atlantica
+            - recortes
+            - sobreposicao_ti_tq
+            - amazonia_legal
+    columns:
+      - name: ano
+        description: Ano de referência do cadastro
+      - name: semestre
+        description: Semestre de referência (1 ou 2)
+      - name: id_uc
+        description: Identificador interno da unidade de conservação
+      - name: codigo_uc
+        description: Código da unidade de conservação no CNUC
+      - name: nome_uc
+        description: Nome da unidade de conservação
+      - name: esfera_administrativa
+        description: Esfera administrativa (Federal, Estadual, Municipal)
+      - name: categoria_manejo
+        description: Categoria de manejo
+      - name: categoria_iucn
+        description: Categoria IUCN
+      - name: grupo
+        description: Grupo (PI = Proteção Integral, US = Uso Sustentável)
+      - name: protecao_integral
+        description: Indicador de proteção integral (1 = sim)
+      - name: uso_sustentavel
+        description: Indicador de uso sustentável (1 = sim)
+      - name: sigla_uf
+        description: Sigla da unidade federativa
+      - name: municipios_abrangidos
+        description: Municípios abrangidos pela UC
+      - name: ano_criacao
+        description: Ano de criação da UC
+      - name: ano_ato_legal_recente
+        description: Ano do ato legal mais recente
+      - name: ato_legal_criacao
+        description: Ato legal de criação
+      - name: outros_atos_legais
+        description: Outros atos legais
+      - name: plano_manejo
+        description: Existência de plano de manejo
+      - name: conselho_gestor
+        description: Existência de conselho gestor
+      - name: orgao_gestor
+        description: Órgão gestor da UC
+      - name: informacoes_gerais
+        description: Informações gerais
+      - name: fonte_area
+        description: Fonte da área (1 = shapefile, 0 = ato legal)
+      - name: area_soma_biomas
+        description: Área total (soma dos biomas) em hectares
+      - name: area_soma_biomas_continental
+        description: Área continental total (soma dos biomas) em hectares
+      - name: area_ato_legal_criacao
+        description: Área conforme ato legal de criação em hectares
+      - name: area_amazonia
+        description: Área no bioma Amazônia em hectares
+      - name: area_caatinga
+        description: Área no bioma Caatinga em hectares
+      - name: area_cerrado
+        description: Área no bioma Cerrado em hectares
+      - name: area_mata_atlantica
+        description: Área no bioma Mata Atlântica em hectares
+      - name: area_pampa
+        description: Área no bioma Pampa em hectares
+      - name: area_pantanal
+        description: Área no bioma Pantanal em hectares
+      - name: area_marinha
+        description: Área marinha em hectares
+      - name: bioma_declarado
+        description: Bioma declarado pelo órgão gestor
+      - name: biomas_abrangidos
+        description: Biomas abrangidos pela UC
+      - name: percentual_alem_linha_costa
+        description: Percentual além da linha de costa
+      - name: recortes
+        description: Área total de recortes em hectares
+      - name: mar_territorial
+        description: Área no mar territorial em hectares
+      - name: municipio_costeiro
+        description: Área em município costeiro em hectares
+      - name: municipio_costeiro_area_marinha
+        description: Área em município costeiro com área marinha em hectares
+      - name: amazonia_legal
+        description: Área na Amazônia Legal em hectares
+      - name: lei_mata_atlantica
+        description: Área sob Lei da Mata Atlântica em hectares
+      - name: sobreposicao_ti_tq
+        description: Sobreposição com terra indígena ou território quilombola em hectares
+      - name: programa_projeto
+        description: Programa ou projeto associado
+      - name: sitios_patrimonio_mundial
+        description: Sítios do patrimônio mundial
+      - name: sitios_ramsar
+        description: Sítios Ramsar
+      - name: mosaico
+        description: Mosaico de unidades de conservação
+      - name: reserva_biosfera
+        description: Reserva da biosfera
+      - name: codigo_wdpa
+        description: Código WDPA
+      - name: regiao
+        description: Região geográfica
+      - name: qualidade_dados_georreferenciados
+        description: Qualidade dos dados georreferenciados
+      - name: presente_versao_anterior
+        description: Presente na versão anterior do cadastro
+      - name: diferenca_area
+        description: Diferença de área em relação à versão anterior em hectares
+      - name: razao_diferenca_area
+        description: Razão da diferença de área
+      - name: data_publicacao_cnuc
+        description: Data de publicação no CNUC
+      - name: data_ultima_certificacao
+        description: Data da última certificação pelo órgão gestor
+      - name: geometria
+        description: Geometria da UC (SIRGAS 2000 / EPSG:4674)
