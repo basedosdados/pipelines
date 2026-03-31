@@ -51,8 +51,13 @@ After step 8 succeeds, output a verification checklist and wait for explicit app
 ✓ Cloud tables: OK
 ✓ Verify at: https://development.basedosdados.org/dataset/<slug>
 
+Table order set: <list in order, or "default">
+OL order set per table: <summary, or "default">
+
 Reply "approved" to promote to prod, or describe what needs fixing.
 ```
+
+Note: ordering steps are handled inside `onboarding-metadata` (steps 7–8 of that command). If the human did not specify an order during step 8, you may ask here whether they want to adjust ordering before promoting to prod.
 
 Do not proceed to step 9 or step 10 without the user replying "approved" (or equivalent).
 
