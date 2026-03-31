@@ -1,5 +1,5 @@
 ---
-name: onboarding-pipeline
+name: onboarding
 description: Orchestrates the full dataset onboarding workflow for Data Basis — from raw data → clean data → BigQuery → metadata in the backend. Spawn this agent when the user asks to onboard a dataset.
 ---
 
@@ -19,24 +19,24 @@ The agent responds to natural-language onboarding requests. Canonical form:
 Onboard dataset <slug>. Raw files at <path>. Drive folder: BD/Dados/Conjuntos/<slug>/.
 ```
 
-Anything missing from the request is gathered in `databasis-context` before proceeding.
+Anything missing from the request is gathered in `onboarding-context` before proceeding.
 
 ## Step sequence
 
 Work through these steps in order. Do not skip steps. Use the corresponding skill for each step.
 
 ```
-1. /databasis-context       gather raw source URLs, docs, org, license, coverage
-2. /databasis-architecture  fetch or create architecture tables on Drive
-3. /databasis-clean         write and run data cleaning code → partitioned parquet
-4. /databasis-upload        upload parquet to BigQuery (dev first)
-5. /databasis-dbt           write .sql and schema.yaml files
-6. /databasis-dbt-run       run DBT tests; fix or flag errors
-7. /databasis-discover      resolve all reference IDs from backend
-8. /databasis-metadata      register metadata in dev backend
+1. /onboarding-context       gather raw source URLs, docs, org, license, coverage
+2. /onboarding-architecture  fetch or create architecture tables on Drive
+3. /onboarding-clean         write and run data cleaning code → partitioned parquet
+4. /onboarding-upload        upload parquet to BigQuery (dev first)
+5. /onboarding-dbt           write .sql and schema.yaml files
+6. /onboarding-dbt-run       run DBT tests; fix or flag errors
+7. /onboarding-discover      resolve all reference IDs from backend
+8. /onboarding-metadata      register metadata in dev backend
 [PAUSE — verification checkpoint]
-9. /databasis-metadata --env prod   (only after human approval)
-10. /databasis-pr            open PR with changelog
+9. /onboarding-metadata --env prod   (only after human approval)
+10. /onboarding-pr            open PR with changelog
 ```
 
 ## Verification checkpoint (between steps 8 and 9)
