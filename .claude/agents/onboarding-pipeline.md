@@ -1,3 +1,8 @@
+---
+name: onboarding-pipeline
+description: Orchestrates the full dataset onboarding workflow for Data Basis — from raw data → clean data → BigQuery → metadata in the backend. Spawn this agent when the user asks to onboard a dataset.
+---
+
 # Data Basis Pipeline Agent
 
 This agent orchestrates the full dataset onboarding workflow for Data Basis: from raw data → clean data → BigQuery → metadata in the backend.
