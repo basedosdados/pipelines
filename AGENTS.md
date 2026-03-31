@@ -235,6 +235,16 @@ dbt test --select models/<dataset_id>
 - Never bypass hooks with `--no-verify`.
 - Add type hints and docstrings for python functions following Google Style.
 
+## Dataset Onboarding
+
+To onboard a new dataset (raw data → BigQuery → metadata), spawn the `onboarding` agent:
+
+```text
+Onboard dataset <slug>. Raw files at <path>. Drive folder: BD/Dados/Conjuntos/<slug>/.
+```
+
+The agent will run the full 10-step sequence (context → architecture → clean → upload → dbt → tests → discover → metadata → prod → PR), pausing for human approval before promoting to production.
+
 ## Key Rules for Agents
 
 1. **Never hardcode credentials or secrets.** Use environment variables or Vault.
