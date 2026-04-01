@@ -28,7 +28,7 @@ theme, tag, entity_category, language, measurement_unit_category.
 
 **Never search the web, hardcode IDs, or guess slugs.** All reference IDs (themes,
 organizations, licenses, tags, entities, statuses) must come from `discover_ids`
-or `lookup_area`. IDs differ between dev and prod environments.
+or `lookup_id`. IDs differ between dev and prod environments.
 
 ## Step 2 — Fetch dataset state
 
