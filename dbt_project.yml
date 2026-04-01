@@ -366,6 +366,12 @@ models:
     br_simet_educacao_conectada:
       +materialized: table
       +schema: br_simet_educacao_conectada
+    br_sou_da_paz_armas_municoes:
+      +materialized: table
+      +schema: br_sou_da_paz_armas_municoes
+      +post-hook:
+        - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
+        - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "serviceAccount:metabase@repositorio-de-dados.iam.gserviceaccount.com"
     br_sp_saopaulo_dieese_icv:
       +materialized: table
       +schema: br_sp_saopaulo_dieese_icv
