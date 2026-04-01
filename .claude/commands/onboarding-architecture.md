@@ -7,6 +7,22 @@ Fetch or create architecture tables for a Data Basis dataset. Each table in the 
 
 **Dataset:** $ARGUMENTS
 
+## Step 0 — Fetch the Data Basis style manual
+
+Determine the dataset's core language from context (default: Portuguese for Brazilian government datasets).
+
+Fetch the appropriate style manual with WebFetch:
+- Portuguese: `https://raw.githubusercontent.com/basedosdados/website/refs/heads/main/next/content/docs/pt/style_data.md`
+- English: `https://raw.githubusercontent.com/basedosdados/website/refs/heads/main/next/content/docs/en/style_data.md`
+- Spanish: `https://raw.githubusercontent.com/basedosdados/website/refs/heads/main/next/content/docs/es/style_data.md`
+
+Read and internalize the manual before proceeding. Key sections to apply:
+- Column naming conventions (snake_case, standard prefixes like `id_`, `sigla_`, `nome_`, `quantidade_`, `valor_`)
+- Standard partition columns (`ano`, `mes`, `sigla_uf`)
+- Ordering rules: partition columns first, then identifiers, then descriptive columns
+- Measurement unit conventions
+- Standard directory column references
+
 ## Architecture table schema
 
 Each file has these columns (in order):
@@ -49,8 +65,11 @@ If creating new tables:
 1. Read the first 20 rows of each raw data file
 2. Infer column names, types, and candidate partition columns
 3. Apply long-format transformation if the data is wide (one column per year → pivot to long)
-4. Map known standard columns to BD directories:
+4. Rename columns to follow the style manual conventions (snake_case, standard prefixes)
+5. Order columns: partition columns first, then identifiers (`id_*`, `sigla_*`, `codigo_*`), then descriptive columns
+6. Map known standard columns to BD directories:
    - `ano` → `br_bd_diretorios_data_tempo.ano:ano`
+   - `mes` → `br_bd_diretorios_data_tempo.mes:mes`
    - `sigla_uf` → `br_bd_diretorios_brasil.uf:sigla_uf`
    - `id_municipio` → `br_bd_diretorios_brasil.municipio:id_municipio`
 

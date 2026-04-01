@@ -17,6 +17,12 @@ In dry-run mode: print all operations without executing them.
 2. Have architecture table URLs in context (from `databasis-architecture`).
 3. All IDs from the discover step must be available.
 
+## Slug vs GCP ID
+
+The **dataset slug** (e.g. `cnuc`) is the short identifier used in the backend.
+The **GCP dataset ID** (e.g. `br_mma_cnuc`) is derived as `<org_area_slug>_<dataset_slug>` and is used only for cloud table fields (`gcp_dataset_id`).
+Always pass the bare dataset slug to `create_update_dataset` and other backend tools.
+
 ## Dataset-level step (once, before per-table loop)
 
 ### 0. Write dataset and table descriptions
@@ -35,6 +41,42 @@ Example dataset description (PT): "Dados contábeis e fiscais do setor público 
 
 ---
 
+## Dataset creation step (once)
+
+### 1a. Create/update dataset record
+
+Call `create_update_dataset` with:
+- `slug`: bare dataset slug (e.g. `cnuc` — NOT the GCP ID like `br_mma_cnuc`)
+- `name_pt / name_en / name_es`: dataset display names
+- `description_pt / en / es`: from step 0
+- `organization_id`: from discover IDs using the org slug from context
+- `theme_ids`: list of IDs from discover IDs using theme slugs from context
+- `tag_ids`: list of IDs from discover IDs using tag slugs from context (empty list if none)
+- `status_id`: use `status.published` from discovered IDs
+- `id`: existing dataset ID if updating
+
+After calling, verify M2M fields were saved by calling `get_dataset` and checking that `organizations`, `themes`, and `tags` in the response match what was passed. If M2M fields are empty despite being passed, the backend may need redeployment — note this and continue.
+
+---
+
+## Raw data sources step (once, after dataset, before per-table loop)
+
+### 1b. Create/update raw data sources
+
+For each raw data source in context (from `onboarding-context`), call `create_update_raw_data_source` with:
+- `dataset_id`: dataset ID from step 1a
+- `name_pt / name_en / name_es`: descriptive name of the raw source
+- `url`: download or landing page URL
+- `license_id`: from discover IDs
+- `availability_id`: from discover IDs (typically `online`)
+- `description_pt / en / es`: brief description
+- `has_structured_data`: True if tabular/CSV/structured
+- `id`: existing raw data source ID if updating
+
+If `get_raw_data_sources` already returned IDs in the discover step, update those records rather than creating new ones.
+
+Store returned IDs — they are needed by step 8 (linking raw data sources to tables).
+
 ## Per-table steps
 
 For each table (in order):
@@ -45,15 +87,15 @@ Call `create_update_table` with:
 - `slug`: table slug
 - `name_pt / name_en / name_es`: from architecture or context
 - `description_pt / en / es`: from step 0
-- `dataset_id`: from discover step (dataset must exist first — create if needed via `create_update_dataset`)
+- `dataset_id`: from discover step (dataset must exist first — create dataset via `create_update_dataset` if needed, passing `organization_id`, `theme_ids`, and `tag_ids` from context and discover IDs)
 - `status_id`: use `status.published` from discovered IDs
 - `published_by_ids`: authenticated account ID (from `get_authenticated_account`)
 - `data_cleaned_by_ids`: authenticated account ID (from `get_authenticated_account`)
 - `id`: existing table ID if updating
 
-Do **not** pass `raw_data_source_ids` here — see step 8.
+Do **not** pass `raw_data_source_ids` here — those are linked in step 8 after raw data sources exist.
 
-> **Known issue (M2M fields in `CreateUpdateTable`):** `raw_data_source_ids`, `published_by_ids`, and `data_cleaned_by_ids` are Django `ManyToManyField`s. A fix was applied to `perform_mutate` in `backend/custom/graphql_auto.py` (using `form.save(commit=False)` + `form.save_m2m()`) and confirmed working locally, but as of 2026-03-30 the behavior on the dev backend is inconsistent — mutations succeed without error but M2M assignments are sometimes silently dropped. Pass these fields and verify in the admin; if they don't appear, it is a backend deployment/environment issue rather than a code problem.
+> **Known issue (M2M fields):** Fields like `organizations`, `themes`, `tags`, `raw_data_source_ids`, `published_by_ids`, and `data_cleaned_by_ids` are Django `ManyToManyField`s. A fix was applied to `perform_mutate` in `backend/custom/graphql_auto.py` (using `form.save(commit=False)` + `form.save_m2m()`). Pass these fields and verify in the admin after saving; if they don't appear, it is likely a backend deployment/caching issue — retry or check the admin directly.
 
 **Name translation:** If only Portuguese names are available, translate to English and Spanish:
 - Translate accurately using domain knowledge of Brazilian public finance / the relevant domain

@@ -24,11 +24,14 @@ Also read any local README, documentation, or metadata files present in the data
 Present your findings and ask the user to confirm or fill in:
 1. Raw data source URL(s) — where to download the raw files
 2. Responsible organization slug on Data Basis (e.g. `ministerio-da-economia`)
-3. License slug (e.g. `open-database`)
-4. Update frequency and lag (e.g. annual, 1-year lag)
-5. Geographic coverage (e.g. Brazil — municipalities, states, federal)
-6. Temporal coverage (start year, end year or "ongoing")
-7. Drive folder path for architecture tables: `BD/Dados/Conjuntos/<dataset>/`
+3. Core language of the source data (`pt`, `en`, or `es`) — used to pick the style manual
+4. Theme slug(s) (e.g. `health`, `education`, `environment`)
+5. Tag slug(s) (optional, e.g. `pandemic`, `conservation`)
+6. License slug (e.g. `cc`)
+7. Update frequency and lag (e.g. annual, 1-year lag)
+8. Geographic coverage (e.g. world, Brazil — municipalities, states, federal)
+9. Temporal coverage (start year, end year or "ongoing")
+10. Drive folder path for architecture tables: `Base dos Dados - Geral/Dados/Conjuntos/<dataset>/`
 
 ## Step 3 — Output a structured context block
 
@@ -36,7 +39,10 @@ Once all information is gathered, output a context block in this format for use 
 
 ```text
 === DATASET CONTEXT: <slug> ===
-Organization:      <org_slug>
+Organizations:     <org_slug(s)>
+Language:          <pt | en | es>  (core language of source data and descriptions)
+Themes:            <theme_slug(s)>
+Tags:              <tag_slug(s)>
 License:           <license_slug>
 Raw source URL(s): <url(s)>
 Update frequency:  <e.g. annual>

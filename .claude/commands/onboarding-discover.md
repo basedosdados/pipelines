@@ -9,6 +9,12 @@ Resolve all reference IDs from the Data Basis backend for a dataset.
 
 Parse `--env` (default: dev) from arguments.
 
+## Step 0 — Clarify dataset slug vs GCP ID
+
+The **dataset slug** (e.g. `cnuc`, `rais`) is the short identifier used in the Data Basis backend.
+The **GCP dataset ID** (e.g. `br_mma_cnuc`, `br_me_rais`) is derived as `<org_area_slug>_<org_slug>_<dataset_slug>`.
+Always use the bare dataset slug (not the GCP ID) when calling backend MCP tools.
+
 ## Step 1 — Fetch all reference IDs
 
 Use the `discover_ids` MCP tool (env from argument):
@@ -17,7 +23,8 @@ Use the `discover_ids` MCP tool (env from argument):
 discover_ids(env=<env>)
 ```
 
-This returns IDs for: status, bigquery_type, entity, license, availability, organization, theme.
+This returns IDs for: status, bigquery_type, entity, license, availability, organization,
+theme, tag, entity_category, language, measurement_unit_category.
 
 **Never search the web, hardcode IDs, or guess slugs.** All reference IDs (themes,
 organizations, licenses, tags, entities, statuses) must come from `discover_ids`
@@ -54,8 +61,12 @@ Reference IDs:
   area.br:                  <id>
   bigquery_type.INT64:       <id>
   availability.online:      <id>
-  organization.<slug>:      <id>
-  theme.<slug>:             <id>
+  organization.<slug>:             <id>
+  theme.<slug>:                    <id>
+  tag.<slug>:                      <id>
+  entity_category.<slug>:          <id>
+  language.<slug>:                 <id>
+  measurement_unit_category.<slug>: <id>
   ...
 
 Dataset:
