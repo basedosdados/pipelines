@@ -49,7 +49,7 @@ Call `create_update_dataset` with:
 - `slug`: bare dataset slug (e.g. `cnuc` — NOT the GCP ID like `br_mma_cnuc`)
 - `name_pt / name_en / name_es`: dataset display names
 - `description_pt / en / es`: from step 0
-- `organization_id`: from discover IDs using the org slug from context
+- `organization_ids`: list of IDs from discover IDs using the org slug(s) from context
 - `theme_ids`: list of IDs from discover IDs using theme slugs from context
 - `tag_ids`: list of IDs from discover IDs using tag slugs from context (empty list if none)
 - `status_id`: use `status.published` from discovered IDs
@@ -87,7 +87,7 @@ Call `create_update_table` with:
 - `slug`: table slug
 - `name_pt / name_en / name_es`: from architecture or context
 - `description_pt / en / es`: from step 0
-- `dataset_id`: from discover step (dataset must exist first — create dataset via `create_update_dataset` if needed, passing `organization_id`, `theme_ids`, and `tag_ids` from context and discover IDs)
+- `dataset_id`: from discover step (dataset must exist first — create dataset via `create_update_dataset` if needed, passing `organization_ids`, `theme_ids`, and `tag_ids` from context and discover IDs)
 - `status_id`: use `status.published` from discovered IDs
 - `published_by_ids`: authenticated account ID (from `get_authenticated_account`)
 - `data_cleaned_by_ids`: authenticated account ID (from `get_authenticated_account`)
