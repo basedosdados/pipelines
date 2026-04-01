@@ -17,7 +17,11 @@ Use the `discover_ids` MCP tool (env from argument):
 discover_ids(env=<env>)
 ```
 
-This returns IDs for: status, bigquery_type, entity, area, license, availability, organization.
+This returns IDs for: status, bigquery_type, entity, license, availability, organization, theme.
+
+**Never search the web, hardcode IDs, or guess slugs.** All reference IDs (themes,
+organizations, licenses, tags, entities, statuses) must come from `discover_ids`
+or `lookup_area`. IDs differ between dev and prod environments.
 
 ## Step 2 — Fetch dataset state
 
@@ -47,10 +51,11 @@ Reference IDs:
   entity.year:              <id>
   entity.state:             <id>
   entity.municipality:      <id>
-  entity.financing_phase:   <id>
-  entity.financing_account: <id>
   area.br:                  <id>
   bigquery_type.INT64:       <id>
+  availability.online:      <id>
+  organization.<slug>:      <id>
+  theme.<slug>:             <id>
   ...
 
 Dataset:
