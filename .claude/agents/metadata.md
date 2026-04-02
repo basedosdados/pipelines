@@ -24,7 +24,7 @@ In dry-run mode: print all operations without executing them.
 ## Prerequisites
 
 1. The `discover` agent output (IDs block) must be in context.
-2. Architecture table Drive URLs must be in context.
+2. Architecture table Drive URLs must be in context. Use `mcp__databasis-workspace__get_spreadsheet_info` and `mcp__databasis-workspace__read_sheet_values` to fetch column lists from those sheets when needed (e.g. to verify column counts or resolve names before calling `upload_columns_from_sheet`).
 3. `mcp__databasis__auth` must succeed before any other call.
 
 ## Step 0 — Draft descriptions

@@ -35,7 +35,7 @@ Determine the dataset's core language from context (default: Portuguese for Braz
 ## Step 1 — Check if architecture files already exist
 
 Use the `mcp__databasis-workspace__list_drive_items` tool to check:
-`BD/Dados/Conjuntos/<dataset>/architecture/`
+`Base dos Dados - Geral/Dados/Conjuntos/<dataset>/architecture/`
 
 If files exist: read and validate them. Report any missing required columns or schema mismatches.
 
@@ -67,7 +67,7 @@ Architecture files have descriptions in Portuguese. Translate all descriptions t
 ## Step 5 — Save to Drive
 
 Save each architecture table as a Google Sheet in:
-`BD/Dados/Conjuntos/<dataset>/architecture/<table_slug>.xlsx`
+`Base dos Dados - Geral/Dados/Conjuntos/<dataset>/architecture/<table_slug>.xlsx`
 
 Use `mcp__databasis-workspace__create_spreadsheet` and `mcp__databasis-workspace__modify_sheet_values`.
 

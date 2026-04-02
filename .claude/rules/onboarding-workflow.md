@@ -13,7 +13,7 @@ Work through steps in order. Do not skip steps.
 4.  clean                write and run data cleaning code → partitioned parquet
 5.  upload               upload parquet to BigQuery dev
 6.  dbt                  write .sql and schema.yml files
-7.  dbt-run              run DBT tests; fix or flag errors
+7.  validate             run DBT tests and data quality checks; fix or flag errors
 8.  discover             resolve all reference IDs from backend (dev)
 9.  metadata             register metadata in dev backend
 [PAUSE — verification checkpoint]
@@ -27,11 +27,12 @@ After step 9 succeeds, output the following checklist and **wait for explicit ap
 
 ```text
 ✓ Dataset registered in dev: <slug>
+✓ Raw data sources: <list>
 ✓ Tables: <list>
 ✓ Columns: <counts per table>
 ✓ Coverage: <start>–<end>
 ✓ Cloud tables: OK
-✓ Verify at: https://development.basedosdados.org/dataset/<slug>
+✓ Verify at: https://development.basedosdados.org/dataset/<id>
 
 Table order set: <list in order, or "default">
 OL order set per table: <summary, or "default">

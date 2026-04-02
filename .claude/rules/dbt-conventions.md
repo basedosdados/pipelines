@@ -17,7 +17,7 @@ SQL models: `models/<dataset_slug>/<dataset_slug>__<table_slug>.sql` (double und
 All staging references must use this macro:
 
 ```sql
-from {{ set_datalake_project("<dataset_slug>_staging.<table_slug>") }} as t
+from {{ set_datalake_project("<gcp_dataset_id>_staging.<table_slug>") }} as t
 ```
 
 **Never** use `set_datalake_project` for joins. Joins against production tables use the full path:

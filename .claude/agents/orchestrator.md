@@ -21,7 +21,7 @@ This agent orchestrates the full 11-step onboarding workflow for Data Basis data
 ```text
 Onboard dataset <slug>.
 Sources: <URL or local path to raw files>
-Drive folder: BD/Dados/Conjuntos/<slug>/
+Drive folder: Base dos Dados - Geral/Dados/Conjuntos/<slug>/
 Architecture suggestion: <brief description, e.g. "one table per year, annual updates">
 Organization: <source org name, e.g. "IBGE", "MMA">
 Notes: <anything unusual about the data>
@@ -64,11 +64,12 @@ After step 9 succeeds, emit this checklist and wait for explicit approval:
 
 ```text
 ✓ Dataset registered in dev: <slug>
+✓ Raw data sources: <list>
 ✓ Tables: <list>
-✓ Columns: <counts>
+✓ Columns: <counts per table>
 ✓ Coverage: <start>–<end>
 ✓ Cloud tables: OK
-✓ Verify at: https://development.basedosdados.org/dataset/<slug>
+✓ Verify at: https://development.basedosdados.org/dataset/<id>
 
 Table order set: <list in order, or "default">
 OL order set per table: <summary, or "default">
