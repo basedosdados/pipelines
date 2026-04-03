@@ -29,6 +29,16 @@ Search online for the dataset's official documentation, raw data source URLs, an
 
 Also read any local README, documentation, or metadata files present in the dataset folder if a path was provided.
 
+**If the human did not explicitly provide a raw data source URL:** enumerate every downloadable file available at the source (e.g. list all CSVs, ZIPs, or API endpoints found on the official page). List filenames and URLs explicitly before proceeding — do not assume a single file covers the full dataset.
+
+**If the human already provided a raw data source URL:** do not go looking for additional files unless they explicitly ask. Use only what was provided.
+
+**Source freshness check:** Identify the file's last-modified or extraction date (from HTTP headers, a `data_extracao` column, or the source page). If the most recent available data is more than 12 months old, flag it to the user before downloading:
+
+```text
+⚠ Source data appears to be from <date> (<N> months ago). Confirm you want to proceed with this version, or provide an updated source URL.
+```
+
 ## Step 2 — Ask the user to confirm or supplement
 
 Present your findings and ask the user to confirm or fill in:

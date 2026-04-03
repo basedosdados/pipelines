@@ -129,6 +129,10 @@ Only set these fields — do NOT re-set fields already handled by `upload_column
 | `interval` | 1 for annual |
 | `is_closed` | `False` unless series has ended |
 
+## `create_update_update` — last_updated semantics
+
+The `last_updated` field in the update record represents **when the table was last updated at Data Basis** — not the max date in the raw data. Always set it to **today's date** (the date the onboarding or update operation is being performed). Never derive it from the data's temporal coverage or the raw source's extraction date.
+
 ## Known issues
 
 **M2M fields (organizations, themes, tags, raw_data_source_ids):** These are Django ManyToManyFields. Pass them and verify with `get_dataset` after saving. If they appear empty despite being passed, it is a backend deployment issue — note and continue; do not retry indefinitely.
