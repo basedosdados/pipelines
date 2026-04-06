@@ -33,9 +33,27 @@ Com as credenciais e o repositório devidamente configurados, siga o fluxo abaix
 
 ### 1. Configuração do ambiente
 
-No arquivo `.basedosdados/config.toml`, atualize o parâmetro `bucket_name` de `basedosdados-dev` para `basedosdados-consultoria`.
+Na versão `2.1.0b1` do pacote `basedosdados` têm dois parametros que permiter alterar o nome do bucket e a pasta dentro do bucket que representa o nome da organização.
 
-Essa alteração garante que os dados sejam enviados para o bucket correto de consultoria.
+Exemplo de uso:
+```python
+import pandas as pd
+
+from basedosdados import Table
+
+tb = Table(
+    dataset_id="br_sou_da_paz_dataset-name",
+    table_id="table-name",
+    bucket_name="basedosdados-consultoria", # Nome do bucket
+    mode="sou_da_paz",  # Nome da pasta no bucket, deve ser o nome da organização
+)
+
+pd.DataFrame({"col1": [1, 2], "col2": [3, 4]}).to_csv(
+    "/tmp/data.csv", index=False
+)
+
+tb.create("/tmp/data.csv")
+```
 
 ---
 
@@ -44,7 +62,7 @@ Essa alteração garante que os dados sejam enviados para o bucket correto de co
 No repositório de pipelines da Base dos Dados, execute:
 
 ```bash
-uv run python3 models/br_sou_da_paz_armas_municoes/code/tabelas.py
+uv run models/br_sou_da_paz_armas_municoes/code/tabelas.py
 ```
 Esse comando processa todas as tabelas do projeto, realiza o upload dos dados para o Cloud Storage e, na sequência, os disponibiliza no BigQuery em ambiente de staging.
 

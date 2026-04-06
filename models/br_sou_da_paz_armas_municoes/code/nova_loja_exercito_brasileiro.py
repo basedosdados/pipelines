@@ -54,6 +54,8 @@ if __name__ == "__main__":
     tb = bd.Table(
         dataset_id="br_sou_da_paz_armas_municoes",
         table_id="nova_loja_exercito_brasileiro",
+        bucket_name="basedosdados-consultoria",
+        mode="sou_da_paz",
     )
 
     tb.create(
@@ -64,5 +66,4 @@ if __name__ == "__main__":
         if_table_exists="replace",
         source_format="csv",
         dataset_is_public=False,
-        folder="sou_da_paz",
     )
