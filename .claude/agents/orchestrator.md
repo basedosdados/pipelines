@@ -106,11 +106,16 @@ Write to this file after each step completes:
 
 ```json
 {
+  "saved_at": "<ISO timestamp>",
   "dataset_slug": "<slug>",
+  "current_step": 4,
   "completed_steps": [1, 2, 3],
   "context_block": "...",
+  "discovered_ids_block": "=== DISCOVERED IDs ...",
   "architecture_urls": {"<table>": "<url>"},
-  "ids": {"dataset_id": "...", "table_ids": {"<table>": "..."}},
+  "drive_folder": "<Drive folder path>",
   "env": "dev"
 }
 ```
+
+`ids` are not stored — re-run `discover_ids` on resume, since IDs differ between dev and prod. `env` is `"dev"` until step 10 completes, then `"prod"`.

@@ -3,13 +3,14 @@
 Pre-compact hook for Data Basis onboarding sessions.
 
 Fires before Claude Code compresses the conversation context.
-Saves the current onboarding state to a scratch file so the orchestrator
-can resume from the correct step after context compression.
+Saves the current onboarding state to a dataset-scoped file so the
+orchestrator can resume from the correct step after context compression.
 
 Claude Code hook spec:
 - Receives a JSON payload via stdin with conversation metadata.
 - Exits 0 to allow compaction to proceed.
-- Writes state to /tmp/onboarding-state.json for the orchestrator to read.
+- Writes state to pipelines/models/<dataset_slug>/onboarding-state.json
+  so the file survives terminal restarts (unlike /tmp/).
 """
 
 import json
@@ -17,8 +18,6 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
-
-STATE_FILE = Path("/tmp/onboarding-state.json")
 
 
 def extract_state_from_transcript(transcript: str) -> dict:
@@ -80,6 +79,8 @@ def extract_state_from_transcript(transcript: str) -> dict:
     if completed:
         state["current_step"] = max(completed) + 1
 
+    state["env"] = "prod" if 10 in completed else "dev"
+
     return state
 
 
@@ -103,14 +104,21 @@ def main():
 
     state = extract_state_from_transcript(transcript)
 
-    # Only write if we found meaningful state
-    if state["dataset_slug"] or state["completed_steps"]:
-        STATE_FILE.write_text(json.dumps(state, indent=2, ensure_ascii=False))
+    # Only write if we have a slug — without it the orchestrator cannot resume
+    if state["dataset_slug"]:
+        state_file = (
+            Path(__file__).parents[2]
+            / "models"
+            / state["dataset_slug"]
+            / "onboarding-state.json"
+        )
+        state_file.parent.mkdir(parents=True, exist_ok=True)
+        state_file.write_text(json.dumps(state, indent=2, ensure_ascii=False))
         print(
             f"[pre-compact] Saved onboarding state for dataset "
             f"'{state['dataset_slug']}' "
             f"(completed steps: {state['completed_steps']}) "
-            f"to {STATE_FILE}",
+            f"to {state_file}",
             file=sys.stderr,
         )
 
