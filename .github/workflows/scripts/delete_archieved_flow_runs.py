@@ -5,7 +5,16 @@ from prefect import Client
 prefect.context.config.cloud.request_timeout = 60
 
 
-def delete_flow_run(client: Client, flow: dict[str, str]) -> bool:
+def delete_flow_run(client: Client, flow_run: dict[str, str]) -> bool:
+    """Deletes a single flow run via GraphQL mutation.
+
+    Args:
+        client: Authenticated Prefect API client.
+        flow_run: Flow run dict containing at least ``id``.
+
+    Returns:
+        ``True`` if the mutation succeeded, ``False`` otherwise.
+    """
     mutation = """
         mutation($flow_id: UUID!) {
         delete_flow_run(input: {flow_run_id: $flow_id}) {
@@ -14,9 +23,9 @@ def delete_flow_run(client: Client, flow: dict[str, str]) -> bool:
         }
         """
 
-    return client.graphql(query=mutation, variables={"flow_id": flow["id"]})[
-        "data"
-    ]["delete_flow_run"]["success"]
+    return client.graphql(
+        query=mutation, variables={"flow_id": flow_run["id"]}
+    )["data"]["delete_flow_run"]["success"]
 
 
 def get_archived_flows_with_active_schedule(
@@ -97,10 +106,17 @@ def deactivate_schedules_from_archived_flows() -> None:
     deactivate_schedules(client, flows)
 
 
-def delete_archieved_flow_runs():
-    client = Client()
+def get_archived_flows_with_scheduled_runs(client: Client) -> list[dict]:
+    """Queries archived flows that have at least one scheduled flow run.
 
-    get_scheduled_flow_runs_from_archived_flows = """{
+    Args:
+        client: Authenticated Prefect API client.
+
+    Returns:
+        List of flows, each containing ``id``, ``name``, and a ``flow_runs``
+        list with the scheduled runs.
+    """
+    query = """{
         flow(where: {archived: {_eq: true}}){
         id
         name
@@ -112,26 +128,43 @@ def delete_archieved_flow_runs():
         }
     }"""
 
-    print("getting schedules flow runs from archived flows...\n")
-    r = client.graphql(query=get_scheduled_flow_runs_from_archived_flows)
+    print("getting scheduled flow runs from archived flows...\n")
+    r = client.graphql(query=query)
+    flows = [flow for flow in r["data"]["flow"] if len(flow["flow_runs"]) > 0]
 
-    flows_to_delete = [
-        flow for flow in r["data"]["flow"] if len(flow["flow_runs"]) > 0
-    ]
+    if len(flows) == 0:
+        print("Not found archived flow runs to delete")
 
-    if len(flows_to_delete) == 0:
-        print("Not found archieved flow run to delete")
+    return flows
 
-    for flow in flows_to_delete:
-        flow_runs = len(flow["flow_runs"])
+
+def delete_flow_runs(client: Client, flows: list[dict]) -> None:
+    """Deletes all scheduled flow runs for each flow in the list.
+
+    Args:
+        client: Authenticated Prefect API client.
+        flows: List of flow dicts, each containing ``id``, ``name``, and
+            a ``flow_runs`` list.
+
+    Raises:
+        Exception: If the deletion mutation fails for any flow run.
+    """
+    for flow in flows:
         print(
-            f"Deleting {flow_runs} archieved flow for {flow['name']}: {flow['id']}"
+            f"Deleting {len(flow['flow_runs'])} archived flow run(s) for {flow['name']}: {flow['id']}"
         )
         for flow_run in flow["flow_runs"]:
             deleted = delete_flow_run(client, flow_run)
             if not deleted:
                 msg = f"Failed to delete archived flow run: {flow_run['id']} for flow {flow['name']}"
                 raise Exception(msg)
+
+
+def delete_archieved_flow_runs() -> None:
+    """Fetches archived flows with scheduled runs and deletes those runs."""
+    client = Client()
+    flows = get_archived_flows_with_scheduled_runs(client)
+    delete_flow_runs(client, flows)
 
 
 if __name__ == "__main__":
