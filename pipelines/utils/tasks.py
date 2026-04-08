@@ -626,7 +626,6 @@ def run_dbt(
     target: str = "dev",
     flags: str | None = None,
     _vars: dict[str, Any] | str | None = None,
-    disable_elementary: bool = False,
 ) -> bool:
     """
     Execute a DBT model and process logs from the log file.
@@ -642,7 +641,6 @@ def run_dbt(
         flags (Optional[str], optional): Flags to pass to the dbt command. Defaults to None.
         _vars (Optional[Union[dict[str, Any], str]], optional): Variables to pass to
             dbt. Defaults to None.
-        disable_elementary (bool, optional): Disable elementary on-run-end hooks. Defaults to False.
 
     Raises:
         ValueError: If dbt_command is invalid.
@@ -679,21 +677,7 @@ def run_dbt(
             if isinstance(_vars, str)
             else (_vars if _vars is not None else {})
         )
-        if target == "prod":
-            disable_elementary = True
-        variables = (
-            constants.DISABLE_ELEMENTARY_VARS.value
-            if disable_elementary
-            else constants.ENABLE_ELEMENTARY_VARS.value
-        )
-        variables = (
-            variables
-            if vars_deserialize is None
-            else {
-                **variables,
-                **vars_deserialize,
-            }
-        )
+        variables = vars_deserialize if vars_deserialize is not None else {}
         variables = get_flow_metadata(variables)
 
         commands_to_run = []

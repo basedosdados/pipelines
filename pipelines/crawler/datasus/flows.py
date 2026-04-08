@@ -101,7 +101,6 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
             table_id=table_id,
             dbt_command="run/test",
             dbt_alias=dbt_alias,
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
 
@@ -197,7 +196,6 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
             table_id=table_id,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
 
@@ -299,7 +297,6 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
             table_id=table_id,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
 
@@ -399,7 +396,6 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
             table_id=table_id,
             dbt_command="run/test",
             dbt_alias=dbt_alias,
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
 
