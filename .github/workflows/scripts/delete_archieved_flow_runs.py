@@ -2,35 +2,16 @@ import prefect
 from prefect import Client
 
 # Increase prefect client request timeout to 60 seconds. Default is 15
-prefect.context.config.cloud.request_timeout = 60
+REQUEST_TIMEOUT = 60
+prefect.context.config.cloud.request_timeout = REQUEST_TIMEOUT
+
+Flow = dict[str, str]
 
 
-def delete_flow_run(client: Client, flow_run: dict[str, str]) -> bool:
-    """Deletes a single flow run via GraphQL mutation.
-
-    Args:
-        client: Authenticated Prefect API client.
-        flow_run: Flow run dict containing at least ``id``.
-
-    Returns:
-        ``True`` if the mutation succeeded, ``False`` otherwise.
-    """
-    mutation = """
-        mutation($flow_id: UUID!) {
-        delete_flow_run(input: {flow_run_id: $flow_id}) {
-            success
-        }
-        }
-        """
-
-    return client.graphql(
-        query=mutation, variables={"flow_id": flow_run["id"]}
-    )["data"]["delete_flow_run"]["success"]
+# --- Schedule deactivation ---
 
 
-def get_archived_flows_with_active_schedule(
-    client: Client,
-) -> list[dict[str, str]]:
+def get_archived_flows_with_active_schedule(client: Client) -> list[Flow]:
     """Queries all archived flows that still have an active schedule.
 
     Args:
@@ -47,16 +28,16 @@ def get_archived_flows_with_active_schedule(
     }"""
 
     print("getting archived flows with active schedules...\n")
-    r = client.graphql(query=query)
-    flows = r["data"]["flow"]
+    response = client.graphql(query=query)
+    flows = response["data"]["flow"]
 
-    if len(flows) == 0:
+    if not flows:
         print("Not found archived flows with active schedules")
 
     return flows
 
 
-def deactivate_schedule(client: Client, flow: dict[str, str]) -> bool:
+def deactivate_schedule(client: Client, flow: Flow) -> bool:
     """Deactivates the schedule of a single flow via GraphQL mutation.
 
     Args:
@@ -74,12 +55,13 @@ def deactivate_schedule(client: Client, flow: dict[str, str]) -> bool:
         }
         """
 
-    return client.graphql(query=mutation, variables={"flow_id": flow["id"]})[
-        "data"
-    ]["set_schedule_inactive"]["success"]
+    response = client.graphql(
+        query=mutation, variables={"flow_id": flow["id"]}
+    )
+    return response["data"]["set_schedule_inactive"]["success"]
 
 
-def deactivate_schedules(client: Client, flows: list[dict[str, str]]) -> None:
+def deactivate_schedules(client: Client, flows: list[Flow]) -> None:
     """Deactivates the schedule for each flow in the list.
 
     Args:
@@ -99,11 +81,17 @@ def deactivate_schedules(client: Client, flows: list[dict[str, str]]) -> None:
             raise Exception(msg)
 
 
-def deactivate_schedules_from_archived_flows() -> None:
-    """Fetches archived flows with active schedules and deactivates them."""
-    client = Client()
+def deactivate_schedules_from_archived_flows(client: Client) -> None:
+    """Fetches archived flows with active schedules and deactivates them.
+
+    Args:
+        client: Authenticated Prefect API client.
+    """
     flows = get_archived_flows_with_active_schedule(client)
     deactivate_schedules(client, flows)
+
+
+# --- Flow run deletion ---
 
 
 def get_archived_flows_with_scheduled_runs(client: Client) -> list[dict]:
@@ -129,13 +117,37 @@ def get_archived_flows_with_scheduled_runs(client: Client) -> list[dict]:
     }"""
 
     print("getting scheduled flow runs from archived flows...\n")
-    r = client.graphql(query=query)
-    flows = [flow for flow in r["data"]["flow"] if len(flow["flow_runs"]) > 0]
+    response = client.graphql(query=query)
+    flows = [flow for flow in response["data"]["flow"] if flow["flow_runs"]]
 
-    if len(flows) == 0:
+    if not flows:
         print("Not found archived flow runs to delete")
 
     return flows
+
+
+def delete_flow_run(client: Client, flow_run: Flow) -> bool:
+    """Deletes a single flow run via GraphQL mutation.
+
+    Args:
+        client: Authenticated Prefect API client.
+        flow_run: Flow run dict containing at least ``id``.
+
+    Returns:
+        ``True`` if the mutation succeeded, ``False`` otherwise.
+    """
+    mutation = """
+        mutation($flow_id: UUID!) {
+        delete_flow_run(input: {flow_run_id: $flow_id}) {
+            success
+        }
+        }
+        """
+
+    response = client.graphql(
+        query=mutation, variables={"flow_id": flow_run["id"]}
+    )
+    return response["data"]["delete_flow_run"]["success"]
 
 
 def delete_flow_runs(client: Client, flows: list[dict]) -> None:
@@ -160,13 +172,25 @@ def delete_flow_runs(client: Client, flows: list[dict]) -> None:
                 raise Exception(msg)
 
 
-def delete_archieved_flow_runs() -> None:
-    """Fetches archived flows with scheduled runs and deletes those runs."""
-    client = Client()
+def delete_archieved_flow_runs(client: Client) -> None:
+    """Fetches archived flows with scheduled runs and deletes those runs.
+
+    Args:
+        client: Authenticated Prefect API client.
+    """
     flows = get_archived_flows_with_scheduled_runs(client)
     delete_flow_runs(client, flows)
 
 
+# --- Entry point ---
+
+
+def main() -> None:
+    """Creates a single Prefect client and runs all cleanup routines."""
+    client = Client()
+    deactivate_schedules_from_archived_flows(client)
+    delete_archieved_flow_runs(client)
+
+
 if __name__ == "__main__":
-    deactivate_schedules_from_archived_flows()
-    delete_archieved_flow_runs()
+    main()
