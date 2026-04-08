@@ -1,5 +1,13 @@
+import logging
+
 import prefect
 from prefect import Client
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 # Increase prefect client request timeout to 60 seconds. Default is 15
 REQUEST_TIMEOUT = 60
@@ -27,12 +35,12 @@ def get_archived_flows_with_active_schedule(client: Client) -> list[Flow]:
         }
     }"""
 
-    print("getting archived flows with active schedules...\n")
+    logger.info("Getting archived flows with active schedules...")
     response = client.graphql(query=query)
     flows = response["data"]["flow"]
 
     if not flows:
-        print("Not found archived flows with active schedules")
+        logger.warning("No archived flows with active schedules found")
 
     return flows
 
@@ -72,12 +80,15 @@ def deactivate_schedules(client: Client, flows: list[Flow]) -> None:
         Exception: If the mutation fails for any flow in the list.
     """
     for flow in flows:
-        print(
-            f"Deactivating schedule for archived flow {flow['name']}: {flow['id']}"
+        logger.info(
+            "Deactivating schedule for archived flow %s: %s",
+            flow["name"],
+            flow["id"],
         )
         deactivated = deactivate_schedule(client, flow)
         if not deactivated:
             msg = f"Failed to deactivate schedule for archived flow: {flow['id']} ({flow['name']})"
+            logger.error(msg)
             raise Exception(msg)
 
 
@@ -116,12 +127,12 @@ def get_archived_flows_with_scheduled_runs(client: Client) -> list[dict]:
         }
     }"""
 
-    print("getting scheduled flow runs from archived flows...\n")
+    logger.info("Getting scheduled flow runs from archived flows...")
     response = client.graphql(query=query)
     flows = [flow for flow in response["data"]["flow"] if flow["flow_runs"]]
 
     if not flows:
-        print("Not found archived flow runs to delete")
+        logger.warning("No archived flow runs to delete found")
 
     return flows
 
@@ -162,13 +173,17 @@ def delete_flow_runs(client: Client, flows: list[dict]) -> None:
         Exception: If the deletion mutation fails for any flow run.
     """
     for flow in flows:
-        print(
-            f"Deleting {len(flow['flow_runs'])} archived flow run(s) for {flow['name']}: {flow['id']}"
+        logger.info(
+            "Deleting %d archived flow run(s) for %s: %s",
+            len(flow["flow_runs"]),
+            flow["name"],
+            flow["id"],
         )
         for flow_run in flow["flow_runs"]:
             deleted = delete_flow_run(client, flow_run)
             if not deleted:
                 msg = f"Failed to delete archived flow run: {flow_run['id']} for flow {flow['name']}"
+                logger.error(msg)
                 raise Exception(msg)
 
 
