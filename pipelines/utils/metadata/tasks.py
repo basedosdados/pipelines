@@ -2,7 +2,6 @@
 Tasks for metadata
 """
 
-import asyncio
 from datetime import datetime, timedelta
 
 import basedosdados as bd
@@ -26,9 +25,6 @@ from pipelines.utils.metadata.utils import (
     update_data_source_update_date,
     update_date_from_bq_metadata,
     update_row_access_policy,
-)
-from pipelines.utils.metadata.utils_async import (
-    create_update_quality_checks_async,
 )
 from pipelines.utils.utils import get_redis_client, log
 
@@ -360,74 +356,4 @@ def task_get_api_most_recent_date(
         table_id=table_id,
         date_format=date_format,
         backend=backend,
-    )
-
-
-#####             #####
-## Quality check's   ##
-#####             #####
-
-
-@task
-def query_tests_results() -> pd.DataFrame:
-    """
-    Task to query recent test results from basedosdados.
-
-    Returns:
-    - pd.DataFrame: A pandas DataFrame containing recent test results with the following columns:
-        - 'name': The name of the test.
-        - 'description': The description of the test result (typically the column name).
-        - 'status': Indicates whether the test passed or failed.
-        - 'dataset_id': The ID of the dataset containing the tested table.
-        - 'table_id': The ID of the tested table.
-    """
-
-    billing_project_id = get_billing_project_id(mode="prod")
-    query_bd = """
-    with tests_order as (
-    select
-        test_short_name as name,
-        column_name as description,
-        status,
-        schema_name as dataset_id,
-        table_name as table_id,
-        row_number() over (partition by test_short_name, schema_name, table_name order by created_at desc) as position,
-        created_at
-    from
-        `basedosdados.elementary.elementary_test_results`
-    where
-        date(created_at) >= date_sub(current_date(), interval 7 DAY))
-    select
-        name,
-        description,
-        status,
-        dataset_id,
-        table_id
-    from tests_order
-    where position = 1
-    """
-
-    t = bd.read_sql(
-        query=query_bd,
-        billing_project_id=billing_project_id,
-        from_file=True,
-    )
-
-    return t
-
-
-@task
-def create_update_quality_checks(tests_results: pd.DataFrame) -> None:
-    """
-    Task to create or update multiple quality checks based on test results asynchronously.
-
-    Parameters:
-    - tests_results (pd.DataFrame): A pandas DataFrame containing test results.
-
-    Returns:
-    - None
-
-    """
-    asyncio.run(
-        create_update_quality_checks_async(tests_results=tests_results)
     )
