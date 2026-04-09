@@ -107,7 +107,6 @@ with Flow(
             table_id=table_id,
             dbt_command="run/test",
             dbt_alias=dbt_alias,
-            disable_elementary=True,
             upstream_tasks=[wait_upload_table],
         )
 
