@@ -24,10 +24,6 @@ with Flow(
     flags = Parameter("flags", default=None, required=False)
     target = Parameter("target", default=None, required=False)
     _vars = Parameter("_vars", default=None, required=False)
-    disable_elementary = Parameter(
-        "disable_elementary", default=True, required=False
-    )
-
     download_csv_file = Parameter(
         "download_csv_file", default=True, required=False
     )
@@ -48,7 +44,6 @@ with Flow(
             flags=flags,
             _vars=_vars,
             target=target,
-            disable_elementary=disable_elementary,
         )
 
     with case(download_csv_file, True):
@@ -59,7 +54,6 @@ with Flow(
             dbt_command=dbt_command,
             flags=flags,
             _vars=_vars,
-            disable_elementary=disable_elementary,
             target=target,
         )
         download_data_to_gcs(
