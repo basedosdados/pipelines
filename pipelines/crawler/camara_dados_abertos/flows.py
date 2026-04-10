@@ -25,7 +25,7 @@ from pipelines.utils.tasks import (
 # ------------------------------ TABLES UNIVERSAL -------------------------------------
 
 with Flow(
-    name="BD template - Camara Dados Abertos", code_owners=["trick"]
+    name="BD template - Camara Dados Abertos", code_owners=["equipe_dados"]
 ) as flow_camara_dados_abertos:
     # Parameters
     dataset_id = Parameter(
