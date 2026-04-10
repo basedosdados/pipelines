@@ -21,7 +21,7 @@ from pipelines.utils.tasks import (
 )
 
 with Flow(
-    name="BD template - Anatel Banda Larga Fixa", code_owners=["trick"]
+    name="BD template - Anatel Banda Larga Fixa", code_owners=["equipe_dados"]
 ) as flow_anatel_banda_larga_fixa:
     # Parameters
     dataset_id = Parameter(
