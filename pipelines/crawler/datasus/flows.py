@@ -228,7 +228,7 @@ flow_siasus.run_config = KubernetesRun(
 )
 
 
-with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
+with Flow(name="DATASUS-SIH", code_owners=["equipe_dados"]) as flow_sihsus:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_sih", required=False)
     table_id = Parameter("table_id", default="aihs_reduzidas", required=False)
@@ -325,7 +325,7 @@ flow_sihsus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_sihsus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
-with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
+with Flow(name="DATASUS-SINAN", code_owners=["equipe_dados"]) as flow_sinan:
     dataset_id = Parameter("dataset_id", default="br_ms_sinan", required=True)
     table_id = Parameter(
         "table_id", default="microdados_dengue", required=True
