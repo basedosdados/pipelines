@@ -19,7 +19,7 @@ from pipelines.utils.tasks import (
     run_dbt,
 )
 
-with Flow(name="br_inmet_bdmep", code_owners=["equipe_pipelines"]) as br_inmet:
+with Flow(name="br_inmet_bdmep", code_owners=["equipe_dados"]) as br_inmet:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_inmet_bdmep", required=False

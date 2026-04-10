@@ -27,7 +27,7 @@ from pipelines.utils.tasks import (
 )
 
 with Flow(
-    name="CGU - Cartão de Pagamento", code_owners=["trick"]
+    name="CGU - Cartão de Pagamento", code_owners=["equipe_dados"]
 ) as flow_cgu_cartao_pagamento:
     dataset_id = Parameter(
         "dataset_id", default="br_cgu_cartao_pagamento", required=True
@@ -121,7 +121,7 @@ flow_cgu_cartao_pagamento.run_config = KubernetesRun(
 
 with Flow(
     name="CGU - Servidores Públicos do Executivo Federal",
-    code_owners=["trick"],
+    code_owners=["equipe_dados"],
 ) as flow_cgu_servidores_publicos:
     dataset_id = Parameter(
         "dataset_id",
@@ -219,7 +219,7 @@ flow_cgu_servidores_publicos.run_config = KubernetesRun(
 # ! ================================== CGU - Licitacao e Contrato =====================================
 
 with Flow(
-    name="CGU - Licitacão e Contrato", code_owners=["trick"]
+    name="CGU - Licitacão e Contrato", code_owners=["equipe_dados"]
 ) as flow_cgu_licitacao_contrato:
     dataset_id = Parameter(
         "dataset_id", default="br_cgu_licitacao_contrato", required=True
@@ -310,7 +310,7 @@ flow_cgu_licitacao_contrato.run_config = KubernetesRun(
 # ! ================================== CGU - Benefícios Cidadão ====================================
 
 with Flow(
-    name="CGU - Benefícios Cidadão", code_owners=["trick"]
+    name="CGU - Benefícios Cidadão", code_owners=["equipe_dados"]
 ) as flow_cgu_beneficios_cidadao:
     dataset_id = Parameter(
         "dataset_id", default="br_cgu_beneficios_cidadao", required=True

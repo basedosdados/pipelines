@@ -23,7 +23,7 @@ br_cgu_servidores_federal__afastamentos = deepcopy(
 br_cgu_servidores_federal__afastamentos.name = (
     "br_cgu_servidores_executivo_federal.afastamentos"
 )
-br_cgu_servidores_federal__afastamentos.code_owners = ["trick"]
+br_cgu_servidores_federal__afastamentos.code_owners = ["equipe_dados"]
 br_cgu_servidores_federal__afastamentos.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -40,7 +40,7 @@ br_cgu_servidores_federal__cadastro_aposentados = deepcopy(
 br_cgu_servidores_federal__cadastro_aposentados.name = (
     "br_cgu_servidores_executivo_federal.cadastro_aposentados"
 )
-br_cgu_servidores_federal__cadastro_aposentados.code_owners = ["trick"]
+br_cgu_servidores_federal__cadastro_aposentados.code_owners = ["equipe_dados"]
 br_cgu_servidores_federal__cadastro_aposentados.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -59,7 +59,7 @@ br_cgu_servidores_federal__cadastro_pensionistas = deepcopy(
 br_cgu_servidores_federal__cadastro_pensionistas.name = (
     "br_cgu_servidores_executivo_federal.cadastro_pensionistas"
 )
-br_cgu_servidores_federal__cadastro_pensionistas.code_owners = ["trick"]
+br_cgu_servidores_federal__cadastro_pensionistas.code_owners = ["equipe_dados"]
 br_cgu_servidores_federal__cadastro_pensionistas.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -99,7 +99,7 @@ br_cgu_servidores_federal__cadastro_servidores = deepcopy(
 br_cgu_servidores_federal__cadastro_servidores.name = (
     "br_cgu_servidores_executivo_federal.cadastro_servidores"
 )
-br_cgu_servidores_federal__cadastro_servidores.code_owners = ["trick"]
+br_cgu_servidores_federal__cadastro_servidores.code_owners = ["equipe_dados"]
 br_cgu_servidores_federal__cadastro_servidores.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -116,7 +116,7 @@ br_cgu_servidores_federal__observacoes = deepcopy(flow_cgu_servidores_publicos)
 br_cgu_servidores_federal__observacoes.name = (
     "br_cgu_servidores_executivo_federal.observacoes"
 )
-br_cgu_servidores_federal__observacoes.code_owners = ["trick"]
+br_cgu_servidores_federal__observacoes.code_owners = ["equipe_dados"]
 br_cgu_servidores_federal__observacoes.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -131,7 +131,7 @@ br_cgu_servidores_federal__remuneracao = deepcopy(flow_cgu_servidores_publicos)
 br_cgu_servidores_federal__remuneracao.name = (
     "br_cgu_servidores_executivo_federal.remuneracao"
 )
-br_cgu_servidores_federal__remuneracao.code_owners = ["trick"]
+br_cgu_servidores_federal__remuneracao.code_owners = ["equipe_dados"]
 br_cgu_servidores_federal__remuneracao.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
