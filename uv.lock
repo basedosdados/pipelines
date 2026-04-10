@@ -178,7 +178,7 @@ wheels = [
 
 [[package]]
 name = "basedosdados"
-version = "2.0.3"
+version = "2.1.0b1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "google-api-python-client" },
@@ -196,9 +196,9 @@ dependencies = [
     { name = "tomlkit" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c9/7b/7cdd911f2782cfaa41696d2f79da0aae5e601cac521bdf4e6883aa57f2f3/basedosdados-2.0.3.tar.gz", hash = "sha256:5bbe6860e8c052547238af2ac57b96de57c8962e549078c68fb5019236075043", size = 12171043, upload-time = "2026-03-03T13:57:57.407Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6a/a9/1e1069437b1fc02a7632c422cbbaeb2e2ae55d73401086544c011c7be3ba/basedosdados-2.1.0b1.tar.gz", hash = "sha256:f457412da21b55bfc0baad031bbca23b6f47f38365f6cc521af5b5396ee72fde", size = 12171112, upload-time = "2026-04-06T14:38:48.785Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/65/b35f3e82093022ea5a690e30312f9a1a00ae8e5cac0afafa135d28541b87/basedosdados-2.0.3-py3-none-any.whl", hash = "sha256:f6f3375938fc6c57d0c1f320629075682157b92d7cd2da0796ce0d1fdbfd64af", size = 39823, upload-time = "2026-03-03T13:57:59.84Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/c8/25d960c299da5614bb2e2d122838cd77c69534f833c97754e0dc736f780c/basedosdados-2.1.0b1-py3-none-any.whl", hash = "sha256:f018432f6d5cd764b155d9aeeb833f545a90241c430709fe309616bc20cfb92e", size = 39984, upload-time = "2026-04-06T14:38:44.307Z" },
 ]
 
 [package.optional-dependencies]
