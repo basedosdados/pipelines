@@ -34,7 +34,7 @@ def query_tables(year: int = 2024, mode: str = "dev") -> list[dict[str, str]]:
             size_bytes
         FROM `basedosdados.br_bd_metadados.bigquery_tables`
         WHERE
-        dataset_id NOT IN ("analytics_295884852","logs", "elementary", "br_bd_metadados", "br_bd_indicadores", "dbt", "analysis")
+        dataset_id NOT IN ("analytics_295884852","logs", "br_bd_metadados", "br_bd_indicadores", "dbt", "analysis")
         and extract(year from last_modified_time) = {year}"""
 
     # Os dados do DOU são maiores que 1 GB, então não serão baixados.

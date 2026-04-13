@@ -17,7 +17,7 @@ br_ibge_ipca15_mes_categoria_brasil = deepcopy(flow_ibge)
 br_ibge_ipca15_mes_categoria_brasil.name = (
     "br_ibge_ipca15.mes_categoria_brasil"
 )
-br_ibge_ipca15_mes_categoria_brasil.code_owners = ["trick"]
+br_ibge_ipca15_mes_categoria_brasil.code_owners = ["equipe_dados"]
 br_ibge_ipca15_mes_categoria_brasil.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -31,7 +31,7 @@ br_ibge_ipca15_mes_categoria_brasil.schedule = (
 
 br_ibge_ipca15_mes_categoria_rm = deepcopy(flow_ibge)
 br_ibge_ipca15_mes_categoria_rm.name = "br_ibge_ipca15.mes_categoria_rm"
-br_ibge_ipca15_mes_categoria_rm.code_owners = ["trick"]
+br_ibge_ipca15_mes_categoria_rm.code_owners = ["equipe_dados"]
 br_ibge_ipca15_mes_categoria_rm.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ibge_ipca15_mes_categoria_rm.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
@@ -44,7 +44,7 @@ br_ibge_ipca15_mes_categoria_municipio = deepcopy(flow_ibge)
 br_ibge_ipca15_mes_categoria_municipio.name = (
     "br_ibge_ipca15.mes_categoria_municipio"
 )
-br_ibge_ipca15_mes_categoria_municipio.code_owners = ["trick"]
+br_ibge_ipca15_mes_categoria_municipio.code_owners = ["equipe_dados"]
 br_ibge_ipca15_mes_categoria_municipio.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -58,7 +58,7 @@ br_ibge_ipca15_mes_categoria_municipio.schedule = (
 
 br_ibge_ipca15_mes_brasil = deepcopy(flow_ibge)
 br_ibge_ipca15_mes_brasil.name = "br_ibge_ipca15.mes_brasil"
-br_ibge_ipca15_mes_brasil.code_owners = ["trick"]
+br_ibge_ipca15_mes_brasil.code_owners = ["equipe_dados"]
 br_ibge_ipca15_mes_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_ibge_ipca15_mes_brasil.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value

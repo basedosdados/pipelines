@@ -8,12 +8,6 @@ config-version: 2
 
 # This setting configures which "profile" dbt uses for this project.
 profile: default
-# Options to disable elementary models
-vars:
-  disable_run_results: false
-  disable_tests_results: false
-  disable_dbt_artifacts_autoupload: true
-  disable_dbt_invocation_autoupload: true
 # These configurations specify where dbt should look for different types of files.
 # The `source-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!
@@ -438,5 +432,3 @@ models:
     world_wwf_hydrosheds:
       +materialized: table
       +schema: world_wwf_hydrosheds
-  elementary:
-    +schema: elementary

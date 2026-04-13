@@ -514,16 +514,9 @@ if __name__ == "__main__":
             # Download csv file is true by default
             # We disable when materialization target is not prod
             "download_csv_file": args.materialization_target == "prod",
-            # Disable elementary is true by default
-            # We disable when run dbt for elementary dataset
-            "disable_elementary": False,
             "_vars": {
                 "job_name": f"{dataset_id}.{table_id}",
                 "job_id": flow_id,
-                "disable_run_results": True,
-                "disable_tests_results": False,
-                "disable_dbt_artifacts_autoupload": False,
-                "disable_dbt_invocation_autoupload": True,
             },
         }
         mutation = """

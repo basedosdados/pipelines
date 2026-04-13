@@ -17,7 +17,9 @@ from pipelines.utils.tasks import (
     run_dbt,
 )
 
-with Flow(name="br_b3_cotacoes.cotacoes", code_owners=["trick"]) as cotacoes:
+with Flow(
+    name="br_b3_cotacoes.cotacoes", code_owners=["equipe_dados"]
+) as cotacoes:
     # Parameters
     dataset_id = Parameter(
         "dataset_id", default="br_b3_cotacoes", required=True

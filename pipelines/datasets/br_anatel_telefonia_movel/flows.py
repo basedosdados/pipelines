@@ -23,7 +23,7 @@ br_anatel_telefonia_movel__microdados = deepcopy(flow_anatel_telefonia_movel)
 br_anatel_telefonia_movel__microdados.name = (
     "br_anatel_telefonia_movel.microdados"
 )
-br_anatel_telefonia_movel__microdados.code_owners = ["trick"]
+br_anatel_telefonia_movel__microdados.code_owners = ["equipe_dados"]
 br_anatel_telefonia_movel__microdados.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -42,7 +42,7 @@ br_anatel_telefonia_movel__densidade_municipio = deepcopy(
 br_anatel_telefonia_movel__densidade_municipio.name = (
     "br_anatel_telefonia_movel.densidade_municipio"
 )
-br_anatel_telefonia_movel__densidade_municipio.code_owners = ["trick"]
+br_anatel_telefonia_movel__densidade_municipio.code_owners = ["equipe_dados"]
 br_anatel_telefonia_movel__densidade_municipio.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -59,7 +59,7 @@ br_anatel_telefonia_movel__densidade_uf = deepcopy(flow_anatel_telefonia_movel)
 br_anatel_telefonia_movel__densidade_uf.name = (
     "br_anatel_telefonia_movel.densidade_uf"
 )
-br_anatel_telefonia_movel__densidade_uf.code_owners = ["trick"]
+br_anatel_telefonia_movel__densidade_uf.code_owners = ["equipe_dados"]
 br_anatel_telefonia_movel__densidade_uf.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -78,7 +78,7 @@ br_anatel_telefonia_movel__densidade_brasil = deepcopy(
 br_anatel_telefonia_movel__densidade_brasil.name = (
     "br_anatel_telefonia_movel.densidade_brasil"
 )
-br_anatel_telefonia_movel__densidade_brasil.code_owners = ["trick"]
+br_anatel_telefonia_movel__densidade_brasil.code_owners = ["equipe_dados"]
 br_anatel_telefonia_movel__densidade_brasil.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )

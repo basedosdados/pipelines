@@ -237,13 +237,64 @@ dbt test --select models/<dataset_id>
 
 ## Dataset Onboarding
 
-To onboard a new dataset (raw data → BigQuery → metadata), spawn the `onboarding` agent:
+To onboard a new dataset (raw data → BigQuery → metadata), spawn the `orchestrator` agent:
 
 ```text
-Onboard dataset <slug>. Raw files at <path>. Drive folder: BD/Dados/Conjuntos/<slug>/.
+Onboard dataset <slug>.
+Sources: <URL or local path to raw files>
+Drive folder: BD/Dados/Conjuntos/<slug>/
+Architecture suggestion: <brief description>
+Organization: <source org name>
+Notes: <anything unusual>
 ```
 
-The agent will run the full 10-step sequence (context → architecture → clean → upload → dbt → tests → discover → metadata → prod → PR), pausing for human approval before promoting to production.
+The agent runs an 11-step sequence: context → architecture → download → clean → upload → dbt → validate → discover → metadata (dev) → [human approval] → metadata (prod) → PR.
+
+### Multi-agent architecture
+
+The `orchestrator` agent dispatches to specialized worker agents:
+
+| Agent | Role |
+|-------|------|
+| `context` | Gathers source URLs, org, themes, coverage |
+| `architecture` | Designs/validates architecture tables on Drive |
+| `raw-data-downloader` | Downloads raw files from source URLs or portals |
+| `cleaner` | Writes and runs Python cleaning code → Parquet |
+| `uploader` | Uploads Parquet to BigQuery |
+| `dbt` | Writes SQL models and schema.yml |
+| `validator` | Runs DBT tests; flags and fixes failures |
+| `discover` | Resolves reference IDs from the backend |
+| `metadata` | Registers/updates all metadata in the backend |
+| `pr` | Opens the GitHub pull request |
+
+### Rules reference
+
+Agents use shared rule files in `.claude/rules/`:
+
+| Rule file | Contents |
+|-----------|----------|
+| `data-basis-style.md` | Column naming, ordering, prefixes, directory mappings |
+| `dbt-conventions.md` | SQL patterns, schema.yml structure, test types |
+| `bigquery-conventions.md` | Project references, partitioning, type casting |
+| `metadata-schema.md` | Backend API field mapping, MCP tool sequence |
+| `onboarding-workflow.md` | 11-step sequence, quality gates, commit discipline |
+
+### Skills (user-callable shortcuts)
+
+Individual steps can also be invoked directly as skills (`.claude/skills/`):
+`/onboarding-context`, `/onboarding-architecture`, `/onboarding-download`,
+`/onboarding-clean`, `/onboarding-upload`, `/onboarding-dbt`, `/onboarding-validate`,
+`/onboarding-discover`, `/onboarding-metadata`, `/onboarding-pr`
+
+### Prerequisites
+
+Before running AI-assisted onboarding, ensure the following are configured:
+
+1. **`mcp__databasis` MCP server** — Data Basis backend API. Required by `discover` and `metadata` agents.
+2. **`mcp__databasis-workspace` MCP server** — Google Drive/Sheets access via `rdahis@basedosdados.org`. Required by `context`, `architecture`, and `metadata` agents to read and write architecture tables on Drive.
+3. **`mcp__github` MCP server** — GitHub API. Required by the `pr` agent.
+4. **`~/.basedosdados/config.toml`** — basedosdados SDK config. Required by the `uploader` agent (`basedosdados config init`).
+5. **`GOOGLE_APPLICATION_CREDENTIALS`** — Service account key with BigQuery write access to `basedosdados-dev`.
 
 ## Key Rules for Agents
 

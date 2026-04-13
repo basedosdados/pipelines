@@ -28,7 +28,7 @@ URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.zi
 
 with Flow(
     name="br_cvm_oferta_publica_distribuicao.dia",
-    code_owners=["equipe_pipelines"],
+    code_owners=["equipe_dados"],
 ) as br_cvm_ofe_pub_dis_dia:
     # Parameters
     dataset_id = Parameter(

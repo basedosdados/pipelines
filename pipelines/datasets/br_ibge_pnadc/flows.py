@@ -84,7 +84,6 @@ with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
             table_id=table_id,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
 

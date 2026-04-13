@@ -28,7 +28,7 @@ from pipelines.utils.tasks import (
 )
 
 with Flow(
-    name="br_anp_precos_combustiveis.microdados", code_owners=["trick"]
+    name="br_anp_precos_combustiveis.microdados", code_owners=["equipe_dados"]
 ) as anp_microdados:
     dataset_id = Parameter(
         "dataset_id", default="br_anp_precos_combustiveis", required=True

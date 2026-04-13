@@ -4,7 +4,7 @@ models:
   - name: br_tse_filiacao_partidaria__microdados_antigos
     description: Microdados antigos de filiação partidária do TSE.
     tests:
-      - custom_not_null_proportion_multiple_columns:
+      - not_null_proportion_multiple_columns:
           at_least: 0.10
           ignore_values: [data_regularizacao]
     columns:
@@ -72,7 +72,7 @@ models:
   - name: br_tse_filiacao_partidaria__microdados
     description: Microdados de filiação partidária do TSE.
     tests:
-      - custom_not_null_proportion_multiple_columns:
+      - not_null_proportion_multiple_columns:
           at_least: 0.55
           ignore_values:
             - data_desfiliacao
@@ -159,7 +159,7 @@ models:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
       - name: data_extracao
-        description: Data de extração da linha
+        description: Data de extração
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')

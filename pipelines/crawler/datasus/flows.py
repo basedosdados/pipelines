@@ -101,7 +101,6 @@ with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
             table_id=table_id,
             dbt_command="run/test",
             dbt_alias=dbt_alias,
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
 
@@ -197,7 +196,6 @@ with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
             table_id=table_id,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
 
@@ -230,7 +228,7 @@ flow_siasus.run_config = KubernetesRun(
 )
 
 
-with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
+with Flow(name="DATASUS-SIH", code_owners=["equipe_dados"]) as flow_sihsus:
     # Parameters
     dataset_id = Parameter("dataset_id", default="br_ms_sih", required=False)
     table_id = Parameter("table_id", default="aihs_reduzidas", required=False)
@@ -299,7 +297,6 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_pipelines"]) as flow_sihsus:
             table_id=table_id,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
 
@@ -328,7 +325,7 @@ flow_sihsus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 flow_sihsus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 
 
-with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
+with Flow(name="DATASUS-SINAN", code_owners=["equipe_dados"]) as flow_sinan:
     dataset_id = Parameter("dataset_id", default="br_ms_sinan", required=True)
     table_id = Parameter(
         "table_id", default="microdados_dengue", required=True
@@ -399,7 +396,6 @@ with Flow(name="DATASUS-SINAN", code_owners=["trick"]) as flow_sinan:
             table_id=table_id,
             dbt_command="run/test",
             dbt_alias=dbt_alias,
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
 

@@ -5,7 +5,10 @@ General utilities for all pipelines.
 import base64
 import json
 import logging
+import os
+import shutil
 import zipfile
+from collections.abc import Generator
 from datetime import datetime
 from io import BytesIO
 from os import getenv, walk
@@ -765,3 +768,266 @@ def get_credentials_from_env(
     if scopes:
         cred = cred.with_scopes(scopes)
     return cred
+
+
+class DBTArtifactUploader:
+    """
+    Classe responsável por subir os artifacts do DBT (compiled e run) para um bucket GCS.
+
+    Comportamento:
+        - Em Kubernetes: sempre roda
+        - Local: só roda se enable_upload=True
+
+    Estrutura no GCS:
+        dbt-artifacts/{dataset_id}/{table_id}/{target}/{subfolder}/{filename}
+
+    Observações:
+        - A deleção ocorre no nível de dataset_id/table_id/target antes do upload
+        - O diretório local `target` é removido ao final para evitar reuso entre execuções
+    """
+
+    # Constantes
+    DEFAULT_SOURCE_DIR = "target"
+    DEFAULT_SUBFOLDERS = ("compiled", "run")
+    DESTINATION_PREFIX = "dbt-artifacts"
+    DEFAULT_TARGET = "dev"
+
+    def __init__(
+        self,
+        dataset_id: str,
+        table_id: str,
+        target: str = DEFAULT_TARGET,
+        bucket_name: str = "basedosdados-dev",
+        user_project: str = "basedosdados-dev",
+        source_dir: str = DEFAULT_SOURCE_DIR,
+        subfolders: tuple[str, ...] = DEFAULT_SUBFOLDERS,
+        enable_upload: bool = False,
+    ) -> None:
+        """
+        Inicializa o uploader de artifacts do DBT.
+
+        Args:
+            dataset_id: Identificador do dataset.
+            table_id: Identificador da tabela.
+            target: Ambiente de execução (ex: dev, prod).
+            bucket_name: Nome do bucket no GCS.
+            user_project: Projeto GCP para billing.
+            source_dir: Diretório local onde o DBT gera artifacts.
+            subfolders: Subpastas a serem consideradas (ex: compiled, run).
+            enable_upload: Se True, permite execução fora do Kubernetes.
+        """
+        self.dataset_id = dataset_id
+        self.table_id = table_id
+        self.target = target
+
+        self.bucket_name = bucket_name
+        self.user_project = user_project
+        self.source_dir = source_dir
+        self.subfolders = subfolders
+        self.enable_upload = enable_upload
+
+        self._client: storage.Client | None = None
+        self._bucket: storage.Bucket | None = None
+        self._deleted_prefixes: set[str] = set()
+
+    def run(self) -> None:
+        """
+        Executa o processo de upload dos artifacts do DBT para o GCS.
+
+        O fluxo inclui:
+            - Verificação se deve executar
+            - Inicialização do cliente GCS
+            - Remoção de artifacts antigos (no nível dataset/table/target)
+            - Upload dos arquivos da pasta target
+            - Limpeza do diretório local ao final
+        """
+        if not self._should_run():
+            log("Upload não rodou (não em Kubernetes e enable_upload=False)")
+            return
+
+        self._init_gcs()
+
+        log("Fazendo upload dos artifacts do DBT!")
+
+        try:
+            table_prefix = self._get_table_prefix()
+            self._delete_if_needed(table_prefix)
+
+            for local_path, subfolder in self._list_target_files():
+                filename = os.path.basename(local_path)
+                self._upload_file(local_path, subfolder, filename)
+
+        finally:
+            self._cleanup_target_dir()
+
+    def _init_gcs(self) -> None:
+        """
+        Inicializa o cliente e o bucket do Google Cloud Storage.
+        """
+        self._client = storage.Client()
+        self._bucket = self._client.bucket(
+            bucket_name=self.bucket_name,
+            user_project=self.user_project,
+        )
+
+    def _should_run(self) -> bool:
+        """
+        Determina se o uploader deve ser executado.
+
+        Returns:
+            True se estiver em Kubernetes ou se enable_upload=True.
+        """
+        if self._is_running_in_kubernetes():
+            return True
+        return self.enable_upload
+
+    def _is_running_in_kubernetes(self) -> bool:
+        """
+        Verifica se o código está sendo executado em um ambiente Kubernetes.
+
+        Returns:
+            True se estiver em Kubernetes, False caso contrário.
+        """
+        return os.path.exists("/var/run/secrets/kubernetes.io")
+
+    def _list_target_files(self) -> Generator[tuple[str, str], None, None]:
+        """
+        Lista os arquivos dentro das subpastas do diretório target.
+
+        Yields:
+            Tuplas contendo:
+                - caminho completo do arquivo local
+                - nome da subpasta (compiled ou run)
+        """
+        for subfolder in self.subfolders:
+            full_path = os.path.join(self.source_dir, subfolder)
+
+            if not os.path.exists(full_path):
+                continue
+
+            for root, _, files in os.walk(full_path):
+                for file in files:
+                    yield os.path.join(root, file), subfolder
+
+    def _get_table_prefix(self) -> str:
+        """
+        Retorna o prefixo base no bucket para a tabela.
+
+        Esse prefixo define o escopo de deleção antes do upload.
+
+        Exemplo de caminho que será deletado:
+            dbt-artifacts/br_ibge_populacao/setores_censitarios/dev/
+
+        Returns:
+            Caminho base no GCS para dataset/tabela/target.
+        """
+        return (
+            f"{self.DESTINATION_PREFIX}/"
+            f"{self.dataset_id}/"
+            f"{self.table_id}/"
+            f"{self.target}/"
+        )
+
+    def _get_blob_path(self, subfolder: str, filename: str) -> str:
+        """
+        Constrói o caminho completo do blob no GCS.
+
+        Args:
+            subfolder: Subpasta do artifact (compiled ou run).
+            filename: Nome do arquivo.
+
+        Returns:
+            Caminho completo do blob no bucket.
+        """
+        return (
+            f"{self.DESTINATION_PREFIX}/"
+            f"{self.dataset_id}/"
+            f"{self.table_id}/"
+            f"{self.target}/"
+            f"{subfolder}/"
+            f"{filename}"
+        )
+
+    def _delete_if_needed(self, prefix: str) -> None:
+        """
+        Garante que a deleção de um prefixo ocorra apenas uma vez.
+
+        Args:
+            prefix: Prefixo no bucket a ser deletado.
+        """
+        if prefix in self._deleted_prefixes:
+            return
+
+        self._delete_prefix(prefix)
+        self._deleted_prefixes.add(prefix)
+
+    def _delete_prefix(self, prefix: str) -> None:
+        """
+        Remove todos os blobs de um prefixo no bucket.
+
+        Atenção:
+            Essa operação remove TODOS os arquivos dentro do caminho informado.
+
+        Exemplo:
+            prefix = "dbt-artifacts/br_ibge_populacao/setores_censitarios/dev/"
+
+            Isso irá remover:
+                dbt-artifacts/br_ibge_populacao/setores_censitarios/dev/compiled/*
+                dbt-artifacts/br_ibge_populacao/setores_censitarios/dev/run/*
+
+        Args:
+            prefix: Prefixo a ser deletado no GCS.
+        """
+        if self._bucket is None:
+            return
+
+        log(f"Removendo artifacts antigos em: {prefix}")
+
+        for blob in self._bucket.list_blobs(prefix=prefix):
+            blob.delete()
+
+    def _upload_file(
+        self, local_path: str, subfolder: str, filename: str
+    ) -> None:
+        """
+        Faz upload de um arquivo local para o GCS.
+
+        Args:
+            local_path: Caminho completo do arquivo local.
+            subfolder: Subpasta do artifact (compiled ou run).
+            filename: Nome do arquivo no destino.
+        """
+        if self._bucket is None:
+            return
+
+        blob_path = self._get_blob_path(subfolder, filename)
+        blob = self._bucket.blob(blob_path)
+        blob.upload_from_filename(local_path)
+
+    def _cleanup_target_dir(self) -> None:
+        """
+        Remove o diretório local de artifacts do DBT (`target`) após o upload.
+
+        Isso evita reutilização de arquivos entre execuções no mesmo ambiente
+        (ex: rodar dev e depois prod no mesmo pod).
+
+        Exemplo:
+            Antes:
+                target/compiled/*
+                target/run/*
+
+            Depois:
+                target/ (removido)
+
+        A remoção é segura:
+            - Só ocorre se o diretório existir
+            - Não levanta erro caso falhe
+        """
+        if not os.path.exists(self.source_dir):
+            return
+
+        try:
+            shutil.rmtree(self.source_dir)
+            log(f"Diretório removido após upload: {self.source_dir}")
+        except Exception as e:
+            log(f"Erro ao remover diretório {self.source_dir}: {e}")
