@@ -13,7 +13,7 @@ from pipelines.utils.to_download.tasks import download_async
 with Flow(
     name="test_to_download_task",
     code_owners=[
-        "equipe_pipelines",
+        "equipe_dados",
     ],
 ) as utils_to_download_flow:
     url = Parameter(
