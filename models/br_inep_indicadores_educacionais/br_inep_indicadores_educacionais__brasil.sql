@@ -7,7 +7,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2006, "end": 2024, "interval": 1},
+            "range": {"start": 2006, "end": 2030, "interval": 1},
         },
     )
 }}
