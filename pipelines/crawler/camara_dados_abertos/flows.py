@@ -25,7 +25,7 @@ from pipelines.utils.tasks import (
 # ------------------------------ TABLES UNIVERSAL -------------------------------------
 
 with Flow(
-    name="BD template - Camara Dados Abertos", code_owners=["trick"]
+    name="BD template - Camara Dados Abertos", code_owners=["equipe_dados"]
 ) as flow_camara_dados_abertos:
     # Parameters
     dataset_id = Parameter(
@@ -71,7 +71,6 @@ with Flow(
             table_id=table_id,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
         with case(materialize_after_dump, True):

@@ -25,7 +25,7 @@ from pipelines.utils.tasks import (
 )
 
 with Flow(
-    name="BD template - Anatel Telefonia Móvel", code_owners=["trick"]
+    name="BD template - Anatel Telefonia Móvel", code_owners=["equipe_dados"]
 ) as flow_anatel_telefonia_movel:
     # Parameters
     dataset_id = Parameter(
@@ -103,7 +103,6 @@ with Flow(
             table_id=table_id,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
 
