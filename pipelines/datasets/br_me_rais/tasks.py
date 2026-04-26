@@ -157,7 +157,7 @@ def build_partitions(
     df_municipio = bd.read_sql(
         "SELECT id_municipio, id_municipio_6, sigla_uf FROM `basedosdados.br_bd_diretorios_brasil.municipio`",
         billing_project_id="basedosdados",
-        reauth=False,
+        from_file=True,
     )
 
     if table_id == "microdados_estabelecimentos":
