@@ -1,6 +1,6 @@
 {{
     config(
-        alias="microdados_estabelecimentos",
+        alias="microdados_estabelecimentos_test",
         schema="br_me_rais",
         materialized="incremental",
         partition_by={
