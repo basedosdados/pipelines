@@ -186,9 +186,9 @@ def _build_estab_partitions(
     df_municipio: pd.DataFrame,
 ) -> None:
     df_uf = bd.read_sql(
-        "SELECT id_uf, sigla FROM `basedosdados.br_bd_diretorios_brasil.uf`",
-        billing_project_id="basedosdados",
-        reauth=False,
+        "SELECT id_uf, sigla FROM `basedosdados-dev.br_bd_diretorios_brasil.uf`",
+        billing_project_id="basedosdados-dev",
+        from_file=True,
     )
 
     csv_file = _detect_csv_file(input_dir)
