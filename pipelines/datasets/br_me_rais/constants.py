@@ -13,13 +13,16 @@ class constants(Enum):
     START_YEAR = 2021
 
     ESTAB_FILE = "RAIS_ESTAB_PUB.7z"
+    # Reference list — actual files are discovered dynamically from FTP
+    # since NI and NORDESTE availability varies by year
     VINCULOS_FILES = [
-        "RAIS_VIC_PUB_CENTRO_OESTE.7z",
-        "RAIS_VIC_PUB_MG_ES_RJ.7z",
-        "RAIS_VIC_PUB_NI.7z",
-        "RAIS_VIC_PUB_NORTE.7z",
-        "RAIS_VIC_PUB_SP.7z",
-        "RAIS_VIC_PUB_SUL.7z",
+        "RAIS_VINC_PUB_CENTRO_OESTE.7z",
+        "RAIS_VINC_PUB_MG_ES_RJ.7z",
+        "RAIS_VINC_PUB_NI.7z",
+        "RAIS_VINC_PUB_NORDESTE.7z",
+        "RAIS_VINC_PUB_NORTE.7z",
+        "RAIS_VINC_PUB_SP.7z",
+        "RAIS_VINC_PUB_SUL.7z",
     ]
 
     # Column rename for microdados_estabelecimentos

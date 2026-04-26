@@ -12,12 +12,12 @@ from pipelines.utils.utils import log
 
 def download_rais_file(
     ftp: ftplib.FTP,
-    remote_dir: str,
     filename: str,
     local_dir: Path,
 ) -> tuple[bool, dict | list]:
     """Download and extract a single .7z file from the RAIS FTP.
 
+    Assumes ftp is already cwd'd to the correct year directory.
     Returns (success, error_info). On failure cleans up any partial files.
     """
     local_7z = local_dir / filename
@@ -25,7 +25,7 @@ def download_rais_file(
 
     try:
         with open(local_7z, "wb") as f:
-            ftp.retrbinary(f"RETR {remote_dir}/{filename}", f.write)
+            ftp.retrbinary(f"RETR {filename}", f.write)
     except Exception as e:
         log(f"Download failed for {filename}: {e}")
         local_7z.unlink(missing_ok=True)

@@ -99,15 +99,22 @@ def crawl_rais_ftp(
     """Download all .7z files for a given year and table from RAIS FTP."""
     year_dir = str(year)
 
-    if table_id == "microdados_estabelecimentos":
-        files_to_download = [rais_constants.ESTAB_FILE.value]
-    else:
-        files_to_download = rais_constants.VINCULOS_FILES.value
-
     ftp = ftplib.FTP(ftp_host)
     ftp.login()
     ftp.encoding = "latin-1"
     ftp.cwd(f"{rais_constants.REMOTE_DIR.value}/{year_dir}")
+
+    available = ftp.nlst()
+
+    if table_id == "microdados_estabelecimentos":
+        files_to_download = [rais_constants.ESTAB_FILE.value]
+    else:
+        # Discover vinculos files dynamically — name and count vary by year
+        files_to_download = [
+            f for f in available if f.startswith("RAIS_VINC_PUB_")
+        ]
+
+    log(f"Files to download for {table_id} {year}: {files_to_download}")
 
     year_input_dir = Path(input_dir) / year_dir
     year_input_dir.mkdir(parents=True, exist_ok=True)
@@ -116,7 +123,7 @@ def crawl_rais_ftp(
     success_count = 0
     try:
         for filename in files_to_download:
-            ok, err = download_rais_file(ftp, "", filename, year_input_dir)
+            ok, err = download_rais_file(ftp, filename, year_input_dir)
             if ok:
                 success_count += 1
             else:
