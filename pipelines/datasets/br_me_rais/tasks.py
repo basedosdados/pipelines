@@ -155,8 +155,8 @@ def build_partitions(
     output_dir = Path(output_dir)
 
     df_municipio = bd.read_sql(
-        "SELECT id_municipio, id_municipio_6, sigla_uf FROM `basedosdados.br_bd_diretorios_brasil.municipio`",
-        billing_project_id="basedosdados",
+        "SELECT id_municipio, id_municipio_6, sigla_uf FROM `basedosdados-dev.br_bd_diretorios_brasil.municipio`",
+        billing_project_id="basedosdados-dev",
         from_file=True,
     )
 
