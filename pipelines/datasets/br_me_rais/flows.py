@@ -7,10 +7,6 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.datasets.br_me_rais.schedules import (
-    every_year_estabelecimentos,
-    every_year_vinculos,
-)
 from pipelines.datasets.br_me_rais.tasks import (
     build_partitions,
     build_table_paths,
@@ -20,14 +16,10 @@ from pipelines.datasets.br_me_rais.tasks import (
     get_table_last_year,
 )
 from pipelines.utils.decorators import Flow
-from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
-)
+from pipelines.utils.metadata.tasks import update_django_metadata
 from pipelines.utils.tasks import (
     create_table_dev_and_upload_to_gcs,
     create_table_prod_gcs_and_run_dbt,
-    log_task,
     rename_current_flow_run_dataset_table,
     run_dbt,
 )
@@ -55,80 +47,67 @@ with Flow(
     )
 
     source_last_year = get_source_last_year(upstream_tasks=[table_id])
-
-    check_if_outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=source_last_year,
-        date_format="%Y",
-        upstream_tasks=[source_last_year],
+    table_last_year = get_table_last_year(
+        dataset_id, table_id, upstream_tasks=[source_last_year]
+    )
+    input_dir, output_dir = build_table_paths(
+        table_id, upstream_tasks=[table_last_year]
+    )
+    years = generate_year_range(
+        table_last_year, source_last_year, upstream_tasks=[table_last_year]
     )
 
-    with case(check_if_outdated, False):
-        log_task(f"No updates for table {table_id}!")
+    failed_crawls = crawl_rais_ftp.map(
+        year=years,
+        table_id=table_id,
+        input_dir=input_dir,
+        upstream_tasks=[input_dir],
+    )
 
-    with case(check_if_outdated, True):
-        table_last_year = get_table_last_year(
-            dataset_id, table_id, upstream_tasks=[check_if_outdated]
-        )
-        input_dir, output_dir = build_table_paths(
-            table_id, upstream_tasks=[check_if_outdated]
-        )
-        years = generate_year_range(
-            table_last_year, source_last_year, upstream_tasks=[table_last_year]
-        )
+    filepath = build_partitions.map(
+        table_id=table_id,
+        year=years,
+        input_dir=input_dir,
+        output_dir=output_dir,
+        upstream_tasks=[failed_crawls],
+    )
 
-        failed_crawls = crawl_rais_ftp.map(
-            year=years,
-            table_id=table_id,
-            input_dir=input_dir,
-            upstream_tasks=[input_dir],
-        )
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
+        data_path=output_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        upstream_tasks=[filepath],
+    )
 
-        filepath = build_partitions.map(
-            table_id=table_id,
-            year=years,
-            input_dir=input_dir,
-            output_dir=output_dir,
-            upstream_tasks=[failed_crawls],
-        )
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
 
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
+    with case(materialize_after_dump, True):
+        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
             data_path=output_dir,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            upstream_tasks=[filepath],
+            upstream_tasks=[wait_for_materialization],
         )
 
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=output_dir,
+        with case(update_metadata, True):
+            update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
+                date_column_name={"year": "ano"},
+                date_format="%Y",
+                coverage_type="part_bdpro",
+                time_delta={"years": 1},
+                bq_project="basedosdados",
+                upstream_tasks=[wait_upload_prod],
             )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano"},
-                    date_format="%Y",
-                    coverage_type="part_bdpro",
-                    time_delta={"years": 1},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
 
 br_me_rais_microdados_estabelecimentos.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
@@ -136,7 +115,6 @@ br_me_rais_microdados_estabelecimentos.storage = GCS(
 br_me_rais_microdados_estabelecimentos.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_me_rais_microdados_estabelecimentos.schedule = every_year_estabelecimentos
 
 
 with Flow(
@@ -162,83 +140,69 @@ with Flow(
     )
 
     source_last_year = get_source_last_year(upstream_tasks=[table_id])
-
-    check_if_outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=source_last_year,
-        date_format="%Y",
-        upstream_tasks=[source_last_year],
+    table_last_year = get_table_last_year(
+        dataset_id, table_id, upstream_tasks=[source_last_year]
+    )
+    input_dir, output_dir = build_table_paths(
+        table_id, upstream_tasks=[table_last_year]
+    )
+    years = generate_year_range(
+        table_last_year, source_last_year, upstream_tasks=[table_last_year]
     )
 
-    with case(check_if_outdated, False):
-        log_task(f"No updates for table {table_id}!")
+    failed_crawls = crawl_rais_ftp.map(
+        year=years,
+        table_id=table_id,
+        input_dir=input_dir,
+        upstream_tasks=[input_dir],
+    )
 
-    with case(check_if_outdated, True):
-        table_last_year = get_table_last_year(
-            dataset_id, table_id, upstream_tasks=[check_if_outdated]
-        )
-        input_dir, output_dir = build_table_paths(
-            table_id, upstream_tasks=[check_if_outdated]
-        )
-        years = generate_year_range(
-            table_last_year, source_last_year, upstream_tasks=[table_last_year]
-        )
+    filepath = build_partitions.map(
+        table_id=table_id,
+        year=years,
+        input_dir=input_dir,
+        output_dir=output_dir,
+        upstream_tasks=[failed_crawls],
+    )
 
-        failed_crawls = crawl_rais_ftp.map(
-            year=years,
-            table_id=table_id,
-            input_dir=input_dir,
-            upstream_tasks=[input_dir],
-        )
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
+        data_path=output_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        upstream_tasks=[filepath],
+    )
 
-        filepath = build_partitions.map(
-            table_id=table_id,
-            year=years,
-            input_dir=input_dir,
-            output_dir=output_dir,
-            upstream_tasks=[failed_crawls],
-        )
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
 
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
+    with case(materialize_after_dump, True):
+        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
             data_path=output_dir,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            upstream_tasks=[filepath],
+            upstream_tasks=[wait_for_materialization],
         )
 
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=output_dir,
+        with case(update_metadata, True):
+            update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
+                date_column_name={"year": "ano"},
+                date_format="%Y",
+                coverage_type="part_bdpro",
+                time_delta={"years": 1},
+                bq_project="basedosdados",
+                upstream_tasks=[wait_upload_prod],
             )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano"},
-                    date_format="%Y",
-                    coverage_type="part_bdpro",
-                    time_delta={"years": 1},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
 
 br_me_rais_microdados_vinculos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_rais_microdados_vinculos.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_me_rais_microdados_vinculos.schedule = every_year_vinculos
