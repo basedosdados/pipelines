@@ -1,13 +1,13 @@
 -- Materializando para os dados de parciais de 2024
 {{
     config(
-        alias="microdados_vinculos",
+        alias="microdados_vinculos_test",
         schema="br_me_rais",
         materialized="incremental",
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1985, "end": 2024, "interval": 1},
+            "range": {"start": 1985, "end": 2030, "interval": 1},
         },
         cluster_by=["sigla_uf", "id_municipio"],
     )
@@ -97,6 +97,7 @@ select
     safe_cast(
         indicador_trabalho_intermitente as string
     ) indicador_trabalho_intermitente,
+    safe_cast(indicador_vinculo_abandonado as string) indicador_vinculo_abandonado,
     case
         when faixa_remuneracao_media_sm = '00'
         then '0'
