@@ -104,16 +104,12 @@ def crawl_rais_ftp(
     ftp.encoding = "latin-1"
     ftp.cwd(f"{rais_constants.REMOTE_DIR.value}/{year_dir}")
 
-    available = ftp.nlst()
+    # vinculos: download is handled inside build_partitions (stream per file)
+    if table_id != "microdados_estabelecimentos":
+        ftp.quit()
+        return []
 
-    if table_id == "microdados_estabelecimentos":
-        files_to_download = [rais_constants.ESTAB_FILE.value]
-    else:
-        # Discover vinculos files dynamically — name and count vary by year
-        files_to_download = [
-            f for f in available if f.startswith("RAIS_VINC_PUB_")
-        ]
-
+    files_to_download = [rais_constants.ESTAB_FILE.value]
     log(f"Files to download for {table_id} {year}: {files_to_download}")
 
     year_input_dir = Path(input_dir) / year_dir
@@ -172,10 +168,9 @@ def build_partitions(
 
 def _detect_csv_file(directory: Path) -> Path:
     """Return the extracted data file (.comt for 2024+, .txt for earlier years)."""
-    for ext in ("*.comt", "*.txt"):
-        matches = list(directory.glob(ext))
-        if matches:
-            return matches[0]
+    for f in Path(directory).rglob("*"):
+        if f.is_file() and f.suffix.lower() in (".comt", ".txt"):
+            return f
     raise FileNotFoundError(f"No .comt or .txt file found in {directory}")
 
 
