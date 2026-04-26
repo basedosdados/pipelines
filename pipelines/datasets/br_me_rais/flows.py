@@ -11,9 +11,6 @@ from pipelines.datasets.br_me_rais.tasks import (
     build_partitions,
     build_table_paths,
     crawl_rais_ftp,
-    generate_year_range,
-    get_source_last_year,
-    get_table_last_year,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.metadata.tasks import update_django_metadata
@@ -31,6 +28,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="microdados_estabelecimentos", required=True
     )
+    year = Parameter("year", required=True)
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
@@ -46,27 +44,20 @@ with Flow(
         wait=table_id,
     )
 
-    source_last_year = get_source_last_year(upstream_tasks=[table_id])
-    table_last_year = get_table_last_year(
-        dataset_id, table_id, upstream_tasks=[source_last_year]
-    )
     input_dir, output_dir = build_table_paths(
-        table_id, upstream_tasks=[table_last_year]
-    )
-    years = generate_year_range(
-        table_last_year, source_last_year, upstream_tasks=[table_last_year]
+        table_id, upstream_tasks=[table_id]
     )
 
-    failed_crawls = crawl_rais_ftp.map(
-        year=years,
+    failed_crawls = crawl_rais_ftp(
+        year=year,
         table_id=table_id,
         input_dir=input_dir,
         upstream_tasks=[input_dir],
     )
 
-    filepath = build_partitions.map(
+    filepath = build_partitions(
         table_id=table_id,
-        year=years,
+        year=year,
         input_dir=input_dir,
         output_dir=output_dir,
         upstream_tasks=[failed_crawls],
@@ -124,6 +115,7 @@ with Flow(
     table_id = Parameter(
         "table_id", default="microdados_vinculos", required=True
     )
+    year = Parameter("year", required=True)
     update_metadata = Parameter(
         "update_metadata", default=False, required=False
     )
@@ -139,27 +131,20 @@ with Flow(
         wait=table_id,
     )
 
-    source_last_year = get_source_last_year(upstream_tasks=[table_id])
-    table_last_year = get_table_last_year(
-        dataset_id, table_id, upstream_tasks=[source_last_year]
-    )
     input_dir, output_dir = build_table_paths(
-        table_id, upstream_tasks=[table_last_year]
-    )
-    years = generate_year_range(
-        table_last_year, source_last_year, upstream_tasks=[table_last_year]
+        table_id, upstream_tasks=[table_id]
     )
 
-    failed_crawls = crawl_rais_ftp.map(
-        year=years,
+    failed_crawls = crawl_rais_ftp(
+        year=year,
         table_id=table_id,
         input_dir=input_dir,
         upstream_tasks=[input_dir],
     )
 
-    filepath = build_partitions.map(
+    filepath = build_partitions(
         table_id=table_id,
-        year=years,
+        year=year,
         input_dir=input_dir,
         output_dir=output_dir,
         upstream_tasks=[failed_crawls],
