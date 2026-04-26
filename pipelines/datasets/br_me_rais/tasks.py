@@ -339,8 +339,10 @@ def _build_vinculos_partitions(
     ]
 
     # Process each regional file sequentially to manage 2GB+ memory
-    regional_files = sorted(input_dir.glob("*.comt")) or sorted(
-        input_dir.glob("*.txt")
+    regional_files = sorted(
+        f
+        for f in Path(input_dir).rglob("*")
+        if f.is_file() and f.suffix.lower() in (".comt", ".txt")
     )
     if not regional_files:
         raise FileNotFoundError(f"No data files found in {input_dir}")
