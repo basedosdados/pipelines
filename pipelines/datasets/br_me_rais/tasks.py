@@ -158,7 +158,7 @@ def build_partitions(
         from_file=True,
     )
 
-    if table_id == "microdados_estabelecimentos":
+    if table_id == "microdados_estabelecimentos_test":
         _build_estab_partitions(year, year_input_dir, output_dir, df_municipio)
     else:
         _build_vinculos_partitions(
