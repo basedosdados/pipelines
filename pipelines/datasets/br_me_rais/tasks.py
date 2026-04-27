@@ -18,8 +18,6 @@ from pipelines.utils.metadata.utils import get_api_most_recent_date
 from pipelines.utils.utils import constants as utils_constants
 from pipelines.utils.utils import log, to_partitions
 
-CHUNKSIZE = 1_000_000
-
 
 @task
 def build_table_paths(
@@ -37,30 +35,6 @@ def build_table_paths(
     output_dir.mkdir(exist_ok=True)
 
     return input_dir, output_dir
-
-
-@task
-def get_source_last_year(
-    ftp_host: str = rais_constants.FTP_HOST.value,
-) -> int:
-    """Connect to MTE FTP and return the most recent available RAIS year."""
-    ftp = ftplib.FTP(ftp_host)
-    ftp.login()
-    ftp.encoding = "latin-1"
-    ftp.cwd(rais_constants.REMOTE_DIR.value)
-    try:
-        items = ftp.nlst()
-        years = [
-            int(m.group(0))
-            for item in items
-            if (m := re.search(r"^\d{4}$", item))
-        ]
-        years.sort(reverse=True)
-        last_year = years[0]
-        log(f"Source last year: {last_year}")
-        return last_year
-    finally:
-        ftp.quit()
 
 
 @task
@@ -104,12 +78,16 @@ def crawl_rais_ftp(
     ftp.encoding = "latin-1"
     ftp.cwd(f"{rais_constants.REMOTE_DIR.value}/{year_dir}")
 
-    # vinculos: download is handled inside build_partitions (stream per file)
-    if table_id != "microdados_estabelecimentos":
-        ftp.quit()
-        return []
+    if table_id == "microdados_estabelecimentos":
+        files_to_download = [rais_constants.ESTAB_FILE.value]
+    else:
+        all_files = ftp.nlst()
+        files_to_download = sorted(
+            f
+            for f in all_files
+            if re.match(r"RAIS_VINC_PUB_.+\.7z", f, re.IGNORECASE)
+        )
 
-    files_to_download = [rais_constants.ESTAB_FILE.value]
     log(f"Files to download for {table_id} {year}: {files_to_download}")
 
     year_input_dir = Path(input_dir) / year_dir
@@ -220,7 +198,11 @@ def _build_estab_partitions(
     ]
 
     for df in pd.read_csv(
-        csv_file, encoding="latin1", sep=",", dtype=str, chunksize=CHUNKSIZE
+        csv_file,
+        encoding="latin1",
+        sep=",",
+        dtype=str,
+        chunksize=rais_constants.CHUNK_SIZE.value,
     ):
         df = df.rename(columns=rename)
         df["ano"] = str(year)
@@ -355,7 +337,7 @@ def _build_vinculos_partitions(
             sep=",",
             encoding="latin1",
             low_memory=False,
-            chunksize=CHUNKSIZE,
+            chunksize=rais_constants.CHUNK_SIZE.value,
             dtype=str,
         ):
             df = df.rename(columns=rename)

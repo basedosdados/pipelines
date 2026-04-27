@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 class constants(Enum):
+    CHUNK_SIZE = 1_000_000
     FTP_HOST = "ftp.mtps.gov.br"
     REMOTE_DIR = "pdet/microdados/RAIS"
     DATASET_DIR = Path("tmp/br_me_rais")
