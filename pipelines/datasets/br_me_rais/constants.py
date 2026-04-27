@@ -19,13 +19,13 @@ class constants(Enum):
     ESTAB_FILE = "RAIS_ESTAB_PUB.7z"
 
     VINCULOS_FILES = [
-        "RAIS_VINC_PUB_CENTRO_OESTE.7z",
-        "RAIS_VINC_PUB_MG_ES_RJ.7z",
-        "RAIS_VINC_PUB_NI.7z",
-        "RAIS_VINC_PUB_NORDESTE.7z",
+        # "RAIS_VINC_PUB_CENTRO_OESTE.7z",
+        # "RAIS_VINC_PUB_MG_ES_RJ.7z",
+        # "RAIS_VINC_PUB_NI.7z",
+        # "RAIS_VINC_PUB_NORDESTE.7z",
         "RAIS_VINC_PUB_NORTE.7z",
-        "RAIS_VINC_PUB_SP.7z",
-        "RAIS_VINC_PUB_SUL.7z",
+        # "RAIS_VINC_PUB_SP.7z",
+        # "RAIS_VINC_PUB_SUL.7z",
     ]
 
     ESTAB_RENAME = {

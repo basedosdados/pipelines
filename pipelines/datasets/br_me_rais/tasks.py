@@ -5,7 +5,6 @@ Tasks for br_me_rais
 import contextlib
 import ftplib
 import gc
-import re
 from pathlib import Path
 
 import basedosdados as bd
@@ -87,12 +86,8 @@ def crawl_rais_ftp(
     if table_id == "microdados_estabelecimentos_test":
         files_to_download = [rais_constants.ESTAB_FILE.value]
     else:
-        all_files = ftp.nlst()
-        files_to_download = sorted(
-            f
-            for f in all_files
-            if re.match(r"RAIS_VINC_PUB_.+\.7z", f, re.IGNORECASE)
-        )
+        # all_files = ftp.nlst()
+        files_to_download = ["RAIS_VINC_PUB_NORTE.7z"]
 
     log(f"Files to download for {table_id} {year}: {files_to_download}")
 
