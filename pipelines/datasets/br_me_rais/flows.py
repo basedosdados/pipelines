@@ -26,7 +26,7 @@ with Flow(
 ) as br_me_rais_microdados_estabelecimentos:
     dataset_id = Parameter("dataset_id", default="br_me_rais", required=True)
     table_id = Parameter(
-        "table_id", default="microdados_estabelecimentos", required=True
+        "table_id", default="microdados_estabelecimentos_test", required=True
     )
     year = Parameter("year", required=True)
     update_metadata = Parameter(

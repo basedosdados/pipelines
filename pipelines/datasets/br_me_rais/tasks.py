@@ -2,6 +2,7 @@
 Tasks for br_me_rais
 """
 
+import contextlib
 import ftplib
 import gc
 import re
@@ -63,6 +64,14 @@ def generate_year_range(
     return years
 
 
+def _connect_ftp(ftp_host: str, year_dir: str) -> ftplib.FTP:
+    ftp = ftplib.FTP(ftp_host, timeout=rais_constants.FTP_TIMEOUT.value)
+    ftp.login()
+    ftp.encoding = "latin-1"
+    ftp.cwd(f"{rais_constants.REMOTE_DIR.value}/{year_dir}")
+    return ftp
+
+
 @task
 def crawl_rais_ftp(
     year: int,
@@ -73,12 +82,9 @@ def crawl_rais_ftp(
     """Download all .7z files for a given year and table from RAIS FTP."""
     year_dir = str(year)
 
-    ftp = ftplib.FTP(ftp_host)
-    ftp.login()
-    ftp.encoding = "latin-1"
-    ftp.cwd(f"{rais_constants.REMOTE_DIR.value}/{year_dir}")
+    ftp = _connect_ftp(ftp_host, year_dir)
 
-    if table_id == "microdados_estabelecimentos":
+    if table_id == "microdados_estabelecimentos_test":
         files_to_download = [rais_constants.ESTAB_FILE.value]
     else:
         all_files = ftp.nlst()
@@ -95,15 +101,33 @@ def crawl_rais_ftp(
 
     failed = []
     success_count = 0
-    try:
-        for filename in files_to_download:
+
+    for filename in files_to_download:
+        last_err = None
+        for attempt in range(1, rais_constants.FTP_MAX_RETRIES.value + 1):
             ok, err = download_rais_file(ftp, filename, year_input_dir)
             if ok:
                 success_count += 1
-            else:
-                failed.append(err)
-                log(f"Failed to download {filename} for year {year}")
-    finally:
+                last_err = None
+                break
+
+            last_err = err
+            log(
+                f"Attempt {attempt}/{rais_constants.FTP_MAX_RETRIES.value} failed for {filename}: {err}"
+            )
+
+            if attempt < rais_constants.FTP_MAX_RETRIES.value:
+                with contextlib.suppress(Exception):
+                    ftp.quit()
+                ftp = _connect_ftp(ftp_host, year_dir)
+
+        if last_err is not None:
+            failed.append(last_err)
+            log(
+                f"All {rais_constants.FTP_MAX_RETRIES.value} attempts failed for {filename}"
+            )
+
+    with contextlib.suppress(Exception):
         ftp.quit()
 
     if success_count == 0:
@@ -167,8 +191,8 @@ def _build_estab_partitions(
     csv_file = _detect_csv_file(input_dir)
     log(f"Processing establishments file: {csv_file}")
 
-    rename = rais_constants.ESTAB_RENAME.value
-    vars_list = rais_constants.ESTAB_VARS.value
+    rename = rais_constants.ESTAB_RENAME_NEW.value
+    vars_list = rais_constants.ESTAB_VARS_NEW.value
 
     invalid_codes = [
         "0000",
