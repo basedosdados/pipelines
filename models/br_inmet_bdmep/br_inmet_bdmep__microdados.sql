@@ -2,7 +2,9 @@
     config(
         alias="microdados",
         schema="br_inmet_bdmep",
-        materialized="table",
+        materialized="incremental",
+        unique_key=["data", "hora", "id_estacao"],
+        incremental_strategy="merge",
         partition_by={
             "field": "ano",
             "data_type": "int64",
@@ -15,6 +17,8 @@
         ],
     )
 }}
+
+{% set unique_keys = ["data", "hora", "id_estacao"] %}
 select
     safe_cast(ano as int64) ano,
     safe_cast(extract(month from safe_cast(data as date)) as int64) mes,
@@ -39,3 +43,4 @@ select
     safe_cast(vento_rajada_max as float64) vento_rajada_max,
     safe_cast(vento_velocidade as float64) vento_velocidade
 from {{ set_datalake_project("br_inmet_bdmep_staging.microdados") }} as t
+{% if is_incremental() %} where data > (select max(data) from {{ this }}) {% endif %}

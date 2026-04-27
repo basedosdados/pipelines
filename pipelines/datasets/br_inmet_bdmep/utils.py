@@ -5,11 +5,15 @@ General purpose functions for the br_inmet_bdmep project
 import re
 import zipfile
 from datetime import datetime, time
+from pathlib import Path
 
+import basedosdados as bd
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from shapely import Point
 from unidecode import unidecode
 
 from pipelines.datasets.br_inmet_bdmep.constants import ConstantsMicrodados
@@ -24,7 +28,6 @@ def get_latest_dowload_link() -> str:
         latest_dowload_link = soup.select("article.post-preview a:last-child")[
             -1
         ].get("href")
-
         return latest_dowload_link
 
     except IndexError:
@@ -230,6 +233,99 @@ def get_clima_info(file: str) -> pd.DataFrame:
     clima["hora"] = clima["hora"].apply(lambda x: convert_to_time(x))
 
     return clima
+
+
+def get_station_id_municipio(
+    sigla_uf: str, latitude: float, longitude: float
+) -> int:
+    df_municipios = bd.read_sql(
+        query=f"""
+        SELECT id_municipio, centroide
+        FROM `basedosdados.br_bd_diretorios_brasil.municipio`
+        WHERE sigla_uf = '{sigla_uf}'""",
+        from_file=True,
+        # billing_project_id='basedosdados-dev'
+    )
+    df_municipios = gpd.GeoDataFrame(
+        df_municipios,
+        geometry=gpd.GeoSeries.from_wkt(df_municipios["centroide"]),
+    )
+
+    # Distância entre o centroide do município e a estação meteorológica
+    df_municipios["distancia"] = gpd.GeoSeries.from_wkt(
+        df_municipios["centroide"]
+    ).apply(lambda x: Point(longitude, latitude).distance(x))
+    # Retorna o id do município mais próximo da estação meteorológica
+    return df_municipios.sort_values("distancia").iloc[0].id_municipio
+
+
+def get_estacao_info(file: str | Path) -> pd.DataFrame:
+    """
+    Args:
+        file (str|Path): O caminho e nome do arquivo a ser lido.
+
+    Returns:
+        pd.DataFrame: Um dataframe com dados de todas as estações.
+    """
+
+    df_estacao = pd.read_csv(
+        file,
+        sep=";",
+        nrows=8,
+        header=None,
+        names=["caract", "value"],
+        encoding="ISO-8859-1",
+    )
+
+    dados_estacao = {
+        "id_estacao": df_estacao.loc[3, "value"]
+        if df_estacao.loc[3, "value"] != ""
+        else "",
+        "nome_estacao": df_estacao.loc[2, "value"]
+        if df_estacao.loc[2, "value"] != ""
+        else "",
+        "sigla_uf": df_estacao.loc[1, "value"]
+        if df_estacao.loc[1, "value"] != ""
+        else "",
+        "latitude": float(df_estacao.loc[4, "value"].replace(",", "."))
+        if df_estacao.loc[4, "value"] != ""
+        else "",
+        "longitude": float(df_estacao.loc[5, "value"].replace(",", "."))
+        if df_estacao.loc[5, "value"] != ""
+        else "",
+        "altitude": float(df_estacao.loc[6, "value"].replace(",", "."))
+        if df_estacao.loc[6, "value"] != ""
+        else "",
+        "data_fundacao": "",
+    }
+
+    if "/" in df_estacao.loc[7, "value"]:
+        try:
+            dados_estacao["data_fundacao"] = datetime.strptime(
+                str(df_estacao.loc[7, "value"]), "%Y/%m/%d"
+            )
+        except Exception:
+            dados_estacao["data_fundacao"] = datetime.strptime(
+                str(df_estacao.loc[7, "value"]), "%d/%m/%y"
+            )
+    elif "-" in df_estacao.loc[7, "value"]:
+        try:
+            dados_estacao["data_fundacao"] = datetime.strptime(
+                str(df_estacao.loc[7, "value"]), "%Y-%m-%d"
+            )
+        except Exception:
+            dados_estacao["data_fundacao"] = datetime.strptime(
+                str(df_estacao.loc[7, "value"]), "%d-%m-%y"
+            )
+    else:
+        dados_estacao["data_fundacao"] = df_estacao.loc[7, "value"]
+
+    dados_estacao["id_municipio"] = get_station_id_municipio(
+        sigla_uf=dados_estacao["sigla_uf"],
+        latitude=dados_estacao["latitude"],
+        longitude=dados_estacao["longitude"],
+    )
+    return dados_estacao
 
 
 def download_inmet(latest_dowload_link: str) -> None:

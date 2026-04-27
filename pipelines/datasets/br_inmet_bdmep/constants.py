@@ -12,14 +12,10 @@ class ConstantsMicrodados(Enum):
     """
 
     URL = "https://portal.inmet.gov.br/dadoshistoricos/"
-
     BASE_PATH = Path("tmp") / "data" / "microdados"
-
     PATH_INPUT = BASE_PATH / "input"
-
     PATH_OUTPUT = BASE_PATH / "output"
-
-    PATH_REGEX = str(PATH_INPUT) + "/*.CSV"
+    PATH_REGEX = "**/*.CSV"
 
     COLUMNS_ORDER = [
         "data",

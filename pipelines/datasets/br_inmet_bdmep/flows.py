@@ -5,7 +5,9 @@ from prefect.storage import GCS
 from pipelines.constants import constants
 from pipelines.datasets.br_inmet_bdmep.tasks import (
     extract_last_date_from_source,
+    get_api_last_date,
     get_base_inmet,
+    get_stations_inmet,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.metadata.tasks import (
@@ -28,7 +30,11 @@ with Flow(name="br_inmet_bdmep", code_owners=["equipe_dados"]) as br_inmet:
     update_metadata = Parameter(
         "update_metadata", default=True, required=False
     )
+    year = Parameter("year", default=None, required=False)
 
+    update_metadata = Parameter(
+        "update_metadata", default=True, required=False
+    )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -41,41 +47,79 @@ with Flow(name="br_inmet_bdmep", code_owners=["equipe_dados"]) as br_inmet:
         wait=table_id,
     )
 
-    source_last_date = extract_last_date_from_source()
+    source_last_date = extract_last_date_from_source(year=year)
 
+    api_last_date = get_api_last_date(
+        dataset_id,
+        table_id,
+        data_source_max_date=source_last_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[source_last_date],
+    )
     coverage_check = check_if_data_is_outdated(
         dataset_id,
         table_id,
         data_source_max_date=source_last_date,
-        date_format="%Y-%m",
+        date_format="%Y-%m-%d",
         upstream_tasks=[source_last_date],
     )
 
     with case(coverage_check, True):
-        output_filepath = get_base_inmet(upstream_tasks=[coverage_check])
+        output_base = get_base_inmet(
+            last_date=api_last_date,
+            upstream_tasks=[coverage_check, api_last_date],
+        )
+        output_estacoes = get_stations_inmet(upstream_tasks=[coverage_check])
 
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=output_filepath,
+        wait_upload_base = create_table_dev_and_upload_to_gcs(
+            data_path=output_base,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            upstream_tasks=[output_filepath],
+            upstream_tasks=[output_base],
         )
-        wait_for_materialization = run_dbt(
+
+        wait_upload_estacoes = create_table_dev_and_upload_to_gcs(
+            data_path=output_estacoes,
+            dataset_id=dataset_id,
+            table_id="estacao",
+            dump_mode="append",
+            upstream_tasks=[output_estacoes],
+        )
+
+        wait_for_materialization_base = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
             dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
+            upstream_tasks=[wait_upload_estacoes, wait_upload_base],
         )
+
+        wait_for_materialization_estacoes = run_dbt(
+            dataset_id=dataset_id,
+            table_id="estacao",
+            dbt_command="run/test",
+            dbt_alias=dbt_alias,
+            upstream_tasks=[wait_upload_estacoes, wait_upload_base],
+        )
+
         with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=output_filepath,
+            wait_upload_prod_base = create_table_prod_gcs_and_run_dbt(
+                data_path=output_base,
                 dataset_id=dataset_id,
                 table_id=table_id,
                 dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
+                upstream_tasks=[wait_for_materialization_base],
             )
+
+            wait_upload_prod_estacoes = create_table_prod_gcs_and_run_dbt(
+                data_path=output_estacoes,
+                dataset_id=dataset_id,
+                table_id="estacao",
+                dump_mode="append",
+                upstream_tasks=[wait_for_materialization_estacoes],
+            )
+
             with case(update_metadata, True):
                 update_django_metadata(
                     dataset_id=dataset_id,
@@ -85,7 +129,10 @@ with Flow(name="br_inmet_bdmep", code_owners=["equipe_dados"]) as br_inmet:
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
                     bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
+                    upstream_tasks=[
+                        wait_upload_prod_base,
+                        wait_upload_prod_estacoes,
+                    ],
                 )
 
 br_inmet.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
