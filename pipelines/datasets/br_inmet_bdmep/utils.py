@@ -16,13 +16,15 @@ from bs4 import BeautifulSoup
 from shapely import Point
 from unidecode import unidecode
 
-from pipelines.datasets.br_inmet_bdmep.constants import ConstantsMicrodados
+from pipelines.datasets.br_inmet_bdmep.constants import (
+    constants as constants_microdados,
+)
 from pipelines.utils.utils import log
 
 
 def get_latest_dowload_link() -> str:
     try:
-        reponse = requests.get(ConstantsMicrodados.URL.value)
+        reponse = requests.get(constants_microdados.URL.value)
 
         soup = BeautifulSoup(reponse.text, "html.parser")
         latest_dowload_link = soup.select("article.post-preview a:last-child")[
@@ -345,11 +347,11 @@ def download_inmet(latest_dowload_link: str) -> None:
     response.raise_for_status()
 
     save_path = (
-        ConstantsMicrodados.PATH_INPUT.value
+        constants_microdados.PATH_INPUT.value
         / latest_dowload_link.split("/")[-1]
     )
 
-    ConstantsMicrodados.PATH_INPUT.value.mkdir(parents=True, exist_ok=True)
+    constants_microdados.PATH_INPUT.value.mkdir(parents=True, exist_ok=True)
 
     log("Iniciando Download...")
 
@@ -358,6 +360,6 @@ def download_inmet(latest_dowload_link: str) -> None:
             fd.write(chunk)
 
     with zipfile.ZipFile(save_path) as z:
-        z.extractall(ConstantsMicrodados.PATH_INPUT.value)
+        z.extractall(constants_microdados.PATH_INPUT.value)
 
     log("Dados baixados.")

@@ -8,7 +8,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2000, "end": 2023, "interval": 1},
+            "range": {"start": 2000, "end": 2026, "interval": 1},
         },
         cluster_by=["id_estacao"],
         post_hook=[
@@ -43,4 +43,6 @@ select
     safe_cast(vento_rajada_max as float64) vento_rajada_max,
     safe_cast(vento_velocidade as float64) vento_velocidade
 from {{ set_datalake_project("br_inmet_bdmep_staging.microdados") }} as t
-{% if is_incremental() %} where data > (select max(data) from {{ this }}) {% endif %}
+{% if is_incremental() %}
+    where safe_cast(data as date) > (select max(data) from {{ this }})
+{% endif %}

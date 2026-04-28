@@ -66,7 +66,7 @@ models:
           combination_of_columns: [id_estacao]
     columns:
       - name: id_municipio
-        description: ID do município
+        description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
@@ -76,10 +76,10 @@ models:
       - name: estacao
         description: Nome da estação meteorológica
       - name: data_fundacao
-        description: Data de fundação da estação
+        description: Data de fundação da estação meterológica
       - name: latitude
-        description: Latitude da estação
+        description: Latitude da estação meteorológica
       - name: longitude
-        description: Longitude da estação
+        description: Longitude da estação meteorológica
       - name: altitude
-        description: Altitude da estação
+        description: Altitude da estação meteorológica

@@ -6,18 +6,21 @@ from enum import Enum
 from pathlib import Path
 
 
-class ConstantsMicrodados(Enum):
+class constants(Enum):
     """
     Constant values for the br_inmet_bdmep project
     """
 
     URL = "https://portal.inmet.gov.br/dadoshistoricos/"
-    BASE_PATH = Path("tmp") / "data" / "microdados"
+    BASE_PATH = Path("tmp")
     PATH_INPUT = BASE_PATH / "input"
     PATH_OUTPUT = BASE_PATH / "output"
     PATH_REGEX = "**/*.CSV"
 
     COLUMNS_ORDER = [
+        "ano",
+        "mes",
+        "dia",
         "data",
         "hora",
         "id_estacao",

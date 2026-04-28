@@ -6,7 +6,9 @@ import pandas as pd
 from prefect import task
 
 from pipelines.constants import constants
-from pipelines.datasets.br_inmet_bdmep.constants import ConstantsMicrodados
+from pipelines.datasets.br_inmet_bdmep.constants import (
+    constants as constants_microdados,
+)
 from pipelines.datasets.br_inmet_bdmep.utils import (
     download_inmet,
     get_clima_info,
@@ -18,6 +20,7 @@ from pipelines.utils.metadata.utils import (
     get_api_last_update_date,
     get_api_most_recent_date,
 )
+from pipelines.utils.utils import to_partitions
 
 
 @task(
@@ -35,11 +38,11 @@ def extract_last_date_from_source(year: str | None = None):
         latest_dowload_link = (
             f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
         )
+    if not (constants_microdados.PATH_INPUT.value / str(year)).exists():
+        download_inmet(latest_dowload_link)
 
-    download_inmet(latest_dowload_link)
-
-    paths = ConstantsMicrodados.PATH_INPUT.value.glob(
-        ConstantsMicrodados.PATH_REGEX.value
+    paths = constants_microdados.PATH_INPUT.value.glob(
+        constants_microdados.PATH_REGEX.value
     )
     datas = [get_date_from_path(str(path)) for path in paths]
 
@@ -49,60 +52,59 @@ def extract_last_date_from_source(year: str | None = None):
 @task
 def get_base_inmet(last_date: datetime | None = None) -> Path:
     """
-    Processa dados baixados do INMET na pasta de input (ConstantsMicrodados.PATH_INPUT),
+    Processa dados baixados do INMET na pasta de input (constants_microdados.PATH_INPUT),
     concatena dados de todas as estações e salva o dataframe resultante em arquivos CSV.
 
     Retorna:
         Path: o caminho para o diretório que contém o arquivo CSV de saída.
     """
 
-    files = ConstantsMicrodados.PATH_INPUT.value.glob(
-        ConstantsMicrodados.PATH_REGEX.value
+    files = constants_microdados.PATH_INPUT.value.glob(
+        constants_microdados.PATH_REGEX.value
     )
 
     df_inmet = pd.concat(
         [get_clima_info(file) for file in files], ignore_index=True
     )
+    year = df_inmet.data.max().year
+    df_inmet["ano"] = year
+    df_inmet["mes"] = df_inmet.data.dt.month
+    df_inmet["dia"] = df_inmet.data.dt.day
 
     # Ordem das colunas
-    df_inmet = df_inmet[ConstantsMicrodados.COLUMNS_ORDER.value]
-    year = df_inmet.data.max().year
-
+    df_inmet = df_inmet[constants_microdados.COLUMNS_ORDER.value]
     if last_date is not None:
-        df_inmet = df_inmet[df_inmet.data >= last_date]
+        df_inmet = df_inmet[df_inmet.data > last_date]
 
-    # Salva o dataframe resultante em um arquivo CSV
-    path_output = ConstantsMicrodados.PATH_OUTPUT.value / f"ano={year}"
+    path_output = constants_microdados.PATH_OUTPUT.value / "microdados"
     path_output.mkdir(parents=True, exist_ok=True)
-    file_path = path_output / f"microdados_{year}.csv"
-    df_inmet.to_csv(file_path, index=False)
+    to_partitions(
+        df_inmet, partition_columns=["ano", "mes", "dia"], savepath=path_output
+    )
 
-    return file_path
+    return path_output
 
 
 @task
 def get_stations_inmet() -> Path:
     """
-    Esta task processa os arquivos baixados do INMET na pasta de input (ConstantsMicrodados.PATH_INPUT),
+    Esta task processa os arquivos baixados do INMET na pasta de input (constants_microdados.PATH_INPUT),
     extrai as informações das estações meteorológicas e salva o dataframe resultante em um arquivo CSV.
     Retorna:
         Path: o caminho para o diretório que contém o arquivo CSV de saída.
     """
-    files = ConstantsMicrodados.PATH_INPUT.value.glob(
-        ConstantsMicrodados.PATH_REGEX.value
+    files = constants_microdados.PATH_INPUT.value.glob(
+        constants_microdados.PATH_REGEX.value
     )
 
     df_estacoes = [get_estacao_info(file) for file in files]
     df_estacoes = pd.DataFrame(df_estacoes)
-    year = df_estacoes.data.max().year
 
-    # Salva o dataframe resultante em um arquivo CSV
-    path_output = ConstantsMicrodados.PATH_OUTPUT.value / f"ano={year}"
+    path_output = constants_microdados.PATH_OUTPUT.value / "estacoes"
     path_output.mkdir(parents=True, exist_ok=True)
-    file_path = path_output / "estacoes.csv"
-    df_estacoes.to_csv(file_path, index=False)
+    df_estacoes.to_csv(path_output / "data.csv", index=False)
 
-    return file_path
+    return path_output
 
 
 @task(
