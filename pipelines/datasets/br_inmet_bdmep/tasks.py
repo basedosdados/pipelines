@@ -68,8 +68,8 @@ def get_base_inmet(last_date: datetime | None = None) -> Path:
     )
     year = df_inmet.data.max().year
     df_inmet["ano"] = year
-    df_inmet["mes"] = df_inmet.data.dt.month
-    df_inmet["dia"] = df_inmet.data.dt.day
+    # df_inmet["mes"] = df_inmet.data.dt.month
+    # df_inmet["dia"] = df_inmet.data.dt.day
 
     # Ordem das colunas
     df_inmet = df_inmet[constants_microdados.COLUMNS_ORDER.value]
@@ -78,9 +78,10 @@ def get_base_inmet(last_date: datetime | None = None) -> Path:
 
     path_output = constants_microdados.PATH_OUTPUT.value / "microdados"
     path_output.mkdir(parents=True, exist_ok=True)
-    to_partitions(
-        df_inmet, partition_columns=["ano", "mes", "dia"], savepath=path_output
-    )
+    # to_partitions(
+    #     df_inmet, partition_columns=["ano", "mes", "dia"], savepath=path_output
+    # )
+    to_partitions(df_inmet, partition_columns=["ano"], savepath=path_output)
 
     return path_output
 
