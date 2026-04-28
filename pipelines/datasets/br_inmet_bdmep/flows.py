@@ -9,7 +9,6 @@ from pipelines.datasets.br_inmet_bdmep.schedules import (
 )
 from pipelines.datasets.br_inmet_bdmep.tasks import (
     extract_last_date_from_source,
-    get_api_last_date,
     get_base_inmet,
     get_stations_inmet,
     none_task,
@@ -67,20 +66,13 @@ with Flow(
             date_format="%Y-%m-%d",
             upstream_tasks=[source_last_date, check_for_updates],
         )
-        api_last_date = get_api_last_date(
-            dataset_id,
-            table_id,
-            data_source_max_date=source_last_date,
-            date_format="%Y-%m-%d",
-            upstream_tasks=[source_last_date, check_for_updates],
-        )
+
     with case(check_for_updates, False):
         coverage_check = true_task()
         api_last_date = none_task()
 
     with case(coverage_check, True):
         output_base = get_base_inmet(
-            last_date=api_last_date,
             upstream_tasks=[coverage_check, api_last_date],
         )
 

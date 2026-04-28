@@ -1,7 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 
-import basedosdados as bd
 import pandas as pd
 from prefect import task
 
@@ -16,10 +15,6 @@ from pipelines.datasets.br_inmet_bdmep.utils import (
     get_estacao_info,
     get_latest_dowload_link,
     verify_inmet_duplicates,
-)
-from pipelines.utils.metadata.utils import (
-    get_api_last_update_date,
-    get_api_most_recent_date,
 )
 from pipelines.utils.utils import log, to_partitions
 
@@ -107,55 +102,6 @@ def get_stations_inmet() -> Path:
     df_estacoes.to_csv(path_output / "data.csv", index=False)
 
     return path_output
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def get_api_last_date(
-    dataset_id: str,
-    table_id: str,
-    data_source_max_date: datetime,
-    date_type: str = "data_max_date",
-    date_format: str = "%Y-%m-%d",
-):
-    """Essa task verifica a data mais atual da tabela no BQ
-
-    Args:
-        dataset_id e table_id(string): permite encontrar na api a última data de cobertura
-        date_format (str): O formato da data a ser procurado no Django
-        data_source_max_date (date): A data mais recente dos dados da fonte original
-
-    Returns:
-        date: data mais recente encontrada na tabela no BQ
-    """
-
-    if isinstance(data_source_max_date, datetime):
-        data_source_max_date = data_source_max_date.date()
-    if isinstance(data_source_max_date, str):
-        data_source_max_date = datetime.strptime(
-            data_source_max_date, date_format
-        ).date()
-    if isinstance(data_source_max_date, pd.Timestamp):
-        data_source_max_date = data_source_max_date.date()
-
-    backend = bd.Backend(graphql_url=constants.API_URL.value["prod"])
-
-    if date_type == "data_max_date":
-        data_api = get_api_most_recent_date(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            backend=backend,
-            date_format=date_format,
-        )
-
-    if date_type == "last_update_date":
-        data_api = get_api_last_update_date(
-            dataset_id=dataset_id, table_id=table_id, backend=backend
-        )
-
-    return data_api
 
 
 @task
