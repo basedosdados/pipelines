@@ -261,13 +261,13 @@ def get_station_id_municipio(
     return df_municipios.sort_values("distancia").iloc[0].id_municipio
 
 
-def get_estacao_info(file: str | Path) -> pd.DataFrame:
+def get_estacao_info(file: str | Path) -> dict:
     """
     Args:
         file (str|Path): O caminho e nome do arquivo a ser lido.
 
     Returns:
-        pd.DataFrame: Um dataframe com dados de todas as estações.
+        dict: Um dicionário com dados de todas as estações.
     """
 
     df_estacao = pd.read_csv(
@@ -363,3 +363,20 @@ def download_inmet(latest_dowload_link: str) -> None:
         z.extractall(constants_microdados.PATH_INPUT.value)
 
     log("Dados baixados.")
+
+
+def verify_inmet_duplicates(
+    dataframe: pd.DataFrame, subset: list[str] | None = None
+):
+    """
+    Verifica se existem linhas duplicadas em um DataFrame com base em um subconjunto de colunas.
+    Args:
+        dataframe (pd.DataFrame): O DataFrame a ser verificado.
+        subset (list[str], optional): Lista de colunas a serem consideradas para identificar duplicatas.
+            Padrão é ["data", "hora", "id_estacao"].
+    Returns:
+        bool: True se existirem linhas duplicadas, False caso contrário.
+    """
+    if subset is None:
+        subset = ["data", "hora", "id_estacao"]
+    return dataframe.duplicated(subset=subset).any()

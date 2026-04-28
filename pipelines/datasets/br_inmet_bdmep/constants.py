@@ -19,8 +19,6 @@ class constants(Enum):
 
     COLUMNS_ORDER = [
         "ano",
-        # "mes",
-        # "dia",
         "data",
         "hora",
         "id_estacao",

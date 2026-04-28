@@ -12,6 +12,8 @@ from pipelines.datasets.br_inmet_bdmep.tasks import (
     get_api_last_date,
     get_base_inmet,
     get_stations_inmet,
+    none_task,
+    true_task,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.metadata.tasks import (
@@ -36,7 +38,7 @@ with Flow(
     update_metadata = Parameter(
         "update_metadata", default=True, required=False
     )
-    year = Parameter("year", default="2025", required=False)
+    year = Parameter("year", default=None, required=False)
 
     update_metadata = Parameter(
         "update_metadata", default=True, required=False
@@ -73,8 +75,8 @@ with Flow(
             upstream_tasks=[source_last_date, check_for_updates],
         )
     with case(check_for_updates, False):
-        coverage_check = True
-        api_last_date = None
+        coverage_check = true_task()
+        api_last_date = none_task()
 
     with case(coverage_check, True):
         output_base = get_base_inmet(

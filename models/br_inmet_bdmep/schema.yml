@@ -8,6 +8,8 @@ models:
           at_least: 0.40
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data, hora, id_estacao]
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano

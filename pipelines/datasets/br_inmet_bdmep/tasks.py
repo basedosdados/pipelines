@@ -15,12 +15,13 @@ from pipelines.datasets.br_inmet_bdmep.utils import (
     get_date_from_path,
     get_estacao_info,
     get_latest_dowload_link,
+    verify_inmet_duplicates,
 )
 from pipelines.utils.metadata.utils import (
     get_api_last_update_date,
     get_api_most_recent_date,
 )
-from pipelines.utils.utils import to_partitions
+from pipelines.utils.utils import log, to_partitions
 
 
 @task(
@@ -34,6 +35,7 @@ def extract_last_date_from_source(year: str | None = None):
 
     if year is None:
         latest_dowload_link = get_latest_dowload_link()
+        year = latest_dowload_link.split("/")[-1].split(".")[0]
     else:
         latest_dowload_link = (
             f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
@@ -50,7 +52,7 @@ def extract_last_date_from_source(year: str | None = None):
 
 
 @task
-def get_base_inmet(last_date: datetime | None = None) -> Path:
+def get_base_inmet() -> Path:
     """
     Processa dados baixados do INMET na pasta de input (constants_microdados.PATH_INPUT),
     concatena dados de todas as estações e salva o dataframe resultante em arquivos CSV.
@@ -68,19 +70,18 @@ def get_base_inmet(last_date: datetime | None = None) -> Path:
     )
     year = df_inmet.data.max().year
     df_inmet["ano"] = year
-    # df_inmet["mes"] = df_inmet.data.dt.month
-    # df_inmet["dia"] = df_inmet.data.dt.day
+
+    if verify_inmet_duplicates(df_inmet):
+        log.warning("Dados duplicados encontrados no dataframe do INMET.")
+        df_inmet = df_inmet.drop_duplicates(
+            subset=["data", "hora", "id_estacao"]
+        )
 
     # Ordem das colunas
     df_inmet = df_inmet[constants_microdados.COLUMNS_ORDER.value]
-    if last_date is not None:
-        df_inmet = df_inmet[df_inmet.data > last_date]
 
     path_output = constants_microdados.PATH_OUTPUT.value / "microdados"
     path_output.mkdir(parents=True, exist_ok=True)
-    # to_partitions(
-    #     df_inmet, partition_columns=["ano", "mes", "dia"], savepath=path_output
-    # )
     to_partitions(df_inmet, partition_columns=["ano"], savepath=path_output)
 
     return path_output
@@ -98,8 +99,8 @@ def get_stations_inmet() -> Path:
         constants_microdados.PATH_REGEX.value
     )
 
-    df_estacoes = [get_estacao_info(file) for file in files]
-    df_estacoes = pd.DataFrame(df_estacoes)
+    dicts_estacoes = [get_estacao_info(file) for file in files]
+    df_estacoes = pd.DataFrame(dicts_estacoes)
 
     path_output = constants_microdados.PATH_OUTPUT.value / "estacoes"
     path_output.mkdir(parents=True, exist_ok=True)
@@ -155,3 +156,13 @@ def get_api_last_date(
         )
 
     return data_api
+
+
+@task
+def true_task():
+    return True
+
+
+@task
+def none_task():
+    return None

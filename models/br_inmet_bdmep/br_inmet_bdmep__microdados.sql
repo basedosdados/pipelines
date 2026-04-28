@@ -44,5 +44,5 @@ select
     safe_cast(vento_velocidade as float64) vento_velocidade
 from {{ set_datalake_project("br_inmet_bdmep_staging.microdados") }} as t
 {% if is_incremental() %}
-    where safe_cast(data as date) > (select max(data) from {{ this }})
+    where safe_cast(data as date) >= (select max(data) from {{ this }})
 {% endif %}
