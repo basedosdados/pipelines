@@ -5,6 +5,7 @@ Tasks for br_me_rais
 import contextlib
 import ftplib
 import gc
+import re
 from pathlib import Path
 
 import basedosdados as bd
@@ -83,11 +84,15 @@ def crawl_rais_ftp(
 
     ftp = _connect_ftp(ftp_host, year_dir)
 
-    if table_id == "microdados_estabelecimentos_test":
+    if table_id == "microdados_estabelecimentos":
         files_to_download = [rais_constants.ESTAB_FILE.value]
     else:
-        # all_files = ftp.nlst()
-        files_to_download = ["RAIS_VINC_PUB_NORTE.7z"]
+        all_files = ftp.nlst()
+        files_to_download = sorted(
+            f
+            for f in all_files
+            if re.match(r"RAIS_VINC_PUB_.+\.7z", f, re.IGNORECASE)
+        )
 
     log(f"Files to download for {table_id} {year}: {files_to_download}")
 
@@ -153,7 +158,7 @@ def build_partitions(
         from_file=True,
     )
 
-    if table_id == "microdados_estabelecimentos_test":
+    if table_id == "microdados_estabelecimentos":
         _build_estab_partitions(year, year_input_dir, output_dir, df_municipio)
     else:
         _build_vinculos_partitions(
@@ -186,8 +191,8 @@ def _build_estab_partitions(
     csv_file = _detect_csv_file(input_dir)
     log(f"Processing establishments file: {csv_file}")
 
-    rename = rais_constants.ESTAB_RENAME_NEW.value
-    vars_list = rais_constants.ESTAB_VARS_NEW.value
+    rename = rais_constants.ESTAB_RENAME.value
+    vars_list = rais_constants.ESTAB_VARS.value
 
     invalid_codes = [
         "0000",
