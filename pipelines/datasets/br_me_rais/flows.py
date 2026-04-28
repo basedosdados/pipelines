@@ -11,6 +11,7 @@ from pipelines.datasets.br_me_rais.tasks import (
     build_partitions,
     build_table_paths,
     crawl_rais_ftp,
+    resolve_vinculos_table_id,
 )
 from pipelines.utils.decorators import Flow
 from pipelines.utils.metadata.tasks import update_django_metadata
@@ -131,19 +132,25 @@ with Flow(
         wait=table_id,
     )
 
+    effective_table_id = resolve_vinculos_table_id(
+        year=year,
+        table_id=table_id,
+        upstream_tasks=[rename_flow_run],
+    )
+
     input_dir, output_dir = build_table_paths(
-        table_id, upstream_tasks=[table_id]
+        effective_table_id, upstream_tasks=[effective_table_id]
     )
 
     failed_crawls = crawl_rais_ftp(
         year=year,
-        table_id=table_id,
+        table_id=effective_table_id,
         input_dir=input_dir,
         upstream_tasks=[input_dir],
     )
 
     filepath = build_partitions(
-        table_id=table_id,
+        table_id=effective_table_id,
         year=year,
         input_dir=input_dir,
         output_dir=output_dir,
@@ -153,14 +160,14 @@ with Flow(
     wait_upload_table = create_table_dev_and_upload_to_gcs(
         data_path=output_dir,
         dataset_id=dataset_id,
-        table_id=table_id,
+        table_id=effective_table_id,
         dump_mode="append",
         upstream_tasks=[filepath],
     )
 
     wait_for_materialization = run_dbt(
         dataset_id=dataset_id,
-        table_id=table_id,
+        table_id=effective_table_id,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
         upstream_tasks=[wait_upload_table],
@@ -170,7 +177,7 @@ with Flow(
         wait_upload_prod = create_table_prod_gcs_and_run_dbt(
             data_path=output_dir,
             dataset_id=dataset_id,
-            table_id=table_id,
+            table_id=effective_table_id,
             dump_mode="append",
             upstream_tasks=[wait_for_materialization],
         )
@@ -178,7 +185,7 @@ with Flow(
         with case(update_metadata, True):
             update_django_metadata(
                 dataset_id=dataset_id,
-                table_id=table_id,
+                table_id=effective_table_id,
                 date_column_name={"year": "ano"},
                 date_format="%Y",
                 coverage_type="part_bdpro",

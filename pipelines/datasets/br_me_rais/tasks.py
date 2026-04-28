@@ -39,6 +39,16 @@ def build_table_paths(
 
 
 @task
+def resolve_vinculos_table_id(
+    year: int, table_id: str, split_year: int = 2023
+) -> str:
+    """Route 2023+ vinculos data to a separate table to avoid GCS schema conflicts."""
+    if "vinculos" in table_id and int(year) >= split_year:
+        return f"{table_id}_2023"
+    return table_id
+
+
+@task
 def get_table_last_year(dataset_id: str, table_id: str) -> int:
     """Return the most recent year already materialized in the BD table."""
     backend = bd.Backend(graphql_url=utils_constants.API_URL.value["prod"])
