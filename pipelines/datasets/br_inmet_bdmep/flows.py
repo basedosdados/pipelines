@@ -129,9 +129,6 @@ with Flow(
     update_metadata = Parameter(
         "update_metadata", default=True, required=False
     )
-    update_metadata = Parameter(
-        "update_metadata", default=True, required=False
-    )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
