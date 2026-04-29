@@ -118,3 +118,15 @@ def get_stations_inmet() -> Path:
 @task
 def true_task():
     return True
+
+
+@task
+def switch_check_for_updates(
+    check_for_updates: bool, value_if_true: bool, value_if_false: bool
+):
+    if check_for_updates:
+        log("Considerando data update dos dados.")
+        return value_if_true
+    else:
+        log("Desconsiderando data update dos dados.")
+        return value_if_false

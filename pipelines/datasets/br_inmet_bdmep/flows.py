@@ -11,6 +11,7 @@ from pipelines.datasets.br_inmet_bdmep.tasks import (
     extract_last_date_from_source,
     get_base_inmet,
     get_stations_inmet,
+    switch_check_for_updates,
     true_task,
 )
 from pipelines.utils.decorators import Flow
@@ -42,7 +43,7 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     check_for_updates = Parameter(
-        "check_for_updates", default=True, required=True
+        "check_for_updates", default=True, required=False
     )
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -51,21 +52,22 @@ with Flow(
         wait=table_id,
     )
 
-    source_last_date = extract_last_date_from_source(
-        year=year, upstream_tasks=[year]
+    source_last_date = extract_last_date_from_source(year=year)
+    check_for_updates_true = check_if_data_is_outdated(
+        dataset_id,
+        table_id,
+        data_source_max_date=source_last_date,
+        date_format="%Y-%m-%d",
+        upstream_tasks=[source_last_date],
     )
+    check_for_updates_false = true_task()
 
-    with case(check_for_updates, True):
-        coverage_check = check_if_data_is_outdated(
-            dataset_id,
-            table_id,
-            data_source_max_date=source_last_date,
-            date_format="%Y-%m-%d",
-            upstream_tasks=[source_last_date, check_for_updates],
-        )
-
-    with case(check_for_updates, False):
-        coverage_check = true_task(upstream_tasks=[check_for_updates])
+    coverage_check = switch_check_for_updates(
+        check_for_updates,
+        check_for_updates_true,
+        check_for_updates_false,
+        upstream_tasks=[check_for_updates_true, check_for_updates_false],
+    )
 
     with case(coverage_check, True):
         output_base = get_base_inmet(
