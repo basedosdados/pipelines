@@ -1,6 +1,6 @@
 {{
     config(
-        alias="microdados_vinculos_test",
+        alias="microdados_vinculos",
         schema="br_me_rais",
         materialized="table",
         partition_by={
@@ -331,3 +331,7 @@ from pre_2023
 union all
 select *
 from from_2023
+
+{% if is_incremental() %}
+    where safe_cast(ano as int64) > (select max(ano) from {{ this }})
+{% endif %}
