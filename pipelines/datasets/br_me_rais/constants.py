@@ -13,8 +13,8 @@ class constants(Enum):
     DATASET_DIR = Path("tmp/br_me_rais")
     START_YEAR = 2021
 
-    FTP_TIMEOUT = 120
-    FTP_MAX_RETRIES = 2
+    FTP_TIMEOUT = 160
+    FTP_MAX_RETRIES = 3
 
     ESTAB_FILE = "RAIS_ESTAB_PUB.7z"
 
