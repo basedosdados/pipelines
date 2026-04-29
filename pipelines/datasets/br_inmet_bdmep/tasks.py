@@ -107,8 +107,3 @@ def get_stations_inmet() -> Path:
 @task
 def true_task():
     return True
-
-
-@task
-def none_task():
-    return None

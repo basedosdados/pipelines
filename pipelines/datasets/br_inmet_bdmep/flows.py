@@ -11,7 +11,6 @@ from pipelines.datasets.br_inmet_bdmep.tasks import (
     extract_last_date_from_source,
     get_base_inmet,
     get_stations_inmet,
-    none_task,
     true_task,
 )
 from pipelines.utils.decorators import Flow
@@ -47,7 +46,7 @@ with Flow(
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
     check_for_updates = Parameter(
-        "check_for_updates", default=True, required=False
+        "check_for_updates", default=True, required=True
     )
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -56,7 +55,9 @@ with Flow(
         wait=table_id,
     )
 
-    source_last_date = extract_last_date_from_source(year=year)
+    source_last_date = extract_last_date_from_source(
+        year=year, upstream_tasks=[year]
+    )
 
     with case(check_for_updates, True):
         coverage_check = check_if_data_is_outdated(
@@ -68,12 +69,11 @@ with Flow(
         )
 
     with case(check_for_updates, False):
-        coverage_check = true_task()
-        api_last_date = none_task()
+        coverage_check = true_task(upstream_tasks=[check_for_updates])
 
     with case(coverage_check, True):
         output_base = get_base_inmet(
-            upstream_tasks=[coverage_check, api_last_date],
+            upstream_tasks=[coverage_check],
         )
 
         try:
