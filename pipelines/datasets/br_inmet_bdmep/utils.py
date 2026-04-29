@@ -330,7 +330,7 @@ def get_estacao_info(
         "id_estacao": str(df_estacao.loc[3, "value"])
         if str(df_estacao.loc[3, "value"]) != ""
         else "",
-        "nome_estacao": str(df_estacao.loc[2, "value"])
+        "estacao": str(df_estacao.loc[2, "value"])
         if str(df_estacao.loc[2, "value"]) != ""
         else "",
         "sigla_uf": str(df_estacao.loc[1, "value"]).strip()

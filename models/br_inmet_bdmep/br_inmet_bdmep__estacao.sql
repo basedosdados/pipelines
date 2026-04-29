@@ -10,7 +10,7 @@
 select
     safe_cast(id_municipio as string) id_municipio,
     safe_cast(id_estacao as string) id_estacao,
-    safe_cast(nome_estacao as string) estacao,
+    safe_cast(estacao as string) estacao,
     safe_cast(data_fundacao as date) data_fundacao,
     safe_cast(latitude as float64) latitude,
     safe_cast(longitude as float64) longitude,
