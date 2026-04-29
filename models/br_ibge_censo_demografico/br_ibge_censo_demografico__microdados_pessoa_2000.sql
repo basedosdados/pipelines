@@ -120,6 +120,6 @@ select
 from
     {{
         set_datalake_project(
-            "br_ibge_censo_demografico_staging.microdados_pessoa_2000 "
+            "br_ibge_censo_demografico_staging.microdados_pessoa_2000"
         )
     }} as t

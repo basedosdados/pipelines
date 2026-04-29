@@ -74,6 +74,6 @@ select
 from
     {{
         set_datalake_project(
-            "br_ibge_censo_demografico_staging.microdados_pessoa_1980 "
+            "br_ibge_censo_demografico_staging.microdados_pessoa_1980"
         )
     }} as t
