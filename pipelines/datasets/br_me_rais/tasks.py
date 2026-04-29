@@ -115,7 +115,12 @@ def crawl_rais_ftp(
     for filename in files_to_download:
         last_err = None
         for attempt in range(1, rais_constants.FTP_MAX_RETRIES.value + 1):
-            ok, err = download_rais_file(ftp, filename, year_input_dir)
+            ok, err = download_rais_file(
+                ftp,
+                filename,
+                year_input_dir,
+                blocksize=rais_constants.FTP_BLOCKSIZE.value,
+            )
             if ok:
                 success_count += 1
                 last_err = None
