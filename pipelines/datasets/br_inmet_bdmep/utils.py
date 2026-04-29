@@ -238,7 +238,10 @@ def get_clima_info(file: str) -> pd.DataFrame:
 
 
 def get_station_id_municipio(
-    sigla_uf: str, latitude: float, longitude: float
+    sigla_uf: str,
+    latitude: float,
+    longitude: float,
+    data_municipios: pd.DataFrame = None,
 ) -> int:
     valid_uf_codes = {
         "AC",
@@ -276,15 +279,20 @@ def get_station_id_municipio(
             f"UF inválida: {sigla_uf!r}. Deve ser uma sigla de estado brasileiro de duas letras."
         )
 
-    df_municipios = bd.read_sql(
-        query="""
-        SELECT id_municipio, centroide
-        FROM `basedosdados.br_bd_diretorios_brasil.municipio`
-        WHERE sigla_uf = @sigla_uf
-        """,
-        params={"sigla_uf": sigla_uf},
-        from_file=True,
-    )
+    if data_municipios is None:
+        df_municipios = bd.read_sql(
+            query="""
+            SELECT id_municipio, centroide
+            FROM `basedosdados.br_bd_diretorios_brasil.municipio`
+            WHERE sigla_uf = '{}'
+            """.format(sigla_uf.replace("'", "\\'")),
+            from_file=True,
+        )
+    else:
+        df_municipios = data_municipios.loc[
+            data_municipios["sigla_uf"] == sigla_uf,
+            ["id_municipio", "centroide"],
+        ].copy()
     df_municipios = gpd.GeoDataFrame(
         df_municipios,
         geometry=gpd.GeoSeries.from_wkt(df_municipios["centroide"]),
@@ -294,11 +302,13 @@ def get_station_id_municipio(
     df_municipios["distancia"] = gpd.GeoSeries.from_wkt(
         df_municipios["centroide"]
     ).apply(lambda x: Point(longitude, latitude).distance(x))
-    # Retorna o id do município mais próximo da estação meteorológica
+
     return df_municipios.sort_values("distancia").iloc[0].id_municipio
 
 
-def get_estacao_info(file: str | Path) -> dict:
+def get_estacao_info(
+    file: str | Path, data_municipios: pd.DataFrame = None
+) -> dict:
     """
     Args:
         file (str|Path): O caminho e nome do arquivo a ser lido.
@@ -317,23 +327,23 @@ def get_estacao_info(file: str | Path) -> dict:
     )
 
     dados_estacao = {
-        "id_estacao": df_estacao.loc[3, "value"]
-        if df_estacao.loc[3, "value"] != ""
+        "id_estacao": str(df_estacao.loc[3, "value"])
+        if str(df_estacao.loc[3, "value"]) != ""
         else "",
-        "nome_estacao": df_estacao.loc[2, "value"]
-        if df_estacao.loc[2, "value"] != ""
+        "nome_estacao": str(df_estacao.loc[2, "value"])
+        if str(df_estacao.loc[2, "value"]) != ""
         else "",
-        "sigla_uf": df_estacao.loc[1, "value"]
-        if df_estacao.loc[1, "value"] != ""
+        "sigla_uf": str(df_estacao.loc[1, "value"]).strip()
+        if str(df_estacao.loc[1, "value"]) != ""
         else "",
-        "latitude": float(df_estacao.loc[4, "value"].replace(",", "."))
-        if df_estacao.loc[4, "value"] != ""
+        "latitude": float(str(df_estacao.loc[4, "value"]).replace(",", "."))
+        if str(df_estacao.loc[4, "value"]) != ""
         else "",
-        "longitude": float(df_estacao.loc[5, "value"].replace(",", "."))
-        if df_estacao.loc[5, "value"] != ""
+        "longitude": float(str(df_estacao.loc[5, "value"]).replace(",", "."))
+        if str(df_estacao.loc[5, "value"]) != ""
         else "",
-        "altitude": float(df_estacao.loc[6, "value"].replace(",", "."))
-        if df_estacao.loc[6, "value"] != ""
+        "altitude": float(str(df_estacao.loc[6, "value"]).replace(",", "."))
+        if str(df_estacao.loc[6, "value"]) != ""
         else "",
         "data_fundacao": "",
     }
@@ -370,6 +380,7 @@ def get_estacao_info(file: str | Path) -> dict:
             sigla_uf=dados_estacao["sigla_uf"],
             latitude=dados_estacao["latitude"],
             longitude=dados_estacao["longitude"],
+            data_municipios=data_municipios,
         )
     else:
         dados_estacao["id_municipio"] = None

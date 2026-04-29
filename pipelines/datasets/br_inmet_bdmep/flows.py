@@ -134,52 +134,52 @@ with Flow(
     )
 
     source_last_date = extract_last_date_from_source()
-    coverage_check = check_if_data_is_outdated(
-        dataset_id,
-        table_id,
-        data_source_max_date=source_last_date,
-        date_format="%Y-%m-%d",
-        date_type="last_update_date",
-        upstream_tasks=[source_last_date],
+    # coverage_check = check_if_data_is_outdated(
+    #     dataset_id,
+    #     table_id,
+    #     data_source_max_date=source_last_date,
+    #     date_format="%Y-%m-%d",
+    #     date_type="last_update_date",
+    #     upstream_tasks=[source_last_date],
+    # )
+
+    # with case(coverage_check, True):
+    output_estacoes = get_stations_inmet(upstream_tasks=[source_last_date])
+
+    wait_upload_estacoes = create_table_dev_and_upload_to_gcs(
+        data_path=output_estacoes,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        upstream_tasks=[output_estacoes],
     )
 
-    with case(coverage_check, True):
-        output_estacoes = get_stations_inmet(upstream_tasks=[coverage_check])
+    wait_for_materialization_estacoes = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_estacoes],
+    )
 
-        wait_upload_estacoes = create_table_dev_and_upload_to_gcs(
+    with case(materialize_after_dump, True):
+        wait_upload_prod_estacoes = create_table_prod_gcs_and_run_dbt(
             data_path=output_estacoes,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            upstream_tasks=[output_estacoes],
+            upstream_tasks=[wait_for_materialization_estacoes],
         )
 
-        wait_for_materialization_estacoes = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_estacoes],
-        )
-
-        with case(materialize_after_dump, True):
-            wait_upload_prod_estacoes = create_table_prod_gcs_and_run_dbt(
-                data_path=output_estacoes,
+        with case(update_metadata, True):
+            update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization_estacoes],
+                bq_project="basedosdados",
+                upstream_tasks=[
+                    wait_upload_prod_estacoes,
+                ],
             )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    bq_project="basedosdados",
-                    upstream_tasks=[
-                        wait_upload_prod_estacoes,
-                    ],
-                )
 
 br_inmet_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_inmet_microdados.run_config = KubernetesRun(

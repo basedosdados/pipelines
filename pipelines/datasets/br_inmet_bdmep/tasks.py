@@ -1,6 +1,7 @@
 from datetime import timedelta
 from pathlib import Path
 
+import basedosdados as bd
 import pandas as pd
 from prefect import task
 
@@ -94,8 +95,17 @@ def get_stations_inmet() -> Path:
     files = constants_microdados.PATH_INPUT.value.glob(
         constants_microdados.PATH_REGEX.value
     )
-
-    dicts_estacoes = [get_estacao_info(file) for file in files]
+    data_municipios = bd.read_sql(
+        query="""
+        SELECT id_municipio, centroide, sigla_uf
+        FROM `basedosdados.br_bd_diretorios_brasil.municipio`
+        """,
+        from_file=True,
+    )
+    dicts_estacoes = [
+        get_estacao_info(file, data_municipios=data_municipios)
+        for file in files
+    ]
     df_estacoes = pd.DataFrame(dicts_estacoes)
 
     path_output = constants_microdados.PATH_OUTPUT.value / "estacoes"
