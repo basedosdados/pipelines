@@ -4,10 +4,7 @@
         alias="uf_taxa_transicao",
         schema="br_inep_indicadores_educacionais",
         materialized="table",
-        partition_by={
-            "field": "sigla_uf",
-            "data_type": "string",
-        },
+        cluster_by=["sigla_uf"],
     )
 }}
 select
