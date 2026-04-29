@@ -37,10 +37,6 @@ with Flow(
         "update_metadata", default=True, required=False
     )
     year = Parameter("year", default=None, required=False)
-
-    update_metadata = Parameter(
-        "update_metadata", default=True, required=False
-    )
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
     )
@@ -76,17 +72,13 @@ with Flow(
             upstream_tasks=[coverage_check],
         )
 
-        try:
-            wait_upload_base = create_table_dev_and_upload_to_gcs(
-                data_path=output_base,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[output_base],
-            )
-        except Exception as e:
-            print(f"Erro ao criar tabela e fazer upload para GCS: {e}")
-
+        wait_upload_base = create_table_dev_and_upload_to_gcs(
+            data_path=output_base,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            upstream_tasks=[output_base],
+        )
         wait_for_materialization_base = run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,

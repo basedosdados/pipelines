@@ -35,6 +35,7 @@ def extract_last_date_from_source(year: str | None = None):
         latest_dowload_link = (
             f"https://portal.inmet.gov.br/uploads/dadoshistoricos/{year}.zip"
         )
+
     if not (constants_microdados.PATH_INPUT.value / str(year)).exists():
         download_inmet(latest_dowload_link)
 

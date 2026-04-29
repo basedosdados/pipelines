@@ -240,13 +240,50 @@ def get_clima_info(file: str) -> pd.DataFrame:
 def get_station_id_municipio(
     sigla_uf: str, latitude: float, longitude: float
 ) -> int:
+    valid_uf_codes = {
+        "AC",
+        "AL",
+        "AP",
+        "AM",
+        "BA",
+        "CE",
+        "DF",
+        "ES",
+        "GO",
+        "MA",
+        "MT",
+        "MS",
+        "MG",
+        "PA",
+        "PB",
+        "PR",
+        "PE",
+        "PI",
+        "RJ",
+        "RN",
+        "RS",
+        "RO",
+        "RR",
+        "SC",
+        "SP",
+        "SE",
+        "TO",
+    }
+
+    sigla_uf = str(sigla_uf).strip().upper()
+    if sigla_uf not in valid_uf_codes:
+        raise ValueError(
+            f"UF inválida: {sigla_uf!r}. Deve ser uma sigla de estado brasileiro de duas letras."
+        )
+
     df_municipios = bd.read_sql(
-        query=f"""
+        query="""
         SELECT id_municipio, centroide
         FROM `basedosdados.br_bd_diretorios_brasil.municipio`
-        WHERE sigla_uf = '{sigla_uf}'""",
+        WHERE sigla_uf = @sigla_uf
+        """,
+        params={"sigla_uf": sigla_uf},
         from_file=True,
-        # billing_project_id='basedosdados-dev'
     )
     df_municipios = gpd.GeoDataFrame(
         df_municipios,
@@ -322,11 +359,20 @@ def get_estacao_info(file: str | Path) -> dict:
     else:
         dados_estacao["data_fundacao"] = df_estacao.loc[7, "value"]
 
-    dados_estacao["id_municipio"] = get_station_id_municipio(
-        sigla_uf=dados_estacao["sigla_uf"],
-        latitude=dados_estacao["latitude"],
-        longitude=dados_estacao["longitude"],
-    )
+    if all(
+        [
+            dados_estacao["sigla_uf"] != "",
+            dados_estacao["latitude"] != "",
+            dados_estacao["longitude"] != "",
+        ]
+    ):
+        dados_estacao["id_municipio"] = get_station_id_municipio(
+            sigla_uf=dados_estacao["sigla_uf"],
+            latitude=dados_estacao["latitude"],
+            longitude=dados_estacao["longitude"],
+        )
+    else:
+        dados_estacao["id_municipio"] = None
     return dados_estacao
 
 
