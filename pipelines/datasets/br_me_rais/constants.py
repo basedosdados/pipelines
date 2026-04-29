@@ -15,6 +15,7 @@ class constants(Enum):
 
     FTP_TIMEOUT = 1600
     FTP_BLOCKSIZE = 1_048_576
+    FTP_LOG_INTERVAL = 50 * 1024 * 1024
     FTP_MAX_RETRIES = 3
 
     ESTAB_FILE = "RAIS_ESTAB_PUB.7z"
