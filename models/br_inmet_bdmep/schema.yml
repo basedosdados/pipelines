@@ -25,6 +25,8 @@ models:
               field: data.data
       - name: hora
         description: Hora (UTC)
+      - name: mes
+        description: Mês
       - name: id_estacao
         description: ID da estação meteorológica
       - name: precipitacao_total
