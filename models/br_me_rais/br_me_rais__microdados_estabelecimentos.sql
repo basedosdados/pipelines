@@ -3,6 +3,7 @@
         alias="microdados_estabelecimentos",
         schema="br_me_rais",
         materialized="incremental",
+        incremental_strategy="insert_overwrite",
         partition_by={
             "field": "ano",
             "data_type": "int64",
@@ -29,8 +30,15 @@ select
     safe_cast(indicador_simples as string) indicador_simples,
     safe_cast(indicador_rais_negativa as int64) indicador_rais_negativa,
     safe_cast(indicador_atividade_ano as int64) indicador_atividade_ano,
-    safe_cast(cnae_1 as string) cnae_1,
-    safe_cast(cnae_2 as string) cnae_2,
+    coalesce(cnae1_dir.cnae_1, safe_cast(t.cnae_1 as string)) as cnae_1,
+    left(
+        case
+            when length(cnae_2_subclasse) = 6
+            then lpad(cnae_2_subclasse, 7, '0')
+            else cnae_2_subclasse
+        end,
+        5
+    ) as cnae_2,
     case
         when length(cnae_2_subclasse) = 6
         then lpad(cnae_2_subclasse, 7, '0')
@@ -57,6 +65,9 @@ select
         safe_cast(regexp_replace(regioes_administrativas_df, r'^0+', '') as string)
     ) as regioes_administrativas_df
 from {{ set_datalake_project("br_me_rais_staging.microdados_estabelecimentos") }} as t
-{% if is_incremental() %}
-    where safe_cast(ano as int64) > (select max(ano) from {{ this }})
-{% endif %}
+left join
+    `basedosdados.br_bd_diretorios_brasil.cnae_1` as cnae1_dir
+    on left(cnae1_dir.cnae_1, 4) = safe_cast(t.cnae_1 as string)
+    and length(safe_cast(t.cnae_1 as string)) = 4
+    and safe_cast(t.ano as int64) in (2023, 2024)
+{% if is_incremental() %} where safe_cast(ano as int64) > 2022 {% endif %}
