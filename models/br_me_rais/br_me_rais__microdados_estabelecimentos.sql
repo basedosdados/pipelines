@@ -3,6 +3,7 @@
         alias="microdados_estabelecimentos",
         schema="br_me_rais",
         materialized="incremental",
+        incremental_strategy="insert_overwrite",
         partition_by={
             "field": "ano",
             "data_type": "int64",
@@ -69,6 +70,4 @@ left join
     on left(cnae1_dir.cnae_1, 4) = safe_cast(t.cnae_1 as string)
     and length(safe_cast(t.cnae_1 as string)) = 4
     and safe_cast(t.ano as int64) in (2023, 2024)
-{% if is_incremental() %}
-    where safe_cast(ano as int64) > (select max(ano) from {{ this }})
-{% endif %}
+{% if is_incremental() %} where safe_cast(ano as int64) > 2022 {% endif %}
