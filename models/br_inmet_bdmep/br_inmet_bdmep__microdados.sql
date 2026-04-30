@@ -2,19 +2,19 @@
     config(
         alias="microdados",
         schema="br_inmet_bdmep",
-        materialized="table",
+        materialized="incremental",
+        unique_key=["data", "hora", "id_estacao"],
+        incremental_strategy="merge",
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2000, "end": 2023, "interval": 1},
+            "range": {"start": 2000, "end": 2026, "interval": 1},
         },
         cluster_by=["id_estacao"],
-        post_hook=[
-            'CREATE OR REPLACE ROW ACCESS POLICY allusers_filter ON {{this}} GRANT TO ("allUsers") FILTER USING (DATE_DIFF(DATE("{{ run_started_at.strftime("%Y-%m-%d") }}"),DATE(CAST(ano AS INT64),CAST(extract(MONTH FROM data) as INT64),1), MONTH) > 6)',
-            'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter ON {{this}} GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (DATE_DIFF(DATE("{{ run_started_at.strftime("%Y-%m-%d") }}"),DATE(CAST(ano AS INT64),cast(extract(MONTH FROM data) as INT64),1), MONTH) <= 6)',
-        ],
     )
 }}
+
+{% set unique_keys = ["data", "hora", "id_estacao"] %}
 select
     safe_cast(ano as int64) ano,
     safe_cast(extract(month from safe_cast(data as date)) as int64) mes,
@@ -39,3 +39,6 @@ select
     safe_cast(vento_rajada_max as float64) vento_rajada_max,
     safe_cast(vento_velocidade as float64) vento_velocidade
 from {{ set_datalake_project("br_inmet_bdmep_staging.microdados") }} as t
+{% if is_incremental() %}
+    where safe_cast(data as date) >= (select max(data) from {{ this }})
+{% endif %}

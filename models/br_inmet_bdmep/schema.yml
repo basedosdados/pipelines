@@ -6,6 +6,10 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.40
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data, hora, id_estacao]
+          config:
+            where: __most_recent_year_month__
     columns:
       - name: ano
         description: Ano
@@ -21,6 +25,8 @@ models:
               field: data.data
       - name: hora
         description: Hora (UTC)
+      - name: mes
+        description: Mês
       - name: id_estacao
         description: ID da estação meteorológica
       - name: precipitacao_total
@@ -57,3 +63,27 @@ models:
         description: Vento, rajada máxima
       - name: vento_velocidade
         description: Vento, velocidade horária
+  - name: br_inmet_bdmep__estacao  ## modelo dbt.sql que está no diretório
+    description: Estações meteorológicas do Instituto Nacional de Meteorologia
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_estacao]
+    columns:
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_estacao
+        description: ID da estação meteorológica
+      - name: estacao
+        description: Nome da estação meteorológica
+      - name: data_fundacao
+        description: Data de fundação da estação meterológica
+      - name: latitude
+        description: Latitude da estação meteorológica
+      - name: longitude
+        description: Longitude da estação meteorológica
+      - name: altitude
+        description: Altitude da estação meteorológica
