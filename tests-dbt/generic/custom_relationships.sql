@@ -4,7 +4,7 @@
     to,
     field,
     ignore_values=None,
-    proportion_allowed_failures=0.05
+    proportion_allowed_failures=0.00
 ) %}
 
     {{ config(severity="error") }}
