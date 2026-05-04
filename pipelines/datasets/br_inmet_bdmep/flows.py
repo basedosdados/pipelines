@@ -106,8 +106,7 @@ with Flow(
                     date_format="%Y-%m-%d",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    bq_project="basedosdados-dev",
-                    prefect_mode="dev",
+                    bq_project="basedosdados",
                     upstream_tasks=[
                         wait_upload_prod_base,
                     ],
@@ -168,8 +167,7 @@ with Flow(
             update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                bq_project="basedosdados-dev",
-                prefect_mode="dev",
+                bq_project="basedosdados",
                 upstream_tasks=[
                     wait_upload_prod_estacoes,
                 ],
