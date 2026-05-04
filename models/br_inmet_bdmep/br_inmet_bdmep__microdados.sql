@@ -14,6 +14,8 @@
     )
 }}
 
+{% set unique_keys = ["data", "hora", "id_estacao"] %}
+
 select
     safe_cast(ano as int64) ano,
     safe_cast(extract(month from safe_cast(data as date)) as int64) mes,
@@ -43,3 +45,4 @@ from {{ set_datalake_project("br_inmet_bdmep_staging.microdados") }} as t
         safe_cast(data as date) >= (select max(data) from {{ this }})
         and safe_cast(ano as int64) >= (select max(ano) from {{ this }})
 {% endif %}
+qualify row_number() over (partition by {{ unique_keys | join(", ") }}) = 1
