@@ -38,6 +38,7 @@ from pipelines.datasets.br_ibge_ipca15.flows import *
 from pipelines.datasets.br_ibge_pnadc.flows import *
 from pipelines.datasets.br_inmet_bdmep.flows import *
 from pipelines.datasets.br_me_caged.flows import *
+from pipelines.datasets.br_me_rais.flows import *
 from pipelines.datasets.br_me_cnpj.flows import *
 from pipelines.datasets.br_me_comex_stat.flows import *
 from pipelines.datasets.br_mercadolivre_ofertas.flows import *
