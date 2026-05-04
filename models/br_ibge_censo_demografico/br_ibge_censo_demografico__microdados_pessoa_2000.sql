@@ -3,10 +3,7 @@
         alias="microdados_pessoa_2000",
         schema="br_ibge_censo_demografico",
         materialized="table",
-        partition_by={
-            "field": "sigla_uf",
-            "data_type": "string",
-        },
+        cluster_by=["sigla_uf"],
     )
 }}
 select
@@ -123,6 +120,6 @@ select
 from
     {{
         set_datalake_project(
-            "br_ibge_censo_demografico_staging.microdados_pessoa_2000 "
+            "br_ibge_censo_demografico_staging.microdados_pessoa_2000"
         )
     }} as t
