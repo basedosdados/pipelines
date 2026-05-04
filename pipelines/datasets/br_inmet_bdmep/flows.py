@@ -106,7 +106,8 @@ with Flow(
                     date_format="%Y-%m-%d",
                     coverage_type="part_bdpro",
                     time_delta={"months": 6},
-                    bq_project="basedosdados",
+                    bq_project="basedosdados-dev",
+                    prefect_mode="dev",
                     upstream_tasks=[
                         wait_upload_prod_base,
                     ],
@@ -136,16 +137,6 @@ with Flow(
     )
 
     source_last_date = extract_last_date_from_source()
-    # coverage_check = check_if_data_is_outdated(
-    #     dataset_id,
-    #     table_id,
-    #     data_source_max_date=source_last_date,
-    #     date_format="%Y-%m-%d",
-    #     date_type="last_update_date",
-    #     upstream_tasks=[source_last_date],
-    # )
-
-    # with case(coverage_check, True):
     output_estacoes = get_stations_inmet(upstream_tasks=[source_last_date])
 
     wait_upload_estacoes = create_table_dev_and_upload_to_gcs(
@@ -177,7 +168,8 @@ with Flow(
             update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                bq_project="basedosdados",
+                bq_project="basedosdados-dev",
+                prefect_mode="dev",
                 upstream_tasks=[
                     wait_upload_prod_estacoes,
                 ],
