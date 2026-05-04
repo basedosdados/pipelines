@@ -6,18 +6,18 @@ authors = [
 ]
 readme = "README.md"
 license = "GPL-3.0"
-requires-python = "<3.11,>=3.10"
+requires-python = "<3.13,>=3.10"
 version = "0.1.0"
 
 dependencies = [
   "HeapDict==1.0.1",
-  "Jinja2==3.1.2",
+  "Jinja2>=3.1.6",
   "MarkupSafe==2.0.1",
   "PyYAML==6.0",
   "Unidecode<2.0.0,>=1.3.4",
   "basedosdados[all]<3.0.0,>=2.0.2",
   "beautifulsoup4==4.11.1",
-  "cachetools==4.2.4",
+  "cachetools>=5.3,<6.0",
   "certifi==2021.10.8",
   "charset-normalizer==2.0.9",
   "ckanapi==4.6",
@@ -29,7 +29,7 @@ dependencies = [
   "docker>=6,<7",
   "docopt==0.6.2",
   "fake-useragent<2.0.0,>=1.1.3",
-  "fsspec==2021.11.1",
+  "fsspec>=2022.5.0",
   "google-analytics-data==0.17.0",
   "google-api-core==2.11.1",
   "google-api-python-client<3.0.0,>=2.58.0",
@@ -62,7 +62,8 @@ dependencies = [
   "pandas<3.0.0,>=2.0.1",
   "pandas-gbq<1.0.0,>=0.19.2",
   "partd==1.2.0",
-  "prefect==0.15.9",
+  "prefect>=3.0,<4",
+  "prefect-kubernetes>=0.5.0",
   "proto-plus==1.22.3",
   "protobuf==4.23.4",
   "psutil==5.8.0",
@@ -123,14 +124,14 @@ dependencies = [
   "dateparser<2.0.0,>=1.2.0",
   "fiona<2.0.0,>=1.10.1",
   "arrow<2.0.0,>=1.3.0",
-  "dbt-core==1.5.6",
-  "dbt-bigquery==1.5.9",
+  "dbt-core>=1.8.0,<2.0",
+  "dbt-bigquery>=1.8.0,<2.0",
   "sicar @ git+https://github.com/urbanogilson/SICAR.git@v0.7.4",
   "py7zr<2.0.0,>=1.0.0",
   "pip>=25.3",
   "wheel>=0.45.1",
   "python-calamine>=0.6.1",
-  "pydantic>=1.10.24",
+  "pydantic>=2.0.0",
 ]
 
 [dependency-groups]
