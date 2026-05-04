@@ -81,6 +81,10 @@ models:
         description: Nome da estação meteorológica
       - name: data_fundacao
         description: Data de fundação da estação meterológica
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
       - name: latitude
         description: Latitude da estação meteorológica
       - name: longitude

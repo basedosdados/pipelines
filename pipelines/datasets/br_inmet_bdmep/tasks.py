@@ -15,9 +15,10 @@ from pipelines.datasets.br_inmet_bdmep.utils import (
     get_date_from_path,
     get_estacao_info,
     get_latest_dowload_link,
+    to_partitions,
     verify_inmet_duplicates,
 )
-from pipelines.utils.utils import log, to_partitions
+from pipelines.utils.utils import log
 
 
 @task(
@@ -79,7 +80,7 @@ def get_base_inmet() -> Path:
 
     path_output = constants_microdados.PATH_OUTPUT.value / "microdados"
     path_output.mkdir(parents=True, exist_ok=True)
-    to_partitions(df_inmet, partition_columns=["ano"], savepath=path_output)
+    to_partitions(df_inmet, savepath=path_output)
 
     return path_output
 
