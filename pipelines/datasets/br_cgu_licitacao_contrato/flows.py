@@ -26,7 +26,7 @@ br_cgu_licitacao_contrato__contrato_compra = deepcopy(
 br_cgu_licitacao_contrato__contrato_compra.name = (
     "br_cgu_licitacao_contrato.contrato_compra"
 )
-br_cgu_licitacao_contrato__contrato_compra.code_owners = ["trick"]
+br_cgu_licitacao_contrato__contrato_compra.code_owners = ["equipe_dados"]
 br_cgu_licitacao_contrato__contrato_compra.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -44,7 +44,7 @@ br_cgu_licitacao_contrato__contrato_item = deepcopy(
 br_cgu_licitacao_contrato__contrato_item.name = (
     "br_cgu_licitacao_contrato.contrato_item"
 )
-br_cgu_licitacao_contrato__contrato_item.code_owners = ["trick"]
+br_cgu_licitacao_contrato__contrato_item.code_owners = ["equipe_dados"]
 br_cgu_licitacao_contrato__contrato_item.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -61,7 +61,9 @@ br_cgu_licitacao_contrato__contrato_termo_aditivo = deepcopy(
 br_cgu_licitacao_contrato__contrato_termo_aditivo.name = (
     "br_cgu_licitacao_contrato.contrato_termo_aditivo"
 )
-br_cgu_licitacao_contrato__contrato_termo_aditivo.code_owners = ["trick"]
+br_cgu_licitacao_contrato__contrato_termo_aditivo.code_owners = [
+    "equipe_dados"
+]
 br_cgu_licitacao_contrato__contrato_termo_aditivo.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -79,7 +81,7 @@ br_cgu_licitacao_contrato__licitacao = deepcopy(flow_cgu_licitacao_contrato)
 br_cgu_licitacao_contrato__licitacao.name = (
     "br_cgu_licitacao_contrato.licitacao"
 )
-br_cgu_licitacao_contrato__licitacao.code_owners = ["trick"]
+br_cgu_licitacao_contrato__licitacao.code_owners = ["equipe_dados"]
 br_cgu_licitacao_contrato__licitacao.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -97,7 +99,7 @@ br_cgu_licitacao_contrato__licitacao_empenho = deepcopy(
 br_cgu_licitacao_contrato__licitacao_empenho.name = (
     "br_cgu_licitacao_contrato.licitacao_empenho"
 )
-br_cgu_licitacao_contrato__licitacao_empenho.code_owners = ["trick"]
+br_cgu_licitacao_contrato__licitacao_empenho.code_owners = ["equipe_dados"]
 br_cgu_licitacao_contrato__licitacao_empenho.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -114,7 +116,7 @@ br_cgu_licitacao_contrato__licitacao_item = deepcopy(
 br_cgu_licitacao_contrato__licitacao_item.name = (
     "br_cgu_licitacao_contrato.licitacao_item"
 )
-br_cgu_licitacao_contrato__licitacao_item.code_owners = ["trick"]
+br_cgu_licitacao_contrato__licitacao_item.code_owners = ["equipe_dados"]
 br_cgu_licitacao_contrato__licitacao_item.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -132,7 +134,9 @@ br_cgu_licitacao_contrato__licitacao_participante = deepcopy(
 br_cgu_licitacao_contrato__licitacao_participante.name = (
     "br_cgu_licitacao_contrato.licitacao_participante"
 )
-br_cgu_licitacao_contrato__licitacao_participante.code_owners = ["trick"]
+br_cgu_licitacao_contrato__licitacao_participante.code_owners = [
+    "equipe_dados"
+]
 br_cgu_licitacao_contrato__licitacao_participante.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )

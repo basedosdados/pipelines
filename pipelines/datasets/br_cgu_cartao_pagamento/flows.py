@@ -15,7 +15,7 @@ br_cgu_cartao_pagamento__governo_federal = copy(flow_cgu_cartao_pagamento)
 br_cgu_cartao_pagamento__governo_federal.name = (
     "br_cgu_cartao_pagamento.governo_federal"
 )
-br_cgu_cartao_pagamento__governo_federal.code_owners = ["trick"]
+br_cgu_cartao_pagamento__governo_federal.code_owners = ["equipe_dados"]
 br_cgu_cartao_pagamento__governo_federal.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -30,7 +30,7 @@ br_cgu_cartao_pagamento__defesa_civil = copy(flow_cgu_cartao_pagamento)
 br_cgu_cartao_pagamento__defesa_civil.name = (
     "br_cgu_cartao_pagamento.defesa_civil"
 )
-br_cgu_cartao_pagamento__defesa_civil.code_owners = ["trick"]
+br_cgu_cartao_pagamento__defesa_civil.code_owners = ["equipe_dados"]
 br_cgu_cartao_pagamento__defesa_civil.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )
@@ -47,7 +47,7 @@ br_cgu_cartao_pagamento__compras_centralizadas = copy(
 br_cgu_cartao_pagamento__compras_centralizadas.name = (
     "br_cgu_cartao_pagamento.compras_centralizadas"
 )
-br_cgu_cartao_pagamento__compras_centralizadas.code_owners = ["trick"]
+br_cgu_cartao_pagamento__compras_centralizadas.code_owners = ["equipe_dados"]
 br_cgu_cartao_pagamento__compras_centralizadas.storage = GCS(
     constants.GCS_FLOWS_BUCKET.value
 )

@@ -8,12 +8,6 @@ config-version: 2
 
 # This setting configures which "profile" dbt uses for this project.
 profile: default
-# Options to disable elementary models
-vars:
-  disable_run_results: false
-  disable_tests_results: false
-  disable_dbt_artifacts_autoupload: true
-  disable_dbt_invocation_autoupload: true
 # These configurations specify where dbt should look for different types of files.
 # The `source-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!
@@ -55,7 +49,7 @@ models:
       +materialized: table
       +schema: br_anp_precos_combustiveis
     br_ans_beneficiario:
-      +materialized: incremental
+      +materialized: table
       +schema: br_ans_beneficiario
     br_b3_cotacoes:
       +materialized: table
@@ -300,6 +294,9 @@ models:
     br_mg_belohorizonte_smfa_iptu:
       +materialized: table
       +schema: br_mg_belohorizonte_smfa_iptu
+    br_mma_sinpatinhas:
+      +materialized: table
+      +schema: br_mma_sinpatinhas
     br_mme_consumo_energia_eletrica:
       +materialized: table
       +schema: br_mme_consumo_energia_eletrica
@@ -435,5 +432,3 @@ models:
     world_wwf_hydrosheds:
       +materialized: table
       +schema: world_wwf_hydrosheds
-  elementary:
-    +schema: elementary

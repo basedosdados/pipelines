@@ -10,7 +10,7 @@
         cluster_by="sigla_uf",
     )
 }}
--- atualizado em 2025-11
+-- atualizado em 2026-01-27
 select
     safe_cast(ano as int64) ano,
     safe_cast(sigla_uf as string) sigla_uf,

@@ -34,19 +34,18 @@ env:
   VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
 jobs:
   deploy-staging:
-    # if: startsWith(github.head_ref, 'staging/')
     name: deploy (staging)
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
       - name: Set up Python
         run: uv python install
       - name: Install dependencies
         run: uv sync --locked
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           export_environment_variables: true
           credentials_json: ${{ secrets.GCP_SA_KEY }}
@@ -56,9 +55,7 @@ jobs:
           uv run .github/workflows/scripts/replace_docker_tag.py $IMAGE_NAME $GITHUB_SHA
       - name: Get all changed files using a space separator
         id: changed-files
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c  # v46
-        with:
-          separator: ' '
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47
       - name: Perform code tree analysis
         id: code-tree-analysis
         run: |
@@ -68,7 +65,7 @@ jobs:
           mkdir -p $HOME/.prefect
           echo $PREFECT_AUTH_TOML | base64 --decode > $HOME/.prefect/auth.toml
       - name: Wait for Docker image to be available
-        uses: lewagon/wait-on-check-action@v1.3.1
+        uses: lewagon/wait-on-check-action@v1.5.0
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           check-name: Build Docker image
@@ -81,45 +78,42 @@ jobs:
             --path pipelines/ \
             --filter-affected-flows \
             --modified-files "${{ steps.changed-files.outputs.all_modified_files }}"
-  test-dbt-dev-model:
-    if: contains(github.event.pull_request.labels.*.name, 'test-dev-model')
-    name: test dbt dev model
-    runs-on: ubuntu-22.04
+  pr-checks:
+    if: (contains(github.event.pull_request.labels.*.name, 'test-dev-model') || contains(github.event.pull_request.labels.*.name,'check-metadata'))
+    name: Run PR checks
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref }}
-      - name: Get all changed files using a comma separator
+      - name: Get all changed files
         id: changed-files
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c  # v46
+        uses: tj-actions/changed-files@v47
         with:
           files: |
             models/**/*.sql
-      - name: List dbt models files changed
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
-        run: |-
-          for file in ${ALL_CHANGED_FILES}; do
-            echo "$file"
-          done
+            pipelines/**/*
       - name: Install uv
-        if: steps.changed-files.outputs.all_changed_files != ''
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
       - name: Set up Python
-        if: steps.changed-files.outputs.all_changed_files != ''
         run: uv python install
       - name: Install dependencies
-        if: steps.changed-files.outputs.all_changed_files != ''
         run: uv sync --locked --only-dev
-      - name: Install dbt deps
-        if: steps.changed-files.outputs.all_changed_files != ''
-        run: uv run dbt deps
-      - name: Write service account to json file
-        if: steps.changed-files.outputs.all_changed_files != ''
+      - name: Write DBT service account
         run: echo '${{ secrets.DBT_SA_DEV }}' | jq '.' > dbt_sa_dev.json
+      - name: Install dbt deps
+        if: contains(github.event.pull_request.labels.*.name, 'test-dev-model')
+        run: uv run dbt deps
       - name: Run dbt test
-        if: steps.changed-files.outputs.all_changed_files != ''
+        if: contains(github.event.pull_request.labels.*.name, 'test-dev-model')
         run: uv run dbt test --select ${{ steps.changed-files.outputs.all_changed_files }}
         env:
           BD_SERVICE_ACCOUNT_DEV: dbt_sa_dev.json
+      - name: Run metadata validation
+        if: contains(github.event.pull_request.labels.*.name, 'check-metadata')
+        run: uv run .github/workflows/scripts/check_metadata.py --modified-files "${{ steps.changed-files.outputs.all_modified_files }}"
+        env:
+          BASEDOSDADOS_CONFIG: ${{ secrets.BASEDOSDADOS_CONFIG }}
+          BASEDOSDADOS_CREDENTIALS_PROD: ${{ secrets.BASEDOSDADOS_CREDENTIALS_PROD }}
+          BASEDOSDADOS_CREDENTIALS_STAGING: ${{ secrets.BASEDOSDADOS_CREDENTIALS_STAGING }}

@@ -1,5 +1,5 @@
 """
-Flows for br_me_cnpj
+Flows for br_me_cnpj - register 03/02/2026
 """
 
 from prefect import Parameter, case
@@ -33,7 +33,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="br_me_cnpj.empresas",
     code_owners=[
-        "equipe_pipelines",
+        "equipe_dados",
     ],
 ) as br_me_cnpj_empresas:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
@@ -84,7 +84,6 @@ with Flow(
             table_id=table_id,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
         with case(materialize_after_dump, True):
@@ -117,7 +116,7 @@ br_me_cnpj_empresas.schedule = every_day_empresas
 with Flow(
     name="br_me_cnpj.socios",
     code_owners=[
-        "equipe_pipelines",
+        "equipe_dados",
     ],
 ) as br_me_cnpj_socios:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
@@ -167,7 +166,6 @@ with Flow(
             table_id=table_id,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
         with case(materialize_after_dump, True):
@@ -200,7 +198,7 @@ br_me_cnpj_socios.schedule = every_day_socios
 with Flow(
     name="br_me_cnpj.estabelecimentos",
     code_owners=[
-        "equipe_pipelines",
+        "equipe_dados",
     ],
     executor=LocalDaskExecutor(),
 ) as br_me_cnpj_estabelecimentos:
@@ -255,7 +253,6 @@ with Flow(
             table_id=table_id,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
 
@@ -314,7 +311,7 @@ br_me_cnpj_estabelecimentos.schedule = every_day_estabelecimentos
 with Flow(
     name="br_me_cnpj.simples",
     code_owners=[
-        "equipe_pipelines",
+        "equipe_dados",
     ],
 ) as br_me_cnpj_simples:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=True)

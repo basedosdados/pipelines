@@ -25,7 +25,7 @@ from pipelines.utils.tasks import (
 )
 
 with Flow(
-    name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["trick"]
+    name="br_mg_belohorizonte_smfa_iptu.iptu", code_owners=["equipe_dados"]
 ) as br_mg_belohorizonte_smfa_iptu_iptu:
     # Parameters
     dataset_id = Parameter(

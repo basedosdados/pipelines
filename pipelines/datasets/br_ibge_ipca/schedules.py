@@ -3,7 +3,7 @@
 
 from datetime import datetime
 
-from prefect.schedules import Schedule, adjustments, filters
+from prefect.schedules import Schedule
 from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
@@ -26,8 +26,6 @@ schedule_br_ibge_ipca_mes_categoria_brasil = Schedule(
             },
         )
     ],
-    filters=[filters.is_weekday],
-    adjustments=[adjustments.next_weekday],
 )
 
 schedule_br_ibge_ipca_mes_categoria_rm = Schedule(
@@ -48,8 +46,6 @@ schedule_br_ibge_ipca_mes_categoria_rm = Schedule(
             },
         )
     ],
-    filters=[filters.is_weekday],
-    adjustments=[adjustments.next_weekday],
 )
 
 
@@ -71,8 +67,6 @@ schedule_br_ibge_ipca_mes_categoria_municipio = Schedule(
             },
         )
     ],
-    filters=[filters.is_weekday],
-    adjustments=[adjustments.next_weekday],
 )
 
 
@@ -94,6 +88,4 @@ schedule_br_ibge_ipca_mes_brasil = Schedule(
             },
         )
     ],
-    filters=[filters.is_weekday],
-    adjustments=[adjustments.next_weekday],
 )

@@ -81,9 +81,9 @@ br_saeb_media_long_fmt = (
     )
     .assign(
         disciplina=lambda df: df["parsed_variable"].apply(lambda v: v[0]),
-        serie=lambda df: df["parsed_variable"]
-        .apply(lambda v: v[1])
-        .astype("Int64"),
+        serie=lambda df: (
+            df["parsed_variable"].apply(lambda v: v[1]).astype("Int64")
+        ),
     )
     .drop(columns=["parsed_variable"])
 )
@@ -101,11 +101,13 @@ br_saeb_nivel_long_fmt = (
         # EMT = Ensino Médio Tradicional
         # EMI = Ensino Médio Integrado
         # EM = Ensino Médio (Tradicional + Integrado)
-        serie=lambda df: df["parsed_variable"]
-        .apply(lambda v: v[2])
-        .replace({"EMT": 12, "EMI": 13, "EM": 14})
-        .astype("string")
-        .astype("Int64"),
+        serie=lambda df: (
+            df["parsed_variable"]
+            .apply(lambda v: v[2])
+            .replace({"EMT": 12, "EMI": 13, "EM": 14})
+            .astype("string")
+            .astype("Int64")
+        ),
     )
     .drop(columns=["parsed_variable"])
 )

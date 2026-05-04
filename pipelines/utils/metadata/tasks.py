@@ -2,7 +2,6 @@
 Tasks for metadata
 """
 
-import asyncio
 from datetime import datetime, timedelta
 
 import basedosdados as bd
@@ -27,10 +26,7 @@ from pipelines.utils.metadata.utils import (
     update_date_from_bq_metadata,
     update_row_access_policy,
 )
-from pipelines.utils.metadata.utils_async import (
-    create_update_quality_checks_async,
-)
-from pipelines.utils.utils import log
+from pipelines.utils.utils import get_redis_client, log
 
 
 @task
@@ -199,7 +195,6 @@ def check_if_data_is_outdated(
     data_source_max_date: datetime,
     date_type: str = "data_max_date",
     date_format: str = "%Y-%m-%d",
-    api_mode: str = "prod",
 ) -> bool:
     """Essa task checa se há necessidade de atualizar os dados no BQ
 
@@ -207,12 +202,10 @@ def check_if_data_is_outdated(
         dataset_id e table_id(string): permite encontrar na api a última data de cobertura
         date_format (str): O formato da data a ser procurado no Django
         data_source_max_date (date): A data mais recente dos dados da fonte original
-        api_mode (str): pode ser 'prod ou 'staging'
 
     Returns:
         bool: TRUE se a data da fonte original for maior que a data mais recente registrada na API e FALSE caso contrário.
     """
-    backend = bd.Backend(graphql_url=get_url(api_mode))
 
     if isinstance(data_source_max_date, datetime):
         data_source_max_date = data_source_max_date.date()
@@ -246,12 +239,108 @@ def check_if_data_is_outdated(
     if data_source_max_date > data_api:
         log("Há atualizações disponíveis")
         update_data_source_update_date(
-            dataset_id, table_id, date_type, data_source_max_date, backend
+            dataset_id,
+            table_id,
+            date_type,
+            data_source_max_date,
+            backend,
         )
         return True  # Há atualizações disponíveis
     else:
         log("Não há novas atualizações disponíveis")
         return False
+
+
+@task(
+    max_retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+)
+def check_if_data_is_outdated_by_size(
+    dataset_id: str,
+    table_id: str,
+    byte_length: int,
+    local_execution: bool = False,
+) -> bool:
+    """Essa task checa se há necessidade de atualizar os dados no BQ baseando-se no tamanho do dado
+
+    Args:
+        dataset_id e table_id (string): permite encontrar no redis a última data de cobertura
+        byte_length (int): O tamanho do dado na fonte original em bytes
+        local_execution (bool): Se True, conecta ao redis em localhost.
+        *NOTE: para conectar o REDIS usando localhost é preciso ter uma proxy ativa com pod do redis no Ks8.
+          *quando o flow roda na cloud o client se conecta ao REDIS utilizando o DNS do KS8
+
+    Returns:
+        bool: TRUE se o tamanho for maior que o registrado e FALSE caso contrário.
+    """
+    # NOTE: Hardcodei igual o padrão da task check_if_data_is_outdated
+    backend = bd.Backend(graphql_url=constants.API_URL.value["prod"])
+
+    if local_execution:
+        redis_client = get_redis_client(host="localhost")
+    else:
+        redis_client = get_redis_client()
+
+    today = datetime.today().strftime("%Y-%m-%d")
+
+    dataset_data = redis_client.get(dataset_id) or {}
+    table_data = dataset_data.get(table_id, {})
+
+    if table_data:
+        sorted_dates = sorted(table_data.keys(), reverse=True)
+        latest_date = sorted_dates[0]
+        latest_byte_length = table_data[latest_date]
+
+        log(f"Tamanho na fonte: {byte_length}")
+        log(f"Último tamanho registrado ({latest_date}): {latest_byte_length}")
+
+        if byte_length > latest_byte_length:
+            log("Há atualizações disponíveis (tamanho maior)")
+            table_data[today] = byte_length
+        elif byte_length == latest_byte_length:
+            log("Não há novas atualizações disponíveis (tamanho igual)")
+            update_data_source_poll(dataset_id, table_id, backend)
+            return False
+        else:
+            log(
+                f"ALERTA: Tamanho na fonte ({byte_length}) é MENOR que o último registrado ({latest_byte_length}). Isto pode indicar que houve uma alteração na tabela original que reduziu o tamanho dela. Ex. Uma coluna foi deletada; Variáveis de texto foram codificadas e etc;",
+                "error",
+            )
+            log(f"Histórico de tamanhos: {table_data}", "error")
+            raise ValueError(
+                f"Tamanho na fonte ({byte_length}) é menor que o último registrado ({latest_byte_length})"
+            )
+    else:
+        log(
+            f"Nenhum registro anterior encontrado para {dataset_id}.{table_id}. Registrando primeiro tamanho: {byte_length}"
+        )
+        table_data[today] = byte_length
+
+    # Keep only the last 10 runs
+    if len(table_data) > 10:
+        sorted_dates = sorted(table_data.keys(), reverse=True)
+        table_data = {date: table_data[date] for date in sorted_dates[:10]}
+
+    # Save back to Redis
+    dataset_data[table_id] = table_data
+    redis_client.set(dataset_id, dataset_data)
+
+    ##NOTE:       #essa funcao tem um fallback que, se o date_type informado não é last_update_date
+    # ela gera um today date adiciona hh:mm:ss e usa como data para subir o dado...
+    # Não faz sentido;
+    # para mim, no fundo, seria somente passar qualquer tipo de parametro e ele geraria um todfay date
+    # que é o quie a minha task deve fazer......
+
+    # isto é, fornecendo params aleatórios para date_type e data_spurce_max_date ela cria a today date kk
+    update_data_source_update_date(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        date_type="today_date",
+        data_source_max_date="1990-01-01",
+        backend=backend,
+    )
+
+    return True
 
 
 @task
@@ -267,74 +356,4 @@ def task_get_api_most_recent_date(
         table_id=table_id,
         date_format=date_format,
         backend=backend,
-    )
-
-
-#####             #####
-## Quality check's   ##
-#####             #####
-
-
-@task
-def query_tests_results() -> pd.DataFrame:
-    """
-    Task to query recent test results from basedosdados.
-
-    Returns:
-    - pd.DataFrame: A pandas DataFrame containing recent test results with the following columns:
-        - 'name': The name of the test.
-        - 'description': The description of the test result (typically the column name).
-        - 'status': Indicates whether the test passed or failed.
-        - 'dataset_id': The ID of the dataset containing the tested table.
-        - 'table_id': The ID of the tested table.
-    """
-
-    billing_project_id = get_billing_project_id(mode="prod")
-    query_bd = """
-    with tests_order as (
-    select
-        test_short_name as name,
-        column_name as description,
-        status,
-        schema_name as dataset_id,
-        table_name as table_id,
-        row_number() over (partition by test_short_name, schema_name, table_name order by created_at desc) as position,
-        created_at
-    from
-        `basedosdados.elementary.elementary_test_results`
-    where
-        date(created_at) >= date_sub(current_date(), interval 7 DAY))
-    select
-        name,
-        description,
-        status,
-        dataset_id,
-        table_id
-    from tests_order
-    where position = 1
-    """
-
-    t = bd.read_sql(
-        query=query_bd,
-        billing_project_id=billing_project_id,
-        from_file=True,
-    )
-
-    return t
-
-
-@task
-def create_update_quality_checks(tests_results: pd.DataFrame) -> None:
-    """
-    Task to create or update multiple quality checks based on test results asynchronously.
-
-    Parameters:
-    - tests_results (pd.DataFrame): A pandas DataFrame containing test results.
-
-    Returns:
-    - None
-
-    """
-    asyncio.run(
-        create_update_quality_checks_async(tests_results=tests_results)
     )

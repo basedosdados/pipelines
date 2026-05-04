@@ -345,16 +345,20 @@ df_etapa_ensino_serie = (
         ]
     )
     .assign(
-        created_etapa_ensino=lambda d: d["etapa_ensino"]
-        .apply(create_etapa_ensino)
-        .astype("string"),
+        created_etapa_ensino=lambda d: (
+            d["etapa_ensino"].apply(create_etapa_ensino).astype("string")
+        ),
         serie=lambda d: d["etapa_ensino"].apply(etapa_ensino_to_serie),
         rede=lambda d: d["etapa_ensino"].apply(
             lambda v: v.split("_")[-1].title()
         ),
-        sigla_uf=lambda d: d["uf"]
-        .apply(lambda uf: uf.strip())
-        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
+        sigla_uf=lambda d: (
+            d["uf"]
+            .apply(lambda uf: uf.strip())
+            .replace(
+                {i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}
+            )
+        ),
         quantidade_matricula=lambda d: d["quantidade_matricula"].astype(
             "Int64"
         ),
@@ -1167,9 +1171,13 @@ df_docente_etapa_ensino = (
         ]
     )
     .assign(
-        sigla_uf=lambda d: d["uf"]
-        .str.strip()
-        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
+        sigla_uf=lambda d: (
+            d["uf"]
+            .str.strip()
+            .replace(
+                {i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}
+            )
+        ),
         id_municipio=lambda d: d["id_municipio"].astype("string"),
         quantidade_docentes=lambda d: d["quantidade_docentes"].astype("Int64"),
     )
@@ -1482,9 +1490,11 @@ df_docente_localizacao = pd.concat(
         for etapa_ensino, df in dfs_docente_localizacao.items()
     ]
 ).assign(
-    sigla_uf=lambda d: d["uf"]
-    .str.strip()
-    .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
+    sigla_uf=lambda d: (
+        d["uf"]
+        .str.strip()
+        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})
+    ),
     id_municipio=lambda d: d["id_municipio"].astype("string"),
     quantidade_docente=lambda d: d["quantidade_docente"].astype("Int64"),
     rede=lambda d: d["variable"].apply(lambda v: v.split("_")[-1].strip()),
@@ -1689,9 +1699,13 @@ df_docente_escolaridade = (
         ]
     )
     .assign(
-        sigla_uf=lambda d: d["uf"]
-        .str.strip()
-        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
+        sigla_uf=lambda d: (
+            d["uf"]
+            .str.strip()
+            .replace(
+                {i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}
+            )
+        ),
         id_municipio=lambda d: d["id_municipio"].astype("string"),
         quantidade_docente=lambda d: d["quantidade_docente"].astype("Int64"),
     )
@@ -1794,9 +1808,13 @@ df_docente_deficiencia = (
         ]
     )
     .assign(
-        sigla_uf=lambda d: d["uf"]
-        .str.strip()
-        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
+        sigla_uf=lambda d: (
+            d["uf"]
+            .str.strip()
+            .replace(
+                {i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}
+            )
+        ),
         id_municipio=lambda d: d["id_municipio"].astype("string"),
         quantidade_docente=lambda d: d["quantidade_docente"].astype("Int64"),
     )
@@ -2077,15 +2095,19 @@ df_docente_faixa_etaria_sexo = pd.concat(
         for etapa_ensino, df in dfs_docente_faixa_etaria_sexo.items()
     ]
 ).assign(
-    sigla_uf=lambda d: d["uf"]
-    .str.strip()
-    .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
+    sigla_uf=lambda d: (
+        d["uf"]
+        .str.strip()
+        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})
+    ),
     id_municipio=lambda d: d["id_municipio"].astype("string"),
     quantidade_docente=lambda d: d["quantidade_docente"].astype("Int64"),
     faixa_etaria=lambda d: d["variable"].apply(
-        lambda v: v.replace("Feminino_", "")
-        if v.startswith("Feminino")
-        else v.replace("Masculino_", "")
+        lambda v: (
+            v.replace("Feminino_", "")
+            if v.startswith("Feminino")
+            else v.replace("Masculino_", "")
+        )
     ),
     sexo=lambda d: d["variable"].apply(lambda v: v.split("_")[0].strip()),
 )[
@@ -2344,9 +2366,11 @@ df_docente_regime_contrato = pd.concat(
         for etapa_ensino, df in dfs_docente_regime_contrato.items()
     ]
 ).assign(
-    sigla_uf=lambda d: d["uf"]
-    .str.strip()
-    .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")}),
+    sigla_uf=lambda d: (
+        d["uf"]
+        .str.strip()
+        .replace({i["nome"]: i["sigla"] for i in bd_dir.to_dict("records")})
+    ),
     id_municipio=lambda d: d["id_municipio"].astype("string"),
     quantidade_docente=lambda d: d["quantidade_docente"].astype("Int64"),
     rede=lambda d: d["variable"].apply(lambda v: v.split("_")[-1].strip()),

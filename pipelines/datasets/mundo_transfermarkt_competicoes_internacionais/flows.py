@@ -30,7 +30,7 @@ from pipelines.utils.tasks import (
 with Flow(
     name="mundo_transfermarkt_competicoes_internacionais.champions_league",
     code_owners=[
-        "equipe_pipelines",
+        "equipe_dados",
     ],
 ) as transfermarkt_flow:
     dataset_id = Parameter(
@@ -84,7 +84,6 @@ with Flow(
             table_id=table_id,
             dbt_alias=dbt_alias,
             dbt_command="run/test",
-            disable_elementary=False,
             upstream_tasks=[wait_upload_table],
         )
 
