@@ -16,7 +16,7 @@ class constants(Enum):
     TIMEOUT = 5
     ATTEMPTS = 0
 
-    TABELAS = ["Empresas", "Socios", "Estabelecimentos", "Simples"]
+    TABELAS = ["Empresas", "Socios", "Estabelecimentos", "Simples", "Cnaes"]
 
     UFS = [
         "AC",

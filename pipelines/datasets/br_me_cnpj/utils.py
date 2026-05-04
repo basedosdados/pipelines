@@ -86,7 +86,7 @@ def destino_output(sufixo: str, data_coleta: datetime.datetime) -> str:
 
     output_path = f"/tmp/data/br_me_cnpj/output/{sufixo}/"
     # Pasta de destino para salvar o arquivo CSV
-    if sufixo != "simples":
+    if sufixo not in ["simples", "cnaes"]:
         if sufixo != "estabelecimentos":
             output_dir = (
                 f"/tmp/data/br_me_cnpj/output/{sufixo}/data={data_coleta}/"

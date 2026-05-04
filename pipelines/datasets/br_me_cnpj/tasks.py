@@ -16,7 +16,6 @@ from pipelines.datasets.br_me_cnpj.utils import (
     download_unzip_csv,
     process_csv_empresas,
     process_csv_estabelecimentos,
-    process_csv_simples,
     process_csv_socios,
 )
 from pipelines.utils.utils import log
@@ -80,7 +79,7 @@ def main(
 
         # Loop para baixar e processar os arquivos
         for i in range(0, 10):
-            if tabela != "Simples":
+            if tabela not in ["Simples", "Cnaes"]:
                 nome_arquivo = f"{tabela}{i}"
                 url_download = f"{constants_cnpj.URL.value}{max_folder_date}/{tabela}{i}.zip"
 
@@ -108,8 +107,8 @@ def main(
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run(download_unzip_csv(url_download, input_path))
-                    process_csv_simples(
-                        input_path, output_path, max_last_modified_date, sufixo
-                    )
+                    # process_csv_simples(
+                    #     input_path, output_path, max_last_modified_date, sufixo
+                    # )
 
     return output_path
