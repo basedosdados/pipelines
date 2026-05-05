@@ -14,7 +14,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: id_municipio
         description: ID Município IBGE 7 Dígitos
         tests:
