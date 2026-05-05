@@ -14,10 +14,6 @@
         },
         cluster_by=["mes_referencia", "sigla_uf"],
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
-        post_hook=[
-            'CREATE OR REPLACE ROW ACCESS POLICY allusers_filter ON {{this}} GRANT TO ("allUsers") FILTER USING (DATE_DIFF(DATE("{{ run_started_at.strftime("%Y-%m-%d") }}"),DATE(CAST(ano_referencia AS INT64),CAST(mes_referencia AS INT64),1), MONTH) > 6)',
-            'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter ON {{this}} GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (DATE_DIFF(DATE("{{ run_started_at.strftime("%Y-%m-%d") }}"),DATE(CAST(ano_referencia AS INT64),CAST(mes_referencia AS INT64),1), MONTH) <= 6)',
-        ],
     )
 }}
 
