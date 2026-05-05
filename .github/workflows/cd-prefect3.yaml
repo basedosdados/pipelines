@@ -1,0 +1,32 @@
+---
+name: cd-prefect3 (production)
+on:
+  push:
+    branches: [main]
+    paths:
+      - pipelines/**/*.py
+      - .github/workflows/cd-prefect3.yaml
+
+jobs:
+  deploy-production:
+    name: deploy flows (basedosdados)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv sync --locked --no-dev
+
+      - name: Deploy all flows to basedosdados
+        env:
+          PREFECT_API_URL: https://prefect3.basedosdados.org/api
+          PREFECT_API_KEY: ${{ secrets.PREFECT3_AUTH_TOKEN }}
+        run: |
+          uv run python .github/scripts/deploy_flows.py \
+            --pool basedosdados \
+            --branch main \
+            --all

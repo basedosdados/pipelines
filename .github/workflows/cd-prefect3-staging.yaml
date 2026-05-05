@@ -1,0 +1,47 @@
+---
+name: cd-prefect3 (staging)
+on:
+  pull_request:
+    branches: [main]
+    types: [labeled, synchronize]
+    paths:
+      - pipelines/**/*.py
+      - .github/workflows/cd-prefect3-staging.yaml
+
+jobs:
+  deploy-staging:
+    name: deploy flows (basedosdados-dev)
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'deploy-flow')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get changed flow files
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+        with:
+          files: pipelines/**/*.py
+
+      - name: List changed files
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: echo "Flows alterados:${{ steps.changed-files.outputs.all_changed_files }}"
+
+      - name: Install uv
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: uv sync --locked --no-dev
+
+      - name: Deploy flows to basedosdados-dev
+        if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          PREFECT_API_URL: https://prefect3.basedosdados.org/api
+          PREFECT_API_KEY: ${{ secrets.PREFECT3_AUTH_TOKEN }}
+        run: |
+          uv run python .github/scripts/deploy_flows.py \
+            --pool basedosdados-dev \
+            --branch ${{ github.head_ref }} \
+            --files ${{ steps.changed-files.outputs.all_changed_files }}
