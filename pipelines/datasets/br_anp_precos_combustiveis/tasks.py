@@ -20,6 +20,7 @@ from pipelines.datasets.br_anp_precos_combustiveis.utils import (
     open_csvs,
     orderning_data_coleta,
     partition_data,
+    read_anp_file,
     rename_and_reordening,
     rename_and_to_create_endereco,
     rename_columns,
@@ -32,18 +33,11 @@ def get_data_source_anp_max_date():
     download_files(
         anp_constants.URLS_DATA.value, anp_constants.PATH_INPUT.value
     )
-    df = pd.read_csv(anp_constants.URL_GLP.value, sep=";", encoding="utf-8")
-    data_obj = (
-        df["Data da Coleta"].str[6:10]
-        + "-"
-        + df["Data da Coleta"].str[3:5]
-        + "-"
-        + df["Data da Coleta"].str[0:2]
+    df = read_anp_file(anp_constants.URL_GLP.value)
+    data_obj = pd.to_datetime(
+        df["Data da Coleta"], format="%d/%m/%Y", errors="coerce"
     )
-    data_obj = data_obj.apply(lambda x: pd.to_datetime(x).strftime("%Y-%m-%d"))
-    data_obj = pd.to_datetime(data_obj, format="%Y-%m-%d").dt.date
-    data_obj = data_obj.max()
-    return data_obj
+    return data_obj.dropna().dt.date.max()
 
 
 @task(

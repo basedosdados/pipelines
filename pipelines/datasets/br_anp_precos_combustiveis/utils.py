@@ -2,6 +2,7 @@
 General purpose functions for the br_anp_precos_combustiveis project
 """
 
+import io
 import os
 from datetime import datetime
 
@@ -79,17 +80,30 @@ def get_id_municipio(id_municipio: pd.DataFrame):
     return id_municipio
 
 
+def read_anp_file(path):
+    # ANP serves an XLSX file under a .csv URL. Each cell holds part of the
+    # original semicolon-separated CSV row, split at every `,` (the Brazilian
+    # decimal mark and address separator). Rejoin cells with `,` to rebuild
+    # the original line, then parse as `;`-delimited CSV.
+    raw = pd.read_excel(path, header=None, dtype=str)
+    lines = raw.apply(
+        lambda row: ",".join(v for v in row.tolist() if pd.notna(v)), axis=1
+    )
+    text = "\n".join(lines.tolist())
+    return pd.read_csv(io.StringIO(text), sep=";")
+
+
 def open_csvs(url_diesel_gnv, url_gasolina_etanol, url_glp):
     data_frames = []
     log("Abrindo os arquivos csvs")
-    diesel = pd.read_csv(f"{url_diesel_gnv}", sep=";", encoding="utf-8")
+    diesel = read_anp_file(url_diesel_gnv)
 
     log(diesel["Data da Coleta"].unique())
-    gasolina = pd.read_csv(f"{url_gasolina_etanol}", sep=";", encoding="utf-8")
+    gasolina = read_anp_file(url_gasolina_etanol)
 
     log("Abrindo os arquivos csvs gasolina")
 
-    glp = pd.read_csv(f"{url_glp}", sep=";", encoding="utf-8")
+    glp = read_anp_file(url_glp)
     log("Abrindo os arquivos csvs glp")
 
     # log(glp["Data da Coleta"].unique())
