@@ -37,7 +37,7 @@ models:
               field: mes.mes
       - name: id_estacao
         description: ID da estação meteorológica
-        tests: not_null
+        tests: [not_null]
       - name: precipitacao_total
         description: Precipitação total, horária
       - name: pressao_atm_hora
@@ -86,7 +86,7 @@ models:
               field: id_municipio
       - name: id_estacao
         description: ID da estação meteorológica
-        tests: not_null
+        tests: [not_null]
       - name: estacao
         description: Nome da estação meteorológica
       - name: data_fundacao
