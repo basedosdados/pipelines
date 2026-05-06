@@ -2,7 +2,7 @@
 name: cd-prefect3 (production)
 on:
   push:
-    branches: [main]
+    branches: [main, feat/prefect3]
     paths:
       - pipelines/**/*.py
       - .github/workflows/cd-prefect3.yaml
@@ -28,5 +28,5 @@ jobs:
         run: |
           uv run python .github/scripts/deploy_flows.py \
             --pool basedosdados \
-            --branch main \
+            --branch ${{ github.ref_name }} \
             --all

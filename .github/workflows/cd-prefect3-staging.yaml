@@ -2,7 +2,7 @@
 name: cd-prefect3 (staging)
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feat/prefect3]
     types: [labeled, synchronize]
     paths:
       - pipelines/**/*.py
