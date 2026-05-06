@@ -25,10 +25,6 @@ models:
               field: data.data
       - name: hora
         description: Hora (UTC)
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__hora')
-              field: hora.hora
       - name: mes
         description: Mês
         tests:
