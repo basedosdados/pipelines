@@ -2,7 +2,7 @@
 Tasks for br_anp_precos_combustiveis
 """
 
-from datetime import timedelta
+from datetime import date, timedelta
 
 import pandas as pd
 from prefect import task
@@ -28,8 +28,16 @@ from pipelines.datasets.br_anp_precos_combustiveis.utils import (
 
 
 @task
-def get_data_source_anp_max_date():
-    # Obtém a data mais recente do site
+def get_data_source_anp_max_date() -> date:
+    """Return the latest ``Data da Coleta`` published by ANP.
+
+    Downloads the GLP weekly file from ANP, parses ``Data da Coleta`` as
+    ``%d/%m/%Y`` (coercing unparseable values to ``NaT``), drops null dates
+    and returns the maximum.
+
+    Returns:
+        date: the most recent collection date present in the source file.
+    """
     download_files(
         anp_constants.URLS_DATA.value, anp_constants.PATH_INPUT.value
     )

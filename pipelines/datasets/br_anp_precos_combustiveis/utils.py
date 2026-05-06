@@ -80,11 +80,24 @@ def get_id_municipio(id_municipio: pd.DataFrame):
     return id_municipio
 
 
-def read_anp_file(path):
-    # ANP serves an XLSX file under a .csv URL. Each cell holds part of the
-    # original semicolon-separated CSV row, split at every `,` (the Brazilian
-    # decimal mark and address separator). Rejoin cells with `,` to rebuild
-    # the original line, then parse as `;`-delimited CSV.
+def read_anp_file(path: str) -> pd.DataFrame:
+    """Read an ANP weekly fuel-price file as a DataFrame.
+
+    ANP serves an XLSX payload under a ``.csv`` URL. Each spreadsheet cell
+    holds a fragment of the original ``;``-delimited CSV row, split at every
+    ``,`` (Brazilian decimal mark and address separator). This helper
+    reconstructs each row by rejoining its non-null cells with ``,`` and then
+    parses the resulting text as a ``;``-delimited CSV.
+
+    Args:
+        path: Local path to the ANP file (named ``*.csv`` but XLSX-encoded).
+
+    Returns:
+        pd.DataFrame: parsed table with ANP's original column names
+        (``Regiao - Sigla``, ``Estado - Sigla``, ..., ``Data da Coleta``,
+        ``Valor de Venda``, ``Valor de Compra``, ``Unidade de Medida``,
+        ``Bandeira``).
+    """
     raw = pd.read_excel(path, header=None, dtype=str)
     lines = raw.apply(
         lambda row: ",".join(v for v in row.tolist() if pd.notna(v)), axis=1
@@ -93,7 +106,20 @@ def read_anp_file(path):
     return pd.read_csv(io.StringIO(text), sep=";")
 
 
-def open_csvs(url_diesel_gnv, url_gasolina_etanol, url_glp):
+def open_csvs(
+    url_diesel_gnv: str, url_gasolina_etanol: str, url_glp: str
+) -> pd.DataFrame:
+    """Read the three ANP weekly files and concatenate them.
+
+    Args:
+        url_diesel_gnv: Local path to the diesel/GNV file.
+        url_gasolina_etanol: Local path to the gasoline/ethanol file.
+        url_glp: Local path to the GLP (cooking gas) file.
+
+    Returns:
+        pd.DataFrame: rows from all three files concatenated, with the
+        original ANP column names preserved.
+    """
     data_frames = []
     log("Abrindo os arquivos csvs")
     diesel = read_anp_file(url_diesel_gnv)
