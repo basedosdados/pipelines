@@ -99,9 +99,17 @@ def read_anp_file(path: str) -> pd.DataFrame:
         ``Bandeira``).
     """
     raw = pd.read_excel(path, header=None, dtype=str)
-    lines = raw.apply(
-        lambda row: ",".join(v for v in row.tolist() if pd.notna(v)), axis=1
-    )
+
+    def _row_to_line(row: pd.Series) -> str:
+        # Preserve interior empty cells (a `,,` in the original line becomes
+        # NaN after the XLSX split and must round-trip as `,`), but trim
+        # trailing NaN so we don't append spurious `,` to the last field.
+        last = row.last_valid_index()
+        if last is None:
+            return ""
+        return ",".join(row.loc[:last].fillna("").astype(str))
+
+    lines = raw.apply(_row_to_line, axis=1)
     text = "\n".join(lines.tolist())
     return pd.read_csv(io.StringIO(text), sep=";")
 
