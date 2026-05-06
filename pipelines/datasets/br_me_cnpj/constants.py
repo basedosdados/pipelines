@@ -5,6 +5,7 @@ Constant values for the datasets projects
 ###############################################################################
 
 from enum import Enum
+from pathlib import Path
 
 
 class constants(Enum):
@@ -12,12 +13,31 @@ class constants(Enum):
     Constant values for the br_me_cnpj project
     """
 
+    ROOT_PATH = Path(__file__).parent.parent.parent.parent
+    TMP_PATH = ROOT_PATH / "tmp"
+    DATASET_PATH = TMP_PATH / "br_me_cnpj"
+
+    TMP_PATH.mkdir(exist_ok=True, parents=True)
+    DATASET_PATH.mkdir(exist_ok=True, parents=True)
+
     MAX_ATTEMPTS = 3
     TIMEOUT = 5
     ATTEMPTS = 0
 
-    TABELAS = ["Empresas", "Socios", "Estabelecimentos", "Simples", "Cnaes"]
+    TABELAS = {
+        "cnaes": "Cnaes",
+        "empresas": "Empresas",
+        "estabelecimentos": "Estabelecimentos",
+        "motivos": "Motivos",
+        "municipios": "Municipios",
+        "naturezas": "Naturezas",
+        "paises": "Paises",
+        "qualificacoes": "Qualificacoes",
+        "simples": "Simples",
+        "socios": "Socios",
+    }
 
+    TABELAS_SEGMENTADAS = ["Empresas", "Socios", "Estabelecimentos"]
     UFS = [
         "AC",
         "AL",

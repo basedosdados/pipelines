@@ -6,6 +6,7 @@ import datetime
 import os
 import zipfile
 from asyncio import Semaphore, gather, sleep
+from pathlib import Path
 
 import pandas as pd
 import requests
@@ -455,6 +456,7 @@ def process_csv_empresas(
                     # Preenchimento de zeros à esquerda no campo 'natureza_juridica'
                     chunk = fill_left_zeros(chunk, "natureza_juridica", 4)
                     # Convertendo a coluna 'capital_social' para float e mudando o separator
+
                     chunk["capital_social"] = (
                         chunk["capital_social"]
                         .str.replace(",", ".")
@@ -588,3 +590,38 @@ def process_csv_simples(
 
             log(f"Arquivo {sufixo} salvo")
             os.remove(caminho_arquivo_csv)
+
+
+def process_csv_cnaes(
+    input_path: str,
+    output_path: str,
+    data_coleta: str,
+    sufixo: str,
+    chunk_size: int = 1000,
+) -> None:
+    """ """
+    save_path = Path(f"{output_path}{sufixo}.csv")
+    log(f"Save path: {save_path}")
+    for filepath in Path(input_path).glob("*.CSV"):
+        if "cnaes" in filepath.lower():
+            filename = filepath.name
+            log(f"Carregando o arquivo: {filename}")
+            with open(save_path, "wb") as fd:
+                for chunk in tqdm(
+                    pd.read_csv(
+                        filepath,
+                        encoding="iso-8859-1",
+                        sep=";",
+                        header=None,
+                        dtype=str,
+                        chunksize=chunk_size,
+                    ),
+                    desc="Lendo o arquivo CSV",
+                ):
+                    mode = "a" if save_path.exists() else "w"
+                    chunk.to_csv(
+                        fd, mode=mode, index=False, encoding="iso-8859-1"
+                    )
+
+        log(f"Arquivo {sufixo} salvo")
+        # os.remove(filepath)

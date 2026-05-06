@@ -9,11 +9,13 @@ import os
 from prefect import task
 
 from pipelines.constants import constants
+from pipelines.datasets.br_me_cnpj import utils
 from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
 from pipelines.datasets.br_me_cnpj.utils import (
     data_url,
     destino_output,
     download_unzip_csv,
+    process_csv_cnaes,
     process_csv_empresas,
     process_csv_estabelecimentos,
     process_csv_socios,
@@ -47,7 +49,7 @@ def get_data_source_max_date() -> tuple[datetime.datetime, datetime.date]:
     retry_delay=datetime.timedelta(seconds=constants.TASK_RETRY_DELAY.value),
 )
 def main(
-    tabelas: list[str],
+    table_ids: list[str],
     max_folder_date: datetime.datetime,
     max_last_modified_date: datetime.date,
 ) -> str:
@@ -64,6 +66,9 @@ def main(
         str: The path to the output folder where the data has been organized.
     """
     arquivos_baixados = []  # Lista para rastrear os arquivos baixados
+    tabelas = [
+        constants_cnpj.TABELAS.value[table_id] for table_id in table_ids
+    ]
     for tabela in tabelas:
         sufixo = tabela.lower()
 
@@ -77,6 +82,7 @@ def main(
         # Define o caminho para a pasta de saída (output)
         output_path = destino_output(sufixo, max_last_modified_date)
 
+        log(utils.__dict__[f"process_csv_{tabela.lower()}"])
         # Loop para baixar e processar os arquivos
         for i in range(0, 10):
             if tabela not in ["Simples", "Cnaes"]:
@@ -110,5 +116,9 @@ def main(
                     # process_csv_simples(
                     #     input_path, output_path, max_last_modified_date, sufixo
                     # )
+                    log(f"Nome Arquivo: {nome_arquivo}")
+                    process_csv_cnaes(
+                        input_path, output_path, max_last_modified_date, sufixo
+                    )
 
     return output_path
