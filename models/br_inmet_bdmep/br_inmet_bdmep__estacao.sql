@@ -12,7 +12,7 @@ select
     safe_cast(id_estacao as string) id_estacao,
     safe_cast(estacao as string) estacao,
     safe_cast(data_fundacao as date) data_fundacao,
-    st_geopoint(
+    st_geogpoint(
         safe_cast(latitude as float64), safe_cast(longitude as float64)
     ) as geolocalizacao,
     safe_cast(altitude as float64) altitude
