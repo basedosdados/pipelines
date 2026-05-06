@@ -25,10 +25,19 @@ models:
               field: data.data
       - name: hora
         description: Hora (UTC)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__hora')
+              field: hora.hora
       - name: mes
         description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: id_estacao
         description: ID da estação meteorológica
+        tests: not_null
       - name: precipitacao_total
         description: Precipitação total, horária
       - name: pressao_atm_hora
@@ -77,6 +86,7 @@ models:
               field: id_municipio
       - name: id_estacao
         description: ID da estação meteorológica
+        tests: not_null
       - name: estacao
         description: Nome da estação meteorológica
       - name: data_fundacao
@@ -85,9 +95,7 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
-      - name: latitude
-        description: Latitude da estação meteorológica
-      - name: longitude
-        description: Longitude da estação meteorológica
+      - name: geolocalizacao
+        description: Latitude e longitude da estação meteorológica
       - name: altitude
         description: Altitude da estação meteorológica

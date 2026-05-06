@@ -4,7 +4,6 @@ from prefect.storage import GCS
 
 from pipelines.constants import constants
 from pipelines.datasets.br_inmet_bdmep.schedules import (
-    every_day_inmet,
     every_month_inmet,
 )
 from pipelines.datasets.br_inmet_bdmep.tasks import (
@@ -177,7 +176,7 @@ br_inmet_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_inmet_microdados.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_inmet_microdados.schedule = every_day_inmet
+br_inmet_microdados.schedule = every_month_inmet
 br_inmet_estacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_inmet_estacao.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
 br_inmet_estacao.schedule = every_month_inmet

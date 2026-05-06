@@ -10,31 +10,10 @@ from prefect.schedules.clocks import CronClock
 from pipelines.constants import constants
 
 d = datetime.today()
-every_day_inmet = Schedule(
-    clocks=[
-        CronClock(
-            cron="00 22 * * 1-5",  # At 22:00 on every day-of-week from Monday through Friday.
-            start_date=datetime(2021, 3, 31, 17, 11),
-            labels=[
-                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
-            ],
-            parameter_defaults={
-                "dataset_id": "br_inmet_bdmep",
-                "table_id": "microdados",
-                "target": "prod",
-                "materialize_after_dump": True,
-                "dbt_alias": True,
-                "year": int(d.strftime("%Y")),
-                "update_metadata": True,
-            },
-        ),
-    ],
-)
-
 every_month_inmet = Schedule(
     clocks=[
         CronClock(
-            cron="00 22 1 * *",  # At 22:00 on the 1st day of the month
+            cron="00 10,22 1-3 * *",
             start_date=datetime(2026, 4, 28, 8, 0),
             labels=[
                 constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
@@ -48,5 +27,5 @@ every_month_inmet = Schedule(
                 "update_metadata": True,
             },
         ),
-    ],
+    ]
 )
