@@ -3,10 +3,7 @@
         alias="setor_censitario_2010",
         schema="br_geobr_mapas",
         materialized="table",
-        partition_by={
-            "field": "sigla_uf",
-            "data_type": "string",
-        },
+        cluster_by=["sigla_uf"],
     )
 }}
 
