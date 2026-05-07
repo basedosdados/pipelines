@@ -17,9 +17,6 @@ from tqdm import tqdm
 from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
 from pipelines.utils.utils import log
 
-ufs = constants_cnpj.UFS.value
-timeout = constants_cnpj.TIMEOUT.value
-
 
 def data_url(url: str) -> datetime.date:
     """
@@ -73,36 +70,29 @@ def data_url(url: str) -> datetime.date:
 
 
 # ! Cria o caminho do output
-def destino_output(sufixo: str, data_coleta: datetime.datetime) -> str:
+def build_paths(
+    table_id: str, build_input: bool = True, build_output: bool = True
+) -> tuple[Path, Path]:
     """
     Constructs the output directory path based on the suffix and collection date.
 
     Args:
-        sufixo (str): The suffix for directory structure.
-        data_coleta (datetime): The data collection date.
+        table_id (str): Table ID or name (lower case).
 
     Returns:
-        str: The constructed output path.
+        tuple[Path,Path]: The constructed paths.
     """
-
-    output_path = f"/tmp/data/br_me_cnpj/output/{sufixo}/"
-    # Pasta de destino para salvar o arquivo CSV
-    if sufixo not in ["simples", "cnaes"]:
-        if sufixo != "estabelecimentos":
-            output_dir = (
-                f"/tmp/data/br_me_cnpj/output/{sufixo}/data={data_coleta}/"
-            )
-            os.makedirs(output_dir, exist_ok=True)
-        else:
-            for uf in ufs:
-                output_dir = f"/tmp/data/br_me_cnpj/output/estabelecimentos/data={data_coleta}/sigla_uf={uf}/"
-                if not os.path.exists(output_dir):
-                    os.makedirs(output_dir)
-    else:
-        output_dir = output_path
-        os.makedirs(output_dir, exist_ok=True)
-    log("Pasta destino output construido")
-    return output_path
+    input_path = None
+    output_path = None
+    if build_input:
+        input_path = constants_cnpj.INPUT_PATH.value / table_id
+        input_path.mkdir(exist_ok=True, parents=True)
+        log("Pasta input construido")
+    if build_output:
+        output_path = constants_cnpj.OUTPUT_PATH.value / table_id
+        output_path.mkdir(exist_ok=True, parents=True)
+        log("Pasta destino output construido")
+    return input_path, output_path
 
 
 # ! Adiciona zero a esquerda nas colunas
@@ -303,26 +293,26 @@ async def download_chunk(
 
 
 # ! Executa o download do zip file
-async def download_unzip_csv(url: str, pasta_destino: str) -> None:
+async def download_unzip_csv(url: str, path: Path | str) -> None:
     """
     Downloads a ZIP file from a URL and extracts its content.
 
     Args:
         url (str): The URL of the ZIP file.
-        pasta_destino (str): The directory to save and extract the ZIP file.
+        path (str): The directory to save and extract the ZIP file.
     """
     log(f"Baixando o arquivo {url}")
-    save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
+    save_path = path / f"{Path(url).stem}.zip"
     content = await download(url)
     with open(save_path, "wb") as fd:
         fd.write(content)
 
     try:
         with zipfile.ZipFile(save_path) as z:
-            z.extractall(pasta_destino)
+            z.extractall(path)
         log("Dados extraídos com sucesso!")
     except zipfile.BadZipFile:
-        log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
+        log(f"O arquivo {Path(url).stem} não é um arquivo ZIP válido.")
         raise
 
     os.remove(save_path)
@@ -330,8 +320,8 @@ async def download_unzip_csv(url: str, pasta_destino: str) -> None:
 
 # ! Salva os dados CSV Estabelecimentos
 def process_csv_estabelecimentos(
-    input_path: str,
-    output_path: str,
+    input_path: Path | str,
+    output_path: Path | str,
     data_coleta: str,
     i: int,
     chunk_size: int = 100000,
@@ -340,8 +330,8 @@ def process_csv_estabelecimentos(
     Processes and saves CSV data for establishments, organizing data into partitions by state.
 
     Args:
-        input_path (str): Path to the input data.
-        output_path (str): Directory to save processed data.
+        input_path (Path|str): Path to the input data.
+        output_path (Path|str): Directory to save processed data.
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
@@ -378,13 +368,17 @@ def process_csv_estabelecimentos(
                     lambda x: x.dt.strftime("%Y-%m-%d")
                 )
 
-                # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
-                chunk = fill_left_zeros(chunk, "cnpj_basico", 8)
-                # Preenchimento de zeros à esquerda no campo 'cnpj_ordem'
-                chunk = fill_left_zeros(chunk, "cnpj_ordem", 4)
-                # Preenchimento de zeros à esquerda no campo 'cnpj_dv'
-                chunk = fill_left_zeros(chunk, "cnpj_dv", 2)
-                # Gerando a coluna 'cnpj' e 'id_municipio'
+                # Fills 'cnpj_basico', 'cnpj_ordem' and  'cnpj_dv' with left zeros
+                for col, zeros in dict(
+                    zip(
+                        ["cnpj_basico", "cnpj_ordem", "cnpj_dv"],
+                        [8, 4, 2],
+                        strict=True,
+                    )
+                ).items():
+                    chunk = fill_left_zeros(chunk, col, zeros)
+
+                # Generating 'cnpj' column
                 chunk["cnpj"] = (
                     chunk["cnpj_basico"]
                     + chunk["cnpj_ordem"]
@@ -392,7 +386,7 @@ def process_csv_estabelecimentos(
                 )
                 chunk["id_municipio"] = ""
                 chunk = chunk.loc[:, ordem]
-                for uf in ufs:
+                for uf in constants_cnpj.UFS.value:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
                     df_particao = df_particao.drop(["sigla_uf"], axis=1)
                     particao_path = os.path.join(save_path, f"sigla_uf={uf}")
@@ -409,15 +403,14 @@ def process_csv_estabelecimentos(
                         mode=mode,
                         header=mode == "w",
                     )
-
             log(f"Arquivo estabelecimento_{i} salvo")
             os.remove(caminho_arquivo_csv)
 
 
 # ! Salva os dados CSV Empresas
 def process_csv_empresas(
-    input_path: str,
-    output_path: str,
+    input_path: Path | str,
+    output_path: Path | str,
     data_coleta: str,
     i: int,
     chunk_size: int = 100000,
@@ -426,8 +419,8 @@ def process_csv_empresas(
     Processes and saves CSV data for companies.
 
     Args:
-        input_path (str): Path to the input data.
-        output_path (str): Directory to save processed data.
+        input_path (Path|str): Path to the input data.
+        output_path (Path|str): Directory to save processed data.
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
@@ -471,8 +464,8 @@ def process_csv_empresas(
 
 # ! Salva os dados CSV Socios
 def process_csv_socios(
-    input_path: str,
-    output_path: str,
+    input_path: Path | str,
+    output_path: Path | str,
     data_coleta: str,
     i: int,
     chunk_size: int = 1000,
@@ -481,8 +474,8 @@ def process_csv_socios(
     Processes and saves CSV data for socios (partners).
 
     Args:
-        input_path (str): Path to the input data.
-        output_path (str): Directory to save processed data.
+        input_path (Path|str): Path to the input data.
+        output_path (Path|str): Directory to save processed data.
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
@@ -531,8 +524,8 @@ def process_csv_socios(
 
 # ! Salva os dados CSV Simples
 def process_csv_simples(
-    input_path: str,
-    output_path: str,
+    input_path: Path | str,
+    output_path: Path | str,
     data_coleta: str,
     sufixo: str,
     chunk_size: int = 1000,
@@ -541,8 +534,8 @@ def process_csv_simples(
     Processes and saves CSV data for simples.
 
     Args:
-        input_path (str): Path to the input data.
-        output_path (str): Directory to save processed data.
+        input_path (Path|str): Path to the input data.
+        output_path (Path|str): Directory to save processed data.
         data_coleta (str): Data collection date as string.
         sufixo (str): Suffix used to construct the output filename.
         chunk_size (int): Number of rows to process per chunk.
@@ -592,36 +585,71 @@ def process_csv_simples(
             os.remove(caminho_arquivo_csv)
 
 
-def process_csv_cnaes(
-    input_path: str,
-    output_path: str,
+def process_csv_dicionario(
+    input_path: Path | str,
+    output_path: Path | str,
     data_coleta: str,
-    sufixo: str,
+    table_name: str,
     chunk_size: int = 1000,
 ) -> None:
-    """ """
-    save_path = Path(f"{output_path}{sufixo}.csv")
+    """
+    Processes CSV dictionary files and transforms them into a standardized format.
+
+    For each CSV file in the input path, reads the data in chunks, adds metadata columns
+    (id_tabela, nome_coluna, cobertura_temporal) based on the table configuration,
+    and appends the transformed data to a single output CSV file.
+
+    Args:
+        input_path (Path|str): Directory containing the input CSV files.
+        output_path (Path|str): Base directory for output.
+        data_coleta (str): Data collection date, used in the output path.
+        table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
+        chunk_size (int): Number of rows to process per chunk. Defaults to 1000.
+    """
+    save_path = output_path / f"data={data_coleta}"
+    save_path.mkdir(exist_ok=True, parents=True)
+    save_path = save_path / "data.csv"
+
     log(f"Save path: {save_path}")
-    for filepath in Path(input_path).glob("*.CSV"):
-        if "cnaes" in filepath.lower():
+    table_configs = constants_cnpj.TABLE_CONFIGS.value[table_name]
+    files = [fp for fp in Path(input_path).glob("*.*CSV")]
+    for filepath in files:
+        if table_name in filepath.as_uri():
             filename = filepath.name
             log(f"Carregando o arquivo: {filename}")
-            with open(save_path, "wb") as fd:
-                for chunk in tqdm(
-                    pd.read_csv(
-                        filepath,
-                        encoding="iso-8859-1",
-                        sep=";",
-                        header=None,
-                        dtype=str,
-                        chunksize=chunk_size,
-                    ),
-                    desc="Lendo o arquivo CSV",
-                ):
-                    mode = "a" if save_path.exists() else "w"
-                    chunk.to_csv(
-                        fd, mode=mode, index=False, encoding="iso-8859-1"
-                    )
 
-        log(f"Arquivo {sufixo} salvo")
-        # os.remove(filepath)
+            for chunk in tqdm(
+                pd.read_csv(
+                    filepath,
+                    encoding="latin1",
+                    sep=";",
+                    header=None,
+                    names=["chave", "valor"],
+                    dtype=str,
+                    chunksize=chunk_size,
+                ),
+                desc="Lendo o arquivo CSV",
+            ):
+                for relationship in table_configs["relationships"]:
+                    id_tabela = relationship["id_tabela"]
+                    nome_coluna = relationship["nome_coluna"]
+                    chunk_save = chunk.copy()
+                    chunk_save["id_tabela"] = id_tabela
+                    chunk_save["nome_coluna"] = nome_coluna
+                    chunk_save["cobertura_temporal"] = None
+
+                    chunk_save[
+                        [
+                            "id_tabela",
+                            "nome_coluna",
+                            "chave",
+                            "cobertura_temporal",
+                            "valor",
+                        ]
+                    ].to_csv(
+                        save_path,
+                        mode="a" if save_path.exists() else "w",
+                        index=False,
+                        encoding="utf-8",
+                        header=not save_path.exists(),  # Write header only if file doesn't exist
+                    )

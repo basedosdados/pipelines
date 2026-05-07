@@ -16,28 +16,105 @@ class constants(Enum):
     ROOT_PATH = Path(__file__).parent.parent.parent.parent
     TMP_PATH = ROOT_PATH / "tmp"
     DATASET_PATH = TMP_PATH / "br_me_cnpj"
+    INPUT_PATH = DATASET_PATH / "input"
+    OUTPUT_PATH = DATASET_PATH / "output"
 
     TMP_PATH.mkdir(exist_ok=True, parents=True)
     DATASET_PATH.mkdir(exist_ok=True, parents=True)
+    INPUT_PATH.mkdir(exist_ok=True, parents=True)
+    OUTPUT_PATH.mkdir(exist_ok=True, parents=True)
 
     MAX_ATTEMPTS = 3
     TIMEOUT = 5
     ATTEMPTS = 0
 
-    TABELAS = {
-        "cnaes": "Cnaes",
-        "empresas": "Empresas",
-        "estabelecimentos": "Estabelecimentos",
-        "motivos": "Motivos",
-        "municipios": "Municipios",
-        "naturezas": "Naturezas",
-        "paises": "Paises",
-        "qualificacoes": "Qualificacoes",
-        "simples": "Simples",
-        "socios": "Socios",
+    TABLE_CONFIGS = {
+        "cnaes": {
+            "table_name": "Cnaes",
+            "segmentada": False,  # Define se a tabela está dividida em arquivos
+            "dicionario": True,  # Define se a tabela compõe o dicionário
+            "relationships": [
+                {
+                    "id_tabela": "estabelecimentos",
+                    "nome_coluna": "cnae_fiscal_principal",
+                },
+                {
+                    "id_tabela": "estabelecimentos",
+                    "nome_coluna": "cnae_fiscal_secundaria",
+                },
+            ],
+        },
+        "empresas": {
+            "table_name": "Empresas",
+            "segmentada": True,
+            "dicionario": False,
+        },
+        "estabelecimentos": {
+            "table_name": "Estabelecimentos",
+            "segmentada": True,
+            "dicionario": False,
+        },
+        "motivos": {
+            "table_name": "Motivos",
+            "segmentada": False,
+            "dicionario": True,
+            "relationships": [
+                {
+                    "id_tabela": "estabelecimentos",
+                    "nome_coluna": "motivo_situacao_cadastral",
+                }
+            ],
+        },
+        "municipios": {
+            "table_name": "Municipios",
+            "segmentada": False,
+            "dicionario": False,
+        },
+        "naturezas": {
+            "table_name": "Naturezas",
+            "segmentada": False,
+            "dicionario": True,
+            "relationships": [
+                {"id_tabela": "empresas", "nome_coluna": "natureza_juridica"}
+            ],
+        },
+        "paises": {
+            "table_name": "Paises",
+            "segmentada": False,
+            "dicionario": True,
+            "relationships": [
+                {"id_tabela": "socios", "nome_coluna": "id_pais"},
+                {"id_tabela": "estabelecimentos", "nome_coluna": "id_pais"},
+            ],
+        },
+        "qualificacoes": {
+            "table_name": "Qualificacoes",
+            "segmentada": False,
+            "dicionario": True,
+            "relationships": [
+                {
+                    "id_tabela": "empresas",
+                    "nome_coluna": "qualificacao_responsavel",
+                },
+                {"id_tabela": "socios", "nome_coluna": "qualificacao"},
+                {
+                    "id_tabela": "socios",
+                    "nome_coluna": "qualificacao_representante_legal",
+                },
+            ],
+        },
+        "simples": {
+            "table_name": "Simples",
+            "segmentada": False,
+            "dicionario": False,
+        },
+        "socios": {
+            "table_name": "Socios",
+            "segmentada": True,
+            "dicionario": False,
+        },
     }
 
-    TABELAS_SEGMENTADAS = ["Empresas", "Socios", "Estabelecimentos"]
     UFS = [
         "AC",
         "AL",
@@ -186,10 +263,9 @@ class constants(Enum):
         "data_situacao_especial",
     ]
 
+    COLUNAS_DICIONARIO = ["chave", "valor"]
+
     default_chunk_size = 20 * 1024 * 1024  # 20MB
-
     default_max_retries = 32
-
     default_max_parallel = 16
-
     default_timeout = 1 * 60 * 1000  # 1 minute

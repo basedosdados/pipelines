@@ -392,6 +392,11 @@ with Flow(
 ) as br_me_cnpj_dicionario:
     dataset_id = Parameter("dataset_id", default="br_me_cnpj", required=False)
     table_id = Parameter("table_id", default="dicionario", required=False)
+    tables = Parameter(
+        "tables",
+        default=["qualificacoes", "paises", "motivos", "cnaes", "naturezas"],
+        required=False,
+    )
 
     materialize_after_dump = Parameter(
         "materialize_after_dump", default=False, required=False
@@ -421,8 +426,8 @@ with Flow(
     #     log_task(f"Não há atualizações para a tabela de {table_id}!")
 
     # with case(dados_desatualizados, True):
-    output_filepath = main(
-        table_ids=[table_id],
+    output_filepaths = main(
+        table_ids=tables,
         max_folder_date=max_folder_date,
         max_last_modified_date=max_last_modified_date,
     )
