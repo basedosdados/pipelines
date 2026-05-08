@@ -77,9 +77,7 @@ with Flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            upstream_tasks=[
-                filepath
-            ],  # Fix: Wrap filepath in a list to make it iterable
+            upstream_tasks=[filepath],
         )
 
         wait_for_materialization = run_dbt(
