@@ -2,6 +2,7 @@
 General purpose functions for the br_anp_precos_combustiveis project
 """
 
+import io
 import os
 from datetime import datetime
 
@@ -79,17 +80,64 @@ def get_id_municipio(id_municipio: pd.DataFrame):
     return id_municipio
 
 
-def open_csvs(url_diesel_gnv, url_gasolina_etanol, url_glp):
+def read_anp_file(path: str) -> pd.DataFrame:
+    """Read an ANP weekly fuel-price file as a DataFrame.
+
+    ANP serves an XLSX payload under a ``.csv`` URL. Each spreadsheet cell
+    holds a fragment of the original ``;``-delimited CSV row, split at every
+    ``,`` (Brazilian decimal mark and address separator). This helper
+    reconstructs each row by rejoining its non-null cells with ``,`` and then
+    parses the resulting text as a ``;``-delimited CSV.
+
+    Args:
+        path: Local path to the ANP file (named ``*.csv`` but XLSX-encoded).
+
+    Returns:
+        pd.DataFrame: parsed table with ANP's original column names
+        (``Regiao - Sigla``, ``Estado - Sigla``, ..., ``Data da Coleta``,
+        ``Valor de Venda``, ``Valor de Compra``, ``Unidade de Medida``,
+        ``Bandeira``).
+    """
+    raw = pd.read_excel(path, header=None, dtype=str)
+
+    def _row_to_line(row: pd.Series) -> str:
+        # Preserve interior empty cells (a `,,` in the original line becomes
+        # NaN after the XLSX split and must round-trip as `,`), but trim
+        # trailing NaN so we don't append spurious `,` to the last field.
+        last = row.last_valid_index()
+        if last is None:
+            return ""
+        return ",".join(row.loc[:last].fillna("").astype(str))
+
+    lines = raw.apply(_row_to_line, axis=1)
+    text = "\n".join(lines.tolist())
+    return pd.read_csv(io.StringIO(text), sep=";")
+
+
+def open_csvs(
+    url_diesel_gnv: str, url_gasolina_etanol: str, url_glp: str
+) -> pd.DataFrame:
+    """Read the three ANP weekly files and concatenate them.
+
+    Args:
+        url_diesel_gnv: Local path to the diesel/GNV file.
+        url_gasolina_etanol: Local path to the gasoline/ethanol file.
+        url_glp: Local path to the GLP (cooking gas) file.
+
+    Returns:
+        pd.DataFrame: rows from all three files concatenated, with the
+        original ANP column names preserved.
+    """
     data_frames = []
     log("Abrindo os arquivos csvs")
-    diesel = pd.read_csv(f"{url_diesel_gnv}", sep=";", encoding="utf-8")
+    diesel = read_anp_file(url_diesel_gnv)
 
     log(diesel["Data da Coleta"].unique())
-    gasolina = pd.read_csv(f"{url_gasolina_etanol}", sep=";", encoding="utf-8")
+    gasolina = read_anp_file(url_gasolina_etanol)
 
     log("Abrindo os arquivos csvs gasolina")
 
-    glp = pd.read_csv(f"{url_glp}", sep=";", encoding="utf-8")
+    glp = read_anp_file(url_glp)
     log("Abrindo os arquivos csvs glp")
 
     # log(glp["Data da Coleta"].unique())

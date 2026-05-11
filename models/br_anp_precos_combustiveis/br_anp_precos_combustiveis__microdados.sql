@@ -1,3 +1,4 @@
+-- register flow
 {{
     config(
         alias="microdados",
