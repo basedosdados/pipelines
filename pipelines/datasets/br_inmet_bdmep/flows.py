@@ -126,6 +126,7 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
+    historical_database = Parameter("historical_database", default=False, required=False)
 
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
@@ -167,6 +168,7 @@ with Flow(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 bq_project="basedosdados",
+                historical_database=historical_database,
                 upstream_tasks=[
                     wait_upload_prod_estacoes,
                 ],
