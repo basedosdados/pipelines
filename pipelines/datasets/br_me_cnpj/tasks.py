@@ -70,7 +70,7 @@ def main(
 
         # Creates dataset table paths (input and output)
         #
-        if table_configs["dicionario"]:  #
+        if table_configs["dicionario"]:
             input_path, _ = build_paths(table_id=table_id, build_output=False)
             _, output_path = build_paths(
                 table_id="dicionario", build_input=False
@@ -79,7 +79,7 @@ def main(
             input_path, output_path = build_paths(table_id=table_id)
 
         if table_configs["segmentada"]:
-            for i in range(0, 10):  # Segmented tables have 10 files bt default
+            for i in range(0, 10):  # Segmented tables have 10 files by default
                 nome_arquivo = f"{table_configs['table_name']}{i}"
                 url_download = f"{constants_cnpj.URL.value}{max_folder_date}/{table_configs['table_name']}{i}.zip"
 
@@ -109,9 +109,7 @@ def main(
                 log(f"Nome Arquivo: {nome_arquivo}")
 
             if table_configs["dicionario"]:
-                process_csv_dicionario(
-                    input_path, output_path, max_last_modified_date, table_id
-                )
+                process_csv_dicionario(input_path, output_path, table_id)
             elif table_configs["table_name"] == "Simples":
                 process_csv_simples(
                     input_path, output_path, max_last_modified_date, table_id

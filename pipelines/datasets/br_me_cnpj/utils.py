@@ -8,6 +8,7 @@ import zipfile
 from asyncio import Semaphore, gather, sleep
 from pathlib import Path
 
+import basedosdados as bd
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -585,10 +586,24 @@ def process_csv_simples(
             os.remove(caminho_arquivo_csv)
 
 
+def get_table_unique_keys(table_id: str, column: str):
+    """
+    Retrieves unique keys from a specified table and column in the basedosdados.br_me_cnpj.dicionario.
+    Args:
+        table_id (str): The ID of the table to query for unique keys.
+        column (str): The name of the column to retrieve unique keys from.
+    Returns:
+        pd.DataFrame: A DataFrame containing the unique keys from the specified table and column.
+    """
+    query = f"""SELECT DISTINCT {column} AS chave FROM `basedosdados.br_me_cnpj.{table_id}`"""
+
+    df_uniques = bd.read_sql(query=query, from_file=True)
+    return df_uniques
+
+
 def process_csv_dicionario(
     input_path: Path | str,
     output_path: Path | str,
-    data_coleta: str,
     table_name: str,
     chunk_size: int = 1000,
 ) -> None:
@@ -606,7 +621,7 @@ def process_csv_dicionario(
         table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
         chunk_size (int): Number of rows to process per chunk. Defaults to 1000.
     """
-    save_path = output_path / f"data={data_coleta}"
+    save_path = output_path
     save_path.mkdir(exist_ok=True, parents=True)
     save_path = save_path / "data.csv"
 
@@ -618,38 +633,47 @@ def process_csv_dicionario(
             filename = filepath.name
             log(f"Carregando o arquivo: {filename}")
 
-            for chunk in tqdm(
-                pd.read_csv(
-                    filepath,
-                    encoding="latin1",
-                    sep=";",
-                    header=None,
-                    names=["chave", "valor"],
-                    dtype=str,
-                    chunksize=chunk_size,
-                ),
-                desc="Lendo o arquivo CSV",
-            ):
-                for relationship in table_configs["relationships"]:
-                    id_tabela = relationship["id_tabela"]
-                    nome_coluna = relationship["nome_coluna"]
-                    chunk_save = chunk.copy()
-                    chunk_save["id_tabela"] = id_tabela
-                    chunk_save["nome_coluna"] = nome_coluna
-                    chunk_save["cobertura_temporal"] = None
+            chunk = pd.read_csv(
+                filepath,
+                encoding="latin1",
+                sep=";",
+                header=None,
+                names=["chave", "valor"],
+                dtype=str,
+            )
+            for relationship in table_configs["relationships"]:
+                log(
+                    f"Processando relacionamento: table_id={relationship['id_tabela']}, column={relationship['nome_coluna']}"
+                )
+                id_tabela = relationship["id_tabela"]
+                nome_coluna = relationship["nome_coluna"]
 
-                    chunk_save[
-                        [
-                            "id_tabela",
-                            "nome_coluna",
-                            "chave",
-                            "cobertura_temporal",
-                            "valor",
-                        ]
-                    ].to_csv(
-                        save_path,
-                        mode="a" if save_path.exists() else "w",
-                        index=False,
-                        encoding="utf-8",
-                        header=not save_path.exists(),  # Write header only if file doesn't exist
-                    )
+                df_unique_keys = get_table_unique_keys(
+                    table_id=id_tabela, column=nome_coluna
+                )
+
+                df_unique_keys["id_tabela"] = id_tabela
+                df_unique_keys["nome_coluna"] = nome_coluna
+                chunk_save = df_unique_keys.merge(
+                    chunk, how="left", on="chave"
+                )
+                chunk_save["cobertura_temporal"] = "(1)"
+                chunk_save[
+                    [
+                        "id_tabela",
+                        "nome_coluna",
+                        "chave",
+                        "cobertura_temporal",
+                        "valor",
+                    ]
+                ].to_csv(
+                    save_path,
+                    mode="a" if save_path.exists() else "w",
+                    index=False,
+                    encoding="utf-8",
+                    header=not save_path.exists(),  # Write header only if file doesn't exist
+                )
+
+    log(f"Arquivo {table_name} salvo")
+    # os.remove(filepath)
+    return save_path
