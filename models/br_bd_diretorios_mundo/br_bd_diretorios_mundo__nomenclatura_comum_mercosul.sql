@@ -1,4 +1,6 @@
 {{ config(alias="nomenclatura_comum_mercosul", schema="br_bd_diretorios_mundo") }}
+
+
 with
     safe_select as (
         select
