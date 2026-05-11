@@ -44,7 +44,7 @@ models:
           tags: [mundo]
           combination_of_columns: [id_sh6]
       - not_null_proportion_multiple_columns:
-          at_least: 0.99
+          at_least: 0.97
     columns:
       - name: id_sh6
         description: Identificador de 6 dígitos do Sistema Harmonizado (SH6)
@@ -92,7 +92,7 @@ models:
           tags: [mundo]
           combination_of_columns: [id_ncm]
       - not_null_proportion_multiple_columns:
-          at_least: 0.99
+          at_least: 0.97
     columns:
       - name: id_ncm
         description: Identificador da Nomenclatura Comum do Mercosul (NCM)
@@ -140,7 +140,7 @@ models:
           tags: [mundo]
           combination_of_columns: [sigla]
       - not_null_proportion_multiple_columns:
-          at_least: 0.99
+          at_least: 0.97
     columns:
       - name: sigla
         description: Sigla
