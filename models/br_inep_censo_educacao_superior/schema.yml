@@ -59,10 +59,12 @@ models:
         description: Código do Curso
       - name: nome_curso_cine
         description: Nome do curso, conforme adaptação da Classificação Internacional
-          Normalizada da Educação Cine/Unesco
+          Normalizada da Educação Cine/Unesco. Para anos até 2023 o modelo corrige
+          inversão dos campos no staging em relação a id_curso_cine.
       - name: id_curso_cine
         description: Código de identificação do curso, conforme adaptação da Classificação
-          Internacional Normalizada da Educação Cine/Unesco
+          Internacional Normalizada da Educação Cine/Unesco. Para anos até 2023 o
+          modelo corrige inversão dos campos no staging em relação a nome_curso_cine.
       - name: id_area_geral
         description: Código de identificação da área geral, conforme adaptação da
           Classificação Internacional Normalizada da Educação Cine/Unesco
