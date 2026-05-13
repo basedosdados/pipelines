@@ -9,7 +9,6 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
-ENV UV_SYSTEM_PYTHON=1
 
 # Install system dependencies (Chrome, SQL Server client, OCR, etc.)
 RUN apt-get update && \
@@ -43,10 +42,14 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies into the system Python so the Prefect engine can find them
+# Install Python dependencies in a venv
 COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev --no-install-project
+
+# Make venv binaries (dbt, etc.) available and expose packages to the system Python
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app/.venv/lib/python3.12/site-packages"
 
 # dbt deps — copia só os arquivos de configuração do dbt, não o código dos flows
 COPY packages.yml dbt_project.yml profiles.yml README.md ./
