@@ -7,9 +7,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-ENV UV_COMPILE_BYTECODE=1
-ENV UV_LINK_MODE=copy
-
 # Install system dependencies (Chrome, SQL Server client, OCR, etc.)
 RUN apt-get update && \
     apt-get install --no-install-recommends -y curl gnupg && \
@@ -42,17 +39,10 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies in a venv
+# Install Python dependencies directly into the system Python
 COPY pyproject.toml uv.lock ./
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked --no-dev --no-install-project
-
-# Make venv binaries (dbt, etc.) available
-ENV PATH="/app/.venv/bin:$PATH"
-
-# Add venv packages to system Python via .pth file (appended to sys.path, stdlib takes priority)
-RUN echo "/app/.venv/lib/python3.12/site-packages" > \
-    /usr/local/lib/python3.12/site-packages/pipelines-venv.pth
+RUN uv export --locked --no-dev --no-hashes -o /tmp/requirements.txt && \
+    uv pip install --system --no-cache -r /tmp/requirements.txt
 
 # dbt deps — copia só os arquivos de configuração do dbt, não o código dos flows
 COPY packages.yml dbt_project.yml profiles.yml README.md ./
