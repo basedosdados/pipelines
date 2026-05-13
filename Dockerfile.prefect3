@@ -50,7 +50,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 ENV PATH="/app/.venv/bin:$PATH"
 
 # dbt deps — copia só os arquivos de configuração do dbt, não o código dos flows
-COPY packages.yml dbt_project.yml profiles.yml ./
+COPY packages.yml dbt_project.yml profiles.yml README.md ./
 RUN uv run dbt deps
 
 # Diretórios necessários para basedosdados e prefect
