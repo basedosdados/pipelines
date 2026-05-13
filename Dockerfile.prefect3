@@ -47,9 +47,12 @@ COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev --no-install-project
 
-# Make venv binaries (dbt, etc.) available and expose packages to the system Python
+# Make venv binaries (dbt, etc.) available
 ENV PATH="/app/.venv/bin:$PATH"
-ENV PYTHONPATH="/app/.venv/lib/python3.12/site-packages"
+
+# Add venv packages to system Python via .pth file (appended to sys.path, stdlib takes priority)
+RUN echo "/app/.venv/lib/python3.12/site-packages" > \
+    /usr/local/lib/python3.12/site-packages/pipelines-venv.pth
 
 # dbt deps — copia só os arquivos de configuração do dbt, não o código dos flows
 COPY packages.yml dbt_project.yml profiles.yml README.md ./
