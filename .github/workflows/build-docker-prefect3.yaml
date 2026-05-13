@@ -2,9 +2,7 @@
 name: Build Prefect 3 Docker image
 on:
   push:
-    branches:
-      - main
-      - feat/prefect3
+    branches: [main, feat/prefect3]
     paths:
       - Dockerfile.prefect3
       - pyproject.toml
@@ -12,11 +10,10 @@ on:
       - packages.yml
       - dbt_project.yml
       - .github/workflows/build-docker-prefect3.yaml
-
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/pipelines
-
+  PREFECT3_API_URL: https://prefect3.basedosdados.org/api
 jobs:
   build:
     name: Build and push
@@ -24,19 +21,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
-
       - name: Configure Docker for GCR
         run: gcloud auth configure-docker --quiet
-
       - name: Set image tag
         id: tag
         run: |
@@ -45,7 +38,6 @@ jobs:
           else
             echo "tag=dev" >> $GITHUB_OUTPUT
           fi
-
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -53,18 +45,18 @@ jobs:
           file: Dockerfile.prefect3
           push: true
           tags: ${{ env.IMAGE }}:${{ steps.tag.outputs.tag }}
-
       - name: Update work pool image
         env:
           TAG: ${{ steps.tag.outputs.tag }}
-        run: |
+        run: |-
           if [ "$TAG" = "latest" ]; then
             POOL="basedosdados"
           else
             POOL="basedosdados-dev"
           fi
-
-          curl -s "${{ secrets.PREFECT3_API_URL }}/work_pools/${POOL}" -o /tmp/wp.json
+          curl -s "${{ env.PREFECT3_API_URL }}/work_pools/${POOL}" \
+            -H "Authorization: Bearer ${{ secrets.PREFECT3_AUTH_TOKEN }}" \
+            -o /tmp/wp.json
           python3 -c "
           import json
           with open('/tmp/wp.json') as f:
@@ -74,6 +66,7 @@ jobs:
               json.dump({'base_job_template': wp['base_job_template']}, f)
           "
           curl -s -o /dev/null -w "Work pool '${POOL}' updated: HTTP %{http_code}\n" \
-            -X PATCH "${{ secrets.PREFECT3_API_URL }}/work_pools/${POOL}" \
+            -X PATCH "${{ env.PREFECT3_API_URL }}/work_pools/${POOL}" \
+            -H "Authorization: Bearer ${{ secrets.PREFECT3_AUTH_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d @/tmp/wp-patch.json
