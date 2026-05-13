@@ -126,7 +126,9 @@ with Flow(
         "materialize_after_dump", default=False, required=False
     )
     dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    historical_database = Parameter("historical_database", default=False, required=False)
+    historical_database = Parameter(
+        "historical_database", default=False, required=False
+    )
     rename_flow_run = rename_current_flow_run_dataset_table(
         prefix="Dump: ",
         dataset_id=dataset_id,
