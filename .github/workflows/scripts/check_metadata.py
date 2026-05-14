@@ -88,14 +88,6 @@ def get_bigquery_columns(
     return columns
 
 
-def _normalize_bq_type_for_compare(type_str: str) -> str:
-    """Align BQ INFORMATION_SCHEMA aliases with API labels (e.g. BOOL vs BOOLEAN)."""
-    t = str(type_str).lower().strip()
-    if t == "bool":
-        return "boolean"
-    return t
-
-
 def evaluate_row(row: pd.Series) -> dict:
     """
     Evaluate a merged row from BigQuery vs API and return column status.
@@ -107,8 +99,8 @@ def evaluate_row(row: pd.Series) -> dict:
     elif row["_merge"] == "right_only":
         status.append("Column not found in BigQuery")
     else:
-        bq_type = _normalize_bq_type_for_compare(row["data_type"])
-        api_type = _normalize_bq_type_for_compare(row["bigquery_type"])
+        bq_type = str(row["data_type"]).lower()
+        api_type = str(row["bigquery_type"]).lower()
         if bq_type != api_type:
             status.append(f"Type differs (BQ: {bq_type} | API: {api_type})")
 
