@@ -109,7 +109,16 @@ def run_dbt_model(
         result = runner.invoke(
             [command, "--select", model, "--target", target]
         )
+        if result.exception:
+            raise Exception(
+                f"dbt {command} exception para {model} (target={target}): {result.exception}"
+            )
         if not result.success:
+            logs = []
+            for event in result.result or []:
+                msg = getattr(event, "message", None) or str(event)
+                logs.append(msg)
+                print(f"dbt | {msg}")
             raise Exception(
                 f"dbt {command} falhou para {model} (target={target})"
             )
