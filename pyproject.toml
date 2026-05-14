@@ -33,7 +33,7 @@ dependencies = [
   "google-analytics-data==0.17.0",
   "google-api-core==2.11.1",
   "google-api-python-client<3.0.0,>=2.58.0",
-  "google-auth==2.22.0",
+  "google-auth>=2.23.0",
   "google-auth-oauthlib<2.0.0,>=1.0.0",
   "google-cloud-bigquery<4.0.0,>=3.11.4",
   "google-cloud-bigquery-storage<3.0.0,>=2.19.1",
