@@ -52,3 +52,9 @@ RUN dbt deps
 RUN mkdir -p /opt/prefect/app/bases && \
     mkdir -p /root/.basedosdados/templates && \
     mkdir -p /root/.basedosdados/credentials/
+
+# Entrypoint: decodifica credenciais antes de iniciar o flow
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["prefect", "worker", "start"]
