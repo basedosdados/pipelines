@@ -46,11 +46,20 @@ def check_url() -> bool:
 
 @task(retries=3, retry_delay_seconds=10)
 def download_deputado() -> str:
+    import csv
+    import io
+
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     response = requests.get(URL, headers=HEADERS, timeout=60)
     response.raise_for_status()
-    with open(OUTPUT_FILE, "wb") as f:
-        f.write(response.content)
+
+    # O CSV da Câmara usa ";" como separador — converte para "," antes de subir
+    content = response.content.decode("utf-8-sig")
+    reader = csv.reader(io.StringIO(content), delimiter=";")
+    with open(OUTPUT_FILE, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f, delimiter=",")
+        writer.writerows(reader)
+
     print(f"Download concluído → {OUTPUT_FILE}")
     return OUTPUT_DIR
 
