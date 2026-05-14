@@ -1,15 +1,13 @@
 ---
 version: 2
-
 models:
   - name: br_bndes_operacoes_contratadas__operacoes_contratadas_forma_direta_e_indireta_nao_automatica
     description: Insert table description here
     tests:
       - dbt_utils.unique_combination_of_columns:
-            combination_of_columns:
-              - insert unique keys here
+          combination_of_columns: [insert unique keys here]
       - not_null_proportion_multiple_columns:
-            at_least: 0.95
+          at_least: 0.95
     columns:
       - name: razao_social_cliente
         description: Razão Social do cliente
@@ -31,7 +29,7 @@ models:
         description: Valor contratado no projeto
       - name: valor_desembolsado
         description: Valor liberado convertido com base na data do desembolso e no
-            indexador
+          indexador
       - name: fonte_recursos
         description: Fonte de recursos registrada nos desembolsos do contrato
       - name: custo_financeito
@@ -44,15 +42,15 @@ models:
         description: Prazo de amortização em meses
       - name: modalidade_apoio
         description: Modalidade de Apoio, Reembolsável ou Não Reembolsável (apoio
-            financeiro sem a exigência de reembolso financeiro ao BNDES).
+          financeiro sem a exigência de reembolso financeiro ao BNDES).
       - name: forma_apoio
         description: Forma de apoio, Direta (diretamente ao BNDES) ou Indireta (por
-            meio de instituições financeiras credenciadas).
+          meio de instituições financeiras credenciadas).
       - name: produto
         description: Produto financeiro, que define regras gerais de financiamento
       - name: tipo_instrumento_financeiro
         description: Tipo de instrumento financeiro (Linha de Financiamento, Programa,
-            Fundo)
+          Fundo)
       - name: indicador_inovacao
         description: Indicador de inovação do projeto
       - name: area_operacional_bndes
@@ -73,11 +71,11 @@ models:
         description: Subsetor segundo BNDES
       - name: porte_cliente
         description: Porte do cliente de acordo com a política de classificação do
-            BNDES
+          BNDES
       - name: natureza_cliente
         description: Natureza do Cliente (Privada, Administração Pública Direta -
-            Governo Federal, Administração Pública Direta - Governo Estadual, Administração
-            Pública Direta - Governo Municipal, Pública Indireta)
+          Governo Federal, Administração Pública Direta - Governo Estadual, Administração
+          Pública Direta - Governo Municipal, Pública Indireta)
       - name: nome_instituicao_financeira_credenciada
         description: Nome da instituição financeira credenciada
       - name: cnpj_instituicao_financeira_credenciada
@@ -90,15 +88,14 @@ models:
         description: Situação do contrato
       - name: data_apuracao
         description: Data de apuração das informações nos sistemas corporativos do
-            BNDES
+          BNDES
   - name: br_bndes_operacoes_contratadas__cnaes_agrupados_bndes
     description: Insert table description here
     tests:
       - dbt_utils.unique_combination_of_columns:
-            combination_of_columns:
-              - insert unique keys here
+          combination_of_columns: [insert unique keys here]
       - not_null_proportion_multiple_columns:
-            at_least: 0.95
+          at_least: 0.95
     columns:
       - name: setor_cnae_bndes
         description: Setor CNAE agrupado pelo BNDES para fins estatísticos

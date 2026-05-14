@@ -1,4 +1,10 @@
-{{ config(alias="operacoes_contratadas_forma_direta_e_indireta_nao_automatica", schema="br_bndes_operacoes_contratadas", materialized="table") }}
+{{
+    config(
+        alias="operacoes_contratadas_forma_direta_e_indireta_nao_automatica",
+        schema="br_bndes_operacoes_contratadas",
+        materialized="table",
+    )
+}}
 select
     safe_cast(razao_social_cliente as string) razao_social_cliente,
     safe_cast(cnpj_cliente as string) cnpj_cliente,
@@ -30,10 +36,20 @@ select
     safe_cast(subsetor_bndes as string) subsetor_bndes,
     safe_cast(porte_cliente as string) porte_cliente,
     safe_cast(natureza_cliente as string) natureza_cliente,
-    safe_cast(nome_instituicao_financeira_credenciada as string) nome_instituicao_financeira_credenciada,
-    safe_cast(cnpj_instituicao_financeira_credenciada as string) cnpj_instituicao_financeira_credenciada,
+    safe_cast(
+        nome_instituicao_financeira_credenciada as string
+    ) nome_instituicao_financeira_credenciada,
+    safe_cast(
+        cnpj_instituicao_financeira_credenciada as string
+    ) cnpj_instituicao_financeira_credenciada,
     safe_cast(tipo_garantia as string) tipo_garantia,
     safe_cast(tipo_excepcionalidade as string) tipo_excepcionalidade,
     safe_cast(situacao_contrato as string) situacao_contrato,
     safe_cast(data_apuracao as date) data_apuracao,
-from {{ set_datalake_project("br_bndes_operacoes_contratadas_staging.operacoes_contratadas_forma_direta_e_indireta_nao_automatica") }} as t
+from
+    {{
+        set_datalake_project(
+            "br_bndes_operacoes_contratadas_staging.operacoes_contratadas_forma_direta_e_indireta_nao_automatica"
+        )
+    }}
+    as t
