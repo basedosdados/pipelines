@@ -41,7 +41,7 @@ RUN apt-get update && \
 
 # Install Python dependencies directly into the system Python
 COPY pyproject.toml uv.lock README.md ./
-RUN uv export --locked --no-dev --no-hashes -o /tmp/requirements.txt && \
+RUN uv export --locked --no-dev --no-hashes --no-emit-project -o /tmp/requirements.txt && \
     uv pip install --system --no-cache -r /tmp/requirements.txt
 
 # dbt deps — copia só os arquivos de configuração do dbt, não o código dos flows
