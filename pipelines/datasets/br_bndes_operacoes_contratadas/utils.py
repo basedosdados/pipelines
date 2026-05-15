@@ -76,7 +76,7 @@ def get_xlsx_metadata(
 
     try:
         source_coverage_dates = [
-            datetime.datetime.strptime(date, "%d/%m/%y")
+            datetime.datetime.strptime(date, "%d/%m/%Y")
             for date in re.findall(
                 r"(\d{2,4}/\d{2,4}/\d{2,4})", metadata["metadados"][0]
             )
@@ -85,7 +85,7 @@ def get_xlsx_metadata(
             re.findall(r"(\d{2,4}/\d{2,4}/\d{2,4})", metadata["metadados"][1])[
                 0
             ],
-            "%d/%m/%y",
+            "%d/%m/%Y",
         )
     except Exception as e:
         log(
@@ -93,7 +93,7 @@ def get_xlsx_metadata(
         )
         try:
             source_coverage_dates = [
-                datetime.datetime.strptime(date, "%d/%m/%Y")
+                datetime.datetime.strptime(date, "%d/%m/%y")
                 for date in re.findall(
                     r"(\d{2,4}/\d{2,4}/\d{2,4})", metadata["metadados"][0]
                 )
@@ -102,7 +102,7 @@ def get_xlsx_metadata(
                 re.findall(
                     r"(\d{2,4}/\d{2,4}/\d{2,4})", metadata["metadados"][1]
                 )[0],
-                "%d/%m/%Y",
+                "%d/%m/%y",
             )
         except Exception as e:
             log(

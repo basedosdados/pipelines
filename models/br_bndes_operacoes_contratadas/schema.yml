@@ -2,57 +2,68 @@
 version: 2
 models:
   - name: br_bndes_operacoes_contratadas__operacoes_contratadas_forma_direta_e_indireta_nao_automatica
-    description: Insert table description here
+    description: Operações contratadas na forma direta e indireta não automática Cada
+      contrato pode ter um ou mais subcréditos Cada linha da planilha corresponde
+      a um subcrédito diferente
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
+      - dbt_utilsunique_combination_of_columns:
+          combination_of_columns:
+            - [cnpj_cliente, id_contrato, produto]
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 095
     columns:
-      - name: razao_social_cliente
-        description: Razão Social do cliente
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
       - name: cnpj_cliente
         description: Sigla da Unidade da Federação
-      - name: descricao_projeto
-        description: Descrição do projeto
+        tests: [not_null]
+      - name: id_contrato
+        description: Número identificador do contrato do cliente com o BNDES
+        tests: [not_null]
+      - name: data_contratacao
+        description: Data de contratação do projeto
+      - name: data_apuracao
+        description: Data de apuração das informações nos sistemas corporativos do
+          BNDES
+        tests: [not_null]
       - name: sigla_uf
         description: Sigla da Unidade da Federação
       - name: nome_municipio
         description: Nome do município
-      - name: id_municipio
-        description: ID Município IBGE - 7 Dígitos
-      - name: id_contrato
-        description: Número identificador do contrato do cliente com o BNDES
-      - name: data_contratacao
-        description: Data de contratação do projeto
-      - name: valor_contratado
-        description: Valor contratado no projeto
-      - name: valor_desembolsado
-        description: Valor liberado convertido com base na data do desembolso e no
-          indexador
-      - name: fonte_recursos
-        description: Fonte de recursos registrada nos desembolsos do contrato
-      - name: custo_financeito
-        description: Custo financeiro do cliente
-      - name: taxa_juros
-        description: Taxa de juros
-      - name: prazo_carencia
-        description: Prazo de carência
-      - name: prazo_amortizacao
-        description: Prazo de amortização em meses
+      - name: razao_social_cliente
+        description: Razão Social do cliente
+      - name: situacao_contrato
+        description: Situação do contrato
+      - name: porte_cliente
+        description: Porte do cliente de acordo com a política de classificação do
+          BNDES
+      - name: natureza_cliente
+        description: Natureza do Cliente (Privada, Administração Pública Direta -
+          Governo Federal, Administração Pública Direta - Governo Estadual, Administração
+          Pública Direta - Governo Municipal, Pública Indireta)
+      - name: descricao_projeto
+        description: Descrição do projeto
       - name: modalidade_apoio
         description: Modalidade de Apoio, Reembolsável ou Não Reembolsável (apoio
-          financeiro sem a exigência de reembolso financeiro ao BNDES).
+          financeiro sem a exigência de reembolso financeiro ao BNDES)
       - name: forma_apoio
         description: Forma de apoio, Direta (diretamente ao BNDES) ou Indireta (por
-          meio de instituições financeiras credenciadas).
+          meio de instituições financeiras credenciadas)
       - name: produto
         description: Produto financeiro, que define regras gerais de financiamento
       - name: tipo_instrumento_financeiro
         description: Tipo de instrumento financeiro (Linha de Financiamento, Programa,
           Fundo)
-      - name: indicador_inovacao
-        description: Indicador de inovação do projeto
+      - name: tipo_garantia
+        description: Tipo de garantias estabelecidas no momento da contratação
+      - name: tipo_excepcionalidade
+        description: Classificação de acordo com o tipo de excepcionalidade do contrato
+      - name: tipo_fonte_recursos
+        description: Fonte de recursos registrada nos desembolsos do contrato
       - name: area_operacional_bndes
         description: Área responsável pela operação no BNDES
       - name: setor_cnae_bndes
@@ -63,55 +74,73 @@ models:
         description: Seção CNAE
       - name: subclasse_cnae
         description: Subclasse CNAE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: subclasse
       - name: descricao_subclasse
         description: Descrição da subclasse CNAE
       - name: setor_bndes
         description: Setor segundo BNDES
       - name: subsetor_bndes
         description: Subsetor segundo BNDES
-      - name: porte_cliente
-        description: Porte do cliente de acordo com a política de classificação do
-          BNDES
-      - name: natureza_cliente
-        description: Natureza do Cliente (Privada, Administração Pública Direta -
-          Governo Federal, Administração Pública Direta - Governo Estadual, Administração
-          Pública Direta - Governo Municipal, Pública Indireta)
       - name: nome_instituicao_financeira_credenciada
         description: Nome da instituição financeira credenciada
       - name: cnpj_instituicao_financeira_credenciada
         description: CNPJ da instituição financeira credenciada
-      - name: tipo_garantia
-        description: Tipo de garantias estabelecidas no momento da contratação.
-      - name: tipo_excepcionalidade
-        description: Classificação de acordo com o tipo de excepcionalidade do contrato
-      - name: situacao_contrato
-        description: Situação do contrato
-      - name: data_apuracao
-        description: Data de apuração das informações nos sistemas corporativos do
-          BNDES
+      - name: custo_financeito
+        description: Custo financeiro do cliente
+      - name: taxa_juros
+        description: Taxa de juros
+      - name: valor_contratado
+        description: Valor contratado no projeto
+      - name: valor_desembolsado
+        description: Valor liberado convertido com base na data do desembolso e no
+          indexador
+      - name: prazo_carencia
+        description: Prazo de carência
+      - name: prazo_amortizacao
+        description: Prazo de amortização em meses
+      - name: indicador_inovacao
+        description: Indicador de inovação do projeto
   - name: br_bndes_operacoes_contratadas__cnaes_agrupados_bndes
-    description: Insert table description here
+    description: Tabela de correspondências entre as classificações utilizadas pelo
+      BNDES e os códigos CNAEs do IBGE
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [insert unique keys here]
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 095
     columns:
       - name: setor_cnae_bndes
         description: Setor CNAE agrupado pelo BNDES para fins estatísticos
       - name: subsetor_agrupado_cnae_bndes
         description: Subsetor CNAE agrupado pelo BNDES para fins estatísticos
-      - name: subsetor_bndes
-        description: Subsetor segundo BNDES
       - name: setor_bndes
         description: Setor segundo BNDES
+      - name: subsetor_bndes
+        description: Subsetor segundo BNDES
       - name: secao_cnae
         description: Seção CNAE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: secao
       - name: divisao_cnae
         description: Seção CNAE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: divisao
       - name: classe_cnae
         description: Seção CNAE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: classe
       - name: subclasse_cnae
         description: Subclasse CNAE
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: subclasse
       - name: produto
         description: Produto financeiro, que define regras gerais de financiamento

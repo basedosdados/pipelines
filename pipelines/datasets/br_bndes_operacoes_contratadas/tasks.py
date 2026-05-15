@@ -20,12 +20,12 @@ def create_folders(
     table_id: str,
 ) -> tuple[Path, Path]:
 
-    TABLE_INPUT_DIR = constants.INPUT_DIR.value / table_id
-    TABLE_INPUT_DIR.mkdir(parents=True, exist_ok=True)
-    TABLE_OUTPUT_DIR = constants.OUTPUT_DIR.value / table_id
-    TABLE_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    table_input_dir = constants.INPUT_DIR.value / table_id
+    table_input_dir.mkdir(parents=True, exist_ok=True)
+    table_output_dir = constants.OUTPUT_DIR.value / table_id
+    table_output_dir.mkdir(parents=True, exist_ok=True)
 
-    return TABLE_INPUT_DIR, TABLE_OUTPUT_DIR
+    return table_input_dir, table_output_dir
 
 
 @task
@@ -95,7 +95,9 @@ def process_data(
 
     # String columns with null values
     df_types = df_operacoes.dtypes
-    string_columns = df_types[df_types == pd.StringDtype].index.values.tolist()
+    string_columns = (
+        df_types[df_types == pd.StringDtype].index.to_numpy().tolist()
+    )
 
     for col in string_columns:
         df_operacoes[col] = (
@@ -124,14 +126,20 @@ def process_data(
         data_apuracao = data_apuracao.date()
     elif isinstance(data_apuracao, str):
         try:
+            log("Tentando converter data_apuracao com formato %d/%m/%Y")
             df_operacoes["data_apuracao"] = datetime.datetime.strptime(
                 data_apuracao, "%d/%m/%Y"
             )
         except ValueError:
+            log(
+                "Formato %d/%m/%Y falhou, tentando converter data_apuracao com formato %d/%m/%y"
+            )
             df_operacoes["data_apuracao"] = datetime.datetime.strptime(
                 data_apuracao, "%d/%m/%y"
             )
-
+    else:
+        log(f"data_apuracao está no formato {type(data_apuracao)}")
+        df_operacoes["data_apuracao"] = data_apuracao
     df_operacoes.to_csv(output_folder / "data.csv", index=False)
     return output_folder / "data.csv"
 
@@ -186,7 +194,7 @@ def process_de_para_cnae(
         "lista_cnaes_2"
     ].str.split(r"[\n\s]*e{1}[\n\s]*|[\n\s]*,{1}[\n\s]*")
     df_cnae_listas = df_cnae_listas.explode("lista_cnaes_2")
-    df_cnae_listas["secao"] = df_cnae_listas["lista_cnaes_2"].str.extract(
+    df_cnae_listas["secao_cnae"] = df_cnae_listas["lista_cnaes_2"].str.extract(
         r"(^[A-Z]{1})"
     )
     df_cnae_listas["lista_cnaes_2"] = (
@@ -200,9 +208,9 @@ def process_de_para_cnae(
     # create cnaes list from limits, extract section and convert to int
     df_cnae_limites["lista_cnaes_2"] = None
     # Eztract section
-    df_cnae_limites["secao"] = df_cnae_limites["limite_inferior"].str.extract(
-        r"(^[A-Z]{1})"
-    )
+    df_cnae_limites["secao_cnae"] = df_cnae_limites[
+        "limite_inferior"
+    ].str.extract(r"(^[A-Z]{1})")
     # Extract limits numbers
     df_cnae_limites["limite_inferior"] = (
         df_cnae_limites["limite_inferior"]
@@ -233,14 +241,14 @@ def process_de_para_cnae(
     df_cnae_limites.loc[
         df_cnae_limites["limite_superior"].isna(), "limite_superior"
     ] = df_cnae_limites.loc[
-        df_cnae_limites["limite_superior"].isna(), "secao"
+        df_cnae_limites["limite_superior"].isna(), "secao_cnae"
     ].apply(
         lambda x: df_diretorios.loc[
             df_diretorios["secao"] == x, "divisao"
         ].max()
     )
     for i, row in df_cnae_limites.iterrows():
-        df_cnae_limites.at[i, "lista_cnaes_2"] = str(
+        df_cnae_limites.loc[i, "lista_cnaes_2"] = str(
             list(range(row["limite_inferior"], row["limite_superior"] + 1))
         )
     # Explode cnaes list into rows and convert to string with leading zeros
@@ -256,23 +264,23 @@ def process_de_para_cnae(
     df_cnaes_expandidos = pd.concat(
         [df_cnae_limites, df_cnae_listas], ignore_index=True
     )
-    df_cnaes_expandidos["divisao_cnae"] = (
-        df_cnaes_expandidos.lista_cnaes_2.str.extract(r"(^\d{2})")
-    )
-    df_cnaes_expandidos["grupo_cnae"] = (
-        df_cnaes_expandidos.lista_cnaes_2.str.extract(r"(^\d{3})")
-    )
-    df_cnaes_expandidos["classe_cnae"] = (
-        df_cnaes_expandidos.lista_cnaes_2.str.extract(r"(^\d{5})")
-    )
-    df_cnaes_expandidos["subclasse_cnae"] = (
-        df_cnaes_expandidos.lista_cnaes_2.str.extract(r"(^\d{7})")
-    )
+    df_cnaes_expandidos["divisao_cnae"] = df_cnaes_expandidos[
+        "lista_cnaes_2"
+    ].str.extract(r"(^\d{2})")
+    df_cnaes_expandidos["grupo_cnae"] = df_cnaes_expandidos[
+        "lista_cnaes_2"
+    ].str.extract(r"(^\d{3})")
+    df_cnaes_expandidos["classe_cnae"] = df_cnaes_expandidos[
+        "lista_cnaes_2"
+    ].str.extract(r"(^\d{5})")
+    df_cnaes_expandidos["subclasse_cnae"] = df_cnaes_expandidos[
+        "lista_cnaes_2"
+    ].str.extract(r"(^\d{7})")
     df_cnaes_expandidos = df_cnaes_expandidos.drop(
         columns=["limite_inferior", "limite_superior", "lista_cnaes_2"]
     )
 
-    df_cnae.to_csv(output_folder / "data.csv", index=False)
+    df_cnaes_expandidos.to_csv(output_folder / "data.csv", index=False)
     return output_folder / "data.csv"
 
 
