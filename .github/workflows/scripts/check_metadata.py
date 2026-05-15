@@ -88,6 +88,28 @@ def get_bigquery_columns(
     return columns
 
 
+def _normalize_bq_type_for_compare(type_str: str) -> str:
+    """BQ INFORMATION_SCHEMA uses BOOL; API may register BOOLEAN."""
+    t = str(type_str).lower().strip()
+    if t == "bool":
+        return "boolean"
+    return t
+
+
+def _description_matches_api(bq_desc: str, api_desc: str) -> bool:
+    """
+    API text is the canonical description; BQ may add suffix (e.g. dbt persist_docs)
+    before API backfill. Requires BQ to start with the full API string when api is set.
+    """
+    bq = bq_desc.strip()
+    api = api_desc.strip()
+    if bq == api:
+        return True
+    if not api:
+        return bq == api
+    return bq.startswith(api)
+
+
 def evaluate_row(row: pd.Series) -> dict:
     """
     Evaluate a merged row from BigQuery vs API and return column status.
@@ -99,14 +121,14 @@ def evaluate_row(row: pd.Series) -> dict:
     elif row["_merge"] == "right_only":
         status.append("Column not found in BigQuery")
     else:
-        bq_type = str(row["data_type"]).lower()
-        api_type = str(row["bigquery_type"]).lower()
+        bq_type = _normalize_bq_type_for_compare(row["data_type"])
+        api_type = _normalize_bq_type_for_compare(row["bigquery_type"])
         if bq_type != api_type:
             status.append(f"Type differs (BQ: {bq_type} | API: {api_type})")
 
         bq_desc = str(row.get("description_bq", "")).strip()
         api_desc = str(row.get("description_api", "")).strip()
-        if bq_desc != api_desc:
+        if not _description_matches_api(bq_desc, api_desc):
             status.append(
                 f"Description differs (BQ: {bq_desc} | API: {api_desc})"
             )
