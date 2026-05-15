@@ -1,4 +1,5 @@
 {{ config(alias="dicionario", schema="br_ibge_pnadc", materialized="table") }}
+
 select
     safe_cast(id_tabela as string) id_tabela,
     safe_cast(nome_coluna as string) nome_coluna,
