@@ -33,7 +33,7 @@ def run_dbt_task(
     dbt_command: str,
     target: str,
     flags: str | None,
-    _vars: dict[str, Any] | str | None,
+    dbt_vars: dict[str, Any] | str | None,
 ) -> None:
     if dbt_command not in ["run", "test", "run and test", "run/test"]:
         raise ValueError(f"Invalid dbt_command: {dbt_command}")
@@ -53,7 +53,9 @@ def run_dbt_task(
     if not model_path.is_dir() and not model_path.exists():
         raise FileNotFoundError(f"Modelo dbt não encontrado: {model_path}")
 
-    variables = json.loads(_vars) if isinstance(_vars, str) else (_vars or {})
+    variables = (
+        json.loads(dbt_vars) if isinstance(dbt_vars, str) else (dbt_vars or {})
+    )
 
     commands: list[str] = []
     if "run" in dbt_command:
@@ -97,7 +99,7 @@ def run_dbt_model_flow(
     dbt_command: str = "run",
     flags: str | None = None,
     target: str = "dev",
-    _vars: dict[str, Any] | str | None = None,
+    dbt_vars: dict[str, Any] | str | None = None,
     download_csv_file: bool = True,
 ) -> None:
     rename_flow_run_task(
@@ -113,7 +115,7 @@ def run_dbt_model_flow(
         dbt_command=dbt_command,
         target=target,
         flags=flags,
-        _vars=_vars,
+        dbt_vars=dbt_vars,
     )
 
     if download_csv_file and table_id is not None:
