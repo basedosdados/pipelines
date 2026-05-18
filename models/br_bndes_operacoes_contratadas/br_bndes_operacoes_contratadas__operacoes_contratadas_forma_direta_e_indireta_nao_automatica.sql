@@ -29,6 +29,9 @@ select
     safe_cast(setor_cnae_bndes as string) setor_cnae_bndes,
     safe_cast(subsetor_agrupado_cnae_bndes as string) subsetor_agrupado_cnae_bndes,
     safe_cast(secao_cnae as string) secao_cnae,
+    safe_cast(divisao_cnae as string) divisao_cnae,
+    safe_cast(grupo_cnae as string) grupo_cnae,
+    safe_cast(classe_cnae as string) classe_cnae,
     safe_cast(subclasse_cnae as string) subclasse_cnae,
     safe_cast(descricao_subclasse as string) descricao_subclasse,
     safe_cast(setor_bndes as string) setor_bndes,
@@ -39,7 +42,7 @@ select
     safe_cast(
         cnpj_instituicao_financeira_credenciada as string
     ) cnpj_instituicao_financeira_credenciada,
-    safe_cast(custo_financeito as string) custo_financeito,
+    safe_cast(custo_financeiro as string) custo_financeiro,
     safe_cast(taxa_juros as float64) taxa_juros,
     safe_cast(valor_contratado as float64) valor_contratado,
     safe_cast(valor_desembolsado as float64) valor_desembolsado,

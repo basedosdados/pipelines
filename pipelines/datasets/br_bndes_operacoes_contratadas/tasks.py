@@ -9,7 +9,13 @@ from pipelines.datasets.br_bndes_operacoes_contratadas.constants import (
     constants,
 )
 from pipelines.datasets.br_bndes_operacoes_contratadas.utils import (
+    check_duplicates,
+    count_nulls,
     download_xlsx,
+    extract_cnae_hierarchy,
+    extract_cnaes_sections_by_limits,
+    extract_cnaes_sections_by_lists,
+    get_cnaes_by_limits_and_lists,
     get_xlsx_metadata,
 )
 from pipelines.utils.utils import log
@@ -81,17 +87,15 @@ def process_data(
         usecols=constants.DATA_USECOLS.value,
     )
 
-    # Cnaes
+    # Check duplicates
+    check_duplicates(df_operacoes, df_operacoes.columns.tolist())
+
     df_operacoes = df_operacoes.rename(
         columns=constants.DATA_RENAMMING_MAPPING.value
     )
-    df_operacoes["secao_cnae"] = df_operacoes["cnae_2"].str.extract(
-        r"(^[A-Z]{1})"
-    )
-    df_operacoes["subclasse_cnae"] = df_operacoes["cnae_2"].str.extract(
-        r"(\d+$)"
-    )
-    df_operacoes = df_operacoes.drop(columns=["cnae_2"])
+
+    # Cnaes
+    df_operacoes = extract_cnae_hierarchy(df_operacoes, "codigo_cnae_2")
 
     # String columns with null values
     df_types = df_operacoes.dtypes
@@ -137,9 +141,13 @@ def process_data(
             df_operacoes["data_apuracao"] = datetime.datetime.strptime(
                 data_apuracao, "%d/%m/%y"
             )
+
     else:
         log(f"data_apuracao está no formato {type(data_apuracao)}")
         df_operacoes["data_apuracao"] = data_apuracao
+
+    # Check null values after transformations
+    count_nulls(df_operacoes, df_operacoes.columns.tolist())
     df_operacoes.to_csv(output_folder / "data.csv", index=False)
     return output_folder / "data.csv"
 
@@ -178,89 +186,18 @@ def process_de_para_cnae(
     )
     df_diretorios = df_diretorios.astype({"secao": "str", "divisao": "int64"})
 
-    # Cnaes by limits and by lists
-    df_cnae[["limite_inferior", "limite_superior"]] = (
-        df_cnae["lista_cnaes_2"]
-        .str.split(r"\(restante\)| a ")
-        .apply(pd.Series)
+    # Process cnaes by limits and by lists, extract section, division, class and subclass from cnae code.
+    df_cnae_limites, df_cnae_listas = get_cnaes_by_limits_and_lists(
+        df_cnae, "lista_cnaes_2"
     )
-    df_cnae_limites = df_cnae.loc[df_cnae["limite_superior"].notna()].copy()
-    df_cnae_listas = df_cnae.loc[df_cnae["limite_superior"].isna()].copy()
-
-    # CNAEs by lists transformation:
-    # split cnaes list into rows, extract section and convert to int
-    df_cnae_listas[["limite_inferior", "limite_superior"]] = None
-    df_cnae_listas["lista_cnaes_2"] = df_cnae_listas[
-        "lista_cnaes_2"
-    ].str.split(r"[\n\s]*e{1}[\n\s]*|[\n\s]*,{1}[\n\s]*")
-    df_cnae_listas = df_cnae_listas.explode("lista_cnaes_2")
-    df_cnae_listas["secao_cnae"] = df_cnae_listas["lista_cnaes_2"].str.extract(
-        r"(^[A-Z]{1})"
+    df_cnae_listas = extract_cnaes_sections_by_lists(
+        df_cnae_listas, "lista_cnaes_2"
     )
-    df_cnae_listas["lista_cnaes_2"] = (
-        df_cnae_listas["lista_cnaes_2"]
-        .str.extract(r"(\d+)")
-        .fillna("-1")
-        .astype("Int64")
+    df_cnae_limites = extract_cnaes_sections_by_limits(
+        df_cnae_limites, df_diretorios, "lista_cnaes_2"
     )
 
-    # CNAEs by limits transformation:
-    # create cnaes list from limits, extract section and convert to int
-    df_cnae_limites["lista_cnaes_2"] = None
-    # Eztract section
-    df_cnae_limites["secao_cnae"] = df_cnae_limites[
-        "limite_inferior"
-    ].str.extract(r"(^[A-Z]{1})")
-    # Extract limits numbers
-    df_cnae_limites["limite_inferior"] = (
-        df_cnae_limites["limite_inferior"]
-        .str.extract(r"(\d+)")
-        .fillna("-1")
-        .astype("int")
-    )
-    df_cnae_limites["limite_superior"] = (
-        df_cnae_limites["limite_superior"]
-        .str.extract(r"(\d+)")
-        .fillna("-1")
-        .astype("int")
-    )
-    df_cnae_limites.loc[
-        df_cnae_limites["limite_superior"] == -1, "limite_superior"
-    ] = None
-    df_cnae_limites.loc[
-        df_cnae_limites["limite_inferior"] == -1, "limite_inferior"
-    ] = None
-    df_cnae_limites["limite_inferior"] = df_cnae_limites[
-        "limite_inferior"
-    ].astype("Int64")
-    df_cnae_limites["limite_superior"] = df_cnae_limites[
-        "limite_superior"
-    ].astype("Int64")
-
-    # For rows with null upper limit, fill the upper limit with the max division of the section
-    df_cnae_limites.loc[
-        df_cnae_limites["limite_superior"].isna(), "limite_superior"
-    ] = df_cnae_limites.loc[
-        df_cnae_limites["limite_superior"].isna(), "secao_cnae"
-    ].apply(
-        lambda x: df_diretorios.loc[
-            df_diretorios["secao"] == x, "divisao"
-        ].max()
-    )
-    for i, row in df_cnae_limites.iterrows():
-        df_cnae_limites.loc[i, "lista_cnaes_2"] = str(
-            list(range(row["limite_inferior"], row["limite_superior"] + 1))
-        )
-    # Explode cnaes list into rows and convert to string with leading zeros
-    df_cnae_limites["lista_cnaes_2"] = df_cnae_limites["lista_cnaes_2"].apply(
-        lambda x: eval(x)
-    )
-    df_cnae_limites = df_cnae_limites.explode("lista_cnaes_2")
-    df_cnae_limites["lista_cnaes_2"] = df_cnae_limites["lista_cnaes_2"].apply(
-        lambda x: str(x).zfill(2)
-    )
-
-    # Concatenate cnaes by limits and by lists, extract section, division, class and subclass from cnae code and drop unnecessary columns
+    # Concatenate cnaes by limits and by lists, extract hierarchy from cnae code and drop unnecessary columns.
     df_cnaes_expandidos = pd.concat(
         [df_cnae_limites, df_cnae_listas], ignore_index=True
     )
