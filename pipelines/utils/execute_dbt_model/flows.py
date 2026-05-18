@@ -10,19 +10,13 @@ from typing import Any
 
 from dbt.cli.main import dbtRunner
 from prefect import flow, task
-from prefect.runtime import flow_run
 
 
-@task(retries=2, retry_delay_seconds=10)
-def rename_flow_run_task(
-    prefix: str, dataset_id: str, table_id: str | None
-) -> None:
-    new_name = (
-        f"{prefix}{dataset_id}.{table_id}"
-        if table_id
-        else f"{prefix}{dataset_id}"
-    )
-    flow_run.set_name(new_name)
+def _flow_run_name(parameters: dict[str, Any]) -> str:
+    dataset_id = parameters["dataset_id"]
+    table_id = parameters.get("table_id")
+    suffix = f"{dataset_id}.{table_id}" if table_id else dataset_id
+    return f"DBT Model run/test: {suffix}"
 
 
 @task
@@ -91,7 +85,11 @@ def download_data_to_gcs_task(dataset_id: str, table_id: str) -> None:
     fn(dataset_id=dataset_id, table_id=table_id)
 
 
-@flow(name="BD template: Executa DBT model", log_prints=True)
+@flow(
+    name="BD template: Executa DBT model",
+    flow_run_name=_flow_run_name,
+    log_prints=True,
+)
 def run_dbt_model_flow(
     dataset_id: str,
     table_id: str | None = None,
@@ -102,12 +100,6 @@ def run_dbt_model_flow(
     dbt_vars: dict[str, Any] | str | None = None,
     download_csv_file: bool = True,
 ) -> None:
-    rename_flow_run_task(
-        prefix="DBT Model run/test: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-    )
-
     dbt_done = run_dbt_task.submit(
         dataset_id=dataset_id,
         table_id=table_id,
