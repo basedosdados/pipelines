@@ -97,19 +97,6 @@ def process_data(
     # Cnaes
     df_operacoes = extract_cnae_hierarchy(df_operacoes, "codigo_cnae_2")
 
-    # String columns with null values
-    df_types = df_operacoes.dtypes
-    string_columns = (
-        df_types[df_types == pd.StringDtype].index.to_numpy().tolist()
-    )
-
-    for col in string_columns:
-        df_operacoes[col] = (
-            df_operacoes[col].str.strip().replace("----------", "None")
-        )
-        df_operacoes[col] = df_operacoes[col].str.strip().replace("-", "None")
-        df_operacoes.loc[df_operacoes[col] == "None", col] = None
-
     # Null values for id_municipio
     df_operacoes.loc[
         (df_operacoes["id_municipio"] == 9999999)
@@ -117,8 +104,22 @@ def process_data(
         "id_municipio",
     ] = None
     df_operacoes["id_municipio"] = (
-        df_operacoes["id_municipio"].astype("str").str.replace(".0", "")
+        df_operacoes["id_municipio"]
+        .astype("str")
+        .str.replace(".0", "", regex=False)
     )
+
+    # String columns with null values
+    string_columns = df_operacoes.select_dtypes(
+        include=["string", "object"]
+    ).columns.tolist()
+
+    for col in string_columns:
+        df_operacoes[col] = (
+            df_operacoes[col].str.strip().replace("----------", "None")
+        )
+        df_operacoes[col] = df_operacoes[col].str.strip().replace("-", "None")
+        df_operacoes.loc[df_operacoes[col] == "None", col] = None
 
     # indicador_inovacao mapping to 1, 0
     df_operacoes["indicador_inovacao"] = df_operacoes[
