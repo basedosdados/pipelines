@@ -36,6 +36,7 @@ URL_OPERACOES_CONTRATADAS = "https://www.bndes.gov.br/arquivos/central-downloads
 
 Demais colunas não apresentam valores nulos, indicando que informações essenciais de identificação, datas, valores e classificações estão sempre preenchidas.
 
+
 ### 2. cnaes_agrupados_bndes
 
 Tabela de correspondências entre as classificações de atividades econômicas (CNAE) utilizadas pelo BNDES e os códigos do IBGE. Esta tabela de referência mapeia setores e subsetores de acordo com a política de classificação do BNDES, facilitando análises setoriais.

@@ -233,7 +233,9 @@ def true_task():
 
 @task
 def switch_check_for_updates(
-    check_for_updates: bool, value_if_true: bool, value_if_false: bool
+    check_for_updates: bool | None,
+    value_if_true: bool | None,
+    value_if_false: bool | None,
 ):
     if check_for_updates:
         log("Considerando data update dos dados.")
