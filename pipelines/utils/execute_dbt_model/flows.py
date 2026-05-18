@@ -12,13 +12,6 @@ from dbt.cli.main import dbtRunner
 from prefect import flow, task
 
 
-def _flow_run_name(parameters: dict[str, Any]) -> str:
-    dataset_id = parameters["dataset_id"]
-    table_id = parameters.get("table_id")
-    suffix = f"{dataset_id}.{table_id}" if table_id else dataset_id
-    return f"DBT Model run/test: {suffix}"
-
-
 @task
 def run_dbt_task(
     dataset_id: str,
@@ -87,7 +80,7 @@ def download_data_to_gcs_task(dataset_id: str, table_id: str) -> None:
 
 @flow(
     name="BD template: Executa DBT model",
-    flow_run_name=_flow_run_name,
+    flow_run_name="DBT Model run/test: {dataset_id}.{table_id}",
     log_prints=True,
 )
 def run_dbt_model_flow(
