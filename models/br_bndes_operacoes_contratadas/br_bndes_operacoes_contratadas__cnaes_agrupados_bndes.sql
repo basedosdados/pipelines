@@ -12,6 +12,7 @@ select
     safe_cast(subsetor_bndes as string) subsetor_bndes,
     safe_cast(secao_cnae as string) secao_cnae,
     safe_cast(divisao_cnae as string) divisao_cnae,
+    safe_cast(grupo_cnae as string) grupo_cnae,
     safe_cast(classe_cnae as string) classe_cnae,
     safe_cast(subclasse_cnae as string) subclasse_cnae,
     safe_cast(produto as string) produto,
