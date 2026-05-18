@@ -1,98 +1,49 @@
 # Documentação BNDES/Operações Contratadas
 
-Este documento registra informações importantes sobre a base de dados de Operações Contratadas do BNDES. O BNDES (Banco Nacional de Desenvolvimento Econômico e Social) disponibiliza, em sua Central de Downloads de Transparência, os dados de operações contratadas
----
+Este documento registra informações importantes sobre a base de dados de Operações Contratadas do BNDES. O BNDES (Banco Nacional de Desenvolvimento Econômico e Social) disponibiliza, em sua Central de Downloads de Transparência, os dados de operações contratadas de financiamento direto e indireto não automático.
 
 ## Sobre a fonte
 
 - [Fonte de Dados](https://www.bndes.gov.br/wps/portal/site/home/transparencia/centraldedownloads)
+- **Organização**: Banco Nacional de Desenvolvimento Econômico e Social (BNDES)
+- **Atualização**: Mensal, de acordo com cabeçalho do arquivo
+- **Cobertura temporal**: Histórico de operações contratadas (2002-Presente)
 
----
-## operacoes_contratadas_forma_direta_e_indireta_nao_automatica
+## Tabelas
 
-- [Fonte de Dados](https://www.bndes.gov.br/arquivos/central-downloads/operacoes_financiamento/naoautomaticas/naoautomaticas.xlsx)
+### 1. operacoes_contratadas_forma_direta_e_indireta_nao_automatica
+
+Operações contratadas na forma direta e indireta não automática. Cada contrato pode ter um ou mais subcréditos. Cada linha da planilha corresponde a um subcrédito diferente. Por isso, há linhas supostamente duplicadas mas que segundo as informações acima, retiradas do arquivo, correspondem a subcréditos distintos.
+
+**Fonte de Dados**: 
+- [Central de Downloads BNDES](https://www.bndes.gov.br/arquivos/central-downloads/operacoes_financiamento/naoautomaticas/naoautomaticas.xlsx)
+
+**URL de Processamento**:
 ```python
 URL_OPERACOES_CONTRATADAS = "https://www.bndes.gov.br/arquivos/central-downloads/operacoes_financiamento/naoautomaticas/naoautomaticas.xlsx"
 ```
 
+#### Observações sobre Dados
 
-#### Duplicatas
-```bash
-[2026-05-17 15:01:48-0300] INFO - prefect.process_data |                 ----
-        Encontrados 689 registros duplicados com base nas colunas ['Cliente', 'CNPJ', 'Descrição do projeto', 'UF', 'Município', 'Município - código', 'Número do contrato', 'Data da contratação', 'Valor contratado  R$', 'Valor desembolsado R$', 'Fonte de recurso (desembolsos)', 'Custo financeiro', 'Juros', 'Prazo - carência (meses)', 'Prazo - amortização (meses)', 'Modalidade de apoio', 'Forma de apoio', 'Produto', 'Instrumento financeiro', 'Inovação', 'Área operacional', 'Setor CNAE', 'Subsetor CNAE agrupado', 'Subsetor CNAE - código', 'Subsetor CNAE - nome', 'Setor BNDES', 'Subsetor BNDES', 'Porte do cliente', 'Natureza do cliente', 'Instituição Financeira Credenciada', 'CNPJ da instituição financeira credenciada', 'Tipo de garantia', 'Tipo de excepcionalidade', 'Situação do contrato'].
+**Registros Duplicados**: Encontrados 689 registros duplicados com base no conjunto completo de colunas. As duplicatas identificadas incluem múltiplos registros do mesmo cliente, CNPJ, projeto e características contratuais.
 
+**Distribuição de Valores Nulos por Coluna**:
+- `tipo_fonte_recursos`: 775 valores nulos (representam contratos onde a fonte de recurso não foi registrada nos desembolsos)
+- `nome_instituicao_financeira_credenciada`: 19.348 valores nulos (representam operações de forma direta, sem intermediação)
+- `cnpj_instituicao_financeira_credenciada`: 19.348 valores nulos (correspondentes às operações diretas)
+- `tipo_excepcionalidade`: 23.202 valores nulos (contratos sem classificação de excepcionalidade)
+- `situacao_contrato`: 268 valores nulos
 
-[2026-05-17 15:01:48-0300] INFO - prefect.process_data |                 ----
-        Exibindo os registros duplicados:
+Demais colunas não apresentam valores nulos, indicando que informações essenciais de identificação, datas, valores e classificações estão sempre preenchidas.
 
+### 2. cnaes_agrupados_bndes
 
-[2026-05-17 15:01:48-0300] INFO - prefect.process_data |                 ----
-                                        Cliente            CNPJ  ... Tipo de excepcionalidade Situação do contrato
-        124       CAMORIM SERVICOS MARITIMOS SA    649990000193  ...               ----------                ATIVO
-        125       CAMORIM SERVICOS MARITIMOS SA    649990000193  ...               ----------                ATIVO
-        126       CAMORIM SERVICOS MARITIMOS SA    649990000193  ...               ----------                ATIVO
-        127       CAMORIM SERVICOS MARITIMOS SA    649990000193  ...               ----------                ATIVO
-        128       CAMORIM SERVICOS MARITIMOS SA    649990000193  ...               ----------                ATIVO
-        ...                                 ...             ...  ...                      ...                  ...
-        23002  BARCAS S/A TRANSPORTES MARITIMOS  33644865000140  ...               ----------            LIQUIDADO
-        23003  BARCAS S/A TRANSPORTES MARITIMOS  33644865000140  ...               ----------            LIQUIDADO
-        23004  BARCAS S/A TRANSPORTES MARITIMOS  33644865000140  ...               ----------            LIQUIDADO
-        23031  BARCAS S/A TRANSPORTES MARITIMOS  33644865000140  ...               ----------            LIQUIDADO
-        23032  BARCAS S/A TRANSPORTES MARITIMOS  33644865000140  ...               ----------            LIQUIDADO
-        
-        [689 rows x 34 columns]
-```
+Tabela de correspondências entre as classificações de atividades econômicas (CNAE) utilizadas pelo BNDES e os códigos do IBGE. Esta tabela de referência mapeia setores e subsetores de acordo com a política de classificação do BNDES, facilitando análises setoriais.
 
-
-#### Valores Nulos
-```bash
-[2026-05-17 15:01:49-0300] INFO - prefect.process_data |                 ----
-        Contagem de valores nulos por coluna:
-
-
-[2026-05-17 15:01:49-0300] INFO - prefect.process_data |                 ----
-        razao_social_cliente                           0
-        cnpj_cliente                                   0
-        descricao_projeto                              0
-        sigla_uf                                       0
-        nome_municipio                                 0
-        id_municipio                                   0
-        id_contrato                                    0
-        data_contratacao                               0
-        valor_contratado                               0
-        valor_desembolsado                             0
-        tipo_fonte_recursos                          775
-        custo_financeiro                               0
-        taxa_juros                                     0
-        prazo_carencia                                 0
-        prazo_amortizacao                              0
-        modalidade_apoio                               0
-        forma_apoio                                    0
-        produto                                        0
-        tipo_instrumento_financeiro                    0
-        indicador_inovacao                             0
-        area_operacional_bndes                         0
-        setor_cnae_bndes                               0
-        subsetor_agrupado_cnae_bndes                   0
-        descricao_subclasse                            0
-        setor_bndes                                    0
-        subsetor_bndes                                 0
-        porte_cliente                                  0
-        natureza_cliente                               0
-        nome_instituicao_financeira_credenciada    19348
-        cnpj_instituicao_financeira_credenciada    19348
-        tipo_garantia                                  0
-        tipo_excepcionalidade                      23202
-        situacao_contrato                            268
-        secao_cnae                                     0
-        divisao_cnae                                   0
-        grupo_cnae                                     0
-        classe_cnae                                    0
-        subclasse_cnae                                 0
-        data_apuracao                                  0
-        dtype: int64
-```
+**Conteúdo**:
+- Mapeamento entre a classificação CNAE 2 (seção, divisão, grupo, classe, subclasse) e as classificações internas do BNDES (setor e subsetor)
+- Associação com produtos financeiros
+- Referência para classificação de projetos por atividade econômica
 
 ## Últimas alterações
-* [Issue](https://github.com/basedosdados/pipelines/issues/)
-* [PR](https://github.com/basedosdados/pipelines/pull/)
+* [PR data/br_bndes_operacoes_contratadas_forma_direta_e_indireta_nao_automatica #1540](https://github.com/basedosdados/pipelines/pull/1540)
