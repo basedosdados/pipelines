@@ -174,12 +174,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__cnae_2')
               field: classe
-      - name: classe_cnae
-        description: Classe CNAE 2
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__cnae_2')
-              field: classe
       - name: subclasse_cnae
         description: Subclasse CNAE
         tests:
