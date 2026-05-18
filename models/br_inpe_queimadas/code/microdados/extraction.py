@@ -52,12 +52,32 @@ def extract_all_data(url, n_rows=None):
 
 
 if __name__ == "__main__":
+    import os
+
+    if not os.path.exists("./input"):
+        os.makedirs("./input")
+
     # Month Data
     month_url = "https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/mensal/Brasil/"
-    month_data = extract_all_data(month_url)
-    month_data.to_csv("./input/month_fire_data.csv")
 
-    # Year Data
-    year_url = "https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/Brasil_sat_ref/"
-    year_data = extract_all_data(year_url, 20)
-    year_data.to_csv("./input/year_fire_data.csv")
+    print("Buscando arquivos no site do INPE...")
+    table = get_html_table(month_url, None)
+
+    # Pega os arquivos de 2025 e 2026
+    files_to_download = [
+        row for row in table["Nome"] if "2025" in row or "2026" in row
+    ]
+
+    month_data = pd.DataFrame()
+    for file in files_to_download:
+        print(f"Baixando: {file}")
+        file_data = request_data(month_url, file)
+        month_data = pd.concat([month_data, file_data], axis=0)
+
+    month_data.to_csv("./input/month_fire_data_new.csv", index=False)
+    print("Download concluído com sucesso!")
+
+    # Year Data - Comentado para não baixar dados antigos de 2003 a 2025
+    # year_url = "https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/Brasil_sat_ref/"
+    # year_data = extract_all_data(year_url, 20)
+    # year_data.to_csv("./input/year_fire_data.csv")
