@@ -217,6 +217,10 @@ def process_de_para_cnae(
         columns=["limite_inferior", "limite_superior", "lista_cnaes_2"]
     )
 
+    df_cnaes_expandidos = df_cnaes_expandidos.drop_duplicates(
+        subset=df_cnaes_expandidos.columns.tolist(), keep="first"
+    )
+
     df_cnaes_expandidos.to_csv(output_folder / "data.csv", index=False)
     return output_folder / "data.csv"
 
