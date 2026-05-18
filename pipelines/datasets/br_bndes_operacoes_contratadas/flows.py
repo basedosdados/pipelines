@@ -1,5 +1,11 @@
 from prefect import Parameter, case
+from prefect.run_configs import KubernetesRun
+from prefect.storage import GCS
 
+from pipelines.constants import constants
+from pipelines.datasets.br_bndes_operacoes_contratadas.schedules import (
+    every_month_bndes,
+)
 from pipelines.datasets.br_bndes_operacoes_contratadas.tasks import (
     create_folders,
     get_source_last_date,
@@ -190,3 +196,24 @@ with Flow(
                     wait_upload_prod_base,
                 ],
             )
+
+
+br_bndes_operacoes_contratadas_direta_indireta_nao_automatica.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
+br_bndes_operacoes_contratadas_direta_indireta_nao_automatica.run_config = (
+    KubernetesRun(image=constants.DOCKER_IMAGE.value)
+)
+br_bndes_operacoes_contratadas_direta_indireta_nao_automatica.schedule = (
+    every_month_bndes
+)
+
+br_bndes_operacoes_contratadas_cnaes_agrupados_bndes.storage = GCS(
+    constants.GCS_FLOWS_BUCKET.value
+)
+br_bndes_operacoes_contratadas_cnaes_agrupados_bndes.run_config = (
+    KubernetesRun(image=constants.DOCKER_IMAGE.value)
+)
+br_bndes_operacoes_contratadas_cnaes_agrupados_bndes.schedule = (
+    every_month_bndes
+)
