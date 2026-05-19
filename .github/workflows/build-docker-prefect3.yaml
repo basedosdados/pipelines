@@ -5,6 +5,7 @@ on:
     branches: [main, feat/prefect3]
     paths:
       - Dockerfile.prefect3
+      - entrypoint.sh
       - pyproject.toml
       - uv.lock
       - packages.yml
