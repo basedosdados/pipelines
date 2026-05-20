@@ -18,10 +18,15 @@ Operações contratadas na forma direta e indireta não automática. Cada contra
 **Fonte de Dados**: 
 - [URL Arqvuivo](https://www.bndes.gov.br/arquivos/central-downloads/operacoes_financiamento/naoautomaticas/naoautomaticas.xlsx)
 - O arquivo possui 3 abas:
-  a) SITE: Aba com
+
+  **a) SITE:** Aba com
+    
     - **Cabeçalho**: 3 primeiras linhas, que possuem a data de apuração dos dados (coluna `data_apuracao`da tabela final) e a data de cobertura dos dados, na forma de um intervalo de datas do tipo `%s/%m/%Y`. Ambas as informações são extraídas por regex na função `get_xlsx_metadata` em `utils.py`;
-  b) DISCLAIMER: informações e descrições sobre as colunas, valores esperados, esclarecimentos, cálculos aplicados, referências para mais informações. Essas informações foram usadas de maneira subjetiva para interpretar as colunas e preencher as arquiteturas e metadados no backend;
-  c) DE-PARA_CNAE: tabela de equivalência entre diferentes níveis de código CNAE e agrupamentos de setor e subsetor elaborados pelo BNDES. Esta aba gá origem à tabela auxiliar `cnaes_agrupados_bndes`, abordada na próxima subseção.
+    - **Dados**: dados das operações a serem extraídos;
+  
+  **b) DISCLAIMER:** informações e descrições sobre as colunas, valores esperados, esclarecimentos, cálculos aplicados, referências para mais informações. Essas informações foram usadas de maneira subjetiva para interpretar as colunas e preencher as arquiteturas e metadados no backend;
+
+  **c) DE-PARA_CNAE:** tabela de equivalência entre diferentes níveis de código CNAE e agrupamentos de setor e subsetor elaborados pelo BNDES. Esta aba gá origem à tabela auxiliar `cnaes_agrupados_bndes`, abordada na próxima subseção.
   
 **URL de Processamento**:
 ```python
@@ -34,10 +39,13 @@ class constants(Enum):
 
 #### Observações sobre Dados
 
-**Registros Duplicados**: Encontrados 689 registros duplicados com base no conjunto completo de colunas. As duplicatas identificadas incluem múltiplos registros do mesmo cliente, CNPJ, projeto e características contratuais. 
+**a) Registros Duplicados**:
+
+Encontrados 689 registros duplicados com base no conjunto completo de colunas. As duplicatas identificadas incluem múltiplos registros do mesmo cliente, CNPJ, projeto e características contratuais. 
 Na aba DISCLAIMER, há a informação de que "Cada contrato pode ter um ou mais subcréditos, sendo que cada subscrédito pode ser caracterizado por condições financeiras distintas. Cada linha da planilha corresponde a um subcrédito diferente." Por isso, mesmo havendo duplicatas (mesmo comparando combinações de **todas** as colunas da tabela, a interpretação é de que são subcréditos distintos com características iguais e, por isso, linhas com todas as colunas iguais.
  
-**Distribuição de Valores Nulos por Coluna**:
+**b) Distribuição de Valores Nulos por Coluna**:
+
 - `id_municipio`: 7699 valores nulos (contratos vinculados, não a Unidades da Federação ou Municípios específicos, mas a outros níveis);
 - `tipo_fonte_recursos`: 775 valores nulos;
 - `nome_instituicao_financeira_credenciada`: 19.348 valores nulos;
@@ -51,7 +59,8 @@ Na aba DISCLAIMER, há a informação de que "Cada contrato pode ter um ou mais 
 Demais colunas não apresentam valores nulos, indicando que informações essenciais de identificação, datas, valores e classificações estão sempre preenchidas.
 Essa distribuição foi importante para definir testes 
 
-**CNAEs**:
+**c) CNAEs**:
+
 A coluna "Subsetor CNAE - código" traz vinculação com CNAEs em diferentes níveis. Por mais que os valores sejam sempre códigos de 8 caracteres, nem sempre são subclasses CNAE válidas. Em muitos casos, há uma vínculação com a divisão ou o grupo e os demais caracteres que indicariam classes e subclasses são preenchidos com zeros ('0'), no que foi interpretado como indicativo de que todos os subníveis sob aquele grupo ou aquela divisão podem ser vinculados à linha em questão. 
 
 Ex.: O valor "B0600000" não corresponde a nenhuma suclasse CNAE presente em  `basedosdados.br_bd_diretorios_brasil.cnae_2`, mas a classe "B06000" existe. Assim, a interpretação é de que o vínculo ocorre entre essa linha da tabela de operações e uma classe CNAE. 
@@ -70,6 +79,7 @@ Tabela de correspondências entre as classificações de atividades econômicas 
   
 
 #### Observações sobre Dados
+
 O processo de mapeamento dos CNAEs é complicado por causa da forma como a equivalência entre setores/subsetores do BNDES e CNAEs é estabelecida. 
 - Há casos em que a equivalência ocorre entre um subsetor agrupado do BNDES e um **_range_** de divisões CNAE dentro de uma mesma seção, definidos pelo que convencionei como **limite_inferior** e um **limite_superior**: Ex.: Setor BNDES "Agropecuária" mapeado nas divisões CNAE "A01 a A03";
 - Há casos em que a equivalência ocorre entre um subsetor agrupado do BNDES e uma divisão CNAE específica: Ex.: Subsetor BNDES "Alimento e bebida" associado a um agrupamento "Produtos Alimentícios" mapeado na divisão CNAE "C10", ou seja, seção "C" e divisão "10";
