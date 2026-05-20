@@ -168,8 +168,9 @@ with Flow(
             update_django_metadata(
                 dataset_id=dataset_id,
                 table_id=table_id,
+                coverage_type="all_free",
                 bq_project="basedosdados",
-                historical_database=historical_database,
+                historical_database=False,
                 upstream_tasks=[
                     wait_upload_prod_estacoes,
                 ],
