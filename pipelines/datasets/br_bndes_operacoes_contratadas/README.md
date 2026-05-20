@@ -53,7 +53,9 @@ Essa distribuição foi importante para definir testes
 
 **CNAEs**:
 A coluna "Subsetor CNAE - código" traz vinculação com CNAEs em diferentes níveis. Por mais que os valores sejam sempre códigos de 8 caracteres, nem sempre são subclasses CNAE válidas. Em muitos casos, há uma vínculação com a divisão ou o grupo e os demais caracteres que indicariam classes e subclasses são preenchidos com zeros ('0'), no que foi interpretado como indicativo de que todos os subníveis sob aquele grupo ou aquela divisão podem ser vinculados à linha em questão. 
+
 Ex.: O valor "B0600000" não corresponde a nenhuma suclasse CNAE presente em  `basedosdados.br_bd_diretorios_brasil.cnae_2`, mas a classe "B06000" existe. Assim, a interpretação é de que o vínculo ocorre entre essa linha da tabela de operações e uma classe CNAE. 
+
 A solução foi separar cada nível da hierarquia do CNAE presente nos valores da coluna "Subsetor CNAE - código" e cruzar com os diretórios, mantendo apenas o que existe.
 
 
@@ -75,6 +77,7 @@ O processo de mapeamento dos CNAEs é complicado por causa da forma como a equiv
 - Há casos em que a equivalência ocorre entre um subsetor agrupado do BNDES e uma **lista** de divisões CNAE em seções distintas: Ex.: Subsetor BNDES "Comércio e Serviços" associado a um agrupamento "Ativ imobil, profissional e adm" mapeado nas divisões "L68, M69, M70, M71, M72, M73, M74, M75, N77, N78, N79, N80, N81 e N82" ;
 - Há listas de divisões dentro da mesma seção "K64, K65 e K66" ou "F41 e F43";
 - Há listas que mesclam classe e subclasse, etc.
+
 A solução foi dividida entre separar os casos em que se tem listas e os casos em que se tem _ranges_ para só então extrair níveis coerentes de CNAE. Cada um vira um novo dataframe em `get_cnaes_by_limits_and_lists()`. Em seguida, as funções `extract_cnaes_sections_by_lists()` e `extract_cnaes_sections_by_limits()`, extraem as seções com base nos códigos obtidos do passo anterior. Por fim, os demais níveis são extraídos por meio de regex.
 
 
