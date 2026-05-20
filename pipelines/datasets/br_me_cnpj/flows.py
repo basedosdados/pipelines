@@ -441,29 +441,27 @@ with Flow(
         upstream_tasks=[output_filepath],
     )
 
-    # wait_for_materialization = run_dbt(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     dbt_alias=dbt_alias,
-    #     dbt_command="run/test",
-    #     upstream_tasks=[wait_upload_table],
-    # )
-    # with case(materialize_after_dump, True):
-    #     wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-    #         data_path=output_filepath,
-    #         dataset_id=dataset_id,
-    #         table_id=table_id,
-    #         dump_mode="append",
-    #         upstream_tasks=[wait_for_materialization],
-    #     )
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_alias=dbt_alias,
+        dbt_command="run/test",
+        upstream_tasks=[wait_upload_table],
+    )
+    with case(materialize_after_dump, True):
+        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
+            data_path=output_filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dump_mode="append",
+            upstream_tasks=[wait_for_materialization],
+        )
 
-    #     update_django_metadata(
-    #         dataset_id=dataset_id,
-    #         table_id=table_id,
-    #         date_column_name={"year": "ano", "month": "mes"},
-    #         date_format="%Y-%m",
-    #         coverage_type="part_bdpro",
-    #         time_delta={"months": 6},
-    #         bq_project="basedosdados",
-    #         upstream_tasks=[wait_upload_prod],
-    #     )
+        update_django_metadata(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            historical_database=False,
+            coverage_type="all_free",
+            bq_project="basedosdados",
+            upstream_tasks=[wait_upload_prod],
+        )
