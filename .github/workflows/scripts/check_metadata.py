@@ -88,6 +88,19 @@ def get_bigquery_columns(
     return columns
 
 
+_TYPE_ALIASES: dict[str, str] = {
+    "boolean": "bool",
+    "integer": "int64",
+    "int": "int64",
+    "float": "float64",
+}
+
+
+def normalize_type(t: str) -> str:
+    t = t.lower()
+    return _TYPE_ALIASES.get(t, t)
+
+
 def evaluate_row(row: pd.Series) -> dict:
     """
     Evaluate a merged row from BigQuery vs API and return column status.
@@ -99,8 +112,8 @@ def evaluate_row(row: pd.Series) -> dict:
     elif row["_merge"] == "right_only":
         status.append("Column not found in BigQuery")
     else:
-        bq_type = str(row["data_type"]).lower()
-        api_type = str(row["bigquery_type"]).lower()
+        bq_type = normalize_type(str(row["data_type"]))
+        api_type = normalize_type(str(row["bigquery_type"]))
         if bq_type != api_type:
             status.append(f"Type differs (BQ: {bq_type} | API: {api_type})")
 
