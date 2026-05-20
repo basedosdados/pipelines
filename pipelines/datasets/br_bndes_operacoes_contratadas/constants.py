@@ -15,10 +15,6 @@ class constants(Enum):
     DATA_SKIPROWS = 4
     DATA_USECOLS = None
 
-    DE_PARA_CNAE_NAME = "DE-PARA CNAE"
-    DE_PARA_CNAE_SKIPROWS = 3
-    DE_PARA_CNAE_USECOLS = [1, 2, 3, 4, 5, 6]
-
     ROOT_DIR = Path(__file__).parent.parent.parent.parent
     TMP_DIR = ROOT_DIR / "tmp"
     TMP_DIR.mkdir(parents=True, exist_ok=True)
@@ -64,13 +60,4 @@ class constants(Enum):
         "Tipo de garantia": "tipo_garantia",
         "Tipo de excepcionalidade": "tipo_excepcionalidade",
         "Situação do contrato": "situacao_contrato",
-    }
-
-    DE_PARA_CNAE_RENAME_MAPPING = {
-        "Setor  CNAE\n(classificação BNDES)": "setor_cnae_bndes",
-        "Subsetor CNAE Agrupado (classificação BNDES)": "subsetor_agrupado_cnae_bndes",
-        "Subsetor BNDES": "subsetor_bndes",
-        "Setor BNDES": "setor_bndes",
-        "Código CNAE - IBGE": "lista_cnaes_2",
-        "Produto BNDES": "produto",
     }

@@ -38,9 +38,6 @@ def download_xlsx(
     response = requests.get(url)
     response.raise_for_status()
 
-    response = requests.get(url)
-    response.raise_for_status()
-
     if input_file.exists():
         os.remove(input_file)
     with open(input_file, "wb") as f:
@@ -116,105 +113,6 @@ def get_xlsx_metadata(
                 r"(\d{2,4}/\d{2,4}/\d{2,4})", metadata["metadados"][1]
             )[0]
     return source_coverage_dates, last_source_update
-
-
-def get_cnaes_by_limits_and_lists(
-    dataframe: pd.DataFrame, cnae_column: str
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-
-    # Cnaes by limits and by lists
-    df_cnaes = dataframe.copy()
-    df_cnaes[["limite_inferior", "limite_superior"]] = (
-        df_cnaes[cnae_column].str.split(r"\(restante\)| a ").apply(pd.Series)
-    )
-    df_cnae_limites = df_cnaes.loc[df_cnaes["limite_superior"].notna()].copy()
-    df_cnae_listas = df_cnaes.loc[df_cnaes["limite_superior"].isna()].copy()
-    return df_cnae_limites, df_cnae_listas
-
-
-def extract_cnaes_sections_by_lists(
-    dataframe: pd.DataFrame, cnaes_column: str
-) -> pd.DataFrame:
-    # CNAEs by lists transformation:
-    # split cnaes list into rows, extract section and convert to int
-    df_cnae_listas = dataframe.copy()
-    df_cnae_listas[["limite_inferior", "limite_superior"]] = None
-    df_cnae_listas[cnaes_column] = df_cnae_listas[cnaes_column].str.split(
-        r"[\n\s]*e{1}[\n\s]*|[\n\s]*,{1}[\n\s]*"
-    )
-    df_cnae_listas = df_cnae_listas.explode(cnaes_column)
-    df_cnae_listas["secao_cnae"] = df_cnae_listas[cnaes_column].str.extract(
-        r"(^[A-Z]{1})"
-    )
-    df_cnae_listas[cnaes_column] = (
-        df_cnae_listas[cnaes_column]
-        .str.extract(r"(\d+)")
-        .fillna("-1")
-        .astype("Int64")
-    )
-    return df_cnae_listas
-
-
-def extract_cnaes_sections_by_limits(
-    dataframe: pd.DataFrame, df_diretorios: pd.DataFrame, cnaes_column: str
-) -> pd.DataFrame:
-    # CNAEs by limits transformation:
-    # create cnaes list from limits, extract section and convert to int
-    df_cnae_limites = dataframe.copy()
-    df_cnae_limites[cnaes_column] = None
-    # Eztract section
-    df_cnae_limites["secao_cnae"] = df_cnae_limites[
-        "limite_inferior"
-    ].str.extract(r"(^[A-Z]{1})")
-    # Extract limits numbers
-    df_cnae_limites["limite_inferior"] = (
-        df_cnae_limites["limite_inferior"]
-        .str.extract(r"(\d+)")
-        .fillna("-1")
-        .astype("int")
-    )
-    df_cnae_limites["limite_superior"] = (
-        df_cnae_limites["limite_superior"]
-        .str.extract(r"(\d+)")
-        .fillna("-1")
-        .astype("int")
-    )
-    df_cnae_limites.loc[
-        df_cnae_limites["limite_superior"] == -1, "limite_superior"
-    ] = None
-    df_cnae_limites.loc[
-        df_cnae_limites["limite_inferior"] == -1, "limite_inferior"
-    ] = None
-    df_cnae_limites["limite_inferior"] = df_cnae_limites[
-        "limite_inferior"
-    ].astype("Int64")
-    df_cnae_limites["limite_superior"] = df_cnae_limites[
-        "limite_superior"
-    ].astype("Int64")
-
-    # For rows with null upper limit, fill the upper limit with the max division of the section
-    df_cnae_limites.loc[
-        df_cnae_limites["limite_superior"].isna(), "limite_superior"
-    ] = df_cnae_limites.loc[
-        df_cnae_limites["limite_superior"].isna(), "secao_cnae"
-    ].apply(
-        lambda x: df_diretorios.loc[
-            df_diretorios["secao"] == x, "divisao"
-        ].max()
-    )
-    for i, row in df_cnae_limites.iterrows():
-        df_cnae_limites.loc[i, cnaes_column] = str(
-            list(range(row["limite_inferior"], row["limite_superior"] + 1))
-        )
-    # Explode cnaes list into rows and convert to string with leading zeros
-    df_cnae_limites[cnaes_column] = df_cnae_limites[cnaes_column].apply(
-        lambda x: eval(x)
-    )
-    df_cnae_limites = df_cnae_limites.explode(cnaes_column)
-    df_cnae_limites[cnaes_column] = df_cnae_limites[cnaes_column].apply(
-        lambda x: str(x).zfill(2)
-    )
-    return df_cnae_limites
 
 
 def extract_cnae_hierarchy(
