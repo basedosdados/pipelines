@@ -375,7 +375,7 @@ def get_date_api(dataset_id: str, table_id: str) -> tuple[date, str]:
 
     except Exception as e:
         log(f"Não há dados recentes na API: {e}")
-        return task_get_api_most_recent_date.run(
+        return task_get_api_most_recent_date.fn(
             dataset_id=dataset_id, table_id=table_id, date_format="%Y-%m"
         )
 
@@ -384,7 +384,7 @@ def next_date_update(
     dataset_id: str,
     table_id: str,
 ) -> str:
-    dt = task_get_api_most_recent_date.run(
+    dt = task_get_api_most_recent_date.fn(
         dataset_id=dataset_id, table_id=table_id, date_format="%Y-%m"
     )
 
