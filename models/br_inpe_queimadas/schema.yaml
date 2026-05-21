@@ -13,6 +13,8 @@ models:
             - potencia_radiativa_fogo
       - not_null_proportion_multiple_columns:
           at_least: 0.70
+          # risco_fogo so existe na fonte mensal; carga anual deixa NULL no historico
+          ignore_values: [risco_fogo]
     columns:
       - name: ano
         description: Ano de referência da passagem do satélite segundo o fuso horário
