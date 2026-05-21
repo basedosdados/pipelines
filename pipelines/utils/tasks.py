@@ -4,10 +4,15 @@ Tasks compartilhadas — Prefect 3.
 
 import json
 from pathlib import Path
+from time import sleep
 from typing import Any
 
 import basedosdados as bd
+from basedosdados.download.download import _google_client
 from dbt.cli.main import dbtRunner
+from google.api_core.exceptions import NotFound
+from google.cloud import bigquery
+from google.cloud.bigquery import TableReference
 from prefect import task
 
 from pipelines.utils.gcs import DBTArtifactUploader, dump_header
@@ -232,3 +237,141 @@ def run_dbt(
             ).run()
         except Exception as e:
             print(f"Aviso: falha ao subir artefatos dbt: {e}")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Download BQ → GCS
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def _execute_query_in_bigquery(
+    billing_project_id: str, query: str, path: str, location: str = "US"
+) -> None:
+    client = _google_client(billing_project_id, from_file=True, reauth=False)
+    job = client["bigquery"].query(query)
+    while not job.done():
+        sleep(1)
+    dest = job._properties["configuration"]["query"]["destinationTable"]
+    dataset_ref = bigquery.DatasetReference(
+        dest["projectId"], dest["datasetId"]
+    )
+    table_ref = dataset_ref.table(dest["tableId"])
+    job_config = bigquery.job.ExtractJobConfig(compression="GZIP")
+    extract_job = client["bigquery"].extract_table(
+        table_ref, path, location=location, job_config=job_config
+    )
+    extract_job.result()
+
+
+@task(retries=2, retry_delay_seconds=30)
+def download_data_to_gcs(
+    dataset_id: str,
+    table_id: str,
+    project_id: str = "basedosdados",
+    bd_project_mode: str = "prod",
+    billing_project_id: str | None = None,
+    location: str = "US",
+) -> None:
+    """Exporta tabela do BigQuery para GCS como CSV.gz.
+
+    Regras:
+    - > 1 GB: sem download
+    - 100 MB - 1 GB: apenas BDPro
+    - < 100 MB: open + BDPro (se tiver row access policy bdpro_filter)
+    """
+    from pipelines.utils.utils import log
+
+    if not billing_project_id:
+        billing_project_id = project_id
+
+    client = _google_client(billing_project_id, from_file=True, reauth=False)
+
+    bq_table_ref = TableReference.from_string(
+        f"{project_id}.{dataset_id}.{table_id}"
+    )
+    bq_table = client["bigquery"].get_table(bq_table_ref)
+    num_bytes = bq_table.num_bytes
+    log(f"Tamanho da tabela: {num_bytes} bytes ({bq_table.num_rows} linhas)")
+
+    # Views retornam num_bytes=0 — consulta o tamanho via Django API
+    if num_bytes == 0:
+        log("Tabela é uma view, consultando tamanho via API Django")
+        b = bd.Backend(
+            graphql_url="https://api.basedosdados.org/api/v1/graphql"
+        )
+        django_table_id = b._get_table_id_from_name(
+            gcp_dataset_id=dataset_id, gcp_table_id=table_id
+        )
+        data = b._execute_query(
+            f"""query {{ allTable(id: "{django_table_id}") {{
+                edges {{ node {{ uncompressedFileSize }} }} }} }}"""
+        )
+        items = data.get("allTable", {}).get("items", [])
+        if not items:
+            log("Tabela não encontrada na API — download ignorado")
+            return
+        num_bytes = items[0]["uncompressedFileSize"] or 0
+
+    if num_bytes > 1_000_000_000:
+        log("Tabela > 1 GB — sem download disponível")
+        return
+
+    url_paths = get_credentials_from_secret("url_download_data")
+    url_open = url_paths["URL_DOWNLOAD_OPEN"]
+    url_closed = url_paths["URL_DOWNLOAD_CLOSED"]
+    query = f"SELECT * FROM `{project_id}.{dataset_id}.{table_id}`"
+
+    if num_bytes >= 100_000_000:
+        log("Tabela entre 100 MB e 1 GB — apenas BDPro")
+        _execute_query_in_bigquery(
+            billing_project_id,
+            query,
+            f"{url_closed}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz",
+            location,
+        )
+        return
+
+    # < 100 MB: open + BDPro se houver filtro
+    bdpro = False
+    try:
+        drop_policy = f"DROP ROW ACCESS POLICY bdpro_filter ON `{project_id}.{dataset_id}.{table_id}`"
+        job = client["bigquery"].query(drop_policy)
+        while not job.done():
+            sleep(1)
+        job.result()
+        bdpro = True
+        log("Row access policy bdpro_filter removida temporariamente")
+    except NotFound:
+        log("Sem row access policy bdpro_filter — todos os dados são abertos")
+    except Exception as e:
+        raise ValueError(f"Erro ao remover bdpro_filter: {e}") from e
+
+    log("Exportando dados abertos")
+    _execute_query_in_bigquery(
+        billing_project_id,
+        query,
+        f"{url_open}{dataset_id}/{table_id}/{table_id}.csv.gz",
+        location,
+    )
+    log("Exportação open concluída")
+
+    if bdpro:
+        restore_policy = (
+            f"CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter "
+            f"ON `{project_id}.{dataset_id}.{table_id}` "
+            f'GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") '
+            f"FILTER USING (TRUE)"
+        )
+        job = client["bigquery"].query(restore_policy)
+        while not job.done():
+            sleep(1)
+        log("Row access policy bdpro_filter restaurada")
+
+        log("Exportando dados BDPro")
+        _execute_query_in_bigquery(
+            billing_project_id,
+            query,
+            f"{url_closed}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz",
+            location,
+        )
+        log("Exportação BDPro concluída")
