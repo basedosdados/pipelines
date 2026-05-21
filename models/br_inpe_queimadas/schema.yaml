@@ -64,7 +64,7 @@ models:
         description: Número de dias sem chuva até a detecção do foco.
       - name: precipitacao
         description: Valor da precipitação acumulada no dia até o momento da detecção
-          do fogo.
+          do foco.
       - name: risco_fogo
         description: Valor do Risco de Fogo previsto para o dia da detecção do foco.
           Disponivel apenas na fonte mensal do INPE; linhas da carga anual (2003-2022)
