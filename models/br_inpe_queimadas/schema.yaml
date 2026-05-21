@@ -43,8 +43,7 @@ models:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
       - name: id_municipio
-        description: Identificação do Município. Pode ser nulo se o join com o diretorio
-          de municipios nao encontrar correspondencia.
+        description: Identificação do Município.
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
@@ -67,7 +66,5 @@ models:
           do foco.
       - name: risco_fogo
         description: Valor do Risco de Fogo previsto para o dia da detecção do foco.
-          Disponivel apenas na fonte mensal do INPE; linhas da carga anual (2003-2022)
-          permanecem nulas.
       - name: potencia_radiativa_fogo
         description: Fire Radiative Power, MW (megawatts).
