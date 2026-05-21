@@ -3,7 +3,10 @@ Utilitários gerais — logging, detecção de ambiente, helpers de string.
 """
 
 import logging
+from pathlib import Path
 from typing import Any
+
+import pandas as pd
 
 
 def log(msg: Any, level: str = "info") -> None:
@@ -37,3 +40,46 @@ def is_running_in_prod() -> bool:
 
 def query_to_line(query: str) -> str:
     return " ".join(line.strip() for line in query.split("\n"))
+
+
+def to_partitions(
+    data: pd.DataFrame,
+    partition_columns: list[str],
+    savepath: str,
+    file_type: str = "csv",
+) -> None:
+    """Salva um DataFrame em partições Hive (pasta/coluna=valor/data.csv)."""
+    if not isinstance(data, pd.DataFrame):
+        raise TypeError("data deve ser um pandas DataFrame")
+
+    savepath = Path(savepath)
+    unique_combinations = (
+        data[partition_columns].drop_duplicates().to_dict(orient="records")
+    )
+
+    for combo in unique_combinations:
+        partition_path = savepath / "/".join(
+            f"{k}={v}" for k, v in combo.items()
+        )
+        partition_path.mkdir(parents=True, exist_ok=True)
+
+        df_slice = data.loc[
+            data[list(combo.keys())].isin(list(combo.values())).all(axis=1)
+        ].drop(columns=partition_columns)
+
+        if file_type == "csv":
+            out = partition_path / "data.csv"
+            df_slice.to_csv(
+                out,
+                sep=",",
+                encoding="utf-8",
+                na_rep="",
+                index=False,
+                mode="a",
+                header=not out.exists(),
+            )
+        elif file_type == "parquet":
+            out = partition_path / "data.parquet"
+            df_slice.to_parquet(out, index=False, compression="gzip")
+        else:
+            raise ValueError(f"file_type inválido: {file_type!r}")

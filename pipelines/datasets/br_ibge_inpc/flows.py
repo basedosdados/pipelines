@@ -1,62 +1,53 @@
-# register flow
-from copy import deepcopy
+"""
+Flows para br_ibge_inpc — Prefect 3.
+"""
 
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from prefect import flow
 
-from pipelines.constants import constants
-from pipelines.crawler.ibge_inflacao.flows import flow_ibge
-from pipelines.datasets.br_ibge_inpc.schedules import (
-    schedule_br_ibge_inpc_mes_brasil,
-    schedule_br_ibge_inpc_mes_categoria_brasil,
-    schedule_br_ibge_inpc_mes_categoria_municipio,
-    schedule_br_ibge_inpc_mes_categoria_rm,
-)
-
-br_ibge_inpc_mes_categoria_brasil = deepcopy(flow_ibge)
-br_ibge_inpc_mes_categoria_brasil.name = "br_ibge_inpc.mes_categoria_brasil"
-br_ibge_inpc_mes_categoria_brasil.code_owners = ["equipe_dados"]
-br_ibge_inpc_mes_categoria_brasil.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_ibge_inpc_mes_categoria_brasil.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_ibge_inpc_mes_categoria_brasil.schedule = (
-    schedule_br_ibge_inpc_mes_categoria_brasil
-)
+from pipelines.crawler.ibge_inflacao.flows import _run_ibge_inflacao
 
 
-br_ibge_inpc_mes_categoria_rm = deepcopy(flow_ibge)
-br_ibge_inpc_mes_categoria_rm.name = "br_ibge_inpc.mes_categoria_rm"
-br_ibge_inpc_mes_categoria_rm.code_owners = ["equipe_dados"]
-br_ibge_inpc_mes_categoria_rm.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ibge_inpc_mes_categoria_rm.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_ibge_inpc_mes_categoria_rm.schedule = schedule_br_ibge_inpc_mes_categoria_rm
+def _inpc_flow(table_id: str, cron: str):
+    @flow(name=f"br_ibge_inpc__{table_id}", log_prints=True)
+    def _flow(
+        dataset_id: str = "br_ibge_inpc",
+        table_id: str = table_id,
+        periodo: str | None = None,
+        materialize_after_dump: bool = True,
+        dbt_alias: bool = True,
+        update_metadata: bool = True,
+        target: str = "prod",
+    ) -> None:
+        _run_ibge_inflacao(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            periodo=periodo,
+            materialize_after_dump=materialize_after_dump,
+            dbt_alias=dbt_alias,
+            update_metadata=update_metadata,
+            target=target,
+        )
 
-br_ibge_inpc_mes_categoria_municipio = deepcopy(flow_ibge)
-br_ibge_inpc_mes_categoria_municipio.name = (
-    "br_ibge_inpc.mes_categoria_municipio"
-)
-br_ibge_inpc_mes_categoria_municipio.code_owners = ["equipe_dados"]
-br_ibge_inpc_mes_categoria_municipio.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_ibge_inpc_mes_categoria_municipio.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_ibge_inpc_mes_categoria_municipio.schedule = (
-    schedule_br_ibge_inpc_mes_categoria_municipio
-)
+    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    return _flow
 
 
-br_ibge_inpc_mes_brasil = deepcopy(flow_ibge)
-br_ibge_inpc_mes_brasil.name = "br_ibge_inpc.mes_brasil"
-br_ibge_inpc_mes_brasil.code_owners = ["equipe_dados"]
-br_ibge_inpc_mes_brasil.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ibge_inpc_mes_brasil.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+br_ibge_inpc__mes_brasil = _inpc_flow(
+    table_id="mes_brasil",
+    cron="20 15 8,9,10,11,12,13 * *",
 )
-br_ibge_inpc_mes_brasil.schedule = schedule_br_ibge_inpc_mes_brasil
+
+br_ibge_inpc__mes_categoria_brasil = _inpc_flow(
+    table_id="mes_categoria_brasil",
+    cron="50 15 8,9,10,11,12,13 * *",
+)
+
+br_ibge_inpc__mes_categoria_rm = _inpc_flow(
+    table_id="mes_categoria_rm",
+    cron="40 15 8,9,10,11,12,13 * *",
+)
+
+br_ibge_inpc__mes_categoria_municipio = _inpc_flow(
+    table_id="mes_categoria_municipio",
+    cron="30 15 8,9,10,11,12,13 * *",
+)
