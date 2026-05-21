@@ -11,12 +11,10 @@ from basedosdados.download.download import _google_client
 from dateutil.relativedelta import relativedelta
 
 from pipelines.constants import constants
+from pipelines.utils.discord import notify_discord
 from pipelines.utils.metadata.constants import constants as metadata_constants
-from pipelines.utils.utils import (
-    get_credentials_from_secret,
-    log,
-    notify_discord,
-)
+from pipelines.utils.utils import log
+from pipelines.utils.vault import get_credentials_from_secret
 
 ################################
 #

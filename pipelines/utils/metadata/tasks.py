@@ -2,11 +2,12 @@
 Tasks for metadata
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import basedosdados as bd
 import pandas as pd
 from prefect import task
+from redis_pal import RedisPal
 
 from pipelines.constants import constants
 from pipelines.utils.metadata.utils import (
@@ -26,7 +27,16 @@ from pipelines.utils.metadata.utils import (
     update_date_from_bq_metadata,
     update_row_access_policy,
 )
-from pipelines.utils.utils import get_redis_client, log
+from pipelines.utils.utils import log
+
+
+def __get_redis_client(
+    host: str = "redis.redis.svc.cluster.local",
+    port: int = 6379,
+    db: int = 0,
+    password: str | None = None,
+) -> RedisPal:
+    return RedisPal(host=host, port=port, db=db, password=password)
 
 
 @task
@@ -186,8 +196,8 @@ def update_django_metadata(
 
 
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
 )
 def check_if_data_is_outdated(
     dataset_id: str,
@@ -252,8 +262,8 @@ def check_if_data_is_outdated(
 
 
 @task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
 )
 def check_if_data_is_outdated_by_size(
     dataset_id: str,
@@ -277,9 +287,9 @@ def check_if_data_is_outdated_by_size(
     backend = bd.Backend(graphql_url=constants.API_URL.value["prod"])
 
     if local_execution:
-        redis_client = get_redis_client(host="localhost")
+        redis_client = __get_redis_client(host="localhost")
     else:
-        redis_client = get_redis_client()
+        redis_client = __get_redis_client()
 
     today = datetime.today().strftime("%Y-%m-%d")
 
