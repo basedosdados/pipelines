@@ -81,6 +81,7 @@ def process_data(
         sheet_name=constants.DATA_SHEET_NAME.value,
         skiprows=constants.DATA_SKIPROWS.value,
         usecols=constants.DATA_USECOLS.value,
+        dtype=constants.DATA_DTYPES_MAPPING.value,
     )
 
     # Check duplicates
@@ -90,13 +91,23 @@ def process_data(
         columns=constants.DATA_RENAMMING_MAPPING.value
     )
 
+    # CNPJ
+    df_operacoes["cnpj_cliente"] = (
+        df_operacoes["cnpj_cliente"]
+        .str.replace(".0", "", regex=False)
+        .str.zfill(14)
+    )
+    df_operacoes.loc[
+        df_operacoes["cnpj_cliente"] == "00000000000000", "cnpj_cliente"
+    ] = None
+
     # Cnaes
     df_operacoes = extract_cnae_hierarchy(df_operacoes, "codigo_cnae_2")
 
     # Null values for id_municipio
     df_operacoes.loc[
-        (df_operacoes["id_municipio"] == 9999999)
-        | (df_operacoes["id_municipio"] == 0),
+        (df_operacoes["id_municipio"] == "9999999")
+        | (df_operacoes["id_municipio"] == "0"),
         "id_municipio",
     ] = None
     df_operacoes["id_municipio"] = (
