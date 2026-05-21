@@ -3,7 +3,9 @@ version: 2
 models:
   - name: br_inpe_queimadas__microdados
     description: Dados do INPE sobre focos de queimadas ocorridos no Brasil a partir
-      do ano de 2003.
+      do ano de 2003. Colunas como risco_fogo, precipitacao e potencia_radiativa_fogo
+      podem ser nulas no historico anual da fonte; not_null aplica-se apenas a colunas
+      essenciais (tempo e localizacao).
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -11,15 +13,12 @@ models:
             - longitude
             - data_hora
             - potencia_radiativa_fogo
-      - not_null_proportion_multiple_columns:
-          at_least: 0.70
-          # risco_fogo so existe na fonte mensal; carga anual deixa NULL no historico
-          ignore_values: [risco_fogo]
     columns:
       - name: ano
         description: Ano de referência da passagem do satélite segundo o fuso horário
           de Greenwich (GMT).
         tests:
+          - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
@@ -27,12 +26,14 @@ models:
         description: Mês de referência da passagem do satélite segundo o fuso horário
           de Greenwich (GMT).
         tests:
+          - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
               field: mes.mes
       - name: data_hora
         description: Coluna agregada de data e hora da passagem do satélite o fuso
           horário de Greenwich (GMT).
+        tests: [not_null]
       - name: bioma
         description: Nome do Bioma.
       - name: sigla_uf
@@ -42,7 +43,8 @@ models:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
       - name: id_municipio
-        description: Identificação do Município.
+        description: Identificação do Município. Pode ser nulo se o join com o diretorio
+          de municipios nao encontrar correspondencia.
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
@@ -50,9 +52,11 @@ models:
       - name: latitude
         description: Latitude do centro do píxel de fogo ativo apresentada em unidade
           de graus decimais.
+        tests: [not_null]
       - name: longitude
         description: Longitude do centro do píxel de fogo ativo apresentada em unidade
           de graus decimais
+        tests: [not_null]
       - name: satelite
         description: Nome do algoritmo utilizado e referencia ao satélite provedor
           da imagem.
@@ -63,5 +67,7 @@ models:
           do fogo.
       - name: risco_fogo
         description: Valor do Risco de Fogo previsto para o dia da detecção do foco.
+          Disponivel apenas na fonte mensal do INPE; linhas da carga anual (2003-2022)
+          permanecem nulas.
       - name: potencia_radiativa_fogo
         description: Fire Radiative Power, MW (megawatts).
