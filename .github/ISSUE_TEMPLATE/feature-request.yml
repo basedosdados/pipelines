@@ -2,7 +2,7 @@
 name: ✨ feat
 description: Nova funcionalidade no código do repositório
 title: '[feat] '
-labels: [enhancement]
+labels: [feat]
 body:
   - type: textarea
     id: descricao
