@@ -63,46 +63,46 @@ with Flow(
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {table_id}!")
 
-    with case(dados_desatualizados, True):
-        output_filepath = main(
-            table_ids=[table_id],
-            max_folder_date=max_folder_date,
-            max_last_modified_date=max_last_modified_date,
-        )
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
+    # with case(dados_desatualizados, True):
+    output_filepath = main(
+        table_ids=[table_id],
+        max_folder_date=max_folder_date,
+        max_last_modified_date=max_last_modified_date,
+    )
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
+        data_path=output_filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        upstream_tasks=[output_filepath],
+    )
+
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_alias=dbt_alias,
+        dbt_command="run/test",
+        upstream_tasks=[wait_upload_table],
+    )
+    with case(materialize_after_dump, True):
+        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
             data_path=output_filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            upstream_tasks=[output_filepath],
+            upstream_tasks=[wait_for_materialization],
         )
 
-        wait_for_materialization = run_dbt(
+        update_django_metadata(
             dataset_id=dataset_id,
             table_id=table_id,
-            dbt_alias=dbt_alias,
-            dbt_command="run/test",
-            upstream_tasks=[wait_upload_table],
+            date_column_name={"year": "ano", "month": "mes"},
+            date_format="%Y-%m",
+            coverage_type="part_bdpro",
+            time_delta={"months": 6},
+            bq_project="basedosdados",
+            upstream_tasks=[wait_upload_prod],
         )
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=output_filepath,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
-            )
-
-            update_django_metadata(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                date_column_name={"year": "ano", "month": "mes"},
-                date_format="%Y-%m",
-                coverage_type="part_bdpro",
-                time_delta={"months": 6},
-                bq_project="basedosdados",
-                upstream_tasks=[wait_upload_prod],
-            )
 
 
 br_me_cnpj_empresas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
@@ -145,45 +145,45 @@ with Flow(
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {table_id}!")
 
-    with case(dados_desatualizados, True):
-        output_filepath = main(
-            table_ids=[table_id],
-            max_folder_date=max_folder_date,
-            max_last_modified_date=max_last_modified_date,
-        )
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
+    # with case(dados_desatualizados, True):
+    output_filepath = main(
+        table_ids=[table_id],
+        max_folder_date=max_folder_date,
+        max_last_modified_date=max_last_modified_date,
+    )
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
+        data_path=output_filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        upstream_tasks=[output_filepath],
+    )
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_alias=dbt_alias,
+        dbt_command="run/test",
+        upstream_tasks=[wait_upload_table],
+    )
+    with case(materialize_after_dump, True):
+        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
             data_path=output_filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            upstream_tasks=[output_filepath],
+            upstream_tasks=[wait_for_materialization],
         )
-        wait_for_materialization = run_dbt(
+
+        update_django_metadata(
             dataset_id=dataset_id,
             table_id=table_id,
-            dbt_alias=dbt_alias,
-            dbt_command="run/test",
-            upstream_tasks=[wait_upload_table],
+            date_column_name={"year": "ano", "month": "mes"},
+            date_format="%Y-%m",
+            coverage_type="part_bdpro",
+            time_delta={"months": 6},
+            bq_project="basedosdados",
+            upstream_tasks=[wait_upload_prod],
         )
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=output_filepath,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
-            )
-
-            update_django_metadata(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                date_column_name={"year": "ano", "month": "mes"},
-                date_format="%Y-%m",
-                coverage_type="part_bdpro",
-                time_delta={"months": 6},
-                bq_project="basedosdados",
-                upstream_tasks=[wait_upload_prod],
-            )
 
 br_me_cnpj_socios.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_socios.run_config = KubernetesRun(
@@ -337,45 +337,45 @@ with Flow(
     with case(dados_desatualizados, False):
         log_task(f"Não há atualizações para a tabela de {table_id}!")
 
-    with case(dados_desatualizados, True):
-        output_filepath = main(
-            table_ids=[table_id],
-            max_folder_date=max_folder_date,
-            max_last_modified_date=max_last_modified_date,
-        )
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
+    # with case(dados_desatualizados, True):
+    output_filepath = main(
+        table_ids=[table_id],
+        max_folder_date=max_folder_date,
+        max_last_modified_date=max_last_modified_date,
+    )
+    wait_upload_table = create_table_dev_and_upload_to_gcs(
+        data_path=output_filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dump_mode="append",
+        upstream_tasks=[output_filepath],
+    )
+
+    wait_for_materialization = run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        upstream_tasks=[wait_upload_table],
+    )
+
+    with case(materialize_after_dump, True):
+        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
             data_path=output_filepath,
             dataset_id=dataset_id,
             table_id=table_id,
             dump_mode="append",
-            upstream_tasks=[output_filepath],
+            upstream_tasks=[wait_for_materialization],
         )
 
-        wait_for_materialization = run_dbt(
+        update_django_metadata(
             dataset_id=dataset_id,
             table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
+            coverage_type="all_free",
+            bq_project="basedosdados",
+            historical_database=False,
+            upstream_tasks=[wait_upload_prod],
         )
-
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=output_filepath,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
-            )
-
-            update_django_metadata(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                coverage_type="all_free",
-                bq_project="basedosdados",
-                historical_database=False,
-                upstream_tasks=[wait_upload_prod],
-            )
 
 br_me_cnpj_simples.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_simples.run_config = KubernetesRun(
@@ -423,8 +423,8 @@ with Flow(
         upstream_tasks=[max_folder_date],
     )
 
-    # with case(dados_desatualizados, False):
-    #     log_task(f"Não há atualizações para a tabela de {table_id}!")
+    with case(dados_desatualizados, False):
+        log_task(f"Não há atualizações para a tabela de {table_id}!")
 
     # with case(dados_desatualizados, True):
     output_filepath = main(
