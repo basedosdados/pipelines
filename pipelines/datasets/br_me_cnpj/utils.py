@@ -628,7 +628,9 @@ def process_csv_dicionario(
     log(f"Save path: {save_path}")
     table_configs = constants_cnpj.TABLE_CONFIGS.value[table_name]
     files = [
-        fp for fp in Path(input_path).iterdir() if "csv" in fp.suffix.lower()
+        fp
+        for fp in Path(input_path).iterdir()
+        if fp.is_file() and "csv" in fp.suffix.lower()
     ]
     for filepath in files:
         if table_name in filepath.as_uri().lower():
