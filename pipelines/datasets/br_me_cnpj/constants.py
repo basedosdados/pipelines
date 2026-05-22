@@ -43,6 +43,7 @@ class constants(Enum):
                     "nome_coluna": "cnae_fiscal_secundaria",
                 },
             ],
+            "n_caracteres": 7,
         },
         "empresas": {
             "table_name": "Empresas",
@@ -64,6 +65,7 @@ class constants(Enum):
                     "nome_coluna": "motivo_situacao_cadastral",
                 }
             ],
+            "n_caracteres": 2,
         },
         "municipios": {
             "table_name": "Municipios",
@@ -77,6 +79,7 @@ class constants(Enum):
             "relationships": [
                 {"id_tabela": "empresas", "nome_coluna": "natureza_juridica"}
             ],
+            "n_caracteres": 4,
         },
         "paises": {
             "table_name": "Paises",
@@ -86,6 +89,7 @@ class constants(Enum):
                 {"id_tabela": "socios", "nome_coluna": "id_pais"},
                 {"id_tabela": "estabelecimentos", "nome_coluna": "id_pais"},
             ],
+            "n_caracteres": 3,
         },
         "qualificacoes": {
             "table_name": "Qualificacoes",
@@ -102,6 +106,7 @@ class constants(Enum):
                     "nome_coluna": "qualificacao_representante_legal",
                 },
             ],
+            "n_caracteres": 2,
         },
         "simples": {
             "table_name": "Simples",

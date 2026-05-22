@@ -414,17 +414,17 @@ with Flow(
     log_task(
         f"Max Last Modified Date: {max_last_modified_date}\nMax Folder Date:{max_folder_date}"
     )
-    dados_desatualizados = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=max_folder_date,
-        date_type="last_update_date",
-        date_format="%Y-%m",
-        upstream_tasks=[max_folder_date],
-    )
+    # dados_desatualizados = check_if_data_is_outdated(
+    #     dataset_id=dataset_id,
+    #     table_id=table_id,
+    #     data_source_max_date=max_folder_date,
+    #     date_type="last_update_date",
+    #     date_format="%Y-%m",
+    #     upstream_tasks=[max_folder_date],
+    # )
 
-    with case(dados_desatualizados, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
+    # with case(dados_desatualizados, False):
+    #     log_task(f"Não há atualizações para a tabela de {table_id}!")
 
     # with case(dados_desatualizados, True):
     output_filepath = main(

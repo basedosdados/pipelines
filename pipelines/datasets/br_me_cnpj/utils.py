@@ -339,7 +339,7 @@ def process_csv_estabelecimentos(
     """
     ordem = constants_cnpj.COLUNAS_ESTABELECIMENTO_ORDEM.value
     colunas = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
-    save_path = f"{output_path}data={data_coleta}/"
+    save_path = Path(output_path) / f"data={data_coleta}"
     for nome_arquivo in os.listdir(input_path):
         if "estabele" in nome_arquivo.lower():
             caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
@@ -427,7 +427,8 @@ def process_csv_empresas(
         chunk_size (int): Number of rows to process per chunk.
     """
     colunas = constants_cnpj.COLUNAS_EMPRESAS.value
-    save_path = f"{output_path}data={data_coleta}/empresas_{i}.csv"
+
+    save_path = Path(output_path) / f"data={data_coleta}" / f"empresas_{i}.csv"
     for nome_arquivo in os.listdir(input_path):
         if nome_arquivo.lower().endswith("csv"):
             caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
@@ -485,7 +486,7 @@ def process_csv_socios(
         None
     """
     colunas = constants_cnpj.COLUNAS_SOCIOS.value
-    save_path = f"{output_path}data={data_coleta}/socios_{i}.csv"
+    save_path = Path(output_path) / f"data={data_coleta}" / f"socios_{i}.csv"
     for nome_arquivo in os.listdir(input_path):
         if nome_arquivo.lower().endswith("csv"):
             caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
@@ -545,7 +546,7 @@ def process_csv_simples(
         None
     """
     colunas = constants_cnpj.COLUNAS_SIMPLES.value
-    save_path = f"{output_path}{sufixo}.csv"
+    save_path = Path(output_path) / f"{sufixo}.csv"
     for nome_arquivo in os.listdir(input_path):
         if "simples.csv" in nome_arquivo.lower():
             caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
@@ -595,7 +596,14 @@ def get_table_unique_keys(table_id: str, column: str):
     Returns:
         pd.DataFrame: A DataFrame containing the unique keys from the specified table and column.
     """
-    query = f"""SELECT DISTINCT {column} AS chave FROM `basedosdados.br_me_cnpj.{table_id}`"""
+    query = f"""WITH tmp_split AS(
+    SELECT
+        split({column},",") AS chave 
+    FROM `basedosdados.br_me_cnpj.{table_id}`
+    )
+    SELECT DISTINCT chave
+    FROM tmp_split,
+    UNNEST(chave) AS chave"""
 
     df_uniques = bd.read_sql(query=query, from_file=True)
     return df_uniques
@@ -645,6 +653,12 @@ def process_csv_dicionario(
                 names=["chave", "valor"],
                 dtype=str,
             )
+
+            chunk["chave"] = chunk["chave"].str.replace(".0", "")
+            if table_configs["n_caracteres"] is not None:
+                chunk["chave"] = chunk["chave"].str.zfill(
+                    int(table_configs["n_caracteres"])
+                )
             for relationship in table_configs["relationships"]:
                 log(
                     f"Processando relacionamento: table_id={relationship['id_tabela']}, column={relationship['nome_coluna']}"
@@ -658,10 +672,16 @@ def process_csv_dicionario(
 
                 df_unique_keys["id_tabela"] = id_tabela
                 df_unique_keys["nome_coluna"] = nome_coluna
+
                 chunk_save = df_unique_keys.merge(
                     chunk, how="left", on="chave"
                 )
                 chunk_save["cobertura_temporal"] = "(1)"
+
+                if table_configs["n_caracteres"] is not None:
+                    chunk["chave"] = chunk["chave"].str.zfill(
+                        int(table_configs["n_caracteres"])
+                    )
                 chunk_save[
                     [
                         "id_tabela",

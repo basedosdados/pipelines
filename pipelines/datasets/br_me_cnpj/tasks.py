@@ -69,7 +69,7 @@ def main(
         table_configs = constants_cnpj.TABLE_CONFIGS.value[table_id]
 
         # Creates dataset table paths (input and output)
-        #
+
         if table_configs["dicionario"]:
             input_path, _ = build_paths(table_id=table_id, build_output=False)
             _, output_path = build_paths(

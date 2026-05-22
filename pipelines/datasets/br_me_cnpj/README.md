@@ -6,8 +6,8 @@ Documento de registro de informações importantes sobre a base e relato sobre o
 
 ## Sobre a fonte
 
-- [Fonte de Dados]()
-- [Página Inicial do Conjunto]()
+- [Fonte de Dados](https://arquivos.receitafederal.gov.br/index.php/s/gn672Ad4CF8N6TK?dir=/Dados/Cadastros/CNPJ)
+- [Página Inicial do Conjunto](https://arquivos.receitafederal.gov.br/index.php/s/gn672Ad4CF8N6TK)
 
 #### Tabelas Segmentadas
 
@@ -20,8 +20,6 @@ Tabelas que devem se baixadas em 10 arquivos diferentes:
 - Cnaes
 - Motivos
 - Qualificação
-
-
 
 ## Dicionário
 
@@ -245,3 +243,7 @@ WHERE comex.id_pais IS NULL
 Há 42 códigos sem correspondência na Comex e, portanto, também nos diretórios:
 
 `["0", "1", "2", "3", "4", "5", "6", "8", "9", "10", "11", "16", "18", "20", "21", "25", "34", "36", "54", "67", "71", "74", "75", "82", "100", "106", "131", "237", "263", "358", "367", "395", "563", "569", "583", "666", "738", "785", "840", "855", "997", "998"]`
+
+id_pais	693
+id_pais	755
+id_pais	693
