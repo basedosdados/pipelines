@@ -107,7 +107,7 @@ def process_data(
     # Null values for id_municipio
     df_operacoes.loc[
         (df_operacoes["id_municipio"] == "9999999")
-        | (df_operacoes["id_municipio"] == "0"),
+        | (df_operacoes["id_municipio"] == "0000000"),
         "id_municipio",
     ] = None
     df_operacoes["id_municipio"] = (
@@ -140,6 +140,8 @@ def process_data(
     df_operacoes["indicador_inovacao"] = df_operacoes[
         "indicador_inovacao"
     ].map({"SIM": 1, "NÃO": 0, "Sim": 1, "Não": 0})
+
+    count_nulls(df_operacoes, df_operacoes.columns.tolist())
 
     # Data apuração
     if isinstance(data_apuracao, datetime.datetime):
