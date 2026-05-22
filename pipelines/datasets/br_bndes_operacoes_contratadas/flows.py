@@ -116,7 +116,7 @@ with Flow(
                     table_id=table_id,
                     date_column_name={"date": "data_apuracao"},
                     date_format="%Y-%m-%d",
-                    coverage_type="all_bdpro",
+                    coverage_type="all_free",
                     bq_project="basedosdados",
                     upstream_tasks=[
                         wait_upload_prod_base,
