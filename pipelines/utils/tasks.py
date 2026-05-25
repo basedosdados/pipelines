@@ -916,13 +916,13 @@ def download_data_to_gcs(
     secret_path_url_closed = url_path["URL_DOWNLOAD_CLOSED"]
 
     log(num_bytes)
-    if num_bytes > 1_000_000_000:
+    if num_bytes > 104_857_600: #100Mb em unidades binárias
         log("Table is bigger than 1GB it is not in the download criteria")
         return None
 
     if (
-        100_000_000 <= num_bytes <= 1_000_000_000
-    ):  # Entre 1 GB e 100 MB, apenas BD pro
+        104_857_600 <= num_bytes <= 1_073_741_824 
+    ):  # Entre 1 GB e 100 MB (binário) , apenas BD pro
         log("Querying data for BDpro user")
 
         blob_path = f"{secret_path_url_closed}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
