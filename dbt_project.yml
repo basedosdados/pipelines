@@ -90,6 +90,9 @@ models:
     br_bd_siga_o_dinheiro:
       +materialized: table
       +schema: br_bd_siga_o_dinheiro
+    br_bndes_operacoes_contratadas:
+      +materialized: table
+      +schema: br_bndes_operacoes_contratadas
     br_camara_dados_abertos:
       +materialized: table
       +schema: br_camara_dados_abertos
