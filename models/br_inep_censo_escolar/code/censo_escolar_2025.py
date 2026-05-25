@@ -31,7 +31,7 @@ with zipfile.ZipFile(ZIP_FILE, "r") as zip_ref:
     zip_ref.extractall(INPUT)
 
 # %%
-csv_path = (
+csv_path_escola = (
     INPUT
     / "microdados_censo_escolar_2025"
     / "dados"
@@ -48,25 +48,25 @@ def detect_delimiter(file_path: str | Path) -> str:
         return delimiter
 
 
-detected_delimiter = detect_delimiter(csv_path)
+detected_delimiter = detect_delimiter(csv_path_escola)
 print(f"The detected delimiter is: {detected_delimiter}")
 
 # %%
-censo = pd.read_csv(
-    csv_path,
+df_escola = pd.read_csv(
+    csv_path_escola,
     delimiter=";",
     dtype="string",
     encoding="iso-8859-1",
 )
 
 # %%
-censo_raw_columns = censo.columns.to_list()
+escola_raw_columns = df_escola.columns.to_list()
 
 # %%
-print(censo.shape)
+print(df_escola.shape)
 
 # %%
-censo.head()
+df_escola.head()
 
 
 # %%
@@ -232,9 +232,13 @@ def column_order_and_selection(df, architecture):
 # %%
 url_architecture = "https://docs.google.com/spreadsheets/d/1WmKRJjOmcG9uFL0LaBx4EwZUA_o2VpZK2MO3hFfTnmM/edit#gid=0"
 
+df_arch = read_architecture_table(url_architecture).drop(
+    columns=["Unnamed: 0", "Unnamed: 1"]
+)
+
 # %%
-censo: pd.DataFrame = apply_architecture_to_dataframe(
-    df=censo,
+df_escola: pd.DataFrame = apply_architecture_to_dataframe(
+    df=df_escola,
     url_architecture=url_architecture,
     apply_rename_columns=True,
     apply_column_order_and_selection=False,
@@ -242,7 +246,21 @@ censo: pd.DataFrame = apply_architecture_to_dataframe(
 )
 
 # %%
-censo.head()
+df_escola.head()
+
+coluns_to_get_escola = [
+    i for i in df_arch["original_name"].to_list() if i in df_escola.columns
+]
+
+renames_escola = {
+    i["original_name"]: i["name"]
+    for i in df_arch[["name", "original_name"]].to_dict("records")
+    if i["original_name"] in df_escola.columns
+}
+
+df_escola = df_escola[coluns_to_get_escola].rename(
+    columns=renames_escola, errors="raise"
+)
 
 # %%
 bq_censo_cols = bd.read_sql(
@@ -252,7 +270,7 @@ bq_censo_cols = bd.read_sql(
 
 # %%
 # Colunas que devemos remover porque não estão na tabela no BQ
-cols_to_drop = [i for i in censo.columns if i not in bq_censo_cols]
+cols_to_drop = [i for i in df_escola.columns if i not in bq_censo_cols]
 
 # %%
 print(cols_to_drop)
@@ -261,16 +279,12 @@ print(cols_to_drop)
 # censo: pd.DataFrame = censo.drop(columns=cols_to_drop)
 
 # %%
-assert len(bq_censo_cols) == len(censo.columns)
+assert len(bq_censo_cols) == len(df_escola.columns)
 
 # %%
 # Colunas nulas para adicionar porque elas não existem mais no censo de 2025
 # cols_to_add = [i for i in bq_censo_cols if i not in censo.columns]
 
-
-df_arch = read_architecture_table(url_architecture).drop(
-    columns=["Unnamed: 0", "Unnamed: 1"]
-)
 
 # Matricula
 
@@ -292,7 +306,7 @@ df_matricula: pd.DataFrame = pd.read_csv(
 
 df_matricula.columns.to_list()
 
-coluns_to_get = [
+coluns_to_get_matricula = [
     i for i in df_arch["original_name"].to_list() if i in df_matricula.columns
 ]
 
@@ -302,7 +316,7 @@ renames_matricula = {
     if i["original_name"] in df_matricula.columns
 }
 
-df_matricula = df_matricula[coluns_to_get].rename(
+df_matricula = df_matricula[coluns_to_get_matricula].rename(
     columns=renames_matricula, errors="raise"
 )
 
@@ -371,11 +385,11 @@ df_docente = df_docente[coluns_to_get_docente].rename(
 
 # Merge
 
-len(censo.columns)
+len(df_escola.columns)
 len(bq_censo_cols)
 
 censo_output = (
-    censo.merge(df_matricula, on="id_escola", how="left")
+    df_escola.merge(df_matricula, on="id_escola", how="left")
     .merge(df_turma, on="id_escola", how="left")
     .merge(df_docente.drop(columns=["ano"]), on="id_escola", how="left")
 )
