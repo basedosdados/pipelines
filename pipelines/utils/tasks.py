@@ -916,7 +916,7 @@ def download_data_to_gcs(
     secret_path_url_closed = url_path["URL_DOWNLOAD_CLOSED"]
 
     log(num_bytes)
-    if num_bytes > 104_857_600:  # 100Mb em unidades binárias
+    if num_bytes > 1_073_741_824:  # 1GB em unidades binárias
         log("Table is bigger than 1GB it is not in the download criteria")
         return None
 
@@ -935,7 +935,7 @@ def download_data_to_gcs(
 
         log("BDPro Data was loaded successfully")
 
-    if num_bytes < 100_000_000:  # valor menor que 100 MB
+    if num_bytes < 104_857_600:  # valor menor que 100 MB
         # Try to remove bdpro access
         log("Trying to remove BDpro filter")
         try:
