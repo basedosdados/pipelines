@@ -343,7 +343,7 @@ def process_csv_estabelecimentos(
     save_folder.mkdir(exist_ok=True, parents=True)
 
     for nome_arquivo in Path(input_path).iterdir():
-        if "estabele" in nome_arquivo.lower():
+        if "estabele" in nome_arquivo.as_posix().lower():
             caminho_arquivo_csv = Path(input_path) / nome_arquivo
             log(f"Carregando o arquivo: {nome_arquivo}")
             for chunk in tqdm(
@@ -432,7 +432,7 @@ def process_csv_empresas(
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"empresas_{i}.csv"
     for nome_arquivo in Path(input_path).iterdir():
-        if nome_arquivo.lower().endswith("csv"):
+        if nome_arquivo.as_posix().lower().endswith("csv"):
             caminho_arquivo_csv = Path(input_path) / nome_arquivo
             log(f"Carregando o arquivo: {nome_arquivo}")
             with open(save_path, "wb") as fd:
@@ -492,7 +492,7 @@ def process_csv_socios(
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"socios_{i}.csv"
     for nome_arquivo in Path(input_path).iterdir():
-        if nome_arquivo.lower().endswith("csv"):
+        if nome_arquivo.as_posix().lower().endswith("csv"):
             caminho_arquivo_csv = Path(input_path) / nome_arquivo
             log(f"Carregando o arquivo: {nome_arquivo}")
             with open(save_path, "wb") as fd:
@@ -552,7 +552,7 @@ def process_csv_simples(
     colunas = constants_cnpj.COLUNAS_SIMPLES.value
     save_path = Path(output_path) / f"{sufixo}.csv"
     for nome_arquivo in Path(input_path).iterdir():
-        if "simples.csv" in nome_arquivo.lower():
+        if "simples.csv" in nome_arquivo.as_posix().lower():
             caminho_arquivo_csv = Path(input_path) / nome_arquivo
             log(f"Carregando o arquivo: {nome_arquivo}")
             with open(save_path, "wb") as fd:
@@ -785,7 +785,7 @@ def process_csv_dicionario(
         if fp.is_file() and "csv" in fp.suffix.lower()
     ]
     for filepath in files:
-        if table_name in filepath.as_uri().lower():
+        if table_name in filepath.as_posix().lower():
             filename = filepath.name
             log(f"Carregando o arquivo: {filename}")
 
@@ -801,10 +801,10 @@ def process_csv_dicionario(
             chunk["chave"] = chunk["chave"].str.replace(".0", "")
             chunk.loc[chunk["valor"] == "", "valor"] = None
 
-            if table_configs["n_caracteres"] is not None:
-                chunk["chave"] = chunk["chave"].str.zfill(
-                    int(table_configs["n_caracteres"])
-                )
+            # if table_configs["n_caracteres"] is not None:
+            #     chunk["chave"] = chunk["chave"].str.zfill(
+            #         int(table_configs["n_caracteres"])
+            #     )
             for relationship in table_configs["relationships"]:
                 log(
                     f"Processando relacionamento: table_id={relationship['id_tabela']}, column={relationship['nome_coluna']}"
@@ -818,13 +818,10 @@ def process_csv_dicionario(
 
                 df_unique_keys["id_tabela"] = id_tabela
                 df_unique_keys["nome_coluna"] = nome_coluna
-                if table_configs["n_caracteres"] is not None:
-                    log(
-                        f"zfill com {int(table_configs['n_caracteres'])} caracteres"
-                    )
-                    df_unique_keys["chave"] = df_unique_keys[
-                        "chave"
-                    ].str.zfill(int(table_configs["n_caracteres"]))
+                # if table_configs["n_caracteres"] is not None:
+                #     df_unique_keys["chave"] = df_unique_keys[
+                #         "chave"
+                #     ].str.zfill(int(table_configs["n_caracteres"]))
                 chunk_save = df_unique_keys.merge(
                     chunk, how="left", on="chave"
                 )
