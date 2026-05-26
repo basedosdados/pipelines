@@ -11,13 +11,12 @@ from utils.helpers import merge_municipio, parse_date_br, read_raw_csv
 
 # fmt: off
 _UFS_MUN = ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"]
-_UFS_FED = ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"]
 _UFS_FED_BR = ["AC", "AL", "AM", "AP", "BA", "BR", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"]
 # fmt: on
 
 
 def _ufs_for_year(ano: int) -> list[str]:
-    return _UFS_FED if ano % 4 == 2 else _UFS_MUN
+    return _UFS_FED_BR if ano % 4 == 2 else _UFS_MUN
 
 
 def _parse_date_receipt(s: pd.Series) -> pd.Series:
