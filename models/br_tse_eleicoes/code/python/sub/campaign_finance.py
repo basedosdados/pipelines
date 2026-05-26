@@ -116,6 +116,9 @@ def build_bens(ano: int) -> pd.DataFrame:
         df["tipo_eleicao"] = clean_election_type_series(
             df["tipo_eleicao"], ano
         )
+        # Convenção BD: sigla_uf aceita apenas UFs (26 estados + DF).
+        # Candidaturas presidenciais (SG_UF='BR' no TSE) ficam com sigla_uf vazio.
+        df.loc[df["sigla_uf"] == "BR", "sigla_uf"] = ""
         df.loc[df["descricao_item"] == "#NULO#", "descricao_item"] = ""
         # Stata truncates multiline fields at the first newline
         df["descricao_item"] = df["descricao_item"].str.split("\n").str[0]
