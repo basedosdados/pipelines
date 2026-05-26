@@ -95,36 +95,22 @@ def build_bens(ano: int) -> pd.DataFrame:
             INPUT_DIR
             / f"bem_candidato/bem_candidato_{ano}/bem_candidato_{ano}_{uf}"
         )
-        df = read_raw_csv(str(base), drop_first_row=(ano >= 2014))
+        df = read_raw_csv(str(base), drop_first_row=True)
 
-        if ano <= 2012:
-            df = df[["v3", "v4", "v5", "v6", "v9", "v10"]].copy()
-            df.columns = [
-                "ano",
-                "tipo_eleicao",
-                "sigla_uf",
-                "sequencial_candidato",
-                "descricao_item",
-                "valor_item",
-            ]
-            df["tipo_item"] = ""
-            df["id_eleicao"] = ""
-            df["data_eleicao"] = ""
-        else:  # >= 2014
-            df = df[
-                ["v3", "v6", "v7", "v8", "v9", "v12", "v15", "v16", "v17"]
-            ].copy()
-            df.columns = [
-                "ano",
-                "id_eleicao",
-                "tipo_eleicao",
-                "data_eleicao",
-                "sigla_uf",
-                "sequencial_candidato",
-                "tipo_item",
-                "descricao_item",
-                "valor_item",
-            ]
+        df = df[
+            ["v3", "v6", "v7", "v8", "v9", "v12", "v15", "v16", "v17"]
+        ].copy()
+        df.columns = [
+            "ano",
+            "id_eleicao",
+            "tipo_eleicao",
+            "data_eleicao",
+            "sigla_uf",
+            "sequencial_candidato",
+            "tipo_item",
+            "descricao_item",
+            "valor_item",
+        ]
 
         df["tipo_eleicao"] = clean_string_series(df["tipo_eleicao"])
         df["tipo_eleicao"] = clean_election_type_series(
