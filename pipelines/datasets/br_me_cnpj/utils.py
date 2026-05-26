@@ -349,7 +349,7 @@ def process_csv_estabelecimentos(
             for chunk in tqdm(
                 pd.read_csv(
                     caminho_arquivo_csv,
-                    encoding="iso-8859-1",
+                    encoding="latin1",
                     sep=";",
                     header=None,
                     names=colunas,
@@ -401,7 +401,7 @@ def process_csv_estabelecimentos(
                     df_particao.to_csv(
                         particao_file_path,
                         index=False,
-                        encoding="iso-8859-1",
+                        encoding="utf-8",
                         mode=mode,
                         header=mode == "w",
                     )
@@ -439,7 +439,7 @@ def process_csv_empresas(
                 for chunk in tqdm(
                     pd.read_csv(
                         caminho_arquivo_csv,
-                        encoding="iso-8859-1",
+                        encoding="latin1",
                         sep=";",
                         header=None,
                         names=colunas,
@@ -460,7 +460,7 @@ def process_csv_empresas(
                         .astype(float)
                     )
 
-                    chunk.to_csv(fd, index=False, encoding="iso-8859-1")
+                    chunk.to_csv(fd, index=False, encoding="utf-8")
 
             log(f"Arquivo empresas_{i} salvo")
             os.remove(caminho_arquivo_csv)
@@ -499,7 +499,7 @@ def process_csv_socios(
                 for chunk in tqdm(
                     pd.read_csv(
                         caminho_arquivo_csv,
-                        encoding="iso-8859-1",
+                        encoding="latin1",
                         sep=";",
                         header=None,
                         names=colunas,
@@ -522,7 +522,7 @@ def process_csv_socios(
                                 chunk[col], format="%Y%m%d", errors="coerce"
                             )
 
-                    chunk.to_csv(fd, index=False, encoding="iso-8859-1")
+                    chunk.to_csv(fd, index=False, encoding="utf-8")
 
             log(f"Arquivo socios_{i} salvo")
             os.remove(caminho_arquivo_csv)
@@ -559,7 +559,7 @@ def process_csv_simples(
                 for chunk in tqdm(
                     pd.read_csv(
                         caminho_arquivo_csv,
-                        encoding="iso-8859-1",
+                        encoding="latin1",
                         sep=";",
                         header=None,
                         names=colunas,
@@ -585,7 +585,7 @@ def process_csv_simples(
                     chunk["opcao_mei"] = chunk["opcao_mei"].replace(
                         {"N": "0", "S": "1"}
                     )
-                    chunk.to_csv(fd, index=False, encoding="iso-8859-1")
+                    chunk.to_csv(fd, index=False, encoding="utf-8")
 
             log(f"Arquivo {sufixo} salvo")
             os.remove(caminho_arquivo_csv)
