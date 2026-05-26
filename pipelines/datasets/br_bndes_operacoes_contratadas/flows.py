@@ -66,7 +66,7 @@ with Flow(
         table_id,
         data_source_max_date=source_last_date,
         date_format="%Y-%m-%d",
-        date_type="data_max_date",
+        date_type="last_update_date",
         upstream_tasks=[source_last_date],
     )
     check_for_updates_false = true_task()
