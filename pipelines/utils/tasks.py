@@ -819,9 +819,9 @@ def download_data_to_gcs(
     Get data from BigQuery.
 
     As regras de negócio são:
-        - Se a tabela for maior que 1GB: Não tem download disponível
-        - Se a tabela for entre 100MB e 1GB: Tem downalod apenas para assinante BDPro
-        - Se a tabela for menor que 100MB: Tem download para assinante BDPro e aberto
+        - Se a tabela for maior que 1GiB: Não tem download disponível
+        - Se a tabela for entre 100MiB e 1GiB: Tem download apenas para assinante BDPro
+        - Se a tabela for menor que 100MiB: Tem download para assinante BDPro e aberto
             - Se for parcialmente BDPro faz o download de arquivos diferentes para o público pagante e não pagante
 
     """
@@ -917,12 +917,12 @@ def download_data_to_gcs(
 
     log(num_bytes)
     if num_bytes > 1_073_741_824:  # 1GB em unidades binárias
-        log("Table is bigger than 1GB it is not in the download criteria")
+        log("Table is bigger than 1GiB it is not in the download criteria")
         return None
 
     if (
         104_857_600 <= num_bytes <= 1_073_741_824
-    ):  # Entre 1 GB e 100 MB (binário) , apenas BD pro
+    ):  # Entre 1 GiB e 100 MiB (binário) , apenas BD pro
         log("Querying data for BDpro user")
 
         blob_path = f"{secret_path_url_closed}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
@@ -935,7 +935,7 @@ def download_data_to_gcs(
 
         log("BDPro Data was loaded successfully")
 
-    if num_bytes < 104_857_600:  # valor menor que 100 MB
+    if num_bytes < 104_857_600:  # valor menor que 100 MiB
         # Try to remove bdpro access
         log("Trying to remove BDpro filter")
         try:
