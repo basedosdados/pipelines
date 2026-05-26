@@ -819,8 +819,8 @@ def download_data_to_gcs(
     Get data from BigQuery.
 
     As regras de negócio são:
-        - Se a tabela for maior que 5GB: Não tem download disponível
-        - Se a tabela for entre 100MB e 5GB: Tem downalod apenas para assinante BDPro
+        - Se a tabela for maior que 1GB: Não tem download disponível
+        - Se a tabela for entre 100MB e 1GB: Tem downalod apenas para assinante BDPro
         - Se a tabela for menor que 100MB: Tem download para assinante BDPro e aberto
             - Se for parcialmente BDPro faz o download de arquivos diferentes para o público pagante e não pagante
 
