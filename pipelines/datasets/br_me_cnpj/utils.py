@@ -339,10 +339,12 @@ def process_csv_estabelecimentos(
     """
     ordem = constants_cnpj.COLUNAS_ESTABELECIMENTO_ORDEM.value
     colunas = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
-    save_path = Path(output_path) / f"data={data_coleta}"
-    for nome_arquivo in os.listdir(input_path):
+    save_folder = Path(output_path) / f"data={data_coleta}"
+    save_folder.mkdir(exist_ok=True, parents=True)
+
+    for nome_arquivo in Path(input_path).iterdir():
         if "estabele" in nome_arquivo.lower():
-            caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
+            caminho_arquivo_csv = Path(input_path) / nome_arquivo
             log(f"Carregando o arquivo: {nome_arquivo}")
             for chunk in tqdm(
                 pd.read_csv(
@@ -390,13 +392,12 @@ def process_csv_estabelecimentos(
                 for uf in constants_cnpj.UFS.value:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
                     df_particao = df_particao.drop(["sigla_uf"], axis=1)
-                    particao_path = os.path.join(save_path, f"sigla_uf={uf}")
+                    particao_path = save_folder / f"sigla_uf={uf}"
+                    particao_path.mkdir(exist_ok=True, parents=True)
                     particao_filename = f"estabelecimentos_{i}.csv"
-                    particao_file_path = os.path.join(
-                        particao_path, particao_filename
-                    )
+                    particao_file_path = particao_path / particao_filename
 
-                    mode = "a" if os.path.exists(particao_file_path) else "w"
+                    mode = "a" if particao_file_path.exists() else "w"
                     df_particao.to_csv(
                         particao_file_path,
                         index=False,
@@ -427,13 +428,14 @@ def process_csv_empresas(
         chunk_size (int): Number of rows to process per chunk.
     """
     colunas = constants_cnpj.COLUNAS_EMPRESAS.value
-
-    save_path = Path(output_path) / f"data={data_coleta}" / f"empresas_{i}.csv"
-    for nome_arquivo in os.listdir(input_path):
+    save_folder = Path(output_path) / f"data={data_coleta}"
+    save_folder.mkdir(exist_ok=True, parents=True)
+    save_path = save_folder / f"empresas_{i}.csv"
+    for nome_arquivo in Path(input_path).iterdir():
         if nome_arquivo.lower().endswith("csv"):
-            caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
+            caminho_arquivo_csv = Path(input_path) / nome_arquivo
             log(f"Carregando o arquivo: {nome_arquivo}")
-            with open(os.path.join(save_path), "wb") as fd:
+            with open(save_path, "wb") as fd:
                 for chunk in tqdm(
                     pd.read_csv(
                         caminho_arquivo_csv,
@@ -486,12 +488,14 @@ def process_csv_socios(
         None
     """
     colunas = constants_cnpj.COLUNAS_SOCIOS.value
-    save_path = Path(output_path) / f"data={data_coleta}" / f"socios_{i}.csv"
-    for nome_arquivo in os.listdir(input_path):
+    save_folder = Path(output_path) / f"data={data_coleta}"
+    save_folder.mkdir(exist_ok=True, parents=True)
+    save_path = save_folder / f"socios_{i}.csv"
+    for nome_arquivo in Path(input_path).iterdir():
         if nome_arquivo.lower().endswith("csv"):
-            caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
+            caminho_arquivo_csv = Path(input_path) / nome_arquivo
             log(f"Carregando o arquivo: {nome_arquivo}")
-            with open(os.path.join(save_path), "wb") as fd:
+            with open(save_path, "wb") as fd:
                 for chunk in tqdm(
                     pd.read_csv(
                         caminho_arquivo_csv,
@@ -547,11 +551,11 @@ def process_csv_simples(
     """
     colunas = constants_cnpj.COLUNAS_SIMPLES.value
     save_path = Path(output_path) / f"{sufixo}.csv"
-    for nome_arquivo in os.listdir(input_path):
+    for nome_arquivo in Path(input_path).iterdir():
         if "simples.csv" in nome_arquivo.lower():
-            caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
+            caminho_arquivo_csv = Path(input_path) / nome_arquivo
             log(f"Carregando o arquivo: {nome_arquivo}")
-            with open(os.path.join(save_path), "wb") as fd:
+            with open(save_path, "wb") as fd:
                 for chunk in tqdm(
                     pd.read_csv(
                         caminho_arquivo_csv,
@@ -605,15 +609,155 @@ def get_table_unique_keys(table_id: str, column: str):
     FROM tmp_split,
     UNNEST(chave) AS chave"""
 
-    df_uniques = bd.read_sql(query=query, from_file=True)
-    return df_uniques
+    df_uniques = bd.read_sql(query=query, from_file=True)["chave"].unique()
+    return pd.DataFrame(df_uniques, columns=["chave"])
+
+
+def format_country_name(dataframe: pd.DataFrame) -> None:
+    """
+    Formats the 'nome_pais' column of the DataFrame, applying various transformations to standardize country names.
+    The transformations include:
+    - Convert names to title case (first letter uppercase) with prepositions and conjunctions lowercase.
+    - Add a space after abbreviation periods.
+    - Ensure parentheses are balanced, adding a closing parenthesis if there is an opening one without a corresponding closing one.
+    - Extract content within parentheses to a new "parenteses" column to append at the end of the string.
+    - Split the country name into two parts, "nome_pais_1" and "nome_pais_2", based on commas or parentheses, and reorder the names.
+    Example: 'WALLIS E FUTURNA, ILHAS' becomes 'Ilhas Wallis e Futurna'
+             'Pacífico, Ilhas do (Administ.dos Eua)' becomes 'Ilhas do Pacífico (Administ. dos Eua)'
+    Args:
+        dataframe (pd.DataFrame): The DataFrame containing the 'nome_pais' column to be formatted. The formatting is done in-place, modifying the provided DataFrame directly.
+    """
+    df_pais = dataframe.copy()
+    df_pais = df_pais.rename(columns={"valor": "nome_pais"})
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.title()
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.replace(
+        r"(D)(?=[aeo]{1}s?)", "d", regex=True
+    )
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.replace(
+        r"(?<=\s)(E)(?=\s)", "e", regex=True
+    )
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.replace(
+        r"(?<=\w)(\.)(?=\w)", ". ", regex=True
+    )
+    df_pais.loc[
+        df_pais["nome_pais"].str.contains("(", regex=False, na=False)
+        & (~df_pais["nome_pais"].str.contains(")", regex=False, na=False)),
+        "nome_pais",
+    ] = df_pais["nome_pais"] + ")"
+    df_pais["parenteses"] = df_pais["nome_pais"].str.extract(r"(\(.*\))")
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.replace(
+        r"(\(.*\))$", "", regex=True
+    )
+
+    df_pais["parenteses"] = df_pais["parenteses"].str.replace(
+        r"\(", "", regex=True
+    )
+    df_pais["parenteses"] = df_pais["parenteses"].str.replace(
+        r"\)", "", regex=True
+    )
+    df_pais.loc[
+        (df_pais["parenteses"].str.contains(","))
+        & (df_pais["parenteses"].notna()),
+        "parenteses",
+    ] = (
+        df_pais["parenteses"].str.split(",").str[1].str.strip()
+        + " "
+        + df_pais["parenteses"].str.split(",").str[0].str.strip().fillna("")
+    )
+    df_pais.loc[df_pais["parenteses"].notna(), "parenteses"] = (
+        "(" + df_pais["parenteses"].str.strip() + ")"
+    )
+
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.strip()
+    df_pais["nome_pais_2"] = df_pais["nome_pais"].str.extract(
+        r"([\w.\s]+)(?=\s*,|\(\s*)"
+    )
+    df_pais["nome_pais_1"] = df_pais["nome_pais"].str.extract(
+        r"(?:\s*,|\)\s*)([\w.\s]+)"
+    )
+    df_pais["nome_pais_1"] = df_pais["nome_pais_1"].fillna(
+        df_pais["nome_pais"]
+    )
+    df_pais["nome_pais_2"] = df_pais["nome_pais_2"].fillna("")
+    df_pais["parenteses"] = df_pais["parenteses"].fillna("")
+
+    df_pais["novo_nome_pais"] = (
+        df_pais["nome_pais_1"]
+        + " "
+        + df_pais["nome_pais_2"]
+        + " "
+        + df_pais["parenteses"]
+    )
+    df_pais["novo_nome_pais"] = df_pais["novo_nome_pais"].str.strip()
+
+    df_pais = df_pais.drop(
+        columns=["nome_pais", "nome_pais_1", "nome_pais_2", "parenteses"],
+    )
+    df_pais = df_pais.rename(columns={"novo_nome_pais": "valor"})
+    df_pais.loc[df_pais["valor"].isin(["Nan", "NaN", "None", ""]), "valor"] = (
+        None
+    )
+    return df_pais
+
+
+def find_missing_countries(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Finds and fills missing country names by querying the world directory and matching with import/export data.
+
+    Retrieves distinct country IDs and names from the comex tables (importação and exportação),
+    joins them with the world directory, and fills missing country names in the input DataFrame
+    with data from the directory.
+
+    Args:
+        dataframe (pd.DataFrame): DataFrame containing 'chave' (id_pais) and 'valor' (country name) columns.
+
+    Returns:
+        pd.DataFrame: DataFrame with filled country names, deduplicated by id_pais and value.
+    """
+    query = """SELECT DISTINCT a.id_pais, nome_pt
+        FROM(
+        SELECT DISTINCT id_pais, sigla_pais_iso3
+        FROM `basedosdados.br_me_comex_stat.ncm_importacao`
+        UNION ALL
+        SELECT DISTINCT id_pais, sigla_pais_iso3
+        FROM `basedosdados.br_me_comex_stat.ncm_exportacao`
+        ) a
+        INNER JOIN 
+        `basedosdados.br_bd_diretorios_mundo.pais` b
+        ON a.sigla_pais_iso3 = b.sigla_iso3"""
+
+    df_pais = dataframe.copy()
+
+    df_pais_dir = bd.read_sql(query=query, from_file=True)
+    df_pais_dir = df_pais_dir.astype(
+        {col: "str" for col in df_pais_dir.columns}
+    )
+
+    df_pais = df_pais.rename(
+        columns={"valor": "nome_pais", "chave": "id_pais"}
+    )
+    df_merge = df_pais.merge(
+        df_pais_dir, how="left", left_on="id_pais", right_on="id_pais"
+    )
+    df_merge["nome_pais"] = df_merge["nome_pais"].fillna(df_merge["nome_pt"])
+    df_merge = df_merge.drop(columns=["nome_pt"])
+    df_merge = df_merge.rename(
+        columns={"id_pais": "chave", "nome_pais": "valor"}
+    )
+    df_merge = df_merge.drop_duplicates(subset=df_merge.columns.to_list())
+
+    return df_merge
+
+
+def verify_duplicates(dataframe: pd.DataFrame, columns: list[str]):
+    duplicated = dataframe.duplicated(subset=columns).sum()
+    log(f"Duplicated values:\n{duplicated}")
 
 
 def process_csv_dicionario(
     input_path: Path | str,
     output_path: Path | str,
     table_name: str,
-    chunk_size: int = 1000,
 ) -> None:
     """
     Processes CSV dictionary files and transforms them into a standardized format.
@@ -655,6 +799,8 @@ def process_csv_dicionario(
             )
 
             chunk["chave"] = chunk["chave"].str.replace(".0", "")
+            chunk.loc[chunk["valor"] == "", "valor"] = None
+
             if table_configs["n_caracteres"] is not None:
                 chunk["chave"] = chunk["chave"].str.zfill(
                     int(table_configs["n_caracteres"])
@@ -672,16 +818,26 @@ def process_csv_dicionario(
 
                 df_unique_keys["id_tabela"] = id_tabela
                 df_unique_keys["nome_coluna"] = nome_coluna
-
+                if table_configs["n_caracteres"] is not None:
+                    log(
+                        f"zfill com {int(table_configs['n_caracteres'])} caracteres"
+                    )
+                    df_unique_keys["chave"] = df_unique_keys[
+                        "chave"
+                    ].str.zfill(int(table_configs["n_caracteres"]))
                 chunk_save = df_unique_keys.merge(
                     chunk, how="left", on="chave"
                 )
                 chunk_save["cobertura_temporal"] = "(1)"
 
-                if table_configs["n_caracteres"] is not None:
-                    chunk["chave"] = chunk["chave"].str.zfill(
-                        int(table_configs["n_caracteres"])
-                    )
+                if "pais" in table_name.lower():
+                    chunk_save = find_missing_countries(chunk_save)
+                    chunk_save = format_country_name(chunk_save)
+
+                chunk_save = chunk_save.drop_duplicates(
+                    subset=["id_tabela", "nome_coluna", "chave", "valor"]
+                )
+
                 chunk_save[
                     [
                         "id_tabela",
@@ -699,5 +855,5 @@ def process_csv_dicionario(
                 )
 
     log(f"Arquivo {table_name} salvo")
-    # os.remove(filepath)
+    os.remove(filepath)
     return save_path

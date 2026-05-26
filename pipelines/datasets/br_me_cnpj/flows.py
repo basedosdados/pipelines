@@ -466,7 +466,6 @@ with Flow(
             upstream_tasks=[wait_upload_prod],
         )
 
-
 br_me_cnpj_dicionario.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_me_cnpj_dicionario.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value

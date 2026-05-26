@@ -10,7 +10,7 @@ from pathlib import Path
 
 class constants(Enum):
     """
-    Constant values for the br_me_cnpj project
+    Constant values for the r_me_cnpj project
     """
 
     ROOT_PATH = Path(__file__).parent.parent.parent.parent
