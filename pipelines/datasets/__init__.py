@@ -19,6 +19,7 @@ from pipelines.datasets.br_bcb_taxa_cambio.flows import *
 from pipelines.datasets.br_bcb_taxa_selic.flows import *
 from pipelines.datasets.br_bd_indicadores.flows import *
 from pipelines.datasets.br_bd_siga_o_dinheiro.flows import *
+from pipelines.datasets.br_bndes_operacoes_contratadas.flows import *
 from pipelines.datasets.br_camara_dados_abertos.flows import *
 from pipelines.datasets.br_cgu_beneficios_cidadao.flows import *
 from pipelines.datasets.br_cgu_cartao_pagamento.flows import *
