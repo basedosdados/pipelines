@@ -394,7 +394,15 @@ with Flow(
     table_id = Parameter("table_id", default="dicionario", required=False)
     tables = Parameter(
         "tables",
-        default=["qualificacoes", "paises", "motivos", "cnaes", "naturezas"],
+        default=[
+            "qualificacoes",
+            "paises",
+            "motivos",
+            "cnaes",
+            "naturezas",
+            "situacao_cadastral",
+            "identificador_matriz_filial",
+        ],
         required=False,
     )
 

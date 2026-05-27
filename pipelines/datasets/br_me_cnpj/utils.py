@@ -608,9 +608,11 @@ def get_table_unique_keys(table_id: str, column: str):
     SELECT DISTINCT chave
     FROM tmp_split,
     UNNEST(chave) AS chave"""
+    uniques = bd.read_sql(query=query, from_file=True)["chave"].unique()
+    df_uniques = pd.DataFrame(uniques, columns=["chave"])
+    df_uniques.loc[df_uniques["chave"] == "", "chave"] = None
 
-    df_uniques = bd.read_sql(query=query, from_file=True)["chave"].unique()
-    return pd.DataFrame(df_uniques, columns=["chave"])
+    return df_uniques
 
 
 def format_country_name(dataframe: pd.DataFrame) -> None:
@@ -769,9 +771,7 @@ def process_csv_dicionario(
     Args:
         input_path (Path|str): Directory containing the input CSV files.
         output_path (Path|str): Base directory for output.
-        data_coleta (str): Data collection date, used in the output path.
         table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
-        chunk_size (int): Number of rows to process per chunk. Defaults to 1000.
     """
     save_path = output_path
     save_path.mkdir(exist_ok=True, parents=True)
@@ -798,13 +798,13 @@ def process_csv_dicionario(
                 dtype=str,
             )
 
-            chunk["chave"] = chunk["chave"].str.replace(".0", "")
+            chunk["chave"] = chunk["chave"].str.replace(".0", "", regex=False)
+            chunk["chave"] = chunk["chave"].str.replace(
+                r"(^0+)(?=[^0]+|0{1})", "", regex=True
+            )
             chunk.loc[chunk["valor"] == "", "valor"] = None
+            chunk.loc[chunk["chave"] == "", "chave"] = None
 
-            # if table_configs["n_caracteres"] is not None:
-            #     chunk["chave"] = chunk["chave"].str.zfill(
-            #         int(table_configs["n_caracteres"])
-            #     )
             for relationship in table_configs["relationships"]:
                 log(
                     f"Processando relacionamento: table_id={relationship['id_tabela']}, column={relationship['nome_coluna']}"
@@ -818,10 +818,9 @@ def process_csv_dicionario(
 
                 df_unique_keys["id_tabela"] = id_tabela
                 df_unique_keys["nome_coluna"] = nome_coluna
-                # if table_configs["n_caracteres"] is not None:
-                #     df_unique_keys["chave"] = df_unique_keys[
-                #         "chave"
-                #     ].str.zfill(int(table_configs["n_caracteres"]))
+                df_unique_keys["chave"] = df_unique_keys["chave"].str.replace(
+                    r"(^0+)(?=[^0]+|0{1})", "", regex=True
+                )
                 chunk_save = df_unique_keys.merge(
                     chunk, how="left", on="chave"
                 )
@@ -831,6 +830,9 @@ def process_csv_dicionario(
                     chunk_save = find_missing_countries(chunk_save)
                     chunk_save = format_country_name(chunk_save)
 
+                chunk_save = chunk_save.dropna(
+                    subset=["chave", "valor"], how="all"
+                )
                 chunk_save = chunk_save.drop_duplicates(
                     subset=["id_tabela", "nome_coluna", "chave", "valor"]
                 )
@@ -854,3 +856,58 @@ def process_csv_dicionario(
     log(f"Arquivo {table_name} salvo")
     os.remove(filepath)
     return save_path
+
+
+def process_manual_dictionaries(output_path: Path | str, table_name: str):
+    """
+    Processes dictionary keys and values, manually defined.
+
+    Args:
+        output_path (Path|str): Base directory for output.
+        table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
+    """
+    save_path = output_path
+    save_path.mkdir(exist_ok=True, parents=True)
+    save_path = save_path / "data.csv"
+    table_configs = constants_cnpj.TABLE_CONFIGS.value[table_name]
+
+    chunk = pd.DataFrame(table_configs["chaves_valores"])
+    for relationship in table_configs["relationships"]:
+        log(
+            f"Processando relacionamento: table_id={relationship['id_tabela']}, column={relationship['nome_coluna']}"
+        )
+        id_tabela = relationship["id_tabela"]
+        nome_coluna = relationship["nome_coluna"]
+
+        df_unique_keys = get_table_unique_keys(
+            table_id=id_tabela, column=nome_coluna
+        )
+
+        df_unique_keys["id_tabela"] = id_tabela
+        df_unique_keys["nome_coluna"] = nome_coluna
+        df_unique_keys["chave"] = df_unique_keys["chave"].str.replace(
+            r"(^0+)(?=[^0]+|0{1})", "", regex=True
+        )
+        chunk_save = df_unique_keys.merge(chunk, how="left", on="chave")
+        chunk_save["cobertura_temporal"] = "(1)"
+
+        chunk_save = chunk_save.dropna(subset=["chave", "valor"], how="all")
+        chunk_save = chunk_save.drop_duplicates(
+            subset=["id_tabela", "nome_coluna", "chave", "valor"]
+        )
+
+        chunk_save[
+            [
+                "id_tabela",
+                "nome_coluna",
+                "chave",
+                "cobertura_temporal",
+                "valor",
+            ]
+        ].to_csv(
+            save_path,
+            mode="a" if save_path.exists() else "w",
+            index=False,
+            encoding="utf-8",
+            header=not save_path.exists(),  # Write header only if file doesn't exist
+        )

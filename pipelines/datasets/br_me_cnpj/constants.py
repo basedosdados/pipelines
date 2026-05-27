@@ -31,8 +31,9 @@ class constants(Enum):
     TABLE_CONFIGS = {
         "cnaes": {
             "table_name": "Cnaes",
-            "segmentada": False,  # Define se a tabela está dividida em arquivos
-            "dicionario": True,  # Define se a tabela compõe o dicionário
+            "segmentada": False,  # Defines whether the table is split into files
+            "dicionario": True,  # Defines whether the table comprises the dictionary
+            "manual": False,  # Defines whether the dictionary table should be created manually
             "relationships": [
                 {
                     "id_tabela": "estabelecimentos",
@@ -43,7 +44,6 @@ class constants(Enum):
                     "nome_coluna": "cnae_fiscal_secundaria",
                 },
             ],
-            "n_caracteres": 7,
         },
         "empresas": {
             "table_name": "Empresas",
@@ -59,13 +59,13 @@ class constants(Enum):
             "table_name": "Motivos",
             "segmentada": False,
             "dicionario": True,
+            "manual": False,
             "relationships": [
                 {
                     "id_tabela": "estabelecimentos",
                     "nome_coluna": "motivo_situacao_cadastral",
                 }
             ],
-            "n_caracteres": 2,
         },
         "municipios": {
             "table_name": "Municipios",
@@ -76,25 +76,26 @@ class constants(Enum):
             "table_name": "Naturezas",
             "segmentada": False,
             "dicionario": True,
+            "manual": False,
             "relationships": [
                 {"id_tabela": "empresas", "nome_coluna": "natureza_juridica"}
             ],
-            "n_caracteres": 4,
         },
         "paises": {
             "table_name": "Paises",
             "segmentada": False,
             "dicionario": True,
+            "manual": False,
             "relationships": [
                 {"id_tabela": "socios", "nome_coluna": "id_pais"},
                 {"id_tabela": "estabelecimentos", "nome_coluna": "id_pais"},
             ],
-            "n_caracteres": 3,
         },
         "qualificacoes": {
             "table_name": "Qualificacoes",
             "segmentada": False,
             "dicionario": True,
+            "manual": False,
             "relationships": [
                 {
                     "id_tabela": "empresas",
@@ -106,7 +107,6 @@ class constants(Enum):
                     "nome_coluna": "qualificacao_representante_legal",
                 },
             ],
-            "n_caracteres": 2,
         },
         "simples": {
             "table_name": "Simples",
@@ -117,6 +117,41 @@ class constants(Enum):
             "table_name": "Socios",
             "segmentada": True,
             "dicionario": False,
+        },
+        "identificador_matriz_filial": {
+            "table_name": "Identificador Matriz Filial",
+            "segmentada": False,
+            "dicionario": True,
+            "manual": True,
+            "chaves_valores": [
+                {"chave": "2", "valor": "Filial"},
+                {"chave": "1", "valor": "Matriz"},
+            ],
+            "relationships": [
+                {
+                    "id_tabela": "estabelecimentos",
+                    "nome_coluna": "identificador_matriz_filial",
+                },
+            ],
+        },
+        "situacao_cadastral": {
+            "table_name": "Situacao Cadastral",
+            "segmentada": False,
+            "dicionario": True,
+            "manual": True,
+            "chaves_valores": [
+                {"chave": "2", "valor": "Ativa"},
+                {"chave": "8", "valor": "Baixada"},
+                {"chave": "4", "valor": "Inapta"},
+                {"chave": "1", "valor": "Nula"},
+                {"chave": "3", "valor": "Suspensa"},
+            ],
+            "relationships": [
+                {
+                    "id_tabela": "estabelecimentos",
+                    "nome_coluna": "situacao_cadastral",
+                },
+            ],
         },
     }
 

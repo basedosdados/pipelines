@@ -7,7 +7,9 @@ with
             safe_cast(nome_coluna as string) nome_coluna,
             safe_cast(chave as string) chave,
             safe_cast(cobertura_temporal as string) cobertura_temporal,
-            ltrim({{ validate_null_cols("valor") }}, '0') as valor,
+            regexp_replace(
+                {{ validate_null_cols("valor") }}, r'(^0+)(?:[^0]+|0{1})', ''
+            ) as valor,
         from {{ set_datalake_project("br_me_cnpj_staging.dicionario") }} as t
     )
 select
@@ -21,7 +23,9 @@ where valor is not null
 union all
 {{
     dicionario_not_found(
-        id_tabela="empresas", nome_coluna="qualificacao_responsavel", chave="36"
+        id_tabela="empresas",
+        nome_coluna="qualificacao_responsavel",
+        chave="36",
     )
 }}
 union all
@@ -29,7 +33,7 @@ union all
     dicionario_not_found(
         id_tabela="socios",
         nome_coluna="id_pais",
-        chave=["994", "15", "393"],
+        chave=["994", "393"],
     )
 }}
 union all
@@ -37,7 +41,7 @@ union all
     dicionario_not_found(
         id_tabela="estabelecimentos",
         nome_coluna="id_pais",
-        chave=["9", "8", "393"],
+        chave=["8", "9", "393"],
     )
 }}
 union all
@@ -53,6 +57,6 @@ union all
     dicionario_not_found(
         id_tabela="estabelecimentos",
         nome_coluna="cnae_fiscal_secundaria",
-        chave=["6202100", "4761000", "393"],
+        chave=["6202100", "4761000"],
     )
 }}

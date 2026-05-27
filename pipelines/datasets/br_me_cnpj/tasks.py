@@ -18,6 +18,7 @@ from pipelines.datasets.br_me_cnpj.utils import (
     process_csv_estabelecimentos,
     process_csv_simples,
     process_csv_socios,
+    process_manual_dictionaries,
 )
 from pipelines.utils.utils import log
 
@@ -71,7 +72,10 @@ def main(
         # Creates dataset table paths (input and output)
 
         if table_configs["dicionario"]:
-            input_path, _ = build_paths(table_id=table_id, build_output=False)
+            if table_configs["manual"] is False:
+                input_path, _ = build_paths(
+                    table_id=table_id, build_output=False
+                )
             _, output_path = build_paths(
                 table_id="dicionario", build_input=False
             )
@@ -103,13 +107,18 @@ def main(
             nome_arquivo = f"{table_configs['table_name']}"
             url_download = f"{constants_cnpj.URL.value}{max_folder_date}/{table_configs['table_name']}.zip"
 
-            if nome_arquivo not in arquivos_baixados:
+            if (nome_arquivo not in arquivos_baixados) and not table_configs[
+                "manual"
+            ]:
                 arquivos_baixados.append(nome_arquivo)
                 asyncio.run(download_unzip_csv(url_download, input_path))
                 log(f"Nome Arquivo: {nome_arquivo}")
 
             if table_configs["dicionario"]:
-                process_csv_dicionario(input_path, output_path, table_id)
+                if table_configs["manual"]:
+                    process_manual_dictionaries(output_path, table_id)
+                else:
+                    process_csv_dicionario(input_path, output_path, table_id)
             elif table_configs["table_name"] == "Simples":
                 process_csv_simples(
                     input_path, output_path, max_last_modified_date, table_id
