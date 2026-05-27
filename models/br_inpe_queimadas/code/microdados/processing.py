@@ -1,63 +1,17 @@
-"""
-ETL de microdados de focos de queimadas (INPE) para o formato do staging no BigQuery.
-
-Carga incremental (atualizacao 2025-2026):
-    - Entrada: month_fire_data_new.csv (gerado por extraction.py)
-    - Saida: CSVs particionados em output/fire_data/ano=YYYY/mes=M/
-
-Carga historica completa (nao usada nesta atualizacao):
-    - Requer year_fire_data.csv e month_fire_data.csv
-    - Usar read_year_data(), merge_data() e o fluxo legado no __main__ comentado
-"""
-
+import os
 from pathlib import Path
 
 import duckdb
 
-# ---------------------------------------------------------------------------
-# Configuracao da carga incremental
-# ---------------------------------------------------------------------------
-
-# Arquivo produzido pelo extraction.py (focos mensais 2025 e 2026).
-INCREMENTAL_INPUT = "./input/month_fire_data_new.csv"
-
-# Ultimo registro ja publicado em basedosdados.br_inpe_queimadas.microdados (passo 1).
-# Registros com data_hora <= este valor sao descartados para evitar duplicidade.
+# Último registro já carregado em basedosdados.br_inpe_queimadas.microdados.
+# Registros com data_hora <= este valor são descartados para evitar duplicidade.
 LAST_LOADED_TIMESTAMP = "2025-02-12 23:10:00"
 
-# Diretorio de saida particionado (compativel com upload para br_inpe_queimadas_staging).
-OUTPUT_DIR = "./output/fire_data"
 
-# Mapeamento opcional municipio INPE -> municipio_uf do diretorio BD.
-MAP_CITIES_PATH = Path("./extra/auxiliary_files/map_cities.csv")
-
-
-def read_year_data():
-    """Le dados anuais legados (2003+). Usado apenas em cargas historicas completas."""
-    duckdb.read_csv("./input/year_fire_data.csv", header=True)
-    duckdb.sql("""
-        CREATE TABLE year_data AS
-        SELECT
-            lat AS latitude,
-            lon AS longitude,
-            data_pas AS data_hora,
-            municipio,
-            estado,
-            bioma
-        FROM './input/year_fire_data.csv'
-    """)
-
-
-def read_month_data(input_path: str = "./input/month_fire_data.csv"):
-    """
-    Le CSV mensal do INPE e padroniza nomes de colunas para o pipeline.
-
-    Args:
-        input_path: Caminho do CSV. Na carga incremental, usar INCREMENTAL_INPUT.
-    """
-    duckdb.read_csv(input_path, header=True)
+# Lê o CSV mensal e padroniza os nomes das colunas para o schema do staging
+def read_month_data(input_path: str) -> None:
     duckdb.sql(f"""
-        CREATE TABLE month_data AS
+        CREATE OR REPLACE TABLE month_data AS
         SELECT
             lat AS latitude,
             lon AS longitude,
@@ -74,32 +28,19 @@ def read_month_data(input_path: str = "./input/month_fire_data.csv"):
     """)
 
 
-def create_complete_data_from_month():
-    """Define complete_data apenas a partir do mensal (carga incremental)."""
+# Alias para carga incremental: complete_data contém apenas os dados mensais
+def create_complete_data_from_month() -> None:
     duckdb.sql("""
-        CREATE TABLE complete_data AS
+        CREATE OR REPLACE TABLE complete_data AS
         SELECT * FROM month_data
     """)
 
 
-def merge_data():
-    """Une dados anuais e mensais. Usado apenas em cargas historicas completas."""
-    duckdb.sql("""
-        CREATE TABLE complete_data AS
-            SELECT * FROM year_data
-            UNION BY NAME
-            SELECT * FROM month_data
-    """)
-
-
-def get_date_fields():
-    """
-    Extrai componentes de data/hora e aplica filtro incremental.
-
-    Mantem somente registros posteriores a LAST_LOADED_TIMESTAMP.
-    """
+# Extrai componentes de data/hora e descarta registros já carregados
+# last_loaded_timestamp define o corte: somente registros posteriores são mantidos
+def get_date_fields(last_loaded_timestamp: str) -> None:
     duckdb.sql(f"""
-        CREATE VIEW date_data AS
+        CREATE OR REPLACE VIEW date_data AS
             SELECT
                 * EXCLUDE(data_hora),
                 EXTRACT(YEAR FROM data_hora) AS ano,
@@ -109,14 +50,14 @@ def get_date_fields():
                 EXTRACT(MINUTE FROM data_hora) AS minuto,
                 EXTRACT(SECOND FROM data_hora) AS segundo
             FROM complete_data
-            WHERE data_hora > TIMESTAMP '{LAST_LOADED_TIMESTAMP}'
+            WHERE data_hora > TIMESTAMP '{last_loaded_timestamp}'
     """)
 
 
-def get_state_letters():
-    """Converte nome do estado (texto) para sigla_uf."""
+# Converte o nome completo do estado para sigla_uf (ex: 'são paulo' → 'SP')
+def get_state_letters() -> None:
     duckdb.sql("""
-        CREATE VIEW state_data AS
+        CREATE OR REPLACE VIEW state_data AS
             SELECT
                 * EXCLUDE(estado),
                 CASE
@@ -153,21 +94,17 @@ def get_state_letters():
     """)
 
 
-def map_city_names():
-    """
-    Gera municipio_uf no padrao do staging (Nome do Municipio - UF).
-
-    Se map_cities.csv existir, aplica correcoes de nomes via cidade_uf_dir.
-    Caso contrario, usa apenas a concatenacao municipio + sigla_uf.
-    """
-    if MAP_CITIES_PATH.exists():
+# Padroniza o nome do município usando o mapeamento auxiliar (map_cities.csv),
+# gerando a coluna municipio_uf no formato 'Municipio - UF'
+def map_city_names(map_cities_path: str) -> None:
+    if Path(map_cities_path).exists():
         duckdb.sql(f"""
-            CREATE VIEW cidades_dir AS
+            CREATE OR REPLACE VIEW cidades_dir AS
             SELECT cidade_uf, cidade_uf_dir
-            FROM read_csv('{MAP_CITIES_PATH}', header = true)
+            FROM read_csv('{map_cities_path}', header = true)
         """)
         duckdb.sql("""
-            CREATE VIEW city_data AS
+            CREATE OR REPLACE VIEW city_data AS
                 SELECT
                     s.* EXCLUDE (municipio),
                     COALESCE(
@@ -179,8 +116,9 @@ def map_city_names():
                     ON s.municipio || ' - ' || s.sigla_uf = c.cidade_uf
         """)
     else:
+        # Sem o mapeamento auxiliar, usa a concatenação direta
         duckdb.sql("""
-            CREATE VIEW city_data AS
+            CREATE OR REPLACE VIEW city_data AS
                 SELECT
                     s.* EXCLUDE (municipio),
                     s.municipio || ' - ' || s.sigla_uf AS municipio_uf
@@ -188,60 +126,22 @@ def map_city_names():
         """)
 
 
-def save_data():
-    """Exporta city_data para CSVs particionados por ano e mes."""
+# Exporta os dados processados como CSVs particionados por ano e mes
+def save_data(output_dir: str) -> None:
+    os.makedirs(output_dir, exist_ok=True)
     duckdb.sql(
-        f"COPY city_data TO '{OUTPUT_DIR}' "
+        f"COPY city_data TO '{output_dir}' "
         "(FORMAT CSV, PARTITION_BY (ano, mes), OVERWRITE_OR_IGNORE);"
     )
 
 
-def print_summary():
-    """Exibe contagem e intervalo de datas da carga incremental processada."""
-    result = duckdb.sql("""
-        SELECT
-            COUNT(*) AS total_linhas,
-            MIN(
-                MAKE_TIMESTAMP(
-                    ano::BIGINT, mes::BIGINT, dia::BIGINT,
-                    hora::BIGINT, minuto::BIGINT, segundo::DOUBLE
-                )
-            ) AS data_minima,
-            MAX(
-                MAKE_TIMESTAMP(
-                    ano::BIGINT, mes::BIGINT, dia::BIGINT,
-                    hora::BIGINT, minuto::BIGINT, segundo::DOUBLE
-                )
-            ) AS data_maxima
-        FROM city_data
-    """).fetchone()
-    print(f"Linhas exportadas: {result[0]}")
-    print(f"Data minima: {result[1]}")
-    print(f"Data maxima: {result[2]}")
-
-
-if __name__ == "__main__":
-    import os
-
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-    # --- Carga incremental (atualizacao 2025-2026) ---
-    print(f"Lendo: {INCREMENTAL_INPUT}")
-    read_month_data(INCREMENTAL_INPUT)
+# Executa todas as etapas de processamento em sequência
+def run_processing(
+    input_path: str, output_dir: str, map_cities_path: str
+) -> None:
+    read_month_data(input_path)
     create_complete_data_from_month()
-    get_date_fields()
+    get_date_fields(LAST_LOADED_TIMESTAMP)
     get_state_letters()
-    map_city_names()
-    print_summary()
-    print(f"Exportando particoes em: {OUTPUT_DIR}")
-    save_data()
-    print("Processamento concluido.")
-
-    # --- Carga historica completa (desativada nesta task) ---
-    # read_year_data()
-    # read_month_data("./input/month_fire_data.csv")
-    # merge_data()
-    # get_date_fields()  # remover filtro WHERE para carga full
-    # get_state_letters()
-    # map_city_names()
-    # save_data()
+    map_city_names(map_cities_path)
+    save_data(output_dir)
