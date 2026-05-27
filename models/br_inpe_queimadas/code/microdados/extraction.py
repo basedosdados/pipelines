@@ -60,11 +60,15 @@ def download(year_range: list[int], input_dir: str) -> None:
     ]
 
     # Baixa cada arquivo individualmente e concatena
-    month_data = pd.DataFrame()
+    frames = []
     for file in files_to_download:
         print(f"  Baixando: {file}")
-        file_data = request_data(MONTH_URL, file)
-        month_data = pd.concat([month_data, file_data], axis=0)
+        frames.append(request_data(MONTH_URL, file))
+    month_data = (
+        pd.concat(frames, axis=0, ignore_index=True)
+        if frames
+        else pd.DataFrame()
+    )
 
     output_path = f"{input_dir}/month_fire_data_new.csv"
     month_data.to_csv(output_path, index=False)
