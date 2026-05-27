@@ -153,6 +153,54 @@ class constants(Enum):
                 },
             ],
         },
+        "faixa_etaria": {
+            "table_name": "Faixa Etaria",
+            "segmentada": False,
+            "dicionario": True,
+            "manual": True,
+            "chaves_valores": [
+                {"chave": "1", "valor": "Entre 0 E 12 Anos"},
+                {"chave": "2", "valor": "Entre 13 E 20 Anos"},
+                {"chave": "3", "valor": "Entre 21 E 30 Anos"},
+                {"chave": "4", "valor": "Entre 31 E 40 Anos"},
+                {"chave": "5", "valor": "Entre 41 E 50 Anos"},
+                {"chave": "6", "valor": "Entre 51 E 60 Anos"},
+                {"chave": "7", "valor": "Entre 61 E 70 Anos"},
+                {"chave": "8", "valor": "Entre 71 E 80 Anos"},
+                {"chave": "9", "valor": "Mais De 80 Anos"},
+                {"chave": "0", "valor": "Não Se Aplica"},
+            ],
+            "relationships": [
+                {"id_tabela": "socios", "nome_coluna": "faixa_etaria"},
+            ],
+        },
+        "porte": {
+            "table_name": "Porte",
+            "segmentada": False,
+            "dicionario": True,
+            "manual": True,
+            "chaves_valores": [
+                {"chave": "5", "valor": "Demais"},
+                {"chave": "3", "valor": "Empresa De Pequeno Porte"},
+                {"chave": "1", "valor": "Micro Empresa"},
+                {"chave": "0", "valor": "Não Informado"},
+            ],
+            "relationships": [
+                {"id_tabela": "empresas", "nome_coluna": "porte"}
+            ],
+        },
+        "tipo": {
+            "table_name": "Tipo",
+            "segmentada": False,
+            "dicionario": True,
+            "manual": True,
+            "chaves_valores": [
+                {"chave": "3", "valor": "Estrangeiro"},
+                {"chave": "2", "valor": "Pessoa Física"},
+                {"chave": "1", "valor": "Pessoa Jurídica"},
+            ],
+            "relationships": [{"id_tabela": "socios", "nome_coluna": "tipo"}],
+        },
     }
 
     UFS = [

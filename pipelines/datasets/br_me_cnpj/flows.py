@@ -402,6 +402,9 @@ with Flow(
             "naturezas",
             "situacao_cadastral",
             "identificador_matriz_filial",
+            "faixa_etaria",
+            "porte",
+            "tipo",
         ],
         required=False,
     )
