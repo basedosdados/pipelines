@@ -49,11 +49,13 @@ class constants(Enum):
             "table_name": "Empresas",
             "segmentada": True,
             "dicionario": False,
+            "manual": False,
         },
         "estabelecimentos": {
             "table_name": "Estabelecimentos",
             "segmentada": True,
             "dicionario": False,
+            "manual": False,
         },
         "motivos": {
             "table_name": "Motivos",
@@ -71,6 +73,7 @@ class constants(Enum):
             "table_name": "Municipios",
             "segmentada": False,
             "dicionario": False,
+            "manual": False,
         },
         "naturezas": {
             "table_name": "Naturezas",
@@ -112,11 +115,13 @@ class constants(Enum):
             "table_name": "Simples",
             "segmentada": False,
             "dicionario": False,
+            "manual": False,
         },
         "socios": {
             "table_name": "Socios",
             "segmentada": True,
             "dicionario": False,
+            "manual": False,
         },
         "identificador_matriz_filial": {
             "table_name": "Identificador Matriz Filial",
