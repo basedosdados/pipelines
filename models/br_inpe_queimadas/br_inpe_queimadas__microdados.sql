@@ -1,4 +1,4 @@
--- rematerializar em prod
+-- rematerializar em produção
 {{
     config(
         schema="br_inpe_queimadas",
