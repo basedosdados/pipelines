@@ -144,4 +144,3 @@ def run_processing(
     get_date_fields(LAST_LOADED_TIMESTAMP)
     get_state_letters()
     map_city_names(map_cities_path)
-    save_data(output_dir)
