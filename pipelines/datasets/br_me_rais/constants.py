@@ -189,6 +189,7 @@ class constants(Enum):
         "CNAE 2.0 Classe - Código": "cnae_2",
         "CNAE 2.0 Subclasse": "cnae_2_subclasse",
         "CNAE 2.0 Subclasse - Código": "cnae_2_subclasse",
+        "CNAE 2.0 Subclasse - Codigo": "cnae_2_subclasse",
         "Tamanho Estabelecimento": "tamanho_estabelecimento",
         "Tamanho Estabelecimento - Código": "tamanho_estabelecimento",
         "Tipo Estab": "tipo_estabelecimento",
