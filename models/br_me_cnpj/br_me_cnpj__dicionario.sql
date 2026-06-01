@@ -56,7 +56,7 @@ union all
 {{
     dicionario_not_found(
         id_tabela="estabelecimentos",
-        nome_coluna="cnae_fiscal_secundaria",
+        nome_coluna="",
         chave=["6202100", "4761000"],
     )
 }}

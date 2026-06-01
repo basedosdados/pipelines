@@ -1,249 +1,173 @@
 # Documentação ME/CNPJ
 
-Documento de registro de informações importantes sobre a base e relato sobre o estado de estruturação da pipeline, últimas mudanças e entendimento dos _flows_.
+Documento de registro de informações importantes sobre a base de dados de CNPJ da Receita Federal e o estado de estruturação da pipeline, últimas mudanças e entendimento dos _flows_.
 
 ---
 
 ## Sobre a fonte
 
 - [Fonte de Dados](https://arquivos.receitafederal.gov.br/index.php/s/gn672Ad4CF8N6TK?dir=/Dados/Cadastros/CNPJ)
-- [Página Inicial do Conjunto](https://arquivos.receitafederal.gov.br/index.php/s/gn672Ad4CF8N6TK)
+- **Organização**: Ministério da Economia (ME) / Receita Federal
+- **Atualização**: Mensal 
+---
 
-#### Tabelas Segmentadas
+## Estrutura de Tabelas
 
-Tabelas que devem se baixadas em 10 arquivos diferentes:
-- Empresas
-- Estabelesimentos
-- Socios
+### Tabelas de Dados Segmentadas (10 arquivos por tabela)
 
-#### Tabelas Únicas
-- Cnaes
-- Motivos
-- Qualificação
+As tabelas abaixo são disponibilizadas em 10 arquivos compactados diferentes na fonte, para otimizar download e processamento:
 
-## Dicionário
+- **Empresas**: Dados cadastrais de empresas (razão social, natureza jurídica, porte, capital social)
+- **Estabelecimentos**: Dados cadastrais de cada estabelecimento vinculado a uma empresa (endereço, CNAE, situação)
+- **Sócios**: Informações de sócios/proprietários (CPF, nome, qualificação, data de entrada)
 
-<table style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;color:#000;">
-  <thead>
-    <tr>
-      <th colspan="2" style="background-color:#93c47d; border:1px solid #000; padding:8px; text-align:center;">
-        Colunas cobertas por Dicionário do Dataset
-      </th>
-      <th rowspan="2" style="background-color:#93c47d; border:1px solid #000; padding:8px; text-align:center;">
-        Tabela Estruturada na Fonte
-      </th>
-      <th colspan="3" style="background-color:#93c47d; border:1px solid #000; padding:8px; text-align:center;">
-        Colunas Ausentes no Dicionário do Dataset
-      </th>
-      <th rowspan="2" style="background-color:#93c47d; border:1px solid #000; padding:8px; text-align:center;">
-        Diretórios
-      </th>
-    </tr>
-    <tr>
-      <th style="background-color:#93c47d; border:1px solid #000; padding:8px;">
-        Tabela
-      </th>
-      <th style="background-color:#93c47d; border:1px solid #000; padding:8px;">
-        Nome da Coluna
-      </th>
-      <th style="background-color:#93c47d; border:1px solid #000; padding:8px;">
-        Tabela na Fonte Original
-      </th>
-      <th style="background-color:#93c47d; border:1px solid #000; padding:8px;">
-        Tabela
-      </th>
-      <th style="background-color:#93c47d; border:1px solid #000; padding:8px;">
-        Nome da Coluna
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">empresas</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">porte</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px; text-align:center;">FALSE</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">-</td>
-    </tr>
-    <tr>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">empresas</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">qualificacao_responsavel</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px; text-align:center;">TRUE</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">Qualificacoes</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">-</td>
-    </tr>
-    <tr>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">estabelecimento</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">id_pais</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px; text-align:center;">TRUE</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">Paises</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">
-        basedosdados.br_bd_diretorios_mundo.pais:nome
-      </td>
-    </tr>
-    <tr>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">estabelecimento</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">identificador_matriz_filial</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px; text-align:center;">FALSE</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">-</td>
-    </tr>
-    <tr>
-    <tr>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">estabelecimento</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">motivo_situacao_cadastral</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px; text-align:center;">TRUE</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">Motivos</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">-</td>
-    </tr>
-    <tr>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">estabelecimento</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">situacao_cadastral</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px; text-align:center;">FALSE</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">-</td>
-    </tr>
-    <tr>
-    <tr>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">socios</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">faixa_etaria</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px; text-align:center;">FALSE</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">-</td>
-    </tr>
-    <tr>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">socios</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">id_pais</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px; text-align:center;">TRUE</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">Paises</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">
-        basedosdados.br_bd_diretorios_mundo.pais:nome
-      </td>
-    </tr>
-    <tr>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">socios</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">qualificacao</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px; text-align:center;">TRUE</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">Qualificacoes</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">-</td>
-    </tr>
-    <tr>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">socios</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">qualificacao_representante_legal</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px; text-align:center;">TRUE</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">Qualificacoes</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">-</td>
-    </tr>
-    <tr>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">socios</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">tipo</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px; text-align:center;">FALSE</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#b6d7a8; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">-</td>
-    </tr>
-    <tr>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px; text-align:center;">TRUE</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">Cnaes</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">estabelecimentos</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">cnae_fiscal_principal</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">
-        basedosdados.br_bd_diretorios_brasil.cnae_2:subclasse
-      </td>
-    </tr>
-    </tr>
-    <tr>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px; text-align:center;">TRUE</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">Cnaes</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">estabelecimentos</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">cnae_fiscal_secundaria</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">
-        basedosdados.br_bd_diretorios_brasil.cnae_2:subclasse
-      </td>
-    </tr>
-  </tbody>
-    </tr>
-    <tr>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px; text-align:center;">TRUE</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">Naturezas</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">empresas</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">natureza_juridica</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">
-        basedosdados.br_bd_diretorios_brasil.natureza_juridica:id_natureza_juridica
-      </td>
-    </tr>
-    </tr>
-    <tr>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px; text-align:center;">TRUE</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">Municipios</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#d9ead3; border:1px solid #000; padding:6px;">-</td>
-      <td style="background-color:#ffffff; border:1px solid #000; padding:6px;">
-        basedosdados.br_bd_diretorios_brasil.municipio:id_municipio_rf
-      </td>
-    </tr>
-</table>
+### Tabelas de Dados Únicas
 
+- **Simples**: Informações de inscrição em Simples Nacional e MEI
 
-### Colunas
+### Tabelas de Dicionário
 
-**id_pais**
+As tabelas abaixo são baixadas e consolidadas em uma única tabela `br_me_cnpj__dicionario`:
 
-```sql
-SELECT DISTINCT 
-  dict.id_pais as id_pais_dicionario, 
-  comex.id_pais as id_pais_comex,
-  comex.sigla_pais_iso3, 
-  dir.nome as nome_diretorios
-FROM 
-  (
-    SELECT DISTINCT
-      chave as id_pais,
-      valor as nome
-    FROM `basedosdados.br_me_cnpj.dicionario`
-    WHERE nome_coluna = "id_pais"
-  ) dict 
-  LEFT JOIN `basedosdados.br_me_comex_stat.ncm_exportacao` comex
-  ON comex.id_pais = dict.id_pais
-  LEFT JOIN `basedosdados.br_bd_diretorios_mundo.pais` dir
-  ON comex.sigla_pais_iso3 = dir.sigla_pais_iso3
-WHERE comex.id_pais IS NULL
+- **Qualificações**: Mapeamento de código - descrição de qualificação de sócio/responsável
+- **Naturezas**: Mapeamento de código - natureza jurídica (tipo legal da empresa)
+- **Motivos**: Mapeamento de código - motivo de alteração de situação cadastral
+- **Países**: Mapeamento de código - nome de país (para sócios e estabelecimentos no exterior)
+- **CNAEs**: Mapeamento de código - descrição de classe CNAE (atividade econômica)
 
-```
+---
 
-Há 42 códigos sem correspondência na Comex e, portanto, também nos diretórios:
+## Fluxo de Extração e Processamento
 
-`["0", "1", "2", "3", "4", "5", "6", "8", "9", "10", "11", "16", "18", "20", "21", "25", "34", "36", "54", "67", "71", "74", "75", "82", "100", "106", "131", "237", "263", "358", "367", "395", "563", "569", "583", "666", "738", "785", "840", "855", "997", "998"]`
+O pipeline Prefect (`br_me_cnpj`) executa as seguintes etapas:
 
-id_pais	693
-id_pais	755
-id_pais	693
+### 1: Descoberta de Dados
+
+**Task**: `get_data_source_max_date()`
+- Consulta a url da Receita Federal para listar todas as pastas de data disponíveis
+- Extrai data máxima de pasta (`YYYYMMDD`) para download
+
+### 2: Download e Descompactação
+
+**Task**: `download_unzip_csv()`
+- Para cada arquivo .zip da fonte, faz download assíncrono
+- Descompacta em pasta `input/{table_id}/`
+- Mantém rastreamento de arquivos já baixados para evitar redownload
+
+### 3: Processamento de Dados
+
+**Task**: `main()` - Roteia para funções específicas por tipo de tabela
+Em `constants.py` foi adicionado um 
+
+#### **3a. Processamento de Tabelas de Dados Segmentadas**
+
+Funções: `process_csv_empresas()`, `process_csv_estabelecimentos()`, `process_csv_socios()`
+
+Para cada arquivo `i` (0–9):
+   - Remove artefatos de conversão de tipo (`".0"`)
+   - Normaliza datas (DDMMYYYY - YYYY-MM-DD)
+   - Capitaliza strings (ex: `JOÃO DOS SANTOS` - `João dos Santos`)
+   - Remove espaços extras
+   - Verifica se CNPJ tem comprimento correto (14 dígitos)
+Salva parquet particionado por `ano` (ano extraído da data da Receita Federal)
+   - Caminho: `output/{table_id}/ano=YYYY/data.parquet`
+
+#### **3b. Processamento de Tabelas de Dicionário**
+
+Função: `process_csv_dicionario(input_path, output_path, table_name)`
+
+**Normalização de Chaves**:
+   - Remove artefatos de tipo (`".0"`)
+   - Remove leading zeros com regex: `r"(^0+)(?:[^0]+|0{1})"` - `""`. Exemplo: `"007"` - `"7"`, `"0000"` - `"0"`
+**Relacionamento com Dados**:
+   - Para cada relacionamento em `TABLE_CONFIGS[table_name]["relationships"]`:
+     - Extrai chaves únicas da coluna de dados correspondente (ex: `empresas.porte`)
+     - Faz LEFT JOIN com dicionário (mantém chaves sem valor)
+     - Permite identificar códigos faltantes em dicionário-fonte
+**Tratamento de Países** (especial):
+   - Chama `find_missing_countries()`: agrega países não presentes em CSV, usando dados da COMEX e Diretórios
+   - Chama `format_country_name()`: que essencialmente reordena termos dos nomes de países, antes em ordem inversa e separados por vírgula (Exemplo: `'Pacífico, Ilhas do (Administ.dos Eua)'` para `'Ilhas do Pacífico (Administ. dos Eua)'`); coloca termos entre parênteses no final do nome e normaliza caracteres (palavras convertidas para `title`, com exceção de preposições e conectivos)
+**Limpeza**:
+   - Remove linhas onde ambos `chave` e `valor` são nulos
+   - Deduplica por (`id_tabela`, `nome_coluna`, `chave`, `valor`)
+   - Aplica `cobertura_temporal = "(1)"` (cobertura única)
+**Saída**: CSV consolidado
+   - Caminho: `output/dicionario/data.csv`
+   - Colunas: `id_tabela`, `nome_coluna`, `chave`, `cobertura_temporal`, `valor`
+
+#### **3c. Processamento de Simples Nacional**
+
+Função: `process_csv_simples()`
+
+- Leitura simples de CSV
+- Normaliza datas e tipos
+- Saída: Parquet único (não segmentado)
+
+### 4: Upload para BigQuery (Dev)
+
+**Task**: `create_table_dev_and_upload_to_gcs()`
+- Sobe Parquets para GCS bucket de staging
+- Cria tabela em `basedosdados-dev.br_me_cnpj_staging.<table_id>`
+
+### 5: Materialização DBT
+
+**Task**: `run_dbt(dbt_command="run/test")`
+- Executa modelos SQL em `models/br_me_cnpj/`
+- Cada tabela de dados recebe seu próprio modelo:
+  - `br_me_cnpj__empresas.sql`
+  - `br_me_cnpj__estabelecimentos.sql`
+  - `br_me_cnpj__socios.sql`
+  - `br_me_cnpj__simples.sql`
+  - `br_me_cnpj__dicionario.sql` (**Novo**)
+
+### 6: Publicação em Produção
+
+**Task**: `create_table_prod_gcs_and_run_dbt()` (se `materialize_after_dump=True`)
+- Replica dados para `basedosdados.br_me_cnpj.<table_id>`
+- Executa modelos e testes em ambiente de produção
+- Atualiza metadados no backend Django
+
+---
+
+## Observações Importantes
+
+#### **Códigos Inválidos em Dicionário**
+Alguns códigos presentes em dados não existem em dicionário-fonte (esperado e tratado):
+- **qualificacao_responsavel "36" em `empresas`**: valores tratados via `dicionario_not_found()`
+- **id_país "8", "9", "393","994" em `socios` e `estabelecimentos`**: valores tratados via `dicionario_not_found()`
+- **motivo_situacao_cadastral "32" em `estabelecimentos`**: valores tratados via `dicionario_not_found()`
+- **cnae_fiscal_secundaria "6202100", "4761000" em `estabelecimentos`**: valores tratados via `dicionario_not_found()`
+
+####  **Nas tabelas de dados:**
+- `custom_dictionary_coverage`: valida que **todas as colunas de código possuem entrada no dicionário**
+  - Aplicado em: `empresas`, `socios`, `estabelecimentos`
+  - Escopo temporal: apenas dados mais recentes (`__most_recent_date__`)
+
+---
+
+## Mudanças
+
+### Implementação de Dicionário
+
+**Adições:**
+- Novo modelo SQL: `br_me_cnpj__dicionario.sql`
+- Função de processamento: `process_csv_dicionario()` em utils.py
+- Configuração de dicionários: em `constants.py` foi adicionado a atributo `TABLE_CONFIGS`, com  propriedades das tabelas, tais como:
+
+   * `"dicionario"`: indicam se a tabela é componente do dicionário ou não;
+   * `"manual"`: indica se a tabela de dicionário é manual (precisa ter chaves e valores determinados manualmente) ou se é original da fonte na url. Nesse caso, haverá um campo:
+   * `"chaves_valores"`: existente apenas em tabelas em que `"manual"` é `True`;
+   * `"segmentada"`: indicando se a tabela é particionada (em 10) arquivos ou não;
+   * `"relationships"`: indicando para as tabelas de dicionário, quais colunas de outras tabelas são cobertas;
+- Uso de `dicionario_not_found()` para códigos faltantes
+
+**Melhorias:**
+- Consolidação de múltiplos dicionários em uma única tabela materializada
+- Normalização automática de códigos (remoção de leading zeros)
+- Tratamento especial para nomes de países
+
+**Obs.:**
+- Tabelas de dados (`empresas`, `estabelecimentos`, `socios`) sem mudanças estruturais
+- Houve apenas mudanças na hierarquia das pastas temporárias de input e output
+- Novo modelo `dicionario` é apenas aditivo — não quebra queries existentes
+

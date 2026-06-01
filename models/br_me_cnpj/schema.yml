@@ -42,7 +42,7 @@ models:
       - name: ente_federativo
         description: Ente Federativo
   - name: br_me_cnpj__socios
-    description: Sócios
+    description: Socios
     tests:
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
@@ -226,16 +226,18 @@ models:
             - nome_coluna
             - chave
             - cobertura_temporal
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
     columns:
       - name: id_tabela
         description: ID Tabela
+        tests: [not_null]
       - name: nome_coluna
         description: Nome da coluna
+        tests: [not_null]
       - name: chave
         description: Chave
+        tests: [not_null]
       - name: cobertura_temporal
         description: Cobertura Temporal
       - name: valor
         description: Valor
+        tests: [not_null]
