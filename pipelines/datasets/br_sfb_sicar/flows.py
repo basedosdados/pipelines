@@ -10,9 +10,6 @@ from pipelines.constants import constants
 from pipelines.datasets.br_sfb_sicar.constants import (
     Constants,
 )
-from pipelines.datasets.br_sfb_sicar.schedules import (
-    schedule_br_sfb_sicar_area_imovel,
-)
 from pipelines.datasets.br_sfb_sicar.tasks import (
     download_car,
     get_each_uf_release_date,
@@ -120,4 +117,4 @@ br_sfb_sicar_area_imovel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_sfb_sicar_area_imovel.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_sfb_sicar_area_imovel.schedule = schedule_br_sfb_sicar_area_imovel
+# br_sfb_sicar_area_imovel.schedule = schedule_br_sfb_sicar_area_imovel
