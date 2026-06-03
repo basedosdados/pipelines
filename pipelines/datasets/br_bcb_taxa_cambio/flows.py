@@ -7,9 +7,6 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.datasets.br_bcb_taxa_cambio.schedules import (
-    schedule_every_weekday_taxa_cambio,
-)
 from pipelines.datasets.br_bcb_taxa_cambio.tasks import (
     get_data_taxa_cambio,
     treat_data_taxa_cambio,
@@ -100,6 +97,6 @@ datasets_br_bcb_taxa_cambio_moeda_flow.storage = GCS(
 datasets_br_bcb_taxa_cambio_moeda_flow.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-datasets_br_bcb_taxa_cambio_moeda_flow.schedule = (
-    schedule_every_weekday_taxa_cambio
-)
+# datasets_br_bcb_taxa_cambio_moeda_flow.schedule = (
+#     schedule_every_weekday_taxa_cambio
+# )
