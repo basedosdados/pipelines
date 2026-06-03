@@ -6,10 +6,6 @@ from pipelines.constants import constants as pipelines_constants
 from pipelines.datasets.br_denatran_frota.constants import (
     constants as denatran_constants,
 )
-from pipelines.datasets.br_denatran_frota.schedules import (
-    every_month_municipio,
-    every_month_uf,
-)
 from pipelines.datasets.br_denatran_frota.tasks import (
     crawl_task,
     get_desired_file_task,
@@ -140,7 +136,7 @@ br_denatran_frota_uf_tipo.storage = GCS(
 br_denatran_frota_uf_tipo.run_config = KubernetesRun(
     image=pipelines_constants.DOCKER_IMAGE.value
 )
-br_denatran_frota_uf_tipo.schedule = every_month_uf
+# br_denatran_frota_uf_tipo.schedule = every_month_uf
 
 
 with Flow(
@@ -256,4 +252,4 @@ br_denatran_frota_municipio_tipo.storage = GCS(
 br_denatran_frota_municipio_tipo.run_config = KubernetesRun(
     image=pipelines_constants.DOCKER_IMAGE.value
 )
-br_denatran_frota_municipio_tipo.schedule = every_month_municipio
+# br_denatran_frota_municipio_tipo.schedule = every_month_municipio

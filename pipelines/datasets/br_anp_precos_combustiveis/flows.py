@@ -7,9 +7,6 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.datasets.br_anp_precos_combustiveis.schedules import (
-    every_week_anp_microdados,
-)
 from pipelines.datasets.br_anp_precos_combustiveis.tasks import (
     download_and_transform,
     get_data_source_anp_max_date,
@@ -105,4 +102,4 @@ with Flow(
 
 anp_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 anp_microdados.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-anp_microdados.schedule = every_week_anp_microdados
+# anp_microdados.schedule = every_week_anp_microdados
