@@ -23,8 +23,6 @@ from pipelines.datasets.br_rf_cafir.utils import (
 )
 from pipelines.utils.utils import log
 
-last_update_date = get_last_update_date(url=br_rf_cafir_constants.URL.value)
-
 
 @task(
     max_retries=2,
@@ -43,6 +41,9 @@ def task_decide_files_to_download(
     data_especifica: datetime.date | None = None,
     data_maxima: bool = True,
 ) -> tuple[list[str], list[datetime.date]]:
+    last_update_date = get_last_update_date(
+        url=br_rf_cafir_constants.URL.value
+    )
     return decide_files_to_download(
         df=df,
         data_especifica=data_especifica,
@@ -66,6 +67,9 @@ def task_download_files(
         str: Caminho do diretório temporário
     """
 
+    last_update_date = get_last_update_date(
+        url=br_rf_cafir_constants.URL.value
+    )
     date = data_atualizacao
 
     log(f"------ Extraindo dados para data: {date}")
