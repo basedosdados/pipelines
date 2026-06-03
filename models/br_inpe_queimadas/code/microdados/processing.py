@@ -1,25 +1,17 @@
+import os
+from pathlib import Path
+
 import duckdb
 
-
-def read_year_data():
-    duckdb.read_csv("./input/year_fire_data.csv", header=True)
-    duckdb.sql("""
-        CREATE TABLE year_data AS
-        SELECT
-            lat AS latitude,
-            lon AS longitude,
-            data_pas AS data_hora,
-            municipio,
-            estado,
-            bioma
-        FROM './input/year_fire_data.csv'
-    """)
+# Último registro já carregado em basedosdados.br_inpe_queimadas.microdados.
+# Registros com data_hora <= este valor são descartados para evitar duplicidade.
+LAST_LOADED_TIMESTAMP = "2025-02-12 23:10:00"
 
 
-def read_month_data():
-    duckdb.read_csv("./input/month_fire_data.csv", header=True)
-    duckdb.sql("""
-        CREATE TABLE month_data AS
+# Lê o CSV mensal e padroniza os nomes das colunas para o schema do staging
+def read_month_data(input_path: str) -> None:
+    duckdb.sql(f"""
+        CREATE OR REPLACE TABLE month_data AS
         SELECT
             lat AS latitude,
             lon AS longitude,
@@ -32,22 +24,23 @@ def read_month_data():
             risco_fogo,
             bioma,
             frp AS potencia_radiativa_fogo
-        FROM './input/month_fire_data.csv'
+        FROM '{input_path}'
     """)
 
 
-def merge_data():
+# Alias para carga incremental: complete_data contém apenas os dados mensais
+def create_complete_data_from_month() -> None:
     duckdb.sql("""
-        CREATE TABLE complete_data AS
-            SELECT * FROM year_data
-            UNION BY NAME
-            SELECT * FROM month_data
+        CREATE OR REPLACE TABLE complete_data AS
+        SELECT * FROM month_data
     """)
 
 
-def get_date_fields():
-    duckdb.sql("""
-        CREATE VIEW date_data AS
+# Extrai componentes de data/hora e descarta registros já carregados
+# last_loaded_timestamp define o corte: somente registros posteriores são mantidos
+def get_date_fields(last_loaded_timestamp: str) -> None:
+    duckdb.sql(f"""
+        CREATE OR REPLACE VIEW date_data AS
             SELECT
                 * EXCLUDE(data_hora),
                 EXTRACT(YEAR FROM data_hora) AS ano,
@@ -55,14 +48,16 @@ def get_date_fields():
                 EXTRACT(DAY FROM data_hora) AS dia,
                 EXTRACT(HOUR FROM data_hora) AS hora,
                 EXTRACT(MINUTE FROM data_hora) AS minuto,
-                EXTRACT(SECOND FROM data_hora) AS segundo,
+                EXTRACT(SECOND FROM data_hora) AS segundo
             FROM complete_data
+            WHERE data_hora > TIMESTAMP '{last_loaded_timestamp}'
     """)
 
 
-def get_state_letters():
+# Converte o nome completo do estado para sigla_uf (ex: 'são paulo' → 'SP')
+def get_state_letters() -> None:
     duckdb.sql("""
-        CREATE VIEW state_data AS
+        CREATE OR REPLACE VIEW state_data AS
             SELECT
                 * EXCLUDE(estado),
                 CASE
@@ -99,35 +94,53 @@ def get_state_letters():
     """)
 
 
-def map_city_names():
-    duckdb.sql("""
-        CREATE VIEW cidades_dir AS
-        SELECT cidade_uf, cidade_uf_dir
-        FROM read_csv('./extra/auxiliary_files/map_cities.csv', header = true)""")
+# Padroniza o nome do município usando o mapeamento auxiliar (map_cities.csv),
+# gerando a coluna municipio_uf no formato 'Municipio - UF'
+def map_city_names(map_cities_path: str) -> None:
+    if Path(map_cities_path).exists():
+        duckdb.sql(f"""
+            CREATE OR REPLACE VIEW cidades_dir AS
+            SELECT cidade_uf, cidade_uf_dir
+            FROM read_csv('{map_cities_path}', header = true)
+        """)
+        duckdb.sql("""
+            CREATE OR REPLACE VIEW city_data AS
+                SELECT
+                    s.* EXCLUDE (municipio),
+                    COALESCE(
+                        c.cidade_uf_dir,
+                        s.municipio || ' - ' || s.sigla_uf
+                    ) AS municipio_uf
+                FROM state_data s
+                LEFT JOIN cidades_dir c
+                    ON s.municipio || ' - ' || s.sigla_uf = c.cidade_uf
+        """)
+    else:
+        # Sem o mapeamento auxiliar, usa a concatenação direta
+        duckdb.sql("""
+            CREATE OR REPLACE VIEW city_data AS
+                SELECT
+                    s.* EXCLUDE (municipio),
+                    s.municipio || ' - ' || s.sigla_uf AS municipio_uf
+                FROM state_data s
+        """)
 
-    duckdb.sql("""
-        CREATE VIEW city_data AS
-            SELECT s.* EXCLUDE (municipio),
-            s.municipio as municipio
-            FROM state_data s
-            LEFT JOIN cidades_dir c
-                ON s.municipio || ' - ' || s.sigla_uf = c.cidade_uf
 
-    """)
-
-
-def save_data():
+# Exporta os dados processados como CSVs particionados por ano e mes
+def save_data(output_dir: str) -> None:
+    os.makedirs(output_dir, exist_ok=True)
     duckdb.sql(
-        "COPY city_data TO './output/fire_data' (FORMAT CSV, PARTITION_BY (ano, mes), OVERWRITE_OR_IGNORE);"
+        f"COPY city_data TO '{output_dir}' "
+        "(FORMAT CSV, PARTITION_BY (ano, mes), OVERWRITE_OR_IGNORE);"
     )
 
 
-if __name__ == "__main__":
-    read_year_data()
-    read_month_data()
-    merge_data()
-    get_date_fields()
+# Executa todas as etapas de processamento em sequência
+def run_processing(
+    input_path: str, output_dir: str, map_cities_path: str
+) -> None:
+    read_month_data(input_path)
+    create_complete_data_from_month()
+    get_date_fields(LAST_LOADED_TIMESTAMP)
     get_state_letters()
-    map_city_names()
-    # saveData()
-    duckdb.sql("SELECT * FROM city_data").show()
+    map_city_names(map_cities_path)
