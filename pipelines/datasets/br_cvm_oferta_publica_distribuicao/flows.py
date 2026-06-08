@@ -7,9 +7,6 @@ from prefect.run_configs import KubernetesRun
 from prefect.storage import GCS
 
 from pipelines.constants import constants
-from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import (
-    schedule_dia,
-)
 from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
     clean_table_oferta_distribuicao,
     crawl,
@@ -99,4 +96,4 @@ br_cvm_ofe_pub_dis_dia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_cvm_ofe_pub_dis_dia.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_cvm_ofe_pub_dis_dia.schedule = schedule_dia
+# br_cvm_ofe_pub_dis_dia.schedule = schedule_dia

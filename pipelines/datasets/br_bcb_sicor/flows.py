@@ -14,18 +14,6 @@ from pipelines.crawler.bcb.flows import br_bcb_sicor_template
 from pipelines.crawler.bcb.tasks import (
     create_load_dictionary,
 )
-from pipelines.datasets.br_bcb_sicor.schedules import (
-    every_day_empreendimento,
-    every_day_liberacao,
-    every_day_operacao,
-    every_day_operacoes_desclassificadas,
-    every_day_recurso_publico_complemento_operacao,
-    every_day_recurso_publico_cooperado,
-    every_day_recurso_publico_gleba,
-    every_day_recurso_publico_mutuario,
-    every_day_recurso_publico_propriedade,
-    every_day_saldo,
-)
 from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
     create_table_dev_and_upload_to_gcs,
@@ -42,7 +30,7 @@ br_bcb_sicor__operacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_sicor__operacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__operacao.schedule = every_day_operacao
+# br_bcb_sicor__operacao.schedule = every_day_operacao
 
 # br_bcb_sicor__saldo
 br_bcb_sicor__saldo = deepcopy(br_bcb_sicor_template)
@@ -52,7 +40,7 @@ br_bcb_sicor__saldo.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_sicor__saldo.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__saldo.schedule = every_day_saldo
+# br_bcb_sicor__saldo.schedule = every_day_saldo
 
 # br_bcb_sicor__liberacao
 br_bcb_sicor__liberacao = deepcopy(br_bcb_sicor_template)
@@ -62,7 +50,7 @@ br_bcb_sicor__liberacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_sicor__liberacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__liberacao.schedule = every_day_liberacao
+# br_bcb_sicor__liberacao.schedule = every_day_liberacao
 
 # br_bcb_sicor__recurso_publico_complemento_operacao
 br_bcb_sicor__recurso_publico_complemento_operacao = deepcopy(
@@ -80,9 +68,9 @@ br_bcb_sicor__recurso_publico_complemento_operacao.storage = GCS(
 br_bcb_sicor__recurso_publico_complemento_operacao.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__recurso_publico_complemento_operacao.schedule = (
-    every_day_recurso_publico_complemento_operacao
-)
+# br_bcb_sicor__recurso_publico_complemento_operacao.schedule = (
+#     every_day_recurso_publico_complemento_operacao
+# )
 
 # br_bcb_sicor__recurso_publico_cooperado
 br_bcb_sicor__recurso_publico_cooperado = deepcopy(br_bcb_sicor_template)
@@ -96,9 +84,9 @@ br_bcb_sicor__recurso_publico_cooperado.storage = GCS(
 br_bcb_sicor__recurso_publico_cooperado.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__recurso_publico_cooperado.schedule = (
-    every_day_recurso_publico_cooperado
-)
+# br_bcb_sicor__recurso_publico_cooperado.schedule = (
+#     every_day_recurso_publico_cooperado
+# )
 
 # br_bcb_sicor__recurso_publico_gleba
 br_bcb_sicor__recurso_publico_gleba = deepcopy(br_bcb_sicor_template)
@@ -112,7 +100,7 @@ br_bcb_sicor__recurso_publico_gleba.storage = GCS(
 br_bcb_sicor__recurso_publico_gleba.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__recurso_publico_gleba.schedule = every_day_recurso_publico_gleba
+# br_bcb_sicor__recurso_publico_gleba.schedule = every_day_recurso_publico_gleba
 
 # br_bcb_sicor__recurso_publico_mutuario
 br_bcb_sicor__recurso_publico_mutuario = deepcopy(br_bcb_sicor_template)
@@ -126,9 +114,9 @@ br_bcb_sicor__recurso_publico_mutuario.storage = GCS(
 br_bcb_sicor__recurso_publico_mutuario.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__recurso_publico_mutuario.schedule = (
-    every_day_recurso_publico_mutuario
-)
+# br_bcb_sicor__recurso_publico_mutuario.schedule = (
+#     every_day_recurso_publico_mutuario
+# )
 
 # br_bcb_sicor__recurso_publico_propriedade
 br_bcb_sicor__recurso_publico_propriedade = deepcopy(br_bcb_sicor_template)
@@ -142,9 +130,9 @@ br_bcb_sicor__recurso_publico_propriedade.storage = GCS(
 br_bcb_sicor__recurso_publico_propriedade.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__recurso_publico_propriedade.schedule = (
-    every_day_recurso_publico_propriedade
-)
+# br_bcb_sicor__recurso_publico_propriedade.schedule = (
+#     every_day_recurso_publico_propriedade
+# )
 
 # br_bcb_sicor__operacoes_desclassificadas
 br_bcb_sicor__operacoes_desclassificadas = deepcopy(br_bcb_sicor_template)
@@ -158,9 +146,9 @@ br_bcb_sicor__operacoes_desclassificadas.storage = GCS(
 br_bcb_sicor__operacoes_desclassificadas.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__operacoes_desclassificadas.schedule = (
-    every_day_operacoes_desclassificadas
-)
+# br_bcb_sicor__operacoes_desclassificadas.schedule = (
+#     every_day_operacoes_desclassificadas
+# )
 
 # br_bcb_sicor__empreendimento
 br_bcb_sicor__empreendimento = deepcopy(br_bcb_sicor_template)
@@ -170,7 +158,7 @@ br_bcb_sicor__empreendimento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
 br_bcb_sicor__empreendimento.run_config = KubernetesRun(
     image=constants.DOCKER_IMAGE.value
 )
-br_bcb_sicor__empreendimento.schedule = every_day_empreendimento
+# br_bcb_sicor__empreendimento.schedule = every_day_empreendimento
 
 
 with Flow(
