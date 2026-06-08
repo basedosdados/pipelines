@@ -3,19 +3,14 @@
         schema="br_me_cnpj",
         alias="estabelecimentos",
         materialized="incremental",
-        partition_by={
-            "field": "data",
-            "data_type": "date",
-        },
-        cluster_by=["ano", "mes"],
+        partition_by={"field": "data", "data_type": "date", "granularity": "month"},
+        cluster_by=["sigla_uf"],
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
 with
     cnpj_estabelecimentos as (
         select
-            safe_cast(extract(year from date(data)) as int64) as ano,
-            safe_cast(extract(month from date(data)) as int64) as mes,
             safe_cast(data as date) data,
             safe_cast(lpad(cnpj, 14, "0") as string) cnpj,
             safe_cast(lpad(cnpj_basico, 8, '0') as string) cnpj_basico,

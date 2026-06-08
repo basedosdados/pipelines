@@ -6,7 +6,9 @@ import datetime
 import os
 import zipfile
 from asyncio import Semaphore, gather, sleep
+from pathlib import Path
 
+import basedosdados as bd
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -15,9 +17,6 @@ from tqdm import tqdm
 
 from pipelines.datasets.br_me_cnpj.constants import constants as constants_cnpj
 from pipelines.utils.utils import log
-
-ufs = constants_cnpj.UFS.value
-timeout = constants_cnpj.TIMEOUT.value
 
 
 def data_url(url: str) -> datetime.date:
@@ -72,36 +71,29 @@ def data_url(url: str) -> datetime.date:
 
 
 # ! Cria o caminho do output
-def destino_output(sufixo: str, data_coleta: datetime.datetime) -> str:
+def build_paths(
+    table_id: str, build_input: bool = True, build_output: bool = True
+) -> tuple[Path, Path]:
     """
     Constructs the output directory path based on the suffix and collection date.
 
     Args:
-        sufixo (str): The suffix for directory structure.
-        data_coleta (datetime): The data collection date.
+        table_id (str): Table ID or name (lower case).
 
     Returns:
-        str: The constructed output path.
+        tuple[Path,Path]: The constructed paths.
     """
-
-    output_path = f"/tmp/data/br_me_cnpj/output/{sufixo}/"
-    # Pasta de destino para salvar o arquivo CSV
-    if sufixo != "simples":
-        if sufixo != "estabelecimentos":
-            output_dir = (
-                f"/tmp/data/br_me_cnpj/output/{sufixo}/data={data_coleta}/"
-            )
-            os.makedirs(output_dir, exist_ok=True)
-        else:
-            for uf in ufs:
-                output_dir = f"/tmp/data/br_me_cnpj/output/estabelecimentos/data={data_coleta}/sigla_uf={uf}/"
-                if not os.path.exists(output_dir):
-                    os.makedirs(output_dir)
-    else:
-        output_dir = output_path
-        os.makedirs(output_dir, exist_ok=True)
-    log("Pasta destino output construido")
-    return output_path
+    input_path = None
+    output_path = None
+    if build_input:
+        input_path = constants_cnpj.INPUT_PATH.value / table_id
+        input_path.mkdir(exist_ok=True, parents=True)
+        log("Pasta input construido")
+    if build_output:
+        output_path = constants_cnpj.OUTPUT_PATH.value / table_id
+        output_path.mkdir(exist_ok=True, parents=True)
+        log("Pasta destino output construido")
+    return input_path, output_path
 
 
 # ! Adiciona zero a esquerda nas colunas
@@ -302,26 +294,26 @@ async def download_chunk(
 
 
 # ! Executa o download do zip file
-async def download_unzip_csv(url: str, pasta_destino: str) -> None:
+async def download_unzip_csv(url: str, path: Path | str) -> None:
     """
     Downloads a ZIP file from a URL and extracts its content.
 
     Args:
         url (str): The URL of the ZIP file.
-        pasta_destino (str): The directory to save and extract the ZIP file.
+        path (str): The directory to save and extract the ZIP file.
     """
     log(f"Baixando o arquivo {url}")
-    save_path = os.path.join(pasta_destino, f"{os.path.basename(url)}.zip")
+    save_path = path / f"{Path(url).stem}.zip"
     content = await download(url)
     with open(save_path, "wb") as fd:
         fd.write(content)
 
     try:
         with zipfile.ZipFile(save_path) as z:
-            z.extractall(pasta_destino)
+            z.extractall(path)
         log("Dados extraídos com sucesso!")
     except zipfile.BadZipFile:
-        log(f"O arquivo {os.path.basename(url)} não é um arquivo ZIP válido.")
+        log(f"O arquivo {Path(url).stem} não é um arquivo ZIP válido.")
         raise
 
     os.remove(save_path)
@@ -329,8 +321,8 @@ async def download_unzip_csv(url: str, pasta_destino: str) -> None:
 
 # ! Salva os dados CSV Estabelecimentos
 def process_csv_estabelecimentos(
-    input_path: str,
-    output_path: str,
+    input_path: Path | str,
+    output_path: Path | str,
     data_coleta: str,
     i: int,
     chunk_size: int = 100000,
@@ -339,23 +331,25 @@ def process_csv_estabelecimentos(
     Processes and saves CSV data for establishments, organizing data into partitions by state.
 
     Args:
-        input_path (str): Path to the input data.
-        output_path (str): Directory to save processed data.
+        input_path (Path|str): Path to the input data.
+        output_path (Path|str): Directory to save processed data.
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
     """
     ordem = constants_cnpj.COLUNAS_ESTABELECIMENTO_ORDEM.value
     colunas = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
-    save_path = f"{output_path}data={data_coleta}/"
-    for nome_arquivo in os.listdir(input_path):
-        if "estabele" in nome_arquivo.lower():
-            caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
+    save_folder = Path(output_path) / f"data={data_coleta}"
+    save_folder.mkdir(exist_ok=True, parents=True)
+
+    for nome_arquivo in Path(input_path).iterdir():
+        if "estabele" in nome_arquivo.as_posix().lower():
+            caminho_arquivo_csv = Path(input_path) / nome_arquivo
             log(f"Carregando o arquivo: {nome_arquivo}")
             for chunk in tqdm(
                 pd.read_csv(
                     caminho_arquivo_csv,
-                    encoding="iso-8859-1",
+                    encoding="latin1",
                     sep=";",
                     header=None,
                     names=colunas,
@@ -377,13 +371,17 @@ def process_csv_estabelecimentos(
                     lambda x: x.dt.strftime("%Y-%m-%d")
                 )
 
-                # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
-                chunk = fill_left_zeros(chunk, "cnpj_basico", 8)
-                # Preenchimento de zeros à esquerda no campo 'cnpj_ordem'
-                chunk = fill_left_zeros(chunk, "cnpj_ordem", 4)
-                # Preenchimento de zeros à esquerda no campo 'cnpj_dv'
-                chunk = fill_left_zeros(chunk, "cnpj_dv", 2)
-                # Gerando a coluna 'cnpj' e 'id_municipio'
+                # Fills 'cnpj_basico', 'cnpj_ordem' and  'cnpj_dv' with left zeros
+                for col, zeros in dict(
+                    zip(
+                        ["cnpj_basico", "cnpj_ordem", "cnpj_dv"],
+                        [8, 4, 2],
+                        strict=True,
+                    )
+                ).items():
+                    chunk = fill_left_zeros(chunk, col, zeros)
+
+                # Generating 'cnpj' column
                 chunk["cnpj"] = (
                     chunk["cnpj_basico"]
                     + chunk["cnpj_ordem"]
@@ -391,32 +389,30 @@ def process_csv_estabelecimentos(
                 )
                 chunk["id_municipio"] = ""
                 chunk = chunk.loc[:, ordem]
-                for uf in ufs:
+                for uf in constants_cnpj.UFS.value:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
                     df_particao = df_particao.drop(["sigla_uf"], axis=1)
-                    particao_path = os.path.join(save_path, f"sigla_uf={uf}")
+                    particao_path = save_folder / f"sigla_uf={uf}"
+                    particao_path.mkdir(exist_ok=True, parents=True)
                     particao_filename = f"estabelecimentos_{i}.csv"
-                    particao_file_path = os.path.join(
-                        particao_path, particao_filename
-                    )
+                    particao_file_path = particao_path / particao_filename
 
-                    mode = "a" if os.path.exists(particao_file_path) else "w"
+                    mode = "a" if particao_file_path.exists() else "w"
                     df_particao.to_csv(
                         particao_file_path,
                         index=False,
-                        encoding="iso-8859-1",
+                        encoding="latin1",
                         mode=mode,
                         header=mode == "w",
                     )
-
             log(f"Arquivo estabelecimento_{i} salvo")
             os.remove(caminho_arquivo_csv)
 
 
 # ! Salva os dados CSV Empresas
 def process_csv_empresas(
-    input_path: str,
-    output_path: str,
+    input_path: Path | str,
+    output_path: Path | str,
     data_coleta: str,
     i: int,
     chunk_size: int = 100000,
@@ -425,23 +421,25 @@ def process_csv_empresas(
     Processes and saves CSV data for companies.
 
     Args:
-        input_path (str): Path to the input data.
-        output_path (str): Directory to save processed data.
+        input_path (Path|str): Path to the input data.
+        output_path (Path|str): Directory to save processed data.
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
     """
     colunas = constants_cnpj.COLUNAS_EMPRESAS.value
-    save_path = f"{output_path}data={data_coleta}/empresas_{i}.csv"
-    for nome_arquivo in os.listdir(input_path):
-        if nome_arquivo.lower().endswith("csv"):
-            caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
+    save_folder = Path(output_path) / f"data={data_coleta}"
+    save_folder.mkdir(exist_ok=True, parents=True)
+    save_path = save_folder / f"empresas_{i}.csv"
+    for nome_arquivo in Path(input_path).iterdir():
+        if nome_arquivo.as_posix().lower().endswith("csv"):
+            caminho_arquivo_csv = Path(input_path) / nome_arquivo
             log(f"Carregando o arquivo: {nome_arquivo}")
-            with open(os.path.join(save_path), "wb") as fd:
+            with open(save_path, "wb") as fd:
                 for chunk in tqdm(
                     pd.read_csv(
                         caminho_arquivo_csv,
-                        encoding="iso-8859-1",
+                        encoding="latin1",
                         sep=";",
                         header=None,
                         names=colunas,
@@ -455,13 +453,14 @@ def process_csv_empresas(
                     # Preenchimento de zeros à esquerda no campo 'natureza_juridica'
                     chunk = fill_left_zeros(chunk, "natureza_juridica", 4)
                     # Convertendo a coluna 'capital_social' para float e mudando o separator
+
                     chunk["capital_social"] = (
                         chunk["capital_social"]
                         .str.replace(",", ".")
                         .astype(float)
                     )
 
-                    chunk.to_csv(fd, index=False, encoding="iso-8859-1")
+                    chunk.to_csv(fd, index=False, encoding="latin1")
 
             log(f"Arquivo empresas_{i} salvo")
             os.remove(caminho_arquivo_csv)
@@ -469,8 +468,8 @@ def process_csv_empresas(
 
 # ! Salva os dados CSV Socios
 def process_csv_socios(
-    input_path: str,
-    output_path: str,
+    input_path: Path | str,
+    output_path: Path | str,
     data_coleta: str,
     i: int,
     chunk_size: int = 1000,
@@ -479,8 +478,8 @@ def process_csv_socios(
     Processes and saves CSV data for socios (partners).
 
     Args:
-        input_path (str): Path to the input data.
-        output_path (str): Directory to save processed data.
+        input_path (Path|str): Path to the input data.
+        output_path (Path|str): Directory to save processed data.
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
@@ -489,16 +488,18 @@ def process_csv_socios(
         None
     """
     colunas = constants_cnpj.COLUNAS_SOCIOS.value
-    save_path = f"{output_path}data={data_coleta}/socios_{i}.csv"
-    for nome_arquivo in os.listdir(input_path):
-        if nome_arquivo.lower().endswith("csv"):
-            caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
+    save_folder = Path(output_path) / f"data={data_coleta}"
+    save_folder.mkdir(exist_ok=True, parents=True)
+    save_path = save_folder / f"socios_{i}.csv"
+    for nome_arquivo in Path(input_path).iterdir():
+        if nome_arquivo.as_posix().lower().endswith("csv"):
+            caminho_arquivo_csv = Path(input_path) / nome_arquivo
             log(f"Carregando o arquivo: {nome_arquivo}")
-            with open(os.path.join(save_path), "wb") as fd:
+            with open(save_path, "wb") as fd:
                 for chunk in tqdm(
                     pd.read_csv(
                         caminho_arquivo_csv,
-                        encoding="iso-8859-1",
+                        encoding="latin1",
                         sep=";",
                         header=None,
                         names=colunas,
@@ -521,7 +522,7 @@ def process_csv_socios(
                                 chunk[col], format="%Y%m%d", errors="coerce"
                             )
 
-                    chunk.to_csv(fd, index=False, encoding="iso-8859-1")
+                    chunk.to_csv(fd, index=False, encoding="latin1")
 
             log(f"Arquivo socios_{i} salvo")
             os.remove(caminho_arquivo_csv)
@@ -529,8 +530,8 @@ def process_csv_socios(
 
 # ! Salva os dados CSV Simples
 def process_csv_simples(
-    input_path: str,
-    output_path: str,
+    input_path: Path | str,
+    output_path: Path | str,
     data_coleta: str,
     sufixo: str,
     chunk_size: int = 1000,
@@ -539,8 +540,8 @@ def process_csv_simples(
     Processes and saves CSV data for simples.
 
     Args:
-        input_path (str): Path to the input data.
-        output_path (str): Directory to save processed data.
+        input_path (Path|str): Path to the input data.
+        output_path (Path|str): Directory to save processed data.
         data_coleta (str): Data collection date as string.
         sufixo (str): Suffix used to construct the output filename.
         chunk_size (int): Number of rows to process per chunk.
@@ -549,16 +550,16 @@ def process_csv_simples(
         None
     """
     colunas = constants_cnpj.COLUNAS_SIMPLES.value
-    save_path = f"{output_path}{sufixo}.csv"
-    for nome_arquivo in os.listdir(input_path):
-        if "simples.csv" in nome_arquivo.lower():
-            caminho_arquivo_csv = os.path.join(input_path, nome_arquivo)
+    save_path = Path(output_path) / f"{sufixo}.csv"
+    for nome_arquivo in Path(input_path).iterdir():
+        if "simples.csv" in nome_arquivo.as_posix().lower():
+            caminho_arquivo_csv = Path(input_path) / nome_arquivo
             log(f"Carregando o arquivo: {nome_arquivo}")
-            with open(os.path.join(save_path), "wb") as fd:
+            with open(save_path, "wb") as fd:
                 for chunk in tqdm(
                     pd.read_csv(
                         caminho_arquivo_csv,
-                        encoding="iso-8859-1",
+                        encoding="latin1",
                         sep=";",
                         header=None,
                         names=colunas,
@@ -584,7 +585,329 @@ def process_csv_simples(
                     chunk["opcao_mei"] = chunk["opcao_mei"].replace(
                         {"N": "0", "S": "1"}
                     )
-                    chunk.to_csv(fd, index=False, encoding="iso-8859-1")
+                    chunk.to_csv(fd, index=False, encoding="latin1")
 
             log(f"Arquivo {sufixo} salvo")
             os.remove(caminho_arquivo_csv)
+
+
+def get_table_unique_keys(table_id: str, column: str):
+    """
+    Retrieves unique keys from a specified table and column in the basedosdados.br_me_cnpj.dicionario.
+    Args:
+        table_id (str): The ID of the table to query for unique keys.
+        column (str): The name of the column to retrieve unique keys from.
+    Returns:
+        pd.DataFrame: A DataFrame containing the unique keys from the specified table and column.
+    """
+    query = f"""WITH tmp_split AS(
+    SELECT
+        split({column},",") AS chave 
+    FROM `basedosdados.br_me_cnpj.{table_id}`
+    )
+    SELECT DISTINCT chave
+    FROM tmp_split,
+    UNNEST(chave) AS chave"""
+    uniques = bd.read_sql(query=query, from_file=True)["chave"].unique()
+    df_uniques = pd.DataFrame(uniques, columns=["chave"])
+    df_uniques.loc[df_uniques["chave"] == "", "chave"] = None
+
+    return df_uniques
+
+
+def format_country_name(dataframe: pd.DataFrame) -> None:
+    """
+    Formats the 'nome_pais' column of the DataFrame, applying various transformations to standardize country names.
+    The transformations include:
+    - Convert names to title case (first letter uppercase) with prepositions and conjunctions lowercase.
+    - Add a space after abbreviation periods.
+    - Ensure parentheses are balanced, adding a closing parenthesis if there is an opening one without a corresponding closing one.
+    - Extract content within parentheses to a new "parenteses" column to append at the end of the string.
+    - Split the country name into two parts, "nome_pais_1" and "nome_pais_2", based on commas or parentheses, and reorder the names.
+    Example: 'WALLIS E FUTURNA, ILHAS' becomes 'Ilhas Wallis e Futurna'
+             'Pacífico, Ilhas do (Administ.dos Eua)' becomes 'Ilhas do Pacífico (Administ. dos Eua)'
+    Args:
+        dataframe (pd.DataFrame): The DataFrame containing the 'nome_pais' column to be formatted. The formatting is done in-place, modifying the provided DataFrame directly.
+    """
+    df_pais = dataframe.copy()
+    df_pais = df_pais.rename(columns={"valor": "nome_pais"})
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.title()
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.replace(
+        r"(D)(?=[aeo]{1}s?)", "d", regex=True
+    )
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.replace(
+        r"(?<=\s)(E)(?=\s)", "e", regex=True
+    )
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.replace(
+        r"(?<=\w)(\.)(?=\w)", ". ", regex=True
+    )
+    df_pais.loc[
+        df_pais["nome_pais"].str.contains("(", regex=False, na=False)
+        & (~df_pais["nome_pais"].str.contains(")", regex=False, na=False)),
+        "nome_pais",
+    ] = df_pais["nome_pais"] + ")"
+    df_pais["parenteses"] = df_pais["nome_pais"].str.extract(r"(\(.*\))")
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.replace(
+        r"(\(.*\))$", "", regex=True
+    )
+
+    df_pais["parenteses"] = df_pais["parenteses"].str.replace(
+        r"\(", "", regex=True
+    )
+    df_pais["parenteses"] = df_pais["parenteses"].str.replace(
+        r"\)", "", regex=True
+    )
+    df_pais.loc[
+        (df_pais["parenteses"].str.contains(","))
+        & (df_pais["parenteses"].notna()),
+        "parenteses",
+    ] = (
+        df_pais["parenteses"].str.split(",").str[1].str.strip()
+        + " "
+        + df_pais["parenteses"].str.split(",").str[0].str.strip().fillna("")
+    )
+    df_pais.loc[df_pais["parenteses"].notna(), "parenteses"] = (
+        "(" + df_pais["parenteses"].str.strip() + ")"
+    )
+
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.strip()
+    df_pais["nome_pais_2"] = df_pais["nome_pais"].str.extract(
+        r"([\w.\s]+)(?=\s*,|\(\s*)"
+    )
+    df_pais["nome_pais_1"] = df_pais["nome_pais"].str.extract(
+        r"(?:\s*,|\)\s*)([\w.\s]+)"
+    )
+    df_pais["nome_pais_1"] = df_pais["nome_pais_1"].fillna(
+        df_pais["nome_pais"]
+    )
+    df_pais["nome_pais_2"] = df_pais["nome_pais_2"].fillna("")
+    df_pais["parenteses"] = df_pais["parenteses"].fillna("")
+
+    df_pais["novo_nome_pais"] = (
+        df_pais["nome_pais_1"]
+        + " "
+        + df_pais["nome_pais_2"]
+        + " "
+        + df_pais["parenteses"]
+    )
+    df_pais["novo_nome_pais"] = df_pais["novo_nome_pais"].str.strip()
+
+    df_pais = df_pais.drop(
+        columns=["nome_pais", "nome_pais_1", "nome_pais_2", "parenteses"],
+    )
+    df_pais = df_pais.rename(columns={"novo_nome_pais": "valor"})
+    df_pais.loc[df_pais["valor"].isin(["Nan", "NaN", "None", ""]), "valor"] = (
+        None
+    )
+    return df_pais
+
+
+def find_missing_countries(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Finds and fills missing country names by querying the world directory and matching with import/export data.
+
+    Retrieves distinct country IDs and names from the comex tables (importação and exportação),
+    joins them with the world directory, and fills missing country names in the input DataFrame
+    with data from the directory.
+
+    Args:
+        dataframe (pd.DataFrame): DataFrame containing 'chave' (id_pais) and 'valor' (country name) columns.
+
+    Returns:
+        pd.DataFrame: DataFrame with filled country names, deduplicated by id_pais and value.
+    """
+    query = """SELECT DISTINCT a.id_pais, nome_pt
+        FROM(
+        SELECT DISTINCT id_pais, sigla_pais_iso3
+        FROM `basedosdados.br_me_comex_stat.ncm_importacao`
+        UNION ALL
+        SELECT DISTINCT id_pais, sigla_pais_iso3
+        FROM `basedosdados.br_me_comex_stat.ncm_exportacao`
+        ) a
+        INNER JOIN 
+        `basedosdados.br_bd_diretorios_mundo.pais` b
+        ON a.sigla_pais_iso3 = b.sigla_iso3"""
+
+    df_pais = dataframe.copy()
+
+    df_pais_dir = bd.read_sql(query=query, from_file=True)
+    df_pais_dir = df_pais_dir.astype(
+        {col: "str" for col in df_pais_dir.columns}
+    )
+
+    df_pais = df_pais.rename(
+        columns={"valor": "nome_pais", "chave": "id_pais"}
+    )
+    df_merge = df_pais.merge(
+        df_pais_dir, how="left", left_on="id_pais", right_on="id_pais"
+    )
+    df_merge["nome_pais"] = df_merge["nome_pais"].fillna(df_merge["nome_pt"])
+    df_merge = df_merge.drop(columns=["nome_pt"])
+    df_merge = df_merge.rename(
+        columns={"id_pais": "chave", "nome_pais": "valor"}
+    )
+    df_merge = df_merge.drop_duplicates(subset=df_merge.columns.to_list())
+
+    return df_merge
+
+
+def verify_duplicates(dataframe: pd.DataFrame, columns: list[str]):
+    duplicated = dataframe.duplicated(subset=columns).sum()
+    log(f"Duplicated values:\n{duplicated}")
+
+
+def process_csv_dicionario(
+    input_path: Path | str,
+    output_path: Path | str,
+    table_name: str,
+) -> None:
+    """
+    Processes CSV dictionary files and transforms them into a standardized format.
+
+    For each CSV file in the input path, reads the data in chunks, adds metadata columns
+    (id_tabela, nome_coluna, cobertura_temporal) based on the table configuration,
+    and appends the transformed data to a single output CSV file.
+
+    Args:
+        input_path (Path|str): Directory containing the input CSV files.
+        output_path (Path|str): Base directory for output.
+        table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
+    """
+    save_path = output_path
+    save_path.mkdir(exist_ok=True, parents=True)
+    save_path = save_path / "data.csv"
+
+    log(f"Save path: {save_path}")
+    table_configs = constants_cnpj.TABLE_CONFIGS.value[table_name]
+    files = [
+        fp
+        for fp in Path(input_path).iterdir()
+        if fp.is_file() and "csv" in fp.suffix.lower()
+    ]
+    for filepath in files:
+        if table_name in filepath.as_posix().lower():
+            filename = filepath.name
+            log(f"Carregando o arquivo: {filename}")
+
+            chunk = pd.read_csv(
+                filepath,
+                encoding="latin1",
+                sep=";",
+                header=None,
+                names=["chave", "valor"],
+                dtype=str,
+            )
+
+            chunk["chave"] = chunk["chave"].str.replace(".0", "", regex=False)
+            chunk["chave"] = chunk["chave"].str.replace(
+                r"(^0+)(?=[^0]+|0{1})", "", regex=True
+            )
+            chunk.loc[chunk["valor"] == "", "valor"] = None
+            chunk.loc[chunk["chave"] == "", "chave"] = None
+
+            for relationship in table_configs["relationships"]:
+                log(
+                    f"Processando relacionamento: table_id={relationship['id_tabela']}, column={relationship['nome_coluna']}"
+                )
+                id_tabela = relationship["id_tabela"]
+                nome_coluna = relationship["nome_coluna"]
+
+                df_unique_keys = get_table_unique_keys(
+                    table_id=id_tabela, column=nome_coluna
+                )
+
+                df_unique_keys["id_tabela"] = id_tabela
+                df_unique_keys["nome_coluna"] = nome_coluna
+                df_unique_keys["chave"] = df_unique_keys["chave"].str.replace(
+                    r"(^0+)(?=[^0]+|0{1})", "", regex=True
+                )
+                chunk_save = df_unique_keys.merge(
+                    chunk, how="left", on="chave"
+                )
+                chunk_save["cobertura_temporal"] = "(1)"
+
+                if "pais" in table_name.lower():
+                    chunk_save = find_missing_countries(chunk_save)
+                    chunk_save = format_country_name(chunk_save)
+
+                chunk_save = chunk_save.dropna(
+                    subset=["chave", "valor"], how="all"
+                )
+                chunk_save = chunk_save.drop_duplicates(
+                    subset=["id_tabela", "nome_coluna", "chave", "valor"]
+                )
+
+                chunk_save[
+                    [
+                        "id_tabela",
+                        "nome_coluna",
+                        "chave",
+                        "cobertura_temporal",
+                        "valor",
+                    ]
+                ].to_csv(
+                    save_path,
+                    mode="a" if save_path.exists() else "w",
+                    index=False,
+                    encoding="latin1",
+                    header=not save_path.exists(),  # Write header only if file doesn't exist
+                )
+
+    log(f"Arquivo {table_name} salvo")
+    os.remove(filepath)
+    return save_path
+
+
+def process_manual_dictionaries(output_path: Path | str, table_name: str):
+    """
+    Processes dictionary keys and values, manually defined.
+
+    Args:
+        output_path (Path|str): Base directory for output.
+        table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
+    """
+    save_path = output_path
+    save_path.mkdir(exist_ok=True, parents=True)
+    save_path = save_path / "data.csv"
+    table_configs = constants_cnpj.TABLE_CONFIGS.value[table_name]
+
+    chunk = pd.DataFrame(table_configs["chaves_valores"])
+    for relationship in table_configs["relationships"]:
+        log(
+            f"Processando relacionamento: table_id={relationship['id_tabela']}, column={relationship['nome_coluna']}"
+        )
+        id_tabela = relationship["id_tabela"]
+        nome_coluna = relationship["nome_coluna"]
+
+        df_unique_keys = get_table_unique_keys(
+            table_id=id_tabela, column=nome_coluna
+        )
+
+        df_unique_keys["id_tabela"] = id_tabela
+        df_unique_keys["nome_coluna"] = nome_coluna
+        df_unique_keys["chave"] = df_unique_keys["chave"].str.replace(
+            r"(^0+)(?=[^0]+|0{1})", "", regex=True
+        )
+        chunk_save = df_unique_keys.merge(chunk, how="left", on="chave")
+        chunk_save["cobertura_temporal"] = "(1)"
+
+        chunk_save = chunk_save.dropna(subset=["chave", "valor"], how="all")
+        chunk_save = chunk_save.drop_duplicates(
+            subset=["id_tabela", "nome_coluna", "chave", "valor"]
+        )
+
+        chunk_save[
+            [
+                "id_tabela",
+                "nome_coluna",
+                "chave",
+                "cobertura_temporal",
+                "valor",
+            ]
+        ].to_csv(
+            save_path,
+            mode="a" if save_path.exists() else "w",
+            index=False,
+            encoding="latin1",
+            header=not save_path.exists(),  # Write header only if file doesn't exist
+        )
