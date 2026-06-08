@@ -11,6 +11,25 @@ from prefect.schedules.clocks import CronClock
 
 from pipelines.constants import constants
 
+every_day_dicionario = Schedule(
+    clocks=[
+        CronClock(
+            cron="0 5 * * *",
+            start_date=datetime(2026, 6, 8, 9, 0),
+            labels=[
+                constants.BASEDOSDADOS_PROD_AGENT_LABEL.value,
+            ],
+            parameter_defaults={
+                "dataset_id": "br_me_cnpj",
+                "table_id": "dicionario",
+                "target": "prod",
+                "materialize_after_dump": True,
+                "dbt_alias": True,
+            },
+        ),
+    ]
+)
+
 every_day_empresas = Schedule(
     clocks=[
         CronClock(
