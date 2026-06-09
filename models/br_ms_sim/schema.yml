@@ -3,20 +3,28 @@ version: 2
 models:
   - name: br_ms_sim__microdados
     description: Microdados do Sistema de Informações sobre Mortalidade (SIM) do Ministério
-      da Saúde.
+      da Saúde. Colunas como idade_mae, peso, alt_causa e campos de investigação podem
+      ser nulas no histórico da fonte; not_null aplica-se apenas a colunas essenciais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, sequencial_obito]
     columns:
       - name: ano
         description: Ano
+        tests: [not_null]
       - name: sigla_uf
         description: Sigla da Unidade da Federação
+        tests: [not_null]
       - name: sequencial_obito
         description: Sequencial do Óbito
       - name: tipo_obito
         description: Tipo do Óbito
       - name: causa_basica
         description: Causa Básica (CID-10)
+        tests: [not_null]
       - name: data_obito
         description: Data do Óbito
+        tests: [not_null]
       - name: hora_obito
         description: Hora do Óbito
       - name: naturalidade
@@ -27,6 +35,7 @@ models:
         description: Idade
       - name: sexo
         description: Sexo
+        tests: [not_null]
       - name: raca_cor
         description: Raça ou Cor
       - name: estado_civil
