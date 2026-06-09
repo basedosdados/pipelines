@@ -295,8 +295,6 @@ csv_path_matricula = (
     / "Tabela_Matricula_2025.csv"
 )
 
-detect_delimiter(csv_path_matricula)
-
 df_matricula: pd.DataFrame = pd.read_csv(
     csv_path_matricula,
     delimiter=";",
@@ -327,8 +325,6 @@ csv_path_turma = (
     INPUT / "microdados_censo_escolar_2025" / "dados" / "Tabela_Turma_2025.csv"
 )
 
-detect_delimiter(csv_path_turma)
-
 df_turma: pd.DataFrame = pd.read_csv(
     csv_path_turma,
     delimiter=";",
@@ -358,8 +354,6 @@ csv_path_docente = (
     / "dados"
     / "Tabela_Docente_2025.csv"
 )
-
-detect_delimiter(csv_path_docente)
 
 df_docente: pd.DataFrame = pd.read_csv(
     csv_path_docente,
