@@ -4,7 +4,9 @@ models:
   - name: br_ms_sim__microdados
     description: Microdados do Sistema de Informações sobre Mortalidade (SIM) do Ministério
       da Saúde. Colunas como idade_mae, peso, alt_causa e campos de investigação podem
-      ser nulas no histórico da fonte; not_null aplica-se apenas a colunas essenciais.
+      ser nulas no histórico da fonte; not_null aplica-se apenas a colunas essenciais
+      (ano, sigla_uf). Em causa_basica, data_obito e sexo usa-se not_null_proportion
+      (at_least 0.99), pois a fonte contém nulls legítimos raros (ver README).
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, sigla_uf, sequencial_obito]
@@ -21,10 +23,16 @@ models:
         description: Tipo do Óbito
       - name: causa_basica
         description: Causa Básica (CID-10)
-        tests: [not_null]
+        tests:
+          # 1 registro legado todo null (PB 2005) - ver README secao 5.4
+          - dbt_utils.not_null_proportion:
+              at_least: 0.99
       - name: data_obito
         description: Data do Óbito
-        tests: [not_null]
+        tests:
+          # Fonte tem datas vazias/00000000 em 1996-2005 (~0,01%) - ver README secoes 5.1 e 5.3
+          - dbt_utils.not_null_proportion:
+              at_least: 0.99
       - name: hora_obito
         description: Hora do Óbito
       - name: naturalidade
@@ -35,7 +43,10 @@ models:
         description: Idade
       - name: sexo
         description: Sexo
-        tests: [not_null]
+        tests:
+          # Codigos invalidos no DATASUS viram null no recode (~0,03%) - ver README secao 5.5
+          - dbt_utils.not_null_proportion:
+              at_least: 0.99
       - name: raca_cor
         description: Raça ou Cor
       - name: estado_civil
