@@ -31,7 +31,7 @@ Microdados de óbitos não fetais (CID-10) produzidos pelo Ministério da Saúde
 | Teste dbt que falhou | Anos no BQ com problema | O que a fonte (`.dbc`) mostra | Conclusão |
 |----------------------|-------------------------|-------------------------------|-----------|
 | `unique_combination_of_columns` | **2022** (27 UFs) | 2022 com `CONTADOR` preenchido | Erro no **pipeline legado** |
-| `not_null` data_obito | **2022** (antes); **1996–2005** (depois) | 2022 com `DTOBITO` preenchido | 2022 = pipeline; restante = **histórico** 
+| `not_null` data_obito | **2022** (antes); **1996–2005** (depois) | 2022 com `DTOBITO` preenchido; 1996 com `DTOBITO` vazio/`00000000` (seção 5.3) | 2022 = pipeline; 1996–2005 = **fonte** 
 | `not_null` sexo | 1997–1998, 2020–2024 | Códigos inválidos no DATASUS | **Fonte** (recode Stata) 
 | `not_null` causa_basica | **2005** (PB, 1 registro) | Pendente `DOPB2005.dbc` | **Legado antigo** 
 
@@ -435,7 +435,66 @@ ORDER BY ano;
 
 ---
 
-### 5.3 `causa_basica` null - 1 registro legado
+### 5.3 `data_obito` null 1996 — fonte (`.dbc`) × BQ: nulls são da fonte
+
+> Antes de reprocessar o histórico (1996–2019), validamos se os nulls de `data_obito` em 1996
+> vinham do pipeline legado (como 2022) ou da própria fonte.
+
+**Query (BQ):**
+
+```sql
+SELECT sigla_uf, COUNT(*) AS n, COUNTIF(data_obito IS NULL) AS n_null
+FROM `basedosdados-dev.br_ms_sim.microdados`
+WHERE ano = 1996
+GROUP BY sigla_uf
+HAVING n_null > 0
+ORDER BY n_null DESC;
+```
+
+**Inspeção da fonte (`.dbc` de 1996, mesmo critério do `parse_date`):**
+
+```bash
+cd code/microdados
+uv run python -c "
+from extraction import download_file
+from cleaning import read_dbc
+
+for uf in ['MA', 'MG', 'GO', 'SP']:
+    path = download_file(uf, 1996, './input')
+    raw = read_dbc(str(path))
+    raw.columns = raw.columns.str.upper()
+    s = raw['DTOBITO'].astype(str).str.strip()
+    raw_bad = (s.eq('') | s.eq('00000000') | (s.str.len() < 8)).sum()
+    print(f'RAW DO{uf}1996: n={len(raw)} | DTOBITO invalido={raw_bad}')
+"
+```
+
+![1996 data_obito null por UF - parte 1](./docs/investigacao/13_bq_1996_data_obito_null_por_uf_1.png)
+
+![1996 data_obito null por UF - parte 2](./docs/investigacao/14_bq_1996_data_obito_null_por_uf_2.png)
+
+**Resultado — fonte × BQ batem exatamente:**
+
+| UF (1996) | n (`.dbc`) | DTOBITO inválido (`.dbc`) | data_obito null (BQ) |
+|-----------|------------|---------------------------|----------------------|
+| MA | 12.031 | **92** | **92** |
+| MG | 97.498 | **89** | **89** |
+| GO | 21.573 | **79** | **79** |
+| SP | 235.409 | **2** | **2** |
+
+**Validação adicional do pipeline novo (SP 1996, raw × limpo):** `process_file` preserva as
+235.409 linhas e gera exatamente 2 nulls de `data_obito` (mesmo número do raw), 4 de `sexo`
+(códigos inválidos), 0 de `causa_basica` e 0 de `sequencial_obito`. O layout de 1996 (40 colunas)
+é tratado corretamente pelo rename + `ensure_schema_columns`.
+
+**Conclusão:** ao contrário de 2022, os nulls de `data_obito` em 1996–2005 **vêm da fonte**
+(datas vazias/`00000000` no DATASUS). Reprocessar o histórico **não** remove esses nulls —
+o teste `not_null data_obito` continuará falhando por dado legítimo da fonte. Ajuste correto:
+`schema.yml` sem `not_null` nessas colunas (padrão queimadas), a alinhar com o gestor.
+
+---
+
+### 5.4 `causa_basica` null - 1 registro legado
 
 **Query:**
 
@@ -463,15 +522,81 @@ WHERE causa_basica IS NULL;
 
 ---
 
+### 5.5 Reprocessamento do histórico completo (1996–2019)
+
+> Seguindo orientação do gestor (call de jun/2026): quando a ingestão passada teve problema,
+> reprocessa-se **todo** o histórico. Rodado em 4 lotes (1996–2001, 2002–2007, 2008–2013,
+> 2014–2019) com `pipeline.run()`, substituindo todas as partições legadas no GCS.
+> Com isso, **100% da tabela (1996–2024) passou pelo pipeline Python atual.**
+
+**`dbt test` — antes × depois do reprocessamento do histórico:**
+
+| Teste dbt | Antes | Depois | Status |
+|-----------|-------|--------|--------|
+| `unique_combination_of_columns` | PASS | **PASS** | OK |
+| `not_null` ano / sigla_uf | PASS | **PASS** | OK |
+| `not_null` data_obito | 3.628 | **3.628 (idêntico)** | FAIL — **fonte** (ver 5.1 e 5.3) |
+| `not_null` sexo | 4.532 | **10.771** | FAIL — **fonte** (ver abaixo) |
+| `not_null` causa_basica | 1 | **1** | FAIL — registro PB 2005 |
+
+**`data_obito`:** distribuição por ano **idêntica** à pré-reprocessamento (796/852/1.088/392/497
+em 1996–2000 + 1 em 2002/2004/2005). Confirmação final de que esses nulls vêm da fonte —
+nenhum reprocessamento os remove.
+
+![data_obito null pós-reprocessamento do histórico](./docs/investigacao/15_bq_data_obito_null_pos_historico.png)
+
+**`sexo` — por que subiu de 4.532 para 10.771?** Mesmo fenômeno já documentado na nota da
+seção 5.2 (caso 2022): o pipeline legado **não aplicava o recode** nos anos antigos — códigos
+inválidos (`0`, `6`, `7`, `9`) ficavam como texto em vez de null. Com o histórico reprocessado,
+os códigos inválidos da fonte viraram null corretamente:
+
+| ano | n | n_null | % |
+|-----|---|--------|---|
+| 1996 | 908.883 | 2.237 | 0,25% |
+| 1997 | 903.516 | 1.250 | 0,14% |
+| 1998 | 931.895 | 1.557 | 0,17% |
+| 1999 | 938.658 | 1.075 | 0,11% |
+| 2000 | 946.686 | 943 | 0,10% |
+| 2001 | 961.492 | 732 | 0,08% |
+| 2005 | 1.006.828 | 1 | 0,00% |
+| 2020 | 1.556.824 | 630 | 0,04% |
+| 2021 | 1.832.649 | 683 | 0,04% |
+| 2022 | 1.544.266 | 626 | 0,04% |
+| 2023 | 1.465.610 | 526 | 0,04% |
+| 2024 | 1.532.015 | 511 | 0,03% |
+| **Total** | | **10.771** | |
+
+Perfil consistente com a fonte: anos 90 com mais códigos inválidos (0,08–0,25%), 2002–2019
+praticamente zero (DATASUS passou a validar na entrada), 2020+ ~0,04%.
+
+![sexo null pós-reprocessamento do histórico](./docs/investigacao/17_bq_sexo_null_pos_historico.png)
+
+### 5.6 Comparação dev × prod (`data_obito`)
+
+**Query no prod (`basedosdados.br_ms_sim.microdados`):**
+
+| Ambiente | data_obito null total | Composição |
+|----------|------------------------|------------|
+| **prod** | **12.358** | 1996–2005 (3.628) **+ 2022 quebrado (8.730)** |
+| **dev** | **3.628** | Só 1996–2005 (fonte) |
+
+![prod data_obito null por ano](./docs/investigacao/16_bq_prod_data_obito_null_por_ano.png)
+
+**Conclusão:** o prod ainda contém o **2022 quebrado pelo pipeline legado** (8.730 nulls de
+`data_obito` que não existem no `.dbc`). O merge deste PR, além de adicionar 2023/2024,
+**corrige 2022 em produção**. Os nulls de 1996–2005 são idênticos nos dois ambientes (fonte).
+
+---
+
 ## 6. Síntese final por teste dbt
 
-| Teste dbt | Falhas (pós-reprocessamento) | Causa | Origem | Carga 2023/2024 | Ação |
+| Teste dbt | Falhas (pós-reprocessamento completo 1996–2024) | Causa | Origem | Carga 2023/2024 | Ação |
 |-----------|------------------------------|-------|--------|-----------------|------|
 | `unique_combination_of_columns` | **0 - PASS** | `sequencial_obito` null em 2022 | Pipeline legado | OK (`dup = 0`) | **Concluído** - reprocessado 2022 |
 | `not_null` ano | **PASS** |- | - | OK | - |
 | `not_null` sigla_uf | **PASS** | - | - | OK | - |
-| `not_null` data_obito | **3.628** | Nulls em 1996–2005 | Histórico | **0 null** | Documentar; alinhar `schema.yml` com gestor |
-| `not_null` sexo | **4.532** | Códigos inválidos DATASUS | Fonte | 526/511 por ano (~0,03%) | Documentar; alinhar `schema.yml` com gestor |
+| `not_null` data_obito | **3.628** | Datas vazias/`00000000` em 1996–2005 | **Fonte** (provado: `.dbc` × BQ batem, seção 5.3) | **0 null** | Ajustar `schema.yml` (alinhado com gestor) |
+| `not_null` sexo | **10.771** | Códigos inválidos DATASUS (recode Stata) | **Fonte** (seção 5.5) | 526/511 por ano (~0,03%) | Ajustar `schema.yml` (alinhado com gestor) |
 | `not_null` causa_basica | **1** | Registro PB 2005 todo null | Legado | OK | Checar `.dbc` 2005; documentar |
 
 ---
@@ -479,12 +604,13 @@ WHERE causa_basica IS NULL;
 ## 7. Ações pendentes
 
 1. ~~Reprocessar 2022~~ - **concluído**
-2. ~~Rodar `dbt run` e `dbt test`~~ - **concluído** (3 testes ainda falham por legado/fonte)
-3. Checar `DOPB2005.dbc` para o registro com `causa_basica` null
-4. **Alinhar com gestor** ajuste final no `schema.yml`:
+2. ~~Reprocessar histórico completo 1996–2019~~ - **concluído** (seção 5.5)
+3. ~~Rodar `dbt run` e `dbt test`~~ - **concluído** (3 testes falham apenas por dado legítimo da fonte)
+4. Checar `DOPB2005.dbc` para o registro com `causa_basica` null
+5. **Alinhar com gestor** ajuste final no `schema.yml`:
    - manter `not_null` apenas em `ano` e `sigla_uf` (padrão queimadas), ou
    - documentar exceções para colunas com null esperado (`sexo`, `data_obito`, `causa_basica`)
-5. **Abrir PR** com este README, imagens em `docs/investigacao/` e resumo da investigação
+6. **Atualizar PR** com este README, imagens em `docs/investigacao/` e resumo da investigação
 
 ---
 
@@ -526,6 +652,11 @@ Os CSVs de staging **não** incluem `ano` e `sigla_uf` no arquivo (90 colunas). 
 | `10_bq_data_obito_null_por_ano.png` | data_obito null por ano (pós-reprocessamento) |
 | `11_bq_sexo_null_por_ano.png` | sexo null por ano (pós-reprocessamento) |
 | `12_bq_sexo_null_por_ano_contexto.png` | sexo null com total do ano (pós-reprocessamento) |
+| `13_bq_1996_data_obito_null_por_uf_1.png` | 1996 data_obito null por UF — fonte × BQ (parte 1) |
+| `14_bq_1996_data_obito_null_por_uf_2.png` | 1996 data_obito null por UF — fonte × BQ (parte 2) |
+| `15_bq_data_obito_null_pos_historico.png` | data_obito null por ano — pós-reprocessamento do histórico |
+| `16_bq_prod_data_obito_null_por_ano.png` | data_obito null por ano no **prod** (2022 ainda quebrado) |
+| `17_bq_sexo_null_pos_historico.png` | sexo null por ano — pós-reprocessamento do histórico |
 
 ---
 
