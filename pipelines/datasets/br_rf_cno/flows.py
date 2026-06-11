@@ -1,66 +1,43 @@
 """
-Flows for br_rf_cno - register 03/02/2026
+Flows for br_rf_cno — Prefect 3.
 """
 
-from copy import deepcopy
+from prefect import flow
 
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from pipelines.crawler.rf.flows import _run_rf
 
-from pipelines.constants import constants
-from pipelines.crawler.rf.flows import flow_rf
-from pipelines.datasets.br_rf_cno.schedules import (
-    schedule_br_rf_cno_areas,
-    schedule_br_rf_cno_cnaes,
-    schedule_br_rf_cno_microdados,
-    schedule_br_rf_cno_vinculos,
-)
 
-# Microdados
-br_rf_cno_microdados = deepcopy(flow_rf)
-br_rf_cno_microdados.name = "br_rf_cno.microdados"
-br_rf_cno_microdados.code_owners = ["Luiza"]
-br_rf_cno_microdados.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_rf_cno_microdados.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value,
-    memory_limit="1Gi",
-    memory_request="512Mi",
-    cpu_limit=0.5,
-)
-br_rf_cno_microdados.schedule = schedule_br_rf_cno_microdados
+def _cno_flow(table_id: str, cron: str):
+    @flow(
+        name=f"br_rf_cno__{table_id}",
+        log_prints=True,
+    )
+    def _flow(
+        dataset_id: str = "br_rf_cno",
+        table_id: str = table_id,
+        chunksize: int = 100000,
+        materialize_after_dump: bool = True,
+        dbt_alias: bool = True,
+        update_metadata: bool = True,
+        target: str = "prod",
+        force_run: bool = False,
+    ) -> None:
+        _run_rf(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            chunksize=chunksize,
+            materialize_after_dump=materialize_after_dump,
+            dbt_alias=dbt_alias,
+            update_metadata=update_metadata,
+            target=target,
+            force_run=force_run,
+        )
 
-# Vínculos
-br_rf_cno_vinculos = deepcopy(flow_rf)
-br_rf_cno_vinculos.name = "br_rf_cno.vinculos"
-br_rf_cno_vinculos.code_owners = ["Luiza"]
-br_rf_cno_vinculos.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value,
-    memory_limit="1Gi",
-    memory_request="512Mi",
-    cpu_limit=0.5,
-)
-br_rf_cno_vinculos.schedule = schedule_br_rf_cno_vinculos
+    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    return _flow
 
-# Áreas
-br_rf_cno_areas = deepcopy(flow_rf)
-br_rf_cno_areas.name = "br_rf_cno.areas"
-br_rf_cno_areas.code_owners = ["Luiza"]
-br_rf_cno_areas.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value,
-    memory_limit="1Gi",
-    memory_request="512Mi",
-    cpu_limit=0.5,
-)
-br_rf_cno_areas.schedule = schedule_br_rf_cno_areas
 
-# Cnaes
-br_rf_cno_cnaes = deepcopy(flow_rf)
-br_rf_cno_cnaes.name = "br_rf_cno.cnaes"
-br_rf_cno_cnaes.code_owners = ["Luiza"]
-br_rf_cno_cnaes.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value,
-    memory_limit="1Gi",
-    memory_request="512Mi",
-    cpu_limit=0.5,
-)
-br_rf_cno_cnaes.schedule = schedule_br_rf_cno_cnaes
+br_rf_cno__microdados = _cno_flow("microdados", "5 4 * * 1-5")
+br_rf_cno__vinculos = _cno_flow("vinculos", "15 4 * * 1-5")
+br_rf_cno__areas = _cno_flow("areas", "25 4 * * 1-5")
+br_rf_cno__cnaes = _cno_flow("cnaes", "35 4 * * 1-5")

@@ -1,125 +1,119 @@
 """
-Flows for br_rf_cafir
+Flows for br_rf_cafir — Prefect 3.
 """
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from prefect import flow
 
-from pipelines.constants import constants
-from pipelines.datasets.br_rf_cafir.constants import (
+from pipelines.crawler.rf_cafir.constants import (
     constants as br_rf_cafir_constants,
 )
-from pipelines.datasets.br_rf_cafir.tasks import (
+from pipelines.crawler.rf_cafir.tasks import (
     task_decide_files_to_download,
     task_download_files,
     task_parse_api_metadata,
 )
-from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    DateOnly,
+    PartBdpro,
+)
 from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
+    register_source_poll_task,
+    register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    log_task,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-with Flow(
-    name="br_rf_cafir.imoveis_rurais", code_owners=["Gabriel Pisa"]
-) as br_rf_cafir_imoveis_rurais:
-    dataset_id = Parameter("dataset_id", default="br_rf_cafir", required=True)
-    table_id = Parameter("table_id", default="imoveis_rurais", required=True)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
+
+@flow(
+    name="br_rf_cafir__imoveis_rurais",
+    log_prints=True,
+)
+def br_rf_cafir__imoveis_rurais(
+    dataset_id: str = "br_rf_cafir",
+    table_id: str = "imoveis_rurais",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = False,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    df_metadata = task_parse_api_metadata(url=br_rf_cafir_constants.URL.value)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
+    arquivos, data_atualizacao = task_decide_files_to_download(df=df_metadata)
 
-    df_metadata = task_parse_api_metadata(
+    if not force_run:
+        is_outdated = register_source_poll_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=data_atualizacao,
+            env="prod",
+            date_format="%Y-%m-%d",
+        )
+        if not is_outdated:
+            return
+
+    file_path = task_download_files(
         url=br_rf_cafir_constants.URL.value,
+        file_list=arquivos,
+        data_atualizacao=data_atualizacao,
     )
 
-    arquivos, data_atualizacao = task_decide_files_to_download(
-        df=df_metadata,
-        upstream_tasks=[df_metadata],
-    )
-
-    is_outdated = check_if_data_is_outdated(
+    upload_to_gcs(
+        data_path=file_path,
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=data_atualizacao,
-        date_format="%Y-%m-%d",
-        upstream_tasks=[arquivos],
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
     )
 
-    with case(is_outdated, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
+    )
 
-    with case(is_outdated, True):
-        log_task("Existem atualizações! A run será inciada")
+    if not materialize_after_dump:
+        return
 
-        file_path = task_download_files(
-            url=br_rf_cafir_constants.URL.value,
-            file_list=arquivos,
-            data_atualizacao=data_atualizacao,
-            upstream_tasks=[arquivos, data_atualizacao],
-        )
+    upload_to_gcs(
+        data_path=file_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
 
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=file_path,
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[file_path],
+            coverage=PartBdpro(
+                date_column=DateOnly(col="data_referencia"),
+                date_format=DateFormat.YEAR_MD,
+            ),
+            env="prod",
+            bq_project="basedosdados",
         )
 
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
 
-        # imoveis_rurais
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=file_path,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"date": "data_referencia"},
-                    date_format="%Y-%m-%d",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
-
-
-br_rf_cafir_imoveis_rurais.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_rf_cafir_imoveis_rurais.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_rf_cafir_imoveis_rurais.schedule = schedule_br_rf_cafir_imoveis_rurais
+br_rf_cafir__imoveis_rurais.deploy_schedules = [
+    {"cron": "0 0 * * *", "timezone": "America/Sao_Paulo"}
+]

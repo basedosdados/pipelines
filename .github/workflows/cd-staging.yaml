@@ -1,23 +1,7 @@
 ---
 name: cd (staging)
 on:
-  pull_request:
-    branches: [main]
-    types: [labeled, opened, synchronize]
-    paths:
-      - .github/workflows/cd-staging.yaml
-      - pipelines/**/*
-      - pyproject.toml
-      - uv.lock
-      - Dockerfile
-      # dbt files
-      - models/**/*.sql
-      - models/**/*.yml
-      - macros/**/*
-      - tests-dbt/**/*
-      # dbt config files
-      - dbt_project.yml
-      - packages.yml
+  workflow_dispatch:
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}

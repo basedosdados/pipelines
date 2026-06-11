@@ -1,219 +1,170 @@
 """
-Flows for br_bcb_sicor
-
+Flows para br_bcb_sicor — Prefect 3.
 """
 
-from copy import deepcopy
+from prefect import flow
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
-
-from pipelines.constants import constants
-from pipelines.crawler.bcb.flows import br_bcb_sicor_template
-from pipelines.crawler.bcb.tasks import (
-    create_load_dictionary,
-)
-from pipelines.utils.decorators import Flow
+from pipelines.crawler.bcb.flows import _run_bcb_sicor
+from pipelines.crawler.bcb.tasks import create_load_dictionary
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-# br_bcb_sicor__operacao
-br_bcb_sicor__operacao = deepcopy(br_bcb_sicor_template)
-br_bcb_sicor__operacao.name = "br_bcb_sicor__operacao"
-br_bcb_sicor__operacao.code_owners = ["Gabriel Pisa"]
-br_bcb_sicor__operacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_sicor__operacao.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_bcb_sicor__operacao.schedule = every_day_operacao
 
-# br_bcb_sicor__saldo
-br_bcb_sicor__saldo = deepcopy(br_bcb_sicor_template)
-br_bcb_sicor__saldo.name = "br_bcb_sicor__saldo"
-br_bcb_sicor__saldo.code_owners = ["Gabriel Pisa"]
-br_bcb_sicor__saldo.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_sicor__saldo.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_bcb_sicor__saldo.schedule = every_day_saldo
-
-# br_bcb_sicor__liberacao
-br_bcb_sicor__liberacao = deepcopy(br_bcb_sicor_template)
-br_bcb_sicor__liberacao.name = "br_bcb_sicor__liberacao"
-br_bcb_sicor__liberacao.code_owners = ["Gabriel Pisa"]
-br_bcb_sicor__liberacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_sicor__liberacao.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_bcb_sicor__liberacao.schedule = every_day_liberacao
-
-# br_bcb_sicor__recurso_publico_complemento_operacao
-br_bcb_sicor__recurso_publico_complemento_operacao = deepcopy(
-    br_bcb_sicor_template
-)
-br_bcb_sicor__recurso_publico_complemento_operacao.name = (
-    "br_bcb_sicor__recurso_publico_complemento_operacao"
-)
-br_bcb_sicor__recurso_publico_complemento_operacao.code_owners = [
-    "Gabriel Pisa"
-]
-br_bcb_sicor__recurso_publico_complemento_operacao.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_bcb_sicor__recurso_publico_complemento_operacao.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_bcb_sicor__recurso_publico_complemento_operacao.schedule = (
-#     every_day_recurso_publico_complemento_operacao
-# )
-
-# br_bcb_sicor__recurso_publico_cooperado
-br_bcb_sicor__recurso_publico_cooperado = deepcopy(br_bcb_sicor_template)
-br_bcb_sicor__recurso_publico_cooperado.name = (
-    "br_bcb_sicor__recurso_publico_cooperado"
-)
-br_bcb_sicor__recurso_publico_cooperado.code_owners = ["Gabriel Pisa"]
-br_bcb_sicor__recurso_publico_cooperado.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_bcb_sicor__recurso_publico_cooperado.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_bcb_sicor__recurso_publico_cooperado.schedule = (
-#     every_day_recurso_publico_cooperado
-# )
-
-# br_bcb_sicor__recurso_publico_gleba
-br_bcb_sicor__recurso_publico_gleba = deepcopy(br_bcb_sicor_template)
-br_bcb_sicor__recurso_publico_gleba.name = (
-    "br_bcb_sicor__recurso_publico_gleba"
-)
-br_bcb_sicor__recurso_publico_gleba.code_owners = ["Gabriel Pisa"]
-br_bcb_sicor__recurso_publico_gleba.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_bcb_sicor__recurso_publico_gleba.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_bcb_sicor__recurso_publico_gleba.schedule = every_day_recurso_publico_gleba
-
-# br_bcb_sicor__recurso_publico_mutuario
-br_bcb_sicor__recurso_publico_mutuario = deepcopy(br_bcb_sicor_template)
-br_bcb_sicor__recurso_publico_mutuario.name = (
-    "br_bcb_sicor__recurso_publico_mutuario"
-)
-br_bcb_sicor__recurso_publico_mutuario.code_owners = ["Gabriel Pisa"]
-br_bcb_sicor__recurso_publico_mutuario.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_bcb_sicor__recurso_publico_mutuario.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_bcb_sicor__recurso_publico_mutuario.schedule = (
-#     every_day_recurso_publico_mutuario
-# )
-
-# br_bcb_sicor__recurso_publico_propriedade
-br_bcb_sicor__recurso_publico_propriedade = deepcopy(br_bcb_sicor_template)
-br_bcb_sicor__recurso_publico_propriedade.name = (
-    "br_bcb_sicor__recurso_publico_propriedade"
-)
-br_bcb_sicor__recurso_publico_propriedade.code_owners = ["Gabriel Pisa"]
-br_bcb_sicor__recurso_publico_propriedade.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_bcb_sicor__recurso_publico_propriedade.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_bcb_sicor__recurso_publico_propriedade.schedule = (
-#     every_day_recurso_publico_propriedade
-# )
-
-# br_bcb_sicor__operacoes_desclassificadas
-br_bcb_sicor__operacoes_desclassificadas = deepcopy(br_bcb_sicor_template)
-br_bcb_sicor__operacoes_desclassificadas.name = (
-    "br_bcb_sicor__operacoes_desclassificadas"
-)
-br_bcb_sicor__operacoes_desclassificadas.code_owners = ["Gabriel Pisa"]
-br_bcb_sicor__operacoes_desclassificadas.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_bcb_sicor__operacoes_desclassificadas.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_bcb_sicor__operacoes_desclassificadas.schedule = (
-#     every_day_operacoes_desclassificadas
-# )
-
-# br_bcb_sicor__empreendimento
-br_bcb_sicor__empreendimento = deepcopy(br_bcb_sicor_template)
-br_bcb_sicor__empreendimento.name = "br_bcb_sicor__empreendimento"
-br_bcb_sicor__empreendimento.code_owners = ["Gabriel Pisa"]
-br_bcb_sicor__empreendimento.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_sicor__empreendimento.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_bcb_sicor__empreendimento.schedule = every_day_empreendimento
-
-
-with Flow(
-    name="br_bcb_sicor.dicionario",
-    code_owners=[
-        "Gabriel Pisa",
-    ],
-) as br_bcb_sicor_dicionario:
-    dataset_id = Parameter("dataset_id", default="br_bcb_sicor", required=True)
-    table_id = Parameter("table_id", default="dicionario", required=True)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
+def _sicor_flow(
+    table_id: str,
+    cron: str,
+    dump_mode: str = "overwrite",
+    source_format: str = "parquet",
+    coverage_type: str = "part_bdpro",
+    historical_database: bool = True,
+):
+    @flow(
+        name=f"br_bcb_sicor__{table_id}",
+        log_prints=True,
     )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    def _flow(
+        dataset_id: str = "br_bcb_sicor",
+        table_id: str = table_id,
+        materialize_after_dump: bool = True,
+        dbt_alias: bool = True,
+        update_metadata: bool = True,
+        target: str = "prod",
+        force_run: bool = False,
+        download_all_files: bool = False,
+        local_redis_execution: bool = False,
+    ) -> None:
+        _run_bcb_sicor(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            materialize_after_dump=materialize_after_dump,
+            dbt_alias=dbt_alias,
+            update_metadata=update_metadata,
+            target=target,
+            force_run=force_run,
+            dump_mode=dump_mode,
+            source_format=source_format,
+            coverage_type=coverage_type,
+            historical_database=historical_database,
+            download_all_files=download_all_files,
+            local_redis_execution=local_redis_execution,
+        )
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    return _flow
+
+
+br_bcb_sicor__operacao = _sicor_flow(
+    table_id="operacao",
+    cron="5 2 * * 1-5",
+    dump_mode="append",
+)
+
+br_bcb_sicor__saldo = _sicor_flow(
+    table_id="saldo",
+    cron="15 4 * * 1-5",
+    dump_mode="append",
+)
+
+br_bcb_sicor__liberacao = _sicor_flow(
+    table_id="liberacao",
+    cron="25 4 * * 1-5",
+)
+
+br_bcb_sicor__recurso_publico_complemento_operacao = _sicor_flow(
+    table_id="recurso_publico_complemento_operacao",
+    cron="35 4 * * 1-5",
+)
+
+br_bcb_sicor__recurso_publico_cooperado = _sicor_flow(
+    table_id="recurso_publico_cooperado",
+    cron="45 4 * * 1-5",
+)
+
+br_bcb_sicor__recurso_publico_gleba = _sicor_flow(
+    table_id="recurso_publico_gleba",
+    cron="55 4 * * 1-5",
+    dump_mode="append",
+)
+
+br_bcb_sicor__recurso_publico_mutuario = _sicor_flow(
+    table_id="recurso_publico_mutuario",
+    cron="5 5 * * 1-5",
+)
+
+br_bcb_sicor__recurso_publico_propriedade = _sicor_flow(
+    table_id="recurso_publico_propriedade",
+    cron="15 5 * * 1-5",
+)
+
+br_bcb_sicor__operacoes_desclassificadas = _sicor_flow(
+    table_id="operacoes_desclassificadas",
+    cron="25 5 * * 1-5",
+)
+
+br_bcb_sicor__empreendimento = _sicor_flow(
+    table_id="empreendimento",
+    cron="35 5 * * 1-5",
+    source_format="csv",
+    coverage_type="all_free",
+    historical_database=False,
+)
+
+
+@flow(
+    name="br_bcb_sicor__dicionario",
+    log_prints=True,
+)
+def br_bcb_sicor__dicionario(
+    dataset_id: str = "br_bcb_sicor",
+    table_id: str = "dicionario",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = False,
+    update_metadata: bool = False,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
     dicionario_filepath = create_load_dictionary()
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
+    upload_to_gcs(
         data_path=dicionario_filepath,
         dataset_id=dataset_id,
         table_id=table_id,
+        bucket_name="basedosdados-dev",
         dump_mode="overwrite",
-        upstream_tasks=[dicionario_filepath],
+        source_format="csv",
     )
 
-    wait_for_materialization = run_dbt(
+    run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
-        upstream_tasks=[wait_upload_table],
+        target="dev",
     )
 
-    with case(materialize_after_dump, True):
-        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-            data_path=dicionario_filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="overwrite",
-            upstream_tasks=[wait_for_materialization],
-        )
+    if not materialize_after_dump:
+        return
 
+    upload_to_gcs(
+        data_path=dicionario_filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="overwrite",
+        source_format="csv",
+    )
 
-br_bcb_sicor_template.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_sicor_template.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
