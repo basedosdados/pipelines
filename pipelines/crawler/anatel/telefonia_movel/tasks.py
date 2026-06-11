@@ -3,12 +3,10 @@ Tasks for dataset br_anatel_telefonia_movel
 """
 
 import os
-from datetime import timedelta
 
 import pandas as pd
 from prefect import task
 
-from pipelines.constants import constants
 from pipelines.crawler.anatel.telefonia_movel.constants import (
     constants as anatel_constants,
 )
@@ -23,10 +21,7 @@ from pipelines.crawler.anatel.telefonia_movel.utils import (
 from pipelines.utils.utils import log
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=5, retry_delay_seconds=10)
 def join_tables_in_function(table_id, semestre, ano):
     os.system(
         f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}"
@@ -46,10 +41,7 @@ def join_tables_in_function(table_id, semestre, ano):
     return anatel_constants.TABLES_OUTPUT_PATH.value[table_id]
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=5, retry_delay_seconds=10)
 def get_max_date_in_table_microdados(table_id, ano, semestre):
     if table_id == "microdados":
         log(
@@ -85,10 +77,7 @@ def get_max_date_in_table_microdados(table_id, ano, semestre):
         return df["data"].max()
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=5, retry_delay_seconds=10)
 def unzip():
     return unzip_file()
 

@@ -1,5 +1,5 @@
 """
-Tasks for br_cgu_cartao_pagamento
+Tasks compartilhadas para os datasets br_cgu_* — Prefect 3.
 """
 
 import gc
@@ -11,6 +11,7 @@ import requests
 from prefect import task
 from tqdm import tqdm
 
+from pipelines.constants import constants as global_constants
 from pipelines.crawler.cgu.constants import constants
 from pipelines.crawler.cgu.utils import (
     build_urls,
@@ -22,22 +23,12 @@ from pipelines.crawler.cgu.utils import (
 )
 from pipelines.utils.utils import log, to_partitions
 
+TASK_RETRIES = global_constants.TASK_MAX_RETRIES.value
+TASK_RETRY_DELAY_SECONDS = global_constants.TASK_RETRY_DELAY.value
 
-@task
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def partition_data(table_id: str, dataset_id: str) -> str:
-    """
-    Partition data from a given table.
-
-    This function reads data from a specified table, partitions it based on
-    the columns 'ANO_EXTRATO' and 'MES_EXTRATO', and saves the partitioned
-    data to a specified output path.
-
-    Args:
-        table_id (str): The identifier of the table to be partitioned.
-
-    Returns:
-        str: The path where the partitioned data is saved.
-    """
     log("---------------------------- Read data ----------------------------")
     if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato"]:
         df = read_csv(
@@ -50,7 +41,6 @@ def partition_data(table_id: str, dataset_id: str) -> str:
                 savepath=constants.TABELA.value[table_id]["OUTPUT"],
                 file_type="csv",
             )
-
             return constants.TABELA.value[table_id]["OUTPUT"]
 
         if dataset_id == "br_cgu_licitacao_contrato":
@@ -62,39 +52,22 @@ def partition_data(table_id: str, dataset_id: str) -> str:
                 ],
                 file_type="csv",
             )
-
             return constants.TABELA_LICITACAO_CONTRATO.value[table_id][
                 "OUTPUT"
             ]
 
     elif dataset_id == "br_cgu_servidores_executivo_federal":
         df = read_and_clean_csv(table_id=table_id)
-
         to_partitions(
             data=df,
             partition_columns=["ano", "mes"],
             savepath=constants.TABELA_SERVIDORES.value[table_id]["OUTPUT"],
         )
-
         return constants.TABELA_SERVIDORES.value[table_id]["OUTPUT"]
 
 
-@task
-# https://stackoverflow.com/questions/26124417/how-to-convert-a-csv-file-to-parquet
-def read_and_partition_beneficios_cidadao(table_id):
-    """
-    Carrega arquivos CSV, realiza transformações e cria partições em um formato específico, retornando o caminho de saída.
-
-    Parâmetros:
-    - path (str): O caminho para os arquivos a serem processados.
-    - table (str): O nome da tabela (possíveis valores: "novo_bolsa_familia", "garantia_safra", "bpc").
-
-    Retorna:
-    - str: O caminho do diretório de saída onde as partições foram criadas.
-
-    Exemplo de uso:
-    output_path = parquet_partition("/caminho/para/arquivos/", "novo_bolsa_familia")
-    """
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def read_and_partition_beneficios_cidadao(table_id: str) -> str:
     constants_cgu_beneficios_cidadao = (
         constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
     )
@@ -174,21 +147,10 @@ def read_and_partition_beneficios_cidadao(table_id):
                 return constants_cgu_beneficios_cidadao["OUTPUT"]
 
 
-@task
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def get_current_date_and_download_file(
     table_id: str, dataset_id: str, relative_month: int = 1
-) -> datetime.date:
-    """
-    Get the maximum date from a given table for a specific year and month.
-
-    Args:
-        table_id (str): The ID of the table.
-        year (int): The year.
-        month (int): The month.
-
-    Returns:
-        datetime: The maximum date as a datetime object.
-    """
+) -> datetime:
     max_date = str(
         download_file(
             table_id=table_id,
@@ -196,27 +158,13 @@ def get_current_date_and_download_file(
             relative_month=relative_month,
         )
     )
-
-    date = datetime.strptime(max_date, "%Y-%m-%d")
-
-    return date
+    return datetime.strptime(max_date, "%Y-%m-%d")
 
 
-@task
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def verify_all_url_exists_to_download(
-    dataset_id, table_id, relative_month
+    dataset_id: str, table_id: str, relative_month: int
 ) -> bool:
-    """
-    Verifies if all URLs are valid and can be downloaded.
-
-    Args:
-        table_id (str): The identifier for the table to download data for.
-        year (int): The year for which data is to be downloaded.
-        month (int): The month for which data is to be downloaded.
-
-    Returns:
-        bool: True if all URLs are valid and can be downloaded, False otherwise.
-    """
     _, next_date_in_api = last_date_in_metadata(
         dataset_id=dataset_id, table_id=table_id, relative_month=relative_month
     )
@@ -231,20 +179,16 @@ def verify_all_url_exists_to_download(
 
     for url in urls:
         r = requests.get(url)
-
         if r.status_code != 200:
             log(f"A URL {url=} não existe!")
             return False
-
-        else:
-            log(f"A URL {url=} existe!")
+        log(f"A URL {url=} existe!")
 
     return True
 
 
-@task
 def dict_for_table(table_id: str) -> dict:
-    dict_for_table = {
+    return {
         "novo_bolsa_familia": {
             "year": "ano_competencia",
             "month": "mes_competencia",
@@ -254,6 +198,4 @@ def dict_for_table(table_id: str) -> dict:
             "month": "mes_referencia",
         },
         "bpc": {"year": "ano_competencia", "month": "mes_competencia"},
-    }
-
-    return dict_for_table[table_id]
+    }[table_id]
