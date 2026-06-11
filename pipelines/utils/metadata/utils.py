@@ -15,7 +15,6 @@ import basedosdados as bd
 from basedosdados.download.download import _google_client
 
 from pipelines.constants import constants
-from pipelines.utils.discord import notify_discord
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.utils import log
 
