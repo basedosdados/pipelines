@@ -183,6 +183,11 @@ ignore = [
   "RUF012"
 ]
 
+[tool.ruff.lint.per-file-ignores]
+# DTO fields mirror the GraphQL backend's camelCase field names on purpose;
+# renaming them would break the wire contract.
+"pipelines/utils/metadata/dto.py" = ["N815"]
+
 [tool.sqlfmt]
 exclude = ["target/**/*", "dbt_packages/**/*", ".venv/**/*"]
 
