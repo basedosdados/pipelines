@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - Dockerfile.prefect3
+      - Dockerfile
       - entrypoint.sh
       - pyproject.toml
       - uv.lock
@@ -43,7 +43,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: Dockerfile.prefect3
+          file: Dockerfile
           push: true
           tags: ${{ env.IMAGE }}:${{ steps.tag.outputs.tag }}
       - name: Update work pool image
