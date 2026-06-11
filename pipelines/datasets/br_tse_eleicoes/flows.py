@@ -1,56 +1,44 @@
 """
-Flows for br_tse_eleicoes
+Flows for br_tse_eleicoes — Prefect 3.
 """
 
-from copy import deepcopy
+from prefect import flow
 
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from pipelines.crawler.tse_eleicoes.flows import _run_tse_eleicoes
 
-from pipelines.constants import constants
-from pipelines.crawler.tse_eleicoes.flows import flow_br_tse_eleicoes
 
-# Tabela: candidatos
+def _tse_flow(table_id: str, cron: str | None):
+    @flow(
+        name=f"br_tse_eleicoes__{table_id}",
+        log_prints=True,
+    )
+    def _flow(
+        dataset_id: str = "br_tse_eleicoes",
+        table_id: str = table_id,
+        materialize_after_dump: bool = False,
+        dbt_alias: bool = False,
+        update_metadata: bool = True,
+        target: str = "prod",
+        force_run: bool = False,
+    ) -> None:
+        _run_tse_eleicoes(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            materialize_after_dump=materialize_after_dump,
+            dbt_alias=dbt_alias,
+            update_metadata=update_metadata,
+            target=target,
+            force_run=force_run,
+        )
 
-br_tse_eleicoes_candidatos = deepcopy(flow_br_tse_eleicoes)
-br_tse_eleicoes_candidatos.name = "br_tse_eleicoes.candidatos"
-br_tse_eleicoes_candidatos.code_owners = ["luiz"]
-br_tse_eleicoes_candidatos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_tse_eleicoes_candidatos.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_tse_eleicoes_candidatos.schedule = schedule_candidatos
+    _flow.deploy_schedules = (
+        [{"cron": cron, "timezone": "America/Sao_Paulo"}] if cron else []
+    )
+    return _flow
 
-# Tabela: bens_candidato
-br_tse_eleicoes_bens_candidato = deepcopy(flow_br_tse_eleicoes)
-br_tse_eleicoes_bens_candidato.name = "br_tse_eleicoes.bens_candidato"
-br_tse_eleicoes_bens_candidato.code_owners = ["luiz"]
-br_tse_eleicoes_bens_candidato.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_tse_eleicoes_bens_candidato.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_tse_eleicoes_bens_candidato.schedule = schedule_bens
 
-# Tabela: despesas_candidato
-br_tse_eleicoes_despesas_candidato = deepcopy(flow_br_tse_eleicoes)
-br_tse_eleicoes_despesas_candidato.name = "br_tse_eleicoes.despesas_candidato"
-br_tse_eleicoes_despesas_candidato.code_owners = ["luiz"]
-br_tse_eleicoes_despesas_candidato.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_tse_eleicoes_despesas_candidato.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_tse_eleicoes_despesas_candidato.schedule = schedule_despesa
-
-# Tabela: receitas_candidato
-br_tse_eleicoes_receitas_candidato = deepcopy(flow_br_tse_eleicoes)
-br_tse_eleicoes_receitas_candidato.name = "br_tse_eleicoes.receitas_candidato"
-br_tse_eleicoes_receitas_candidato.code_owners = ["luiz"]
-br_tse_eleicoes_receitas_candidato.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_tse_eleicoes_receitas_candidato.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_tse_eleicoes_receitas_candidato.schedule = schedule_receita
+# Schedules eram comentados no Prefect 0 — mantém sem cron por enquanto.
+br_tse_eleicoes__candidatos = _tse_flow("candidatos", None)
+br_tse_eleicoes__bens_candidato = _tse_flow("bens_candidato", None)
+br_tse_eleicoes__despesas_candidato = _tse_flow("despesas_candidato", None)
+br_tse_eleicoes__receitas_candidato = _tse_flow("receitas_candidato", None)
