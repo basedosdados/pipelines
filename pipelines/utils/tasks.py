@@ -67,19 +67,24 @@ def _upload_to_gcs(
     bucket_name: str,
     source_format: str = "csv",
 ) -> None:
-    """
-    Create table using BD+ and upload to GCS.
-    """
-    bd_version = bd.__version__
-    log(f"USING BASEDOSDADOS {bd_version}")
-    # pylint: disable=C0103
+    # billing_project_id casado com o bucket: a SA do pod (prefect@basedosdados-dev
+    # ou prefect@basedosdados) tem `serviceusage.services.use` apenas no próprio
+    # projeto; o default `basedosdados-staging` da basedosdados lib dispara 403
+    # em `blob.exists()` quando user_project não coincide com o projeto do bucket.
+    billing_project_id = bucket_name
     tb = bd.Table(
-        dataset_id=dataset_id, table_id=table_id, bucket_name=bucket_name
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name=bucket_name,
+        billing_project_id=billing_project_id,
     )
     table_staging = f"{tb.table_full_name['staging']}"
     # pylint: disable=C0103
     st = bd.Storage(
-        dataset_id=dataset_id, table_id=table_id, bucket_name=bucket_name
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name=bucket_name,
+        billing_project_id=billing_project_id,
     )
     storage_path = f"{st.bucket_name}.staging.{dataset_id}.{table_id}"
     storage_path_link = f"https://console.cloud.google.com/storage/browser/{st.bucket_name}/staging/{dataset_id}/{table_id}"
@@ -818,48 +823,6 @@ def download_data_to_gcs(
     """
     Get data from BigQuery.
 
-    As regras de negócio são:
-        - Se a tabela for maior que 1GiB: Não tem download disponível
-        - Se a tabela for entre 100MiB e 1GiB: Tem download apenas para assinante BDPro
-        - Se a tabela for menor que 100MiB: Tem download para assinante BDPro e aberto
-            - Se for parcialmente BDPro faz o download de arquivos diferentes para o público pagante e não pagante
-
-    """
-    # Try to get project_id from environment variable
-    if not project_id:
-        log(
-            "Project ID was not provided, trying to get it from environment variable"
-        )
-        try:
-            bd_base = Base()
-            project_id = bd_base.config["gcloud-projects"][bd_project_mode][
-                "name"
-            ]
-        except KeyError:
-            pass
-        if not project_id:
-            raise ValueError(
-                "project_id must be either provided or inferred from environment variables"
-            )
-        log(
-            f"Project ID was inferred from environment variables: {project_id}"
-        )
-
-    # Asserts that dataset_id and table_id are provided
-    if not dataset_id or not table_id:
-        raise ValueError("dataset_id and table_id must be provided")
-
-    # If query is not provided, build query from it
-    if not query:
-        query = f"SELECT * FROM `{project_id}.{dataset_id}.{table_id}`"
-        log(f"Query was inferred from dataset_id and table_id: {query}")
-
-    # If query is not a string, raise an error
-    if not isinstance(query, str):
-        raise ValueError("query must be either a string or a Jinja2 template")
-    log(f"Query was provided: {query}")
-
-    # Get billing project ID
     if not billing_project_id:
         log(
             "Billing project ID was not provided, trying to get it from environment variable"
@@ -909,21 +872,14 @@ def download_data_to_gcs(
         if len(nodes) == 0:
             return None
 
-        num_bytes = nodes[0]["uncompressedFileSize"]
+    if num_bytes > 1_000_000_000:
+        log("Tabela > 1 GB — sem download disponível")
+        return
 
-    url_path = get_credentials_from_secret("url_download_data")
-    secret_path_url_free = url_path["URL_DOWNLOAD_OPEN"]
-    secret_path_url_closed = url_path["URL_DOWNLOAD_CLOSED"]
-
-    log(num_bytes)
-    if num_bytes > 1_073_741_824:  # 1GB em unidades binárias
-        log("Table is bigger than 1GiB it is not in the download criteria")
-        return None
-
-    if (
-        104_857_600 <= num_bytes <= 1_073_741_824
-    ):  # Entre 1 GiB e 100 MiB (binário) , apenas BD pro
-        log("Querying data for BDpro user")
+    url_paths = get_credentials_from_secret("url_download_data")
+    url_open = url_paths["URL_DOWNLOAD_OPEN"]
+    url_closed = url_paths["URL_DOWNLOAD_CLOSED"]
+    query = f"SELECT * FROM `{project_id}.{dataset_id}.{table_id}`"
 
         blob_path = f"{secret_path_url_closed}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz"
         _execute_query_in_bigquery(
@@ -935,15 +891,14 @@ def download_data_to_gcs(
 
         log("BDPro Data was loaded successfully")
 
-    if num_bytes < 104_857_600:  # valor menor que 100 MiB
-        # Try to remove bdpro access
-        log("Trying to remove BDpro filter")
-        try:
-            query_remove_bdpro = f"DROP ROW ACCESS POLICY bdpro_filter ON `{project_id}.{dataset_id}.{table_id}`"
-            log(query_remove_bdpro)
-            job = client["bigquery"].query(query_remove_bdpro)
-            while not job.done():
-                sleep(1)
+    log("Exportando dados abertos")
+    _execute_query_in_bigquery(
+        billing_project_id,
+        query,
+        f"{url_open}{dataset_id}/{table_id}/{table_id}.csv.gz",
+        location,
+    )
+    log("Exportação open concluída")
 
             log(job.result())
 
