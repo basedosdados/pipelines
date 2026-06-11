@@ -1,36 +1,43 @@
 """
-Flows for br_ms_sia
+Flows for br_ms_sia — Prefect 3.
 """
 
-from copy import deepcopy
+from prefect import flow
 
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from pipelines.crawler.datasus.flows import _run_siasus
 
-from pipelines.constants import constants
-from pipelines.crawler.datasus.flows import flow_siasus
-from pipelines.datasets.br_ms_sia.schedules import (
-    schedule_br_ms_sia_producao_ambulatorial,
-    schedule_br_ms_sia_psicossocial,
+
+def _sia_flow(table_id: str, cron: str):
+    @flow(
+        name=f"br_ms_sia__{table_id}",
+        log_prints=True,
+    )
+    def _flow(
+        dataset_id: str = "br_ms_sia",
+        table_id: str = table_id,
+        materialize_after_dump: bool = True,
+        dbt_alias: bool = True,
+        update_metadata: bool = True,
+        target: str = "prod",
+        force_run: bool = False,
+        year_month_to_extract: str = "",
+    ) -> None:
+        _run_siasus(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            materialize_after_dump=materialize_after_dump,
+            dbt_alias=dbt_alias,
+            update_metadata=update_metadata,
+            target=target,
+            force_run=force_run,
+            year_month_to_extract=year_month_to_extract,
+        )
+
+    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    return _flow
+
+
+br_ms_sia__producao_ambulatorial = _sia_flow(
+    "producao_ambulatorial", "0 21 * * *"
 )
-
-br_ms_sia_producao_ambulatorial = deepcopy(flow_siasus)
-br_ms_sia_producao_ambulatorial.name = "br_ms_sia.producao_ambulatorial"
-br_ms_sia_producao_ambulatorial.code_owners = ["Gabriel Pisa"]
-br_ms_sia_producao_ambulatorial.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ms_sia_producao_ambulatorial.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_ms_sia_producao_ambulatorial.schedule = (
-    schedule_br_ms_sia_producao_ambulatorial
-)
-
-
-br_ms_sia_psicossocial = deepcopy(flow_siasus)
-br_ms_sia_psicossocial.name = "br_ms_sia.psicossocial"
-br_ms_sia_psicossocial.code_owners = ["Gabriel Pisa"]
-br_ms_sia_psicossocial.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ms_sia_psicossocial.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_ms_sia_psicossocial.schedule = schedule_br_ms_sia_psicossocial
+br_ms_sia__psicossocial = _sia_flow("psicossocial", "0 7 * * *")

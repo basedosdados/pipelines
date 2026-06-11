@@ -1,90 +1,55 @@
 """
-Flows for dataset br_anatel_telefonia_movel
+Flows for br_anatel_telefonia_movel — Prefect 3.
 """
 
-from copy import deepcopy
+from prefect import flow
 
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
-
-from pipelines.constants import constants
 from pipelines.crawler.anatel.telefonia_movel.flows import (
-    flow_anatel_telefonia_movel,
-)
-from pipelines.datasets.br_anatel_telefonia_movel.schedules import (
-    schedule_br_anatel_telefonia_movel__brasil,
-    schedule_br_anatel_telefonia_movel__microdados,
-    schedule_br_anatel_telefonia_movel__municipio,
-    schedule_br_anatel_telefonia_movel__uf,
+    _run_anatel_telefonia_movel,
 )
 
-# -------------------------------> Microdados
-br_anatel_telefonia_movel__microdados = deepcopy(flow_anatel_telefonia_movel)
-br_anatel_telefonia_movel__microdados.name = (
-    "br_anatel_telefonia_movel.microdados"
-)
-br_anatel_telefonia_movel__microdados.code_owners = ["equipe_dados"]
-br_anatel_telefonia_movel__microdados.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_anatel_telefonia_movel__microdados.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_anatel_telefonia_movel__microdados.schedule = (
-    schedule_br_anatel_telefonia_movel__microdados
-)
 
-# -------------------------------> Densidade Municipio
+def _anatel_tm_flow(table_id: str, cron: str):
+    @flow(
+        name=f"br_anatel_telefonia_movel__{table_id}",
+        log_prints=True,
+    )
+    def _flow(
+        dataset_id: str = "br_anatel_telefonia_movel",
+        table_id: str = table_id,
+        ano: int | None = None,
+        semestre: int | None = None,
+        materialize_after_dump: bool = True,
+        dbt_alias: bool = True,
+        update_metadata: bool = True,
+        target: str = "prod",
+        force_run: bool = False,
+    ) -> None:
+        _run_anatel_telefonia_movel(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            ano=ano,
+            semestre=semestre,
+            materialize_after_dump=materialize_after_dump,
+            dbt_alias=dbt_alias,
+            update_metadata=update_metadata,
+            target=target,
+            force_run=force_run,
+        )
 
-br_anatel_telefonia_movel__densidade_municipio = deepcopy(
-    flow_anatel_telefonia_movel
-)
-br_anatel_telefonia_movel__densidade_municipio.name = (
-    "br_anatel_telefonia_movel.densidade_municipio"
-)
-br_anatel_telefonia_movel__densidade_municipio.code_owners = ["equipe_dados"]
-br_anatel_telefonia_movel__densidade_municipio.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_anatel_telefonia_movel__densidade_municipio.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_anatel_telefonia_movel__densidade_municipio.schedule = (
-    schedule_br_anatel_telefonia_movel__municipio
-)
+    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    return _flow
 
-# -------------------------------> Densidade UF
 
-br_anatel_telefonia_movel__densidade_uf = deepcopy(flow_anatel_telefonia_movel)
-br_anatel_telefonia_movel__densidade_uf.name = (
-    "br_anatel_telefonia_movel.densidade_uf"
+br_anatel_telefonia_movel__microdados = _anatel_tm_flow(
+    table_id="microdados", cron="30 16 * * *"
 )
-br_anatel_telefonia_movel__densidade_uf.code_owners = ["equipe_dados"]
-br_anatel_telefonia_movel__densidade_uf.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
+br_anatel_telefonia_movel__densidade_municipio = _anatel_tm_flow(
+    table_id="densidade_municipio", cron="30 17 * * *"
 )
-br_anatel_telefonia_movel__densidade_uf.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+br_anatel_telefonia_movel__densidade_uf = _anatel_tm_flow(
+    table_id="densidade_uf", cron="30 18 * * *"
 )
-br_anatel_telefonia_movel__densidade_uf.schedule = (
-    schedule_br_anatel_telefonia_movel__uf
-)
-
-# -------------------------------> Densidade Brasil
-
-br_anatel_telefonia_movel__densidade_brasil = deepcopy(
-    flow_anatel_telefonia_movel
-)
-br_anatel_telefonia_movel__densidade_brasil.name = (
-    "br_anatel_telefonia_movel.densidade_brasil"
-)
-br_anatel_telefonia_movel__densidade_brasil.code_owners = ["equipe_dados"]
-br_anatel_telefonia_movel__densidade_brasil.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_anatel_telefonia_movel__densidade_brasil.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_anatel_telefonia_movel__densidade_brasil.schedule = (
-    schedule_br_anatel_telefonia_movel__brasil
+br_anatel_telefonia_movel__densidade_brasil = _anatel_tm_flow(
+    table_id="densidade_brasil", cron="30 19 * * *"
 )

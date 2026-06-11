@@ -6,7 +6,7 @@ import asyncio
 import os
 import shutil
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -193,8 +193,8 @@ def process_file(
 
 
 @task(
-    max_retries=2,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
+    retries=2,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
 )
 def crawl(dataset_id: str, input_dir: str, url: str | None = None) -> None:
     """

@@ -1,36 +1,43 @@
 """
-Flows for br_ms_sih
+Flows for br_ms_sih — Prefect 3.
 """
 
-from copy import deepcopy
+from prefect import flow
 
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from pipelines.crawler.datasus.flows import _run_sihsus
 
-from pipelines.constants import constants
-from pipelines.crawler.datasus.flows import flow_sihsus
-from pipelines.datasets.br_ms_sih.schedules import (
-    everyday_sih_aihs_reduzidas,
-    everyday_sih_servicos_profissionais,
+
+def _sih_flow(table_id: str, cron: str):
+    @flow(
+        name=f"br_ms_sih__{table_id}",
+        log_prints=True,
+    )
+    def _flow(
+        dataset_id: str = "br_ms_sih",
+        table_id: str = table_id,
+        materialize_after_dump: bool = True,
+        dbt_alias: bool = True,
+        update_metadata: bool = True,
+        target: str = "prod",
+        force_run: bool = False,
+        year_month_to_extract: str = "",
+    ) -> None:
+        _run_sihsus(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            materialize_after_dump=materialize_after_dump,
+            dbt_alias=dbt_alias,
+            update_metadata=update_metadata,
+            target=target,
+            force_run=force_run,
+            year_month_to_extract=year_month_to_extract,
+        )
+
+    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    return _flow
+
+
+br_ms_sih__servicos_profissionais = _sih_flow(
+    "servicos_profissionais", "30 3 * * *"
 )
-
-br_ms_sih_servicos_profissionais = deepcopy(flow_sihsus)
-br_ms_sih_servicos_profissionais.name = "br_ms_sih.servicos_profissionais"
-br_ms_sih_servicos_profissionais.code_owners = ["Gabriel Pisa"]
-br_ms_sih_servicos_profissionais.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_ms_sih_servicos_profissionais.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_ms_sih_servicos_profissionais.schedule = everyday_sih_servicos_profissionais
-
-
-br_ms_sih_aihs_reduzidas = deepcopy(flow_sihsus)
-br_ms_sih_aihs_reduzidas.name = "br_ms_sih.aihs_reduzidas"
-br_ms_sih_aihs_reduzidas.code_owners = ["Gabriel Pisa"]
-br_ms_sih_aihs_reduzidas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_ms_sih_aihs_reduzidas.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_ms_sih_aihs_reduzidas.schedule = everyday_sih_aihs_reduzidas
+br_ms_sih__aihs_reduzidas = _sih_flow("aihs_reduzidas", "30 6 * * *")
