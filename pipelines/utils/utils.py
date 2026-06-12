@@ -3,9 +3,13 @@ Utilitários gerais — logging, detecção de ambiente, helpers de string.
 """
 
 import logging
+import zipfile
+from io import BytesIO
 from pathlib import Path
 from typing import Any
+from urllib.request import urlopen
 
+import numpy as np
 import pandas as pd
 
 
@@ -83,3 +87,40 @@ def to_partitions(
             df_slice.to_parquet(out, index=False, compression="gzip")
         else:
             raise ValueError(f"file_type inválido: {file_type!r}")
+
+
+def clean_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """Remove null bytes e normaliza strings em colunas object de um DataFrame."""
+    for col in dataframe.columns.tolist():
+        if dataframe[col].dtype == object:
+            try:
+                dataframe[col] = (
+                    dataframe[col]
+                    .astype(str)
+                    .str.replace("\x00", "", regex=True)
+                    .replace("None", np.nan, regex=True)
+                )
+            except Exception as exc:
+                print(
+                    "Column: ",
+                    col,
+                    "\nData: ",
+                    dataframe[col].tolist(),
+                    "\n",
+                    exc,
+                )
+                raise
+    return dataframe
+
+
+def download_and_unzip_file(url: str, path: str) -> None:
+    """Baixa um arquivo ZIP da URL e extrai no caminho indicado."""
+    log(f"Baixando {url} → {path}")
+    try:
+        r = urlopen(url)
+        zf = zipfile.ZipFile(BytesIO(r.read()))
+        zf.extractall(path=path)
+        log(f"Extração concluída: {url} → {path}")
+    except Exception as e:
+        log(e, level="error")
+        raise
