@@ -13,6 +13,7 @@ def _anatel_blf_flow(table_id: str, cron: str):
     @flow(
         name=f"br_anatel_banda_larga_fixa__{table_id}",
         log_prints=True,
+        description=f"Dump da tabela {table_id} do dataset br_anatel_banda_larga_fixa.",
     )
     def _flow(
         dataset_id: str = "br_anatel_banda_larga_fixa",
