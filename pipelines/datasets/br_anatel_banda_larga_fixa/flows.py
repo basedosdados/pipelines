@@ -1,6 +1,4 @@
-"""
-Flows for br_anatel_banda_larga_fixa — Prefect 3.
-"""
+"""Flows for br_anatel_banda_larga_fixa — Prefect 3."""
 
 from prefect import flow
 
