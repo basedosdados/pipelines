@@ -14,15 +14,25 @@
 }}
 
 with
+    {% if is_incremental() %}
+        max_referencia as (
+            select
+                cast(max(ano) as string) as max_ano, cast(max(mes) as string) as max_mes
+            from {{ this }}
+            where ano = (select max(ano) from {{ this }})
+        ),
+    {% endif %}
+
     producao_staging_filtrada as (
         select *
         from {{ set_datalake_project("br_ms_sia_staging.producao_ambulatorial") }}
 
         {% if is_incremental() %}
             where
-                date(cast(ano as int64), cast(mes as int64), 1) > (
-                    select max(date(cast(ano as int64), cast(mes as int64), 1))
-                    from {{ this }}
+                ano > (select max_ano from max_referencia)
+                or (
+                    ano = (select max_ano from max_referencia)
+                    and mes > (select max_mes from max_referencia)
                 )
         {% endif %}
     ),
