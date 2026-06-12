@@ -9,7 +9,7 @@ só precisa escolher um `CoverageSpec` e os identificadores da tabela.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 import basedosdados as bd
 from prefect import task
@@ -44,7 +44,7 @@ def get_today_date():
     Sem parâmetros. Útil em flows que precisam carimbar a execução com a data
     corrente (ex.: nomear partições, registrar a data de extração).
     """
-    d = datetime.datetime.today()
+    d = datetime.today()
     return d.strftime("%Y-%m-%d")
 
 
@@ -92,12 +92,12 @@ def _coerce_to_date(value: object, date_format: str) -> datetime.date | None:
     """
     if value is None:
         return None
-    if isinstance(value, datetime.datetime):
+    if isinstance(value, datetime):
         return value.date()
-    if isinstance(value, datetime.date):
+    if isinstance(value, date):
         return value
     if isinstance(value, str):
-        return datetime.datetime.strptime(value, date_format).date()
+        return datetime.strptime(value, date_format).date()
     raise TypeError(f"source_max_date inesperado: {type(value).__name__}")
 
 
