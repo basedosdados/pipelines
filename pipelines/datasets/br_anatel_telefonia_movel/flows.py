@@ -1,6 +1,4 @@
-"""
-Flows for br_anatel_telefonia_movel — Prefect 3.
-"""
+"""Flows for br_anatel_telefonia_movel — Prefect 3."""
 
 from prefect import flow
 

@@ -11,7 +11,7 @@ class TableSchemaValidator(BaseModel):
     source_columns: set[str]
     expected_columns: set[str]
 
-    @root_validator(pre=False)
+    @root_validator(pre=False, skip_on_failure=True)
     @classmethod
     def validate_columns(cls, values):
         source = values.get("source_columns")
