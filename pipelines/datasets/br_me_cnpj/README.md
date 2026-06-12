@@ -138,11 +138,381 @@ Alguns códigos presentes em dados não existem em dicionário-fonte (esperado e
 - **motivo_situacao_cadastral "32" em `estabelecimentos`**: valores tratados via `dicionario_not_found()`
 - **cnae_fiscal_secundaria "6202100", "4761000" em `estabelecimentos`**: valores tratados via `dicionario_not_found()`
 
-####  **Nas tabelas de dados:**
-- `custom_dictionary_coverage`: valida que **todas as colunas de código possuem entrada no dicionário**
-  - Aplicado em: `empresas`, `socios`, `estabelecimentos`
-  - Escopo temporal: apenas dados mais recentes (`__most_recent_date__`)
+####  **Encoding:**
+A [Issue 1533](https://github.com/basedosdados/pipelines/issues/1533) documenta um erro de _encoding_ encontrado nas tabelas de estabelecimentos e empresas. 
 
+Para investigar o problema, foram seguidos os seguintes passos:
+
+##### Investigação do erro:
+Para investigar o problema, foram seguidos os seguintes passos:
+   
+   1. Com a macro a seguir, verifiquei todas as colunas tipo `STRING` das tabelas, em busca do caractere inválido:
+
+   ```sql
+   {% set query_colunas %}
+      SELECT DISTINCT table_name, column_name
+      FROM `basedosdados`.`br_me_cnpj`.INFORMATION_SCHEMA.COLUMNS
+      WHERE data_type = "STRING"
+      AND table_name <> "dicionario"
+   {% endset %}
+
+   {% set resultados = run_query(query_colunas) %}
+
+   {% if execute and resultados %}
+      
+      {% for row in resultados %}
+         {# Armazena os valores de cada linha nas variáveis #}
+         {% set tabela = row[0] %}
+         {% set coluna = row[1] %}
+
+         SELECT 
+               data, 
+               '{{ tabela }}' AS id_tabela, 
+               '{{ coluna }}' AS nome_coluna, 
+               COUNT(*) AS linhas_caracteres_invalidos
+         FROM `basedosdados`.`br_me_cnpj`.`{{ tabela }}`
+         WHERE `{{ coluna }}` LIKE "%�%"
+         GROUP BY data
+
+         {# Adiciona o UNION ALL entre as queries, exceto na última iteração #}
+         {% if not loop.last %}
+               UNION ALL
+         {% endif %}
+
+      {% endfor %}
+
+   {% else %}
+      {# Fallback caso o dbt execute em modo de parse rápido #}
+      SELECT NULL AS data, NULL AS id_tabela, NULL AS nome_coluna, NULL AS linhas_caracteres_invalidos
+   {% endif %}
+   ```
+
+   2. Como resultado, temos os dados [Nesta Planilha](https://docs.google.com/spreadsheets/d/1W_nui54rNA4dPmmNlAN-YNMp3bdribDukCJMe2LwVt4/edit?usp=sharing):
+
+   **Data Range:** 2023-06-10 a 2026-05-10
+   **Colunas afetadas**:
+
+   `br_me_cnpj.estabelecimentos` : bairro, complemento, email, logradouro, nome_fantasia, numero, tipo_logradouro
+
+   `br_me_cnpj.empresas`: razao_social
+
+   `br_me_cnpj.socios`:  nome
+
+   A maioria são casos de cedilha: mais de 93% (4087/4379)#### 
+
+##### Correção
+
+Correções aplicadas aos dados em DEV seguem a seguinte lógica:
+
+   1. Macros:
+
+      ```sql
+      {% macro apply_regex_replacements(column_name, regex_replacements) %}
+         {% set ns = namespace(expr=column_name) %}
+         {% for regex, replacement in regex_replacements %}
+            {% set ns.expr %}
+                  REGEXP_REPLACE(
+                     {{ ns.expr }},
+                     r"{{ regex }}",
+                     r"{{ replacement }}"
+                  )
+            {% endset %}
+         {% endfor %}
+         {{ ns.expr }}
+      {% endmacro %}
+      ```
+
+      ```sql
+      {% macro apply_regex_to_columns(columns, regex_replacements) %}
+         {%- for column_name in columns %}
+         `{{ column_name }}` =
+            {{ apply_regex_replacements(column_name, regex_replacements) }} 
+         {%- if not loop.last %},{% endif %}
+         {%- endfor %}
+      {% endmacro %}
+      ```
+
+      ```sql
+      {% macro generate_regex_updates(
+         project_id,
+         dataset_id,
+         table_columns,
+         regex_replacements
+      ) %}
+
+      {% for table_name, columns in table_columns.items() %}
+
+      UPDATE `{{ project_id }}.{{ dataset_id }}.{{ table_name }}`
+      SET
+      {{ apply_regex_to_columns(columns, regex_replacements) }}
+
+      WHERE data >= '2023-06-01'
+      AND (
+      {%- for column_name in columns %}
+         REGEXP_CONTAINS(
+            `{{ column_name }}`,
+            r"[\x{fff0}-\x{ffff}]"
+         )
+         {%- if not loop.last %}
+            OR
+         {% endif %}
+      {%- endfor %}
+      );
+      {% endfor %}
+      {% endmacro %}
+      ```
+
+   2. Definição de casos mais gerais e particulares para a lista de **regex** e seus respectivos **replacements*:
+
+      a. Casos de cedilha com til:
+
+         ```
+            {% set regex_replacements = [
+               ["[\\x{fff0}-\\x{ffff}](ão|õe)", "ç\\1"],
+               ["[\\x{fff0}-\\x{ffff}](ÃO|ÕE)", "Ç\\1"],
+               ["[\\x{fff0}-\\x{ffff}](ÂO)", "ÇÃO"],
+               ["[\\x{fff0}-\\x{ffff}](âo)", "ção"],
+               ["[\\x{fff0}-\\x{ffff}](ÀO|Ã0|ÃPO|ÕA)","ÇÃO"],
+               ["[\\x{fff0}-\\x{ffff}](ÔE)", "ÇÕE"],
+               ["[\\x{fff0}-\\x{ffff}](ôe)", "çõe"],
+               ["[\\x{fff0}-\\x{ffff}](ÒE)", "ÇÕE"]
+            ] %}
+
+         ```
+
+      #### b. Casos com 'd' e apóstrofe (d'água, D'ÁGUA):
+
+         ```
+         {% set regex_replacements = [
+            ["(D)[\\x{fff0}-\\x{ffff}](Á)", "\\1'\\2"],
+            ["(d)[\\x{fff0}-\\x{ffff}](á)", "\\1'\\2"],
+            ["(D)[\x{fff0}-\x{ffff}](´ AGUA)", "\1'ÁGUA"]
+         ] %}
+         ```
+      #### c. Casos de cedilha com acento (açá, açú):
+
+         ```
+         {% set regex_replacements = [
+            ["(A)[\\x{fff0}-\\x{ffff}](Ú)", "\\1Ç\\2"],
+            ["(a)[\\x{fff0}-\\x{ffff}](ú)", "\\1ç\\2"],
+            ["([^D])[\\x{fff0}-\\x{ffff}](Á)", "\\1Ç\\2"],
+            ["([^d])[\\x{fff0}-\\x{ffff}](á)", "\\1ç\\2"]
+         ] %}
+         ```
+
+      #### d. Outros
+
+         ```
+         {% set regex_replacements = [
+            ["(LEN)[\\x{fff0}-\\x{ffff}](ÓIS)", "\\1Ç\\2"],
+            ["(S)[\\x{fff0}-\\x{ffff}](Õ)", "SÃO"],
+            ["(SU)[\\x{fff0}-\\x{ffff}](Ç)", "\\1Í\\2"],
+            ["(JOS)[\\x{fff0}-\\x{ffff}](É|´E)", "\\1É"],
+            ["(S)[\\x{fff0}-\\x{ffff}](¨N)","S/N"]
+         ] %}
+         ```
+      #### Aplicação da query de correção:**
+
+         ```sql
+         {% set table_columns = {
+            "empresas": [
+               "razao_social"
+            ],
+            "socios": [
+               "nome"
+            ],
+            "estabelecimentos": [
+               "bairro",
+               "complemento",
+               "email",
+               "logradouro",
+               "nome_fantasia",
+               "numero",
+               "tipo_logradouro"
+            ]
+         } %}
+
+         {{ generate_regex_updates(
+            "basedosdados-dev",
+            "br_me_cnpj",
+            table_columns,
+            regex_replacements
+         ) }}
+         ```
+
+      #### e.  Casos particulares
+         As ocorrências únicas restantes foram avaliadas para definir um _replacement_:
+
+         * Buscando o endereço (logradouro, bairro ou complemento) no Google, junto com o ID do município para encontrar algo mais próximo da realidade;
+         * Buscando o CNPJ no Google;
+         * Buscando outras ocorrências do CNPJ na tabela
+
+         Seguem as queries:
+
+         ```sql         
+         UPDATE `basedosdados-dev.br_me_cnpj.estabelecimentos`
+         SET
+            `email` = REGEXP_REPLACE(email, r'^[\x{fff0}-\x{ffff}]+$', null)
+         WHERE data >= "2023-06-01"
+         AND REGEXP_CONTAINS(email, r'[\x{fff0}-\x{ffff}]');
+
+
+         UPDATE `basedosdados-dev.br_me_cnpj.estabelecimentos`
+         SET
+         complemento =
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+               complemento,
+               r'1[\x{fff0}-\x{ffff}]· ANDAR',
+               '1º· ANDAR'
+            ),
+               r'[\x{fff0}-\x{ffff}]+',
+               ''
+            ),
+               r'CONCEI[\x{fff0}-\x{ffff}]Ã',
+               'CONCEIÇÃO'
+            ),
+               r'[\x{fff0}-\x{ffff}]ÇAÍ POINT',
+               'AÇAÍ POINT'
+            ),
+               r' DENOMINA[\x{fff0}-\x{ffff}]Ã',
+               ' DENOMINAÇÃO'
+            ),
+               r'ANEXO [\x{fff0}-\x{ffff}]´A´',
+               'ANEXO ´A´'
+            ),
+         bairro =
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+               bairro,
+               r'BALAN[\x{fff0}-\x{ffff}]É',
+               'BALANÇÉ'
+            ),
+               r'MACAP[\x{fff0}-\x{ffff}]+.+II',
+               'MACAPÁ II'
+            ),
+               r'FL[\x{fff0}-\x{ffff}]ÓRIDA',
+               'FLÓRIDA'
+            ),
+               r'MA[\x{fff0}-\x{ffff}]ÔNICA',
+               'MAÇÔNICA'
+            ),
+               r'ARA[\x{fff0}-\x{ffff}]À',
+               'ARAÇÁ'
+            ),
+               r'JARDIM[\x{fff0}-\x{ffff}]+.+EUROPA',
+               'JARDIM EUROPA'
+            ),
+               r'JARDIM DE[\x{fff0}-\x{ffff}]ÇA ROSAII',
+               'JARDIM DELLA ROSA'
+            ),
+               r'INH[\x{fff0}-\x{ffff}]ÚMA',
+               'INHAÚMA'
+            ),
+               r'S[\x{fff0}-\x{ffff}]Ó',
+               'SÃO'
+            ),
+               r'GR[\x{fff0}-\x{ffff}]ÇAS',
+               'GRAÇAS'
+            ),
+               r'NA[\x{fff0}-\x{ffff}]õES',
+               'NAÇÕES'
+            ),
+               r'VILA RA[\x{fff0}-\x{ffff}]À',
+               'VILA ARAÇÁ'
+            ),
+               r'MER[\x{fff0}-\x{ffff}]ÊS',
+               'MERCÊS'
+            ),
+               r'ACLIMA[\x{fff0}-\x{ffff}]ãO',
+               'ACLIMAÇÃO'
+            ),
+               r'LEN[\x{fff0}-\x{ffff}]ÕIS',
+               'LENÇÓIS'
+            ),
+               r'AC[\x{fff0}-\x{ffff}]ÇIAS',
+               'ACÁCIAS'
+            ),
+         logradouro =
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+         REGEXP_REPLACE(
+               logradouro,
+               r'[\x{fff0}-\x{ffff}]+.+ESQUERDA',
+               'Á ESQUERDA'
+            ),
+               r'quadra ``e[\x{fff0}-\x{ffff}]´',
+               'quadra `e`'),
+
+               r'MA[\x{fff0}-\x{ffff}]Ã',
+               'MAÇÃ'
+            ),
+               r'GRA[\x{fff0}-\x{ffff}]ÓPOLIS',
+               'GRAÇÓPOLIS'
+            ),
+               r'Lad[\x{fff0}-\x{ffff}]´ario',
+               'Ladário'
+            ),
+               r'CONCEI[\x{fff0}-\x{ffff}]¿O',
+               'CONCEIÇÃO'
+            ),
+               r'C[\x{fff0}-\x{ffff}]ÓRREGO',
+               'CÓRREGO'
+            ),
+               r'ANTONIO TOM[\x{fff0}-\x{ffff}]É',
+               'ANTONIO TOMÉ'
+            ),
+               r'COR[\x{fff0}-\x{ffff}]ÃES',
+               'CORÇÕES'
+            ),
+               r'A[\x{fff0}-\x{ffff}]úcar',
+               'AÇÚCAR'
+            )
+         WHERE data >= '2023-06-01'
+         AND (
+         REGEXP_CONTAINS(bairro, r'[\x{fff0}-\x{ffff}]')
+         OR REGEXP_CONTAINS(complemento, r'[\x{fff0}-\x{ffff}]')
+         OR REGEXP_CONTAINS(logradouro, r'[\x{fff0}-\x{ffff}]')
+         OR REGEXP_CONTAINS(nome_fantasia, r'[\x{fff0}-\x{ffff}]')
+         OR REGEXP_CONTAINS(numero, r'[\x{fff0}-\x{ffff}]')
+         OR REGEXP_CONTAINS(tipo_logradouro, r'[\x{fff0}-\x{ffff}]')
+         );
+
+
+         UPDATE `basedosdados-dev.br_me_cnpj.empresas` 
+         SET
+         razao_social =      
+            REGEXP_REPLACE(
+               razao_social, 'CAIXA ESCOLAR MUNICIPAL �´TEREZINHA MARQUES DE OLIVEIRA�´',
+               'CAIXA ESCOLAR MUNICIPAL TEREZINHA MARQUES DE OLIVEIRA')
+         WHERE data >= "2023-06-01";
+
+         ```
 ---
 
 ## Mudanças
