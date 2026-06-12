@@ -7,6 +7,8 @@ delega para as funções puras de orquestração de `register.py`. O autor do fl
 só precisa escolher um `CoverageSpec` e os identificadores da tabela.
 """
 
+from __future__ import annotations
+
 from datetime import datetime
 
 import basedosdados as bd
