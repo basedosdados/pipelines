@@ -429,7 +429,7 @@ ORDER BY ano;
 
 <p align="center"><img src="./docs/investigacao/12_bq_sexo_null_por_ano_contexto.png" alt="sexo contexto" width="100%"/></p>
 
-**Conclusão:** nulls de `sexo` vêm de **códigos inválidos no DATASUS** (≠ 1, 2), convertidos para null pelo recode Stata. Em 2023/2024 são ~500/ano (~0,03%) — **comportamento esperado da fonte**, não erro de pipeline.
+**Conclusão:** nulls de `sexo` vêm de **códigos inválidos no DATASUS** (≠ 1, 2), convertidos para null pelo recode Stata. Em 2023/2024 são ~500/ano (~0,03%) - **comportamento esperado da fonte**, não erro de pipeline.
 
 > **Nota:** o total de `sexo` null subiu de 2.593 para 4.532 após reprocessar 2022 porque o ano passou a ter recode correto (626 nulls reais da fonte), em vez de estar quebrado com `sequencial_obito` null.
 
@@ -535,9 +535,9 @@ WHERE causa_basica IS NULL;
 |-----------|-------|--------|--------|
 | `unique_combination_of_columns` | PASS | **PASS** | OK |
 | `not_null` ano / sigla_uf | PASS | **PASS** | OK |
-| `not_null` data_obito | 3.628 | **3.628 (idêntico)** | FAIL — **fonte** (ver 5.1 e 5.3) |
-| `not_null` sexo | 4.532 | **10.771** | FAIL — **fonte** (ver abaixo) |
-| `not_null` causa_basica | 1 | **1** | FAIL — registro PB 2005 |
+| `not_null` data_obito | 3.628 | **3.628 (idêntico)** | FAIL - **fonte** (ver 5.1 e 5.3) |
+| `not_null` sexo | 4.532 | **10.771** | FAIL -**fonte** (ver abaixo) |
+| `not_null` causa_basica | 1 | **1** | FAIL - registro PB 2005 |
 
 **`data_obito`:** distribuição por ano **idêntica** à pré-reprocessamento (796/852/1.088/392/497
 em 1996–2000 + 1 em 2002/2004/2005). Confirmação final de que esses nulls vêm da fonte —
@@ -588,6 +588,43 @@ praticamente zero (DATASUS passou a validar na entrada), 2020+ ~0,04%.
 
 ---
 
+### 5.7 Decisão final: calibração dos testes no `schema.yml`
+
+Com a prova de que os nulls remanescentes vêm da fonte (seções 5.3 e 5.5), os testes
+`not_null` de `causa_basica`, `data_obito` e `sexo` foram substituídos por
+`dbt_utils.not_null_proportion` com `at_least: 0.99`:
+
+```yaml
+- name: data_obito
+  tests:
+    # Fonte tem datas vazias/00000000 em 1996-2005 (~0,01%)
+    - dbt_utils.not_null_proportion:
+        at_least: 0.99
+```
+
+**Racional:**
+
+- `not_null` puro é um contrato impossível: a fonte DATASUS produz nulls legítimos
+  (datas vazias no histórico, códigos de sexo inválidos até hoje).
+- Teste que sempre falha vira ruído e esconde regressões reais.
+- A régua de 99% tolera os nulls da fonte (preenchimento real: 99,97%+), mas **reprova**
+  um bug tipo o de 2022 (um ano inteiro nulo = ~4,4% da tabela → preenchimento ~95,6%).
+- `not_null` puro mantido em `ano` e `sigla_uf` (chaves de partição); unicidade intocada.
+- Precedente no repositório: `br_inpe_queimadas` (caso `risco_fogo`, null legítimo do
+  histórico anual da fonte).
+
+**Resultado: `dbt test` 6/6 PASS** (primeira execução completa sem falhas):
+
+| Teste | Resultado |
+|-------|-----------|
+| `not_null_proportion` causa_basica (0.99) | PASS |
+| `not_null_proportion` data_obito (0.99) | PASS |
+| `not_null_proportion` sexo (0.99) | PASS |
+| `unique_combination_of_columns` | PASS |
+| `not_null` ano / sigla_uf | PASS |
+
+---
+
 ## 6. Síntese final por teste dbt
 
 | Teste dbt | Falhas (pós-reprocessamento completo 1996–2024) | Causa | Origem | Carga 2023/2024 | Ação |
@@ -595,9 +632,9 @@ praticamente zero (DATASUS passou a validar na entrada), 2020+ ~0,04%.
 | `unique_combination_of_columns` | **0 - PASS** | `sequencial_obito` null em 2022 | Pipeline legado | OK (`dup = 0`) | **Concluído** - reprocessado 2022 |
 | `not_null` ano | **PASS** |- | - | OK | - |
 | `not_null` sigla_uf | **PASS** | - | - | OK | - |
-| `not_null` data_obito | **3.628** | Datas vazias/`00000000` em 1996–2005 | **Fonte** (provado: `.dbc` × BQ batem, seção 5.3) | **0 null** | Ajustar `schema.yml` (alinhado com gestor) |
-| `not_null` sexo | **10.771** | Códigos inválidos DATASUS (recode Stata) | **Fonte** (seção 5.5) | 526/511 por ano (~0,03%) | Ajustar `schema.yml` (alinhado com gestor) |
-| `not_null` causa_basica | **1** | Registro PB 2005 todo null | Legado | OK | Checar `.dbc` 2005; documentar |
+| `not_null` data_obito | **3.628** | Datas vazias/`00000000` em 1996–2005 | **Fonte** (provado: `.dbc` × BQ batem, seção 5.3) | **0 null** | **Concluído** - `not_null_proportion 0.99` (seção 5.7) → PASS |
+| `not_null` sexo | **10.771** | Códigos inválidos DATASUS (recode Stata) | **Fonte** (seção 5.5) | 526/511 por ano (~0,03%) | **Concluído** - `not_null_proportion 0.99` (seção 5.7) → PASS |
+| `not_null` causa_basica | **1** | Registro PB 2005 todo null | Legado | OK | **Concluído** - `not_null_proportion 0.99` (seção 5.7) → PASS |
 
 ---
 
@@ -605,12 +642,12 @@ praticamente zero (DATASUS passou a validar na entrada), 2020+ ~0,04%.
 
 1. ~~Reprocessar 2022~~ - **concluído**
 2. ~~Reprocessar histórico completo 1996–2019~~ - **concluído** (seção 5.5)
-3. ~~Rodar `dbt run` e `dbt test`~~ - **concluído** (3 testes falham apenas por dado legítimo da fonte)
-4. Checar `DOPB2005.dbc` para o registro com `causa_basica` null
-5. **Alinhar com gestor** ajuste final no `schema.yml`:
-   - manter `not_null` apenas em `ano` e `sigla_uf` (padrão queimadas), ou
-   - documentar exceções para colunas com null esperado (`sexo`, `data_obito`, `causa_basica`)
-6. **Atualizar PR** com este README, imagens em `docs/investigacao/` e resumo da investigação
+3. ~~Rodar `dbt run` e `dbt test`~~ - **concluído**
+4. ~~Calibrar testes no `schema.yml`~~ - **concluído** (seção 5.7): `not_null_proportion`
+   `at_least: 0.99` em `causa_basica`, `data_obito`, `sexo` → **`dbt test` 6/6 PASS**
+5. Checar `DOPB2005.dbc` para o registro com `causa_basica` null (1 registro, baixa prioridade)
+6. **Validar com gestor** a calibração da seção 5.7 no review do PR
+7. **Atualizar PR** com este README, imagens em `docs/investigacao/` e resumo da investigação
 
 ---
 
@@ -642,9 +679,9 @@ Os CSVs de staging **não** incluem `ano` e `sigla_uf` no arquivo (90 colunas). 
 |---------|----------|
 | `01_bq_nulls_sp_ac_2020_2024.png` | Nulls SP/AC antes do reprocessamento |
 | `02_bq_resumo_por_ano.png` | Resumo por ano antes do reprocessamento |
-| `03_bq_2022_sequencial_obito_ufs_1.png` | 2022 sequencial_obito null — UFs (parte 1) |
-| `04_bq_2022_sequencial_obito_ufs_2.png` | 2022 sequencial_obito null — UFs (parte 2) |
-| `05_bq_causa_basica_null_2005_pb.png` | Registro causa_basica null — PB 2005 |
+| `03_bq_2022_sequencial_obito_ufs_1.png` | 2022 sequencial_obito null - UFs (parte 1) |
+| `04_bq_2022_sequencial_obito_ufs_2.png` | 2022 sequencial_obito null - UFs (parte 2) |
+| `05_bq_causa_basica_null_2005_pb.png` | Registro causa_basica null - PB 2005 |
 | `06_bq_duplicatas_2022_1.png` | Duplicatas unicidade 2022 (parte 1) |
 | `07_bq_duplicatas_2022_2.png` | Duplicatas unicidade 2022 (parte 2) |
 | `08_bq_sexo_null_2023_2024.png` | sexo null 2023/2024 SP e AC |
@@ -652,11 +689,11 @@ Os CSVs de staging **não** incluem `ano` e `sigla_uf` no arquivo (90 colunas). 
 | `10_bq_data_obito_null_por_ano.png` | data_obito null por ano (pós-reprocessamento) |
 | `11_bq_sexo_null_por_ano.png` | sexo null por ano (pós-reprocessamento) |
 | `12_bq_sexo_null_por_ano_contexto.png` | sexo null com total do ano (pós-reprocessamento) |
-| `13_bq_1996_data_obito_null_por_uf_1.png` | 1996 data_obito null por UF — fonte × BQ (parte 1) |
-| `14_bq_1996_data_obito_null_por_uf_2.png` | 1996 data_obito null por UF — fonte × BQ (parte 2) |
-| `15_bq_data_obito_null_pos_historico.png` | data_obito null por ano — pós-reprocessamento do histórico |
+| `13_bq_1996_data_obito_null_por_uf_1.png` | 1996 data_obito null por UF - fonte × BQ (parte 1) |
+| `14_bq_1996_data_obito_null_por_uf_2.png` | 1996 data_obito null por UF - fonte × BQ (parte 2) |
+| `15_bq_data_obito_null_pos_historico.png` | data_obito null por ano - pós-reprocessamento do histórico |
 | `16_bq_prod_data_obito_null_por_ano.png` | data_obito null por ano no **prod** (2022 ainda quebrado) |
-| `17_bq_sexo_null_pos_historico.png` | sexo null por ano — pós-reprocessamento do histórico |
+| `17_bq_sexo_null_pos_historico.png` | sexo null por ano - pós-reprocessamento do histórico |
 
 ---
 
