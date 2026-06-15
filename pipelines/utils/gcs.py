@@ -172,7 +172,14 @@ class DBTArtifactUploader:
         )
 
     def _init_gcs(self) -> None:
-        self._client = storage.Client()
+        # target=prod usa SA prod; demais targets usam SA staging — necessário
+        # porque o bucket basedosdados-dev é requester-pays e a SA prod não tem
+        # serviceusage.services.use no projeto basedosdados-dev.
+        mode = "prod" if self.target == "prod" else "staging"
+        credentials = get_credentials_from_env(mode=mode)
+        self._client = storage.Client(
+            project=self.user_project, credentials=credentials
+        )
         self._bucket = self._client.bucket(
             bucket_name=self.bucket_name, user_project=self.user_project
         )

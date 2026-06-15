@@ -62,11 +62,21 @@ def _upload_to_gcs(
     dump_mode: str = "append",
     source_format: str = "csv",
 ) -> None:
+    # billing_project_id casado com o bucket: a SA do pod tem
+    # serviceusage.services.use apenas no próprio projeto; o default
+    # basedosdados-staging da lib dispara 403 em blob.exists().
+    billing_project_id = bucket_name
     tb = bd.Table(
-        dataset_id=dataset_id, table_id=table_id, bucket_name=bucket_name
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name=bucket_name,
+        billing_project_id=billing_project_id,
     )
     st = bd.Storage(
-        dataset_id=dataset_id, table_id=table_id, bucket_name=bucket_name
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name=bucket_name,
+        billing_project_id=billing_project_id,
     )
     storage_link = (
         f"https://console.cloud.google.com/storage/browser/"
