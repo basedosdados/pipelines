@@ -21,7 +21,9 @@ Microdados de óbitos não fetais (CID-10) produzidos pelo Ministério da Saúde
 3. Comparar contagens e concluir: **fonte** vs **pipeline legado**.
 4. Reprocessar anos com erro de pipeline (2022).
 5. Rodar `dbt test` novamente e documentar falhas remanescentes.
-6. Registrar evidências (prints, queries, conclusão) neste README.
+6. Registrar evidências (queries, tabelas e conclusão) neste README.
+
+> **Nota SQL:** no BigQuery, `nulls` é palavra reservada. Usar alias como `n_null` em vez de `nulls`.
 
 **Arquivos investigados (`.dbc`):** `DOSP2021.dbc`, `DOSP2022.dbc`, `DOSP2023.dbc`, `DOAC2021.dbc`, `DOAC2022.dbc`, `DOAC2023.dbc`  
 **Local:** `code/microdados/input/investigacao/`
@@ -33,7 +35,7 @@ Microdados de óbitos não fetais (CID-10) produzidos pelo Ministério da Saúde
 | `unique_combination_of_columns` | **2022** (27 UFs) | 2022 com `CONTADOR` preenchido | Erro no **pipeline legado** |
 | `not_null` data_obito | **2022** (antes); **1996–2005** (depois) | 2022 com `DTOBITO` preenchido; 1996 com `DTOBITO` vazio/`00000000` (seção 5.3) | 2022 = pipeline; 1996–2005 = **fonte** 
 | `not_null` sexo | 1997–1998, 2020–2024 | Códigos inválidos no DATASUS | **Fonte** (recode Stata) 
-| `not_null` causa_basica | **2005** (PB, 1 registro) | Pendente `DOPB2005.dbc` | **Legado antigo** 
+| `not_null` causa_basica | **2005** (PB, 1 registro) | Registro único com chaves null | **Legado antigo** 
 
 **Carga 2023/2024:** unicidade ok; `data_obito` sem null; `sexo` com ~500 null/ano (~0,03%) alinhado à fonte.
 
@@ -117,8 +119,6 @@ GROUP BY ano, sigla_uf
 ORDER BY sigla_uf, ano;
 ```
 
-![Nulls SP e AC 2020–2024 - antes do reprocessamento](./docs/investigacao/01_bq_nulls_sp_ac_2020_2024.png)
-
 **Resultado (antes do reprocessamento):**
 
 | ano | sigla_uf | n | sequencial_obito_null | sequencial_obito_distintos | data_obito_null | causa_basica_null | sexo_null |
@@ -156,8 +156,6 @@ GROUP BY ano
 ORDER BY ano;
 ```
 
-![Resumo por ano - antes do reprocessamento](./docs/investigacao/02_bq_resumo_por_ano.png)
-
 **Resultado (antes do reprocessamento):**
 
 | ano | n | sequencial_obito_null | data_obito_null | causa_basica_null | sexo_null |
@@ -189,10 +187,6 @@ GROUP BY ano, sigla_uf
 ORDER BY sigla_uf;
 ```
 
-![2022 sequencial_obito null por UF - parte 1](./docs/investigacao/03_bq_2022_sequencial_obito_ufs_1.png)
-
-![2022 sequencial_obito null por UF - parte 2](./docs/investigacao/04_bq_2022_sequencial_obito_ufs_2.png)
-
 **Resultado:** nas **27 UFs**, `sequencial_obito_null = n` e `sequencial_obito_distintos = 0`.
 
 | sigla_uf | n | sequencial_obito_null |
@@ -219,8 +213,6 @@ SELECT
 FROM `basedosdados-dev.br_ms_sim.microdados`
 WHERE ano = 2022 AND sigla_uf = 'SP';
 ```
-
-![Cruzamento SP 2022 - .dbc × BQ](./docs/investigacao/09_bq_sp_2022_cruzamento.png)
 
 **Comparação:**
 
@@ -249,10 +241,6 @@ HAVING COUNT(*) > 1
 ORDER BY ano, sigla_uf
 LIMIT 50;
 ```
-
-![Duplicatas unicidade 2022 - parte 1](./docs/investigacao/06_bq_duplicatas_2022_1.png)
-
-![Duplicatas unicidade 2022 - parte 2](./docs/investigacao/07_bq_duplicatas_2022_2.png)
 
 **Resultado (antes do reprocessamento):** 27 grupos duplicados, **todos** com `ano = 2022` e `sequencial_obito IS NULL`.
 
@@ -283,8 +271,6 @@ GROUP BY ano, sigla_uf
 ORDER BY sigla_uf, ano;
 ```
 
-![sexo null 2023/2024 - SP e AC](./docs/investigacao/08_bq_sexo_null_2023_2024.png)
-
 **Comparação com `.dbc`:**
 
 | ano | sigla_uf | SEXO inválido (`.dbc`) | sexo_null (BQ) |
@@ -293,8 +279,6 @@ ORDER BY sigla_uf, ano;
 | 2023 | SP | 52 | 52 |
 | 2024 | AC | - | 7 |
 | 2024 | SP | - | 68 |
-
-<p align="center"><img src="./docs/investigacao/08_bq_sexo_null_2023_2024.png" alt="sexo 2023 2024" width="100%"/></p>
 
 **Conclusão:** nulls de `sexo` em 2023/2024 **batem com códigos inválidos na fonte**; o pipeline converte corretamente para null.
 
@@ -306,6 +290,7 @@ ORDER BY sigla_uf, ano;
 
 Após confirmar no `.dbc` que 2022 tinha `CONTADOR` e `DTOBITO` preenchidos, reprocessamos 2022 com o pipeline Python atual:
 
+```bash
 # YEAR_RANGE = [2022] em pipeline.py
 uv run python pipeline.py
 
@@ -362,8 +347,6 @@ ORDER BY ano;
 | 2005 | 1 | 1 |
 | **Total** | | **3.628** |
 
-<p align="center"><img src="./docs/investigacao/10_bq_data_obito_null_por_ano.png" alt="data_obito null" width="100%"/></p>
-
 **Conclusão:** todos os nulls de `data_obito` estão em **1996–2005** (histórico). **2022, 2023 e 2024: 0 null** após reprocessamento.
 
 ---
@@ -398,8 +381,6 @@ ORDER BY ano;
 | 2024 | 511 |
 | **Total** | **4.532** |
 
-<p align="center"><img src="./docs/investigacao/11_bq_sexo_null_por_ano.png" alt="sexo null por ano" width="100%"/></p>
-
 **Query com contexto (total do ano):**
 
 ```sql
@@ -426,8 +407,6 @@ ORDER BY ano;
 | 2022 | 1.544.266 | 626 | 0,04% |
 | 2023 | 1.465.610 | 526 | 0,04% |
 | 2024 | 1.532.015 | 511 | 0,03% |
-
-<p align="center"><img src="./docs/investigacao/12_bq_sexo_null_por_ano_contexto.png" alt="sexo contexto" width="100%"/></p>
 
 **Conclusão:** nulls de `sexo` vêm de **códigos inválidos no DATASUS** (≠ 1, 2), convertidos para null pelo recode Stata. Em 2023/2024 são ~500/ano (~0,03%) - **comportamento esperado da fonte**, não erro de pipeline.
 
@@ -469,10 +448,6 @@ for uf in ['MA', 'MG', 'GO', 'SP']:
 "
 ```
 
-![1996 data_obito null por UF - parte 1](./docs/investigacao/13_bq_1996_data_obito_null_por_uf_1.png)
-
-![1996 data_obito null por UF - parte 2](./docs/investigacao/14_bq_1996_data_obito_null_por_uf_2.png)
-
 **Resultado — fonte × BQ batem exatamente:**
 
 | UF (1996) | n (`.dbc`) | DTOBITO inválido (`.dbc`) | data_obito null (BQ) |
@@ -488,9 +463,8 @@ for uf in ['MA', 'MG', 'GO', 'SP']:
 é tratado corretamente pelo rename + `ensure_schema_columns`.
 
 **Conclusão:** ao contrário de 2022, os nulls de `data_obito` em 1996–2005 **vêm da fonte**
-(datas vazias/`00000000` no DATASUS). Reprocessar o histórico **não** remove esses nulls —
-o teste `not_null data_obito` continuará falhando por dado legítimo da fonte. Ajuste correto:
-`schema.yml` sem `not_null` nessas colunas (padrão queimadas), a alinhar com o gestor.
+(datas vazias/`00000000` no DATASUS). Reprocessar o histórico **não** remove esses nulls.
+Calibração aplicada na seção 5.7: `not_null_proportion` com `at_least: 0.99`.
 
 ---
 
@@ -516,9 +490,7 @@ WHERE causa_basica IS NULL;
 |-----|----------|------------------|--------------|------------|------|
 | 2005 | PB | null | null | null | null |
 
-<p align="center"><img src="./docs/investigacao/05_bq_causa_basica_null_2005_pb.png" alt="causa_basica PB 2005" width="100%"/></p>
-
-**Conclusão:** único registro com todas as colunas-chave null — **legado de 2005, PB**. Fora da carga 2023/2024. Pendente checar `DOPB2005.dbc` na fonte.
+**Conclusão:** único registro com todas as colunas-chave null — **legado de 2005, PB**. Fora da carga 2023/2024. Coberto por `not_null_proportion 0.99` (seção 5.7).
 
 ---
 
@@ -536,14 +508,12 @@ WHERE causa_basica IS NULL;
 | `unique_combination_of_columns` | PASS | **PASS** | OK |
 | `not_null` ano / sigla_uf | PASS | **PASS** | OK |
 | `not_null` data_obito | 3.628 | **3.628 (idêntico)** | FAIL - **fonte** (ver 5.1 e 5.3) |
-| `not_null` sexo | 4.532 | **10.771** | FAIL -**fonte** (ver abaixo) |
+| `not_null` sexo | 4.532 | **10.771** | FAIL - **fonte** (ver abaixo) |
 | `not_null` causa_basica | 1 | **1** | FAIL - registro PB 2005 |
 
 **`data_obito`:** distribuição por ano **idêntica** à pré-reprocessamento (796/852/1.088/392/497
 em 1996–2000 + 1 em 2002/2004/2005). Confirmação final de que esses nulls vêm da fonte —
 nenhum reprocessamento os remove.
-
-![data_obito null pós-reprocessamento do histórico](./docs/investigacao/15_bq_data_obito_null_pos_historico.png)
 
 **`sexo` — por que subiu de 4.532 para 10.771?** Mesmo fenômeno já documentado na nota da
 seção 5.2 (caso 2022): o pipeline legado **não aplicava o recode** nos anos antigos — códigos
@@ -569,8 +539,6 @@ os códigos inválidos da fonte viraram null corretamente:
 Perfil consistente com a fonte: anos 90 com mais códigos inválidos (0,08–0,25%), 2002–2019
 praticamente zero (DATASUS passou a validar na entrada), 2020+ ~0,04%.
 
-![sexo null pós-reprocessamento do histórico](./docs/investigacao/17_bq_sexo_null_pos_historico.png)
-
 ### 5.6 Comparação dev × prod (`data_obito`)
 
 **Query no prod (`basedosdados.br_ms_sim.microdados`):**
@@ -579,8 +547,6 @@ praticamente zero (DATASUS passou a validar na entrada), 2020+ ~0,04%.
 |----------|------------------------|------------|
 | **prod** | **12.358** | 1996–2005 (3.628) **+ 2022 quebrado (8.730)** |
 | **dev** | **3.628** | Só 1996–2005 (fonte) |
-
-![prod data_obito null por ano](./docs/investigacao/16_bq_prod_data_obito_null_por_ano.png)
 
 **Conclusão:** o prod ainda contém o **2022 quebrado pelo pipeline legado** (8.730 nulls de
 `data_obito` que não existem no `.dbc`). O merge deste PR, além de adicionar 2023/2024,
@@ -638,22 +604,9 @@ Com a prova de que os nulls remanescentes vêm da fonte (seções 5.3 e 5.5), os
 
 ---
 
-## 7. Ações pendentes
+## 7. Outras particularidades do pipeline
 
-1. ~~Reprocessar 2022~~ - **concluído**
-2. ~~Reprocessar histórico completo 1996–2019~~ - **concluído** (seção 5.5)
-3. ~~Rodar `dbt run` e `dbt test`~~ - **concluído**
-4. ~~Calibrar testes no `schema.yml`~~ - **concluído** (seção 5.7): `not_null_proportion`
-   `at_least: 0.99` em `causa_basica`, `data_obito`, `sexo` → **`dbt test` 6/6 PASS**
-5. Checar `DOPB2005.dbc` para o registro com `causa_basica` null (1 registro, baixa prioridade)
-6. **Validar com gestor** a calibração da seção 5.7 no review do PR
-7. **Atualizar PR** com este README, imagens em `docs/investigacao/` e resumo da investigação
-
----
-
-## 8. Outras particularidades do pipeline
-
-### 8.1 Conversão de município (IBGE 6 → 7 dígitos)
+### 7.1 Conversão de município (IBGE 6 → 7 dígitos)
 
 O DATASUS fornece códigos IBGE de 6 dígitos. O pipeline converte para 7 dígitos usando o diretório oficial:
 
@@ -661,43 +614,13 @@ O DATASUS fornece códigos IBGE de 6 dígitos. O pipeline converte para 7 dígit
 - Colunas: `id_municipio_6` → `id_municipio`
 - Implementação: `load_municipios()` em `code/microdados/cleaning.py`
 
-### 8.2 Particionamento Hive no GCS
+### 7.2 Particionamento Hive no GCS
 
 Os CSVs de staging **não** incluem `ano` e `sigla_uf` no arquivo (90 colunas). Essas colunas vêm do path GCS: `ano=YYYY/sigla_uf=UF/`.
 
-### 8.3 Script auxiliar de investigação BQ
-
-`code/microdados/investigate_bq.py` — replica as queries deste README.
-
-> **Nota SQL:** no BigQuery, `nulls` é palavra reservada. Usar alias como `n_null` em vez de `nulls`.
-
 ---
 
-## 9. Índice de imagens
-
-| Arquivo | Conteúdo |
-|---------|----------|
-| `01_bq_nulls_sp_ac_2020_2024.png` | Nulls SP/AC antes do reprocessamento |
-| `02_bq_resumo_por_ano.png` | Resumo por ano antes do reprocessamento |
-| `03_bq_2022_sequencial_obito_ufs_1.png` | 2022 sequencial_obito null - UFs (parte 1) |
-| `04_bq_2022_sequencial_obito_ufs_2.png` | 2022 sequencial_obito null - UFs (parte 2) |
-| `05_bq_causa_basica_null_2005_pb.png` | Registro causa_basica null - PB 2005 |
-| `06_bq_duplicatas_2022_1.png` | Duplicatas unicidade 2022 (parte 1) |
-| `07_bq_duplicatas_2022_2.png` | Duplicatas unicidade 2022 (parte 2) |
-| `08_bq_sexo_null_2023_2024.png` | sexo null 2023/2024 SP e AC |
-| `09_bq_sp_2022_cruzamento.png` | Cruzamento SP 2022 `.dbc` × BQ |
-| `10_bq_data_obito_null_por_ano.png` | data_obito null por ano (pós-reprocessamento) |
-| `11_bq_sexo_null_por_ano.png` | sexo null por ano (pós-reprocessamento) |
-| `12_bq_sexo_null_por_ano_contexto.png` | sexo null com total do ano (pós-reprocessamento) |
-| `13_bq_1996_data_obito_null_por_uf_1.png` | 1996 data_obito null por UF - fonte × BQ (parte 1) |
-| `14_bq_1996_data_obito_null_por_uf_2.png` | 1996 data_obito null por UF - fonte × BQ (parte 2) |
-| `15_bq_data_obito_null_pos_historico.png` | data_obito null por ano - pós-reprocessamento do histórico |
-| `16_bq_prod_data_obito_null_por_ano.png` | data_obito null por ano no **prod** (2022 ainda quebrado) |
-| `17_bq_sexo_null_pos_historico.png` | sexo null por ano - pós-reprocessamento do histórico |
-
----
-
-## 10. Referências
+## 8. Referências
 
 - FTP DATASUS SIM: `ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DORES/`
 - Diretório municípios BD: `basedosdados.br_bd_diretorios_brasil.municipio`
