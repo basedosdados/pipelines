@@ -125,7 +125,11 @@ def transfer_files_to_prod_flow(
     if not materialize_after_dump:
         return
 
-    upload_done = upload_to_gcs.submit(
+    # Chamadas diretas (síncronas e bloqueantes): garantem a ordem
+    # upload → dbt → register e propagam falhas para o flow run. Usar
+    # .submit() aqui faria o flow retornar antes das tasks terminarem e o
+    # task runner cancelaria as pendentes ("cancelled by the runtime").
+    upload_to_gcs(
         data_path=output_filepath,
         dataset_id=dataset_id,
         table_id=table_id,
@@ -133,13 +137,12 @@ def transfer_files_to_prod_flow(
         dump_mode="append",
     )
 
-    dbt_done = run_dbt.submit(
+    run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
         target="prod",
-        wait_for=[upload_done],
     )
 
     if update_metadata:
@@ -153,13 +156,12 @@ def transfer_files_to_prod_flow(
             free_lag_unit=free_lag_unit,
             free_lag_value=free_lag_value,
         )
-        register_table_materialization_task.submit(
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
             coverage=coverage,
             env=env,
             bq_project=bq_project,
-            wait_for=[dbt_done],
         )
 
 
