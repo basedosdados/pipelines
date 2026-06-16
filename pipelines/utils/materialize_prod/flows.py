@@ -88,6 +88,8 @@ def transfer_files_to_prod_flow(
     dataset_id: str = "br_cgu_beneficios_cidadao",
     table_id: str = "novo_bolsa_familia",
     folders: list[str] | None = None,
+    source_bucket: str = "basedosdados-dev",
+    download_billing_project: str = "basedosdados",
     materialize_after_dump: bool = True,
     dbt_alias: bool = True,
     # Interface de metadados — opt-in (desligada por padrão).
@@ -113,7 +115,11 @@ def transfer_files_to_prod_flow(
     )
 
     output_filepath = download_files_from_bucket_folders(
-        dataset_id=dataset_id, table_id=table_id, folders=folders
+        dataset_id=dataset_id,
+        table_id=table_id,
+        folders=folders,
+        source_bucket=source_bucket,
+        billing_project=download_billing_project,
     )
 
     if not materialize_after_dump:
