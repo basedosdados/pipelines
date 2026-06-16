@@ -164,3 +164,8 @@ models/**/input/
 models/**/output/
 models/**/extra/
 dbt_internal_packages/*
+
+# migration docs (moved to manual-equipe-dados)
+prefect3-*.md
+refatorar_backend.md
+docs/
