@@ -57,6 +57,27 @@ Instale as dependências do `dbt`
 uv run dbt deps
 ```
 
+#### (Opcional) Instalar o dbt Fusion engine
+
+Estamos migrando, de forma faseada, do `dbt-core` (Python) para o **dbt Fusion engine** (Rust). O Fusion **não** é instalado pelo `uv sync` — é um binário separado:
+
+```sh
+curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh | sh -s -- --update
+dbtf --version
+dbtf deps
+```
+
+Durante a fase de migração os dois engines convivem:
+
+- `uv run dbt ...` → dbt-core (engine atual de produção)
+- `dbtf ...` → dbt Fusion (em validação)
+
+> [!NOTE]
+> O `dbtf` é um binário standalone e **não** precisa do venv ativo. Apenas o `dbt` (core) depende do ambiente Python.
+
+> [!WARNING]
+> O dbt Fusion engine é licenciado sob **ELv2** (não Apache-2.0 como o dbt-core), e a extensão de VS Code é gratuita por 14 dias / até 15 usuários por organização. O adapter BigQuery do Fusion ainda está em Preview/beta — valide modelos no dev antes de confiar na saída.
+
 #### Configurar as credenciais do DBT
 
 Crie um variável ambiente `BD_SERVICE_ACCOUNT_DEV` apontado para o arquivo da conta de serviço.
@@ -322,7 +343,11 @@ from {{ set_datalake_project("<DATASET_ID>_staging.<TABLE_ID>") }}
 ## Usando o DBT
 
 > [!IMPORTANT]
-> Ative o ambiente virtual (venv) com `source .venv/bin/activate` para executar os comandos `dbt`.
+> Para o **dbt-core**, ative o ambiente virtual (venv) com `source .venv/bin/activate` (ou use `uv run dbt ...`) antes de executar os comandos `dbt`.
+> Para o **dbt Fusion** (`dbtf`), o venv não é necessário — é um binário standalone. Os comandos abaixo (`dbt run`, `dbt test`, `--select`) têm a mesma sintaxe nos dois engines; basta trocar `dbt` por `dbtf`.
+
+> [!NOTE]
+> Algumas macros e testes customizados usam Jinja sensível ao engine (ex.: `macros/custom_get_where_subquery.sql` usa `run_query()` em parse-time, `macros/generate_schema_name.sql` sobrescreve uma macro built-in). Ao alterá-los, faça um smoke-test no Fusion com `dbtf parse` / `dbtf compile`.
 
 ### Materializando o modelo no BigQuery
 
