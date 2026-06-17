@@ -15,6 +15,8 @@ def download_files_from_bucket_folders(
     table_id: str,
     folders: str | list[str],
     extension: str | None = None,
+    source_bucket: str = "basedosdados-dev",
+    billing_project: str = "basedosdados",
 ):
     """
     Downloads files with a specified extension from specified folders within a Google Cloud Storage bucket
@@ -26,12 +28,16 @@ def download_files_from_bucket_folders(
         folders (Union[str, List[str]]): Either a single folder name or a list of folder names within the bucket
             containing the files.
         extension (str, optional): The file extension to filter. If None, downloads all files. Default is None.
+        source_bucket (str): Bucket de origem (requester-pays). Default ``basedosdados-dev``.
+        billing_project (str): Projeto cobrado pelo acesso requester-pays. Precisa
+            ser um projeto onde a SA do pod tenha ``serviceusage.services.use`` —
+            i.e. o próprio projeto da SA. No pool de produção é ``basedosdados``.
 
     Returns:
         str: The base path where the files are saved.
     """
     os.makedirs("/tmp/data/backup/", exist_ok=True)
-    storage_client = storage.Client()
+    storage_client = storage.Client(project=billing_project)
 
     if isinstance(folders, str):
         folders = [folders]
@@ -39,7 +45,7 @@ def download_files_from_bucket_folders(
     for folder in folders:
         # List blobs (files) within the specified folder in the bucket
         blobs_in_bucket = storage_client.bucket(
-            bucket_name="basedosdados-dev", user_project="basedosdados-dev"
+            bucket_name=source_bucket, user_project=billing_project
         ).list_blobs(
             prefix=f"staging/{dataset_id}/{table_id}/{folder}/",
         )
