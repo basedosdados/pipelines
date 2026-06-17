@@ -15,26 +15,26 @@
 
 with
     {% if is_incremental() %}
-    max_year_month_prod as (
-            select
-                max(ano)as max_ano, max(mes) as max_mes
+        max_year_month_prod as (
+            select max(ano) as max_ano, max(mes) as max_mes
             from {{ this }}
             where ano = (select max(ano) from {{ this }})
         ),
 
-    next_year_month as (
+        next_year_month as (
             select
-                case 
-                  when max_mes = 12 then cast(max_ano+1 as string) 
-                  else cast(max_ano as string) 
-                end as ano, 
-                case 
-                  when max_mes = 12 then '1'
-                  else cast(max_mes+1 as string) 
+                case
+                    when max_mes = 12
+                    then cast(max_ano + 1 as string)
+                    else cast(max_ano as string)
+                end as ano,
+                case
+                    when max_mes = 12 then '1' else cast(max_mes + 1 as string)
                 end as mes
 
-            from max_year_month_prod),
-  
+            from max_year_month_prod
+        ),
+
     {% endif %}
 
     producao_staging_filtrada as (
@@ -42,9 +42,9 @@ with
         from {{ set_datalake_project("br_ms_sia_staging.producao_ambulatorial") }}
 
         {% if is_incremental() %}
-        where
-                ano = (select ano from next_year_month) and
-                mes = (select mes from next_year_month)
+            where
+                ano = (select ano from next_year_month)
+                and mes = (select mes from next_year_month)
         {% endif %}
     ),
 
