@@ -140,7 +140,7 @@ def transfer_files_to_prod_flow(
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
-        dbt_command="run/test",
+        dbt_command="run",
         dbt_alias=dbt_alias,
         target="prod",
     )
