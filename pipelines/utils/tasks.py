@@ -9,12 +9,12 @@ from typing import Any
 
 import basedosdados as bd
 from basedosdados.download.download import _google_client
-from dbt.cli.main import dbtRunner
 from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from google.cloud.bigquery import TableReference
 from prefect import task
 
+from pipelines.utils.execute_dbt_model.engine import run_dbt_command
 from pipelines.utils.gcs import DBTArtifactUploader, dump_header
 from pipelines.utils.vault import get_credentials_from_secret
 
@@ -214,32 +214,14 @@ def run_dbt(
         commands.append("test")
 
     try:
-        runner = dbtRunner()
         for cmd in commands:
-            cli_args = [
-                cmd,
-                "--select",
-                selected.as_posix(),
-                "--target",
-                target,
-            ]
-            if flags and flags.startswith("--full-refresh") and cmd == "run":
-                cli_args.insert(1, "--full-refresh")
-            elif flags:
-                cli_args.extend(flags.split())
-            if vars_dict:
-                cli_args.extend(["--vars", json.dumps(vars_dict)])
-
-            print(f"dbt {' '.join(cli_args)}")
-            result = runner.invoke(cli_args)
-
-            if result.exception:
-                raise Exception(f"dbt {cmd} exception: {result.exception}")
-            if not result.success:
-                raise Exception(
-                    f"dbt {cmd} falhou para {selected.as_posix()} (target={target})"
-                )
-            print(f"dbt {cmd} OK: {selected.as_posix()} (target={target})")
+            run_dbt_command(
+                cmd=cmd,
+                selected=selected.as_posix(),
+                target=target,
+                flags=flags,
+                vars_dict=vars_dict,
+            )
     finally:
         try:
             DBTArtifactUploader(
