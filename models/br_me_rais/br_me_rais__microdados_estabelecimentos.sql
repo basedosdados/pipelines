@@ -23,7 +23,11 @@ select
     ) quantidade_vinculos_estatutarios,
     safe_cast(natureza as string) natureza_estabelecimento,
     safe_cast(natureza_juridica as string) natureza_juridica,
-    safe_cast(tamanho as string) tamanho_estabelecimento,
+    case
+      when safe_cast(ano as int64) <= 2001 and safe_cast(tamanho as int64) between 0 and 9
+      then cast(safe_cast(tamanho as int64) + 1 as string)
+      else tamanho
+    end as tamanho_estabelecimento,
     safe_cast(regexp_replace(tipo, r'^0+', '') as string) as tipo_estabelecimento,
     safe_cast(indicador_cei_vinculado as int64) indicador_cei_vinculado,
     safe_cast(indicador_pat as int64) indicador_pat,
