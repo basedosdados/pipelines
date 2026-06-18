@@ -7,6 +7,7 @@ from pipelines.crawler.datasus.tasks import (
     check_files_to_parse,
     decompress_dbc,
     decompress_dbf,
+    get_datasus_source_max_date,
     get_last_modified_date_in_sinan_tablen,
     list_datasus_table_without_date,
     pre_process_files,
@@ -49,13 +50,20 @@ def _run_cnes(
         table_id=table_id,
         year_month_to_extract=year_month_to_extract,
     )
+    source_max_date = get_datasus_source_max_date(ftp_files)
 
-    if not ftp_files and not force_run:
-        print(
-            "FTP CNES ainda não foi atualizado para o ano/mes mais recente — "
-            "aguardando próxima execução"
+    if not force_run:
+        is_outdated = register_source_poll_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=source_max_date,
+            env="prod",
+            date_format="%Y-%m",
         )
-        return
+        if not is_outdated:
+            print("Fonte CNES sem novidade — encerrando")
+            return
+
     if not ftp_files:
         print("force_run=True mas FTP não retornou arquivos — encerrando")
         return
@@ -137,13 +145,20 @@ def _run_dbf_to_parquet(
         table_id=table_id,
         year_month_to_extract=year_month_to_extract,
     )
+    source_max_date = get_datasus_source_max_date(ftp_files)
 
-    if not ftp_files and not force_run:
-        print(
-            f"FTP {fonte_label} ainda não foi atualizado para o ano/mes mais "
-            "recente — aguardando próxima execução"
+    if not force_run:
+        is_outdated = register_source_poll_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=source_max_date,
+            env="prod",
+            date_format="%Y-%m",
         )
-        return
+        if not is_outdated:
+            print(f"Fonte {fonte_label} sem novidade — encerrando")
+            return
+
     if not ftp_files:
         print("force_run=True mas FTP não retornou arquivos — encerrando")
         return
