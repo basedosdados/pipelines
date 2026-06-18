@@ -1,94 +1,81 @@
 """
-Flows for br_cgu_terceirizados
+Flows para br_cgu_pessoal_executivo_federal — Prefect 3.
 """
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from prefect import flow
 
-from pipelines.constants import constants
-from pipelines.datasets.br_cgu_pessoal_executivo_federal.schedules import (
-    every_four_months,
-)
-from pipelines.datasets.br_cgu_pessoal_executivo_federal.tasks import (
+from pipelines.crawler.cgu_pessoal_executivo_federal.tasks import (
     clean_save_table,
     crawl,
 )
-from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
 ROOT = "/tmp/data"
 URL = "https://www.gov.br/cgu/pt-br/acesso-a-informacao/dados-abertos/arquivos/terceirizados"
 
 
-with Flow(
-    name="br_cgu_pessoal_executivo_federal.terceirizados",
-    code_owners=["ath67"],
-) as br_cgu_pess_exec_fed_terc:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_cgu_pessoal_executivo_federal", required=True
-    )
-    table_id = Parameter("table_id", default="terceirizados", required=True)
-
-    materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
+@flow(
+    name="br_cgu_pessoal_executivo_federal__terceirizados",
+    log_prints=True,
+)
+def br_cgu_pessoal_executivo_federal__terceirizados(
+    dataset_id: str = "br_cgu_pessoal_executivo_federal",
+    table_id: str = "terceirizados",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = True,
+    update_metadata: bool = False,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    crawl_urls, temporal_coverage = crawl(URL)
+    crawl_urls, _ = crawl(URL)
     filepath = clean_save_table(ROOT, crawl_urls)
 
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
+    upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
+        bucket_name="basedosdados-dev",
         dump_mode="overwrite",
-        upstream_tasks=[filepath],
+        source_format="csv",
     )
 
-    wait_for_materialization = run_dbt(
+    run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
-        upstream_tasks=[wait_upload_table],
+        target="dev",
     )
 
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}},
-    #         {"temporal_coverage": [temporal_coverage]},
-    #     ],
-    #     upstream_tasks=[temporal_coverage],
-    # )
+    if not materialize_after_dump:
+        return
 
-    with case(materialize_after_dump, True):
-        create_table_prod_gcs_and_run_dbt(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="overwrite",
-            upstream_tasks=[wait_for_materialization],
-        )
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="overwrite",
+        source_format="csv",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
 
 
-br_cgu_pess_exec_fed_terc.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_cgu_pess_exec_fed_terc.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_cgu_pess_exec_fed_terc.schedule = every_four_months
+br_cgu_pessoal_executivo_federal__terceirizados.deploy_schedules = [
+    {"cron": "0 0 28 2/4 *", "timezone": "America/Sao_Paulo"}
+]

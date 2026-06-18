@@ -1,279 +1,170 @@
 """
-Flows for br_bcb_estban
+Flows para br_bcb_estban — Prefect 3.
 """
 
-from prefect import Parameter, case, unmapped
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from prefect import flow
 
-from pipelines.constants import constants
-from pipelines.datasets.br_bcb_estban.schedules import (
-    every_month_agencia,
-    every_month_municipio,
-)
-from pipelines.datasets.br_bcb_estban.tasks import (
+from pipelines.crawler.bcb_estban.tasks import (
     cleaning_data,
     download_table,
     extract_urls_list,
-    get_api_max_date,
     get_documents_metadata,
     get_id_municipio,
     get_latest_file,
-    raise_none_metadata_exception,
 )
-from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    PartBdpro,
+    YearMonth,
+)
 from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
+    register_source_poll_task,
+    register_table_materialization_task,
+    task_get_api_most_recent_date,
 )
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    log_task,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-with Flow(
-    name="br_bcb_estban.municipio",
-    code_owners=[
-        "Luiza",
-    ],
-) as br_bcb_estban_municipio:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_bcb_estban", required=True
-    )
-    table_id = Parameter("table_id", default="municipio", required=True)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
 
-    # Materialization mode
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
+def _run_bcb_estban(
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    dbt_alias: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
     documents_metadata = get_documents_metadata(table_id)
-
-    # Checando se os metadados foram carregados
-    with case(documents_metadata is None, False):
-        data_source_download_url, data_source_max_date = get_latest_file(
-            documents_metadata
-        )
-
-        check_if_outdated = check_if_data_is_outdated(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            data_source_max_date=data_source_max_date,
-            date_format="%Y-%m",
-            upstream_tasks=[data_source_max_date],
-        )
-        with case(check_if_outdated, False):
-            log_task(f"Não há atualizações para a tabela de {table_id}!")
-
-        with case(check_if_outdated, True):
-            log_task("Existem atualizações! A run será inciada")
-            api_max_date = get_api_max_date(dataset_id, table_id)
-
-            urls_list = extract_urls_list(
-                documents_metadata,
-                data_source_max_date,
-                api_max_date,
-                date_format="%Y-%m",
-                upstream_tasks=[
-                    api_max_date,
-                    data_source_max_date,
-                    documents_metadata,
-                ],
-            )
-
-            downloaded_file_paths = download_table.map(
-                url=urls_list,
-                table_id=unmapped(table_id),
-                upstream_tasks=[unmapped(check_if_outdated)],
-            )
-            df_diretorios = get_id_municipio(
-                upstream_tasks=[downloaded_file_paths]
-            )
-
-            filepath = cleaning_data(
-                table_id,
-                df_diretorios,
-                upstream_tasks=[downloaded_file_paths, df_diretorios],
-            )
-            wait_upload_table = create_table_dev_and_upload_to_gcs(
-                data_path=filepath,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[filepath],
-            )
-
-            wait_for_materialization = run_dbt(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dbt_command="run/test",
-                dbt_alias=dbt_alias,
-                upstream_tasks=[wait_upload_table],
-            )
-
-            # municipio
-            with case(materialize_after_dump, True):
-                wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                    data_path=filepath,
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    dump_mode="append",
-                    upstream_tasks=[wait_for_materialization],
-                )
-
-                with case(update_metadata, True):
-                    update_django_metadata(
-                        dataset_id=dataset_id,
-                        table_id=table_id,
-                        date_column_name={"year": "ano", "month": "mes"},
-                        date_format="%Y-%m",
-                        coverage_type="part_bdpro",
-                        time_delta={"months": 6},
-                        bq_project="basedosdados",
-                        upstream_tasks=[wait_upload_prod],
-                    )
-    with case(documents_metadata is None, True):
-        raise_none_metadata_exception(
+    if documents_metadata is None:
+        raise RuntimeError(
             "BCB metadata was not loaded! It was not possible to determine if the dataset is up to date."
         )
-br_bcb_estban_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_estban_municipio.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_bcb_estban_municipio.schedule = every_month_municipio
 
+    _, data_source_max_date = get_latest_file(documents_metadata)
 
-with Flow(
-    name="br_bcb_estban.agencia",
-    code_owners=[
-        "Luiza",
-    ],
-) as br_bcb_estban_agencia:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_bcb_estban", required=True
-    )
-    table_id = Parameter("table_id", default="agencia", required=True)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    if not force_run:
+        is_outdated = register_source_poll_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=data_source_max_date,
+            env="prod",
+            date_format="%Y-%m",
+        )
+        if not is_outdated:
+            print(f"Não há atualizações para a tabela {table_id}!")
+            return
 
-    # Materialization mode
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
+    print("Existem atualizações! A run será iniciada.")
+    api_max_date = task_get_api_most_recent_date(
         dataset_id=dataset_id,
         table_id=table_id,
-        wait=table_id,
+        date_format="%Y-%m",
+        api_mode="prod",
     )
 
-    documents_metadata = get_documents_metadata(table_id)
+    urls_list = extract_urls_list(
+        documents_metadata,
+        data_source_max_date,
+        api_max_date,
+        date_format="%Y-%m",
+    )
 
-    # Checando se os metadados foram carregados
-    with case(documents_metadata is None, False):
-        data_source_download_url, data_source_max_date = get_latest_file(
-            documents_metadata
-        )
+    for url in urls_list:
+        download_table(url=url, table_id=table_id)
 
-        check_if_outdated = check_if_data_is_outdated(
+    df_diretorios = get_id_municipio()
+    filepath = cleaning_data(table_id, df_diretorios)
+
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            data_source_max_date=data_source_max_date,
-            date_format="%Y-%m",
-            upstream_tasks=[data_source_max_date],
+            coverage=PartBdpro(
+                date_column=YearMonth(year="ano", month="mes"),
+                date_format=DateFormat.YEAR_MONTH,
+            ),
+            env="prod",
+            bq_project="basedosdados",
         )
-        with case(check_if_outdated, False):
-            log_task(f"Não há atualizações para a tabela de {table_id}!")
 
-        with case(check_if_outdated, True):
-            log_task("Existem atualizações! A run será inciada")
-            api_max_date = get_api_max_date(dataset_id, table_id)
 
-            urls_list = extract_urls_list(
-                documents_metadata,
-                data_source_max_date,
-                api_max_date,
-                date_format="%Y-%m",
-            )
-
-            downloaded_file_paths = download_table.map(
-                url=urls_list,
-                table_id=unmapped(table_id),
-                upstream_tasks=[unmapped(check_if_outdated)],
-            )
-            # wait(downloaded_file_paths)
-            df_diretorios = get_id_municipio(
-                upstream_tasks=[downloaded_file_paths]
-            )
-
-            filepath = cleaning_data(
-                table_id,
-                df_diretorios,
-                upstream_tasks=[downloaded_file_paths, df_diretorios],
-            )
-            wait_upload_table = create_table_dev_and_upload_to_gcs(
-                data_path=filepath,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[filepath],
-            )
-            wait_for_materialization = run_dbt(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dbt_alias=dbt_alias,
-                dbt_command="run/test",
-                upstream_tasks=[wait_upload_table],
-            )
-
-            # agencia
-            with case(materialize_after_dump, True):
-                wait_upload_table = create_table_prod_gcs_and_run_dbt(
-                    data_path=filepath,
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    dump_mode="append",
-                    upstream_tasks=[wait_for_materialization],
-                )
-
-                with case(update_metadata, True):
-                    update_django_metadata(
-                        dataset_id=dataset_id,
-                        table_id=table_id,
-                        date_column_name={"year": "ano", "month": "mes"},
-                        date_format="%Y-%m",
-                        coverage_type="part_bdpro",
-                        time_delta={"months": 6},
-                        bq_project="basedosdados",
-                        upstream_tasks=[wait_upload_table],
-                    )
-    with case(documents_metadata is None, True):
-        raise_none_metadata_exception(
-            "BCB metadata was not loaded! It was not possible to determine if the dataset is up to date."
+def _estban_flow(table_id: str, cron: str):
+    @flow(
+        name=f"br_bcb_estban__{table_id}",
+        log_prints=True,
+    )
+    def _flow(
+        dataset_id: str = "br_bcb_estban",
+        table_id: str = table_id,
+        materialize_after_dump: bool = True,
+        dbt_alias: bool = True,
+        update_metadata: bool = True,
+        target: str = "prod",
+        force_run: bool = False,
+    ) -> None:
+        _run_bcb_estban(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            materialize_after_dump=materialize_after_dump,
+            dbt_alias=dbt_alias,
+            update_metadata=update_metadata,
+            target=target,
+            force_run=force_run,
         )
-br_bcb_estban_agencia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_estban_agencia.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+
+    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    return _flow
+
+
+br_bcb_estban__agencia = _estban_flow(
+    table_id="agencia",
+    cron="0 22 25-31 * *",
 )
-br_bcb_estban_agencia.schedule = every_month_agencia
+
+br_bcb_estban__municipio = _estban_flow(
+    table_id="municipio",
+    cron="30 22 25-31 * *",
+)
