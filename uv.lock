@@ -877,6 +877,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "datasus-dbc"
+version = "0.1.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/23/c6/184abf8c6d7717c65bbcec3c6c00fb644ab747b31c4a3b7d302190482f6e/datasus_dbc-0.1.3.tar.gz", hash = "sha256:5d463f16f8c896247463f22eb31b3c3f756837f7c1be5cecc868c5114df4df8c", size = 6405, upload-time = "2024-04-16T21:19:22.06Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/52/a0/c9aed5eea3e67fa1087e391bb5c52a9f70e81a0b8e25796c59fead53364e/datasus_dbc-0.1.3-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:44cbdcd9e1db85d914373daaf15c4dc03cf0530fbddf328464910a2facf2a6de", size = 229071, upload-time = "2024-04-16T21:17:44.548Z" },
+    { url = "https://files.pythonhosted.org/packages/30/78/fbf783f1710587f9d3139252495bf1243aaaf1a323c24fd7636b0bdae1db/datasus_dbc-0.1.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:95c93d27f690c39e453fc510b63a63ef76fa7980bb8c02953e1f0beaa0868d07", size = 228814, upload-time = "2024-04-16T21:17:46.406Z" },
+    { url = "https://files.pythonhosted.org/packages/a3/6b/3ee2038e69d887edd9bf5061da2bd4c508b32daeea4cf54fd814e588b605/datasus_dbc-0.1.3-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bb42588028844e1ac3a7c92a2b263dbd429958588ade200090b4fa3adb946bec", size = 991857, upload-time = "2024-04-16T21:17:48.168Z" },
+    { url = "https://files.pythonhosted.org/packages/c2/7f/f7238d7c263eb3722aef8489d340b36d90752c7a453c88234e8124b4c982/datasus_dbc-0.1.3-cp310-cp310-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:838f13344a4d835351bd5b2919159c6743a6b156e436e6939198337f67df9249", size = 1008283, upload-time = "2024-04-16T21:17:49.92Z" },
+    { url = "https://files.pythonhosted.org/packages/2a/f2/26304a568280dfab2947713753b534e1c64725d4c271daa9e8f7791f4537/datasus_dbc-0.1.3-cp310-cp310-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:a9d375d98e8dcc092618b9093dfb263ed6ffd9005242b33ccda98f8b3dec08b0", size = 1111726, upload-time = "2024-04-16T21:17:51.478Z" },
+    { url = "https://files.pythonhosted.org/packages/52/1d/2373324946d74b29d7e32159f1c4bddf4dccbf7b86d2745eac064708c8d5/datasus_dbc-0.1.3-cp310-cp310-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:6a2514ccca1546bb7e99f41cf9d5119e829a37c05cd6933cec86e88edd8b03e0", size = 1129981, upload-time = "2024-04-16T21:17:53.439Z" },
+    { url = "https://files.pythonhosted.org/packages/01/38/5a9eb0ccfde8d8e9aa04cecaff888e0fcb2c0af32072b058dacfa4ccde77/datasus_dbc-0.1.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:11acd3edbf06f02edb09449f28465051e66d63c101c8ec5e9a7f3333d5b7813c", size = 1004377, upload-time = "2024-04-16T21:17:55.304Z" },
+    { url = "https://files.pythonhosted.org/packages/59/d3/2ae8d3e82d5afac444169b22170d98f9925d94d1e54279193b5f5226ad7b/datasus_dbc-0.1.3-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:af0802e753c09422612f77464e89de466cb6462f5cf9efd73693c48e1d955d8c", size = 1022838, upload-time = "2024-04-16T21:17:56.795Z" },
+    { url = "https://files.pythonhosted.org/packages/da/6f/1be11f0cf1e64d6b37cbb063d3f8a20ab22c2914de4690fabd5428a255ef/datasus_dbc-0.1.3-cp310-none-win32.whl", hash = "sha256:5bc1e1339aa13468654d9f965d315c83ffc7cbf58ffe4c7d55b16d6aef0b4f8e", size = 114056, upload-time = "2024-04-16T21:17:58.534Z" },
+    { url = "https://files.pythonhosted.org/packages/a8/b7/7555676deca8641f261de299a52e99099bed2bffc3f11c6a0bd47eff2645/datasus_dbc-0.1.3-cp310-none-win_amd64.whl", hash = "sha256:e8875ab9319f001a9e22345e39b75b61813a1dd6e322069383e052787d9357de", size = 117391, upload-time = "2024-04-16T21:18:00.171Z" },
+    { url = "https://files.pythonhosted.org/packages/bd/6d/420ab1600a5782f30863e54472df28669f479a2f75d1386bf10a356fab75/datasus_dbc-0.1.3-pp310-pypy310_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5c436479e6721de0cbc39642860250fb4645e3d338a26d99e9c41e93488e29f3", size = 991987, upload-time = "2024-04-16T21:18:55.223Z" },
+    { url = "https://files.pythonhosted.org/packages/49/6d/0e2911af4f06916728d5d61cbc42e4f15c222b0c22d929e658309d57e541/datasus_dbc-0.1.3-pp310-pypy310_pp73-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:d61f49ebe1c36a01e72dfd352a144abf983a6a4c543b0559571b167ba194f326", size = 1008216, upload-time = "2024-04-16T21:18:56.688Z" },
+    { url = "https://files.pythonhosted.org/packages/88/04/f85a03c5bc3ebaf75e8a925612021fdbe54af21589d3af1543b07e3f6e8c/datasus_dbc-0.1.3-pp310-pypy310_pp73-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:f1c14b2a762db46c9cfc1f8b6c40a00af085c49a6139499964842e6268d2915b", size = 1112124, upload-time = "2024-04-16T21:18:58.041Z" },
+    { url = "https://files.pythonhosted.org/packages/25/53/5d0930b7e550da18ac3b86f912a18358a4e60813a54adeee43f7b4ff58a5/datasus_dbc-0.1.3-pp310-pypy310_pp73-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:80400abc0fd6515699a4f5c350a211af7d2e4179c5f55ea77838945e6d3f8aa9", size = 1131278, upload-time = "2024-04-16T21:18:59.381Z" },
+    { url = "https://files.pythonhosted.org/packages/21/dc/5291d277a059c81801db903855284e519a4f78c950edcbe156b74845ede8/datasus_dbc-0.1.3-pp310-pypy310_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cc0b203a36e7f86993236a7e91cbe083f94ac8d6d3dfb110b6d327cf2251da48", size = 1004703, upload-time = "2024-04-16T21:19:00.783Z" },
+    { url = "https://files.pythonhosted.org/packages/7c/58/2a8fc1b1ccc7c69c0884c73c44fd49a300c2b2870dc3ee496e4b35a129b2/datasus_dbc-0.1.3-pp310-pypy310_pp73-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:ea9a7bb24c12afbd35057c0bbdd6c13e51561a215ef212a86b9ccbfd17c20caf", size = 1023211, upload-time = "2024-04-16T21:19:02.301Z" },
+]
+
+[[package]]
 name = "dateparser"
 version = "1.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3321,6 +3345,7 @@ dependencies = [
     { name = "cloudpickle" },
     { name = "croniter" },
     { name = "dask" },
+    { name = "datasus-dbc" },
     { name = "dateparser" },
     { name = "dbfread" },
     { name = "dbt-bigquery" },
@@ -3461,6 +3486,7 @@ requires-dist = [
     { name = "cloudpickle", specifier = "==2.0.0" },
     { name = "croniter", specifier = "==1.0.15" },
     { name = "dask", specifier = "==2021.11.2" },
+    { name = "datasus-dbc", specifier = ">=0.1.0" },
     { name = "dateparser", specifier = ">=1.2.0,<2.0.0" },
     { name = "dbfread", specifier = ">=2.0.7,<3.0.0" },
     { name = "dbt-bigquery", specifier = ">=1.8.0,<2.0" },
