@@ -6,18 +6,18 @@ authors = [
 ]
 readme = "README.md"
 license = "GPL-3.0"
-requires-python = "<3.11,>=3.10"
+requires-python = "<3.13,>=3.10"
 version = "0.1.0"
 
 dependencies = [
   "HeapDict==1.0.1",
-  "jinja2==3.1.3",
+  "Jinja2>=3.1.6",
   "MarkupSafe==2.0.1",
-  "PyYAML==6.0",
+  "PyYAML>=6.0.1",
   "Unidecode<2.0.0,>=1.3.4",
   "basedosdados[all]<3.0.0,>=2.0.2",
   "beautifulsoup4==4.11.1",
-  "cachetools==4.2.4",
+  "cachetools>=5.3,<6.0",
   "certifi==2021.10.8",
   "charset-normalizer==2.0.9",
   "ckanapi==4.6",
@@ -29,11 +29,11 @@ dependencies = [
   "docker>=6,<7",
   "docopt==0.6.2",
   "fake-useragent<2.0.0,>=1.1.3",
-  "fsspec==2021.11.1",
+  "fsspec>=2022.5.0",
   "google-analytics-data==0.17.0",
   "google-api-core==2.11.1",
   "google-api-python-client<3.0.0,>=2.58.0",
-  "google-auth==2.22.0",
+  "google-auth>=2.23.0",
   "google-auth-oauthlib<2.0.0,>=1.0.0",
   "google-cloud-bigquery<4.0.0,>=3.11.4",
   "google-cloud-bigquery-storage<3.0.0,>=2.19.1",
@@ -42,13 +42,13 @@ dependencies = [
   "google-crc32c==1.3.0",
   "google-resumable-media==2.5.0",
   "googleapis-common-protos==1.59.1",
-  "grpcio==1.56.2",
+  "grpcio>=1.59.0",
   "hvac<1.0.0,>=0.11.2",
   "idna==3.3",
   "ipeadatapy<1.0.0,>=0.1.7",
   "locket==0.2.1",
   "loguru<1.0.0,>=0.7.0",
-  "lxml==4.9.2",
+  "lxml>=4.9.4",
   "marshmallow==3.14.1",
   "marshmallow-oneofschema==3.0.1",
   "matplotlib<4.0.0,>=3.5.2",
@@ -62,7 +62,8 @@ dependencies = [
   "pandas<3.0.0,>=2.0.1",
   "pandas-gbq<1.0.0,>=0.19.2",
   "partd==1.2.0",
-  "prefect==0.15.9",
+  "prefect>=3.0,<4",
+  "prefect-kubernetes>=0.5.0",
   "proto-plus==1.22.3",
   "protobuf==4.23.4",
   "psutil==5.8.0",
@@ -71,7 +72,7 @@ dependencies = [
   "pyasn1==0.4.8",
   "pyasn1-modules==0.2.8",
   "pydata-google-auth<2.0.0,>=1.8.0",
-  "pymssql==2.2.5",
+  "pymssql>=2.3.0",
   "pyparsing==3.0.6",
   "python-Levenshtein<1.0.0,>=0.21.1",
   "python-box==5.4.1",
@@ -84,7 +85,7 @@ dependencies = [
   "requests-oauthlib==1.3.0",
   "rsa==4.8",
   "ruamel-yaml==0.17.10",
-  "ruamel-yaml-clib==0.2.6",
+  "ruamel-yaml-clib>=0.2.8",
   "seaborn<1.0.0,>=0.11.2",
   "six==1.16.0",
   "sortedcontainers==2.4.0",
@@ -108,7 +109,7 @@ dependencies = [
   "setuptools>=69.0.0,<71.0",
   "python-string-utils<2.0.0,>=1.0.0",
   "geopandas==1.0.1",
-  "shapely==2.0.1",
+  "shapely>=2.0.2",
   "webdriver-manager<5.0.0,>=4.0.1",
   "xlrd>=2.0.1",
   "httpx>=0.26.0",
@@ -124,14 +125,14 @@ dependencies = [
   "dateparser<2.0.0,>=1.2.0",
   "fiona<2.0.0,>=1.10.1",
   "arrow<2.0.0,>=1.3.0",
-  "dbt-core==1.8",
-  "dbt-bigquery==1.8",
+  "dbt-core>=1.8.0,<2.0",
+  "dbt-bigquery>=1.8.0,<2.0",
   "sicar @ git+https://github.com/urbanogilson/SICAR.git@v0.7.4",
   "py7zr<2.0.0,>=1.0.0",
   "pip>=25.3",
   "wheel>=0.45.1",
   "python-calamine>=0.6.1",
-  "pydantic>=1.10.24",
+  "pydantic>=2.0.0",
 ]
 
 [dependency-groups]
@@ -182,6 +183,11 @@ ignore = [
   # mutable-class-default
   "RUF012"
 ]
+
+[tool.ruff.lint.per-file-ignores]
+# DTO fields mirror the GraphQL backend's camelCase field names on purpose;
+# renaming them would break the wire contract.
+"pipelines/utils/metadata/dto.py" = ["N815"]
 
 [tool.sqlfmt]
 exclude = ["target/**/*", "dbt_packages/**/*", ".venv/**/*"]

@@ -1,65 +1,75 @@
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+"""
+Lógica compartilhada de execução para br_bcb_sicor — Prefect 3.
+"""
 
-from pipelines.constants import constants
 from pipelines.crawler.bcb.tasks import (
-    create_load_dictionary,
     download_table,
     get_sicor_table_size,
     search_sicor_links,
 )
-from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.domain import (
+    AllBdpro,
+    AllFree,
+    CoverageSpec,
+    DateFormat,
+    NonHistorical,
+    PartBdpro,
+    YearMonth,
+)
 from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated_by_size,
-    update_django_metadata,
+    register_source_poll_by_size_task,
+    register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-with Flow(
-    name="BD template - BR_BCB_SICOR",
-    code_owners=[
-        "Gabriel Pisa",
-    ],
-) as br_bcb_sicor_template:
-    # Parameters
-    dataset_id = Parameter("dataset_id", default="br_bcb_sicor", required=True)
-    table_id = Parameter("table_id", default="operacao", required=True)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
+def _sicor_coverage(
+    coverage_type: str, historical_database: bool
+) -> CoverageSpec:
+    """Mapeia (coverage_type, historical_database) runtime → CoverageSpec.
 
-    append_overwrite = Parameter("append_overwrite", default="overwrite")
-    source_format = Parameter("source_format", default="parquet")
+    Os callers usam apenas: part_bdpro+historical (default, colunas
+    ano_emissao/mes_emissao mensal) e all_free+não-historical (empreendimento,
+    cobertura única via metadata do BQ ⇒ NonHistorical)."""
+    if not historical_database:
+        return NonHistorical()
+    date_column = YearMonth(year="ano_emissao", month="mes_emissao")
+    if coverage_type == "part_bdpro":
+        return PartBdpro(
+            date_column=date_column, date_format=DateFormat.YEAR_MONTH
+        )
+    if coverage_type == "all_bdpro":
+        return AllBdpro(
+            date_column=date_column, date_format=DateFormat.YEAR_MONTH
+        )
+    if coverage_type == "all_free":
+        return AllFree(
+            date_column=date_column, date_format=DateFormat.YEAR_MONTH
+        )
+    raise ValueError(f"coverage_type não suportado: {coverage_type}")
 
-    download_all_files = Parameter(
-        "download_all_files", default=False, required=False
-    )
-    local_redis_execution = Parameter(
-        "local_redis_execution", default=False, required=False
-    )
-    historical_database = Parameter(
-        "historical_database", default=True, required=False
-    )
-    coverage_type = Parameter(
-        "coverage_type", default="part_bdpro", required=False
-    )
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
+def _run_bcb_sicor(
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    dbt_alias: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+    dump_mode: str,
+    source_format: str,
+    coverage_type: str,
+    historical_database: bool,
+    download_all_files: bool = False,
+    local_redis_execution: bool = False,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
     download_links = search_sicor_links()
@@ -68,134 +78,69 @@ with Flow(
         download_links,
         table_id=table_id,
         download_all_files=download_all_files,
-        upstream_tasks=[download_links],
     )
 
-    is_outdated = check_if_data_is_outdated_by_size(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        byte_length=table_size,
-        local_execution=local_redis_execution,
-        upstream_tasks=[table_size],
-    )
-
-    with case(is_outdated, True):
-        download_table_task = download_table(
-            download_links,
-            table_id=table_id,
-            download_all_files=download_all_files,
-        )
-
-        rename_flow_run = rename_current_flow_run_dataset_table(
-            prefix="Dump: ",
+    if not force_run:
+        is_outdated = register_source_poll_by_size_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            wait=table_id,
+            byte_length=table_size,
+            env="prod",
+            local_execution=local_redis_execution,
         )
+        if not is_outdated:
+            print(f"Não há atualizações para a tabela {table_id}!")
+            return
 
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=download_table_task,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode=append_overwrite,
-            upstream_tasks=[download_table_task],
-            source_format=source_format,
-        )
-
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=download_table_task,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode=append_overwrite,
-                source_format=source_format,
-                upstream_tasks=[wait_for_materialization],
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={
-                        "year": "ano_emissao",
-                        "month": "mes_emissao",
-                    },
-                    date_format="%Y-%m",
-                    coverage_type=coverage_type,
-                    time_delta={"months": 6},
-                    bq_project="basedosdados",
-                    historical_database=historical_database,
-                    upstream_tasks=[wait_upload_prod],
-                )
-
-
-br_bcb_sicor_template.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_sicor_template.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-
-
-with Flow(
-    name="br_bcb_sicor.dicionario",
-    code_owners=[
-        "Gabriel Pisa",
-    ],
-) as br_bcb_sicor_dicionario:
-    dataset_id = Parameter("dataset_id", default="br_bcb_sicor", required=True)
-    table_id = Parameter("table_id", default="dicionario", required=True)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+    print("Existem atualizações! A run será iniciada.")
+    download_dir = download_table(
+        download_links,
+        table_id=table_id,
+        download_all_files=download_all_files,
     )
 
-    dicionario_filepath = create_load_dictionary()
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
+    upload_to_gcs(
+        data_path=download_dir,
         dataset_id=dataset_id,
         table_id=table_id,
-        wait=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode=dump_mode,
+        source_format=source_format,
     )
 
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
-        data_path=dicionario_filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="overwrite",
-        upstream_tasks=[dicionario_filepath],
-    )
-
-    wait_for_materialization = run_dbt(
+    run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
-        upstream_tasks=[wait_upload_table],
+        target="dev",
     )
 
-    with case(materialize_after_dump, True):
-        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-            data_path=dicionario_filepath,
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=download_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode=dump_mode,
+        source_format=source_format,
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="overwrite",
-            upstream_tasks=[wait_for_materialization],
+            coverage=_sicor_coverage(coverage_type, historical_database),
+            env="prod",
+            bq_project="basedosdados",
         )
-
-
-br_bcb_sicor_template.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_bcb_sicor_template.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
