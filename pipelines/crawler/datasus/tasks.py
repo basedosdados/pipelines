@@ -5,7 +5,7 @@ Tasks for br_ms_cnes
 import asyncio
 import os
 import subprocess
-from datetime import datetime
+from datetime import date, datetime
 from ftplib import FTP
 
 import basedosdados as bd
@@ -108,6 +108,16 @@ def check_files_to_parse(
     )
 
     return list_files
+
+
+@task(retries=2, retry_delay_seconds=30)
+def get_datasus_source_max_date(ftp_files: list[str]) -> date | None:
+    """Max year-month across the selected DATASUS FTP files, as a date (YYYY-MM-01)."""
+    if not ftp_files:
+        return None
+    yymm = max(file.split("/")[-1][4:8] for file in ftp_files)
+    # %y pivots 00-68 -> 2000s, 69-99 -> 1900s; fine for DATASUS coverage.
+    return datetime.strptime(yymm, "%y%m").date()
 
 
 @task(retries=2, retry_delay_seconds=30)
