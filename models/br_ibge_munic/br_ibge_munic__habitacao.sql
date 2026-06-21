@@ -887,3 +887,4 @@ select
         regularizacao_fundiaria_instrumentos_outros as string
     ) regularizacao_fundiaria_instrumentos_outros
 from {{ set_datalake_project("br_ibge_munic_staging.habitacao") }} as t
+

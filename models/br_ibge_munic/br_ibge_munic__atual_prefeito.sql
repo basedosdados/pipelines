@@ -15,3 +15,4 @@ select
     safe_cast(partido_eleito as string) partido_eleito,
     safe_cast(partido_atual as string) partido_atual
 from {{ set_datalake_project("br_ibge_munic_staging.atual_prefeito") }} as t
+
