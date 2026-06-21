@@ -209,4 +209,3 @@ select
     safe_cast(aposentado as int64) aposentado,
     safe_cast(pesionista as int64) pesionista
 from {{ set_datalake_project("br_ibge_munic_staging.recursos_humanos") }} as t
-

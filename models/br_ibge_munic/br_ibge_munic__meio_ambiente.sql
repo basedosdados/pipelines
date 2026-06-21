@@ -546,4 +546,3 @@ select
         plano_contingencia_desastres_naturais_existencia as string
     ) plano_contingencia_desastres_naturais_existencia
 from {{ set_datalake_project("br_ibge_munic_staging.meio_ambiente") }} as t
-
