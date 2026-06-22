@@ -81,6 +81,8 @@ def deploy_flow(
             for s in schedules
         ]
 
+    job_variables = getattr(flow, "job_variables", None)
+
     print(f"  Registrando {flow_name} → {entrypoint}")
 
     try:
@@ -95,6 +97,7 @@ def deploy_flow(
             work_pool_name=pool_name,
             tags=["automated-deploy"],
             schedules=schedules,
+            job_variables=job_variables,
             build=False,
         )
         status = (
