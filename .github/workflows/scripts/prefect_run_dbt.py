@@ -1,3 +1,5 @@
+import asyncio
+import logging as stdlib_logging
 import os
 import shutil
 import sys
@@ -18,6 +20,26 @@ DBT_MODEL_DEPLOYMENT = "BD template: Executa DBT model/run_dbt_model_flow"
 PREFECT_BASE_URL = os.environ.get(
     "PREFECT_API_URL", "https://prefect3.basedosdados.org/api"
 ).removesuffix("/api")
+
+
+async def _read_flow_run_logs(flow_run_id: str) -> list:
+    from prefect.client.orchestration import get_client
+    from prefect.client.schemas.filters import LogFilter, LogFilterFlowRunId
+
+    async with get_client() as client:
+        return await client.read_logs(
+            log_filter=LogFilter(
+                flow_run_id=LogFilterFlowRunId(any_=[flow_run_id])
+            ),
+            limit=10000,
+        )
+
+
+def print_flow_run_logs(flow_run_id: str) -> None:
+    logs = asyncio.run(_read_flow_run_logs(str(flow_run_id)))
+    for log in logs:
+        level_name = stdlib_logging.getLevelName(log.level)
+        print(f"[{level_name}] {log.timestamp}: {log.message}")
 
 
 def get_datasets_tables_from_modified_files(
@@ -453,6 +475,8 @@ if __name__ == "__main__":
         )
         flow_run_url = f"{PREFECT_BASE_URL}/runs/flow-run/{flow_run.id}"
         print(f" - Materialization flow run launched: {flow_run_url}")
+
+        print_flow_run_logs(str(flow_run.id))
 
         state = flow_run.state
         if state is None or not state.is_completed():
