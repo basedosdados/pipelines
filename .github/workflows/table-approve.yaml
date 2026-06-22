@@ -65,26 +65,32 @@ jobs:
             console.log("Changed files:", fileNames);
             core.setOutput("files", fileNames);
       - name: Checkout
-        if: steps.check_label.outputs.table-approve == 'true'
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         uses: actions/checkout@v6
       - name: Install uv
-        if: steps.check_label.outputs.table-approve == 'true'
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         uses: astral-sh/setup-uv@v7
       - name: Set up python
-        if: steps.check_label.outputs.table-approve == 'true'
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         run: uv python install
       - name: Install requirements
-        if: steps.check_label.outputs.table-approve == 'true'
-        run: uv sync --locked --only-dev
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
+        run: uv sync --locked --no-dev
       - name: Run prefect flow to execute dbt model in prod
-        if: steps.check_label.outputs.table-approve == 'true'
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         run: |-
           uv run .github/workflows/scripts/prefect_run_dbt.py \
             --dbt-command run \
             --sync-bucket \
-            --modified-files ${{ steps.changed_files.outputs.files }} \
-            --prefect-backend-token ${{ secrets.PREFECT_BACKEND_AUTH_TOML_API_KEY }}
+            --modified-files "${{ steps.changed_files.outputs.files }}"
         env:
+          PREFECT_API_URL: https://prefect3.basedosdados.org/api
+          PREFECT_API_KEY: ${{ secrets.PREFECT3_AUTH_TOKEN }}
           BASEDOSDADOS_CONFIG: ${{ secrets.BASEDOSDADOS_CONFIG }}
           BASEDOSDADOS_CREDENTIALS_PROD: ${{ secrets.BASEDOSDADOS_CREDENTIALS_PROD }}
           BASEDOSDADOS_CREDENTIALS_STAGING: ${{ secrets.BASEDOSDADOS_CREDENTIALS_STAGING }}
