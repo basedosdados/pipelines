@@ -9,6 +9,7 @@ from utils.clean_election_type import clean_election_type_series
 from utils.clean_party import clean_party_series
 from utils.clean_string import clean_string_series
 from utils.helpers import merge_municipio
+from utils.layout import resolve_columns
 
 
 def _try_read_partidos(ano: int, uf: str) -> pd.DataFrame:
@@ -40,251 +41,86 @@ def _try_read_partidos(ano: int, uf: str) -> pd.DataFrame:
 
 def build_partidos(ano: int) -> pd.DataFrame:
     """Build parties for a single year."""
-    is_federal = ano % 4 == 2  # federal years: 1990, 1994, 1998, 2002, ...
     frames = []
 
     for uf in UFS_PARTIDOS[ano]:
         raw = _try_read_partidos(ano, uf)
         raw.columns = [f"v{i + 1}" for i in range(len(raw.columns))]
-
-        if ano <= 2012:
-            # No header to drop for <= 2012
-            if is_federal:
-                df = raw[
-                    [
-                        "v3",
-                        "v4",
-                        "v5",
-                        "v7",
-                        "v10",
-                        "v11",
-                        "v12",
-                        "v13",
-                        "v14",
-                        "v16",
-                        "v17",
-                        "v18",
-                    ]
-                ].copy()
-                df.columns = [
-                    "ano",
-                    "turno",
-                    "tipo_eleicao",
-                    "sigla_uf",
-                    "cargo",
-                    "tipo_agremiacao",
-                    "numero",
-                    "sigla",
-                    "nome",
-                    "nome_coligacao",
-                    "composicao_coligacao",
-                    "sequencial_coligacao",
-                ]
-            else:
-                df = raw[
-                    [
-                        "v3",
-                        "v4",
-                        "v5",
-                        "v6",
-                        "v7",
-                        "v10",
-                        "v11",
-                        "v12",
-                        "v13",
-                        "v14",
-                        "v16",
-                        "v17",
-                        "v18",
-                    ]
-                ].copy()
-                df.columns = [
-                    "ano",
-                    "turno",
-                    "tipo_eleicao",
-                    "sigla_uf",
-                    "id_municipio_tse",
-                    "cargo",
-                    "tipo_agremiacao",
-                    "numero",
-                    "sigla",
-                    "nome",
-                    "nome_coligacao",
-                    "composicao_coligacao",
-                    "sequencial_coligacao",
-                ]
-            df["id_eleicao"] = ""
-            df["data_eleicao"] = ""
-
-        elif 2014 <= ano <= 2020:
-            raw = raw.iloc[1:].reset_index(drop=True)  # drop header row
-            if is_federal:
-                df = raw[
-                    [
-                        "v3",
-                        "v6",
-                        "v7",
-                        "v8",
-                        "v9",
-                        "v11",
-                        "v14",
-                        "v15",
-                        "v16",
-                        "v17",
-                        "v18",
-                        "v19",
-                        "v20",
-                        "v21",
-                    ]
-                ].copy()
-                df.columns = [
-                    "ano",
-                    "turno",
-                    "id_eleicao",
-                    "tipo_eleicao",
-                    "data_eleicao",
-                    "sigla_uf",
-                    "cargo",
-                    "tipo_agremiacao",
-                    "numero",
-                    "sigla",
-                    "nome",
-                    "sequencial_coligacao",
-                    "nome_coligacao",
-                    "composicao_coligacao",
-                ]
-            else:
-                df = raw[
-                    [
-                        "v3",
-                        "v6",
-                        "v7",
-                        "v8",
-                        "v9",
-                        "v10",
-                        "v11",
-                        "v14",
-                        "v15",
-                        "v16",
-                        "v17",
-                        "v18",
-                        "v19",
-                        "v20",
-                        "v21",
-                    ]
-                ].copy()
-                df.columns = [
-                    "ano",
-                    "turno",
-                    "id_eleicao",
-                    "tipo_eleicao",
-                    "data_eleicao",
-                    "sigla_uf",
-                    "id_municipio_tse",
-                    "cargo",
-                    "tipo_agremiacao",
-                    "numero",
-                    "sigla",
-                    "nome",
-                    "sequencial_coligacao",
-                    "nome_coligacao",
-                    "composicao_coligacao",
-                ]
-
-        else:  # >= 2022
+        # The modern republished files (1994+) carry a header row; 1990 is the
+        # only headerless legacy file.
+        if ano != 1990:
             raw = raw.iloc[1:].reset_index(drop=True)
-            if is_federal:
-                df = raw[
-                    [
-                        "v3",
-                        "v6",
-                        "v7",
-                        "v8",
-                        "v9",
-                        "v11",
-                        "v14",
-                        "v15",
-                        "v16",
-                        "v17",
-                        "v18",
-                        "v19",
-                        "v20",
-                        "v21",
-                        "v22",
-                        "v23",
-                        "v24",
-                        "v25",
-                        "v27",
-                    ]
-                ].copy()
-                df.columns = [
-                    "ano",
-                    "turno",
-                    "id_eleicao",
-                    "tipo_eleicao",
-                    "data_eleicao",
-                    "sigla_uf",
-                    "cargo",
-                    "tipo_agremiacao",
-                    "numero",
-                    "sigla",
-                    "nome",
-                    "numero_federacao",
-                    "nome_federacacao",
-                    "sigla_federacao",
-                    "composicao_federacao",
-                    "sequencial_coligacao",
-                    "nome_coligacao",
-                    "composicao_coligacao",
-                    "situacao_legenda",
-                ]
-            else:
-                df = raw[
-                    [
-                        "v3",
-                        "v6",
-                        "v7",
-                        "v8",
-                        "v9",
-                        "v10",
-                        "v11",
-                        "v14",
-                        "v15",
-                        "v16",
-                        "v17",
-                        "v18",
-                        "v19",
-                        "v20",
-                        "v21",
-                        "v22",
-                        "v23",
-                        "v24",
-                        "v25",
-                        "v27",
-                    ]
-                ].copy()
-                df.columns = [
-                    "ano",
-                    "turno",
-                    "id_eleicao",
-                    "tipo_eleicao",
-                    "data_eleicao",
-                    "sigla_uf",
-                    "id_municipio_tse",
-                    "cargo",
-                    "tipo_agremiacao",
-                    "numero",
-                    "sigla",
-                    "nome",
-                    "numero_federacao",
-                    "nome_federacacao",
-                    "sigla_federacao",
-                    "composicao_federacao",
-                    "sequencial_coligacao",
-                    "nome_coligacao",
-                    "composicao_coligacao",
-                    "situacao_legenda",
-                ]
+        raw = resolve_columns(raw, "consulta_coligacao", ano)
+
+        # Header-based selection by official TSE name. SG_UE maps to
+        # id_municipio_tse for every year; for federal elections SG_UE is the
+        # alphabetic UF/BR code, which destrings to empty downstream (so the old
+        # federal/municipal split is unnecessary). Three layout generations:
+        # 1990 (legacy headerless names), 1994-2016 (n=23), 2018-2024 (n=28 with
+        # the federação block + DS_SITUACAO).
+        if ano == 1990:
+            col_map = {
+                "ANO_ELEICAO": "ano",
+                "NUM_TURNO": "turno",
+                "DESCRICAO_ELEICAO": "tipo_eleicao",
+                "SIGLA_UF": "sigla_uf",
+                "SIGLA_UE": "id_municipio_tse",
+                "DESCRICAO_CARGO": "cargo",
+                "TIPO_LEGENDA": "tipo_agremiacao",
+                "NUMERO_PARTIDO": "numero",
+                "SIGLA_PARTIDO": "sigla",
+                "NOME_PARTIDO": "nome",
+                "SEQUENCIAL_COLIGACAO": "sequencial_coligacao",
+                "NOME_COLIGACAO": "nome_coligacao",
+                "COMPOSICAO_COLIGACAO": "composicao_coligacao",
+            }
+        elif ano >= 2018:
+            col_map = {
+                "ANO_ELEICAO": "ano",
+                "NR_TURNO": "turno",
+                "CD_ELEICAO": "id_eleicao",
+                "DS_ELEICAO": "tipo_eleicao",
+                "DT_ELEICAO": "data_eleicao",
+                "SG_UF": "sigla_uf",
+                "SG_UE": "id_municipio_tse",
+                "DS_CARGO": "cargo",
+                "TP_AGREMIACAO": "tipo_agremiacao",
+                "NR_PARTIDO": "numero",
+                "SG_PARTIDO": "sigla",
+                "NM_PARTIDO": "nome",
+                "NR_FEDERACAO": "numero_federacao",
+                "NM_FEDERACAO": "nome_federacacao",
+                "SG_FEDERACAO": "sigla_federacao",
+                "DS_COMPOSICAO_FEDERACAO": "composicao_federacao",
+                "SQ_COLIGACAO": "sequencial_coligacao",
+                "NM_COLIGACAO": "nome_coligacao",
+                "DS_COMPOSICAO_COLIGACAO": "composicao_coligacao",
+                "DS_SITUACAO": "situacao_legenda",
+            }
+        else:  # 1994-2016
+            col_map = {
+                "ANO_ELEICAO": "ano",
+                "NR_TURNO": "turno",
+                "CD_ELEICAO": "id_eleicao",
+                "DS_ELEICAO": "tipo_eleicao",
+                "DT_ELEICAO": "data_eleicao",
+                "SG_UF": "sigla_uf",
+                "SG_UE": "id_municipio_tse",
+                "DS_CARGO": "cargo",
+                "TP_AGREMIACAO": "tipo_agremiacao",
+                "NR_PARTIDO": "numero",
+                "SG_PARTIDO": "sigla",
+                "NM_PARTIDO": "nome",
+                "SQ_COLIGACAO": "sequencial_coligacao",
+                "NM_COLIGACAO": "nome_coligacao",
+                "DS_COMPOSICAO_COLIGACAO": "composicao_coligacao",
+            }
+
+        available = {k: v for k, v in col_map.items() if k in raw.columns}
+        df = raw[list(available.keys())].rename(columns=available)
+        for c in ("id_eleicao", "data_eleicao", "id_municipio_tse"):
+            if c not in df.columns:
+                df[c] = ""
 
         # sigla_uf=BR -> empty
         df.loc[df["sigla_uf"] == "BR", "sigla_uf"] = ""

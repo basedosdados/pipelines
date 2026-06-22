@@ -11,33 +11,39 @@
         cluster_by=["sigla_uf"],
     )
 }}
-
+-- Rollup puro em dbt: agrega a tabela zona publicada (drop zona, soma as
+-- contagens) e RECOMPUTA as 4 proporções sobre os totais municipais.
+with
+    agg as (
+        select
+            ano,
+            turno,
+            id_eleicao,
+            tipo_eleicao,
+            data_eleicao,
+            sigla_uf,
+            id_municipio,
+            id_municipio_tse,
+            cargo,
+            sum(aptos) as aptos,
+            sum(secoes) as secoes,
+            sum(secoes_agregadas) as secoes_agregadas,
+            sum(aptos_totalizadas) as aptos_totalizadas,
+            sum(secoes_totalizadas) as secoes_totalizadas,
+            sum(comparecimento) as comparecimento,
+            sum(abstencoes) as abstencoes,
+            sum(votos_validos) as votos_validos,
+            sum(votos_brancos) as votos_brancos,
+            sum(votos_nulos) as votos_nulos,
+            sum(votos_nominais) as votos_nominais,
+            sum(votos_legenda) as votos_legenda
+        from {{ ref("br_tse_eleicoes__detalhes_votacao_municipio_zona") }}
+        group by 1, 2, 3, 4, 5, 6, 7, 8, 9
+    )
 select
-    safe_cast(ano as int64) ano,
-    safe_cast(turno as int64) turno,
-    safe_cast(id_eleicao as string) id_eleicao,
-    safe_cast(tipo_eleicao as string) tipo_eleicao,
-    safe_cast(data_eleicao as date) data_eleicao,
-    safe_cast(sigla_uf as string) sigla_uf,
-    safe_cast(id_municipio as string) id_municipio,
-    safe_cast(id_municipio_tse as string) id_municipio_tse,
-    safe_cast(cargo as string) cargo,
-    safe_cast(aptos as int64) aptos,
-    safe_cast(secoes as int64) secoes,
-    safe_cast(secoes_agregadas as int64) secoes_agregadas,
-    safe_cast(aptos_totalizadas as int64) aptos_totalizadas,
-    safe_cast(secoes_totalizadas as int64) secoes_totalizadas,
-    safe_cast(comparecimento as int64) comparecimento,
-    safe_cast(abstencoes as int64) abstencoes,
-    safe_cast(votos_validos as int64) votos_validos,
-    safe_cast(votos_brancos as int64) votos_brancos,
-    safe_cast(votos_nulos as int64) votos_nulos,
-    safe_cast(votos_nominais as int64) votos_nominais,
-    safe_cast(votos_legenda as int64) votos_legenda,
-    safe_cast(proporcao_comparecimento as float64) proporcao_comparecimento,
-    safe_cast(proporcao_votos_validos as float64) proporcao_votos_validos,
-    safe_cast(proporcao_votos_brancos as float64) proporcao_votos_brancos,
-    safe_cast(proporcao_votos_nulos as float64) proporcao_votos_nulos
-from
-    {{ set_datalake_project("br_tse_eleicoes_staging.detalhes_votacao_municipio") }}
-    as t
+    *,
+    100 * safe_divide(comparecimento, aptos) as proporcao_comparecimento,
+    100 * safe_divide(votos_validos, comparecimento) as proporcao_votos_validos,
+    100 * safe_divide(votos_brancos, comparecimento) as proporcao_votos_brancos,
+    100 * safe_divide(votos_nulos, comparecimento) as proporcao_votos_nulos
+from agg

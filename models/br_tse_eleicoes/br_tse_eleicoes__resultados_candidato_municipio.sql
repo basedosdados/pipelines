@@ -11,23 +11,24 @@
         cluster_by=["sigla_uf"],
     )
 }}
+-- Rollup puro em dbt: agrega a tabela zona publicada (drop zona, soma votos).
+-- ref() impõe a ordem zona -> municipio e resolve dev/prod pelo target.
 select
-    safe_cast(ano as int64) ano,
-    safe_cast(turno as int64) turno,
-    safe_cast(id_eleicao as string) id_eleicao,
-    safe_cast(tipo_eleicao as string) tipo_eleicao,
-    safe_cast(data_eleicao as date) data_eleicao,
-    safe_cast(sigla_uf as string) sigla_uf,
-    safe_cast(id_municipio as string) id_municipio,
-    safe_cast(id_municipio_tse as string) id_municipio_tse,
-    safe_cast(cargo as string) cargo,
-    safe_cast(numero_partido as string) numero_partido,
-    safe_cast(sigla_partido as string) sigla_partido,
-    safe_cast(titulo_eleitoral_candidato as string) titulo_eleitoral_candidato,
-    safe_cast(sequencial_candidato as string) sequencial_candidato,
-    safe_cast(numero_candidato as string) numero_candidato,
-    safe_cast(resultado as string) resultado,
-    safe_cast(votos as int64) votos
-from
-    {{ set_datalake_project("br_tse_eleicoes_staging.resultados_candidato_municipio") }}
-    as t
+    ano,
+    turno,
+    id_eleicao,
+    tipo_eleicao,
+    data_eleicao,
+    sigla_uf,
+    id_municipio,
+    id_municipio_tse,
+    cargo,
+    numero_partido,
+    sigla_partido,
+    titulo_eleitoral_candidato,
+    sequencial_candidato,
+    numero_candidato,
+    resultado,
+    sum(votos) as votos
+from {{ ref("br_tse_eleicoes__resultados_candidato_municipio_zona") }}
+group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15

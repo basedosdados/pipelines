@@ -1631,51 +1631,37 @@ def _build_despesas_2014() -> pd.DataFrame:
             INPUT_DIR
             / f"prestacao_contas/prestacao_final_2014/despesas_candidatos_2014_{uf}"
         )
-        df = read_raw_csv(str(base), drop_first_row=True)
-        df = df[
-            [
-                "v1",
-                "v2",
-                "v4",
-                "v5",
-                "v6",
-                "v7",
-                "v8",
-                "v9",
-                "v12",
-                "v13",
-                "v14",
-                "v15",
-                "v16",
-                "v17",
-                "v18",
-                "v19",
-                "v20",
-                "v21",
-                "v22",
-            ]
-        ].copy()
-        df.columns = [
-            "id_eleicao",
-            "tipo_eleicao",
-            "cnpj_prestador_contas",
-            "sequencial_candidato",
-            "sigla_uf",
-            "sigla_partido",
-            "numero_candidato",
-            "cargo",
-            "tipo_documento",
-            "numero_documento",
-            "cpf_cnpj_fornecedor",
-            "nome_fornecedor",
-            "nome_fornecedor_rf",
-            "cnae_2_fornecedor",
-            "descricao_cnae_2_fornecedor",
-            "data_despesa",
-            "valor_despesa",
-            "tipo_despesa",
-            "descricao_despesa",
-        ]
+        df = read_raw_csv(
+            str(base),
+            drop_first_row=True,
+            family="prestacao_despesas",
+            ano=2014,
+        )
+        # Header-based selection by official TSE name. The 2014 prestação files
+        # carry human-readable Portuguese headers; the old positional map
+        # drifted (valor_despesa landed on "Cod setor econômico do fornecedor").
+        col_map = {
+            "Cód. Eleição": "id_eleicao",
+            "Desc. Eleição": "tipo_eleicao",
+            "CNPJ Prestador Conta": "cnpj_prestador_contas",
+            "Sequencial Candidato": "sequencial_candidato",
+            "UF": "sigla_uf",
+            "Sigla  Partido": "sigla_partido",
+            "Número candidato": "numero_candidato",
+            "Cargo": "cargo",
+            "Tipo de documento": "tipo_documento",
+            "Número do documento": "numero_documento",
+            "CPF/CNPJ do fornecedor": "cpf_cnpj_fornecedor",
+            "Nome do fornecedor": "nome_fornecedor",
+            "Nome do fornecedor (Receita Federal)": "nome_fornecedor_rf",
+            "Cod setor econômico do fornecedor": "cnae_2_fornecedor",
+            "Setor econômico do fornecedor": "descricao_cnae_2_fornecedor",
+            "Data da despesa": "data_despesa",
+            "Valor despesa": "valor_despesa",
+            "Tipo despesa": "tipo_despesa",
+            "Descriçao da despesa": "descricao_despesa",
+        }
+        df = df[list(col_map.keys())].rename(columns=col_map)
         frames.append(df)
 
     df = pd.concat(frames, ignore_index=True)

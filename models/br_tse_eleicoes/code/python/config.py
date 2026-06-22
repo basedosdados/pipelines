@@ -3,13 +3,16 @@ Centralized configuration for the br_tse_eleicoes pipeline.
 Paths, constants, year ranges, and state lists per table.
 """
 
+import os
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 
-RAW_DATA = Path("/Users/rdahis/Downloads/dados_TSE")
+RAW_DATA = Path(
+    os.environ.get("TSE_DATA_DIR", "/Users/rdahis/Downloads/dados_TSE")
+)
 INPUT_DIR = RAW_DATA / "input"
 OUTPUT_STATA = RAW_DATA / "output"
 OUTPUT_PYTHON = RAW_DATA / "output_python"
