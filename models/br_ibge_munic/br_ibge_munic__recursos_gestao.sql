@@ -586,3 +586,4 @@ select
         articulacao_saneamento_apoio_setor_privado_comunidades as string
     ) articulacao_saneamento_apoio_setor_privado_comunidades
 from {{ set_datalake_project("br_ibge_munic_staging.recursos_gestao") }} as t
+-- trigger table-approve test (prefect 3 migration)
