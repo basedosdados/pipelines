@@ -208,5 +208,6 @@ select
     ) existencia_fundo_municipal_previdencia,
     safe_cast(aposentado as int64) aposentado,
     safe_cast(pesionista as int64) pesionista
-from {{ set_datalake_project("br_ibge_munic_staging.recursos_humanos") }} as t
--- trigger table-approve test (prefect 3 migration)
+from
+    {{ set_datalake_project("br_ibge_munic_staging.recursos_humanos") }} as t
+    -- trigger table-approve test (prefect 3 migration)
