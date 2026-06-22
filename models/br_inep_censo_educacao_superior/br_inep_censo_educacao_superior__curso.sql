@@ -22,7 +22,7 @@ select
     ) tipo_organizacao_administrativa,
     safe_cast(rede as string) rede,
     safe_cast(id_ies as string) id_ies,
-    safe_cast(nome_curso as string) nome_curso,
+    safe_cast(initcap(nome_curso) as string) nome_curso,
     safe_cast(id_curso as string) id_curso,
     -- Staging até 2023: código CINE em nome_curso_cine e nome em id_curso_cine.
     -- A partir de 2024 coincide com o dicionário; unificamos semântica no modelo.
