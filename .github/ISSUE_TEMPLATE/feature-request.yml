@@ -1,36 +1,26 @@
 ---
-name: ✨ feature request
-description: 💡 Solicitação de uma nova funcionalidade para o repositório `pipelines`
-title: '[feature] <título>'
+name: ✨ feat
+description: Nova funcionalidade no código do repositório
+title: '[feat] '
 labels: [enhancement]
 body:
   - type: textarea
+    id: descricao
     attributes:
-      label: 📌 Descrição da funcionalidade
-      description: Explique de forma clara e objetiva o que essa funcionalidade deve
-        fazer e qual problema ela resolve.
+      label: Descrição da funcionalidade
+      description: O que essa funcionalidade deve fazer e qual problema resolve.
     validations:
       required: true
   - type: textarea
+    id: motivacao
     attributes:
-      label: 🛠️ Proposta de solução
-      description: Descreva como a funcionalidade deve ser implementada ou qual abordagem
-        você sugere.
+      label: Motivação e benefício
+      description: Como isso contribui para a equipe ou para os usuários da BD?
+    validations:
+      required: true
   - type: textarea
+    id: proposta
     attributes:
-      label: 🚀 Benefícios para a Equipe Dados
-      description: Explique como essa funcionalidade contribuirá para a Equipe Dados
-  - type: textarea
-    attributes:
-      label: 🚀 Benefícios para a BD
-      description: Explique como essa funcionalidade contribuirá para a BD e seus
-        usuários.
-  - type: textarea
-    attributes:
-      label: 🤝 Necessidade de colaboração externa
-      description: A implementação dependerá de contribuições de terceiros? Se sim,
-        mencione os envolvidos ou possíveis colaboradores.
-  - type: textarea
-    attributes:
-      label: 📎 Outras considerações
-      description: Inclua quaisquer informações adicionais relevantes para a solicitação.
+      label: Proposta de solução
+      description: Abordagem sugerida (opcional). Inclua dependências externas se
+        houver.

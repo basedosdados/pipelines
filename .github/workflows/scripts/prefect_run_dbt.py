@@ -1,13 +1,23 @@
+import os
 import shutil
 import sys
 import traceback
 from argparse import ArgumentParser
 from pathlib import Path
-from time import sleep
 
 import basedosdados as bd
+from prefect.deployments import run_deployment
 
-PREFECT_BASE_URL = "https://prefect.basedosdados.org"
+# Prefect 3 deployment triggered for each modified table.
+# Slug = "<flow name>/<deployment name>": the flow's @flow(name=...) is
+# "BD template: Executa DBT model" and deploy_flows.py registers it under the
+# python identifier "run_dbt_model_flow".
+DBT_MODEL_DEPLOYMENT = "BD template: Executa DBT model/run_dbt_model_flow"
+
+# Base UI URL for human-readable flow-run links, derived from PREFECT_API_URL.
+PREFECT_BASE_URL = os.environ.get(
+    "PREFECT_API_URL", "https://prefect3.basedosdados.org/api"
+).removesuffix("/api")
 
 
 def get_datasets_tables_from_modified_files(
@@ -51,76 +61,6 @@ def get_datasets_tables_from_modified_files(
         new_datasets_tables.append((dataset_id, table_id, exists, alias))
 
     return new_datasets_tables
-
-
-def get_flow_run_state(
-    flow_run_id: str, backend: bd.Backend, auth_token: str
-) -> str:
-    query = """
-    query ($flow_run_id: uuid!) {
-        flow_run_by_pk (id: $flow_run_id) {
-            state
-        }
-    }
-    """
-    response = backend._execute_query(
-        query,
-        variables={"flow_run_id": flow_run_id},
-        headers={"Authorization": f"Bearer {auth_token}"},
-    )
-    return response["flow_run_by_pk"]["state"]
-
-
-def get_flow_log_error_messages(
-    flow_run_id: str, backend: bd.Backend, auth_token: str
-) -> list[str]:
-    query = """query ($flow_run_id: uuid!) {
-        log(where: {flow_run_id: {_eq: $flow_run_id}, level: {_eq: "ERROR"}}) {
-            message,
-        }
-    }
-    """
-    response = backend._execute_query(
-        query,
-        variables={"flow_run_id": flow_run_id},
-        headers={"Authorization": f"Bearer {auth_token}"},
-    )
-    return [i["message"] for i in response["log"]]
-
-
-def get_materialization_flow_id(
-    backend: bd.Backend, auth_token: str, project: str = "main"
-) -> str:
-    """
-    Get DBT Flow.
-    """
-    query = """
-    query ($projectName: String!) {
-        flow (where: {
-            name: {
-                _like: "BD template: Executa DBT model"
-            },
-            archived: {
-                _eq: false
-            },
-            project: {
-                name: {_eq: $projectName}
-            }
-        }) {
-            id,
-            version,
-            run_config
-        }
-    }
-    """
-    response = backend._execute_query(
-        query,
-        headers={"Authorization": f"Bearer {auth_token}"},
-        variables={"projectName": project},
-    )
-    flow_data = response["flow"][0]
-    print(f"get_materialization_flow_id: {flow_data}")
-    return flow_data["id"]
 
 
 def push_table_to_bq(
@@ -404,12 +344,14 @@ if __name__ == "__main__":
         help="Backup bucket name.",
     )
 
-    # Add Prefect API token argument
+    # Deprecated: Prefect 3 auth comes from the PREFECT_API_KEY env var read by
+    # the client. Kept (optional, ignored) so the legacy cd.yaml caller that
+    # still passes it does not fail at argument parsing.
     arg_parser.add_argument(
         "--prefect-backend-token",
         type=str,
-        required=True,
-        help="Prefect backend token.",
+        required=False,
+        help="Deprecated and ignored; use PREFECT_API_KEY env var.",
     )
 
     # Add materialization mode argument
@@ -477,105 +419,49 @@ if __name__ == "__main__":
     else:
         print("Skipping sync bucket because --sync-bucket was not set")
 
-    # Launch materialization flows
-    backend_prefect = bd.Backend(graphql_url=f"{PREFECT_BASE_URL}/api")
-    backend_prefect.graphql_url = f"{PREFECT_BASE_URL}/api"
-
-    flow_id = get_materialization_flow_id(
-        backend=backend_prefect,
-        auth_token=args.prefect_backend_token,
-        project="staging"
-        if args.materialization_target == "dev"
-        and args.materialization_label == "basedosdados-dev"
-        else "main",
-    )
-
-    datastes_tables_for_flow_run = existing_datasets_tables_from_modified_files
+    # Launch materialization flows on Prefect 3.
+    # run_deployment reads PREFECT_API_URL / PREFECT_API_KEY from the
+    # environment and blocks (timeout=None) until each run reaches a terminal
+    # state, polling every 5s.
+    datasets_tables_for_flow_run = existing_datasets_tables_from_modified_files
 
     if args.dataset_id is not None:
-        datastes_tables_for_flow_run.append((args.dataset_id, "", False))
-
-    launched_flow_run_ids = []
+        datasets_tables_for_flow_run.append((args.dataset_id, "", False))
 
     for (
         dataset_id,
         table_id,
         alias,
-    ) in datastes_tables_for_flow_run:
+    ) in datasets_tables_for_flow_run:
         print(
             f"Launching materialization flow for {dataset_id}.{table_id} (alias={alias})..."
         )
-        parameters = {
-            "dataset_id": dataset_id,
-            "table_id": table_id,
-            "target": args.materialization_target,
-            "dbt_command": args.dbt_command,
-            "dbt_alias": alias,
-            # Download csv file is true by default
-            # We disable when materialization target is not prod
-            "download_csv_file": args.materialization_target == "prod",
-            "_vars": {
-                "job_name": f"{dataset_id}.{table_id}",
-                "job_id": flow_id,
+        flow_run = run_deployment(
+            name=DBT_MODEL_DEPLOYMENT,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "dbt_command": args.dbt_command,
+                "dbt_alias": alias,
+                "target": args.materialization_target,
+                # Download csv file is true by default.
+                # We disable when materialization target is not prod.
+                "download_csv_file": args.materialization_target == "prod",
             },
-        }
-        mutation = """
-        mutation ($flow_id: UUID, $parameters: JSON, $label: String!) {
-            create_flow_run (input: {
-                flow_id: $flow_id,
-                parameters: $parameters,
-                labels: [$label],
-            }) {
-                id
-            }
-        }
-        """
-        variables = {
-            "flow_id": flow_id,
-            "parameters": parameters,
-            "label": args.materialization_label,
-        }
-        response = backend_prefect._execute_query(
-            mutation,
-            variables,
-            headers={"Authorization": f"Bearer {args.prefect_backend_token}"},
+            timeout=None,
+            as_subflow=False,
         )
-        flow_run_id = response["create_flow_run"]["id"]
-        launched_flow_run_ids.append(flow_run_id)
-        flow_run_url = f"{PREFECT_BASE_URL}/flow-run/{flow_run_id}"
+        flow_run_url = f"{PREFECT_BASE_URL}/runs/flow-run/{flow_run.id}"
         print(f" - Materialization flow run launched: {flow_run_url}")
 
-    # Keep monitoring the launched flow runs until they are finished
-    for launched_flow_run_id in launched_flow_run_ids:
-        print(f"Monitoring flow run {launched_flow_run_id}...")
-        flow_run_state = get_flow_run_state(
-            flow_run_id=launched_flow_run_id,
-            backend=backend_prefect,
-            auth_token=args.prefect_backend_token,
-        )
-        while flow_run_state not in ["Success", "Failed", "Cancelled"]:
-            sleep(5)
-            flow_run_state = get_flow_run_state(
-                flow_run_id=launched_flow_run_id,
-                backend=backend_prefect,
-                auth_token=args.prefect_backend_token,
-            )
-        if flow_run_state != "Success":
-            messages = get_flow_log_error_messages(
-                flow_run_id=launched_flow_run_id,
-                backend=backend_prefect,
-                auth_token=args.prefect_backend_token,
-            )
-            for message in messages:
-                print(message)
-
-            flow_run_url = (
-                f"{PREFECT_BASE_URL}/flow-run/{launched_flow_run_id}"
-            )
-
+        state = flow_run.state
+        if state is None or not state.is_completed():
+            state_name = state.name if state is not None else "Unknown"
             raise Exception(
-                f'Flow run {launched_flow_run_id} finished with state "{flow_run_state}". '
-                f"Check the full logs at {flow_run_url}"
+                f"Flow run {flow_run.id} for {dataset_id}.{table_id} finished "
+                f'with state "{state_name}". Check the full logs at {flow_run_url}'
             )
 
-        print(f"Flow run {launched_flow_run_id} finished successfully.")
+        print(
+            f"Flow run {flow_run.id} ({dataset_id}.{table_id}) finished successfully."
+        )

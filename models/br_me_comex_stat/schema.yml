@@ -35,7 +35,7 @@ models:
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_pais_iso3
+              field: sigla_iso3
               ignore_values: [ANT, CSK, SCG, PCZ]
               config:
                 where: __most_recent_year_month__
@@ -87,7 +87,7 @@ models:
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_pais_iso3
+              field: sigla_iso3
               ignore_values: [ANT, CSK, SCG, PCZ]
               config:
                 where: __most_recent_year_month__
@@ -149,7 +149,7 @@ models:
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_pais_iso3
+              field: sigla_iso3
               ignore_values: [ANT, CSK, SCG, PCZ]
               config:
                 where: __most_recent_year_month__
@@ -212,7 +212,7 @@ models:
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_pais_iso3
+              field: sigla_iso3
               ignore_values: [ANT, CSK, SCG, PCZ]
               config:
                 where: __most_recent_year_month__

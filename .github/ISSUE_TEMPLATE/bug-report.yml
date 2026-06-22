@@ -1,33 +1,27 @@
 ---
 name: 🐞 bug
-description: 🚨 Relate um bug ou problema encontrado nos dados ou em alguma funcionalidade
-  da Base dos Dados
-title: '[bug] <title>'
-labels: [bug, triage]
+description: Defeito em código, tooling, CI ou comportamento de pipeline
+title: '[bug] '
+labels: [bug]
 body:
   - type: textarea
+    id: descricao
     attributes:
-      label: 🐛 Descrição do Bug
-      description: Explique de forma clara e objetiva o que essa o bug que você está
-        enfrentando. (Acrescente logs, imagens e mensagens de erro)
+      label: Descrição do bug
+      description: O que está acontecendo? Inclua logs, mensagens de erro e prints
+        quando aplicável.
     validations:
       required: true
   - type: textarea
+    id: reproducao
     attributes:
-      label: 🛠️ Proposta de solução
-      description: Descreva a proposta de solução para o bug.
+      label: Como reproduzir
+      description: Passos mínimos para reproduzir o problema (flow, comando, branch,
+        ambiente).
+    validations:
+      required: true
   - type: textarea
+    id: referencias
     attributes:
-      label: 📄 O bug está impactando algum nível a Base dos Dados?
-      description: O Bug está quebrando outras pipelines, gerando custo adicional
-        e etc? Se sim, relate abaixo
-  - type: textarea
-    attributes:
-      label: 📍 Na sua visão, essa correção deveria ser priorizada?
-      description: Descreva abaixo, se na sua visão, essa correção deveria deveria
-        ser priorizada na próxima sprint.
-  - type: textarea
-    attributes:
-      label: 📌 Outras informações relevantes
-      description: Adicione qualquer outra informação que possa ajudar a investigar
-        e corrigir o problema.
+      label: Referências
+      description: Links para PRs, issues relacionadas, runs do Prefect ou Actions.
