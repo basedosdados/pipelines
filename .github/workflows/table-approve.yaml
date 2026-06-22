@@ -65,19 +65,24 @@ jobs:
             console.log("Changed files:", fileNames);
             core.setOutput("files", fileNames);
       - name: Checkout
-        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files != ''
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         uses: actions/checkout@v6
       - name: Install uv
-        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files != ''
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         uses: astral-sh/setup-uv@v7
       - name: Set up python
-        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files != ''
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         run: uv python install
       - name: Install requirements
-        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files != ''
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         run: uv sync --locked --no-dev
       - name: Run prefect flow to execute dbt model in prod
-        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files != ''
+        if: steps.check_label.outputs.table-approve == 'true' && steps.changed_files.outputs.files
+          != ''
         run: |-
           uv run .github/workflows/scripts/prefect_run_dbt.py \
             --dbt-command run \

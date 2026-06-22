@@ -33,5 +33,6 @@ select
     safe_cast(nome_regiao as string) nome_regiao,
     safe_cast(amazonia_legal as int64) amazonia_legal,
     safe.st_geogfromtext(centroide) centroide
-from {{ set_datalake_project("br_bd_diretorios_brasil_staging.municipio") }} as t
--- trigger table-approve test (prefect 3 migration)
+from
+    {{ set_datalake_project("br_bd_diretorios_brasil_staging.municipio") }} as t
+    -- trigger table-approve test (prefect 3 migration)
