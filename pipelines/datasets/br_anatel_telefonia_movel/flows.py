@@ -36,18 +36,19 @@ def _anatel_tm_flow(table_id: str, cron: str):
         )
 
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.job_variables = {"memory_limit": "8Gi", "memory_request": "2Gi"}
     return _flow
 
 
 br_anatel_telefonia_movel__microdados = _anatel_tm_flow(
-    table_id="microdados", cron="30 16 * * *"
+    table_id="microdados", cron="30 16 * * 1"
 )
 br_anatel_telefonia_movel__densidade_municipio = _anatel_tm_flow(
-    table_id="densidade_municipio", cron="30 17 * * *"
+    table_id="densidade_municipio", cron="30 16 * * 2"
 )
 br_anatel_telefonia_movel__densidade_uf = _anatel_tm_flow(
-    table_id="densidade_uf", cron="30 18 * * *"
+    table_id="densidade_uf", cron="30 16 * * 3"
 )
 br_anatel_telefonia_movel__densidade_brasil = _anatel_tm_flow(
-    table_id="densidade_brasil", cron="30 19 * * *"
+    table_id="densidade_brasil", cron="30 16 * * 4"
 )
