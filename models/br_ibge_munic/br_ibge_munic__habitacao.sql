@@ -886,6 +886,4 @@ select
     safe_cast(
         regularizacao_fundiaria_instrumentos_outros as string
     ) regularizacao_fundiaria_instrumentos_outros
-from
-    {{ set_datalake_project("br_ibge_munic_staging.habitacao") }} as t
-    -- trigger table-approve test (prefect 3 migration)
+from {{ set_datalake_project("br_ibge_munic_staging.habitacao") }} as t
