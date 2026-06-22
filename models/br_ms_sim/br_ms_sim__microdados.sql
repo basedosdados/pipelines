@@ -1,3 +1,4 @@
+-- Microdados SIM: carga 2020-2024; particao end: 2024 (ver README).
 {{
     config(
         alias="microdados",
