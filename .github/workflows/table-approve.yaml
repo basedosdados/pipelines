@@ -3,6 +3,8 @@ name: table-approve
 on:
   push:
     branches: [main]
+  pull_request:
+    types: [labeled]
 jobs:
   table-approve:
     name: table approve
