@@ -5,7 +5,6 @@ DBT-related flow (Prefect 3).
 from __future__ import annotations
 
 import json
-import signal
 from pathlib import Path
 from typing import Any
 
@@ -61,18 +60,7 @@ def run_dbt_task(
         cli_args.extend(["--vars", json.dumps(variables)])
 
         print(f"dbt | executing: {' '.join(cli_args)}")
-
-        # dbtRunner installs its own signal handlers and does not restore
-        # them after invoke(), which causes Prefect to detect a spurious
-        # crash on process exit. Save and restore around each invocation.
-        _sigterm = signal.getsignal(signal.SIGTERM)
-        _sigint = signal.getsignal(signal.SIGINT)
-        try:
-            result = runner.invoke(cli_args)
-        finally:
-            signal.signal(signal.SIGTERM, _sigterm)
-            signal.signal(signal.SIGINT, _sigint)
-
+        result = runner.invoke(cli_args)
         if result.exception:
             raise Exception(f"dbt {cmd} exception: {result.exception}")
         if not result.success:
