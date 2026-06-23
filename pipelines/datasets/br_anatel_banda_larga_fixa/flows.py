@@ -1,89 +1,54 @@
 """
-Flows for dataset br_anatel_banda_larga_fixa
+Flows for br_anatel_banda_larga_fixa — Prefect 3.
 """
 
-from copy import deepcopy
+from prefect import flow
 
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
-
-from pipelines.constants import constants
 from pipelines.crawler.anatel.banda_larga_fixa.flows import (
-    flow_anatel_banda_larga_fixa,
-)
-from pipelines.datasets.br_anatel_banda_larga_fixa.schedules import (
-    schedule_br_anatel_banda_larga_fixa__densidade_brasil,
-    schedule_br_anatel_banda_larga_fixa__densidade_municipio,
-    schedule_br_anatel_banda_larga_fixa__densidade_uf,
-    schedule_br_anatel_banda_larga_fixa__microdados,
+    _run_anatel_banda_larga_fixa,
 )
 
-# Microdados
-br_anatel_banda_larga_fixa__microdados = deepcopy(flow_anatel_banda_larga_fixa)
-br_anatel_banda_larga_fixa__microdados.name = (
-    "br_anatel_banda_larga_fixa.microdados"
-)
-br_anatel_banda_larga_fixa__microdados.code_owners = ["equipe_dados"]
-br_anatel_banda_larga_fixa__microdados.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_anatel_banda_larga_fixa__microdados.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_anatel_banda_larga_fixa__microdados.schedule = (
-    schedule_br_anatel_banda_larga_fixa__microdados
-)
 
-# Densidade UF
-br_anatel_banda_larga_fixa__densidade_uf = deepcopy(
-    flow_anatel_banda_larga_fixa
-)
-br_anatel_banda_larga_fixa__densidade_uf.name = (
-    "br_anatel_banda_larga_fixa.densidade_uf"
-)
-br_anatel_banda_larga_fixa__densidade_uf.code_owners = ["equipe_dados"]
-br_anatel_banda_larga_fixa__densidade_uf.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_anatel_banda_larga_fixa__densidade_uf.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_anatel_banda_larga_fixa__densidade_uf.schedule = (
-    schedule_br_anatel_banda_larga_fixa__densidade_uf
-)
+def _anatel_blf_flow(table_id: str, cron: str):
+    @flow(
+        name=f"br_anatel_banda_larga_fixa__{table_id}",
+        log_prints=True,
+        description=f"Dump da tabela {table_id} do dataset br_anatel_banda_larga_fixa.",
+    )
+    def _flow(
+        dataset_id: str = "br_anatel_banda_larga_fixa",
+        table_id: str = table_id,
+        ano: int | None = None,
+        materialize_after_dump: bool = True,
+        dbt_alias: bool = True,
+        update_metadata: bool = True,
+        target: str = "prod",
+        force_run: bool = False,
+    ) -> None:
+        _run_anatel_banda_larga_fixa(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            ano=ano,
+            materialize_after_dump=materialize_after_dump,
+            dbt_alias=dbt_alias,
+            update_metadata=update_metadata,
+            target=target,
+            force_run=force_run,
+        )
 
-# Densidade Brasil
-br_anatel_banda_larga_fixa__densidade_brasil = deepcopy(
-    flow_anatel_banda_larga_fixa
-)
-br_anatel_banda_larga_fixa__densidade_brasil.name = (
-    "br_anatel_banda_larga_fixa.densidade_brasil"
-)
-br_anatel_banda_larga_fixa__densidade_brasil.code_owners = ["equipe_dados"]
-br_anatel_banda_larga_fixa__densidade_brasil.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_anatel_banda_larga_fixa__densidade_brasil.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_anatel_banda_larga_fixa__densidade_brasil.schedule = (
-    schedule_br_anatel_banda_larga_fixa__densidade_brasil
-)
+    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    return _flow
 
-# Densidade Municipio
-br_anatel_banda_larga_fixa__densidade_municipio = deepcopy(
-    flow_anatel_banda_larga_fixa
+
+br_anatel_banda_larga_fixa__microdados = _anatel_blf_flow(
+    table_id="microdados", cron="0 15 * * *"
 )
-br_anatel_banda_larga_fixa__densidade_municipio.name = (
-    "br_anatel_banda_larga_fixa.densidade_municipio"
+br_anatel_banda_larga_fixa__densidade_municipio = _anatel_blf_flow(
+    table_id="densidade_municipio", cron="0 16 * * *"
 )
-br_anatel_banda_larga_fixa__densidade_municipio.code_owners = ["equipe_dados"]
-br_anatel_banda_larga_fixa__densidade_municipio.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
+br_anatel_banda_larga_fixa__densidade_brasil = _anatel_blf_flow(
+    table_id="densidade_brasil", cron="0 17 * * *"
 )
-br_anatel_banda_larga_fixa__densidade_municipio.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_anatel_banda_larga_fixa__densidade_municipio.schedule = (
-    schedule_br_anatel_banda_larga_fixa__densidade_municipio
+br_anatel_banda_larga_fixa__densidade_uf = _anatel_blf_flow(
+    table_id="densidade_uf", cron="0 18 * * *"
 )

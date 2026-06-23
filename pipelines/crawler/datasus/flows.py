@@ -1,255 +1,48 @@
 """
-Flows for br_ms_cnes
+Shared run logic for DATASUS pipelines (CNES, SIA, SIH, SINAN) — Prefect 3.
 """
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
-
-from pipelines.constants import constants
 from pipelines.crawler.datasus.tasks import (
     access_ftp_download_files_async,
     check_files_to_parse,
     decompress_dbc,
     decompress_dbf,
+    get_datasus_source_max_date,
     get_last_modified_date_in_sinan_tablen,
-    is_empty,
     list_datasus_table_without_date,
     pre_process_files,
     read_dbf_save_parquet_chunks,
 )
-from pipelines.utils.decorators import Flow
-from pipelines.utils.metadata.flows import update_django_metadata
-from pipelines.utils.metadata.tasks import check_if_data_is_outdated
+from pipelines.utils.metadata.domain import (
+    AllFree,
+    DateFormat,
+    DateOnly,
+    PartBdpro,
+    YearMonth,
+)
+from pipelines.utils.metadata.tasks import (
+    register_source_poll_task,
+    register_table_materialization_task,
+)
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    log_task,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
-)
-
-# Disable Schedule: br_ms_cnes.profissional
-with Flow(name="DATASUS-CNES", code_owners=["Gabriel Pisa"]) as flow_cnes:
-    # Parameters
-    dataset_id = Parameter("dataset_id", required=True)
-    table_id = Parameter("table_id", required=True)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
-    year_month_to_extract = Parameter(
-        "year_month_to_extract", default="", required=False
-    )
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-
-    ftp_files = check_files_to_parse(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        year_month_to_extract=year_month_to_extract,
-    )
-
-    with case(is_empty(ftp_files), True):
-        log_task(
-            "Os dados do FTP CNES ainda não foram atualizados para o ano/mes mais recente"
-        )
-
-    with case(is_empty(ftp_files), False):
-        dbc_files = access_ftp_download_files_async(
-            file_list=ftp_files,
-            dataset_id=dataset_id,
-            table_id=table_id,
-        )
-
-        dbf_files = decompress_dbc(
-            file_list=dbc_files,
-            dataset_id=dataset_id,
-            upstream_tasks=[dbc_files],
-        )
-
-        csv_files = decompress_dbf(
-            file_list=dbc_files,
-            table_id=table_id,
-            upstream_tasks=[dbf_files, dbc_files],
-        )
-
-        files_path = pre_process_files(
-            file_list=csv_files,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            upstream_tasks=[csv_files, dbf_files, dbc_files],
-        )
-
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=files_path,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-        )
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-
-        # estabelecimento
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=files_path,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
-flow_cnes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_cnes.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-
-
-with Flow(name="DATASUS-SIA", code_owners=["Gabriel Pisa"]) as flow_siasus:
-    # Parameters
-    dataset_id = Parameter("dataset_id", required=True)
-    table_id = Parameter("table_id", required=True)
-    year_first_two_digits = Parameter("year_first_two_digits", required=False)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
-    year_month_to_extract = Parameter(
-        "year_month_to_extract", default="", required=False
-    )
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-
-    ftp_files = check_files_to_parse(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        year_month_to_extract=year_month_to_extract,
-    )
-
-    with case(is_empty(ftp_files), True):
-        log_task(
-            "Os dados do FTP SIA ainda não foram atualizados para o ano/mes mais recente"
-        )
-
-    with case(is_empty(ftp_files), False):
-        dbc_files = access_ftp_download_files_async(
-            file_list=ftp_files,
-            dataset_id=dataset_id,
-            table_id=table_id,
-        )
-
-        dbf_files = decompress_dbc(
-            file_list=dbc_files,
-            dataset_id=dataset_id,
-            upstream_tasks=[dbc_files],
-        )
-
-        files_path = read_dbf_save_parquet_chunks(
-            file_list=dbc_files,
-            table_id=table_id,
-            upstream_tasks=[dbc_files, dbf_files],
-        )
-
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=files_path,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[files_path],
-        )
-
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_alias=dbt_alias,
-            dbt_command="run/test",
-            upstream_tasks=[wait_upload_table],
-        )
-
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=files_path,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
-flow_siasus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_siasus.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value,
-    memory_limit="12Gi",
-    memory_request="4Gi",
-    cpu_limit=1,
+    upload_to_gcs,
 )
 
 
-with Flow(name="DATASUS-SIH", code_owners=["equipe_dados"]) as flow_sihsus:
-    # Parameters
-    dataset_id = Parameter("dataset_id", default="br_ms_sih", required=False)
-    table_id = Parameter("table_id", default="aihs_reduzidas", required=False)
-    year_first_two_digits = Parameter("year_first_two_digits", required=False)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
-    year_month_to_extract = Parameter(
-        "year_month_to_extract", default="", required=False
-    )
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
+def _run_cnes(
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    dbt_alias: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+    year_month_to_extract: str = "",
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
     ftp_files = check_files_to_parse(
@@ -257,168 +50,264 @@ with Flow(name="DATASUS-SIH", code_owners=["equipe_dados"]) as flow_sihsus:
         table_id=table_id,
         year_month_to_extract=year_month_to_extract,
     )
+    source_max_date = get_datasus_source_max_date(ftp_files)
 
-    with case(is_empty(ftp_files), True):
-        log_task(
-            "Os  dados do FTP SIH ainda não foram atualizados para o ano/mes mais recente"
-        )
-
-    with case(is_empty(ftp_files), False):
-        dbc_files = access_ftp_download_files_async(
-            file_list=ftp_files,
+    if not force_run:
+        is_outdated = register_source_poll_task(
             dataset_id=dataset_id,
             table_id=table_id,
+            source_max_date=source_max_date,
+            env="prod",
+            date_format="%Y-%m",
         )
+        if not is_outdated:
+            print("Fonte CNES sem novidade — encerrando")
+            return
 
-        dbf_files = decompress_dbc(
-            file_list=dbc_files,
-            dataset_id=dataset_id,
-            upstream_tasks=[dbc_files],
-        )
+    if not ftp_files:
+        print("force_run=True mas FTP não retornou arquivos — encerrando")
+        return
 
-        files_path = read_dbf_save_parquet_chunks(
-            file_list=dbc_files,
-            table_id=table_id,
-            dataset_id=dataset_id,
-            upstream_tasks=[dbc_files, dbf_files],
-        )
-
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=files_path,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            source_format="parquet",
-            upstream_tasks=[files_path],
-        )
-
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_alias=dbt_alias,
-            dbt_command="run/test",
-            upstream_tasks=[wait_upload_table],
-        )
-
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=files_path,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                source_format="parquet",
-                upstream_tasks=[wait_for_materialization],
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
-flow_sihsus.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_sihsus.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-
-
-with Flow(name="DATASUS-SINAN", code_owners=["equipe_dados"]) as flow_sinan:
-    dataset_id = Parameter("dataset_id", default="br_ms_sinan", required=True)
-    table_id = Parameter(
-        "table_id", default="microdados_dengue", required=True
+    dbc_files = access_ftp_download_files_async(
+        file_list=ftp_files, dataset_id=dataset_id, table_id=table_id
     )
-    update_metadata = Parameter(
-        "update_metadata", default=True, required=False
+    decompress_dbc(file_list=dbc_files, dataset_id=dataset_id)
+    csv_files = decompress_dbf(file_list=dbc_files, table_id=table_id)
+    files_path = pre_process_files(
+        file_list=csv_files, dataset_id=dataset_id, table_id=table_id
     )
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
+    upload_to_gcs(
+        data_path=files_path,
         dataset_id=dataset_id,
         table_id=table_id,
-        wait=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
+    )
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=files_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            coverage=PartBdpro(
+                date_column=YearMonth(year="ano", month="mes"),
+                date_format=DateFormat.YEAR_MONTH,
+            ),
+            env="prod",
+            bq_project="basedosdados",
+        )
+
+
+def _run_dbf_to_parquet(
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    dbt_alias: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+    source_format: str,
+    fonte_label: str,
+    year_month_to_extract: str = "",
+) -> None:
+    """Shared logic for SIA/SIH (DBF→Parquet pipeline)."""
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    )
+
+    ftp_files = check_files_to_parse(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        year_month_to_extract=year_month_to_extract,
+    )
+    source_max_date = get_datasus_source_max_date(ftp_files)
+
+    if not force_run:
+        is_outdated = register_source_poll_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=source_max_date,
+            env="prod",
+            date_format="%Y-%m",
+        )
+        if not is_outdated:
+            print(f"Fonte {fonte_label} sem novidade — encerrando")
+            return
+
+    if not ftp_files:
+        print("force_run=True mas FTP não retornou arquivos — encerrando")
+        return
+
+    dbc_files = access_ftp_download_files_async(
+        file_list=ftp_files, dataset_id=dataset_id, table_id=table_id
+    )
+    decompress_dbc(file_list=dbc_files, dataset_id=dataset_id)
+    files_path = read_dbf_save_parquet_chunks(
+        file_list=dbc_files, table_id=table_id, dataset_id=dataset_id
+    )
+
+    upload_to_gcs(
+        data_path=files_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
+        source_format=source_format,
+    )
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=files_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+        source_format=source_format,
+    )
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            coverage=PartBdpro(
+                date_column=YearMonth(year="ano", month="mes"),
+                date_format=DateFormat.YEAR_MONTH,
+            ),
+            env="prod",
+            bq_project="basedosdados",
+        )
+
+
+def _run_siasus(**kwargs) -> None:
+    _run_dbf_to_parquet(source_format="csv", fonte_label="SIA", **kwargs)
+
+
+def _run_sihsus(**kwargs) -> None:
+    _run_dbf_to_parquet(source_format="parquet", fonte_label="SIH", **kwargs)
+
+
+def _run_sinan(
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    dbt_alias: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
     data_source_max_date = get_last_modified_date_in_sinan_tablen(
         datasus_database="SINAN", datasus_database_table="DENGBR"
     )
 
-    dados_desatualizados = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=data_source_max_date,
-        date_format="%Y-%m-%d",
-        upstream_tasks=[data_source_max_date],
+    if not force_run:
+        is_outdated = register_source_poll_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=data_source_max_date,
+            env="prod",
+            date_format="%Y-%m-%d",
+        )
+        if not is_outdated:
+            print("Sem atualizações na fonte SINAN — encerrando")
+            return
+
+    ftp_files = list_datasus_table_without_date(
+        dataset_id=dataset_id, table_id=table_id
+    )
+    dbc_files = access_ftp_download_files_async(
+        file_list=ftp_files, dataset_id=dataset_id, table_id=table_id
+    )
+    decompress_dbc(file_list=dbc_files, dataset_id=dataset_id)
+    files_path = read_dbf_save_parquet_chunks(
+        file_list=dbc_files, table_id=table_id, dataset_id=dataset_id
     )
 
-    with case(dados_desatualizados, True):
-        ftp_files = list_datasus_table_without_date(
+    upload_to_gcs(
+        data_path=files_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
+    )
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=files_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
+            coverage=AllFree(
+                date_column=DateOnly(col="data_notificacao"),
+                date_format=DateFormat.YEAR_MD,
+            ),
+            env="prod",
+            bq_project="basedosdados",
         )
-        dbc_files = access_ftp_download_files_async(
-            file_list=ftp_files,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            upstream_tasks=[ftp_files],
-        )
-
-        dbf_files = decompress_dbc(
-            file_list=dbc_files,
-            dataset_id=dataset_id,
-            upstream_tasks=[dbc_files],
-        )
-
-        files_path = read_dbf_save_parquet_chunks(
-            file_list=dbc_files,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            upstream_tasks=[dbf_files, dbc_files],
-        )
-
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=files_path,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[files_path],
-        )
-
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=files_path,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"date": "data_notificacao"},
-                    date_format="%Y-%m-%d",
-                    coverage_type="all_free",
-                    time_delta={"months": 6},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
-
-flow_sinan.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_sinan.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

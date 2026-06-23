@@ -1,431 +1,150 @@
 """
-Flows for br_me_comex_stat
+Flows for br_me_comex_stat — Prefect 3.
 """
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from prefect import flow
 
-from pipelines.constants import constants
-from pipelines.datasets.br_me_comex_stat.constants import (
+from pipelines.crawler.me_comex_stat.constants import (
     constants as comex_constants,
 )
-from pipelines.datasets.br_me_comex_stat.schedules import (
-    schedule_municipio_exportacao,
-    schedule_municipio_importacao,
-    schedule_ncm_exportacao,
-    schedule_ncm_importacao,
-)
-from pipelines.datasets.br_me_comex_stat.tasks import (
+from pipelines.crawler.me_comex_stat.tasks import (
     clean_br_me_comex_stat,
     download_br_me_comex_stat,
     parse_last_date,
 )
-from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    PartBdpro,
+    YearMonth,
+)
 from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
+    register_source_poll_task,
+    register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    log_task,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-with Flow(
-    name="br_me_comex_stat.municipio_exportacao", code_owners=["Luiza"]
-) as br_comex_municipio_exportacao:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_me_comex_stat", required=True
+
+def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
+    @flow(
+        name=f"br_me_comex_stat__{table_id}",
+        log_prints=True,
     )
-    table_id = Parameter(
-        "table_id", default="municipio_exportacao", required=True
-    )
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    def _flow(
+        dataset_id: str = "br_me_comex_stat",
+        table_id: str = table_id,
+        materialize_after_dump: bool = True,
+        dbt_alias: bool = True,
+        update_metadata: bool = True,
+        target: str = "prod",
+        force_run: bool = False,
+    ) -> None:
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+        last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
+        if not force_run:
+            is_outdated = register_source_poll_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=last_date,
+                env="prod",
+                date_format="%Y-%m",
+            )
+            if not is_outdated:
+                return
 
-    last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
-
-    check_if_outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=last_date,
-        date_format="%Y-%m",
-        upstream_tasks=[last_date],
-    )
-
-    with case(check_if_outdated, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
-
-    with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será iniciada")
-
-        download_data = download_br_me_comex_stat(
-            table_name=comex_constants.TABLE_NAME.value[1],
+        download_br_me_comex_stat(
+            table_name=table_name,
             year_download=last_date,
-            upstream_tasks=[check_if_outdated],
         )
 
         filepath = clean_br_me_comex_stat(
             path=comex_constants.PATH.value,
-            table_type=comex_constants.TABLE_TYPE.value[0],
-            table_name=comex_constants.TABLE_NAME.value[1],
-            upstream_tasks=[download_data],
+            table_type=table_type,
+            table_name=table_name,
         )
 
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
+        upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
+            bucket_name="basedosdados-dev",
             dump_mode="append",
-            upstream_tasks=[filepath],
         )
 
-        wait_for_materialization = run_dbt(
+        run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            dbt_alias=dbt_alias,
             dbt_command="run/test",
-            upstream_tasks=[wait_upload_table],
+            dbt_alias=dbt_alias,
+            target="dev",
         )
 
-        # materialize municipio_exportacao
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=filepath,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
-            )
-            # coverage updater
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
+        if not materialize_after_dump:
+            return
 
-br_comex_municipio_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_comex_municipio_exportacao.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_comex_municipio_exportacao.schedule = schedule_municipio_exportacao
-
-
-with Flow(
-    name="br_me_comex_stat.municipio_importacao", code_owners=["Luiza"]
-) as br_comex_municipio_importacao:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_me_comex_stat", required=True
-    )
-    table_id = Parameter(
-        "table_id", default="municipio_importacao", required=True
-    )
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-
-    last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
-
-    check_if_outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=last_date,
-        date_format="%Y-%m",
-        upstream_tasks=[last_date],
-    )
-
-    with case(check_if_outdated, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
-
-    with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será iniciada")
-
-        download_data = download_br_me_comex_stat(
-            table_name=comex_constants.TABLE_NAME.value[0],
-            year_download=last_date,
-            upstream_tasks=[check_if_outdated],
-        )
-
-        filepath = clean_br_me_comex_stat(
-            path=comex_constants.PATH.value,
-            table_type=comex_constants.TABLE_TYPE.value[0],
-            table_name=comex_constants.TABLE_NAME.value[0],
-            upstream_tasks=[download_data],
-        )
-
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
+        upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
+            bucket_name="basedosdados",
             dump_mode="append",
-            upstream_tasks=[filepath],
         )
 
-        wait_for_materialization = run_dbt(
+        run_dbt(
             dataset_id=dataset_id,
             table_id=table_id,
-            dbt_alias=dbt_alias,
             dbt_command="run/test",
-            upstream_tasks=[wait_upload_table],
+            dbt_alias=dbt_alias,
+            target=target,
         )
 
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=filepath,
+        if update_metadata:
+            register_table_materialization_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
+                coverage=PartBdpro(
+                    date_column=YearMonth(year="ano", month="mes"),
+                    date_format=DateFormat.YEAR_MONTH,
+                ),
+                env="prod",
+                bq_project="basedosdados",
             )
 
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
+    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    return _flow
 
 
-br_comex_municipio_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_comex_municipio_importacao.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+br_me_comex_stat__municipio_exportacao = _comex_flow(
+    table_id="municipio_exportacao",
+    table_name=comex_constants.TABLE_NAME.value[1],
+    table_type=comex_constants.TABLE_TYPE.value[0],
+    cron="0 21 * * 1-5",
 )
-br_comex_municipio_importacao.schedule = schedule_municipio_importacao
 
-
-with Flow(
-    name="br_me_comex_stat.ncm_exportacao", code_owners=["Luiza"]
-) as br_comex_ncm_exportacao:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_me_comex_stat", required=True
-    )
-    table_id = Parameter("table_id", default="ncm_exportacao", required=True)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-
-    last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
-
-    check_if_outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=last_date,
-        date_format="%Y-%m",
-        upstream_tasks=[last_date],
-    )
-
-    with case(check_if_outdated, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
-
-    with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será iniciada")
-
-        download_data = download_br_me_comex_stat(
-            table_name=comex_constants.TABLE_NAME.value[3],
-            year_download=last_date,
-            upstream_tasks=[check_if_outdated],
-        )
-
-        filepath = clean_br_me_comex_stat(
-            path=comex_constants.PATH.value,
-            table_type=comex_constants.TABLE_TYPE.value[1],
-            table_name=comex_constants.TABLE_NAME.value[3],
-            upstream_tasks=[download_data],
-        )
-
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[filepath],
-        )
-
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_alias=dbt_alias,
-            dbt_command="run/test",
-            upstream_tasks=[wait_upload_table],
-        )
-
-        # materialize ncm_exportacao
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=filepath,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
-
-
-br_comex_ncm_exportacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_comex_ncm_exportacao.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+br_me_comex_stat__municipio_importacao = _comex_flow(
+    table_id="municipio_importacao",
+    table_name=comex_constants.TABLE_NAME.value[0],
+    table_type=comex_constants.TABLE_TYPE.value[0],
+    cron="0 20 * * 1-5",
 )
-br_comex_ncm_exportacao.schedule = schedule_ncm_exportacao
 
-
-with Flow(
-    name="br_me_comex_stat.ncm_importacao", code_owners=["Luiza"]
-) as br_comex_ncm_importacao:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_me_comex_stat", required=True
-    )
-    table_id = Parameter("table_id", default="ncm_importacao", required=True)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-    last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
-
-    check_if_outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=last_date,
-        date_format="%Y-%m",
-        upstream_tasks=[last_date],
-    )
-
-    with case(check_if_outdated, False):
-        log_task(f"Não há atualizações para a tabela de {table_id}!")
-
-    with case(check_if_outdated, True):
-        log_task("Existem atualizações! A run será iniciada")
-
-        download_data = download_br_me_comex_stat(
-            table_name=comex_constants.TABLE_NAME.value[2],
-            year_download=last_date,
-            upstream_tasks=[check_if_outdated],
-        )
-
-        filepath = clean_br_me_comex_stat(
-            path=comex_constants.PATH.value,
-            table_type=comex_constants.TABLE_TYPE.value[1],
-            table_name=comex_constants.TABLE_NAME.value[2],
-            upstream_tasks=[download_data],
-        )
-
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[filepath],
-        )
-
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_alias=dbt_alias,
-            dbt_command="run/test",
-            upstream_tasks=[wait_upload_table],
-        )
-
-        # materialize ncm_importacao
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=filepath,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
-
-br_comex_ncm_importacao.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_comex_ncm_importacao.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+br_me_comex_stat__ncm_exportacao = _comex_flow(
+    table_id="ncm_exportacao",
+    table_name=comex_constants.TABLE_NAME.value[3],
+    table_type=comex_constants.TABLE_TYPE.value[1],
+    cron="0 8,17 * * 1-5",
 )
-br_comex_ncm_importacao.schedule = schedule_ncm_importacao
+
+br_me_comex_stat__ncm_importacao = _comex_flow(
+    table_id="ncm_importacao",
+    table_name=comex_constants.TABLE_NAME.value[2],
+    table_type=comex_constants.TABLE_TYPE.value[1],
+    cron="0 8,17 * * 1-5",
+)
