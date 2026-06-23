@@ -108,9 +108,7 @@ def run_dbt_model_flow(
             dataset_id=dataset_id,
             table_id=table_id,
             wait_for=[dbt_done],
-        ).result()
-    else:
-        dbt_done.result()
+        )
 
 
 run_dbt_model_flow.deploy_schedules = []
