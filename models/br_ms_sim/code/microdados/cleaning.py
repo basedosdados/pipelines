@@ -482,6 +482,11 @@ def recode_columns(df: pd.DataFrame) -> pd.DataFrame:
             "4": "outro",
         },
     )
+    col = "circunstancia_obito"
+    if col in df.columns:
+        valid = {"acidente", "suicidio", "homicidio", "outro"}
+        invalid = df[col].notna() & ~df[col].isin(valid)
+        df.loc[invalid, col] = None
     _recode(df, "acidente_trabalho", {"1": "sim", "2": "nao"})
     _recode(
         df,
