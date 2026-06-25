@@ -1,5 +1,8 @@
 """
 Flows para br_ibge_ipca — Prefect 3.
+
+Redeploy disparado para propagar a correção dos parsers de ibge_inflacao
+(guards contra bloco vazio da API do IBGE) em utils.py.
 """
 
 from prefect import flow
