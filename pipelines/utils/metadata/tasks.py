@@ -21,6 +21,8 @@ from pipelines.utils.metadata.client import MetadataClient
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.metadata.domain import CoverageSpec
 from pipelines.utils.metadata.register import (
+    commit_source_update,
+    poll_source_for_update,
     register_source_poll,
     register_source_poll_by_size,
     register_table_materialization,
@@ -249,4 +251,93 @@ def register_table_materialization_task(
         coverage,
         env=env,
         bq_project=bq_project,
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def poll_source_for_update_task(
+    dataset_id: str,
+    table_id: str,
+    source_max_date: datetime.date | str | None = None,
+    env: str = "dev",
+    date_format: str = "%Y-%m-%d",
+) -> bool:
+    """Detecta se a fonte original tem novidade hoje, sem gravar o Update.
+
+    Sempre grava um `Poll` na fonte (data de hoje) e devolve se `source_max_date`
+    indica dados mais novos do que o último `Update` registrado — mas, ao
+    contrário de `register_source_poll_task`, **não grava** o Update. A gravação
+    fica a cargo de `commit_source_update_task`, chamada ao fim do flow, após a
+    materialização. Use as duas em par quando a gravação do Update precisa ser
+    adiada para não travar runs futuras se o flow falhar no meio.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        source_max_date: data máxima observada na fonte. Aceita `date`,
+            `datetime`, `pd.Timestamp` ou `str` no formato `date_format`. Passe
+            `None` (padrão) para registrar "só polei, sem novidade" — grava o
+            Poll e devolve False.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        date_format: formato usado para parsear `source_max_date` quando vier
+            como string. Padrão `"%Y-%m-%d"`; use `"%Y-%m"` ou `"%Y"` conforme a
+            granularidade da string.
+
+    Returns:
+        bool — True se a fonte trouxe novidade (Update ainda não gravado),
+        False caso contrário.
+    """
+
+    client = MetadataClient(env=env)
+    return poll_source_for_update(
+        client,
+        dataset_id,
+        table_id,
+        _coerce_to_date(source_max_date, date_format),
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def commit_source_update_task(
+    dataset_id: str,
+    table_id: str,
+    source_max_date: datetime.date | str,
+    env: str = "dev",
+    date_format: str = "%Y-%m-%d",
+) -> None:
+    """Grava o `RawDataSource.Update` da fonte original.
+
+    Contraparte de `poll_source_for_update_task`: registra `source_max_date`
+    como o novo `Update.latest`. Deve ser chamada **só ao fim do flow**, depois
+    da materialização bem-sucedida, para que o Update só avance quando o dado de
+    fato chegou ao destino — evitando que uma falha no meio deixe o Update
+    adiantado e trave as runs seguintes.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        source_max_date: data máxima observada na fonte, gravada como o novo
+            `Update.latest`. Aceita `date`, `datetime`, `pd.Timestamp` ou `str`
+            no formato `date_format`. Obrigatória — só se commita quando há data.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        date_format: formato usado para parsear `source_max_date` quando vier
+            como string. Padrão `"%Y-%m-%d"`; use `"%Y-%m"` ou `"%Y"` conforme a
+            granularidade da string.
+
+    Returns:
+        None.
+    """
+
+    client = MetadataClient(env=env)
+    commit_source_update(
+        client,
+        dataset_id,
+        table_id,
+        _coerce_to_date(source_max_date, date_format),
     )
