@@ -1,4 +1,5 @@
-import os
+import asyncio
+import logging as stdlib_logging
 import shutil
 import sys
 import traceback
@@ -14,10 +15,52 @@ from prefect.deployments import run_deployment
 # python identifier "run_dbt_model_flow".
 DBT_MODEL_DEPLOYMENT = "BD template: Executa DBT model/run_dbt_model_flow"
 
-# Base UI URL for human-readable flow-run links, derived from PREFECT_API_URL.
-PREFECT_BASE_URL = os.environ.get(
-    "PREFECT_API_URL", "https://prefect3.basedosdados.org/api"
-).removesuffix("/api")
+PREFECT_UI_URL = "https://prefect3.basedosdados.org"
+
+
+async def _read_flow_run_error_logs(flow_run_id: str) -> list:
+    """Fetches ERROR-and-above logs for a Prefect flow run via the async client.
+
+    Args:
+        flow_run_id: UUID string of the Prefect flow run.
+
+    Returns:
+        List of log objects returned by the Prefect API.
+    """
+    from prefect.client.orchestration import get_client
+    from prefect.client.schemas.filters import (
+        LogFilter,
+        LogFilterFlowRunId,
+        LogFilterLevel,
+    )
+
+    async with get_client() as client:
+        return await client.read_logs(
+            log_filter=LogFilter(
+                flow_run_id=LogFilterFlowRunId(any_=[flow_run_id]),
+                level=LogFilterLevel(ge_=stdlib_logging.ERROR),
+            ),
+        )
+
+
+def print_flow_run_error_logs(flow_run_id: str) -> None:
+    """Prints ERROR-and-above logs for a failed Prefect flow run to stdout.
+
+    Fetches logs from the Prefect API and prints them between delimiters so
+    they are visible directly in the GitHub Actions log. Does nothing if no
+    error logs exist.
+
+    Args:
+        flow_run_id: UUID string of the Prefect flow run.
+    """
+    logs = asyncio.run(_read_flow_run_error_logs(str(flow_run_id)))
+    if not logs:
+        return
+    print("--- Prefect error logs ---")
+    for log in logs:
+        level_name = stdlib_logging.getLevelName(log.level)
+        print(f"[{level_name}] {log.timestamp}: {log.message}")
+    print("--- End of Prefect error logs ---")
 
 
 def get_datasets_tables_from_modified_files(
@@ -71,6 +114,27 @@ def push_table_to_bq(
     backup_bucket_name="basedosdados-backup",
     user_project: str = "basedosdados",
 ) -> bool:
+    """Syncs staging data from dev to prod bucket and recreates the BigQuery table.
+
+    Copies data from the source bucket to the destination bucket (with a backup),
+    then recreates the staging BigQuery table from the new data.
+
+    Args:
+        dataset_id: Dataset ID in basedosdados.
+        table_id: Table ID in basedosdados.
+        source_bucket_name: Bucket containing the approved data. Defaults to
+            ``basedosdados-dev``.
+        destination_bucket_name: Bucket to promote the data to. Defaults to
+            ``basedosdados``.
+        backup_bucket_name: Bucket for backing up the previous prod data. Defaults
+            to ``basedosdados-backup``.
+        user_project: GCP project to bill for bucket requests. Defaults to
+            ``basedosdados``.
+
+    Returns:
+        True if the table was successfully created; False if no data was found in
+        the source bucket.
+    """
     # copy proprosed data between storage buckets
     # create a backup of old data, then delete it and copies new data into the destination bucket
     # modes = ["staging", "raw", "auxiliary_files", "architecture", "header"]
@@ -137,6 +201,20 @@ def push_table_to_bq(
 def save_header_files(
     dataset_id: str, table_id: str, user_project: str
 ) -> str:
+    """Downloads a single-row header file from the dev staging bucket.
+
+    Finds the first CSV or Parquet blob for the given table, downloads one row
+    (for CSV) or the file itself (for Parquet) to ``./downloaded_data/``, and
+    returns the local file path. Used to reconstruct the BigQuery staging schema.
+
+    Args:
+        dataset_id: Dataset ID in basedosdados.
+        table_id: Table ID in basedosdados.
+        user_project: GCP project to bill for bucket requests.
+
+    Returns:
+        Local path to the downloaded header file.
+    """
     print("GET FIRST BLOB PATH")
 
     ref = bd.Storage(dataset_id=dataset_id, table_id=table_id)
@@ -280,6 +358,18 @@ def sync_bucket(
 def get_datasets_and_tables_for_modified_files(
     modified_files: list[str],
 ) -> list[tuple[str, str, bool]]:
+    """Returns only existing (dataset_id, table_id, alias) tuples from modified files.
+
+    Delegates to ``get_datasets_tables_from_modified_files`` and filters out
+    entries whose SQL file no longer exists on disk (e.g. deleted files).
+
+    Args:
+        modified_files: List of file paths modified in the pull request.
+
+    Returns:
+        List of ``(dataset_id, table_id, alias)`` tuples for tables whose SQL
+        files still exist.
+    """
     datasets_tables = get_datasets_tables_from_modified_files(modified_files)
 
     existing_datasets_tables = []
@@ -291,99 +381,53 @@ def get_datasets_and_tables_for_modified_files(
     return existing_datasets_tables
 
 
-if __name__ == "__main__":
-    # Start argument parser
+def run_table_approve() -> None:
+    """Parses CLI arguments and orchestrates the table-approve pipeline.
+
+    Builds the argument parser, resolves the list of modified SQL tables,
+    optionally syncs staging data to the prod bucket, and launches a Prefect 3
+    materialization flow run for each table. Raises an exception (failing the
+    GitHub Actions job) if any flow run does not complete successfully.
+    """
     arg_parser = ArgumentParser()
-
-    # Add list of modified files argument
-    arg_parser.add_argument(
-        "--dbt-command",
-        type=str,
-        required=True,
-        help="dbt command",
-    )
-
-    arg_parser.add_argument(
-        "--modified-files",
-        type=str,
-        required=False,
-        help="List of modified files.",
-    )
-
-    # Add argument to skip sync bucket step
-    arg_parser.add_argument(
-        "--sync-bucket",
-        action="store_true",  # Implies default is false, i.e, dont sync buckets
-        help="Sync buckets",
-    )
-
-    # Add source bucket name argument
+    arg_parser.add_argument("--dbt-command", type=str, required=True)
+    arg_parser.add_argument("--modified-files", type=str, required=False)
+    arg_parser.add_argument("--sync-bucket", action="store_true")
     arg_parser.add_argument(
         "--source-bucket-name",
         type=str,
         required=False,
         default="basedosdados-dev",
-        help="Source bucket name.",
     )
-
-    # Add destination bucket name argument
     arg_parser.add_argument(
         "--destination-bucket-name",
         type=str,
         required=False,
         default="basedosdados",
-        help="Destination bucket name.",
     )
-
-    # Add backup bucket name argument
     arg_parser.add_argument(
         "--backup-bucket-name",
         type=str,
         required=False,
         default="basedosdados-backup",
-        help="Backup bucket name.",
     )
-
-    # Deprecated: Prefect 3 auth comes from the PREFECT_API_KEY env var read by
-    # the client. Kept (optional, ignored) so the legacy cd.yaml caller that
-    # still passes it does not fail at argument parsing.
+    # Deprecated: kept so callers that still pass it do not fail at argument parsing.
     arg_parser.add_argument(
-        "--prefect-backend-token",
-        type=str,
-        required=False,
-        help="Deprecated and ignored; use PREFECT_API_KEY env var.",
+        "--prefect-backend-token", type=str, required=False
     )
-
-    # Add materialization mode argument
     arg_parser.add_argument(
-        "--materialization-target",
-        type=str,
-        required=False,
-        default="prod",
-        help="Materialization target.",
+        "--materialization-target", type=str, required=False, default="prod"
     )
-
-    # Add materialization label argument
     arg_parser.add_argument(
         "--materialization-label",
         type=str,
         required=False,
         default="basedosdados",
-        help="Materialization label.",
     )
-
-    arg_parser.add_argument(
-        "--dataset-id",
-        type=str,
-        required=False,
-        help="Run dbt model for dataset",
-    )
-
-    # Get arguments
+    arg_parser.add_argument("--dataset-id", type=str, required=False)
     args = arg_parser.parse_args()
 
-    # Get datasets and tables from modified files
-    existing_datasets_tables_from_modified_files = (
+    existing_datasets_tables = (
         []
         if args.modified_files is None
         else get_datasets_and_tables_for_modified_files(
@@ -391,13 +435,8 @@ if __name__ == "__main__":
         )
     )
 
-    # Sync and create tables
     if args.sync_bucket:
-        for (
-            dataset_id,
-            table_id,
-            _,
-        ) in existing_datasets_tables_from_modified_files:
+        for dataset_id, table_id, _ in existing_datasets_tables:
             print(
                 f"\n\n\n\n************   START CREATING TABLE {dataset_id}.{table_id}...   ************"
             )
@@ -408,31 +447,22 @@ if __name__ == "__main__":
                 destination_bucket_name=args.destination_bucket_name,
                 backup_bucket_name=args.backup_bucket_name,
             )
-            if table_was_created:
-                print(
-                    f"============   TABLE CREATED: basedosdados-staging.{dataset_id}_staging.{table_id}   ============"
-                )
-            else:
-                print(
-                    f"============   TABLE was NOT created: basedosdados-staging.{dataset_id}_staging.{table_id}   ============"
-                )
+            status = (
+                "TABLE CREATED"
+                if table_was_created
+                else "TABLE was NOT created"
+            )
+            print(
+                f"============   {status}: basedosdados-staging.{dataset_id}_staging.{table_id}   ============"
+            )
     else:
         print("Skipping sync bucket because --sync-bucket was not set")
 
-    # Launch materialization flows on Prefect 3.
-    # run_deployment reads PREFECT_API_URL / PREFECT_API_KEY from the
-    # environment and blocks (timeout=None) until each run reaches a terminal
-    # state, polling every 5s.
-    datasets_tables_for_flow_run = existing_datasets_tables_from_modified_files
-
+    datasets_tables_for_flow_run = list(existing_datasets_tables)
     if args.dataset_id is not None:
         datasets_tables_for_flow_run.append((args.dataset_id, "", False))
 
-    for (
-        dataset_id,
-        table_id,
-        alias,
-    ) in datasets_tables_for_flow_run:
+    for dataset_id, table_id, alias in datasets_tables_for_flow_run:
         print(
             f"Launching materialization flow for {dataset_id}.{table_id} (alias={alias})..."
         )
@@ -451,12 +481,13 @@ if __name__ == "__main__":
             timeout=None,
             as_subflow=False,
         )
-        flow_run_url = f"{PREFECT_BASE_URL}/runs/flow-run/{flow_run.id}"
+        flow_run_url = f"{PREFECT_UI_URL}/runs/flow-run/{flow_run.id}"
         print(f" - Materialization flow run launched: {flow_run_url}")
 
         state = flow_run.state
         if state is None or not state.is_completed():
             state_name = state.name if state is not None else "Unknown"
+            print_flow_run_error_logs(str(flow_run.id))
             raise Exception(
                 f"Flow run {flow_run.id} for {dataset_id}.{table_id} finished "
                 f'with state "{state_name}". Check the full logs at {flow_run_url}'
@@ -465,3 +496,7 @@ if __name__ == "__main__":
         print(
             f"Flow run {flow_run.id} ({dataset_id}.{table_id}) finished successfully."
         )
+
+
+if __name__ == "__main__":
+    run_table_approve()
