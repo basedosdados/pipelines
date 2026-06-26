@@ -12,7 +12,8 @@ from pipelines.crawler.ibge_inflacao.tasks import (
 )
 from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -43,7 +44,7 @@ def _run_ibge_inflacao(
 
     max_date = check_for_updates(dataset_id=dataset_id, table_id=table_id)
 
-    has_new_data = register_source_poll_task(
+    has_new_data = poll_source_for_update_task(
         dataset_id=dataset_id,
         table_id=table_id,
         source_max_date=max_date,
@@ -101,6 +102,14 @@ def _run_ibge_inflacao(
             ),
             env="prod",
             bq_project="basedosdados",
+        )
+
+        commit_source_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=max_date,
+            env="prod",
+            date_format="%Y-%m",
         )
 
 
