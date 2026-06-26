@@ -55,30 +55,35 @@ def register_source_poll(
     table_id: str,
     source_max_date: datetime.date | None = None,
 ) -> bool:
-    """'Olhei a fonte original hoje.'
+    """'Olhei a fonte original hoje' — versão eager (detecta e grava de uma vez).
 
-    Sempre registra um `RawDataSource.Poll` (data de hoje). Se `source_max_date`
-    é mais novo que o `RawDataSource.Update.latest` atual, grava também esse
-    Update e devolve True. `source_max_date=None` é a forma explícita de "só
-    polei, sem novidade".
+    Compõe `poll_source_for_update` (registra o `RawDataSource.Poll` de hoje e
+    detecta se a fonte tem dados mais novos que o `RawDataSource.Update.latest`
+    atual) com `commit_source_update` (grava esse Update). Se há novidade, grava
+    o Update e devolve True; caso contrário, devolve False sem gravar.
+    `source_max_date=None` é a forma explícita de "só polei, sem novidade".
+
+    Mantém o comportamento original de gravar o Update no mesmo passo do poll.
+    Flows que precisam adiar a gravação para depois da materialização devem
+    chamar `poll_source_for_update` e `commit_source_update` separadamente.
     """
-    client.upsert_raw_source_poll(
-        dataset_id, table_id, latest=datetime.datetime.today()
-    )  # Poll: sempre
 
-    if source_max_date is None:
-        return False
-
-    api_latest = client.get_raw_source_update_latest(dataset_id, table_id)
-    if not policy.should_update_raw_source(api_latest, source_max_date):
-        log("Não há novas atualizações na fonte original")
-        return False
-
-    client.upsert_raw_source_update(
-        dataset_id, table_id, latest=source_max_date
+    has_update = poll_source_for_update(
+        client=client,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
     )
-    log("Data de atualização da fonte original modificada")
-    return True
+
+    if has_update:
+        commit_source_update(
+            client=client,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=source_max_date,
+        )
+
+    return has_update
 
 
 def register_source_poll_by_size(
@@ -192,3 +197,95 @@ def register_table_materialization(
         )
     else:
         log("Pulando Table.Update: billing != bq_project", "warning")
+
+
+def poll_source_for_update(
+    client, dataset_id, table_id, source_max_date: datetime.date | None = None
+) -> bool:
+    """Detecta se a fonte original tem novidade, sem gravar o Update.
+
+    Sempre registra um ``RawDataSource.Poll`` (data de hoje) e devolve se a
+    fonte traz dados mais novos que o ``RawDataSource.Update.latest`` atual.
+    Ao contrário de :func:`register_source_poll`, **não grava** o Update — essa
+    escrita fica a cargo de :func:`commit_source_update`, chamada só após a
+    materialização. Assim, se o flow falha no meio, o Update não avança e a run
+    seguinte ainda detecta a novidade e retenta.
+
+    Parameters
+    ----------
+    client : MetadataClient
+        Cliente de escrita/leitura do backend de metadados.
+    dataset_id : str
+        ID do dataset no GCP/BigQuery (ex.: ``br_ibge_ipca``).
+    table_id : str
+        ID da tabela no GCP/BigQuery.
+    source_max_date : datetime.date or None, optional
+        Data máxima observada na fonte. ``None`` (padrão) é a forma explícita
+        de "só polei, sem novidade" — grava o Poll e devolve ``False``.
+
+    Returns
+    -------
+    bool
+        ``True`` se a fonte tem dados mais novos que o último Update
+        registrado; ``False`` caso contrário.
+
+    See Also
+    --------
+    commit_source_update : Grava o ``RawDataSource.Update`` ao fim do flow.
+    register_source_poll : Versão eager (detecta e grava numa só chamada).
+    """
+
+    client.upsert_raw_source_poll(
+        dataset_id, table_id, latest=datetime.datetime.today()
+    )
+
+    if source_max_date is None:
+        return False
+
+    api_latest = client.get_raw_source_update_latest(dataset_id, table_id)
+    if not policy.should_update_raw_source(api_latest, source_max_date):
+        log("Não há novas atualizações na fonte original")
+        return False
+
+    log("Há atualizações na fonte original")
+    return True
+
+
+def commit_source_update(
+    client,
+    dataset_id: str,
+    table_id: str,
+    source_max_date: datetime.date,
+) -> None:
+    """Grava o ``RawDataSource.Update`` da fonte original.
+
+    Registra ``source_max_date`` como o novo ``RawDataSource.Update.latest``.
+    É a contraparte de :func:`poll_source_for_update`: deve ser chamada **só ao
+    fim do flow**, depois de a materialização ter dado certo, de modo que o
+    Update só avance quando o dado de fato chegou ao destino. Separar a detecção
+    (poll) da gravação (este commit) é o que evita que uma falha no meio do flow
+    deixe o Update adiantado e trave as runs seguintes.
+
+    Parameters
+    ----------
+    client : MetadataClient
+        Cliente de escrita/leitura do backend de metadados.
+    dataset_id : str
+        ID do dataset no GCP/BigQuery (ex.: ``br_ibge_ipca``).
+    table_id : str
+        ID da tabela no GCP/BigQuery.
+    source_max_date : datetime.date
+        Data máxima observada na fonte, gravada como o novo
+        ``RawDataSource.Update.latest``.
+
+    See Also
+    --------
+    poll_source_for_update : Detecta a novidade sem gravar o Update.
+    register_source_poll : Versão eager (detecta e grava numa só chamada).
+    """
+
+    client.upsert_raw_source_update(
+        dataset_id, table_id, latest=source_max_date
+    )
+
+    log("Data de atualização da fonte original modificada")
