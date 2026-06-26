@@ -16,6 +16,8 @@ from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
 from pipelines.utils.metadata.policy import CoverageIds
 from pipelines.utils.metadata.tasks import (
     _coerce_to_date,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_source_poll_task,
     register_table_materialization_task,
 )
@@ -86,6 +88,51 @@ def test_source_poll_task_builds_client_with_env_and_delegates():
     mk.assert_called_once_with(env="prod")
     assert result is True
     assert fake.written_entities == ["poll", "raw_source_update"]
+
+
+def test_poll_source_for_update_task_writes_poll_only_not_update():
+    """Variante deferida: mesmo COM novidade, detecta sem gravar o Update.
+
+    Garante a separação que cura o problema (3): o `RawDataSource.Update` NÃO
+    pode ser escrito no poll — só `commit_source_update_task` o grava, ao fim do
+    flow. Se alguém recolar o `upsert_raw_source_update` aqui dentro, este teste
+    quebra.
+    """
+    fake = FakeMetadataClient(
+        raw_source_update_latest=datetime.date(2026, 1, 1)
+    )
+    with patch(
+        "pipelines.utils.metadata.tasks.MetadataClient", return_value=fake
+    ):
+        result = poll_source_for_update_task.fn(
+            "br_ibge_ipca",
+            "mes_brasil",
+            source_max_date="2026-04",
+            env="prod",
+            date_format="%Y-%m",
+        )
+    assert result is True
+    assert fake.written_entities == ["poll"]
+
+
+def test_commit_source_update_task_writes_raw_source_update():
+    """Contraparte do poll deferido: grava só o `RawDataSource.Update`."""
+    fake = FakeMetadataClient(
+        raw_source_update_latest=datetime.date(2026, 1, 1)
+    )
+    with patch(
+        "pipelines.utils.metadata.tasks.MetadataClient", return_value=fake
+    ) as mk:
+        result = commit_source_update_task.fn(
+            "br_ibge_ipca",
+            "mes_brasil",
+            source_max_date="2026-04",
+            env="prod",
+            date_format="%Y-%m",
+        )
+    mk.assert_called_once_with(env="prod")
+    assert result is None
+    assert fake.written_entities == ["raw_source_update"]
 
 
 def test_materialization_task_builds_client_and_bq_and_delegates():
