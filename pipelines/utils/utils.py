@@ -7,7 +7,7 @@ import zipfile
 from io import BytesIO
 from pathlib import Path
 from typing import Any
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 import numpy as np
 import pandas as pd
@@ -113,11 +113,28 @@ def clean_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
     return dataframe
 
 
-def download_and_unzip_file(url: str, path: str) -> None:
-    """Baixa um arquivo ZIP da URL e extrai no caminho indicado."""
+def download_and_unzip_file(
+    url: str, path: str, headers: dict | None = None
+) -> None:
+    """Baixa um arquivo ZIP da URL e extrai no caminho indicado.
+
+    Parameters
+    ----------
+    url : str
+        URL do arquivo ZIP.
+    path : str
+        Diretório onde o conteúdo será extraído.
+    headers : dict | None
+        Cabeçalhos HTTP (ex.: User-Agent de browser). Quando None, o download
+        ocorre exatamente como antes (sem cabeçalhos customizados).
+    """
     log(f"Baixando {url} → {path}")
     try:
-        r = urlopen(url)
+        if headers:
+            request_with_headers = Request(url=url, headers=headers)
+            r = urlopen(request_with_headers)
+        else:
+            r = urlopen(url=url)
         zf = zipfile.ZipFile(BytesIO(r.read()))
         zf.extractall(path=path)
         log(f"Extração concluída: {url} → {path}")

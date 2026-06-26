@@ -6,6 +6,7 @@ import datetime
 import gc
 import os
 import shutil
+import time
 from functools import lru_cache
 
 import basedosdados as bd
@@ -145,17 +146,26 @@ def download_file(
             dataset_id=dataset_id,
         )
 
-        status = requests.get(url).status_code == 200
+        if dataset_id == "br_cgu_beneficios_cidadao":
+            url = url.rstrip("/")
+
+            headers = {
+                "User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]
+            }
+            status = source_url_is_available(url=url)
+        else:
+            headers = None
+            status = requests.get(url=url, headers=headers).status_code == 200
+
         if status:
             log(f"------------------ URL = {url} ------------------")
-            download_and_unzip_file(url, value_constants["INPUT"])
-
+            download_and_unzip_file(
+                url, value_constants["INPUT"], headers=headers
+            )
             return next_date_in_api
-
         else:
             log("URL não encontrada. Fazendo uma query na BD")
             log(f"------------------ URL = {url} ------------------")
-
             return last_date_in_api
 
     elif dataset_id == "br_cgu_servidores_executivo_federal":
@@ -551,3 +561,49 @@ def partition_data_beneficios_cidadao(
 
             # Usando to_parquet do Pandas ao invés do write_parquet do Polars
             df_partition.to_parquet(f"{path_partition}/data_{counter}.parquet")
+
+
+def source_url_is_available(
+    url: str,
+    max_retries: int = 5,
+    wait_seconds: int = 30,
+) -> bool:
+    """Verifica se o ZIP da fonte (portal CGU) está pronto para download.
+
+    O portal prepara o arquivo de forma assíncrona: responde 202 enquanto gera
+    o ZIP e 200 (via redirect) quando pronto. Requisições sem User-Agent de
+    navegador são bloqueadas com 405.
+
+    Parameters
+    ----------
+    url : str
+        URL de download do mês no portal da transparência.
+    max_retries : int
+        Tentativas enquanto a resposta for 202 (preparando).
+    wait_seconds : int
+        Segundos de espera entre tentativas quando 202.
+
+    Returns
+    -------
+    bool
+        True se o arquivo existe/está pronto; False caso contrário.
+    """
+    headers = {"User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]}
+
+    for t in range(1, max_retries + 1):
+        with requests.get(
+            url=url, headers=headers, stream=True, timeout=30
+        ) as response:
+            if response.status_code == 200:
+                return True
+            elif response.status_code == 202:
+                log(f"preparando ZIP, tentativa {t}")
+                time.sleep(wait_seconds)
+            else:
+                log(
+                    f"Comportamento inesperado, requisição com status code: {response.status_code}"
+                )
+                return False
+
+    log("Requisição falhou por timeout!")
+    return False

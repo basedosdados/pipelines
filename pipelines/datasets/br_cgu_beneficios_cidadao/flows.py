@@ -1,5 +1,9 @@
 """
 Flows para br_cgu_beneficios_cidadao — Prefect 3.
+
+Redeploy para propagar o fix de detecção/download no portal da CGU
+(User-Agent de browser + tratamento do 202 assíncrono + URL sem barra final)
+em pipelines/crawler/cgu/utils.py e pipelines/utils/utils.py.
 """
 
 from prefect import flow
