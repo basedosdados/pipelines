@@ -52,38 +52,88 @@ def _build_candidato(ano: int) -> pd.DataFrame:
             INPUT_DIR
             / f"votacao_candidato_munzona/votacao_candidato_munzona_{ano}/votacao_candidato_munzona_{ano}_{uf}"
         )
-        df = read_raw_csv(
-            str(base),
-            drop_first_row=True,
-            family="votacao_candidato_munzona",
-            ano=ano,
-        )
+        df = read_raw_csv(str(base), drop_first_row=True)
 
-        # Header-based selection by official TSE name. The official names are
-        # stable across all years (1994-2024); only their positions drifted,
-        # which is exactly what broke the old vN map (e.g. 1994 votos read
-        # SG_FEDERACAO). NOTE: 1998/2000 previously read QT_VOTOS_NOMINAIS_VALIDOS
-        # (a positional artifact); they now read QT_VOTOS_NOMINAIS like every
-        # other year, so the votos column is consistent across the series.
-        cols = {
-            "ANO_ELEICAO": "ano",
-            "NR_TURNO": "turno",
-            "CD_ELEICAO": "id_eleicao",
-            "DS_ELEICAO": "tipo_eleicao",
-            "DT_ELEICAO": "data_eleicao",
-            "SG_UF": "sigla_uf",
-            "CD_MUNICIPIO": "id_municipio_tse",
-            "NR_ZONA": "zona",
-            "DS_CARGO": "cargo",
-            "SQ_CANDIDATO": "sequencial_candidato",
-            "NR_CANDIDATO": "numero_candidato",
-            "NM_CANDIDATO": "nome_candidato",
-            "NM_URNA_CANDIDATO": "nome_urna_candidato",
-            "NR_PARTIDO": "numero_partido",
-            "SG_PARTIDO": "sigla_partido",
-            "QT_VOTOS_NOMINAIS": "votos",
-            "DS_SIT_TOT_TURNO": "resultado",
-        }
+        if ano == 1994:
+            cols = {
+                "v3": "ano",
+                "v6": "turno",
+                "v7": "id_eleicao",
+                "v8": "tipo_eleicao",
+                "v9": "data_eleicao",
+                "v11": "sigla_uf",
+                "v14": "id_municipio_tse",
+                "v16": "zona",
+                "v18": "cargo",
+                "v19": "sequencial_candidato",
+                "v20": "numero_candidato",
+                "v21": "nome_candidato",
+                "v22": "nome_urna_candidato",
+                "v29": "numero_partido",
+                "v30": "sigla_partido",
+                "v40": "votos",
+                "v44": "resultado",
+            }
+        elif ano == 1996 or (2002 <= ano <= 2016):
+            cols = {
+                "v3": "ano",
+                "v6": "turno",
+                "v7": "id_eleicao",
+                "v8": "tipo_eleicao",
+                "v9": "data_eleicao",
+                "v11": "sigla_uf",
+                "v14": "id_municipio_tse",
+                "v16": "zona",
+                "v18": "cargo",
+                "v19": "sequencial_candidato",
+                "v20": "numero_candidato",
+                "v21": "nome_candidato",
+                "v22": "nome_urna_candidato",
+                "v29": "numero_partido",
+                "v30": "sigla_partido",
+                "v36": "resultado",
+                "v38": "votos",
+            }
+        elif ano in (1998, 2000) or (2018 <= ano <= 2022):
+            cols = {
+                "v3": "ano",
+                "v6": "turno",
+                "v7": "id_eleicao",
+                "v8": "tipo_eleicao",
+                "v9": "data_eleicao",
+                "v11": "sigla_uf",
+                "v14": "id_municipio_tse",
+                "v16": "zona",
+                "v18": "cargo",
+                "v19": "sequencial_candidato",
+                "v20": "numero_candidato",
+                "v21": "nome_candidato",
+                "v22": "nome_urna_candidato",
+                "v29": "numero_partido",
+                "v30": "sigla_partido",
+                "v42": "votos",
+                "v44": "resultado",
+            }
+        else:  # >= 2024
+            cols = {
+                "v3": "ano",
+                "v6": "turno",
+                "v7": "id_eleicao",
+                "v8": "tipo_eleicao",
+                "v9": "data_eleicao",
+                "v11": "sigla_uf",
+                "v14": "id_municipio_tse",
+                "v16": "zona",
+                "v18": "cargo",
+                "v19": "sequencial_candidato",
+                "v20": "numero_candidato",
+                "v21": "nome_candidato",
+                "v22": "nome_urna_candidato",
+                "v35": "numero_partido",
+                "v36": "sigla_partido",
+                "v46": "votos",
+                "v50": "resultado",
+            }
 
         available = {k: v for k, v in cols.items() if k in df.columns}
         df = df[list(available.keys())].rename(columns=available)
@@ -173,48 +223,71 @@ def _build_partido(ano: int) -> pd.DataFrame:
             INPUT_DIR
             / f"votacao_partido_munzona/votacao_partido_munzona_{ano}/votacao_partido_munzona_{ano}_{uf}"
         )
-        df = read_raw_csv(
-            str(base),
-            drop_first_row=True,
-            family="votacao_partido_munzona",
-            ano=ano,
-        )
+        df = read_raw_csv(str(base), drop_first_row=True)
 
-        # Header-based selection by official TSE name. The vote columns have two
-        # name variants and only one exists per year: 2000-2014 publish the
-        # plain QT_VOTOS_* names; every other year publishes the *_VALIDOS
-        # variant (so the choice is forced by availability, not a preference).
-        if ano in (2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014):
+        if ano in (1994, 1998):
             cols = {
-                "ANO_ELEICAO": "ano",
-                "NR_TURNO": "turno",
-                "CD_ELEICAO": "id_eleicao",
-                "DS_ELEICAO": "tipo_eleicao",
-                "DT_ELEICAO": "data_eleicao",
-                "SG_UF": "sigla_uf",
-                "CD_MUNICIPIO": "id_municipio_tse",
-                "NR_ZONA": "zona",
-                "DS_CARGO": "cargo",
-                "NR_PARTIDO": "numero_partido",
-                "SG_PARTIDO": "sigla_partido",
-                "QT_VOTOS_NOMINAIS": "votos_nominais",
-                "QT_VOTOS_LEGENDA": "votos_legenda",
+                "v3": "ano",
+                "v6": "turno",
+                "v7": "id_eleicao",
+                "v8": "tipo_eleicao",
+                "v9": "data_eleicao",
+                "v11": "sigla_uf",
+                "v14": "id_municipio_tse",
+                "v16": "zona",
+                "v18": "cargo",
+                "v20": "numero_partido",
+                "v21": "sigla_partido",
+                "v33": "votos_legenda",
+                "v34": "votos_nominais",
             }
-        else:  # 1994, 1996, 1998, 2016, 2018, 2020, 2022, 2024
+        elif ano == 1996 or (2000 <= ano <= 2016):
             cols = {
-                "ANO_ELEICAO": "ano",
-                "NR_TURNO": "turno",
-                "CD_ELEICAO": "id_eleicao",
-                "DS_ELEICAO": "tipo_eleicao",
-                "DT_ELEICAO": "data_eleicao",
-                "SG_UF": "sigla_uf",
-                "CD_MUNICIPIO": "id_municipio_tse",
-                "NR_ZONA": "zona",
-                "DS_CARGO": "cargo",
-                "NR_PARTIDO": "numero_partido",
-                "SG_PARTIDO": "sigla_partido",
-                "QT_VOTOS_NOMINAIS_VALIDOS": "votos_nominais",
-                "QT_TOTAL_VOTOS_LEG_VALIDOS": "votos_legenda",
+                "v3": "ano",
+                "v6": "turno",
+                "v7": "id_eleicao",
+                "v8": "tipo_eleicao",
+                "v9": "data_eleicao",
+                "v11": "sigla_uf",
+                "v14": "id_municipio_tse",
+                "v16": "zona",
+                "v18": "cargo",
+                "v20": "numero_partido",
+                "v21": "sigla_partido",
+                "v27": "votos_nominais",
+                "v28": "votos_legenda",
+            }
+        elif 2018 <= ano <= 2020:
+            cols = {
+                "v3": "ano",
+                "v6": "turno",
+                "v7": "id_eleicao",
+                "v8": "tipo_eleicao",
+                "v9": "data_eleicao",
+                "v11": "sigla_uf",
+                "v14": "id_municipio_tse",
+                "v16": "zona",
+                "v18": "cargo",
+                "v20": "numero_partido",
+                "v21": "sigla_partido",
+                "v33": "votos_legenda",
+                "v34": "votos_nominais",
+            }
+        else:  # >= 2022
+            cols = {
+                "v3": "ano",
+                "v6": "turno",
+                "v7": "id_eleicao",
+                "v8": "tipo_eleicao",
+                "v9": "data_eleicao",
+                "v11": "sigla_uf",
+                "v14": "id_municipio_tse",
+                "v16": "zona",
+                "v18": "cargo",
+                "v20": "numero_partido",
+                "v21": "sigla_partido",
+                "v33": "votos_legenda",
+                "v34": "votos_nominais",
             }
 
         available = {k: v for k, v in cols.items() if k in df.columns}

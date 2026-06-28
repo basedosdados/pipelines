@@ -25,112 +25,100 @@ from utils.helpers import (
 
 
 def _parse_schema(df: pd.DataFrame, ano: int) -> pd.DataFrame:
-    """Select and rename columns by official TSE name (header-based).
-
-    Columns are addressed by their official TSE variable name (the frame is
-    renamed from positional ``vN`` by :func:`utils.layout.resolve_columns`
-    before this point), so the mapping is immune to the column-insertion drift
-    that broke the old positional schema.
-
-    The year split tracks the two republished layout generations: the FULL
-    layout years (below) carry the CD/DS_DETALHE_SITUACAO_CAND, nacionalidade
-    and NM_MUNICIPIO_NASCIMENTO block; the remaining even years carry the
-    REDUCED layout (federação block inserted, those columns dropped). 2024 is
-    reduced but enriches nacionalidade/municipio_nascimento/situacao from its
-    complementar file, so its main schema omits those (see build_candidatos).
-    The membership tuple is inlined (not a module constant) so the diagnostics
-    tier-1 AST audit can resolve the exact years each branch covers.
-    """
-    if ano in (1998, 2000, 2002, 2004, 2006, 2008, 2010, 2012, 2016):
+    """Select columns and rename based on year-specific schema."""
+    if ano <= 2014 or ano == 2018:
         cols = {
-            "ANO_ELEICAO": "ano",
-            "NR_TURNO": "turno",
-            "CD_ELEICAO": "id_eleicao",
-            "DS_ELEICAO": "tipo_eleicao",
-            "DT_ELEICAO": "data_eleicao",
-            "SG_UF": "sigla_uf",
-            "SG_UE": "id_municipio_tse",
-            "DS_CARGO": "cargo",
-            "SQ_CANDIDATO": "sequencial",
-            "NR_CANDIDATO": "numero",
-            "NM_CANDIDATO": "nome",
-            "NM_URNA_CANDIDATO": "nome_urna",
-            "NR_CPF_CANDIDATO": "cpf",
-            "NM_EMAIL": "email",
-            "DS_DETALHE_SITUACAO_CAND": "situacao",
-            "NR_PARTIDO": "numero_partido",
-            "SG_PARTIDO": "sigla_partido",
-            "DS_NACIONALIDADE": "nacionalidade",
-            "SG_UF_NASCIMENTO": "sigla_uf_nascimento",
-            "NM_MUNICIPIO_NASCIMENTO": "municipio_nascimento",
-            "DT_NASCIMENTO": "data_nascimento",
-            "NR_TITULO_ELEITORAL_CANDIDATO": "titulo_eleitoral",
-            "DS_GENERO": "genero",
-            "DS_GRAU_INSTRUCAO": "instrucao",
-            "DS_ESTADO_CIVIL": "estado_civil",
-            "DS_COR_RACA": "raca",
-            "DS_OCUPACAO": "ocupacao",
-            "DS_SIT_TOT_TURNO": "resultado",
+            "v3": "ano",
+            "v6": "turno",
+            "v7": "id_eleicao",
+            "v8": "tipo_eleicao",
+            "v9": "data_eleicao",
+            "v11": "sigla_uf",
+            "v12": "id_municipio_tse",
+            "v15": "cargo",
+            "v16": "sequencial",
+            "v17": "numero",
+            "v18": "nome",
+            "v19": "nome_urna",
+            "v21": "cpf",
+            "v22": "email",
+            "v26": "situacao",
+            "v28": "numero_partido",
+            "v29": "sigla_partido",
+            "v35": "nacionalidade",
+            "v36": "sigla_uf_nascimento",
+            "v38": "municipio_nascimento",
+            "v39": "data_nascimento",
+            "v41": "titulo_eleitoral",
+            "v43": "genero",
+            "v45": "instrucao",
+            "v47": "estado_civil",
+            "v49": "raca",
+            "v51": "ocupacao",
+            "v54": "resultado",
+        }
+    elif ano == 2016 or (2020 <= ano <= 2022):
+        cols = {
+            "v3": "ano",
+            "v6": "turno",
+            "v7": "id_eleicao",
+            "v8": "tipo_eleicao",
+            "v9": "data_eleicao",
+            "v11": "sigla_uf",
+            "v12": "id_municipio_tse",
+            "v15": "cargo",
+            "v16": "sequencial",
+            "v17": "numero",
+            "v18": "nome",
+            "v19": "nome_urna",
+            "v21": "cpf",
+            "v22": "email",
+            "v26": "situacao",
+            "v28": "numero_partido",
+            "v29": "sigla_partido",
+            "v39": "nacionalidade",
+            "v40": "sigla_uf_nascimento",
+            "v42": "municipio_nascimento",
+            "v43": "data_nascimento",
+            "v45": "titulo_eleitoral",
+            "v47": "genero",
+            "v49": "instrucao",
+            "v51": "estado_civil",
+            "v53": "raca",
+            "v55": "ocupacao",
+            "v58": "resultado",
         }
     elif ano == 2024:
-        # nacionalidade / municipio_nascimento / situacao come from the
-        # complementar file (merged in build_candidatos), not the main file.
         cols = {
-            "ANO_ELEICAO": "ano",
-            "NR_TURNO": "turno",
-            "CD_ELEICAO": "id_eleicao",
-            "DS_ELEICAO": "tipo_eleicao",
-            "DT_ELEICAO": "data_eleicao",
-            "SG_UF": "sigla_uf",
-            "SG_UE": "id_municipio_tse",
-            "DS_CARGO": "cargo",
-            "SQ_CANDIDATO": "sequencial",
-            "NR_CANDIDATO": "numero",
-            "NM_CANDIDATO": "nome",
-            "NM_URNA_CANDIDATO": "nome_urna",
-            "NR_CPF_CANDIDATO": "cpf",
-            "DS_EMAIL": "email",
-            "NR_PARTIDO": "numero_partido",
-            "SG_PARTIDO": "sigla_partido",
-            "SG_UF_NASCIMENTO": "sigla_uf_nascimento",
-            "DT_NASCIMENTO": "data_nascimento",
-            "NR_TITULO_ELEITORAL_CANDIDATO": "titulo_eleitoral",
-            "DS_GENERO": "genero",
-            "DS_GRAU_INSTRUCAO": "instrucao",
-            "DS_ESTADO_CIVIL": "estado_civil",
-            "DS_COR_RACA": "raca",
-            "DS_OCUPACAO": "ocupacao",
-            "DS_SIT_TOT_TURNO": "resultado",
+            "v3": "ano",
+            "v6": "turno",
+            "v7": "id_eleicao",
+            "v8": "tipo_eleicao",
+            "v9": "data_eleicao",
+            "v11": "sigla_uf",
+            "v12": "id_municipio_tse",
+            "v15": "cargo",
+            "v16": "sequencial",
+            "v17": "numero",
+            "v18": "nome",
+            "v19": "nome_urna",
+            "v21": "cpf",
+            "v22": "email",
+            "v26": "numero_partido",
+            "v27": "sigla_partido",
+            "v36": "sigla_uf_nascimento",
+            "v37": "data_nascimento",
+            "v38": "titulo_eleitoral",
+            "v40": "genero",
+            "v42": "instrucao",
+            "v44": "estado_civil",
+            "v46": "raca",
+            "v48": "ocupacao",
+            "v50": "resultado",
         }
-    else:  # 1994, 1996, 2014, 2018, 2020, 2022 — reduced layout, no complementar
-        cols = {
-            "ANO_ELEICAO": "ano",
-            "NR_TURNO": "turno",
-            "CD_ELEICAO": "id_eleicao",
-            "DS_ELEICAO": "tipo_eleicao",
-            "DT_ELEICAO": "data_eleicao",
-            "SG_UF": "sigla_uf",
-            "SG_UE": "id_municipio_tse",
-            "DS_CARGO": "cargo",
-            "SQ_CANDIDATO": "sequencial",
-            "NR_CANDIDATO": "numero",
-            "NM_CANDIDATO": "nome",
-            "NM_URNA_CANDIDATO": "nome_urna",
-            "NR_CPF_CANDIDATO": "cpf",
-            "DS_EMAIL": "email",
-            "DS_SITUACAO_CANDIDATURA": "situacao",
-            "NR_PARTIDO": "numero_partido",
-            "SG_PARTIDO": "sigla_partido",
-            "SG_UF_NASCIMENTO": "sigla_uf_nascimento",
-            "DT_NASCIMENTO": "data_nascimento",
-            "NR_TITULO_ELEITORAL_CANDIDATO": "titulo_eleitoral",
-            "DS_GENERO": "genero",
-            "DS_GRAU_INSTRUCAO": "instrucao",
-            "DS_ESTADO_CIVIL": "estado_civil",
-            "DS_COR_RACA": "raca",
-            "DS_OCUPACAO": "ocupacao",
-            "DS_SIT_TOT_TURNO": "resultado",
-        }
+    else:
+        msg = f"Unsupported year: {ano}"
+        raise ValueError(msg)
 
     available = {k: v for k, v in cols.items() if k in df.columns}
     return df[list(available.keys())].rename(columns=available)
@@ -145,9 +133,7 @@ def build_candidatos(ano: int) -> pd.DataFrame:
             INPUT_DIR
             / f"consulta_cand/consulta_cand_{ano}/consulta_cand_{ano}_{uf}"
         )
-        df = read_raw_csv(
-            str(base), drop_first_row=True, family="consulta_cand", ano=ano
-        )
+        df = read_raw_csv(str(base), drop_first_row=True)
 
         df = _parse_schema(df, ano)
 
@@ -158,20 +144,15 @@ def build_candidatos(ano: int) -> pd.DataFrame:
                 / f"consulta_cand/consulta_cand_complementar_{ano}/consulta_cand_complementar_{ano}_{uf}"
             )
             try:
-                comp = read_raw_csv(
-                    str(comp_base),
-                    drop_first_row=True,
-                    family="consulta_cand_complementar",
-                    ano=ano,
-                )
-                col_map = {
-                    "CD_ELEICAO": "id_eleicao",
-                    "SQ_CANDIDATO": "sequencial",
-                    "DS_NACIONALIDADE": "nacionalidade",
-                    "NM_MUNICIPIO_NASCIMENTO": "municipio_nascimento",
-                    "DS_SITUACAO_CANDIDATO_TOT": "situacao",
-                }
-                comp = comp[list(col_map.keys())].rename(columns=col_map)
+                comp = read_raw_csv(str(comp_base), drop_first_row=True)
+                comp = comp[["v4", "v5", "v9", "v11", "v28"]].copy()
+                comp.columns = [
+                    "id_eleicao",
+                    "sequencial",
+                    "nacionalidade",
+                    "municipio_nascimento",
+                    "situacao",
+                ]
                 df = df.merge(
                     comp,
                     on=["id_eleicao", "sequencial"],

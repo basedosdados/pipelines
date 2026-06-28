@@ -18,17 +18,13 @@ def read_raw_csv(
     *,
     drop_first_row: bool = True,
     encoding: str = "latin-1",
-    family: str | None = None,
-    ano: int | None = None,
 ) -> pd.DataFrame:
     """
     Read a raw TSE semicolon-delimited file.
 
     Tries .txt first, then .csv — matching Stata's `cap import delimited` pattern.
     All columns are read as strings (stringcols(_all)).
-    Columns are always named positionally (v1, v2, ...) first; pass ``family``
-    and ``ano`` to rename them to the official TSE variable names for that
-    layout (header-based parsing) via :func:`utils.layout.resolve_columns`.
+    No header row (varn(nonames)); positional column names v1, v2, ... .
 
     Parameters
     ----------
@@ -40,11 +36,6 @@ def read_raw_csv(
         header row that Stata skips this way.
     encoding : str
         File encoding. Default "utf-8".
-    family, ano : str | None, int | None
-        When both are given, rename the positional ``vN`` columns to the
-        official TSE names for ``(family, ano)``. Builders can then select
-        columns by name instead of position. When no layout artifact exists
-        (headerless historical files), the positional names are kept.
     """
     base = Path(filepath_pattern)
     txt_path = base.with_suffix(".txt")
@@ -90,11 +81,6 @@ def read_raw_csv(
 
     if drop_first_row and len(df) > 0:
         df = df.iloc[1:].reset_index(drop=True)
-
-    if family is not None and ano is not None:
-        from utils.layout import resolve_columns
-
-        df = resolve_columns(df, family, ano)
 
     return df
 

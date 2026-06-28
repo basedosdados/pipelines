@@ -40,45 +40,34 @@ def build_vagas(ano: int) -> pd.DataFrame:
             INPUT_DIR
             / f"consulta_vagas/consulta_vagas_{ano}/consulta_vagas_{ano}_{uf}"
         )
-        df = read_raw_csv(
-            str(base),
-            drop_first_row=True,
-            family="consulta_vagas",
-            ano=ano,
-        )
+        df = read_raw_csv(str(base), drop_first_row=(ano >= 2014))
 
-        # Header-based selection by official TSE name. The consulta_vagas layout
-        # is identical across all years (the old <=2012 positional map read
-        # cargo<-DT_POSSE and vagas<-SG_UF, hence the FAILs). Only the vacancy
-        # column name differs: QT_VAGAS in 1998-2012 & 2016, QT_VAGA otherwise.
-        if ano in (1998, 2000, 2002, 2004, 2006, 2008, 2010, 2012, 2016):
-            col_map = {
-                "ANO_ELEICAO": "ano",
-                "CD_ELEICAO": "id_eleicao",
-                "DS_ELEICAO": "tipo_eleicao",
-                "DT_ELEICAO": "data_eleicao",
-                "SG_UF": "sigla_uf",
-                "SG_UE": "id_municipio_tse",
-                "DS_CARGO": "cargo",
-                "QT_VAGAS": "vagas",
-            }
-        else:  # 1994, 1996, 2014, 2018, 2020, 2022, 2024
-            col_map = {
-                "ANO_ELEICAO": "ano",
-                "CD_ELEICAO": "id_eleicao",
-                "DS_ELEICAO": "tipo_eleicao",
-                "DT_ELEICAO": "data_eleicao",
-                "SG_UF": "sigla_uf",
-                "SG_UE": "id_municipio_tse",
-                "DS_CARGO": "cargo",
-                "QT_VAGA": "vagas",
-            }
-
-        available = {k: v for k, v in col_map.items() if k in df.columns}
-        df = df[list(available.keys())].rename(columns=available)
-        for c in ("id_eleicao", "data_eleicao"):
-            if c not in df.columns:
-                df[c] = ""
+        if ano <= 2012:
+            df = df[["v3", "v4", "v5", "v6", "v9", "v10"]].copy()
+            df.columns = [
+                "ano",
+                "tipo_eleicao",
+                "sigla_uf",
+                "id_municipio_tse",
+                "cargo",
+                "vagas",
+            ]
+            df["id_eleicao"] = ""
+            df["data_eleicao"] = ""
+        else:  # >= 2014
+            df = df[
+                ["v3", "v6", "v7", "v8", "v10", "v11", "v14", "v15"]
+            ].copy()
+            df.columns = [
+                "ano",
+                "id_eleicao",
+                "tipo_eleicao",
+                "data_eleicao",
+                "sigla_uf",
+                "id_municipio_tse",
+                "cargo",
+                "vagas",
+            ]
 
         # destring
         for col in ["ano", "id_municipio_tse", "vagas"]:

@@ -15,52 +15,72 @@ def build_perfil_mun_zona(ano: int) -> pd.DataFrame:
         INPUT_DIR
         / f"perfil_eleitorado/perfil_eleitorado_{ano}/perfil_eleitorado_{ano}"
     )
-    df = read_raw_csv(
-        str(base),
-        drop_first_row=True,
-        family="perfil_eleitorado",
-        ano=ano,
-    )
+    df = read_raw_csv(str(base), drop_first_row=True)
 
-    # Header-based selection by official TSE name. Two layout generations: the
-    # n=21 years carry the CD/DS_MUN_SIT_BIOMETRICA block (and no raça/identidade
-    # blocks); the n=28 years drop biometria and insert raça/identidade/quilombola
-    # /libras/obrigatoriedade. The demographic columns use the CD_ (code) variant
-    # to match the previously-OK years and the dominant production generation
-    # (genero ∈ 0/2/4); the old positional map drifted on the n=28 years.
-    if ano in (1994, 1996, 1998, 2000, 2002, 2004, 2006, 2018):
-        col_map = {
-            "ANO_ELEICAO": "ano",
-            "SG_UF": "sigla_uf",
-            "CD_MUNICIPIO": "id_municipio_tse",
-            "CD_MUN_SIT_BIOMETRICA": "situacao_biometria",
-            "NR_ZONA": "zona",
-            "CD_GENERO": "genero",
-            "CD_ESTADO_CIVIL": "estado_civil",
-            "CD_FAIXA_ETARIA": "grupo_idade",
-            "CD_GRAU_ESCOLARIDADE": "instrucao",
-            "QT_ELEITORES_PERFIL": "eleitores",
-            "QT_ELEITORES_BIOMETRIA": "eleitores_biometria",
-            "QT_ELEITORES_DEFICIENCIA": "eleitores_deficiencia",
-            "QT_ELEITORES_INC_NM_SOCIAL": "eleitores_inclusao_nome_social",
-        }
-        df = df[list(col_map.keys())].rename(columns=col_map)
-    else:  # n=28 years — no biometria block
-        col_map = {
-            "ANO_ELEICAO": "ano",
-            "SG_UF": "sigla_uf",
-            "CD_MUNICIPIO": "id_municipio_tse",
-            "NR_ZONA": "zona",
-            "CD_GENERO": "genero",
-            "CD_ESTADO_CIVIL": "estado_civil",
-            "CD_FAIXA_ETARIA": "grupo_idade",
-            "CD_GRAU_ESCOLARIDADE": "instrucao",
-            "QT_ELEITORES_PERFIL": "eleitores",
-            "QT_ELEITORES_BIOMETRIA": "eleitores_biometria",
-            "QT_ELEITORES_DEFICIENCIA": "eleitores_deficiencia",
-            "QT_ELEITORES_INC_NM_SOCIAL": "eleitores_inclusao_nome_social",
-        }
-        df = df[list(col_map.keys())].rename(columns=col_map)
+    if ano <= 2022:
+        df = df[
+            [
+                "v3",
+                "v4",
+                "v5",
+                "v7",
+                "v9",
+                "v10",
+                "v12",
+                "v14",
+                "v16",
+                "v18",
+                "v19",
+                "v20",
+                "v21",
+            ]
+        ].copy()
+        df.columns = [
+            "ano",
+            "sigla_uf",
+            "id_municipio_tse",
+            "situacao_biometria",
+            "zona",
+            "genero",
+            "estado_civil",
+            "grupo_idade",
+            "instrucao",
+            "eleitores",
+            "eleitores_biometria",
+            "eleitores_deficiencia",
+            "eleitores_inclusao_nome_social",
+        ]
+    elif ano == 2024:
+        df = df[
+            [
+                "v3",
+                "v4",
+                "v5",
+                "v7",
+                "v8",
+                "v10",
+                "v12",
+                "v14",
+                "v24",
+                "v25",
+                "v26",
+                "v27",
+            ]
+        ].copy()
+        df.columns = [
+            "ano",
+            "sigla_uf",
+            "id_municipio_tse",
+            "zona",
+            "genero",
+            "estado_civil",
+            "grupo_idade",
+            "instrucao",
+            "eleitores",
+            "eleitores_biometria",
+            "eleitores_deficiencia",
+            "eleitores_inclusao_nome_social",
+        ]
         df["situacao_biometria"] = ""
 
     # destring

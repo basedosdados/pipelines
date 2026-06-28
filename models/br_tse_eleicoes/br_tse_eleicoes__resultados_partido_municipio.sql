@@ -11,20 +11,20 @@
         cluster_by=["sigla_uf"],
     )
 }}
--- Rollup puro em dbt: agrega a tabela zona publicada (drop zona, soma votos).
 select
-    ano,
-    turno,
-    id_eleicao,
-    tipo_eleicao,
-    data_eleicao,
-    sigla_uf,
-    id_municipio,
-    id_municipio_tse,
-    cargo,
-    numero_partido,
-    sigla_partido,
-    sum(votos_nominais) as votos_nominais,
-    sum(votos_legenda) as votos_legenda
-from {{ ref("br_tse_eleicoes__resultados_partido_municipio_zona") }}
-group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+    safe_cast(ano as int64) ano,
+    safe_cast(turno as int64) turno,
+    safe_cast(id_eleicao as string) id_eleicao,
+    safe_cast(tipo_eleicao as string) tipo_eleicao,
+    safe_cast(data_eleicao as date) data_eleicao,
+    safe_cast(sigla_uf as string) sigla_uf,
+    safe_cast(id_municipio as string) id_municipio,
+    safe_cast(id_municipio_tse as string) id_municipio_tse,
+    safe_cast(cargo as string) cargo,
+    safe_cast(numero_partido as string) numero_partido,
+    safe_cast(sigla_partido as string) sigla_partido,
+    safe_cast(votos_nominais as int64) votos_nominais,
+    safe_cast(votos_legenda as int64) votos_legenda
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.resultados_partido_municipio") }}
+    as t

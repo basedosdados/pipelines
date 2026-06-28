@@ -41,84 +41,165 @@ def build_detalhes_mun_zona(ano: int) -> pd.DataFrame:
             INPUT_DIR
             / f"detalhe_votacao_munzona/detalhe_votacao_munzona_{ano}/detalhe_votacao_munzona_{ano}_{uf}"
         )
-        df = read_raw_csv(
-            str(base),
-            drop_first_row=True,
-            family="detalhe_votacao_munzona",
-            ano=ano,
-        )
+        df = read_raw_csv(str(base), drop_first_row=True)
 
-        # The detalhe_votacao_munzona layout is identical across all years
-        # (1994-2024). The old positional map for 1996/2000-2016 read the wrong
-        # columns (e.g. aptos_totalizadas <- QT_SECOES_NAO_INSTALADAS), which
-        # caused the 1996 coverage collapse. Header-based selection by official
-        # name fixes it. Two branches differ only in how votos_validos/votos_nulos
-        # are derived; both preserve the previously-OK behavior of their years
-        # (≤2016 = the 1994/1998 method; ≥2018 = direct TSE totals).
-        if ano <= 2016:
-            col_map = {
-                "ANO_ELEICAO": "ano",
-                "NR_TURNO": "turno",
-                "CD_ELEICAO": "id_eleicao",
-                "DS_ELEICAO": "tipo_eleicao",
-                "DT_ELEICAO": "data_eleicao",
-                "SG_UF": "sigla_uf",
-                "CD_MUNICIPIO": "id_municipio_tse",
-                "NR_ZONA": "zona",
-                "DS_CARGO": "cargo",
-                "QT_APTOS": "aptos",
-                "QT_SECOES_PRINCIPAIS": "secoes",
-                "QT_SECOES_AGREGADAS": "secoes_agregadas",
-                "QT_COMPARECIMENTO": "comparecimento",
-                "QT_ABSTENCOES": "abstencoes",
-                "QT_VOTOS_NOMINAIS_VALIDOS": "votos_nominais",
-                "QT_TOTAL_VOTOS_LEG_VALIDOS": "votos_legenda",
-                "QT_VOTOS_BRANCOS": "votos_brancos",
-            }
-            # votos_nulos = nulos + nulos técnicos + anulados apurados em separado
-            nulos = sum(
-                pd.to_numeric(df[c], errors="coerce")
-                for c in (
-                    "QT_VOTOS_NULOS",
-                    "QT_VOTOS_NULOS_TECNICOS",
-                    "QT_VOTOS_ANULADOS_APU_SEP",
-                )
-            )
-            df = df[list(col_map.keys())].rename(columns=col_map)
-            df["votos_nulos"] = nulos
-            df["votos_nominais"] = pd.to_numeric(
-                df["votos_nominais"], errors="coerce"
-            )
-            df["votos_legenda"] = pd.to_numeric(
-                df["votos_legenda"], errors="coerce"
-            )
+        if ano in (1994, 1998):
+            df = df[
+                [
+                    "v3",
+                    "v6",
+                    "v7",
+                    "v8",
+                    "v9",
+                    "v11",
+                    "v14",
+                    "v16",
+                    "v18",
+                    "v19",
+                    "v20",
+                    "v21",
+                    "v24",
+                    "v26",
+                    "v31",
+                    "v32",
+                    "v41",
+                    "v43",
+                    "v44",
+                    "v45",
+                ]
+            ].copy()
+            df.columns = [
+                "ano",
+                "turno",
+                "id_eleicao",
+                "tipo_eleicao",
+                "data_eleicao",
+                "sigla_uf",
+                "id_municipio_tse",
+                "zona",
+                "cargo",
+                "aptos",
+                "secoes",
+                "secoes_agregadas",
+                "comparecimento",
+                "abstencoes",
+                "votos_nominais",
+                "votos_legenda",
+                "votos_brancos",
+                "v43",
+                "v44",
+                "v45",
+            ]
+            for col in [
+                "votos_nominais",
+                "votos_legenda",
+                "v43",
+                "v44",
+                "v45",
+            ]:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
             df["votos_validos"] = df["votos_nominais"] + df["votos_legenda"]
+            df["votos_nulos"] = df["v43"] + df["v44"] + df["v45"]
+            df = df.drop(columns=["v43", "v44", "v45"])
             df["aptos_totalizadas"] = np.nan
             df["secoes_totalizadas"] = np.nan
 
-        else:  # >= 2018 — direct TSE total columns
-            col_map = {
-                "ANO_ELEICAO": "ano",
-                "NR_TURNO": "turno",
-                "CD_ELEICAO": "id_eleicao",
-                "DS_ELEICAO": "tipo_eleicao",
-                "DT_ELEICAO": "data_eleicao",
-                "SG_UF": "sigla_uf",
-                "CD_MUNICIPIO": "id_municipio_tse",
-                "NR_ZONA": "zona",
-                "DS_CARGO": "cargo",
-                "QT_APTOS": "aptos",
-                "QT_SECOES_PRINCIPAIS": "secoes",
-                "QT_SECOES_AGREGADAS": "secoes_agregadas",
-                "QT_COMPARECIMENTO": "comparecimento",
-                "QT_ABSTENCOES": "abstencoes",
-                "QT_TOTAL_VOTOS_VALIDOS": "votos_validos",
-                "QT_VOTOS_NOMINAIS_VALIDOS": "votos_nominais",
-                "QT_VOTOS_BRANCOS": "votos_brancos",
-                "QT_TOTAL_VOTOS_NULOS": "votos_nulos",
-                "QT_TOTAL_VOTOS_LEG_VALIDOS": "votos_legenda",
-            }
-            df = df[list(col_map.keys())].rename(columns=col_map)
+        elif ano == 1996 or 2000 <= ano <= 2016:
+            df = df[
+                [
+                    "v3",
+                    "v6",
+                    "v7",
+                    "v8",
+                    "v9",
+                    "v11",
+                    "v14",
+                    "v16",
+                    "v18",
+                    "v19",
+                    "v20",
+                    "v21",
+                    "v22",
+                    "v23",
+                    "v24",
+                    "v25",
+                    "v27",
+                    "v28",
+                    "v29",
+                    "v30",
+                ]
+            ].copy()
+            df.columns = [
+                "ano",
+                "turno",
+                "id_eleicao",
+                "tipo_eleicao",
+                "data_eleicao",
+                "sigla_uf",
+                "id_municipio_tse",
+                "zona",
+                "cargo",
+                "aptos",
+                "secoes",
+                "secoes_agregadas",
+                "aptos_totalizadas",
+                "secoes_totalizadas",
+                "comparecimento",
+                "abstencoes",
+                "votos_nominais",
+                "votos_brancos",
+                "votos_nulos",
+                "votos_legenda",
+            ]
+            for col in ["votos_nominais", "votos_legenda"]:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
+            df["votos_validos"] = df["votos_nominais"] + df["votos_legenda"]
+
+        else:  # >= 2018
+            df = df[
+                [
+                    "v3",
+                    "v6",
+                    "v7",
+                    "v8",
+                    "v9",
+                    "v11",
+                    "v14",
+                    "v16",
+                    "v18",
+                    "v19",
+                    "v20",
+                    "v21",
+                    "v24",
+                    "v26",
+                    "v30",
+                    "v31",
+                    "v41",
+                    "v42",
+                    "v32",
+                ]
+            ].copy()
+            df.columns = [
+                "ano",
+                "turno",
+                "id_eleicao",
+                "tipo_eleicao",
+                "data_eleicao",
+                "sigla_uf",
+                "id_municipio_tse",
+                "zona",
+                "cargo",
+                "aptos",
+                "secoes",
+                "secoes_agregadas",
+                "comparecimento",
+                "abstencoes",
+                "votos_validos",
+                "votos_nominais",
+                "votos_brancos",
+                "votos_nulos",
+                "votos_legenda",
+            ]
             df["aptos_totalizadas"] = np.nan
             df["secoes_totalizadas"] = np.nan
 
