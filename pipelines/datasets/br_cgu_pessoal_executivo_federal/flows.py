@@ -1,6 +1,4 @@
-"""
-Flows para br_cgu_pessoal_executivo_federal — Prefect 3.
-"""
+"""Flows para br_cgu_pessoal_executivo_federal — Prefect 3."""
 
 from prefect import flow
 
