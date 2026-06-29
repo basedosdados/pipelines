@@ -155,7 +155,10 @@ def download_file(
             status = source_url_is_available(url=url)
         else:
             headers = None
-            status = requests.get(url=url, headers=headers).status_code == 200
+            status = (
+                requests.get(url=url, headers=headers, timeout=30).status_code
+                == 200
+            )
 
         if status:
             log(f"------------------ URL = {url} ------------------")

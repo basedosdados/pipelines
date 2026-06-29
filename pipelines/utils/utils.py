@@ -132,9 +132,9 @@ def download_and_unzip_file(
     try:
         if headers:
             request_with_headers = Request(url=url, headers=headers)
-            r = urlopen(request_with_headers)
+            r = urlopen(request_with_headers, timeout=120)
         else:
-            r = urlopen(url=url)
+            r = urlopen(url=url, timeout=120)
         zf = zipfile.ZipFile(BytesIO(r.read()))
         zf.extractall(path=path)
         log(f"Extração concluída: {url} → {path}")
