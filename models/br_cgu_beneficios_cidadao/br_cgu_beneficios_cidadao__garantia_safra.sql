@@ -13,7 +13,7 @@
             },
         },
         cluster_by=["mes_referencia", "sigla_uf"],
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
+        pre_hook="BEGIN DROP ALL ROW ACCESS POLICIES ON {{ this }}; EXCEPTION WHEN ERROR THEN SELECT 1; END;",
     )
 }}
 

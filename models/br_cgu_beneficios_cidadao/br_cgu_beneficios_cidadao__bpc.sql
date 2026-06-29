@@ -9,7 +9,7 @@
             "range": {"start": 2019, "end": 2024, "interval": 1},
         },
         cluster_by=["mes_competencia", "sigla_uf"],
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
+        pre_hook="BEGIN DROP ALL ROW ACCESS POLICIES ON {{ this }}; EXCEPTION WHEN ERROR THEN SELECT 1; END;",
     )
 }}
 select
