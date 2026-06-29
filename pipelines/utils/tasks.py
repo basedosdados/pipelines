@@ -236,6 +236,13 @@ def run_dbt(
             if result.exception:
                 raise Exception(f"dbt {cmd} exception: {result.exception}")
             if not result.success:
+                run_result = getattr(result, "result", None)
+                if run_result is not None:
+                    for node_result in run_result.results:
+                        if node_result.status in {"error", "fail"}:
+                            print(node_result.node.name)
+                            print(node_result.message)
+
                 raise Exception(
                     f"dbt {cmd} falhou para {selected.as_posix()} (target={target})"
                 )
