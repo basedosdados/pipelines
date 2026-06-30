@@ -373,6 +373,17 @@ def recode_columns(df: pd.DataFrame) -> pd.DataFrame:
             "5": "uniao consensual",
         },
     )
+    col = "estado_civil"
+    if col in df.columns:
+        valid = {
+            "solteiro",
+            "casado",
+            "viuvo",
+            "separado judicialmente/divorciado",
+            "uniao consensual",
+        }
+        invalid = df[col].notna() & ~df[col].isin(valid)
+        df.loc[invalid, col] = None
     for col in ["escolaridade", "escolaridade_mae"]:
         _recode(
             df,
@@ -482,6 +493,11 @@ def recode_columns(df: pd.DataFrame) -> pd.DataFrame:
             "4": "outro",
         },
     )
+    col = "circunstancia_obito"
+    if col in df.columns:
+        valid = {"acidente", "suicidio", "homicidio", "outro"}
+        invalid = df[col].notna() & ~df[col].isin(valid)
+        df.loc[invalid, col] = None
     _recode(df, "acidente_trabalho", {"1": "sim", "2": "nao"})
     _recode(
         df,
