@@ -178,7 +178,9 @@ def verify_all_url_exists_to_download(
     )
 
     for url in urls:
-        available = source_url_is_available(url=url)
+        available = source_url_is_available(
+            url=url, max_retries=1, wait_seconds=10
+        )
         if not available:
             log(f"A URL {url=} não existe!")
             return False

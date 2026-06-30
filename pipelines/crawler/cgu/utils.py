@@ -199,6 +199,11 @@ def download_file(
                     table_id=table_id,
                     relative_month=relative_month,
                 )
+            else:
+                log(
+                    f"URL indisponível (não publicada ou bloqueada), pulando: {urls}",
+                    level="warning",
+                )
 
         return next_date_in_api
 
