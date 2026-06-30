@@ -185,10 +185,14 @@ def download_file(
         )
         input_dirs = build_input(table_id)
         log(f"------------------ URL = {url} ------------------")
+
+        headers = {"User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]}
+
         for urls, input_dir in zip(url, input_dirs, strict=False):
-            if requests.get(urls).status_code == 200:
+            status = source_url_is_available(url=urls)
+            if status:
                 destino = f"{constants_cgu['INPUT']}/{input_dir}"
-                download_and_unzip_file(urls, destino)
+                download_and_unzip_file(urls, destino, headers=headers)
 
                 last_date_in_api, next_date_in_api = last_date_in_metadata(
                     dataset_id=dataset_id,
