@@ -60,6 +60,7 @@ dependencies = [
   "openpyxl<4.0.0,>=3.1.0",
   "packaging==21.3",
   "pandas<3.0.0,>=2.0.1",
+  "pandas-stubs<3.0.0,>=2.0.1",
   "pandas-gbq<1.0.0,>=0.19.2",
   "partd==1.2.0",
   "prefect>=3.0,<4",
@@ -133,6 +134,12 @@ dependencies = [
   "wheel>=0.45.1",
   "python-calamine>=0.6.1",
   "pydantic>=2.0.0",
+  "types-requests>=2.31.0.6",
+  "types-requests-oauthlib>=2.0.0.20260518",
+  "types-tqdm>=4.68.0.20260608",
+  "types-python-dateutil>=2.9.0.20260518",
+  "types-geopandas>=1.1.4.20260628",
+  "types-hvac>=2.4.0.20260518",
 ]
 
 [dependency-groups]
@@ -199,3 +206,33 @@ allow-direct-references = true
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.pyrefly]
+project-excludes = [
+  "pipelines/{{cookiecutter.pipeline_name}}",
+  "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
+  "models/world_wb_mides/code/licitacao_item.ipynb",
+  "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
+  "models/mundo_transfermarkt_competicoes/code/code.ipynb",
+  "models/world_wb_mides/code/licitacao.ipynb",
+  "models/br_ms_sisvan/code/[[]download[]]br_ms_sisvan_microdados.ipynb",
+  "models/br_camara_dados_abertos/code/code.ipynb",
+  "models/br_mdr_snis/code/snis.ipynb",
+  "models/world_wb_mides/code/licitacao_participante.ipynb",
+  "models/world_wb_mides/code/orgao_unidade_gestora.ipynb",
+  "models/br_bd_diretorios_brasil/code/[[]update[]]instituicao_ensino_superior.ipynb",
+  "models/br_firjan_ifgf/code/[[]dados[]]_br_firjan_ifgf.ipynb",
+  "models/br_inpe_queimadas/code/microdados_old/[[]dados[]]_br_inpe_queimadas.ipynb",
+  "models/br_inpe_sisam/code/[[]dados[]]_br_inpe_sisam.ipynb",
+  "models/br_cgu_dados_abertos/code/conjunto_de_dados_get_json_list.ipynb",
+  "models/br_cgu_dados_abertos/code/organizacao_get_json_list.ipynb",
+  "models/br_cgu_dados_abertos/code/recurso_get_json_list.ipynb",
+  "models/br_inep_educacao_especial/code/educacao_especial_brasil_distorcao_idade_serie.ipynb",
+  "models/br_inep_educacao_especial/code/educacao_especial_brasil_taxa_rendimento.ipynb",
+  "models/br_inep_educacao_especial/code/educacao_especial_docente_aee.ipynb",
+  "models/br_inep_educacao_especial/code/educacao_especial_docente_formacao.ipynb",
+  "models/br_inep_educacao_especial/code/educacao_especial_matricula_aee.ipynb",
+  "models/br_inep_educacao_especial/code/educacao_especial_uf_distorcao_idade_serie.ipynb",
+  "models/br_inep_educacao_especial/code/educacao_especial_uf_taxa_rendimento.ipynb",
+  "models/br_mme_consumo_energia_eletrica/code/energia_eletrica.ipynb"
+]
+min-severity = "warn"
