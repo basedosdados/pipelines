@@ -61,7 +61,13 @@ deficiencia = {
 
 
 def read_sheet(
-    table: str, ano: int, chave: str, valor: str, dicionario: dict, skiprows
+    table: str,
+    ano: int,
+    chave: str,
+    valor: str,
+    dicionario: dict,
+    skiprows,
+    # pyrefly: ignore [bad-return]
 ) -> pd.DataFrame:
     print("Tratando dados de", valor, ano)
     path_excel = os.path.join(

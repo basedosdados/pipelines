@@ -21,6 +21,7 @@ import platform
 import sys
 from pathlib import Path
 
+# pyrefly: ignore [untyped-import]
 import openpyxl
 import pandas as pd
 
@@ -175,6 +176,7 @@ try:
     wb = openpyxl.load_workbook(arquivo_ocupacao)
     ws = wb.active
     print("✓ Arquivo de ocupação lido")
+    # pyrefly: ignore [missing-attribute]
     print(f"Total de linhas: {ws.max_row}")
 except Exception as e:
     print(f"✗ Erro ao ler arquivo de ocupação: {e}")
@@ -184,11 +186,17 @@ except Exception as e:
 registros_v4010 = []
 chaves_processadas = set()
 
+# pyrefly: ignore [missing-attribute]
 for row_idx in range(3, ws.max_row + 1):
+    # pyrefly: ignore [unsupported-operation]
     gg = ws[f"A{row_idx}"].value
+    # pyrefly: ignore [unsupported-operation]
     sg = ws[f"B{row_idx}"].value
+    # pyrefly: ignore [unsupported-operation]
     sub = ws[f"C{row_idx}"].value
+    # pyrefly: ignore [unsupported-operation]
     gb = ws[f"D{row_idx}"].value
+    # pyrefly: ignore [unsupported-operation]
     den = ws[f"E{row_idx}"].value
 
     # Determinar qual coluna tem valor (prioridade: GB > SUB > SG > GG)

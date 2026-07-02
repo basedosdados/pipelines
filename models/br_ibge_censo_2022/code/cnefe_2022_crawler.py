@@ -7,7 +7,9 @@ import requests
 from constants import constants
 from tqdm import tqdm
 
+# pyrefly: ignore [missing-attribute]
 CNEFE_FILE_NAMES = constants.CNEFE_FILE_NAMES.value
+# pyrefly: ignore [missing-attribute]
 URL = constants.CNEFE_FTP_URL.value
 
 

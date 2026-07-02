@@ -14,6 +14,7 @@ os.makedirs(INPUT, exist_ok=True)
 os.makedirs(TMP, exist_ok=True)
 os.makedirs(OUTPUT, exist_ok=True)
 
+# pyrefly: ignore [deprecated]
 exit_code = os.system(
     f"cd {INPUT}; curl -O -k https://download.inep.gov.br/educacao_basica/portal_ideb/planilhas_para_download/2021/divulgacao_regioes_ufs_ideb_2021.zip"
 )
@@ -27,6 +28,7 @@ with zipfile.ZipFile(
 
 XLSX_PATH = os.path.join(TMP, "divulgacao_regioes_ufs_ideb_2021.xlsx")
 
+# pyrefly: ignore [bad-assignment]
 sheet_names: list[str] = pd.ExcelFile(XLSX_PATH).sheet_names
 
 

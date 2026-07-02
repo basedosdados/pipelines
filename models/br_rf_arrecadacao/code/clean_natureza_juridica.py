@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 from clean_functions import *  # noqa: F403
 
 
@@ -31,12 +32,14 @@ def rename_columns(df):
 
 def change_types(df):
     df["ano"] = df["ano"].astype("int")
+    # pyrefly: ignore [unknown-name]
     df["mes"] = get_month_number(df["mes"])  # noqa: F405
     df["natureza_juridica_nome"] = df["natureza_juridica_nome"].str.title()
 
     # All remaining columns are monetary values
     for col in df.columns[4:]:
         df[col] = (
+            # pyrefly: ignore [unknown-name]
             df[col].apply(replace_commas).apply(remove_dots).astype("float")  # noqa: F405
         )
 
@@ -44,11 +47,13 @@ def change_types(df):
 
 
 if __name__ == "__main__":
+    # pyrefly: ignore [unknown-name]
     df = read_data(file_dir="../input/arrecadacao-natureza.csv")  # noqa: F405
-    df = remove_empty_rows(df)  # noqa: F405
-    df = remove_empty_columns(df)  # noqa: F405
+    df = remove_empty_rows(df)  # noqa: F405  # pyrefly: ignore [unknown-name]
+    df = remove_empty_columns(df)  # noqa: F405  # pyrefly: ignore [unknown-name]
     df = rename_columns(df)
     df = change_types(df)
+    # pyrefly: ignore [unknown-name]
     save_data(  # noqa: F405
         df=df,
         file_dir="../output/br_rf_arrecadacao_natureza_juridica",

@@ -126,6 +126,7 @@ import os  # noqa: E402
 
 base_path = "br_ms_populacao/output"
 
+# pyrefly: ignore [unbound-name]
 for ano, df_ano in df[df["ano"] >= 2022].groupby("ano"):
     pasta_ano = os.path.join(base_path, f"ano={ano}")
     os.makedirs(pasta_ano, exist_ok=True)

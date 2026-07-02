@@ -76,6 +76,7 @@ df["longitude"] = df["longitude"].astype(np.float64)
 df["latitude"] = df["latitude"].astype(np.float64)
 
 # Assigning the geometry variables
+# pyrefly: ignore [missing-module-attribute]
 from shapely.geometry.polygon import Point  # noqa: E402
 
 geometry = [
