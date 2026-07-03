@@ -57,6 +57,18 @@ Instale as dependências do `dbt`
 uv run dbt deps
 ```
 
+> [!WARNING]
+> O `dbt_project.yml` define `packages-install-path: /app/dbt_packages`, que é um caminho **de container** e quebra o `deps` localmente. Aplique o workaround do seu engine:
+>
+> - **dbt-core 1.8** (não aceita override): crie o diretório uma vez —
+>   ```sh
+>   sudo mkdir -p /app/dbt_packages && sudo chown -R "$USER" /app/dbt_packages
+>   ```
+> - **dbt Fusion**: exporte o caminho local antes de rodar `dbtf deps` —
+>   ```sh
+>   export DBT_PACKAGES_INSTALL_PATH="$PWD/dbt_packages"
+>   ```
+
 #### (Opcional) Instalar o dbt Fusion engine
 
 Estamos migrando, de forma faseada, do `dbt-core` (Python) para o **dbt Fusion engine** (Rust). O Fusion **não** é instalado pelo `uv sync` — é um binário separado:
@@ -347,7 +359,39 @@ from {{ set_datalake_project("<DATASET_ID>_staging.<TABLE_ID>") }}
 > Para o **dbt Fusion** (`dbtf`), o venv não é necessário — é um binário standalone. Os comandos abaixo (`dbt run`, `dbt test`, `--select`) têm a mesma sintaxe nos dois engines; basta trocar `dbt` por `dbtf`.
 
 > [!NOTE]
-> Algumas macros e testes customizados usam Jinja sensível ao engine (ex.: `macros/custom_get_where_subquery.sql` usa `run_query()` em parse-time, `macros/generate_schema_name.sql` sobrescreve uma macro built-in). Ao alterá-los, faça um smoke-test no Fusion com `dbtf parse` / `dbtf compile`.
+> Algumas macros e testes customizados usam Jinja sensível ao engine. Ao **alterar qualquer um dos arquivos abaixo**, faça um smoke-test no Fusion antes de abrir o PR:
+>
+> - `macros/custom_get_where_subquery.sql` — usa `run_query()` em parse-time (maior risco).
+> - `macros/set_datalake_project.sql`, `macros/dicionario_not_found.sql` — usam `exceptions.raise_compiler_error()`.
+> - `macros/generate_schema_name.sql` — sobrescreve uma macro built-in.
+> - `tests-dbt/generic/not_null_proportion_multiple_columns.sql` — usa `adapter.get_columns_in_relation()` + `dbt_utils.get_query_results_as_dict()`.
+> - `pipelines/utils/gcs.py` (`DBTArtifactUploader`) — lê `target/{compiled,run}`; confirme que o Fusion gera o mesmo layout.
+>
+> Comandos de validação:
+>
+> ```sh
+> dbtf deps
+> dbtf parse
+> dbtf compile --select <modelo> 2>&1 | tee /tmp/fusion_compile.log
+> ```
+
+### Selecionando o engine (`DBT_ENGINE`)
+
+Em produção o engine é escolhido em runtime, sem alteração de código. A chave mora em [`pipelines/utils/execute_dbt_model/engine.py`](./pipelines/utils/execute_dbt_model/engine.py):
+
+| Variável | Valores | Default | Função |
+|----------|---------|---------|--------|
+| `DBT_ENGINE` | `core` \| `fusion` | `core` | `core` usa o `dbtRunner` (dbt-core); `fusion` invoca o binário `dbtf` via subprocess |
+| `DBT_FUSION_BIN` | nome/caminho | `dbtf` | binário do Fusion a ser chamado |
+| `DBT_FUSION_VERSION` | versão | *(vazio = latest)* | ARG de build do Docker que fixa a versão do Fusion na imagem |
+
+No worker do Prefect, defina `DBT_ENGINE` de uma destas formas:
+
+- via **Base Job Template** do work pool (UI do Prefect → pool → `env`); ou
+- por deployment: `job_variables={"env": {"DBT_ENGINE": "fusion"}}`.
+
+> [!NOTE]
+> **Rollback é instantâneo e sem mudança de código:** remova `DBT_ENGINE` (ou defina `=core`). O default já é `core`, então o dbt-core (engine de produção) permanece o fallback.
 
 ### Materializando o modelo no BigQuery
 
@@ -383,6 +427,19 @@ dbt run --select models/dataset/table_id.sql
 Os testes do modelo são definidos no arquivo `schema.yml`
 
 #### Tipos de testes
+
+> [!IMPORTANT]
+> O **dbt Fusion** exige que os argumentos de testes genéricos fiquem aninhados sob a chave `arguments:` — o formato antigo (args no topo do teste), usado nos exemplos abaixo, é aceito pelo dbt-core mas rejeitado pelo Fusion. A migração de formato do projeto inteiro é feita de forma automatizada com `uvx dbt-autofix deprecations` (Fase 0 da migração). Exemplo antes/depois:
+>
+> ```yaml
+> # antigo (dbt-core, formato deprecado)
+> - dbt_utils.unique_combination_of_columns:
+>     combination_of_columns: [country_code, order_id]
+> # novo (exigido pelo Fusion)
+> - dbt_utils.unique_combination_of_columns:
+>     arguments:
+>       combination_of_columns: [country_code, order_id]
+> ```
 
 ##### Conexão com diretórios
 
