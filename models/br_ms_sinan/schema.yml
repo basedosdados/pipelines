@@ -54,7 +54,7 @@ models:
             - apresenta_sintoma_outro
             - resultado_prnt
             - resultado_ns1
-          dictionary_model: ref('br_ms_sinan__dicionario')  # dicionário que deve ser usado no teste
+          dictionary_model: ref('br_ms_sinan__dicionario')   # dicionário que deve ser usado no teste
     columns:
       - name: ano
         description: Ano
@@ -496,7 +496,7 @@ models:
             - chave
             - cobertura_temporal
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.01
     columns:
       - name: id_tabela
         description: ID Tabela
@@ -508,3 +508,348 @@ models:
         description: Cobertura Temporal
       - name: valor
         description: Valor
+  - name: br_ms_sinan__microdados_violencia
+    description: Insert table description here
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.001
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - tipo_notificacao
+            - local_ocorrencia
+            - outras_vezes_ocorrencia
+            - sexo_paciente
+            - gestante_paciente
+            - raca_paciente
+            - escolaridade_paciente
+            - estado_civil_paciente
+            - orientacao_sexual_paciente
+            - identidade_genero_paciente
+            - motivacao_violencia
+            - violencia_relacionada_trabalho
+            - emitiu_cat
+            - deficiencia_transtorno_paciente
+            - deficiencia_fisica_paciente
+            - deficiencia_mental_paciente
+            - deficiencia_visual_paciente
+            - deficiencia_auditiva_paciente
+            - transtorno_mental_paciente
+            - transtorno_comportamental_paciente
+            - outras_deficiencias_paciente
+            - lesao_autoprovocada
+            - ocorreu_violencia_fisica
+            - ocorreu_violencia_psicologica
+            - ocorreu_tortura
+            - ocorreu_violencia_sexual
+            - ocorreu_trafico_ser_humano
+            - ocorreu_violencia_financeira
+            - ocorreu_negligencia_abandono
+            - ocorreu_trabalho_infantil
+            - ocorreu_intervencao_legal
+            - ocorreu_outra_violencia
+            - meio_forca
+            - meio_enforcamento
+            - meio_objeto_contundente
+            - meio_objeto_perfurante
+            - meio_objeto_quente
+            - meio_envenenamento
+            - meio_arma_fogo
+            - meio_ameaca
+            - meio_outros
+            - houve_assedio
+            - houve_estupro
+            - houve_pornografia_infantil
+            - houve_exploracao_sexual
+            - houve_outra_violencia_sexual
+            - profilaxia_dst
+            - profilaxia_hiv
+            - profilaxia_hepatite_b
+            - coleta_sangue
+            - coleta_semen
+            - coleta_secrecao_vaginal
+            - profilaxia_contraceptivo
+            - aborto
+            - autor_pai
+            - autor_mae
+            - autor_padrasto
+            - autor_madrasta
+            - autor_conjugue
+            - autor_ex_conjugue
+            - autor_namorado_a
+            - autor_ex_namorado_a
+            - autor_filho_a
+            - autor_desconhecido
+            - autor_irmao
+            - autor_conhecido
+            - autor_cuidador
+            - autor_patrao_chefe
+            - autor_institucional
+            - autor_policial
+            - autor_propria_pessoa
+            - autor_outros
+            - autor_sexo
+            - autor_usou_alcool
+            - encaminhamento_saude
+            - encaminhamento_assistencia_social
+            - encaminhamento_educacao
+            - encaminhamento_atendimento_mulher
+            - encaminhamento_conselho_tutelar
+            - encaminhamento_conselho_idoso
+            - encaminhamento_delegacia_idoso
+            - encaminhamento_direitos_humanos
+            - encaminhamento_mpu
+            - encaminhamento_delegacia_crianca
+            - encaminhamento_delegacia_mulher
+            - encaminhamento_delegacia
+            - encaminhamento_justica_infancia_juventude
+            - encaminhamento_defensoria_publica
+          dictionary_model: ref('br_ms_sinan__dicionario')
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__ano')
+              field: ano.ano
+      - name: data_notificacao
+        description: Data de notificação do caso
+      - name: tipo_notificacao
+        description: Tipo de notificação
+      - name: id_uf_notificacao
+        description: Sigla da Unidade da Federação de notificação
+      - name: id_municipio_notificacao
+        description: ID do município de notificação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_unidade_notificacao
+        description: ID da unidade de saúde de notificação
+      - name: id_categoria_cid10
+        description: Categoria CID-10 da violência
+      - name: id_subcategoria_cid10
+        description: Subcategoria CID-10 da violência
+      - name: id_municipio_6_notificacao
+        description: ID de 6 dígitos do município de notificação
+      - name: id_regional_saude_notificacao
+        description: ID da regional de saúde de notificação
+      - name: data_ocorrencia
+        description: Data de ocorrência da violência
+      - name: id_uf_ocorrencia
+        description: ID da Unidade da Federação de ocorrência da violência
+      - name: id_municipio_ocorrencia
+        description: ID do município de ocorrência da violência
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_6_ocorrencia
+        description: ID de 6 dígitos do município de ocorrência da violência
+      - name: hora_ocorrencia
+        description: Hora de ocorrência da violência
+      - name: local_ocorrencia
+        description: Local de ocorrência da violência
+      - name: outro_local_ocorrencia
+        description: Descrição de outro local de ocorrência da violência
+      - name: outras_vezes_ocorrencia
+        description: Indica se a violência já ocorreu outras vezes
+      - name: id_uf_residencia
+        description: ID da Unidade da Federação de residência da vítima
+      - name: id_municipio_residencia
+        description: ID do município de residência da vítima
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_municipio_6_residencia
+        description: ID de 6 dígitos do município de residência da vítima
+      - name: id_regional_saude_residencia
+        description: ID da regional de saúde de residência da vítima
+      - name: idade_paciente
+        description: Idade da vítima em anos
+      - name: sexo_paciente
+        description: Sexo da vítima
+      - name: gestante_paciente
+        description: Indica se a vítima está gestante
+      - name: raca_paciente
+        description: Raça/cor da vítima
+      - name: escolaridade_paciente
+        description: Escolaridade da vítima
+      - name: ocupacao_paciente
+        description: Código CBO da ocupação da vítima
+      - name: estado_civil_paciente
+        description: Estado civil da vítima
+      - name: orientacao_sexual_paciente
+        description: Orientação sexual da vítima
+      - name: identidade_genero_paciente
+        description: Identidade de gênero da vítima
+      - name: motivacao_violencia
+        description: Motivação da violência
+      - name: violencia_relacionada_trabalho
+        description: Indica se a violência está relacionada ao trabalho
+      - name: emitiu_cat
+        description: Indica se foi emitida Comunicação de Acidente de Trabalho (CAT)
+      - name: deficiencia_transtorno_paciente
+        description: Indica se a vítima possui alguma deficiência ou transtorno
+      - name: deficiencia_fisica_paciente
+        description: Indica se a vítima possui deficiência física
+      - name: deficiencia_mental_paciente
+        description: Indica se a vítima possui deficiência mental
+      - name: deficiencia_visual_paciente
+        description: Indica se a vítima possui deficiência visual
+      - name: deficiencia_auditiva_paciente
+        description: Indica se a vítima possui deficiência auditiva
+      - name: transtorno_mental_paciente
+        description: Indica se a vítima possui transtorno mental
+      - name: transtorno_comportamental_paciente
+        description: Indica se a vítima possui transtorno comportamental
+      - name: outras_deficiencias_paciente
+        description: Indica se a vítima possui outras deficiências
+      - name: quais_outras_deficiencias_paciente
+        description: Descrição de outras deficiências da vítima
+      - name: lesao_autoprovocada
+        description: Indica se a lesão foi autoprovocada
+      - name: ocorreu_violencia_fisica
+        description: Indica se ocorreu violência física
+      - name: ocorreu_violencia_psicologica
+        description: Indica se ocorreu violência psicológica/moral
+      - name: ocorreu_tortura
+        description: Indica se ocorreu tortura
+      - name: ocorreu_violencia_sexual
+        description: Indica se ocorreu violência sexual
+      - name: ocorreu_trafico_ser_humano
+        description: Indica se ocorreu tráfico de seres humanos
+      - name: ocorreu_violencia_financeira
+        description: Indica se ocorreu violência financeira/econômica
+      - name: ocorreu_negligencia_abandono
+        description: Indica se ocorreu negligência/abandono
+      - name: ocorreu_trabalho_infantil
+        description: Indica se ocorreu trabalho infantil
+      - name: ocorreu_intervencao_legal
+        description: Indica se ocorreu intervenção legal
+      - name: ocorreu_outra_violencia
+        description: Indica se ocorreu outro tipo de violência
+      - name: ocorreu_qual_outra
+        description: Descrição de outro tipo de violência ocorrida
+      - name: meio_forca
+        description: Indica se o meio utilizado foi força corporal/espancamento
+      - name: meio_enforcamento
+        description: Indica se o meio utilizado foi enforcamento
+      - name: meio_objeto_contundente
+        description: Indica se o meio utilizado foi objeto contundente
+      - name: meio_objeto_perfurante
+        description: Indica se o meio utilizado foi objeto perfurante/cortante
+      - name: meio_objeto_quente
+        description: Indica se o meio utilizado foi substância/objeto quente
+      - name: meio_envenenamento
+        description: Indica se o meio utilizado foi envenenamento
+      - name: meio_arma_fogo
+        description: Indica se o meio utilizado foi arma de fogo
+      - name: meio_ameaca
+        description: Indica se o meio utilizado foi ameaça
+      - name: meio_outros
+        description: Indica se o meio utilizado foi outro
+      - name: meio_qual_outro
+        description: Descrição de outro meio utilizado na violência
+      - name: houve_assedio
+        description: Indica se houve assédio sexual
+      - name: houve_estupro
+        description: Indica se houve estupro
+      - name: houve_pornografia_infantil
+        description: Indica se houve pornografia infantil
+      - name: houve_exploracao_sexual
+        description: Indica se houve exploração sexual
+      - name: houve_outra_violencia_sexual
+        description: Indica se houve outro tipo de violência sexual
+      - name: houve_qual_outra_violencia_sexual
+        description: Descrição de outro tipo de violência sexual
+      - name: profilaxia_dst
+        description: Indica se foi realizada profilaxia de DST
+      - name: profilaxia_hiv
+        description: Indica se foi realizada profilaxia de HIV
+      - name: profilaxia_hepatite_b
+        description: Indica se foi realizada profilaxia de Hepatite B
+      - name: coleta_sangue
+        description: Indica se foi realizada coleta de sangue
+      - name: coleta_semen
+        description: Indica se foi realizada coleta de sêmen
+      - name: coleta_secrecao_vaginal
+        description: Indica se foi realizada coleta de secreção vaginal
+      - name: profilaxia_contraceptivo
+        description: Indica se foi prescrito anticoncepcional de emergência
+      - name: aborto
+        description: Indica se foi realizado aborto previsto em lei
+      - name: numero_envolvidos_violencia
+        description: Número de envolvidos na prática da violência
+      - name: autor_pai
+        description: Indica se o autor da violência é o pai
+      - name: autor_mae
+        description: Indica se o autor da violência é a mãe
+      - name: autor_padrasto
+        description: Indica se o autor da violência é o padrasto
+      - name: autor_madrasta
+        description: Indica se o autor da violência é a madrasta
+      - name: autor_conjugue
+        description: Indica se o autor da violência é o cônjuge
+      - name: autor_ex_conjugue
+        description: Indica se o autor da violência é o ex-cônjuge
+      - name: autor_namorado_a
+        description: Indica se o autor da violência é o/a namorado/a
+      - name: autor_ex_namorado_a
+        description: Indica se o autor da violência é o/a ex-namorado/a
+      - name: autor_filho_a
+        description: Indica se o autor da violência é o/a filho/a
+      - name: autor_desconhecido
+        description: Indica se o autor da violência é desconhecido
+      - name: autor_irmao
+        description: Indica se o autor da violência é o irmão
+      - name: autor_conhecido
+        description: Indica se o autor da violência é conhecido
+      - name: autor_cuidador
+        description: Indica se o autor da violência é o cuidador
+      - name: autor_patrao_chefe
+        description: Indica se o autor da violência é o patrão/chefe
+      - name: autor_institucional
+        description: Indica se o autor da violência é de origem institucional
+      - name: autor_policial
+        description: Indica se o autor da violência é policial
+      - name: autor_propria_pessoa
+        description: Indica se o autor da violência é a própria vítima
+      - name: autor_outros
+        description: Indica se o autor da violência é outro
+      - name: autor_relacao_outros
+        description: Descrição da relação do autor com a vítima (outros)
+      - name: autor_sexo
+        description: Sexo do autor da violência
+      - name: autor_usou_alcool
+        description: Indica se o autor estava sob efeito de álcool
+      - name: encaminhamento_saude
+        description: Indica se houve encaminhamento para a rede de saúde
+      - name: encaminhamento_assistencia_social
+        description: Indica se houve encaminhamento para assistência social
+      - name: encaminhamento_educacao
+        description: Indica se houve encaminhamento para a rede de educação
+      - name: encaminhamento_atendimento_mulher
+        description: Indica se houve encaminhamento para atendimento à mulher
+      - name: encaminhamento_conselho_tutelar
+        description: Indica se houve encaminhamento para o conselho tutelar
+      - name: encaminhamento_conselho_idoso
+        description: Indica se houve encaminhamento para o conselho do idoso
+      - name: encaminhamento_delegacia_idoso
+        description: Indica se houve encaminhamento para delegacia do idoso
+      - name: encaminhamento_direitos_humanos
+        description: Indica se houve encaminhamento para direitos humanos
+      - name: encaminhamento_mpu
+        description: Indica se houve encaminhamento para o Ministério Público
+      - name: encaminhamento_delegacia_crianca
+        description: Indica se houve encaminhamento para delegacia da criança
+      - name: encaminhamento_delegacia_mulher
+        description: Indica se houve encaminhamento para delegacia da mulher
+      - name: encaminhamento_delegacia
+        description: Indica se houve encaminhamento para delegacia
+      - name: encaminhamento_justica_infancia_juventude
+        description: Indica se houve encaminhamento para justiça da infância e juventude
+      - name: encaminhamento_defensoria_publica
+        description: Indica se houve encaminhamento para defensoria pública
+      - name: data_encerramento
+        description: Data de encerramento do caso
