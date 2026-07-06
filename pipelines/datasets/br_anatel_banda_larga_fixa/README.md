@@ -112,6 +112,13 @@ Densidade = acessos por 100 domicílios. Níveis geográficos consistentes em 1 
 `municipio` ficaram **1 mês atrás** do microdados (paradas em março enquanto a fonte já
 tinha abril); o fix realinha na próxima materialização.
 
+**Densidade vazia na fonte.** A fonte traz `Densidade` em branco em ~45% das linhas de
+município (e alguns meses de Brasil/UF). O tratamento (`_parse_densidade` em
+`crawler/anatel/banda_larga_fixa/utils.py`) converte a string BR (`"12,34"`) para float
+e mantém o vazio como **NULL** — a linha é preservada, então o invariante 1/27/5570 se
+mantém, com densidade NULL onde a fonte não tem valor. Sem esse tratamento, o parse
+assumia string em toda célula e quebrava com `AttributeError` na primeira vazia.
+
 ---
 
 ## Estrutura dos Flows
