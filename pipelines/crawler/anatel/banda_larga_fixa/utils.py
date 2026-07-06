@@ -142,6 +142,7 @@ def treatment_br(table_id: str):
         f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
+        dtype=str,
     )
     df = df.rename(columns={"Nível Geográfico Densidade": "Geografia"})
     df_brasil = df[df["Geografia"] == "Brasil"]
@@ -168,6 +169,7 @@ def treatment_uf(table_id: str):
         f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
+        dtype=str,
     )
     df = df.rename(columns={"Nível Geográfico Densidade": "Geografia"})
     df_uf = df[df["Geografia"] == "UF"]
@@ -192,10 +194,12 @@ def treatment_municipio(table_id: str):
         f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
+        dtype=str,
     )
     df = df.rename(columns={"Nível Geográfico Densidade": "Geografia"})
     df_municipio = df[df["Geografia"] == "Municipio"]
     df_municipio = df_municipio.drop(["Município", "Geografia"], axis=1)
+    df_municipio = df_municipio.dropna(subset=["Código IBGE"])
     df_municipio["Densidade"] = df_municipio["Densidade"].apply(
         _parse_densidade
     )
