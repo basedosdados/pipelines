@@ -108,17 +108,35 @@ parse.
 ### Densidades: `densidade_brasil`, `densidade_uf`, `densidade_municipio`
 
 Densidade = acessos por 100 domicílios. Níveis geográficos consistentes em 1 (Brasil) /
-27 (UF) / 5570 (município) por mês. Durante o congelamento, as densidades `uf` e
-`municipio` ficaram **1 mês atrás** do microdados (paradas em março enquanto a fonte já
-tinha abril); o fix realinha na próxima materialização.
+27 (UF) / 5570 (município) por mês.
+
+**A fonte apagou a densidade de 2023–2025.** O ZIP atual da Anatel publica 2023 e 2024
+com as linhas em branco em todos os níveis (Brasil, UF e município) e quase todo 2025
+vazio; retoma parcial em 2026. Prod ainda serve esses anos **completos**, materializado
+de uma versão anterior da fonte. Por isso as 3 tabelas de densidade estão **sem schedule**
+(`cron=None` em `flows.py`): um run automático re-materializaria do arquivo degradado e
+**regrediria o prod** (ex.: município 2025 cairia de 66.840 → 250 linhas). Elas só rodam
+via `force_run` manual. Reativar o cron somente após a decisão sobre a fonte (o apagão é
+transitório — recálculo de densidade? — ou permanente? confirmar com a PRUV). O
+`microdados` (acessos) **não** regrediu e mantém o schedule normal (`0 15 * * *`).
+
+**Crons originais das densidades** (timezone `America/Sao_Paulo`), para restaurar ao
+reativar o schedule:
+
+| tabela | cron original |
+| ------ | ------------- |
+| `densidade_municipio` | `0 16 * * *` (16h) |
+| `densidade_brasil` | `0 17 * * *` (17h) |
+| `densidade_uf` | `0 18 * * *` (18h) |
 
 ---
 
 ## Estrutura dos Flows
 
 Um flow por tabela em `pipelines/datasets/br_anatel_banda_larga_fixa/flows.py`, gerado
-por `_anatel_blf_flow(table_id, cron)` e agendado em horários distintos. Todos delegam
-a `_run_anatel_banda_larga_fixa` (`pipelines/crawler/anatel/banda_larga_fixa/flows.py`).
+por `_anatel_blf_flow(table_id, cron)`. O `microdados` tem cron diário; as 3 densidades
+vão com `cron=None` (sem schedule — ver seção Densidades). Todos delegam a
+`_run_anatel_banda_larga_fixa` (`pipelines/crawler/anatel/banda_larga_fixa/flows.py`).
 
 ### Parâmetros de execução
 
