@@ -75,11 +75,17 @@ para cima** conforme chegam registros atrasados — e que a fonte já havia publ
 | 2026-04 | 684785 | 669968    | +14817        |
 | 2026-05 | 652876 | —         | novo na fonte |
 
-Os diffs positivos crescem com a recência do mês (assinatura de revisão histórica). Isso
-tem uma consequência prática importante: como o upload é `append` e o model dbt é
-`create or replace` a partir do staging, o `force_run` **re-materializa do staging
-revisado e realinha sozinho** — o backfill é idempotente por partição e, portanto,
-seguro de reexecutar.
+Os diffs positivos crescem com a recência do mês (assinatura de revisão histórica). Para
+o `microdados`, isso tem uma consequência prática boa: como o upload é `append` e o model
+dbt é `create or replace` a partir do staging, o `force_run` **re-materializa do staging
+revisado e realinha sozinho** — o backfill é idempotente por partição e seguro de
+reexecutar.
+
+> ⚠️ **Isso vale para o `microdados`, NÃO para as densidades.** A fonte **regrediu** a
+> série de densidade (apagou 2023–2025 — ver a seção de Densidades). Nesse caso o
+> "backfill idempotente" vira **perigoso**: um `force_run` de densidade em prod
+> sobrescreve partições onde a fonte hoje tem menos dado que o prod, causando
+> **regressão**. `append` só é seguro quando a fonte não regride.
 
 ---
 
@@ -108,16 +114,58 @@ parse.
 ### Densidades: `densidade_brasil`, `densidade_uf`, `densidade_municipio`
 
 Densidade = acessos por 100 domicílios. Níveis geográficos consistentes em 1 (Brasil) /
-27 (UF) / 5570 (município) por mês. Durante o congelamento, as densidades `uf` e
-`municipio` ficaram **1 mês atrás** do microdados (paradas em março enquanto a fonte já
-tinha abril); o fix realinha na próxima materialização.
+27 (UF) / 5570 (município) por mês.
 
-**Densidade vazia na fonte.** A fonte traz `Densidade` em branco em ~45% das linhas de
-município (e alguns meses de Brasil/UF). O tratamento (`_parse_densidade` em
-`crawler/anatel/banda_larga_fixa/utils.py`) converte a string BR (`"12,34"`) para float
-e mantém o vazio como **NULL** — a linha é preservada, então o invariante 1/27/5570 se
-mantém, com densidade NULL onde a fonte não tem valor. Sem esse tratamento, o parse
-assumia string em toda célula e quebrava com `AttributeError` na primeira vazia.
+> ⚠️ **A fonte regrediu a densidade 2023–2025 (achado 2026-07-07).** O ZIP atual da
+> Anatel publica **2023 e 2024 100% em branco** (todos os níveis: `UF`, `Município`,
+> `Código IBGE` e `Densidade` = NaN) e quase todo 2025 vazio (só 250 municípios); retoma
+> parcial em 2026. **Prod ainda serve 2023–2025 completos** — foi materializado de uma
+> versão anterior da fonte, e o congelamento (poll bug) esteve **protegendo** esse dado.
+> Comparação município (linhas com dado real):
+>
+> | ano | prod | fonte atual |
+> | --- | --- | --- |
+> | 2023 | 66.840 | 0 |
+> | 2024 | 66.840 | 0 |
+> | 2025 | 66.840 | 250 |
+>
+> **Consequência:** `force_run` de densidade em prod **regride 2025** (66.840 → 250) e
+> reexpõe o prod ao apagão → **bloqueado** até decidir com a PRUV se é transitório
+> (recálculo de denominador?) ou permanente. Detalhe/mecânica em
+> `task_davi/correcoes_pipeline.md` #8.
+
+**Código de município vazio na fonte** (`crawler/anatel/banda_larga_fixa/utils.py`). Ao
+todo ~752 mil linhas de município vêm **sem `Código IBGE`** — parte são as linhas em
+branco de 2023–2025 acima, parte são linhas extras de 2017–2020 (a fonte emite ~3× as
+linhas com blocos sem código). Todas são **dropadas** no `treatment_municipio` (`dropna`
+em `Código IBGE`): não carregam informação e colapsariam em `[ano, mes, NULL]`,
+quebrando o teste `unique_combination`. A consequência do drop é um **gap** de município
+em 2023–2025 (espelha o apagão da fonte). Já em **Brasil/UF**, onde a geografia é válida
+mas a densidade falta, o vazio é **mantido como NULL** — `_parse_densidade` devolve o
+NaN em vez de quebrar, e vira NULL no `safe_cast`. Os CSVs de densidade são lidos com
+`dtype=str` para o `Código IBGE` não ser inferido como float; senão o `id_municipio`
+sairia como `"3552502.0"` e falharia o teste `relationships` com o diretório de
+municípios.
+
+**Materialização e o `unique_combination` em dev (staging × model).** As 4 tabelas são
+materializadas como `table` (**override**): as 3 densidades herdam `+materialized: table`
+do `dbt_project.yml`, o `microdados` declara explícito. Override significa
+`CREATE OR REPLACE TABLE` a cada run — um `dbt run` normal já reconstrói tudo do zero, e
+`--full-refresh` (que só tem efeito em models **incremental**, forçando rebuild e
+ignorando `is_incremental()`) é **no-op** aqui. Isso importa para o teste
+`unique_combination_of_columns` do `densidade_municipio`: quando ele reprova em dev
+(24 grupos = 24 meses de 2023-2024 com `id_municipio` NULL), essas linhas estão no
+**staging** (`..._staging.densidade_municipio`), **não** na tabela do dbt — o model é
+`safe_cast(...) from staging` sem filtro. **Elas são as linhas em branco 2023–2024 da
+própria fonte** (não "resíduo de debug"), subidas por um run do código antigo (sem
+`dropna`). Reconstruir com `--full-refresh` **copia esse conteúdo igual**; e um re-run
+normal **não** as remove — o `dropna` não re-emite 2023/2024, então o `append` não
+sobrescreve os blobs órfãos. Para zerar o teste em **dev** (que não serve dado real):
+`gsutil rm` das partições `ano=2023|2024` do staging ou `dump_mode="overwrite"` + re-run.
+Em **prod NÃO** fazer isso (preservar 2023–2025 — ver o aviso acima). Que o código
+(`dropna`) está correto está provado localmente por
+`task_davi/verifica_unique_densidade_blf.py`, que roda a mesma invariante do dbt na fonte
+tratada e dá **0 grupos duplicados** nas 3 densidades.
 
 ---
 
@@ -152,6 +200,12 @@ a `_run_anatel_banda_larga_fixa` (`pipelines/crawler/anatel/banda_larga_fixa/flo
   uma data de cobertura e só grava após materializar. No mesmo PR, extensão do range de
   partição do `microdados` (`end` 2023 → 2031). Recuperação do backlog (maio/2026 +
   revisões dos meses anteriores) via `force_run` por tabela.
+- **Correção do tratamento das densidades (mesmo PR):** o destravamento do poll expôs
+  bugs pré-existentes que o congelamento mascarava. (1) `_parse_densidade` trata a
+  densidade vazia (NaN) sem quebrar; (2) leitura com `dtype=str` corrige o
+  `id_municipio` que vinha como `"…​.0"` e reprovava o `relationships`; (3) `dropna` em
+  `Código IBGE` remove as linhas de município sem código, que reprovavam o
+  `unique_combination`.
 
 > O `telefonia_movel` (`pipelines/crawler/anatel/telefonia_movel/flows.py`) tem o
 > **mesmo** poll eager — o mesmo fix se aplica lá, em correção à parte.
