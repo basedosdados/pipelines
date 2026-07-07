@@ -1,5 +1,8 @@
 """
 Flows for br_anatel_banda_larga_fixa — Prefect 3.
+
+Contexto e decisões do fix de atualização (poll deferido): ver o README.md
+deste diretório.
 """
 
 from prefect import flow

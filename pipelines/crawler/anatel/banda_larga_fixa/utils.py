@@ -112,21 +112,44 @@ def treatment(table_id: str, ano: int):
     )
 
 
+def _parse_densidade(x: object) -> float | None:
+    """Converte a Densidade da fonte (string BR, ex. '12,34') para float.
+
+    A fonte traz Densidade vazia (NaN) em ~45% das linhas — ver
+    ``task_davi/diagnostico_densidade_blf.py``. Esses casos devem virar NULL no
+    ``safe_cast(densidade as float64)`` do dbt.
+
+    Parameters
+    ----------
+    x : object
+        Valor bruto da célula: string com vírgula decimal, ou NaN (float) quando
+        a densidade não está preenchida.
+
+    Returns
+    -------
+    float | None
+        A densidade como float; ou o próprio NaN/None quando a célula está vazia.
+    """
+    if isinstance(x, str):
+        return float(x.replace(",", "."))
+
+    return x
+
+
 def treatment_br(table_id: str):
     log("Iniciando o tratamento do arquivo densidade brasil da Anatel")
     df = pd.read_csv(
         f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
+        dtype=str,
     )
     df = df.rename(columns={"Nível Geográfico Densidade": "Geografia"})
     df_brasil = df[df["Geografia"] == "Brasil"]
     df_brasil = df_brasil.drop(
         anatel_constants.DROP_COLUMNS_BRASIL.value, axis=1
     )
-    df_brasil["Densidade"] = df_brasil["Densidade"].apply(
-        lambda x: float(x.replace(",", "."))
-    )
+    df_brasil["Densidade"] = df_brasil["Densidade"].apply(_parse_densidade)
     df_brasil = df_brasil.rename(
         columns=anatel_constants.RENAME_COLUMNS_BRASIL.value,
     )
@@ -146,13 +169,12 @@ def treatment_uf(table_id: str):
         f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
+        dtype=str,
     )
     df = df.rename(columns={"Nível Geográfico Densidade": "Geografia"})
     df_uf = df[df["Geografia"] == "UF"]
     df_uf = df_uf.drop(anatel_constants.DROP_COLUMNS_UF.value, axis=1)
-    df_uf["Densidade"] = df_uf["Densidade"].apply(
-        lambda x: float(x.replace(",", "."))
-    )
+    df_uf["Densidade"] = df_uf["Densidade"].apply(_parse_densidade)
     df_uf = df_uf.rename(
         columns=anatel_constants.RENAME_COLUMNS_UF.value,
     )
@@ -172,12 +194,14 @@ def treatment_municipio(table_id: str):
         f"{anatel_constants.INPUT_PATH.value}Densidade_Banda_Larga_Fixa.csv",
         sep=";",
         encoding="utf-8",
+        dtype=str,
     )
     df = df.rename(columns={"Nível Geográfico Densidade": "Geografia"})
     df_municipio = df[df["Geografia"] == "Municipio"]
     df_municipio = df_municipio.drop(["Município", "Geografia"], axis=1)
+    df_municipio = df_municipio.dropna(subset=["Código IBGE"])
     df_municipio["Densidade"] = df_municipio["Densidade"].apply(
-        lambda x: float(x.replace(",", "."))
+        _parse_densidade
     )
     df_municipio = df_municipio.rename(
         columns=anatel_constants.RENAME_COLUMNS_MUNICIPIO.value,
