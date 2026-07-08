@@ -234,6 +234,6 @@ def test_commit_size_update_task_writes_history_and_update():
     mk.assert_called_once_with(env="prod")
     assert result is None
     assert fake.written_entities == ["raw_source_update"]
-    assert list(redis.store["br_bcb_sicor"]["microdados_operacoes"].values()) == [
-        1000
-    ]
+    assert list(
+        redis.store["br_bcb_sicor"]["microdados_operacoes"].values()
+    ) == [1000]

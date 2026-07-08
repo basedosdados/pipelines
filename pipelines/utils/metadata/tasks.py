@@ -422,6 +422,4 @@ def commit_source_size_update_task(
     """
     client = MetadataClient(env=env)
     redis = _get_redis_client(local_execution=local_execution)
-    commit_source_size_update(
-        client, redis, dataset_id, table_id, byte_length
-    )
+    commit_source_size_update(client, redis, dataset_id, table_id, byte_length)
