@@ -18,7 +18,8 @@ from pipelines.utils.metadata.domain import (
     PartBdpro,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -50,14 +51,14 @@ def br_rf_cafir__imoveis_rurais(
     arquivos, data_atualizacao = task_decide_files_to_download(df=df_metadata)
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=data_atualizacao,
             env="prod",
             date_format="%Y-%m-%d",
         )
-        if not is_outdated:
+        if not has_new_data:
             return
 
     file_path = task_download_files(
@@ -112,6 +113,15 @@ def br_rf_cafir__imoveis_rurais(
             env="prod",
             bq_project="basedosdados",
         )
+
+        if data_atualizacao is not None:
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=data_atualizacao,
+                env="prod",
+                date_format="%Y-%m-%d",
+            )
 
 
 br_rf_cafir__imoveis_rurais.deploy_schedules = [
