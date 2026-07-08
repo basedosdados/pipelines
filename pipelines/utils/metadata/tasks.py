@@ -21,8 +21,10 @@ from pipelines.utils.metadata.client import MetadataClient
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.metadata.domain import CoverageSpec
 from pipelines.utils.metadata.register import (
+    commit_source_size_update,
     commit_source_update,
     poll_source_for_update,
+    poll_source_size_for_update,
     register_source_poll,
     register_source_poll_by_size,
     register_table_materialization,
@@ -341,3 +343,83 @@ def commit_source_update_task(
         table_id,
         _coerce_to_date(source_max_date, date_format),
     )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def poll_source_size_for_update_task(
+    dataset_id: str,
+    table_id: str,
+    byte_length: int,
+    env: str = "dev",
+    local_execution: bool = False,
+) -> bool:
+    """Detecta novidade por TAMANHO hoje, sem gravar histórico nem Update.
+
+    Variante por bytes de `poll_source_for_update_task`. Sempre grava um `Poll`
+    na fonte (data de hoje) e compara `byte_length` com o último tamanho no
+    Redis — mas, ao contrário de `register_source_poll_by_size_task`, **não**
+    grava o novo tamanho no histórico nem o Update. A gravação fica a cargo de
+    `commit_source_size_update_task`, chamada ao fim do flow, após a
+    materialização. Use as duas em par para não travar runs futuras se o flow
+    falhar no meio.
+
+    - tamanho MAIOR (ou primeira vez) → grava só Poll, devolve True;
+    - tamanho IGUAL  → grava só Poll, devolve False;
+    - tamanho MENOR  → levanta `ValueError` (a fonte encolheu).
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        byte_length: tamanho atual da fonte em bytes.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        local_execution: se True, conecta no Redis via `localhost` (exige proxy
+            ativo para o pod do Redis); se False (padrão), usa o DNS do serviço
+            no cluster.
+
+    Returns:
+        bool — True se a fonte trouxe novidade (tamanho maior), False se igual.
+    """
+    client = MetadataClient(env=env)
+    redis = _get_redis_client(local_execution=local_execution)
+    return poll_source_size_for_update(
+        client, redis, dataset_id, table_id, byte_length
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def commit_source_size_update_task(
+    dataset_id: str,
+    table_id: str,
+    byte_length: int,
+    env: str = "dev",
+    local_execution: bool = False,
+) -> None:
+    """Grava o histórico de tamanho (Redis) e o `RawDataSource.Update`.
+
+    Contraparte de `poll_source_size_for_update_task`: registra `byte_length` no
+    histórico do Redis (mantendo os últimos 10) e grava o `Update.latest` com a
+    data de hoje. Deve ser chamada **só ao fim do flow**, depois da
+    materialização bem-sucedida, para que histórico e Update só avancem quando o
+    dado de fato chegou ao destino — evitando que uma falha no meio deixe a
+    detecção adiantada e trave as runs seguintes.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        byte_length: tamanho atual da fonte em bytes, gravado no histórico.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        local_execution: se True, conecta no Redis via `localhost`; se False
+            (padrão), usa o DNS do serviço no cluster.
+
+    Returns:
+        None.
+    """
+    client = MetadataClient(env=env)
+    redis = _get_redis_client(local_execution=local_execution)
+    commit_source_size_update(client, redis, dataset_id, table_id, byte_length)
