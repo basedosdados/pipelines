@@ -1,4 +1,5 @@
 -- - Register
+-- atualização 2026-05
 {{
     config(
         alias="mes_categoria_rm",
