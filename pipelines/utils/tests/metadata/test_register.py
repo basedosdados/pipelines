@@ -21,6 +21,8 @@ from pipelines.utils.metadata.domain import (
 )
 from pipelines.utils.metadata.policy import CoverageIds
 from pipelines.utils.metadata.register import (
+    commit_source_size_update,
+    poll_source_size_for_update,
     register_source_poll,
     register_source_poll_by_size,
     register_table_materialization,
@@ -214,4 +216,53 @@ def test_poll_by_size_keeps_last_10_records():
     history = {f"2020-01-{d:02d}": d for d in range(1, 11)}  # 10 registros
     redis = FakeRedis({"br_x": {"tab": dict(history)}})
     register_source_poll_by_size(client, redis, "br_x", "tab", 9999)
+    assert len(redis.store["br_x"]["tab"]) <= 10
+
+
+# ==================== poll/commit por tamanho — duas fases (deferido) (§fix R3)
+def test_poll_size_for_update_writes_poll_only_not_history_or_update():
+    """Fase 1 por tamanho: mesmo COM novidade (maior/primeira vez), grava só o
+    Poll — não toca o histórico no Redis nem o Update. Cura o problema (3) na
+    variante por bytes: se recolarem a escrita do histórico/Update aqui, quebra.
+    """
+    client = FakeMetadataClient()
+    redis = FakeRedis()
+    outdated = poll_source_size_for_update(client, redis, "br_x", "tab", 1000)
+    assert outdated is True
+    assert client.written_entities == ["poll"]  # sem Update
+    assert redis.store == {}  # histórico intacto
+
+
+def test_poll_size_for_update_equal_returns_false_poll_only():
+    client = FakeMetadataClient()
+    redis = FakeRedis({"br_x": {"tab": {"2020-01-01": 1000}}})
+    outdated = poll_source_size_for_update(client, redis, "br_x", "tab", 1000)
+    assert outdated is False
+    assert client.written_entities == ["poll"]
+
+
+def test_poll_size_for_update_smaller_raises_after_poll():
+    import pytest
+
+    client = FakeMetadataClient()
+    redis = FakeRedis({"br_x": {"tab": {"2020-01-01": 2000}}})
+    with pytest.raises(ValueError, match="MENOR"):
+        poll_source_size_for_update(client, redis, "br_x", "tab", 1000)
+    assert client.written_entities == ["poll"]
+
+
+def test_commit_size_update_writes_history_and_update():
+    """Fase 2 por tamanho: grava o novo tamanho no Redis e o Update — sem Poll."""
+    client = FakeMetadataClient()
+    redis = FakeRedis()
+    commit_source_size_update(client, redis, "br_x", "tab", 1000)
+    assert client.written_entities == ["raw_source_update"]
+    assert list(redis.store["br_x"]["tab"].values()) == [1000]
+
+
+def test_commit_size_update_keeps_last_10_records():
+    client = FakeMetadataClient()
+    history = {f"2020-01-{d:02d}": d for d in range(1, 11)}  # 10 registros
+    redis = FakeRedis({"br_x": {"tab": dict(history)}})
+    commit_source_size_update(client, redis, "br_x", "tab", 9999)
     assert len(redis.store["br_x"]["tab"]) <= 10
