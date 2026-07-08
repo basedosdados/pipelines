@@ -13,7 +13,8 @@ from pipelines.utils.metadata.domain import (
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -50,14 +51,14 @@ def _run_me_cnpj(
     max_folder_date, max_last_modified_date = get_data_source_max_date()
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=max_folder_date,
             env="prod",
             date_format="%Y-%m",
         )
-        if not is_outdated:
+        if not has_new_data:
             print(f"Não há atualizações para a tabela {tabelas}!")
             return
 
@@ -122,6 +123,15 @@ def _run_me_cnpj(
                 ),
                 env="prod",
                 bq_project="basedosdados",
+            )
+
+        if max_folder_date is not None:
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=max_folder_date,
+                env="prod",
+                date_format="%Y-%m",
             )
 
     # estabelecimentos: atualiza diretório de empresas + download p/ GCS

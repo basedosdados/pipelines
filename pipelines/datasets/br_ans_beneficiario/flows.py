@@ -16,7 +16,8 @@ from pipelines.utils.metadata.domain import (
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -46,19 +47,19 @@ def br_ans_beneficiario__informacao_consolidada(
     )
 
     links_and_dates = extract_links_and_dates(url=url)
+    file_last_date = get_file_max_date(df=links_and_dates)
 
     if force_run:
         files = files_to_download(df=links_and_dates, year=year)
     else:
-        file_last_date = get_file_max_date(df=links_and_dates)
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=file_last_date,
             env="prod",
             date_format="%Y-%m",
         )
-        if not is_outdated:
+        if not has_new_data:
             print(f"Não há atualizações para a tabela {table_id}!")
             return
         files = files_to_download(df=links_and_dates, year=None)
@@ -120,6 +121,15 @@ def br_ans_beneficiario__informacao_consolidada(
             env="prod",
             bq_project="basedosdados",
         )
+
+        if file_last_date is not None:
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=file_last_date,
+                env="prod",
+                date_format="%Y-%m",
+            )
 
 
 br_ans_beneficiario__informacao_consolidada.deploy_schedules = [
