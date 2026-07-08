@@ -18,7 +18,8 @@ from pipelines.utils.metadata.domain import (
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
     task_get_api_most_recent_date,
 )
@@ -51,14 +52,14 @@ def _run_bcb_estban(
     _, data_source_max_date = get_latest_file(documents_metadata)
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m",
         )
-        if not is_outdated:
+        if not has_new_data:
             print(f"Não há atualizações para a tabela {table_id}!")
             return
 
@@ -129,6 +130,15 @@ def _run_bcb_estban(
             env="prod",
             bq_project="basedosdados",
         )
+
+        if data_source_max_date is not None:
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=data_source_max_date,
+                env="prod",
+                date_format="%Y-%m",
+            )
 
 
 def _estban_flow(table_id: str, cron: str):

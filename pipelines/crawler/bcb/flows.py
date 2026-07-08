@@ -17,7 +17,8 @@ from pipelines.utils.metadata.domain import (
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_by_size_task,
+    commit_source_size_update_task,
+    poll_source_size_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -81,14 +82,14 @@ def _run_bcb_sicor(
     )
 
     if not force_run:
-        is_outdated = register_source_poll_by_size_task(
+        has_new_data = poll_source_size_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             byte_length=table_size,
             env="prod",
             local_execution=local_redis_execution,
         )
-        if not is_outdated:
+        if not has_new_data:
             print(f"Não há atualizações para a tabela {table_id}!")
             return
 
@@ -143,4 +144,12 @@ def _run_bcb_sicor(
             coverage=_sicor_coverage(coverage_type, historical_database),
             env="prod",
             bq_project="basedosdados",
+        )
+
+        commit_source_size_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            byte_length=table_size,
+            env="prod",
+            local_execution=local_redis_execution,
         )
