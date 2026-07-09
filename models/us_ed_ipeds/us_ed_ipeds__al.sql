@@ -85,4 +85,6 @@ select
     safe_cast(lexptot as float64) lexptot,
     safe_cast(lswmsom as float64) lswmsom,
     safe_cast(lsuppvrs as float64) lsuppvrs
-from {{ set_datalake_project("us_ed_ipeds_staging.al") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.al") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

@@ -68,4 +68,6 @@ select
     safe_cast(l4nc200 as float64) l4nc200,
     safe_cast(xl4gr200 as string) xl4gr200,
     safe_cast(l4gr200 as float64) l4gr200
-from {{ set_datalake_project("us_ed_ipeds_staging.gr200") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.gr200") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

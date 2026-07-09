@@ -726,4 +726,6 @@ select
     safe_cast(totgrnt as float64) totgrnt,
     safe_cast(xtstdpel as string) xtstdpel,
     safe_cast(tstdpel as float64) tstdpel
-from {{ set_datalake_project("us_ed_ipeds_staging.sfa") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.sfa") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

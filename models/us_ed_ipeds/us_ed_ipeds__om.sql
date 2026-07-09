@@ -82,4 +82,6 @@ select
     safe_cast(xomrcht8 as string) xomrcht8,
     safe_cast(omrcht8 as float64) omrcht8,
     safe_cast(omflag as float64) omflag
-from {{ set_datalake_project("us_ed_ipeds_staging.om") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.om") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)
