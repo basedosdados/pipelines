@@ -1,0 +1,392 @@
+---
+version: 2
+models:
+  - name: us_congress_legislators__legislator
+    description: >
+      Diretório de legisladores federais dos Estados Unidos (membros da Câmara
+      dos Representantes e do Senado), atuais e históricos, com dados
+      biográficos e identificadores cruzados de diferentes fontes. Uma linha
+      por legislador, identificada pelo código Bioguide.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_bioguide]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [id_lis, id_pictorial, suffix, nickname]
+    columns:
+      - name: id_bioguide
+        description: >
+          Identificador do legislador no Biographical Directory of the United
+          States Congress (Bioguide). Chave primária.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__congress_member')
+              field: id_bioguide
+      - name: id_thomas
+        description: Identificador numérico do legislador no sistema THOMAS (Biblioteca
+          do Congresso).
+      - name: id_lis
+        description: Identificador do legislador no Legislative Information System
+          do Senado.
+      - name: id_govtrack
+        description: Identificador do legislador no GovTrack.us.
+      - name: id_icpsr
+        description: Identificador do legislador no ICPSR/VoteView.
+      - name: id_opensecrets
+        description: Identificador do legislador no OpenSecrets.org.
+      - name: id_votesmart
+        description: Identificador do legislador no VoteSmart.org.
+      - name: id_fec
+        description: Identificadores do legislador na Federal Election Commission,
+          separados por vírgula.
+      - name: id_cspan
+        description: Identificador de vídeo do legislador no C-SPAN.
+      - name: id_maplight
+        description: Identificador do legislador no MapLight.org.
+      - name: id_house_history
+        description: Identificador do legislador no site History, Art & Archives da
+          Câmara.
+      - name: id_pictorial
+        description: Identificador do legislador no Pictorial Directory do GPO.
+      - name: id_wikidata
+        description: Identificador do legislador no Wikidata.
+      - name: id_google_entity
+        description: Identificador da entidade do legislador no Google Knowledge Graph.
+      - name: name_wikipedia
+        description: Título da página do legislador na Wikipédia.
+      - name: name_ballotpedia
+        description: Título da página do legislador na Ballotpedia.org.
+      - name: first_name
+        description: Primeiro nome do legislador.
+      - name: middle_name
+        description: Nome do meio ou inicial do legislador.
+      - name: last_name
+        description: Sobrenome do legislador.
+      - name: suffix
+        description: Sufixo do nome (por exemplo, Jr., III).
+      - name: nickname
+        description: Apelido ou nome alternativo pelo qual o legislador é conhecido.
+      - name: full_name
+        description: Nome completo oficial conforme registros da Câmara e do Senado.
+      - name: birthday
+        description: Data de nascimento do legislador.
+      - name: gender
+        description: Sexo do legislador (M ou F).
+      - name: is_current
+        description: Indica se o legislador está atualmente em exercício.
+  - name: us_congress_legislators__term
+    description: >
+      Mandatos exercidos por legisladores federais dos Estados Unidos. Uma
+      linha por mandato (par legislador-mandato), com câmara, período, estado,
+      distrito, partido e informações de contato do escritório em Washington.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_bioguide, term_start]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - state_rank
+            - caucus
+            - how
+            - end_type
+            - fax
+            - contact_form
+            - rss_url
+    columns:
+      - name: id_bioguide
+        description: Identificador Bioguide do legislador que exerceu o mandato.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_congress_legislators__legislator')
+              field: id_bioguide
+      - name: term_type
+        description: Tipo de mandato (rep para representante/delegado, sen para senador).
+      - name: term_start
+        description: Data de início do mandato (posse).
+        tests: [not_null]
+      - name: term_end
+        description: Data de término do mandato (último dia em exercício).
+      - name: state
+        description: >
+          Código USPS de duas letras do estado ou território representado. Inclui
+          códigos históricos não presentes no diretório de estados atual.
+      - name: district
+        description: Número do distrito eleitoral da Câmara (0 para at-large, -1 para
+          desconhecido).
+      - name: senate_class
+        description: Classe do assento no Senado (1, 2 ou 3).
+      - name: state_rank
+        description: Antiguidade do senador no estado (junior ou senior).
+      - name: party
+        description: Partido político do legislador durante o mandato.
+      - name: caucus
+        description: Bancada partidária com a qual legisladores independentes se alinham.
+      - name: how
+        description: Forma de acesso ao mandato (por exemplo, appointment, special-election).
+      - name: end_type
+        description: Tipo de encerramento do mandato.
+      - name: url
+        description: URL do site oficial do legislador durante o mandato.
+      - name: address
+        description: Endereço postal do escritório em Washington, D.C.
+      - name: phone
+        description: Telefone do escritório em Washington, D.C.
+      - name: fax
+        description: Fax do escritório em Washington, D.C.
+      - name: contact_form
+        description: URL do formulário oficial de contato.
+      - name: office
+        description: Sala e edifício do escritório em Washington, D.C.
+      - name: rss_url
+        description: URL do feed RSS oficial do legislador.
+  - name: us_congress_legislators__social_media
+    description: >
+      Contas oficiais de redes sociais de legisladores federais dos Estados
+      Unidos em exercício. Uma linha por legislador, identificada pelo código
+      Bioguide.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_bioguide]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [mastodon]
+    columns:
+      - name: id_bioguide
+        description: Identificador Bioguide do legislador.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_congress_legislators__legislator')
+              field: id_bioguide
+      - name: twitter
+        description: Nome de usuário oficial no Twitter/X.
+      - name: twitter_id
+        description: Identificador numérico da conta no Twitter/X.
+      - name: facebook
+        description: Nome de usuário oficial no Facebook.
+      - name: instagram
+        description: Nome de usuário oficial no Instagram.
+      - name: instagram_id
+        description: Identificador numérico da conta no Instagram.
+      - name: youtube
+        description: Nome de usuário oficial no YouTube.
+      - name: youtube_id
+        description: Identificador do canal oficial no YouTube.
+      - name: mastodon
+        description: Identificador no Mastodon (formato @usuario@instancia).
+  - name: us_congress_legislators__leadership_role
+    description: >
+      Cargos de liderança exercidos por legisladores federais dos Estados
+      Unidos (por exemplo, Speaker, Majority Leader). Uma linha por
+      legislador-cargo-período.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_bioguide, title, role_start, role_end]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_bioguide
+        description: Identificador Bioguide do legislador.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_congress_legislators__legislator')
+              field: id_bioguide
+      - name: title
+        description: Nome do cargo de liderança.
+      - name: chamber
+        description: Câmara em que o cargo foi exercido (house ou senate).
+      - name: role_start
+        description: Data de início do exercício do cargo.
+      - name: role_end
+        description: Data de término do exercício do cargo.
+  - name: us_congress_legislators__committee
+    description: >
+      Comissões e subcomissões do Congresso dos Estados Unidos, atuais e
+      históricas. Uma linha por comissão, identificada pelo código THOMAS
+      completo (código da comissão-mãe concatenado ao da subcomissão).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_committee]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - id_committee_parent
+            - house_committee_id
+            - senate_committee_id
+            - jurisdiction
+            - url
+            - address
+            - phone
+            - wikipedia
+    columns:
+      - name: id_committee
+        description: >
+          Código THOMAS completo da comissão. Para subcomissões, corresponde ao
+          código da comissão-mãe concatenado ao código da subcomissão. Chave
+          primária.
+        tests: [not_null]
+      - name: id_committee_parent
+        description: Código THOMAS da comissão-mãe (nulo para comissões de nível superior).
+      - name: thomas_id
+        description: Código THOMAS próprio da comissão ou subcomissão.
+      - name: name
+        description: Nome oficial atual ou mais recente da comissão.
+      - name: committee_type
+        description: Câmara à qual a comissão pertence (house, senate ou joint).
+      - name: is_subcommittee
+        description: Indica se o registro corresponde a uma subcomissão.
+      - name: is_current
+        description: Indica se a comissão está atualmente ativa.
+      - name: house_committee_id
+        description: Código de duas letras da comissão na Câmara.
+      - name: senate_committee_id
+        description: Código da comissão no Senado.
+      - name: jurisdiction
+        description: Descrição da jurisdição da comissão.
+      - name: url
+        description: URL do site oficial da comissão.
+      - name: address
+        description: Endereço postal da comissão.
+      - name: phone
+        description: Telefone da comissão.
+      - name: wikipedia
+        description: Título da página da comissão na Wikipédia.
+  - name: us_congress_legislators__committee_membership
+    description: >
+      Composição atual das comissões e subcomissões do Congresso dos Estados
+      Unidos. Uma linha por par comissão-legislador.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_committee, id_bioguide]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [title, chamber]
+    columns:
+      - name: id_committee
+        description: Código THOMAS completo da comissão ou subcomissão.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_congress_legislators__committee')
+              field: id_committee
+      - name: id_bioguide
+        description: Identificador Bioguide do legislador membro.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_congress_legislators__legislator')
+              field: id_bioguide
+      - name: party
+        description: Posição do membro na comissão (majority ou minority).
+      - name: rank
+        description: Ordem aparente de antiguidade do membro dentro do partido na
+          comissão.
+      - name: title
+        description: Cargo do membro na comissão (por exemplo, Chair, Ranking Member).
+      - name: chamber
+        description: Câmara do membro (house ou senate), aplicável apenas a comissões
+          conjuntas.
+  - name: us_congress_legislators__district_office
+    description: >
+      Escritórios distritais de legisladores federais dos Estados Unidos em
+      exercício. Uma linha por escritório, com endereço, contato e
+      geolocalização.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_office]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [building, fax, hours]
+    columns:
+      - name: id_office
+        description: Identificador do escritório distrital (formato bioguide-cidade).
+          Chave primária.
+        tests: [not_null]
+      - name: id_bioguide
+        description: Identificador Bioguide do legislador titular do escritório.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_congress_legislators__legislator')
+              field: id_bioguide
+      - name: building
+        description: Nome do edifício do escritório.
+      - name: address
+        description: Logradouro do escritório.
+      - name: suite
+        description: Sala ou conjunto do escritório.
+      - name: city
+        description: Cidade do escritório.
+      - name: state
+        description: Código USPS de duas letras do estado ou território do escritório.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+      - name: zip_code
+        description: Código postal (ZIP) de cinco dígitos do escritório.
+      - name: phone
+        description: Telefone do escritório.
+      - name: fax
+        description: Fax do escritório.
+      - name: hours
+        description: Horário de funcionamento do escritório (texto livre).
+      - name: latitude
+        description: Latitude geocodificada do escritório.
+      - name: longitude
+        description: Longitude geocodificada do escritório.
+  - name: us_congress_legislators__executive_term
+    description: >
+      Mandatos de presidentes e vice-presidentes dos Estados Unidos, com dados
+      biográficos. Uma linha por mandato (par pessoa-mandato).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_govtrack, term_start]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - id_bioguide
+            - id_icpsr_prez
+            - middle_name
+            - suffix
+            - nickname
+            - full_name
+    columns:
+      - name: id_bioguide
+        description: Identificador Bioguide, presente quando a pessoa também serviu
+          no Congresso.
+      - name: id_icpsr_prez
+        description: Identificador ICPSR da posição presidencial.
+      - name: id_govtrack
+        description: Identificador da pessoa no GovTrack.us.
+        tests: [not_null]
+      - name: first_name
+        description: Primeiro nome.
+      - name: middle_name
+        description: Nome do meio ou inicial.
+      - name: last_name
+        description: Sobrenome.
+      - name: suffix
+        description: Sufixo do nome.
+      - name: nickname
+        description: Apelido ou nome alternativo.
+      - name: full_name
+        description: Nome completo oficial.
+      - name: birthday
+        description: Data de nascimento.
+      - name: gender
+        description: Sexo (M ou F).
+      - name: term_type
+        description: Tipo de mandato (prez para presidente, viceprez para vice-presidente).
+      - name: term_start
+        description: Data de início do mandato.
+        tests: [not_null]
+      - name: term_end
+        description: Data de término do mandato.
+      - name: party
+        description: Partido político durante o mandato.
+      - name: how
+        description: Forma de acesso ao cargo (election, succession ou appointment).
