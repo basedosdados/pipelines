@@ -308,4 +308,6 @@ select
     safe_cast(cotson as string) cotson,
     safe_cast(cotsoff as float64) cotsoff,
     safe_cast(cotsfam as float64) cotsfam
-from {{ set_datalake_project("us_ed_ipeds_staging.ic_ay") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.ic_ay") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

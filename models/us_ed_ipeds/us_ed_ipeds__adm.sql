@@ -124,4 +124,6 @@ select
     safe_cast(act_writing_25th as float64) act_writing_25th,
     safe_cast(xactwr75 as string) xactwr75,
     safe_cast(act_writing_75th as float64) act_writing_75th
-from {{ set_datalake_project("us_ed_ipeds_staging.adm") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.adm") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

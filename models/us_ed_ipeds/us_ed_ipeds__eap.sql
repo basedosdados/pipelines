@@ -54,4 +54,6 @@ select
     safe_cast(fstat5 as float64) fstat5,
     safe_cast(xfstat6 as string) xfstat6,
     safe_cast(fstat6 as float64) fstat6
-from {{ set_datalake_project("us_ed_ipeds_staging.eap") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.eap") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

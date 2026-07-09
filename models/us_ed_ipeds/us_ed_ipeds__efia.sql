@@ -33,4 +33,6 @@ select
     safe_cast(xftedpp as string) xftedpp,
     safe_cast(ftedpp as string) ftedpp,
     safe_cast(acttype as float64) acttype
-from {{ set_datalake_project("us_ed_ipeds_staging.efia") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.efia") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)
