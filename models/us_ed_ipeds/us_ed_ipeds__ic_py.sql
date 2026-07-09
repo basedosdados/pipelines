@@ -148,4 +148,6 @@ select
     safe_cast(xcmp1py3 as string) xcmp1py3,
     safe_cast(cmp1py3 as string) cmp1py3,
     safe_cast(pg300 as float64) pg300
-from {{ set_datalake_project("us_ed_ipeds_staging.ic_py") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.ic_py") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

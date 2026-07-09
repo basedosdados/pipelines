@@ -264,4 +264,6 @@ select
     safe_cast(rotc1 as float64) rotc1,
     safe_cast(rotc2 as float64) rotc2,
     safe_cast(rotc3 as float64) rotc3
-from {{ set_datalake_project("us_ed_ipeds_staging.ic") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.ic") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

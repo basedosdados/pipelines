@@ -38,4 +38,6 @@ select
     safe_cast(xefage09 as string) xefage09,
     safe_cast(efage09 as float64) efage09,
     safe_cast(section as float64) section
-from {{ set_datalake_project("us_ed_ipeds_staging.ef_b") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.ef_b") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

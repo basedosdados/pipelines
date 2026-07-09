@@ -343,4 +343,6 @@ select
     safe_cast(f3e06 as float64) f3e06,
     safe_cast(xf3e07 as string) xf3e07,
     safe_cast(f3e07 as float64) f3e07
-from {{ set_datalake_project("us_ed_ipeds_staging.f3") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.f3") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

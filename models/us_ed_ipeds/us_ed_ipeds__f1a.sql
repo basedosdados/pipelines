@@ -535,4 +535,6 @@ select
     safe_cast(f1c184 as float64) f1c184,
     safe_cast(xf1c185 as string) xf1c185,
     safe_cast(f1c185 as float64) f1c185
-from {{ set_datalake_project("us_ed_ipeds_staging.f1a") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.f1a") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

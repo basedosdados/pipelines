@@ -61,4 +61,6 @@ select
     safe_cast(cnactua as float64) cnactua,
     safe_cast(xcdactga as string) xcdactga,
     safe_cast(cdactga as float64) cdactga
-from {{ set_datalake_project("us_ed_ipeds_staging.ef_d") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.ef_d") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)
