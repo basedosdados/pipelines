@@ -1,6 +1,7 @@
 import os
 import zipfile
 from functools import reduce
+from pathlib import Path
 
 import basedosdados as bd
 import pandas as pd
@@ -18,12 +19,11 @@ from constants import (  # type: ignore
     rename_tx,
 )
 
-INPUT = os.path.join(os.getcwd(), "tmp", "brasil_uf_regiao", "input")
-OUTPUT = os.path.join(os.getcwd(), "tmp", "brasil_uf_regiao", "output")
+input = Path("input") / "brasil_uf_regiao"
+output = Path("output") / "brasil_uf_regiao"
 
-os.makedirs(INPUT, exist_ok=True)
-os.makedirs(OUTPUT, exist_ok=True)
-
+input.mkdir(parents=True, exist_ok=True)
+output.mkdir(parents=True, exist_ok=True)
 
 # Ler diretório de estados e regiões (para mapear UFs e regiões)
 bd_dir = bd.read_sql(
@@ -51,15 +51,28 @@ def download_data(ano: int) -> None:
 
     for url in URLS:
         print(url)
-        response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-        with open(os.path.join(INPUT, url.split("/")[-1]), "wb") as f:
+        for attempt in range(5):
+            try:
+                response = requests.get(
+                    url,
+                    headers={"User-Agent": "Mozilla/5.0"},
+                    verify=False,
+                    timeout=120,
+                )
+                response.raise_for_status()
+                break
+            except requests.exceptions.RequestException as e:
+                if attempt == 4:
+                    raise
+                print(f"  retry {attempt + 1}/5 ({e})")
+        with open(os.path.join(input, url.split("/")[-1]), "wb") as f:
             f.write(response.content)
 
-    for file in os.listdir(INPUT):
+    for file in os.listdir(input):
         if file.endswith(".zip"):
-            with zipfile.ZipFile(os.path.join(INPUT, file)) as z:
-                z.extractall(INPUT)
-                os.remove(os.path.join(INPUT, file))
+            with zipfile.ZipFile(os.path.join(input, file)) as z:
+                z.extractall(input)
+                os.remove(os.path.join(input, file))
 
 
 # ! ================================================ Brasil =================================================
@@ -68,7 +81,7 @@ def download_data(ano: int) -> None:
 def brasil(ano: int, tabela: str) -> None:
     afd = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"AFD_{ano}_BRASIL_REGIOES_UF",
             f"AFD_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -85,7 +98,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     atu = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"ATU_{ano}_BRASIL_REGIOES_UFS",
             f"ATU_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -102,7 +115,7 @@ def brasil(ano: int, tabela: str) -> None:
     # Percentual de Docentes com Curso Superior
     dsu = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"DSU_{ano}_BRASIL_REGIOES_UFS",
             f"DSU_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -116,12 +129,11 @@ def brasil(ano: int, tabela: str) -> None:
     dsu["rede"] = dsu["rede"].str.lower().replace("pública", "publica")
     dsu = dsu[dsu["UNIDGEO"] == "Brasil"].drop(columns=["UNIDGEO"])
 
-    breakpoint()
     # Média de Horas-aula diária HAD -> 2023
 
     had = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"HAD_{ano}_BRASIL_REGIOES_UFS",
             f"HAD_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -139,7 +151,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     icg = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"ICG_{ano}_BRASIL_REGIOES_UFS",
             f"ICG_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -157,7 +169,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     ied = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"IED_{ano}_BRASIL_REGIOES_UFS",
             f"IED_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -175,7 +187,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     ird = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"IRD_{ano}_BRASIL_REGIOES_UFS",
             f"IRD_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -193,7 +205,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     tdi = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"TDI_{ano}_BRASIL_REGIOES_UFS",
             f"TDI_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -211,7 +223,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     tnr = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"tnr_brasil_regioes_ufs_{ano}",
             f"tnr_brasil_regioes_ufs_{ano}.xlsx",
         ),
@@ -227,7 +239,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     tx = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"tx_rend_brasil_regioes_ufs_{ano}",
             f"tx_rend_brasil_regioes_ufs_{ano}.xlsx",
         ),
@@ -254,7 +266,7 @@ def brasil(ano: int, tabela: str) -> None:
     df = df.replace("--", None)
 
     for year in df["ano"].unique():
-        output_path = os.path.join(OUTPUT, tabela, f"ano={year}")
+        output_path = os.path.join(output, tabela, f"ano={year}")
         os.makedirs(output_path, exist_ok=True)
         df_year = df[df["ano"] == year].drop(columns="ano")
         df_year.to_csv(os.path.join(output_path, "brasil.csv"), index=False)
@@ -266,7 +278,7 @@ def brasil(ano: int, tabela: str) -> None:
 def uf(ano: int, tabela: str) -> None:
     afd = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"AFD_{ano}_BRASIL_REGIOES_UF",
             f"AFD_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -283,7 +295,7 @@ def uf(ano: int, tabela: str) -> None:
 
     atu = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"ATU_{ano}_BRASIL_REGIOES_UFS",
             f"ATU_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -300,7 +312,7 @@ def uf(ano: int, tabela: str) -> None:
     # Percentual de Docentes com Curso Superior
     dsu = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"DSU_{ano}_BRASIL_REGIOES_UFS",
             f"DSU_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -318,7 +330,7 @@ def uf(ano: int, tabela: str) -> None:
 
     had = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"HAD_{ano}_BRASIL_REGIOES_UFS",
             f"HAD_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -336,7 +348,7 @@ def uf(ano: int, tabela: str) -> None:
 
     icg = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"ICG_{ano}_BRASIL_REGIOES_UFS",
             f"ICG_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -354,7 +366,7 @@ def uf(ano: int, tabela: str) -> None:
 
     ied = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"IED_{ano}_BRASIL_REGIOES_UFS",
             f"IED_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -372,7 +384,7 @@ def uf(ano: int, tabela: str) -> None:
 
     ird = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"IRD_{ano}_BRASIL_REGIOES_UFS",
             f"IRD_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -390,7 +402,7 @@ def uf(ano: int, tabela: str) -> None:
 
     tdi = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"TDI_{ano}_BRASIL_REGIOES_UFS",
             f"TDI_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -408,7 +420,7 @@ def uf(ano: int, tabela: str) -> None:
 
     tnr = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"tnr_brasil_regioes_ufs_{ano}",
             f"tnr_brasil_regioes_ufs_{ano}.xlsx",
         ),
@@ -424,7 +436,7 @@ def uf(ano: int, tabela: str) -> None:
 
     tx = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"tx_rend_brasil_regioes_ufs_{ano}",
             f"tx_rend_brasil_regioes_ufs_{ano}.xlsx",
         ),
@@ -459,7 +471,7 @@ def uf(ano: int, tabela: str) -> None:
     for year in df["ano"].unique():
         for uf in df["sigla_uf"].unique():
             output_path = os.path.join(
-                OUTPUT, tabela, f"ano={year}", f"sigla_uf={uf}"
+                output, tabela, f"ano={year}", f"sigla_uf={uf}"
             )
             os.makedirs(output_path, exist_ok=True)
             df_year = df[(df["ano"] == year) & (df["sigla_uf"] == uf)].drop(
@@ -475,7 +487,7 @@ def uf(ano: int, tabela: str) -> None:
 def regiao(ano: int, tabela: str) -> None:
     afd = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"AFD_{ano}_BRASIL_REGIOES_UF",
             f"AFD_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -492,7 +504,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     atu = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"ATU_{ano}_BRASIL_REGIOES_UFS",
             f"ATU_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -509,7 +521,7 @@ def regiao(ano: int, tabela: str) -> None:
     # Percentual de Docentes com Curso Superior
     dsu = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"DSU_{ano}_BRASIL_REGIOES_UFS",
             f"DSU_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -527,7 +539,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     had = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"HAD_{ano}_BRASIL_REGIOES_UFS",
             f"HAD_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -545,7 +557,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     icg = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"ICG_{ano}_BRASIL_REGIOES_UFS",
             f"ICG_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -563,7 +575,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     ied = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"IED_{ano}_BRASIL_REGIOES_UFS",
             f"IED_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -581,7 +593,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     ird = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"IRD_{ano}_BRASIL_REGIOES_UFS",
             f"IRD_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -599,7 +611,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     tdi = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"TDI_{ano}_BRASIL_REGIOES_UFS",
             f"TDI_BRASIL_REGIOES_UFS_{ano}.xlsx",
         ),
@@ -617,7 +629,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     tnr = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"tnr_brasil_regioes_ufs_{ano}",
             f"tnr_brasil_regioes_ufs_{ano}.xlsx",
         ),
@@ -633,7 +645,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     tx = pd.read_excel(
         os.path.join(
-            INPUT,
+            input,
             f"tx_rend_brasil_regioes_ufs_{ano}",
             f"tx_rend_brasil_regioes_ufs_{ano}.xlsx",
         ),
@@ -660,17 +672,17 @@ def regiao(ano: int, tabela: str) -> None:
     df = df.replace("--", None)
     df = df.rename(columns={"UNIDGEO": "regiao"})
     for year in df["ano"].unique():
-        output_path = os.path.join(OUTPUT, tabela, f"ano={year}")
+        output_path = os.path.join(output, tabela, f"ano={year}")
         os.makedirs(output_path, exist_ok=True)
         df_year = df[(df["ano"] == year)].drop(columns=["ano"])
         df_year.to_csv(os.path.join(output_path, "uf.csv"), index=False)
 
 
 if __name__ == "__main__":
-    download_data(ano=2024)
+    download_data(ano=2025)
 
-    brasil(ano=2024, tabela="brasil")
+    brasil(ano=2025, tabela="brasil")
 
-    uf(ano=2024, tabela="uf")
+    uf(ano=2025, tabela="uf")
 
-    regiao(ano=2024, tabela="regiao")
+    regiao(ano=2025, tabela="regiao")

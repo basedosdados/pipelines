@@ -78,9 +78,9 @@ rename_dsu = {
     "FUN_AI_CAT_0": "dsu_ef_anos_iniciais",
     "FUN_AF_CAT_0": "dsu_ef_anos_finais",
     "MED_CAT_0": "dsu_em",
-    "PROF_CAT_0": "dsu_ep",
     "EJA_CAT_0": "dsu_eja",
-    "EDU_BAS_CAT_0": "dsu_ee",
+    "EJA_FUN_CAT_0": "dsu_eja_ef",
+    "EJA_MED_CAT_0": "dsu_eja_em",
 }
 
 rename_had = {
