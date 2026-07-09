@@ -406,6 +406,9 @@ models:
     test_dataset:
       +materialized: table
       +schema: test_dataset
+    us_ed_ipeds:
+      +materialized: table
+      +schema: us_ed_ipeds
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
