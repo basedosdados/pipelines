@@ -1,4 +1,5 @@
 import datetime
+import sys
 import time
 from pathlib import Path
 
@@ -88,6 +89,16 @@ DIVISION_REGION = {
     "9": "4",
 }
 TERRITORY_FIPS = {"60", "66", "69", "72", "74", "78"}
+FREELY_ASSOCIATED_STATES = [
+    {
+        "id_state": "64",
+        "abbreviation": "FM",
+        "name": "Federated States of Micronesia",
+    },
+    {"id_state": "68", "abbreviation": "MH", "name": "Marshall Islands"},
+    {"id_state": "70", "abbreviation": "PW", "name": "Palau"},
+]
+ISLAND_AREA_FIPS = {"60", "66", "69", "74", "78"}
 
 
 def nullify(df):
@@ -171,6 +182,9 @@ def clean_state():
     df["id_region"] = df["id_division"].map(DIVISION_REGION)
     df["name_region"] = df["id_region"].map(REGION_NAMES)
     df["name_division"] = df["id_division"].map(DIVISION_NAMES)
+    fas = pd.DataFrame(FREELY_ASSOCIATED_STATES)
+    fas["type"] = "freely associated state"
+    df = pd.concat([df, fas], ignore_index=True)
     fields = [
         ("id_state", pa.string()),
         ("abbreviation", pa.string()),
@@ -207,6 +221,39 @@ def county_type(name):
     if name.endswith(" Island") or name.endswith(" Islands"):
         return "island"
     return "county"
+
+
+def island_area_county_type(name):
+    last = name.split()[-1].lower()
+    return {
+        "district": "district",
+        "island": "island",
+        "islands": "island",
+        "municipality": "municipality",
+        "atoll": "atoll",
+        "guam": "island",
+    }.get(last, last)
+
+
+def island_area_counties(existing_ids, state_names):
+    raw = pd.read_csv(
+        INPUT / "county" / "national_county2020.txt",
+        sep="|",
+        dtype=str,
+        encoding="utf-8-sig",
+    )
+    raw = raw[raw["STATEFP"].isin(ISLAND_AREA_FIPS)].copy()
+    raw["id_county"] = raw["STATEFP"] + raw["COUNTYFP"]
+    raw = raw[~raw["id_county"].isin(existing_ids)]
+    df = pd.DataFrame()
+    df["id_county"] = raw["id_county"]
+    df["name"] = raw["COUNTYNAME"]
+    df["type"] = raw["COUNTYNAME"].map(island_area_county_type)
+    df["id_state"] = raw["STATEFP"]
+    df["abbreviation_state"] = raw["STATE"]
+    df["name_state"] = df["id_state"].map(state_names)
+    df["id_gnis"] = raw["COUNTYNS"]
+    return df
 
 
 def read_cbsa_delineation():
@@ -261,6 +308,9 @@ def clean_county(state_df):
     df["area_land_km2"] = area_km2(gaz["ALAND"]).to_numpy()
     df["area_water_km2"] = area_km2(gaz["AWATER"]).to_numpy()
     df["centroid"] = centroid_wkt(gaz["INTPTLAT"], gaz["INTPTLONG"]).to_numpy()
+    island = island_area_counties(set(df["id_county"]), state_names)
+    print(f"county: appending {len(island)} island-area county equivalents")
+    df = pd.concat([df, island], ignore_index=True)
     fields = [
         ("id_county", pa.string()),
         ("name", pa.string()),
@@ -471,7 +521,16 @@ def clean_puma_2020(state_df):
     return write_table(df, "puma_2020", fields)
 
 
-def clean_school_district():
+def null_invalid_fipst(id_state, state_df, table):
+    valid = set(state_df["id_state"])
+    invalid = ~id_state.isin(valid)
+    if invalid.any():
+        dist = id_state[invalid].value_counts().to_dict()
+        print(f"{table}: nulled id_state for FIPST not in state table: {dist}")
+    return id_state.where(~invalid, None)
+
+
+def clean_school_district(state_df):
     raw = pd.read_csv(
         INPUT / "ccd" / "ccd_lea_029_2324_w_1a_073124.csv",
         dtype=str,
@@ -483,7 +542,9 @@ def clean_school_district():
     df["name"] = raw["LEA_NAME"]
     df["type"] = raw["LEA_TYPE_TEXT"]
     df["level"] = raw["LEVEL"] if "LEVEL" in raw.columns else None
-    df["id_state"] = raw["FIPST"].str.strip().str.zfill(2)
+    df["id_state"] = null_invalid_fipst(
+        raw["FIPST"].str.strip().str.zfill(2), state_df, "school_district"
+    )
     df["abbreviation_state"] = raw["ST"]
     df["id_county"] = (
         raw["CNTY"].str.strip().str.zfill(5) if "CNTY" in raw.columns else None
@@ -502,7 +563,7 @@ def clean_school_district():
     return write_table(df, "school_district", fields)
 
 
-def clean_school():
+def clean_school(state_df):
     raw = pd.read_csv(
         INPUT / "ccd" / "ccd_sch_029_2324_w_1a_073124.csv",
         dtype=str,
@@ -513,7 +574,9 @@ def clean_school():
     df["id_school"] = raw["NCESSCH"].str.strip().str.zfill(12)
     df["name"] = raw["SCH_NAME"]
     df["id_school_district"] = raw["LEAID"].str.strip().str.zfill(7)
-    df["id_state"] = raw["FIPST"].str.strip().str.zfill(2)
+    df["id_state"] = null_invalid_fipst(
+        raw["FIPST"].str.strip().str.zfill(2), state_df, "school"
+    )
     df["abbreviation_state"] = raw["ST"]
     df["id_county"] = (
         raw["CNTY"].str.strip().str.zfill(5) if "CNTY" in raw.columns else None
@@ -859,16 +922,21 @@ def main():
         ("zcta_2020", clean_zcta_2020),
         ("cbsa_2023", clean_cbsa_2023),
         ("congressional_district_119", clean_congressional_district_119),
-        ("school_district", clean_school_district),
-        ("school", clean_school),
+        ("school_district", lambda: clean_school_district(results["state"])),
+        ("school", lambda: clean_school(results["state"])),
         ("higher_education_institution", clean_higher_education_institution),
         ("congress_member", clean_congress_member),
         ("naics_2022", clean_naics_2022),
         ("soc_2018", clean_soc_2018),
         ("puma_2020", lambda: clean_puma_2020(results["state"])),
     ]
+    selected = set(sys.argv[1:]) or {slug for slug, _ in runners}
+    if selected & {"county", "school_district", "school", "puma_2020"}:
+        selected.add("state")
     failures = {}
     for slug, fn in runners:
+        if slug not in selected:
+            continue
         try:
             results[slug] = fn()
             print(f"done: {slug} ({len(results[slug])} rows)")
@@ -878,6 +946,8 @@ def main():
 
     print("\n===== SUMMARY =====")
     for slug in PRIMARY_KEYS:
+        if slug not in selected:
+            continue
         if slug in failures:
             print(f"\n--- {slug}: FAILED — {failures[slug]}")
             continue
