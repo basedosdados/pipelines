@@ -46,6 +46,7 @@ Survey components (23 tables):
 
 import io
 import logging
+import re
 import sys
 import zipfile
 from pathlib import Path
@@ -283,6 +284,18 @@ def read_csv_from_zip(zip_path: Path) -> pd.DataFrame:
         except Exception as e:
             log.warning(f"  Error reading CSV from {zip_path.name}: {e}")
             return None
+
+        # Drop pandas duplicate-header artifacts (e.g. "xefgndru.1" in
+        # EF2022A) and the stray all-null "i" column in some finance files
+        junk = [
+            c
+            for c in df.columns
+            if re.match(r".+\.\d+$", str(c))
+            or (str(c).strip().lower() == "i" and df[c].isna().all())
+        ]
+        if junk:
+            df = df.drop(columns=junk)
+            log.info(f"  Dropped junk columns from {zip_path.name}: {junk}")
 
         return df
 
