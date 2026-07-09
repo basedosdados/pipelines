@@ -1,0 +1,72 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+lexp100k,FLOAT64,"Were annual total library expenses greater than or equal to $100,000",,no,,,no,,lexp100k
+lcolelyn,INT64,Is the Library collection entirely electronic,,no,,,no,,lcolelyn
+xlpbooks,STRING,Imputation field for LPBOOKS - Number of physical books,,no,,,no,,xlpbooks
+lpbooks,FLOAT64,Number of physical books,,no,,,no,,lpbooks
+xlebooks,STRING,Imputation field for LEBOOKS - Number of digital/electronic books,,no,,,no,,xlebooks
+lebooks,INT64,Number of digital/electronic books,,no,,,no,,lebooks
+xledatab,STRING,Imputation field for LEDATAB - Number of digital/electronic databases,,no,,,no,,xledatab
+ledatab,INT64,Number of digital/electronic databases,,no,,,no,,ledatab
+xlpmedia,STRING,Imputation field for LPMEDIA - Number of physical media,,no,,,no,,xlpmedia
+lpmedia,FLOAT64,Number of physical media,,no,,,no,,lpmedia
+xlemedia,STRING,Imputation field for LEMEDIA - Number of digital/electronic media,,no,,,no,,xlemedia
+lemedia,INT64,Number of digital/electronic media,,no,,,no,,lemedia
+xlpseria,STRING,Imputation field for LPSERIA - Number of physical serials,,no,,,no,,xlpseria
+lpseria,FLOAT64,Number of physical serials,,no,,,no,,lpseria
+xleseria,STRING,Imputation field for LESERIA - Number of electronic serials,,no,,,no,,xleseria
+leseria,FLOAT64,Number of electronic serials,,no,,,no,,leseria
+xlpcollc,STRING,"Imputation field for LPCLLCT - Total physical library collections (books, media and serials)",,no,,,no,,xlpcollc
+lpcllct,FLOAT64,"Total physical library collections (books, media and serials)",,no,,,no,,lpcllct
+xlecollc,STRING,"Imputation field for LECLLCT - Total electronic library collections (books, databases, media and serials)",,no,,,no,,xlecollc
+lecllct,INT64,"Total electronic library collections (books, databases, media and serials)",,no,,,no,,lecllct
+xltcllct,STRING,Imputation field for LTCLLCT - Total library collections (physical and electronic),,no,,,no,,xltcllct
+ltcllct,FLOAT64,Total library collections (physical and electronic),,no,,,no,,ltcllct
+xlpcrclt,STRING,Imputation field for LPCRCLT - Total physical library circulations (books and media),,no,,,no,,xlpcrclt
+lpcrclt,FLOAT64,Total physical library circulations (books and media),,no,,,no,,lpcrclt
+xlecrclt,STRING,Imputation field for LECRCLT - Total digital/electronic circulations (books and media),,no,,,no,,xlecrclt
+lecrclt,INT64,Total digital/electronic circulations (books and media),,no,,,no,,lecrclt
+xltcrclt,STRING,Imputation field for LTCRCLT - Total library circulations (physical and digital/electronic),,no,,,no,,xltcrclt
+ltcrclt,FLOAT64,Total library circulations (physical and digital/electronic),,no,,,no,,ltcrclt
+lilldyn,FLOAT64,Does institution have interlibrary loan services ?,,no,,,no,,lilldyn
+xlilldpr,STRING,Imputation field for LILLDPR - Total interlibrary loans and documents provided to other libraries,,no,,,no,,xlilldpr
+lilldpr,FLOAT64,Total interlibrary loans and documents provided to other libraries,,no,,,no,,lilldpr
+xlilldrc,STRING,Imputation field for LILLDRC - Total interlibrary loans and documents received,,no,,,no,,xlilldrc
+lilldrc,FLOAT64,Total interlibrary loans and documents received,,no,,,no,,lilldrc
+lilsyn,FLOAT64,Does  institution have Library Staff?,,no,,,no,,lilsyn
+xlstotal,STRING,Imputation field for LSTOTAL - Total library FTE staff,,no,,,no,,xlstotal
+lstotal,FLOAT64,Total library FTE staff,,no,,,no,,lstotal
+xlslibrn,STRING,Imputation field for LSLIBRN - Librarians FTE staff,,no,,,no,,xlslibrn
+lslibrn,FLOAT64,Librarians FTE staff,,no,,,no,,lslibrn
+xlsoprof,STRING,Imputation field for LSOPROF - Other professional FTE staff,,no,,,no,,xlsoprof
+lsoprof,FLOAT64,Other professional FTE staff,,no,,,no,,lsoprof
+xlsopaid,STRING,Imputation field for LSOPAID - All other paid FTE staff (Except Student Assistants),,no,,,no,,xlsopaid
+lsopaid,FLOAT64,All other paid FTE staff (Except Student Assistants),,no,,,no,,lsopaid
+xlsstast,STRING,Imputation field for LSSTAST - Student assistants FTE,,no,,,no,,xlsstast
+lsstast,FLOAT64,Student assistants FTE,,no,,,no,,lsstast
+xlbranch,STRING,Imputation field for LBRANCH - Number of branches and independent libraries,,no,,,no,,xlbranch
+lbranch,FLOAT64,Number of branches and independent libraries,,no,,,no,,lbranch
+xsalwag,STRING,Imputation field for LSALWAG - Total salaries and wages from the library budget,,no,,USD,no,,xsalwag
+lsalwag,FLOAT64,Total salaries and wages from the library budget,,no,,USD,no,,lsalwag
+lfrngbyn,INT64,Are staff fringe benefits paid out of the library budget,,no,,,no,,lfrngbyn
+xlfrngbn,STRING,Imputation field for LFRNGBN - Total fringe benefits,,no,,,no,,xlfrngbn
+lfrngbn,FLOAT64,Total fringe benefits,,no,,,no,,lfrngbn
+xlexmsbb,STRING,"Imputation field for LEXMSBB - One-time purchases of books, serial backfiles, and other materials",,no,,,no,,xlexmsbb
+lexmsbb,FLOAT64,"One-time purchases of books, serial backfiles, and other materials",,no,,,no,,lexmsbb
+xlexmscs,STRING,Imputation field for LEXMSCS - Ongoing commitments to subscriptions,,no,,,no,,xlexmscs
+lexmscs,FLOAT64,Ongoing commitments to subscriptions,,no,,,no,,lexmscs
+xlexmsot,STRING,Imputation field for LEXMSOT - Other materials/services expenditures,,no,,,no,,xlexmsot
+lexmsot,FLOAT64,Other materials/services expenditures,,no,,,no,,lexmsot
+xlexmstl,STRING,Imputation field for LEXMSTL - Total materials/services expenditures,,no,,,no,,xlexmstl
+lexmstl,FLOAT64,Total materials/services expenditures,,no,,,no,,lexmstl
+xlexomps,STRING,Imputation field for LEXOMPS - Preservation services,,no,,,no,,xlexomps
+lexomps,FLOAT64,Preservation services,,no,,,no,,lexomps
+xlexomot,STRING,Imputation field for LEXOMOT - Other operation and maintenance expenditures,,no,,,no,,xlexomot
+lexomot,FLOAT64,Other operation and maintenance expenditures,,no,,,no,,lexomot
+xlexomtl,STRING,Imputation field for LEXOMTL - Total operations and maintenance expenditures,,no,,,no,,xlexomtl
+lexomtl,FLOAT64,Total operations and maintenance expenditures,,no,,,no,,lexomtl
+xlexptot,STRING,"Imputation field for LEXPTOT - Total expenditures (salaries/wages, benefits, materials/services, and operations/maintenance)",,no,,USD,no,,xlexptot
+lexptot,FLOAT64,"Total expenditures (salaries/wages, benefits, materials/services, and operations/maintenance)",,no,,USD,no,,lexptot
+lswmsom,FLOAT64,"Salaries/wages, materials/services, and operations/maintenance",,no,,USD,no,,lswmsom
+lsuppvrs,FLOAT64,Does your library support virtual reference services,,no,,,no,,lsuppvrs
