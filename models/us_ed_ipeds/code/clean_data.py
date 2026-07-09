@@ -275,11 +275,15 @@ def read_csv_from_zip(zip_path: Path) -> pd.DataFrame:
 
         # Parse CSV
         try:
+            # index_col=False: IC*_PY files 2004+ have one extra trailing
+            # field per data line; without it pandas promotes UNITID to the
+            # index and shifts every column left by one
             df = pd.read_csv(
                 io.StringIO(text),
                 low_memory=False,
                 on_bad_lines="skip",
                 encoding_errors="replace",
+                index_col=False,
             )
         except Exception as e:
             log.warning(f"  Error reading CSV from {zip_path.name}: {e}")
