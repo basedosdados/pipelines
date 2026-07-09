@@ -158,4 +158,6 @@ select
     safe_cast(crace23 as float64) crace23,
     safe_cast(xcrace24 as string) xcrace24,
     safe_cast(crace24 as float64) crace24
-from {{ set_datalake_project("us_ed_ipeds_staging.c_a") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.c_a") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

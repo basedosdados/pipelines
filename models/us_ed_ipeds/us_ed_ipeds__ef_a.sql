@@ -169,4 +169,6 @@ select
     safe_cast(efrace23 as float64) efrace23,
     safe_cast(xefrac24 as string) xefrac24,
     safe_cast(efrace24 as float64) efrace24
-from {{ set_datalake_project("us_ed_ipeds_staging.ef_a") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.ef_a") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

@@ -194,4 +194,6 @@ select
     safe_cast(rev_sa as float64) rev_sa,
     safe_cast(rev_s as float64) rev_s,
     safe_cast(rev_eap as float64) rev_eap
-from {{ set_datalake_project("us_ed_ipeds_staging.flags") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.flags") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

@@ -159,4 +159,6 @@ select
     safe_cast(grrace23 as float64) grrace23,
     safe_cast(xgrrac24 as string) xgrrac24,
     safe_cast(grrace24 as float64) grrace24
-from {{ set_datalake_project("us_ed_ipeds_staging.gr") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.gr") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

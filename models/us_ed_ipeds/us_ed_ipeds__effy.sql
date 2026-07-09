@@ -165,4 +165,6 @@ select
     safe_cast(fyrace23 as float64) fyrace23,
     safe_cast(xfyrac24 as string) xfyrac24,
     safe_cast(fyrace24 as float64) fyrace24
-from {{ set_datalake_project("us_ed_ipeds_staging.effy") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.effy") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

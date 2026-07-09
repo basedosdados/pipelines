@@ -137,4 +137,6 @@ select
     safe_cast(saavmnm as float64) saavmnm,
     safe_cast(xsaavmnw as string) xsaavmnw,
     safe_cast(saavmnw as float64) saavmnw
-from {{ set_datalake_project("us_ed_ipeds_staging.sal_is") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.sal_is") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)

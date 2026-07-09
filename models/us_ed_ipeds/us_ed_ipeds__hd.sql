@@ -222,4 +222,6 @@ select
     safe_cast(cindfam as float64) cindfam,
     safe_cast(cinsfam as float64) cinsfam,
     safe_cast(cotsfam as float64) cotsfam
-from {{ set_datalake_project("us_ed_ipeds_staging.hd") }} as t
+from
+    {{ set_datalake_project("us_ed_ipeds_staging.hd") }} as t
+    -- rematerialize us_ed_ipeds (table-approve re-trigger)
