@@ -109,6 +109,13 @@ def download_csv(
         else:
             response.raise_for_status()
 
+        origem = (
+            f"resume de {bytes_downloaded} bytes"
+            if mode == "ab"
+            else "download novo"
+        )
+        log(f"Baixando CSV do BNDES para {dest} ({origem})")
+
         with open(dest, mode=mode) as fd:
             for chunk in response.iter_bytes(chunk_size=chunk_size):
                 fd.write(chunk)
@@ -126,7 +133,7 @@ def download_csv(
                 "Download não pode ser finalizado mesmo com várias tentativas."
             )
 
-        log("Download finalizado com sucesso!")
+        log(f"Download concluído: {file_length} bytes em {dest}")
 
         return dest
 
@@ -208,9 +215,17 @@ def clean(csv_path: Path, output_dir: Path) -> Path:
     shutil.rmtree(output_dir, ignore_errors=True)
 
     writers = {}
+    total_rows = 0
 
-    for chunk in pd.read_csv(
-        csv_path, sep=";", encoding="cp1252", dtype=str, chunksize=CHUNKSIZE
+    for i, chunk in enumerate(
+        pd.read_csv(
+            csv_path,
+            sep=";",
+            encoding="cp1252",
+            dtype=str,
+            chunksize=CHUNKSIZE,
+        ),
+        start=1,
     ):
         df = _transform_chunk(chunk)
 
@@ -236,7 +251,14 @@ def clean(csv_path: Path, output_dir: Path) -> Path:
 
             writers[int(year)].write_table(table)
 
+        total_rows += len(df)
+        log(f"Chunk {i}: {len(df)} linhas ({total_rows} acumuladas)")
+
     for write in writers.values():
         write.close()
 
+    log(
+        f"Limpeza concluída: {total_rows} linhas em {len(writers)} "
+        f"partições (anos) -> {output_dir}"
+    )
     return output_dir
