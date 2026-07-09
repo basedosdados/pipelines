@@ -430,6 +430,9 @@ models:
     world_sofascore_competicoes_futebol:
       +materialized: table
       +schema: world_sofascore_competicoes_futebol
+    world_un_wpp:
+      +materialized: table
+      +schema: world_un_wpp
     world_wb_mides:
       +materialized: table
       +schema: world_wb_mides
