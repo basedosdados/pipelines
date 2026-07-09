@@ -53,12 +53,17 @@ jobs:
         with:
           script: |
             const pr_number = core.getInput("pr_number") || '${{ steps.get_pr.outputs.pr_number }}';
-            const files = await github.rest.pulls.listFiles({
+            // Paginate: listFiles returns only 30 files per page by default,
+            // so PRs with more than 30 changed files (e.g. a dataset with many
+            // models) would silently drop the overflow — including the .sql
+            // models that prefect_run_dbt.py selects on — and materialize nothing.
+            const files = await github.paginate(github.rest.pulls.listFiles, {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: pr_number
+              pull_number: pr_number,
+              per_page: 100
             });
-            const fileNames = files.data
+            const fileNames = files
               .filter(file => file.status !== 'removed')
               .map(f => f.filename)
               .join(',');
