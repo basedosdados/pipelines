@@ -27,6 +27,7 @@ ARCH_COLS = [
 ]
 
 FK_YEAR = "br_bd_diretorios_data_tempo.ano:ano"
+FK_DATE = "br_bd_diretorios_data_tempo.data:data"
 FK_STATE = "br_bd_diretorios_us.state:id_state"
 FK_COUNTY = "br_bd_diretorios_us.county:id_county"
 
@@ -327,7 +328,161 @@ DISTRICT = [
     ),
 ]
 
-TABLES = {"state": STATE, "county": COUNTY, "district": DISTRICT}
+PRECINCT = [
+    ("year", "INT64", "Election year.", FK_YEAR, "year", ""),
+    (
+        "id_state",
+        "STRING",
+        "State FIPS code (2-digit, zero-padded).",
+        FK_STATE,
+        "state_fips",
+        "",
+    ),
+    (
+        "id_county",
+        "STRING",
+        "County FIPS code (5-digit, zero-padded); blank for non-county reporting units.",
+        FK_COUNTY,
+        "county_fips",
+        "",
+    ),
+    (
+        "id_jurisdiction",
+        "STRING",
+        "Jurisdiction FIPS code (10-digit): the reporting subdivision, equal to the county except in New England, Wisconsin and Alaska.",
+        "",
+        "jurisdiction_fips",
+        "Absent for 2016.",
+    ),
+    (
+        "jurisdiction_name",
+        "STRING",
+        "Jurisdiction name (county, or town in New England, Wisconsin and Alaska).",
+        "",
+        "jurisdiction_name",
+        "",
+    ),
+    (
+        "precinct",
+        "STRING",
+        "Precinct name as reported by the source; *FLOATING* denotes returns reported above the precinct level.",
+        "",
+        "precinct",
+        "",
+    ),
+    (
+        "office",
+        "STRING",
+        "Office contested, standardized (e.g. US PRESIDENT, US SENATE, GOVERNOR, STATE HOUSE).",
+        "",
+        "office",
+        "",
+    ),
+    (
+        "office_category",
+        "STRING",
+        "Office group of the source file: PRESIDENT, SENATE, HOUSE, STATE or LOCAL.",
+        "",
+        "dataverse",
+        "",
+    ),
+    (
+        "district",
+        "STRING",
+        "District of the office; zero-padded number, STATEWIDE, or blank.",
+        "",
+        "district",
+        "",
+    ),
+    (
+        "magnitude",
+        "INT64",
+        "Number of seats elected for the office (usually 1).",
+        "",
+        "magnitude",
+        "Absent for 2016.",
+    ),
+    (
+        "candidate",
+        "STRING",
+        "Candidate name; also OVERVOTES, UNDERVOTES, WRITE-IN.",
+        "",
+        "candidate",
+        "",
+    ),
+    (
+        "party_detailed",
+        "STRING",
+        "Full party label of the ballot line, uppercase; fusion lines joined with a slash.",
+        "",
+        "party_detailed",
+        "",
+    ),
+    (
+        "party_simplified",
+        "STRING",
+        "Party collapsed to DEMOCRAT, REPUBLICAN, LIBERTARIAN or OTHER.",
+        "",
+        "party_simplified",
+        "",
+    ),
+    (
+        "indicator_special",
+        "BOOLEAN",
+        "Whether the contest was a special election.",
+        "",
+        "special",
+        "",
+    ),
+    (
+        "indicator_writein",
+        "BOOLEAN",
+        "Whether the candidate was a write-in.",
+        "",
+        "writein",
+        "",
+    ),
+    (
+        "mode",
+        "STRING",
+        "Mode of voting; TOTAL when not broken down by mode.",
+        "",
+        "mode",
+        "",
+    ),
+    (
+        "votes",
+        "INT64",
+        "Votes received by the candidate on this ballot line in this precinct.",
+        "",
+        "votes",
+        "",
+    ),
+    (
+        "stage",
+        "STRING",
+        "Electoral stage: GEN, PRI or RUNOFF.",
+        "",
+        "stage",
+        "",
+    ),
+    ("date", "DATE", "Election date.", FK_DATE, "date", "Absent for 2016."),
+    (
+        "indicator_readme_check",
+        "BOOLEAN",
+        "Whether the source README notes a caveat for this row (2018-2022 only).",
+        "",
+        "readme_check",
+        "",
+    ),
+]
+
+TABLES = {
+    "state": STATE,
+    "county": COUNTY,
+    "district": DISTRICT,
+    "precinct": PRECINCT,
+}
 
 
 def write_table(slug, rows):

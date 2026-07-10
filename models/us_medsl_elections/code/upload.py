@@ -36,6 +36,7 @@ TABLES = [
     ("state", 23_495),
     ("district", 33_805),
     ("county", 94_151),
+    ("precinct", 68_882_583),
 ]
 
 

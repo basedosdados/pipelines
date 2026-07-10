@@ -161,3 +161,82 @@ models:
         description: Whether the row is a fusion/cross-endorsement ballot line.
       - name: version
         description: Source dataset finalization date (YYYYMMDD).
+  - name: us_medsl_elections__precinct
+    description: >
+      Precinct-level U.S. election returns by candidate, 2016-2024, from the MIT
+      Election Data and Science Lab: all offices (president, U.S. Senate, U.S.
+      House, and state/local offices) stacked in long format. One row per
+      precinct, office, candidate, party ballot line, voting mode and contest
+      stage; vote counts are not aggregated across modes. Uniqueness is enforced
+      with a tolerance for genuine source duplicates.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - year
+            - id_state
+            - id_county
+            - precinct
+            - office
+            - district
+            - candidate
+            - party_detailed
+            - mode
+            - stage
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [indicator_readme_check]
+    columns:
+      - name: year
+        description: Election year.
+        tests: [not_null]
+      - name: id_state
+        description: State FIPS code (2-digit, zero-padded).
+        tests: [not_null]
+      - name: id_county
+        description: >
+          County FIPS code (5-digit, zero-padded); blank for non-county
+          reporting units.
+      - name: id_jurisdiction
+        description: >
+          Jurisdiction FIPS code (10-digit): the reporting subdivision, equal to
+          the county except in New England, Wisconsin and Alaska. Absent for 2016.
+      - name: jurisdiction_name
+        description: Jurisdiction name (county, or town in New England, Wisconsin
+          and Alaska).
+      - name: precinct
+        description: >
+          Precinct name as reported by the source; *FLOATING* denotes returns
+          reported above the precinct level.
+      - name: office
+        description: Office contested, standardized (e.g. US PRESIDENT, US SENATE,
+          GOVERNOR, STATE HOUSE).
+      - name: office_category
+        description: 'Office group of the source file: PRESIDENT, SENATE, HOUSE, STATE
+          or LOCAL.'
+      - name: district
+        description: District of the office; zero-padded number, STATEWIDE, or blank.
+      - name: magnitude
+        description: Number of seats elected for the office (usually 1). Absent for
+          2016.
+      - name: candidate
+        description: Candidate name; also OVERVOTES, UNDERVOTES, WRITE-IN.
+      - name: party_detailed
+        description: Full party label of the ballot line, uppercase; fusion lines
+          joined with a slash.
+      - name: party_simplified
+        description: Party collapsed to DEMOCRAT, REPUBLICAN, LIBERTARIAN or OTHER.
+      - name: indicator_special
+        description: Whether the contest was a special election.
+      - name: indicator_writein
+        description: Whether the candidate was a write-in.
+      - name: mode
+        description: Mode of voting; TOTAL when not broken down by mode.
+      - name: votes
+        description: Votes received by the candidate on this ballot line in this precinct.
+      - name: stage
+        description: 'Electoral stage: GEN, PRI or RUNOFF.'
+      - name: date
+        description: Election date. Absent for 2016.
+      - name: indicator_readme_check
+        description: Whether the source README notes a caveat for this row (2018-2022
+          only).
