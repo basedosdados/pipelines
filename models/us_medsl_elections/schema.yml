@@ -28,6 +28,8 @@ models:
       - name: year
         description: Election year.
         tests: [not_null]
+      - name: stage
+        description: 'Electoral stage: gen, pri or runoff.'
       - name: id_state
         description: State FIPS code (2-digit, zero-padded).
         tests: [not_null]
@@ -36,8 +38,6 @@ models:
         tests: [not_null]
       - name: district
         description: District of the office; null for statewide contests.
-      - name: stage
-        description: 'Electoral stage: gen, pri or runoff.'
       - name: indicator_special
         description: Whether the contest was a special election.
       - name: candidate
@@ -129,14 +129,14 @@ models:
       - name: year
         description: Election year.
         tests: [not_null]
+      - name: stage
+        description: 'Electoral stage: gen, pri or runoff.'
       - name: id_state
         description: State FIPS code (2-digit, zero-padded).
         tests: [not_null]
       - name: district
         description: Congressional district number (2-digit, zero-padded; 00 = at-large).
         tests: [not_null]
-      - name: stage
-        description: 'Electoral stage: gen, pri or runoff.'
       - name: indicator_runoff
         description: Whether the contest was a runoff election.
       - name: indicator_special

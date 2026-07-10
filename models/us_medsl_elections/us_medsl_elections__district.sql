@@ -14,9 +14,9 @@
 
 select
     safe_cast(year as int64) year,
+    safe_cast(nullif(stage, '') as string) stage,
     safe_cast(id_state as string) id_state,
     safe_cast(district as string) district,
-    safe_cast(nullif(stage, '') as string) stage,
     safe_cast(nullif(indicator_runoff, '') as bool) indicator_runoff,
     safe_cast(nullif(indicator_special, '') as bool) indicator_special,
     safe_cast(candidate as string) candidate,

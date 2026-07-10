@@ -1,9 +1,9 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
 year,INT64,Election year.,,no,br_bd_diretorios_data_tempo.ano:ano,,no,,year
+stage,STRING,"Electoral stage: gen (general), pri (primary) or runoff.",,no,,,no,Null for president (general-election returns only).,stage
 id_state,STRING,"State FIPS code (2-digit, zero-padded).",,no,br_bd_diretorios_us.state:id_state,,no,,state_fips
 office,STRING,"Office contested (e.g. US PRESIDENT, US SENATE, GOVERNOR).",,no,,,no,,office
 district,STRING,District of the office; blank for statewide contests.,,no,,,no,Blank/null for president and statewide senate; numbered for some 2016 state offices.,district
-stage,STRING,"Electoral stage: gen (general), pri (primary) or runoff.",,no,,,no,Null for president (general-election returns only).,stage
 indicator_special,BOOLEAN,Whether the contest was a special election.,,no,,,no,Null for president.,special
 candidate,STRING,"Candidate name, uppercase.",,no,,,no,,candidate
 party_detailed,STRING,"Full party label of the candidate's ballot line, uppercase.",,no,,,no,"For 2016 state offices, mapped from the source single-party column.",party_detailed

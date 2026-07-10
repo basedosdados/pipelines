@@ -1,8 +1,8 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
 year,INT64,Election year.,,no,br_bd_diretorios_data_tempo.ano:ano,,no,,year
+stage,STRING,"Electoral stage: gen (general), pri (primary) or runoff.",,no,,,no,,stage
 id_state,STRING,"State FIPS code (2-digit, zero-padded).",,no,br_bd_diretorios_us.state:id_state,,no,,state_fips
 district,STRING,"Congressional district number (2-digit, zero-padded; 00 = at-large).",,no,,,no,,district
-stage,STRING,"Electoral stage: gen (general), pri (primary) or runoff.",,no,,,no,,stage
 indicator_runoff,BOOLEAN,Whether the contest was a runoff election.,,no,,,no,,runoff
 indicator_special,BOOLEAN,Whether the contest was a special election.,,no,,,no,,special
 candidate,STRING,"Candidate name, uppercase.",,no,,,no,,candidate

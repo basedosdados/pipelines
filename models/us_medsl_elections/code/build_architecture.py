@@ -35,6 +35,14 @@ FK_COUNTY = "br_bd_diretorios_us.county:id_county"
 STATE = [
     ("year", "INT64", "Election year.", FK_YEAR, "year", ""),
     (
+        "stage",
+        "STRING",
+        "Electoral stage: gen (general), pri (primary) or runoff.",
+        "",
+        "stage",
+        "Null for president (general-election returns only).",
+    ),
+    (
         "id_state",
         "STRING",
         "State FIPS code (2-digit, zero-padded).",
@@ -57,14 +65,6 @@ STATE = [
         "",
         "district",
         "Blank/null for president and statewide senate; numbered for some 2016 state offices.",
-    ),
-    (
-        "stage",
-        "STRING",
-        "Electoral stage: gen (general), pri (primary) or runoff.",
-        "",
-        "stage",
-        "Null for president (general-election returns only).",
     ),
     (
         "indicator_special",
@@ -214,6 +214,14 @@ COUNTY = [
 DISTRICT = [
     ("year", "INT64", "Election year.", FK_YEAR, "year", ""),
     (
+        "stage",
+        "STRING",
+        "Electoral stage: gen (general), pri (primary) or runoff.",
+        "",
+        "stage",
+        "",
+    ),
+    (
         "id_state",
         "STRING",
         "State FIPS code (2-digit, zero-padded).",
@@ -227,14 +235,6 @@ DISTRICT = [
         "Congressional district number (2-digit, zero-padded; 00 = at-large).",
         "",
         "district",
-        "",
-    ),
-    (
-        "stage",
-        "STRING",
-        "Electoral stage: gen (general), pri (primary) or runoff.",
-        "",
-        "stage",
         "",
     ),
     (

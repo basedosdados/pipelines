@@ -197,10 +197,10 @@ def finalize(df, table_cols):
 
 STATE_COLS = [
     "year",
+    "stage",
     "id_state",
     "office",
     "district",
-    "stage",
     "indicator_special",
     "candidate",
     "party_detailed",
@@ -367,9 +367,9 @@ def build_county():
 
 DISTRICT_COLS = [
     "year",
+    "stage",
     "id_state",
     "district",
-    "stage",
     "indicator_runoff",
     "indicator_special",
     "candidate",
