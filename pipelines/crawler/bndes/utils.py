@@ -91,6 +91,8 @@ def download_csv(
         Path: O proprio `dest`, ja com o arquivo completo.
     """
 
+    url = url or constants.DOWNLOAD_URL.value
+
     Path.mkdir(dest.parent, parents=True, exist_ok=True)
 
     bytes_downloaded = dest.stat().st_size if dest.is_file() else 0
@@ -173,6 +175,14 @@ def _transform_chunk(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     df_striped["ano"] = date.dt.year.astype("Int64")
+
+    n_sem_ano = int(df_striped["ano"].isna().sum())
+    if n_sem_ano:
+        log(
+            f"AVISO: {n_sem_ano} linha(s) com data_contratacao inválida "
+            "(ano nulo) — descartada(s) do particionamento."
+        )
+        df_striped = df_striped[df_striped["ano"].notna()]
 
     df_striped["id_municipio"] = df_striped["id_municipio"].str.replace(
         r"\.0$", "", regex=True

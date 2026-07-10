@@ -157,9 +157,12 @@ gap de 2023–2025.
 
 **Como re-checar o apagão na fonte** (pra saber se a Anatel restaurou os anos): baixar o
 ZIP, ler `Densidade_Banda_Larga_Fixa.csv` (`sep=';'`), filtrar `Nível Geográfico
-Densidade = "Municipio"`, agrupar por `Ano` e contar as linhas com `Código IBGE`
-preenchido. Se 2023/2024 voltarem a ter ~66.840 códigos preenchidos, o apagão acabou →
-dá pra reativar o schedule/`force_run` das densidades.
+Densidade = "Municipio"`. **Não basta contar linhas por `Ano`** — a soma pode chegar a
+~66.840 com municípios **duplicados** ou **meses faltando**, mascarando um dado degradado e
+levando a reativar em cima de fonte incompleta (regressão em prod). Antes de reativar, exija
+completude **por mês**: para cada ano (2023/2024), confirme os **12 meses** presentes e
+**~5.570 `Código IBGE` distintos em cada mês** (contagem de *distintos*, não de linhas). Só
+com 12 meses × ~5.570 municípios é seguro reativar o schedule/`force_run` das densidades.
 
 ---
 
