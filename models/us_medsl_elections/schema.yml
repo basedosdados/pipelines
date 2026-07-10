@@ -189,6 +189,10 @@ models:
       - name: year
         description: Election year.
         tests: [not_null]
+      - name: date
+        description: Election date. Absent for 2016.
+      - name: stage
+        description: 'Electoral stage: GEN, PRI or RUNOFF.'
       - name: id_state
         description: State FIPS code (2-digit, zero-padded).
         tests: [not_null]
@@ -233,10 +237,6 @@ models:
         description: Mode of voting; TOTAL when not broken down by mode.
       - name: votes
         description: Votes received by the candidate on this ballot line in this precinct.
-      - name: stage
-        description: 'Electoral stage: GEN, PRI or RUNOFF.'
-      - name: date
-        description: Election date. Absent for 2016.
       - name: indicator_readme_check
         description: Whether the source README notes a caveat for this row (2018-2022
           only).

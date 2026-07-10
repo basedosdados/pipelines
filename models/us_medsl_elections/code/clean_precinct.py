@@ -26,6 +26,8 @@ CHUNK = 400_000
 
 TARGET = [
     "year",
+    "date",
+    "stage",
     "id_state",
     "id_county",
     "id_jurisdiction",
@@ -42,8 +44,6 @@ TARGET = [
     "indicator_writein",
     "mode",
     "votes",
-    "stage",
-    "date",
     "indicator_readme_check",
 ]
 SCHEMA = pa.schema([(c, pa.string()) for c in TARGET])

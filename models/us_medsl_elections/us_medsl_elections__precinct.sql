@@ -14,6 +14,8 @@
 
 select
     safe_cast(year as int64) year,
+    safe_cast(nullif(date, '') as date) date,
+    safe_cast(nullif(stage, '') as string) stage,
     safe_cast(id_state as string) id_state,
     safe_cast(nullif(id_county, '') as string) id_county,
     safe_cast(nullif(id_jurisdiction, '') as string) id_jurisdiction,
@@ -30,7 +32,5 @@ select
     safe_cast(nullif(indicator_writein, '') as bool) indicator_writein,
     safe_cast(nullif(mode, '') as string) mode,
     safe_cast(votes as int64) votes,
-    safe_cast(nullif(stage, '') as string) stage,
-    safe_cast(nullif(date, '') as date) date,
     safe_cast(nullif(indicator_readme_check, '') as bool) indicator_readme_check
 from {{ set_datalake_project("us_medsl_elections_staging.precinct") }} as t

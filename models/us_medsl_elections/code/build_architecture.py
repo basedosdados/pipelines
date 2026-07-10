@@ -330,6 +330,15 @@ DISTRICT = [
 
 PRECINCT = [
     ("year", "INT64", "Election year.", FK_YEAR, "year", ""),
+    ("date", "DATE", "Election date.", FK_DATE, "date", "Absent for 2016."),
+    (
+        "stage",
+        "STRING",
+        "Electoral stage: GEN, PRI or RUNOFF.",
+        "",
+        "stage",
+        "",
+    ),
     (
         "id_state",
         "STRING",
@@ -458,15 +467,6 @@ PRECINCT = [
         "votes",
         "",
     ),
-    (
-        "stage",
-        "STRING",
-        "Electoral stage: GEN, PRI or RUNOFF.",
-        "",
-        "stage",
-        "",
-    ),
-    ("date", "DATE", "Election date.", FK_DATE, "date", "Absent for 2016."),
     (
         "indicator_readme_check",
         "BOOLEAN",
