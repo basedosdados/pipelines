@@ -1,0 +1,179 @@
+---
+version: 2
+models:
+  - name: us_medsl_elections__state
+    description: >
+      Statewide U.S. election returns by candidate, 1976-2024, from the MIT
+      Election Data and Science Lab. Stacks presidential, U.S. Senate and 2016
+      statewide state-office returns in long format; one row per state, office,
+      contest stage, candidate and party ballot line. A small share of rows
+      share a logical key (write-in aggregates with blank candidate names and
+      multi-member 2016 state-legislative seats), so uniqueness is enforced with
+      a tolerance.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - year
+            - id_state
+            - office
+            - district
+            - stage
+            - mode
+            - candidate
+            - party_detailed
+            - indicator_writein
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Election year.
+        tests: [not_null]
+      - name: id_state
+        description: State FIPS code (2-digit, zero-padded).
+        tests: [not_null]
+      - name: state_abbreviation
+        description: Two-letter USPS state postal abbreviation.
+      - name: state_census_code
+        description: U.S. Census Bureau state code.
+      - name: state_icpsr_code
+        description: ICPSR state code.
+      - name: office
+        description: Office contested (e.g. US PRESIDENT, US SENATE, GOVERNOR).
+        tests: [not_null]
+      - name: district
+        description: District of the office; null for statewide contests.
+      - name: stage
+        description: 'Electoral stage: gen, pri or runoff.'
+      - name: indicator_special
+        description: Whether the contest was a special election.
+      - name: candidate
+        description: Candidate name, uppercase.
+      - name: party_detailed
+        description: Full party label of the candidate's ballot line, uppercase.
+      - name: party_simplified
+        description: Party collapsed to DEMOCRAT, REPUBLICAN, LIBERTARIAN or OTHER.
+      - name: indicator_writein
+        description: Whether the candidate was a write-in.
+      - name: mode
+        description: Mode of voting; TOTAL when not broken down by mode.
+      - name: votes
+        description: Votes received by the candidate on this ballot line.
+      - name: total_votes
+        description: Total votes cast in the contest.
+      - name: indicator_unofficial
+        description: Whether the returns are unofficial.
+      - name: version
+        description: Source dataset finalization date (YYYYMMDD).
+  - name: us_medsl_elections__county
+    description: >
+      County-level U.S. presidential election returns by candidate, 2000-2024,
+      from the MIT Election Data and Science Lab. One row per county, candidate,
+      party ballot line and voting mode. A small share of 2024 rows share a
+      logical key (administrative pseudo-candidates such as OVERVOTES and
+      UNDERVOTES), so uniqueness is enforced with a tolerance.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - year
+            - id_state
+            - id_county
+            - office
+            - mode
+            - candidate
+            - party_detailed
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Election year.
+        tests: [not_null]
+      - name: id_state
+        description: State FIPS code (2-digit, zero-padded).
+        tests: [not_null]
+      - name: state_abbreviation
+        description: Two-letter USPS state postal abbreviation.
+      - name: id_county
+        description: >
+          County FIPS code (5-digit, zero-padded); null for non-county reporting
+          units (e.g. overseas/UOCAVA and statewide write-in rows).
+      - name: county_name
+        description: County name, uppercase.
+      - name: office
+        description: Office contested (US PRESIDENT).
+        tests: [not_null]
+      - name: candidate
+        description: Candidate name, uppercase.
+      - name: party_detailed
+        description: Full party label of the candidate's ballot line, uppercase.
+      - name: party_simplified
+        description: Party collapsed to DEMOCRAT, REPUBLICAN, LIBERTARIAN or OTHER.
+      - name: mode
+        description: Mode of voting; TOTAL when not broken down by mode.
+      - name: votes
+        description: Votes received by the candidate in this county.
+      - name: total_votes
+        description: Total votes cast in this county contest.
+      - name: version
+        description: Source dataset finalization date (YYYYMMDD).
+  - name: us_medsl_elections__district
+    description: >
+      U.S. House of Representatives election returns by congressional district
+      and candidate, 1976-2024, from the MIT Election Data and Science Lab. One
+      row per district, contest stage, candidate and party ballot line. A small
+      share of rows share a logical key (write-in aggregates with blank
+      candidate names), so uniqueness is enforced with a tolerance.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - year
+            - id_state
+            - district
+            - stage
+            - mode
+            - candidate
+            - party_detailed
+            - indicator_writein
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Election year.
+        tests: [not_null]
+      - name: id_state
+        description: State FIPS code (2-digit, zero-padded).
+        tests: [not_null]
+      - name: state_abbreviation
+        description: Two-letter USPS state postal abbreviation.
+      - name: state_census_code
+        description: U.S. Census Bureau state code.
+      - name: state_icpsr_code
+        description: ICPSR state code.
+      - name: district
+        description: Congressional district number (2-digit, zero-padded; 00 = at-large).
+        tests: [not_null]
+      - name: stage
+        description: 'Electoral stage: gen, pri or runoff.'
+      - name: indicator_runoff
+        description: Whether the contest was a runoff election.
+      - name: indicator_special
+        description: Whether the contest was a special election.
+      - name: candidate
+        description: Candidate name, uppercase.
+      - name: party_detailed
+        description: Full party label of the candidate's ballot line, uppercase.
+      - name: party_simplified
+        description: Party collapsed to DEMOCRAT, REPUBLICAN, LIBERTARIAN or OTHER.
+      - name: indicator_writein
+        description: Whether the candidate was a write-in.
+      - name: mode
+        description: Mode of voting; TOTAL when not broken down by mode.
+      - name: votes
+        description: Votes received by the candidate on this ballot line.
+      - name: total_votes
+        description: Total votes cast in the contest.
+      - name: indicator_unofficial
+        description: Whether the returns are unofficial.
+      - name: indicator_fusion_ticket
+        description: Whether the row is a fusion/cross-endorsement ballot line.
+      - name: version
+        description: Source dataset finalization date (YYYYMMDD).

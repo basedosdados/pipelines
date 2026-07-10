@@ -1,0 +1,19 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Election year.,,no,br_bd_diretorios_data_tempo.ano:ano,,no,,year
+id_state,STRING,"State FIPS code (2-digit, zero-padded).",,no,br_bd_diretorios_us.state:id_state,,no,,state_fips
+state_abbreviation,STRING,Two-letter USPS state postal abbreviation.,,no,,,no,,state_po
+state_census_code,STRING,U.S. Census Bureau state code.,,no,,,no,,state_cen
+state_icpsr_code,STRING,ICPSR state code.,,no,,,no,,state_ic
+office,STRING,"Office contested (e.g. US PRESIDENT, US SENATE, GOVERNOR).",,no,,,no,,office
+district,STRING,District of the office; blank for statewide contests.,,no,,,no,Blank/null for president and statewide senate; numbered for some 2016 state offices.,district
+stage,STRING,"Electoral stage: gen (general), pri (primary) or runoff.",,no,,,no,Null for president (general-election returns only).,stage
+indicator_special,BOOLEAN,Whether the contest was a special election.,,no,,,no,Null for president.,special
+candidate,STRING,"Candidate name, uppercase.",,no,,,no,,candidate
+party_detailed,STRING,"Full party label of the candidate's ballot line, uppercase.",,no,,,no,"For 2016 state offices, mapped from the source single-party column.",party_detailed
+party_simplified,STRING,"Party collapsed to DEMOCRAT, REPUBLICAN, LIBERTARIAN or OTHER.",,no,,,no,Derived from party for 2016 state offices.,party_simplified
+indicator_writein,BOOLEAN,Whether the candidate was a write-in.,,no,,,no,,writein
+mode,STRING,Mode of voting; TOTAL when returns are not broken down by mode.,,no,,,no,Null for president.,mode
+votes,INT64,Votes received by the candidate on this ballot line.,,no,,,no,,candidatevotes
+total_votes,INT64,Total votes cast in the contest.,,no,,,no,,totalvotes
+indicator_unofficial,BOOLEAN,Whether the returns are unofficial.,,no,,,no,Null for president and 2016 state offices.,unofficial
+version,STRING,Source dataset finalization date (YYYYMMDD).,,no,,,no,,version
