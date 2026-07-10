@@ -30,7 +30,7 @@ TABLES = [
     ("round4", 27_713),
     ("round7", 45_823),
     ("round8", 48_084),
-    ("dicionario", 48_675),
+    ("dicionario", 48_428),
     ("round5", 51_587),
     ("round9", 53_444),
     ("round6", 53_935),

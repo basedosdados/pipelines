@@ -2,14 +2,14 @@
 
 | table | columns | covered_by_dictionary |
 |-------|---------|-----------------------|
-| round1 | 145 | 137 |
-| round2 | 331 | 323 |
-| round3 | 303 | 281 |
-| round4 | 295 | 277 |
-| round5 | 349 | 324 |
-| round6 | 365 | 328 |
-| round7 | 367 | 335 |
-| round8 | 426 | 383 |
-| round9 | 422 | 370 |
+| round1 | 144 | 136 |
+| round2 | 330 | 322 |
+| round3 | 302 | 280 |
+| round4 | 294 | 276 |
+| round5 | 348 | 323 |
+| round6 | 364 | 327 |
+| round7 | 366 | 334 |
+| round8 | 425 | 382 |
+| round9 | 421 | 369 |
 | dicionario | 5 | 0 |
-| **total** | 3008 | |
+| **total** | 2999 | |

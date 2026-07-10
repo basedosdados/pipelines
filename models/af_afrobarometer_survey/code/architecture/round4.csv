@@ -1,6 +1,5 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
 country_iso3_code,STRING,Country ISO3 code (derived from COUNTRY).,,no,br_bd_diretorios_mundo.pais:sigla_iso3,,no,,
-country,INT64,Country,,yes,,,no,,COUNTRY
 respno,STRING,Respondent number,,no,,,no,,RESPNO
 urbrur,INT64,Urban or Rural Primary Sampling Unit,,yes,,,no,,URBRUR
 backchk,INT64,Household back-checked?,,yes,,,no,,BACKCHK

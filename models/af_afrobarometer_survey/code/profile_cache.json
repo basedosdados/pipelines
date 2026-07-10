@@ -4,96 +4,96 @@
   "key": "refnumb",
   "dup_rows": 0,
   "sparse_columns": [],
-  "n_cols": 145,
+  "n_cols": 144,
   "coverage": [
    1999,
    2001
   ],
-  "n_countries": 12
+  "n_countries": 0
  },
  "round2": {
   "rows": 24301,
   "key": "respno",
   "dup_rows": 0,
   "sparse_columns": [],
-  "n_cols": 331,
+  "n_cols": 330,
   "coverage": [
    2002,
    2004
   ],
-  "n_countries": 16
+  "n_countries": 0
  },
  "round3": {
   "rows": 25397,
   "key": "respno",
   "dup_rows": 0,
   "sparse_columns": [],
-  "n_cols": 303,
+  "n_cols": 302,
   "coverage": [
    2005,
    2006
   ],
-  "n_countries": 18
+  "n_countries": 0
  },
  "round4": {
   "rows": 27713,
   "key": "respno",
   "dup_rows": 0,
   "sparse_columns": [],
-  "n_cols": 295,
+  "n_cols": 294,
   "coverage": [
    2008,
    2009
   ],
-  "n_countries": 20
+  "n_countries": 0
  },
  "round5": {
   "rows": 51587,
   "key": "respno",
   "dup_rows": 0,
   "sparse_columns": [],
-  "n_cols": 349,
+  "n_cols": 348,
   "coverage": [
    2011,
    2013
   ],
-  "n_countries": 35
+  "n_countries": 0
  },
  "round6": {
   "rows": 53935,
   "key": "respno",
   "dup_rows": 0,
   "sparse_columns": [],
-  "n_cols": 365,
+  "n_cols": 364,
   "coverage": [
    2014,
    2015
   ],
-  "n_countries": 36
+  "n_countries": 0
  },
  "round7": {
   "rows": 45823,
   "key": "respno",
   "dup_rows": 0,
   "sparse_columns": [],
-  "n_cols": 367,
+  "n_cols": 366,
   "coverage": [
    2016,
    2018
   ],
-  "n_countries": 34
+  "n_countries": 0
  },
  "round8": {
   "rows": 48084,
   "key": "respno",
   "dup_rows": 24,
   "sparse_columns": [],
-  "n_cols": 426,
+  "n_cols": 425,
   "coverage": [
    2019,
    2021
   ],
-  "n_countries": 37
+  "n_countries": 0
  },
  "round9": {
   "rows": 53444,
@@ -102,11 +102,11 @@
   "sparse_columns": [
    "nocall_21"
   ],
-  "n_cols": 422,
+  "n_cols": 421,
   "coverage": [
    2021,
    2023
   ],
-  "n_countries": 39
+  "n_countries": 0
  }
 }

@@ -11,7 +11,6 @@ select
     safe_cast(country_iso3_code as string) country_iso3_code,
     safe_cast(refnumb as int64) refnumb,
     safe_cast(casenumb as string) casenumb,
-    safe_cast(country as int64) country,
     safe_cast(identity as int64) identity,
     safe_cast(supdem as int64) supdem,
     safe_cast(supold as float64) supold,

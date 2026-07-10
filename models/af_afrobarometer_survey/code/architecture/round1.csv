@@ -2,7 +2,6 @@ name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory
 country_iso3_code,STRING,Country ISO3 code (derived from COUNTRY).,,no,br_bd_diretorios_mundo.pais:sigla_iso3,,no,,
 refnumb,INT64,Reference number,,no,,,no,,refnumb
 casenumb,STRING,Respondent number,,no,,,no,,casenumb
-country,INT64,Country,,yes,,,no,,country
 identity,INT64,Identity,,yes,,,no,,identity
 supdem,INT64,suppdemo/Support for democracy,,yes,,,no,,supdem
 supold,FLOAT64,prevsyst/Previous System,,yes,,,no,,supold

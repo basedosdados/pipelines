@@ -9,7 +9,6 @@
 
 select
     safe_cast(country_iso3_code as string) country_iso3_code,
-    safe_cast(country as int64) country,
     safe_cast(country_alpha as int64) country_alpha,
     safe_cast(country_by_region_no as int64) country_by_region_no,
     safe_cast(country_by_region as int64) country_by_region,

@@ -5,7 +5,7 @@ models:
     description: >-
       Afrobarometer merged Round 1 survey microdata (1999-2001), one row per respondent
       across
-      12 African countries. Original Afrobarometer variable codes are preserved as
+      0 African countries. Original Afrobarometer variable codes are preserved as
       column names;
       coded values are documented in the dicionario table.
     tests:
@@ -28,9 +28,6 @@ models:
       - name: casenumb
         description: >-
           Respondent number
-      - name: country
-        description: >-
-          Country
       - name: identity
         description: >-
           Identity
@@ -459,7 +456,7 @@ models:
     description: >-
       Afrobarometer merged Round 2 survey microdata (2002-2004), one row per respondent
       across
-      16 African countries. Original Afrobarometer variable codes are preserved as
+      0 African countries. Original Afrobarometer variable codes are preserved as
       column names;
       coded values are documented in the dicionario table.
     tests:
@@ -475,9 +472,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso3
-      - name: country
-        description: >-
-          Country
       - name: respno
         description: >-
           Respondent number
@@ -1470,7 +1464,7 @@ models:
     description: >-
       Afrobarometer merged Round 3 survey microdata (2005-2006), one row per respondent
       across
-      18 African countries. Original Afrobarometer variable codes are preserved as
+      0 African countries. Original Afrobarometer variable codes are preserved as
       column names;
       coded values are documented in the dicionario table.
     tests:
@@ -1486,9 +1480,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso3
-      - name: country
-        description: >-
-          Country
       - name: respno
         description: >-
           Respondent number
@@ -2397,7 +2388,7 @@ models:
     description: >-
       Afrobarometer merged Round 4 survey microdata (2008-2009), one row per respondent
       across
-      20 African countries. Original Afrobarometer variable codes are preserved as
+      0 African countries. Original Afrobarometer variable codes are preserved as
       column names;
       coded values are documented in the dicionario table.
     tests:
@@ -2413,9 +2404,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso3
-      - name: country
-        description: >-
-          Country
       - name: respno
         description: >-
           Respondent number
@@ -3300,7 +3288,7 @@ models:
     description: >-
       Afrobarometer merged Round 5 survey microdata (2011-2013), one row per respondent
       across
-      35 African countries. Original Afrobarometer variable codes are preserved as
+      0 African countries. Original Afrobarometer variable codes are preserved as
       column names;
       coded values are documented in the dicionario table.
     tests:
@@ -3316,9 +3304,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso3
-      - name: country
-        description: >-
-          Country
       - name: country_alpha
         description: >-
           Country in an alphabetical order
@@ -4383,7 +4368,7 @@ models:
     description: >-
       Afrobarometer merged Round 6 survey microdata (2014-2015), one row per respondent
       across
-      36 African countries. Original Afrobarometer variable codes are preserved as
+      0 African countries. Original Afrobarometer variable codes are preserved as
       column names;
       coded values are documented in the dicionario table.
     tests:
@@ -4403,9 +4388,6 @@ models:
         description: >-
           Respondent Number
         tests: [not_null]
-      - name: country
-        description: >-
-          Country
       - name: country_r5list
         description: >-
           Country in R5 Alphabetical Order
@@ -5507,7 +5489,7 @@ models:
     description: >-
       Afrobarometer merged Round 7 survey microdata (2016-2018), one row per respondent
       across
-      34 African countries. Original Afrobarometer variable codes are preserved as
+      0 African countries. Original Afrobarometer variable codes are preserved as
       column names;
       coded values are documented in the dicionario table.
     tests:
@@ -5527,9 +5509,6 @@ models:
         description: >-
           Respondent number
         tests: [not_null]
-      - name: country
-        description: >-
-          Country
       - name: country_old_order
         description: >-
           Country in R7 Old Alphabetical Order
@@ -6629,7 +6608,7 @@ models:
     description: >-
       Afrobarometer merged Round 8 survey microdata (2019-2021), one row per respondent
       across
-      37 African countries. Original Afrobarometer variable codes are preserved as
+      0 African countries. Original Afrobarometer variable codes are preserved as
       column names;
       coded values are documented in the dicionario table. A small share of duplicate
       respondent
@@ -6651,9 +6630,6 @@ models:
         description: >-
           Respondent number
         tests: [not_null]
-      - name: country
-        description: >-
-          Country
       - name: country_old_spelling
         description: >-
           Country old spelling/order
@@ -7932,7 +7908,7 @@ models:
     description: >-
       Afrobarometer merged Round 9 survey microdata (2021-2023), one row per respondent
       across
-      39 African countries. Original Afrobarometer variable codes are preserved as
+      0 African countries. Original Afrobarometer variable codes are preserved as
       column names;
       coded values are documented in the dicionario table.
     tests:
@@ -7950,9 +7926,6 @@ models:
         description: >-
           Respondent number
         tests: [not_null]
-      - name: country
-        description: >-
-          Country
       - name: country_old_spelling
         description: >-
           Country old spelling/order

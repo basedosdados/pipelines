@@ -240,6 +240,11 @@ def process_round(rnd: dict) -> dict:
     round_vlabels: dict[str, dict] = {}
 
     for orig in meta.column_names:
+        # drop the raw COUNTRY code: fully redundant with the derived
+        # country_iso3_code, which links to the br_bd_diretorios_mundo.pais
+        # directory (the country name is recoverable via that join).
+        if orig == country_var:
+            continue
         name = clean_name(orig)
         if name in seen:  # collision after sanitisation
             k = 2
