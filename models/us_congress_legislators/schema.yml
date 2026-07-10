@@ -80,6 +80,12 @@ models:
       Mandatos exercidos por legisladores federais dos Estados Unidos. Uma
       linha por mandato (par legislador-mandato), com câmara, período, estado,
       distrito, partido e informações de contato do escritório em Washington.
+      A coluna state é validada contra o diretório de estados
+      (br_bd_diretorios_us.state); siglas de territórios extintos (DK —
+      Território de Dakota, OL — Território de Orleans, PI — Ilhas Filipinas)
+      são exceções históricas conhecidas e ficam de fora do teste, de modo que
+      qualquer outra sigla ausente do diretório (por exemplo, um erro de
+      digitação) faça o teste falhar.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_bioguide, term_start]
@@ -112,6 +118,11 @@ models:
         description: >
           Código USPS de duas letras do estado ou território representado. Inclui
           códigos históricos não presentes no diretório de estados atual.
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              ignore_values: [DK, OL, PI]
       - name: district
         description: Número do distrito eleitoral da Câmara (0 para at-large, -1 para
           desconhecido).
