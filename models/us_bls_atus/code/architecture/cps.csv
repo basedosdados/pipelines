@@ -8,8 +8,8 @@ gepseucl,STRING,Scrambled pseudo primary sampling unit (PSU) cluster,,no,,,no,,G
 gepseust,STRING,Scrambled pseudo primary sampling unit (PSU) collapsed stratum,,no,,,no,,GEPSEUST
 gereg,STRING,Region,,yes,,,no,,GEREG
 gestfips,STRING,Federal Processing Information Standards (FIPS) state code,,no,br_bd_diretorios_us.state:id_state,,no,,GESTFIPS
-gtcbsa,STRING,Specific metropolitan core based statistical area (CBSA) code,,no,br_bd_diretorios_us.cbsa_2023:id_cbsa,,no,,GTCBSA
-gtco,STRING,Federal Processing Standards (FIPS) county code,,no,br_bd_diretorios_us.county:id_county,,no,,GTCO
+gtcbsa,STRING,Specific metropolitan core based statistical area (CBSA) code,,no,,,no,"CBSA code; the OMB delineation vintage varies by diary year, so join to br_bd_diretorios_us.cbsa_<vintage> by (year->vintage, code); no single static FK.",GTCBSA
+gtco,STRING,Federal Processing Standards (FIPS) county code,,no,,,no,3-digit county-within-state code; concatenate with gestfips (2-digit) for the full 5-digit county FIPS in br_bd_diretorios_us.county. County definitions vary by year.,GTCO
 gtmetsta,STRING,Metropolitan status,,yes,,,no,,GTMETSTA
 hefaminc,STRING,Family income,,yes,,,no,,HEFAMINC
 hehousut,STRING,Type of housing unit,,yes,,,no,,HEHOUSUT
