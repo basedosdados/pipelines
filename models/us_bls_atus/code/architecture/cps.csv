@@ -1,0 +1,267 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the ATUS interview (diary year).,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column. Derived from the first four digits of tucaseid.,TUYEAR
+tucaseid,STRING,ATUS case identification number; primary key that links all ATUS files. First four digits are the interview year.,,no,,,no,,TUCASEID
+tulineno,STRING,ATUS person line number identifying each individual within the household.,,no,,,no,,TULINENO
+gediv,STRING,Division,,yes,,,no,,GEDIV
+gemetsta,STRING,Metropolitan status (1990 definitions),,yes,,,no,,GEMETSTA
+gepseucl,STRING,Scrambled pseudo primary sampling unit (PSU) cluster,,no,,,no,,GEPSEUCL
+gepseust,STRING,Scrambled pseudo primary sampling unit (PSU) collapsed stratum,,no,,,no,,GEPSEUST
+gereg,STRING,Region,,yes,,,no,,GEREG
+gestfips,STRING,Federal Processing Information Standards (FIPS) state code,,no,br_bd_diretorios_us.state:id_state,,no,,GESTFIPS
+gtcbsa,STRING,Specific metropolitan core based statistical area (CBSA) code,,no,br_bd_diretorios_us.cbsa_2023:id_cbsa,,no,,GTCBSA
+gtco,STRING,Federal Processing Standards (FIPS) county code,,no,br_bd_diretorios_us.county:id_county,,no,,GTCO
+gtmetsta,STRING,Metropolitan status,,yes,,,no,,GTMETSTA
+hefaminc,STRING,Family income,,yes,,,no,,HEFAMINC
+hehousut,STRING,Type of housing unit,,yes,,,no,,HEHOUSUT
+hephoneo,STRING,Is a telephone interview acceptable?,,yes,,,no,,HEPHONEO
+hetelavl,STRING,Is there a telephone elsewhere on which people in this household can be contacted?,,yes,,,no,,HETELAVL
+hetelhhd,STRING,Is there a telephone in this house/apartment?,,yes,,,no,,HETELHHD
+hetenure,STRING,"Are your living quarters owned, rented for cash, or occupied without payment of cash rent?",,yes,,,no,,HETENURE
+hrhhid,STRING,Household ID (15-digit identifier),,no,,,no,,HRHHID
+hrhhid2,STRING,Household ID part 2 (5-digit identifier),,no,,,no,,HRHHID2
+hrhtype,STRING,Household type,,yes,,,no,,HRHTYPE
+hrintsta,STRING,Interview status,,yes,,,no,,HRINTSTA
+hrlonglk,STRING,Longitudinal link indicator,,yes,,,no,,HRLONGLK
+hrmis,STRING,Month in sample,,yes,,,no,,HRMIS
+hrmonth,INT64,Month of interview,,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,HRMONTH
+hrnumhou,INT64,Total number of persons in the household (household members),,no,,person,no,,HRNUMHOU
+hrsample,STRING,Sample ID (4-character identifier),,no,,,no,,HRSAMPLE
+hrsersuf,STRING,Serial suffix,,yes,,,no,,HRSERSUF
+hryear4,INT64,Year of interview,,no,,year,no,,HRYEAR4
+hubus,STRING,Does anyone in this household have a business or a farm?,,yes,,,no,,HUBUS
+hubusl1,STRING,PULINENO of farm or business owner (first owner),,no,,,no,,HUBUSL1
+hubusl2,STRING,PULINENO of farm or business owner (second owner),,no,,,no,,HUBUSL2
+hubusl3,STRING,PULINENO of farm or business owner (third owner),,no,,,no,,HUBUSL3
+hubusl4,STRING,PULINENO of farm or business owner (fourth owner),,no,,,no,,HUBUSL4
+hufaminc,STRING,Family income,,yes,,,no,,HUFAMINC
+hufinal,STRING,Final outcome code,,yes,,,no,,HUFINAL
+huhhnum,STRING,Household number,,no,,,no,,HUHHNUM
+huinttyp,STRING,Type of interview,,yes,,,no,,HUINTTYP
+huprscnt,INT64,Number of actual and attempted personal contacts,,no,,person,no,,HUPRSCNT
+hurespli,STRING,PULINENO of the current respondent,,no,,,no,,HURESPLI
+huspnish,STRING,Is Spanish the only language spoken by all members of this household who are 15 years and older?,,yes,,,no,,HUSPNISH
+hxfaminc,STRING,HEFAMINC: allocation flag,,yes,,,no,,HXFAMINC
+peabspdo,STRING,Are you being paid by your employer for any of the time off last week?,,yes,,,no,,PEABSPDO
+peabsrsn,STRING,What was the main reason you were absent from work last week?,,yes,,,no,,PEABSRSN
+peafever,STRING,Did you ever serve on active duty in the U.S. Armed Forces?,,yes,,,no,,PEAFEVER
+peafnow,STRING,Are you now in the Armed Forces?,,yes,,,no,,PEAFNOW
+peafwhen,STRING,I was told that you served on active duty of the U.S. Armed Forces. When did you serve?,,yes,,,no,,PEAFWHEN
+peafwhn1,STRING,When did you serve in the Armed Forces? (first period),,yes,,,no,,PEAFWHN1
+peafwhn2,STRING,When did you serve in the Armed Forces? (second period),,yes,,,no,,PEAFWHN2
+peafwhn3,STRING,When did you serve in the Armed Forces? (third period),,yes,,,no,,PEAFWHN3
+peafwhn4,STRING,When did you serve in the Armed Forces? (fourth period),,yes,,,no,,PEAFWHN4
+pecert1,STRING,Does this person have a currently active professional certification or a state or industry license?,,yes,,,no,,PECERT1
+pecert2,STRING,"Were any of this person's certifications or licenses issued by the federal, state, or local government?",,yes,,,no,,PECERT2
+pecert3,STRING,"Earlier you told me that this person had a currently active professional certification or license. Is this certification or license required for the [job, main job, job from which person was on layoff, job from which person last worked]?",,yes,,,no,,PECERT3
+pecohab,STRING,PULINENO of cohabiting partner,,no,,,no,,PECOHAB
+pecyc,STRING,How many years of college credit have you completed?,,yes,,,no,,PECYC
+pedadtyp,STRING,"Is household child a biological, step or adopted child?",,yes,,,no,,PEDADTYP
+pedipged,STRING,How did you get your high school diploma?,,yes,,,no,,PEDIPGED
+pedisdrs,STRING,Does this person have difficulty dressing or bathing?,,yes,,,no,,PEDISDRS
+pedisear,STRING,Is this person deaf or does this person have serious difficulty hearing?,,yes,,,no,,PEDISEAR
+pediseye,STRING,Is this person blind or does this person have serious difficulty seeing even when wearing glasses?,,yes,,,no,,PEDISEYE
+pedisout,STRING,"Because of a physical, mental, or emotional condition does this person have difficulty doing errands alone such as visiting a doctor's office or shopping?",,yes,,,no,,PEDISOUT
+pedisphy,STRING,Do you have serious difficulty walking or climbing stairs?,,yes,,,no,,PEDISPHY
+pedisrem,STRING,"Because of a physical, mental, or emotional condition, does this person have serious difficulty concentrating, remembering, or making decisions?",,yes,,,no,,PEDISREM
+pedw4wk,STRING,Did you do any of this work during the last 4 weeks?,,yes,,,no,,PEDW4WK
+pedwavl,STRING,"Last week, could you have started a job if one had been offered?",,yes,,,no,,PEDWAVL
+pedwavr,STRING,Why could you not have started a job if one had been offered last week?,,yes,,,no,,PEDWAVR
+pedwlko,STRING,Did you look for work any time in the last 12 months?,,yes,,,no,,PEDWLKO
+pedwlkwk,STRING,And since you left that job or business have you looked for work?,,yes,,,no,,PEDWLKWK
+pedwrsn,STRING,What is the main reason you were not looking for work during the last 4 weeks?,,yes,,,no,,PEDWRSN
+pedwwk,STRING,Did you actually work at a job or business during the last 12 months?,,yes,,,no,,PEDWWK
+pedwwnto,STRING,"Do you currently want a job, either full or part time?",,yes,,,no,,PEDWWNTO
+peeduca,STRING,"What is the highest level of school you have completed or the , highest degree you have received?",,yes,,,no,,PEEDUCA
+peern,INT64,Total weekly overtime earnings (2 implied decimals),,no,,USD,no,,PEERN
+peerncov,STRING,"On this job, are you covered by a union or employee association contract?",,yes,,,no,,PEERNCOV
+peernh1o,FLOAT64,"Excluding overtime pay, tips, and commissions, what is your hourly rate of pay on your main job? (2 implied decimals)",,no,,USD,no,,PEERNH1O
+peernh2,INT64,"Excluding overtime pay, tips, and commissions, what is your hourly rate of pay on your main job? (2 implied decimals)",,no,,USD,no,,PEERNH2
+peernhro,INT64,How many hours do you usually work per week at this rate?,,no,,hour,no,,PEERNHRO
+peernhry,STRING,Hourly/non-hourly status,,yes,,,no,,PEERNHRY
+peernlab,STRING,"On this job, are you a member of a labor union or of an employee association similar to a union?",,yes,,,no,,PEERNLAB
+peernper,STRING,"For your main job, what is the easiest way for you to report your total earnings before taxes or other deductions: hourly, weekly, annually, or some other way?",,yes,,,no,,PEERNPER
+peernrt,STRING,"Even though you told me it is easier to report your earnings another way, are you paid at an hourly rate on your main job?",,yes,,,no,,PEERNRT
+peernuot,STRING,"Do you usually receive overtime pay, tips, or commissions at your job?",,yes,,,no,,PEERNUOT
+peernwkp,INT64,How many weeks a year do you get paid?,,no,,week,no,,PEERNWKP
+pefntvty,STRING,In what country was your father born?,,yes,,,no,,PEFNTVTY
+pegr6cor,STRING,Did you complete six or more graduate or professional school courses?,,yes,,,no,,PEGR6COR
+pegrprof,STRING,"Since completing your bachelor's degree, have you taken any graduate or professional school courses for credit?",,yes,,,no,,PEGRPROF
+pehgcomp,STRING,What was the highest grade of regular school you completed before receiving your GED?,,yes,,,no,,PEHGCOMP
+pehract1,INT64,"Last week, how many hours did you actually work at your main job?",,no,,hour,no,,PEHRACT1
+pehract2,INT64,"Last week, how many hours did you actually work at your other job(s)?",,no,,hour,no,,PEHRACT2
+pehractt,INT64,Total hours actually worked last week (sum of PEHRACT1 and PEHRACT2),,no,,hour,no,,PEHRACTT
+pehravl,STRING,"Last week, could you have worked full time if the hours had been available?",,yes,,,no,,PEHRAVL
+pehrftpt,STRING,Do you usually work more than 35 hours per week at your job(s)/family business?,,yes,,,no,,PEHRFTPT
+pehrrsn1,STRING,What is your main reason for working part time?,,yes,,,no,,PEHRRSN1
+pehrrsn2,STRING,What is the main reason you do not want to work full time?,,yes,,,no,,PEHRRSN2
+pehrrsn3,STRING,What is the main reason you worked less than 35 hours last week?,,yes,,,no,,PEHRRSN3
+pehrusl1,INT64,How many hours per week do you usually work at your main job?,,no,,hour,no,,PEHRUSL1
+pehrusl2,INT64,How many hours per week do you usually work at your other job(s)?,,no,,hour,no,,PEHRUSL2
+pehruslt,INT64,Total hours usually worked per week (sum of PEHRUSL1 and PEHRUSL2),,no,,hour,no,,PEHRUSLT
+pehrwant,STRING,Do you want to work a full time work week of 35 hours or more per week?,,yes,,,no,,PEHRWANT
+pehspnon,STRING,"Are you Spanish, Hispanic, or Latino?",,yes,,,no,,PEHSPNON
+peio1cow,STRING,Individual class of worker (main job),,yes,,,no,,PEIO1COW
+peio1icd,STRING,Industry code (main job),,no,,,no,"US Census industry code. Vintage varies by diary year: 2002 system (2003-09), 2007 (2010-13), 2012 (2014-19), 2017 (2020-24). Join to br_bd_diretorios_us.census_industry_<vintage> by (year->vintage, code); no single static FK.",PEIO1ICD
+peio1ocd,STRING,Occupation code (main job),,no,,,no,"US Census occupation code. Vintage varies by diary year: 2002 system (2003-10), 2010 (2011-19), 2018 (2020-24). Join to br_bd_diretorios_us.census_occupation_<vintage> by (year->vintage, code); no single static FK.",PEIO1OCD
+peio2cow,STRING,Individual class of worker (second job),,yes,,,no,,PEIO2COW
+peio2icd,STRING,Industry code (second job),,no,,,no,"US Census industry code. Vintage varies by diary year: 2002 system (2003-09), 2007 (2010-13), 2012 (2014-19), 2017 (2020-24). Join to br_bd_diretorios_us.census_industry_<vintage> by (year->vintage, code); no single static FK.",PEIO2ICD
+peio2ocd,STRING,Occupation code (second job),,no,,,no,"US Census occupation code. Vintage varies by diary year: 2002 system (2003-10), 2010 (2011-19), 2018 (2020-24). Join to br_bd_diretorios_us.census_occupation_<vintage> by (year->vintage, code); no single static FK.",PEIO2OCD
+pejhrsn,STRING,What is the main reason you left your last job?,,yes,,,no,,PEJHRSN
+pejhwant,STRING,Do you intend to look for work during the next 12 months?,,yes,,,no,,PEJHWANT
+pejhwko,STRING,Have you worked at a job or business at any time in the last 12 months?,,yes,,,no,,PEJHWKO
+pelayavl,STRING,Could you have returned to work during the last seven days if you had been recalled?,,yes,,,no,,PELAYAVL
+pelaydur,INT64,Duration of layoff (number of weeks),,no,,week,no,,PELAYDUR
+pelayfto,STRING,Is the job from which you are on layoff a full time job of 35 hours or more per week?,,yes,,,no,,PELAYFTO
+pelaylk,STRING,"Even though you are to be called back to work, have you been looking for work during the last 4 weeks?",,yes,,,no,,PELAYLK
+pelkavl,STRING,Could you have started a job in the last seven days if one had been offered?,,yes,,,no,,PELKAVL
+pelkdur,INT64,Duration of job seeking (number of weeks),,no,,week,no,,PELKDUR
+pelkfto,STRING,Are you seeking a full time or part time job?,,yes,,,no,,PELKFTO
+pelkll1o,STRING,"Before you started looking for work, what were you doing: working, going to school, or something else?",,yes,,,no,,PELKLL1O
+pelkll2o,STRING,"Did you lose or quit that job, or was it a temporary job that ended?",,yes,,,no,,PELKLL2O
+pelklwo,STRING,When did you last work?,,yes,,,no,,PELKLWO
+pelkm1,STRING,What are all of the things you have done to find work during the last 4 weeks? (first method),,yes,,,no,,PELKM1
+pelndad,STRING,PULINENO of father,,no,,,no,,PELNDAD
+pelnmom,STRING,PULINENO of mother,,no,,,no,,PELNMOM
+pemaritl,STRING,"Are you now married, widowed, divorced, separated, or never married?",,yes,,,no,,PEMARITL
+pemjnum,STRING,"Altogether, how many jobs did you have?",,yes,,,no,,PEMJNUM
+pemjot,STRING,"In the last seven days, did you have more than one job?",,yes,,,no,,PEMJOT
+pemlr,STRING,Monthly labor force recode,,yes,,,no,,PEMLR
+pemntvty,STRING,In what country was your mother born?,,yes,,,no,,PEMNTVTY
+pemomtyp,STRING,"Is household child a biological, step, or adopted child?",,yes,,,no,,PEMOMTYP
+pems123,STRING,"Was your master's degree program a one-year, two-year, or three-year program?",,yes,,,no,,PEMS123
+penatvty,STRING,In what country were you born?,,yes,,,no,,PENATVTY
+penlfact,STRING,"What best describes your situation at this time? For example, are you disabled, ill, in school, taking care of house or family, or something else?",,yes,,,no,,PENLFACT
+penlfjh,STRING,When did you last work at a job or business?,,yes,,,no,,PENLFJH
+penlfret,STRING,Are you retired from a job or business?,,yes,,,no,,PENLFRET
+peparent,STRING,PULINENO of parent,,no,,,no,,PEPARENT
+pepdemp1,STRING,Does this person usually have any paid employees?,,yes,,,no,,PEPDEMP1
+pepdemp2,STRING,Does this person usually have any paid employees?,,yes,,,no,,PEPDEMP2
+peret1,STRING,"Do you currently want a job, either full or part time?",,yes,,,no,,PERET1
+perrp,STRING,How is this person related to you? ATUS-CPS data: Variables collected in CPS June 2025 _______________________________________________________________________________________________________,,yes,,,no,,PERRP
+peschenr,STRING,"Last week, were you enrolled in a high school, college, or university?",,yes,,,no,,PESCHENR
+peschft,STRING,Are you enrolled in school as a full-time or part-time student?,,yes,,,no,,PESCHFT
+peschlvl,STRING,"Would that be high school, college, or university?",,yes,,,no,,PESCHLVL
+pesex,STRING,Sex,,yes,,,no,,PESEX
+pespouse,STRING,PULINENO of spouse,,no,,,no,,PESPOUSE
+prabsrea,STRING,Reason not at work by pay status ATUS-CPS data: Variables collected in CPS June 2025 _______________________________________________________________________________________________________,,yes,,,no,,PRABSREA
+pragna,STRING,Agricultural/non-agricultural industry,,yes,,,no,,PRAGNA
+prcitshp,STRING,Citizenship status,,yes,,,no,,PRCITSHP
+prcivlf,STRING,Civilian labor force,,yes,,,no,,PRCIVLF
+prcow1,STRING,Class of worker recode (main job),,yes,,,no,,PRCOW1
+prcow2,STRING,Class of worker recode (second job),,yes,,,no,,PRCOW2
+prcowpg,STRING,Class of worker - private or government,,yes,,,no,,PRCOWPG
+prdasian,STRING,Detailed Asian race recode,,yes,,,no,,PRDASIAN
+prdisc,STRING,Discouraged worker recode,,yes,,,no,,PRDISC
+prdisflg,STRING,Does this person have any of these disabilities?,,yes,,,no,,PRDISFLG
+prdtcow1,STRING,Detailed class of worker recode (main job),,yes,,,no,,PRDTCOW1
+prdtcow2,STRING,Detailed class of worker recode (second job),,yes,,,no,,PRDTCOW2
+prdthsp,STRING,Detailed Hispanic origin group,,yes,,,no,,PRDTHSP
+prdtind1,STRING,Detailed industry recode (main job),,yes,,,no,,PRDTIND1
+prdtind2,STRING,Detailed industry recode (second job),,yes,,,no,,PRDTIND2
+prdtocc1,STRING,Detailed occupation recode (main job),,yes,,,no,,PRDTOCC1
+prdtocc2,STRING,Detailed occupation recode (second job),,yes,,,no,,PRDTOCC2
+premp,STRING,Employed persons recode,,yes,,,no,,PREMP
+premphrs,STRING,Reason not at work or hours at work,,yes,,,no,,PREMPHRS
+prempnot,STRING,"Employed, unemployed, or not in the labor force",,yes,,,no,,PREMPNOT
+prerelg,STRING,Earnings edit eligibility flag,,yes,,,no,,PRERELG
+prernhly,FLOAT64,Hourly earnings at main job (2 implied decimals),,no,,USD,no,,PRERNHLY
+prernwa,INT64,Weekly earnings at main job (2 implied decimals),,no,,USD,no,,PRERNWA
+prexplf,STRING,Experienced labor force employment,,yes,,,no,,PREXPLF
+prfamnum,STRING,Family number recode,,yes,,,no,,PRFAMNUM
+prfamrel,STRING,Family relationship code,,yes,,,no,,PRFAMREL
+prfamtyp,STRING,Family type recode,,yes,,,no,,PRFAMTYP
+prftlf,STRING,Full time labor force,,yes,,,no,,PRFTLF
+prhernal,STRING,PRERNHLY: allocation flag,,yes,,,no,,PRHERNAL
+prhrusl,STRING,Usual hours worked weekly,,yes,,,no,,PRHRUSL
+primind1,STRING,Intermediate industry recode (main job),,yes,,,no,,PRIMIND1
+primind2,STRING,Intermediate industry recode (second job),,yes,,,no,,PRIMIND2
+prinuyer,STRING,Immigrant's year of entry into the U.S. ATUS-CPS data: Variables collected in CPS June 2025 _______________________________________________________________________________________________________,,yes,,,no,,PRINUYER
+prioelg,STRING,Industry and occupation edit eligibility flag,,yes,,,no,,PRIOELG
+prjobsea,STRING,Job search recode,,yes,,,no,,PRJOBSEA
+prmarsta,STRING,Marital status based on Armed Forces participation,,yes,,,no,,PRMARSTA
+prmjind1,STRING,Major industry recode (main job),,yes,,,no,,PRMJIND1
+prmjind2,STRING,Major industry recode (second job),,yes,,,no,,PRMJIND2
+prmjocc1,STRING,Major occupation recode (main job),,yes,,,no,,PRMJOCC1
+prmjocc2,STRING,Major occupation recode (second job),,yes,,,no,,PRMJOCC2
+prmjocgr,STRING,Major occupation categories (main job),,yes,,,no,,PRMJOCGR
+prnagpws,STRING,Non-agricultural private wage and salary workers recode,,yes,,,no,,PRNAGPWS
+prnagws,STRING,Non-agricultural wage and salary workers recode,,yes,,,no,,PRNAGWS
+prnlfsch,STRING,Not in labor force activity - in school or not in school,,yes,,,no,,PRNLFSCH
+prnmchld,INT64,Number of own children < 18 years of age,,no,,person,no,,PRNMCHLD
+prpertyp,STRING,Type of person recode,,yes,,,no,,PRPERTYP
+prpthrs,STRING,At work 1-34 hours by hours at work,,yes,,,no,,PRPTHRS
+prptrea,STRING,Detailed reason for part time work,,yes,,,no,,PRPTREA
+prsjmj,STRING,Single/multiple jobholder,,yes,,,no,,PRSJMJ
+prtage,INT64,Age,,no,,year,no,,PRTAGE
+prunedur,INT64,Duration of unemployment (number of weeks),,no,,week,no,,PRUNEDUR
+pruntype,STRING,Reason for unemployment,,yes,,,no,,PRUNTYPE
+prwernal,STRING,PRERNWA: allocation flag,,yes,,,no,,PRWERNAL
+prwksch,STRING,Labor force by time worked or lost,,yes,,,no,,PRWKSCH
+prwkstat,STRING,Full time or part time work status,,yes,,,no,,PRWKSTAT
+prwntjob,STRING,Not in labor force recode - want a job or other not in labor force,,yes,,,no,,PRWNTJOB
+ptdtrace,STRING,Race (topcoded),,yes,,,no,,PTDTRACE
+pthr,STRING,Hourly pay topcode flag,,yes,,,no,,PTHR
+ptnmemp1,INT64,"Excluding all owners, how many paid employees does this person usually have?",,no,,person,no,,PTNMEMP1
+ptnmemp2,INT64,"Excluding all owners, how many paid employee does this person usually have?",,no,,person,no,,PTNMEMP2
+ptot,STRING,Weekly overtime amount topcode flag,,yes,,,no,,PTOT
+ptwk,STRING,Weekly earnings topcode flag,,yes,,,no,,PTWK
+puabsot,STRING,"In the last seven days, did you have a job either full or part time?",,yes,,,no,,PUABSOT
+puafever,STRING,Did you ever serve on active duty in the U.S. Armed Forces?,,yes,,,no,,PUAFEVER
+pubus1,STRING,"Last week, did you do any unpaid work in the family business or farm?",,yes,,,no,,PUBUS1
+pubus2ot,STRING,Do you receive any payments or profits from the business?,,yes,,,no,,PUBUS2OT
+pudis,STRING,"Last time we spoke to someone in this household, you were reported to have a disability. Does your disability continue to prevent you from accepting any kind of work during the next six months?",,yes,,,no,,PUDIS
+pudis1,STRING,Does your disability prevent you from accepting any kind of work during the next six months?,,yes,,,no,,PUDIS1
+pudis2,STRING,Do you have a disability that prevents you from accepting any kind of work during the next six months?,,yes,,,no,,PUDIS2
+puhroff1,STRING,"Last week, did you lose or take off any hours from your job for any reason such as illness, slack work, vacation, or holiday?",,yes,,,no,,PUHROFF1
+puhroff2,INT64,How many hours did you take off?,,no,,hour,no,,PUHROFF2
+puhrot1,STRING,"Last week, did you work any overtime or extra hours? (main job)",,yes,,,no,,PUHROT1
+puhrot2,INT64,How many additional hours did you work?,,no,,hour,no,,PUHROT2
+pujhdp1o,STRING,Did you do any of this work in the last 4 weeks?,,yes,,,no,,PUJHDP1O
+pulay,STRING,"During the last seven days, were you on layoff from a job?",,yes,,,no,,PULAY
+pulay6m,STRING,Have you been given any indication that you will be recalled to work within the next 6 months?,,yes,,,no,,PULAY6M
+pulayavr,STRING,Why could you not have started a job in the last week?,,yes,,,no,,PULAYAVR
+pulaydt,STRING,Has your employer given you a date to return to work? (to layoff job),,yes,,,no,,PULAYDT
+pulineno,STRING,Person line number,,no,,,no,,PULINENO
+pulk,STRING,Have you been doing anything to find work during the last 4 weeks?,,yes,,,no,,PULK
+pulkavr,STRING,Why could you not have started a job last week?,,yes,,,no,,PULKAVR
+pulkdk1,STRING,You said you have been trying to find work. How did you go about looking? (first method),,yes,,,no,,PULKDK1
+pulkdk2,STRING,PULKDK1 text: (second method),,yes,,,no,,PULKDK2
+pulkdk3,STRING,PULKDK1 text: (third method),,yes,,,no,,PULKDK3
+pulkdk4,STRING,PULKDK1 text: (fourth method),,yes,,,no,,PULKDK4
+pulkm2,STRING,What are all of the things you have been doing to find work during the last 4 weeks? (second method),,yes,,,no,,PULKM2
+pulkm3,STRING,PULKM2 text: (third method),,yes,,,no,,PULKM3
+pulkm4,STRING,PULKM2 text: (fourth method),,yes,,,no,,PULKM4
+pulkm5,STRING,PULKM2 text: (fifth method),,yes,,,no,,PULKM5
+pulkm6,STRING,PULKM2 text: (sixth method),,yes,,,no,,PULKM6
+pulkps1,STRING,Can you tell me more about what you did to search for work? (first method),,yes,,,no,,PULKPS1
+pulkps2,STRING,PULKPS1 text: (second method),,yes,,,no,,PULKPS2
+pulkps3,STRING,PULKPS1 text: (third method),,yes,,,no,,PULKPS3
+pulkps4,STRING,PULKPS1 text: (fourth method),,yes,,,no,,PULKPS4
+pupelig,STRING,Interview status of each person in the household,,yes,,,no,,PUPELIG
+puretot,STRING,Last month you were reported to be retired. Are you still retired?,,yes,,,no,,PURETOT
+puslfprx,STRING,Labor force information collected by self or proxy response,,yes,,,no,,PUSLFPRX
+puwk,STRING,"Last week, did you do any work for either pay or profit?",,yes,,,no,,PUWK
+tratusr,STRING,ATUS respondent,,yes,,,no,,TRATUSR
+tubwgt,FLOAT64,ATUS base weight,,no,,,no,Dimensionless statistical weight.,TUBWGT
+ptcovid1,STRING,"At any time in the LAST 4 weeks, did you telework or work at home for pay BECAUSE OF THE CORONAVIRUS PANDEMIC?",,yes,,,no,,PTCOVID1
+ptcovid2,STRING,"At any time in the LAST 4 WEEKS, were you unable to work because your EMPLOYER CLOSED OR LOST BUSINESS due to the Coronavirus?",,yes,,,no,,PTCOVID2
+ptcovid3,STRING,Did you receive any pay from your EMPLOYER for the hours you DID NOT work in the last 4 weeks?,,yes,,,no,,PTCOVID3
+ptcovid4,STRING,Did the Coronavirus pandemic prevent you from looking for work in the LAST 4 WEEKS?,,yes,,,no,,PTCOVID4
+ptcovid5w,STRING,"At any time in the last 4 weeks, did you need medical care for something other than Coronavirus, but not get it because of the Coronavirus pandemic?",,yes,,,no,,PTCOVID5W
+pepar1,STRING,PULINENO of first parent,,no,,,no,,PEPAR1
+pepar2,STRING,PULINENO of second parent,,no,,,no,,PEPAR2
+pepar1typ,STRING,Type of PEPAR1,,yes,,,no,,PEPAR1TYP
+pepar2typ,STRING,Type of PEPAR2,,yes,,,no,,PEPAR2TYP
+prernmin,STRING,Federally mandated minimum wage rate flag,,yes,,,no,,PRERNMIN
+ptcovr1,STRING,At any time LAST WEEK did (you/name) telework or work at home for pay?,,yes,,,no,,PTCOVR1
+ptcovr2,INT64,"LAST WEEK, (you/name) worked (# hours worked last week at all jobs) hours (total/at all jobs). How many of these hours did (you/name) telework or work at home for pay?",,no,,hour,no,,PTCOVR2
+ptcovr3,STRING,Did (you/name) telework or work at home for pay in February 2020 before the COVID-19 pandemic started?,,yes,,,no,,PTCOVR3
+ptcovr4,STRING,"LAST WEEK, did (you/name) do more, less, or the same amount of telework or work at home for pay as in February 2020 (before the COVID-19 pandemic)?",,yes,,,no,,PTCOVR4
+pxcovr1,STRING,PTCOVR1: allocation flag,,yes,,,no,,PXCOVR1
+pxcovr2,STRING,PTCOVR2: allocation flag,,yes,,,no,,PXCOVR2
+pxcovr3,STRING,PTCOVR3: allocation flag,,yes,,,no,,PXCOVR3
+pxcovr4,STRING,PTCOVR4: allocation flag,,yes,,,no,,PXCOVR4
+pttlwk,STRING,Telework at home,,yes,,,no,,PTTLWK
+pttlwkhr,INT64,Number of hours teleworked,,no,,hour,no,,PTTLWKHR
+pxtlwk,STRING,PTTLWK: allocation flag,,yes,,,no,,PXTLWK
+pxtlwkhr,STRING,PTTLWKHR: allocation flag,,yes,,,no,,PXTLWKHR

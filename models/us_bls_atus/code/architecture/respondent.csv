@@ -1,0 +1,134 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the ATUS interview (diary year).,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Partition column, renamed from TUYEAR.",TUYEAR
+tucaseid,STRING,ATUS case identification number; primary key that links all ATUS files. First four digits are the interview year.,,no,,,no,,TUCASEID
+tulineno,STRING,ATUS person line number identifying each individual within the household.,,no,,,no,,TULINENO
+tespuhrs,FLOAT64,Usual hours of work per week of spouse or unmarried partner,,no,,hour,no,,TESPUHRS
+trdtind1,STRING,Detailed industry recode (main job),,yes,,,no,,TRDTIND1
+trdtocc1,STRING,Detailed occupation recode (main job),,yes,,,no,,TRDTOCC1
+trernhly,FLOAT64,Hourly earnings at main job (2 implied decimals),,no,,USD,no,,TRERNHLY
+trernupd,STRING,Earnings update flag,,yes,,,no,,TRERNUPD
+trhernal,STRING,TRERNHLY: allocation flag,,yes,,,no,,TRHERNAL
+trhhchild,STRING,Presence of household children < 18,,yes,,,no,,TRHHCHILD
+trimind1,STRING,Intermediate industry recode (main job),,yes,,,no,,TRIMIND1
+trmjind1,STRING,Major industry recode (main job),,yes,,,no,,TRMJIND1
+trmjocc1,STRING,Major occupation recode (main job),,yes,,,no,,TRMJOCC1
+trmjocgr,STRING,Major occupation category (main job),,yes,,,no,,TRMJOCGR
+trnhhchild,STRING,Presence of own non-household child < 18,,yes,,,no,,TRNHHCHILD
+trnumhou,INT64,Number of people living in respondent's household,,no,,person,no,,TRNUMHOU
+trohhchild,STRING,Presence of own household children < 18,,yes,,,no,,TROHHCHILD
+trtalone,INT64,Total nonwork-related time respondent spent alone (in minutes),,no,,minute,no,,TRTALONE
+trtcc,INT64,Total time spent during diary day providing secondary childcare for household and own nonhousehold children < 13 (in minutes),,no,,minute,no,,TRTCC
+trthhfamily,INT64,Total nonwork-related time respondent spent with household family members (in minutes),,no,,minute,no,,TRTHHFAMILY
+trtnochild,INT64,Total nonwork-related time respondent spent with nonown children < 18 (in minutes),,no,,minute,no,,TRTNOCHILD
+trtnohh,INT64,Total time spent during diary day providing secondary childcare for nonown household children < 13 (in minutes),,no,,minute,no,,TRTNOHH
+trto,INT64,Total time spent during diary day providing secondary childcare for own children < 13 (in minutes),,no,,minute,no,,TRTO
+trtohh,INT64,Total time spent during diary day providing secondary childcare for own household children < 13 (in minutes),,no,,minute,no,,TRTOHH
+trtohhchild,INT64,Total nonwork-related time respondent spent with own household children < 18 (in minutes),,no,,minute,no,,TRTOHHCHILD
+trtonhh,INT64,Total time spent during diary day providing secondary childcare for own nonhousehold children < 13 (in minutes),,no,,minute,no,,TRTONHH
+trtonhhchild,INT64,Total nonwork-related time respondent spent with own nonhousehold children < 18 (in minutes),,no,,minute,no,,TRTONHHCHILD
+trtsponly,INT64,Total nonwork-related time respondent spent with spouse only (in minutes),,no,,minute,no,,TRTSPONLY
+trtspouse,INT64,Total nonwork-related time respondent spent with spouse (others may be present) (in minutes),,no,,minute,no,,TRTSPOUSE
+trtunmpart,INT64,Total nonwork-related time respondent spent with unmarried partner (others may be present) (in minutes),,no,,minute,no,,TRTUNMPART
+trwernal,STRING,TRERNWA: allocation flag,,yes,,,no,,TRWERNAL
+tthr,STRING,Hourly pay topcode flag,,yes,,,no,,TTHR
+ttot,STRING,Overtime amount topcode flag,,yes,,,no,,TTOT
+ttwk,STRING,Weekly earnings topcode flag,,yes,,,no,,TTWK
+tuabsot,STRING,"In the last seven days, did you have a job either full or part time?",,yes,,,no,,TUABSOT
+teabsrsn,STRING,What was the main reason you were absent from your job last week?,,yes,,,no,,TEABSRSN
+teern,INT64,Total weekly overtime earnings (2 implied decimals),,no,,USD,no,,TEERN
+teernh1o,FLOAT64,"Excluding overtime pay, tips, and commissions, what is your hourly rate of pay on your main job? (2 implied decimals)",,no,,USD,no,,TEERNH1O
+teernh2,INT64,"Excluding overtime pay, tips, and commissions, what is your hourly rate of pay on your main job? (2 implied decimals)",,no,,USD,no,,TEERNH2
+teernhro,FLOAT64,How many hours do you usually work per week at this rate?,,no,,hour,no,,TEERNHRO
+teernhry,STRING,Hourly/non-hourly status,,yes,,,no,,TEERNHRY
+teernper,STRING,"For your main job, what is the easiest way for you to report your total earnings before taxes or other deductions: hourly, weekly, annually, or some other way?",,yes,,,no,,TEERNPER
+teernrt,STRING,"Even though you told me it is easier to report your earnings another way, are you paid at an hourly rate on this job?",,yes,,,no,,TEERNRT
+teernuot,STRING,"Do you usually receive overtime pay, tips, or commissions at your main job?",,yes,,,no,,TEERNUOT
+teernwkp,INT64,How many weeks a year do you get paid?,,no,,week,no,,TEERNWKP
+tehrftpt,STRING,Do you usually work more than 35 hours per week at your job(s)/family business?,,yes,,,no,,TEHRFTPT
+tehrusl1,INT64,How many hours per week do you usually work at your main job?,,no,,hour,no,,TEHRUSL1
+tehrusl2,INT64,How many hours per week do you usually work at your other job(s)?,,no,,hour,no,,TEHRUSL2
+teio1cow,STRING,Individual class of worker code (main job),,yes,,,no,,TEIO1COW
+teio1icd,STRING,Industry code (main job),,no,,,no,"US Census industry code. Vintage varies by diary year: 2002 system (2003-09), 2007 (2010-13), 2012 (2014-19), 2017 (2020-24). Join to br_bd_diretorios_us.census_industry_<vintage> by (year->vintage, code); no single static FK.",TEIO1ICD
+teio1ocd,STRING,Occupation code (main job),,no,,,no,"US Census occupation code. Vintage varies by diary year: 2002 system (2003-10), 2010 (2011-19), 2018 (2020-24). Join to br_bd_diretorios_us.census_occupation_<vintage> by (year->vintage, code); no single static FK.",TEIO1OCD
+telayavl,STRING,Could you have returned to work in the last seven days if you had been recalled?,,yes,,,no,,TELAYAVL
+telaylk,STRING,"Even though you expect to be called back to work, have you been looking for work during the last four weeks?",,yes,,,no,,TELAYLK
+telkavl,STRING,Could you have started a job in the last seven days if one had been offered?,,yes,,,no,,TELKAVL
+telkm1,STRING,What are all of the things you have done to find work during the last 4 weeks? (first method),,yes,,,no,,TELKM1
+teret1,STRING,"Do you currently want a job, either full or part time?",,yes,,,no,,TERET1
+teschft,STRING,Are you enrolled as a full-time or part-time student?,,yes,,,no,,TESCHFT
+tubus,STRING,Does anyone in the household own a business or a farm?,,yes,,,no,,TUBUS
+tubus1,STRING,"In the last seven days, did you do any unpaid work in the family business or farm?",,yes,,,no,,TUBUS1
+tubus2ot,STRING,Do you receive payments or profits from the business?,,yes,,,no,,TUBUS2OT
+tubusl1,STRING,TULINENO of farm or business owner (first owner),,no,,,no,,TUBUSL1
+tubusl2,STRING,TULINENO of farm or business owner (second owner),,no,,,no,,TUBUSL2
+tubusl3,STRING,TULINENO of farm or business owner (third owner),,no,,,no,,TUBUSL3
+tubusl4,STRING,TULINENO of farm or business owner (fourth owner),,no,,,no,,TUBUSL4
+tucc2,STRING,Time first household child < 13 woke up,,no,,,no,"Time of day, formatted HH:MM:SS.",TUCC2
+tucc4,STRING,Time last household child < 13 went to bed,,no,,,no,"Time of day, formatted HH:MM:SS.",TUCC4
+tufwk,STRING,In the last seven days did you do any work for pay or profit?,,yes,,,no,,TUFWK
+tuio1mfg,STRING,"Is this business or organization mainly manufacturing, retail trade, wholesale trade, or something else? (main job)",,yes,,,no,,TUIO1MFG
+tuiodp1,STRING,"Last time we spoke to someone in this household, you were reported to work for (employer's name). Do you still work for (employer's name)? (main job)",,yes,,,no,,TUIODP1
+tuiodp2,STRING,Have the usual activities and duties of your job changed since (month of CPS interview)? (main job),,yes,,,no,,TUIODP2
+tuiodp3,STRING,"Last time we spoke to someone in this household, you were reported as (occupation) and your usual duties were (activities). Is this an accurate description of your current job? (main job)",,yes,,,no,,TUIODP3
+tulay,STRING,During the last seven days were you on layoff from your job?,,yes,,,no,,TULAY
+tulay6m,STRING,Have you been given any indication that you will be recalled to work within the next 6 months?,,yes,,,no,,TULAY6M
+tulayavr,STRING,Why could you not have started a job in the last week?,,yes,,,no,,TULAYAVR
+tulaydt,STRING,Has your employer given you a date to return to work? (to layoff job),,yes,,,no,,TULAYDT
+tulk,STRING,Have you been doing anything to find work during the last four weeks?,,yes,,,no,,TULK
+tulkavr,STRING,Why could you not have started a job last week?,,yes,,,no,,TULKAVR
+tulkdk1,STRING,You said you have been trying to find work. How did you go about looking? (first method),,yes,,,no,,TULKDK1
+tulkdk2,STRING,TULKDK1 text: (second method),,yes,,,no,,TULKDK2
+tulkdk3,STRING,TULKDK1 text: (third method),,yes,,,no,,TULKDK3
+tulkdk4,STRING,TULKDK1 text: (fourth method),,yes,,,no,,TULKDK4
+tulkm2,STRING,What are all of the things you have done to find work during the last 4 weeks? (second method),,yes,,,no,,TULKM2
+tulkm3,STRING,TULKM2 text: (third method),,yes,,,no,,TULKM3
+tulkm4,STRING,TULKM2 text: (fourth method),,yes,,,no,,TULKM4
+tulkm5,STRING,TULKM2 text: (fifth method),,yes,,,no,,TULKM5
+tulkm6,STRING,TULKM2 text: (sixth method),,yes,,,no,,TULKM6
+tulkps1,STRING,Can you tell me more about what you did to search for work? (first method),,yes,,,no,,TULKPS1
+tulkps2,STRING,TULKPS1 text: (second method),,yes,,,no,,TULKPS2
+tulkps3,STRING,TULKPS1 text: (third method),,yes,,,no,,TULKPS3
+tulkps4,STRING,TULKPS1 text: (fourth method),,yes,,,no,,TULKPS4
+tumonth,INT64,Month of the diary day (1-12).,,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,TUMONTH
+trtccc,INT64,"Total nonwork-related time respondent spent with customers, clients, and co-workers (in minutes)",,no,,minute,no,,TRTCCC
+trtcctot,INT64,Total time spent during diary day providing secondary childcare for all children < 13 (in minutes),,no,,minute,no,,TRTCCTOT
+trtchild,INT64,Total nonwork-related time respondent spent with household or nonhousehold children < 18 (in minutes),,no,,minute,no,,TRTCHILD
+trtcoc,INT64,"Total time spent during diary day providing secondary childcare for nonown, nonhousehold children < 13 (in minutes)",,no,,minute,no,,TRTCOC
+trtfamily,INT64,Total nonwork-related time respondent spent with family members (in minutes),,no,,minute,no,,TRTFAMILY
+trtfriend,INT64,Total nonwork-related time respondent spent with friends (in minutes),,no,,minute,no,,TRTFRIEND
+trthh,INT64,Total time spent during diary day providing secondary childcare for household children < 13 (in minutes),,no,,minute,no,,TRTHH
+tudis2,STRING,Do you have a disability that prevents you from accepting any kind of work during the next six months?,,yes,,,no,,TUDIS2
+turetot,STRING,The last time we spoke to someone in this household you were reported to be retired. Are you still retired?,,yes,,,no,,TURETOT
+tuspabs,STRING,"In the last seven days, did your spouse or unmarried partner have a job either full or part time?",,yes,,,no,,TUSPABS
+tuspusft,STRING,Does your spouse or unmarried partner usually work 35 hours or more per week?,,yes,,,no,,TUSPUSFT
+tuspwk,STRING,"In the last seven days, did your spouse or unmarried partner do any work for pay or profit?",,yes,,,no,,TUSPWK
+tremodr,STRING,Eating and Health Module respondent,,yes,,,no,,TREMODR
+tucc9,STRING,"Are the non-own, non-household children you cared for in TUCC8 related to you?",,yes,,,no,,TUCC9
+tudiarydate,STRING,"Date of the diary day, formatted YYYYMMDD.",,no,,,no,,TUDIARYDATE
+tudis,STRING,Last time we spoke to someone in this household you were reported to have a disability. Does your disability prevent you from doing any kind of work for the next six months?,,yes,,,no,,TUDIS
+tudis1,STRING,Does your disability prevent you from accepting any kind of work during the next six months?,,yes,,,no,,TUDIS1
+trchildnum,INT64,Number of household children < 18,,no,,person,no,,TRCHILDNUM
+tudiaryday,STRING,"Day of the week of diary day (day of the week about which the , respondent was interviewed)",,yes,,,no,,TUDIARYDAY
+trernwa,INT64,Weekly earnings at main job (2 implied decimals),,no,,USD,no,,TRERNWA
+trholiday,STRING,Flag to indicate if diary day was a holiday,,yes,,,no,,TRHOLIDAY
+trspftpt,STRING,"Full time or part time employment status of spouse or unmarried , partner",,yes,,,no,,TRSPFTPT
+trsppres,STRING,"Presence of the respondent's spouse or unmarried partner in the , household",,yes,,,no,,TRSPPRES
+trdpftpt,STRING,Full time or part time employment status of respondent,,yes,,,no,,TRDPFTPT
+tufnwgtp,FLOAT64,ATUS final (statistical) weight created with the 2006 weighting method; use to produce population estimates.,,no,,,no,Dimensionless statistical weight.,TUFNWGTP
+tespempnot,STRING,Employment status of spouse or unmarried partner,,yes,,,no,,TESPEMPNOT
+teschlvl,STRING,"Would that be high school, college, or university?",,yes,,,no,,TESCHLVL
+teschenr,STRING,"Are you enrolled in high school, college, or university?",,yes,,,no,,TESCHENR
+temjot,STRING,In the last seven days did you have more than one job?,,yes,,,no,,TEMJOT
+telfs,STRING,Labor force status of the respondent (edited).,,yes,,,no,,TELFS
+tehruslt,INT64,"Total hours usually worked per week (sum of TEHRUSL1 and , TEHRUSL2)",,no,,hour,no,,TEHRUSLT
+tryhhchild,INT64,Age of youngest household child < 18,,no,,year,no,,TRYHHCHILD
+trwbmodr,STRING,Well-Being Module respondent indicator.,,yes,,,no,,TRWBMODR
+trtalone_wk,INT64,Total work- and nonwork-related time respondent spent alone (in minutes),,no,,minute,no,,TRTALONE_WK
+trtccc_wk,INT64,"Total work- and nonwork-related time respondent spent with customers, clients, and coworkers (in minutes)",,no,,minute,no,,TRTCCC_WK
+trlvmodr,STRING,Leave module respondent,,yes,,,no,,TRLVMODR
+trtec,INT64,Total time spent providing eldercare (in minutes),,no,,minute,no,,TRTEC
+tuecytd,STRING,Did you provide any eldercare or assistance yesterday?,,yes,,,no,,TUECYTD
+tuelder,STRING,"Not including financial assistance or help you provided as part of your paid job, since the first of [REF_MONTH], have you provided any care of assistance for an adult who needed help because of a condition related to aging?",,yes,,,no,,TUELDER
+tuelfreq,STRING,How often did you provide this care?,,yes,,,no,,TUELFREQ
+tuelnum,INT64,"Since the first of [REF_MONTH], how many people have you provided this care to?",,no,,person,no,,TUELNUM
+tu20fwgt,FLOAT64,ATUS final weight created with the 2020 (pandemic) weighting method; used for 2019-2020 estimates.,,no,,,no,Dimensionless statistical weight.,TU20FWGT
