@@ -96,6 +96,15 @@ Each architecture file (Google Sheet) has these columns, in this order:
 | `observations` | Free-text notes |
 | `original_name` | Column name in the raw source |
 
+## When to set `covered_by_dictionary`
+
+`covered_by_dictionary = yes` only when the column's **stored values are codified** — short codes that require a separate `dicionario` table to interpret. It is NOT a property of "is this categorical"; it is a property of "are the stored values codes or already readable".
+
+- **`yes`** — stored values are opaque codes: `"M"`/`"F"` for gender, `1`/`2`/`3` for a Likert scale, a party/occupation/ISCED code, etc. The human meaning lives in the dictionary.
+- **`no`** — stored values are already human-readable labels (`"Male"`/`"Female"`, `"Very good"`), free text, dates/times, identifiers, continuous measures, or a code that is resolved through a **directory** (`directory_column`) rather than the dicionario. Directory-referenced columns are always `no`.
+
+Consequence: `yes` implies the column is STRING (a code), but STRING does NOT imply `yes` — a STRING of readable labels is `no`. The flag therefore depends on the cleaning decision of whether to keep raw codes or decode them to labels; decide that per dataset before filling the sheet.
+
 ## Architecture table is the source of truth
 
 When there is a conflict between raw data column names, DBT file conventions, and the architecture table, **the architecture table wins**. Update all other artifacts to match.
