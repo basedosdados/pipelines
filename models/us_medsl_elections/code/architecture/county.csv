@@ -1,9 +1,7 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
 year,INT64,Election year.,,no,br_bd_diretorios_data_tempo.ano:ano,,no,,year
 id_state,STRING,"State FIPS code (2-digit, zero-padded).",,no,br_bd_diretorios_us.state:id_state,,no,Resolved from the state postal abbreviation.,state_fips
-state_abbreviation,STRING,Two-letter USPS state postal abbreviation.,,no,,,no,,state_po
 id_county,STRING,"County FIPS code (5-digit, zero-padded).",,no,br_bd_diretorios_us.county:id_county,,no,"Blank for non-county reporting units (e.g. overseas/UOCAVA, statewide write-in); MEDSL city codes such as 2938000 (Kansas City) are 7 digits.",county_fips
-county_name,STRING,"County name, uppercase.",,no,,,no,,county_name
 office,STRING,Office contested (US PRESIDENT).,,no,,,no,,office
 candidate,STRING,"Candidate name, uppercase.",,no,,,no,,candidate
 party_detailed,STRING,"Full party label of the candidate's ballot line, uppercase.",,no,,,no,Mapped from the source single-party column.,party

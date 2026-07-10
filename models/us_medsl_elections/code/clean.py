@@ -144,17 +144,10 @@ POSTAL2FIPS = {
 def state_fips_from_abbr(abbr_series, fallback_series):
     """Resolve state FIPS from the postal abbreviation (authoritative), falling
     back to a supplied 2-digit code when the abbreviation is unknown."""
-
-    def one(a, fb):
-        a = str(a).strip().upper()
-        if a in POSTAL2FIPS:
-            return POSTAL2FIPS[a]
-        fb = str(fb).strip()
-        return fb if (len(fb) == 2 and fb.isdigit()) else ""
-
-    return [
-        one(a, fb) for a, fb in zip(abbr_series, fallback_series, strict=False)
-    ]
+    abbr = abbr_series.astype(str).str.strip().str.upper()
+    fb = fallback_series.astype(str).str.strip()
+    fb = fb.where(fb.str.fullmatch(r"\d{2}"), "")
+    return abbr.map(POSTAL2FIPS).fillna(fb)
 
 
 def simplify_party(series):
@@ -205,9 +198,6 @@ def finalize(df, table_cols):
 STATE_COLS = [
     "year",
     "id_state",
-    "state_abbreviation",
-    "state_census_code",
-    "state_icpsr_code",
     "office",
     "district",
     "stage",
@@ -247,7 +237,7 @@ def build_state():
             "total_votes": "totalvotes",
             "version": "version",
         },
-        STATE_COLS,
+        [*STATE_COLS, "state_abbreviation"],
     )
     frames.append(fp)
 
@@ -275,7 +265,7 @@ def build_state():
             "indicator_unofficial": "unofficial",
             "version": "version",
         },
-        STATE_COLS,
+        [*STATE_COLS, "state_abbreviation"],
     )
     frames.append(fs)
 
@@ -301,7 +291,7 @@ def build_state():
             "total_votes": "totalvotes",
             "version": "version",
         },
-        STATE_COLS,
+        [*STATE_COLS, "state_abbreviation"],
     )
     fx["party_simplified"] = simplify_party(fx["party_detailed"])
     frames.append(fx)
@@ -310,8 +300,6 @@ def build_state():
     df["id_state"] = state_fips_from_abbr(
         df["state_abbreviation"], zpad(df["id_state"], 2)
     )
-    df["state_census_code"] = zpad(df["state_census_code"], 2)
-    df["state_icpsr_code"] = zpad(df["state_icpsr_code"], 2)
     df["party_detailed"] = df["party_detailed"].str.upper()
     df["party_simplified"] = df["party_simplified"].str.upper()
     for c in ["year", "votes", "total_votes"]:
@@ -328,9 +316,7 @@ def build_state():
 COUNTY_COLS = [
     "year",
     "id_state",
-    "state_abbreviation",
     "id_county",
-    "county_name",
     "office",
     "candidate",
     "party_detailed",
@@ -360,7 +346,7 @@ def build_county():
             "total_votes": "totalvotes",
             "version": "version",
         },
-        COUNTY_COLS,
+        [*COUNTY_COLS, "state_abbreviation"],
     )
     fc["party_simplified"] = simplify_party(fc["party_detailed"])
     fc["id_county"] = zpad(fc["id_county"], 5)
@@ -382,9 +368,6 @@ def build_county():
 DISTRICT_COLS = [
     "year",
     "id_state",
-    "state_abbreviation",
-    "state_census_code",
-    "state_icpsr_code",
     "district",
     "stage",
     "indicator_runoff",
@@ -427,14 +410,12 @@ def build_district():
             "indicator_fusion_ticket": "fusion_ticket",
             "version": "version",
         },
-        DISTRICT_COLS,
+        [*DISTRICT_COLS, "state_abbreviation"],
     )
     fh["party_simplified"] = simplify_party(fh["party_detailed"])
     fh["id_state"] = state_fips_from_abbr(
         fh["state_abbreviation"], zpad(fh["id_state"], 2)
     )
-    fh["state_census_code"] = zpad(fh["state_census_code"], 2)
-    fh["state_icpsr_code"] = zpad(fh["state_icpsr_code"], 2)
     fh["district"] = zpad(fh["district"], 2)
     fh["party_detailed"] = fh["party_detailed"].str.upper()
     fh["party_simplified"] = fh["party_simplified"].str.upper()

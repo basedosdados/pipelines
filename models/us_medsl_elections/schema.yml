@@ -31,12 +31,6 @@ models:
       - name: id_state
         description: State FIPS code (2-digit, zero-padded).
         tests: [not_null]
-      - name: state_abbreviation
-        description: Two-letter USPS state postal abbreviation.
-      - name: state_census_code
-        description: U.S. Census Bureau state code.
-      - name: state_icpsr_code
-        description: ICPSR state code.
       - name: office
         description: Office contested (e.g. US PRESIDENT, US SENATE, GOVERNOR).
         tests: [not_null]
@@ -90,14 +84,10 @@ models:
       - name: id_state
         description: State FIPS code (2-digit, zero-padded).
         tests: [not_null]
-      - name: state_abbreviation
-        description: Two-letter USPS state postal abbreviation.
       - name: id_county
         description: >
           County FIPS code (5-digit, zero-padded); null for non-county reporting
           units (e.g. overseas/UOCAVA and statewide write-in rows).
-      - name: county_name
-        description: County name, uppercase.
       - name: office
         description: Office contested (US PRESIDENT).
         tests: [not_null]
@@ -142,12 +132,6 @@ models:
       - name: id_state
         description: State FIPS code (2-digit, zero-padded).
         tests: [not_null]
-      - name: state_abbreviation
-        description: Two-letter USPS state postal abbreviation.
-      - name: state_census_code
-        description: U.S. Census Bureau state code.
-      - name: state_icpsr_code
-        description: ICPSR state code.
       - name: district
         description: Congressional district number (2-digit, zero-padded; 00 = at-large).
         tests: [not_null]

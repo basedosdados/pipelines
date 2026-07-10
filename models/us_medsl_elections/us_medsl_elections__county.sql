@@ -15,9 +15,7 @@
 select
     safe_cast(year as int64) year,
     safe_cast(id_state as string) id_state,
-    safe_cast(state_abbreviation as string) state_abbreviation,
     safe_cast(nullif(id_county, '') as string) id_county,
-    safe_cast(county_name as string) county_name,
     safe_cast(office as string) office,
     safe_cast(candidate as string) candidate,
     safe_cast(party_detailed as string) party_detailed,

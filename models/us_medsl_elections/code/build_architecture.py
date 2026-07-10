@@ -3,8 +3,11 @@
 
 Emits one CSV per table under code/architecture/, following the Data Basis
 10-column architecture schema. Column order in each list IS the final table
-column order. Descriptions are in English (matching us_harvard_ned practice);
-PT/ES translations are added at the metadata step.
+column order. Tables are normalized: geographic attributes joinable from the
+US directories (state abbreviation/census/ICPSR codes, county name) are NOT
+carried here — join via id_state -> br_bd_diretorios_us.state and
+id_county -> br_bd_diretorios_us.county. Descriptions are in English; PT/ES
+translations are added at the metadata step.
 """
 
 import csv
@@ -23,15 +26,11 @@ ARCH_COLS = [
     "original_name",
 ]
 
-# Directory foreign keys reused across tables.
 FK_YEAR = "br_bd_diretorios_data_tempo.ano:ano"
-FK_DATE = "br_bd_diretorios_data_tempo.data:data"
 FK_STATE = "br_bd_diretorios_us.state:id_state"
 FK_COUNTY = "br_bd_diretorios_us.county:id_county"
 
-# Each row: (name, bigquery_type, description, directory_column, original_name, observations)
-# Remaining architecture fields are filled with defaults below.
-
+# (name, bigquery_type, description, directory_column, original_name, observations)
 STATE = [
     ("year", "INT64", "Election year.", FK_YEAR, "year", ""),
     (
@@ -42,23 +41,6 @@ STATE = [
         "state_fips",
         "",
     ),
-    (
-        "state_abbreviation",
-        "STRING",
-        "Two-letter USPS state postal abbreviation.",
-        "",
-        "state_po",
-        "",
-    ),
-    (
-        "state_census_code",
-        "STRING",
-        "U.S. Census Bureau state code.",
-        "",
-        "state_cen",
-        "",
-    ),
-    ("state_icpsr_code", "STRING", "ICPSR state code.", "", "state_ic", ""),
     (
         "office",
         "STRING",
@@ -169,28 +151,12 @@ COUNTY = [
         "Resolved from the state postal abbreviation.",
     ),
     (
-        "state_abbreviation",
-        "STRING",
-        "Two-letter USPS state postal abbreviation.",
-        "",
-        "state_po",
-        "",
-    ),
-    (
         "id_county",
         "STRING",
         "County FIPS code (5-digit, zero-padded).",
         FK_COUNTY,
         "county_fips",
         "Blank for non-county reporting units (e.g. overseas/UOCAVA, statewide write-in); MEDSL city codes such as 2938000 (Kansas City) are 7 digits.",
-    ),
-    (
-        "county_name",
-        "STRING",
-        "County name, uppercase.",
-        "",
-        "county_name",
-        "",
     ),
     ("office", "STRING", "Office contested (US PRESIDENT).", "", "office", ""),
     ("candidate", "STRING", "Candidate name, uppercase.", "", "candidate", ""),
@@ -255,23 +221,6 @@ DISTRICT = [
         "",
     ),
     (
-        "state_abbreviation",
-        "STRING",
-        "Two-letter USPS state postal abbreviation.",
-        "",
-        "state_po",
-        "",
-    ),
-    (
-        "state_census_code",
-        "STRING",
-        "U.S. Census Bureau state code.",
-        "",
-        "state_cen",
-        "",
-    ),
-    ("state_icpsr_code", "STRING", "ICPSR state code.", "", "state_ic", ""),
-    (
         "district",
         "STRING",
         "Congressional district number (2-digit, zero-padded; 00 = at-large).",
@@ -309,7 +258,7 @@ DISTRICT = [
         "STRING",
         "Full party label of the candidate's ballot line, uppercase.",
         "",
-        "party_detailed",
+        "party",
         "Mapped from the source single-party column.",
     ),
     (
@@ -317,7 +266,7 @@ DISTRICT = [
         "STRING",
         "Party collapsed to DEMOCRAT, REPUBLICAN, LIBERTARIAN or OTHER.",
         "",
-        "party_simplified",
+        "party",
         "Derived from party.",
     ),
     (
