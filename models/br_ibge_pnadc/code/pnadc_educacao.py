@@ -19,7 +19,7 @@ LAYOUT_URL = (
     "https://ftp.ibge.gov.br/Trabalho_e_Rendimento/"
     "Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/"
     "Anual/Microdados/Trimestre/Trimestre_2/Documentacao/"
-    "input_PNADC_trimestre2_20221221.txt"
+    "input_PNADC_trimestre2_20260619.txt"
 )
 
 # Variáveis desejadas
@@ -131,7 +131,7 @@ names = vars_encontradas
 
 # LEITURA DO ARQUIVO
 # Arquivo baixado através do link: https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Anual/Microdados/Trimestre/Trimestre_2/Dados/
-arquivo_dados = os.path.join(input, "PNADC_2024_trimestre2.txt")
+arquivo_dados = os.path.join(input, "PNADC_2025_trimestre2.txt")
 
 df = pd.read_fwf(
     arquivo_dados, colspecs=colspecs, names=names, dtype=str, encoding="latin1"
