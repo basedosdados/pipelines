@@ -170,3 +170,4 @@ dbt_internal_packages/*
 prefect3-*.md
 refatorar_backend.md
 docs/
+models/**/code/metadata_spec.json
