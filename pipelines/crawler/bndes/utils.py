@@ -51,22 +51,22 @@ def get_source_last_modified() -> datetime:
 
 def parse_decimal_ptbr(s: pd.Series) -> pd.Series:
     """
-    Converte decimal pt-BR do CSV (so virgula, SEM milhar) para float.
+    Normaliza o separador decimal pt-BR do CSV (virgula -> ponto).
 
     Vale p/ valor_operacao, valor_desembolsado e taxa_juros: no CSV do dados
-    abertos nao ha separador de milhar, entao NAO se remove '.'. Identico ao
-    parse ja validado em task_davi/verify_csv_vs_xlsx.py.
+    abertos nao ha separador de milhar, entao so troca ',' por '.'. Devolve
+    STRING (nao numero): o staging do BD e todo string e quem tipa e o
+    safe_cast do dbt; aqui so deixamos o decimal no formato que o safe_cast
+    aceita (ex.: "8750,50" -> "8750.50").
 
     Args:
         s (pd.Series): Serie de strings (ex.: "8750,50").
 
     Returns:
-        pd.Series: Serie float64 (NaN onde nao parseia).
+        pd.Series: Serie de strings com '.' decimal (ex.: "8750.50").
     """
 
-    s = s.str.replace(",", ".", regex=False)
-    s = pd.to_numeric(s, errors="coerce")
-    return s
+    return s.str.replace(",", ".", regex=False)
 
 
 def download_csv(
@@ -168,15 +168,9 @@ def _transform_chunk(df: pd.DataFrame) -> pd.DataFrame:
         ].apply(parse_decimal_ptbr)
     )
 
-    df_striped[["prazo_carencia", "prazo_amortizacao"]] = df_striped[
-        ["prazo_carencia", "prazo_amortizacao"]
-    ].apply(lambda col: pd.to_numeric(col, errors="coerce").astype("Int64"))
-
     date = pd.to_datetime(
         df_striped["data_contratacao"], format="%Y-%m-%d", errors="coerce"
     )
-
-    df_striped["data_contratacao"] = date.dt.date
 
     df_striped["ano"] = date.dt.year.astype("Int64")
 
@@ -184,10 +178,14 @@ def _transform_chunk(df: pd.DataFrame) -> pd.DataFrame:
         r"\.0$", "", regex=True
     )
 
-    condition = df_striped["id_municipio"].str.fullmatch(r"\d{7}")
+    # valido = 7 digitos E nao e sentinela de "municipio desconhecido"
+    # ("9999999", 122 linhas; o "0" ja cai no fullmatch por ter 1 digito).
+    valido = df_striped["id_municipio"].str.fullmatch(r"\d{7}") & (
+        df_striped["id_municipio"] != "9999999"
+    )
 
     df_striped["id_municipio"] = df_striped["id_municipio"].where(
-        condition, pd.NA
+        valido, pd.NA
     )
 
     return df_striped[constants.ORDER_COLUMNS.value]
