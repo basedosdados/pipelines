@@ -144,3 +144,142 @@ models:
         tests: [not_null]
       - name: indicador_inovacao
         description: Indicador de inovação do projeto
+  - name: br_bndes_operacoes_contratadas__operacoes_contratadas_forma_indireta_automatica
+    description: >
+      Operações de financiamento contratadas pelo BNDES na forma indireta
+      automática (pequeno porte, repassadas por instituições financeiras
+      credenciadas). Grão de uma linha por operação contratada; não há
+      identificador único de operação na fonte. Não inclui Cartão BNDES nem
+      operações com pessoas físicas. Cobertura nacional, 2002–2026.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano da contratação da operação.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data_contratacao
+        description: >
+          Data da efetiva contratação no sistema BNDES.
+      - name: sigla_uf
+        description: >
+          Unidade federativa onde o investimento foi realizado ou o cliente
+          está registrado.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >
+          Código IBGE do município onde o investimento foi realizado ou o
+          cliente está registrado.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: cnpj_cliente
+        description: >
+          Número de inscrição no CNPJ do cliente (mascarado na origem).
+      - name: nome_cliente
+        description: >
+          Nome do cliente.
+      - name: porte_cliente
+        description: >
+          Porte do cliente na data da contratação, conforme a política de
+          classificação do BNDES vigente à época.
+      - name: natureza_cliente
+        description: >
+          Natureza do cliente na operação de crédito (ex.: privada,
+          administração pública direta).
+      - name: valor_operacao
+        description: >
+          Valor da operação em reais, convertido pela data do contrato e pelo
+          indexador (pode ser corrigido por US$, IPCA, TJLP etc., se previsto
+          em contrato).
+      - name: valor_desembolsado
+        description: >
+          Valor liberado em reais, convertido pela data do desembolso e pelo
+          indexador; atualizado semestralmente. Pode superar o valor contratado
+          se houver variação positiva do indexador.
+      - name: fonte_recurso
+        description: >
+          Fonte de recursos registrada nos desembolsos do contrato (vinculadas,
+          estatutárias ou de livre aplicação).
+      - name: custo_financeiro
+        description: >
+          Custo de captação do BNDES, definido por produto, linha ou programa
+          (ex.: TLP, SELIC, taxas indexadas ao IPCA). O custo total do cliente é
+          a soma do custo financeiro com os juros; quando é "TAXA FIXA", o campo
+          taxa_juros representa o custo total.
+      - name: taxa_juros
+        description: >
+          Componente de juros da taxa da operação, em percentual. Em operações
+          indiretas, a taxa final compõe-se do custo financeiro, da taxa do
+          BNDES e da taxa do agente financeiro.
+      - name: prazo_carencia
+        description: >
+          Período, em meses, durante o qual o cliente paga somente os juros do
+          financiamento.
+      - name: prazo_amortizacao
+        description: >
+          Período, em meses, após a carência, durante o qual o cliente paga a
+          amortização do financiamento, além dos juros.
+      - name: modalidade_apoio
+        description: >
+          Modalidade de apoio: reembolsável ou não reembolsável.
+      - name: forma_apoio
+        description: >
+          Forma de apoio: direta (financiamento direto ao BNDES) ou indireta
+          (via instituições financeiras credenciadas).
+      - name: produto
+        description: >
+          Produto BNDES, que define as regras gerais de financiamento conforme
+          a finalidade.
+      - name: instrumento_financeiro
+        description: >
+          Instrumento financeiro: linha, programa ou fundo.
+      - name: inovacao
+        description: >
+          Indicador de inovação (instrumentos financeiros voltados ao apoio à
+          inovação).
+      - name: area_operacional
+        description: >
+          Área responsável pela operação no BNDES.
+      - name: setor_cnae
+        description: >
+          Agrupamento setorial do BNDES para fins estatísticos, baseado nos
+          códigos CNAE.
+      - name: subsetor_cnae_agrupado
+        description: >
+          Agrupamento de subsetor do BNDES para fins estatísticos, baseado nos
+          códigos CNAE.
+      - name: codigo_subsetor_cnae
+        description: >
+          Código do subsetor segundo a classificação CNAE 2.2 do IBGE (letra +
+          sete dígitos); quando não há classificação em subclasse, o BNDES
+          completa com zeros (ex.: A0100000).
+      - name: nome_subsetor_cnae
+        description: >
+          Nome do subsetor segundo a classificação CNAE 2.2 do IBGE.
+      - name: setor_bndes
+        description: >
+          Agrupamento setorial do BNDES para fins estatísticos, baseado nos
+          códigos CNAE e nos produtos do BNDES.
+      - name: subsetor_bndes
+        description: >
+          Agrupamento de subsetor do BNDES para fins estatísticos, baseado nos
+          códigos CNAE e nos produtos do BNDES.
+      - name: instituicao_financeira_credenciada
+        description: >
+          Nome da instituição financeira credenciada (agente repassador).
+      - name: cnpj_agente_financeiro
+        description: >
+          Número de inscrição no CNPJ da instituição financeira credenciada.
+      - name: situacao_operacao
+        description: >-
+          Status da obrigação financeira e não financeira da operação.
