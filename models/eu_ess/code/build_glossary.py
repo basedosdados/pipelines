@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Build the cross-round glossary from all available variables_r*.json.
-- glossary_names.json: {mnemonic: english_name} for every mnemonic across rounds.
-  R11 is assigned FIRST in its codebook order (reproducing the approved R11 names
-  exactly); new mnemonics from other rounds (newest-first) get names afterwards.
+"""Build the cross-round glossary from the .dta-sourced variables_r*.json.
+- glossary_names.json: {mnemonic: english_name}. SEEDED from the existing glossary
+  so every already-assigned name (the approved R11 names and all prior rounds) is
+  frozen; only genuinely new mnemonics get a deterministic base_name(), resolving
+  each from the most recent round it appears in (rounds processed newest-first).
 - r11_attr.json: {mnemonic: [bq_type, covered_by_dictionary, directory_column]} taken
-  from the final approved R11 architecture, so a variable's type/dict/dir stays
-  consistent with R11 in every round it appears."""
+  from the approved R11 architecture (eu_ess__round_11.tsv), so a variable's
+  type/dict/dir stays consistent with the approved R11 in every round it appears."""
 
 import collections
 import csv
@@ -17,32 +18,6 @@ import re
 spec = importlib.util.spec_from_file_location("ng", "name_gen.py")
 ng = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ng)
-
-avail = sorted(
-    int(m.group(1))
-    for f in glob.glob("variables_r*.json")
-    if (m := re.fullmatch(r"variables_r(\d+)\.json", f))
-)  # excludes variables_r11_new.json
-has_r11 = bool(glob.glob("variables_r11_new.json"))
-order = ([11] if has_r11 else []) + [
-    r for r in sorted(avail, reverse=True) if r != 11
-]
-
-names, used = {}, collections.Counter()
-
-
-def assign(mn, label):
-    if mn in names:
-        return
-    nm = ng.base_name(mn, label)
-    if len(nm) > 48:
-        nm = "_".join(nm.split("_")[:6])
-    if nm in used:
-        used[nm] += 1
-        nm = f"{nm}_{used[nm]}"
-    else:
-        used[nm] = 1
-    names[mn] = nm
 
 
 def _load_json(path):
@@ -60,17 +35,38 @@ def _read_tsv(path):
         return list(csv.DictReader(fh, delimiter="\t"))
 
 
-def load(r):
-    fn = f"variables_r{r}.json"
-    if r == 11:
-        fn = "variables_r11_new.json"  # identical to variables.json
-    return _load_json(fn)
+# seed from the existing approved glossary so prior names never change
+try:
+    names = _load_json("glossary_names.json")
+except FileNotFoundError:
+    names = {}
+used = collections.Counter(names.values())
 
 
-for r in order:
-    if r == 11 and not glob.glob("variables_r11_new.json"):
-        continue
-    for v in load(r):
+def assign(mn, label):
+    if mn in names:
+        return
+    base = ng.base_name(mn, label)
+    if len(base) > 48:
+        base = "_".join(base.split("_")[:6])
+    nm, k = base, 1
+    while nm in used:
+        k += 1
+        nm = f"{base}_{k}"
+    used[nm] += 1
+    names[mn] = nm
+
+
+avail = sorted(
+    (
+        int(m.group(1))
+        for f in glob.glob("variables_r*.json")
+        if (m := re.fullmatch(r"variables_r(\d+)\.json", f))
+    ),
+    reverse=True,  # newest first: new mnemonics resolve from the latest wording
+)
+for r in avail:
+    for v in _load_json(f"variables_r{r}.json"):
         assign(v["mnemonic"], v["label"])
 _dump_json(names, "glossary_names.json")
 

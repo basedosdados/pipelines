@@ -57,9 +57,7 @@ def _load_json(path):
 
 names = _load_json("glossary_names.json")
 r11attr = _load_json("r11_attr.json")
-rows = _load_json(
-    "variables_r11_new.json" if ROUND == 11 else f"variables_r{ROUND}.json"
-)
+rows = _load_json(f"variables_r{ROUND}.json")
 
 DERIVED = [
     dict(

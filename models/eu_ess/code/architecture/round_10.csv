@@ -3,623 +3,621 @@ year,INT64,Reference year of the ESS round (round start year).,,no,br_bd_diretor
 round,INT64,ESS round number (1-11).,,no,,,,,essround
 country_id,STRING,Country ISO 3166-1 alpha-2 code (native ESS country identifier).,,no,br_bd_diretorios_mundo.pais:sigla_iso2,,,,cntry
 respondent_id,STRING,"Respondent identification number, unique within country and round.",,no,,,,,idno
-dataset_title,STRING,Title of dataset,,no,,,no,Identifier and weight variables,name
-edition,STRING,Edition,,no,,,no,Identifier and weight variables,edition
-production_date,STRING,Production date,,no,,,no,Identifier and weight variables,proddate
-design_weight,FLOAT64,Design weight,,no,,,no,Identifier and weight variables,dweight
-poststratification_weight,FLOAT64,Post-stratification weight including design weight,,no,,,no,Identifier and weight variables,pspwght
-population_size_weight,FLOAT64,Population size weight (must be combined with dweight or pspwght),,no,,,no,Identifier and weight variables,pweight
-analysis_weight,FLOAT64,Analysis weight,,no,,,no,Identifier and weight variables,anweight
-minutes_news_politics,INT64,"News about politics and current affairs, watching, reading or listening, in minutes",,no,,,no,Media and social trust,nwspol
-internet_use_frequency,STRING,"Internet use, how often",,yes,,,no,Media and social trust,netusoft
-minutes_internet_use,INT64,"Internet use, how much time on typical day, in minutes",,no,,,no,Media and social trust,netustm
-most_people_can_be_trusted,INT64,Most people can be trusted or you can't be too careful,,no,,,no,Media and social trust,ppltrst
-most_people_try_to_be_fair,INT64,"Most people try to take advantage of you, or try to be fair",,no,,,no,Media and social trust,pplfair
-most_people_helpful,INT64,Most of the time people helpful or mostly looking out for themselves,,no,,,no,Media and social trust,pplhlp
-interest_in_politics,STRING,How interested in politics,,yes,,,no,Media and social trust,polintr
-political_system_allows_say,STRING,Political system allows people to have a say in what government does,,yes,,,no,Media and social trust,psppsgva
-able_to_take_active_role,STRING,Able to take active role in political group,,yes,,,no,Media and social trust,actrolga
-political_system_allows_influence,STRING,Political system allows people to have influence on politics,,yes,,,no,Media and social trust,psppipla
-confident_participate_politics,STRING,Confident in own ability to participate in politics,,yes,,,no,Media and social trust,cptppola
-trust_parliament,INT64,Trust in country's parliament,,no,,,no,Media and social trust,trstprl
-trust_legal_system,INT64,Trust in the legal system,,no,,,no,Media and social trust,trstlgl
-trust_police,INT64,Trust in the police,,no,,,no,Media and social trust,trstplc
-trust_politicians,INT64,Trust in politicians,,no,,,no,Media and social trust,trstplt
-trust_political_parties,INT64,Trust in political parties,,no,,,no,Media and social trust,trstprt
-trust_european_parliament,INT64,Trust in the European Parliament,,no,,,no,Media and social trust,trstep
-trust_united_nations,INT64,Trust in the United Nations,,no,,,no,Media and social trust,trstun
-trust_scientists,INT64,Trust in scientists,,no,,,no,Media and social trust,trstsci
-voted_last_national_election,STRING,Voted last national election,,yes,,,no,Media and social trust,vote
-party_voted,INT64,"Party voted for in last national election, [country]",,no,,,no,Media and social trust,prtvtxx
-party_voted_1,INT64,"Party voted for in last national election 1, [country]",,no,,,no,Media and social trust,prtvxx1
-party_voted_2,INT64,"Party voted for in last national election 2, [country]",,no,,,no,Media and social trust,prtvxx2
-party_voted_belgium,STRING,"Party voted for in last national election, Belgium",,yes,,,no,Media and social trust,prtvtebe
-party_voted_bulgaria_2,STRING,"Party voted for in last national election, Bulgaria",,yes,,,no,Media and social trust,prtvtebg
-party_voted_switzerland,STRING,"Party voted for in last national election, Switzerland",,yes,,,no,Media and social trust,prtvthch
-party_voted_croatia_2,STRING,"Party voted for in last national election, Croatia",,yes,,,no,Media and social trust,prtvtbhr
-party_voted_czechia,STRING,"Party voted for in last national election, Czechia",,yes,,,no,Media and social trust,prtvtecz
-party_voted_estonia,STRING,"Party voted for in last national election, Estonia",,yes,,,no,Media and social trust,prtvthee
-party_voted_finland_2,STRING,"Party voted for in last national election, Finland",,yes,,,no,Media and social trust,prtvtefi
-party_voted_france_ballot_1_2,STRING,"Party voted for in last national election, France (ballot 1)",,yes,,,no,Media and social trust,prtvtefr
-party_voted_greece_2,STRING,"Party voted for in last national election, Greece",,yes,,,no,Media and social trust,prtvtdgr
-party_voted_hungary_2,STRING,"Party voted for in last national election, Hungary",,yes,,,no,Media and social trust,prtvtghu
-party_voted_iceland_2,STRING,"Party voted for in last national election, Iceland",,yes,,,no,Media and social trust,prtvtdis
-party_voted_ireland_derived_from_1st_2,STRING,"Party voted for in last national election, Ireland (derived from 1st preference vote)",,yes,,,no,Media and social trust,prtvtdie
-party_voted_italy_2,STRING,"Party voted for in last national election, Italy",,yes,,,no,Media and social trust,prtvtdit
-party_voted_1_lithuania_first_vote_party,STRING,"Party voted for in last national election 1, Lithuania (first vote, party)",,yes,,,no,Media and social trust,prtvclt1
-party_voted_2_lithuania_second_vote_party,STRING,"Party voted for in last national election 2, Lithuania (second vote, party)",,yes,,,no,Media and social trust,prtvclt2
-party_voted_3_lithuania_third_vote_party,STRING,"Party voted for in last national election 3, Lithuania (third vote, party)",,yes,,,no,Media and social trust,prtvclt3
-party_voted_montenegro_2,STRING,"Party voted for in last national election, Montenegro",,yes,,,no,Media and social trust,prtvtame
-party_voted_netherlands_2,STRING,"Party voted for in last national election, Netherlands",,yes,,,no,Media and social trust,prtvthnl
-party_voted_north_macedonia,STRING,"Party voted for in last national election, North Macedonia",,yes,,,no,Media and social trust,prtvtmk
-party_voted_norway_2,STRING,"Party voted for in last national election, Norway",,yes,,,no,Media and social trust,prtvtbno
-party_voted_portugal_2,STRING,"Party voted for in last national election, Portugal",,yes,,,no,Media and social trust,prtvtdpt
-party_voted_slovakia,STRING,"Party voted for in last national election, Slovakia",,yes,,,no,"Party voted for in last national election, Slovenia",prtvtesk
-party_voted_united_kingdom,STRING,"Party voted for in last national election, United Kingdom",,yes,,,no,"Party voted for in last national election, Slovenia",prtvtdgb
-contacted_politician,STRING,Contacted politician or government official last 12 months,,yes,,,no,"Party voted for in last national election, Slovenia",contplt
-donated_to_party,STRING,Donated to or participated in political party or pressure group last 12 months,,yes,,,no,"Party voted for in last national election, Slovenia",donprty
-worn_campaign_badge,STRING,Worn or displayed campaign badge/sticker last 12 months,,yes,,,no,"Party voted for in last national election, Slovenia",badge
-signed_petition,STRING,Signed petition last 12 months,,yes,,,no,"Party voted for in last national election, Slovenia",sgnptit
-participated_lawful_demonstration,STRING,Taken part in public demonstration last 12 months,,yes,,,no,"Party voted for in last national election, Slovenia",pbldmna
-boycotted_products,STRING,Boycotted certain products last 12 months,,yes,,,no,"Party voted for in last national election, Slovenia",bctprd
-posted_shared_politics_online,STRING,Posted or shared anything about politics online last 12 months,,yes,,,no,"Party voted for in last national election, Slovenia",pstplonl
-volunteered_not_profit_charitable_organisation,STRING,Volunteered for not-for-profit or charitable organisation,,yes,,,no,"Party voted for in last national election, Slovenia",volunfp
-feel_close_to_party,STRING,Feel closer to a particular party than all other parties,,yes,,,no,"Party voted for in last national election, Slovenia",clsprty
-party_feel_close,INT64,"Which party feel closer to, [country]",,no,,,no,"Party voted for in last national election, Slovenia",prtclxx
-party_feel_close_belgium,STRING,"Which party feel closer to, Belgium",,yes,,,no,"Party voted for in last national election, Slovenia",prtclebe
-party_feel_close_bulgaria_2,STRING,"Which party feel closer to, Bulgaria",,yes,,,no,"Party voted for in last national election, Slovenia",prtclebg
-party_feel_close_switzerland,STRING,"Which party feel closer to, Switzerland",,yes,,,no,"Party voted for in last national election, Slovenia",prtclhch
-party_feel_close_croatia,STRING,"Which party feel closer to, Croatia",,yes,,,no,"Party voted for in last national election, Slovenia",prtclbhr
-party_feel_close_czechia,STRING,"Which party feel closer to, Czechia",,yes,,,no,"Party voted for in last national election, Slovenia",prtclecz
-party_feel_close_estonia,STRING,"Which party feel closer to, Estonia",,yes,,,no,"Party voted for in last national election, Slovenia",prtclhee
-party_feel_close_finland_2,STRING,"Which party feel closer to, Finland",,yes,,,no,"Party voted for in last national election, Slovenia",prtclffi
-party_feel_close_france_2,STRING,"Which party feel closer to, France",,yes,,,no,"Party voted for in last national election, Slovenia",prtclffr
-party_feel_close_greece_2,STRING,"Which party feel closer to, Greece",,yes,,,no,"Party voted for in last national election, Slovenia",prtcldgr
-party_feel_close_hungary_2,STRING,"Which party feel closer to, Hungary",,yes,,,no,"Party voted for in last national election, Slovenia",prtclhhu
-party_feel_close_iceland_2,STRING,"Which party feel closer to, Iceland",,yes,,,no,"Party voted for in last national election, Slovenia",prtcldis
-party_feel_close_ireland,STRING,"Which party feel closer to, Ireland",,yes,,,no,"Party voted for in last national election, Slovenia",prtclfie
-party_feel_close_italy_2,STRING,"Which party feel closer to, Italy",,yes,,,no,"Party voted for in last national election, Slovenia",prtcleit
-party_feel_close_lithuania,STRING,"Which party feel closer to, Lithuania",,yes,,,no,"Party voted for in last national election, Slovenia",prtclclt
-party_feel_close_montenegro_2,STRING,"Which party feel closer to, Montenegro",,yes,,,no,"Party voted for in last national election, Slovenia",prtclame
-party_feel_close_netherlands_2,STRING,"Which party feel closer to, Netherlands",,yes,,,no,"Party voted for in last national election, Slovenia",prtclgnl
-party_feel_close_north_macedonia,STRING,"Which party feel closer to, North Macedonia",,yes,,,no,"Party voted for in last national election, Slovenia",prtclmk
-party_feel_close_norway_2,STRING,"Which party feel closer to, Norway",,yes,,,no,"Party voted for in last national election, Slovenia",prtclbno
-party_feel_close_portugal_2,STRING,"Which party feel closer to, Portugal",,yes,,,no,"Party voted for in last national election, Slovenia",prtclfpt
-party_feel_close_slovenia_2,STRING,"Which party feel closer to, Slovenia",,yes,,,no,"Party voted for in last national election, Slovenia",prtclfsi
-party_feel_close_slovakia,STRING,"Which party feel closer to, Slovakia",,yes,,,no,"Party voted for in last national election, Slovenia",prtclesk
-party_feel_close_united_kingdom,STRING,"Which party feel closer to, United Kingdom",,yes,,,no,"Party voted for in last national election, Slovenia",prtcldgb
-how_close_to_party,STRING,How close to party,,yes,,,no,"Party voted for in last national election, Slovenia",prtdgcl
-left_right_scale,INT64,Placement on left right scale,,no,,,no,"Party voted for in last national election, Slovenia",lrscale
-life_satisfaction,INT64,How satisfied with life as a whole,,no,,,no,"Party voted for in last national election, Slovenia",stflife
-satisfaction_economy,INT64,How satisfied with present state of economy in country,,no,,,no,"Party voted for in last national election, Slovenia",stfeco
-satisfaction_government,INT64,How satisfied with the national government,,no,,,no,"Party voted for in last national election, Slovenia",stfgov
-satisfaction_democracy,INT64,How satisfied with the way democracy works in country,,no,,,no,"Party voted for in last national election, Slovenia",stfdem
-satisfaction_education,INT64,State of education in country nowadays,,no,,,no,"Party voted for in last national election, Slovenia",stfedu
-satisfaction_health_services,INT64,State of health services in country nowadays,,no,,,yes,"Party voted for in last national election, Slovenia",stfhlth
-government_reduce_income_differences,STRING,Government should reduce differences in income levels,,yes,,,yes,"Party voted for in last national election, Slovenia",gincdif
-gays_free_to_live_as_wish,STRING,Gays and lesbians free to live life as they wish,,yes,,,no,"Party voted for in last national election, Slovenia",freehms
-ashamed_gay_family_member,STRING,Ashamed if close family member gay or lesbian,,yes,,,no,"Party voted for in last national election, Slovenia",hmsfmlsh
-gay_couples_adopt_rights,STRING,Gay and lesbian couples right to adopt children,,yes,,,no,"Party voted for in last national election, Slovenia",hmsacld
-european_unification_go_further,INT64,European Union: European unification go further or gone too far,,no,,,no,"Party voted for in last national election, Slovenia",euftf
-obedience_respect_authority_most_important_virtues,STRING,Obedience and respect for authority most important virtues children should learn,,yes,,,no,"Party voted for in last national election, Slovenia",lrnobed
-country_needs_most_loyalty_towards_its_leaders,STRING,Country needs most loyalty towards its leaders,,yes,,,no,"Party voted for in last national election, Slovenia",loylead
-allow_immigrants_different_ethnicity,STRING,Allow many/few immigrants of different race/ethnic group from majority,,yes,,,yes,Allow many/few immigrants of same race/ethnic group as majority,imdfetn
-allow_immigrants_poorer_countries,STRING,Allow many/few immigrants from poorer countries outside Europe,,yes,,,no,Allow many/few immigrants of same race/ethnic group as majority,impcntr
-immigration_good_for_economy,INT64,Immigration bad or good for country's economy,,no,,,no,Allow many/few immigrants of same race/ethnic group as majority,imbgeco
-immigration_undermines_culture,INT64,Country's cultural life undermined or enriched by immigrants,,no,,,no,Allow many/few immigrants of same race/ethnic group as majority,imueclt
-immigrants_make_country_better,INT64,Immigrants make country worse or better place to live,,no,,,no,Allow many/few immigrants of same race/ethnic group as majority,imwbcnt
-happiness,INT64,How happy are you,,no,,,no,"Subjective well-being, social exclusion, religion, national and",happy
-frequency_social_meetings,STRING,"How often socially meet with friends, relatives or colleagues",,yes,,,no,"Subjective well-being, social exclusion, religion, national and",sclmeet
-number_people_discuss_personal,STRING,How many people with whom you can discuss intimate and personal matters,,yes,,,no,"Subjective well-being, social exclusion, religion, national and",inprdsc
-social_activities_vs_peers,STRING,Take part in social activities compared to others of same age,,yes,,,no,"Subjective well-being, social exclusion, religion, national and",sclact
-victim_of_crime,STRING,Respondent or household member victim of burglary/assault last 5 years,,yes,,,no,"Subjective well-being, social exclusion, religion, national and",crmvct
-feeling_safe_walking_dark,STRING,Feeling of safety of walking alone in local area after dark,,yes,,,no,"Subjective well-being, social exclusion, religion, national and",aesfdrk
-subjective_general_health,STRING,Subjective general health,,yes,,,yes,"Subjective well-being, social exclusion, religion, national and",health
-hampered_by_illness,STRING,Hampered in daily activities by illness/disability/infirmity/mental problem,,yes,,,yes,"Subjective well-being, social exclusion, religion, national and",hlthhmp
-emotional_attachment_country,INT64,How emotionally attached to [country],,no,,,no,"Subjective well-being, social exclusion, religion, national and",atchctr
-emotional_attachment_europe,INT64,How emotionally attached to Europe,,no,,,no,"Subjective well-being, social exclusion, religion, national and",atcherp
-belongs_to_religion,STRING,Belonging to particular religion or denomination,,yes,,,no,"Subjective well-being, social exclusion, religion, national and",rlgblg
-religion_denomination_belonging_present,STRING,Religion or denomination belonging to at present,,yes,,,no,"Subjective well-being, social exclusion, religion, national and",rlgdnm
-religion_denomination_belonging_present_2,INT64,"Religion or denomination belonging to at present, [country]",,no,,,no,"Subjective well-being, social exclusion, religion, national and",rlgdnxx
-religion_denomination_belonging_present_switzerland,STRING,"Religion or denomination belonging to at present, Switzerland",,yes,,,no,"Subjective well-being, social exclusion, religion, national and",rlgdnach
-religion_denomination_belonging_present_finland,STRING,"Religion or denomination belonging to at present, Finland",,yes,,,no,"Subjective well-being, social exclusion, religion, national and",rlgdnafi
-religion_denomination_belonging_present_greece,STRING,"Religion or denomination belonging to at present, Greece",,yes,,,no,"Subjective well-being, social exclusion, religion, national and",rlgdnagr
-religion_denomination_belonging_present_hungary,STRING,"Religion or denomination belonging to at present, Hungary",,yes,,,no,"Subjective well-being, social exclusion, religion, national and",rlgdnhu
-religion_denomination_belonging_present_iceland,STRING,"Religion or denomination belonging to at present, Iceland",,yes,,,no,"Subjective well-being, social exclusion, religion, national and",rlgdnais
-religion_denomination_belonging_present_lithuania,STRING,"Religion or denomination belonging to at present, Lithuania",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdnlt
-religion_denomination_belonging_present_montenegro,STRING,"Religion or denomination belonging to at present, Montenegro",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdme
-religion_denomination_belonging_present_netherlands,STRING,"Religion or denomination belonging to at present, Netherlands",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdnanl
-religion_denomination_belonging_present_north_macedonia,STRING,"Religion or denomination belonging to at present, North Macedonia",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdnmk
-religion_denomination_belonging_present_norway,STRING,"Religion or denomination belonging to at present, Norway",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdnno
-religion_denomination_belonging_present_slovakia_2,STRING,"Religion or denomination belonging to at present, Slovakia",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdnbsk
-religion_denomination_belonging_present_united_kingdom,STRING,"Religion or denomination belonging to at present, United Kingdom",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdngb
-ever_belonging_particular_religion_denomination,STRING,Ever belonging to particular religion or denomination,,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgblge
-religion_denomination_belonging_past,STRING,Religion or denomination belonging to in the past,,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdnme
-religion_denomination_belonging_past_2,INT64,"Religion or denomination belonging to in the past, [country]",,no,,,no,"Religion or denomination belonging to at present, Ireland",rlgdexx
-religion_denomination_belonging_past_switzerland,STRING,"Religion or denomination belonging to in the past, Switzerland",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdeach
-religion_denomination_belonging_past_finland,STRING,"Religion or denomination belonging to in the past, Finland",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdeafi
-religion_denomination_belonging_past_greece,STRING,"Religion or denomination belonging to in the past, Greece",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdeagr
-religion_denomination_belonging_past_hungary,STRING,"Religion or denomination belonging to in the past, Hungary",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdehu
-religion_denomination_belonging_past_iceland,STRING,"Religion or denomination belonging to in the past, Iceland",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdeais
-religion_denomination_belonging_past_ireland,STRING,"Religion or denomination belonging to in the past, Ireland",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdeie
-religion_denomination_belonging_past_lithuania,STRING,"Religion or denomination belonging to in the past, Lithuania",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdelt
-religion_denomination_belonging_past_montenegro,STRING,"Religion or denomination belonging to in the past, Montenegro",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdeme
-religion_denomination_belonging_past_netherlands,STRING,"Religion or denomination belonging to in the past, Netherlands",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdeanl
-religion_denomination_belonging_past_north_macedonia,STRING,"Religion or denomination belonging to in the past, North Macedonia",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdemk
-religion_denomination_belonging_past_norway,STRING,"Religion or denomination belonging to in the past, Norway",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdeno
-religion_denomination_belonging_past_slovakia_2,STRING,"Religion or denomination belonging to in the past, Slovakia",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdebsk
-religion_denomination_belonging_past_united_kingdom,STRING,"Religion or denomination belonging to in the past, United Kingdom",,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgdegb
-how_religious,INT64,How religious are you,,no,,,no,"Religion or denomination belonging to at present, Ireland",rlgdgr
-religious_attendance_frequency,STRING,How often attend religious services apart from special occasions,,yes,,,no,"Religion or denomination belonging to at present, Ireland",rlgatnd
-frequency_of_praying,STRING,How often pray apart from at religious services,,yes,,,no,"Religion or denomination belonging to at present, Ireland",pray
-member_discriminated_group,STRING,Member of a group discriminated against in this country,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscrgrp
-discrimination_group_colour_race,STRING,Discrimination of respondent's group: colour or race,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscrrce
-discrimination_group_nationality,STRING,Discrimination of respondent's group: nationality,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscrntn
-discrimination_group_religion,STRING,Discrimination of respondent's group: religion,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscrrlg
-discrimination_group_language,STRING,Discrimination of respondent's group: language,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscrlng
-discrimination_group_ethnic_group,STRING,Discrimination of respondent's group: ethnic group,,yes,,,yes,"Religion or denomination belonging to at present, Ireland",dscretn
-discrimination_group_age,STRING,Discrimination of respondent's group: age,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscrage
-discrimination_group_gender,STRING,Discrimination of respondent's group: gender,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscrgnd
-discrimination_group_sexuality,STRING,Discrimination of respondent's group: sexuality,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscrsex
-discrimination_group_disability,STRING,Discrimination of respondent's group: disability,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscrdsb
-discrimination_group_other_grounds,STRING,Discrimination of respondent's group: other grounds,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscroth
-discrimination_group_dont_know,STRING,Discrimination of respondent's group: don't know,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscrdk
-discrimination_group_refusal,STRING,Discrimination of respondent's group: refusal,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscrref
-discrimination_group_not_applicable,STRING,Discrimination of respondent's group: not applicable,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscrnap
-discrimination_group_no_answer,STRING,Discrimination of respondent's group: no answer,,yes,,,no,"Religion or denomination belonging to at present, Ireland",dscrna
-citizen_of_country,STRING,Citizen of country,,yes,,,no,"Religion or denomination belonging to at present, Ireland",ctzcntr
-born_in_country,STRING,Born in country,,yes,,,no,"Religion or denomination belonging to at present, Ireland",brncntr
-country_birth,STRING,Country of birth,,no,br_bd_diretorios_mundo.pais:sigla_iso2,,no,"Religion or denomination belonging to at present, Ireland",cntbrthd
-language_home_first,STRING,Language most often spoken at home: first mentioned,,yes,,,no,What year you first came to live in country,lnghom1
-language_home_second,STRING,Language most often spoken at home: second mentioned,,yes,,,no,What year you first came to live in country,lnghom2
-feel_part_same_race_ethnic_group,STRING,Feel part of same race or ethnic group as most people in country,,yes,,,yes,What year you first came to live in country,feethngr
-father_born_in_country,STRING,Father born in country,,yes,,,no,What year you first came to live in country,facntr
-country_birth_father,STRING,"Country of birth, father",,no,br_bd_diretorios_mundo.pais:sigla_iso2,,no,What year you first came to live in country,fbrncntc
-mother_born_in_country,STRING,Mother born in country,,yes,,,no,What year you first came to live in country,mocntr
-country_birth_mother,STRING,"Country of birth, mother",,no,br_bd_diretorios_mundo.pais:sigla_iso2,,no,What year you first came to live in country,mbrncntc
-climate_change_caused_natural_processes_human,STRING,"Climate change caused by natural processes, human activity, or both",,yes,,,no,What year you first came to live in country,ccnthum
-what_extent_feel_personal_responsibility_reduce,INT64,To what extent feel personal responsibility to reduce climate change,,no,,,no,What year you first came to live in country,ccrdprs
-worried_climate_change,STRING,How worried about climate change,,yes,,,no,What year you first came to live in country,wrclmch
-administration_reduce_climate_change,STRING,Administration of reduce climate change,,yes,,,no,What year you first came to live in country,admrclc
-imagine_large_numbers_people_limit_energy_7,INT64,"Imagine large numbers of people limit energy use, how likely reduce climate",,no,,,no,What year you first came to live in country,testic34
-likelihood_large_numbers_people_limit_energy_use_7,INT64,"How likely, large numbers of people limit energy use",,no,,,no,What year you first came to live in country,testic35
-likelihood_governments_enough_countries_take_action_7,INT64,"How likely, governments in enough countries take action to reduce climate change",,no,,,no,What year you first came to live in country,testic36
-imagine_large_numbers_people_limit_energy_8,STRING,"Imagine large numbers of people limit energy use, how likely reduce climate",,yes,,,no,What year you first came to live in country,testic37
-likelihood_large_numbers_people_limit_energy_use_8,STRING,"How likely, large numbers of people limit energy use",,yes,,,no,What year you first came to live in country,testic38
-likelihood_governments_enough_countries_take_action_8,STRING,"How likely, governments in enough countries take action to reduce climate change",,yes,,,no,What year you first came to live in country,testic39
-imagine_large_numbers_people_limit_energy_9,STRING,"Imagine large numbers of people limit energy use, how likely reduce climate",,yes,,,no,What year you first came to live in country,testic40
-likelihood_large_numbers_people_limit_energy_use_9,STRING,"How likely, large numbers of people limit energy use",,yes,,,no,What year you first came to live in country,testic41
-likelihood_governments_enough_countries_take_action_9,STRING,"How likely, governments in enough countries take action to reduce climate change",,yes,,,no,What year you first came to live in country,testic42
-would_vote,STRING,Would vote for [country] to remain member of European Union or leave,,yes,,,no,What year you first came to live in country,vteurmmb
-would_vote_2,STRING,Would vote for [country] to become member of European Union or remain,,yes,,,no,What year you first came to live in country,vteubcmb
-national_elections_free_fair,INT64,National elections are free and fair,,no,,,no,Understanding of democracy,fairelc
-different_political_parties_offer_clear_alternatives,INT64,Different political parties offer clear alternatives to one another,,no,,,no,Understanding of democracy,dfprtal
-media_free_criticise_government,INT64,The media are free to criticise the government,,no,,,no,Understanding of democracy,medcrgv
-rights_minority_groups_protected,INT64,The rights of minority groups are protected,,no,,,no,Understanding of democracy,rghmgpr
-citizens_have_final_say_political_issues,INT64,Citizens have the final say on political issues by voting directly in referendums,,no,,,no,Understanding of democracy,votedir
-courts_treat_everyone_same,INT64,The courts treat everyone the same,,no,,,no,Understanding of democracy,cttresa
-governing_parties_punished_elections_when_they,INT64,Governing parties are punished in elections when they have done a bad job,,no,,,no,Understanding of democracy,gptpelc
-government_protects_all_citizens_against_poverty,INT64,The government protects all citizens against poverty,,no,,,no,Understanding of democracy,gvctzpv
-government_takes_measures_reduce_differences_income,INT64,The government takes measures to reduce differences in income levels,,no,,,yes,Understanding of democracy,grdfinc
-views_ordinary_people_prevail_over_views,INT64,The views of ordinary people prevail over the views of the political elite,,no,,,no,Understanding of democracy,viepol
-will_people_cannot_stopped,INT64,The will of the people cannot be stopped,,no,,,no,Understanding of democracy,wpestop
-key_decisions_made_national_governments_rather,INT64,Key decisions are made by national governments rather than the European Union,,no,,,no,Understanding of democracy,keydec
-country_national_elections_free_fair,INT64,In country national elections are free and fair,,no,,,no,Understanding of democracy,fairelcc
-country_different_political_parties_offer_clear,INT64,In country different political parties offer clear alternatives to one another,,no,,,no,Understanding of democracy,dfprtalc
-country_media_free_criticise_government,INT64,In country the media are free to criticise the government,,no,,,no,Understanding of democracy,medcrgvc
-country_rights_minority_groups_protected,INT64,In country the rights of minority groups are protected,,no,,,no,Understanding of democracy,rghmgprc
-country_citizens_have_final_say_political,INT64,In country citizens have the final say on political issues by voting directly in,,no,,,no,Understanding of democracy,votedirc
-country_courts_treat_everyone_same,INT64,In country the courts treat everyone the same,,no,,,no,Understanding of democracy,cttresac
-country_governing_parties_punished_elections_when,INT64,In country governing parties are punished in elections when they have done a bad,,no,,,no,Understanding of democracy,gptpelcc
-country_government_takes_measures_reduce_differences,INT64,In country the government takes measures to reduce differences in income levels,,no,,,yes,In country the government protects all citizens against poverty,grdfincc
-country_views_ordinary_people_prevail_over,INT64,In country the views of ordinary people prevail over the views of the political elite,,no,,,no,In country the government protects all citizens against poverty,viepolc
-country_will_people_cannot_stopped,INT64,In country the will of the people cannot be stopped,,no,,,no,In country the government protects all citizens against poverty,wpestopc
-country_key_decisions_made_national_governments,INT64,In country key decisions are made by national governments rather than the,,no,,,no,In country the government protects all citizens against poverty,keydecc
-best_democracy_government_changes_policies_response,STRING,Best for democracy: government changes policies in response to what most people,,yes,,,no,In country the government protects all citizens against poverty,chpldm
-important_democracy_government_changes_policies_response,INT64,Important for democracy: government changes policies in response to what most,,no,,,no,In country the government protects all citizens against poverty,chpldmi
-country_government_changes_policies_response_what,INT64,In country government changes policies in response to what most people think,,no,,,no,In country the government protects all citizens against poverty,chpldmc
-important_democracy_government_sticks_policies_regardless,INT64,Important for democracy: government sticks to policies regardless of what most,,no,,,no,In country the government protects all citizens against poverty,stpldmi
-country_government_sticks_policies_regardless_what,INT64,In country government sticks to policies regardless of what most people think,,no,,,no,In country the government protects all citizens against poverty,stpldmc
-administration_important_things_democracy,STRING,Administration of how important things are for democracy,,yes,,,no,In country the government protects all citizens against poverty,admit
-using_correct_version_showcard,STRING,Using correct version of showcard,,yes,,,no,In country the government protects all citizens against poverty,showcv
-important_things_democracy_order,STRING,"How important things are for democracy, order A",,yes,,,no,In country the government protects all citizens against poverty,impdema
-important_things_democracy_order_b,STRING,"How important things are for democracy, order B",,yes,,,no,In country the government protects all citizens against poverty,impdemb
-important_things_democracy_order_c,STRING,"How important things are for democracy, order C",,yes,,,no,In country the government protects all citizens against poverty,impdemc
-important_things_democracy_order_d,STRING,"How important things are for democracy, order D",,yes,,,no,In country the government protects all citizens against poverty,impdemd
-important_things_democracy_order_e,STRING,"How important things are for democracy, order E",,yes,,,no,In country the government protects all citizens against poverty,impdeme
-important_live_democratically_governed_country,INT64,How important for you to live in democratically governed country,,no,,,no,In country the government protects all citizens against poverty,implvdm
-acceptable_country_have_strong_leader_above_law,INT64,Acceptable for country to have a strong leader above the law,,no,,,no,In country the government protects all citizens against poverty,accalaw
-number_people_living_regularly_member_household,INT64,Number of people living regularly as member of household,,no,,,no,"Gender, Year of birth and Household grid",hhmmb
-gender,STRING,Gender,,yes,,,no,"Gender, Year of birth and Household grid",gndr
-household_member_2_gender,STRING,Gender of second person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr2
-household_member_3_gender,STRING,Gender of third person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr3
-household_member_4_gender,STRING,Gender of fourth person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr4
-household_member_5_gender,STRING,Gender of fifth person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr5
-household_member_6_gender,STRING,Gender of sixth person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr6
-household_member_7_gender,STRING,Gender of seventh person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr7
-household_member_8_gender,STRING,Gender of eighth person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr8
-household_member_9_gender,STRING,Gender of ninth person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr9
-household_member_10_gender,STRING,Gender of tenth person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr10
-household_member_11_gender,STRING,Gender of eleventh person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr11
-household_member_12_gender,STRING,Gender of twelfth person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr12
-household_member_13_gender,STRING,Gender of thirteenth person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr13
-household_member_14_gender,STRING,Gender of fourteenth person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr14
-household_member_15_gender,STRING,Gender of fifteenth person in household,,yes,,,no,"Gender, Year of birth and Household grid",gndr15
-age,INT64,"Age of respondent, calculated",,no,,,no,Year of birth,agea
-household_member_2_year_of_birth,INT64,Year of birth of second person in household,,no,,,no,Year of birth,yrbrn2
-household_member_3_year_of_birth,INT64,Year of birth of third person in household,,no,,,no,Year of birth,yrbrn3
-household_member_4_year_of_birth,INT64,Year of birth of fourth person in household,,no,,,no,Year of birth,yrbrn4
-household_member_5_year_of_birth,INT64,Year of birth of fifth person in household,,no,,,no,Year of birth,yrbrn5
-household_member_6_year_of_birth,INT64,Year of birth of sixth person in household,,no,,,no,Year of birth,yrbrn6
-household_member_7_year_of_birth,INT64,Year of birth of seventh person in household,,no,,,no,Year of birth,yrbrn7
-household_member_8_year_of_birth,INT64,Year of birth of eighth person in household,,no,,,no,Year of birth,yrbrn8
-household_member_9_year_of_birth,INT64,Year of birth of ninth person in household,,no,,,no,Year of birth,yrbrn9
-household_member_10_year_of_birth,INT64,Year of birth of tenth person in household,,no,,,no,Year of birth,yrbrn10
-household_member_11_year_of_birth,INT64,Year of birth of eleventh person in household,,no,,,no,Year of birth,yrbrn11
-household_member_12_year_of_birth,INT64,Year of birth of twelfth person in household,,no,,,no,Year of birth,yrbrn12
-household_member_13_year_of_birth,INT64,Year of birth of thirteenth person in household,,no,,,no,Year of birth,yrbrn13
-household_member_14_year_of_birth,INT64,Year of birth of fourteenth person in household,,no,,,no,Year of birth,yrbrn14
-household_member_15_year_of_birth,INT64,Year of birth of fifteenth person in household,,no,,,no,Year of birth,yrbrn15
-household_member_2_relationship,STRING,Second person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa2
-household_member_3_relationship,STRING,Third person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa3
-household_member_4_relationship,STRING,Fourth person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa4
-household_member_5_relationship,STRING,Fifth person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa5
-household_member_6_relationship,STRING,Sixth person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa6
-household_member_7_relationship,STRING,Seventh person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa7
-household_member_8_relationship,STRING,Eighth person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa8
-household_member_9_relationship,STRING,Ninth person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa9
-household_member_10_relationship,STRING,Tenth person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa10
-household_member_11_relationship,STRING,Eleventh person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa11
-household_member_12_relationship,STRING,Twelfth person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa12
-household_member_13_relationship,STRING,Thirteenth person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa13
-household_member_14_relationship,STRING,Fourteenth person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa14
-household_member_15_relationship,STRING,Fifteenth person in household: relationship to respondent,,yes,,,no,Year of birth,rshipa15
-relationship_husband_wife_partner_currently_living,STRING,Relationship with husband/wife/partner currently living with,,yes,,,no,Year of birth,rshpsts
-relationship_husband_wife_partner_currently_living_2,STRING,"Relationship with husband/wife/partner currently living with, United Kingdom",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",rshpsgb
-ever_lived_partner_without_married,STRING,"Ever lived with a partner, without being married",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",lvgptnea
-ever_divorced_had_civil_union_dissolved,STRING,Ever been divorced/had civil union dissolved,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",dvrcdeva
-legal_marital_status,STRING,Legal marital status,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",marsts
-legal_marital_status_north_macedonia,STRING,"Legal marital status, North Macedonia",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",marstmk
-legal_marital_status_united_kingdom,STRING,"Legal marital status, United Kingdom",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",marstgb
-legal_marital_status_2,STRING,"Legal marital status, post coded",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",maritalb
-children_living_at_home,STRING,Ever had children living in household,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",chldhhe
-domicile_type,STRING,"Domicile, respondent's description",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",domicil
-highest_education,STRING,Highest level of education,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edulvlb
-highest_education_es_isced,STRING,"Highest level of education, ES - ISCED",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",eisced
-highest_education_2,STRING,"Highest level of education, [country]",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdxx
-highest_education_belgium,STRING,"Highest level of education, Belgium",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvebe
-highest_education_bulgaria,STRING,"Highest level of education, Bulgaria",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvebg
-highest_education_switzerland,STRING,"Highest level of education, Switzerland",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdch
-highest_education_croatia,STRING,"Highest level of education, Croatia",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvehr
-highest_education_czechia,STRING,"Highest level of education, Czechia",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdcz
-highest_education_estonia,STRING,"Highest level of education, Estonia",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdee
-highest_education_finland,STRING,"Highest level of education, Finland",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdfi
-highest_education_france,STRING,"Highest level of education, France",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdfr
-highest_education_greece,STRING,"Highest level of education, Greece",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvegr
-highest_education_hungary,STRING,"Highest level of education, Hungary",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdahu
-highest_education_iceland,STRING,"Highest level of education, Iceland",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdis
-highest_education_ireland,STRING,"Highest level of education, Ireland",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdie
-highest_education_italy_2,STRING,"Highest level of education, Italy",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlveit
-highest_education_lithuania,STRING,"Highest level of education, Lithuania",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdlt
-highest_education_montenegro_2,STRING,"Highest level of education, Montenegro",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdme
-highest_education_netherlands,STRING,"Highest level of education, Netherlands",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvenl
-highest_education_north_macedonia,STRING,"Highest level of education, North Macedonia",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdmk
-highest_education_norway,STRING,"Highest level of education, Norway",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlveno
-highest_education_portugal_2,STRING,"Highest level of education, Portugal",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdpt
-highest_education_slovenia,STRING,"Highest level of education, Slovenia",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvesi
-highest_education_slovakia,STRING,"Highest level of education, Slovakia",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edlvdsk
-highest_education_united_kingdom,STRING,"Highest level of education, United Kingdom: Up to 2 or more A-levels or equivalent",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",educgb1
-highest_education_united_kingdom_2,STRING,"Highest level of education, United Kingdom: Up to Ph.D or equivalent",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edubgb2
-age_when_completed_full_time_education,INT64,"Age when completed full time education, United Kingdom",,no,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edagegb
-years_of_education,INT64,Years of full-time education completed,,no,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",eduyrs
-paid_work_last_week,STRING,Doing last 7 days: paid work,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",pdwrk
-in_education_last_week,STRING,Doing last 7 days: education,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",edctn
-unemployed_active_last_week,STRING,"Doing last 7 days: unemployed, actively looking for job",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",uempla
-unemployed_inactive_last_week,STRING,"Doing last 7 days: unemployed, not actively looking for job",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",uempli
-permanently_disabled_last_week,STRING,Doing last 7 days: permanently sick or disabled,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",dsbld
-retired_last_week,STRING,Doing last 7 days: retired,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",rtrd
-activity_community_military_service,STRING,Doing last 7 days: community or military service,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",cmsrv
-housework_last_week,STRING,"Doing last 7 days: housework, looking after children, others",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",hswrk
-activity_other,STRING,Doing last 7 days: other,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",dngoth
-activity_refusal,STRING,Doing last 7 days: refusal,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",dngref
-activity_dont_know,STRING,Doing last 7 days: don't know,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",dngdk
-activity_no_answer,STRING,Doing last 7 days: no answer,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",dngna
-main_activity_last_7_days,STRING,Main activity last 7 days,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",mainact
-main_activity_7_days_all_respondent_post_coded,STRING,"Main activity, last 7 days. All respondents. Post coded",,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",mnactic
-control_paid_work_7_days,STRING,Control paid work last 7 days,,yes,,,no,"Relationship with husband/wife/partner currently living with, North Macedonia",crpdwk
-year_paid_job,INT64,Year last in paid job,,no,,,no,Ever had a paid job,pdjobyr
-employment_relation,STRING,Employment relation,,yes,,,no,Ever had a paid job,emplrel
-number_of_employees,INT64,Number of employees respondent has/had,,no,,,no,Ever had a paid job,emplno
-employment_contract_type,STRING,Employment contract unlimited or limited duration,,yes,,,no,Ever had a paid job,wrkctra
-establishment_size,STRING,Establishment size,,yes,,,no,Ever had a paid job,estsz
-responsible_supervising_other_employees,STRING,Responsible for supervising other employees,,yes,,,no,Ever had a paid job,jbspv
-number_people_responsible_job,INT64,Number of people responsible for in job,,no,,,no,Ever had a paid job,njbspv
-allowed_decide_daily_work_organised,INT64,Allowed to decide how daily work is organised,,no,,,no,Ever had a paid job,wkdcorga
-allowed_influence_policy_decisions_activities_organisation,INT64,Allowed to influence policy decisions about activities of organisation,,no,,,no,Ever had a paid job,iorgact
-contracted_weekly_hours,INT64,Total contracted hours per week in main job overtime excluded,,no,,,no,Ever had a paid job,wkhct
-total_weekly_hours,INT64,Total hours normally worked per week in main job overtime included,,no,,,no,Ever had a paid job,wkhtot
-industry_nace_rev_2,STRING,"Industry, NACE rev.2",,yes,,,no,Ever had a paid job,nacer2
-what_type_organisation_work_worked,STRING,What type of organisation work/worked for,,yes,,,no,Ever had a paid job,tporgwk
-occupation_isco08,STRING,"Occupation, ISCO08",,yes,,,no,Ever had a paid job,isco08
-paid_work_another_country_period_more,STRING,"Paid work in another country, period more than 6 months last 10 years",,yes,,,no,Ever had a paid job,wrkac6m
-ever_unemployed_seeking_work_period_more,STRING,Ever unemployed and seeking work for a period more than three months,,yes,,,no,Ever had a paid job,uemp3m
-any_period_unemployment_work_seeking_lasted,STRING,Any period of unemployment and work seeking lasted 12 months or more,,yes,,,no,Ever had a paid job,uemp12m
-any_period_unemployment_work_seeking_within,STRING,Any period of unemployment and work seeking within last 5 years,,yes,,,no,Ever had a paid job,uemp5yr
-member_trade_union_similar_organisation,STRING,Member of trade union or similar organisation,,yes,,,no,Ever had a paid job,mbtru
-main_source_household_income,STRING,Main source of household income,,yes,,,yes,Ever had a paid job,hincsrca
-household_income_decile,STRING,"Household's total net income, all sources",,yes,,,yes,Ever had a paid job,hinctnta
-feeling_about_household_income,STRING,Feeling about household's income nowadays,,yes,,,yes,Ever had a paid job,hincfel
-partner_highest_education,STRING,Partner's highest level of education,,yes,,,no,Ever had a paid job,edulvlpb
-partner_highest_education_es_isced,STRING,"Partner's highest level of education, ES - ISCED",,yes,,,no,Ever had a paid job,eiscedp
-partner_highest_education_2,STRING,"Partner's highest level of education, [country]",,yes,,,no,Ever had a paid job,edlvpdxx
-partner_highest_education_belgium,STRING,"Partner's highest level of education, Belgium",,yes,,,no,Ever had a paid job,edlvpebe
-partner_highest_education_bulgaria,STRING,"Partner's highest level of education, Bulgaria",,yes,,,no,Ever had a paid job,edlvpebg
-partner_highest_education_switzerland,STRING,"Partner's highest level of education, Switzerland",,yes,,,no,Ever had a paid job,edlvpdch
-partner_highest_education_croatia,STRING,"Partner's highest level of education, Croatia",,yes,,,no,Ever had a paid job,edlvpehr
-partner_highest_education_czechia,STRING,"Partner's highest level of education, Czechia",,yes,,,no,Ever had a paid job,edlvpdcz
-partner_highest_education_estonia,STRING,"Partner's highest level of education, Estonia",,yes,,,no,Ever had a paid job,edlvpdee
-partner_highest_education_finland,STRING,"Partner's highest level of education, Finland",,yes,,,no,Ever had a paid job,edlvpdfi
-partner_highest_education_france,STRING,"Partner's highest level of education, France",,yes,,,no,Ever had a paid job,edlvpdfr
-partner_highest_education_greece,STRING,"Partner's highest level of education, Greece",,yes,,,no,Ever had a paid job,edlvpegr
-partner_highest_education_hungary,STRING,"Partner's highest level of education, Hungary",,yes,,,no,Ever had a paid job,edlvpdahu
-partner_highest_education_iceland,STRING,"Partner's highest level of education, Iceland",,yes,,,no,Ever had a paid job,edlvpdis
-partner_highest_education_ireland,STRING,"Partner's highest level of education, Ireland",,yes,,,no,Ever had a paid job,edlvpdie
-partner_highest_education_italy_2,STRING,"Partner's highest level of education, Italy",,yes,,,no,Ever had a paid job,edlvpeit
-partner_highest_education_lithuania,STRING,"Partner's highest level of education, Lithuania",,yes,,,no,Ever had a paid job,edlvpdlt
-partner_highest_education_montenegro_2,STRING,"Partner's highest level of education, Montenegro",,yes,,,no,Ever had a paid job,edlvpdme
-partner_highest_education_netherlands,STRING,"Partner's highest level of education, Netherlands",,yes,,,no,Ever had a paid job,edlvpenl
-partner_highest_education_north_macedonia,STRING,"Partner's highest level of education, North Macedonia",,yes,,,no,Ever had a paid job,edlvpdmk
-partner_highest_education_norway,STRING,"Partner's highest level of education, Norway",,yes,,,no,Ever had a paid job,edlvpeno
-partner_highest_education_portugal_2,STRING,"Partner's highest level of education, Portugal",,yes,,,no,Ever had a paid job,edlvpdpt
-partner_highest_education_slovenia,STRING,"Partner's highest level of education, Slovenia",,yes,,,no,Ever had a paid job,edlvpesi
-partner_highest_education_slovakia,STRING,"Partner's highest level of education, Slovakia",,yes,,,no,Ever had a paid job,edlvpdsk
-partner_highest_education_united_kingdom,STRING,"Partner's highest level of education, United Kingdom: Up to 2 or more A-levels or",,yes,,,no,Ever had a paid job,edupcgb1
-partner_highest_education_united_kingdom_2,STRING,"Partner's highest level of education, United Kingdom: Up to Ph.D or equivalent",,yes,,,no,Ever had a paid job,edupbgb2
-partner_age_when_completed_full_time,INT64,"Partner's age when completed full time education, United Kingdom",,no,,,no,Ever had a paid job,edagepgb
-partner_activity_paid_work,STRING,Partner doing last 7 days: paid work,,yes,,,no,Ever had a paid job,pdwrkp
-partner_activity_education,STRING,Partner doing last 7 days: education,,yes,,,no,Ever had a paid job,edctnp
-partner_activity_unemployed_actively_looking_job,STRING,"Partner doing last 7 days: unemployed, actively looking for job",,yes,,,no,Ever had a paid job,uemplap
-partner_activity_unemployed_not_actively_looking,STRING,"Partner doing last 7 days: unemployed, not actively looking for job",,yes,,,no,Ever had a paid job,uemplip
-partner_activity_permanently_sick_disabled,STRING,Partner doing last 7 days: permanently sick or disabled,,yes,,,no,Ever had a paid job,dsbldp
-partner_activity_retired,STRING,Partner doing last 7 days: retired,,yes,,,no,Ever had a paid job,rtrdp
-partner_activity_community_military_service,STRING,Partner doing last 7 days: community or military service,,yes,,,no,Ever had a paid job,cmsrvp
-partner_activity_housework_looking_after_children,STRING,"Partner doing last 7 days: housework, looking after children, others",,yes,,,no,Ever had a paid job,hswrkp
-partner_activity_other,STRING,Partner doing last 7 days: other,,yes,,,no,Ever had a paid job,dngothp
-partner_activity_dont_know,STRING,Partner doing last 7 days: don't know,,yes,,,no,Ever had a paid job,dngdkp
-partner_activity_not_applicable,STRING,Partner doing last 7 days: not applicable,,yes,,,no,Ever had a paid job,dngnapp
-partner_activity_refusal,STRING,Partner doing last 7 days: refusal,,yes,,,no,Ever had a paid job,dngrefp
-partner_activity_no_answer,STRING,Partner doing last 7 days: no answer,,yes,,,no,Ever had a paid job,dngnap
-partner_main_activity_7_days,STRING,Partner's main activity last 7 days,,yes,,,no,Ever had a paid job,mnactp
-partner_control_paid_work_7_days,STRING,"Partner, control paid work last 7 days",,yes,,,no,Ever had a paid job,crpdwkp
-occupation_partner_isco08,STRING,"Occupation partner, ISCO08",,yes,,,no,Ever had a paid job,isco08p
-partner_employment_relation,STRING,Partner's employment relation,,yes,,,no,Ever had a paid job,emprelp
-hours_normally_worked_week_main_job,INT64,"Hours normally worked a week in main job overtime included, partner",,no,,,no,Ever had a paid job,wkhtotp
-father_highest_education,STRING,Father's highest level of education,,yes,,,no,Ever had a paid job,edulvlfb
-father_highest_education_es_isced,STRING,"Father's highest level of education, ES - ISCED",,yes,,,no,Ever had a paid job,eiscedf
-father_highest_education_2,STRING,"Father's highest level of education, [country]",,yes,,,no,Ever had a paid job,edlvfdxx
-father_highest_education_belgium,STRING,"Father's highest level of education, Belgium",,yes,,,no,Ever had a paid job,edlvfebe
-father_highest_education_switzerland,STRING,"Father's highest level of education, Switzerland",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfdch
-father_highest_education_croatia,STRING,"Father's highest level of education, Croatia",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfehr
-father_highest_education_czechia,STRING,"Father's highest level of education, Czechia",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfdcz
-father_highest_education_estonia,STRING,"Father's highest level of education, Estonia",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfdee
-father_highest_education_finland,STRING,"Father's highest level of education, Finland",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfdfi
-father_highest_education_france,STRING,"Father's highest level of education, France",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfdfr
-father_highest_education_greece,STRING,"Father's highest level of education, Greece",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfegr
-father_highest_education_hungary,STRING,"Father's highest level of education, Hungary",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfdahu
-father_highest_education_iceland,STRING,"Father's highest level of education, Iceland",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfdis
-father_highest_education_ireland,STRING,"Father's highest level of education, Ireland",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfdie
-father_highest_education_italy_2,STRING,"Father's highest level of education, Italy",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfeit
-father_highest_education_lithuania,STRING,"Father's highest level of education, Lithuania",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfdlt
-father_highest_education_montenegro_2,STRING,"Father's highest level of education, Montenegro",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfdme
-father_highest_education_netherlands,STRING,"Father's highest level of education, Netherlands",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfenl
-father_highest_education_north_macedonia,STRING,"Father's highest level of education, North Macedonia",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfdmk
-father_highest_education_norway,STRING,"Father's highest level of education, Norway",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfeno
-father_highest_education_portugal_2,STRING,"Father's highest level of education, Portugal",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfdpt
-father_highest_education_slovenia,STRING,"Father's highest level of education, Slovenia",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfesi
-father_highest_education_slovakia,STRING,"Father's highest level of education, Slovakia",,yes,,,no,"Father's highest level of education, Bulgaria",edlvfdsk
-father_highest_education_united_kingdom,STRING,"Father's highest level of education, United Kingdom: Up to 2 or more A-levels or",,yes,,,no,"Father's highest level of education, Bulgaria",edufcgb1
-father_highest_education_united_kingdom_2,STRING,"Father's highest level of education, United Kingdom: Up to Ph.D or equivalent",,yes,,,no,"Father's highest level of education, Bulgaria",edufbgb2
-father_age_when_completed_full_time,INT64,"Father's age when completed full time education, United Kingdom",,no,,,no,"Father's highest level of education, Bulgaria",edagefgb
-father_employment_status_when_respondent_14,STRING,Father's employment status when respondent 14,,yes,,,no,"Father's highest level of education, Bulgaria",emprf14
-father_occupation_when_respondent_14,STRING,Father's occupation when respondent 14,,yes,,,no,"Father's highest level of education, Bulgaria",occf14b
-mother_highest_education,STRING,Mother's highest level of education,,yes,,,no,"Father's highest level of education, Bulgaria",edulvlmb
-mother_highest_education_es_isced,STRING,"Mother's highest level of education, ES - ISCED",,yes,,,no,"Father's highest level of education, Bulgaria",eiscedm
-mother_highest_education_2,STRING,"Mother's highest level of education, [country]",,yes,,,no,"Father's highest level of education, Bulgaria",edlvmdxx
-mother_highest_education_belgium,STRING,"Mother's highest level of education, Belgium",,yes,,,no,"Father's highest level of education, Bulgaria",edlvmebe
-mother_highest_education_switzerland,STRING,"Mother's highest level of education, Switzerland",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmdch
-mother_highest_education_croatia,STRING,"Mother's highest level of education, Croatia",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmehr
-mother_highest_education_czechia,STRING,"Mother's highest level of education, Czechia",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmdcz
-mother_highest_education_estonia,STRING,"Mother's highest level of education, Estonia",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmdee
-mother_highest_education_finland,STRING,"Mother's highest level of education, Finland",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmdfi
-mother_highest_education_france,STRING,"Mother's highest level of education, France",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmdfr
-mother_highest_education_greece,STRING,"Mother's highest level of education, Greece",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmegr
-mother_highest_education_hungary,STRING,"Mother's highest level of education, Hungary",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmdahu
-mother_highest_education_iceland,STRING,"Mother's highest level of education, Iceland",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmdis
-mother_highest_education_ireland,STRING,"Mother's highest level of education, Ireland",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmdie
-mother_highest_education_italy_2,STRING,"Mother's highest level of education, Italy",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmeit
-mother_highest_education_lithuania,STRING,"Mother's highest level of education, Lithuania",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmdlt
-mother_highest_education_montenegro_2,STRING,"Mother's highest level of education, Montenegro",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmdme
-mother_highest_education_netherlands,STRING,"Mother's highest level of education, Netherlands",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmenl
-mother_highest_education_north_macedonia,STRING,"Mother's highest level of education, North Macedonia",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmdmk
-mother_highest_education_norway,STRING,"Mother's highest level of education, Norway",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmeno
-mother_highest_education_portugal_2,STRING,"Mother's highest level of education, Portugal",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmdpt
-mother_highest_education_slovenia,STRING,"Mother's highest level of education, Slovenia",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmesi
-mother_highest_education_slovakia,STRING,"Mother's highest level of education, Slovakia",,yes,,,no,"Mother's highest level of education, Bulgaria",edlvmdsk
-mother_highest_education_united_kingdom,STRING,"Mother's highest level of education, United Kingdom: Up to 2 or more A-levels or",,yes,,,no,"Mother's highest level of education, Bulgaria",edumcgb1
-mother_highest_education_united_kingdom_2,STRING,"Mother's highest level of education, United Kingdom: Up to Ph.D or equivalent",,yes,,,no,"Mother's highest level of education, Bulgaria",edumbgb2
-mother_age_when_completed_full_time,INT64,"Mother's age when completed full time education, United Kingdom",,no,,,no,"Mother's highest level of education, Bulgaria",edagemgb
-mother_employment_status_when_respondent_14,STRING,Mother's employment status when respondent 14,,yes,,,no,"Mother's highest level of education, Bulgaria",emprm14
-mother_occupation_when_respondent_14,STRING,Mother's occupation when respondent 14,,yes,,,no,"Mother's highest level of education, Bulgaria",occm14b
-improve_skills_course_lecture_conference_12,STRING,"Improve knowledge/skills: course/lecture/conference, last 12 months",,yes,,,no,"Mother's highest level of education, Bulgaria",atncrse
-first_ancestry_european_standard_classification_cultural_2,STRING,"First ancestry, European Standard Classification of Cultural and Ethnic Groups",,yes,,,yes,"Mother's highest level of education, Bulgaria",anctry1
-second_ancestry_european_standard_classification_cultural_2,STRING,"Second ancestry, European Standard Classification of Cultural and Ethnic Groups",,yes,,,yes,"Mother's highest level of education, Bulgaria",anctry2
-first_ancestry,INT64,"First ancestry, [country]",,no,,,no,"Mother's highest level of education, Bulgaria",anc1xx
-second_ancestry,INT64,"Second ancestry, [country]",,no,,,no,"Mother's highest level of education, Bulgaria",anc2xx
-regional_unit,STRING,Regional unit,,yes,,,no,"Mother's highest level of education, Bulgaria",regunit
-location_able_access_home,STRING,Location able to access the internet: Home,,yes,,,no,Digital social contacts in work and family life,acchome
-location_able_access_workplace,STRING,Location able to access the internet: Workplace,,yes,,,no,Digital social contacts in work and family life,accwrk
-location_able_access_move,STRING,Location able to access the internet: On the move,,yes,,,no,Digital social contacts in work and family life,accmove
-location_able_access_some_other_place,STRING,Location able to access the internet: Some other place,,yes,,,no,Digital social contacts in work and family life,accoth
-location_able_access_none_above,STRING,Location able to access the internet: None of the above,,yes,,,no,Digital social contacts in work and family life,accnone
-location_able_access_refusal,STRING,Location able to access the internet: Refusal,,yes,,,no,Digital social contacts in work and family life,accref
-location_able_access_dont_know,STRING,Location able to access the internet: Don't know,,yes,,,no,Digital social contacts in work and family life,accdk
-location_able_access_no_answer,STRING,Location able to access the internet: No answer,,yes,,,no,Digital social contacts in work and family life,accna
-preference_settings_familiar,STRING,"Preference settings, how familiar",,yes,,,no,Digital social contacts in work and family life,fampref
-advanced_search_familiar,STRING,"Advanced search, how familiar",,yes,,,no,Digital social contacts in work and family life,famadvs
-pdf_familiar,STRING,"PDF, how familiar",,yes,,,no,Digital social contacts in work and family life,fampdf
-online_mobile_communication_makes_people_feel,INT64,Online/mobile communication makes people feel closer to one another,,no,,,no,Digital social contacts in work and family life,mcclose
-online_mobile_communication_makes_work_personal,INT64,Online/mobile communication makes work and personal life interrupt each other,,no,,,no,Digital social contacts in work and family life,mcinter
-online_mobile_communication_makes_it_easy,INT64,Online/mobile communication makes it easy to coordinate and manage activities,,no,,,no,Digital social contacts in work and family life,mccoord
-online_mobile_communication_undermines_personal_privacy,INT64,Online/mobile communication undermines personal privacy,,no,,,no,Digital social contacts in work and family life,mcpriv
-online_mobile_communication_exposes_people_misinformation,INT64,Online/mobile communication exposes people to misinformation,,no,,,no,Digital social contacts in work and family life,mcmsinf
-number_children_aged_12_over,INT64,Number of children aged 12 or over,,no,,,no,Digital social contacts in work and family life,chldo12
-gender_child_aged_12_over,STRING,Gender of child aged 12 or over,,yes,,,no,Digital social contacts in work and family life,gndro12a
-gender_child_aged_12_over_2,STRING,Gender of child aged 12 or over,,yes,,,no,Digital social contacts in work and family life,gndro12b
-age_child_aged_12_over,INT64,Age of child aged 12 or over,,no,,,no,Digital social contacts in work and family life,ageo12
-child_aged_12_over_lives_same_household,STRING,Child aged 12 or over lives in same household,,yes,,,no,Digital social contacts in work and family life,hhlio12
-close_child_aged_12_over,STRING,How close to child aged 12 or over,,yes,,,no,Digital social contacts in work and family life,closeo12
-travel_time_child_aged_12_over_minutes,INT64,"Travel time to child aged 12 or over, in minutes",,no,,,no,Digital social contacts in work and family life,ttmino12
-speak_child_aged_12_over_person_frequency,STRING,"Speak with child aged 12 or over in person, how often",,yes,,,no,Digital social contacts in work and family life,speako12
-speak_child_aged_12_over_see,STRING,"Speak with child aged 12 or over and see each other on a screen, how often",,yes,,,no,Digital social contacts in work and family life,scrno12
-speak_child_aged_12_over_using_phone_frequency,STRING,"Speak with child aged 12 or over using a phone, how often",,yes,,,no,Digital social contacts in work and family life,phoneo12
-communicate_child_aged_12_over_via,STRING,"Communicate with child aged 12 or over via text, email or messaging apps, how",,yes,,,no,Digital social contacts in work and family life,como12
-speak_child_aged_12_over_person,STRING,"Speak with child aged 12 or over in person, how often compared with before",,yes,,,no,Digital social contacts in work and family life,c19spo12
-online_mobile_communication_child_aged_12,STRING,"Online/mobile communication with child aged 12 or over, how often compared",,yes,,,no,Digital social contacts in work and family life,c19mco12
-parents_still_alive,STRING,Parents still alive,,yes,,,no,Digital social contacts in work and family life,livpnt
-parents_still_alive_mother_father,STRING,"Parents still alive, mother or father",,yes,,,no,Digital social contacts in work and family life,pntmofa
-age_parent,INT64,Age of parent,,no,,,no,Digital social contacts in work and family life,agepnt
-parent_lives_same_household,STRING,Parent lives in same household,,yes,,,no,Digital social contacts in work and family life,hhlipnt
-close_parent,STRING,How close to parent,,yes,,,no,Digital social contacts in work and family life,closepnt
-travel_time_parent_minutes,INT64,"Travel time to parent, in minutes",,no,,,no,Digital social contacts in work and family life,ttminpnt
-speak_parent_person_frequency,STRING,"Speak with parent in person, how often",,yes,,,no,Digital social contacts in work and family life,speakpnt
-speak_parent_see_each_other_screen_frequency,STRING,"Speak with parent and see each other on a screen, how often",,yes,,,no,Digital social contacts in work and family life,scrnpnt
-speak_parent_using_phone_frequency,STRING,"Speak with parent using a phone, how often",,yes,,,no,Digital social contacts in work and family life,phonepnt
-communicate_parent_via_text_email_messaging,STRING,"Communicate with parent via text, email or messaging apps, how often",,yes,,,no,Digital social contacts in work and family life,compnt
-speak_parent_person_frequency_compared_before,STRING,"Speak with parent in person, how often compared with before COVID-19",,yes,,,no,Digital social contacts in work and family life,c19sppnt
-online_mobile_communication_parent_frequency_compared,STRING,"Online/mobile communication with parent, how often compared with before",,yes,,,no,Digital social contacts in work and family life,c19mcpnt
-satisfied_main_job,INT64,How satisfied are you in your main job,,no,,,no,Digital social contacts in work and family life,stfmjob
-too_tired_after_work_enjoy_things,STRING,"Too tired after work to enjoy things like doing at home, how often",,yes,,,no,Digital social contacts in work and family life,trdawrk
-job_prevents_from_giving_time_partner,STRING,"Job prevents you from giving time to partner/family, how often",,yes,,,no,Digital social contacts in work and family life,jbprtfp
-partner_family_fed_up_pressure_job_frequency,STRING,"Partner/family fed up with pressure of your job, how often",,yes,,,no,Digital social contacts in work and family life,pfmfdjba
-current_job_can_decide_time_start,STRING,Current job: can decide time start/finish work,,yes,,,no,Digital social contacts in work and family life,dcsfwrka
-work_from_home_place_choice_frequency,STRING,"Work from home or place of choice, how often",,yes,,,no,Digital social contacts in work and family life,wrkhome
-work_from_home_place_choice_frequency_2,STRING,"Work from home or place of choice, how often compared with before COVID-19",,yes,,,no,Digital social contacts in work and family life,c19whome
-work_place_change_occurred_result_covid_19,STRING,Work place change occurred as a result of COVID-19,,yes,,,no,Digital social contacts in work and family life,c19wplch
-employees_expected_work_overtime_frequency,STRING,"Employees expected to work overtime, how often",,yes,,,no,Digital social contacts in work and family life,wrklong
-employees_expected_responsive_outside_working_hours,STRING,"Employees expected to be responsive outside working hours, how often",,yes,,,no,Digital social contacts in work and family life,wrkresp
-work_from_home_place_choice_accepted,STRING,"Work from home or place of choice, how accepted compared with before COVID-",,yes,,,no,Digital social contacts in work and family life,c19whacc
-line_manager_supports_employees_balancing_work,INT64,"Line manager supports employees in balancing work, how much",,no,,,no,Digital social contacts in work and family life,mansupp
-line_manager_gives_work_related_help_likelihood,STRING,"Line manager gives work-related help, how likely",,yes,,,no,Digital social contacts in work and family life,manhlp
-line_manager_respondent_same_workplace_frequency,STRING,"Line manager and respondent are at the same workplace, how often",,yes,,,no,Digital social contacts in work and family life,manwrkpl
-speak_line_manager_work_person_frequency,STRING,"Speak with line manager about work in person, how often",,yes,,,no,Digital social contacts in work and family life,manspeak
-speak_line_manager_work_see_each,STRING,"Speak with line manager about work and see each other on a screen, how often",,yes,,,no,Digital social contacts in work and family life,manscrn
-speak_line_work_manager_using_phone_frequency,STRING,"Speak with line about work manager using a phone, how often",,yes,,,no,Digital social contacts in work and family life,manphone
-communicate_line_manager_work_via_text,STRING,"Communicate with line manager about work via text, email or messaging apps,",,yes,,,no,Digital social contacts in work and family life,mancom
-feel_like_part_team_much,INT64,"Feel like part of your team, how much",,no,,,no,Digital social contacts in work and family life,teamfeel
-take_extra_responsibilities_work_without_paid,INT64,Take on extra responsibilities at work without being paid more,,no,,,no,Digital social contacts in work and family life,wrkextra
-proportion_colleagues_based_same_location,STRING,Proportion of colleagues based at the same location,,yes,,,no,Digital social contacts in work and family life,colprop
-colleagues_give_work_related_help_likelihood,STRING,"Colleagues give work-related help, how likely",,yes,,,no,Digital social contacts in work and family life,colhlp
-speak_colleagues_person_frequency,STRING,"Speak with colleagues in person, how often",,yes,,,no,Digital social contacts in work and family life,colspeak
-speak_colleagues_work_see_each_other,STRING,"Speak with colleagues about work and see each other on a screen, how often",,yes,,,no,Digital social contacts in work and family life,colscrn
-speak_colleagues_work_using_phone_frequency,STRING,"Speak with colleagues about work using a phone, how often",,yes,,,no,Digital social contacts in work and family life,colphone
-communicate_colleagues_work_via_text_email,STRING,"Communicate with colleagues about work via text, email or messaging apps, how",,yes,,,no,Digital social contacts in work and family life,colcom
-speak_people_work_person_frequency_compared,STRING,"Speak with people you work with in person, how often compared with before",,yes,,,no,Digital social contacts in work and family life,c19spwrk
-online_mobile_communication_makes_it_easy_2,INT64,Online/mobile communication makes it easy to work from home or place of,,no,,,no,"Online/mobile communication with people you work with, how often compared",mcwrkhom
-important_think_new_ideas_creative,STRING,Important to think new ideas and being creative,,yes,,,no,Human values,ipcrtiv
-important_rich_have_money_expensive_things,STRING,"Important to be rich, have money and expensive things",,yes,,,no,Human values,imprich
-important_people_treated_equally_have_equal,STRING,Important that people are treated equally and have equal opportunities,,yes,,,no,Human values,ipeqopt
-important_show_abilities_admired,STRING,Important to show abilities and be admired,,yes,,,no,Human values,ipshabt
-important_live_secure_safe_surroundings,STRING,Important to live in secure and safe surroundings,,yes,,,no,Human values,impsafe
-important_try_new_different_things_life,STRING,Important to try new and different things in life,,yes,,,no,Human values,impdiff
-important_do_what_told_follow_rules,STRING,Important to do what is told and follow rules,,yes,,,no,Human values,ipfrule
-important_understand_different_people,STRING,Important to understand different people,,yes,,,no,Human values,ipudrst
-important_humble_modest_not_draw_attention,STRING,"Important to be humble and modest, not draw attention",,yes,,,no,Human values,ipmodst
-important_have_good_time,STRING,Important to have a good time,,yes,,,no,Human values,ipgdtim
-important_make_own_decisions_free,STRING,Important to make own decisions and be free,,yes,,,no,Human values,impfree
-important_help_people_care_others_well,STRING,Important to help people and care for others well-being,,yes,,,no,Human values,iphlppl
-important_successful_people_recognise_achievements,STRING,Important to be successful and that people recognise achievements,,yes,,,no,Human values,ipsuces
-important_government_strong_ensures_safety,STRING,Important that government is strong and ensures safety,,yes,,,no,Human values,ipstrgv
-important_seek_adventures_have_exciting_life,STRING,Important to seek adventures and have an exciting life,,yes,,,no,Human values,ipadvnt
-important_behave_properly,STRING,Important to behave properly,,yes,,,no,Human values,ipbhprp
-important_get_respect_from_others,STRING,Important to get respect from others,,yes,,,no,Human values,iprspot
-important_loyal_friends_devote_people_close,STRING,Important to be loyal to friends and devote to people close,,yes,,,no,Human values,iplylfr
-important_care_nature_environment,STRING,Important to care for nature and environment,,yes,,,no,Human values,impenv
-important_follow_traditions_customs,STRING,Important to follow traditions and customs,,yes,,,no,Human values,imptrad
-important_seek_fun_things_give_pleasure,STRING,Important to seek fun and things that give pleasure,,yes,,,no,Human values,impfun
-imagine_large_numbers_people_limit_energy_10,STRING,"Imagine large numbers of people limit energy use, how likely reduce climate change",,yes,,,no,Test questions,testii1
-likelihood_large_numbers_people_limit_energy_use_10,STRING,"How likely, large numbers of people limit energy use",,yes,,,no,Test questions,testii2
-likelihood_governments_enough_countries_take_action_10,STRING,"How likely, governments in enough countries take action to reduce climate change",,yes,,,no,Test questions,testii3
-imagine_large_numbers_people_limit_energy_11,STRING,"Imagine large numbers of people limit energy use, how likely reduce climate change",,yes,,,no,Test questions,testii4
-likelihood_large_numbers_people_limit_energy_use_11,STRING,"How likely, large numbers of people limit energy use",,yes,,,no,Test questions,testii5
-likelihood_governments_enough_countries_take_action_11,STRING,"How likely, governments in enough countries take action to reduce climate change",,yes,,,no,Test questions,testii6
-imagine_large_numbers_people_limit_energy_12,INT64,"Imagine large numbers of people limit energy use, how likely reduce climate change",,no,,,no,Test questions,testii7
-likelihood_large_numbers_people_limit_energy_use_12,INT64,"How likely, large numbers of people limit energy use",,no,,,no,Test questions,testii8
-likelihood_governments_enough_countries_take_action_12,INT64,"How likely, governments in enough countries take action to reduce climate change",,no,,,no,Test questions,testii9
-small_secret_group_people_responsible_making,STRING,Small secret group of people responsible for making all major decisions in world,,yes,,,no,Impact of COVID-19,secgrdec
-groups_scientists_manipulate_fabricate_suppress_evidence,STRING,"Groups of scientists manipulate, fabricate, or suppress evidence in order to",,yes,,,no,Impact of COVID-19,scidecpb
-more_important_governments_prioritise_public_health,INT64,More important for governments to prioritise public health or economic activity,,no,,,yes,Administration of COVID-19 questions,panpriph
-more_important_governments_monitor_track_public,INT64,More important for governments to monitor and track the public or to maintain,,no,,,no,Administration of COVID-19 questions,panmonpb
-more_important_governments_prioritise_public_health_2,INT64,More important for governments to prioritise public health or economic activity,,no,,,yes,Administration of COVID-19 questions,govpriph
-more_important_governments_monitor_track_public_2,INT64,More important for governments to monitor and track the public or to maintain,,no,,,no,Administration of COVID-19 questions,govmonpb
-more_important_follow_government_rules_make,INT64,More important to follow government rules or to make own decisions when,,no,,,no,Administration of COVID-19 questions,panfolru
-important_country_close_its_borders_when,INT64,How important for country to close its borders when fighting a pandemic,,no,,,no,Administration of COVID-19 questions,panclobo
-important_restrict_people_movement_between_different,INT64,How important to restrict people's movement between different parts of country,,no,,,no,Administration of COVID-19 questions,panresmo
-satisfied_government_handling_covid_19_country,INT64,How satisfied with government's handling of COVID-19 in country,,no,,,no,Administration of COVID-19 questions,gvhanc19
-satisfied_government_response_people_who_have,INT64,How satisfied with government's response to COVID-19: people who have,,no,,,no,Administration of COVID-19 questions,gvjobc19
-satisfied_government_response_elderly_people_care,INT64,How satisfied with government's response to COVID-19: elderly people in care,,no,,,no,Administration of COVID-19 questions,gveldc19
-satisfied_government_response_families_school,INT64,How satisfied with government's response to COVID-19: families with school-,,no,,,no,Administration of COVID-19 questions,gvfamc19
-satisfied_way_health_services_coped_covid_19_its,INT64,How satisfied with the way health services coped with COVID-19 and its,,no,,,yes,Administration of COVID-19 questions,hscopc19
-government_balanced_protecting_economy_people_health,INT64,How the government balanced protecting the economy and people's health when,,no,,,yes,Administration of COVID-19 questions,gvbalc19
-what_extent_trust_government_deal_impact,INT64,To what extent trust the government to deal with the impact of COVID-19 in,,no,,,no,Administration of COVID-19 questions,gvimpc19
-covid_19_result_deliberate_concealed_efforts,STRING,COVID-19 is result of deliberate and concealed efforts of some government or,,yes,,,no,Administration of COVID-19 questions,gvconc19
-respondent_had_covid_19,STRING,Respondent had COVID-19,,yes,,,no,Administration of COVID-19 questions,respc19
-anyone_living_respondent_had_covid_19,STRING,Anyone living with respondent had COVID-19,,yes,,,no,Administration of COVID-19 questions,reshhc19
-things_happened_since_made_redundant_lost_job,STRING,Things happened since start of COVID-19: was made redundant/lost job,,yes,,,no,Administration of COVID-19 questions,hapljc19
-things_happened_since_income_from_job_reduced,STRING,Things happened since start of COVID-19: income from job was reduced,,yes,,,yes,Administration of COVID-19 questions,hapirc19
-things_happened_since_working_hours_were_reduced,STRING,Things happened since start of COVID-19: working hours were reduced,,yes,,,no,Administration of COVID-19 questions,hapwrc19
-things_happened_since_furloughed,STRING,Things happened since start of COVID-19: was furloughed,,yes,,,no,Administration of COVID-19 questions,hapfuc19
-things_happened_since_forced_take_unpaid_leave,STRING,Things happened since start of COVID-19: was forced to take unpaid leave/holiday,,yes,,,no,Administration of COVID-19 questions,hapfoc19
-things_happened_since_none_these,STRING,Things happened since start of COVID-19: none of these,,yes,,,no,Administration of COVID-19 questions,hapnoc19
-things_happened_since_not_work_since_start,STRING,Things happened since start of COVID-19: not in work since start of COVID-19,,yes,,,no,Administration of COVID-19 questions,hapnwc19
-things_happened_since_not_applicable,STRING,Things happened since start of COVID-19: not applicable,,yes,,,no,Administration of COVID-19 questions,hapnpc19
-things_happened_since_refusal,STRING,Things happened since start of COVID-19: refusal,,yes,,,no,Administration of COVID-19 questions,haprec19
-things_happened_since_dont_know,STRING,Things happened since start of COVID-19: don't know,,yes,,,no,Administration of COVID-19 questions,hapdkc19
-things_happened_since_no_answer,STRING,Things happened since start of COVID-19: no answer,,yes,,,no,Administration of COVID-19 questions,hapnac19
-covid_19_vaccine_approved_national_regulatory,STRING,COVID-19 vaccine approved by national regulatory authority and available to the,,yes,,,no,Administration of COVID-19 questions,icvacc19
-whether_respondent_will_get_vaccinated_against,STRING,Whether respondent will get vaccinated against COVID-19 with vaccine approved,,yes,,,no,Administration of COVID-19 questions,getavc19
-whether_respondent_would_get_vaccinated_against,STRING,Whether respondent would get vaccinated against COVID-19 if vaccine is,,yes,,,no,Administration of COVID-19 questions,getnvc19
-interview_conducted,STRING,"Interview conducted, how",,yes,,,no,Video interview questions,vdcond
-respondent_overall_experience_taking_part_survey,INT64,Respondent's overall experience of taking part in survey,,no,,,no,Video interview questions,vdovexre
-type_device_used_video_interview,STRING,Type of device used for video interview,,yes,,,no,Video interview questions,vdtype
-respondent_experience_technical_starting_video_call,STRING,Respondent's experience of technical problems: starting video call,,yes,,,no,Video interview questions,vdtpsvre
-respondent_experience_technical_internet_connection_affecting,STRING,Respondent's experience of technical problems: internet connection affecting,,yes,,,no,Video interview questions,vdtpitre
-respondent_experience_technical_displaying_showcards,STRING,Respondent's experience of technical problems: displaying showcards,,yes,,,no,Video interview questions,vdtpscre
-respondent_experience_technical_audio_not_clear,STRING,Respondent's experience of technical problems: audio not being clear,,yes,,,no,Video interview questions,vdtpaure
-respondent_experience_technical_video_display_not,STRING,Respondent's experience of technical problems: video display not being clear,,yes,,,no,Video interview questions,vdtpvire
-respondent_experience_technical_other_issue,STRING,Respondent's experience of technical problems: other issue,,yes,,,no,Video interview questions,vdtpoire
-respondent_experience_technical_no_technical_issues,STRING,Respondent's experience of technical problems: no technical issues,,yes,,,no,Video interview questions,vdtpntre
-respondent_experience_technical_not_applicable,STRING,Respondent's experience of technical problems: not applicable,,yes,,,no,Video interview questions,vdtpapre
-respondent_experience_technical_refusal,STRING,Respondent's experience of technical problems: refusal,,yes,,,no,Video interview questions,vdtprere
-respondent_experience_technical_dont_know,STRING,Respondent's experience of technical problems: don't know,,yes,,,no,Video interview questions,vdtpdkre
-respondent_experience_technical_no_answer,STRING,Respondent's experience of technical problems: no answer,,yes,,,no,Video interview questions,vdtpnare
-start_interview,STRING,Start of interview,,no,,,no,Administrative variables,inwds
-start_section,STRING,Start of section A,,no,,,no,Administrative variables,ainws
-end_section,STRING,End of section A,,no,,,no,Administrative variables,ainwe
-end_section_b,STRING,End of section B,,no,,,no,Administrative variables,binwe
-end_section_c,STRING,End of section C,,no,,,no,Administrative variables,cinwe
-end_section_d,STRING,End of section D,,no,,,no,Administrative variables,dinwe
-end_section_f,STRING,End of section F,,no,,,no,Administrative variables,finwe
-end_section_g,STRING,End of section G,,no,,,no,Administrative variables,ginwe
-end_section_h,STRING,End of section H,,no,,,no,Administrative variables,hinwe
-end_section_i,STRING,End of section I,,no,,,no,Administrative variables,iinwe
-end_section_k,STRING,End of section K,,no,,,no,Administrative variables,kinwe
-end_section_v,STRING,End of section V,,no,,,no,Administrative variables,vinwe
-end_interview,STRING,End of interview,,no,,,no,Administrative variables,inwde
-start_section_j,STRING,Start of section J,,no,,,no,Administrative variables,jinws
-end_section_j,STRING,End of section J,,no,,,no,Administrative variables,jinwe
-interview_length_minutes_main_questionnaire,INT64,"Interview length in minutes, main questionnaire",,no,,,no,Administrative variables,inwtm
-mode_data_collection,STRING,Mode of data collection,,yes,,,no,Administrative variables,mode
-sampling_domain,INT64,Sampling domain,,no,,,no,Sample Design variables,domain
-selection_probability,FLOAT64,Sampling probability,,no,,,no,Sample Design variables,prob
-sampling_stratum,FLOAT64,Sampling stratum,,no,,,no,Sample Design variables,stratum
-primary_sampling_unit,FLOAT64,Primary sampling unit,,no,,,no,Sample Design variables,psu
+dataset_title,STRING,Title of dataset,,no,,,no,,name
+edition,STRING,Edition,,no,,,no,,edition
+production_date,STRING,Production date,,no,,,no,,proddate
+design_weight,FLOAT64,Design weight,,no,,,no,,dweight
+poststratification_weight,FLOAT64,Post-stratification weight including design weight,,no,,,no,,pspwght
+population_size_weight,FLOAT64,Population size weight (must be combined with dweight or pspwght),,no,,,no,,pweight
+analysis_weight,FLOAT64,Analysis weight,,no,,,no,,anweight
+minutes_news_politics,INT64,"News about politics and current affairs, watching, reading or listening, in minu",,no,,,no,,nwspol
+internet_use_frequency,STRING,"Internet use, how often",,yes,,,no,,netusoft
+minutes_internet_use,INT64,"Internet use, how much time on typical day, in minutes",,no,,,no,,netustm
+most_people_can_be_trusted,INT64,Most people can be trusted or you can't be too careful,,no,,,no,,ppltrst
+most_people_try_to_be_fair,INT64,"Most people try to take advantage of you, or try to be fair",,no,,,no,,pplfair
+most_people_helpful,INT64,Most of the time people helpful or mostly looking out for themselves,,no,,,no,,pplhlp
+interest_in_politics,STRING,How interested in politics,,yes,,,no,,polintr
+political_system_allows_say,STRING,Political system allows people to have a say in what government does,,yes,,,no,,psppsgva
+able_to_take_active_role,STRING,Able to take active role in political group,,yes,,,no,,actrolga
+political_system_allows_influence,STRING,Political system allows people to have influence on politics,,yes,,,no,,psppipla
+confident_participate_politics,STRING,Confident in own ability to participate in politics,,yes,,,no,,cptppola
+trust_parliament,INT64,Trust in country's parliament,,no,,,no,,trstprl
+trust_legal_system,INT64,Trust in the legal system,,no,,,no,,trstlgl
+trust_police,INT64,Trust in the police,,no,,,no,,trstplc
+trust_politicians,INT64,Trust in politicians,,no,,,no,,trstplt
+trust_political_parties,INT64,Trust in political parties,,no,,,no,,trstprt
+trust_european_parliament,INT64,Trust in the European Parliament,,no,,,no,,trstep
+trust_united_nations,INT64,Trust in the United Nations,,no,,,no,,trstun
+trust_scientists,INT64,Trust in scientists,,no,,,no,,trstsci
+voted_last_national_election,STRING,Voted last national election,,yes,,,no,,vote
+party_voted_belgium,STRING,"Party voted for in last national election, Belgium",,yes,,,no,,prtvtebe
+party_voted_bulgaria_2,STRING,"Party voted for in last national election, Bulgaria",,yes,,,no,,prtvtebg
+party_voted_switzerland,STRING,"Party voted for in last national election, Switzerland",,yes,,,no,,prtvthch
+party_voted_croatia_2,STRING,"Party voted for in last national election, Croatia",,yes,,,no,,prtvtbhr
+party_voted_czechia,STRING,"Party voted for in last national election, Czechia",,yes,,,no,,prtvtecz
+party_voted_estonia,STRING,"Party voted for in last national election, Estonia",,yes,,,no,,prtvthee
+party_voted_finland_2,STRING,"Party voted for in last national election, Finland",,yes,,,no,,prtvtefi
+party_voted_france_ballot_1_2,STRING,"Party voted for in last national election, France (ballot 1)",,yes,,,no,,prtvtefr
+party_voted_greece_2,STRING,"Party voted for in last national election, Greece",,yes,,,no,,prtvtdgr
+party_voted_hungary_2,STRING,"Party voted for in last national election, Hungary",,yes,,,no,,prtvtghu
+party_voted_iceland_2,STRING,"Party voted for in last national election, Iceland",,yes,,,no,,prtvtdis
+party_voted_ireland_derived_from_1st_2,STRING,"Party voted for in last national election, Ireland (derived from 1st preference",,yes,,,no,,prtvtdie
+party_voted_italy_2,STRING,"Party voted for in last national election, Italy",,yes,,,no,,prtvtdit
+party_voted_1_lithuania_first_vote_party,STRING,"Party voted for in last national election 1, Lithuania (first vote, party)",,yes,,,no,,prtvclt1
+party_voted_2_lithuania_second_vote_party,STRING,"Party voted for in last national election 2, Lithuania (second vote, party)",,yes,,,no,,prtvclt2
+party_voted_3_lithuania_third_vote_party,STRING,"Party voted for in last national election 3, Lithuania (third vote, party)",,yes,,,no,,prtvclt3
+party_voted_montenegro_2,STRING,"Party voted for in last national election, Montenegro",,yes,,,no,,prtvtame
+party_voted_netherlands_2,STRING,"Party voted for in last national election, Netherlands",,yes,,,no,,prtvthnl
+party_voted_north_macedonia,STRING,"Party voted for in last national election, North Macedonia",,yes,,,no,,prtvtmk
+party_voted_norway_2,STRING,"Party voted for in last national election, Norway",,yes,,,no,,prtvtbno
+party_voted_portugal_2,STRING,"Party voted for in last national election, Portugal",,yes,,,no,,prtvtdpt
+party_voted_slovenia_2,STRING,"Party voted for in last national election, Slovenia",,yes,,,no,,prtvtfsi
+party_voted_slovakia,STRING,"Party voted for in last national election, Slovakia",,yes,,,no,,prtvtesk
+party_voted_united_kingdom,STRING,"Party voted for in last national election, United Kingdom",,yes,,,no,,prtvtdgb
+contacted_politician,STRING,Contacted politician or government official last 12 months,,yes,,,no,,contplt
+donated_to_party,STRING,Donated to or participated in political party or pressure group last 12 months,,yes,,,no,,donprty
+worn_campaign_badge,STRING,Worn or displayed campaign badge/sticker last 12 months,,yes,,,no,,badge
+signed_petition,STRING,Signed petition last 12 months,,yes,,,no,,sgnptit
+participated_lawful_demonstration,STRING,Taken part in public demonstration last 12 months,,yes,,,no,,pbldmna
+boycotted_products,STRING,Boycotted certain products last 12 months,,yes,,,no,,bctprd
+posted_shared_politics_online,STRING,Posted or shared anything about politics online last 12 months,,yes,,,no,,pstplonl
+volunteered_not_profit_charitable_organisation,STRING,Volunteered for not-for-profit or charitable organisation,,yes,,,no,,volunfp
+feel_close_to_party,STRING,Feel closer to a particular party than all other parties,,yes,,,no,,clsprty
+party_feel_close_belgium,STRING,"Which party feel closer to, Belgium",,yes,,,no,,prtclebe
+party_feel_close_bulgaria_2,STRING,"Which party feel closer to, Bulgaria",,yes,,,no,,prtclebg
+party_feel_close_switzerland,STRING,"Which party feel closer to, Switzerland",,yes,,,no,,prtclhch
+party_feel_close_croatia,STRING,"Which party feel closer to, Croatia",,yes,,,no,,prtclbhr
+party_feel_close_czechia,STRING,"Which party feel closer to, Czechia",,yes,,,no,,prtclecz
+party_feel_close_estonia,STRING,"Which party feel closer to, Estonia",,yes,,,no,,prtclhee
+party_feel_close_finland_2,STRING,"Which party feel closer to, Finland",,yes,,,no,,prtclffi
+party_feel_close_france_2,STRING,"Which party feel closer to, France",,yes,,,no,,prtclffr
+party_feel_close_greece_2,STRING,"Which party feel closer to, Greece",,yes,,,no,,prtcldgr
+party_feel_close_hungary_2,STRING,"Which party feel closer to, Hungary",,yes,,,no,,prtclhhu
+party_feel_close_iceland_2,STRING,"Which party feel closer to, Iceland",,yes,,,no,,prtcldis
+party_feel_close_ireland,STRING,"Which party feel closer to, Ireland",,yes,,,no,,prtclfie
+party_feel_close_italy_2,STRING,"Which party feel closer to, Italy",,yes,,,no,,prtcleit
+party_feel_close_lithuania,STRING,"Which party feel closer to, Lithuania",,yes,,,no,,prtclclt
+party_feel_close_montenegro_2,STRING,"Which party feel closer to, Montenegro",,yes,,,no,,prtclame
+party_feel_close_netherlands_2,STRING,"Which party feel closer to, Netherlands",,yes,,,no,,prtclgnl
+party_feel_close_north_macedonia,STRING,"Which party feel closer to, North Macedonia",,yes,,,no,,prtclmk
+party_feel_close_norway_2,STRING,"Which party feel closer to, Norway",,yes,,,no,,prtclbno
+party_feel_close_portugal_2,STRING,"Which party feel closer to, Portugal",,yes,,,no,,prtclfpt
+party_feel_close_slovenia_2,STRING,"Which party feel closer to, Slovenia",,yes,,,no,,prtclfsi
+party_feel_close_slovakia,STRING,"Which party feel closer to, Slovakia",,yes,,,no,,prtclesk
+party_feel_close_united_kingdom,STRING,"Which party feel closer to, United Kingdom",,yes,,,no,,prtcldgb
+how_close_to_party,STRING,How close to party,,yes,,,no,,prtdgcl
+left_right_scale,INT64,Placement on left right scale,,no,,,no,,lrscale
+life_satisfaction,INT64,How satisfied with life as a whole,,no,,,no,,stflife
+satisfaction_economy,INT64,How satisfied with present state of economy in country,,no,,,no,,stfeco
+satisfaction_government,INT64,How satisfied with the national government,,no,,,no,,stfgov
+satisfaction_democracy,INT64,How satisfied with the way democracy works in country,,no,,,no,,stfdem
+satisfaction_education,INT64,State of education in country nowadays,,no,,,no,,stfedu
+satisfaction_health_services,INT64,State of health services in country nowadays,,no,,,yes,,stfhlth
+government_reduce_income_differences,STRING,Government should reduce differences in income levels,,yes,,,yes,,gincdif
+gays_free_to_live_as_wish,STRING,Gays and lesbians free to live life as they wish,,yes,,,no,,freehms
+ashamed_gay_family_member,STRING,Ashamed if close family member gay or lesbian,,yes,,,no,,hmsfmlsh
+gay_couples_adopt_rights,STRING,Gay and lesbian couples right to adopt children,,yes,,,no,,hmsacld
+european_unification_go_further,INT64,European Union: European unification go further or gone too far,,no,,,no,,euftf
+obedience_respect_authority_most_important_virtues,STRING,Obedience and respect for authority most important virtues children should learn,,yes,,,no,,lrnobed
+country_needs_most_loyalty_towards_its_leaders,STRING,Country needs most loyalty towards its leaders,,yes,,,no,,loylead
+allow_immigrants_same_ethnicity,STRING,Allow many/few immigrants of same race/ethnic group as majority,,yes,,,yes,,imsmetn
+allow_immigrants_different_ethnicity,STRING,Allow many/few immigrants of different race/ethnic group from majority,,yes,,,yes,,imdfetn
+allow_immigrants_poorer_countries,STRING,Allow many/few immigrants from poorer countries outside Europe,,yes,,,no,,impcntr
+immigration_good_for_economy,INT64,Immigration bad or good for country's economy,,no,,,no,,imbgeco
+immigration_undermines_culture,INT64,Country's cultural life undermined or enriched by immigrants,,no,,,no,,imueclt
+immigrants_make_country_better,INT64,Immigrants make country worse or better place to live,,no,,,no,,imwbcnt
+happiness,INT64,How happy are you,,no,,,no,,happy
+frequency_social_meetings,STRING,"How often socially meet with friends, relatives or colleagues",,yes,,,no,,sclmeet
+number_people_discuss_personal,STRING,How many people with whom you can discuss intimate and personal matters,,yes,,,no,,inprdsc
+social_activities_vs_peers,STRING,Take part in social activities compared to others of same age,,yes,,,no,,sclact
+victim_of_crime,STRING,Respondent or household member victim of burglary/assault last 5 years,,yes,,,no,,crmvct
+feeling_safe_walking_dark,STRING,Feeling of safety of walking alone in local area after dark,,yes,,,no,,aesfdrk
+subjective_general_health,STRING,Subjective general health,,yes,,,yes,,health
+hampered_by_illness,STRING,Hampered in daily activities by illness/disability/infirmity/mental problem,,yes,,,yes,,hlthhmp
+emotional_attachment_country,INT64,How emotionally attached to [country],,no,,,no,,atchctr
+emotional_attachment_europe,INT64,How emotionally attached to Europe,,no,,,no,,atcherp
+belongs_to_religion,STRING,Belonging to particular religion or denomination,,yes,,,no,,rlgblg
+religion_denomination_belonging_present,STRING,Religion or denomination belonging to at present,,yes,,,no,,rlgdnm
+religion_denomination_belonging_present_switzerland,STRING,"Religion or denomination belonging to at present, Switzerland",,yes,,,no,,rlgdnach
+religion_denomination_belonging_present_finland,STRING,"Religion or denomination belonging to at present, Finland",,yes,,,no,,rlgdnafi
+religion_denomination_belonging_present_greece,STRING,"Religion or denomination belonging to at present, Greece",,yes,,,no,,rlgdnagr
+religion_denomination_belonging_present_hungary,STRING,"Religion or denomination belonging to at present, Hungary",,yes,,,no,,rlgdnhu
+religion_denomination_belonging_present_iceland,STRING,"Religion or denomination belonging to at present, Iceland",,yes,,,no,,rlgdnais
+religion_denomination_belonging_present_ireland,STRING,"Religion or denomination belonging to at present, Ireland",,yes,,,no,,rlgdnie
+religion_denomination_belonging_present_lithuania,STRING,"Religion or denomination belonging to at present, Lithuania",,yes,,,no,,rlgdnlt
+religion_denomination_belonging_present_montenegro,STRING,"Religion or denomination belonging to at present, Montenegro",,yes,,,no,,rlgdme
+religion_denomination_belonging_present_netherlands,STRING,"Religion or denomination belonging to at present, Netherlands",,yes,,,no,,rlgdnanl
+religion_denomination_belonging_present_north_macedonia,STRING,"Religion or denomination belonging to at present, North Macedonia",,yes,,,no,,rlgdnmk
+religion_denomination_belonging_present_norway,STRING,"Religion or denomination belonging to at present, Norway",,yes,,,no,,rlgdnno
+religion_denomination_belonging_present_slovakia_2,STRING,"Religion or denomination belonging to at present, Slovakia",,yes,,,no,,rlgdnbsk
+religion_denomination_belonging_present_united_kingdom,STRING,"Religion or denomination belonging to at present, United Kingdom",,yes,,,no,,rlgdngb
+ever_belonging_particular_religion_denomination,STRING,Ever belonging to particular religion or denomination,,yes,,,no,,rlgblge
+religion_denomination_belonging_past,STRING,Religion or denomination belonging to in the past,,yes,,,no,,rlgdnme
+religion_denomination_belonging_past_switzerland,STRING,"Religion or denomination belonging to in the past, Switzerland",,yes,,,no,,rlgdeach
+religion_denomination_belonging_past_finland,STRING,"Religion or denomination belonging to in the past, Finland",,yes,,,no,,rlgdeafi
+religion_denomination_belonging_past_greece,STRING,"Religion or denomination belonging to in the past, Greece",,yes,,,no,,rlgdeagr
+religion_denomination_belonging_past_hungary,STRING,"Religion or denomination belonging to in the past, Hungary",,yes,,,no,,rlgdehu
+religion_denomination_belonging_past_iceland,STRING,"Religion or denomination belonging to in the past, Iceland",,yes,,,no,,rlgdeais
+religion_denomination_belonging_past_ireland,STRING,"Religion or denomination belonging to in the past, Ireland",,yes,,,no,,rlgdeie
+religion_denomination_belonging_past_lithuania,STRING,"Religion or denomination belonging to in the past, Lithuania",,yes,,,no,,rlgdelt
+religion_denomination_belonging_past_montenegro,STRING,"Religion or denomination belonging to in the past, Montenegro",,yes,,,no,,rlgdeme
+religion_denomination_belonging_past_netherlands,STRING,"Religion or denomination belonging to in the past, Netherlands",,yes,,,no,,rlgdeanl
+religion_denomination_belonging_past_north_macedonia,STRING,"Religion or denomination belonging to in the past, North Macedonia",,yes,,,no,,rlgdemk
+religion_denomination_belonging_past_norway,STRING,"Religion or denomination belonging to in the past, Norway",,yes,,,no,,rlgdeno
+religion_denomination_belonging_past_slovakia_2,STRING,"Religion or denomination belonging to in the past, Slovakia",,yes,,,no,,rlgdebsk
+religion_denomination_belonging_past_united_kingdom,STRING,"Religion or denomination belonging to in the past, United Kingdom",,yes,,,no,,rlgdegb
+how_religious,INT64,How religious are you,,no,,,no,,rlgdgr
+religious_attendance_frequency,STRING,How often attend religious services apart from special occasions,,yes,,,no,,rlgatnd
+frequency_of_praying,STRING,How often pray apart from at religious services,,yes,,,no,,pray
+member_discriminated_group,STRING,Member of a group discriminated against in this country,,yes,,,no,,dscrgrp
+discrimination_group_colour_race,STRING,Discrimination of respondent's group: colour or race,,yes,,,no,,dscrrce
+discrimination_group_nationality,STRING,Discrimination of respondent's group: nationality,,yes,,,no,,dscrntn
+discrimination_group_religion,STRING,Discrimination of respondent's group: religion,,yes,,,no,,dscrrlg
+discrimination_group_language,STRING,Discrimination of respondent's group: language,,yes,,,no,,dscrlng
+discrimination_group_ethnic_group,STRING,Discrimination of respondent's group: ethnic group,,yes,,,yes,,dscretn
+discrimination_group_age,STRING,Discrimination of respondent's group: age,,yes,,,no,,dscrage
+discrimination_group_gender,STRING,Discrimination of respondent's group: gender,,yes,,,no,,dscrgnd
+discrimination_group_sexuality,STRING,Discrimination of respondent's group: sexuality,,yes,,,no,,dscrsex
+discrimination_group_disability,STRING,Discrimination of respondent's group: disability,,yes,,,no,,dscrdsb
+discrimination_group_other_grounds,STRING,Discrimination of respondent's group: other grounds,,yes,,,no,,dscroth
+discrimination_group_dont_know,STRING,Discrimination of respondent's group: don't know,,yes,,,no,,dscrdk
+discrimination_group_refusal,STRING,Discrimination of respondent's group: refusal,,yes,,,no,,dscrref
+discrimination_group_not_applicable,STRING,Discrimination of respondent's group: not applicable,,yes,,,no,,dscrnap
+discrimination_group_no_answer,STRING,Discrimination of respondent's group: no answer,,yes,,,no,,dscrna
+citizen_of_country,STRING,Citizen of country,,yes,,,no,,ctzcntr
+born_in_country,STRING,Born in country,,yes,,,no,,brncntr
+country_birth,STRING,Country of birth,,no,br_bd_diretorios_mundo.pais:sigla_iso2,,no,,cntbrthd
+year_arrived_country,INT64,What year you first came to live in country,,no,,,no,,livecnta
+language_home_first,STRING,Language most often spoken at home: first mentioned,,yes,,,no,,lnghom1
+language_home_second,STRING,Language most often spoken at home: second mentioned,,yes,,,no,,lnghom2
+feel_part_same_race_ethnic_group,STRING,Feel part of same race or ethnic group as most people in country,,yes,,,yes,,feethngr
+father_born_in_country,STRING,Father born in country,,yes,,,no,,facntr
+country_birth_father,STRING,"Country of birth, father",,no,br_bd_diretorios_mundo.pais:sigla_iso2,,no,,fbrncntc
+mother_born_in_country,STRING,Mother born in country,,yes,,,no,,mocntr
+country_birth_mother,STRING,"Country of birth, mother",,no,br_bd_diretorios_mundo.pais:sigla_iso2,,no,,mbrncntc
+climate_change_caused_natural_processes_human,STRING,"Climate change caused by natural processes, human activity, or both",,yes,,,no,,ccnthum
+what_extent_feel_personal_responsibility_reduce,INT64,To what extent feel personal responsibility to reduce climate change,,no,,,no,,ccrdprs
+worried_climate_change,STRING,How worried about climate change,,yes,,,no,,wrclmch
+administration_reduce_climate_change,STRING,Administration of reduce climate change,,yes,,,no,,admrclc
+imagine_large_numbers_people_limit_energy_7,INT64,"Imagine large numbers of people limit energy use, how likely reduce climate chan",,no,,,no,,testic34
+likelihood_large_numbers_people_limit_energy_use_7,INT64,"How likely, large numbers of people limit energy use",,no,,,no,,testic35
+likelihood_governments_enough_countries_take_action_7,INT64,"How likely, governments in enough countries take action to reduce climate change",,no,,,no,,testic36
+imagine_large_numbers_people_limit_energy_8,STRING,"Imagine large numbers of people limit energy use, how likely reduce climate chan",,yes,,,no,,testic37
+likelihood_large_numbers_people_limit_energy_use_8,STRING,"How likely, large numbers of people limit energy use",,yes,,,no,,testic38
+likelihood_governments_enough_countries_take_action_8,STRING,"How likely, governments in enough countries take action to reduce climate change",,yes,,,no,,testic39
+imagine_large_numbers_people_limit_energy_9,STRING,"Imagine large numbers of people limit energy use, how likely reduce climate chan",,yes,,,no,,testic40
+likelihood_large_numbers_people_limit_energy_use_9,STRING,"How likely, large numbers of people limit energy use",,yes,,,no,,testic41
+likelihood_governments_enough_countries_take_action_9,STRING,"How likely, governments in enough countries take action to reduce climate change",,yes,,,no,,testic42
+would_vote,STRING,Would vote for [country] to remain member of European Union or leave,,yes,,,no,,vteurmmb
+would_vote_2,STRING,Would vote for [country] to become member of European Union or remain outside,,yes,,,no,,vteubcmb
+national_elections_free_fair,INT64,National elections are free and fair,,no,,,no,,fairelc
+different_political_parties_offer_clear_alternatives,INT64,Different political parties offer clear alternatives to one another,,no,,,no,,dfprtal
+media_free_criticise_government,INT64,The media are free to criticise the government,,no,,,no,,medcrgv
+rights_minority_groups_protected,INT64,The rights of minority groups are protected,,no,,,no,,rghmgpr
+citizens_have_final_say_political_issues,INT64,Citizens have the final say on political issues by voting directly in referendum,,no,,,no,,votedir
+courts_treat_everyone_same,INT64,The courts treat everyone the same,,no,,,no,,cttresa
+governing_parties_punished_elections_when_they,INT64,Governing parties are punished in elections when they have done a bad job,,no,,,no,,gptpelc
+government_protects_all_citizens_against_poverty,INT64,The government protects all citizens against poverty,,no,,,no,,gvctzpv
+government_takes_measures_reduce_differences_income,INT64,The government takes measures to reduce differences in income levels,,no,,,yes,,grdfinc
+views_ordinary_people_prevail_over_views,INT64,The views of ordinary people prevail over the views of the political elite,,no,,,no,,viepol
+will_people_cannot_stopped,INT64,The will of the people cannot be stopped,,no,,,no,,wpestop
+key_decisions_made_national_governments_rather,INT64,Key decisions are made by national governments rather than the European Union,,no,,,no,,keydec
+country_national_elections_free_fair,INT64,In country national elections are free and fair,,no,,,no,,fairelcc
+country_different_political_parties_offer_clear,INT64,In country different political parties offer clear alternatives to one another,,no,,,no,,dfprtalc
+country_media_free_criticise_government,INT64,In country the media are free to criticise the government,,no,,,no,,medcrgvc
+country_rights_minority_groups_protected,INT64,In country the rights of minority groups are protected,,no,,,no,,rghmgprc
+country_citizens_have_final_say_political,INT64,In country citizens have the final say on political issues by voting directly in,,no,,,no,,votedirc
+country_courts_treat_everyone_same,INT64,In country the courts treat everyone the same,,no,,,no,,cttresac
+country_governing_parties_punished_elections_when,INT64,In country governing parties are punished in elections when they have done a bad,,no,,,no,,gptpelcc
+country_government_protects_all_citizens_against,INT64,In country the government protects all citizens against poverty,,no,,,no,,gvctzpvc
+country_government_takes_measures_reduce_differences,INT64,In country the government takes measures to reduce differences in income levels,,no,,,yes,,grdfincc
+country_views_ordinary_people_prevail_over,INT64,In country the views of ordinary people prevail over the views of the political,,no,,,no,,viepolc
+country_will_people_cannot_stopped,INT64,In country the will of the people cannot be stopped,,no,,,no,,wpestopc
+country_key_decisions_made_national_governments,INT64,In country key decisions are made by national governments rather than the Europe,,no,,,no,,keydecc
+best_democracy_government_changes_policies_response,STRING,Best for democracy: government changes policies in response to what most people,,yes,,,no,,chpldm
+important_democracy_government_changes_policies_response,INT64,Important for democracy: government changes policies in response to what most pe,,no,,,no,,chpldmi
+country_government_changes_policies_response_what,INT64,In country government changes policies in response to what most people think,,no,,,no,,chpldmc
+important_democracy_government_sticks_policies_regardless,INT64,Important for democracy: government sticks to policies regardless of what most p,,no,,,no,,stpldmi
+country_government_sticks_policies_regardless_what,INT64,In country government sticks to policies regardless of what most people think,,no,,,no,,stpldmc
+administration_important_things_democracy,STRING,Administration of how important things are for democracy,,yes,,,no,,admit
+using_correct_version_showcard,STRING,Using correct version of showcard,,yes,,,no,,showcv
+important_things_democracy_order,STRING,"How important things are for democracy, order A",,yes,,,no,,impdema
+important_things_democracy_order_b,STRING,"How important things are for democracy, order B",,yes,,,no,,impdemb
+important_things_democracy_order_c,STRING,"How important things are for democracy, order C",,yes,,,no,,impdemc
+important_things_democracy_order_d,STRING,"How important things are for democracy, order D",,yes,,,no,,impdemd
+important_things_democracy_order_e,STRING,"How important things are for democracy, order E",,yes,,,no,,impdeme
+important_live_democratically_governed_country,INT64,How important for you to live in democratically governed country,,no,,,no,,implvdm
+acceptable_country_have_strong_leader_above_law,INT64,Acceptable for country to have a strong leader above the law,,no,,,no,,accalaw
+number_people_living_regularly_member_household,INT64,Number of people living regularly as member of household,,no,,,no,,hhmmb
+gender,STRING,Gender,,yes,,,no,,gndr
+household_member_2_gender,STRING,Gender of second person in household,,yes,,,no,,gndr2
+household_member_3_gender,STRING,Gender of third person in household,,yes,,,no,,gndr3
+household_member_4_gender,STRING,Gender of fourth person in household,,yes,,,no,,gndr4
+household_member_5_gender,STRING,Gender of fifth person in household,,yes,,,no,,gndr5
+household_member_6_gender,STRING,Gender of sixth person in household,,yes,,,no,,gndr6
+household_member_7_gender,STRING,Gender of seventh person in household,,yes,,,no,,gndr7
+household_member_8_gender,STRING,Gender of eighth person in household,,yes,,,no,,gndr8
+household_member_9_gender,STRING,Gender of ninth person in household,,yes,,,no,,gndr9
+household_member_10_gender,STRING,Gender of tenth person in household,,yes,,,no,,gndr10
+household_member_11_gender,STRING,Gender of eleventh person in household,,yes,,,no,,gndr11
+household_member_12_gender,STRING,Gender of twelfth person in household,,yes,,,no,,gndr12
+household_member_13_gender,STRING,Gender of thirteenth person in household,,yes,,,no,,gndr13
+year_of_birth,INT64,Year of birth,,no,,,no,,yrbrn
+age,INT64,"Age of respondent, calculated",,no,,,no,,agea
+age_group_post_coded,STRING,"Age group, post coded",,yes,,,no,,agegroup
+household_member_2_year_of_birth,INT64,Year of birth of second person in household,,no,,,no,,yrbrn2
+household_member_3_year_of_birth,INT64,Year of birth of third person in household,,no,,,no,,yrbrn3
+household_member_4_year_of_birth,INT64,Year of birth of fourth person in household,,no,,,no,,yrbrn4
+household_member_5_year_of_birth,INT64,Year of birth of fifth person in household,,no,,,no,,yrbrn5
+household_member_6_year_of_birth,INT64,Year of birth of sixth person in household,,no,,,no,,yrbrn6
+household_member_7_year_of_birth,INT64,Year of birth of seventh person in household,,no,,,no,,yrbrn7
+household_member_8_year_of_birth,INT64,Year of birth of eighth person in household,,no,,,no,,yrbrn8
+household_member_9_year_of_birth,INT64,Year of birth of ninth person in household,,no,,,no,,yrbrn9
+household_member_10_year_of_birth,INT64,Year of birth of tenth person in household,,no,,,no,,yrbrn10
+household_member_11_year_of_birth,INT64,Year of birth of eleventh person in household,,no,,,no,,yrbrn11
+household_member_12_year_of_birth,INT64,Year of birth of twelfth person in household,,no,,,no,,yrbrn12
+household_member_13_year_of_birth,INT64,Year of birth of thirteenth person in household,,no,,,no,,yrbrn13
+household_member_2_relationship,STRING,Second person in household: relationship to respondent,,yes,,,no,,rshipa2
+household_member_3_relationship,STRING,Third person in household: relationship to respondent,,yes,,,no,,rshipa3
+household_member_4_relationship,STRING,Fourth person in household: relationship to respondent,,yes,,,no,,rshipa4
+household_member_5_relationship,STRING,Fifth person in household: relationship to respondent,,yes,,,no,,rshipa5
+household_member_6_relationship,STRING,Sixth person in household: relationship to respondent,,yes,,,no,,rshipa6
+household_member_7_relationship,STRING,Seventh person in household: relationship to respondent,,yes,,,no,,rshipa7
+household_member_8_relationship,STRING,Eighth person in household: relationship to respondent,,yes,,,no,,rshipa8
+household_member_9_relationship,STRING,Ninth person in household: relationship to respondent,,yes,,,no,,rshipa9
+household_member_10_relationship,STRING,Tenth person in household: relationship to respondent,,yes,,,no,,rshipa10
+household_member_11_relationship,STRING,Eleventh person in household: relationship to respondent,,yes,,,no,,rshipa11
+household_member_12_relationship,STRING,Twelfth person in household: relationship to respondent,,yes,,,no,,rshipa12
+household_member_13_relationship,STRING,Thirteenth person in household: relationship to respondent,,yes,,,no,,rshipa13
+relationship_husband_wife_partner_currently_living,STRING,Relationship with husband/wife/partner currently living with,,yes,,,no,,rshpsts
+relationship_husband_wife_partner_currently_living_4,STRING,"Relationship with husband/wife/partner currently living with, North Macedonia",,yes,,,no,,rshpsmk
+relationship_husband_wife_partner_currently_living_2,STRING,"Relationship with husband/wife/partner currently living with, United Kingdom",,yes,,,no,,rshpsgb
+ever_lived_partner_without_married,STRING,"Ever lived with a partner, without being married",,yes,,,no,,lvgptnea
+ever_divorced_had_civil_union_dissolved,STRING,Ever been divorced/had civil union dissolved,,yes,,,no,,dvrcdeva
+legal_marital_status,STRING,Legal marital status,,yes,,,no,,marsts
+legal_marital_status_north_macedonia,STRING,"Legal marital status, North Macedonia",,yes,,,no,,marstmk
+legal_marital_status_united_kingdom,STRING,"Legal marital status, United Kingdom",,yes,,,no,,marstgb
+legal_marital_status_2,STRING,"Legal marital status, post coded",,yes,,,no,,maritalb
+children_living_at_home,STRING,Ever had children living in household,,yes,,,no,,chldhhe
+domicile_type,STRING,"Domicile, respondent's description",,yes,,,no,,domicil
+highest_education,STRING,Highest level of education,,yes,,,no,,edulvlb
+highest_education_es_isced,STRING,"Highest level of education, ES - ISCED",,yes,,,no,,eisced
+highest_education_belgium,STRING,"Highest level of education, Belgium",,yes,,,no,,edlvebe
+highest_education_bulgaria,STRING,"Highest level of education, Bulgaria",,yes,,,no,,edlvebg
+highest_education_switzerland,STRING,"Highest level of education, Switzerland",,yes,,,no,,edlvdch
+highest_education_croatia,STRING,"Highest level of education, Croatia",,yes,,,no,,edlvehr
+highest_education_czechia,STRING,"Highest level of education, Czechia",,yes,,,no,,edlvdcz
+highest_education_estonia,STRING,"Highest level of education, Estonia",,yes,,,no,,edlvdee
+highest_education_finland,STRING,"Highest level of education, Finland",,yes,,,no,,edlvdfi
+highest_education_france,STRING,"Highest level of education, France",,yes,,,no,,edlvdfr
+highest_education_greece,STRING,"Highest level of education, Greece",,yes,,,no,,edlvegr
+highest_education_hungary,STRING,"Highest level of education, Hungary",,yes,,,no,,edlvdahu
+highest_education_iceland,STRING,"Highest level of education, Iceland",,yes,,,no,,edlvdis
+highest_education_ireland,STRING,"Highest level of education, Ireland",,yes,,,no,,edlvdie
+highest_education_italy_2,STRING,"Highest level of education, Italy",,yes,,,no,,edlveit
+highest_education_lithuania,STRING,"Highest level of education, Lithuania",,yes,,,no,,edlvdlt
+highest_education_montenegro_2,STRING,"Highest level of education, Montenegro",,yes,,,no,,edlvdme
+highest_education_netherlands,STRING,"Highest level of education, Netherlands",,yes,,,no,,edlvenl
+highest_education_north_macedonia,STRING,"Highest level of education, North Macedonia",,yes,,,no,,edlvdmk
+highest_education_norway,STRING,"Highest level of education, Norway",,yes,,,no,,edlveno
+highest_education_portugal_2,STRING,"Highest level of education, Portugal",,yes,,,no,,edlvdpt
+highest_education_slovenia,STRING,"Highest level of education, Slovenia",,yes,,,no,,edlvesi
+highest_education_slovakia,STRING,"Highest level of education, Slovakia",,yes,,,no,,edlvdsk
+highest_education_united_kingdom,STRING,"Highest level of education, United Kingdom: Up to 2 or more A-levels or equivale",,yes,,,no,,educgb1
+highest_education_united_kingdom_2,STRING,"Highest level of education, United Kingdom: Up to Ph.D or equivalent",,yes,,,no,,edubgb2
+age_when_completed_full_time_education,INT64,"Age when completed full time education, United Kingdom",,no,,,no,,edagegb
+years_of_education,INT64,Years of full-time education completed,,no,,,no,,eduyrs
+paid_work_last_week,STRING,Doing last 7 days: paid work,,yes,,,no,,pdwrk
+in_education_last_week,STRING,Doing last 7 days: education,,yes,,,no,,edctn
+unemployed_active_last_week,STRING,"Doing last 7 days: unemployed, actively looking for job",,yes,,,no,,uempla
+unemployed_inactive_last_week,STRING,"Doing last 7 days: unemployed, not actively looking for job",,yes,,,no,,uempli
+permanently_disabled_last_week,STRING,Doing last 7 days: permanently sick or disabled,,yes,,,no,,dsbld
+retired_last_week,STRING,Doing last 7 days: retired,,yes,,,no,,rtrd
+activity_community_military_service,STRING,Doing last 7 days: community or military service,,yes,,,no,,cmsrv
+housework_last_week,STRING,"Doing last 7 days: housework, looking after children, others",,yes,,,no,,hswrk
+activity_other,STRING,Doing last 7 days: other,,yes,,,no,,dngoth
+activity_refusal,STRING,Doing last 7 days: refusal,,yes,,,no,,dngref
+activity_dont_know,STRING,Doing last 7 days: don't know,,yes,,,no,,dngdk
+activity_no_answer,STRING,Doing last 7 days: no answer,,yes,,,no,,dngna
+main_activity_last_7_days,STRING,Main activity last 7 days,,yes,,,no,,mainact
+main_activity_7_days_all_respondent_post_coded,STRING,"Main activity, last 7 days. All respondents. Post coded",,yes,,,no,,mnactic
+control_paid_work_7_days,STRING,Control paid work last 7 days,,yes,,,no,,crpdwk
+ever_had_paid_job,STRING,Ever had a paid job,,yes,,,no,,pdjobev
+year_paid_job,INT64,Year last in paid job,,no,,,no,,pdjobyr
+employment_relation,STRING,Employment relation,,yes,,,no,,emplrel
+number_of_employees,INT64,Number of employees respondent has/had,,no,,,no,,emplno
+employment_contract_type,STRING,Employment contract unlimited or limited duration,,yes,,,no,,wrkctra
+establishment_size,STRING,Establishment size,,yes,,,no,,estsz
+responsible_supervising_other_employees,STRING,Responsible for supervising other employees,,yes,,,no,,jbspv
+number_people_responsible_job,INT64,Number of people responsible for in job,,no,,,no,,njbspv
+allowed_decide_daily_work_organised,INT64,Allowed to decide how daily work is organised,,no,,,no,,wkdcorga
+allowed_influence_policy_decisions_activities_organisation,INT64,Allowed to influence policy decisions about activities of organisation,,no,,,no,,iorgact
+contracted_weekly_hours,INT64,Total contracted hours per week in main job overtime excluded,,no,,,no,,wkhct
+total_weekly_hours,INT64,Total hours normally worked per week in main job overtime included,,no,,,no,,wkhtot
+industry_nace_rev_2,STRING,"Industry, NACE rev.2",,yes,,,no,,nacer2
+what_type_organisation_work_worked,STRING,What type of organisation work/worked for,,yes,,,no,,tporgwk
+occupation_isco08,STRING,"Occupation, ISCO08",,yes,,,no,,isco08
+paid_work_another_country_period_more,STRING,"Paid work in another country, period more than 6 months last 10 years",,yes,,,no,,wrkac6m
+ever_unemployed_seeking_work_period_more,STRING,Ever unemployed and seeking work for a period more than three months,,yes,,,no,,uemp3m
+any_period_unemployment_work_seeking_lasted,STRING,Any period of unemployment and work seeking lasted 12 months or more,,yes,,,no,,uemp12m
+any_period_unemployment_work_seeking_within,STRING,Any period of unemployment and work seeking within last 5 years,,yes,,,no,,uemp5yr
+member_trade_union_similar_organisation,STRING,Member of trade union or similar organisation,,yes,,,no,,mbtru
+main_source_household_income,STRING,Main source of household income,,yes,,,yes,,hincsrca
+household_income_decile,STRING,"Household's total net income, all sources",,yes,,,yes,,hinctnta
+feeling_about_household_income,STRING,Feeling about household's income nowadays,,yes,,,yes,,hincfel
+partner_highest_education,STRING,Partner's highest level of education,,yes,,,no,,edulvlpb
+partner_highest_education_es_isced,STRING,"Partner's highest level of education, ES - ISCED",,yes,,,no,,eiscedp
+partner_highest_education_belgium,STRING,"Partner's highest level of education, Belgium",,yes,,,no,,edlvpebe
+partner_highest_education_bulgaria,STRING,"Partner's highest level of education, Bulgaria",,yes,,,no,,edlvpebg
+partner_highest_education_switzerland,STRING,"Partner's highest level of education, Switzerland",,yes,,,no,,edlvpdch
+partner_highest_education_croatia,STRING,"Partner's highest level of education, Croatia",,yes,,,no,,edlvpehr
+partner_highest_education_czechia,STRING,"Partner's highest level of education, Czechia",,yes,,,no,,edlvpdcz
+partner_highest_education_estonia,STRING,"Partner's highest level of education, Estonia",,yes,,,no,,edlvpdee
+partner_highest_education_finland,STRING,"Partner's highest level of education, Finland",,yes,,,no,,edlvpdfi
+partner_highest_education_france,STRING,"Partner's highest level of education, France",,yes,,,no,,edlvpdfr
+partner_highest_education_greece,STRING,"Partner's highest level of education, Greece",,yes,,,no,,edlvpegr
+partner_highest_education_hungary,STRING,"Partner's highest level of education, Hungary",,yes,,,no,,edlvpdahu
+partner_highest_education_iceland,STRING,"Partner's highest level of education, Iceland",,yes,,,no,,edlvpdis
+partner_highest_education_ireland,STRING,"Partner's highest level of education, Ireland",,yes,,,no,,edlvpdie
+partner_highest_education_italy_2,STRING,"Partner's highest level of education, Italy",,yes,,,no,,edlvpeit
+partner_highest_education_lithuania,STRING,"Partner's highest level of education, Lithuania",,yes,,,no,,edlvpdlt
+partner_highest_education_montenegro_2,STRING,"Partner's highest level of education, Montenegro",,yes,,,no,,edlvpdme
+partner_highest_education_netherlands,STRING,"Partner's highest level of education, Netherlands",,yes,,,no,,edlvpenl
+partner_highest_education_north_macedonia,STRING,"Partner's highest level of education, North Macedonia",,yes,,,no,,edlvpdmk
+partner_highest_education_norway,STRING,"Partner's highest level of education, Norway",,yes,,,no,,edlvpeno
+partner_highest_education_portugal_2,STRING,"Partner's highest level of education, Portugal",,yes,,,no,,edlvpdpt
+partner_highest_education_slovenia,STRING,"Partner's highest level of education, Slovenia",,yes,,,no,,edlvpesi
+partner_highest_education_slovakia,STRING,"Partner's highest level of education, Slovakia",,yes,,,no,,edlvpdsk
+partner_highest_education_united_kingdom,STRING,"Partner's highest level of education, United Kingdom: Up to 2 or more A-levels o",,yes,,,no,,edupcgb1
+partner_highest_education_united_kingdom_2,STRING,"Partner's highest level of education, United Kingdom: Up to Ph.D or equivalent",,yes,,,no,,edupbgb2
+partner_age_when_completed_full_time,INT64,"Partner's age when completed full time education, United Kingdom",,no,,,no,,edagepgb
+partner_activity_paid_work,STRING,Partner doing last 7 days: paid work,,yes,,,no,,pdwrkp
+partner_activity_education,STRING,Partner doing last 7 days: education,,yes,,,no,,edctnp
+partner_activity_unemployed_actively_looking_job,STRING,"Partner doing last 7 days: unemployed, actively looking for job",,yes,,,no,,uemplap
+partner_activity_unemployed_not_actively_looking,STRING,"Partner doing last 7 days: unemployed, not actively looking for job",,yes,,,no,,uemplip
+partner_activity_permanently_sick_disabled,STRING,Partner doing last 7 days: permanently sick or disabled,,yes,,,no,,dsbldp
+partner_activity_retired,STRING,Partner doing last 7 days: retired,,yes,,,no,,rtrdp
+partner_activity_community_military_service,STRING,Partner doing last 7 days: community or military service,,yes,,,no,,cmsrvp
+partner_activity_housework_looking_after_children,STRING,"Partner doing last 7 days: housework, looking after children, others",,yes,,,no,,hswrkp
+partner_activity_other,STRING,Partner doing last 7 days: other,,yes,,,no,,dngothp
+partner_activity_dont_know,STRING,Partner doing last 7 days: don't know,,yes,,,no,,dngdkp
+partner_activity_not_applicable,STRING,Partner doing last 7 days: not applicable,,yes,,,no,,dngnapp
+partner_activity_refusal,STRING,Partner doing last 7 days: refusal,,yes,,,no,,dngrefp
+partner_activity_no_answer,STRING,Partner doing last 7 days: no answer,,yes,,,no,,dngnap
+partner_main_activity_7_days,STRING,Partner's main activity last 7 days,,yes,,,no,,mnactp
+partner_control_paid_work_7_days,STRING,"Partner, control paid work last 7 days",,yes,,,no,,crpdwkp
+occupation_partner_isco08,STRING,"Occupation partner, ISCO08",,yes,,,no,,isco08p
+partner_employment_relation,STRING,Partner's employment relation,,yes,,,no,,emprelp
+hours_normally_worked_week_main_job,INT64,"Hours normally worked a week in main job overtime included, partner",,no,,,no,,wkhtotp
+father_highest_education,STRING,Father's highest level of education,,yes,,,no,,edulvlfb
+father_highest_education_es_isced,STRING,"Father's highest level of education, ES - ISCED",,yes,,,no,,eiscedf
+father_highest_education_belgium,STRING,"Father's highest level of education, Belgium",,yes,,,no,,edlvfebe
+father_highest_education_bulgaria,STRING,"Father's highest level of education, Bulgaria",,yes,,,no,,edlvfebg
+father_highest_education_switzerland,STRING,"Father's highest level of education, Switzerland",,yes,,,no,,edlvfdch
+father_highest_education_croatia,STRING,"Father's highest level of education, Croatia",,yes,,,no,,edlvfehr
+father_highest_education_czechia,STRING,"Father's highest level of education, Czechia",,yes,,,no,,edlvfdcz
+father_highest_education_estonia,STRING,"Father's highest level of education, Estonia",,yes,,,no,,edlvfdee
+father_highest_education_finland,STRING,"Father's highest level of education, Finland",,yes,,,no,,edlvfdfi
+father_highest_education_france,STRING,"Father's highest level of education, France",,yes,,,no,,edlvfdfr
+father_highest_education_greece,STRING,"Father's highest level of education, Greece",,yes,,,no,,edlvfegr
+father_highest_education_hungary,STRING,"Father's highest level of education, Hungary",,yes,,,no,,edlvfdahu
+father_highest_education_iceland,STRING,"Father's highest level of education, Iceland",,yes,,,no,,edlvfdis
+father_highest_education_ireland,STRING,"Father's highest level of education, Ireland",,yes,,,no,,edlvfdie
+father_highest_education_italy_2,STRING,"Father's highest level of education, Italy",,yes,,,no,,edlvfeit
+father_highest_education_lithuania,STRING,"Father's highest level of education, Lithuania",,yes,,,no,,edlvfdlt
+father_highest_education_montenegro_2,STRING,"Father's highest level of education, Montenegro",,yes,,,no,,edlvfdme
+father_highest_education_netherlands,STRING,"Father's highest level of education, Netherlands",,yes,,,no,,edlvfenl
+father_highest_education_north_macedonia,STRING,"Father's highest level of education, North Macedonia",,yes,,,no,,edlvfdmk
+father_highest_education_norway,STRING,"Father's highest level of education, Norway",,yes,,,no,,edlvfeno
+father_highest_education_portugal_2,STRING,"Father's highest level of education, Portugal",,yes,,,no,,edlvfdpt
+father_highest_education_slovenia,STRING,"Father's highest level of education, Slovenia",,yes,,,no,,edlvfesi
+father_highest_education_slovakia,STRING,"Father's highest level of education, Slovakia",,yes,,,no,,edlvfdsk
+father_highest_education_united_kingdom,STRING,"Father's highest level of education, United Kingdom: Up to 2 or more A-levels or",,yes,,,no,,edufcgb1
+father_highest_education_united_kingdom_2,STRING,"Father's highest level of education, United Kingdom: Up to Ph.D or equivalent",,yes,,,no,,edufbgb2
+father_age_when_completed_full_time,INT64,"Father's age when completed full time education, United Kingdom",,no,,,no,,edagefgb
+father_employment_status_when_respondent_14,STRING,Father's employment status when respondent 14,,yes,,,no,,emprf14
+father_occupation_when_respondent_14,STRING,Father's occupation when respondent 14,,yes,,,no,,occf14b
+mother_highest_education,STRING,Mother's highest level of education,,yes,,,no,,edulvlmb
+mother_highest_education_es_isced,STRING,"Mother's highest level of education, ES - ISCED",,yes,,,no,,eiscedm
+mother_highest_education_belgium,STRING,"Mother's highest level of education, Belgium",,yes,,,no,,edlvmebe
+mother_highest_education_bulgaria,STRING,"Mother's highest level of education, Bulgaria",,yes,,,no,,edlvmebg
+mother_highest_education_switzerland,STRING,"Mother's highest level of education, Switzerland",,yes,,,no,,edlvmdch
+mother_highest_education_croatia,STRING,"Mother's highest level of education, Croatia",,yes,,,no,,edlvmehr
+mother_highest_education_czechia,STRING,"Mother's highest level of education, Czechia",,yes,,,no,,edlvmdcz
+mother_highest_education_estonia,STRING,"Mother's highest level of education, Estonia",,yes,,,no,,edlvmdee
+mother_highest_education_finland,STRING,"Mother's highest level of education, Finland",,yes,,,no,,edlvmdfi
+mother_highest_education_france,STRING,"Mother's highest level of education, France",,yes,,,no,,edlvmdfr
+mother_highest_education_greece,STRING,"Mother's highest level of education, Greece",,yes,,,no,,edlvmegr
+mother_highest_education_hungary,STRING,"Mother's highest level of education, Hungary",,yes,,,no,,edlvmdahu
+mother_highest_education_iceland,STRING,"Mother's highest level of education, Iceland",,yes,,,no,,edlvmdis
+mother_highest_education_ireland,STRING,"Mother's highest level of education, Ireland",,yes,,,no,,edlvmdie
+mother_highest_education_italy_2,STRING,"Mother's highest level of education, Italy",,yes,,,no,,edlvmeit
+mother_highest_education_lithuania,STRING,"Mother's highest level of education, Lithuania",,yes,,,no,,edlvmdlt
+mother_highest_education_montenegro_2,STRING,"Mother's highest level of education, Montenegro",,yes,,,no,,edlvmdme
+mother_highest_education_netherlands,STRING,"Mother's highest level of education, Netherlands",,yes,,,no,,edlvmenl
+mother_highest_education_north_macedonia,STRING,"Mother's highest level of education, North Macedonia",,yes,,,no,,edlvmdmk
+mother_highest_education_norway,STRING,"Mother's highest level of education, Norway",,yes,,,no,,edlvmeno
+mother_highest_education_portugal_2,STRING,"Mother's highest level of education, Portugal",,yes,,,no,,edlvmdpt
+mother_highest_education_slovenia,STRING,"Mother's highest level of education, Slovenia",,yes,,,no,,edlvmesi
+mother_highest_education_slovakia,STRING,"Mother's highest level of education, Slovakia",,yes,,,no,,edlvmdsk
+mother_highest_education_united_kingdom,STRING,"Mother's highest level of education, United Kingdom: Up to 2 or more A-levels or",,yes,,,no,,edumcgb1
+mother_highest_education_united_kingdom_2,STRING,"Mother's highest level of education, United Kingdom: Up to Ph.D or equivalent",,yes,,,no,,edumbgb2
+mother_age_when_completed_full_time,INT64,"Mother's age when completed full time education, United Kingdom",,no,,,no,,edagemgb
+mother_employment_status_when_respondent_14,STRING,Mother's employment status when respondent 14,,yes,,,no,,emprm14
+mother_occupation_when_respondent_14,STRING,Mother's occupation when respondent 14,,yes,,,no,,occm14b
+improve_skills_course_lecture_conference_12,STRING,"Improve knowledge/skills: course/lecture/conference, last 12 months",,yes,,,no,,atncrse
+first_ancestry_european_standard_classification_cultural_2,STRING,"First ancestry, European Standard Classification of Cultural and Ethnic Groups",,yes,,,yes,,anctry1
+first_ancestry_european_standard_classification_cultural,STRING,"First ancestry, European Standard Classification of Cultural and Ethnic Groups",,yes,,,yes,,anctrya1
+second_ancestry_european_standard_classification_cultural_2,STRING,"Second ancestry, European Standard Classification of Cultural and Ethnic Groups",,yes,,,yes,,anctry2
+second_ancestry_european_standard_classification_cultural,STRING,"Second ancestry, European Standard Classification of Cultural and Ethnic Groups",,yes,,,yes,,anctrya2
+regional_unit,STRING,Regional unit,,yes,,,no,,regunit
+region_code,STRING,Region,,no,,,no,,region
+location_able_access_home,STRING,Location able to access the internet: Home,,yes,,,no,,acchome
+location_able_access_workplace,STRING,Location able to access the internet: Workplace,,yes,,,no,,accwrk
+location_able_access_move,STRING,Location able to access the internet: On the move,,yes,,,no,,accmove
+location_able_access_some_other_place,STRING,Location able to access the internet: Some other place,,yes,,,no,,accoth
+location_able_access_none_above,STRING,Location able to access the internet: None of the above,,yes,,,no,,accnone
+location_able_access_refusal,STRING,Location able to access the internet: Refusal,,yes,,,no,,accref
+location_able_access_dont_know,STRING,Location able to access the internet: Don't know,,yes,,,no,,accdk
+location_able_access_no_answer,STRING,Location able to access the internet: No answer,,yes,,,no,,accna
+preference_settings_familiar,STRING,"Preference settings, how familiar",,yes,,,no,,fampref
+advanced_search_familiar,STRING,"Advanced search, how familiar",,yes,,,no,,famadvs
+pdf_familiar,STRING,"PDF, how familiar",,yes,,,no,,fampdf
+online_mobile_communication_makes_people_feel,INT64,Online/mobile communication makes people feel closer to one another,,no,,,no,,mcclose
+online_mobile_communication_makes_work_personal,INT64,Online/mobile communication makes work and personal life interrupt each other,,no,,,no,,mcinter
+online_mobile_communication_makes_it_easy,INT64,Online/mobile communication makes it easy to coordinate and manage activities,,no,,,no,,mccoord
+online_mobile_communication_undermines_personal_privacy,INT64,Online/mobile communication undermines personal privacy,,no,,,no,,mcpriv
+online_mobile_communication_exposes_people_misinformation,INT64,Online/mobile communication exposes people to misinformation,,no,,,no,,mcmsinf
+number_children_aged_12_over,STRING,Number of children aged 12 or over,,yes,,,no,,chldo12
+gender_child_aged_12_over,STRING,Gender of child aged 12 or over,,yes,,,no,,gndro12a
+gender_child_aged_12_over_2,STRING,Gender of child aged 12 or over,,yes,,,no,,gndro12b
+age_child_aged_12_over,STRING,Age of child aged 12 or over,,yes,,,no,,ageo12
+child_aged_12_over_lives_same_household,STRING,Child aged 12 or over lives in same household,,yes,,,no,,hhlio12
+close_child_aged_12_over,STRING,How close to child aged 12 or over,,yes,,,no,,closeo12
+travel_time_child_aged_12_over_minutes,STRING,"Travel time to child aged 12 or over, in minutes",,yes,,,no,,ttmino12
+speak_child_aged_12_over_person_frequency,STRING,"Speak with child aged 12 or over in person, how often",,yes,,,no,,speako12
+speak_child_aged_12_over_see,STRING,"Speak with child aged 12 or over and see each other on a screen, how often",,yes,,,no,,scrno12
+speak_child_aged_12_over_using_phone_frequency,STRING,"Speak with child aged 12 or over using a phone, how often",,yes,,,no,,phoneo12
+communicate_child_aged_12_over_via,STRING,"Communicate with child aged 12 or over via text, email or messaging apps, how of",,yes,,,no,,como12
+speak_child_aged_12_over_person,STRING,"Speak with child aged 12 or over in person, how often compared with before COVID",,yes,,,no,,c19spo12
+online_mobile_communication_child_aged_12,STRING,"Online/mobile communication with child aged 12 or over, how often compared with",,yes,,,no,,c19mco12
+parents_still_alive,STRING,Parents still alive,,yes,,,no,,livpnt
+parents_still_alive_mother_father,STRING,"Parents still alive, mother or father",,yes,,,no,,pntmofa
+age_parent,STRING,Age of parent,,yes,,,no,,agepnt
+parent_lives_same_household,STRING,Parent lives in same household,,yes,,,no,,hhlipnt
+close_parent,STRING,How close to parent,,yes,,,no,,closepnt
+travel_time_parent_minutes,STRING,"Travel time to parent, in minutes",,yes,,,no,,ttminpnt
+speak_parent_person_frequency,STRING,"Speak with parent in person, how often",,yes,,,no,,speakpnt
+speak_parent_see_each_other_screen_frequency,STRING,"Speak with parent and see each other on a screen, how often",,yes,,,no,,scrnpnt
+speak_parent_using_phone_frequency,STRING,"Speak with parent using a phone, how often",,yes,,,no,,phonepnt
+communicate_parent_via_text_email_messaging,STRING,"Communicate with parent via text, email or messaging apps, how often",,yes,,,no,,compnt
+speak_parent_person_frequency_compared_before,STRING,"Speak with parent in person, how often compared with before COVID-19",,yes,,,no,,c19sppnt
+online_mobile_communication_parent_frequency_compared,STRING,"Online/mobile communication with parent, how often compared with before COVID-19",,yes,,,no,,c19mcpnt
+satisfied_main_job,INT64,How satisfied are you in your main job,,no,,,no,,stfmjob
+too_tired_after_work_enjoy_things,STRING,"Too tired after work to enjoy things like doing at home, how often",,yes,,,no,,trdawrk
+job_prevents_from_giving_time_partner,STRING,"Job prevents you from giving time to partner/family, how often",,yes,,,no,,jbprtfp
+partner_family_fed_up_pressure_job_frequency,STRING,"Partner/family fed up with pressure of your job, how often",,yes,,,no,,pfmfdjba
+current_job_can_decide_time_start,STRING,Current job: can decide time start/finish work,,yes,,,no,,dcsfwrka
+work_from_home_place_choice_frequency,STRING,"Work from home or place of choice, how often",,yes,,,no,,wrkhome
+work_from_home_place_choice_frequency_2,STRING,"Work from home or place of choice, how often compared with before COVID-19",,yes,,,no,,c19whome
+work_place_change_occurred_result_covid_19,STRING,Work place change occurred as a result of COVID-19,,yes,,,no,,c19wplch
+employees_expected_work_overtime_frequency,STRING,"Employees expected to work overtime, how often",,yes,,,no,,wrklong
+employees_expected_responsive_outside_working_hours,STRING,"Employees expected to be responsive outside working hours, how often",,yes,,,no,,wrkresp
+work_from_home_place_choice_accepted,STRING,"Work from home or place of choice,  how accepted compared with before COVID-19",,yes,,,no,,c19whacc
+line_manager_supports_employees_balancing_work,INT64,"Line manager supports employees in balancing work, how much",,no,,,no,,mansupp
+line_manager_gives_work_related_help_likelihood,STRING,"Line manager gives work-related help, how likely",,yes,,,no,,manhlp
+line_manager_respondent_same_workplace_frequency,STRING,"Line manager and respondent are at the same workplace, how often",,yes,,,no,,manwrkpl
+speak_line_manager_work_person_frequency,STRING,"Speak with line manager about work in person, how often",,yes,,,no,,manspeak
+speak_line_manager_work_see_each,STRING,"Speak with line manager about work and see each other on a screen, how often",,yes,,,no,,manscrn
+speak_line_work_manager_using_phone_frequency,STRING,"Speak with line about work manager using a phone, how often",,yes,,,no,,manphone
+communicate_line_manager_work_via_text,STRING,"Communicate with line manager about work via text, email or messaging apps, how",,yes,,,no,,mancom
+feel_like_part_team_much,INT64,"Feel like part of your team, how much",,no,,,no,,teamfeel
+take_extra_responsibilities_work_without_paid,INT64,Take on extra responsibilities at work without being paid more,,no,,,no,,wrkextra
+proportion_colleagues_based_same_location,STRING,Proportion of colleagues based at the same location,,yes,,,no,,colprop
+colleagues_give_work_related_help_likelihood,STRING,"Colleagues give work-related help, how likely",,yes,,,no,,colhlp
+speak_colleagues_person_frequency,STRING,"Speak with colleagues in person, how often",,yes,,,no,,colspeak
+speak_colleagues_work_see_each_other,STRING,"Speak with colleagues about work and see each other on a screen, how often",,yes,,,no,,colscrn
+speak_colleagues_work_using_phone_frequency,STRING,"Speak with colleagues about work using a phone, how often",,yes,,,no,,colphone
+communicate_colleagues_work_via_text_email,STRING,"Communicate with colleagues about work via text, email or messaging apps, how of",,yes,,,no,,colcom
+speak_people_work_person_frequency_compared,STRING,"Speak with people you work with in person, how often compared with before COVID-",,yes,,,no,,c19spwrk
+online_mobile_communication_people_work_frequency,STRING,"Online/mobile communication with people you work with, how often compared with b",,yes,,,no,,c19mcwrk
+online_mobile_communication_makes_it_easy_2,INT64,Online/mobile communication makes it easy to work from home or place of choice,,no,,,no,,mcwrkhom
+important_think_new_ideas_creative,STRING,Important to think new ideas and being creative,,yes,,,no,,ipcrtiv
+important_rich_have_money_expensive_things,STRING,"Important to be rich, have money and expensive things",,yes,,,no,,imprich
+important_people_treated_equally_have_equal,STRING,Important that people are treated equally and have equal opportunities,,yes,,,no,,ipeqopt
+important_show_abilities_admired,STRING,Important to show abilities and be admired,,yes,,,no,,ipshabt
+important_live_secure_safe_surroundings,STRING,Important to live in secure and safe surroundings,,yes,,,no,,impsafe
+important_try_new_different_things_life,STRING,Important to try new and different things in life,,yes,,,no,,impdiff
+important_do_what_told_follow_rules,STRING,Important to do what is told and follow rules,,yes,,,no,,ipfrule
+important_understand_different_people,STRING,Important to understand different people,,yes,,,no,,ipudrst
+important_humble_modest_not_draw_attention,STRING,"Important to be humble and modest, not draw attention",,yes,,,no,,ipmodst
+important_have_good_time,STRING,Important to have a good time,,yes,,,no,,ipgdtim
+important_make_own_decisions_free,STRING,Important to make own decisions and be free,,yes,,,no,,impfree
+important_help_people_care_others_well,STRING,Important to help people and care for others well-being,,yes,,,no,,iphlppl
+important_successful_people_recognise_achievements,STRING,Important to be successful and that people recognise achievements,,yes,,,no,,ipsuces
+important_government_strong_ensures_safety,STRING,Important that government is strong and ensures safety,,yes,,,no,,ipstrgv
+important_seek_adventures_have_exciting_life,STRING,Important to seek adventures and have an exciting life,,yes,,,no,,ipadvnt
+important_behave_properly,STRING,Important to behave properly,,yes,,,no,,ipbhprp
+important_get_respect_from_others,STRING,Important to get respect from others,,yes,,,no,,iprspot
+important_loyal_friends_devote_people_close,STRING,Important to be loyal to friends and devote to people close,,yes,,,no,,iplylfr
+important_care_nature_environment,STRING,Important to care for nature and environment,,yes,,,no,,impenv
+important_follow_traditions_customs,STRING,Important to follow traditions and customs,,yes,,,no,,imptrad
+important_seek_fun_things_give_pleasure,STRING,Important to seek fun and things that give pleasure,,yes,,,no,,impfun
+imagine_large_numbers_people_limit_energy_10,STRING,"Imagine large numbers of people limit energy use, how likely reduce climate chan",,yes,,,no,,testii1
+likelihood_large_numbers_people_limit_energy_use_10,STRING,"How likely, large numbers of people limit energy use",,yes,,,no,,testii2
+likelihood_governments_enough_countries_take_action_10,STRING,"How likely, governments in enough countries take action to reduce climate change",,yes,,,no,,testii3
+imagine_large_numbers_people_limit_energy_11,STRING,"Imagine large numbers of people limit energy use, how likely reduce climate chan",,yes,,,no,,testii4
+likelihood_large_numbers_people_limit_energy_use_11,STRING,"How likely, large numbers of people limit energy use",,yes,,,no,,testii5
+likelihood_governments_enough_countries_take_action_11,STRING,"How likely, governments in enough countries take action to reduce climate change",,yes,,,no,,testii6
+imagine_large_numbers_people_limit_energy_12,INT64,"Imagine large numbers of people limit energy use, how likely reduce climate chan",,no,,,no,,testii7
+likelihood_large_numbers_people_limit_energy_use_12,INT64,"How likely, large numbers of people limit energy use",,no,,,no,,testii8
+likelihood_governments_enough_countries_take_action_12,INT64,"How likely, governments in enough countries take action to reduce climate change",,no,,,no,,testii9
+small_secret_group_people_responsible_making,STRING,Small secret group of people responsible for making all major decisions in world,,yes,,,no,,secgrdec
+groups_scientists_manipulate_fabricate_suppress_evidence,STRING,"Groups of scientists manipulate, fabricate, or suppress evidence in order to dec",,yes,,,no,,scidecpb
+administration_covid_19_questions,STRING,Administration of COVID-19 questions,,yes,,,no,,admc19
+more_important_governments_prioritise_public_health,INT64,More important for governments to prioritise public health or economic activity,,no,,,yes,,panpriph
+more_important_governments_monitor_track_public,INT64,More important for governments to monitor and track the public or to maintain pu,,no,,,no,,panmonpb
+more_important_governments_prioritise_public_health_2,INT64,More important for governments to prioritise public health or economic activity,,no,,,yes,,govpriph
+more_important_governments_monitor_track_public_2,INT64,More important for governments to monitor and track the public or to maintain pu,,no,,,no,,govmonpb
+more_important_follow_government_rules_make,INT64,More important to follow government rules or to make own decisions when fighting,,no,,,no,,panfolru
+important_country_close_its_borders_when,INT64,How important for country to close its borders when fighting a pandemic,,no,,,no,,panclobo
+important_restrict_people_movement_between_different,INT64,How important to restrict people's movement between different parts of country w,,no,,,no,,panresmo
+satisfied_government_handling_covid_19_country,INT64,How satisfied with government's handling of COVID-19 in country,,no,,,no,,gvhanc19
+satisfied_government_response_people_who_have,INT64,How satisfied with government's response to COVID-19: people who have experience,,no,,,no,,gvjobc19
+satisfied_government_response_elderly_people_care,INT64,How satisfied with government's response to COVID-19: elderly people in care hom,,no,,,no,,gveldc19
+satisfied_government_response_families_school,INT64,How satisfied with government's response to COVID-19: families with school-aged,,no,,,no,,gvfamc19
+satisfied_way_health_services_coped_covid_19_its,INT64,How satisfied with the way health services coped with COVID-19 and its consequen,,no,,,yes,,hscopc19
+government_balanced_protecting_economy_people_health,INT64,How the government balanced protecting the economy and people's health when resp,,no,,,yes,,gvbalc19
+what_extent_trust_government_deal_impact,INT64,To what extent trust the government to deal with the impact of COVID-19 in count,,no,,,no,,gvimpc19
+covid_19_result_deliberate_concealed_efforts,STRING,COVID-19 is result of deliberate and concealed efforts of some government or org,,yes,,,no,,gvconc19
+respondent_had_covid_19,STRING,Respondent had COVID-19,,yes,,,no,,respc19
+anyone_living_respondent_had_covid_19,STRING,Anyone living with respondent had COVID-19,,yes,,,no,,reshhc19
+things_happened_since_made_redundant_lost_job,STRING,Things happened since start of COVID-19: was made redundant/lost job,,yes,,,no,,hapljc19
+things_happened_since_income_from_job_reduced,STRING,Things happened since start of COVID-19: income from job was reduced,,yes,,,yes,,hapirc19
+things_happened_since_working_hours_were_reduced,STRING,Things happened since start of COVID-19: working hours were reduced,,yes,,,no,,hapwrc19
+things_happened_since_furloughed,STRING,Things happened since start of COVID-19: was furloughed,,yes,,,no,,hapfuc19
+things_happened_since_forced_take_unpaid_leave,STRING,Things happened since start of COVID-19: was forced to take unpaid leave/holiday,,yes,,,no,,hapfoc19
+things_happened_since_none_these,STRING,Things happened since start of COVID-19: none of these,,yes,,,no,,hapnoc19
+things_happened_since_not_work_since_start,STRING,Things happened since start of COVID-19: not in work since start of COVID-19,,yes,,,no,,hapnwc19
+things_happened_since_not_applicable,STRING,Things happened since start of COVID-19: not applicable,,yes,,,no,,hapnpc19
+things_happened_since_refusal,STRING,Things happened since start of COVID-19: refusal,,yes,,,no,,haprec19
+things_happened_since_dont_know,STRING,Things happened since start of COVID-19: don't know,,yes,,,no,,hapdkc19
+things_happened_since_no_answer,STRING,Things happened since start of COVID-19: no answer,,yes,,,no,,hapnac19
+covid_19_vaccine_approved_national_regulatory,STRING,COVID-19 vaccine approved by national regulatory authority and available to the,,yes,,,no,,icvacc19
+whether_respondent_will_get_vaccinated_against,STRING,Whether respondent will get vaccinated against COVID-19 with vaccine approved by,,yes,,,no,,getavc19
+whether_respondent_would_get_vaccinated_against,STRING,Whether respondent would get vaccinated against COVID-19 if vaccine is approved,,yes,,,no,,getnvc19
+interview_conducted,STRING,"Interview conducted, how",,yes,,,no,,vdcond
+respondent_overall_experience_taking_part_survey,INT64,Respondent's overall experience of taking part in survey,,no,,,no,,vdovexre
+type_device_used_video_interview,STRING,Type of device used for video interview,,yes,,,no,,vdtype
+respondent_experience_technical_starting_video_call,STRING,Respondent's experience of technical problems: starting video call,,yes,,,no,,vdtpsvre
+respondent_experience_technical_internet_connection_affecting,STRING,Respondent's experience of technical problems: internet connection affecting vid,,yes,,,no,,vdtpitre
+respondent_experience_technical_displaying_showcards,STRING,Respondent's experience of technical problems: displaying showcards,,yes,,,no,,vdtpscre
+respondent_experience_technical_audio_not_clear,STRING,Respondent's experience of technical problems: audio not being clear,,yes,,,no,,vdtpaure
+respondent_experience_technical_video_display_not,STRING,Respondent's experience of technical problems: video display not being clear,,yes,,,no,,vdtpvire
+respondent_experience_technical_other_issue,STRING,Respondent's experience of technical problems: other issue,,yes,,,no,,vdtpoire
+respondent_experience_technical_no_technical_issues,STRING,Respondent's experience of technical problems: no technical issues,,yes,,,no,,vdtpntre
+respondent_experience_technical_not_applicable,STRING,Respondent's experience of technical problems: not applicable,,yes,,,no,,vdtpapre
+respondent_experience_technical_refusal,STRING,Respondent's experience of technical problems: refusal,,yes,,,no,,vdtprere
+respondent_experience_technical_dont_know,STRING,Respondent's experience of technical problems: don't know,,yes,,,no,,vdtpdkre
+respondent_experience_technical_no_answer,STRING,Respondent's experience of technical problems: no answer,,yes,,,no,,vdtpnare
+start_interview,STRING,Start of interview,,no,,,no,,inwds
+start_section,STRING,Start of section A,,no,,,no,,ainws
+end_section,STRING,End of section A,,no,,,no,,ainwe
+end_section_b,STRING,End of section B,,no,,,no,,binwe
+end_section_c,STRING,End of section C,,no,,,no,,cinwe
+end_section_d,STRING,End of section D,,no,,,no,,dinwe
+end_section_f,STRING,End of section F,,no,,,no,,finwe
+end_section_g,FLOAT64,End of section G,,no,,,no,,ginwe
+end_section_h,STRING,End of section H,,no,,,no,,hinwe
+end_section_i,STRING,End of section I,,no,,,no,,iinwe
+end_section_k,STRING,End of section K,,no,,,no,,kinwe
+end_section_v,FLOAT64,End of section V,,no,,,no,,vinwe
+end_interview,STRING,End of interview,,no,,,no,,inwde
+start_section_j,STRING,Start of section J,,no,,,no,,jinws
+end_section_j,STRING,End of section J,,no,,,no,,jinwe
+interview_length_minutes_main_questionnaire,INT64,"Interview length in minutes, main questionnaire",,no,,,no,,inwtm
+mode_data_collection,STRING,Mode of data collection,,yes,,,no,,mode
+sampling_domain,INT64,Sampling domain,,no,,,no,,domain
+selection_probability,FLOAT64,Sampling probability,,no,,,no,,prob
+sampling_stratum,FLOAT64,Sampling stratum,,no,,,no,,stratum
+primary_sampling_unit,FLOAT64,Primary sampling unit,,no,,,no,,psu
