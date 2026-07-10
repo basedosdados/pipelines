@@ -163,6 +163,7 @@ models/**/tmp/
 models/**/input/
 models/**/output/
 models/**/extra/
+models/**/code/meta_cache.json
 dbt_internal_packages/*
 
 # migration docs (moved to manual-equipe-dados)
