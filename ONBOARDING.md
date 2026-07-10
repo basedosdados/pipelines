@@ -26,7 +26,8 @@ Duas restrições que moldaram tudo:
 
 ## 2. Estado atual (o que já foi feito)
 
-Tudo em **working tree** (nada commitado ainda). `git status`:
+A infraestrutura do engine já está **commitada** em `feat/dbt-fusion`
+(`c536ca56`, `cb4587c4`). Tabela do que foi introduzido:
 
 | Arquivo | Mudança |
 |---------|---------|
@@ -45,11 +46,46 @@ import de `flows.py`/`tasks.py`, e `dbtf deps` (instala `dbt_utils 1.3.0` ✅).
 
 ---
 
-## 3. 🚧 BLOQUEADOR principal — Fase 0 (faça isto primeiro)
+## 3. ✅ Fase 0 — RESOLVIDA (estratégia revisada: build-time transform)
 
-`dbtf parse` no projeto inteiro **falha com 2219 erros** hoje (reproduzido em
-`feat/dbt-fusion-parse-fixes`; `dbtf deps` OK, instala `dbt_utils 1.3.0`).
-Investigação rastreou todos os erros a **4 buckets** — um mecânico, três manuais.
+**Descoberta que mudou o plano:** o Fusion exige args de teste sob `arguments:`,
+formato que o **dbt-core 1.8.x (produção) rejeita**. Fazer os dois engines lerem
+o mesmo `schema.yml` exigiria dbt-core ≥ 1.10 — que exige `protobuf ≥ 5`,
+**incompatível** com as libs Google fixadas (`google-analytics-data==0.17.0`,
+`google-api-core==2.11.1`, `googleapis-common-protos==1.59.1`, todas `protobuf<5`).
+Subir o dbt-core viraria uma modernização de todo o stack Google/gRPC/protobuf.
+
+**Estratégia adotada:** o repo **mantém o formato antigo** nos `schema.yml`
+(dbt-core 1.8.x segue funcionando) e a conversão para `arguments:` roda
+**efêmera, em build-time, só para o Fusion** via `uvx --python 3.12 dbt-autofix
+deprecations` (job `fusion-checks` do CI). A conversão **não** é commitada.
+
+**O que foi commitado nesta fase** (correções reais de bugs, válidas nos dois
+engines, formato antigo):
+- Bucket 2 (nomes): `set_datalake_project` (typo), `custom_dictionary_coverage`,
+  `custom_dictionary_coverage_eng` (×10 em `world_iea_timss`).
+- Bucket 3 (bugs latentes, comportamento restaurado): `test:`→`tests:`
+  (`br_inep_ideb` ×4, `accepted_values` que nunca rodaram passam a rodar);
+  `where` de nível de coluna → `config` por-teste (`br_ms_cnes` ×31,
+  `br_me_cnpj` ×5, restaura filtro incremental); `materialization`→`materialized`
+  (`br_denatran_frota` ×2); `tag`→`tags` (`br_ibge_censo_2022`).
+- Fix de YAML em `br_ms_pns` (aspas), necessário p/ o autofix parsear em build.
+- CI `fusion-checks`: passo de transformação efêmera + `DBT_PACKAGES_INSTALL_PATH`.
+
+**Validado:** `uv run dbt parse` (core 1.8.8) limpo nos arquivos committados;
+`dbtf parse` = **0 erros** após o autofix efêmero (só warnings dbt1087/1089/1041).
+
+⚠️ **Pendência p/ Fase C (worker fusion em runtime):** como a mesma imagem tem
+os dois engines e os arquivos committados estão em formato antigo, promover
+`DBT_ENGINE=fusion` num worker exige rodar o autofix **antes** do `dbtf` nesse
+worker (entrypoint/engine) — a imagem NÃO pode ser "baked" em formato novo (isso
+quebraria o core na mesma imagem). Ainda não implementado.
+
+---
+
+### Histórico — os 4 buckets de erro do `dbtf parse` (2219 → 0)
+`dbtf parse` falhava com **2219 erros**, rastreados a **4 buckets** — um
+mecânico (autofix, tratado em build-time), três manuais (commitados como acima).
 
 ### Bucket 1 — `dbt0102` (2164) · mecânico, automatizado
 Args de teste genérico no formato antigo (`combination_of_columns`, `at_least`,

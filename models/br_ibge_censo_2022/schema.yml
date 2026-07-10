@@ -58,7 +58,7 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_endereco]
-      - custom_dictionaries:
+      - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - descricao_estabelecimento
             - tipo_especie

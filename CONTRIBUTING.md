@@ -370,6 +370,10 @@ from {{ set_datalake_project("<DATASET_ID>_staging.<TABLE_ID>") }}
 > Comandos de validação:
 >
 > ```sh
+> # O Fusion exige o formato novo de args de teste (`arguments:`); o repo mantém
+> # o formato antigo p/ o dbt-core. Aplique a conversão efêmera antes de validar
+> # (reverta depois com `git checkout -- models dbt_project.yml`):
+> uvx --python 3.12 dbt-autofix deprecations
 > dbtf deps
 > dbtf parse
 > dbtf compile --select <modelo> 2>&1 | tee /tmp/fusion_compile.log
@@ -429,13 +433,15 @@ Os testes do modelo são definidos no arquivo `schema.yml`
 #### Tipos de testes
 
 > [!IMPORTANT]
-> O **dbt Fusion** exige que os argumentos de testes genéricos fiquem aninhados sob a chave `arguments:` — o formato antigo (args no topo do teste), usado nos exemplos abaixo, é aceito pelo dbt-core mas rejeitado pelo Fusion. A migração de formato do projeto inteiro é feita de forma automatizada com `uvx dbt-autofix deprecations` (Fase 0 da migração). Exemplo antes/depois:
+> O **dbt Fusion** exige que os argumentos de testes genéricos fiquem aninhados sob a chave `arguments:`. O formato antigo (args no topo do teste), usado nos exemplos abaixo, é aceito pelo dbt-core 1.8.x (engine de produção) mas rejeitado pelo Fusion. O formato novo, por sua vez, só é entendido pelo dbt-core ≥ 1.10 — que exige `protobuf ≥ 5`, incompatível com as libs Google fixadas no projeto (`google-analytics-data`, `google-api-core`, `googleapis-common-protos` exigem `protobuf < 5`).
+>
+> Por isso o repositório **mantém o formato antigo** nos `schema.yml` committados (para o dbt-core continuar funcionando), e a conversão para `arguments:` é aplicada **em tempo de build, só para o Fusion** — de forma efêmera, via `uvx --python 3.12 dbt-autofix deprecations` (job `fusion-checks` do CI; ver [`.github/workflows/cd-staging.yaml`](./.github/workflows/cd-staging.yaml)). A transformação **não** é commitada. Exemplo antes/depois:
 >
 > ```yaml
-> # antigo (dbt-core, formato deprecado)
+> # committado no repo (dbt-core 1.8.x)
 > - dbt_utils.unique_combination_of_columns:
 >     combination_of_columns: [country_code, order_id]
-> # novo (exigido pelo Fusion)
+> # gerado pelo autofix em build-time (exigido pelo Fusion)
 > - dbt_utils.unique_combination_of_columns:
 >     arguments:
 >       combination_of_columns: [country_code, order_id]
