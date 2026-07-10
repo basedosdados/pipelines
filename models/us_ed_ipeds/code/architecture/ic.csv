@@ -1,0 +1,251 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+peo1istr,INT64,Occupational,,no,,,no,,peo1istr
+peo2istr,INT64,Academic,,no,,,no,,peo2istr
+peo3istr,INT64,Continuing professional,,no,,,no,,peo3istr
+peo4istr,INT64,Recreational or avocational,,no,,,no,,peo4istr
+peo5istr,INT64,Adult basic or high school equivalency,,no,,,no,,peo5istr
+peo6istr,INT64,Secondary (high school),,no,,,no,,peo6istr
+peo7istr,FLOAT64,Developmental,,no,,,no,,peo7istr
+cntlaffi,INT64,Institutional control or affiliation,,no,,,no,,cntlaffi
+pubprime,INT64,Primary public control,,no,,,no,,pubprime
+pubsecon,INT64,Secondary public control,,no,,,no,,pubsecon
+relaffil,INT64,Religious affiliation,,no,,,no,,relaffil
+level1,INT64,Certificate of less than 1 year,,no,,,no,,level1
+level1a,FLOAT64,Certificate of less than 12 weeks,,no,,,no,,level1a
+level1b,FLOAT64,"Certificate of at least 12 weeks, but less than 1 year",,no,,,no,,level1b
+level2,INT64,"Certifiicate of at least 1 year, but less than 2 years",,no,,,no,,level2
+level3,INT64,Associate's degree,,no,,,no,,level3
+level4,INT64,"Certificate of at least 2 years, but less than 4 years",,no,,,no,,level4
+level5,INT64,Bachelor's degree,,no,,,no,,level5
+level6,INT64,Postbaccalaureate certificate,,no,,,no,,level6
+level7,INT64,Master's degree,,no,,,no,,level7
+level8,INT64,Post-master's certificate,,no,,,no,,level8
+level12,INT64,Other degree,,no,,,no,,level12
+level17,FLOAT64,Doctor's degree - research/scholarship,,no,,,no,,level17
+level18,FLOAT64,Doctor's degree - professional practice,,no,,,no,,level18
+level19,FLOAT64,Doctor's degree - other,,no,,,no,,level19
+calsys,INT64,Calendar system,,no,,,no,,calsys
+ft_ug,INT64,Full-time undergraduate students are enrolled,,no,,,no,,ft_ug
+ft_ftug,INT64,Full time first-time degree/certificate-seeking undergraduate students enrolled,,no,,,no,,ft_ftug
+ftgdnidp,FLOAT64,Full-time graduate (not including doctor's professional practice) students are enrolled,,no,,,no,,ftgdnidp
+pt_ug,FLOAT64,Part-time undergraduate students are enrolled,,no,,,no,,pt_ug
+pt_ftug,FLOAT64,Part time first-time degree/certificate-seeking undergraduate students enrolled,,no,,,no,,pt_ftug
+ptgdnidp,FLOAT64,Part-time graduate (not including doctor's professional practice) students are enrolled,,no,,,no,,ptgdnidp
+docpp,FLOAT64,Doctor's professional practice students are enrolled,,no,,,no,,docpp
+docppsp,FLOAT64,Doctor's professional practice students are enrolled in programs formerly designated as first-professional,,no,,,no,,docppsp
+openadmp,INT64,Open admission policy,,no,,,no,,openadmp
+noncrdt1,FLOAT64,Workforce Education,,no,,,no,,noncrdt1
+noncrdt2,FLOAT64,Contract Training/Customized Training,,no,,,no,,noncrdt2
+noncrdt3,FLOAT64,Developmental Education,,no,,,no,,noncrdt3
+noncrdt4,FLOAT64,Recreational/Avocational/Leisure/Personal Enrichment,,no,,,no,,noncrdt4
+noncrdt5,FLOAT64,Adult Basic Education,,no,,,no,,noncrdt5
+noncrdt6,FLOAT64,Adult High School Diploma or Equivalent,,no,,,no,,noncrdt6
+noncrdt7,FLOAT64,English as a Second Language,,no,,,no,,noncrdt7
+noncrdt8,FLOAT64,Continuing Professional Education,,no,,,no,,noncrdt8
+noncrdt9,FLOAT64,Institution does not offer noncredit education,,no,,,no,,noncrdt9
+vet1,FLOAT64,"Yellow Ribbon Program (officially known as Post-9/11 GI Bill, Yellow Ribbon Program)",,no,,,no,,vet1
+vet2,FLOAT64,Credit for military training,,no,,,no,,vet2
+vet3,FLOAT64,"Dedicated point of contact for support services for veterans, military servicemembers, and their families",,no,,,no,,vet3
+vet4,FLOAT64,Recognized student veteran organization,,no,,,no,,vet4
+vet5,FLOAT64,Member of Department of Defense Voluntary Educational Partnership Memorandum of Understanding,,no,,,no,,vet5
+vet9,FLOAT64,"Services  and programs are not available to veterans, military servicemembers, or their families?",,no,,,no,,vet9
+credits2,FLOAT64,Credit for life experiences,,no,,,no,,credits2
+credits3,FLOAT64,Advanced placement (AP) credits,,no,,,no,,credits3
+credits4,FLOAT64,"Institution does not accept dual, credit for life, or AP credits",,no,,,no,,credits4
+slo5,FLOAT64,ROTC,,no,,,no,,slo5
+slo51,FLOAT64,ROTC - Army,,no,,,no,,slo51
+slo52,FLOAT64,ROTC - Navy,,no,,,no,,slo52
+slo521,FLOAT64,ROTC - Navy Marine Corps option,,no,,,no,,slo521
+slo53,FLOAT64,ROTC - Air Force,,no,,,no,,slo53
+slo6,FLOAT64,Study abroad,,no,,,no,,slo6
+slo7,FLOAT64,Weekend/evening  college,,no,,,no,,slo7
+sloa,FLOAT64,Undergraduate research (co-curricula),,no,,,no,,sloa
+slo8,FLOAT64,Teacher certification (below the postsecondary level),,no,,,no,,slo8
+slo81,FLOAT64,Teacher certification: Students can complete their preparation in certain areas of specialization,,no,,,no,,slo81
+slo82,FLOAT64,Teacher certification: Students must complete their preparation at another institution for certain areas of specialization,,no,,,no,,slo82
+slo83,FLOAT64,Teacher certification: Approved by the state for initial certifcation or licensure of teachers.,,no,,,no,,slo83
+slob,FLOAT64,Comprehensive transition and postsecondary program for students with intellectual disabilities,,no,,,no,,slob
+slo9,FLOAT64,None of the above special learning opportunities are offered,,no,,,no,,slo9
+yrscoll,INT64,Years of college-level work required,,no,,,no,,yrscoll
+stusrv2,INT64,Academic/career counseling service,,no,,,no,,stusrv2
+stusrv3,INT64,Employment services for students,,no,,,no,,stusrv3
+stusrv4,INT64,Placement services for completers,,no,,,no,,stusrv4
+stusrv8,INT64,On-campus day care for students' children,,no,,,no,,stusrv8
+stusrv9,INT64,None of the above selected services are offered,,no,,,no,,stusrv9
+libres1,FLOAT64,Library resources/services: Physical facilities,,no,,,no,,libres1
+libres2,FLOAT64,Library resources/services: Organized collection of printed materials,,no,,,no,,libres2
+libres3,FLOAT64,Library resources/services: Access to digital/electronic resources,,no,,,no,,libres3
+libres4,FLOAT64,Library resources/services: Staff trained to provide and interpret library materials,,no,,,no,,libres4
+libres5,FLOAT64,Library resources/services: Established library hours,,no,,,no,,libres5
+libres6,FLOAT64,Library resources/services: Access to library collections that are shared with other institutions,,no,,,no,,libres6
+libres9,FLOAT64,Library resources/services not provided,,no,,,no,,libres9
+dstnugc,FLOAT64,Undergraduate level distance education courses offered,,no,,,no,,dstnugc
+dstnugp,FLOAT64,Undergraduate level distance education programs offered,,no,,,no,,dstnugp
+dstnugn,FLOAT64,Undergraduate level distance education not offered,,no,,,no,,dstnugn
+dstngc,FLOAT64,Graduate level distance education courses offered,,no,,,no,,dstngc
+dstngp,FLOAT64,Graduate level distance education programs offered,,no,,,no,,dstngp
+dstngn,FLOAT64,Graduate level distance education not offered,,no,,,no,,dstngn
+distcrs,FLOAT64,Distance education courses offered,,no,,,no,,distcrs
+distpgs,FLOAT64,Distance education programs offered,,no,,,no,,distpgs
+dstnced1,FLOAT64,Undergraduate level programs or courses are offered via distance education,,no,,,no,,dstnced1
+dstnced2,FLOAT64,Graduate level programs or courses are offered via distance education,,no,,,no,,dstnced2
+dstnced3,FLOAT64,Does not offer distance education opportunities,,no,,,no,,dstnced3
+distnced,FLOAT64,All programs offered completely via distance education,,no,,,no,,distnced
+disab,FLOAT64,Percent indicator of undergraduates formally registered as students with disabilities,,no,,,no,,disab
+xdisabpc,STRING,"Imputation field for DISABPCT - Percent of undergraduates, who are formally registered as students with disabilities, when percentage is more than 3 percent",,no,,,no,,xdisabpc
+disabpct,STRING,"Percent of undergraduates, who are formally registered as students with disabilities, when percentage is more than 3 percent",,no,,,no,,disabpct
+athassoc,INT64,Member of National Athletic Association,,no,,,no,,athassoc
+assoc1,INT64,Member of National Collegiate Athletic Association (NCAA),,no,,,no,,assoc1
+assoc2,INT64,Member of National Association of Intercollegiate Athletics (NAIA),,no,,,no,,assoc2
+assoc3,INT64,Member of National Junior College Athletic  Association (NJCAA),,no,,,no,,assoc3
+assoc4,INT64,Member of National Small College Athletic Association (NSCAA),,no,,,no,,assoc4
+assoc5,INT64,Member of National Christian College Athletic Association (NCCAA),,no,,,no,,assoc5
+assoc6,INT64,Member of other national athletic association not listed above,,no,,,no,,assoc6
+sport1,INT64,NCAA/NAIA member for football,,no,,,no,,sport1
+confno1,INT64,NCAA/NAIA conference number football,,no,,,no,,confno1
+sport2,INT64,NCAA/NAIA member for basketball,,no,,,no,,sport2
+confno2,INT64,NCAA/NAIA conference number basketball,,no,,,no,,confno2
+sport3,INT64,NCAA/NAIA member for baseball,,no,,,no,,sport3
+confno3,INT64,NCAA/NAIA conference number baseball,,no,,,no,,confno3
+sport4,INT64,NCAA/NAIA member for cross country/track,,no,,,no,,sport4
+confno4,INT64,NCAA/NAIA conference number cross country/track,,no,,,no,,confno4
+enrhsst,FLOAT64,Enolls high school students in college courses for credit,,no,,,no,,enrhsst
+enrhsst1,FLOAT64,Enolls high school students in college courses for credit within a dual enrollment program,,no,,,no,,enrhsst1
+enrhsst2,FLOAT64,Enolls high school students in college courses for credit outside a dual enrollment program,,no,,,no,,enrhsst2
+tuitpl,FLOAT64,Any alternative tuition plans offered by institution,,no,,,no,,tuitpl
+tuitpl1,FLOAT64,Tuition guaranteed plan,,no,,,no,,tuitpl1
+tuitpl2,FLOAT64,Prepaid tuition plan,,no,,,no,,tuitpl2
+tuitpl3,FLOAT64,Tuition payment plan,,no,,,no,,tuitpl3
+tuitpl4,FLOAT64,Other alternative tuition plan,,no,,,no,,tuitpl4
+prmpgm,FLOAT64,Participates in a Promise Program,,no,,,no,,prmpgm
+alloncam,FLOAT64,"Full-time, first-time degree/certificate-seeking students required to live on campus",,no,,,no,,alloncam
+tuitvary,FLOAT64,"Tuition charge varies for in-district, in-state, out-of-state students",,no,,,no,,tuitvary
+room,FLOAT64,Institution provide nstitutionally-controlled housing (on-campus and/or off-campus),,no,,,no,,room
+xroomcap,STRING,Imputation field for ROOMCAP - Housing capacity,,no,,,no,,xroomcap
+roomcap,STRING,Housing capacity,,no,,,no,,roomcap
+board,FLOAT64,Institution offers food or meal plans,,no,,,no,,board
+xmealswk,STRING,Imputation field for MEALSWK - Number of meals per week,,no,,,no,,xmealswk
+mealswk,STRING,Number of meals per week,,no,,,no,,mealswk
+xroomamt,STRING,Imputation field for ROOMAMT - Typical housing charges for an academic year,,no,,,no,,xroomamt
+roomamt,STRING,Typical housing charges for an academic year,,no,,,no,,roomamt
+xbordamt,STRING,Imputation field for BOARDAMT - Typical food charge for academic year,,no,,,no,,xbordamt
+boardamt,STRING,Typical food charge for academic year,,no,,,no,,boardamt
+xrmbdamt,STRING,Imputation field for RMBRDAMT - Combined food and housing charge,,no,,,no,,xrmbdamt
+rmbrdamt,STRING,Combined food and housing charge,,no,,,no,,rmbrdamt
+xappfeeu,STRING,Imputation field for APPLFEEU - Undergraduate application fee,,no,,,no,,xappfeeu
+applfeeu,FLOAT64,Undergraduate application fee,,no,,,no,,applfeeu
+xappfeeg,STRING,Imputation field for APPLFEEG - Graduate application fee,,no,,,no,,xappfeeg
+applfeeg,STRING,Graduate application fee,,no,,,no,,applfeeg
+credits1,FLOAT64,Dual enrollment,,no,,,no,,credits1
+stusrv1,FLOAT64,Remedial services,,no,,,no,,stusrv1
+libfac,FLOAT64,Library facilities at institution,,no,,,no,,libfac
+admcon1,FLOAT64,Secondary school GPA,,no,,,no,,admcon1
+admcon2,FLOAT64,Secondary school rank,,no,,,no,,admcon2
+admcon3,FLOAT64,Secondary school record,,no,,,no,,admcon3
+admcon4,FLOAT64,Completion of college-preparatory program,,no,,,no,,admcon4
+admcon5,FLOAT64,Recommendations,,no,,,no,,admcon5
+admcon6,FLOAT64,Formal demonstration of competencies,,no,,,no,,admcon6
+admcon7,FLOAT64,Admission test scores,,no,,,no,,admcon7
+admcon8,FLOAT64,TOEFL (Test of English as a Foreign Language,,no,,,no,,admcon8
+admcon9,FLOAT64,"Other Test (Wonderlic, WISC-III, etc.)",,no,,,no,,admcon9
+appdate,FLOAT64,Fall reporting period for applicant and admissions,,no,,,no,,appdate
+xapplcnm,STRING,Imputation field for APPLCNM - Applicants men,,no,,,no,,xapplcnm
+applcnm,STRING,Applicants men,,no,,,no,,applcnm
+xapplcnw,STRING,Imputation field for APPLCNW - Applicants women,,no,,,no,,xapplcnw
+applcnw,STRING,Applicants women,,no,,,no,,applcnw
+xadmssnm,STRING,Imputation field for ADMSSNM - Admissions men,,no,,,no,,xadmssnm
+admssnm,STRING,Admissions men,,no,,,no,,admssnm
+xadmssnw,STRING,Imputation field for ADMSSNW - Admissions women,,no,,,no,,xadmssnw
+admssnw,STRING,Admissions women,,no,,,no,,admssnw
+xenrlftm,STRING,Imputation field for ENRLFTM - Enrolled full time men,,no,,,no,,xenrlftm
+enrlftm,STRING,Enrolled full time men,,no,,,no,,enrlftm
+xenrlftw,STRING,Imputation field for ENRLFTW - Enrolled full time women,,no,,,no,,xenrlftw
+enrlftw,STRING,Enrolled full time women,,no,,,no,,enrlftw
+xenrlptm,STRING,Imputation field for ENRLPTM - Enrolled part time men,,no,,,no,,xenrlptm
+enrlptm,STRING,Enrolled part time men,,no,,,no,,enrlptm
+xenrlptw,STRING,Imputation field for ENRLPTW - Enrolled part time women,,no,,,no,,xenrlptw
+enrlptw,STRING,Enrolled part time women,,no,,,no,,enrlptw
+satactdt,FLOAT64,Fall reporting period for SAT/ACT test scores,,no,,,no,,satactdt
+xsatnum,STRING,Imputation field for SATNUM - Number of first-time degree/certificate-seeking students submitting SAT scores,,no,,,no,,xsatnum
+satnum,STRING,Number of first-time degree/certificate-seeking students submitting SAT scores,,no,,,no,,satnum
+xsatpct,STRING,Imputation field for SATPCT - Percent of first-time degree/certificate-seeking students submitting SAT scores,,no,,,no,,xsatpct
+satpct,STRING,Percent of first-time degree/certificate-seeking students submitting SAT scores,,no,,,no,,satpct
+xactnum,STRING,Imputation field for ACTNUM - Number of first-time degree/certificate-seeking students submitting ACT scores,,no,,,no,,xactnum
+actnum,STRING,Number of first-time degree/certificate-seeking students submitting ACT scores,,no,,,no,,actnum
+xactpct,STRING,Imputation field for ACTPCT - Percent of first-time degree/certificate-seeking students submitting ACT scores,,no,,,no,,xactpct
+actpct,STRING,Percent of first-time degree/certificate-seeking students submitting ACT scores,,no,,,no,,actpct
+xsatvr25,STRING,Imputation field for SATVR25 - SAT Critical Reading 25th percentile score,,no,,,no,,xsatvr25
+satvr25,STRING,SAT Critical Reading 25th percentile score,,no,,,no,,satvr25
+xsatvr75,STRING,Imputation field for SATVR75 - SAT Critical Reading 75th percentile score,,no,,,no,,xsatvr75
+satvr75,STRING,SAT Critical Reading 75th percentile score,,no,,,no,,satvr75
+xsatmt25,STRING,Imputation field for SATMT25 - SAT Math 25th percentile score,,no,,,no,,xsatmt25
+satmt25,STRING,SAT Math 25th percentile score,,no,,,no,,satmt25
+xsatmt75,STRING,Imputation field for SATMT75 - SAT Math 75th percentile score,,no,,,no,,xsatmt75
+satmt75,STRING,SAT Math 75th percentile score,,no,,,no,,satmt75
+xsatwr25,STRING,Imputation field for SATWR25 - SAT Writing 25th percentile score,,no,,,no,,xsatwr25
+satwr25,STRING,SAT Writing 25th percentile score,,no,,,no,,satwr25
+xsatwr75,STRING,Imputation field for SATWR75 - SAT Writing 75th percentile score,,no,,,no,,xsatwr75
+satwr75,STRING,SAT Writing 75th percentile score,,no,,,no,,satwr75
+xactcm25,STRING,Imputation field for ACTCM25 - ACT Composite 25th percentile score,,no,,,no,,xactcm25
+actcm25,STRING,ACT Composite 25th percentile score,,no,,,no,,actcm25
+xactcm75,STRING,Imputation field for ACTCM75 - ACT Composite 75th percentile score,,no,,,no,,xactcm75
+actcm75,STRING,ACT Composite 75th percentile score,,no,,,no,,actcm75
+xacten25,STRING,Imputation field for ACTEN25 - ACT English 25th percentile score,,no,,,no,,xacten25
+acten25,STRING,ACT English 25th percentile score,,no,,,no,,acten25
+xacten75,STRING,Imputation field for ACTEN75 - ACT English 75th percentile score,,no,,,no,,xacten75
+acten75,STRING,ACT English 75th percentile score,,no,,,no,,acten75
+xactmt25,STRING,Imputation field for ACTMT25 - ACT Math 25th percentile score,,no,,,no,,xactmt25
+actmt25,STRING,ACT Math 25th percentile score,,no,,,no,,actmt25
+xactmt75,STRING,Imputation field for ACTMT75 - ACT Math 75th percentile score,,no,,,no,,xactmt75
+actmt75,STRING,ACT Math 75th percentile score,,no,,,no,,actmt75
+xactwr25,STRING,Imputation field for ACTWR25 - ACT Writing 25th percentile score,,no,,,no,,xactwr25
+actwr25,STRING,ACT Writing 25th percentile score,,no,,,no,,actwr25
+xactwr75,STRING,Imputation field for ACTWR75 - ACT Writing 75th percentile score,,no,,,no,,xactwr75
+actwr75,STRING,ACT Writing 75th percentile score,,no,,,no,,actwr75
+xenrlm,STRING,Imputation field for ENRLM - Enrolled  men,,no,,,no,,xenrlm
+enrlm,STRING,Enrolled  men,,no,,,no,,enrlm
+xenrlw,STRING,Imputation field for ENRLW - Enrolled  women,,no,,,no,,xenrlw
+enrlw,STRING,Enrolled  women,,no,,,no,,enrlw
+xenrlt,STRING,Imputation field for ENRLT - Enrolled total,,no,,,no,,xenrlt
+enrlt,STRING,Enrolled total,,no,,,no,,enrlt
+xapplcn,STRING,Imputation field for APPLCN - Applicants total,,no,,,no,,xapplcn
+applcn,STRING,Applicants total,,no,,,no,,applcn
+xadmssn,STRING,Imputation field for ADMSSN - Admissions total,,no,,,no,,xadmssn
+admssn,STRING,Admissions total,,no,,,no,,admssn
+xenrlft,STRING,Imputation field for ENRLFT - Enrolled full time total,,no,,,no,,xenrlft
+enrlft,STRING,Enrolled full time total,,no,,,no,,enrlft
+xenrlpt,STRING,Imputation field for ENRLPT - Enrolled part time total,,no,,,no,,xenrlpt
+enrlpt,STRING,Enrolled part time total,,no,,,no,,enrlpt
+slo3,FLOAT64,Distance learning opportunities,,no,,,no,,slo3
+ft_gd,FLOAT64,Full-time graduate students are enrolled,,no,,,no,,ft_gd
+pt_gd,FLOAT64,Part-time graduate students are enrolled,,no,,,no,,pt_gd
+pctpost,FLOAT64,Percentage of students enrolled in postsecondary programs,,no,,,no,,pctpost
+level9,FLOAT64,Doctor's degree (old classification),,no,,,no,,level9
+level10,FLOAT64,First-professional degree (old classification),,no,,,no,,level10
+level11,FLOAT64,First-professional certificate (old classification),,no,,,no,,level11
+xappfeep,STRING,Imputation field for APPLFEEP - First-professional application fee,,no,,,no,,xappfeep
+applfeep,STRING,First-professional application fee,,no,,,no,,applfeep
+ft_fp,FLOAT64,Full-time first-professional students are enrolled,,no,,,no,,ft_fp
+pt_fp,FLOAT64,Part-time first-professional students are enrolled,,no,,,no,,pt_fp
+apfee,FLOAT64,Application fee is required,,no,,,no,,apfee
+accrd1,FLOAT64,National or specialized accrediting,,no,,,no,,accrd1
+accrd2,FLOAT64,Regional accrediting agency,,no,,,no,,accrd2
+regaccrd,FLOAT64,Name of regional accrediting agency,,no,,,no,,regaccrd
+accrd3,FLOAT64,State accrediting or approval agency,,no,,,no,,accrd3
+accrd4,FLOAT64,Accreditation not applicable,,no,,,no,,accrd4
+saccr,FLOAT64,Accredited by accrediting agencies recognized by U.S. Department of Education,,no,,,no,,saccr
+slo1,FLOAT64,Accelerated programs,,no,,,no,,slo1
+slo2,FLOAT64,Cooperative (work-study) program,,no,,,no,,slo2
+slo4,FLOAT64,Dual enrollment,,no,,,no,,slo4
+insttoyr,FLOAT64,Provided instruction at least two consecutive years,,no,,,no,,insttoyr
+fopna,FLOAT64,Programs not leading to a formal award,,no,,,no,,fopna
+fopna1,FLOAT64,Undergraduate programs not leading to a formal award,,no,,,no,,fopna1
+fopna2,FLOAT64,Graduate programs not leading to a formal award,,no,,,no,,fopna2
+ftstu,FLOAT64,Full time students are enrolled,,no,,,no,,ftstu
+ptstu,FLOAT64,Part time students are enrolled,,no,,,no,,ptstu
+rotc,FLOAT64,Reserve Officers Training Corps (ROTC),,no,,,no,,rotc
+rotc1,FLOAT64,Army,,no,,,no,,rotc1
+rotc2,FLOAT64,Navy,,no,,,no,,rotc2
+rotc3,FLOAT64,Air Force,,no,,,no,,rotc3

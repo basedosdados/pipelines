@@ -82,6 +82,12 @@ models:
     br_bd_diretorios_mundo:
       +materialized: table
       +schema: br_bd_diretorios_mundo
+    br_bd_diretorios_us:
+      +materialized: table
+      +schema: br_bd_diretorios_us
+    us_congress_legislators:
+      +materialized: table
+      +schema: us_congress_legislators
     br_bd_indicadores:
       +materialized: table
       +schema: br_bd_indicadores
@@ -406,6 +412,12 @@ models:
     test_dataset:
       +materialized: table
       +schema: test_dataset
+    us_ed_ipeds:
+      +materialized: table
+      +schema: us_ed_ipeds
+    us_medsl_elections:
+      +materialized: table
+      +schema: us_medsl_elections
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
@@ -430,6 +442,9 @@ models:
     world_sofascore_competicoes_futebol:
       +materialized: table
       +schema: world_sofascore_competicoes_futebol
+    world_un_wpp:
+      +materialized: table
+      +schema: world_un_wpp
     world_wb_mides:
       +materialized: table
       +schema: world_wb_mides
