@@ -48,8 +48,8 @@ tehrftpt,STRING,Do you usually work more than 35 hours per week at your job(s)/f
 tehrusl1,INT64,How many hours per week do you usually work at your main job?,,no,,hour,no,,TEHRUSL1
 tehrusl2,INT64,How many hours per week do you usually work at your other job(s)?,,no,,hour,no,,TEHRUSL2
 teio1cow,STRING,Individual class of worker code (main job),,yes,,,no,,TEIO1COW
-teio1icd,STRING,Industry code (main job),,no,,,no,"US Census industry code. Vintage varies by diary year: 2002 system (2003-09), 2007 (2010-13), 2012 (2014-19), 2017 (2020-24). Join to br_bd_diretorios_us.census_industry_<vintage> by (year->vintage, code); no single static FK.",TEIO1ICD
-teio1ocd,STRING,Occupation code (main job),,no,,,no,"US Census occupation code. Vintage varies by diary year: 2002 system (2003-10), 2010 (2011-19), 2018 (2020-24). Join to br_bd_diretorios_us.census_occupation_<vintage> by (year->vintage, code); no single static FK.",TEIO1OCD
+teio1icd,STRING,"Industry code for the main job; US Census detailed industry classification, zero-padded to four digits. Code vintage varies by diary year: 2002 (2003-2008), 2007 (2009-2013), 2012 (2014-2019), 2017 (2020-2024); for earlier years join the matching census_industry_<vintage> directory.",,no,br_bd_diretorios_us.census_industry_2017:id_census_industry,,no,,TEIO1ICD
+teio1ocd,STRING,"Occupation code for the main job; US Census detailed occupation classification, zero-padded to four digits. Code vintage varies by diary year: 2002 (2003-2010), 2010 (2011-2019), 2018 (2020-2024); for earlier years join the matching census_occupation_<vintage> directory.",,no,br_bd_diretorios_us.census_occupation_2018:id_census_occupation,,no,,TEIO1OCD
 telayavl,STRING,Could you have returned to work in the last seven days if you had been recalled?,,yes,,,no,,TELAYAVL
 telaylk,STRING,"Even though you expect to be called back to work, have you been looking for work during the last four weeks?",,yes,,,no,,TELAYLK
 telkavl,STRING,Could you have started a job in the last seven days if one had been offered?,,yes,,,no,,TELKAVL

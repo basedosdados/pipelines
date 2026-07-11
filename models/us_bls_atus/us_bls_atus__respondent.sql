@@ -63,8 +63,16 @@ select
     safe_cast(tehrusl1 as int64) tehrusl1,
     safe_cast(tehrusl2 as int64) tehrusl2,
     safe_cast(teio1cow as string) teio1cow,
-    safe_cast(teio1icd as string) teio1icd,
-    safe_cast(teio1ocd as string) teio1ocd,
+    case
+        when regexp_contains(safe_cast(teio1icd as string), r'^[0-9]+$')
+        then lpad(safe_cast(teio1icd as string), 4, '0')
+        else safe_cast(teio1icd as string)
+    end teio1icd,
+    case
+        when regexp_contains(safe_cast(teio1ocd as string), r'^[0-9]+$')
+        then lpad(safe_cast(teio1ocd as string), 4, '0')
+        else safe_cast(teio1ocd as string)
+    end teio1ocd,
     safe_cast(telayavl as string) telayavl,
     safe_cast(telaylk as string) telaylk,
     safe_cast(telkavl as string) telkavl,

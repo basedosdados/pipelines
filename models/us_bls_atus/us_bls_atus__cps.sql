@@ -116,11 +116,27 @@ select
     safe_cast(pehrwant as string) pehrwant,
     safe_cast(pehspnon as string) pehspnon,
     safe_cast(peio1cow as string) peio1cow,
-    safe_cast(peio1icd as string) peio1icd,
-    safe_cast(peio1ocd as string) peio1ocd,
+    case
+        when regexp_contains(safe_cast(peio1icd as string), r'^[0-9]+$')
+        then lpad(safe_cast(peio1icd as string), 4, '0')
+        else safe_cast(peio1icd as string)
+    end peio1icd,
+    case
+        when regexp_contains(safe_cast(peio1ocd as string), r'^[0-9]+$')
+        then lpad(safe_cast(peio1ocd as string), 4, '0')
+        else safe_cast(peio1ocd as string)
+    end peio1ocd,
     safe_cast(peio2cow as string) peio2cow,
-    safe_cast(peio2icd as string) peio2icd,
-    safe_cast(peio2ocd as string) peio2ocd,
+    case
+        when regexp_contains(safe_cast(peio2icd as string), r'^[0-9]+$')
+        then lpad(safe_cast(peio2icd as string), 4, '0')
+        else safe_cast(peio2icd as string)
+    end peio2icd,
+    case
+        when regexp_contains(safe_cast(peio2ocd as string), r'^[0-9]+$')
+        then lpad(safe_cast(peio2ocd as string), 4, '0')
+        else safe_cast(peio2ocd as string)
+    end peio2ocd,
     safe_cast(pejhrsn as string) pejhrsn,
     safe_cast(pejhwant as string) pejhwant,
     safe_cast(pejhwko as string) pejhwko,

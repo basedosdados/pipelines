@@ -90,8 +90,30 @@ def read_arch(tbl):
 
 # columns needing a normalizing expression instead of a plain safe_cast
 # (zero-pad state FIPS to 2 digits so it matches br_bd_diretorios_us.state.id_state)
+
+
+def _pad_census_io(col):
+    # ATUS stores census industry/occupation codes without leading zeros
+    # ("170") plus non-numeric sentinels ("-1"). Restore the canonical
+    # 4-digit zero-padded form so the codes match the census_industry_* /
+    # census_occupation_* directories; leave sentinels untouched.
+    s = f"safe_cast({col} as string)"
+    return f"case when regexp_contains({s}, r'^[0-9]+$') then lpad({s}, 4, '0') else {s} end"
+
+
 CAST_EXPR = {
     "gestfips": "lpad(safe_cast(gestfips as string), 2, '0')",
+    **{
+        c: _pad_census_io(c)
+        for c in [
+            "teio1icd",
+            "teio1ocd",
+            "peio1icd",
+            "peio1ocd",
+            "peio2icd",
+            "peio2ocd",
+        ]
+    },
 }
 
 
