@@ -1,4 +1,5 @@
 import datetime
+import re
 import sys
 import time
 from pathlib import Path
@@ -1006,6 +1007,119 @@ def clean_soc_2018():
     return write_table(df, "soc_2018", fields)
 
 
+# Census industry/occupation code lists, one directory table per vintage.
+# (slug, source file, sheet, kind). Vintage-in-name follows naics_2022/soc_2018.
+CENSUS_IO = [
+    ("census_industry_2002", "2002-acs-ind-codes.xls", 0, "industry"),
+    (
+        "census_industry_2007",
+        "2007-acs-ind-codes.xls",
+        " Ind Codes ",
+        "industry",
+    ),
+    ("census_industry_2012", "census-2012-final-code-list.xls", 0, "industry"),
+    (
+        "census_industry_2017",
+        "2017-industry-code-list-with-crosswalk.xlsx",
+        "2017 Census Industry Code List",
+        "industry",
+    ),
+    (
+        "census_occupation_2002",
+        "2002-census-occupation-codes.xls",
+        0,
+        "occupation",
+    ),
+    (
+        "census_occupation_2010",
+        "2010-occ-codes-with-crosswalk-from-2002-2011.xls",
+        "2010OccCodeList",
+        "occupation",
+    ),
+    (
+        "census_occupation_2018",
+        "2018-occupation-code-list-and-crosswalk.xlsx",
+        "2018 Census Occ Code List",
+        "occupation",
+    ),
+]
+
+
+def _io_cell(v):
+    if v is None:
+        return ""
+    s = str(v).strip()
+    return "" if s.lower() == "nan" else s
+
+
+def clean_census_io(slug, filename, sheet, kind):
+    """Extract the leaf (4-digit) Census industry/occupation codes.
+
+    Group/section rows carry code ranges (e.g. 0170-0490) and are skipped;
+    only detailed 4-digit codes — the values ATUS stores — are kept. The
+    crosswalk column (NAICS for industry, SOC for occupation) is carried as
+    published (may hold ranges or multiple codes for a single census code).
+    """
+    df = pd.read_excel(
+        INPUT / "census_io" / filename,
+        sheet_name=sheet,
+        header=None,
+        dtype=str,
+    )
+    xwalk_kw = "naics code" if kind == "industry" else "soc code"
+    id_col = (
+        "id_census_industry" if kind == "industry" else "id_census_occupation"
+    )
+    xwalk_out = "id_naics" if kind == "industry" else "id_soc"
+    code_col = xwalk_col = header_idx = None
+    for i in range(min(40, len(df))):
+        row = [_io_cell(x) for x in df.iloc[i].tolist()]
+        for j, c in enumerate(cell.lower() for cell in row):
+            if (
+                code_col is None
+                and c.endswith("code")
+                and (
+                    "census code" in c
+                    or ("industry code" in c and "naics" not in c)
+                    or ("occupation code" in c and "soc" not in c)
+                )
+            ):
+                code_col, header_idx = j, i
+            if xwalk_col is None and c.endswith("code") and xwalk_kw in c:
+                xwalk_col = j
+        if code_col is not None:
+            break
+    if code_col is None:
+        raise ValueError(f"census_io: no code column found in {filename}")
+    rows = []
+    for i in range(header_idx + 1, len(df)):
+        raw = [_io_cell(x) for x in df.iloc[i].tolist()]
+        code = raw[code_col] if code_col < len(raw) else ""
+        if not re.fullmatch(r"\d{3,4}", code):
+            continue
+        name = next((raw[j] for j in range(code_col) if raw[j]), "")
+        xw = (
+            raw[xwalk_col]
+            if (xwalk_col is not None and xwalk_col < len(raw))
+            else ""
+        )
+        if xw.lower() in ("none", "n/a", "na"):
+            xw = ""
+        rows.append({id_col: code.zfill(4), "name": name, xwalk_out: xw})
+    out = (
+        pd.DataFrame(rows)
+        .query("name != ''")
+        .drop_duplicates(id_col, keep="first")
+        .reset_index(drop=True)
+    )
+    fields = [
+        (id_col, pa.string()),
+        ("name", pa.string()),
+        (xwalk_out, pa.string()),
+    ]
+    return write_table(out, slug, fields)
+
+
 PRIMARY_KEYS = {
     "state": "id_state",
     "county": "id_county",
@@ -1021,6 +1135,14 @@ PRIMARY_KEYS = {
     "congress_member": "id_bioguide",
     "naics_2022": "id_naics",
     "soc_2018": "id_soc",
+    **{
+        slug: (
+            "id_census_industry"
+            if kind == "industry"
+            else "id_census_occupation"
+        )
+        for slug, _f, _s, kind in CENSUS_IO
+    },
 }
 
 
@@ -1044,6 +1166,10 @@ def main():
         ("naics_2022", clean_naics_2022),
         ("soc_2018", clean_soc_2018),
         ("puma_2020", lambda: clean_puma_2020(results["state"])),
+        *[
+            (slug, lambda f=f, s=s, k=k, sl=slug: clean_census_io(sl, f, s, k))
+            for slug, f, s, k in CENSUS_IO
+        ],
     ]
     selected = set(sys.argv[1:]) or {slug for slug, _ in runners}
     if selected & {"county", "school_district", "school", "puma_2020"}:
