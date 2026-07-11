@@ -1,6 +1,0 @@
-name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
-id_tabela,STRING,Table slug the coded column belongs to (e.g. round_08).,,no,,,no,,
-nome_coluna,STRING,Name of the coded column the mapping applies to.,,no,,,no,,
-chave,STRING,Code (key) as stored in the data table.,,no,,,no,,
-cobertura_temporal,STRING,Temporal coverage (round/year range) the mapping applies to.,,no,,,no,,
-valor,STRING,Human-readable label corresponding to the code.,,no,,,no,,

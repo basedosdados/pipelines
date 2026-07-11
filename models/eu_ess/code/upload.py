@@ -36,8 +36,10 @@ gcs.Client.bucket = _patched_bucket
 
 
 def expected_rows(slug: str) -> int:
+    # rglob catches both hive-partitioned (year=YYYY/data.parquet) round tables
+    # and the flat, non-partitioned dicionario (data.parquet).
     total = 0
-    for f in (OUTPUT_ROOT / slug).glob("year=*/data.parquet"):
+    for f in (OUTPUT_ROOT / slug).rglob("data.parquet"):
         total += pq.ParquetFile(f).metadata.num_rows
     return total
 
@@ -76,7 +78,12 @@ def upload_table(slug: str) -> int:
 def main():
     only = set(sys.argv[1:])
     slugs = sorted(
-        (p.name for p in OUTPUT_ROOT.glob("round_*")),
+        (
+            p.name
+            for p in OUTPUT_ROOT.iterdir()
+            if p.is_dir()
+            and (p.name.startswith("round_") or p.name == "dicionario")
+        ),
         key=lambda s: expected_rows(s),
     )
     slugs = [s for s in slugs if not only or s in only]

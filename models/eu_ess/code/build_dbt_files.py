@@ -275,12 +275,84 @@ def model_entry(round_n, prof):
     return entry
 
 
+DICIONARIO_COLS = [
+    (
+        "id_tabela",
+        "Slug of the round table the coded column belongs to (e.g. round_01).",
+    ),
+    ("nome_coluna", "Name of the coded column in that round table."),
+    ("chave", "Stored code value (as text)."),
+    (
+        "cobertura_temporal",
+        "Reference year of the round the mapping applies to.",
+    ),
+    ("valor", "Human-readable label the code decodes to."),
+]
+
+
+def write_dicionario_sql():
+    body = ",\n".join(
+        f"    safe_cast({c} as string) {c}" for c, _ in DICIONARIO_COLS
+    )
+    sql = f"""{{{{
+    config(
+        schema="{DATASET_ID}",
+        alias="dicionario",
+        materialized="table",
+    )
+}}}}
+
+
+select
+{body}
+from
+    {{{{ set_datalake_project("{DATASET_ID}_staging.dicionario") }}}}
+    as t
+"""
+    path = DATASET_DIR / f"{DATASET_ID}__dicionario.sql"
+    path.write_text(sql)
+    return path
+
+
+def dicionario_model_entry():
+    desc = (
+        "Dictionary table for the European Social Survey. Maps the stored numeric "
+        "and string codes of every dictionary-covered column, in each round table, "
+        "to their human-readable labels, as published in the ESS value labels."
+    )
+    entry = {
+        "name": f"{DATASET_ID}__dicionario",
+        "description": Folded(desc),
+        "tests": [
+            {
+                "dbt_utils.unique_combination_of_columns": {
+                    "combination_of_columns": [
+                        "id_tabela",
+                        "nome_coluna",
+                        "chave",
+                    ]
+                }
+            }
+        ],
+        "columns": [],
+    }
+    for name, cdesc in DICIONARIO_COLS:
+        col = {"name": name, "description": Folded(cdesc)}
+        if name in ("id_tabela", "nome_coluna", "chave"):
+            col["tests"] = ["not_null"]
+        entry["columns"].append(col)
+    return entry
+
+
 def generate(cache_path):
     profiles = json.loads(cache_path.read_text())
     paths, models = [], []
     for r in rounds_present():
         paths.append(write_sql(r))
         models.append(model_entry(r, profiles[f"round_{r:02d}"]))
+    if (OUTPUT_DIR / "dicionario" / "data.parquet").exists():
+        paths.append(write_dicionario_sql())
+        models.append(dicionario_model_entry())
     doc = {"version": 2, "models": models}
     schema_path = DATASET_DIR / "schema.yml"
     with open(schema_path, "w", encoding="utf-8") as f:

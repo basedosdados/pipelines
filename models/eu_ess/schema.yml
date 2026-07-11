@@ -20595,3 +20595,32 @@ models:
       - name: primary_sampling_unit
         description: >-
           Primary sampling unit
+  - name: eu_ess__dicionario
+    description: >-
+      Dictionary table for the European Social Survey. Maps the stored numeric and
+      string codes
+      of every dictionary-covered column, in each round table, to their human-readable
+      labels,
+      as published in the ESS value labels.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the round table the coded column belongs to (e.g. round_01).
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Name of the coded column in that round table.
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Stored code value (as text).
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Reference year of the round the mapping applies to.
+      - name: valor
+        description: >-
+          Human-readable label the code decodes to.
