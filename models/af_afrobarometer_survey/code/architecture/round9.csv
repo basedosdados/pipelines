@@ -1,0 +1,422 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+country_iso3_code,STRING,Country ISO3 code (derived from COUNTRY).,,no,br_bd_diretorios_mundo.pais:sigla_iso3,,no,,
+respno,STRING,Respondent number,,no,,,no,,RESPNO
+country_old_spelling,INT64,Country old spelling/order,,yes,,,no,,COUNTRY.old.spelling
+country_r7list,INT64,Country in R7 Alphabetical Order,,yes,,,no,,COUNTRY_R7List
+country_r6list,INT64,Country in R6 Alphabetical Order,,yes,,,no,,COUNTRY_R6List
+country_r5list,INT64,Country in R5 Alphabetical Order,,yes,,,no,,COUNTRY_R5List
+country_by_region,INT64,Country by Region,,yes,,,no,,COUNTRY.BY.REGION
+urbrur,INT64,Urban or Rural Primary Sampling Unit,,yes,,,no,,URBRUR
+urbrur_cond,INT64,Urban or Rural Primary Sampling Unit,,yes,,,no,,URBRUR_COND
+region,INT64,Province or region,,yes,,,no,,REGION
+location_level_1,STRING,Location level 1,,no,,,no,,LOCATION.LEVEL.1
+ea_svc_a,INT64,EA-SVC-A. Electricity grid in the PSU/EA,,yes,,,no,,EA_SVC_A
+ea_svc_b,INT64,EA-SVC-B. Piped water system in the PSU/EA,,yes,,,no,,EA_SVC_B
+ea_svc_c,INT64,EA-SVC-C. Sewage system in the PSU/EA,,yes,,,no,,EA_SVC_C
+ea_svc_d,INT64,EA-SVC-D. Mobile phone service in the PSU/EA,,yes,,,no,,EA_SVC_D
+ea_svc_e,INT64,EA-SVC-E.  Borehole or tubewell in PSU/EA,,yes,,,no,,EA_SVC_E
+ea_fac_a,INT64,EA-FAC-A. Post office in the PSU/EA,,yes,,,no,,EA_FAC_A
+ea_fac_b,INT64,EA-FAC-B. School in the PSU/EA,,yes,,,no,,EA_FAC_B
+ea_fac_c,INT64,EA-FAC-C. Police station in the PSU/EA,,yes,,,no,,EA_FAC_C
+ea_fac_d,INT64,EA-FAC-D. Health Clinic in the PSU/EA,,yes,,,no,,EA_FAC_D
+ea_fac_e,INT64,EA-FAC-E. Market stalls in the PSU/EA,,yes,,,no,,EA_FAC_E
+ea_fac_f,INT64,EA-FAC-F. Bank or money services in the PSU/EA,,yes,,,no,,EA_FAC_F
+ea_fac_f2,INT64,EA-FAC-F2. Social/govt center/office in PSU/EA,,yes,,,no,,EA_FAC_F2
+ea_fac_g,INT64,EA-FAC-G. Paid transport in the PSU/EA,,yes,,,no,,EA_FAC_G
+ea_sec_a,INT64,EA-SEC-A. Police in the PSU/EA,,yes,,,no,,EA_SEC_A
+ea_sec_b,INT64,EA-SEC-B. Soldiers/army in the PSU/EA,,yes,,,no,,EA_SEC_B
+ea_sec_c,INT64,EA-SEC-C. Roadblocks by police/army in the PSU/EA,,yes,,,no,,EA_SEC_C
+ea_sec_d,INT64,EA-SEC-D. Customs checkpoints in the PSU/EA,,yes,,,no,,EA_SEC_D
+ea_sec_e,INT64,EA-SEC-E. Roadblocks by private security/local community in the PSU/EA,,yes,,,no,,EA_SEC_E
+ea_road_a,INT64,EA-ROAD-A. Road surface at start point,,yes,,,no,,EA_ROAD_A
+ea_road_b,INT64,EA-ROAD-B. Road surface last 5 km,,yes,,,no,,EA_ROAD_B
+ea_road_c,INT64,EA-ROAD-C. Road condition last 5 km,,yes,,,no,,EA_ROAD_C
+nocall_1,INT64,Reason for Unsuccessful Call Household 1,,yes,,,no,,NOCALL_1
+nocall_1other,STRING,Reason for Unsuccessful Call Household 1 (Verbatim),,no,,,no,,NOCALL_1OTHER
+nocall_2,INT64,Reason for Unsuccessful Call Household 2,,yes,,,no,,NOCALL_2
+nocall_2other,STRING,Reason for Unsuccessful Call Household 2 (Verbatim),,no,,,no,,NOCALL_2OTHER
+nocall_3,INT64,Reason for Unsuccessful Call Household 3,,yes,,,no,,NOCALL_3
+nocall_3other,STRING,Reason for Unsuccessful Call Household 3 (Verbatim),,no,,,no,,NOCALL_3OTHER
+nocall_4,INT64,Reason for Unsuccessful Call Household 4,,yes,,,no,,NOCALL_4
+nocall_4other,STRING,Reason for Unsuccessful Call Household 4 (Verbatim),,no,,,no,,NOCALL_4OTHER
+nocall_5,INT64,Reason for Unsuccessful Call Household 5,,yes,,,no,,NOCALL_5
+nocall_5other,STRING,Reason for Unsuccessful Call Household 5 (Verbatim),,no,,,no,,NOCALL_5OTHER
+nocall_6,INT64,Reason for Unsuccessful Call Household 6,,yes,,,no,,NOCALL_6
+nocall_6other,STRING,Reason for Unsuccessful Call Household 6 (Verbatim),,no,,,no,,NOCALL_6OTHER
+nocall_7,INT64,Reason for Unsuccessful Call Household 6,,yes,,,no,,NOCALL_7
+nocall_7other,STRING,Reason for Unsuccessful Call Household 7 (Verbatim),,no,,,no,,NOCALL_7OTHER
+nocall_8,INT64,Reason for Unsuccessful Call Household 6,,yes,,,no,,NOCALL_8
+nocall_8other,STRING,Reason for Unsuccessful Call Household 8 (Verbatim),,no,,,no,,NOCALL_8OTHER
+nocall_9,INT64,Reason for Unsuccessful Call Household 9,,yes,,,no,,NOCALL_9
+nocall_9other,STRING,Reason for Unsuccessful Call Household 9 (Verbatim),,no,,,no,,NOCALL_9OTHER
+nocall_10,INT64,Reason for Unsuccessful Call Household 10,,yes,,,no,,NOCALL_10
+nocall_10other,STRING,Reason for Unsuccessful Call Household 10 (Verbatim),,no,,,no,,NOCALL_10OTHER
+nocall_11,INT64,Reason for Unsuccessful Call Household 11,,yes,,,no,,NOCALL_11
+nocall_11other,STRING,Reason for Unsuccessful Call Household 11 (Verbatim),,no,,,no,,NOCALL_11OTHER
+nocall_12,INT64,Reason for Unsuccessful Call Household 12,,yes,,,no,,NOCALL_12
+nocall_12other,STRING,Reason for Unsuccessful Call Household 12 (Verbatim),,no,,,no,,NOCALL_12OTHER
+nocall_13,INT64,Reason for Unsuccessful Call Household 13,,yes,,,no,,NOCALL_13
+nocall_13other,STRING,Reason for Unsuccessful Call Household 13 (Verbatim),,no,,,no,,NOCALL_13OTHER
+nocall_14,INT64,Reason for Unsuccessful Call Household 14,,yes,,,no,,NOCALL_14
+nocall_15,INT64,Reason for Unsuccessful Call Household 15,,yes,,,no,,NOCALL_15
+nocall_16,INT64,Reason for Unsuccessful Call Household 16,,yes,,,no,,NOCALL_16
+nocall_17,INT64,Reason for Unsuccessful Call Household 17,,yes,,,no,,NOCALL_17
+nocall_18,INT64,Reason for Unsuccessful Call Household 18,,yes,,,no,,NOCALL_18
+nocall_19,INT64,Reason for Unsuccessful Call Household 19,,yes,,,no,,NOCALL_19
+nocall_20,INT64,Reason for Unsuccessful Call Household 20,,yes,,,no,,NOCALL_20
+nocall_21,INT64,Reason for Unsuccessful Call Household 21,,yes,,,no,,NOCALL_21
+dateintr,DATE,Date of interview,,no,,,no,,DATEINTR
+strtime,STRING,Time interview started,,no,,,no,,STRTIME
+q1,INT64,Q1. Age,,yes,,,no,,Q1
+q2,INT64,Q2. Language spoken in home,,yes,,,no,,Q2
+q2other,STRING,Q2other. Language spoken in home (verbatim),,no,,,no,,Q2OTHER
+q3,INT64,Q3. Overall direction of the country,,yes,,,no,,Q3
+q4a,INT64,Q4a. Country’s present economic condition,,yes,,,no,,Q4A
+q4b,INT64,Q4b. Your present living conditions,,yes,,,no,,Q4B
+q5a,INT64,Q5a. Country’s economic condition compared to 12 months ago,,yes,,,no,,Q5A
+q5b,INT64,Q5b. Country’s economic condition in 12 months’ time,,yes,,,no,,Q5B
+q6a,INT64,Q6a. How often gone without food,,yes,,,no,,Q6A
+q6b,INT64,Q6b. How often gone without water,,yes,,,no,,Q6B
+q6c,INT64,Q6c. How often gone without medical care,,yes,,,no,,Q6C
+q6d,INT64,Q6d. How often gone without cooking fuel,,yes,,,no,,Q6D
+q6e,INT64,Q6e. How often gone without cash income,,yes,,,no,,Q6E
+q7a,INT64,Q7a. How often felt unsafe walking in neighbourhood,,yes,,,no,,Q7A
+q7b,INT64,Q7b. How often feared crime in home,,yes,,,no,,Q7B
+q8,INT64,Q8. Discuss politics,,yes,,,no,,Q8
+q9a,INT64,Q9a. Freedom to say what you think,,yes,,,no,,Q9A
+q9b,INT64,Q9b. Freedom to join any political organization,,yes,,,no,,Q9B
+q9c,INT64,Q9c. Freedom to choose who to vote for,,yes,,,no,,Q9C
+q10a,INT64,Q10a. Attend a community meeting,,yes,,,no,,Q10A
+q10b,INT64,Q10b. Join others to raise an issue,,yes,,,no,,Q10B
+q10c,INT64,Q10c. Attend a demonstration or protest march,,yes,,,no,,Q10C
+q11a,INT64,Q11a. Make local government councillors listen,,yes,,,no,,Q11A
+q11b,INT64,Q11b. Contact local government councillor,,yes,,,no,,Q11B
+q11c,INT64,Q11c. Contact MP,,yes,,,no,,Q11C
+q11d,INT64,Q11d. Contact political party official,,yes,,,no,,Q11D
+q11e,INT64,Q11e. Contact traditional leader,,yes,,,no,,Q11E
+q12a,INT64,Q12a. Elections ensure MPs reflect views of voters,,yes,,,no,,Q12A
+q12b,INT64,Q12b. Elections ensure voters remove unrepresentative leaders,,yes,,,no,,Q12B
+q13,INT64,Q13. Voting in the most recent national election,,yes,,,no,,Q13
+q14a,INT64,Q14a. Freeness and fairness of the last national election,,yes,,,no,,Q14A
+q14b,INT64,Q14b. How likely powerful find out your vote,,yes,,,no,,Q14B
+q14c,INT64,Q14c. Last national election: fear political intimidation or violence,,yes,,,no,,Q14C
+q15,INT64,Q15. Government bans organizations vs join any,,yes,,,no,,Q15
+q16,INT64,Q16. Media free to publish vs government control,,yes,,,no,,Q16
+q17,INT64,Q17. Media checks government vs avoid negative reporting,,yes,,,no,,Q17
+q18,INT64,Q18. Govt gets things done vs govt accountable to citizens,,yes,,,no,,Q18
+q19a,INT64,Q19A. Government like a boss vs like an employee,,yes,,,no,,Q19A
+q19b,INT64,Q19b. Elected officials follow voter demands vs follow own ideas,,yes,,,no,,Q19B
+q20,INT64,Q20. Men only as leaders vs women leaders,,yes,,,no,,Q20
+q21a,INT64,Q21a. Men have more right to job,,yes,,,no,,Q21A
+q21b,INT64,Q21b. Women have equal right to land,,yes,,,no,,Q21B
+q22a,INT64,Q22a. Reject one-party rule,,yes,,,no,,Q22A
+q22b,INT64,Q22b. Reject military rule,,yes,,,no,,Q22B
+q22c,INT64,Q22c. Reject one-man rule,,yes,,,no,,Q22C
+q23,INT64,Q23. Support for democracy,,yes,,,no,,Q23
+q24,INT64,Q24. Choose leaders through elections vs other methods,,yes,,,no,,Q24
+q25,INT64,Q25. Political parties divisive vs many parties needed,,yes,,,no,,Q25
+q26,INT64,Q26. Democracy needs political party turnover vs ok if one party always wins,,yes,,,no,,Q26
+q27a,INT64,Q27a. Parliament makes laws vs president does,,yes,,,no,,Q27A
+q27b,INT64,Q27b. President monitored by parliament vs free to act on own,,yes,,,no,,Q27B
+q27c,INT64,Q27c. Opposition parties examine government vs cooperate,,yes,,,no,,Q27C
+q28,INT64,Q28. President free to act vs obey the laws and courts,,yes,,,no,,Q28
+q29a,INT64,Q29a. Presidential two term limit vs no term limits,,yes,,,no,,Q29A
+q29b,INT64,Q29b. Armed forces never intervene vs when leaders abuse power,,yes,,,no,,Q29B
+q30,INT64,Q30. Extent of democracy,,yes,,,no,,Q30
+q31,INT64,Q31. Satisfaction with democracy,,yes,,,no,,Q31
+q32a,INT64,Q32a. Level of democracy compared to five years ago,,yes,,,no,,Q32A
+q32b,INT64,Q32b. Level of democracy in five years' time,,yes,,,no,,Q32B
+q33a,INT64,Q33a. How often party competition leads to conflict,,yes,,,no,,Q33A
+q33b,INT64,Q33b. How often president ignores laws,,yes,,,no,,Q33B
+q33c,INT64,Q33c. How often president ignores parliament,,yes,,,no,,Q33C
+q33d,INT64,Q33d. How often careful what you say,,yes,,,no,,Q33D
+q33e,INT64,Q33e. How often people treated unequally under law,,yes,,,no,,Q33E
+q33f,INT64,Q33f. How often officials unpunished,,yes,,,no,,Q33F
+q33g,INT64,Q33g. How often ordinary people unpunished,,yes,,,no,,Q33G
+q33h,INT64,Q33h. How free is news media,,yes,,,no,,Q33H
+q33i,INT64,Q33i. Treated unfairly by government based on economic status,,yes,,,no,,Q33I
+q34a,INT64,Q34a. MPs listen,,yes,,,no,,Q34A
+q34b,INT64,Q34b. Local government councillors listen,,yes,,,no,,Q34B
+q35a,INT64,Q35a. Access to information: school budget,,yes,,,no,,Q35A
+q35b,INT64,Q35b. Access to information: local government development plan and budget,,yes,,,no,,Q35B
+q35c,INT64,Q35c. Access to information: local government contracts,,yes,,,no,,Q35C
+q36a,INT64,Q36a. Likelihood of response: request assistance,,yes,,,no,,Q36A
+q36b,INT64,Q36b. Likelihood of response: reporting teacher misconduct,,yes,,,no,,Q36B
+q36c,INT64,Q36c. Likelihood of response: reporting corruption,,yes,,,no,,Q36C
+q37a,INT64,Q37a. Trust president,,yes,,,no,,Q37A
+q37b,INT64,Q37b. Trust parliament/national assembly,,yes,,,no,,Q37B
+q37c,INT64,Q37c. Trust national electoral commission,,yes,,,no,,Q37C
+q37d,INT64,Q37d. Trust your elected local government council,,yes,,,no,,Q37D
+q37e,INT64,Q37e. Trust the ruling party,,yes,,,no,,Q37E
+q37f,INT64,Q37f. Trust opposition political parties,,yes,,,no,,Q37F
+q37g,INT64,Q37g. Trust police,,yes,,,no,,Q37G
+q37h,INT64,Q37h. Trust army,,yes,,,no,,Q37H
+q37i,INT64,Q37i. Trust courts of law,,yes,,,no,,Q37I
+q37j,INT64,Q37j. Trust traditional leaders,,yes,,,no,,Q37J
+q37k,INT64,Q37k. Trust religious leaders,,yes,,,no,,Q37K
+q38a,INT64,Q38a. Corruption: office of the Presidency,,yes,,,no,,Q38A
+q38b,INT64,Q38b. Corruption: members of Parliament,,yes,,,no,,Q38B
+q38c,INT64,Q38c. Corruption: civil servants,,yes,,,no,,Q38C
+q38d,INT64,Q38d. Corruption: local government councillors,,yes,,,no,,Q38D
+q38e,INT64,Q38e. Corruption: police,,yes,,,no,,Q38E
+q38f,INT64,Q38f. Corruption: judges and magistrates,,yes,,,no,,Q38F
+q38g,INT64,Q38g. Corruption: tax officials,,yes,,,no,,Q38G
+q38h,INT64,Q38h. Corruption: traditional leaders,,yes,,,no,,Q38H
+q38i,INT64,Q38i. Corruption: religious leaders,,yes,,,no,,Q38I
+q38j,INT64,Q38j. Corruption: business executives,,yes,,,no,,Q38J
+q38k,INT64,Q38k. Corruption: non-governmental organizations,,yes,,,no,,Q38K
+q39a,INT64,Q39a. Level of corruption,,yes,,,no,,Q39A
+q39b,INT64,Q39b. Ordinary people can report corruption without fear,,yes,,,no,,Q39B
+q40a,INT64,Q40a. Contact with public school,,yes,,,no,,Q40A
+q40b,INT64,Q40b. Difficulty to obtain public school services,,yes,,,no,,Q40B
+q40c,INT64,Q40c. Pay bribe for public school services,,yes,,,no,,Q40C
+q40d,INT64,"Q40d. Felt respected by teachers, school officials",,yes,,,no,,Q40D
+q41a,INT64,Q41a. Contact with public clinic or hospital,,yes,,,no,,Q41A
+q41b,INT64,Q41b. Difficulty to obtain medical care,,yes,,,no,,Q41B
+q41c,INT64,Q41c. Pay bribe for medical care,,yes,,,no,,Q41C
+q41d,INT64,Q41d. Felt respected by clinic/hospital staff,,yes,,,no,,Q41D
+q41e,INT64,Q41e. Problems with public clinic: lack of medicine/supplies,,yes,,,no,,Q41E
+q41f,INT64,Q41f. Problems with public clinic: medical personnel,,yes,,,no,,Q41F
+q41g,INT64,Q41g. Problems with public clinic: long waiting time,,yes,,,no,,Q41G
+q41h,INT64,Q41h. Problems with public clinic: poor condition of facilities,,yes,,,no,,Q41H
+q42a,INT64,Q42a. Tried to obtain identity document,,yes,,,no,,Q42A
+q42b,INT64,Q42b. Difficulty to obtain identity document,,yes,,,no,,Q42B
+q42c,INT64,Q42c. Pay bribe for identity document,,yes,,,no,,Q42C
+q42d,INT64,Q42d. Felt respected by govt officials when obtaining documents,,yes,,,no,,Q42D
+q43a,INT64,Q43a. Requested assistance from the police,,yes,,,no,,Q43A
+q43b,INT64,Q43b. Difficulty to obtain police assistance,,yes,,,no,,Q43B
+q43c,INT64,Q43c. Pay bribe to receive police assistance,,yes,,,no,,Q43C
+q43d,INT64,Q43d. Contact with police in other situations,,yes,,,no,,Q43D
+q43e,INT64,Q43e. Pay bribe to avoid problem with police,,yes,,,no,,Q43E
+q44a,INT64,Q44a: How often: police professional and respect rights,,yes,,,no,,Q44A
+q44b,INT64,Q44b: How often: police unnecessarily stop drivers,,yes,,,no,,Q44B
+q44c,INT64,Q44c: How often: police use excessive force during protests,,yes,,,no,,Q44C
+q44d,INT64,Q44d: How often: police use excessive force with criminals,,yes,,,no,,Q44D
+q44e,INT64,Q44e: How often: police engage in criminal activities,,yes,,,no,,Q44E
+q45pt1,INT64,Q45pt1. Most important problems - 1st response,,yes,,,no,,Q45PT1
+q45pt1other,STRING,Q45pt1other. MIP - 1st response (verbatim other),,no,,,no,,Q45PT1OTHER
+q45pt2,INT64,Q45pt2. Most important problems - 2nd response,,yes,,,no,,Q45PT2
+q45pt2other,STRING,Q45pt2other. MIP - 2nd response (verbatim other),,no,,,no,,Q45PT2OTHER
+q45pt3,INT64,Q45pt3. Most important problems - 3rd response,,yes,,,no,,Q45PT3
+q45pt3other,STRING,Q45pt3other. MIP - 3rd response (verbatim other),,no,,,no,,Q45PT3OTHER
+q46a,INT64,Q46a. Handling managing the economy,,yes,,,no,,Q46A
+q46b,INT64,Q46b. Handling improving living standards of the poor,,yes,,,no,,Q46B
+q46c,INT64,Q46c. Handling creating jobs,,yes,,,no,,Q46C
+q46d,INT64,Q46d. Handling keeping prices stable,,yes,,,no,,Q46D
+q46e,INT64,Q46e. Handling narrowing income gaps,,yes,,,no,,Q46E
+q46f,INT64,Q46f. Handling reducing crime,,yes,,,no,,Q46F
+q46g,INT64,Q46g. Handling improving basic health services,,yes,,,no,,Q46G
+q46h,INT64,Q46h. Handling addressing educational needs,,yes,,,no,,Q46H
+q46i,INT64,Q46i. Handling providing water and sanitation services,,yes,,,no,,Q46I
+q46j,INT64,Q46j. Handling fighting corruption,,yes,,,no,,Q46J
+q46k,INT64,Q46k. Handling maintaining roads and bridges,,yes,,,no,,Q46K
+q46l,INT64,Q46l. Handling providing a reliable supply of electricity,,yes,,,no,,Q46L
+q46m,INT64,Q46m. Handling preventing or resolving violent conflict,,yes,,,no,,Q46M
+q46n,INT64,Q46n. Handling promoting equal rights/opportunities for women,,yes,,,no,,Q46N
+q46o,INT64,Q46o. Handling protecting vulnerable children,,yes,,,no,,Q46O
+q46p,INT64,Q46p. Handling addressing climate change,,yes,,,no,,Q46P
+q46q,INT64,Q46q. Handling protecting environment,,yes,,,no,,Q46Q
+q47a,INT64,Q47a. Performance: president,,yes,,,no,,Q47A
+q47b,INT64,Q47b. Performance: MP/National Assembly rep,,yes,,,no,,Q47B
+q47c,INT64,Q47c. Performance: local government councillor,,yes,,,no,,Q47C
+q48a,INT64,Q48a. Who responsible: MPs do jobs,,yes,,,no,,Q48A
+q48b,INT64,Q48b. Who responsible: president does job,,yes,,,no,,Q48B
+q49a,INT64,Q49a. Women and men have equal chance of paying job,,yes,,,no,,Q49A
+q49b,INT64,Q49b. Women and men have equal chance to own/inherit land,,yes,,,no,,Q49B
+q50a,INT64,Q50a. Women who run for office: gain standing,,yes,,,no,,Q50A
+q50b,INT64,Q50b. Women who run for office: criticized or harrassed,,yes,,,no,,Q50B
+q50c,INT64,Q50c. Women who run for office: face family problems,,yes,,,no,,Q50C
+q51a,INT64,Q51a. Government do more or less for women's rights/equality,,yes,,,no,,Q51A
+q51b,INT64,Q51b. Most important women's rights issue,,yes,,,no,,Q51B
+q52a,INT64,Q52a. Justified for parents to physically discipline children,,yes,,,no,,Q52A
+q52b,INT64,Q52b. Justified for man to use physical discipline on wife,,yes,,,no,,Q52B
+q53a,INT64,Q53a. How common is violence against women,,yes,,,no,,Q53A
+q53b,INT64,Q53b. Women who report GBV: taken seriously by police,,yes,,,no,,Q53B
+q53c,INT64,Q53c. Women who report GBV: criticized or harassed,,yes,,,no,,Q53C
+q54,INT64,Q54. Domestic violence a private matter vs criminal matter,,yes,,,no,,Q54
+q55a,INT64,Q55a. How often: adults use physical discipline with children,,yes,,,no,,Q55A
+q55b,INT64,"Q55b. How often: children abused, neglected",,yes,,,no,,Q55B
+q55c,INT64,Q55c. How often: children not in school,,yes,,,no,,Q55C
+q56a,INT64,Q56a. Help available for abused or neglected children,,yes,,,no,,Q56A
+q56b,INT64,Q56b. Help available for disabled children,,yes,,,no,,Q56B
+q56c,INT64,Q56c. Help available for children/adults with mental/emotional problems,,yes,,,no,,Q56C
+q57a,INT64,Q57a. Became ill or tested positive with COVID-19,,yes,,,no,,Q57A
+q57b,INT64,Q57b. Lost income because of COVID-19,,yes,,,no,,Q57B
+q58a,INT64,Q58a. Received COVID-19 vaccination,,yes,,,no,,Q58A
+q58b,INT64,Q58b. Likelihood of getting COVID-19 vaccination,,yes,,,no,,Q58B
+q58c,INT64,Q58c. Main reason unlikely to vaccinate,,yes,,,no,,Q58C
+q59,INT64,Q59. Trust govt to ensure safety of COVID-19 vaccine,,yes,,,no,,Q59
+q60,INT64,Q60. Handling managing COVID-19 response,,yes,,,no,,Q60
+q61a,INT64,Q61a. Satisfaction with government: provision of relief,,yes,,,no,,Q61A
+q61b,INT64,Q61b.Satisfaction with government: minimizing education disruptions,,yes,,,no,,Q61B
+q61c,INT64,Q61c. Satisfaction with government: resourcing health facilities,,yes,,,no,,Q61C
+q62,INT64,Q62. Level of COVID-19 corruption,,yes,,,no,,Q62
+q63a,INT64,Q63a. Censor media during pandemic,,yes,,,no,,Q63A
+q63b,INT64,Q63b. Armed forces/police enforce public health mandates,,yes,,,no,,Q63B
+q63c,INT64,Q63c. Postpone elections during pandemic,,yes,,,no,,Q63C
+q64a,INT64,Q64a. Government preparedness for future health emergencies,,yes,,,no,,Q64A
+q64b,INT64,Q64b. More investment for health emergencies,,yes,,,no,,Q64B
+q65a,INT64,Q65a. Received COVID-19 relief assistance,,yes,,,no,,Q65A
+q65b,INT64,Q65b. COVID-19 relief assistance fairly distributed,,yes,,,no,,Q65B
+q66a,INT64,Q66a. Severity of droughts,,yes,,,no,,Q66A
+q66b,INT64,Q66b. Severity of flooding,,yes,,,no,,Q66B
+q67a,INT64,Q67a. Heard about climate change,,yes,,,no,,Q67A
+q67b,INT64,Q67b. Climate change: affecting country,,yes,,,no,,Q67B
+q68a,INT64,Q68a. Citizens can help limit climate change,,yes,,,no,,Q68A
+q68b,INT64,Q68b. Govt must act now to limit climate change,,yes,,,no,,Q68B
+q69,INT64,Q69. Who primarily responsible for limiting climate change,,yes,,,no,,Q69
+q70a,INT64,Q70a. Do more to fight climate change: ordinary citizens,,yes,,,no,,Q70A
+q70b,INT64,Q70b. Do more to fight climate change: business and industry,,yes,,,no,,Q70B
+q70c,INT64,Q70c. Do more to fight climate change: government,,yes,,,no,,Q70C
+q70d,INT64,Q70d. Do more to fight climate change: developed countries,,yes,,,no,,Q70D
+q71,INT64,Q71. Government create jobs vs protect environment,,yes,,,no,,Q71
+q72a,INT64,Q72a. Pollution a problem in community,,yes,,,no,,Q72A
+q72b,INT64,Q72b. Most important environmental issue in community,,yes,,,no,,Q72B
+q72c,INT64,Q72c. Plastic bags major source of pollution,,yes,,,no,,Q72C
+q72d,INT64,Q72d. Primary responsibility for reducing pollution,,yes,,,no,,Q72D
+q72e,INT64,Q72e. Government do more or less to limit pollution,,yes,,,no,,Q72E
+q73a,INT64,Q73a. Natural resource extraction: needs more regulation,,yes,,,no,,Q73A
+q73b,INT64,Q73b. Natural resource extraction: citizens have voice,,yes,,,no,,Q73B
+q73c,INT64,Q73c. Natural resource extraction: community receives fair share,,yes,,,no,,Q73C
+q73d,INT64,Q73d. Natural resource extraction: benefits outweigh costs,,yes,,,no,,Q73D
+q74a,INT64,Q74a. Radio news,,yes,,,no,,Q74A
+q74b,INT64,Q74b. Television news,,yes,,,no,,Q74B
+q74c,INT64,Q74c. Newspaper news,,yes,,,no,,Q74C
+q74d,INT64,Q74d. Internet news,,yes,,,no,,Q74D
+q74e,INT64,Q74e. Social media news,,yes,,,no,,Q74E
+q75,INT64,Q75. Government information for official use only,,yes,,,no,,Q75
+q76a,INT64,Q76a. Make local government budgets public,,yes,,,no,,Q76A
+q76b,INT64,Q76b. Make local government bids and contracts public,,yes,,,no,,Q76B
+q76c,INT64,Q76c. Make salaries of local government officials and teachers public,,yes,,,no,,Q76C
+q77,INT64,Q77. China's influence on economy,,yes,,,no,,Q77
+q78a,INT64,Q78a. Influence of country: China,,yes,,,no,,Q78A
+q78b,INT64,Q78b. Influence of country: United States,,yes,,,no,,Q78B
+q78c,INT64,Q78c. Influence of country: Japan,,yes,,,no,,Q78C
+q78c1,INT64,Q78c1. Influence of country: Russia,,yes,,,no,,Q78C1
+q78d,INT64,Q78d. Know if country receives assistance from Japan,,yes,,,no,,Q78D
+q78e,INT64,Q78e. Japan puts more or less conditions on assistance,,yes,,,no,,Q78E
+q78f,INT64,Q78f. Q78f. Influence of the EU,,yes,,,no,,Q78F
+q84a,INT64,"Q84a. Ethnic community, cultural group or tribe",,yes,,,no,,Q84A
+q84aother,STRING,"Q84aother. Ethnic community, cultural group or tribe (verbatim)",,no,,,no,,Q84AOTHER
+q84b,INT64,Q84b. Ethnic group treated unfairly by government,,yes,,,no,,Q84B
+q84c,INT64,Q84c. Ethnic or national identity,,yes,,,no,,Q84C
+q84d,INT64,Q84d. Same ethnic group as mother,,yes,,,no,,Q84D
+q84e,INT64,Q84e. Same ethnic group as father,,yes,,,no,,Q84E
+q85a,INT64,Q85a. Strong ties with other citizens,,yes,,,no,,Q85A
+q85b,INT64,Q85b. Children belong more to mother's or father's side,,yes,,,no,,Q85B
+q86a,INT64,Q86a. Trust other citizens,,yes,,,no,,Q86A
+q86b,INT64,Q86b. Trust relatives,,yes,,,no,,Q86B
+q86c,INT64,Q86c. Trust neighbours,,yes,,,no,,Q86C
+q86d,INT64,Q86d. Trust other people you know,,yes,,,no,,Q86D
+q86e,INT64,Q86e. Trust people from other religions,,yes,,,no,,Q86E
+q86f,INT64,Q86f. Trust people from other ethnic groups,,yes,,,no,,Q86F
+q87a,INT64,Q87a. Neighbours: people of different religion,,yes,,,no,,Q87A
+q87b,INT64,Q87b. Neighbours: people of different ethnicity,,yes,,,no,,Q87B
+q87c,INT64,Q87c. Neighbours: homosexuals,,yes,,,no,,Q87C
+q87d,INT64,Q87d. Neighbours: immigrants and foreign workers,,yes,,,no,,Q87D
+q87e,INT64,Q87e. Neighbours: people who support a different political party,,yes,,,no,,Q87E
+q88a,INT64,Q88a. Ok for family member to marry from different ethnic group,,yes,,,no,,Q88A
+q88b,INT64,Q88b. Others see respondent as citizen like them,,yes,,,no,,Q88B
+q89a,INT64,Q89a. Close to political party,,yes,,,no,,Q89A
+q89b,INT64,Q89b. Which party,,yes,,,no,,Q89B
+q89bother,STRING,Q89bother. Which party (verbatim),,no,,,no,,Q89BOTHER
+q90a,INT64,Q90a. Own radio,,yes,,,no,,Q90A
+q90b,INT64,Q90b. Own television,,yes,,,no,,Q90B
+q90c,INT64,"Q90c. Own motor vehicle, car or motorcycle",,yes,,,no,,Q90C
+q90d,INT64,Q90d. Own computer,,yes,,,no,,Q90D
+q90e,INT64,Q90e. Own bank account,,yes,,,no,,Q90E
+q90f,INT64,Q90f. Own mobile phone,,yes,,,no,,Q90F
+q90g,INT64,Q90g. Mobile phone access to Internet,,yes,,,no,,Q90G
+q90h,INT64,Q90h. How often use a mobile phone,,yes,,,no,,Q90H
+q90i,INT64,Q90i. How often use the Internet,,yes,,,no,,Q90I
+q91a,INT64,Q91a. Source of water for household use,,yes,,,no,,Q91A
+q91b,INT64,Q91b. Location of main water source,,yes,,,no,,Q91B
+q91c,INT64,Q91c. Location of toilet or latrine,,yes,,,no,,Q91C
+q92a,INT64,Q92a. Electric connection from mains,,yes,,,no,,Q92A
+q92b,INT64,Q92b. Electricity available from mains,,yes,,,no,,Q92B
+q93a,INT64,Q93a. Employment status,,yes,,,no,,Q93A
+q93b,INT64,Q93b. Occupation of respondent,,yes,,,no,,Q93B
+q93bother,STRING,Q93bother. Occupation of respondent (verbatim),,no,,,no,,Q93BOTHER
+q93c,INT64,Q93c. Who decides how money is used,,yes,,,no,,Q93C
+q94,INT64,Q94. Education of respondent,,yes,,,no,,Q94
+q95,INT64,Q95. Religion of respondent,,yes,,,no,,Q95
+q95other,STRING,Q95other. Religion of respondent (verbatim),,no,,,no,,Q95OTHER
+q96,INT64,Q96. Vote for which party,,yes,,,no,,Q96
+q96other,STRING,Q96other. Vote for which party (verbatim),,no,,,no,,Q96OTHER
+q97,INT64,Q97. Perceived survey sponsor,,yes,,,no,,Q97
+q98a,INT64,Q98a. Willing to participate in follow-up surveys,,yes,,,no,,Q98A
+q99,STRING,Q99. Respondent message for government,,no,,,no,,Q99
+endtime,STRING,Time interview ended,,no,,,no,,ENDTIME
+length,FLOAT64,Length of interview,,no,,,no,,LENGTH
+length_int,INT64,Interview length calculated excluding break,,yes,,,no,,LENGTH_INT
+q100,INT64,Q100.  Gender of respondent,,yes,,,no,,Q100
+q101,INT64,Q101.  Race of respondent,,yes,,,no,,Q101
+q101other,STRING,Q101other.  Race of respondent (verbatim),,no,,,no,,Q101OTHER
+q102,INT64,Q102. Language of interview,,yes,,,no,,Q102
+q102other,STRING,Q102other. Language of interview (verbatim),,no,,,no,,Q102OTHER
+q103,INT64,Q103. Type of shelter of respondent,,yes,,,no,,Q103
+q104,INT64,Q104. Roof of respondent’s home,,yes,,,no,,Q104
+q105,INT64,Q105. Others present,,yes,,,no,,Q105
+q106a,INT64,Q106a. Check with others,,yes,,,no,,Q106A
+q106b,INT64,Q106b. Influence by others,,yes,,,no,,Q106B
+q106c,INT64,Q106c. Approached by community/party representatives,,yes,,,no,,Q106C
+q106d,INT64,Q106d. Feel threatened,,yes,,,no,,Q106D
+q106e,INT64,Q106e. Physically threatened,,yes,,,no,,Q106E
+q107,INT64,Q107. Proportion difficulty answering,,yes,,,no,,Q107
+q109a,INT64,Q109a. Respondent friendly,,yes,,,no,,Q109A
+q109b,INT64,Q109b. Respondent interested,,yes,,,no,,Q109B
+q109c,INT64,Q109c. Respondent cooperative,,yes,,,no,,Q109C
+q109d,INT64,Q109d. Respondent patient,,yes,,,no,,Q109D
+q109e,INT64,Q109e. Respondent at ease,,yes,,,no,,Q109E
+q109f,INT64,Q109f. Respondent honest,,yes,,,no,,Q109F
+q111,STRING,Q111. Interviewer Number,,no,,,no,,Q111
+q112,INT64,Q112. Interviewer’s age,,no,,,no,,Q112
+q113,INT64,Q113. Interviewer’s gender,,yes,,,no,,Q113
+q114,INT64,Q114. Interviewer rural or urban,,yes,,,no,,Q114
+q115,INT64,Q115. Interviewer's home language,,yes,,,no,,Q115
+q115other,STRING,Q115other. Interviewer's home language (verbatim),,no,,,no,,Q115OTHER
+q116,INT64,Q116. Interviewer's ethnic group or tribe,,yes,,,no,,Q116
+q116other,STRING,Q116other. Interviewer's ethnic group or tribe (verbatim),,no,,,no,,Q116OTHER
+q117,INT64,Q117. Interviewer's education,,yes,,,no,,Q117
+q118_1,INT64,Q118. Other spoken languages_first,,yes,,,no,,Q118_1
+q118_2,INT64,Q118. Other spoken languages_second,,yes,,,no,,Q118_2
+q118_3,INT64,Q118. Other spoken languages_third,,yes,,,no,,Q118_3
+q118_4,INT64,Q118. Other spoken languages_fourth,,yes,,,no,,Q118_4
+q118_5,INT64,Q118. Other spoken languages_fifth,,yes,,,no,,Q118_5
+q118_6,INT64,Q118. Other spoken languages_sixth,,yes,,,no,,Q118_6
+q118_7,INT64,Q118. Other spoken languages_seventh,,yes,,,no,,Q118_7
+q118_8,INT64,Q118. Other spoken languages_eighth,,yes,,,no,,Q118_8
+q118_9,INT64,Q118. Other spoken languages_ninth,,yes,,,no,,Q118_9
+q118_10,INT64,Q118. Other spoken languages_tenth,,yes,,,no,,Q118_10
+q118_11,INT64,Q118. Other spoken languages_eleventh,,yes,,,no,,Q118_11
+q118other,STRING,Q118other. Other spoken languages (verbatim),,no,,,no,,Q118OTHER
+q119,INT64,Q119. Interviewer’s comment,,yes,,,no,,Q119
+q119v,STRING,Q119v. Interviewer’s comment (verbatim),,no,,,no,,Q119v
+q120,INT64,Q120. Supervisor’s comment,,yes,,,no,,Q120
+q120v,STRING,Q122v. Supervisor comment (verbatim),,no,,,no,,Q120v
+withinwt_ea,FLOAT64,"within country weighting factor, weights to EA level (""old AB withinwt"")",,no,,,no,,withinwt_ea
+withinwt_hh,FLOAT64,"within country weighting factor, weights to HH level (""new AB withinwt"")",,no,,,no,,withinwt_hh
+combinwt_old_ea,FLOAT64,"Multi-country weighting factor (old, ea-level)",,no,,,no,,Combinwt_old_ea
+combinwt_new_hh,FLOAT64,"Multi-country weighting factor (new, hh-level)",,no,,,no,,Combinwt_new_hh
+educ_cond,INT64,Education,,yes,,,no,,EDUC_COND
+relig_cond,INT64,Religion,,yes,,,no,,RELIG_COND
+livedpoverty,FLOAT64,Lived Poverty Index (average index of 5 poverty items),,no,,,no,,LivedPoverty
+livedpoverty_cat,INT64,LPI_Categorical,,yes,,,no,,LivedPoverty_CAT
+demanddemo,INT64,"Demand for Democracy (additive index of 4 democratic commitments: support (1,2=0)(3=1)(else=sysmis) + reject (5,4,3,9=0)(2,1=1)(else=sysmis)",,yes,,,no,,DemandDemo
+supplydemo,INT64,"Supply of Democracy (additive index of 2 items: satisfaction (0,1,2,9=0)(3,4=1)(else=sysmis) + extent (1,2,8,9=0)(3,4=1)(else=sysmis)",,yes,,,no,,SupplyDemo
+age_v1,INT64,Age_cond.v1 youth 18-25 / 26-35 / 36-45 / 46-55 / 56-65 / 66 and over,,yes,,,no,,AGE_v1
+age_v1_1,INT64,Age_cond.v1.1 youth 18-25 / 26-35 / 36-45 / 46-55 / 56 and over,,yes,,,no,,AGE_v1.1
+age_v2_un,INT64,Age_cond.v2  UN youth 18-24 / 25-34 / 35-44 / 45-54 / 55-64 / 65 and over,,yes,,,no,,AGE_v2_UN
+age_v2_1_un,INT64,Age_cond.v2.1 UN youth 18-24 / 25-34 / 35-44 / 45-54 / 55 and over,,yes,,,no,,AGE_v2.1_UN
+age_v3_au,INT64,Age_cond.v3 AU youth 18-35 / 36-45 / 46-55 / 56 and over,,yes,,,no,,AGE_v3_AU
+age_v4,INT64,Age_cond.v4 youth 18-30 / 31-40 / 41-50 / 51-60 / 61 and over,,yes,,,no,,AGE_v4
+age_v5,INT64,Age_cond.v5 youth 18-30 / 31-45 / 46-60 / 61 and over,,yes,,,no,,AGE_v5
+age_v6,INT64,Age_cond.v6 youth 18-35 / 36-55 / 56 and over,,yes,,,no,,AGE_v6
+r1_only,INT64,12 countries included in R1 to R9,,no,,,no,,R1.only
+r2_only,INT64,16 countries included in R2 to R9,,no,,,no,,R2.only
+r3_only,INT64,17 countries included in R3 to R9,,no,,,no,,R3.only
+r4_only,INT64,19 countries included in R4 to R9,,no,,,no,,R4.only
+r5_only,INT64,30 countries included in R5 to R9,,no,,,no,,R5.only
+r6_only,INT64,31 countries included in R6 to R9,,no,,,no,,R6.only
+r7_only,INT64,32 countries included in R7 to R9,,no,,,no,,R7.only
+r8_only,INT64,34 countries included in R8 to R9,,no,,,no,,R8.only
