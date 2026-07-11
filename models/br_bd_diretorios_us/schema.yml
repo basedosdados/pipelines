@@ -20,6 +20,10 @@ models:
         description: Nome do estado
       - name: id_gnis
         description: Código GNIS do estado
+      - name: id_census
+        description: Código do estado no Census Bureau
+      - name: id_icpsr
+        description: Código do estado no ICPSR
       - name: id_region
         description: Código da região do Census Bureau
       - name: name_region
