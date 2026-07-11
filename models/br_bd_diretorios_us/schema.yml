@@ -467,3 +467,143 @@ models:
         description: Código da ocupação ampla
       - name: name_broad_occupation
         description: Nome da ocupação ampla
+  - name: br_bd_diretorios_us__census_industry_2002
+    description: >
+      Diretório da classificação de indústria do Census dos EUA, revisão de 2002,
+      usada em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados
+      de indústria de 2002 de quatro dígitos e o código NAICS correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_industry]
+    columns:
+      - name: id_census_industry
+        description: Código de indústria do Census de 2002 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da indústria
+      - name: id_naics
+        description: >
+          Código(s) NAICS correspondente(s); pode conter intervalos, múltiplos códigos
+          ou correspondências parciais conforme publicado pelo Census
+  - name: br_bd_diretorios_us__census_industry_2007
+    description: >
+      Diretório da classificação de indústria do Census dos EUA, revisão de 2007,
+      usada em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados
+      de indústria de 2007 de quatro dígitos e o código NAICS correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_industry]
+    columns:
+      - name: id_census_industry
+        description: Código de indústria do Census de 2007 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da indústria
+      - name: id_naics
+        description: >
+          Código(s) NAICS correspondente(s); pode conter intervalos, múltiplos códigos
+          ou correspondências parciais conforme publicado pelo Census
+  - name: br_bd_diretorios_us__census_industry_2012
+    description: >
+      Diretório da classificação de indústria do Census dos EUA, revisão de 2012,
+      usada em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados
+      de indústria de 2012 de quatro dígitos e o código NAICS correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_industry]
+    columns:
+      - name: id_census_industry
+        description: Código de indústria do Census de 2012 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da indústria
+      - name: id_naics
+        description: >
+          Código(s) NAICS correspondente(s); pode conter intervalos, múltiplos códigos
+          ou correspondências parciais conforme publicado pelo Census
+  - name: br_bd_diretorios_us__census_industry_2017
+    description: >
+      Diretório da classificação de indústria do Census dos EUA, revisão de 2017,
+      usada em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados
+      de indústria de 2017 de quatro dígitos e o código NAICS correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_industry]
+    columns:
+      - name: id_census_industry
+        description: Código de indústria do Census de 2017 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da indústria
+      - name: id_naics
+        description: >
+          Código(s) NAICS correspondente(s); pode conter intervalos, múltiplos códigos
+          ou correspondências parciais conforme publicado pelo Census
+  - name: br_bd_diretorios_us__census_occupation_2002
+    description: >
+      Diretório da classificação ocupacional do Census dos EUA, revisão de 2002, usada
+      em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados de
+      ocupação de 2002 de quatro dígitos e o código SOC correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_occupation]
+    columns:
+      - name: id_census_occupation
+        description: Código de ocupação do Census de 2002 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da ocupação
+      - name: id_soc
+        description: >
+          Código SOC correspondente; pode conter intervalos ou múltiplos códigos conforme
+          publicado pelo Census
+  - name: br_bd_diretorios_us__census_occupation_2010
+    description: >
+      Diretório da classificação ocupacional do Census dos EUA, revisão de 2010, usada
+      em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados de
+      ocupação de 2010 de quatro dígitos e o código SOC correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_occupation]
+    columns:
+      - name: id_census_occupation
+        description: Código de ocupação do Census de 2010 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da ocupação
+      - name: id_soc
+        description: >
+          Código SOC correspondente; pode conter intervalos ou múltiplos códigos conforme
+          publicado pelo Census
+  - name: br_bd_diretorios_us__census_occupation_2018
+    description: >
+      Diretório da classificação ocupacional do Census dos EUA, revisão de 2018, usada
+      em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados de
+      ocupação de 2018 de quatro dígitos e o código SOC correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_occupation]
+    columns:
+      - name: id_census_occupation
+        description: Código de ocupação do Census de 2018 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da ocupação
+      - name: id_soc
+        description: >-
+          Código SOC correspondente; pode conter intervalos ou múltiplos códigos conforme
+          publicado pelo Census
