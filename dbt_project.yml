@@ -37,6 +37,9 @@ models:
     columns: true
   basedosdados:
     # Config indicated by + and applies to all files under models/example/
+    af_afrobarometer_survey:
+      +materialized: table
+      +schema: af_afrobarometer_survey
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
