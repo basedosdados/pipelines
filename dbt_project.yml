@@ -88,6 +88,9 @@ models:
     br_bd_diretorios_us:
       +materialized: table
       +schema: br_bd_diretorios_us
+    us_bls_atus:
+      +materialized: table
+      +schema: us_bls_atus
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
