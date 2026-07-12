@@ -8,6 +8,8 @@ models:
           combination_of_columns: [ano, localizacao, rede]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+      - education_flow_rates_sum_to_100:
+          tolerance: 0.2
     columns:
       - name: ano
         description: Ano
@@ -1088,6 +1090,8 @@ models:
           combination_of_columns: [ano, localizacao, rede, id_municipio]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+      - education_flow_rates_sum_to_100:
+          tolerance: 0.2
     columns:
       - name: ano
         description: Ano
@@ -2338,6 +2342,8 @@ models:
           combination_of_columns: [ano, sigla_uf, localizacao, rede]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+      - education_flow_rates_sum_to_100:
+          tolerance: 0.2
     columns:
       - name: ano
         description: Ano
