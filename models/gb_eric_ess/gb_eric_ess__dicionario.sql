@@ -1,6 +1,6 @@
 {{
     config(
-        schema="eu_ess",
+        schema="gb_eric_ess",
         alias="dicionario",
         materialized="table",
     )
@@ -13,4 +13,4 @@ select
     safe_cast(chave as string) chave,
     safe_cast(cobertura_temporal as string) cobertura_temporal,
     safe_cast(valor as string) valor
-from {{ set_datalake_project("eu_ess_staging.dicionario") }} as t
+from {{ set_datalake_project("gb_eric_ess_staging.dicionario") }} as t

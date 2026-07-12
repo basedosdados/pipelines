@@ -5,7 +5,7 @@
   frozen; only genuinely new mnemonics get a deterministic base_name(), resolving
   each from the most recent round it appears in (rounds processed newest-first).
 - r11_attr.json: {mnemonic: [bq_type, covered_by_dictionary, directory_column]} taken
-  from the approved R11 architecture (eu_ess__round_11.tsv), so a variable's
+  from the approved R11 architecture (gb_eric_ess__round_11.tsv), so a variable's
   type/dict/dir stays consistent with the approved R11 in every round it appears."""
 
 import collections
@@ -71,7 +71,7 @@ for r in avail:
 _dump_json(names, "glossary_names.json")
 
 # final approved R11 attributes, keyed by mnemonic (original_name)
-r11_rows = _read_tsv("eu_ess__round_11.tsv")
+r11_rows = _read_tsv("gb_eric_ess__round_11.tsv")
 r11attr = {}
 for row in r11_rows:
     on = row["original_name"]

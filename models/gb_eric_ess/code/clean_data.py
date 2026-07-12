@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Clean the ESS integrated Stata files into partitioned Parquet for eu_ess.
+"""Clean the ESS integrated Stata files into partitioned Parquet for gb_eric_ess.
 
 One wide table per round (design B). The architecture CSV for each round is the
 source of truth for output column order, names, and BigQuery types; this script
@@ -16,8 +16,8 @@ Output: output/round_<NN>/year=<YYYY>/data.parquet (snappy, explicit schema).
 `year` is the hive partition key and is NOT stored in the parquet payload.
 
 Usage:
-    uv run python models/eu_ess/code/clean_data.py            # all rounds present in input/
-    uv run python models/eu_ess/code/clean_data.py 1 2 7      # subset
+    uv run python models/gb_eric_ess/code/clean_data.py            # all rounds present in input/
+    uv run python models/gb_eric_ess/code/clean_data.py 1 2 7      # subset
 """
 
 import csv
@@ -61,7 +61,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%H:%M:%S",
 )
-log = logging.getLogger("eu_ess")
+log = logging.getLogger("gb_eric_ess")
 
 
 def read_architecture(round_n):

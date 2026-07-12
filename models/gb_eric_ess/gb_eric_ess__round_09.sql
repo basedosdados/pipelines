@@ -1,12 +1,12 @@
 {{
     config(
-        schema="eu_ess",
-        alias="round_08",
+        schema="gb_eric_ess",
+        alias="round_09",
         materialized="table",
         partition_by={
             "field": "year",
             "data_type": "int64",
-            "range": {"start": 2016, "end": 2021, "interval": 1},
+            "range": {"start": 2018, "end": 2023, "interval": 1},
         },
         cluster_by=["country_id"],
     )
@@ -38,30 +38,35 @@ select
         political_system_allows_influence as string
     ) political_system_allows_influence,
     safe_cast(confident_participate_politics as string) confident_participate_politics,
+    safe_cast(trust_parliament as int64) trust_parliament,
     safe_cast(trust_legal_system as int64) trust_legal_system,
     safe_cast(trust_police as int64) trust_police,
     safe_cast(trust_politicians as int64) trust_politicians,
+    safe_cast(trust_political_parties as int64) trust_political_parties,
     safe_cast(trust_european_parliament as int64) trust_european_parliament,
     safe_cast(trust_united_nations as int64) trust_united_nations,
-    safe_cast(trust_political_parties as int64) trust_political_parties,
-    safe_cast(trust_parliament as int64) trust_parliament,
     safe_cast(voted_last_national_election as string) voted_last_national_election,
-    safe_cast(party_voted_austria_3 as string) party_voted_austria_3,
-    safe_cast(party_voted_belgium_3 as string) party_voted_belgium_3,
-    safe_cast(party_voted_switzerland_3 as string) party_voted_switzerland_3,
-    safe_cast(party_voted_czechia_2 as string) party_voted_czechia_2,
+    safe_cast(party_voted_austria_2 as string) party_voted_austria_2,
+    safe_cast(party_voted_belgium_2 as string) party_voted_belgium_2,
+    safe_cast(party_voted_bulgaria_7 as string) party_voted_bulgaria_7,
+    safe_cast(party_voted_switzerland_2 as string) party_voted_switzerland_2,
+    safe_cast(party_voted_cyprus_2 as string) party_voted_cyprus_2,
+    safe_cast(party_voted_czechia as string) party_voted_czechia,
     safe_cast(party_voted_1_germany_2 as string) party_voted_1_germany_2,
     safe_cast(party_voted_2_germany_2 as string) party_voted_2_germany_2,
-    safe_cast(party_voted_estonia_3 as string) party_voted_estonia_3,
-    safe_cast(party_voted_spain_3 as string) party_voted_spain_3,
+    safe_cast(party_voted_denmark as string) party_voted_denmark,
+    safe_cast(party_voted_estonia_2 as string) party_voted_estonia_2,
+    safe_cast(party_voted_spain_2 as string) party_voted_spain_2,
     safe_cast(party_voted_finland_3 as string) party_voted_finland_3,
-    safe_cast(party_voted_france_ballot_1_4 as string) party_voted_france_ballot_1_4,
-    safe_cast(party_voted_united_kingdom_3 as string) party_voted_united_kingdom_3,
-    safe_cast(party_voted_hungary_4 as string) party_voted_hungary_4,
-    safe_cast(party_voted_ireland as string) party_voted_ireland,
-    safe_cast(party_voted_israel_2 as string) party_voted_israel_2,
-    safe_cast(party_voted_iceland_4 as string) party_voted_iceland_4,
-    safe_cast(party_voted_italy_3 as string) party_voted_italy_3,
+    safe_cast(party_voted_france_ballot_1_3 as string) party_voted_france_ballot_1_3,
+    safe_cast(party_voted_united_kingdom_2 as string) party_voted_united_kingdom_2,
+    safe_cast(party_voted_croatia_3 as string) party_voted_croatia_3,
+    safe_cast(party_voted_hungary_3 as string) party_voted_hungary_3,
+    safe_cast(
+        party_voted_ireland_derived_from_1st_3 as string
+    ) party_voted_ireland_derived_from_1st_3,
+    safe_cast(party_voted_iceland_3 as string) party_voted_iceland_3,
+    safe_cast(party_voted_italy_6 as string) party_voted_italy_6,
     safe_cast(
         party_voted_1_lithuania_first_vote_party_2 as string
     ) party_voted_1_lithuania_first_vote_party_2,
@@ -71,13 +76,16 @@ select
     safe_cast(
         party_voted_3_lithuania_third_vote_party_2 as string
     ) party_voted_3_lithuania_third_vote_party_2,
-    safe_cast(party_voted_netherlands_4 as string) party_voted_netherlands_4,
+    safe_cast(party_voted_latvia_2 as string) party_voted_latvia_2,
+    safe_cast(party_voted_montenegro_3 as string) party_voted_montenegro_3,
+    safe_cast(party_voted_netherlands_3 as string) party_voted_netherlands_3,
     safe_cast(party_voted_norway_2 as string) party_voted_norway_2,
     safe_cast(party_voted_poland_2 as string) party_voted_poland_2,
     safe_cast(party_voted_portugal_3 as string) party_voted_portugal_3,
-    safe_cast(party_voted_russian_federation as string) party_voted_russian_federation,
-    safe_cast(party_voted_sweden_3 as string) party_voted_sweden_3,
-    safe_cast(party_voted_slovenia_3 as string) party_voted_slovenia_3,
+    safe_cast(party_voted_serbia_2 as string) party_voted_serbia_2,
+    safe_cast(party_voted_sweden_2 as string) party_voted_sweden_2,
+    safe_cast(party_voted_slovenia_2 as string) party_voted_slovenia_2,
+    safe_cast(party_voted_slovakia_2 as string) party_voted_slovakia_2,
     safe_cast(contacted_politician as string) contacted_politician,
     safe_cast(
         worked_political_party_action_group_12_months as string
@@ -93,33 +101,37 @@ select
     safe_cast(boycotted_products as string) boycotted_products,
     safe_cast(posted_shared_politics_online as string) posted_shared_politics_online,
     safe_cast(feel_close_to_party as string) feel_close_to_party,
-    safe_cast(party_feel_close_austria_3 as string) party_feel_close_austria_3,
-    safe_cast(party_feel_close_belgium_3 as string) party_feel_close_belgium_3,
-    safe_cast(party_feel_close_switzerland_3 as string) party_feel_close_switzerland_3,
-    safe_cast(party_feel_close_czechia_2 as string) party_feel_close_czechia_2,
+    safe_cast(party_feel_close_austria_2 as string) party_feel_close_austria_2,
+    safe_cast(party_feel_close_belgium_2 as string) party_feel_close_belgium_2,
+    safe_cast(party_feel_close_bulgaria_3 as string) party_feel_close_bulgaria_3,
+    safe_cast(party_feel_close_switzerland_2 as string) party_feel_close_switzerland_2,
+    safe_cast(party_feel_close_cyprus_2 as string) party_feel_close_cyprus_2,
+    safe_cast(party_feel_close_czechia as string) party_feel_close_czechia,
     safe_cast(party_feel_close_germany_2 as string) party_feel_close_germany_2,
-    safe_cast(party_feel_close_estonia_3 as string) party_feel_close_estonia_3,
-    safe_cast(party_feel_close_spain_3 as string) party_feel_close_spain_3,
-    safe_cast(party_feel_close_finland_4 as string) party_feel_close_finland_4,
-    safe_cast(party_feel_close_france_3 as string) party_feel_close_france_3,
+    safe_cast(party_feel_close_denmark as string) party_feel_close_denmark,
+    safe_cast(party_feel_close_estonia_2 as string) party_feel_close_estonia_2,
+    safe_cast(party_feel_close_spain_2 as string) party_feel_close_spain_2,
+    safe_cast(party_feel_close_finland_3 as string) party_feel_close_finland_3,
+    safe_cast(party_feel_close_france_2 as string) party_feel_close_france_2,
     safe_cast(
-        party_feel_close_united_kingdom_3 as string
-    ) party_feel_close_united_kingdom_3,
-    safe_cast(party_feel_close_hungary_4 as string) party_feel_close_hungary_4,
-    safe_cast(party_feel_close_ireland_3 as string) party_feel_close_ireland_3,
-    safe_cast(party_feel_close_israel_2 as string) party_feel_close_israel_2,
-    safe_cast(party_feel_close_iceland_4 as string) party_feel_close_iceland_4,
-    safe_cast(party_feel_close_italy_7 as string) party_feel_close_italy_7,
+        party_feel_close_united_kingdom_2 as string
+    ) party_feel_close_united_kingdom_2,
+    safe_cast(party_feel_close_croatia_2 as string) party_feel_close_croatia_2,
+    safe_cast(party_feel_close_hungary_3 as string) party_feel_close_hungary_3,
+    safe_cast(party_feel_close_ireland_2 as string) party_feel_close_ireland_2,
+    safe_cast(party_feel_close_iceland_3 as string) party_feel_close_iceland_3,
+    safe_cast(party_feel_close_italy_3 as string) party_feel_close_italy_3,
     safe_cast(party_feel_close_lithuania_2 as string) party_feel_close_lithuania_2,
-    safe_cast(party_feel_close_netherlands_4 as string) party_feel_close_netherlands_4,
+    safe_cast(party_feel_close_latvia_2 as string) party_feel_close_latvia_2,
+    safe_cast(party_feel_close_montenegro_3 as string) party_feel_close_montenegro_3,
+    safe_cast(party_feel_close_netherlands_3 as string) party_feel_close_netherlands_3,
     safe_cast(party_feel_close_norway_2 as string) party_feel_close_norway_2,
-    safe_cast(party_feel_close_poland_3 as string) party_feel_close_poland_3,
+    safe_cast(party_feel_close_poland_2 as string) party_feel_close_poland_2,
     safe_cast(party_feel_close_portugal_3 as string) party_feel_close_portugal_3,
-    safe_cast(
-        party_feel_close_russian_federation as string
-    ) party_feel_close_russian_federation,
-    safe_cast(party_feel_close_sweden_3 as string) party_feel_close_sweden_3,
-    safe_cast(party_feel_close_slovenia_3 as string) party_feel_close_slovenia_3,
+    safe_cast(party_feel_close_serbia_2 as string) party_feel_close_serbia_2,
+    safe_cast(party_feel_close_sweden_2 as string) party_feel_close_sweden_2,
+    safe_cast(party_feel_close_slovenia_2 as string) party_feel_close_slovenia_2,
+    safe_cast(party_feel_close_slovakia_2 as string) party_feel_close_slovakia_2,
     safe_cast(how_close_to_party as string) how_close_to_party,
     safe_cast(left_right_scale as int64) left_right_scale,
     safe_cast(life_satisfaction as int64) life_satisfaction,
@@ -131,7 +143,6 @@ select
     safe_cast(
         government_reduce_income_differences as string
     ) government_reduce_income_differences,
-    safe_cast(men_should_have_more_right_job as string) men_should_have_more_right_job,
     safe_cast(gays_free_to_live_as_wish as string) gays_free_to_live_as_wish,
     safe_cast(ashamed_gay_family_member as string) ashamed_gay_family_member,
     safe_cast(gay_couples_adopt_rights as string) gay_couples_adopt_rights,
@@ -172,6 +183,9 @@ select
         religion_denomination_belonging_present_switzerland as string
     ) religion_denomination_belonging_present_switzerland,
     safe_cast(
+        religion_denomination_belonging_present_cyprus_2 as string
+    ) religion_denomination_belonging_present_cyprus_2,
+    safe_cast(
         religion_denomination_belonging_present_germany as string
     ) religion_denomination_belonging_present_germany,
     safe_cast(
@@ -187,11 +201,17 @@ select
         religion_denomination_belonging_present_ireland as string
     ) religion_denomination_belonging_present_ireland,
     safe_cast(
-        religion_denomination_belonging_present_iceland_2 as string
-    ) religion_denomination_belonging_present_iceland_2,
+        religion_denomination_belonging_present_iceland as string
+    ) religion_denomination_belonging_present_iceland,
     safe_cast(
         religion_denomination_belonging_present_lithuania as string
     ) religion_denomination_belonging_present_lithuania,
+    safe_cast(
+        religion_denomination_belonging_present_latvia as string
+    ) religion_denomination_belonging_present_latvia,
+    safe_cast(
+        religion_denomination_belonging_present_montenegro as string
+    ) religion_denomination_belonging_present_montenegro,
     safe_cast(
         religion_denomination_belonging_present_netherlands_2 as string
     ) religion_denomination_belonging_present_netherlands_2,
@@ -202,8 +222,14 @@ select
         religion_denomination_belonging_present_poland as string
     ) religion_denomination_belonging_present_poland,
     safe_cast(
+        religion_denomination_belonging_present_serbia as string
+    ) religion_denomination_belonging_present_serbia,
+    safe_cast(
         religion_denomination_belonging_present_sweden as string
     ) religion_denomination_belonging_present_sweden,
+    safe_cast(
+        religion_denomination_belonging_present_slovakia as string
+    ) religion_denomination_belonging_present_slovakia,
     safe_cast(
         ever_belonging_particular_religion_denomination as string
     ) ever_belonging_particular_religion_denomination,
@@ -220,6 +246,9 @@ select
         religion_denomination_belonging_past_switzerland as string
     ) religion_denomination_belonging_past_switzerland,
     safe_cast(
+        religion_denomination_belonging_past_cyprus_2 as string
+    ) religion_denomination_belonging_past_cyprus_2,
+    safe_cast(
         religion_denomination_belonging_past_germany as string
     ) religion_denomination_belonging_past_germany,
     safe_cast(
@@ -235,11 +264,17 @@ select
         religion_denomination_belonging_past_ireland as string
     ) religion_denomination_belonging_past_ireland,
     safe_cast(
-        religion_denomination_belonging_past_iceland_2 as string
-    ) religion_denomination_belonging_past_iceland_2,
+        religion_denomination_belonging_past_iceland as string
+    ) religion_denomination_belonging_past_iceland,
     safe_cast(
         religion_denomination_belonging_past_lithuania as string
     ) religion_denomination_belonging_past_lithuania,
+    safe_cast(
+        religion_denomination_belonging_past_latvia as string
+    ) religion_denomination_belonging_past_latvia,
+    safe_cast(
+        religion_denomination_belonging_past_montenegro as string
+    ) religion_denomination_belonging_past_montenegro,
     safe_cast(
         religion_denomination_belonging_past_netherlands_2 as string
     ) religion_denomination_belonging_past_netherlands_2,
@@ -250,8 +285,14 @@ select
         religion_denomination_belonging_past_poland as string
     ) religion_denomination_belonging_past_poland,
     safe_cast(
+        religion_denomination_belonging_past_serbia as string
+    ) religion_denomination_belonging_past_serbia,
+    safe_cast(
         religion_denomination_belonging_past_sweden as string
     ) religion_denomination_belonging_past_sweden,
+    safe_cast(
+        religion_denomination_belonging_past_slovakia as string
+    ) religion_denomination_belonging_past_slovakia,
     safe_cast(how_religious as int64) how_religious,
     safe_cast(religious_attendance_frequency as string) religious_attendance_frequency,
     safe_cast(frequency_of_praying as string) frequency_of_praying,
@@ -283,198 +324,111 @@ select
     ) discrimination_group_not_applicable,
     safe_cast(discrimination_group_no_answer as string) discrimination_group_no_answer,
     safe_cast(citizen_of_country as string) citizen_of_country,
-    safe_cast(citizenship_2 as string) citizenship_2,
+    safe_cast(citizenship as string) citizenship,
     safe_cast(born_in_country as string) born_in_country,
-    safe_cast(country_birth_2 as string) country_birth_2,
+    safe_cast(country_birth as string) country_birth,
     safe_cast(year_arrived_country as int64) year_arrived_country,
     safe_cast(language_home_first as string) language_home_first,
     safe_cast(language_home_second as string) language_home_second,
     safe_cast(belong_ethnic_minority as string) belong_ethnic_minority,
     safe_cast(father_born_in_country as string) father_born_in_country,
-    safe_cast(country_birth_father_2 as string) country_birth_father_2,
+    safe_cast(country_birth_father as string) country_birth_father,
     safe_cast(mother_born_in_country as string) mother_born_in_country,
-    safe_cast(country_birth_mother_2 as string) country_birth_mother_2,
+    safe_cast(country_birth_mother as string) country_birth_mother,
     safe_cast(
-        government_should_generous_judging_applications_refugee as string
-    ) government_should_generous_judging_applications_refugee,
-    safe_cast(
-        most_refugee_applicants_not_real_fear as string
-    ) most_refugee_applicants_not_real_fear,
-    safe_cast(
-        granted_refugees_should_entitled_bring_close as string
-    ) granted_refugees_should_entitled_bring_close,
-    safe_cast(
-        likelihood_buy_most_energy_efficient_home as int64
-    ) likelihood_buy_most_energy_efficient_home,
-    safe_cast(
-        frequency_do_things_reduce_energy_use as string
-    ) frequency_do_things_reduce_energy_use,
-    safe_cast(
-        confident_could_use_less_energy_than_now as int64
-    ) confident_could_use_less_energy_than_now,
-    safe_cast(much_electricity as string) much_electricity,
-    safe_cast(much_electricity_2 as string) much_electricity_2,
-    safe_cast(much_electricity_3 as string) much_electricity_3,
-    safe_cast(much_electricity_4 as string) much_electricity_4,
-    safe_cast(much_electricity_5 as string) much_electricity_5,
-    safe_cast(much_electricity_6 as string) much_electricity_6,
-    safe_cast(much_electricity_7 as string) much_electricity_7,
-    safe_cast(worried_power_cuts as string) worried_power_cuts,
-    safe_cast(
-        worried_energy_too_expensive_many_people as string
-    ) worried_energy_too_expensive_many_people,
-    safe_cast(worried as string) worried,
-    safe_cast(worried_2 as string) worried_2,
-    safe_cast(
-        worried_energy_supply_interrupted_natural_disasters as string
-    ) worried_energy_supply_interrupted_natural_disasters,
-    safe_cast(
-        worried_energy_supply_interrupted_insufficient_power as string
-    ) worried_energy_supply_interrupted_insufficient_power,
-    safe_cast(
-        worried_energy_supply_interrupted_technical_failures as string
-    ) worried_energy_supply_interrupted_technical_failures,
-    safe_cast(
-        worried_energy_supply_interrupted_terrorist_attacks as string
-    ) worried_energy_supply_interrupted_terrorist_attacks,
-    safe_cast(
-        do_think_world_climate_changing as string
-    ) do_think_world_climate_changing,
-    safe_cast(
-        much_thought_climate_change_before_today as string
-    ) much_thought_climate_change_before_today,
-    safe_cast(
-        much_thought_climate_change_before_today_2 as string
-    ) much_thought_climate_change_before_today_2,
-    safe_cast(
-        climate_change_caused_natural_processes_human as string
-    ) climate_change_caused_natural_processes_human,
-    safe_cast(
-        what_extent_feel_personal_responsibility_reduce as int64
-    ) what_extent_feel_personal_responsibility_reduce,
-    safe_cast(worried_climate_change as string) worried_climate_change,
-    safe_cast(
-        climate_change_good_bad_impact_across_world as int64
-    ) climate_change_good_bad_impact_across_world,
-    safe_cast(
-        imagine_large_numbers_people_limit_energy_13 as int64
-    ) imagine_large_numbers_people_limit_energy_13,
-    safe_cast(
-        likelihood_large_numbers_people_limit_energy_use_13 as int64
-    ) likelihood_large_numbers_people_limit_energy_use_13,
-    safe_cast(
-        likelihood_governments_enough_countries_take_action_13 as int64
-    ) likelihood_governments_enough_countries_take_action_13,
-    safe_cast(
-        likelihood_limiting_own_energy_use_reduce as int64
-    ) likelihood_limiting_own_energy_use_reduce,
-    safe_cast(
-        favour_increase_taxes_fossil_fuels_reduce as string
-    ) favour_increase_taxes_fossil_fuels_reduce,
-    safe_cast(
-        favour_subsidise_renewable_energy_reduce_climate as string
-    ) favour_subsidise_renewable_energy_reduce_climate,
-    safe_cast(
-        favour_ban_sale_least_energy_efficient as string
-    ) favour_ban_sale_least_energy_efficient,
-    safe_cast(
-        large_differences_income_acceptable_reward_talents as string
-    ) large_differences_income_acceptable_reward_talents,
-    safe_cast(
-        fair_society_differences_standard_living_should as string
-    ) fair_society_differences_standard_living_should,
-    safe_cast(
-        every_100_working_age_number_unemployed as string
-    ) every_100_working_age_number_unemployed,
-    safe_cast(standard_living_pensioners as int64) standard_living_pensioners,
-    safe_cast(standard_living_unemployed as int64) standard_living_unemployed,
-    safe_cast(
-        standard_living_old_governments_responsibility as int64
-    ) standard_living_old_governments_responsibility,
-    safe_cast(
-        standard_living_unemployed_governments_responsibility as int64
-    ) standard_living_unemployed_governments_responsibility,
-    safe_cast(
-        child_care_services_working_parents_governments as int64
-    ) child_care_services_working_parents_governments,
-    safe_cast(
-        social_benefits_services_place_too_great as string
-    ) social_benefits_services_place_too_great,
-    safe_cast(
-        social_benefits_services_prevent_widespread_poverty as string
-    ) social_benefits_services_prevent_widespread_poverty,
-    safe_cast(
-        social_benefits_services_lead_more_equal_society as string
-    ) social_benefits_services_lead_more_equal_society,
-    safe_cast(
-        social_benefits_services_cost_businesses_too as string
-    ) social_benefits_services_cost_businesses_too,
-    safe_cast(
-        social_benefits_services_make_people_lazy as string
-    ) social_benefits_services_make_people_lazy,
-    safe_cast(
-        social_benefits_services_make_people_less as string
-    ) social_benefits_services_make_people_less,
-    safe_cast(
-        when_should_immigrants_obtain_rights_social as string
-    ) when_should_immigrants_obtain_rights_social,
-    safe_cast(
-        most_unemployed_people_do_not_really as string
-    ) most_unemployed_people_do_not_really,
-    safe_cast(many_very_low_incomes_get_less as string) many_very_low_incomes_get_less,
-    safe_cast(
-        many_manage_obtain_benefits_services_not as string
-    ) many_manage_obtain_benefits_services_not,
-    safe_cast(
-        administration_unemployment_benefits_questions as string
-    ) administration_unemployment_benefits_questions,
-    safe_cast(
-        unemployment_benefit_if_less_pay as string
-    ) unemployment_benefit_if_less_pay,
-    safe_cast(
-        unemployment_benefit_if_lower_level_education as string
-    ) unemployment_benefit_if_lower_level_education,
-    safe_cast(
-        unemployment_benefit_if_refuse_unpaid_work as string
-    ) unemployment_benefit_if_refuse_unpaid_work,
-    safe_cast(someone_their_50s_less_pay as string) someone_their_50s_less_pay,
-    safe_cast(someone_their_50s_lower_level as string) someone_their_50s_lower_level,
-    safe_cast(
-        someone_their_50s_refuse_unpaid_work as string
-    ) someone_their_50s_refuse_unpaid_work,
-    safe_cast(someone_aged_20_less_pay as string) someone_aged_20_less_pay,
-    safe_cast(someone_aged_20_lower_level as string) someone_aged_20_lower_level,
-    safe_cast(someone_aged_20_refuse_unpaid as string) someone_aged_20_refuse_unpaid,
-    safe_cast(single_parent_3_less_pay as string) single_parent_3_less_pay,
-    safe_cast(single_parent_3_lower_level as string) single_parent_3_lower_level,
-    safe_cast(single_parent_3_refuse_unpaid as string) single_parent_3_refuse_unpaid,
-    safe_cast(
-        social_benefits_only_people_lowest_incomes as string
-    ) social_benefits_only_people_lowest_incomes,
-    safe_cast(
-        spend_more_education_unemployed_cost_unemployment as string
-    ) spend_more_education_unemployed_cost_unemployment,
-    safe_cast(
-        benefits_parents_combine_work_family_even as string
-    ) benefits_parents_combine_work_family_even,
-    safe_cast(
-        against_favour_basic_income_scheme as string
-    ) against_favour_basic_income_scheme,
-    safe_cast(
-        against_favour_european_union_wide_social as string
-    ) against_favour_european_union_wide_social,
-    safe_cast(
-        more_decisions_made_level_benefits as string
-    ) more_decisions_made_level_benefits,
-    safe_cast(
-        likelihood_unemployed_looking_work_next_12 as string
-    ) likelihood_unemployed_looking_work_next_12,
-    safe_cast(
-        likelihood_not_enough_money_household_necessities as string
-    ) likelihood_not_enough_money_household_necessities,
+        administration_democracy_works_questions as string
+    ) administration_democracy_works_questions,
     safe_cast(would_vote as string) would_vote,
     safe_cast(would_vote_3 as string) would_vote_3,
     safe_cast(would_vote_2 as string) would_vote_2,
+    safe_cast(
+        paid_employment_apprenticeship_least_3_months as string
+    ) paid_employment_apprenticeship_least_3_months,
+    safe_cast(
+        year_first_started_paid_employment_apprenticeship as string
+    ) year_first_started_paid_employment_apprenticeship,
+    safe_cast(
+        year_first_left_parents_living_separately as string
+    ) year_first_left_parents_living_separately,
+    safe_cast(
+        ever_lived_spouse_partner_3_months_more as string
+    ) ever_lived_spouse_partner_3_months_more,
+    safe_cast(
+        year_first_lived_spouse_partner_3_months_more as string
+    ) year_first_lived_spouse_partner_3_months_more,
+    safe_cast(ever_married as string) ever_married,
+    safe_cast(year_first_married as string) year_first_married,
+    safe_cast(
+        ever_given_birth_fathered_child as string
+    ) ever_given_birth_fathered_child,
+    safe_cast(
+        number_children_ever_given_birth_fathered as string
+    ) number_children_ever_given_birth_fathered,
+    safe_cast(year_first_child_born as string) year_first_child_born,
+    safe_cast(year_youngest_child_born as string) year_youngest_child_born,
+    safe_cast(number_grandchildren as string) number_grandchildren,
+    safe_cast(year_first_grandchild_born as string) year_first_grandchild_born,
+    safe_cast(have_any_great_grandchildren as string) have_any_great_grandchildren,
+    safe_cast(
+        administration_split_ballot_ask_female_male as string
+    ) administration_split_ballot_ask_female_male,
+    safe_cast(age_become_adults_split_ballot as string) age_become_adults_split_ballot,
+    safe_cast(
+        age_reach_middle_age_split_ballot as string
+    ) age_reach_middle_age_split_ballot,
+    safe_cast(age_reach_old_age_split_ballot as string) age_reach_old_age_split_ballot,
+    safe_cast(
+        start_living_partner_not_married_ideal as string
+    ) start_living_partner_not_married_ideal,
+    safe_cast(
+        get_married_ideal_age_split_ballot as string
+    ) get_married_ideal_age_split_ballot,
+    safe_cast(
+        become_mother_father_ideal_age_split_ballot as string
+    ) become_mother_father_ideal_age_split_ballot,
+    safe_cast(
+        retire_permanently_ideal_age_split_ballot as string
+    ) retire_permanently_ideal_age_split_ballot,
+    safe_cast(
+        leave_full_time_education_age_too as string
+    ) leave_full_time_education_age_too,
+    safe_cast(
+        start_living_partner_not_married_age as string
+    ) start_living_partner_not_married_age,
+    safe_cast(
+        get_married_age_too_young_split_ballot as string
+    ) get_married_age_too_young_split_ballot,
+    safe_cast(
+        become_mother_father_age_too_young_split_ballot as string
+    ) become_mother_father_age_too_young_split_ballot,
+    safe_cast(
+        retire_permanently_age_too_young_split_ballot as string
+    ) retire_permanently_age_too_young_split_ballot,
+    safe_cast(
+        still_living_parents_age_too_old_split_ballot as string
+    ) still_living_parents_age_too_old_split_ballot,
+    safe_cast(
+        consider_having_more_children_age_too as string
+    ) consider_having_more_children_age_too,
+    safe_cast(working_20_hours_more_per_week as string) working_20_hours_more_per_week,
+    safe_cast(
+        approve_if_person_chooses_never_have as string
+    ) approve_if_person_chooses_never_have,
+    safe_cast(
+        approve_if_person_lives_partner_not as string
+    ) approve_if_person_lives_partner_not,
+    safe_cast(
+        approve_if_person_have_child_partner as string
+    ) approve_if_person_have_child_partner,
+    safe_cast(
+        approve_if_person_has_full_time as string
+    ) approve_if_person_has_full_time,
+    safe_cast(
+        approve_if_person_gets_divorced_while as string
+    ) approve_if_person_gets_divorced_while,
+    safe_cast(
+        plan_future_take_each_day_it_comes as int64
+    ) plan_future_take_each_day_it_comes,
     safe_cast(
         number_people_living_regularly_member_household as int64
     ) number_people_living_regularly_member_household,
@@ -490,8 +444,12 @@ select
     safe_cast(household_member_10_gender as string) household_member_10_gender,
     safe_cast(household_member_11_gender as string) household_member_11_gender,
     safe_cast(household_member_12_gender as string) household_member_12_gender,
+    safe_cast(household_member_13_gender as string) household_member_13_gender,
+    safe_cast(household_member_14_gender as string) household_member_14_gender,
+    safe_cast(household_member_15_gender as string) household_member_15_gender,
     safe_cast(year_of_birth as int64) year_of_birth,
     safe_cast(age as int64) age,
+    safe_cast(age_group_post_coded as string) age_group_post_coded,
     safe_cast(
         household_member_2_year_of_birth as int64
     ) household_member_2_year_of_birth,
@@ -526,6 +484,15 @@ select
         household_member_12_year_of_birth as int64
     ) household_member_12_year_of_birth,
     safe_cast(
+        household_member_13_year_of_birth as int64
+    ) household_member_13_year_of_birth,
+    safe_cast(
+        household_member_14_year_of_birth as int64
+    ) household_member_14_year_of_birth,
+    safe_cast(
+        household_member_15_year_of_birth as int64
+    ) household_member_15_year_of_birth,
+    safe_cast(
         household_member_2_relationship as string
     ) household_member_2_relationship,
     safe_cast(
@@ -559,14 +526,17 @@ select
         household_member_12_relationship as string
     ) household_member_12_relationship,
     safe_cast(
-        interviewer_code_lives_husband_wife_partner as string
-    ) interviewer_code_lives_husband_wife_partner,
+        household_member_13_relationship as string
+    ) household_member_13_relationship,
+    safe_cast(
+        household_member_14_relationship as string
+    ) household_member_14_relationship,
+    safe_cast(
+        household_member_15_relationship as string
+    ) household_member_15_relationship,
     safe_cast(
         relationship_husband_wife_partner_currently_living as string
     ) relationship_husband_wife_partner_currently_living,
-    safe_cast(
-        relationship_husband_wife_partner_currently_living_3 as string
-    ) relationship_husband_wife_partner_currently_living_3,
     safe_cast(
         relationship_husband_wife_partner_currently_living_2 as string
     ) relationship_husband_wife_partner_currently_living_2,
@@ -576,66 +546,54 @@ select
     safe_cast(
         ever_divorced_had_civil_union_dissolved as string
     ) ever_divorced_had_civil_union_dissolved,
-    safe_cast(
-        interviewer_code_lives_husband_wife_partner_2 as string
-    ) interviewer_code_lives_husband_wife_partner_2,
-    safe_cast(
-        interviewer_code_respondent_cohabiting as string
-    ) interviewer_code_respondent_cohabiting,
     safe_cast(legal_marital_status as string) legal_marital_status,
-    safe_cast(legal_marital_status_finland as string) legal_marital_status_finland,
     safe_cast(
         legal_marital_status_united_kingdom as string
     ) legal_marital_status_united_kingdom,
     safe_cast(legal_marital_status_2 as string) legal_marital_status_2,
-    safe_cast(children_living_home_not as string) children_living_home_not,
     safe_cast(children_living_at_home as string) children_living_at_home,
     safe_cast(domicile_type as string) domicile_type,
     safe_cast(highest_education_es_isced as string) highest_education_es_isced,
     safe_cast(highest_education as string) highest_education,
     safe_cast(highest_education_austria as string) highest_education_austria,
     safe_cast(highest_education_belgium as string) highest_education_belgium,
+    safe_cast(highest_education_bulgaria as string) highest_education_bulgaria,
     safe_cast(highest_education_switzerland as string) highest_education_switzerland,
+    safe_cast(highest_education_cyprus as string) highest_education_cyprus,
     safe_cast(highest_education_czechia as string) highest_education_czechia,
     safe_cast(highest_education_germany_3 as string) highest_education_germany_3,
     safe_cast(highest_education_germany_4 as string) highest_education_germany_4,
     safe_cast(highest_education_germany_5 as string) highest_education_germany_5,
+    safe_cast(highest_education_denmark as string) highest_education_denmark,
     safe_cast(highest_education_estonia as string) highest_education_estonia,
     safe_cast(highest_education_spain_2 as string) highest_education_spain_2,
     safe_cast(highest_education_finland as string) highest_education_finland,
     safe_cast(highest_education_france as string) highest_education_france,
     safe_cast(
-        highest_education_united_kingdom_3 as string
-    ) highest_education_united_kingdom_3,
+        highest_education_united_kingdom as string
+    ) highest_education_united_kingdom,
     safe_cast(
-        highest_education_united_kingdom_4 as string
-    ) highest_education_united_kingdom_4,
+        highest_education_united_kingdom_2 as string
+    ) highest_education_united_kingdom_2,
     safe_cast(
         age_when_completed_full_time_education as int64
     ) age_when_completed_full_time_education,
+    safe_cast(highest_education_croatia as string) highest_education_croatia,
     safe_cast(highest_education_hungary_2 as string) highest_education_hungary_2,
     safe_cast(highest_education_ireland as string) highest_education_ireland,
-    safe_cast(
-        highest_education_israeli_education_israel as string
-    ) highest_education_israeli_education_israel,
-    safe_cast(
-        highest_education_russian_education_israel as string
-    ) highest_education_russian_education_israel,
     safe_cast(highest_education_iceland as string) highest_education_iceland,
-    safe_cast(highest_education_italy_3 as string) highest_education_italy_3,
+    safe_cast(highest_education_italy_2 as string) highest_education_italy_2,
     safe_cast(highest_education_lithuania as string) highest_education_lithuania,
+    safe_cast(highest_education_latvia_2 as string) highest_education_latvia_2,
+    safe_cast(highest_education_montenegro_2 as string) highest_education_montenegro_2,
     safe_cast(highest_education_netherlands as string) highest_education_netherlands,
     safe_cast(highest_education_norway_2 as string) highest_education_norway_2,
-    safe_cast(highest_education_poland_3 as string) highest_education_poland_3,
-    safe_cast(
-        tertiary_education_lower_higher_single_tier as string
-    ) tertiary_education_lower_higher_single_tier,
+    safe_cast(highest_education_poland_2 as string) highest_education_poland_2,
     safe_cast(highest_education_portugal_2 as string) highest_education_portugal_2,
-    safe_cast(
-        highest_education_russian_federation as string
-    ) highest_education_russian_federation,
+    safe_cast(highest_education_serbia as string) highest_education_serbia,
     safe_cast(highest_education_sweden as string) highest_education_sweden,
     safe_cast(highest_education_slovenia as string) highest_education_slovenia,
+    safe_cast(highest_education_slovakia as string) highest_education_slovakia,
     safe_cast(years_of_education as int64) years_of_education,
     safe_cast(paid_work_last_week as string) paid_work_last_week,
     safe_cast(in_education_last_week as string) in_education_last_week,
@@ -651,16 +609,10 @@ select
     safe_cast(activity_refusal as string) activity_refusal,
     safe_cast(activity_dont_know as string) activity_dont_know,
     safe_cast(activity_no_answer as string) activity_no_answer,
-    safe_cast(
-        interviewer_code_one_more_than_one_doing_7_days as string
-    ) interviewer_code_one_more_than_one_doing_7_days,
     safe_cast(main_activity_last_7_days as string) main_activity_last_7_days,
     safe_cast(
         main_activity_7_days_all_respondent_post_coded as string
     ) main_activity_7_days_all_respondent_post_coded,
-    safe_cast(
-        interviewer_code_respondent_paid_work as string
-    ) interviewer_code_respondent_paid_work,
     safe_cast(control_paid_work_7_days as string) control_paid_work_7_days,
     safe_cast(ever_had_paid_job as string) ever_had_paid_job,
     safe_cast(year_paid_job as int64) year_paid_job,
@@ -706,9 +658,7 @@ select
     safe_cast(main_source_household_income as string) main_source_household_income,
     safe_cast(household_income_decile as string) household_income_decile,
     safe_cast(feeling_about_household_income as string) feeling_about_household_income,
-    safe_cast(
-        interviewer_code_lives_husband_wife_partner_3 as string
-    ) interviewer_code_lives_husband_wife_partner_3,
+    safe_cast(respondent_main_source_income as string) respondent_main_source_income,
     safe_cast(
         partner_highest_education_es_isced as string
     ) partner_highest_education_es_isced,
@@ -720,8 +670,14 @@ select
         partner_highest_education_belgium as string
     ) partner_highest_education_belgium,
     safe_cast(
+        partner_highest_education_bulgaria as string
+    ) partner_highest_education_bulgaria,
+    safe_cast(
         partner_highest_education_switzerland as string
     ) partner_highest_education_switzerland,
+    safe_cast(
+        partner_highest_education_cyprus as string
+    ) partner_highest_education_cyprus,
     safe_cast(
         partner_highest_education_czechia as string
     ) partner_highest_education_czechia,
@@ -735,6 +691,9 @@ select
         partner_highest_education_germany_5 as string
     ) partner_highest_education_germany_5,
     safe_cast(
+        partner_highest_education_denmark as string
+    ) partner_highest_education_denmark,
+    safe_cast(
         partner_highest_education_estonia as string
     ) partner_highest_education_estonia,
     safe_cast(
@@ -747,14 +706,17 @@ select
         partner_highest_education_france as string
     ) partner_highest_education_france,
     safe_cast(
-        partner_highest_education_united_kingdom_3 as string
-    ) partner_highest_education_united_kingdom_3,
+        partner_highest_education_united_kingdom as string
+    ) partner_highest_education_united_kingdom,
     safe_cast(
-        partner_highest_education_united_kingdom_4 as string
-    ) partner_highest_education_united_kingdom_4,
+        partner_highest_education_united_kingdom_2 as string
+    ) partner_highest_education_united_kingdom_2,
     safe_cast(
         partner_age_when_completed_full_time as int64
     ) partner_age_when_completed_full_time,
+    safe_cast(
+        partner_highest_education_croatia as string
+    ) partner_highest_education_croatia,
     safe_cast(
         partner_highest_education_hungary_2 as string
     ) partner_highest_education_hungary_2,
@@ -762,20 +724,20 @@ select
         partner_highest_education_ireland as string
     ) partner_highest_education_ireland,
     safe_cast(
-        partner_highest_education_russian_education_israel as string
-    ) partner_highest_education_russian_education_israel,
-    safe_cast(
-        partner_highest_education_israeli_education_israel as string
-    ) partner_highest_education_israeli_education_israel,
-    safe_cast(
         partner_highest_education_iceland as string
     ) partner_highest_education_iceland,
     safe_cast(
-        partner_highest_education_italy_3 as string
-    ) partner_highest_education_italy_3,
+        partner_highest_education_italy_2 as string
+    ) partner_highest_education_italy_2,
     safe_cast(
         partner_highest_education_lithuania as string
     ) partner_highest_education_lithuania,
+    safe_cast(
+        partner_highest_education_latvia_2 as string
+    ) partner_highest_education_latvia_2,
+    safe_cast(
+        partner_highest_education_montenegro_2 as string
+    ) partner_highest_education_montenegro_2,
     safe_cast(
         partner_highest_education_netherlands as string
     ) partner_highest_education_netherlands,
@@ -783,23 +745,23 @@ select
         partner_highest_education_norway_2 as string
     ) partner_highest_education_norway_2,
     safe_cast(
-        partner_highest_education_poland_3 as string
-    ) partner_highest_education_poland_3,
-    safe_cast(
-        partner_tertiary_education_lower_higher_single as string
-    ) partner_tertiary_education_lower_higher_single,
+        partner_highest_education_poland_2 as string
+    ) partner_highest_education_poland_2,
     safe_cast(
         partner_highest_education_portugal_2 as string
     ) partner_highest_education_portugal_2,
     safe_cast(
-        partner_highest_education_russian_federation as string
-    ) partner_highest_education_russian_federation,
+        partner_highest_education_serbia as string
+    ) partner_highest_education_serbia,
     safe_cast(
         partner_highest_education_sweden as string
     ) partner_highest_education_sweden,
     safe_cast(
         partner_highest_education_slovenia as string
     ) partner_highest_education_slovenia,
+    safe_cast(
+        partner_highest_education_slovakia as string
+    ) partner_highest_education_slovakia,
     safe_cast(partner_activity_paid_work as string) partner_activity_paid_work,
     safe_cast(partner_activity_education as string) partner_activity_education,
     safe_cast(
@@ -819,19 +781,13 @@ select
         partner_activity_housework_looking_after_children as string
     ) partner_activity_housework_looking_after_children,
     safe_cast(partner_activity_other as string) partner_activity_other,
+    safe_cast(partner_activity_dont_know as string) partner_activity_dont_know,
     safe_cast(
         partner_activity_not_applicable as string
     ) partner_activity_not_applicable,
     safe_cast(partner_activity_refusal as string) partner_activity_refusal,
-    safe_cast(partner_activity_dont_know as string) partner_activity_dont_know,
     safe_cast(partner_activity_no_answer as string) partner_activity_no_answer,
-    safe_cast(
-        interviewer_code_one_more_than_one as string
-    ) interviewer_code_one_more_than_one,
     safe_cast(partner_main_activity_7_days as string) partner_main_activity_7_days,
-    safe_cast(
-        interviewer_code_respondent_partner_paid_work as string
-    ) interviewer_code_respondent_partner_paid_work,
     safe_cast(
         partner_control_paid_work_7_days as string
     ) partner_control_paid_work_7_days,
@@ -851,8 +807,14 @@ select
         father_highest_education_belgium as string
     ) father_highest_education_belgium,
     safe_cast(
+        father_highest_education_bulgaria as string
+    ) father_highest_education_bulgaria,
+    safe_cast(
         father_highest_education_switzerland as string
     ) father_highest_education_switzerland,
+    safe_cast(
+        father_highest_education_cyprus as string
+    ) father_highest_education_cyprus,
     safe_cast(
         father_highest_education_czechia as string
     ) father_highest_education_czechia,
@@ -866,6 +828,9 @@ select
         father_highest_education_germany_5 as string
     ) father_highest_education_germany_5,
     safe_cast(
+        father_highest_education_denmark as string
+    ) father_highest_education_denmark,
+    safe_cast(
         father_highest_education_estonia as string
     ) father_highest_education_estonia,
     safe_cast(
@@ -878,14 +843,17 @@ select
         father_highest_education_france as string
     ) father_highest_education_france,
     safe_cast(
-        father_highest_education_united_kingdom_3 as string
-    ) father_highest_education_united_kingdom_3,
+        father_highest_education_united_kingdom as string
+    ) father_highest_education_united_kingdom,
     safe_cast(
-        father_highest_education_united_kingdom_4 as string
-    ) father_highest_education_united_kingdom_4,
+        father_highest_education_united_kingdom_2 as string
+    ) father_highest_education_united_kingdom_2,
     safe_cast(
         father_age_when_completed_full_time as int64
     ) father_age_when_completed_full_time,
+    safe_cast(
+        father_highest_education_croatia as string
+    ) father_highest_education_croatia,
     safe_cast(
         father_highest_education_hungary_2 as string
     ) father_highest_education_hungary_2,
@@ -893,20 +861,20 @@ select
         father_highest_education_ireland as string
     ) father_highest_education_ireland,
     safe_cast(
-        father_highest_education_israeli_education_israel as string
-    ) father_highest_education_israeli_education_israel,
-    safe_cast(
-        father_highest_education_russian_education_israel as string
-    ) father_highest_education_russian_education_israel,
-    safe_cast(
         father_highest_education_iceland as string
     ) father_highest_education_iceland,
     safe_cast(
-        father_highest_education_italy_3 as string
-    ) father_highest_education_italy_3,
+        father_highest_education_italy_2 as string
+    ) father_highest_education_italy_2,
     safe_cast(
         father_highest_education_lithuania as string
     ) father_highest_education_lithuania,
+    safe_cast(
+        father_highest_education_latvia_2 as string
+    ) father_highest_education_latvia_2,
+    safe_cast(
+        father_highest_education_montenegro_2 as string
+    ) father_highest_education_montenegro_2,
     safe_cast(
         father_highest_education_netherlands as string
     ) father_highest_education_netherlands,
@@ -914,20 +882,23 @@ select
         father_highest_education_norway_2 as string
     ) father_highest_education_norway_2,
     safe_cast(
-        father_highest_education_poland_3 as string
-    ) father_highest_education_poland_3,
+        father_highest_education_poland_2 as string
+    ) father_highest_education_poland_2,
     safe_cast(
         father_highest_education_portugal_2 as string
     ) father_highest_education_portugal_2,
     safe_cast(
-        father_highest_education_russian_federation as string
-    ) father_highest_education_russian_federation,
+        father_highest_education_serbia as string
+    ) father_highest_education_serbia,
     safe_cast(
         father_highest_education_sweden as string
     ) father_highest_education_sweden,
     safe_cast(
         father_highest_education_slovenia as string
     ) father_highest_education_slovenia,
+    safe_cast(
+        father_highest_education_slovakia as string
+    ) father_highest_education_slovakia,
     safe_cast(
         father_employment_status_when_respondent_14 as string
     ) father_employment_status_when_respondent_14,
@@ -945,8 +916,14 @@ select
         mother_highest_education_belgium as string
     ) mother_highest_education_belgium,
     safe_cast(
+        mother_highest_education_bulgaria as string
+    ) mother_highest_education_bulgaria,
+    safe_cast(
         mother_highest_education_switzerland as string
     ) mother_highest_education_switzerland,
+    safe_cast(
+        mother_highest_education_cyprus as string
+    ) mother_highest_education_cyprus,
     safe_cast(
         mother_highest_education_czechia as string
     ) mother_highest_education_czechia,
@@ -960,6 +937,9 @@ select
         mother_highest_education_germany_5 as string
     ) mother_highest_education_germany_5,
     safe_cast(
+        mother_highest_education_denmark as string
+    ) mother_highest_education_denmark,
+    safe_cast(
         mother_highest_education_estonia as string
     ) mother_highest_education_estonia,
     safe_cast(
@@ -972,14 +952,17 @@ select
         mother_highest_education_france as string
     ) mother_highest_education_france,
     safe_cast(
-        mother_highest_education_united_kingdom_3 as string
-    ) mother_highest_education_united_kingdom_3,
+        mother_highest_education_united_kingdom as string
+    ) mother_highest_education_united_kingdom,
     safe_cast(
-        mother_highest_education_united_kingdom_4 as string
-    ) mother_highest_education_united_kingdom_4,
+        mother_highest_education_united_kingdom_2 as string
+    ) mother_highest_education_united_kingdom_2,
     safe_cast(
         mother_age_when_completed_full_time as int64
     ) mother_age_when_completed_full_time,
+    safe_cast(
+        mother_highest_education_croatia as string
+    ) mother_highest_education_croatia,
     safe_cast(
         mother_highest_education_hungary_2 as string
     ) mother_highest_education_hungary_2,
@@ -987,20 +970,20 @@ select
         mother_highest_education_ireland as string
     ) mother_highest_education_ireland,
     safe_cast(
-        mother_highest_education_israeli_education_israel as string
-    ) mother_highest_education_israeli_education_israel,
-    safe_cast(
-        mother_highest_education_russian_education_israel as string
-    ) mother_highest_education_russian_education_israel,
-    safe_cast(
         mother_highest_education_iceland as string
     ) mother_highest_education_iceland,
     safe_cast(
-        mother_highest_education_italy_3 as string
-    ) mother_highest_education_italy_3,
+        mother_highest_education_italy_2 as string
+    ) mother_highest_education_italy_2,
     safe_cast(
         mother_highest_education_lithuania as string
     ) mother_highest_education_lithuania,
+    safe_cast(
+        mother_highest_education_latvia_2 as string
+    ) mother_highest_education_latvia_2,
+    safe_cast(
+        mother_highest_education_montenegro_2 as string
+    ) mother_highest_education_montenegro_2,
     safe_cast(
         mother_highest_education_netherlands as string
     ) mother_highest_education_netherlands,
@@ -1008,20 +991,23 @@ select
         mother_highest_education_norway_2 as string
     ) mother_highest_education_norway_2,
     safe_cast(
-        mother_highest_education_poland_3 as string
-    ) mother_highest_education_poland_3,
+        mother_highest_education_poland_2 as string
+    ) mother_highest_education_poland_2,
     safe_cast(
         mother_highest_education_portugal_2 as string
     ) mother_highest_education_portugal_2,
     safe_cast(
-        mother_highest_education_russian_federation as string
-    ) mother_highest_education_russian_federation,
+        mother_highest_education_serbia as string
+    ) mother_highest_education_serbia,
     safe_cast(
         mother_highest_education_sweden as string
     ) mother_highest_education_sweden,
     safe_cast(
         mother_highest_education_slovenia as string
     ) mother_highest_education_slovenia,
+    safe_cast(
+        mother_highest_education_slovakia as string
+    ) mother_highest_education_slovakia,
     safe_cast(
         mother_employment_status_when_respondent_14 as string
     ) mother_employment_status_when_respondent_14,
@@ -1035,13 +1021,97 @@ select
         first_ancestry_european_standard_classification_cultural_2 as string
     ) first_ancestry_european_standard_classification_cultural_2,
     safe_cast(
+        first_ancestry_european_standard_classification_cultural as string
+    ) first_ancestry_european_standard_classification_cultural,
+    safe_cast(
         second_ancestry_european_standard_classification_cultural_2 as string
     ) second_ancestry_european_standard_classification_cultural_2,
+    safe_cast(
+        second_ancestry_european_standard_classification_cultural as string
+    ) second_ancestry_european_standard_classification_cultural,
     safe_cast(region_code as string) region_code,
     safe_cast(regional_unit as string) regional_unit,
     safe_cast(
-        place_interview_east_west_germany as string
-    ) place_interview_east_west_germany,
+        political_system_country_ensures_everyone_fair as string
+    ) political_system_country_ensures_everyone_fair,
+    safe_cast(
+        government_country_takes_into_account_interests as string
+    ) government_country_takes_into_account_interests,
+    safe_cast(
+        decisions_country_politics_transparent as string
+    ) decisions_country_politics_transparent,
+    safe_cast(
+        compared_other_people_country_fair_chance as int64
+    ) compared_other_people_country_fair_chance,
+    safe_cast(
+        compared_other_people_country_fair_chance_2 as int64
+    ) compared_other_people_country_fair_chance_2,
+    safe_cast(
+        everyone_country_fair_chance_achieve_level as int64
+    ) everyone_country_fair_chance_achieve_level,
+    safe_cast(
+        everyone_country_fair_chance_get_job_they_seek as int64
+    ) everyone_country_fair_chance_get_job_they_seek,
+    safe_cast(
+        filter_variable_ask_pay_pensions_social as string
+    ) filter_variable_ask_pay_pensions_social,
+    safe_cast(infqbst as string) infqbst,
+    safe_cast(what_usual as string) what_usual,
+    safe_cast(letter_describes_gross_pay as string) letter_describes_gross_pay,
+    safe_cast(usual as string) usual,
+    safe_cast(letter_describes_net as string) letter_describes_net,
+    safe_cast(
+        would_say_gross_pay_unfairly_low as string
+    ) would_say_gross_pay_unfairly_low,
+    safe_cast(net as string) net,
+    safe_cast(fair_level as string) fair_level,
+    safe_cast(fair_level_2 as string) fair_level_2,
+    safe_cast(net_2 as string) net_2,
+    safe_cast(
+        top_10_full_time_employees_country as string
+    ) top_10_full_time_employees_country,
+    safe_cast(
+        bottom_10_full_time_employees_country as string
+    ) bottom_10_full_time_employees_country,
+    safe_cast(
+        differences_wealth_country_fair as string
+    ) differences_wealth_country_fair,
+    safe_cast(
+        influence_decision_recruit_person_knowledge_skills as string
+    ) influence_decision_recruit_person_knowledge_skills,
+    safe_cast(
+        influence_decision_recruit_person_job_experience as string
+    ) influence_decision_recruit_person_job_experience,
+    safe_cast(
+        influence_decision_recruit_person_knows_someone as string
+    ) influence_decision_recruit_person_knows_someone,
+    safe_cast(
+        influence_decision_recruit_person_has_immigrant as string
+    ) influence_decision_recruit_person_has_immigrant,
+    safe_cast(
+        influence_decision_recruit_person_gender as string
+    ) influence_decision_recruit_person_gender,
+    safe_cast(
+        society_fair_when_income_wealth_equally as string
+    ) society_fair_when_income_wealth_equally,
+    safe_cast(
+        society_fair_when_hard_working_people as string
+    ) society_fair_when_hard_working_people,
+    safe_cast(
+        society_fair_when_takes_care_poor as string
+    ) society_fair_when_takes_care_poor,
+    safe_cast(
+        society_fair_when_people_from_families as string
+    ) society_fair_when_people_from_families,
+    safe_cast(
+        large_people_get_what_they_deserve as string
+    ) large_people_get_what_they_deserve,
+    safe_cast(
+        confident_justice_always_prevails_over_injustice as string
+    ) confident_justice_always_prevails_over_injustice,
+    safe_cast(
+        convinced_long_run_people_compensated_injustices as string
+    ) convinced_long_run_people_compensated_injustices,
     safe_cast(
         important_think_new_ideas_creative as string
     ) important_think_new_ideas_creative,
@@ -1113,5 +1183,9 @@ select
     safe_cast(end_interview_minute as string) end_interview_minute,
     safe_cast(
         interview_length_minutes_main_questionnaire as int64
-    ) interview_length_minutes_main_questionnaire
-from {{ set_datalake_project("eu_ess_staging.round_08") }} as t
+    ) interview_length_minutes_main_questionnaire,
+    safe_cast(sampling_domain as int64) sampling_domain,
+    safe_cast(selection_probability as float64) selection_probability,
+    safe_cast(sampling_stratum as float64) sampling_stratum,
+    safe_cast(primary_sampling_unit as float64) primary_sampling_unit
+from {{ set_datalake_project("gb_eric_ess_staging.round_09") }} as t

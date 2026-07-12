@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: eu_ess__round_01
+  - name: gb_eric_ess__round_01
     description: >-
       European Social Survey Round 1 integrated file (fielded 2002/03): one row per
       respondent
@@ -1731,7 +1731,7 @@ models:
       - name: administration_supplementary_questionnaire
         description: >-
           Administration of supplementary questionnaire
-  - name: eu_ess__round_02
+  - name: gb_eric_ess__round_02
     description: >-
       European Social Survey Round 2 integrated file (fielded 2004/05): one row per
       respondent
@@ -3574,7 +3574,7 @@ models:
       - name: population_size_weight
         description: >-
           Population size weight (must be combined with dweight or pspwght)
-  - name: eu_ess__round_03
+  - name: gb_eric_ess__round_03
     description: >-
       European Social Survey Round 3 integrated file (fielded 2006/07): one row per
       respondent
@@ -5172,7 +5172,7 @@ models:
       - name: population_size_weight
         description: >-
           Population size weight (must be combined with dweight or pspwght)
-  - name: eu_ess__round_04
+  - name: gb_eric_ess__round_04
     description: >-
       European Social Survey Round 4 integrated file (fielded 2008/09): one row per
       respondent
@@ -7227,7 +7227,7 @@ models:
       - name: interview_length_minutes_main_questionnaire
         description: >-
           Interview length in minutes, main questionnaire
-  - name: eu_ess__round_05
+  - name: gb_eric_ess__round_05
     description: >-
       European Social Survey Round 5 integrated file (fielded 2010/11): one row per
       respondent
@@ -9296,7 +9296,7 @@ models:
       - name: interview_length_minutes_main_questionnaire
         description: >-
           Interview length in minutes, main questionnaire
-  - name: eu_ess__round_06
+  - name: gb_eric_ess__round_06
     description: >-
       European Social Survey Round 6 integrated file (fielded 2012/13): one row per
       respondent
@@ -11222,7 +11222,7 @@ models:
       - name: interview_length_minutes_main_questionnaire
         description: >-
           Interview length in minutes, main questionnaire
-  - name: eu_ess__round_07
+  - name: gb_eric_ess__round_07
     description: >-
       European Social Survey Round 7 integrated file (fielded 2014/15): one row per
       respondent
@@ -13074,7 +13074,7 @@ models:
       - name: interview_length_minutes_main_questionnaire
         description: >-
           Interview length in minutes, main questionnaire
-  - name: eu_ess__round_08
+  - name: gb_eric_ess__round_08
     description: >-
       European Social Survey Round 8 integrated file (fielded 2016/17): one row per
       respondent
@@ -14731,7 +14731,7 @@ models:
       - name: interview_length_minutes_main_questionnaire
         description: >-
           Interview length in minutes, main questionnaire
-  - name: eu_ess__round_09
+  - name: gb_eric_ess__round_09
     description: >-
       European Social Survey Round 9 integrated file (fielded 2018/19): one row per
       respondent
@@ -16505,7 +16505,7 @@ models:
       - name: primary_sampling_unit
         description: >-
           Primary sampling unit
-  - name: eu_ess__round_10
+  - name: gb_eric_ess__round_10
     description: >-
       European Social Survey Round 10 integrated file (fielded 2020/21): one row per
       respondent
@@ -18454,7 +18454,7 @@ models:
       - name: primary_sampling_unit
         description: >-
           Primary sampling unit
-  - name: eu_ess__round_11
+  - name: gb_eric_ess__round_11
     description: >-
       European Social Survey Round 11 integrated file (fielded 2023/24): one row per
       respondent
@@ -20595,7 +20595,7 @@ models:
       - name: primary_sampling_unit
         description: >-
           Primary sampling unit
-  - name: eu_ess__dicionario
+  - name: gb_eric_ess__dicionario
     description: >-
       Dictionary table for the European Social Survey. Maps the stored numeric and
       string codes

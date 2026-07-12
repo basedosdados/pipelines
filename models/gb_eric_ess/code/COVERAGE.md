@@ -1,4 +1,4 @@
-# eu_ess — coverage and profiling notes
+# gb_eric_ess — coverage and profiling notes
 
 One wide table per ESS round (design B), partitioned by `year`. Observation level:
 individual respondent. Logical key: `[country_id, respondent_id]` (respondent id is

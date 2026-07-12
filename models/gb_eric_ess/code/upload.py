@@ -1,7 +1,7 @@
 """Upload cleaned ESS parquet tables to BigQuery dev (basedosdados-dev).
 
 Usage:
-    uv run python models/eu_ess/code/upload.py [round_NN ...]
+    uv run python models/gb_eric_ess/code/upload.py [round_NN ...]
 
 Uploads each round table sequentially (smallest first), stops on first failure.
 Expected row counts are read from the local parquet so this also handles rounds
@@ -21,7 +21,7 @@ import pyarrow.parquet as pq  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 
 BILLING_PROJECT = "basedosdados-dev"
-DATASET_ID = "eu_ess"
+DATASET_ID = "gb_eric_ess"
 OUTPUT_ROOT = Path(__file__).resolve().parent.parent / "output"
 
 # Requester-pays bucket: force user_project on every bucket() call.

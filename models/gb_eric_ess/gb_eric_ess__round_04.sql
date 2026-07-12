@@ -1,6 +1,6 @@
 {{
     config(
-        schema="eu_ess",
+        schema="gb_eric_ess",
         alias="round_04",
         materialized="table",
         partition_by={
@@ -1413,4 +1413,4 @@ select
     safe_cast(
         interview_length_minutes_main_questionnaire as int64
     ) interview_length_minutes_main_questionnaire
-from {{ set_datalake_project("eu_ess_staging.round_04") }} as t
+from {{ set_datalake_project("gb_eric_ess_staging.round_04") }} as t

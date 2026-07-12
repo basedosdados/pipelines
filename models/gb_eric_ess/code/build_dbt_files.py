@@ -1,10 +1,10 @@
-"""Generate DBT model files (.sql) and schema.yml for eu_ess.
+"""Generate DBT model files (.sql) and schema.yml for gb_eric_ess.
 
 Usage:
-    uv run python models/eu_ess/code/build_dbt_files.py profile [--cache PATH]
-    uv run python models/eu_ess/code/build_dbt_files.py generate [--cache PATH]
+    uv run python models/gb_eric_ess/code/build_dbt_files.py profile [--cache PATH]
+    uv run python models/gb_eric_ess/code/build_dbt_files.py generate [--cache PATH]
 
-`profile` scans the local partitioned parquet in models/eu_ess/output/ one round
+`profile` scans the local partitioned parquet in models/gb_eric_ess/output/ one round
 at a time to (1) verify the [country_id, respondent_id] key empirically and
 (2) compute per-column null rates. Results are cached to a JSON file.
 
@@ -27,7 +27,7 @@ CODE_DIR = Path(__file__).resolve().parent
 DATASET_DIR = CODE_DIR.parent
 ARCH_DIR = CODE_DIR / "architecture"
 OUTPUT_DIR = DATASET_DIR / "output"
-DATASET_ID = "eu_ess"
+DATASET_ID = "gb_eric_ess"
 
 YEAR = {
     1: 2002,

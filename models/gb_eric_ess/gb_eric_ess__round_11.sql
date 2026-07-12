@@ -1,6 +1,6 @@
 {{
     config(
-        schema="eu_ess",
+        schema="gb_eric_ess",
         alias="round_11",
         materialized="table",
         partition_by={
@@ -1402,4 +1402,4 @@ select
     safe_cast(selection_probability as float64) selection_probability,
     safe_cast(sampling_stratum as float64) sampling_stratum,
     safe_cast(primary_sampling_unit as float64) primary_sampling_unit
-from {{ set_datalake_project("eu_ess_staging.round_11") }} as t
+from {{ set_datalake_project("gb_eric_ess_staging.round_11") }} as t

@@ -1,6 +1,6 @@
 {{
     config(
-        schema="eu_ess",
+        schema="gb_eric_ess",
         alias="round_01",
         materialized="table",
         partition_by={
@@ -1132,4 +1132,4 @@ select
     safe_cast(
         administration_supplementary_questionnaire as string
     ) administration_supplementary_questionnaire
-from {{ set_datalake_project("eu_ess_staging.round_01") }} as t
+from {{ set_datalake_project("gb_eric_ess_staging.round_01") }} as t

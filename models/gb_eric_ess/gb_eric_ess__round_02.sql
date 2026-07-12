@@ -1,6 +1,6 @@
 {{
     config(
-        schema="eu_ess",
+        schema="gb_eric_ess",
         alias="round_02",
         materialized="table",
         partition_by={
@@ -1221,4 +1221,4 @@ select
     safe_cast(design_weight as float64) design_weight,
     safe_cast(poststratification_weight as float64) poststratification_weight,
     safe_cast(population_size_weight as float64) population_size_weight
-from {{ set_datalake_project("eu_ess_staging.round_02") }} as t
+from {{ set_datalake_project("gb_eric_ess_staging.round_02") }} as t

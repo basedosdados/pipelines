@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the eu_ess `dicionario` table from the ESS Stata value labels.
+"""Build the gb_eric_ess `dicionario` table from the ESS Stata value labels.
 
 For every column flagged covered_by_dictionary=yes in a round's architecture,
 emit one row per coded value: (id_tabela, nome_coluna, chave, cobertura_temporal,
@@ -7,7 +7,7 @@ valor). `chave` is the stored code as a string (matching clean_data's output);
 Stata extended-missing markers (single letters a-z, read as null in the data) are
 skipped. Output is a single non-partitioned parquet: output/dicionario/data.parquet.
 
-Usage: uv run python models/eu_ess/code/build_dictionary.py
+Usage: uv run python models/gb_eric_ess/code/build_dictionary.py
 """
 
 import csv
