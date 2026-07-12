@@ -42,6 +42,13 @@ TABLES = [
     ("congress_member", 12767),
     ("naics_2022", 2125),
     ("soc_2018", 1447),
+    ("census_industry_2002", 270),
+    ("census_industry_2007", 270),
+    ("census_industry_2012", 269),
+    ("census_industry_2017", 271),
+    ("census_occupation_2002", 510),
+    ("census_occupation_2010", 540),
+    ("census_occupation_2018", 570),
 ]
 
 

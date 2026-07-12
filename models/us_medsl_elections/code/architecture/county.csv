@@ -1,0 +1,12 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Election year.,,no,br_bd_diretorios_data_tempo.ano:ano,,no,,year
+id_state,STRING,"State FIPS code (2-digit, zero-padded).",,no,br_bd_diretorios_us.state:id_state,,no,Resolved from the state postal abbreviation.,state_fips
+id_county,STRING,"County FIPS code (5-digit, zero-padded).",,no,br_bd_diretorios_us.county:id_county,,no,"Blank for non-county reporting units (e.g. overseas/UOCAVA, statewide write-in); MEDSL city codes such as 2938000 (Kansas City) are 7 digits.",county_fips
+office,STRING,Office contested (US PRESIDENT).,,no,,,no,,office
+candidate,STRING,"Candidate name, uppercase.",,no,,,no,,candidate
+party_detailed,STRING,"Full party label of the candidate's ballot line, uppercase.",,no,,,no,Mapped from the source single-party column.,party
+party_simplified,STRING,"Party collapsed to DEMOCRAT, REPUBLICAN, LIBERTARIAN or OTHER.",,no,,,no,Derived from party.,party
+mode,STRING,Mode of voting; TOTAL when returns are not broken down by mode.,,no,,,no,,mode
+votes,INT64,Votes received by the candidate in this county.,,no,,,no,,candidatevotes
+total_votes,INT64,Total votes cast in this county contest.,,no,,,no,,totalvotes
+version,STRING,Source dataset finalization date (YYYYMMDD).,,no,,,no,,version

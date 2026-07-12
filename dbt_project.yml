@@ -37,6 +37,9 @@ models:
     columns: true
   basedosdados:
     # Config indicated by + and applies to all files under models/example/
+    af_afrobarometer_survey:
+      +materialized: table
+      +schema: af_afrobarometer_survey
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
@@ -85,6 +88,9 @@ models:
     br_bd_diretorios_us:
       +materialized: table
       +schema: br_bd_diretorios_us
+    us_bls_atus:
+      +materialized: table
+      +schema: us_bls_atus
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
@@ -415,6 +421,9 @@ models:
     us_ed_ipeds:
       +materialized: table
       +schema: us_ed_ipeds
+    us_medsl_elections:
+      +materialized: table
+      +schema: us_medsl_elections
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
