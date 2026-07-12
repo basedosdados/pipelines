@@ -299,7 +299,7 @@ print("\nProcessamento finalizado com sucesso.")
 tb = bd.Table(dataset_id="br_ibge_pnadc", table_id="educacao")
 
 tb.create(
-    path=output,  # Só precisa colocar o caminho da pasta raiz da partição
+    path=output,
     if_table_exists="replace",
     if_storage_data_exists="replace",
     source_format="csv",
