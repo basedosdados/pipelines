@@ -1092,6 +1092,7 @@ models:
           at_least: 0.05
       - education_flow_rates_sum_to_100:
           tolerance: 0.2
+          identifier_column: id_municipio
     columns:
       - name: ano
         description: Ano
@@ -2344,6 +2345,7 @@ models:
           at_least: 0.05
       - education_flow_rates_sum_to_100:
           tolerance: 0.2
+          identifier_column: sigla_uf
     columns:
       - name: ano
         description: Ano
