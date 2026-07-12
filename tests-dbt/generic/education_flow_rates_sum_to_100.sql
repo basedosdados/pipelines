@@ -1,12 +1,9 @@
-{% test education_flow_rates_sum_to_100(
-    model, tolerance=0.2, identifier_column=none
-) %}
+{% test education_flow_rates_sum_to_100(model, tolerance=0.2, identifier_column=none) %}
 
     with
         rates as (
             select
-                {% if identifier_column %}
-                    {{ identifier_column }}
+                {% if identifier_column %} {{ identifier_column }}
                 {% else %} cast(null as string)
                 {% endif %} as entity_id,
                 ano,
@@ -21,8 +18,7 @@
             union all
 
             select
-                {% if identifier_column %}
-                    {{ identifier_column }}
+                {% if identifier_column %} {{ identifier_column }}
                 {% else %} cast(null as string)
                 {% endif %} as entity_id,
                 ano,
@@ -37,8 +33,7 @@
             union all
 
             select
-                {% if identifier_column %}
-                    {{ identifier_column }}
+                {% if identifier_column %} {{ identifier_column }}
                 {% else %} cast(null as string)
                 {% endif %} as entity_id,
                 ano,
