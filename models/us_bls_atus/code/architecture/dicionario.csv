@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Slug of the ATUS table the dictionary entry describes.,,no,,,no,,id_tabela
+nome_coluna,STRING,Name of the column the dictionary entry describes.,,no,,,no,,nome_coluna
+chave,STRING,Coded value (key) exactly as stored in the data.,,no,,,no,,chave
+cobertura_temporal,STRING,Temporal coverage of the key.,,no,,,no,,cobertura_temporal
+valor,STRING,Human-readable label corresponding to the coded value.,,no,,,no,,valor

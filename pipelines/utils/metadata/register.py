@@ -104,12 +104,56 @@ def register_source_poll_by_size(
     - tamanho MAIOR  → novidade: grava Poll + Update(latest=hoje), devolve True.
     - tamanho IGUAL  → sem novidade: grava só Poll, devolve False.
     - tamanho MENOR  → `ValueError` (a fonte encolheu — possível quebra de schema).
-    """
-    today = datetime.datetime.today()
-    today_key = today.strftime("%Y-%m-%d")
 
+    Mantém o comportamento original de gravar o histórico de tamanho e o Update
+    no mesmo passo do poll. Flows que precisam adiar essas escritas para depois
+    da materialização devem chamar `poll_source_size_for_update` e
+    `commit_source_size_update` separadamente.
+    """
+    has_update = poll_source_size_for_update(
+        client=client,
+        redis=redis,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        byte_length=byte_length,
+    )
+
+    if has_update:
+        commit_source_size_update(
+            client=client,
+            redis=redis,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            byte_length=byte_length,
+        )
+
+    return has_update
+
+
+def poll_source_size_for_update(
+    client, redis, dataset_id: str, table_id: str, byte_length: int
+) -> bool:
+    """Detecta novidade por TAMANHO, sem gravar histórico nem Update.
+
+    Contraparte por bytes de :func:`poll_source_for_update`. Sempre grava um
+    ``RawDataSource.Poll`` (data de hoje) e compara ``byte_length`` com o último
+    tamanho registrado no Redis, mas **não** grava o novo tamanho no histórico
+    nem o ``RawDataSource.Update`` — essas escritas ficam a cargo de
+    :func:`commit_source_size_update`, chamada só após a materialização. Assim,
+    se o flow falha no meio, nem o histórico de tamanho nem o Update avançam, e a
+    run seguinte ainda detecta a novidade e retenta.
+
+    - tamanho MAIOR (ou primeira vez) → novidade: grava só Poll, devolve True.
+    - tamanho IGUAL  → sem novidade: grava só Poll, devolve False.
+    - tamanho MENOR  → `ValueError` (a fonte encolheu — possível quebra de schema).
+
+    See Also
+    --------
+    commit_source_size_update : Grava histórico + Update ao fim do flow.
+    register_source_poll_by_size : Versão eager (detecta e grava numa só chamada).
+    """
     client.upsert_raw_source_poll(
-        dataset_id, table_id, latest=today
+        dataset_id, table_id, latest=datetime.datetime.today()
     )  # Poll: sempre
 
     dataset_data = redis.get(dataset_id) or {}
@@ -131,6 +175,31 @@ def register_source_poll_by_size(
                 f"original (coluna removida, recodificação, etc.)"
             )
 
+    log("Há atualizações na fonte original (tamanho maior)")
+    return True
+
+
+def commit_source_size_update(
+    client, redis, dataset_id: str, table_id: str, byte_length: int
+) -> None:
+    """Grava o histórico de tamanho (Redis) e o ``RawDataSource.Update``.
+
+    Contraparte por bytes de :func:`commit_source_update`. Registra
+    ``byte_length`` no histórico do Redis (mantendo os últimos 10 registros) e
+    grava ``RawDataSource.Update.latest`` com a data de hoje. Deve ser chamada
+    **só ao fim do flow**, depois de a materialização ter dado certo, de modo que
+    o histórico e o Update só avancem quando o dado de fato chegou ao destino.
+
+    See Also
+    --------
+    poll_source_size_for_update : Detecta a novidade sem gravar histórico/Update.
+    """
+    today = datetime.datetime.today()
+    today_key = today.strftime("%Y-%m-%d")
+
+    dataset_data = redis.get(dataset_id) or {}
+    table_data = dataset_data.get(table_id, {})
+
     table_data[today_key] = byte_length
 
     # mantém os últimos 10 registros
@@ -142,7 +211,6 @@ def register_source_poll_by_size(
 
     client.upsert_raw_source_update(dataset_id, table_id, latest=today)
     log("Fonte atualizada (tamanho maior) — Update gravado")
-    return True
 
 
 def register_table_materialization(

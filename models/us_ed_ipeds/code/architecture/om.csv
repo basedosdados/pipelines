@@ -1,0 +1,69 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+omchrt,INT64,Cohort category,,no,,,no,,omchrt
+xomrchrt,STRING,Imputation field for OMRCHRT - 2015-16 cohort,,no,,,no,,xomrchrt
+omrchrt,FLOAT64,2015-16 cohort,,no,,,no,,omrchrt
+xomexcls,STRING,Imputation field for OMEXCLS - Exclusions to 2015-16 cohort,,no,,,no,,xomexcls
+omexcls,FLOAT64,Exclusions to 2015-16 cohort,,no,,,no,,omexcls
+xomachrt,STRING,Imputation field for OMACHRT - Adjusted 2015-16 cohort,,no,,,no,,xomachrt
+omachrt,FLOAT64,Adjusted 2015-16 cohort,,no,,,no,,omachrt
+xomcert4,STRING,"Imputation field for OMCERT4 - Number of adjusted cohort receiving a certificate at 4 years (August 31, 2019)",,no,,,no,,xomcert4
+omcert4,FLOAT64,"Number of adjusted cohort receiving a certificate at 4 years (August 31, 2019)",,no,,,no,,omcert4
+xomassc4,STRING,"Imputation field for OMASSC4 - Number of adjusted cohort receiving an Associate's degree at 4 years (August 31, 2019)",,no,,,no,,xomassc4
+omassc4,FLOAT64,"Number of adjusted cohort receiving an Associate's degree at 4 years (August 31, 2019)",,no,,,no,,omassc4
+xombach4,STRING,"Imputation field for OMBACH4 - Number of adjusted cohort receiving a Bachelor's degree at 4 years (August 31, 2019)",,no,,,no,,xombach4
+ombach4,FLOAT64,"Number of adjusted cohort receiving a Bachelor's degree at 4 years (August 31, 2019)",,no,,,no,,ombach4
+xomawdn4,STRING,"Imputation field for OMAWDN4 - Number of adjusted cohort receiving an award at 4 years (August 31, 2019)",,no,,,no,,xomawdn4
+omawdn4,FLOAT64,"Number of adjusted cohort receiving an award at 4 years (August 31, 2019)",,no,,,no,,omawdn4
+xomawdp4,STRING,"Imputation field for OMAWDP4 - Percent of adjusted cohort receiving an award at 4 years (August 31, 2019)",,no,,,no,,xomawdp4
+omawdp4,FLOAT64,"Percent of adjusted cohort receiving an award at 4 years (August 31, 2019)",,no,,,no,,omawdp4
+xomcert6,STRING,"Imputation field for OMCERT6 - Number of adjusted cohort receiving a certificate at 6 years (August 31, 2021)",,no,,,no,,xomcert6
+omcert6,FLOAT64,"Number of adjusted cohort receiving a certificate at 6 years (August 31, 2021)",,no,,,no,,omcert6
+xomassc6,STRING,"Imputation field for OMASSC6 - Number of adjusted cohort receiving an Associate's degree at 6 years (August 31, 2021)",,no,,,no,,xomassc6
+omassc6,FLOAT64,"Number of adjusted cohort receiving an Associate's degree at 6 years (August 31, 2021)",,no,,,no,,omassc6
+xombach6,STRING,"Imputation field for OMBACH6 - Number of adjusted cohort receiving a Bachelor's degree at 6 years (August 31, 2021)",,no,,,no,,xombach6
+ombach6,FLOAT64,"Number of adjusted cohort receiving a Bachelor's degree at 6 years (August 31, 2021)",,no,,,no,,ombach6
+xomawdn6,STRING,"Imputation field for OMAWDN6 - Number of adjusted cohort receiving an award at 6 years (August 31, 2021)",,no,,,no,,xomawdn6
+omawdn6,INT64,"Number of adjusted cohort receiving an award at 6 years (August 31, 2021)",,no,,,no,,omawdn6
+xomawdp6,STRING,"Imputation field for OMAWDP6 - Percent of adjusted cohort receiving an award at 6 years (August 31, 2021)",,no,,,no,,xomawdp6
+omawdp6,FLOAT64,"Percent of adjusted cohort receiving an award at 6 years (August 31, 2021)",,no,,,no,,omawdp6
+xomcert8,STRING,"Imputation field for OMCERT8 - Number of adjusted cohort receiving a certificate at 8 years (August 31, 2023)",,no,,,no,,xomcert8
+omcert8,FLOAT64,"Number of adjusted cohort receiving a certificate at 8 years (August 31, 2023)",,no,,,no,,omcert8
+xomassc8,STRING,"Imputation field for OMASSC8 - Number of adjusted cohort receiving an Associate's degree at 8 years (August 31, 2023)",,no,,,no,,xomassc8
+omassc8,FLOAT64,"Number of adjusted cohort receiving an Associate's degree at 8 years (August 31, 2023)",,no,,,no,,omassc8
+xombach8,STRING,"Imputation field for OMBACH8 - Number of adjusted cohort receiving a Bachelor's degree at 8 years (August 31, 2023)",,no,,,no,,xombach8
+ombach8,FLOAT64,"Number of adjusted cohort receiving a Bachelor's degree at 8 years (August 31, 2023)",,no,,,no,,ombach8
+xomawdn8,STRING,"Imputation field for OMAWDN8 - Number of adjusted cohort receiving an award at 8 years (August 31, 2023)",,no,,,no,,xomawdn8
+omawdn8,INT64,"Number of adjusted cohort receiving an award at 8 years (August 31, 2023)",,no,,,no,,omawdn8
+xomenryi,STRING,"Imputation field for OMENRYI - Number of adjusted cohort still enrolled at your institution at 8 years (August 31, 2023)",,no,,,no,,xomenryi
+omenryi,INT64,"Number of adjusted cohort still enrolled at your institution at 8 years (August 31, 2023)",,no,,,no,,omenryi
+xomenrai,STRING,"Imputation field for OMENRAI - Number of adjusted cohort who enrolled subsequently at another institution at 8 years (August 31, 2023)",,no,,,no,,xomenrai
+omenrai,INT64,"Number of adjusted cohort who enrolled subsequently at another institution at 8 years (August 31, 2023)",,no,,,no,,omenrai
+xomenrun,STRING,"Imputation field for OMENRUN - Number of adjusted cohort whose subsequent enrollment status is unknown at 8 years (August 31, 2023)",,no,,,no,,xomenrun
+omenrun,INT64,"Number of adjusted cohort whose subsequent enrollment status is unknown at 8 years (August 31, 2023)",,no,,,no,,omenrun
+xomnoawd,STRING,"Imputation field for OMNOAWD - Number of adjusted cohort who did not receive an award from your institution at 8 years (August 31, 2023)",,no,,,no,,xomnoawd
+omnoawd,INT64,"Number of adjusted cohort who did not receive an award from your institution at 8 years (August 31, 2023)",,no,,,no,,omnoawd
+xomawdp8,STRING,"Imputation field for OMAWDP8 - Percent of adjusted cohort receiving an award at 8 years (August 31, 2023)",,no,,,no,,xomawdp8
+omawdp8,FLOAT64,"Percent of adjusted cohort receiving an award at 8 years (August 31, 2023)",,no,,,no,,omawdp8
+xomenrtp,STRING,"Imputation field for OMENRTP - Percent of adjusted cohort still or subsequently enrolled at 8 years (August 31, 2023)",,no,,,no,,xomenrtp
+omenrtp,FLOAT64,"Percent of adjusted cohort still or subsequently enrolled at 8 years (August 31, 2023)",,no,,,no,,omenrtp
+xomenryp,STRING,"Imputation field for OMENRYP - Percent of adjusted cohort still enrolled at your institution at 8 years (August 31, 2023)",,no,,,no,,xomenryp
+omenryp,FLOAT64,"Percent of adjusted cohort still enrolled at your institution at 8 years (August 31, 2023)",,no,,,no,,omenryp
+xomenrap,STRING,"Imputation field for OMENRAP - Percent of adjusted cohort  enrolled subsequently at another institution at 8 years (August 31, 2023)",,no,,,no,,xomenrap
+omenrap,FLOAT64,"Percent of adjusted cohort  enrolled subsequently at another institution at 8 years (August 31, 2023)",,no,,,no,,omenrap
+xomenrup,STRING,"Imputation field for OMENRUP - Percent of adjusted cohort  enrollment status unknown at 8 years (August 31, 2023)",,no,,,no,,xomenrup
+omenrup,FLOAT64,"Percent of adjusted cohort  enrollment status unknown at 8 years (August 31, 2023)",,no,,,no,,omenrup
+xomrcht6,STRING,"Imputation field for OMRCHT6 - Revised 2008 cohort at 6 years (August 31, 2014)",,no,,,no,,xomrcht6
+omrcht6,FLOAT64,"Revised 2008 cohort at 6 years (August 31, 2014)",,no,,,no,,omrcht6
+xomexcl6,STRING,"Imputation field for OMEXCL6 - Exclusions to 2008 cohort at 6 years (August 31, 2014)",,no,,,no,,xomexcl6
+omexcl6,FLOAT64,"Exclusions to 2008 cohort at 6 years (August 31, 2014)",,no,,,no,,omexcl6
+xomacht6,STRING,"Imputation field for OMACHT6 - Adjusted 2008 cohort at 6 years (August 31, 2014)",,no,,,no,,xomacht6
+omacht6,FLOAT64,"Adjusted 2008 cohort at 6 years (August 31, 2014)",,no,,,no,,omacht6
+xomexcl8,STRING,"Imputation field for OMEXCL8 - Additional exclusions (September 1, 2014 through August 31, 2016)",,no,,,no,,xomexcl8
+omexcl8,FLOAT64,"Additional exclusions (September 1, 2014 through August 31, 2016)",,no,,,no,,omexcl8
+xomacht8,STRING,"Imputation field for OMACHT8 - Adjusted 2008 cohort at 8 years (August 31, 2016)",,no,,,no,,xomacht8
+omacht8,FLOAT64,"Adjusted 2008 cohort at 8 years (August 31, 2016)",,no,,,no,,omacht8
+xomrcht8,STRING,"Imputation field for OMRCHT8 - Revised 2007 cohort at 8 years (August 31, 2015)",,no,,,no,,xomrcht8
+omrcht8,FLOAT64,"Revised 2007 cohort at 8 years (August 31, 2015)",,no,,,no,,omrcht8
+omflag,FLOAT64,OM data inconsistency flag,,no,,,no,,omflag

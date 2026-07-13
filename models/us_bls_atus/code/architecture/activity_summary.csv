@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the ATUS interview (diary year).,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Partition column, renamed from TUYEAR.",TUYEAR
+tucaseid,STRING,ATUS case identification number; primary key that links all ATUS files. First four digits are the interview year.,,no,,,no,,TUCASEID
+activity_code,STRING,Six-digit ATUS activity code (2003-24 Coding Lexicon) that time was reported against.,,yes,,,no,"From the wide atussum t###### columns, reshaped to long. Coded by the ATUS Activity Coding Lexicon.",t<activity_code> column name
+duration_minutes,INT64,Total minutes the respondent spent doing the activity on the diary day.,,no,,minute,no,Value of the corresponding atussum t###### column.,t<activity_code> column value
