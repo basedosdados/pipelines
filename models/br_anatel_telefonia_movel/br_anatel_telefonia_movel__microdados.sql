@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2019, "end": 2023, "interval": 1},
+            "range": {"start": 2019, "end": 2031, "interval": 1},
         },
         cluster_by=["id_municipio", "mes"],
         labels={"project_id": "basedosdados"},
@@ -28,5 +28,5 @@ select
     safe_cast(modalidade as string) modalidade,
     safe_cast(pessoa as string) pessoa,
     safe_cast(produto as string) produto,
-    safe_cast(acessos as int64) acessos
+    safe_cast(safe_cast(acessos as float64) as int64) acessos
 from {{ set_datalake_project("br_anatel_telefonia_movel_staging.microdados") }} as t

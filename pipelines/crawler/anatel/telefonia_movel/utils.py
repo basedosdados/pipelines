@@ -4,6 +4,7 @@ General purpose functions for the br_anatel_telefonia_movel project of the pipel
 
 import gc
 import os
+import unicodedata
 from zipfile import ZipFile
 
 import pandas as pd
@@ -13,6 +14,38 @@ from pipelines.crawler.anatel.telefonia_movel.constants import (
     constants as anatel_constants,
 )
 from pipelines.utils.utils import log, to_partitions
+
+
+def normalize_label(value: str) -> str:
+    """Normaliza um rótulo textual para comparação robusta.
+
+    Remove acentuação, converte para minúsculas e retira espaços nas pontas, de
+    modo que variações como ``"Município"``, ``"MUNICIPIO"`` ou ``" municipio "``
+    comparem como iguais. Usado nos filtros de ``geografia`` (Brasil/UF/Município)
+    para não quebrarem caso a Anatel revise a grafia dos rótulos.
+
+    Parameters
+    ----------
+    value : str
+        Rótulo bruto vindo da fonte.
+
+    Returns
+    -------
+    str
+        Rótulo normalizado: sem acento, minúsculo, sem espaços nas pontas.
+    """
+
+    value = str(value)
+
+    value_nfkd = unicodedata.normalize("NFKD", value)
+
+    ascii_bytes = value_nfkd.encode(encoding="ASCII", errors="ignore")
+
+    value_bytes_ascii_decoded = ascii_bytes.decode(encoding="ASCII")
+
+    normalized_value = value_bytes_ascii_decoded.strip().lower()
+
+    return normalized_value
 
 
 def download_zip_file():
@@ -106,7 +139,9 @@ def clean_csv_brasil(table_id):
         columns={"Nível Geográfico Densidade": "geografia"}
     )
 
-    densidade_brasil = densidade[densidade["geografia"] == "Brasil"]
+    densidade_brasil = densidade[
+        densidade["geografia"].map(normalize_label) == "brasil"
+    ]
 
     densidade_brasil = densidade_brasil[
         anatel_constants.ORDER_COLUMNS_BRASIL.value
@@ -144,7 +179,9 @@ def clean_csv_uf(table_id):
         columns={"Nível Geográfico Densidade": "geografia"}
     )
 
-    densidade_uf = densidade[densidade["geografia"] == "UF"]
+    densidade_uf = densidade[
+        densidade["geografia"].map(normalize_label) == "uf"
+    ]
 
     densidade_uf = densidade_uf[anatel_constants.ORDER_COLUMNS_UF.value]
 
@@ -177,7 +214,10 @@ def clean_csv_municipio(table_id):
     densidade = densidade.rename(
         columns={"Nível Geográfico Densidade": "geografia"}
     )
-    densidade_municipio = densidade[densidade["geografia"] == "Municipio"]
+    densidade_municipio = densidade[
+        densidade["geografia"].map(normalize_label) == "municipio"
+    ]
+
     densidade_municipio = densidade_municipio[
         anatel_constants.ORDER_COLUMNS_MUNICIPIO.value
     ]
