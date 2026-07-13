@@ -1,5 +1,20 @@
 """
 Flows para br_cgu_servidores_executivo_federal — Prefect 3.
+
+Cada flow corresponde a uma tabela do conjunto e combina um ou mais
+pacotes/subsistemas do Portal da Transparência (SIAPE, BACEN, Militares,
+DEFESA, Reserva/Reforma).
+
+Disponibilidade tudo-ou-nada: o Portal publica os subsistemas em datas
+escalonadas dentro do mês. O gate ``verify_all_url_exists_to_download`` exige
+que todos os subsistemas da tabela estejam disponíveis antes de baixar; se
+algum ainda não foi publicado, o flow encerra sem persistir e tenta novamente
+no próximo run. Assim, um mês só é ingerido quando está completo.
+
+Dependência de User-Agent: requisições sem User-Agent de browser são
+bloqueadas pelo Portal com HTTP 405. Por isso as chamadas usam
+``source_url_is_available``, que envia o UA e ainda trata o HTTP 202 (retornado
+enquanto o ZIP é gerado de forma assíncrona).
 """
 
 from prefect import flow

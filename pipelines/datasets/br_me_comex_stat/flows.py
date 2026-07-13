@@ -18,7 +18,8 @@ from pipelines.utils.metadata.domain import (
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -49,14 +50,14 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
         last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
 
         if not force_run:
-            is_outdated = register_source_poll_task(
+            has_new_data = poll_source_for_update_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 source_max_date=last_date,
                 env="prod",
                 date_format="%Y-%m",
             )
-            if not is_outdated:
+            if not has_new_data:
                 return
 
         download_br_me_comex_stat(
@@ -116,6 +117,15 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
                 env="prod",
                 bq_project="basedosdados",
             )
+
+            if last_date is not None:
+                commit_source_update_task(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    source_max_date=last_date,
+                    env="prod",
+                    date_format="%Y-%m",
+                )
 
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
