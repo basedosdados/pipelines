@@ -1,6 +1,6 @@
 {{
     config(
-        alias="operacoes_contratadas_forma_indireta_automatica",
+        alias="operacoes_indiretas_automaticas",
         schema="br_bndes_operacoes_contratadas",
         materialized="table",
         partition_by={
@@ -49,7 +49,6 @@ select
 from
     {{
         set_datalake_project(
-            "br_bndes_operacoes_contratadas_staging.operacoes_contratadas_forma_indireta_automatica"
+            "br_bndes_operacoes_contratadas_staging.operacoes_indiretas_automaticas"
         )
-    }}
-    as t
+    }} as t

@@ -19,7 +19,7 @@ import pyarrow as pa
 
 class constants(Enum):
     DATASET_ID = "br_bndes_operacoes_contratadas"
-    TABLE_ID = "operacoes_contratadas_forma_indireta_automatica"
+    TABLE_ID = "operacoes_indiretas_automaticas"
     CKAN_RESOURCE_ID = "612faa0b-b6be-4b2c-9317-da5dc2c0b901"
 
     RESOURCE_SHOW_URL = (

@@ -144,7 +144,7 @@ models:
         tests: [not_null]
       - name: indicador_inovacao
         description: Indicador de inovação do projeto
-  - name: br_bndes_operacoes_contratadas__operacoes_contratadas_forma_indireta_automatica
+  - name: br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas
     description: >
       Operações de financiamento contratadas pelo BNDES na forma indireta
       automática (pequeno porte, repassadas por instituições financeiras

@@ -1,13 +1,13 @@
-# br_bndes_operacoes_contratadas — Operações Contratadas na Forma Indireta Automática
+# br_bndes_operacoes_contratadas — Operações Indiretas Automáticas
 
-Contexto e decisões da pipeline da tabela `operacoes_contratadas_forma_indireta_automatica`
+Contexto e decisões da pipeline da tabela `operacoes_indiretas_automaticas`
 (conjunto `br_bndes_operacoes_contratadas`; slug de backend do conjunto: `operacoes_contratadas`).
 
 ## O que é
 
 Operações de financiamento **contratadas** pelo BNDES na forma **indireta automática** (menor
 valor, repassadas por instituições financeiras credenciadas). Grão = **uma operação contratada**
-(não há identificador único de operação na fonte). Cobertura nacional, **2002–2026**, ~2,36
+(não há identificador único de operação na fonte). Cobertura nacional, **2002-01 a 2026-05**, ~2,36
 milhões de linhas. Não inclui Cartão BNDES nem operações com pessoas físicas (o documento do
 cliente é sempre CNPJ).
 
@@ -39,6 +39,9 @@ arquivo). Sinal de atualização = **`last_modified`** do recurso, via
   pra não criar FK quebrado contra `br_bd_diretorios_brasil.municipio` (nulo passa no teste).
 - **CNAE não vira FK** (classificação própria do BNDES; CNAE 2.2 ≠ `cnae_2` do diretório).
 - **`has_sensitive_data = no`** (CNPJ mascarado na origem; varredura confirmou zero CPF).
+- **Nome da tabela `operacoes_indiretas_automaticas`** — paralelo à irmã `operacoes_nao_automaticas`,
+  sem redundância com o conjunto ("Operações Contratadas") e ≤3 palavras (manual de estilo). O
+  nome inicial gerado por IA (`operacoes_contratadas_forma_indireta_automatica`) foi ajustado em review.
 - **Observation level = `transaction`** (grão de operação; a BD não tem entidade "operação").
 - DBT sem `unique_combination` (grão-operação sem PK). Os testes de `relationships` são
   escopados a `__most_recent_year__` (tabela grande).
@@ -64,5 +67,6 @@ arquivo). Sinal de atualização = **`last_modified`** do recurso, via
 
 Registrados **direto em produção** (o backend de dev foi desativado durante a onboarding): no
 conjunto existente `operacoes_contratadas`, tabela em status **`under_review`** (aguardando code
-review para promover a `published`). Descrições PT/EN/ES, coverage 2002–2026, cloud table em
-`basedosdados.br_bndes_operacoes_contratadas`.
+review para promover a `published`). Descrições PT/EN/ES, coverage **2002-01 a 2026-05** (ano-mês,
+refletindo a atualização mensal da fonte), cloud table em `basedosdados.br_bndes_operacoes_contratadas`.
+A raw source (nome = nome da tabela) tem o Update mensal preenchido; o Poll é gravado na 1ª run.
