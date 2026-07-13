@@ -2302,7 +2302,7 @@ models:
         tests:
           - dbt_utils.not_null_proportion:
               at_least: 0.01
-      - name: v3019A
+      - name: v3019a
         description: '... frequenta curso técnico de nível médio ou curso normal (magistério)?'
         tests:
           - dbt_utils.not_null_proportion:
@@ -2339,13 +2339,13 @@ models:
         tests:
           - dbt_utils.not_null_proportion:
               at_least: 0.01
-      - name: v3022D
+      - name: v3022d
         description: 'Esse curso técnico ou curso normal (magistério) que frequentou
           era feito em:'
         tests:
           - dbt_utils.not_null_proportion:
               at_least: 0.01
-      - name: v3022E
+      - name: v3022e
         description: Em que ano ... iniciou este curso técnico ou curso normal (magistério)
           que frequentou?
         tests:
