@@ -1,6 +1,6 @@
 # br_bndes_operacoes_contratadas — Operações Indiretas Automáticas
 
-Contexto e decisões da pipeline da tabela `operacoes_indiretas_automaticas`
+Contexto e decisões do pipeline da tabela `operacoes_indiretas_automaticas`
 (conjunto `br_bndes_operacoes_contratadas`; slug de backend do conjunto: `operacoes_contratadas`).
 
 ## O que é
