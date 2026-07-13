@@ -2434,7 +2434,7 @@ models:
         tests:
           - dbt_utils.not_null_proportion:
               at_least: 0.01
-      - name: gity
+      - name: v3034a
         description: Com que idade ... deixou de frequentar escola /o curso superior
           pela última vez?
         tests:
