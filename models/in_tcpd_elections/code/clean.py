@@ -54,7 +54,7 @@ PA_TYPE = {
     "INT64": pa.int64(),
     "FLOAT64": pa.float64(),
     "STRING": pa.string(),
-    "BOOL": pa.bool_(),
+    "BOOLEAN": pa.bool_(),
 }
 
 
@@ -118,7 +118,7 @@ def cast_by_type(s: pd.Series, bqtype: str) -> pd.Series:
         return cast_int64(s)
     if bqtype == "FLOAT64":
         return cast_float64(s)
-    if bqtype == "BOOL":
+    if bqtype == "BOOLEAN":
         return cast_bool(s)
     raise ValueError(f"Unknown bigquery_type: {bqtype!r}")
 

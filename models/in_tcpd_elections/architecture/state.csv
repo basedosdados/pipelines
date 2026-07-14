@@ -3,5 +3,5 @@ acronym,STRING,Código canônico de duas letras da unidade federativa (estado ou
 name,STRING,Nome da unidade federativa em inglês,,no,,,no,,state_name
 iso_3166_2,STRING,Código ISO 3166-2:IN da unidade (ex.: IN-TN); vazio para entidades extintas sem código,,no,,,no,,iso_3166_2
 type,STRING,Tipo da unidade: estado (state) ou território da união (union_territory),,no,,,no,,state_type
-is_current,BOOL,Indica se a unidade existe atualmente nesta forma,,no,,,no,,is_current
+is_current,BOOLEAN,Indica se a unidade existe atualmente nesta forma,,no,,,no,,is_current
 successor_acronym,STRING,Código da unidade sucessora para entidades extintas ou renomeadas; vazio se atual,,no,,,no,,successor_acronym

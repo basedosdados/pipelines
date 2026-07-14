@@ -28,15 +28,15 @@ vote_share_percentage,FLOAT64,Percentual de votos recebidos pelo candidato (voto
 margin_votes,INT64,Diferença de votos entre o candidato e o candidato de posição imediatamente seguinte,,no,,vote,no,,Margin
 margin_percentage,FLOAT64,Diferença percentual de participação nos votos entre o candidato e o de posição seguinte,,no,,percent,no,,Margin_Percentage
 enop,FLOAT64,"Número efetivo de partidos no distrito eleitoral (índice de Laakso e Taagepera, derivado das participações nos votos)",,no,,,no,Índice adimensional.,ENOP
-deposit_lost,BOOL,Indica se o candidato perdeu o depósito eleitoral,,no,,,no,,Deposit_Lost
-incumbent,BOOL,Indica se o candidato era membro em exercício da casa legislativa no momento da eleição,,no,,,no,,Incumbent
-recontest,BOOL,Indica se o candidato disputou a eleição imediatamente anterior,,no,,,no,,Recontest
-last_poll,BOOL,Indica se esta foi a última eleição realizada no distrito antes da dissolução da legislatura,,no,,,no,,last_poll
+deposit_lost,BOOLEAN,Indica se o candidato perdeu o depósito eleitoral,,no,,,no,,Deposit_Lost
+incumbent,BOOLEAN,Indica se o candidato era membro em exercício da casa legislativa no momento da eleição,,no,,,no,,Incumbent
+recontest,BOOLEAN,Indica se o candidato disputou a eleição imediatamente anterior,,no,,,no,,Recontest
+last_poll,BOOLEAN,Indica se esta foi a última eleição realizada no distrito antes da dissolução da legislatura,,no,,,no,,last_poll
 contested,INT64,"Número de vezes que o candidato disputou eleições até esta, inclusive",,no,,election,no,,Contested
 terms,INT64,"Número de legislaturas distintas em que o candidato venceu, inclusive esta",,no,,term,no,,No_Terms
-turncoat,BOOL,Indica se o candidato trocou de partido em relação à eleição imediatamente anterior,,no,,,no,,Turncoat
-same_constituency,BOOL,Indica se o candidato disputou o mesmo distrito eleitoral em sua disputa anterior,,no,,,no,Vazio quando não há disputa anterior.,Same_Constituency
-same_party,BOOL,Indica se o candidato disputou pelo mesmo partido em sua disputa anterior,,no,,,no,Vazio quando não há disputa anterior.,Same_Party
+turncoat,BOOLEAN,Indica se o candidato trocou de partido em relação à eleição imediatamente anterior,,no,,,no,,Turncoat
+same_constituency,BOOLEAN,Indica se o candidato disputou o mesmo distrito eleitoral em sua disputa anterior,,no,,,no,Vazio quando não há disputa anterior.,Same_Constituency
+same_party,BOOLEAN,Indica se o candidato disputou pelo mesmo partido em sua disputa anterior,,no,,,no,Vazio quando não há disputa anterior.,Same_Party
 last_party,STRING,Sigla do partido pelo qual o candidato disputou em sua disputa anterior,,no,,,no,,Last_Party
 last_party_id,STRING,Identificador do partido pelo qual o candidato disputou em sua disputa anterior,,no,,,no,,Last_Party_ID
 last_constituency_name,STRING,Nome do distrito eleitoral que o candidato disputou em sua disputa anterior,,no,,,no,,Last_Constituency_Name
