@@ -41,3 +41,4 @@ br_me_cnpj__simples = _me_cnpj_flow(table_id="simples", cron="0 8 * * *")
 br_me_cnpj__estabelecimentos = _me_cnpj_flow(
     table_id="estabelecimentos", cron="0 9 * * *"
 )
+# temp: trigger deploy-flow CI to redeploy to basedosdados-dev (revert before merge)
