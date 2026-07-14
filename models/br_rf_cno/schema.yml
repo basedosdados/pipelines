@@ -55,7 +55,12 @@ models:
       obra.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [id_cno]
+          combination_of_columns:
+            - id_cno
+            - categoria
+            - destinacao
+            - tipo_area
+            - tipo_area_complementar
           config:
             where: __most_recent_date_cno__
     columns:
