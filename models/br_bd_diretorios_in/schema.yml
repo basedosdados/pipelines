@@ -1,0 +1,38 @@
+---
+version: 2
+models:
+  - name: br_bd_diretorios_in__state
+    description: >
+      Diretório de unidades federativas da Índia (estados e territórios da
+      união), com código canônico de duas letras, nome, código ISO 3166-2,
+      tipo, indicador de vigência atual e código da unidade sucessora para
+      entidades extintas ou renomeadas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [acronym]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [iso_3166_2, successor_acronym]
+    columns:
+      - name: acronym
+        description: >
+          Código canônico de duas letras da unidade federativa (estado ou
+          território) da Índia
+        tests: [not_null]
+      - name: name
+        description: Nome da unidade federativa em inglês
+      - name: iso_3166_2
+        description: >
+          Código ISO 3166-2:IN da unidade (ex.: IN-TN); vazio para entidades
+          extintas sem código
+      - name: type
+        description: >
+          Tipo da unidade: estado (state) ou território da união
+          (union_territory)
+      - name: is_current
+        description: Indica se a unidade existe atualmente nesta forma
+      - name: successor_acronym
+        description: >-
+          Código da unidade sucessora para entidades extintas ou renomeadas;
+          vazio se atual
