@@ -53,9 +53,7 @@ def test_poll_without_news_writes_only_poll():
 
 
 def test_poll_with_news_writes_poll_then_update():
-    client = FakeMetadataClient(
-        raw_source_update_latest=datetime.date(2026, 1, 1)
-    )
+    client = FakeMetadataClient(table_update_latest=datetime.date(2026, 1, 1))
     result = register_source_poll(
         client, "br_x", "tab", source_max_date=datetime.date(2026, 6, 1)
     )
@@ -67,9 +65,7 @@ def test_poll_with_news_writes_poll_then_update():
 
 
 def test_poll_with_stale_source_writes_only_poll():
-    client = FakeMetadataClient(
-        raw_source_update_latest=datetime.date(2026, 6, 1)
-    )
+    client = FakeMetadataClient(table_update_latest=datetime.date(2026, 6, 1))
     result = register_source_poll(
         client, "br_x", "tab", source_max_date=datetime.date(2026, 1, 1)
     )

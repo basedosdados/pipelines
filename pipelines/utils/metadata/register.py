@@ -310,7 +310,7 @@ def poll_source_for_update(
     if source_max_date is None:
         return False
 
-    api_latest = client.get_raw_source_update_latest(dataset_id, table_id)
+    api_latest = client.get_table_update_latest(dataset_id, table_id)
     if not policy.should_update_raw_source(api_latest, source_max_date):
         log("Não há novas atualizações na fonte original")
         return False
