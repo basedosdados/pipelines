@@ -1,4 +1,3 @@
--- - Register
 -- atualização 2026-05
 {{
     config(
