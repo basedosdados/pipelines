@@ -87,6 +87,33 @@ Durante a fase de migração os dois engines convivem:
 > [!NOTE]
 > O `dbtf` é um binário standalone e **não** precisa do venv ativo. Apenas o `dbt` (core) depende do ambiente Python.
 
+##### Principais comandos do dbt Fusion (`dbtf`)
+
+A sintaxe do `dbtf` espelha a do `dbt-core`: troque `dbt` por `dbtf` (sem `uv run`). Comandos que usamos no dia a dia:
+
+| Comando | O que faz |
+|---------|-----------|
+| `dbtf --version` | Mostra a versão do engine Fusion instalado |
+| `export DBT_PACKAGES_INSTALL_PATH="$PWD/dbt_packages"` | Aponta os packages p/ um caminho local (o `dbt_project.yml` fixa um caminho de container que quebra o `deps`) |
+| `dbtf deps` | Instala as dependências dos packages (`packages.yml`) |
+| `dbtf parse` | Faz o parse de todo o projeto — **sinal primário de regressão** (0 erros = ok); rápido e não toca no BigQuery |
+| `dbtf compile --select <modelo>` | Compila o SQL de um modelo sem materializar (valida Jinja/macros) |
+| `dbtf run --select <modelo>` | Materializa um modelo no BigQuery (target `dev` por padrão) |
+| `dbtf test --select <modelo>` | Roda os testes de um modelo |
+| `dbtf build --select <modelo>` | `run` + `test` na ordem de dependência |
+| `dbtf ls --select <seletor>` | Lista os nós que casam com um seletor (útil p/ conferir seleção antes de rodar) |
+
+> [!IMPORTANT]
+> Antes de qualquer `dbtf parse`/`compile`/`run`/`test`, aplique a conversão efêmera dos `schema.yml` para o formato `arguments:` (exigido só pelo Fusion) e reverta ao final:
+>
+> ```sh
+> uvx --python 3.12 dbt-autofix deprecations   # converte schema.yml + dbt_project.yml (efêmero)
+> export DBT_PACKAGES_INSTALL_PATH="$PWD/dbt_packages"
+> dbtf deps
+> dbtf parse                                    # 0 erros esperados
+> git checkout -- models dbt_project.yml        # reverte a conversão; nunca commitar
+> ```
+
 > [!WARNING]
 > O dbt Fusion engine é licenciado sob **ELv2** (não Apache-2.0 como o dbt-core), e a extensão de VS Code é gratuita por 14 dias / até 15 usuários por organização. O adapter BigQuery do Fusion ainda está em Preview/beta — valide modelos no dev antes de confiar na saída.
 
@@ -387,7 +414,7 @@ Em produção o engine é escolhido em runtime, sem alteração de código. A ch
 |----------|---------|---------|--------|
 | `DBT_ENGINE` | `core` \| `fusion` | `core` | `core` usa o `dbtRunner` (dbt-core); `fusion` invoca o binário `dbtf` via subprocess |
 | `DBT_FUSION_BIN` | nome/caminho | `dbtf` | binário do Fusion a ser chamado |
-| `DBT_FUSION_VERSION` | versão | *(vazio = latest)* | ARG de build do Docker que fixa a versão do Fusion na imagem |
+| `DBT_FUSION_VERSION` | versão | *(vazio = latest)* | ARG de build do Docker que fixa a versão do Fusion na imagem. Na CD vem da variável de repositório `vars.DBT_FUSION_VERSION` (build-docker-prefect3*.yaml) |
 
 No worker do Prefect, defina `DBT_ENGINE` de uma destas formas:
 
@@ -435,7 +462,7 @@ Os testes do modelo são definidos no arquivo `schema.yml`
 > [!IMPORTANT]
 > O **dbt Fusion** exige que os argumentos de testes genéricos fiquem aninhados sob a chave `arguments:`. O formato antigo (args no topo do teste), usado nos exemplos abaixo, é aceito pelo dbt-core 1.8.x (engine de produção) mas rejeitado pelo Fusion. O formato novo, por sua vez, só é entendido pelo dbt-core ≥ 1.10 — que exige `protobuf ≥ 5`, incompatível com as libs Google fixadas no projeto (`google-analytics-data`, `google-api-core`, `googleapis-common-protos` exigem `protobuf < 5`).
 >
-> Por isso o repositório **mantém o formato antigo** nos `schema.yml` committados (para o dbt-core continuar funcionando), e a conversão para `arguments:` é aplicada **em tempo de build, só para o Fusion** — de forma efêmera, via `uvx --python 3.12 dbt-autofix deprecations` (job `fusion-checks` do CI; ver [`.github/workflows/cd-staging.yaml`](./.github/workflows/cd-staging.yaml)). A transformação **não** é commitada. Exemplo antes/depois:
+> Por isso o repositório **mantém o formato antigo** nos `schema.yml` committados (para o dbt-core continuar funcionando), e a conversão para `arguments:` é aplicada **em tempo de build, só para o Fusion** — de forma efêmera, via `uvx --python 3.12 dbt-autofix deprecations` (job `fusion-checks` do CI; ver [`.github/workflows/pr-checks.yaml`](./.github/workflows/pr-checks.yaml)). A transformação **não** é commitada. Exemplo antes/depois:
 >
 > ```yaml
 > # committado no repo (dbt-core 1.8.x)
