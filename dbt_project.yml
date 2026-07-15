@@ -82,12 +82,18 @@ models:
     br_bd_diretorios_brasil:
       +materialized: table
       +schema: br_bd_diretorios_brasil
+    br_bd_diretorios_in:
+      +materialized: table
+      +schema: br_bd_diretorios_in
     br_bd_diretorios_mundo:
       +materialized: table
       +schema: br_bd_diretorios_mundo
     br_bd_diretorios_us:
       +materialized: table
       +schema: br_bd_diretorios_us
+    in_tcpd_elections:
+      +materialized: table
+      +schema: in_tcpd_elections
     us_bls_atus:
       +materialized: table
       +schema: us_bls_atus
@@ -430,6 +436,9 @@ models:
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
+    world_dasanaike_sage:
+      +materialized: table
+      +schema: world_dasanaike_sage
     world_iea_pirls:
       +materialized: table
       +schema: world_iea_pirls
