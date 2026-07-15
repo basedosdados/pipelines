@@ -153,6 +153,7 @@ The `last_updated` field in the update record represents **when the table was la
 - Prefer direct translation from raw data source documentation.
 - Format: 1–3 sentences per entity. No bullet lists.
 - Translate Portuguese descriptions to English and Spanish using domain knowledge of Brazilian public administration and statistics.
+- **Column** descriptions must not end with a period (trailing full stop) in any language — see `data-basis-style.md`. Dataset/table descriptions (full sentences) are unaffected.
 
 ## Verification after dev registration
 
