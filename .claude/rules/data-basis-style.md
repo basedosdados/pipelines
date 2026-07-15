@@ -76,6 +76,7 @@ Reserve `covered_by_dictionary = yes` for genuinely dataset-local coded values (
 
 - Write all descriptions in **Portuguese, English, and Spanish**.
 - **Capitalize the first letter of every description** (in all three languages). Not "what was the main reason…" but "What was the main reason…".
+- **Do not end a column description with a period** (no trailing full stop), in any of the three languages. This applies to the column `description` field specifically; the `observations` field may keep terminal punctuation.
 - When only Portuguese is available, translate to the other two using domain knowledge of Brazilian public administration and statistics.
 - Be direct and technical: state what the column contains, its unit, and any relevant constraints.
 - Do not use evaluative adjectives; prefer factual descriptions with units and ranges.
