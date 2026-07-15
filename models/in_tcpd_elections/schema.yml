@@ -1,0 +1,410 @@
+---
+version: 2
+models:
+  - name: in_tcpd_elections__general_elections
+    description: >
+      Resultados das eleições gerais da Índia (Lok Sabha) em nível de candidato
+      por distrito eleitoral, compilados pelo Trivedi Centre for Political Data
+      (TCPD Lok Dhaba). Cada linha corresponde ao desempenho de um candidato em
+      um distrito eleitoral, para uma eleição, com votos, participação, margem e
+      atributos do candidato e do partido.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - state_acronym
+            - assembly_number
+            - constituency_number
+            - poll_type
+            - position
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - sub_region
+            - same_constituency
+            - same_party
+            - last_party
+            - last_party_id
+            - last_constituency_name
+            - education_level
+            - profession_main_category
+            - profession_main_type
+            - profession_secondary_category
+            - profession_secondary_type
+            - candidate_id
+    columns:
+      - name: year
+        description: Ano em que a eleição foi realizada
+        tests: [not_null]
+      - name: month
+        description: Mês em que os resultados da eleição foram anunciados
+      - name: state_acronym
+        description: >
+          Código de duas letras da unidade federativa (estado ou território) da
+          Índia
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_in__state')
+              field: acronym
+      - name: assembly_number
+        description: >
+          Número da legislatura conforme a ECI (Lok Sabha para eleições gerais;
+          Vidhan Sabha para estaduais)
+      - name: constituency_number
+        description: >
+          Número do distrito eleitoral atribuído pela ECI; pode variar entre
+          delimitações
+      - name: constituency_name
+        description: Nome do distrito eleitoral conforme a ECI
+      - name: constituency_type
+        description: >
+          Tipo de reserva do distrito eleitoral: geral (GEN), reservado para
+          castas registradas (SC) ou tribos registradas (ST)
+      - name: sub_region
+        description: >
+          Sub-região do estado à qual o distrito eleitoral pertence, atribuída
+          pelo TCPD
+      - name: poll_type
+        description: >
+          Indica se a eleição foi regular (0) ou suplementar/bye-poll (1 =
+          primeira, 2 = segunda, e assim por diante)
+      - name: delimitation_id
+        description: >
+          Número da delimitação de distritos eleitorais (1 a 4), correspondente
+          a períodos de fronteiras eleitorais
+      - name: position
+        description: >
+          Posição (classificação) do candidato no distrito eleitoral, ordenada
+          pela participação nos votos
+      - name: candidate_id
+        description: >
+          Identificador único do candidato (pessoa) atribuído pelo TCPD via
+          resolução de entidades (Surf); vincula o mesmo indivíduo entre
+          eleições gerais e estaduais
+      - name: candidate_name
+        description: Nome do candidato conforme a ECI
+      - name: candidate_sex
+        description: Sexo do candidato
+      - name: candidate_type
+        description: Categoria do candidato
+      - name: party
+        description: >
+          Sigla do partido pelo qual o candidato concorreu, conforme a ECI
+      - name: party_id
+        description: Identificador único do partido atribuído pelo TCPD
+      - name: party_type
+        description: >
+          Classificação do partido pelo TCPD: partido nacional, estadual, local
+          ou candidato independente
+      - name: votes
+        description: Número de votos recebidos pelo candidato
+      - name: valid_votes
+        description: >
+          Total de votos válidos de todos os candidatos no distrito eleitoral
+      - name: voters
+        description: >
+          Número total de eleitores registrados no distrito eleitoral
+      - name: candidates
+        description: Número de candidatos que disputaram o distrito eleitoral
+      - name: turnout_percentage
+        description: >
+          Percentual de comparecimento no distrito eleitoral (votos válidos
+          dividido por eleitores)
+      - name: vote_share_percentage
+        description: >
+          Percentual de votos recebidos pelo candidato (votos dividido por
+          votos válidos)
+      - name: margin_votes
+        description: >
+          Diferença de votos entre o candidato e o candidato de posição
+          imediatamente seguinte
+      - name: margin_percentage
+        description: >
+          Diferença percentual de participação nos votos entre o candidato e o
+          de posição seguinte
+      - name: enop
+        description: >
+          Número efetivo de partidos no distrito eleitoral (índice de Laakso e
+          Taagepera, derivado das participações nos votos)
+      - name: deposit_lost
+        description: Indica se o candidato perdeu o depósito eleitoral
+      - name: incumbent
+        description: >
+          Indica se o candidato era membro em exercício da casa legislativa no
+          momento da eleição
+      - name: recontest
+        description: Indica se o candidato disputou a eleição imediatamente anterior
+      - name: last_poll
+        description: >
+          Indica se esta foi a última eleição realizada no distrito antes da
+          dissolução da legislatura
+      - name: contested
+        description: >
+          Número de vezes que o candidato disputou eleições até esta, inclusive
+      - name: terms
+        description: >
+          Número de legislaturas distintas em que o candidato venceu, inclusive
+          esta
+      - name: turncoat
+        description: >
+          Indica se o candidato trocou de partido em relação à eleição
+          imediatamente anterior
+      - name: same_constituency
+        description: >
+          Indica se o candidato disputou o mesmo distrito eleitoral em sua
+          disputa anterior
+      - name: same_party
+        description: >
+          Indica se o candidato disputou pelo mesmo partido em sua disputa
+          anterior
+      - name: last_party
+        description: >
+          Sigla do partido pelo qual o candidato disputou em sua disputa
+          anterior
+      - name: last_party_id
+        description: >
+          Identificador do partido pelo qual o candidato disputou em sua disputa
+          anterior
+      - name: last_constituency_name
+        description: >
+          Nome do distrito eleitoral que o candidato disputou em sua disputa
+          anterior
+      - name: education_level
+        description: >
+          Nível de escolaridade do candidato conforme declarado na candidatura
+          (fonte: ADR/MyNeta)
+      - name: profession_main_category
+        description: >
+          Categoria da profissão principal do candidato (classificação do TCPD;
+          fonte: ADR/MyNeta)
+      - name: profession_main_type
+        description: >
+          Tipo da profissão principal do candidato dentro da categoria (fonte:
+          ADR/MyNeta)
+      - name: profession_secondary_category
+        description: >
+          Categoria da profissão secundária do candidato (classificação do
+          TCPD; fonte: ADR/MyNeta)
+      - name: profession_secondary_type
+        description: >
+          Tipo da profissão secundária do candidato dentro da categoria (fonte:
+          ADR/MyNeta)
+  - name: in_tcpd_elections__assembly_elections
+    description: >
+      Resultados das eleições legislativas estaduais da Índia (Vidhan Sabha) em
+      nível de candidato por distrito eleitoral, compilados pelo Trivedi Centre
+      for Political Data (TCPD Lok Dhaba). Cada linha corresponde ao desempenho
+      de um candidato em um distrito eleitoral, para uma eleição, com votos,
+      participação, margem e atributos do candidato e do partido.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - state_acronym
+            - assembly_number
+            - constituency_number
+            - poll_type
+            - position
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - sub_region
+            - same_constituency
+            - same_party
+            - last_party
+            - last_party_id
+            - last_constituency_name
+            - education_level
+            - profession_main_category
+            - profession_main_type
+            - profession_secondary_category
+            - profession_secondary_type
+            - candidate_id
+            - candidate_age
+            - district_name
+    columns:
+      - name: year
+        description: Ano em que a eleição foi realizada
+        tests: [not_null]
+      - name: month
+        description: Mês em que os resultados da eleição foram anunciados
+      - name: state_acronym
+        description: >
+          Código de duas letras da unidade federativa (estado ou território) da
+          Índia
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_in__state')
+              field: acronym
+      - name: assembly_number
+        description: >
+          Número da legislatura conforme a ECI (Lok Sabha para eleições gerais;
+          Vidhan Sabha para estaduais)
+      - name: constituency_number
+        description: >
+          Número do distrito eleitoral atribuído pela ECI; pode variar entre
+          delimitações
+      - name: constituency_name
+        description: Nome do distrito eleitoral conforme a ECI
+      - name: constituency_type
+        description: >
+          Tipo de reserva do distrito eleitoral: geral (GEN), reservado para
+          castas registradas (SC) ou tribos registradas (ST)
+      - name: sub_region
+        description: >
+          Sub-região do estado à qual o distrito eleitoral pertence, atribuída
+          pelo TCPD
+      - name: district_name
+        description: >
+          Nome do distrito administrativo do distrito eleitoral conforme o Censo
+          de 2001
+      - name: poll_type
+        description: >
+          Indica se a eleição foi regular (0) ou suplementar/bye-poll (1 =
+          primeira, 2 = segunda, e assim por diante)
+      - name: delimitation_id
+        description: >
+          Número da delimitação de distritos eleitorais (1 a 4), correspondente
+          a períodos de fronteiras eleitorais
+      - name: position
+        description: >
+          Posição (classificação) do candidato no distrito eleitoral, ordenada
+          pela participação nos votos
+      - name: candidate_id
+        description: >
+          Identificador único do candidato (pessoa) atribuído pelo TCPD via
+          resolução de entidades (Surf); vincula o mesmo indivíduo entre
+          eleições gerais e estaduais
+      - name: candidate_name
+        description: Nome do candidato conforme a ECI
+      - name: candidate_sex
+        description: Sexo do candidato
+      - name: candidate_type
+        description: Categoria do candidato
+      - name: candidate_age
+        description: Idade do candidato conforme a ECI
+      - name: party
+        description: >
+          Sigla do partido pelo qual o candidato concorreu, conforme a ECI
+      - name: party_id
+        description: Identificador único do partido atribuído pelo TCPD
+      - name: party_type
+        description: >
+          Classificação do partido pelo TCPD: partido nacional, estadual, local
+          ou candidato independente
+      - name: votes
+        description: Número de votos recebidos pelo candidato
+      - name: valid_votes
+        description: >
+          Total de votos válidos de todos os candidatos no distrito eleitoral
+      - name: voters
+        description: >
+          Número total de eleitores registrados no distrito eleitoral
+      - name: candidates
+        description: Número de candidatos que disputaram o distrito eleitoral
+      - name: turnout_percentage
+        description: >
+          Percentual de comparecimento no distrito eleitoral (votos válidos
+          dividido por eleitores)
+      - name: vote_share_percentage
+        description: >
+          Percentual de votos recebidos pelo candidato (votos dividido por
+          votos válidos)
+      - name: margin_votes
+        description: >
+          Diferença de votos entre o candidato e o candidato de posição
+          imediatamente seguinte
+      - name: margin_percentage
+        description: >
+          Diferença percentual de participação nos votos entre o candidato e o
+          de posição seguinte
+      - name: enop
+        description: >
+          Número efetivo de partidos no distrito eleitoral (índice de Laakso e
+          Taagepera, derivado das participações nos votos)
+      - name: deposit_lost
+        description: Indica se o candidato perdeu o depósito eleitoral
+      - name: incumbent
+        description: >
+          Indica se o candidato era membro em exercício da casa legislativa no
+          momento da eleição
+      - name: recontest
+        description: Indica se o candidato disputou a eleição imediatamente anterior
+      - name: last_poll
+        description: >
+          Indica se esta foi a última eleição realizada no distrito antes da
+          dissolução da legislatura
+      - name: contested
+        description: >
+          Número de vezes que o candidato disputou eleições até esta, inclusive
+      - name: terms
+        description: >
+          Número de legislaturas distintas em que o candidato venceu, inclusive
+          esta
+      - name: turncoat
+        description: >
+          Indica se o candidato trocou de partido em relação à eleição
+          imediatamente anterior
+      - name: same_constituency
+        description: >
+          Indica se o candidato disputou o mesmo distrito eleitoral em sua
+          disputa anterior
+      - name: same_party
+        description: >
+          Indica se o candidato disputou pelo mesmo partido em sua disputa
+          anterior
+      - name: last_party
+        description: >
+          Sigla do partido pelo qual o candidato disputou em sua disputa
+          anterior
+      - name: last_party_id
+        description: >
+          Identificador do partido pelo qual o candidato disputou em sua disputa
+          anterior
+      - name: last_constituency_name
+        description: >
+          Nome do distrito eleitoral que o candidato disputou em sua disputa
+          anterior
+      - name: education_level
+        description: >
+          Nível de escolaridade do candidato conforme declarado na candidatura
+          (fonte: ADR/MyNeta)
+      - name: profession_main_category
+        description: >
+          Categoria da profissão principal do candidato (classificação do TCPD;
+          fonte: ADR/MyNeta)
+      - name: profession_main_type
+        description: >
+          Tipo da profissão principal do candidato dentro da categoria (fonte:
+          ADR/MyNeta)
+      - name: profession_secondary_category
+        description: >
+          Categoria da profissão secundária do candidato (classificação do
+          TCPD; fonte: ADR/MyNeta)
+      - name: profession_secondary_type
+        description: >
+          Tipo da profissão secundária do candidato dentro da categoria (fonte:
+          ADR/MyNeta)
+  - name: in_tcpd_elections__dictionary
+    description: >
+      Dicionário de valores codificados das tabelas de eleições gerais e
+      estaduais do TCPD Lok Dhaba, com o rótulo correspondente a cada chave.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [table_id, column_name, key]
+    columns:
+      - name: table_id
+        description: Nome da tabela à qual a entrada do dicionário se refere
+        tests: [not_null]
+      - name: column_name
+        description: Nome da coluna à qual a entrada do dicionário se refere
+        tests: [not_null]
+      - name: key
+        description: Chave (valor codificado) presente na coluna da tabela
+        tests: [not_null]
+      - name: temporal_coverage
+        description: Cobertura temporal da entrada do dicionário
+      - name: value
+        description: Rótulo correspondente à chave codificada
