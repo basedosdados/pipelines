@@ -12,7 +12,7 @@ models:
           tags: [diretorio]
           combination_of_columns: [acronym]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 1.0
           ignore_values: [iso_3166_2, successor_acronym]
     columns:
       - name: acronym
