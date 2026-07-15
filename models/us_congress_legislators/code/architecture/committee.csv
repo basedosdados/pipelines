@@ -1,0 +1,15 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_committee,STRING,Código THOMAS completo da comissão (comissão-mãe concatenada à subcomissão). Chave primária.,,no,,,no,,thomas_id(+sub)
+id_committee_parent,STRING,Código THOMAS da comissão-mãe (nulo para comissões de nível superior).,,no,,,no,,thomas_id(parent)
+thomas_id,STRING,Código THOMAS próprio da comissão ou subcomissão.,,no,,,no,,thomas_id
+name,STRING,Nome oficial atual ou mais recente da comissão.,,no,,,no,,name
+committee_type,STRING,"Câmara à qual a comissão pertence (house, senate ou joint).",,no,,,no,,type
+is_subcommittee,BOOLEAN,Indica se o registro corresponde a uma subcomissão.,,no,,,no,,(derived)
+is_current,BOOLEAN,Indica se a comissão está atualmente ativa.,,no,,,no,,(derived)
+house_committee_id,STRING,Código de duas letras da comissão na Câmara.,,no,,,no,,house_committee_id
+senate_committee_id,STRING,Código da comissão no Senado.,,no,,,no,,senate_committee_id
+jurisdiction,STRING,Descrição da jurisdição da comissão.,,no,,,no,,jurisdiction
+url,STRING,URL do site oficial da comissão.,,no,,,no,,url
+address,STRING,Endereço postal da comissão.,,no,,,no,,address
+phone,STRING,Telefone da comissão.,,no,,,no,,phone
+wikipedia,STRING,Título da página da comissão na Wikipédia.,,no,,,no,,wikipedia

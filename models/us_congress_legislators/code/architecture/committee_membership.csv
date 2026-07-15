@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_committee,STRING,Código THOMAS completo da comissão ou subcomissão.,,no,,,no,,(key)
+id_bioguide,STRING,Identificador Bioguide do legislador membro.,,no,br_bd_diretorios_us.congress_member:id_bioguide,,no,,bioguide
+party,STRING,Posição do membro na comissão (majority ou minority).,,no,,,no,,party
+rank,INT64,Ordem aparente de antiguidade do membro dentro do partido na comissão.,,no,,,no,,rank
+title,STRING,"Cargo do membro na comissão (por exemplo, Chair, Ranking Member).",,no,,,no,,title
+chamber,STRING,"Câmara do membro (house ou senate), aplicável a comissões conjuntas.",,no,,,no,,chamber
