@@ -2047,7 +2047,7 @@ models:
     description: Microdados da Pesquisa Suplementar Anual referentes a educação
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [ano, id_pessoa]
+          combination_of_columns: [trimestre, ano, id_pessoa]
     columns:
       - name: ano
         description: Ano

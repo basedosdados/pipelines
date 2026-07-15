@@ -15,7 +15,7 @@
 select
     safe_cast(ano as int64) ano,
     safe_cast(trimestre as int64) trimestre,
-    safe_cast(uf as string) as id_uf,
+    safe_cast(id_uf as string) as id_uf,
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(capital as string) capital,
     safe_cast(rm_ride as string) rm_ride,
