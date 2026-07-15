@@ -41,3 +41,7 @@ br_me_cnpj__simples = _me_cnpj_flow(table_id="simples", cron="0 8 * * *")
 br_me_cnpj__estabelecimentos = _me_cnpj_flow(
     table_id="estabelecimentos", cron="0 9 * * *"
 )
+br_me_cnpj__estabelecimentos.job_variables = {
+    "memory_limit": "8Gi",
+    "memory_request": "2Gi",
+}
