@@ -105,9 +105,17 @@ Only set these fields — do NOT re-set fields already handled by `upload_column
 | `column_name` | Column name |
 | `table_id` | Table ID |
 | `is_partition` | `True` for partition columns |
-| `is_primary_key` | `True` for primary key columns |
+| `is_primary_key` | `True` **only in directory tables** (`br_bd_diretorios_*`). Leave `False` everywhere else — see rule below. |
 | `description_en` | Translated from Portuguese |
 | `description_es` | Translated from Portuguese |
+
+### Primary keys: directory tables only
+
+`is_primary_key = True` is reserved for the key column(s) of **directory tables** (datasets under `br_bd_diretorios_*`). In every non-directory table (i.e. ordinary data tables), **no column may have `is_primary_key = True`** — not even the columns that form the logical key (`ano`, `sigla_uf`, `id_municipio`, `country_iso3_code`, `age`, etc.).
+
+In a data table, a column's relationship to a key is expressed **only** through its `directoryPrimaryKey` link (the directory column it references), set via the `directory_column` field in the architecture sheet / `upload_columns_from_sheet`. Columns with no directory (e.g. `age`, `age_group` when no age directory exists) simply carry neither `is_primary_key` nor a directory link.
+
+Uniqueness of the logical key is still enforced separately in dbt (`dbt_utils.unique_combination_of_columns`); that is independent of the backend `is_primary_key` flag.
 
 ## `create_update_cloud_table` fields
 
@@ -145,6 +153,7 @@ The `last_updated` field in the update record represents **when the table was la
 - Prefer direct translation from raw data source documentation.
 - Format: 1–3 sentences per entity. No bullet lists.
 - Translate Portuguese descriptions to English and Spanish using domain knowledge of Brazilian public administration and statistics.
+- **Column** descriptions must not end with a period (trailing full stop) in any language — see `data-basis-style.md`. Dataset/table descriptions (full sentences) are unaffected.
 
 ## Verification after dev registration
 
