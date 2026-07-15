@@ -119,8 +119,8 @@ def register_source_poll_task(
     """Registra que a fonte original foi consultada hoje ("poll por data").
 
     Sempre grava um `Poll` na fonte (data de hoje). Se `source_max_date` indica
-    dados mais novos do que o último `Update` registrado, grava também esse
-    Update e devolve True; caso contrário devolve False.
+    dados mais novos do que o `Table.Update.latest` atual, grava também esse
+    `RawDataSource.Update` e devolve True; caso contrário devolve False.
 
     Use esta task quando a fonte EXPÕE uma data máxima (a maioria dos casos).
     Para fontes que só permitem detectar mudança por tamanho de arquivo, use
@@ -270,7 +270,7 @@ def poll_source_for_update_task(
     """Detecta se a fonte original tem novidade hoje, sem gravar o Update.
 
     Sempre grava um `Poll` na fonte (data de hoje) e devolve se `source_max_date`
-    indica dados mais novos do que o último `Update` registrado — mas, ao
+    indica dados mais novos do que o `Table.Update.latest` atual — mas, ao
     contrário de `register_source_poll_task`, **não grava** o Update. A gravação
     fica a cargo de `commit_source_update_task`, chamada ao fim do flow, após a
     materialização. Use as duas em par quando a gravação do Update precisa ser

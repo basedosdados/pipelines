@@ -58,7 +58,7 @@ def register_source_poll(
     """'Olhei a fonte original hoje' — versão eager (detecta e grava de uma vez).
 
     Compõe `poll_source_for_update` (registra o `RawDataSource.Poll` de hoje e
-    detecta se a fonte tem dados mais novos que o `RawDataSource.Update.latest`
+    detecta se a fonte tem dados mais novos que o `Table.Update.latest`
     atual) com `commit_source_update` (grava esse Update). Se há novidade, grava
     o Update e devolve True; caso contrário, devolve False sem gravar.
     `source_max_date=None` é a forma explícita de "só polei, sem novidade".
@@ -273,7 +273,7 @@ def poll_source_for_update(
     """Detecta se a fonte original tem novidade, sem gravar o Update.
 
     Sempre registra um ``RawDataSource.Poll`` (data de hoje) e devolve se a
-    fonte traz dados mais novos que o ``RawDataSource.Update.latest`` atual.
+    fonte traz dados mais novos que o ``Table.Update.latest`` atual.
     Ao contrário de :func:`register_source_poll`, **não grava** o Update — essa
     escrita fica a cargo de :func:`commit_source_update`, chamada só após a
     materialização. Assim, se o flow falha no meio, o Update não avança e a run
@@ -294,8 +294,8 @@ def poll_source_for_update(
     Returns
     -------
     bool
-        ``True`` se a fonte tem dados mais novos que o último Update
-        registrado; ``False`` caso contrário.
+        ``True`` se a fonte tem dados mais novos que o ``Table.Update.latest``
+        atual; ``False`` caso contrário.
 
     See Also
     --------
@@ -310,7 +310,7 @@ def poll_source_for_update(
     if source_max_date is None:
         return False
 
-    api_latest = client.get_raw_source_update_latest(dataset_id, table_id)
+    api_latest = client.get_table_update_latest(dataset_id, table_id)
     if not policy.should_update_raw_source(api_latest, source_max_date):
         log("Não há novas atualizações na fonte original")
         return False
