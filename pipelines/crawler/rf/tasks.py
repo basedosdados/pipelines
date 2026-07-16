@@ -6,7 +6,7 @@ import asyncio
 import os
 import shutil
 import time
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 import httpx
@@ -24,7 +24,7 @@ from pipelines.utils.utils import log
 
 
 @task
-def check_need_for_update(dataset_id: str, url: str | None = None) -> str:
+def check_need_for_update(dataset_id: str, url: str | None = None) -> date:
     """
     Checks the need for an update by reading the source file's ``Last-Modified``
     HTTP header (via a HEAD request).
@@ -39,7 +39,7 @@ def check_need_for_update(dataset_id: str, url: str | None = None) -> str:
         dataset_id (str): RF specific dataset name.
 
     Returns:
-        str: The date of the last update in 'YYYY-MM-DD' format.
+        datetime.date: The source file's last-modified date.
 
     Raises:
         httpx.HTTPStatusError: If the source returns an HTTP error status.
