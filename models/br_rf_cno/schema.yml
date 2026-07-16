@@ -173,6 +173,8 @@ models:
                 where: __most_recent_date_cno__
       - name: id_pais
         description: ID País
+      - name: nome_pais
+        description: Nome do país
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
