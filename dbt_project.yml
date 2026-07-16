@@ -97,6 +97,9 @@ models:
     us_bls_atus:
       +materialized: table
       +schema: us_bls_atus
+    us_bls_cpi:
+      +materialized: table
+      +schema: us_bls_cpi
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
