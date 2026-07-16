@@ -1,10 +1,11 @@
-"""Upload cleaned us_bls_cpi parquet tables to BigQuery dev (basedosdados-dev).
+"""Upload cleaned us_bls_cpi parquet tables to BigQuery.
 
 Usage:
-    uv run python models/us_bls_cpi/code/upload.py [table_slug ...]
+    uv run python models/us_bls_cpi/code/upload.py [--env dev|prod] [table_slug ...]
 
-Uploads sequentially (smallest first). Stops on first failure. Requires
-GOOGLE_APPLICATION_CREDENTIALS to point at the basedosdados-dev service account.
+--env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
+GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Uploads
+sequentially (smallest first) and stops on first failure.
 """
 
 import sys
@@ -17,7 +18,14 @@ import basedosdados as bd  # noqa: E402
 import google.cloud.storage as gcs  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 
-BILLING_PROJECT = "basedosdados-dev"
+_argv = sys.argv[1:]
+if "--env" in _argv:
+    _i = _argv.index("--env")
+    ENV = _argv[_i + 1]
+    _argv = _argv[:_i] + _argv[_i + 2 :]
+else:
+    ENV = "dev"
+BILLING_PROJECT = "basedosdados" if ENV == "prod" else "basedosdados-dev"
 DATASET_ID = "us_bls_cpi"
 OUTPUT_ROOT = Path(__file__).resolve().parent.parent / "output"
 
@@ -78,8 +86,9 @@ def upload_table(slug: str, expected_rows: int) -> int:
 
 
 def main():
-    only = set(sys.argv[1:])
+    only = set(_argv)
     tables = [(s, r) for s, r in TABLES if not only or s in only]
+    print(f"=== uploading to {BILLING_PROJECT} (env={ENV}) ===", flush=True)
     for slug, expected in tables:
         print(f"=== {slug} ===", flush=True)
         try:
