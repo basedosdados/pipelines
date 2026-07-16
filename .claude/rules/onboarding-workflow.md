@@ -19,7 +19,23 @@ Work through steps in order. Do not skip steps.
 [PAUSE — verification checkpoint]
 10. metadata --env prod  promote to prod (only after human approval)
 11. pr                   open PR with changelog
+12. pipeline             recurring sources only — add a Prefect refresh pipeline
 ```
+
+## Step 12 — recurring pipeline (only for sources that update on a cadence)
+
+Steps 1–11 land the data once. If the source republishes on a cadence (monthly,
+daily, annual), add a Prefect 3 pipeline so it refreshes automatically. This is a
+**separate, optional step** after the static onboarding is verified — one-off or
+frozen datasets stop at step 11.
+
+Follow `prefect-pipeline-conventions` (structure, flow recipe, shared
+`pipelines/utils`, coverage types, scheduling, deploy). Use the `pipeline` agent
+(skill `onboarding-pipeline`). The pipeline **reuses** the dbt models, architecture
+CSVs, and cleaning transform from steps 2–6 — it does not redesign them; the
+cleaning transform is shared with `models/<ds>/code/` rather than duplicated.
+The upload/dbt/metadata halves run on the deployed worker (prod is not exercisable
+locally).
 
 ## Verification checkpoint (between steps 9 and 10)
 
