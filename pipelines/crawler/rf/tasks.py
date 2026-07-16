@@ -42,11 +42,12 @@ def check_need_for_update(dataset_id: str, url: str | None = None) -> date:
         datetime.date: The source file's last-modified date.
 
     Raises:
-        httpx.HTTPStatusError: If the source returns an HTTP error status.
+        httpx.HTTPError: If the request keeps failing after exhausting retries.
         ValueError: If the ``Last-Modified`` header is missing/unparseable.
 
     Notes:
-        - Implementa retries com backoff exponencial para falhas de conexão.
+        - Implementa retries com backoff exponencial para falhas transitórias
+          (conexão e status 5xx).
     """
     log(f"---- Checking most recent update date for {dataset_id}")
     retries = 5
@@ -65,8 +66,8 @@ def check_need_for_update(dataset_id: str, url: str | None = None) -> date:
             )
             response.raise_for_status()
             break
-        except httpx.TransportError as e:
-            log(f"Connection attempt {attempt + 1}/{retries} failed: {e}")
+        except httpx.HTTPError as e:
+            log(f"Request attempt {attempt + 1}/{retries} failed: {e}")
             if attempt < retries - 1:
                 time.sleep(delay)
                 delay *= 2
