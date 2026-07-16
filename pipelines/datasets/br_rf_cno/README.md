@@ -9,12 +9,29 @@ tributárias e obter a certidão de regularidade fiscal da obra.
 
 - **Fonte do download:** um único ZIP (~306 MB) em
   `https://arquivos.receitafederal.gov.br/public.php/dav/files/gn672Ad4CF8N6TK/Dados/Cadastros/CNO/cno.zip`.
-- **Data de referência (`data_extracao`):** obtida por um `PROPFIND` (WebDAV) no diretório
-  do CNO — pega o `getlastmodified` mais recente entre os arquivos. **Não** é derivada do
-  conteúdo dos dados. Ver `check_need_for_update` em `pipelines/crawler/rf/tasks.py`.
+- **Data de referência (`data_extracao`):** lida do header `Last-Modified` do `cno.zip` via
+  `HEAD` (httpx), em `check_need_for_update` (`pipelines/crawler/rf/tasks.py`). **Não** é
+  derivada do conteúdo dos dados. Antes usava `PROPFIND` (WebDAV), abandonado por causa do WAF
+  (ver *Acesso à fonte e o WAF*).
 - **RawDataSource registrada** aponta para a página do portal de dados abertos
   (`dados.gov.br/dados/conjuntos-dados/cadastro-nacional-de-obras-cno`), com atualização
   diária. O dicionário oficial de dados (SERPRO) descreve os arquivos e códigos.
+
+## Acesso à fonte e o WAF
+
+A fonte (servidor WebDAV ownCloud da Receita) passou a ficar atrás de um **WAF (F5 BIG-IP)**
+que interfere no acesso automatizado. Dois efeitos, com os respectivos contornos no código:
+
+- **Bloqueia o método `PROPFIND`** (responde `HTTP 200` + página HTML `"Request Rejected"`).
+  Por isso `check_need_for_update` não lista mais o diretório via `PROPFIND`; lê a data pelo
+  header `Last-Modified` do `cno.zip` via `HEAD`.
+- **Bloqueia User-Agents "crus"** (ex.: o default `python-httpx`). Por isso o download
+  (`download_file_async`/`download_chunk` em `pipelines/crawler/rf/utils.py`) envia headers de
+  browser (constante `_BROWSER_HEADERS`) tanto no `HEAD` (que lê o `content-length`) quanto nos
+  `GET` de range, com `follow_redirects=True`.
+- **É errático:** o mesmo endpoint alterna `200`/`404` e pode fazer rate-limit por IP. O `HEAD`
+  do download valida o `content-length` e falha com mensagem clara se ele não vier; a task
+  `crawl` tem `retries=2` para picos transitórios.
 
 ## Estrutura dos Flows
 
@@ -22,7 +39,7 @@ O diretório do dataset (`pipelines/datasets/br_rf_cno/flows.py`) é só um wrap
 cada tabela tem um flow que chama `_run_rf` do módulo compartilhado
 `pipelines/crawler/rf/flows.py`. Sequência de `_run_rf`:
 
-1. `check_need_for_update` → data da fonte (`getlastmodified`).
+1. `check_need_for_update` → data da fonte (header `Last-Modified` via `HEAD`).
 2. `poll_source_for_update_task` (poll **deferido**) — grava só o `Poll`, retorna se há
    novidade; **não** grava o `Update`.
 3. download → `process_file` (parquet particionado por `data=<data_extracao>`) → upload staging dev.
@@ -131,3 +148,14 @@ Correções apenas nos modelos dbt (sem tocar em flow), validadas em dev com `--
 
 `cnaes` nunca foi afetada (não tem teste de unicidade). Ao subir para prod, as quatro tabelas
 voltam a materializar e os metadados ressincronizam.
+
+### 2026-07-16 — acesso à fonte quebrado pelo WAF (PR #1681)
+Com os testes destravados, os flows passaram a falhar no **acesso à fonte** — o WAF (F5) da
+Receita bloqueando `PROPFIND` e User-Agents crus (ver *Acesso à fonte e o WAF*). Correções no
+crawler compartilhado `rf`:
+
+1. `check_need_for_update`: `PROPFIND` → `HEAD` + header `Last-Modified` (via httpx), reusando o
+   mesmo parse de data. Type hint corrigido para `-> date`.
+2. `download_file_async`: o `HEAD` passou a mandar `_BROWSER_HEADERS` + `follow_redirects=True`, e
+   valida o `content-length` (erro claro se ausente). Headers de browser extraídos para a
+   constante `_BROWSER_HEADERS`, reusada pelos GETs de chunk.
