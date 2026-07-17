@@ -105,6 +105,70 @@ Date columns: `YearMonth(year=, month=)`→`DateFormat.YEAR_MONTH`,
 `YearOnly(col=)`→`DateFormat.YEAR`, `DateOnly(col=)`→`DateFormat.YEAR_MD`,
 `YearQuarter(year=, quarter=)`→`DateFormat.YEAR_MONTH`.
 
+## BD Pro rolling window (high-frequency data)
+
+**Business rule: any table refreshed monthly or more often paywalls its most
+recent window to BD Pro subscribers; everything older stays free.** Lower-frequency
+tables in the same dataset (annual, semiannual) stay `AllFree`. A `dicionario` (or
+any table with no date column) can take no coverage spec at all.
+
+Pick the tier per table, not per dataset. Reference: `us_bls_cpi` — `monthly` is
+`PartBdpro(free_lag=6 months)`; `annual`/`semiannual` are `AllFree`.
+
+### It is already built — do not hand-roll it
+
+`register_table_materialization_task` does the whole thing on every run:
+
+1. `source_end = bq.read_max_date(...)`
+2. `free_end = source_end - free_lag`
+3. upserts **both** `DateTimeRange`s — free ends at `free_end`; pro spans `free_end → source_end`
+4. re-issues the BigQuery **Row Access Policies** (`policy.needs_row_access_policy` is
+   True only for `part_bdpro`):
+
+```sql
+CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter ON `<proj>.<ds>.<tbl>`
+  GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org")
+  FILTER USING (TRUE);
+CREATE OR REPLACE ROW ACCESS POLICY allusers_filter ON `<proj>.<ds>.<tbl>`
+  GRANT TO ("allUsers") FILTER USING (<date_col> <= "<free_end>");
+```
+
+So the window **rolls on its own** — each run recomputes `free_end` and moves it
+forward. There is nothing monthly to do by hand.
+
+**The dbt model does NOT change.** The paywall is enforced by Row Access Policies in
+BigQuery, not by SQL. (`br_bd_diretorios_brasil__empresa.sql` has a `max_bdpro_date`
+CTE — that is a *different*, static pattern; do not copy it for a rolling window.)
+
+### Prerequisite: two Coverages must exist first
+
+`Coverage.is_closed` is the free/pro discriminator, and the polarity is
+counterintuitive:
+
+| Coverage | `is_closed` | Meaning |
+|---|---|---|
+| free | `False` | Open/public data |
+| pro | `True` | BD Pro data — drives `Table.contains_closed_data` (the site's Pro badge) |
+
+`assert_coverage_topology` **hard-fails before any write** if the topology does not
+match the tier — `part_bdpro exige Coverage free + pro`. A table onboarded as
+`AllFree` has only the free Coverage, so **create the pro Coverage before switching
+the spec**:
+
+```
+create_update_coverage(table_id=…, area_id=…, is_closed=True, env="prod")
+```
+
+Conversely `AllFree` requires free **and no pro**, and `AllBdpro` the reverse — so
+you cannot silently flip tiers without fixing the coverages too.
+
+### What you can verify locally
+
+`assert_coverage_topology`, `compute_coverage_ranges`, and `needs_row_access_policy`
+are pure — unit-test the window and its roll. `apply_row_access_policies` issues real
+BigQuery DDL and needs the worker's rights; it is **not** exercisable locally. Say so
+rather than implying the paywall was tested end-to-end.
+
 ## Environments & credentials — pipelines run on deployed workers, not locally
 
 `upload_to_gcs` sets `billing_project_id = bucket_name`. `bucket_name="basedosdados-dev"`

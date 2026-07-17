@@ -47,10 +47,22 @@ to date. Add this only after static onboarding is verified in dev.
    upload/dbt → prod upload/dbt → register coverage + commit source update).
    Set `deploy_schedules` (cron, America/Sao_Paulo) and, if the clean step is
    memory-heavy, `job_variables={"memory": "…"}`.
+   **Pick the coverage tier per table.** Any table refreshed monthly or more
+   often paywalls its recent window: `PartBdpro(free_lag=…)`, default 6 months.
+   Lower-frequency tables stay `AllFree`; a table with no date column gets no
+   spec. This needs a **pro Coverage (`is_closed=True`) created before the run**
+   or it hard-fails at `assert_coverage_topology`. The rolling window, the Row
+   Access Policies, and the coverage ranges are all handled by
+   `register_table_materialization_task` — do not hand-roll them, and do not
+   touch the dbt model. See "BD Pro rolling window" in
+   `prefect-pipeline-conventions`.
 8. **Verify locally** (imports, transform parity, one-file download, deploy
-   discovery via `load_flows_from_file`). State clearly that the
-   upload/dbt/metadata halves run on the deployed worker and were not exercised
-   locally.
+   discovery via `load_flows_from_file`). If the flow uses `PartBdpro`, also
+   unit-test the window: `assert_coverage_topology`, `compute_coverage_ranges`
+   at the real `source_end`, and that `free_end` rolls when the source advances
+   — these are pure functions. State clearly that the upload/dbt/metadata halves
+   run on the deployed worker and were not exercised locally; the same goes for
+   `apply_row_access_policies`, which issues real BigQuery DDL.
 9. **Commit**: `feat(<dataset_id>): add recurring Prefect pipeline`. Never commit
    data. Pre-format `.py` files before committing.
 

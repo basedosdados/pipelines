@@ -47,7 +47,7 @@ For individual lookups: `mcp__databasis__lookup_id(env=<env>, slug=<slug>, type=
 9. `upload_columns_from_sheet(...)` — bulk upload columns from architecture Google Sheet
 10. `update_column(...)` — per-column follow-up for `is_partition`, `is_primary_key`, EN/ES descriptions
 11. `create_update_cloud_table(...)` — link to BigQuery table
-12. `create_update_coverage(...)` — coverage for area "br"
+12. `create_update_coverage(...)` — coverage for area "br" (see `is_closed` below)
 13. `create_update_datetime_range(...)` — temporal range
 14. `create_update_update(...)` — update frequency/lag record
 15. `create_update_table(...)` again — link `raw_data_source_ids` (deferred update)
@@ -127,6 +127,26 @@ Uniqueness of the logical key is still enforced separately in dbt (`dbt_utils.un
 | `gcp_table_id` | Table slug |
 | `id` | Pass when updating |
 
+## `create_update_coverage` — `is_closed` is the free/pro split
+
+`Coverage.is_closed` marks whether the coverage describes open or BD Pro data. The
+polarity is counterintuitive:
+
+| Coverage | `is_closed` | Meaning |
+|----------|-------------|---------|
+| free | `False` (default) | Open/public data |
+| pro | `True` | BD Pro data — drives `Table.contains_closed_data`, the site's Pro badge |
+
+A fully public table has **one** coverage (`is_closed=False`). A table paywalling a
+rolling window has **two** — free *and* pro — each with its own `DateTimeRange`. Omit
+the argument on routine updates: it leaves the stored value untouched, so a metadata
+edit cannot silently un-paywall data.
+
+For the pipeline side (`PartBdpro`, rolling windows, Row Access Policies), see the
+"BD Pro rolling window" section of `prefect-pipeline-conventions`. Both coverages
+must exist **before** a `part_bdpro` pipeline runs, or it hard-fails at
+`assert_coverage_topology`.
+
 ## `create_update_datetime_range` fields
 
 | Field | Notes |
@@ -134,8 +154,28 @@ Uniqueness of the logical key is still enforced separately in dbt (`dbt_utils.un
 | `coverage_id` | From coverage step |
 | `start_year` | Integer |
 | `end_year` | Integer or null if ongoing |
+| `start_month` / `end_month` | 1–12 — **required for monthly (and daily) tables** |
+| `start_day` / `end_day` | 1–31 — **required for daily tables** |
 | `interval` | 1 for annual |
 | `is_closed` | `False` unless series has ended |
+
+### Match the range's granularity to the table's
+
+**A monthly table needs months; a daily table needs months and days.** Year-only is
+correct *only* for genuinely annual tables. Registering a month-granular table with
+year-only bounds understates its coverage and renders wrong on the site — e.g.
+`us_bls_cpi.monthly` spans `1913-01..2026-06` but was first registered as
+`1913..2026`, losing both endpoints' months.
+
+Read the real min/max from the **data**, not from the table's year partitions. A day
+requires a month and a month requires a year, on each side independently.
+
+Correct shape for a monthly table (cf. `br_ibge_ipca.mes_brasil`, free
+`1979-12..2025-11`):
+
+```
+start_year=1913, start_month=1, end_year=2026, end_month=6
+```
 
 ## `create_update_update` — last_updated semantics
 

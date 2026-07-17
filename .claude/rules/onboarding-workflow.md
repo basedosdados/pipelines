@@ -34,6 +34,18 @@ Follow `prefect-pipeline-conventions` (structure, flow recipe, shared
 (skill `onboarding-pipeline`). The pipeline **reuses** the dbt models, architecture
 CSVs, and cleaning transform from steps 2–6 — it does not redesign them; the
 cleaning transform is shared with `models/<ds>/code/` rather than duplicated.
+
+**BD Pro rolling window.** Data Basis paywalls the most recent window of any table
+that refreshes **monthly or more often**; older data stays free, and lower-frequency
+tables in the same dataset stay free entirely. Decide the tier **per table**: the
+high-frequency one gets `PartBdpro(free_lag=…)` (default 6 months), the rest
+`AllFree`. This is not extra machinery — `register_table_materialization_task`
+already rewrites both coverage ranges and re-issues the BigQuery Row Access Policies
+every run, so the window rolls by itself and the dbt model is untouched. It does
+require a **pro Coverage (`is_closed=True`) to exist on the table before the spec
+changes**, or the run hard-fails at `assert_coverage_topology`. See the "BD Pro
+rolling window" section of `prefect-pipeline-conventions` for the full mechanism,
+the free/pro `is_closed` polarity, and what is verifiable locally.
 The upload/dbt/metadata halves run on the deployed worker (prod is not exercisable
 locally).
 
