@@ -19,7 +19,41 @@ Work through steps in order. Do not skip steps.
 [PAUSE — verification checkpoint]
 10. metadata --env prod  promote to prod (only after human approval)
 11. pr                   open PR with changelog
+12. pipeline             recurring sources only — add a Prefect refresh pipeline
 ```
+
+## Step 12 — recurring pipeline (only for sources that update on a cadence)
+
+Steps 1–11 land the data once. If the source republishes on a cadence (monthly,
+daily, annual), add a Prefect 3 pipeline so it refreshes automatically. This is a
+**separate, optional step** after the static onboarding is verified — one-off or
+frozen datasets stop at step 11.
+
+Follow `prefect-pipeline-conventions` (structure, flow recipe, shared
+`pipelines/utils`, coverage types, scheduling, deploy). Use the `pipeline` agent
+(skill `onboarding-pipeline`). The pipeline **reuses** the dbt models, architecture
+CSVs, and cleaning transform from steps 2–6 — it does not redesign them; the
+cleaning transform is shared with `models/<ds>/code/` rather than duplicated.
+
+**Update and Poll records.** A recurring dataset must carry all three: the table `Update`
+(when we last refreshed), the raw data source `Update` (the source's **max coverage
+date**, not today), and the raw data source `Poll` (when we last looked). The flow writes
+them only on a run with `update_metadata=True`, so create any that are missing by hand and
+verify — a dataset tested with metadata off ends up with a Poll and no source Update.
+
+**BD Pro rolling window.** Data Basis paywalls the most recent window of any table
+that refreshes **monthly or more often**; older data stays free, and lower-frequency
+tables in the same dataset stay free entirely. Decide the tier **per table**: the
+high-frequency one gets `PartBdpro(free_lag=…)` (default 6 months), the rest
+`AllFree`. This is not extra machinery — `register_table_materialization_task`
+already rewrites both coverage ranges and re-issues the BigQuery Row Access Policies
+every run, so the window rolls by itself and the dbt model is untouched. It does
+require a **pro Coverage (`is_closed=True`) to exist on the table before the spec
+changes**, or the run hard-fails at `assert_coverage_topology`. See the "BD Pro
+rolling window" section of `prefect-pipeline-conventions` for the full mechanism,
+the free/pro `is_closed` polarity, and what is verifiable locally.
+The upload/dbt/metadata halves run on the deployed worker (prod is not exercisable
+locally).
 
 ## Verification checkpoint (between steps 9 and 10)
 
