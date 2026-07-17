@@ -249,11 +249,20 @@ def build_table(df: pd.DataFrame, table: str) -> pd.DataFrame:
 
 
 def write_partitioned(sub: pd.DataFrame, table: str, output_dir: Path) -> Path:
-    """Write a table as Snappy Parquet, hive-partitioned by year.
+    """Write a table as all-STRING Snappy Parquet, hive-partitioned by year.
 
-    Column order and types are taken from the architecture CSV and pinned into an
-    explicit ``pa.Schema``, so a year whose values happen to be all-integer cannot
-    be inferred as INT64 while other years land as FLOAT64.
+    Staging is all-STRING by Data Basis convention — the dbt model ``safe_cast``s
+    every column to its real type, and ``pipelines.utils.gcs.dump_header``
+    stringifies the header file that BigQuery infers the staging schema from.
+    Emitting typed parquet against that STRING schema makes BigQuery reject the
+    files ("Parquet column 'index_value' has type DOUBLE which does not match the
+    target cpp_type STRING_PIECE"). See [[project_dump_header_parquet_bug]].
+
+    Values still pass through the architecture's real types first, so ``year``
+    serializes as ``"1959"`` rather than ``"1959.0"``, and only then cast to
+    string via arrow — never ``astype(str)``, which would render a NULL as the
+    literal ``"nan"`` and defeat the dbt ``safe_cast``. ``index_value`` has
+    genuine NULLs wherever BLS printed ``-``.
 
     Args:
         sub: Rows for one table, from :func:`build_table`.
@@ -265,9 +274,10 @@ def write_partitioned(sub: pd.DataFrame, table: str, output_dir: Path) -> Path:
     """
     arch = read_arch(table)
     order = [a["name"] for a in arch]
-    schema = pa.schema(
+    typed_schema = pa.schema(
         [pa.field(a["name"], PA[a["bigquery_type"]]) for a in arch]
     )
+    string_schema = pa.schema([pa.field(a["name"], pa.string()) for a in arch])
     for c in [*KEYS, "base_period"]:
         if c in sub:
             sub[c] = sub[c].astype("object")
@@ -276,7 +286,8 @@ def write_partitioned(sub: pd.DataFrame, table: str, output_dir: Path) -> Path:
     for year, g in out.groupby("year", sort=True):
         pdir = tdir / f"year={int(year)}"
         pdir.mkdir(parents=True, exist_ok=True)
-        at = pa.Table.from_pandas(g, schema=schema, preserve_index=False)
+        at = pa.Table.from_pandas(g, schema=typed_schema, preserve_index=False)
+        at = at.cast(string_schema)
         pq.write_table(at, pdir / "data.parquet", compression="snappy")
     log.info(f"{table}: {len(out):,} rows -> {tdir}")
     return tdir
