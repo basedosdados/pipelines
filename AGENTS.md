@@ -31,7 +31,8 @@ pipelines/
 │       └── <dataset_id>/
 │           ├── __init__.py
 │           ├── constants.py  # Dataset-level constants
-│           ├── flows.py      # Prefect flow definitions (+ inline schedule)
+│           ├── flows.py      # Prefect flow definitions
+│           ├── schedules.py  # Prefect schedule definitions
 │           ├── tasks.py      # Prefect task definitions
 │           └── utils.py      # Helper functions
 ├── models/                   # dbt models (one dir per dataset)
@@ -47,7 +48,7 @@ pipelines/
 ```
 
 > [!IMPORTANT]
-> This project uses **Prefect 3** (`prefect>=3.0,<4`, pinned in `pyproject.toml`). Write flows and tasks with the `@flow` / `@task` decorators and refer to the [Prefect 3 docs](https://docs.prefect.io/). Do **not** use Prefect 1.x (`0.15.x`) patterns — `with Flow(...) as flow:`, `schedules.py`, `run_config`, `storage`, `max_retries=` / `retry_delay=`. The migration is complete: no dataset flow still uses them. Note that `deploy_flows.py` silently *skips* any file that fails to import, so a flow written against the old API is not deployed rather than reported as an error.
+> This project uses **Prefect v0.15.9**, which is a very old version of Prefect 1.x. The API is completely different from Prefect 2.x/3.x. Do not use Prefect 2/3 patterns or documentation. Always refer to the [Prefect 0.15.x docs](https://docs-v1.prefect.io/) and the existing code in `pipelines/datasets/` as reference.
 
 ## Working with Prefect Pipelines
 
@@ -64,51 +65,31 @@ uv run manage.py add-pipeline <dataset_id>
 
 ### File conventions
 
-- `flows.py`: Define flows with `@flow`. Flows **must be defined at module level in this file** — `deploy_flows.py` only collects `Flow` objects whose function is defined there (an `obj.fn.__code__.co_filename` check).
-- `tasks.py`: Define tasks with `@task`.
-- `constants.py`: Use a `constants` enum or plain constants — no hardcoded values elsewhere.
+- `flows.py`: Define Prefect `Flow` objects. Each flow must be imported in the parent `__init__.py`.
+- `tasks.py`: Define Prefect `Task` objects.
+- `schedules.py`: Define `Schedule` objects linked to flows.
+- `constants.py`: Use a `Constants` enum or plain constants — no hardcoded values elsewhere.
 - `utils.py`: Pure helper functions with no Prefect decorators.
-
-There is no `schedules.py`. Attach the schedule to the flow object in `flows.py`; CI turns
-these dicts into `Cron` objects at deploy time:
-
-```python
-my_flow.deploy_schedules = [{"cron": "0 16 10 * *", "timezone": "America/Sao_Paulo"}]
-my_flow.job_variables = {"memory": "8Gi"}   # optional; size to the flow's peak RAM
-```
 
 ### Testing locally
 
-A Prefect 3 flow is a plain callable — import it and call it:
+Create a `test.py` at the repo root:
 
 ```python
-from pipelines.datasets.<dataset_id>.flows import my_flow
+from pipelines.datasets.<dataset_id>.flows import flow
+from pipelines.utils.utils import run_local
 
-my_flow(materialize_to_prod=False, update_metadata=False)
+run_local(flow, parameters={"param": "val"})
 ```
 
-Run with `uv run python test.py`. Only the pure download/transform half runs locally: the
-upload, dbt, and metadata steps need credentials that exist on the deployed worker, so
-expect those to fail on a laptop and say so rather than working around it.
+Run with: `uv run test.py`
 
-### Deploying and testing on the cloud
+### Testing on the cloud
 
-Flows reach Prefect 3 through CI only — never register storage or run-config by hand:
-
-| | Staging | Production |
-|---|---|---|
-| Workflow | `cd-prefect3-staging.yaml` | `cd-prefect3.yaml` |
-| Trigger | PR to `main` carrying the **`deploy-flow`** label | push to `main` |
-| Scope | changed `pipelines/**/*.py` only | `--all` |
-| Pool | `basedosdados-dev` — schedules stripped, manual runs only | `basedosdados` — schedules active |
-
-Both deploy with `paused=True`; production deployments are activated by the backend sync
-step (`admin-tools/sync-deployments/`), which is soft-failed with `|| echo` and can leave
-a deployment paused without failing the job.
-
-To exercise a flow before merging: add the **`deploy-flow`** label to the PR (the workflow
-triggers on the `labeled` event), then start a run from the Prefect UI with any
-prod-writing parameters disabled.
+1. Copy `.env.example` to `.env` and fill in `GOOGLE_APPLICATION_CREDENTIALS` and `VAULT_TOKEN`.
+2. Load variables: `source .env`
+3. Ensure `~/.prefect/auth.toml` exists with `api_key` and `tenant_id`.
+4. Create `test.py` using `run_cloud` and run with `uv run test.py`.
 
 ## Working with dbt models
 

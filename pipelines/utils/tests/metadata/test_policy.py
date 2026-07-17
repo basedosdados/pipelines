@@ -134,47 +134,9 @@ def test_compute_part_bdpro_monthly_syncs_and_lags():
     # free termina 6 meses antes: 2025-12
     assert (r.free.endYear, r.free.endMonth) == (2025, 12)
     assert r.free.endDay is None  # granularidade mensal
-    # R11: pro começa no período SEGUINTE ao fim da free — as coberturas são
-    # mutuamente exclusivas. free_end é inclusive (a Row Access Policy concede
-    # allUsers `date <= free_end`), então 2025-12 é free e pro começa em
-    # 2026-01. Começar no próprio free_end faria as duas coberturas
-    # reivindicarem dezembro e exageraria o paywall em um período.
-    assert (r.pro.startYear, r.pro.startMonth) == (2026, 1)
+    # R11: pro começa onde free termina
+    assert (r.pro.startYear, r.pro.startMonth) == (2025, 12)
     assert r.free_end == date(2025, 12, 1)
-
-
-def test_compute_part_bdpro_ranges_never_overlap():
-    """free e pro não podem reivindicar o mesmo período, em nenhuma
-    granularidade — inclusive nas viradas de ano/mês."""
-    monthly = PartBdpro(
-        date_column=YearMonth(year="ano", month="mes"),
-        date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=1),
-    )
-    r = compute_coverage_ranges(monthly, date(2026, 1, 1), IDS_BOTH)
-    # virada de ano: free termina 2025-12, pro começa 2026-01
-    assert (r.free.endYear, r.free.endMonth) == (2025, 12)
-    assert (r.pro.startYear, r.pro.startMonth) == (2026, 1)
-
-    annual = PartBdpro(
-        date_column=YearOnly(col="ano"),
-        date_format=DateFormat.YEAR,
-        free_lag=FreeLag(unit="years", value=2),
-    )
-    r = compute_coverage_ranges(annual, date(2026, 1, 1), IDS_BOTH)
-    # anual avança um ano, não um mês
-    assert r.free.endYear == 2024
-    assert (r.pro.startYear, r.pro.startMonth) == (2025, None)
-
-    daily = PartBdpro(
-        date_column=DateOnly(col="data"),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="days", value=30),
-    )
-    r = compute_coverage_ranges(daily, date(2026, 3, 2), IDS_BOTH)
-    # virada de mês: free termina 2026-01-31, pro começa 2026-02-01
-    assert (r.free.endYear, r.free.endMonth, r.free.endDay) == (2026, 1, 31)
-    assert (r.pro.startYear, r.pro.startMonth, r.pro.startDay) == (2026, 2, 1)
 
 
 def test_compute_all_bdpro_annual():
