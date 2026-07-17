@@ -1,0 +1,27 @@
+name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory_column	measurement_unit	has_sensitive_data	observations	original_name
+year	INT64	Reference year		no	br_bd_diretorios_data_tempo.ano:ano	year	no		(file year)
+id_state	STRING	FIPS state code		no	br_bd_diretorios_us.state:id_state		no		fipstate
+id_county	STRING	FIPS county code, five digits (state + county); a county part of 999 means establishments not allocated to a specific county (statewide)		no	br_bd_diretorios_us.county:id_county		no	Codes follow the vintage of each reference year, so counties that were later dissolved or renumbered (Connecticut counties before the 2022 planning regions, some Alaska boroughs, Dade County FL) are present in early years and do not match the current county directory.	fipstate+fipscty
+naics	STRING	NAICS industry code at its published aggregation level (2 to 6 digits); vintage varies by year, see naics_version		no	br_bd_diretorios_us.naics_2017:id_naics		no		naics
+naics_version	STRING	NAICS classification vintage the code follows (1997, 2002, 2007, 2012, 2017, 2022)		yes			no		(derived from year)
+establishments	INT64	Number of establishments		no		establishment	no		est
+employment	INT64	Number of paid employees during the week of March 12		no		employee	no		emp
+employment_flag	STRING	Data-suppression flag marking the employment-size range of a withheld cell (1998 to 2016 suppression era)		yes			no		empflag
+employment_noise_flag	STRING	Noise-infusion flag for employment from 2017 onward; G, H, J indicate increasing noise, D indicates withheld		yes			no		emp_nf
+payroll_first_quarter	INT64	First-quarter payroll in current U.S. dollars		no		USD	no		qp1 (x1000)
+payroll_first_quarter_noise_flag	STRING	Noise-infusion flag for first-quarter payroll		yes			no		qp1_nf
+payroll_annual	INT64	Annual payroll in current U.S. dollars		no		USD	no		ap (x1000)
+payroll_annual_noise_flag	STRING	Noise-infusion flag for annual payroll		yes			no		ap_nf
+establishments_1_4	INT64	Number of establishments with 1 to 4 employees		no		establishment	no		n<5
+establishments_5_9	INT64	Number of establishments with 5 to 9 employees		no		establishment	no		n5_9
+establishments_10_19	INT64	Number of establishments with 10 to 19 employees		no		establishment	no		n10_19
+establishments_20_49	INT64	Number of establishments with 20 to 49 employees		no		establishment	no		n20_49
+establishments_50_99	INT64	Number of establishments with 50 to 99 employees		no		establishment	no		n50_99
+establishments_100_249	INT64	Number of establishments with 100 to 249 employees		no		establishment	no		n100_249
+establishments_250_499	INT64	Number of establishments with 250 to 499 employees		no		establishment	no		n250_499
+establishments_500_999	INT64	Number of establishments with 500 to 999 employees		no		establishment	no		n500_999
+establishments_1000	INT64	Number of establishments with 1,000 or more employees		no		establishment	no		n1000
+establishments_1000_1499	INT64	Number of establishments with 1,000 to 1,499 employees		no		establishment	no		n1000_1
+establishments_1500_2499	INT64	Number of establishments with 1,500 to 2,499 employees		no		establishment	no		n1000_2
+establishments_2500_4999	INT64	Number of establishments with 2,500 to 4,999 employees		no		establishment	no		n1000_3
+establishments_5000_more	INT64	Number of establishments with 5,000 or more employees		no		establishment	no		n1000_4

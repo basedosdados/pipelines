@@ -1,0 +1,85 @@
+name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory_column	measurement_unit	has_sensitive_data	observations	original_name
+year	INT64	Reference year		no	br_bd_diretorios_data_tempo.ano:ano	year	no		(file year)
+naics	STRING	NAICS industry code at its published aggregation level (2 to 6 digits); vintage varies by year, see naics_version		no	br_bd_diretorios_us.naics_2017:id_naics		no		naics
+naics_version	STRING	NAICS classification vintage the code follows (1997, 2002, 2007, 2012, 2017, 2022)		yes			no		(derived from year)
+lfo	STRING	Legal form of organization of the establishments		yes			no		lfo
+establishments	INT64	Number of establishments		no		establishment	no		est
+employment	INT64	Number of paid employees during the week of March 12		no		employee	no		emp
+employment_flag	STRING	Data-suppression flag marking the employment-size range of a withheld cell (1998 to 2016 suppression era)		yes			no		empflag
+employment_noise_flag	STRING	Noise-infusion flag for employment from 2017 onward; G, H, J indicate increasing noise, D indicates withheld		yes			no		emp_nf
+payroll_first_quarter	INT64	First-quarter payroll in current U.S. dollars		no		USD	no		qp1 (x1000)
+payroll_first_quarter_noise_flag	STRING	Noise-infusion flag for first-quarter payroll		yes			no		qp1_nf
+payroll_annual	INT64	Annual payroll in current U.S. dollars		no		USD	no		ap (x1000)
+payroll_annual_noise_flag	STRING	Noise-infusion flag for annual payroll		yes			no		ap_nf
+establishments_1_4	INT64	Number of establishments with 1 to 4 employees		no		establishment	no		n1_4
+employment_1_4	INT64	Number of paid employees during the week of March 12 in establishments with 1 to 4 employees		no		employee	no		e1_4
+employment_1_4_flag	STRING	Data-suppression flag for employment in establishments with 1 to 4 employees		yes			no		f1_4
+employment_1_4_noise_flag	STRING	Noise-infusion flag for employment in establishments with 1 to 4 employees		yes			no		e1_4nf
+payroll_first_quarter_1_4	INT64	First-quarter payroll in current U.S. dollars for establishments with 1 to 4 employees		no		USD	no		q1_4 (x1000)
+payroll_first_quarter_1_4_noise_flag	STRING	Noise-infusion flag for first-quarter payroll in establishments with 1 to 4 employees		yes			no		q1_4nf
+payroll_annual_1_4	INT64	Annual payroll in current U.S. dollars for establishments with 1 to 4 employees		no		USD	no		a1_4 (x1000)
+payroll_annual_1_4_noise_flag	STRING	Noise-infusion flag for annual payroll in establishments with 1 to 4 employees		yes			no		a1_4nf
+establishments_5_9	INT64	Number of establishments with 5 to 9 employees		no		establishment	no		n5_9
+employment_5_9	INT64	Number of paid employees during the week of March 12 in establishments with 5 to 9 employees		no		employee	no		e5_9
+employment_5_9_flag	STRING	Data-suppression flag for employment in establishments with 5 to 9 employees		yes			no		f5_9
+employment_5_9_noise_flag	STRING	Noise-infusion flag for employment in establishments with 5 to 9 employees		yes			no		e5_9nf
+payroll_first_quarter_5_9	INT64	First-quarter payroll in current U.S. dollars for establishments with 5 to 9 employees		no		USD	no		q5_9 (x1000)
+payroll_first_quarter_5_9_noise_flag	STRING	Noise-infusion flag for first-quarter payroll in establishments with 5 to 9 employees		yes			no		q5_9nf
+payroll_annual_5_9	INT64	Annual payroll in current U.S. dollars for establishments with 5 to 9 employees		no		USD	no		a5_9 (x1000)
+payroll_annual_5_9_noise_flag	STRING	Noise-infusion flag for annual payroll in establishments with 5 to 9 employees		yes			no		a5_9nf
+establishments_10_19	INT64	Number of establishments with 10 to 19 employees		no		establishment	no		n10_19
+employment_10_19	INT64	Number of paid employees during the week of March 12 in establishments with 10 to 19 employees		no		employee	no		e10_19
+employment_10_19_flag	STRING	Data-suppression flag for employment in establishments with 10 to 19 employees		yes			no		f10_19
+employment_10_19_noise_flag	STRING	Noise-infusion flag for employment in establishments with 10 to 19 employees		yes			no		e10_19nf
+payroll_first_quarter_10_19	INT64	First-quarter payroll in current U.S. dollars for establishments with 10 to 19 employees		no		USD	no		q10_19 (x1000)
+payroll_first_quarter_10_19_noise_flag	STRING	Noise-infusion flag for first-quarter payroll in establishments with 10 to 19 employees		yes			no		q10_19nf
+payroll_annual_10_19	INT64	Annual payroll in current U.S. dollars for establishments with 10 to 19 employees		no		USD	no		a10_19 (x1000)
+payroll_annual_10_19_noise_flag	STRING	Noise-infusion flag for annual payroll in establishments with 10 to 19 employees		yes			no		a10_19nf
+establishments_20_49	INT64	Number of establishments with 20 to 49 employees		no		establishment	no		n20_49
+employment_20_49	INT64	Number of paid employees during the week of March 12 in establishments with 20 to 49 employees		no		employee	no		e20_49
+employment_20_49_flag	STRING	Data-suppression flag for employment in establishments with 20 to 49 employees		yes			no		f20_49
+employment_20_49_noise_flag	STRING	Noise-infusion flag for employment in establishments with 20 to 49 employees		yes			no		e20_49nf
+payroll_first_quarter_20_49	INT64	First-quarter payroll in current U.S. dollars for establishments with 20 to 49 employees		no		USD	no		q20_49 (x1000)
+payroll_first_quarter_20_49_noise_flag	STRING	Noise-infusion flag for first-quarter payroll in establishments with 20 to 49 employees		yes			no		q20_49nf
+payroll_annual_20_49	INT64	Annual payroll in current U.S. dollars for establishments with 20 to 49 employees		no		USD	no		a20_49 (x1000)
+payroll_annual_20_49_noise_flag	STRING	Noise-infusion flag for annual payroll in establishments with 20 to 49 employees		yes			no		a20_49nf
+establishments_50_99	INT64	Number of establishments with 50 to 99 employees		no		establishment	no		n50_99
+employment_50_99	INT64	Number of paid employees during the week of March 12 in establishments with 50 to 99 employees		no		employee	no		e50_99
+employment_50_99_flag	STRING	Data-suppression flag for employment in establishments with 50 to 99 employees		yes			no		f50_99
+employment_50_99_noise_flag	STRING	Noise-infusion flag for employment in establishments with 50 to 99 employees		yes			no		e50_99nf
+payroll_first_quarter_50_99	INT64	First-quarter payroll in current U.S. dollars for establishments with 50 to 99 employees		no		USD	no		q50_99 (x1000)
+payroll_first_quarter_50_99_noise_flag	STRING	Noise-infusion flag for first-quarter payroll in establishments with 50 to 99 employees		yes			no		q50_99nf
+payroll_annual_50_99	INT64	Annual payroll in current U.S. dollars for establishments with 50 to 99 employees		no		USD	no		a50_99 (x1000)
+payroll_annual_50_99_noise_flag	STRING	Noise-infusion flag for annual payroll in establishments with 50 to 99 employees		yes			no		a50_99nf
+establishments_100_249	INT64	Number of establishments with 100 to 249 employees		no		establishment	no		n100_249
+employment_100_249	INT64	Number of paid employees during the week of March 12 in establishments with 100 to 249 employees		no		employee	no		e100_249
+employment_100_249_flag	STRING	Data-suppression flag for employment in establishments with 100 to 249 employees		yes			no		f100_249
+employment_100_249_noise_flag	STRING	Noise-infusion flag for employment in establishments with 100 to 249 employees		yes			no		e100_249nf
+payroll_first_quarter_100_249	INT64	First-quarter payroll in current U.S. dollars for establishments with 100 to 249 employees		no		USD	no		q100_249 (x1000)
+payroll_first_quarter_100_249_noise_flag	STRING	Noise-infusion flag for first-quarter payroll in establishments with 100 to 249 employees		yes			no		q100_249nf
+payroll_annual_100_249	INT64	Annual payroll in current U.S. dollars for establishments with 100 to 249 employees		no		USD	no		a100_249 (x1000)
+payroll_annual_100_249_noise_flag	STRING	Noise-infusion flag for annual payroll in establishments with 100 to 249 employees		yes			no		a100_249nf
+establishments_250_499	INT64	Number of establishments with 250 to 499 employees		no		establishment	no		n250_499
+employment_250_499	INT64	Number of paid employees during the week of March 12 in establishments with 250 to 499 employees		no		employee	no		e250_499
+employment_250_499_flag	STRING	Data-suppression flag for employment in establishments with 250 to 499 employees		yes			no		f250_499
+employment_250_499_noise_flag	STRING	Noise-infusion flag for employment in establishments with 250 to 499 employees		yes			no		e250_499nf
+payroll_first_quarter_250_499	INT64	First-quarter payroll in current U.S. dollars for establishments with 250 to 499 employees		no		USD	no		q250_499 (x1000)
+payroll_first_quarter_250_499_noise_flag	STRING	Noise-infusion flag for first-quarter payroll in establishments with 250 to 499 employees		yes			no		q250_499nf
+payroll_annual_250_499	INT64	Annual payroll in current U.S. dollars for establishments with 250 to 499 employees		no		USD	no		a250_499 (x1000)
+payroll_annual_250_499_noise_flag	STRING	Noise-infusion flag for annual payroll in establishments with 250 to 499 employees		yes			no		a250_499nf
+establishments_500_999	INT64	Number of establishments with 500 to 999 employees		no		establishment	no		n500_999
+employment_500_999	INT64	Number of paid employees during the week of March 12 in establishments with 500 to 999 employees		no		employee	no		e500_999
+employment_500_999_flag	STRING	Data-suppression flag for employment in establishments with 500 to 999 employees		yes			no		f500_999
+employment_500_999_noise_flag	STRING	Noise-infusion flag for employment in establishments with 500 to 999 employees		yes			no		e500_999nf
+payroll_first_quarter_500_999	INT64	First-quarter payroll in current U.S. dollars for establishments with 500 to 999 employees		no		USD	no		q500_999 (x1000)
+payroll_first_quarter_500_999_noise_flag	STRING	Noise-infusion flag for first-quarter payroll in establishments with 500 to 999 employees		yes			no		q500_999nf
+payroll_annual_500_999	INT64	Annual payroll in current U.S. dollars for establishments with 500 to 999 employees		no		USD	no		a500_999 (x1000)
+payroll_annual_500_999_noise_flag	STRING	Noise-infusion flag for annual payroll in establishments with 500 to 999 employees		yes			no		a500_999nf
+establishments_1000	INT64	Number of establishments with 1,000 or more employees		no		establishment	no		n1000
+employment_1000	INT64	Number of paid employees during the week of March 12 in establishments with 1,000 or more employees		no		employee	no		e1000
+employment_1000_flag	STRING	Data-suppression flag for employment in establishments with 1,000 or more employees		yes			no		f1000
+employment_1000_noise_flag	STRING	Noise-infusion flag for employment in establishments with 1,000 or more employees		yes			no		e1000nf
+payroll_first_quarter_1000	INT64	First-quarter payroll in current U.S. dollars for establishments with 1,000 or more employees		no		USD	no		q1000 (x1000)
+payroll_first_quarter_1000_noise_flag	STRING	Noise-infusion flag for first-quarter payroll in establishments with 1,000 or more employees		yes			no		q1000nf
+payroll_annual_1000	INT64	Annual payroll in current U.S. dollars for establishments with 1,000 or more employees		no		USD	no		a1000 (x1000)
+payroll_annual_1000_noise_flag	STRING	Noise-infusion flag for annual payroll in establishments with 1,000 or more employees		yes			no		a1000nf
