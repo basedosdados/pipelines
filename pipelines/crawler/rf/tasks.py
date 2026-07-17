@@ -137,7 +137,9 @@ def process_file(
     if file is None:
         file = br_rf_constants.TABLES_RENAME.value[dataset_id][table_id]
     try:
-        partition_date = datetime.strptime(str(partition_date), "%Y-%m-%d")
+        partition_date = datetime.strptime(
+            str(partition_date), "%Y-%m-%d"
+        ).date()
         log(f"Partition date {partition_date}.")
     except ValueError:
         log("Invalid partition_date format. Using raw value.")
