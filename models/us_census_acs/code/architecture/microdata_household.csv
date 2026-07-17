@@ -242,27 +242,27 @@ wgtp77,INT64,Housing Weight replicate 77,,no,,,no,Dimensionless statistical repl
 wgtp78,INT64,Housing Weight replicate 78,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP78
 wgtp79,INT64,Housing Weight replicate 79,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP79
 wgtp80,INT64,Housing Weight replicate 80,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP80
-adjust,STRING,[VINTAGE/HISTORICAL variable ADJUST — define from legacy dict],,no,,,no,Adjustment factor with 6 implied decimal places (divide by 1e6).,ADJUST
+adjust,STRING,Adjustment factor for dollar amounts (6 implied decimal places),,no,,,no,Adjustment factor with 6 implied decimal places (divide by 1e6).,ADJUST
 type,STRING,Type of unit,,yes,,,no,,TYPE
 bus,STRING,Business or medical office on property,,yes,,,no,,BUS
 ybl,STRING,When structure first built,,yes,,,no,,YBL
 fes,STRING,Family type and employment status,,yes,,,no,,FES
 taxp,STRING,"Property taxes (yearly amount, no adjustment factor is applied)",,yes,,,no,,TAXP
 fbusp,STRING,Business or medical office on property allocation flag,,yes,,,no,,FBUSP
-fmvyp,STRING,[VINTAGE/HISTORICAL variable FMVYP — define from legacy dict],,yes,,,no,,FMVYP
+fmvyp,STRING,When moved into this house or apartment allocation,,yes,,,no,,FMVYP
 fyblp,STRING,When structure first built allocation flag,,yes,,,no,,FYBLP
 toil,STRING,Flush toilet,,yes,,,no,,TOIL
 ftoilp,STRING,Flush toilet allocation flag,,yes,,,no,,FTOILP
 access,STRING,Access to the Internet,,yes,,,no,,ACCESS
-dsl,STRING,[VINTAGE/HISTORICAL variable DSL — define from legacy dict],,yes,,,no,,DSL
-fiberop,STRING,[VINTAGE/HISTORICAL variable FIBEROP — define from legacy dict],,yes,,,no,,FIBEROP
-handheld,STRING,[VINTAGE/HISTORICAL variable HANDHELD — define from legacy dict],,yes,,,no,,HANDHELD
-modem,STRING,[VINTAGE/HISTORICAL variable MODEM — define from legacy dict],,yes,,,no,,MODEM
+dsl,STRING,DSL service,,yes,,,no,,DSL
+fiberop,STRING,Fiber-optic Internet service,,yes,,,no,,FIBEROP
+handheld,STRING,Handheld computer,,yes,,,no,,HANDHELD
+modem,STRING,Cable Internet service,,yes,,,no,,MODEM
 ssmc,STRING,Same-sex married couple households,,yes,,,no,,SSMC
-fdslp,STRING,[VINTAGE/HISTORICAL variable FDSLP — define from legacy dict],,yes,,,no,,FDSLP
-ffiberopp,STRING,[VINTAGE/HISTORICAL variable FFIBEROPP — define from legacy dict],,yes,,,no,,FFIBEROPP
-fhandheldp,STRING,[VINTAGE/HISTORICAL variable FHANDHELDP — define from legacy dict],,yes,,,no,,FHANDHELDP
-fmodemp,STRING,[VINTAGE/HISTORICAL variable FMODEMP — define from legacy dict],,yes,,,no,,FMODEMP
-puma00,STRING,[VINTAGE/HISTORICAL variable PUMA00 — define from legacy dict],,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,PUMA00
+fdslp,STRING,DSL service allocation flag,,yes,,,no,,FDSLP
+ffiberopp,STRING,Fiber-optic Internet service allocation flag,,yes,,,no,,FFIBEROPP
+fhandheldp,STRING,Handheld computer allocation flag,,yes,,,no,,FHANDHELDP
+fmodemp,STRING,Cable Internet service allocation flag,,yes,,,no,,FMODEMP
+puma00,STRING,Public use microdata area code (PUMA) based on Census 2000 definition for data collected prior to 2012. Use in combination with PUMA10.,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,PUMA00
 puma10,STRING,"Public use microdata area code (PUMA) based on 2010 Census definition for data years 2012-2021 (areas with population of 100,000 or more, use with ST for unique code)",,yes,,,no,,PUMA10
 puma20,STRING,"Public use microdata area code (PUMA) based on 2020 Census definition for data years 2022 and later (areas with population of 100,000 or more, use with ST for unique code)",,yes,,,no,,PUMA20

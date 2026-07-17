@@ -42,7 +42,8 @@ Post-checkpoint review changes (all names English now):
 
 | Script | Does |
 |--------|------|
-| `parse_pums_dict.py` | parse 15 PUMS dicts → `work/pums_vardict.json` + person/housing column unions (case-normalized) |
+| `fetch_legacy_dicts.py` | download the **PDF-only** PUMS dicts (2005–2012 + the 2006–2010 5-year) and render them to `.txt` via pypdf, so `parse_pums_dict.py` can read them. Run **before** `parse_pums_dict.py` |
+| `parse_pums_dict.py` | parse **CSV + TXT** PUMS dicts → `work/pums_vardict.json` + person/housing column unions (case-normalized) |
 | `build_pums_architecture.py` | → `code/architecture/microdata_{person,household}.csv` (types from dict C/N; hybrid RENAME `ST→STATE,BDS→BDSP,RMS→RMSP,VAL→VALP`) |
 | `build_profile_architecture.py` | → 9 profile + `variables` + `dicionario` architecture CSVs |
 | `build_variables_catalog.py` | vars_*.json.gz → `output/variables/data.parquet` |
@@ -79,6 +80,11 @@ BD_SERVICE_ACCOUNT_DEV=~/.basedosdados/credentials/prod.json \
 - **Download validation must check JSON *completeness*** (ends with `]`), not just `gzip -t` — a truncated response is a valid gzip of incomplete JSON. (193 profile files were silently corrupt this way.)
 - **`ano` partition = path only**, never a parquet column (else pyarrow hive-read conflicts).
 - **PUMS schema drift:** old years use lowercase headers + different names (`ST`→`STATE`); union is case-normalized; vintage code vars (`OCCP02/10/12`, `PUMA00`) kept separate (hybrid).
+- **PUMS dictionaries come in three formats, and you need all three.** CSV exists only from 2013 (and is the only source of the `C|N` type); TXT from 2009; **2005–2012 is PDF-only**. Parsing CSV alone leaves 58 vintage columns undefined. `fetch_legacy_dicts.py` renders the PDFs to `.txt` (identical layout), and `parse_pums_dict.py` reads CSV+TXT. Never render a PDF over a year the Census publishes as real `.txt` (2013+) — it would clobber the authoritative file.
+- **Do not guess a legacy variable's meaning from its name.** Two that name-inference got materially wrong before the dicts were parsed: **`MODEM` is "Cable Internet service"** (not a dial-up modem) and **`SSPA` is "Same sex spouse recode"** (not Social Security, despite the `SSP` sibling). Where a column lives is also non-obvious: `INDP02/07`+`NAICSP02/07` are defined **only** in the 2006-2010 5-year dict (they appear in the 2010/2011 5-year files, which straddle the 2002→2007 industry-code change), and `SSPA` **only** in the 2012 1-year dict.
+- **TXT/PDF dicts carry no `C|N` type**, so vars found only there default to `C` (STRING) — which is what the architecture already assumed. That default is load-bearing: it keeps adding the legacy dicts a *description-only* change with **zero BigQuery type churn** (no re-materialization).
+- **Value-label lines are indented in the published `.txt` but flush-left in the PDF render.** The label regex must not require the indent, or `n_labels` silently reads 0 and `covered_by_dictionary` flips to `no` on label-bearing columns.
+- **grep on the Census dicts needs `LC_ALL=C grep -a`** — several are "Non-ISO extended-ASCII", and macOS grep treats them as binary and prints *nothing* (not even `0`), which reads exactly like "the variable is absent". Always run a known-present control (e.g. `RT`, `SERIALNO`) before concluding a variable is missing.
 - **PUMA/CD/ZCTA have no directory FK** (vintage varies by year — D6/D6b); carried as STRING codes.
 - **The sandbox blocks `rm -rf` / `find -delete` / `os.remove`** even for own scratch files — use `mv` to move aside instead.
 - **Backend column RENAME = delete + recreate.** `update_column` CANNOT rename a column (its `column_name` is ignored for renaming); it only sets flags/OL/directory. To rename: `bulk_upsert_columns` (create new name) then `delete_column` (old). `update_column` sets `is_partition` + `observation_level_id` afterward.

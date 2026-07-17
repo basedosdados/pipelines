@@ -2,11 +2,11 @@
 ===== microdata_person: 357 columns =====
   STRING=256 (dict-covered=245), INT64=101 (of which 81 replicate weights)
   folded pure-renames (0): []
-  kept historical/vintage cols not in modern dict (49): ['ADJUST', 'DWRK', 'MILY', 'MLPC', 'MLPD', 'MLPF', 'MLPG', 'REL', 'UWRK', 'DS', 'RACNHPI', 'FDWRKP', 'FMILYP', 'SSPA', 'INDP02', 'NAICSP02', 'OCCP02', 'SOCP00', 'OCCP10', 'SOCP10', 'INDP07', 'NAICSP07', 'PUMA00', 'CITWP05', 'CITWP12', 'MARHYP05', 'MARHYP12', 'YOEP05', 'YOEP12', 'ANC1P05', 'ANC1P12', 'ANC2P05', 'ANC2P12', 'LANP05', 'LANP12', 'MIGPUMA00', 'MIGSP05', 'MIGSP12', 'OCCP12', 'POBP05', 'POBP12', 'POWPUMA00', 'POWSP05', 'POWSP12', 'RAC2P05', 'RAC2P12', 'RAC3P05', 'RAC3P12', 'SOCP12']
+  kept historical/vintage cols not in modern dict (0): []
   numeric cols needing UNIT review (0): []
 
 ===== microdata_household: 267 columns =====
   STRING=160 (dict-covered=152), INT64=107 (of which 81 replicate weights)
   folded pure-renames (0): []
-  kept historical/vintage cols not in modern dict (11): ['ADJUST', 'FMVYP', 'DSL', 'FIBEROP', 'HANDHELD', 'MODEM', 'FDSLP', 'FFIBEROPP', 'FHANDHELDP', 'FMODEMP', 'PUMA00']
+  kept historical/vintage cols not in modern dict (0): []
   numeric cols needing UNIT review (0): []

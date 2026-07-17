@@ -29,51 +29,139 @@ os.makedirs(WORK, exist_ok=True)
 # REL->RELSHIPP) — those stay separate historical columns.
 RENAME = {"ST": "STATE", "BDS": "BDSP", "RMS": "RMSP", "VAL": "VALP"}
 
-# ---- 1. parse dictionaries (csv format only; recent years cover all current vars) ----
-vardict = {}  # var -> dict
+# ---- 1. parse dictionaries (CSV 2013+ and TXT 2009-2016) ----
+# The CSV dictionaries only exist from 2013 on and carry an explicit C|N type.
+# The TXT dictionaries (2009-2016, incl. the single-year 13/14/15/16 files) are the
+# ONLY machine-readable definition of the vintage/legacy variables (OCCP02, PUMA00,
+# DSL, HANDHELD, MODEM, ...) that the older PUMS files still carry. Parsing them is
+# what keeps those columns from falling back to a hand-written description.
+# Pre-2009 dictionaries are published as PDF only, so a residue stays undefined.
+#
+# TXT layout:
+#   VARNAME     <width>
+#   <description>                 <- next non-empty line
+#               <val> .<label>    <- indented label lines
+#
+# TXT carries no C|N type. Records parsed from TXT therefore contribute the
+# description/labels only; the type comes from a CSV record when one exists and
+# otherwise defaults to "C" (categorical -> STRING), which is what
+# build_pums_architecture.py already assumed for these columns. Keeping that
+# default means adding TXT parsing changes descriptions WITHOUT changing any
+# BigQuery type (no re-materialization).
+records = {}  # var -> list of {year, source, type, width, desc, n_labels}
+
+TXT_NAME_RE = re.compile(r"^([A-Z][A-Z0-9]{0,12})\s+(\d+)\s*$")
+# A value-label line is "<value> .<label>". The published .txt dictionaries indent
+# these, but the PDF-rendered ones (fetch_legacy_dicts.py) emit them at column 0, so
+# the leading indent must NOT be required — demanding it silently counted zero labels
+# and flipped covered_by_dictionary to "no" on label-bearing vintage columns.
+TXT_LABEL_RE = re.compile(r"^\s*\S+\s+\.\S")
+# pypdf renders page numbers as their own line; never mistake one for a description.
+TXT_PAGENO_RE = re.compile(r"^\d{1,4}$")
 
 
-def year_of(path):
-    m = re.search(r"Dictionary_(\d{4})(?:-(\d{4}))?\.csv$", path)
-    return m.group(2) or m.group(1) if m else "?"
+def year_of(path, ext):
+    m = re.search(rf"_(\d{{4}})(?:-(\d{{4}}))?\.{ext}$", path)
+    if m:
+        return m.group(2) or m.group(1)
+    m = re.search(rf"Dict(\d{{2}})\.{ext}$", path)  # PUMSDataDict13.txt
+    return f"20{m.group(1)}" if m else "?"
 
 
-for path in sorted(glob.glob(f"{PUMS}/dict/PUMS_Data_Dictionary_*.csv")):
-    yr = year_of(path)
+_seq = [0]
+
+
+def add(var, year, source, typ, width, desc, n_labels):
+    _seq[0] += 1
+    records.setdefault(var, []).append(
+        {
+            "year": year,
+            "source": source,
+            "type": typ,
+            "width": width,
+            "desc": desc,
+            "n_labels": n_labels,
+            "seq": _seq[0],
+        }
+    )
+
+
+# --- CSV dictionaries (authoritative types) ---
+for path in sorted(glob.glob(f"{PUMS}/dict/*.csv")):
+    yr = year_of(path, "csv")
+    pending = {}  # var -> record index, to attach VAL counts
     with open(path, newline="", encoding="latin-1") as f:
         for row in csv.reader(f):
             if not row:
                 continue
             rt = row[0].strip()
             if rt == "NAME" and len(row) >= 5:
-                var, typ, width, desc = (
-                    row[1].strip().upper(),
+                var = row[1].strip().upper()
+                add(
+                    var,
+                    yr,
+                    "csv",
                     row[2].strip(),
                     row[3].strip(),
                     row[4].strip(),
+                    0,
                 )
-                d = vardict.setdefault(
-                    var,
-                    {
-                        "type": typ,
-                        "width": width,
-                        "desc": desc,
-                        "n_labels": 0,
-                        "years": set(),
-                    },
-                )
-                d["years"].add(yr)
-                # prefer the most recent (max year) description/type
-                if yr >= max(d["years"]):
-                    d["type"], d["width"], d["desc"] = typ, width, desc
+                pending[var] = records[var][-1]
             elif rt == "VAL" and len(row) >= 2:
                 var = row[1].strip().upper()
-                if var in vardict:
-                    vardict[var]["n_labels"] += 1
+                if var in pending:
+                    pending[var]["n_labels"] += 1
 
-for _v, d in vardict.items():
-    d["has_labels"] = d["n_labels"] > 0
-    d["years"] = sorted(d["years"])
+# --- TXT dictionaries (only source for the legacy/vintage variables) ---
+for path in sorted(glob.glob(f"{PUMS}/dict/*.txt")):
+    yr = year_of(path, "txt")
+    with open(path, encoding="latin-1") as f:
+        lines = [ln.rstrip("\n") for ln in f]
+    i = 0
+    while i < len(lines):
+        m = TXT_NAME_RE.match(lines[i])
+        if not m:
+            i += 1
+            continue
+        var, width = m.group(1).upper(), m.group(2)
+        desc, j = "", i + 1
+        while j < len(lines) and (
+            not lines[j].strip() or TXT_PAGENO_RE.match(lines[j].strip())
+        ):
+            j += 1
+        if (
+            j < len(lines)
+            and not TXT_NAME_RE.match(lines[j])
+            and not TXT_LABEL_RE.match(lines[j])
+        ):
+            desc = lines[j].strip()
+            j += 1
+        n_labels = 0
+        while j < len(lines) and not TXT_NAME_RE.match(lines[j]):
+            if TXT_LABEL_RE.match(lines[j]):
+                n_labels += 1
+            j += 1
+        if desc:
+            add(var, yr, "txt", None, width, desc, n_labels)
+        i = j
+
+# --- merge: newest year wins; CSV beats TXT on a tie; last-parsed wins a full tie
+# (the seq tiebreak reproduces the previous CSV-only precedence exactly, so adding
+# TXT parsing cannot silently reword an already-published CSV-sourced description) ---
+vardict = {}
+for var, recs in records.items():
+    best = max(recs, key=lambda r: (r["year"], r["source"] == "csv", r["seq"]))
+    csv_types = [r["type"] for r in recs if r["source"] == "csv" and r["type"]]
+    vardict[var] = {
+        "type": csv_types[-1] if csv_types else "C",
+        "width": best["width"],
+        "desc": best["desc"],
+        "n_labels": max(r["n_labels"] for r in recs),
+        "has_labels": max(r["n_labels"] for r in recs) > 0,
+        "years": sorted({r["year"] for r in recs}),
+        "desc_source": best["source"],
+        "typed_from_csv": bool(csv_types),
+    }
 
 
 # ---- 2. column unions from actual CSV headers across vintages ----
@@ -141,10 +229,15 @@ def classify(cols):
     return len(cols), len(known), len(unknown), n, cc, unknown
 
 
-print(
-    f"dictionaries parsed: {len(glob.glob(f'{PUMS}/dict/PUMS_Data_Dictionary_*.csv'))} csv files"
-)
+n_csv = len(glob.glob(f"{PUMS}/dict/*.csv"))
+n_txt = len(glob.glob(f"{PUMS}/dict/*.txt"))
+print(f"dictionaries parsed: {n_csv} csv + {n_txt} txt")
 print(f"total distinct vars in dict: {len(vardict)}")
+from_txt = [v for v, d in vardict.items() if d["desc_source"] == "txt"]
+print(f"  vars whose description comes from a TXT dict: {len(from_txt)}")
+print(
+    f"  vars with no CSV type (defaulted to C/STRING): {sum(1 for d in vardict.values() if not d['typed_from_csv'])}"
+)
 for kind, cols in [("PERSON", person_cols), ("HOUSING", housing_cols)]:
     tot, kn, unk, n, cc, unkl = classify(cols)
     print(
