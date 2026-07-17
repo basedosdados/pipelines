@@ -63,7 +63,18 @@ to date. Add this only after static onboarding is verified in dev.
    — these are pure functions. State clearly that the upload/dbt/metadata halves
    run on the deployed worker and were not exercised locally; the same goes for
    `apply_row_access_policies`, which issues real BigQuery DDL.
-9. **Commit**: `feat(<dataset_id>): add recurring Prefect pipeline`. Never commit
+9. **Fill in the Update/Poll records.** A recurring dataset needs all three, and
+   the flow only writes them on a run with `update_metadata=True` — so create
+   the missing ones by hand rather than assuming the first run will:
+   - `Update` on the **table** — when we last refreshed (wall clock), plus
+     `frequency`/`lag`.
+   - `Update` on the **raw data source** — the source's **max coverage date**
+     (`create_update_update(raw_data_source_id=…)`). Not today's date.
+   - `Poll` on the raw data source — when we last looked (written by the poll
+     task).
+   Verify all three exist afterwards; see "Update and Poll records" in
+   `prefect-pipeline-conventions`.
+10. **Commit**: `feat(<dataset_id>): add recurring Prefect pipeline`. Never commit
    data. Pre-format `.py` files before committing.
 
 ## Output

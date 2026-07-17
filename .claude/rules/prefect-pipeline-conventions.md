@@ -105,6 +105,44 @@ Date columns: `YearMonth(year=, month=)`→`DateFormat.YEAR_MONTH`,
 `YearOnly(col=)`→`DateFormat.YEAR`, `DateOnly(col=)`→`DateFormat.YEAR_MD`,
 `YearQuarter(year=, quarter=)`→`DateFormat.YEAR_MONTH`.
 
+## Update and Poll records — a recurring pipeline must have all three
+
+A recurring dataset carries three records, and a pipeline is not finished until all three
+exist. They answer different questions and are easy to conflate:
+
+| Record | Anchor | `latest` | Written by |
+|---|---|---|---|
+| `Update` | table | when **we** last refreshed (wall clock) | `register_table_materialization_task` |
+| `Update` | raw data source | what the **source** published — its **max coverage date** | `commit_source_update_task` |
+| `Poll` | raw data source | when we last **looked** (wall clock) | `poll_source_for_update_task` |
+
+**The source Update is a coverage date; the table Update and Poll are wall clocks.** "Did
+the source release anything new?" is not a stored boolean — it is `Poll.latest` (when we
+looked) versus `RawDataSource.Update.latest` (what they had).
+
+The flow recipe already writes all three, but **only on a run with
+`update_metadata=True`** — so a dataset tested with metadata off will have a Poll and no
+source Update. Create the source Update at onboarding rather than waiting for the first
+real run:
+
+```
+create_update_update(raw_data_source_id=…, entity_id=<month>, frequency=1,
+                     latest="<source max coverage date>", env="prod")
+```
+
+`frequency` = units between releases (1 + `month` = monthly); `lag` = publication delay in
+the same units (CPI month M lands in M+1 → `lag=1`), conventionally unset on the source
+Update. `upsert_raw_source_update` hardcodes `entity=month`, so a non-monthly source still
+gets a month-entity source Update — expected, not a bug to fix per dataset.
+
+Reference (`br_ibge_ipca`, and `cpi`):
+
+```
+Table.Update          month  freq=1  lag=1     latest=2026-07-17  (wall clock)
+RawDataSource.Update  month  freq=1  lag=None  latest=2026-06-01  (coverage date)
+RawDataSource.Poll    day    freq=1            latest=2026-07-17  (wall clock)
+```
+
 ## BD Pro rolling window (high-frequency data)
 
 **Business rule: any table refreshed monthly or more often paywalls its most

@@ -185,9 +185,58 @@ Correct shape for a monthly table (cf. `br_ibge_ipca.mes_brasil`, free
 start_year=1913, start_month=1, end_year=2026, end_month=6
 ```
 
-## `create_update_update` — last_updated semantics
+## Update and Poll — three records, three meanings
 
-The `last_updated` field in the update record represents **when the table was last updated at Data Basis** — not the max date in the raw data. Always set it to **today's date** (the date the onboarding or update operation is being performed). Never derive it from the data's temporal coverage or the raw source's extraction date.
+`Update` hangs off **either** a table **or** a raw data source, and they mean different
+things. `Poll` hangs off the raw data source. A dataset with a recurring pipeline needs
+**all three**; a one-off dataset needs only the table Update.
+
+| Record | Anchor | `latest` means | Written by |
+|--------|--------|----------------|------------|
+| `Update` | table | When **we** last refreshed the table (wall clock) | `register_table_materialization_task`, or by hand at onboarding |
+| `Update` | raw data source | What the **source** last published — its **max coverage date**, e.g. `2026-06-01` for June data | `commit_source_update_task` |
+| `Poll` | raw data source | When we last **looked** at the source (wall clock), whether or not it had anything new | `poll_source_for_update_task` |
+
+The distinction that matters: **the source Update is a coverage date, the table Update
+and the Poll are wall clocks.** Putting today's date on the source Update says the
+publisher released data today, which is almost never true.
+
+"Did they release anything new?" is not a boolean field — it is `Poll.latest` (when we
+looked) versus `RawDataSource.Update.latest` (what they had). A Poll newer than the
+source Update means we checked and found nothing new.
+
+Reference (`br_ibge_ipca`, and now `cpi`):
+
+```
+Table.Update          entity=month  frequency=1  lag=1     latest=2026-07-17  (wall clock)
+RawDataSource.Update  entity=month  frequency=1  lag=None  latest=2026-06-01  (coverage date)
+RawDataSource.Poll    entity=day    frequency=1            latest=2026-07-17  (wall clock)
+```
+
+`frequency` is how many `entity` units between releases (1 + `month` = monthly). `lag` is
+the publication delay in the same units (CPI for month M lands in M+1, so `lag=1`);
+source-anchored Updates conventionally leave it unset.
+
+Pass exactly one of `table_id` / `raw_data_source_id` to `create_update_update`.
+
+## `create_update_update` — `latest` semantics
+
+**Table-anchored Update:** `latest` is **when the table was last updated at Data Basis** —
+not the max date in the raw data. Set it to **today's date** (when the onboarding or update
+is performed). Never derive it from the data's temporal coverage or the raw source's
+extraction date.
+
+**Source-anchored Update:** the opposite — `latest` is exactly the **max coverage date of
+the raw source** (`2026-06-01` for June data). Today's date here would claim the publisher
+released data today.
+
+> **Caveat for datasets with a recurring pipeline.** `poll_source_for_update` compares the
+> source's max coverage date against **`Table.Update.latest`** — a coverage date against a
+> wall clock. Setting `Table.Update.latest` to today at onboarding can therefore make the
+> poll return "no new data" until the source's coverage overtakes that timestamp, so the
+> pipeline runs green while ingesting nothing. See `project_metadata_update_latest_semantics`;
+> the read/write split (poll reads Table.Update, commit writes RawDataSource.Update) is a
+> known open bug, not something to work around per dataset.
 
 ## Known issues
 

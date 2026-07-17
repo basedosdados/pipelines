@@ -35,6 +35,12 @@ Follow `prefect-pipeline-conventions` (structure, flow recipe, shared
 CSVs, and cleaning transform from steps 2–6 — it does not redesign them; the
 cleaning transform is shared with `models/<ds>/code/` rather than duplicated.
 
+**Update and Poll records.** A recurring dataset must carry all three: the table `Update`
+(when we last refreshed), the raw data source `Update` (the source's **max coverage
+date**, not today), and the raw data source `Poll` (when we last looked). The flow writes
+them only on a run with `update_metadata=True`, so create any that are missing by hand and
+verify — a dataset tested with metadata off ends up with a Poll and no source Update.
+
 **BD Pro rolling window.** Data Basis paywalls the most recent window of any table
 that refreshes **monthly or more often**; older data stays free, and lower-frequency
 tables in the same dataset stay free entirely. Decide the tier **per table**: the
