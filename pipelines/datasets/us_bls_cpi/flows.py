@@ -20,6 +20,8 @@ from pipelines.datasets.us_bls_cpi.tasks import clean_cpi, download_cpi
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
+    FreeLag,
+    PartBdpro,
     YearMonth,
     YearOnly,
 )
@@ -36,11 +38,25 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Coverage spec per table (all public → all_free tier).
+# Coverage spec per table.
+#
+# `monthly` is the high-frequency table, so it carries the BD Pro rolling
+# window: the most recent 6 months are pro-only, everything older is free.
+# Each run recomputes free_end = source_end - free_lag, rewrites both
+# DateTimeRanges, and re-issues the BigQuery Row Access Policies, so the
+# window slides forward on its own.
+#
+# part_bdpro requires BOTH a free (is_closed=False) and a pro
+# (is_closed=True) Coverage to already exist on the table, or
+# assert_coverage_topology raises before anything is written.
+#
+# annual and semiannual are lower-frequency and stay fully free.
+# `dicionario` has no date column, so it takes no coverage spec at all.
 _COVERAGE = {
-    "monthly": AllFree(
+    "monthly": PartBdpro(
         date_column=YearMonth(year="year", month="month"),
         date_format=DateFormat.YEAR_MONTH,
+        free_lag=FreeLag(unit="months", value=6),
     ),
     "annual": AllFree(
         date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
