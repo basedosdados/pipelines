@@ -28,6 +28,7 @@ from pipelines.utils.metadata.dto import (
     PollInput,
     RawSourceUpdateInput,
     TableUpdateInput,
+    _compose_end_date,
     _to_iso8601,
 )
 from pipelines.utils.vault import get_credentials_from_secret
@@ -224,6 +225,43 @@ class MetadataClient:
         return self._read_update_latest(
             "$rawDataSource_Id: ID", rds_id, "rawDataSource_Id"
         )
+
+    def get_table_coverage_end(
+        self, dataset_id: str, table_id: str
+    ) -> datetime.date | None:
+        """Fim da cobertura temporal da `Table` — o período mais recente que a
+        tabela de fato contém.
+
+        Toma o **máximo** entre os `DateTimeRange` de todas as coberturas: num
+        `part_bdpro` a free termina em `free_end` e a pro em `source_end`, então
+        só a pro reflete a extensão real; num `all_free` há um range só e o
+        máximo é ele mesmo.
+
+        É a fonte de verdade para "o que já temos": vem de
+        `bq.read_max_date`, gravado por `register_table_materialization`. Os
+        `Update` são escrituração e podem divergir do dado (visto em prod:
+        `br_ibge_ipca.mes_brasil` com cobertura até 2026-05 e
+        `RawDataSource.Update.latest` em 2026-06-01).
+
+        Devolve ``None`` se a tabela não tem cobertura datada — o chamador trata
+        como "nunca materializado".
+        """
+        table_pk = self.get_table_id(dataset_id, table_id)
+        query = """query($table_Id: ID) {
+            allCoverage(table_Id: $table_Id) {
+                edges { node { datetimeRanges { edges { node {
+                    endYear, endMonth, endDay
+                } } } } }
+            }
+        }"""
+        response = self._execute(query, {"table_Id": table_pk})
+        ends = [
+            end
+            for coverage in response["allCoverage"]["items"]
+            for dtr in (coverage.get("datetimeRanges") or {}).get("items", [])
+            if (end := _compose_end_date(dtr)) is not None
+        ]
+        return max(ends) if ends else None
 
     def _read_update_latest(
         self, filter_decl: str, value: str, field: str

@@ -46,12 +46,20 @@ class CoverageRanges(BaseModel):
 
 # ----------------------------------------------- atualização de RawDataSource
 def should_update_raw_source(
-    api_latest: date | None, source_max: date | None
+    covered_until: date | None, source_max: date | None
 ) -> bool:
-    """Só atualiza `RawDataSource.Update` se a fonte tem data nova."""
+    """Ingere se a fonte tem dados além do que a tabela já cobre.
+
+    `covered_until` é o fim da cobertura temporal da tabela — o que de fato
+    temos. `None` (tabela nunca materializada) significa que qualquer dado da
+    fonte é novidade. `source_max is None` é "só polei, sem novidade".
+
+    Ambos os lados são datas de **cobertura**: nenhum relógio de parede entra na
+    decisão.
+    """
     if source_max is None:
         return False
-    return api_latest is None or source_max > api_latest
+    return covered_until is None or source_max > covered_until
 
 
 # --------------------------------------------------- trava de escrita em prod
