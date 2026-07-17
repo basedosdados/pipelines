@@ -363,9 +363,11 @@ returns nothing.
 
 ### 4. What is NOT verifiable before arming
 
-The prod upload (`bucket_name="basedosdados"`) and `apply_row_access_policies` need the
-worker's rights and run for the first time on the first armed run. Say so plainly rather
-than implying the pipeline is proven end-to-end.
+The prod upload (`bucket_name="basedosdados"`) needs the worker's rights and runs for the
+first time on the first armed run. So does `apply_row_access_policies` — but **only if a
+table is `part_bdpro`**; an all-free pipeline never issues them, so there is nothing
+unexercised on that front. Say which of the two applies, plainly, rather than implying the
+pipeline is proven end-to-end.
 
 ## Commit discipline
 

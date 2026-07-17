@@ -55,8 +55,9 @@ the logs via `mcp__databasis__get_flow_run_logs`, or check whether coverage move
 **Merging does not arm it.** The prod deploy lands `paused=True` and the backend sync
 registers an unknown deployment with `is_schedule_active=False`. Arming is a manual tick
 in Django admin (`/admin/admin_data_tools/disabledflowschedule/`), and the first armed run
-is the first-ever execution of the prod upload and the Row Access Policies. Do it
-deliberately, watching.
+is the first-ever execution of the prod upload — and, **only for a `part_bdpro` table**, of
+the Row Access Policies (`needs_row_access_policy` is `isinstance(spec, PartBdpro)`, so an
+all-free pipeline never issues them). Do it deliberately, watching.
 
 **Update and Poll records.** A recurring dataset must carry all three: the table `Update`
 (when we last refreshed), the raw data source `Update` (the source's **max coverage

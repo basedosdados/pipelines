@@ -24,9 +24,10 @@ force_run=True`; the defaults would write prod and apply the paywall). Done mean
 `dbt run OK` + `dbt test OK` per table, read from the logs — a green state alone
 proves nothing, since the poll guard returns early and still reports `COMPLETED`.
 
-The prod upload and the Row Access Policies only run once the schedule is armed
-(a manual tick in Django admin — merging does **not** arm it), so the agent says
-plainly that those remain unexercised.
+The prod upload only runs once the schedule is armed (a manual tick in Django
+admin — merging does **not** arm it), and the Row Access Policies only if a table
+is `part_bdpro` — an all-free pipeline never issues them. The agent says plainly
+which of those remain unexercised.
 
 It also sets the **BD Pro rolling window**: any table refreshing monthly or more
 often gets `PartBdpro` (default `free_lag=6 months`) so its recent window is
