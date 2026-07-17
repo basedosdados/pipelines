@@ -91,6 +91,45 @@ guard makes a scheduled run a no-op until the source actually publishes.
 each release, like BLS flat files). No `"replace"`. `source_format="parquet"` is
 supported; `data_path` may be a hive-partitioned directory (`.../year=YYYY/data.parquet`).
 
+### Staging parquet must be all-STRING (current limitation)
+
+`upload_to_gcs` builds the staging table from a one-row header written by
+`gcs.py::dump_header`, and the parquet branch does `.to_pandas().astype(str)` — so
+BigQuery infers **every column as STRING**. Emitting *typed* parquet then fails on read:
+
+```
+Parquet column 'index_value' has type DOUBLE which does not match the
+target cpp_type STRING_PIECE
+```
+
+Until `dump_header` is fixed, a pipeline writing parquet must cast to an all-string
+schema. Two details are load-bearing:
+
+- **Cast via arrow, never `astype(str)`** — the latter renders NULL as the literal
+  `"nan"`, which `safe_cast` will not turn back into NULL.
+- **Pass through the architecture's real types first**, then cast. Otherwise `year`
+  serializes as `"1959.0"` and `safe_cast(year as int64)` yields NULL.
+
+This costs nothing downstream: staging is all-STRING by house convention anyway and the
+dbt model `safe_cast`s every column. `us_bls_cpi/utils.py::write_partitioned` is the
+reference. Note `bigquery-conventions.md` tells you to pin an explicit `pa.Schema` —
+correct for the one-shot onboarding upload, wrong here. → `project_dump_header_parquet_bug`
+
+### One raw data source per table (current limitation)
+
+`client._raw_source_id` resolves the table's raw source via `_query_id`, which **raises
+when a table has 2+ raw sources**:
+
+```
+allRawdatasource: mais de um nó encontrado para {'tables_Id': …}
+```
+
+The poll and commit tasks both go through it, so a table linked to two sources cannot
+run a recurring pipeline at all — it fails at the first poll. The data model permits the
+M2M; the client is over-constrained. Until it is fixed, link each table to exactly **one**
+raw source (the primary one), and note in the dataset's memory that the others should be
+re-linked afterwards. → `project_metadata_multi_raw_source_bug`
+
 ### Coverage domain types (`utils.metadata.domain`)
 
 Build a `CoverageSpec` per table; the `date_column.kind` must match `date_format`:
@@ -241,22 +280,94 @@ my_flow.job_variables = {"memory": "8Gi"}   # optional; size to the clean step's
 ```
 
 Deploy is CI, via `.github/scripts/deploy_flows.py`:
-- Dev pool (`--pool basedosdados-dev`, on PR): schedules **stripped** — manual runs only.
-- Prod pool (`--pool basedosdados --all`, on merge to main): schedules become
-  `Cron` objects; deployed **`paused=True`**, activated by backend sync.
+- **Dev pool** (`cd-prefect3-staging.yaml`, `--pool basedosdados-dev`, on PR):
+  runs **only if the PR carries the `deploy-flow` label** — no label, no deploy, and
+  the job reports `skipped`, not failed. A PR without it deploys **nothing** and
+  looks fine. The workflow triggers on `labeled` and `synchronize`, so adding the
+  label is itself enough. Schedules are **stripped** — manual runs only.
+- **Prod pool** (`cd-prefect3.yaml`, `--pool basedosdados --all`, on merge to main):
+  schedules become `Cron` objects; deployed **`paused=True`**.
 - Cron in `America/Sao_Paulo`; see crontab.guru. For a monthly source, poll across
   a few release-window days — the source-poll guard no-ops until a new period lands.
 
-## Local verification (what you CAN check without infra)
+### Arming is a manual step — merging does NOT start the schedule
+
+Merging deploys to prod **paused**. CI then POSTs `admin-tools/sync-deployments/`,
+which for an **unknown** deployment creates a `DisabledFlowSchedule` row with
+`is_schedule_active=False` — so it **stays paused**. Sync only *enforces* the stored
+state for deployments it already knows; it never arms a new one.
+
+To arm: **https://backend.basedosdados.org/admin/admin_data_tools/disabledflowschedule/**
+→ find `flow_name` → tick `is_schedule_active` → save. The admin's `save_model` calls
+`Prefect3Client().set_paused(deployment_id, paused=False)`, so the tick un-pauses
+Prefect directly; unticking re-pauses it (the kill switch).
+
+Note a paused deployment still shows its schedule as `active=True` — deployment-level
+`paused` wins. Read `paused`, not the schedule flag.
+
+**Before arming, know what the first run does**: it is the first execution of the prod
+upload (`bucket_name="basedosdados"`) and, for `part_bdpro`, of
+`apply_row_access_policies` — i.e. the paywall goes live and the open-data export
+starts excluding the pro window. Neither is exercisable locally. Watch that run.
+
+## Verification — a dev run is part of the job, not a bonus
+
+**Local checks do not tell you whether the pipeline works.** On `us_bls_cpi` they all
+passed while three separate bugs waited in the parts they cannot reach: a raw-source
+link that made the poll raise, typed parquet BigQuery refused, and an upload whose
+staging schema contradicted the data. Each surfaced on the first real run. Do the local
+checks to fail fast, then **run it**.
+
+### 1. Local (fail fast, proves little)
 
 1. **Imports**: `uv run python -c "from pipelines.datasets.<ds> import flows; print(flows.<flow>.name)"`.
 2. **Transform parity**: run `clean_all` on the existing `input/` and assert the
    same row counts as the onboarding validation.
 3. **Download**: fetch one small dimension file via `requests` + the real headers.
 4. **Deploy discovery**: run `deploy_flows.load_flows_from_file("pipelines/datasets/<ds>/flows.py")`
-   and confirm the flow name appears.
-5. The `upload_to_gcs`/`run_dbt`/metadata halves run on the worker — do not expect
-   them to pass locally; state that plainly.
+   and confirm the flow name appears. `load_flows_from_file` **swallows import errors**
+   and returns `{}`, so a broken import means a silent no-deploy.
+5. Pure metadata policy (`compute_coverage_ranges`, `assert_coverage_topology`,
+   `needs_row_access_policy`) is unit-testable — test the window and its roll.
+
+### 2. A real dev run (the actual gate)
+
+Add the **`deploy-flow`** label, wait for `cd-prefect3 (staging)` to report
+`registrado`, then trigger the deployment manually **with prod off**:
+
+```
+parameters = {"materialize_to_prod": False, "update_metadata": False, "force_run": True}
+```
+
+**All three matter.** The flow defaults are `materialize_to_prod=True,
+update_metadata=True` — a run triggered with `{}` writes **prod data, prod metadata,
+and applies the paywall**, from the dev pool, because the metadata tasks are pinned
+`env="prod"` regardless of pool. `force_run=True` bypasses the poll guard, which
+otherwise returns before doing anything.
+
+Done means: every task `COMPLETED`, and the logs show `dbt run OK` **and**
+`dbt test OK` for each table.
+
+### 3. Reading the result — green does not mean it ingested
+
+The poll guard returns early and Prefect still reports **`COMPLETED`**. A dead pipeline
+is indistinguishable from a working one by state alone; `br_ibge_ipca` sat at 4 ingests
+in 60 completed runs unnoticed. To tell them apart, read the logs
+(`Não há novas atualizações na fonte original` = polled, did nothing) or check whether
+the coverage/Update records moved.
+
+Use the `mcp__databasis__*` Prefect tools — `list_flow_runs(flow_name=…)`,
+`get_flow_run_logs(<run_id>)`, `get_failed_flow_runs()`. They speak the Prefect 3 REST
+API; anything pointing at `prefect.basedosdados.org` is the retired Prefect 2 host and
+returns nothing.
+
+### 4. What is NOT verifiable before arming
+
+The prod upload (`bucket_name="basedosdados"`) needs the worker's rights and runs for the
+first time on the first armed run. So does `apply_row_access_policies` — but **only if a
+table is `part_bdpro`**; an all-free pipeline never issues them, so there is nothing
+unexercised on that front. Say which of the two applies, plainly, rather than implying the
+pipeline is proven end-to-end.
 
 ## Commit discipline
 
