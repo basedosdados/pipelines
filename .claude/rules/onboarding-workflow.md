@@ -35,6 +35,29 @@ Follow `prefect-pipeline-conventions` (structure, flow recipe, shared
 CSVs, and cleaning transform from steps 2–6 — it does not redesign them; the
 cleaning transform is shared with `models/<ds>/code/` rather than duplicated.
 
+**A dev run is the definition of done — not a clean local check.** Local verification
+(imports, transform parity, deploy discovery) cannot reach the parts that break: on
+`us_bls_cpi` it passed while three separate bugs waited in the upload, the poll, and the
+staging schema. Step 12 is not finished until the flow has run on the **dev pool** with
+`{"materialize_to_prod": False, "update_metadata": False, "force_run": True}` and the logs
+show `dbt run OK` + `dbt test OK` for every table. Two traps around that run:
+
+- The PR needs the **`deploy-flow` label** or the staging deploy is `skipped` and nothing
+  is deployed — silently.
+- The defaults are `materialize_to_prod=True, update_metadata=True`, and the metadata
+  tasks are pinned `env="prod"` even from the dev pool. A run triggered with `{}` writes
+  **prod** data and metadata and applies the paywall.
+
+**Green ≠ ingested.** The poll guard returns early and Prefect still reports `COMPLETED`,
+so a dead pipeline looks healthy (`br_ibge_ipca`: 4 ingests in 60 completed runs). Read
+the logs via `mcp__databasis__get_flow_run_logs`, or check whether coverage moved.
+
+**Merging does not arm it.** The prod deploy lands `paused=True` and the backend sync
+registers an unknown deployment with `is_schedule_active=False`. Arming is a manual tick
+in Django admin (`/admin/admin_data_tools/disabledflowschedule/`), and the first armed run
+is the first-ever execution of the prod upload and the Row Access Policies. Do it
+deliberately, watching.
+
 **Update and Poll records.** A recurring dataset must carry all three: the table `Update`
 (when we last refreshed), the raw data source `Update` (the source's **max coverage
 date**, not today), and the raw data source `Poll` (when we last looked). The flow writes

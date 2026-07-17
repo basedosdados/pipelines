@@ -60,10 +60,24 @@ to date. Add this only after static onboarding is verified in dev.
    discovery via `load_flows_from_file`). If the flow uses `PartBdpro`, also
    unit-test the window: `assert_coverage_topology`, `compute_coverage_ranges`
    at the real `source_end`, and that `free_end` rolls when the source advances
-   — these are pure functions. State clearly that the upload/dbt/metadata halves
-   run on the deployed worker and were not exercised locally; the same goes for
-   `apply_row_access_policies`, which issues real BigQuery DDL.
-9. **Fill in the Update/Poll records.** A recurring dataset needs all three, and
+   — these are pure functions.
+9. **Then actually run it — this is the gate, not step 8.** Local checks pass
+   while the interesting bugs sit in the parts they cannot reach; on
+   `us_bls_cpi` three separate ones survived a clean local pass. Ask the user to
+   add the **`deploy-flow`** label (no label → the staging deploy is `skipped`
+   and nothing is deployed, silently), confirm `cd-prefect3 (staging)` logs
+   `registrado`, then trigger the deployment with **prod off**:
+   `{"materialize_to_prod": False, "update_metadata": False, "force_run": True}`.
+   Defaults are `True/True/False`, so a run triggered with `{}` writes prod data
+   and metadata and applies the paywall — the metadata tasks are pinned
+   `env="prod"` even from the dev pool. Done = all tasks `COMPLETED` **and**
+   `dbt run OK` + `dbt test OK` in the logs for every table. Inspect with
+   `mcp__databasis__list_flow_runs` / `get_flow_run_logs`.
+   **Green ≠ ingested**: the poll guard returns early and still reports
+   `COMPLETED` — check the logs, not the state.
+   Say plainly what remains unexercised: the prod upload and, for `part_bdpro`,
+   `apply_row_access_policies` only run once armed.
+10. **Fill in the Update/Poll records.** A recurring dataset needs all three, and
    the flow only writes them on a run with `update_metadata=True` — so create
    the missing ones by hand rather than assuming the first run will:
    - `Update` on the **table** — when we last refreshed (wall clock), plus
@@ -74,8 +88,10 @@ to date. Add this only after static onboarding is verified in dev.
      task).
    Verify all three exist afterwards; see "Update and Poll records" in
    `prefect-pipeline-conventions`.
-10. **Commit**: `feat(<dataset_id>): add recurring Prefect pipeline`. Never commit
-   data. Pre-format `.py` files before committing.
+11. **Commit**: `feat(<dataset_id>): add recurring Prefect pipeline`. Never commit
+   data. Pre-format `.py` files before committing. Keep framework changes
+   (`pipelines/utils`, `AGENTS.md`) out of the dataset PR — they change behaviour
+   for every pipeline and deserve their own review.
 
 ## Output
 
