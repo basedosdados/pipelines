@@ -238,6 +238,27 @@ released data today.
 > the read/write split (poll reads Table.Update, commit writes RawDataSource.Update) is a
 > known open bug, not something to work around per dataset.
 
+## Reading many records: `first: N` silently truncates
+
+Backend GraphQL list queries cap the page and **do not tell you**. `allRawdatasource(first: 400)`
+returns exactly 400; `first: 1500` returns exactly 1500 — both with `pageInfo.hasNextPage: True`
+— and `first: 3000` errors. The real total was 1603. A survey written the obvious way reports a
+confidently wrong number, and the number *looks* plausible.
+
+Whenever you count or audit across records, **cursor-paginate and assert you reached the end**:
+
+```graphql
+query($after: String) {
+  allRawdatasource(first: 500, after: $after) {
+    pageInfo { hasNextPage endCursor }
+    edges { node { id } }
+  }
+}
+```
+
+Loop until `hasNextPage` is false, passing `endCursor` as `after`. If a count is round or equal
+to your `first`, treat it as truncated until proven otherwise.
+
 ## Known issues
 
 **M2M fields (organizations, themes, tags, raw_data_source_ids):** These are Django ManyToManyFields. Pass them and verify with `get_dataset` after saving. If they appear empty despite being passed, it is a backend deployment issue — note and continue; do not retry indefinitely.
