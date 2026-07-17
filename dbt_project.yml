@@ -415,6 +415,9 @@ models:
     test_dataset:
       +materialized: table
       +schema: test_dataset
+    us_census_acs:
+      +materialized: table
+      +schema: us_census_acs
     us_ed_ipeds:
       +materialized: table
       +schema: us_ed_ipeds
