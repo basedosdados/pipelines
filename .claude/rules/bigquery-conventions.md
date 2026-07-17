@@ -80,6 +80,13 @@ join basedosdados.<gcp_dataset_id>.<table_slug> on ...
   - State: `output/<table_slug>/ano=<year>/sigla_uf=<uf>/data.parquet`
   - National: `output/<table_slug>/ano=<year>/data.parquet`
 - Always build an explicit `pa.Schema` to prevent INT64/FLOAT64 type mismatches across partitions.
+- **Exception — parquet uploaded by a Prefect pipeline via `upload_to_gcs`.** There the
+  staging table's schema is inferred from a header that `gcs.py::dump_header` stringifies,
+  so typed parquet is rejected (`has type DOUBLE which does not match the target cpp_type
+  STRING_PIECE`). Build the table with the architecture's real types as above, then **cast
+  to an all-string schema via arrow** (never `astype(str)` — it turns NULL into `"nan"`)
+  before writing. See "Staging parquet must be all-STRING" in `prefect-pipeline-conventions`.
+  This applies only to the pipeline path; the one-shot onboarding upload keeps typed parquet.
 
 ## Upload prerequisites
 
