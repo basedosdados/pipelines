@@ -34,8 +34,20 @@ _SEASONAL_LABEL = {"S": "Seasonally Adjusted", "U": "Not Seasonally Adjusted"}
 
 # ── download ────────────────────────────────────────────────────────────────
 def download_flatfiles(input_dir: Path) -> Path:
-    """Fetch the CPI-U and CPI-W dimension + full-history data files into
-    input_dir/<survey>/. Requires the browser User-Agent (BLS 403s otherwise)."""
+    """Fetch the CPI-U and CPI-W dimension and full-history data files.
+
+    Files land in ``input_dir/<survey>/``. A browser-like User-Agent carrying a
+    contact email is mandatory: download.bls.gov returns 403 without one.
+
+    Args:
+        input_dir: Directory to download into; created if absent.
+
+    Returns:
+        The same ``input_dir``, for chaining.
+
+    Raises:
+        requests.HTTPError: If any file fails to download.
+    """
     headers = {"User-Agent": constants.USER_AGENT.value}
     base = constants.BASE_URL.value
     for s in SURVEYS:
@@ -56,12 +68,33 @@ def download_flatfiles(input_dir: Path) -> Path:
 
 # ── schema ──────────────────────────────────────────────────────────────────
 def read_arch(table: str) -> list[dict]:
+    """Read a table's architecture CSV — the schema source of truth.
+
+    Column order and BigQuery types come from here, never from the raw files, so
+    the pipeline and the one-shot bootstrap cannot drift apart.
+
+    Args:
+        table: Table slug (e.g. ``"monthly"``), matching the CSV filename.
+
+    Returns:
+        One dict per column, in architecture order.
+    """
     with open(_ARCH / f"{table}.csv", newline="") as fh:
         return list(csv.DictReader(fh))
 
 
 # ── transform (ported from the validated bootstrap) ─────────────────────────
 def load_series(input_dir: Path, survey_dir: str) -> pd.DataFrame:
+    """Load one survey's ``.series`` file — the authoritative dimension table.
+
+    Args:
+        input_dir: Root of the downloaded files.
+        survey_dir: Survey code, ``"cu"`` (CPI-U) or ``"cw"`` (CPI-W).
+
+    Returns:
+        One row per series, with ``series_id`` and its dimensions (survey,
+        seasonal_adjustment, area_id, item_id, base_period).
+    """
     s = survey_dir
     df = pd.read_csv(
         input_dir / s / f"{s}.series", sep="\t", dtype=str, na_filter=False
@@ -80,6 +113,19 @@ def load_series(input_dir: Path, survey_dir: str) -> pd.DataFrame:
 
 
 def load_data(input_dir: Path, survey_dir: str) -> pd.DataFrame:
+    """Load and concatenate one survey's by-group observation files.
+
+    Skips ``.data.0.Current``, which is a recent-only subset of the by-group
+    files and would duplicate rows. BLS writes ``-`` for a missing observation;
+    those become NULL rather than 0.
+
+    Args:
+        input_dir: Root of the downloaded files.
+        survey_dir: Survey code, ``"cu"`` or ``"cw"``.
+
+    Returns:
+        Long observations: ``series_id``, ``year``, ``period``, ``index_value``.
+    """
     s = survey_dir
     frames = []
     for path in sorted((input_dir / s).glob(f"{s}.data.*")):
@@ -100,6 +146,19 @@ def load_data(input_dir: Path, survey_dir: str) -> pd.DataFrame:
 
 
 def build_long(input_dir: Path) -> pd.DataFrame:
+    """Join both surveys' observations to their dimensions into one long frame.
+
+    The by-group data files cross-list roughly 1,400 series in more than one
+    group with identical values, so observations are deduplicated on
+    ``(series_id, year, period)`` before the join. Without this the percent-change
+    self-merge fans out and row counts explode.
+
+    Args:
+        input_dir: Root of the downloaded files.
+
+    Returns:
+        One row per (series, year, period) with dimensions attached.
+    """
     series = pd.concat(
         [load_series(input_dir, s) for s in SURVEYS], ignore_index=True
     )
@@ -118,6 +177,24 @@ def build_long(input_dir: Path) -> pd.DataFrame:
 
 
 def _add_change(df, ordinal, lag, name):
+    """Add a percent-change column by self-merging on a lagged time ordinal.
+
+    Merging on an integer ordinal (rather than shifting rows) keeps the result
+    correct across gaps: a series missing a month yields NULL for that comparison
+    instead of silently comparing to the wrong period. BLS publishes index levels
+    only — every percent change is computed here.
+
+    Args:
+        df: Frame carrying ``_key`` (series identity), the ordinal, and
+            ``index_value``.
+        ordinal: Integer time-ordinal column name (e.g. months since epoch).
+        lag: Periods back to compare against — 1 for period-on-period, 12 for
+            year-on-year monthly.
+        name: Name of the percent-change column to add.
+
+    Returns:
+        ``df`` with ``name`` added, rounded to 4 decimals.
+    """
     prev = df[["_key", ordinal, "index_value"]].copy()
     prev[ordinal] = prev[ordinal] + lag
     prev = prev.rename(columns={"index_value": "_prev"})
@@ -127,6 +204,24 @@ def _add_change(df, ordinal, lag, name):
 
 
 def build_table(df: pd.DataFrame, table: str) -> pd.DataFrame:
+    """Slice the long frame into one output table and attach its percent changes.
+
+    Period selection per table:
+
+    - ``monthly``: ``M01`` to ``M12``; adds monthly and 12-month change.
+    - ``annual``: ``M13`` (annual average) only; adds annual change.
+    - ``semiannual``: ``S01``/``S02``; adds semiannual change.
+
+    Args:
+        df: Long frame from :func:`build_long`.
+        table: One of ``"monthly"``, ``"annual"``, ``"semiannual"``.
+
+    Returns:
+        The table's rows, with period columns and change columns added.
+
+    Raises:
+        ValueError: If ``table`` is not one of the three known slugs.
+    """
     p = df["period"]
     if table == "monthly":
         sub = df[p.str.startswith("M") & (p != "M13")].copy()
@@ -154,6 +249,20 @@ def build_table(df: pd.DataFrame, table: str) -> pd.DataFrame:
 
 
 def write_partitioned(sub: pd.DataFrame, table: str, output_dir: Path) -> Path:
+    """Write a table as Snappy Parquet, hive-partitioned by year.
+
+    Column order and types are taken from the architecture CSV and pinned into an
+    explicit ``pa.Schema``, so a year whose values happen to be all-integer cannot
+    be inferred as INT64 while other years land as FLOAT64.
+
+    Args:
+        sub: Rows for one table, from :func:`build_table`.
+        table: Table slug, used for the architecture lookup and output path.
+        output_dir: Root output directory.
+
+    Returns:
+        The table's directory, ``<output_dir>/<table>/year=<YYYY>/data.parquet``.
+    """
     arch = read_arch(table)
     order = [a["name"] for a in arch]
     schema = pa.schema(
@@ -174,6 +283,20 @@ def write_partitioned(sub: pd.DataFrame, table: str, output_dir: Path) -> Path:
 
 
 def _dim_map(input_dir: Path, fname, code_col, name_col) -> dict:
+    """Build a code→label map from a dimension file, merged across both surveys.
+
+    CPI-U and CPI-W ship overlapping area and item files. ``cu`` is read last so
+    its labels win where the two disagree.
+
+    Args:
+        input_dir: Root of the downloaded files.
+        fname: Dimension file suffix, e.g. ``"area"`` for ``cu.area``.
+        code_col: Column holding the code.
+        name_col: Column holding the human-readable label.
+
+    Returns:
+        Mapping of code to label.
+    """
     out = {}
     for s in ("cw", "cu"):  # cu last so it overrides cw on overlap
         df = pd.read_csv(
@@ -189,6 +312,20 @@ def _dim_map(input_dir: Path, fname, code_col, name_col) -> dict:
 
 
 def build_dicionario(input_dir: Path, output_dir: Path) -> Path:
+    """Build the ``dicionario`` table mapping coded columns to their labels.
+
+    Covers ``survey``, ``seasonal_adjustment``, ``area_id`` and ``item_id``, for
+    each data table. Column names stay Portuguese (``id_tabela``, ``nome_coluna``,
+    ``chave``, ``cobertura_temporal``, ``valor``) even though this dataset is
+    English: the platform's dictionary renderer expects that schema.
+
+    Args:
+        input_dir: Root of the downloaded files, for the area/item dimensions.
+        output_dir: Root output directory.
+
+    Returns:
+        The dictionary's output directory.
+    """
     maps = {
         "survey": _SURVEY_LABEL,
         "seasonal_adjustment": _SEASONAL_LABEL,
@@ -229,8 +366,21 @@ def build_dicionario(input_dir: Path, output_dir: Path) -> Path:
 
 
 def clean_all(input_dir: Path, output_dir: Path) -> dict:
-    """Build all four tables from downloaded flat files. Returns
-    {table: output_path, "max_year_month": "YYYY-MM"}."""
+    """Build all four tables from the downloaded flat files.
+
+    The single entry point shared by the recurring pipeline (via
+    :func:`pipelines.datasets.us_bls_cpi.tasks.clean_cpi`) and the one-shot
+    bootstrap in ``models/us_bls_cpi/code/``.
+
+    Args:
+        input_dir: Root of the downloaded files.
+        output_dir: Root output directory.
+
+    Returns:
+        Mapping of table slug to output directory, plus ``"max_year_month"`` —
+        the latest ``"YYYY-MM"`` in the monthly table, used to poll whether BLS
+        has published a new period. None if the monthly table is empty.
+    """
     df = build_long(input_dir)
     result = {}
     max_ym = None

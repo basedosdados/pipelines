@@ -10,6 +10,7 @@ Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_bls_cpi_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
+import shutil
 import tempfile
 
 from prefect import flow
@@ -56,81 +57,104 @@ def us_bls_cpi_flow(
     update_metadata: bool = True,
     force_run: bool = False,
 ) -> None:
+    """Download the BLS CPI flat files, rebuild all four tables, materialize them.
+
+    BLS ships the full history on every release, so each run is a full replace
+    (``dump_mode="overwrite"``) rather than an incremental append. The source poll
+    short-circuits the run when BLS has not published a new month, which makes a
+    scheduled run a cheap no-op between releases.
+
+    Args:
+        materialize_to_prod: Continue past the dev materialization to write the
+            prod staging bucket and run dbt against ``target="prod"``. Set False
+            to exercise only the dev half — required for a safe test run, since
+            the default writes production.
+        update_metadata: After a successful prod materialization, register table
+            coverage and commit the source update. Has no effect when
+            ``materialize_to_prod`` is False.
+        force_run: Materialize even when the source poll reports no new month.
+    """
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="cpi"
     )
 
     work_dir = tempfile.mkdtemp(prefix="us_bls_cpi_")
-    input_dir = download_cpi(work_dir=work_dir)
-    result = clean_cpi(work_dir=work_dir, input_dir=input_dir)
-    max_ym = result["max_year_month"]
+    try:
+        input_dir = download_cpi(work_dir=work_dir)
+        result = clean_cpi(work_dir=work_dir, input_dir=input_dir)
+        max_ym = result["max_year_month"]
 
-    # Skip the run when BLS has not published a newer month (unless forced).
-    has_new_data = poll_source_for_update_task(
-        dataset_id=DATASET_ID,
-        table_id="monthly",
-        source_max_date=max_ym,
-        env="prod",
-        date_format="%Y-%m",
-    )
-    if not has_new_data and not force_run:
-        return
-
-    tables = constants.ALL_TABLES.value
-
-    # Dev: upload staging + materialize/test.
-    for table in tables:
-        upload_to_gcs(
-            data_path=result[table],
-            dataset_id=DATASET_ID,
-            table_id=table,
-            bucket_name="basedosdados-dev",
-            dump_mode="overwrite",
-            source_format="parquet",
-        )
-        run_dbt(
-            dataset_id=DATASET_ID,
-            table_id=table,
-            dbt_command="run/test",
-            target="dev",
-        )
-
-    if not materialize_to_prod:
-        return
-
-    # Prod: upload staging + materialize/test.
-    for table in tables:
-        upload_to_gcs(
-            data_path=result[table],
-            dataset_id=DATASET_ID,
-            table_id=table,
-            bucket_name="basedosdados",
-            dump_mode="overwrite",
-            source_format="parquet",
-        )
-        run_dbt(
-            dataset_id=DATASET_ID,
-            table_id=table,
-            dbt_command="run/test",
-            target="prod",
-        )
-
-    if update_metadata:
-        for table, coverage in _COVERAGE.items():
-            register_table_materialization_task(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                coverage=coverage,
-                env="prod",
-                bq_project="basedosdados",
-            )
-        commit_source_update_task(
+        # Skip the run when BLS has not published a newer month (unless forced).
+        has_new_data = poll_source_for_update_task(
             dataset_id=DATASET_ID,
             table_id="monthly",
             source_max_date=max_ym,
             env="prod",
             date_format="%Y-%m",
         )
+        if not has_new_data and not force_run:
+            return
+
+        tables = constants.ALL_TABLES.value
+
+        # Dev: upload staging + materialize/test.
+        for table in tables:
+            upload_to_gcs(
+                data_path=result[table],
+                dataset_id=DATASET_ID,
+                table_id=table,
+                bucket_name="basedosdados-dev",
+                dump_mode="overwrite",
+                source_format="parquet",
+            )
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="run/test",
+                target="dev",
+            )
+
+        if not materialize_to_prod:
+            return
+
+        # Prod: upload staging + materialize/test.
+        for table in tables:
+            upload_to_gcs(
+                data_path=result[table],
+                dataset_id=DATASET_ID,
+                table_id=table,
+                bucket_name="basedosdados",
+                dump_mode="overwrite",
+                source_format="parquet",
+            )
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="run/test",
+                target="prod",
+            )
+
+        if update_metadata:
+            for table, coverage in _COVERAGE.items():
+                register_table_materialization_task(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    coverage=coverage,
+                    env="prod",
+                    bq_project="basedosdados",
+                )
+            commit_source_update_task(
+                dataset_id=DATASET_ID,
+                table_id="monthly",
+                source_max_date=max_ym,
+                env="prod",
+                date_format="%Y-%m",
+            )
+    finally:
+        # Covers both early returns (no new data, dev-only) and any exception.
+        # The k8s work pool gives each run a fresh pod, but a process/local
+        # worker reuses its filesystem — the download is several hundred MB.
+        shutil.rmtree(work_dir, ignore_errors=True)
 
 
 # BLS releases CPI monthly, ~2nd week, on a US business day. Poll across a few

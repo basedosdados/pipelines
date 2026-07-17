@@ -13,6 +13,14 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class constants(Enum):
+    """Constants for the us_bls_cpi pipeline.
+
+    Lowercase class name follows the repo-wide convention for dataset constant
+    enums. ``ARCHITECTURE_DIR`` points at the architecture CSVs under
+    ``models/us_bls_cpi/code/``, which are the schema source of truth for both
+    this pipeline and the one-shot bootstrap.
+    """
+
     DATASET_ID = "us_bls_cpi"
 
     # download.bls.gov 403s without a browser User-Agent; BLS asks for a contact

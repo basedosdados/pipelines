@@ -30,6 +30,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
+    """Rebuild the requested tables from ``input/`` into ``output/``.
+
+    Table slugs may be passed as argv; with none, all three data tables are
+    rebuilt. The transform itself lives in the pipeline's ``utils.py`` and is
+    imported rather than duplicated, so this bootstrap and the recurring flow
+    cannot diverge.
+    """
     want = set(sys.argv[1:]) or {"monthly", "annual", "semiannual"}
     df = build_long(ROOT / "input")
     for tbl in ("monthly", "annual", "semiannual"):
