@@ -121,7 +121,10 @@ Pick the tier per table, not per dataset. Reference: `us_bls_cpi` — `monthly` 
 
 1. `source_end = bq.read_max_date(...)`
 2. `free_end = source_end - free_lag`
-3. upserts **both** `DateTimeRange`s — free ends at `free_end`; pro spans `free_end → source_end`
+3. upserts **both** `DateTimeRange`s — free ends at `free_end`; pro spans
+   `free_end + 1 period → source_end`. `free_end` is **inclusive** (the RAP grants
+   `date <= free_end`), so the two ranges are mutually exclusive — pro starts the
+   period *after* free ends, stepping by the spec's granularity.
 4. re-issues the BigQuery **Row Access Policies** (`policy.needs_row_access_policy` is
    True only for `part_bdpro`):
 
@@ -149,6 +152,18 @@ counterintuitive:
 |---|---|---|
 | free | `False` | Open/public data |
 | pro | `True` | BD Pro data — drives `Table.contains_closed_data` (the site's Pro badge) |
+
+Set `is_closed` on the **`DateTimeRange` too**, matching its Coverage (pro range →
+`is_closed=True`). The pipeline never writes it — `DateTimeRangeInput` has no such
+field — so whatever you register at onboarding is what stays. Every existing
+part_bdpro table has it set on both.
+
+Reference shape (`us_bls_cpi.monthly`, `free_lag=6 months`, source `1913-01..2026-06`):
+
+| Coverage | `is_closed` | DateTimeRange | range `is_closed` |
+|---|---|---|---|
+| free | `False` | `1913-01 .. 2025-12` | `False` |
+| pro | `True` | `2026-01 .. 2026-06` | `True` |
 
 `assert_coverage_topology` **hard-fails before any write** if the topology does not
 match the tier — `part_bdpro exige Coverage free + pro`. A table onboarded as

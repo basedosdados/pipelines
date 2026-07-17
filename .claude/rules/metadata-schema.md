@@ -142,6 +142,14 @@ rolling window has **two** — free *and* pro — each with its own `DateTimeRan
 the argument on routine updates: it leaves the stored value untouched, so a metadata
 edit cannot silently un-paywall data.
 
+Two things that are easy to miss:
+
+- **Set `is_closed` on the `DateTimeRange` as well**, matching its Coverage. They are
+  separate fields on separate records; the pro range needs `is_closed=True` on both.
+- **The free and pro ranges must not overlap.** Free ends at `free_end` *inclusive*,
+  so pro starts the **next** period — free `1913-01..2025-12`, pro `2026-01..2026-06`,
+  never `2025-12..2026-06`.
+
 For the pipeline side (`PartBdpro`, rolling windows, Row Access Policies), see the
 "BD Pro rolling window" section of `prefect-pipeline-conventions`. Both coverages
 must exist **before** a `part_bdpro` pipeline runs, or it hard-fails at
