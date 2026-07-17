@@ -13,12 +13,21 @@ references, confirms the shared `pipelines/utils` signatures, and writes
 `prefect-pipeline-conventions`.
 
 It shares the cleaning transform with `models/<dataset_id>/code/` (no
-duplication), sets an inline schedule with a source-poll guard, and verifies
-locally what can be verified (imports, transform parity, download, deploy
-discovery). The upload/dbt/metadata halves run on the deployed Prefect worker
-(dev pool on PR **only when the PR carries the `deploy-flow` label**; prod pool
-on merge with schedule), so they are not exercised locally — the agent says so
-explicitly.
+duplication) and sets an inline schedule with a source-poll guard.
+
+**It is not done until the flow has actually run.** Local checks (imports,
+transform parity, download, deploy discovery) fail fast but reach none of the
+parts that break. The agent adds the **`deploy-flow`** label — without it the
+staging deploy is `skipped` and nothing deploys, silently — and triggers a dev-pool
+run with prod off (`materialize_to_prod=False, update_metadata=False,
+force_run=True`; the defaults would write prod and apply the paywall). Done means
+`dbt run OK` + `dbt test OK` per table, read from the logs — a green state alone
+proves nothing, since the poll guard returns early and still reports `COMPLETED`.
+
+The prod upload only runs once the schedule is armed (a manual tick in Django
+admin — merging does **not** arm it), and the Row Access Policies only if a table
+is `part_bdpro` — an all-free pipeline never issues them. The agent says plainly
+which of those remain unexercised.
 
 It also sets the **BD Pro rolling window**: any table refreshing monthly or more
 often gets `PartBdpro` (default `free_lag=6 months`) so its recent window is
