@@ -38,7 +38,21 @@ def escola(ano: int) -> None:
     os.makedirs(OUTPUT, exist_ok=True)
 
     for url in URLS_ESCOLAS:
-        response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        print(url)
+        for attempt in range(5):
+            try:
+                response = requests.get(
+                    url,
+                    headers={"User-Agent": "Mozilla/5.0"},
+                    verify=False,
+                    timeout=120,
+                )
+                response.raise_for_status()
+                break
+            except requests.exceptions.RequestException as e:
+                if attempt == 4:
+                    raise
+                print(f"  retry {attempt + 1}/5 ({e})")
         with open(os.path.join(INPUT, url.split("/")[-1]), "wb") as f:
             f.write(response.content)
 
@@ -224,7 +238,6 @@ def escola(ano: int) -> None:
     )
 
     df = df.apply(lambda x: x.replace("--", None))
-    breakpoint()
     df["rede"] = (
         df["rede"].str.lower().str.replace("pública", "publica", regex=False)
     )
@@ -236,4 +249,4 @@ def escola(ano: int) -> None:
     df.to_csv(os.path.join(escola_output_path, "escola.csv"), index=False)
 
 
-escola(ano=2023)
+escola(ano=2025)

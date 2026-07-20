@@ -6,7 +6,9 @@ from pathlib import Path
 import basedosdados as bd
 import pandas as pd
 import requests
-from constants import (  # type: ignore
+
+# pyrefly: ignore [missing-import]
+from constants import (
     rename_afd,
     rename_atu,
     rename_dsu,
@@ -66,6 +68,7 @@ def download_data(ano: int) -> None:
                     raise
                 print(f"  retry {attempt + 1}/5 ({e})")
         with open(os.path.join(input, url.split("/")[-1]), "wb") as f:
+            # pyrefly: ignore [unbound-name]
             f.write(response.content)
 
     for file in os.listdir(input):
@@ -90,7 +93,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     afd = afd.rename(columns=rename_afd, errors="raise")
 
-    afd = afd.loc[afd["ano"] == ano,]
+    afd = afd.loc[afd["ano"] == ano]
     afd["localizacao"] = afd["localizacao"].str.lower()
     afd["rede"] = afd["rede"].str.lower().replace("pública", "publica")
     afd = afd[afd["UNIDGEO"] == "Brasil"].drop(columns=["UNIDGEO"])
@@ -107,7 +110,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     atu = atu.rename(columns=rename_atu, errors="raise")
 
-    atu = atu.loc[atu["ano"] == ano,]
+    atu = atu.loc[atu["ano"] == ano]
     atu["localizacao"] = atu["localizacao"].str.lower()
     atu["rede"] = atu["rede"].str.lower().replace("pública", "publica")
     atu = atu[atu["UNIDGEO"] == "Brasil"].drop(columns=["UNIDGEO"])
@@ -124,7 +127,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     dsu = dsu.rename(columns=rename_dsu, errors="raise")
 
-    dsu = dsu.loc[dsu["ano"] == ano,]
+    dsu = dsu.loc[dsu["ano"] == ano]
     dsu["localizacao"] = dsu["localizacao"].str.lower()
     dsu["rede"] = dsu["rede"].str.lower().replace("pública", "publica")
     dsu = dsu[dsu["UNIDGEO"] == "Brasil"].drop(columns=["UNIDGEO"])
@@ -142,7 +145,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     had = had.rename(columns=rename_had, errors="raise")
 
-    had = had.loc[had["ano"] == ano,]
+    had = had.loc[had["ano"] == ano]
     had["localizacao"] = had["localizacao"].str.lower()
     had["rede"] = had["rede"].str.lower().replace("pública", "publica")
     had = had[had["UNIDGEO"] == "Brasil"].drop(columns=["UNIDGEO"])
@@ -160,7 +163,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     icg = icg.rename(columns=rename_icg, errors="raise")
 
-    icg = icg.loc[icg["ano"] == ano,]
+    icg = icg.loc[icg["ano"] == ano]
     icg["localizacao"] = icg["localizacao"].str.lower()
     icg["rede"] = icg["rede"].str.lower().replace("pública", "publica")
     icg = icg[icg["UNIDGEO"] == "Brasil"].drop(columns=["UNIDGEO"])
@@ -178,7 +181,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     ied = ied.rename(columns=rename_ied, errors="raise")
 
-    ied = ied.loc[ied["ano"] == ano,]
+    ied = ied.loc[ied["ano"] == ano]
     ied["localizacao"] = ied["localizacao"].str.lower()
     ied["rede"] = ied["rede"].str.lower().replace("pública", "publica")
     ied = ied[ied["UNIDGEO"] == "Brasil"].drop(columns=["UNIDGEO"])
@@ -196,7 +199,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     ird = ird.rename(columns=rename_ird, errors="raise")
 
-    ird = ird.loc[ird["ano"] == ano,]
+    ird = ird.loc[ird["ano"] == ano]
     ird["localizacao"] = ird["localizacao"].str.lower()
     ird["rede"] = ird["rede"].str.lower().replace("pública", "publica")
     ird = ird[ird["UNIDGEO"] == "Brasil"].drop(columns=["UNIDGEO"])
@@ -214,7 +217,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     tdi = tdi.rename(columns=rename_tdi, errors="raise")
 
-    tdi = tdi.loc[tdi["ano"] == ano,]
+    tdi = tdi.loc[tdi["ano"] == ano]
     tdi["localizacao"] = tdi["localizacao"].str.lower()
     tdi["rede"] = tdi["rede"].str.lower().replace("pública", "publica")
     tdi = tdi[tdi["UNIDGEO"] == "Brasil"].drop(columns=["UNIDGEO"])
@@ -232,7 +235,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     tnr = tnr.rename(columns=rename_tnr, errors="raise")
 
-    tnr = tnr.loc[tnr["ano"] == ano,]
+    tnr = tnr.loc[tnr["ano"] == ano]
     tnr["localizacao"] = tnr["localizacao"].str.lower()
     tnr["rede"] = tnr["rede"].str.lower().replace("pública", "publica")
     tnr = tnr[tnr["UNIDGEO"] == "Brasil"].drop(columns=["UNIDGEO"])
@@ -248,7 +251,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     tx = tx.rename(columns=rename_tx, errors="raise")
 
-    tx = tx.loc[tx["ano"] == ano,]
+    tx = tx.loc[tx["ano"] == ano]
     tx["localizacao"] = tx["localizacao"].str.lower()
     tx["rede"] = tx["rede"].str.lower().replace("pública", "publica")
     tx = tx[tx["UNIDGEO"] == "Brasil"].drop(columns=["UNIDGEO"])
@@ -287,7 +290,7 @@ def uf(ano: int, tabela: str) -> None:
 
     afd = afd.rename(columns=rename_afd, errors="raise")
 
-    afd = afd.loc[afd["ano"] == ano,]
+    afd = afd.loc[afd["ano"] == ano]
     afd["localizacao"] = afd["localizacao"].str.lower()
     afd["rede"] = afd["rede"].str.lower().replace("pública", "publica")
     afd = afd.loc[afd["UNIDGEO"].isin(estados)]
@@ -304,7 +307,7 @@ def uf(ano: int, tabela: str) -> None:
 
     atu = atu.rename(columns=rename_atu, errors="raise")
 
-    atu = atu.loc[atu["ano"] == ano,]
+    atu = atu.loc[atu["ano"] == ano]
     atu["localizacao"] = atu["localizacao"].str.lower()
     atu["rede"] = atu["rede"].str.lower().replace("pública", "publica")
     atu = atu.loc[atu["UNIDGEO"].isin(estados)]
@@ -321,7 +324,7 @@ def uf(ano: int, tabela: str) -> None:
 
     dsu = dsu.rename(columns=rename_dsu, errors="raise")
 
-    dsu = dsu.loc[dsu["ano"] == ano,]
+    dsu = dsu.loc[dsu["ano"] == ano]
     dsu["localizacao"] = dsu["localizacao"].str.lower()
     dsu["rede"] = dsu["rede"].str.lower().replace("pública", "publica")
     dsu = dsu.loc[dsu["UNIDGEO"].isin(estados)]
@@ -339,7 +342,7 @@ def uf(ano: int, tabela: str) -> None:
 
     had = had.rename(columns=rename_had, errors="raise")
 
-    had = had.loc[had["ano"] == ano,]
+    had = had.loc[had["ano"] == ano]
     had["localizacao"] = had["localizacao"].str.lower()
     had["rede"] = had["rede"].str.lower().replace("pública", "publica")
     had = had.loc[had["UNIDGEO"].isin(estados)]
@@ -357,7 +360,7 @@ def uf(ano: int, tabela: str) -> None:
 
     icg = icg.rename(columns=rename_icg, errors="raise")
 
-    icg = icg.loc[icg["ano"] == ano,]
+    icg = icg.loc[icg["ano"] == ano]
     icg["localizacao"] = icg["localizacao"].str.lower()
     icg["rede"] = icg["rede"].str.lower().replace("pública", "publica")
     icg = icg.loc[icg["UNIDGEO"].isin(estados)]
@@ -375,7 +378,7 @@ def uf(ano: int, tabela: str) -> None:
 
     ied = ied.rename(columns=rename_ied, errors="raise")
 
-    ied = ied.loc[ied["ano"] == ano,]
+    ied = ied.loc[ied["ano"] == ano]
     ied["localizacao"] = ied["localizacao"].str.lower()
     ied["rede"] = ied["rede"].str.lower().replace("pública", "publica")
     ied = ied.loc[ied["UNIDGEO"].isin(estados)]
@@ -393,7 +396,7 @@ def uf(ano: int, tabela: str) -> None:
 
     ird = ird.rename(columns=rename_ird, errors="raise")
 
-    ird = ird.loc[ird["ano"] == ano,]
+    ird = ird.loc[ird["ano"] == ano]
     ird["localizacao"] = ird["localizacao"].str.lower()
     ird["rede"] = ird["rede"].str.lower().replace("pública", "publica")
     ird = ird.loc[ird["UNIDGEO"].isin(estados)]
@@ -411,7 +414,7 @@ def uf(ano: int, tabela: str) -> None:
 
     tdi = tdi.rename(columns=rename_tdi, errors="raise")
 
-    tdi = tdi.loc[tdi["ano"] == ano,]
+    tdi = tdi.loc[tdi["ano"] == ano]
     tdi["localizacao"] = tdi["localizacao"].str.lower()
     tdi["rede"] = tdi["rede"].str.lower().replace("pública", "publica")
     tdi = tdi.loc[tdi["UNIDGEO"].isin(estados)]
@@ -429,7 +432,7 @@ def uf(ano: int, tabela: str) -> None:
 
     tnr = tnr.rename(columns=rename_tnr, errors="raise")
 
-    tnr = tnr.loc[tnr["ano"] == ano,]
+    tnr = tnr.loc[tnr["ano"] == ano]
     tnr["localizacao"] = tnr["localizacao"].str.lower()
     tnr["rede"] = tnr["rede"].str.lower().replace("pública", "publica")
     tnr = tnr.loc[tnr["UNIDGEO"].isin(estados)]
@@ -445,7 +448,7 @@ def uf(ano: int, tabela: str) -> None:
 
     tx = tx.rename(columns=rename_tx, errors="raise")
 
-    tx = tx.loc[tx["ano"] == ano,]
+    tx = tx.loc[tx["ano"] == ano]
     tx["localizacao"] = tx["localizacao"].str.lower()
     tx["rede"] = tx["rede"].str.lower().replace("pública", "publica")
     tx = tx.loc[tx["UNIDGEO"].isin(estados)]
@@ -464,7 +467,10 @@ def uf(ano: int, tabela: str) -> None:
 
     df = df.replace("--", None)
     df = df.merge(
-        bd_dir[["nome", "sigla"]], left_on="uf", right_on="nome"
+        # pyrefly: ignore [bad-argument-type]
+        bd_dir[["nome", "sigla"]],
+        left_on="uf",
+        right_on="nome",
     ).drop(columns=["uf", "nome"])
     df = df.rename(columns={"sigla": "sigla_uf"})
 
@@ -496,7 +502,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     afd = afd.rename(columns=rename_afd, errors="raise")
 
-    afd = afd.loc[afd["ano"] == ano,]
+    afd = afd.loc[afd["ano"] == ano]
     afd["localizacao"] = afd["localizacao"].str.lower()
     afd["rede"] = afd["rede"].str.lower().replace("pública", "publica")
     afd = afd.loc[afd["UNIDGEO"].isin(regioes)]
@@ -513,7 +519,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     atu = atu.rename(columns=rename_atu, errors="raise")
 
-    atu = atu.loc[atu["ano"] == ano,]
+    atu = atu.loc[atu["ano"] == ano]
     atu["localizacao"] = atu["localizacao"].str.lower()
     atu["rede"] = atu["rede"].str.lower().replace("pública", "publica")
     atu = atu.loc[atu["UNIDGEO"].isin(regioes)]
@@ -530,7 +536,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     dsu = dsu.rename(columns=rename_dsu, errors="raise")
 
-    dsu = dsu.loc[dsu["ano"] == ano,]
+    dsu = dsu.loc[dsu["ano"] == ano]
     dsu["localizacao"] = dsu["localizacao"].str.lower()
     dsu["rede"] = dsu["rede"].str.lower().replace("pública", "publica")
     dsu = dsu.loc[dsu["UNIDGEO"].isin(regioes)]
@@ -548,7 +554,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     had = had.rename(columns=rename_had, errors="raise")
 
-    had = had.loc[had["ano"] == ano,]
+    had = had.loc[had["ano"] == ano]
     had["localizacao"] = had["localizacao"].str.lower()
     had["rede"] = had["rede"].str.lower().replace("pública", "publica")
     had = had.loc[had["UNIDGEO"].isin(regioes)]
@@ -566,7 +572,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     icg = icg.rename(columns=rename_icg, errors="raise")
 
-    icg = icg.loc[icg["ano"] == ano,]
+    icg = icg.loc[icg["ano"] == ano]
     icg["localizacao"] = icg["localizacao"].str.lower()
     icg["rede"] = icg["rede"].str.lower().replace("pública", "publica")
     icg = icg.loc[icg["UNIDGEO"].isin(regioes)]
@@ -584,7 +590,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     ied = ied.rename(columns=rename_ied, errors="raise")
 
-    ied = ied.loc[ied["ano"] == ano,]
+    ied = ied.loc[ied["ano"] == ano]
     ied["localizacao"] = ied["localizacao"].str.lower()
     ied["rede"] = ied["rede"].str.lower().replace("pública", "publica")
     ied = ied.loc[ied["UNIDGEO"].isin(regioes)]
@@ -602,7 +608,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     ird = ird.rename(columns=rename_ird, errors="raise")
 
-    ird = ird.loc[ird["ano"] == ano,]
+    ird = ird.loc[ird["ano"] == ano]
     ird["localizacao"] = ird["localizacao"].str.lower()
     ird["rede"] = ird["rede"].str.lower().replace("pública", "publica")
     ird = ird.loc[ird["UNIDGEO"].isin(regioes)]
@@ -620,7 +626,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     tdi = tdi.rename(columns=rename_tdi, errors="raise")
 
-    tdi = tdi.loc[tdi["ano"] == ano,]
+    tdi = tdi.loc[tdi["ano"] == ano]
     tdi["localizacao"] = tdi["localizacao"].str.lower()
     tdi["rede"] = tdi["rede"].str.lower().replace("pública", "publica")
     tdi = tdi.loc[tdi["UNIDGEO"].isin(regioes)]
@@ -638,7 +644,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     tnr = tnr.rename(columns=rename_tnr, errors="raise")
 
-    tnr = tnr.loc[tnr["ano"] == ano,]
+    tnr = tnr.loc[tnr["ano"] == ano]
     tnr["localizacao"] = tnr["localizacao"].str.lower()
     tnr["rede"] = tnr["rede"].str.lower().replace("pública", "publica")
     tnr = tnr.loc[tnr["UNIDGEO"].isin(regioes)]
@@ -654,7 +660,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     tx = tx.rename(columns=rename_tx, errors="raise")
 
-    tx = tx.loc[tx["ano"] == ano,]
+    tx = tx.loc[tx["ano"] == ano]
     tx["localizacao"] = tx["localizacao"].str.lower()
     tx["rede"] = tx["rede"].str.lower().replace("pública", "publica")
     tx = tx.loc[tx["UNIDGEO"].isin(regioes)]
@@ -686,3 +692,13 @@ if __name__ == "__main__":
     uf(ano=2025, tabela="uf")
 
     regiao(ano=2025, tabela="regiao")
+
+    for dir in output.iterdir():
+        bd.Table(
+            dataset_id="br_inep_indicadores_educacionais", table_id=dir.stem
+        ).create(
+            # pyrefly: ignore [bad-argument-type]
+            path=dir,
+            if_storage_data_exists="replace",
+            if_table_exists="replace",
+        )

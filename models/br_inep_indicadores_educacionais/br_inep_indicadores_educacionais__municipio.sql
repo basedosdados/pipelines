@@ -13,8 +13,8 @@
 select
     safe_cast(ano as int64) ano,
     safe_cast(id_municipio as string) id_municipio,
-    safe_cast(localizacao as string) localizacao,
-    safe_cast(rede as string) rede,
+    safe_cast(lower(localizacao) as string) localizacao,
+    safe_cast(lower(rede) as string) rede,
     safe_cast(atu_ei as float64) atu_ei,
     safe_cast(atu_ei_creche as float64) atu_ei_creche,
     safe_cast(atu_ei_pre_escola as float64) atu_ei_pre_escola,

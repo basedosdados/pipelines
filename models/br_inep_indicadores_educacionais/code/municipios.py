@@ -38,7 +38,21 @@ def municipios(ano: int) -> None:
     os.makedirs(OUTPUT, exist_ok=True)
 
     for url in URLS_MUNICIPIOS:
-        response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        print(url)
+        for attempt in range(5):
+            try:
+                response = requests.get(
+                    url,
+                    headers={"User-Agent": "Mozilla/5.0"},
+                    verify=False,
+                    timeout=120,
+                )
+                response.raise_for_status()
+                break
+            except requests.exceptions.RequestException as e:
+                if attempt == 4:
+                    raise
+                print(f"  retry {attempt + 1}/5 ({e})")
         with open(os.path.join(INPUT, url.split("/")[-1]), "wb") as f:
             f.write(response.content)
 
@@ -254,4 +268,4 @@ def municipios(ano: int) -> None:
     df.to_csv(os.path.join(escola_output_path, "municipio.csv"), index=False)
 
 
-municipios(ano=2018)
+municipios(ano=2025)
