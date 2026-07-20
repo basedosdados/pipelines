@@ -874,11 +874,16 @@ with
             novo_id_municipio_residencia as id_municipio_residencia,
             ano_nascimento_paciente,
             data_nascimento_paciente,
-            concat(
-                left(cast(idade_paciente as string), 1),
-                "-",
-                right(cast(idade_paciente as string), 3)
-            ) as idade_paciente,
+            case
+                when idade_paciente is null
+                then null
+                else left(cast(idade_paciente as string), 1)
+            end as tipo_idade,
+            case
+                when idade_paciente is null
+                then null
+                else safe_cast(idade_paciente % 1000 as int64)
+            end as valor_idade,
             case
                 when sexo_paciente = 'O' then null else sexo_paciente
             end sexo_paciente,
