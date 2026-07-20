@@ -301,9 +301,9 @@ mlpj,STRING,Served World War II (December 1941 - December 1946),,yes,,,no,,MLPJ
 mlpk,STRING,Served November 1941 or earlier,,yes,,,no,,MLPK
 rel,STRING,Relationship,,yes,,,no,,REL
 wkw,STRING,Weeks worked during past 12 months,,yes,,,no,,WKW
-uwrk,STRING,Worked last week (UNEDITEDâSee âEmployment Status Recodeâ (ESR)),,yes,,,no,,UWRK
+uwrk,STRING,Worked last week (UNEDITED–See “Employment Status Recode” (ESR)),,yes,,,no,,UWRK
 ds,STRING,Disability recode,,yes,,,no,,DS
-racnhpi,STRING,Native Hawaiian and Other Pacific Islander recode (Native,,yes,,,no,,RACNHPI
+racnhpi,STRING,Native Hawaiian and Other Pacific Islander recode (Native Hawaiian and Other Pacific Islander alone or in combination with one or more other races),,yes,,,no,,RACNHPI
 vps,STRING,Veteran period of service,,yes,,,no,,VPS
 fdwrkp,STRING,Difficulty working allocation flag,,yes,,,no,,FDWRKP
 fjwtrp,STRING,Means of transportation to work allocation flag,,yes,,,no,,FJWTRP
@@ -317,10 +317,10 @@ naicsp02,STRING,NAICS 2002 Industry code,,yes,,,no,,NAICSP02
 occp02,STRING,Occupation recode for data collected in 2009 based on 2002 OCC codes,,yes,,,no,,OCCP02
 socp00,STRING,SOC Occupation code for data collected in 2009 based on 2000 SOC codes,,yes,,,no,,SOCP00
 occp10,STRING,Occupation recode for data collected in 2011 based on 2010 OCC codes,,yes,,,no,,OCCP10
-socp10,STRING,SOC Occupation code for data collected in 2011 based on 2010 SOC,,yes,,,no,,SOCP10
+socp10,STRING,SOC Occupation code for data collected in 2011 based on 2010 SOC codes,,yes,,,no,,SOCP10
 indp07,STRING,Industry 2007 recode,,yes,,,no,,INDP07
 naicsp07,STRING,NAICS 2007 Industry code,,yes,,,no,,NAICSP07
-puma00,STRING,Public use microdata area code (PUMA) based on Census 2000 definition for data collected prior to 2012. Use in combination with PUMA10.,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,PUMA00
+puma00,STRING,Public use microdata area code (PUMA) based on Census 2000 definition for data collected prior to 2012. Use in combination with PUMA10,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,PUMA00
 puma10,STRING,"Public use microdata area code (PUMA) based on 2010 Census definition for data years 2012-2021 (areas with population of 100,000 or more, use with ST for unique code)",,yes,,,no,,PUMA10
 citwp05,STRING,Year of naturalization write-in for data collected prior to 2012,,yes,,,no,,CITWP05
 citwp12,STRING,Year of naturalization write-in for data collected in 2012 or later,,yes,,,no,,CITWP12
@@ -334,22 +334,22 @@ anc2p05,STRING,Recoded Detailed Ancestry for data collected prior to 2012 - seco
 anc2p12,STRING,Recoded Detailed Ancestry for data collected in 2012 or later - second entry,,yes,,,no,,ANC2P12
 lanp05,STRING,Language spoken at home for data collected prior to 2012,,yes,,,no,,LANP05
 lanp12,STRING,Language spoken at home for data collected in 2012 or later,,yes,,,no,,LANP12
-migpuma00,STRING,Migration PUMA based on Census 2000 definition for data collected prior to,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,MIGPUMA00
+migpuma00,STRING,Migration PUMA based on Census 2000 definition for data collected prior to 2012,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,MIGPUMA00
 migpuma10,STRING,Migration PUMA based on 2010 Census definition for data years 2012-2021,,yes,,,no,,MIGPUMA10
-migsp05,STRING,Migration recode for data collected prior to 2012 - State or foreign country,,yes,,,no,,MIGSP05
+migsp05,STRING,Migration recode for data collected prior to 2012 - State or foreign country code,,yes,,,no,,MIGSP05
 migsp12,STRING,Migration recode for data collected in 2012 or later - State or foreign country code,,yes,,,no,,MIGSP12
 occp12,STRING,Occupation recode for data collected in 2012 or later based on 2010 OCC codes,,yes,,,no,,OCCP12
 pobp05,STRING,Place of birth (Recode) for data collected prior to 2012,,yes,,,no,,POBP05
 pobp12,STRING,Place of birth (Recode) for data collected in 2012 or later,,yes,,,no,,POBP12
-powpuma00,STRING,Place of work PUMA based on Census 2000 definition for data collected prior,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,POWPUMA00
+powpuma00,STRING,Place of work PUMA based on Census 2000 definition for data collected prior to 2012,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,POWPUMA00
 powpuma10,STRING,Place of work PUMA based on 2010 Census definitions for data years 2012-2021,,yes,,,no,,POWPUMA10
-powsp05,STRING,Place of work for data collected prior to 2012 - State or foreign country,,yes,,,no,,POWSP05
-powsp12,STRING,Place of work for data collected in 2012 or later - State or foreign country,,yes,,,no,,POWSP12
+powsp05,STRING,Place of work for data collected prior to 2012 - State or foreign country recode,,yes,,,no,,POWSP05
+powsp12,STRING,Place of work for data collected in 2012 or later - State or foreign country recode,,yes,,,no,,POWSP12
 rac2p05,STRING,Recoded detailed race code for data collected prior to 2012,,yes,,,no,,RAC2P05
 rac2p12,STRING,Recoded detailed race code for data collected in 2012 or later,,yes,,,no,,RAC2P12
 rac3p05,STRING,Recoded detailed race code for data collected prior to 2012,,yes,,,no,,RAC3P05
 rac3p12,STRING,Recoded detailed race code for data collected in 2012 or later,,yes,,,no,,RAC3P12
-socp12,STRING,SOC Occupation recode for data collected in 2012 or later based on 2010 SOC	codes,,yes,,,no,,SOCP12
+socp12,STRING,SOC Occupation recode for data collected in 2012 or later based on 2010 SOC codes,,yes,,,no,,SOCP12
 puma20,STRING,"Public use microdata area code (PUMA) based on 2020 Census definition for data years 2022 and later (areas with population of 100,000 or more, use with ST for unique code)",,yes,,,no,,PUMA20
 migpuma20,STRING,Migration PUMA based on 2020 Census definition for data years 2022 and later,,yes,,,no,,MIGPUMA20
 powpuma20,STRING,Place of work PUMA based on 2020 Census definitions for data years 2022 and later,,yes,,,no,,POWPUMA20

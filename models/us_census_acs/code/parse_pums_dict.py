@@ -58,6 +58,37 @@ TXT_NAME_RE = re.compile(r"^([A-Z][A-Z0-9]{0,12})\s+(\d+)\s*$")
 TXT_LABEL_RE = re.compile(r"^\s*\S+\s+\.\S")
 # pypdf renders page numbers as their own line; never mistake one for a description.
 TXT_PAGENO_RE = re.compile(r"^\d{1,4}$")
+# ...but a description often wraps onto a bare year ("...for data collected prior to"
+# / "2012"), which the page-number guard would otherwise swallow. These dictionaries
+# run to ~150 pages, so a standalone 19xx/20xx is always a wrapped year.
+TXT_YEAR_RE = re.compile(r"^(19|20)\d{2}$")
+# A NOTE: block follows the description but is commentary, not part of it.
+TXT_NOTE_RE = re.compile(r"^\s*NOTE\b", re.I)
+# Descriptions wrap across physical lines, e.g.
+#     POWSP05   3
+#         Place of work for data collected prior to 2012 - State or foreign country
+#         recode
+#             bbb .N/A ...
+# Reading only the first line silently truncates mid-sentence, so continuation
+# lines are accumulated until a value-label line, a NOTE:, or the next variable.
+MAX_DESC_LINES = 6
+
+
+def clean_desc(s: str) -> str:
+    """Normalize a dictionary description.
+
+    Repairs double-encoded UTF-8 (the Census ships a few dictionaries whose
+    correct UTF-8 bytes were themselves decoded as latin-1 and re-encoded, so
+    an en dash arrives as 'â\x80\x93'), collapses tabs/newlines/runs of spaces
+    introduced by wrapping, and drops a trailing period per the repo convention.
+    """
+    try:
+        repaired = s.encode("latin-1").decode("utf-8")
+        s = repaired
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        pass  # genuinely latin-1 (or already clean) — leave as-is
+    s = re.sub(r"\s+", " ", s).strip()
+    return s[:-1].rstrip() if s.endswith(".") else s
 
 
 def year_of(path, ext):
@@ -103,7 +134,7 @@ for path in sorted(glob.glob(f"{PUMS}/dict/*.csv")):
                     "csv",
                     row[2].strip(),
                     row[3].strip(),
-                    row[4].strip(),
+                    clean_desc(row[4]),
                     0,
                 )
                 pending[var] = records[var][-1]
@@ -124,18 +155,27 @@ for path in sorted(glob.glob(f"{PUMS}/dict/*.txt")):
             i += 1
             continue
         var, width = m.group(1).upper(), m.group(2)
-        desc, j = "", i + 1
+        j = i + 1
         while j < len(lines) and (
             not lines[j].strip() or TXT_PAGENO_RE.match(lines[j].strip())
         ):
             j += 1
-        if (
+        # accumulate the (possibly wrapped) description
+        parts = []
+        while (
             j < len(lines)
+            and len(parts) < MAX_DESC_LINES
             and not TXT_NAME_RE.match(lines[j])
             and not TXT_LABEL_RE.match(lines[j])
+            and not TXT_NOTE_RE.match(lines[j])
         ):
-            desc = lines[j].strip()
+            chunk = lines[j].strip()
+            if chunk and (
+                not TXT_PAGENO_RE.match(chunk) or TXT_YEAR_RE.match(chunk)
+            ):
+                parts.append(chunk)
             j += 1
+        desc = clean_desc(" ".join(parts)) if parts else ""
         n_labels = 0
         while j < len(lines) and not TXT_NAME_RE.match(lines[j]):
             if TXT_LABEL_RE.match(lines[j]):

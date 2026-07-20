@@ -263,6 +263,6 @@ fdslp,STRING,DSL service allocation flag,,yes,,,no,,FDSLP
 ffiberopp,STRING,Fiber-optic Internet service allocation flag,,yes,,,no,,FFIBEROPP
 fhandheldp,STRING,Handheld computer allocation flag,,yes,,,no,,FHANDHELDP
 fmodemp,STRING,Cable Internet service allocation flag,,yes,,,no,,FMODEMP
-puma00,STRING,Public use microdata area code (PUMA) based on Census 2000 definition for data collected prior to 2012. Use in combination with PUMA10.,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,PUMA00
+puma00,STRING,Public use microdata area code (PUMA) based on Census 2000 definition for data collected prior to 2012. Use in combination with PUMA10,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,PUMA00
 puma10,STRING,"Public use microdata area code (PUMA) based on 2010 Census definition for data years 2012-2021 (areas with population of 100,000 or more, use with ST for unique code)",,yes,,,no,,PUMA10
 puma20,STRING,"Public use microdata area code (PUMA) based on 2020 Census definition for data years 2022 and later (areas with population of 100,000 or more, use with ST for unique code)",,yes,,,no,,PUMA20
