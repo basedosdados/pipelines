@@ -13,6 +13,15 @@
     )
 }}
 {%- set columns = adapter.get_columns_in_relation(this) -%}
+{%- set output_columns = [] -%}
+{%- for col in columns -%}
+    {%- if col.name == "idade_paciente" -%}
+        {%- do output_columns.append({"name": "tipo_idade", "data_type": "STRING"}) -%}
+        {%- do output_columns.append({"name": "valor_idade", "data_type": "INT64"}) -%}
+    {%- else -%}
+        {%- do output_columns.append({"name": col.name, "data_type": col.data_type}) -%}
+    {%- endif -%}
+{%- endfor -%}
 with
     sql as (
         select
@@ -882,7 +891,7 @@ with
             case
                 when idade_paciente is null
                 then null
-                else safe_cast(idade_paciente % 1000 as int64)
+                else safe_cast(mod(idade_paciente, 1000) as int64)
             end as valor_idade,
             case
                 when sexo_paciente = 'O' then null else sexo_paciente
@@ -1150,7 +1159,7 @@ with
         from tabelas_join
     )
 select
-    {% for col in columns %}
+    {% for col in output_columns %}
         {% if col.data_type == "STRING" %}
             case
                 when trim({{ col.name }}) = '' then null else {{ col.name }}
