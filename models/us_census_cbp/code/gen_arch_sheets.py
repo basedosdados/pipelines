@@ -93,8 +93,9 @@ NAICS = row(
 NAICS_V = row(
     "naics_version",
     "STRING",
-    "NAICS classification vintage the code follows (1997, 2002, 2007, 2012, 2017, 2022)",
+    "NAICS classification vintage the code follows (1997, 2002, 2007, 2012, 2017)",
     dict_=True,
+    obs="CBP lags the NAICS revisions: 2022 and 2023 data still follow NAICS 2017, so no 2022 vintage occurs in this dataset.",
     orig="(derived from year)",
 )
 LFO = row(
@@ -131,7 +132,7 @@ TOTALS = [
     row(
         "employment_noise_flag",
         "STRING",
-        "Noise-infusion flag for employment from 2017 onward; G, H, J indicate increasing noise, D indicates withheld",
+        "Noise-infusion flag for employment from 2017 onward; G, H, J indicate increasing noise, D and S indicate withheld",
         dict_=True,
         orig="emp_nf",
     ),
@@ -271,8 +272,11 @@ def county_rows():
 
 def write_tsv(name, rows):
     p = HERE / f"sheet_{name}.tsv"
+    # lineterminator is explicit: csv.writer defaults to CRLF, which the repo's
+    # mixed-line-ending pre-commit hook then rewrites, so every regeneration would
+    # otherwise show the whole file as changed.
     with open(p, "w", newline="") as f:
-        w = csv.writer(f, delimiter="\t")
+        w = csv.writer(f, delimiter="\t", lineterminator="\n")
         w.writerow(HEADER)
         w.writerows(rows)
     print(f"{name}: {len(rows)} columns -> {p.name}")

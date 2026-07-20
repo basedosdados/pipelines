@@ -9,6 +9,7 @@ Saves to models/us_census_cbp/data/input/ as cbp<YY>{us,st,co}.txt.
 - Gentle: sequential, short pause between files; retry timeouts up to 3x.
 """
 
+import shutil
 import time
 import zipfile
 from datetime import datetime, timezone
@@ -31,13 +32,33 @@ results = {}  # (year, level) -> dict(status, detail, rows)
 
 
 def log(msg: str) -> None:
+    """Print a UTC-timestamped progress line.
+
+    Args:
+        msg: Message to print.
+    """
     ts = datetime.now(timezone.utc).strftime("%H:%M:%S")
     print(f"[{ts}] {msg}", flush=True)
 
 
 def fetch(url: str, dest: Path) -> str:
-    """Download url to dest. Return 'ok', 'http:<code>' on 404-type miss,
-    or raise after exhausting retries on timeout/transient errors."""
+    """Download a URL to a local path, retrying transient failures.
+
+    The body streams into a sibling ``.part`` file that is renamed into place
+    only once the response is fully written, so an interrupted run never leaves
+    a truncated file that a later run would treat as cached.
+
+    Args:
+        url: Source URL.
+        dest: Destination path.
+
+    Returns:
+        ``"ok"`` on success, or ``"http:<code>"`` when the server refused the
+        file (404 and other non-retryable statuses).
+
+    Raises:
+        RuntimeError: If every attempt failed with a timeout or transport error.
+    """
     last_exc = None
     for attempt in range(1, RETRIES + 1):
         try:
@@ -68,20 +89,45 @@ def fetch(url: str, dest: Path) -> str:
 
 
 def unzip_normalize(zip_path: Path, want_txt: Path) -> bool:
-    """Extract the single .txt member of zip_path to want_txt (lowercased).
-    Remove the zip afterwards. Return True on success."""
-    with zipfile.ZipFile(zip_path) as zf:
-        members = [m for m in zf.namelist() if m.lower().endswith(".txt")]
-        if not members:
-            members = zf.namelist()
-        member = members[0]
-        with zf.open(member) as src, open(want_txt, "wb") as out:
-            out.write(src.read())
+    """Extract the archive's .txt member to a fixed lowercase name.
+
+    The member streams into a ``.part`` file that replaces the destination only
+    after extraction completes; county archives are large, and a direct
+    ``read()`` would both hold the whole member in memory and leave a partial
+    file behind on interruption, which `handle` would later accept as cached.
+    The archive is removed once extraction succeeds.
+
+    Args:
+        zip_path: Archive to extract.
+        want_txt: Destination path for the extracted member.
+
+    Returns:
+        True if the extracted file exists and is non-empty.
+    """
+    tmp = want_txt.with_suffix(want_txt.suffix + ".part")
+    try:
+        with zipfile.ZipFile(zip_path) as zf:
+            members = [m for m in zf.namelist() if m.lower().endswith(".txt")]
+            if not members:
+                members = zf.namelist()
+            with zf.open(members[0]) as src, open(tmp, "wb") as out:
+                shutil.copyfileobj(src, out)
+        tmp.replace(want_txt)
+    finally:
+        tmp.unlink(missing_ok=True)
     zip_path.unlink()
     return want_txt.exists() and want_txt.stat().st_size > 0
 
 
 def row_count(path: Path) -> int:
+    """Count the lines in a file.
+
+    Args:
+        path: File to count.
+
+    Returns:
+        Number of lines, including the header row.
+    """
     n = 0
     with open(path, "rb") as f:
         for _ in f:
@@ -90,6 +136,15 @@ def row_count(path: Path) -> int:
 
 
 def handle(year: int, level: str) -> None:
+    """Ensure one year/level raw file is present locally, recording the outcome.
+
+    Tries the ``.zip`` form first and falls back to ``.txt`` (older US files are
+    published uncompressed). Results land in the module-level ``results`` map.
+
+    Args:
+        year: CBP reference year.
+        level: Geography level, one of ``us``, ``st`` or ``co``.
+    """
     yy = f"{year % 100:02d}"
     key = (year, level)
     txt_final = INPUT_DIR / f"cbp{yy}{level}.txt"
@@ -161,6 +216,13 @@ def handle(year: int, level: str) -> None:
 
 
 def main() -> None:
+    """Download every year/level file and print a summary table.
+
+    Raises:
+        SystemExit: With status 1 if any file failed, so that a caller does not
+            proceed to clean.py, which skips missing inputs and would otherwise
+            produce a silently incomplete dataset.
+    """
     for year in YEARS:
         for level in LEVELS:
             handle(year, level)
@@ -181,6 +243,8 @@ def main() -> None:
                 row.append(f"{level}=FAILED[{r['detail']}]")
         print("  " + "  ".join(row), flush=True)
     print(f"\nOK={ok}  FAILED={failed}", flush=True)
+    if failed:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

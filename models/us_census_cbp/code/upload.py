@@ -21,6 +21,16 @@ DATASET_ID = "us_census_cbp"
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = ROOT / "data" / "output"
 TABLES = ["national", "state", "county", "dicionario"]
+# national/state/county carry one parquet per reference year; dicionario is a single
+# unpartitioned file. Checked before the staging table is dropped, so a partial local
+# export cannot silently replace a complete staging table with fewer years.
+YEARS = list(range(1998, 2024))
+EXPECTED_FILES = {
+    "national": len(YEARS),
+    "state": len(YEARS),
+    "county": len(YEARS),
+    "dicionario": 1,
+}
 
 _orig_bucket = gcs.Client.bucket
 
@@ -32,19 +42,60 @@ def _patched_bucket(self, bucket_name, user_project=None):
 gcs.Client.bucket = _patched_bucket
 
 
-def local_rows(table_slug):
+def local_rows(table_slug: str) -> tuple[int, int]:
+    """Count rows and files in the local parquet export for a table.
+
+    Args:
+        table_slug: Table slug under ``data/output/``.
+
+    Returns:
+        A ``(row_count, file_count)`` pair read from the parquet footers.
+    """
     files = glob.glob(
         str(OUTPUT_DIR / table_slug / "**" / "*.parquet"), recursive=True
     )
     return sum(pq.ParquetFile(f).metadata.num_rows for f in files), len(files)
 
 
-def upload_table(table_slug):
+def check_complete(table_slug: str, nfiles: int) -> None:
+    """Fail before touching staging if the local export is incomplete.
+
+    ``local_rows`` counts whatever happens to be on disk, so an interrupted clean
+    run would otherwise upload a short table and still report a row-count match.
+
+    Args:
+        table_slug: Table slug under ``data/output/``.
+        nfiles: Number of parquet files found locally.
+
+    Raises:
+        ValueError: If the file count differs from the expected partition count.
+    """
+    want = EXPECTED_FILES[table_slug]
+    if nfiles != want:
+        raise ValueError(
+            f"Incomplete local export for {table_slug}: found {nfiles} parquet "
+            f"file(s), expected {want}. Re-run clean.py before uploading."
+        )
+
+
+def upload_table(table_slug: str) -> int:
+    """Replace a staging table with the local parquet export and verify it.
+
+    Args:
+        table_slug: Table slug under ``data/output/``.
+
+    Returns:
+        The row count reported by BigQuery after upload.
+
+    Raises:
+        ValueError: If the export is incomplete or the row counts disagree.
+    """
     path = OUTPUT_DIR / table_slug
     expected, nfiles = local_rows(table_slug)
     print(
         f"[{table_slug}] local: {expected:,} rows across {nfiles} parquet file(s)"
     )
+    check_complete(table_slug, nfiles)
 
     st = bd.Storage(dataset_id=DATASET_ID, table_id=table_slug)
     st.delete_table(mode="staging", not_found_ok=True)
@@ -73,8 +124,16 @@ def upload_table(table_slug):
     return n
 
 
-def main():
+def main() -> None:
+    """Upload the tables named on the command line, or all of them by default."""
     only = sys.argv[1:] or TABLES
+    unknown = [t for t in only if t not in TABLES]
+    if unknown:
+        print(
+            f"Unknown table(s): {', '.join(unknown)}. "
+            f"Valid tables: {', '.join(TABLES)}."
+        )
+        sys.exit(2)
     for table_slug in TABLES:
         if table_slug not in only:
             continue
@@ -83,7 +142,7 @@ def main():
         except Exception as e:
             print(f"[{table_slug}] FAILED - {e}")
             sys.exit(1)
-    print("All CBP uploads complete.")
+    print(f"CBP uploads complete: {', '.join(only)}.")
 
 
 if __name__ == "__main__":

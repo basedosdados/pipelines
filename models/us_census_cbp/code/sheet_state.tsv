@@ -2,12 +2,12 @@ name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory
 year	INT64	Reference year		no	br_bd_diretorios_data_tempo.ano:ano	year	no		(file year)
 id_state	STRING	FIPS state code		no	br_bd_diretorios_us.state:id_state		no		fipstate
 naics	STRING	NAICS industry code at its published aggregation level (2 to 6 digits); vintage varies by year, see naics_version		no	br_bd_diretorios_us.naics_2017:id_naics		no		naics
-naics_version	STRING	NAICS classification vintage the code follows (1997, 2002, 2007, 2012, 2017, 2022)		yes			no		(derived from year)
+naics_version	STRING	NAICS classification vintage the code follows (1997, 2002, 2007, 2012, 2017)		yes			no	CBP lags the NAICS revisions: 2022 and 2023 data still follow NAICS 2017, so no 2022 vintage occurs in this dataset.	(derived from year)
 lfo	STRING	Legal form of organization of the establishments		yes			no		lfo
 establishments	INT64	Number of establishments		no		establishment	no		est
 employment	INT64	Number of paid employees during the week of March 12		no		employee	no		emp
 employment_flag	STRING	Data-suppression flag marking the employment-size range of a withheld cell (1998 to 2016 suppression era)		yes			no		empflag
-employment_noise_flag	STRING	Noise-infusion flag for employment from 2017 onward; G, H, J indicate increasing noise, D indicates withheld		yes			no		emp_nf
+employment_noise_flag	STRING	Noise-infusion flag for employment from 2017 onward; G, H, J indicate increasing noise, D and S indicate withheld		yes			no		emp_nf
 payroll_first_quarter	INT64	First-quarter payroll in current U.S. dollars		no		USD	no		qp1 (x1000)
 payroll_first_quarter_noise_flag	STRING	Noise-infusion flag for first-quarter payroll		yes			no		qp1_nf
 payroll_annual	INT64	Annual payroll in current U.S. dollars		no		USD	no		ap (x1000)

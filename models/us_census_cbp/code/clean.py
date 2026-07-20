@@ -51,9 +51,19 @@ BANDS_CO_EXTRA = {
 }
 
 
-def naics_version(year):
-    # CBP NAICS-vintage adoption. Note: CBP still publishes NAICS 2017 through 2023
-    # (it lags the revision) - 2022/2023 data use NAICS 2017, NOT NAICS 2022.
+def naics_version(year: int) -> str:
+    """Return the NAICS vintage CBP used for a given data year.
+
+    CBP NAICS-vintage adoption. Note: CBP still publishes NAICS 2017
+    through 2023 (it lags the revision) - 2022/2023 data use NAICS
+    2017, NOT NAICS 2022.
+
+    Args:
+        year: CBP reference year (1998-2023).
+
+    Returns:
+        NAICS vintage as a four-digit year string, e.g. "2012".
+    """
     if year <= 2002:
         return "1997"
     if year <= 2007:
@@ -65,37 +75,86 @@ def naics_version(year):
     return "2017"
 
 
-def _band_src_tokens(band):
-    """Source column band token variants (modern files use '<5' for the 1-4 band)."""
+def _band_src_tokens(band: str) -> list[str]:
+    """Source column band token variants (modern files use '<5' for the 1-4 band).
+
+    Args:
+        band: Output band name, e.g. "1_4" or "100_249".
+
+    Returns:
+        Source header tokens to try, in preference order.
+    """
     return [band, "<5"] if band == "1_4" else [band]
 
 
 class Cols:
     """Case-insensitive header resolver over one raw CBP file."""
 
-    def __init__(self, df):
+    def __init__(self, df: pd.DataFrame) -> None:
+        """Build the lowercase header lookup for one raw file.
+
+        Args:
+            df: Raw CBP file whose headers are resolved by name.
+        """
         self.df = df
         self.lut = {c.lower(): c for c in df.columns}
 
-    def get(self, *names):
+    def get(self, *names: str) -> pd.Series | None:
+        """Return the first column matching any of the given names.
+
+        Args:
+            *names: Candidate header names, tried in order.
+
+        Returns:
+            The matching column, or None if no name is present in the
+            file.
+        """
         for n in names:
             c = self.lut.get(n.lower())
             if c is not None:
                 return self.df[c]
         return None
 
-    def band(self, prefix, band, suffix=""):
+    def band(
+        self, prefix: str, band: str, suffix: str = ""
+    ) -> pd.Series | None:
+        """Return the column holding one employment-size band.
+
+        Args:
+            prefix: Measure prefix, e.g. "n", "e", "f", "q" or "a".
+            band: Output band name, e.g. "1_4".
+            suffix: Trailing marker, e.g. "nf" for noise flags.
+
+        Returns:
+            The matching column, or None if absent in this file.
+        """
         cols = [f"{prefix}{tok}{suffix}" for tok in _band_src_tokens(band)]
         return self.get(*cols)
 
 
-def _int(series):
+def _int(series: pd.Series | None) -> pd.Series:
+    """Coerce a source column to nullable Int64.
+
+    Args:
+        series: Source column, or None when absent from the file.
+
+    Returns:
+        Int64 series; an NA series when the input is None.
+    """
     if series is None:
         return pd.Series(pd.NA, dtype="Int64")
     return pd.to_numeric(series, errors="coerce").astype("Int64")
 
 
-def _int_x1000(series):
+def _int_x1000(series: pd.Series | None) -> pd.Series:
+    """Coerce a payroll column published in $1,000s to Int64 USD.
+
+    Args:
+        series: Source payroll column in $1,000s, or None if absent.
+
+    Returns:
+        Int64 series in USD; an NA series when the input is None.
+    """
     if series is None:
         return pd.Series(pd.NA, dtype="Int64")
     return (
@@ -103,15 +162,32 @@ def _int_x1000(series):
     )
 
 
-def _str(series):
+def _str(series: pd.Series | None) -> pd.Series:
+    """Coerce a source column to stripped strings, blank -> NA.
+
+    Args:
+        series: Source column, or None when absent from the file.
+
+    Returns:
+        String series with empty values masked to NA; an NA series
+        when the input is None.
+    """
     if series is None:
         return pd.Series(pd.NA, dtype="object")
     s = series.astype("string").str.strip()
     return s.mask(s == "", pd.NA)
 
 
-def _normalize_naics(series):
-    """Strip CBP aggregation fill to the native code; total ('------') -> NA (dropped)."""
+def _normalize_naics(series: pd.Series) -> pd.Series:
+    """Strip CBP aggregation fill to the native code; total ('------') -> NA (dropped).
+
+    Args:
+        series: Raw naics column from a CBP file.
+
+    Returns:
+        String series of 2-6 digit NAICS codes, NA on aggregate-total
+        rows.
+    """
     core = (
         series.astype("string")
         .str.strip()
@@ -121,7 +197,15 @@ def _normalize_naics(series):
     return core.mask(~core.str.fullmatch(r"\d{2,6}").fillna(False), pd.NA)
 
 
-def _read(path):
+def _read(path: Path) -> pd.DataFrame:
+    """Read one raw CBP text file as strings with lowercase headers.
+
+    Args:
+        path: Path to a cbp<yy><level>.txt source file.
+
+    Returns:
+        All-string DataFrame with stripped, lowercased column names.
+    """
     df = pd.read_csv(
         path, dtype=str, keep_default_na=False, encoding="latin-1"
     )
@@ -132,7 +216,13 @@ def _read(path):
 # ----- per-table builders -------------------------------------------------
 
 
-def _totals(c, out):
+def _totals(c: Cols, out: pd.DataFrame) -> None:
+    """Add the all-size totals and their disclosure flags.
+
+    Args:
+        c: Header resolver over the raw file.
+        out: Output frame, mutated in place.
+    """
     out["establishments"] = _int(c.get("est"))
     out["employment"] = _int(c.get("emp"))
     out["employment_flag"] = _str(c.get("empflag"))
@@ -143,8 +233,13 @@ def _totals(c, out):
     out["payroll_annual_noise_flag"] = _str(c.get("ap_nf"))
 
 
-def _band_measures(c, out):
-    """national/state: 8 columns per band (values + flags)."""
+def _band_measures(c: Cols, out: pd.DataFrame) -> None:
+    """national/state: 8 columns per band (values + flags).
+
+    Args:
+        c: Header resolver over the raw file.
+        out: Output frame, mutated in place.
+    """
     for b in BANDS9:
         out[f"establishments_{b}"] = _int(c.band("n", b))
         out[f"employment_{b}"] = _int(c.band("e", b))
@@ -158,7 +253,16 @@ def _band_measures(c, out):
         out[f"payroll_annual_{b}_noise_flag"] = _str(c.band("a", b, "nf"))
 
 
-def build_national(df, year):
+def build_national(df: pd.DataFrame, year: int) -> pd.DataFrame:
+    """Build the national table from one cbp<yy>us.txt file.
+
+    Args:
+        df: Raw national file as returned by _read.
+        year: CBP reference year.
+
+    Returns:
+        One row per naics x lfo, aggregate-total rows dropped.
+    """
     c = Cols(df)
     out = pd.DataFrame()
     out["naics"] = _normalize_naics(c.get("naics"))
@@ -170,7 +274,16 @@ def build_national(df, year):
     return out[out["naics"].notna()].reset_index(drop=True)
 
 
-def build_state(df, year):
+def build_state(df: pd.DataFrame, year: int) -> pd.DataFrame:
+    """Build the state table from one cbp<yy>st.txt file.
+
+    Args:
+        df: Raw state file as returned by _read.
+        year: CBP reference year.
+
+    Returns:
+        One row per id_state x naics x lfo, total rows dropped.
+    """
     c = Cols(df)
     out = pd.DataFrame()
     out["id_state"] = _str(c.get("fipstate")).str.zfill(2)
@@ -183,7 +296,16 @@ def build_state(df, year):
     return out[out["naics"].notna()].reset_index(drop=True)
 
 
-def build_county(df, year):
+def build_county(df: pd.DataFrame, year: int) -> pd.DataFrame:
+    """Build the county table from one cbp<yy>co.txt file.
+
+    Args:
+        df: Raw county file as returned by _read.
+        year: CBP reference year.
+
+    Returns:
+        One row per id_state x id_county x naics, totals dropped.
+    """
     c = Cols(df)
     out = pd.DataFrame()
     st = _str(c.get("fipstate")).str.zfill(2)
@@ -203,7 +325,19 @@ def build_county(df, year):
 # ----- schema (column order + types; year is the hive partition, not in file) ----
 
 
-def _schema(table):
+def _schema(table: str) -> pa.Schema:
+    """Build the output Arrow schema for one table.
+
+    Args:
+        table: Table name - "national", "state" or "county".
+
+    Returns:
+        Arrow schema in output column order; year is the hive
+        partition and is not a field.
+
+    Raises:
+        KeyError: If table is not one of the three known names.
+    """
     f = [
         ("id_state", pa.string()),
         ("id_county", pa.string()),
@@ -252,12 +386,30 @@ BUILDERS = {
 }
 
 
-def _src_path(level_suffix, year):
+def _src_path(level_suffix: str, year: int) -> Path:
+    """Build the raw input path for one geographic level and year.
+
+    Args:
+        level_suffix: Source level token - "us", "st" or "co".
+        year: CBP reference year.
+
+    Returns:
+        Path to the cbp<yy><level_suffix>.txt file under input/.
+    """
     yy = f"{year % 100:02d}"
     return INPUT / f"cbp{yy}{level_suffix}.txt"
 
 
-def clean_one(table, year):
+def clean_one(table: str, year: int) -> pd.DataFrame | None:
+    """Clean one table-year and write its parquet partition.
+
+    Args:
+        table: Table name - "national", "state" or "county".
+        year: CBP reference year.
+
+    Returns:
+        The cleaned frame, or None if the source file is missing.
+    """
     suffix, builder = BUILDERS[table]
     path = _src_path(suffix, year)
     if not path.exists():
@@ -289,7 +441,11 @@ def clean_one(table, year):
     return out
 
 
-def main():
+def main() -> None:
+    """Clean the tables and years named on the command line.
+
+    With no arguments, cleans every table for every year in YEARS.
+    """
     args = sys.argv[1:]
     tables = [a for a in args if a in BUILDERS] or list(BUILDERS)
     years = [int(a) for a in args if a.isdigit()] or YEARS

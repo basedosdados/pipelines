@@ -17,18 +17,25 @@ DATASET = "us_census_cbp"
 # All five dirs are CBP-published code sets (1997 via concordance), so each matches
 # the data of its vintage exactly. CBP publishes NAICS 2017 through 2023, so there is
 # no NAICS-2022 CBP vintage and the official naics_2022 dir is not referenced.
+#
+# Allowance is 0 for every vintage: measured against the built directories, national
+# resolves at 0.000% unmatched for 2002/2007/2012/2017 and 0.094% for 1997 (only the
+# '95'/'99' admin codes, which ignore_values drops). A non-zero allowance here would
+# only serve to mask a future unmapped code, so none is set. Sector split-codes need
+# no exception - these CBP-derived dirs store 31/44/48 natively, not ranges like
+# '31-33', unlike the official naics_2022 dir.
 NAICS_TESTS = [
     # 1997 dir is the full official structure; '95'/'99' admin codes aren't in it.
     (
         "naics_version = '1997'",
         "br_bd_diretorios_us__naics_1997",
-        0.01,
+        0.0,
         ["95", "99"],
     ),
-    ("naics_version = '2002'", "br_bd_diretorios_us__naics_2002", 0.01, []),
-    ("naics_version = '2007'", "br_bd_diretorios_us__naics_2007", 0.01, []),
-    ("naics_version = '2012'", "br_bd_diretorios_us__naics_2012", 0.01, []),
-    ("naics_version = '2017'", "br_bd_diretorios_us__naics_2017", 0.01, []),
+    ("naics_version = '2002'", "br_bd_diretorios_us__naics_2002", 0.0, []),
+    ("naics_version = '2007'", "br_bd_diretorios_us__naics_2007", 0.0, []),
+    ("naics_version = '2012'", "br_bd_diretorios_us__naics_2012", 0.0, []),
+    ("naics_version = '2017'", "br_bd_diretorios_us__naics_2017", 0.0, []),
 ]
 
 # (directory model, field, proportion_allowed_failures).
@@ -41,7 +48,11 @@ GEO_DIR = {
     "id_county": ("br_bd_diretorios_us__county", "id_county", 0.02),
 }
 
-CORE_NOTNULL = {  # columns tested by not_null_proportion (always populated)
+# Columns the cleaner always populates - verified 100.00% non-null across the full
+# history of all three tables, so the proportion test runs at at_least=1.0 (zero nulls
+# tolerated). Every other column is legitimately sparse (era-specific flags, size bands
+# below the disclosure threshold) and is passed to the test's ignore_values.
+CORE_NOTNULL = {
     "year",
     "id_state",
     "id_county",
@@ -154,14 +165,14 @@ def col_tests(table, name):
         tests.append(_not_null(table))
         if table in BIG_TABLES:
             # Only the current vintage exists in the most recent partition; the full
-            # per-vintage battery runs on `national` (see BIG_TABLES note).
+            # per-vintage battery runs on `national` (see BIG_TABLES note). Measured
+            # 0.0000% unmatched on the 2023 partition of both tables, so no allowance.
             tests.append(
                 {
                     "custom_relationships": _scope(
                         {
                             "to": "ref('br_bd_diretorios_us__naics_2017')",
                             "field": "id_naics",
-                            "proportion_allowed_failures": 0.01,
                         },
                         table,
                     )
@@ -172,9 +183,10 @@ def col_tests(table, name):
                 body = {
                     "to": f"ref('{ref}')",
                     "field": "id_naics",
-                    "proportion_allowed_failures": allow,
                     "config": {"where": where},
                 }
+                if allow:
+                    body["proportion_allowed_failures"] = allow
                 if ignore:
                     body["ignore_values"] = ignore
                 tests.append({"custom_relationships": body})
@@ -188,25 +200,17 @@ def model_entry(table, cols):
         "state": ["year", "id_state", "naics", "lfo"],
         "county": ["year", "id_county", "naics"],
     }[table]
-    # county: the 1999 source file repeats a block for FIPS 01045 with one
-    # conflicting record (NAICS 62111), leaving a single unavoidable duplicate key
-    # out of 48.7M rows - use the relaxed uniqueness test. national/state are strict.
-    if table == "county":
-        uniq_test = {
-            "custom_unique_combinations_of_columns": _scope(
-                {
-                    "combination_of_columns": uniq,
-                    "proportion_allowed_failures": 0.001,
-                },
-                table,
-            )
-        }
-    else:
-        uniq_test = {
-            "dbt_utils.unique_combination_of_columns": _scope(
-                {"combination_of_columns": uniq}, table
-            )
-        }
+    # Every table uses the strict uniqueness test. county carries one unavoidable
+    # duplicate key in 48.7M rows - the 1999 source file repeats a block for FIPS
+    # 01045 (Dale County, AL) with a conflicting NAICS 62111 record - but that sits
+    # in the 1999 partition, and county is scoped to the most recent partition, which
+    # has zero duplicates (verified per year across all 26 partitions). A relaxed
+    # test here would only license new duplicates in the newest year.
+    uniq_test = {
+        "dbt_utils.unique_combination_of_columns": _scope(
+            {"combination_of_columns": uniq}, table
+        )
+    }
     m = {
         "name": f"{DATASET}__{table}",
         "description": TABLE_DESC[table],
@@ -214,7 +218,7 @@ def model_entry(table, cols):
             uniq_test,
             {
                 "not_null_proportion_multiple_columns": _scope(
-                    {"at_least": 0.05, "ignore_values": ignore}, table
+                    {"at_least": 1.0, "ignore_values": ignore}, table
                 )
             },
         ],
@@ -264,10 +268,31 @@ def dicionario_entry():
         "cobertura_temporal": "Temporal coverage of the key",
         "valor": "Human-readable label of the coded value",
     }
+    # (id_tabela, nome_coluna, chave) is the dictionary's logical key: one label per
+    # coded value per column per table. All five columns are always populated.
     return {
         "name": f"{DATASET}__dicionario",
         "description": TABLE_DESC["dicionario"],
-        "columns": [{"name": k, "description": v} for k, v in desc.items()],
+        "tests": [
+            {
+                "dbt_utils.unique_combination_of_columns": {
+                    "combination_of_columns": [
+                        "id_tabela",
+                        "nome_coluna",
+                        "chave",
+                    ]
+                }
+            },
+            {"not_null_proportion_multiple_columns": {"at_least": 1.0}},
+        ],
+        "columns": [
+            (
+                {"name": k, "description": v}
+                if k == "cobertura_temporal"
+                else {"name": k, "description": v, "tests": ["not_null"]}
+            )
+            for k, v in desc.items()
+        ],
     }
 
 

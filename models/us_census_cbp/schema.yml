@@ -9,7 +9,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, naics, lfo]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 1.0
           ignore_values:
             - employment_flag
             - employment_noise_flag
@@ -103,37 +103,32 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_us__naics_1997')
               field: id_naics
-              proportion_allowed_failures: 0.01
               config:
                 where: naics_version = '1997'
               ignore_values: ['95', '99']
           - custom_relationships:
               to: ref('br_bd_diretorios_us__naics_2002')
               field: id_naics
-              proportion_allowed_failures: 0.01
               config:
                 where: naics_version = '2002'
           - custom_relationships:
               to: ref('br_bd_diretorios_us__naics_2007')
               field: id_naics
-              proportion_allowed_failures: 0.01
               config:
                 where: naics_version = '2007'
           - custom_relationships:
               to: ref('br_bd_diretorios_us__naics_2012')
               field: id_naics
-              proportion_allowed_failures: 0.01
               config:
                 where: naics_version = '2012'
           - custom_relationships:
               to: ref('br_bd_diretorios_us__naics_2017')
               field: id_naics
-              proportion_allowed_failures: 0.01
               config:
                 where: naics_version = '2017'
       - name: naics_version
         description: NAICS classification vintage the code follows (1997, 2002, 2007,
-          2012, 2017, 2022)
+          2012, 2017)
       - name: lfo
         description: Legal form of organization of the establishments
       - name: establishments
@@ -145,7 +140,7 @@ models:
           withheld cell (1998 to 2016 suppression era)
       - name: employment_noise_flag
         description: Noise-infusion flag for employment from 2017 onward; G, H, J
-          indicate increasing noise, D indicates withheld
+          indicate increasing noise, D and S indicate withheld
       - name: payroll_first_quarter
         description: First-quarter payroll in current U.S. dollars
       - name: payroll_first_quarter_noise_flag
@@ -371,7 +366,7 @@ models:
           config:
             where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 1.0
           ignore_values:
             - employment_flag
             - employment_noise_flag
@@ -484,12 +479,11 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_us__naics_2017')
               field: id_naics
-              proportion_allowed_failures: 0.01
               config:
                 where: __most_recent_year_en__
       - name: naics_version
         description: NAICS classification vintage the code follows (1997, 2002, 2007,
-          2012, 2017, 2022)
+          2012, 2017)
       - name: lfo
         description: Legal form of organization of the establishments
       - name: establishments
@@ -501,7 +495,7 @@ models:
           withheld cell (1998 to 2016 suppression era)
       - name: employment_noise_flag
         description: Noise-infusion flag for employment from 2017 onward; G, H, J
-          indicate increasing noise, D indicates withheld
+          indicate increasing noise, D and S indicate withheld
       - name: payroll_first_quarter
         description: First-quarter payroll in current U.S. dollars
       - name: payroll_first_quarter_noise_flag
@@ -728,13 +722,12 @@ models:
       source file repeats a block for FIPS 01045 (Dale County, AL), leaving one conflicting
       duplicate key at NAICS 62111 out of 48.7M rows.'
     tests:
-      - custom_unique_combinations_of_columns:
+      - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, id_county, naics]
-          proportion_allowed_failures: 0.001
           config:
             where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 1.0
           ignore_values:
             - employment_flag
             - employment_noise_flag
@@ -801,12 +794,11 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_us__naics_2017')
               field: id_naics
-              proportion_allowed_failures: 0.01
               config:
                 where: __most_recent_year_en__
       - name: naics_version
         description: NAICS classification vintage the code follows (1997, 2002, 2007,
-          2012, 2017, 2022)
+          2012, 2017)
       - name: establishments
         description: Number of establishments
       - name: employment
@@ -816,7 +808,7 @@ models:
           withheld cell (1998 to 2016 suppression era)
       - name: employment_noise_flag
         description: Noise-infusion flag for employment from 2017 onward; G, H, J
-          indicate increasing noise, D indicates withheld
+          indicate increasing noise, D and S indicate withheld
       - name: payroll_first_quarter
         description: First-quarter payroll in current U.S. dollars
       - name: payroll_first_quarter_noise_flag
@@ -854,14 +846,23 @@ models:
   - name: us_census_cbp__dicionario
     description: Dictionary of coded values used across the us_census_cbp tables (legal
       form of organization, NAICS vintage, and disclosure/noise flags).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 1.0
     columns:
       - name: id_tabela
         description: Table name the key belongs to
+        tests: [not_null]
       - name: nome_coluna
         description: Column name the key belongs to
+        tests: [not_null]
       - name: chave
         description: Coded value as stored in the data
+        tests: [not_null]
       - name: cobertura_temporal
         description: Temporal coverage of the key
       - name: valor
         description: Human-readable label of the coded value
+        tests: [not_null]
