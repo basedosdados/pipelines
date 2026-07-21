@@ -1,5 +1,12 @@
 """
-Flows for br_rf_cno — Prefect 3.
+Flows for br_rf_cno (Cadastro Nacional de Obras — Receita Federal) — Prefect 3.
+
+Um flow por tabela (microdados, vinculos, areas, cnaes), gerado por `_cno_flow` e
+delegando a `_run_rf` (crawler compartilhado `rf`). Contexto da fonte, do WAF e das
+particularidades por tabela: ver `pipelines/datasets/br_rf_cno/README.md`.
+
+A data de partição é gravada sem componente de hora (date-only); com hora, o
+`safe_cast(data as date)` do model virava NULL e o filtro incremental nunca inseria.
 """
 
 from prefect import flow

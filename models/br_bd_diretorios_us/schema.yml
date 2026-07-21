@@ -1,0 +1,613 @@
+---
+version: 2
+models:
+  - name: br_bd_diretorios_us__state
+    description: >
+      Diretório de estados, territórios e estados livremente associados dos
+      Estados Unidos, com códigos FIPS, siglas, códigos GNIS e classificação
+      por região e divisão do Census Bureau.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_state]
+    columns:
+      - name: id_state
+        description: Código FIPS do estado (2 dígitos)
+        tests: [not_null]
+      - name: abbreviation
+        description: Sigla do estado (USPS)
+      - name: name
+        description: Nome do estado
+      - name: id_gnis
+        description: Código GNIS do estado
+      - name: id_census
+        description: Código do estado no Census Bureau
+      - name: id_icpsr
+        description: Código do estado no ICPSR
+      - name: id_region
+        description: Código da região do Census Bureau
+      - name: name_region
+        description: Nome da região do Census Bureau
+      - name: id_division
+        description: Código da divisão do Census Bureau
+      - name: name_division
+        description: Nome da divisão do Census Bureau
+      - name: type
+        description: >
+          Tipo de unidade (estado, distrito federal, território, estado
+          livremente associado)
+  - name: br_bd_diretorios_us__county
+    description: >
+      Diretório de condados e equivalentes dos Estados Unidos, incluindo
+      equivalentes das áreas insulares, com códigos FIPS e GNIS, vínculo com
+      CBSA e CSA, áreas de terra e água e centroide.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_county]
+    columns:
+      - name: id_county
+        description: Código FIPS do condado (5 dígitos)
+        tests: [not_null]
+      - name: name
+        description: Nome do condado
+      - name: type
+        description: Tipo de unidade (condado, paróquia, borough, etc.)
+      - name: id_state
+        description: Código FIPS do estado (2 dígitos)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado (USPS)
+      - name: name_state
+        description: Nome do estado
+      - name: id_gnis
+        description: Código GNIS do condado
+      - name: id_cbsa
+        description: Código da Core-Based Statistical Area (CBSA)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__cbsa_2023')
+              field: id_cbsa
+      - name: name_cbsa
+        description: Nome da Core-Based Statistical Area (CBSA)
+      - name: id_csa
+        description: Código da Combined Statistical Area (CSA)
+      - name: name_csa
+        description: Nome da Combined Statistical Area (CSA)
+      - name: central_outlying
+        description: Classificação do condado na CBSA (central ou periférico)
+      - name: area_land_km2
+        description: Área de terra em km²
+      - name: area_water_km2
+        description: Área de água em km²
+      - name: centroid
+        description: Centroide do condado
+  - name: br_bd_diretorios_us__place
+    description: >
+      Diretório de places (cidades, vilas e áreas designadas pelo censo) dos
+      Estados Unidos, com códigos FIPS e GNIS, áreas de terra e água e centroide.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_place]
+    columns:
+      - name: id_place
+        description: Código FIPS do place (7 dígitos, estado + place)
+        tests: [not_null]
+      - name: name
+        description: Nome do place
+      - name: type
+        description: Tipo de place (city, town, village, CDP, etc.)
+      - name: class_code
+        description: Código de classe FIPS do place
+      - name: id_gnis
+        description: Código GNIS do place
+      - name: id_state
+        description: Código FIPS do estado (2 dígitos)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado (USPS)
+      - name: area_land_km2
+        description: Área de terra em km²
+      - name: area_water_km2
+        description: Área de água em km²
+      - name: centroid
+        description: Centroide do place
+  - name: br_bd_diretorios_us__census_tract_2020
+    description: >
+      Diretório de census tracts do Censo 2020 dos Estados Unidos, com vínculo
+      a condado e estado, áreas de terra e água e centroide.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_tract]
+    columns:
+      - name: id_census_tract
+        description: Código do census tract (11 dígitos, estado + condado + tract)
+        tests: [not_null]
+      - name: id_county
+        description: Código FIPS do condado (5 dígitos)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+      - name: id_state
+        description: Código FIPS do estado (2 dígitos)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: area_land_km2
+        description: Área de terra em km²
+      - name: area_water_km2
+        description: Área de água em km²
+      - name: centroid
+        description: Centroide do census tract
+  - name: br_bd_diretorios_us__zcta_2020
+    description: >
+      Diretório de ZIP Code Tabulation Areas (ZCTA) do Censo 2020 dos Estados
+      Unidos, com áreas de terra e água e centroide.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_zcta]
+    columns:
+      - name: id_zcta
+        description: Código da ZIP Code Tabulation Area (5 dígitos)
+        tests: [not_null]
+      - name: area_land_km2
+        description: Área de terra em km²
+      - name: area_water_km2
+        description: Área de água em km²
+      - name: centroid
+        description: Centroide da ZCTA
+  - name: br_bd_diretorios_us__cbsa_2023
+    description: >
+      Diretório de Core-Based Statistical Areas (CBSA) dos Estados Unidos,
+      delineação de 2023, com tipo (metropolitana ou micropolitana) e vínculo
+      com Combined Statistical Areas (CSA).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_cbsa]
+    columns:
+      - name: id_cbsa
+        description: Código da Core-Based Statistical Area (CBSA)
+        tests: [not_null]
+      - name: name
+        description: Nome da CBSA
+      - name: type
+        description: Tipo da CBSA (metropolitana ou micropolitana)
+      - name: id_csa
+        description: Código da Combined Statistical Area (CSA)
+      - name: name_csa
+        description: Nome da Combined Statistical Area (CSA)
+  - name: br_bd_diretorios_us__congressional_district_119
+    description: >
+      Diretório de distritos congressionais do 119º Congresso dos Estados
+      Unidos, com vínculo ao estado. Inclui 3 registros com distrito 'ZZ'
+      (áreas não definidas).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_congressional_district]
+    columns:
+      - name: id_congressional_district
+        description: Código do distrito congressional (4 dígitos, estado + distrito)
+        tests: [not_null]
+      - name: id_state
+        description: Código FIPS do estado (2 dígitos)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado (USPS)
+      - name: district
+        description: Número do distrito dentro do estado
+      - name: type
+        description: Tipo do distrito (com representação, delegado, etc.)
+  - name: br_bd_diretorios_us__puma_2020
+    description: >
+      Diretório de Public Use Microdata Areas (PUMA) do Censo 2020 dos Estados
+      Unidos, com vínculo ao estado, áreas de terra e água e centroide.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_puma]
+    columns:
+      - name: id_puma
+        description: Código da PUMA (7 dígitos, estado + PUMA)
+        tests: [not_null]
+      - name: name
+        description: Nome da PUMA
+      - name: id_state
+        description: Código FIPS do estado (2 dígitos)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado (USPS)
+      - name: area_land_km2
+        description: Área de terra em km²
+      - name: area_water_km2
+        description: Área de água em km²
+      - name: centroid
+        description: Centroide da PUMA
+  - name: br_bd_diretorios_us__school_district
+    description: >
+      Diretório de distritos escolares dos Estados Unidos (NCES Common Core of
+      Data), com tipo, nível de ensino, vínculo ao estado e status operacional.
+      A coluna id_county está 100% nula, pois o diretório CCD de origem não
+      informa o condado.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_school_district]
+    columns:
+      - name: id_school_district
+        description: Código NCES do distrito escolar (7 dígitos)
+        tests: [not_null]
+      - name: name
+        description: Nome do distrito escolar
+      - name: type
+        description: Tipo de agência escolar
+      - name: level
+        description: Nível de ensino atendido pelo distrito
+      - name: id_state
+        description: Código FIPS do estado (2 dígitos)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado (USPS)
+      - name: id_county
+        description: >
+          Código FIPS do condado (5 dígitos). Atualmente 100% nulo — o
+          diretório CCD de origem não informa o condado.
+      - name: operational_status
+        description: Status operacional do distrito escolar
+  - name: br_bd_diretorios_us__school
+    description: >
+      Diretório de escolas públicas dos Estados Unidos (NCES Common Core of
+      Data), com vínculo ao distrito escolar e ao estado, tipo, nível,
+      indicador de charter e status operacional. A coluna id_county está 100%
+      nula, pois o diretório CCD de origem não informa o condado.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_school]
+    columns:
+      - name: id_school
+        description: Código NCES da escola (12 dígitos)
+        tests: [not_null]
+      - name: name
+        description: Nome da escola
+      - name: id_school_district
+        description: Código NCES do distrito escolar (7 dígitos)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__school_district')
+              field: id_school_district
+      - name: id_state
+        description: Código FIPS do estado (2 dígitos)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado (USPS)
+      - name: id_county
+        description: >
+          Código FIPS do condado (5 dígitos). Atualmente 100% nulo — o
+          diretório CCD de origem não informa o condado.
+      - name: type
+        description: Tipo de escola
+      - name: level
+        description: Nível de ensino da escola
+      - name: charter
+        description: Indicador se a escola é charter
+      - name: operational_status
+        description: Status operacional da escola
+  - name: br_bd_diretorios_us__higher_education_institution
+    description: >
+      Diretório de instituições de ensino superior dos Estados Unidos (IPEDS),
+      com códigos UNITID e OPEID, localização, setor, controle, nível e status
+      operacional.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_institution]
+    columns:
+      - name: id_institution
+        description: Código UNITID da instituição (IPEDS)
+        tests: [not_null]
+      - name: id_opeid
+        description: Código OPEID da instituição (Office of Postsecondary Education)
+      - name: name
+        description: Nome da instituição
+      - name: id_state
+        description: Código FIPS do estado (2 dígitos)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado (USPS)
+      - name: id_county
+        description: Código FIPS do condado (5 dígitos)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+      - name: city
+        description: Cidade da instituição
+      - name: zip
+        description: Código postal (ZIP) da instituição
+      - name: sector
+        description: Setor da instituição (combinação de controle e nível)
+      - name: control
+        description: Controle da instituição (pública, privada sem/com fins lucrativos)
+      - name: level
+        description: Nível da instituição (4 anos, 2 anos, menos de 2 anos)
+      - name: operational_status
+        description: Status operacional da instituição
+  - name: br_bd_diretorios_us__congress_member
+    description: >
+      Diretório de membros do Congresso dos Estados Unidos (projeto
+      unitedstates/congress-legislators), ligando o código Bioguide a
+      identificadores externos (GovTrack, ICPSR, FEC, Wikidata, etc.).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_bioguide]
+    columns:
+      - name: id_bioguide
+        description: Código Bioguide do membro do Congresso
+        tests: [not_null]
+      - name: name_first
+        description: Primeiro nome
+      - name: name_middle
+        description: Nome do meio
+      - name: name_last
+        description: Sobrenome
+      - name: name_suffix
+        description: Sufixo do nome (Jr., III, etc.)
+      - name: name_official_full
+        description: Nome oficial completo
+      - name: birthday
+        description: Data de nascimento
+      - name: gender
+        description: Gênero
+      - name: id_govtrack
+        description: ID GovTrack
+      - name: id_icpsr
+        description: ID ICPSR
+      - name: id_lis
+        description: ID LIS (Legislative Information System do Senado)
+      - name: id_thomas
+        description: ID THOMAS (Biblioteca do Congresso)
+      - name: id_opensecrets
+        description: ID OpenSecrets
+      - name: id_votesmart
+        description: ID Vote Smart
+      - name: id_cspan
+        description: ID C-SPAN
+      - name: id_fec
+        description: IDs na Federal Election Commission (FEC)
+      - name: id_wikidata
+        description: ID Wikidata
+      - name: wikipedia
+        description: Título da página na Wikipedia
+      - name: ballotpedia
+        description: Título da página na Ballotpedia
+  - name: br_bd_diretorios_us__naics_2022
+    description: >
+      Diretório da classificação industrial NAICS 2022 (North American Industry
+      Classification System), com hierarquia de setor, subsetor, grupo
+      industrial e indústria NAICS.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_naics]
+    columns:
+      - name: id_naics
+        description: Código NAICS (2 a 6 dígitos)
+        tests: [not_null]
+      - name: name
+        description: Nome da categoria NAICS
+      - name: level
+        description: Nível hierárquico do código (2 a 6)
+      - name: id_sector
+        description: Código do setor (2 dígitos)
+      - name: name_sector
+        description: Nome do setor
+      - name: id_subsector
+        description: Código do subsetor (3 dígitos)
+      - name: name_subsector
+        description: Nome do subsetor
+      - name: id_industry_group
+        description: Código do grupo industrial (4 dígitos)
+      - name: name_industry_group
+        description: Nome do grupo industrial
+      - name: id_naics_industry
+        description: Código da indústria NAICS (5 dígitos)
+      - name: name_naics_industry
+        description: Nome da indústria NAICS
+  - name: br_bd_diretorios_us__soc_2018
+    description: >
+      Diretório da classificação ocupacional SOC 2018 (Standard Occupational
+      Classification), com hierarquia de grupo principal, grupo menor e
+      ocupação ampla.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_soc]
+    columns:
+      - name: id_soc
+        description: Código SOC (formato XX-XXXX)
+        tests: [not_null]
+      - name: name
+        description: Nome da ocupação ou grupo
+      - name: level
+        description: Nível hierárquico do código
+      - name: id_major_group
+        description: Código do grupo principal
+      - name: name_major_group
+        description: Nome do grupo principal
+      - name: id_minor_group
+        description: Código do grupo menor
+      - name: name_minor_group
+        description: Nome do grupo menor
+      - name: id_broad_occupation
+        description: Código da ocupação ampla
+      - name: name_broad_occupation
+        description: Nome da ocupação ampla
+  - name: br_bd_diretorios_us__census_industry_2002
+    description: >
+      Diretório da classificação de indústria do Census dos EUA, revisão de 2002,
+      usada em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados
+      de indústria de 2002 de quatro dígitos e o código NAICS correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_industry]
+    columns:
+      - name: id_census_industry
+        description: Código de indústria do Census de 2002 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da indústria
+      - name: id_naics
+        description: >
+          Código(s) NAICS correspondente(s); pode conter intervalos, múltiplos códigos
+          ou correspondências parciais conforme publicado pelo Census
+  - name: br_bd_diretorios_us__census_industry_2007
+    description: >
+      Diretório da classificação de indústria do Census dos EUA, revisão de 2007,
+      usada em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados
+      de indústria de 2007 de quatro dígitos e o código NAICS correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_industry]
+    columns:
+      - name: id_census_industry
+        description: Código de indústria do Census de 2007 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da indústria
+      - name: id_naics
+        description: >
+          Código(s) NAICS correspondente(s); pode conter intervalos, múltiplos códigos
+          ou correspondências parciais conforme publicado pelo Census
+  - name: br_bd_diretorios_us__census_industry_2012
+    description: >
+      Diretório da classificação de indústria do Census dos EUA, revisão de 2012,
+      usada em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados
+      de indústria de 2012 de quatro dígitos e o código NAICS correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_industry]
+    columns:
+      - name: id_census_industry
+        description: Código de indústria do Census de 2012 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da indústria
+      - name: id_naics
+        description: >
+          Código(s) NAICS correspondente(s); pode conter intervalos, múltiplos códigos
+          ou correspondências parciais conforme publicado pelo Census
+  - name: br_bd_diretorios_us__census_industry_2017
+    description: >
+      Diretório da classificação de indústria do Census dos EUA, revisão de 2017,
+      usada em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados
+      de indústria de 2017 de quatro dígitos e o código NAICS correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_industry]
+    columns:
+      - name: id_census_industry
+        description: Código de indústria do Census de 2017 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da indústria
+      - name: id_naics
+        description: >
+          Código(s) NAICS correspondente(s); pode conter intervalos, múltiplos códigos
+          ou correspondências parciais conforme publicado pelo Census
+  - name: br_bd_diretorios_us__census_occupation_2002
+    description: >
+      Diretório da classificação ocupacional do Census dos EUA, revisão de 2002, usada
+      em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados de
+      ocupação de 2002 de quatro dígitos e o código SOC correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_occupation]
+    columns:
+      - name: id_census_occupation
+        description: Código de ocupação do Census de 2002 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da ocupação
+      - name: id_soc
+        description: >
+          Código SOC correspondente; pode conter intervalos ou múltiplos códigos conforme
+          publicado pelo Census
+  - name: br_bd_diretorios_us__census_occupation_2010
+    description: >
+      Diretório da classificação ocupacional do Census dos EUA, revisão de 2010, usada
+      em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados de
+      ocupação de 2010 de quatro dígitos e o código SOC correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_occupation]
+    columns:
+      - name: id_census_occupation
+        description: Código de ocupação do Census de 2010 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da ocupação
+      - name: id_soc
+        description: >
+          Código SOC correspondente; pode conter intervalos ou múltiplos códigos conforme
+          publicado pelo Census
+  - name: br_bd_diretorios_us__census_occupation_2018
+    description: >
+      Diretório da classificação ocupacional do Census dos EUA, revisão de 2018, usada
+      em pesquisas domiciliares (CPS, ACS, ATUS). Contém os códigos detalhados de
+      ocupação de 2018 de quatro dígitos e o código SOC correspondente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_census_occupation]
+    columns:
+      - name: id_census_occupation
+        description: Código de ocupação do Census de 2018 (quatro dígitos, com zeros
+          à esquerda)
+        tests: [not_null]
+      - name: name
+        description: Nome da ocupação
+      - name: id_soc
+        description: >-
+          Código SOC correspondente; pode conter intervalos ou múltiplos códigos conforme
+          publicado pelo Census
