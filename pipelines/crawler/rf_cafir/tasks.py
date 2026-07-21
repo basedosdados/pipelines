@@ -57,7 +57,21 @@ def task_decide_files_to_download(
     last_update_date: str,
     data_especifica: datetime.date | None = None,
     data_maxima: bool = True,
-) -> tuple[list[str], list[datetime.date]]:
+) -> tuple[list[str], str | datetime.date]:
+    """Decide quais arquivos baixar a partir dos metadados da fonte.
+
+    Args:
+        df: Metadados dos arquivos publicados (nome e data de atualização).
+        last_update_date: Data de modificação mais recente na origem, usada para
+            nomear a partição no Storage.
+        data_especifica: Se informada, filtra os arquivos por essa data.
+        data_maxima: Se True, seleciona os arquivos da data mais recente.
+
+    Returns:
+        tuple[list[str], str | datetime.date]: Lista de nomes de arquivos e a
+            data correspondente (string quando data_maxima; date quando
+            data_especifica).
+    """
     return decide_files_to_download(
         df=df,
         last_update_date=last_update_date,
