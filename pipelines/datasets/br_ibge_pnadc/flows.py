@@ -10,8 +10,8 @@ from pipelines.crawler.ibge_pnadc.tasks import (
     get_data_source_date_and_url,
 )
 from pipelines.utils.metadata.domain import (
-    AllFree,
     DateFormat,
+    PartBdpro,
     YearQuarter,
 )
 from pipelines.utils.metadata.tasks import (
@@ -100,7 +100,7 @@ def br_ibge_pnadc__microdados(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=AllFree(
+            coverage=PartBdpro(
                 date_column=YearQuarter(year="ano", quarter="trimestre"),
                 date_format=DateFormat.YEAR_MONTH,
             ),
