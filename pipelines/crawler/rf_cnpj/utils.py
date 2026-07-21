@@ -97,11 +97,11 @@ def build_paths(
     input_path = None
     output_path = None
     if build_input:
-        input_path = input_path.value / table_id
+        input_path = input_path / table_id
         input_path.mkdir(exist_ok=True, parents=True)
         log("Pasta input construido")
     if build_output:
-        output_path = output_path.value / table_id
+        output_path = output_path / table_id
         output_path.mkdir(exist_ok=True, parents=True)
         log("Pasta destino output construido")
     return input_path, output_path
