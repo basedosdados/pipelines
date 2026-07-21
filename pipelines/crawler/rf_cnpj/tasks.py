@@ -7,7 +7,6 @@ import datetime
 
 from prefect import task
 
-from pipelines.constants import constants
 from pipelines.crawler.rf_cnpj.constants import constants as constants_cnpj
 from pipelines.crawler.rf_cnpj.utils import (
     build_paths,
@@ -27,10 +26,7 @@ url = constants_cnpj.URL.value
 headers = constants_cnpj.HEADERS.value
 
 
-@task(
-    max_retries=3,
-    retry_delay=datetime.timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=3, retry_delay_seconds=30)
 def get_data_source_max_date() -> tuple[datetime.datetime, datetime.date]:
     """
     Checks if there are available updates for a specific dataset and table.
@@ -44,10 +40,7 @@ def get_data_source_max_date() -> tuple[datetime.datetime, datetime.date]:
     return max_folder_date, max_table_date
 
 
-@task(
-    max_retries=3,
-    retry_delay=datetime.timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=3, retry_delay_seconds=30)
 def main(
     tabelas: list[str],
     max_folder_date: datetime.datetime,
