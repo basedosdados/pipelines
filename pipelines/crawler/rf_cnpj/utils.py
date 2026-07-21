@@ -87,21 +87,21 @@ def build_paths(
         tuple[Path,Path]: The constructed paths.
     """
 
-    tmp_path = Path("tmp")
-    input_path = tmp_path / "br_rf_cnpj" / "input"
-    output_path = tmp_path / "br_rf_cnpj" / "output"
+    tmp_dir = Path("tmp")
+    input_dir = tmp_dir / "br_rf_cnpj" / "input"
+    output_dir = tmp_dir / "br_rf_cnpj" / "output"
 
-    tmp_path.mkdir(exist_ok=True, parents=True)
-    input_path.mkdir(exist_ok=True, parents=True)
-    output_path.mkdir(exist_ok=True, parents=True)
+    tmp_dir.mkdir(exist_ok=True, parents=True)
+    input_dir.mkdir(exist_ok=True, parents=True)
+    output_dir.mkdir(exist_ok=True, parents=True)
     input_path = None
     output_path = None
     if build_input:
-        input_path = input_path / table_id
+        input_path = input_dir / table_id
         input_path.mkdir(exist_ok=True, parents=True)
         log("Pasta input construido")
     if build_output:
-        output_path = output_path / table_id
+        output_path = output_dir / table_id
         output_path.mkdir(exist_ok=True, parents=True)
         log("Pasta destino output construido")
     return input_path, output_path
