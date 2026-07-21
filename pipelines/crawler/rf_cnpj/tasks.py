@@ -42,7 +42,7 @@ def get_data_source_max_date() -> tuple[datetime.datetime, datetime.date]:
 
 @task(retries=3, retry_delay_seconds=30)
 def main(
-    tabelas: list[str],
+    tables: list[str],
     max_folder_date: datetime.datetime,
     max_last_modified_date: datetime.date,
 ) -> str:
@@ -50,7 +50,7 @@ def main(
     Performs the download, processing, and organization of CNPJ data.
 
     Args:
-        tabelas (list): A list of tables to be processed.
+        tables (list): A list of tables to be processed.
         folder_date (datetime): Most recent database release extracted from API
         max_folder_date (datetime): CNPJs max folder date
         max_last_modified_date (datetime): CNPJs max last modified date
@@ -59,7 +59,7 @@ def main(
         str: The path to the output folder where the data has been organized.
     """
     arquivos_baixados = []  # List to track already downloaded files
-    for table in tabelas:
+    for table in tables:
         table_configs = constants_cnpj.TABLE_CONFIGS.value[table]
 
         # Creates dataset table paths (input and output)
