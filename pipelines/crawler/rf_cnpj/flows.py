@@ -25,7 +25,7 @@ from pipelines.utils.tasks import (
 )
 
 
-def _run_rfcnpj(
+def _run_rf_cnpj(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
