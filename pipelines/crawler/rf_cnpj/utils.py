@@ -353,13 +353,12 @@ def process_csv_estabelecimentos(
     save_folder = Path(output_path) / f"data={data_coleta}"
     save_folder.mkdir(exist_ok=True, parents=True)
 
-    for nome_arquivo in Path(input_path).iterdir():
-        if "estabele" in nome_arquivo.as_posix().lower():
-            caminho_arquivo_csv = Path(input_path) / nome_arquivo
-            log(f"Carregando o arquivo: {nome_arquivo}")
+    for filepath in Path(input_path).iterdir():
+        if "estabele" in filepath.as_posix().lower():
+            log(f"Carregando o arquivo: {filepath}")
             for chunk in tqdm(
                 pd.read_csv(
-                    caminho_arquivo_csv,
+                    filepath,
                     encoding="latin1",
                     sep=";",
                     header=None,
@@ -417,7 +416,7 @@ def process_csv_estabelecimentos(
                         header=mode == "w",
                     )
             log(f"Arquivo estabelecimento_{i} salvo")
-            os.remove(caminho_arquivo_csv)
+            os.remove(filepath)
 
 
 # ! Salva os dados CSV Empresas
@@ -442,14 +441,13 @@ def process_csv_empresas(
     save_folder = Path(output_path) / f"data={data_coleta}"
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"empresas_{i}.csv"
-    for nome_arquivo in Path(input_path).iterdir():
-        if nome_arquivo.as_posix().lower().endswith("csv"):
-            caminho_arquivo_csv = Path(input_path) / nome_arquivo
-            log(f"Carregando o arquivo: {nome_arquivo}")
+    for filepath in Path(input_path).iterdir():
+        if filepath.as_posix().lower().endswith("csv"):
+            log(f"Carregando o arquivo: {filepath}")
             with open(save_path, "wb") as fd:
                 for chunk in tqdm(
                     pd.read_csv(
-                        caminho_arquivo_csv,
+                        filepath,
                         encoding="latin1",
                         sep=";",
                         header=None,
@@ -474,7 +472,7 @@ def process_csv_empresas(
                     chunk.to_csv(fd, index=False, encoding="latin1")
 
             log(f"Arquivo empresas_{i} salvo")
-            os.remove(caminho_arquivo_csv)
+            os.remove(filepath)
 
 
 # ! Salva os dados CSV Socios
@@ -502,14 +500,13 @@ def process_csv_socios(
     save_folder = Path(output_path) / f"data={data_coleta}"
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"socios_{i}.csv"
-    for nome_arquivo in Path(input_path).iterdir():
-        if nome_arquivo.as_posix().lower().endswith("csv"):
-            caminho_arquivo_csv = Path(input_path) / nome_arquivo
-            log(f"Carregando o arquivo: {nome_arquivo}")
+    for filepath in Path(input_path).iterdir():
+        if filepath.as_posix().lower().endswith("csv"):
+            log(f"Carregando o arquivo: {filepath}")
             with open(save_path, "wb") as fd:
                 for chunk in tqdm(
                     pd.read_csv(
-                        caminho_arquivo_csv,
+                        filepath,
                         encoding="latin1",
                         sep=";",
                         header=None,
@@ -536,7 +533,7 @@ def process_csv_socios(
                     chunk.to_csv(fd, index=False, encoding="latin1")
 
             log(f"Arquivo socios_{i} salvo")
-            os.remove(caminho_arquivo_csv)
+            os.remove(filepath)
 
 
 # ! Salva os dados CSV Simples
@@ -562,14 +559,13 @@ def process_csv_simples(
     """
     colunas = constants_cnpj.COLUNAS_SIMPLES.value
     save_path = Path(output_path) / f"{sufixo}.csv"
-    for nome_arquivo in Path(input_path).iterdir():
-        if "simples.csv" in nome_arquivo.as_posix().lower():
-            caminho_arquivo_csv = Path(input_path) / nome_arquivo
-            log(f"Carregando o arquivo: {nome_arquivo}")
+    for filepath in Path(input_path).iterdir():
+        if "simples.csv" in filepath.as_posix().lower():
+            log(f"Carregando o arquivo: {filepath}")
             with open(save_path, "wb") as fd:
                 for chunk in tqdm(
                     pd.read_csv(
-                        caminho_arquivo_csv,
+                        filepath,
                         encoding="latin1",
                         sep=";",
                         header=None,
@@ -599,7 +595,7 @@ def process_csv_simples(
                     chunk.to_csv(fd, index=False, encoding="latin1")
 
             log(f"Arquivo {sufixo} salvo")
-            os.remove(caminho_arquivo_csv)
+            os.remove(filepath)
 
 
 def get_table_unique_keys(table_id: str, column: str):
