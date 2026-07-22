@@ -1,3 +1,6 @@
+-- Built by models/br_bd_diretorios_us/code/clean.py from the official
+-- 1997-to-2002 NAICS concordance; no CBP reference file exists for 1997,
+-- so ~360 codes CBP never tabulates carry no title.
 {{
     config(
         alias="naics_1997",
