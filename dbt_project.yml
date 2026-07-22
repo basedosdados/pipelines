@@ -100,6 +100,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_census_cbp:
+      +materialized: table
+      +schema: us_census_cbp
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
