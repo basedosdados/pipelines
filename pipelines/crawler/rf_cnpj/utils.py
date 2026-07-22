@@ -411,7 +411,7 @@ def process_csv_estabelecimentos(
                     df_particao.to_csv(
                         particao_file_path,
                         index=False,
-                        encoding="latin1",
+                        encoding="utf-8",
                         mode=mode,
                         header=mode == "w",
                     )
@@ -469,7 +469,7 @@ def process_csv_empresas(
                         .astype(float)
                     )
 
-                    chunk.to_csv(fd, index=False, encoding="latin1")
+                    chunk.to_csv(fd, index=False, encoding="utf-8")
 
             log(f"Arquivo empresas_{i} salvo")
             os.remove(filepath)
@@ -530,7 +530,7 @@ def process_csv_socios(
                                 chunk[col], format="%Y%m%d", errors="coerce"
                             )
 
-                    chunk.to_csv(fd, index=False, encoding="latin1")
+                    chunk.to_csv(fd, index=False, encoding="utf-8")
 
             log(f"Arquivo socios_{i} salvo")
             os.remove(filepath)
@@ -592,7 +592,7 @@ def process_csv_simples(
                     chunk["opcao_mei"] = chunk["opcao_mei"].replace(
                         {"N": "0", "S": "1"}
                     )
-                    chunk.to_csv(fd, index=False, encoding="latin1")
+                    chunk.to_csv(fd, index=False, encoding="utf-8")
 
             log(f"Arquivo {sufixo} salvo")
             os.remove(filepath)
@@ -856,7 +856,7 @@ def process_csv_dicionario(
                     save_path,
                     mode="a" if save_path.exists() else "w",
                     index=False,
-                    encoding="latin1",
+                    encoding="utf-8",
                     header=not save_path.exists(),  # Write header only if file doesn't exist
                 )
 
@@ -915,6 +915,6 @@ def process_manual_dictionaries(output_path: Path | str, table_name: str):
             save_path,
             mode="a" if save_path.exists() else "w",
             index=False,
-            encoding="latin1",
+            encoding="utf-8",
             header=not save_path.exists(),  # Write header only if file doesn't exist
         )
