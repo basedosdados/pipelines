@@ -442,6 +442,178 @@ models:
         description: Código da indústria NAICS (5 dígitos)
       - name: name_naics_industry
         description: Nome da indústria NAICS
+  - name: br_bd_diretorios_us__naics_1997
+    description: >
+      Diretório da classificação industrial NAICS 1997 (North American Industry
+      Classification System), com hierarquia de setor, subsetor, grupo industrial
+      e indústria NAICS. Construído a partir da concordância oficial NAICS
+      1997→2002; usado pelo County Business Patterns nos anos 1998 a 2002. Alguns
+      códigos agregados sem contrapartida em 2002 (ex.: construção 233/234/235) ou
+      não tabulados pelo CBP podem não ter nome.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_naics]
+    columns:
+      - name: id_naics
+        description: Código NAICS (2 a 6 dígitos)
+        tests: [not_null]
+      - name: name
+        description: Nome da categoria NAICS
+      - name: level
+        description: Nível hierárquico do código (2 a 6)
+      - name: id_sector
+        description: Código do setor (2 dígitos)
+      - name: name_sector
+        description: Nome do setor
+      - name: id_subsector
+        description: Código do subsetor (3 dígitos)
+      - name: name_subsector
+        description: Nome do subsetor
+      - name: id_industry_group
+        description: Código do grupo industrial (4 dígitos)
+      - name: name_industry_group
+        description: Nome do grupo industrial
+      - name: id_naics_industry
+        description: Código da indústria NAICS (5 dígitos)
+      - name: name_naics_industry
+        description: Nome da indústria NAICS
+  - name: br_bd_diretorios_us__naics_2002
+    description: >
+      Diretório da classificação industrial NAICS 2002 (North American Industry
+      Classification System), com hierarquia de setor, subsetor, grupo
+      industrial e indústria NAICS. Códigos conforme publicados pelo County
+      Business Patterns para os anos 2003 a 2007.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_naics]
+    columns:
+      - name: id_naics
+        description: Código NAICS (2 a 6 dígitos)
+        tests: [not_null]
+      - name: name
+        description: Nome da categoria NAICS
+      - name: level
+        description: Nível hierárquico do código (2 a 6)
+      - name: id_sector
+        description: Código do setor (2 dígitos)
+      - name: name_sector
+        description: Nome do setor
+      - name: id_subsector
+        description: Código do subsetor (3 dígitos)
+      - name: name_subsector
+        description: Nome do subsetor
+      - name: id_industry_group
+        description: Código do grupo industrial (4 dígitos)
+      - name: name_industry_group
+        description: Nome do grupo industrial
+      - name: id_naics_industry
+        description: Código da indústria NAICS (5 dígitos)
+      - name: name_naics_industry
+        description: Nome da indústria NAICS
+  - name: br_bd_diretorios_us__naics_2007
+    description: >
+      Diretório da classificação industrial NAICS 2007 (North American Industry
+      Classification System), com hierarquia de setor, subsetor, grupo
+      industrial e indústria NAICS. Códigos conforme publicados pelo County
+      Business Patterns para os anos 2008 a 2011.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_naics]
+    columns:
+      - name: id_naics
+        description: Código NAICS (2 a 6 dígitos)
+        tests: [not_null]
+      - name: name
+        description: Nome da categoria NAICS
+      - name: level
+        description: Nível hierárquico do código (2 a 6)
+      - name: id_sector
+        description: Código do setor (2 dígitos)
+      - name: name_sector
+        description: Nome do setor
+      - name: id_subsector
+        description: Código do subsetor (3 dígitos)
+      - name: name_subsector
+        description: Nome do subsetor
+      - name: id_industry_group
+        description: Código do grupo industrial (4 dígitos)
+      - name: name_industry_group
+        description: Nome do grupo industrial
+      - name: id_naics_industry
+        description: Código da indústria NAICS (5 dígitos)
+      - name: name_naics_industry
+        description: Nome da indústria NAICS
+  - name: br_bd_diretorios_us__naics_2012
+    description: >
+      Diretório da classificação industrial NAICS 2012 (North American Industry
+      Classification System), com hierarquia de setor, subsetor, grupo
+      industrial e indústria NAICS. Códigos conforme publicados pelo County
+      Business Patterns para os anos 2012 a 2016.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_naics]
+    columns:
+      - name: id_naics
+        description: Código NAICS (2 a 6 dígitos)
+        tests: [not_null]
+      - name: name
+        description: Nome da categoria NAICS
+      - name: level
+        description: Nível hierárquico do código (2 a 6)
+      - name: id_sector
+        description: Código do setor (2 dígitos)
+      - name: name_sector
+        description: Nome do setor
+      - name: id_subsector
+        description: Código do subsetor (3 dígitos)
+      - name: name_subsector
+        description: Nome do subsetor
+      - name: id_industry_group
+        description: Código do grupo industrial (4 dígitos)
+      - name: name_industry_group
+        description: Nome do grupo industrial
+      - name: id_naics_industry
+        description: Código da indústria NAICS (5 dígitos)
+      - name: name_naics_industry
+        description: Nome da indústria NAICS
+  - name: br_bd_diretorios_us__naics_2017
+    description: >
+      Diretório da classificação industrial NAICS 2017 (North American Industry
+      Classification System), com hierarquia de setor, subsetor, grupo industrial
+      e indústria NAICS. Códigos conforme publicados pelo County Business Patterns
+      para os anos 2017 a 2023 (o CBP mantém o NAICS 2017 nesses anos).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_naics]
+    columns:
+      - name: id_naics
+        description: Código NAICS (2 a 6 dígitos)
+        tests: [not_null]
+      - name: name
+        description: Nome da categoria NAICS
+      - name: level
+        description: Nível hierárquico do código (2 a 6)
+      - name: id_sector
+        description: Código do setor (2 dígitos)
+      - name: name_sector
+        description: Nome do setor
+      - name: id_subsector
+        description: Código do subsetor (3 dígitos)
+      - name: name_subsector
+        description: Nome do subsetor
+      - name: id_industry_group
+        description: Código do grupo industrial (4 dígitos)
+      - name: name_industry_group
+        description: Nome do grupo industrial
+      - name: id_naics_industry
+        description: Código da indústria NAICS (5 dígitos)
+      - name: name_naics_industry
+        description: Nome da indústria NAICS
   - name: br_bd_diretorios_us__soc_2018
     description: >
       Diretório da classificação ocupacional SOC 2018 (Standard Occupational
