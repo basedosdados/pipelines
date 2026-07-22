@@ -1,3 +1,5 @@
+-- Built by models/br_bd_diretorios_us/code/clean.py from the Census CBP
+-- naics-descriptions reference file for the 2017 vintage.
 {{
     config(
         alias="naics_2017",
