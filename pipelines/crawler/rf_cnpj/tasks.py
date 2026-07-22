@@ -84,7 +84,11 @@ def main(
 
                     if table_configs["table_name"] == "Estabelecimentos":
                         process_csv_estabelecimentos(
-                            input_path, output_path, max_last_modified_date, i
+                            input_path,
+                            output_path,
+                            max_last_modified_date,
+                            i,
+                            chunk_size=10000,
                         )
                     elif table_configs["table_name"] == "Socios":
                         process_csv_socios(
