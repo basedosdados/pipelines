@@ -1,6 +1,24 @@
 {% test not_null_proportion_multiple_columns(model, ignore_values="", at_least=0.05) %}
 
-    {%- set columns = adapter.get_columns_in_relation(model) -%}
+    {#- `columns` is a list of column-name strings.
+        When the test carries a `where` config (e.g. __most_recent_year__), dbt hands
+        us the filtered subquery as a plain string instead of a Relation, and
+        adapter.get_columns_in_relation() only accepts a Relation ('str' object has no
+        attribute 'database'). Probe the subquery in that case so the test supports
+        partition-scoped runs on large tables. The Relation path is unchanged. -#}
+    {%- if model is string -%}
+        {%- set columns = [] -%}
+        {%- if execute -%}
+            {%- set probe = run_query("select * from " ~ model ~ " limit 0") -%}
+            {%- set columns = probe.column_names | list -%}
+        {%- endif -%}
+    {%- else -%}
+        {%- set columns = (
+            adapter.get_columns_in_relation(model)
+            | map(attribute="name")
+            | list
+        ) -%}
+    {%- endif -%}
     {% set suffix = "_nulls" %}
     {% set pivot_columns_query %}
 
@@ -8,7 +26,7 @@
 
             select
                 {% for column in columns -%}
-                SUM(CASE WHEN {{ column.name }} IS NULL THEN 1 ELSE 0 END) AS {{ column.name }}{{ suffix }},
+                SUM(CASE WHEN {{ column }} IS NULL THEN 1 ELSE 0 END) AS {{ column }}{{ suffix }},
                 {%- endfor %}
                 count(*) as total_records
                 from {{ model }}
@@ -17,7 +35,7 @@
         pivot_columns as (
 
             {% for column in columns -%}
-            select '{{ column.name }}' as column_name, {{ column.name }}{{ suffix }} as quantity, total_records
+            select '{{ column }}' as column_name, {{ column }}{{ suffix }} as quantity, total_records
             from null_counts
             {% if not loop.last %}union all {% endif %}
             {%- endfor %}
