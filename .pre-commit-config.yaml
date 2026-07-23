@@ -12,11 +12,11 @@ repos:
         args: [--fix=lf]  # Ensures all line endings are LF
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.11.2
+    rev: 0.11.29
     hooks:
       - id: uv-lock
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.8
+    rev: v0.15.22
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -33,7 +33,7 @@ repos:
           - --exclude
           - target/**/*
   - repo: https://github.com/tconbeer/sqlfmt
-    rev: v0.29.0
+    rev: v0.30.0
     hooks:
       - id: sqlfmt
         language_version: python
