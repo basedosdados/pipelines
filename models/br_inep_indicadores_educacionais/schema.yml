@@ -1778,7 +1778,8 @@ models:
       - name: atu_ef_9_ano
         description: Média de Alunos por Turma - Ensino Fundamental 9º ano
       - name: atu_ef_turmas_unif_multi_fluxo
-        description: Média de Alunos por Turma - Ensino Fundamental Turmas Unificadas, Multi, Multietapa e Correção de fluxo
+        description: Média de Alunos por Turma - Ensino Fundamental Turmas Unificadas,
+          Multi, Multietapa e Correção de fluxo
       - name: atu_em
         description: Média de Alunos por Turma - Ensino Médio
       - name: atu_em_1_ano
