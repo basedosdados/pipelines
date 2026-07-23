@@ -124,12 +124,14 @@ class FakeMetadataClient:
         self,
         raw_source_update_latest=None,
         table_update_latest=None,
+        table_coverage_end=None,
         table_status="under_review",
         coverage_ids=None,
     ):
         self.writes: list[tuple] = []
         self._raw_source_update_latest = raw_source_update_latest
         self._table_update_latest = table_update_latest
+        self._table_coverage_end = table_coverage_end
         self._table_status = table_status
         self._coverage_ids = coverage_ids
 
@@ -152,6 +154,9 @@ class FakeMetadataClient:
 
     def get_table_update_latest(self, *_args, **_kwargs):
         return self._table_update_latest
+
+    def get_table_coverage_end(self, *_args, **_kwargs):
+        return self._table_coverage_end
 
     def get_table_status(self, *_args, **_kwargs):
         return self._table_status

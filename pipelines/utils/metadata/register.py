@@ -273,11 +273,21 @@ def poll_source_for_update(
     """Detecta se a fonte original tem novidade, sem gravar o Update.
 
     Sempre registra um ``RawDataSource.Poll`` (data de hoje) e devolve se a
-    fonte traz dados mais novos que o ``Table.Update.latest`` atual.
+    fonte tem dados que a **nossa tabela ainda não cobre**.
     Ao contrário de :func:`register_source_poll`, **não grava** o Update — essa
     escrita fica a cargo de :func:`commit_source_update`, chamada só após a
     materialização. Assim, se o flow falha no meio, o Update não avança e a run
     seguinte ainda detecta a novidade e retenta.
+
+    A pergunta é sobre **cobertura**, não sobre datas de calendário: ingerimos
+    se a fonte publicou um período além do fim da cobertura da tabela. Quando
+    olhamos a fonte (``Poll``), quando ela publicou (``RawDataSource.Update``) e
+    quando materializamos (``Table.Update``) são relógios de parede — descritivos,
+    e nenhum deles decide nada. Só a cobertura da tabela diz o que de fato temos,
+    e ela vem do próprio dado (``bq.read_max_date``), então não pode divergir dele
+    como a escrituração diverge (em prod, ``br_ibge_ipca.mes_brasil`` tem
+    cobertura até 2026-05 e ``RawDataSource.Update.latest`` em 2026-06-01: a
+    fonte tem junho, a tabela não — e é a cobertura que está certa).
 
     Parameters
     ----------
@@ -294,8 +304,8 @@ def poll_source_for_update(
     Returns
     -------
     bool
-        ``True`` se a fonte tem dados mais novos que o ``Table.Update.latest``
-        atual; ``False`` caso contrário.
+        ``True`` se a fonte tem dados além do fim da cobertura da tabela; sem
+        cobertura (tabela nunca materializada), devolve ``True``.
 
     See Also
     --------
@@ -310,7 +320,7 @@ def poll_source_for_update(
     if source_max_date is None:
         return False
 
-    api_latest = client.get_table_update_latest(dataset_id, table_id)
+    api_latest = client.get_table_coverage_end(dataset_id, table_id)
     if not policy.should_update_raw_source(api_latest, source_max_date):
         log("Não há novas atualizações na fonte original")
         return False

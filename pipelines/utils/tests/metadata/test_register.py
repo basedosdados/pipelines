@@ -53,7 +53,8 @@ def test_poll_without_news_writes_only_poll():
 
 
 def test_poll_with_news_writes_poll_then_update():
-    client = FakeMetadataClient(table_update_latest=datetime.date(2026, 1, 1))
+    # a decisão é de cobertura: a tabela cobre até 2026-01, a fonte tem 2026-06.
+    client = FakeMetadataClient(table_coverage_end=datetime.date(2026, 1, 1))
     result = register_source_poll(
         client, "br_x", "tab", source_max_date=datetime.date(2026, 6, 1)
     )
@@ -65,12 +66,63 @@ def test_poll_with_news_writes_poll_then_update():
 
 
 def test_poll_with_stale_source_writes_only_poll():
-    client = FakeMetadataClient(table_update_latest=datetime.date(2026, 6, 1))
+    # a tabela já cobre além do que a fonte publicou: nada a fazer.
+    client = FakeMetadataClient(table_coverage_end=datetime.date(2026, 6, 1))
     result = register_source_poll(
         client, "br_x", "tab", source_max_date=datetime.date(2026, 1, 1)
     )
     assert result is False
     assert client.written_entities == ["poll"]
+
+
+def test_poll_decides_on_coverage_not_on_wall_clocks():
+    """Nenhum relógio de parede pode influenciar a decisão.
+
+    Quando olhamos a fonte, quando ela publicou e quando materializamos são
+    descritivos. Misturá-los com a data de cobertura da fonte trava o pipeline:
+    a run fica verde sem ingerir nada.
+    """
+    client = FakeMetadataClient(
+        # a tabela cobre até 2026-06…
+        table_coverage_end=datetime.date(2026, 6, 1),
+        # …e materializamos hoje (relógio de parede à frente da cobertura).
+        table_update_latest=datetime.date(2026, 7, 17),
+    )
+    # a fonte publicou 2026-07: novidade perante a cobertura, ainda que anterior
+    # ao relógio de parede da materialização.
+    result = register_source_poll(
+        client, "br_x", "tab", source_max_date=datetime.date(2026, 7, 1)
+    )
+    assert result is True
+    assert client.written_entities == ["poll", "raw_source_update"]
+
+
+def test_poll_ingests_when_raw_source_update_drifted_ahead_of_coverage():
+    """A escrituração pode divergir do dado; a cobertura é a verdade.
+
+    Caso real em prod (br_ibge_ipca.mes_brasil): cobertura até 2026-05 mas
+    ``RawDataSource.Update.latest`` em 2026-06-01. A fonte tem junho e a tabela
+    não — tem de ingerir, mesmo o Update dizendo que junho já entrou.
+    """
+    client = FakeMetadataClient(
+        table_coverage_end=datetime.date(2026, 5, 1),
+        raw_source_update_latest=datetime.date(2026, 6, 1),
+    )
+    result = register_source_poll(
+        client, "br_x", "tab", source_max_date=datetime.date(2026, 6, 1)
+    )
+    assert result is True
+    assert client.written_entities == ["poll", "raw_source_update"]
+
+
+def test_poll_ingests_when_table_never_materialized():
+    """Sem cobertura, qualquer dado da fonte é novidade."""
+    client = FakeMetadataClient(table_coverage_end=None)
+    result = register_source_poll(
+        client, "br_x", "tab", source_max_date=datetime.date(2026, 6, 1)
+    )
+    assert result is True
+    assert client.written_entities == ["poll", "raw_source_update"]
 
 
 def test_poll_latest_is_today():
