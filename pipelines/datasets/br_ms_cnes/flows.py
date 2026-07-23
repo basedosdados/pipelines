@@ -2,6 +2,9 @@
 Flows for br_ms_cnes — Prefect 3.
 """
 
+# NOTE(temporário): força o redeploy dos flows br_ms_cnes__* no pool dev para
+# validar o fix do poll (PR #1707). Reverter antes do merge.
+
 from prefect import flow
 
 from pipelines.crawler.datasus.flows import _run_cnes
