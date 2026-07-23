@@ -1,3 +1,6 @@
 **.py
 **.ipynb
 **.r
+models/br_bd_diretorios_us/data/**
+models/us_congress_legislators/code/**
+models/us_congress_legislators/output/**

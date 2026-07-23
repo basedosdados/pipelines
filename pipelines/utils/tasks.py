@@ -167,7 +167,7 @@ def upload_to_gcs(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-@task(retries=1, retry_delay_seconds=10)
+@task(retries=0)
 def run_dbt(
     dataset_id: str,
     table_id: str | None = None,

@@ -10,6 +10,7 @@ from pipelines.crawler.rf_cafir.constants import (
 from pipelines.crawler.rf_cafir.tasks import (
     task_decide_files_to_download,
     task_download_files,
+    task_get_last_update_date,
     task_parse_api_metadata,
 )
 from pipelines.utils.metadata.domain import (
@@ -18,7 +19,8 @@ from pipelines.utils.metadata.domain import (
     PartBdpro,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -36,7 +38,7 @@ def br_rf_cafir__imoveis_rurais(
     dataset_id: str = "br_rf_cafir",
     table_id: str = "imoveis_rurais",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = False,
+    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -47,23 +49,30 @@ def br_rf_cafir__imoveis_rurais(
 
     df_metadata = task_parse_api_metadata(url=br_rf_cafir_constants.URL.value)
 
-    arquivos, data_atualizacao = task_decide_files_to_download(df=df_metadata)
+    last_update = task_get_last_update_date(
+        url=br_rf_cafir_constants.URL.value
+    )
+
+    arquivos, data_atualizacao = task_decide_files_to_download(
+        df=df_metadata, last_update_date=last_update
+    )
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=data_atualizacao,
             env="prod",
             date_format="%Y-%m-%d",
         )
-        if not is_outdated:
+        if not has_new_data:
             return
 
     file_path = task_download_files(
         url=br_rf_cafir_constants.URL.value,
         file_list=arquivos,
         data_atualizacao=data_atualizacao,
+        last_update_date=last_update,
     )
 
     upload_to_gcs(
@@ -112,6 +121,15 @@ def br_rf_cafir__imoveis_rurais(
             env="prod",
             bq_project="basedosdados",
         )
+
+        if data_atualizacao is not None:
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=data_atualizacao,
+                env="prod",
+                date_format="%Y-%m-%d",
+            )
 
 
 br_rf_cafir__imoveis_rurais.deploy_schedules = [
