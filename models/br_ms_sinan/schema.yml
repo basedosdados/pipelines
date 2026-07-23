@@ -122,8 +122,12 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
-      - name: idade_paciente
-        description: Idade do paciente
+      - name: tipo_idade
+        description: >-
+          Tipo da unidade de idade do paciente (1=hora, 2=dia, 3=mês, 4=ano).
+          Ver dicionário em nome_coluna idade_paciente.
+      - name: valor_idade
+        description: Valor numérico da idade na unidade indicada por tipo_idade
       - name: sexo_paciente
         description: Sexo do paciente
       - name: raca_cor_paciente

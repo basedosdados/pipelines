@@ -13,6 +13,15 @@
     )
 }}
 {%- set columns = adapter.get_columns_in_relation(this) -%}
+{%- set output_columns = [] -%}
+{%- for col in columns -%}
+    {%- if col.name == "idade_paciente" -%}
+        {%- do output_columns.append({"name": "tipo_idade", "data_type": "STRING"}) -%}
+        {%- do output_columns.append({"name": "valor_idade", "data_type": "INT64"}) -%}
+    {%- else -%}
+        {%- do output_columns.append({"name": col.name, "data_type": col.data_type}) -%}
+    {%- endif -%}
+{%- endfor -%}
 with
     sql as (
         select
@@ -874,11 +883,16 @@ with
             novo_id_municipio_residencia as id_municipio_residencia,
             ano_nascimento_paciente,
             data_nascimento_paciente,
-            concat(
-                left(cast(idade_paciente as string), 1),
-                "-",
-                right(cast(idade_paciente as string), 3)
-            ) as idade_paciente,
+            case
+                when idade_paciente is null
+                then null
+                else left(cast(idade_paciente as string), 1)
+            end as tipo_idade,
+            case
+                when idade_paciente is null
+                then null
+                else safe_cast(mod(idade_paciente, 1000) as int64)
+            end as valor_idade,
             case
                 when sexo_paciente = 'O' then null else sexo_paciente
             end sexo_paciente,
@@ -1145,7 +1159,7 @@ with
         from tabelas_join
     )
 select
-    {% for col in columns %}
+    {% for col in output_columns %}
         {% if col.data_type == "STRING" %}
             case
                 when trim({{ col.name }}) = '' then null else {{ col.name }}
