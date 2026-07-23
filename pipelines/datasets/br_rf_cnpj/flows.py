@@ -20,6 +20,7 @@ def _rf_cnpj_flow(table_id: str, cron: str):
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
+        chunk_size: int = 100000,
     ) -> None:
         _run_rf_cnpj(
             dataset_id=dataset_id,
@@ -29,6 +30,7 @@ def _rf_cnpj_flow(table_id: str, cron: str):
             update_metadata=update_metadata,
             target=target,
             force_run=force_run,
+            chunk_size=chunk_size,
         )
 
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]

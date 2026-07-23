@@ -45,6 +45,7 @@ def main(
     tables: list[str],
     max_folder_date: datetime.datetime,
     max_last_modified_date: datetime.date,
+    chunk_size: int = 100000,
 ) -> str:
     """
     Performs the download, processing, and organization of CNPJ data.
@@ -88,15 +89,23 @@ def main(
                             output_path,
                             max_last_modified_date,
                             i,
-                            chunk_size=10000,
+                            chunk_size,
                         )
                     elif table_configs["table_name"] == "Socios":
                         process_csv_socios(
-                            input_path, output_path, max_last_modified_date, i
+                            input_path,
+                            output_path,
+                            max_last_modified_date,
+                            i,
+                            chunk_size,
                         )
                     elif table_configs["table_name"] == "Empresas":
                         process_csv_empresas(
-                            input_path, output_path, max_last_modified_date, i
+                            input_path,
+                            output_path,
+                            max_last_modified_date,
+                            i,
+                            chunk_size,
                         )
         else:
             nome_arquivo = f"{table_configs['table_name']}"
@@ -116,6 +125,10 @@ def main(
                     process_csv_dicionario(input_path, output_path, table)
             elif table_configs["table_name"] == "Simples":
                 process_csv_simples(
-                    input_path, output_path, max_last_modified_date, table
+                    input_path,
+                    output_path,
+                    max_last_modified_date,
+                    table,
+                    chunk_size,
                 )
     return output_path

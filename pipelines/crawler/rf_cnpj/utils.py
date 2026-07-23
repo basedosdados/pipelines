@@ -148,23 +148,25 @@ def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
 # from https://stackoverflow.com/a/64283770
 async def download(
     url,
+    save_path: Path | str,
     chunk_size=15 * 1024 * 1024,
     max_retries=5,
     max_parallel=12,
     timeout=5 * 60,
 ):
     """
-    Downloads a file from a URL asynchronously, splitting it into chunks for parallel downloading.
+    Downloads a file from a URL asynchronously, splitting it into chunks for parallel
+    downloading. Each chunk is written directly to `save_path` at its byte offset as
+    soon as it completes, instead of being buffered in memory — for CNPJ files that
+    can run into several GB, buffering the full file in RAM is what triggers OOM kills.
 
     Args:
         url (str): The URL of the file to download.
+        save_path (Path|str): Destination file path; pre-allocated to the full content length.
         chunk_size (int): The size of each chunk in bytes (default: 15 MB).
         max_retries (int): Maximum number of retries allowed for each chunk (default: 5).
         max_parallel (int): Maximum number of parallel downloads (default: 5).
         timeout (int): Timeout for each HTTP request, in seconds (default: 5 minutes).
-
-    Returns:
-        bytes: The content of the fully downloaded file.
 
     Raises:
         HTTPError: If the server responds with an error or the download fails.
@@ -184,6 +186,10 @@ async def download(
                 f"Serão feitos {max_parallel} downloads paralelos por vez, com um total de {total_chunks} chunks."
             )
 
+            # Pre-allocate so each chunk can seek to its own offset independently
+            with open(save_path, "wb") as fd:
+                fd.truncate(content_length)
+
             semaphore = Semaphore(max_parallel)
             progress = {"completed": 0}
             last_logged_progress = {
@@ -201,10 +207,11 @@ async def download(
                     progress,
                     total_chunks,
                     last_logged_progress,
+                    save_path,
                 )
                 for chunk in chunk_ranges
             ]
-            return b"".join(await gather(*tasks))
+            await gather(*tasks)
 
         except HTTPError as e:
             log(f"Requisição mal sucedida: {e}")
@@ -242,9 +249,13 @@ async def download_chunk(
     progress: dict,
     total_chunks: int,
     last_logged_progress: dict,
-) -> bytes:
+    save_path: Path | str,
+) -> None:
     """
-    Downloads a specific chunk of a file asynchronously, with retry logic and progress tracking.
+    Downloads a specific chunk of a file asynchronously and writes it directly to
+    `save_path` at its byte offset, with retry logic and progress tracking. Writing
+    immediately (instead of returning bytes to be joined later) keeps memory bounded
+    to a single chunk per worker rather than the whole file.
 
     Args:
         client (AsyncClient): HTTP client instance for making requests.
@@ -256,9 +267,7 @@ async def download_chunk(
         progress (dict): Dictionary to track the number of completed chunks.
         total_chunks (int): Total number of chunks to be downloaded.
         last_logged_progress (dict): Dictionary to track the last logged progress percentage.
-
-    Returns:
-        bytes: The content of the downloaded chunk.
+        save_path (Path|str): Destination file path the chunk is written into.
 
     Raises:
         HTTPError: If the download fails after all retry attempts.
@@ -285,12 +294,16 @@ async def download_chunk(
                 )
                 response.raise_for_status()
 
+                with open(save_path, "r+b") as fd:
+                    fd.seek(chunk_range[0])
+                    fd.write(response.content)
+
                 progress["completed"] += 1
                 print_progress(
                     progress["completed"], total_chunks, last_logged_progress
                 )
 
-                return response.content
+                return
             except HTTPError:
                 delay = 2**attempt
                 log(
@@ -315,9 +328,7 @@ async def download_unzip_csv(url: str, path: Path | str) -> None:
     """
     log(f"Baixando o arquivo {url}")
     save_path = path / f"{Path(url).stem}.zip"
-    content = await download(url)
-    with open(save_path, "wb") as fd:
-        fd.write(content)
+    await download(url, save_path)
 
     try:
         with zipfile.ZipFile(save_path) as z:

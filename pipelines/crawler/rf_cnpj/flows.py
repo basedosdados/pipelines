@@ -33,6 +33,7 @@ def _run_rf_cnpj(
     update_metadata: bool,
     target: str,
     force_run: bool,
+    chunk_size: int = 100000,
 ) -> None:
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
@@ -58,6 +59,7 @@ def _run_rf_cnpj(
         tables=tabelas,
         max_folder_date=max_folder_date,
         max_last_modified_date=max_last_modified_date,
+        chunk_size=chunk_size,
     )
 
     upload_to_gcs(
