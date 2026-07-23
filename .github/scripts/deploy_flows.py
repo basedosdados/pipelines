@@ -7,6 +7,10 @@ Uso:
 
   # Deploy de todos os flows (prod, ao mergear na main)
   python deploy_flows.py --pool basedosdados --branch main --all
+
+  # Deploy em dev forçando o engine dbt Fusion (para testar execuções)
+  python deploy_flows.py --pool basedosdados-dev --branch feat/x \
+      --files pipelines/datasets/x/flows.py --env DBT_ENGINE=fusion
 """
 
 import argparse
@@ -65,6 +69,7 @@ def deploy_flow(
     file_path: str,
     pool_name: str,
     branch_name: str,
+    extra_env: dict[str, str] | None = None,
 ) -> bool:
     entrypoint = f"{file_path}:{flow_name}"
     is_dev = "dev" in pool_name
@@ -82,6 +87,13 @@ def deploy_flow(
         ]
 
     job_variables = getattr(flow, "job_variables", None)
+
+    # Injeta envs extras (ex.: DBT_ENGINE=fusion) no deployment sem tocar no
+    # código do flow. Mescla com o env já declarado no flow, sem sobrescrever
+    # as demais chaves de job_variables.
+    if extra_env:
+        job_variables = dict(job_variables or {})
+        job_variables["env"] = {**job_variables.get("env", {}), **extra_env}
 
     print(f"  Registrando {flow_name} → {entrypoint}")
 
@@ -125,7 +137,23 @@ def main():
     parser.add_argument(
         "--all", action="store_true", help="Deploy de todos os flows"
     )
+    parser.add_argument(
+        "--env",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="Env extra injetada no job_variables do deployment "
+        "(repetível). Ex.: --env DBT_ENGINE=fusion",
+    )
     args = parser.parse_args()
+
+    extra_env: dict[str, str] = {}
+    for item in args.env:
+        if "=" not in item:
+            print(f"--env inválido (esperado KEY=VALUE): {item!r}")
+            sys.exit(2)
+        key, value = item.split("=", 1)
+        extra_env[key] = value
 
     files_to_process = []
 
@@ -142,7 +170,10 @@ def main():
 
     print(f"\nWork Pool : {args.pool}")
     print(f"Branch    : {args.branch}")
-    print(f"Arquivos  : {len(files_to_process)}\n")
+    print(f"Arquivos  : {len(files_to_process)}")
+    if extra_env:
+        print(f"Env extra : {extra_env}")
+    print()
 
     success, skipped, failed = 0, 0, 0
 
@@ -158,7 +189,14 @@ def main():
             continue
 
         for name, flow_obj in flows.items():
-            ok = deploy_flow(flow_obj, name, file_path, args.pool, args.branch)
+            ok = deploy_flow(
+                flow_obj,
+                name,
+                file_path,
+                args.pool,
+                args.branch,
+                extra_env=extra_env,
+            )
             if ok:
                 success += 1
             else:

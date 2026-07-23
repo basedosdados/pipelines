@@ -58,3 +58,46 @@ jobs:
           BASEDOSDADOS_CONFIG: ${{ secrets.BASEDOSDADOS_CONFIG }}
           BASEDOSDADOS_CREDENTIALS_PROD: ${{ secrets.BASEDOSDADOS_CREDENTIALS_PROD }}
           BASEDOSDADOS_CREDENTIALS_STAGING: ${{ secrets.BASEDOSDADOS_CREDENTIALS_STAGING }}
+  # Migração dbt Fusion (fase paralela): roda os mesmos modelos no Fusion engine
+  # para detectar incompatibilidades cedo. Não bloqueia o merge — o dbt-core
+  # segue como engine de produção até o adapter BigQuery do Fusion ir a GA.
+  fusion-checks:
+    name: Test DBT dev model (dbt Fusion)
+    if: contains(github.event.pull_request.labels.*.name, 'test-dev-model')
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+        with:
+          files: models/**/*.sql
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Write DBT service account
+        run: echo '${{ secrets.DBT_SA_DEV }}' | jq '.' > dbt_sa_dev.json
+      # O dbt Fusion exige o formato novo de argumentos de teste genérico
+      # (aninhados sob `arguments:`), incompatível com o dbt-core 1.8.x que
+      # segue como engine de produção. Migrar os schema.yml no repo quebraria o
+      # core, então transformamos em tempo de build, só para o Fusion. A
+      # transformação é efêmera (roda no checkout do CI, não é commitada).
+      - name: Migrate schema.yml to Fusion format (ephemeral)
+        run: uvx --python 3.12 dbt-autofix deprecations
+      - name: Install dbt Fusion engine
+        run: |-
+          curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh | sh -s -- --update
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Install dbt deps (Fusion)
+        run: dbtf deps
+        env:
+          DBT_PACKAGES_INSTALL_PATH: ${{ github.workspace }}/dbt_packages
+      - name: Run dbt test (Fusion)
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: dbtf test --select ${{ steps.changed-files.outputs.all_changed_files }}
+        env:
+          BD_SERVICE_ACCOUNT_DEV: dbt_sa_dev.json
+          DBT_PACKAGES_INSTALL_PATH: ${{ github.workspace }}/dbt_packages

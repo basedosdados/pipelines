@@ -2,7 +2,7 @@
     config(
         alias="municipio_tipo",
         schema="br_denatran_frota",
-        materialization="incremental",
+        materialized="incremental",
         partition_by={
             "field": "ano",
             "data_type": "int64",

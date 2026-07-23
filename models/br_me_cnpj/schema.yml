@@ -31,9 +31,10 @@ models:
         tests: [is_row_count_increasing]
       - name: cnpj_basico
         description: CNPJ Básico
-        tests: [not_null]
-        config:
-          where: __most_recent_date__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_date__
       - name: razao_social
         description: Razão Social
       - name: natureza_juridica
@@ -83,9 +84,10 @@ models:
         description: Data
       - name: cnpj_basico
         description: CNPJ básico
-        tests: [not_null]
-        config:
-          where: __most_recent_date__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_date__
       - name: tipo
         description: Tipo
       - name: nome
@@ -114,9 +116,10 @@ models:
     columns:
       - name: cnpj_basico
         description: CNPJ Básico
-        tests: [not_null]
-        config:
-          where: __most_recent_date__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_date__
       - name: opcao_simples
         description: Opção pelo Simples Nacional
       - name: data_opcao_simples
@@ -163,14 +166,16 @@ models:
         tests: [is_row_count_increasing]
       - name: cnpj
         description: CNPJ
-        tests: [not_null]
-        config:
-          where: __most_recent_date__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_date__
       - name: cnpj_basico
         description: CNPJ Básico (8 primeiros dígitos)
-        tests: [not_null]
-        config:
-          where: __most_recent_date__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_date__
       - name: cnpj_ordem
         description: CNPJ Ordem
       - name: cnpj_dv
