@@ -1,10 +1,7 @@
-# register flow
+"""
+Shared run logic for br_anatel_telefonia_movel — Prefect 3.
+"""
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
-
-from pipelines.constants import constants
 from pipelines.crawler.anatel.telefonia_movel.tasks import (
     get_max_date_in_table_microdados,
     get_semester,
@@ -12,123 +9,113 @@ from pipelines.crawler.anatel.telefonia_movel.tasks import (
     join_tables_in_function,
     unzip,
 )
-from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    PartBdpro,
+    YearMonth,
+)
 from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
+    commit_source_update_task,
+    poll_source_for_update_task,
+    register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-with Flow(
-    name="BD template - Anatel Telefonia Móvel", code_owners=["trick"]
-) as flow_anatel_telefonia_movel:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_anatel_telefonia_movel", required=True
-    )
-    table_id = Parameter(
-        "table_id",
-        required=True,
-    )
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
-    ano = Parameter("ano", default=None, required=False)
-
-    semestre = Parameter("semestre", default=None, required=False)
-
-    update_metadata = Parameter(
-        "update_metadata", default=True, required=False
+def _run_anatel_telefonia_movel(
+    dataset_id: str,
+    table_id: str,
+    ano: int | None,
+    semestre: int | None,
+    materialize_after_dump: bool,
+    dbt_alias: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
+    unzip()
+    new_year = get_year_full(ano)
+    new_semester = get_semester(semestre)
+
+    data_source_max_date = get_max_date_in_table_microdados(
+        table_id=table_id, ano=new_year, semestre=new_semester
+    )
+
+    has_new_data = poll_source_for_update_task(
         dataset_id=dataset_id,
         table_id=table_id,
-        wait=table_id,
-    )
-
-    #####
-    # Function dynamic parameters
-    # https://discourse.prefect.io/t/my-parameter-value-shows-the-same-date-every-day-how-can-i-set-parameter-value-dynamically/99
-    #####
-
-    unzip_task = unzip(upstream_tasks=[rename_flow_run])
-    new_year = get_year_full(ano, upstream_tasks=[unzip_task])
-    new_semester = get_semester(semestre, upstream_tasks=[new_year])
-
-    update_tables = get_max_date_in_table_microdados(
-        table_id=table_id,
-        ano=new_year,
-        semestre=new_semester,
-        upstream_tasks=[new_year, new_semester],
-    )
-
-    get_max_date = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        data_source_max_date=update_tables,
+        source_max_date=data_source_max_date,
+        env="prod",
         date_format="%Y-%m",
-        upstream_tasks=[update_tables],
     )
 
-    with case(get_max_date, True):
-        filepath = join_tables_in_function(
-            table_id=table_id,
-            ano=new_year,
-            semestre=new_semester,
-            upstream_tasks=[get_max_date],
-        )
+    if not has_new_data and not force_run:
+        print(f"Não há atualizações para a tabela {table_id}!")
+        return
 
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=filepath,
+    filepath = join_tables_in_function(
+        table_id=table_id, ano=new_year, semestre=new_semester
+    )
+
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[
-                filepath
-            ],  # Fix: Wrap filepath in a list to make it iterable
+            coverage=PartBdpro(
+                date_column=YearMonth(year="ano", month="mes"),
+                date_format=DateFormat.YEAR_MONTH,
+            ),
+            env="prod",
+            bq_project="basedosdados",
         )
 
-        wait_for_materialization = run_dbt(
+        commit_source_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dbt_alias=dbt_alias,
-            dbt_command="run/test",
-            disable_elementary=False,
-            upstream_tasks=[wait_upload_table],
+            source_max_date=data_source_max_date,
+            env="prod",
+            date_format="%Y-%m",
         )
-
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=filepath,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
-
-flow_anatel_telefonia_movel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_anatel_telefonia_movel.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)

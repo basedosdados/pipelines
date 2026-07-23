@@ -1,32 +1,27 @@
 """
-Flows for br_sfb_sicar
+Flow br_sfb_sicar — Prefect 3.
 """
 
-from prefect import Parameter, case, unmapped
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from prefect import flow
 
-from pipelines.constants import constants
-from pipelines.datasets.br_sfb_sicar.constants import (
-    Constants,
-)
-from pipelines.datasets.br_sfb_sicar.schedules import (
-    schedule_br_sfb_sicar_area_imovel,
-)
-from pipelines.datasets.br_sfb_sicar.tasks import (
+from pipelines.crawler.sfb_sicar.constants import Constants
+from pipelines.crawler.sfb_sicar.tasks import (
     download_car,
     get_each_uf_release_date,
     unzip_to_parquet,
 )
-from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    DateOnly,
+    PartBdpro,
+)
 from pipelines.utils.metadata.tasks import (
-    update_django_metadata,
+    register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
 INPUTPATH = Constants.INPUT_PATH.value
@@ -34,91 +29,89 @@ OUTPUTPATH = Constants.OUTPUT_PATH.value
 SIGLAS_UF = Constants.UF_SIGLAS.value
 
 
-with Flow(
-    name="br_sfb_sicar.area_imovel", code_owners=["Gabriel Pisa"]
-) as br_sfb_sicar_area_imovel:
-    # Parameters
-    dataset_id = Parameter("dataset_id", default="br_sfb_sicar", required=True)
-    table_id = Parameter("table_id", default="area_imovel", required=True)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
+@flow(
+    name="br_sfb_sicar__area_imovel",
+    log_prints=True,
+)
+def br_sfb_sicar__area_imovel(
+    dataset_id: str = "br_sfb_sicar",
+    table_id: str = "area_imovel",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = False,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
+    # Loop sequencial sobre UFs (substitui .map() do Prefect 0)
+    for sigla_uf in SIGLAS_UF:
+        download_car(
+            inputpath=INPUTPATH,
+            outputpath=OUTPUTPATH,
+            sigla_uf=sigla_uf,
+            polygon="AREA_IMOVEL",
+        )
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-
-    download_polygons = download_car.map(
-        inputpath=unmapped(INPUTPATH),
-        outputpath=unmapped(OUTPUTPATH),
-        sigla_uf=SIGLAS_UF,
-        polygon=unmapped("AREA_IMOVEL"),
-    )
-
-    ufs_release_dates = get_each_uf_release_date(
-        upstream_tasks=[download_polygons]
-    )
-
-    unzip_from_shp_to_parquet_wkt = unzip_to_parquet(
+    uf_release_dates = get_each_uf_release_date()
+    unzip_to_parquet(
         inputpath=INPUTPATH,
         outputpath=OUTPUTPATH,
-        uf_relase_dates=ufs_release_dates,
-        upstream_tasks=[download_polygons, ufs_release_dates],
+        uf_relase_dates=uf_release_dates,
     )
 
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
+    upload_to_gcs(
         data_path=OUTPUTPATH,
         dataset_id=dataset_id,
         table_id=table_id,
+        bucket_name="basedosdados-dev",
         dump_mode="append",
         source_format="parquet",
-        upstream_tasks=[unzip_from_shp_to_parquet_wkt],
     )
 
-    wait_for_materialization = run_dbt(
+    run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
-        dbt_alias=dbt_alias,
         dbt_command="run/test",
-        disable_elementary=False,
-        upstream_tasks=[wait_upload_table],
+        dbt_alias=dbt_alias,
+        target="dev",
     )
 
-    with case(materialize_after_dump, True):
-        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-            data_path=OUTPUTPATH,
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=OUTPUTPATH,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+        source_format="parquet",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="append",
-            source_format="parquet",
-            upstream_tasks=[wait_for_materialization],
+            coverage=PartBdpro(
+                date_column=DateOnly(col="data_extracao"),
+                date_format=DateFormat.YEAR_MD,
+            ),
+            env="prod",
+            bq_project="basedosdados",
         )
 
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                date_column_name={
-                    "date": "data_extracao",
-                },
-                date_format="%Y-%m-%d",
-                coverage_type="part_bdpro",
-                time_delta={"months": 6},
-                bq_project="basedosdados",
-                upstream_tasks=[wait_upload_prod],
-            )
 
-
-br_sfb_sicar_area_imovel.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_sfb_sicar_area_imovel.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_sfb_sicar_area_imovel.schedule = schedule_br_sfb_sicar_area_imovel
+br_sfb_sicar__area_imovel.deploy_schedules = [
+    {"cron": "15 21 15 * *", "timezone": "America/Sao_Paulo"}
+]

@@ -1,9 +1,15 @@
+import os
+
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+# URL base dos dados mensais no servidor do INPE
+MONTH_URL = "https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/mensal/Brasil/"
 
-def get_html_table(url, n_rows):
+
+# Faz scraping da tabela HTML do servidor INPE e retorna os arquivos disponíveis como DataFrame
+def get_html_table(url, n_rows=None):
     response = requests.get(url)
     response.raise_for_status()
 
@@ -11,53 +17,59 @@ def get_html_table(url, n_rows):
     table = soup.find("div", class_="table")
 
     if not table:
-        print("Tabela não encontrada.")
-    else:
-        headers = [
+        raise ValueError(f"Tabela não encontrada em: {url}")
+
+    headers = [
+        cell.get_text(strip=True)
+        for cell in table.find("div", class_="row header").find_all(
+            "div", class_="cell"
+        )
+    ]
+
+    rows = table.find_all("div", class_="row")[
+        1 : n_rows + 1 if n_rows else None
+    ]
+
+    data = [
+        [
             cell.get_text(strip=True)
-            for cell in table.find("div", class_="row header").find_all(
-                "div", class_="cell"
-            )
+            for cell in row.find_all("div", class_="cell")
         ]
-
-        if n_rows is not None:
-            rows = table.find_all("div", class_="row")[1 : n_rows + 1]
-        else:
-            rows = table.find_all("div", class_="row")[1:]
-
-        data = [
-            [
-                cell.get_text(strip=True)
-                for cell in row.find_all("div", class_="cell")
-            ]
-            for row in rows
-        ]
-        df = pd.DataFrame(data, columns=headers)
-        return df
+        for row in rows
+    ]
+    return pd.DataFrame(data, columns=headers)
 
 
+# Baixa um único arquivo CSV do servidor INPE
 def request_data(url, filename):
-    url = f"{url}{filename}"
-    data = pd.read_csv(url)
-    return data
+    return pd.read_csv(f"{url}{filename}")
 
 
-def extract_all_data(url, n_rows=None):
-    full_data = pd.DataFrame()
-    table = get_html_table(url, n_rows)
-    for row in table["Nome"]:
-        file_data = request_data(url, row)
-        full_data = pd.concat([full_data, file_data], axis=0)
-    return full_data
+# Baixa os arquivos mensais do INPE filtrando pelos anos solicitados e salva em input_dir
+def download(year_range: list[int], input_dir: str) -> None:
+    os.makedirs(input_dir, exist_ok=True)
 
+    # Lista todos os arquivos disponíveis no servidor
+    table = get_html_table(MONTH_URL)
 
-if __name__ == "__main__":
-    # Month Data
-    month_url = "https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/mensal/Brasil/"
-    month_data = extract_all_data(month_url)
-    month_data.to_csv("./input/month_fire_data.csv")
+    # Filtra apenas os arquivos que contêm o ano desejado no nome
+    files_to_download = [
+        row
+        for row in table["Nome"]
+        if any(str(year) in row for year in year_range)
+    ]
 
-    # Year Data
-    year_url = "https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/Brasil_sat_ref/"
-    year_data = extract_all_data(year_url, 20)
-    year_data.to_csv("./input/year_fire_data.csv")
+    # Baixa cada arquivo individualmente e concatena
+    frames = []
+    for file in files_to_download:
+        print(f"  Baixando: {file}")
+        frames.append(request_data(MONTH_URL, file))
+    month_data = (
+        pd.concat(frames, axis=0, ignore_index=True)
+        if frames
+        else pd.DataFrame()
+    )
+
+    output_path = f"{input_dir}/month_fire_data_new.csv"
+    month_data.to_csv(output_path, index=False)
+    print(f"  Download concluído → {output_path}")

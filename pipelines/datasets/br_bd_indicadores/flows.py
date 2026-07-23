@@ -1,174 +1,136 @@
 """
-Flows for br_bd_indicadores
+Flows for br_bd_indicadores — Prefect 3.
 """
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from prefect import flow
 
-from pipelines.constants import constants
-
-# from pipelines.datasets.br_bd_indicadores.schedules import (
-#     schedule_contabilidade,
-#     schedule_equipes,
-#     schedule_pessoas,
-#     schedule_receitas,
-# )
-from pipelines.datasets.br_bd_indicadores.tasks import (
+from pipelines.crawler.bd_indicadores.tasks import (
     crawler_metricas,
     crawler_real_time,
     crawler_report_ga,
-    echo,
     get_data_from_sheet,
     get_ga_credentials,
     get_twitter_credentials,
     has_new_tweets,
     save_data_to_csv,
 )
-from pipelines.utils.decorators import Flow
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
     download_data_to_gcs,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-with Flow(
-    name="br_bd_indicadores.twitter_metrics",
-    code_owners=[
-        "lucas_cr",
-    ],
-) as bd_twt_metricas:
-    # Parameters
+_DATASET = "br_bd_indicadores"
 
-    materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    dataset_id = Parameter(
-        "dataset_id", default="br_bd_indicadores", required=True
-    )
-    table_id = Parameter("table_id", default="twitter_metrics", required=True)
-    #####################################
-    #
-    # Rename flow run
-    #
-    #####################################
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
+
+def _upload_and_dbt(
+    filepath: str,
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    dbt_alias: bool,
+    target: str,
+) -> None:
+    upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        wait=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
+    )
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
+    )
+    if not materialize_after_dump:
+        return
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
     )
 
+
+@flow(name="br_bd_indicadores__twitter_metrics", log_prints=True)
+def br_bd_indicadores__twitter_metrics(
+    dataset_id: str = _DATASET,
+    table_id: str = "twitter_metrics",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = True,
+    target: str = "prod",
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    )
+    creds = get_twitter_credentials(secret_path="twitter_credentials")
     (
         access_secret,
         access_token,
         consumer_key,
         consumer_secret,
         bearer_token,
-    ) = get_twitter_credentials(secret_path="twitter_credentials", wait=None)
-
-    cond = has_new_tweets(bearer_token, table_id=table_id)
-
-    with case(cond, False):
-        echo("No tweets to update")
-
-    with case(cond, True):
-        filepath = crawler_metricas(
-            access_secret,
-            access_token,
-            consumer_key,
-            consumer_secret,
-            upstream_tasks=[cond],
-            table_id=table_id,
-        )
-
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[filepath],
-        )
-
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-
-        with case(materialize_after_dump, True):
-            create_table_prod_gcs_and_run_dbt(
-                data_path=filepath,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
-            )
-
-bd_twt_metricas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-bd_twt_metricas.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# bd_twt_metricas.schedule = every_day
-
-
-with Flow(
-    name="br_bd_indicadores.twitter_metrics_agg", code_owners=["lucas_cr"]
-) as bd_twt_metricas_agg:
-    dataset_id = Parameter(
-        "dataset_id", default="br_bd_indicadores", required=True
+    ) = creds
+    if not has_new_tweets(bearer_token, table_id=table_id):
+        print("No tweets to update")
+        return
+    filepath = crawler_metricas(
+        access_secret,
+        access_token,
+        consumer_key,
+        consumer_secret,
+        table_id=table_id,
     )
-    table_id = Parameter(
-        "table_id", default="twitter_metrics_agg", required=True
+    _upload_and_dbt(
+        filepath,
+        dataset_id,
+        table_id,
+        materialize_after_dump,
+        dbt_alias,
+        target,
     )
 
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    wait_for_materialization = run_dbt(
+@flow(name="br_bd_indicadores__twitter_metrics_agg", log_prints=True)
+def br_bd_indicadores__twitter_metrics_agg(
+    dataset_id: str = _DATASET,
+    table_id: str = "twitter_metrics_agg",
+    dbt_alias: bool = True,
+    target: str = "prod",
+) -> None:
+    run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
-        upstream_tasks=[wait_upload_table],
+        target=target,
     )
+    download_data_to_gcs(dataset_id=dataset_id, table_id=table_id)
 
-    wait_for_dowload_data_to_gcs = download_data_to_gcs(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        upstream_tasks=[wait_for_materialization],
+
+@flow(name="br_bd_indicadores__page_views", log_prints=True)
+def br_bd_indicadores__page_views(
+    dataset_id: str = _DATASET,
+    table_id: str = "page_views",
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
-
-bd_twt_metricas_agg.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-bd_twt_metricas_agg.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# bd_twt_metricas_agg.schedule = every_week
-
-
-with Flow(
-    name="br_bd_indicadores.page_views",
-    code_owners=[
-        "lucas_cr",
-    ],
-) as bd_pageviews:
-    dataset_id = Parameter(
-        "dataset_id", default="br_bd_indicadores", required=True
-    )
-    table_id = Parameter("table_id", default="page_views", required=True)
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-
     property_id = get_ga_credentials(
-        secret_path="ga_credentials", key="property_id", wait=None
+        secret_path="ga_credentials", key="property_id"
     )
-
     filepath = crawler_real_time(
         lst_dimension=["country", "city", "unifiedScreenName"],
         lst_metric=[
@@ -179,47 +141,27 @@ with Flow(
         ],
         property_id=property_id,
     )
-
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
+    upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
+        bucket_name="basedosdados-dev",
         dump_mode="append",
-        upstream_tasks=[filepath],
     )
 
 
-bd_pageviews.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-bd_pageviews.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-
-
-with Flow(
-    name="br_bd_indicadores.ga_users",
-    code_owners=[
-        "lucas_cr",
-    ],
-) as bd_ga_users:
-    dataset_id = Parameter(
-        "dataset_id", default="br_bd_indicadores", required=True
+@flow(name="br_bd_indicadores__website_user", log_prints=True)
+def br_bd_indicadores__website_user(
+    dataset_id: str = _DATASET,
+    table_id: str = "website_user",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = True,
+    target: str = "prod",
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
-    table_id = Parameter("table_id", default="website_user", required=True)
-
-    materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-
-    view_id = get_ga_credentials(
-        secret_path="ga_credentials", key="view_id", wait=None
-    )
-
+    view_id = get_ga_credentials(secret_path="ga_credentials", key="view_id")
     filepath = crawler_report_ga(
         view_id=view_id,
         metrics=[
@@ -230,360 +172,144 @@ with Flow(
             "30dayUsers",
             "newUsers",
         ],
-        upstream_tasks=[view_id],
+    )
+    _upload_and_dbt(
+        filepath,
+        dataset_id,
+        table_id,
+        materialize_after_dump,
+        dbt_alias,
+        target,
     )
 
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        upstream_tasks=[filepath],
+
+def _sheet_flow_body(
+    dataset_id: str,
+    table_id: str,
+    sheet_id: str,
+    sheet_name: str,
+    materialize_after_dump: bool,
+    dbt_alias: bool,
+    target: str,
+    filename: str,
+    usecols: int | None = None,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
-
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-    #     ],
-    #     upstream_tasks=[wait_upload_table],
-    # )
-
-    wait_for_materialization = run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        dbt_alias=dbt_alias,
-        upstream_tasks=[wait_upload_table],
-    )
-
-    with case(materialize_after_dump, True):
-        create_table_prod_gcs_and_run_dbt(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[wait_for_materialization],
+    if usecols is None:
+        df = get_data_from_sheet(sheet_id=sheet_id, sheet_name=sheet_name)
+    else:
+        df = get_data_from_sheet(
+            sheet_id=sheet_id, sheet_name=sheet_name, usecols=usecols
         )
-
-
-bd_ga_users.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-bd_ga_users.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# bd_ga_users.schedule = schedule_users
-
-
-with Flow(
-    name="br_bd_indicadores.contabilidade",
-    code_owners=[],
-) as bd_indicadores_contabilidade:
-    # force deploy
-    dataset_id = Parameter(
-        "dataset_id", default="br_bd_indicadores", required=True
-    )
-    table_id = Parameter("table_id", default="contabilidade", required=True)
-    # manual id for the cases where the original file breaks
-    # 1OfPAtE42M53rPm-qVWl8pbH8bN16x3uUxXA2WZunlJc
-    sheet_id = Parameter(
-        "sheet_id",
-        default="1jtZAV2SFEdEX99DumpUQ1LjZE2vcSgvL4DNo4n6HIec",
-        required=True,
-    )
-    sheet_name = Parameter(
-        "sheet_name", default="transacoes_anonimizado", required=True
+    filepath = save_data_to_csv(df=df, filename=filename)
+    _upload_and_dbt(
+        filepath,
+        dataset_id,
+        table_id,
+        materialize_after_dump,
+        dbt_alias,
+        target,
     )
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-
-    df_contabilidade = get_data_from_sheet(
-        sheet_id=sheet_id, sheet_name=sheet_name
-    )
-    filepath = save_data_to_csv(
-        df=df_contabilidade,
-        filename="contabilidade",
-        upstream_tasks=[df_contabilidade],
-    )
-
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        upstream_tasks=[filepath],
+@flow(name="br_bd_indicadores__contabilidade", log_prints=True)
+def br_bd_indicadores__contabilidade(
+    dataset_id: str = _DATASET,
+    table_id: str = "contabilidade",
+    sheet_id: str = "1jtZAV2SFEdEX99DumpUQ1LjZE2vcSgvL4DNo4n6HIec",
+    sheet_name: str = "transacoes_anonimizado",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = True,
+    target: str = "prod",
+) -> None:
+    _sheet_flow_body(
+        dataset_id,
+        table_id,
+        sheet_id,
+        sheet_name,
+        materialize_after_dump,
+        dbt_alias,
+        target,
+        "contabilidade",
     )
 
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-    #     ],
-    #     upstream_tasks=[wait_upload_table],
-    # )
 
-    wait_for_materialization = run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        dbt_alias=dbt_alias,
-        upstream_tasks=[wait_upload_table],
+@flow(name="br_bd_indicadores__receitas_planejadas", log_prints=True)
+def br_bd_indicadores__receitas_planejadas(
+    dataset_id: str = _DATASET,
+    table_id: str = "receitas_planejadas",
+    sheet_id: str = "1fHp1NNUyhFIAAJ9bZOdZ2i9PSLIbkjSjMcGAlaxur90",
+    sheet_name: str = "receitas_planejadas_anonimizado",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = True,
+    target: str = "prod",
+) -> None:
+    _sheet_flow_body(
+        dataset_id,
+        table_id,
+        sheet_id,
+        sheet_name,
+        materialize_after_dump,
+        dbt_alias,
+        target,
+        "receitas_planejadas",
     )
 
-    with case(materialize_after_dump, True):
-        create_table_prod_gcs_and_run_dbt(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[wait_for_materialization],
-        )
 
-bd_indicadores_contabilidade.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-bd_indicadores_contabilidade.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# bd_indicadores_contabilidade.schedule = schedule_contabilidade
-
-
-with Flow(
-    name="br_bd_indicadores.receitas_planejadas",
-    code_owners=[],
-) as bd_indicadores_receitas_planejadas:
-    dataset_id = Parameter(
-        "dataset_id", default="br_bd_indicadores", required=True
-    )
-    table_id = Parameter(
-        "table_id", default="receitas_planejadas", required=True
-    )
-    sheet_id = Parameter(
-        "sheet_id",
-        default="1fHp1NNUyhFIAAJ9bZOdZ2i9PSLIbkjSjMcGAlaxur90",
-        required=True,
-    )
-    sheet_name = Parameter(
-        "sheet_name", default="receitas_planejadas_anonimizado", required=True
+@flow(name="br_bd_indicadores__equipes", log_prints=True)
+def br_bd_indicadores__equipes(
+    dataset_id: str = _DATASET,
+    table_id: str = "equipes",
+    sheet_id: str = "1gLJyoxiFeIRn7FKiP3Fpbr04bScVuhmF",
+    sheet_name: str = "equipes",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = True,
+    target: str = "prod",
+) -> None:
+    _sheet_flow_body(
+        dataset_id,
+        table_id,
+        sheet_id,
+        sheet_name,
+        materialize_after_dump,
+        dbt_alias,
+        target,
+        "equipes",
+        usecols=6,
     )
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-
-    df_receitas = get_data_from_sheet(sheet_id=sheet_id, sheet_name=sheet_name)
-    filepath = save_data_to_csv(
-        df=df_receitas,
-        filename="receitas_planejadas",
-        upstream_tasks=[df_receitas],
-    )
-
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        upstream_tasks=[filepath],
+@flow(name="br_bd_indicadores__pessoas", log_prints=True)
+def br_bd_indicadores__pessoas(
+    dataset_id: str = _DATASET,
+    table_id: str = "pessoas",
+    sheet_id: str = "1cQj9ItJoO_AQElRT2ngpHZXhFCSpQCrV",
+    sheet_name: str = "pessoas",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = True,
+    target: str = "prod",
+) -> None:
+    _sheet_flow_body(
+        dataset_id,
+        table_id,
+        sheet_id,
+        sheet_name,
+        materialize_after_dump,
+        dbt_alias,
+        target,
+        "pessoas",
+        usecols=9,
     )
 
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-    #     ],
-    #     upstream_tasks=[wait_upload_table],
-    # )
 
-    wait_for_materialization = run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        dbt_alias=dbt_alias,
-        upstream_tasks=[wait_upload_table],
-    )
-
-    with case(materialize_after_dump, True):
-        create_table_prod_gcs_and_run_dbt(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[wait_for_materialization],
-        )
-
-bd_indicadores_receitas_planejadas.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-bd_indicadores_receitas_planejadas.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# bd_indicadores_receitas_planejadas.schedule = schedule_receitas
-
-
-with Flow(
-    name="br_bd_indicadores.equipes",
-    code_owners=[],
-) as bd_indicadores_equipes:
-    dataset_id = Parameter(
-        "dataset_id", default="br_bd_indicadores", required=True
-    )
-    table_id = Parameter("table_id", default="equipes", required=True)
-    sheet_id = Parameter(
-        "sheet_id",
-        default="1gLJyoxiFeIRn7FKiP3Fpbr04bScVuhmF",
-        required=True,
-    )
-    bd_indicadores_equipes.add_task(sheet_id)
-
-    sheet_name = Parameter("sheet_name", default="equipes", required=True)
-    bd_indicadores_equipes.add_task(sheet_name)
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-
-    df_equipes = get_data_from_sheet(
-        sheet_id, sheet_name, usecols=6, upstream_tasks=[sheet_id, sheet_name]
-    )
-    filepath = save_data_to_csv(
-        df=df_equipes, filename="equipes", upstream_tasks=[df_equipes]
-    )
-
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        upstream_tasks=[filepath],
-    )
-
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-    #     ],
-    #     upstream_tasks=[wait_upload_table],
-    # )
-
-    wait_for_materialization = run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        dbt_alias=dbt_alias,
-        upstream_tasks=[wait_upload_table],
-    )
-
-    with case(materialize_after_dump, True):
-        create_table_prod_gcs_and_run_dbt(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[wait_for_materialization],
-        )
-
-bd_indicadores_equipes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-bd_indicadores_equipes.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# bd_indicadores_equipes.schedule = schedule_equipes
-
-
-with Flow(
-    name="br_bd_indicadores.pessoas",
-    code_owners=[],
-) as bd_indicadores_pessoas:
-    dataset_id = Parameter(
-        "dataset_id", default="br_bd_indicadores", required=True
-    )
-    table_id = Parameter("table_id", default="pessoas", required=True)
-    sheet_id = Parameter(
-        "sheet_id",
-        default="1cQj9ItJoO_AQElRT2ngpHZXhFCSpQCrV",
-        required=True,
-    )
-    sheet_name = Parameter("sheet_name", default="pessoas", required=True)
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-
-    df_pessoas = get_data_from_sheet(
-        sheet_id=sheet_id, sheet_name=sheet_name, usecols=9
-    )
-    filepath = save_data_to_csv(
-        df=df_pessoas, filename="pessoas", upstream_tasks=[df_pessoas]
-    )
-
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="append",
-        upstream_tasks=[filepath],
-    )
-
-    # wait_update_metadata = update_metadata(
-    #     dataset_id=dataset_id,
-    #     table_id=table_id,
-    #     fields_to_update=[
-    #         {"last_updated": {"data": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-    #     ],
-    #     upstream_tasks=[wait_upload_table],
-    # )
-
-    wait_for_materialization = run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        dbt_alias=dbt_alias,
-        upstream_tasks=[wait_upload_table],
-    )
-
-    with case(materialize_after_dump, True):
-        create_table_prod_gcs_and_run_dbt(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[wait_for_materialization],
-        )
-
-bd_indicadores_pessoas.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-bd_indicadores_pessoas.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# bd_indicadores_pessoas.schedule = schedule_pessoas
+# Schedules — apenas contabilidade e receitas tinham schedule no Prefect 0
+br_bd_indicadores__contabilidade.deploy_schedules = []
+br_bd_indicadores__receitas_planejadas.deploy_schedules = []
+br_bd_indicadores__twitter_metrics.deploy_schedules = []
+br_bd_indicadores__twitter_metrics_agg.deploy_schedules = []
+br_bd_indicadores__page_views.deploy_schedules = []
+br_bd_indicadores__website_user.deploy_schedules = []
+br_bd_indicadores__equipes.deploy_schedules = []
+br_bd_indicadores__pessoas.deploy_schedules = []

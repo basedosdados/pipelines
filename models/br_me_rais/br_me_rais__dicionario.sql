@@ -1,3 +1,4 @@
+-- register 12/02/2026
 {{ config(alias="dicionario", schema="br_me_rais") }}
 select
     safe_cast(id_tabela as string) id_tabela,
@@ -6,3 +7,7 @@ select
     safe_cast(cobertura_temporal as string) cobertura_temporal,
     safe_cast(valor as string) valor,
 from {{ set_datalake_project("br_me_rais_staging.dicionario") }} as t
+union all
+select 'microdados_vinculos', 'indicador_vinculo_abandonado', '0', '2023(1)', 'Não'
+union all
+select 'microdados_vinculos', 'indicador_vinculo_abandonado', '1', '2023(1)', 'Sim'

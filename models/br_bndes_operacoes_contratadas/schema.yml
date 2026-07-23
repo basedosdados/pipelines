@@ -1,0 +1,285 @@
+---
+version: 2
+models:
+  - name: br_bndes_operacoes_contratadas__operacoes_nao_automaticas
+    description: Operações contratadas na forma direta e indireta não automática Cada
+      contrato pode ter um ou mais subcréditos Cada linha da planilha corresponde
+      a um subcrédito diferente
+    columns:
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: cnpj_cliente
+        description: CNPJ do cliente
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.99
+          - dbt_utils.relationships_where:
+              to: ref('br_bd_diretorios_brasil__empresa')
+              field: cnpj
+              from_condition: cnpj_cliente not like '77700001%'
+      - name: id_contrato
+        description: Número identificador do contrato do cliente com o BNDES
+        tests: [not_null]
+      - name: data_contratacao
+        description: Data de contratação do projeto
+        tests: [not_null]
+      - name: data_apuracao
+        description: Data de apuração das informações nos sistemas corporativos do
+          BNDES
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+      - name: nome_municipio
+        description: Nome do município
+      - name: razao_social_cliente
+        description: Razão Social do cliente
+        tests: [not_null]
+      - name: situacao_contrato
+        description: Situação do contrato
+      - name: porte_cliente
+        description: Porte do cliente de acordo com a política de classificação do
+          BNDES
+        tests: [not_null]
+      - name: natureza_cliente
+        description: Natureza do Cliente (Privada, Administração Pública Direta -
+          Governo Federal, Administração Pública Direta - Governo Estadual, Administração
+          Pública Direta - Governo Municipal, Pública Indireta)
+        tests: [not_null]
+      - name: descricao_projeto
+        description: Descrição do projeto
+        tests: [not_null]
+      - name: modalidade_apoio
+        description: Modalidade de Apoio, Reembolsável ou Não Reembolsável (apoio
+          financeiro sem a exigência de reembolso financeiro ao BNDES)
+        tests: [not_null]
+      - name: forma_apoio
+        description: Forma de apoio, Direta (diretamente ao BNDES) ou Indireta (por
+          meio de instituições financeiras credenciadas)
+        tests: [not_null]
+      - name: produto
+        description: Produto financeiro, que define regras gerais de financiamento
+        tests: [not_null]
+      - name: tipo_instrumento_financeiro
+        description: Tipo de instrumento financeiro (Linha de Financiamento, Programa,
+          Fundo)
+        tests: [not_null]
+      - name: tipo_garantia
+        description: Tipo de garantias estabelecidas no momento da contratação
+        tests: [not_null]
+      - name: tipo_excepcionalidade
+        description: Classificação de acordo com o tipo de excepcionalidade do contrato
+      - name: tipo_fonte_recursos
+        description: Fonte de recursos registrada nos desembolsos do contrato
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.90
+      - name: area_operacional_bndes
+        description: Área responsável pela operação no BNDES
+        tests: [not_null]
+      - name: setor_cnae_bndes
+        description: Setor CNAE agrupado pelo BNDES para fins estatísticos
+        tests: [not_null]
+      - name: subsetor_agrupado_cnae_bndes
+        description: Subsetor CNAE agrupado pelo BNDES para fins estatísticos
+        tests: [not_null]
+      - name: secao_cnae
+        description: Seção CNAE 2
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: secao
+      - name: divisao_cnae
+        description: Divisão CNAE 2
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: divisao
+      - name: grupo_cnae
+        description: Grupo CNAE 2
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: grupo
+      - name: classe_cnae
+        description: Classe CNAE 2
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: classe
+      - name: subclasse_cnae
+        description: Subclasse CNAE 2
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: subclasse
+      - name: descricao_subclasse
+        description: Descrição da subclasse CNAE 2
+      - name: setor_bndes
+        description: Setor segundo BNDES
+      - name: subsetor_bndes
+        description: Subsetor segundo BNDES
+      - name: nome_instituicao_financeira_credenciada
+        description: Nome da instituição financeira credenciada
+      - name: cnpj_instituicao_financeira_credenciada
+        description: CNPJ da instituição financeira credenciada
+      - name: custo_financeiro
+        description: Custo financeiro do cliente
+        tests: [not_null]
+      - name: taxa_juros
+        description: Taxa de juros
+        tests: [not_null]
+      - name: valor_contratado
+        description: Valor contratado no projeto
+        tests: [not_null]
+      - name: valor_desembolsado
+        description: Valor liberado convertido com base na data do desembolso e no
+          indexador
+        tests: [not_null]
+      - name: prazo_carencia
+        description: Prazo de carência
+        tests: [not_null]
+      - name: prazo_amortizacao
+        description: Prazo de amortização em meses
+        tests: [not_null]
+      - name: indicador_inovacao
+        description: Indicador de inovação do projeto
+  - name: br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas
+    description: >
+      Operações de financiamento contratadas pelo BNDES na forma indireta
+      automática (pequeno porte, repassadas por instituições financeiras
+      credenciadas). Grão de uma linha por operação contratada; não há
+      identificador único de operação na fonte. Não inclui Cartão BNDES nem
+      operações com pessoas físicas. Cobertura nacional, 2002–2026.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano da contratação da operação.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data_contratacao
+        description: >
+          Data da efetiva contratação no sistema BNDES.
+      - name: sigla_uf
+        description: >
+          Unidade federativa onde o investimento foi realizado ou o cliente
+          está registrado.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >
+          Código IBGE do município onde o investimento foi realizado ou o
+          cliente está registrado.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: cnpj_cliente
+        description: >
+          Número de inscrição no CNPJ do cliente (mascarado na origem).
+      - name: nome_cliente
+        description: >
+          Nome do cliente.
+      - name: porte_cliente
+        description: >
+          Porte do cliente na data da contratação, conforme a política de
+          classificação do BNDES vigente à época.
+      - name: natureza_cliente
+        description: >
+          Natureza do cliente na operação de crédito (ex.: privada,
+          administração pública direta).
+      - name: valor_operacao
+        description: >
+          Valor da operação em reais, convertido pela data do contrato e pelo
+          indexador (pode ser corrigido por US$, IPCA, TJLP etc., se previsto
+          em contrato).
+      - name: valor_desembolsado
+        description: >
+          Valor liberado em reais, convertido pela data do desembolso e pelo
+          indexador; atualizado semestralmente. Pode superar o valor contratado
+          se houver variação positiva do indexador.
+      - name: fonte_recurso
+        description: >
+          Fonte de recursos registrada nos desembolsos do contrato (vinculadas,
+          estatutárias ou de livre aplicação).
+      - name: custo_financeiro
+        description: >
+          Custo de captação do BNDES, definido por produto, linha ou programa
+          (ex.: TLP, SELIC, taxas indexadas ao IPCA). O custo total do cliente é
+          a soma do custo financeiro com os juros; quando é "TAXA FIXA", o campo
+          taxa_juros representa o custo total.
+      - name: taxa_juros
+        description: >
+          Componente de juros da taxa da operação, em percentual. Em operações
+          indiretas, a taxa final compõe-se do custo financeiro, da taxa do
+          BNDES e da taxa do agente financeiro.
+      - name: prazo_carencia
+        description: >
+          Período, em meses, durante o qual o cliente paga somente os juros do
+          financiamento.
+      - name: prazo_amortizacao
+        description: >
+          Período, em meses, após a carência, durante o qual o cliente paga a
+          amortização do financiamento, além dos juros.
+      - name: modalidade_apoio
+        description: >
+          Modalidade de apoio: reembolsável ou não reembolsável.
+      - name: forma_apoio
+        description: >
+          Forma de apoio: direta (financiamento direto ao BNDES) ou indireta
+          (via instituições financeiras credenciadas).
+      - name: produto
+        description: >
+          Produto BNDES, que define as regras gerais de financiamento conforme
+          a finalidade.
+      - name: instrumento_financeiro
+        description: >
+          Instrumento financeiro: linha, programa ou fundo.
+      - name: inovacao
+        description: >
+          Indicador de inovação (instrumentos financeiros voltados ao apoio à
+          inovação).
+      - name: area_operacional
+        description: >
+          Área responsável pela operação no BNDES.
+      - name: setor_cnae
+        description: >
+          Agrupamento setorial do BNDES para fins estatísticos, baseado nos
+          códigos CNAE.
+      - name: subsetor_cnae_agrupado
+        description: >
+          Agrupamento de subsetor do BNDES para fins estatísticos, baseado nos
+          códigos CNAE.
+      - name: codigo_subsetor_cnae
+        description: >
+          Código do subsetor segundo a classificação CNAE 2.2 do IBGE (letra +
+          sete dígitos); quando não há classificação em subclasse, o BNDES
+          completa com zeros (ex.: A0100000).
+      - name: nome_subsetor_cnae
+        description: >
+          Nome do subsetor segundo a classificação CNAE 2.2 do IBGE.
+      - name: setor_bndes
+        description: >
+          Agrupamento setorial do BNDES para fins estatísticos, baseado nos
+          códigos CNAE e nos produtos do BNDES.
+      - name: subsetor_bndes
+        description: >
+          Agrupamento de subsetor do BNDES para fins estatísticos, baseado nos
+          códigos CNAE e nos produtos do BNDES.
+      - name: instituicao_financeira_credenciada
+        description: >
+          Nome da instituição financeira credenciada (agente repassador).
+      - name: cnpj_agente_financeiro
+        description: >
+          Número de inscrição no CNPJ da instituição financeira credenciada.
+      - name: situacao_operacao
+        description: >-
+          Status da obrigação financeira e não financeira da operação.

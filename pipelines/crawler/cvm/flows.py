@@ -1,128 +1,124 @@
 """
-Flows for br_cvm_fi
-
+Shared run logic for br_cvm_fi — Prefect 3.
 """
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
-
-from pipelines.constants import constants
 from pipelines.crawler.cvm.tasks import (
     clean_cvm_data,
     download_unzip,
     extract_links_and_dates,
     generate_links_to_download,
 )
-from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.domain import (
+    AllBdpro,
+    DateFormat,
+    DateOnly,
+)
 from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
+    commit_source_update_task,
+    poll_source_for_update_task,
+    register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    log_task,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-with Flow(name="BD - Template CVM") as flow_cvm:
-    # Parameters
-    dataset_id = Parameter("dataset_id", default="br_cvm_fi", required=True)
-    table_id = Parameter("table_id", required=True)
-    url = Parameter("url", required=False)
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
-    date_column_name = Parameter(
-        "date_column_name",
-        default=None,
-        required=False,
-    )
-    df, max_date = extract_links_and_dates(
-        table_id, url=url, upstream_tasks=[table_id, url]
+
+def _run_cvm_fi(
+    dataset_id: str,
+    table_id: str,
+    date_column_name: dict,
+    materialize_after_dump: bool,
+    dbt_alias: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+    url: str | None = None,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    log_task(f"Links e datas: {df}")
+    df, max_date = extract_links_and_dates(table_id=table_id, url=url)
+    print(f"Links e datas: {df}")
 
-    check_if_outdated = check_if_data_is_outdated(
+    if not force_run:
+        has_new_data = poll_source_for_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=max_date,
+            env="prod",
+            date_format="%Y-%m-%d",
+        )
+        if not has_new_data:
+            print(
+                "Sem atualizações na fonte — aguardando próxima execução agendada"
+            )
+            return
+
+    arquivos = generate_links_to_download(df=df, max_date=max_date)
+    print(f"Arquivos: {arquivos}")
+
+    input_filepath = download_unzip(table_id=table_id, files=arquivos, url=url)
+    output_filepath = clean_cvm_data(
+        input_dir=input_filepath, table_id=table_id, config_key=table_id
+    )
+
+    upload_to_gcs(
+        data_path=output_filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=max_date,
-        date_format="%Y-%m-%d",
-        date_type="last_update_date",
-        upstream_tasks=[df],
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
     )
 
-    with case(check_if_outdated, False):
-        log_task(
-            "A execução sera agendada para a próxima data definida na schedule"
-        )
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
+    )
 
-    with case(check_if_outdated, True):
-        arquivos = generate_links_to_download(df=df, max_date=max_date)
-        log_task(f"Arquivos: {arquivos}")
+    if not materialize_after_dump:
+        return
 
-        input_filepath = download_unzip(
-            table_id=table_id,
-            files=arquivos,
-            url=url,
-            upstream_tasks=[arquivos],
-        )
-        output_filepath = clean_cvm_data(
-            input_dir=input_filepath,
-            table_id=table_id,
-            config_key=table_id,
-            upstream_tasks=[input_filepath],
-        )
+    upload_to_gcs(
+        data_path=output_filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
 
-        rename_flow_run = rename_current_flow_run_dataset_table(
-            prefix="Dump: ",
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        # date_column_name é parametrizado pelos flows de dataset; todos os
+        # callers passam {"date": <col>} (ver br_cvm_fi), logo DateOnly/YEAR_MD.
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            wait=table_id,
+            coverage=AllBdpro(
+                date_column=DateOnly(col=date_column_name["date"]),
+                date_format=DateFormat.YEAR_MD,
+            ),
+            env="prod",
+            bq_project="basedosdados",
         )
 
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=output_filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[output_filepath],
-        )
-
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=output_filepath,
+        if max_date is not None:
+            commit_source_update_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
+                source_max_date=max_date,
+                env="prod",
+                date_format="%Y-%m-%d",
             )
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name=date_column_name,
-                    date_format="%Y-%m-%d",
-                    coverage_type="all_bdpro",
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
-
-
-flow_cvm.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_cvm.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

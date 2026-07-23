@@ -1,6 +1,8 @@
-# register tasks
+"""
+Tasks for br_camara_dados_abertos — Prefect 3.
+"""
+
 import os
-from datetime import timedelta
 
 import requests
 from prefect import task
@@ -14,13 +16,11 @@ from pipelines.crawler.camara_dados_abertos.utils import (
 )
 from pipelines.utils.utils import log
 
-# ---------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
+TASK_RETRIES = constants.TASK_MAX_RETRIES.value
+TASK_RETRY_DELAY_SECONDS = constants.TASK_RETRY_DELAY.value
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def save_data(table_id: str) -> str:
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
@@ -35,21 +35,25 @@ def save_data(table_id: str) -> str:
             df_year["ultimoStatus_despacho"] = df_year[
                 "ultimoStatus_despacho"
             ].apply(
-                lambda x: str(x)
-                .replace(";", ",")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", ",")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
             df_year["ementa"] = df_year["ementa"].apply(
-                lambda x: str(x)
-                .replace(";", ",")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", ",")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
             df_year["ano"] = df_year.apply(
-                lambda x: x["dataApresentacao"][0:4]
-                if x["ano"] == 0
-                else x["ano"],
+                lambda x: (
+                    x["dataApresentacao"][0:4] if x["ano"] == 0 else x["ano"]
+                ),
                 axis=1,
             )
 
@@ -70,46 +74,56 @@ def save_data(table_id: str) -> str:
             df_year["ultimaApresentacaoProposicao_descricao"] = df_year[
                 "ultimaApresentacaoProposicao_descricao"
             ].apply(
-                lambda x: str(x)
-                .replace(";", " ")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
 
         if table_id == "votacao_objeto":
             df_year[["descricao", "proposicao_ementa"]] = df_year[
                 ["descricao", "proposicao_ementa"]
             ].apply(
-                lambda x: str(x)
-                .replace(";", " ")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
 
         if table_id == "votacao_proposicao":
             df_year[["proposicao_ementa"]] = df_year[
                 ["proposicao_ementa"]
             ].apply(
-                lambda x: str(x)
-                .replace(";", " ")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
 
         if table_id == "licitacao_pedido":
             df_year[["observacoes"]] = df_year[["observacoes"]].apply(
-                lambda x: str(x)
-                .replace(";", " ")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
 
         if table_id == "licitacao_item":
             df_year[["especificacao"]] = df_year[["especificacao"]].apply(
-                lambda x: str(x)
-                .replace(";", " ")
-                .replace("\n", " ")
-                .replace("\r", " ")
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
             )
 
         log(f"Saving {table_id} to {output_path_year}")
@@ -121,10 +135,7 @@ def save_data(table_id: str) -> str:
     return f"{constants_camara.OUTPUT_PATH.value}{table_id}"
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def check_if_url_is_valid(table_id: str) -> bool:
     if (
         requests.get(

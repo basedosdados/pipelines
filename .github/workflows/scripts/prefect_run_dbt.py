@@ -1,13 +1,66 @@
+import asyncio
+import logging as stdlib_logging
 import shutil
 import sys
 import traceback
 from argparse import ArgumentParser
 from pathlib import Path
-from time import sleep
 
 import basedosdados as bd
+from prefect.deployments import run_deployment
 
-PREFECT_BASE_URL = "https://prefect.basedosdados.org"
+# Prefect 3 deployment triggered for each modified table.
+# Slug = "<flow name>/<deployment name>": the flow's @flow(name=...) is
+# "BD template: Executa DBT model" and deploy_flows.py registers it under the
+# python identifier "run_dbt_model_flow".
+DBT_MODEL_DEPLOYMENT = "BD template: Executa DBT model/run_dbt_model_flow"
+
+PREFECT_UI_URL = "https://prefect3.basedosdados.org"
+
+
+async def _read_flow_run_error_logs(flow_run_id: str) -> list:
+    """Fetches ERROR-and-above logs for a Prefect flow run via the async client.
+
+    Args:
+        flow_run_id: UUID string of the Prefect flow run.
+
+    Returns:
+        List of log objects returned by the Prefect API.
+    """
+    from prefect.client.orchestration import get_client
+    from prefect.client.schemas.filters import (
+        LogFilter,
+        LogFilterFlowRunId,
+        LogFilterLevel,
+    )
+
+    async with get_client() as client:
+        return await client.read_logs(
+            log_filter=LogFilter(
+                flow_run_id=LogFilterFlowRunId(any_=[flow_run_id]),
+                level=LogFilterLevel(ge_=stdlib_logging.ERROR),
+            ),
+        )
+
+
+def print_flow_run_error_logs(flow_run_id: str) -> None:
+    """Prints ERROR-and-above logs for a failed Prefect flow run to stdout.
+
+    Fetches logs from the Prefect API and prints them between delimiters so
+    they are visible directly in the GitHub Actions log. Does nothing if no
+    error logs exist.
+
+    Args:
+        flow_run_id: UUID string of the Prefect flow run.
+    """
+    logs = asyncio.run(_read_flow_run_error_logs(str(flow_run_id)))
+    if not logs:
+        return
+    print("--- Prefect error logs ---")
+    for log in logs:
+        level_name = stdlib_logging.getLevelName(log.level)
+        print(f"[{level_name}] {log.timestamp}: {log.message}")
+    print("--- End of Prefect error logs ---")
 
 
 def get_datasets_tables_from_modified_files(
@@ -53,83 +106,35 @@ def get_datasets_tables_from_modified_files(
     return new_datasets_tables
 
 
-def get_flow_run_state(
-    flow_run_id: str, backend: bd.Backend, auth_token: str
-) -> str:
-    query = """
-    query ($flow_run_id: uuid!) {
-        flow_run_by_pk (id: $flow_run_id) {
-            state
-        }
-    }
-    """
-    response = backend._execute_query(
-        query,
-        variables={"flow_run_id": flow_run_id},
-        headers={"Authorization": f"Bearer {auth_token}"},
-    )
-    return response["flow_run_by_pk"]["state"]
-
-
-def get_flow_log_error_messages(
-    flow_run_id: str, backend: bd.Backend, auth_token: str
-) -> list[str]:
-    query = """query ($flow_run_id: uuid!) {
-        log(where: {flow_run_id: {_eq: $flow_run_id}, level: {_eq: "ERROR"}}) {
-            message,
-        }
-    }
-    """
-    response = backend._execute_query(
-        query,
-        variables={"flow_run_id": flow_run_id},
-        headers={"Authorization": f"Bearer {auth_token}"},
-    )
-    return [i["message"] for i in response["log"]]
-
-
-def get_materialization_flow_id(
-    backend: bd.Backend, auth_token: str, project: str = "main"
-) -> str:
-    """
-    Get DBT Flow.
-    """
-    query = """
-    query ($projectName: String!) {
-        flow (where: {
-            name: {
-                _like: "BD template: Executa DBT model"
-            },
-            archived: {
-                _eq: false
-            },
-            project: {
-                name: {_eq: $projectName}
-            }
-        }) {
-            id,
-            version,
-            run_config
-        }
-    }
-    """
-    response = backend._execute_query(
-        query,
-        headers={"Authorization": f"Bearer {auth_token}"},
-        variables={"projectName": project},
-    )
-    flow_data = response["flow"][0]
-    print(f"get_materialization_flow_id: {flow_data}")
-    return flow_data["id"]
-
-
 def push_table_to_bq(
     dataset_id: str,
     table_id: str,
     source_bucket_name="basedosdados-dev",
     destination_bucket_name="basedosdados",
     backup_bucket_name="basedosdados-backup",
+    user_project: str = "basedosdados",
 ) -> bool:
+    """Syncs staging data from dev to prod bucket and recreates the BigQuery table.
+
+    Copies data from the source bucket to the destination bucket (with a backup),
+    then recreates the staging BigQuery table from the new data.
+
+    Args:
+        dataset_id: Dataset ID in basedosdados.
+        table_id: Table ID in basedosdados.
+        source_bucket_name: Bucket containing the approved data. Defaults to
+            ``basedosdados-dev``.
+        destination_bucket_name: Bucket to promote the data to. Defaults to
+            ``basedosdados``.
+        backup_bucket_name: Bucket for backing up the previous prod data. Defaults
+            to ``basedosdados-backup``.
+        user_project: GCP project to bill for bucket requests. Defaults to
+            ``basedosdados``.
+
+    Returns:
+        True if the table was successfully created; False if no data was found in
+        the source bucket.
+    """
     # copy proprosed data between storage buckets
     # create a backup of old data, then delete it and copies new data into the destination bucket
     # modes = ["staging", "raw", "auxiliary_files", "architecture", "header"]
@@ -143,6 +148,7 @@ def push_table_to_bq(
                 table_id=table_id,
                 destination_bucket_name=destination_bucket_name,
                 backup_bucket_name=backup_bucket_name,
+                user_project=user_project,
                 mode=mode,
             )
         except Exception:
@@ -154,7 +160,9 @@ def push_table_to_bq(
         print(f"Table {dataset_id}.{table_id} does not have data in storage.")
         return False
 
-    file_path = save_header_files(dataset_id, table_id)
+    file_path = save_header_files(
+        dataset_id, table_id, user_project=user_project
+    )
 
     # create table object of selected table and dataset ID
     tb = bd.Table(dataset_id=dataset_id, table_id=table_id)
@@ -190,13 +198,29 @@ def push_table_to_bq(
     return True
 
 
-def save_header_files(dataset_id: str, table_id: str) -> str:
+def save_header_files(
+    dataset_id: str, table_id: str, user_project: str
+) -> str:
+    """Downloads a single-row header file from the dev staging bucket.
+
+    Finds the first CSV or Parquet blob for the given table, downloads one row
+    (for CSV) or the file itself (for Parquet) to ``./downloaded_data/``, and
+    returns the local file path. Used to reconstruct the BigQuery staging schema.
+
+    Args:
+        dataset_id: Dataset ID in basedosdados.
+        table_id: Table ID in basedosdados.
+        user_project: GCP project to bill for bucket requests.
+
+    Returns:
+        Local path to the downloaded header file.
+    """
     print("GET FIRST BLOB PATH")
 
     ref = bd.Storage(dataset_id=dataset_id, table_id=table_id)
     blobs = (
         ref.client["storage_staging"]
-        .bucket("basedosdados-dev")
+        .bucket("basedosdados-dev", user_project=user_project)
         .list_blobs(prefix=f"staging/{dataset_id}/{table_id}/")
     )
 
@@ -252,6 +276,7 @@ def sync_bucket(
     table_id: str,
     destination_bucket_name: str,
     backup_bucket_name: str,
+    user_project: str = "basedosdados",
     mode: str = "staging",
 ) -> bool:
     """Copies proprosed data between storage buckets.
@@ -285,7 +310,7 @@ def sync_bucket(
 
     source_ref = (
         ref.client["storage_staging"]
-        .bucket(source_bucket_name)
+        .bucket(source_bucket_name, user_project=user_project)
         .list_blobs(prefix=prefix)
     )
 
@@ -300,7 +325,7 @@ def sync_bucket(
     if len(list(destination_ref)):
         backup_bucket_blobs = list(
             ref.client["storage_staging"]
-            .bucket(backup_bucket_name)
+            .bucket(backup_bucket_name, user_project=user_project)
             .list_blobs(prefix=prefix)
         )
         if len(backup_bucket_blobs):
@@ -333,6 +358,18 @@ def sync_bucket(
 def get_datasets_and_tables_for_modified_files(
     modified_files: list[str],
 ) -> list[tuple[str, str, bool]]:
+    """Returns only existing (dataset_id, table_id, alias) tuples from modified files.
+
+    Delegates to ``get_datasets_tables_from_modified_files`` and filters out
+    entries whose SQL file no longer exists on disk (e.g. deleted files).
+
+    Args:
+        modified_files: List of file paths modified in the pull request.
+
+    Returns:
+        List of ``(dataset_id, table_id, alias)`` tuples for tables whose SQL
+        files still exist.
+    """
     datasets_tables = get_datasets_tables_from_modified_files(modified_files)
 
     existing_datasets_tables = []
@@ -344,97 +381,53 @@ def get_datasets_and_tables_for_modified_files(
     return existing_datasets_tables
 
 
-if __name__ == "__main__":
-    # Start argument parser
+def run_table_approve() -> None:
+    """Parses CLI arguments and orchestrates the table-approve pipeline.
+
+    Builds the argument parser, resolves the list of modified SQL tables,
+    optionally syncs staging data to the prod bucket, and launches a Prefect 3
+    materialization flow run for each table. Raises an exception (failing the
+    GitHub Actions job) if any flow run does not complete successfully.
+    """
     arg_parser = ArgumentParser()
-
-    # Add list of modified files argument
-    arg_parser.add_argument(
-        "--dbt-command",
-        type=str,
-        required=True,
-        help="dbt command",
-    )
-
-    arg_parser.add_argument(
-        "--modified-files",
-        type=str,
-        required=False,
-        help="List of modified files.",
-    )
-
-    # Add argument to skip sync bucket step
-    arg_parser.add_argument(
-        "--sync-bucket",
-        action="store_true",  # Implies default is false, i.e, dont sync buckets
-        help="Sync buckets",
-    )
-
-    # Add source bucket name argument
+    arg_parser.add_argument("--dbt-command", type=str, required=True)
+    arg_parser.add_argument("--modified-files", type=str, required=False)
+    arg_parser.add_argument("--sync-bucket", action="store_true")
     arg_parser.add_argument(
         "--source-bucket-name",
         type=str,
         required=False,
         default="basedosdados-dev",
-        help="Source bucket name.",
     )
-
-    # Add destination bucket name argument
     arg_parser.add_argument(
         "--destination-bucket-name",
         type=str,
         required=False,
         default="basedosdados",
-        help="Destination bucket name.",
     )
-
-    # Add backup bucket name argument
     arg_parser.add_argument(
         "--backup-bucket-name",
         type=str,
         required=False,
         default="basedosdados-backup",
-        help="Backup bucket name.",
     )
-
-    # Add Prefect API token argument
+    # Deprecated: kept so callers that still pass it do not fail at argument parsing.
     arg_parser.add_argument(
-        "--prefect-backend-token",
-        type=str,
-        required=True,
-        help="Prefect backend token.",
+        "--prefect-backend-token", type=str, required=False
     )
-
-    # Add materialization mode argument
     arg_parser.add_argument(
-        "--materialization-target",
-        type=str,
-        required=False,
-        default="prod",
-        help="Materialization target.",
+        "--materialization-target", type=str, required=False, default="prod"
     )
-
-    # Add materialization label argument
     arg_parser.add_argument(
         "--materialization-label",
         type=str,
         required=False,
         default="basedosdados",
-        help="Materialization label.",
     )
-
-    arg_parser.add_argument(
-        "--dataset-id",
-        type=str,
-        required=False,
-        help="Run dbt model for dataset",
-    )
-
-    # Get arguments
+    arg_parser.add_argument("--dataset-id", type=str, required=False)
     args = arg_parser.parse_args()
 
-    # Get datasets and tables from modified files
-    existing_datasets_tables_from_modified_files = (
+    existing_datasets_tables = (
         []
         if args.modified_files is None
         else get_datasets_and_tables_for_modified_files(
@@ -442,13 +435,8 @@ if __name__ == "__main__":
         )
     )
 
-    # Sync and create tables
     if args.sync_bucket:
-        for (
-            dataset_id,
-            table_id,
-            _,
-        ) in existing_datasets_tables_from_modified_files:
+        for dataset_id, table_id, _ in existing_datasets_tables:
             print(
                 f"\n\n\n\n************   START CREATING TABLE {dataset_id}.{table_id}...   ************"
             )
@@ -459,123 +447,56 @@ if __name__ == "__main__":
                 destination_bucket_name=args.destination_bucket_name,
                 backup_bucket_name=args.backup_bucket_name,
             )
-            if table_was_created:
-                print(
-                    f"============   TABLE CREATED: basedosdados-staging.{dataset_id}_staging.{table_id}   ============"
-                )
-            else:
-                print(
-                    f"============   TABLE was NOT created: basedosdados-staging.{dataset_id}_staging.{table_id}   ============"
-                )
+            status = (
+                "TABLE CREATED"
+                if table_was_created
+                else "TABLE was NOT created"
+            )
+            print(
+                f"============   {status}: basedosdados-staging.{dataset_id}_staging.{table_id}   ============"
+            )
     else:
         print("Skipping sync bucket because --sync-bucket was not set")
 
-    # Launch materialization flows
-    backend_prefect = bd.Backend(graphql_url=f"{PREFECT_BASE_URL}/api")
-    backend_prefect.graphql_url = f"{PREFECT_BASE_URL}/api"
-
-    flow_id = get_materialization_flow_id(
-        backend=backend_prefect,
-        auth_token=args.prefect_backend_token,
-        project="staging"
-        if args.materialization_target == "dev"
-        and args.materialization_label == "basedosdados-dev"
-        else "main",
-    )
-
-    datastes_tables_for_flow_run = existing_datasets_tables_from_modified_files
-
+    datasets_tables_for_flow_run = list(existing_datasets_tables)
     if args.dataset_id is not None:
-        datastes_tables_for_flow_run.append((args.dataset_id, "", False))
+        datasets_tables_for_flow_run.append((args.dataset_id, "", False))
 
-    launched_flow_run_ids = []
-
-    for (
-        dataset_id,
-        table_id,
-        alias,
-    ) in datastes_tables_for_flow_run:
+    for dataset_id, table_id, alias in datasets_tables_for_flow_run:
         print(
             f"Launching materialization flow for {dataset_id}.{table_id} (alias={alias})..."
         )
-        parameters = {
-            "dataset_id": dataset_id,
-            "table_id": table_id,
-            "target": args.materialization_target,
-            "dbt_command": args.dbt_command,
-            "dbt_alias": alias,
-            # Download csv file is true by default
-            # We disable when materialization target is not prod
-            "download_csv_file": args.materialization_target == "prod",
-            # Disable elementary is true by default
-            # We disable when run dbt for elementary dataset
-            "disable_elementary": False,
-            "_vars": {
-                "job_name": f"{dataset_id}.{table_id}",
-                "job_id": flow_id,
-                "disable_run_results": False,
-                "disable_tests_results": False,
-                "disable_dbt_artifacts_autoupload": False,
-                "disable_dbt_invocation_autoupload": True,
+        flow_run = run_deployment(
+            name=DBT_MODEL_DEPLOYMENT,
+            parameters={
+                "dataset_id": dataset_id,
+                "table_id": table_id,
+                "dbt_command": args.dbt_command,
+                "dbt_alias": alias,
+                "target": args.materialization_target,
+                # Download csv file is true by default.
+                # We disable when materialization target is not prod.
+                "download_csv_file": args.materialization_target == "prod",
             },
-        }
-        mutation = """
-        mutation ($flow_id: UUID, $parameters: JSON, $label: String!) {
-            create_flow_run (input: {
-                flow_id: $flow_id,
-                parameters: $parameters,
-                labels: [$label],
-            }) {
-                id
-            }
-        }
-        """
-        variables = {
-            "flow_id": flow_id,
-            "parameters": parameters,
-            "label": args.materialization_label,
-        }
-        response = backend_prefect._execute_query(
-            mutation,
-            variables,
-            headers={"Authorization": f"Bearer {args.prefect_backend_token}"},
+            timeout=None,
+            as_subflow=False,
         )
-        flow_run_id = response["create_flow_run"]["id"]
-        launched_flow_run_ids.append(flow_run_id)
-        flow_run_url = f"{PREFECT_BASE_URL}/flow-run/{flow_run_id}"
+        flow_run_url = f"{PREFECT_UI_URL}/runs/flow-run/{flow_run.id}"
         print(f" - Materialization flow run launched: {flow_run_url}")
 
-    # Keep monitoring the launched flow runs until they are finished
-    for launched_flow_run_id in launched_flow_run_ids:
-        print(f"Monitoring flow run {launched_flow_run_id}...")
-        flow_run_state = get_flow_run_state(
-            flow_run_id=launched_flow_run_id,
-            backend=backend_prefect,
-            auth_token=args.prefect_backend_token,
-        )
-        while flow_run_state not in ["Success", "Failed", "Cancelled"]:
-            sleep(5)
-            flow_run_state = get_flow_run_state(
-                flow_run_id=launched_flow_run_id,
-                backend=backend_prefect,
-                auth_token=args.prefect_backend_token,
-            )
-        if flow_run_state != "Success":
-            messages = get_flow_log_error_messages(
-                flow_run_id=launched_flow_run_id,
-                backend=backend_prefect,
-                auth_token=args.prefect_backend_token,
-            )
-            for message in messages:
-                print(message)
-
-            flow_run_url = (
-                f"{PREFECT_BASE_URL}/flow-run/{launched_flow_run_id}"
-            )
-
+        state = flow_run.state
+        if state is None or not state.is_completed():
+            state_name = state.name if state is not None else "Unknown"
+            print_flow_run_error_logs(str(flow_run.id))
             raise Exception(
-                f'Flow run {launched_flow_run_id} finished with state "{flow_run_state}". '
-                f"Check the full logs at {flow_run_url}"
+                f"Flow run {flow_run.id} for {dataset_id}.{table_id} finished "
+                f'with state "{state_name}". Check the full logs at {flow_run_url}'
             )
 
-        print(f"Flow run {launched_flow_run_id} finished successfully.")
+        print(
+            f"Flow run {flow_run.id} ({dataset_id}.{table_id}) finished successfully."
+        )
+
+
+if __name__ == "__main__":
+    run_table_approve()

@@ -90,9 +90,11 @@ def build_dictionary(year: int, path: str) -> pd.DataFrame:
 
     # Some records contains multiple values
     df["chave"] = df["chave"].apply(
-        lambda value: value.split("\n")
-        if isinstance(value, str) and "\n" in value
-        else value
+        lambda value: (
+            value.split("\n")
+            if isinstance(value, str) and "\n" in value
+            else value
+        )
     )  # type: ignore
 
     assert isinstance(df, pd.DataFrame)
@@ -246,9 +248,11 @@ def gen_unique_key_value(col_name: str, df: pd.DataFrame):
     def make_temporal_cov(interval):
         interval_sort = list(
             map(
-                lambda year: ""
-                if year == max(YEARS) or year == min(YEARS)
-                else str(year),
+                lambda year: (
+                    ""
+                    if year == max(YEARS) or year == min(YEARS)
+                    else str(year)
+                ),
                 np.sort(interval),
             ),
         )

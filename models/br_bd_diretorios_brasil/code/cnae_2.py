@@ -254,12 +254,14 @@ def criar_dataframe_indicadores(df_concatenado, versoes):
     for versao in versoes:
         indicador_col = f"indicador_{versao}"
         df_indicadores[indicador_col] = df_indicadores["subclasse"].apply(
-            lambda x: 1
-            if x
-            in df_concatenado[df_concatenado["versao_cnae"] == versao][  # noqa: B023
-                "subclasse"
-            ].to_numpy()
-            else 0
+            lambda x: (
+                1
+                if x
+                in df_concatenado[df_concatenado["versao_cnae"] == versao][  # noqa: B023
+                    "subclasse"
+                ].to_numpy()
+                else 0
+            )
         )
     return df_indicadores
 

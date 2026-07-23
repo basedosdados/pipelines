@@ -1,144 +1,63 @@
 """
-Flows for br_cgu_licitacao_contrato
+Flows para br_cgu_licitacao_contrato — Prefect 3.
 """
 
-from copy import deepcopy
+from prefect import flow
 
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
-
-from pipelines.constants import constants
-from pipelines.crawler.cgu.flows import flow_cgu_licitacao_contrato
-from pipelines.datasets.br_cgu_licitacao_contrato.schedules import (
-    every_day_contrato_compra,
-    every_day_contrato_item,
-    every_day_contrato_termo_aditivo,
-    every_day_licitacao,
-    every_day_licitacao_item,
-    every_day_licitacao_participante,
-)
-
-# ! ------------------ Contrato Compra --------------------
-
-br_cgu_licitacao_contrato__contrato_compra = deepcopy(
-    flow_cgu_licitacao_contrato
-)
-br_cgu_licitacao_contrato__contrato_compra.name = (
-    "br_cgu_licitacao_contrato.contrato_compra"
-)
-br_cgu_licitacao_contrato__contrato_compra.code_owners = ["trick"]
-br_cgu_licitacao_contrato__contrato_compra.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_cgu_licitacao_contrato__contrato_compra.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_cgu_licitacao_contrato__contrato_compra.schedule = every_day_contrato_compra
+from pipelines.crawler.cgu.flows import _run_cgu_licitacao_contrato
 
 
-# ! ------------------ Contrato Item --------------------
+def _flow_factory(table_id: str, cron: str | None):
+    @flow(
+        name=f"br_cgu_licitacao_contrato__{table_id}",
+        log_prints=True,
+    )
+    def _flow(
+        dataset_id: str = "br_cgu_licitacao_contrato",
+        table_id: str = table_id,
+        relative_month: int = 1,
+        materialize_after_dump: bool = True,
+        dbt_alias: bool = True,
+        update_metadata: bool = True,
+        target: str = "prod",
+        force_run: bool = False,
+    ) -> None:
+        _run_cgu_licitacao_contrato(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            relative_month=relative_month,
+            materialize_after_dump=materialize_after_dump,
+            dbt_alias=dbt_alias,
+            update_metadata=update_metadata,
+            target=target,
+            force_run=force_run,
+        )
 
-br_cgu_licitacao_contrato__contrato_item = deepcopy(
-    flow_cgu_licitacao_contrato
-)
-br_cgu_licitacao_contrato__contrato_item.name = (
-    "br_cgu_licitacao_contrato.contrato_item"
-)
-br_cgu_licitacao_contrato__contrato_item.code_owners = ["trick"]
-br_cgu_licitacao_contrato__contrato_item.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_cgu_licitacao_contrato__contrato_item.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_cgu_licitacao_contrato__contrato_item.schedule = every_day_contrato_item
-
-# ! ------------------ Contrato Termo Aditivo ------------------
-
-br_cgu_licitacao_contrato__contrato_termo_aditivo = deepcopy(
-    flow_cgu_licitacao_contrato
-)
-br_cgu_licitacao_contrato__contrato_termo_aditivo.name = (
-    "br_cgu_licitacao_contrato.contrato_termo_aditivo"
-)
-br_cgu_licitacao_contrato__contrato_termo_aditivo.code_owners = ["trick"]
-br_cgu_licitacao_contrato__contrato_termo_aditivo.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_cgu_licitacao_contrato__contrato_termo_aditivo.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_cgu_licitacao_contrato__contrato_termo_aditivo.schedule = (
-    every_day_contrato_termo_aditivo
-)
+    if cron:
+        _flow.deploy_schedules = [
+            {"cron": cron, "timezone": "America/Sao_Paulo"}
+        ]
+    return _flow
 
 
-# ! ------------------ Licitação ------------------
-
-br_cgu_licitacao_contrato__licitacao = deepcopy(flow_cgu_licitacao_contrato)
-br_cgu_licitacao_contrato__licitacao.name = (
-    "br_cgu_licitacao_contrato.licitacao"
+br_cgu_licitacao_contrato__contrato_compra = _flow_factory(
+    "contrato_compra", "0 21 * * *"
 )
-br_cgu_licitacao_contrato__licitacao.code_owners = ["trick"]
-br_cgu_licitacao_contrato__licitacao.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
+br_cgu_licitacao_contrato__contrato_item = _flow_factory(
+    "contrato_item", "15 20 * * *"
 )
-br_cgu_licitacao_contrato__licitacao.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+br_cgu_licitacao_contrato__contrato_termo_aditivo = _flow_factory(
+    "contrato_termo_aditivo", "30 20 * * *"
 )
-br_cgu_licitacao_contrato__licitacao.schedule = every_day_licitacao
-
-
-# ! ------------------ Licitação Empenho ------------------
-
-br_cgu_licitacao_contrato__licitacao_empenho = deepcopy(
-    flow_cgu_licitacao_contrato
+br_cgu_licitacao_contrato__licitacao = _flow_factory(
+    "licitacao", "45 20 * * *"
 )
-br_cgu_licitacao_contrato__licitacao_empenho.name = (
-    "br_cgu_licitacao_contrato.licitacao_empenho"
+br_cgu_licitacao_contrato__licitacao_empenho = _flow_factory(
+    "licitacao_empenho", None
 )
-br_cgu_licitacao_contrato__licitacao_empenho.code_owners = ["trick"]
-br_cgu_licitacao_contrato__licitacao_empenho.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
+br_cgu_licitacao_contrato__licitacao_item = _flow_factory(
+    "licitacao_item", "20 20 * * *"
 )
-br_cgu_licitacao_contrato__licitacao_empenho.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_cgu_licitacao_contrato__licitacao_empenho.schedule = (every_day_licitacao_empenho)
-
-# ! ------------------ Licitação Item ------------------
-
-br_cgu_licitacao_contrato__licitacao_item = deepcopy(
-    flow_cgu_licitacao_contrato
-)
-br_cgu_licitacao_contrato__licitacao_item.name = (
-    "br_cgu_licitacao_contrato.licitacao_item"
-)
-br_cgu_licitacao_contrato__licitacao_item.code_owners = ["trick"]
-br_cgu_licitacao_contrato__licitacao_item.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_cgu_licitacao_contrato__licitacao_item.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_cgu_licitacao_contrato__licitacao_item.schedule = every_day_licitacao_item
-
-
-# ! ------------------ Licitação Participante ------------------
-
-br_cgu_licitacao_contrato__licitacao_participante = deepcopy(
-    flow_cgu_licitacao_contrato
-)
-br_cgu_licitacao_contrato__licitacao_participante.name = (
-    "br_cgu_licitacao_contrato.licitacao_participante"
-)
-br_cgu_licitacao_contrato__licitacao_participante.code_owners = ["trick"]
-br_cgu_licitacao_contrato__licitacao_participante.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_cgu_licitacao_contrato__licitacao_participante.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_cgu_licitacao_contrato__licitacao_participante.schedule = (
-    every_day_licitacao_participante
+br_cgu_licitacao_contrato__licitacao_participante = _flow_factory(
+    "licitacao_participante", "35 20 * * *"
 )

@@ -10,7 +10,7 @@
         cluster_by="sigla_uf",
     )
 }}
--- atualizado em 2025-11
+-- atualizado em 2026-01-27
 select
     safe_cast(ano as int64) ano,
     safe_cast(sigla_uf as string) sigla_uf,
@@ -22,10 +22,20 @@ select
     ) tipo_organizacao_administrativa,
     safe_cast(rede as string) rede,
     safe_cast(id_ies as string) id_ies,
-    safe_cast(nome_curso as string) nome_curso,
+    safe_cast(initcap(nome_curso) as string) nome_curso,
     safe_cast(id_curso as string) id_curso,
-    safe_cast(nome_curso_cine as string) nome_curso_cine,
-    safe_cast(id_curso_cine as string) id_curso_cine,
+    -- Staging até 2023: código CINE em nome_curso_cine e nome em id_curso_cine.
+    -- A partir de 2024 coincide com o dicionário; unificamos semântica no modelo.
+    case
+        when safe_cast(ano as int64) <= 2023
+        then safe_cast(id_curso_cine as string)
+        else safe_cast(nome_curso_cine as string)
+    end as nome_curso_cine,
+    case
+        when safe_cast(ano as int64) <= 2023
+        then safe_cast(nome_curso_cine as string)
+        else safe_cast(id_curso_cine as string)
+    end as id_curso_cine,
     safe_cast(id_area_geral as string) id_area_geral,
     safe_cast(nome_area_geral as string) nome_area_geral,
     safe_cast(id_area_especifica as string) id_area_especifica,

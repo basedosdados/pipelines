@@ -1,257 +1,55 @@
 """
-Tasks for metadata
+Tasks Prefect da camada de metadata — a borda que os flows consomem.
+
+Cada `@task` aqui é uma interface pronta para uso em flows: constrói o
+`MetadataClient`/`BigQueryReader` a partir do `env`/`bq_project` informados e
+delega para as funções puras de orquestração de `register.py`. O autor do flow
+só precisa escolher um `CoverageSpec` e os identificadores da tabela.
 """
 
-import asyncio
-from datetime import datetime, timedelta
+from __future__ import annotations
+
+from datetime import date, datetime
 
 import basedosdados as bd
-import pandas as pd
 from prefect import task
+from redis_pal import RedisPal
 
 from pipelines.constants import constants
-from pipelines.utils.metadata.utils import (
-    able_to_query_bigquery_metadata,
-    check_if_values_are_accepted,
-    create_update,
-    extract_last_date_from_bq,
-    get_api_last_update_date,
-    get_api_most_recent_date,
-    get_billing_project_id,
-    get_coverage_parameters,
-    get_id,
-    get_table_status,
-    get_url,
-    update_data_source_poll,
-    update_data_source_update_date,
-    update_date_from_bq_metadata,
-    update_row_access_policy,
+from pipelines.utils.metadata.bq import BigQueryReader
+from pipelines.utils.metadata.client import MetadataClient
+from pipelines.utils.metadata.constants import constants as metadata_constants
+from pipelines.utils.metadata.domain import CoverageSpec
+from pipelines.utils.metadata.register import (
+    commit_source_size_update,
+    commit_source_update,
+    poll_source_for_update,
+    poll_source_size_for_update,
+    register_source_poll,
+    register_source_poll_by_size,
+    register_table_materialization,
 )
-from pipelines.utils.metadata.utils_async import (
-    create_update_quality_checks_async,
-)
-from pipelines.utils.utils import log
+from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
+
+
+def __get_redis_client(
+    host: str = "redis.redis.svc.cluster.local",
+    port: int = 6379,
+    db: int = 0,
+    password: str | None = None,
+) -> RedisPal:
+    return RedisPal(host=host, port=port, db=db, password=password)
 
 
 @task
 def get_today_date():
+    """Devolve a data de hoje como string `YYYY-MM-DD`.
+
+    Sem parâmetros. Útil em flows que precisam carimbar a execução com a data
+    corrente (ex.: nomear partições, registrar a data de extração).
+    """
     d = datetime.today()
     return d.strftime("%Y-%m-%d")
-
-
-@task
-def update_django_metadata(
-    dataset_id: str,
-    table_id: str,
-    date_column_name: dict | None = None,
-    date_format: str = "%Y-%m",
-    coverage_type: str = "part_bdpro",
-    time_delta: dict | None = None,
-    prefect_mode: str = "prod",
-    api_mode: str = "prod",
-    bq_project: str = "basedosdados",
-    historical_database: bool = True,
-):
-    """
-          Updates temporal coverage Django metadata. Version 1.3.
-
-    Args:
-          dataset_id (str): O ID do conjunto de dados.
-          table_id (str): O ID da tabela dentro do conjunto de dados.
-          nome_coluna_data (dict): Um dicionário especificando os nomes das colunas usadas para extrair a cobertura temporal.
-              Chaves válidas estão descritas no arquivo 'constants.py'.
-          date_format (str): O formato da data a ser atualizado no Django.
-          coverage_type (str): pode ser "part_bdpro", "all_bdpro" ou "all_free"
-          time_delta (dict): dicionário com unidade temporal e valor do delta a ser aplicado caso 'part_bdpro'
-          prefect_mode (str): colocar o materialization_mode do flow
-          api_mode (str): pode ser 'prod ou 'staging'
-          bq_project (str): projeto que será consultado para obter a cobertura temporal
-          historical_database (bool): marcar como False para casos em que a base nao possua uma coluna que represente a data de cobertura
-
-      Returns:
-          -   None
-
-          Raises:
-              -   Exception: If the  coverage_type, time_delta or date_column_name is not supported.
-              -   Exception: If try to update published table with non prod data
-
-    """
-
-    date_column_name = (
-        {"year": "ano", "month": "mes"}
-        if date_column_name is None
-        else date_column_name
-    )
-    time_delta = {"months": 6} if time_delta is None else time_delta
-
-    check_if_values_are_accepted(
-        coverage_type=coverage_type,
-        time_delta=time_delta,
-        date_column_name=date_column_name,
-    )
-
-    billing_project_id = get_billing_project_id(mode=prefect_mode)
-
-    backend = bd.Backend(graphql_url=get_url(api_mode))
-
-    django_table_id = backend._get_table_id_from_name(
-        gcp_dataset_id=dataset_id, gcp_table_id=table_id
-    )
-
-    if api_mode == "prod" and bq_project != "basedosdados":
-        log(
-            "WARNING: Production API Mode with Non-Production Project Selected"
-        )
-
-        status = get_table_status(table_id=django_table_id, backend=backend)
-        if status != "under_review":
-            raise ValueError(
-                "The table status should be under_review to update metadata with non-production data"
-            )
-
-    last_date = extract_last_date_from_bq(
-        dataset_id,
-        table_id,
-        date_format,
-        date_column_name,
-        billing_project_id,
-        bq_project,
-        historical_database,
-    )
-
-    free_parameters, bdpro_parameters = get_coverage_parameters(
-        coverage_type,
-        last_date,
-        time_delta,
-        django_table_id,
-        date_format,
-        historical_database,
-        backend=backend,
-    )
-
-    if free_parameters is not None:
-        create_update(
-            query_class="allDatetimerange",
-            query_parameters={"$coverage_Id: ID": free_parameters["coverage"]},
-            mutation_class="CreateUpdateDateTimeRange",
-            mutation_parameters=free_parameters,
-            update=True,
-            backend=backend,
-        )
-
-    if bdpro_parameters is not None:
-        create_update(
-            query_class="allDatetimerange",
-            query_parameters={
-                "$coverage_Id: ID": bdpro_parameters["coverage"]
-            },
-            mutation_class="CreateUpdateDateTimeRange",
-            mutation_parameters=bdpro_parameters,
-            update=True,
-            backend=backend,
-        )
-
-    if coverage_type == "part_bdpro":
-        update_row_access_policy(
-            bq_project,
-            dataset_id,
-            table_id,
-            billing_project_id,
-            date_column_name,
-            date_format,
-            free_parameters,
-        )
-
-    if able_to_query_bigquery_metadata(billing_project_id, bq_project):
-        _, update_id = get_id(
-            query_class="allUpdate",
-            query_parameters={"$table_Id: ID": django_table_id},
-            backend=backend,
-        )
-
-        latest = update_date_from_bq_metadata(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            billing_project_id=billing_project_id,
-            project_id=bq_project,
-        )
-
-        create_update(
-            query_class="allUpdate",
-            query_parameters={"$id: ID": update_id},
-            mutation_class="CreateUpdateUpdate",
-            mutation_parameters={
-                "id": update_id,
-                "latest": latest.isoformat(),
-            },
-            update=True,
-            backend=backend,
-        )
-
-
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
-def check_if_data_is_outdated(
-    dataset_id: str,
-    table_id: str,
-    data_source_max_date: datetime,
-    date_type: str = "data_max_date",
-    date_format: str = "%Y-%m-%d",
-    api_mode: str = "prod",
-) -> bool:
-    """Essa task checa se há necessidade de atualizar os dados no BQ
-
-    Args:
-        dataset_id e table_id(string): permite encontrar na api a última data de cobertura
-        date_format (str): O formato da data a ser procurado no Django
-        data_source_max_date (date): A data mais recente dos dados da fonte original
-        api_mode (str): pode ser 'prod ou 'staging'
-
-    Returns:
-        bool: TRUE se a data da fonte original for maior que a data mais recente registrada na API e FALSE caso contrário.
-    """
-    backend = bd.Backend(graphql_url=get_url(api_mode))
-
-    if isinstance(data_source_max_date, datetime):
-        data_source_max_date = data_source_max_date.date()
-    if isinstance(data_source_max_date, str):
-        data_source_max_date = datetime.strptime(
-            data_source_max_date, date_format
-        ).date()
-    if isinstance(data_source_max_date, pd.Timestamp):
-        data_source_max_date = data_source_max_date.date()
-
-    backend = bd.Backend(graphql_url=constants.API_URL.value["prod"])
-
-    if date_type == "data_max_date":
-        data_api = get_api_most_recent_date(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            backend=backend,
-            date_format=date_format,
-        )
-
-    if date_type == "last_update_date":
-        data_api = get_api_last_update_date(
-            dataset_id=dataset_id, table_id=table_id, backend=backend
-        )
-
-    log(f"Data na fonte: {data_source_max_date}")
-    log(f"Data nos metadados da BD: {data_api}")
-
-    update_data_source_poll(dataset_id, table_id, backend)
-    # Compara as datas para verificar se há atualizações
-    if data_source_max_date > data_api:
-        log("Há atualizações disponíveis")
-        update_data_source_update_date(
-            dataset_id, table_id, date_type, data_source_max_date, backend
-        )
-        return True  # Há atualizações disponíveis
-    else:
-        log("Não há novas atualizações disponíveis")
-        return False
 
 
 @task
@@ -261,6 +59,24 @@ def task_get_api_most_recent_date(
     date_format,
     api_mode: str = "prod",
 ):
+    """Lê do backend a data de cobertura mais recente já registrada para a tabela.
+
+    Consulta os `DateTimeRange` de todas as coberturas da tabela na API e devolve
+    a maior data de fim. Útil para decidir, num flow, se a fonte traz dados mais
+    novos do que o que já está publicado.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery (ex.: `br_bcb_estban`).
+        table_id: ID da tabela no GCP/BigQuery.
+        date_format: granularidade da cobertura. Um de `"%Y-%m-%d"`, `"%Y-%m"`
+            ou `"%Y"`; deve corresponder à granularidade real da coluna de
+            cobertura da tabela — um formato incompatível levanta `ValueError`.
+        api_mode: backend a consultar — `"prod"` (padrão) ou `"staging"`.
+
+    Returns:
+        datetime.date — a maior data de fim entre todas as coberturas (free e
+        pro) da tabela.
+    """
     backend = bd.Backend(graphql_url=get_url(api_mode))
     return get_api_most_recent_date(
         dataset_id=dataset_id,
@@ -270,71 +86,340 @@ def task_get_api_most_recent_date(
     )
 
 
-#####             #####
-## Quality check's   ##
-#####             #####
+def _coerce_to_date(value: object, date_format: str) -> datetime.date | None:
+    """Normaliza a data-da-fonte vinda do flow para `datetime.date`.
 
-
-@task
-def query_tests_results() -> pd.DataFrame:
+    As funções puras a jusante exigem `date`; aqui, no limite flow→domínio, uma
+    string crua (ex.: `get_latest_file` devolve `"2026-04"`), um `datetime` ou um
+    `pd.Timestamp` (subclasse de `datetime.datetime`, coberta pelo ramo de
+    datetime) viram `date`. `None` passa adiante como `None`.
     """
-    Task to query recent test results from basedosdados.
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
+        return datetime.strptime(value, date_format).date()
+    raise TypeError(f"source_max_date inesperado: {type(value).__name__}")
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def register_source_poll_task(
+    dataset_id: str,
+    table_id: str,
+    source_max_date: datetime.date | str | None = None,
+    env: str = "dev",
+    date_format: str = "%Y-%m-%d",
+) -> bool:
+    """Registra que a fonte original foi consultada hoje ("poll por data").
+
+    Sempre grava um `Poll` na fonte (data de hoje). Se `source_max_date` indica
+    dados mais novos do que o `Table.Update.latest` atual, grava também esse
+    `RawDataSource.Update` e devolve True; caso contrário devolve False.
+
+    Use esta task quando a fonte EXPÕE uma data máxima (a maioria dos casos).
+    Para fontes que só permitem detectar mudança por tamanho de arquivo, use
+    `register_source_poll_by_size_task`.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        source_max_date: data máxima observada na fonte. Aceita `date`,
+            `datetime`, `pd.Timestamp` ou `str` no formato `date_format`. Passe
+            `None` (padrão) para registrar "só polei, sem novidade" — grava o
+            Poll e devolve False sem mexer no Update.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        date_format: formato usado para parsear `source_max_date` quando vier
+            como string. Padrão `"%Y-%m-%d"`; use `"%Y-%m"` ou `"%Y"` conforme a
+            granularidade da string.
 
     Returns:
-    - pd.DataFrame: A pandas DataFrame containing recent test results with the following columns:
-        - 'name': The name of the test.
-        - 'description': The description of the test result (typically the column name).
-        - 'status': Indicates whether the test passed or failed.
-        - 'dataset_id': The ID of the dataset containing the tested table.
-        - 'table_id': The ID of the tested table.
+        bool — True se um novo `Update` foi gravado (fonte trouxe novidade),
+        False caso contrário.
     """
-
-    billing_project_id = get_billing_project_id(mode="prod")
-    query_bd = """
-    with tests_order as (
-    select
-        test_short_name as name,
-        column_name as description,
-        status,
-        schema_name as dataset_id,
-        table_name as table_id,
-        row_number() over (partition by test_short_name, schema_name, table_name order by created_at desc) as position,
-        created_at
-    from
-        `basedosdados.elementary.elementary_test_results`
-    where
-        date(created_at) >= date_sub(current_date(), interval 7 DAY))
-    select
-        name,
-        description,
-        status,
+    client = MetadataClient(env=env)
+    return register_source_poll(
+        client,
         dataset_id,
-        table_id
-    from tests_order
-    where position = 1
-    """
-
-    t = bd.read_sql(
-        query=query_bd,
-        billing_project_id=billing_project_id,
-        from_file=True,
+        table_id,
+        _coerce_to_date(source_max_date, date_format),
     )
 
-    return t
+
+def _get_redis_client(local_execution: bool = False):
+    """Cliente Redis para o poll por tamanho. `local_execution=True` conecta em
+    localhost (exige proxy ativa p/ o pod do Redis no k8s); caso contrário usa o
+    DNS do serviço no cluster."""
+    from redis_pal import RedisPal
+
+    host = "localhost" if local_execution else "redis.redis.svc.cluster.local"
+    return RedisPal(host=host, port=6379, db=0, password=None)
 
 
-@task
-def create_update_quality_checks(tests_results: pd.DataFrame) -> None:
-    """
-    Task to create or update multiple quality checks based on test results asynchronously.
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def register_source_poll_by_size_task(
+    dataset_id: str,
+    table_id: str,
+    byte_length: int,
+    env: str = "dev",
+    local_execution: bool = False,
+) -> bool:
+    """Registra que a fonte foi consultada hoje, detectando mudança por TAMANHO.
 
-    Parameters:
-    - tests_results (pd.DataFrame): A pandas DataFrame containing test results.
+    Para fontes que não expõem data máxima (ex.: arquivos em massa). Compara o
+    `byte_length` informado com o último tamanho registrado no Redis:
+
+    - tamanho MAIOR  → grava Poll + Update(hoje), devolve True;
+    - tamanho IGUAL  → grava só Poll, devolve False;
+    - tamanho MENOR  → levanta `ValueError` (a fonte encolheu).
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        byte_length: tamanho atual da fonte em bytes.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        local_execution: se True, conecta no Redis via `localhost` (exige proxy
+            ativo para o pod do Redis); se False (padrão), usa o DNS do serviço
+            no cluster.
 
     Returns:
-    - None
-
+        bool — True se a fonte trouxe novidade (tamanho maior), False se igual.
     """
-    asyncio.run(
-        create_update_quality_checks_async(tests_results=tests_results)
+    client = MetadataClient(env=env)
+    redis = _get_redis_client(local_execution=local_execution)
+    return register_source_poll_by_size(
+        client, redis, dataset_id, table_id, byte_length
     )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def register_table_materialization_task(
+    dataset_id: str,
+    table_id: str,
+    coverage: CoverageSpec,
+    env: str = "dev",
+    bq_project: str = "basedosdados",
+    prefect_mode: str = "prod",
+) -> None:
+    """Registra a materialização de uma tabela: atualiza cobertura e atualização.
+
+    Lê o BigQuery, atualiza o(s) `Coverage.DateTimeRange` (free e/ou pro conforme
+    o tier), aplica Row Access Policies quando aplicável e atualiza
+    `Table.Update.latest`. É a task chamada ao final de um flow de
+    materialização.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        coverage: especificação da cobertura (`CoverageSpec`), união discriminada
+            pelo campo `tier`:
+            - `AllFree`       — toda a série é pública (free);
+            - `AllBdpro`      — toda a série é BD pro;
+            - `PartBdpro`     — série mista; a parte recente é BD pro e a antiga
+              é liberada após `free_lag` (padrão 6 meses);
+            - `NonHistorical` — cobertura única derivada do `last_modified` da
+              tabela no BQ (sem coluna de data).
+            Os tiers com data exigem `date_column` + `date_format` compatíveis
+            (validados pelo Pydantic).
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+            Gravar em `prod` com dados de um `bq_project` não-produtivo exige que
+            a tabela esteja `under_review`.
+        bq_project: projeto BigQuery onde a tabela vive (padrão `"basedosdados"`).
+        prefect_mode: define o projeto de billing — `"prod"` (padrão) usa
+            `basedosdados`, `"dev"` usa `basedosdados-dev`.
+
+    Returns:
+        None.
+    """
+    billing = metadata_constants.MODE_PROJECT.value[prefect_mode]
+    client = MetadataClient(env=env, billing_project=billing)
+    bq = BigQueryReader(billing_project_id=billing, bq_project=bq_project)
+    register_table_materialization(
+        client,
+        bq,
+        dataset_id,
+        table_id,
+        coverage,
+        env=env,
+        bq_project=bq_project,
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def poll_source_for_update_task(
+    dataset_id: str,
+    table_id: str,
+    source_max_date: datetime.date | str | None = None,
+    env: str = "dev",
+    date_format: str = "%Y-%m-%d",
+) -> bool:
+    """Detecta se a fonte original tem novidade hoje, sem gravar o Update.
+
+    Sempre grava um `Poll` na fonte (data de hoje) e devolve se `source_max_date`
+    indica dados mais novos do que o `Table.Update.latest` atual — mas, ao
+    contrário de `register_source_poll_task`, **não grava** o Update. A gravação
+    fica a cargo de `commit_source_update_task`, chamada ao fim do flow, após a
+    materialização. Use as duas em par quando a gravação do Update precisa ser
+    adiada para não travar runs futuras se o flow falhar no meio.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        source_max_date: data máxima observada na fonte. Aceita `date`,
+            `datetime`, `pd.Timestamp` ou `str` no formato `date_format`. Passe
+            `None` (padrão) para registrar "só polei, sem novidade" — grava o
+            Poll e devolve False.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        date_format: formato usado para parsear `source_max_date` quando vier
+            como string. Padrão `"%Y-%m-%d"`; use `"%Y-%m"` ou `"%Y"` conforme a
+            granularidade da string.
+
+    Returns:
+        bool — True se a fonte trouxe novidade (Update ainda não gravado),
+        False caso contrário.
+    """
+
+    client = MetadataClient(env=env)
+    return poll_source_for_update(
+        client,
+        dataset_id,
+        table_id,
+        _coerce_to_date(source_max_date, date_format),
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def commit_source_update_task(
+    dataset_id: str,
+    table_id: str,
+    source_max_date: datetime.date | str,
+    env: str = "dev",
+    date_format: str = "%Y-%m-%d",
+) -> None:
+    """Grava o `RawDataSource.Update` da fonte original.
+
+    Contraparte de `poll_source_for_update_task`: registra `source_max_date`
+    como o novo `Update.latest`. Deve ser chamada **só ao fim do flow**, depois
+    da materialização bem-sucedida, para que o Update só avance quando o dado de
+    fato chegou ao destino — evitando que uma falha no meio deixe o Update
+    adiantado e trave as runs seguintes.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        source_max_date: data máxima observada na fonte, gravada como o novo
+            `Update.latest`. Aceita `date`, `datetime`, `pd.Timestamp` ou `str`
+            no formato `date_format`. Obrigatória — só se commita quando há data.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        date_format: formato usado para parsear `source_max_date` quando vier
+            como string. Padrão `"%Y-%m-%d"`; use `"%Y-%m"` ou `"%Y"` conforme a
+            granularidade da string.
+
+    Returns:
+        None.
+    """
+
+    client = MetadataClient(env=env)
+    commit_source_update(
+        client,
+        dataset_id,
+        table_id,
+        _coerce_to_date(source_max_date, date_format),
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def poll_source_size_for_update_task(
+    dataset_id: str,
+    table_id: str,
+    byte_length: int,
+    env: str = "dev",
+    local_execution: bool = False,
+) -> bool:
+    """Detecta novidade por TAMANHO hoje, sem gravar histórico nem Update.
+
+    Variante por bytes de `poll_source_for_update_task`. Sempre grava um `Poll`
+    na fonte (data de hoje) e compara `byte_length` com o último tamanho no
+    Redis — mas, ao contrário de `register_source_poll_by_size_task`, **não**
+    grava o novo tamanho no histórico nem o Update. A gravação fica a cargo de
+    `commit_source_size_update_task`, chamada ao fim do flow, após a
+    materialização. Use as duas em par para não travar runs futuras se o flow
+    falhar no meio.
+
+    - tamanho MAIOR (ou primeira vez) → grava só Poll, devolve True;
+    - tamanho IGUAL  → grava só Poll, devolve False;
+    - tamanho MENOR  → levanta `ValueError` (a fonte encolheu).
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        byte_length: tamanho atual da fonte em bytes.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        local_execution: se True, conecta no Redis via `localhost` (exige proxy
+            ativo para o pod do Redis); se False (padrão), usa o DNS do serviço
+            no cluster.
+
+    Returns:
+        bool — True se a fonte trouxe novidade (tamanho maior), False se igual.
+    """
+    client = MetadataClient(env=env)
+    redis = _get_redis_client(local_execution=local_execution)
+    return poll_source_size_for_update(
+        client, redis, dataset_id, table_id, byte_length
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def commit_source_size_update_task(
+    dataset_id: str,
+    table_id: str,
+    byte_length: int,
+    env: str = "dev",
+    local_execution: bool = False,
+) -> None:
+    """Grava o histórico de tamanho (Redis) e o `RawDataSource.Update`.
+
+    Contraparte de `poll_source_size_for_update_task`: registra `byte_length` no
+    histórico do Redis (mantendo os últimos 10) e grava o `Update.latest` com a
+    data de hoje. Deve ser chamada **só ao fim do flow**, depois da
+    materialização bem-sucedida, para que histórico e Update só avancem quando o
+    dado de fato chegou ao destino — evitando que uma falha no meio deixe a
+    detecção adiantada e trave as runs seguintes.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        byte_length: tamanho atual da fonte em bytes, gravado no histórico.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        local_execution: se True, conecta no Redis via `localhost`; se False
+            (padrão), usa o DNS do serviço no cluster.
+
+    Returns:
+        None.
+    """
+    client = MetadataClient(env=env)
+    redis = _get_redis_client(local_execution=local_execution)
+    commit_source_size_update(client, redis, dataset_id, table_id, byte_length)

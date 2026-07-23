@@ -8,12 +8,6 @@ config-version: 2
 
 # This setting configures which "profile" dbt uses for this project.
 profile: default
-# Options to disable elementary models
-vars:
-  disable_run_results: false
-  disable_tests_results: false
-  disable_dbt_artifacts_autoupload: true
-  disable_dbt_invocation_autoupload: true
 # These configurations specify where dbt should look for different types of files.
 # The `source-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!
@@ -23,6 +17,7 @@ test-paths: [tests-dbt]
 macro-paths: [macros]
 snapshot-paths: [snapshots]
 target-path: target  # directory which will store compiled SQL files
+packages-install-path: "{{ env_var('DBT_PACKAGES_PATH', 'dbt_packages') }}"
 clean-targets:  # directories to be removed by `dbt clean`
   - target
   - dbt_modules
@@ -42,6 +37,9 @@ models:
     columns: true
   basedosdados:
     # Config indicated by + and applies to all files under models/example/
+    af_afrobarometer_survey:
+      +materialized: table
+      +schema: af_afrobarometer_survey
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
@@ -55,7 +53,7 @@ models:
       +materialized: table
       +schema: br_anp_precos_combustiveis
     br_ans_beneficiario:
-      +materialized: incremental
+      +materialized: table
       +schema: br_ans_beneficiario
     br_b3_cotacoes:
       +materialized: table
@@ -84,9 +82,30 @@ models:
     br_bd_diretorios_brasil:
       +materialized: table
       +schema: br_bd_diretorios_brasil
+    br_bd_diretorios_in:
+      +materialized: table
+      +schema: br_bd_diretorios_in
     br_bd_diretorios_mundo:
       +materialized: table
       +schema: br_bd_diretorios_mundo
+    br_bd_diretorios_us:
+      +materialized: table
+      +schema: br_bd_diretorios_us
+    in_tcpd_elections:
+      +materialized: table
+      +schema: in_tcpd_elections
+    us_bls_atus:
+      +materialized: table
+      +schema: us_bls_atus
+    us_bls_cpi:
+      +materialized: table
+      +schema: us_bls_cpi
+    us_census_cbp:
+      +materialized: table
+      +schema: us_census_cbp
+    us_congress_legislators:
+      +materialized: table
+      +schema: us_congress_legislators
     br_bd_indicadores:
       +materialized: table
       +schema: br_bd_indicadores
@@ -96,6 +115,9 @@ models:
     br_bd_siga_o_dinheiro:
       +materialized: table
       +schema: br_bd_siga_o_dinheiro
+    br_bndes_operacoes_contratadas:
+      +materialized: table
+      +schema: br_bndes_operacoes_contratadas
     br_camara_dados_abertos:
       +materialized: table
       +schema: br_camara_dados_abertos
@@ -300,6 +322,9 @@ models:
     br_mg_belohorizonte_smfa_iptu:
       +materialized: table
       +schema: br_mg_belohorizonte_smfa_iptu
+    br_mma_sinpatinhas:
+      +materialized: table
+      +schema: br_mma_sinpatinhas
     br_mme_consumo_energia_eletrica:
       +materialized: table
       +schema: br_mme_consumo_energia_eletrica
@@ -387,6 +412,9 @@ models:
     br_tse_filiacao_partidaria:
       +materialized: table
       +schema: br_tse_filiacao_partidaria
+    gb_eric_ess:
+      +materialized: table
+      +schema: gb_eric_ess
     example:
       +materialized: table  # Materialization type (table, table or incremental)
       +schema: example  # Overrides the default schema (defaults to what is set on profiles.yml)
@@ -405,9 +433,18 @@ models:
     test_dataset:
       +materialized: table
       +schema: test_dataset
+    us_ed_ipeds:
+      +materialized: table
+      +schema: us_ed_ipeds
+    us_medsl_elections:
+      +materialized: table
+      +schema: us_medsl_elections
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
+    world_dasanaike_sage:
+      +materialized: table
+      +schema: world_dasanaike_sage
     world_iea_pirls:
       +materialized: table
       +schema: world_iea_pirls
@@ -429,11 +466,12 @@ models:
     world_sofascore_competicoes_futebol:
       +materialized: table
       +schema: world_sofascore_competicoes_futebol
+    world_un_wpp:
+      +materialized: table
+      +schema: world_un_wpp
     world_wb_mides:
       +materialized: table
       +schema: world_wb_mides
     world_wwf_hydrosheds:
       +materialized: table
       +schema: world_wwf_hydrosheds
-  elementary:
-    +schema: elementary

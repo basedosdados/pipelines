@@ -1,0 +1,108 @@
+---
+version: 2
+models:
+  - name: br_seeg_emissoes__dicionario
+    description: Dicionário
+    columns:
+      - name: id_tabela
+        description: ID da Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura temporal
+      - name: valor
+        description: Valor
+  - name: br_seeg_emissoes__municipio
+    description: Emissões de gases de efeito estufa por município e bioma.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.70
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID do município
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: bioma
+        description: Bioma
+      - name: gas
+        description: Gás
+      - name: tipo
+        description: Tipo
+      - name: recorte
+        description: Recorte
+      - name: setor
+        description: Setor
+      - name: atividade_economica
+        description: Atividade Econômica
+      - name: categoria
+        description: Categoria
+      - name: subcategoria
+        description: Subcategoria
+      - name: produto
+        description: Produto
+      - name: detalhamento
+        description: Detalhamento
+      - name: emissao_ar2
+        description: Emissão de CO2e (segundo o 2º Relatório do IPCC)
+      - name: emissao_ar4
+        description: Emissão de CO2e (segundo o 4º Relatório do IPCC)
+      - name: emissao_ar5
+        description: Emissão de CO2e (segundo o 5º Relatório do IPCC)
+      - name: emissao_ar6
+        description: Emissão de CO2e (segundo o 6º Relatório do IPCC)
+  - name: br_seeg_emissoes__uf
+    description: Emissões de gases de efeito estufa por unidade da federação e bioma.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.70
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: bioma
+        description: Bioma
+      - name: gas
+        description: Gás
+      - name: tipo
+        description: Tipo
+      - name: recorte
+        description: Recorte
+      - name: setor
+        description: Setor
+      - name: atividade_economica
+        description: Atividade Econômica
+      - name: categoria
+        description: Categoria
+      - name: subcategoria
+        description: Subcategoria
+      - name: produto
+        description: Produto
+      - name: detalhamento
+        description: Detalhamento
+      - name: emissao
+        description: Emissão de CO2e

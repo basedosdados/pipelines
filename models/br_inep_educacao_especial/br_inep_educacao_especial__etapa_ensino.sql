@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2007, "end": 2023, "interval": 1},
+            "range": {"start": 2007, "end": 2024, "interval": 1},
         },
         cluster_by="sigla_uf",
     )
@@ -18,9 +18,13 @@ select
     safe_cast(tipo_classe as string) tipo_classe,
     safe_cast(
         case
-            when etapa_ensino = 'Ensino Médio Normal/Magistério'
+            when
+                etapa_ensino in (
+                    'Ensino Médio Normal/Magistério',
+                    'Ensino Médio - Ensino Médio Normal/Magistério'
+                )
             then 'Ensino Médio Normal - Magistério'
-            else etapa_ensino
+            else replace(etapa_ensino, "–", "-")
         end as string
     ) etapa_ensino,
     safe_cast(quantidade_matricula as numeric) quantidade_matricula

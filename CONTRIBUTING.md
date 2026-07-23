@@ -45,9 +45,6 @@ cd pipelines
 uv sync
 ```
 
-> [!WARNING]
-> Caso a instalação das dependências apresente um erro no pacote `rpy2`, é recomendado rodar a seguinte linha para instalar o `r-base`: `sudo apt-get update & apt-get install -y r-base r-base-dev libtirpc-dev libcurl4-openssl-dev libpcre2-dev`
-
 Instalar os hooks de pré-commit (ver https://pre-commit.com/ para entendimento dos hooks)
 
 ```sh

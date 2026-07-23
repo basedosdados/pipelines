@@ -1,101 +1,158 @@
 """
-Flows for br-bcb-taxa-selic
+Flow br_bcb_taxa_selic — Prefect 3.
 """
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+import os
 
-from pipelines.constants import constants
-from pipelines.datasets.br_bcb_taxa_selic.tasks import (
-    get_data_taxa_selic,
-    treat_data_taxa_selic,
+import pandas as pd
+import requests
+from prefect import flow, task
+
+from pipelines.utils.metadata.domain import (
+    AllBdpro,
+    DateFormat,
+    DateOnly,
 )
-from pipelines.utils.decorators import Flow
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.metadata.tasks import (
+    commit_source_update_task,
+    poll_source_for_update_task,
+    register_table_materialization_task,
+)
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-with Flow(
-    name="br_bcb_taxa_selic.taxa_selic",
-    code_owners=[
-        "lauris",
-    ],
-) as datasets_br_bcb_taxa_selic_diaria_flow:
-    dataset_id = Parameter(
-        "dataset_id", default="br_bcb_taxa_selic", required=True
-    )
-    table_id = Parameter("table_id", default="taxa_selic", required=True)
+DATASET_ID = "br_bcb_taxa_selic"
+TABLE_ID = "taxa_selic"
+API_URL = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?formato=json"
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
+# BCB rejects requests sem User-Agent (HTTP 406)
+_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/json",
+}
+
+
+@task(retries=3, retry_delay_seconds=10)
+def get_selic_data() -> str:
+    response = requests.get(API_URL, headers=_HEADERS, timeout=30)
+    response.raise_for_status()
+    df = pd.DataFrame(response.json())
+
+    os.makedirs(f"tmp/{TABLE_ID}/input", exist_ok=True)
+    filepath = f"tmp/{TABLE_ID}/input/{TABLE_ID}.csv"
+    df.to_csv(filepath, index=False)
+    print(f"Dados salvos: {len(df)} linhas → {filepath}")
+    return filepath
+
+
+@task
+def treat_selic_data() -> dict:
+    df = pd.read_csv(f"tmp/{TABLE_ID}/input/{TABLE_ID}.csv")
+    df["data"] = pd.to_datetime(df["data"], format="%d/%m/%Y").dt.date
+
+    os.makedirs(f"tmp/{TABLE_ID}/output", exist_ok=True)
+    filepath = f"tmp/{TABLE_ID}/output/{TABLE_ID}.csv"
+    df.to_csv(filepath, index=False)
+    max_date = str(df["data"].max())
+    print(f"Dados tratados: {len(df)} linhas, última data: {max_date}")
+    return {"save_output_path": filepath, "max_date": max_date}
+
+
+@flow(
+    name="br_bcb_taxa_selic__taxa_selic",
+    log_prints=True,
+)
+def br_bcb_taxa_selic__taxa_selic(
+    dataset_id: str = DATASET_ID,
+    table_id: str = TABLE_ID,
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
+    get_selic_data()
+    file_info = treat_selic_data()
 
-    input_filepath = get_data_taxa_selic(
-        table_id=table_id, upstream_tasks=[rename_flow_run]
-    )
+    if not force_run:
+        has_new_data = poll_source_for_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=file_info["max_date"],
+            env="prod",
+            date_format="%Y-%m-%d",
+        )
+        if not has_new_data:
+            return
 
-    file_info = treat_data_taxa_selic(
-        table_id=table_id, upstream_tasks=[input_filepath]
-    )
-
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
+    upload_to_gcs(
         data_path=file_info["save_output_path"],
         dataset_id=dataset_id,
         table_id=table_id,
+        bucket_name="basedosdados-dev",
         dump_mode="append",
-        upstream_tasks=[file_info],
     )
 
-    wait_for_materialization = run_dbt(
+    run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
-        upstream_tasks=[wait_upload_table],
+        target="dev",
     )
 
-    with case(materialize_after_dump, True):
-        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-            data_path=file_info["save_output_path"],
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=file_info["save_output_path"],
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[wait_for_materialization],
+            coverage=AllBdpro(
+                date_column=DateOnly(col="data"),
+                date_format=DateFormat.YEAR_MD,
+            ),
+            env="prod",
+            bq_project="basedosdados",
         )
 
-        with case(update_metadata, True):
-            update_django_metadata(
+        if file_info["max_date"] is not None:
+            commit_source_update_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                date_column_name={"date": "data"},
+                source_max_date=file_info["max_date"],
+                env="prod",
                 date_format="%Y-%m-%d",
-                coverage_type="all_bdpro",
-                bq_project="basedosdados",
-                upstream_tasks=[wait_upload_prod],
             )
 
-datasets_br_bcb_taxa_selic_diaria_flow.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-datasets_br_bcb_taxa_selic_diaria_flow.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# datasets_br_bcb_taxa_selic_diaria_flow.schedule = (
-#     schedule_every_weekday_taxa_selic
-# )
+
+br_bcb_taxa_selic__taxa_selic.deploy_schedules = [
+    {"cron": "0 8 * * *", "timezone": "America/Sao_Paulo"}
+]

@@ -1,89 +1,55 @@
 """
-Flows for br_rj_isp_estatisticas_seguranca.
+Flows for br_rj_isp_estatisticas_seguranca — Prefect 3.
 """
 
-from copy import deepcopy
+from prefect import flow
 
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from pipelines.crawler.isp.flows import _run_isp
 
-from pipelines.constants import constants
-from pipelines.crawler.isp.flows import (
-    flow_isp,
-)
-from pipelines.datasets.br_rj_isp_estatisticas_seguranca.schedules import (
-    every_month_armas_apreendidas_mensal,
-    every_month_evolucao_mensal_cisp,
-    every_month_evolucao_mensal_municipio,
-    every_month_evolucao_mensal_uf,
-    every_month_evolucao_policial_morto_servico_mensal,
-    every_month_feminicidio_mensal_cisp,
-)
 
-evolucao_mensal_cisp = deepcopy(flow_isp)
-evolucao_mensal_cisp.name = (
-    "br_rj_isp_estatisticas_seguranca.evolucao_mensal_cisp"
-)
-evolucao_mensal_cisp.code_owners = ["trick"]
-evolucao_mensal_cisp.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-evolucao_mensal_cisp.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-evolucao_mensal_cisp.schedule = every_month_evolucao_mensal_cisp
+def _isp_flow(table_id: str, cron: str):
+    @flow(
+        name=f"br_rj_isp_estatisticas_seguranca__{table_id}",
+        log_prints=True,
+    )
+    def _flow(
+        dataset_id: str = "br_rj_isp_estatisticas_seguranca",
+        table_id: str = table_id,
+        materialize_after_dump: bool = True,
+        dbt_alias: bool = True,
+        update_metadata: bool = True,
+        target: str = "prod",
+        force_run: bool = False,
+    ) -> None:
+        _run_isp(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            materialize_after_dump=materialize_after_dump,
+            dbt_alias=dbt_alias,
+            update_metadata=update_metadata,
+            target=target,
+            force_run=force_run,
+        )
 
-evolucao_mensal_uf = deepcopy(flow_isp)
-evolucao_mensal_uf.name = "br_rj_isp_estatisticas_seguranca.evolucao_mensal_uf"
-evolucao_mensal_uf.code_owners = ["trick"]
-evolucao_mensal_uf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-evolucao_mensal_uf.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-evolucao_mensal_uf.schedule = every_month_evolucao_mensal_uf
+    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    return _flow
 
-evolucao_mensal_municipio = deepcopy(flow_isp)
-evolucao_mensal_municipio.name = (
-    "br_rj_isp_estatisticas_seguranca.evolucao_mensal_municipio  "
-)
-evolucao_mensal_municipio.code_owners = ["trick"]
-evolucao_mensal_municipio.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-evolucao_mensal_municipio.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-evolucao_mensal_municipio.schedule = every_month_evolucao_mensal_municipio
 
-armas_apreendidas_mensal = deepcopy(flow_isp)
-armas_apreendidas_mensal.name = (
-    "br_rj_isp_estatisticas_seguranca.armas_apreendidas_mensal"
+br_rj_isp_estatisticas_seguranca__evolucao_mensal_cisp = _isp_flow(
+    "evolucao_mensal_cisp", "5 10 * * *"
 )
-armas_apreendidas_mensal.code_owners = ["trick"]
-armas_apreendidas_mensal.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-armas_apreendidas_mensal.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+br_rj_isp_estatisticas_seguranca__evolucao_policial_morto_servico_mensal = (
+    _isp_flow("evolucao_policial_morto_servico_mensal", "10 10 * * *")
 )
-armas_apreendidas_mensal.schedule = every_month_armas_apreendidas_mensal
-
-evolucao_policial_morto_servico_mensal = deepcopy(flow_isp)
-evolucao_policial_morto_servico_mensal.name = (
-    "br_rj_isp_estatisticas_seguranca.evolucao_policial_morto_servico_mensal"
+br_rj_isp_estatisticas_seguranca__armas_apreendidas_mensal = _isp_flow(
+    "armas_apreendidas_mensal", "15 10 * * *"
 )
-evolucao_policial_morto_servico_mensal.code_owners = ["trick"]
-evolucao_policial_morto_servico_mensal.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
+br_rj_isp_estatisticas_seguranca__evolucao_mensal_municipio = _isp_flow(
+    "evolucao_mensal_municipio", "20 10 * * 5"
 )
-evolucao_policial_morto_servico_mensal.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+br_rj_isp_estatisticas_seguranca__evolucao_mensal_uf = _isp_flow(
+    "evolucao_mensal_uf", "25 10 * * *"
 )
-evolucao_policial_morto_servico_mensal.schedule = (
-    every_month_evolucao_policial_morto_servico_mensal
+br_rj_isp_estatisticas_seguranca__feminicidio_mensal_cisp = _isp_flow(
+    "feminicidio_mensal_cisp", "40 10 * * *"
 )
-
-feminicidio_mensal_cisp = deepcopy(flow_isp)
-feminicidio_mensal_cisp.name = (
-    "br_rj_isp_estatisticas_seguranca.feminicidio_mensal_cisp"
-)
-feminicidio_mensal_cisp.code_owners = ["trick"]
-feminicidio_mensal_cisp.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-feminicidio_mensal_cisp.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-feminicidio_mensal_cisp.schedule = every_month_feminicidio_mensal_cisp

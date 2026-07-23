@@ -1,11 +1,7 @@
-# register flow in prefect now
+"""
+Lógica compartilhada de execução para br_camara_dados_abertos — Prefect 3.
+"""
 
-
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
-
-from pipelines.constants import constants
 from pipelines.crawler.camara_dados_abertos.constants import (
     update_metadata_variable_dictionary,
 )
@@ -13,116 +9,82 @@ from pipelines.crawler.camara_dados_abertos.tasks import (
     check_if_url_is_valid,
     save_data,
 )
-from pipelines.utils.decorators import Flow
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.metadata.tasks import (
+    register_table_materialization_task,
+)
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-# ------------------------------ TABLES UNIVERSAL -------------------------------------
 
-with Flow(
-    name="BD template - Camara Dados Abertos", code_owners=["trick"]
-) as flow_camara_dados_abertos:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_camara_dados_abertos", required=True
-    )
-    table_id = Parameter(
-        "table_id",
-        required=True,
+def _run_camara_dados_abertos(
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    dbt_alias: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+    url_ok = check_if_url_is_valid(table_id)
+    if not url_ok and not force_run:
+        print(f"URL não disponível para {table_id}; encerrando.")
+        return
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
+    filepath = save_data(table_id=table_id)
+
+    upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        wait=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
+        source_format="csv",
     )
 
-    update_metadata = Parameter(
-        "update_metadata", default=True, required=False
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
     )
 
-    with case(check_if_url_is_valid(table_id), True):
-        # Save data to GCS
-        filepath = save_data(
-            table_id=table_id,
-            upstream_tasks=[rename_flow_run],
-        )
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[filepath],
-        )
+    if not materialize_after_dump:
+        return
 
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_alias=dbt_alias,
-            dbt_command="run/test",
-            disable_elementary=False,
-            upstream_tasks=[wait_upload_table],
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+        source_format="csv",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        coverage = update_metadata_variable_dictionary(
+            table_id=table_id, dataset_id=dataset_id
         )
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=filepath,
+        if coverage is not None:
+            register_table_materialization_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
+                coverage=coverage,
+                env="prod",
+                bq_project="basedosdados",
             )
-
-            get_table_id_in_update_metadata_variable_dictionary = (
-                update_metadata_variable_dictionary(
-                    table_id=table_id,
-                    upstream_tasks=[wait_upload_prod],
-                )
-            )
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=get_table_id_in_update_metadata_variable_dictionary[
-                        "dataset_id"
-                    ],
-                    table_id=get_table_id_in_update_metadata_variable_dictionary[
-                        "table_id"
-                    ],
-                    date_column_name=get_table_id_in_update_metadata_variable_dictionary[
-                        "date_column_name"
-                    ],
-                    date_format=get_table_id_in_update_metadata_variable_dictionary[
-                        "date_format"
-                    ],
-                    coverage_type=get_table_id_in_update_metadata_variable_dictionary[
-                        "coverage_type"
-                    ],
-                    time_delta=get_table_id_in_update_metadata_variable_dictionary[
-                        "time_delta"
-                    ],
-                    prefect_mode=get_table_id_in_update_metadata_variable_dictionary[
-                        "prefect_mode"
-                    ],
-                    bq_project=get_table_id_in_update_metadata_variable_dictionary[
-                        "bq_project"
-                    ],
-                    historical_database=get_table_id_in_update_metadata_variable_dictionary[
-                        "historical_database"
-                    ],
-                    upstream_tasks=[
-                        get_table_id_in_update_metadata_variable_dictionary
-                    ],
-                )
-flow_camara_dados_abertos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_camara_dados_abertos.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)

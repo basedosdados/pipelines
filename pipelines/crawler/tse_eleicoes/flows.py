@@ -1,122 +1,114 @@
 """
-Flows for br_tse_eleicoes
+Flow compartilhado para br_tse_eleicoes — Prefect 3.
 """
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
-
-from pipelines.constants import constants
 from pipelines.crawler.tse_eleicoes.tasks import (
     flows_control,
     get_data_source_max_date,
     preparing_data,
 )
-from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.domain import (
+    AllFree,
+    DateFormat,
+    YearOnly,
+)
 from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
+    commit_source_update_task,
+    poll_source_for_update_task,
+    register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-with Flow(
-    name="BD template - BR_TSE_ELEICOES", code_owners=["luiz"]
-) as flow_br_tse_eleicoes:
-    # Parameters
 
-    dataset_id = Parameter(
-        "dataset_id", default="br_tse_eleicoes", required=True
+def _run_tse_eleicoes(
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    dbt_alias: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool = False,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    table_id = Parameter("table_id", required=True)
+    flow = flows_control(table_id=table_id, mode="prod")
+    data_source_max_date = get_data_source_max_date(flow_class=flow)
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
-
-    # Inicio das tarefas
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
-
-    flow = flows_control(
-        table_id=table_id,
-        mode="prod",
-        upstream_tasks=[rename_flow_run],
-    )
-
-    data_source_max_date = get_data_source_max_date(
-        flow_class=flow, upstream_tasks=[flow]
-    )
-
-    outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        date_type="last_update_date",
-        data_source_max_date=data_source_max_date,
-        upstream_tasks=[data_source_max_date],
-    )
-
-    with case(outdated, True):
-        ready_data_path = preparing_data(
-            flow_class=flow, upstream_tasks=[outdated]
-        )
-
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=ready_data_path,
+    if not force_run:
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[ready_data_path],
+            source_max_date=data_source_max_date,
+            env="prod",
+            date_format="%Y-%m-%d",
         )
+        if not has_new_data:
+            return
 
-        wait_for_materialization = run_dbt(
+    ready_data_path = preparing_data(flow_class=flow)
+
+    upload_to_gcs(
+        data_path=ready_data_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=ready_data_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        # Legado lia data_eleicao (DATE) mas formatava p/ "%Y" → cobertura
+        # year-only. O domínio refatorado proíbe DateOnly+YEAR (R4); a coluna
+        # `ano` (partição canônica das tabelas TSE) dá a mesma granularidade
+        # ano-only de forma R4-limpa. ⚠ oráculo in-pod: comparar só o ano.
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dbt_alias=dbt_alias,
-            dbt_command="run/test",
-            disable_elementary=False,
-            upstream_tasks=[wait_upload_table],
+            coverage=AllFree(
+                date_column=YearOnly(col="ano"),
+                date_format=DateFormat.YEAR,
+            ),
+            env="prod",
+            bq_project="basedosdados",
         )
 
-        # materialize municipio_exportacao
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=ready_data_path,
+        if data_source_max_date is not None:
+            commit_source_update_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
+                source_max_date=data_source_max_date,
+                env="prod",
+                date_format="%Y-%m-%d",
             )
-
-            # coverage updater
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"date": "data_eleicao"},
-                    date_format="%Y",
-                    coverage_type="all_free",
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
-
-flow_br_tse_eleicoes.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_br_tse_eleicoes.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)

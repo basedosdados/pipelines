@@ -1,22 +1,13 @@
-# Use a Python image with uv pre-installed
-FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim
+FROM prefecthq/prefect:3-python3.12
 
-# Install the project into `/app`
 WORKDIR /app
 
-# Enable bytecode compilation
-ENV UV_COMPILE_BYTECODE=1
-
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Copy from the cache instead of linking since it's a mounted volume
-ENV UV_LINK_MODE=copy
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:0.11.21 /uv /usr/local/bin/uv
 
-# Ensure installed tools can be executed out of the box
-ENV UV_TOOL_BIN_DIR=/usr/local/bin
-
-# Install gcc, Google Chrome, CLI tools, git, R and others libs Firefox
+# Install system dependencies (Chrome, SQL Server client, OCR, etc.)
 RUN apt-get update && \
     apt-get install --no-install-recommends -y curl gnupg && \
     curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg && \
@@ -45,20 +36,29 @@ RUN apt-get update && \
     libxt6 \
     libpci-dev \
     && \
-    apt-get install -y r-base && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Then, add the rest of the project source code and install it
-# Installing separately from its dependencies allows optimal layer caching
-COPY . /app
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked --no-dev
+# Install Python dependencies directly into the system Python
+COPY pyproject.toml uv.lock README.md ./
+RUN uv export --locked --no-dev --no-hashes --no-emit-project -o /tmp/requirements.txt && \
+    uv pip install --system --no-cache -r /tmp/requirements.txt
 
-# Place executables in the environment at the front of the path
-ENV PATH="/app/.venv/bin:$PATH"
+# dbt deps — copia só os arquivos de configuração do dbt, não o código dos flows
+# DBT_PACKAGES_PATH garante que o dbt encontre os pacotes em /app/dbt_packages
+# em runtime (o flow roda a partir de um git clone, não de /app). Em dev local,
+# a variável não existe e o dbt_project.yml cai no default relativo 'dbt_packages'.
+ENV DBT_PACKAGES_PATH=/app/dbt_packages
+COPY packages.yml dbt_project.yml profiles.yml README.md ./
+RUN dbt deps
 
-RUN uv run dbt deps && \
-mkdir -p /opt/prefect/app/bases && \
-mkdir -p /root/.basedosdados/templates && \
-mkdir -p /root/.basedosdados/credentials/
+# Diretórios necessários para basedosdados e prefect
+RUN mkdir -p /opt/prefect/app/bases && \
+    mkdir -p /root/.basedosdados/templates && \
+    mkdir -p /root/.basedosdados/credentials/
+
+# Entrypoint: decodifica credenciais antes de iniciar o flow
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["prefect", "worker", "start"]

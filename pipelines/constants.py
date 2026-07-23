@@ -44,107 +44,10 @@ class constants(Enum):
     RUN_DBT_MODEL_MAX_RETRIES = 1
     WAIT_FOR_MATERIALIZATION_RETRY_ATTEMPTS = 3
     WAIT_FOR_MATERIALIZATION_RETRY_INTERVAL = 5
-    DISABLE_ELEMENTARY_VARS = {
-        "disable_dbt_artifacts_autoupload": True,
-        "disable_run_results": True,
-        "disable_tests_results": True,
-        "disable_dbt_invocation_autoupload": True,
-    }
-    ENABLE_ELEMENTARY_VARS = {
-        "disable_dbt_artifacts_autoupload": False,
-        "disable_run_results": False,
-        "disable_tests_results": False,
-        "disable_dbt_invocation_autoupload": False,
-    }
 
     GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
 
     API_URL = {
         "staging": "https://staging.backend.basedosdados.org/api/v1/graphql",
         "prod": "https://backend.basedosdados.org/api/v1/graphql",
-    }
-    # Code Owners #
-
-    ######################################
-    # Discord code owners constants
-    ######################################
-    BD_DISCORD_WEBHOOK_SECRET_PATH = "prefect-discord-webhook"
-    DEFAULT_CODE_OWNERS = ["equipe_pipelines"]
-    OWNERS_DISCORD_MENTIONS = {
-        # Register all code owners, users_id and type
-        #     - possible types: https://docs.discord.club/embedg/reference/mentions
-        #     - how to discover user_id: https://www.remote.tools/remote-work/how-to-find-discord-id
-        #     - types: user, user_nickname, channel, role
-        # create equipe_dados channel
-        "equipe_dados": {
-            "user_id": "865034571469160458",
-            "type": "role",
-        },
-        "equipe_pipelines": {
-            "user_id": "1097527101952901231",
-            "type": "role",
-        },
-        "equipe_platforma": {
-            "user_id": "865223885031997455",
-            "type": "role",
-        },
-        "diego": {
-            "user_id": "272581753829326849",
-            "type": "user_nickname",
-        },
-        "lucas_cr": {
-            "user_id": "776914459545436200",
-            "type": "user_nickname",
-        },
-        "crislanealves": {
-            "user_id": "740986161652301886",
-            "type": "user_nickname",
-        },
-        "ath67": {
-            "user_id": "467788821527003136",
-            "type": "user_nickname",
-        },
-        "guialvesp1": {
-            "user_id": "307722006818979840",
-            "type": "user_nickname",
-        },
-        "lauris": {
-            "user_id": "725799350516842636",
-            "type": "user_nickname",
-        },
-        "Mauricio Fagundes": {
-            "user_id": "238816891337048064",
-            "type": "user_nickname",
-        },
-        "rdahis": {
-            "user_id": "290670932756922381",
-            "type": "user_nickname",
-        },
-        "Gabriel Pisa": {
-            "user_id": "313757164747358209",
-            "type": "user_nickname",
-        },
-        "arthurfg": {
-            "user_id": "1011467113682190427",
-            "type": "user_nickname",
-        },
-        "trick": {
-            "user_id": "252923443052281856",
-            "type": "user_nickname",
-        },
-        "lucasmoreira": {
-            "user_id": "765511326675763233",
-            "type": "user_nickname",
-        },
-        "Gabs": {
-            "user_id": "690361518973649006",
-            "type": "user_nickname",
-        },
-        "gustavoalcantara": {
-            "user_id": "951646117584592946",
-            "type": "user_nickname",
-        },
-        "aspeddro": {"user_id": "767136614140346389", "type": "user_nickname"},
-        "luiz": {"user_id": "322508262303989760", "type": "user_nickname"},
-        "Luiza": {"user_id": "818259139221913611", "type": "user_nickname"},
     }

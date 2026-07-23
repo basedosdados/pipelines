@@ -1,0 +1,175 @@
+"""
+Constant values for the datasets projects
+"""
+
+###############################################################################
+
+from enum import Enum
+
+
+class constants(Enum):
+    """
+    Constant values for the br_me_cnpj project
+    """
+
+    MAX_ATTEMPTS = 3
+    TIMEOUT = 5
+    ATTEMPTS = 0
+
+    TABELAS = ["Empresas", "Socios", "Estabelecimentos", "Simples"]
+
+    UFS = [
+        "AC",
+        "AL",
+        "AM",
+        "AP",
+        "BA",
+        "CE",
+        "DF",
+        "ES",
+        "EX",
+        "GO",
+        "MA",
+        "MG",
+        "MS",
+        "MT",
+        "PA",
+        "PB",
+        "PE",
+        "PI",
+        "PR",
+        "RJ",
+        "RN",
+        "RO",
+        "RR",
+        "RS",
+        "SC",
+        "SE",
+        "SP",
+        "TO",
+    ]
+
+    URL = "https://arquivos.receitafederal.gov.br/public.php/dav/files/gn672Ad4CF8N6TK/Dados/Cadastros/CNPJ/"
+
+    HEADERS = {
+        "Depth": "1",
+        "Content-Type": "application/xml",
+        "Accept": "application/xml",
+        "User-Agent": "Mozilla/5.0",
+    }
+
+    XML_BODY = """<?xml version="1.0" encoding="utf-8" ?>
+<d:propfind xmlns:d="DAV:">
+  <d:allprop/>
+</d:propfind>
+"""
+
+    COLUNAS_EMPRESAS = [
+        "cnpj_basico",
+        "razao_social",
+        "natureza_juridica",
+        "qualificacao_responsavel",
+        "capital_social",
+        "porte",
+        "ente_federativo",
+    ]
+
+    COLUNAS_SOCIOS = [
+        "cnpj_basico",
+        "tipo",
+        "nome",
+        "documento",
+        "qualificacao",
+        "data_entrada_sociedade",
+        "id_pais",
+        "cpf_representante_legal",
+        "nome_representante_legal",
+        "qualificacao_representante_legal",
+        "faixa_etaria",
+    ]
+
+    COLUNAS_SIMPLES = [
+        "cnpj_basico",
+        "opcao_simples",
+        "data_opcao_simples",
+        "data_exclusao_simples",
+        "opcao_mei",
+        "data_opcao_mei",
+        "data_exclusao_mei",
+    ]
+
+    COLUNAS_ESTABELECIMENTO = [
+        "cnpj_basico",
+        "cnpj_ordem",
+        "cnpj_dv",
+        "identificador_matriz_filial",
+        "nome_fantasia",
+        "situacao_cadastral",
+        "data_situacao_cadastral",
+        "motivo_situacao_cadastral",
+        "nome_cidade_exterior",
+        "id_pais",
+        "data_inicio_atividade",
+        "cnae_fiscal_principal",
+        "cnae_fiscal_secundaria",
+        "tipo_logradouro",
+        "logradouro",
+        "numero",
+        "complemento",
+        "bairro",
+        "cep",
+        "sigla_uf",
+        "id_municipio_rf",
+        "ddd_1",
+        "telefone_1",
+        "ddd_2",
+        "telefone_2",
+        "ddd_fax",
+        "fax",
+        "email",
+        "situacao_especial",
+        "data_situacao_especial",
+    ]
+
+    COLUNAS_ESTABELECIMENTO_ORDEM = [
+        "cnpj",
+        "cnpj_basico",
+        "cnpj_ordem",
+        "cnpj_dv",
+        "identificador_matriz_filial",
+        "nome_fantasia",
+        "situacao_cadastral",
+        "data_situacao_cadastral",
+        "motivo_situacao_cadastral",
+        "nome_cidade_exterior",
+        "id_pais",
+        "data_inicio_atividade",
+        "cnae_fiscal_principal",
+        "cnae_fiscal_secundaria",
+        "sigla_uf",
+        "id_municipio",
+        "id_municipio_rf",
+        "tipo_logradouro",
+        "logradouro",
+        "numero",
+        "complemento",
+        "bairro",
+        "cep",
+        "ddd_1",
+        "telefone_1",
+        "ddd_2",
+        "telefone_2",
+        "ddd_fax",
+        "fax",
+        "email",
+        "situacao_especial",
+        "data_situacao_especial",
+    ]
+
+    default_chunk_size = 20 * 1024 * 1024  # 20MB
+
+    default_max_retries = 32
+
+    default_max_parallel = 16
+
+    default_timeout = 1 * 60 * 1000  # 1 minute
