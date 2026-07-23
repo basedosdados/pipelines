@@ -80,6 +80,7 @@ def register_source_poll(
             client=client,
             dataset_id=dataset_id,
             table_id=table_id,
+            # pyrefly: ignore [bad-argument-type]
             source_max_date=source_max_date,
         )
 
@@ -255,7 +256,11 @@ def register_table_materialization(
     # Row Access Policies só para part_bdpro.
     if policy.needs_row_access_policy(coverage):
         bq.apply_row_access_policies(
-            coverage, ranges.free_end, dataset_id, table_id
+            # pyrefly: ignore [bad-argument-type]
+            coverage,
+            ranges.free_end,
+            dataset_id,
+            table_id,
         )
 
     # Table.Update, com decisão explícita de pular quando billing != bq_project.

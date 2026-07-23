@@ -71,6 +71,7 @@ class FreeLag(BaseModel):
     value: int = Field(ge=1)
 
     def as_relativedelta(self) -> relativedelta:
+        # pyrefly: ignore [bad-argument-type]
         return relativedelta(**{self.unit: self.value})
 
 

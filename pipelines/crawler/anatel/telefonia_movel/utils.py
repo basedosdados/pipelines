@@ -35,6 +35,7 @@ def normalize_label(value: str) -> str:
         Rótulo normalizado: sem acento, minúsculo, sem espaços nas pontas.
     """
 
+    # pyrefly: ignore [unnecessary-type-conversion]
     value = str(value)
 
     value_nfkd = unicodedata.normalize("NFKD", value)
@@ -69,6 +70,7 @@ def download_zip_file():
         "wb",
     ) as file:
         response = requests.get(
+            # pyrefly: ignore [unbound-name]
             download_url,
             cookies=anatel_constants.COOEKIES.value,
             headers=anatel_constants.HEADERS.value,
@@ -98,6 +100,7 @@ def unzip_file():
 # ! TASK MICRODADOS
 def clean_csv_microdados(ano, semestre, table_id):
     log("Download dos dados...")
+    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {anatel_constants.INPUT_PATH.value}")
 
     df = pd.read_csv(

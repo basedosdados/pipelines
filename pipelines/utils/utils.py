@@ -56,12 +56,14 @@ def to_partitions(
     if not isinstance(data, pd.DataFrame):
         raise TypeError("data deve ser um pandas DataFrame")
 
+    # pyrefly: ignore [bad-assignment]
     savepath = Path(savepath)
     unique_combinations = (
         data[partition_columns].drop_duplicates().to_dict(orient="records")
     )
 
     for combo in unique_combinations:
+        # pyrefly: ignore [unsupported-operation]
         partition_path = savepath / "/".join(
             f"{k}={v}" for k, v in combo.items()
         )

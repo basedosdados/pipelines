@@ -64,4 +64,5 @@ def treat_data_taxa_selic(table_id: str) -> str:
     }
 
     # Return the full file path
+    # pyrefly: ignore [bad-return]
     return file_info

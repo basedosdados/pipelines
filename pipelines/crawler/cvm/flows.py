@@ -36,6 +36,7 @@ def _run_cvm_fi(
     force_run: bool,
     url: str | None = None,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -57,6 +58,7 @@ def _run_cvm_fi(
             )
             return
 
+    # pyrefly: ignore [no-matching-overload]
     arquivos = generate_links_to_download(df=df, max_date=max_date)
     print(f"Arquivos: {arquivos}")
 

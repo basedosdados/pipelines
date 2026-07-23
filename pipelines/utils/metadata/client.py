@@ -171,6 +171,7 @@ class MetadataClient:
 
     # --------------------------------------------------------------- resolvers
     def get_table_id(self, dataset_id: str, table_id: str) -> str:
+        # pyrefly: ignore [bad-return]
         return self._backend._get_table_id_from_name(
             gcp_dataset_id=dataset_id, gcp_table_id=table_id
         )
@@ -252,7 +253,10 @@ class MetadataClient:
                 {"id": existing, "latest": _to_iso8601(latest)},
             )
         dto = PollInput(
-            rawDataSource=rds_id, latest=latest, entity=self._entity_id("day")
+            # pyrefly: ignore [bad-argument-type]
+            rawDataSource=rds_id,
+            latest=latest,
+            entity=self._entity_id("day"),
         )
         return self._mutate("CreateUpdatePoll", dto.model_dump())
 
@@ -270,6 +274,7 @@ class MetadataClient:
                 {"id": existing, "latest": _to_iso8601(latest)},
             )
         dto = RawSourceUpdateInput(
+            # pyrefly: ignore [bad-argument-type]
             rawDataSource=rds_id,
             latest=latest,
             frequency=1,

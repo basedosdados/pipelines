@@ -34,6 +34,7 @@ def _cvm_fi_flow(table_id: str, cron: str, date_column_name: dict):
             url=url,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

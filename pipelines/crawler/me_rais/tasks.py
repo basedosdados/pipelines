@@ -43,6 +43,7 @@ def resolve_vinculos_table_id(
     year: int, table_id: str, split_year: int = 2023
 ) -> str:
     """Route 2023+ vinculos data to a separate table to avoid GCS schema conflicts."""
+    # pyrefly: ignore [unnecessary-type-conversion]
     if "vinculos" in table_id and int(year) >= split_year:
         return f"{table_id}_2023"
     return table_id
@@ -304,6 +305,7 @@ def _build_estab_partitions(
         to_partitions(
             data=df,
             partition_columns=["ano", "sigla_uf"],
+            # pyrefly: ignore [bad-argument-type]
             savepath=output_dir,
             file_type="csv",
         )
@@ -483,6 +485,7 @@ def _build_vinculos_partitions(
             to_partitions(
                 data=df,
                 partition_columns=["ano", "sigla_uf"],
+                # pyrefly: ignore [bad-argument-type]
                 savepath=output_dir,
                 file_type="csv",
             )

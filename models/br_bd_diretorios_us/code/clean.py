@@ -8,6 +8,8 @@ from pathlib import Path
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+
+# pyrefly: ignore [untyped-import]
 import yaml
 
 BASE = Path(__file__).resolve().parents[1] / "data"
@@ -1154,10 +1156,12 @@ def clean_soc_2018():
         ]:
             row[col] = names.get(row[parent]) if row[parent] else None
         if row["id_major_group"]:
+            # pyrefly: ignore [unsupported-operation]
             assert code[:2] == row["id_major_group"][:2], (
                 f"soc hierarchy mismatch: {code}"
             )
         if row["id_broad_occupation"]:
+            # pyrefly: ignore [unsupported-operation]
             assert code[:5] == row["id_broad_occupation"][:5], (
                 f"soc hierarchy mismatch: {code}"
             )
@@ -1261,6 +1265,7 @@ def clean_census_io(slug, filename, sheet, kind):
     if code_col is None:
         raise ValueError(f"census_io: no code column found in {filename}")
     rows = []
+    # pyrefly: ignore [unsupported-operation]
     for i in range(header_idx + 1, len(df)):
         raw = [_io_cell(x) for x in df.iloc[i].tolist()]
         code = raw[code_col] if code_col < len(raw) else ""

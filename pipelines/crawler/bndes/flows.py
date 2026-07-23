@@ -56,6 +56,7 @@ def _run_operacoes_indiretas_automaticas(
         force_run (bool): ignora o early-return quando nao ha novidade.
     """
 
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

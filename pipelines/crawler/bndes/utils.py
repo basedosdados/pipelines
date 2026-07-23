@@ -113,7 +113,7 @@ def download_csv(
 
         origem = (
             f"resume de {bytes_downloaded} bytes"
-            if mode == "ab"
+            if mode == "ab"  # pyrefly: ignore [unbound-name]
             else "download novo"
         )
         log(f"Baixando CSV do BNDES para {dest} ({origem})")
@@ -127,9 +127,11 @@ def download_csv(
 
         if response.status_code == 206:
             file_length = int(
+                # pyrefly: ignore [unnecessary-type-conversion]
                 str(response.headers["Content-Range"]).split("/")[-1]
             )
 
+        # pyrefly: ignore [unbound-name]
         if file_length != dest.stat().st_size:
             raise httpx.HTTPError(
                 "Download não pode ser finalizado mesmo com várias tentativas."
@@ -238,14 +240,18 @@ def clean(csv_path: Path, output_dir: Path) -> Path:
         df = _transform_chunk(chunk)
 
         for year, group in df.groupby("ano"):
+            # pyrefly: ignore [bad-argument-type]
             if int(year) not in writers:
                 Path.mkdir(
+                    # pyrefly: ignore [bad-argument-type]
                     output_dir / f"ano={int(year)}/",
                     parents=True,
                     exist_ok=True,
                 )
 
+                # pyrefly: ignore [bad-argument-type]
                 writers[int(year)] = pq.ParquetWriter(
+                    # pyrefly: ignore [bad-argument-type]
                     output_dir / f"ano={int(year)}/data.parquet",
                     constants.SCHEMA.value,
                     compression="snappy",
@@ -257,6 +263,7 @@ def clean(csv_path: Path, output_dir: Path) -> Path:
                 preserve_index=False,
             )
 
+            # pyrefly: ignore [bad-argument-type]
             writers[int(year)].write_table(table)
 
         total_rows += len(df)

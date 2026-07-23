@@ -71,6 +71,7 @@ def sort_documents_by_date(docs_metadata: dict) -> list[dict] | None:
 def download_file(
     url: str,
     download_dir: Path,
+    # pyrefly: ignore [bad-function-definition]
     session: requests.Session = None,
     filename: str | None = None,
 ) -> Path | None:
@@ -201,7 +202,10 @@ def wide_to_long(dataframe: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: Long-format dataframe.
     """
     id_vars = [
-        col for col in dataframe.columns if "verbete" not in str(col).lower()
+        # pyrefly: ignore [unnecessary-type-conversion]
+        col
+        for col in dataframe.columns
+        if "verbete" not in str(col).lower()
     ]
     dataframe = dataframe.melt(
         id_vars=id_vars,

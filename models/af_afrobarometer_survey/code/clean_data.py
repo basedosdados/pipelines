@@ -36,7 +36,10 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+# pyrefly: ignore [missing-import]
 import pyreadstat
+
+# pyrefly: ignore [missing-import]
 from common import (
     ARCH_DIR,
     INPUT_DIR,
@@ -90,6 +93,7 @@ def read_sav_robust(path: str):
         try:
             kw = {"user_missing": True}
             if enc:
+                # pyrefly: ignore [bad-assignment]
                 kw["encoding"] = enc
             df, meta = pyreadstat.read_sav(path, **kw)
             if enc == "latin1":
@@ -108,6 +112,7 @@ def read_sav_robust(path: str):
             return df, meta
         except pyreadstat.ReadstatError as e:
             last = e
+    # pyrefly: ignore [bad-raise]
     raise last
 
 
@@ -321,7 +326,7 @@ def build_dicionario(rounds_meta: list[dict]) -> None:
             for code, label in mapping.items():
                 key = (
                     str(int(code))
-                    if isinstance(code, float) and float(code).is_integer()
+                    if isinstance(code, float) and float(code).is_integer()  # pyrefly: ignore [unnecessary-type-conversion]
                     else str(code)
                 )
                 rows.append(

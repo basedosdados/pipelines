@@ -90,6 +90,7 @@ def us_bls_cpi_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="cpi"
     )
@@ -176,8 +177,10 @@ def us_bls_cpi_flow(
 # BLS releases CPI monthly, ~2nd week, on a US business day. Poll across a few
 # mid-month days at 16:00 BRT; the source-poll guard no-ops until a new month
 # actually appears.
+# pyrefly: ignore [missing-attribute]
 us_bls_cpi_flow.deploy_schedules = [
     {"cron": "0 16 10,11,12,13,14,15 * *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step holds ~4M rows in pandas; give the worker headroom.
+# pyrefly: ignore [missing-attribute]
 us_bls_cpi_flow.job_variables = {"memory": "8Gi"}

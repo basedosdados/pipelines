@@ -4,6 +4,8 @@ import re
 import basedosdados as bd
 import pandas as pd
 import requests
+
+# pyrefly: ignore [missing-import]
 from constants import constants
 from tqdm import tqdm
 from unidecode import unidecode

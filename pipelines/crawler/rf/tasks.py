@@ -74,6 +74,7 @@ def check_need_for_update(dataset_id: str, url: str | None = None) -> date:
             else:
                 raise
 
+    # pyrefly: ignore [unbound-name]
     most_recent_date = response.headers.get("Last-Modified")
 
     if not most_recent_date:
@@ -137,8 +138,11 @@ def process_file(
     if file is None:
         file = br_rf_constants.TABLES_RENAME.value[dataset_id][table_id]
     try:
+        # pyrefly: ignore [bad-assignment]
         partition_date = datetime.strptime(
-            str(partition_date), "%Y-%m-%d"
+            # pyrefly: ignore [unnecessary-type-conversion]
+            str(partition_date),
+            "%Y-%m-%d",
         ).date()
         log(f"Partition date {partition_date}.")
     except ValueError:

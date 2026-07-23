@@ -18,9 +18,13 @@ class IGPData:
     def __init__(self, ipeacode, period):
         self.fgv_indexes = FGV_INDEX.get(ipeacode)
         self.period = period
+        # pyrefly: ignore [unsupported-operation]
         self.main_index = self.fgv_indexes[0]
+        # pyrefly: ignore [unsupported-operation]
         self.first_dec = self.fgv_indexes[1]
+        # pyrefly: ignore [unsupported-operation]
         self.second_dec = self.fgv_indexes[2]
+        # pyrefly: ignore [unsupported-operation]
         self.decendios = self.fgv_indexes[1:3]
         self.index_name = ipeacode
         self.df = self._create_dataframe()
@@ -78,10 +82,12 @@ class IGPData:
         # noinspection PyUnresolvedReferences
         dfm["variacao_acumulada_ano"] = (
             dfm[["variacao_mensal"]]
+            # pyrefly: ignore [missing-attribute]
             .groupby(dfm.index.year)
             .apply(self._calculate_year_accum)
         )
         dfm["next_month"] = dfm["indice"].shift(-1)
+        # pyrefly: ignore [no-matching-overload]
         dfm["indice_fechamento_mensal"] = round(
             np.sqrt(dfm["indice"] * dfm["next_month"]), ndigits=6
         )
@@ -99,6 +105,7 @@ class IGPData:
 
         """
         # noinspection PyUnresolvedReferences
+        # pyrefly: ignore [missing-attribute]
         grouped_df = dff.groupby(dff.index.year).mean()
         grouped_df = grouped_df.rename(columns={"indice": "indice_medio"})
         grouped_df.index.name = "YEAR"
@@ -145,4 +152,5 @@ class IGPData:
             pd.Series: The colum with the accumulated index by year
         """
         idx = (row / 100) + 1
+        # pyrefly: ignore [bad-return]
         return (np.cumprod(idx) - 1) * 100

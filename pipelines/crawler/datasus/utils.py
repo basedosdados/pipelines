@@ -46,6 +46,7 @@ def decode_column(value):
         return value.decode(encoding="iso-8859-1").replace("\x00", "")
 
     if isinstance(value, str):
+        # pyrefly: ignore [unnecessary-type-conversion]
         return str(value).replace("\x00", "")
     return value
 
@@ -75,6 +76,7 @@ def dbf_to_parquet(
         ):
             chunk_df = pd.DataFrame(chunk)
 
+            # pyrefly: ignore [not-callable]
             table = pa.Table.from_pandas(chunk_df.applymap(decode_column))
             log("---- decoding")
 
@@ -83,6 +85,7 @@ def dbf_to_parquet(
             log(f"---- {counter}")
             parquet_filename = f"{table_id}_{counter}_{counter_chunk}.parquet"
             parquet_filepath = os.path.join(output_path, parquet_filename)
+            # pyrefly: ignore [unnecessary-type-conversion]
             pq.write_table(table, where=str(parquet_filepath))
             counter_chunk += 1
 
@@ -242,12 +245,14 @@ async def download_file(file: str, output_path: str) -> None:
         log(f"------- Downloading {file} ")
         async with aioftp.Client.context(
             host="ftp.datasus.gov.br",
+            # pyrefly: ignore [bad-argument-type]
             parse_list_line_custom=line_file_parser,
             # max wait time for data to be received from the server
             socket_timeout=30,
         ) as client:
             await client.download(file, output_path)
     except aioftp.StatusCodeError as e:
+        # pyrefly: ignore [bad-argument-count, bad-argument-type]
         log(e.expected_codes, e.received_codes, e.info)
 
 
@@ -263,16 +268,20 @@ def line_file_parser(file_line) -> tuple[list, dict]:
     if "<DIR>" in line:
         date, time, _, *name = line.strip().split()
         info["size"] = 0
+        # pyrefly: ignore [unsupported-operation]
         info["type"] = "dir"
         name = " ".join(name)
     else:
         date, time, size, name = line.strip().split()
         info["size"] = size
+        # pyrefly: ignore [unsupported-operation]
         info["type"] = "file"
 
     modify = datetime.strptime(" ".join([date, time]), "%m-%d-%y %I:%M%p")
+    # pyrefly: ignore [unsupported-operation]
     info["modify"] = modify.strftime("%m/%d/%Y %I:%M%p")
 
+    # pyrefly: ignore [bad-return]
     return name, info
 
 
@@ -411,6 +420,7 @@ def post_process_estabelecimento(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
     df = pre_cleaning_to_utf8(df)
+    # pyrefly: ignore [bad-argument-type]
     df = if_column_exist_delete(df=df, col_list=list_columns_to_delete)
     df = check_and_create_column(df=df, col_name="NAT_JUR")
 

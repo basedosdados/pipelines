@@ -84,7 +84,9 @@ def download_table(
     if not os.path.exists(download_dir):
         os.makedirs(download_dir, exist_ok=True)
 
+    # pyrefly: ignore [bad-argument-type]
     file_path = download_file(url, download_dir)
+    # pyrefly: ignore [bad-return]
     return file_path
 
 
@@ -229,8 +231,11 @@ def extract_urls_list(
     """
     Extract list of document download URLs between two reference dates.
     """
+    # pyrefly: ignore [bad-assignment]
     date_one = validate_date(date_one, date_format)
+    # pyrefly: ignore [bad-assignment]
     date_two = validate_date(date_two, date_format)
+    # pyrefly: ignore [unsupported-operation]
     if date_two >= date_one:
         start, end = date_one, date_two
     else:
@@ -238,15 +243,18 @@ def extract_urls_list(
     sorted_docs = sort_documents_by_date(docs_metadata)
 
     docs_index = 0
+    # pyrefly: ignore [unsupported-operation]
     current_doc = sorted_docs[docs_index]
     relative_url = current_doc["Url"]
     current_date = dt.datetime.strptime(current_doc["Titulo"], "%m/%Y").date()
     list_result = []
     while (
+        # pyrefly: ignore [unsupported-operation]
         (current_date <= end)
-        and (current_date > start)
-        and docs_index < len(sorted_docs)
+        and (current_date > start)  # pyrefly: ignore [unsupported-operation]
+        and docs_index < len(sorted_docs)  # pyrefly: ignore [bad-argument-type]
     ):
+        # pyrefly: ignore [unsupported-operation]
         current_doc = sorted_docs[docs_index]
         relative_url = current_doc["Url"]
         current_date = dt.datetime.strptime(

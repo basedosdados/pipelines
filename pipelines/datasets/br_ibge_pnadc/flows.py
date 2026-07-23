@@ -40,6 +40,7 @@ def br_ibge_pnadc__microdados(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -58,6 +59,7 @@ def br_ibge_pnadc__microdados(
             return
 
     input_dir, output_dir = build_table_paths(table_id=table_id)
+    # pyrefly: ignore [no-matching-overload]
     download_async(url, input_dir, "zip")
     build_partitions(input_dir, output_dir)
 
@@ -118,6 +120,7 @@ def br_ibge_pnadc__microdados(
             )
 
 
+# pyrefly: ignore [missing-attribute]
 br_ibge_pnadc__microdados.deploy_schedules = [
     {"cron": "0 5 15-31 2,5,8,11 *", "timezone": "America/Sao_Paulo"}
 ]

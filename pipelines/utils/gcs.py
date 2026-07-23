@@ -193,8 +193,10 @@ class DBTArtifactUploader:
     def _delete_once(self, prefix: str) -> None:
         if prefix in self._deleted_prefixes:
             return
+        # pyrefly: ignore [missing-attribute]
         blobs = list(self._client.list_blobs(self._bucket, prefix=prefix))
         if blobs:
+            # pyrefly: ignore [missing-attribute]
             self._bucket.delete_blobs(blobs)
             print(
                 f"DBTArtifactUploader: removidos {len(blobs)} artefatos antigos em {prefix}"
@@ -212,6 +214,7 @@ class DBTArtifactUploader:
 
     def _upload(self, local_path: str, subfolder: str) -> None:
         filename = os.path.basename(local_path)
+        # pyrefly: ignore [missing-attribute]
         blob = self._bucket.blob(self._blob_path(subfolder, filename))
         blob.upload_from_filename(local_path)
         print(f"DBTArtifactUploader: → gs://{self.bucket_name}/{blob.name}")

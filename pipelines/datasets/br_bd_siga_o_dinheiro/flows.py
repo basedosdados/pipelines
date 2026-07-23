@@ -30,4 +30,5 @@ def br_bd_siga_o_dinheiro(
         download_data_to_gcs(dataset_id=dataset_id, table_id=table_id)
 
 
+# pyrefly: ignore [missing-attribute]
 br_bd_siga_o_dinheiro.deploy_schedules = []

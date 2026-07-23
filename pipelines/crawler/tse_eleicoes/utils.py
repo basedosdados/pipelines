@@ -32,7 +32,9 @@ def conv_data(date: str, birth: bool = False) -> str:
 def slugify(s: str) -> str:
     s = s.strip().lower()
     s = unicodedata.normalize("NFD", s)
+    # pyrefly: ignore [bad-assignment]
     s = s.encode("ascii", "ignore")
+    # pyrefly: ignore [missing-attribute]
     s = s.decode("utf-8")
     s = s.lower().strip()
     return s
@@ -133,15 +135,19 @@ class BrTseEleicoes:
             z.extractall(self.path_input)
 
         if not self.path_main:
+            # pyrefly: ignore [bad-assignment]
             self.path_main = self.path_input / self.source
+            # pyrefly: ignore [no-matching-overload]
             self.df_main = pd.read_csv(
                 self.path_main, sep=";", encoding="ISO-8859-1", dtype=str
             )
 
         else:
             self.path_complement = (
+                # pyrefly: ignore [bad-assignment]
                 self.path_input / f"{save_path.stem}_BRASIL.csv"
             )
+            # pyrefly: ignore [no-matching-overload]
             self.df_complement = pd.read_csv(
                 self.path_complement, sep=";", encoding="ISO-8859-1", dtype=str
             )
@@ -154,7 +160,9 @@ class BrTseEleicoes:
         )
         prod_len, last_modified = df_prod.iloc[0].to_numpy()
 
+        # pyrefly: ignore [missing-attribute]
         if self.df_main.shape[0] > prod_len:
+            # pyrefly: ignore [bad-return]
             return datetime.today()
 
         return last_modified
@@ -163,6 +171,7 @@ class BrTseEleicoes:
         base = self.form_df_base()
         # Etapa de salvar a base
 
+        # pyrefly: ignore [missing-attribute]
         base = base.drop_duplicates()
 
         path_output = self.path_output / f"ano={self.year}"
@@ -181,6 +190,7 @@ class BrTseEleicoes:
 
 
 class Candidatos(BrTseEleicoes):
+    # pyrefly: ignore [bad-override]
     def form_df_base(self) -> pd.DataFrame:
         municipios = bd.read_sql(
             tse_constants.QUERY_MUNIPIPIOS.value,
@@ -188,6 +198,7 @@ class Candidatos(BrTseEleicoes):
             billing_project_id=self.billing_project_id,
         )
 
+        # pyrefly: ignore [missing-attribute]
         temp_merge_left = self.df_main.merge(
             self.df_complement,
             left_on="SQ_CANDIDATO",
@@ -256,7 +267,9 @@ class Candidatos(BrTseEleicoes):
 
 
 class BensCandidato(BrTseEleicoes):
+    # pyrefly: ignore [bad-override]
     def form_df_base(self) -> pd.DataFrame:
+        # pyrefly: ignore [no-matching-overload]
         self.df_main = pd.read_csv(
             self.path_main,
             sep=";",
@@ -280,6 +293,7 @@ class BensCandidato(BrTseEleicoes):
 
 
 class DespesasCandidato(BrTseEleicoes):
+    # pyrefly: ignore [bad-override]
     def form_df_base(self) -> pd.DataFrame:
         municipios = bd.read_sql(
             tse_constants.QUERY_MUNIPIPIOS.value,
@@ -289,10 +303,12 @@ class DespesasCandidato(BrTseEleicoes):
         # Precisamos limpas alguns zero a esquerda
 
         for date_column in ["SG_UE", "CD_MUNICIPIO_FORNECEDOR"]:
+            # pyrefly: ignore [unsupported-operation]
             self.df_main[date_column] = self.df_main[date_column].str.lstrip(
                 "0"
             )
 
+        # pyrefly: ignore [missing-attribute]
         self.df_main = self.df_main.merge(
             municipios,
             left_on="SG_UE",
@@ -355,6 +371,7 @@ class DespesasCandidato(BrTseEleicoes):
 
 
 class ReceitasCandidato(BrTseEleicoes):
+    # pyrefly: ignore [bad-override]
     def form_df_base(self) -> pd.DataFrame:
         municipios = bd.read_sql(
             tse_constants.QUERY_MUNIPIPIOS.value,
@@ -365,10 +382,12 @@ class ReceitasCandidato(BrTseEleicoes):
         # Precisamos limpas alguns zero a esquerda
 
         for date_column in ["SG_UE", "CD_MUNICIPIO_DOADOR"]:
+            # pyrefly: ignore [unsupported-operation]
             self.df_main[date_column] = self.df_main[date_column].str.lstrip(
                 "0"
             )
 
+        # pyrefly: ignore [missing-attribute]
         self.df_main = self.df_main.merge(
             municipios,
             left_on="SG_UE",

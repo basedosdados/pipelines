@@ -14,6 +14,8 @@ Tudo offline: o `RecordingBackend` substitui o `bd.Backend`.
 import datetime
 
 import pytest
+
+# pyrefly: ignore [missing-import]
 from conftest import RecordingBackend, mutation_response, node_response
 
 from pipelines.utils.metadata.client import (
@@ -231,4 +233,5 @@ def test_token_authenticated_once_per_instance(monkeypatch):
 
 def test_invalid_env_rejected():
     with pytest.raises(ValueError, match="env inválido"):
+        # pyrefly: ignore [bad-argument-type]
         MetadataClient(env="production")

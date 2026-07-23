@@ -56,19 +56,24 @@ class BigQueryReader:
         last_date = extract_last_date_from_bq(
             dataset_id,
             table_id,
+            # pyrefly: ignore [missing-attribute]
             coverage.date_format.value,
+            # pyrefly: ignore [missing-attribute]
             date_column_to_legacy_dict(coverage.date_column),
             self.billing_project_id,
             self.bq_project,
             self.historical_database,
         )
         return datetime.datetime.strptime(
-            last_date, coverage.date_format.value
+            # pyrefly: ignore [missing-attribute]
+            last_date,
+            coverage.date_format.value,
         ).date()
 
     def last_modified(
         self, dataset_id: str, table_id: str
     ) -> datetime.datetime:
+        # pyrefly: ignore [bad-return]
         return update_date_from_bq_metadata(
             dataset_id, table_id, self.billing_project_id, self.bq_project
         )

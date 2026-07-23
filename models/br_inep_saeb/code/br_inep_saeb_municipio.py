@@ -3,6 +3,8 @@ from pathlib import Path
 
 import basedosdados as bd
 import pandas as pd
+
+# pyrefly: ignore [missing-import]
 from utils import (
     # pyrefly: ignore [missing-module-attribute]
     convert_to_pd_dtype,

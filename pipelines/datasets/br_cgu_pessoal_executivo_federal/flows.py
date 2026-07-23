@@ -29,6 +29,7 @@ def br_cgu_pessoal_executivo_federal__terceirizados(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -74,6 +75,7 @@ def br_cgu_pessoal_executivo_federal__terceirizados(
     )
 
 
+# pyrefly: ignore [missing-attribute]
 br_cgu_pessoal_executivo_federal__terceirizados.deploy_schedules = [
     {"cron": "0 0 28 2/4 *", "timezone": "America/Sao_Paulo"}
 ]

@@ -42,6 +42,7 @@ def _run_cnes(
     force_run: bool,
     year_month_to_extract: str = "",
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -74,6 +75,7 @@ def _run_cnes(
     )
     decompress_dbc(file_list=dbc_files, dataset_id=dataset_id)
     csv_files = decompress_dbf(file_list=dbc_files, table_id=table_id)
+    # pyrefly: ignore [no-matching-overload]
     files_path = pre_process_files(
         file_list=csv_files, dataset_id=dataset_id, table_id=table_id
     )
@@ -146,6 +148,7 @@ def _run_dbf_to_parquet(
     year_month_to_extract: str = "",
 ) -> None:
     """Shared logic for SIA/SIH (DBF→Parquet pipeline)."""
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -255,6 +258,7 @@ def _run_sinan(
     target: str,
     force_run: bool,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

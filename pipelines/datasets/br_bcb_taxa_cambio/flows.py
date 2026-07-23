@@ -36,6 +36,7 @@ def br_bcb_taxa_cambio__taxa_cambio(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -44,6 +45,7 @@ def br_bcb_taxa_cambio__taxa_cambio(
     file_info = treat_data_taxa_cambio(table_id=table_id)
 
     upload_to_gcs(
+        # pyrefly: ignore [bad-index]
         data_path=file_info["save_output_path"],
         dataset_id=dataset_id,
         table_id=table_id,
@@ -63,6 +65,7 @@ def br_bcb_taxa_cambio__taxa_cambio(
         return
 
     upload_to_gcs(
+        # pyrefly: ignore [bad-index]
         data_path=file_info["save_output_path"],
         dataset_id=dataset_id,
         table_id=table_id,
@@ -91,6 +94,7 @@ def br_bcb_taxa_cambio__taxa_cambio(
         )
 
 
+# pyrefly: ignore [missing-attribute]
 br_bcb_taxa_cambio__taxa_cambio.deploy_schedules = [
     {"cron": "0 8 * * *", "timezone": "America/Sao_Paulo"}
 ]
