@@ -1,3 +1,5 @@
+-- Reads staging rows built by models/world_dasanaike_sage/code/ (download.py ->
+-- clean.py -> upload.py).
 {{
     config(
         schema="world_dasanaike_sage",
