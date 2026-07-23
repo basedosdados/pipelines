@@ -108,6 +108,7 @@ def _build_legacy(path_dados, comp, ano):
             df_dados,
             id_vars=id_vars
             + (["estagio"] if "estagio" in df_dados.columns else []),
+            # pyrefly: ignore [bad-argument-type]
             value_vars=value_vars,
             var_name="conta",
             value_name="valor",

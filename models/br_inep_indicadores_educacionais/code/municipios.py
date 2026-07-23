@@ -5,15 +5,25 @@ from functools import reduce
 import pandas as pd
 import requests
 from constants import (  # type: ignore
+    # pyrefly: ignore [missing-module-attribute]
     rename_afd,
+    # pyrefly: ignore [missing-module-attribute]
     rename_atu,
+    # pyrefly: ignore [missing-module-attribute]
     rename_dsu,
+    # pyrefly: ignore [missing-module-attribute]
     rename_had,
+    # pyrefly: ignore [missing-module-attribute]
     rename_icg,
+    # pyrefly: ignore [missing-module-attribute]
     rename_ied,
+    # pyrefly: ignore [missing-module-attribute]
     rename_ird,
+    # pyrefly: ignore [missing-module-attribute]
     rename_tdi,
+    # pyrefly: ignore [missing-module-attribute]
     rename_tnr,
+    # pyrefly: ignore [missing-module-attribute]
     rename_tx,
 )
 
@@ -62,6 +72,7 @@ def municipios(ano: int) -> None:
         columns={**COL_ID_MUNICIPIO_RENAME, **rename_afd}, errors="raise"
     )
 
+    # pyrefly: ignore [bad-index]
     afd = afd.loc[afd["ano"] == ano,]
     afd["localizacao"] = afd["localizacao"].str.capitalize()
     afd["rede"] = (
@@ -79,6 +90,7 @@ def municipios(ano: int) -> None:
         columns={**COL_ID_MUNICIPIO_RENAME, **rename_atu}, errors="raise"
     )
 
+    # pyrefly: ignore [bad-index]
     atu = atu.loc[atu["ano"] == ano,]
     atu["localizacao"] = atu["localizacao"].str.capitalize()
     atu["rede"] = (
@@ -96,6 +108,7 @@ def municipios(ano: int) -> None:
         columns={**COL_ID_MUNICIPIO_RENAME, **rename_dsu}, errors="raise"
     )
 
+    # pyrefly: ignore [bad-index]
     dsu = dsu.loc[dsu["ano"] == ano,]
     dsu["localizacao"] = dsu["localizacao"].str.capitalize()
     dsu["rede"] = (
@@ -123,6 +136,7 @@ def municipios(ano: int) -> None:
         errors="raise",
     )
 
+    # pyrefly: ignore [bad-index]
     had = had.loc[had["ano"] == ano,]
     had["localizacao"] = had["localizacao"].str.capitalize()
     had["rede"] = (
@@ -140,6 +154,7 @@ def municipios(ano: int) -> None:
         columns={**COL_ID_MUNICIPIO_RENAME, **rename_icg}, errors="raise"
     )
 
+    # pyrefly: ignore [bad-index]
     icg = icg.loc[icg["ano"] == ano,]
     icg["localizacao"] = icg["localizacao"].str.capitalize()
     icg["rede"] = (
@@ -157,6 +172,7 @@ def municipios(ano: int) -> None:
         columns={**COL_ID_MUNICIPIO_RENAME, **rename_ied}, errors="raise"
     )
 
+    # pyrefly: ignore [bad-index]
     ied = ied.loc[ied["ano"] == ano,]
     ied["localizacao"] = ied["localizacao"].str.capitalize()
     ied["rede"] = (
@@ -174,6 +190,7 @@ def municipios(ano: int) -> None:
         columns={**COL_ID_MUNICIPIO_RENAME, **rename_ird}, errors="raise"
     )
 
+    # pyrefly: ignore [bad-index]
     ird = ird.loc[ird["ano"] == ano,]
     ird["localizacao"] = ird["localizacao"].str.capitalize()
     ird["rede"] = (
@@ -191,6 +208,7 @@ def municipios(ano: int) -> None:
         columns={**COL_ID_MUNICIPIO_RENAME, **rename_tdi}, errors="raise"
     )
 
+    # pyrefly: ignore [bad-index]
     tdi = tdi.loc[tdi["ano"] == ano,]
     tdi["localizacao"] = tdi["localizacao"].str.capitalize()
     tdi["rede"] = (
@@ -208,6 +226,7 @@ def municipios(ano: int) -> None:
         columns={**COL_ID_MUNICIPIO_RENAME, **rename_tnr}, errors="raise"
     )
 
+    # pyrefly: ignore [bad-index]
     tnr = tnr.loc[tnr["ano"] == ano,]
     tnr["localizacao"] = tnr["localizacao"].str.capitalize()
     tnr["rede"] = (

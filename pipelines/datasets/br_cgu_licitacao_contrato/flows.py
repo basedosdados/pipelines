@@ -34,6 +34,7 @@ def _flow_factory(table_id: str, cron: str | None):
         )
 
     if cron:
+        # pyrefly: ignore [missing-attribute]
         _flow.deploy_schedules = [
             {"cron": cron, "timezone": "America/Sao_Paulo"}
         ]

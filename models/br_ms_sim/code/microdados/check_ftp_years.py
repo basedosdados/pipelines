@@ -2,6 +2,7 @@
 
 import urllib.request
 
+# pyrefly: ignore [missing-import]
 from extraction import UFS
 
 FTP_URL = "ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DORES/DO{uf}{ano}.dbc"

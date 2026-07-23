@@ -52,6 +52,7 @@ def download_file(ftp, remote_dir, filename, local_dir):
     Returns:
         bool: True if file downloaded and extracted successfully, False otherwise
     """
+    # pyrefly: ignore [unknown-name]
     global CORRUPT_FILES
 
     os.makedirs(local_dir, exist_ok=True)
@@ -119,6 +120,7 @@ def crawler_novo_caged_ftp(
     Returns:
         list: List of successfully and unsuccessfully downloaded files
     """
+    # pyrefly: ignore [unknown-name]
     global CORRUPT_FILES
     CORRUPT_FILES = []
 
@@ -200,6 +202,7 @@ def crawler_novo_caged_ftp(
             print(f"Error: {corrupt_file['error']}")
             print("---")
 
+    # pyrefly: ignore [bad-return]
     return {
         "successful": successful_downloads,
         "failed": failed_downloads,
@@ -207,6 +210,7 @@ def crawler_novo_caged_ftp(
     }
 
 
+# pyrefly: ignore [bad-return]
 def build_partitions(table_id: str, yearmonth: str) -> str:
     """
     build partitions from gtup files
@@ -253,6 +257,7 @@ def build_partitions(table_id: str, yearmonth: str) -> str:
 
     for filename in tqdm(input_files):
         df = pd.read_csv(filename, sep=";", dtype={"uf": str})
+        # pyrefly: ignore [missing-attribute]
         date = re.search(r"\d+", filename).group()
         ano = date[:4]
         mes = int(date[-2:])

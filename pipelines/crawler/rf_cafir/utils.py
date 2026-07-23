@@ -23,6 +23,7 @@ def strip_string(x: pd.DataFrame) -> pd.DataFrame:
         pd.Dataframe: Dataframe com valores de linha sem espaços no início e no final das strings
     """
     if isinstance(x, str):
+        # pyrefly: ignore [bad-return]
         return x.strip()
     return x
 
@@ -32,6 +33,7 @@ def remove_ascii_zero_from_df(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: DataFrame sem ascii 0 (\x00).
     """
+    # pyrefly: ignore [not-callable]
     return df.applymap(
         lambda x: x.replace("\x00", "") if isinstance(x, str) else x
     )
@@ -80,6 +82,7 @@ def parse_api_metadata(url: str | None = None) -> pd.DataFrame:
         ValueError: Se a quantidade de arquivos extraídos for diferente da quantidade de datas de atualização.
     """
 
+    # pyrefly: ignore [bad-argument-type]
     soup = BeautifulSoup(requests_url(url).text, "lxml")
 
     csvs_com_data = []
@@ -158,6 +161,7 @@ def decide_files_to_download(
             raise ValueError(
                 f"Não há arquivos disponíveis para a data {data_especifica}. Verifique o FTP da Receita Federal."
             )
+        # pyrefly: ignore [bad-return]
         return filtered_df["nome_arquivo"].tolist(), data_especifica
 
     else:

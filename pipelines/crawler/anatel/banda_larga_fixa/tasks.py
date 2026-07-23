@@ -19,6 +19,7 @@ from pipelines.utils.utils import log
 
 @task(retries=5, retry_delay_seconds=10)
 def join_tables_in_function(table_id: str, ano):
+    # pyrefly: ignore [deprecated]
     os.system(
         f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}"
     )

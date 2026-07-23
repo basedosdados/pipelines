@@ -329,6 +329,7 @@ def download_data_to_gcs(
             return
         num_bytes = items[0]["uncompressedFileSize"] or 0
 
+    # pyrefly: ignore [unsupported-operation]
     if num_bytes > 1_000_000_000:
         log("Tabela > 1 GB — sem download disponível")
         return
@@ -338,6 +339,7 @@ def download_data_to_gcs(
     url_closed = url_paths["URL_DOWNLOAD_CLOSED"]
     query = f"SELECT * FROM `{project_id}.{dataset_id}.{table_id}`"
 
+    # pyrefly: ignore [unsupported-operation]
     if num_bytes >= 100_000_000:
         log("Tabela entre 100 MB e 1 GB — apenas BDPro")
         _execute_query_in_bigquery(

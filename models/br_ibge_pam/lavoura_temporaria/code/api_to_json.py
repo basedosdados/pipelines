@@ -61,9 +61,11 @@ CATEGORIAS = [
     "109180",
 ]  # Produtos
 ANOS_BAIXADOS = [
+    # pyrefly: ignore [missing-attribute]
     int(glob.os.path.basename(f).split(".")[0])
     for f in glob.glob("tmp/json/*.json")
 ]
+# pyrefly: ignore [unnecessary-type-conversion]
 ANOS_RESTANTES = [int(ANO) for ANO in PERIODOS if ANO not in ANOS_BAIXADOS]
 
 
@@ -124,6 +126,7 @@ async def main(
                     response = await future
                     responses.append(response)
                 except asyncio.TimeoutError:
+                    # pyrefly: ignore [unbound-name]
                     print(f"Request timed out for {url}")
             os.makedirs("tmp/json", exist_ok=True)
             with open(f"tmp/json/{year}.json", "a") as f:

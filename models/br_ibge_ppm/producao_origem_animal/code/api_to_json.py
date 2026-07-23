@@ -19,11 +19,13 @@ LOCALIDADES = "all"
 CLASSIFICACAO = "80"  # Código pré-definido por agregado
 CATEGORIAS = ["2682", "2683", "2684", "2685", "2686", "2687"]  # Produtos
 ANOS_BAIXADOS = [
+    # pyrefly: ignore [missing-attribute]
     int(glob.os.path.basename(f).split(".")[0])
     for f in glob.glob(
         f"{Path.cwd()}/output/producao_origem_animal/json/*.json"
     )
 ]
+# pyrefly: ignore [unnecessary-type-conversion]
 ANOS_RESTANTES = [int(ANO) for ANO in PERIODOS if ANO not in ANOS_BAIXADOS]
 
 
@@ -83,6 +85,7 @@ async def main(
                     response = await future
                     responses.append(response)
                 except asyncio.TimeoutError:
+                    # pyrefly: ignore [unbound-name]
                     print(f"Request timed out for {url}")
             os.makedirs(
                 f"{Path.cwd()}/output/producao_origem_animal/json",

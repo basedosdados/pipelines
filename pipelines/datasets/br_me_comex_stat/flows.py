@@ -43,6 +43,7 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
         target: str = "prod",
         force_run: bool = False,
     ) -> None:
+        # pyrefly: ignore [unused-coroutine]
         rename_flow_run_dataset_table(
             prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
         )
@@ -71,6 +72,7 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
             table_name=table_name,
         )
 
+        # pyrefly: ignore [no-matching-overload]
         upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,
@@ -90,6 +92,7 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
         if not materialize_after_dump:
             return
 
+        # pyrefly: ignore [no-matching-overload]
         upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,
@@ -127,6 +130,7 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
                     date_format="%Y-%m",
                 )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

@@ -51,15 +51,18 @@ def _build_coverage(
         return NonHistorical()
 
     if date_column_kind == "date":
+        # pyrefly: ignore [bad-argument-type]
         date_column = DateOnly(col=date_col)
         date_format = DateFormat.YEAR_MD
     elif date_column_kind == "year":
+        # pyrefly: ignore [bad-argument-type]
         date_column = YearOnly(col=date_col)
         date_format = DateFormat.YEAR
     elif date_column_kind == "year_month":
         date_column = YearMonth(year=year_col, month=month_col)
         date_format = DateFormat.YEAR_MONTH
     elif date_column_kind == "year_quarter":
+        # pyrefly: ignore [bad-argument-type]
         date_column = YearQuarter(year=year_col, quarter=quarter_col)
         date_format = DateFormat.YEAR_MONTH
     else:
@@ -75,6 +78,7 @@ def _build_coverage(
         return PartBdpro(
             date_column=date_column,
             date_format=date_format,
+            # pyrefly: ignore [bad-argument-type]
             free_lag=FreeLag(unit=free_lag_unit, value=free_lag_value),
         )
     raise ValueError(f"coverage_tier não suportado: {coverage_tier!r}")
@@ -108,6 +112,7 @@ def transfer_files_to_prod_flow(
     if folders is None:
         folders = ["mes_competencia=202306", "mes_competencia=202305"]
 
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Materialização Prod: ",
         dataset_id=dataset_id,
@@ -165,4 +170,5 @@ def transfer_files_to_prod_flow(
         )
 
 
+# pyrefly: ignore [missing-attribute]
 transfer_files_to_prod_flow.deploy_schedules = []  # utilitário, disparo manual

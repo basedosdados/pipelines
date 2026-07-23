@@ -39,6 +39,7 @@ def br_cgu_emendas_parlamentares__microdados(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -118,6 +119,7 @@ def br_cgu_emendas_parlamentares__microdados(
             )
 
 
+# pyrefly: ignore [missing-attribute]
 br_cgu_emendas_parlamentares__microdados.deploy_schedules = [
     {"cron": "30 19 * * *", "timezone": "America/Sao_Paulo"}
 ]

@@ -82,7 +82,13 @@ async def collect_data(
                 for variable in variables:
                     log(
                         build_url(
-                            aggregate, period, variable, geo_level, table_id
+                            # pyrefly: ignore [bad-argument-type]
+                            aggregate,
+                            # pyrefly: ignore [bad-argument-type]
+                            period,
+                            variable,
+                            geo_level,
+                            table_id,
                         )
                     )
 
@@ -90,7 +96,13 @@ async def collect_data(
                 fetch(
                     session,
                     build_url(
-                        aggregate, period, variable, geo_level, table_id
+                        # pyrefly: ignore [bad-argument-type]
+                        aggregate,
+                        # pyrefly: ignore [bad-argument-type]
+                        period,
+                        variable,
+                        geo_level,
+                        table_id,
                     ),
                 )
                 for aggregate in aggregates
@@ -198,11 +210,13 @@ def json_categoria(table_id: str, dataset_id: str) -> defaultdict:
 
                 variavel = df[indice_bloco][0]["variavel"]
                 if variavel.split(" - ")[1] == "Variação mensal":
+                    # pyrefly: ignore [bad-index]
                     dados_agrupados[chave_unica]["variacao_mensal"] = (
                         valor_variavel
                     )
 
                 elif variavel.split(" - ")[1] == "Variação acumulada no ano":
+                    # pyrefly: ignore [bad-index]
                     dados_agrupados[chave_unica]["variacao_anual"] = (
                         valor_variavel
                     )
@@ -211,18 +225,24 @@ def json_categoria(table_id: str, dataset_id: str) -> defaultdict:
                     variavel.split(" - ")[1]
                     == "Variação acumulada em 12 meses"
                 ):
+                    # pyrefly: ignore [bad-index]
                     dados_agrupados[chave_unica]["variacao_doze_meses"] = (
                         valor_variavel
                     )
 
                 elif variavel.split(" - ")[1] == "Peso mensal":
+                    # pyrefly: ignore [bad-index]
                     dados_agrupados[chave_unica]["peso_mensal"] = (
                         valor_variavel
                     )
 
+                # pyrefly: ignore [bad-index]
                 dados_agrupados[chave_unica]["ano"] = ano
+                # pyrefly: ignore [bad-index]
                 dados_agrupados[chave_unica]["mes"] = mes
+                # pyrefly: ignore [bad-index]
                 dados_agrupados[chave_unica]["id_categoria"] = id_categoria
+                # pyrefly: ignore [bad-index]
                 dados_agrupados[chave_unica]["categoria"] = categoria
 
     return dados_agrupados
@@ -358,6 +378,7 @@ def order_by_columns(table_id: str) -> list:
             "variacao_doze_meses",
         ]
 
+    # pyrefly: ignore [unbound-name]
     return rename
 
 
@@ -382,10 +403,12 @@ def get_date_api(dataset_id: str, table_id: str) -> tuple[date, str]:
 
         date_original = f"{ano}-{mes}-01"
 
+        # pyrefly: ignore [bad-return, unnecessary-type-conversion]
         return dt.strptime(str(date_original), "%Y-%m-%d").date()
 
     except Exception as e:
         log(f"Não há dados recentes na API: {e}")
+        # pyrefly: ignore [bad-return]
         return task_get_api_most_recent_date.fn(
             dataset_id=dataset_id, table_id=table_id, date_format="%Y-%m"
         )

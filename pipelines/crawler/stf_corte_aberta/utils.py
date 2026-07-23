@@ -87,6 +87,7 @@ def read_csv():
             log(
                 f"Arquivo não encontrado! Verificando o input: {stf_constants.STF_INPUT.value + arquivo}"
             )
+    # pyrefly: ignore [unbound-name]
     return df
 
 
@@ -134,6 +135,7 @@ def partition_data(
     column_name: nome da coluna a ser usada para particionar os dados
     output_directory: diretório onde os arquivos CSV serão salvos
     """
+    # pyrefly: ignore [not-callable]
     unique_values = df[column_name].unique()
     for value in unique_values:
         value_str = str(value)[:10]
@@ -177,6 +179,7 @@ def check_for_data():
                 f"Arquivo não encontrado! Verificando o input: {stf_constants.STF_INPUT.value + arquivo}"
             )
 
+    # pyrefly: ignore [unbound-name]
     df["Data da decisão"] = df["Data da decisão"].astype(str).str[0:10]
     data_obj = df["Data da decisão"].astype(str).replace("/", "-")
     data_obj = data_obj.max()

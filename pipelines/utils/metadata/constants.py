@@ -11,6 +11,7 @@ class constants(Enum):
     Constant values for the metadata project
     """
 
+    # pyrefly: ignore [invalid-annotation]
     MODE_PROJECT: ClassVar[dict[str, str]] = {
         "dev": "basedosdados-dev",
         "prod": "basedosdados",

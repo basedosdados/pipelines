@@ -70,6 +70,7 @@ def download_and_transform():
 def make_partitions(df):
     partition_data(
         df,
+        # pyrefly: ignore [bad-argument-type]
         column_name="data_coleta",
         output_directory=anp_constants.PATH_OUTPUT.value,
     )

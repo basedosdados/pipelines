@@ -10,6 +10,8 @@ import datetime
 from unittest.mock import patch
 
 import pytest
+
+# pyrefly: ignore [missing-import]
 from conftest import FakeBQ, FakeMetadataClient
 
 from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth

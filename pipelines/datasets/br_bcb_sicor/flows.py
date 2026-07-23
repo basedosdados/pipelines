@@ -52,6 +52,7 @@ def _sicor_flow(
             local_redis_execution=local_redis_execution,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 
@@ -126,6 +127,7 @@ def br_bcb_sicor__dicionario(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

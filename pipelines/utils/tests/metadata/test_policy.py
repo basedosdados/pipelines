@@ -118,7 +118,9 @@ def test_compute_all_free_daily():
     )
     r = compute_coverage_ranges(spec, date(2026, 6, 15), IDS_BOTH)
     assert r.pro is None
+    # pyrefly: ignore [missing-attribute]
     assert r.free.coverage == FREE_ID
+    # pyrefly: ignore [missing-attribute]
     assert (r.free.endYear, r.free.endMonth, r.free.endDay) == (2026, 6, 15)
 
 
@@ -130,11 +132,15 @@ def test_compute_part_bdpro_monthly_syncs_and_lags():
     )
     r = compute_coverage_ranges(spec, date(2026, 6, 1), IDS_BOTH)
     # pro termina em 2026-06
+    # pyrefly: ignore [missing-attribute]
     assert (r.pro.endYear, r.pro.endMonth) == (2026, 6)
     # free termina 6 meses antes: 2025-12
+    # pyrefly: ignore [missing-attribute]
     assert (r.free.endYear, r.free.endMonth) == (2025, 12)
+    # pyrefly: ignore [missing-attribute]
     assert r.free.endDay is None  # granularidade mensal
     # R11: pro começa onde free termina
+    # pyrefly: ignore [missing-attribute]
     assert (r.pro.startYear, r.pro.startMonth) == (2025, 12)
     assert r.free_end == date(2025, 12, 1)
 
@@ -147,7 +153,9 @@ def test_compute_all_bdpro_annual():
         spec, date(2026, 1, 1), CoverageIds(pro=PRO_ID)
     )
     assert r.free is None
+    # pyrefly: ignore [missing-attribute]
     assert r.pro.endYear == 2026
+    # pyrefly: ignore [missing-attribute]
     assert r.pro.endMonth is None
 
 

@@ -22,6 +22,7 @@ URL = "https://download.inep.gov.br/saeb/resultados/saeb_2021_brasil_estados_mun
 os.makedirs(INPUT, exist_ok=True)
 os.makedirs(OUTPUT, exist_ok=True)
 
+# pyrefly: ignore [deprecated]
 os.system(f"cd {INPUT}; curl -O -k {URL}")
 
 # Brasil

@@ -32,6 +32,7 @@ import pyarrow.parquet as pq
 import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+# pyrefly: ignore [missing-import]
 from clean_data import build_manifest
 
 BASE_URL = "https://nces.ed.gov/ipeds/datacenter/data/"
@@ -179,13 +180,17 @@ def download_dict(filename: str) -> Path | None:
 def _parse_excel_varlist(raw: bytes, engine: str) -> dict[str, str]:
     """Parse a varlist sheet from xlsx/xls bytes. Returns varname->title."""
     entries: dict[str, str] = {}
+    # pyrefly: ignore [bad-argument-type]
     xl = pd.ExcelFile(io.BytesIO(raw), engine=engine)
     sheet = next(
-        (s for s in xl.sheet_names if s.strip().lower() == "varlist"), None
+        # pyrefly: ignore [missing-attribute]
+        (s for s in xl.sheet_names if s.strip().lower() == "varlist"),
+        None,
     )
     if sheet is None:
         return entries
     df = xl.parse(sheet)
+    # pyrefly: ignore [unnecessary-type-conversion]
     cols = {str(c).strip().lower(): c for c in df.columns}
     name_col = cols.get("varname")
     title_col = cols.get("vartitle")

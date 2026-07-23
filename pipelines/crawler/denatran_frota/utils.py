@@ -109,6 +109,7 @@ def change_df_header(df: pd.DataFrame, header_row: int) -> pd.DataFrame:
         return df
     new_header = df.iloc[header_row]
     new_df = df[(header_row + 1) :].reset_index(drop=True)
+    # pyrefly: ignore [no-matching-overload]
     new_df = new_df.rename(columns=new_header)
     return new_df
 
@@ -150,6 +151,7 @@ def get_year_month_from_filename(filename: str) -> tuple[int, int]:
         raise ValueError("No match found")
 
 
+# pyrefly: ignore [bad-return]
 def verify_total(df: pl.DataFrame) -> pl.DataFrame:
     """
     Verify that we can pivot from wide to long.
@@ -274,6 +276,7 @@ def verify_match_ibge(
         for row in mismatched_rows.rows(named=True):
             error_message += f"{row['nome_denatran']} ({row['sigla_uf']})\n"
         log(error_message, "error")
+    # pyrefly: ignore [bad-return]
     return joined_df
 
 
@@ -361,6 +364,7 @@ def generic_extractor(dest_path_file: str):
         raise ValueError(f"Unsupported type {extension} for compressed file.")
     with extractor_function(dest_path_file, "r") as f:
         compressed_filename = f.filename
+        # pyrefly: ignore [missing-attribute]
         compressed_filename_split = compressed_filename.split("/")
         directory = "/".join(
             compressed_filename_split[: len(compressed_filename_split) - 1]
@@ -372,11 +376,13 @@ def generic_extractor(dest_path_file: str):
                 and not file.is_dir()
             ):
                 new_extension = file.filename.split(".")[-1]
+                # pyrefly: ignore [missing-attribute]
                 new_filename = f"{f.filename.split('.')[0]}.{new_extension}"
                 f.extract(file.filename, path=directory)
                 os.rename(f"{directory}/{file.filename}", new_filename)
 
 
+# pyrefly: ignore [bad-return]
 def make_file_path(file_info: dict, ext: bool = True) -> str:
     """Create the filename using the sent dictionary.
 
@@ -570,6 +576,7 @@ def extract_links_post_2012(
             matched_date = datetime.date(
                 year=int(matched_year),
                 month=int(
+                    # pyrefly: ignore [bad-argument-type]
                     denatran_constants.MONTHS.value.get(
                         str(matched_month).lower()
                     )
@@ -599,7 +606,7 @@ def extract_links_post_2012(
                         and denatran_constants.MONTHS.value.get(
                             str(matched_month).lower()
                         )
-                        == int(month)
+                        == int(month)  # pyrefly: ignore [unnecessary-type-conversion]
                         and matched_year == str(year)
                     ):
                         # All file metadata aggregated at the info dict
@@ -647,14 +654,17 @@ def extraction_pre_2012(
                 "ano": year,
                 "file_extension": split_file_name[-1],
                 "type_of_file": "",
+                # pyrefly: ignore [unnecessary-type-conversion]
                 "destination_dir": str(year_dir_name),
             }
 
             if re.search("Tipo", raw_file_name, re.IGNORECASE) or re.search(
                 r"Tipo[-\s]UF", zip_file.split("/")[-1]
             ):
+                # pyrefly: ignore [bad-assignment]
                 file_info["type_of_file"] = DenatranType.UF
             elif re.search(r"Mun\w*", raw_file_name, re.IGNORECASE):
+                # pyrefly: ignore [bad-assignment]
                 file_info["type_of_file"] = DenatranType.Municipio
 
             try:
@@ -741,9 +751,11 @@ def output_file_to_parquet(
         savepath=os.path.join(output_path, table_id),
         file_type="parquet",
     )
+    # pyrefly: ignore [bad-return]
     return os.path.join(output_path, table_id)
 
 
+# pyrefly: ignore [bad-return]
 def get_data_from_prod(dataset_id: str, table_id: str) -> list:
     """Get data from a table from basedosdados.
 
@@ -779,4 +791,5 @@ def get_data_from_prod(dataset_id: str, table_id: str) -> list:
     if dfs:
         df = pd.concat(dfs)
 
+        # pyrefly: ignore [bad-return]
         return df

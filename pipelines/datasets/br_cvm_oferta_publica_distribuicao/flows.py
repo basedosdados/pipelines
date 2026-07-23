@@ -36,6 +36,7 @@ def br_cvm_oferta_publica_distribuicao__dia(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -94,6 +95,7 @@ def br_cvm_oferta_publica_distribuicao__dia(
         )
 
 
+# pyrefly: ignore [missing-attribute]
 br_cvm_oferta_publica_distribuicao__dia.deploy_schedules = [
     {"cron": "45 6 * * 1-5", "timezone": "America/Sao_Paulo"}
 ]

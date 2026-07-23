@@ -139,6 +139,7 @@ def load_data(input_dir: Path, survey_dir: str) -> pd.DataFrame:
     df["period"] = df["period"].str.strip()
     df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("int64")
     df["index_value"] = pd.to_numeric(
+        # pyrefly: ignore [bad-argument-type]
         df["value"].str.strip().replace({"-": ""}).replace({"": None}),
         errors="coerce",
     )
@@ -284,6 +285,7 @@ def write_partitioned(sub: pd.DataFrame, table: str, output_dir: Path) -> Path:
     out = sub[order]
     tdir = output_dir / table
     for year, g in out.groupby("year", sort=True):
+        # pyrefly: ignore [bad-argument-type]
         pdir = tdir / f"year={int(year)}"
         pdir.mkdir(parents=True, exist_ok=True)
         at = pa.Table.from_pandas(g, schema=typed_schema, preserve_index=False)
@@ -402,5 +404,6 @@ def clean_all(input_dir: Path, output_dir: Path) -> dict:
             latest = sub.sort_values(["year", "month"]).iloc[-1]
             max_ym = f"{int(latest['year'])}-{int(latest['month']):02d}"
     result["dicionario"] = build_dicionario(input_dir, output_dir)
+    # pyrefly: ignore [unsupported-operation]
     result["max_year_month"] = max_ym
     return result

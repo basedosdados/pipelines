@@ -40,6 +40,7 @@ def test_date_column_variants_construct():
 
 def test_year_month_requires_both_fields():
     with pytest.raises(ValidationError):
+        # pyrefly: ignore [missing-argument]
         YearMonth(year="ano")  # falta month
 
 
@@ -84,6 +85,7 @@ def test_free_lag_default_on_part_bdpro():
 
 def test_free_lag_value_must_be_positive():
     with pytest.raises(ValidationError):
+        # pyrefly: ignore [bad-argument-type]
         FreeLag(unit="months", value=0)
 
 
@@ -103,6 +105,7 @@ def test_non_historical_is_frozen():
     spec = NonHistorical()
     assert spec.tier == "non_historical"
     with pytest.raises(ValidationError):
+        # pyrefly: ignore [read-only]
         spec.tier = "all_free"  # frozen → imutável
 
 
@@ -123,6 +126,7 @@ def test_coverage_spec_dispatches_by_tier():
         }
     )
     assert isinstance(spec, PartBdpro)
+    # pyrefly: ignore [missing-attribute]
     assert spec.date_column.col == "data"
 
 

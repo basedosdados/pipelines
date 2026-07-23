@@ -72,6 +72,7 @@ def task_decide_files_to_download(
             data correspondente (string quando data_maxima; date quando
             data_especifica).
     """
+    # pyrefly: ignore [bad-return]
     return decide_files_to_download(
         df=df,
         last_update_date=last_update_date,
@@ -142,6 +143,7 @@ def task_download_files(
         df = remove_ascii_zero_from_df(df)
 
         # tira os espacos em branco
+        # pyrefly: ignore [not-callable]
         df = df.applymap(strip_string)
 
         log(f"Salvando arquivo: {file}")

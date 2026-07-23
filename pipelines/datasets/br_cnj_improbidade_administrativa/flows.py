@@ -38,6 +38,7 @@ def br_cnj_improbidade_administrativa__condenacao(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -98,6 +99,7 @@ def br_cnj_improbidade_administrativa__condenacao(
         )
 
 
+# pyrefly: ignore [missing-attribute]
 br_cnj_improbidade_administrativa__condenacao.deploy_schedules = [
     {"cron": "0 7 * * 1", "timezone": "America/Sao_Paulo"}
 ]

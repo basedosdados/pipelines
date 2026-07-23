@@ -17,11 +17,13 @@ VARIAVEIS = ["108"]  # As variáveis da tabela
 NIVEL_GEOGRAFICO = "N6"  # N6 = Municipal
 LOCALIDADES = "all"
 ANOS_BAIXADOS = [
+    # pyrefly: ignore [missing-attribute]
     int(glob.os.path.basename(f).split(".")[0])
     for f in glob.glob(
         f"{Path.cwd()}/output/producao_pecuaria/ovinos_tosquiados/json/*.json"
     )
 ]
+# pyrefly: ignore [unnecessary-type-conversion]
 ANOS_RESTANTES = [int(ANO) for ANO in PERIODOS if ANO not in ANOS_BAIXADOS]
 
 

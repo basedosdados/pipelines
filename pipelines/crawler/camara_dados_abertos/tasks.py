@@ -58,11 +58,13 @@ def save_data(table_id: str) -> str:
             )
 
         if table_id == "frente_deputado":
+            # pyrefly: ignore [no-matching-overload]
             df_year = df_year.rename(
                 columns=constants_camara.RENAME_COLUMNS_FRENTE_DEPUTADO.value
             )
 
         if table_id == "evento":
+            # pyrefly: ignore [no-matching-overload]
             df_year = df_year.rename(
                 columns=constants_camara.RENAME_COLUMNS_EVENTO.value
             )

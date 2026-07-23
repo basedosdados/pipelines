@@ -40,6 +40,7 @@ def br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas(
     )
 
 
+# pyrefly: ignore [missing-attribute]
 br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas.deploy_schedules = [
     {"cron": "0 6 * * 1", "timezone": "America/Sao_Paulo"}
 ]

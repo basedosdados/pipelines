@@ -211,6 +211,7 @@ EXPECTED_TOKENS = (
 # ---------------------------------------------------------------------------
 # HTTP helpers
 # ---------------------------------------------------------------------------
+# pyrefly: ignore [bad-return]
 def _http_get_bytes(url: str, retries: int = 3) -> bytes:
     for attempt in range(retries):
         try:

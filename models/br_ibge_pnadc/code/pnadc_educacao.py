@@ -213,6 +213,7 @@ os.makedirs(output, exist_ok=True)
 df_temp = pl.read_csv(csv_saida, ignore_errors=True)
 
 for cols, data in df_temp.group_by(["ano", "sigla_uf"]):
+    # pyrefly: ignore [not-iterable]
     ano, sigla_uf = cols
     part = data.drop(["ano", "sigla_uf"])
 
