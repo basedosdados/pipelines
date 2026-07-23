@@ -1,0 +1,281 @@
+---
+version: 2
+models:
+  - name: us_census_acs__microdata_person
+    description: >
+      Tabela microdata_person do American Community Survey (ACS), Census Bureau dos
+      EUA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, period, serialno, sporder]
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: serialno
+        tests: [not_null]
+      - name: sporder
+        tests: [not_null]
+  - name: us_census_acs__microdata_household
+    description: >
+      Tabela microdata_household do American Community Survey (ACS), Census Bureau
+      dos EUA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, period, serialno]
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: serialno
+        tests: [not_null]
+  - name: us_census_acs__data_profile_nation
+    description: >
+      Tabela data_profile_nation do American Community Survey (ACS), Census Bureau
+      dos EUA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, period, id_country, variable_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: id_country
+        tests: [not_null]
+      - name: variable_code
+        tests: [not_null]
+      - name: variable_code
+        tests:
+          - relationships:
+              to: ref('us_census_acs__variables')
+              field: code
+  - name: us_census_acs__data_profile_state
+    description: >
+      Tabela data_profile_state do American Community Survey (ACS), Census Bureau
+      dos EUA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, period, id_state, variable_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: id_state
+        tests: [not_null]
+      - name: variable_code
+        tests: [not_null]
+      - name: variable_code
+        tests:
+          - relationships:
+              to: ref('us_census_acs__variables')
+              field: code
+  - name: us_census_acs__data_profile_county
+    description: >
+      Tabela data_profile_county do American Community Survey (ACS), Census Bureau
+      dos EUA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - period
+            - id_state
+            - id_county
+            - variable_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: id_state
+        tests: [not_null]
+      - name: id_county
+        tests: [not_null]
+      - name: variable_code
+        tests: [not_null]
+      - name: variable_code
+        tests:
+          - relationships:
+              to: ref('us_census_acs__variables')
+              field: code
+  - name: us_census_acs__data_profile_place
+    description: >
+      Tabela data_profile_place do American Community Survey (ACS), Census Bureau
+      dos EUA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - period
+            - id_state
+            - id_place
+            - variable_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: id_state
+        tests: [not_null]
+      - name: id_place
+        tests: [not_null]
+      - name: variable_code
+        tests: [not_null]
+      - name: variable_code
+        tests:
+          - relationships:
+              to: ref('us_census_acs__variables')
+              field: code
+  - name: us_census_acs__data_profile_puma
+    description: >
+      Tabela data_profile_puma do American Community Survey (ACS), Census Bureau dos
+      EUA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - period
+            - id_state
+            - puma
+            - variable_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: id_state
+        tests: [not_null]
+      - name: puma
+        tests: [not_null]
+      - name: variable_code
+        tests: [not_null]
+      - name: variable_code
+        tests:
+          - relationships:
+              to: ref('us_census_acs__variables')
+              field: code
+  - name: us_census_acs__data_profile_cbsa
+    description: >
+      Tabela data_profile_cbsa do American Community Survey (ACS), Census Bureau dos
+      EUA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, period, id_cbsa, variable_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: id_cbsa
+        tests: [not_null]
+      - name: variable_code
+        tests: [not_null]
+      - name: variable_code
+        tests:
+          - relationships:
+              to: ref('us_census_acs__variables')
+              field: code
+  - name: us_census_acs__data_profile_congressional_district
+    description: >
+      Tabela data_profile_congressional_district do American Community Survey (ACS),
+      Census Bureau dos EUA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - period
+            - id_state
+            - id_congressional_district
+            - variable_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: id_state
+        tests: [not_null]
+      - name: id_congressional_district
+        tests: [not_null]
+      - name: variable_code
+        tests: [not_null]
+      - name: variable_code
+        tests:
+          - relationships:
+              to: ref('us_census_acs__variables')
+              field: code
+  - name: us_census_acs__data_profile_zcta
+    description: >
+      Tabela data_profile_zcta do American Community Survey (ACS), Census Bureau dos
+      EUA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, period, id_zcta, variable_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: id_zcta
+        tests: [not_null]
+      - name: variable_code
+        tests: [not_null]
+      - name: variable_code
+        tests:
+          - relationships:
+              to: ref('us_census_acs__variables')
+              field: code
+  - name: us_census_acs__data_profile_school_district
+    description: >
+      Tabela data_profile_school_district do American Community Survey (ACS), Census
+      Bureau dos EUA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - period
+            - id_state
+            - id_school_district
+            - variable_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: id_state
+        tests: [not_null]
+      - name: id_school_district
+        tests: [not_null]
+      - name: variable_code
+        tests: [not_null]
+      - name: variable_code
+        tests:
+          - relationships:
+              to: ref('us_census_acs__variables')
+              field: code
+  - name: us_census_acs__variables
+    description: >
+      Tabela variables do American Community Survey (ACS), Census Bureau dos EUA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: code
+        tests: [not_null]
+  - name: us_census_acs__dicionario
+    description: >
+      Tabela dicionario do American Community Survey (ACS), Census Bureau dos EUA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave, valor]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        tests: [not_null]
+      - name: nome_coluna
+        tests: [not_null]
+      - name: chave
+        tests: [not_null]
+      - name: valor
+        tests: [not_null]
