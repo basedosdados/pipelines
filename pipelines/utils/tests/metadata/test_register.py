@@ -81,9 +81,14 @@ def test_poll_latest_is_today():
     assert kwargs["latest"].date() == datetime.datetime.today().date()
 
 
-def test_poll_raw_source_flag_flips_result_on_same_state():
-    # Estado do CNES: RawDataSource.Update em maio, mas o wall clock da Table
-    # (última materialização) já está em junho.
+def test_poll_raw_source_flag_flips_result_on_same_state() -> None:
+    """`use_raw_source_update` decide qual registro o poll compara.
+
+    No mesmo estado — fonte em junho, `RawDataSource.Update` em maio e a data da
+    última materialização da Table já em 15/junho — o parâmetro inverte o
+    resultado: ligado detecta novidade (compara com a cobertura de maio),
+    desligado trava (compara com a materialização de junho).
+    """
     client = FakeMetadataClient(
         raw_source_update_latest=datetime.date(2026, 5, 1),
         table_update_latest=datetime.date(2026, 6, 15),
@@ -101,10 +106,10 @@ def test_poll_raw_source_flag_flips_result_on_same_state():
         "tab",
         source_max_date=datetime.date(2026, 6, 1),
     )
-    assert with_flag is True  # fonte (jun) vs cobertura comitada (maio)
+    assert with_flag is True  # fonte (jun) vs cobertura registrada (maio)
     assert (
         without_flag is False
-    )  # fonte (jun-01) vs wall clock (jun-15) → trava
+    )  # fonte (jun-01) vs materialização (jun-15) → trava
 
 
 # ============================================ register_table_materialization (§1.8)
