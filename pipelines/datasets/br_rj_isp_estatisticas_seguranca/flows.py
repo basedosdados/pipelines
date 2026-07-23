@@ -35,6 +35,7 @@ def _isp_flow(table_id: str, cron: str):
     return _flow
 
 
+# PR #1693: evolucao_mensal_cisp — ignore_values id_municipio (9999994, 9999999)
 br_rj_isp_estatisticas_seguranca__evolucao_mensal_cisp = _isp_flow(
     "evolucao_mensal_cisp", "5 10 * * *"
 )
