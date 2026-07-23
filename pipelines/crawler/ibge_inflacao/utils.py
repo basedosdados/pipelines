@@ -84,6 +84,7 @@ async def collect_data(
                         build_url(
                             # pyrefly: ignore [bad-argument-type]
                             aggregate,
+                            # pyrefly: ignore [bad-argument-type]
                             period,
                             variable,
                             geo_level,
@@ -97,6 +98,7 @@ async def collect_data(
                     build_url(
                         # pyrefly: ignore [bad-argument-type]
                         aggregate,
+                        # pyrefly: ignore [bad-argument-type]
                         period,
                         variable,
                         geo_level,

@@ -177,6 +177,7 @@ def download_file(
             download_and_unzip_file(
                 # pyrefly: ignore [bad-argument-type]
                 url,
+                # pyrefly: ignore [bad-argument-type]
                 value_constants["INPUT"],
                 headers=headers,
             )

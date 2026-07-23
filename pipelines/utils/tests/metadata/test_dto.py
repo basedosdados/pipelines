@@ -75,6 +75,7 @@ def test_poll_input_coerces_datetime_to_iso():
     dto = PollInput(
         # pyrefly: ignore [bad-argument-type]
         rawDataSource=UUID,
+        # pyrefly: ignore [bad-argument-type]
         latest=datetime(2026, 6, 1, 12, 30),
         entity=UUID,
     )

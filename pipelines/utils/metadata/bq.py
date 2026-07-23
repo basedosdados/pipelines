@@ -67,6 +67,7 @@ class BigQueryReader:
         return datetime.datetime.strptime(
             # pyrefly: ignore [missing-attribute]
             last_date,
+            # pyrefly: ignore [missing-attribute]
             coverage.date_format.value,
         ).date()
 

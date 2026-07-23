@@ -439,12 +439,14 @@ def create_dictionary() -> str:
             chave_src_col = next(
                 # pyrefly: ignore [missing-attribute]
                 k
+                # pyrefly: ignore [missing-attribute]
                 for k, v in colunas_map.items()
                 if v == "chave"
             )
             valor_src_col = next(
                 # pyrefly: ignore [missing-attribute]
                 k
+                # pyrefly: ignore [missing-attribute]
                 for k, v in colunas_map.items()
                 if v == "valor"
             )

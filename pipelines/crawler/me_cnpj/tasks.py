@@ -87,6 +87,7 @@ def main(
                             # pyrefly: ignore [bad-argument-type]
                             input_path,
                             output_path,
+                            # pyrefly: ignore [bad-argument-type]
                             max_last_modified_date,
                             i,
                         )
@@ -95,6 +96,7 @@ def main(
                             # pyrefly: ignore [bad-argument-type]
                             input_path,
                             output_path,
+                            # pyrefly: ignore [bad-argument-type]
                             max_last_modified_date,
                             i,
                         )
@@ -103,6 +105,7 @@ def main(
                             # pyrefly: ignore [bad-argument-type]
                             input_path,
                             output_path,
+                            # pyrefly: ignore [bad-argument-type]
                             max_last_modified_date,
                             i,
                         )
@@ -119,6 +122,7 @@ def main(
                         # pyrefly: ignore [bad-argument-type]
                         input_path,
                         output_path,
+                        # pyrefly: ignore [bad-argument-type]
                         max_last_modified_date,
                         sufixo,
                     )

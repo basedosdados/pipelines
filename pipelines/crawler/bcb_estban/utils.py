@@ -205,6 +205,7 @@ def wide_to_long(dataframe: pd.DataFrame) -> pd.DataFrame:
         # pyrefly: ignore [unnecessary-type-conversion]
         col
         for col in dataframe.columns
+        # pyrefly: ignore [unnecessary-type-conversion]
         if "verbete" not in str(col).lower()
     ]
     dataframe = dataframe.melt(
