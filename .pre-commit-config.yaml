@@ -1,4 +1,10 @@
 ---
+ci:
+  # Pyrefly needs the project's real dependency environment to resolve imports
+  # (pandas, requests, numpy, ...). pre-commit.ci runs hooks in an isolated venv
+  # with no project deps and no network, so type checking runs in a dedicated
+  # GitHub Actions workflow (.github/workflows/pyrefly.yaml) that does `uv sync`.
+  skip: [pyrefly-check]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -38,10 +44,11 @@ repos:
       - id: sqlfmt
         language_version: python
         additional_dependencies: ['.[jinjafmt]']
-  - repo: https://github.com/facebook/pyrefly-pre-commit
-    rev: 1.2.0.dev2  # Note: this is the version of the pre-commit hook, NOT the pyrefly version used for type checking
+  - repo: local
     hooks:
       - id: pyrefly-check
         name: Pyrefly (type checking)
-        pass_filenames: false  # Recommended to do full repo checks. However, you can change this to `true` to only check changed files
-        language: python  # Use env-installed pyrefly
+        entry: uv run pyrefly check
+        language: system  # use the project's uv env (has pandas, stubs, pyrefly)
+        pass_filenames: false  # full-repo check; excludes come from pyproject.toml
+        types: [python]  # only trigger when Python files change
