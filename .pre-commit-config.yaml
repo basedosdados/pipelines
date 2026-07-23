@@ -44,4 +44,4 @@ repos:
       - id: pyrefly-check
         name: Pyrefly (type checking)
         pass_filenames: false  # Recommended to do full repo checks. However, you can change this to `true` to only check changed files
-        language: system  # Use system-installed pyrefly
+        language: python  # Use env-installed pyrefly
