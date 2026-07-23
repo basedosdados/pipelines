@@ -175,7 +175,11 @@ Para análises e relacionamentos, utilizar as colunas:
 
 - `cnae_2_subclasse`
 
-### 6.3 Comentários gerais:
+### 6.3 Coluna `tamanho_estabelecimento`
+
+Até o ano de 2001 (inclusive), os códigos da coluna `tamanho_estabelecimento` seguiam uma numeração iniciada em 0, enquanto nos anos posteriores a numeração inicia em 1. Para padronizar o dicionário ao longo de toda a série histórica, os valores dos anos até 2001 foram incrementados em 1 quando o código original estava entre 0 e 9.
+
+### 6.4 Comentários gerais:
 
 **Comentários:**
   • Alguns valores relacionados à conexão com o diretório foram desconsiderados durante os testes.
