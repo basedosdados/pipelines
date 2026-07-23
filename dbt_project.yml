@@ -82,15 +82,27 @@ models:
     br_bd_diretorios_brasil:
       +materialized: table
       +schema: br_bd_diretorios_brasil
+    br_bd_diretorios_in:
+      +materialized: table
+      +schema: br_bd_diretorios_in
     br_bd_diretorios_mundo:
       +materialized: table
       +schema: br_bd_diretorios_mundo
     br_bd_diretorios_us:
       +materialized: table
       +schema: br_bd_diretorios_us
+    in_tcpd_elections:
+      +materialized: table
+      +schema: in_tcpd_elections
     us_bls_atus:
       +materialized: table
       +schema: us_bls_atus
+    us_bls_cpi:
+      +materialized: table
+      +schema: us_bls_cpi
+    us_census_cbp:
+      +materialized: table
+      +schema: us_census_cbp
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
@@ -103,6 +115,9 @@ models:
     br_bd_siga_o_dinheiro:
       +materialized: table
       +schema: br_bd_siga_o_dinheiro
+    br_bndes_operacoes_contratadas:
+      +materialized: table
+      +schema: br_bndes_operacoes_contratadas
     br_camara_dados_abertos:
       +materialized: table
       +schema: br_camara_dados_abertos
@@ -397,6 +412,9 @@ models:
     br_tse_filiacao_partidaria:
       +materialized: table
       +schema: br_tse_filiacao_partidaria
+    gb_eric_ess:
+      +materialized: table
+      +schema: gb_eric_ess
     example:
       +materialized: table  # Materialization type (table, table or incremental)
       +schema: example  # Overrides the default schema (defaults to what is set on profiles.yml)
@@ -427,6 +445,9 @@ models:
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
+    world_dasanaike_sage:
+      +materialized: table
+      +schema: world_dasanaike_sage
     world_iea_pirls:
       +materialized: table
       +schema: world_iea_pirls

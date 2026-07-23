@@ -57,9 +57,7 @@ class TestCoerceToDate:
 
 def test_source_poll_task_coerces_string_source_date():
     """O caminho exato do flow br_bcb_agencia: string '%Y-%m' + delega."""
-    fake = FakeMetadataClient(
-        raw_source_update_latest=datetime.date(2026, 1, 1)
-    )
+    fake = FakeMetadataClient(table_update_latest=datetime.date(2026, 1, 1))
     with patch(
         "pipelines.utils.metadata.tasks.MetadataClient", return_value=fake
     ):
@@ -75,9 +73,7 @@ def test_source_poll_task_coerces_string_source_date():
 
 
 def test_source_poll_task_builds_client_with_env_and_delegates():
-    fake = FakeMetadataClient(
-        raw_source_update_latest=datetime.date(2026, 1, 1)
-    )
+    fake = FakeMetadataClient(table_update_latest=datetime.date(2026, 1, 1))
     with patch(
         "pipelines.utils.metadata.tasks.MetadataClient", return_value=fake
     ) as mk:
@@ -100,9 +96,7 @@ def test_poll_source_for_update_task_writes_poll_only_not_update():
     flow. Se alguém recolar o `upsert_raw_source_update` aqui dentro, este teste
     quebra.
     """
-    fake = FakeMetadataClient(
-        raw_source_update_latest=datetime.date(2026, 1, 1)
-    )
+    fake = FakeMetadataClient(table_update_latest=datetime.date(2026, 1, 1))
     with patch(
         "pipelines.utils.metadata.tasks.MetadataClient", return_value=fake
     ):
