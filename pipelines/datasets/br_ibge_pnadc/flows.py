@@ -135,6 +135,15 @@ def br_ibge_pnadc__dicionario(
     dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
+    """Reconstrói o dicionário da PNADC e materializa via dbt (dev e prod).
+
+    Args:
+        dataset_id: ID do dataset no BigQuery.
+        table_id: Slug da tabela do dicionário.
+        materialize_after_dump: Se True, sobe também para prod e materializa lá.
+        dbt_alias: Usa o alias do modelo dbt (nome com prefixo `<ds>__`).
+        target: Target dbt para a materialização em prod.
+    """
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

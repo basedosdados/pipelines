@@ -86,20 +86,25 @@ COLUNAS_DICIONARIO = [
 
 
 def cell(i: int, row: pd.Series) -> str:
+    """Retorna a célula `i` da linha como texto limpo, tratando NaN como "".
+
+    Args:
+        i: Índice posicional da coluna.
+        row: Linha do DataFrame (via `iterrows`).
+
+    Returns:
+        Valor da célula como string sem espaços nas bordas, ou "" se for NaN.
+    """
     return str(row[i]).strip() if pd.notna(row[i]) else ""
 
 
 def download_documentacao(dest: Path) -> tuple[Path, Path]:
     """Baixa e extrai os arquivos de documentação do IBGE.
 
-    Parameters
-    ----------
-    dest : Path
-        Diretório onde salvar/extrair os arquivos. Criado se não existir.
+    Args:
+        dest: Diretório onde salvar/extrair os arquivos. Criado se não existir.
 
-    Returns
-    -------
-    tuple[Path, Path]
+    Returns:
         Caminhos para (dicionário PNADC, estrutura de ocupação), nessa ordem.
     """
     dest.mkdir(parents=True, exist_ok=True)
@@ -136,14 +141,10 @@ def parse_dicionario_ibge(path: Path) -> pd.DataFrame:
     O layout da planilha é posicional (sem header): a coluna 0 traz o marcador
     de "Parte", a 2 o código da variável, a 5 a chave e a 6 o valor.
 
-    Parameters
-    ----------
-    caminho : Path
-        Caminho para `dicionario_PNADC_microdados_trimestral.xls`.
+    Args:
+        path: Caminho para `dicionario_PNADC_microdados_trimestral.xls`.
 
-    Returns
-    -------
-    pd.DataFrame
+    Returns:
         Colunas de `COLUNAS_DICIONARIO`. `cobertura_temporal` é sempre "(1)".
     """
     df = pd.read_excel(path, sheet_name=0, header=None)
@@ -205,14 +206,10 @@ def parse_estrutura_ocupacao(path: Path) -> pd.DataFrame:
     Atenção: o arquivo da fonte é `.xls` (formato antigo), não `.xlsx`. Zeros à
     esquerda são **semânticos** aqui e devem ser preservados.
 
-    Parameters
-    ----------
-    path : Path
-        Caminho para `Estrutura_Ocupacao_COD.xls`.
+    Args:
+        path: Caminho para `Estrutura_Ocupacao_COD.xls`.
 
-    Returns
-    -------
-    pd.DataFrame
+    Returns:
         Colunas de `COLUNAS_DICIONARIO`, com `nome_coluna` == "V4010".
     """
     # dtype=str preserva os zeros à esquerda (semânticos no V4010); header=None
@@ -273,16 +270,11 @@ def duplicar_bloco_v3(
     tabela `microdados` também as contém. Sem isso, o teste
     `custom_dictionary_coverage` de `microdados` acusa as chaves como órfãs.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Dicionário já parseado.
-    colunas : list[str], optional
-        Colunas a replicar.
+    Args:
+        df: Dicionário já parseado.
+        colunas: Colunas a replicar.
 
-    Returns
-    -------
-    pd.DataFrame
+    Returns:
         `df` acrescido das linhas replicadas.
     """
     df_copy = df[
@@ -301,16 +293,11 @@ def normalizar_chaves(
 ) -> pd.DataFrame:
     """Remove o zero à esquerda da `chave` nas colunas codificadas.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Dicionário já parseado.
-    colunas : list[str], optional
-        Colunas a normalizar. V4010 não deve entrar — ver `COLUNAS_STRIP_ZERO`.
+    Args:
+        df: Dicionário já parseado.
+        colunas: Colunas a normalizar. V4010 não deve entrar — ver `COLUNAS_STRIP_ZERO`.
 
-    Returns
-    -------
-    pd.DataFrame
+    Returns:
         `df` com a `chave` normalizada apenas nas colunas indicadas.
     """
     df = df.copy()
@@ -329,14 +316,10 @@ def build_dicionario(dest: Path) -> pd.DataFrame:
 
     Orquestra download, parsing e as duas correções de domínio.
 
-    Parameters
-    ----------
-    dest : Path
-        Diretório de trabalho para os downloads.
+    Args:
+        dest: Diretório de trabalho para os downloads.
 
-    Returns
-    -------
-    pd.DataFrame
+    Returns:
         Dicionário final, ordenado e com todas as colunas como string.
     """
     zip_path, doc_path = download_documentacao(dest)

@@ -15,16 +15,11 @@ from pipelines.datasets.br_ibge_pnadc.utils import build_dicionario
 def build_dicionario_task(work_dir: str, output_dir: str) -> str:
     """Monta o dicionário e escreve um parquet all-string para upload.
 
-    Parameters
-    ----------
-    work_dir : str
-        Diretório de trabalho para baixar a documentação do IBGE.
-    output_dir : str
-        Diretório onde escrever o parquet a ser enviado ao staging.
+    Args:
+        work_dir: Diretório de trabalho para baixar a documentação do IBGE.
+        output_dir: Diretório onde escrever o parquet a ser enviado ao staging.
 
-    Returns
-    -------
-    str
+    Returns:
         Caminho do parquet gerado.
     """
     df = build_dicionario(Path(work_dir))
