@@ -60,6 +60,7 @@ def _run_cnes(
             source_max_date=source_max_date,
             env="prod",
             date_format="%Y-%m",
+            use_raw_source_update=True,
         )
         if not has_new_data:
             print("Fonte CNES sem novidade — encerrando")

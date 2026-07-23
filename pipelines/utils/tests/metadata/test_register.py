@@ -22,6 +22,7 @@ from pipelines.utils.metadata.domain import (
 from pipelines.utils.metadata.policy import CoverageIds
 from pipelines.utils.metadata.register import (
     commit_source_size_update,
+    poll_source_for_update,
     poll_source_size_for_update,
     register_source_poll,
     register_source_poll_by_size,
@@ -78,6 +79,37 @@ def test_poll_latest_is_today():
     register_source_poll(client, "br_x", "tab")
     _, _, kwargs = client.writes[0]
     assert kwargs["latest"].date() == datetime.datetime.today().date()
+
+
+def test_poll_raw_source_flag_flips_result_on_same_state() -> None:
+    """`use_raw_source_update` decide qual registro o poll compara.
+
+    No mesmo estado — fonte em junho, `RawDataSource.Update` em maio e a data da
+    última materialização da Table já em 15/junho — o parâmetro inverte o
+    resultado: ligado detecta novidade (compara com a cobertura de maio),
+    desligado trava (compara com a materialização de junho).
+    """
+    client = FakeMetadataClient(
+        raw_source_update_latest=datetime.date(2026, 5, 1),
+        table_update_latest=datetime.date(2026, 6, 15),
+    )
+    with_flag = poll_source_for_update(
+        client,
+        "br_x",
+        "tab",
+        source_max_date=datetime.date(2026, 6, 1),
+        use_raw_source_update=True,
+    )
+    without_flag = poll_source_for_update(
+        client,
+        "br_x",
+        "tab",
+        source_max_date=datetime.date(2026, 6, 1),
+    )
+    assert with_flag is True  # fonte (jun) vs cobertura registrada (maio)
+    assert (
+        without_flag is False
+    )  # fonte (jun-01) vs materialização (jun-15) → trava
 
 
 # ============================================ register_table_materialization (§1.8)

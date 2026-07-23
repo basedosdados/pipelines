@@ -266,12 +266,15 @@ def poll_source_for_update_task(
     source_max_date: datetime.date | str | None = None,
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
+    use_raw_source_update: bool = False,
 ) -> bool:
     """Detecta se a fonte original tem novidade hoje, sem gravar o Update.
 
     Sempre grava um `Poll` na fonte (data de hoje) e devolve se `source_max_date`
-    indica dados mais novos do que o `Table.Update.latest` atual — mas, ao
-    contrário de `register_source_poll_task`, **não grava** o Update. A gravação
+    indica dados mais novos do que o Update de referência (por padrão
+    `Table.Update.latest`; `RawDataSource.Update.latest` quando
+    `use_raw_source_update=True`) — mas, ao contrário de
+    `register_source_poll_task`, **não grava** o Update. A gravação
     fica a cargo de `commit_source_update_task`, chamada ao fim do flow, após a
     materialização. Use as duas em par quando a gravação do Update precisa ser
     adiada para não travar runs futuras se o flow falhar no meio.
@@ -287,6 +290,10 @@ def poll_source_for_update_task(
         date_format: formato usado para parsear `source_max_date` quando vier
             como string. Padrão `"%Y-%m-%d"`; use `"%Y-%m"` ou `"%Y"` conforme a
             granularidade da string.
+        use_raw_source_update: registro comparado com `source_max_date`. `False`
+            (padrão) usa `Table.Update.latest`; `True` usa
+            `RawDataSource.Update.latest`. Passe `True` para fontes 1:1 com a
+            tabela cujo poll trava contra o wall clock da materialização.
 
     Returns:
         bool — True se a fonte trouxe novidade (Update ainda não gravado),
@@ -299,6 +306,7 @@ def poll_source_for_update_task(
         dataset_id,
         table_id,
         _coerce_to_date(source_max_date, date_format),
+        use_raw_source_update=use_raw_source_update,
     )
 
 
