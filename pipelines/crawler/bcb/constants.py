@@ -71,6 +71,7 @@ class Constants(Enum):
                 "VL_MEDIO_DIARIO": "valor_medio_diario",
                 "VL_MEDIO_DIARIO_VINCENDO": "valor_medio_diario_vincendo",
                 "VL_ULTIMO_DIA": "valor_ultimo_dia",
+                "IB_RENEGOCIADA": "indicador_renegociacao",
             },
         },
         "liberacao": {

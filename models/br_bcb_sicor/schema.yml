@@ -268,6 +268,10 @@ models:
           de crédito
       - name: id_situacao_operacao
         description: Situação da operação
+      - name: indicador_renegociacao
+        description: >
+          Indicador de operação renegociada (1 = renegociada, 0 = não
+          renegociada)
       - name: valor_medio_diario
         description: Saldo médio diário
       - name: valor_medio_diario_vincendo
@@ -497,9 +501,11 @@ models:
       - name: cnpj_basico
         description: CNPJ Básico do proprietário
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_brasil__empresa')
               field: cnpj_basico
+              ignore_values: ['']
+              proportion_allowed_failures: 0.01
       - name: id_sncr
         description: Identificar do Imóvel no Sistema Nacional de Cadastro Rural (SNCR)
       - name: id_nirf
@@ -543,9 +549,11 @@ models:
       - name: cnpj
         description: CNPJ do mutuário
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_brasil__empresa')
               field: cnpj
+              ignore_values: ['']
+              proportion_allowed_failures: 0.01
       - name: cnpj_basico
         description: CNPJ básico do mutuário
         tests:

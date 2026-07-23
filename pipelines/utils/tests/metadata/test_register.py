@@ -247,6 +247,34 @@ def test_poll_size_for_update_smaller_raises_after_poll():
     assert client.written_entities == ["poll"]
 
 
+def test_poll_size_for_update_small_shrink_within_tolerance_proceeds():
+    """Queda pequena de tamanho (dentro da tolerância) é re-publicação normal da
+    fonte, não quebra de schema: trata como novidade (True) e grava só o Poll.
+    Reproduz o caso `br_bcb_sicor__saldo` (18565412 vs 18567487, ~0.01%).
+    """
+    client = FakeMetadataClient()
+    redis = FakeRedis({"br_x": {"tab": {"2020-01-01": 18567487}}})
+    outdated = poll_source_size_for_update(
+        client, redis, "br_x", "tab", 18565412
+    )
+    assert outdated is True
+    assert client.written_entities == ["poll"]  # sem Update (fica p/ o commit)
+    assert redis.store == {
+        "br_x": {"tab": {"2020-01-01": 18567487}}
+    }  # intacto
+
+
+def test_poll_size_for_update_large_shrink_still_raises():
+    """Queda grande (acima da tolerância) segue disparando ValueError."""
+    import pytest
+
+    client = FakeMetadataClient()
+    redis = FakeRedis({"br_x": {"tab": {"2020-01-01": 1000}}})
+    with pytest.raises(ValueError, match="MENOR"):
+        poll_source_size_for_update(client, redis, "br_x", "tab", 900)  # -10%
+    assert client.written_entities == ["poll"]
+
+
 def test_commit_size_update_writes_history_and_update():
     """Fase 2 por tamanho: grava o novo tamanho no Redis e o Update — sem Poll."""
     client = FakeMetadataClient()
