@@ -10,7 +10,7 @@
 with
     cnpj_estabelecimentos as (
         select
-            safe_cast(data as date) data,
+            safe_cast(data_referencia as date) data_referencia,
             safe_cast(lpad(cnpj, 14, "0") as string) cnpj,
             safe_cast(lpad(cnpj_basico, 8, '0') as string) cnpj_basico,
             safe_cast(lpad(cnpj_ordem, 4, '0') as string) cnpj_ordem,
@@ -48,6 +48,7 @@ with
             safe_cast(fax as string) fax,
             safe_cast(lower(email) as string) email,
             safe_cast(situacao_especial as string) situacao_especial,
+            safe_cast(data_modificacao as date) data_modificacao
             safe_cast(data_situacao_especial as date) data_situacao_especial
         from {{ set_datalake_project("br_rf_cnpj_staging.estabelecimentos") }} a
         left join

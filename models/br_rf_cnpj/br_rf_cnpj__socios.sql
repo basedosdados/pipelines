@@ -9,7 +9,7 @@
 with
     cnpj_socios as (
         select
-            safe_cast(data as date) data,
+            safe_cast(data_referencia as date) data_referencia,
             safe_cast(lpad(cnpj_basico, 8, '0') as string) cnpj_basico,
             safe_cast(tipo as string) tipo,
             safe_cast(nome as string) nome,
@@ -22,7 +22,8 @@ with
             safe_cast(
                 cast(qualificacao_representante_legal as int64) as string
             ) qualificacao_representante_legal,
-            safe_cast(faixa_etaria as string) faixa_etaria
+            safe_cast(faixa_etaria as string) faixa_etaria,
+            safe_cast(data_modificacao as date) data_modificacao
         from {{ set_datalake_project("br_rf_cnpj_staging.socios") }} as t
         where qualificacao != "qualificacao"
     )

@@ -56,9 +56,9 @@ def main(
 
     Args:
         tables (list): A list of tables to be processed.
-        folder_date (datetime): Most recent database release extracted from API
         folder_date (datetime): CNPJs max folder date
         last_modified_date (datetime): CNPJs max last modified date
+        chunk_size (int): size of csv chunks
 
     Returns:
         str: The path to the output folder where the data has been organized.
@@ -91,14 +91,17 @@ def main(
                         process_csv_estabelecimentos(
                             input_path,
                             output_path,
+                            folder_date,
                             last_modified_date,
                             i,
                             chunk_size,
                         )
+
                     elif table_configs["table_name"] == "Socios":
                         process_csv_socios(
                             input_path,
                             output_path,
+                            folder_date,
                             last_modified_date,
                             i,
                             chunk_size,
@@ -107,6 +110,7 @@ def main(
                         process_csv_empresas(
                             input_path,
                             output_path,
+                            folder_date,
                             last_modified_date,
                             i,
                             chunk_size,
@@ -131,6 +135,7 @@ def main(
                 process_csv_simples(
                     input_path,
                     output_path,
+                    folder_date,
                     last_modified_date,
                     table,
                     chunk_size,

@@ -10,7 +10,6 @@ from pipelines.utils.metadata.domain import (
     DateOnly,
     NonHistorical,
     PartBdpro,
-    YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -109,12 +108,14 @@ def _run_rf_cnpj(
                 bq_project="basedosdados",
             )
         else:
+            # data-only DATE column (partition col in the dbt model) — not
+            # ano/mes, which don't exist in empresas/estabelecimentos/socios
             register_table_materialization_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 coverage=PartBdpro(
-                    date_column=YearMonth(year="ano", month="mes"),
-                    date_format=DateFormat.YEAR_MONTH,
+                    date_column=DateOnly(col="data"),
+                    date_format=DateFormat.YEAR_MD,
                 ),
                 env="prod",
                 bq_project="basedosdados",

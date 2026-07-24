@@ -28,7 +28,7 @@ def data_url(url: str, folder_date: str | None = None) -> datetime.date:
 
     Args:
         url (str): The URL to fetch the data from.
-        headers (dict): Headers to include in the request.
+        folder_date (str):
 
     Returns:
 
@@ -360,6 +360,7 @@ async def download_unzip_csv(url: str, path: Path | str) -> None:
 def process_csv_estabelecimentos(
     input_path: Path | str,
     output_path: Path | str,
+    data_referencia: str,
     data_coleta: str,
     i: int,
     chunk_size: int = 100000,
@@ -370,13 +371,14 @@ def process_csv_estabelecimentos(
     Args:
         input_path (Path|str): Path to the input data.
         output_path (Path|str): Directory to save processed data.
+        data_referencia (str): Data  collection snapshot date as string.
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
     """
     ordem = constants_cnpj.COLUNAS_ESTABELECIMENTO_ORDEM.value
     colunas = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
-    save_folder = Path(output_path) / f"data={data_coleta}"
+    save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
 
     for filepath in Path(input_path).iterdir():
@@ -425,6 +427,7 @@ def process_csv_estabelecimentos(
                 )
                 chunk["id_municipio"] = ""
                 chunk = chunk.loc[:, ordem]
+                chunk["data_modificacao"] = data_coleta
                 for uf in constants_cnpj.UFS.value:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
                     df_particao = df_particao.drop(["sigla_uf"], axis=1)
@@ -449,6 +452,7 @@ def process_csv_estabelecimentos(
 def process_csv_empresas(
     input_path: Path | str,
     output_path: Path | str,
+    data_referencia: str,
     data_coleta: str,
     i: int,
     chunk_size: int = 100000,
@@ -459,12 +463,13 @@ def process_csv_empresas(
     Args:
         input_path (Path|str): Path to the input data.
         output_path (Path|str): Directory to save processed data.
+        data_referencia (str): Data  collection snapshot date as string.
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
     """
     colunas = constants_cnpj.COLUNAS_EMPRESAS.value
-    save_folder = Path(output_path) / f"data={data_coleta}"
+    save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"empresas_{i}.csv"
     for filepath in Path(input_path).iterdir():
@@ -494,7 +499,7 @@ def process_csv_empresas(
                         .str.replace(",", ".")
                         .astype(float)
                     )
-
+                    chunk["data_modificacao"] = data_coleta
                     chunk.to_csv(fd, index=False, encoding="utf-8")
 
             log(f"Arquivo empresas_{i} salvo")
@@ -505,6 +510,7 @@ def process_csv_empresas(
 def process_csv_socios(
     input_path: Path | str,
     output_path: Path | str,
+    data_referencia: str,
     data_coleta: str,
     i: int,
     chunk_size: int = 1000,
@@ -515,6 +521,7 @@ def process_csv_socios(
     Args:
         input_path (Path|str): Path to the input data.
         output_path (Path|str): Directory to save processed data.
+        data_referencia (str): Data  collection snapshot date as string.
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
@@ -523,7 +530,7 @@ def process_csv_socios(
         None
     """
     colunas = constants_cnpj.COLUNAS_SOCIOS.value
-    save_folder = Path(output_path) / f"data={data_coleta}"
+    save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"socios_{i}.csv"
     for filepath in Path(input_path).iterdir():
@@ -555,7 +562,7 @@ def process_csv_socios(
                             chunk[col] = pd.to_datetime(
                                 chunk[col], format="%Y%m%d", errors="coerce"
                             )
-
+                    chunk["data_modificacao"] = data_coleta
                     chunk.to_csv(fd, index=False, encoding="utf-8")
 
             log(f"Arquivo socios_{i} salvo")
@@ -566,6 +573,7 @@ def process_csv_socios(
 def process_csv_simples(
     input_path: Path | str,
     output_path: Path | str,
+    data_referencia: str,
     data_coleta: str,
     sufixo: str,
     chunk_size: int = 1000,
@@ -576,6 +584,7 @@ def process_csv_simples(
     Args:
         input_path (Path|str): Path to the input data.
         output_path (Path|str): Directory to save processed data.
+        data_referencia (str): Data  collection snapshot date as string.
         data_coleta (str): Data collection date as string.
         sufixo (str): Suffix used to construct the output filename.
         chunk_size (int): Number of rows to process per chunk.
@@ -584,7 +593,9 @@ def process_csv_simples(
         None
     """
     colunas = constants_cnpj.COLUNAS_SIMPLES.value
-    save_path = Path(output_path) / f"{sufixo}.csv"
+    save_folder = Path(output_path) / f"data_referencia={data_referencia}"
+    save_folder.mkdir(exist_ok=True, parents=True)
+    save_path = save_folder / f"{sufixo}.csv"
     for filepath in Path(input_path).iterdir():
         if "simples.csv" in filepath.as_posix().lower():
             log(f"Carregando o arquivo: {filepath}")
@@ -618,6 +629,7 @@ def process_csv_simples(
                     chunk["opcao_mei"] = chunk["opcao_mei"].replace(
                         {"N": "0", "S": "1"}
                     )
+                    chunk["data_modificacao"] = data_coleta
                     chunk.to_csv(fd, index=False, encoding="utf-8")
 
             log(f"Arquivo {sufixo} salvo")
