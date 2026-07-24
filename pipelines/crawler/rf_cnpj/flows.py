@@ -34,6 +34,7 @@ def _run_rf_cnpj(
     target: str,
     force_run: bool,
     chunk_size: int = 100000,
+    folder_date: str | None = None,
 ) -> None:
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
@@ -41,13 +42,13 @@ def _run_rf_cnpj(
 
     tabelas = constants_cnpj.TABLES.value[table_id]
 
-    max_folder_date, max_last_modified_date = get_data_source_max_date()
+    folder_date, last_modified_date = get_data_source_max_date(folder_date)
 
     if not force_run:
         has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            source_max_date=max_folder_date,
+            source_max_date=folder_date,
             env="prod",
             date_format="%Y-%m",
         )
@@ -57,8 +58,8 @@ def _run_rf_cnpj(
 
     output_filepath = main(
         tables=tabelas,
-        max_folder_date=max_folder_date,
-        max_last_modified_date=max_last_modified_date,
+        folder_date=folder_date,
+        last_modified_date=last_modified_date,
         chunk_size=chunk_size,
     )
 
@@ -119,11 +120,11 @@ def _run_rf_cnpj(
                 bq_project="basedosdados",
             )
 
-        if max_folder_date is not None:
+        if folder_date is not None:
             commit_source_update_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                source_max_date=max_folder_date,
+                source_max_date=folder_date,
                 env="prod",
                 date_format="%Y-%m",
             )

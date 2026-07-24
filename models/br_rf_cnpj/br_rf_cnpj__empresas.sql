@@ -4,7 +4,6 @@
         alias="empresas",
         materialized="incremental",
         partition_by={"field": "data", "data_type": "date", "granularity": "month"},
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
 

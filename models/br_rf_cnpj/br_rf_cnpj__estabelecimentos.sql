@@ -5,7 +5,6 @@
         materialized="incremental",
         partition_by={"field": "data", "data_type": "date", "granularity": "month"},
         cluster_by=["sigla_uf"],
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
 with

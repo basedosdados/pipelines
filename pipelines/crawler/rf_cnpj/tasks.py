@@ -27,7 +27,9 @@ headers = constants_cnpj.HEADERS.value
 
 
 @task(retries=3, retry_delay_seconds=30)
-def get_data_source_max_date() -> tuple[datetime.datetime, datetime.date]:
+def get_data_source_max_date(
+    folder_date: str | None = None,
+) -> tuple[datetime.datetime, datetime.date]:
     """
     Checks if there are available updates for a specific dataset and table.
 
@@ -36,15 +38,17 @@ def get_data_source_max_date() -> tuple[datetime.datetime, datetime.date]:
         to be used as partition
     """
 
-    max_folder_date, max_table_date = data_url(url=url)
-    return max_folder_date, max_table_date
+    folder_date, last_modified_date = data_url(
+        url=url, folder_date=folder_date
+    )
+    return folder_date, last_modified_date
 
 
 @task(retries=3, retry_delay_seconds=30)
 def main(
     tables: list[str],
-    max_folder_date: datetime.datetime,
-    max_last_modified_date: datetime.date,
+    folder_date: datetime.datetime,
+    last_modified_date: datetime.date,
     chunk_size: int = 100000,
 ) -> str:
     """
@@ -53,8 +57,8 @@ def main(
     Args:
         tables (list): A list of tables to be processed.
         folder_date (datetime): Most recent database release extracted from API
-        max_folder_date (datetime): CNPJs max folder date
-        max_last_modified_date (datetime): CNPJs max last modified date
+        folder_date (datetime): CNPJs max folder date
+        last_modified_date (datetime): CNPJs max last modified date
 
     Returns:
         str: The path to the output folder where the data has been organized.
@@ -77,7 +81,7 @@ def main(
         if table_configs["segmentada"]:
             for i in range(0, 10):  # Segmented tables have 10 files by default
                 nome_arquivo = f"{table_configs['table_name']}{i}"
-                url_download = f"{constants_cnpj.URL.value}{max_folder_date}/{table_configs['table_name']}{i}.zip"
+                url_download = f"{constants_cnpj.URL.value}{folder_date}/{table_configs['table_name']}{i}.zip"
 
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
@@ -87,7 +91,7 @@ def main(
                         process_csv_estabelecimentos(
                             input_path,
                             output_path,
-                            max_last_modified_date,
+                            last_modified_date,
                             i,
                             chunk_size,
                         )
@@ -95,7 +99,7 @@ def main(
                         process_csv_socios(
                             input_path,
                             output_path,
-                            max_last_modified_date,
+                            last_modified_date,
                             i,
                             chunk_size,
                         )
@@ -103,13 +107,13 @@ def main(
                         process_csv_empresas(
                             input_path,
                             output_path,
-                            max_last_modified_date,
+                            last_modified_date,
                             i,
                             chunk_size,
                         )
         else:
             nome_arquivo = f"{table_configs['table_name']}"
-            url_download = f"{constants_cnpj.URL.value}{max_folder_date}/{table_configs['table_name']}.zip"
+            url_download = f"{constants_cnpj.URL.value}{folder_date}/{table_configs['table_name']}.zip"
 
             if (nome_arquivo not in arquivos_baixados) and not table_configs[
                 "manual"
@@ -127,7 +131,7 @@ def main(
                 process_csv_simples(
                     input_path,
                     output_path,
-                    max_last_modified_date,
+                    last_modified_date,
                     table,
                     chunk_size,
                 )

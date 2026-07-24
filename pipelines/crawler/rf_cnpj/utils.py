@@ -22,7 +22,7 @@ ufs = constants_cnpj.UFS.value
 timeout = constants_cnpj.TIMEOUT.value
 
 
-def data_url(url: str) -> datetime.date:
+def data_url(url: str, folder_date: str | None = None) -> datetime.date:
     """
     Fetches data from a URL, parses the HTML to find the latest folder date, and compares it to today's date.
 
@@ -32,7 +32,7 @@ def data_url(url: str) -> datetime.date:
 
     Returns:
 
-        tuple[datetime, datetime]: The maximum date found in the folders (max_folder_date) and max last modified date (max_last_modified_date).
+        tuple[datetime, datetime]: The maximum date found in the folders (folder_date) and max last modified date (max_last_modified_date).
     """
 
     link_data = requests.request(
@@ -43,34 +43,51 @@ def data_url(url: str) -> datetime.date:
         timeout=30,
     )
     link_data.raise_for_status()
-
     soup = BeautifulSoup(link_data.text, "html.parser")
 
-    max_last_modified_date = max(
-        datetime.datetime.strptime(
-            p.find("d:getlastmodified").text, "%a, %d %b %Y %H:%M:%S GMT"
+    last_modified_dates = [p for p in soup.find_all("d:prop")]
+    folder_dates = [x for x in soup.find_all("d:href")]
+
+    if folder_date is None:
+        value = []
+        for x in folder_dates:
+            urls = x.get_text(strip=True).split("/")[-2]
+            if len(urls) == 7:
+                value.append(urls)
+        folder_date = max(value)
+        last_modified_date = max(
+            datetime.datetime.strptime(
+                p.find("d:getlastmodified").text, "%a, %d %b %Y %H:%M:%S GMT"
+            )
+            for p in last_modified_dates
+            if p.find("d:getlastmodified")
+        ).date()
+        log(
+            f"A data máxima extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD: {folder_date}"
         )
-        for p in soup.find_all("d:prop")
-        if p.find("d:getlastmodified")
-    ).date()
+    else:
+        try:
+            index = folder_dates.index(
+                next(
+                    [item for item in folder_dates if folder_date in str(item)]
+                )
+            )
+            last_modified_date = datetime.datetime.strptime(
+                last_modified_dates[index].find("d:getlastmodified").text,
+                "%a, %d %b %Y %H:%M:%S GMT",
+            ).date()
+        except Exception as e:
+            log.error(e)
 
-    value = []
-
-    for x in soup.find_all("d:href"):
-        urls = x.get_text(strip=True).split("/")[-2]
-        if len(urls) == 7:
-            value.append(urls)
-    max_folder_date = max(value)
+        log(
+            f"A data extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD: {folder_date}"
+        )
 
     log(
-        f"A data máxima extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD: {max_folder_date}"
+        f"A data máxima extraida da API da Receita Federal que será utilizada para gerar partições no Storage: {last_modified_date}"
     )
 
-    log(
-        f"A data máxima extraida da API da Receita Federal que será utilizada para gerar partições no Storage: {max_last_modified_date}"
-    )
-
-    return max_folder_date, max_last_modified_date
+    return folder_date, last_modified_date
 
 
 # ! Cria o caminho do output
