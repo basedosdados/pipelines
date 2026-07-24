@@ -68,9 +68,7 @@ def data_url(url: str, folder_date: str | None = None) -> datetime.date:
     else:
         try:
             index = folder_dates.index(
-                next(
-                    [item for item in folder_dates if folder_date in str(item)]
-                )
+                next(item for item in folder_dates if folder_date in str(item))
             )
             last_modified_date = datetime.datetime.strptime(
                 last_modified_dates[index].find("d:getlastmodified").text,
