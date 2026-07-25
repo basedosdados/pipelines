@@ -103,6 +103,9 @@ models:
     us_census_cbp:
       +materialized: table
       +schema: us_census_cbp
+    us_census_cps:
+      +materialized: table
+      +schema: us_census_cps
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
