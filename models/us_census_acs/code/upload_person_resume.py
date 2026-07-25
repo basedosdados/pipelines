@@ -6,6 +6,7 @@ restarts from scratch. This uploads files to GCS staging with if_exists="pass"
 retries. Then creates the BQ table over the uploaded data (no re-upload).
 """
 
+import os
 import time
 import warnings
 
@@ -17,7 +18,10 @@ from google.cloud import bigquery  # noqa: E402
 BILLING = "basedosdados-dev"
 DATASET = "us_census_acs"
 TABLE = "microdata_person"
-PATH = "/Users/rdahis/acs_data/output/microdata_person"
+# Honor ACS_OUTPUT_ROOT like upload.py, so both uploaders read the same location.
+PATH = os.path.join(
+    os.environ.get("ACS_OUTPUT_ROOT", "/Users/rdahis/acs_data/output"), TABLE
+)
 EXPECT = 308_855_872
 
 _orig = gcs.Client.bucket

@@ -66,12 +66,36 @@ GEO_IDS = {  # profile geo id columns per level
     "zcta": ["id_zcta"],
     "school_district": ["id_state", "id_school_district"],
 }
-# BQ clustering per profile level (partition is ano; clustering leads with geography
+# BQ clustering per profile level (partition is year; clustering leads with geography
 # so state-scoped queries prune, then variable_code for single-variable queries). Max 4.
 CLUSTER = {lvl: (GEO_IDS[lvl] + ["variable_code"])[:4] for lvl in GEO_IDS}
 CLUSTER["nation"] = [
     "variable_code"
-]  # id_pais is constant 'US' — useless to cluster on
+]  # id_country is constant 'US' — useless to cluster on
+
+# Directory-backed geo FK columns -> (directory dbt model, target field,
+# proportion_allowed_failures). Only columns whose value is a full,
+# directory-resolvable GEOID get a relationship test; puma, id_congressional_district
+# and id_zcta are intentionally excluded (their vintage varies by year, so they are
+# carried as STRING codes without a directory FK).
+#
+# The tolerance is the MEASURED cross-vintage drift plus headroom: ACS profiles span
+# 2008-2024 while each directory is a single vintage, so a strict 0.00 test would fail
+# on codes that were valid in an older delineation. Row-level miss rates measured in
+# dev (2026-07): state 0.0000, county 0.0036, place 0.0056, school_district 0.0186,
+# cbsa 0.0574 (cbsa_2023 is a single 2023 vintage — the driftiest). Tolerances stay
+# tight enough to still catch a gross regression (e.g. a whole year of malformed codes).
+DIR_FK = {
+    "id_state": ("br_bd_diretorios_us__state", "id_state", 0.01),
+    "id_county": ("br_bd_diretorios_us__county", "id_county", 0.01),
+    "id_place": ("br_bd_diretorios_us__place", "id_place", 0.02),
+    "id_cbsa": ("br_bd_diretorios_us__cbsa_2023", "id_cbsa", 0.08),
+    "id_school_district": (
+        "br_bd_diretorios_us__school_district",
+        "id_school_district",
+        0.03,
+    ),
+}
 
 
 def cols_of(table):
@@ -150,17 +174,31 @@ def gen_schema_entry(table):
     ]
     seen = set()
     nn = [c for c in nn if not (c in seen or seen.add(c))]
+    is_profile = table.startswith("data_profile_")
+    # One entry per column carrying ALL of its tests. A column must never appear
+    # twice in the same model's `columns:` list — dbt keeps only the last definition
+    # (warning dbt1033) and silently drops the tests on the earlier one. So the
+    # variable_code not_null and its relationships test share a single entry.
     lines.append("    columns:")
     for c in nn:
+        col_tests = ["          - not_null"]
+        if c in DIR_FK:  # geo id -> directory table
+            model, field, tol = DIR_FK[c]
+            col_tests += [
+                "          - custom_relationships:",
+                f"              to: ref('{model}')",
+                f"              field: {field}",
+                f"              proportion_allowed_failures: {tol}",
+            ]
+        if c == "variable_code" and is_profile:  # -> variables catalog
+            col_tests += [
+                "          - relationships:",
+                f"              to: ref('{DATASET}__variables')",
+                "              field: code",
+            ]
         lines.append(f"      - name: {c}")
-        lines.append("        tests: [not_null]")
-    # relationships: variable_code -> variables (profiles only)
-    if table.startswith("data_profile_"):
-        lines.append("      - name: variable_code")
         lines.append("        tests:")
-        lines.append("          - relationships:")
-        lines.append(f"              to: ref('{DATASET}__variables')")
-        lines.append("              field: code")
+        lines += col_tests
     return "\n".join(lines)
 
 

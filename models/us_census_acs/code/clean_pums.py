@@ -24,7 +24,8 @@ PUMS = "/Users/rdahis/acs_data/pums"
 OUTROOT = "/Users/rdahis/acs_data/output"
 ARCH = os.path.join(os.path.dirname(__file__), "architecture")
 CHUNK = 200_000
-RENAME = {"ST": "STATE", "BDS": "BDSP", "RMS": "RMSP", "VAL": "VALP"}
+
+from _pums_schema import RENAME  # noqa: E402  (shared identity-rename map)
 
 
 def load_arch(kind):  # kind: microdata_person / microdata_household
@@ -67,50 +68,63 @@ def clean_one(tag, kind, zip_name):
         return
     tmp = outfile + ".tmp"
 
-    zp = f"{PUMS}/{tag}/{zip_name}"
-    if not os.path.exists(zp):
-        alt = zp.replace(".zip", "a.zip")
-        zp = alt if os.path.exists(alt) else zp
-    if not os.path.exists(zp):
+    # Resolve the archive(s) to read. Prefer the combined national zip; if it is
+    # absent, the national file may be split into parts (a-d, by state FIPS range) —
+    # ALL of them must be processed, or dropping b/c/d silently yields an incomplete
+    # Parquet. (Our downloads use the combined zip, which itself holds all parts as
+    # members; the split-zip branch guards against a differently shaped download.)
+    combined = f"{PUMS}/{tag}/{zip_name}"
+    if os.path.exists(combined):
+        zips = [combined]
+    else:
+        stem = zip_name[:-4]  # "csv_pus.zip" -> "csv_pus"
+        zips = sorted(glob.glob(f"{PUMS}/{tag}/{stem}[a-d].zip"))
+    if not zips:
         print(f"  !! missing zip for {kind} {tag}")
         return
 
     writer = pq.ParquetWriter(tmp, schema, compression="snappy")
     total = 0
-    with zipfile.ZipFile(zp) as z:
-        members = [n for n in z.namelist() if n.lower().endswith(".csv")]
-        for member in sorted(members):
-            with z.open(member) as raw:
-                reader = pd.read_csv(
-                    io.TextIOWrapper(raw, "latin-1"),
-                    dtype=str,
-                    na_filter=False,
-                    chunksize=CHUNK,
-                )
-                for chunk in reader:
-                    chunk.columns = [c.strip().upper() for c in chunk.columns]
-                    chunk = chunk.rename(columns=RENAME)
-                    chunk = chunk.loc[:, ~chunk.columns.duplicated()]
-                    chunk = chunk.reindex(columns=canon_orig)
-                    chunk.columns = [name_of[c] for c in canon_orig]
-                    for n in int_cols:
-                        chunk[n] = pd.to_numeric(
-                            chunk[n], errors="coerce"
-                        ).astype("Int64")
-                    for n in str_cols:
-                        s = chunk[n].astype("string")
-                        chunk[n] = s.where(s.str.len() > 0, other=pd.NA)
-                    chunk.insert(
-                        0, "period", period
-                    )  # ano is path-only (partition)
-                    tbl = pa.Table.from_pandas(
-                        chunk, schema=schema, preserve_index=False
+    for zp in zips:
+        with zipfile.ZipFile(zp) as z:
+            members = [n for n in z.namelist() if n.lower().endswith(".csv")]
+            for member in sorted(members):
+                with z.open(member) as raw:
+                    reader = pd.read_csv(
+                        io.TextIOWrapper(raw, "latin-1"),
+                        dtype=str,
+                        na_filter=False,
+                        chunksize=CHUNK,
                     )
-                    writer.write_table(tbl)
-                    total += len(chunk)
+                    for chunk in reader:
+                        chunk.columns = [
+                            c.strip().upper() for c in chunk.columns
+                        ]
+                        chunk = chunk.rename(columns=RENAME)
+                        chunk = chunk.loc[:, ~chunk.columns.duplicated()]
+                        chunk = chunk.reindex(columns=canon_orig)
+                        chunk.columns = [name_of[c] for c in canon_orig]
+                        for n in int_cols:
+                            chunk[n] = pd.to_numeric(
+                                chunk[n], errors="coerce"
+                            ).astype("Int64")
+                        for n in str_cols:
+                            s = chunk[n].astype("string")
+                            chunk[n] = s.where(s.str.len() > 0, other=pd.NA)
+                        chunk.insert(
+                            0, "period", period
+                        )  # ano is path-only (partition)
+                        tbl = pa.Table.from_pandas(
+                            chunk, schema=schema, preserve_index=False
+                        )
+                        writer.write_table(tbl)
+                        total += len(chunk)
     writer.close()
     os.replace(tmp, outfile)
-    print(f"  OK   {kind} {tag}: {total:,} rows -> {outfile}")
+    print(
+        f"  OK   {kind} {tag}: {total:,} rows -> {outfile} "
+        f"({len(zips)} archive(s))"
+    )
 
 
 def main():

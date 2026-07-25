@@ -15,7 +15,9 @@ import json
 import os
 
 WORK = "/Users/rdahis/acs_data/work"
-OUT = "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/medsl-election-data-onboard-7f88f7/models/us_census_acs/code/architecture"
+# Resolve the architecture output dir relative to THIS script, so it does not break
+# when the repo is checked out at a different path (e.g. a recycled git worktree).
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "architecture")
 os.makedirs(OUT, exist_ok=True)
 with open(f"{WORK}/pums_vardict.json") as f:
     vardict = json.load(f)
@@ -24,8 +26,7 @@ with open(f"{WORK}/pums_person_cols.txt") as f:
 with open(f"{WORK}/pums_housing_cols.txt") as f:
     housing_cols = f.read().split("\n")
 
-# --- high-confidence pure renames (old -> canonical); folded (dropped in favor of canonical) ---
-RENAME = {"ST": "STATE", "BDS": "BDSP", "RMS": "RMSP", "VAL": "VALP"}
+from _pums_schema import RENAME  # noqa: E402  (shared identity-rename map)
 
 # --- N-vars that are really identifiers/sequences -> STRING (no arithmetic meaning) ---
 FORCE_STRING = {"SPORDER"}
@@ -85,6 +86,7 @@ UNIT = {
 
 
 def is_weight(v):
+    """True if v is a PUMS replicate/sample weight (PWGTP*, WGTP*)."""
     return (
         v == "PWGTP"
         or v == "WGTP"
@@ -94,10 +96,12 @@ def is_weight(v):
 
 
 def geo_fk(v):
+    """Directory FK for a geo column (only STATE is directory-backed here)."""
     return "br_bd_diretorios_us.state:id_state" if v == "STATE" else ""
 
 
 def partition_rows():
+    """Architecture rows for the two partition/period columns (year, period)."""
     return [
         {
             "name": "year",
@@ -127,6 +131,12 @@ def partition_rows():
 
 
 def build(cols, kind):
+    """Build one architecture CSV (kind = microdata_person / microdata_household).
+
+    Maps each raw PUMS column to a canonical row (name, bigquery_type from the dict
+    C/N flag, measurement_unit, dictionary/directory flags) and returns the rows plus
+    harmonization diagnostics.
+    """
     rows = list(partition_rows())
     folded, kept_hist, review_unit = [], [], []
     for v in cols:

@@ -178,6 +178,7 @@ def process_level(level):
             if files:
                 tasks[(plabel, y)] = sorted(set(files))
     names = [f.name for f in schema]
+    failures = []  # (level, plabel, year, file, error)
     for (plabel, y), files in sorted(tasks.items()):
         outdir = f"{OUTROOT}/data_profile_{level}/ano={y}"
         os.makedirs(outdir, exist_ok=True)
@@ -188,12 +189,14 @@ def process_level(level):
         tmp = outfile + ".tmp"
         writer = None  # created lazily on first non-empty batch
         total = 0
+        failed = []
         for fp in files:  # one row-group per source file -> bounded memory
             rows = []
             try:
                 melt_file(fp, level, y, plabel, rows)
             except Exception as e:
-                print(f"  !! {fp}: {e}")
+                print(f"  !! {level} {plabel} {y}: FAILED {fp}: {e}")
+                failed.append((fp, e))
                 continue
             if not rows:
                 continue
@@ -209,13 +212,30 @@ def process_level(level):
             total += len(df)
         if writer is not None:
             writer.close()
+        if failed:
+            # A source file failed to melt: publishing tmp -> outfile would present a
+            # partial partition as complete. Leave it unfinalized and record the
+            # failure so the run exits non-zero and the partition is re-tried.
+            failures.extend((level, plabel, y, fp, str(e)) for fp, e in failed)
+            print(
+                f"  INCOMPLETE {level} {plabel} {y}: {len(failed)}/{len(files)} "
+                f"source files failed — not finalizing {outfile}"
+            )
+        elif writer is not None:
             os.replace(tmp, outfile)
             print(
                 f"  OK   {level} {plabel} {y}: {total:,} rows ({len(files)} files)"
             )
+    return failures
 
 
 if __name__ == "__main__":
+    all_failures = []
     for lvl in sys.argv[1:] or LEVELS:
         print(f"[{lvl}]")
-        process_level(lvl)
+        all_failures.extend(process_level(lvl))
+    if all_failures:
+        print(f"\n{len(all_failures)} source file(s) failed to parse:")
+        for lvl, plabel, y, fp, err in all_failures:
+            print(f"  {lvl} {plabel} {y}: {fp} -> {err}")
+        sys.exit(1)

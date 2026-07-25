@@ -42,9 +42,8 @@ models:
       - name: id_country
         tests: [not_null]
       - name: variable_code
-        tests: [not_null]
-      - name: variable_code
         tests:
+          - not_null
           - relationships:
               to: ref('us_census_acs__variables')
               field: code
@@ -61,11 +60,15 @@ models:
       - name: year
         tests: [not_null]
       - name: id_state
-        tests: [not_null]
-      - name: variable_code
-        tests: [not_null]
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              proportion_allowed_failures: 0.01
       - name: variable_code
         tests:
+          - not_null
           - relationships:
               to: ref('us_census_acs__variables')
               field: code
@@ -87,13 +90,22 @@ models:
       - name: year
         tests: [not_null]
       - name: id_state
-        tests: [not_null]
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              proportion_allowed_failures: 0.01
       - name: id_county
-        tests: [not_null]
-      - name: variable_code
-        tests: [not_null]
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              proportion_allowed_failures: 0.01
       - name: variable_code
         tests:
+          - not_null
           - relationships:
               to: ref('us_census_acs__variables')
               field: code
@@ -115,13 +127,22 @@ models:
       - name: year
         tests: [not_null]
       - name: id_state
-        tests: [not_null]
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              proportion_allowed_failures: 0.01
       - name: id_place
-        tests: [not_null]
-      - name: variable_code
-        tests: [not_null]
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__place')
+              field: id_place
+              proportion_allowed_failures: 0.02
       - name: variable_code
         tests:
+          - not_null
           - relationships:
               to: ref('us_census_acs__variables')
               field: code
@@ -143,13 +164,17 @@ models:
       - name: year
         tests: [not_null]
       - name: id_state
-        tests: [not_null]
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              proportion_allowed_failures: 0.01
       - name: puma
         tests: [not_null]
       - name: variable_code
-        tests: [not_null]
-      - name: variable_code
         tests:
+          - not_null
           - relationships:
               to: ref('us_census_acs__variables')
               field: code
@@ -166,11 +191,15 @@ models:
       - name: year
         tests: [not_null]
       - name: id_cbsa
-        tests: [not_null]
-      - name: variable_code
-        tests: [not_null]
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__cbsa_2023')
+              field: id_cbsa
+              proportion_allowed_failures: 0.08
       - name: variable_code
         tests:
+          - not_null
           - relationships:
               to: ref('us_census_acs__variables')
               field: code
@@ -192,13 +221,17 @@ models:
       - name: year
         tests: [not_null]
       - name: id_state
-        tests: [not_null]
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              proportion_allowed_failures: 0.01
       - name: id_congressional_district
         tests: [not_null]
       - name: variable_code
-        tests: [not_null]
-      - name: variable_code
         tests:
+          - not_null
           - relationships:
               to: ref('us_census_acs__variables')
               field: code
@@ -217,9 +250,8 @@ models:
       - name: id_zcta
         tests: [not_null]
       - name: variable_code
-        tests: [not_null]
-      - name: variable_code
         tests:
+          - not_null
           - relationships:
               to: ref('us_census_acs__variables')
               field: code
@@ -241,13 +273,22 @@ models:
       - name: year
         tests: [not_null]
       - name: id_state
-        tests: [not_null]
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              proportion_allowed_failures: 0.01
       - name: id_school_district
-        tests: [not_null]
-      - name: variable_code
-        tests: [not_null]
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__school_district')
+              field: id_school_district
+              proportion_allowed_failures: 0.03
       - name: variable_code
         tests:
+          - not_null
           - relationships:
               to: ref('us_census_acs__variables')
               field: code

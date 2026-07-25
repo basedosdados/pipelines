@@ -65,10 +65,22 @@ def local_rows(path: Path) -> int:
 
 
 def upload_table(slug: str) -> int:
+    """Upload one table's parquet to BQ staging and return its verified row count.
+
+    Refuses to proceed unless the local row count can be read (parity guard) and
+    raises if the uploaded BQ count does not match the local parquet.
+    """
     path = OUTPUT_ROOT / slug
     if not path.exists():
         raise FileNotFoundError(f"Missing output path: {path}")
     expected = local_rows(path)
+    # Fail closed: if the local parquet row count can't be computed we cannot prove
+    # BQ↔local parity, so refuse the upload rather than reporting a hollow "OK".
+    if expected < 0:
+        raise ValueError(
+            f"{slug}: cannot count local parquet rows at {path} "
+            "(parity check would be skipped) — aborting"
+        )
 
     tb = bd.Table(dataset_id=DATASET_ID, table_id=slug)
     st = bd.Storage(dataset_id=DATASET_ID, table_id=slug)
@@ -91,19 +103,23 @@ def upload_table(slug: str) -> int:
     client = bigquery.Client(project=BILLING_PROJECT)
     q = f"select count(*) as n from `{BILLING_PROJECT}.{DATASET_ID}_staging.{slug}`"
     n = next(iter(client.query(q).result())).n
-    status = (
-        "OK"
-        if (expected < 0 or n == expected)
-        else f"MISMATCH (local {expected:,})"
-    )
+    status = "OK" if n == expected else f"MISMATCH (local {expected:,})"
     print(f"  {slug}: uploaded {n:,} rows — {status}", flush=True)
-    if expected >= 0 and n != expected:
+    if n != expected:
         raise ValueError(f"{slug}: BQ {n:,} != local {expected:,}")
     return n
 
 
-def main():
+def main() -> None:
+    """Upload the requested tables (or all of TABLES), stopping on first failure."""
     only = set(sys.argv[1:])
+    unknown = only - set(TABLES)
+    if unknown:
+        print(
+            f"Unknown table selector(s): {sorted(unknown)}\n"
+            f"Valid tables: {TABLES}"
+        )
+        sys.exit(2)
     tables = [s for s in TABLES if not only or s in only]
     for slug in tables:
         print(f"=== {slug} ===", flush=True)

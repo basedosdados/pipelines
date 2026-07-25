@@ -23,11 +23,7 @@ PUMS = "/Users/rdahis/acs_data/pums"
 WORK = "/Users/rdahis/acs_data/work"
 os.makedirs(WORK, exist_ok=True)
 
-# High-confidence pure identity renames (old -> canonical); applied before unioning
-# so the old name never becomes a separate canonical column. Keep this list minimal
-# and identical across parse/build/clean. Do NOT add recoded vars (WKW->WKWN,
-# REL->RELSHIPP) — those stay separate historical columns.
-RENAME = {"ST": "STATE", "BDS": "BDSP", "RMS": "RMSP", "VAL": "VALP"}
+from _pums_schema import RENAME  # noqa: E402  (shared identity-rename map)
 
 # ---- 1. parse dictionaries (CSV 2013+ and TXT 2009-2016) ----
 # The CSV dictionaries only exist from 2013 on and carry an explicit C|N type.
@@ -71,7 +67,10 @@ TXT_NOTE_RE = re.compile(r"^\s*NOTE\b", re.I)
 #             bbb .N/A ...
 # Reading only the first line silently truncates mid-sentence, so continuation
 # lines are accumulated until a value-label line, a NOTE:, or the next variable.
-MAX_DESC_LINES = 6
+# Those terminators are what actually bound a description; MAX_DESC_LINES is only a
+# runaway guard for a malformed dictionary, set well above any real description
+# (the longest observed is ~4 lines) so it never truncates valid content.
+MAX_DESC_LINES = 40
 
 
 def clean_desc(s: str) -> str:
@@ -222,9 +221,10 @@ def first_csv_header(zip_path):
                         cols.append(u)
                         seen_local.add(u)
                 return cols
-    except Exception as e:
-        print(f"  ! {zip_path}: {e}")
-        return []
+    except (zipfile.BadZipFile, OSError) as e:
+        # A source archive that exists but cannot be read would silently drop that
+        # vintage's columns from the union. Fail loud instead of returning [].
+        raise RuntimeError(f"cannot read PUMS archive {zip_path}: {e}") from e
 
 
 def union_cols(kind):  # kind in {"pus","hus"}
