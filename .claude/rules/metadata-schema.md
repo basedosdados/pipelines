@@ -15,6 +15,18 @@ All backend operations use the `mcp__databasis__*` MCP tools. Never write raw HT
 
 Default: `dev`. Only switch to `prod` after explicit user approval.
 
+## Dataset status lifecycle (create `under_review`, publish only post-merge)
+
+**Always create a dataset with `status_id = status.under_review`, never `status.published`** — at every stage (dev/staging and prod alike). `under_review` hides the dataset from the production frontend, so metadata registered before the onboarding PR merges (with prod cloud tables that do not yet exist) cannot leak publicly.
+
+Flip the dataset to `status.published` **only after all three hold**:
+
+1. the onboarding **PR is merged** to `main`;
+2. the GitHub **table-approve action has run successfully** (it materialises `basedosdados.<gcp_dataset_id>.*` via `dbt --target prod`);
+3. the live prod tables **and** metadata are **verified** — row counts match, cloud tables resolve, `get_dataset(slug, env="prod")` shows the expected shape.
+
+Publishing is one call: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env="prod")` (re-pass every required field — no partial updates). Do this as a **separate post-merge action**, never inside the onboarding PR. Tables are gated by the dataset's status, so they may stay `status.published`; flipping the dataset publishes everything in one step.
+
 ## ID resolution (always run first)
 
 Before registering any metadata, resolve all reference IDs with:
@@ -66,7 +78,7 @@ For individual lookups: `mcp__databasis__lookup_id(env=<env>, slug=<slug>, type=
 | `organization_ids` | list | From `discover_ids` using org slug(s) |
 | `theme_ids` | list | From `discover_ids` |
 | `tag_ids` | list | From `discover_ids`; empty list if none |
-| `status_id` | string | Use `status.published` |
+| `status_id` | string | **`status.under_review` on creation** — flip to `status.published` only post-merge (see "Dataset status lifecycle" above) |
 | `id` | string | Pass when updating an existing record |
 
 ## `create_update_table` fields
@@ -77,7 +89,7 @@ For individual lookups: `mcp__databasis__lookup_id(env=<env>, slug=<slug>, type=
 | `name_pt/en/es` | string | All 3 languages |
 | `description_pt/en/es` | string | 1–3 sentences |
 | `dataset_id` | string | From dataset step |
-| `status_id` | string | `status.published` |
+| `status_id` | string | `status.published` — tables are gated by the dataset's `under_review` status, so they may stay published (see "Dataset status lifecycle") |
 | `published_by_ids` | list | Authenticated account ID |
 | `data_cleaned_by_ids` | list | Authenticated account ID |
 | `id` | string | Pass when updating |
