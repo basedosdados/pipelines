@@ -90,6 +90,15 @@ def upload_table(slug: str, expected_rows: int | None) -> int:
 
 def main():
     only = set(sys.argv[1:])
+    known = {s for s, _ in TABLES}
+    unknown = only - known
+    if unknown:
+        print(
+            f"unknown table slug(s): {sorted(unknown)}; "
+            f"valid: {sorted(known)}",
+            flush=True,
+        )
+        sys.exit(2)
     tables = [(s, r) for s, r in TABLES if not only or s in only]
     for slug, expected in tables:
         print(f"=== {slug} ===", flush=True)

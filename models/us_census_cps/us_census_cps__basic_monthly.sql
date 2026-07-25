@@ -165,5 +165,5 @@ select
     safe_cast(t.tc as string) tc
 from {{ set_datalake_project("us_census_cps_staging.basic_monthly") }} as t
 left join
-    {{ ref("br_bd_diretorios_us__state") }} as d
+    `basedosdados.br_bd_diretorios_us.state` as d
     on safe_cast(t.state as string) = d.id_census

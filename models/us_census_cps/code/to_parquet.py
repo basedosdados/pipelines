@@ -21,8 +21,13 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-BUILD = "/Users/rdahis/cps_build"
-ARCH = "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/models/us_census_cps/architecture"
+# architecture CSVs sit next to this script (models/us_census_cps/code/architecture);
+# the Stata build tree lives outside the repo -- override with CPS_BUILD if needed.
+HERE = os.path.dirname(os.path.abspath(__file__))
+ARCH = os.path.join(HERE, "architecture")
+BUILD = os.environ.get(
+    "CPS_BUILD", os.path.join(os.path.expanduser("~"), "cps_build")
+)
 OUT = f"{BUILD}/parquet"
 
 SPECS = {

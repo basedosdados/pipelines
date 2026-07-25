@@ -287,8 +287,9 @@ def write_sql(table, spec):
     out.append("    as t")
     if needs_dir:
         # the state directory carries the CPS census state code as `id_census`,
-        # which is what CEPR's `state` variable holds -- all 51 codes match exactly
-        out.append('left join {{ ref("br_bd_diretorios_us__state") }} as d')
+        # which is what CEPR's `state` variable holds -- all 51 codes match exactly.
+        # joins reference the production relation directly (never ref/set_datalake_project).
+        out.append("left join `basedosdados.br_bd_diretorios_us.state` as d")
         out.append("    on safe_cast(t.state as string) = d.id_census")
     out.append("")
 

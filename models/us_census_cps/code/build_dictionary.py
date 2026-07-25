@@ -139,9 +139,11 @@ def main():
 
             # ---- source 3: month in sample ----
             if col in MIS_COLS:
-                assert vals <= {str(i) for i in range(1, 9)}, (
-                    f"{table}.{col}: {sorted(vals)}"
-                )
+                if not vals or not vals <= {str(i) for i in range(1, 9)}:
+                    raise ValueError(
+                        f"{table}.{col}: month-in-sample codes must be a "
+                        f"non-empty subset of 1-8, got {sorted(vals)}"
+                    )
                 for code in sorted(vals, key=int):
                     rows.append(
                         (table, col, code, cov, f"Month in sample {code}")
@@ -149,10 +151,12 @@ def main():
                 continue
 
             # ---- source 2: binary flag ----
-            assert vals <= set(BINARY), (
-                f"{table}.{col} is flagged covered_by_dictionary=yes but has no "
-                f"CEPR label set and takes non-binary values {sorted(vals)[:12]}"
-            )
+            if not vals or not vals <= set(BINARY):
+                raise ValueError(
+                    f"{table}.{col} is flagged covered_by_dictionary=yes but has no "
+                    f"CEPR label set and takes non-binary or empty values "
+                    f"{sorted(vals)[:12]}"
+                )
             for code in sorted(vals):
                 rows.append((table, col, code, cov, BINARY[code]))
 

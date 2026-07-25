@@ -1,6 +1,8 @@
 # CPS (Current Population Survey) — Onboarding Plan
 
-Status: **planning settled 2026-07-12** (revised to CEPR basis). Nothing downloaded/cleaned/registered yet.
+Status: **built and registered 2026-07-25** (planning settled 2026-07-12, CEPR basis). All four tables
+cleaned to Parquet, uploaded to staging BigQuery, and registered in the backend; prod dataset created as
+`under_review`. Remaining: merge PR #1709 → CI materialises prod data → flip status to `published`.
 Branch: `claude/cps-data-onboarding-5f6c90`. Backend: **staging** (dev is down — see memory).
 
 Source program: US Census Bureau + Bureau of Labor Statistics, Current Population Survey.
@@ -367,8 +369,10 @@ Built from the repo CSVs (step 2). Folder `us_census_cps`:
       tests are independent of backend metadata). **Prod DATA is not loaded by this step** — merging the
       PR triggers CI's `dbt --target prod` (reads `basedosdados-staging.us_census_cps_staging`, writes
       `basedosdados.us_census_cps.*`); the staging-project parquet load is the DB team's deploy path.
-- [~] **11. pr** — opening now: changelog + CEPR/GPL + Census/BLS/NBER attribution. After merge: load
-      prod data, then flip dataset status `under_review → published`.
+- [x] **11. pr** — DONE 2026-07-25. Draft PR **#1709 "[Feature] us_census_cps"**
+      (https://github.com/basedosdados/pipelines/pull/1709), base `main`, 20 files, +5,794/−6.
+      Commit `0a656fad`. **After merge:** CI runs `dbt --target prod` to materialise
+      `basedosdados.us_census_cps.*`, then flip the prod dataset status `under_review → published`.
 
 ---
 

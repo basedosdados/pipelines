@@ -186,5 +186,5 @@ select
     safe_cast(t.reltoref as string) reltoref
 from {{ set_datalake_project("us_census_cps_staging.org") }} as t
 left join
-    {{ ref("br_bd_diretorios_us__state") }} as d
+    `basedosdados.br_bd_diretorios_us.state` as d
     on safe_cast(t.state as string) = d.id_census
