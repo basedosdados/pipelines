@@ -91,6 +91,9 @@ models:
     us_bls_atus:
       +materialized: table
       +schema: us_bls_atus
+    us_census_cps:
+      +materialized: table
+      +schema: us_census_cps
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
