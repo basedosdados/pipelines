@@ -60,26 +60,44 @@ cobertura × cobertura (correto), e um crash no meio do flow não adianta mais o
 
 ---
 
-## Revisão histórica da fonte (verificação 2026-07-06)
+## Revisão histórica da fonte (microdados)
 
-Baixando o ZIP e comparando a contagem de linhas por mês com o prod (script
-`task_davi/verifica_fonte_blf.py`), observou-se que a Anatel **revisa meses passados
-para cima** conforme chegam registros atrasados — e que a fonte já havia publicado
-**maio/2026** enquanto o prod estava preso em abril:
+A Anatel **revisa meses passados para cima** conforme chegam registros atrasados.
+Comparação da contagem por mês (fonte × prod, verificação 2026-07-06) — a fonte já tinha
+maio/2026 enquanto o prod estava preso em abril:
 
-| mês     | fonte  | BQ (prod) | diff          |
-| ------- | ------ | --------- | ------------- |
-| 2026-01 | 698274 | 696371    | +1903         |
-| 2026-02 | 698074 | 692951    | +5123         |
-| 2026-03 | 679799 | 671575    | +8224         |
-| 2026-04 | 684785 | 669968    | +14817        |
-| 2026-05 | 652876 | —         | novo na fonte |
+| mês     | fonte  | BQ (prod, congelado) | diff          |
+| ------- | ------ | -------------------- | ------------- |
+| 2026-01 | 698274 | 696371               | +1903         |
+| 2026-02 | 698074 | 692951               | +5123         |
+| 2026-03 | 679799 | 671575               | +8224         |
+| 2026-04 | 684785 | 669968               | +14817        |
+| 2026-05 | 652876 | —                    | novo na fonte |
 
-Os diffs positivos crescem com a recência do mês (assinatura de revisão histórica). Isso
-tem uma consequência prática importante: como o upload é `append` e o model dbt é
-`create or replace` a partir do staging, o `force_run` **re-materializa do staging
-revisado e realinha sozinho** — o backfill é idempotente por partição e, portanto,
-seguro de reexecutar.
+Os diffs positivos crescem com a recência do mês (assinatura de revisão histórica). As 4
+tabelas são materializadas como `table` (**override**) e o upload é `append`, então o
+`force_run` re-materializa do staging revisado e realinha sozinho — backfill idempotente
+por partição.
+
+> ⚠️ Isso vale para o **microdados**, que **não** regrediu. **NÃO vale para as
+> densidades**: a fonte apagou 2023–2025 (ver seção Densidades), então ali o mesmo
+> mecanismo causa **regressão**. `append` só é seguro quando a fonte não regride.
+
+**Como re-verificar se o microdados atualizou** (a fonte muda todo mês — refaça os alvos
+antes de comparar):
+
+```sql
+-- cobertura + contagem dos meses recentes no BigQuery
+select ano, mes, count(*) as linhas
+from `basedosdados.br_anatel_banda_larga_fixa.microdados`
+where ano >= 2026
+group by ano, mes
+order by ano desc, mes desc;
+```
+
+Alvos da fonte: baixar o ZIP (link em "Sobre o Sistema"), ler os
+`Acessos_Banda_Larga_Fixa_<ano>.csv` (`sep=';'`) e agrupar por `Ano`/`Mês`. Atualizou se
+o mês-teto do BQ alcançou o da fonte e os meses recentes subiram para os valores dela.
 
 ---
 
@@ -129,6 +147,23 @@ reativar o schedule:
 | `densidade_brasil` | `0 17 * * *` (17h) |
 | `densidade_uf` | `0 18 * * *` (18h) |
 
+**Por que só o `densidade_municipio` reprova o `unique_combination`.** O teste exige a
+chave `[ano, mes, id_municipio]` única, e o que reprova é chave **repetida** (não valor
+vazio). Nos anos apagados, Brasil e UF trazem **1 linha por mês** (a chave não repete →
+passam), mas o município traz a **grade inteira** — 5.570 linhas/mês, todas com
+`id_municipio` vazio → colapsam em `[ano, mes, NULL]` e reprovam. O tratamento resolve
+com `dropna(subset=["Código IBGE"])` (remove as linhas sem código); a consequência é o
+gap de 2023–2025.
+
+**Como re-checar o apagão na fonte** (pra saber se a Anatel restaurou os anos): baixar o
+ZIP, ler `Densidade_Banda_Larga_Fixa.csv` (`sep=';'`), filtrar `Nível Geográfico
+Densidade = "Municipio"`. **Não basta contar linhas por `Ano`** — a soma pode chegar a
+~66.840 com municípios **duplicados** ou **meses faltando**, mascarando um dado degradado e
+levando a reativar em cima de fonte incompleta (regressão em prod). Antes de reativar, exija
+completude **por mês**: para cada ano (2023/2024), confirme os **12 meses** presentes e
+**~5.570 `Código IBGE` distintos em cada mês** (contagem de *distintos*, não de linhas). Só
+com 12 meses × ~5.570 municípios é seguro reativar o schedule/`force_run` das densidades.
+
 ---
 
 ## Estrutura dos Flows
@@ -157,12 +192,18 @@ vão com `cron=None` (sem schedule — ver seção Densidades). Todos delegam a
 
 ## Histórico de Correções
 
-- **Destravamento da atualização (PR #____):** substituição do poll eager
+- **Destravamento do microdados (PR #1635, merged):** substituição do poll eager
   (`register_source_poll_task`) pelo par deferido (`poll_source_for_update_task` +
   `commit_source_update_task`), que reescreve o `Update` envenenado (`2026-06-04`) por
-  uma data de cobertura e só grava após materializar. No mesmo PR, extensão do range de
-  partição do `microdados` (`end` 2023 → 2031). Recuperação do backlog (maio/2026 +
-  revisões dos meses anteriores) via `force_run` por tabela.
+  uma data de cobertura e só grava após materializar. No mesmo PR: extensão do range de
+  partição do `microdados` (`end` 2023 → 2031) e **desativação do schedule das 3
+  densidades** (`cron=None`) para evitar regressão (ver seção Densidades). Recuperação do
+  backlog do microdados (maio/2026 + revisões) via `force_run`.
+- **Pendente — tratamento das densidades (PR de follow-up):** fixes de `_parse_densidade`
+  (NaN→NULL), `dtype=str` (corrige `id_municipio` `"…0"` que reprovava o `relationships`)
+  e `dropna(["Código IBGE"])` (remove linhas sem código que reprovavam o
+  `unique_combination`). Em espera junto da decisão sobre o apagão da fonte (PRUV).
+  Rastreado na issue #1608.
 
 > O `telefonia_movel` (`pipelines/crawler/anatel/telefonia_movel/flows.py`) tem o
 > **mesmo** poll eager — o mesmo fix se aplica lá, em correção à parte.

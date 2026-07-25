@@ -36,8 +36,23 @@ def _me_cnpj_flow(table_id: str, cron: str):
 
 
 br_me_cnpj__empresas = _me_cnpj_flow(table_id="empresas", cron="0 6 * * *")
+br_me_cnpj__empresas.job_variables = {
+    "memory_limit": "5Gi",
+    "memory_request": "2Gi",
+}
+
 br_me_cnpj__socios = _me_cnpj_flow(table_id="socios", cron="0 7 * * *")
+br_me_cnpj__socios.job_variables = {
+    "memory_limit": "5Gi",
+    "memory_request": "2Gi",
+}
+
 br_me_cnpj__simples = _me_cnpj_flow(table_id="simples", cron="0 8 * * *")
+
 br_me_cnpj__estabelecimentos = _me_cnpj_flow(
     table_id="estabelecimentos", cron="0 9 * * *"
 )
+br_me_cnpj__estabelecimentos.job_variables = {
+    "memory_limit": "5Gi",
+    "memory_request": "2Gi",
+}

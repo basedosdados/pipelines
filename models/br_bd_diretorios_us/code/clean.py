@@ -1,3 +1,4 @@
+import csv
 import datetime
 import re
 import sys
@@ -939,6 +940,174 @@ def clean_naics_2022():
     return write_table(df, "naics_2022", fields)
 
 
+# NAICS vintage directories for County Business Patterns (naics_version FK targets).
+# Source = CBP's own naics-descriptions reference files, which use the exact code set
+# CBP publishes each vintage (so relationships tests match the data). CBP still
+# publishes NAICS 2017 through 2023 (2022/2023 data are NAICS 2017, not 2022), so
+# CBP never references the official naics_2022 directory. NAICS 1997 (1998-2002) has
+# no CBP reference file -> built separately from the 1997->2002 concordance
+# (clean_naics_1997).
+# (slug, source filename in input/naics/)
+NAICS_VINTAGES = [
+    ("naics_2002", "cbp_naics2002.txt"),
+    ("naics_2007", "cbp_naics2007.txt"),
+    ("naics_2012", "cbp_naics2012.txt"),
+    ("naics_2017", "cbp_naics2017.txt"),
+]
+
+
+def _read_cbp_naics(filename):
+    """Parse a CBP naics-descriptions file (quoted-CSV or whitespace-delimited).
+
+    Returns list of (raw_code, name); raw_code keeps CBP aggregation fill
+    (e.g. ------, 11----, 113///, 11311/, 113110).
+    """
+    rows = []
+    with open(INPUT / "naics" / filename, encoding="latin-1") as fh:
+        for line in fh:
+            line = line.rstrip("\n")
+            if not line.strip():
+                continue
+            if line.lstrip().startswith('"'):
+                parts = next(csv.reader([line]))
+                code = parts[0].strip()
+                name = parts[1].strip() if len(parts) > 1 else ""
+            else:
+                m = re.match(r"^(\S+)\s+(.*)$", line)
+                if not m:
+                    continue
+                code, name = m.group(1).strip(), m.group(2).strip()
+            if code.upper() == "NAICS":  # header
+                continue
+            rows.append((code, name))
+    return rows
+
+
+def clean_naics_vintage(slug, filename):
+    """Build one NAICS vintage directory (same schema as naics_2022).
+
+    Strips CBP aggregation fill to the native code, drops the all-industry
+    total (------), and derives level plus parent codes/names. CBP splits the
+    manufacturing/retail/transport ranges into native 2-digit sectors
+    (31/32/33, 44/45, 48/49), which is what the data stores.
+    """
+    recs = []
+    for code_raw, name in _read_cbp_naics(filename):
+        native = code_raw.replace("-", "").replace("/", "")
+        if native == "" or not native.isdigit():
+            continue  # drop all-industry total (------)
+        recs.append({"id_naics": native, "name": name})
+    return _naics_hierarchy(
+        pd.DataFrame(recs).drop_duplicates("id_naics", keep="first"), slug
+    )
+
+
+def _naics_hierarchy(df, slug):
+    """Given a frame with id_naics + name, derive level and parent code/name
+    columns and write the 11-column directory table (naics_2022 schema)."""
+    df = df.copy()
+    df["level"] = df["id_naics"].str.len().astype(int)
+    name_by_code = df.set_index("id_naics")["name"].to_dict()
+
+    def parents(row):
+        code, level = row["id_naics"], row["level"]
+        out = {
+            "id_sector": None,
+            "name_sector": None,
+            "id_subsector": None,
+            "name_subsector": None,
+            "id_industry_group": None,
+            "name_industry_group": None,
+            "id_naics_industry": None,
+            "name_naics_industry": None,
+        }
+        if level > 2:
+            out["id_sector"] = code[:2]
+            out["name_sector"] = name_by_code.get(code[:2])
+        if level > 3:
+            out["id_subsector"] = code[:3]
+            out["name_subsector"] = name_by_code.get(code[:3])
+        if level > 4:
+            out["id_industry_group"] = code[:4]
+            out["name_industry_group"] = name_by_code.get(code[:4])
+        if level > 5:
+            out["id_naics_industry"] = code[:5]
+            out["name_naics_industry"] = name_by_code.get(code[:5])
+        return pd.Series(out)
+
+    df = pd.concat(
+        [
+            df.reset_index(drop=True),
+            df.apply(parents, axis=1).reset_index(drop=True),
+        ],
+        axis=1,
+    )
+    fields = [
+        ("id_naics", pa.string()),
+        ("name", pa.string()),
+        ("level", pa.int64()),
+        ("id_sector", pa.string()),
+        ("name_sector", pa.string()),
+        ("id_subsector", pa.string()),
+        ("name_subsector", pa.string()),
+        ("id_industry_group", pa.string()),
+        ("name_industry_group", pa.string()),
+        ("id_naics_industry", pa.string()),
+        ("name_naics_industry", pa.string()),
+    ]
+    return write_table(df, slug, fields)
+
+
+def clean_naics_1997():
+    """NAICS 1997 directory for CBP 1998-2002.
+
+    No CBP naics-descriptions file exists for 1997. Codes come from the official
+    1997->2002 concordance (authoritative 1997 6-digit set); parent levels are
+    derived; titles are best-available - filled from naics_2002 where the code
+    persists, and via each 1997 code's 2002 successor for 1997-only 6-digit codes.
+    Because this is the full official 1997 structure (not the CBP-published subset),
+    ~360 codes carry no title: industries CBP never tabulates (crop/animal
+    production 111/112, public administration 92, etc.) and the restructured-sector
+    aggregates (construction 233/234/235) that have no CBP-2002 counterpart. All are
+    kept so every code a CBP 1998-2002 row can reference is present (FK resolves at
+    ~99.9%); the untitled ones are non-CBP or restructured aggregates.
+    """
+    conc = pd.read_excel(
+        INPUT / "naics" / "1997_naics_to_2002_naics.xls",
+        dtype=str,
+        header=None,
+    )
+    conc = conc.iloc[:, :2]
+    conc.columns = ["c2002", "c1997"]
+    six = conc[conc["c1997"].str.fullmatch(r"\d{6}").fillna(False)].copy()
+    succ = (
+        six[six["c2002"].str.fullmatch(r"\d{6}").fillna(False)]
+        .groupby("c1997")["c2002"]
+        .first()
+        .to_dict()
+    )
+    t2002 = {}
+    for code_raw, name in _read_cbp_naics("cbp_naics2002.txt"):
+        native = code_raw.replace("-", "").replace("/", "")
+        if native.isdigit():
+            t2002[native] = name
+    codes = set(six["c1997"])
+    for c in list(codes):
+        for k in (2, 3, 4, 5):
+            codes.add(c[:k])
+
+    def title(code):
+        if code in t2002:
+            return t2002[code]
+        if len(code) == 6 and succ.get(code) in t2002:
+            return t2002[succ[code]]
+        return None
+
+    df = pd.DataFrame({"id_naics": sorted(codes)})
+    df["name"] = df["id_naics"].map(title)
+    return _naics_hierarchy(df, "naics_1997")
+
+
 def clean_soc_2018():
     raw = pd.read_excel(
         INPUT / "soc" / "soc_structure_2018.xlsx",
@@ -1056,7 +1225,7 @@ def clean_census_io(slug, filename, sheet, kind):
     """Extract the leaf (4-digit) Census industry/occupation codes.
 
     Group/section rows carry code ranges (e.g. 0170-0490) and are skipped;
-    only detailed 4-digit codes — the values ATUS stores — are kept. The
+    only detailed 4-digit codes - the values ATUS stores - are kept. The
     crosswalk column (NAICS for industry, SOC for occupation) is carried as
     published (may hold ranges or multiple codes for a single census code).
     """
@@ -1134,6 +1303,8 @@ PRIMARY_KEYS = {
     "higher_education_institution": "id_institution",
     "congress_member": "id_bioguide",
     "naics_2022": "id_naics",
+    "naics_1997": "id_naics",
+    **{slug: "id_naics" for slug, _f in NAICS_VINTAGES},
     "soc_2018": "id_soc",
     **{
         slug: (
@@ -1164,6 +1335,11 @@ def main():
         ("higher_education_institution", clean_higher_education_institution),
         ("congress_member", clean_congress_member),
         ("naics_2022", clean_naics_2022),
+        ("naics_1997", clean_naics_1997),
+        *[
+            (slug, lambda sl=slug, fn=fn: clean_naics_vintage(sl, fn))
+            for slug, fn in NAICS_VINTAGES
+        ],
         ("soc_2018", clean_soc_2018),
         ("puma_2020", lambda: clean_puma_2020(results["state"])),
         *[
@@ -1183,14 +1359,14 @@ def main():
             print(f"done: {slug} ({len(results[slug])} rows)")
         except Exception as exc:
             failures[slug] = f"{type(exc).__name__}: {exc}"
-            print(f"FAILED: {slug} — {failures[slug]}")
+            print(f"FAILED: {slug} - {failures[slug]}")
 
     print("\n===== SUMMARY =====")
     for slug in PRIMARY_KEYS:
         if slug not in selected:
             continue
         if slug in failures:
-            print(f"\n--- {slug}: FAILED — {failures[slug]}")
+            print(f"\n--- {slug}: FAILED - {failures[slug]}")
             continue
         df = results[slug]
         pk = PRIMARY_KEYS[slug]
