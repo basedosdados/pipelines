@@ -26,19 +26,23 @@
 
             select
                 {% for column in columns -%}
-                SUM(CASE WHEN {{ column }} IS NULL THEN 1 ELSE 0 END) AS {{ column }}{{ suffix }},
+                SUM(CASE WHEN {{ adapter.quote(column) }} IS NULL THEN 1 ELSE 0 END) AS {{ column }}{{ suffix }},
                 {%- endfor %}
                 count(*) as total_records
                 from {{ model }}
         ),
 
+        -- unnest an array literal rather than UNION ALL-ing one select per column:
+        -- a union arm per column overruns BigQuery's query planner on wide tables
+        -- (it fails at ~480 columns with "query is too complex")
         pivot_columns as (
 
-            {% for column in columns -%}
-            select '{{ column }}' as column_name, {{ column }}{{ suffix }} as quantity, total_records
-            from null_counts
-            {% if not loop.last %}union all {% endif %}
-            {%- endfor %}
+            select p.column_name, p.quantity, total_records
+            from null_counts, unnest([
+                {% for column in columns -%}
+                struct('{{ column }}' as column_name, {{ column }}{{ suffix }} as quantity){% if not loop.last %},{% endif %}
+                {%- endfor %}
+            ]) as p
         ),
 
         faulty_columns as (
