@@ -295,61 +295,61 @@ models:
           at_least: 0.05
     columns:
       - name: ano
-        description: >
-          Ano de contratação da operação.
+        description: >-
+          Ano de contratação da operação
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
       - name: sigla_uf
-        description: >
-          Unidade federativa onde o investimento foi realizado ou o ente público
-          está registrado.
+        description: >-
+          Sigla da unidade federativa onde o investimento foi realizado ou o
+          ente público está registrado
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
       - name: id_municipio
-        description: >
-          Código IBGE do município onde o investimento foi realizado ou o ente
-          público está registrado.
+        description: >-
+          Código IBGE de 7 dígitos do município onde o investimento foi
+          realizado ou o ente público está registrado
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
       - name: ente_publico
-        description: >
+        description: >-
           Esfera do ente da administração pública direta atendido (União,
-          administração estadual ou administração municipal).
+          administração estadual ou administração municipal)
       - name: programa
-        description: >
+        description: >-
           Programa do BNDES associado à operação, de caráter temporário e voltado
-          a demandas ou segmentos específicos.
+          a demandas ou segmentos específicos
       - name: modalidade_operacional
-        description: >
-          Modalidade operacional, que define as regras gerais de financiamento
-          conforme a finalidade.
+        description: >-
+          Modalidade operacional que define as regras gerais de financiamento
+          conforme a finalidade
       - name: data_nivel_atual
-        description: >
-          Data de entrada da operação no nível atual no sistema BNDES.
+        description: >-
+          Data de entrada da operação no nível atual no sistema BNDES
       - name: nivel_atual
-        description: >
-          Etapa de avaliação da operação no BNDES; nesta tabela, sempre CONTRATADA.
+        description: >-
+          Etapa de avaliação da operação no BNDES; nesta tabela, sempre CONTRATADA
       - name: situacao_operacao
-        description: >
-          Status operacional da operação no BNDES.
+        description: >-
+          Status operacional da operação no BNDES
       - name: descricao_projeto
-        description: >
-          Descrição do projeto financiado.
+        description: >-
+          Descrição do projeto financiado
       - name: valor_operacao
-        description: >
+        description: >-
           Valor histórico da operação em reais, convertido com base na data do
-          nível atual e no indexador.
+          nível atual e no indexador
       - name: valor_desembolsado
-        description: >
+        description: >-
           Valor desembolsado em reais, convertido com base na data do desembolso
-          e no indexador.
+          e no indexador
       - name: valor_saldo_liberar
         description: >-
-          Saldo remanescente da operação em reais passível de desembolso.
+          Saldo remanescente da operação em reais passível de desembolso
