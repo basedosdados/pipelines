@@ -283,3 +283,73 @@ models:
       - name: situacao_operacao
         description: >-
           Status da obrigação financeira e não financeira da operação.
+  - name: br_bndes_operacoes_contratadas__operacoes_administracao_publica
+    description: >
+      Operações do BNDES com entes da Administração Pública Direta (União,
+      administração estadual e administração municipal). Grão de uma linha por
+      operação contratada; a fonte publica o funil completo de níveis, mas esta
+      tabela mantém apenas as operações no nível CONTRATADA. Valores em reais.
+      Cobertura nacional, 1994–2026.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de contratação da operação.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: >
+          Unidade federativa onde o investimento foi realizado ou o ente público
+          está registrado.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >
+          Código IBGE do município onde o investimento foi realizado ou o ente
+          público está registrado.
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: ente_publico
+        description: >
+          Esfera do ente da administração pública direta atendido (União,
+          administração estadual ou administração municipal).
+      - name: programa
+        description: >
+          Programa do BNDES associado à operação, de caráter temporário e voltado
+          a demandas ou segmentos específicos.
+      - name: modalidade_operacional
+        description: >
+          Modalidade operacional, que define as regras gerais de financiamento
+          conforme a finalidade.
+      - name: data_nivel_atual
+        description: >
+          Data de entrada da operação no nível atual no sistema BNDES.
+      - name: nivel_atual
+        description: >
+          Etapa de avaliação da operação no BNDES; nesta tabela, sempre CONTRATADA.
+      - name: situacao_operacao
+        description: >
+          Status operacional da operação no BNDES.
+      - name: descricao_projeto
+        description: >
+          Descrição do projeto financiado.
+      - name: valor_operacao
+        description: >
+          Valor histórico da operação em reais, convertido com base na data do
+          nível atual e no indexador.
+      - name: valor_desembolsado
+        description: >
+          Valor desembolsado em reais, convertido com base na data do desembolso
+          e no indexador.
+      - name: valor_saldo_liberar
+        description: >-
+          Saldo remanescente da operação em reais passível de desembolso.
