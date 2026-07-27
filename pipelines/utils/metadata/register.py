@@ -289,18 +289,15 @@ def poll_source_for_update(
     dataset_id,
     table_id,
     source_max_date: datetime.date | None = None,
-    use_raw_source_update: bool = False,
 ) -> bool:
     """Detecta se a fonte original tem novidade, sem gravar o Update.
 
     Sempre registra um `RawDataSource.Poll` (data de hoje) e devolve se a fonte
-    traz dados mais novos que o Update de referência — por padrão o
-    `Table.Update.latest` (wall clock da última materialização), ou o
-    `RawDataSource.Update.latest` (última data de cobertura comitada) quando
-    `use_raw_source_update=True`. Ao contrário de `register_source_poll`, **não
-    grava** o Update — essa escrita fica a cargo de `commit_source_update`,
-    chamada só após a materialização. Assim, se o flow falha no meio, o Update
-    não avança e a run seguinte ainda detecta a novidade e retenta.
+    traz dados mais novos que o `Table.Update.latest` atual. Ao contrário de
+    `register_source_poll`, **não grava** o Update — essa escrita fica a cargo de
+    `commit_source_update`, chamada só após a materialização. Assim, se o flow
+    falha no meio, o Update não avança e a run seguinte ainda detecta a novidade
+    e retenta.
 
     Args:
         client: cliente de escrita/leitura do backend de metadados
@@ -310,14 +307,10 @@ def poll_source_for_update(
         source_max_date: data máxima observada na fonte. `None` (padrão) é a
             forma explícita de "só polei, sem novidade" — grava o Poll e devolve
             `False`.
-        use_raw_source_update: registro comparado com `source_max_date`. `False`
-            (padrão) usa `Table.Update.latest`; `True` usa
-            `RawDataSource.Update.latest`. Passe `True` quando a fonte é 1:1 com
-            a tabela e o wall clock da materialização travaria o poll.
 
     Returns:
-        bool — `True` se a fonte tem dados mais novos que o Update de
-        referência; `False` caso contrário.
+        bool — `True` se a fonte tem dados mais novos que o `Table.Update.latest`
+        atual; `False` caso contrário.
     """
 
     client.upsert_raw_source_poll(
@@ -327,11 +320,7 @@ def poll_source_for_update(
     if source_max_date is None:
         return False
 
-    api_latest = (
-        client.get_raw_source_update_latest
-        if use_raw_source_update
-        else client.get_table_update_latest
-    )(dataset_id, table_id)
+    api_latest = client.get_table_update_latest(dataset_id, table_id)
     if not policy.should_update_raw_source(api_latest, source_max_date):
         log("Não há novas atualizações na fonte original")
         return False

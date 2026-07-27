@@ -20,6 +20,11 @@ from pipelines.utils.metadata.bq import BigQueryReader
 from pipelines.utils.metadata.client import MetadataClient
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.metadata.domain import CoverageSpec
+from pipelines.utils.metadata.poll import (
+    check_source_is_ahead_of_table,
+    register_source_coverage,
+    sync_table_coverage,
+)
 from pipelines.utils.metadata.register import (
     commit_source_size_update,
     commit_source_update,
@@ -266,15 +271,12 @@ def poll_source_for_update_task(
     source_max_date: datetime.date | str | None = None,
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
-    use_raw_source_update: bool = False,
 ) -> bool:
     """Detecta se a fonte original tem novidade hoje, sem gravar o Update.
 
     Sempre grava um `Poll` na fonte (data de hoje) e devolve se `source_max_date`
-    indica dados mais novos do que o Update de referência (por padrão
-    `Table.Update.latest`; `RawDataSource.Update.latest` quando
-    `use_raw_source_update=True`) — mas, ao contrário de
-    `register_source_poll_task`, **não grava** o Update. A gravação
+    indica dados mais novos do que o `Table.Update.latest` atual — mas, ao
+    contrário de `register_source_poll_task`, **não grava** o Update. A gravação
     fica a cargo de `commit_source_update_task`, chamada ao fim do flow, após a
     materialização. Use as duas em par quando a gravação do Update precisa ser
     adiada para não travar runs futuras se o flow falhar no meio.
@@ -290,10 +292,6 @@ def poll_source_for_update_task(
         date_format: formato usado para parsear `source_max_date` quando vier
             como string. Padrão `"%Y-%m-%d"`; use `"%Y-%m"` ou `"%Y"` conforme a
             granularidade da string.
-        use_raw_source_update: registro comparado com `source_max_date`. `False`
-            (padrão) usa `Table.Update.latest`; `True` usa
-            `RawDataSource.Update.latest`. Passe `True` para fontes 1:1 com a
-            tabela cujo poll trava contra o wall clock da materialização.
 
     Returns:
         bool — True se a fonte trouxe novidade (Update ainda não gravado),
@@ -306,7 +304,6 @@ def poll_source_for_update_task(
         dataset_id,
         table_id,
         _coerce_to_date(source_max_date, date_format),
-        use_raw_source_update=use_raw_source_update,
     )
 
 
@@ -350,6 +347,120 @@ def commit_source_update_task(
         dataset_id,
         table_id,
         _coerce_to_date(source_max_date, date_format),
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def register_source_coverage_task(
+    dataset_id: str,
+    table_id: str,
+    source_max_date: datetime.date | str | None = None,
+    env: str = "dev",
+    date_format: str = "%Y-%m-%d",
+) -> bool:
+    """Registra a cobertura publicada pela fonte e marca o poll de hoje.
+
+    Wrapper de `register_source_coverage`: grava o `Poll` e avança o
+    `RawDataSource.Update` se a fonte trouxe cobertura mais nova.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        source_max_date: cobertura máxima observada na fonte (`date`, `datetime`
+            ou `str` em `date_format`). `None` registra "só polei, sem novidade".
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        date_format: formato pra parsear `source_max_date` quando vier string.
+
+    Returns:
+        bool — `True` se a cobertura da fonte avançou; `False` caso contrário.
+    """
+    client = MetadataClient(env=env)
+
+    return register_source_coverage(
+        client=client,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=_coerce_to_date(
+            value=source_max_date, date_format=date_format
+        ),
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def check_source_is_ahead_of_table_task(
+    dataset_id: str,
+    table_id: str,
+    env: str = "dev",
+) -> bool:
+    """Diz se a fonte está à frente da tabela (decide se materializa).
+
+    Wrapper de `check_source_is_ahead_of_table`: compara o `RawDataSource.Update`
+    com o `Table.Update`. Leitura pura — não grava nada.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+
+    Returns:
+        bool — `True` se a cobertura da fonte é mais recente que a da tabela.
+    """
+    client = MetadataClient(env=env)
+
+    return check_source_is_ahead_of_table(
+        client=client, dataset_id=dataset_id, table_id=table_id
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def sync_table_coverage_task(
+    dataset_id: str,
+    table_id: str,
+    coverage: CoverageSpec,
+    env: str = "dev",
+    bq_project: str = "basedosdados",
+    prefect_mode: str = "prod",
+) -> None:
+    """Registra até onde a tabela materializou (o commit do modelo novo).
+
+    Wrapper de `sync_table_coverage`: atualiza as faixas de cobertura + Row Access
+    Policies e grava o `Table.Update` com a cobertura materializada (`source_end`).
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        coverage: especificação da cobertura/tier (`CoverageSpec`).
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        bq_project: projeto BigQuery onde a tabela vive (padrão `"basedosdados"`).
+        prefect_mode: define o billing — `"prod"` usa `basedosdados`, `"dev"` usa
+            `basedosdados-dev`.
+
+    Returns:
+        None.
+    """
+    billing = metadata_constants.MODE_PROJECT.value[prefect_mode]
+
+    client = MetadataClient(env=env, billing_project=billing)
+
+    bq = BigQueryReader(billing_project_id=billing, bq_project=bq_project)
+
+    sync_table_coverage(
+        client=client,
+        bq=bq,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        coverage=coverage,
+        env=env,
+        bq_project=bq_project,
     )
 
 
