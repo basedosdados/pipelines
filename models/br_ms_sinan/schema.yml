@@ -126,8 +126,11 @@ models:
         description: >-
           Tipo da unidade de idade do paciente (1=hora, 2=dia, 3=mês, 4=ano).
           Ver dicionário em nome_coluna idade_paciente.
-      - name: valor_idade
-        description: Valor numérico da idade na unidade indicada por tipo_idade
+      - name: idade_paciente
+        description: >-
+          Valor numérico da idade do paciente, na unidade indicada por
+          tipo_idade (ex.: tipo_idade=4 e idade_paciente=25 significa 25
+          anos)
       - name: sexo_paciente
         description: Sexo do paciente
       - name: raca_cor_paciente

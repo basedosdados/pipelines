@@ -13,11 +13,18 @@
     )
 }}
 {%- set columns = adapter.get_columns_in_relation(this) -%}
+{%- set existing_names = columns | map(attribute="name") | list -%}
 {%- set output_columns = [] -%}
 {%- for col in columns -%}
-    {%- if col.name == "idade_paciente" -%}
+    {%- if col.name == "idade_paciente" and "tipo_idade" not in existing_names -%}
         {%- do output_columns.append({"name": "tipo_idade", "data_type": "STRING"}) -%}
-        {%- do output_columns.append({"name": "valor_idade", "data_type": "INT64"}) -%}
+        {%- do output_columns.append(
+            {"name": "idade_paciente", "data_type": "INT64"}
+        ) -%}
+    {%- elif col.name == "valor_idade" -%}
+        {%- do output_columns.append(
+            {"name": "idade_paciente", "data_type": "INT64"}
+        ) -%}
     {%- else -%}
         {%- do output_columns.append({"name": col.name, "data_type": col.data_type}) -%}
     {%- endif -%}
@@ -892,7 +899,7 @@ with
                 when idade_paciente is null
                 then null
                 else safe_cast(mod(idade_paciente, 1000) as int64)
-            end as valor_idade,
+            end as idade_paciente,
             case
                 when sexo_paciente = 'O' then null else sexo_paciente
             end sexo_paciente,
