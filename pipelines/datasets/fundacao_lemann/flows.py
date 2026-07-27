@@ -1,47 +1,44 @@
 """
-Flows for fundacao_lemann
+Flow fundacao_lemann — Prefect 3.
 """
 
-from prefect import Parameter
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from prefect import flow
 
-from pipelines.constants import constants
-from pipelines.datasets.fundacao_lemann.schedules import every_year
-from pipelines.utils.decorators import Flow
-from pipelines.utils.tasks import download_data_to_gcs, run_dbt
+from pipelines.utils.tasks import (
+    download_data_to_gcs,
+    rename_flow_run_dataset_table,
+    run_dbt,
+)
 
-with Flow(
-    name="fundacao_lemann.ano_escola_serie_educacao_aprendizagem_adequada",
-    code_owners=["crislanealves"],
-) as ano_escola_serie_educacao_aprendizagem_adequada:
-    dataset_id = Parameter(
-        "dataset_id", default="fundacao_lemann", required=True
+
+@flow(
+    name="fundacao_lemann__ano_escola_serie_educacao_aprendizagem_adequada",
+    log_prints=True,
+)
+def fundacao_lemann__ano_escola_serie_educacao_aprendizagem_adequada(
+    dataset_id: str = "fundacao_lemann",
+    table_id: str = "ano_escola_serie_educacao_aprendizagem_adequada",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = False,
+    update_metadata: bool = False,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
-    table_id = Parameter(
-        "table_id",
-        default="ano_escola_serie_educacao_aprendizagem_adequada",
-        required=True,
-    )
 
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
-    wait_for_materialization = run_dbt(
+    run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
-    )
-    wait_for_dowload_data_to_gcs = download_data_to_gcs(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        upstream_tasks=[wait_for_materialization],
+        target=target,
     )
 
-ano_escola_serie_educacao_aprendizagem_adequada.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-ano_escola_serie_educacao_aprendizagem_adequada.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-ano_escola_serie_educacao_aprendizagem_adequada.schedule = every_year
+    download_data_to_gcs(dataset_id=dataset_id, table_id=table_id)
+
+
+fundacao_lemann__ano_escola_serie_educacao_aprendizagem_adequada.deploy_schedules = [
+    {"cron": "0 9 1 1 *", "timezone": "America/Sao_Paulo"}
+]

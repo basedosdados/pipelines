@@ -209,3 +209,54 @@ Em novembro de 2025, o ano de 2024 apresenta aproximadamente 46 milhões de vín
 ## 9. Materialização
 
 - Quando for atualizar os dados definitivos da RAIS, aconselhamos a adicionar a seguinte estratégia incremental: `incremental_strategy="insert_overwrite` nas configs do dbt, uma vez que ela irá subrescrever os dados existentes na tabela com os novos dados definitivos da RAIS. Para maiores informações, leia: https://docs.getdbt.com/docs/build/incremental-strategy e https://downloads.apache.org/spark/docs/3.1.1/sql-ref-syntax-dml-insert-overwrite-table.html
+
+---
+
+## 10. Arquitetura do modelo de vínculos
+
+### 10.1 Dois staging tables, uma tabela final
+
+A tabela `microdados_vinculos` é materializada a partir da união de dois staging tables distintos:
+
+| Staging table | Anos cobertos | Observação |
+| :--- | :---: | :--- |
+| `br_me_rais_staging.microdados_vinculos` | até 2022 | Schema original |
+| `br_me_rais_staging.microdados_vinculos_2023` | 2023 em diante | Schema estendido com `indicador_vinculo_abandonado` |
+
+A separação existe porque a partir de 2023 o MTE adicionou a coluna `indicador_vinculo_abandonado`, que não está presente nos arquivos anteriores. O modelo dbt usa uma CTE por staging table e as une via `UNION ALL`:
+
+```sql
+with
+    pre_2023 as ({{ vinculos_select("br_me_rais_staging.microdados_vinculos") }}),
+    from_2023 as ({{ vinculos_select("br_me_rais_staging.microdados_vinculos_2023", has_vinculo_abandonado=true) }})
+
+select * from pre_2023
+union all
+select * from from_2023
+```
+
+Para os anos anteriores a 2023, a coluna `indicador_vinculo_abandonado` é emitida como `cast(null as string)` a fim de manter o schema uniforme na tabela final.
+
+### 10.2 Macro `vinculos_select` (`macros/br_me_rais_vinculos_select.sql`)
+
+Toda a lógica de seleção e normalização de colunas está centralizada no macro `vinculos_select(source_table, has_vinculo_abandonado=false)`. O uso de um macro evita duplicação de código entre as duas CTEs e facilita a inclusão de novos anos com schemas distintos.
+
+O parâmetro `has_vinculo_abandonado` controla se a coluna é lida do staging table ou substituída por `null`:
+
+```sql
+{% if has_vinculo_abandonado %}
+    safe_cast(indicador_vinculo_abandonado as string) indicador_vinculo_abandonado,
+{% else %}
+    cast(null as string) as indicador_vinculo_abandonado,
+{% endif %}
+```
+
+Se futuramente novos anos introduzirem outras colunas adicionais, o mesmo padrão deve ser aplicado: adicionar um parâmetro booleano ao macro e condicionar a expressão SQL correspondente.
+
+### 10.3 Normalização de CNAE no macro
+
+O macro aplica as mesmas normalizações de CNAE descritas nas seções 6.1 e 6.2:
+
+- **`cnae_1`**: LEFT JOIN contra `basedosdados.br_bd_diretorios_brasil.cnae_1` para corrigir códigos de 4 dígitos introduzidos em 2023/2024. O `coalesce` garante que anos anteriores (onde o código já tem 5 dígitos e não cruza com o JOIN) mantenham o valor original.
+- **`cnae_2`**: derivado diretamente de `cnae_2_subclasse` após padding — `left(lpad(cnae_2_subclasse, 7, '0'), 5)`.
+- **`cnae_2_subclasse`**: normalizado para 7 dígitos via `lpad(cnae_2_subclasse, 7, '0')`.

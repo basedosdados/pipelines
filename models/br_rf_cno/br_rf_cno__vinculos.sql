@@ -16,7 +16,13 @@ with
             safe_cast(data as date) data_extracao,
             safe_cast(data_registro as date) data_registro,
             safe_cast(data_inicio as date) data_inicio,
-            safe_cast(data_fim as date) data_fim,
+            case
+                when
+                    safe_cast(data_fim as date)
+                    between date '0001-01-01' and date '5000-12-31'
+                then safe_cast(data_fim as date)
+                else null
+            end data_fim,
             safe_cast(id_cno as string) id_cno,
             safe_cast(id_responsavel as string) id_responsavel,
             safe_cast(

@@ -1,0 +1,488 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+xf2a01,STRING,Imputation field for F2A01 - Long-term investments,,no,,,no,,xf2a01
+f2a01,FLOAT64,Long-term investments,,no,,,no,,f2a01
+xf2a19,STRING,"Imputation field for F2A19 - Property, Plant, and Equipment, net of accumulated depreciation",,no,,,no,,xf2a19
+f2a19,FLOAT64,"Property, Plant, and Equipment, net of accumulated depreciation",,no,,,no,,f2a19
+xf2a20,STRING,"Imputation field for F2A20 - Intangible Assets, net of accumulated amortization",,no,,,no,,xf2a20
+f2a20,FLOAT64,"Intangible Assets, net of accumulated amortization",,no,,,no,,f2a20
+xf2a02,STRING,Imputation field for F2A02 - Total assets,,no,,,no,,xf2a02
+f2a02,FLOAT64,Total assets,,no,,,no,,f2a02
+xf2a03,STRING,Imputation field for F2A03 - Total liabilities,,no,,,no,,xf2a03
+f2a03,FLOAT64,Total liabilities,,no,,,no,,f2a03
+xf2a03a,STRING,"Imputation field for F2A03A - Debt related to Property, Plant, and Equipment",,no,,,no,,xf2a03a
+f2a03a,FLOAT64,"Debt related to Property, Plant, and Equipment",,no,,,no,,f2a03a
+xf2a04,STRING,Imputation field for F2A04 - Total unrestricted net assets,,no,,,no,,xf2a04
+f2a04,FLOAT64,Total unrestricted net assets,,no,,,no,,f2a04
+xf2a05,STRING,Imputation field for F2A05 - Total restricted net assets,,no,,,no,,xf2a05
+f2a05,FLOAT64,Total restricted net assets,,no,,,no,,f2a05
+xf2a05a,STRING,Imputation field for F2A05A - Permanently restricted net assets included in total restricted net assets,,no,,,no,,xf2a05a
+f2a05a,FLOAT64,Permanently restricted net assets included in total restricted net assets,,no,,,no,,f2a05a
+xf2a05b,STRING,Imputation field for F2A05B - Temporarily restricted net assets,,no,,,no,,xf2a05b
+f2a05b,FLOAT64,Temporarily restricted net assets,,no,,,no,,f2a05b
+xf2a06,STRING,Imputation field for F2A06 - Total net assets,,no,,,no,,xf2a06
+f2a06,FLOAT64,Total net assets,,no,,,no,,f2a06
+xf2a11,STRING,Imputation field for F2A11 - Land  improvements - End of year,,no,,,no,,xf2a11
+f2a11,FLOAT64,Land  improvements - End of year,,no,,,no,,f2a11
+xf2a12,STRING,Imputation field for F2A12 - Buildings - End of year,,no,,,no,,xf2a12
+f2a12,FLOAT64,Buildings - End of year,,no,,,no,,f2a12
+xf2a13,STRING,"Imputation field for F2A13 - Equipment, including art and library collections - End of year",,no,,,no,,xf2a13
+f2a13,FLOAT64,"Equipment, including art and library collections - End of year",,no,,,no,,f2a13
+xf2a15,STRING,Imputation field for F2A15 - Construction in Progress,,no,,,no,,xf2a15
+f2a15,FLOAT64,Construction in Progress,,no,,,no,,f2a15
+xf2a16,STRING,"Imputation field for F2A16 - Other plant, property and equipment",,no,,,no,,xf2a16
+f2a16,FLOAT64,"Other plant, property and equipment",,no,,,no,,f2a16
+xf2a17,STRING,"Imputation field for F2A17 - Total Plant, Property, and Equipment",,no,,,no,,xf2a17
+f2a17,FLOAT64,"Total Plant, Property, and Equipment",,no,,,no,,f2a17
+xf2a18,STRING,Imputation field for F2A18 - Accumulated depreciation,,no,,,no,,xf2a18
+f2a18,FLOAT64,Accumulated depreciation,,no,,,no,,f2a18
+xf2b01,STRING,Imputation field for F2B01 - Total revenues and investment return,,no,,,no,,xf2b01
+f2b01,FLOAT64,Total revenues and investment return,,no,,,no,,f2b01
+xf2b02,STRING,Imputation field for F2B02 - Total expenses,,no,,,no,,xf2b02
+f2b02,FLOAT64,Total expenses,,no,,,no,,f2b02
+xf2b03,STRING,Imputation field for F2B03 - Other specific changes in net assets,,no,,,no,,xf2b03
+f2b03,FLOAT64,Other specific changes in net assets,,no,,,no,,f2b03
+xf2b04,STRING,Imputation field for F2B04 - Total change in net assets,,no,,,no,,xf2b04
+f2b04,FLOAT64,Total change in net assets,,no,,,no,,f2b04
+xf2b05,STRING,"Imputation field for F2B05 - Net assets, beginning of the year",,no,,,no,,xf2b05
+f2b05,FLOAT64,"Net assets, beginning of the year",,no,,,no,,f2b05
+xf2b06,STRING,Imputation field for F2B06 - Adjustments to beginning of year net assets,,no,,,no,,xf2b06
+f2b06,FLOAT64,Adjustments to beginning of year net assets,,no,,,no,,f2b06
+xf2b07,STRING,"Imputation field for F2B07 - Net assets, end of the year",,no,,,no,,xf2b07
+f2b07,FLOAT64,"Net assets, end of the year",,no,,,no,,f2b07
+xf2c01,STRING,Imputation field for F2C01 - Pell grants,,no,,,no,,xf2c01
+f2c01,FLOAT64,Pell grants,,no,,,no,,f2c01
+xf2c02,STRING,Imputation field for F2C02 - Other federal grants,,no,,,no,,xf2c02
+f2c02,FLOAT64,Other federal grants,,no,,,no,,f2c02
+xf2c03,STRING,Imputation field for F2C03 - State grants,,no,,,no,,xf2c03
+f2c03,FLOAT64,State grants,,no,,,no,,f2c03
+xf2c04,STRING,Imputation field for F2C04 - Local grants,,no,,,no,,xf2c04
+f2c04,FLOAT64,Local grants,,no,,,no,,f2c04
+xf2c05,STRING,Imputation field for F2C05 - Institutional grants (funded),,no,,,no,,xf2c05
+f2c05,FLOAT64,Institutional grants (funded),,no,,,no,,f2c05
+xf2c06,STRING,Imputation field for F2C06 - Institutional grants (unfunded),,no,,,no,,xf2c06
+f2c06,FLOAT64,Institutional grants (unfunded),,no,,,no,,f2c06
+xf2c07,STRING,Imputation field for F2C07 - Total student grants,,no,,,no,,xf2c07
+f2c07,FLOAT64,Total student grants,,no,,,no,,f2c07
+xf2c08,STRING,Imputation field for F2C08 - Allowances applied to tuition and fees,,no,,,no,,xf2c08
+f2c08,FLOAT64,Allowances applied to tuition and fees,,no,,,no,,f2c08
+xf2c09,STRING,Imputation field for F2C09 - Allowances applied to auxiliary enterprise revenues,,no,,,no,,xf2c09
+f2c09,FLOAT64,Allowances applied to auxiliary enterprise revenues,,no,,,no,,f2c09
+xf2c10,STRING,Imputation field for F2C10 - Total discounts and allowances,,no,,,no,,xf2c10
+f2c10,FLOAT64,Total discounts and allowances,,no,,,no,,f2c10
+xf2c12,STRING,"Imputation field for F2C12 - Total discounts and
+ allowances from Pell grants",,no,,,no,,xf2c12
+f2c12,FLOAT64,"Total discounts and
+ allowances from Pell grants",,no,,,no,,f2c12
+xf2c121,STRING,"Imputation field for F2C121 - Discounts and
+ allowances from Pell grants applied to tuition and fees",,no,,,no,,xf2c121
+f2c121,FLOAT64,"Discounts and
+ allowances from Pell grants applied to tuition and fees",,no,,,no,,f2c121
+xf2c122,STRING,Imputation field for F2C122 - Discounts and allowances from Pell grants applied to auxiliary enterprises,,no,,,no,,xf2c122
+f2c122,FLOAT64,Discounts and allowances from Pell grants applied to auxiliary enterprises,,no,,,no,,f2c122
+xf2c13,STRING,Imputation field for F2C13 - Total discounts and allowances from other federal grants,,no,,,no,,xf2c13
+f2c13,FLOAT64,Total discounts and allowances from other federal grants,,no,,,no,,f2c13
+xf2c131,STRING,Imputation field for F2C131 - Discounts and allowances from other federal grants applied to tuition and fees,,no,,,no,,xf2c131
+f2c131,FLOAT64,Discounts and allowances from other federal grants applied to tuition and fees,,no,,,no,,f2c131
+xf2c132,STRING,"Imputation field for F2C132 - Discounts and allowances from other federal grants applied to auxiliary
+ enterprises",,no,,,no,,xf2c132
+f2c132,FLOAT64,"Discounts and allowances from other federal grants applied to auxiliary
+ enterprises",,no,,,no,,f2c132
+xf2c14,STRING,"Imputation field for F2C14 - Total discounts and
+ allowances from state government grants",,no,,,no,,xf2c14
+f2c14,FLOAT64,"Total discounts and
+ allowances from state government grants",,no,,,no,,f2c14
+xf2c141,STRING,"Imputation field for F2C141 - Discounts and
+ allowances from state government grants applied to tuition and fees",,no,,,no,,xf2c141
+f2c141,FLOAT64,"Discounts and
+ allowances from state government grants applied to tuition and fees",,no,,,no,,f2c141
+xf2c142,STRING,Imputation field for F2C142 - Discounts and allowances from state government grants applied to auxiliary enterprises,,no,,,no,,xf2c142
+f2c142,FLOAT64,Discounts and allowances from state government grants applied to auxiliary enterprises,,no,,,no,,f2c142
+xf2c15,STRING,Imputation field for F2C15 - Discounts and allowances from local government grants,,no,,,no,,xf2c15
+f2c15,FLOAT64,Discounts and allowances from local government grants,,no,,,no,,f2c15
+xf2c151,STRING,Imputation field for F2C151 - Discounts and allowances from local government grants applied to tuition and fees,,no,,,no,,xf2c151
+f2c151,FLOAT64,Discounts and allowances from local government grants applied to tuition and fees,,no,,,no,,f2c151
+xf2c152,STRING,Imputation field for F2C152 - Discounts and allowances from local government grants applied to auxiliary enterprises,,no,,,no,,xf2c152
+f2c152,FLOAT64,Discounts and allowances from local government grants applied to auxiliary enterprises,,no,,,no,,f2c152
+xf2c16,STRING,Imputation field for F2C16 - Total discounts and allowances from endowments and gifts,,no,,,no,,xf2c16
+f2c16,FLOAT64,Total discounts and allowances from endowments and gifts,,no,,,no,,f2c16
+xf2c161,STRING,Imputation field for F2C161 - Discounts and allowances from endowments and gifts applied to tuition and fees,,no,,,no,,xf2c161
+f2c161,FLOAT64,Discounts and allowances from endowments and gifts applied to tuition and fees,,no,,,no,,f2c161
+xf2c162,STRING,Imputation field for F2C162 - Discounts and allowances from endowments and gifts applied to auxiliary enterprises,,no,,,no,,xf2c162
+f2c162,FLOAT64,Discounts and allowances from endowments and gifts applied to auxiliary enterprises,,no,,,no,,f2c162
+xf2c17,STRING,Imputation field for F2C17 - Total discounts and allowances from other institutional sources,,no,,,no,,xf2c17
+f2c17,FLOAT64,Total discounts and allowances from other institutional sources,,no,,,no,,f2c17
+xf2c171,STRING,Imputation field for F2C171 - Discounts and allowances from other institutional sources applied to tuition and fees,,no,,,no,,xf2c171
+f2c171,FLOAT64,Discounts and allowances from other institutional sources applied to tuition and fees,,no,,,no,,f2c171
+xf2c172,STRING,Imputation field for F2C172 - Discounts and allowances from other institutional sources applied to auxiliary enterprises,,no,,,no,,xf2c172
+f2c172,FLOAT64,Discounts and allowances from other institutional sources applied to auxiliary enterprises,,no,,,no,,f2c172
+xf2d01,STRING,Imputation field for F2D01 - Tuition and fees - Total,,no,,,no,,xf2d01
+f2d01,INT64,Tuition and fees - Total,,no,,,no,,f2d01
+xf2d012,STRING,Imputation field for F2D012 - Tuition and fees - Unrestricted,,no,,,no,,xf2d012
+f2d012,FLOAT64,Tuition and fees - Unrestricted,,no,,,no,,f2d012
+xf2d013,STRING,Imputation field for F2D013 - Tuition and fees - Temporarily restricted,,no,,,no,,xf2d013
+f2d013,FLOAT64,Tuition and fees - Temporarily restricted,,no,,,no,,f2d013
+xf2d014,STRING,Imputation field for F2D014 - Tuition and fees - Permanently restricted,,no,,,no,,xf2d014
+f2d014,FLOAT64,Tuition and fees - Permanently restricted,,no,,,no,,f2d014
+xf2d02,STRING,Imputation field for F2D02 - Federal appropriations - Total,,no,,,no,,xf2d02
+f2d02,INT64,Federal appropriations - Total,,no,,,no,,f2d02
+xf2d022,STRING,Imputation field for F2D022 - Federal appropriations - Unrestricted,,no,,,no,,xf2d022
+f2d022,FLOAT64,Federal appropriations - Unrestricted,,no,,,no,,f2d022
+xf2d023,STRING,Imputation field for F2D023 - Federal appropriations - Temporarily restricted,,no,,,no,,xf2d023
+f2d023,FLOAT64,Federal appropriations - Temporarily restricted,,no,,,no,,f2d023
+xf2d024,STRING,Imputation field for F2D024 - Federal appropriations - Permanently restricted,,no,,,no,,xf2d024
+f2d024,FLOAT64,Federal appropriations - Permanently restricted,,no,,,no,,f2d024
+xf2d03,STRING,Imputation field for F2D03 - State appropriations - Total,,no,,,no,,xf2d03
+f2d03,INT64,State appropriations - Total,,no,,,no,,f2d03
+xf2d032,STRING,Imputation field for F2D032 - State appropriations - Unrestricted,,no,,,no,,xf2d032
+f2d032,FLOAT64,State appropriations - Unrestricted,,no,,,no,,f2d032
+xf2d033,STRING,Imputation field for F2D033 - State appropriations - Temporarily restricted,,no,,,no,,xf2d033
+f2d033,FLOAT64,State appropriations - Temporarily restricted,,no,,,no,,f2d033
+xf2d034,STRING,Imputation field for F2D034 - State appropriations - Permanently restricted,,no,,,no,,xf2d034
+f2d034,FLOAT64,State appropriations - Permanently restricted,,no,,,no,,f2d034
+xf2d04,STRING,Imputation field for F2D04 - Local appropriations - Total,,no,,,no,,xf2d04
+f2d04,INT64,Local appropriations - Total,,no,,,no,,f2d04
+xf2d042,STRING,Imputation field for F2D042 - Local appropriations - Unrestricted,,no,,,no,,xf2d042
+f2d042,FLOAT64,Local appropriations - Unrestricted,,no,,,no,,f2d042
+xf2d043,STRING,Imputation field for F2D043 - Local appropriations -  Temporarily restricted,,no,,,no,,xf2d043
+f2d043,FLOAT64,Local appropriations -  Temporarily restricted,,no,,,no,,f2d043
+xf2d044,STRING,Imputation field for F2D044 - Local appropriations - Permanently restricted,,no,,,no,,xf2d044
+f2d044,FLOAT64,Local appropriations - Permanently restricted,,no,,,no,,f2d044
+xf2d05,STRING,Imputation field for F2D05 - Federal grants and contracts - Total,,no,,,no,,xf2d05
+f2d05,INT64,Federal grants and contracts - Total,,no,,,no,,f2d05
+xf2d052,STRING,Imputation field for F2D052 - Federal grants and contracts - Unrestricted,,no,,,no,,xf2d052
+f2d052,FLOAT64,Federal grants and contracts - Unrestricted,,no,,,no,,f2d052
+xf2d053,STRING,Imputation field for F2D053 - Federal grants and contracts  - Temporarily restricted,,no,,,no,,xf2d053
+f2d053,FLOAT64,Federal grants and contracts  - Temporarily restricted,,no,,,no,,f2d053
+xf2d054,STRING,Imputation field for F2D054 - Federal grants and contracts - Pemanently restricted,,no,,,no,,xf2d054
+f2d054,FLOAT64,Federal grants and contracts - Pemanently restricted,,no,,,no,,f2d054
+xf2d06,STRING,Imputation field for F2D06 - State grants and contracts - Total,,no,,,no,,xf2d06
+f2d06,INT64,State grants and contracts - Total,,no,,,no,,f2d06
+xf2d062,STRING,Imputation field for F2D062 - State grants and contracts - Unrestricted,,no,,,no,,xf2d062
+f2d062,FLOAT64,State grants and contracts - Unrestricted,,no,,,no,,f2d062
+xf2d063,STRING,Imputation field for F2D063 - State grants and contracts - Temporarily restricted,,no,,,no,,xf2d063
+f2d063,FLOAT64,State grants and contracts - Temporarily restricted,,no,,,no,,f2d063
+xf2d064,STRING,Imputation field for F2D064 - State grants and contracts - Permanently restricted,,no,,,no,,xf2d064
+f2d064,FLOAT64,State grants and contracts - Permanently restricted,,no,,,no,,f2d064
+xf2d07,STRING,Imputation field for F2D07 - Local grants and contracts - Total,,no,,,no,,xf2d07
+f2d07,INT64,Local grants and contracts - Total,,no,,,no,,f2d07
+xf2d072,STRING,Imputation field for F2D072 - Local grants and contracts - Unrestricted,,no,,,no,,xf2d072
+f2d072,FLOAT64,Local grants and contracts - Unrestricted,,no,,,no,,f2d072
+xf2d073,STRING,Imputation field for F2D073 - Local grants and contracts - Temporarily restricted,,no,,,no,,xf2d073
+f2d073,FLOAT64,Local grants and contracts - Temporarily restricted,,no,,,no,,f2d073
+xf2d074,STRING,Imputation field for F2D074 - Local grants and contracts  - Permanently restricted,,no,,,no,,xf2d074
+f2d074,FLOAT64,Local grants and contracts  - Permanently restricted,,no,,,no,,f2d074
+xf2d08,STRING,"Imputation field for F2D08 - Private gifts, grants, and contracts - Total",,no,,,no,,xf2d08
+f2d08,INT64,"Private gifts, grants, and contracts - Total",,no,,,no,,f2d08
+xf2d082,STRING,"Imputation field for F2D082 - Private gifts, grants, and contracts - Unrestricted",,no,,,no,,xf2d082
+f2d082,FLOAT64,"Private gifts, grants, and contracts - Unrestricted",,no,,,no,,f2d082
+xf2d083,STRING,"Imputation field for F2D083 - Private gifts, grants and contracts - Temporarily restricted",,no,,,no,,xf2d083
+f2d083,FLOAT64,"Private gifts, grants and contracts - Temporarily restricted",,no,,,no,,f2d083
+xf2d084,STRING,"Imputation field for F2D084 - Private gifts, grants, and contracts - Permanently restricted",,no,,,no,,xf2d084
+f2d084,FLOAT64,"Private gifts, grants, and contracts - Permanently restricted",,no,,,no,,f2d084
+xf2d08a,STRING,Imputation field for F2D08A - Private gifts - Total,,no,,,no,,xf2d08a
+f2d08a,FLOAT64,Private gifts - Total,,no,,,no,,f2d08a
+xf2d082a,STRING,Imputation field for F2D082A - Private gifts - Unrestricted,,no,,,no,,xf2d082a
+f2d082a,FLOAT64,Private gifts - Unrestricted,,no,,,no,,f2d082a
+xf2d083a,STRING,Imputation field for F2D083A - Private gifts - Temporarily restricted,,no,,,no,,xf2d083a
+f2d083a,FLOAT64,Private gifts - Temporarily restricted,,no,,,no,,f2d083a
+xf2d084a,STRING,Imputation field for F2D084A - Private gifts - Permanentlly restricted,,no,,,no,,xf2d084a
+f2d084a,FLOAT64,Private gifts - Permanentlly restricted,,no,,,no,,f2d084a
+xf2d08b,STRING,Imputation field for F2D08B - Private grants and contracts - Total,,no,,,no,,xf2d08b
+f2d08b,FLOAT64,Private grants and contracts - Total,,no,,,no,,f2d08b
+xf2d082b,STRING,Imputation field for F2D082B - Private grants and contracts - Unrestricted,,no,,,no,,xf2d082b
+f2d082b,FLOAT64,Private grants and contracts - Unrestricted,,no,,,no,,f2d082b
+xf2d083b,STRING,Imputation field for F2D083B - Private grants and contracts - Temporarily restricted,,no,,,no,,xf2d083b
+f2d083b,FLOAT64,Private grants and contracts - Temporarily restricted,,no,,,no,,f2d083b
+xf2d084b,STRING,"Imputation field for F2D084B - Private grants, and contracts - Permanently restricted",,no,,,no,,xf2d084b
+f2d084b,FLOAT64,"Private grants, and contracts - Permanently restricted",,no,,,no,,f2d084b
+xf2d09,STRING,Imputation field for F2D09 - Contributions from affiliated entities - Total,,no,,,no,,xf2d09
+f2d09,INT64,Contributions from affiliated entities - Total,,no,,,no,,f2d09
+xf2d092,STRING,Imputation field for F2D092 - Contributions from affiliated entities - Unrestricted,,no,,,no,,xf2d092
+f2d092,FLOAT64,Contributions from affiliated entities - Unrestricted,,no,,,no,,f2d092
+xf2d093,STRING,Imputation field for F2D093 - Contributions from affiliated entities - Temporarily restricted,,no,,,no,,xf2d093
+f2d093,FLOAT64,Contributions from affiliated entities - Temporarily restricted,,no,,,no,,f2d093
+xf2d094,STRING,Imputation field for F2D094 - Contributions from affiliated entities - Permanently restricted,,no,,,no,,xf2d094
+f2d094,FLOAT64,Contributions from affiliated entities - Permanently restricted,,no,,,no,,f2d094
+xf2d10,STRING,Imputation field for F2D10 - Investment return - Total,,no,,,no,,xf2d10
+f2d10,INT64,Investment return - Total,,no,,,no,,f2d10
+xf2d102,STRING,Imputation field for F2D102 - Investment return - Unrestricted,,no,,,no,,xf2d102
+f2d102,FLOAT64,Investment return - Unrestricted,,no,,,no,,f2d102
+xf2d103,STRING,Imputation field for F2D103 - Investment return - Temporarily restricted,,no,,,no,,xf2d103
+f2d103,FLOAT64,Investment return - Temporarily restricted,,no,,,no,,f2d103
+xf2d104,STRING,Imputation field for F2D104 - Investment return - Permanently restricted,,no,,,no,,xf2d104
+f2d104,FLOAT64,Investment return - Permanently restricted,,no,,,no,,f2d104
+xf2d11,STRING,Imputation field for F2D11 - Sales and services of educational activities - Total,,no,,,no,,xf2d11
+f2d11,INT64,Sales and services of educational activities - Total,,no,,,no,,f2d11
+xf2d112,STRING,Imputation field for F2D112 - Sales and services of educational activities - Unrestricted,,no,,,no,,xf2d112
+f2d112,FLOAT64,Sales and services of educational activities - Unrestricted,,no,,,no,,f2d112
+xf2d12,STRING,Imputation field for F2D12 - Sales and services of auxiliary enterprises - Total,,no,,,no,,xf2d12
+f2d12,FLOAT64,Sales and services of auxiliary enterprises - Total,,no,,,no,,f2d12
+xf2d122,STRING,Imputation field for F2D122 - Sales and services of auxiliary enterprises - Unrestricted,,no,,,no,,xf2d122
+f2d122,FLOAT64,Sales and services of auxiliary enterprises - Unrestricted,,no,,,no,,f2d122
+xf2d13,STRING,Imputation field for F2D13 - Hospital revenue - Total,,no,,,no,,xf2d13
+f2d13,FLOAT64,Hospital revenue - Total,,no,,,no,,f2d13
+xf2d132,STRING,Imputation field for F2D132 - Hospital revenue - Unrestricted,,no,,,no,,xf2d132
+f2d132,FLOAT64,Hospital revenue - Unrestricted,,no,,,no,,f2d132
+xf2d14,STRING,Imputation field for F2D14 - Independent operations revenue - Total,,no,,,no,,xf2d14
+f2d14,FLOAT64,Independent operations revenue - Total,,no,,,no,,f2d14
+xf2d142,STRING,Imputation field for F2D142 - Independent operations revenue - Unrestricted,,no,,,no,,xf2d142
+f2d142,FLOAT64,Independent operations revenue - Unrestricted,,no,,,no,,f2d142
+xf2d143,STRING,Imputation field for F2D143 - Independent operations revenue - Temporarily restricted,,no,,,no,,xf2d143
+f2d143,FLOAT64,Independent operations revenue - Temporarily restricted,,no,,,no,,f2d143
+xf2d144,STRING,Imputation field for F2D144 - Independent operations revenue - Permanently restricted,,no,,,no,,xf2d144
+f2d144,FLOAT64,Independent operations revenue - Permanently restricted,,no,,,no,,f2d144
+xf2d15,STRING,Imputation field for F2D15 - Other revenue - Total,,no,,,no,,xf2d15
+f2d15,INT64,Other revenue - Total,,no,,,no,,f2d15
+xf2d152,STRING,Imputation field for F2D152 - Other revenue - Unrestricted,,no,,,no,,xf2d152
+f2d152,FLOAT64,Other revenue - Unrestricted,,no,,,no,,f2d152
+xf2d153,STRING,Imputation field for F2D153 - Other revenue - Temporarily restricted,,no,,,no,,xf2d153
+f2d153,FLOAT64,Other revenue - Temporarily restricted,,no,,,no,,f2d153
+xf2d154,STRING,Imputation field for F2D154 - Other revenue - Permanently restricted,,no,,,no,,xf2d154
+f2d154,FLOAT64,Other revenue - Permanently restricted,,no,,,no,,f2d154
+xf2d16,STRING,Imputation field for F2D16 - Total revenues and investment return - Total,,no,,,no,,xf2d16
+f2d16,INT64,Total revenues and investment return - Total,,no,,,no,,f2d16
+xf2d162,STRING,Imputation field for F2D162 - Total revenues and investment return - Unrestricted,,no,,,no,,xf2d162
+f2d162,FLOAT64,Total revenues and investment return - Unrestricted,,no,,,no,,f2d162
+xf2d163,STRING,Imputation field for F2D163 - Total revenues and investment return - Temporarily restricted,,no,,,no,,xf2d163
+f2d163,FLOAT64,Total revenues and investment return - Temporarily restricted,,no,,,no,,f2d163
+xf2d164,STRING,Imputation field for F2D164 - Total revenues and investment return - Permanently restricted,,no,,,no,,xf2d164
+f2d164,FLOAT64,Total revenues and investment return - Permanently restricted,,no,,,no,,f2d164
+xf2d17,STRING,Imputation field for F2D17 - Net assets released from restriction - Total,,no,,,no,,xf2d17
+f2d17,FLOAT64,Net assets released from restriction - Total,,no,,,no,,f2d17
+xf2d172,STRING,Imputation field for F2D172 - Net assets released from restriction - Unrestricted,,no,,,no,,xf2d172
+f2d172,FLOAT64,Net assets released from restriction - Unrestricted,,no,,,no,,f2d172
+xf2d173,STRING,Imputation field for F2D173 - Net assets released from restriction - Temporarily restricted,,no,,,no,,xf2d173
+f2d173,FLOAT64,Net assets released from restriction - Temporarily restricted,,no,,,no,,f2d173
+xf2d174,STRING,Imputation field for F2D174 - Net assets released from restriction - Permanently restricted,,no,,,no,,xf2d174
+f2d174,FLOAT64,Net assets released from restriction - Permanently restricted,,no,,,no,,f2d174
+xf2d18,STRING,"Imputation field for F2D18 - Net total revenues, after assets released from restriction - Total",,no,,,no,,xf2d18
+f2d18,FLOAT64,"Net total revenues, after assets released from restriction - Total",,no,,,no,,f2d18
+xf2d182,STRING,"Imputation field for F2D182 - Net total revenues, after assets released from restriction - Unrestricted",,no,,,no,,xf2d182
+f2d182,FLOAT64,"Net total revenues, after assets released from restriction - Unrestricted",,no,,,no,,f2d182
+xf2d183,STRING,"Imputation field for F2D183 - Net total revenues, after assets released from restriction - Temporarily restricted",,no,,,no,,xf2d183
+f2d183,FLOAT64,"Net total revenues, after assets released from restriction - Temporarily restricted",,no,,,no,,f2d183
+xf2d184,STRING,"Imputation field for F2D184 - Net total revenues, after assets released from restriction - Permanently restricted",,no,,,no,,xf2d184
+f2d184,FLOAT64,"Net total revenues, after assets released from restriction - Permanently restricted",,no,,,no,,f2d184
+xf2e011,STRING,Imputation field for F2E011 - Instruction-Total amount,,no,,,no,,xf2e011
+f2e011,FLOAT64,Instruction-Total amount,,no,,,no,,f2e011
+xf2e012,STRING,Imputation field for F2E012 - Instruction-Salaries and wages,,no,,USD,no,,xf2e012
+f2e012,FLOAT64,Instruction-Salaries and wages,,no,,USD,no,,f2e012
+xf2e021,STRING,Imputation field for F2E021 - Research-Total amount,,no,,,no,,xf2e021
+f2e021,FLOAT64,Research-Total amount,,no,,,no,,f2e021
+xf2e022,STRING,Imputation field for F2E022 - Research-Salaries and wages,,no,,USD,no,,xf2e022
+f2e022,FLOAT64,Research-Salaries and wages,,no,,USD,no,,f2e022
+xf2e031,STRING,Imputation field for F2E031 - Public service-Total amount,,no,,,no,,xf2e031
+f2e031,FLOAT64,Public service-Total amount,,no,,,no,,f2e031
+xf2e032,STRING,Imputation field for F2E032 - Public service-Salaries and wages,,no,,USD,no,,xf2e032
+f2e032,FLOAT64,Public service-Salaries and wages,,no,,USD,no,,f2e032
+xf2e041,STRING,Imputation field for F2E041 - Academic support-Total amount,,no,,,no,,xf2e041
+f2e041,FLOAT64,Academic support-Total amount,,no,,,no,,f2e041
+xf2e042,STRING,Imputation field for F2E042 - Academic support-Salaries and wages,,no,,USD,no,,xf2e042
+f2e042,FLOAT64,Academic support-Salaries and wages,,no,,USD,no,,f2e042
+xf2e051,STRING,Imputation field for F2E051 - Student service-Total amount,,no,,,no,,xf2e051
+f2e051,FLOAT64,Student service-Total amount,,no,,,no,,f2e051
+xf2e052,STRING,Imputation field for F2E052 - Student service-Salaries and wages,,no,,USD,no,,xf2e052
+f2e052,FLOAT64,Student service-Salaries and wages,,no,,USD,no,,f2e052
+xf2e061,STRING,Imputation field for F2E061 - Institutional support-Total amount,,no,,,no,,xf2e061
+f2e061,FLOAT64,Institutional support-Total amount,,no,,,no,,f2e061
+xf2e062,STRING,Imputation field for F2E062 - Institutional support-Salaries and wages,,no,,USD,no,,xf2e062
+f2e062,FLOAT64,Institutional support-Salaries and wages,,no,,USD,no,,f2e062
+xf2e071,STRING,Imputation field for F2E071 - Auxiliary enterprises-Total amount,,no,,,no,,xf2e071
+f2e071,FLOAT64,Auxiliary enterprises-Total amount,,no,,,no,,f2e071
+xf2e072,STRING,Imputation field for F2E072 - Auxiliary enterprises-Salaries and wages,,no,,USD,no,,xf2e072
+f2e072,FLOAT64,Auxiliary enterprises-Salaries and wages,,no,,USD,no,,f2e072
+xf2e081,STRING,Imputation field for F2E081 - Net grant aid to students-Total amount,,no,,,no,,xf2e081
+f2e081,FLOAT64,Net grant aid to students-Total amount,,no,,,no,,f2e081
+xf2e091,STRING,Imputation field for F2E091 - Hospital services-Total amount,,no,,,no,,xf2e091
+f2e091,FLOAT64,Hospital services-Total amount,,no,,,no,,f2e091
+xf2e092,STRING,Imputation field for F2E092 - Hospital services-Salaries and wages,,no,,USD,no,,xf2e092
+f2e092,FLOAT64,Hospital services-Salaries and wages,,no,,USD,no,,f2e092
+xf2e101,STRING,Imputation field for F2E101 - Independent operations-Total Amount,,no,,,no,,xf2e101
+f2e101,FLOAT64,Independent operations-Total Amount,,no,,,no,,f2e101
+xf2e102,STRING,Imputation field for F2E102 - Independent operations-Salaries and wages,,no,,USD,no,,xf2e102
+f2e102,FLOAT64,Independent operations-Salaries and wages,,no,,USD,no,,f2e102
+xf2e121,STRING,Imputation field for F2E121 - Other expenses-Total amount,,no,,,no,,xf2e121
+f2e121,FLOAT64,Other expenses-Total amount,,no,,,no,,f2e121
+xf2e122,STRING,Imputation field for F2E122 - Other expenses-Salaries and wages,,no,,USD,no,,xf2e122
+f2e122,FLOAT64,Other expenses-Salaries and wages,,no,,USD,no,,f2e122
+xf2e131,STRING,Imputation field for F2E131 - Total expenses-Total amount,,no,,,no,,xf2e131
+f2e131,FLOAT64,Total expenses-Total amount,,no,,,no,,f2e131
+xf2e132,STRING,Imputation field for F2E132 - Total expenses-Salaries and wages,,no,,USD,no,,xf2e132
+f2e132,FLOAT64,Total expenses-Salaries and wages,,no,,USD,no,,f2e132
+xf2e133,STRING,Imputation field for F2E133 - Total expenses-Benefits,,no,,,no,,xf2e133
+f2e133,FLOAT64,Total expenses-Benefits,,no,,,no,,f2e133
+xf2e134,STRING,Imputation field for F2E134 - Total expenses-Operation and maintenance of plant,,no,,,no,,xf2e134
+f2e134,FLOAT64,Total expenses-Operation and maintenance of plant,,no,,,no,,f2e134
+xf2e135,STRING,Imputation field for F2E135 - Total expenses-Depreciation,,no,,,no,,xf2e135
+f2e135,FLOAT64,Total expenses-Depreciation,,no,,,no,,f2e135
+xf2e136,STRING,Imputation field for F2E136 - Total expenses-Interest,,no,,,no,,xf2e136
+f2e136,FLOAT64,Total expenses-Interest,,no,,,no,,f2e136
+xf2e137,STRING,Imputation field for F2E137 - Total expenses-All other natural classification,,no,,,no,,xf2e137
+f2e137,FLOAT64,Total expenses-All other natural classification,,no,,,no,,f2e137
+f2fha,FLOAT64,Does this institution or any of its foundations or other affiliated organizations own endowment assets ?,,no,,,no,,f2fha
+xf2h01,STRING,Imputation field for F2H01 - Value of endowment assets at the beginning of the fiscal year,,no,,,no,,xf2h01
+f2h01,FLOAT64,Value of endowment assets at the beginning of the fiscal year,,no,,,no,,f2h01
+xf2h02,STRING,Imputation field for F2H02 - Value of endowment assets at the end of the fiscal year,,no,,,no,,xf2h02
+f2h02,FLOAT64,Value of endowment assets at the end of the fiscal year,,no,,,no,,f2h02
+xf2h03,STRING,Imputation field for F2H03 - Change in value of endowment net assets,,no,,,no,,xf2h03
+f2h03,FLOAT64,Change in value of endowment net assets,,no,,,no,,f2h03
+xf2h03a,STRING,Imputation field for F2H03A - New gifts and additions,,no,,,no,,xf2h03a
+f2h03a,FLOAT64,New gifts and additions,,no,,,no,,f2h03a
+xf2h03b,STRING,Imputation field for F2H03B - Endowment net investment return,,no,,,no,,xf2h03b
+f2h03b,FLOAT64,Endowment net investment return,,no,,,no,,f2h03b
+xf2h03c,STRING,Imputation field for F2H03C - Spending distribution for current use,,no,,,no,,xf2h03c
+f2h03c,FLOAT64,Spending distribution for current use,,no,,,no,,f2h03c
+xf2h03d,STRING,Imputation field for F2H03D - Other changes in value of endowment net assets,,no,,,no,,xf2h03d
+f2h03d,FLOAT64,Other changes in value of endowment net assets,,no,,,no,,f2h03d
+xf2i01,STRING,Imputation field for F2I01 - Change in unrestricted net assets,,no,,,no,,xf2i01
+f2i01,FLOAT64,Change in unrestricted net assets,,no,,,no,,f2i01
+xf2i02,STRING,Imputation field for F2I02 - Total unrestricted operating revenues,,no,,,no,,xf2i02
+f2i02,FLOAT64,Total unrestricted operating revenues,,no,,,no,,f2i02
+xf2i03,STRING,Imputation field for F2I03 - Change in net assets,,no,,,no,,xf2i03
+f2i03,FLOAT64,Change in net assets,,no,,,no,,f2i03
+xf2i04,STRING,Imputation field for F2I04 - Total net assets,,no,,,no,,xf2i04
+f2i04,FLOAT64,Total net assets,,no,,,no,,f2i04
+xf2i05,STRING,Imputation field for F2I05 - Expendable net assets,,no,,,no,,xf2i05
+f2i05,FLOAT64,Expendable net assets,,no,,,no,,f2i05
+xf2i06,STRING,Imputation field for F2I06 - Plant-related debt,,no,,,no,,xf2i06
+f2i06,FLOAT64,Plant-related debt,,no,,,no,,f2i06
+xf2i07,STRING,Imputation field for F2I07 - Total expenses,,no,,,no,,xf2i07
+f2i07,FLOAT64,Total expenses,,no,,,no,,f2i07
+xf2e013,STRING,Imputation field for F2E013 - Instruction-Benefits,,no,,,no,,xf2e013
+f2e013,FLOAT64,Instruction-Benefits,,no,,,no,,f2e013
+xf2e014,STRING,Imputation field for F2E014 - Instruction-Operation and maintenance of plant,,no,,,no,,xf2e014
+f2e014,FLOAT64,Instruction-Operation and maintenance of plant,,no,,,no,,f2e014
+xf2e015,STRING,Imputation field for F2E015 - Instruction-Depreciation,,no,,,no,,xf2e015
+f2e015,FLOAT64,Instruction-Depreciation,,no,,,no,,f2e015
+xf2e016,STRING,Imputation field for F2E016 - Instruction-Interest,,no,,,no,,xf2e016
+f2e016,FLOAT64,Instruction-Interest,,no,,,no,,f2e016
+xf2e017,STRING,Imputation field for F2E017 - Instruction-All other,,no,,,no,,xf2e017
+f2e017,FLOAT64,Instruction-All other,,no,,,no,,f2e017
+xf2e023,STRING,Imputation field for F2E023 - Research-Benefits,,no,,,no,,xf2e023
+f2e023,FLOAT64,Research-Benefits,,no,,,no,,f2e023
+xf2e024,STRING,Imputation field for F2E024 - Research-Operation and maintenance of plant,,no,,,no,,xf2e024
+f2e024,FLOAT64,Research-Operation and maintenance of plant,,no,,,no,,f2e024
+xf2e025,STRING,Imputation field for F2E025 - Research-Depreciation,,no,,,no,,xf2e025
+f2e025,FLOAT64,Research-Depreciation,,no,,,no,,f2e025
+xf2e026,STRING,Imputation field for F2E026 - Research-Interest,,no,,,no,,xf2e026
+f2e026,FLOAT64,Research-Interest,,no,,,no,,f2e026
+xf2e027,STRING,Imputation field for F2E027 - Research-All other,,no,,,no,,xf2e027
+f2e027,FLOAT64,Research-All other,,no,,,no,,f2e027
+xf2e033,STRING,Imputation field for F2E033 - Public service-Benefits,,no,,,no,,xf2e033
+f2e033,FLOAT64,Public service-Benefits,,no,,,no,,f2e033
+xf2e034,STRING,Imputation field for F2E034 - Public service-Operation and maintenance of plant,,no,,,no,,xf2e034
+f2e034,FLOAT64,Public service-Operation and maintenance of plant,,no,,,no,,f2e034
+xf2e035,STRING,Imputation field for F2E035 - Public service-Depreciation,,no,,,no,,xf2e035
+f2e035,FLOAT64,Public service-Depreciation,,no,,,no,,f2e035
+xf2e036,STRING,Imputation field for F2E036 - Public service-Interest,,no,,,no,,xf2e036
+f2e036,FLOAT64,Public service-Interest,,no,,,no,,f2e036
+xf2e037,STRING,Imputation field for F2E037 - Public service-All other,,no,,,no,,xf2e037
+f2e037,FLOAT64,Public service-All other,,no,,,no,,f2e037
+xf2e043,STRING,Imputation field for F2E043 - Academic support-Benefits,,no,,,no,,xf2e043
+f2e043,FLOAT64,Academic support-Benefits,,no,,,no,,f2e043
+xf2e044,STRING,Imputation field for F2E044 - Academic support-Operation and maintenance of plant,,no,,,no,,xf2e044
+f2e044,FLOAT64,Academic support-Operation and maintenance of plant,,no,,,no,,f2e044
+xf2e045,STRING,Imputation field for F2E045 - Academic support-Depreciation,,no,,,no,,xf2e045
+f2e045,FLOAT64,Academic support-Depreciation,,no,,,no,,f2e045
+xf2e046,STRING,Imputation field for F2E046 - Academic support-Interest,,no,,,no,,xf2e046
+f2e046,FLOAT64,Academic support-Interest,,no,,,no,,f2e046
+xf2e047,STRING,Imputation field for F2E047 - Academic support-All other,,no,,,no,,xf2e047
+f2e047,FLOAT64,Academic support-All other,,no,,,no,,f2e047
+xf2e053,STRING,Imputation field for F2E053 - Student service-Benefits,,no,,,no,,xf2e053
+f2e053,FLOAT64,Student service-Benefits,,no,,,no,,f2e053
+xf2e054,STRING,Imputation field for F2E054 - Student service-Operation and maintenance of plant,,no,,,no,,xf2e054
+f2e054,FLOAT64,Student service-Operation and maintenance of plant,,no,,,no,,f2e054
+xf2e055,STRING,Imputation field for F2E055 - Student service-Depreciation,,no,,,no,,xf2e055
+f2e055,FLOAT64,Student service-Depreciation,,no,,,no,,f2e055
+xf2e056,STRING,Imputation field for F2E056 - Student service-Interest,,no,,,no,,xf2e056
+f2e056,FLOAT64,Student service-Interest,,no,,,no,,f2e056
+xf2e057,STRING,Imputation field for F2E057 - Student service-All other,,no,,,no,,xf2e057
+f2e057,FLOAT64,Student service-All other,,no,,,no,,f2e057
+xf2e063,STRING,Imputation field for F2E063 - Institutional support-Benefits,,no,,,no,,xf2e063
+f2e063,FLOAT64,Institutional support-Benefits,,no,,,no,,f2e063
+xf2e064,STRING,Imputation field for F2E064 - Institutional support-Operation and maintenance of plant,,no,,,no,,xf2e064
+f2e064,FLOAT64,Institutional support-Operation and maintenance of plant,,no,,,no,,f2e064
+xf2e065,STRING,Imputation field for F2E065 - Institutional support-Depreciation,,no,,,no,,xf2e065
+f2e065,FLOAT64,Institutional support-Depreciation,,no,,,no,,f2e065
+xf2e066,STRING,Imputation field for F2E066 - Institutional support-Interest,,no,,,no,,xf2e066
+f2e066,FLOAT64,Institutional support-Interest,,no,,,no,,f2e066
+xf2e067,STRING,Imputation field for F2E067 - Institutional support-All other,,no,,,no,,xf2e067
+f2e067,FLOAT64,Institutional support-All other,,no,,,no,,f2e067
+xf2e073,STRING,Imputation field for F2E073 - Auxiliary enterprises-Benefits,,no,,,no,,xf2e073
+f2e073,FLOAT64,Auxiliary enterprises-Benefits,,no,,,no,,f2e073
+xf2e074,STRING,Imputation field for F2E074 - Auxiliary enterprises-Operation and maintenance of plant,,no,,,no,,xf2e074
+f2e074,FLOAT64,Auxiliary enterprises-Operation and maintenance of plant,,no,,,no,,f2e074
+xf2e075,STRING,Imputation field for F2E075 - Auxiliary enterprises-Depreciation,,no,,,no,,xf2e075
+f2e075,FLOAT64,Auxiliary enterprises-Depreciation,,no,,,no,,f2e075
+xf2e076,STRING,Imputation field for F2E076 - Auxiliary enterprises-Interest,,no,,,no,,xf2e076
+f2e076,FLOAT64,Auxiliary enterprises-Interest,,no,,,no,,f2e076
+xf2e077,STRING,Imputation field for F2E077 - Auxiliary enterprises-All other,,no,,,no,,xf2e077
+f2e077,FLOAT64,Auxiliary enterprises-All other,,no,,,no,,f2e077
+xf2e087,STRING,Imputation field for F2E087 - Net grant aid to students-All other,,no,,,no,,xf2e087
+f2e087,FLOAT64,Net grant aid to students-All other,,no,,,no,,f2e087
+xf2e093,STRING,Imputation field for F2E093 - Hospital services-Benefits,,no,,,no,,xf2e093
+f2e093,FLOAT64,Hospital services-Benefits,,no,,,no,,f2e093
+xf2e094,STRING,Imputation field for F2E094 - Hospital services-Operation and maintenance of plant,,no,,,no,,xf2e094
+f2e094,FLOAT64,Hospital services-Operation and maintenance of plant,,no,,,no,,f2e094
+xf2e095,STRING,Imputation field for F2E095 - Hospital services-Depreciation,,no,,,no,,xf2e095
+f2e095,FLOAT64,Hospital services-Depreciation,,no,,,no,,f2e095
+xf2e096,STRING,Imputation field for F2E096 - Hospital services-Interest,,no,,,no,,xf2e096
+f2e096,FLOAT64,Hospital services-Interest,,no,,,no,,f2e096
+xf2e097,STRING,Imputation field for F2E097 - Hospital services-All other,,no,,,no,,xf2e097
+f2e097,FLOAT64,Hospital services-All other,,no,,,no,,f2e097
+xf2e103,STRING,Imputation field for F2E103 - Independent operations-Benefits,,no,,,no,,xf2e103
+f2e103,FLOAT64,Independent operations-Benefits,,no,,,no,,f2e103
+xf2e104,STRING,Imputation field for F2E104 - Independent operations-Operation and maintenance of plant,,no,,,no,,xf2e104
+f2e104,FLOAT64,Independent operations-Operation and maintenance of plant,,no,,,no,,f2e104
+xf2e105,STRING,Imputation field for F2E105 - Independent operations-Depreciation,,no,,,no,,xf2e105
+f2e105,FLOAT64,Independent operations-Depreciation,,no,,,no,,f2e105
+xf2e106,STRING,Imputation field for F2E106 - Independent operations-Interest,,no,,,no,,xf2e106
+f2e106,FLOAT64,Independent operations-Interest,,no,,,no,,f2e106
+xf2e107,STRING,Imputation field for F2E107 - Independent operations-All other,,no,,,no,,xf2e107
+f2e107,FLOAT64,Independent operations-All other,,no,,,no,,f2e107
+xf2e111,STRING,Imputation field for F2E111 - Operation and maintenance of plant-Total amount,,no,,,no,,xf2e111
+f2e111,FLOAT64,Operation and maintenance of plant-Total amount,,no,,,no,,f2e111
+xf2e112,STRING,Imputation field for F2E112 - Operation and maintenance of plant-Salaries and wages,,no,,USD,no,,xf2e112
+f2e112,FLOAT64,Operation and maintenance of plant-Salaries and wages,,no,,USD,no,,f2e112
+xf2e113,STRING,Imputation field for F2E113 - Operation and maintenance of plant-Benefits,,no,,,no,,xf2e113
+f2e113,FLOAT64,Operation and maintenance of plant-Benefits,,no,,,no,,f2e113
+xf2e114,STRING,Imputation field for F2E114 - Operation and maintenance of plant-Operation and maintenance of plant,,no,,,no,,xf2e114
+f2e114,FLOAT64,Operation and maintenance of plant-Operation and maintenance of plant,,no,,,no,,f2e114
+xf2e115,STRING,Imputation field for F2E115 - Operation and maintenance of plant-Depreciation,,no,,,no,,xf2e115
+f2e115,FLOAT64,Operation and maintenance of plant-Depreciation,,no,,,no,,f2e115
+xf2e116,STRING,Imputation field for F2E116 - Operation and maintenance of plant-Interest,,no,,,no,,xf2e116
+f2e116,FLOAT64,Operation and maintenance of plant-Interest,,no,,,no,,f2e116
+xf2e117,STRING,Imputation field for F2E117 - Operation and maintenance of plant-All other,,no,,,no,,xf2e117
+f2e117,FLOAT64,Operation and maintenance of plant-All other,,no,,,no,,f2e117
+xf2e123,STRING,Imputation field for F2E123 - Other expenses-Benefits,,no,,,no,,xf2e123
+f2e123,FLOAT64,Other expenses-Benefits,,no,,,no,,f2e123
+xf2e124,STRING,Imputation field for F2E124 - Other expenses-Operation and maintenance of plant,,no,,,no,,xf2e124
+f2e124,FLOAT64,Other expenses-Operation and maintenance of plant,,no,,,no,,f2e124
+xf2e125,STRING,Imputation field for F2E125 - Other expenses-Depreciation,,no,,,no,,xf2e125
+f2e125,FLOAT64,Other expenses-Depreciation,,no,,,no,,f2e125
+xf2e126,STRING,Imputation field for F2E126 - Other expenses-Interest,,no,,,no,,xf2e126
+f2e126,FLOAT64,Other expenses-Interest,,no,,,no,,f2e126
+xf2e127,STRING,Imputation field for F2E127 - Other expenses-All other,,no,,,no,,xf2e127
+f2e127,FLOAT64,Other expenses-All other,,no,,,no,,f2e127
+xf2a14,STRING,Imputation field for F2A14 - Property obtained under capital leases - End of year,,no,,,no,,xf2a14
+f2a14,FLOAT64,Property obtained under capital leases - End of year,,no,,,no,,f2a14
+xf2e082,STRING,Imputation field for F2E082 - Net grant aid to students-Salaries and wages,,no,,USD,no,,xf2e082
+f2e082,FLOAT64,Net grant aid to students-Salaries and wages,,no,,USD,no,,f2e082
+xf2e083,STRING,Imputation field for F2E083 - Net grant aid to students-Benefits,,no,,,no,,xf2e083
+f2e083,FLOAT64,Net grant aid to students-Benefits,,no,,,no,,f2e083
+xf2e084,STRING,Imputation field for F2E084 - Net grant aid to students-Operation and maintenance of plant,,no,,,no,,xf2e084
+f2e084,FLOAT64,Net grant aid to students-Operation and maintenance of plant,,no,,,no,,f2e084
+xf2e085,STRING,Imputation field for F2E085 - Net grant aid to students-Depreciation,,no,,,no,,xf2e085
+f2e085,FLOAT64,Net grant aid to students-Depreciation,,no,,,no,,f2e085
+xf2e086,STRING,Imputation field for F2E086 - Net grant aid to students-Interest,,no,,,no,,xf2e086
+f2e086,FLOAT64,Net grant aid to students-Interest,,no,,,no,,f2e086
+xf2e141,STRING,Imputation field for F2E141 - Total expenses-benefits,,no,,,no,,xf2e141
+f2e141,FLOAT64,Total expenses-benefits,,no,,,no,,f2e141
+xf2e151,STRING,Imputation field for F2E151 - Total expenses-depreciation,,no,,,no,,xf2e151
+f2e151,FLOAT64,Total expenses-depreciation,,no,,,no,,f2e151
+xf2e161,STRING,Imputation field for F2E161 - Total expenses-interest,,no,,,no,,xf2e161
+f2e161,FLOAT64,Total expenses-interest,,no,,,no,,f2e161
+xf2e171,STRING,Imputation field for F2E171 - Total expenses-all other,,no,,,no,,xf2e171
+f2e171,FLOAT64,Total expenses-all other,,no,,,no,,f2e171

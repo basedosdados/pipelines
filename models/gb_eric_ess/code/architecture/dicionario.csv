@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Slug of the round table the coded column belongs to (e.g. round_01).,,no,,,no,,id_tabela
+nome_coluna,STRING,Name of the coded column in that round table.,,no,,,no,,nome_coluna
+chave,STRING,Stored code value (as text).,,no,,,no,,chave
+cobertura_temporal,STRING,Reference year of the round the mapping applies to.,,no,,,no,,cobertura_temporal
+valor,STRING,Human-readable label the code decodes to.,,no,,,no,,valor

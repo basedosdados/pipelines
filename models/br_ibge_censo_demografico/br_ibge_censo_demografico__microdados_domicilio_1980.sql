@@ -3,10 +3,7 @@
         alias="microdados_domicilio_1980",
         schema="br_ibge_censo_demografico",
         materialized="table",
-        partition_by={
-            "field": "sigla_uf",
-            "data_type": "string",
-        },
+        cluster_by=["sigla_uf"],
     )
 }}
 select

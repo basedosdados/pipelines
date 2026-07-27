@@ -1,91 +1,87 @@
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+"""
+Shared run logic for br_rj_isp_estatisticas_seguranca — Prefect 3.
+"""
 
-from pipelines.constants import constants
-from pipelines.crawler.isp.tasks import (
-    clean_data,
-    get_count_lines,
+from pipelines.crawler.isp.tasks import clean_data, get_count_lines
+from pipelines.utils.metadata.domain import (
+    AllFree,
+    DateFormat,
+    YearMonth,
 )
-from pipelines.utils.decorators import Flow
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.metadata.tasks import (
+    register_table_materialization_task,
+)
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-with Flow(
-    name="BD Template - Estatísticas de Segurança",
-    code_owners=[
-        "trick",
-    ],
-) as flow_isp:
-    dataset_id = Parameter(
-        "dataset_id", default="br_rj_isp_estatisticas_seguranca", required=True
-    )
-    table_id = Parameter("table_id", required=True)
 
-    # Materialization mode
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
+def _run_isp(
+    dataset_id: str,
+    table_id: str,
+    materialize_after_dump: bool,
+    dbt_alias: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
+    if not force_run:
+        has_new_data = get_count_lines(file_name=table_id)
+        if not has_new_data:
+            print(
+                f"Sem dados novos para {table_id} — aguardando próxima execução"
+            )
+            return
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
+    filepath = clean_data(file_name=table_id)
+
+    upload_to_gcs(
+        data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        wait=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
     )
-    update_metadata = Parameter(
-        "update_metadata", default=True, required=False
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
     )
 
-    compararison_between_lines = get_count_lines(file_name=table_id)
+    if not materialize_after_dump:
+        return
 
-    with case(compararison_between_lines, True):
-        filepath = clean_data(
-            file_name=table_id,
-        )
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
 
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=filepath,
+    if update_metadata:
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[filepath],
+            coverage=AllFree(
+                date_column=YearMonth(year="ano", month="mes"),
+                date_format=DateFormat.YEAR_MONTH,
+            ),
+            env="prod",
+            bq_project="basedosdados",
         )
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
-        )
-
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=filepath,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
-            )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "month": "mes"},
-                    date_format="%Y-%m",
-                    coverage_type="all_free",
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
-
-flow_isp.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_isp.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

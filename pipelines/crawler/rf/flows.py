@@ -1,128 +1,122 @@
 """
-Flows for br_rf_cno
+Flow compartilhado para datasets da Receita Federal (br_rf_cno, ...).
+Prefect 3 — use os flows dos datasets para deploy.
 """
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
-
-from pipelines.constants import constants
 from pipelines.crawler.rf.tasks import (
     check_need_for_update,
     crawl,
     process_file,
 )
-from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    DateOnly,
+    PartBdpro,
+)
 from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
+    commit_source_update_task,
+    poll_source_for_update_task,
+    register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    log_task,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-with Flow(name="BD Template - Receita Federal") as flow_rf:
-    # Common parameters
-    dataset_id = Parameter("dataset_id", default="br_rf_cno", required=True)
-    table_id = Parameter("table_id", required=True)
-    chunksize = Parameter("chunksize", default=100000, required=False)
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
+
+def _run_rf(
+    dataset_id: str,
+    table_id: str,
+    chunksize: int,
+    materialize_after_dump: bool,
+    dbt_alias: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool = False,
+) -> None:
+    """Lógica completa do flow Receita Federal. Chamada pelos flows de cada dataset."""
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
+    last_update_original_source = check_need_for_update(dataset_id=dataset_id)
+
+    if not force_run:
+        has_new_data = poll_source_for_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=last_update_original_source,
+            env="prod",
+            date_format="%Y-%m-%d",
+        )
+
+        if not has_new_data:
+            return
+
+    crawl(dataset_id=dataset_id, input_dir="input")
+
+    path = process_file(
         dataset_id=dataset_id,
         table_id=table_id,
-        wait=table_id,
+        input_dir="input",
+        output_dir="output",
+        partition_date=last_update_original_source,
+        chunksize=chunksize,
     )
 
-    last_update_original_source = check_need_for_update(
-        dataset_id,
-        upstream_tasks=[dataset_id],
-    )
-
-    check_if_outdated = check_if_data_is_outdated(
+    upload_to_gcs(
+        data_path=path,
         dataset_id=dataset_id,
         table_id=table_id,
-        data_source_max_date=last_update_original_source,
-        date_format="%Y-%m-%d",
-        upstream_tasks=[last_update_original_source],
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
     )
 
-    with case(check_if_outdated, False):
-        log_task(f"Não há atualizações para a tabela {table_id}!!")
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
+    )
 
-    with case(check_if_outdated, True):
-        log_task(f"Existem atualizações para {table_id}! A run será iniciada")
+    if not materialize_after_dump:
+        return
 
-        # Data processing pipeline
-        data = crawl(
-            dataset_id=dataset_id,
-            input_dir="input",
-            upstream_tasks=[
-                check_if_outdated,
-                last_update_original_source,
-            ],
-        )
+    upload_to_gcs(
+        data_path=path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
 
-        path = process_file(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            input_dir="input",
-            output_dir="output",
-            partition_date=last_update_original_source,
-            chunksize=chunksize,
-            upstream_tasks=[data],
-        )
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
 
-        # Upload to GCS
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=path,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            source_format="parquet",
-            upstream_tasks=[path],
-        )
-
-        wait_for_materialization = run_dbt(
+    if update_metadata:
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dbt_alias=dbt_alias,
-            upstream_tasks=[wait_upload_table],
+            coverage=PartBdpro(
+                date_column=DateOnly(col="data_extracao"),
+                date_format=DateFormat.YEAR_MD,
+            ),
+            env="prod",
+            bq_project="basedosdados",
         )
 
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=path,
+        if last_update_original_source is not None:
+            commit_source_update_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dump_mode="append",
-                source_format="parquet",
-                upstream_tasks=[wait_for_materialization],
+                source_max_date=last_update_original_source,
+                env="prod",
+                date_format="%Y-%m-%d",
             )
-
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"date": "data_extracao"},
-                    date_format="%Y-%m-%d",
-                    coverage_type="part_bdpro",
-                    time_delta={"months": 6},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
-
-# Common flow configuration
-flow_rf.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow_rf.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)

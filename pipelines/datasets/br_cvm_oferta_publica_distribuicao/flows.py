@@ -1,102 +1,99 @@
 """
-Flows for br_cvm_oferta_publica_distribuicao
+Flows for br_cvm_oferta_publica_distribuicao — Prefect 3.
 """
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from prefect import flow
 
-from pipelines.constants import constants
-from pipelines.datasets.br_cvm_oferta_publica_distribuicao.schedules import (
-    schedule_dia,
-)
-from pipelines.datasets.br_cvm_oferta_publica_distribuicao.tasks import (
+from pipelines.crawler.cvm_oferta_publica_distribuicao.tasks import (
     clean_table_oferta_distribuicao,
     crawl,
 )
-from pipelines.utils.decorators import Flow
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    DateOnly,
+    PartBdpro,
+)
+from pipelines.utils.metadata.tasks import (
+    register_table_materialization_task,
+)
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-ROOT = "/tmp/data"
-URL = "http://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.zip"
 
-with Flow(
-    name="br_cvm_oferta_publica_distribuicao.dia",
-    code_owners=["equipe_dados"],
-) as br_cvm_ofe_pub_dis_dia:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id",
-        default="br_cvm_oferta_publica_distribuicao",
-        required=True,
-    )
-    table_id = Parameter("table_id", default="dia", required=True)
-
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
+@flow(
+    name="br_cvm_oferta_publica_distribuicao__dia",
+    log_prints=True,
+)
+def br_cvm_oferta_publica_distribuicao__dia(
+    dataset_id: str = "br_cvm_oferta_publica_distribuicao",
+    table_id: str = "dia",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
-    )
+    # Fonte sem `last_modified` exposto — sempre roda; force_run é no-op.
+    _ = force_run
 
-    wait_crawl = crawl(root=ROOT, url=URL)
-    filepath = clean_table_oferta_distribuicao(
-        root=ROOT, upstream_tasks=[wait_crawl]
-    )
+    crawl()
+    filepath = clean_table_oferta_distribuicao()
 
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
+    upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
+        bucket_name="basedosdados-dev",
         dump_mode="append",
-        upstream_tasks=[filepath],
     )
 
-    wait_for_materialization = run_dbt(
+    run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
-        upstream_tasks=[wait_upload_table],
+        target="dev",
     )
 
-    with case(materialize_after_dump, True):
-        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-            data_path=filepath,
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[wait_for_materialization],
+            coverage=PartBdpro(
+                date_column=DateOnly(col="data_comunicado"),
+                date_format=DateFormat.YEAR_MD,
+            ),
+            env="prod",
+            bq_project="basedosdados",
         )
 
-        with case(update_metadata, True):
-            update_django_metadata(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                date_column_name={"date": "data_comunicado"},
-                date_format="%Y-%m-%d",
-                coverage_type="part_bdpro",
-                time_delta={"months": 6},
-                bq_project="basedosdados",
-                upstream_tasks=[wait_upload_prod],
-            )
 
-br_cvm_ofe_pub_dis_dia.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_cvm_ofe_pub_dis_dia.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_cvm_ofe_pub_dis_dia.schedule = schedule_dia
+br_cvm_oferta_publica_distribuicao__dia.deploy_schedules = [
+    {"cron": "45 6 * * 1-5", "timezone": "America/Sao_Paulo"}
+]

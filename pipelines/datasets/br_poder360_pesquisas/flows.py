@@ -1,91 +1,92 @@
 """
-Flows for br_poder360_pesquisas
+Flow br_poder360_pesquisas — Prefect 3.
 """
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from prefect import flow
 
-from pipelines.constants import constants
-from pipelines.datasets.br_poder360_pesquisas.tasks import crawler
-from pipelines.utils.decorators import Flow
-from pipelines.utils.metadata.tasks import update_django_metadata
+from pipelines.crawler.poder360_pesquisas.tasks import crawler
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    DateOnly,
+    PartBdpro,
+)
+from pipelines.utils.metadata.tasks import (
+    register_table_materialization_task,
+)
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    get_temporal_coverage,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-with Flow(
-    name="br_poder360_pesquisas.microdados", code_owners=["lucas_cr"]
-) as br_poder360:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_poder360_pesquisas", required=True
-    )
-    table_id = Parameter("table_id", default="microdados", required=True)
 
-    materialize_after_dump = Parameter(
-        "materialize after dump", default=True, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=False, required=False)
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
+@flow(
+    name="br_poder360_pesquisas__microdados",
+    log_prints=True,
+)
+def br_poder360_pesquisas__microdados(
+    dataset_id: str = "br_poder360_pesquisas",
+    table_id: str = "microdados",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = False,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
     filepath = crawler()
 
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
+    upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
+        bucket_name="basedosdados-dev",
         dump_mode="append",
-        upstream_tasks=[filepath],
     )
 
-    temporal_coverage = get_temporal_coverage(
-        filepath=filepath,
-        date_cols=["data"],
-        time_unit="year",
-        interval="1",
-        upstream_tasks=[wait_upload_table],
-    )
-
-    wait_for_materialization = run_dbt(
+    run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
         dbt_alias=dbt_alias,
-        upstream_tasks=[wait_upload_table],
+        target="dev",
     )
 
-    with case(materialize_after_dump, True):
-        wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[wait_for_materialization],
-        )
+    if not materialize_after_dump:
+        return
 
-        update_django_metadata(
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            date_column_name={"date": "data"},
-            date_format="%Y-%m-%d",
-            coverage_type="part_bdpro",
-            time_delta={"months": 6},
+            coverage=PartBdpro(
+                date_column=DateOnly(col="data"),
+                date_format=DateFormat.YEAR_MD,
+            ),
+            env="prod",
             bq_project="basedosdados",
-            upstream_tasks=[wait_upload_prod],
         )
 
 
-br_poder360.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_poder360.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# br_poder360.schedule = every_monday_thursday
+br_poder360_pesquisas__microdados.deploy_schedules = [
+    {"cron": "42 3 * * *", "timezone": "America/Sao_Paulo"}
+]

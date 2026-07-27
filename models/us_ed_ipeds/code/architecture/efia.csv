@@ -1,0 +1,20 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+xcdactua,STRING,Imputation field for CDACTUA - 12-month instructional activity credit hours: undergraduates,,no,,,no,,xcdactua
+cdactua,FLOAT64,12-month instructional activity credit hours: undergraduates,,no,,,no,,cdactua
+xcnactua,STRING,Imputation field for CNACTUA - 12-month instructional activity clock hours: undergraduates,,no,,,no,,xcnactua
+cnactua,FLOAT64,12-month instructional activity clock hours: undergraduates,,no,,,no,,cnactua
+xcdactga,STRING,Imputation field for CDACTGA - 12-month instructional activity credit hours: graduates,,no,,,no,,xcdactga
+cdactga,FLOAT64,12-month instructional activity credit hours: graduates,,no,,,no,,cdactga
+xefteug,STRING,"Imputation field for EFTEUG - Estimated full-time equivalent (FTE) undergraduate enrollment, 2023-24",,no,,,no,,xefteug
+efteug,FLOAT64,"Estimated full-time equivalent (FTE) undergraduate enrollment, 2023-24",,no,,,no,,efteug
+xeftegd,STRING,"Imputation field for EFTEGD - Estimated full-time equivalent (FTE) graduate enrollment, 2023-24",,no,,,no,,xeftegd
+eftegd,FLOAT64,"Estimated full-time equivalent (FTE) graduate enrollment, 2023-24",,no,,,no,,eftegd
+xfteug,STRING,"Imputation field for FTEUG - Reported full-time equivalent (FTE) undergraduate enrollment, 2023-24",,no,,,no,,xfteug
+fteug,FLOAT64,"Reported full-time equivalent (FTE) undergraduate enrollment, 2023-24",,no,,,no,,fteug
+xftegd,STRING,"Imputation field for FTEGD - Reported full-time equivalent (FTE) graduate enrollment, 2023-24",,no,,,no,,xftegd
+ftegd,FLOAT64,"Reported full-time equivalent (FTE) graduate enrollment, 2023-24",,no,,,no,,ftegd
+xftedpp,STRING,"Imputation field for FTEDPP - Reported full-time equivalent (FTE) doctors professional practice, 2023-24",,no,,,no,,xftedpp
+ftedpp,STRING,"Reported full-time equivalent (FTE) doctors professional practice, 2023-24",,no,,,no,,ftedpp
+acttype,FLOAT64,Is instructional activity based on credit or clock hours,,no,,,no,,acttype

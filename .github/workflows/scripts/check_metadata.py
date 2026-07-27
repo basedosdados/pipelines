@@ -8,6 +8,13 @@ import basedosdados as bd
 import pandas as pd
 from databasers_utils import get_architecture_table_from_api
 
+_TYPE_ALIASES: dict[str, str] = {
+    "boolean": "bool",
+    "integer": "int64",
+    "int": "int64",
+    "float": "float64",
+}
+
 
 def get_datasets_tables_from_modified_files(
     modified_files: list[str],  # type: ignore
@@ -90,6 +97,20 @@ def get_bigquery_columns(
     return columns
 
 
+def normalize_type(t: str) -> str:
+    """
+    Normalize a BigQuery or API type string to a canonical form for comparison.
+
+    Args:
+        t (str): Type string returned by BigQuery or the backend API.
+
+    Returns:
+        str: Canonical type string (e.g. "boolean" -> "bool", "int" -> "int64").
+    """
+    t = t.lower()
+    return _TYPE_ALIASES.get(t, t)
+
+
 @dataclass
 class DescriptionError:
     lhs: str
@@ -126,7 +147,6 @@ def evaluate_row(row: pd.Series) -> Evaluate:
     else:
         bq_type = str(row["data_type"]).lower()
         api_type = str(row["bigquery_type"]).lower()
-
         if bq_type != api_type:
             errors.append(TypeError(lhs=bq_type, rhs=api_type))
 

@@ -52,7 +52,7 @@ def upload_to_bigquery(
 
 
 if __name__ == "__main__":
-    # download_data()
+    download_data()
     for key in TABLE_IDS:
         upload_to_bigquery(
             table_id=TABLE_IDS[key],

@@ -4,7 +4,7 @@ Tasks for br_cvm_fi
 
 import re
 import zipfile
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -13,7 +13,6 @@ from bs4 import BeautifulSoup
 from prefect import task
 from tqdm import tqdm
 
-from pipelines.constants import constants
 from pipelines.crawler.cvm.constants import constants as cvm_constants
 from pipelines.crawler.cvm.utils import (
     TABLE_CONFIGS,
@@ -25,10 +24,7 @@ from pipelines.crawler.cvm.utils import (
 from pipelines.utils.utils import log
 
 
-@task(
-    max_retries=2,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=2, retry_delay_seconds=30)
 def extract_links_and_dates(
     table_id: str, url: str | None = None
 ) -> tuple[pd.DataFrame, str]:
@@ -95,10 +91,7 @@ def extract_links_and_dates(
     return df, data_maxima
 
 
-@task(
-    max_retries=2,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=2, retry_delay_seconds=30)
 def generate_links_to_download(
     df: pd.DataFrame, max_date: datetime
 ) -> list[str]:
@@ -110,10 +103,7 @@ def generate_links_to_download(
     return lists
 
 
-@task(
-    max_retries=2,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=2, retry_delay_seconds=30)
 def download_unzip(
     table_id: str,
     files: list | str,

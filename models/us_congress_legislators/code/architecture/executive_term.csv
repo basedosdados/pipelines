@@ -1,0 +1,17 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_bioguide,STRING,"Identificador Bioguide, presente quando a pessoa também serviu no Congresso.",,no,br_bd_diretorios_us.congress_member:id_bioguide,,no,,id.bioguide
+id_icpsr_prez,STRING,Identificador ICPSR da posição presidencial.,,no,,,no,,id.icpsr_prez
+id_govtrack,STRING,Identificador da pessoa no GovTrack.us.,,no,,,no,,id.govtrack
+first_name,STRING,Primeiro nome.,,no,,,no,,name.first
+middle_name,STRING,Nome do meio ou inicial.,,no,,,no,,name.middle
+last_name,STRING,Sobrenome.,,no,,,no,,name.last
+suffix,STRING,Sufixo do nome.,,no,,,no,,name.suffix
+nickname,STRING,Apelido ou nome alternativo.,,no,,,no,,name.nickname
+full_name,STRING,Nome completo oficial.,,no,,,no,,name.official_full
+birthday,DATE,Data de nascimento.,,no,,,no,,bio.birthday
+gender,STRING,Sexo (M ou F).,,no,,,no,,bio.gender
+term_type,STRING,"Tipo de mandato (prez para presidente, viceprez para vice-presidente).",,no,,,no,,terms[].type
+term_start,DATE,Data de início do mandato.,,no,,,no,,terms[].start
+term_end,DATE,Data de término do mandato.,,no,,,no,,terms[].end
+party,STRING,Partido político durante o mandato.,,no,,,no,,terms[].party
+how,STRING,"Forma de acesso ao cargo (election, succession ou appointment).",,no,,,no,,terms[].how

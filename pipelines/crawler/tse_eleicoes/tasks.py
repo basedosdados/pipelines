@@ -2,7 +2,7 @@
 Tasks for br_tse_eleicoes
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import TypeVar
 
 from prefect import task
@@ -31,8 +31,8 @@ def flows_control(table_id: str, mode: str) -> type[T]:
 
 
 @task(
-    max_retries=1,
-    retry_delay=timedelta(seconds=60),
+    retries=1,
+    retry_delay_seconds=60,
 )
 def get_data_source_max_date(flow_class) -> datetime:
     flow_class.download_urls()

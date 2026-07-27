@@ -1,0 +1,37 @@
+---
+name: 🧪 databug
+description: Defeito nos dados publicados (valor errado, encoding, coluna ausente)
+title: '[databug] '
+labels: [databug]
+body:
+  - type: input
+    id: tabela
+    attributes:
+      label: Tabela afetada
+      description: Identificador completo no padrão `dataset_id.table_id`.
+      placeholder: br_tse_eleicoes.perfil_eleitorado_secao
+    validations:
+      required: true
+  - type: textarea
+    id: descricao
+    attributes:
+      label: Descrição do problema nos dados
+      description: O que está errado nos dados publicados? Coluna, linhas, período
+        afetado, valor esperado vs observado.
+    validations:
+      required: true
+  - type: textarea
+    id: evidencia
+    attributes:
+      label: Evidência
+      description: Query SQL que demonstra o problema, prints, ou comparação com a
+        fonte original. Adicione prints de reports de erros no hubspot/discord se
+        houverem.
+    validations:
+      required: true
+  - type: textarea
+    id: referencias
+    attributes:
+      label: Referências
+      description: Links para a fonte original, issues relacionadas, ou registros
+        de suporte.

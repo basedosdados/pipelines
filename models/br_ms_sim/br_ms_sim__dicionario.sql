@@ -1,3 +1,6 @@
+-- Dicionario: microdados sem de-para chave/valor (colunas em texto no cleaning.py).
+-- Staging atualizado via update_dicionario.py; mantidas entradas de
+-- municipio_causa_idade_sexo_raca.
 {{ config(alias="dicionario", schema="br_ms_sim") }}
 
 select
@@ -5,5 +8,5 @@ select
     safe_cast(coluna as string) nome_coluna,
     safe_cast(chave as string) chave,
     safe_cast(cobertura_temporal as string) cobertura_temporal,
-    safe_cast(valor as string) valor,
+    safe_cast(valor as string) valor
 from {{ set_datalake_project("br_ms_sim_staging.dicionario") }} as t

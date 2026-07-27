@@ -1,8 +1,6 @@
 """
-Tasks for br_bcb_sicor
+Tasks para br_bcb_sicor — Prefect 3.
 """
-
-from datetime import timedelta
 
 import pandas as pd
 from prefect import task
@@ -18,41 +16,22 @@ from pipelines.crawler.bcb.utils import (
     get_sicor_download_links,
 )
 
+TASK_RETRIES = constants.TASK_MAX_RETRIES.value
+TASK_RETRY_DELAY_SECONDS = constants.TASK_RETRY_DELAY.value
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def search_sicor_links() -> pd.DataFrame:
-    """
-    Search for sicor download links and build a DataFrame.
-
-    Returns:
-        pd.DataFrame: DataFrame containing sicor download links and metadata.
-    """
+    """Scrape o site do BCB e devolve DataFrame com links e metadados."""
     links = get_sicor_download_links()
-    df = build_sicor_download_df(links)
-    return df
+    return build_sicor_download_df(links)
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def get_sicor_table_size(
     links_df: pd.DataFrame, table_id: str, download_all_files: bool = False
 ) -> int:
-    """
-    Get the total size (content_length) for a specific table_id.
-
-    Args:
-        links_df (pd.DataFrame): DataFrame containing sicor download links and metadata.
-        table_id (str): The ID of the table.
-        download_all_files (bool): If True, considers all files. Default is False.
-
-    Returns:
-        int: The total size in bytes.
-    """
+    """Soma o `content_length` dos arquivos da tabela `table_id`."""
     table_df = filter_sicor_links(
         links_df, table_id, download_all_files=download_all_files
     )
@@ -65,26 +44,13 @@ def get_sicor_table_size(
     return int(table_df["content_length"].sum())
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def download_table(
     search_sicor_links_result: pd.DataFrame,
     table_id: str,
     download_all_files: bool = False,
 ) -> str:
-    """
-    Create folder structure and download files for a specific table.
-
-    Args:
-        search_sicor_links_result (pd.DataFrame): DataFrame with download links.
-        table_id (str): The ID of the table to download.
-        download_all_files (bool): If True, downloads all files. Default is False.
-
-    Returns:
-        str: The path where files were downloaded.
-    """
+    """Baixa e transforma os arquivos da tabela `table_id`. Retorna o diretório."""
     download_dir = create_folder_structure(table_id)
 
     table_df = filter_sicor_links(
@@ -98,19 +64,10 @@ def download_table(
     else:
         create_tables(table_df, table_id, download_dir)
 
-    return download_dir
+    return str(download_dir)
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def create_load_dictionary() -> str:
-    """
-    Create the dictionary table and return its directory path.
-
-    Returns:
-        str: The path where the dictionary file was saved.
-    """
-
+    """Gera o CSV do dicionário e retorna o diretório."""
     return create_dictionary()

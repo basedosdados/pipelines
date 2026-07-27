@@ -1,0 +1,181 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+stat_ic,INT64,Response status -  Institutional characteristics component,,no,,,no,,stat_ic
+lock_ic,INT64,Status of IC component when institution was migrated,,no,,,no,,lock_ic
+imp_ic,INT64,Type of imputation method Institutional Characteristics,,no,,,no,,imp_ic
+stat_c,INT64,Response status -  Completions component,,no,,,no,,stat_c
+lock_c,INT64,Status of completions component when institution was migrated,,no,,,no,,lock_c
+prch_c,INT64,Parent/child indicator for completions,,no,,,no,,prch_c
+idx_c,INT64,UnitID of Parent institution,,no,,,no,,idx_c
+pcc_f,STRING,Parent/child allocation factor - Completions,,no,,,no,,pcc_f
+imp_c,INT64,Type of imputation method Completions,,no,,,no,,imp_c
+stat_e12,FLOAT64,Response status of institution - 12-month enrollment,,no,,,no,,stat_e12
+lock_e12,FLOAT64,Status of 12-month enrollment component whe data collection closed,,no,,,no,,lock_e12
+prch_e12,FLOAT64,Parent/child indicator for 12-month enrollment,,no,,,no,,prch_e12
+idx_e12,FLOAT64,ID number of parent institution - 12-month enrollment,,no,,,no,,idx_e12
+pce12_f,STRING,Parent/child allocation factor - 12-month enrollment,,no,,,no,,pce12_f
+imp_e12,FLOAT64,Type of imputation method - 12 month enrollment,,no,,,no,,imp_e12
+stat_sfa,FLOAT64,Response status for Student Financial Aid survey,,no,,,no,,stat_sfa
+lock_sfa,FLOAT64,Status of Student Financial Aid Survey when data collection closed,,no,,,no,,lock_sfa
+prch_sfa,FLOAT64,Parent/child indicator Student Financial Aid survey,,no,,,no,,prch_sfa
+idx_sfa,FLOAT64,ID number of parent institution Student Financial Aid,,no,,,no,,idx_sfa
+pcsfa_f,STRING,Parent/child allocation factor - Student Financial Aid,,no,,,no,,pcsfa_f
+imp_sfa,FLOAT64,Type of imputation method Student Financial Aid,,no,,,no,,imp_sfa
+sfaform,FLOAT64,SFA collection form type,,no,,,no,,sfaform
+stat_gr,FLOAT64,Response status - Graduation Rates,,no,,,no,,stat_gr
+lock_gr,FLOAT64,Status of Graduation rate survey when data collection closed,,no,,,no,,lock_gr
+prch_gr,FLOAT64,Parent/child indicator - Graduation Rates,,no,,,no,,prch_gr
+idx_gr,FLOAT64,UNITID of parent institution reporting Graduation Rates,,no,,,no,,idx_gr
+pcgr_f,STRING,Parent/child allocation factor - Graduation Rates,,no,,,no,,pcgr_f
+imp_gr,FLOAT64,Imputation method - Graduation Rates,,no,,,no,,imp_gr
+cohrtstu,FLOAT64,Enrolled any full-time first-time students,,no,,,no,,cohrtstu
+stat_gr2,FLOAT64,Response status - Graduation Rates 200,,no,,,no,,stat_gr2
+lock_gr2,FLOAT64,Status of Graduation rate 200 survey when data collection closed,,no,,,no,,lock_gr2
+prch_gr2,FLOAT64,Parent/child indicator - Graduation Rates 200,,no,,,no,,prch_gr2
+idx_gr2,FLOAT64,UNITID of parent institution reporting Graduation Rates 200,,no,,,no,,idx_gr2
+pcgr2_f,STRING,Parent/child allocation factor - Graduation Rates 200,,no,,,no,,pcgr2_f
+imp_gr2,FLOAT64,Imputation method - Graduation Rates 200,,no,,,no,,imp_gr2
+stat_om,FLOAT64,Response status - Outcome Measures,,no,,,no,,stat_om
+lock_om,FLOAT64,Status of Outcome Measures component when data collection closed,,no,,,no,,lock_om
+prch_om,FLOAT64,Parent/child indicator - Outcome Measures,,no,,,no,,prch_om
+idx_om,FLOAT64,UNITID of parent institution reporting Outcome Measures,,no,,,no,,idx_om
+pcom_f,STRING,Parent/child allocation factor - Outcome Measures,,no,,,no,,pcom_f
+imp_om,FLOAT64,Imputations method - Outcome Measures,,no,,,no,,imp_om
+stat_adm,FLOAT64,Response status - Admissions component,,no,,,no,,stat_adm
+lock_adm,FLOAT64,Status of admissions component when institution was migrated,,no,,,no,,lock_adm
+prch_adm,FLOAT64,Parent/child indicator for Admissions,,no,,,no,,prch_adm
+idx_adm,FLOAT64,ID number of parent institution - Admissions,,no,,,no,,idx_adm
+pcadm_f,STRING,Parent/child allocation factor - Admissions,,no,,,no,,pcadm_f
+imp_adm,FLOAT64,Type of imputation method - Admissions component,,no,,,no,,imp_adm
+stat_hr,FLOAT64,Response status of institution for Human Resources (HR) component,,no,,,no,,stat_hr
+lock_hr,FLOAT64,Status of Human Resources (HR) component when data collection closed,,no,,,no,,lock_hr
+prch_hr,FLOAT64,Parent/child  indicator - Human Resources (HR) component,,no,,,no,,prch_hr
+idx_hr,FLOAT64,ID of institution where data are reported for the Human Resources (HR) component,,no,,,no,,idx_hr
+pchr_f,STRING,Parent/child allocation factor - HR,,no,,,no,,pchr_f
+imp_hr,FLOAT64,Type of Imputation method - Human Resources (HR) component,,no,,,no,,imp_hr
+ftemp15,FLOAT64,Does institution have 15 or more full-time employees,,no,,,no,,ftemp15
+tenursys,FLOAT64,Does institution have a tenure system,,no,,,no,,tenursys
+sa_excl,FLOAT64,Salary exclusion,,no,,USD,no,,sa_excl
+stat_eap,FLOAT64,Response status for EAP,,no,,,no,,stat_eap
+stat_sa,FLOAT64,Response status to SA survey,,no,,,no,,stat_sa
+stat_s,FLOAT64,Response status for Fall Staff,,no,,,no,,stat_s
+stat_ef,FLOAT64,Response status of institution -  Fall enrollment,,no,,,no,,stat_ef
+lock_ef,FLOAT64,Status of Fall Enrollment survey when data collection closed,,no,,,no,,lock_ef
+prch_ef,FLOAT64,Parent/child indicator f- Fall enrollment,,no,,,no,,prch_ef
+idx_ef,FLOAT64,ID number of parent institution - Fall enrollment,,no,,,no,,idx_ef
+pcef_f,STRING,Parent/child allocation factor - Fall enrollment,,no,,,no,,pcef_f
+imp_ef,FLOAT64,Type of imputation method - Fall enrollment,,no,,,no,,imp_ef
+pta99_ef,FLOAT64,Status enrollment by race/ethnicity (99.0000 CIP),,no,,,no,,pta99_ef
+ptacipef,FLOAT64,Status enrollment by major,,no,,,no,,ptacipef
+ptb_ef,FLOAT64,Status enrollment summary by age,,no,,,no,,ptb_ef
+ptc_ef,FLOAT64,Status residence of first-time first-year students,,no,,,no,,ptc_ef
+ptd_ef,FLOAT64,Status total entering class and retention rates,,no,,,no,,ptd_ef
+stat_f,FLOAT64,Response status for Finance survey,,no,,,no,,stat_f
+lock_f,FLOAT64,Status of Finance survey when data collection closed,,no,,,no,,lock_f
+prch_f,FLOAT64,Parent/child indicator - Finance,,no,,,no,,prch_f
+idx_f,FLOAT64,ID number of parent institution - Finance,,no,,,no,,idx_f
+pcf_f,STRING,Parent/child allocation factor - Finance,,no,,,no,,pcf_f
+prchtp_f,FLOAT64,Parent/child system indicator - Finance,,no,,,no,,prchtp_f
+imp_f,FLOAT64,Type of imputation method  Finance,,no,,,no,,imp_f
+form_f,FLOAT64,"Identifies reporting standards GASB, FASB, or modified FASB(for-profit institutions) used to report finance data",,no,,,no,,form_f
+fybeg,FLOAT64,Beginning date of fiscal year covered (all finance),,no,,,no,,fybeg
+fyend,FLOAT64,End date of fiscal year covered  (all finance),,no,,,no,,fyend
+gpfs,FLOAT64,Audit Opinion GPFS from auditor (all finance),,no,,,no,,gpfs
+f1gasbal,FLOAT64,GASB alternative accounting model,,no,,,no,,f1gasbal
+f2pell,FLOAT64,Account for Pell grants as pass through transactions or as federal grant revenues to the institution (FASB  institutions)?,,no,,,no,,f2pell
+f3pell,FLOAT64,Account for Pell grants as pass through transactions or as federal grant revenues to the institution (private-for-profit institutions)?,,no,,,no,,f3pell
+fcolathl,FLOAT64,Participates in intercollegiate athletics,,no,,,no,,fcolathl
+f_athex1,FLOAT64,Intercollegiate athletic expenses accounted for as auxiliary enterprises,,no,,,no,,f_athex1
+f_athex2,FLOAT64,Intercollegiate athletic expenses accounted for as student services,,no,,,no,,f_athex2
+f_athex9,FLOAT64,Intercollegiate athletic expenses accounted for as other expense functional classification,,no,,,no,,f_athex9
+f_athrv,FLOAT64,Intercollegiate athletic revenues,,no,,,no,,f_athrv
+f_athrv1,FLOAT64,Are intercollegiate athletic revenues included with sales and services of educational activities,,no,,,no,,f_athrv1
+f_athrv2,FLOAT64,Are intercollegiate athletic revenues included with sales and services of auxiliary enterprises,,no,,,no,,f_athrv2
+f_athrv9,FLOAT64,Are intercollegiate athletic revenues included with a source other than educational activities or auxiliary enterprises,,no,,,no,,f_athrv9
+f3bist,FLOAT64,"Type of business structure for tax purposes (private-for-profit, degree-granting institutions)",,no,,,no,,f3bist
+stat_al,FLOAT64,Response status -  Academic Libraries component,,no,,,no,,stat_al
+lock_al,FLOAT64,Status of Academic Library component when institution was migrated,,no,,,no,,lock_al
+prch_al,FLOAT64,Parent/child indicator for Academic Libraries,,no,,,no,,prch_al
+idx_al,FLOAT64,UnitID of Parent institution - Academic Libraries,,no,,,no,,idx_al
+pcal_f,STRING,Parent/child allocation factor - Academic Libraries,,no,,,no,,pcal_f
+imp_al,FLOAT64,Type of imputation method - Academic Libraries,,no,,,no,,imp_al
+hasal,FLOAT64,Has an academic library,,no,,,no,,hasal
+ntrldstr,FLOAT64,Natural Disaster identification,,no,,,no,,ntrldstr
+rev_c,FLOAT64,Revision status - Completions,,no,,,no,,rev_c
+rev_e12,FLOAT64,Revision status - 12-month enrollment,,no,,,no,,rev_e12
+rev_ic,FLOAT64,Revision status - Institutional Characteristics,,no,,,no,,rev_ic
+rev_sfa,FLOAT64,Revision status - Student Financial Aid,,no,,,no,,rev_sfa
+rev_gr,FLOAT64,Revision status - Graduation Rates,,no,,,no,,rev_gr
+rev_gr2,FLOAT64,Revision status - Graduation Rates 200,,no,,,no,,rev_gr2
+rev_om,FLOAT64,Revision status - Outcome Measures,,no,,,no,,rev_om
+rev_adm,FLOAT64,Revision status - Admissions,,no,,,no,,rev_adm
+rev_hr,FLOAT64,Revision status - Human Resources,,no,,,no,,rev_hr
+rev_ef,FLOAT64,Revision status - Fall Enrollment,,no,,,no,,rev_ef
+rev_f,FLOAT64,Revision status - Finance,,no,,,no,,rev_f
+rev_al,FLOAT64,Revision status - Academic Libraries,,no,,,no,,rev_al
+f_athltc,FLOAT64,Are intercollegiate athletic expenses accounted for as auxiliary enterprises or treated as student services,,no,,,no,,f_athltc
+f_athrv3,FLOAT64,Does not have intercollegiate athletics revenues,,no,,,no,,f_athrv3
+omflg1gr,FLOAT64,"OM flag 1 - inconsistent data with full-time first-time cohort, 2-year institutions",,no,,,no,,omflg1gr
+omflg2gr,FLOAT64,"OM flag 2 - inconsistent data with bachelor's cohort, 4-year institutions",,no,,,no,,omflg2gr
+omflg3gr,FLOAT64,"OM flag 3 - inconsistent data with full-time first-time cohort, 4-year institutions",,no,,,no,,omflg3gr
+omflg4,FLOAT64,OM flag 4 - no completers data reported,,no,,,no,,omflg4
+omflg5,FLOAT64,OM flag 5 - no transfer-out data  reported,,no,,,no,,omflg5
+omflg6gr,FLOAT64,"OM flag 6 - inconsistent  first-time, full-time transfer-out data",,no,,,no,,omflg6gr
+pcf_f_rv,STRING,"Parent/child allocation factor, for institutions submitting revised finance",,no,,,no,,pcf_f_rv
+hasgrurl,FLOAT64,Does institution use a website to disclose Student-Right-to-Know student athlete graduation rates,,no,,,no,,hasgrurl
+grdisurl,STRING,Student-Right-to-Know student athlete graduation rate website URL,,no,,,no,,grdisurl
+re_c,FLOAT64,Method used to report race and ethnicity - Completions,,no,,,no,,re_c
+re_e12,FLOAT64,Method used to report race and ethnicity - 12 month enrollment,,no,,,no,,re_e12
+fyrpyear,FLOAT64,12-month reporting period  for enrollment and instructional activity,,no,,,no,,fyrpyear
+longpgm,FLOAT64,Institution has 5-year or 3-year programs,,no,,,no,,longpgm
+re_gr,FLOAT64,Method used to report race and ethnicity - Graduation rates,,no,,,no,,re_gr
+fp_c,FLOAT64,Method used to report doctor's and professional degrees,,no,,,no,,fp_c
+fp_e12,FLOAT64,Method used to report 12-month enrollment for students enrolled in doctoral and professional programs,,no,,,no,,fp_e12
+re_hr,FLOAT64,Method used to report race and ethnicity - Fall staff,,no,,,no,,re_hr
+re_ef,FLOAT64,Method used to report race and ethnicity - Fall enrollment,,no,,,no,,re_ef
+f_ver,FLOAT64,Identifies form version of GASB or FASB reporting standards,,no,,,no,,f_ver
+cufasb,FLOAT64,Number of component unit columns on GPFS using FASB standards,,no,,,no,,cufasb
+cugasb,FLOAT64,Number of component unit columns on GPFS using GASB standards,,no,,,no,,cugasb
+f1systyp,FLOAT64,"System, Governing Board or Corporate Structure",,no,,,no,,f1systyp
+f1sysnam,STRING,"Name system, governing board or corporate entity.",,no,,,no,,f1sysnam
+fp_ic,FLOAT64,Method used to report degree levels offered -  Institutional characteristics,,no,,,no,,fp_ic
+fp_ef,FLOAT64,Method used to report fall enrollment for students enrolled in doctoral and professional programs,,no,,,no,,fp_ef
+pteeffy,FLOAT64,Status full year enrollment Headcount,,no,,,no,,pteeffy
+pteefia,FLOAT64,Status full year instructional activity,,no,,,no,,pteefia
+pyaid,FLOAT64,Institution offered  athletic aid 2005-06,,no,,,no,,pyaid
+sport1,FLOAT64,Athletic aid for football  in cohort year,,no,,,no,,sport1
+sport2,FLOAT64,Athletic aid for basketball  in cohort year,,no,,,no,,sport2
+sport3,FLOAT64,Athletic aid for baseball  in cohort year,,no,,,no,,sport3
+sport4,FLOAT64,Athletic aid  cross-country and  track  in cohort year,,no,,,no,,sport4
+sport5,FLOAT64,Athletic aid  all other sports combined in cohort year,,no,,,no,,sport5
+ndst2005,FLOAT64,"Natural Disaster identification, 2005-06  (Katrina/Rita)",,no,,,no,,ndst2005
+lock_sa,FLOAT64,Status of Salaries component  when data collection closed,,no,,USD,no,,lock_sa
+prch_sa,FLOAT64,Parent/child  indicator - Salaries,,no,,USD,no,,prch_sa
+idx_sa,FLOAT64,ID number of parent institution - Salaries,,no,,USD,no,,idx_sa
+imp_sa,FLOAT64,Type of Imputation method - Salaries,,no,,USD,no,,imp_sa
+lock_s,FLOAT64,Status of Fall Staff component when data collection closed,,no,,,no,,lock_s
+prch_s,FLOAT64,Parent/child indicator - Fall Staff,,no,,,no,,prch_s
+idx_s,FLOAT64,ID number of parent institution - Fall Staff,,no,,,no,,idx_s
+imp_s,FLOAT64,Type of Imputation method Fall Staff,,no,,,no,,imp_s
+lock_eap,FLOAT64,Status of EAP component  when data collection closed,,no,,,no,,lock_eap
+prch_eap,FLOAT64,Parent/child indicator - EAP,,no,,,no,,prch_eap
+idx_eap,FLOAT64,ID number of parent institution - EAP,,no,,,no,,idx_eap
+imp_eap,FLOAT64,Type of Imputation method - EAP,,no,,,no,,imp_eap
+cohrtaid,FLOAT64,Institution offered  athletic aid in cohort year,,no,,,no,,cohrtaid
+pcf_m,FLOAT64,Parent/child allocation method - Finance,,no,,,no,,pcf_m
+pcffp_m,FLOAT64,Parent/child allocation method - Finance-financial position,,no,,,no,,pcffp_m
+pcffp_f,FLOAT64,Parent/child allocation factor - Finance-financial position,,no,,,no,,pcffp_f
+pcc_m,FLOAT64,Parent/child allocation method - Completions,,no,,,no,,pcc_m
+pcef_m,FLOAT64,Parent/child allocation method - Enrollment,,no,,,no,,pcef_m
+pcgr_m,FLOAT64,Parent/child allocation method - Graduation Rates,,no,,,no,,pcgr_m
+pcsfa_m,FLOAT64,Parent/child allocation method - Student Financial Aid,,no,,,no,,pcsfa_m
+pceap_m,FLOAT64,Parent/child allocation method - EAP,,no,,,no,,pceap_m
+pceap_f,FLOAT64,Parent/child allocation factor - EAP,,no,,,no,,pceap_f
+pcsa_m,FLOAT64,Parent/child allocation method -  Salaries,,no,,USD,no,,pcsa_m
+pcsa_f,FLOAT64,Parent/child allocation factor - Salaries,,no,,USD,no,,pcsa_f
+pcs_m,FLOAT64,Parent/child allocation method - Fall Staff,,no,,,no,,pcs_m
+pcs_f,FLOAT64,Parent/child allocation factor - Fall Staff,,no,,,no,,pcs_f
+rev_sa,FLOAT64,Revision status - Salary component,,no,,USD,no,,rev_sa
+rev_s,FLOAT64,Revision status - Fall Staff component,,no,,,no,,rev_s
+rev_eap,FLOAT64,Revision status - EAP component,,no,,,no,,rev_eap

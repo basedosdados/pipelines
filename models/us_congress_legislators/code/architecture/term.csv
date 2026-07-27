@@ -1,0 +1,20 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_bioguide,STRING,Identificador Bioguide do legislador que exerceu o mandato.,,no,br_bd_diretorios_us.congress_member:id_bioguide,,no,,id.bioguide
+term_type,STRING,"Tipo de mandato (rep para representante/delegado, sen para senador).",,no,,,no,,terms[].type
+term_start,DATE,Data de início do mandato (posse).,,no,,,no,,terms[].start
+term_end,DATE,Data de término do mandato (último dia em exercício).,,no,,,no,,terms[].end
+state,STRING,Código USPS de duas letras do estado ou território representado. Inclui códigos históricos.,,no,br_bd_diretorios_us.state:abbreviation,,no,,terms[].state
+district,INT64,"Número do distrito eleitoral da Câmara (0 para at-large, -1 para desconhecido).",,no,,,no,,terms[].district
+senate_class,INT64,"Classe do assento no Senado (1, 2 ou 3).",,no,,,no,,terms[].class
+state_rank,STRING,Antiguidade do senador no estado (junior ou senior).,,no,,,no,,terms[].state_rank
+party,STRING,Partido político do legislador durante o mandato.,,no,,,no,,terms[].party
+caucus,STRING,Bancada partidária com a qual legisladores independentes se alinham.,,no,,,no,,terms[].caucus
+how,STRING,"Forma de acesso ao mandato (por exemplo, appointment, special-election).",,no,,,no,,terms[].how
+end_type,STRING,Tipo de encerramento do mandato.,,no,,,no,,terms[].end-type
+url,STRING,URL do site oficial do legislador durante o mandato.,,no,,,no,,terms[].url
+address,STRING,"Endereço postal do escritório em Washington, D.C.",,no,,,no,,terms[].address
+phone,STRING,"Telefone do escritório em Washington, D.C.",,no,,,no,,terms[].phone
+fax,STRING,"Fax do escritório em Washington, D.C.",,no,,,no,,terms[].fax
+contact_form,STRING,URL do formulário oficial de contato.,,no,,,no,,terms[].contact_form
+office,STRING,"Sala e edifício do escritório em Washington, D.C.",,no,,,no,,terms[].office
+rss_url,STRING,URL do feed RSS oficial do legislador.,,no,,,no,,terms[].rss_url

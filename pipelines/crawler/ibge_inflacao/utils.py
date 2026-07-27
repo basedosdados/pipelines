@@ -123,6 +123,9 @@ def json_categoria(table_id: str, dataset_id: str) -> defaultdict:
     dados_agrupados = defaultdict(dict)
 
     for indice_bloco in range(len(df)):
+        if not df[indice_bloco]:
+            continue
+
         total_resultados = len(df[indice_bloco][0]["resultados"])
         for indice_resultado in range(total_resultados):
             total_series = len(
@@ -235,6 +238,9 @@ def json_mes_brasil(table_id: str, dataset_id: str) -> defaultdict:
     dados_agrupados = defaultdict(dict)
 
     for indice_bloco in range(len(df)):
+        if not df[indice_bloco]:
+            continue
+
         total_resultados = len(df[indice_bloco][0]["resultados"])
         for indice_resultado in range(total_resultados):
             total_series = len(
@@ -363,6 +369,11 @@ def get_date_api(dataset_id: str, table_id: str) -> tuple[date, str]:
         df = json.load(f)
 
     try:
+        if not df or not df[0]:
+            raise ValueError(
+                f"[ibge_inflacao] Bloco vazio em get_date_api para {dataset_id}.{table_id} — mês provavelmente não publicado."
+            )
+
         chave_serie = next(
             iter(df[0][0]["resultados"][0]["series"][0]["serie"].keys())
         )
@@ -375,7 +386,7 @@ def get_date_api(dataset_id: str, table_id: str) -> tuple[date, str]:
 
     except Exception as e:
         log(f"Não há dados recentes na API: {e}")
-        return task_get_api_most_recent_date.run(
+        return task_get_api_most_recent_date.fn(
             dataset_id=dataset_id, table_id=table_id, date_format="%Y-%m"
         )
 
@@ -384,7 +395,7 @@ def next_date_update(
     dataset_id: str,
     table_id: str,
 ) -> str:
-    dt = task_get_api_most_recent_date.run(
+    dt = task_get_api_most_recent_date.fn(
         dataset_id=dataset_id, table_id=table_id, date_format="%Y-%m"
     )
 

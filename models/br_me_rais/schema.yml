@@ -50,6 +50,7 @@ models:
             - indicador_cei_vinculado
             - indicador_trabalho_parcial
             - indicador_trabalho_intermitente
+            - indicador_vinculo_abandonado
             - faixa_remuneracao_media_sm
             - faixa_remuneracao_dezembro_sm
             - tipo_salario
@@ -132,6 +133,8 @@ models:
         description: Indicador Trabalho Parcial
       - name: indicador_trabalho_intermitente
         description: Indicador Trabalho Intermitente
+      - name: indicador_vinculo_abandonado
+        description: Indicador de Vínculo Abandonado
       - name: faixa_remuneracao_media_sm
         description: Faixa Remuneração Média (Salários Mínimos)
       - name: valor_remuneracao_media_sm
@@ -224,13 +227,19 @@ models:
         description: Classificação Nacional de Atividades Econômicas (CNAE) 1.0
       - name: cnae_2
         description: Classificação Nacional de Atividades Econômicas (CNAE) 2.0
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: classe
+              ignore_values: ['99999', '86305']
+              tags: [cnae_2]
       - name: cnae_2_subclasse
         description: Classificação Nacional de Atividades Econômicas (CNAE) 2.0 Subclasse
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__cnae_2')
               field: subclasse
-              ignore_values: ['9999999', '8630505']
+              ignore_values: ['9999997', 00000-1, '8630505', '3312101', '9999999']  # cnae excluídas: https://www.lefisc.com.br/dim/plantoes/22-07-2020/Decreto10410.htm
               tags: [cnae_2_subclasse]
       - name: tamanho_estabelecimento
         description: Tamanho do Estabelecimento

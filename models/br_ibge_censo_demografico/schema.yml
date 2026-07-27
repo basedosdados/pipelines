@@ -2220,7 +2220,7 @@ models:
       - name: id_setor_censitario
         description: ID do setor censitário
       - name: sigla_uf
-        description: Sigla do Estado
+        description: Sigla da Unidade da Federação
       - name: v001
         description: Domicílios particulares permanentes ou pessoas responsáveis por
           domicílios particulares permanentes
