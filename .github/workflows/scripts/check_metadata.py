@@ -74,7 +74,7 @@ def get_datasets_and_tables_for_modified_files(
 
 
 def get_bigquery_columns(
-    dataset: str, table: str, billing_project_id: str = "basedosdados-dev"
+    dataset: str, table: str, billing_project_id: str = "basedosdados"
 ) -> pd.DataFrame:
     """
     Fetch columns metadata from BigQuery INFORMATION_SCHEMA for a given dataset and table.
@@ -145,8 +145,8 @@ def evaluate_row(row: pd.Series) -> Evaluate:
     elif row["_merge"] == "right_only":
         errors.append(NotFoundError(message="Column not found in BigQuery"))
     else:
-        bq_type = str(row["data_type"]).lower()
-        api_type = str(row["bigquery_type"]).lower()
+        bq_type = normalize_type(str(row["data_type"]))
+        api_type = normalize_type(str(row["bigquery_type"]))
         if bq_type != api_type:
             errors.append(TypeError(lhs=bq_type, rhs=api_type))
 
@@ -193,7 +193,9 @@ def merge_metadata(dataset: str, table_name: str) -> pd.DataFrame:
     return df_merged
 
 
-def validate_table_metadata(dataset: str, table_name: str):
+def validate_table_metadata(
+    dataset: str, table_name: str
+) -> tuple[str, str, list[Evaluate]]:
     """
     Validate metadata of a single table.
     """
