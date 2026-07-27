@@ -242,14 +242,14 @@ def raise_if_metadata_errors(results: list[tuple[str, str, list[Evaluate]]]):
         has_erros = any(i for i in evaluated_columns if len(i.errors) > 0)
         if has_erros:
             error_exists = True
-            print(f"Metadata errros for {dataset}.{table_name}")
+            print(f"Metadata error for {dataset}.{table_name}")
             for col in evaluated_columns:
                 if len(col.errors) > 0:
                     print(f"  Column `{col.column_name}`")
                     for err in col.errors:
                         match err:
                             case NotFoundError(message):
-                                print(f"     Cloumn not found: {message}")
+                                print(f"     Column not found: {message}")
                             case DescriptionError(lhs, rhs):
                                 bq, api = colored_char_diff(lhs, rhs)
                                 print(f"     BQ: `{bq}`")
