@@ -43,7 +43,7 @@ with
             id_municipio,
             sigla_uf,
             regexp_replace(normalize(upper(nome), nfd), r'\pM', '') nome_norm
-        from {{ ref("br_bd_diretorios_brasil__municipio") }}
+        from basedosdados.br_bd_diretorios_brasil.municipio
     ),
 
     staging_norm as (
