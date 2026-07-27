@@ -166,7 +166,7 @@ async def download(
     save_path: Path | str,
     chunk_size=15 * 1024 * 1024,
     max_retries=5,
-    max_parallel=12,
+    max_parallel=8,
     timeout=5 * 60,
 ):
     """
@@ -180,7 +180,7 @@ async def download(
         save_path (Path|str): Destination file path; pre-allocated to the full content length.
         chunk_size (int): The size of each chunk in bytes (default: 15 MB).
         max_retries (int): Maximum number of retries allowed for each chunk (default: 5).
-        max_parallel (int): Maximum number of parallel downloads (default: 5).
+        max_parallel (int): Maximum number of parallel downloads (default: 4).
         timeout (int): Timeout for each HTTP request, in seconds (default: 5 minutes).
 
     Raises:
