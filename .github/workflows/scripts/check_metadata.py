@@ -259,7 +259,7 @@ def raise_if_metadata_errors(results: list[tuple[str, str, list[Evaluate]]]):
                                 print(f"    API: `{rhs}`\n")
 
     if error_exists:
-        print("⚠️ Metadata discrepancies found. See the ouput")
+        print("⚠️ Metadata discrepancies found. See the output")
         exit(1)
     else:
         print("✅ All tables are consistent with the API.")
