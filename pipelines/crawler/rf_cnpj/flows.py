@@ -34,6 +34,10 @@ def _run_rf_cnpj(
     force_run: bool,
     chunk_size: int = 100000,
     folder_date: str | None = None,
+    download_chunk_size: int = 15 * 1024 * 1024,
+    download_max_retries: int = 5,
+    download_max_parallel: int = 5,
+    download_timeout: int = 5 * 60,
 ) -> None:
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
@@ -60,6 +64,10 @@ def _run_rf_cnpj(
         folder_date=folder_date,
         last_modified_date=last_modified_date,
         chunk_size=chunk_size,
+        download_chunk_size=download_chunk_size,
+        download_max_retries=download_max_retries,
+        download_max_parallel=download_max_parallel,
+        download_timeout=download_timeout,
     )
 
     upload_to_gcs(

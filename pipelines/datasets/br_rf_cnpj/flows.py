@@ -22,6 +22,10 @@ def _rf_cnpj_flow(table_id: str, cron: str):
         force_run: bool = False,
         chunk_size: int = 100000,
         folder_date: str | None = None,
+        download_chunk_size: int = 15 * 1024 * 1024,
+        download_max_retries: int = 5,
+        download_max_parallel: int = 5,
+        download_timeout: int = 5 * 60,
     ) -> None:
         _run_rf_cnpj(
             dataset_id=dataset_id,
@@ -33,6 +37,10 @@ def _rf_cnpj_flow(table_id: str, cron: str):
             force_run=force_run,
             chunk_size=chunk_size,
             folder_date=folder_date,
+            download_chunk_size=download_chunk_size,
+            download_max_retries=download_max_retries,
+            download_max_parallel=download_max_parallel,
+            download_timeout=download_timeout,
         )
 
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
