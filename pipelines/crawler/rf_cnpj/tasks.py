@@ -50,6 +50,10 @@ def main(
     folder_date: datetime.datetime,
     last_modified_date: datetime.date,
     chunk_size: int = 100000,
+    download_chunk_size: int = 15 * 1024 * 1024,
+    download_max_retries: int = 5,
+    download_max_parallel: int = 5,
+    download_timeout: int = 5 * 60,
 ) -> str:
     """
     Performs the download, processing, and organization of CNPJ data.
@@ -85,7 +89,16 @@ def main(
 
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)
-                    asyncio.run(download_unzip_csv(url_download, input_path))
+                    asyncio.run(
+                        download_unzip_csv(
+                            url_download,
+                            input_path,
+                            chunk_size=download_chunk_size,
+                            max_retries=download_max_retries,
+                            max_parallel=download_max_parallel,
+                            timeout=download_timeout,
+                        )
+                    )
 
                     if table_configs["table_name"] == "Estabelecimentos":
                         process_csv_estabelecimentos(

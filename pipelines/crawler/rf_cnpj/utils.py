@@ -166,7 +166,7 @@ async def download(
     save_path: Path | str,
     chunk_size=15 * 1024 * 1024,
     max_retries=5,
-    max_parallel=8,
+    max_parallel=5,
     timeout=5 * 60,
 ):
     """
@@ -333,7 +333,14 @@ async def download_chunk(
 
 
 # ! Executa o download do zip file
-async def download_unzip_csv(url: str, path: Path | str) -> None:
+async def download_unzip_csv(
+    url: str,
+    path: Path | str,
+    chunk_size: int = 15 * 1024 * 1024,
+    max_retries: int = 5,
+    max_parallel: int = 5,
+    timeout: int = 5 * 60,
+) -> None:
     """
     Downloads a ZIP file from a URL and extracts its content.
 
@@ -343,7 +350,14 @@ async def download_unzip_csv(url: str, path: Path | str) -> None:
     """
     log(f"Baixando o arquivo {url}")
     save_path = path / f"{Path(url).stem}.zip"
-    await download(url, save_path)
+    await download(
+        url,
+        save_path,
+        chunk_size=chunk_size,
+        max_retries=max_retries,
+        max_parallel=max_parallel,
+        timeout=timeout,
+    )
 
     try:
         with zipfile.ZipFile(save_path) as z:
