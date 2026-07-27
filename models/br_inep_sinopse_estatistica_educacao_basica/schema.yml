@@ -372,6 +372,7 @@ models:
             - id_municipio
             - etapa_ensino
             - tipo_classe
+            - rede
       - not_null_proportion_multiple_columns:
           at_least: 0.95
     columns:

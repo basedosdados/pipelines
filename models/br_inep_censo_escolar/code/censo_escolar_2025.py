@@ -421,6 +421,7 @@ tb = bd.Table(dataset_id="br_inep_censo_escolar", table_id="escola")
 
 # %%
 tb.create(
+    # pyrefly: ignore [bad-argument-type]
     OUTPUT / "escola",
     if_table_exists="replace",
     if_storage_data_exists="replace",
