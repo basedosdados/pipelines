@@ -18,13 +18,16 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from pipelines.crawler.bndes.constants import constants
+from pipelines.crawler.bndes.constants import (
+    constants,
+    constants_administracao_publica,
+)
 from pipelines.utils.utils import log
 
 CHUNKSIZE = 200_000
 
 
-def get_source_last_modified() -> datetime:
+def get_source_last_modified(url: str | None = None) -> datetime:
     """
     Le o `last_modified` do recurso no CKAN (sinal de atualizacao do poll).
 
@@ -34,7 +37,10 @@ def get_source_last_modified() -> datetime:
     Returns:
         datetime: Data/hora da ultima publicacao do CSV no portal.
     """
-    response = httpx.get(constants.RESOURCE_SHOW_URL.value)
+
+    url = url or constants.RESOURCE_SHOW_URL.value
+
+    response = httpx.get(url)
 
     response.raise_for_status()
 
@@ -70,7 +76,9 @@ def parse_decimal_ptbr(s: pd.Series) -> pd.Series:
 
 
 def download_csv(
-    dest: Path, url: str | None = None, chunk_size: int = 1024 * 1024
+    dest: Path,
+    url: str | None = None,
+    chunk_size: int = 1024 * 1024,
 ) -> Path:
     """
     Baixa o CSV consolidado streamando p/ disco, com resume via Range.
@@ -267,6 +275,97 @@ def clean(csv_path: Path, output_dir: Path) -> Path:
 
     log(
         f"Limpeza concluída: {total_rows} linhas em {len(writers)} "
+        f"partições (anos) -> {output_dir}"
+    )
+    return output_dir
+
+
+def _transform_administracao_publica(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Limpa o CSV de operacoes_administracao_publica (tudo string na entrada).
+
+    Filtra so as operacoes no nivel CONTRATADA, renomeia as colunas para os nomes
+    BD, normaliza a UF, deriva o ano da contratacao e devolve as colunas de
+    constants_administracao_publica.ORDER_COLUMNS.
+
+    Args:
+        df (pd.DataFrame): CSV cru lido com dtype=str.
+
+    Returns:
+        pd.DataFrame: colunas de ORDER_COLUMNS (inclui `ano`), so linhas CONTRATADA.
+    """
+    df = df.rename(columns=constants_administracao_publica.RENAME.value)
+    df = df[
+        df["nivel_atual"]
+        == constants_administracao_publica.NIVEL_ATUAL_KEEP.value
+    ]
+
+    df = df.apply(lambda c: c.str.strip())
+
+    df["sigla_uf"] = df["sigla_uf"].apply(lambda x: pd.NA if x == "-" else x)
+
+    df["ano"] = pd.to_datetime(
+        df["data_nivel_atual"], format="%Y-%m-%d", errors="coerce"
+    ).dt.year.astype("Int64")
+
+    n_sem_ano = int(df["ano"].isna().sum())
+    if n_sem_ano:
+        log(
+            f"AVISO: {n_sem_ano} linha(s) com data_nivel_atual inválida "
+            "(ano nulo) — descartada(s) do particionamento."
+        )
+        df = df[df["ano"].notna()]
+
+    df["nome_municipio"] = df["nome_municipio"].apply(
+        lambda x: pd.NA if x in ("-", "DIVERSOS", "SEM MUNICIPIO") else x
+    )
+
+    return df[constants_administracao_publica.ORDER_COLUMNS.value]
+
+
+def clean_administracao_publica(csv_path: Path, output_dir: Path) -> Path:
+    """
+    Le o CSV de operacoes_administracao_publica e grava Parquet particionado por ano.
+
+    Arquivo pequeno (~4,9 mil linhas) -> le inteiro (sem chunk). Grava
+    output_dir/ano=<ano>/data.parquet com constants_administracao_publica.SCHEMA
+    (staging all-string).
+
+    Args:
+        csv_path (Path): CSV bruto baixado.
+        output_dir (Path): raiz de saida; grava output_dir/ano=<ano>/data.parquet.
+
+    Returns:
+        Path: `output_dir`.
+    """
+    shutil.rmtree(output_dir, ignore_errors=True)
+    df = pd.read_csv(csv_path, sep=";", encoding="cp1252", dtype=str)
+
+    df = _transform_administracao_publica(df)
+
+    columns = [
+        c
+        for c in constants_administracao_publica.ORDER_COLUMNS.value
+        if c != "ano"
+    ]
+
+    for year, group in df.groupby("ano"):
+        table = pa.Table.from_pandas(
+            group[columns],
+            schema=constants_administracao_publica.SCHEMA.value,
+            preserve_index=False,
+        )
+
+        table_path = output_dir / f"ano={int(year)}"
+
+        table_path.mkdir(parents=True, exist_ok=True)
+
+        pq.write_table(
+            table, table_path / "data.parquet", compression="snappy"
+        )
+
+    log(
+        f"Limpeza concluída: {len(df)} linhas em {df['ano'].nunique()} "
         f"partições (anos) -> {output_dir}"
     )
     return output_dir
