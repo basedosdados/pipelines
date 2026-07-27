@@ -12,9 +12,13 @@ from pathlib import Path
 from prefect import task
 
 from pipelines.constants import constants as global_constants
-from pipelines.crawler.bndes.constants import constants
+from pipelines.crawler.bndes.constants import (
+    constants,
+    constants_administracao_publica,
+)
 from pipelines.crawler.bndes.utils import (
     clean,
+    clean_administracao_publica,
     download_csv,
     get_source_last_modified,
 )
@@ -42,9 +46,12 @@ def download_source_csv() -> str:
     Returns:
         str: caminho local do CSV baixado.
     """
+
     dest = Path(constants.INPUT_PATH.value) / constants.CSV_FILENAME.value
 
-    dest_path: Path = download_csv(dest)
+    dest_path: Path = download_csv(
+        dest,
+    )
 
     return str(dest_path)
 
@@ -64,5 +71,59 @@ def clean_and_partition(csv_path: str) -> str:
     output_dir = Path(constants.OUTPUT_PATH.value) / constants.TABLE_ID.value
 
     clean(csv_path=Path(csv_path), output_dir=output_dir)
+
+    return str(output_dir)
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def get_source_max_date_administracao_publica() -> datetime:
+    """
+    Le o last_modified do recurso CKAN de operacoes_administracao_publica (poll).
+
+    Returns:
+        datetime: data/hora da ultima publicacao do CSV no portal.
+    """
+    return get_source_last_modified(
+        constants_administracao_publica.RESOURCE_SHOW_URL.value
+    )
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def download_administracao_publica_csv() -> str:
+    """
+    Baixa o CSV de operacoes_administracao_publica para o INPUT_PATH.
+
+    Returns:
+        str: caminho local do CSV baixado.
+    """
+    dest = (
+        Path(constants_administracao_publica.INPUT_PATH.value)
+        / constants_administracao_publica.CSV_FILENAME.value
+    )
+
+    downloaded_file_path = download_csv(
+        dest=dest, url=constants_administracao_publica.DOWNLOAD_URL.value
+    )
+
+    return str(downloaded_file_path)
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def clean_and_partition_administracao_publica(csv_path: str) -> str:
+    """
+    Limpa o CSV de operacoes_administracao_publica e grava Parquet por ano.
+
+    Args:
+        csv_path (str): caminho do CSV baixado.
+
+    Returns:
+        str: raiz das particoes gravadas (output_dir), p/ o upload_to_gcs.
+    """
+    output_dir = (
+        Path(constants_administracao_publica.OUTPUT_PATH.value)
+        / constants_administracao_publica.TABLE_ID.value
+    )
+
+    clean_administracao_publica(csv_path=Path(csv_path), output_dir=output_dir)
 
     return str(output_dir)
