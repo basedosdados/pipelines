@@ -146,3 +146,106 @@ class constants(Enum):
             ]
         ]
     )
+
+
+class constants_administracao_publica(Enum):
+    """
+    Config da 2a tabela do conjunto: operacoes_administracao_publica.
+
+    Fonte: conjunto CKAN "operacoes-com-entes-da-administracao-publica-direta".
+    Decisoes de modelagem em task_davi/bndes/plano_execucao.md (e no README do
+    conjunto). Pontos que importam pra quem for implementar o transform:
+    - NIVEL_ATUAL_KEEP: a tabela filtra so 'CONTRATADA' (a fonte traz o funil
+      inteiro). Filtro isolado numa linha do transform; a coluna nivel_atual
+      permanece no schema (fica constante) pra reverter facil.
+    - Valores em REAIS (nao milhares) — sem x1000. Sao inteiros, sem virgula
+      decimal na fonte (parse_decimal_ptbr NAO e necessario aqui).
+    - Geografia: uf -> sigla_uf ('-' -> NA); municipio (NOME) vira nome_municipio
+      no STAGING; o id_municipio e resolvido no modelo dbt (join normalizado ao
+      diretorio) — por isso o staging guarda nome_municipio, nao id_municipio.
+    - RENAME/ORDER_COLUMNS/SCHEMA transcrevem a arquitetura aprovada. Confira o
+      RENAME contra o header real do CSV antes de rodar.
+    """
+
+    DATASET_ID = "br_bndes_operacoes_contratadas"
+    TABLE_ID = "operacoes_administracao_publica"
+    CKAN_RESOURCE_ID = "ea4e5da3-e586-4225-a460-c5aa09e36100"
+
+    RESOURCE_SHOW_URL = (
+        "https://dadosabertos.bndes.gov.br/api/3/action/resource_show"
+        "?id=ea4e5da3-e586-4225-a460-c5aa09e36100"
+    )
+    DOWNLOAD_URL = (
+        "https://dadosabertos.bndes.gov.br/dataset/"
+        "e1612ac6-f70d-4228-ba87-283848f432e3/resource/"
+        "ea4e5da3-e586-4225-a460-c5aa09e36100/download/"
+        "operacoes-com-entes-da-administracao-publica-direta-"
+        "operacoes-com-entes-da-administracao-direta.csv"
+    )
+    LAST_MODIFIED_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
+
+    # workspace compartilhado com a irma (o clean escreve em OUTPUT_PATH/TABLE_ID,
+    # entao as duas tabelas nao colidem).
+    INPUT_PATH = "/tmp/input/br_bndes_operacoes_contratadas/"
+    OUTPUT_PATH = "/tmp/output/br_bndes_operacoes_contratadas/"
+    CSV_FILENAME = "operacoes_administracao_publica.csv"
+
+    # so filtra este nivel (a fonte traz PERSPECTIVA/C-CONSULTA/EM ANALISE/
+    # APROVADA/CONTRATADA; ver dicionario).
+    NIVEL_ATUAL_KEEP = "CONTRATADA"
+
+    # header snake_case do CSV -> nome BD. Nao ha coluna a dropar (todas entram,
+    # renomeadas). municipio (nome) vira nome_municipio e e resolvido pra
+    # id_municipio no dbt.
+    RENAME = {
+        "ente_publico": "ente_publico",
+        "uf": "sigla_uf",
+        "municipio": "nome_municipio",
+        "programa": "programa",
+        "modalidade_operacional": "modalidade_operacional",
+        "data_do_nivel_atual": "data_nivel_atual",
+        "nivel_atual": "nivel_atual",
+        "situacao_da_operacao": "situacao_operacao",
+        "objetivo_do_projeto": "descricao_projeto",
+        "valor_da_operacao_historico_em_reais": "valor_operacao",
+        "valor_desembolsado_em_reais": "valor_desembolsado",
+        "saldo_a_liberar_atualizado_em_reais": "valor_saldo_liberar",
+    }
+
+    # ordem da arquitetura; inclui `ano` (derivado de data_nivel_atual, coluna de
+    # particao). SCHEMA (staging all-string) NAO inclui `ano`.
+    ORDER_COLUMNS = [
+        "ano",
+        "sigla_uf",
+        "nome_municipio",
+        "ente_publico",
+        "programa",
+        "modalidade_operacional",
+        "data_nivel_atual",
+        "nivel_atual",
+        "situacao_operacao",
+        "descricao_projeto",
+        "valor_operacao",
+        "valor_desembolsado",
+        "valor_saldo_liberar",
+    ]
+
+    SCHEMA = pa.schema(
+        [
+            (col, pa.string())
+            for col in [
+                "sigla_uf",
+                "nome_municipio",
+                "ente_publico",
+                "programa",
+                "modalidade_operacional",
+                "data_nivel_atual",
+                "nivel_atual",
+                "situacao_operacao",
+                "descricao_projeto",
+                "valor_operacao",
+                "valor_desembolsado",
+                "valor_saldo_liberar",
+            ]
+        ]
+    )
