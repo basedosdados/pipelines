@@ -4,7 +4,7 @@
     to,
     field,
     ignore_values=None,
-    proportion_allowed_failures=0.05
+    proportion_allowed_failures=0.00
 ) %}
 
     {{ config(severity="error") }}
@@ -30,7 +30,9 @@
             select
                 count(*) as total_missing,
                 (select count(*) from child) as total_child_records,
-                round(count(*) / (select count(*) from child), 2) as failure_rate
+                round(
+                    safe_divide(count(*), (select count(*) from child)), 2
+                ) as failure_rate
             from validation
         )
 

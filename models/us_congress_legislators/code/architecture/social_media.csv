@@ -1,0 +1,10 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_bioguide,STRING,Identificador Bioguide do legislador.,,no,br_bd_diretorios_us.congress_member:id_bioguide,,no,,id.bioguide
+twitter,STRING,Nome de usuário oficial no Twitter/X.,,no,,,no,,social.twitter
+twitter_id,STRING,Identificador numérico da conta no Twitter/X.,,no,,,no,,social.twitter_id
+facebook,STRING,Nome de usuário oficial no Facebook.,,no,,,no,,social.facebook
+instagram,STRING,Nome de usuário oficial no Instagram.,,no,,,no,,social.instagram
+instagram_id,STRING,Identificador numérico da conta no Instagram.,,no,,,no,,social.instagram_id
+youtube,STRING,Nome de usuário oficial no YouTube.,,no,,,no,,social.youtube
+youtube_id,STRING,Identificador do canal oficial no YouTube.,,no,,,no,,social.youtube_id
+mastodon,STRING,Identificador no Mastodon (formato @usuario@instancia).,,no,,,no,,social.mastodon

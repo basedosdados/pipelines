@@ -1,0 +1,25 @@
+---
+name: 🧹 chore
+description: Manutenção, infra, refactor, migração de dependências ou ajustes de CI
+title: '[chore] '
+labels: [chore]
+body:
+  - type: textarea
+    id: descricao
+    attributes:
+      label: Descrição
+      description: O que precisa ser feito e por quê.
+    validations:
+      required: true
+  - type: textarea
+    id: escopo
+    attributes:
+      label: Escopo afetado
+      description: Diretórios, módulos, flows, Actions ou dependências que serão modificados.
+    validations:
+      required: true
+  - type: textarea
+    id: referencias
+    attributes:
+      label: Referências
+      description: Links para issues relacionadas, documentação externa ou changelogs.

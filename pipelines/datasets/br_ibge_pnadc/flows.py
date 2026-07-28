@@ -1,112 +1,123 @@
 """
-Flows for br_ibge_pnadc
+Flow br_ibge_pnadc — Prefect 3.
 """
 
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from prefect import flow
 
-from pipelines.constants import constants
-from pipelines.datasets.br_ibge_pnadc.schedules import every_trimester
-from pipelines.datasets.br_ibge_pnadc.tasks import (
+from pipelines.crawler.ibge_pnadc.tasks import (
     build_partitions,
     build_table_paths,
     get_data_source_date_and_url,
 )
-from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.domain import (
+    AllFree,
+    DateFormat,
+    YearQuarter,
+)
 from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
+    commit_source_update_task,
+    poll_source_for_update_task,
+    register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    rename_current_flow_run_dataset_table,
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 from pipelines.utils.to_download.tasks import download_async
 
-with Flow(name="br_ibge_pnadc.microdados", code_owners=["luiz"]) as br_pnadc:
-    # Parameters
-    dataset_id = Parameter(
-        "dataset_id", default="br_ibge_pnadc", required=False
-    )
-    table_id = Parameter("table_id", default="microdados", required=False)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
+@flow(
+    name="br_ibge_pnadc__microdados",
+    log_prints=True,
+)
+def br_ibge_pnadc__microdados(
+    dataset_id: str = "br_ibge_pnadc",
+    table_id: str = "microdados",
+    materialize_after_dump: bool = False,
+    dbt_alias: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    data_source_max_date, url = get_data_source_date_and_url(
-        upstream_tasks=[rename_flow_run]
-    )
+    data_source_max_date, url = get_data_source_date_and_url()
 
-    outdated = check_if_data_is_outdated(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        date_type="last_update_date",
-        data_source_max_date=data_source_max_date,
-        upstream_tasks=[data_source_max_date],
-    )
-
-    with case(outdated, True):
-        input_dir, output_dir = build_table_paths(
-            table_id=table_id, upstream_tasks=[outdated]
-        )
-        input_filepath = download_async(
-            url, input_dir, "zip", upstream_tasks=[input_dir, output_dir]
-        )
-
-        output_filepath = build_partitions(
-            input_dir, output_dir, upstream_tasks=[input_filepath]
-        )
-
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=output_dir,
+    if not force_run:
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[output_filepath],
+            source_max_date=data_source_max_date,
+            env="prod",
+            date_format="%Y-%m-%d",
         )
+        if not has_new_data:
+            return
 
-        wait_for_materialization = run_dbt(
+    input_dir, output_dir = build_table_paths(table_id=table_id)
+    download_async(url, input_dir, "zip")
+    build_partitions(input_dir, output_dir)
+
+    upload_to_gcs(
+        data_path=output_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=output_dir,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dbt_alias=dbt_alias,
-            dbt_command="run/test",
-            disable_elementary=False,
-            upstream_tasks=[wait_upload_table],
+            coverage=AllFree(
+                date_column=YearQuarter(year="ano", quarter="trimestre"),
+                date_format=DateFormat.YEAR_MONTH,
+            ),
+            env="prod",
+            bq_project="basedosdados",
         )
 
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_dev_and_upload_to_gcs(
-                data_path=output_dir,
+        if data_source_max_date is not None:
+            commit_source_update_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
+                source_max_date=data_source_max_date,
+                env="prod",
+                date_format="%Y-%m-%d",
             )
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_column_name={"year": "ano", "quarter": "trimestre"},
-                    date_format="%Y-%m",
-                    coverage_type="all_free",
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
 
-br_pnadc.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_pnadc.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-br_pnadc.schedule = every_trimester
+
+br_ibge_pnadc__microdados.deploy_schedules = [
+    {"cron": "0 5 15-31 2,5,8,11 *", "timezone": "America/Sao_Paulo"}
+]

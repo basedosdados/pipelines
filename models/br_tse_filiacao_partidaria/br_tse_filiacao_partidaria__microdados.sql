@@ -11,6 +11,7 @@
         cluster_by=["sigla_uf"],
     )
 }}
+
 with
     tabela as (
         select

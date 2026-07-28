@@ -1,0 +1,40 @@
+---
+name: 🔄 update
+description: Atualização ou re-materialização de base já publicada
+title: '[update] '
+labels: [update]
+body:
+  - type: input
+    id: tabela
+    attributes:
+      label: Tabela(s) a atualizar
+      description: Identificador no padrão `dataset_id.table_id`. Liste múltiplas
+        se aplicável.
+      placeholder: br_me_rais.microdados_vinculos
+    validations:
+      required: true
+  - type: dropdown
+    id: motivo
+    attributes:
+      label: Motivo da atualização
+      options:
+        - Nova versão dos dados na fonte
+        - Re-materialização agendada
+        - Correção de bug ou inconsistência detectada
+        - Outro (descrever abaixo)
+    validations:
+      required: true
+  - type: textarea
+    id: descricao
+    attributes:
+      label: Descrição
+      description: Período coberto pela atualização, novidades em relação ao já publicado,
+        e qualquer ajuste necessário no flow.
+    validations:
+      required: true
+  - type: textarea
+    id: referencias
+    attributes:
+      label: Referências
+      description: Links para a fonte, issues relacionadas (ex. `[databug]` que motivou
+        esta atualização), ou registros de suporte.

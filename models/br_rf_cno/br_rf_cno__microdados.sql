@@ -22,7 +22,7 @@ with
             ) as data_inicio_responsabilidade,
             safe_cast(id_pais as string) as id_pais,
             safe_cast(nome_pais as string) as nome_pais,
-            safe_cast(sigla_uf as string) as sigla_uf,
+            safe_cast(c.sigla as string) as sigla_uf,
             safe_cast(b.id_municipio as string) as id_municipio,
             safe_cast(id_cno as string) as id_cno,
             safe_cast(id_cno_vinculado as string) as id_cno_vinculado,
@@ -50,6 +50,9 @@ with
             ) b
             on ltrim(microdados.id_municipio_rf, '0') = b.id_municipio_rf
 
+        left join
+            basedosdados.br_bd_diretorios_brasil.uf as c
+            on microdados.sigla_uf = c.sigla
         {% if is_incremental() %}
             where safe_cast(data as date) > (select max(data_extracao) from {{ this }})
         {% endif %}

@@ -30,7 +30,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_pais_iso3
+              field: sigla_iso3
       - name: state_production
         description: State acronym where the cattle production occurred
       - name: municipality_id_production
@@ -62,7 +62,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_pais_iso3
+              field: sigla_iso3
       - name: country_first_import_name
         description: Country of destination of the first import
       - name: economic_bloc
@@ -162,7 +162,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_pais_iso3
+              field: sigla_iso3
       - name: state_production
         description: State acronym where the cattle production occurred
       - name: municipality_name_production
@@ -199,7 +199,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_pais_iso3
+              field: sigla_iso3
       - name: country_first_import_name
         description: Country of destination of the first import
       - name: economic_bloc_first_import_name

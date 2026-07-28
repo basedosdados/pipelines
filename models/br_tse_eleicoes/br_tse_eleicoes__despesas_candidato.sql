@@ -17,7 +17,7 @@ select
     safe_cast(id_eleicao as string) id_eleicao,
     safe_cast(tipo_eleicao as string) tipo_eleicao,
     safe_cast(data_eleicao as date) data_eleicao,
-    safe_cast(sigla_uf as string) sigla_uf,
+    nullif(safe_cast(sigla_uf as string), '') sigla_uf,
     safe_cast(id_municipio as string) id_municipio,
     safe_cast(id_municipio_tse as string) id_municipio_tse,
     safe_cast(titulo_eleitoral_candidato as string) titulo_eleitoral_candidato,

@@ -13,7 +13,7 @@
 
 select
     safe_cast(ano as int64) ano,
-    safe_cast(sigla_uf as string) sigla_uf,
+    nullif(safe_cast(sigla_uf as string), '') sigla_uf,
     safe_cast(id_eleicao as string) id_eleicao,
     safe_cast(tipo_eleicao as string) tipo_eleicao,
     safe_cast(data_eleicao as date) data_eleicao,

@@ -2,11 +2,7 @@
     config(
         alias="cadastro_enderecos",
         schema="br_ibge_censo_2022",
-        partition_by={
-            "field": "sigla_uf",
-            "data_type": "string",
-        },
-        cluster_by=["id_municipio"],
+        cluster_by=["sigla_uf", "id_municipio"],
     )
 }}
 

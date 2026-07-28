@@ -1,6 +1,8 @@
-# register tasks
+"""
+Tasks for br_camara_dados_abertos — Prefect 3.
+"""
+
 import os
-from datetime import timedelta
 
 import requests
 from prefect import task
@@ -14,13 +16,11 @@ from pipelines.crawler.camara_dados_abertos.utils import (
 )
 from pipelines.utils.utils import log
 
-# ---------------------------------------> DADOS CAMARA ABERTA - UNIVERSAL
+TASK_RETRIES = constants.TASK_MAX_RETRIES.value
+TASK_RETRY_DELAY_SECONDS = constants.TASK_RETRY_DELAY.value
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def save_data(table_id: str) -> str:
     if not os.path.exists(f"{constants_camara.OUTPUT_PATH.value}{table_id}"):
         os.makedirs(f"{constants_camara.OUTPUT_PATH.value}{table_id}")
@@ -135,10 +135,7 @@ def save_data(table_id: str) -> str:
     return f"{constants_camara.OUTPUT_PATH.value}{table_id}"
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 def check_if_url_is_valid(table_id: str) -> bool:
     if (
         requests.get(

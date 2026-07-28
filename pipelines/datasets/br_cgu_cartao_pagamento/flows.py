@@ -1,59 +1,48 @@
-from copy import copy
+"""
+Flows para br_cgu_cartao_pagamento — Prefect 3.
+"""
 
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from prefect import flow
 
-from pipelines.constants import constants
-from pipelines.crawler.cgu.flows import flow_cgu_cartao_pagamento
-from pipelines.datasets.br_cgu_cartao_pagamento.schedules import (
-    every_day_microdados_compras_centralizadas,
-    every_day_microdados_defesa_civil,
-    every_day_microdados_governo_federal,
-)
+from pipelines.crawler.cgu.flows import _run_cgu_cartao_pagamento
 
-br_cgu_cartao_pagamento__governo_federal = copy(flow_cgu_cartao_pagamento)
-br_cgu_cartao_pagamento__governo_federal.name = (
-    "br_cgu_cartao_pagamento.governo_federal"
-)
-br_cgu_cartao_pagamento__governo_federal.code_owners = ["trick"]
-br_cgu_cartao_pagamento__governo_federal.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_cgu_cartao_pagamento__governo_federal.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_cgu_cartao_pagamento__governo_federal.schedule = (
-    every_day_microdados_governo_federal
-)
 
-br_cgu_cartao_pagamento__defesa_civil = copy(flow_cgu_cartao_pagamento)
-br_cgu_cartao_pagamento__defesa_civil.name = (
-    "br_cgu_cartao_pagamento.defesa_civil"
-)
-br_cgu_cartao_pagamento__defesa_civil.code_owners = ["trick"]
-br_cgu_cartao_pagamento__defesa_civil.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_cgu_cartao_pagamento__defesa_civil.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_cgu_cartao_pagamento__defesa_civil.schedule = (
-    every_day_microdados_defesa_civil
-)
+def _flow_factory(table_id: str, cron: str):
+    @flow(
+        name=f"br_cgu_cartao_pagamento__{table_id}",
+        log_prints=True,
+    )
+    def _flow(
+        dataset_id: str = "br_cgu_cartao_pagamento",
+        table_id: str = table_id,
+        relative_month: int = 1,
+        materialize_after_dump: bool = True,
+        dbt_alias: bool = True,
+        update_metadata: bool = True,
+        target: str = "prod",
+        force_run: bool = False,
+    ) -> None:
+        _run_cgu_cartao_pagamento(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            relative_month=relative_month,
+            materialize_after_dump=materialize_after_dump,
+            dbt_alias=dbt_alias,
+            update_metadata=update_metadata,
+            target=target,
+            force_run=force_run,
+        )
 
-br_cgu_cartao_pagamento__compras_centralizadas = copy(
-    flow_cgu_cartao_pagamento
+    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    return _flow
+
+
+br_cgu_cartao_pagamento__microdados_governo_federal = _flow_factory(
+    "microdados_governo_federal", "0 20 * * *"
 )
-br_cgu_cartao_pagamento__compras_centralizadas.name = (
-    "br_cgu_cartao_pagamento.compras_centralizadas"
+br_cgu_cartao_pagamento__microdados_defesa_civil = _flow_factory(
+    "microdados_defesa_civil", "30 20 * * *"
 )
-br_cgu_cartao_pagamento__compras_centralizadas.code_owners = ["trick"]
-br_cgu_cartao_pagamento__compras_centralizadas.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_cgu_cartao_pagamento__compras_centralizadas.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_cgu_cartao_pagamento__compras_centralizadas.schedule = (
-    every_day_microdados_compras_centralizadas
+br_cgu_cartao_pagamento__microdados_compras_centralizadas = _flow_factory(
+    "microdados_compras_centralizadas", "0 21 * * *"
 )

@@ -1,106 +1,123 @@
-from prefect import Parameter, case
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+"""
+Flows para br_cgu_emendas_parlamentares — Prefect 3.
+"""
 
-from pipelines.constants import constants
-from pipelines.datasets.br_cgu_emendas_parlamentares.schedules import (
-    every_day_emendas_parlamentares,
-)
-from pipelines.datasets.br_cgu_emendas_parlamentares.tasks import (
+from prefect import flow
+
+from pipelines.crawler.cgu_emendas_parlamentares.tasks import (
     convert_str_to_float,
     get_last_modified_time,
 )
-from pipelines.utils.decorators import Flow
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    FreeLag,
+    PartBdpro,
+    YearOnly,
+)
 from pipelines.utils.metadata.tasks import (
-    check_if_data_is_outdated,
-    update_django_metadata,
+    commit_source_update_task,
+    poll_source_for_update_task,
+    register_table_materialization_task,
 )
-from pipelines.utils.tasks import (  # update_django_metadata,
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    rename_current_flow_run_dataset_table,
+from pipelines.utils.tasks import (
+    rename_flow_run_dataset_table,
     run_dbt,
+    upload_to_gcs,
 )
 
-with Flow(
-    name="br_cgu_emendas_parlamentares.microdados",
-    code_owners=[
-        "trick",
-    ],
-) as br_cgu_emendas_parlamentares_flow:
-    dataset_id = Parameter(
-        "dataset_id", default="br_cgu_emendas_parlamentares", required=False
-    )
-    table_id = Parameter("table_id", default="microdados", required=False)
-    update_metadata = Parameter(
-        "update_metadata", default=False, required=False
-    )
 
-    materialize_after_dump = Parameter(
-        "materialize_after_dump", default=False, required=False
-    )
-    dbt_alias = Parameter("dbt_alias", default=True, required=False)
-    rename_flow_run = rename_current_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
-        wait=table_id,
+@flow(
+    name="br_cgu_emendas_parlamentares__microdados",
+    log_prints=True,
+)
+def br_cgu_emendas_parlamentares__microdados(
+    dataset_id: str = "br_cgu_emendas_parlamentares",
+    table_id: str = "microdados",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
     max_modified_time = get_last_modified_time()
 
-    outdated = check_if_data_is_outdated(
+    if not force_run:
+        has_new_data = poll_source_for_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=max_modified_time,
+            env="prod",
+            date_format="%Y-%m-%d",
+        )
+        if not has_new_data:
+            return
+
+    output_path = convert_str_to_float()
+
+    upload_to_gcs(
+        data_path=output_path,
         dataset_id=dataset_id,
         table_id=table_id,
-        date_type="last_update_date",
-        data_source_max_date=max_modified_time,
-        upstream_tasks=[max_modified_time],
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
+        source_format="csv",
     )
 
-    with case(outdated, True):
-        output_path = convert_str_to_float()
-        wait_upload_table = create_table_dev_and_upload_to_gcs(
-            data_path=output_path,
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=output_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+        source_format="csv",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            dump_mode="append",
-            upstream_tasks=[output_path],
+            coverage=PartBdpro(
+                date_column=YearOnly(col="ano_emenda"),
+                date_format=DateFormat.YEAR,
+                free_lag=FreeLag(unit="years", value=1),
+            ),
+            env="prod",
+            bq_project="basedosdados",
         )
 
-        wait_for_materialization = run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_alias=dbt_alias,
-            dbt_command="run/test",
-            disable_elementary=False,
-            upstream_tasks=[wait_upload_table],
-        )
-
-        with case(materialize_after_dump, True):
-            wait_upload_prod = create_table_prod_gcs_and_run_dbt(
-                data_path=output_path,
+        if max_modified_time is not None:
+            commit_source_update_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dump_mode="append",
-                upstream_tasks=[wait_for_materialization],
+                source_max_date=max_modified_time,
+                env="prod",
+                date_format="%Y-%m-%d",
             )
 
-            with case(update_metadata, True):
-                update_django_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    date_format="%Y",
-                    date_column_name={"year": "ano_emenda"},
-                    coverage_type="part_bdpro",
-                    time_delta={"years": 1},
-                    bq_project="basedosdados",
-                    upstream_tasks=[wait_upload_prod],
-                )
 
-br_cgu_emendas_parlamentares_flow.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_cgu_emendas_parlamentares_flow.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-br_cgu_emendas_parlamentares_flow.schedule = every_day_emendas_parlamentares
+br_cgu_emendas_parlamentares__microdados.deploy_schedules = [
+    {"cron": "30 19 * * *", "timezone": "America/Sao_Paulo"}
+]
