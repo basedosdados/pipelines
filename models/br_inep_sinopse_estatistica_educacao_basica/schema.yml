@@ -30,8 +30,8 @@ models:
       - name: rede
         description: Rede Escolar (e.g. federal, estadual, municipal e privada)
       - name: etapa_ensino
-        description: 'Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...) '
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: serie
         description: Série/Ano de ensino
       - name: quantidade_matricula
@@ -91,8 +91,8 @@ models:
       - name: rede
         description: Rede Escolar (e.g. federal, estadual, municipal e privada)
       - name: etapa_ensino
-        description: 'Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...) '
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: localizacao
         description: Localização (e.g. Zona Urbana, Zona Rural)
       - name: quantidade_matricula
@@ -124,11 +124,11 @@ models:
               field: id_municipio
       - name: rede
         description: Rede Escolar (e.g. federal, estadual, municipal e privada)
-      - name: tempo
-        description: Classificação em tempo integral e tempo parcial
+      - name: tempo_ensino
+        description: Tempo de Ensino (e.g. Regular, Integral)
       - name: etapa_ensino
-        description: 'Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...) '
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: quantidade_matricula
         description: Número de matrículas
   - name: br_inep_sinopse_estatistica_educacao_basica__sexo_raca_cor
@@ -157,8 +157,8 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
       - name: etapa_ensino
-        description: 'Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...) '
+        description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: sexo
         description: Sexo
       - name: raca_cor
@@ -198,7 +198,7 @@ models:
               field: id_municipio
       - name: etapa_ensino
         description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, ...)
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: escolaridade
         description: Escolaridade
       - name: quantidade_docente
@@ -237,7 +237,7 @@ models:
               field: id_municipio
       - name: etapa_ensino
         description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, ...)
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: rede
         description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
       - name: regime_contrato
@@ -278,7 +278,7 @@ models:
               field: id_municipio
       - name: etapa_ensino
         description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, ...)
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: faixa_etaria
         description: Faixa Etária dos docentes
       - name: sexo
@@ -317,7 +317,7 @@ models:
               field: id_municipio
       - name: etapa_ensino
         description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, ...)
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: deficiencia
         description: Tipo de deficiência, transtorno global do desenvolvimento ou
           altas habilidades/superdotação
@@ -356,7 +356,7 @@ models:
               field: id_municipio
       - name: etapa_ensino
         description: Etapa e/ou Sub-etapas de ensino (e.g. Creche, Pré-escola, Anos
-          Iniciais, Anos Finais, ...)
+          Iniciais, Anos Finais, Ensino Fundamental - EJA, ...)
       - name: rede
         description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
       - name: localizacao
@@ -394,6 +394,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+      - name: rede
+        description: Rede Escolar (e.g. Federal, Estadual, Municipal e Privada)
       - name: tipo_classe
         description: 'Tipo de classe da Educação Especial (e.g.: Classes Comuns ou
           Classes Exclusivas/Especiais)'
