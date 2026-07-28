@@ -151,7 +151,7 @@ dev = [
 
 [tool.ruff]
 line-length = 79
-target-version = "py310"
+target-version = "py312"
 extend-exclude = ['\{\{cookiecutter.pipeline_name\}\}']
 
 [tool.ruff.lint]
