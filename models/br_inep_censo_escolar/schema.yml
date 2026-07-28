@@ -182,7 +182,16 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__instituicao_ensino_superior')
               field: id_ies
-              ignore_values: ['21869', '21869', '21869', '18210', '19333', '21869']  # 6 ocorrências unicas de incompatibilidade
+              ignore_values:  # 6 ocorrências unicas de incompatibilidade
+                - '21869'
+                - '21869'
+                - '21869'
+                - '18210'
+                - '19333'
+                - '21869'
+                - '23890'
+                - '24378'
+                - '23890'
       - name: local_funcionamento_predio_escolar
         description: O local de funcionamento da escola é um prédio escolar
       - name: tipo_local_funcionamento_predio_escolar
