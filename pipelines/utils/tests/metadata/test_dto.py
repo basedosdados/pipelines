@@ -15,9 +15,45 @@ from pipelines.utils.metadata.dto import (
     PollInput,
     RawSourceUpdateInput,
     TableUpdateInput,
+    _compose_end_date,
 )
 
 UUID = "00000000-0000-4000-8000-000000000000"
+
+
+# ------------------------------------------------- _compose_end_date
+def test_compose_end_date_matches_read_max_date_convention():
+    """Mês/dia ausentes viram 1, igual ao `strptime` de `bq.read_max_date`.
+
+    Uma cobertura anual que termina em 2025 tem de virar 2025-01-01 — o mesmo
+    que `strptime("2025", "%Y")` devolve. Completar com o fim do período
+    (2025-12-31) faria toda tabela anual parecer defasada perante a própria
+    fonte e disparar ingestão a cada run.
+    """
+    assert _compose_end_date({"endYear": 2025}) == date(2025, 1, 1)
+    assert _compose_end_date(
+        {"endYear": 2025, "endMonth": None, "endDay": None}
+    ) == date(2025, 1, 1)
+    assert (
+        _compose_end_date({"endYear": 2025})
+        == datetime.strptime("2025", "%Y").date()
+    )
+
+
+def test_compose_end_date_keeps_month_and_day():
+    assert _compose_end_date({"endYear": 2026, "endMonth": 6}) == date(
+        2026, 6, 1
+    )
+    assert _compose_end_date(
+        {"endYear": 2026, "endMonth": 6, "endDay": 15}
+    ) == date(2026, 6, 15)
+
+
+def test_compose_end_date_without_year_is_none():
+    assert _compose_end_date({}) is None
+    assert _compose_end_date({"endYear": None, "endMonth": 6}) is None
+
+
 BAD_UUID = "not-a-uuid"
 
 

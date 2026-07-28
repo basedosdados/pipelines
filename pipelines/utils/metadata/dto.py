@@ -45,6 +45,29 @@ def _to_iso8601(value: object) -> str:
 IsoDateStr = Annotated[str, BeforeValidator(_to_iso8601)]
 
 
+def _compose_end_date(datetime_range: dict) -> date | None:
+    """Recompõe o fim de um `DateTimeRange` (endYear/endMonth/endDay) numa `date`.
+
+    Inverso de `policy._components`, e usa a mesma convenção de
+    `bq.read_max_date`, que faz `strptime(valor, date_format)` — com `"%Y"` o
+    Python já completa mês/dia com 1. Por isso mês/dia ausentes viram 1 aqui: os
+    dois lados da comparação ficam na mesma escala e uma cobertura anual que
+    termina em 2025 vira `2025-01-01`, exatamente o que `read_max_date` devolve
+    para aquela tabela. Completar com o fim do período (2025-12-31) faria toda
+    tabela anual parecer defasada e disparar ingestão a cada run.
+
+    Devolve ``None`` se não há nem ano.
+    """
+    year = datetime_range.get("endYear")
+    if year is None:
+        return None
+    return date(
+        year,
+        datetime_range.get("endMonth") or 1,
+        datetime_range.get("endDay") or 1,
+    )
+
+
 class DateTimeRangeInput(BaseModel):
     """Payload de `CreateUpdateDateTimeRange` (Coverage.DateTimeRange)."""
 
