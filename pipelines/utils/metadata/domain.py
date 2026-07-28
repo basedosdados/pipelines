@@ -6,14 +6,14 @@ Aqui estão registradas as regras de negócio de preenchimento de metadados e po
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from typing import Annotated, Literal
 
 from dateutil.relativedelta import relativedelta
 from pydantic import BaseModel, Field, model_validator
 
 
-class DateFormat(str, Enum):
+class DateFormat(StrEnum):
     """Formatos de data aceitos pelo backend."""
 
     YEAR = "%Y"
