@@ -1,0 +1,144 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano,,no,br_bd_diretorios_data_tempo.ano:ano,,no,,year,Year,Año
+month,INT64,Mês,,no,br_bd_diretorios_data_tempo.mes:mes,,no,,month,Month,Mes
+id_state,STRING,"Código FIPS do estado (2 dígitos, com zero à esquerda)",,no,br_bd_diretorios_us.state:id_state,,no,"Coluna derivada: obtida de `state` (código censitário do CPS) pelo cruzamento com br_bd_diretorios_us.state.id_census, que cobre os 51 códigos do CEPR de forma exata. Materializada no modelo dbt.",state,"State FIPS code (2-digit, zero-padded)","Código FIPS del estado (2 dígitos, con cero a la izquierda)"
+id_county,STRING,"Código FIPS do condado (5 dígitos, com zeros à esquerda)",1995(1)2019,no,br_bd_diretorios_us.county:id_county,,no,"Coluna derivada: concatenação de id_state (2 dígitos) com fipscounty (3 dígitos). Nula quando o condado não é identificado na amostra (fipscounty = 0) e antes de setembro de 1995. Materializada no modelo dbt. 99,14% das linhas não nulas casam com br_bd_diretorios_us.county; as restantes usam códigos FIPS históricos já aposentados (12025, Dade/FL até 2005, hoje 12086; e os condados de Connecticut 09001, 09005, 09009 e 09015, substituídos por regiões de planejamento em 2022), que não existem na vintage corrente do diretório. Por isso a FK é declarada mas não testada.",fipscounty,"County FIPS code (5-digit, zero-padded)","Código FIPS del condado (5 dígitos, con ceros a la izquierda)"
+minsamp,STRING,Mês na amostra (grupo de rotação 1-8),,yes,,,no,,minsamp,Month in sample (rotation group 1-8),Mes en la muestra (grupo de rotación 1-8)
+hhid,STRING,Identificador do domicílio,,no,,,no,,hhid,Household identifier,Identificador del hogar
+hhid2,STRING,"Identificador do domicílio, parte 2",2004(1)2019,no,,,no,,hhid2,"Household identifier, part 2","Identificador del hogar, parte 2"
+hrsample,STRING,Identificador amostral do domicílio,,no,,,no,,hrsample,Household sample identifier,Identificador muestral del hogar
+hrsersuf,STRING,Sufixo serial do domicílio,,no,,,no,,hrsersuf,Household serial suffix,Sufijo serial del hogar
+hhnum,STRING,Contador de domicílio na unidade amostral,,no,,,no,,hhnum,Household counter within sample unit,Contador de hogar en la unidad muestral
+hrlonglk,STRING,Indicador de vínculo longitudinal do domicílio,,yes,,,no,,hrlonglk,Longitudinal household link flag,Indicador de vínculo longitudinal del hogar
+lineno,STRING,Número de linha da pessoa no domicílio,,no,,,no,,lineno,Person line number within household,Número de línea de la persona en el hogar
+fnlwgt,FLOAT64,Peso amostral básico final,,no,,,no,Peso amostral (adimensional),fnlwgt,Final basic sampling weight,Peso muestral básico final
+orgwgt,FLOAT64,Peso de rendimentos (rotação de saída),,no,,,no,Peso amostral (adimensional),orgwgt,Earnings (outgoing rotation) weight,Peso de ingresos (rotación de salida)
+lonwgt,FLOAT64,Peso longitudinal,,no,,,no,Peso amostral (adimensional),lonwgt,Longitudinal weight,Peso longitudinal
+famwgt,FLOAT64,Peso familiar,,no,,,no,Peso amostral (adimensional),famwgt,Family weight,Peso familiar
+age,INT64,Idade em anos,,no,,anos,no,,age,Age in years,Edad en años
+female,STRING,Sexo feminino,,yes,,,no,,female,Sex is female,Sexo femenino
+wbho,STRING,"Raça/etnia (branca, negra, hispânica, outra)",,yes,,,no,,wbho,"Race/ethnicity (white, Black, Hispanic, other)","Raza/etnia (blanca, negra, hispana, otra)"
+wbhao,STRING,"Raça/etnia, incluindo asiática",,yes,,,no,,wbhao,Race/ethnicity including Asian,"Raza/etnia, incluida asiática"
+wbhom,STRING,"Raça/etnia, incluindo raça mista",2003(1)2019,yes,,,no,,wbhom,Race/ethnicity including mixed race,"Raza/etnia, incluida raza mixta"
+wbhaom,STRING,"Raça/etnia, incluindo asiática e mista",2003(1)2019,yes,,,no,,wbhaom,Race/ethnicity including Asian and mixed race,"Raza/etnia, incluida asiática y mixta"
+racehpia,STRING,Havaiano nativo/ilhéu do Pacífico (incl. combinações),2003(1)2019,yes,,,no,,racehpia,Native Hawaiian/Pacific Islander (incl. combinations),Nativo de Hawái/isleño del Pacífico (incl. combinaciones)
+racehpi,STRING,Havaiano nativo/ilhéu do Pacífico apenas,2003(1)2019,yes,,,no,,racehpi,Native Hawaiian/Pacific Islander only,Nativo de Hawái/isleño del Pacífico solamente
+racea,STRING,Origem asiática detalhada,2013(1)2019,yes,,,no,,racea,Detailed Asian origin,Origen asiático detallado
+forborn,STRING,Nascido no exterior,,yes,,,no,,forborn,Foreign born,Nacido en el extranjero
+citizen,STRING,Cidadão dos EUA,,yes,,,no,,citizen,US citizen,Ciudadano de EE. UU.
+prcitshp,STRING,Situação de cidadania,,yes,,,no,,prcitshp,Citizenship status,Situación de ciudadanía
+arrived,STRING,Período de chegada aos EUA,,yes,,,no,,arrived,Period of arrival in the US,Período de llegada a EE. UU.
+prinusyr,STRING,Ano de entrada nos EUA,,yes,,,no,,prinusyr,Year of entry into the US,Año de entrada a EE. UU.
+penatvty,STRING,País de nascimento,,yes,,,no,,penatvty,Country of birth,País de nacimiento
+pemntvty,STRING,País de nascimento da mãe,,yes,,,no,,pemntvty,Mother's country of birth,País de nacimiento de la madre
+pefntvty,STRING,País de nascimento do pai,,yes,,,no,,pefntvty,Father's country of birth,País de nacimiento del padre
+vet,STRING,Veterano,,yes,,,no,,vet,Veteran,Veterano
+married,STRING,Casado,,yes,,,no,,married,Married,Casado
+marstat,STRING,Estado civil,,yes,,,no,,marstat,Marital status,Estado civil
+ownchild,INT64,Número de filhos próprios no domicílio,2000(1)2019,no,,pessoas,no,,ownchild,Number of own children in household,Número de hijos propios en el hogar
+ch02,STRING,Filho próprio de 0-2 anos presente,2000(1)2019,yes,,,no,,ch02,Own child aged 0-2 present,Hijo propio de 0-2 años presente
+ch05,STRING,Filho próprio de 0-5 anos presente,2000(1)2019,yes,,,no,,ch05,Own child aged 0-5 present,Hijo propio de 0-5 años presente
+ch35,STRING,Filho próprio de 3-5 anos presente,2000(1)2019,yes,,,no,,ch35,Own child aged 3-5 present,Hijo propio de 3-5 años presente
+ch613,STRING,Filho próprio de 6-13 anos presente,2000(1)2019,yes,,,no,,ch613,Own child aged 6-13 present,Hijo propio de 6-13 años presente
+ch1417,STRING,Filho próprio de 14-17 anos presente,2000(1)2019,yes,,,no,,ch1417,Own child aged 14-17 present,Hijo propio de 14-17 años presente
+famrel84,STRING,Relação familiar (definição pré-1994),,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",famrel84,Family relationship (pre-1994 definition),Relación familiar (definición pre-1994)
+famrel94,STRING,Relação familiar (definição 1994+),,yes,,,no,,famrel94,Family relationship (1994+ definition),Relación familiar (definición 1994+)
+famrel,STRING,Relação familiar,,yes,,,no,,famrel,Family relationship,Relación familiar
+refper,STRING,Pessoa de referência do domicílio,,yes,,,no,,refper,Reference person of the household,Persona de referencia del hogar
+faminc,STRING,Faixa de renda familiar,,yes,,,no,,faminc,Family income band,Tramo de ingreso familiar
+lfstat,STRING,Situação na força de trabalho,,yes,,,no,,lfstat,Labor-force status,Situación en la fuerza de trabajo
+empl,STRING,Ocupado,,yes,,,no,,empl,Employed,Ocupado
+unem,STRING,Desempregado,,yes,,,no,,unem,Unemployed,Desempleado
+nilf,STRING,Fora da força de trabalho,,yes,,,no,,nilf,Not in the labor force,Fuera de la fuerza de trabajo
+selfemp,STRING,"Autônomo (não constituído), trabalho principal",,yes,,,no,,selfemp,"Self-employed (unincorporated), main job","Autónomo (no constituido), empleo principal"
+selfinc,STRING,"Autônomo (constituído), trabalho principal",,yes,,,no,,selfinc,"Self-employed (incorporated), main job","Autónomo (constituido), empleo principal"
+pubsect,STRING,"Trabalhador do setor público, trabalho principal",,yes,,,no,,pubsect,"Public-sector worker, main job","Trabajador del sector público, empleo principal"
+pubfed,STRING,"Trabalhador do governo federal, trabalho principal",,yes,,,no,,pubfed,"Federal government worker, main job","Trabajador del gobierno federal, empleo principal"
+pubst,STRING,"Trabalhador do governo estadual, trabalho principal",,yes,,,no,,pubst,"State government worker, main job","Trabajador del gobierno estatal, empleo principal"
+publoc,STRING,"Trabalhador do governo local, trabalho principal",,yes,,,no,,publoc,"Local government worker, main job","Trabajador del gobierno local, empleo principal"
+cow1,STRING,"Posição na ocupação, trabalho principal",,yes,,,no,,cow1,"Class of worker, main job","Categoría ocupacional, empleo principal"
+cow2,STRING,"Posição na ocupação, segundo trabalho",,yes,,,no,,cow2,"Class of worker, second job","Categoría ocupacional, segundo empleo"
+unemdur,INT64,Duração do desemprego em semanas,,no,,semanas,no,,unemdur,Duration of unemployment in weeks,Duración del desempleo en semanas
+jobloser,STRING,Desempregado que perdeu o emprego,,yes,,,no,,jobloser,Unemployed job loser,Desempleado que perdió el empleo
+jobleaver,STRING,Desempregado que deixou o emprego,,yes,,,no,,jobleaver,Unemployed job leaver,Desempleado que dejó el empleo
+entrant,STRING,Ingressante ou reingressante desempregado,,yes,,,no,,entrant,Unemployed labor-force entrant or reentrant,Ingresante o reingresante desempleado
+unmem,STRING,Membro de sindicato,,yes,,,no,,unmem,Union member,Miembro de sindicato
+uncov,STRING,Coberto por contrato sindical,,yes,,,no,,uncov,Covered by a union contract,Cubierto por contrato sindical
+union,STRING,Sindicalizado ou coberto,,yes,,,no,,union,Union member or covered,Sindicalizado o cubierto
+cert,STRING,Possui certificação ou licença profissional,2017(1)2019,yes,,,no,,cert,Holds a professional certification or license,Posee certificación o licencia profesional
+certgov,STRING,Certificação emitida pelo governo,2017(1)2019,yes,,,no,,certgov,Certification issued by government,Certificación emitida por el gobierno
+schenrl,STRING,Matriculado no ensino médio ou superior na semana anterior,,yes,,,no,,schenrl,Enrolled in high school or college last week,Matriculado en secundaria o universidad la semana anterior
+schhs,STRING,Matriculado no ensino médio,,yes,,,no,,schhs,Enrolled in high school,Matriculado en secundaria
+schcol,STRING,Matriculado no ensino superior,,yes,,,no,,schcol,Enrolled in college,Matriculado en universidad
+schft,STRING,Estudante em tempo integral,,yes,,,no,,schft,Full-time student,Estudiante a tiempo completo
+schpt,STRING,Estudante em tempo parcial,,yes,,,no,,schpt,Part-time student,Estudiante a tiempo parcial
+multjob,STRING,Possui mais de um emprego,,yes,,,no,,multjob,Holds more than one job,Tiene más de un empleo
+multjobn,INT64,Número de empregos,,no,,empregos,no,,multjobn,Number of jobs held,Número de empleos
+pdemp1,STRING,"Autônomo geralmente tem empregados, trabalho principal",2014(1)2019,yes,,,no,,pdemp1,"Self-employed usually has paid employees, main job","Autónomo suele tener empleados, empleo principal"
+pdemp2,STRING,"Autônomo geralmente tem empregados, segundo trabalho",2014(1)2019,yes,,,no,,pdemp2,"Self-employed usually has paid employees, second job","Autónomo suele tener empleados, segundo empleo"
+nmemp1,INT64,"Número de empregados pagos, trabalho principal",2014(1)2019,no,,pessoas,no,,nmemp1,"Number of paid employees, main job","Número de empleados remunerados, empleo principal"
+nmemp2,INT64,"Número de empregados pagos, segundo trabalho",2014(1)2019,no,,pessoas,no,,nmemp2,"Number of paid employees, second job","Número de empleados remunerados, segundo empleo"
+state,STRING,Código censitário do estado no CPS (não é o código FIPS),,yes,,,no,"Códigos do Census/CPS (11-95), distintos do FIPS. Use id_state para juntar com br_bd_diretorios_us.state.",state,CPS census state code (not the FIPS code),Código censal del estado en la CPS (no es el código FIPS)
+metro,STRING,Situação de área metropolitana,,yes,,,no,,metro,Metropolitan area status,Situación de área metropolitana
+centcity,STRING,Residência em cidade central,"1994(1)1994, 1996(1)2019",yes,,,no,,centcity,Central city residence,Residencia en ciudad central
+suburb,STRING,Residência em subúrbio,"1994(1)1994, 1996(1)2019",yes,,,no,,suburb,Suburban residence,Residencia en suburbio
+rural,STRING,Residência não metropolitana (rural),"1994(1)1994, 1996(1)2019",yes,,,no,,rural,Nonmetropolitan (rural) residence,Residencia no metropolitana (rural)
+cmsacode05,STRING,Código de área estatística combinada (defs. 2005),2005(1)2014,yes,,,no,,cmsacode05,Combined statistical area code (2005 defs),Código de área estadística combinada (defs. 2005)
+cmsacode14,STRING,Código de área estatística combinada (defs. 2014),2014(1)2016,yes,,,no,,cmsacode14,Combined statistical area code (2014 defs),Código de área estadística combinada (defs. 2014)
+fipscounty,STRING,Código FIPS do condado dentro do estado (sem zeros à esquerda); 0 quando o condado não é identificado,1995(1)2019,no,,,no,"Identificador, não categoria: combine com o estado para formar o FIPS de 5 dígitos (ver id_county). Disponível a partir de setembro de 1995.",fipscounty,County FIPS code within the state (no leading zeros); 0 when the county is not identified,Código FIPS del condado dentro del estado (sin ceros a la izquierda); 0 cuando el condado no está identificado
+principalcty,STRING,Código da cidade principal individual dentro da área metropolitana,"1994(1)1994, 1996(1)1996, 2004(1)2019",no,,,no,"Identificador, não categoria: a fonte só identifica a cidade de forma única quando o código é combinado com o código CBSA, que não consta destas tabelas. Indisponível de junho a agosto de 1995.",principalcty,Individual principal city code within the metropolitan area,Código de la ciudad principal individual dentro del área metropolitana
+smsastat05,STRING,Código FIPS da CBSA metropolitana (defs. 2005),2005(1)2014,yes,,,no,,smsastat05,Metropolitan CBSA FIPS code (2005 defs),Código FIPS del CBSA metropolitano (defs. 2005)
+smsastat14,STRING,Código FIPS da CBSA metropolitana (defs. 2014),2014(1)2019,yes,,,no,,smsastat14,Metropolitan CBSA FIPS code (2014 defs),Código FIPS del CBSA metropolitano (defs. 2014)
+cbsasz,STRING,Classe de tamanho populacional da CBSA,1995(1)2016,yes,,,no,,cbsasz,CBSA population size class,Clase de tamaño poblacional del CBSA
+nyc,STRING,Área metropolitana de Nova York,2005(1)2019,yes,,,no,,nyc,New York City metropolitan area,Área metropolitana de Nueva York
+la,STRING,Área metropolitana de Los Angeles,2005(1)2019,yes,,,no,,la,Los Angeles metropolitan area,Área metropolitana de Los Ángeles
+educ,STRING,Escolaridade,,yes,,,no,,educ,Educational attainment,Nivel educativo
+educ92,STRING,Escolaridade (codificação pós-1991),,yes,,,no,,educ92,Educational attainment (post-1991 coding),Nivel educativo (codificación post-1991)
+ind_nber,STRING,"Indústria, 2 dígitos (codificação NBER)",1994(1)2002,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,ind_nber,"Industry, 2-digit (NBER coding)","Industria, 2 dígitos (codificación NBER)"
+ind_2d,STRING,"Indústria, 2 dígitos",2003(1)2019,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,ind_2d,"Industry, 2-digit","Industria, 2 dígitos"
+ind70,STRING,"Indústria, 3 dígitos (Census/SIC 1970)",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",ind70,"Industry, 3-digit (1970 Census/SIC)","Industria, 3 dígitos (Census/SIC 1970)"
+ind80,STRING,"Indústria, 3 dígitos (Census/SIC 1980)",1994(1)2002,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,ind80,"Industry, 3-digit (1980 Census/SIC)","Industria, 3 dígitos (Census/SIC 1980)"
+ind03,STRING,"Indústria, 3 dígitos (Census/NAICS 2002)",2003(1)2008,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,ind03,"Industry, 3-digit (2002 Census/NAICS)","Industria, 3 dígitos (Census/NAICS 2002)"
+ind09,STRING,"Indústria, 3 dígitos (Census/NAICS 2007)",2009(1)2012,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,ind09,"Industry, 3-digit (2007 Census/NAICS)","Industria, 3 dígitos (Census/NAICS 2007)"
+ind12,STRING,"Indústria, 3 dígitos (Census/NAICS 2012)",2012(1)2013,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,ind12,"Industry, 3-digit (2012 Census/NAICS)","Industria, 3 dígitos (Census/NAICS 2012)"
+ind14,STRING,"Indústria, 3 dígitos (Census/NAICS 2012, def. 2014)",2014(1)2019,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,ind14,"Industry, 3-digit (2014 Census/NAICS 2012)","Industria, 3 dígitos (Census/NAICS 2012, def. 2014)"
+ind_m03,STRING,Recodificação de indústria principal,2003(1)2019,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,ind_m03,Major industry recode,Recodificación de industria principal
+agric,STRING,Indústria agrícola,,yes,,,no,,agric,Agriculture industry,Industria agrícola
+manuf,STRING,Indústria de transformação,,yes,,,no,,manuf,Manufacturing industry,Industria manufacturera
+servs,STRING,Indústria de serviços,1994(1)2016,yes,,,no,,servs,Services industry,Industria de servicios
+docc70,STRING,"Ocupação, 2 dígitos (codificação 1970)",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",docc70,"Occupation, 2-digit (1970 coding)","Ocupación, 2 dígitos (codificación 1970)"
+docc80,STRING,"Ocupação, 2 dígitos (codificação 1980)",1994(1)2002,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,docc80,"Occupation, 2-digit (1980 coding)","Ocupación, 2 dígitos (codificación 1980)"
+docc03,STRING,"Ocupação, 2 dígitos (codificação 2002)",2003(1)2019,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,docc03,"Occupation, 2-digit (2002 coding)","Ocupación, 2 dígitos (codificación 2002)"
+occ70,STRING,"Ocupação, 3 dígitos (codificação 1970)",,yes,,,no,"Codificação específica por ano/esquema; rótulos no dicionário. Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",occ70,"Occupation, 3-digit (1970 coding)","Ocupación, 3 dígitos (codificación 1970)"
+occ80,STRING,"Ocupação, 3 dígitos (codificação 1980)",1994(1)2002,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,occ80,"Occupation, 3-digit (1980 coding)","Ocupación, 3 dígitos (codificación 1980)"
+occ03,STRING,"Ocupação, 3 dígitos (codificação 2002)",2003(1)2010,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,occ03,"Occupation, 3-digit (2002 coding)","Ocupación, 3 dígitos (codificación 2002)"
+occ11,STRING,"Ocupação, 3 dígitos (codificação 2011)",2011(1)2012,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,occ11,"Occupation, 3-digit (2011 coding)","Ocupación, 3 dígitos (codificación 2011)"
+occ12,STRING,"Ocupação, 3 dígitos (codificação 2012)",2012(1)2019,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,occ12,"Occupation, 3-digit (2012 coding)","Ocupación, 3 dígitos (codificación 2012)"
+occ_m03,STRING,Recodificação de ocupação principal,2003(1)2019,yes,,,no,Codificação específica por ano/esquema; rótulos no dicionário,occ_m03,Major occupation recode,Recodificación de ocupación principal
+manag83,STRING,Gerente (codificação 1983),1994(1)2002,yes,,,no,,manag83,Manager (1983 coding),Gerente (codificación 1983)
+manag03,STRING,Gerente (codificação 2003),2003(1)2019,yes,,,no,,manag03,Manager (2003 coding),Gerente (codificación 2003)
+hourslwa,INT64,"Horas trabalhadas na semana anterior, todos os empregos",,no,,horas,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",hourslwa,"Hours worked last week, all jobs","Horas trabajadas la semana anterior, todos los empleos"
+hourslw,INT64,"Horas trabalhadas na semana anterior, todos os empregos",,no,,horas,no,,hourslw,"Hours worked last week, all jobs","Horas trabajadas la semana anterior, todos los empleos"
+hourslwm,INT64,"Horas trabalhadas na semana anterior, trabalho principal",,no,,horas,no,,hourslwm,"Hours worked last week, main job","Horas trabajadas la semana anterior, empleo principal"
+reason79,STRING,Motivo de <35 horas na semana anterior (pré-1994),,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",reason79,Reason worked <35 hours last week (pre-1994),Motivo de <35 horas la semana anterior (pre-1994)
+reason94,STRING,Motivo de <35 horas na semana anterior (1994+),,yes,,,no,,reason94,Reason worked <35 hours last week (1994+),Motivo de <35 horas la semana anterior (1994+)
+absent79,STRING,Motivo de ausência do trabalho (pré-1994),,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",absent79,Reason absent from work last week (pre-1994),Motivo de ausencia del trabajo (pre-1994)
+absent94,STRING,Motivo de ausência do trabalho (1994+),,yes,,,no,,absent94,Reason absent from work last week (1994+),Motivo de ausencia del trabajo (1994+)
+abpaid,STRING,Remunerado pelo tempo ausente na semana anterior,,yes,,,no,,abpaid,Paid for time absent last week,Remunerado por el tiempo ausente la semana anterior
+uhours,INT64,"Horas habituais por semana, trabalho principal",,no,,horas,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",uhours,"Usual weekly hours, main job","Horas habituales por semana, empleo principal"
+uhourse,INT64,"Horas habituais por semana, trabalho principal (editado)",,no,,horas,no,,uhourse,"Usual weekly hours, main job (edited)","Horas habituales por semana, empleo principal (editado)"
+why3579,STRING,Motivo de habitualmente <35 horas (pré-1994),,yes,,,no,"Coluna inteiramente vazia na cobertura publicada: a lista de variáveis do CEPR abrange toda a série histórica do CPS, e esta pertence a uma vintage fora dos anos reproduzidos.",why3579,Reason usually works <35 hours (pre-1994),Motivo de habitualmente <35 horas (pre-1994)
+why3594,STRING,Motivo de habitualmente <35 horas (1994+),,yes,,,no,,why3594,Reason usually works <35 hours (1994+),Motivo de habitualmente <35 horas (1994+)
+ptecon,STRING,Tempo parcial por razões econômicas,,yes,,,no,,ptecon,Part-time for economic reasons,Tiempo parcial por razones económicas
+unempt,STRING,Desempregado buscando trabalho de tempo parcial,,yes,,,no,,unempt,Unemployed seeking part-time work,Desempleado buscando trabajo de tiempo parcial
+prhrusl,INT64,Horas habituais por semana (CPS Básico),,no,,horas,no,,prhrusl,Usual weekly hours (Basic CPS),Horas habituales por semana (CPS Básico)
+hrsvary,STRING,"Horas habituais variam, trabalho principal",,yes,,,no,,hrsvary,"Usual hours vary, main job","Horas habituales varían, empleo principal"
+pehrusl1,INT64,"Horas habituais por semana, trabalho principal (BLS)",,no,,horas,no,,pehrusl1,"Usual weekly hours, main job (BLS)","Horas habituales por semana, empleo principal (BLS)"
+pehrusl2,INT64,"Horas habituais por semana, segundo trabalho (BLS)",,no,,horas,no,,pehrusl2,"Usual weekly hours, second job (BLS)","Horas habituales por semana, segundo empleo (BLS)"
+pehruslt,INT64,"Horas habituais por semana, todos os empregos (BLS)",,no,,horas,no,,pehruslt,"Usual weekly hours, all jobs (BLS)","Horas habituales por semana, todos los empleos (BLS)"
+peernhro,INT64,"Horas habituais, rendimentos da rotação de saída (BLS)",,no,,horas,no,,peernhro,"Usual hours, outgoing rotation earnings (BLS)","Horas habituales, ingresos de rotación de salida (BLS)"
+imphrs,INT64,"Horas habituais, trabalho principal (imputado)",,no,,horas,no,,imphrs,"Usual hours, main job (imputed)","Horas habituales, empleo principal (imputado)"
+hrsimptd,STRING,Indicador de horas habituais imputadas,,yes,,,no,,hrsimptd,Usual hours imputed flag,Indicador de horas habituales imputadas
+uhoursi,INT64,Horas habituais com imputação,,no,,horas,no,,uhoursi,Usual hours with imputation,Horas habituales con imputación
+blsimpt,STRING,Indicador de horas semanais alocadas pelo BLS,,yes,,,no,,blsimpt,BLS-allocated weekly hours flag,Indicador de horas semanales asignadas por BLS
+tc,STRING,Indicador de rendimento semanal com teto (topcode),,yes,,,no,,tc,Weekly earnings topcoded flag,Indicador de ingreso semanal con tope (topcode)
