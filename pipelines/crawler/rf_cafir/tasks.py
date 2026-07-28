@@ -23,8 +23,6 @@ from pipelines.crawler.rf_cafir.utils import (
 )
 from pipelines.utils.utils import log
 
-last_update_date = get_last_update_date(url=br_rf_cafir_constants.URL.value)
-
 
 @task(
     retries=2,
@@ -38,16 +36,47 @@ def task_parse_api_metadata(url: str) -> pd.DataFrame:
     retries=2,
     retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
 )
+def task_get_last_update_date(url: str) -> str:
+    """Data de modificação mais recente entre os arquivos publicados na origem.
+
+    Usada para nomear a partição `data=` no Storage. Ver issue #1696 — esta
+    não é a data de referência do dado, e a origem dela deve mudar.
+
+    Returns:
+        str: Data no formato YYYY-MM-DD
+    """
+    return get_last_update_date(url=url)
+
+
+@task(
+    retries=2,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
 def task_decide_files_to_download(
     df: pd.DataFrame,
+    last_update_date: str,
     data_especifica: datetime.date | None = None,
     data_maxima: bool = True,
-) -> tuple[list[str], list[datetime.date]]:
+) -> tuple[list[str], str | datetime.date]:
+    """Decide quais arquivos baixar a partir dos metadados da fonte.
+
+    Args:
+        df: Metadados dos arquivos publicados (nome e data de atualização).
+        last_update_date: Data de modificação mais recente na origem, usada para
+            nomear a partição no Storage.
+        data_especifica: Se informada, filtra os arquivos por essa data.
+        data_maxima: Se True, seleciona os arquivos da data mais recente.
+
+    Returns:
+        tuple[list[str], str | datetime.date]: Lista de nomes de arquivos e a
+            data correspondente (string quando data_maxima; date quando
+            data_especifica).
+    """
     return decide_files_to_download(
         df=df,
+        last_update_date=last_update_date,
         data_especifica=data_especifica,
         data_maxima=data_maxima,
-        last_update_date=last_update_date,
     )
 
 
@@ -59,6 +88,7 @@ def task_download_files(
     url: str,
     file_list: list[str],
     data_atualizacao: list[datetime.date],
+    last_update_date: str,
 ) -> str:
     """Essa task faz o download dos arquivos do FTP, faz o parse dos dados e salva os arquivos em um diretório temporário.
 
