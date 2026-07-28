@@ -24,9 +24,8 @@ import basedosdados as bd
 import pandas as pd
 import requests
 
-ROOT = Path("models") / "br_inep_sinopse_estatistica_educacao_basica"
-INPUT = ROOT / "input"
-OUTPUT = ROOT / "output"
+INPUT = Path("input") / "br_inep_sinopse_estatistica_educacao_basica"
+OUTPUT = Path("output") / "br_inep_sinopse_estatistica_educacao_basica"
 
 os.makedirs(INPUT, exist_ok=True)
 os.makedirs(OUTPUT, exist_ok=True)

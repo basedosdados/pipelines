@@ -115,9 +115,9 @@ models:
         description: Forma(s) de contratação da parceria ou convênio entre a escola
           e a Secretaria municipal de educação - Termo de cooperação técnica e financeira
       - name: forma_contratacao_parceria_municipal_consorcio_publico
-        description: "Forma(s) de contratação da parceria ou convênio entre a escola\
-          \ e a Secretaria municipal de educação - Contrato de consórcio público/Convênio\
-          \ de\ncooperação"
+        description: Forma(s) de contratação da parceria ou convênio entre a escola
+          e a Secretaria municipal de educação - Contrato de consórcio público/Convênio
+          de cooperação
       - name: forma_contratacao_parceria_estadual_termo_colaboracao
         description: Forma(s) de contratação da parceria ou convênio entre a escola
           e a Secretaria estadual de educação - Termo de colaboração (Lei nº 13.019/2014)
@@ -134,9 +134,9 @@ models:
         description: Forma(s) de contratação da parceria ou convênio entre a escola
           e a Secretaria estadual de educação - Termo de cooperação técnica e financeira
       - name: forma_contratacao_parceria_estadual_consorcio_publico
-        description: "Forma(s) de contratação da parceria ou convênio entre a escola\
-          \ e a Secretaria estadual de educação - Contrato de consórcio público/Convênio\
-          \ de\ncooperação"
+        description: Forma(s) de contratação da parceria ou convênio entre a escola
+          e a Secretaria estadual de educação - Contrato de consórcio público/Convênio
+          de cooperação
       - name: tipo_atendimento_escolarizacao
         description: Tipo de atendimento ofertado por meio da parceria ou convênio
           - Escolarização
@@ -182,7 +182,16 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__instituicao_ensino_superior')
               field: id_ies
-              ignore_values: ['21869', '21869', '21869', '18210', '19333', '21869']  # 6 ocorrências unicas de incompatibilidade
+              ignore_values:  # 6 ocorrências unicas de incompatibilidade
+                - '21869'
+                - '21869'
+                - '21869'
+                - '18210'
+                - '19333'
+                - '21869'
+                - '23890'
+                - '24378'
+                - '23890'
       - name: local_funcionamento_predio_escolar
         description: O local de funcionamento da escola é um prédio escolar
       - name: tipo_local_funcionamento_predio_escolar

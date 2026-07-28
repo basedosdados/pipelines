@@ -5,7 +5,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2007, "end": 2024, "interval": 1},
+            "range": {"start": 2007, "end": 2025, "interval": 1},
         },
         cluster_by="sigla_uf",
     )
@@ -319,7 +319,7 @@ select
     safe_cast(
         acesso_internet_dispositivo_pessoal as int64
     ) acesso_internet_dispositivo_pessoal,
-    safe_cast(tipo_rede_local as string) tipo_rede_local,
+    safe_cast(safe_cast(tipo_rede_local as numeric) as string) tipo_rede_local,
     safe_cast(banda_larga as int64) banda_larga,
     safe_cast(quantidade_funcionario as int64) quantidade_funcionario,
     safe_cast(profissional_administrativo as int64) profissional_administrativo,
