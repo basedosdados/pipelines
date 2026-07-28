@@ -1,4 +1,3 @@
-import asyncio
 import json
 import os
 from collections import defaultdict
@@ -113,7 +112,7 @@ async def collect_data(
             for result in tqdm_asyncio.as_completed(tasks, total=len(tasks)):
                 try:
                     results.append(await result)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     print("⚠️ Timeout em uma requisição")
 
             save_json(

@@ -130,7 +130,7 @@ async def main(
                 try:
                     response = await future
                     responses.append(response)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     # pyrefly: ignore [unbound-name]
                     print(f"Request timed out for {url}")
             os.makedirs("tmp/json/", exist_ok=True)

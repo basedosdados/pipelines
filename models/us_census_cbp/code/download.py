@@ -12,7 +12,7 @@ Saves to models/us_census_cbp/data/input/ as cbp<YY>{us,st,co}.txt.
 import shutil
 import time
 import zipfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import requests
@@ -37,7 +37,7 @@ def log(msg: str) -> None:
     Args:
         msg: Message to print.
     """
-    ts = datetime.now(timezone.utc).strftime("%H:%M:%S")
+    ts = datetime.now(UTC).strftime("%H:%M:%S")
     print(f"[{ts}] {msg}", flush=True)
 
 
