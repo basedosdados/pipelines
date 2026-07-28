@@ -363,6 +363,7 @@ def clean_administracao_publica(csv_path: Path, output_dir: Path) -> Path:
             preserve_index=False,
         )
 
+        # pyrefly: ignore [bad-argument-type]
         table_path = output_dir / f"ano={int(year)}"
 
         table_path.mkdir(parents=True, exist_ok=True)

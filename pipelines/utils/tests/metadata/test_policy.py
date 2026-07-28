@@ -155,7 +155,9 @@ def test_compute_part_bdpro_ranges_never_overlap():
     )
     r = compute_coverage_ranges(monthly, date(2026, 1, 1), IDS_BOTH)
     # virada de ano: free termina 2025-12, pro começa 2026-01
+    # pyrefly: ignore [missing-attribute]
     assert (r.free.endYear, r.free.endMonth) == (2025, 12)
+    # pyrefly: ignore [missing-attribute]
     assert (r.pro.startYear, r.pro.startMonth) == (2026, 1)
 
     annual = PartBdpro(
@@ -165,7 +167,9 @@ def test_compute_part_bdpro_ranges_never_overlap():
     )
     r = compute_coverage_ranges(annual, date(2026, 1, 1), IDS_BOTH)
     # anual avança um ano, não um mês
+    # pyrefly: ignore [missing-attribute]
     assert r.free.endYear == 2024
+    # pyrefly: ignore [missing-attribute]
     assert (r.pro.startYear, r.pro.startMonth) == (2025, None)
 
     daily = PartBdpro(
@@ -175,7 +179,9 @@ def test_compute_part_bdpro_ranges_never_overlap():
     )
     r = compute_coverage_ranges(daily, date(2026, 3, 2), IDS_BOTH)
     # virada de mês: free termina 2026-01-31, pro começa 2026-02-01
+    # pyrefly: ignore [missing-attribute]
     assert (r.free.endYear, r.free.endMonth, r.free.endDay) == (2026, 1, 31)
+    # pyrefly: ignore [missing-attribute]
     assert (r.pro.startYear, r.pro.startMonth, r.pro.startDay) == (2026, 2, 1)
 
 
