@@ -123,7 +123,7 @@ async def main(
                 try:
                     response = await future
                     responses.append(response)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     print(f"Request timed out for {url}")
             os.makedirs("tmp/json", exist_ok=True)
             with open(f"tmp/json/{year}.json", "a") as f:
