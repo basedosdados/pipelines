@@ -15,6 +15,7 @@ from utils.helpers import (
     merge_municipio,
     parse_date_br,
     read_raw_csv,
+    select_named,
 )
 
 # fmt: off
@@ -54,7 +55,39 @@ def _build_candidato(ano: int) -> pd.DataFrame:
         )
         df = read_raw_csv(str(base), drop_first_row=True)
 
-        if ano == 1994:
+        if df.attrs.get("tse_has_header"):
+            # Read-by-header-name path. The vote column keeps the exact
+            # per-year semantics of the Stata positional blocks: 1998/2000
+            # and 2018-2022 read QT_VOTOS_NOMINAIS_VALIDOS; every other year
+            # reads QT_VOTOS_NOMINAIS (dual keys — first present wins, so
+            # generations lacking one variant fall back to the other).
+            keep_cols = {
+                "ano_eleicao": "ano",
+                "nr_turno": "turno",
+                "cd_eleicao": "id_eleicao",
+                "ds_eleicao": "tipo_eleicao",
+                "dt_eleicao": "data_eleicao",
+                "sg_uf": "sigla_uf",
+                "cd_municipio": "id_municipio_tse",
+                "nr_zona": "zona",
+                "ds_cargo": "cargo",
+                "sq_candidato": "sequencial_candidato",
+                "nr_candidato": "numero_candidato",
+                "nm_candidato": "nome_candidato",
+                "nm_urna_candidato": "nome_urna_candidato",
+                "nr_partido": "numero_partido",
+                "sg_partido": "sigla_partido",
+            }
+            if ano in (1998, 2000) or (2018 <= ano <= 2022):
+                keep_cols["qt_votos_nominais_validos"] = "votos"
+                keep_cols["qt_votos_nominais"] = "votos"
+            else:
+                keep_cols["qt_votos_nominais"] = "votos"
+                keep_cols["qt_votos_nominais_validos"] = "votos"
+            keep_cols["ds_sit_tot_turno"] = "resultado"
+            cols = None
+            df = select_named(df, keep_cols)
+        elif ano == 1994:
             cols = {
                 "v3": "ano",
                 "v6": "turno",
@@ -135,8 +168,9 @@ def _build_candidato(ano: int) -> pd.DataFrame:
                 "v50": "resultado",
             }
 
-        available = {k: v for k, v in cols.items() if k in df.columns}
-        df = df[list(available.keys())].rename(columns=available)
+        if cols is not None:
+            available = {k: v for k, v in cols.items() if k in df.columns}
+            df = df[list(available.keys())].rename(columns=available)
 
         # destring
         for col in ["ano", "turno", "id_municipio_tse", "votos"]:
@@ -225,7 +259,38 @@ def _build_partido(ano: int) -> pd.DataFrame:
         )
         df = read_raw_csv(str(base), drop_first_row=True)
 
-        if ano in (1994, 1998):
+        if df.attrs.get("tse_has_header"):
+            # Read-by-header-name path. Vote columns keep the Stata per-year
+            # semantics: the 28-column generation years (1996, 2000-2016)
+            # read QT_VOTOS_NOMINAIS / QT_VOTOS_LEGENDA; the 36-column
+            # generation years (1994, 1998, 2018+) read the *_VALIDOS
+            # totals. Dual keys — first present wins.
+            keep_cols = {
+                "ano_eleicao": "ano",
+                "nr_turno": "turno",
+                "cd_eleicao": "id_eleicao",
+                "ds_eleicao": "tipo_eleicao",
+                "dt_eleicao": "data_eleicao",
+                "sg_uf": "sigla_uf",
+                "cd_municipio": "id_municipio_tse",
+                "nr_zona": "zona",
+                "ds_cargo": "cargo",
+                "nr_partido": "numero_partido",
+                "sg_partido": "sigla_partido",
+            }
+            if ano == 1996 or (2000 <= ano <= 2016):
+                keep_cols["qt_votos_nominais"] = "votos_nominais"
+                keep_cols["qt_votos_nominais_validos"] = "votos_nominais"
+                keep_cols["qt_votos_legenda"] = "votos_legenda"
+                keep_cols["qt_total_votos_leg_validos"] = "votos_legenda"
+            else:
+                keep_cols["qt_votos_nominais_validos"] = "votos_nominais"
+                keep_cols["qt_votos_nominais"] = "votos_nominais"
+                keep_cols["qt_total_votos_leg_validos"] = "votos_legenda"
+                keep_cols["qt_votos_legenda"] = "votos_legenda"
+            cols = None
+            df = select_named(df, keep_cols)
+        elif ano in (1994, 1998):
             cols = {
                 "v3": "ano",
                 "v6": "turno",
@@ -290,8 +355,9 @@ def _build_partido(ano: int) -> pd.DataFrame:
                 "v34": "votos_nominais",
             }
 
-        available = {k: v for k, v in cols.items() if k in df.columns}
-        df = df[list(available.keys())].rename(columns=available)
+        if cols is not None:
+            available = {k: v for k, v in cols.items() if k in df.columns}
+            df = df[list(available.keys())].rename(columns=available)
 
         for col in [
             "ano",
