@@ -6,7 +6,7 @@ Single national file per year (no per-state loop).
 
 import pandas as pd
 from config import INPUT_DIR, OUTPUT_PYTHON, YEARS_EVEN
-from utils.helpers import merge_municipio, read_raw_csv
+from utils.helpers import merge_municipio, read_raw_csv, select_named
 
 
 def build_perfil_mun_zona(ano: int) -> pd.DataFrame:
@@ -17,7 +17,35 @@ def build_perfil_mun_zona(ano: int) -> pd.DataFrame:
     )
     df = read_raw_csv(str(base), drop_first_row=True)
 
-    if ano <= 2022:
+    if df.attrs.get("tse_has_header"):
+        # Read-by-header-name path. Dual keys cover the naming churn across
+        # TSE generations (ANO_ELEICAO/AA_ELEICAO, QT_ELEITORES_PERFIL/
+        # QT_ELEITORES, QT_ELEITORES_INC_NM_SOCIAL/QT_ELEITORES_NOME_SOCIAL,
+        # and the TP_OBRIGATORIEDADE_VOTO insertion that shifted the 2024
+        # positional block). Demographic columns keep the CD_* codes, as the
+        # Stata pipeline stored codes, not labels.
+        keep_cols = {
+            "ano_eleicao": "ano",
+            "aa_eleicao": "ano",
+            "sg_uf": "sigla_uf",
+            "cd_municipio": "id_municipio_tse",
+            "cd_mun_sit_biometrica": "situacao_biometria",
+            "nr_zona": "zona",
+            "cd_genero": "genero",
+            "cd_estado_civil": "estado_civil",
+            "cd_faixa_etaria": "grupo_idade",
+            "cd_grau_escolaridade": "instrucao",
+            "qt_eleitores_perfil": "eleitores",
+            "qt_eleitores": "eleitores",
+            "qt_eleitores_biometria": "eleitores_biometria",
+            "qt_eleitores_deficiencia": "eleitores_deficiencia",
+            "qt_eleitores_inc_nm_social": "eleitores_inclusao_nome_social",
+            "qt_eleitores_nome_social": "eleitores_inclusao_nome_social",
+        }
+        df = select_named(df, keep_cols)
+        if "situacao_biometria" not in df.columns:
+            df["situacao_biometria"] = ""
+    elif ano <= 2022:
         df = df[
             [
                 "v3",
