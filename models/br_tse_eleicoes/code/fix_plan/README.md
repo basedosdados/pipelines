@@ -71,8 +71,8 @@ Update this table as work completes (mark with date + session note).
 
 | Work order | Status | Notes |
 |---|---|---|
-| 01 setup + data hydration | IN PROGRESS (2026-07-29) | hydration running; several large families still 0-byte |
-| 02 header-aware parsing | DONE except pending re-checks (2026-07-29) | all builders header-aware; tier 3 = 392 OK · 59 advisory WARN · **0 FAIL**. Pending byte-parity re-checks (blocked on hydration): resultados_candidato_municipio_zona 1994/2010/2018; perfil_eleitorado_municipio_zona 2008+; receitas 2004/2008/2010(MG)/2012/2016(MG)/2020+; despesas 2004/2006/2008/2010(GO)/2012(MG)/2016(MG)/2018+; resultados_*_secao (all); detalhes_votacao_secao (other years); perfil_eleitorado_local_votacao (all); perfil_eleitorado_secao (all) |
+| 01 setup + data hydration | DONE (2026-07-30) | all input zips hydrated (extracted dirs were evicted by Dropbox — extract from zips into a scratch root, TSE_DATA_DIR points there). **prestacao_contas_2006.zip is truncated (no end-of-central-directory) — needs re-download from TSE** |
+| 02 header-aware parsing | DONE (2026-07-30) | all builders header-aware; tier 3 = 392 OK · 59 advisory WARN · **0 FAIL**. ~60 table-year cells byte-verified vs pre-refactor outputs, incl. every previously corrupted cell. Open: despesas_candidato 2006 untestable (corrupt zip); perfil_eleitorado_secao 2008 and 2024 match on values with the intended post-4481f185 column order (Mar-21 reference parquets predate that fix) |
 | 03 side issues B3–B6 | TODO | |
 | 04 Gate A parity vs Stata | TODO | note: reference outputs in output_python/ predate two deliberate fixes (PR #1564 bens mapping, BR-file inclusion 53634055) — bens 2006/2010/2014 differ from them by exactly the BR files |
 | 04 Gate B fresh downloads | TODO | |
@@ -80,6 +80,19 @@ Update this table as work completes (mark with date + session note).
 | 05 prod repair | TODO | blocked on user approval |
 
 ### Session log
+
+- **2026-07-30** — Pending re-checks completed from the hydrated zips
+  (extract → build → byte-compare → delete, one family-year at a time):
+  rcmz 1994/2010/2018; perfil mun-zona 2008/2016/2020/2022/2024 (2020
+  needed the CD_MUN_SIT_BIOMETRIA name variant); receitas+despesas
+  2004/2008/2010/2012/2016/2018/2020/2022/2024 (2008/2012 got their named
+  dicts from the zip headers; receitas 2018 named path excludes SG_UE to
+  keep reference column placement); resultados_*_secao 1996/1998 (incl.
+  the legacy BR branch, 24M rows); detalhes_votacao_secao 1998/2010/2024;
+  perfil_eleitorado_local_votacao all years combined (5.97M rows). All
+  byte-identical. perfil_eleitorado_secao 2008: values identical, column
+  order matches the post-4481f185 schema (reference parquet is 3 days
+  staler than that fix).
 
 - **2026-07-29** — Work order 02 executed on branch `fix/br_tse_eleicoes_diagnosis`
   (11 commits). Design: `read_raw_csv` detects the header row per file
