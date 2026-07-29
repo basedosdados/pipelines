@@ -72,6 +72,7 @@ def build_perfil_secao(ano: int) -> pd.DataFrame:
                 "sg_uf": "sigla_uf",
                 "cd_municipio": "id_municipio_tse",
                 "cd_mun_sit_biometrica": "situacao_biometria",
+                "cd_mun_sit_biometria": "situacao_biometria",
                 "nr_zona": "zona",
                 "nr_secao": "secao",
                 "cd_genero": "genero",

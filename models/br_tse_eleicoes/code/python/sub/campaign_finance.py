@@ -421,48 +421,71 @@ def _build_receitas_2008() -> pd.DataFrame:
         / "prestacao_contas/prestacao_contas_2008/receitas_candidatos_2008_brasil"
     )
     df = read_raw_csv(str(base), drop_first_row=True)
-    df = df[
-        [
-            "v1",
-            "v4",
-            "v6",
-            "v7",
-            "v9",
-            "v12",
-            "v14",
-            "v15",
-            "v16",
-            "v17",
-            "v19",
-            "v21",
-            "v22",
-            "v23",
-            "v25",
-            "v26",
-            "v27",
-            "v28",
+    if df.attrs.get("tse_has_header"):
+        keep_cols = {
+            "sequencial_candidato": "sequencial_candidato",
+            "ds_cargo": "cargo",
+            "nr_candidato": "numero_candidato",
+            "sg_ue_superior": "sigla_uf",
+            "sg_ue": "id_municipio_tse",
+            "cd_num_cnpj": "cnpj_candidato",
+            "sg_partido": "sigla_partido",
+            "vr_receita": "valor_receita",
+            "dt_receita": "data_receita",
+            "ds_titulo": "origem_receita",
+            "ds_esp_recurso": "especie_receita",
+            "nm_doador": "nome_doador",
+            "cd_cpf_cnpj_doador": "cpf_cnpj_doador",
+            "sg_ue_superior_1": "sigla_uf_doador",
+            "sg_ue_1": "id_municipio_tse_doador",
+            "situacaocadastral": "situacao_receita",
+            "nm_adm": "nome_administrador",
+            "cd_cpf_adm": "cpf_administrador",
+        }
+        df = select_named(df, keep_cols)
+    else:
+        df = df[
+            [
+                "v1",
+                "v4",
+                "v6",
+                "v7",
+                "v9",
+                "v12",
+                "v14",
+                "v15",
+                "v16",
+                "v17",
+                "v19",
+                "v21",
+                "v22",
+                "v23",
+                "v25",
+                "v26",
+                "v27",
+                "v28",
+            ]
+        ].copy()
+        df.columns = [
+            "sequencial_candidato",
+            "cargo",
+            "numero_candidato",
+            "sigla_uf",
+            "id_municipio_tse",
+            "cnpj_candidato",
+            "sigla_partido",
+            "valor_receita",
+            "data_receita",
+            "origem_receita",
+            "especie_receita",
+            "nome_doador",
+            "cpf_cnpj_doador",
+            "sigla_uf_doador",
+            "id_municipio_tse_doador",
+            "situacao_receita",
+            "nome_administrador",
+            "cpf_administrador",
         ]
-    ].copy()
-    df.columns = [
-        "sequencial_candidato",
-        "cargo",
-        "numero_candidato",
-        "sigla_uf",
-        "id_municipio_tse",
-        "cnpj_candidato",
-        "sigla_partido",
-        "valor_receita",
-        "data_receita",
-        "origem_receita",
-        "especie_receita",
-        "nome_doador",
-        "cpf_cnpj_doador",
-        "sigla_uf_doador",
-        "id_municipio_tse_doador",
-        "situacao_receita",
-        "nome_administrador",
-        "cpf_administrador",
-    ]
     df["sigla_uf"] = _clean_br(df["sigla_uf"])
     df["sigla_uf_doador"] = _clean_br(df["sigla_uf_doador"])
     df = _clean_nulo_cols(
@@ -604,58 +627,86 @@ def _build_receitas_2012() -> pd.DataFrame:
         / "prestacao_contas/prestacao_final_2012/receitas_candidatos_2012_brasil"
     )
     df = read_raw_csv(str(base), drop_first_row=True)
-    df = df[
-        [
-            "v1",
-            "v2",
-            "v4",
-            "v5",
-            "v6",
-            "v8",
-            "v9",
-            "v10",
-            "v13",
-            "v14",
-            "v15",
-            "v16",
-            "v17",
-            "v19",
-            "v20",
-            "v21",
-            "v22",
-            "v23",
-            "v24",
-            "v25",
-            "v26",
-            "v27",
-            "v28",
+    if df.attrs.get("tse_has_header"):
+        keep_cols = {
+            "cod. eleicao": "id_eleicao",
+            "desc. eleicao": "tipo_eleicao",
+            "sequencial candidato": "sequencial_candidato",
+            "uf": "sigla_uf",
+            "numero ue": "id_municipio_tse",
+            "sigla partido": "sigla_partido",
+            "numero candidato": "numero_candidato",
+            "cargo": "cargo",
+            "numero recibo eleitoral": "numero_recibo_eleitoral",
+            "numero do documento": "numero_documento",
+            "cpf/cnpj do doador": "cpf_cnpj_doador",
+            "nome do doador": "nome_doador",
+            "nome do doador (receita federal)": "nome_doador_rf",
+            "numero partido doador": "numero_partido_doador",
+            "numero candidato doador": "numero_candidato_doador",
+            "cod setor economico do doador": "cnae_2_doador",
+            "setor economico do doador": "descricao_cnae_2_doador",
+            "data da receita": "data_receita",
+            "valor receita": "valor_receita",
+            "tipo receita": "origem_receita",
+            "fonte recurso": "fonte_receita",
+            "especie recurso": "natureza_receita",
+            "descricao da receita": "descricao_receita",
+        }
+        df = select_named(df, keep_cols)
+    else:
+        df = df[
+            [
+                "v1",
+                "v2",
+                "v4",
+                "v5",
+                "v6",
+                "v8",
+                "v9",
+                "v10",
+                "v13",
+                "v14",
+                "v15",
+                "v16",
+                "v17",
+                "v19",
+                "v20",
+                "v21",
+                "v22",
+                "v23",
+                "v24",
+                "v25",
+                "v26",
+                "v27",
+                "v28",
+            ]
+        ].copy()
+        df.columns = [
+            "id_eleicao",
+            "tipo_eleicao",
+            "sequencial_candidato",
+            "sigla_uf",
+            "id_municipio_tse",
+            "sigla_partido",
+            "numero_candidato",
+            "cargo",
+            "numero_recibo_eleitoral",
+            "numero_documento",
+            "cpf_cnpj_doador",
+            "nome_doador",
+            "nome_doador_rf",
+            "numero_partido_doador",
+            "numero_candidato_doador",
+            "cnae_2_doador",
+            "descricao_cnae_2_doador",
+            "data_receita",
+            "valor_receita",
+            "origem_receita",
+            "fonte_receita",
+            "natureza_receita",
+            "descricao_receita",
         ]
-    ].copy()
-    df.columns = [
-        "id_eleicao",
-        "tipo_eleicao",
-        "sequencial_candidato",
-        "sigla_uf",
-        "id_municipio_tse",
-        "sigla_partido",
-        "numero_candidato",
-        "cargo",
-        "numero_recibo_eleitoral",
-        "numero_documento",
-        "cpf_cnpj_doador",
-        "nome_doador",
-        "nome_doador_rf",
-        "numero_partido_doador",
-        "numero_candidato_doador",
-        "cnae_2_doador",
-        "descricao_cnae_2_doador",
-        "data_receita",
-        "valor_receita",
-        "origem_receita",
-        "fonte_receita",
-        "natureza_receita",
-        "descricao_receita",
-    ]
     df["sigla_uf"] = _clean_br(df["sigla_uf"])
     df = _clean_nulo_cols(
         df,
@@ -1189,6 +1240,11 @@ def _build_receitas_2018_plus(ano: int) -> pd.DataFrame:
                 "ds_receita": "descricao_receita",
                 "vr_receita": "valor_receita",
             }
+            if ano == 2018:
+                # the Stata-era 2018 parse did not map SG_UE
+                # (id_municipio_tse) — federal-year receitas have no
+                # municipality; keep the reference column placement
+                keep_cols.pop("sg_ue")
             df = select_named(df, keep_cols)
         else:
             if ano == 2018:
@@ -1620,44 +1676,65 @@ def _build_despesas_2008() -> pd.DataFrame:
         / "prestacao_contas/prestacao_contas_2008/despesas_candidatos_2008_brasil"
     )
     df = read_raw_csv(str(base), drop_first_row=True)
-    df = df[
-        [
-            "v1",
-            "v3",
-            "v5",
-            "v6",
-            "v8",
-            "v9",
-            "v10",
-            "v11",
-            "v12",
-            "v13",
-            "v14",
-            "v16",
-            "v18",
-            "v19",
-            "v21",
-            "v22",
+    if df.attrs.get("tse_has_header"):
+        keep_cols = {
+            "sequencial_candidato": "sequencial_candidato",
+            "ds_cargo": "cargo",
+            "nr_candidato": "numero_candidato",
+            "sg_ue_superior": "sigla_uf",
+            "sg_ue": "id_municipio_tse",
+            "cd_num_cnpj": "cnpj_candidato",
+            "nr_partido": "numero_partido",
+            "sg_partido": "sigla_partido",
+            "vr_despesa": "valor_despesa",
+            "dt_despesa": "data_despesa",
+            "ds_titulo": "tipo_despesa",
+            "ds_esp_recurso": "especie_recurso",
+            "ds_nr_documento": "numero_documento",
+            "ds_tipo_documento": "tipo_documento",
+            "nm_fornecedor": "nome_fornecedor",
+            "cd_cpf_cnpj_fornecedor": "cpf_cnpj_fornecedor",
+        }
+        df = select_named(df, keep_cols)
+    else:
+        df = df[
+            [
+                "v1",
+                "v3",
+                "v5",
+                "v6",
+                "v8",
+                "v9",
+                "v10",
+                "v11",
+                "v12",
+                "v13",
+                "v14",
+                "v16",
+                "v18",
+                "v19",
+                "v21",
+                "v22",
+            ]
+        ].copy()
+        df.columns = [
+            "sequencial_candidato",
+            "cargo",
+            "numero_candidato",
+            "sigla_uf",
+            "id_municipio_tse",
+            "cnpj_candidato",
+            "numero_partido",
+            "sigla_partido",
+            "valor_despesa",
+            "data_despesa",
+            "tipo_despesa",
+            "especie_recurso",
+            "numero_documento",
+            "tipo_documento",
+            "nome_fornecedor",
+            "cpf_cnpj_fornecedor",
         ]
-    ].copy()
-    df.columns = [
-        "sequencial_candidato",
-        "cargo",
-        "numero_candidato",
-        "sigla_uf",
-        "id_municipio_tse",
-        "cnpj_candidato",
-        "numero_partido",
-        "sigla_partido",
-        "valor_despesa",
-        "data_despesa",
-        "tipo_despesa",
-        "especie_recurso",
-        "numero_documento",
-        "tipo_documento",
-        "nome_fornecedor",
-        "cpf_cnpj_fornecedor",
-    ]
     df = _clean_nulo_cols(
         df,
         [
