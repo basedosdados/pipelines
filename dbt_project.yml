@@ -82,6 +82,9 @@ models:
     br_bd_diretorios_brasil:
       +materialized: table
       +schema: br_bd_diretorios_brasil
+    br_bd_diretorios_de:
+      +materialized: table
+      +schema: br_bd_diretorios_de
     br_bd_diretorios_in:
       +materialized: table
       +schema: br_bd_diretorios_in
@@ -106,6 +109,9 @@ models:
     us_census_cps:
       +materialized: table
       +schema: us_census_cps
+    us_nature_gerda:
+      +materialized: table
+      +schema: us_nature_gerda
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
