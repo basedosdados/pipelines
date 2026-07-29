@@ -9,9 +9,10 @@ from pipelines.crawler.ibge_pnadc.tasks import (
     build_table_paths,
     get_data_source_date_and_url,
 )
+from pipelines.datasets.br_ibge_pnadc.tasks import build_dicionario_task
 from pipelines.utils.metadata.domain import (
-    AllFree,
     DateFormat,
+    PartBdpro,
     YearQuarter,
 )
 from pipelines.utils.metadata.tasks import (
@@ -100,7 +101,7 @@ def br_ibge_pnadc__microdados(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=AllFree(
+            coverage=PartBdpro(
                 date_column=YearQuarter(year="ano", quarter="trimestre"),
                 date_format=DateFormat.YEAR_MONTH,
             ),
@@ -120,4 +121,76 @@ def br_ibge_pnadc__microdados(
 
 br_ibge_pnadc__microdados.deploy_schedules = [
     {"cron": "0 5 15-31 2,5,8,11 *", "timezone": "America/Sao_Paulo"}
+]
+
+
+@flow(
+    name="br_ibge_pnadc__dicionario",
+    log_prints=True,
+)
+def br_ibge_pnadc__dicionario(
+    dataset_id: str = "br_ibge_pnadc",
+    table_id: str = "dicionario",
+    materialize_after_dump: bool = False,
+    dbt_alias: bool = True,
+    target: str = "prod",
+) -> None:
+    """Reconstrói o dicionário da PNADC e materializa via dbt (dev e prod).
+
+    Args:
+        dataset_id: ID do dataset no BigQuery.
+        table_id: Slug da tabela do dicionário.
+        materialize_after_dump: Se True, sobe também para prod e materializa lá.
+        dbt_alias: Usa o alias do modelo dbt (nome com prefixo `<ds>__`).
+        target: Target dbt para a materialização em prod.
+    """
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    )
+
+    input_dir, output_dir = build_table_paths(table_id=table_id)
+    data_path = build_dicionario_task(
+        work_dir=input_dir, output_dir=output_dir
+    )
+
+    upload_to_gcs(
+        data_path=data_path,
+        table_id=table_id,
+        dataset_id=dataset_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="overwrite",
+        source_format="parquet",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=data_path,
+        table_id=table_id,
+        dataset_id=dataset_id,
+        bucket_name="basedosdados",
+        dump_mode="overwrite",
+        source_format="parquet",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        dbt_alias=dbt_alias,
+        target=target,
+    )
+
+
+br_ibge_pnadc__dicionario.deploy_schedules = [
+    {"cron": "0 5 1,15 * *", "timezone": "America/Sao_Paulo"}
 ]

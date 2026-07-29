@@ -9,8 +9,8 @@ models:
       - custom_dictionary_coverage:
           tags: [microdados_pnadc]  # tags que devem ser usadas no teste
           columns_covered_by_dictionary:  # colunas que precisam ser testadas
-            - capital
-            - rm_ride
+            - Capital
+            - RM_RIDE
             - V1022
             - V1023
             - V2005
@@ -48,7 +48,7 @@ models:
             - V4007
             - V4008
             - V4009
-            - V4010  # Não tinha no dicionário
+            # V4010 (ocupação) fora da cobertura — ver README e  # 1699
             - V4012
             - V40121
             - V40132
