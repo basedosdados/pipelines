@@ -7,7 +7,12 @@ import pandas as pd
 from config import INPUT_DIR, OUTPUT_PYTHON
 from utils.clean_election_type import clean_election_type_series
 from utils.clean_string import clean_string_series
-from utils.helpers import merge_municipio, parse_date_br, read_raw_csv
+from utils.helpers import (
+    merge_municipio,
+    parse_date_br,
+    read_raw_csv,
+    select_named,
+)
 
 # fmt: off
 UFS = {
@@ -42,7 +47,26 @@ def build_vagas(ano: int) -> pd.DataFrame:
         )
         df = read_raw_csv(str(base), drop_first_row=(ano >= 2014))
 
-        if ano <= 2012:
+        if df.attrs.get("tse_has_header"):
+            # Read-by-header-name path (all consulta_vagas republications
+            # share one 15-column layout). For <= 2012 the id/data_eleicao
+            # fields stay empty to match the validated Stata outputs.
+            keep_cols = {
+                "ano_eleicao": "ano",
+                "cd_eleicao": "id_eleicao",
+                "ds_eleicao": "tipo_eleicao",
+                "dt_eleicao": "data_eleicao",
+                "sg_uf": "sigla_uf",
+                "sg_ue": "id_municipio_tse",
+                "ds_cargo": "cargo",
+                "qt_vaga": "vagas",
+                "qt_vagas": "vagas",
+            }
+            df = select_named(df, keep_cols)
+            if ano <= 2012:
+                df["id_eleicao"] = ""
+                df["data_eleicao"] = ""
+        elif ano <= 2012:
             df = df[["v3", "v4", "v5", "v6", "v9", "v10"]].copy()
             df.columns = [
                 "ano",
