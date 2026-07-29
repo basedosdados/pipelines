@@ -69,12 +69,33 @@ def _check_named(site, layout) -> list[dict]:
     ]
 
 
+def _check_named_affinity(site, layout) -> list[dict]:
+    """Named keys that exist in the layout but look semantically wrong."""
+    cols = {c.lower() for c in layout.columns}
+    return [
+        {"key": k, "bd": v}
+        for k, v in site["mapping"].items()
+        if k.lower() in cols and not compatible(v, k)
+    ]
+
+
 def run(table: str | None = None) -> list[Finding]:
     audits = tier1_audit.run(table)
     findings: list[Finding] = []
 
     for audit in audits:
         table_name = audit.tables[0]
+        # Years covered by a named (read-by-header) site in this builder.
+        # A positional site is then only the fallback for headerless files:
+        # for a year whose official layout carries a header, the named path
+        # is what parses current downloads, so the positional mapping is not
+        # judged against the header layout (it targets an older, headerless
+        # vintage by construction).
+        named_years: set[int] = set()
+        for site in audit.sites:
+            site_d = asdict(site) if not isinstance(site, dict) else site
+            if site_d["kind"] == "named":
+                named_years.update(site_d["years"])
         for site in audit.sites:
             site_d = asdict(site) if not isinstance(site, dict) else site
             suppressed = SUPPRESSED_SITES.get((audit.module, site_d["lineno"]))
@@ -114,6 +135,7 @@ def run(table: str | None = None) -> list[Finding]:
 
                 if site_d["kind"] == "named":
                     missing = _check_named(site_d, layout)
+                    affinity_bad = _check_named_affinity(site_d, layout)
                     if missing:
                         # named selection cannot misalign — a missing key
                         # only drops the column, so this is WARN not FAIL
@@ -125,10 +147,39 @@ def run(table: str | None = None) -> list[Finding]:
                                 details=missing,
                             )
                         )
-                    else:
+                    if affinity_bad:
+                        findings.append(
+                            Finding(
+                                **base,
+                                severity="WARN",
+                                kind="NAMED_AFFINITY_MISMATCH",
+                                details=affinity_bad,
+                            )
+                        )
+                    if not missing and not affinity_bad:
                         findings.append(
                             Finding(**base, severity="OK", kind="OK")
                         )
+                    continue
+
+                if ano in named_years and layout.has_header:
+                    findings.append(
+                        Finding(
+                            **base,
+                            severity="OK",
+                            kind="POSITIONAL_FALLBACK_UNUSED",
+                            details=[
+                                {
+                                    "reason": (
+                                        "year covered by a named "
+                                        "(read-by-header) site; positional "
+                                        "block is the fallback for "
+                                        "headerless vintages only"
+                                    )
+                                }
+                            ],
+                        )
+                    )
                     continue
 
                 mismatches, out_of_range = _check_positional(site_d, layout)

@@ -12,30 +12,104 @@ from config import MUNICIPIO_DIR_CSV, NULL_SENTINELS
 # Reading raw TSE files
 # ---------------------------------------------------------------------------
 
+# First cell of every known TSE header-row generation. Sourced from the
+# official layouts in diagnostics/artifacts/layouts/ (regenerate with
+# `python -m diagnostics run --tier 2`). Kept as an explicit whitelist so an
+# unknown header generation fails loudly instead of being parsed as data.
+_HEADER_FIRST_CELLS = {
+    # current generation (all families, republished files)
+    "DT_GERACAO",
+    # prestacao de contas 2002-2016 generations
+    "CD_ELEICAO",
+    "COD_ELEICAO",
+    "SQ_PRESTADOR_CONTA",
+    "SEQUENCIAL CANDIDATO",
+    "SG_UF",
+    "SIGLA DA UE",
+    "SG_UE",
+    "NOME UNIDADE ELEITORAL",
+    "DATA E HORA",
+    "ENTREGA EM CONJUNTO?",
+}
+
+# Cells that make a row look like a header even when its first cell is not
+# whitelisted — used only to fail loudly on unknown header generations.
+_HEADER_TELL_CELLS = {
+    "ANO_ELEICAO",
+    "SG_UF",
+    "SG_UE",
+    "SQ_CANDIDATO",
+    "NR_TURNO",
+    "ANO ELEIÇÃO",
+    "SIGLA UF",
+}
+
+
+def _normalize_cell(val: object) -> str:
+    return str(val).strip().strip('"').strip().upper()
+
+
+def _detect_header(row: list[str], path: Path) -> bool:
+    """
+    Decide whether the first physical row of a TSE file is a header row.
+
+    Uses a whitelist of known first cells (all TSE header generations start
+    with a known column name). If the row is not whitelisted but still looks
+    like a header (carries other known TSE column names), raise: a new header
+    generation must be added to the whitelist deliberately, never guessed.
+    """
+    if not row:
+        return False
+    cells = {_normalize_cell(c) for c in row}
+    if _normalize_cell(row[0]) in _HEADER_FIRST_CELLS:
+        return True
+    if cells & _HEADER_TELL_CELLS:
+        msg = (
+            f"{path}: first row looks like a TSE header but its first cell "
+            f"{row[0]!r} is not in the known-generations whitelist "
+            "(utils/helpers.py::_HEADER_FIRST_CELLS). Inspect the file and "
+            "add the new header generation explicitly."
+        )
+        raise ValueError(msg)
+    return False
+
+
+def _dedup_names(names: list[str]) -> list[str]:
+    """Deduplicate header names by suffixing _1, _2, ... on repeats."""
+    seen: dict[str, int] = {}
+    out = []
+    for n in names:
+        if n in seen:
+            seen[n] += 1
+            out.append(f"{n}_{seen[n]}")
+        else:
+            seen[n] = 0
+            out.append(n)
+    return out
+
 
 def read_raw_csv(
     filepath_pattern: str,
     *,
-    drop_first_row: bool = True,
+    drop_first_row: bool | None = None,
     encoding: str = "latin-1",
 ) -> pd.DataFrame:
     """
-    Read a raw TSE semicolon-delimited file.
+    Read a raw TSE semicolon-delimited file, header-aware.
 
-    Tries .txt first, then .csv — matching Stata's `cap import delimited` pattern.
-    All columns are read as strings (stringcols(_all)).
-    No header row (varn(nonames)); positional column names v1, v2, ... .
+    Tries .txt first, then .csv — matching Stata's `cap import delimited`
+    pattern. All columns are read as strings (stringcols(_all)).
 
-    Parameters
-    ----------
-    filepath_pattern : str
-        Path WITHOUT extension. E.g. "input/consulta_cand/consulta_cand_2020/consulta_cand_2020_SP"
-        Will try .txt then .csv.
-    drop_first_row : bool
-        If True, drop the first row (Stata: `drop in 1`). Many TSE files have a
-        header row that Stata skips this way.
-    encoding : str
-        File encoding. Default "utf-8".
+    Header handling is automatic, per file (TSE silently re-republishes
+    historical files with headers, so a fixed per-year assumption is unsafe):
+
+    - header row detected  -> columns named by the lowercased header names
+      (deduplicated), header row dropped, ``df.attrs["tse_has_header"] = True``
+    - no header            -> positional names v1, v2, ...,
+      ``df.attrs["tse_has_header"] = False``
+
+    ``drop_first_row`` is accepted for call-site compatibility but ignored:
+    the first row is dropped iff it is a header row.
     """
     base = Path(filepath_pattern)
     txt_path = base.with_suffix(".txt")
@@ -48,6 +122,13 @@ def read_raw_csv(
         path = csv_path
     else:
         raise FileNotFoundError(f"Neither {txt_path} nor {csv_path} found.")
+
+    if path.stat().st_size == 0:
+        msg = (
+            f"{path} is empty (0 bytes) — likely a Dropbox online-only "
+            "placeholder. Hydrate the file before building."
+        )
+        raise ValueError(msg)
 
     try:
         df = pd.read_csv(
@@ -76,12 +157,19 @@ def read_raw_csv(
             engine="python",
         )
 
-    # Stata-style positional column names: v1, v2, ...
-    df.columns = [f"v{i + 1}" for i in range(len(df.columns))]
+    first_row = list(df.iloc[0]) if len(df) > 0 else []
+    has_header = _detect_header(first_row, path)
 
-    if drop_first_row and len(df) > 0:
+    if has_header:
+        names = [_normalize_cell(c).lower() for c in first_row]
+        df.columns = _dedup_names(names)
         df = df.iloc[1:].reset_index(drop=True)
+    else:
+        # Stata-style positional column names: v1, v2, ...
+        df.columns = [f"v{i + 1}" for i in range(len(df.columns))]
 
+    df.attrs["tse_has_header"] = has_header
+    df.attrs["tse_path"] = str(path)
     return df
 
 

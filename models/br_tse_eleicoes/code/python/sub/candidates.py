@@ -24,8 +24,65 @@ from utils.helpers import (
 )
 
 
+def _select_named(df: pd.DataFrame, name_map: dict[str, str]) -> pd.DataFrame:
+    """Select/rename by official header name; first hit wins per BD column."""
+    available: dict[str, str] = {}
+    taken: set[str] = set()
+    for key, bd in name_map.items():
+        if key in df.columns and bd not in taken:
+            available[key] = bd
+            taken.add(bd)
+    return df[list(available)].rename(columns=available)
+
+
 def _parse_schema(df: pd.DataFrame, ano: int) -> pd.DataFrame:
-    """Select columns and rename based on year-specific schema."""
+    """Select columns and rename based on the file's schema.
+
+    Files with a header row (every TSE republication since the current
+    generations — verified back to 1994) are read by official column name,
+    which is immune to the positional drift TSE introduces when it silently
+    re-republishes historical files. The positional year-blocks below remain
+    only as the fallback for headerless vintages.
+    """
+    if df.attrs.get("tse_has_header"):
+        # Official TSE header name -> BD column, in BD output order.
+        # Covers both header generations: the 63-column one (NM_EMAIL,
+        # DS_DETALHE_SITUACAO_CAND, DS_NACIONALIDADE, ...) and the current
+        # 50-column one (DS_EMAIL; nationality/birthplace/situacao moved to
+        # the complementar file, merged in build_candidatos).
+        keep_cols = {
+            "ano_eleicao": "ano",
+            "nr_turno": "turno",
+            "cd_eleicao": "id_eleicao",
+            "ds_eleicao": "tipo_eleicao",
+            "dt_eleicao": "data_eleicao",
+            "sg_uf": "sigla_uf",
+            "sg_ue": "id_municipio_tse",
+            "ds_cargo": "cargo",
+            "sq_candidato": "sequencial",
+            "nr_candidato": "numero",
+            "nm_candidato": "nome",
+            "nm_urna_candidato": "nome_urna",
+            "nr_cpf_candidato": "cpf",
+            "nm_email": "email",
+            "ds_email": "email",
+            "ds_detalhe_situacao_cand": "situacao",
+            "nr_partido": "numero_partido",
+            "sg_partido": "sigla_partido",
+            "ds_nacionalidade": "nacionalidade",
+            "sg_uf_nascimento": "sigla_uf_nascimento",
+            "nm_municipio_nascimento": "municipio_nascimento",
+            "dt_nascimento": "data_nascimento",
+            "nr_titulo_eleitoral_candidato": "titulo_eleitoral",
+            "ds_genero": "genero",
+            "ds_grau_instrucao": "instrucao",
+            "ds_estado_civil": "estado_civil",
+            "ds_cor_raca": "raca",
+            "ds_ocupacao": "ocupacao",
+            "ds_sit_tot_turno": "resultado",
+        }
+        return _select_named(df, keep_cols)
+
     if ano <= 2014 or ano == 2018:
         cols = {
             "v3": "ano",
@@ -137,39 +194,49 @@ def build_candidatos(ano: int) -> pd.DataFrame:
 
         df = _parse_schema(df, ano)
 
-        # 2024: merge complementar file
-        if ano == 2024:
+        # Merge the complementar file when the main file lacks the
+        # demographic/status block. The current 50-column consulta_cand
+        # generation (all of 2024, and any year TSE republishes in it) moved
+        # situacao / nacionalidade / municipio_nascimento there; the older
+        # 63-column generation carries them in the main file, so no merge.
+        comp_cols = ["nacionalidade", "municipio_nascimento", "situacao"]
+        missing = [c for c in comp_cols if c not in df.columns]
+        if missing:
             comp_base = (
                 INPUT_DIR
                 / f"consulta_cand/consulta_cand_complementar_{ano}/consulta_cand_complementar_{ano}_{uf}"
             )
             try:
-                comp = read_raw_csv(str(comp_base), drop_first_row=True)
-                comp = comp[["v4", "v5", "v9", "v11", "v28"]].copy()
-                comp.columns = [
-                    "id_eleicao",
-                    "sequencial",
-                    "nacionalidade",
-                    "municipio_nascimento",
-                    "situacao",
-                ]
+                comp = read_raw_csv(str(comp_base))
+                if comp.attrs.get("tse_has_header"):
+                    keep_cols = {
+                        "cd_eleicao": "id_eleicao",
+                        "sq_candidato": "sequencial",
+                        "ds_nacionalidade": "nacionalidade",
+                        "nm_municipio_nascimento": "municipio_nascimento",
+                        "ds_situacao_candidato_tot": "situacao",
+                    }
+                    comp = _select_named(comp, keep_cols)
+                else:
+                    comp = comp[["v4", "v5", "v9", "v11", "v28"]].copy()
+                    comp.columns = [
+                        "id_eleicao",
+                        "sequencial",
+                        "nacionalidade",
+                        "municipio_nascimento",
+                        "situacao",
+                    ]
+                comp = comp[["id_eleicao", "sequencial", *missing]]
                 df = df.merge(
                     comp,
                     on=["id_eleicao", "sequencial"],
                     how="left",
-                    suffixes=("", "_comp"),
                 )
-                # Use complementar values where main is missing
-                if "situacao_comp" in df.columns:
-                    df["situacao"] = df["situacao"].fillna(df["situacao_comp"])
-                    df = df.drop(columns=["situacao_comp"])
             except FileNotFoundError:
-                if "nacionalidade" not in df.columns:
-                    df["nacionalidade"] = ""
-                if "municipio_nascimento" not in df.columns:
-                    df["municipio_nascimento"] = ""
-                if "situacao" not in df.columns:
-                    df["situacao"] = ""
+                pass
+            for col in comp_cols:
+                if col not in df.columns:
+                    df[col] = ""
 
         # destring
         for col in ["ano", "turno", "id_municipio_tse"]:
