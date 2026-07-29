@@ -6,7 +6,7 @@ so a delta pipeline would miss those — every run **rebuilds and fully overwrit
 all tables (``dump_mode="overwrite"``).
 
 The API is one call per (entity, year) at ~1.1s, and the ~5,570 municípios
-dominate. To keep a biweekly run tractable, each run re-downloads only a trailing
+dominate. To keep a monthly run tractable, each run re-downloads only a trailing
 window of years and reads the older years (incl. the frozen 1989-2012 Finbra
 data) from a GCS parquet cache, then rebuilds the full tables from the union.
 
@@ -201,10 +201,10 @@ def br_me_siconfi_flow(
         shutil.rmtree(work_dir, ignore_errors=True)
 
 
-# SICONFI is annual but revised retroactively; poll ~every two weeks (1st & 15th)
-# at 16:00 BRT. Each run rebuilds — there is no source-poll no-op here.
+# SICONFI is annual but revised retroactively; rebuild once a month (1st at
+# 16:00 BRT). Each run rebuilds fully — there is no source-poll no-op here.
 br_me_siconfi_flow.deploy_schedules = [
-    {"cron": "0 16 1,15 * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "0 16 1 * *", "timezone": "America/Sao_Paulo"}
 ]
 # The município window build holds a full year of data in pandas at a time.
 br_me_siconfi_flow.job_variables = {"memory": "16Gi"}
