@@ -3,6 +3,8 @@ Shared helper functions for the br_tse_eleicoes pipeline.
 Mirrors patterns from the Stata .do files.
 """
 
+import re
+import unicodedata
 from pathlib import Path
 
 import pandas as pd
@@ -19,34 +21,40 @@ from config import MUNICIPIO_DIR_CSV, NULL_SENTINELS
 _HEADER_FIRST_CELLS = {
     # current generation (all families, republished files)
     "DT_GERACAO",
-    # prestacao de contas 2002-2016 generations
-    "CD_ELEICAO",
-    "COD_ELEICAO",
-    "SQ_PRESTADOR_CONTA",
-    "SEQUENCIAL CANDIDATO",
+    # prestacao de contas generations (first cells verified per generation)
+    "SEQUENCIAL_CANDIDATO",  # 2002 / 2004 / 2006 SQL exports
+    "DATA E HORA",  # 2010 / 2012
+    "COD. ELEICAO",  # 2014 / 2016 (accent-stripped "Cód. Eleição")
+    "DS_ORGAO",  # 2008 comites export
     "SG_UF",
-    "SIGLA DA UE",
     "SG_UE",
-    "NOME UNIDADE ELEITORAL",
-    "DATA E HORA",
-    "ENTREGA EM CONJUNTO?",
 }
 
 # Cells that make a row look like a header even when its first cell is not
 # whitelisted — used only to fail loudly on unknown header generations.
 _HEADER_TELL_CELLS = {
     "ANO_ELEICAO",
+    "AA_ELEICAO",
     "SG_UF",
     "SG_UE",
     "SQ_CANDIDATO",
     "NR_TURNO",
-    "ANO ELEIÇÃO",
+    "SEQUENCIAL CANDIDATO",
     "SIGLA UF",
 }
 
+_DIGIT_RE = re.compile(r"\d")
+
 
 def _normalize_cell(val: object) -> str:
-    return str(val).strip().strip('"').strip().upper()
+    """Uppercase, strip quotes/accents, collapse internal whitespace."""
+    s = " ".join(str(val).strip().strip('"').split())
+    s = "".join(
+        c
+        for c in unicodedata.normalize("NFD", s)
+        if unicodedata.category(c) != "Mn"
+    )
+    return s.upper()
 
 
 def _detect_header(row: list[str], path: Path) -> bool:
@@ -55,15 +63,20 @@ def _detect_header(row: list[str], path: Path) -> bool:
 
     Uses a whitelist of known first cells (all TSE header generations start
     with a known column name). If the row is not whitelisted but still looks
-    like a header (carries other known TSE column names), raise: a new header
-    generation must be added to the whitelist deliberately, never guessed.
+    like a header — it carries known TSE column names, or no cell contains a
+    digit (real TSE data rows always carry dates/ids) — raise: a new header
+    generation must be added to the whitelist deliberately, never silently
+    parsed as data.
     """
     if not row:
         return False
     cells = {_normalize_cell(c) for c in row}
     if _normalize_cell(row[0]) in _HEADER_FIRST_CELLS:
         return True
-    if cells & _HEADER_TELL_CELLS:
+    digitless = len(row) >= 5 and not any(
+        _DIGIT_RE.search(str(c)) for c in row
+    )
+    if (cells & _HEADER_TELL_CELLS) or digitless:
         msg = (
             f"{path}: first row looks like a TSE header but its first cell "
             f"{row[0]!r} is not in the known-generations whitelist "
