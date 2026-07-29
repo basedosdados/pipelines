@@ -83,8 +83,10 @@ de 1.598 para **1.739 linhas**), o `equipamento` foi reconstruído com `--full-r
 (142,4M linhas, 4,8 GiB, 40 s) e os 8 testes passam. Verificado na tabela nova: zero linhas
 em `__UNPARTITIONED__` e 99,85% das linhas de 2026-06 com rótulo.
 
-Prod depende do merge da PR mais o full-refresh manual do `equipamento` — sem ele a coluna
-nova não existe em produção.
+Em prod a coluna chega no merge, pelo `on_schema_change="append_new_columns"` do modelo:
+ela passa a existir com valor **nulo no histórico** e preenchida das competências novas em
+diante. **Não rodar `--full-refresh` em produção** — ver a ressalva do `--sync-bucket` em
+"Como isso chega em prod". O backfill histórico depende de completar o staging de dev.
 
 ### Origem
 
@@ -137,6 +139,20 @@ Duas condições fáceis de esquecer, e sem as duas o prod fica para trás em si
 
 Atenção também: o `sync_bucket` apaga o destino e copia o dev por cima. Antes de
 sincronizar, confira que prod não tem nada que dev não tenha.
+
+**E aqui prod tem.** Medido em 2026-07-29: o staging de dev do `equipamento` tem 231
+competências e a tabela de prod tem 250 — faltam em dev 2024-02 a 2025-07, mais 2025-09 e
+2025-10, cerca de 21 milhões de linhas. O staging de dev não é espelho de prod; ele
+acumula só o que os runs de dev produziram, e esses são manuais e esporádicos.
+
+Consequência: **nunca rodar `--full-refresh` do `equipamento` em produção** depois de um
+`table-approve`. O run incremental da action não remove nada, mas uma reconstrução a
+partir do staging truncado apagaria as 20 competências. O `sync_bucket` faz backup em
+`basedosdados-backup` antes de apagar, então é recuperável — mas só até o próximo sync,
+que deleta o backup anterior.
+
+Isso não é particularidade do CNES: a premissa do `--sync-bucket` é que dev espelha prod,
+e isso vale para qualquer conjunto cujo dev esteja atrás.
 
 ### Códigos acrescentados em 2026-07-28 (issue #1714)
 
@@ -273,20 +289,20 @@ Duas armadilhas medidas na série:
 - **`concat` cru não serve.** O staging trocou de formato em 2025: antes `tipequip` vinha
   `'7'`, hoje vem `'07'`, e 94% da série está no formato antigo. Precisa de `lpad` nas
   duas metades. `codequip` tem 2 caracteres em toda a série e nunca é `'00'`.
-- **O `table-approve` não faz full-refresh.** `prefect_run_dbt.py` não aceita a flag e o
-  projeto não define `on_schema_change`, então vale o padrão do dbt, `ignore`. Num modelo
-  incremental a coluna nova não aparece em prod — o `dbt run` roda, fica verde, e não
-  adiciona nada. Mesmo caso do `br_me_cnpj`.
+- **O `table-approve` não faz full-refresh.** `prefect_run_dbt.py` não aceita a flag, e o
+  projeto não define `on_schema_change` em lugar nenhum, então vale o padrão do dbt,
+  `ignore`: num modelo incremental, coluna nova não aparece em prod — o `dbt run` roda,
+  fica verde, e não adiciona nada. Foi o que aconteceu no `br_me_cnpj`.
 
-  O deployment de dbt, porém, **já aceita `flags`** (`run_dbt_model_flow`), e o `run_dbt`
-  insere o `--full-refresh` só no `run`, nunca no `test`. Então dá para disparar à mão sem
-  mexer em CI. `flags` é **string**, não lista:
+  O `br_ms_cnes__equipamento` **passou a declarar `on_schema_change="append_new_columns"`**
+  justamente por isso. Com ele, a coluna nova é adicionada à tabela de prod no run normal
+  da action, com valor nulo nas linhas antigas. Os demais modelos do conjunto seguem no
+  padrão `ignore` e teriam o problema se ganhassem coluna.
 
-  ```bash
-  prefect deployment run "BD template: Executa DBT model/run_dbt_model_flow" \
-    -p dataset_id=br_ms_cnes -p table_id=equipamento -p dbt_command=run \
-    -p flags=--full-refresh -p target=prod -p dbt_alias=true
-  ```
+  O deployment de dbt aceita `flags` (`run_dbt_model_flow`) e o `run_dbt` insere o
+  `--full-refresh` só no `run`, nunca no `test` — mas **não use isso aqui**: o
+  `--sync-bucket` do `table-approve` deixa o staging de prod truncado, e reconstruir a
+  partir dele perde 20 competências. Ver "Como isso chega em prod".
 
 ### De onde saem os rótulos dos 4 dígitos
 
@@ -367,11 +383,15 @@ então a correção só vale depois de `--full-refresh`. O `dbt` não acusa a di
 o config novo e o particionamento antigo enquanto isso não acontece —
 `dbt run --select br_ms_cnes__incentivos` passou normalmente (`MERGE`) nessa situação.
 
-**Só o `equipamento` foi corrigido aqui** (`end: 2031`), porque a coluna
-`codigo_equipamento` já exigia um full-refresh e o rebuild com o particionamento certo
-sai de graça. As outras 11 tabelas, e a reconstrução de todas, ficaram em issue própria:
-são 248 GB e 1,17 bilhão de linhas, com `estabelecimento` e `profissional` somando 222 GB,
-o que não cabia numa PR sobre o dicionário.
+**Só o `equipamento` foi corrigido aqui** (`end: 2031`), e **só em dev**. O rebuild de dev
+serviu a duas coisas de uma vez: reparticionar a tabela e preencher `codigo_equipamento`
+em toda a série. Em prod nada disso acontece nesta PR — a coluna chega por
+`append_new_columns`, com histórico nulo, e o particionamento antigo permanece, porque
+reconstruir a partir do staging sincronizado perderia 20 competências.
+
+As outras 11 tabelas, e a reconstrução de todas, ficaram em issue própria: são 248 GB e
+1,17 bilhão de linhas, com `estabelecimento` e `profissional` somando 222 GB, o que não
+cabia numa PR sobre o dicionário.
 
 `regra_contratual` está fora de qualquer reprocessamento: a tabela está desativada, o
 crawler falha na leitura do CSV desde pelo menos 2026-05 e a #1703 foi fechada como

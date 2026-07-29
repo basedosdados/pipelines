@@ -464,12 +464,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Acrescenta códigos novos do DATASUS ao dicionário."
     )
-    parser.add_argument(
+    modo = parser.add_mutually_exclusive_group()
+    modo.add_argument(
         "--apply",
         action="store_true",
         help="Grava o CSV e sobe para o staging (padrão: só dry-run).",
     )
-    parser.add_argument(
+    modo.add_argument(
         "--dry-run",
         action="store_true",
         help="Explícito; é o comportamento padrão.",
