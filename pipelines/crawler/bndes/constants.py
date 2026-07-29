@@ -148,6 +148,36 @@ class constants(Enum):
     )
 
 
+class constants_operacoes_nao_automaticas(Enum):
+    DATASET_ID = "br_bndes_operacoes_contratadas"
+    TABLE_ID = "operacoes_nao_automaticas"
+    CKAN_RESOURCE_ID = "6f56b78c-510f-44b6-8274-78a5b7e931f4"
+    RESOURCE_SHOW_URL = (
+        "https://dadosabertos.bndes.gov.br/api/3/action/resource_show"
+        "?id=6f56b78c-510f-44b6-8274-78a5b7e931f4"
+    )
+    DOWNLOAD_URL = (
+        "https://dadosabertos.bndes.gov.br/dataset/"
+        "10e21ad1-568e-45e5-a8af-43f2c05ef1a2/resource/"
+        "6f56b78c-510f-44b6-8274-78a5b7e931f4/download/"
+        "operacoes-financiamento-operacoes-nao-automaticas.csv"
+    )
+    LAST_MODIFIED_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
+
+    INPUT_PATH = "/tmp/input/br_bndes_operacoes_contratadas/"
+    OUTPUT_PATH = "/tmp/output/br_bndes_operacoes_contratadas/"
+    CSV_FILENAME = "operacoes-financiamento-operacoes-nao-automaticas.csv"
+
+    DROP_COLUMNS = []
+
+    ORDER_COLUMNS = []
+
+    # staging do BD e sempre todo STRING; a tipagem e feita no safe_cast do dbt.
+    # o schema explicito garante string consistente entre particoes (mesmo em
+    # chunk com a coluna toda nula, que senao inferiria tipo null).
+    SCHEMA = pa.schema([(col, pa.string()) for col in []])
+
+
 class constants_administracao_publica(Enum):
     """
     Config da 2a tabela do conjunto: operacoes_administracao_publica.

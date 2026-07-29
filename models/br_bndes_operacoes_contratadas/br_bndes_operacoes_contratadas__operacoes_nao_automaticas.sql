@@ -28,7 +28,7 @@
     "data_contratacao",
 ] %}
 
-{% set float_cols = ["taxa_juros", "valor_contratado", "valor_desembolsado"] %}
+{% set float_cols = ["taxa_juros", "valor_operacao", "valor_desembolsado"] %}
 
 {% set int_cols = ["prazo_carencia", "prazo_amortizacao", "indicador_inovacao"] %}
 
@@ -38,7 +38,7 @@
     "id_contrato",
     "sigla_uf",
     "nome_municipio",
-    "razao_social_cliente",
+    "nome_cliente",
     "situacao_contrato",
     "porte_cliente",
     "natureza_cliente",
@@ -46,10 +46,10 @@
     "modalidade_apoio",
     "forma_apoio",
     "produto",
-    "tipo_instrumento_financeiro",
+    "instrumento_financeiro",
     "tipo_garantia",
     "tipo_excepcionalidade",
-    "tipo_fonte_recursos",
+    "fonte_recurso",
     "area_operacional_bndes",
     "setor_cnae_bndes",
     "subsetor_agrupado_cnae_bndes",
