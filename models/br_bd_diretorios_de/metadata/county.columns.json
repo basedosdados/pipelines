@@ -1,0 +1,30 @@
+[
+{
+"name": "id_county",
+"bigquery_type": "STRING",
+"description_pt": "Identificador do condado, Kreisschlüssel de 5 dígitos",
+"description_en": "County identifier, 5-digit Kreisschlüssel",
+"description_es": "Identificador del condado, Kreisschlüssel de 5 dígitos",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "id_state",
+"bigquery_type": "STRING",
+"description_pt": "Identificador do estado, código Land de 2 dígitos",
+"description_en": "State identifier, 2-digit Land code",
+"description_es": "Identificador del estado, código Land de 2 dígitos",
+"covered_by_dictionary": false,
+"has_sensitive_data": false,
+"directory_column": "br_bd_diretorios_de.state:id_state"
+},
+{
+"name": "name",
+"bigquery_type": "STRING",
+"description_pt": "Nome do condado em alemão",
+"description_en": "County name in German",
+"description_es": "Nombre del condado en alemán",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+}
+]

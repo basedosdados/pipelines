@@ -1,0 +1,92 @@
+[
+{
+"name": "id_party",
+"bigquery_type": "STRING",
+"description_pt": "Partido ou lista, nome normalizado do GERDA",
+"description_en": "Party or list, GERDA normalized name",
+"description_es": "Partido o lista, nombre normalizado de GERDA",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "name",
+"bigquery_type": "STRING",
+"description_pt": "Nome do partido em inglês (ParlGov) ou uma forma legível do nome do GERDA",
+"description_en": "Party name in English (ParlGov) or a readable form of the GERDA name",
+"description_es": "Nombre del partido en inglés (ParlGov) o una forma legible del nombre de GERDA",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "name_short",
+"bigquery_type": "STRING",
+"description_pt": "Nome curto do partido (ParlGov)",
+"description_en": "Short party name (ParlGov)",
+"description_es": "Nombre corto del partido (ParlGov)",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "family",
+"bigquery_type": "STRING",
+"description_pt": "Família partidária (ParlGov)",
+"description_en": "Party family (ParlGov)",
+"description_es": "Familia de partidos (ParlGov)",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "left_right",
+"bigquery_type": "FLOAT64",
+"description_pt": "Índice de ideologia esquerda-direita do ParlGov (0 esquerda a 10 direita)",
+"description_en": "Left-right ideology score from ParlGov (0 left to 10 right)",
+"description_es": "Índice de ideología izquierda-derecha de ParlGov (0 izquierda a 10 derecha)",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "parlgov_party_id",
+"bigquery_type": "STRING",
+"description_pt": "Identificador do partido no ParlGov",
+"description_en": "ParlGov party identifier",
+"description_es": "Identificador del partido en ParlGov",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "is_far_right",
+"bigquery_type": "STRING",
+"description_pt": "1 se classificado como extrema-direita pelo GERDA, caso contrário 0",
+"description_en": "1 if classified far right by GERDA, else 0",
+"description_es": "1 si GERDA lo clasifica como extrema derecha, de lo contrario 0",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "is_far_left",
+"bigquery_type": "STRING",
+"description_pt": "1 se classificado como extrema-esquerda pelo GERDA (excluindo Die Linke/PDS), caso contrário 0",
+"description_en": "1 if classified far left by GERDA (excluding Die Linke/PDS), else 0",
+"description_es": "1 si GERDA lo clasifica como extrema izquierda (excluyendo Die Linke/PDS), de lo contrario 0",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "is_cdu_csu",
+"bigquery_type": "STRING",
+"description_pt": "1 se o partido é CDU ou CSU, caso contrário 0",
+"description_en": "1 if the party is CDU or CSU, else 0",
+"description_es": "1 si el partido es CDU o CSU, de lo contrario 0",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "category",
+"bigquery_type": "STRING",
+"description_pt": "Categoria da linha: party, residual_other, local_voter_groups ou independents",
+"description_en": "Row category: party, residual_other, local_voter_groups, or independents",
+"description_es": "Categoría de la fila: party, residual_other, local_voter_groups o independents",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+}
+]

@@ -1,0 +1,38 @@
+[
+{
+"name": "id_state",
+"bigquery_type": "STRING",
+"description_pt": "Identificador do estado, código Land de 2 dígitos",
+"description_en": "State identifier, 2-digit Land code",
+"description_es": "Identificador del estado, código Land de 2 dígitos",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "state_abbreviation",
+"bigquery_type": "STRING",
+"description_pt": "Sigla oficial do estado (por exemplo, BY, NW)",
+"description_en": "Official state abbreviation (e.g. BY, NW)",
+"description_es": "Abreviatura oficial del estado (por ejemplo, BY, NW)",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "name",
+"bigquery_type": "STRING",
+"description_pt": "Nome do estado em alemão",
+"description_en": "State name in German",
+"description_es": "Nombre del estado en alemán",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "name_en",
+"bigquery_type": "STRING",
+"description_pt": "Nome do estado em inglês",
+"description_en": "State name in English",
+"description_es": "Nombre del estado en inglés",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+}
+]

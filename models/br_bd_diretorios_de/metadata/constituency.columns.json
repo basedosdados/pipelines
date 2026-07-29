@@ -1,0 +1,39 @@
+[
+{
+"name": "id_constituency",
+"bigquery_type": "STRING",
+"description_pt": "Identificador do distrito eleitoral: federal_<nr> ou state_<estado>_<nr>",
+"description_en": "Constituency identifier: federal_<nr> or state_<state>_<nr>",
+"description_es": "Identificador de la circunscripción: federal_<nr> o state_<estado>_<nr>",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "constituency_type",
+"bigquery_type": "STRING",
+"description_pt": "Nível do distrito: federal ou estadual",
+"description_en": "Level of the constituency: federal or state",
+"description_es": "Nivel de la circunscripción: federal o estatal",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "id_state",
+"bigquery_type": "STRING",
+"description_pt": "Identificador do estado, código Land de 2 dígitos",
+"description_en": "State identifier, 2-digit Land code",
+"description_es": "Identificador del estado, código Land de 2 dígitos",
+"covered_by_dictionary": false,
+"has_sensitive_data": false,
+"directory_column": "br_bd_diretorios_de.state:id_state"
+},
+{
+"name": "name",
+"bigquery_type": "STRING",
+"description_pt": "Nome do distrito (Wahlkreis)",
+"description_en": "Constituency (Wahlkreis) name",
+"description_es": "Nombre de la circunscripción (Wahlkreis)",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+}
+]
