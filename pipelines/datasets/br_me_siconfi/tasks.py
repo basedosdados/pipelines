@@ -37,6 +37,23 @@ def download(
     )
 
 
+@task(retries=2, retry_delay_seconds=30)
+def archive(work_dir: str, bucket_name: str) -> int:
+    """Archive the freshly downloaded raw API JSON to the bucket's raw/ prefix.
+
+    Provenance copy (one gzip tarball per year). See
+    :func:`pipelines.datasets.br_me_siconfi.utils.archive_raw`.
+
+    Args:
+        work_dir: Run scratch directory holding ``input/api``.
+        bucket_name: Target bucket (matches the materialization bucket).
+
+    Returns:
+        Number of year tarballs uploaded.
+    """
+    return utils.archive_raw(work_dir, bucket_name)
+
+
 @task
 def clean(
     work_dir: str,

@@ -85,3 +85,10 @@ class constants(Enum):
     # re-downloading the trailing window. Layout mirrors the staging output:
     #   <prefix>/<table>/ano=YYYY/[sigla_uf=UF/]data.parquet
     CACHE_PREFIX = "staging-cache/br_me_siconfi"
+
+    # GCS prefix (inside the target bucket) archiving the raw source files for
+    # provenance — one gzip tarball of raw API JSON per year:
+    #   <prefix>/api/dca_YYYY.tar.gz
+    # The frozen 1989-2012 Finbra raw files are archived once at seed time under
+    # <prefix>/finbra/. Distinct from the parquet cache (derived, not raw).
+    RAW_PREFIX = "raw/br_me_siconfi"

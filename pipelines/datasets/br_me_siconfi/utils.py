@@ -28,9 +28,9 @@ decision in the plan) rather than silently dropping or mislabeling rows.
 
 import importlib.util
 import json
-import logging
 import os
 import sys
+import tarfile
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -40,11 +40,12 @@ import pyarrow.parquet as pq
 
 from pipelines.datasets.br_me_siconfi.constants import constants
 
-log = logging.getLogger("br_me_siconfi")
-
+# Steps log via print() so Prefect's log_prints captures them (a module logger
+# would be invisible in the flow-run logs), matching the reused build code.
 CODE_DIR = str(constants.CODE_DIR.value)
 PATH_QUERIES = str(constants.PATH_QUERIES.value)
 CACHE_PREFIX = constants.CACHE_PREFIX.value
+RAW_PREFIX = constants.RAW_PREFIX.value
 
 
 # ── reused-code importers ────────────────────────────────────────────────────
@@ -182,7 +183,7 @@ def download_window(
         listing.close()
 
     years = list(range(start_year, end_year + 1))
-    log.info(
+    print(
         f"download_window: {len(entes)} entities x {len(years)} years "
         f"({start_year}-{end_year}), workers={workers}"
     )
@@ -331,7 +332,7 @@ def to_staging_parquet(
 
     if not n_rows:
         return None
-    log.info(f"{table}: {n_rows:,} rows -> {tdir}")
+    print(f"{table}: {n_rows:,} rows -> {tdir}")
     return tdir
 
 
@@ -384,6 +385,61 @@ def pull_cache(
         dest = staging_root / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
         blob.download_to_filename(str(dest))
+
+
+# ── raw archival (provenance) ────────────────────────────────────────────────
+def archive_raw(work_dir: str, bucket_name: str) -> int:
+    """Archive the downloaded raw API JSON to ``gs://<bucket>/raw/br_me_siconfi/``.
+
+    A provenance copy of the raw source files, one gzip tarball per year
+    (``raw/br_me_siconfi/api/dca_<year>.tar.gz``) holding that year's per-entity
+    JSON across all downloaded levels. One upload per year keeps this cheap even
+    for the município-heavy window (vs. tens of thousands of per-file uploads).
+    Idempotent: re-archiving a year overwrites its tarball.
+
+    Only the freshly downloaded trailing window is archived here; the frozen
+    1989-2012 Finbra raw files and out-of-window API years are archived once at
+    seed time, alongside the parquet cache seed. Kept separate from the cleaned
+    parquet cache, which is a derived artifact rather than raw source data.
+
+    Args:
+        work_dir: Run scratch directory (raw JSON under ``input/api``).
+        bucket_name: Target bucket — matches the materialization bucket
+            (``basedosdados-dev`` or ``basedosdados``).
+
+    Returns:
+        Number of year tarballs uploaded.
+    """
+    api_dir = Path(work_dir) / "input" / "api"
+    if not api_dir.exists():
+        return 0
+
+    by_year: dict[str, list[Path]] = {}
+    for jpath in api_dir.glob("**/*.json"):
+        # filename is dca_<year>_<cod_ibge>.json
+        parts = jpath.stem.split("_")
+        if len(parts) < 3:
+            continue
+        by_year.setdefault(parts[1], []).append(jpath)
+
+    bucket = _bucket(bucket_name)
+    archive_dir = Path(work_dir) / "raw_archive"
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for year, files in sorted(by_year.items()):
+        tar_path = archive_dir / f"dca_{year}.tar.gz"
+        with tarfile.open(str(tar_path), "w:gz") as tar:
+            for f in files:
+                tar.add(str(f), arcname=str(f.relative_to(api_dir)))
+        bucket.blob(
+            f"{RAW_PREFIX}/api/dca_{year}.tar.gz"
+        ).upload_from_filename(str(tar_path))
+        n += 1
+        print(
+            f"archive_raw: dca_{year}.tar.gz ({len(files)} files) -> "
+            f"gs://{bucket_name}/{RAW_PREFIX}/api/"
+        )
+    return n
 
 
 def _max_year(staging_root: Path, tables) -> int | None:

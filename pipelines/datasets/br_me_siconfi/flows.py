@@ -47,11 +47,13 @@ _COVERAGE = AllFree(
     date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
 )
 
-# One representative table anchors the source Poll/Update (its API raw source).
-# The chosen table must be linked to exactly ONE raw data source, or the
-# metadata client raises ("mais de um nó encontrado") — see the multi-raw-source
-# limitation in prefect-pipeline-conventions.
+# One representative table anchors the source Poll/Update. Its rows span both of
+# the dataset's raw sources (the updating API source + the frozen 1989-2012
+# Finbra source), so poll/commit disambiguate by _SOURCE_URL — the API source's
+# registered url — via the raw_source_url selector (multi-source fix in
+# pipelines/utils/metadata). The API source is the one that actually publishes.
 _SOURCE_TABLE = "municipio_receitas_orcamentarias"
+_SOURCE_URL = "https://siconfi.tesouro.gov.br/siconfi/index.jsf"
 
 
 @flow(name="br_me_siconfi", log_prints=True)
@@ -117,6 +119,8 @@ def br_me_siconfi_flow(
             levels=levels,
             workers=download_workers,
         )
+        # Archive the raw source JSON (provenance) to the dev bucket's raw/ prefix.
+        tasks.archive(work_dir=work_dir, bucket_name="basedosdados-dev")
         result = tasks.clean(
             work_dir=work_dir,
             api_dir=api_dir,
@@ -138,6 +142,7 @@ def br_me_siconfi_flow(
                 source_max_date=str(max_year),
                 env="prod",
                 date_format="%Y",
+                raw_source_url=_SOURCE_URL,
             )
 
         # Dev: upload staging + materialize/test.
@@ -159,6 +164,9 @@ def br_me_siconfi_flow(
 
         if not materialize_to_prod:
             return
+
+        # Archive the raw source JSON (provenance) to the prod bucket's raw/ prefix.
+        tasks.archive(work_dir=work_dir, bucket_name="basedosdados")
 
         # Prod: upload staging + materialize/test.
         for table in tables:
@@ -193,6 +201,7 @@ def br_me_siconfi_flow(
                     source_max_date=str(max_year),
                     env="prod",
                     date_format="%Y",
+                    raw_source_url=_SOURCE_URL,
                 )
     finally:
         # Covers early returns (dev-only) and exceptions. k8s gives each run a
