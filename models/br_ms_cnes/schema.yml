@@ -19,7 +19,7 @@ models:
           config:
             where: __most_recent_year_month__
       - custom_dictionary_coverage:
-          columns_covered_by_dictionary: [id_equipamento, tipo_equipamento]
+          columns_covered_by_dictionary: [tipo_equipamento]
           dictionary_model: ref('br_ms_cnes__dicionario')
           config:
             where: __most_recent_year_month__
@@ -59,6 +59,8 @@ models:
         tests: [not_null]
         config:
           where: __most_recent_year_month__
+      - name: codigo_equipamento
+        description: Código do equipamento no CNES, com 2 dígitos de tipo e 2 de equipamento
       - name: id_equipamento
         description: Identificador do equipamento
       - name: tipo_equipamento

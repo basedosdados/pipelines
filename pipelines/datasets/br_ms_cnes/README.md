@@ -63,7 +63,7 @@ ingerir nada; a partir do dia seguinte a `main` já carrega o poll novo.
 
 ## O dicionário
 
-### Estado em 2026-07-28
+### Estado em 2026-07-29
 
 **Dev está fechado; prod ainda não.** As duas correções da issue #1714 foram
 aplicadas no staging dev — as 7 chaves novas (`tipo_equipamento` 11–16 e
@@ -75,8 +75,16 @@ Prod segue com as 1.591 linhas originais e os tapa-buracos até o `table-approve
 rodar no merge do PR — ver "Como isso chega em prod" abaixo.
 
 Em 2026-07-29 a mesma issue ganhou um segundo escopo: o `id_equipamento` não identifica
-um equipamento sozinho, e o dicionário serve rótulo errado em 16.540 linhas por mês. Ver
-"O código de 4 dígitos" abaixo. A correção entra na mesma PR e ainda não foi implementada.
+um equipamento sozinho, e o dicionário serve rótulo errado em 22.313 linhas por mês. Ver
+"O código de 4 dígitos" abaixo.
+
+**Dev fechado em 2026-07-29.** Os 141 rótulos de `codigo_equipamento` entraram (dicionário
+de 1.598 para **1.739 linhas**), o `equipamento` foi reconstruído com `--full-refresh`
+(142,4M linhas, 4,8 GiB, 40 s) e os 8 testes passam. Verificado na tabela nova: zero linhas
+em `__UNPARTITIONED__` e 99,85% das linhas de 2026-06 com rótulo.
+
+Prod depende do merge da PR mais o full-refresh manual do `equipamento` — sem ele a coluna
+nova não existe em produção.
 
 ### Origem
 
@@ -92,9 +100,15 @@ eram **idênticos** (1.591 linhas, zero divergência, zero duplicatas).
 
 ### Como atualizar
 
-Use `models/br_ms_cnes/code/update_dicionario.py`. Ele lê o staging, acrescenta as
-linhas declaradas em `NEW_ROWS` (ignorando as que já existem, pela chave
-`id_tabela + nome_coluna + chave`) e regrava o CSV.
+Use `models/br_ms_cnes/code/update_dicionario.py`. Ele lê o staging, acrescenta as linhas
+pendentes (ignorando as que já existem, pela chave `id_tabela + nome_coluna + chave`) e
+regrava o CSV. São três estruturas, todas idempotentes:
+
+| Estrutura | Para quê |
+|---|---|
+| `NEW_ROWS` | chaves novas de qualquer tabela ou coluna; traz `id_tabela` e `nome_coluna` por linha |
+| `CODIGO_EQUIPAMENTO` | os 141 rótulos do código de 4 dígitos; só chave e valor, o resto é preenchido por `candidate_rows()` |
+| `REPLACE_ROWS` | reescreve o valor de linhas que já existem |
 
 ```bash
 cd models/br_ms_cnes/code
@@ -198,9 +212,9 @@ Conflito com a Lei`) tem 137 caracteres contra ~60 do resto do arquivo.
 no CNES na mesma leva, apesar de as portarias serem de 2024 e 2025. O 82 (E-DOT)
 aparece só em 2026-06.
 
-Essa recuperação é feita pelo `REPLACE_ROWS` do `update_dicionario.py`, que reescreve
-o valor de linhas existentes (o `NEW_ROWS` só acrescenta chave nova). Os dois
-caminhos são idempotentes.
+Essa recuperação é feita pelo `REPLACE_ROWS` do `update_dicionario.py`, único caminho que
+reescreve o valor de linhas existentes — o `NEW_ROWS` e o `CODIGO_EQUIPAMENTO` só
+acrescentam chave nova. Os três são idempotentes.
 
 ### Convenção de rótulo
 
@@ -209,6 +223,13 @@ O arquivo é inconsistente por acúmulo histórico: as chaves 1–8 de
 rótulos de `tipo_equipe` seguem o padrão `sigla - descrição` em minúscula. As
 adições mais recentes usam Title Case com acento, e foi esse o padrão adotado
 para os códigos novos. O legado não foi mexido.
+
+Em `codigo_equipamento` a grafia **não** foi normalizada: cada rótulo vem como está na
+sua fonte. O CNV escreve `Gama Câmara` onde o dicionário legado escrevia `gama camara`, e
+a Portaria 3.695 renomeia coisas (`raio x dentario` → `Raio X Odontológico`). Preservar a
+grafia da fonte foi decisão consciente — reescrever para um padrão interno perderia a
+rastreabilidade até a norma. Consequência: o mesmo equipamento aparece com duas grafias no
+dicionário, uma sob `id_equipamento` e outra sob `codigo_equipamento`.
 
 ### O código de 4 dígitos (2026-07-29)
 
@@ -220,18 +241,32 @@ outro na diálise. Só os 4 dígitos juntos identificam.
 A fonte entrega as duas metades separadas (`TIPEQUIP` e `CODEQUIP`) e o modelo as guarda
 em `tipo_equipamento` e `id_equipamento`, descartando a junção. Como o dicionário é
 consultado só pelo `id_equipamento`, toda linha de qualquer tipo com equipamento 1 recebe
-"gama camara": **16.540 linhas por mês com rótulo errado e plausível** em 2026-06 (tipos
-9, 10 e 11–16). Os tipos 1 a 8 escapam porque o DATASUS embutia o tipo no primeiro dígito
-do equipamento — tipo 2 usa 21–23, tipo 3 usa 31–50 —, o que fazia o número de 2 dígitos
-bastar. Quebrou no tipo 9, cuja faixa já estava ocupada pelo tipo 8.
+"gama camara". Medido em 2026-06, **22.313 linhas apontam para outro equipamento**:
+
+| Origem | Linhas | Códigos |
+|---|---|---|
+| Tipos 9–16, onde a numeração reinicia | 15.942 | 23 |
+| Tipo 01, códigos criados pela Portaria 3.695 | 6.371 | 17 |
+
+Os tipos 1 a 8 escapam porque o DATASUS embutia o tipo no primeiro dígito do equipamento
+— tipo 2 usa 21–23, tipo 3 usa 31–50 —, o que fazia o número de 2 dígitos bastar. Quebrou
+no tipo 9, cuja faixa já estava ocupada pelo tipo 8.
 
 O `custom_dictionary_coverage` não pega: ele valida `id_equipamento` e `tipo_equipamento`
 separadamente, e a combinação dos dois não é conferida por ninguém.
 
 **Decisão:** criar a coluna `codigo_equipamento` com os 4 dígitos e passar a consultar o
 dicionário por ela. `id_equipamento` e `tipo_equipamento` permanecem, para não quebrar
-quem já consome a tabela, e `id_equipamento` sai do `custom_dictionary_coverage`. Plano
-completo em `task_davi/br_ms_cnes/roadmap_codigo_equipamento.md`.
+quem já consome a tabela.
+
+**O teste passa a cobrir só `tipo_equipamento`.** `id_equipamento` sai por ser alarme
+morto: os números 1 a 99 estão todos no dicionário e sempre estarão, então o teste nunca
+falharia, aconteça o que acontecer com a fonte. E `codigo_equipamento` **não entra** —
+apontar o `custom_dictionary_coverage` para ele exigiria cobrir os 207 códigos, e 66 não
+têm rótulo que exista (ver pendências). Como o teste é `severity: error` e mata o flow
+depois de materializar, ligá-lo ali quebraria o `equipamento` todo mês de propósito. Fica
+o `tipo_equipamento`, que é o alarme que funciona — foi ele que pegou os tipos 11–16 e
+abriu esta issue.
 
 Duas armadilhas medidas na série:
 
@@ -242,6 +277,16 @@ Duas armadilhas medidas na série:
   projeto não define `on_schema_change`, então vale o padrão do dbt, `ignore`. Num modelo
   incremental a coluna nova não aparece em prod — o `dbt run` roda, fica verde, e não
   adiciona nada. Mesmo caso do `br_me_cnpj`.
+
+  O deployment de dbt, porém, **já aceita `flags`** (`run_dbt_model_flow`), e o `run_dbt`
+  insere o `--full-refresh` só no `run`, nunca no `test`. Então dá para disparar à mão sem
+  mexer em CI. `flags` é **string**, não lista:
+
+  ```bash
+  prefect deployment run "BD template: Executa DBT model/run_dbt_model_flow" \
+    -p dataset_id=br_ms_cnes -p table_id=equipamento -p dbt_command=run \
+    -p flags=--full-refresh -p target=prod -p dbt_alias=true
+  ```
 
 ### De onde saem os rótulos dos 4 dígitos
 
@@ -290,14 +335,47 @@ lê o PDF (devolve binário); `pdftotext -layout` resolve.
   11, 14, 15 e 16 (37 códigos, 340 linhas), que dependem da Portaria 4.109 — texto oficial
   nunca localizado, e ausente também do CNV —, mais 29 códigos antigos cujo tipo dominante
   não bate (`0351`, `0912`, `0265`, uma série de `077x`), de 20 a 480 linhas cada.
+  Enquanto esses 66 não fecharem, o `custom_dictionary_coverage` **não pode** apontar para
+  `codigo_equipamento`: o teste é `severity: error` e derrubaria o flow todo mês. Se
+  alguém localizar a 4.109 e fechar a lista, aí a troca vale.
 - **O texto oficial do código 80 continua por conferir** — ver a seção dos rótulos
   recuperados. O restante dos tapa-buracos de `tipo_equipe` 77–81 foi resolvido.
 - **`cobertura_temporal` é `(1)` em todas as linhas**, em vez da notação
   `INICIO(1)FIM` do manual de estilo.
 - **Encoding quebrado** em `id_equipamento` chave 97:
-  `sistema completo de reforafaEUR!o visual(vra)`.
+  `sistema completo de reforafaEUR!o visual(vra)`. O equivalente em
+  `codigo_equipamento` (`0897`) veio do CNV e está correto, então quem usar a coluna nova
+  não vê o problema — a entrada velha segue torta, como legado.
 - **Significados repetidos** em `tipo_equipe`: as chaves 1 e 70 são ambas
   `esf - equipe de saude da familia`; 49 e 76 são ambas `eap`.
+
+---
+
+## Particionamento (achado de 2026-07-29)
+
+**Os modelos do conjunto estão com o fim do range de partição curto demais.** A maioria
+declara `"end": 2024` e o `profissional` declara `"end": 2026`, com dados indo até 2026.
+
+O fim do range é **exclusivo** no particionamento por inteiro do BigQuery: linhas com
+valor fora de `[start, end)` vão para a partição `__UNPARTITIONED__`. Com `end: 2024`,
+tudo de 2024 em diante — três anos de dados — está num único bucket, e filtrar por `ano`
+não poda nada nesse intervalo. A convenção da BD é `end = último ano + 5`, então o valor
+certo hoje é **2031**.
+
+**Alterar o config não reparticiona.** O particionamento é definido na criação da tabela,
+então a correção só vale depois de `--full-refresh`. O `dbt` não acusa a divergência entre
+o config novo e o particionamento antigo enquanto isso não acontece —
+`dbt run --select br_ms_cnes__incentivos` passou normalmente (`MERGE`) nessa situação.
+
+**Só o `equipamento` foi corrigido aqui** (`end: 2031`), porque a coluna
+`codigo_equipamento` já exigia um full-refresh e o rebuild com o particionamento certo
+sai de graça. As outras 11 tabelas, e a reconstrução de todas, ficaram em issue própria:
+são 248 GB e 1,17 bilhão de linhas, com `estabelecimento` e `profissional` somando 222 GB,
+o que não cabia numa PR sobre o dicionário.
+
+`regra_contratual` está fora de qualquer reprocessamento: a tabela está desativada, o
+crawler falha na leitura do CSV desde pelo menos 2026-05 e a #1703 foi fechada como
+`NOT_PLANNED`.
 
 ---
 
@@ -317,9 +395,10 @@ poll novo. Logs em `task_davi/acompanhamento_de_pipelines/br_ms_cnes/`.
 Falharam no `dbt test` por causa dos códigos novos do dicionário (issue #1714).
 Corrigido em dev em 2026-07-28; prod depende do `table-approve` do PR.
 
-Note que o teste de `equipamento` valida `id_equipamento` e `tipo_equipamento`
-separadamente — ele passa mesmo com a combinação errada. Ver "O código de 4 dígitos"
-acima.
+O `equipamento` ganhou ainda a coluna `codigo_equipamento` e foi reconstruído em
+2026-07-29 — 8 testes passando. O `custom_dictionary_coverage` dele agora cobre **só**
+`tipo_equipamento`: `id_equipamento` saiu por ser alarme morto e `codigo_equipamento` não
+entrou porque 66 códigos não têm rótulo. Ver "O código de 4 dígitos" acima.
 
 ### br_ms_cnes__leito
 
