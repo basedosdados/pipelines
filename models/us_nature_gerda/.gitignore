@@ -1,4 +1,5 @@
 input/
 output/
+metadata/
 *.parquet
 code/*.rda
