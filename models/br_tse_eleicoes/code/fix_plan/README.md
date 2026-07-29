@@ -72,8 +72,8 @@ Update this table as work completes (mark with date + session note).
 | Work order | Status | Notes |
 |---|---|---|
 | 01 setup + data hydration | DONE (2026-07-30) | all input zips hydrated (extracted dirs were evicted by Dropbox — extract from zips into a scratch root, TSE_DATA_DIR points there). **prestacao_contas_2006.zip is truncated (no end-of-central-directory) — needs re-download from TSE** |
-| 02 header-aware parsing | DONE (2026-07-30) | all builders header-aware; tier 3 = 392 OK · 59 advisory WARN · **0 FAIL**. ~60 table-year cells byte-verified vs pre-refactor outputs, incl. every previously corrupted cell. Open: despesas_candidato 2006 untestable (corrupt zip); perfil_eleitorado_secao 2008 and 2024 match on values with the intended post-4481f185 column order (Mar-21 reference parquets predate that fix) |
-| 03 side issues B3–B6 | TODO | |
+| 02 header-aware parsing | DONE (2026-07-30) | all builders header-aware; tier 3 = 392 OK · 59 advisory WARN · **0 FAIL**. ~60 table-year cells byte-verified vs pre-refactor outputs, incl. every previously corrupted cell. Open: despesas_candidato 2006 untestable (corrupt zip). perfil_eleitorado_secao 2024 byte-identical (75.7M rows); 2008 matches on values with the intended post-4481f185 column order (its Mar-21 reference parquet predates that fix) |
+| 03 side issues B3–B6 | DONE (2026-07-30) | causes pinned for all four (see 03_side_issues.md): #1463 fixed in dbt model; #1568 stale prod vintage (rebuild repairs); #1046 source-empty field; #1155 no vice votes at source. Draft replies in issue_replies.md await user review |
 | 04 Gate A parity vs Stata | TODO | note: reference outputs in output_python/ predate two deliberate fixes (PR #1564 bens mapping, BR-file inclusion 53634055) — bens 2006/2010/2014 differ from them by exactly the BR files |
 | 04 Gate B fresh downloads | TODO | |
 | 05 rebuild + dev upload | TODO | |
