@@ -146,6 +146,8 @@ _WHITELIST: set[tuple[str, str]] = {
     ("nome", "NOME LOCAL VOTACAO"),
     ("situacao", "SITUACAO LOCAL VOTACAO"),
     ("situacao", "DESCRICAO SITUACAO LOCAL VOTACAO"),
+    # voter profile: TSE 2024 renamed QT_ELEITORES_INC_NM_SOCIAL
+    ("eleitores_inclusao_nome_social", "QT ELEITORES NOME_SOCIAL"),
 }
 
 

@@ -13,6 +13,7 @@ Findings are classified FAIL / WARN / OK / NO_LAYOUT and written to
 from __future__ import annotations
 
 import json
+import unicodedata
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
@@ -60,22 +61,46 @@ def _check_positional(site, layout) -> tuple[list[dict], list[dict]]:
     return mismatches, out_of_range
 
 
+def _norm_header(name: str) -> str:
+    """Normalize a header name exactly as ``read_raw_csv`` does at runtime:
+    lowercase, accent-stripped, internal whitespace collapsed."""
+    s = " ".join(str(name).strip().strip('"').split())
+    s = "".join(
+        c
+        for c in unicodedata.normalize("NFD", s)
+        if unicodedata.category(c) != "Mn"
+    )
+    return s.lower()
+
+
 def _check_named(site, layout) -> list[dict]:
-    cols = {c.lower() for c in layout.columns}
-    return [
-        {"key": k, "bd": v}
-        for k, v in site["mapping"].items()
-        if k.lower() not in cols
-    ]
+    """BD columns none of whose keys exist in the layout.
+
+    Named dicts carry alternative keys for the same BD column (TSE renames
+    across generations); a BD column is only reported missing when *no* key
+    for it resolves against the layout.
+    """
+    cols = {_norm_header(c) for c in layout.columns}
+    resolved = {
+        v for k, v in site["mapping"].items() if _norm_header(k) in cols
+    }
+    missing: list[dict] = []
+    seen: set[str] = set()
+    for k, v in site["mapping"].items():
+        if v in resolved or v in seen:
+            continue
+        seen.add(v)
+        missing.append({"key": k, "bd": v})
+    return missing
 
 
 def _check_named_affinity(site, layout) -> list[dict]:
     """Named keys that exist in the layout but look semantically wrong."""
-    cols = {c.lower() for c in layout.columns}
+    cols = {_norm_header(c) for c in layout.columns}
     return [
         {"key": k, "bd": v}
         for k, v in site["mapping"].items()
-        if k.lower() in cols and not compatible(v, k)
+        if _norm_header(k) in cols and not compatible(v, k)
     ]
 
 

@@ -71,13 +71,27 @@ Update this table as work completes (mark with date + session note).
 
 | Work order | Status | Notes |
 |---|---|---|
-| 01 setup + data hydration | TODO | needs user action for Dropbox hydration |
-| 02 header-aware parsing | TODO | |
+| 01 setup + data hydration | IN PROGRESS (2026-07-29) | hydration running; several large families still 0-byte |
+| 02 header-aware parsing | DONE except pending re-checks (2026-07-29) | all builders header-aware; tier 3 = 392 OK · 59 advisory WARN · **0 FAIL**. Pending byte-parity re-checks (blocked on hydration): resultados_candidato_municipio_zona 1994/2010/2018; perfil_eleitorado_municipio_zona 2008+; receitas 2004/2008/2010(MG)/2012/2016(MG)/2020+; despesas 2004/2006/2008/2010(GO)/2012(MG)/2016(MG)/2018+; resultados_*_secao (all); detalhes_votacao_secao (other years); perfil_eleitorado_local_votacao (all); perfil_eleitorado_secao (all) |
 | 03 side issues B3–B6 | TODO | |
-| 04 Gate A parity vs Stata | TODO | |
+| 04 Gate A parity vs Stata | TODO | note: reference outputs in output_python/ predate two deliberate fixes (PR #1564 bens mapping, BR-file inclusion 53634055) — bens 2006/2010/2014 differ from them by exactly the BR files |
 | 04 Gate B fresh downloads | TODO | |
 | 05 rebuild + dev upload | TODO | |
 | 05 prod repair | TODO | blocked on user approval |
+
+### Session log
+
+- **2026-07-29** — Work order 02 executed on branch `fix/br_tse_eleicoes_diagnosis`
+  (11 commits). Design: `read_raw_csv` detects the header row per file
+  (whitelist + fail-loud heuristics, accent/whitespace-normalized names);
+  every builder gained a named (`keep_cols`) path with the positional blocks
+  as headerless fallback; `bens` recovered the pre-#1564 12-column fallback.
+  Harness upgraded: named-site affinity check, positional-fallback skip,
+  `**CONST` dict spreads, runtime-identical header normalization. Every
+  refactor byte-verified against the pre-refactor outputs on the hydrated
+  vintage (~35 table-year cells). Note: Pisa's earlier header attempt
+  (0d57249c, reverted in 6a576a32) renamed columns from artifact layouts —
+  fragile against vintage mismatch; this design reads each file's own header.
 
 ## Decisions (settled by Ricardo, 2026-07-29)
 
