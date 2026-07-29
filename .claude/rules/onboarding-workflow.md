@@ -114,6 +114,10 @@ Turn the dataset to `status = published` **only in step 13, and only after all t
 
 Publishing is one call: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env="prod")` (re-pass every required field — the API does no partial updates). It is a **separate post-merge action**, independent of the optional recurring-pipeline step (12); never publish inside the onboarding PR, and never publish a dataset whose PR has not merged and materialised. Tables are gated by the dataset's status, so they may remain `published`; flipping the dataset makes everything go live in one step.
 
+## Prod table data — materialised by the merge, never uploaded by hand
+
+**You never upload data to the prod project (`basedosdados`) yourself.** During onboarding the local upload targets **`basedosdados-dev` only** (steps 5, and the `set_datalake_project` dbt macro resolves the `dev` target to `basedosdados-dev`). The **prod table data lands in `basedosdados.<gcp_dataset_id>.*` when the onboarding PR is merged**, via the GitHub **table-approve** action, which runs `dbt --target prod` (that target's `set_datalake_project` reads `basedosdados-staging`). So the sequence is: upload to dev → verify in dev → register prod metadata `under_review` (step 10, cloud tables pointing at the not-yet-existing `basedosdados` tables) → open PR (step 11) → **merge → table-approve materialises the prod tables** → verify → publish (step 13). Do not try to populate `basedosdados` or `basedosdados-staging` from a local machine; local credentials are dev-only, and the merge is the trigger. (Watch the phantom-model failure mode noted above: non-model `.sql` in the PR can abort materialisation before any real table builds.)
+
 ## Commit discipline
 
 Commit after each logical unit completes:
