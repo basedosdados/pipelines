@@ -1,0 +1,4 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_county,STRING,"County identifier, 5-digit Kreisschlüssel",,no,,,no,,id_county
+id_state,STRING,"State identifier, 2-digit Land code",,no,br_bd_diretorios_de.state:id_state,,no,,id_state
+name,STRING,County name in German,,no,,,no,,name
