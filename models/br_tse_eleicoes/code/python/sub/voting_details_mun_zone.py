@@ -8,7 +8,12 @@ import pandas as pd
 from config import INPUT_DIR, OUTPUT_PYTHON
 from utils.clean_election_type import clean_election_type_series
 from utils.clean_string import clean_string_series
-from utils.helpers import merge_municipio, parse_date_br, read_raw_csv
+from utils.helpers import (
+    merge_municipio,
+    parse_date_br,
+    read_raw_csv,
+    select_named,
+)
 
 # fmt: off
 UFS = {
@@ -32,6 +37,105 @@ UFS = {
 # fmt: on
 
 
+_BASE_NAMED = {
+    "ano_eleicao": "ano",
+    "nr_turno": "turno",
+    "cd_eleicao": "id_eleicao",
+    "ds_eleicao": "tipo_eleicao",
+    "dt_eleicao": "data_eleicao",
+    "sg_uf": "sigla_uf",
+    "cd_municipio": "id_municipio_tse",
+    "nr_zona": "zona",
+    "ds_cargo": "cargo",
+}
+
+
+def _parse_named(df: pd.DataFrame, ano: int) -> pd.DataFrame:
+    """Read-by-header-name path for detalhe_votacao_munzona.
+
+    Two header generations exist. The 34-column one (QT_APTOS_TOT /
+    QT_SECOES_TOT, plain vote counts) is the vintage the Stata code parsed
+    for 1996-2016. The 47-column one carries the *_VALIDOS decomposition;
+    there the derivation is year-conditional, mirroring the Stata blocks:
+    1994/1998 sum nominais+legenda (validos) and nulos+tecnico+apu_sep
+    (nulos); 2018+ (and any older year TSE republishes in this generation)
+    read the file's own totals.
+    """
+    src = df
+    if "qt_aptos_tot" in df.columns:  # 34-column generation
+        keep_cols = {
+            **_BASE_NAMED,
+            "qt_aptos": "aptos",
+            "qt_secoes": "secoes",
+            "qt_secoes_agregadas": "secoes_agregadas",
+            "qt_aptos_tot": "aptos_totalizadas",
+            "qt_secoes_tot": "secoes_totalizadas",
+            "qt_comparecimento": "comparecimento",
+            "qt_abstencoes": "abstencoes",
+            "qt_votos_nominais": "votos_nominais",
+            "qt_votos_brancos": "votos_brancos",
+            "qt_votos_nulos": "votos_nulos",
+            "qt_votos_legenda": "votos_legenda",
+        }
+        df = select_named(df, keep_cols)
+        for col in ["votos_nominais", "votos_legenda"]:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+        df["votos_validos"] = df["votos_nominais"] + df["votos_legenda"]
+        return df
+
+    # 47-column generation
+    elif ano in (1994, 1998):
+        keep_cols = {
+            **_BASE_NAMED,
+            "qt_aptos": "aptos",
+            "qt_secoes_principais": "secoes",
+            "qt_secoes_agregadas": "secoes_agregadas",
+            "qt_comparecimento": "comparecimento",
+            "qt_abstencoes": "abstencoes",
+            "qt_votos_nominais_validos": "votos_nominais",
+            "qt_total_votos_leg_validos": "votos_legenda",
+            "qt_votos_brancos": "votos_brancos",
+        }
+        df = select_named(df, keep_cols)
+        for col in ["votos_nominais", "votos_legenda"]:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+        df["votos_validos"] = df["votos_nominais"] + df["votos_legenda"]
+        nulos = None
+        for key in (
+            "qt_votos_nulos",
+            "qt_votos_nulo_tecnico",
+            "qt_votos_nulos_tecnicos",
+            "qt_votos_anulados_apu_sep",
+        ):
+            if key in src.columns:
+                part = pd.to_numeric(src[key], errors="coerce")
+                nulos = part if nulos is None else nulos + part
+        df["votos_nulos"] = nulos
+        df["aptos_totalizadas"] = np.nan
+        df["secoes_totalizadas"] = np.nan
+        return df
+
+    else:  # 47-column generation, 2018+ semantics
+        keep_cols = {
+            **_BASE_NAMED,
+            "qt_aptos": "aptos",
+            "qt_secoes_principais": "secoes",
+            "qt_secoes_agregadas": "secoes_agregadas",
+            "qt_comparecimento": "comparecimento",
+            "qt_abstencoes": "abstencoes",
+            "qt_votos_validos": "votos_validos",
+            "qt_total_votos_validos": "votos_validos",
+            "qt_votos_nominais_validos": "votos_nominais",
+            "qt_votos_brancos": "votos_brancos",
+            "qt_total_votos_nulos": "votos_nulos",
+            "qt_total_votos_leg_validos": "votos_legenda",
+        }
+        df = select_named(df, keep_cols)
+        df["aptos_totalizadas"] = np.nan
+        df["secoes_totalizadas"] = np.nan
+        return df
+
+
 def build_detalhes_mun_zona(ano: int) -> pd.DataFrame:
     """Build voting details mun-zone for a single year."""
     frames = []
@@ -43,7 +147,9 @@ def build_detalhes_mun_zona(ano: int) -> pd.DataFrame:
         )
         df = read_raw_csv(str(base), drop_first_row=True)
 
-        if ano in (1994, 1998):
+        if df.attrs.get("tse_has_header"):
+            df = _parse_named(df, ano)
+        elif ano in (1994, 1998):
             df = df[
                 [
                     "v3",

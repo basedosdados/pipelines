@@ -116,19 +116,34 @@ def _const_str_list(node: ast.expr) -> list[str] | None:
     return None
 
 
-def _const_str_dict(node: ast.expr) -> dict[str, str] | None:
-    if isinstance(node, ast.Dict) and all(
-        isinstance(k, ast.Constant)
-        and isinstance(k.value, str)
-        and isinstance(v, ast.Constant)
-        and isinstance(v.value, str)
-        for k, v in zip(node.keys, node.values, strict=False)
-    ):
-        return {
-            k.value: v.value
-            for k, v in zip(node.keys, node.values, strict=False)
-        }
-    return None
+def _const_str_dict(
+    node: ast.expr, consts: dict[str, dict[str, str]] | None = None
+) -> dict[str, str] | None:
+    """Resolve a dict literal of str->str, following ``**NAME`` spreads of
+    module-level constant dicts (``consts``)."""
+    if not isinstance(node, ast.Dict):
+        return None
+    out: dict[str, str] = {}
+    for k, v in zip(node.keys, node.values, strict=False):
+        if k is None:  # ``**spread``
+            if (
+                consts is not None
+                and isinstance(v, ast.Name)
+                and v.id in consts
+            ):
+                out.update(consts[v.id])
+                continue
+            return None
+        if (
+            isinstance(k, ast.Constant)
+            and isinstance(k.value, str)
+            and isinstance(v, ast.Constant)
+            and isinstance(v.value, str)
+        ):
+            out[k.value] = v.value
+            continue
+        return None
+    return out
 
 
 def _unwrap_copy(node: ast.expr) -> ast.expr:
@@ -157,11 +172,18 @@ def _select_list(node: ast.expr) -> list[str] | None:
 
 
 class _FunctionWalker:
-    def __init__(self, src: str, module: str, fspec: FuncSpec):
+    def __init__(
+        self,
+        src: str,
+        module: str,
+        fspec: FuncSpec,
+        module_consts: dict[str, dict[str, str]] | None = None,
+    ):
         self.src_lines = src.splitlines()
         self.src = src
         self.module = module
         self.fspec = fspec
+        self.module_consts = module_consts or {}
         self.sites: list[MappingSite] = []
         self.synthetic: list[str] = []
         self.renames: dict[str, str] = {}
@@ -245,7 +267,7 @@ class _FunctionWalker:
 
         # pattern A / C: dict literal mapping
         if isinstance(target, ast.Name):
-            d = _const_str_dict(value)
+            d = _const_str_dict(value, self.module_consts)
             if d is not None and len(d) >= 4:
                 if all(V_RE.match(k) for k in d):
                     self._add_site(stmt.lineno, "positional", d, cond_stack)
@@ -382,6 +404,17 @@ def run(table: str | None = None) -> list[FunctionAudit]:
         fn_nodes = {
             n.name: n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)
         }
+        # module-level constant str->str dicts, for ``**NAME`` spreads
+        module_consts: dict[str, dict[str, str]] = {}
+        for stmt in tree.body:
+            if (
+                isinstance(stmt, ast.Assign)
+                and len(stmt.targets) == 1
+                and isinstance(stmt.targets[0], ast.Name)
+            ):
+                d = _const_str_dict(stmt.value)
+                if d is not None:
+                    module_consts[stmt.targets[0].id] = d
         for fspec in fspecs:
             audit = FunctionAudit(
                 module=module,
@@ -398,7 +431,7 @@ def run(table: str | None = None) -> list[FunctionAudit]:
             if fn is None:
                 audit.issues.append("function not found in module")
             else:
-                walker = _FunctionWalker(src, module, fspec)
+                walker = _FunctionWalker(src, module, fspec, module_consts)
                 walker.walk(fn)
                 audit.sites = walker.sites
                 audit.synthetic_cols = sorted(set(walker.synthetic))

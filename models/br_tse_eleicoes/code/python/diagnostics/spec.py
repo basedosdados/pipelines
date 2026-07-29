@@ -467,6 +467,14 @@ FUNC_SPECS: list[FuncSpec] = [
         added=("id_municipio",),
     ),
     _f(
+        "sub/voting_details_mun_zone.py",
+        "_parse_named",
+        ["detalhes_votacao_municipio_zona"],
+        EVEN_YEARS,
+        "detalhe_votacao_munzona",
+        added=("id_municipio", "votos_validos", "votos_nulos"),
+    ),
+    _f(
         "sub/voting_details_section.py",
         "build_detalhes_secao",
         ["detalhes_votacao_secao"],
