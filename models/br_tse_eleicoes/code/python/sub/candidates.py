@@ -21,18 +21,8 @@ from utils.helpers import (
     pad_titulo,
     parse_date_br,
     read_raw_csv,
+    select_named,
 )
-
-
-def _select_named(df: pd.DataFrame, name_map: dict[str, str]) -> pd.DataFrame:
-    """Select/rename by official header name; first hit wins per BD column."""
-    available: dict[str, str] = {}
-    taken: set[str] = set()
-    for key, bd in name_map.items():
-        if key in df.columns and bd not in taken:
-            available[key] = bd
-            taken.add(bd)
-    return df[list(available)].rename(columns=available)
 
 
 def _parse_schema(df: pd.DataFrame, ano: int) -> pd.DataFrame:
@@ -81,7 +71,7 @@ def _parse_schema(df: pd.DataFrame, ano: int) -> pd.DataFrame:
             "ds_ocupacao": "ocupacao",
             "ds_sit_tot_turno": "resultado",
         }
-        return _select_named(df, keep_cols)
+        return select_named(df, keep_cols)
 
     if ano <= 2014 or ano == 2018:
         cols = {
@@ -216,7 +206,7 @@ def build_candidatos(ano: int) -> pd.DataFrame:
                         "nm_municipio_nascimento": "municipio_nascimento",
                         "ds_situacao_candidato_tot": "situacao",
                     }
-                    comp = _select_named(comp, keep_cols)
+                    comp = select_named(comp, keep_cols)
                 else:
                     comp = comp[["v4", "v5", "v9", "v11", "v28"]].copy()
                     comp.columns = [

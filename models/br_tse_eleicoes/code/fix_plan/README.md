@@ -79,16 +79,12 @@ Update this table as work completes (mark with date + session note).
 | 05 rebuild + dev upload | TODO | |
 | 05 prod repair | TODO | blocked on user approval |
 
-## Open decisions (user)
+## Decisions (settled by Ricardo, 2026-07-29)
 
-1. **Parity target**: strict cell-by-cell parity with Stata everywhere, or
-   parity except the cells where the Stata-era output itself is corrupted
-   (e.g. `bens_candidato` 2014)? Recommended: parity-except-known-corruption,
-   with every deviation documented in the parity matrix (04).
-2. **Repair scope**: targeted repair of the 11 corrupted prod cells vs full
-   rebuild of all tables from one fresh, uniform download vintage.
-   Recommended: full rebuild — uniform vintage eliminates the mixed-vintage
-   failure class permanently.
-3. **Where the work lands**: push fixes to PR #1476's branch
-   (`feat/refactor_eleicoes`) vs a stacked PR. Current work branch:
-   `fix/br_tse_eleicoes_diagnosis` (off `feat/refactor_eleicoes`).
+1. **Parity target**: parity except cells where the Stata-era output itself
+   is corrupted; every deviation documented in the parity matrix (04).
+2. **Repair scope**: full rebuild of all tables from one fresh, uniform
+   download vintage.
+3. **Where the work lands**: push fixes onto PR #1476's branch
+   (`feat/refactor_eleicoes`). Local work branch:
+   `fix/br_tse_eleicoes_diagnosis` (tracking it).

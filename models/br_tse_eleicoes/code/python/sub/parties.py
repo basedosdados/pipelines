@@ -8,7 +8,7 @@ from config import INPUT_DIR, OUTPUT_PYTHON, UFS_PARTIDOS
 from utils.clean_election_type import clean_election_type_series
 from utils.clean_party import clean_party_series
 from utils.clean_string import clean_string_series
-from utils.helpers import merge_municipio
+from utils.helpers import merge_municipio, read_raw_csv, select_named
 
 
 def _try_read_partidos(ano: int, uf: str) -> pd.DataFrame:
@@ -20,22 +20,88 @@ def _try_read_partidos(ano: int, uf: str) -> pd.DataFrame:
         f"consulta_coligacao/consulta_coligacao_{ano}/consulta_coligacao_{ano}_{uf}",
     ]
     for pattern in candidates:
-        base = INPUT_DIR / pattern
-        for ext in [".txt", ".csv"]:
-            path = base.with_suffix(ext)
-            if path.exists():
-                return pd.read_csv(
-                    path,
-                    sep=";",
-                    header=None,
-                    dtype=str,
-                    encoding="latin-1",
-                    keep_default_na=False,
-                    quotechar='"',
-                    on_bad_lines="warn",
-                )
+        try:
+            return read_raw_csv(str(INPUT_DIR / pattern))
+        except FileNotFoundError:
+            continue
     msg = f"No file found for partidos {ano} {uf}"
     raise FileNotFoundError(msg)
+
+
+def _parse_named(
+    raw: pd.DataFrame, ano: int, is_federal: bool
+) -> pd.DataFrame:
+    """Read-by-header-name path, year-scoped to the Stata output columns.
+
+    Each year block emits exactly the BD columns the corresponding
+    positional (Stata) block emitted — republished files carry more fields
+    (e.g. CD_ELEICAO before 2014), but emitting them would deviate from the
+    validated Stata outputs.
+    """
+    if ano <= 2012:
+        keep_cols = {
+            "ano_eleicao": "ano",
+            "nr_turno": "turno",
+            "ds_eleicao": "tipo_eleicao",
+            "sg_uf": "sigla_uf",
+            "sg_ue": "id_municipio_tse",
+            "ds_cargo": "cargo",
+            "tp_agremiacao": "tipo_agremiacao",
+            "nr_partido": "numero",
+            "sg_partido": "sigla",
+            "nm_partido": "nome",
+            "nm_coligacao": "nome_coligacao",
+            "ds_composicao_coligacao": "composicao_coligacao",
+            "sq_coligacao": "sequencial_coligacao",
+        }
+    elif 2014 <= ano <= 2020:
+        keep_cols = {
+            "ano_eleicao": "ano",
+            "nr_turno": "turno",
+            "cd_eleicao": "id_eleicao",
+            "ds_eleicao": "tipo_eleicao",
+            "dt_eleicao": "data_eleicao",
+            "sg_uf": "sigla_uf",
+            "sg_ue": "id_municipio_tse",
+            "ds_cargo": "cargo",
+            "tp_agremiacao": "tipo_agremiacao",
+            "nr_partido": "numero",
+            "sg_partido": "sigla",
+            "nm_partido": "nome",
+            "sq_coligacao": "sequencial_coligacao",
+            "nm_coligacao": "nome_coligacao",
+            "ds_composicao_coligacao": "composicao_coligacao",
+        }
+    else:  # >= 2022
+        keep_cols = {
+            "ano_eleicao": "ano",
+            "nr_turno": "turno",
+            "cd_eleicao": "id_eleicao",
+            "ds_eleicao": "tipo_eleicao",
+            "dt_eleicao": "data_eleicao",
+            "sg_uf": "sigla_uf",
+            "sg_ue": "id_municipio_tse",
+            "ds_cargo": "cargo",
+            "tp_agremiacao": "tipo_agremiacao",
+            "nr_partido": "numero",
+            "sg_partido": "sigla",
+            "nm_partido": "nome",
+            "nr_federacao": "numero_federacao",
+            "nm_federacao": "nome_federacacao",
+            "sg_federacao": "sigla_federacao",
+            "ds_composicao_federacao": "composicao_federacao",
+            "sq_coligacao": "sequencial_coligacao",
+            "nm_coligacao": "nome_coligacao",
+            "ds_composicao_coligacao": "composicao_coligacao",
+            "ds_situacao": "situacao_legenda",
+        }
+    if is_federal:
+        keep_cols.pop("sg_ue")
+    df = select_named(raw, keep_cols)
+    if ano <= 2012:
+        df["id_eleicao"] = ""
+        df["data_eleicao"] = ""
+    return df
 
 
 def build_partidos(ano: int) -> pd.DataFrame:
@@ -45,9 +111,11 @@ def build_partidos(ano: int) -> pd.DataFrame:
 
     for uf in UFS_PARTIDOS[ano]:
         raw = _try_read_partidos(ano, uf)
-        raw.columns = [f"v{i + 1}" for i in range(len(raw.columns))]
 
-        if ano <= 2012:
+        if raw.attrs.get("tse_has_header"):
+            df = _parse_named(raw, ano, is_federal)
+
+        elif ano <= 2012:
             # No header to drop for <= 2012
             if is_federal:
                 df = raw[
@@ -117,7 +185,7 @@ def build_partidos(ano: int) -> pd.DataFrame:
             df["data_eleicao"] = ""
 
         elif 2014 <= ano <= 2020:
-            raw = raw.iloc[1:].reset_index(drop=True)  # drop header row
+            # headerless fallback (read_raw_csv drops a detected header row)
             if is_federal:
                 df = raw[
                     [
@@ -192,7 +260,6 @@ def build_partidos(ano: int) -> pd.DataFrame:
                 ]
 
         else:  # >= 2022
-            raw = raw.iloc[1:].reset_index(drop=True)
             if is_federal:
                 df = raw[
                     [

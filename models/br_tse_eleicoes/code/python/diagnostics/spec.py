@@ -269,6 +269,14 @@ FUNC_SPECS: list[FuncSpec] = [
         added=("id_municipio",),
     ),
     _f(
+        "sub/parties.py",
+        "_parse_named",
+        ["partidos"],
+        [1990, *EVEN_YEARS],
+        "consulta_coligacao",
+        added=("id_municipio", "id_eleicao", "data_eleicao"),
+    ),
+    _f(
         "sub/vacancies.py",
         "build_vagas",
         ["vagas"],

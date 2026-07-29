@@ -83,19 +83,25 @@ def run(table: str | None = None) -> list[Finding]:
     audits = tier1_audit.run(table)
     findings: list[Finding] = []
 
+    # Years covered by a named (read-by-header) site, per (table, family).
+    # A positional site is then only the fallback for headerless files: for
+    # a year whose official layout carries a header, the named path is what
+    # parses current downloads, so the positional mapping is not judged
+    # against the header layout (it targets an older, headerless vintage by
+    # construction). Computed across audits because the named path may live
+    # in a sibling function of the same builder module.
+    named_years_by_key: dict[tuple[str, str], set[int]] = {}
     for audit in audits:
-        table_name = audit.tables[0]
-        # Years covered by a named (read-by-header) site in this builder.
-        # A positional site is then only the fallback for headerless files:
-        # for a year whose official layout carries a header, the named path
-        # is what parses current downloads, so the positional mapping is not
-        # judged against the header layout (it targets an older, headerless
-        # vintage by construction).
-        named_years: set[int] = set()
         for site in audit.sites:
             site_d = asdict(site) if not isinstance(site, dict) else site
             if site_d["kind"] == "named":
-                named_years.update(site_d["years"])
+                named_years_by_key.setdefault(
+                    (audit.tables[0], audit.family), set()
+                ).update(site_d["years"])
+
+    for audit in audits:
+        table_name = audit.tables[0]
+        named_years = named_years_by_key.get((table_name, audit.family), set())
         for site in audit.sites:
             site_d = asdict(site) if not isinstance(site, dict) else site
             suppressed = SUPPRESSED_SITES.get((audit.module, site_d["lineno"]))

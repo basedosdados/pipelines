@@ -173,6 +173,23 @@ def read_raw_csv(
     return df
 
 
+def select_named(df: pd.DataFrame, name_map: dict[str, str]) -> pd.DataFrame:
+    """Select/rename by official header name; first hit wins per BD column.
+
+    ``name_map`` maps lowercased official TSE header names to BD column
+    names, in the desired BD output order. Keys absent from the file are
+    skipped; when two keys target the same BD column (name changed across
+    TSE header generations), the first present key wins.
+    """
+    available: dict[str, str] = {}
+    taken: set[str] = set()
+    for key, bd in name_map.items():
+        if key in df.columns and bd not in taken:
+            available[key] = bd
+            taken.add(bd)
+    return df[list(available)].rename(columns=available)
+
+
 # ---------------------------------------------------------------------------
 # Null / sentinel cleaning
 # ---------------------------------------------------------------------------
