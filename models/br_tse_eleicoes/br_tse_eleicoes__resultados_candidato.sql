@@ -25,6 +25,7 @@ select
     safe_cast(titulo_eleitoral_candidato as string) titulo_eleitoral_candidato,
     safe_cast(sequencial_candidato as string) sequencial_candidato,
     safe_cast(numero_candidato as string) numero_candidato,
+    safe_cast(nome_candidato as string) nome_candidato,
     safe_cast(resultado as string) resultado,
     safe_cast(votos as int64) votos
 from {{ set_datalake_project("br_tse_eleicoes_staging.resultados_candidato") }} as t

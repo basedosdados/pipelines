@@ -1301,6 +1301,8 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
               ignore_values: ['73709']
+      - name: nome_candidato
+        description: Nome do candidato
       - name: numero_candidato
         description: Número do candidato
       - name: numero_partido

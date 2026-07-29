@@ -5,6 +5,47 @@ investigation first; fix only after the cause is pinned. File findings as a
 short section appended to this file (keep the issue trail here, link the
 issue).
 
+## FINDINGS (2026-07-30) — all four causes pinned
+
+| Issue | Cause | Fix |
+|---|---|---|
+| B3 #1568 | Stale prod build vintage, not a live code bug | full rebuild (05) |
+| B4 #1046 | Source ships the field 100% `#NULO#` | document (or drop column) |
+| B5 #1463 | dbt model missed the column | **fixed** — added to model + schema.yml |
+| B6 #1155 | Source has no vice votes (titular-only ballots) | document |
+
+Details:
+
+- **B3 (`resultados_partido_secao` misaligned 1994–2006).** The current code
+  parses the current votacao_secao files correctly: byte-parity vs the
+  validated outputs for 1996 (1.0M rows) and 1998 (11.4M rows, incl. the
+  legacy BR variant), and the harness finds no mismatch. The prod anomaly
+  (cargo values inside `zona`, etc.) is the signature of an *older*
+  raw-file generation parsed with mappings for a newer one — a stale build,
+  same class as the DIAGNOSIS.md prod findings. The full rebuild (05)
+  repairs it; no code change needed.
+- **B4 (`esfera_partidaria_fornecedor` empty).** `DS_ESFERA_PART_FORNECEDOR`
+  is `#NULO#` in every row of the TSE candidate-expense files (checked
+  632,668 rows SP 2020 and 309,654 rows SP 2022; field only exists 2018+).
+  Esfera partidária describes party-organ suppliers, which do not occur in
+  candidate expense records. Pipeline maps it correctly; the source is
+  empty. Options: keep + document in column `observations`, or drop the
+  column from architecture/dbt/metadata — user decision.
+- **B5 (`nome_candidato` in API but not in BQ).** `aggregation.py` produces
+  the column and the metadata registers it, but
+  `br_tse_eleicoes__resultados_candidato.sql` did not select it. Fixed:
+  added `safe_cast(nome_candidato as string)` after `numero_candidato`
+  (PLAN.md schema order) + schema.yml entry. Lands on the next dbt run.
+- **B6 (missing vice-prefeito in `resultados_candidato_municipio`).**
+  The TSE vote files (`votacao_candidato_munzona`) contain only
+  Prefeito/Vereador rows (checked 2000 and 2020); vices are not voted
+  separately, so no vote results exist for them. Vice-prefeito candidates
+  do appear in `candidatos` (97 in AC 2020). Works as the source works;
+  answer the issue and note it in the table description.
+
+Draft issue replies (PT) for user review before posting: see
+[issue_replies.md](issue_replies.md).
+
 ## B3 — issue #1568: `resultados_partido_secao` misaligned 1994–2006
 
 Symptom (prod): `cargo` values inside `zona`, `sigla_partido` inside `cargo`,
