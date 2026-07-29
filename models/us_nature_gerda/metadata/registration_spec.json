@@ -1,0 +1,510 @@
+{
+ "dataset_id": "ef590f85-48db-45a8-99f5-8f5e23c4e06f",
+ "gcp_dataset_id": "us_nature_gerda",
+ "tables": [
+  {
+   "slug": "federal_municipality",
+   "gcp_table_id": "federal_municipality",
+   "name_pt": "Eleições federais (Bundestag), nível municipal",
+   "name_en": "Federal elections (Bundestag), municipality level",
+   "name_es": "Elecciones federales (Bundestag), nivel municipal",
+   "description_pt": "Resultados de eleições federais (bundestag) no nível municipal, com limites originais, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1980-2025.",
+   "description_en": "Federal elections (Bundestag) results at the municipality level, on original boundaries, in long format by party (one row per unit, election and party). Coverage 1980-2025.",
+   "description_es": "Resultados de elecciones federales (bundestag) a nivel municipal, con límites originales, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1980-2025.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1980,
+   "coverage_end": 2025,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/federal_municipality.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "federal_municipality_harmonized_2021",
+   "gcp_table_id": "federal_municipality_harmonized_2021",
+   "name_pt": "Eleições federais (Bundestag), nível municipal (harmonizadas para limites municipais de 2021)",
+   "name_en": "Federal elections (Bundestag), municipality level (harmonized to 2021 municipal boundaries)",
+   "name_es": "Elecciones federales (Bundestag), nivel municipal (armonizadas a límites municipales de 2021)",
+   "description_pt": "Resultados de eleições federais (bundestag) no nível municipal, harmonizadas para limites municipais de 2021, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1990-2025.",
+   "description_en": "Federal elections (Bundestag) results at the municipality level, harmonized to 2021 municipal boundaries, in long format by party (one row per unit, election and party). Coverage 1990-2025.",
+   "description_es": "Resultados de elecciones federales (bundestag) a nivel municipal, armonizadas a límites municipales de 2021, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1990-2025.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1990,
+   "coverage_end": 2025,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/federal_municipality_harmonized_2021.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "federal_municipality_harmonized_2025",
+   "gcp_table_id": "federal_municipality_harmonized_2025",
+   "name_pt": "Eleições federais (Bundestag), nível municipal (harmonizadas para limites municipais de 2025)",
+   "name_en": "Federal elections (Bundestag), municipality level (harmonized to 2025 municipal boundaries)",
+   "name_es": "Elecciones federales (Bundestag), nivel municipal (armonizadas a límites municipales de 2025)",
+   "description_pt": "Resultados de eleições federais (bundestag) no nível municipal, harmonizadas para limites municipais de 2025, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1990-2025.",
+   "description_en": "Federal elections (Bundestag) results at the municipality level, harmonized to 2025 municipal boundaries, in long format by party (one row per unit, election and party). Coverage 1990-2025.",
+   "description_es": "Resultados de elecciones federales (bundestag) a nivel municipal, armonizadas a límites municipales de 2025, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1990-2025.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1990,
+   "coverage_end": 2025,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/federal_municipality_harmonized_2025.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "federal_county",
+   "gcp_table_id": "federal_county",
+   "name_pt": "Eleições federais (Bundestag), nível de condado",
+   "name_en": "Federal elections (Bundestag), county level",
+   "name_es": "Elecciones federales (Bundestag), nivel de condado",
+   "description_pt": "Resultados de eleições federais (bundestag) no nível de condado, com limites originais, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1953-2025.",
+   "description_en": "Federal elections (Bundestag) results at the county level, on original boundaries, in long format by party (one row per unit, election and party). Coverage 1953-2025.",
+   "description_es": "Resultados de elecciones federales (bundestag) a nivel de condado, con límites originales, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1953-2025.",
+   "ol_entity_ids": [
+    "01069a8a-5c20-4969-b295-a55082a828e8",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1953,
+   "coverage_end": 2025,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/federal_county.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_county": "county",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "federal_county_harmonized_2021",
+   "gcp_table_id": "federal_county_harmonized_2021",
+   "name_pt": "Eleições federais (Bundestag), nível de condado (harmonizadas para limites municipais de 2021)",
+   "name_en": "Federal elections (Bundestag), county level (harmonized to 2021 municipal boundaries)",
+   "name_es": "Elecciones federales (Bundestag), nivel de condado (armonizadas a límites municipales de 2021)",
+   "description_pt": "Resultados de eleições federais (bundestag) no nível de condado, harmonizadas para limites municipais de 2021, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1990-2025.",
+   "description_en": "Federal elections (Bundestag) results at the county level, harmonized to 2021 municipal boundaries, in long format by party (one row per unit, election and party). Coverage 1990-2025.",
+   "description_es": "Resultados de elecciones federales (bundestag) a nivel de condado, armonizadas a límites municipales de 2021, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1990-2025.",
+   "ol_entity_ids": [
+    "01069a8a-5c20-4969-b295-a55082a828e8",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1990,
+   "coverage_end": 2025,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/federal_county_harmonized_2021.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_county": "county",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "federal_constituency",
+   "gcp_table_id": "federal_constituency",
+   "name_pt": "Eleições federais (Bundestag), nível de distrito eleitoral",
+   "name_en": "Federal elections (Bundestag), constituency level",
+   "name_es": "Elecciones federales (Bundestag), nivel de circunscripción",
+   "description_pt": "Resultados de eleições federais (bundestag) no nível de distrito eleitoral, com limites originais, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 2002-2025.",
+   "description_en": "Federal elections (Bundestag) results at the constituency level, on original boundaries, in long format by party (one row per unit, election and party). Coverage 2002-2025.",
+   "description_es": "Resultados de elecciones federales (bundestag) a nivel de circunscripción, con límites originales, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 2002-2025.",
+   "ol_entity_ids": [
+    "031c0045-f144-4aea-b294-dcf91d0ac9c8",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 2002,
+   "coverage_end": 2025,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/federal_constituency.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_constituency": "district",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "federal_constituency_2021_on_2025",
+   "gcp_table_id": "federal_constituency_2021_on_2025",
+   "name_pt": "Eleições federais (Bundestag), nível de distrito eleitoral (recalculadas sobre os limites de distritos de 2025)",
+   "name_en": "Federal elections (Bundestag), constituency level (recomputed on 2025 constituency boundaries)",
+   "name_es": "Elecciones federales (Bundestag), nivel de circunscripción (recalculadas sobre los límites de circunscripción de 2025)",
+   "description_pt": "Resultados de eleições federais (bundestag) no nível de distrito eleitoral, recalculadas sobre os limites de distritos de 2025, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 2021-2021.",
+   "description_en": "Federal elections (Bundestag) results at the constituency level, recomputed on 2025 constituency boundaries, in long format by party (one row per unit, election and party). Coverage 2021-2021.",
+   "description_es": "Resultados de elecciones federales (bundestag) a nivel de circunscripción, recalculadas sobre los límites de circunscripción de 2025, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 2021-2021.",
+   "ol_entity_ids": [
+    "031c0045-f144-4aea-b294-dcf91d0ac9c8",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 2021,
+   "coverage_end": 2021,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/federal_constituency_2021_on_2025.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_constituency": "district",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "state_municipality",
+   "gcp_table_id": "state_municipality",
+   "name_pt": "Eleições estaduais (Landtag), nível municipal",
+   "name_en": "State elections (Landtag), municipality level",
+   "name_es": "Elecciones estatales (Landtag), nivel municipal",
+   "description_pt": "Resultados de eleições estaduais (landtag) no nível municipal, com limites originais, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1946-2026.",
+   "description_en": "State elections (Landtag) results at the municipality level, on original boundaries, in long format by party (one row per unit, election and party). Coverage 1946-2026.",
+   "description_es": "Resultados de elecciones estatales (landtag) a nivel municipal, con límites originales, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1946-2026.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1946,
+   "coverage_end": 2026,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/state_municipality.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "state_municipality_harmonized_2021",
+   "gcp_table_id": "state_municipality_harmonized_2021",
+   "name_pt": "Eleições estaduais (Landtag), nível municipal (harmonizadas para limites municipais de 2021)",
+   "name_en": "State elections (Landtag), municipality level (harmonized to 2021 municipal boundaries)",
+   "name_es": "Elecciones estatales (Landtag), nivel municipal (armonizadas a límites municipales de 2021)",
+   "description_pt": "Resultados de eleições estaduais (landtag) no nível municipal, harmonizadas para limites municipais de 2021, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1990-2026.",
+   "description_en": "State elections (Landtag) results at the municipality level, harmonized to 2021 municipal boundaries, in long format by party (one row per unit, election and party). Coverage 1990-2026.",
+   "description_es": "Resultados de elecciones estatales (landtag) a nivel municipal, armonizadas a límites municipales de 2021, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1990-2026.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1990,
+   "coverage_end": 2026,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/state_municipality_harmonized_2021.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "state_municipality_harmonized_2023",
+   "gcp_table_id": "state_municipality_harmonized_2023",
+   "name_pt": "Eleições estaduais (Landtag), nível municipal (harmonizadas para limites municipais de 2023)",
+   "name_en": "State elections (Landtag), municipality level (harmonized to 2023 municipal boundaries)",
+   "name_es": "Elecciones estatales (Landtag), nivel municipal (armonizadas a límites municipales de 2023)",
+   "description_pt": "Resultados de eleições estaduais (landtag) no nível municipal, harmonizadas para limites municipais de 2023, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1990-2026.",
+   "description_en": "State elections (Landtag) results at the municipality level, harmonized to 2023 municipal boundaries, in long format by party (one row per unit, election and party). Coverage 1990-2026.",
+   "description_es": "Resultados de elecciones estatales (landtag) a nivel municipal, armonizadas a límites municipales de 2023, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1990-2026.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1990,
+   "coverage_end": 2026,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/state_municipality_harmonized_2023.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "state_municipality_harmonized_2025",
+   "gcp_table_id": "state_municipality_harmonized_2025",
+   "name_pt": "Eleições estaduais (Landtag), nível municipal (harmonizadas para limites municipais de 2025)",
+   "name_en": "State elections (Landtag), municipality level (harmonized to 2025 municipal boundaries)",
+   "name_es": "Elecciones estatales (Landtag), nivel municipal (armonizadas a límites municipales de 2025)",
+   "description_pt": "Resultados de eleições estaduais (landtag) no nível municipal, harmonizadas para limites municipais de 2025, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1990-2026.",
+   "description_en": "State elections (Landtag) results at the municipality level, harmonized to 2025 municipal boundaries, in long format by party (one row per unit, election and party). Coverage 1990-2026.",
+   "description_es": "Resultados de elecciones estatales (landtag) a nivel municipal, armonizadas a límites municipales de 2025, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1990-2026.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1990,
+   "coverage_end": 2026,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/state_municipality_harmonized_2025.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "state_constituency",
+   "gcp_table_id": "state_constituency",
+   "name_pt": "Eleições estaduais (Landtag), nível de distrito eleitoral",
+   "name_en": "State elections (Landtag), constituency level",
+   "name_es": "Elecciones estatales (Landtag), nivel de circunscripción",
+   "description_pt": "Resultados de eleições estaduais (landtag) no nível de distrito eleitoral, com limites originais, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1990-2026.",
+   "description_en": "State elections (Landtag) results at the constituency level, on original boundaries, in long format by party (one row per unit, election and party). Coverage 1990-2026.",
+   "description_es": "Resultados de elecciones estatales (landtag) a nivel de circunscripción, con límites originales, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1990-2026.",
+   "ol_entity_ids": [
+    "031c0045-f144-4aea-b294-dcf91d0ac9c8",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1990,
+   "coverage_end": 2026,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/state_constituency.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_constituency": "district",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "municipal",
+   "gcp_table_id": "municipal",
+   "name_pt": "Eleições municipais (Gemeinderat), nível municipal",
+   "name_en": "Municipal elections (Gemeinderat), municipality level",
+   "name_es": "Elecciones municipales (Gemeinderat), nivel municipal",
+   "description_pt": "Resultados de eleições municipais (gemeinderat) no nível municipal, com limites originais, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1984-2026.",
+   "description_en": "Municipal elections (Gemeinderat) results at the municipality level, on original boundaries, in long format by party (one row per unit, election and party). Coverage 1984-2026.",
+   "description_es": "Resultados de elecciones municipales (gemeinderat) a nivel municipal, con límites originales, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1984-2026.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1984,
+   "coverage_end": 2026,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/municipal.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "municipal_harmonized_2021",
+   "gcp_table_id": "municipal_harmonized_2021",
+   "name_pt": "Eleições municipais (Gemeinderat), nível municipal (harmonizadas para limites municipais de 2021)",
+   "name_en": "Municipal elections (Gemeinderat), municipality level (harmonized to 2021 municipal boundaries)",
+   "name_es": "Elecciones municipales (Gemeinderat), nivel municipal (armonizadas a límites municipales de 2021)",
+   "description_pt": "Resultados de eleições municipais (gemeinderat) no nível municipal, harmonizadas para limites municipais de 2021, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1990-2026.",
+   "description_en": "Municipal elections (Gemeinderat) results at the municipality level, harmonized to 2021 municipal boundaries, in long format by party (one row per unit, election and party). Coverage 1990-2026.",
+   "description_es": "Resultados de elecciones municipales (gemeinderat) a nivel municipal, armonizadas a límites municipales de 2021, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1990-2026.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1990,
+   "coverage_end": 2026,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/municipal_harmonized_2021.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "municipal_harmonized_2025",
+   "gcp_table_id": "municipal_harmonized_2025",
+   "name_pt": "Eleições municipais (Gemeinderat), nível municipal (harmonizadas para limites municipais de 2025)",
+   "name_en": "Municipal elections (Gemeinderat), municipality level (harmonized to 2025 municipal boundaries)",
+   "name_es": "Elecciones municipales (Gemeinderat), nivel municipal (armonizadas a límites municipales de 2025)",
+   "description_pt": "Resultados de eleições municipais (gemeinderat) no nível municipal, harmonizadas para limites municipais de 2025, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1990-2026.",
+   "description_en": "Municipal elections (Gemeinderat) results at the municipality level, harmonized to 2025 municipal boundaries, in long format by party (one row per unit, election and party). Coverage 1990-2026.",
+   "description_es": "Resultados de elecciones municipales (gemeinderat) a nivel municipal, armonizadas a límites municipales de 2025, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1990-2026.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1990,
+   "coverage_end": 2026,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/municipal_harmonized_2025.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "county_council_municipality",
+   "gcp_table_id": "county_council_municipality",
+   "name_pt": "Eleições para conselho de condado (Kreistag), nível municipal",
+   "name_en": "County council elections (Kreistag), municipality level",
+   "name_es": "Elecciones al consejo de condado (Kreistag), nivel municipal",
+   "description_pt": "Resultados de eleições para conselho de condado (kreistag) no nível municipal, com limites originais, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1948-2026.",
+   "description_en": "County council elections (Kreistag) results at the municipality level, on original boundaries, in long format by party (one row per unit, election and party). Coverage 1948-2026.",
+   "description_es": "Resultados de elecciones al consejo de condado (kreistag) a nivel municipal, con límites originales, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1948-2026.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1948,
+   "coverage_end": 2026,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/county_council_municipality.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "county_council_municipality_harmonized_2021",
+   "gcp_table_id": "county_council_municipality_harmonized_2021",
+   "name_pt": "Eleições para conselho de condado (Kreistag), nível municipal (harmonizadas para limites municipais de 2021)",
+   "name_en": "County council elections (Kreistag), municipality level (harmonized to 2021 municipal boundaries)",
+   "name_es": "Elecciones al consejo de condado (Kreistag), nivel municipal (armonizadas a límites municipales de 2021)",
+   "description_pt": "Resultados de eleições para conselho de condado (kreistag) no nível municipal, harmonizadas para limites municipais de 2021, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1991-2026.",
+   "description_en": "County council elections (Kreistag) results at the municipality level, harmonized to 2021 municipal boundaries, in long format by party (one row per unit, election and party). Coverage 1991-2026.",
+   "description_es": "Resultados de elecciones al consejo de condado (kreistag) a nivel municipal, armonizadas a límites municipales de 2021, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1991-2026.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1991,
+   "coverage_end": 2026,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/county_council_municipality_harmonized_2021.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "county_council_county_harmonized_2021",
+   "gcp_table_id": "county_council_county_harmonized_2021",
+   "name_pt": "Eleições para conselho de condado (Kreistag), nível de condado (harmonizadas para limites municipais de 2021)",
+   "name_en": "County council elections (Kreistag), county level (harmonized to 2021 municipal boundaries)",
+   "name_es": "Elecciones al consejo de condado (Kreistag), nivel de condado (armonizadas a límites municipales de 2021)",
+   "description_pt": "Resultados de eleições para conselho de condado (kreistag) no nível de condado, harmonizadas para limites municipais de 2021, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 1990-2026.",
+   "description_en": "County council elections (Kreistag) results at the county level, harmonized to 2021 municipal boundaries, in long format by party (one row per unit, election and party). Coverage 1990-2026.",
+   "description_es": "Resultados de elecciones al consejo de condado (kreistag) a nivel de condado, armonizadas a límites municipales de 2021, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 1990-2026.",
+   "ol_entity_ids": [
+    "01069a8a-5c20-4969-b295-a55082a828e8",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 1990,
+   "coverage_end": 2026,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/county_council_county_harmonized_2021.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_county": "county",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "european_municipality",
+   "gcp_table_id": "european_municipality",
+   "name_pt": "Eleições europeias, nível municipal",
+   "name_en": "European elections, municipality level",
+   "name_es": "Elecciones europeas, nivel municipal",
+   "description_pt": "Resultados de eleições europeias no nível municipal, com limites originais, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 2009-2024.",
+   "description_en": "European elections results at the municipality level, on original boundaries, in long format by party (one row per unit, election and party). Coverage 2009-2024.",
+   "description_es": "Resultados de elecciones europeas a nivel municipal, con límites originales, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 2009-2024.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 2009,
+   "coverage_end": 2024,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/european_municipality.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "european_municipality_harmonized_2021",
+   "gcp_table_id": "european_municipality_harmonized_2021",
+   "name_pt": "Eleições europeias, nível municipal (harmonizadas para limites municipais de 2021)",
+   "name_en": "European elections, municipality level (harmonized to 2021 municipal boundaries)",
+   "name_es": "Elecciones europeas, nivel municipal (armonizadas a límites municipales de 2021)",
+   "description_pt": "Resultados de eleições europeias no nível municipal, harmonizadas para limites municipais de 2021, em formato longo por partido (uma linha por unidade, eleição e partido). Cobertura 2009-2024.",
+   "description_en": "European elections results at the municipality level, harmonized to 2021 municipal boundaries, in long format by party (one row per unit, election and party). Coverage 2009-2024.",
+   "description_es": "Resultados de elecciones europeas a nivel municipal, armonizadas a límites municipales de 2021, en formato largo por partido (una fila por unidad, elección y partido). Cobertura 2009-2024.",
+   "ol_entity_ids": [
+    "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 2009,
+   "coverage_end": 2024,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/european_municipality_harmonized_2021.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_municipality": "municipality",
+    "year": "year",
+    "party": "party"
+   }
+  },
+  {
+   "slug": "county_council_seats",
+   "gcp_table_id": "county_council_seats",
+   "name_pt": "Composição de cadeiras dos conselhos de condado (Kreistag)",
+   "name_en": "County council seat composition (Kreistag)",
+   "name_es": "Composición de escaños de los consejos de condado (Kreistag)",
+   "description_pt": "Composição de cadeiras dos conselhos de condado (Kreistag) e das câmaras das kreisfreie Städte, painel anual em formato longo por partido. Cobertura 2008-2025.",
+   "description_en": "Seat composition of county councils (Kreistag) and the councils of kreisfreie Städte, an annual panel in long format by party. Coverage 2008-2025.",
+   "description_es": "Composición de escaños de los consejos de condado (Kreistag) y de los ayuntamientos de las kreisfreie Städte, panel anual en formato largo por partido. Cobertura 2008-2025.",
+   "ol_entity_ids": [
+    "01069a8a-5c20-4969-b295-a55082a828e8",
+    "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "fcee5475-ec7c-46c9-8000-b223e892932c"
+   ],
+   "coverage_start": 2008,
+   "coverage_end": 2025,
+   "columns_json": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/mit-elections-metadata-666eb0/models/us_nature_gerda/metadata/county_council_seats.columns.json",
+   "partition_column": "year",
+   "column_ol_links": {
+    "id_county": "county",
+    "year": "year",
+    "party": "party"
+   }
+  }
+ ]
+}

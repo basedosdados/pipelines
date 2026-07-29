@@ -1,0 +1,128 @@
+[
+{
+"name": "year",
+"bigquery_type": "INT64",
+"description_pt": "Ano da eleição",
+"description_en": "Election year",
+"description_es": "Año de la elección",
+"covered_by_dictionary": false,
+"has_sensitive_data": false,
+"measurement_unit": "year"
+},
+{
+"name": "id_county",
+"bigquery_type": "STRING",
+"description_pt": "Identificador do condado, Kreisschlüssel de 5 dígitos",
+"description_en": "County identifier, 5-digit Kreisschlüssel",
+"description_es": "Identificador del condado, Kreisschlüssel de 5 dígitos",
+"covered_by_dictionary": false,
+"has_sensitive_data": false,
+"directory_column": "br_bd_diretorios_de.county:id_county"
+},
+{
+"name": "id_state",
+"bigquery_type": "STRING",
+"description_pt": "Identificador do estado, código Land de 2 dígitos",
+"description_en": "State identifier, 2-digit Land code",
+"description_es": "Identificador del estado, código Land de 2 dígitos",
+"covered_by_dictionary": false,
+"has_sensitive_data": false,
+"directory_column": "br_bd_diretorios_de.state:id_state"
+},
+{
+"name": "county_name",
+"bigquery_type": "STRING",
+"description_pt": "Nome do condado conforme informado pela fonte",
+"description_en": "County name as reported by the source",
+"description_es": "Nombre del condado según lo informado por la fuente",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "county_type",
+"bigquery_type": "STRING",
+"description_pt": "Tipo de condado: Landkreis ou kreisfreie Stadt",
+"description_en": "County type: Landkreis or kreisfreie Stadt",
+"description_es": "Tipo de condado: Landkreis o kreisfreie Stadt",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "government_party",
+"bigquery_type": "STRING",
+"description_pt": "Partido do executivo do condado (Landrat ou Oberbürgermeister); parteilos indica um independente",
+"description_en": "Party of the county executive (Landrat or Oberbürgermeister); parteilos denotes an independent",
+"description_es": "Partido del ejecutivo del condado (Landrat u Oberbürgermeister); parteilos indica un independiente",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "seats_total",
+"bigquery_type": "INT64",
+"description_pt": "Tamanho total do conselho (todos os partidos)",
+"description_en": "Total council size (all parties)",
+"description_es": "Tamaño total del consejo (todos los partidos)",
+"covered_by_dictionary": false,
+"has_sensitive_data": false,
+"measurement_unit": "seat"
+},
+{
+"name": "seats_regional",
+"bigquery_type": "INT64",
+"description_pt": "Cadeiras conquistadas por partidos regionais",
+"description_en": "Council seats won by regional parties",
+"description_es": "Escaños obtenidos por partidos regionales",
+"covered_by_dictionary": false,
+"has_sensitive_data": false,
+"measurement_unit": "seat"
+},
+{
+"name": "seats_other",
+"bigquery_type": "INT64",
+"description_pt": "Cadeiras conquistadas por todos os demais partidos combinados",
+"description_en": "Council seats won by all other parties combined",
+"description_es": "Escaños obtenidos por todos los demás partidos combinados",
+"covered_by_dictionary": false,
+"has_sensitive_data": false,
+"measurement_unit": "seat"
+},
+{
+"name": "seats_local_other",
+"bigquery_type": "INT64",
+"description_pt": "Cadeiras fora dos seis principais partidos (freie_wahler mais regional mais outros), comparáveis entre anos",
+"description_en": "Council seats held outside the six major parties (freie_wahler plus regional plus other), comparable across years",
+"description_es": "Escaños fuera de los seis partidos principales (freie_wahler más regional más otros), comparables entre años",
+"covered_by_dictionary": false,
+"has_sensitive_data": false,
+"measurement_unit": "seat"
+},
+{
+"name": "flag_seats_total_incongruent",
+"bigquery_type": "STRING",
+"description_pt": "1 se seats_total difere da soma das colunas de cadeiras por partido, caso contrário 0",
+"description_en": "1 if seats_total does not equal the sum of the party seat columns, else 0",
+"description_es": "1 si seats_total no es igual a la suma de las columnas de escaños por partido, de lo contrario 0",
+"covered_by_dictionary": false,
+"has_sensitive_data": false
+},
+{
+"name": "party",
+"bigquery_type": "STRING",
+"description_pt": "Partido ou lista, nome normalizado do GERDA",
+"description_en": "Party or list, GERDA normalized name",
+"description_es": "Partido o lista, nombre normalizado de GERDA",
+"covered_by_dictionary": false,
+"has_sensitive_data": false,
+"directory_column": "br_bd_diretorios_de.party:id_party"
+},
+{
+"name": "seats",
+"bigquery_type": "INT64",
+"description_pt": "Cadeiras conquistadas pelo partido no conselho",
+"description_en": "Council seats won by the party",
+"description_es": "Escaños obtenidos por el partido en el consejo",
+"covered_by_dictionary": false,
+"has_sensitive_data": false,
+"measurement_unit": "seat"
+}
+]
