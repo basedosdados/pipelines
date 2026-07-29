@@ -490,17 +490,19 @@ def process_csv_empresas(
         if filepath.as_posix().lower().endswith("csv"):
             log(f"Carregando o arquivo: {filepath}")
             with open(save_path, "wb") as fd:
-                for chunk in tqdm(
-                    pd.read_csv(
-                        filepath,
-                        encoding="latin1",
-                        sep=";",
-                        header=None,
-                        names=colunas,
-                        dtype=str,
-                        chunksize=chunk_size,
-                    ),
-                    desc="Lendo o arquivo CSV",
+                for chunk_idx, chunk in enumerate(
+                    tqdm(
+                        pd.read_csv(
+                            filepath,
+                            encoding="latin1",
+                            sep=";",
+                            header=None,
+                            names=colunas,
+                            dtype=str,
+                            chunksize=chunk_size,
+                        ),
+                        desc="Lendo o arquivo CSV",
+                    )
                 ):
                     # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
                     chunk = fill_left_zeros(chunk, "cnpj_basico", 8)
@@ -514,7 +516,12 @@ def process_csv_empresas(
                         .astype(float)
                     )
                     chunk["data_modificacao"] = data_coleta
-                    chunk.to_csv(fd, index=False, encoding="utf-8")
+                    chunk.to_csv(
+                        fd,
+                        index=False,
+                        header=(chunk_idx == 0),
+                        encoding="utf-8",
+                    )
 
             log(f"Arquivo empresas_{i} salvo")
             os.remove(filepath)
@@ -551,17 +558,19 @@ def process_csv_socios(
         if filepath.as_posix().lower().endswith("csv"):
             log(f"Carregando o arquivo: {filepath}")
             with open(save_path, "wb") as fd:
-                for chunk in tqdm(
-                    pd.read_csv(
-                        filepath,
-                        encoding="latin1",
-                        sep=";",
-                        header=None,
-                        names=colunas,
-                        dtype=str,
-                        chunksize=chunk_size,
-                    ),
-                    desc="Lendo o arquivo CSV",
+                for chunk_idx, chunk in enumerate(
+                    tqdm(
+                        pd.read_csv(
+                            filepath,
+                            encoding="latin1",
+                            sep=";",
+                            header=None,
+                            names=colunas,
+                            dtype=str,
+                            chunksize=chunk_size,
+                        ),
+                        desc="Lendo o arquivo CSV",
+                    )
                 ):
                     # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
                     chunk = fill_left_zeros(chunk, "cnpj_basico", 8)
@@ -577,7 +586,12 @@ def process_csv_socios(
                                 chunk[col], format="%Y%m%d", errors="coerce"
                             )
                     chunk["data_modificacao"] = data_coleta
-                    chunk.to_csv(fd, index=False, encoding="utf-8")
+                    chunk.to_csv(
+                        fd,
+                        index=False,
+                        header=(chunk_idx == 0),
+                        encoding="utf-8",
+                    )
 
             log(f"Arquivo socios_{i} salvo")
             os.remove(filepath)
@@ -614,17 +628,19 @@ def process_csv_simples(
         if "simples.csv" in filepath.as_posix().lower():
             log(f"Carregando o arquivo: {filepath}")
             with open(save_path, "wb") as fd:
-                for chunk in tqdm(
-                    pd.read_csv(
-                        filepath,
-                        encoding="latin1",
-                        sep=";",
-                        header=None,
-                        names=colunas,
-                        dtype=str,
-                        chunksize=chunk_size,
-                    ),
-                    desc="Lendo o arquivo CSV",
+                for chunk_idx, chunk in enumerate(
+                    tqdm(
+                        pd.read_csv(
+                            filepath,
+                            encoding="latin1",
+                            sep=";",
+                            header=None,
+                            names=colunas,
+                            dtype=str,
+                            chunksize=chunk_size,
+                        ),
+                        desc="Lendo o arquivo CSV",
+                    )
                 ):
                     for col in chunk.columns:
                         if col.startswith("data_"):
@@ -644,7 +660,12 @@ def process_csv_simples(
                         {"N": "0", "S": "1"}
                     )
                     chunk["data_modificacao"] = data_coleta
-                    chunk.to_csv(fd, index=False, encoding="utf-8")
+                    chunk.to_csv(
+                        fd,
+                        index=False,
+                        header=(chunk_idx == 0),
+                        encoding="utf-8",
+                    )
 
             log(f"Arquivo {sufixo} salvo")
             os.remove(filepath)
