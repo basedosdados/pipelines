@@ -8,7 +8,12 @@ import pandas as pd
 from config import INPUT_DIR, OUTPUT_PYTHON
 from utils.clean_election_type import clean_election_type_series
 from utils.clean_string import clean_string_series
-from utils.helpers import merge_municipio, parse_date_br, read_raw_csv
+from utils.helpers import (
+    merge_municipio,
+    parse_date_br,
+    read_raw_csv,
+    select_named,
+)
 
 # fmt: off
 UFS = {
@@ -96,6 +101,22 @@ def build_resultados_secao(ano: int) -> tuple[pd.DataFrame, pd.DataFrame]:
             ]
             df["id_eleicao"] = ""
             df["data_eleicao"] = ""
+        elif df.attrs.get("tse_has_header"):
+            keep_cols = {
+                "ano_eleicao": "ano",
+                "nr_turno": "turno",
+                "cd_eleicao": "id_eleicao",
+                "ds_eleicao": "tipo_eleicao",
+                "dt_eleicao": "data_eleicao",
+                "sg_uf": "sigla_uf",
+                "cd_municipio": "id_municipio_tse",
+                "nr_zona": "zona",
+                "nr_secao": "secao",
+                "ds_cargo": "cargo",
+                "nr_votavel": "numero_votavel",
+                "qt_votos": "votos",
+            }
+            df = select_named(df, keep_cols)
         else:
             df = df[
                 [
