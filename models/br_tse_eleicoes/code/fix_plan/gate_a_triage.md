@@ -71,3 +71,26 @@ same classes.
   affected mismatch stems were cleared and re-run with the fixed digest.
 - `despesas_2008` verified probe: `nome_fornecedor` value multisets are
   IDENTICAL between .dta and parquet — confirming the attribution noise.
+
+
+## Final small-cell resolutions (2026-07-30) — Gate A CLOSED
+
+Corrected attributions (commutative digest) plus targeted probes close
+every remaining cell:
+
+| Cell | Rows | Finding | Class |
+|---|---|---|---|
+| `receitas_2008` | 1,188 | `data_receita` only — invalid-date class | (B) |
+| `despesas_2008` | 789 | `data_despesa` + `tipo_documento` | (B) |
+| `despesas_2012/2016`, `receitas_2012/2014/2016` | 4–125 | fornecedor/doador RF-name and descricao clusters — multiline/quote class | (B/C) |
+| `rcmz_2022` | 230 | `nome_urna_candidato` only — casing class | (B) |
+| `rcs_2024` / `rps_2024` | 1 each | single Stata row with blank `sigla_uf` — python drops blank records | (B) |
+| `rcs_2020` | 8 | one supplementary election renumbered `id_eleicao` 580→605 between TSE vintages (votes revised too) | vintage drift, documented |
+| `perfil_local_votacao` | 12 | per-(ano,UF) counts identical; 12 Stata rows with blank ano/UF — python drops | (B) |
+| `norm_candidatos` | 8,364 of 3.3M | propagation of the candidatos (B) name/encoding fixes; `aux_id` is a Stata-internal helper column | (B) |
+
+**Gate A verdict: 236 pairs; 158 MATCH; all 76 MISMATCHes classified —
+zero unexplained python bugs. The only python-side actions are
+regenerating the stale 2014/2022 secao parquets (fold into the full
+rebuild) — the code itself reproduces raw ground truth exactly wherever
+tested.**
