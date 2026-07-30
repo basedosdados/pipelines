@@ -16,16 +16,16 @@ DATASET_ID = "test_dataset"
 # download_data_to_gcs automaticamente. Os modelos dbt usam FARM_FINGERPRINT
 # para gerar dados sintéticos com tamanhos previsíveis.
 #
-# Caso 1 — < 100 MB, sem bdpro_filter  → exporta open
-# Caso 2 — < 100 MB, com bdpro_filter  → exporta open + BDPro (post-hook no .sql)
+# Caso 1 — ate 100 MB, sem bdpro_filter  → exporta open
+# Caso 2 — ate 100 MB, com bdpro_filter  → exporta open + BDPro (post-hook no .sql)
 # Caso 3 — 100 MB-1 GB                 → exporta apenas BDPro
-# Caso 4 — > 1 GB                      → sem export (retorna cedo)
+# Caso 4 — acima 1 GB                      → sem export (retorna cedo)
 # ──────────────────────────────────────────────────────────────────────────────
 
 
 @flow(
-    name="test_dataset: download_data_to_gcs (< 100 MB sem bdpro)",
-    flow_run_name="test download: < 100 MB sem bdpro",
+    name="test_dataset: download_data_to_gcs (ate 100 MB sem bdpro)",
+    flow_run_name="test download: ate 100 MB sem bdpro",
     log_prints=True,
 )
 def test_download_pequena_flow() -> None:
@@ -38,8 +38,8 @@ def test_download_pequena_flow() -> None:
 
 
 @flow(
-    name="test_dataset: download_data_to_gcs (< 100 MB com bdpro)",
-    flow_run_name="test download: < 100 MB com bdpro",
+    name="test_dataset: download_data_to_gcs (ate 100 MB com bdpro)",
+    flow_run_name="test download: ate 100 MB com bdpro",
     log_prints=True,
 )
 def test_download_bdpro_flow() -> None:
@@ -66,8 +66,8 @@ def test_download_media_flow() -> None:
 
 
 @flow(
-    name="test_dataset: download_data_to_gcs (> 1 GB)",
-    flow_run_name="test download: > 1 GB",
+    name="test_dataset: download_data_to_gcs (acima 1 GB)",
+    flow_run_name="test download: acima 1 GB",
     log_prints=True,
 )
 def test_download_grande_flow() -> None:
