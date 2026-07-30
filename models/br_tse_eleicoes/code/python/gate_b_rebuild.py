@@ -208,8 +208,11 @@ def _single(family: str, ano: int) -> list[str] | None:
     return [rel] if extract(rel + ".zip", rel) else None
 
 
-def _per_uf(family: str, ano: int) -> list[str] | None:
-    zips = sorted((REAL_INPUT / family).glob(f"{family}_{ano}_*.zip"))
+def _per_uf(
+    family: str, ano: int, prefix: str | None = None
+) -> list[str] | None:
+    prefix = prefix or family
+    zips = sorted((REAL_INPUT / family).glob(f"{prefix}_{ano}_*.zip"))
     if not zips:
         return None
     outs = []
@@ -226,14 +229,28 @@ FAMILIES: dict[str, dict] = {
         fn="build_candidatos",
         years=YEARS_EVEN,
         stem="candidatos_{ano}",
-        prep=lambda a: _single("consulta_cand", a),
+        prep=lambda a: (
+            (
+                (_single("consulta_cand", a) or [])
+                + (
+                    _single_named(
+                        "consulta_cand", f"consulta_cand_complementar_{a}"
+                    )
+                    or []
+                )
+            )
+            or None
+        ),
     ),
     "partidos": dict(
         module="sub.parties",
         fn="build_partidos",
         years=[1990, *YEARS_EVEN],
         stem="partidos_{ano}",
-        prep=lambda a: _single("consulta_coligacao", a),
+        prep=lambda a: (
+            _single("consulta_coligacao", a)
+            or _single_named("consulta_coligacao", f"consulta_legendas_{a}")
+        ),
     ),
     "vagas": dict(
         module="sub.vacancies",
@@ -275,7 +292,9 @@ FAMILIES: dict[str, dict] = {
         fn="build_perfil_secao",
         years=list(range(2008, 2025, 2)),
         stem="perfil_eleitorado_secao_{ano}",
-        prep=lambda a: _per_uf("perfil_eleitorado_secao", a),
+        prep=lambda a: _per_uf(
+            "perfil_eleitorado_secao", a, prefix="perfil_eleitor_secao"
+        ),
     ),
     "local_votacao": dict(
         module="sub.voter_profile_polling_place",
