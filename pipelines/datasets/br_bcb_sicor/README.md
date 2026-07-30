@@ -34,6 +34,50 @@ A fonte original divulga esses dados em arquivos anuais. Para facilitar a lógic
 
 ---
 
+## Pipeline: armadilhas de atualização
+
+Três coisas que já quebraram os flows deste conjunto e vão quebrar de novo se não forem lembradas.
+
+### 1. O BCB adiciona colunas, e o modo `append` não as absorve
+
+`operacao`, `saldo` e `recurso_publico_gleba` sobem com `dump_mode="append"`. Nesse caminho, `upload_to_gcs` só cria a tabela de staging **se ela ainda não existir**; existindo, registra `Tabela já existe` e segue. Como a staging é **tabela externa com schema fixado na criação**, uma coluna nova na fonte nunca entra — o parquet novo tem a coluna, a definição da tabela não.
+
+Isso não é hipotético. Em julho de 2026 o BCB adicionou `IB_RENEGOCIADA` ao arquivo de saldos, e a mesma mudança quebrou o flow por dois caminhos diferentes:
+
+- **antes** de registrar a coluna no repo, o `TableSchemaValidator` derrubava o flow (`columns in the source schema being ignorated`);
+- **depois** de registrar (commit `0cfc1e6f`, coluna `indicador_renegociacao`), o dbt passou a quebrar com `Query error: Unrecognized name: indicador_renegociacao`, porque a staging continuava com o schema velho.
+
+Ao aparecer coluna nova na fonte, registrar em `constants.py`, no `.sql` e no `schema.yml` **não basta** para as três tabelas em `append`: a definição da staging precisa ser atualizada também.
+
+Desde julho de 2026 isso é automático — `_sync_staging_schema`, em `pipelines/utils/tasks.py`, roda no modo `append` quando a staging já existe, compara o schema inferido do arquivo novo com o da tabela externa e acrescenta o que faltar. É aditivo: nunca remove nem reordena coluna, e não toca no prefixo do GCS. Fique de olho no log `Colunas novas na fonte adicionadas ao schema da staging`, que é o sinal de que a fonte mudou.
+
+Duas coisas continuam sendo responsabilidade de quem faz a manutenção, porque o ajuste não cobre: **registrar a coluna** em `constants.py`, `.sql` e `schema.yml` (sem isso o `TableSchemaValidator` derruba o flow), e o **`--full-refresh`** do item 3 abaixo.
+
+### 2. Nunca use `overwrite` nem `delete_table` para consertar isso
+
+Duas saídas parecem óbvias e são destrutivas:
+
+- **Trocar o `dump_mode` para `"overwrite"`** — esse caminho faz `st.delete_table(mode="staging")` + `tb.delete(mode="all")`, e o flow baixa apenas o arquivo do ano corrente. Você perde o histórico da staging e fica só com o ano atual. Em `saldo`, isso significaria trocar ~641 milhões de linhas (2013–2026) por ~5,6 milhões (2026).
+- **Chamar `Storage.delete_table(mode="staging")` avulso** — ele lista **todos** os blobs sob `staging/<dataset>/<tabela>/` e apaga. No caminho de `append` ele aparece logo após o `create`, mas ali é seguro porque o prefixo está vazio, contendo só o header recém-subido. Com a staging populada, apaga os dados.
+
+O que é seguro: atualizar **apenas a definição** da tabela externa, sem tocar no prefixo do GCS. `Storage.upload(if_exists="replace")` age por blob, não apaga o prefixo — mas o header subiria como linha espúria, então o caminho limpo é alterar o schema da tabela externa pela API do BigQuery.
+
+### 3. Modelo incremental não ganha coluna nova sem `--full-refresh`
+
+`saldo` é `materialized="incremental"` e **não** define `on_schema_change`, então vale o default do dbt, que é `ignore`. Mesmo com a staging já corrigida, um `dbt run` comum roda verde e simplesmente não adiciona a coluna à tabela destino. Precisa de:
+
+```bash
+uv run dbt run --select br_bcb_sicor__saldo --full-refresh
+```
+
+Vale lembrar que o full-refresh reprocessa o histórico inteiro com `select distinct` mais o join do macro `add_ano_mes_operacao_data` — não é run barato. E o `pre_hook` do modelo dropa as row access policies, que voltam no `register_table_materialization` seguinte.
+
+### 4. O flow do `dicionario` não roda
+
+`br_bcb_sicor__dicionario` é definido em `flows.py` **sem `deploy_schedules`**, então nunca executa por agendamento. Além disso passa `dbt_alias=False`, o que faz o seletor virar `models/br_bcb_sicor/dicionario.sql` — arquivo que não existe, já que o real é `br_bcb_sicor__dicionario.sql`. É o mesmo defeito do `br_rf_cafir` (issue #1700).
+
+---
+
 ## Tabelas e Particularidades
 
 ### br_bcb_sicor__operacao
