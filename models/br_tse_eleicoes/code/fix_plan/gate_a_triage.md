@@ -1,0 +1,53 @@
+# Gate A — mismatch triage
+
+Classification of every MISMATCH in `parity_matrix.md` (Stata `.dta` vs
+Python parquet, order-independent full-cell comparison). Per the settled
+parity decision: parity except cells where the Stata-era output itself is
+corrupted; every deviation documented here.
+
+Classes: **(A) python bug / stale python parquet — regenerate**;
+**(B) deliberate python improvement over Stata — keep python**;
+**(C) Stata-era corruption — keep python**; **(N) gate_a normalization gap
+— fix comparator, re-run**.
+
+## Headline: resultados_*_secao 2014 / 2022 row-count gaps
+
+Ground truth computed directly from the raw files (distinct
+(zona, secao, cargo, party) groups):
+
+| cell | stata | python (Mar parquet) | raw ground truth | verdict |
+|---|---|---|---|---|
+| rps 2014 SP dep.estadual t1 | 1,854,582 | 413,104 | **1,854,582** | **(A)** March parquet built from a partial SP extraction; current code on the current zip reproduces ground truth exactly (verified) |
+| rps 2022 SP dep.estadual t1 | 849,857 | 2,122,780 | **2,122,780** | **(C)** Stata under-read (early/partial vintage) |
+| rps 2022 ES t1 / t2 | 461,323 / 36,956 | 71,878 / 18,834 | **410,624 / 18,478** | Stata t2 is exactly 2× (duplication) → **(C)**; the March parquet is partial → **(A)**. Current code on the current zip = ground truth exactly (verified) |
+
+Presidente (the separate BR file) matches exactly on both sides in both
+years — the discrepancies are confined to the per-UF files (SP 2014;
+SP/CE/ES 2022). Action: regenerate `resultados_candidato_secao` and
+`resultados_partido_secao` parquets for 2014 and 2022 from the current
+zips (fold into the full rebuild), then re-run gate_a for those stems.
+`rcs_2014`/`rcs_2022` matrix rows pending sweep completion — expect the
+same classes.
+
+## Patterned classes (verified with examples)
+
+| Pattern | Cells | Class | Evidence |
+|---|---|---|---|
+| `tipo_eleicao` all rows | `detalhes_votacao_uf` 1945–1990 | **(B)** | 'eleicao 1965' → 'eleicao ordinaria' (clean_election_type fix, 4481f185) |
+| `data_despesa` all rows | `despesas_2010` | **(N)** | values identical; .dta stores datetime64, comparator rendered ' 00:00:00' suffix — patch gate_a and re-run stem |
+| `descricao_despesa` all rows | `despesas_2010` | **(B)** | Stata kept stray trailing '"' (quote-stripping fix, 4481f185) |
+| `valor_item` | `bens` 2020 (13.9k), 2022 (2.2k), 2024 (16.7k rows) | **(C)** | multiline quoted descriptions truncate Stata's import → NaN; raw confirms real values (e.g. seq 10001623538 Terreno 24,410.43); python parses quoted newlines |
+| names/title-case | `candidatos` (2–3.8k rows/yr), `nome_candidato` in rcuf/rcmz (1–70 rows) | **(B)** | 'D`assunção'→'D`Assunção' (casing-after-apostrophe fix); mojibake 'nÃo possui'→'não possui' |
+| coligacao/tipo_eleicao | `partidos` 2008–2024 (24–3k rows/yr) | **(C)** | Stata carries zone strings ('agua boa mg - 67ª ze') in `tipo_eleicao` on supplementary-election rows; python has 'eleicao suplementar de ...' |
+| small full-row multisets | finance 2008/2012/2014/2016 (4–1.2k rows), `norm_candidatos` (8.4k of 3.3M), `perfil_local_votacao` (12), rcs 2020/2024 (1–8), rcmz 2022 (230) | mostly **(B/C)** | consistent with multiline/quote/casing fixes propagating; spot-checks pending |
+| `data_receita`/`data_despesa` small counts | receitas 2004/2006/2010, despesas 2002/2006 (1–194 rows) | pending | likely date-parse edge (e.g. invalid dates Stata kept/dropped) |
+
+## Verification protocol used
+
+1. Localize: group-by counts (uf, turno, cargo) chunked on both sides.
+2. Arbitrate with the raw file: stream the zip member, compute the
+   ground-truth statistic (row counts, distinct groups, specific
+   candidate's values).
+3. When python ≠ ground truth: rebuild the cell with current code from
+   the current zip (monkeypatched single-UF build) and compare — in every
+   case so far current code reproduces ground truth exactly.
