@@ -29,6 +29,7 @@ decision in the plan) rather than silently dropping or mislabeling rows.
 import importlib.util
 import json
 import os
+import re
 import sys
 import tarfile
 from concurrent.futures import ThreadPoolExecutor
@@ -46,6 +47,11 @@ CODE_DIR = str(constants.CODE_DIR.value)
 PATH_QUERIES = str(constants.PATH_QUERIES.value)
 CACHE_PREFIX = constants.CACHE_PREFIX.value
 RAW_PREFIX = constants.RAW_PREFIX.value
+
+# GCP project ids are 6-30 chars: a leading lowercase letter, then lowercase
+# letters / digits / hyphens, no trailing hyphen. Used to guard the project id
+# interpolated into the seed_cache_from_bq query (no bind params for identifiers).
+_GCP_PROJECT_ID_RE = re.compile(r"[a-z][a-z0-9-]{4,28}[a-z0-9]")
 
 
 # ── reused-code importers ────────────────────────────────────────────────────
@@ -674,6 +680,20 @@ def seed_cache_from_bq(
     from google.cloud import bigquery
 
     from pipelines.utils.gcs import get_credentials_from_env
+
+    # Both identifiers below are interpolated into the query (BigQuery has no
+    # bind parameters for project/table names), so validate them before any
+    # query runs: bq_project against the GCP id grammar, and every table against
+    # the known SICONFI table set. year is a Python int from range(), so it is
+    # already safe.
+    if not _GCP_PROJECT_ID_RE.fullmatch(bq_project):
+        raise ValueError(f"invalid BigQuery project id: {bq_project!r}")
+    known_tables = {
+        t for lvl in constants.TABLES_BY_LEVEL.value.values() for t in lvl
+    }
+    unknown = [t for t in tables if t not in known_tables]
+    if unknown:
+        raise ValueError(f"unknown br_me_siconfi table(s): {unknown}")
 
     client = bigquery.Client(
         project=bq_project, credentials=get_credentials_from_env(mode="prod")
