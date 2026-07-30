@@ -63,7 +63,7 @@ def _run_operacoes_indiretas_automaticas(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    source_max_date = get_source_max_date()
+    source_max_date = get_source_max_date(table_id=table_id)
 
     has_new_data = poll_source_for_update_task(
         dataset_id=dataset_id,
@@ -76,9 +76,9 @@ def _run_operacoes_indiretas_automaticas(
     if not has_new_data and not force_run:
         return
 
-    csv_path = download_source_csv()
+    csv_path = download_source_csv(table_id=table_id)
 
-    output_dir = clean_and_partition(csv_path=csv_path)
+    output_dir = clean_and_partition(csv_path=csv_path, table_id=table_id)
 
     upload_to_gcs(
         data_path=output_dir,

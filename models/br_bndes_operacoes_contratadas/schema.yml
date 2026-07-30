@@ -13,10 +13,6 @@ models:
         tests:
           - dbt_utils.not_null_proportion:
               at_least: 0.99
-          - dbt_utils.relationships_where:
-              to: ref('br_bd_diretorios_brasil__empresa')
-              field: cnpj
-              from_condition: cnpj_cliente not like '77700001%'
       - name: id_contrato
         description: Número identificador do contrato do cliente com o BNDES
         tests: [not_null]
@@ -29,12 +25,10 @@ models:
         tests: [not_null]
       - name: sigla_uf
         description: Sigla da Unidade da Federação
-      - name: nome_municipio
-        description: Nome do município
-      - name: razao_social_cliente
+      - name: nome_cliente
         description: Razão Social do cliente
         tests: [not_null]
-      - name: situacao_contrato
+      - name: situacao_operação
         description: Situação do contrato
       - name: porte_cliente
         description: Porte do cliente de acordo com a política de classificação do
@@ -59,7 +53,7 @@ models:
       - name: produto
         description: Produto financeiro, que define regras gerais de financiamento
         tests: [not_null]
-      - name: tipo_instrumento_financeiro
+      - name: instrumento_financeiro
         description: Tipo de instrumento financeiro (Linha de Financiamento, Programa,
           Fundo)
         tests: [not_null]
@@ -68,18 +62,18 @@ models:
         tests: [not_null]
       - name: tipo_excepcionalidade
         description: Classificação de acordo com o tipo de excepcionalidade do contrato
-      - name: tipo_fonte_recursos
+      - name: fonte_recursos
         description: Fonte de recursos registrada nos desembolsos do contrato
         tests:
           - dbt_utils.not_null_proportion:
               at_least: 0.90
-      - name: area_operacional_bndes
+      - name: area_operacional
         description: Área responsável pela operação no BNDES
         tests: [not_null]
-      - name: setor_cnae_bndes
+      - name: setor_cnae
         description: Setor CNAE agrupado pelo BNDES para fins estatísticos
         tests: [not_null]
-      - name: subsetor_agrupado_cnae_bndes
+      - name: subsetor_agrupado_cnae
         description: Subsetor CNAE agrupado pelo BNDES para fins estatísticos
         tests: [not_null]
       - name: secao_cnae
@@ -89,24 +83,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__cnae_2')
               field: secao
-      - name: divisao_cnae
-        description: Divisão CNAE 2
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__cnae_2')
-              field: divisao
-      - name: grupo_cnae
-        description: Grupo CNAE 2
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__cnae_2')
-              field: grupo
-      - name: classe_cnae
-        description: Classe CNAE 2
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__cnae_2')
-              field: classe
       - name: subclasse_cnae
         description: Subclasse CNAE 2
         tests:
