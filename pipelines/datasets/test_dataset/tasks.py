@@ -1,6 +1,5 @@
 """
-Tasks para o flow de teste end-to-end (test_dataset).
-Fonte: API do BCB — taxa de câmbio USD/BRL (série 1).
+Tasks para os flows de teste do test_dataset.
 """
 
 from pathlib import Path
