@@ -39,6 +39,7 @@ UFS = {
 
 _BASE_NAMED = {
     "ano_eleicao": "ano",
+    "aa_eleicao": "ano",
     "nr_turno": "turno",
     "cd_eleicao": "id_eleicao",
     "ds_eleicao": "tipo_eleicao",

@@ -41,6 +41,7 @@ def _parse_named(
     if ano <= 2012:
         keep_cols = {
             "ano_eleicao": "ano",
+            "aa_eleicao": "ano",
             "nr_turno": "turno",
             "ds_eleicao": "tipo_eleicao",
             "sg_uf": "sigla_uf",
@@ -57,6 +58,7 @@ def _parse_named(
     elif 2014 <= ano <= 2020:
         keep_cols = {
             "ano_eleicao": "ano",
+            "aa_eleicao": "ano",
             "nr_turno": "turno",
             "cd_eleicao": "id_eleicao",
             "ds_eleicao": "tipo_eleicao",
@@ -75,6 +77,7 @@ def _parse_named(
     else:  # >= 2022
         keep_cols = {
             "ano_eleicao": "ano",
+            "aa_eleicao": "ano",
             "nr_turno": "turno",
             "cd_eleicao": "id_eleicao",
             "ds_eleicao": "tipo_eleicao",

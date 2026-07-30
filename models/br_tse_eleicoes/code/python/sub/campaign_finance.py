@@ -105,6 +105,7 @@ def build_bens(ano: int) -> pd.DataFrame:
         if df.attrs.get("tse_has_header"):
             keep_cols = {
                 "ano_eleicao": "ano",
+                "aa_eleicao": "ano",
                 "cd_eleicao": "id_eleicao",
                 "ds_eleicao": "tipo_eleicao",
                 "dt_eleicao": "data_eleicao",

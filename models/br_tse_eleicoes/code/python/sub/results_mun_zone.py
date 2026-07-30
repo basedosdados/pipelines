@@ -63,6 +63,7 @@ def _build_candidato(ano: int) -> pd.DataFrame:
             # generations lacking one variant fall back to the other).
             keep_cols = {
                 "ano_eleicao": "ano",
+                "aa_eleicao": "ano",
                 "nr_turno": "turno",
                 "cd_eleicao": "id_eleicao",
                 "ds_eleicao": "tipo_eleicao",
@@ -267,6 +268,7 @@ def _build_partido(ano: int) -> pd.DataFrame:
             # totals. Dual keys — first present wins.
             keep_cols = {
                 "ano_eleicao": "ano",
+                "aa_eleicao": "ano",
                 "nr_turno": "turno",
                 "cd_eleicao": "id_eleicao",
                 "ds_eleicao": "tipo_eleicao",

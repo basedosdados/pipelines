@@ -53,6 +53,7 @@ def build_vagas(ano: int) -> pd.DataFrame:
             # fields stay empty to match the validated Stata outputs.
             keep_cols = {
                 "ano_eleicao": "ano",
+                "aa_eleicao": "ano",
                 "cd_eleicao": "id_eleicao",
                 "ds_eleicao": "tipo_eleicao",
                 "dt_eleicao": "data_eleicao",

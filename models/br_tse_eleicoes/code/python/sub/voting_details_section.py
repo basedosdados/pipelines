@@ -50,6 +50,7 @@ def build_detalhes_secao(ano: int) -> pd.DataFrame:
         if df.attrs.get("tse_has_header"):
             keep_cols = {
                 "ano_eleicao": "ano",
+                "aa_eleicao": "ano",
                 "nr_turno": "turno",
                 "cd_eleicao": "id_eleicao",
                 "ds_eleicao": "tipo_eleicao",

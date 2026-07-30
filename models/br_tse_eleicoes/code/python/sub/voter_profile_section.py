@@ -69,6 +69,7 @@ def build_perfil_secao(ano: int) -> pd.DataFrame:
         if ano <= 2022:
             keep_cols = {
                 "ano_eleicao": "ano",
+                "aa_eleicao": "ano",
                 "sg_uf": "sigla_uf",
                 "cd_municipio": "id_municipio_tse",
                 "cd_mun_sit_biometrica": "situacao_biometria",
@@ -87,6 +88,7 @@ def build_perfil_secao(ano: int) -> pd.DataFrame:
         else:  # 2024
             keep_cols = {
                 "ano_eleicao": "ano",
+                "aa_eleicao": "ano",
                 "sg_uf": "sigla_uf",
                 "cd_municipio": "id_municipio_tse",
                 "nr_zona": "zona",

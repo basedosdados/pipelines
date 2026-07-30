@@ -42,6 +42,7 @@ def _parse_schema(df: pd.DataFrame, ano: int) -> pd.DataFrame:
         # the complementar file, merged in build_candidatos).
         keep_cols = {
             "ano_eleicao": "ano",
+            "aa_eleicao": "ano",
             "nr_turno": "turno",
             "cd_eleicao": "id_eleicao",
             "ds_eleicao": "tipo_eleicao",

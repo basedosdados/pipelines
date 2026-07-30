@@ -104,6 +104,7 @@ def build_resultados_secao(ano: int) -> tuple[pd.DataFrame, pd.DataFrame]:
         elif df.attrs.get("tse_has_header"):
             keep_cols = {
                 "ano_eleicao": "ano",
+                "aa_eleicao": "ano",
                 "nr_turno": "turno",
                 "cd_eleicao": "id_eleicao",
                 "ds_eleicao": "tipo_eleicao",
