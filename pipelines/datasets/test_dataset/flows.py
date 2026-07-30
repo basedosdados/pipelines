@@ -77,3 +77,15 @@ def test_download_grande_flow() -> None:
         dbt_command="run",
         target="prod",
     )
+
+
+@flow(
+    name="test_dataset: download_data_to_gcs (suite)",
+    flow_run_name="test download: suite completa",
+    log_prints=True,
+)
+def test_download_suite_flow() -> None:
+    test_download_pequena_flow()
+    test_download_bdpro_flow()
+    test_download_media_flow()
+    test_download_grande_flow()
