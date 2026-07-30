@@ -98,6 +98,35 @@ NEW_ROWS: list[dict[str, str]] = [
         "chave": "82",
         "valor": "E-DOT - Equipe Hospitalar de Doação para Transplantes",
     },
+    # Os dois indicadores do equipamento passam a ser STRING cobertos por
+    # dicionário (issue #1722). O Equipamento.def do TAB_CNES documenta: "o campo
+    # IND_SUS é o Indicador de Disponibilidade para o SUS e não contém
+    # quantidades, mas somente 1=SIM ou 0=NÃO". Na série inteira (163,5M linhas)
+    # só existem '0' e '1', e as duas colunas são exatamente complementares.
+    {
+        "id_tabela": "equipamento",
+        "nome_coluna": "indicador_equipamento_disponivel_sus",
+        "chave": "0",
+        "valor": "Não",
+    },
+    {
+        "id_tabela": "equipamento",
+        "nome_coluna": "indicador_equipamento_disponivel_sus",
+        "chave": "1",
+        "valor": "Sim",
+    },
+    {
+        "id_tabela": "equipamento",
+        "nome_coluna": "indicador_equipamento_indisponivel_sus",
+        "chave": "0",
+        "valor": "Não",
+    },
+    {
+        "id_tabela": "equipamento",
+        "nome_coluna": "indicador_equipamento_indisponivel_sus",
+        "chave": "1",
+        "valor": "Sim",
+    },
 ]
 
 # Rótulos do código de 4 dígitos do equipamento (2 do tipo + 2 do equipamento).

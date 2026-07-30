@@ -48,10 +48,10 @@ select
     ) as codigo_equipamento,
     ltrim(safe_cast(codequip as string), '0') as id_equipamento,
     ltrim(safe_cast(tipequip as string), '0') as tipo_equipamento,
-    safe_cast(qt_exist as string) as quantidade_equipamentos,
-    safe_cast(qt_uso as string) as quantidade_equipamentos_ativos,
-    safe_cast(ind_sus as int64) as indicador_equipamento_disponivel_sus,
-    safe_cast(ind_nsus as int64) as indicador_equipamento_indisponivel_sus
+    safe_cast(qt_exist as int64) as quantidade_equipamentos,
+    safe_cast(qt_uso as int64) as quantidade_equipamentos_ativos,
+    safe_cast(ind_sus as string) as indicador_equipamento_disponivel_sus,
+    safe_cast(ind_nsus as string) as indicador_equipamento_indisponivel_sus
 from cnes_add_muni
 
 {% if is_incremental() %}
