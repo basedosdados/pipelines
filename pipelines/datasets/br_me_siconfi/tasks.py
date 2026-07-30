@@ -118,3 +118,30 @@ def seed_legacy_cache(
     return utils.seed_legacy_cache(
         work_dir, raw_bucket, raw_prefix, cache_bucket
     )
+
+
+@task
+def seed_cache_from_bq(
+    cache_bucket: str,
+    tables: list,
+    start_year: int,
+    end_year: int,
+    bq_project: str = "basedosdados",
+) -> dict:
+    """One-time: seed the cache for API years (2013+) from the prod BQ tables.
+
+    See :func:`pipelines.datasets.br_me_siconfi.utils.seed_cache_from_bq`.
+
+    Args:
+        cache_bucket: Bucket whose cache is seeded.
+        tables: Table slugs to seed.
+        start_year: First year (inclusive).
+        end_year: Last year (inclusive), i.e. window_start - 1.
+        bq_project: Project holding the prod tables.
+
+    Returns:
+        ``{table: cache_dir}`` for each table seeded.
+    """
+    return utils.seed_cache_from_bq(
+        cache_bucket, tables, start_year, end_year, bq_project
+    )

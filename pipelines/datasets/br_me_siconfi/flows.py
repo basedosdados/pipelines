@@ -25,7 +25,7 @@ from datetime import datetime
 
 from prefect import flow
 
-from pipelines.datasets.br_me_siconfi import tasks
+from pipelines.datasets.br_me_siconfi import tasks, utils
 from pipelines.datasets.br_me_siconfi.constants import constants
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
@@ -224,36 +224,75 @@ def br_me_siconfi_seed_flow(
     raw_bucket: str = "basedosdados",
     raw_prefix: str = constants.RAW_LEGACY_PREFIX.value,
     cache_bucket: str = "basedosdados",
+    seed_legacy: bool = True,
+    seed_bq: bool = True,
+    bq_start_year: int | None = None,
+    bq_end_year: int | None = None,
+    bq_project: str = "basedosdados",
 ) -> None:
-    """One-time seed of the 1989-2012 legacy parquet cache from the raw Excel.
+    """One-time seed of the whole out-of-window cache before the first run.
 
-    Run ONCE before the first recurring run. The recurring flow serves
-    pre-window years from the cache and, being overwrite, would otherwise
-    rebuild the prod tables without 1989-2012 and wipe that history. Reads the
-    raw Excel from ``gs://<raw_bucket>/<raw_prefix>/`` and writes all-STRING
-    parquet to ``gs://<cache_bucket>/staging-cache/br_me_siconfi/``.
+    The recurring flow is overwrite and serves pre-window years from the cache,
+    so an unseeded run would rebuild the prod tables without them and wipe that
+    history. Two complementary steps fill the cache for every year before the
+    trailing window:
 
-    Defaults target prod (`basedosdados`); for a dev rehearsal, point both
-    buckets at ``basedosdados-dev`` (with the raw Excel copied there).
+    1. ``seed_legacy`` — rebuild 1989-2012 (the four legacy município tables)
+       from the raw Excel at ``gs://<raw_bucket>/<raw_prefix>/``.
+    2. ``seed_bq`` — cache the API years ``API_FIRST_YEAR..(window_start-1)`` for
+       ALL tables by reading the existing prod tables in ``<bq_project>`` (the
+       same cleaned data, built by this code), avoiding a many-hour paginated API
+       re-download on the first run.
+
+    After this, the first recurring run only downloads the trailing window.
+    Defaults target prod; for a dev rehearsal set ``cache_bucket`` to
+    ``basedosdados-dev`` (``bq_project`` stays ``basedosdados`` — prod is the
+    read source).
 
     Args:
         raw_bucket: Bucket holding the raw legacy Excel.
         raw_prefix: Prefix of the raw legacy Excel.
         cache_bucket: Bucket whose parquet cache is seeded.
+        seed_legacy: Run the 1989-2012 legacy Excel seed.
+        seed_bq: Run the API-year seed from prod BQ.
+        bq_start_year: First BQ year (default ``API_FIRST_YEAR``).
+        bq_end_year: Last BQ year (default ``window_start - 1`` =
+            ``current_year - WINDOW_YEARS``).
+        bq_project: Project holding the prod tables to read from.
     """
-    work_dir = tempfile.mkdtemp(prefix="br_me_siconfi_seed_")
-    try:
-        result = tasks.seed_legacy_cache(
-            work_dir=work_dir,
-            raw_bucket=raw_bucket,
-            raw_prefix=raw_prefix,
+    if bq_start_year is None:
+        bq_start_year = constants.API_FIRST_YEAR.value
+    if bq_end_year is None:
+        bq_end_year = datetime.now().year - constants.WINDOW_YEARS.value
+
+    if seed_legacy:
+        work_dir = tempfile.mkdtemp(prefix="br_me_siconfi_seed_")
+        try:
+            legacy = tasks.seed_legacy_cache(
+                work_dir=work_dir,
+                raw_bucket=raw_bucket,
+                raw_prefix=raw_prefix,
+                cache_bucket=cache_bucket,
+            )
+            print(
+                f"seed_legacy_cache: seeded {len(legacy)} legacy tables into cache"
+            )
+        finally:
+            shutil.rmtree(work_dir, ignore_errors=True)
+
+    if seed_bq:
+        tables = utils.tables_for_levels(constants.ALL_LEVELS.value)
+        bq = tasks.seed_cache_from_bq(
             cache_bucket=cache_bucket,
+            tables=tables,
+            start_year=bq_start_year,
+            end_year=bq_end_year,
+            bq_project=bq_project,
         )
         print(
-            f"seed_legacy_cache: seeded {len(result)} legacy tables into cache"
+            f"seed_cache_from_bq: seeded {len(bq)} tables "
+            f"({bq_start_year}-{bq_end_year}) from {bq_project} BQ into cache"
         )
-    finally:
-        shutil.rmtree(work_dir, ignore_errors=True)
 
 
 # The legacy build holds one year of município Excel in pandas at a time.

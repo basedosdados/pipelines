@@ -638,3 +638,92 @@ def seed_legacy_cache(
             push_cache(cache_bucket, table, staging_root)
             result[table] = str(tdir)
     return result
+
+
+def seed_cache_from_bq(
+    cache_bucket: str,
+    tables,
+    start_year: int,
+    end_year: int,
+    bq_project: str = "basedosdados",
+) -> dict:
+    """Seed the parquet cache for API years from the existing prod BQ tables.
+
+    Complements :func:`seed_legacy_cache`: the API-era cleaned data (2013+)
+    already lives in ``<bq_project>.br_me_siconfi.*`` (built by the same code),
+    so the out-of-window API years are cached by reading BigQuery and writing the
+    **same** all-STRING, ``ano=…[/sigla_uf=…]`` partitioned parquet that
+    :func:`to_staging_parquet` produces — far cheaper than re-downloading the
+    paginated API. Reads prod BQ with the prod SA; the cache write picks its SA by
+    bucket via :func:`_bucket`. Worker-only. One-time bootstrap so the first
+    recurring run only has to download the trailing window.
+
+    Args:
+        cache_bucket: Bucket whose cache is seeded.
+        tables: Table slugs to seed (typically all 19).
+        start_year: First year to read (inclusive), e.g. ``API_FIRST_YEAR``.
+        end_year: Last year to read (inclusive), i.e. ``window_start - 1``.
+        bq_project: Project holding the prod tables.
+
+    Returns:
+        ``{table: cache_dir}`` for each table seeded.
+    """
+    import shutil
+    import tempfile
+
+    from google.cloud import bigquery
+
+    from pipelines.utils.gcs import get_credentials_from_env
+
+    client = bigquery.Client(
+        project=bq_project, credentials=get_credentials_from_env(mode="prod")
+    )
+    work = Path(tempfile.mkdtemp(prefix="br_me_siconfi_bqseed_"))
+    staging_root = work / "staging"
+    result: dict = {}
+    try:
+        for table in tables:
+            part_uf = _level_of(table) in ("municipio", "uf")
+            wrote = False
+            for year in range(start_year, end_year + 1):
+                at = client.query(
+                    f"SELECT * FROM `{bq_project}.br_me_siconfi.{table}` "
+                    f"WHERE ano = {year}"
+                ).to_arrow()
+                if at.num_rows == 0:
+                    continue
+                # Cast every column to string, preserving NULLs (never "nan"):
+                # arrow int64/float64 -> string is exact and null-safe.
+                df = at.cast(
+                    pa.schema(
+                        [pa.field(f.name, pa.string()) for f in at.schema]
+                    )
+                ).to_pandas()
+                lead = [c for c in ("ano", "sigla_uf") if c in df.columns]
+                df = df[lead + [c for c in df.columns if c not in lead]]
+                groups = df.groupby("sigla_uf") if part_uf else [(None, df)]
+                for uf, g in groups:
+                    rel = f"ano={year}" + (
+                        f"/sigla_uf={uf}" if uf is not None else ""
+                    )
+                    pdir = staging_root / table / rel
+                    pdir.mkdir(parents=True, exist_ok=True)
+                    pq.write_table(
+                        pa.Table.from_pandas(
+                            g,
+                            schema=pa.schema(
+                                [pa.field(c, pa.string()) for c in g.columns]
+                            ),
+                            preserve_index=False,
+                        ),
+                        pdir / "data.parquet",
+                        compression="snappy",
+                    )
+                wrote = True
+                print(f"  bq_seed {table} {year}: {at.num_rows:,} rows")
+            if wrote:
+                push_cache(cache_bucket, table, staging_root)
+                result[table] = str(staging_root / table)
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+    return result
