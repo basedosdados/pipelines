@@ -105,6 +105,18 @@ uv run dbt run --select br_bcb_sicor__saldo --full-refresh
 
 Vale lembrar que o full-refresh reprocessa o histórico inteiro com `select distinct` mais o join do macro `add_ano_mes_operacao_data` — não é run barato. E o `pre_hook` do modelo dropa as row access policies, que voltam no `register_table_materialization` seguinte.
 
+Referência de custo, do full-refresh feito em 30/07/2026 para o `indicador_renegociacao`: **641,2 milhões de linhas, 32,7 GiB processados, 58 segundos** de execução (2min52 no total, contando o parse do projeto).
+
+Resultado esperado depois dele — a coluna só tem valor a partir do arquivo que a introduziu, e os anos anteriores ficam nulos, sem erro:
+
+| ano | linhas | `indicador_renegociacao` preenchido |
+|---|---|---|
+| 2013 | 15.759.001 | 0 |
+| 2025 | 53.136.509 | 1 |
+| 2026 | 5.885.638 | 1.415.717 |
+
+**Atenção: o full-refresh precisa ser feito em dev E em prod.** Nem o flow nem a action de table-approve passam `--full-refresh`, e ambos rodam `dbt run` comum — então mergear o código **não** leva a coluna à tabela de produção. Ou alguém com acesso roda o full-refresh em prod, ou o modelo passa a declarar `on_schema_change: append_new_columns`, que resolveria este caso e os próximos sem intervenção. A segunda opção muda comportamento e ainda não foi decidida.
+
 ### 4. O flow do `dicionario` não roda
 
 `br_bcb_sicor__dicionario` é definido em `flows.py` **sem `deploy_schedules`**, então nunca executa por agendamento. Além disso passa `dbt_alias=False`, o que faz o seletor virar `models/br_bcb_sicor/dicionario.sql` — arquivo que não existe, já que o real é `br_bcb_sicor__dicionario.sql`. É o mesmo defeito do `br_rf_cafir` (issue #1700).
