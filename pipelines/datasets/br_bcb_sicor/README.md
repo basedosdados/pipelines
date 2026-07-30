@@ -44,16 +44,16 @@ Em 2026 aconteceram os dois casos, com meses de diferença: uma coluna **adicion
 
 #### 1a. Coluna adicionada, e o modo `append` não a absorve
 
-`operacao`, `saldo` e `recurso_publico_gleba` sobem com `dump_mode="append"`. Nesse caminho, `upload_to_gcs` só cria a tabela de staging **se ela ainda não existir**; existindo, registra `Tabela já existe` e segue. Como a staging é **tabela externa com schema fixado na criação**, uma coluna nova na fonte nunca entra — o parquet novo tem a coluna, a definição da tabela não.
+`operacao`, `saldo` e `recurso_publico_gleba` sobem com `dump_mode="append"`. Nesse caminho, `upload_to_gcs` só cria a tabela de staging **se ela ainda não existir**; existindo, registra `Tabela já existe` e segue. Como a staging é **tabela externa com schema fixado na criação**, uma coluna nova na fonte não entra por conta própria — o parquet novo tem a coluna, a definição da tabela não.
 
 Isso não é hipotético. Em julho de 2026 o BCB adicionou `IB_RENEGOCIADA` ao arquivo de saldos, e a mesma mudança quebrou o flow por dois caminhos diferentes:
 
 - **antes** de registrar a coluna no repo, o `TableSchemaValidator` derrubava o flow (`columns in the source schema being ignorated`);
 - **depois** de registrar (commit `0cfc1e6f`, coluna `indicador_renegociacao`), o dbt passou a quebrar com `Query error: Unrecognized name: indicador_renegociacao`, porque a staging continuava com o schema velho.
 
-Ao aparecer coluna nova na fonte, registrar em `constants.py`, no `.sql` e no `schema.yml` **não basta** para as três tabelas em `append`: a definição da staging precisa ser atualizada também.
+**Até julho de 2026** isso exigia intervenção manual: registrar a coluna em `constants.py`, no `.sql` e no `schema.yml` não bastava para as três tabelas em `append`, porque a definição da staging precisava ser atualizada à parte.
 
-Desde julho de 2026 isso é automático — `_sync_staging_schema`, em `pipelines/utils/tasks.py`, roda no modo `append` quando a staging já existe, compara o schema inferido do arquivo novo com o da tabela externa e acrescenta o que faltar. É aditivo: nunca remove nem reordena coluna, e não toca no prefixo do GCS. Fique de olho no log `Colunas novas na fonte adicionadas ao schema da staging`, que é o sinal de que a fonte mudou.
+**Hoje é automático.** `_sync_staging_schema`, em `pipelines/utils/tasks.py`, roda no modo `append` quando a staging já existe, compara o schema inferido do arquivo novo com o da tabela externa e acrescenta o que faltar. É aditivo: nunca remove nem reordena coluna, e não toca no prefixo do GCS. Fique de olho no log `Colunas novas na fonte adicionadas ao schema da staging`, que é o sinal de que a fonte mudou.
 
 Duas coisas continuam sendo responsabilidade de quem faz a manutenção, porque o ajuste não cobre: **registrar a coluna** em `constants.py`, `.sql` e `schema.yml` (sem isso o `TableSchemaValidator` derruba o flow), e o **`--full-refresh`** do item 3 abaixo.
 
@@ -61,14 +61,14 @@ Duas coisas continuam sendo responsabilidade de quem faz a manutenção, porque 
 
 O caso espelho. Em 29/07/2026 o BCB republicou `SICOR_PROPRIEDADES` trocando `CD_NIRF` por `CD_CIB`, na mesma posição:
 
-```
+```text
 antes:  #REF_BACEN;NU_ORDEM;CD_CNPJ_CPF;CD_SNCR;CD_NIRF;CD_CAR
 depois: #REF_BACEN;NU_ORDEM;CD_CNPJ_CPF;CD_SNCR;CD_CIB;CD_CAR
 ```
 
 O flow morre antes do upload, no `TableSchemaValidator`:
 
-```
+```text
 The following columns are in the table schema registed in constants.py
 but arent in the downloaded table {'CD_NIRF'}
 ```
