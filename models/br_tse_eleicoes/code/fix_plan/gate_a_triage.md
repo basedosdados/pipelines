@@ -34,7 +34,7 @@ same classes.
 | Pattern | Cells | Class | Evidence |
 |---|---|---|---|
 | `tipo_eleicao` all rows | `detalhes_votacao_uf` 1945–1990 | **(B)** | 'eleicao 1965' → 'eleicao ordinaria' (clean_election_type fix, 4481f185) |
-| `data_despesa` all rows | `despesas_2010` | **(N)** | values identical; .dta stores datetime64, comparator rendered ' 00:00:00' suffix — patch gate_a and re-run stem |
+| `data_*` invalid dates | `despesas_2010` (320 cells), likely receitas 2004/2006/2010 + despesas 2002/2006 | **(B)** | Stata keeps raw typo dates ('0010-09-06' from '06/09/0010'); python nulls invalid dates |
 | `descricao_despesa` all rows | `despesas_2010` | **(B)** | Stata kept stray trailing '"' (quote-stripping fix, 4481f185) |
 | `valor_item` | `bens` 2020 (13.9k), 2022 (2.2k), 2024 (16.7k rows) | **(C)** | multiline quoted descriptions truncate Stata's import → NaN; raw confirms real values (e.g. seq 10001623538 Terreno 24,410.43); python parses quoted newlines |
 | names/title-case | `candidatos` (2–3.8k rows/yr), `nome_candidato` in rcuf/rcmz (1–70 rows) | **(B)** | 'D`assunção'→'D`Assunção' (casing-after-apostrophe fix); mojibake 'nÃo possui'→'não possui' |
@@ -51,3 +51,23 @@ same classes.
 3. When python ≠ ground truth: rebuild the cell with current code from
    the current zip (monkeypatched single-UF build) and compare — in every
    case so far current code reproduces ground truth exactly.
+
+
+## Sweep completion + comparator corrections (2026-07-30, later)
+
+- Final sweep: 236 pairs — 158 MATCH / 76 MISMATCH / 0 ERROR before
+  attribution re-runs.
+- `rcs_2014` (stata 44.0M vs python 35.4M) and `rcs_2022` (48.0M vs
+  60.1M) mirror the rps classes exactly: 2014 = stale partial-SP March
+  parquet (A); 2022 = Stata under-read (C).
+- **Comparator fix 1**: datetime64 .dta columns now render date-only.
+- **Comparator fix 2**: the per-column digest was order-dependent across
+  chunk boundaries (per-chunk XOR term), producing false-positive column
+  attributions on >2M-row tables with differing row order — e.g.
+  `despesas_2008` listed 14 columns; after the fix (commutative
+  Σhash + Σhash² mod 2^64) the true attribution is 2 columns
+  (`data_despesa`, `tipo_documento`, 789 rows). MATCH/MISMATCH verdicts
+  were never affected (they use the sorted row-hash arrays). The 12
+  affected mismatch stems were cleared and re-run with the fixed digest.
+- `despesas_2008` verified probe: `nome_fornecedor` value multisets are
+  IDENTICAL between .dta and parquet — confirming the attribution noise.

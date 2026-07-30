@@ -155,19 +155,22 @@ def compare_pair(stem: str, dta_path: Path, parquet_paths: list[Path]):
     seq = ParquetSequence(parquet_paths)  # rewind
 
     def norm_frame(df: pd.DataFrame) -> pd.DataFrame:
-        return pd.DataFrame(
-            {
-                c: _normalize_col_to_str(
-                    df[c].reset_index(drop=True), is_float=c in float_set
-                )
-                for c in shared
-            }
-        )
+        parts = {}
+        for c in shared:
+            col = df[c].reset_index(drop=True)
+            if pd.api.types.is_datetime64_any_dtype(col):
+                # .dta stores some date columns as datetime64; render as
+                # date-only so they compare equal to the string side
+                parts[c] = col.dt.strftime("%Y-%m-%d").fillna("")
+            else:
+                parts[c] = _normalize_col_to_str(col, is_float=c in float_set)
+        return pd.DataFrame(parts)
 
     row_hashes = {"stata": [], "python": []}
+    z = (np.uint64(0), np.uint64(0))
     col_digest = {
-        "stata": {c: np.uint64(0) for c in shared},
-        "python": {c: np.uint64(0) for c in shared},
+        "stata": {c: z for c in shared},
+        "python": {c: z for c in shared},
     }
     positional_equal = True
     rows_dta = 0
@@ -186,9 +189,10 @@ def compare_pair(stem: str, dta_path: Path, parquet_paths: list[Path]):
                 ch = pd.util.hash_pandas_object(nf[c], index=False).to_numpy(
                     dtype="uint64"
                 )
-                col_digest[side][c] += np.uint64(
-                    np.bitwise_xor.reduce(ch) ^ np.uint64(len(ch))
-                ) + ch.sum(dtype="uint64")
+                col_digest[side][c] = (
+                    col_digest[side][c][0] + ch.sum(dtype="uint64"),
+                    col_digest[side][c][1] + (ch * ch).sum(dtype="uint64"),
+                )
             del nf
         if positional_equal:
             a, b = (
@@ -214,9 +218,10 @@ def compare_pair(stem: str, dta_path: Path, parquet_paths: list[Path]):
             ch = pd.util.hash_pandas_object(nf[c], index=False).to_numpy(
                 dtype="uint64"
             )
-            col_digest["python"][c] += np.uint64(
-                np.bitwise_xor.reduce(ch) ^ np.uint64(len(ch))
-            ) + ch.sum(dtype="uint64")
+            col_digest["python"][c] = (
+                col_digest["python"][c][0] + ch.sum(dtype="uint64"),
+                col_digest["python"][c][1] + (ch * ch).sum(dtype="uint64"),
+            )
         positional_equal = False
         del nf, tail
         tail = seq.next_rows(CHUNK)
