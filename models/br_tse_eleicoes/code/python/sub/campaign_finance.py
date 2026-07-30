@@ -1615,42 +1615,62 @@ def _build_despesas_2006() -> pd.DataFrame:
         / "prestacao_contas/prestacao_contas_2006/2006/Candidato/Despesa/DespesaCandidato"
     )
     df = read_raw_csv(str(base), drop_first_row=True)
-    df = df[
-        [
-            "v1",
-            "v3",
-            "v5",
-            "v6",
-            "v7",
-            "v8",
-            "v9",
-            "v10",
-            "v11",
-            "v12",
-            "v14",
-            "v16",
-            "v17",
-            "v19",
-            "v20",
+    if df.attrs.get("tse_has_header"):
+        keep_cols = {
+            "sequencial_candidato": "sequencial_candidato",
+            "descricao_cargo": "cargo",
+            "numero_candidato": "numero_candidato",
+            "unidade_eleitoral_candidato": "sigla_uf",
+            "numero_cnpj_candidato": "cnpj_candidato",
+            "numero_partido": "numero_partido",
+            "sigla_partido": "sigla_partido",
+            "valor_despesa": "valor_despesa",
+            "data_despesa": "data_despesa",
+            "tipo_despesa": "tipo_despesa",
+            "descricao_forma_pagamento": "especie_recurso",
+            "numero_documento": "numero_documento",
+            "tipo_documento": "tipo_documento",
+            "nome_fornecedor": "nome_fornecedor",
+            "numero_cpf_cgc_fornecedor": "cpf_cnpj_fornecedor",
+        }
+        df = select_named(df, keep_cols)
+    else:
+        df = df[
+            [
+                "v1",
+                "v3",
+                "v5",
+                "v6",
+                "v7",
+                "v8",
+                "v9",
+                "v10",
+                "v11",
+                "v12",
+                "v14",
+                "v16",
+                "v17",
+                "v19",
+                "v20",
+            ]
+        ].copy()
+        df.columns = [
+            "sequencial_candidato",
+            "cargo",
+            "numero_candidato",
+            "sigla_uf",
+            "cnpj_candidato",
+            "numero_partido",
+            "sigla_partido",
+            "valor_despesa",
+            "data_despesa",
+            "tipo_despesa",
+            "especie_recurso",
+            "numero_documento",
+            "tipo_documento",
+            "nome_fornecedor",
+            "cpf_cnpj_fornecedor",
         ]
-    ].copy()
-    df.columns = [
-        "sequencial_candidato",
-        "cargo",
-        "numero_candidato",
-        "sigla_uf",
-        "cnpj_candidato",
-        "numero_partido",
-        "sigla_partido",
-        "valor_despesa",
-        "data_despesa",
-        "tipo_despesa",
-        "especie_recurso",
-        "numero_documento",
-        "tipo_documento",
-        "nome_fornecedor",
-        "cpf_cnpj_fornecedor",
-    ]
     df = _clean_nulo_cols(
         df,
         [
