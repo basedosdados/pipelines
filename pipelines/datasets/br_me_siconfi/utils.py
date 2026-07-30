@@ -175,10 +175,15 @@ def download_window(
         if "uf" in levels:
             entes += [("uf", str(c)) for c in da.UF_CODES]
         if "municipio" in levels:
+            # get_municipios() lists ALL entes (União + UFs + municípios). Keep
+            # only 7-digit município codes: otherwise the 1-digit (Brasil) and
+            # 2-digit (UF) entes are re-fetched into input/api/municipio/ and
+            # load_year_data double-counts them into the brasil/uf tables on an
+            # all-levels run (the município builders read only 7-digit codes).
             for m in da.get_municipios(listing):
-                cod = m.get("cod_ibge")
-                if cod:
-                    entes.append(("municipio", str(cod)))
+                cod = str(m.get("cod_ibge") or "")
+                if len(cod) == 7:
+                    entes.append(("municipio", cod))
     finally:
         listing.close()
 
