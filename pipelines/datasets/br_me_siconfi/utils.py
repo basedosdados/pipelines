@@ -338,10 +338,21 @@ def to_staging_parquet(
 
 # ── GCS parquet cache (out-of-window years) ──────────────────────────────────
 def _bucket(bucket_name: str):
-    """A requester-pays GCS bucket handle billed to the bucket's own project."""
+    """A requester-pays GCS bucket handle with the right service-account creds.
+
+    Mirrors ``DBTArtifactUploader._init_gcs``: ``basedosdados-dev`` is
+    requester-pays and the prod SA lacks ``serviceusage.services.use`` on that
+    project, so dev/staging buckets use the staging SA and the prod bucket uses
+    the prod SA. Default ADC 403s on the worker. Worker-only — needs the
+    ``BASEDOSDADOS_CREDENTIALS_{PROD,STAGING}`` env the deployed pod carries.
+    """
     from google.cloud import storage
 
-    client = storage.Client(project=bucket_name)
+    from pipelines.utils.gcs import get_credentials_from_env
+
+    mode = "prod" if bucket_name == "basedosdados" else "staging"
+    credentials = get_credentials_from_env(mode=mode)
+    client = storage.Client(project=bucket_name, credentials=credentials)
     return client.bucket(bucket_name, user_project=bucket_name)
 
 
