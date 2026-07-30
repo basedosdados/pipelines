@@ -1,0 +1,10 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+code,STRING,Código da variável do perfil de dados da ACS (ex.: DP05_0001E),,yes,,,no,,
+profile,STRING,"Perfil de dados: DP02, DP03, DP04 ou DP05",,no,,,no,,
+profile_name,STRING,"Nome do perfil (características sociais, econômicas, habitacionais, demográficas)",,no,,,no,,
+line_number,STRING,Número da linha da variável dentro do perfil,,no,,,no,,
+label,STRING,Rótulo hierárquico da variável,,no,,,no,,
+concept,STRING,Conceito/título da tabela de origem,,no,,,no,,
+universe,STRING,Universo de referência da variável,,no,,,no,,
+unit,STRING,"Unidade de medida da variável (count, percent, USD, years, ratio)",,no,,,no,,
+is_percent,STRING,Indica se a variável é um percentual (yes/no),,no,,,no,,
