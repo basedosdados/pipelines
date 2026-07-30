@@ -132,7 +132,11 @@ class Constants(Enum):
                 "NU_ORDEM": "numero_ordem",
                 "CD_CNPJ_CPF": "tipo_cpf_cnpj",
                 "CD_SNCR": "id_sncr",
-                "CD_NIRF": "id_nirf",
+                # O BCB republicou SICOR_PROPRIEDADES em 29/07/2026 trocando
+                # CD_NIRF por CD_CIB, na mesma posição. O CIB (Cadastro
+                # Imobiliário Brasileiro) sucede o NIRF como identificador de
+                # imóvel rural na Receita.
+                "CD_CIB": "id_cib",
                 "CD_CAR": "id_car",
             },
         },

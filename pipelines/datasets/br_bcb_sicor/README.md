@@ -38,7 +38,11 @@ A fonte original divulga esses dados em arquivos anuais. Para facilitar a lógic
 
 Três coisas que já quebraram os flows deste conjunto e vão quebrar de novo se não forem lembradas.
 
-### 1. O BCB adiciona colunas, e o modo `append` não as absorve
+### 1. O BCB mexe no schema da fonte, e isso quebra o flow de dois jeitos
+
+Em 2026 aconteceram os dois casos, com meses de diferença: uma coluna **adicionada** em `saldo` e uma **renomeada** em `recurso_publico_propriedade`. Os sintomas e os consertos são diferentes.
+
+#### 1a. Coluna adicionada, e o modo `append` não a absorve
 
 `operacao`, `saldo` e `recurso_publico_gleba` sobem com `dump_mode="append"`. Nesse caminho, `upload_to_gcs` só cria a tabela de staging **se ela ainda não existir**; existindo, registra `Tabela já existe` e segue. Como a staging é **tabela externa com schema fixado na criação**, uma coluna nova na fonte nunca entra — o parquet novo tem a coluna, a definição da tabela não.
 
@@ -52,6 +56,35 @@ Ao aparecer coluna nova na fonte, registrar em `constants.py`, no `.sql` e no `s
 Desde julho de 2026 isso é automático — `_sync_staging_schema`, em `pipelines/utils/tasks.py`, roda no modo `append` quando a staging já existe, compara o schema inferido do arquivo novo com o da tabela externa e acrescenta o que faltar. É aditivo: nunca remove nem reordena coluna, e não toca no prefixo do GCS. Fique de olho no log `Colunas novas na fonte adicionadas ao schema da staging`, que é o sinal de que a fonte mudou.
 
 Duas coisas continuam sendo responsabilidade de quem faz a manutenção, porque o ajuste não cobre: **registrar a coluna** em `constants.py`, `.sql` e `schema.yml` (sem isso o `TableSchemaValidator` derruba o flow), e o **`--full-refresh`** do item 3 abaixo.
+
+#### 1b. Coluna renomeada ou removida — o ajuste não cobre, e não deveria
+
+O caso espelho. Em 29/07/2026 o BCB republicou `SICOR_PROPRIEDADES` trocando `CD_NIRF` por `CD_CIB`, na mesma posição:
+
+```
+antes:  #REF_BACEN;NU_ORDEM;CD_CNPJ_CPF;CD_SNCR;CD_NIRF;CD_CAR
+depois: #REF_BACEN;NU_ORDEM;CD_CNPJ_CPF;CD_SNCR;CD_CIB;CD_CAR
+```
+
+O flow morre antes do upload, no `TableSchemaValidator`:
+
+```
+The following columns are in the table schema registed in constants.py
+but arent in the downloaded table {'CD_NIRF'}
+```
+
+`_sync_staging_schema` **não** resolve isso, por duas razões: ele é aditivo de propósito (uma carga parcial não pode encolher o schema de uma tabela histórica), e a falha acontece a montante, antes de qualquer upload.
+
+O conserto é manual e são **quatro** lugares — esquecer o último faz o CI do repositório quebrar:
+
+1. `constants.py` — o mapeamento `CD_CIB: id_cib`;
+2. o `.sql` do modelo;
+3. o `schema.yml` — a definição da coluna **e** qualquer teste que a cite (aqui ela estava na `unique_combination_of_columns`);
+4. os **metadados de prod** — senão o check `Metadata validation (BigQuery vs API)` acusa a divergência. E como `update_column` não renomeia, é criar a nova e apagar a antiga.
+
+**A ordem importa.** O check compara BigQuery de **dev** contra a API de **prod**. Mexer nos metadados antes de o modelo ter rodado em dev só inverte a divergência. O caminho é: código → run em dev (que recria a staging, já que essas tabelas são `overwrite`) → metadados de prod.
+
+Antes de renomear, vale conferir se a coluna carregava dado. No caso do `id_nirf` não carregava: **zero valores preenchidos em 27 milhões de linhas, de 2013 a 2026** — a renomeação não teve efeito prático nenhum sobre o dado publicado.
 
 ### 2. Nunca use `overwrite` nem `delete_table` para consertar isso
 
@@ -305,6 +338,7 @@ order by 1 desc;
 
 **Problemas Identificados:**
 -  O CAR só existe consistentemente a partir de 2018; apenas em 2018 o banco central passou a cobrar o preenchimento do CAR como exigência para a concessão do empréstimo;
+- A coluna `id_cib` (até 29/07/2026 chamada `id_nirf` na fonte) é **inteiramente vazia**: zero valores preenchidos em 27 milhões de linhas, de 2013 a 2026. A fonte sempre entregou `-1`. Vale saber antes de tentar usá-la em qualquer análise — e ao decidir se a coluna deve continuar publicada.
 
 ---
 

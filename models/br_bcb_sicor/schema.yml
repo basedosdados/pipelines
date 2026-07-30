@@ -474,7 +474,7 @@ models:
             - cpf
             - cnpj_basico
             - id_sncr
-            - id_nirf
+            - id_cib
             - id_car
     columns:
       - name: ano_emissao
@@ -508,8 +508,9 @@ models:
               proportion_allowed_failures: 0.01
       - name: id_sncr
         description: Identificar do Imóvel no Sistema Nacional de Cadastro Rural (SNCR)
-      - name: id_nirf
-        description: Identificador do Imóvel na Receita Federal (NIRF)
+      - name: id_cib
+        description: Identificador do Imóvel no Cadastro Imobiliário Brasileiro (CIB),
+          que sucede o NIRF a partir de julho de 2026
       - name: id_car
         description: Identificador do Cadastro da Área Rural (CAR)
   - name: br_bcb_sicor__recurso_publico_mutuario
