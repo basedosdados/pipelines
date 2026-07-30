@@ -269,7 +269,7 @@ models:
       - name: id_situacao_operacao
         description: Situação da operação
       - name: indicador_renegociacao
-        description: >
+        description: >-
           Indicador de operação renegociada (1 = renegociada, 0 = não
           renegociada)
       - name: valor_medio_diario
