@@ -4,7 +4,7 @@
         alias="tabela_pequena_bdpro",
         materialized="table",
         post_hook=[
-            'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter ON `{{ this }}` GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (TRUE)'
+            'CREATE OR REPLACE ROW ACCESS POLICY bdpro_filter ON `{{ this.database }}.{{ this.schema }}.{{ this.identifier }}` GRANT TO ("group:bd-pro@basedosdados.org", "group:sudo@basedosdados.org") FILTER USING (TRUE)'
         ],
     )
 }}
