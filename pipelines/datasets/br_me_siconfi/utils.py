@@ -387,6 +387,39 @@ def pull_cache(
         blob.download_to_filename(str(dest))
 
 
+def download_prefix(bucket_name: str, prefix: str, dest_dir: Path) -> int:
+    """Download every blob under a GCS prefix into ``dest_dir`` (flattened).
+
+    Files are placed by basename (the legacy Excel names ``quadro<year>_<n>.xlsx``
+    are unique across the archive), so any nesting under the prefix collapses to
+    the flat layout the legacy build globs (``input/municipio/quadro*``).
+
+    Args:
+        bucket_name: Source bucket (e.g. ``basedosdados``).
+        prefix: Object prefix, e.g. ``raw/br_me_siconfi/1989-2012``.
+        dest_dir: Local directory to download into; created if absent.
+
+    Returns:
+        Number of files downloaded.
+    """
+    bucket = _bucket(bucket_name)
+    dest_dir = Path(dest_dir)
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for blob in bucket.client.list_blobs(
+        bucket, prefix=prefix.rstrip("/") + "/"
+    ):
+        fname = blob.name.rsplit("/", 1)[-1]
+        if not fname:  # a "directory" placeholder blob
+            continue
+        blob.download_to_filename(str(dest_dir / fname))
+        n += 1
+    print(
+        f"download_prefix: {n} files from gs://{bucket_name}/{prefix} -> {dest_dir}"
+    )
+    return n
+
+
 # ── raw archival (provenance) ────────────────────────────────────────────────
 def archive_raw(work_dir: str, bucket_name: str) -> int:
     """Archive the downloaded raw API JSON to ``gs://<bucket>/raw/br_me_siconfi/``.
@@ -526,3 +559,66 @@ def clean_all(
         use_cache,
         cache_bucket,
     )
+
+
+# ── one-time seed: 1989-2012 legacy from raw Excel -> parquet cache ───────────
+def seed_legacy_cache(
+    work_dir: str,
+    raw_bucket: str,
+    raw_prefix: str,
+    cache_bucket: str,
+    start_year: int | None = None,
+    end_year: int | None = None,
+) -> dict:
+    """Seed the parquet cache with the frozen 1989-2012 legacy years.
+
+    One-time bootstrap so the recurring flow can serve pre-window years from the
+    cache without re-downloading. Downloads the raw Excel from
+    ``gs://<raw_bucket>/<raw_prefix>/`` and reuses the validated legacy build
+    (``_build_legacy`` in the four município builders, via :func:`clean_window`)
+    to produce all-STRING parquet, then pushes it to the cache. Fails loud on any
+    crosswalk gap, exactly like the recurring clean.
+
+    Must run where the buckets are accessible (the deployed worker for prod).
+
+    Args:
+        work_dir: Run scratch directory.
+        raw_bucket: Bucket holding the raw legacy Excel.
+        raw_prefix: Prefix of the raw legacy Excel (e.g.
+            ``raw/br_me_siconfi/1989-2012``).
+        cache_bucket: Bucket whose parquet cache is seeded (matches the
+            recurring flow's ``cache_bucket``).
+        start_year: First legacy year (defaults to ``LEGACY_START_YEAR``).
+        end_year: Last legacy year (defaults to ``LEGACY_END_YEAR``).
+
+    Returns:
+        ``{table: cache_dir}`` for each legacy table seeded.
+
+    Raises:
+        RuntimeError: If no raw files are found under the prefix.
+    """
+    start_year = start_year or constants.LEGACY_START_YEAR.value
+    end_year = end_year or constants.LEGACY_END_YEAR.value
+    tables = constants.LEGACY_TABLES.value
+
+    input_municipio = Path(work_dir) / "input" / "municipio"
+    if download_prefix(raw_bucket, raw_prefix, input_municipio) == 0:
+        raise RuntimeError(
+            f"No raw legacy files under gs://{raw_bucket}/{raw_prefix}"
+        )
+    # An (empty) api dir so the builders' load_year_data glob resolves cleanly;
+    # legacy years (<=2012) dispatch to _build_legacy, which reads the Excel.
+    api_dir = Path(work_dir) / "input" / "api"
+    (api_dir / "municipio").mkdir(parents=True, exist_ok=True)
+
+    output_dir = clean_window(
+        work_dir, str(api_dir), start_year, end_year, tables
+    )
+    staging_root = Path(work_dir) / "staging"
+    result: dict = {}
+    for table in tables:
+        tdir = to_staging_parquet(output_dir, table, staging_root)
+        if tdir is not None:
+            push_cache(cache_bucket, table, staging_root)
+            result[table] = str(tdir)
+    return result

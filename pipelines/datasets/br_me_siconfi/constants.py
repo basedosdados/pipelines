@@ -89,6 +89,21 @@ class constants(Enum):
     # GCS prefix (inside the target bucket) archiving the raw source files for
     # provenance — one gzip tarball of raw API JSON per year:
     #   <prefix>/api/dca_YYYY.tar.gz
-    # The frozen 1989-2012 Finbra raw files are archived once at seed time under
-    # <prefix>/finbra/. Distinct from the parquet cache (derived, not raw).
+    # The frozen 1989-2012 raw Excel files are archived once at seed time (see
+    # RAW_LEGACY_PREFIX). Distinct from the parquet cache (derived, not raw).
     RAW_PREFIX = "raw/br_me_siconfi"
+
+    # One-time cache seed (1989-2012). The four município tables with legacy
+    # coverage are rebuilt from the raw Excel (quadro{year}_{n}.xlsx) that lives
+    # at gs://<bucket>/<RAW_LEGACY_PREFIX>/, then written to the parquet cache so
+    # the recurring flow can serve those frozen years without re-downloading.
+    # The other 15 tables are API-only (2013+) and have no legacy years.
+    LEGACY_TABLES = [
+        "municipio_receitas_orcamentarias",
+        "municipio_despesas_orcamentarias",
+        "municipio_despesas_funcao",
+        "municipio_balanco_patrimonial",
+    ]
+    LEGACY_START_YEAR = 1989
+    LEGACY_END_YEAR = 2012
+    RAW_LEGACY_PREFIX = "raw/br_me_siconfi/1989-2012"

@@ -217,3 +217,44 @@ br_me_siconfi_flow.deploy_schedules = [
 ]
 # The município window build holds a full year of data in pandas at a time.
 br_me_siconfi_flow.job_variables = {"memory": "16Gi"}
+
+
+@flow(name="br_me_siconfi_seed", log_prints=True)
+def br_me_siconfi_seed_flow(
+    raw_bucket: str = "basedosdados",
+    raw_prefix: str = constants.RAW_LEGACY_PREFIX.value,
+    cache_bucket: str = "basedosdados",
+) -> None:
+    """One-time seed of the 1989-2012 legacy parquet cache from the raw Excel.
+
+    Run ONCE before the first recurring run. The recurring flow serves
+    pre-window years from the cache and, being overwrite, would otherwise
+    rebuild the prod tables without 1989-2012 and wipe that history. Reads the
+    raw Excel from ``gs://<raw_bucket>/<raw_prefix>/`` and writes all-STRING
+    parquet to ``gs://<cache_bucket>/staging-cache/br_me_siconfi/``.
+
+    Defaults target prod (`basedosdados`); for a dev rehearsal, point both
+    buckets at ``basedosdados-dev`` (with the raw Excel copied there).
+
+    Args:
+        raw_bucket: Bucket holding the raw legacy Excel.
+        raw_prefix: Prefix of the raw legacy Excel.
+        cache_bucket: Bucket whose parquet cache is seeded.
+    """
+    work_dir = tempfile.mkdtemp(prefix="br_me_siconfi_seed_")
+    try:
+        result = tasks.seed_legacy_cache(
+            work_dir=work_dir,
+            raw_bucket=raw_bucket,
+            raw_prefix=raw_prefix,
+            cache_bucket=cache_bucket,
+        )
+        print(
+            f"seed_legacy_cache: seeded {len(result)} legacy tables into cache"
+        )
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
+
+
+# The legacy build holds one year of município Excel in pandas at a time.
+br_me_siconfi_seed_flow.job_variables = {"memory": "8Gi"}

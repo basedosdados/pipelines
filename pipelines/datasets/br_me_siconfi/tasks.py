@@ -93,3 +93,28 @@ def clean(
     return {
         k: (str(v) if isinstance(v, Path) else v) for k, v in result.items()
     }
+
+
+@task
+def seed_legacy_cache(
+    work_dir: str,
+    raw_bucket: str,
+    raw_prefix: str,
+    cache_bucket: str,
+) -> dict:
+    """One-time: seed the parquet cache with 1989-2012 legacy from raw Excel.
+
+    See :func:`pipelines.datasets.br_me_siconfi.utils.seed_legacy_cache`.
+
+    Args:
+        work_dir: Run scratch directory.
+        raw_bucket: Bucket holding the raw legacy Excel.
+        raw_prefix: Prefix of the raw legacy Excel.
+        cache_bucket: Bucket whose parquet cache is seeded.
+
+    Returns:
+        ``{table: cache_dir}`` for each legacy table seeded.
+    """
+    return utils.seed_legacy_cache(
+        work_dir, raw_bucket, raw_prefix, cache_bucket
+    )
