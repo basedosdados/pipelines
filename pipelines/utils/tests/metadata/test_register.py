@@ -22,6 +22,8 @@ from pipelines.utils.metadata.domain import (
 from pipelines.utils.metadata.policy import CoverageIds
 from pipelines.utils.metadata.register import (
     commit_source_size_update,
+    commit_source_update,
+    poll_source_for_update,
     poll_source_size_for_update,
     register_source_poll,
     register_source_poll_by_size,
@@ -78,6 +80,51 @@ def test_poll_latest_is_today():
     register_source_poll(client, "br_x", "tab")
     _, _, kwargs = client.writes[0]
     assert kwargs["latest"].date() == datetime.datetime.today().date()
+
+
+# ================= seletor de fonte por url encadeado até o client (multi-fonte)
+HIST_URL = "https://hist.example/frozen"
+
+
+def test_poll_source_for_update_forwards_raw_source_url_to_client():
+    # A url informada precisa chegar ao upsert_raw_source_poll do client.
+    client = FakeMetadataClient()
+    poll_source_for_update(
+        client, "br_x", "tab", source_max_date=None, raw_source_url=HIST_URL
+    )
+    entity, _args, kwargs = client.writes[0]
+    assert entity == "poll"
+    assert kwargs["url"] == HIST_URL
+
+
+def test_poll_source_for_update_defaults_url_to_none():
+    # Sem raw_source_url, o client recebe url=None (comportamento inalterado).
+    client = FakeMetadataClient()
+    poll_source_for_update(client, "br_x", "tab", source_max_date=None)
+    _entity, _args, kwargs = client.writes[0]
+    assert kwargs["url"] is None
+
+
+def test_commit_source_update_forwards_raw_source_url_to_client():
+    # A url informada precisa chegar ao upsert_raw_source_update do client.
+    client = FakeMetadataClient()
+    commit_source_update(
+        client,
+        "br_x",
+        "tab",
+        datetime.date(2026, 6, 1),
+        raw_source_url=HIST_URL,
+    )
+    entity, _args, kwargs = client.writes[0]
+    assert entity == "raw_source_update"
+    assert kwargs["url"] == HIST_URL
+
+
+def test_commit_source_update_defaults_url_to_none():
+    client = FakeMetadataClient()
+    commit_source_update(client, "br_x", "tab", datetime.date(2026, 6, 1))
+    _entity, _args, kwargs = client.writes[0]
+    assert kwargs["url"] is None
 
 
 # ============================================ register_table_materialization (§1.8)
