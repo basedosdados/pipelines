@@ -2818,9 +2818,9 @@ models:
         description: Você geralmente procura “esse(a) médico(a)" quando adoece ou
           precisa de conselhos sobre a sua saúde?
       - name: H006
-        description: “Esse(a)" é o(a) médico(a) que melhor conhece você como pessoa?
+        description: Esse(a) é o(a) médico(a) que melhor conhece você como pessoa?
       - name: H007
-        description: “Esse(a)" é o(a) médico(a) mais responsável por seu atendimento
+        description: Esse(a) é o(a) médico(a) mais responsável por seu atendimento
           de saúde?
       - name: H008
         description: Quando você tem um novo problema de saúde, você vai à “esse(a)
@@ -2838,8 +2838,8 @@ models:
         description: Você se sente à vontade contando as suas preocupações ou problemas
           à “esse(a) médico(a)”?
       - name: H013
-        description: “Esse(a) médico(a)” sabe quais problemas são mais importantes
-          para você?
+        description: Esse(a) médico(a) sabe quais problemas são mais importantes para
+          você?
       - name: H014
         description: Se fosse muito fácil, você mudaria do(a) “serviço de saúde” para
           outro serviço de saúde?
@@ -2879,12 +2879,12 @@ models:
       - name: H027
         description: Como prevenir quedas
       - name: H028
-        description: “Esse(a) médico(a)” pergunta as suas ideias e opiniões (o que
-          você pensa) ao planejar o tratamento e cuidado para você ou para um membro
-          da sua família?
+        description: Esse(a) médico(a) pergunta as suas ideias e opiniões (o que você
+          pensa) ao planejar o tratamento e cuidado para você ou para um membro da
+          sua família?
       - name: H029
-        description: “Esse(a) médico(a)” se reuniria com membros de sua família se
-          você achasse necessário?
+        description: Esse(a) médico(a) se reuniria com membros de sua família se você
+          achasse necessário?
       - name: H030
         description: No seu seviço de saúde são realizadas pesquisas com os pacientes
           para ver se os serviços estão satisfazendo (atendendo) as necessidades das

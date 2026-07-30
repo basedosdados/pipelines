@@ -52,6 +52,19 @@ ENV DBT_PACKAGES_PATH=/app/dbt_packages
 COPY packages.yml dbt_project.yml profiles.yml README.md ./
 RUN dbt deps
 
+# dbt Fusion engine (Rust) — coexiste com o dbt-core instalado via pip.
+# O instalador coloca os binários em /root/.local/bin. Como /usr/local/bin
+# (pip dbt-core) vem antes no PATH, `dbt` resolve para o core e `dbtf` para o
+# Fusion. Durante a fase de migração, a escolha do engine em runtime é feita
+# pela env DBT_ENGINE (ver pipelines/utils/execute_dbt_model/engine.py).
+# Defina DBT_FUSION_VERSION para fixar a versão; vazio instala a mais recente.
+ARG DBT_FUSION_VERSION=""
+ENV PATH="/usr/local/bin:/root/.local/bin:${PATH}"
+RUN curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh \
+      | sh -s -- $( [ -n "$DBT_FUSION_VERSION" ] && echo "--version $DBT_FUSION_VERSION" || echo "--update" ) && \
+    dbtf --version && \
+    dbtf deps
+
 # Diretórios necessários para basedosdados e prefect
 RUN mkdir -p /opt/prefect/app/bases && \
     mkdir -p /root/.basedosdados/templates && \

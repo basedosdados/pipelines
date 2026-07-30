@@ -158,6 +158,8 @@ output/
 .user.yml
 target/
 dbt_packages/
+# package-lock.yml é gerado por `dbtf deps` (dbt Fusion); não versionar
+package-lock.yml
 logs/
 models/**/tmp/
 models/**/input/

@@ -2,7 +2,7 @@
     config(
         alias="caracteristica_domicilio_grupo_idade_raca_tipo_domicilio",
         schema="br_ibge_censo_2022",
-        tag=["refazer"],
+        tags=["refazer"],
     )
 }}
 select

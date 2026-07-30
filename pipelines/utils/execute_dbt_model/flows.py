@@ -8,8 +8,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-from dbt.cli.main import dbtRunner
 from prefect import flow, task
+
+from pipelines.utils.execute_dbt_model.engine import run_dbt_command
 
 
 @task
@@ -50,23 +51,14 @@ def run_dbt_task(
     if "test" in dbt_command:
         commands.append("test")
 
-    runner = dbtRunner()
     for cmd in commands:
-        cli_args = [cmd, "--select", selected, "--target", target]
-        if flags and flags.startswith("--full-refresh") and cmd == "run":
-            cli_args.insert(1, "--full-refresh")
-        elif flags:
-            cli_args.extend(flags.split())
-        cli_args.extend(["--vars", json.dumps(variables)])
-
-        print(f"dbt | executing: {' '.join(cli_args)}")
-        result = runner.invoke(cli_args)
-        if result.exception:
-            raise Exception(f"dbt {cmd} exception: {result.exception}")
-        if not result.success:
-            for event in result.result or []:
-                print(f"dbt | {getattr(event, 'message', event)}")
-            raise Exception(f"dbt {cmd} falhou para {selected}")
+        run_dbt_command(
+            cmd=cmd,
+            selected=selected,
+            target=target,
+            flags=flags,
+            vars_dict=variables,
+        )
 
 
 @task

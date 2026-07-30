@@ -2,7 +2,7 @@
     config(
         alias="uf_tipo",
         schema="br_denatran_frota",
-        materialization="table",
+        materialized="table",
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}

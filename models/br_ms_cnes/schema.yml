@@ -26,14 +26,16 @@ models:
     columns:
       - name: ano
         description: Ano
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: mes
         description: Mes
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -56,9 +58,10 @@ models:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
         description: ID Estabelecimento - CNES
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: id_equipamento
         description: Identificador do equipamento
       - name: tipo_equipamento
@@ -97,14 +100,16 @@ models:
     columns:
       - name: ano
         description: Ano
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: mes
         description: Mês
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -127,9 +132,10 @@ models:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
         description: ID Estabelecimento - CNES
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: id_equipe
         description: ID da equipe dado pelo código do Município, area e sequencial
           da equipe
@@ -192,14 +198,16 @@ models:
     columns:
       - name: ano
         description: Ano
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: mes
         description: Mês
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -218,9 +226,10 @@ models:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
         description: ID Estabelecimento - CNES
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: id_municipio_6_residencia
         description: ID Município IBGE - 6 Dígitos do local de residência do profissional
       - name: nome
@@ -300,14 +309,16 @@ models:
     columns:
       - name: ano
         description: Ano
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: mes
         description: Mês
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -346,9 +357,10 @@ models:
         description: Código do CEP
       - name: id_estabelecimento_cnes
         description: ID estabelecimento - CNES
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: tipo_pessoa
         description: Indicador de pessoa física ou jurídica
       - name: cpf_cnpj
@@ -856,9 +868,10 @@ models:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
         description: ID Estabelecimento - CNES
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: tipo_especialidade_leito
         description: Especialidade do leito
       - name: tipo_leito
@@ -903,9 +916,10 @@ models:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
         description: ID Estabelecimento - CNES
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: cns_medico_responsavel_administrador_responsavel_tecnico
         description: CNS do médico responsável - Administrador ou Responsável Técnico
       - name: cns_medico_responsavel_oncologista_pediatrico
@@ -1125,9 +1139,10 @@ models:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
         description: ID Estabelecimento - CNES
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: ano_competencia_inicial
         description: Ano Competência inicial
       - name: mes_competencia_inicial
@@ -1186,9 +1201,10 @@ models:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
         description: ID Estabelecimento - CNES
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: ano_competencia_inicial
         description: Ano Competência inicial
       - name: mes_competencia_inicial
@@ -1225,14 +1241,16 @@ models:
     columns:
       - name: ano
         description: Ano
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: mes
         description: Mês
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -1255,9 +1273,10 @@ models:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
         description: ID Estabelecimento - CNES
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: ano_competencia_inicial
         description: Ano Competência inicial
       - name: mes_competencia_inicial
@@ -1300,14 +1319,16 @@ models:
     columns:
       - name: ano
         description: Ano
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: mes
         description: Mês
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
       - name: id_municipio
@@ -1324,9 +1345,10 @@ models:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
         description: ID Estabelecimento - CNES
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: ano_competencia_inicial
         description: Ano Competência inicial
       - name: mes_competencia_inicial
@@ -1372,14 +1394,16 @@ models:
     columns:
       - name: ano
         description: Ano
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: mes
         description: Mês
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -1402,9 +1426,10 @@ models:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
         description: ID Estabelecimento - CNES
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: quantidade_leitos
         description: Quantidade de leitos
       - name: ano_competencia_inicial
@@ -1447,14 +1472,16 @@ models:
     columns:
       - name: ano
         description: Ano
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: mes
         description: Mês
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -1477,9 +1504,10 @@ models:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
         description: ID Estabelecimento - CNES
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: ano_competencia_inicial
         description: Ano Competência inicial
       - name: mes_competencia_inicial
@@ -1531,14 +1559,16 @@ models:
     columns:
       - name: ano
         description: Ano
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: mes
         description: Mês
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -1561,9 +1591,10 @@ models:
                 where: __most_recent_year_month__
       - name: id_estabelecimento_cnes
         description: ID Estabelecimento - CNES
-        tests: [not_null]
-        config:
-          where: __most_recent_year_month__
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_month__
       - name: tipo_servico_especializado
         description: Código do tipo do serviço especializado
       - name: subtipo_servico_especializado

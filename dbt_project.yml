@@ -6,6 +6,10 @@ name: basedosdados
 version: 1.0.0
 config-version: 2
 
+# Aceita tanto dbt-core 1.8.x quanto o dbt Fusion engine (2.x). O range precisa
+# admitir 2.0.0 para o Fusion conseguir parsear o projeto e resolver os pacotes.
+require-dbt-version: ['>=1.8.0', <3.0.0]
+
 # This setting configures which "profile" dbt uses for this project.
 profile: default
 # These configurations specify where dbt should look for different types of files.

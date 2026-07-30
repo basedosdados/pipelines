@@ -27,6 +27,18 @@ jobs:
       - name: Install dependencies
         if: steps.changed-files.outputs.any_changed == 'true'
         run: uv sync --locked --no-dev
+      # Seleção do engine dbt em runtime: a label `deploy-flow-fusion` injeta
+      # DBT_ENGINE=fusion no job_variables do deployment, permitindo testar
+      # execuções no Fusion sem alterar código. Sem a label, usa o default (core).
+      - name: Resolve dbt engine flag
+        id: engine
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |-
+          if ${{ contains(github.event.pull_request.labels.*.name, 'deploy-flow-fusion') }}; then
+            echo "flag=--env DBT_ENGINE=fusion" >> "$GITHUB_OUTPUT"
+          else
+            echo "flag=" >> "$GITHUB_OUTPUT"
+          fi
       - name: Deploy flows to basedosdados-dev
         if: steps.changed-files.outputs.any_changed == 'true'
         env:
@@ -36,4 +48,5 @@ jobs:
           uv run python .github/scripts/deploy_flows.py \
             --pool basedosdados-dev \
             --branch ${{ github.head_ref }} \
-            --files ${{ steps.changed-files.outputs.all_changed_files }}
+            --files ${{ steps.changed-files.outputs.all_changed_files }} \
+            ${{ steps.engine.outputs.flag }}

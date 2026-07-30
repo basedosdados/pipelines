@@ -194,12 +194,12 @@ models:
               values: [privada, publica, total, estadual]
       - name: ensino
         description: Tipo de Ensino
-        test:
+        tests:
           - accepted_values:
               values: [medio, fundamental]
       - name: anos_escolares
         description: Anos Escolares
-        test:
+        tests:
           - accepted_values:
               values: [iniciais (1-5), finais (6-9), todos (1-4)]
       - name: taxa_aprovacao
@@ -237,12 +237,12 @@ models:
               values: [privada, publica, total, estadual]
       - name: ensino
         description: Tipo de Ensino
-        test:
+        tests:
           - accepted_values:
               values: [medio, fundamental]
       - name: anos_escolares
         description: Anos Escolares
-        test:
+        tests:
           - accepted_values:
               values: [iniciais (1-5), finais (6-9), todos (1-4)]
       - name: taxa_aprovacao

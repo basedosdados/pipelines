@@ -46,6 +46,10 @@ jobs:
           file: Dockerfile
           push: true
           tags: ${{ env.IMAGE }}:${{ steps.tag.outputs.tag }}
+          # Instala o dbt Fusion na imagem (ver Dockerfile). Defina a variável
+          # de repositório DBT_FUSION_VERSION para fixar a versão; vazia = latest.
+          build-args: |
+            DBT_FUSION_VERSION=${{ vars.DBT_FUSION_VERSION }}
       - name: Update work pool image
         env:
           TAG: ${{ steps.tag.outputs.tag }}
