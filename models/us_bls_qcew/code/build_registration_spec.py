@@ -24,9 +24,9 @@ FREQ = {
         "es_w": "trimestrales",
     },
     "annual": {
-        "en": "Annual Averages",
-        "pt": "Médias Anuais",
-        "es": "Promedios Anuales",
+        "en": "Annual",
+        "pt": "Anual",
+        "es": "Anual",
         "en_w": "annual-average",
         "pt_w": "de médias anuais",
         "es_w": "de promedios anuales",
@@ -121,7 +121,15 @@ def table_spec(cls, freq, geo):
             f"clase de tamaño, con conteos de establecimientos, {emp_es} y salarios{extra_es}."
         ),
     }
-    ol_entities = [g["ol"], "industry"]
+    # Observation levels = temporal grain (year, plus quarter for quarterly) then
+    # the geographic entity (omitted for national, where it is constant) then
+    # industry. National tables therefore carry no geo OL.
+    ol_entities = (
+        ["year"]
+        + (["quarter"] if freq == "quarterly" else [])
+        + ([g["ol"]] if geo != "national" else [])
+        + ["industry"]
+    )
     return {
         "slug": slug,
         "classification": cls,
