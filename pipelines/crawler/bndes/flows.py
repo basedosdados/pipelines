@@ -37,7 +37,7 @@ SOURCE_DATE_FORMAT = (
 )
 
 
-def _run_operacoes_indiretas_automaticas(
+def _run_operacoes(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
