@@ -163,9 +163,13 @@ models/**/tmp/
 models/**/input/
 models/**/output/
 models/**/extra/
+models/**/code/meta_cache.json
 dbt_internal_packages/*
 
 # migration docs (moved to manual-equipe-dados)
 prefect3-*.md
 refatorar_backend.md
 docs/
+models/**/code/metadata_spec.json
+models/**/code/column_descriptions.json
+models/**/code/table_backend.json

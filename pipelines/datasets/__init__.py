@@ -1,58 +1,6 @@
 """
-Prefect flows for basedosdados project
-"""
+Datasets do projeto basedosdados — Prefect 3.
 
-###############################################################################
-# Automatically managed, please do not touch
-###############################################################################
-# ruff: noqa
-from pipelines.datasets.botdosdados.flows import *
-from pipelines.datasets.br_anatel_banda_larga_fixa.flows import *
-from pipelines.datasets.br_anatel_telefonia_movel.flows import *
-from pipelines.datasets.br_anp_precos_combustiveis.flows import *
-from pipelines.datasets.br_ans_beneficiario.flows import *
-from pipelines.datasets.br_bcb_agencia.flows import *
-from pipelines.datasets.br_bcb_estban.flows import *
-from pipelines.datasets.br_bcb_sicor.flows import *
-from pipelines.datasets.br_bcb_taxa_cambio.flows import *
-from pipelines.datasets.br_bcb_taxa_selic.flows import *
-from pipelines.datasets.br_bd_indicadores.flows import *
-from pipelines.datasets.br_bd_siga_o_dinheiro.flows import *
-from pipelines.datasets.br_camara_dados_abertos.flows import *
-from pipelines.datasets.br_cgu_beneficios_cidadao.flows import *
-from pipelines.datasets.br_cgu_cartao_pagamento.flows import *
-from pipelines.datasets.br_cgu_emendas_parlamentares.flows import *
-from pipelines.datasets.br_cgu_licitacao_contrato.flows import *
-from pipelines.datasets.br_cgu_pessoal_executivo_federal.flows import *
-from pipelines.datasets.br_cgu_servidores_executivo_federal.flows import *
-from pipelines.datasets.br_cnj_improbidade_administrativa.flows import *
-from pipelines.datasets.br_cvm_administradores_carteira.flows import *
-from pipelines.datasets.br_cvm_fi.flows import *
-from pipelines.datasets.br_cvm_oferta_publica_distribuicao.flows import *
-from pipelines.datasets.br_denatran_frota.flows import *
-from pipelines.datasets.br_fgv_igp.flows import *
-from pipelines.datasets.br_ibge_inpc.flows import *
-from pipelines.datasets.br_ibge_ipca.flows import *
-from pipelines.datasets.br_ibge_ipca15.flows import *
-from pipelines.datasets.br_ibge_pnadc.flows import *
-from pipelines.datasets.br_inmet_bdmep.flows import *
-from pipelines.datasets.br_me_caged.flows import *
-from pipelines.datasets.br_me_rais.flows import *
-from pipelines.datasets.br_me_cnpj.flows import *
-from pipelines.datasets.br_me_comex_stat.flows import *
-from pipelines.datasets.br_mp_pep.flows import *
-from pipelines.datasets.br_ms_cnes.flows import *
-from pipelines.datasets.br_ms_sia.flows import *
-from pipelines.datasets.br_ms_sih.flows import *
-from pipelines.datasets.br_ms_sinan.flows import *
-from pipelines.datasets.br_poder360_pesquisas.flows import *
-from pipelines.datasets.br_rf_cafir.flows import *
-from pipelines.datasets.br_rf_cno.flows import *
-from pipelines.datasets.br_rj_isp_estatisticas_seguranca.flows import *
-from pipelines.datasets.br_sfb_sicar.flows import *
-from pipelines.datasets.br_sp_saopaulo_dieese_icv.flows import *
-from pipelines.datasets.br_stf_corte_aberta.flows import *
-from pipelines.datasets.br_tse_eleicoes.flows import *
-from pipelines.datasets.delete_flows.flows import *
-from pipelines.datasets.fundacao_lemann.flows import *
-from pipelines.datasets.test_dataset.flows import *
+Os flows são descobertos diretamente pelo deployer (`.github/scripts/deploy_flows.py`),
+que percorre os arquivos `flows.py`. Não há mais agregação de imports aqui.
+"""

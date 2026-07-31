@@ -1,0 +1,55 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+xbarevct,STRING,"Imputation field for BAREVCT - Revised bachelor's degree-seeking cohort, (cohort year 2015)",,no,,,no,,xbarevct
+barevct,FLOAT64,"Revised bachelor's degree-seeking cohort, (cohort year 2015)",,no,,,no,,barevct
+xbaexclu,STRING,Imputation field for BAEXCLU - Exclusions from bachelor's degree-seeking cohort within 150% percent of normal time,,no,,,no,,xbaexclu
+baexclu,FLOAT64,Exclusions from bachelor's degree-seeking cohort within 150% percent of normal time,,no,,,no,,baexclu
+xbaac150,STRING,Imputation field for BAAC150 - Adjusted bachelor's degree-seeking cohort within 150% of normal time,,no,,,no,,xbaac150
+baac150,FLOAT64,Adjusted bachelor's degree-seeking cohort within 150% of normal time,,no,,,no,,baac150
+xbanc100,STRING,Imputation field for BANC100 - Number completed a bachelor's degree within 100% of normal time (4-years),,no,,,no,,xbanc100
+banc100,FLOAT64,Number completed a bachelor's degree within 100% of normal time (4-years),,no,,,no,,banc100
+xbagr100,STRING,Imputation field for BAGR100 - 4-year Graduation rate - bachelor's degree within 100% of normal time,,no,,,no,,xbagr100
+bagr100,FLOAT64,4-year Graduation rate - bachelor's degree within 100% of normal time,,no,,,no,,bagr100
+xbanc150,STRING,Imputation field for BANC150 - Number completed a bachelor's degree within 150% of normal time (6-years),,no,,,no,,xbanc150
+banc150,FLOAT64,Number completed a bachelor's degree within 150% of normal time (6-years),,no,,,no,,banc150
+xbagr150,STRING,Imputation field for BAGR150 - 6-year Graduation rate - bachelor's degree within 150% of normal time,,no,,,no,,xbagr150
+bagr150,FLOAT64,6-year Graduation rate - bachelor's degree within 150% of normal time,,no,,,no,,bagr150
+xbaaexcl,STRING,Imputation field for BAAEXCL - Additional exclusions from bachelor's degree-seeking cohort,,no,,,no,,xbaaexcl
+baaexcl,FLOAT64,Additional exclusions from bachelor's degree-seeking cohort,,no,,,no,,baaexcl
+xbaac200,STRING,Imputation field for BAAC200 - Adjusted bachelor's degree-seeking cohort within 200% of normal time,,no,,,no,,xbaac200
+baac200,FLOAT64,Adjusted bachelor's degree-seeking cohort within 200% of normal time,,no,,,no,,baac200
+xbanc20a,STRING,Imputation field for BANC200A - Number completed a bachelor's degree between 150% and 200% of normal time,,no,,,no,,xbanc20a
+banc200a,FLOAT64,Number completed a bachelor's degree between 150% and 200% of normal time,,no,,,no,,banc200a
+xbastend,STRING,Imputation field for BASTEND - Still enrolled,,no,,,no,,xbastend
+bastend,FLOAT64,Still enrolled,,no,,,no,,bastend
+xbanc200,STRING,Imputation field for BANC200 - Number completed a bachelor's degree within 200% of normal time (8-years),,no,,,no,,xbanc200
+banc200,FLOAT64,Number completed a bachelor's degree within 200% of normal time (8-years),,no,,,no,,banc200
+xbagr200,STRING,Imputation field for BAGR200 - 8-year Graduation rate - bachelor's degree within 200% of normal time,,no,,,no,,xbagr200
+bagr200,FLOAT64,8-year Graduation rate - bachelor's degree within 200% of normal time,,no,,,no,,bagr200
+xl4revct,STRING,"Imputation field for L4REVCT - Revised degree/certificate-seeking cohort, (cohort year 2019)",,no,,,no,,xl4revct
+l4revct,FLOAT64,"Revised degree/certificate-seeking cohort, (cohort year 2019)",,no,,,no,,l4revct
+xl4exclu,STRING,Imputation field for L4EXCLU - Exclusions from degree/certificate-seeking cohort within 150% percent of normal time,,no,,,no,,xl4exclu
+l4exclu,FLOAT64,Exclusions from degree/certificate-seeking cohort within 150% percent of normal time,,no,,,no,,l4exclu
+xl4ac150,STRING,Imputation field for L4AC150 - Adjusted degree/certificate-seeking cohort within 150% of normal time,,no,,,no,,xl4ac150
+l4ac150,FLOAT64,Adjusted degree/certificate-seeking cohort within 150% of normal time,,no,,,no,,l4ac150
+xl4nc100,STRING,Imputation field for L4NC100 - Number completed a degree/certificate within 100% of normal time,,no,,,no,,xl4nc100
+l4nc100,FLOAT64,Number completed a degree/certificate within 100% of normal time,,no,,,no,,l4nc100
+xl4gr100,STRING,Imputation field for L4GR100 - Graduation rate - degree/certificate within 100% of normal time,,no,,,no,,xl4gr100
+l4gr100,FLOAT64,Graduation rate - degree/certificate within 100% of normal time,,no,,,no,,l4gr100
+xl4nc150,STRING,Imputation field for L4NC150 - Number completed a degree/certificate  within 150% of normal time,,no,,,no,,xl4nc150
+l4nc150,FLOAT64,Number completed a degree/certificate  within 150% of normal time,,no,,,no,,l4nc150
+xl4gr150,STRING,Imputation field for L4GR150 - Graduation rate - degree/certificate within 150% of normal time,,no,,,no,,xl4gr150
+l4gr150,FLOAT64,Graduation rate - degree/certificate within 150% of normal time,,no,,,no,,l4gr150
+xl4aexcl,STRING,Imputation field for L4AEXCL - Additional exclusions from degree/certificate-seeking cohort,,no,,,no,,xl4aexcl
+l4aexcl,FLOAT64,Additional exclusions from degree/certificate-seeking cohort,,no,,,no,,l4aexcl
+xl4ac200,STRING,Imputation field for L4AC200 - Adjusted degree/certificate-seeking cohort within 200% of normal time,,no,,,no,,xl4ac200
+l4ac200,FLOAT64,Adjusted degree/certificate-seeking cohort within 200% of normal time,,no,,,no,,l4ac200
+xl4nc20a,STRING,Imputation field for L4NC200A - Number completed a  degree/certificate between 150% and 200% of normal time,,no,,,no,,xl4nc20a
+l4nc200a,FLOAT64,Number completed a  degree/certificate between 150% and 200% of normal time,,no,,,no,,l4nc200a
+xl4stend,STRING,Imputation field for L4STEND - Still enrolled,,no,,,no,,xl4stend
+l4stend,FLOAT64,Still enrolled,,no,,,no,,l4stend
+xl4nc200,STRING,Imputation field for L4NC200 - Number completed a degree/certificate within 200% of normal time,,no,,,no,,xl4nc200
+l4nc200,FLOAT64,Number completed a degree/certificate within 200% of normal time,,no,,,no,,l4nc200
+xl4gr200,STRING,Imputation field for L4GR200 - Graduation rate - degree/certificate within 200% of normal time,,no,,,no,,xl4gr200
+l4gr200,FLOAT64,Graduation rate - degree/certificate within 200% of normal time,,no,,,no,,l4gr200

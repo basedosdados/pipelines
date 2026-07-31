@@ -16,7 +16,8 @@ from pipelines.utils.metadata.domain import (
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -44,6 +45,7 @@ def _materialize_and_metadata(
     materialize_after_dump: bool,
     update_metadata: bool,
     coverage: CoverageSpec,
+    source_max_date=None,
 ) -> None:
     upload_to_gcs(
         data_path=filepath,
@@ -89,6 +91,15 @@ def _materialize_and_metadata(
             bq_project="basedosdados",
         )
 
+        if source_max_date is not None:
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=source_max_date,
+                env="prod",
+                date_format="%Y-%m",
+            )
+
 
 def _run_cgu_cartao_pagamento(
     dataset_id: str,
@@ -109,14 +120,14 @@ def _run_cgu_cartao_pagamento(
     )
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m",
         )
-        if not is_outdated:
+        if not has_new_data:
             return
 
     filepath = partition_data(table_id=table_id, dataset_id=dataset_id)
@@ -128,6 +139,7 @@ def _run_cgu_cartao_pagamento(
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
+        source_max_date=data_source_max_date,
         coverage=_part_bdpro_year_month("ano_extrato", "mes_extrato"),
     )
 
@@ -158,14 +170,14 @@ def _run_cgu_servidores_publicos(
     )
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m",
         )
-        if not is_outdated:
+        if not has_new_data:
             return
 
     filepath = partition_data(table_id=table_id, dataset_id=dataset_id)
@@ -177,6 +189,7 @@ def _run_cgu_servidores_publicos(
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
+        source_max_date=data_source_max_date,
         coverage=_part_bdpro_year_month("ano", "mes"),
     )
 
@@ -200,14 +213,14 @@ def _run_cgu_licitacao_contrato(
     )
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m",
         )
-        if not is_outdated:
+        if not has_new_data:
             return
 
     filepath = partition_data(table_id=table_id, dataset_id=dataset_id)
@@ -219,6 +232,7 @@ def _run_cgu_licitacao_contrato(
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
+        source_max_date=data_source_max_date,
         coverage=_part_bdpro_year_month("ano", "mes"),
     )
 
@@ -242,14 +256,14 @@ def _run_cgu_beneficios_cidadao(
     )
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m",
         )
-        if not is_outdated:
+        if not has_new_data:
             return
 
     filepath = read_and_partition_beneficios_cidadao(table_id=table_id)
@@ -261,5 +275,6 @@ def _run_cgu_beneficios_cidadao(
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
+        source_max_date=data_source_max_date,
         coverage=_part_bdpro_year_month(**dict_for_table(table_id)),
     )

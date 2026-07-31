@@ -14,7 +14,8 @@ from pipelines.utils.metadata.domain import (
     DateOnly,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -43,14 +44,14 @@ def _run_cvm_fi(
     print(f"Links e datas: {df}")
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=max_date,
             env="prod",
             date_format="%Y-%m-%d",
         )
-        if not is_outdated:
+        if not has_new_data:
             print(
                 "Sem atualizações na fonte — aguardando próxima execução agendada"
             )
@@ -112,3 +113,12 @@ def _run_cvm_fi(
             env="prod",
             bq_project="basedosdados",
         )
+
+        if max_date is not None:
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=max_date,
+                env="prod",
+                date_format="%Y-%m-%d",
+            )

@@ -1,0 +1,14 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_office,STRING,Identificador do escritório distrital (formato bioguide-cidade). Chave primária.,,no,,,no,,offices[].id
+id_bioguide,STRING,Identificador Bioguide do legislador titular do escritório.,,no,br_bd_diretorios_us.congress_member:id_bioguide,,no,,id.bioguide
+building,STRING,Nome do edifício do escritório.,,no,,,no,,offices[].building
+address,STRING,Logradouro do escritório.,,no,,,no,,offices[].address
+suite,STRING,Sala ou conjunto do escritório.,,no,,,no,,offices[].suite
+city,STRING,Cidade do escritório.,,no,,,no,,offices[].city
+state,STRING,Código USPS de duas letras do estado ou território do escritório.,,no,br_bd_diretorios_us.state:abbreviation,,no,,offices[].state
+zip_code,STRING,Código postal (ZIP) de cinco dígitos do escritório.,,no,,,no,,offices[].zip
+phone,STRING,Telefone do escritório.,,no,,,no,,offices[].phone
+fax,STRING,Fax do escritório.,,no,,,no,,offices[].fax
+hours,STRING,Horário de funcionamento do escritório (texto livre).,,no,,,no,,offices[].hours
+latitude,FLOAT64,Latitude geocodificada do escritório.,,no,,,no,,offices[].latitude
+longitude,FLOAT64,Longitude geocodificada do escritório.,,no,,,no,,offices[].longitude

@@ -10,6 +10,23 @@ from tqdm import tqdm
 from pipelines.crawler.rf.constants import constants as br_rf_cosnstants
 from pipelines.utils.utils import log
 
+_BROWSER_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/80.0.3987.149 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
+    "Sec-GPC": "1",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "same-origin",
+    "Sec-Fetch-User": "?1",
+    "Priority": "u=0, i",
+}
+
 
 async def download_chunk(
     client: httpx.AsyncClient,
@@ -36,23 +53,7 @@ async def download_chunk(
     Returns:
         None
     """
-    headers = {
-        "Range": f"bytes={start}-{end}",
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/80.0.3987.149 Safari/537.36"
-        ),
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
-        "Sec-GPC": "1",
-        "Upgrade-Insecure-Requests": "1",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "same-origin",
-        "Sec-Fetch-User": "?1",
-        "Priority": "u=0, i",
-    }
+    headers = {**_BROWSER_HEADERS, "Range": f"bytes={start}-{end}"}
 
     async with semaphore:  # controla concorrência
         response = await client.get(url, headers=headers, timeout=60.0)
@@ -78,6 +79,10 @@ async def download_file_async(root: str, url: str) -> None:
         root (str): Root directory where the file will be saved.
         url (str): The URL of the file to download.
 
+    Raises:
+        httpx.HTTPStatusError: If the source returns an HTTP error status.
+        ValueError: If the response is missing the content-length header.
+
     Returns:
         None
     """
@@ -86,12 +91,20 @@ async def download_file_async(root: str, url: str) -> None:
 
     log(f"---- Starting async download from {url}")
 
-    # Step 1: get file size
     async with httpx.AsyncClient() as client:
-        response = await client.head(url, timeout=60.0)
-        total_size = int(response.headers["content-length"])
+        response = await client.head(
+            url, timeout=60.0, headers=_BROWSER_HEADERS, follow_redirects=True
+        )
+        response.raise_for_status()
 
-    # Step 2: preallocate space
+    content_length = response.headers.get("content-length")
+    if content_length is None:
+        raise ValueError(
+            f"HEAD de {url} não retornou o header content-length — "
+            "provável bloqueio do WAF ou resposta inesperada da fonte."
+        )
+    total_size = int(content_length)
+
     with open(filepath, "wb") as f:
         f.write(b"\0" * total_size)
 
@@ -99,7 +112,6 @@ async def download_file_async(root: str, url: str) -> None:
     tasks: list[asyncio.Task] = []
     semaphore = asyncio.Semaphore(5)  # allow max 5 simultaneous downloads
 
-    # Step 3: schedule downloads
     with tqdm(
         total=total_size, unit="MB", unit_scale=True, desc=filepath
     ) as pbar:

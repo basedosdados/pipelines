@@ -1,0 +1,41 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+eapcat,FLOAT64,Occupation and faculty/tenure status,,no,,,no,,eapcat
+occupcat,FLOAT64,Occupation,,no,,,no,,occupcat
+facstat,FLOAT64,Faculty and tenure status,,no,,,no,,facstat
+xeaptot,STRING,Imputation field for EAPTOT - Total employees,,no,,,no,,xeaptot
+eaptot,FLOAT64,Total employees,,no,,,no,,eaptot
+xeaptyp,STRING,Imputation field for EAPTYP - Institution employees (excluding medical school),,no,,,no,,xeaptyp
+eaptyp,FLOAT64,Institution employees (excluding medical school),,no,,,no,,eaptyp
+xeapmed,STRING,Imputation field for EAPMED - Medical school employees,,no,,,no,,xeapmed
+eapmed,FLOAT64,Medical school employees,,no,,,no,,eapmed
+xeapft,STRING,Imputation field for EAPFT - Full-time employees,,no,,,no,,xeapft
+eapft,FLOAT64,Full-time employees,,no,,,no,,eapft
+xeapftty,STRING,Imputation field for EAPFTTYP - Full-time employees (excluding medical schools),,no,,,no,,xeapftty
+eapfttyp,FLOAT64,Full-time employees (excluding medical schools),,no,,,no,,eapfttyp
+xeapftmd,STRING,Imputation field for EAPFTMED - Full-time employees (medical school),,no,,,no,,xeapftmd
+eapftmed,FLOAT64,Full-time employees (medical school),,no,,,no,,eapftmed
+xeappt,STRING,Imputation field for EAPPT - Part-time employees,,no,,,no,,xeappt
+eappt,FLOAT64,Part-time employees,,no,,,no,,eappt
+xeapptty,STRING,Imputation field for EAPPTTYP - Part-time employees (excluding medical schools),,no,,,no,,xeapptty
+eappttyp,FLOAT64,Part-time employees (excluding medical schools),,no,,,no,,eappttyp
+xeapptmd,STRING,Imputation field for EAPPTMED - Part-time employees (medical school),,no,,,no,,xeapptmd
+eapptmed,FLOAT64,Part-time employees (medical school),,no,,,no,,eapptmed
+eaprectp,FLOAT64,Primary function,,no,,,no,,eaprectp
+ftpt,FLOAT64,Full and part-time status,,no,,,no,,ftpt
+functcd,FLOAT64,Primary function/occupational activity,,no,,,no,,functcd
+fstat,FLOAT64,Faculty status,,no,,,no,,fstat
+typecd,FLOAT64,Employee type,,no,,,no,,typecd
+xfstat1,STRING,Imputation field for FSTAT1 - Tenured faculty,,no,,,no,,xfstat1
+fstat1,FLOAT64,Tenured faculty,,no,,,no,,fstat1
+xfstat2,STRING,Imputation field for FSTAT2 - Nontenured on tenure track Faculty,,no,,,no,,xfstat2
+fstat2,FLOAT64,Nontenured on tenure track Faculty,,no,,,no,,fstat2
+xfstat3,STRING,Imputation field for FSTAT3 - Not on tenure track,,no,,,no,,xfstat3
+fstat3,FLOAT64,Not on tenure track,,no,,,no,,fstat3
+xfstat4,STRING,Imputation field for FSTAT4 - Employees without faculty status,,no,,,no,,xfstat4
+fstat4,FLOAT64,Employees without faculty status,,no,,,no,,fstat4
+xfstat5,STRING,Imputation field for FSTAT5 - Total full-time employees,,no,,,no,,xfstat5
+fstat5,FLOAT64,Total full-time employees,,no,,,no,,fstat5
+xfstat6,STRING,Imputation field for FSTAT6 - Graduate assistants (applicable to part-time only),,no,,,no,,xfstat6
+fstat6,FLOAT64,Graduate assistants (applicable to part-time only),,no,,,no,,fstat6

@@ -1,5 +1,8 @@
 """
 Flows for br_anatel_banda_larga_fixa — Prefect 3.
+
+Contexto e decisões do fix de atualização (poll deferido): ver o README.md
+deste diretório.
 """
 
 from prefect import flow
@@ -9,7 +12,7 @@ from pipelines.crawler.anatel.banda_larga_fixa.flows import (
 )
 
 
-def _anatel_blf_flow(table_id: str, cron: str):
+def _anatel_blf_flow(table_id: str, cron: str | None):
     @flow(
         name=f"br_anatel_banda_larga_fixa__{table_id}",
         log_prints=True,
@@ -36,7 +39,9 @@ def _anatel_blf_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = (
+        [{"cron": cron, "timezone": "America/Sao_Paulo"}] if cron else []
+    )
     return _flow
 
 
@@ -44,11 +49,11 @@ br_anatel_banda_larga_fixa__microdados = _anatel_blf_flow(
     table_id="microdados", cron="0 15 * * *"
 )
 br_anatel_banda_larga_fixa__densidade_municipio = _anatel_blf_flow(
-    table_id="densidade_municipio", cron="0 16 * * *"
+    table_id="densidade_municipio", cron=None
 )
 br_anatel_banda_larga_fixa__densidade_brasil = _anatel_blf_flow(
-    table_id="densidade_brasil", cron="0 17 * * *"
+    table_id="densidade_brasil", cron=None
 )
 br_anatel_banda_larga_fixa__densidade_uf = _anatel_blf_flow(
-    table_id="densidade_uf", cron="0 18 * * *"
+    table_id="densidade_uf", cron=None
 )

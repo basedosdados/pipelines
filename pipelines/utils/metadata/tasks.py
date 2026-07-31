@@ -20,9 +20,16 @@ from pipelines.utils.metadata.bq import BigQueryReader
 from pipelines.utils.metadata.client import MetadataClient
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.metadata.domain import CoverageSpec
+from pipelines.utils.metadata.poll import (
+    check_source_is_ahead_of_table,
+    register_source_coverage,
+    sync_table_coverage,
+)
 from pipelines.utils.metadata.register import (
+    commit_source_size_update,
     commit_source_update,
     poll_source_for_update,
+    poll_source_size_for_update,
     register_source_poll,
     register_source_poll_by_size,
     register_table_materialization,
@@ -117,8 +124,8 @@ def register_source_poll_task(
     """Registra que a fonte original foi consultada hoje ("poll por data").
 
     Sempre grava um `Poll` na fonte (data de hoje). Se `source_max_date` indica
-    dados mais novos do que o último `Update` registrado, grava também esse
-    Update e devolve True; caso contrário devolve False.
+    dados mais novos do que o `Table.Update.latest` atual, grava também esse
+    `RawDataSource.Update` e devolve True; caso contrário devolve False.
 
     Use esta task quando a fonte EXPÕE uma data máxima (a maioria dos casos).
     Para fontes que só permitem detectar mudança por tamanho de arquivo, use
@@ -264,11 +271,12 @@ def poll_source_for_update_task(
     source_max_date: datetime.date | str | None = None,
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
+    raw_source_url: str | None = None,
 ) -> bool:
     """Detecta se a fonte original tem novidade hoje, sem gravar o Update.
 
     Sempre grava um `Poll` na fonte (data de hoje) e devolve se `source_max_date`
-    indica dados mais novos do que o último `Update` registrado — mas, ao
+    indica dados mais novos do que o `Table.Update.latest` atual — mas, ao
     contrário de `register_source_poll_task`, **não grava** o Update. A gravação
     fica a cargo de `commit_source_update_task`, chamada ao fim do flow, após a
     materialização. Use as duas em par quando a gravação do Update precisa ser
@@ -285,6 +293,9 @@ def poll_source_for_update_task(
         date_format: formato usado para parsear `source_max_date` quando vier
             como string. Padrão `"%Y-%m-%d"`; use `"%Y-%m"` ou `"%Y"` conforme a
             granularidade da string.
+        raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
+            uma fonte ligada (ex.: uma API que atualiza e um histórico
+            congelado). `None` (padrão) mantém o comportamento de fonte única.
 
     Returns:
         bool — True se a fonte trouxe novidade (Update ainda não gravado),
@@ -297,6 +308,7 @@ def poll_source_for_update_task(
         dataset_id,
         table_id,
         _coerce_to_date(source_max_date, date_format),
+        raw_source_url=raw_source_url,
     )
 
 
@@ -310,6 +322,7 @@ def commit_source_update_task(
     source_max_date: datetime.date | str,
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
+    raw_source_url: str | None = None,
 ) -> None:
     """Grava o `RawDataSource.Update` da fonte original.
 
@@ -329,6 +342,9 @@ def commit_source_update_task(
         date_format: formato usado para parsear `source_max_date` quando vier
             como string. Padrão `"%Y-%m-%d"`; use `"%Y-%m"` ou `"%Y"` conforme a
             granularidade da string.
+        raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
+            uma fonte ligada (ex.: uma API que atualiza e um histórico
+            congelado). `None` (padrão) mantém o comportamento de fonte única.
 
     Returns:
         None.
@@ -340,4 +356,199 @@ def commit_source_update_task(
         dataset_id,
         table_id,
         _coerce_to_date(source_max_date, date_format),
+        raw_source_url=raw_source_url,
     )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def register_source_coverage_task(
+    dataset_id: str,
+    table_id: str,
+    source_max_date: datetime.date | str | None = None,
+    env: str = "dev",
+    date_format: str = "%Y-%m-%d",
+) -> bool:
+    """Registra a cobertura publicada pela fonte e marca o poll de hoje.
+
+    Wrapper de `register_source_coverage`: grava o `Poll` e avança o
+    `RawDataSource.Update` se a fonte trouxe cobertura mais nova.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        source_max_date: cobertura máxima observada na fonte (`date`, `datetime`
+            ou `str` em `date_format`). `None` registra "só polei, sem novidade".
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        date_format: formato pra parsear `source_max_date` quando vier string.
+
+    Returns:
+        bool — `True` se a cobertura da fonte avançou; `False` caso contrário.
+    """
+    client = MetadataClient(env=env)
+
+    return register_source_coverage(
+        client=client,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=_coerce_to_date(
+            value=source_max_date, date_format=date_format
+        ),
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def check_source_is_ahead_of_table_task(
+    dataset_id: str,
+    table_id: str,
+    env: str = "dev",
+) -> bool:
+    """Diz se a fonte está à frente da tabela (decide se materializa).
+
+    Wrapper de `check_source_is_ahead_of_table`: compara o `RawDataSource.Update`
+    com o `Table.Update`. Leitura pura — não grava nada.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+
+    Returns:
+        bool — `True` se a cobertura da fonte é mais recente que a da tabela.
+    """
+    client = MetadataClient(env=env)
+
+    return check_source_is_ahead_of_table(
+        client=client, dataset_id=dataset_id, table_id=table_id
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def sync_table_coverage_task(
+    dataset_id: str,
+    table_id: str,
+    coverage: CoverageSpec,
+    env: str = "dev",
+    bq_project: str = "basedosdados",
+    prefect_mode: str = "prod",
+) -> None:
+    """Registra até onde a tabela materializou (o commit do modelo novo).
+
+    Wrapper de `sync_table_coverage`: atualiza as faixas de cobertura + Row Access
+    Policies e grava o `Table.Update` com a cobertura materializada (`source_end`).
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        coverage: especificação da cobertura/tier (`CoverageSpec`).
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        bq_project: projeto BigQuery onde a tabela vive (padrão `"basedosdados"`).
+        prefect_mode: define o billing — `"prod"` usa `basedosdados`, `"dev"` usa
+            `basedosdados-dev`.
+
+    Returns:
+        None.
+    """
+    billing = metadata_constants.MODE_PROJECT.value[prefect_mode]
+
+    client = MetadataClient(env=env, billing_project=billing)
+
+    bq = BigQueryReader(billing_project_id=billing, bq_project=bq_project)
+
+    sync_table_coverage(
+        client=client,
+        bq=bq,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        coverage=coverage,
+        env=env,
+        bq_project=bq_project,
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def poll_source_size_for_update_task(
+    dataset_id: str,
+    table_id: str,
+    byte_length: int,
+    env: str = "dev",
+    local_execution: bool = False,
+) -> bool:
+    """Detecta novidade por TAMANHO hoje, sem gravar histórico nem Update.
+
+    Variante por bytes de `poll_source_for_update_task`. Sempre grava um `Poll`
+    na fonte (data de hoje) e compara `byte_length` com o último tamanho no
+    Redis — mas, ao contrário de `register_source_poll_by_size_task`, **não**
+    grava o novo tamanho no histórico nem o Update. A gravação fica a cargo de
+    `commit_source_size_update_task`, chamada ao fim do flow, após a
+    materialização. Use as duas em par para não travar runs futuras se o flow
+    falhar no meio.
+
+    - tamanho MAIOR (ou primeira vez) → grava só Poll, devolve True;
+    - tamanho IGUAL  → grava só Poll, devolve False;
+    - tamanho MENOR  → levanta `ValueError` (a fonte encolheu).
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        byte_length: tamanho atual da fonte em bytes.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        local_execution: se True, conecta no Redis via `localhost` (exige proxy
+            ativo para o pod do Redis); se False (padrão), usa o DNS do serviço
+            no cluster.
+
+    Returns:
+        bool — True se a fonte trouxe novidade (tamanho maior), False se igual.
+    """
+    client = MetadataClient(env=env)
+    redis = _get_redis_client(local_execution=local_execution)
+    return poll_source_size_for_update(
+        client, redis, dataset_id, table_id, byte_length
+    )
+
+
+@task(
+    retries=constants.TASK_MAX_RETRIES.value,
+    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+)
+def commit_source_size_update_task(
+    dataset_id: str,
+    table_id: str,
+    byte_length: int,
+    env: str = "dev",
+    local_execution: bool = False,
+) -> None:
+    """Grava o histórico de tamanho (Redis) e o `RawDataSource.Update`.
+
+    Contraparte de `poll_source_size_for_update_task`: registra `byte_length` no
+    histórico do Redis (mantendo os últimos 10) e grava o `Update.latest` com a
+    data de hoje. Deve ser chamada **só ao fim do flow**, depois da
+    materialização bem-sucedida, para que histórico e Update só avancem quando o
+    dado de fato chegou ao destino — evitando que uma falha no meio deixe a
+    detecção adiantada e trave as runs seguintes.
+
+    Args:
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        byte_length: tamanho atual da fonte em bytes, gravado no histórico.
+        env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
+        local_execution: se True, conecta no Redis via `localhost`; se False
+            (padrão), usa o DNS do serviço no cluster.
+
+    Returns:
+        None.
+    """
+    client = MetadataClient(env=env)
+    redis = _get_redis_client(local_execution=local_execution)
+    commit_source_size_update(client, redis, dataset_id, table_id, byte_length)

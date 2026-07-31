@@ -16,6 +16,7 @@ from pipelines.crawler.anatel.telefonia_movel.utils import (
     clean_csv_municipio,
     clean_csv_uf,
     get_year,
+    normalize_label,
     unzip_file,
 )
 from pipelines.utils.utils import log
@@ -70,6 +71,21 @@ def get_max_date_in_table_microdados(table_id, ano, semestre):
             encoding="utf-8",
             dtype=str,
         )
+
+        table_level = {
+            "densidade_brasil": "Brasil",
+            "densidade_uf": "UF",
+            "densidade_municipio": "Municipio",
+        }
+
+        level = table_level[table_id]
+
+        geography = df["Nível Geográfico Densidade"]
+
+        df = df[
+            geography.map(normalize_label) == normalize_label(level)
+        ].copy()
+
         df["data"] = df["Ano"] + "-" + df["Mês"]
 
         df["data"] = pd.to_datetime(df["data"], format="%Y-%m")

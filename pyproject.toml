@@ -18,7 +18,7 @@ dependencies = [
   "basedosdados[all]<3.0.0,>=2.0.2",
   "beautifulsoup4==4.11.1",
   "cachetools>=5.3,<6.0",
-  "certifi==2021.10.8",
+  "certifi>=2024.2.2",
   "charset-normalizer==2.0.9",
   "ckanapi==4.6",
   "click<9.0.0,>=8.0.3",
@@ -147,11 +147,12 @@ dev = [
   "ipykernel>=6.29.5",
   "basedosdados[all]>=2.0.2",
   "pytest>=8.4.2",
+  "pypdf>=4.0",
 ]
 
 [tool.ruff]
 line-length = 79
-target-version = "py310"
+target-version = "py312"
 extend-exclude = ['\{\{cookiecutter.pipeline_name\}\}']
 
 [tool.ruff.lint]

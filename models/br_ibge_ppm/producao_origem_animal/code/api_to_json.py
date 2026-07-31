@@ -82,7 +82,7 @@ async def main(
                 try:
                     response = await future
                     responses.append(response)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     print(f"Request timed out for {url}")
             os.makedirs(
                 f"{Path.cwd()}/output/producao_origem_animal/json",

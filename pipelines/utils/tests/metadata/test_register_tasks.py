@@ -16,8 +16,10 @@ from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
 from pipelines.utils.metadata.policy import CoverageIds
 from pipelines.utils.metadata.tasks import (
     _coerce_to_date,
+    commit_source_size_update_task,
     commit_source_update_task,
     poll_source_for_update_task,
+    poll_source_size_for_update_task,
     register_source_poll_task,
     register_table_materialization_task,
 )
@@ -55,9 +57,7 @@ class TestCoerceToDate:
 
 def test_source_poll_task_coerces_string_source_date():
     """O caminho exato do flow br_bcb_agencia: string '%Y-%m' + delega."""
-    fake = FakeMetadataClient(
-        raw_source_update_latest=datetime.date(2026, 1, 1)
-    )
+    fake = FakeMetadataClient(table_update_latest=datetime.date(2026, 1, 1))
     with patch(
         "pipelines.utils.metadata.tasks.MetadataClient", return_value=fake
     ):
@@ -73,9 +73,7 @@ def test_source_poll_task_coerces_string_source_date():
 
 
 def test_source_poll_task_builds_client_with_env_and_delegates():
-    fake = FakeMetadataClient(
-        raw_source_update_latest=datetime.date(2026, 1, 1)
-    )
+    fake = FakeMetadataClient(table_update_latest=datetime.date(2026, 1, 1))
     with patch(
         "pipelines.utils.metadata.tasks.MetadataClient", return_value=fake
     ) as mk:
@@ -98,9 +96,7 @@ def test_poll_source_for_update_task_writes_poll_only_not_update():
     flow. Se alguém recolar o `upsert_raw_source_update` aqui dentro, este teste
     quebra.
     """
-    fake = FakeMetadataClient(
-        raw_source_update_latest=datetime.date(2026, 1, 1)
-    )
+    fake = FakeMetadataClient(table_update_latest=datetime.date(2026, 1, 1))
     with patch(
         "pipelines.utils.metadata.tasks.MetadataClient", return_value=fake
     ):
@@ -171,3 +167,67 @@ def test_materialization_task_builds_client_and_bq_and_delegates():
         )
     assert fake.written_entities == ["coverage", "coverage", "table_update"]
     assert len(fake_bq.rap_calls) == 1
+
+
+class _FakeRedis:
+    """Double in-memory de RedisPal para os testes das tasks por tamanho."""
+
+    def __init__(self, store=None):
+        self.store = store or {}
+
+    def get(self, key):
+        return self.store.get(key)
+
+    def set(self, key, value):
+        self.store[key] = value
+
+
+def test_poll_size_for_update_task_writes_poll_only_not_update():
+    """Variante por tamanho deferida: detecta sem gravar histórico nem Update."""
+    fake = FakeMetadataClient()
+    redis = _FakeRedis()
+    with (
+        patch(
+            "pipelines.utils.metadata.tasks.MetadataClient", return_value=fake
+        ),
+        patch(
+            "pipelines.utils.metadata.tasks._get_redis_client",
+            return_value=redis,
+        ),
+    ):
+        result = poll_source_size_for_update_task.fn(
+            "br_bcb_sicor",
+            "microdados_operacoes",
+            byte_length=1000,
+            env="prod",
+        )
+    assert result is True
+    assert fake.written_entities == ["poll"]
+    assert redis.store == {}  # histórico intacto
+
+
+def test_commit_size_update_task_writes_history_and_update():
+    """Contraparte por tamanho: grava histórico no Redis + Update."""
+    fake = FakeMetadataClient()
+    redis = _FakeRedis()
+    with (
+        patch(
+            "pipelines.utils.metadata.tasks.MetadataClient", return_value=fake
+        ) as mk,
+        patch(
+            "pipelines.utils.metadata.tasks._get_redis_client",
+            return_value=redis,
+        ),
+    ):
+        result = commit_source_size_update_task.fn(
+            "br_bcb_sicor",
+            "microdados_operacoes",
+            byte_length=1000,
+            env="prod",
+        )
+    mk.assert_called_once_with(env="prod")
+    assert result is None
+    assert fake.written_entities == ["raw_source_update"]
+    assert list(
+        redis.store["br_bcb_sicor"]["microdados_operacoes"].values()
+    ) == [1000]

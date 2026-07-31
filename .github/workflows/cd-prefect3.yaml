@@ -24,3 +24,11 @@ jobs:
             --pool basedosdados \
             --branch ${{ github.ref_name }} \
             --all
+      - name: Sync deployments with backend
+        env:
+          PREFECT3_AUTH_TOKEN: ${{ secrets.PREFECT3_AUTH_TOKEN }}
+        run: |-
+          curl -sf -X POST https://backend.basedosdados.org/admin-tools/sync-deployments/ \
+            -H "Authorization: Bearer $PREFECT3_AUTH_TOKEN" \
+            -H "Content-Type: application/json" \
+            || echo "⚠️ Backend sync failed — activate flows manually via Django admin"

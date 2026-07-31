@@ -1,0 +1,124 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+arank,INT64,Academic rank,,no,,,no,,arank
+xsainstt,STRING,Imputation field for SAINSTT - Instructional staff - total,,no,,,no,,xsainstt
+sainstt,FLOAT64,Instructional staff - total,,no,,,no,,sainstt
+xsainstm,STRING,Imputation field for SAINSTM - Instructional staff - men,,no,,,no,,xsainstm
+sainstm,FLOAT64,Instructional staff - men,,no,,,no,,sainstm
+xsainstw,STRING,Imputation field for SAINSTW - Instructional staff - women,,no,,,no,,xsainstw
+sainstw,FLOAT64,Instructional staff - women,,no,,,no,,sainstw
+xsa_9mct,STRING,Imputation field for SA_9MCT - Instructional staff on less than 9-month contract-total,,no,,,no,,xsa_9mct
+sa_9mct,FLOAT64,Instructional staff on less than 9-month contract-total,,no,,,no,,sa_9mct
+xsa_9mcm,STRING,Imputation field for SA_9MCM - Instructional staff on less than 9-month contract-men,,no,,,no,,xsa_9mcm
+sa_9mcm,FLOAT64,Instructional staff on less than 9-month contract-men,,no,,,no,,sa_9mcm
+xsa_9mcw,STRING,Imputation field for SA_9MCW - Instructional staff on less than 9-month contract-women,,no,,,no,,xsa_9mcw
+sa_9mcw,FLOAT64,Instructional staff on less than 9-month contract-women,,no,,,no,,sa_9mcw
+xsatotlt,STRING,"Imputation field for SATOTLT - Instructional staff on 9, 10, 11 or 12 month contract-total",,no,,,no,,xsatotlt
+satotlt,INT64,"Instructional staff on 9, 10, 11 or 12 month contract-total",,no,,,no,,satotlt
+xsatotlm,STRING,"Imputation field for SATOTLM - Instructional staff on 9, 10, 11 or 12 month contract-men",,no,,,no,,xsatotlm
+satotlm,INT64,"Instructional staff on 9, 10, 11 or 12 month contract-men",,no,,,no,,satotlm
+xsatotlw,STRING,"Imputation field for SATOTLW - Instructional staff on 9, 10, 11 or 12 month contract-women",,no,,,no,,xsatotlw
+satotlw,INT64,"Instructional staff on 9, 10, 11 or 12 month contract-women",,no,,,no,,satotlw
+xsa09mct,STRING,Imputation field for SA09MCT - Instructional staff on 9-month contract-total,,no,,,no,,xsa09mct
+sa09mct,FLOAT64,Instructional staff on 9-month contract-total,,no,,,no,,sa09mct
+xsa09mcm,STRING,Imputation field for SA09MCM - Instructional staff on 9-month contract-men,,no,,,no,,xsa09mcm
+sa09mcm,FLOAT64,Instructional staff on 9-month contract-men,,no,,,no,,sa09mcm
+xsa09mcw,STRING,Imputation field for SA09MCW - Instructional staff on 9-month contract-women,,no,,,no,,xsa09mcw
+sa09mcw,FLOAT64,Instructional staff on 9-month contract-women,,no,,,no,,sa09mcw
+xsa10mct,STRING,Imputation field for SA10MCT - Instructional staff on 10-month contract-total,,no,,,no,,xsa10mct
+sa10mct,FLOAT64,Instructional staff on 10-month contract-total,,no,,,no,,sa10mct
+xsa10mcm,STRING,Imputation field for SA10MCM - Instructional staff on 10-month contract-men,,no,,,no,,xsa10mcm
+sa10mcm,FLOAT64,Instructional staff on 10-month contract-men,,no,,,no,,sa10mcm
+xsa10mcw,STRING,Imputation field for SA10MCW - Instructional staff on 10-month contract-women,,no,,,no,,xsa10mcw
+sa10mcw,FLOAT64,Instructional staff on 10-month contract-women,,no,,,no,,sa10mcw
+xsa11mct,STRING,Imputation field for SA11MCT - Instructional staff on 11-month contract-total,,no,,,no,,xsa11mct
+sa11mct,FLOAT64,Instructional staff on 11-month contract-total,,no,,,no,,sa11mct
+xsa11mcm,STRING,Imputation field for SA11MCM - Instructional staff on 11-month contract-men,,no,,,no,,xsa11mcm
+sa11mcm,FLOAT64,Instructional staff on 11-month contract-men,,no,,,no,,sa11mcm
+xsa11mcw,STRING,Imputation field for SA11MCW - Instructional staff on 11-month contract-women,,no,,,no,,xsa11mcw
+sa11mcw,FLOAT64,Instructional staff on 11-month contract-women,,no,,,no,,sa11mcw
+xsa12mct,STRING,Imputation field for SA12MCT - Instructional staff on 12-month contract total,,no,,,no,,xsa12mct
+sa12mct,FLOAT64,Instructional staff on 12-month contract total,,no,,,no,,sa12mct
+xsa12mcm,STRING,Imputation field for SA12MCM - Instructional staff on 12-month contract men,,no,,,no,,xsa12mcm
+sa12mcm,FLOAT64,Instructional staff on 12-month contract men,,no,,,no,,sa12mcm
+xsa12mcw,STRING,Imputation field for SA12MCW - Instructional staff on 12--month contract women,,no,,,no,,xsa12mcw
+sa12mcw,FLOAT64,Instructional staff on 12--month contract women,,no,,,no,,sa12mcw
+xsaoutlt,STRING,Imputation field for SAOUTLT - Salary outlays - total,,no,,USD,no,,xsaoutlt
+saoutlt,INT64,Salary outlays - total,,no,,USD,no,,saoutlt
+xsaoutlm,STRING,Imputation field for SAOUTLM - Salary outlays - men,,no,,USD,no,,xsaoutlm
+saoutlm,INT64,Salary outlays - men,,no,,USD,no,,saoutlm
+xsaoutlw,STRING,Imputation field for SAOUTLW - Salary outlays - women,,no,,USD,no,,xsaoutlw
+saoutlw,INT64,Salary outlays - women,,no,,USD,no,,saoutlw
+xsa09mot,STRING,Imputation field for SA09MOT - Salary outlays for instructional staff on 9-month contract-total,,no,,USD,no,,xsa09mot
+sa09mot,FLOAT64,Salary outlays for instructional staff on 9-month contract-total,,no,,USD,no,,sa09mot
+xsa09mom,STRING,Imputation field for SA09MOM - Salary outlays for instructional staff on 9-month contract-men,,no,,USD,no,,xsa09mom
+sa09mom,FLOAT64,Salary outlays for instructional staff on 9-month contract-men,,no,,USD,no,,sa09mom
+xsa09mow,STRING,Imputation field for SA09MOW - Salary outlays for instructional staff on 9-month contract-women,,no,,USD,no,,xsa09mow
+sa09mow,FLOAT64,Salary outlays for instructional staff on 9-month contract-women,,no,,USD,no,,sa09mow
+xsa10mot,STRING,Imputation field for SA10MOT - Salary outlays for instructional staff on 10-month contract-total,,no,,USD,no,,xsa10mot
+sa10mot,FLOAT64,Salary outlays for instructional staff on 10-month contract-total,,no,,USD,no,,sa10mot
+xsa10mom,STRING,Imputation field for SA10MOM - Salary outlays for instructional staff on 10-month contract-men,,no,,USD,no,,xsa10mom
+sa10mom,FLOAT64,Salary outlays for instructional staff on 10-month contract-men,,no,,USD,no,,sa10mom
+xsa10mow,STRING,Imputation field for SA10MOW - Salary outlays for instructional staff on 10-month contract-women,,no,,USD,no,,xsa10mow
+sa10mow,FLOAT64,Salary outlays for instructional staff on 10-month contract-women,,no,,USD,no,,sa10mow
+xsa11mot,STRING,Imputation field for SA11MOT - Salary outlays for instructional staff on 11-month contract-total,,no,,USD,no,,xsa11mot
+sa11mot,FLOAT64,Salary outlays for instructional staff on 11-month contract-total,,no,,USD,no,,sa11mot
+xsa11mom,STRING,Imputation field for SA11MOM - Salary outlays for instructional staff on 11-month contract-men,,no,,USD,no,,xsa11mom
+sa11mom,FLOAT64,Salary outlays for instructional staff on 11-month contract-men,,no,,USD,no,,sa11mom
+xsa11mow,STRING,Imputation field for SA11MOW - Salary outlays for instructional staff on 11-month contract-women,,no,,USD,no,,xsa11mow
+sa11mow,FLOAT64,Salary outlays for instructional staff on 11-month contract-women,,no,,USD,no,,sa11mow
+xsa12mot,STRING,Imputation field for SA12MOT - Salary outlays for instructional staff on 12-month contract-total,,no,,USD,no,,xsa12mot
+sa12mot,FLOAT64,Salary outlays for instructional staff on 12-month contract-total,,no,,USD,no,,sa12mot
+xsa12mom,STRING,Imputation field for SA12MOM - Salary outlays for instructional staff on 12-month contract-men,,no,,USD,no,,xsa12mom
+sa12mom,FLOAT64,Salary outlays for instructional staff on 12-month contract-men,,no,,USD,no,,sa12mom
+xsa12mow,STRING,Imputation field for SA12MOW - Salary outlays for instructional staff on 12-month contract-women,,no,,USD,no,,xsa12mow
+sa12mow,FLOAT64,Salary outlays for instructional staff on 12-month contract-women,,no,,USD,no,,sa12mow
+xsaeq9ot,STRING,Imputation field for SAEQ9OT - Salary outlays for instructional staff equated to a 9-month contract-total,,no,,USD,no,,xsaeq9ot
+saeq9ot,FLOAT64,Salary outlays for instructional staff equated to a 9-month contract-total,,no,,USD,no,,saeq9ot
+xsaeq9om,STRING,Imputation field for SAEQ9OM - Salary outlays for instructional staff equated to a 9-month contract-men,,no,,USD,no,,xsaeq9om
+saeq9om,FLOAT64,Salary outlays for instructional staff equated to a 9-month contract-men,,no,,USD,no,,saeq9om
+xsaeq9ow,STRING,Imputation field for SAEQ9OW - Salary outlays for instructional staff equated to a 9-month contract-women,,no,,USD,no,,xsaeq9ow
+saeq9ow,FLOAT64,Salary outlays for instructional staff equated to a 9-month contract-women,,no,,USD,no,,saeq9ow
+xsaeq9at,STRING,Imputation field for SAEQ9AT - Average salary for instructional staff equated to a 9-month contract-total,,no,,USD,no,,xsaeq9at
+saeq9at,FLOAT64,Average salary for instructional staff equated to a 9-month contract-total,,no,,USD,no,,saeq9at
+xsaeq9am,STRING,Imputation field for SAEQ9AM - Average salary for instructional staff equated to a 9-month contract-men,,no,,USD,no,,xsaeq9am
+saeq9am,FLOAT64,Average salary for instructional staff equated to a 9-month contract-men,,no,,USD,no,,saeq9am
+xsaeq9aw,STRING,Imputation field for SAEQ9AW - Average salary for instructional staff equated to a 9-month contract-women,,no,,USD,no,,xsaeq9aw
+saeq9aw,FLOAT64,Average salary for instructional staff equated to a 9-month contract-women,,no,,USD,no,,saeq9aw
+xsa09mat,STRING,Imputation field for SA09MAT - Average salary for instructional staff on 9-month contract-total,,no,,USD,no,,xsa09mat
+sa09mat,FLOAT64,Average salary for instructional staff on 9-month contract-total,,no,,USD,no,,sa09mat
+xsa09mam,STRING,Imputation field for SA09MAM - Average salary for instructional staff on 9-month contract-men,,no,,USD,no,,xsa09mam
+sa09mam,FLOAT64,Average salary for instructional staff on 9-month contract-men,,no,,USD,no,,sa09mam
+xsa09maw,STRING,Imputation field for SA09MAW - Average salary for instructional staff on 9-month contract-women,,no,,USD,no,,xsa09maw
+sa09maw,FLOAT64,Average salary for instructional staff on 9-month contract-women,,no,,USD,no,,sa09maw
+xsa10mat,STRING,Imputation field for SA10MAT - Average salary for instructional staff on 10-month contract-total,,no,,USD,no,,xsa10mat
+sa10mat,FLOAT64,Average salary for instructional staff on 10-month contract-total,,no,,USD,no,,sa10mat
+xsa10mam,STRING,Imputation field for SA10MAM - Average salary for instructional staff on 10-month contract-men,,no,,USD,no,,xsa10mam
+sa10mam,FLOAT64,Average salary for instructional staff on 10-month contract-men,,no,,USD,no,,sa10mam
+xsa10maw,STRING,Imputation field for SA10MAW - Average salary for instructional staff on 10-month contract-women,,no,,USD,no,,xsa10maw
+sa10maw,FLOAT64,Average salary for instructional staff on 10-month contract-women,,no,,USD,no,,sa10maw
+xsa11mat,STRING,Imputation field for SA11MAT - Average salary for instructional staff on 11-month contract-total,,no,,USD,no,,xsa11mat
+sa11mat,FLOAT64,Average salary for instructional staff on 11-month contract-total,,no,,USD,no,,sa11mat
+xsa11mam,STRING,Imputation field for SA11MAM - Average salary for instructional staff on 11-month contract-men,,no,,USD,no,,xsa11mam
+sa11mam,FLOAT64,Average salary for instructional staff on 11-month contract-men,,no,,USD,no,,sa11mam
+xsa11maw,STRING,Imputation field for SA11MAW - Average salary for instructional staff on 11-month contract-women,,no,,USD,no,,xsa11maw
+sa11maw,FLOAT64,Average salary for instructional staff on 11-month contract-women,,no,,USD,no,,sa11maw
+xsa12mat,STRING,Imputation field for SA12MAT - Average salary for instructional staff on 12-month contract-total,,no,,USD,no,,xsa12mat
+sa12mat,FLOAT64,Average salary for instructional staff on 12-month contract-total,,no,,USD,no,,sa12mat
+xsa12mam,STRING,Imputation field for SA12MAM - Average salary for instructional staff on 12-month contract-men,,no,,USD,no,,xsa12mam
+sa12mam,FLOAT64,Average salary for instructional staff on 12-month contract-men,,no,,USD,no,,sa12mam
+xsa12maw,STRING,Imputation field for SA12MAW - Average salary for instructional staff on 12-month contract-women,,no,,USD,no,,xsa12maw
+sa12maw,FLOAT64,Average salary for instructional staff on 12-month contract-women,,no,,USD,no,,sa12maw
+xsamntht,STRING,Imputation field for SAMNTHT - Number months covered for salary outlays - total,,no,,USD,no,,xsamntht
+samntht,FLOAT64,Number months covered for salary outlays - total,,no,,USD,no,,samntht
+xsamnthm,STRING,Imputation field for SAMNTHM - Number of months covered for salary outlays - men,,no,,USD,no,,xsamnthm
+samnthm,FLOAT64,Number of months covered for salary outlays - men,,no,,USD,no,,samnthm
+xsamnthw,STRING,Imputation field for SAMNTHW - Number of months covered for salary outlays - women,,no,,USD,no,,xsamnthw
+samnthw,FLOAT64,Number of months covered for salary outlays - women,,no,,USD,no,,samnthw
+xsaavmnt,STRING,Imputation field for SAAVMNT - Average weighted monthly salary  - total,,no,,USD,no,,xsaavmnt
+saavmnt,FLOAT64,Average weighted monthly salary  - total,,no,,USD,no,,saavmnt
+xsaavmnm,STRING,Imputation field for SAAVMNM - Average weighted monthly salary  - men,,no,,USD,no,,xsaavmnm
+saavmnm,FLOAT64,Average weighted monthly salary  - men,,no,,USD,no,,saavmnm
+xsaavmnw,STRING,Imputation field for SAAVMNW - Average weighted monthly salary  - women,,no,,USD,no,,xsaavmnw
+saavmnw,FLOAT64,Average weighted monthly salary  - women,,no,,USD,no,,saavmnw

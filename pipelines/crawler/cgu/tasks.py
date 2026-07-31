@@ -7,7 +7,6 @@ import os
 from datetime import datetime
 
 import pandas as pd
-import requests
 from prefect import task
 from tqdm import tqdm
 
@@ -20,6 +19,7 @@ from pipelines.crawler.cgu.utils import (
     partition_data_beneficios_cidadao,
     read_and_clean_csv,
     read_csv,
+    source_url_is_available,
 )
 from pipelines.utils.utils import log, to_partitions
 
@@ -178,8 +178,10 @@ def verify_all_url_exists_to_download(
     )
 
     for url in urls:
-        r = requests.get(url)
-        if r.status_code != 200:
+        available = source_url_is_available(
+            url=url, max_retries=1, wait_seconds=10
+        )
+        if not available:
             log(f"A URL {url=} não existe!")
             return False
         log(f"A URL {url=} existe!")

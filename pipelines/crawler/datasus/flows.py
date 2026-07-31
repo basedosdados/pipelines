@@ -21,8 +21,12 @@ from pipelines.utils.metadata.domain import (
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    check_source_is_ahead_of_table_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
+    register_source_coverage_task,
     register_table_materialization_task,
+    sync_table_coverage_task,
 )
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
@@ -52,17 +56,19 @@ def _run_cnes(
     )
     source_max_date = get_datasus_source_max_date(ftp_files)
 
-    if not force_run:
-        is_outdated = register_source_poll_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=source_max_date,
-            env="prod",
-            date_format="%Y-%m",
-        )
-        if not is_outdated:
-            print("Fonte CNES sem novidade — encerrando")
-            return
+    register_source_coverage_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format="%Y-%m",
+    )
+
+    if not force_run and not check_source_is_ahead_of_table_task(
+        dataset_id=dataset_id, table_id=table_id, env="prod"
+    ):
+        print("Tabela CNES já cobre a fonte — encerrando")
+        return
 
     if not ftp_files:
         print("force_run=True mas FTP não retornou arquivos — encerrando")
@@ -111,7 +117,7 @@ def _run_cnes(
     )
 
     if update_metadata:
-        register_table_materialization_task(
+        sync_table_coverage_task(
             dataset_id=dataset_id,
             table_id=table_id,
             coverage=PartBdpro(
@@ -148,14 +154,14 @@ def _run_dbf_to_parquet(
     source_max_date = get_datasus_source_max_date(ftp_files)
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=source_max_date,
             env="prod",
             date_format="%Y-%m",
         )
-        if not is_outdated:
+        if not has_new_data:
             print(f"Fonte {fonte_label} sem novidade — encerrando")
             return
 
@@ -218,6 +224,15 @@ def _run_dbf_to_parquet(
             bq_project="basedosdados",
         )
 
+        if source_max_date is not None:
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=source_max_date,
+                env="prod",
+                date_format="%Y-%m",
+            )
+
 
 def _run_siasus(**kwargs) -> None:
     _run_dbf_to_parquet(source_format="csv", fonte_label="SIA", **kwargs)
@@ -245,14 +260,14 @@ def _run_sinan(
     )
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m-%d",
         )
-        if not is_outdated:
+        if not has_new_data:
             print("Sem atualizações na fonte SINAN — encerrando")
             return
 
@@ -311,3 +326,12 @@ def _run_sinan(
             env="prod",
             bq_project="basedosdados",
         )
+
+        if data_source_max_date is not None:
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=data_source_max_date,
+                env="prod",
+                date_format="%Y-%m-%d",
+            )

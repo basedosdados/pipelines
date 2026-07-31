@@ -20,7 +20,8 @@ from pipelines.utils.metadata.domain import (
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -56,14 +57,14 @@ def _run_denatran(
     print(f"First available date: {source_first_available_date_str}")
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=source_first_available_date_str,
             env="prod",
             date_format="%Y-%m",
         )
-        if not is_outdated:
+        if not has_new_data:
             print("No new data to be downloaded")
             return
 
@@ -131,6 +132,15 @@ def _run_denatran(
             env="prod",
             bq_project="basedosdados",
         )
+
+        if source_first_available_date_str is not None:
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=source_first_available_date_str,
+                env="prod",
+                date_format="%Y-%m",
+            )
 
 
 @flow(

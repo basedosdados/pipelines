@@ -1,0 +1,202 @@
+---
+version: 2
+models:
+  - name: us_bls_cpi__monthly
+    description: >-
+      Consumer Price Index monthly index levels for CPI-U and CPI-W, one row per
+      survey, seasonal adjustment, area, item, and month, with index level and
+      Data Basis-computed month-over-month and 12-month percent changes.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - survey
+            - seasonal_adjustment
+            - area_id
+            - item_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the index observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the index observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: survey
+        description: >-
+          CPI survey population: CPI-U for all urban consumers or CPI-W for urban
+          wage earners and clerical workers
+        tests: [not_null]
+      - name: seasonal_adjustment
+        description: >-
+          Whether the series is seasonally adjusted (S) or not seasonally
+          adjusted (U)
+        tests: [not_null]
+      - name: area_id
+        description: BLS CPI area code identifying the geographic coverage of the
+          series
+        tests: [not_null]
+      - name: item_id
+        description: BLS CPI item code identifying the expenditure category of the
+          series
+        tests: [not_null]
+      - name: base_period
+        description: >-
+          Index reference base period at which the index equals 100, which varies
+          by series
+      - name: index_value
+        description: >-
+          Monthly Consumer Price Index level for the item, area, and period,
+          relative to the base period
+      - name: monthly_change
+        description: >-
+          Percent change in the index relative to the previous month, computed by
+          Data Basis
+      - name: twelve_month_change
+        description: >-
+          Percent change in the index relative to the same month of the previous
+          year, computed by Data Basis
+  - name: us_bls_cpi__annual
+    description: >-
+      Consumer Price Index annual average index levels for CPI-U and CPI-W, one
+      row per survey, seasonal adjustment, area, item, and year, with the annual
+      average index and Data Basis-computed year-over-year percent change.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - survey
+            - seasonal_adjustment
+            - area_id
+            - item_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the annual average
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: survey
+        description: >-
+          CPI survey population: CPI-U for all urban consumers or CPI-W for urban
+          wage earners and clerical workers
+        tests: [not_null]
+      - name: seasonal_adjustment
+        description: >-
+          Whether the series is seasonally adjusted (S) or not seasonally
+          adjusted (U)
+        tests: [not_null]
+      - name: area_id
+        description: BLS CPI area code identifying the geographic coverage of the
+          series
+        tests: [not_null]
+      - name: item_id
+        description: BLS CPI item code identifying the expenditure category of the
+          series
+        tests: [not_null]
+      - name: base_period
+        description: >-
+          Index reference base period at which the index equals 100, which varies
+          by series
+      - name: index_value
+        description: >-
+          Annual average Consumer Price Index level for the item, area, and year,
+          relative to the base period
+      - name: annual_change
+        description: >-
+          Percent change in the annual average index relative to the previous
+          year, computed by Data Basis
+  - name: us_bls_cpi__semiannual
+    description: >-
+      Consumer Price Index semiannual index levels for CPI-U and CPI-W in areas
+      surveyed twice a year, one row per survey, seasonal adjustment, area, item,
+      year, and half, with index level and Data Basis-computed period-over-period
+      percent change.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - half
+            - survey
+            - seasonal_adjustment
+            - area_id
+            - item_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the index observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: half
+        description: >-
+          Half of the year for semiannual series, 1 for the first half and 2 for
+          the second half
+        tests: [not_null]
+      - name: survey
+        description: >-
+          CPI survey population: CPI-U for all urban consumers or CPI-W for urban
+          wage earners and clerical workers
+        tests: [not_null]
+      - name: seasonal_adjustment
+        description: >-
+          Whether the series is seasonally adjusted (S) or not seasonally
+          adjusted (U)
+        tests: [not_null]
+      - name: area_id
+        description: BLS CPI area code identifying the geographic coverage of the
+          series
+        tests: [not_null]
+      - name: item_id
+        description: BLS CPI item code identifying the expenditure category of the
+          series
+        tests: [not_null]
+      - name: base_period
+        description: >-
+          Index reference base period at which the index equals 100, which varies
+          by series
+      - name: index_value
+        description: >-
+          Semiannual Consumer Price Index level for the item, area, and half,
+          relative to the base period
+      - name: semiannual_change
+        description: >-
+          Percent change in the index relative to the previous half-year period,
+          computed by Data Basis
+  - name: us_bls_cpi__dicionario
+    description: >-
+      Dictionary mapping the coded columns of us_bls_cpi (survey, seasonal
+      adjustment, area, item) to their human-readable labels.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: Slug of the us_bls_cpi table the dictionary entry describes
+        tests: [not_null]
+      - name: nome_coluna
+        description: Name of the column the dictionary entry describes
+        tests: [not_null]
+      - name: chave
+        description: Coded value (key) exactly as stored in the data
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Temporal coverage of the key
+      - name: valor
+        description: Human-readable label corresponding to the coded value

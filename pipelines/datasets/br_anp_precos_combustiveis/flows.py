@@ -16,7 +16,8 @@ from pipelines.utils.metadata.domain import (
     PartBdpro,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -46,14 +47,14 @@ def br_anp_precos_combustiveis__microdados(
     data_source_max_date = get_data_source_anp_max_date()
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m-%d",
         )
-        if not is_outdated:
+        if not has_new_data:
             print(f"Não há atualizações para a tabela {table_id}!")
             return
 
@@ -107,6 +108,15 @@ def br_anp_precos_combustiveis__microdados(
             env="prod",
             bq_project="basedosdados",
         )
+
+        if data_source_max_date is not None:
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=data_source_max_date,
+                env="prod",
+                date_format="%Y-%m-%d",
+            )
 
 
 br_anp_precos_combustiveis__microdados.deploy_schedules = [
