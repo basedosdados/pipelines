@@ -1,0 +1,23 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+identifier,STRING,Identificador único da pessoa no Cricsheet,,no,,,no,Chave lógica da tabela,identifier
+name,STRING,Nome da pessoa,,no,,,no,,name
+unique_name,STRING,Nome único usado para desambiguação de homônimos,,no,,,no,,unique_name
+key_bcci,STRING,Identificador da pessoa na fonte BCCI,,no,,,no,,key_bcci
+key_bcci_2,STRING,Segundo identificador da pessoa na fonte BCCI,,no,,,no,,key_bcci_2
+key_bigbash,STRING,Identificador da pessoa na fonte Big Bash,,no,,,no,,key_bigbash
+key_cricbuzz,STRING,Identificador da pessoa na fonte Cricbuzz,,no,,,no,,key_cricbuzz
+key_cricheroes,STRING,Identificador da pessoa na fonte CricHeroes,,no,,,no,,key_cricheroes
+key_crichq,STRING,Identificador da pessoa na fonte CricHQ,,no,,,no,,key_crichq
+key_cricinfo,STRING,Identificador da pessoa na fonte ESPNcricinfo,,no,,,no,,key_cricinfo
+key_cricinfo_2,STRING,Segundo identificador da pessoa na fonte ESPNcricinfo,,no,,,no,,key_cricinfo_2
+key_cricinfo_3,STRING,Terceiro identificador da pessoa na fonte ESPNcricinfo,,no,,,no,,key_cricinfo_3
+key_cricingif,STRING,Identificador da pessoa na fonte Cricingif,,no,,,no,,key_cricingif
+key_cricketarchive,STRING,Identificador da pessoa na fonte CricketArchive,,no,,,no,,key_cricketarchive
+key_cricketarchive_2,STRING,Segundo identificador da pessoa na fonte CricketArchive,,no,,,no,,key_cricketarchive_2
+key_cricketworld,STRING,Identificador da pessoa na fonte Cricket World,,no,,,no,,key_cricketworld
+key_nvplay,STRING,Identificador da pessoa na fonte NVPlay,,no,,,no,,key_nvplay
+key_nvplay_2,STRING,Segundo identificador da pessoa na fonte NVPlay,,no,,,no,,key_nvplay_2
+key_opta,STRING,Identificador da pessoa na fonte Opta,,no,,,no,,key_opta
+key_opta_2,STRING,Segundo identificador da pessoa na fonte Opta,,no,,,no,,key_opta_2
+key_pulse,STRING,Identificador da pessoa na fonte Pulse,,no,,,no,,key_pulse
+key_pulse_2,STRING,Segundo identificador da pessoa na fonte Pulse,,no,,,no,,key_pulse_2
