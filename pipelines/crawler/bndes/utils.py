@@ -261,6 +261,8 @@ def _transform_chunk(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
         valido, pd.NA
     )
 
+    if table_id == "operacoes_nao_automaticas":
+        df_striped = _extract_cnae_hierarchy(df_striped, "codigo_cnae_2")
     return df_striped[table_configs["ORDER_COLUMNS"]]
 
 
@@ -302,10 +304,6 @@ def clean(csv_path: Path, output_dir: Path, table_id: str) -> Path:
         start=1,
     ):
         df = _transform_chunk(chunk, table_id)
-
-        if table_id == "operacoes_nao_automaticas":
-            df = _extract_cnae_hierarchy(df, "codigo_cnae_2")
-
         for year, group in df.groupby("ano"):
             if int(year) not in writers:
                 Path.mkdir(

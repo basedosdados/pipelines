@@ -168,7 +168,7 @@ class constants(Enum):
                 "uf": "sigla_uf",
                 "municipio_codigo": "id_municipio",
                 "numero_do_contrato": "id_contrato",
-                "data_da_contratacao": "data_da_contratacao",
+                "data_da_contratacao": "data_contratacao",
                 "valor_contratado_reais": "valor_operacao",
                 "valor_desembolsado_reais": "valor_desembolsado",
                 "fonte_de_recurso_desembolsos": "fonte_recurso",
@@ -190,7 +190,7 @@ class constants(Enum):
                 "subsetor_bndes": "subsetor_bndes",
                 "porte_do_cliente": "porte_cliente",
                 "natureza_do_cliente": "natureza_cliente",
-                "instituicao_financeira_credenciada": "instituicao_financeira_credenciada",
+                "instituicao_financeira_credenciada": "nome_instituicao_financeira_credenciada",
                 "cnpj_da_instituicao_financeira_credenciada": "cnpj_instituicao_financeira_credenciada",
                 "tipo_de_garantia": "tipo_garantia",
                 "tipo_de_excepcionalidade": "tipo_excepcionalidade",
@@ -198,8 +198,8 @@ class constants(Enum):
             },
             "DROP_COLUMNS": ["municipio"],
             "ORDER_COLUMNS": [
+                "ano",
                 "data_contratacao",
-                "data_apuracao",
                 "sigla_uf",
                 "id_municipio",
                 "id_contrato",
@@ -232,14 +232,13 @@ class constants(Enum):
                 "subsetor_bndes",
                 "nome_instituicao_financeira_credenciada",
                 "cnpj_instituicao_financeira_credenciada",
-                "situacao_contrato",
+                "situacao_operacao",
             ],
             "SCHEMA": pa.schema(
                 [
                     (col, pa.string())
                     for col in [
                         "data_contratacao",
-                        "data_apuracao",
                         "sigla_uf",
                         "id_municipio",
                         "id_contrato",
@@ -272,7 +271,7 @@ class constants(Enum):
                         "subsetor_bndes",
                         "nome_instituicao_financeira_credenciada",
                         "cnpj_instituicao_financeira_credenciada",
-                        "situacao_contrato",
+                        "situacao_operacao",
                     ]
                 ]
             ),

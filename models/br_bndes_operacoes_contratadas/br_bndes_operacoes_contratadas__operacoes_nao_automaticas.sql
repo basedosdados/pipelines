@@ -24,7 +24,6 @@
 
 
 {% set date_cols = [
-    "data_apuracao",
     "data_contratacao",
 ] %}
 
