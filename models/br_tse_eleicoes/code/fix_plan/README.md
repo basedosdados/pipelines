@@ -75,8 +75,8 @@ Update this table as work completes (mark with date + session note).
 | 02 header-aware parsing | DONE (2026-07-30) | all builders header-aware; tier 3 = 392 OK · 59 advisory WARN · **0 FAIL**. ~60 table-year cells byte-verified vs pre-refactor outputs, incl. every previously corrupted cell. despesas_candidato 2006 byte-identical (1.10M rows; the zip is a mislabeled RAR, see 01). perfil_eleitorado_secao 2024 byte-identical (75.7M rows); 2008 matches on values with the intended post-4481f185 column order (its Mar-21 reference parquet predates that fix) |
 | 03 side issues B3–B6 | DONE (2026-07-30) | causes pinned for all four (see 03_side_issues.md): #1463 fixed in dbt model; #1568 stale prod vintage (rebuild repairs); #1046 source-empty field; #1155 no vice votes at source. Draft replies in issue_replies.md await user review |
 | 04 Gate A parity vs Stata | DONE (2026-07-30) | 236 pairs full-cell order-independent compare: 158 MATCH, all 76 MISMATCH classified (gate_a_triage.md), zero unexplained python bugs; regenerate stale 2014/2022 secao parquets in the rebuild |
-| 04 Gate B fresh downloads | TODO | |
-| 05 rebuild + dev upload | TODO | |
+| 04 Gate B (freshness + rebuild) | DONE (2026-07-31) | tier-3 0 FAIL vs today's TSE; drift found ANO→AA_ELEICAO rename (fixed, dual key); rebuild 155 MATCH / 6 expected DIFF / 8 compare-granularity / 2 giant families proven inert. See gate_b_summary.md. No re-download needed |
+| 05 rebuild + dev upload | TODO | NOTE: giant secao/perfil_secao (60M+ rows) need a streaming/partitioned build — cannot build in-RAM on 16 GB host |
 | 05 prod repair | TODO | blocked on user approval |
 
 ### Session log
