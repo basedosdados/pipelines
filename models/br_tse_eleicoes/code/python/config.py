@@ -17,6 +17,11 @@ INPUT_DIR = RAW_DATA / "input"
 OUTPUT_STATA = RAW_DATA / "output"
 OUTPUT_PYTHON = RAW_DATA / "output_python"
 
+# Per-(ano, uf) parquet intermediates for the giant seção families, produced
+# by the streaming build (sub/streaming_secao.py) and consumed by the
+# partition step. Keeps 60M+ row tables off RAM on a 16 GB host.
+STREAM_SECAO_ROOT = OUTPUT_PYTHON / "_stream"
+
 MUNICIPIO_DIR_CSV = INPUT_DIR / "br_bd_diretorios_brasil_municipio.csv"
 
 # ---------------------------------------------------------------------------

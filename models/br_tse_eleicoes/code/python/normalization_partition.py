@@ -9,7 +9,13 @@ Equivalent of sub/normalizacao_particao.do.
 """
 
 import pandas as pd
-from config import OUTPUT_PYTHON, UFS_CANDIDATOS, UFS_PARTIDOS, YEARS_EVEN
+from config import (
+    OUTPUT_PYTHON,
+    STREAM_SECAO_ROOT,
+    UFS_CANDIDATOS,
+    UFS_PARTIDOS,
+    YEARS_EVEN,
+)
 from utils.helpers import save_partitioned
 
 # ---------------------------------------------------------------------------
@@ -29,6 +35,68 @@ def _read_parquet_single(name: str) -> pd.DataFrame:
     if path.exists():
         return pd.read_parquet(path)
     return pd.DataFrame()
+
+
+def _stream_ufs(name: str, ano: int) -> list[str] | None:
+    """UFs present as streamed per-(ano,uf) partitions for a giant seção
+    table, or None if the streamed layout is absent (fall back to the
+    monolithic ``{name}_{ano}.parquet`` path)."""
+    d = STREAM_SECAO_ROOT / name / f"ano={ano}"
+    if not d.is_dir():
+        return None
+    ufs = sorted(p.name.split("=", 1)[1] for p in d.glob("sigla_uf=*"))
+    return ufs or None
+
+
+def _read_stream(name: str, ano: int, uf: str) -> pd.DataFrame:
+    """Read one streamed (ano, uf) partition of a giant seção table.
+
+    Re-adds ``ano``/``sigla_uf`` (they live in the path, not the file) so
+    the downstream merge + save_partitioned see the same columns the
+    monolithic intermediate carried.
+    """
+    p = (
+        STREAM_SECAO_ROOT
+        / name
+        / f"ano={ano}"
+        / f"sigla_uf={uf}"
+        / "data.parquet"
+    )
+    df = pd.read_parquet(p)
+    if "ano" not in df.columns:
+        df["ano"] = ano
+    if "sigla_uf" not in df.columns:
+        df["sigla_uf"] = uf
+    return df
+
+
+def _partition_secao_table(name: str, enrich) -> None:
+    """Enrich + write a giant seção table's Hive-partitioned CSVs.
+
+    Prefers the streamed per-(ano,uf) parquet intermediates (memory-bounded,
+    one partition at a time). Falls back to the monolithic
+    ``{name}_{ano}.parquet`` when no streamed layout exists, so a big-host
+    in-RAM build still works unchanged. ``enrich(df, ano)`` applies the
+    per-row merge (titulo / sigla_partido); it is row-wise, so per-partition
+    application is identical to whole-year.
+    """
+    import gc
+
+    for ano in YEARS_EVEN:
+        ufs = _stream_ufs(name, ano)
+        if ufs is not None:
+            for uf in ufs:
+                df = enrich(_read_stream(name, ano, uf), ano)
+                save_partitioned(df, name, ["ano", "sigla_uf"], OUTPUT_PYTHON)
+                del df
+                gc.collect()
+            continue
+        df = _read_parquet(name, ano)
+        if df.empty:
+            continue
+        save_partitioned(
+            enrich(df, ano), name, ["ano", "sigla_uf"], OUTPUT_PYTHON
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -629,33 +697,16 @@ def _partition_results_section(
     # Only bring columns that exist
     bring = [c for c in bring if c in nc.columns]
 
-    for ano in YEARS_EVEN:
-        df = _read_parquet("resultados_candidato_secao", ano)
-        if df.empty:
-            continue
-
+    def _enrich_cand(df: pd.DataFrame, ano: int) -> pd.DataFrame:
         df = _merge_titulo_into_results(
-            df,
-            ano,
-            mod0,
-            mod2_est,
-            mod2_pres,
-            merge_mod0,
-            merge_mod2_est,
-            merge_mod2_pres,
-            bring,
-        )
-
-        # Rename sequencial -> sequencial_candidato if brought in
+            df, ano, mod0, mod2_est, mod2_pres,
+            merge_mod0, merge_mod2_est, merge_mod2_pres, bring,
+        )  # fmt: skip
         if "sequencial" in df.columns:
             df = df.rename(columns={"sequencial": "sequencial_candidato"})
+        return df
 
-        save_partitioned(
-            df,
-            "resultados_candidato_secao",
-            ["ano", "sigla_uf"],
-            OUTPUT_PYTHON,
-        )
+    _partition_secao_table("resultados_candidato_secao", _enrich_cand)
 
     # Partido: merge with norm_partidos to get sigla_partido
     print("  partitioning resultados_partido_secao...")
@@ -664,12 +715,7 @@ def _partition_results_section(
         norm_part["ano"] = pd.to_numeric(norm_part["ano"], errors="coerce")
         part_lookup = norm_part[["ano", "numero", "sigla"]].drop_duplicates()
 
-    for ano in YEARS_EVEN:
-        df = _read_parquet("resultados_partido_secao", ano)
-        if df.empty:
-            continue
-
-        # Merge sigla_partido from norm_partidos
+    def _enrich_part(df: pd.DataFrame, ano: int) -> pd.DataFrame:
         if not norm_part.empty and "numero_partido" in df.columns:
             df["numero_partido"] = df["numero_partido"].astype(str)
             df["ano"] = pd.to_numeric(df["ano"], errors="coerce")
@@ -684,19 +730,14 @@ def _partition_results_section(
                 how="left",
                 suffixes=("", "_norm"),
             )
-            # Use norm value if exists
             if "sigla_partido_norm" in df.columns:
                 df["sigla_partido"] = df["sigla_partido"].fillna(
                     df["sigla_partido_norm"]
                 )
                 df = df.drop(columns=["sigla_partido_norm"])
+        return df
 
-        save_partitioned(
-            df,
-            "resultados_partido_secao",
-            ["ano", "sigla_uf"],
-            OUTPUT_PYTHON,
-        )
+    _partition_secao_table("resultados_partido_secao", _enrich_part)
 
 
 def _partition_bens(norm_cand: pd.DataFrame):
@@ -891,18 +932,9 @@ def build_all():
     )
     _partition_simple("detalhes_votacao_secao", YEARS_EVEN, by_uf=True)
 
-    # perfil_eleitorado_secao: year-specific UF lists
+    # perfil_eleitorado_secao: streamed per-(ano,uf) intermediates (no merge)
     print("  partitioning perfil_eleitorado_secao...")
-    for ano in sorted(_UFS_PERFIL_SECAO.keys()):
-        df = _read_parquet("perfil_eleitorado_secao", ano)
-        if df.empty:
-            continue
-        save_partitioned(
-            df,
-            "perfil_eleitorado_secao",
-            ["ano", "sigla_uf"],
-            OUTPUT_PYTHON,
-        )
+    _partition_secao_table("perfil_eleitorado_secao", lambda df, ano: df)
 
     # perfil_eleitorado_local_votacao: single all-years file
     print("  partitioning perfil_eleitorado_local_votacao...")

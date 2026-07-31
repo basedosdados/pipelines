@@ -17,8 +17,13 @@ from sub.campaign_finance import build_all as build_campaign_finance
 from sub.candidates import build_all as build_candidates
 from sub.parties import build_all as build_parties
 from sub.results_mun_zone import build_all as build_results_mun_zone
-from sub.results_section import build_all as build_results_section
 from sub.results_state import build_all as build_results_state
+from sub.streaming_secao import (
+    build_all_perfil_secao as build_voter_profile_section,
+)
+from sub.streaming_secao import (
+    build_all_resultados_secao as build_results_section,
+)
 from sub.vacancies import build_all as build_vacancies
 from sub.voter_profile_mun_zone import (
     build_all as build_voter_profile_mun_zone,
@@ -26,7 +31,6 @@ from sub.voter_profile_mun_zone import (
 from sub.voter_profile_polling_place import (
     build_all as build_voter_profile_polling_place,
 )
-from sub.voter_profile_section import build_all as build_voter_profile_section
 from sub.voting_details_mun_zone import (
     build_all as build_voting_details_mun_zone,
 )

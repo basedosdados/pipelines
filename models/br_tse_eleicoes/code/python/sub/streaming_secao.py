@@ -28,7 +28,7 @@ from pathlib import Path
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-from config import INPUT_DIR, OUTPUT_PYTHON
+from config import INPUT_DIR, STREAM_SECAO_ROOT
 from utils.helpers import iter_raw_csv_chunks, read_raw_csv
 
 from sub import results_section as rsec
@@ -260,13 +260,31 @@ def validate_stream_year(ano: int, out_root: Path) -> None:
         print(f"{table} {ano}: stream==build {a.equals(b)} ({a.shape})")
 
 
-if __name__ == "__main__":
-    ano = int(sys.argv[1])
-    out_root = (
-        Path(sys.argv[2]) if len(sys.argv) > 2 else OUTPUT_PYTHON / "_stream"
-    )
-    print(f"streaming resultados_secao {ano}")
-    stream_resultados_secao(ano, out_root)
-    print(f"streaming perfil_secao {ano}")
-    if ano >= 2008 and ano in vps.UFS:
+def build_all_resultados_secao(out_root: Path = STREAM_SECAO_ROOT) -> None:
+    """Stream every year of the two resultados_secao families to out_root."""
+    for ano in sorted(rsec.UFS.keys()):
+        print(f"  streaming resultados_secao {ano}", flush=True)
+        stream_resultados_secao(ano, out_root)
+
+
+def build_all_perfil_secao(out_root: Path = STREAM_SECAO_ROOT) -> None:
+    """Stream every year of perfil_eleitorado_secao to out_root."""
+    for ano in sorted(vps.UFS.keys()):
+        print(f"  streaming perfil_eleitorado_secao {ano}", flush=True)
         stream_perfil_secao(ano, out_root)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "all":
+        build_all_resultados_secao()
+        build_all_perfil_secao()
+    else:
+        ano = int(sys.argv[1])
+        out_root = (
+            Path(sys.argv[2]) if len(sys.argv) > 2 else STREAM_SECAO_ROOT
+        )
+        print(f"streaming resultados_secao {ano}")
+        stream_resultados_secao(ano, out_root)
+        if ano >= 2008 and ano in vps.UFS:
+            print(f"streaming perfil_secao {ano}")
+            stream_perfil_secao(ano, out_root)
