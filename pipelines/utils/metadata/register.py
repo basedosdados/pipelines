@@ -289,6 +289,7 @@ def poll_source_for_update(
     dataset_id,
     table_id,
     source_max_date: datetime.date | None = None,
+    raw_source_url: str | None = None,
 ) -> bool:
     """Detecta se a fonte original tem novidade, sem gravar o Update.
 
@@ -307,6 +308,9 @@ def poll_source_for_update(
         source_max_date: data máxima observada na fonte. `None` (padrão) é a
             forma explícita de "só polei, sem novidade" — grava o Poll e devolve
             `False`.
+        raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
+            uma fonte ligada. `None` (padrão) mantém o comportamento de fonte
+            única.
 
     Returns:
         bool — `True` se a fonte tem dados mais novos que o `Table.Update.latest`
@@ -314,7 +318,10 @@ def poll_source_for_update(
     """
 
     client.upsert_raw_source_poll(
-        dataset_id, table_id, latest=datetime.datetime.today()
+        dataset_id,
+        table_id,
+        latest=datetime.datetime.today(),
+        url=raw_source_url,
     )
 
     if source_max_date is None:
@@ -334,6 +341,7 @@ def commit_source_update(
     dataset_id: str,
     table_id: str,
     source_max_date: datetime.date,
+    raw_source_url: str | None = None,
 ) -> None:
     """Grava o `RawDataSource.Update` da fonte original.
 
@@ -351,10 +359,13 @@ def commit_source_update(
         table_id: ID da tabela no GCP/BigQuery.
         source_max_date: data máxima observada na fonte, gravada como o novo
             `RawDataSource.Update.latest`.
+        raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
+            uma fonte ligada. `None` (padrão) mantém o comportamento de fonte
+            única.
     """
 
     client.upsert_raw_source_update(
-        dataset_id, table_id, latest=source_max_date
+        dataset_id, table_id, latest=source_max_date, url=raw_source_url
     )
 
     log("Data de atualização da fonte original modificada")
