@@ -223,6 +223,22 @@ def _prep_prestacao(ano: int) -> list[str] | None:
     return outs or None
 
 
+def _prep_partidos(ano: int) -> list[str] | None:
+    if ano == 1990:
+        # consulta_legendas_1990.zip carries CONSULTA_LEGENDA_1990/<uf>.txt
+        # internally; extract at the family root so the builder finds
+        # consulta_coligacao/CONSULTA_LEGENDA_1990/CONSULTA_LEGENDA_1990_<uf>.
+        if extract(
+            "consulta_coligacao/consulta_legendas_1990.zip",
+            "consulta_coligacao",
+        ):
+            return ["consulta_coligacao/CONSULTA_LEGENDA_1990"]
+        return None
+    return _single("consulta_coligacao", ano) or _single_named(
+        "consulta_coligacao", f"consulta_legendas_{ano}"
+    )
+
+
 def _single(family: str, ano: int) -> list[str] | None:
     rel = f"{family}/{family}_{ano}"
     return [rel] if extract(rel + ".zip", rel) else None
@@ -267,10 +283,7 @@ FAMILIES: dict[str, dict] = {
         fn="build_partidos",
         years=[1990, *YEARS_EVEN],
         stem="partidos_{ano}",
-        prep=lambda a: (
-            _single("consulta_coligacao", a)
-            or _single_named("consulta_coligacao", f"consulta_legendas_{a}")
-        ),
+        prep=_prep_partidos,
     ),
     "vagas": dict(
         module="sub.vacancies",
@@ -331,14 +344,14 @@ FAMILIES: dict[str, dict] = {
     ),
     "rcmz": dict(
         module="sub.results_mun_zone",
-        fn="build_candidato",
+        fn="_build_candidato",
         years=YEARS_EVEN,
         stem="resultados_candidato_municipio_zona_{ano}",
         prep=lambda a: _single("votacao_candidato_munzona", a),
     ),
     "rpmz": dict(
         module="sub.results_mun_zone",
-        fn="build_partido",
+        fn="_build_partido",
         years=YEARS_EVEN,
         stem="resultados_partido_municipio_zona_{ano}",
         prep=lambda a: _single("votacao_partido_munzona", a),
