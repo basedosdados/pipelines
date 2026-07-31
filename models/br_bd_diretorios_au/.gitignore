@@ -1,0 +1,3 @@
+# Raw downloads and cleaned outputs — never commit data
+input/
+output/
