@@ -12,6 +12,7 @@ class constants(Enum):
     """Constants for the cid_10 pipeline."""
 
     IVIS_FILENAME = "PREVISAO_TABELA_CID10.xlsx"
+    IVIS_URL_BASE = "http://plataforma.saude.gov.br/cc-br-fic"
 
     DATASUS_URL_BASE = "http://www2.datasus.gov.br/cid10/V2008/downloads"
     DATASUS_FILENAME = "CID10CSV.zip"

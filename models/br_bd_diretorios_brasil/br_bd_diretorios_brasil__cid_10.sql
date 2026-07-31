@@ -15,4 +15,5 @@ select
     safe_cast(descricao_capitulo as string) descricao_capitulo,
     safe_cast(causa_violencia as int64) causa_violencia,
     safe_cast(causa_overdose as int64) causa_overdose,
+    safe_cast(indicador_registro_ativo as int64) indicador_registro_ativo,
 from {{ set_datalake_project("br_bd_diretorios_brasil_staging.cid_10") }} as t
