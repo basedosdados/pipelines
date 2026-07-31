@@ -186,6 +186,98 @@ def read_raw_csv(
     return df
 
 
+def iter_raw_csv_chunks(
+    filepath_pattern: str,
+    *,
+    chunksize: int = 2_000_000,
+    encoding: str = "latin-1",
+):
+    """Header-aware chunked reader — the streaming twin of ``read_raw_csv``.
+
+    Yields DataFrames of up to ``chunksize`` rows with the SAME column
+    naming ``read_raw_csv`` would assign (header names when a header row is
+    detected, else positional ``v1, v2, ...``), and the same
+    ``df.attrs["tse_has_header"]``. The header row, when present, is dropped
+    from the first yielded chunk. Used to build the 60M+ row seção tables
+    without materializing a whole UF file in RAM.
+
+    Bad lines are skipped (matches ``read_raw_csv``'s fallback, which also
+    skips them). The C engine is tried first; on a parser error the whole
+    file is retried with the python engine, which tolerates the truncated
+    trailing-quote seen in some SP files.
+    """
+    base = Path(filepath_pattern)
+    txt_path = base.with_suffix(".txt")
+    csv_path = base.with_suffix(".csv")
+    if txt_path.exists():
+        path = txt_path
+    elif csv_path.exists():
+        path = csv_path
+    else:
+        raise FileNotFoundError(f"Neither {txt_path} nor {csv_path} found.")
+    if path.stat().st_size == 0:
+        msg = (
+            f"{path} is empty (0 bytes) — likely a Dropbox online-only "
+            "placeholder. Hydrate the file before building."
+        )
+        raise ValueError(msg)
+
+    # Detect header once, up front, from a tiny read (matches read_raw_csv).
+    probe = pd.read_csv(
+        path,
+        sep=";",
+        header=None,
+        dtype=str,
+        encoding=encoding,
+        quotechar='"',
+        keep_default_na=False,
+        nrows=1,
+    )
+    first_row = list(probe.iloc[0]) if len(probe) > 0 else []
+    has_header = _detect_header(first_row, path)
+    names = (
+        _dedup_names([_normalize_cell(c).lower() for c in first_row])
+        if has_header
+        else [f"v{i + 1}" for i in range(probe.shape[1])]
+    )
+    header_offset = 1 if has_header else 0
+
+    def _reader(engine: str, skip_data_rows: int):
+        kwargs = dict(
+            sep=";",
+            header=None,
+            names=names,
+            dtype=str,
+            encoding=encoding,
+            quotechar='"',
+            keep_default_na=False,
+            on_bad_lines="skip",
+            chunksize=chunksize,
+            skiprows=header_offset + skip_data_rows,
+        )
+        if engine == "python":
+            kwargs["engine"] = "python"
+        return pd.read_csv(path, **kwargs)
+
+    # C engine first (fast). If it raises mid-stream, resume with the python
+    # engine (tolerates truncated trailing quotes) from exactly where we
+    # stopped — never re-emitting a row already yielded.
+    emitted = 0
+    for engine in ("c", "python"):
+        try:
+            for chunk in _reader(engine, emitted):
+                chunk.attrs["tse_has_header"] = has_header
+                chunk.attrs["tse_path"] = str(path)
+                if len(chunk):
+                    emitted += len(chunk)
+                    yield chunk.reset_index(drop=True)
+            return
+        except (pd.errors.ParserError, ValueError):
+            if engine == "python":
+                raise
+            continue
+
+
 def select_named(df: pd.DataFrame, name_map: dict[str, str]) -> pd.DataFrame:
     """Select/rename by official header name; first hit wins per BD column.
 
