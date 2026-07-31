@@ -1,5 +1,17 @@
 # 06 — Streaming build for the giant seção tables
 
+> **STATUS 2026-07-31: build implemented + validated** (commit 677c3cd0,
+> `sub/streaming_secao.py`). The build half is done and byte-identical to
+> the March reference on the hard case (SP 2018, state file + BR file
+> routed). What remains is the **partition/enrich half**: wiring the
+> per-`(ano,uf)` streamed intermediates into
+> `normalization_partition.py` so the titulo merge runs per partition and
+> the final output is written. See "Remaining wiring" at the bottom.
+> Actual change size came in at **4 files, +648/-366 lines** — most of it
+> the extract-method refactor; ~250 lines are the new streaming module and
+> ~70 the chunked reader.
+
+
 Work order 05 must rebuild every table from one uniform vintage. Three
 families cannot be built in 16 GB RAM and need a streaming path:
 `resultados_candidato_secao`, `resultados_partido_secao` (both from
@@ -109,3 +121,26 @@ three tables. Chunked-pandas keeps the exact existing transforms and is
 the lower-risk path. (If the production Prefect worker has ≥64 GB, the
 builders could run unchanged there — but the streaming path is the durable
 fix and makes the pipeline runnable on constrained hosts.)
+
+## Remaining wiring (partition + enrich half)
+
+The streamed intermediates land at
+`<out_root>/<table>/ano=YYYY/sigla_uf=UF/data.parquet` with the pre-enrich
+schema (`CAND_COLS` / `PART_COLS` / `PERFIL_COL_ORDER`). To finish the
+production path, `normalization_partition.py` must consume them per
+`(ano, uf)` instead of reading the whole-year monolithic parquet:
+
+- `_partition_resultados_secao`: for each `(ano, uf)` partition, read it,
+  run the existing `titulo_eleitoral` merge against the (small, in-RAM)
+  `norm_cand` subsets, `save_partitioned`. The merge keys already carry
+  `sigla_uf`, so this is a per-partition drop-in — no logic change, only
+  the loop granularity (per `(ano,uf)` rather than per `ano`).
+- `_partition_perfil_secao`: per-`(ano,uf)` read + `save_partitioned`
+  (no titulo merge).
+- Orchestration: route the three giant families through
+  `stream_*` in the build step (`build.py` / the production driver)
+  instead of the in-RAM `build_all()`; leave all other tables as-is.
+
+This half is low-risk (per-partition read + existing merge) and validated
+the same way — compare the final partitions to the March reference with
+`gate_a.py`, order-independent, UF by UF.
