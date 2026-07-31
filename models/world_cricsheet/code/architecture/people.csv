@@ -1,5 +1,5 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
-identifier,STRING,Identificador único da pessoa no Cricsheet,,no,,,no,Chave lógica da tabela,identifier
+person_id,STRING,Identificador único da pessoa no Cricsheet,,no,,,no,Chave lógica da tabela,identifier
 name,STRING,Nome da pessoa,,no,,,no,,name
 unique_name,STRING,Nome único usado para desambiguação de homônimos,,no,,,no,,unique_name
 key_bcci,STRING,Identificador da pessoa na fonte BCCI,,no,,,no,,key_bcci

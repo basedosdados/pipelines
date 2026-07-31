@@ -8,7 +8,7 @@
 
 
 select
-    safe_cast(identifier as string) identifier,
+    safe_cast(identifier as string) person_id,
     safe_cast(name as string) name,
     safe_cast(unique_name as string) unique_name,
     safe_cast(key_bcci as string) key_bcci,

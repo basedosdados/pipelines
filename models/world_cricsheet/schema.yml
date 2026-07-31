@@ -235,7 +235,7 @@ models:
       resolvido.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, match_id, team, player]
+          combination_of_columns: [year, match_id, team_name, player_name]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -247,23 +247,27 @@ models:
         description: >
           Identificador único da partida
         tests: [not_null]
-      - name: team
+      - name: team_name
         description: >
           Nome da equipe do jogador na partida
-      - name: player
+      - name: player_name
         description: >
           Nome do jogador conforme aparece na partida
         tests: [not_null]
-      - name: player_identifier
+      - name: person_id
         description: >
           Identificador único do jogador resolvido pelo registro
+        tests:
+          - relationships:
+              to: ref('world_cricsheet__people')
+              field: person_id
   - name: world_cricsheet__people
     description: >
       Registro de pessoas do Cricsheet, com uma linha por pessoa e os
       identificadores correspondentes em fontes externas de dados de críquete.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [identifier]
+          combination_of_columns: [person_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -282,7 +286,7 @@ models:
             - key_opta_2
             - key_pulse_2
     columns:
-      - name: identifier
+      - name: person_id
         description: >
           Identificador único da pessoa no Cricsheet
         tests: [not_null]

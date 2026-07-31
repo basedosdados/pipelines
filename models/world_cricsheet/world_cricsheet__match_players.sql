@@ -15,7 +15,7 @@
 select
     safe_cast(year as int64) year,
     safe_cast(match_id as string) match_id,
-    safe_cast(team as string) team,
-    safe_cast(player as string) player,
-    safe_cast(player_identifier as string) player_identifier
+    safe_cast(team as string) team_name,
+    safe_cast(player as string) player_name,
+    safe_cast(player_identifier as string) person_id
 from {{ set_datalake_project("world_cricsheet_staging.match_players") }} as t
