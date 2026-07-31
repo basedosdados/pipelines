@@ -221,6 +221,13 @@ def clean_year(
     Returns:
         ``{table_slug: rows_written}`` for the geo tables touched.
     """
+    # Resumable full-history runs: skip a year already finished on a prior run
+    # (its CSV was pruned), so a restart re-downloads nothing already done.
+    marker = output_dir / ".done" / f"{classification}_{freq}_{year}"
+    if prune_input and marker.exists():
+        log.info(f"skip {classification}/{freq}/{year} (already done)")
+        return {}
+
     path = download_singlefile(classification, freq, year, input_dir)
     geomap = _GEO_MAP[classification]
     # clear stale partitions for this (classification, freq, year)
@@ -270,6 +277,8 @@ def clean_year(
         # Full-history backfill: drop the multi-GB CSV once cleaned so input never
         # accumulates (and does not sync to Dropbox). The parquet output remains.
         path.unlink(missing_ok=True)
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        marker.write_text("")
     return counts
 
 
