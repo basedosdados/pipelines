@@ -47,6 +47,7 @@ lands.
 | [03_side_issues.md](03_side_issues.md) | Investigate + fix B3–B6 | 01 (02 for fixes touching parsers) |
 | [04_validation_protocol.md](04_validation_protocol.md) | Gate A (Stata parity) + Gate B (fresh downloads) | 02, 03 |
 | [05_rebuild_and_prod_repair.md](05_rebuild_and_prod_repair.md) | Rebuild in topological order, dev upload, prod repair | 04 |
+| [06_streaming_build_giants.md](06_streaming_build_giants.md) | Streaming per-(ano,uf) build for the 3 giant secao families (16 GB) | 05 prerequisite |
 
 ## Hard rules
 
