@@ -1,15 +1,16 @@
 # 06 — Streaming build for the giant seção tables
 
-> **STATUS 2026-07-31: build implemented + validated** (commit 677c3cd0,
-> `sub/streaming_secao.py`). The build half is done and byte-identical to
-> the March reference on the hard case (SP 2018, state file + BR file
-> routed). What remains is the **partition/enrich half**: wiring the
-> per-`(ano,uf)` streamed intermediates into
-> `normalization_partition.py` so the titulo merge runs per partition and
-> the final output is written. See "Remaining wiring" at the bottom.
-> Actual change size came in at **4 files, +648/-366 lines** — most of it
-> the extract-method refactor; ~250 lines are the new streaming module and
-> ~70 the chunked reader.
+> **STATUS 2026-07-31: DONE — build + partition wired end-to-end**
+> (commits 677c3cd0 build, 6e9bb4ca wiring). Both OOM sites eliminated:
+> `build.py` routes the two giant steps through
+> `streaming_secao.build_all_*` (per-`(ano,uf)` parquet →
+> `config.STREAM_SECAO_ROOT`), and
+> `normalization_partition._partition_secao_table` enriches + partitions
+> one `(ano,uf)` at a time (falls back to the monolithic path on a big
+> host). Validated: stream==in-RAM build (byte-identical to March) incl.
+> the hard SP-2018 BR-routing case; stream→partition CSVs byte-identical
+> to monolithic→partition. Peak RSS 5.3 GB. The "Remaining wiring" section
+> below is now implemented. No dbt/metadata/other-builder changes.
 
 
 Work order 05 must rebuild every table from one uniform vintage. Three
