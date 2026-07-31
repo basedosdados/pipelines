@@ -1,0 +1,351 @@
+---
+version: 2
+models:
+  - name: world_cricsheet__deliveries
+    description: >
+      Registro bola a bola das partidas de críquete do Cricsheet, com uma linha
+      por entrega (bola) disputada, incluindo corridas, extras e eliminações.
+      A combinação (match_id, innings, actual_delivery) apresenta uma fração
+      residual de duplicatas (cerca de 2% dos grupos), decorrente de super
+      overs e de reenumerações de entregas na fonte, tolerada via teste de
+      unicidade relaxado.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [match_id, innings, actual_delivery]
+          proportion_allowed_failures: 0.01
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - wides
+            - noballs
+            - byes
+            - legbyes
+            - penalty
+            - non_boundary
+            - wicket_type
+            - player_dismissed
+            - other_wicket_type
+            - other_player_dismissed
+            - fielder_1
+            - fielder_2
+            - fielder_3
+    columns:
+      - name: year
+        description: >
+          Ano da partida, derivado da data de início
+        tests: [not_null]
+      - name: match_id
+        description: >
+          Identificador único da partida
+        tests: [not_null]
+      - name: season
+        description: >
+          Temporada da partida no formato de ano ou intervalo de anos
+      - name: start_date
+        description: >
+          Data de início da partida
+      - name: venue
+        description: >
+          Nome do estádio ou local onde a partida foi disputada
+      - name: innings
+        description: >
+          Número do turno de rebatidas na partida
+      - name: ball
+        description: >
+          Identificador da bola no formato over.bola
+      - name: actual_delivery
+        description: >
+          Número da entrega efetivamente disputada no over
+      - name: batting_team
+        description: >
+          Nome da equipe que está rebatendo
+      - name: bowling_team
+        description: >
+          Nome da equipe que está arremessando
+      - name: striker
+        description: >
+          Nome do rebatedor que enfrenta a bola
+      - name: non_striker
+        description: >
+          Nome do rebatedor na outra extremidade do campo
+      - name: bowler
+        description: >
+          Nome do arremessador que entrega a bola
+      - name: runs_off_bat
+        description: >
+          Corridas marcadas pela rebatida do batedor nesta bola
+      - name: extras
+        description: >
+          Total de corridas extras concedidas nesta bola
+      - name: wides
+        description: >
+          Corridas concedidas por bola larga (wide) nesta bola
+      - name: noballs
+        description: >
+          Corridas concedidas por bola inválida (no-ball) nesta bola
+      - name: byes
+        description: >
+          Corridas concedidas por byes nesta bola
+      - name: legbyes
+        description: >
+          Corridas concedidas por leg byes nesta bola
+      - name: penalty
+        description: >
+          Corridas de penalidade concedidas nesta bola
+      - name: non_boundary
+        description: >
+          Indicador de que as corridas não vieram de uma fronteira
+      - name: wicket_type
+        description: >
+          Tipo de eliminação (wicket) registrada nesta bola
+      - name: player_dismissed
+        description: >
+          Nome do jogador eliminado nesta bola
+      - name: other_wicket_type
+        description: >
+          Tipo da segunda eliminação registrada na mesma bola
+      - name: other_player_dismissed
+        description: >
+          Nome do segundo jogador eliminado na mesma bola
+      - name: fielder_1
+        description: >
+          Nome do primeiro defensor envolvido na eliminação
+      - name: fielder_2
+        description: >
+          Nome do segundo defensor envolvido na eliminação
+      - name: fielder_3
+        description: >
+          Nome do terceiro defensor envolvido na eliminação
+  - name: world_cricsheet__matches
+    description: >
+      Metadados das partidas de críquete do Cricsheet, com uma linha por
+      partida, incluindo tipo, equipes, sorteio, resultado e árbitros.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, match_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [winner_innings, method, neutral_venue]
+    columns:
+      - name: year
+        description: >
+          Ano da partida, derivado da data de início
+        tests: [not_null]
+      - name: match_id
+        description: >
+          Identificador único da partida
+        tests: [not_null]
+      - name: season
+        description: >
+          Temporada da partida no formato de ano ou intervalo de anos
+      - name: start_date
+        description: >
+          Data de início da partida
+      - name: end_date
+        description: >
+          Data de encerramento da partida
+      - name: match_type
+        description: >
+          Tipo de partida
+      - name: team_type
+        description: >
+          Tipo de equipe
+      - name: gender
+        description: >
+          Gênero das equipes participantes
+      - name: event
+        description: >
+          Nome do torneio ou evento da partida
+      - name: match_number
+        description: >
+          Número da partida dentro do evento
+      - name: balls_per_over
+        description: >
+          Número de bolas por over
+      - name: overs
+        description: >
+          Número máximo de overs por turno
+      - name: venue
+        description: >
+          Nome do estádio ou local da partida
+      - name: city
+        description: >
+          Cidade onde a partida foi disputada
+      - name: team1
+        description: >
+          Nome da primeira equipe
+      - name: team2
+        description: >
+          Nome da segunda equipe
+      - name: toss_winner
+        description: >
+          Nome da equipe que venceu o sorteio inicial
+      - name: toss_decision
+        description: >
+          Decisão da equipe vencedora do sorteio
+      - name: player_of_match
+        description: >
+          Nome do jogador eleito melhor da partida
+      - name: winner
+        description: >
+          Nome da equipe vencedora
+      - name: outcome
+        description: >
+          Resultado da partida sem vencedor definido
+      - name: winner_runs
+        description: >
+          Margem de vitória em corridas
+      - name: winner_wickets
+        description: >
+          Margem de vitória em wickets
+      - name: winner_innings
+        description: >
+          Indicador de vitória por turno (innings)
+      - name: method
+        description: >
+          Método aplicado para definir o resultado
+      - name: target_runs
+        description: >
+          Meta de corridas para a equipe que rebate por último
+      - name: target_overs
+        description: >
+          Número de overs disponíveis para atingir a meta
+      - name: neutral_venue
+        description: >
+          Indicador de local neutro
+      - name: umpire1
+        description: >
+          Nome do primeiro árbitro
+      - name: umpire2
+        description: >
+          Nome do segundo árbitro
+      - name: tv_umpire
+        description: >
+          Nome do árbitro de vídeo
+      - name: reserve_umpire
+        description: >
+          Nome do árbitro reserva
+      - name: match_referee
+        description: >
+          Nome do juiz da partida
+  - name: world_cricsheet__match_players
+    description: >
+      Composição das equipes por partida no Cricsheet, com uma linha por
+      partida, equipe e jogador, incluindo o identificador do jogador quando
+      resolvido.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, match_id, team, player]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >
+          Ano da partida, derivado da data de início
+        tests: [not_null]
+      - name: match_id
+        description: >
+          Identificador único da partida
+        tests: [not_null]
+      - name: team
+        description: >
+          Nome da equipe do jogador na partida
+      - name: player
+        description: >
+          Nome do jogador conforme aparece na partida
+        tests: [not_null]
+      - name: player_identifier
+        description: >
+          Identificador único do jogador resolvido pelo registro
+  - name: world_cricsheet__people
+    description: >
+      Registro de pessoas do Cricsheet, com uma linha por pessoa e os
+      identificadores correspondentes em fontes externas de dados de críquete.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [identifier]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - key_bcci_2
+            - key_bigbash
+            - key_cricbuzz
+            - key_cricheroes
+            - key_crichq
+            - key_cricinfo_2
+            - key_cricinfo_3
+            - key_cricingif
+            - key_cricketarchive_2
+            - key_cricketworld
+            - key_nvplay_2
+            - key_opta
+            - key_opta_2
+            - key_pulse_2
+    columns:
+      - name: identifier
+        description: >
+          Identificador único da pessoa no Cricsheet
+        tests: [not_null]
+      - name: name
+        description: >
+          Nome da pessoa
+      - name: unique_name
+        description: >
+          Nome único usado para desambiguação de homônimos
+      - name: key_bcci
+        description: >
+          Identificador da pessoa na fonte BCCI
+      - name: key_bcci_2
+        description: >
+          Segundo identificador da pessoa na fonte BCCI
+      - name: key_bigbash
+        description: >
+          Identificador da pessoa na fonte Big Bash
+      - name: key_cricbuzz
+        description: >
+          Identificador da pessoa na fonte Cricbuzz
+      - name: key_cricheroes
+        description: >
+          Identificador da pessoa na fonte CricHeroes
+      - name: key_crichq
+        description: >
+          Identificador da pessoa na fonte CricHQ
+      - name: key_cricinfo
+        description: >
+          Identificador da pessoa na fonte ESPNcricinfo
+      - name: key_cricinfo_2
+        description: >
+          Segundo identificador da pessoa na fonte ESPNcricinfo
+      - name: key_cricinfo_3
+        description: >
+          Terceiro identificador da pessoa na fonte ESPNcricinfo
+      - name: key_cricingif
+        description: >
+          Identificador da pessoa na fonte Cricingif
+      - name: key_cricketarchive
+        description: >
+          Identificador da pessoa na fonte CricketArchive
+      - name: key_cricketarchive_2
+        description: >
+          Segundo identificador da pessoa na fonte CricketArchive
+      - name: key_cricketworld
+        description: >
+          Identificador da pessoa na fonte Cricket World
+      - name: key_nvplay
+        description: >
+          Identificador da pessoa na fonte NVPlay
+      - name: key_nvplay_2
+        description: >
+          Segundo identificador da pessoa na fonte NVPlay
+      - name: key_opta
+        description: >
+          Identificador da pessoa na fonte Opta
+      - name: key_opta_2
+        description: >
+          Segundo identificador da pessoa na fonte Opta
+      - name: key_pulse
+        description: >
+          Identificador da pessoa na fonte Pulse
+      - name: key_pulse_2
+        description: >-
+          Segundo identificador da pessoa na fonte Pulse

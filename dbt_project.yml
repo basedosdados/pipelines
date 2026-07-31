@@ -121,6 +121,9 @@ models:
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
+    world_cricsheet:
+      +materialized: table
+      +schema: world_cricsheet
     br_bd_indicadores:
       +materialized: table
       +schema: br_bd_indicadores
