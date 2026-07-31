@@ -56,7 +56,9 @@ def main():
         years = dict(constants.SUBSET_YEARS.value)
 
     logging.info(f"cleaning years: naics={years['naics']} sic={years['sic']}")
-    written = clean_all(years, INPUT, OUTPUT)
+    # On a full-history run, prune each multi-GB CSV once cleaned so input never
+    # accumulates (dozens of files) on disk / in Dropbox.
+    written = clean_all(years, INPUT, OUTPUT, prune_input=args.full)
     logging.info(f"wrote {len(written)} tables into {OUTPUT}")
 
 

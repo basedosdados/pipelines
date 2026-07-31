@@ -201,6 +201,7 @@ def clean_year(
     year: int,
     input_dir: Path,
     output_dir: Path,
+    prune_input: bool = False,
 ) -> dict:
     """Stream one singlefile into per-geographic-level parquet, chunk by chunk.
 
@@ -265,6 +266,10 @@ def clean_year(
         )
     for table, n in counts.items():
         log.info(f"{table} [{year}]: {n:,} rows")
+    if prune_input:
+        # Full-history backfill: drop the multi-GB CSV once cleaned so input never
+        # accumulates (and does not sync to Dropbox). The parquet output remains.
+        path.unlink(missing_ok=True)
     return counts
 
 
@@ -367,13 +372,16 @@ def build_dicionario(input_dir: Path, output_dir: Path) -> Path:
 
 
 # ── orchestration ───────────────────────────────────────────────────────────
-def clean_all(years: dict, input_dir: Path, output_dir: Path) -> dict:
+def clean_all(
+    years: dict, input_dir: Path, output_dir: Path, prune_input: bool = False
+) -> dict:
     """Clean the requested years for every class/freq/geo table + the dicionario.
 
     Args:
         years: ``{"naics": [...], "sic": [...]}`` — which data years to process.
         input_dir: Root of downloaded files.
         output_dir: Root output directory.
+        prune_input: delete each singlefile CSV once cleaned (full-history runs).
 
     Returns:
         Mapping ``{table_slug: total_rows_written}`` plus ``dicionario``.
@@ -383,7 +391,7 @@ def clean_all(years: dict, input_dir: Path, output_dir: Path) -> dict:
         for freq in constants.FREQS.value:
             for year in years[cls]:
                 for table, n in clean_year(
-                    cls, freq, year, input_dir, output_dir
+                    cls, freq, year, input_dir, output_dir, prune_input
                 ).items():
                     written[table] = written.get(table, 0) + n
     build_dicionario(input_dir, output_dir)
