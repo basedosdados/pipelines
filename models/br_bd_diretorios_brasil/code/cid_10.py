@@ -364,6 +364,7 @@ if __name__ == "__main__":
     )
 
     df_final = build_final(df_chapter, df_categorias, df_subcategorias)
+    print(df_final.columns)
     df_final = df_final.drop_duplicates(subset=df_final.columns)
     df_final.to_csv(output_dir / "data.csv", encoding="latin1", index=False)
 
