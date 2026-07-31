@@ -100,6 +100,9 @@ models:
     in_tcpd_elections:
       +materialized: table
       +schema: in_tcpd_elections
+    us_anes_time_series:
+      +materialized: table
+      +schema: us_anes_time_series
     us_bls_atus:
       +materialized: table
       +schema: us_bls_atus
