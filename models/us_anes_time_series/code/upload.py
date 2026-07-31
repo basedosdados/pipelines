@@ -24,17 +24,29 @@ from basedosdados.core.base import Base  # noqa: E402
 BILLING_PROJECT = "basedosdados-dev"
 DATASET_ID = "us_anes_time_series"
 
-OUTPUT_ROOT = Path(
-    "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/"
-    ".claude/worktrees/anes-dataset-onboarding-d51b97/"
-    "models/us_anes_time_series/output"
-)
+# output/ sits next to code/ in the dataset directory (code/ -> parents[1]).
+OUTPUT_ROOT = Path(__file__).resolve().parents[1] / "output"
 
 # Monkey-patch for the requester-pays GCS bucket: force user_project.
 _orig_bucket = gcs.Client.bucket
 
 
-def _patched_bucket(self, bucket_name, user_project=None):
+def _patched_bucket(
+    self: gcs.Client, bucket_name: str, user_project: str | None = None
+) -> gcs.Bucket:
+    """Return a GCS bucket handle billed to the dev project.
+
+    The staging bucket is requester-pays, so ``user_project`` must be set on
+    every access; this override forces it regardless of the caller.
+
+    Args:
+        self: The ``google.cloud.storage.Client`` instance.
+        bucket_name: Name of the bucket to access.
+        user_project: Ignored; always replaced with ``BILLING_PROJECT``.
+
+    Returns:
+        The requested ``google.cloud.storage.Bucket``, billed to the dev project.
+    """
     return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
 
 
@@ -51,6 +63,14 @@ _BQ_STAGING = Base().client["bigquery_staging"]
 
 
 def _staging_count(slug: str) -> int:
+    """Return the row count of a staging table in BigQuery.
+
+    Args:
+        slug: Table slug within ``<DATASET_ID>_staging``.
+
+    Returns:
+        The number of rows in ``basedosdados-dev.<DATASET_ID>_staging.<slug>``.
+    """
     q = (
         f"select count(*) as n "
         f"from `{BILLING_PROJECT}.{DATASET_ID}_staging.{slug}`"
@@ -59,6 +79,23 @@ def _staging_count(slug: str) -> int:
 
 
 def upload_table(slug: str, expected_rows: int, path: Path) -> int:
+    """Upload one parquet table to the dev staging dataset and verify its rows.
+
+    Deletes any stale GCS staging prefix, then creates/replaces the staging
+    table from the parquet at ``path`` and checks the loaded row count.
+
+    Args:
+        slug: Table slug (e.g. ``cumulative``).
+        expected_rows: Row count the load must match.
+        path: Parquet file or hive-partitioned directory to upload.
+
+    Returns:
+        The verified staging row count.
+
+    Raises:
+        FileNotFoundError: If ``path`` does not exist.
+        ValueError: If the loaded row count differs from ``expected_rows``.
+    """
     if not path.exists():
         raise FileNotFoundError(f"Missing parquet path: {path}")
 
@@ -92,6 +129,8 @@ def upload_table(slug: str, expected_rows: int, path: Path) -> int:
 
 
 def main() -> None:
+    """Upload the tables named on the command line (default: all), stopping on
+    the first failure with exit code 1 (2 for an unknown table slug)."""
     only = set(sys.argv[1:])
     known = {s for s, _, _ in TABLES}
     unknown = only - known

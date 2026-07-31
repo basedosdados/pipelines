@@ -41,7 +41,7 @@ def sentence(label: str) -> str:
     def fix(m):
         w = m.group(0)
         if re.fullmatch(r"(u\.s\.?|u\.s\.a\.?)", w):
-            return "U.S." if w.count(".") <= 2 else "U.S.A."
+            return "U.S.A." if w.rstrip(".").endswith("a") else "U.S."
         return ACR.get(w, w)
 
     s = re.sub(r"[a-z]+(?:\.[a-z]+)*\.?", fix, s)

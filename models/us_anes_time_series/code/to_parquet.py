@@ -60,7 +60,21 @@ file_cols = [c for c in order if c != "year"]
 schema = pa.schema([(c, pa.string()) for c in file_cols])
 
 OUT.mkdir(parents=True, exist_ok=True)
-years = sorted(df["year"].dropna().unique(), key=lambda x: int(x))
+
+# Fail fast: the partition key must be present and numeric for every row, or
+# rows would be silently dropped from every partition.
+bad_year = df.loc[
+    df["year"].notna() & ~df["year"].str.fullmatch(r"\d+"), "year"
+]
+if len(bad_year):
+    raise SystemExit(
+        f"non-numeric year values: {sorted(bad_year.unique())[:10]}"
+    )
+n_null_year = int(df["year"].isna().sum())
+if n_null_year:
+    raise SystemExit(f"{n_null_year} rows have a NULL year (partition key)")
+
+years = sorted(df["year"].unique(), key=lambda x: int(x))
 total = 0
 for y in years:
     part = df[df["year"] == y][file_cols]
@@ -69,6 +83,8 @@ for y in years:
     d.mkdir(parents=True, exist_ok=True)
     pq.write_table(tbl, d / "data.parquet", compression="snappy")
     total += len(part)
+if total != len(df):
+    raise SystemExit(f"row loss: wrote {total} of {len(df)}")
 print(f"wrote {len(years)} year partitions, {total} rows to {OUT}")
 
 # ---- dicionario table (unpartitioned, all-STRING) --------------------------

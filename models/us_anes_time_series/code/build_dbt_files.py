@@ -11,6 +11,7 @@ meaningful for dense columns instead of failing on expected sparsity.
 """
 
 import json
+import subprocess
 from pathlib import Path
 
 import pyarrow.dataset as ds
@@ -40,7 +41,10 @@ print(f"rows={n}  sparse(<5% non-null)={len(sparse)} added to ignore_values")
 casts = []
 for name in order:
     t = typ[name]
-    casts.append(f"    safe_cast({name} as {t}) {name},")
+    # Backtick identifiers so sqlfmt preserves the uppercase VCF codes (it
+    # lowercases unquoted identifiers), keeping BigQuery columns in sync with
+    # the registered metadata.
+    casts.append(f"    safe_cast(`{name}` as {t}) `{name}`,")
 casts[-1] = casts[-1].rstrip(",")
 cum_sql = f"""{{{{
     config(
@@ -87,7 +91,12 @@ from
 (ROOT / "us_anes_time_series__dicionario.sql").write_text(dic_sql)
 
 # ---- schema.yml -------------------------------------------------------------
-ign = "\n".join(f"              - {c}" for c in sparse)
+# Emit the ignore_values key only when there is at least one sparse column;
+# an empty list would render `ignore_values:` as null and break the macro.
+nnp = "      - not_null_proportion_multiple_columns:\n          at_least: 0.05"
+if sparse:
+    ign = "\n".join(f"              - {c}" for c in sparse)
+    nnp += "\n          ignore_values:\n" + ign
 schema = f"""---
 version: 2
 models:
@@ -99,16 +108,13 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, VCF0006]
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values:
-{ign}
+{nnp}
     columns:
       - name: year
         description: Year of study
         tests: [not_null]
       - name: VCF0006
-        description: "Study respondent number: year-level case ID"
+        description: 'Study respondent number: year-level case ID'
         tests: [not_null]
       - name: VCF0006a
         description: Unique respondent number (cross-year ID for panel cases)
@@ -129,6 +135,17 @@ models:
         tests: [not_null]
 """
 (ROOT / "schema.yml").write_text(schema)
+
+# Finalize formatting so re-running this script reproduces the committed files
+# byte-for-byte (sqlfmt reflows the SQL and preserves the backticked identifiers;
+# yamlfix normalizes the YAML). Falls back to pre-commit if a tool is absent.
+sql_files = [
+    str(ROOT / "us_anes_time_series__cumulative.sql"),
+    str(ROOT / "us_anes_time_series__dicionario.sql"),
+]
+subprocess.run(["uv", "run", "sqlfmt", *sql_files], check=False)
+subprocess.run(["uv", "run", "yamlfix", str(ROOT / "schema.yml")], check=False)
+
 print("wrote cumulative.sql, dicionario.sql, schema.yml")
 print(
     "\nAdd to dbt_project.yml under models: basedosdados:\n"

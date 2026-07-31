@@ -148,6 +148,12 @@ for c in csv_cols:
         continue
     ordered.append(c)
 
+# Fail fast (like the translations check above) if any column lacks codebook
+# coverage — otherwise parsed[code]/en[code] below would raise a bare KeyError.
+no_entry = [c for c in ordered if c not in parsed or c not in en]
+if no_entry:
+    raise SystemExit(f"No codebook entry for {len(no_entry)}: {no_entry[:15]}")
+
 
 def name_of(code):
     return "year" if code == "VCF0004" else code
