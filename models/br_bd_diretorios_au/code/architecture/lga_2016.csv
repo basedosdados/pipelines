@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_lga,STRING,"Código da Local Government Area (LGA), 5 dígitos",,no,,,no,,LGA_CODE_2016
+name,STRING,Nome da Local Government Area (LGA),,no,,,no,,LGA_NAME_2016
+id_state,STRING,Código do estado ou território australiano (1 a 9),,no,,,no,,STATE_CODE_2016
+abbreviation_state,STRING,Sigla do estado ou território australiano,,no,,,no,Derivada do código do estado,(derivada)
+name_state,STRING,Nome do estado ou território australiano,,no,,,no,,STATE_NAME_2016
+area_albers_sqkm,FLOAT64,"Área em quilômetros quadrados, calculada na projeção Albers de áreas iguais",,no,,km2,no,,AREA_ALBERS_SQKM
