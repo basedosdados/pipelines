@@ -87,19 +87,37 @@ def cleanup(dest_rel: str) -> None:
         shutil.rmtree(d)
 
 
+# On 16 GB RAM, loading two full copies of a multi-million-row table for a
+# cell compare is what OOM-crashed the first pass. Read counts/schema from
+# parquet metadata (no data load); only load both frames for a full
+# .equals() when the table is small enough to be safe.
+CELL_COMPARE_MAX = 12_000_000
+
+
 def compare(stem: str) -> str:
     import gc
 
     import pandas as pd
+    import pyarrow.parquet as pq
 
     new_p = WORK / "output_python" / f"{stem}.parquet"
     old_p = MARCH_OUT / f"{stem}.parquet"
     if not old_p.exists():
         return "NO_MARCH_REF"
+    nm, om = pq.ParquetFile(new_p).metadata, pq.ParquetFile(old_p).metadata
+    n_new, n_old = nm.num_rows, om.num_rows
+    cols_new = pq.ParquetFile(new_p).schema_arrow.names
+    cols_old = pq.ParquetFile(old_p).schema_arrow.names
+    if cols_new != cols_old:
+        return f"SCHEMA new={cols_new} old={cols_old}"
+    if n_new != n_old:
+        return f"DIFF rows {n_new} vs {n_old}"
+    if n_new > CELL_COMPARE_MAX:
+        return f"ROWS {n_new} == (cell-parity via Gate A; too big for 16GB compare)"
     nr = pd.read_parquet(new_p)
     old = pd.read_parquet(old_p)
     eq = nr.equals(old)
-    res = "MATCH" if eq else f"DIFF rows {len(nr)} vs {len(old)}"
+    res = "MATCH" if eq else f"DIFF-CELLS rows {n_new} (schema+count match)"
     del nr, old
     gc.collect()
     return res
@@ -148,6 +166,8 @@ def build_years(
                 cleanup(c)
             gc.collect()
 
+
+SKIP_BIG_FAMILIES = {"resultados_secao", "perfil_secao"}
 
 YEARS_EVEN = list(range(1994, 2025, 2))
 
@@ -383,6 +403,14 @@ def main() -> None:
         )
     for name, spec in FAMILIES.items():
         if only and only != name:
+            continue
+        if name in SKIP_BIG_FAMILIES and only != name:
+            log(
+                f"| — {name} — | SKIP-BIG | 60M-row builds exceed 16 GB; "
+                "aa_eleicao key inert on ANO_ELEICAO local vintage → "
+                "byte-identical to March parquets (Gate A cell-verified). "
+                "Production build in work order 05 needs streaming/bigger host |"
+            )
             continue
         log(f"| — {name} — | | |")
         build_years(
