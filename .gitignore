@@ -173,3 +173,6 @@ docs/
 models/**/code/metadata_spec.json
 models/**/code/column_descriptions.json
 models/**/code/table_backend.json
+
+# QCEW onboarding backend-registration artifacts (regenerable, staging-specific ids)
+models/**/metadata/

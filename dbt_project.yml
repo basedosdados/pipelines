@@ -103,6 +103,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_bls_qcew:
+      +materialized: table
+      +schema: us_bls_qcew
     us_census_cbp:
       +materialized: table
       +schema: us_census_cbp

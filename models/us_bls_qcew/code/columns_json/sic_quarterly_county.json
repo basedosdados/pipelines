@@ -1,0 +1,158 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação",
+    "description_en": "Reference year of the observation",
+    "description_es": "Año de referencia de la observación",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "qtr",
+    "bigquery_type": "INT64",
+    "description_pt": "Trimestre de referência da observação, de 1 a 4",
+    "description_en": "Reference quarter of the observation, from 1 to 4",
+    "description_es": "Trimestre de referencia de la observación, de 1 a 4",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "quarter"
+  },
+  {
+    "name": "area_fips",
+    "bigquery_type": "STRING",
+    "description_pt": "Código FIPS do condado (5 dígitos)",
+    "description_en": "County FIPS code (5-digit)",
+    "description_es": "Código FIPS del condado (5 dígitos)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_us.county:id_county"
+  },
+  {
+    "name": "own_code",
+    "bigquery_type": "STRING",
+    "description_pt": "Código de propriedade que identifica o setor (privado, governo federal, estadual, local)",
+    "description_en": "Ownership code identifying the sector (private, federal, state, local government)",
+    "description_es": "Código de propiedad que identifica el sector (privado, gobierno federal, estatal, local)",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "industry_code",
+    "bigquery_type": "STRING",
+    "description_pt": "Código de indústria SIC, com o prefixo SIC_",
+    "description_en": "SIC industry code, carrying the SIC_ prefix",
+    "description_es": "Código de industria SIC, con el prefijo SIC_",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "agglvl_code",
+    "bigquery_type": "STRING",
+    "description_pt": "Código de nível de agregação que indica a sumarização geográfica e de indústria da linha",
+    "description_en": "Aggregation-level code indicating the geographic and industry summarization of the row",
+    "description_es": "Código de nivel de agregación que indica la sumarización geográfica e industrial de la fila",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "size_code",
+    "bigquery_type": "STRING",
+    "description_pt": "Código de classe de tamanho do estabelecimento, 0 para todos os tamanhos",
+    "description_en": "Establishment size-class code, 0 for all sizes",
+    "description_es": "Código de clase de tamaño del establecimiento, 0 para todos los tamaños",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "disclosure_code",
+    "bigquery_type": "STRING",
+    "description_pt": "Indicador de sigilo: N quando o valor não é divulgável, em branco caso contrário",
+    "description_en": "Disclosure flag: N when the figure is not disclosable, blank otherwise",
+    "description_es": "Indicador de divulgación: N cuando la cifra no es divulgable, en blanco en caso contrario",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "qtrly_estabs",
+    "bigquery_type": "INT64",
+    "description_pt": "Número de estabelecimentos no trimestre",
+    "description_en": "Count of establishments in the quarter",
+    "description_es": "Número de establecimientos en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "establishment"
+  },
+  {
+    "name": "month1_emplvl",
+    "bigquery_type": "INT64",
+    "description_pt": "Nível de emprego no primeiro mês do trimestre",
+    "description_en": "Employment level in the first month of the quarter",
+    "description_es": "Nivel de empleo en el primer mes del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "worker"
+  },
+  {
+    "name": "month2_emplvl",
+    "bigquery_type": "INT64",
+    "description_pt": "Nível de emprego no segundo mês do trimestre",
+    "description_en": "Employment level in the second month of the quarter",
+    "description_es": "Nivel de empleo en el segundo mes del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "worker"
+  },
+  {
+    "name": "month3_emplvl",
+    "bigquery_type": "INT64",
+    "description_pt": "Nível de emprego no terceiro mês do trimestre",
+    "description_en": "Employment level in the third month of the quarter",
+    "description_es": "Nivel de empleo en el tercer mes del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "worker"
+  },
+  {
+    "name": "total_qtrly_wages",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Total de salários pagos no trimestre",
+    "description_en": "Total wages paid in the quarter",
+    "description_es": "Total de salarios pagados en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "dollar"
+  },
+  {
+    "name": "taxable_qtrly_wages",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Salários sujeitos à tributação do seguro-desemprego no trimestre",
+    "description_en": "Wages subject to unemployment-insurance taxation in the quarter",
+    "description_es": "Salarios sujetos a la tributación del seguro de desempleo en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "dollar"
+  },
+  {
+    "name": "qtrly_contributions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Contribuições ao seguro-desemprego no trimestre",
+    "description_en": "Unemployment-insurance contributions in the quarter",
+    "description_es": "Contribuciones al seguro de desempleo en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "dollar"
+  },
+  {
+    "name": "avg_wkly_wage",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Salário médio semanal no trimestre",
+    "description_en": "Average weekly wage in the quarter",
+    "description_es": "Salario medio semanal en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "dollar"
+  }
+]
