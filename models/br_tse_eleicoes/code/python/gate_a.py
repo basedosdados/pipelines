@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -92,7 +92,7 @@ def _log_line(text: str) -> None:
 
 
 def _detail(rec: dict) -> None:
-    rec["ts"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    rec["ts"] = datetime.now(UTC).isoformat(timespec="seconds")
     with open(DETAILS, "a") as fh:
         fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
