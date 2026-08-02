@@ -12,6 +12,7 @@ by the ``agglvl_code``, which uses different schemes for NAICS and SIC. See
 ``constants.NAICS_AGGLVL_GEO`` / ``SIC_AGGLVL_GEO``.
 """
 
+import concurrent.futures
 import csv
 import logging
 import shutil
@@ -262,10 +263,16 @@ def clean_year(
             missing = [c for c in cols if c not in s.columns]
             if missing:
                 raise KeyError(f"{table}: source missing columns {missing}")
+            # Drop exact-duplicate rows. Some singlefiles repeat a block of rows
+            # verbatim — the 1982 SIC file writes area 57000's 24-key state block
+            # twice, back-to-back — which would break the table's uniqueness key.
+            # The repeat is consecutive (within one 500k-row chunk), so a
+            # per-chunk dedup removes it; it is a no-op for every clean table.
+            frame = s[cols].drop_duplicates()
             counts[table] = counts.get(table, 0) + _write_chunk(
-                s[cols], table, year, ci, output_dir
+                frame, table, year, ci, output_dir
             )
-            del s, sub
+            del s, sub, frame
         del chunk, geo
     if unmapped:
         log.warning(
@@ -382,27 +389,96 @@ def build_dicionario(input_dir: Path, output_dir: Path) -> Path:
 
 # ── orchestration ───────────────────────────────────────────────────────────
 def clean_all(
-    years: dict, input_dir: Path, output_dir: Path, prune_input: bool = False
+    years: dict,
+    input_dir: Path,
+    output_dir: Path,
+    prune_input: bool = False,
+    download_workers: int = 1,
 ) -> dict:
     """Clean the requested years for every class/freq/geo table + the dicionario.
+
+    Downloads and cleaning are separable: a download is pure I/O, whereas
+    cleaning one 15M-row singlefile is the memory-bounded step (streamed in
+    ``CHUNK_ROWS`` chunks). With ``download_workers > 1`` the downloads run
+    concurrently and feed a **single serial cleaner** through a sliding window of
+    at most ``download_workers`` in-flight fetches. Two invariants follow:
+
+    * Cleaning is never parallel, so peak memory stays one chunk regardless of
+      worker count — the same bound that makes a 15M-row file safe on a 16 GB box.
+    * At most ``download_workers`` downloaded CSVs sit ahead of the cleaner, so
+      with ``prune_input`` the pruned CSVs never accumulate on disk.
+
+    The result is identical for any ``download_workers`` — only wall-clock (which
+    is download-bound) changes. The recurring Prefect pipeline calls this same
+    function, so it inherits the identical parallelism with no Prefect-specific
+    concurrency machinery.
 
     Args:
         years: ``{"naics": [...], "sic": [...]}`` — which data years to process.
         input_dir: Root of downloaded files.
         output_dir: Root output directory.
         prune_input: delete each singlefile CSV once cleaned (full-history runs).
+        download_workers: concurrent downloads prefetched ahead of the cleaner
+            (``1`` = fully sequential, the original behavior).
 
     Returns:
         Mapping ``{table_slug: total_rows_written}`` plus ``dicionario``.
     """
+    tasks = [
+        (cls, freq, year)
+        for cls in constants.CLASSES.value
+        for freq in constants.FREQS.value
+        for year in years[cls]
+    ]
+    # Resumability: drop already-finished tasks up front (their CSV was pruned on
+    # a prior run) so restarts re-download nothing already cleaned.
+    if prune_input:
+        tasks = [
+            t
+            for t in tasks
+            if not (output_dir / ".done" / f"{t[0]}_{t[1]}_{t[2]}").exists()
+        ]
+
     written: dict = {}
-    for cls in constants.CLASSES.value:
-        for freq in constants.FREQS.value:
-            for year in years[cls]:
-                for table, n in clean_year(
-                    cls, freq, year, input_dir, output_dir, prune_input
-                ).items():
-                    written[table] = written.get(table, 0) + n
+
+    def _accumulate(counts: dict) -> None:
+        for table, n in counts.items():
+            written[table] = written.get(table, 0) + n
+
+    if download_workers <= 1:
+        for cls, freq, year in tasks:
+            _accumulate(
+                clean_year(cls, freq, year, input_dir, output_dir, prune_input)
+            )
+    else:
+        # Prefetch downloads in a sliding window; clean in task order. At step i
+        # we wait only for task i's download (a cache hit inside clean_year),
+        # having already scheduled tasks up to i+window, so downloads i+1..i+window
+        # transfer in parallel while task i cleans. clean_year re-invokes
+        # download_singlefile, which returns the already-cached CSV immediately.
+        window = download_workers
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=download_workers
+        ) as ex:
+            futures: dict = {}
+            for i in range(min(window, len(tasks))):
+                c, f, y = tasks[i]
+                futures[i] = ex.submit(download_singlefile, c, f, y, input_dir)
+            for i, (cls, freq, year) in enumerate(tasks):
+                futures[i].result()  # ensure this file finished downloading
+                nxt = i + window
+                if nxt < len(tasks):
+                    c, f, y = tasks[nxt]
+                    futures[nxt] = ex.submit(
+                        download_singlefile, c, f, y, input_dir
+                    )
+                _accumulate(
+                    clean_year(
+                        cls, freq, year, input_dir, output_dir, prune_input
+                    )
+                )
+                del futures[i]
+
     build_dicionario(input_dir, output_dir)
     written["dicionario"] = "built"
     return written

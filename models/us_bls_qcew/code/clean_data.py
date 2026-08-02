@@ -43,6 +43,13 @@ def main():
         "--naics", nargs="*", type=int, help="explicit NAICS years"
     )
     ap.add_argument("--sic", nargs="*", type=int, help="explicit SIC years")
+    ap.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="concurrent downloads prefetched ahead of the serial cleaner "
+        "(1 = sequential; cleaning is never parallelized)",
+    )
     args = ap.parse_args()
 
     if args.full:
@@ -55,10 +62,19 @@ def main():
     else:  # default: subset
         years = dict(constants.SUBSET_YEARS.value)
 
-    logging.info(f"cleaning years: naics={years['naics']} sic={years['sic']}")
+    logging.info(
+        f"cleaning years: naics={years['naics']} sic={years['sic']} "
+        f"(download workers={args.workers})"
+    )
     # On a full-history run, prune each multi-GB CSV once cleaned so input never
     # accumulates (dozens of files) on disk / in Dropbox.
-    written = clean_all(years, INPUT, OUTPUT, prune_input=args.full)
+    written = clean_all(
+        years,
+        INPUT,
+        OUTPUT,
+        prune_input=args.full,
+        download_workers=args.workers,
+    )
     logging.info(f"wrote {len(written)} tables into {OUTPUT}")
 
 

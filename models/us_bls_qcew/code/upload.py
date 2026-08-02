@@ -109,7 +109,13 @@ def upload_table(slug: str) -> int:
 
 
 def all_slugs() -> list[str]:
-    return sorted(p.name for p in OUTPUT_ROOT.iterdir() if p.is_dir())
+    # Skip bookkeeping dirs like ``.done`` (per-year resumability markers written
+    # by a --full clean); only real table directories are uploaded.
+    return sorted(
+        p.name
+        for p in OUTPUT_ROOT.iterdir()
+        if p.is_dir() and not p.name.startswith(".")
+    )
 
 
 def main():
