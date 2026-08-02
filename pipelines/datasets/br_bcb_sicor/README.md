@@ -34,6 +34,95 @@ A fonte original divulga esses dados em arquivos anuais. Para facilitar a lógic
 
 ---
 
+## Pipeline: armadilhas de atualização
+
+Três coisas que já quebraram os flows deste conjunto e vão quebrar de novo se não forem lembradas.
+
+### 1. O BCB mexe no schema da fonte, e isso quebra o flow de dois jeitos
+
+Em 2026 aconteceram os dois casos, com meses de diferença: uma coluna **adicionada** em `saldo` e uma **renomeada** em `recurso_publico_propriedade`. Os sintomas e os consertos são diferentes.
+
+#### 1a. Coluna adicionada, e o modo `append` não a absorve
+
+`operacao`, `saldo` e `recurso_publico_gleba` sobem com `dump_mode="append"`. Nesse caminho, `upload_to_gcs` só cria a tabela de staging **se ela ainda não existir**; existindo, registra `Tabela já existe` e segue. Como a staging é **tabela externa com schema fixado na criação**, uma coluna nova na fonte não entra por conta própria — o parquet novo tem a coluna, a definição da tabela não.
+
+Isso não é hipotético. Em julho de 2026 o BCB adicionou `IB_RENEGOCIADA` ao arquivo de saldos, e a mesma mudança quebrou o flow por dois caminhos diferentes:
+
+- **antes** de registrar a coluna no repo, o `TableSchemaValidator` derrubava o flow (`columns in the source schema being ignorated`);
+- **depois** de registrar (commit `0cfc1e6f`, coluna `indicador_renegociacao`), o dbt passou a quebrar com `Query error: Unrecognized name: indicador_renegociacao`, porque a staging continuava com o schema velho.
+
+**Até julho de 2026** isso exigia intervenção manual: registrar a coluna em `constants.py`, no `.sql` e no `schema.yml` não bastava para as três tabelas em `append`, porque a definição da staging precisava ser atualizada à parte.
+
+**Hoje é automático.** `_sync_staging_schema`, em `pipelines/utils/tasks.py`, roda no modo `append` quando a staging já existe, compara o schema inferido do arquivo novo com o da tabela externa e acrescenta o que faltar. É aditivo: nunca remove nem reordena coluna, e não toca no prefixo do GCS. Fique de olho no log `Colunas novas na fonte adicionadas ao schema da staging`, que é o sinal de que a fonte mudou.
+
+Duas coisas continuam sendo responsabilidade de quem faz a manutenção, porque o ajuste não cobre: **registrar a coluna** em `constants.py`, `.sql` e `schema.yml` (sem isso o `TableSchemaValidator` derruba o flow), e o **`--full-refresh`** do item 3 abaixo.
+
+#### 1b. Coluna renomeada ou removida — o ajuste não cobre, e não deveria
+
+O caso espelho. Em 29/07/2026 o BCB republicou `SICOR_PROPRIEDADES` trocando `CD_NIRF` por `CD_CIB`, na mesma posição:
+
+```text
+antes:  #REF_BACEN;NU_ORDEM;CD_CNPJ_CPF;CD_SNCR;CD_NIRF;CD_CAR
+depois: #REF_BACEN;NU_ORDEM;CD_CNPJ_CPF;CD_SNCR;CD_CIB;CD_CAR
+```
+
+O flow morre antes do upload, no `TableSchemaValidator`:
+
+```text
+The following columns are in the table schema registed in constants.py
+but arent in the downloaded table {'CD_NIRF'}
+```
+
+`_sync_staging_schema` **não** resolve isso, por duas razões: ele é aditivo de propósito (uma carga parcial não pode encolher o schema de uma tabela histórica), e a falha acontece a montante, antes de qualquer upload.
+
+O conserto é manual e são **quatro** lugares — esquecer o último faz o CI do repositório quebrar:
+
+1. `constants.py` — o mapeamento `CD_CIB: id_cib`;
+2. o `.sql` do modelo;
+3. o `schema.yml` — a definição da coluna **e** qualquer teste que a cite (aqui ela estava na `unique_combination_of_columns`);
+4. os **metadados de prod** — senão o check `Metadata validation (BigQuery vs API)` acusa a divergência. E como `update_column` não renomeia, é criar a nova e apagar a antiga.
+
+**A ordem importa.** O check compara BigQuery de **dev** contra a API de **prod**. Mexer nos metadados antes de o modelo ter rodado em dev só inverte a divergência. O caminho é: código → run em dev (que recria a staging, já que essas tabelas são `overwrite`) → metadados de prod.
+
+Antes de renomear, vale conferir se a coluna carregava dado. No caso do `id_nirf` não carregava: **zero valores preenchidos em 27 milhões de linhas, de 2013 a 2026** — a renomeação não teve efeito prático nenhum sobre o dado publicado.
+
+### 2. Nunca use `overwrite` nem `delete_table` para consertar isso
+
+Duas saídas parecem óbvias e são destrutivas:
+
+- **Trocar o `dump_mode` para `"overwrite"`** — esse caminho faz `st.delete_table(mode="staging")` + `tb.delete(mode="all")`, e o flow baixa apenas o arquivo do ano corrente. Você perde o histórico da staging e fica só com o ano atual. Em `saldo`, isso significaria trocar ~641 milhões de linhas (2013–2026) por ~5,6 milhões (2026).
+- **Chamar `Storage.delete_table(mode="staging")` avulso** — ele lista **todos** os blobs sob `staging/<dataset>/<tabela>/` e apaga. No caminho de `append` ele aparece logo após o `create`, mas ali é seguro porque o prefixo está vazio, contendo só o header recém-subido. Com a staging populada, apaga os dados.
+
+O que é seguro: atualizar **apenas a definição** da tabela externa, sem tocar no prefixo do GCS. `Storage.upload(if_exists="replace")` age por blob, não apaga o prefixo — mas o header subiria como linha espúria, então o caminho limpo é alterar o schema da tabela externa pela API do BigQuery.
+
+### 3. Modelo incremental não ganha coluna nova sem `--full-refresh`
+
+`saldo` é `materialized="incremental"` e **não** define `on_schema_change`, então vale o default do dbt, que é `ignore`. Mesmo com a staging já corrigida, um `dbt run` comum roda verde e simplesmente não adiciona a coluna à tabela destino. Precisa de:
+
+```bash
+uv run dbt run --select br_bcb_sicor__saldo --full-refresh
+```
+
+Vale lembrar que o full-refresh reprocessa o histórico inteiro com `select distinct` mais o join do macro `add_ano_mes_operacao_data` — não é run barato. E o `pre_hook` do modelo dropa as row access policies, que voltam no `register_table_materialization` seguinte.
+
+Referência de custo, do full-refresh feito em 30/07/2026 para o `indicador_renegociacao`: **641,2 milhões de linhas, 32,7 GiB processados, 58 segundos** de execução (2min52 no total, contando o parse do projeto).
+
+Resultado esperado depois dele — a coluna só tem valor a partir do arquivo que a introduziu, e os anos anteriores ficam nulos, sem erro:
+
+| ano | linhas | `indicador_renegociacao` preenchido |
+|---|---|---|
+| 2013 | 15.759.001 | 0 |
+| 2025 | 53.136.509 | 1 |
+| 2026 | 5.885.638 | 1.415.717 |
+
+**Atenção: o full-refresh precisa ser feito em dev E em prod.** Nem o flow nem a action de table-approve passam `--full-refresh`, e ambos rodam `dbt run` comum — então mergear o código **não** leva a coluna à tabela de produção. Ou alguém com acesso roda o full-refresh em prod, ou o modelo passa a declarar `on_schema_change: append_new_columns`, que resolveria este caso e os próximos sem intervenção. A segunda opção muda comportamento e ainda não foi decidida.
+
+### 4. O flow do `dicionario` não roda
+
+`br_bcb_sicor__dicionario` é definido em `flows.py` **sem `deploy_schedules`**, então nunca executa por agendamento. Além disso passa `dbt_alias=False`, o que faz o seletor virar `models/br_bcb_sicor/dicionario.sql` — arquivo que não existe, já que o real é `br_bcb_sicor__dicionario.sql`. É o mesmo defeito do `br_rf_cafir` (issue #1700).
+
+---
+
 ## Tabelas e Particularidades
 
 ### br_bcb_sicor__operacao
@@ -261,6 +350,7 @@ order by 1 desc;
 
 **Problemas Identificados:**
 -  O CAR só existe consistentemente a partir de 2018; apenas em 2018 o banco central passou a cobrar o preenchimento do CAR como exigência para a concessão do empréstimo;
+- A coluna `id_cib` (até 29/07/2026 chamada `id_nirf` na fonte) é **inteiramente vazia**: zero valores preenchidos em 27 milhões de linhas, de 2013 a 2026. A fonte sempre entregou `-1`. Vale saber antes de tentar usá-la em qualquer análise — e ao decidir se a coluna deve continuar publicada.
 
 ---
 

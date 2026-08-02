@@ -79,6 +79,9 @@ models:
       +post-hook:
         - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
         - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "group:bd-pro@basedosdados.org"
+    br_bd_diretorios_au:
+      +materialized: table
+      +schema: br_bd_diretorios_au
     br_bd_diretorios_brasil:
       +materialized: table
       +schema: br_bd_diretorios_brasil
@@ -121,6 +124,9 @@ models:
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
+    world_cricsheet:
+      +materialized: table
+      +schema: world_cricsheet
     br_bd_indicadores:
       +materialized: table
       +schema: br_bd_indicadores
