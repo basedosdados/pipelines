@@ -1,5 +1,13 @@
 """
 Flows for br_ms_cnes — Prefect 3.
+
+A lógica está em `pipelines/crawler/datasus/flows.py::_run_cnes`, compartilhado
+com br_ms_sia, br_ms_sih e br_ms_sinan.
+
+Atenção ao deployar: o `cd-prefect3-staging.yaml` registra apenas os flows
+declarados nos arquivos que a PR altera, e o crawler não declara nenhum `@flow`.
+Uma PR que mexa só nele deploya zero flows com o job em verde — é preciso tocar
+este arquivo para que os 13 flows do conjunto cheguem ao pool de dev.
 """
 
 from prefect import flow
