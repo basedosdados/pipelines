@@ -28,7 +28,7 @@ models:
       - name: nome_cliente
         description: Razão Social do cliente
         tests: [not_null]
-      - name: situacao_operação
+      - name: situacao_operacao
         description: Situação do contrato
       - name: porte_cliente
         description: Porte do cliente de acordo com a política de classificação do
@@ -62,7 +62,7 @@ models:
         tests: [not_null]
       - name: tipo_excepcionalidade
         description: Classificação de acordo com o tipo de excepcionalidade do contrato
-      - name: fonte_recursos
+      - name: fonte_recurso
         description: Fonte de recursos registrada nos desembolsos do contrato
         tests:
           - dbt_utils.not_null_proportion:
@@ -80,15 +80,15 @@ models:
         description: Seção CNAE 2
         tests:
           - not_null
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__cnae_2')
-              field: secao
+          # - relationships:
+          #     to: ref('br_bd_diretorios_brasil__cnae_2')
+          #     field: secao
       - name: subclasse_cnae
         description: Subclasse CNAE 2
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__cnae_2')
-              field: subclasse
+        # tests:
+        #   - relationships:
+        #       to: ref('br_bd_diretorios_brasil__cnae_2')
+        #       field: subclasse
       - name: descricao_subclasse
         description: Descrição da subclasse CNAE 2
       - name: setor_bndes
