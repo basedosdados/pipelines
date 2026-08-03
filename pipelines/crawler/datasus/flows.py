@@ -33,6 +33,7 @@ from pipelines.utils.tasks import (
     run_dbt,
     upload_to_gcs,
 )
+from pipelines.utils.utils import is_running_in_prod
 
 
 def _run_cnes(
@@ -83,12 +84,15 @@ def _run_cnes(
         file_list=csv_files, dataset_id=dataset_id, table_id=table_id
     )
 
+    # `pre_process_files` grava parquet. Sem declarar o formato, o `dump_header`
+    # chamado pelo `_sync_staging_schema` procura .csv e não encontra nada.
     upload_to_gcs(
         data_path=files_path,
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
+        source_format="parquet",
     )
     run_dbt(
         dataset_id=dataset_id,
@@ -101,12 +105,23 @@ def _run_cnes(
     if not materialize_after_dump:
         return
 
+    # Só o pod de prod tem credencial para o staging de produção. A guarda existia
+    # em `create_table_prod_gcs_and_run_dbt` (PR #1182) e se perdeu na migração ao
+    # Prefect 3. Sem ela, um run no pool de dev escreve dados de produção.
+    if not is_running_in_prod():
+        print(
+            "Fora do work pool de prod — etapa de promoção ignorada. "
+            "Os dados e a materialização de dev já foram concluídos."
+        )
+        return
+
     upload_to_gcs(
         data_path=files_path,
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
+        source_format="parquet",
     )
     run_dbt(
         dataset_id=dataset_id,
