@@ -266,22 +266,6 @@ models:
       - name: id_estabelecimento_cnes_familia
         description: Código do SCNES do Estabelecimento de Saúde Unidade da Saúde
           da Família da região
-      - name: id_gestao
-        description: ID do tipo de gestão do estabelecimento
-      - name: tipo_gestao
-        description: Tipo de gestão do estabelecimento
-      - name: tipo_unidade
-        description: Tipo de estabelecimento
-      - name: tipo_prestador
-        description: Tipo de Prestador
-      - name: tipo_mantenedor_estabelecimento
-        description: Tipo de manutenção do estabelecimento
-      - name: cnpj_estabelecimento_executante
-        description: CNPJ do Estabelecimento executante
-      - name: cnpj_mantenedora_estabalecimento
-        description: CNPJ da Mantenedora do Estabelecimento
-      - name: natureza_juridica_estabelecimento
-        description: Natureza jurídica do operador do estabelecimento  # Não possui teste pois a coluna foi excluida na materialização
       - name: id_procedimento_ambulatorial
         description: Ação Realizada
       - name: id_servico_especializado
@@ -289,8 +273,6 @@ models:
           com o CNES)
       - name: id_classificacao_servico
         description: Código da Classificação do Serviço
-      - name: id_cns_paciente_criptografado
-        description: Número do CNS (Cartão Nacional de Saúde) do paciente (criptografia)
       - name: data_inicio_atendimento
         description: Data de Início do Atendimento
         tests:
