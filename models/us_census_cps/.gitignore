@@ -1,0 +1,6 @@
+input/
+output/
+*.dta
+*.dat
+*.dat.gz
+*.csv.gz

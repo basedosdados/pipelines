@@ -1,0 +1,4 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_postal_area,STRING,"Código da área postal (POA), 4 dígitos",,no,,,no,,POA_CODE_2016
+name,STRING,Nome da área postal (POA),,no,,,no,,POA_NAME_2016
+area_albers_sqkm,FLOAT64,"Área em quilômetros quadrados, calculada na projeção Albers de áreas iguais",,no,,km2,no,,AREA_ALBERS_SQKM

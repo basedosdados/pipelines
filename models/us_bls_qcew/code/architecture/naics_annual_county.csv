@@ -1,0 +1,38 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,year
+area_fips,STRING,County FIPS code (5-digit),,no,br_bd_diretorios_us.county:id_county,,no,Directory FK pending br_bd_diretorios_us onboarding,area_fips
+own_code,STRING,"Ownership code identifying the sector (private, federal, state, local government)",,yes,,,no,,own_code
+industry_code,STRING,"Industry code (NAICS, supersector, or aggregate pseudo-code)",,yes,,,no,Real NAICS codes align with br_bd_diretorios_us.naics_2022; aggregate and supersector codes are QCEW-specific,industry_code
+agglvl_code,STRING,Aggregation-level code indicating the geographic and industry summarization of the row,,yes,,,no,,agglvl_code
+size_code,STRING,"Establishment size-class code, 0 for all sizes",,yes,,,no,,size_code
+disclosure_code,STRING,"Disclosure flag: N when the figure is not disclosable, blank otherwise",,no,,,no,,disclosure_code
+annual_avg_estabs,INT64,Annual average of quarterly establishment counts,,no,,establishment,no,,annual_avg_estabs
+annual_avg_emplvl,INT64,Annual average of monthly employment levels,,no,,worker,no,,annual_avg_emplvl
+total_annual_wages,FLOAT64,Sum of the four quarters' total wages for the year,,no,,dollar,no,,total_annual_wages
+taxable_annual_wages,FLOAT64,Sum of the four quarters' taxable wages for the year,,no,,dollar,no,,taxable_annual_wages
+annual_contributions,FLOAT64,Sum of the four quarters' unemployment-insurance contributions for the year,,no,,dollar,no,,annual_contributions
+annual_avg_wkly_wage,FLOAT64,Average weekly wage based on the year's employment and total wages,,no,,dollar,no,,annual_avg_wkly_wage
+avg_annual_pay,FLOAT64,Average annual pay based on the year's employment and wage levels,,no,,dollar,no,,avg_annual_pay
+lq_disclosure_code,STRING,"Disclosure flag for the location quotient: N when not disclosable, blank otherwise",,no,,,no,,lq_disclosure_code
+lq_annual_avg_estabs,FLOAT64,"Location quotient of the annual average establishment count relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_annual_avg_estabs
+lq_annual_avg_emplvl,FLOAT64,"Location quotient of annual average employment relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_annual_avg_emplvl
+lq_total_annual_wages,FLOAT64,"Location quotient of total annual wages relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_total_annual_wages
+lq_taxable_annual_wages,FLOAT64,"Location quotient of taxable annual wages relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_taxable_annual_wages
+lq_annual_contributions,FLOAT64,"Location quotient of annual contributions relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_annual_contributions
+lq_annual_avg_wkly_wage,FLOAT64,"Location quotient of the annual average weekly wage relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_annual_avg_wkly_wage
+lq_avg_annual_pay,FLOAT64,"Location quotient of average annual pay relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_avg_annual_pay
+oty_disclosure_code,STRING,"Disclosure flag for the over-the-year change: N when not disclosable, blank otherwise",,no,,,no,,oty_disclosure_code
+oty_annual_avg_estabs_chg,INT64,Over-the-year change in the annual average establishment count,,no,,establishment,no,,oty_annual_avg_estabs_chg
+oty_annual_avg_estabs_pct_chg,FLOAT64,"Over-the-year percent change in the annual average establishment count, rounded to tenths",,no,,percent,no,,oty_annual_avg_estabs_pct_chg
+oty_annual_avg_emplvl_chg,INT64,Over-the-year change in annual average employment,,no,,worker,no,,oty_annual_avg_emplvl_chg
+oty_annual_avg_emplvl_pct_chg,FLOAT64,"Over-the-year percent change in annual average employment, rounded to tenths",,no,,percent,no,,oty_annual_avg_emplvl_pct_chg
+oty_total_annual_wages_chg,FLOAT64,Over-the-year change in total annual wages,,no,,dollar,no,,oty_total_annual_wages_chg
+oty_total_annual_wages_pct_chg,FLOAT64,"Over-the-year percent change in total annual wages, rounded to tenths",,no,,percent,no,,oty_total_annual_wages_pct_chg
+oty_taxable_annual_wages_chg,FLOAT64,Over-the-year change in taxable annual wages,,no,,dollar,no,,oty_taxable_annual_wages_chg
+oty_taxable_annual_wages_pct_chg,FLOAT64,"Over-the-year percent change in taxable annual wages, rounded to tenths",,no,,percent,no,,oty_taxable_annual_wages_pct_chg
+oty_annual_contributions_chg,FLOAT64,Over-the-year change in annual contributions,,no,,dollar,no,,oty_annual_contributions_chg
+oty_annual_contributions_pct_chg,FLOAT64,"Over-the-year percent change in annual contributions, rounded to tenths",,no,,percent,no,,oty_annual_contributions_pct_chg
+oty_annual_avg_wkly_wage_chg,FLOAT64,Over-the-year change in the annual average weekly wage,,no,,dollar,no,,oty_annual_avg_wkly_wage_chg
+oty_annual_avg_wkly_wage_pct_chg,FLOAT64,"Over-the-year percent change in the annual average weekly wage, rounded to tenths",,no,,percent,no,,oty_annual_avg_wkly_wage_pct_chg
+oty_avg_annual_pay_chg,FLOAT64,Over-the-year change in average annual pay,,no,,dollar,no,,oty_avg_annual_pay_chg
+oty_avg_annual_pay_pct_chg,FLOAT64,"Over-the-year percent change in average annual pay, rounded to tenths",,no,,percent,no,,oty_avg_annual_pay_pct_chg

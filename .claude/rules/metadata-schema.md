@@ -15,6 +15,18 @@ All backend operations use the `mcp__databasis__*` MCP tools. Never write raw HT
 
 Default: `dev`. Only switch to `prod` after explicit user approval.
 
+## Dataset status lifecycle (create `under_review`, publish only post-merge)
+
+**Always create a dataset with `status_id = status.under_review`, never `status.published`** — at every stage (dev/staging and prod alike). `under_review` hides the dataset from the production frontend, so metadata registered before the onboarding PR merges (with prod cloud tables that do not yet exist) cannot leak publicly.
+
+Flip the dataset to `status.published` **only after all three hold**:
+
+1. the onboarding **PR is merged** to `main`;
+2. the GitHub **table-approve action has run successfully** (it materialises `basedosdados.<gcp_dataset_id>.*` via `dbt --target prod`);
+3. the live prod tables **and** metadata are **verified** — row counts match, cloud tables resolve, `get_dataset(slug, env="prod")` shows the expected shape.
+
+Publishing is one call: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env="prod")` (re-pass every required field — no partial updates). Do this as a **separate post-merge action**, never inside the onboarding PR. Tables are gated by the dataset's status, so they may stay `status.published`; flipping the dataset publishes everything in one step.
+
 ## ID resolution (always run first)
 
 Before registering any metadata, resolve all reference IDs with:
@@ -44,8 +56,8 @@ For individual lookups: `mcp__databasis__lookup_id(env=<env>, slug=<slug>, type=
 6. `create_update_table(...)` — create table record (without `raw_data_source_ids`)
 7. `create_update_observation_level(...)` — one call per entity level
 8. `reorder_observation_levels(...)` — if human specifies order
-9. `upload_columns_from_sheet(...)` — bulk upload columns from architecture Google Sheet
-10. `update_column(...)` — per-column follow-up for `is_partition`, `is_primary_key`, EN/ES descriptions
+9. `upload_columns_from_sheet(...)` — bulk upload columns from architecture Google Sheet (or `bulk_upsert_columns` with `columns_json`, which needs no Google Sheet)
+10. `update_column(...)` — per-column follow-up for `is_partition`, `is_primary_key`, EN/ES descriptions, **and linking each identifying column to its observation level** (see "Observation-level column linking" below)
 11. `create_update_cloud_table(...)` — link to BigQuery table
 12. `create_update_coverage(...)` — coverage for area "br" (see `is_closed` below)
 13. `create_update_datetime_range(...)` — temporal range
@@ -66,7 +78,7 @@ For individual lookups: `mcp__databasis__lookup_id(env=<env>, slug=<slug>, type=
 | `organization_ids` | list | From `discover_ids` using org slug(s) |
 | `theme_ids` | list | From `discover_ids` |
 | `tag_ids` | list | From `discover_ids`; empty list if none |
-| `status_id` | string | Use `status.published` |
+| `status_id` | string | **`status.under_review` on creation** — flip to `status.published` only post-merge (see "Dataset status lifecycle" above) |
 | `id` | string | Pass when updating an existing record |
 
 ## `create_update_table` fields
@@ -77,7 +89,7 @@ For individual lookups: `mcp__databasis__lookup_id(env=<env>, slug=<slug>, type=
 | `name_pt/en/es` | string | All 3 languages |
 | `description_pt/en/es` | string | 1–3 sentences |
 | `dataset_id` | string | From dataset step |
-| `status_id` | string | `status.published` |
+| `status_id` | string | `status.published` — tables are gated by the dataset's `under_review` status, so they may stay published (see "Dataset status lifecycle") |
 | `published_by_ids` | list | Authenticated account ID |
 | `data_cleaned_by_ids` | list | Authenticated account ID |
 | `id` | string | Pass when updating |
@@ -116,6 +128,17 @@ Only set these fields — do NOT re-set fields already handled by `upload_column
 In a data table, a column's relationship to a key is expressed **only** through its `directoryPrimaryKey` link (the directory column it references), set via the `directory_column` field in the architecture sheet / `upload_columns_from_sheet`. Columns with no directory (e.g. `age`, `age_group` when no age directory exists) simply carry neither `is_primary_key` nor a directory link.
 
 Uniqueness of the logical key is still enforced separately in dbt (`dbt_utils.unique_combination_of_columns`); that is independent of the backend `is_primary_key` flag.
+
+## Observation-level column linking (do not skip — otherwise the site shows "Não informado")
+
+Each observation level must be linked to the column(s) that identify it, or the frontend renders the level's columns as **"Não informado"**. The link is a per-column FK (`Column.observationLevel`), set one of two ways:
+
+- **`upload_columns_from_sheet`** accepts an `observation_levels` argument — a JSON map `{"<column_name>": "<observation_level_id>", ...}` that links columns as they are uploaded.
+- **`bulk_upsert_columns` does NOT link observation levels.** When you register columns with `columns_json`, you must link them in a **separate `update_column` call per identifying column**: `update_column(column_id, column_name, table_id, observation_level_id=<OL id>)`.
+
+Link exactly the grain columns — the geographic id column to its geographic OL, the year column to the year OL, the party column to the party OL, and so on. Look up the OL ids from `get_dataset` (each table's `observation_levels[].id` with `entity_slug`).
+
+**Caveat:** `update_column`'s boolean args default to `False`, so a bare call **clobbers** `is_partition` / `is_primary_key`. When linking an OL on a column that is also a partition or primary key, re-pass those flags in the same call (e.g. `is_partition=True` on `year`, `is_primary_key=True` on a directory key column).
 
 ## `create_update_cloud_table` fields
 
