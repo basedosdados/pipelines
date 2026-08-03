@@ -51,7 +51,7 @@
     "fonte_recurso",
     "area_operacional",
     "setor_cnae",
-    "subsetor_agrupado_cnae",
+    "subsetor_cnae_agrupado",
     "secao_cnae",
     "subclasse_cnae",
     "descricao_subclasse",

@@ -19,10 +19,6 @@ models:
       - name: data_contratacao
         description: Data de contratação do projeto
         tests: [not_null]
-      - name: data_apuracao
-        description: Data de apuração das informações nos sistemas corporativos do
-          BNDES
-        tests: [not_null]
       - name: sigla_uf
         description: Sigla da Unidade da Federação
       - name: nome_cliente
@@ -73,22 +69,22 @@ models:
       - name: setor_cnae
         description: Setor CNAE agrupado pelo BNDES para fins estatísticos
         tests: [not_null]
-      - name: subsetor_agrupado_cnae
+      - name: subsetor_cnae_agrupado
         description: Subsetor CNAE agrupado pelo BNDES para fins estatísticos
         tests: [not_null]
       - name: secao_cnae
         description: Seção CNAE 2
         tests:
           - not_null
-          # - relationships:
-          #     to: ref('br_bd_diretorios_brasil__cnae_2')
-          #     field: secao
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: secao
       - name: subclasse_cnae
         description: Subclasse CNAE 2
-        # tests:
-        #   - relationships:
-        #       to: ref('br_bd_diretorios_brasil__cnae_2')
-        #       field: subclasse
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: subclasse
       - name: descricao_subclasse
         description: Descrição da subclasse CNAE 2
       - name: setor_bndes
@@ -105,7 +101,7 @@ models:
       - name: taxa_juros
         description: Taxa de juros
         tests: [not_null]
-      - name: valor_contratado
+      - name: valor_operacao
         description: Valor contratado no projeto
         tests: [not_null]
       - name: valor_desembolsado

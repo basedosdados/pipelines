@@ -153,6 +153,7 @@ def _extract_cnae_hierarchy(
     cnae_column: str,
     levels: list[str] | None = None,
     verify_diretorios: bool = False,
+    df_diretorios: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     df_extracted = dataframe.copy()
     if levels is None:
@@ -176,22 +177,16 @@ def _extract_cnae_hierarchy(
         df_extracted["subclasse_cnae"] = df_extracted[cnae_column].str.extract(
             r"^[A-Z](\d{7})"
         )
-    if all([col in levels for col in ["grupo", "divisao", "classe"]]):
+    if all(
+        [col in levels for col in ["grupo", "divisao", "classe", "subclasse"]]
+    ):
         df_extracted.loc[
             df_extracted["grupo_cnae"].str.endswith("000"),
-            ["divisao_cnae", "classe_cnae"],
+            ["divisao_cnae", "classe_cnae", "subclasse_cnae"],
         ] = None
     df_extracted = df_extracted.drop(columns=[cnae_column])
 
-    if verify_diretorios:
-        df_diretorios = bd.read_sql(
-            """
-            SELECT DISTINCT {} 
-            FROM `basedosdados.br_bd_diretorios_brasil.cnae_2`
-            """.format(",".join(levels)),
-            from_file=True,
-        )
-
+    if verify_diretorios and df_diretorios is not None:
         for col in levels:
             df_extracted.loc[
                 ~df_extracted[f"{col}_cnae"].isin(df_diretorios[col].values),
@@ -200,7 +195,23 @@ def _extract_cnae_hierarchy(
     return df_extracted
 
 
-def _transform_chunk(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
+def get_cnae_diretorios(levels: list[str] | None = None) -> pd.DataFrame:
+
+    if levels is None:
+        levels = ["secao", "divisao", "grupo", "classe", "subclasse"]
+    df_diretorios = bd.read_sql(
+        """
+                SELECT DISTINCT {} 
+                FROM `basedosdados.br_bd_diretorios_brasil.cnae_2`
+                """.format(",".join(levels)),
+        from_file=True,
+    )
+    return df_diretorios
+
+
+def _transform_chunk(
+    df: pd.DataFrame, table_id: str, df_diretorios: pd.DataFrame | None = None
+) -> pd.DataFrame:
     """
     Aplica as transformacoes de limpeza a um chunk do CSV (tudo string na entrada).
 
@@ -211,6 +222,7 @@ def _transform_chunk(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
         table_id (str): Chave em constants.TABLES_CONFIGS (ex.:
             "operacoes_indiretas_automaticas") usada p/ resolver
             DROP_COLUMNS/RENAME/ORDER_COLUMNS da tabela.
+        df_diretorios (pd.DataFrame | None): DataFrame com os diretórios CNAE.
 
     Returns:
         pd.DataFrame: Chunk limpo, com as colunas de ORDER_COLUMNS da tabela
@@ -261,8 +273,13 @@ def _transform_chunk(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
         valido, pd.NA
     )
 
-    if table_id == "operacoes_nao_automaticas":
-        df_striped = _extract_cnae_hierarchy(df_striped, "codigo_cnae_2")
+    if table_id == "operacoes_nao_automaticas" and df_diretorios is not None:
+        df_striped = _extract_cnae_hierarchy(
+            df_striped,
+            "codigo_cnae_2",
+            # verify_diretorios=True,
+            df_diretorios=df_diretorios,
+        )
     return df_striped[table_configs["ORDER_COLUMNS"]]
 
 
@@ -293,6 +310,11 @@ def clean(csv_path: Path, output_dir: Path, table_id: str) -> Path:
     writers = {}
     total_rows = 0
 
+    if table_id == "operacoes_nao_automaticas":
+        df_diretorios = get_cnae_diretorios()
+    else:
+        df_diretorios = None
+
     for i, chunk in enumerate(
         pd.read_csv(
             csv_path,
@@ -303,7 +325,7 @@ def clean(csv_path: Path, output_dir: Path, table_id: str) -> Path:
         ),
         start=1,
     ):
-        df = _transform_chunk(chunk, table_id)
+        df = _transform_chunk(chunk, table_id, df_diretorios=df_diretorios)
         for year, group in df.groupby("ano"):
             if int(year) not in writers:
                 Path.mkdir(
