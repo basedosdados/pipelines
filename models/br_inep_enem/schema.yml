@@ -236,6 +236,283 @@ models:
         description: Nota da prova de redação
       - name: indicador_questionario_socioeconomico
         description: Respondeu o Questionário Socioeconômico
+  - name: br_inep_enem__participantes
+    description: Microdados de informações específicas dos participantes do ENEM
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_inscricao, ano]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - faixa_etaria
+            - sexo
+            - estado_civil
+            - cor_raca
+            - nacionalidade
+            - situacao_conclusao
+            - ano_conclusao
+            - ensino
+          dictionary_model: ref('br_inep_enem__dicionario')
+    columns:
+      - name: id_inscricao
+        description: Máscara do número de inscrição no ENEM
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: faixa_etaria
+        description: Faixa etária
+      - name: sexo
+        description: Sexo
+      - name: estado_civil
+        description: Estado civil
+      - name: cor_raca
+        description: Cor ou raça
+      - name: nacionalidade
+        description: Nacionalidade
+      - name: situacao_conclusao
+        description: Situação em relação ao ensino médio
+      - name: ano_conclusao
+        description: Ano de conclusão do ensino médio
+      - name: ensino
+        description: Tipo de instituição onde o estudante concluiu ou concluirá o
+          ensino médio
+      - name: indicador_treineiro
+        description: Indica se o inscrito fez a prova com intuito de apenas treinar
+          seus conhecimentos
+      - name: id_municipio_prova
+        description: ID Município da escola em que estudou - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sigla_uf_prova
+        description: Sigla da unidade da federação da escola em que estudou
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+  - name: br_inep_enem__resultados
+    description: Microdados de informações sobre a escola de conclusão do EM e notas
+      das provas
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_sequencial, ano]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - dependencia_administrativa_escola
+            - localizacao_escola
+            - situacao_funcionamento_escola
+            - presenca_ciencias_natureza
+            - presenca_ciencias_humanas
+            - presenca_linguagens_codigos
+            - presenca_matematica
+            - tipo_prova_ciencias_natureza
+            - tipo_prova_ciencias_humanas
+            - tipo_prova_linguagens_codigos
+            - tipo_prova_matematica
+            - lingua_estrangeira
+            - presenca_redacao
+          dictionary_model: ref('br_inep_enem__dicionario')
+    columns:
+      - name: id_sequencial
+        description: Número sequencial da linha de resultados
+      - name: id_escola
+        description: ID Escola - Inep
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_municipio_escola
+        description: ID Município da escola em que estudou - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sigla_uf_escola
+        description: Sigla da unidade da federação da escola em que estudou
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: dependencia_administrativa_escola
+        description: Dependência administrativa da escola em que estudou
+      - name: localizacao_escola
+        description: Localização/zona da escola em que estudou
+      - name: situacao_funcionamento_escola
+        description: Situação de funcionamento da escola em que estudou
+      - name: id_municipio_prova
+        description: ID Município da cidade da prova - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: sigla_uf_prova
+        description: Sigla da unidade da federação da prova
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: presenca_ciencias_natureza
+        description: Presença à prova objetiva de Ciências da Natureza
+      - name: presenca_ciencias_humanas
+        description: Presença à prova objetiva de Ciências Humanas
+      - name: presenca_linguagens_codigos
+        description: Presença à prova objetiva de Linguagens e Códigos
+      - name: presenca_matematica
+        description: Presença à prova objetiva de Matemática
+      - name: tipo_prova_ciencias_natureza
+        description: Código do tipo de prova de Ciências da Natureza
+      - name: tipo_prova_ciencias_humanas
+        description: Código do tipo de prova de Ciências Humanas
+      - name: tipo_prova_linguagens_codigos
+        description: Código do tipo de prova de Linguagens e Códigos
+      - name: tipo_prova_matematica
+        description: Código do tipo de prova de Matemática
+      - name: nota_ciencias_natureza
+        description: Nota da prova de Ciências da Natureza
+      - name: nota_ciencias_humanas
+        description: Nota da prova de Ciências Humanas
+      - name: nota_linguagens_codigos
+        description: Nota da prova de Linguagens e Códigos
+      - name: nota_matematica
+        description: Nota da prova de Matemática
+      - name: respostas_ciencias_natureza
+        description: Vetor com as respostas da parte objetiva da prova de Ciências
+          da Natureza
+      - name: respostas_ciencias_humanas
+        description: Vetor com as respostas da parte objetiva da prova de Ciências
+          Humanas
+      - name: respostas_linguagens_codigos
+        description: Vetor com as respostas da parte objetiva da prova de Linguagens
+          e Códigos
+      - name: respostas_matematica
+        description: Vetor com as respostas da parte objetiva da prova de Matemática
+      - name: gabarito_ciencias_natureza
+        description: 'Vetor com o gabarito da parte objetiva da prova  de Ciências
+          da Natureza (Obs.: as 45 primeiras posições deste campo são referentes ao
+          respectivo gabarito)'
+      - name: gabarito_ciencias_humanas
+        description: 'Vetor com o gabarito da parte objetiva da prova  de Ciências
+          Humanas (Obs.: as 45 primeiras posições deste campo são referentes ao respectivo
+          gabarito)'
+      - name: gabarito_linguagens_codigos
+        description: 'Vetor com o gabarito da parte objetiva da prova  de Linguagens
+          e Códigos (Obs.: as 45 primeiras posições deste campo são referentes ao
+          respectivo gabarito)'
+      - name: gabarito_matematica
+        description: 'Vetor com o gabarito da parte objetiva da prova  de Matemática
+          (Obs.: as 45 primeiras posições deste campo são referentes ao respectivo
+          gabarito)'
+      - name: lingua_estrangeira
+        description: Língua Estrangeira
+      - name: presenca_redacao
+        description: Situação da redação
+      - name: nota_redacao_competencia_1
+        description: Nota da competência 1
+      - name: nota_redacao_competencia_2
+        description: Nota da competência 2
+      - name: nota_redacao_competencia_3
+        description: Nota da competência 3
+      - name: nota_redacao_competencia_4
+        description: Nota da competência 4
+      - name: nota_redacao_competencia_5
+        description: Nota da competência 5
+      - name: nota_redacao
+        description: Nota da prova de redação
+  - name: br_inep_enem__questionario_socioeconomico_2024
+    description: Respostas do questionário socioeconômico de 2024.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_inscricao]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - Q001
+            - Q002
+            - Q003
+            - Q004
+            - Q005
+            - Q006
+            - Q007
+            - Q008
+            - Q009
+            - Q010
+            - Q011
+            - Q012
+            - Q013
+            - Q014
+            - Q015
+            - Q016
+            - Q017
+            - Q018
+            - Q019
+            - Q020
+            - Q021
+            - Q022
+            - Q023
+          dictionary_model: ref('br_inep_enem__dicionario')
+    columns:
+      - name: id_inscricao
+        description: Máscara do número de inscrição no ENEM
+      - name: q001
+        description: Até que série seu pai, ou o homem responsável por você, estudou?
+      - name: q002
+        description: Até que série sua mãe, ou a mulher responsável por você, estudou?
+      - name: q003
+        description: A partir da apresentação de algumas ocupações divididas em grupos
+          ordenados, indique o grupo que contempla a ocupação mais próxima da ocupação
+          do seu pai ou do homem responsável por você. (Se ele não estiver trabalhando,
+          escolha uma ocupação pensando no último trabalho dele).
+      - name: q004
+        description: A partir da apresentação de algumas ocupações divididas em grupos
+          ordenados, indique o grupo que contempla a ocupação mais próxima da ocupação
+          da sua mãe ou da mulher responsável por você. (Se ela não estiver trabalhando,
+          escolha uma ocupação pensando no último trabalho dela).
+      - name: q005
+        description: Incluindo você, quantas pessoas moram atualmente em sua residência?
+      - name: q006
+        description: Você possui renda?
+      - name: q007
+        description: Qual é a renda mensal de sua família? (Considere a sua renda
+          com a das pessoas que moram com você.)
+      - name: q008
+        description: Em sua casa, você ou a pessoa responsável pela sua família costuma
+          contratar os serviços de um(a) empregado(a) doméstico(a)?
+      - name: q009
+        description: Em sua casa, existe banheiro?
+      - name: q010
+        description: Em sua casa, existe quarto para dormir?
+      - name: q011
+        description: Incluindo você, as pessoas com quem você mora têm carro?
+      - name: q012
+        description: Incluindo você, as pessoas com quem você mora têm motocicleta?
+      - name: q013
+        description: Em sua casa, existe geladeira?
+      - name: q014
+        description: Em sua casa, existe freezer independente (vertical ou horizontal)?
+          (Não considere a segunda porta da geladeira.)
+      - name: q015
+        description: Em sua casa, existe máquina de lavar roupa? (Não considere o
+          tanquinho.)
+      - name: q016
+        description: Em sua casa, existe micro-ondas?
+      - name: q017
+        description: Em sua casa, existe aspirador de pó?
+      - name: q018
+        description: Em sua casa, existe aparelho de TV?
+      - name: q019
+        description: Em sua casa, existe TV por assinatura?
+      - name: q020
+        description: Em sua casa, existe acesso à internet por rede wi-fi?
+      - name: q021
+        description: Em sua casa, existe computador/notebook?
+      - name: q022
+        description: Incluindo você, as pessoas com quem você mora têm telefone celular?
+      - name: q023
+        description: Em que tipo de escola você frequentou ou frequenta o Ensino Médio?
   - name: br_inep_enem__questionario_socioeconomico_2023
     description: Respostas do questionário socioeconômico de 2023.
     tests:
