@@ -3,7 +3,11 @@
         schema="br_rf_cnpj",
         alias="empresas",
         materialized="incremental",
-        partition_by={"field": "data", "data_type": "date", "granularity": "month"},
+        partition_by={
+            "field": "data_referencia",
+            "data_type": "date",
+            "granularity": "month",
+        },
     )
 }}
 
@@ -26,4 +30,6 @@ with
     )
 select *
 from cnpj_empresas
-{% if is_incremental() %} where data > (select max(data) from {{ this }}) {% endif %}
+{% if is_incremental() %}
+    where data_referencia > (select max(data_referencia) from {{ this }})
+{% endif %}

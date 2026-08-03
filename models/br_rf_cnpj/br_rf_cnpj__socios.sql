@@ -3,7 +3,11 @@
         schema="br_rf_cnpj",
         alias="socios",
         materialized="incremental",
-        partition_by={"field": "data", "data_type": "date", "granularity": "month"},
+        partition_by={
+            "field": "data_referencia",
+            "data_type": "date",
+            "granularity": "month",
+        },
     )
 }}
 with
@@ -25,8 +29,10 @@ with
             safe_cast(faixa_etaria as string) faixa_etaria,
             safe_cast(data_modificacao as date) data_modificacao
         from {{ set_datalake_project("br_rf_cnpj_staging.socios") }} as t
-        where qualificacao != "qualificacao"
+        where safe_cast(qualificacao as string) != "qualificacao"
     )
 select *
 from cnpj_socios
-{% if is_incremental() %} where data > (select max(data) from {{ this }}) {% endif %}
+{% if is_incremental() %}
+    where data_referencia > (select max(data_referencia) from {{ this }})
+{% endif %}

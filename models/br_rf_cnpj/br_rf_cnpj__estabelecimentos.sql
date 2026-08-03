@@ -3,7 +3,11 @@
         schema="br_rf_cnpj",
         alias="estabelecimentos",
         materialized="incremental",
-        partition_by={"field": "data", "data_type": "date", "granularity": "month"},
+        partition_by={
+            "field": "data_referencia",
+            "data_type": "date",
+            "granularity": "month",
+        },
         cluster_by=["sigla_uf"],
     )
 }}
@@ -48,7 +52,7 @@ with
             safe_cast(fax as string) fax,
             safe_cast(lower(email) as string) email,
             safe_cast(situacao_especial as string) situacao_especial,
-            safe_cast(data_modificacao as date) data_modificacao
+            safe_cast(data_modificacao as date) data_modificacao,
             safe_cast(data_situacao_especial as date) data_situacao_especial
         from {{ set_datalake_project("br_rf_cnpj_staging.estabelecimentos") }} a
         left join
@@ -58,4 +62,6 @@ with
     )
 select *
 from cnpj_estabelecimentos
-{% if is_incremental() %} where data > (select max(data) from {{ this }}) {% endif %}
+{% if is_incremental() %}
+    where data_referencia > (select max(data_referencia) from {{ this }})
+{% endif %}
