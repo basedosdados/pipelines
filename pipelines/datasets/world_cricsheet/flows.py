@@ -126,7 +126,11 @@ def world_cricsheet_flow(
 
         tables = constants.ALL_TABLES.value
 
-        # Dev: upload staging + materialize/test.
+        # Dev: upload + build every table first, then test every table. The
+        # cross-table relationships test (match_players.person_id -> people)
+        # is pulled in when testing either table, so all four tables must be
+        # materialized before any test runs — a per-table run+test loop fails
+        # on a fresh target when the referenced table does not exist yet.
         for table in tables:
             upload_to_gcs(
                 data_path=result[table],
@@ -139,14 +143,21 @@ def world_cricsheet_flow(
             run_dbt(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                dbt_command="run/test",
+                dbt_command="run",
+                target="dev",
+            )
+        for table in tables:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
                 target="dev",
             )
 
         if not materialize_to_prod:
             return
 
-        # Prod: upload staging + materialize/test.
+        # Prod: same two-phase pattern — build all tables, then test all.
         for table in tables:
             upload_to_gcs(
                 data_path=result[table],
@@ -159,7 +170,14 @@ def world_cricsheet_flow(
             run_dbt(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                dbt_command="run/test",
+                dbt_command="run",
+                target="prod",
+            )
+        for table in tables:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
                 target="prod",
             )
 
