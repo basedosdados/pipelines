@@ -57,10 +57,17 @@ def _build_candidato(ano: int) -> pd.DataFrame:
 
         if df.attrs.get("tse_has_header"):
             # Read-by-header-name path. The vote column keeps the exact
-            # per-year semantics of the Stata positional blocks: 1998/2000
-            # and 2018-2022 read QT_VOTOS_NOMINAIS_VALIDOS; every other year
-            # reads QT_VOTOS_NOMINAIS (dual keys — first present wins, so
-            # generations lacking one variant fall back to the other).
+            # per-year semantics of the Stata positional blocks: 1994,
+            # 1998/2000 and 2018-2022 read QT_VOTOS_NOMINAIS_VALIDOS; every
+            # other year reads QT_VOTOS_NOMINAIS (dual keys — first present
+            # wins, so generations lacking one variant fall back to the other).
+            # NOTE (WO05, 2026-08-01): 1994 was moved to the *_VALIDOS branch.
+            # In the current TSE republication of 1994, QT_VOTOS_NOMINAIS is 0
+            # for every cargo and the real counts live in
+            # QT_VOTOS_NOMINAIS_VALIDOS; the Stata code read v40
+            # (=QT_VOTOS_NOMINAIS) and so shipped votos=0 — a Stata-era
+            # corruption this repair fixes (parity-except-corruption, decision
+            # 1). rpmz already read *_VALIDOS for 1994.
             keep_cols = {
                 "ano_eleicao": "ano",
                 "aa_eleicao": "ano",
@@ -79,7 +86,7 @@ def _build_candidato(ano: int) -> pd.DataFrame:
                 "nr_partido": "numero_partido",
                 "sg_partido": "sigla_partido",
             }
-            if ano in (1998, 2000) or (2018 <= ano <= 2022):
+            if ano in (1994, 1998, 2000) or (2018 <= ano <= 2022):
                 keep_cols["qt_votos_nominais_validos"] = "votos"
                 keep_cols["qt_votos_nominais"] = "votos"
             else:

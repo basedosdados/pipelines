@@ -70,15 +70,33 @@ def _read_stream(name: str, ano: int, uf: str) -> pd.DataFrame:
     return df
 
 
+def _save_secao_partition_parquet(
+    df: pd.DataFrame, name: str, ano: int, uf: str
+) -> None:
+    """Write one enriched giant-seção partition as compact Hive parquet.
+
+    The three seção giants reach 60M+ rows/year; as all-string CSV a single
+    table exceeds 50 GB and overflows a constrained host, while the same data
+    is ~1.5 GB as parquet. The dbt models ``safe_cast`` every column, so
+    parquet-typed staging is equivalent to the all-string CSV convention.
+    Partition columns live in the path (mirroring ``save_partitioned``).
+    """
+    d = OUTPUT_PYTHON / name / f"ano={ano}" / f"sigla_uf={uf}"
+    d.mkdir(parents=True, exist_ok=True)
+    cols = [c for c in df.columns if c not in ("ano", "sigla_uf")]
+    df[cols].to_parquet(d / "data.parquet", index=False)
+
+
 def _partition_secao_table(name: str, enrich) -> None:
-    """Enrich + write a giant seção table's Hive-partitioned CSVs.
+    """Enrich + write a giant seção table as Hive-partitioned parquet.
 
     Prefers the streamed per-(ano,uf) parquet intermediates (memory-bounded,
     one partition at a time). Falls back to the monolithic
     ``{name}_{ano}.parquet`` when no streamed layout exists, so a big-host
     in-RAM build still works unchanged. ``enrich(df, ano)`` applies the
     per-row merge (titulo / sigla_partido); it is row-wise, so per-partition
-    application is identical to whole-year.
+    application is identical to whole-year. Output is parquet, not CSV — see
+    ``_save_secao_partition_parquet`` for why (disk footprint).
     """
     import gc
 
@@ -87,16 +105,18 @@ def _partition_secao_table(name: str, enrich) -> None:
         if ufs is not None:
             for uf in ufs:
                 df = enrich(_read_stream(name, ano, uf), ano)
-                save_partitioned(df, name, ["ano", "sigla_uf"], OUTPUT_PYTHON)
+                _save_secao_partition_parquet(df, name, ano, uf)
                 del df
                 gc.collect()
             continue
         df = _read_parquet(name, ano)
         if df.empty:
             continue
-        save_partitioned(
-            enrich(df, ano), name, ["ano", "sigla_uf"], OUTPUT_PYTHON
-        )
+        enriched = enrich(df, ano)
+        for uf, group in enriched.groupby("sigla_uf", dropna=False):
+            _save_secao_partition_parquet(group, name, ano, uf)
+        del df, enriched
+        gc.collect()
 
 
 # ---------------------------------------------------------------------------
@@ -580,6 +600,31 @@ def _partition_simple(table_name: str, years: list[int], by_uf: bool = True):
         save_partitioned(df, table_name, partition_cols, OUTPUT_PYTHON)
 
 
+# Canonical CSV column order for the mun-zona results tables. TSE's federal
+# vs municipal raw files order id_municipio differently (pos 5 vs last), so the
+# per-year builder output is non-uniform; bd's CSV staging assigns its schema by
+# POSITION from one sample partition, which then mis-reads votos as resultado
+# ('suplente'/'eleito') for the years with the other order. Reindexing every
+# year to a single order fixes the staging-schema misalignment (2018/2022 votos
+# were silently nulled otherwise). Partition cols (ano, sigla_uf) lead; they are
+# dropped to the Hive path by save_partitioned.
+_RCMZ_ORDER = [
+    "ano", "sigla_uf", "turno", "id_eleicao", "tipo_eleicao", "data_eleicao",
+    "id_municipio", "id_municipio_tse", "zona", "cargo", "sequencial_candidato",
+    "numero_candidato", "numero_partido", "sigla_partido", "resultado", "votos",
+    "titulo_eleitoral_candidato",
+]  # fmt: skip
+_RPMZ_ORDER = [
+    "ano", "sigla_uf", "turno", "id_eleicao", "tipo_eleicao", "data_eleicao",
+    "id_municipio", "id_municipio_tse", "zona", "cargo", "numero_partido",
+    "sigla_partido", "votos_nominais", "votos_legenda",
+]  # fmt: skip
+
+
+def _reorder(df: pd.DataFrame, order: list[str]) -> pd.DataFrame:
+    return df[[c for c in order if c in df.columns]]
+
+
 def _partition_results_mun_zone(
     norm_cand: pd.DataFrame,
 ):
@@ -635,7 +680,7 @@ def _partition_results_mun_zone(
         )
 
         save_partitioned(
-            df,
+            _reorder(df, _RCMZ_ORDER),
             "resultados_candidato_municipio_zona",
             ["ano", "sigla_uf"],
             OUTPUT_PYTHON,
@@ -648,7 +693,7 @@ def _partition_results_mun_zone(
         if df.empty:
             continue
         save_partitioned(
-            df,
+            _reorder(df, _RPMZ_ORDER),
             "resultados_partido_municipio_zona",
             ["ano", "sigla_uf"],
             OUTPUT_PYTHON,
@@ -796,6 +841,118 @@ def _partition_bens(norm_cand: pd.DataFrame):
         save_partitioned(df, "bens_candidato", ["ano"], OUTPUT_PYTHON)
 
 
+# Uniform superset column schemas for the campaign-finance tables, taken from
+# the dbt models' input columns. TSE widened these files over the years
+# (despesas 2002=17, 2014=24, 2018+=38 raw cols), so per-year output is ragged
+# and the single CSV staging schema comes out too narrow for the model to read.
+# Reindexing every year to the full model schema (missing fields -> empty)
+# gives a uniform staging table. `especie_recurso`/`fonte_recurso` are absent
+# from every raw despesas generation, so they are always empty here (as in
+# prod); the dbt model still safe_casts them.
+_FINANCE_COLS = {
+    "despesas_candidato": [
+        "ano",
+        "turno",
+        "id_eleicao",
+        "tipo_eleicao",
+        "data_eleicao",
+        "sigla_uf",
+        "id_municipio",
+        "id_municipio_tse",
+        "titulo_eleitoral_candidato",
+        "sequencial_candidato",
+        "numero_candidato",
+        "cnpj_candidato",
+        "numero_partido",
+        "sigla_partido",
+        "cargo",
+        "sequencial_despesa",
+        "data_despesa",
+        "tipo_despesa",
+        "descricao_despesa",
+        "origem_despesa",
+        "valor_despesa",
+        "tipo_prestacao_contas",
+        "data_prestacao_contas",
+        "sequencial_prestador_contas",
+        "cnpj_prestador_contas",
+        "tipo_documento",
+        "numero_documento",
+        "especie_recurso",
+        "fonte_recurso",
+        "cpf_cnpj_fornecedor",
+        "nome_fornecedor",
+        "nome_fornecedor_rf",
+        "cnae_2_fornecedor",
+        "descricao_cnae_2_fornecedor",
+        "tipo_fornecedor",
+        "esfera_partidaria_fornecedor",
+        "sigla_uf_fornecedor",
+        "id_municipio_tse_fornecedor",
+        "sequencial_candidato_fornecedor",
+        "numero_candidato_fornecedor",
+        "numero_partido_fornecedor",
+        "sigla_partido_fornecedor",
+        "cargo_fornecedor",
+    ],
+    "receitas_candidato": [
+        "ano",
+        "turno",
+        "id_eleicao",
+        "tipo_eleicao",
+        "data_eleicao",
+        "sigla_uf",
+        "id_municipio",
+        "id_municipio_tse",
+        "titulo_eleitoral_candidato",
+        "sequencial_candidato",
+        "numero_candidato",
+        "cnpj_candidato",
+        "numero_partido",
+        "sigla_partido",
+        "cargo",
+        "sequencial_receita",
+        "data_receita",
+        "fonte_receita",
+        "origem_receita",
+        "natureza_receita",
+        "especie_receita",
+        "situacao_receita",
+        "descricao_receita",
+        "valor_receita",
+        "sequencial_candidato_doador",
+        "cpf_cnpj_doador",
+        "sigla_uf_doador",
+        "id_municipio_tse_doador",
+        "nome_doador",
+        "nome_doador_rf",
+        "cargo_candidato_doador",
+        "numero_partido_doador",
+        "sigla_partido_doador",
+        "esfera_partidaria_doador",
+        "numero_candidato_doador",
+        "cnae_2_doador",
+        "descricao_cnae_2_doador",
+        "cpf_cnpj_doador_orig",
+        "nome_doador_orig",
+        "nome_doador_orig_rf",
+        "tipo_doador_orig",
+        "descricao_cnae_2_doador_orig",
+        "nome_administrador",
+        "cpf_administrador",
+        "numero_recibo_eleitoral",
+        "numero_documento",
+        "numero_recibo_doacao",
+        "numero_documento_doacao",
+        "tipo_prestacao_contas",
+        "data_prestacao_contas",
+        "sequencial_prestador_contas",
+        "cnpj_prestador_contas",
+        "entrega_conjunto",
+    ],
+}
+
+
 def _partition_finance(
     table_name: str,
     norm_cand: pd.DataFrame,
@@ -850,6 +1007,12 @@ def _partition_finance(
             merge_mod2_pres,
             bring,
         )
+
+        # Reindex to the uniform model schema so the CSV staging table has a
+        # consistent, complete column set across the ragged per-year files.
+        target = _FINANCE_COLS.get(table_name)
+        if target:
+            df = df.reindex(columns=target, fill_value="")
 
         save_partitioned(df, table_name, ["ano"], OUTPUT_PYTHON)
 
