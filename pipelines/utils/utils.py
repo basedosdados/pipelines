@@ -33,23 +33,13 @@ def log(msg: Any, level: str = "info") -> None:
 
 
 def is_running_in_prod() -> bool:
-    """Retorna True se o pod está configurado para o staging de produção.
+    """Retorna True se o flow está rodando no work pool de prod (basedosdados)."""
+    try:
+        from prefect.runtime import flow_run
 
-    Antes lia `prefect.runtime.flow_run.work_pool_name`, que não existe no
-    Prefect 3.5 — nem em `flow_run`, nem em `deployment`. O `AttributeError` era
-    engolido pelo `except` e a função devolvia `False` em qualquer pool, o que
-    desligava a etapa de promoção também em produção.
-
-    O que decide não é o nome do pool e sim se o pod tem credencial do staging de
-    produção. Isso vem do `config.toml`, a mesma fonte que o
-    `_staging_project_for` do `utils/tasks.py` consulta.
-    """
-    import basedosdados as bd
-
-    return (
-        bd.Base().config["gcloud-projects"]["staging"]["name"]
-        == "basedosdados-staging"
-    )
+        return flow_run.work_pool_name == "basedosdados"
+    except Exception:
+        return False
 
 
 def query_to_line(query: str) -> str:
