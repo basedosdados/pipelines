@@ -156,6 +156,11 @@ def _upload_to_gcs(
         f"{bucket_name}/staging/{dataset_id}/{table_id}"
     )
 
+    if dump_mode not in ("append", "overwrite"):
+        raise ValueError(
+            f"dump_mode inválido: {dump_mode!r}. Use 'append' ou 'overwrite'."
+        )
+
     expected_staging = _staging_project_for(bucket_name)
     actual_staging = tb.client["bigquery_staging"].project
 
@@ -202,7 +207,7 @@ def _upload_to_gcs(
                 billing_project_id=billing_project_id,
             )
 
-    elif dump_mode == "overwrite":
+    else:  # overwrite
         if tb.table_exists(mode="staging"):
             st.delete_table(
                 mode="staging", bucket_name=bucket_name, not_found_ok=True
@@ -223,11 +228,6 @@ def _upload_to_gcs(
         )
         print(
             f"Tabela recriada: {tb.table_full_name['staging']}\n{storage_link}"
-        )
-
-    else:
-        raise ValueError(
-            f"dump_mode inválido: {dump_mode!r}. Use 'append' ou 'overwrite'."
         )
 
     if not tb.table_exists(mode="staging"):
