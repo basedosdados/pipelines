@@ -29,6 +29,13 @@ from pipelines.utils.utils import log
 
 DEFAULT_BQ_PROJECT = "basedosdados"
 
+# Tolerância para diminuição do tamanho da fonte na detecção por bytes: quedas de
+# até este percentual são tratadas como re-publicação normal (fontes como
+# `br_bcb_sicor` reexportam arquivos com pequenas variações de tamanho) e seguem
+# como atualização; quedas MAIORES disparam ValueError como possível quebra de
+# schema (coluna removida, recodificação). Ver `poll_source_size_for_update`.
+SOURCE_SIZE_SHRINK_TOLERANCE = 0.05
+
 
 class BQReader(Protocol):
     """Superfície de BigQuery que os orquestradores consomem (injetável)."""
@@ -103,7 +110,9 @@ def register_source_poll_by_size(
 
     - tamanho MAIOR  → novidade: grava Poll + Update(latest=hoje), devolve True.
     - tamanho IGUAL  → sem novidade: grava só Poll, devolve False.
-    - tamanho MENOR  → `ValueError` (a fonte encolheu — possível quebra de schema).
+    - tamanho MENOR  → dentro da tolerância (`SOURCE_SIZE_SHRINK_TOLERANCE`):
+      trata como novidade (re-publicação); acima dela: `ValueError` (a fonte
+      encolheu demais — possível quebra de schema).
 
     Mantém o comportamento original de gravar o histórico de tamanho e o Update
     no mesmo passo do poll. Flows que precisam adiar essas escritas para depois
@@ -145,7 +154,9 @@ def poll_source_size_for_update(
 
     - tamanho MAIOR (ou primeira vez) → novidade: grava só Poll, devolve True.
     - tamanho IGUAL  → sem novidade: grava só Poll, devolve False.
-    - tamanho MENOR  → `ValueError` (a fonte encolheu — possível quebra de schema).
+    - tamanho MENOR  → dentro da tolerância (`SOURCE_SIZE_SHRINK_TOLERANCE`):
+      trata como novidade (re-publicação); acima dela: `ValueError` (a fonte
+      encolheu demais — possível quebra de schema).
 
     Args:
         client: cliente de escrita/leitura do backend de metadados
@@ -180,11 +191,22 @@ def poll_source_size_for_update(
             log("Não há novas atualizações na fonte original (tamanho igual)")
             return False
         if byte_length < latest_size:
-            raise ValueError(
-                f"Tamanho na fonte ({byte_length}) é MENOR que o último "
-                f"registrado ({latest_size}) — possível alteração na tabela "
-                f"original (coluna removida, recodificação, etc.)"
+            shrink_ratio = (latest_size - byte_length) / latest_size
+            if shrink_ratio > SOURCE_SIZE_SHRINK_TOLERANCE:
+                raise ValueError(
+                    f"Tamanho na fonte ({byte_length}) é MENOR que o último "
+                    f"registrado ({latest_size}) em {shrink_ratio:.1%} "
+                    f"(> tolerância de {SOURCE_SIZE_SHRINK_TOLERANCE:.0%}) — "
+                    f"possível alteração na tabela original (coluna removida, "
+                    f"recodificação, etc.)"
+                )
+            log(
+                f"Tamanho na fonte ({byte_length}) ligeiramente menor que o "
+                f"último ({latest_size}) — variação de {shrink_ratio:.2%} ≤ "
+                f"tolerância de {SOURCE_SIZE_SHRINK_TOLERANCE:.0%}, tratando "
+                f"como atualização (re-publicação da fonte)"
             )
+            return True
 
     log("Há atualizações na fonte original (tamanho maior)")
     return True
@@ -289,6 +311,7 @@ def poll_source_for_update(
     dataset_id,
     table_id,
     source_max_date: datetime.date | None = None,
+    raw_source_url: str | None = None,
 ) -> bool:
     """Detecta se a fonte original tem novidade, sem gravar o Update.
 
@@ -307,6 +330,9 @@ def poll_source_for_update(
         source_max_date: data máxima observada na fonte. `None` (padrão) é a
             forma explícita de "só polei, sem novidade" — grava o Poll e devolve
             `False`.
+        raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
+            uma fonte ligada. `None` (padrão) mantém o comportamento de fonte
+            única.
 
     Returns:
         bool — `True` se a fonte tem dados mais novos que o `Table.Update.latest`
@@ -314,7 +340,10 @@ def poll_source_for_update(
     """
 
     client.upsert_raw_source_poll(
-        dataset_id, table_id, latest=datetime.datetime.today()
+        dataset_id,
+        table_id,
+        latest=datetime.datetime.today(),
+        url=raw_source_url,
     )
 
     if source_max_date is None:
@@ -334,6 +363,7 @@ def commit_source_update(
     dataset_id: str,
     table_id: str,
     source_max_date: datetime.date,
+    raw_source_url: str | None = None,
 ) -> None:
     """Grava o `RawDataSource.Update` da fonte original.
 
@@ -351,10 +381,13 @@ def commit_source_update(
         table_id: ID da tabela no GCP/BigQuery.
         source_max_date: data máxima observada na fonte, gravada como o novo
             `RawDataSource.Update.latest`.
+        raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
+            uma fonte ligada. `None` (padrão) mantém o comportamento de fonte
+            única.
     """
 
     client.upsert_raw_source_update(
-        dataset_id, table_id, latest=source_max_date
+        dataset_id, table_id, latest=source_max_date, url=raw_source_url
     )
 
     log("Data de atualização da fonte original modificada")

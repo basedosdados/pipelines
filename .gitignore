@@ -173,3 +173,9 @@ docs/
 models/**/code/metadata_spec.json
 models/**/code/column_descriptions.json
 models/**/code/table_backend.json
+
+# QCEW onboarding backend-registration artifacts (regenerable, staging-specific ids)
+models/**/metadata/
+
+# columns_json is a regenerable registration artifact (build_architecture.py); keep on disk, not in git
+models/**/code/columns_json/

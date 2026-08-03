@@ -79,6 +79,9 @@ models:
       +post-hook:
         - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
         - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "group:bd-pro@basedosdados.org"
+    br_bd_diretorios_au:
+      +materialized: table
+      +schema: br_bd_diretorios_au
     br_bd_diretorios_brasil:
       +materialized: table
       +schema: br_bd_diretorios_brasil
@@ -97,12 +100,18 @@ models:
     in_tcpd_elections:
       +materialized: table
       +schema: in_tcpd_elections
+    us_anes_time_series:
+      +materialized: table
+      +schema: us_anes_time_series
     us_bls_atus:
       +materialized: table
       +schema: us_bls_atus
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_bls_qcew:
+      +materialized: table
+      +schema: us_bls_qcew
     us_census_cbp:
       +materialized: table
       +schema: us_census_cbp
@@ -115,6 +124,9 @@ models:
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
+    world_cricsheet:
+      +materialized: table
+      +schema: world_cricsheet
     br_bd_indicadores:
       +materialized: table
       +schema: br_bd_indicadores
@@ -445,6 +457,9 @@ models:
     test_dataset:
       +materialized: table
       +schema: test_dataset
+    us_census_acs:
+      +materialized: table
+      +schema: us_census_acs
     us_ed_ipeds:
       +materialized: table
       +schema: us_ed_ipeds
