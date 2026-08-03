@@ -156,7 +156,7 @@ def _extract_cnae_hierarchy(
 ) -> pd.DataFrame:
     df_extracted = dataframe.copy()
     if levels is None:
-        levels = ["secao", "subclasse"]
+        levels = ["secao", "divisao", "grupo", "classe", "subclasse"]
     df_extracted["secao_cnae"] = df_extracted[cnae_column].str.extract(
         r"(^[A-Z]{1})"
     )
