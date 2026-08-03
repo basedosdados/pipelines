@@ -25,10 +25,10 @@ DATASET_ID = "test_dataset"
 
 @flow(
     name="test_dataset: download_data_to_gcs (ate 100 MB sem bdpro)",
-    flow_run_name="test download: ate 100 MB sem bdpro",
+    flow_run_name="test download_data_to_gcs: open only",
     log_prints=True,
 )
-def test_download_pequena_flow() -> None:
+def test_download_data_to_gcs_open_only_flow() -> None:
     run_dbt(
         dataset_id=DATASET_ID,
         table_id="tabela_pequena",
@@ -39,10 +39,10 @@ def test_download_pequena_flow() -> None:
 
 @flow(
     name="test_dataset: download_data_to_gcs (ate 100 MB com bdpro)",
-    flow_run_name="test download: ate 100 MB com bdpro",
+    flow_run_name="test download_data_to_gcs: open and bdpro",
     log_prints=True,
 )
-def test_download_bdpro_flow() -> None:
+def test_download_data_to_gcs_open_and_bdpro_flow() -> None:
     run_dbt(
         dataset_id=DATASET_ID,
         table_id="tabela_pequena_bdpro",
@@ -53,10 +53,10 @@ def test_download_bdpro_flow() -> None:
 
 @flow(
     name="test_dataset: download_data_to_gcs (100 MB-1 GB)",
-    flow_run_name="test download: 100 MB-1 GB",
+    flow_run_name="test download_data_to_gcs: bdpro only",
     log_prints=True,
 )
-def test_download_media_flow() -> None:
+def test_download_data_to_gcs_bdpro_only_flow() -> None:
     run_dbt(
         dataset_id=DATASET_ID,
         table_id="tabela_media",
@@ -67,10 +67,10 @@ def test_download_media_flow() -> None:
 
 @flow(
     name="test_dataset: download_data_to_gcs (acima 1 GB)",
-    flow_run_name="test download: acima 1 GB",
+    flow_run_name="test download_data_to_gcs: skip large",
     log_prints=True,
 )
-def test_download_grande_flow() -> None:
+def test_download_data_to_gcs_skip_large_flow() -> None:
     run_dbt(
         dataset_id=DATASET_ID,
         table_id="tabela_grande",
@@ -81,11 +81,11 @@ def test_download_grande_flow() -> None:
 
 @flow(
     name="test_dataset: download_data_to_gcs (suite)",
-    flow_run_name="test download: suite completa",
+    flow_run_name="test download_data_to_gcs: all cases",
     log_prints=True,
 )
-def test_download_suite_flow() -> None:
-    test_download_pequena_flow()
-    test_download_bdpro_flow()
-    test_download_media_flow()
-    test_download_grande_flow()
+def test_download_data_to_gcs_all_cases_flow() -> None:
+    test_download_data_to_gcs_open_only_flow()
+    test_download_data_to_gcs_open_and_bdpro_flow()
+    test_download_data_to_gcs_bdpro_only_flow()
+    test_download_data_to_gcs_skip_large_flow()
