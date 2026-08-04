@@ -27,4 +27,8 @@ select
     safe_cast(eleitores_biometria as string) eleitores_biometria,
     safe_cast(eleitores_deficiencia as string) eleitores_deficiencia,
     safe_cast(eleitores_inclusao_nome_social as string) eleitores_inclusao_nome_social
-from {{ set_datalake_project("br_tse_eleicoes_staging.perfil_eleitorado_secao") }} as t
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.perfil_eleitorado_secao") }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    
