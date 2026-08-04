@@ -40,6 +40,9 @@ models:
     af_afrobarometer_survey:
       +materialized: table
       +schema: af_afrobarometer_survey
+    au_alexander_politicians:
+      +materialized: table
+      +schema: au_alexander_politicians
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
@@ -67,6 +70,9 @@ models:
     br_bcb_sicor:
       +materialized: table
       +schema: br_bcb_sicor
+    au_nsw_bocsar_crime:
+      +materialized: table
+      +schema: au_nsw_bocsar_crime
     br_bcb_taxa_cambio:
       +materialized: table
       +schema: br_bcb_taxa_cambio

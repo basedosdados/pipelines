@@ -34,6 +34,20 @@ O crawler é compartilhado com os outros conjuntos do DATASUS:
 O `dicionario` **não tem flow**. É a única tabela do conjunto que não é
 atualizada por nada automaticamente.
 
+### O upload para o staging é parquet
+
+O `pre_process_files` grava **parquet**, e as tabelas externas de staging, em dev e em prod,
+estão declaradas como `PARQUET`. Por isso as duas chamadas de `upload_to_gcs` no `_run_cnes`
+passam `source_format="parquet"` — o default do parâmetro é `"csv"`.
+
+Isso ficou implícito por muito tempo e quebrou em 2026-07-31. Com `dump_mode="append"` o
+formato só era usado quando a staging **não** existia, então o default nunca importava. O
+PR #1677 acrescentou o `_sync_staging_schema` ao ramo "tabela já existe", que chama
+`dump_header(data_path, source_format)` — e aí os 13 flows do conjunto passaram a falhar no
+upload com `Nenhum arquivo csv encontrado em /tmp/br_ms_cnes/output/<tabela>`, antes de
+subir qualquer coisa. O `_run_dbf_to_parquet` (SIA e SIH) sempre declarou o formato; o
+`_run_sinan` tem o mesmo defeito e ficou fora desta correção.
+
 ## Modelo de poll (PR #1707)
 
 Até 2026-07 as 11 tabelas com cron estavam paradas em 2026-05 com a fonte já em
@@ -63,7 +77,7 @@ ingerir nada; a partir do dia seguinte a `main` já carrega o poll novo.
 
 ## O dicionário
 
-### Estado em 2026-07-29
+### Estado em 2026-07-30
 
 **Dev está fechado; prod ainda não.** As duas correções da issue #1714 foram
 aplicadas no staging dev — as 7 chaves novas (`tipo_equipamento` 11–16 e
@@ -83,10 +97,17 @@ de 1.598 para **1.739 linhas**), o `equipamento` foi reconstruído com `--full-r
 (142,4M linhas, 4,8 GiB, 40 s) e os 8 testes passam. Verificado na tabela nova: zero linhas
 em `__UNPARTITIONED__` e 99,85% das linhas de 2026-06 com rótulo.
 
-Em prod a coluna chega no merge, pelo `on_schema_change="append_new_columns"` do modelo:
-ela passa a existir com valor **nulo no histórico** e preenchida das competências novas em
-diante. **Não rodar `--full-refresh` em produção** — ver a ressalva do `--sync-bucket` em
-"Como isso chega em prod". O backfill histórico depende de completar o staging de dev.
+**Dev completado em 2026-07-30, e isso muda o plano de prod.** O staging de dev estava 20
+competências atrás do de prod, o que tornava qualquer `--full-refresh` em produção uma
+perda de histórico. As competências foram transferidas de prod para dev (ver "Como isso
+chega em prod"), o `equipamento` de dev foi reconstruído sobre as **251 competências**
+resultantes — 164.565.160 linhas, 8 testes passando — e o `--full-refresh` em prod passou a
+ser o caminho previsto, não uma armadilha.
+
+Na mesma data a issue #1722 corrigiu o tipo de quatro colunas, o que **obriga** esse
+full-refresh: troca de tipo não se aplica em modelo incremental. O dicionário foi de 1.739
+para **1.743 linhas** — os rótulos `Sim`/`Não` dos dois indicadores, que passaram a ser
+STRING cobertos por dicionário. Ver "Tipos das colunas do equipamento" abaixo.
 
 ### Origem
 
@@ -140,19 +161,39 @@ Duas condições fáceis de esquecer, e sem as duas o prod fica para trás em si
 Atenção também: o `sync_bucket` apaga o destino e copia o dev por cima. Antes de
 sincronizar, confira que prod não tem nada que dev não tenha.
 
-**E aqui prod tem.** Medido em 2026-07-29: o staging de dev do `equipamento` tem 231
-competências e a tabela de prod tem 250 — faltam em dev 2024-02 a 2025-07, mais 2025-09 e
-2025-10, cerca de 21 milhões de linhas. O staging de dev não é espelho de prod; ele
+**E até 2026-07-30 prod tinha.** Medido em 2026-07-29: o staging de dev do `equipamento`
+tinha 231 competências contra 250 em prod — faltavam em dev 2024-02 a 2025-07, mais 2025-09
+e 2025-10, 22.164.918 linhas. O staging de dev não é espelho de prod por construção: ele
 acumula só o que os runs de dev produziram, e esses são manuais e esporádicos.
 
-Consequência: **nunca rodar `--full-refresh` do `equipamento` em produção** depois de um
-`table-approve`. O run incremental da action não remove nada, mas uma reconstrução a
-partir do staging truncado apagaria as 20 competências. O `sync_bucket` faz backup em
-`basedosdados-backup` antes de apagar, então é recuperável — mas só até o próximo sync,
-que deleta o backup anterior.
+#### A transferência de prod para dev (2026-07-30)
 
-Isso não é particularidade do CNES: a premissa do `--sync-bucket` é que dev espelha prod,
-e isso vale para qualquer conjunto cujo dev esteja atrás.
+As 20 competências foram copiadas do staging de prod para o de dev antes do merge, o que
+tirou a armadilha do caminho em vez de conviver com ela:
+
+- **540 arquivos, 75,8 MB**, cópia server-side de
+  `gs://basedosdados/staging/br_ms_cnes/equipamento/ano=…/mes=…/sigla_uf=…/equipamento.parquet`
+  para o mesmo caminho em `gs://basedosdados-dev`
+- **byte a byte, sem reprocessar nada** — são os arquivos que o próprio crawler escreveu.
+  Foi por isso que se descartou reconstruí-los com `EXPORT DATA` ou rebaixar 22M linhas do
+  FTP: qualquer um dos dois arriscaria um parquet com esquema levemente diferente, e é esse
+  arquivo que o `table-approve` empurra para prod depois
+- dev saiu de 231 para **251 competências** (164.567.187 linhas no staging) e virou
+  **superconjunto** de prod: zero partição `(ano, mes, sigla_uf)` de prod sem par de
+  contagem idêntica em dev, mais 27 partições que só dev tem (2026-06, que prod não
+  alcançou)
+
+A credencial de dev (`chave-subidores-de-dados@basedosdados-dev`) **lê o bucket de prod**
+passando `user_project=basedosdados-dev` — requester-pays cobrado em dev. Não é preciso
+credencial de prod para uma transferência nesse sentido.
+
+Consequência: o `--sync-bucket` deixou de ser destrutivo para o `equipamento`, e
+`--full-refresh` em produção passou a ser seguro — o que a issue #1722 exige.
+
+Isso não é particularidade do CNES: a premissa do `--sync-bucket` é que dev espelha prod, e
+isso vale para qualquer conjunto cujo dev esteja atrás. Nas outras 12 tabelas do conjunto a
+comparação nunca foi feita; antes de mergear uma PR com a label `table-approve` que toque
+qualquer `.sql` delas, conte as competências dos dois lados primeiro.
 
 ### Códigos acrescentados em 2026-07-28 (issue #1714)
 
@@ -299,10 +340,18 @@ Duas armadilhas medidas na série:
   da action, com valor nulo nas linhas antigas. Os demais modelos do conjunto seguem no
   padrão `ignore` e teriam o problema se ganhassem coluna.
 
-  O deployment de dbt aceita `flags` (`run_dbt_model_flow`) e o `run_dbt` insere o
-  `--full-refresh` só no `run`, nunca no `test` — mas **não use isso aqui**: o
-  `--sync-bucket` do `table-approve` deixa o staging de prod truncado, e reconstruir a
-  partir dele perde 20 competências. Ver "Como isso chega em prod".
+  O deployment de dbt aceita `flags` (`run_dbt_model_flow`), e **esse é o caminho para prod
+  desde 2026-07-30**, quando o staging de dev deixou de estar atrás do de prod — antes disso
+  reconstruir a partir do staging sincronizado perderia 20 competências. Com o
+  full-refresh, `codigo_equipamento` chega preenchida na série inteira em vez de nula no
+  histórico, e o particionamento é refeito de fato.
+
+  **Peça `dbt_command="run"`, não `"run/test"`.** O `run_dbt` anexa a flag aos **dois**
+  comandos: a intenção do código é reservá-la ao `run`, mas quando `cmd == "test"` a
+  condição cai no `elif` e a flag vai junto, e o dbt aborta com
+  `No such option: --full-refresh`. O `run` termina antes disso, então a tabela sai correta
+  e só o teste falha — foi o que aconteceu em 2026-07-31. Rode o teste depois, sem flag, ou
+  deixe o flow fazê-lo.
 
 ### De onde saem os rótulos dos 4 dígitos
 
@@ -367,6 +416,93 @@ lê o PDF (devolve binário); `pdftotext -layout` resolve.
 
 ---
 
+## Tipos das colunas do equipamento (issue #1722, 2026-07-30)
+
+Quatro colunas contrariavam a convenção de tipos da BD, e as duas primeiras reprovavam o
+`check-metadata` porque o BigQuery e a API discordavam entre si:
+
+| Coluna | Era | Virou | Por quê |
+|---|---|---|---|
+| `quantidade_equipamentos` | STRING | **INT64** | contagem; somar e tirar média faz sentido |
+| `quantidade_equipamentos_ativos` | STRING | **INT64** | idem |
+| `indicador_equipamento_disponivel_sus` | INT64 | **STRING** + dicionário | booleano 0/1, não quantidade |
+| `indicador_equipamento_indisponivel_sus` | INT64 | **STRING** + dicionário | idem |
+
+A `equipamento` era a única tabela do conjunto que convertia contagem para texto — `leito` e
+`dados_complementares` já convertiam o mesmo campo `qt_exist` para `int64`.
+
+Medido na série inteira do staging de prod (163.469.332 linhas), não só na competência
+corrente:
+
+- **zero** valores não numéricos em `QT_EXIST` e `QT_USO` — o `safe_cast` para INT64 não
+  perde nada em nenhuma competência (confirmado depois na tabela: zero
+  `quantidade_equipamentos` nula em 164,5M linhas)
+- `IND_SUS` e `IND_NSUS` só assumem `'0'` e `'1'`, e são **exatamente complementares**
+  (93.878.391 contra 69.590.941, invertidos) — uma é a negação da outra. Redundância da
+  fonte; ficou registrado, sem ação. O `Equipamento.def` do `TAB_CNES.zip` documenta
+  "somente 1=SIM ou 0=NÃO"
+
+**`measurement_unit` ficou em branco, de propósito.** O backend tem 64 unidades e nenhuma
+de contagem — não existe `unit`, `item` nem `count`, e o mais próximo é `person`. `leito` e
+`dados_complementares` também deixam as quantidades deles em branco. A regra da convenção
+("toda coluna numérica carrega unidade") não tem como ser cumprida aqui até o vocabulário
+ganhar uma unidade de contagem.
+
+**O `custom_dictionary_coverage` passou a cobrir os dois indicadores** — e isso só é
+possível porque eles viraram STRING: o teste faz `model.<coluna> = dicionario.chave`, e
+`chave` é STRING, então com INT64 a query nem compila (`No matching signature for operator
+= for argument types: INT64, STRING`). O domínio é fechado em 0/1, então o alarme dispara de
+verdade se a fonte inventar um sentinela. `codigo_equipamento` continua fora, pelos 66
+códigos sem rótulo.
+
+### Troca de tipo exige full-refresh — não é opcional
+
+`on_schema_change` não trata tipo, em nenhum dos valores. Num modelo incremental o run
+seguinte simplesmente falha, medido direto no BigQuery:
+
+```text
+Query column 1 has type INT64 which cannot be inserted into
+column quantidade_equipamentos, which has type STRING
+```
+
+Duas consequências práticas no merge:
+
+1. **O `table-approve` vai falhar no `dbt run` da `equipamento`** — ele roda incremental,
+   sem a flag. Não é regressão; é isso. A correção é disparar o `run_dbt_model_flow` em prod
+   com `flags="--full-refresh"` logo depois.
+2. **O full-refresh derruba o paywall.** O `pre_hook` do modelo faz
+   `DROP ALL ROW ACCESS POLICIES`, e o `run_dbt_model_flow` não as reaplica — só
+   `register_table_materialization_task` reaplica, num run do flow com
+   `update_metadata=True`. A tabela é `PartBdpro`, então esse run tem que vir junto, não
+   depois. Atenção que o deployment do `equipamento` estava **pausado** em 2026-07-28.
+
+### O `bigquery_type` na API: nenhuma ferramenta do MCP grava em coluna existente
+
+`update_column` não tem o parâmetro; `bulk_upsert_columns` monta `bigqueryType` **só no
+ramo de criação** (`if not is_update:`); `upload_columns` responde 500. O
+`upload_columns_from_sheet` funciona, mas reescreve **todas** as colunas da tabela a partir
+da planilha, o que arrisca descrições EN/ES e vínculos de observation level.
+
+O caminho usado foi a **mutação `CreateUpdateColumn` direta**, que é patch: enviando só
+`id`, `name`, `table`, `bigqueryType` e `coveredByDictionary`, o resto fica intacto. A
+tabela foi resolvida pela cloud table (`gcpProjectId` + `gcpDatasetId` + `gcpTableId`), com
+asserção de resultado único — a duplicata de cloud table foi o que quebrou todos os flows do
+`br_rf_cno`. Consertar a ferramenta é issue no repo `mcp`, não trabalho de PR de dados.
+
+### Como conferir
+
+O `check_metadata.py` da CI compara **BigQuery dev × API de prod** e **não roda local**: ele
+fatura no projeto `basedosdados`, e o `config.toml` local é só de dev (a versão do Python
+também é 3.12, contra 3.10 do venv do projeto). Para validar antes do push, reproduza a
+comparação faturando em dev — mesmas duas fontes, mesmas regras de normalização de tipo.
+
+Vale lembrar a ordem, porque a label `test-dev-model` cobra o estado de dev a cada push: o
+dbt test só passa depois de o dicionário ter as chaves **e** a tabela de dev ter sido
+reconstruída, e o `check-metadata` só fecha depois da mutação na API. Push no meio do
+caminho volta vermelho.
+
+---
+
 ## Particionamento (achado de 2026-07-29)
 
 **Os modelos do conjunto estão com o fim do range de partição curto demais.** A maioria
@@ -383,11 +519,11 @@ então a correção só vale depois de `--full-refresh`. O `dbt` não acusa a di
 o config novo e o particionamento antigo enquanto isso não acontece —
 `dbt run --select br_ms_cnes__incentivos` passou normalmente (`MERGE`) nessa situação.
 
-**Só o `equipamento` foi corrigido aqui** (`end: 2031`), e **só em dev**. O rebuild de dev
-serviu a duas coisas de uma vez: reparticionar a tabela e preencher `codigo_equipamento`
-em toda a série. Em prod nada disso acontece nesta PR — a coluna chega por
-`append_new_columns`, com histórico nulo, e o particionamento antigo permanece, porque
-reconstruir a partir do staging sincronizado perderia 20 competências.
+**Só o `equipamento` foi corrigido aqui** (`end: 2031`). O rebuild serviu a três coisas de
+uma vez: reparticionar a tabela, preencher `codigo_equipamento` em toda a série e aplicar os
+tipos novos da #1722. Em dev está feito (zero linhas em `__UNPARTITIONED__`); em prod chega
+com o `--full-refresh` manual descrito em "Tipos das colunas do equipamento", que desde a
+transferência de 2026-07-30 não perde mais histórico.
 
 As outras 11 tabelas, e a reconstrução de todas, ficaram em issue própria: são 248 GB e
 1,17 bilhão de linhas, com `estabelecimento` e `profissional` somando 222 GB, o que não
@@ -415,10 +551,12 @@ poll novo. Logs em `task_davi/acompanhamento_de_pipelines/br_ms_cnes/`.
 Falharam no `dbt test` por causa dos códigos novos do dicionário (issue #1714).
 Corrigido em dev em 2026-07-28; prod depende do `table-approve` do PR.
 
-O `equipamento` ganhou ainda a coluna `codigo_equipamento` e foi reconstruído em
-2026-07-29 — 8 testes passando. O `custom_dictionary_coverage` dele agora cobre **só**
-`tipo_equipamento`: `id_equipamento` saiu por ser alarme morto e `codigo_equipamento` não
-entrou porque 66 códigos não têm rótulo. Ver "O código de 4 dígitos" acima.
+O `equipamento` ganhou ainda a coluna `codigo_equipamento` e foi reconstruído em 2026-07-29,
+e de novo em 2026-07-30 sobre as 251 competências, com os tipos da #1722 — 164.565.160
+linhas, 8 testes passando. O `custom_dictionary_coverage` dele cobre `tipo_equipamento` e os
+**dois indicadores**: `id_equipamento` saiu por ser alarme morto e `codigo_equipamento` não
+entrou porque 66 códigos não têm rótulo. Ver "O código de 4 dígitos" e "Tipos das colunas do
+equipamento" acima.
 
 ### br_ms_cnes__leito
 
