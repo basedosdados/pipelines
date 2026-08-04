@@ -48,7 +48,6 @@
     "instrumento_financeiro",
     "tipo_garantia",
     "tipo_excepcionalidade",
-    "indicador_inovacao",
     "area_operacional",
     "setor_cnae",
     "subsetor_cnae_agrupado",
