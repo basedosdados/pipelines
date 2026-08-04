@@ -5,7 +5,6 @@ Run from ``models/br_tse_eleicoes/code/python``:
     TSE_DATA_DIR=/tmp/dados_TSE uv run --with pdfplumber python -m diagnostics run --tier 1
     ... run --tier 2 [--force]
     ... run --tier 3 [--table candidatos]
-    ... report
     ... status
 """
 
@@ -24,7 +23,6 @@ def main(argv=None):
     p_run.add_argument("--table", default="all")
     p_run.add_argument("--force", action="store_true")
 
-    sub.add_parser("report", help="regenerate DIAGNOSIS.md sections")
     sub.add_parser("status", help="print summary from last findings")
 
     args = parser.parse_args(argv)
@@ -54,12 +52,6 @@ def main(argv=None):
         findings = tier3_check.run(args.table)
         print(tier3_check.summarize(findings))
         return 1 if any(f.severity == "FAIL" for f in findings) else 0
-
-    if args.cmd == "report":
-        from . import report
-
-        report.update_diagnosis_md()
-        return 0
 
     if args.cmd == "status":
         import json

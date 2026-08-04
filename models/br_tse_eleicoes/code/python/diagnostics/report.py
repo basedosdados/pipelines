@@ -1,4 +1,4 @@
-"""Regenerate the auto-generated sections of code/DIAGNOSIS.md.
+"""Status-matrix + findings rendering for the schema diagnostics harness.
 
 The status matrix and findings sections between the
 ``<!-- diagnostics:begin -->`` / ``<!-- diagnostics:end -->`` markers are
@@ -15,9 +15,6 @@ from pathlib import Path
 
 ARTIFACTS = Path(__file__).resolve().parent / "artifacts"
 FINDINGS_PATH = ARTIFACTS / "findings.json"
-DIAGNOSIS_MD = (
-    Path(__file__).resolve().parent.parent.parent / "DIAGNOSIS.md"
-)  # code/DIAGNOSIS.md
 
 BEGIN = "<!-- diagnostics:begin -->"
 END = "<!-- diagnostics:end -->"
@@ -146,13 +143,6 @@ def render() -> str:
     return "\n".join(parts)
 
 
-def update_diagnosis_md():
-    content = DIAGNOSIS_MD.read_text()
-    start = content.index(BEGIN)
-    end = content.index(END) + len(END)
-    DIAGNOSIS_MD.write_text(content[:start] + render() + content[end:])
-    print(f"updated {DIAGNOSIS_MD}")
-
-
-if __name__ == "__main__":
-    update_diagnosis_md()
+# DIAGNOSIS.md generation (``update_diagnosis_md``) was removed with the
+# diagnosis docs; the drift harness keeps ``run`` (tier gates) and ``status``
+# (``_matrix`` over findings.json). ``render`` is retained for programmatic use.
