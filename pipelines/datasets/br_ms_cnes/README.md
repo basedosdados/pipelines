@@ -73,6 +73,49 @@ original` está rodando o poll **antigo** — é a mensagem do processo anterior
 os runs agendados de 2026-07-28 são anteriores ao merge e fecharam verdes sem
 ingerir nada; a partir do dia seguinte a `main` já carrega o poll novo.
 
+### O destravamento manual de 2026-08-03
+
+O modelo novo consertou a comparação, mas nada migrou o valor antigo. As 11 tabelas
+com cron seguiam com o horário da materialização no `Table.Update.latest`
+(`2026-06-17`/`18`), e o `check_source_is_ahead_of_table` comparava a cobertura da
+fonte (`2026-06-01`) contra esse horário — sempre menor. E o único ponto que troca esse
+valor por cobertura é o `sync_table_coverage`, que roda **depois** dessa checagem: para
+ela passar, o flow precisava ter rodado; para rodar, ela precisava passar.
+
+A saída foi escrever o valor à mão, uma vez por tabela. Em 2026-08-03, via MCP
+(`create_update_update`, env prod), as 11 tabelas mensais receberam
+`latest = 2026-05-01` — o fim da cobertura registrada —, preservando `entity=month`,
+`frequency=1` e `lag=None`. Daí em diante o `sync_table_coverage` mantém o campo como
+cobertura e a checagem se sustenta sozinha.
+
+O log de um flow travado não acusa nada disso: ele mostra
+`The year_month_to_parse (YYMM) is 2606` (o `check_files_to_parse` lê a **cobertura** e
+acerta) e, três linhas abaixo, `Tabela CNES já cobre a fonte — encerrando` (o
+`check_source_is_ahead_of_table` lê o `Table.Update` e erra). As duas afirmações
+contraditórias na mesma run são a assinatura desse problema.
+
+Duas tabelas ficaram de fora de propósito: `estabelecimento_ensino` e
+`regra_contratual` têm `entity=day` e `frequency=None`, e o `create_update_update`
+exige `frequency` — corrigi-las seria inventar uma cadência que ninguém definiu. Elas
+não estão travadas: o `latest` delas é de `2024-05-16`, anterior à cobertura da fonte,
+então a checagem já passa — por acidente, não por desenho.
+
+Duas armadilhas do MCP no caminho: ele não lê `latest`, `frequency` nem `lag`, e
+devolve o range de cobertura só com ano. Os valores acima foram lidos por GraphQL
+direto (`allUpdate`, `allCoverage`, `allDatetimerange`).
+
+Esse destravamento é **uma vez por tabela**. Tabela nova no conjunto, ou outro
+conjunto que adote o poll novo, precisa da mesma escrita.
+
+**Pendências vistas na mesma leitura:**
+
+- `estabelecimento_ensino` e `regra_contratual` têm só a cobertura free, mas o
+  `_run_cnes` declara `PartBdpro` para toda tabela — um run de prod com
+  `update_metadata=True` para em `assert_coverage_topology`
+  (`part_bdpro exige Coverage free + pro`) antes de gravar qualquer coisa.
+- Em `dados_complementares` e `estabelecimento_filantropico` o range da cobertura pro
+  está com `is_closed=False`, divergindo da cobertura que o contém.
+
 ---
 
 ## O dicionário
