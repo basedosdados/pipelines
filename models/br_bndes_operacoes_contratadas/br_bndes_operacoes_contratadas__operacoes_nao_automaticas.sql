@@ -48,7 +48,6 @@
     "instrumento_financeiro",
     "tipo_garantia",
     "tipo_excepcionalidade",
-    "indicador_inovacao",
     "area_operacional",
     "setor_cnae",
     "subsetor_cnae_agrupado",
@@ -78,7 +77,6 @@ select
             safe_cast({{ col.name }} as float64) as {{ col.name }}
         {% elif col.name in int_cols %}
             safe_cast({{ col.name }} as int64) as {{ col.name }}
-        {% else %} {{ col.name }}
         {% endif %}
         {% if not loop.last %}, {% endif %}
     {% endfor %}
