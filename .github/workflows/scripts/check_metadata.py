@@ -165,9 +165,11 @@ def get_column_errors(row: pd.Series) -> ColumnResult:
                 )
             )
 
-    column_name = row.get("column_name", row.get("name", ""))
+    bq_name = row.get("column_name")
+    api_name = row.get("name")
+    column_name = bq_name if pd.notna(bq_name) else api_name
 
-    if column_name is None or not isinstance(column_name, str):
+    if not isinstance(column_name, str):
         raise Exception(f"Failed to get column_name for pandas series {row}")
 
     return ColumnResult(column_name=column_name, errors=errors)
@@ -263,8 +265,8 @@ def raise_if_metadata_errors(
                                 print(f"     BQ: `{bq}`")
                                 print(f"    API: `{api}`\n")
                             case TypeError(lhs, rhs):
-                                print(f"     BQ: `{lhs}`")
-                                print(f"    API: `{rhs}`\n")
+                                print(f"     BQ Datatype: `{lhs}`")
+                                print(f"    API Datatype: `{rhs}`\n")
 
     if error_exists:
         print("⚠️ Metadata discrepancies found. See the output")
