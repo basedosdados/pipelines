@@ -152,7 +152,7 @@ def _extract_cnae_hierarchy(
     dataframe: pd.DataFrame,
     cnae_column: str,
     levels: list[str] | None = None,
-    verify_diretorios: bool = False,
+    verify_diretorios: bool = True,
     df_diretorios: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     df_extracted = dataframe.copy()
@@ -191,18 +191,22 @@ def _extract_cnae_hierarchy(
     # Se o código do BNDES for de nível alto (Divisão/Grupo), anula os níveis inferiores falsos
     if "subclasse_cnae" in df_extracted.columns:
         df_extracted.loc[
-            df_extracted["subclasse_cnae"].str.endswith("0000"),
+            df_extracted["subclasse_cnae"].str.endswith("00000"),
             "subclasse_cnae",
         ] = None
 
     if "classe_cnae" in df_extracted.columns:
         df_extracted.loc[
-            df_extracted["classe_cnae"].str.endswith("000"), "classe_cnae"
+            df_extracted["classe_cnae"].str.endswith("0000"), "classe_cnae"
         ] = None
 
     if "grupo_cnae" in df_extracted.columns:
         df_extracted.loc[
-            df_extracted["grupo_cnae"].str.endswith("00"), "grupo_cnae"
+            df_extracted["grupo_cnae"].str.endswith("000"), "grupo_cnae"
+        ] = None
+    if "divisao_cnae" in df_extracted.columns:
+        df_extracted.loc[
+            df_extracted["grupo_cnae"].str.endswith("00"), "divisao_cnae"
         ] = None
 
     # Remove a coluna bruta original
