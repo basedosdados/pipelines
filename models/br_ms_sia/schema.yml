@@ -409,7 +409,7 @@ models:
               config:
                 where: __most_recent_year_month__
       - name: tipo_droga
-        description: Tipo de Droga
+        description: Tipo de droga
       - name: destino_paciente
         description: Destino do paciente
       - name: local_realizacao_atendimento
