@@ -59,6 +59,7 @@ PA_TYPE = {
     "INT64": pa.int64(),
     "FLOAT64": pa.float64(),
     "DATE": pa.date32(),
+    "BOOLEAN": pa.bool_(),
 }
 
 
@@ -96,19 +97,17 @@ def to_date(s):
 
 
 def fill_flag(s):
-    """1-or-missing flag -> strict '0'/'1' string."""
-    return s.where(s.notna(), "0").map(
-        lambda v: "1" if str(v).strip() in ("1", "1.0") else "0"
-    )
+    """1-or-missing flag -> boolean, missing treated as False."""
+    return s.map(lambda v: pd.notna(v) and str(v).strip() in ("1", "1.0"))
 
 
 def keep_flag(s):
-    """0/1 flag, missing preserved as NULL."""
+    """0/1 flag -> boolean, missing preserved as None."""
 
     def m(v):
         if pd.isna(v):
             return None
-        return "1" if str(v).strip() in ("1", "1.0") else "0"
+        return str(v).strip() in ("1", "1.0")
 
     return s.map(m)
 
@@ -132,6 +131,8 @@ def write_table(table, df):
             vals = [None if pd.isna(v) else float(v) for v in col]
         elif typ == "DATE":
             vals = [None if (v is None or pd.isna(v)) else v for v in col]
+        elif typ == "BOOLEAN":
+            vals = [None if v is None or pd.isna(v) else bool(v) for v in col]
         else:  # STRING
             vals = [None if pd.isna(v) else str(v) for v in col]
         arr = pa.array(vals, type=pat)
@@ -201,9 +202,9 @@ def build_house():
     df = read_src("australian_politicians-mps-by_division.csv")
     ebe = df["enteredAtByElection"].map(
         lambda v: (
-            "1"
+            True
             if str(v).strip() in ("1", "Yes")
-            else ("0" if str(v).strip() == "No" else None)
+            else (False if str(v).strip() == "No" else None)
         )
     )
     out = pd.DataFrame(
@@ -261,48 +262,12 @@ def build_ministry():
     return out
 
 
-def build_dicionario():
-    """value->label maps for covered_by_dictionary columns (all boolean flags)."""
-    flag_cols = {
-        "politician": [
-            "indicator_member",
-            "indicator_senator",
-            "indicator_prime_minister",
-        ],
-        "party_affiliation": [
-            "indicator_party_changed_name",
-            "indicator_specific_date_inputted",
-        ],
-        "house_member": [
-            "indicator_entered_at_by_election",
-            "indicator_changed_seat",
-        ],
-        "senator": ["indicator_section_15_selection"],
-        "ministry": ["indicator_assistant_or_secretary"],
-    }
-    rows = []
-    for table, cols in flag_cols.items():
-        for c in cols:
-            for key, val in (("0", "No"), ("1", "Yes")):
-                rows.append(
-                    {
-                        "id_tabela": table,
-                        "nome_coluna": c,
-                        "chave": key,
-                        "cobertura_temporal": "",
-                        "valor": val,
-                    }
-                )
-    return pd.DataFrame(rows)
-
-
 BUILDERS = {
     "politician": build_politician,
     "party_affiliation": build_party,
     "house_member": build_house,
     "senator": build_senator,
     "ministry": build_ministry,
-    "dicionario": build_dicionario,
 }
 
 

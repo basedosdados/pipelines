@@ -17,10 +17,9 @@ between **1901 and 2021**, from Rohan Alexander & Paul Hodgetts' open dataset.
 | `house_member` | 1,430 | politician × House-of-Representatives division spell |
 | `senator` | 696 | politician × Senate state spell |
 | `ministry` | 2,920 | politician × portfolio within a ministry |
-| `dicionario` | 18 | value→label map for the coded (0/1) columns |
-
-7 source CSVs → 6 tables: `uniqueID_to_aphID` is folded into `politician`;
+7 source CSVs → 5 tables: `uniqueID_to_aphID` is folded into `politician`;
 `uniqueID_to_aph_ministries` (an internal name-matching build artifact) is dropped.
+The `indicator_*` flags are stored as native `BOOLEAN`, so no dictionary table is needed.
 
 ## Foreign keys / directories
 
@@ -48,9 +47,9 @@ Then from the repo root: `dbt run --profiles-dir . --select au_alexander_politic
 
 ## Cleaning notes (source quirks handled)
 
-- Boolean flags stored as STRING `"0"`/`"1"` (dictionary-covered). Sparse
-  "1-or-blank" flags (PM, changed-seat, etc.) filled to `0`; `enteredAtByElection`
-  normalised from mixed `1`/`Yes`/`No`.
+- `indicator_*` flags stored as native `BOOLEAN`. Sparse "1-or-blank" flags (PM,
+  changed-seat, etc.) filled to `false`; `enteredAtByElection` normalised from mixed
+  `1`/`Yes`/`No`; genuinely missing flags (`indicator_section_15_selection`) stay NULL.
 - `Connelly` (bare surname in `mps-by_division` and the aphID crosswalk) remapped
   to the master id `Connelly1978` (verified same person: Vince Connelly, Stirling
   WA, entered 2019-05-18).

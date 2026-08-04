@@ -38,7 +38,6 @@ TABLES = [
     ("house_member", 1430),
     ("senator", 696),
     ("ministry", 2920),
-    ("dicionario", 18),
 ]
 
 

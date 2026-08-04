@@ -5,5 +5,5 @@ abbreviation_state,STRING,Sigla do estado ou território representado pelo senad
 date_start,DATE,Data de início do mandato no Senado,,no,,,no,,senatorFrom
 date_end,DATE,Data de término do mandato no Senado,,no,,,no,,senatorTo
 end_reason,STRING,Motivo do término do mandato no Senado,,no,,,no,"Rótulos livres da fonte, com pequenas inconsistências de grafia",senatorEndReason
-indicator_section_15_selection,STRING,"Indica se o senador foi nomeado (seção 15), e não eleito",,yes,,,no,,sec15Sel
+indicator_section_15_selection,BOOLEAN,"Indica se o senador foi nomeado (seção 15), e não eleito",,no,,,no,,sec15Sel
 comments,STRING,Comentários sobre o mandato no Senado,,no,,,no,,senatorComments

@@ -12,9 +12,9 @@ select
     safe_cast(party_simplified_name as string) party_simplified_name,
     safe_cast(date_start as date) date_start,
     safe_cast(date_end as date) date_end,
-    safe_cast(indicator_party_changed_name as string) indicator_party_changed_name,
+    safe_cast(indicator_party_changed_name as boolean) indicator_party_changed_name,
     safe_cast(
-        indicator_specific_date_inputted as string
+        indicator_specific_date_inputted as boolean
     ) indicator_specific_date_inputted,
     safe_cast(comments as string) comments
 from

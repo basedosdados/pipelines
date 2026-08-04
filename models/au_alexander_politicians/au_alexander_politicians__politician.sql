@@ -21,9 +21,9 @@ select
     safe_cast(birth_year as int64) birth_year,
     safe_cast(birth_place as string) birth_place,
     safe_cast(death_date as date) death_date,
-    safe_cast(indicator_member as string) indicator_member,
-    safe_cast(indicator_senator as string) indicator_senator,
-    safe_cast(indicator_prime_minister as string) indicator_prime_minister,
+    safe_cast(indicator_member as boolean) indicator_member,
+    safe_cast(indicator_senator as boolean) indicator_senator,
+    safe_cast(indicator_prime_minister as boolean) indicator_prime_minister,
     safe_cast(url_wikipedia as string) url_wikipedia,
     safe_cast(url_adb as string) url_adb,
     safe_cast(comments as string) comments

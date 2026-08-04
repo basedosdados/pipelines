@@ -14,9 +14,9 @@ birth_date,DATE,Data de nascimento do político,,no,,,no,Vazia quando apenas o a
 birth_year,INT64,"Ano de nascimento do político, preenchido apenas quando a data completa é desconhecida",,no,,year,no,,birthYear
 birth_place,STRING,"Local de nascimento do político, majoritariamente extraído da Wikidata",,no,,,no,,birthPlace
 death_date,DATE,Data de falecimento do político,,no,,,no,,deathDate
-indicator_member,STRING,Indica se o político foi membro da Câmara dos Representantes (câmara baixa),,yes,,,no,,member
-indicator_senator,STRING,Indica se o político foi membro do Senado (câmara alta),,yes,,,no,,senator
-indicator_prime_minister,STRING,Indica se o político foi Primeiro-Ministro da Austrália,,yes,,,no,"Na fonte, apenas o valor 1 aparece; ausência foi preenchida como 0",wasPrimeMinister
+indicator_member,BOOLEAN,Indica se o político foi membro da Câmara dos Representantes (câmara baixa),,no,,,no,,member
+indicator_senator,BOOLEAN,Indica se o político foi membro do Senado (câmara alta),,no,,,no,,senator
+indicator_prime_minister,BOOLEAN,Indica se o político foi Primeiro-Ministro da Austrália,,no,,,no,"Na fonte, apenas o valor 1 aparece; ausência foi preenchida como false",wasPrimeMinister
 url_wikipedia,STRING,URL da página do político na Wikipédia,,no,,,no,,wikipedia
 url_adb,STRING,URL da entrada do político no Australian Dictionary of Biography (ADB),,no,,,no,,adb
 comments,STRING,Comentários e ressalvas sobre o registro do político,,no,,,no,,comments

@@ -252,28 +252,6 @@ TRANS = {
             "Comentarios sobre el registro del ministerio",
         ),
     },
-    "dicionario": {
-        "id_tabela": (
-            "Name of the table to which the column belongs",
-            "Nombre de la tabla a la que pertenece la columna",
-        ),
-        "nome_coluna": (
-            "Name of the column covered by the dictionary",
-            "Nombre de la columna cubierta por el diccionario",
-        ),
-        "chave": (
-            "Key (stored value) of the column",
-            "Clave (valor almacenado) de la columna",
-        ),
-        "cobertura_temporal": (
-            "Temporal coverage of the key",
-            "Cobertura temporal de la clave",
-        ),
-        "valor": (
-            "Value (readable label) corresponding to the key",
-            "Valor (etiqueta legible) correspondiente a la clave",
-        ),
-    },
 }
 
 

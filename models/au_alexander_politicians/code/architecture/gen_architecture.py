@@ -134,25 +134,25 @@ TABLES["politician"] = [
     ),
     col(
         "indicator_member",
-        "STRING",
+        "BOOLEAN",
         "Indica se o político foi membro da Câmara dos Representantes (câmara baixa)",
-        dict_="yes",
+        dict_="no",
         orig="member",
     ),
     col(
         "indicator_senator",
-        "STRING",
+        "BOOLEAN",
         "Indica se o político foi membro do Senado (câmara alta)",
-        dict_="yes",
+        dict_="no",
         orig="senator",
     ),
     col(
         "indicator_prime_minister",
-        "STRING",
+        "BOOLEAN",
         "Indica se o político foi Primeiro-Ministro da Austrália",
-        dict_="yes",
+        dict_="no",
         orig="wasPrimeMinister",
-        obs="Na fonte, apenas o valor 1 aparece; ausência foi preenchida como 0",
+        obs="Na fonte, apenas o valor 1 aparece; ausência foi preenchida como false",
     ),
     col(
         "url_wikipedia",
@@ -215,19 +215,19 @@ TABLES["party_affiliation"] = [
     ),
     col(
         "indicator_party_changed_name",
-        "STRING",
+        "BOOLEAN",
         "Indica se a mudança de registro decorre de mudança de nome do partido, e não de troca de partido",
-        dict_="yes",
+        dict_="no",
         orig="partyChangedName",
-        obs="Na fonte, apenas o valor 1 aparece; ausência foi preenchida como 0",
+        obs="Na fonte, apenas o valor 1 aparece; ausência foi preenchida como false",
     ),
     col(
         "indicator_specific_date_inputted",
-        "STRING",
+        "BOOLEAN",
         "Indica se a data foi inputada especificamente, e não herdada do mandato",
-        dict_="yes",
+        dict_="no",
         orig="partySpecificDateInputted",
-        obs="Na fonte, apenas o valor 1 aparece; ausência foi preenchida como 0",
+        obs="Na fonte, apenas o valor 1 aparece; ausência foi preenchida como false",
     ),
     col(
         "comments",
@@ -287,19 +287,19 @@ TABLES["house_member"] = [
     ),
     col(
         "indicator_entered_at_by_election",
-        "STRING",
+        "BOOLEAN",
         "Indica se o político assumiu a divisão em uma eleição suplementar (by-election)",
-        dict_="yes",
+        dict_="no",
         orig="enteredAtByElection",
-        obs="Valores originais inconsistentes (1, Yes, No) normalizados para 0 e 1",
+        obs="Valores originais inconsistentes (1, Yes, No) normalizados para valores booleanos",
     ),
     col(
         "indicator_changed_seat",
-        "STRING",
+        "BOOLEAN",
         "Indica se o político deixou a divisão por mudança de assento, e não por derrota ou aposentadoria",
-        dict_="yes",
+        dict_="no",
         orig="mpChangedSeat",
-        obs="Na fonte, apenas o valor 1 aparece; ausência foi preenchida como 0",
+        obs="Na fonte, apenas o valor 1 aparece; ausência foi preenchida como false",
     ),
     col(
         "comments",
@@ -352,9 +352,9 @@ TABLES["senator"] = [
     ),
     col(
         "indicator_section_15_selection",
-        "STRING",
+        "BOOLEAN",
         "Indica se o senador foi nomeado (seção 15), e não eleito",
-        dict_="yes",
+        dict_="no",
         orig="sec15Sel",
     ),
     col(
@@ -408,11 +408,11 @@ TABLES["ministry"] = [
     col("date_end", "DATE", "Data de término na pasta", orig="ministry_to"),
     col(
         "indicator_assistant_or_secretary",
-        "STRING",
+        "BOOLEAN",
         "Indica se o cargo é de ministro assistente ou secretário parlamentar",
-        dict_="yes",
+        dict_="no",
         orig="ministry_assistant_minister_or_parliamentary_secretary",
-        obs="Na fonte, apenas o valor 1 aparece; ausência foi preenchida como 0",
+        obs="Na fonte, apenas o valor 1 aparece; ausência foi preenchida como false",
     ),
     col(
         "comments",
@@ -420,15 +420,6 @@ TABLES["ministry"] = [
         "Comentários sobre o registro do ministério",
         orig="ministry_comment",
     ),
-]
-
-# -------------------------------------------------------------------- dicionario
-TABLES["dicionario"] = [
-    col("id_tabela", "STRING", "Nome da tabela à qual a coluna pertence"),
-    col("nome_coluna", "STRING", "Nome da coluna coberta pelo dicionário"),
-    col("chave", "STRING", "Chave (valor armazenado) da coluna"),
-    col("cobertura_temporal", "STRING", "Cobertura temporal da chave"),
-    col("valor", "STRING", "Valor (rótulo legível) correspondente à chave"),
 ]
 
 

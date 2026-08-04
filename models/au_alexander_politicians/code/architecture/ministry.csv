@@ -7,5 +7,5 @@ ministry_title,STRING,Título da pasta ocupada pelo político no ministério,,no
 display_name,STRING,Nome de exibição do político no registro do ministério,,no,,,no,,ministry_name
 date_start,DATE,Data de início na pasta,,no,,,no,,ministry_from
 date_end,DATE,Data de término na pasta,,no,,,no,,ministry_to
-indicator_assistant_or_secretary,STRING,Indica se o cargo é de ministro assistente ou secretário parlamentar,,yes,,,no,"Na fonte, apenas o valor 1 aparece; ausência foi preenchida como 0",ministry_assistant_minister_or_parliamentary_secretary
+indicator_assistant_or_secretary,BOOLEAN,Indica se o cargo é de ministro assistente ou secretário parlamentar,,no,,,no,"Na fonte, apenas o valor 1 aparece; ausência foi preenchida como false",ministry_assistant_minister_or_parliamentary_secretary
 comments,STRING,Comentários sobre o registro do ministério,,no,,,no,,ministry_comment

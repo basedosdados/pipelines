@@ -15,7 +15,7 @@ select
     safe_cast(date_start as date) date_start,
     safe_cast(date_end as date) date_end,
     safe_cast(
-        indicator_assistant_or_secretary as string
+        indicator_assistant_or_secretary as boolean
     ) indicator_assistant_or_secretary,
     safe_cast(comments as string) comments
 from {{ set_datalake_project("au_alexander_politicians_staging.ministry") }} as t

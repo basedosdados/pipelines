@@ -280,33 +280,5 @@ models:
         description: >
           Indica se o cargo é de ministro assistente ou secretário parlamentar
       - name: comments
-        description: >
-          Comentários sobre o registro do ministério
-  - name: au_alexander_politicians__dicionario
-    description: >
-      Dicionário de valores codificados das colunas categóricas do conjunto de dados
-      au_alexander_politicians.
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [id_tabela, nome_coluna, chave]
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
-    columns:
-      - name: id_tabela
-        description: >
-          Nome da tabela à qual a coluna pertence
-        tests: [not_null]
-      - name: nome_coluna
-        description: >
-          Nome da coluna coberta pelo dicionário
-        tests: [not_null]
-      - name: chave
-        description: >
-          Chave (valor armazenado) da coluna
-        tests: [not_null]
-      - name: cobertura_temporal
-        description: >
-          Cobertura temporal da chave
-      - name: valor
         description: >-
-          Valor (rótulo legível) correspondente à chave
+          Comentários sobre o registro do ministério

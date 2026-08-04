@@ -14,8 +14,8 @@ select
     safe_cast(date_end as date) date_end,
     safe_cast(end_reason as string) end_reason,
     safe_cast(
-        indicator_entered_at_by_election as string
+        indicator_entered_at_by_election as boolean
     ) indicator_entered_at_by_election,
-    safe_cast(indicator_changed_seat as string) indicator_changed_seat,
+    safe_cast(indicator_changed_seat as boolean) indicator_changed_seat,
     safe_cast(comments as string) comments
 from {{ set_datalake_project("au_alexander_politicians_staging.house_member") }} as t

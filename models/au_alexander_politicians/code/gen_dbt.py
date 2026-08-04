@@ -22,7 +22,6 @@ TABLES = [
     "house_member",
     "senator",
     "ministry",
-    "dicionario",
 ]
 
 # Table-level descriptions (Portuguese; EN/ES generated at metadata step)
@@ -32,7 +31,6 @@ TABLE_DESC = {
     "house_member": "Mandatos dos parlamentares federais australianos na Câmara dos Representantes, com um registro por período em uma divisão eleitoral.",
     "senator": "Mandatos dos parlamentares federais australianos no Senado, com um registro por período representando um estado ou território.",
     "ministry": "Cargos ministeriais ocupados por parlamentares federais australianos, com um registro por pasta ocupada em um ministério.",
-    "dicionario": "Dicionário de valores codificados das colunas categóricas do conjunto de dados au_alexander_politicians.",
 }
 
 # Uniqueness key per table. relaxed=True uses the custom test (allows a small
@@ -49,7 +47,6 @@ UNIQUE_KEY = {
         ["id_politician", "ministry_number", "ministry_title", "date_start"],
         True,
     ),
-    "dicionario": (["id_tabela", "nome_coluna", "chave"], False),
 }
 
 # not_null columns per table (dense keys only)
@@ -59,7 +56,6 @@ NOT_NULL = {
     "house_member": ["id_politician", "id_state"],
     "senator": ["id_politician", "id_state"],
     "ministry": [],  # id_politician has 2 legitimate source nulls
-    "dicionario": ["id_tabela", "nome_coluna", "chave"],
 }
 
 # columns < 5% non-null -> excluded from the proportion test
@@ -75,7 +71,6 @@ IGNORE_PROP = {
     "house_member": ["comments"],
     "senator": ["comments"],
     "ministry": ["comments"],
-    "dicionario": [],
 }
 
 CAST = {
@@ -83,6 +78,7 @@ CAST = {
     "INT64": "int64",
     "FLOAT64": "float64",
     "DATE": "date",
+    "BOOLEAN": "boolean",
 }
 
 
