@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_politician,STRING,Identificador único do político,,no,,,no,Ausente em 2 registros da fonte sem correspondência,uniqueID
+ministry,STRING,"Nome do ministério (governo), geralmente o sobrenome do Primeiro-Ministro",,no,,,no,,ministry
+ministry_number,STRING,Número sequencial do ministério (governo),,no,,,no,,ministry_number
+ministry_party,STRING,Partido ou coalizão que formou o ministério,,no,,,no,,ministry_party
+ministry_title,STRING,Título da pasta ocupada pelo político no ministério,,no,,,no,,ministry_title
+display_name,STRING,Nome de exibição do político no registro do ministério,,no,,,no,,ministry_name
+date_start,DATE,Data de início na pasta,,no,,,no,,ministry_from
+date_end,DATE,Data de término na pasta,,no,,,no,,ministry_to
+indicator_assistant_or_secretary,STRING,Indica se o cargo é de ministro assistente ou secretário parlamentar,,yes,,,no,"Na fonte, apenas o valor 1 aparece; ausência foi preenchida como 0",ministry_assistant_minister_or_parliamentary_secretary
+comments,STRING,Comentários sobre o registro do ministério,,no,,,no,,ministry_comment

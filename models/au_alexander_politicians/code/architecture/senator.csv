@@ -1,0 +1,9 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_politician,STRING,Identificador único do político,,no,,,no,,uniqueID
+id_state,STRING,Código do estado ou território representado pelo senador,,no,br_bd_diretorios_au.state:id_state,,no,"Derivado da sigla do estado da fonte (NSW, VIC, QLD, SA, WA, TAS, NT, ACT)",senatorsState
+abbreviation_state,STRING,Sigla do estado ou território representado pelo senador,,no,,,no,,senatorsState
+date_start,DATE,Data de início do mandato no Senado,,no,,,no,,senatorFrom
+date_end,DATE,Data de término do mandato no Senado,,no,,,no,,senatorTo
+end_reason,STRING,Motivo do término do mandato no Senado,,no,,,no,"Rótulos livres da fonte, com pequenas inconsistências de grafia",senatorEndReason
+indicator_section_15_selection,STRING,"Indica se o senador foi nomeado (seção 15), e não eleito",,yes,,,no,,sec15Sel
+comments,STRING,Comentários sobre o mandato no Senado,,no,,,no,,senatorComments

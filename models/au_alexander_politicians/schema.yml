@@ -1,0 +1,312 @@
+---
+version: 2
+models:
+  - name: au_alexander_politicians__politician
+    description: >
+      Dados biográficos e políticos dos parlamentares federais australianos que serviram
+      entre 1901 e 2021, com um registro por político.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_politician]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - earlier_or_later_names
+            - title
+            - birth_year
+            - url_adb
+            - comments
+    columns:
+      - name: id_politician
+        description: >
+          Identificador único do político, geralmente sobrenome seguido do ano de
+          nascimento
+        tests: [not_null]
+      - name: id_wikidata
+        description: >
+          Identificador do político na Wikidata (código Q)
+      - name: id_aph
+        description: >
+          Identificador do político no Parliamentary Handbook do Parlamento da Austrália
+          (APH)
+      - name: surname
+        description: >
+          Sobrenome do político
+      - name: all_other_names
+        description: >
+          Demais nomes do político
+      - name: first_name
+        description: >
+          Primeiro nome do político
+      - name: common_name
+        description: >
+          Nome pelo qual o político era mais conhecido, quando diferente do primeiro
+          nome
+      - name: display_name
+        description: >
+          Nome de exibição, composto por sobrenome e nome comum ou primeiro nome
+      - name: earlier_or_later_names
+        description: >
+          Nomes anteriores ou posteriores, usados sobretudo para registrar mudança
+          de nome após casamento
+      - name: title
+        description: >
+          Título honorífico do político (Dr, Sir, Dame), usado de forma inconsistente
+          na fonte
+      - name: gender
+        description: >
+          Gênero do político
+      - name: birth_date
+        description: >
+          Data de nascimento do político
+      - name: birth_year
+        description: >
+          Ano de nascimento do político, preenchido apenas quando a data completa
+          é desconhecida
+      - name: birth_place
+        description: >
+          Local de nascimento do político, majoritariamente extraído da Wikidata
+      - name: death_date
+        description: >
+          Data de falecimento do político
+      - name: indicator_member
+        description: >
+          Indica se o político foi membro da Câmara dos Representantes (câmara baixa)
+      - name: indicator_senator
+        description: >
+          Indica se o político foi membro do Senado (câmara alta)
+      - name: indicator_prime_minister
+        description: >
+          Indica se o político foi Primeiro-Ministro da Austrália
+      - name: url_wikipedia
+        description: >
+          URL da página do político na Wikipédia
+      - name: url_adb
+        description: >
+          URL da entrada do político no Australian Dictionary of Biography (ADB)
+      - name: comments
+        description: >
+          Comentários e ressalvas sobre o registro do político
+  - name: au_alexander_politicians__party_affiliation
+    description: >
+      Filiações partidárias dos parlamentares federais australianos ao longo dos mandatos,
+      com um registro por período de filiação.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - id_politician
+            - party_abbreviation
+            - date_start
+          proportion_allowed_failures: 0.05
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [comments]
+    columns:
+      - name: id_politician
+        description: >
+          Identificador único do político
+        tests:
+          - not_null
+          - relationships:
+              to: ref('au_alexander_politicians__politician')
+              field: id_politician
+      - name: party_abbreviation
+        description: >
+          Sigla do partido conforme o Parliamentary Handbook
+      - name: party_name
+        description: >
+          Nome do partido conforme o Parliamentary Handbook
+      - name: party_simplified_name
+        description: >
+          Nome simplificado do partido, agregando mudanças de nome ao longo do tempo
+      - name: date_start
+        description: >
+          Data de início da filiação partidária no mandato
+      - name: date_end
+        description: >
+          Data de término da filiação partidária no mandato
+      - name: indicator_party_changed_name
+        description: >
+          Indica se a mudança de registro decorre de mudança de nome do partido, e
+          não de troca de partido
+      - name: indicator_specific_date_inputted
+        description: >
+          Indica se a data foi inputada especificamente, e não herdada do mandato
+      - name: comments
+        description: >
+          Comentários sobre a filiação partidária
+  - name: au_alexander_politicians__house_member
+    description: >
+      Mandatos dos parlamentares federais australianos na Câmara dos Representantes,
+      com um registro por período em uma divisão eleitoral.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_politician, division, date_start]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [comments]
+    columns:
+      - name: id_politician
+        description: >
+          Identificador único do político
+        tests:
+          - not_null
+          - relationships:
+              to: ref('au_alexander_politicians__politician')
+              field: id_politician
+      - name: id_state
+        description: >
+          Código do estado ou território da divisão eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: abbreviation_state
+        description: >
+          Sigla do estado ou território da divisão eleitoral
+      - name: division
+        description: >
+          Nome da divisão eleitoral (assento) da Câmara dos Representantes
+      - name: date_start
+        description: >
+          Data de início do mandato na divisão
+      - name: date_end
+        description: >
+          Data de término do mandato na divisão
+      - name: end_reason
+        description: >
+          Motivo do término do mandato na divisão
+      - name: indicator_entered_at_by_election
+        description: >
+          Indica se o político assumiu a divisão em uma eleição suplementar (by-election)
+      - name: indicator_changed_seat
+        description: >
+          Indica se o político deixou a divisão por mudança de assento, e não por
+          derrota ou aposentadoria
+      - name: comments
+        description: >
+          Comentários sobre o mandato na Câmara dos Representantes
+  - name: au_alexander_politicians__senator
+    description: >
+      Mandatos dos parlamentares federais australianos no Senado, com um registro
+      por período representando um estado ou território.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_politician, id_state, date_start]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [comments]
+    columns:
+      - name: id_politician
+        description: >
+          Identificador único do político
+        tests:
+          - not_null
+          - relationships:
+              to: ref('au_alexander_politicians__politician')
+              field: id_politician
+      - name: id_state
+        description: >
+          Código do estado ou território representado pelo senador
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: abbreviation_state
+        description: >
+          Sigla do estado ou território representado pelo senador
+      - name: date_start
+        description: >
+          Data de início do mandato no Senado
+      - name: date_end
+        description: >
+          Data de término do mandato no Senado
+      - name: end_reason
+        description: >
+          Motivo do término do mandato no Senado
+      - name: indicator_section_15_selection
+        description: >
+          Indica se o senador foi nomeado (seção 15), e não eleito
+      - name: comments
+        description: >
+          Comentários sobre o mandato no Senado
+  - name: au_alexander_politicians__ministry
+    description: >
+      Cargos ministeriais ocupados por parlamentares federais australianos, com um
+      registro por pasta ocupada em um ministério.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - id_politician
+            - ministry_number
+            - ministry_title
+            - date_start
+          proportion_allowed_failures: 0.05
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [comments]
+    columns:
+      - name: id_politician
+        description: >
+          Identificador único do político
+        tests:
+          - relationships:
+              to: ref('au_alexander_politicians__politician')
+              field: id_politician
+      - name: ministry
+        description: >
+          Nome do ministério (governo), geralmente o sobrenome do Primeiro-Ministro
+      - name: ministry_number
+        description: >
+          Número sequencial do ministério (governo)
+      - name: ministry_party
+        description: >
+          Partido ou coalizão que formou o ministério
+      - name: ministry_title
+        description: >
+          Título da pasta ocupada pelo político no ministério
+      - name: display_name
+        description: >
+          Nome de exibição do político no registro do ministério
+      - name: date_start
+        description: >
+          Data de início na pasta
+      - name: date_end
+        description: >
+          Data de término na pasta
+      - name: indicator_assistant_or_secretary
+        description: >
+          Indica se o cargo é de ministro assistente ou secretário parlamentar
+      - name: comments
+        description: >
+          Comentários sobre o registro do ministério
+  - name: au_alexander_politicians__dicionario
+    description: >
+      Dicionário de valores codificados das colunas categóricas do conjunto de dados
+      au_alexander_politicians.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela à qual a coluna pertence
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna coberta pelo dicionário
+        tests: [not_null]
+      - name: chave
+        description: >
+          Chave (valor armazenado) da coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal da chave
+      - name: valor
+        description: >-
+          Valor (rótulo legível) correspondente à chave
