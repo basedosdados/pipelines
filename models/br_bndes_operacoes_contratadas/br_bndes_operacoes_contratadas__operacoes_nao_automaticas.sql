@@ -27,28 +27,28 @@
     "data_contratacao",
 ] %}
 
-{% set float_cols = ["taxa_juros", "valor_operacao", "valor_desembolsado"] %}
+{% set float_cols = ["valor_operacao", "valor_desembolsado", "taxa_juros"] %}
 
 {% set int_cols = ["prazo_carencia", "prazo_amortizacao", "indicador_inovacao"] %}
 
 {% set string_cols = [
-    "id_municipio",
-    "cnpj_cliente",
-    "id_contrato",
     "sigla_uf",
-    "nome_municipio",
+    "id_municipio",
+    "id_contrato",
+    "cnpj_cliente",
     "nome_cliente",
-    "situacao_operacao",
     "porte_cliente",
     "natureza_cliente",
     "descricao_projeto",
+    "fonte_recurso",
+    "custo_financeiro",
     "modalidade_apoio",
     "forma_apoio",
     "produto",
     "instrumento_financeiro",
     "tipo_garantia",
     "tipo_excepcionalidade",
-    "fonte_recurso",
+    "indicador_inovacao",
     "area_operacional",
     "setor_cnae",
     "subsetor_cnae_agrupado",
@@ -62,7 +62,7 @@
     "subsetor_bndes",
     "nome_instituicao_financeira_credenciada",
     "cnpj_instituicao_financeira_credenciada",
-    "custo_financeiro",
+    "situacao_operacao",
 ] %}
 
 

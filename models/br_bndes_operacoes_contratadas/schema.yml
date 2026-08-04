@@ -6,26 +6,24 @@ models:
       contrato pode ter um ou mais subcréditos Cada linha da planilha corresponde
       a um subcrédito diferente
     columns:
-      - name: id_municipio
-        description: ID Município - IBGE 7 Dígitos
-      - name: cnpj_cliente
-        description: CNPJ do cliente
-        tests:
-          - dbt_utils.not_null_proportion:
-              at_least: 0.99
-      - name: id_contrato
-        description: Número identificador do contrato do cliente com o BNDES
-        tests: [not_null]
       - name: data_contratacao
         description: Data de contratação do projeto
         tests: [not_null]
       - name: sigla_uf
         description: Sigla da Unidade da Federação
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+      - name: id_contrato
+        description: Número identificador do contrato do cliente com o BNDES
+        tests: [not_null]
+      - name: cnpj_cliente
+        description: CNPJ do cliente
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.99
       - name: nome_cliente
         description: Razão Social do cliente
         tests: [not_null]
-      - name: situacao_operacao
-        description: Situação do contrato
       - name: porte_cliente
         description: Porte do cliente de acordo com a política de classificação do
           BNDES
@@ -37,6 +35,14 @@ models:
         tests: [not_null]
       - name: descricao_projeto
         description: Descrição do projeto
+        tests: [not_null]
+      - name: fonte_recurso
+        description: Fonte de recursos registrada nos desembolsos do contrato
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.90
+      - name: custo_financeiro
+        description: Custo financeiro do cliente
         tests: [not_null]
       - name: modalidade_apoio
         description: Modalidade de Apoio, Reembolsável ou Não Reembolsável (apoio
@@ -58,11 +64,8 @@ models:
         tests: [not_null]
       - name: tipo_excepcionalidade
         description: Classificação de acordo com o tipo de excepcionalidade do contrato
-      - name: fonte_recurso
-        description: Fonte de recursos registrada nos desembolsos do contrato
-        tests:
-          - dbt_utils.not_null_proportion:
-              at_least: 0.90
+      - name: indicador_inovacao
+        description: Indicador de inovação do projeto
       - name: area_operacional
         description: Área responsável pela operação no BNDES
         tests: [not_null]
@@ -113,12 +116,6 @@ models:
         description: Nome da instituição financeira credenciada
       - name: cnpj_instituicao_financeira_credenciada
         description: CNPJ da instituição financeira credenciada
-      - name: custo_financeiro
-        description: Custo financeiro do cliente
-        tests: [not_null]
-      - name: taxa_juros
-        description: Taxa de juros
-        tests: [not_null]
       - name: valor_operacao
         description: Valor contratado no projeto
         tests: [not_null]
@@ -126,14 +123,17 @@ models:
         description: Valor liberado convertido com base na data do desembolso e no
           indexador
         tests: [not_null]
+      - name: taxa_juros
+        description: Taxa de juros
+        tests: [not_null]
       - name: prazo_carencia
         description: Prazo de carência
         tests: [not_null]
       - name: prazo_amortizacao
         description: Prazo de amortização em meses
         tests: [not_null]
-      - name: indicador_inovacao
-        description: Indicador de inovação do projeto
+      - name: situacao_operacao
+        description: Situação do contrato
   - name: br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas
     description: >
       Operações de financiamento contratadas pelo BNDES na forma indireta
