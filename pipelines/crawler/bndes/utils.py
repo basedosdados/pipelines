@@ -156,42 +156,76 @@ def _extract_cnae_hierarchy(
     df_diretorios: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     df_extracted = dataframe.copy()
+
     if levels is None:
         levels = ["secao", "divisao", "grupo", "classe", "subclasse"]
-    df_extracted["secao_cnae"] = df_extracted[cnae_column].str.extract(
-        r"(^[A-Z]{1})"
-    )
+    cnae_series = df_extracted[cnae_column].astype(str).str.strip().str.upper()
+
+    # 1. Extração dos códigos da hierarquia via Regex
+    if "secao" in levels:
+        df_extracted["secao_cnae"] = cnae_series.str.extract(
+            r"(^[A-Z]){1}", expand=False
+        )
+
     if "divisao" in levels:
-        df_extracted["divisao_cnae"] = df_extracted[cnae_column].str.extract(
-            r"^[A-Z]{1}(\d{2})"
+        df_extracted["divisao_cnae"] = cnae_series.str.extract(
+            r"^[A-Z]{1}(\d{2})", expand=False
         )
+
     if "grupo" in levels:
-        df_extracted["grupo_cnae"] = df_extracted[cnae_column].str.extract(
-            r"^[A-Z]{1}(\d{3})"
+        df_extracted["grupo_cnae"] = cnae_series.str.extract(
+            r"^[A-Z]{1}(\d{3})", expand=False
         )
+
     if "classe" in levels:
-        df_extracted["classe_cnae"] = df_extracted[cnae_column].str.extract(
-            r"^[A-Z]{1}(\d{5})"
+        df_extracted["classe_cnae"] = cnae_series.str.extract(
+            r"^[A-Z]{1}(\d{5})", expand=False
         )
+
     if "subclasse" in levels:
-        df_extracted["subclasse_cnae"] = df_extracted[cnae_column].str.extract(
-            r"^[A-Z](\d{7})"
+        df_extracted["subclasse_cnae"] = cnae_series.str.extract(
+            r"^[A-Z]{1}(\d{7})", expand=False
         )
-    if all(
-        [col in levels for col in ["grupo", "divisao", "classe", "subclasse"]]
-    ):
+
+    # 2. Limpeza de Níveis Inexistentes
+    # Se o código do BNDES for de nível alto (Divisão/Grupo), anula os níveis inferiores falsos
+    if "subclasse_cnae" in df_extracted.columns:
         df_extracted.loc[
-            df_extracted["grupo_cnae"].str.endswith("000"),
-            ["divisao_cnae", "classe_cnae", "subclasse_cnae"],
+            df_extracted["subclasse_cnae"].str.endswith("0000"),
+            "subclasse_cnae",
         ] = None
+
+    if "classe_cnae" in df_extracted.columns:
+        df_extracted.loc[
+            df_extracted["classe_cnae"].str.endswith("000"), "classe_cnae"
+        ] = None
+
+    if "grupo_cnae" in df_extracted.columns:
+        df_extracted.loc[
+            df_extracted["grupo_cnae"].str.endswith("00"), "grupo_cnae"
+        ] = None
+
+    # Remove a coluna bruta original
     df_extracted = df_extracted.drop(columns=[cnae_column])
 
+    # 3. Validação opcional cruzada com o diretório da Base dos Dados
     if verify_diretorios and df_diretorios is not None:
         for col in levels:
-            df_extracted.loc[
-                ~df_extracted[f"{col}_cnae"].isin(df_diretorios[col].values),
-                f"{col}_cnae",
-            ] = None
+            col_name = f"{col}_cnae"
+            if (
+                col_name in df_extracted.columns
+                and col in df_diretorios.columns
+            ):
+                valid_codes = set(
+                    df_diretorios[col].dropna().astype(str).unique()
+                )
+
+                # Anula valores que não existem na dimensão oficial
+                mask_invalid = df_extracted[col_name].notna() & ~df_extracted[
+                    col_name
+                ].isin(valid_codes)
+                df_extracted.loc[mask_invalid, col_name] = None
+
     return df_extracted
 
 
@@ -277,7 +311,6 @@ def _transform_chunk(
         df_striped = _extract_cnae_hierarchy(
             df_striped,
             "codigo_cnae_2",
-            # verify_diretorios=True,
             df_diretorios=df_diretorios,
         )
     return df_striped[table_configs["ORDER_COLUMNS"]]

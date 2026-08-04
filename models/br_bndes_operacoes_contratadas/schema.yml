@@ -79,14 +79,32 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__cnae_2')
               field: secao
+      - name: divisao_cnae
+        description: Divisão CNAE 2
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: divisao
+      - name: grupo_cnae
+        description: Grupo CNAE 2
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: grupo
+      - name: classe_cnae
+        description: Classe CNAE 2
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: classe
       - name: subclasse_cnae
         description: Subclasse CNAE 2
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__cnae_2')
               field: subclasse
-      - name: descricao_subclasse
-        description: Descrição da subclasse CNAE 2
+      - name: descricao_cnae
+        description: Descrição do nível mais granular CNAE disponível
       - name: setor_bndes
         description: Setor segundo BNDES
       - name: subsetor_bndes
