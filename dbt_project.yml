@@ -40,6 +40,9 @@ models:
     af_afrobarometer_survey:
       +materialized: table
       +schema: af_afrobarometer_survey
+    au_alexander_politicians:
+      +materialized: table
+      +schema: au_alexander_politicians
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
