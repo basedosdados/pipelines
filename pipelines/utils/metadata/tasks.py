@@ -271,6 +271,7 @@ def poll_source_for_update_task(
     source_max_date: datetime.date | str | None = None,
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
+    raw_source_url: str | None = None,
 ) -> bool:
     """Detecta se a fonte original tem novidade hoje, sem gravar o Update.
 
@@ -292,6 +293,9 @@ def poll_source_for_update_task(
         date_format: formato usado para parsear `source_max_date` quando vier
             como string. Padrão `"%Y-%m-%d"`; use `"%Y-%m"` ou `"%Y"` conforme a
             granularidade da string.
+        raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
+            uma fonte ligada (ex.: uma API que atualiza e um histórico
+            congelado). `None` (padrão) mantém o comportamento de fonte única.
 
     Returns:
         bool — True se a fonte trouxe novidade (Update ainda não gravado),
@@ -304,6 +308,7 @@ def poll_source_for_update_task(
         dataset_id,
         table_id,
         _coerce_to_date(source_max_date, date_format),
+        raw_source_url=raw_source_url,
     )
 
 
@@ -317,6 +322,7 @@ def commit_source_update_task(
     source_max_date: datetime.date | str,
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
+    raw_source_url: str | None = None,
 ) -> None:
     """Grava o `RawDataSource.Update` da fonte original.
 
@@ -336,6 +342,9 @@ def commit_source_update_task(
         date_format: formato usado para parsear `source_max_date` quando vier
             como string. Padrão `"%Y-%m-%d"`; use `"%Y-%m"` ou `"%Y"` conforme a
             granularidade da string.
+        raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
+            uma fonte ligada (ex.: uma API que atualiza e um histórico
+            congelado). `None` (padrão) mantém o comportamento de fonte única.
 
     Returns:
         None.
@@ -347,6 +356,7 @@ def commit_source_update_task(
         dataset_id,
         table_id,
         _coerce_to_date(source_max_date, date_format),
+        raw_source_url=raw_source_url,
     )
 
 

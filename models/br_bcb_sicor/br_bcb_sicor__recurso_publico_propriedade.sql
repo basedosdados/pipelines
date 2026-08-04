@@ -25,7 +25,7 @@ select
     ) as cnpj_basico,
     -- valores estranhos que vem por padrão da fonte original
     safe_cast(nullif(id_sncr, '-1') as string) id_sncr,
-    safe_cast(nullif(id_nirf, '-1') as string) id_nirf,
+    safe_cast(nullif(id_cib, '-1') as string) id_cib,
     safe_cast(nullif(id_car, '-1') as string) id_car
 from
     {{ set_datalake_project("br_bcb_sicor_staging.recurso_publico_propriedade") }}

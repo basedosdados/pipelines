@@ -52,6 +52,79 @@ async def rename_flow_run_dataset_table(
 # ──────────────────────────────────────────────────────────────────────────────
 # Upload GCS
 # ──────────────────────────────────────────────────────────────────────────────
+# A lib monta o nome da tabela de staging a partir do `config.toml` do pod
+# (`gcloud-projects.staging.name`) e ignora o `bucket_name` — então a
+# conferência é nossa. As credenciais vêm do mesmo lugar: o pod tem uma só,
+# do staging do próprio ambiente, e portanto não gerencia a tabela do outro.
+_STAGING_PROJECT_BY_BUCKET = {
+    "basedosdados-dev": "basedosdados-dev",
+    "basedosdados": "basedosdados-staging",
+}
+
+
+def _staging_project_for(bucket_name: str) -> str:
+    """Projeto do BigQuery onde vive a staging correspondente ao bucket."""
+    try:
+        return _STAGING_PROJECT_BY_BUCKET[bucket_name]
+    except KeyError:
+        raise ValueError(
+            f"bucket_name inválido: {bucket_name!r}. "
+            f"Use um de {sorted(_STAGING_PROJECT_BY_BUCKET)}."
+        ) from None
+
+
+def _sync_staging_schema(
+    tb: bd.Table,
+    data_path: str | Path,
+    source_format: str,
+    billing_project_id: str,
+) -> None:
+    """Adiciona ao schema da staging as colunas que a fonte passou a trazer.
+
+    Em `dump_mode="append"` a tabela de staging só é criada quando ainda não
+    existe, então seu schema fica congelado na criação. Quando a fonte ganha uma
+    coluna, o arquivo novo a traz mas a definição da tabela externa não, e o dbt
+    quebra com `Unrecognized name` na primeira materialização seguinte.
+
+    A definição é alterada no lugar, pela API do BigQuery. O prefixo do GCS não é
+    tocado: recriar a tabela ou chamar `Storage.delete_table` apagaria todo o
+    histórico já carregado.
+
+    A operação é aditiva por decisão — só acrescenta colunas ausentes, nunca
+    remove nem reordena. Um arquivo parcial ou uma carga de um período só não
+    pode encolher o schema de uma tabela histórica.
+
+    Args:
+        tb: tabela `basedosdados` já instanciada, apontando para a staging do
+            ambiente do pod — o chamador garante que ela corresponde ao bucket.
+        data_path: arquivo ou diretório com os dados que serão carregados.
+        source_format: `"csv"` ou `"parquet"`.
+        billing_project_id: projeto GCP usado para faturar a chamada.
+    """
+    header_path = dump_header(data_path=data_path, source_format=source_format)
+    incoming = tb._load_staging_schema_from_data(
+        data_sample_path=header_path, source_format=source_format
+    )
+
+    client = bigquery.Client(project=billing_project_id)
+    table = client.get_table(tb.table_full_name["staging"])
+
+    current = {field.name for field in table.schema}
+    new_fields = [field for field in incoming if field.name not in current]
+
+    if not new_fields:
+        return
+
+    # O schema da tabela externa vive em `table.schema`; o do
+    # `external_data_configuration` fica vazio nas tabelas criadas pela lib.
+    # Arquivos antigos, sem a coluna, passam a devolver NULL para ela.
+    table.schema = list(table.schema) + new_fields
+    client.update_table(table, ["schema"])
+
+    print(
+        "Colunas novas na fonte adicionadas ao schema da staging: "
+        + ", ".join(field.name for field in new_fields)
+    )
 
 
 def _upload_to_gcs(
@@ -83,6 +156,31 @@ def _upload_to_gcs(
         f"{bucket_name}/staging/{dataset_id}/{table_id}"
     )
 
+    if dump_mode not in ("append", "overwrite"):
+        raise ValueError(
+            f"dump_mode inválido: {dump_mode!r}. Use 'append' ou 'overwrite'."
+        )
+
+    expected_staging = _staging_project_for(bucket_name)
+    actual_staging = tb.client["bigquery_staging"].project
+
+    if expected_staging != actual_staging:
+        if bucket_name == "basedosdados":
+            raise RuntimeError(
+                f"Este pod escreve em {actual_staging}, não em produção. "
+                "Rode no work pool 'basedosdados' ou desligue a promoção nos "
+                "parâmetros do flow."
+            )
+        print(
+            f"Staging do bucket ({expected_staging}) não é a deste pod "
+            f"({actual_staging}): sobem só os dados, sem sincronizar o schema."
+        )
+        st.upload(path=data_path, mode="staging", if_exists="replace")
+        print(
+            f"Upload concluído: gs://{bucket_name}/staging/{dataset_id}/{table_id}"
+        )
+        return
+
     if dump_mode == "append":
         if not tb.table_exists(mode="staging"):
             header_path = dump_header(
@@ -102,8 +200,14 @@ def _upload_to_gcs(
             )
         else:
             print(f"Tabela já existe: {tb.table_full_name['staging']}")
+            _sync_staging_schema(
+                tb=tb,
+                data_path=data_path,
+                source_format=source_format,
+                billing_project_id=billing_project_id,
+            )
 
-    elif dump_mode == "overwrite":
+    else:  # overwrite
         if tb.table_exists(mode="staging"):
             st.delete_table(
                 mode="staging", bucket_name=bucket_name, not_found_ok=True
@@ -124,11 +228,6 @@ def _upload_to_gcs(
         )
         print(
             f"Tabela recriada: {tb.table_full_name['staging']}\n{storage_link}"
-        )
-
-    else:
-        raise ValueError(
-            f"dump_mode inválido: {dump_mode!r}. Use 'append' ou 'overwrite'."
         )
 
     if not tb.table_exists(mode="staging"):
