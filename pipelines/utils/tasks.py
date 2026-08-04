@@ -346,6 +346,10 @@ def run_dbt(
                     f"dbt {cmd} falhou para {selected.as_posix()} (target={target})"
                 )
             print(f"dbt {cmd} OK: {selected.as_posix()} (target={target})")
+
+        if target == "prod" and table_id is not None and "run" in dbt_command:
+            print(f"Exportando {dataset_id}.{table_id} para GCS")
+            download_data_to_gcs.fn(dataset_id=dataset_id, table_id=table_id)
     finally:
         try:
             DBTArtifactUploader(
