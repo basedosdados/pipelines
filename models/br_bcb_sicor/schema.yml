@@ -235,6 +235,7 @@ models:
             where: __most_recent_year_month_sicor__
       - not_null_proportion_multiple_columns:
           at_least: 1
+          ignore_values: [indicador_renegociacao]
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [id_situacao_operacao]
           dictionary_model: ref('br_bcb_sicor__dicionario')
@@ -271,7 +272,11 @@ models:
       - name: indicador_renegociacao
         description: >-
           Indicador de operação renegociada (1 = renegociada, 0 = não
-          renegociada)
+          renegociada). Disponível a partir de fevereiro de 2026
+        tests:
+          - not_null:
+              config:
+                where: (ano > 2026 or (ano = 2026 and mes>=2))
       - name: valor_medio_diario
         description: Saldo médio diário
       - name: valor_medio_diario_vincendo
