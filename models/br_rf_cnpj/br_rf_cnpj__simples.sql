@@ -7,7 +7,7 @@
 }}
 
 select
-    safe_cast(data_referencia as date) data_referencia,
+    safe.parse_date('%Y-%m', data_referencia) data_referencia,
     safe_cast(lpad(cnpj_basico, 8, '0') as string) cnpj_basico,
     safe_cast(opcao_simples as int64) opcao_simples,
     safe_cast(data_opcao_simples as date) data_opcao_simples,
@@ -17,4 +17,4 @@ select
     safe_cast(data_exclusao_mei as date) data_exclusao_mei,
     safe_cast(data_modificacao as date) data_modificacao
 from {{ set_datalake_project("br_rf_cnpj_staging.simples") }} as t
-where opcao_mei != "opcao_mei"
+where safe_cast(opcao_mei as string) != "opcao_mei"
