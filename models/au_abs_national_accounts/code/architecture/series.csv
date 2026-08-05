@@ -1,0 +1,8 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+series_id,STRING,ABS series identifier uniquely identifying a time series across all ABS releases,,no,,,no,Primary key; stable ABS-wide identifier such as A2420896J,Series ID
+description,STRING,Full description of the data item as published by the ABS,,no,,,no,,Data Item Description
+unit,STRING,Unit of measure of the series as published by the ABS,,no,,,no,Varies by series such as $ Millions / Percent / Index Numbers,Unit
+source_table_no,STRING,Number of the source ABS 5204.0 table the series is published in,,no,,,no,From 1 to 72,table
+source_table_name,STRING,Name of the source ABS 5204.0 table the series is published in,,no,,,no,,table
+series_start,DATE,Date of the first observation of the series,,no,,,no,June-dated financial-year end,Series Start
+series_end,DATE,Date of the last observation of the series,,no,,,no,June-dated financial-year end,Series End

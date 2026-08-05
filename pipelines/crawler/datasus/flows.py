@@ -83,12 +83,15 @@ def _run_cnes(
         file_list=csv_files, dataset_id=dataset_id, table_id=table_id
     )
 
+    # `pre_process_files` grava parquet. Sem declarar o formato, o `dump_header`
+    # chamado pelo `_sync_staging_schema` procura .csv e não encontra nada.
     upload_to_gcs(
         data_path=files_path,
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
+        source_format="parquet",
     )
     run_dbt(
         dataset_id=dataset_id,
@@ -107,6 +110,7 @@ def _run_cnes(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
+        source_format="parquet",
     )
     run_dbt(
         dataset_id=dataset_id,

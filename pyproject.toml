@@ -147,6 +147,7 @@ dev = [
   "ipykernel>=6.29.5",
   "basedosdados[all]>=2.0.2",
   "pytest>=8.4.2",
+  "pypdf>=4.0",
 ]
 
 [tool.ruff]

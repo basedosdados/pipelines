@@ -56,6 +56,16 @@ def _sicor_flow(
     return _flow
 
 
+# As três tabelas abaixo usam `dump_mode="append"` porque a fonte divulga um
+# arquivo por ano e o histórico é acumulado na staging — trocar para "overwrite"
+# apagaria os anos anteriores, já que o flow baixa apenas o ano corrente.
+#
+# Consequência: a tabela de staging é criada uma única vez e seu schema não é
+# recriado nos runs seguintes. Quando o BCB adiciona uma coluna (como o
+# `IB_RENEGOCIADA` em 2026), `_sync_staging_schema` a acrescenta à definição da
+# tabela externa durante o upload. Registrar a coluna em `constants.py`, no
+# `.sql` e no `schema.yml` continua sendo manual — ver a seção
+# `br_bcb_sicor__saldo` do README para a cobertura da coluna e seus testes.
 br_bcb_sicor__operacao = _sicor_flow(
     table_id="operacao",
     cron="5 2 * * 1-5",
