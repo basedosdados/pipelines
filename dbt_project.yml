@@ -115,6 +115,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    au_abs_labour_force:
+      +materialized: table
+      +schema: au_abs_labour_force
     us_bls_qcew:
       +materialized: table
       +schema: us_bls_qcew
