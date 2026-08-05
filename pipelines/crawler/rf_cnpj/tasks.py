@@ -12,6 +12,7 @@ from pipelines.crawler.rf_cnpj.utils import (
     build_paths,
     data_url,
     download_unzip_csv,
+    get_table_files,
     process_csv_dicionario,
     process_csv_empresas,
     process_csv_estabelecimentos,
@@ -83,9 +84,13 @@ def main(
             input_path, output_path = build_paths(table_id=table)
 
         if table_configs["segmentada"]:
-            for i in range(0, 10):  # Segmented tables have 10 files by default
-                nome_arquivo = f"{table_configs['table_name']}{i}"
-                url_download = f"{constants_cnpj.URL.value}{folder_date}/{table_configs['table_name']}{i}.zip"
+            files = get_table_files(
+                table_configs["table_name"],
+                f"{constants_cnpj.URL.value}{folder_date}",
+            )
+            for i, item in enumerate(files):
+                nome_arquivo = item[0]
+                url_download = item[1]
 
                 if nome_arquivo not in arquivos_baixados:
                     arquivos_baixados.append(nome_arquivo)

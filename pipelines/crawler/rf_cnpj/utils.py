@@ -4,6 +4,7 @@ General purpose functions for the br_rf_cnpj project
 
 import datetime
 import os
+import re
 import zipfile
 from asyncio import Semaphore, gather, sleep
 from pathlib import Path
@@ -86,6 +87,38 @@ def data_url(url: str, folder_date: str | None = None) -> datetime.date:
     )
 
     return folder_date, last_modified_date
+
+
+def get_table_files(table_name: str, url_base: str):
+    """
+    Get the files and its links of the specified table from the given BeautifulSoup object.
+    """
+    link_data = requests.request(
+        method="PROPFIND",
+        url=url_base,
+        headers=constants_cnpj.HEADERS.value,
+        data=constants_cnpj.XML_BODY.value,
+        timeout=30,
+    )
+    link_data.raise_for_status()
+    soup = BeautifulSoup(link_data.text, "html.parser")
+
+    pattern = re.compile(rf"{table_name}.+\.zip")
+    folder_dates = [p for p in soup.find_all("d:href")]
+    files = []
+    for href in folder_dates:
+        link_text = href.get_text(strip=True)
+        match = pattern.search(link_text)
+        if match:
+            filename = link_text.split("/")[-1]
+            full_url = (
+                link_text
+                if link_text.startswith("http")
+                else url_base + "/" + link_text.split("/")[-1]
+            )
+            files.append((filename, full_url))
+
+    return files
 
 
 # ! Cria o caminho do output
