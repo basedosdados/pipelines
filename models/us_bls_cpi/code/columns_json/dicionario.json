@@ -1,0 +1,47 @@
+[
+  {
+    "name": "id_tabela",
+    "bigquery_type": "STRING",
+    "description_pt": "Slug da tabela de us_bls_cpi que a entrada do dicionário descreve",
+    "description_en": "Slug of the us_bls_cpi table the dictionary entry describes",
+    "description_es": "Slug de la tabla de us_bls_cpi que describe la entrada del diccionario",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "nome_coluna",
+    "bigquery_type": "STRING",
+    "description_pt": "Nome da coluna que a entrada do dicionário descreve",
+    "description_en": "Name of the column the dictionary entry describes",
+    "description_es": "Nombre de la columna que describe la entrada del diccionario",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "chave",
+    "bigquery_type": "STRING",
+    "description_pt": "Valor codificado (chave) exatamente como armazenado nos dados",
+    "description_en": "Coded value (key) exactly as stored in the data",
+    "description_es": "Valor codificado (clave) exactamente como se almacena en los datos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "cobertura_temporal",
+    "bigquery_type": "STRING",
+    "description_pt": "Cobertura temporal da chave",
+    "description_en": "Temporal coverage of the key",
+    "description_es": "Cobertura temporal de la clave",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "valor",
+    "bigquery_type": "STRING",
+    "description_pt": "Rótulo legível correspondente ao valor codificado",
+    "description_en": "Human-readable label corresponding to the coded value",
+    "description_es": "Etiqueta legible correspondiente al valor codificado",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  }
+]

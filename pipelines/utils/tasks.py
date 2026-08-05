@@ -54,6 +54,59 @@ async def rename_flow_run_dataset_table(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+def _sync_staging_schema(
+    tb: bd.Table,
+    data_path: str | Path,
+    source_format: str,
+    billing_project_id: str,
+) -> None:
+    """Adiciona ao schema da staging as colunas que a fonte passou a trazer.
+
+    Em `dump_mode="append"` a tabela de staging só é criada quando ainda não
+    existe, então seu schema fica congelado na criação. Quando a fonte ganha uma
+    coluna, o arquivo novo a traz mas a definição da tabela externa não, e o dbt
+    quebra com `Unrecognized name` na primeira materialização seguinte.
+
+    A definição é alterada no lugar, pela API do BigQuery. O prefixo do GCS não é
+    tocado: recriar a tabela ou chamar `Storage.delete_table` apagaria todo o
+    histórico já carregado.
+
+    A operação é aditiva por decisão — só acrescenta colunas ausentes, nunca
+    remove nem reordena. Um arquivo parcial ou uma carga de um período só não
+    pode encolher o schema de uma tabela histórica.
+
+    Args:
+        tb: tabela `basedosdados` já instanciada, apontando para a staging.
+        data_path: arquivo ou diretório com os dados que serão carregados.
+        source_format: `"csv"` ou `"parquet"`.
+        billing_project_id: projeto GCP usado para faturar a chamada.
+    """
+    header_path = dump_header(data_path=data_path, source_format=source_format)
+    incoming = tb._load_staging_schema_from_data(
+        data_sample_path=header_path, source_format=source_format
+    )
+
+    client = bigquery.Client(project=billing_project_id)
+    table = client.get_table(tb.table_full_name["staging"])
+
+    current = {field.name for field in table.schema}
+    new_fields = [field for field in incoming if field.name not in current]
+
+    if not new_fields:
+        return
+
+    # O schema da tabela externa vive em `table.schema`; o do
+    # `external_data_configuration` fica vazio nas tabelas criadas pela lib.
+    # Arquivos antigos, sem a coluna, passam a devolver NULL para ela.
+    table.schema = list(table.schema) + new_fields
+    client.update_table(table, ["schema"])
+
+    print(
+        "Colunas novas na fonte adicionadas ao schema da staging: "
+        + ", ".join(field.name for field in new_fields)
+    )
+
+
 def _upload_to_gcs(
     data_path: str | Path,
     dataset_id: str,
@@ -102,6 +155,12 @@ def _upload_to_gcs(
             )
         else:
             print(f"Tabela já existe: {tb.table_full_name['staging']}")
+            _sync_staging_schema(
+                tb=tb,
+                data_path=data_path,
+                source_format=source_format,
+                billing_project_id=billing_project_id,
+            )
 
     elif dump_mode == "overwrite":
         if tb.table_exists(mode="staging"):
@@ -167,7 +226,7 @@ def upload_to_gcs(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-@task(retries=1, retry_delay_seconds=10)
+@task(retries=0)
 def run_dbt(
     dataset_id: str,
     table_id: str | None = None,
@@ -247,6 +306,10 @@ def run_dbt(
                     f"dbt {cmd} falhou para {selected.as_posix()} (target={target})"
                 )
             print(f"dbt {cmd} OK: {selected.as_posix()} (target={target})")
+
+        if target == "prod" and table_id is not None and "run" in dbt_command:
+            print(f"Exportando {dataset_id}.{table_id} para GCS")
+            download_data_to_gcs.fn(dataset_id=dataset_id, table_id=table_id)
     finally:
         try:
             DBTArtifactUploader(

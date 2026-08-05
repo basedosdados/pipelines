@@ -10,6 +10,7 @@ from pipelines.crawler.rf_cafir.constants import (
 from pipelines.crawler.rf_cafir.tasks import (
     task_decide_files_to_download,
     task_download_files,
+    task_get_last_update_date,
     task_parse_api_metadata,
 )
 from pipelines.utils.metadata.domain import (
@@ -37,7 +38,7 @@ def br_rf_cafir__imoveis_rurais(
     dataset_id: str = "br_rf_cafir",
     table_id: str = "imoveis_rurais",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = False,
+    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -48,7 +49,13 @@ def br_rf_cafir__imoveis_rurais(
 
     df_metadata = task_parse_api_metadata(url=br_rf_cafir_constants.URL.value)
 
-    arquivos, data_atualizacao = task_decide_files_to_download(df=df_metadata)
+    last_update = task_get_last_update_date(
+        url=br_rf_cafir_constants.URL.value
+    )
+
+    arquivos, data_atualizacao = task_decide_files_to_download(
+        df=df_metadata, last_update_date=last_update
+    )
 
     if not force_run:
         has_new_data = poll_source_for_update_task(
@@ -65,6 +72,7 @@ def br_rf_cafir__imoveis_rurais(
         url=br_rf_cafir_constants.URL.value,
         file_list=arquivos,
         data_atualizacao=data_atualizacao,
+        last_update_date=last_update,
     )
 
     upload_to_gcs(

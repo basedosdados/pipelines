@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+id_tabela,STRING,Nome da tabela à qual a coluna pertence,,no,,,no,,id_tabela,Name of the table the column belongs to,Nombre de la tabla a la que pertenece la columna
+nome_coluna,STRING,Nome da coluna categórica descrita pelo dicionário,,no,,,no,,nome_coluna,Name of the categorical column described by the dictionary,Nombre de la columna categórica descrita por el diccionario
+chave,STRING,Código ou valor assumido pela coluna categórica,,no,,,no,,chave,Code or value taken by the categorical column,Código o valor que toma la columna categórica
+cobertura_temporal,STRING,Cobertura temporal da chave,,no,,,no,,cobertura_temporal,Temporal coverage of the key,Cobertura temporal de la clave
+valor,STRING,Rótulo correspondente ao código da coluna categórica,,no,,,no,,valor,Label corresponding to the categorical column code,Etiqueta correspondiente al código de la columna categórica

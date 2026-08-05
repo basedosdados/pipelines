@@ -27,7 +27,7 @@ with
             where safe_cast(data as date) > (select max(data_extracao) from {{ this }})
         {% endif %}
     )
-select
+select distinct
     data_extracao,
     id_cno,
     {% set cols = [

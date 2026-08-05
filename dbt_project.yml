@@ -40,6 +40,12 @@ models:
     af_afrobarometer_survey:
       +materialized: table
       +schema: af_afrobarometer_survey
+    au_abs_cpi:
+      +materialized: table
+      +schema: au_abs_cpi
+    au_alexander_politicians:
+      +materialized: table
+      +schema: au_alexander_politicians
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
@@ -67,6 +73,9 @@ models:
     br_bcb_sicor:
       +materialized: table
       +schema: br_bcb_sicor
+    au_nsw_bocsar_crime:
+      +materialized: table
+      +schema: au_nsw_bocsar_crime
     br_bcb_taxa_cambio:
       +materialized: table
       +schema: br_bcb_taxa_cambio
@@ -79,9 +88,15 @@ models:
       +post-hook:
         - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
         - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "group:bd-pro@basedosdados.org"
+    br_bd_diretorios_au:
+      +materialized: table
+      +schema: br_bd_diretorios_au
     br_bd_diretorios_brasil:
       +materialized: table
       +schema: br_bd_diretorios_brasil
+    br_bd_diretorios_de:
+      +materialized: table
+      +schema: br_bd_diretorios_de
     br_bd_diretorios_in:
       +materialized: table
       +schema: br_bd_diretorios_in
@@ -94,12 +109,33 @@ models:
     in_tcpd_elections:
       +materialized: table
       +schema: in_tcpd_elections
+    us_anes_time_series:
+      +materialized: table
+      +schema: us_anes_time_series
     us_bls_atus:
       +materialized: table
       +schema: us_bls_atus
+    us_bls_cpi:
+      +materialized: table
+      +schema: us_bls_cpi
+    us_bls_qcew:
+      +materialized: table
+      +schema: us_bls_qcew
+    us_census_cbp:
+      +materialized: table
+      +schema: us_census_cbp
+    us_census_cps:
+      +materialized: table
+      +schema: us_census_cps
+    us_nature_gerda:
+      +materialized: table
+      +schema: us_nature_gerda
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
+    world_cricsheet:
+      +materialized: table
+      +schema: world_cricsheet
     br_bd_indicadores:
       +materialized: table
       +schema: br_bd_indicadores
@@ -427,6 +463,9 @@ models:
     test_dataset:
       +materialized: table
       +schema: test_dataset
+    us_census_acs:
+      +materialized: table
+      +schema: us_census_acs
     us_ed_ipeds:
       +materialized: table
       +schema: us_ed_ipeds

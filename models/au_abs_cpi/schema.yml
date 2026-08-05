@@ -1,0 +1,100 @@
+---
+version: 2
+models:
+  - name: au_abs_cpi__quarterly
+    description: >-
+      Australian Consumer Price Index (ABS), quarterly. One row per quarter,
+      region, and CPI item, from the September quarter 1948, with the original
+      (not seasonally adjusted) index level and period-on-period and year-on-year
+      percentage change. The eight capital cities carry the All groups CPI; the
+      full 124-item expenditure hierarchy is reported for Australia (the weighted
+      average of the eight capital cities).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, region, index_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the index observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: Reference quarter of the index observation, from 1 to 4
+        tests: [not_null]
+      - name: region
+        description: Capital city of the price collection or the national aggregate
+        tests: [not_null]
+      - name: index_code
+        description: >-
+          ABS Consumer Price Index item code identifying the expenditure category
+        tests: [not_null]
+      - name: index_name
+        description: Consumer Price Index item label in the ABS expenditure hierarchy
+        tests: [not_null]
+      - name: serie_id
+        description: ABS time series identifier of the index-number series
+        tests: [not_null]
+      - name: index_number
+        description: >-
+          Original Consumer Price Index level for the item and region relative to
+          the ABS reference base period
+      - name: percentage_change_period
+        description: Percentage change in the index from the previous quarter
+      - name: percentage_change_year
+        description: >-
+          Percentage change in the index from the same quarter of the previous
+          year
+  - name: au_abs_cpi__monthly
+    description: >-
+      Australian Consumer Price Index (ABS), monthly. One row per month, region,
+      and CPI item, from September 2017, with the original (not seasonally
+      adjusted) index level and month-on-month and year-on-year percentage
+      change. All nine regions (eight capital cities and Australia, the weighted
+      average of the eight capital cities) carry the full 124-item expenditure
+      hierarchy.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, month, region, index_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the index observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the index observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: region
+        description: Capital city of the price collection or the national aggregate
+        tests: [not_null]
+      - name: index_code
+        description: >-
+          ABS Consumer Price Index item code identifying the expenditure category
+        tests: [not_null]
+      - name: index_name
+        description: Consumer Price Index item label in the ABS expenditure hierarchy
+        tests: [not_null]
+      - name: serie_id
+        description: ABS time series identifier of the index-number series
+        tests: [not_null]
+      - name: index_number
+        description: >-
+          Original Consumer Price Index level for the item and region relative to
+          the ABS reference base period
+      - name: percentage_change_period
+        description: Percentage change in the index from the previous month
+      - name: percentage_change_year
+        description: >-
+          Percentage change in the index from the same month of the previous year

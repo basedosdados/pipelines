@@ -29,6 +29,13 @@ from pipelines.utils.utils import log
 
 DEFAULT_BQ_PROJECT = "basedosdados"
 
+# Tolerância para diminuição do tamanho da fonte na detecção por bytes: quedas de
+# até este percentual são tratadas como re-publicação normal (fontes como
+# `br_bcb_sicor` reexportam arquivos com pequenas variações de tamanho) e seguem
+# como atualização; quedas MAIORES disparam ValueError como possível quebra de
+# schema (coluna removida, recodificação). Ver `poll_source_size_for_update`.
+SOURCE_SIZE_SHRINK_TOLERANCE = 0.05
+
 
 class BQReader(Protocol):
     """Superfície de BigQuery que os orquestradores consomem (injetável)."""
@@ -103,7 +110,9 @@ def register_source_poll_by_size(
 
     - tamanho MAIOR  → novidade: grava Poll + Update(latest=hoje), devolve True.
     - tamanho IGUAL  → sem novidade: grava só Poll, devolve False.
-    - tamanho MENOR  → `ValueError` (a fonte encolheu — possível quebra de schema).
+    - tamanho MENOR  → dentro da tolerância (`SOURCE_SIZE_SHRINK_TOLERANCE`):
+      trata como novidade (re-publicação); acima dela: `ValueError` (a fonte
+      encolheu demais — possível quebra de schema).
 
     Mantém o comportamento original de gravar o histórico de tamanho e o Update
     no mesmo passo do poll. Flows que precisam adiar essas escritas para depois
@@ -135,22 +144,35 @@ def poll_source_size_for_update(
 ) -> bool:
     """Detecta novidade por TAMANHO, sem gravar histórico nem Update.
 
-    Contraparte por bytes de :func:`poll_source_for_update`. Sempre grava um
-    ``RawDataSource.Poll`` (data de hoje) e compara ``byte_length`` com o último
+    Contraparte por bytes de `poll_source_for_update`. Sempre grava um
+    `RawDataSource.Poll` (data de hoje) e compara `byte_length` com o último
     tamanho registrado no Redis, mas **não** grava o novo tamanho no histórico
-    nem o ``RawDataSource.Update`` — essas escritas ficam a cargo de
-    :func:`commit_source_size_update`, chamada só após a materialização. Assim,
-    se o flow falha no meio, nem o histórico de tamanho nem o Update avançam, e a
-    run seguinte ainda detecta a novidade e retenta.
+    nem o `RawDataSource.Update` — essas escritas ficam a cargo de
+    `commit_source_size_update`, chamada só após a materialização. Assim, se o
+    flow falha no meio, nem o histórico de tamanho nem o Update avançam, e a run
+    seguinte ainda detecta a novidade e retenta.
 
     - tamanho MAIOR (ou primeira vez) → novidade: grava só Poll, devolve True.
     - tamanho IGUAL  → sem novidade: grava só Poll, devolve False.
-    - tamanho MENOR  → `ValueError` (a fonte encolheu — possível quebra de schema).
+    - tamanho MENOR  → dentro da tolerância (`SOURCE_SIZE_SHRINK_TOLERANCE`):
+      trata como novidade (re-publicação); acima dela: `ValueError` (a fonte
+      encolheu demais — possível quebra de schema).
 
-    See Also
-    --------
-    commit_source_size_update : Grava histórico + Update ao fim do flow.
-    register_source_poll_by_size : Versão eager (detecta e grava numa só chamada).
+    Args:
+        client: cliente de escrita/leitura do backend de metadados
+            (`MetadataClient`).
+        redis: cliente Redis com o histórico de tamanhos
+            (`dataset_id -> {table_id: {date: size}}`).
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        byte_length: tamanho atual da fonte, em bytes.
+
+    Returns:
+        bool — True se a fonte trouxe novidade (tamanho maior ou primeira vez);
+        False se o tamanho é igual ao último registrado.
+
+    Raises:
+        ValueError: se `byte_length` é menor que o último tamanho registrado.
     """
     client.upsert_raw_source_poll(
         dataset_id, table_id, latest=datetime.datetime.today()
@@ -169,11 +191,22 @@ def poll_source_size_for_update(
             log("Não há novas atualizações na fonte original (tamanho igual)")
             return False
         if byte_length < latest_size:
-            raise ValueError(
-                f"Tamanho na fonte ({byte_length}) é MENOR que o último "
-                f"registrado ({latest_size}) — possível alteração na tabela "
-                f"original (coluna removida, recodificação, etc.)"
+            shrink_ratio = (latest_size - byte_length) / latest_size
+            if shrink_ratio > SOURCE_SIZE_SHRINK_TOLERANCE:
+                raise ValueError(
+                    f"Tamanho na fonte ({byte_length}) é MENOR que o último "
+                    f"registrado ({latest_size}) em {shrink_ratio:.1%} "
+                    f"(> tolerância de {SOURCE_SIZE_SHRINK_TOLERANCE:.0%}) — "
+                    f"possível alteração na tabela original (coluna removida, "
+                    f"recodificação, etc.)"
+                )
+            log(
+                f"Tamanho na fonte ({byte_length}) ligeiramente menor que o "
+                f"último ({latest_size}) — variação de {shrink_ratio:.2%} ≤ "
+                f"tolerância de {SOURCE_SIZE_SHRINK_TOLERANCE:.0%}, tratando "
+                f"como atualização (re-publicação da fonte)"
             )
+            return True
 
     log("Há atualizações na fonte original (tamanho maior)")
     return True
@@ -182,17 +215,23 @@ def poll_source_size_for_update(
 def commit_source_size_update(
     client, redis, dataset_id: str, table_id: str, byte_length: int
 ) -> None:
-    """Grava o histórico de tamanho (Redis) e o ``RawDataSource.Update``.
+    """Grava o histórico de tamanho (Redis) e o `RawDataSource.Update`.
 
-    Contraparte por bytes de :func:`commit_source_update`. Registra
-    ``byte_length`` no histórico do Redis (mantendo os últimos 10 registros) e
-    grava ``RawDataSource.Update.latest`` com a data de hoje. Deve ser chamada
-    **só ao fim do flow**, depois de a materialização ter dado certo, de modo que
-    o histórico e o Update só avancem quando o dado de fato chegou ao destino.
+    Contraparte por bytes de `commit_source_update`. Registra `byte_length` no
+    histórico do Redis (mantendo os últimos 10 registros) e grava
+    `RawDataSource.Update.latest` com a data de hoje. Deve ser chamada **só ao
+    fim do flow**, depois de a materialização ter dado certo, de modo que o
+    histórico e o Update só avancem quando o dado de fato chegou ao destino. É a
+    contraparte de `poll_source_size_for_update`, que detecta a novidade sem
+    gravar histórico nem Update.
 
-    See Also
-    --------
-    poll_source_size_for_update : Detecta a novidade sem gravar histórico/Update.
+    Args:
+        client: cliente de escrita/leitura do backend de metadados
+            (`MetadataClient`).
+        redis: cliente Redis com o histórico de tamanhos.
+        dataset_id: ID do dataset no GCP/BigQuery.
+        table_id: ID da tabela no GCP/BigQuery.
+        byte_length: tamanho atual da fonte, em bytes, gravado no histórico.
     """
     today = datetime.datetime.today()
     today_key = today.strftime("%Y-%m-%d")
@@ -268,43 +307,43 @@ def register_table_materialization(
 
 
 def poll_source_for_update(
-    client, dataset_id, table_id, source_max_date: datetime.date | None = None
+    client,
+    dataset_id,
+    table_id,
+    source_max_date: datetime.date | None = None,
+    raw_source_url: str | None = None,
 ) -> bool:
     """Detecta se a fonte original tem novidade, sem gravar o Update.
 
-    Sempre registra um ``RawDataSource.Poll`` (data de hoje) e devolve se a
-    fonte traz dados mais novos que o ``Table.Update.latest`` atual.
-    Ao contrário de :func:`register_source_poll`, **não grava** o Update — essa
-    escrita fica a cargo de :func:`commit_source_update`, chamada só após a
-    materialização. Assim, se o flow falha no meio, o Update não avança e a run
-    seguinte ainda detecta a novidade e retenta.
+    Sempre registra um `RawDataSource.Poll` (data de hoje) e devolve se a fonte
+    traz dados mais novos que o `Table.Update.latest` atual. Ao contrário de
+    `register_source_poll`, **não grava** o Update — essa escrita fica a cargo de
+    `commit_source_update`, chamada só após a materialização. Assim, se o flow
+    falha no meio, o Update não avança e a run seguinte ainda detecta a novidade
+    e retenta.
 
-    Parameters
-    ----------
-    client : MetadataClient
-        Cliente de escrita/leitura do backend de metadados.
-    dataset_id : str
-        ID do dataset no GCP/BigQuery (ex.: ``br_ibge_ipca``).
-    table_id : str
-        ID da tabela no GCP/BigQuery.
-    source_max_date : datetime.date or None, optional
-        Data máxima observada na fonte. ``None`` (padrão) é a forma explícita
-        de "só polei, sem novidade" — grava o Poll e devolve ``False``.
+    Args:
+        client: cliente de escrita/leitura do backend de metadados
+            (`MetadataClient`).
+        dataset_id: ID do dataset no GCP/BigQuery (ex.: `br_ibge_ipca`).
+        table_id: ID da tabela no GCP/BigQuery.
+        source_max_date: data máxima observada na fonte. `None` (padrão) é a
+            forma explícita de "só polei, sem novidade" — grava o Poll e devolve
+            `False`.
+        raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
+            uma fonte ligada. `None` (padrão) mantém o comportamento de fonte
+            única.
 
-    Returns
-    -------
-    bool
-        ``True`` se a fonte tem dados mais novos que o ``Table.Update.latest``
-        atual; ``False`` caso contrário.
-
-    See Also
-    --------
-    commit_source_update : Grava o ``RawDataSource.Update`` ao fim do flow.
-    register_source_poll : Versão eager (detecta e grava numa só chamada).
+    Returns:
+        bool — `True` se a fonte tem dados mais novos que o `Table.Update.latest`
+        atual; `False` caso contrário.
     """
 
     client.upsert_raw_source_poll(
-        dataset_id, table_id, latest=datetime.datetime.today()
+        dataset_id,
+        table_id,
+        latest=datetime.datetime.today(),
+        url=raw_source_url,
     )
 
     if source_max_date is None:
@@ -324,36 +363,31 @@ def commit_source_update(
     dataset_id: str,
     table_id: str,
     source_max_date: datetime.date,
+    raw_source_url: str | None = None,
 ) -> None:
-    """Grava o ``RawDataSource.Update`` da fonte original.
+    """Grava o `RawDataSource.Update` da fonte original.
 
-    Registra ``source_max_date`` como o novo ``RawDataSource.Update.latest``.
-    É a contraparte de :func:`poll_source_for_update`: deve ser chamada **só ao
-    fim do flow**, depois de a materialização ter dado certo, de modo que o
-    Update só avance quando o dado de fato chegou ao destino. Separar a detecção
-    (poll) da gravação (este commit) é o que evita que uma falha no meio do flow
-    deixe o Update adiantado e trave as runs seguintes.
+    Registra `source_max_date` como o novo `RawDataSource.Update.latest`. É a
+    contraparte de `poll_source_for_update`: deve ser chamada **só ao fim do
+    flow**, depois de a materialização ter dado certo, de modo que o Update só
+    avance quando o dado de fato chegou ao destino. Separar a detecção (poll) da
+    gravação (este commit) é o que evita que uma falha no meio do flow deixe o
+    Update adiantado e trave as runs seguintes.
 
-    Parameters
-    ----------
-    client : MetadataClient
-        Cliente de escrita/leitura do backend de metadados.
-    dataset_id : str
-        ID do dataset no GCP/BigQuery (ex.: ``br_ibge_ipca``).
-    table_id : str
-        ID da tabela no GCP/BigQuery.
-    source_max_date : datetime.date
-        Data máxima observada na fonte, gravada como o novo
-        ``RawDataSource.Update.latest``.
-
-    See Also
-    --------
-    poll_source_for_update : Detecta a novidade sem gravar o Update.
-    register_source_poll : Versão eager (detecta e grava numa só chamada).
+    Args:
+        client: cliente de escrita/leitura do backend de metadados
+            (`MetadataClient`).
+        dataset_id: ID do dataset no GCP/BigQuery (ex.: `br_ibge_ipca`).
+        table_id: ID da tabela no GCP/BigQuery.
+        source_max_date: data máxima observada na fonte, gravada como o novo
+            `RawDataSource.Update.latest`.
+        raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
+            uma fonte ligada. `None` (padrão) mantém o comportamento de fonte
+            única.
     """
 
     client.upsert_raw_source_update(
-        dataset_id, table_id, latest=source_max_date
+        dataset_id, table_id, latest=source_max_date, url=raw_source_url
     )
 
     log("Data de atualização da fonte original modificada")
