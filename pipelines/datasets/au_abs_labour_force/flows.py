@@ -108,16 +108,21 @@ def au_abs_labour_force_flow(
         input_dir = download_sdmx_task(work_dir=work_dir)
         max_ym = latest_month_task(input_dir=input_dir)
 
-        # Skip when the ABS has not published a newer month (unless forced).
-        has_new_data = poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id=_POLL_TABLE,
-            source_max_date=max_ym,
-            env="prod",
-            date_format="%Y-%m",
-        )
-        if not has_new_data and not force_run:
-            return
+        # A scheduled run polls prod and no-ops until the ABS publishes a newer
+        # month. force_run bypasses the poll entirely (not just its early return)
+        # — the dev test sets it, and the poll is env="prod", so a dev-only test
+        # must never reach it (prod metadata may not exist yet, and a test must
+        # not write a prod Poll record).
+        if not force_run:
+            has_new_data = poll_source_for_update_task(
+                dataset_id=DATASET_ID,
+                table_id=_POLL_TABLE,
+                source_max_date=max_ym,
+                env="prod",
+                date_format="%Y-%m",
+            )
+            if not has_new_data:
+                return
 
         # Only now fetch the heavy Excel spreadsheets and rebuild.
         download_excel_task(input_dir=input_dir, source_max_date=max_ym)
