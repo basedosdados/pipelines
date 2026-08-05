@@ -54,7 +54,7 @@ with
                 ) qualificacao_representante_legal,
                 safe_cast(faixa_etaria as string) faixa_etaria,
                 safe_cast(null as date) data_modificacao
-            from {{ set_datalake_project("br_me_cnpj_staging.socios") }}
+            from {{ set_datalake_project("br_rf_cnpj_staging.socios_legado") }}
             where
                 safe_cast(qualificacao as string) != "qualificacao"
                 and safe_cast(data as date) <= date("2023-04-30")

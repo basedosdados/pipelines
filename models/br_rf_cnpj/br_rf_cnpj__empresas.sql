@@ -47,7 +47,7 @@ with
                 safe_cast(regexp_replace(porte, '^0', '') as string) porte,
                 safe_cast(ente_federativo as string) ente_federativo,
                 safe_cast(null as date) data_modificacao
-            from {{ set_datalake_project("br_me_cnpj_staging.empresas") }}
+            from {{ set_datalake_project("br_rf_cnpj_staging.empresas_legado") }}
             where porte != "porte" and safe_cast(data as date) <= date("2023-04-30")
         {% endif %}
     )

@@ -102,7 +102,8 @@ with
                 safe_cast(situacao_especial as string) situacao_especial,
                 safe_cast(null as date) data_modificacao,
                 safe_cast(data_situacao_especial as date) data_situacao_especial
-            from {{ set_datalake_project("br_me_cnpj_staging.estabelecimentos") }}
+            from
+                {{ set_datalake_project("br_rf_cnpj_staging.estabelecimentos_legado") }}
             where safe_cast(data as date) <= date("2023-04-30")
         {% endif %}
     )
