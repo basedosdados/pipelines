@@ -17,8 +17,9 @@ select
     safe_cast(year as int64) year,
     safe_cast(month as int64) month,
     safe_cast(region as string) region,
-    safe_cast(serie_id as string) serie_id,
+    safe_cast(index_code as string) index_code,
     safe_cast(index_name as string) index_name,
+    safe_cast(serie_id as string) serie_id,
     safe_cast(index_number as float64) index_number,
     safe_cast(percentage_change_period as float64) percentage_change_period,
     safe_cast(percentage_change_year as float64) percentage_change_year

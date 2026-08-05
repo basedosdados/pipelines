@@ -46,8 +46,9 @@ class constants(Enum):
             "year",
             "quarter",
             "region",
-            "serie_id",
+            "index_code",
             "index_name",
+            "serie_id",
             "index_number",
             "percentage_change_period",
             "percentage_change_year",
@@ -56,13 +57,17 @@ class constants(Enum):
             "year",
             "month",
             "region",
-            "serie_id",
+            "index_code",
             "index_name",
+            "serie_id",
             "index_number",
             "percentage_change_period",
             "percentage_change_year",
         ],
     }
+
+    # Item ID map file (index_name -> ABS CL_CPI_INDEX code), bundled beside utils.
+    INDEX_CODES_FILE = "index_codes.csv"
 
     # Sub-annual period column and the year-over-year lag (in periods) per frequency.
     PERIOD_COL = {"quarterly": "quarter", "monthly": "month"}

@@ -68,12 +68,22 @@ tolerance.
 Both fact tables share the same shape; only the sub-annual period column differs.
 
 ### `quarterly` (1948 Q3 → latest)
-`year` · `quarter` (1–4) · `region` · `serie_id` · `index_name` ·
+`year` · `quarter` (1–4) · `region` · `index_code` · `index_name` · `serie_id` ·
 `index_number` · `percentage_change_period` (q/q) · `percentage_change_year` (y/y)
 
 ### `monthly` (2017-09 → latest)
-`year` · `month` (1–12) · `region` · `serie_id` · `index_name` ·
+`year` · `month` (1–12) · `region` · `index_code` · `index_name` · `serie_id` ·
 `index_number` · `percentage_change_period` (m/m) · `percentage_change_year` (y/y)
+
+Observation levels: `[year, quarter/month, region, product]`. The CPI item is a
+`product` observation level identified by `index_code` (ABS `CL_CPI_INDEX` code,
+e.g. All groups CPI = 10001), with `index_name` as its label. `serie_id` is the
+ABS series ID (unique per item × region — the series key). For the 8 names ABS
+repeats at two hierarchy levels with identical values (single-child groups:
+Communication, Education, Insurance, Rents, Tobacco, Household textiles, New
+dwelling purchase by owner-occupiers, Urban transport fares), the higher-level
+(parent) code is used. Map bundled at
+`pipelines/datasets/au_abs_cpi/index_codes.csv`.
 
 Notes on modelling choices:
 - **No dictionary table.** Every column is either numeric or a readable label

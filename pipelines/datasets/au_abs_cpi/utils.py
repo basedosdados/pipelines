@@ -7,6 +7,7 @@ import these functions, so the cleaning transform lives in exactly one place.
 
 from __future__ import annotations
 
+import functools
 import os
 from pathlib import Path
 
@@ -27,12 +28,26 @@ _ARROW_TYPE = {
     "quarter": pa.int64(),
     "month": pa.int64(),
     "region": pa.string(),
+    "index_code": pa.string(),
     "serie_id": pa.string(),
     "index_name": pa.string(),
     "index_number": pa.float64(),
     "percentage_change_period": pa.float64(),
     "percentage_change_year": pa.float64(),
 }
+
+
+@functools.lru_cache(maxsize=1)
+def _index_codes() -> dict[str, str]:
+    """index_name -> ABS CL_CPI_INDEX code, from the bundled snapshot.
+
+    For the 8 names that ABS repeats at two hierarchy levels with identical
+    values (a group and its single child), the snapshot holds the higher-level
+    (parent) code, chosen deterministically when it was generated.
+    """
+    path = Path(__file__).with_name(constants.INDEX_CODES_FILE.value)
+    m = pd.read_csv(path, dtype=str)
+    return dict(zip(m["index_name"], m["index_code"], strict=True))
 
 
 # --------------------------------------------------------------------------- #
@@ -215,6 +230,15 @@ def clean_frequency(frequency: str, input_dir: str) -> pd.DataFrame:
     )
 
     wide = wide.rename(columns={"item": "index_name", "period": period_col})
+
+    # Attach the region-independent ABS item code (identifier of the product OL).
+    wide["index_code"] = wide["index_name"].map(_index_codes())
+    missing = sorted(
+        wide.loc[wide["index_code"].isna(), "index_name"].unique()
+    )
+    if missing:
+        raise ValueError(f"index_name(s) with no index_code: {missing}")
+
     out = wide[COLUMNS[frequency]].copy()
     out["year"] = out["year"].astype("int64")
     out[period_col] = out[period_col].astype("int64")
@@ -227,7 +251,7 @@ def clean_frequency(frequency: str, input_dir: str) -> pd.DataFrame:
         out[c] = (
             pd.to_numeric(out[c], errors="coerce").astype("float64").round(1)
         )
-    for c in ("region", "serie_id", "index_name"):
+    for c in ("region", "index_code", "serie_id", "index_name"):
         out[c] = out[c].astype("string").astype("object")
     return out.sort_values(
         ["region", "index_name", "year", period_col]
