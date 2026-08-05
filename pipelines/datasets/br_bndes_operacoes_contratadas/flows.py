@@ -8,8 +8,8 @@ orquestracao (poll deferido) vive em pipelines/crawler/bndes/flows.py.
 from prefect import flow
 
 from pipelines.crawler.bndes.flows import (
+    _run_operacoes,
     _run_operacoes_administracao_publica,
-    _run_operacoes_indiretas_automaticas,
 )
 
 
@@ -30,7 +30,7 @@ def br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    _run_operacoes_indiretas_automaticas(
+    _run_operacoes(
         dataset_id=dataset_id,
         table_id=table_id,
         materialize_after_dump=materialize_after_dump,
@@ -42,6 +42,39 @@ def br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas(
 
 
 br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas.deploy_schedules = [
+    {"cron": "0 6 * * 1", "timezone": "America/Sao_Paulo"}
+]
+
+
+@flow(
+    name="br_bndes_operacoes_contratadas__operacoes_nao_automaticas",
+    log_prints=True,
+    description=(
+        "Dump da tabela operacoes_nao_automaticas "
+        "do dataset br_bndes_operacoes_contratadas."
+    ),
+)
+def br_bndes_operacoes_contratadas__operacoes_nao_automaticas(
+    dataset_id: str = "br_bndes_operacoes_contratadas",
+    table_id: str = "operacoes_nao_automaticas",
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    _run_operacoes(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        materialize_after_dump=materialize_after_dump,
+        dbt_alias=dbt_alias,
+        update_metadata=update_metadata,
+        target=target,
+        force_run=force_run,
+    )
+
+
+br_bndes_operacoes_contratadas__operacoes_nao_automaticas.deploy_schedules = [
     {"cron": "0 6 * * 1", "timezone": "America/Sao_Paulo"}
 ]
 
