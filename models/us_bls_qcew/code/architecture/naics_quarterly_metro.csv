@@ -1,0 +1,43 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,year
+qtr,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,,qtr
+area_fips,STRING,"QCEW metropolitan-area code (MSA, CSA, or Micropolitan)",,yes,,,no,QCEW 4-digit metro codes; a CBSA crosswalk is future work,area_fips
+own_code,STRING,"Ownership code identifying the sector (private, federal, state, local government)",,yes,,,no,,own_code
+industry_code,STRING,"Industry code (NAICS, supersector, or aggregate pseudo-code)",,yes,,,no,Real NAICS codes align with br_bd_diretorios_us.naics_2022; aggregate and supersector codes are QCEW-specific,industry_code
+agglvl_code,STRING,Aggregation-level code indicating the geographic and industry summarization of the row,,yes,,,no,,agglvl_code
+size_code,STRING,"Establishment size-class code, 0 for all sizes",,yes,,,no,,size_code
+disclosure_code,STRING,"Disclosure flag: N when the figure is not disclosable, blank otherwise",,no,,,no,,disclosure_code
+qtrly_estabs,INT64,Count of establishments in the quarter,,no,,establishment,no,,qtrly_estabs
+month1_emplvl,INT64,Employment level in the first month of the quarter,,no,,worker,no,,month1_emplvl
+month2_emplvl,INT64,Employment level in the second month of the quarter,,no,,worker,no,,month2_emplvl
+month3_emplvl,INT64,Employment level in the third month of the quarter,,no,,worker,no,,month3_emplvl
+total_qtrly_wages,FLOAT64,Total wages paid in the quarter,,no,,dollar,no,,total_qtrly_wages
+taxable_qtrly_wages,FLOAT64,Wages subject to unemployment-insurance taxation in the quarter,,no,,dollar,no,,taxable_qtrly_wages
+qtrly_contributions,FLOAT64,Unemployment-insurance contributions in the quarter,,no,,dollar,no,,qtrly_contributions
+avg_wkly_wage,FLOAT64,Average weekly wage in the quarter,,no,,dollar,no,,avg_wkly_wage
+lq_disclosure_code,STRING,"Disclosure flag for the location quotient: N when not disclosable, blank otherwise",,no,,,no,,lq_disclosure_code
+lq_qtrly_estabs,FLOAT64,"Location quotient of the establishment count relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_qtrly_estabs
+lq_month1_emplvl,FLOAT64,"Location quotient of first-month employment relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_month1_emplvl
+lq_month2_emplvl,FLOAT64,"Location quotient of second-month employment relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_month2_emplvl
+lq_month3_emplvl,FLOAT64,"Location quotient of third-month employment relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_month3_emplvl
+lq_total_qtrly_wages,FLOAT64,"Location quotient of total quarterly wages relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_total_qtrly_wages
+lq_taxable_qtrly_wages,FLOAT64,"Location quotient of taxable quarterly wages relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_taxable_qtrly_wages
+lq_qtrly_contributions,FLOAT64,"Location quotient of quarterly contributions relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_qtrly_contributions
+lq_avg_wkly_wage,FLOAT64,"Location quotient of the average weekly wage relative to the U.S., rounded to hundredths",,no,,ratio,no,,lq_avg_wkly_wage
+oty_disclosure_code,STRING,"Disclosure flag for the over-the-year change: N when not disclosable, blank otherwise",,no,,,no,,oty_disclosure_code
+oty_qtrly_estabs_chg,INT64,Over-the-year change in the establishment count,,no,,establishment,no,,oty_qtrly_estabs_chg
+oty_qtrly_estabs_pct_chg,FLOAT64,"Over-the-year percent change in the establishment count, rounded to tenths",,no,,percent,no,,oty_qtrly_estabs_pct_chg
+oty_month1_emplvl_chg,INT64,Over-the-year change in first-month employment,,no,,worker,no,,oty_month1_emplvl_chg
+oty_month1_emplvl_pct_chg,FLOAT64,"Over-the-year percent change in first-month employment, rounded to tenths",,no,,percent,no,,oty_month1_emplvl_pct_chg
+oty_month2_emplvl_chg,INT64,Over-the-year change in second-month employment,,no,,worker,no,,oty_month2_emplvl_chg
+oty_month2_emplvl_pct_chg,FLOAT64,"Over-the-year percent change in second-month employment, rounded to tenths",,no,,percent,no,,oty_month2_emplvl_pct_chg
+oty_month3_emplvl_chg,INT64,Over-the-year change in third-month employment,,no,,worker,no,,oty_month3_emplvl_chg
+oty_month3_emplvl_pct_chg,FLOAT64,"Over-the-year percent change in third-month employment, rounded to tenths",,no,,percent,no,,oty_month3_emplvl_pct_chg
+oty_total_qtrly_wages_chg,FLOAT64,Over-the-year change in total quarterly wages,,no,,dollar,no,,oty_total_qtrly_wages_chg
+oty_total_qtrly_wages_pct_chg,FLOAT64,"Over-the-year percent change in total quarterly wages, rounded to tenths",,no,,percent,no,,oty_total_qtrly_wages_pct_chg
+oty_taxable_qtrly_wages_chg,FLOAT64,Over-the-year change in taxable quarterly wages,,no,,dollar,no,,oty_taxable_qtrly_wages_chg
+oty_taxable_qtrly_wages_pct_chg,FLOAT64,"Over-the-year percent change in taxable quarterly wages, rounded to tenths",,no,,percent,no,,oty_taxable_qtrly_wages_pct_chg
+oty_qtrly_contributions_chg,FLOAT64,Over-the-year change in quarterly contributions,,no,,dollar,no,,oty_qtrly_contributions_chg
+oty_qtrly_contributions_pct_chg,FLOAT64,"Over-the-year percent change in quarterly contributions, rounded to tenths",,no,,percent,no,,oty_qtrly_contributions_pct_chg
+oty_avg_wkly_wage_chg,FLOAT64,Over-the-year change in the average weekly wage,,no,,dollar,no,,oty_avg_wkly_wage_chg
+oty_avg_wkly_wage_pct_chg,FLOAT64,"Over-the-year percent change in the average weekly wage, rounded to tenths",,no,,percent,no,,oty_avg_wkly_wage_pct_chg
