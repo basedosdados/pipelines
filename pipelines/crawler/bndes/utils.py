@@ -6,6 +6,11 @@ Tres responsabilidades:
   - download_csv: baixa o CSV consolidado (stream p/ disco + resume via Range)
   - clean: le o CSV bruto e grava Parquet particionado por ano (schema explicito)
 
+get_source_last_modified/download_csv/clean sao genericas as duas tabelas de
+constants.TABLES_CONFIGS ("operacoes_indiretas_automaticas" e
+"operacoes_nao_automaticas"); a URL/schema de cada uma e resolvida pelo
+chamador (url ou table_id), nao tem default fixo aqui.
+
 Passo a passo de implementacao de cada funcao: ver task_davi/ROADMAP.md, secao 2.
 """
 
@@ -13,6 +18,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
+import basedosdados as bd
 import httpx
 import pandas as pd
 import pyarrow as pa
@@ -27,29 +33,26 @@ from pipelines.utils.utils import log
 CHUNKSIZE = 200_000
 
 
-def get_source_last_modified(url: str | None = None) -> datetime:
+def get_source_last_modified(url: str) -> datetime:
     """
     Le o `last_modified` do recurso no CKAN (sinal de atualizacao do poll).
 
-    Faz GET em constants.RESOURCE_SHOW_URL e parseia
-    result["last_modified"] com constants.LAST_MODIFIED_FORMAT.
+    Faz GET em `url` (RESOURCE_SHOW_URL da tabela) e parseia
+    result["last_modified"] com constants.LAST_MODIFIED_FORMAT (comum as
+    duas tabelas do dataset).
+
+    Args:
+        url (str): RESOURCE_SHOW_URL do recurso CKAN da tabela.
 
     Returns:
         datetime: Data/hora da ultima publicacao do CSV no portal.
     """
-
-    url = url or constants.RESOURCE_SHOW_URL.value
-
     response = httpx.get(url)
-
     response.raise_for_status()
-
     last_modified_date_iso = response.json()["result"]["last_modified"]
-
     last_modified_date = datetime.strptime(
         last_modified_date_iso, constants.LAST_MODIFIED_FORMAT.value
     )
-
     log(f"Fonte last_modified: {last_modified_date}")
 
     return last_modified_date
@@ -77,7 +80,7 @@ def parse_decimal_ptbr(s: pd.Series) -> pd.Series:
 
 def download_csv(
     dest: Path,
-    url: str | None = None,
+    url: str,
     chunk_size: int = 1024 * 1024,
 ) -> Path:
     """
@@ -92,17 +95,14 @@ def download_csv(
 
     Args:
         dest (Path): Caminho de destino do arquivo .csv.
-        url (str | None): URL de download; default constants.DOWNLOAD_URL.
+        url (str): URL de download (DOWNLOAD_URL da tabela).
         chunk_size (int): Tamanho do bloco de escrita (bytes).
 
     Returns:
         Path: O proprio `dest`, ja com o arquivo completo.
     """
 
-    url = url or constants.DOWNLOAD_URL.value
-
     Path.mkdir(dest.parent, parents=True, exist_ok=True)
-
     bytes_downloaded = dest.stat().st_size if dest.is_file() else 0
 
     headers = (
@@ -148,7 +148,108 @@ def download_csv(
         return dest
 
 
-def _transform_chunk(df: pd.DataFrame) -> pd.DataFrame:
+def _extract_cnae_hierarchy(
+    dataframe: pd.DataFrame,
+    cnae_column: str,
+    levels: list[str] | None = None,
+    verify_diretorios: bool = True,
+    df_diretorios: pd.DataFrame | None = None,
+) -> pd.DataFrame:
+    df_extracted = dataframe.copy()
+
+    if levels is None:
+        levels = ["secao", "divisao", "grupo", "classe", "subclasse"]
+    cnae_series = df_extracted[cnae_column].astype(str).str.strip().str.upper()
+
+    # 1. Extração dos códigos da hierarquia via Regex
+    if "secao" in levels:
+        df_extracted["secao_cnae"] = cnae_series.str.extract(
+            r"(^[A-Z]){1}", expand=False
+        )
+
+    if "divisao" in levels:
+        df_extracted["divisao_cnae"] = cnae_series.str.extract(
+            r"^[A-Z]{1}(\d{2})", expand=False
+        )
+
+    if "grupo" in levels:
+        df_extracted["grupo_cnae"] = cnae_series.str.extract(
+            r"^[A-Z]{1}(\d{3})", expand=False
+        )
+
+    if "classe" in levels:
+        df_extracted["classe_cnae"] = cnae_series.str.extract(
+            r"^[A-Z]{1}(\d{5})", expand=False
+        )
+
+    if "subclasse" in levels:
+        df_extracted["subclasse_cnae"] = cnae_series.str.extract(
+            r"^[A-Z]{1}(\d{7})", expand=False
+        )
+
+    # 2. Limpeza de Níveis Inexistentes
+    # Se o código do BNDES for de nível alto (Divisão/Grupo), anula os níveis inferiores falsos
+    if "subclasse_cnae" in df_extracted.columns:
+        df_extracted.loc[
+            df_extracted["subclasse_cnae"].str.endswith("00000"),
+            "subclasse_cnae",
+        ] = None
+
+    if "classe_cnae" in df_extracted.columns:
+        df_extracted.loc[
+            df_extracted["classe_cnae"].str.endswith("0000"), "classe_cnae"
+        ] = None
+
+    if "grupo_cnae" in df_extracted.columns:
+        df_extracted.loc[
+            df_extracted["grupo_cnae"].str.endswith("000"), "grupo_cnae"
+        ] = None
+    if "divisao_cnae" in df_extracted.columns:
+        df_extracted.loc[
+            df_extracted["grupo_cnae"].str.endswith("00"), "divisao_cnae"
+        ] = None
+
+    # Remove a coluna bruta original
+    df_extracted = df_extracted.drop(columns=[cnae_column])
+
+    # 3. Validação opcional cruzada com o diretório da Base dos Dados
+    if verify_diretorios and df_diretorios is not None:
+        for col in levels:
+            col_name = f"{col}_cnae"
+            if (
+                col_name in df_extracted.columns
+                and col in df_diretorios.columns
+            ):
+                valid_codes = set(
+                    df_diretorios[col].dropna().astype(str).unique()
+                )
+
+                # Anula valores que não existem na dimensão oficial
+                mask_invalid = df_extracted[col_name].notna() & ~df_extracted[
+                    col_name
+                ].isin(valid_codes)
+                df_extracted.loc[mask_invalid, col_name] = None
+
+    return df_extracted
+
+
+def get_cnae_diretorios(levels: list[str] | None = None) -> pd.DataFrame:
+
+    if levels is None:
+        levels = ["secao", "divisao", "grupo", "classe", "subclasse"]
+    df_diretorios = bd.read_sql(
+        """
+                SELECT DISTINCT {} 
+                FROM `basedosdados.br_bd_diretorios_brasil.cnae_2`
+                """.format(",".join(levels)),
+        from_file=True,
+    )
+    return df_diretorios
+
+
+def _transform_chunk(
+    df: pd.DataFrame, table_id: str, df_diretorios: pd.DataFrame | None = None
+) -> pd.DataFrame:
     """
     Aplica as transformacoes de limpeza a um chunk do CSV (tudo string na entrada).
 
@@ -156,15 +257,19 @@ def _transform_chunk(df: pd.DataFrame) -> pd.DataFrame:
 
     Args:
         df (pd.DataFrame): Chunk cru lido com dtype=str.
+        table_id (str): Chave em constants.TABLES_CONFIGS (ex.:
+            "operacoes_indiretas_automaticas") usada p/ resolver
+            DROP_COLUMNS/RENAME/ORDER_COLUMNS da tabela.
+        df_diretorios (pd.DataFrame | None): DataFrame com os diretórios CNAE.
 
     Returns:
-        pd.DataFrame: Chunk limpo, com as colunas de constants.ORDER_COLUMNS
+        pd.DataFrame: Chunk limpo, com as colunas de ORDER_COLUMNS da tabela
             (inclui `ano` derivado de data_contratacao).
     """
+    table_configs = constants.TABLES_CONFIGS.value[table_id]
+    df_dropped_cols = df.drop(columns=table_configs["DROP_COLUMNS"])
 
-    df_dropped_cols = df.drop(columns=constants.DROP_COLUMNS.value)
-
-    df_renamed_cols = df_dropped_cols.rename(columns=constants.RENAME.value)
+    df_renamed_cols = df_dropped_cols.rename(columns=table_configs["RENAME"])
 
     df_striped = df_renamed_cols.apply(lambda col: col.str.strip())
 
@@ -206,32 +311,46 @@ def _transform_chunk(df: pd.DataFrame) -> pd.DataFrame:
         valido, pd.NA
     )
 
-    return df_striped[constants.ORDER_COLUMNS.value]
+    if table_id == "operacoes_nao_automaticas" and df_diretorios is not None:
+        df_striped = _extract_cnae_hierarchy(
+            df_striped,
+            "codigo_cnae_2",
+            df_diretorios=df_diretorios,
+        )
+    return df_striped[table_configs["ORDER_COLUMNS"]]
 
 
-def clean(csv_path: Path, output_dir: Path) -> Path:
+def clean(csv_path: Path, output_dir: Path, table_id: str) -> Path:
     """
     Le o CSV bruto em chunks e grava Parquet particionado por ano.
 
     Le com read_csv(sep=";", encoding="cp1252", dtype=str, chunksize=CHUNKSIZE),
     limpa cada chunk com _transform_chunk e vai anexando cada ano num
     pq.ParquetWriter proprio (um por particao, mantido aberto entre chunks) ->
-    memoria constante. O schema explicito (constants.SCHEMA) garante que anos
+    memoria constante. O SCHEMA da tabela (via table_id) garante que anos
     espalhados por varios chunks gravem tipos consistentes.
 
     Args:
         csv_path (Path): CSV bruto baixado.
         output_dir (Path): Raiz de saida; grava output_dir/ano=<ano>/data.parquet.
+        table_id (str): Chave em constants.TABLES_CONFIGS que identifica a
+            tabela (ORDER_COLUMNS/SCHEMA), repassada a _transform_chunk.
 
     Returns:
         Path: `output_dir` (raiz das particoes gravadas).
     """
-    file_cols = [c for c in constants.ORDER_COLUMNS.value if c != "ano"]
+    configs = constants.TABLES_CONFIGS.value[table_id]
+    file_cols = [c for c in configs["ORDER_COLUMNS"] if c != "ano"]
 
     shutil.rmtree(output_dir, ignore_errors=True)
 
     writers = {}
     total_rows = 0
+
+    if table_id == "operacoes_nao_automaticas":
+        df_diretorios = get_cnae_diretorios()
+    else:
+        df_diretorios = None
 
     for i, chunk in enumerate(
         pd.read_csv(
@@ -243,8 +362,7 @@ def clean(csv_path: Path, output_dir: Path) -> Path:
         ),
         start=1,
     ):
-        df = _transform_chunk(chunk)
-
+        df = _transform_chunk(chunk, table_id, df_diretorios=df_diretorios)
         for year, group in df.groupby("ano"):
             if int(year) not in writers:
                 Path.mkdir(
@@ -255,13 +373,13 @@ def clean(csv_path: Path, output_dir: Path) -> Path:
 
                 writers[int(year)] = pq.ParquetWriter(
                     output_dir / f"ano={int(year)}/data.parquet",
-                    constants.SCHEMA.value,
+                    configs["SCHEMA"],
                     compression="snappy",
                 )
 
             table = pa.Table.from_pandas(
                 group[file_cols],
-                schema=constants.SCHEMA.value,
+                schema=configs["SCHEMA"],
                 preserve_index=False,
             )
 
