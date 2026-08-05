@@ -303,8 +303,8 @@ models:
           T42 T43 T44 T45 T46 T47 T48 T49 T50 X42 X43 X44 X45 X46 X47 X48 X49 X60
           X61 X62 X63 X64 X65 X66 X67 X68 X69 Y12 Y13 Y14 Y15 Y16 Y49 Y50 Y51 Z64
           Z65)
-      - name: cid_datasus
-        description: Indica se a origem do CID-10 vem do DATASUS
+      - name: indicador_registro_ativo
+        description: Indicador de que o código CID-10 está ativo
   - name: br_bd_diretorios_brasil__cid_9
     description: Diretório da Classificação Internacional de Doenças (CID) 9.
     tests:
