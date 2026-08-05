@@ -68,6 +68,46 @@ def download_table(slug: str, file: str, out_dir: str, session=None) -> str:
     return path
 
 
+def resolve_release_slug(session=None) -> str:
+    """Resolve the current ABS CPI release slug (e.g. ``jun-2026``).
+
+    The xlsx download URLs are dated by reference period; the ``latest-release``
+    landing page carries links to the current period, so we read the slug from
+    there rather than guessing it from the calendar (the release lags, and the
+    monthly/quarterly cadences differ).
+    """
+    import re
+
+    import requests
+
+    getter = session or requests
+    resp = getter.get(
+        constants.LANDING_URL.value,
+        headers=constants.HEADERS.value,
+        timeout=120,
+    )
+    resp.raise_for_status()
+    m = re.search(
+        r"consumer-price-index-australia/([a-z]{3}-\d{4})/", resp.text
+    )
+    if not m:
+        raise RuntimeError(
+            "could not resolve ABS CPI release slug from landing page"
+        )
+    return m.group(1)
+
+
+def download_all(out_dir: str, session=None) -> str:
+    """Download every source workbook for the current release into out_dir."""
+    slug = resolve_release_slug(session)
+    files = sorted(
+        {f for fs in constants.SOURCE_TABLES.value.values() for f in fs}
+    )
+    for f in files:
+        download_table(slug, f, out_dir, session)
+    return out_dir
+
+
 # --------------------------------------------------------------------------- #
 # Parse one ABS time-series workbook
 # --------------------------------------------------------------------------- #
@@ -273,10 +313,24 @@ def _is_prev_period(frequency, df, prev_year, prev_period):
     return same_year | year_wrap
 
 
-def clean_all(input_dir: str) -> dict[str, pd.DataFrame]:
-    return {
-        f: clean_frequency(f, input_dir) for f in constants.SOURCE_TABLES.value
-    }
+def clean_all(input_dir: str, output_dir: str) -> dict[str, str]:
+    """Build every table into partitioned parquet under output_dir.
+
+    Returns a mapping of table slug to its partition root, plus
+    ``"max_year_month"`` — the latest ``"YYYY-MM"`` in the monthly table, which
+    drives the source-update poll.
+    """
+    result: dict[str, str] = {}
+    max_ym = None
+    for freq in constants.SOURCE_TABLES.value:
+        df = clean_frequency(freq, str(input_dir))
+        write_partitioned(df, freq, str(output_dir))
+        result[freq] = str(Path(output_dir) / freq)
+        if freq == "monthly":
+            last = df.sort_values(["year", "month"]).iloc[-1]
+            max_ym = f"{int(last['year']):04d}-{int(last['month']):02d}"
+    result["max_year_month"] = max_ym
+    return result
 
 
 # --------------------------------------------------------------------------- #
