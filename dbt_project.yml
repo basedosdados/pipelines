@@ -40,6 +40,9 @@ models:
     af_afrobarometer_survey:
       +materialized: table
       +schema: af_afrobarometer_survey
+    au_abs_national_accounts:
+      +materialized: table
+      +schema: au_abs_national_accounts
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
