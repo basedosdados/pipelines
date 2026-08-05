@@ -24,46 +24,44 @@
 
 
 {% set date_cols = [
-    "data_apuracao",
     "data_contratacao",
 ] %}
 
-{% set float_cols = ["taxa_juros", "valor_contratado", "valor_desembolsado"] %}
+{% set float_cols = ["valor_operacao", "valor_desembolsado", "taxa_juros"] %}
 
 {% set int_cols = ["prazo_carencia", "prazo_amortizacao", "indicador_inovacao"] %}
 
 {% set string_cols = [
-    "id_municipio",
-    "cnpj_cliente",
-    "id_contrato",
     "sigla_uf",
-    "nome_municipio",
-    "razao_social_cliente",
-    "situacao_contrato",
+    "id_municipio",
+    "id_contrato",
+    "cnpj_cliente",
+    "nome_cliente",
     "porte_cliente",
     "natureza_cliente",
     "descricao_projeto",
+    "fonte_recurso",
+    "custo_financeiro",
     "modalidade_apoio",
     "forma_apoio",
     "produto",
-    "tipo_instrumento_financeiro",
+    "instrumento_financeiro",
     "tipo_garantia",
     "tipo_excepcionalidade",
-    "tipo_fonte_recursos",
-    "area_operacional_bndes",
-    "setor_cnae_bndes",
-    "subsetor_agrupado_cnae_bndes",
+    "area_operacional",
+    "setor_cnae",
+    "subsetor_cnae_agrupado",
     "secao_cnae",
     "divisao_cnae",
     "grupo_cnae",
     "classe_cnae",
     "subclasse_cnae",
-    "descricao_subclasse",
+    "descricao_cnae",
     "setor_bndes",
     "subsetor_bndes",
     "nome_instituicao_financeira_credenciada",
     "cnpj_instituicao_financeira_credenciada",
-    "custo_financeiro",
+    "situacao_operacao",
 ] %}
 
 
@@ -79,7 +77,6 @@ select
             safe_cast({{ col.name }} as float64) as {{ col.name }}
         {% elif col.name in int_cols %}
             safe_cast({{ col.name }} as int64) as {{ col.name }}
-        {% else %} {{ col.name }}
         {% endif %}
         {% if not loop.last %}, {% endif %}
     {% endfor %}

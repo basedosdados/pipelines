@@ -28,49 +28,62 @@ TASK_RETRY_DELAY_SECONDS = global_constants.TASK_RETRY_DELAY.value
 
 
 @task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
-def get_source_max_date() -> datetime:
+def get_source_max_date(table_id: str) -> datetime:
     """
     Le o last_modified do recurso no CKAN (sinal de atualizacao p/ o poll).
+
+    Args:
+        table_id (str): chave em constants.TABLES_CONFIGS
+            (ex.: "operacoes_indiretas_automaticas").
 
     Returns:
         datetime: data/hora da ultima publicacao do CSV no portal.
     """
-    return get_source_last_modified()
+    table_configs = constants.TABLES_CONFIGS.value[table_id]
+    return get_source_last_modified(table_configs["RESOURCE_SHOW_URL"])
 
 
 @task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
-def download_source_csv() -> str:
+def download_source_csv(table_id: str) -> str:
     """
-    Baixa o CSV consolidado para constants.INPUT_PATH.
+    Baixa o CSV consolidado da tabela para o INPUT_PATH do config.
+
+    Args:
+        table_id (str): chave em constants.TABLES_CONFIGS
+            (ex.: "operacoes_indiretas_automaticas").
 
     Returns:
         str: caminho local do CSV baixado.
     """
+    table_configs = constants.TABLES_CONFIGS.value[table_id]
 
-    dest = Path(constants.INPUT_PATH.value) / constants.CSV_FILENAME.value
+    dest = Path(table_configs["INPUT_PATH"]) / table_configs["CSV_FILENAME"]
 
     dest_path: Path = download_csv(
-        dest,
+        dest=dest, url=table_configs["DOWNLOAD_URL"]
     )
 
     return str(dest_path)
 
 
 @task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
-def clean_and_partition(csv_path: str) -> str:
+def clean_and_partition(csv_path: str, table_id: str) -> str:
     """
     Limpa o CSV e grava Parquet particionado por ano.
 
     Args:
         csv_path (str): caminho do CSV baixado (saida de download_source_csv).
+        table_id (str): chave em constants.TABLES_CONFIGS, repassada a clean()
+            p/ resolver RENAME/ORDER_COLUMNS/SCHEMA da tabela.
 
     Returns:
         str: raiz das particoes gravadas (output_dir), p/ o upload_to_gcs.
     """
+    table_configs = constants.TABLES_CONFIGS.value[table_id]
 
-    output_dir = Path(constants.OUTPUT_PATH.value) / constants.TABLE_ID.value
+    output_dir = Path(table_configs["OUTPUT_PATH"]) / table_id
 
-    clean(csv_path=Path(csv_path), output_dir=output_dir)
+    clean(csv_path=Path(csv_path), output_dir=output_dir, table_id=table_id)
 
     return str(output_dir)
 
