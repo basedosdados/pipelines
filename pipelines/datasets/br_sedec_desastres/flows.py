@@ -48,25 +48,27 @@ _COVERAGE = {
 }
 
 
+# Os parâmetros são documentados aqui, e não numa seção `Args:` do docstring, porque
+# o Prefect 3 converte essa seção no `description` de cada parâmetro do JSON schema
+# do deployment — e o formulário de run passa a exibir os textos, diferente dos
+# demais flows do repo. Ao editar, note que o formulário só reflete a mudança depois
+# de um novo deploy.
+#
+# materialize_to_prod: seguir além da materialização em dev, escrevendo no bucket de
+#     staging de prod e rodando dbt com target="prod". Passar False para exercitar só
+#     a metade de dev, que é o teste seguro, já que o padrão escreve em produção.
+#     Também desliga o poll, que consulta o backend de prod.
+# update_metadata: depois de materializar prod com sucesso, registrar a cobertura da
+#     tabela e gravar o update da fonte. Sem efeito quando materialize_to_prod é
+#     False.
+# force_run: materializar mesmo quando o poll não achar dado novo.
 @flow(name="br_sedec_desastres", log_prints=True)
 def br_sedec_desastres_flow(
     materialize_to_prod: bool = True,
     update_metadata: bool = True,
     force_run: bool = False,
 ) -> None:
-    """Baixa o relatório do S2ID, remonta a tabela e materializa.
-
-    Args:
-        materialize_to_prod: Seguir além da materialização em dev, escrevendo no
-            bucket de staging de prod e rodando dbt com ``target="prod"``. Passar
-            False para exercitar só a metade de dev — necessário para um teste
-            seguro, já que o padrão escreve em produção. Também desliga o poll,
-            que consulta o backend de prod.
-        update_metadata: Depois de materializar prod com sucesso, registrar a
-            cobertura da tabela e gravar o update da fonte. Não tem efeito quando
-            ``materialize_to_prod`` é False.
-        force_run: Materializar mesmo quando o poll não achar dado novo.
-    """
+    """Baixa o relatório do S2ID, remonta a tabela e materializa."""
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
     )
