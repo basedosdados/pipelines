@@ -1,0 +1,9 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,TIME_PERIOD
+month,INT64,"Reference month of the observation, from 1 to 12",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,Derived from the monthly reference period,TIME_PERIOD
+geography,STRING,Geographic area: Australia (national) or one of the eight states and territories,,no,,,no,Australia is the national aggregate; states and territories follow the ASGS. To be linked to br_bd_diretorios_au once that directory is published,REGION
+sex,STRING,"Sex: persons (all), males or females",,no,,,no,Persons is the total across males and females,SEX
+hours_band,STRING,Range of hours actually worked in all jobs during the reference week,,no,,,no,Includes aggregate bands such as worked fewer than 35 hours and worked 35 hours or more,Hours actually worked in all jobs
+employed_persons,FLOAT64,Number of employed persons in the hours-worked band,,no,,person,no,Converted from ABS thousands to absolute persons,Employed total
+hours_worked,FLOAT64,Total hours actually worked in all jobs,,no,,hour,no,Converted from ABS thousands of hours to hours,Number of hours actually worked in all jobs
+hours_per_person,FLOAT64,Average hours actually worked per employed person,,no,,hour,no,Converted from ABS thousands of hours to hours,Hours actually worked in all jobs per employed person

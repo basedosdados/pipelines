@@ -1,0 +1,21 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,TIME_PERIOD
+month,INT64,"Reference month of the observation, from 1 to 12",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,Derived from the monthly reference period,TIME_PERIOD
+geography,STRING,Geographic area: Australia (national) or one of the eight states and territories,,no,,,no,Australia is the national aggregate; states and territories follow the ASGS. To be linked to br_bd_diretorios_au once that directory is published,REGION
+sex,STRING,"Sex: persons (all), males or females",,no,,,no,Persons is the total across males and females,SEX
+age_group,STRING,Age group in years; total covers persons aged 15 years and over,,no,,,no,ABS standard age groupings; the set of groups available varies by geography,AGE
+adjustment_type,STRING,"Time series adjustment: original, seasonally adjusted or trend",,no,,,no,,TSEST
+employed_total,FLOAT64,Number of employed persons,,no,,person,no,Converted from ABS thousands to absolute persons,Employed total
+employed_full_time,FLOAT64,Number of persons employed full-time,,no,,person,no,Converted from ABS thousands to absolute persons,Employed full-time
+employed_part_time,FLOAT64,Number of persons employed part-time,,no,,person,no,Converted from ABS thousands to absolute persons,Employed part-time
+unemployed_total,FLOAT64,Number of unemployed persons,,no,,person,no,Converted from ABS thousands to absolute persons,Unemployed total
+unemployed_looked_for_full_time,FLOAT64,Number of unemployed persons who looked for full-time work,,no,,person,no,Converted from ABS thousands to absolute persons,Unemployed looked for full-time work
+unemployed_looked_for_part_time,FLOAT64,Number of unemployed persons who looked for only part-time work,,no,,person,no,Converted from ABS thousands to absolute persons,Unemployed looked for only part-time work
+labour_force_total,FLOAT64,"Total labour force, employed plus unemployed",,no,,person,no,Converted from ABS thousands to absolute persons,Labour force total
+not_in_labour_force,FLOAT64,Number of persons not in the labour force,,no,,person,no,Converted from ABS thousands to absolute persons,Not in the labour force (NILF)
+civilian_population_15_over,FLOAT64,Civilian population aged 15 years and over,,no,,person,no,Converted from ABS thousands to absolute persons,Civilian population aged 15 years and over
+unemployment_rate,FLOAT64,Unemployed persons as a percentage of the labour force,,no,,percent,no,,Unemployment rate
+unemployment_rate_looked_for_full_time,FLOAT64,Unemployment rate among those who looked for full-time work,,no,,percent,no,,Unemployment rate looked for full-time work
+unemployment_rate_looked_for_part_time,FLOAT64,Unemployment rate among those who looked for only part-time work,,no,,percent,no,,Unemployment rate looked for only part-time work
+participation_rate,FLOAT64,Labour force as a percentage of the civilian population aged 15 years and over,,no,,percent,no,,Participation rate
+employment_to_population_ratio,FLOAT64,Employed persons as a percentage of the civilian population aged 15 years and over,,no,,percent,no,,Employment to population ratio
