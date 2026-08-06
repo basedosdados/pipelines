@@ -15,7 +15,12 @@ from __future__ import annotations
 import re
 
 import pandas as pd
-from senado_api import _as_list, dig, get_json
+
+from pipelines.datasets.br_senado_dados_abertos.senado_api import (
+    _as_list,
+    dig,
+    get_json,
+)
 
 
 def _current_legislature() -> int:
