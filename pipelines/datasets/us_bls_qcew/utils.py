@@ -14,6 +14,7 @@ by the ``agglvl_code``, which uses different schemes for NAICS and SIC. See
 
 import concurrent.futures
 import csv
+import datetime
 import logging
 import shutil
 import zipfile
@@ -96,6 +97,85 @@ def download_singlefile(
             shutil.copyfileobj(src, dst)
     zip_path.unlink()
     return marker
+
+
+def singlefile_available(classification: str, freq: str, year: int) -> bool:
+    """Return whether the (classification, freq, year) singlefile is published.
+
+    Probes the URL with a streaming GET and inspects only the status code — the
+    body is never read, so a leading-edge year that BLS has not yet published
+    (404) is detected cheaply. ``data.bls.gov`` requires a browser User-Agent.
+    """
+    url = singlefile_url(classification, freq, year)
+    with requests.get(url, headers=_HEADERS, timeout=120, stream=True) as r:
+        return r.status_code == 200
+
+
+def latest_available_year(
+    classification: str, freq: str, floor: int, ceiling: int | None = None
+) -> int:
+    """Highest published year for a (classification, freq), probing downward.
+
+    QCEW publishes each year's quarterly singlefile before that year's annual
+    singlefile (the annual file needs all four quarters), so the latest available
+    year differs between the two frequencies. Probe each frequency separately.
+
+    Args:
+        classification: ``"naics"`` or ``"sic"``.
+        freq: ``"quarterly"`` or ``"annual"``.
+        floor: earliest year to consider (the coverage start).
+        ceiling: newest year to probe; defaults to the current calendar year.
+
+    Returns:
+        The greatest year in ``[floor, ceiling]`` whose singlefile exists.
+
+    Raises:
+        RuntimeError: if no year in the range is published.
+    """
+    if ceiling is None:
+        ceiling = datetime.date.today().year
+    for year in range(ceiling, floor - 1, -1):
+        if singlefile_available(classification, freq, year):
+            return year
+    raise RuntimeError(
+        f"no published {classification}/{freq} singlefile in {floor}..{ceiling}"
+    )
+
+
+def peek_max_quarter(
+    classification: str, freq: str, year: int, input_dir: Path
+) -> int:
+    """Return the greatest quarter (1-4) present in a quarterly singlefile.
+
+    Downloads the singlefile (cached) and scans only its ``qtr`` column, so a new
+    quarter appended to an existing year's file is detected without a full clean.
+    Within one calendar year QCEW adds quarters incrementally — a mid-year file
+    may hold only Q1-Q2 — so the max quarter, not merely the year, drives the poll.
+    """
+    path = download_singlefile(classification, freq, year, input_dir)
+    col = pd.read_csv(
+        path,
+        dtype=str,
+        na_filter=False,
+        usecols=lambda c: c.strip() == "qtr",
+    ).iloc[:, 0]
+    return int(pd.to_numeric(col.str.strip(), errors="coerce").max())
+
+
+def source_max_year_month(
+    input_dir: Path, floor: int, ceiling: int | None = None
+) -> str:
+    """Latest NAICS quarterly period as ``"YYYY-MM"`` for the source poll.
+
+    A quarter is mapped to its end month (``quarter * 3``) — Q1→03, Q2→06,
+    Q3→09, Q4→12 — matching the ``DATE(year, quarter*3, 1)`` convention that
+    ``register_table_materialization`` uses to read the table's max coverage date
+    from BigQuery. Keeping the two aligned makes the poll comparison and the
+    committed source ``Update`` consistent with the stored coverage end.
+    """
+    year = latest_available_year("naics", "quarterly", floor, ceiling)
+    quarter = peek_max_quarter("naics", "quarterly", year, input_dir)
+    return f"{year}-{quarter * 3:02d}"
 
 
 def download_titles(input_dir: Path) -> Path:
@@ -481,4 +561,64 @@ def clean_all(
 
     build_dicionario(input_dir, output_dir)
     written["dicionario"] = "built"
+    return written
+
+
+def clean_naics_full_history(
+    input_dir: Path,
+    output_dir: Path,
+    floor: int,
+    ceiling: int | None = None,
+    download_workers: int = 1,
+) -> dict:
+    """Rebuild the full NAICS history (both frequencies) into partitioned parquet.
+
+    The recurring pipeline refreshes only the NAICS tables — SIC is frozen
+    (1975-2000) and never republished, so it is excluded here. QCEW revises prior
+    quarters on every release, and ``upload_to_gcs`` overwrites the whole staging
+    table, so each run re-cleans the entire NAICS history rather than a single
+    partition.
+
+    The quarterly and annual latest years differ (a year's annual singlefile is
+    published only after its four quarters), so the two frequencies are probed
+    separately. Years where both frequencies exist go through :func:`clean_all`;
+    any leading years that have a quarterly file but not yet an annual file are
+    cleaned quarterly-only via :func:`clean_year`, so the newest quarter is
+    ingested without waiting up to a year for its annual counterpart.
+
+    ``prune_input=True`` throughout: each multi-GB CSV is deleted once cleaned, so
+    a worker's disk holds at most ``download_workers`` singlefiles at a time.
+
+    Args:
+        input_dir: Root of downloaded files.
+        output_dir: Root output directory.
+        floor: earliest NAICS year (coverage start, 1990).
+        ceiling: newest year to probe; defaults to the current calendar year.
+        download_workers: concurrent downloads prefetched ahead of the cleaner.
+
+    Returns:
+        ``{table_slug: total_rows_written}`` for the 8 NAICS tables + dicionario.
+    """
+    qtrly_latest = latest_available_year("naics", "quarterly", floor, ceiling)
+    annual_latest = latest_available_year("naics", "annual", floor, ceiling)
+    log.info(
+        f"NAICS latest available: quarterly={qtrly_latest} annual={annual_latest}"
+    )
+
+    written = clean_all(
+        {"naics": list(range(floor, annual_latest + 1)), "sic": []},
+        input_dir,
+        output_dir,
+        prune_input=True,
+        download_workers=download_workers,
+    )
+
+    # Leading years with a quarterly file but no annual file yet.
+    for year in range(annual_latest + 1, qtrly_latest + 1):
+        counts = clean_year(
+            "naics", "quarterly", year, input_dir, output_dir, prune_input=True
+        )
+        for table, n in counts.items():
+            base = written.get(table, 0)
+            written[table] = (base if isinstance(base, int) else 0) + n
     return written

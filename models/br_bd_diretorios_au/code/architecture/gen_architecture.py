@@ -119,12 +119,12 @@ ART = {u: ("do" if u == "suburb" else "da") for u in UNIT_PT}
 
 # original source code/name column stems per edition
 def src_code(u, y):
-    if u == "sa2" and y == "2016":
-        return "SA2_MAINCODE_2016"
-    if u == "sa1" and y == "2016":
-        return "SA1_MAINCODE_2016"
-    if u == "suburb" and y == "2016":
-        return "SSC_CODE_2016"  # 2016 suburbs are SSC (State Suburbs), renamed SAL in 2021
+    if u == "sa2" and y in ("2016", "2011"):
+        return f"SA2_MAINCODE_{y}"
+    if u == "sa1" and y in ("2016", "2011"):
+        return f"SA1_MAINCODE_{y}"
+    if u == "suburb" and y in ("2016", "2011"):
+        return f"SSC_CODE_{y}"  # 2016/2011 suburbs are SSC (State Suburbs), renamed SAL in 2021
     return {
         "sa1": f"SA1_CODE_{y}",
         "sa2": f"SA2_CODE_{y}",
@@ -140,8 +140,8 @@ def src_code(u, y):
 
 
 def src_name(u, y):
-    if u == "suburb" and y == "2016":
-        return "SSC_NAME_2016"
+    if u == "suburb" and y in ("2016", "2011"):
+        return f"SSC_NAME_{y}"
     return {
         "sa1": None,
         "sa2": f"SA2_NAME_{y}",
@@ -220,7 +220,7 @@ def build_unit_table(u, year):
     cols += parent_cols(u, year)
     if u not in NO_STATE:
         cols += state_tail(year)
-    # legacy short codes only in 2016 SA1/SA2
+    # legacy short codes in 2016 and 2011 SA1/SA2 (dropped in 2021)
     if year == "2016" and u == "sa2":
         cols.insert(
             1,
@@ -241,6 +241,26 @@ def build_unit_table(u, year):
                 "Código curto de 7 dígitos da SA1 na edição de 2016 (removido na edição de 2021)",
                 obs="Confirmar presença na fonte 2016",
                 original="SA1_7DIGITCODE_2016",
+            ),
+        )
+    if year == "2011" and u == "sa2":
+        cols.insert(
+            1,
+            col(
+                "id_sa2_short",
+                "STRING",
+                "Código curto de 5 dígitos da SA2 na edição de 2011 (removido na edição de 2021)",
+                original="SA2_5DIGITCODE_2011",
+            ),
+        )
+    if year == "2011" and u == "sa1":
+        cols.insert(
+            1,
+            col(
+                "id_sa1_short",
+                "STRING",
+                "Código curto de 7 dígitos da SA1 na edição de 2011 (removido na edição de 2021)",
+                original="SA1_7DIGITCODE_2011",
             ),
         )
     cols.append(area_col())
@@ -334,7 +354,7 @@ UNITS = [
 
 def all_tables():
     tables = {"state": build_state()}
-    for y in ("2021", "2016"):
+    for y in ("2021", "2016", "2011"):
         for u in UNITS:
             tables[f"{u}_{y}"] = build_unit_table(u, y)
     tables["correspondence_sa2_2016_2021"] = build_corr("sa2")
@@ -347,7 +367,7 @@ def main():
     for tname, cols in tables.items():
         path = os.path.join(HERE, f"{tname}.csv")
         with open(path, "w", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=HEADER)
+            w = csv.DictWriter(f, fieldnames=HEADER, lineterminator="\n")
             w.writeheader()
             for c in cols:
                 w.writerow(c)
