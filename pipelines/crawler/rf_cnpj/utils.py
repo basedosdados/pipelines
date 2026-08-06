@@ -398,7 +398,7 @@ async def download_unzip_csv(
         log("Dados extraídos com sucesso!")
     except zipfile.BadZipFile:
         log(f"O arquivo {Path(url).stem} não é um arquivo ZIP válido.")
-        raise
+        # raise
 
     os.remove(save_path)
 
