@@ -29,7 +29,12 @@
 
 {% set float_cols = ["valor_operacao", "valor_desembolsado", "taxa_juros"] %}
 
-{% set int_cols = ["prazo_carencia", "prazo_amortizacao", "indicador_inovacao"] %}
+{% set int_cols = [
+    "ano",
+    "prazo_carencia",
+    "prazo_amortizacao",
+    "indicador_inovacao",
+] %}
 
 {% set string_cols = [
     "sigla_uf",
