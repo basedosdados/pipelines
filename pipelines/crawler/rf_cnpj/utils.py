@@ -715,7 +715,7 @@ def get_table_unique_keys(table_id: str, column: str):
     """
     query = f"""WITH tmp_split AS(
     SELECT
-        split({column},",") AS chave 
+        split(safe_cast({column} AS STRING),",") AS chave 
     FROM `basedosdados-dev.br_rf_cnpj_staging.{table_id}`
     )
     SELECT DISTINCT chave
