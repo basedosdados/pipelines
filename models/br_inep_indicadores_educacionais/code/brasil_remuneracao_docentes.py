@@ -111,7 +111,7 @@ output.mkdir(exist_ok=True, parents=True)
 
 df_final.to_csv(output / "data.csv", index=False)
 
-tb = bd.Table(
-    "br_inep_indicadores_educacionais", "brasil_remuneracao_docentes"
-)
-tb.create(output / "data.csv", if_table_exists="replace")
+# tb = bd.Table(
+#     "br_inep_indicadores_educacionais", "brasil_remuneracao_docentes"
+# )
+# tb.create(output / "data.csv", if_table_exists="replace")

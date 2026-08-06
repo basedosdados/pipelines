@@ -17,8 +17,14 @@ models:
               field: ano.ano
       - name: localizacao
         description: Localização
+        tests:
+          - accepted_values:
+              values: [total, rural, urbana]
       - name: rede
         description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [total, publica, federal, estadual, privada, municipal]
       - name: atu_ei
         description: Média de Alunos por Turma - Educação Infantil
       - name: atu_ei_creche
@@ -625,6 +631,7 @@ models:
           at_least: 0.05
           ignore_values:
             - dsu_ee
+            - dsu_ep
             - taxa_abandono_em_4_ano
             - atu_em_nao_seriado
             - had_em_nao_seriado
@@ -648,8 +655,14 @@ models:
         description: ID Escola - INEP
       - name: localizacao
         description: Localização
+        tests:
+          - accepted_values:
+              values: [total, rural, urbana]
       - name: rede
         description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [total, publica, federal, estadual, privada, municipal]
       - name: atu_ei
         description: Média de Alunos por Turma - Educação Infantil
       - name: atu_ei_creche
@@ -1087,7 +1100,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, localizacao, rede, id_municipio]
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.01
     columns:
       - name: ano
         description: Ano
@@ -1103,8 +1116,14 @@ models:
               field: id_municipio
       - name: localizacao
         description: Localização
+        tests:
+          - accepted_values:
+              values: [total, rural, urbana]
       - name: rede
         description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [total, publica, federal, estadual, privada, municipal]
       - name: atu_ei
         description: Média de Alunos por Turma - Educação Infantil
       - name: atu_ei_creche
@@ -1760,7 +1779,7 @@ models:
         description: Média de Alunos por Turma - Ensino Fundamental 9º ano
       - name: atu_ef_turmas_unif_multi_fluxo
         description: Média de Alunos por Turma - Ensino Fundamental Turmas Unificadas,
-          Multi, Multietapa e Correção de fluxo)
+          Multi, Multietapa e Correção de fluxo
       - name: atu_em
         description: Média de Alunos por Turma - Ensino Médio
       - name: atu_em_1_ano
@@ -2353,8 +2372,14 @@ models:
               field: sigla
       - name: localizacao
         description: Localização
+        tests:
+          - accepted_values:
+              values: [total, rural, urbana]
       - name: rede
         description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [total, publica, federal, estadual, privada, municipal]
       - name: atu_ei
         description: Média de Alunos por Turma - Educação Infantil
       - name: atu_ei_creche
@@ -2828,8 +2853,14 @@ models:
               field: sigla
       - name: localizacao
         description: Localização
+        tests:
+          - accepted_values:
+              values: [total, rural, urbana]
       - name: rede
         description: Rede Escolar
+        tests:
+          - accepted_values:
+              values: [total, publica, federal, estadual, privada, municipal]
       - name: taxa_promocao_ef
         description: Taxa de Promoção - Ensino Fundamental
       - name: taxa_promocao_ef_anos_iniciais
