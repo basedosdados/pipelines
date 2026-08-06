@@ -15,17 +15,19 @@ All backend operations use the `mcp__databasis__*` MCP tools. Never write raw HT
 
 Default: `dev`. Only switch to `prod` after explicit user approval.
 
-## Dataset status lifecycle (create `under_review`, publish only post-merge)
+## Dataset status lifecycle (publish dev/staging pre-promotion; prod only post-merge)
 
-**Always create a dataset with `status_id = status.under_review`, never `status.published`** — at every stage (dev/staging and prod alike). `under_review` hides the dataset from the production frontend, so metadata registered before the onboarding PR merges (with prod cloud tables that do not yet exist) cannot leak publicly.
+**Create a dataset with `status_id = status.under_review`** on registration. `under_review` hides the dataset from the **production** frontend, so metadata registered before the onboarding PR merges (with prod cloud tables that do not yet exist) cannot leak publicly.
 
-Flip the dataset to `status.published` **only after all three hold**:
+**On dev/staging, publish the dataset before the PR/prod-promotion step.** After the dev/staging metadata is registered and the tables verified, flip the **dev/staging** dataset `status.under_review → status.published` via `create_update_dataset(id=…, status_id=status.published, env=<dev|staging>)` (re-pass every required field). The dev/staging frontend is not the public production site, so this is safe and lets the reviewer see the dataset as it will appear. This is the only pre-merge publish, and only on dev/staging. When extending an already-published dataset, keep it published (and refresh its description if coverage changed).
+
+Flip the **prod** dataset to `status.published` **only after all three hold**:
 
 1. the onboarding **PR is merged** to `main`;
 2. the GitHub **table-approve action has run successfully** (it materialises `basedosdados.<gcp_dataset_id>.*` via `dbt --target prod`);
 3. the live prod tables **and** metadata are **verified** — row counts match, cloud tables resolve, `get_dataset(slug, env="prod")` shows the expected shape.
 
-Publishing is one call: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env="prod")` (re-pass every required field — no partial updates). Do this as a **separate post-merge action**, never inside the onboarding PR. Tables are gated by the dataset's status, so they may stay `status.published`; flipping the dataset publishes everything in one step.
+The **prod** publish is one call: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env="prod")` (re-pass every required field — no partial updates). Do this as a **separate post-merge action**, never inside the onboarding PR (the dev/staging publish already happened pre-promotion). Tables are gated by the dataset's status, so they may stay `status.published`; flipping the dataset publishes everything in one step.
 
 ## ID resolution (always run first)
 
@@ -78,7 +80,7 @@ For individual lookups: `mcp__databasis__lookup_id(env=<env>, slug=<slug>, type=
 | `organization_ids` | list | From `discover_ids` using org slug(s) |
 | `theme_ids` | list | From `discover_ids` |
 | `tag_ids` | list | From `discover_ids`; empty list if none |
-| `status_id` | string | **`status.under_review` on creation** — flip to `status.published` only post-merge (see "Dataset status lifecycle" above) |
+| `status_id` | string | **`status.under_review` on creation**; publish on dev/staging pre-promotion, prod only post-merge (see "Dataset status lifecycle" above) |
 | `id` | string | Pass when updating an existing record |
 
 ## `create_update_table` fields
