@@ -12,14 +12,15 @@ import pandas as pd
 import polars as pl
 import requests
 
-input = "/content/drive/MyDrive/pnadc"
-output = os.path.join(input, "educacao")
+base = "models/br_ibge_pnadc"
+input = os.path.join(base, "input")
+output = os.path.join(base, "output")
 
 LAYOUT_URL = (
     "https://ftp.ibge.gov.br/Trabalho_e_Rendimento/"
     "Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/"
     "Anual/Microdados/Trimestre/Trimestre_2/Documentacao/"
-    "input_PNADC_trimestre2_20221221.txt"
+    "input_PNADC_trimestre2_20260619.txt"
 )
 
 # Variáveis desejadas
@@ -131,7 +132,7 @@ names = vars_encontradas
 
 # LEITURA DO ARQUIVO
 # Arquivo baixado através do link: https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Anual/Microdados/Trimestre/Trimestre_2/Dados/
-arquivo_dados = os.path.join(input, "PNADC_2024_trimestre2.txt")
+arquivo_dados = os.path.join(input, "PNADC_2025_trimestre2.txt")
 
 df = pd.read_fwf(
     arquivo_dados, colspecs=colspecs, names=names, dtype=str, encoding="latin1"
@@ -181,48 +182,18 @@ df["sigla_uf"] = df["uf"].map(uf_codigo_para_sigla)
 
 # REORDENANDO COLUNAS
 
-ordem_id = [
-    "ano",
-    "trimestre",
-    "id_uf",
-    "sigla_uf",
-    "capital",
-    "rm_ride",
-    "id_upa",
-    "id_estrato",
-    "id_domicilio",
-    "id_pessoa",
-]
+query = "select * from `basedosdados-dev.br_ibge_pnadc_staging.educacao` where ano = '2024' limit 0"
 
-ordem_existentes = [c for c in ordem_id if c in df.columns]
-resto = [c for c in df.columns if c not in ordem_existentes]
+billing_project_id = "basedosdados-dev"
 
-df = df[ordem_existentes + resto]
+df_2024 = bd.read_sql(query, billing_project_id)
+
+colunas_existentes = [c for c in df_2024 if c in df.columns]
+
+df = df[colunas_existentes]
 
 df["ano"] = pd.to_numeric(df["ano"], errors="coerce")
 df["trimestre"] = pd.to_numeric(df["trimestre"], errors="coerce")
-
-# SALVANDO ARQUIVO
-csv_saida = os.path.join(input, "df_2024.csv")
-df.to_csv(csv_saida, index=False, na_rep="")
-
-# PARTICIONAMENTO POR ano E sigla_uf
-
-os.makedirs(output, exist_ok=True)
-
-df_temp = pl.read_csv(csv_saida, ignore_errors=True)
-
-for cols, data in df_temp.group_by(["ano", "sigla_uf"]):
-    ano, sigla_uf = cols
-    part = data.drop(["ano", "sigla_uf"])
-
-    dir_part = os.path.join(output, f"ano={ano}", f"sigla_uf={sigla_uf}")
-    os.makedirs(dir_part, exist_ok=True)
-
-    part.write_csv(os.path.join(dir_part, "educacao.csv"))
-
-gc.collect()
-print("Particionamento concluído.")
 
 # TIPAGEM DE DADOS
 
@@ -295,11 +266,32 @@ for root, _dirs, files in os.walk(output):
 
 print("\nProcessamento finalizado com sucesso.")
 
+# PARTICIONAMENTO POR ano E sigla_uf
+
+csv_saida = os.path.join(input, "df_2025.csv")
+df.to_csv(csv_saida, index=False)
+
+os.makedirs(output, exist_ok=True)
+
+df_temp = pl.read_csv(csv_saida, ignore_errors=True)
+
+for cols, data in df_temp.group_by(["ano", "sigla_uf"]):
+    ano, sigla_uf = cols
+    part = data.drop(["ano", "sigla_uf"])
+
+    dir_part = os.path.join(output, f"ano={ano}", f"sigla_uf={sigla_uf}")
+    os.makedirs(dir_part, exist_ok=True)
+
+    part.write_csv(os.path.join(dir_part, "educacao.csv"))
+
+gc.collect()
+print("Particionamento concluído.")
+
 # SUBINDO DADOS PARTICIONADOS NA BD
 tb = bd.Table(dataset_id="br_ibge_pnadc", table_id="educacao")
 
 tb.create(
-    path=output,  # Só precisa colocar o caminho da pasta raiz da partição
+    path=output,
     if_table_exists="replace",
     if_storage_data_exists="replace",
     source_format="csv",
