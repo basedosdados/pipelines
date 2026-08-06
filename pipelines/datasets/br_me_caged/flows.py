@@ -49,12 +49,14 @@ def _run_me_caged(
         dataset_id=dataset_id,
         table_id=table_id,
         source_max_date=source_last_date,
-        env="prod",
+        env="prod",  # trocar para "dev" ao testar localmente
         date_format="%Y-%m",
     )
 
     if not force_run and not check_source_is_ahead_of_table_task(
-        dataset_id=dataset_id, table_id=table_id, env="prod"
+        dataset_id=dataset_id,
+        table_id=table_id,
+        env="prod",  # trocar para "dev" ao testar localmente
     ):
         print(f"No updates for table {table_id}!")
         return
@@ -112,7 +114,7 @@ def _run_me_caged(
                 date_column=YearMonth(year="ano", month="mes"),
                 date_format=DateFormat.YEAR_MONTH,
             ),
-            env="prod",
+            env="prod",  # trocar para "dev" ao testar localmente
             bq_project="basedosdados",
         )
 
