@@ -36,7 +36,9 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     for slug, spec in TABLES.items():
         cols = [col_dict(c) for c in spec["cols"]]
-        with open(os.path.join(OUT, f"{slug}.json"), "w") as f:
+        with open(
+            os.path.join(OUT, f"{slug}.json"), "w", encoding="utf-8"
+        ) as f:
             json.dump(cols, f, ensure_ascii=False, indent=1)
         print(f"{slug}: {len(cols)} columns")
 

@@ -35,25 +35,33 @@ def get_json(
 ) -> Any:
     """GET a dados-abertos endpoint and parse JSON, retrying on empty/error.
 
-    Returns the parsed JSON (dict or list), or None if the server keeps
-    returning an empty body (some list endpoints legitimately return empty).
+    Returns the parsed JSON (dict or list), or None only when the server
+    persistently answers 200 with an empty body (some list endpoints are
+    legitimately empty). A persistent transport error or non-200 status is
+    raised, so a genuine failure is never silently read as "empty".
     """
     url = f"{BASE}{path}"
     last_exc: Exception | None = None
+    last_status: int | None = None
     for attempt in range(retries):
         try:
             r = requests.get(
                 url, params=params, headers=HEADERS, timeout=timeout
             )
+            last_status = r.status_code
             if r.status_code == 200 and r.content and r.text.strip():
                 return r.json()
-            # 200-but-empty, or 5xx → retry
+            # 200-but-empty, or non-200 → retry
         except requests.RequestException as exc:
             last_exc = exc
         time.sleep(backoff * (attempt + 1))
     if last_exc is not None:
         raise last_exc
-    return None
+    if last_status is not None and last_status != 200:
+        raise RuntimeError(
+            f"GET {url} failed: HTTP {last_status} after {retries} attempts"
+        )
+    return None  # persistent 200-empty: legitimately-empty list endpoint
 
 
 def _as_list(node: Any) -> list:

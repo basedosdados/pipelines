@@ -260,11 +260,12 @@ _t(
             "Número secuencial de la sesión",
         ),
         (
-            "sequencial_votacao",
+            "sequencial",
             "str",
             "Número sequencial da votação na sessão",
             "Vote sequence number within the session",
             "Número secuencial de la votación en la sesión",
+            {"src": "sequencial_votacao"},
         ),
         (
             "sigla_tipo_sessao",
@@ -274,11 +275,12 @@ _t(
             "Sigla del tipo de sesión",
         ),
         (
-            "descricao_votacao",
+            "descricao",
             "str",
             "Descrição do objeto da votação",
             "Description of the vote's subject",
             "Descripción del objeto de la votación",
+            {"src": "descricao_votacao"},
         ),
         (
             "ementa",
@@ -288,12 +290,12 @@ _t(
             "Resumen de la materia votada",
         ),
         (
-            "resultado_votacao",
+            "resultado",
             "str",
             "Sigla do resultado da votação",
             "Vote result abbreviation",
             "Sigla del resultado de la votación",
-            {"dict": True},
+            {"dict": True, "src": "resultado_votacao"},
         ),
         (
             "votacao_secreta",
@@ -402,20 +404,6 @@ _t(
             "Identifier code of the voting senator",
             "Código identificador del parlamentario votante",
             {"notnull": True},
-        ),
-        (
-            "nome",
-            "str",
-            "Nome do parlamentar votante",
-            "Name of the voting senator",
-            "Nombre del parlamentario votante",
-        ),
-        (
-            "sexo",
-            "str",
-            "Sexo do parlamentar votante",
-            "Sex of the voting senator",
-            "Sexo del parlamentario votante",
         ),
         (
             "sigla_partido",
@@ -749,18 +737,20 @@ _t(
             {"notnull": True},
         ),
         (
-            "sigla_partido",
+            "sigla",
             "str",
             "Sigla do partido político",
             "Political party abbreviation",
             "Sigla del partido político",
+            {"src": "sigla_partido"},
         ),
         (
-            "nome_partido",
+            "nome",
             "str",
             "Nome do partido político",
             "Political party name",
             "Nombre del partido político",
+            {"src": "nome_partido"},
         ),
         (
             "data_criacao",
@@ -800,11 +790,12 @@ _t(
             {"notnull": True},
         ),
         (
-            "nome_bloco",
+            "nome",
             "str",
             "Nome do bloco parlamentar",
             "Parliamentary bloc name",
             "Nombre del bloque parlamentario",
+            {"src": "nome_bloco"},
         ),
         (
             "nome_apelido",
@@ -979,18 +970,20 @@ _t(
             {"notnull": True},
         ),
         (
-            "sigla_comissao",
+            "sigla",
             "str",
             "Sigla do colegiado",
             "Collegiate body abbreviation",
             "Sigla del colegiado",
+            {"src": "sigla_comissao"},
         ),
         (
-            "nome_comissao",
+            "nome",
             "str",
             "Nome do colegiado",
             "Collegiate body name",
             "Nombre del colegiado",
+            {"src": "nome_comissao"},
         ),
         (
             "sigla_casa",

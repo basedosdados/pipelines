@@ -16,8 +16,6 @@ select
     safe_cast(id_votacao as string) id_votacao,
     safe_cast(data_sessao as date) data_sessao,
     safe_cast(id_senador as string) id_senador,
-    safe_cast(nome as string) nome,
-    safe_cast(sexo as string) sexo,
     safe_cast(sigla_partido as string) sigla_partido,
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(voto as string) voto,

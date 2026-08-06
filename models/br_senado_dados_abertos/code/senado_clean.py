@@ -17,8 +17,18 @@ import re
 import pandas as pd
 from senado_api import _as_list, dig, get_json
 
-# --- current legislature: 57 = 2023-2026 (four-year terms) --------------------
-CURRENT_LEG = 57
+
+def _current_legislature() -> int:
+    """Legislature number covering today (57 = 2023-2027, four-year terms).
+
+    Over-estimating by one at a term boundary is harmless: the extra
+    per-legislature query just returns an empty roster.
+    """
+    year = pd.Timestamp.today().year
+    return 57 + max(0, year - 2023) // 4
+
+
+CURRENT_LEG = _current_legislature()
 LEG_START = 30
 VOTACAO_START = 1991
 ORIENT_START = 1991
@@ -54,13 +64,6 @@ def norm_datetime(x) -> str | None:
     if not m:
         return None
     return f"{m.group(1)} {m.group(2)}" if m.group(2) else m.group(1)
-
-
-def decode_sexo(x) -> str | None:
-    v = s(x)
-    if not v:
-        return None
-    return {"M": "Masculino", "F": "Feminino"}.get(v, v)
 
 
 def _frame(rows: list[dict], columns: list[str]) -> pd.DataFrame:
@@ -170,7 +173,9 @@ def clean_lideranca() -> pd.DataFrame:
         }
         for x in d
     ]
-    return _frame(rows, LIDERANCA_COLS)
+    return _frame(rows, LIDERANCA_COLS).drop_duplicates(
+        subset=["id_lideranca"]
+    )
 
 
 # ----------------------------------------------------------------------------- 9. comissao
@@ -297,20 +302,25 @@ def clean_senador() -> pd.DataFrame:
                     "id_publico_legislatura_atual": s(
                         ip.get("CodigoPublicoNaLegAtual")
                     ),
+                    "_leg": leg,
                 }
             )
-    df = _frame(rows, SENADOR_COLS)
-    df = df[df["id_senador"].notna()]
-    # keep the most complete row per senator (non-null count desc)
-    df["_score"] = df.notna().sum(axis=1)
+    df = pd.DataFrame(rows)
+    df = df[df["id_senador"].notna()].copy()
+    # A senator recurs across legislatures; keep one row deterministically:
+    # most complete (non-null count), tie-broken by the most recent
+    # legislature, then id — reproducible regardless of API row order.
+    df["_score"] = df[SENADOR_COLS].notna().sum(axis=1)
     df = (
-        df.sort_values("_score", ascending=False)
+        df.sort_values(
+            ["id_senador", "_score", "_leg"],
+            ascending=[True, False, False],
+            kind="mergesort",
+        )
         .drop_duplicates(subset=["id_senador"], keep="first")
-        .drop(columns="_score")
-        .sort_values("id_senador")
         .reset_index(drop=True)
     )
-    return df
+    return _frame(df.to_dict("records"), SENADOR_COLS)
 
 
 # ----------------------------------------------------------------------------- 2/3. votacao (+ parlamentar)
@@ -349,13 +359,13 @@ VOTACAO_COLS = [
     "voto_abstencao",
     "voto_outro",
 ]
+# nome/sexo are static senator attributes (see the senador table); only the
+# vote-time political context (party, uf) and the vote itself are kept here.
 VOTACAO_PARLAMENTAR_COLS = [
     "ano",
     "id_votacao",
     "data_sessao",
     "id_senador",
-    "nome",
-    "sexo",
     "sigla_partido",
     "sigla_uf",
     "voto",
@@ -392,8 +402,6 @@ def _votacao_year(year: int) -> tuple[list[dict], list[dict]]:
                     "id_votacao": id_votacao,
                     "data_sessao": data_sessao,
                     "id_senador": s(voto.get("codigoParlamentar")),
-                    "nome": s(voto.get("nomeParlamentar")),
-                    "sexo": decode_sexo(voto.get("sexoParlamentar")),
                     "sigla_partido": s(voto.get("siglaPartidoParlamentar")),
                     "sigla_uf": s(voto.get("siglaUFParlamentar")),
                     "voto": s(voto.get("siglaVotoParlamentar")),

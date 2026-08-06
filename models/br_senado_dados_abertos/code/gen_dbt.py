@@ -86,8 +86,11 @@ def gen_sql(slug: str, spec: dict) -> str:
         cfg = f'{{{{ config(alias="{slug}", schema="{DATASET}") }}}}'
 
     lines = []
-    for name, typ, *_ in spec["cols"]:
-        lines.append(f"    safe_cast({name} as {BQ[typ]}) {name},")
+    for col in spec["cols"]:
+        name, typ = col[0], col[1]
+        opts = col[-1] if isinstance(col[-1], dict) else {}
+        src = opts.get("src", name)  # staging column name if it differs
+        lines.append(f"    safe_cast({src} as {BQ[typ]}) {name},")
     body = "\n".join(lines)
     return (
         f"{cfg}\n\n"
@@ -145,14 +148,16 @@ def gen_schema_entry(slug: str, spec: dict) -> str:
 def main() -> None:
     for slug, spec in TABLES.items():
         path = os.path.join(MODELS_DIR, f"{DATASET}__{slug}.sql")
-        with open(path, "w") as f:
+        with open(path, "w", encoding="utf-8") as f:
             f.write(gen_sql(slug, spec))
         print("wrote", os.path.basename(path))
 
     schema = ["---", "version: 2", "models:"]
     for slug, spec in TABLES.items():
         schema.append(gen_schema_entry(slug, spec))
-    with open(os.path.join(MODELS_DIR, "schema.yml"), "w") as f:
+    with open(
+        os.path.join(MODELS_DIR, "schema.yml"), "w", encoding="utf-8"
+    ) as f:
         f.write("\n".join(schema) + "\n")
     print("wrote schema.yml")
 

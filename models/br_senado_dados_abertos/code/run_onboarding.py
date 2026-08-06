@@ -109,4 +109,7 @@ if __name__ == "__main__":
     ap.add_argument("--tables", default=",".join(ALL_TABLES))
     args = ap.parse_args()
     tabs = [t.strip() for t in args.tables.split(",") if t.strip()]
+    unknown = sorted(set(tabs) - set(ALL_TABLES))
+    if unknown:
+        ap.error(f"unknown table(s): {', '.join(unknown)}")
     build(tabs, sample=not args.full)

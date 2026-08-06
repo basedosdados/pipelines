@@ -2,7 +2,7 @@
 
 select
     safe_cast(id_bloco as string) id_bloco,
-    safe_cast(nome_bloco as string) nome_bloco,
+    safe_cast(nome_bloco as string) nome,
     safe_cast(nome_apelido as string) nome_apelido,
     safe_cast(data_criacao as date) data_criacao,
     safe_cast(data_extincao as date) data_extincao,

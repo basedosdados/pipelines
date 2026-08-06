@@ -85,15 +85,15 @@ models:
         description: Número da sessão
       - name: sequencial_sessao
         description: Número sequencial da sessão
-      - name: sequencial_votacao
+      - name: sequencial
         description: Número sequencial da votação na sessão
       - name: sigla_tipo_sessao
         description: Sigla do tipo de sessão
-      - name: descricao_votacao
+      - name: descricao
         description: Descrição do objeto da votação
       - name: ementa
         description: Ementa da matéria votada
-      - name: resultado_votacao
+      - name: resultado
         description: Sigla do resultado da votação
       - name: votacao_secreta
         description: Indica se a votação foi secreta (S/N)
@@ -136,10 +136,6 @@ models:
       - name: id_senador
         description: Código identificador do parlamentar votante
         tests: [not_null]
-      - name: nome
-        description: Nome do parlamentar votante
-      - name: sexo
-        description: Sexo do parlamentar votante
       - name: sigla_partido
         description: Sigla do partido do parlamentar na votação
       - name: sigla_uf
@@ -267,9 +263,9 @@ models:
       - name: id_partido
         description: Código identificador do partido político
         tests: [not_null]
-      - name: sigla_partido
+      - name: sigla
         description: Sigla do partido político
-      - name: nome_partido
+      - name: nome
         description: Nome do partido político
       - name: data_criacao
         description: Data de criação do partido
@@ -289,7 +285,7 @@ models:
       - name: id_bloco
         description: Código identificador do bloco parlamentar
         tests: [not_null]
-      - name: nome_bloco
+      - name: nome
         description: Nome do bloco parlamentar
       - name: nome_apelido
         description: Apelido do bloco parlamentar
@@ -353,9 +349,9 @@ models:
       - name: id_comissao
         description: Código identificador do colegiado
         tests: [not_null]
-      - name: sigla_comissao
+      - name: sigla
         description: Sigla do colegiado
-      - name: nome_comissao
+      - name: nome
         description: Nome do colegiado
       - name: sigla_casa
         description: Sigla da casa legislativa do colegiado

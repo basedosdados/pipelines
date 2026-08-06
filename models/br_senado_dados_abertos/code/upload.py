@@ -20,12 +20,15 @@ import google.cloud.storage as gcs  # noqa: E402
 import pyarrow.parquet as pq  # noqa: E402
 
 _argv = sys.argv[1:]
+ENV = "dev"
 if "--env" in _argv:
     _i = _argv.index("--env")
+    if _i + 1 >= len(_argv):
+        sys.exit("--env requires a value: dev or prod")
     ENV = _argv[_i + 1]
     _argv = _argv[:_i] + _argv[_i + 2 :]
-else:
-    ENV = "dev"
+if ENV not in ("dev", "prod"):
+    sys.exit(f"invalid --env {ENV!r}: expected 'dev' or 'prod'")
 BILLING_PROJECT = "basedosdados" if ENV == "prod" else "basedosdados-dev"
 DATASET_ID = "br_senado_dados_abertos"
 OUTPUT_ROOT = Path(__file__).resolve().parent / "output"
