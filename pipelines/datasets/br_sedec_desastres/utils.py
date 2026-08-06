@@ -8,6 +8,7 @@ não de arquivo — a planilha de arquitetura fica fora do repo, em `task_davi/`
 
 import io
 import logging
+import shutil
 import time
 from datetime import date
 from pathlib import Path
@@ -208,7 +209,13 @@ def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
     element_timeout = constants.ELEMENT_TIMEOUT.value
     download_timeout = constants.DOWNLOAD_TIMEOUT.value
 
-    input_dir.mkdir(parents=True, exist_ok=True)
+    # Uma retentativa reaproveita o mesmo work_dir e o `seen` nasce vazio: um CSV
+    # sobrando da tentativa anterior é devolvido por _wait_for_download antes de o
+    # download novo começar (nesse instante nada está em andamento), e renomeado
+    # para a UF errada. A checagem de `UF != sigla_uf` no build acusa isso, então
+    # sem limpar o diretório o retry não tem como dar certo.
+    shutil.rmtree(input_dir, ignore_errors=True)
+    input_dir.mkdir(parents=True)
 
     driver = webdriver.Chrome(
         service=ChromeService(ChromeDriverManager().install()),

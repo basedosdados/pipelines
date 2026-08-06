@@ -205,8 +205,10 @@ das colunas.
 O `/paginas/relatorios/` é uma aplicação **JSF/PrimeFaces**: o export não sai de
 uma URL de download estável, e sim de um POST no formulário da página, com
 sessão e `ViewState`. Os ids dos componentes são gerados pelo framework e mudam
-quando a página muda, de modo que a raspagem se ancora no texto do painel e do botão
-em vez de fixar id.
+quando a página muda. Os XPaths em `constants.XPATHS` são mistos: o painel e o
+checkbox de tipologias são ancorados por texto, enquanto o widget de estado, o select
+oculto e o botão de export usam os ids `abas:sanfonas:*`. Esses três estão acoplados
+ao HTML da fonte e precisam ser revalidados quando a página mudar.
 
 O painel "Reconhecimentos vigentes" oferece PDF, XLS e CSV.
 

@@ -60,7 +60,8 @@ def br_sedec_desastres_flow(
         materialize_to_prod: Seguir além da materialização em dev, escrevendo no
             bucket de staging de prod e rodando dbt com ``target="prod"``. Passar
             False para exercitar só a metade de dev — necessário para um teste
-            seguro, já que o padrão escreve em produção.
+            seguro, já que o padrão escreve em produção. Também desliga o poll,
+            que consulta o backend de prod.
         update_metadata: Depois de materializar prod com sucesso, registrar a
             cobertura da tabela e gravar o update da fonte. Não tem efeito quando
             ``materialize_to_prod`` é False.
@@ -76,15 +77,19 @@ def br_sedec_desastres_flow(
         result = clean_reconhecimentos(work_dir=work_dir, input_dir=input_dir)
         max_date = result["max_date"]
 
-        has_new_data = poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id=TABLE_ID,
-            source_max_date=max_date,
-            env="prod",
-            date_format=DATE_FORMAT,
-        )
-        if not has_new_data and not force_run:
-            return
+        # O poll é pinado em env="prod" e o return dele vem antes do upload de
+        # dev: consultado sem condição, um run de dev depende do backend de
+        # produção e pode encerrar sem ingerir nada, reportando COMPLETED.
+        if materialize_to_prod:
+            has_new_data = poll_source_for_update_task(
+                dataset_id=DATASET_ID,
+                table_id=TABLE_ID,
+                source_max_date=max_date,
+                env="prod",
+                date_format=DATE_FORMAT,
+            )
+            if not has_new_data and not force_run:
+                return
 
         tables = constants.ALL_TABLES.value
 

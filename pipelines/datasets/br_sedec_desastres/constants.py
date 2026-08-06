@@ -8,13 +8,6 @@ abertas — estão em `pipelines/datasets/br_sedec_desastres/README.md`.
 """
 
 from enum import Enum
-from pathlib import Path
-
-# Raiz do repo, para alcançar os CSVs de arquitetura commitados sob models/.
-# Eles são a fonte da verdade do schema (ordem das colunas + bigquery_type) e
-# são lidos tanto por este pipeline quanto pela carga inicial em
-# models/br_sedec_desastres/code/.
-_REPO_ROOT = Path(__file__).resolve().parents[3]
 
 # Cabeçalho do painel do relatório e o div de conteúdo que o segue. Servem de
 # prefixo para escopar os XPaths ao painel certo: a página tem 13 painéis de
