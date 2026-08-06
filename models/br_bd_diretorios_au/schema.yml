@@ -703,6 +703,350 @@ models:
       - name: area_albers_sqkm
         description: Área em quilômetros quadrados, calculada na projeção Albers de
           áreas iguais
+  - name: br_bd_diretorios_au__sa1_2011
+    description: >
+      Diretório das Statistical Areas Level 1 (SA1) da Austrália na edição de 2011
+      do ASGS, com código, nome, hierarquia superior e área.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_sa1]
+    columns:
+      - name: id_sa1
+        description: Código da Statistical Area Level 1 (SA1), 11 dígitos
+        tests: [not_null]
+      - name: id_sa1_short
+        description: Código curto de 7 dígitos da SA1 na edição de 2011 (removido
+          na edição de 2021)
+      - name: id_sa2
+        description: Código da Statistical Area Level 2 (SA2)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__sa2_2011')
+              field: id_sa2
+      - name: name_sa2
+        description: Nome da Statistical Area Level 2 (SA2)
+      - name: id_sa3
+        description: Código da Statistical Area Level 3 (SA3)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__sa3_2011')
+              field: id_sa3
+      - name: name_sa3
+        description: Nome da Statistical Area Level 3 (SA3)
+      - name: id_sa4
+        description: Código da Statistical Area Level 4 (SA4)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__sa4_2011')
+              field: id_sa4
+      - name: name_sa4
+        description: Nome da Statistical Area Level 4 (SA4)
+      - name: id_gccsa
+        description: Código da Greater Capital City Statistical Area (GCCSA)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__gccsa_2011')
+              field: id_gccsa
+      - name: name_gccsa
+        description: Nome da Greater Capital City Statistical Area (GCCSA)
+      - name: id_state
+        description: Código do estado ou território australiano (1 a 9)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado ou território australiano
+      - name: name_state
+        description: Nome do estado ou território australiano
+      - name: area_albers_sqkm
+        description: Área em quilômetros quadrados, calculada na projeção Albers de
+          áreas iguais
+  - name: br_bd_diretorios_au__sa2_2011
+    description: >
+      Diretório das Statistical Areas Level 2 (SA2) da Austrália na edição de 2011
+      do ASGS, com código, nome, hierarquia superior e área.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_sa2]
+    columns:
+      - name: id_sa2
+        description: Código da Statistical Area Level 2 (SA2), 9 dígitos
+        tests: [not_null]
+      - name: id_sa2_short
+        description: Código curto de 5 dígitos da SA2 na edição de 2011 (removido
+          na edição de 2021)
+      - name: name
+        description: Nome da Statistical Area Level 2 (SA2)
+      - name: id_sa3
+        description: Código da Statistical Area Level 3 (SA3)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__sa3_2011')
+              field: id_sa3
+      - name: name_sa3
+        description: Nome da Statistical Area Level 3 (SA3)
+      - name: id_sa4
+        description: Código da Statistical Area Level 4 (SA4)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__sa4_2011')
+              field: id_sa4
+      - name: name_sa4
+        description: Nome da Statistical Area Level 4 (SA4)
+      - name: id_gccsa
+        description: Código da Greater Capital City Statistical Area (GCCSA)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__gccsa_2011')
+              field: id_gccsa
+      - name: name_gccsa
+        description: Nome da Greater Capital City Statistical Area (GCCSA)
+      - name: id_state
+        description: Código do estado ou território australiano (1 a 9)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado ou território australiano
+      - name: name_state
+        description: Nome do estado ou território australiano
+      - name: area_albers_sqkm
+        description: Área em quilômetros quadrados, calculada na projeção Albers de
+          áreas iguais
+  - name: br_bd_diretorios_au__sa3_2011
+    description: >
+      Diretório das Statistical Areas Level 3 (SA3) da Austrália na edição de 2011
+      do ASGS, com código, nome, hierarquia superior e área.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_sa3]
+    columns:
+      - name: id_sa3
+        description: Código da Statistical Area Level 3 (SA3), 5 dígitos
+        tests: [not_null]
+      - name: name
+        description: Nome da Statistical Area Level 3 (SA3)
+      - name: id_sa4
+        description: Código da Statistical Area Level 4 (SA4)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__sa4_2011')
+              field: id_sa4
+      - name: name_sa4
+        description: Nome da Statistical Area Level 4 (SA4)
+      - name: id_gccsa
+        description: Código da Greater Capital City Statistical Area (GCCSA)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__gccsa_2011')
+              field: id_gccsa
+      - name: name_gccsa
+        description: Nome da Greater Capital City Statistical Area (GCCSA)
+      - name: id_state
+        description: Código do estado ou território australiano (1 a 9)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado ou território australiano
+      - name: name_state
+        description: Nome do estado ou território australiano
+      - name: area_albers_sqkm
+        description: Área em quilômetros quadrados, calculada na projeção Albers de
+          áreas iguais
+  - name: br_bd_diretorios_au__sa4_2011
+    description: >
+      Diretório das Statistical Areas Level 4 (SA4) da Austrália na edição de 2011
+      do ASGS, com código, nome, hierarquia superior e área.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_sa4]
+    columns:
+      - name: id_sa4
+        description: Código da Statistical Area Level 4 (SA4), 3 dígitos
+        tests: [not_null]
+      - name: name
+        description: Nome da Statistical Area Level 4 (SA4)
+      - name: id_gccsa
+        description: Código da Greater Capital City Statistical Area (GCCSA)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__gccsa_2011')
+              field: id_gccsa
+      - name: name_gccsa
+        description: Nome da Greater Capital City Statistical Area (GCCSA)
+      - name: id_state
+        description: Código do estado ou território australiano (1 a 9)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado ou território australiano
+      - name: name_state
+        description: Nome do estado ou território australiano
+      - name: area_albers_sqkm
+        description: Área em quilômetros quadrados, calculada na projeção Albers de
+          áreas iguais
+  - name: br_bd_diretorios_au__gccsa_2011
+    description: >
+      Diretório das Greater Capital City Statistical Areas (GCCSA) da Austrália na
+      edição de 2011 do ASGS, com código, nome, hierarquia superior e área.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_gccsa]
+    columns:
+      - name: id_gccsa
+        description: Código da Greater Capital City Statistical Area (GCCSA)
+        tests: [not_null]
+      - name: name
+        description: Nome da Greater Capital City Statistical Area (GCCSA)
+      - name: id_state
+        description: Código do estado ou território australiano (1 a 9)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado ou território australiano
+      - name: name_state
+        description: Nome do estado ou território australiano
+      - name: area_albers_sqkm
+        description: Área em quilômetros quadrados, calculada na projeção Albers de
+          áreas iguais
+  - name: br_bd_diretorios_au__lga_2011
+    description: >
+      Diretório das Local Government Areas (LGA) da Austrália na edição de 2011 do
+      ASGS, com código, nome, hierarquia superior e área.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_lga]
+    columns:
+      - name: id_lga
+        description: Código da Local Government Area (LGA), 5 dígitos
+        tests: [not_null]
+      - name: name
+        description: Nome da Local Government Area (LGA)
+      - name: id_state
+        description: Código do estado ou território australiano (1 a 9)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado ou território australiano
+      - name: name_state
+        description: Nome do estado ou território australiano
+      - name: area_albers_sqkm
+        description: Área em quilômetros quadrados, calculada na projeção Albers de
+          áreas iguais
+  - name: br_bd_diretorios_au__postal_area_2011
+    description: >
+      Diretório das áreas postais (POA) da Austrália na edição de 2011 do ASGS, com
+      código, nome, hierarquia superior e área.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_postal_area]
+    columns:
+      - name: id_postal_area
+        description: Código da área postal (POA), 4 dígitos
+        tests: [not_null]
+      - name: name
+        description: Nome da área postal (POA)
+      - name: area_albers_sqkm
+        description: Área em quilômetros quadrados, calculada na projeção Albers de
+          áreas iguais
+  - name: br_bd_diretorios_au__suburb_2011
+    description: >
+      Diretório dos subúrbios e localidades da Austrália na edição de 2011 do ASGS,
+      com código, nome, hierarquia superior e área.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_suburb]
+    columns:
+      - name: id_suburb
+        description: Código do subúrbio ou localidade (SAL)
+        tests: [not_null]
+      - name: name
+        description: Nome do subúrbio ou localidade (SAL)
+      - name: id_state
+        description: Código do estado ou território australiano (1 a 9)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado ou território australiano
+      - name: name_state
+        description: Nome do estado ou território australiano
+      - name: area_albers_sqkm
+        description: Área em quilômetros quadrados, calculada na projeção Albers de
+          áreas iguais
+  - name: br_bd_diretorios_au__commonwealth_electoral_division_2011
+    description: >
+      Diretório das divisões eleitorais federais (CED) da Austrália na edição de 2011
+      do ASGS, com código, nome, hierarquia superior e área.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_commonwealth_electoral_division]
+    columns:
+      - name: id_commonwealth_electoral_division
+        description: Código da divisão eleitoral federal (CED)
+        tests: [not_null]
+      - name: name
+        description: Nome da divisão eleitoral federal (CED)
+      - name: id_state
+        description: Código do estado ou território australiano (1 a 9)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado ou território australiano
+      - name: name_state
+        description: Nome do estado ou território australiano
+      - name: area_albers_sqkm
+        description: Área em quilômetros quadrados, calculada na projeção Albers de
+          áreas iguais
+  - name: br_bd_diretorios_au__state_electoral_division_2011
+    description: >
+      Diretório das divisões eleitorais estaduais (SED) da Austrália na edição de
+      2011 do ASGS, com código, nome, hierarquia superior e área.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_state_electoral_division]
+    columns:
+      - name: id_state_electoral_division
+        description: Código da divisão eleitoral estadual (SED)
+        tests: [not_null]
+      - name: name
+        description: Nome da divisão eleitoral estadual (SED)
+      - name: id_state
+        description: Código do estado ou território australiano (1 a 9)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: abbreviation_state
+        description: Sigla do estado ou território australiano
+      - name: name_state
+        description: Nome do estado ou território australiano
+      - name: area_albers_sqkm
+        description: Área em quilômetros quadrados, calculada na projeção Albers de
+          áreas iguais
   - name: br_bd_diretorios_au__correspondence_sa2_2016_2021
     description: >
       Correspondência (crosswalk) entre as SA2 do ASGS de 2016 e 2021, com a razão
