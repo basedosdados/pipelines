@@ -6,6 +6,8 @@ models:
       contrato pode ter um ou mais subcréditos Cada linha da planilha corresponde
       a um subcrédito diferente
     columns:
+      - name: ano
+        description: Ano da contratação da operação.
       - name: data_contratacao
         description: Data de contratação do projeto
         tests: [not_null]
