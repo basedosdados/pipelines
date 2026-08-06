@@ -54,6 +54,17 @@ TABLES = [
     ("suburb_2016", 15304),
     ("commonwealth_electoral_division_2016", 168),
     ("state_electoral_division_2016", 448),
+    # 2011 (ASGS Edition 1)
+    ("sa1_2011", 54805),
+    ("sa2_2011", 2214),
+    ("sa3_2011", 351),
+    ("sa4_2011", 106),
+    ("gccsa_2011", 34),
+    ("lga_2011", 577),
+    ("postal_area_2011", 2516),
+    ("suburb_2011", 8529),
+    ("commonwealth_electoral_division_2011", 168),
+    ("state_electoral_division_2011", 446),
     # correspondences (crosswalks)
     ("correspondence_sa2_2016_2021", 2501),  # 2504 minus 3 null-endpoint rows
     ("correspondence_lga_2016_2021", 582),  # 585 minus 3 null-endpoint rows

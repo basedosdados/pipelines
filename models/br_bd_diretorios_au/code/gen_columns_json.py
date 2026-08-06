@@ -57,9 +57,9 @@ EXACT = {
 RULES = [
     # legacy short codes
     (
-        r"^Código curto de (\d+) dígitos da (.+) na edição de 2016 \(removido na edição de 2021\)$",
-        r"\1-digit short code of the \2 in the 2016 edition (removed in the 2021 edition)",
-        r"Código corto de \1 dígitos de la \2 en la edición de 2016 (eliminado en la edición de 2021)",
+        r"^Código curto de (\d+) dígitos da (.+) na edição de (\d+) \(removido na edição de 2021\)$",
+        r"\1-digit short code of the \2 in the \3 edition (removed in the 2021 edition)",
+        r"Código corto de \1 dígitos de la \2 en la edición de \3 (eliminado en la edición de 2021)",
     ),
     # crosswalk code/name with edition
     (
