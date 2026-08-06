@@ -40,6 +40,12 @@ models:
     af_afrobarometer_survey:
       +materialized: table
       +schema: af_afrobarometer_survey
+    au_abs_cpi:
+      +materialized: table
+      +schema: au_abs_cpi
+    au_abs_national_accounts:
+      +materialized: table
+      +schema: au_abs_national_accounts
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
@@ -118,6 +124,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    au_abs_labour_force:
+      +materialized: table
+      +schema: au_abs_labour_force
     us_bls_qcew:
       +materialized: table
       +schema: us_bls_qcew
@@ -412,6 +421,9 @@ models:
     br_rj_isp_estatisticas_seguranca:
       +materialized: table
       +schema: br_rj_isp_estatisticas_seguranca
+    br_senado_dados_abertos:
+      +materialized: table
+      +schema: br_senado_dados_abertos
     br_sfb_sicar:
       +materialized: table
       +schema: br_sfb_sicar

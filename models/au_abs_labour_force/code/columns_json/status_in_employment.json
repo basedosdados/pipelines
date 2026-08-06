@@ -1,0 +1,81 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação",
+    "description_en": "Reference year of the observation",
+    "description_es": "Año de referencia de la observación",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "month",
+    "bigquery_type": "INT64",
+    "description_pt": "Mês de referência da observação, de 1 a 12",
+    "description_en": "Reference month of the observation, from 1 to 12",
+    "description_es": "Mes de referencia de la observación, de 1 a 12",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.mes:mes",
+    "measurement_unit": "month"
+  },
+  {
+    "name": "geography",
+    "bigquery_type": "STRING",
+    "description_pt": "Área geográfica: Austrália (nacional) ou um dos oito estados e territórios",
+    "description_en": "Geographic area: Australia (national) or one of the eight states and territories",
+    "description_es": "Área geográfica: Australia (nacional) o uno de los ocho estados y territorios",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "sex",
+    "bigquery_type": "STRING",
+    "description_pt": "Sexo: pessoas (total), homens ou mulheres",
+    "description_en": "Sex: persons (all), males or females",
+    "description_es": "Sexo: personas (total), hombres o mujeres",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "status_in_employment",
+    "bigquery_type": "STRING",
+    "description_pt": "Posição na ocupação do trabalho principal, como empregado, empregador ou trabalhador familiar auxiliar",
+    "description_en": "Status in employment of the main job, such as employee, owner manager or contributing family worker",
+    "description_es": "Situación en el empleo del trabajo principal, como asalariado, empleador o trabajador familiar auxiliar",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "employed_total",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas ocupadas com esta posição na ocupação",
+    "description_en": "Number of employed persons with this status in employment",
+    "description_es": "Número de personas ocupadas con esta situación en el empleo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "employed_full_time",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas ocupadas em tempo integral com esta posição na ocupação",
+    "description_en": "Number employed full-time with this status in employment",
+    "description_es": "Número de personas ocupadas a tiempo completo con esta situación en el empleo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "employed_part_time",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas ocupadas em tempo parcial com esta posição na ocupação",
+    "description_en": "Number employed part-time with this status in employment",
+    "description_es": "Número de personas ocupadas a tiempo parcial con esta situación en el empleo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  }
+]

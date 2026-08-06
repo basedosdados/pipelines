@@ -81,3 +81,30 @@ class constants(Enum):
     ARCHITECTURE_DIR = (
         _REPO_ROOT / "models" / "us_bls_qcew" / "code" / "architecture"
     )
+
+    # ── Recurring pipeline (NAICS only) ──────────────────────────────────────
+    # SIC is a frozen classification: BLS published it for 1975-2000 and never
+    # republishes it. The recurring pipeline therefore refreshes ONLY the 8
+    # NAICS data tables; the 8 SIC tables and the dicionario are static and are
+    # not in the pipeline's table loop.
+    NAICS_START_YEAR = 1990
+
+    NAICS_TABLES = [
+        f"naics_{f}_{g}"
+        for f in ["quarterly", "annual"]
+        for g in ["national", "state", "county", "metro"]
+    ]
+
+    # Table the source poll / commit is anchored on (its single raw source is the
+    # NAICS singlefile family). The quarterly series carries the newest period.
+    POLL_TABLE = "naics_quarterly_national"
+
+    # Primary raw data source for the NAICS tables (staging backend id). The poll
+    # and commit tasks resolve the source via the table, which must link to
+    # exactly one raw source; this is that source, recorded for reference.
+    NAICS_RAW_SOURCE_ID = "180c2c08-a8a7-4b30-88a8-e200c77acf92"
+
+    # Concurrent downloads prefetched ahead of the (serial) cleaner. Cleaning is
+    # never parallelized, so peak RAM stays one chunk; this only bounds how many
+    # multi-GB CSVs sit on the worker's disk at once.
+    PIPELINE_DOWNLOAD_WORKERS = 4

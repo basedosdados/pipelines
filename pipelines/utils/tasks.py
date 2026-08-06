@@ -52,25 +52,6 @@ async def rename_flow_run_dataset_table(
 # ──────────────────────────────────────────────────────────────────────────────
 # Upload GCS
 # ──────────────────────────────────────────────────────────────────────────────
-# A lib monta o nome da tabela de staging a partir do `config.toml` do pod
-# (`gcloud-projects.staging.name`) e ignora o `bucket_name` — então a
-# conferência é nossa. As credenciais vêm do mesmo lugar: o pod tem uma só,
-# do staging do próprio ambiente, e portanto não gerencia a tabela do outro.
-_STAGING_PROJECT_BY_BUCKET = {
-    "basedosdados-dev": "basedosdados-dev",
-    "basedosdados": "basedosdados-staging",
-}
-
-
-def _staging_project_for(bucket_name: str) -> str:
-    """Projeto do BigQuery onde vive a staging correspondente ao bucket."""
-    try:
-        return _STAGING_PROJECT_BY_BUCKET[bucket_name]
-    except KeyError:
-        raise ValueError(
-            f"bucket_name inválido: {bucket_name!r}. "
-            f"Use um de {sorted(_STAGING_PROJECT_BY_BUCKET)}."
-        ) from None
 
 
 def _sync_staging_schema(
@@ -95,8 +76,7 @@ def _sync_staging_schema(
     pode encolher o schema de uma tabela histórica.
 
     Args:
-        tb: tabela `basedosdados` já instanciada, apontando para a staging do
-            ambiente do pod — o chamador garante que ela corresponde ao bucket.
+        tb: tabela `basedosdados` já instanciada, apontando para a staging.
         data_path: arquivo ou diretório com os dados que serão carregados.
         source_format: `"csv"` ou `"parquet"`.
         billing_project_id: projeto GCP usado para faturar a chamada.
@@ -156,31 +136,6 @@ def _upload_to_gcs(
         f"{bucket_name}/staging/{dataset_id}/{table_id}"
     )
 
-    if dump_mode not in ("append", "overwrite"):
-        raise ValueError(
-            f"dump_mode inválido: {dump_mode!r}. Use 'append' ou 'overwrite'."
-        )
-
-    expected_staging = _staging_project_for(bucket_name)
-    actual_staging = tb.client["bigquery_staging"].project
-
-    if expected_staging != actual_staging:
-        if bucket_name == "basedosdados":
-            raise RuntimeError(
-                f"Este pod escreve em {actual_staging}, não em produção. "
-                "Rode no work pool 'basedosdados' ou desligue a promoção nos "
-                "parâmetros do flow."
-            )
-        print(
-            f"Staging do bucket ({expected_staging}) não é a deste pod "
-            f"({actual_staging}): sobem só os dados, sem sincronizar o schema."
-        )
-        st.upload(path=data_path, mode="staging", if_exists="replace")
-        print(
-            f"Upload concluído: gs://{bucket_name}/staging/{dataset_id}/{table_id}"
-        )
-        return
-
     if dump_mode == "append":
         if not tb.table_exists(mode="staging"):
             header_path = dump_header(
@@ -207,7 +162,7 @@ def _upload_to_gcs(
                 billing_project_id=billing_project_id,
             )
 
-    else:  # overwrite
+    elif dump_mode == "overwrite":
         if tb.table_exists(mode="staging"):
             st.delete_table(
                 mode="staging", bucket_name=bucket_name, not_found_ok=True
@@ -228,6 +183,11 @@ def _upload_to_gcs(
         )
         print(
             f"Tabela recriada: {tb.table_full_name['staging']}\n{storage_link}"
+        )
+
+    else:
+        raise ValueError(
+            f"dump_mode inválido: {dump_mode!r}. Use 'append' ou 'overwrite'."
         )
 
     if not tb.table_exists(mode="staging"):
@@ -346,6 +306,10 @@ def run_dbt(
                     f"dbt {cmd} falhou para {selected.as_posix()} (target={target})"
                 )
             print(f"dbt {cmd} OK: {selected.as_posix()} (target={target})")
+
+        if target == "prod" and table_id is not None and "run" in dbt_command:
+            print(f"Exportando {dataset_id}.{table_id} para GCS")
+            download_data_to_gcs.fn(dataset_id=dataset_id, table_id=table_id)
     finally:
         try:
             DBTArtifactUploader(
