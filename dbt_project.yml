@@ -421,6 +421,9 @@ models:
     br_rj_isp_estatisticas_seguranca:
       +materialized: table
       +schema: br_rj_isp_estatisticas_seguranca
+    br_senado_dados_abertos:
+      +materialized: table
+      +schema: br_senado_dados_abertos
     br_sfb_sicar:
       +materialized: table
       +schema: br_sfb_sicar
