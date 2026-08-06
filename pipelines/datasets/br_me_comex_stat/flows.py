@@ -18,9 +18,9 @@ from pipelines.utils.metadata.domain import (
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
+    check_source_is_ahead_of_table_task,
+    register_source_coverage_task,
+    sync_table_coverage_task,
 )
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
@@ -49,16 +49,24 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
 
         last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
 
-        if not force_run:
-            has_new_data = poll_source_for_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=last_date,
-                env="prod",
-                date_format="%Y-%m",
-            )
-            if not has_new_data:
-                return
+        # A fonte é uma só para as quatro tabelas, então este Update é um
+        # ponteiro compartilhado: quem rodar primeiro no dia o avança. O gate
+        # abaixo continua por tabela, porque compara contra o Table.Update.
+        register_source_coverage_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=last_date,
+            env="prod",
+            date_format="%Y-%m",
+        )
+
+        if not force_run and not check_source_is_ahead_of_table_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            env="prod",
+        ):
+            print(f"Tabela {table_id} já cobre a fonte — encerrando")
+            return
 
         download_br_me_comex_stat(
             table_name=table_name,
@@ -107,7 +115,7 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
         )
 
         if update_metadata:
-            register_table_materialization_task(
+            sync_table_coverage_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 coverage=PartBdpro(
@@ -117,15 +125,6 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
                 env="prod",
                 bq_project="basedosdados",
             )
-
-            if last_date is not None:
-                commit_source_update_task(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    source_max_date=last_date,
-                    env="prod",
-                    date_format="%Y-%m",
-                )
 
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
