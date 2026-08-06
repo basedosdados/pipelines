@@ -721,7 +721,9 @@ def get_table_unique_keys(table_id: str, column: str):
     SELECT DISTINCT chave
     FROM tmp_split,
     UNNEST(chave) AS chave"""
-    uniques = bd.read_sql(query=query, from_file=True)["chave"].unique()
+    uniques = bd.read_sql(
+        query=query, from_file=True, billing_project_id="basedosdados-dev"
+    )["chave"].unique()
     df_uniques = pd.DataFrame(uniques, columns=["chave"])
     df_uniques.loc[df_uniques["chave"] == "", "chave"] = None
 
