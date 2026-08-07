@@ -64,6 +64,26 @@
             {% endif %}
         {% endif %}
 
+        {# This block looks for __most_recent_date_cnpj__  placeholder #}
+        {% if "__most_recent_date_cnpj__" in where %}
+            {% set max_date_query = (
+                "select max(data_referencia) as max_date from " ~ relation
+            ) %}
+            {% set max_date_result = run_query(max_date_query) %}
+            {% if execute and max_date_result.rows[0][0] %}
+                {% set max_date = max_date_result.rows[0][0] %}
+                {% set where = where | replace(
+                    "__most_recent_date_cnpj__",
+                    "data_referencia = '" ~ max_date ~ "'",
+                ) %}
+                {% do log(
+                    "The test will filter by the most recent date: "
+                    ~ max_date,
+                    info=True,
+                ) %}
+            {% endif %}
+        {% endif %}
+
         {% if "__most_recent_date_cno__" in where %}
             {% set max_date_query = (
                 "select max(data_extracao) as max_date from " ~ relation

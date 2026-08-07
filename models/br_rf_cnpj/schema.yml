@@ -7,12 +7,12 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_referencia, cnpj_basico]
           config:
-            where: __most_recent_date__
+            where: __most_recent_date_cnpj__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [porte, qualificacao_responsavel]
           dictionary_model: ref('br_rf_cnpj__dicionario')
           config:
-            where: __most_recent_date__
+            where: __most_recent_date_cnpj__
     columns:
       - name: data_referencia
         description: Data de referência (ano-mês) do dado.
@@ -21,7 +21,7 @@ models:
         description: CNPJ Básico
         tests: [not_null]
         config:
-          where: __most_recent_date__
+          where: __most_recent_date_cnpj__
       - name: razao_social
         description: Razão Social
       - name: natureza_juridica
@@ -32,7 +32,7 @@ models:
               field: id_natureza_juridica
               ignore_values: ['8885']
               config:
-                where: __most_recent_date__
+                where: __most_recent_date_cnpj__
       - name: qualificacao_responsavel
         description: Qualificação do/a Responsável
       - name: capital_social
@@ -55,7 +55,7 @@ models:
             - id_pais
           dictionary_model: ref('br_rf_cnpj__dicionario')
           config:
-            where: __most_recent_date__
+            where: __most_recent_date_cnpj__
     columns:
       - name: data_referencia
         description: Data de referência (ano-mês) do dado.
@@ -63,7 +63,7 @@ models:
         description: CNPJ básico
         tests: [not_null]
         config:
-          where: __most_recent_date__
+          where: __most_recent_date_cnpj__
       - name: tipo
         description: Tipo
       - name: nome
@@ -98,7 +98,7 @@ models:
         description: CNPJ Básico
         tests: [not_null]
         config:
-          where: __most_recent_date__
+          where: __most_recent_date_cnpj__
       - name: opcao_simples
         description: Opção pelo Simples Nacional
       - name: data_opcao_simples
@@ -119,7 +119,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [cnpj, data_referencia]
           config:
-            where: __most_recent_date__
+            where: __most_recent_date_cnpj__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - motivo_situacao_cadastral
@@ -128,7 +128,7 @@ models:
             - id_pais
           dictionary_model: ref('br_rf_cnpj__dicionario')
           config:
-            where: __most_recent_date__
+            where: __most_recent_date_cnpj__
     columns:
       - name: data_referencia
         description: Data de referência (ano-mês) do dado.
@@ -137,12 +137,12 @@ models:
         description: CNPJ
         tests: [not_null]
         config:
-          where: __most_recent_date__
+          where: __most_recent_date_cnpj__
       - name: cnpj_basico
         description: CNPJ Básico (8 primeiros dígitos)
         tests: [not_null]
         config:
-          where: __most_recent_date__
+          where: __most_recent_date_cnpj__
       - name: cnpj_ordem
         description: CNPJ Ordem
       - name: cnpj_dv
@@ -171,7 +171,7 @@ models:
               field: subclasse
               ignore_values: ['8888888']
               config:
-                where: __most_recent_date__
+                where: __most_recent_date_cnpj__
       - name: cnae_fiscal_secundaria
         description: CNAEs Fiscais Secundárias
       - name: sigla_uf
@@ -182,7 +182,7 @@ models:
               field: sigla
               ignore_values: [EX, BR]
               config:
-                where: __most_recent_date__
+                where: __most_recent_date_cnpj__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
@@ -190,7 +190,7 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
               config:
-                where: __most_recent_date__
+                where: __most_recent_date_cnpj__
       - name: id_municipio_rf
         description: ID Município - Receita Federal
       - name: tipo_logradouro
