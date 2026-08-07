@@ -173,8 +173,10 @@ def main():
                 "pt": "Dicionário que mapeia as colunas codificadas do us_bls_qcew (propriedade, nível de agregação, classe de tamanho, indústria e área) para seus rótulos legíveis.",
                 "es": "Diccionario que asigna las columnas codificadas de us_bls_qcew (propiedad, nivel de agregación, clase de tamaño, industria y área) a sus etiquetas legibles.",
             },
+            # pyrefly: ignore [bad-assignment]
             "coverage": None,
             "ol_entities": [],
+            # pyrefly: ignore [bad-assignment]
             "update_entity": None,
             "bdpro": False,
             "columns_json": "code/columns_json/dicionario.json",

@@ -105,6 +105,7 @@ def convert(table):
             print(f"  {table} {y}: SOURCE MISSING", flush=True)
             continue
         df = pd.read_stata(f, convert_categoricals=False)
+        # pyrefly: ignore [missing-attribute]
         ex = spec.get("extra", {}).get(y)
         if ex and os.path.exists(ex):
             add = pd.read_stata(ex, convert_categoricals=False)
@@ -121,6 +122,7 @@ def convert(table):
                 pd.to_numeric(df["month"], errors="coerce").astype("Int64")
             )
             for m, g in groups:
+                # pyrefly: ignore [unnecessary-type-conversion]
                 d = f"{OUT}/{table}/year={y}/month={int(m)}"
                 os.makedirs(d, exist_ok=True)
                 pq.write_table(

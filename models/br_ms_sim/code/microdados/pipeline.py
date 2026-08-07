@@ -2,7 +2,11 @@ import shutil
 from pathlib import Path
 
 import basedosdados as bd
+
+# pyrefly: ignore [missing-import]
 from cleaning import MUNICIPIOS_PATH, process
+
+# pyrefly: ignore [missing-import]
 from extraction import download
 
 DATASET_ID = "br_ms_sim"

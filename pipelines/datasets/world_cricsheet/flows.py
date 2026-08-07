@@ -100,6 +100,7 @@ def world_cricsheet_flow(
             source update. Has no effect when ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new match date.
     """
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="cricsheet"
     )
@@ -211,9 +212,11 @@ def world_cricsheet_flow(
 # WEEKLY instead — Monday 06:00 BRT — which cuts the cost ~4x while keeping
 # freshness fine. The source-poll guard still no-ops between real releases, and
 # the full-replace dump means overlapping windows never duplicate.
+# pyrefly: ignore [missing-attribute]
 world_cricsheet_flow.deploy_schedules = [
     {"cron": "0 6 * * 1", "timezone": "America/Sao_Paulo"}
 ]
 # The deliveries build streams 11.4M rows and the bundle extracts to several GB;
 # give the worker headroom.
+# pyrefly: ignore [missing-attribute]
 world_cricsheet_flow.job_variables = {"memory": "12Gi"}

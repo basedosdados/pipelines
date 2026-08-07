@@ -7,6 +7,8 @@ import basedosdados as bd
 import numpy as np
 import pandas as pd
 import requests
+
+# pyrefly: ignore [missing-import]
 from pirls_utils import (
     COUNTRY_CODES,
     LABELS_FROM_CONTEXT_QUESTIONNAIRES,
