@@ -22,7 +22,24 @@ Work through steps in order. Do not skip steps.
 12. pipeline             recurring sources only — add a Prefect refresh pipeline
 [PR MERGES + GH table-approve action runs + prod tables verified]
 13. publish              flip the prod dataset status under_review → published
+14. cleanup              delete the downloaded raw data + cleaned parquet (see below)
 ```
+
+## Scratch data location and cleanup (steps 3–4, and step 14)
+
+Raw downloads and cleaned parquet **never** go in the repo or anywhere under
+Dropbox — that would trigger a multi-GB sync and risk committing data. Put all
+intermediate data under **`~/Downloads/<gcp_dataset_id>_data/`** (`input/` for the
+downloaded archives, `output/` for the partitioned parquet), and have the
+cleaning/upload scripts default to that location (overridable via an env var).
+For very large sources, download and clean **one partition at a time and delete
+each archive after cleaning** so peak disk stays near a single file.
+
+**Step 14 — delete it all as the final step**, once everything else is done (data
+uploaded and verified in prod, PR merged, dataset published). Remove
+`~/Downloads/<gcp_dataset_id>_data/` entirely — it is fully reproducible from the
+source. When the run stops early (e.g. before the PR, by request), still delete
+the scratch data as the last action of that run unless told to keep it.
 
 ## Step 12 — recurring pipeline (only for sources that update on a cadence)
 
