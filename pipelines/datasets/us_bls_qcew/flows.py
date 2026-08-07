@@ -101,6 +101,7 @@ def us_bls_qcew_flow(
             is False.
         force_run: Materialize even when the source poll reports no new quarter.
     """
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="naics"
     )
@@ -187,9 +188,11 @@ def us_bls_qcew_flow(
 # and Wages news releases land in early March, June, September, and December.
 # Poll across the first ~10 days of those months at 16:00 BRT; the source-poll
 # guard no-ops until a new quarter actually appears in the singlefiles.
+# pyrefly: ignore [missing-attribute]
 us_bls_qcew_flow.deploy_schedules = [
     {"cron": "0 16 1-10 3,6,9,12 *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step streams ~15M-row singlefiles one chunk at a time (peak ~1.75GB
 # in pandas); give the worker headroom above that.
+# pyrefly: ignore [missing-attribute]
 us_bls_qcew_flow.job_variables = {"memory": "8Gi"}

@@ -27,4 +27,5 @@ def clean_cpi(work_dir: str, input_dir: str) -> dict:
     ``"YYYY-MM"`` in the monthly table), which drives the source-update poll.
     """
     output_dir = Path(work_dir) / "output"
+    # pyrefly: ignore [unnecessary-type-conversion]
     return clean_all(str(input_dir), str(output_dir))

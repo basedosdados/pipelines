@@ -208,6 +208,7 @@ def download_quarter(
                 e,
             )
             dest.unlink(missing_ok=True)
+    # pyrefly: ignore [bad-raise]
     raise last
 
 
@@ -221,6 +222,7 @@ def _clean_series(s: pd.Series) -> pd.Series:
 def _clean_uf(s: pd.Series) -> pd.Series:
     """Uppercase-strip; map any value outside the 27 UFs to None (keeps the FK)."""
     s = _clean_series(s).str.upper()
+    # pyrefly: ignore [no-matching-overload]
     return s.where(s.isin(VALID_UFS), other=pd.NA)
 
 
@@ -246,6 +248,7 @@ def _clean_date(s: pd.Series) -> pd.Series:
     raw = _clean_series(s)
     dt = pd.to_datetime(raw, format="%d/%m/%Y", errors="coerce")
     iso = dt.dt.strftime("%Y-%m-%d")
+    # pyrefly: ignore [no-matching-overload]
     return iso.where(dt.notna(), other=pd.NA)
 
 
