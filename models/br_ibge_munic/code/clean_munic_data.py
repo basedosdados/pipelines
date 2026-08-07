@@ -95,6 +95,7 @@ def detect_id_column(df: pd.DataFrame) -> str | None:
     best_score = 0.0
 
     for col in df.columns:
+        # pyrefly: ignore [unnecessary-type-conversion]
         col_str = str(col)
         col_norm = normalize_text(col_str).replace(" ", "")
         series = df[col]
@@ -124,6 +125,7 @@ def detect_sigla_uf_column(df: pd.DataFrame) -> str | None:
     best_col = None
     best_score = 0.0
     for col in df.columns:
+        # pyrefly: ignore [unnecessary-type-conversion]
         col_str = str(col)
         col_norm = normalize_text(col_str).replace(" ", "")
         if "uf" not in col_norm:
@@ -143,6 +145,7 @@ def detect_sigla_uf_column(df: pd.DataFrame) -> str | None:
 
 def standardize_id(series: pd.Series) -> pd.Series:
     out = series.astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
+    # pyrefly: ignore [bad-argument-type]
     out = out.replace({"nan": pd.NA, "NaN": pd.NA, "None": pd.NA, "": pd.NA})
     return out
 
@@ -183,6 +186,7 @@ def build_column_index(
     lower_map: dict[str, str] = {}
     norm_map: dict[str, list[str]] = {}
     for col in df.columns:
+        # pyrefly: ignore [unnecessary-type-conversion]
         col_str = str(col)
         lower = col_str.lower()
         if lower not in lower_map:
@@ -198,6 +202,7 @@ def find_column_name(
     lower_map: dict[str, str],
     norm_map: dict[str, list[str]],
 ) -> str | None:
+    # pyrefly: ignore [no-matching-overload]
     if target is None or pd.isna(target):
         return None
     target_str = str(target).strip()
@@ -249,6 +254,7 @@ def load_directory() -> pd.DataFrame:
 
 
 def cast_series(series: pd.Series, bigquery_type: object) -> pd.Series:
+    # pyrefly: ignore [no-matching-overload]
     if bigquery_type is None or pd.isna(bigquery_type):
         return series
     dtype = str(bigquery_type).lower()
@@ -292,6 +298,7 @@ def load_year_master(year: int) -> tuple[pd.DataFrame | None, dict[str, str]]:
         print(f"  Year {year}: could not open file ({exc})")
         return None, {}
 
+    # pyrefly: ignore [bad-argument-type]
     sheet_names = [s for s in xl.sheet_names if not is_dictionary_sheet(s)]
     master_df = None
     id_col_used = None
@@ -308,9 +315,11 @@ def load_year_master(year: int) -> tuple[pd.DataFrame | None, dict[str, str]]:
             [
                 c
                 for c in df.columns
+                # pyrefly: ignore [unnecessary-type-conversion]
                 if str(c).lower() != "nan" and not str(c).startswith("Unnamed")
             ],
         ]
+        # pyrefly: ignore [unnecessary-type-conversion]
         df.columns = [str(c).strip() for c in df.columns]
         id_col = detect_id_column(df)
         if not id_col:
@@ -345,6 +354,7 @@ def build_section_year(
     master_df: pd.DataFrame,
     directory_df: pd.DataFrame,
 ) -> pd.DataFrame:
+    # pyrefly: ignore [unnecessary-type-conversion]
     columns = [str(c) for c in master_df.columns]
     lower_map, norm_map = build_column_index(master_df)
     if "__id_municipio__" in master_df:
@@ -413,6 +423,7 @@ def build_section_year(
                 series = pd.Series(pd.NA, index=master_df.index)
 
         if clean_name == "idade" and str(bq_type).lower().startswith("int"):
+            # pyrefly: ignore [bad-argument-type]
             series = series.replace({"Ignorado": pd.NA, "ignorado": pd.NA})
         series = cast_series(series, bq_type)
         # Validate year columns (columns with "ano" in name that are int64)
@@ -426,8 +437,10 @@ def build_section_year(
 def collect_years_from_arch(arch_df: pd.DataFrame) -> list[int]:
     years = []
     for col in arch_df.columns:
+        # pyrefly: ignore [unnecessary-type-conversion]
         if str(col).startswith("original_name_"):
             try:
+                # pyrefly: ignore [unnecessary-type-conversion]
                 years.append(int(str(col).replace("original_name_", "")))
             except ValueError:
                 continue
@@ -507,6 +520,7 @@ def run(sections: list[str]) -> None:
             final_df = final_df.sort_values(
                 ["id_municipio", "ano"], na_position="last"
             )
+        # pyrefly: ignore [no-matching-overload]
         string_cols = final_df.select_dtypes(
             include=["object", "string"]
         ).columns

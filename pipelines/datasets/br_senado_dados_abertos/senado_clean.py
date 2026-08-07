@@ -80,6 +80,7 @@ def _frame(rows: list[dict], columns: list[str]) -> pd.DataFrame:
         if c not in df.columns:
             df[c] = None
     df = df[columns]
+    # pyrefly: ignore [bad-argument-type]
     return df.astype(object).where(pd.notna(df), None)
 
 

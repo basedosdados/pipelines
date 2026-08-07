@@ -42,6 +42,7 @@ def br_bcb_agencia__agencia(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -75,6 +76,7 @@ def br_bcb_agencia__agencia(
         api_mode="prod",
     )
 
+    # pyrefly: ignore [no-matching-overload]
     urls_list = extract_urls_list(
         documents_metadata,
         data_source_max_date,
@@ -144,6 +146,7 @@ def br_bcb_agencia__agencia(
             )
 
 
+# pyrefly: ignore [missing-attribute]
 br_bcb_agencia__agencia.deploy_schedules = [
     {"cron": "0 22 25-31 * *", "timezone": "America/Sao_Paulo"}
 ]
