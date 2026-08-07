@@ -16,13 +16,31 @@ Work through steps in order. Do not skip steps.
 7.  validate             run DBT tests and data quality checks; fix or flag errors
 8.  discover             resolve all reference IDs from backend (dev)
 9.  metadata             register metadata in dev backend (dataset status = under_review)
+9b. publish dev/staging  flip the dev/staging dataset under_review → published (NOT the public prod frontend) so the reviewer sees it as it will appear
 [PAUSE — verification checkpoint]
 10. metadata --env prod  promote to prod (dataset status = under_review; only after human approval)
 11. pr                   open PR with changelog
 12. pipeline             recurring sources only — add a Prefect refresh pipeline
 [PR MERGES + GH table-approve action runs + prod tables verified]
 13. publish              flip the prod dataset status under_review → published
+14. cleanup              delete the downloaded raw data + cleaned parquet (see below)
 ```
+
+## Scratch data location and cleanup (steps 3–4, and step 14)
+
+Raw downloads and cleaned parquet **never** go in the repo or anywhere under
+Dropbox — that would trigger a multi-GB sync and risk committing data. Put all
+intermediate data under **`~/Downloads/<gcp_dataset_id>_data/`** (`input/` for the
+downloaded archives, `output/` for the partitioned parquet), and have the
+cleaning/upload scripts default to that location (overridable via an env var).
+For very large sources, download and clean **one partition at a time and delete
+each archive after cleaning** so peak disk stays near a single file.
+
+**Step 14 — delete it all as the final step**, once everything else is done (data
+uploaded and verified in prod, PR merged, dataset published). Remove
+`~/Downloads/<gcp_dataset_id>_data/` entirely — it is fully reproducible from the
+source. When the run stops early (e.g. before the PR, by request), still delete
+the scratch data as the last action of that run unless told to keep it.
 
 ## Step 12 — recurring pipeline (only for sources that update on a cadence)
 
@@ -102,11 +120,13 @@ Reply "approved" to promote to prod, or describe what needs fixing.
 
 Do not proceed to step 10 without the user replying "approved" (or equivalent).
 
-## Dataset status lifecycle (create `under_review`, publish only post-merge)
+## Dataset status lifecycle (publish dev/staging pre-promotion; prod only post-merge)
 
-**Every dataset is created with `status = under_review`, at every stage — dev/staging in step 9 and prod in step 10, never `published`.** `under_review` hides the dataset from the production frontend, so a dataset whose metadata is registered before its PR lands (and whose prod cloud tables do not yet exist) cannot leak publicly.
+**Register every dataset as `status = under_review` in step 9**, at every stage. `under_review` hides the dataset from the **production** frontend, so a dataset whose metadata is registered before its PR lands (and whose prod cloud tables do not yet exist) cannot leak publicly.
 
-Turn the dataset to `status = published` **only in step 13, and only after all three hold**:
+**Then, on dev/staging, publish the dataset before the PR/prod-promotion step (step 9b).** Once the dev/staging metadata is registered and the tables verified, flip the **dev/staging** dataset `under_review → published`: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env=<dev|staging>)` (re-pass every required field — no partial updates). The dev/staging frontend is not the public production site, so publishing there is safe, and it lets the human reviewer see the dataset exactly as it will appear at the verification checkpoint. This is the only place a dataset is published before merge — and only on dev/staging, never prod. When extending an already-published dataset, keep it published and refresh its description if the coverage changed.
+
+Turn the **prod** dataset to `status = published` **only in step 13, and only after all three hold**:
 
 1. the onboarding **PR is merged** to `main`;
 2. the GitHub **table-approve action has run successfully** (it materialises `basedosdados.<gcp_dataset_id>.*` via `dbt --target prod`; watch for the phantom-model failure mode where non-model `.sql` in the PR aborts materialisation before any real table builds);
