@@ -73,16 +73,18 @@ def gen_sql(slug: str, spec: dict) -> str:
     if part:
         start, end = _partition_range(slug, spec)
         cfg = (
-            f"{{{{ config(\n"
-            f'    alias="{slug}",\n'
-            f'    schema="{DATASET}",\n'
-            f'    materialized="table",\n'
-            f"    partition_by={{\n"
-            f'        "field": "{part}",\n'
-            f'        "data_type": "int64",\n'
-            f'        "range": {{"start": {start}, "end": {end}, "interval": 1}},\n'
-            f"    }},\n"
-            f") }}}}"
+            f"{{{{\n"
+            f"    config(\n"
+            f'        alias="{slug}",\n'
+            f'        schema="{DATASET}",\n'
+            f'        materialized="table",\n'
+            f"        partition_by={{\n"
+            f'            "field": "{part}",\n'
+            f'            "data_type": "int64",\n'
+            f'            "range": {{"start": {start}, "end": {end}, "interval": 1}},\n'
+            f"        }},\n"
+            f"    )\n"
+            f"}}}}"
         )
     else:
         cfg = f'{{{{ config(alias="{slug}", schema="{DATASET}") }}}}'

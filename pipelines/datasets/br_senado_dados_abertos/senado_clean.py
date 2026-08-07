@@ -12,7 +12,9 @@ the dbt `safe_cast(... as date/datetime)` is trivial.
 
 from __future__ import annotations
 
+import calendar
 import re
+from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
 
@@ -20,6 +22,7 @@ from pipelines.datasets.br_senado_dados_abertos.senado_api import (
     _as_list,
     dig,
     get_json,
+    get_json_safe,
 )
 
 
@@ -79,6 +82,21 @@ def _frame(rows: list[dict], columns: list[str]) -> pd.DataFrame:
     df = df[columns]
     # pyrefly: ignore [bad-argument-type]
     return df.astype(object).where(pd.notna(df), None)
+
+
+# The per-entity fan-out (per senator, per committee, per month) dominates the
+# extraction wall-clock and is network-bound, so fetch concurrently. Kept modest
+# to stay gentle on the public API; `get_json_safe` still retries/among each call
+# and returns None on persistent failure so one bad entity is skipped, not fatal.
+_FETCH_WORKERS = 8
+
+
+def _fetch_many(
+    paths: list[str], workers: int = _FETCH_WORKERS, retries: int = 6
+) -> list:
+    """Concurrently GET each API path, preserving input order (None on failure)."""
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        return list(ex.map(lambda p: get_json_safe(p, retries=retries), paths))
 
 
 # ----------------------------------------------------------------------------- 6. partido
@@ -592,3 +610,405 @@ def clean_processo(years: range) -> pd.DataFrame:
         if d:
             print(f"    processo {y}: {len(d)} records")
     return _frame(rows, PROCESSO_COLS).drop_duplicates(subset=["id_processo"])
+
+
+# =============================================================================
+# T2 — legislative sub-tables
+# =============================================================================
+RELATORIA_START = 2015  # /processo/relatoria only returns data from ~2015 on
+DISCURSO_START = 1997
+
+
+def _parl(d, root: str) -> dict:
+    """The `Parlamentar` node inside a per-senator envelope, or {}."""
+    return dig(d, root, "Parlamentar") or {}
+
+
+# ----------------------------------------------------------------------------- senador_mandato
+SENADOR_MANDATO_COLS = [
+    "id_senador",
+    "id_mandato",
+    "sigla_uf",
+    "participacao",
+    "numero_legislatura_1",
+    "data_inicio_legislatura_1",
+    "data_fim_legislatura_1",
+    "numero_legislatura_2",
+    "data_inicio_legislatura_2",
+    "data_fim_legislatura_2",
+]
+
+
+def clean_senador_mandato(codes: list[str]) -> pd.DataFrame:
+    rows = []
+    docs = _fetch_many([f"/senador/{c}/mandatos" for c in codes])
+    for cod, d in zip(codes, docs, strict=True):
+        par = _parl(d, "MandatoParlamentar")
+        sid = s(par.get("Codigo")) or s(cod)
+        for m in _as_list(dig(par, "Mandatos", "Mandato")):
+            l1 = m.get("PrimeiraLegislaturaDoMandato") or {}
+            l2 = m.get("SegundaLegislaturaDoMandato") or {}
+            rows.append(
+                {
+                    "id_senador": sid,
+                    "id_mandato": s(m.get("CodigoMandato")),
+                    "sigla_uf": s(m.get("UfParlamentar")),
+                    "participacao": s(m.get("DescricaoParticipacao")),
+                    "numero_legislatura_1": s(l1.get("NumeroLegislatura")),
+                    "data_inicio_legislatura_1": norm_date(
+                        l1.get("DataInicio")
+                    ),
+                    "data_fim_legislatura_1": norm_date(l1.get("DataFim")),
+                    "numero_legislatura_2": s(l2.get("NumeroLegislatura")),
+                    "data_inicio_legislatura_2": norm_date(
+                        l2.get("DataInicio")
+                    ),
+                    "data_fim_legislatura_2": norm_date(l2.get("DataFim")),
+                }
+            )
+    return _frame(rows, SENADOR_MANDATO_COLS).drop_duplicates(
+        subset=["id_senador", "id_mandato"]
+    )
+
+
+# ----------------------------------------------------------------------------- senador_filiacao
+SENADOR_FILIACAO_COLS = [
+    "id_senador",
+    "id_partido",
+    "sigla_partido",
+    "data_filiacao",
+    "data_desfiliacao",
+]
+
+
+def clean_senador_filiacao(codes: list[str]) -> pd.DataFrame:
+    rows = []
+    docs = _fetch_many([f"/senador/{c}/filiacoes" for c in codes])
+    for cod, d in zip(codes, docs, strict=True):
+        par = _parl(d, "FiliacaoParlamentar")
+        sid = s(par.get("Codigo")) or s(cod)
+        for f in _as_list(dig(par, "Filiacoes", "Filiacao")):
+            p = f.get("Partido") or {}
+            rows.append(
+                {
+                    "id_senador": sid,
+                    "id_partido": s(p.get("CodigoPartido")),
+                    "sigla_partido": s(p.get("SiglaPartido")),
+                    "data_filiacao": norm_date(f.get("DataFiliacao")),
+                    "data_desfiliacao": norm_date(f.get("DataDesfiliacao")),
+                }
+            )
+    return _frame(rows, SENADOR_FILIACAO_COLS).drop_duplicates(
+        subset=["id_senador", "id_partido", "data_filiacao"]
+    )
+
+
+# ----------------------------------------------------------------------------- senador_comissao
+SENADOR_COMISSAO_COLS = [
+    "id_senador",
+    "id_comissao",
+    "sigla_comissao",
+    "sigla_casa",
+    "participacao",
+    "data_inicio",
+    "data_fim",
+]
+
+
+def clean_senador_comissao(codes: list[str]) -> pd.DataFrame:
+    rows = []
+    docs = _fetch_many([f"/senador/{c}/comissoes" for c in codes])
+    for cod, d in zip(codes, docs, strict=True):
+        par = _parl(d, "MembroComissaoParlamentar")
+        sid = s(par.get("Codigo")) or s(cod)
+        for c in _as_list(dig(par, "MembroComissoes", "Comissao")):
+            ic = c.get("IdentificacaoComissao") or {}
+            rows.append(
+                {
+                    "id_senador": sid,
+                    "id_comissao": s(ic.get("CodigoComissao")),
+                    "sigla_comissao": s(ic.get("SiglaComissao")),
+                    "sigla_casa": s(ic.get("SiglaCasaComissao")),
+                    "participacao": s(c.get("DescricaoParticipacao")),
+                    "data_inicio": norm_date(c.get("DataInicio")),
+                    "data_fim": norm_date(c.get("DataFim")),
+                }
+            )
+    return _frame(rows, SENADOR_COMISSAO_COLS).drop_duplicates(
+        subset=["id_senador", "id_comissao", "data_inicio"]
+    )
+
+
+# ----------------------------------------------------------------------------- senador_cargo
+SENADOR_CARGO_COLS = [
+    "id_senador",
+    "id_comissao",
+    "sigla_comissao",
+    "id_cargo",
+    "descricao_cargo",
+    "data_inicio",
+    "data_fim",
+]
+
+
+def clean_senador_cargo(codes: list[str]) -> pd.DataFrame:
+    rows = []
+    docs = _fetch_many([f"/senador/{c}/cargos" for c in codes])
+    for cod, d in zip(codes, docs, strict=True):
+        par = _parl(d, "CargoParlamentar")
+        sid = s(par.get("Codigo")) or s(cod)
+        for c in _as_list(dig(par, "Cargos", "Cargo")):
+            ic = c.get("IdentificacaoComissao") or {}
+            rows.append(
+                {
+                    "id_senador": sid,
+                    "id_comissao": s(ic.get("CodigoComissao")),
+                    "sigla_comissao": s(ic.get("SiglaComissao")),
+                    "id_cargo": s(c.get("CodigoCargo")),
+                    "descricao_cargo": s(c.get("DescricaoCargo")),
+                    "data_inicio": norm_date(c.get("DataInicio")),
+                    "data_fim": norm_date(c.get("DataFim")),
+                }
+            )
+    return _frame(rows, SENADOR_CARGO_COLS).drop_duplicates(
+        subset=["id_senador", "id_comissao", "id_cargo", "data_inicio"]
+    )
+
+
+# ----------------------------------------------------------------------------- relatoria
+RELATORIA_COLS = [
+    "ano",
+    "id_relatoria",
+    "id_processo",
+    "codigo_materia",
+    "identificacao_processo",
+    "id_senador",
+    "sigla_casa_relator",
+    "id_colegiado",
+    "sigla_colegiado",
+    "nome_colegiado",
+    "id_tipo_colegiado",
+    "tipo_relator",
+    "id_tipo_relator",
+    "numero_autuacao",
+    "tipo_encerramento",
+    "data_designacao",
+    "data_destituicao",
+    "tramitando",
+]
+
+
+def clean_relatoria(years: range) -> pd.DataFrame:
+    rows = []
+    for y in years:
+        d = _as_list(get_json("/processo/relatoria", {"ano": y}))
+        for r in d:
+            dd = norm_date(r.get("dataDesignacao"))
+            rows.append(
+                {
+                    # The `ano` query param filters by the process's presentation
+                    # year, so partition by it (matches the `processo` table);
+                    # `data_designacao` carries the actual designation event.
+                    "ano": str(y),
+                    "id_relatoria": s(r.get("id")),
+                    "id_processo": s(r.get("idProcesso")),
+                    "codigo_materia": s(r.get("codigoMateria")),
+                    "identificacao_processo": s(
+                        r.get("identificacaoProcesso")
+                    ),
+                    "id_senador": s(r.get("codigoParlamentar")),
+                    "sigla_casa_relator": s(r.get("casaRelator"))
+                    or s(r.get("siglaCasa")),
+                    "id_colegiado": s(r.get("codigoColegiado")),
+                    "sigla_colegiado": s(r.get("siglaColegiado")),
+                    "nome_colegiado": s(r.get("nomeColegiado")),
+                    "id_tipo_colegiado": s(r.get("codigoTipoColegiado")),
+                    "tipo_relator": s(r.get("descricaoTipoRelator")),
+                    "id_tipo_relator": s(r.get("idTipoRelator")),
+                    "numero_autuacao": s(r.get("numeroAutuacao")),
+                    "tipo_encerramento": s(r.get("descricaoTipoEncerramento")),
+                    "data_designacao": dd,
+                    "data_destituicao": norm_date(r.get("dataDestituicao")),
+                    "tramitando": s(r.get("tramitando")),
+                }
+            )
+        if d:
+            print(f"    relatoria {y}: {len(d)} rows")
+    return _frame(rows, RELATORIA_COLS).drop_duplicates(
+        subset=["id_relatoria"]
+    )
+
+
+# ----------------------------------------------------------------------------- votacao_comissao (+ parlamentar)
+VOTACAO_COMISSAO_COLS = [
+    "ano",
+    "id_votacao",
+    "id_comissao",
+    "sigla_colegiado",
+    "nome_colegiado",
+    "sigla_casa_colegiado",
+    "id_reuniao",
+    "numero_reuniao",
+    "tipo_reuniao",
+    "data_reuniao",
+    "identificacao_materia",
+    "sigla_materia",
+    "numero_materia",
+    "ano_materia",
+    "descricao",
+    "id_senador_presidente",
+    "voto_sim",
+    "voto_nao",
+    "voto_abstencao",
+]
+VOTACAO_COMISSAO_PARLAMENTAR_COLS = [
+    "ano",
+    "id_votacao",
+    "data_reuniao",
+    "id_senador",
+    "sigla_partido",
+    "sigla_casa",
+    "voto",
+    "voto_presidente",
+]
+
+
+def clean_votacao_comissao(
+    siglas: list[str],
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    hrows, prows = [], []
+    docs = _fetch_many([f"/votacaoComissao/comissao/{sig}" for sig in siglas])
+    for sig, d in zip(siglas, docs, strict=True):
+        vots = _as_list(dig(d, "VotacoesComissao", "Votacoes", "Votacao"))
+        for v in vots:
+            dr = norm_date(v.get("DataHoraInicioReuniao"))
+            if not dr:  # cannot place in an ano= partition without a date
+                continue
+            ano = dr[:4]
+            idv = s(v.get("CodigoVotacao"))
+            ident = s(v.get("IdentificacaoMateria"))
+            sg, num, anom = _parse_ident(ident)
+            hrows.append(
+                {
+                    "ano": ano,
+                    "id_votacao": idv,
+                    "id_comissao": s(v.get("CodigoColegiado")),
+                    "sigla_colegiado": s(v.get("SiglaColegiado")),
+                    "nome_colegiado": s(v.get("NomeColegiado")),
+                    "sigla_casa_colegiado": s(v.get("SiglaCasaColegiado")),
+                    "id_reuniao": s(v.get("CodigoReuniao")),
+                    "numero_reuniao": s(v.get("NumeroReuniaoColegiado")),
+                    "tipo_reuniao": s(v.get("TipoReuniao")),
+                    "data_reuniao": dr,
+                    "identificacao_materia": ident,
+                    "sigla_materia": sg,
+                    "numero_materia": num,
+                    "ano_materia": anom,
+                    "descricao": s(v.get("DescricaoVotacao")),
+                    "id_senador_presidente": s(
+                        v.get("CodigoParlamentarPresidente")
+                    ),
+                    "voto_sim": s(v.get("TotalVotosSim")),
+                    "voto_nao": s(v.get("TotalVotosNao")),
+                    "voto_abstencao": s(v.get("TotalVotosAbstencao")),
+                }
+            )
+            for vt in _as_list(dig(v, "Votos", "Voto")):
+                prows.append(
+                    {
+                        "ano": ano,
+                        "id_votacao": idv,
+                        "data_reuniao": dr,
+                        "id_senador": s(vt.get("CodigoParlamentar")),
+                        "sigla_partido": s(vt.get("SiglaPartidoParlamentar")),
+                        "sigla_casa": s(vt.get("SiglaCasaParlamentar")),
+                        "voto": s(vt.get("QualidadeVoto")),
+                        "voto_presidente": s(vt.get("VotoPresidente")),
+                    }
+                )
+        if vots:
+            print(f"    votacao_comissao {sig}: {len(vots)} votes")
+    hdf = _frame(hrows, VOTACAO_COMISSAO_COLS).drop_duplicates(
+        subset=["id_votacao"]
+    )
+    pdf = _frame(prows, VOTACAO_COMISSAO_PARLAMENTAR_COLS).drop_duplicates(
+        subset=["id_votacao", "id_senador"]
+    )
+    return hdf, pdf
+
+
+# ----------------------------------------------------------------------------- discurso
+DISCURSO_COLS = [
+    "ano",
+    "id_pronunciamento",
+    "id_sessao",
+    "data_sessao",
+    "sigla_casa",
+    "sigla_tipo_sessao",
+    "numero_sessao",
+    "id_senador",
+    "tipo_autor",
+    "sigla_partido",
+    "sigla_uf",
+    "sigla_tipo_uso_palavra",
+    "descricao_tipo_uso_palavra",
+    "resumo",
+    "indexacao",
+    "url_texto",
+]
+
+
+def _discurso_rows(ses: dict) -> list[dict]:
+    ds = norm_date(ses.get("DataSessao"))
+    ano = ds[:4] if ds else None
+    out = []
+    for pr in _as_list(dig(ses, "Pronunciamentos", "Pronunciamento")):
+        tu = pr.get("TipoUsoPalavra") or {}
+        out.append(
+            {
+                "ano": ano,
+                "id_pronunciamento": s(pr.get("CodigoPronunciamento"))
+                or s(pr.get("id")),
+                "id_sessao": s(ses.get("CodigoSessao")),
+                "data_sessao": ds,
+                "sigla_casa": s(ses.get("SiglaCasa")),
+                "sigla_tipo_sessao": s(ses.get("TipoSessao")),
+                "numero_sessao": s(ses.get("NumeroSessao")),
+                "id_senador": s(pr.get("CodigoParlamentar")),
+                "tipo_autor": s(pr.get("TipoAutor")),
+                "sigla_partido": s(pr.get("Partido")),
+                "sigla_uf": s(pr.get("UF")),
+                "sigla_tipo_uso_palavra": s(tu.get("Sigla")),
+                "descricao_tipo_uso_palavra": s(tu.get("Descricao")),
+                "resumo": s(pr.get("Resumo")),
+                "indexacao": s(pr.get("Indexacao")),
+                "url_texto": s(pr.get("TextoIntegralTxt")),
+            }
+        )
+    return out
+
+
+def clean_discurso(years: range) -> pd.DataFrame:
+    """Pronouncements per year, fetched month by month, concurrently.
+
+    The endpoint caps the date span at ~1 month (a wider range returns HTTP
+    400), so each year is split into twelve month windows; future or empty
+    months just return nothing.
+    """
+    paths = []
+    for y in years:
+        for m in range(1, 13):
+            last = calendar.monthrange(y, m)[1]
+            paths.append(
+                f"/plenario/lista/discursos/{y}{m:02d}01/{y}{m:02d}{last:02d}"
+            )
+    docs = _fetch_many(paths, retries=3)  # future months 400 → skip fast
+    rows = []
+    for d in docs:
+        for ses in _as_list(dig(d, "DiscursosSessao", "Sessoes", "Sessao")):
+            rows.extend(_discurso_rows(ses))
+    out = _frame(rows, DISCURSO_COLS).drop_duplicates(
+        subset=["id_pronunciamento"]
+    )
+    print(f"    discurso: {len(out)} pronouncements")
+    return out

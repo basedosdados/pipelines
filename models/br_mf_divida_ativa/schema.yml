@@ -1,0 +1,191 @@
+---
+version: 2
+models:
+  - name: br_mf_divida_ativa__nao_previdenciario
+    description: >-
+      Estoque trimestral de inscrições em dívida ativa da União não
+      previdenciária (sistema SIDA) administrada pela PGFN, uma linha por
+      inscrição e devedor, com valor consolidado, situação e data de inscrição.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - trimestre
+            - numero_inscricao
+            - cpf_cnpj
+            - nome_devedor
+            - tipo_devedor
+            - receita_principal
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year__
+    columns:
+      - name: ano
+        description: Ano de referência do trimestre de extração dos dados
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: trimestre
+        description: Trimestre de referência da extração dos dados, de 1 a 4
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação do devedor
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_year__
+      - name: cpf_cnpj
+        description: CPF parcialmente mascarado ou CNPJ do devedor
+      - name: tipo_pessoa
+        description: Tipo de pessoa do devedor, física ou jurídica
+      - name: tipo_devedor
+        description: Tipo de devedor, como principal, corresponsável ou solidário
+      - name: nome_devedor
+        description: Nome do devedor
+      - name: unidade_responsavel
+        description: Unidade da PGFN responsável pela cobrança da inscrição
+      - name: numero_inscricao
+        description: Número da inscrição em dívida ativa
+      - name: tipo_situacao_inscricao
+        description: Tipo de situação da inscrição, como em cobrança, benefício fiscal
+          ou garantia
+      - name: situacao_inscricao
+        description: Situação específica da inscrição em dívida ativa
+      - name: receita_principal
+        description: Receita ou natureza do crédito principal da inscrição
+      - name: data_inscricao
+        description: Data de inscrição em dívida ativa
+      - name: indicador_ajuizado
+        description: Indica se a inscrição está ajuizada (SIM) ou não (NAO)
+      - name: valor_consolidado
+        description: Valor consolidado da inscrição em reais
+  - name: br_mf_divida_ativa__previdenciario
+    description: >-
+      Estoque trimestral de inscrições em dívida ativa previdenciária
+      (contribuições para a Seguridade Social) administrada pela PGFN, uma linha
+      por inscrição e devedor, com valor consolidado, situação e data de
+      inscrição.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - trimestre
+            - numero_inscricao
+            - cpf_cnpj
+            - nome_devedor
+            - tipo_devedor
+            - receita_principal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de referência do trimestre de extração dos dados
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: trimestre
+        description: Trimestre de referência da extração dos dados, de 1 a 4
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação do devedor
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: cpf_cnpj
+        description: CPF parcialmente mascarado ou CNPJ do devedor
+      - name: tipo_pessoa
+        description: Tipo de pessoa do devedor, física ou jurídica
+      - name: tipo_devedor
+        description: Tipo de devedor, como principal, corresponsável ou solidário
+      - name: nome_devedor
+        description: Nome do devedor
+      - name: unidade_responsavel
+        description: Unidade da PGFN responsável pela cobrança da inscrição
+      - name: numero_inscricao
+        description: Número da inscrição em dívida ativa
+      - name: tipo_situacao_inscricao
+        description: Tipo de situação da inscrição, como em cobrança, benefício fiscal
+          ou garantia
+      - name: situacao_inscricao
+        description: Situação específica da inscrição em dívida ativa
+      - name: receita_principal
+        description: Receita ou natureza do crédito principal da inscrição
+      - name: data_inscricao
+        description: Data de inscrição em dívida ativa
+      - name: indicador_ajuizado
+        description: Indica se a inscrição está ajuizada (SIM) ou não (NAO)
+      - name: valor_consolidado
+        description: Valor consolidado da inscrição em reais
+  - name: br_mf_divida_ativa__fgts
+    description: >-
+      Estoque trimestral de inscrições em dívida ativa do FGTS administrada pela
+      PGFN, uma linha por inscrição e devedor, incluindo entidade e unidade de
+      inscrição.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - trimestre
+            - numero_inscricao
+            - cpf_cnpj
+            - nome_devedor
+            - tipo_devedor
+            - receita_principal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de referência do trimestre de extração dos dados
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: trimestre
+        description: Trimestre de referência da extração dos dados, de 1 a 4
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação do devedor
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: cpf_cnpj
+        description: CPF parcialmente mascarado ou CNPJ do devedor
+      - name: tipo_pessoa
+        description: Tipo de pessoa do devedor, física ou jurídica
+      - name: tipo_devedor
+        description: Tipo de devedor, como principal, corresponsável ou solidário
+      - name: nome_devedor
+        description: Nome do devedor
+      - name: unidade_responsavel
+        description: Unidade da PGFN responsável pela cobrança da inscrição
+      - name: entidade_responsavel
+        description: Entidade responsável pela inscrição
+      - name: unidade_inscricao
+        description: Unidade em que a inscrição foi realizada
+      - name: numero_inscricao
+        description: Número da inscrição em dívida ativa
+      - name: tipo_situacao_inscricao
+        description: Tipo de situação da inscrição, como em cobrança, benefício fiscal
+          ou garantia
+      - name: situacao_inscricao
+        description: Situação específica da inscrição em dívida ativa
+      - name: receita_principal
+        description: Receita ou natureza do crédito principal da inscrição
+      - name: data_inscricao
+        description: Data de inscrição em dívida ativa
+      - name: indicador_ajuizado
+        description: Indica se a inscrição está ajuizada (SIM) ou não (NAO)
+      - name: valor_consolidado
+        description: Valor consolidado da inscrição em reais
