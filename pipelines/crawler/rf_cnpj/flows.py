@@ -123,7 +123,7 @@ def _run_rf_cnpj(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 coverage=PartBdpro(
-                    date_column=DateOnly(col="data"),
+                    date_column=DateOnly(col="data_referencia"),
                     date_format=DateFormat.YEAR_MD,
                 ),
                 env="prod",
@@ -157,7 +157,7 @@ def _run_rf_cnpj(
                 dataset_id="br_bd_diretorios_brasil",
                 table_id="empresa",
                 coverage=AllBdpro(
-                    date_column=DateOnly(col="data"),
+                    date_column=DateOnly(col="data_referencia"),
                     date_format=DateFormat.YEAR_MD,
                 ),
                 env="prod",
