@@ -62,6 +62,7 @@ def line_no(code):
 rows = {}
 years_seen = {}
 for path in sorted(glob.glob(f"{PROF}/vars_*.json.gz")):
+    # pyrefly: ignore [missing-attribute]
     yr = int(re.search(r"_(\d{4})\.json", path).group(1))
     with gzip.open(path, "rt") as fh:
         v = json.load(fh)["variables"]

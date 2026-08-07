@@ -33,6 +33,7 @@ def download_zip_file():
         "wb",
     ) as file:
         response = requests.get(
+            # pyrefly: ignore [unbound-name]
             download_url,
             cookies=anatel_constants.COOKIES.value,
             headers=anatel_constants.HEADERS.value,

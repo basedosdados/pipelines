@@ -25,6 +25,7 @@ PATH = os.path.join(
 EXPECT = 308_855_872
 
 _orig = gcs.Client.bucket
+# pyrefly: ignore [bad-assignment]
 gcs.Client.bucket = lambda self, name, user_project=None: _orig(
     self, name, user_project=BILLING
 )

@@ -163,6 +163,7 @@ def gen_schema():
                 tests.append(("not_null", None))
             rel = rel_target(c, table)
             if rel:
+                # pyrefly: ignore [bad-argument-type]
                 tests.append(("relationships", rel))
             if tests:
                 out.append("        tests:")
@@ -170,6 +171,7 @@ def gen_schema():
                     if kind == "not_null":
                         out.append("          - not_null")
                     else:
+                        # pyrefly: ignore [not-iterable]
                         ref_model, field = arg
                         out.append("          - relationships:")
                         out.append(f"              to: ref('{ref_model}')")

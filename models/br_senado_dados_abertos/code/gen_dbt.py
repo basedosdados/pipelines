@@ -13,6 +13,8 @@ import os
 
 import pandas as pd
 import pyarrow.parquet as pq
+
+# pyrefly: ignore [missing-import]
 from architecture_spec import DIR_ANO, DIR_UF, TABLES
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -71,16 +73,18 @@ def gen_sql(slug: str, spec: dict) -> str:
     if part:
         start, end = _partition_range(slug, spec)
         cfg = (
-            f"{{{{ config(\n"
-            f'    alias="{slug}",\n'
-            f'    schema="{DATASET}",\n'
-            f'    materialized="table",\n'
-            f"    partition_by={{\n"
-            f'        "field": "{part}",\n'
-            f'        "data_type": "int64",\n'
-            f'        "range": {{"start": {start}, "end": {end}, "interval": 1}},\n'
-            f"    }},\n"
-            f") }}}}"
+            f"{{{{\n"
+            f"    config(\n"
+            f'        alias="{slug}",\n'
+            f'        schema="{DATASET}",\n'
+            f'        materialized="table",\n'
+            f"        partition_by={{\n"
+            f'            "field": "{part}",\n'
+            f'            "data_type": "int64",\n'
+            f'            "range": {{"start": {start}, "end": {end}, "interval": 1}},\n'
+            f"        }},\n"
+            f"    )\n"
+            f"}}}}"
         )
     else:
         cfg = f'{{{{ config(alias="{slug}", schema="{DATASET}") }}}}'
@@ -128,9 +132,11 @@ def gen_schema_entry(slug: str, spec: dict) -> str:
         d = opts.get("dir")
         if d == DIR_ANO:
             tests.append(
+                # pyrefly: ignore [bad-argument-type]
                 ("rel", ("br_bd_diretorios_data_tempo__ano", "ano.ano"))
             )
         elif d == DIR_UF:
+            # pyrefly: ignore [bad-argument-type]
             tests.append(("rel", ("br_bd_diretorios_brasil__uf", "sigla")))
         if tests:
             out.append("        tests:")
@@ -138,6 +144,7 @@ def gen_schema_entry(slug: str, spec: dict) -> str:
                 if kind == "not_null":
                     out.append("          - not_null")
                 else:
+                    # pyrefly: ignore [not-iterable]
                     model, field = arg
                     out.append("          - relationships:")
                     out.append(f"              to: ref('{model}')")

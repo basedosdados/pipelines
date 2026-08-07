@@ -73,8 +73,12 @@ There is no `schedules.py`. Attach the schedule to the flow object in `flows.py`
 these dicts into `Cron` objects at deploy time:
 
 ```python
-my_flow.deploy_schedules = [{"cron": "0 16 10 * *", "timezone": "America/Sao_Paulo"}]
-my_flow.job_variables = {"memory": "8Gi"}   # optional; size to the flow's peak RAM
+my_flow.deploy_schedules = [
+    {"cron": "0 16 10 * *", "timezone": "America/Sao_Paulo"}
+]
+my_flow.job_variables = {
+    "memory": "8Gi"
+}  # optional; size to the flow's peak RAM
 ```
 
 ### Testing locally

@@ -30,6 +30,7 @@ def extract_links_and_dates(url) -> pd.DataFrame:
     response = requests.get(url)
 
     if response.status_code != 200:
+        # pyrefly: ignore [missing-argument]
         raise requests.HTTPError(
             f"Erro HTTP: A resposta da API malsucedida. O código retornado foi:  {response.status_code}"
         )
@@ -57,6 +58,7 @@ def extract_links_and_dates(url) -> pd.DataFrame:
     }
 
     df = pd.DataFrame(dados)
+    # pyrefly: ignore [missing-attribute]
     df.ultima_atualizacao = df.ultima_atualizacao.apply(
         lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M").strftime("%Y-%m-%d")
     )
@@ -102,6 +104,7 @@ def crawler_ans(files):
         save_path = "/tmp/data/br_ans_beneficiario/beneficiario/input/"
         os.makedirs(save_path, exist_ok=True)
         log(f"`mkdir = True` >>> {save_path} directory was created.")
+        # pyrefly: ignore [bad-argument-type]
         asyncio.run(download_files_async(urls, save_path, "zip"))
 
         log(f"DOWNLOADED FILE ->>> {file}")
@@ -114,6 +117,7 @@ def crawler_ans(files):
             path="/tmp/data/br_ans_beneficiario/beneficiario/input/"
         )
 
+        # pyrefly: ignore [deprecated]
         os.system(
             'cd /tmp/data/br_ans_beneficiario/beneficiario/input; find . -type f -iname "*.csv" -delete'
         )
