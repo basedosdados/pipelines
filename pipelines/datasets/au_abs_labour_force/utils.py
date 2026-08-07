@@ -543,7 +543,7 @@ def _read_sem1(path: Path) -> pd.DataFrame:
         ):
             header = [str(c).strip() if c is not None else "" for c in r]
             break
-    # pyrefly: ignore [bad-argument-type]
+    # pyrefly: ignore [bad-argument-type, not-iterable]
     idx = {h: i for i, h in enumerate(header)}
     ci_month = idx["Month"]
     ci_sex = idx["Sex"]

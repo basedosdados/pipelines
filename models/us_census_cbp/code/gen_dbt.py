@@ -201,7 +201,7 @@ def col_tests(table, name):
                 if ignore:
                     # pyrefly: ignore [bad-assignment]
                     body["ignore_values"] = ignore
-                # pyrefly: ignore [bad-argument-type]
+                # pyrefly: ignore [bad-argument-type, bad-assignment]
                 tests.append({"custom_relationships": body})
     return tests
 
