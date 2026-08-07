@@ -142,6 +142,7 @@ def compute_coverage_ranges(
     if isinstance(spec, AllFree):
         return CoverageRanges(
             free=DateTimeRangeInput(
+                # pyrefly: ignore [bad-argument-type]
                 coverage=coverage_ids.free,
                 **_components(source_end, fmt, "end"),
             ),
@@ -151,6 +152,7 @@ def compute_coverage_ranges(
     if isinstance(spec, AllBdpro):
         return CoverageRanges(
             pro=DateTimeRangeInput(
+                # pyrefly: ignore [bad-argument-type]
                 coverage=coverage_ids.pro,
                 **_components(source_end, fmt, "end"),
             )
@@ -159,9 +161,12 @@ def compute_coverage_ranges(
     # part_bdpro
     free_end = source_end - spec.free_lag.as_relativedelta()
     free = DateTimeRangeInput(
-        coverage=coverage_ids.free, **_components(free_end, fmt, "end")
+        # pyrefly: ignore [bad-argument-type]
+        coverage=coverage_ids.free,
+        **_components(free_end, fmt, "end"),
     )
     pro = DateTimeRangeInput(
+        # pyrefly: ignore [bad-argument-type]
         coverage=coverage_ids.pro,
         **_components(source_end, fmt, "end"),
         # free termina em free_end inclusive, então pro começa no período

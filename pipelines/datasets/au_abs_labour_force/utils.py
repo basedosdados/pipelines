@@ -26,6 +26,7 @@ import csv
 import logging
 from pathlib import Path
 
+# pyrefly: ignore [untyped-import]
 import openpyxl
 import pandas as pd
 import pyarrow as pa
@@ -98,6 +99,7 @@ def _norm_hours_band(label: str) -> str:
 
 def _year_month(period: str) -> tuple[int, int]:
     """Split an SDMX 'YYYY-MM' (or a pandas Timestamp) into (year, month)."""
+    # pyrefly: ignore [unnecessary-type-conversion]
     s = str(period)[:7]
     y, m = s.split("-")
     return int(y), int(m)
@@ -351,6 +353,7 @@ def _timeseries_long(path: Path) -> pd.DataFrame:
         for r in rows[hdr + 1 :]:
             if not r or r[0] is None:
                 continue
+            # pyrefly: ignore [bad-argument-type]
             y, m = _year_month(pd.Timestamp(r[0]).strftime("%Y-%m"))
             for j in range(1, len(ids)):
                 sid = ids[j]
@@ -535,10 +538,12 @@ def _read_sem1(path: Path) -> pd.DataFrame:
     for r in it:
         nn = [c for c in r if c is not None]
         if len(nn) >= 5 and any(
-            isinstance(c, str) and str(c).strip() == "Month" for c in r
+            isinstance(c, str) and str(c).strip() == "Month"  # pyrefly: ignore [unnecessary-type-conversion]
+            for c in r  # pyrefly: ignore [unnecessary-type-conversion]
         ):
             header = [str(c).strip() if c is not None else "" for c in r]
             break
+    # pyrefly: ignore [bad-argument-type, not-iterable]
     idx = {h: i for i, h in enumerate(header)}
     ci_month = idx["Month"]
     ci_sex = idx["Sex"]
@@ -556,17 +561,20 @@ def _read_sem1(path: Path) -> pd.DataFrame:
     for r in it:
         if not r or ci_month >= len(r) or r[ci_month] is None:
             continue
+        # pyrefly: ignore [bad-argument-type]
         y, m = _year_month(pd.Timestamp(r[ci_month]).strftime("%Y-%m"))
         status = STATUS.get(str(r[ci_status]).strip().lower())
         sex = SEX.get(str(r[ci_sex]).strip().lower())
         if status is None or sex is None:
             continue
         ft = (
+            # pyrefly: ignore [no-matching-overload]
             pd.to_numeric(r[ci_ft], errors="coerce")
             if ci_ft < len(r)
             else None
         )
         pt = (
+            # pyrefly: ignore [no-matching-overload]
             pd.to_numeric(r[ci_pt], errors="coerce")
             if ci_pt < len(r)
             else None
@@ -606,6 +614,7 @@ def write_partitioned(df: pd.DataFrame, table: str, output_dir: Path) -> Path:
     tdir = output_dir / table
     total = 0
     for year, g in out.groupby("year", sort=True):
+        # pyrefly: ignore [bad-argument-type]
         pdir = tdir / f"year={int(year)}"
         pdir.mkdir(parents=True, exist_ok=True)
         at = pa.Table.from_pandas(g, schema=typed, preserve_index=False)

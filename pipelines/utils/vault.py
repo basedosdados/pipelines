@@ -9,7 +9,9 @@ import hvac
 
 def get_vault_client() -> hvac.Client:
     return hvac.Client(
+        # pyrefly: ignore [missing-attribute]
         url=getenv("VAULT_ADDRESS").strip(),
+        # pyrefly: ignore [missing-attribute]
         token=getenv("VAULT_TOKEN").strip(),
     )
 

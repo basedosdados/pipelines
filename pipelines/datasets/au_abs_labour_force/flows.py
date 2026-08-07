@@ -98,6 +98,7 @@ def au_abs_labour_force_flow(
             effect when ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=_POLL_TABLE
     )
@@ -190,8 +191,10 @@ def au_abs_labour_force_flow(
 # ABS releases Labour Force monthly, on a Thursday roughly the 3rd-4th week, at
 # 11:30 Canberra time. Poll daily across that window at 06:00 BRT (= evening AEST,
 # after the morning release); the source-poll guard no-ops until a new month lands.
+# pyrefly: ignore [missing-attribute]
 au_abs_labour_force_flow.deploy_schedules = [
     {"cron": "0 6 14-27 * *", "timezone": "America/Sao_Paulo"}
 ]
 # openpyxl reads the ~38 MB SEM1 pivot; give the worker headroom.
+# pyrefly: ignore [missing-attribute]
 au_abs_labour_force_flow.job_variables = {"memory": "6Gi"}

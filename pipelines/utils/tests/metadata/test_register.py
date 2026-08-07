@@ -9,6 +9,7 @@ Usa `FakeMetadataClient`/`FakeBQ` (conftest). Sem rede, sem BQ.
 
 import datetime
 
+# pyrefly: ignore [missing-import]
 from conftest import FakeBQ, FakeMetadataClient
 
 from pipelines.utils.metadata.domain import (

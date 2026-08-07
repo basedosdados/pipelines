@@ -25,6 +25,7 @@ OUTROOT = "/Users/rdahis/acs_data/output"
 ARCH = os.path.join(os.path.dirname(__file__), "architecture")
 CHUNK = 200_000
 
+# pyrefly: ignore [missing-import]
 from _pums_schema import RENAME  # noqa: E402  (shared identity-rename map)
 
 

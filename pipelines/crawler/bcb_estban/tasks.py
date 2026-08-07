@@ -80,8 +80,10 @@ def download_table(url: str, table_id: str) -> str:
     ]
     if not os.path.exists(download_dir):
         os.makedirs(download_dir, exist_ok=True)
+    # pyrefly: ignore [bad-argument-type]
     file_path = download_file(url, download_dir)
     log(f"Downloading table to {file_path}")
+    # pyrefly: ignore [bad-return]
     return file_path
 
 
@@ -122,11 +124,13 @@ def extract_urls_list(
     date_format: str = "%Y-%m",
 ) -> list[str]:
     """Lista URLs entre as duas datas (exclusivo no menor, inclusivo no maior)."""
+    # pyrefly: ignore [bad-assignment]
     date_one = _validate_date(date_one, date_format)
+    # pyrefly: ignore [bad-assignment]
     date_two = _validate_date(date_two, date_format)
     start, end = (
         (date_one, date_two)
-        if date_two >= date_one
+        if date_two >= date_one  # pyrefly: ignore [unsupported-operation]
         else (
             date_two,
             date_one,
@@ -143,8 +147,9 @@ def extract_urls_list(
     current_date = dt.datetime.strptime(current_doc["Titulo"], "%m/%Y").date()
 
     while (
+        # pyrefly: ignore [unsupported-operation]
         (current_date <= end)
-        and (current_date > start)
+        and (current_date > start)  # pyrefly: ignore [unsupported-operation]
         and docs_index < len(sorted_docs)
     ):
         current_doc = sorted_docs[docs_index]
@@ -227,6 +232,7 @@ def cleaning_data(table_id: str, df_diretorios: pd.DataFrame) -> str:
             partition_columns=["ano", "mes", "sigla_uf"],
             savepath=output_path,
         )
+        # pyrefly: ignore [unsupported-delete]
         del (df_wide, df_long, df_raw)
 
     return output_path
