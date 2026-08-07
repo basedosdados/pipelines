@@ -2,8 +2,6 @@
 Flow br_bcb_agencia__agencia — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.bcb_agencia.tasks import (
     clean_data,
     download_table,
@@ -11,6 +9,7 @@ from pipelines.crawler.bcb_agencia.tasks import (
     get_documents_metadata,
     get_latest_file,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     PartBdpro,
@@ -146,7 +145,6 @@ def br_bcb_agencia__agencia(
             )
 
 
-# pyrefly: ignore [missing-attribute]
 br_bcb_agencia__agencia.deploy_schedules = [
     {"cron": "0 22 25-31 * *", "timezone": "America/Sao_Paulo"}
 ]

@@ -32,6 +32,20 @@ picks up `Flow` objects whose function is defined in that file
 (`obj.fn.__code__.co_filename` check). A factory that returns an inner `@flow`
 (see `br_ibge_ipca`) is fine because the inner fn is still defined in that file.
 
+### `@flow` comes from `pipelines.utils.flow`, not from `prefect`
+
+```python
+from pipelines.utils.flow import flow  # NOT `from prefect import flow`
+```
+
+The deploy script reads two attributes off the flow object — `deploy_schedules`
+and `job_variables` — that `prefect.Flow` does not declare, so setting them on a
+plain Prefect flow is a Pyrefly `missing-attribute` error. `pipelines/utils/flow.py`
+declares both on a `prefect.Flow` subclass and exports a `flow` decorator that
+builds it; it takes the same arguments as `prefect.flow` and the object stays a
+`prefect.Flow` for every `isinstance` check. Both attributes default to empty
+(no schedule, work-pool default infrastructure).
+
 ## DRY with the onboarding code
 
 The cleaning transform lives in **one place** and is shared:
@@ -275,6 +289,13 @@ on the **deployed Prefect worker** (its pod SA has access) — the local
 Schedule inline on the flow object (do NOT register storage/run-config by hand):
 
 ```python
+from pipelines.utils.flow import flow
+
+
+@flow(name="my_flow", log_prints=True)
+def my_flow() -> None: ...
+
+
 my_flow.deploy_schedules = [
     {"cron": "0 16 10,11,12,13 * *", "timezone": "America/Sao_Paulo"}
 ]

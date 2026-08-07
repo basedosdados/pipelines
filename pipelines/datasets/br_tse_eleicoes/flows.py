@@ -2,9 +2,8 @@
 Flows for br_tse_eleicoes — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.tse_eleicoes.flows import _run_tse_eleicoes
+from pipelines.utils.flow import flow
 
 
 def _tse_flow(table_id: str, cron: str | None):
@@ -31,7 +30,6 @@ def _tse_flow(table_id: str, cron: str | None):
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = (
         [{"cron": cron, "timezone": "America/Sao_Paulo"}] if cron else []
     )

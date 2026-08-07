@@ -9,9 +9,8 @@ A data de partição é gravada sem componente de hora (date-only); com hora, o
 `safe_cast(data as date)` do model virava NULL e o filtro incremental nunca inseria.
 """
 
-from prefect import flow
-
 from pipelines.crawler.rf.flows import _run_rf
+from pipelines.utils.flow import flow
 
 
 def _cno_flow(table_id: str, cron: str):
@@ -40,7 +39,6 @@ def _cno_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

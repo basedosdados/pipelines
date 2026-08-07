@@ -2,12 +2,11 @@
 Flows for br_cvm_oferta_publica_distribuicao — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.cvm_oferta_publica_distribuicao.tasks import (
     clean_table_oferta_distribuicao,
     crawl,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -95,7 +94,6 @@ def br_cvm_oferta_publica_distribuicao__dia(
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_cvm_oferta_publica_distribuicao__dia.deploy_schedules = [
     {"cron": "45 6 * * 1-5", "timezone": "America/Sao_Paulo"}
 ]

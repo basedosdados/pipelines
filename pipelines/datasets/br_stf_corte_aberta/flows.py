@@ -2,13 +2,12 @@
 Flow br_stf_corte_aberta — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.stf_corte_aberta.tasks import (
     download_and_transform,
     get_data_source_stf_max_date,
     make_partitions,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -119,7 +118,6 @@ def br_stf_corte_aberta__decisoes(
             )
 
 
-# pyrefly: ignore [missing-attribute]
 br_stf_corte_aberta__decisoes.deploy_schedules = [
     {"cron": "0 12 * * *", "timezone": "America/Sao_Paulo"}
 ]

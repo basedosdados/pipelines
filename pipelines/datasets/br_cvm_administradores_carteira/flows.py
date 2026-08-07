@@ -2,11 +2,10 @@
 Flows for br_cvm_administradores_carteira — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.cvm_administradores_carteira.flows import (
     _run_cvm_administradores_carteira,
 )
+from pipelines.utils.flow import flow
 
 
 def _adm_cart_flow(table_id: str, cron: str):
@@ -33,7 +32,6 @@ def _adm_cart_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

@@ -2,14 +2,13 @@
 Flow br_sfb_sicar — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.sfb_sicar.constants import Constants
 from pipelines.crawler.sfb_sicar.tasks import (
     download_car,
     get_each_uf_release_date,
     unzip_to_parquet,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -113,7 +112,6 @@ def br_sfb_sicar__area_imovel(
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_sfb_sicar__area_imovel.deploy_schedules = [
     {"cron": "15 21 15 * *", "timezone": "America/Sao_Paulo"}
 ]

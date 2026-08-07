@@ -6,9 +6,11 @@ Flows for {{cookiecutter.pipeline_name}} — Prefect 3.
 #
 # Aqui é onde devem ser definidos os flows da pipeline (Prefect 3).
 #
-# Cada flow é uma função decorada com `@flow`. Os passos são chamadas de
-# tasks (funções decoradas com `@task`, definidas em `tasks.py`) executadas
-# na ordem do corpo da função.
+# Cada flow é uma função decorada com `@flow` — o decorator da BD, em
+# `pipelines.utils.flow`, e não o do Prefect: ele devolve um `Flow` que declara
+# os atributos de deploy (`deploy_schedules`, `job_variables`). Os passos são
+# chamadas de tasks (funções decoradas com `@task`, definidas em `tasks.py`)
+# executadas na ordem do corpo da função.
 #
 # O deploy é feito por `.github/scripts/deploy_flows.py`, que descobre os
 # objetos `Flow` deste arquivo automaticamente — não é preciso registrar
@@ -25,9 +27,8 @@ Flows for {{cookiecutter.pipeline_name}} — Prefect 3.
 #
 ###############################################################################
 
-from prefect import flow
-
 from pipelines.datasets.{{cookiecutter.pipeline_name}}.tasks import say_hello
+from pipelines.utils.flow import flow
 
 
 @flow(name="{{cookiecutter.pipeline_name}}", log_prints=True)

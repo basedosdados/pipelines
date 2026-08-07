@@ -2,13 +2,12 @@
 Flow br_anp_precos_combustiveis__microdados — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.anp_precos_combustiveis.tasks import (
     download_and_transform,
     get_data_source_anp_max_date,
     make_partitions,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -120,7 +119,6 @@ def br_anp_precos_combustiveis__microdados(
             )
 
 
-# pyrefly: ignore [missing-attribute]
 br_anp_precos_combustiveis__microdados.deploy_schedules = [
     {"cron": "0 10 * * *", "timezone": "America/Sao_Paulo"}
 ]

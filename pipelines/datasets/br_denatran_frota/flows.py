@@ -2,8 +2,6 @@
 Flows para br_denatran_frota — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.denatran_frota.constants import (
     constants as denatran_constants,
 )
@@ -14,6 +12,7 @@ from pipelines.crawler.denatran_frota.tasks import (
     treat_municipio_tipo_task,
     treat_uf_tipo_task,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     PartBdpro,
@@ -197,11 +196,9 @@ def br_denatran_frota__municipio_tipo(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_denatran_frota__uf_tipo.deploy_schedules = [
     {"cron": "0 21 10-30 * *", "timezone": "America/Sao_Paulo"}
 ]
-# pyrefly: ignore [missing-attribute]
 br_denatran_frota__municipio_tipo.deploy_schedules = [
     {"cron": "20 21 10-30 * *", "timezone": "America/Sao_Paulo"}
 ]

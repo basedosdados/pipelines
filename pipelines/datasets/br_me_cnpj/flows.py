@@ -2,9 +2,8 @@
 Flows for br_me_cnpj — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.me_cnpj.flows import _run_me_cnpj
+from pipelines.utils.flow import flow
 
 
 def _me_cnpj_flow(table_id: str, cron: str):
@@ -31,20 +30,17 @@ def _me_cnpj_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 
 
 br_me_cnpj__empresas = _me_cnpj_flow(table_id="empresas", cron="0 6 * * *")
-# pyrefly: ignore [missing-attribute]
 br_me_cnpj__empresas.job_variables = {
     "memory_limit": "5Gi",
     "memory_request": "2Gi",
 }
 
 br_me_cnpj__socios = _me_cnpj_flow(table_id="socios", cron="0 7 * * *")
-# pyrefly: ignore [missing-attribute]
 br_me_cnpj__socios.job_variables = {
     "memory_limit": "5Gi",
     "memory_request": "2Gi",
@@ -55,7 +51,6 @@ br_me_cnpj__simples = _me_cnpj_flow(table_id="simples", cron="0 8 * * *")
 br_me_cnpj__estabelecimentos = _me_cnpj_flow(
     table_id="estabelecimentos", cron="0 9 * * *"
 )
-# pyrefly: ignore [missing-attribute]
 br_me_cnpj__estabelecimentos.job_variables = {
     "memory_limit": "5Gi",
     "memory_request": "2Gi",

@@ -2,14 +2,13 @@
 Flow br_ans_beneficiario__informacao_consolidada — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.ans_beneficiario.tasks import (
     crawler_ans,
     extract_links_and_dates,
     files_to_download,
     get_file_max_date,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     PartBdpro,
@@ -133,7 +132,6 @@ def br_ans_beneficiario__informacao_consolidada(
             )
 
 
-# pyrefly: ignore [missing-attribute]
 br_ans_beneficiario__informacao_consolidada.deploy_schedules = [
     {"cron": "0 21 * * *", "timezone": "America/Sao_Paulo"}
 ]

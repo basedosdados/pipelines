@@ -69,7 +69,10 @@ def deploy_flow(
     entrypoint = f"{file_path}:{flow_name}"
     is_dev = "dev" in pool_name
 
-    schedules = getattr(flow, "deploy_schedules", None)
+    # `deploy_schedules` e `job_variables` são declarados em
+    # `pipelines.utils.flow.Flow` e vêm vazios quando o flow não os define;
+    # `or None` normaliza para o que o Prefect entende como "não informado".
+    schedules = getattr(flow, "deploy_schedules", None) or None
     if is_dev:
         schedules = None  # flows em dev não têm schedule
     elif schedules:
@@ -81,7 +84,7 @@ def deploy_flow(
             for s in schedules
         ]
 
-    job_variables = getattr(flow, "job_variables", None)
+    job_variables = getattr(flow, "job_variables", None) or None
 
     print(f"  Registrando {flow_name} → {entrypoint}")
 

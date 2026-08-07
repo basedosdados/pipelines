@@ -2,8 +2,6 @@
 Flows para br_bcb_estban — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.bcb_estban.tasks import (
     cleaning_data,
     download_table,
@@ -12,6 +10,7 @@ from pipelines.crawler.bcb_estban.tasks import (
     get_id_municipio,
     get_latest_file,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     PartBdpro,
@@ -167,7 +166,6 @@ def _estban_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

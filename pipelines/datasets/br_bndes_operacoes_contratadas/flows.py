@@ -5,12 +5,11 @@ Wrapper @flow do crawler: expoe os parametros de run e o cron. A logica de
 orquestracao (poll deferido) vive em pipelines/crawler/bndes/flows.py.
 """
 
-from prefect import flow
-
 from pipelines.crawler.bndes.flows import (
     _run_operacoes,
     _run_operacoes_administracao_publica,
 )
+from pipelines.utils.flow import flow
 
 
 @flow(
@@ -41,7 +40,6 @@ def br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas.deploy_schedules = [
     {"cron": "0 6 * * 1", "timezone": "America/Sao_Paulo"}
 ]
@@ -75,7 +73,6 @@ def br_bndes_operacoes_contratadas__operacoes_nao_automaticas(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_bndes_operacoes_contratadas__operacoes_nao_automaticas.deploy_schedules = [
     {"cron": "0 6 * * 1", "timezone": "America/Sao_Paulo"}
 ]
@@ -111,7 +108,6 @@ def br_bndes_operacoes_contratadas__operacoes_administracao_publica(
 
 # cron semanal (segunda 06h BRT), igual a irma; a fonte atualiza mensal e o poll
 # deferido no-opa quando nao ha novidade. Ajuste se quiser outra janela.
-# pyrefly: ignore [missing-attribute]
 br_bndes_operacoes_contratadas__operacoes_administracao_publica.deploy_schedules = [
     {"cron": "0 6 * * 1", "timezone": "America/Sao_Paulo"}
 ]

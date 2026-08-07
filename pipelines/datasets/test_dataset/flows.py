@@ -2,8 +2,7 @@
 Flows de teste para a função download_data_to_gcs.
 """
 
-from prefect import flow
-
+from pipelines.utils.flow import flow
 from pipelines.utils.tasks import run_dbt
 
 DATASET_ID = "test_dataset"

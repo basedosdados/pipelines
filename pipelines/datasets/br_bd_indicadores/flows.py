@@ -2,8 +2,6 @@
 Flows for br_bd_indicadores — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.bd_indicadores.tasks import (
     crawler_metricas,
     crawler_real_time,
@@ -14,6 +12,7 @@ from pipelines.crawler.bd_indicadores.tasks import (
     has_new_tweets,
     save_data_to_csv,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.tasks import (
     download_data_to_gcs,
     rename_flow_run_dataset_table,
@@ -309,19 +308,11 @@ def br_bd_indicadores__pessoas(
 
 
 # Schedules — apenas contabilidade e receitas tinham schedule no Prefect 0
-# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__contabilidade.deploy_schedules = []
-# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__receitas_planejadas.deploy_schedules = []
-# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__twitter_metrics.deploy_schedules = []
-# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__twitter_metrics_agg.deploy_schedules = []
-# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__page_views.deploy_schedules = []
-# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__website_user.deploy_schedules = []
-# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__equipes.deploy_schedules = []
-# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__pessoas.deploy_schedules = []

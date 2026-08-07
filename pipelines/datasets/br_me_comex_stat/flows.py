@@ -2,8 +2,6 @@
 Flows for br_me_comex_stat — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.me_comex_stat.constants import (
     constants as comex_constants,
 )
@@ -12,6 +10,7 @@ from pipelines.crawler.me_comex_stat.tasks import (
     download_br_me_comex_stat,
     parse_last_date,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     PartBdpro,
@@ -130,7 +129,6 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
                     date_format="%Y-%m",
                 )
 
-    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

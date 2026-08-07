@@ -6,9 +6,8 @@ Redeploy para propagar o fix de detecção/download no portal da CGU
 em pipelines/crawler/cgu/utils.py e pipelines/utils/utils.py.
 """
 
-from prefect import flow
-
 from pipelines.crawler.cgu.flows import _run_cgu_beneficios_cidadao
+from pipelines.utils.flow import flow
 
 
 def _flow_factory(table_id: str, cron: str):
@@ -37,7 +36,6 @@ def _flow_factory(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

@@ -15,10 +15,9 @@ the dev pool ignores the schedule, the prod pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
-
 from pipelines.datasets.au_abs_cpi.constants import constants
 from pipelines.datasets.au_abs_cpi.tasks import clean_cpi, download_cpi
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -173,7 +172,6 @@ def au_abs_cpi_flow(
 # ABS publishes the monthly CPI in the last week of each month (moving to the
 # 4th Wednesday from Feb 2027). Poll across the last week at 16:00 BRT; the
 # source-poll guard no-ops until a new month lands.
-# pyrefly: ignore [missing-attribute]
 au_abs_cpi_flow.deploy_schedules = [
     {"cron": "0 16 22,23,24,25,26,27,28 * *", "timezone": "America/Sao_Paulo"}
 ]

@@ -2,8 +2,6 @@
 Flows for br_rf_cafir — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.rf_cafir.constants import (
     constants as br_rf_cafir_constants,
 )
@@ -13,6 +11,7 @@ from pipelines.crawler.rf_cafir.tasks import (
     task_get_last_update_date,
     task_parse_api_metadata,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -134,7 +133,6 @@ def br_rf_cafir__imoveis_rurais(
             )
 
 
-# pyrefly: ignore [missing-attribute]
 br_rf_cafir__imoveis_rurais.deploy_schedules = [
     {"cron": "0 0 * * *", "timezone": "America/Sao_Paulo"}
 ]

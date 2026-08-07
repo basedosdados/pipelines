@@ -23,10 +23,9 @@ import shutil
 import tempfile
 from datetime import datetime
 
-from prefect import flow
-
 from pipelines.datasets.br_me_siconfi import tasks, utils
 from pipelines.datasets.br_me_siconfi.constants import constants
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -213,12 +212,10 @@ def br_me_siconfi_flow(
 
 # SICONFI is annual but revised retroactively; rebuild once a month (1st at
 # 16:00 BRT). Each run rebuilds fully — there is no source-poll no-op here.
-# pyrefly: ignore [missing-attribute]
 br_me_siconfi_flow.deploy_schedules = [
     {"cron": "0 16 1 * *", "timezone": "America/Sao_Paulo"}
 ]
 # The município window build holds a full year of data in pandas at a time.
-# pyrefly: ignore [missing-attribute]
 br_me_siconfi_flow.job_variables = {"memory": "16Gi"}
 
 
@@ -299,5 +296,4 @@ def br_me_siconfi_seed_flow(
 
 
 # The legacy build holds one year of município Excel in pandas at a time.
-# pyrefly: ignore [missing-attribute]
 br_me_siconfi_seed_flow.job_variables = {"memory": "8Gi"}

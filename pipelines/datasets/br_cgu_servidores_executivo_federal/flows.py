@@ -17,9 +17,8 @@ bloqueadas pelo Portal com HTTP 405. Por isso as chamadas usam
 enquanto o ZIP é gerado de forma assíncrona).
 """
 
-from prefect import flow
-
 from pipelines.crawler.cgu.flows import _run_cgu_servidores_publicos
+from pipelines.utils.flow import flow
 
 
 def _flow_factory(table_id: str, cron: str):
@@ -48,7 +47,6 @@ def _flow_factory(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

@@ -2,12 +2,11 @@
 Flows para br_cgu_emendas_parlamentares — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.cgu_emendas_parlamentares.tasks import (
     convert_str_to_float,
     get_last_modified_time,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -119,7 +118,6 @@ def br_cgu_emendas_parlamentares__microdados(
             )
 
 
-# pyrefly: ignore [missing-attribute]
 br_cgu_emendas_parlamentares__microdados.deploy_schedules = [
     {"cron": "30 19 * * *", "timezone": "America/Sao_Paulo"}
 ]

@@ -2,10 +2,9 @@
 Flows para br_bcb_sicor — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.bcb.flows import _run_bcb_sicor
 from pipelines.crawler.bcb.tasks import create_load_dictionary
+from pipelines.utils.flow import flow
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
     run_dbt,
@@ -52,7 +51,6 @@ def _sicor_flow(
             local_redis_execution=local_redis_execution,
         )
 
-    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

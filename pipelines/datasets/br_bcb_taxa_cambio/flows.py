@@ -2,12 +2,11 @@
 Flow br_bcb_taxa_cambio — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.bcb_taxa_cambio.tasks import (
     get_data_taxa_cambio,
     treat_data_taxa_cambio,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllBdpro,
     DateFormat,
@@ -94,7 +93,6 @@ def br_bcb_taxa_cambio__taxa_cambio(
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_bcb_taxa_cambio__taxa_cambio.deploy_schedules = [
     {"cron": "0 8 * * *", "timezone": "America/Sao_Paulo"}
 ]

@@ -2,14 +2,13 @@
 Flow br_cnj_improbidade_administrativa — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.cnj_improbidade_administrativa.tasks import (
     get_max_date,
     is_up_to_date,
     main_task,
     write_csv_file,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -99,7 +98,6 @@ def br_cnj_improbidade_administrativa__condenacao(
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_cnj_improbidade_administrativa__condenacao.deploy_schedules = [
     {"cron": "0 7 * * 1", "timezone": "America/Sao_Paulo"}
 ]

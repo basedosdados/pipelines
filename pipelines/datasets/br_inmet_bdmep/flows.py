@@ -2,12 +2,11 @@
 Flows for br_inmet_bdmep — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.inmet_bdmep.tasks import (
     extract_last_date_from_source,
     get_base_inmet,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -115,7 +114,6 @@ def br_inmet_bdmep__microdados(
             )
 
 
-# pyrefly: ignore [missing-attribute]
 br_inmet_bdmep__microdados.deploy_schedules = [
     {"cron": "0 22 * * 1-5", "timezone": "America/Sao_Paulo"},
 ]

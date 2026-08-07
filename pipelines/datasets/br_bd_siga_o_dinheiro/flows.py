@@ -2,9 +2,8 @@
 Flow br_bd_siga_o_dinheiro — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.crawler.bd_siga_o_dinheiro.tasks import get_table_ids
+from pipelines.utils.flow import flow
 from pipelines.utils.tasks import download_data_to_gcs, run_dbt
 
 
@@ -30,5 +29,4 @@ def br_bd_siga_o_dinheiro(
         download_data_to_gcs(dataset_id=dataset_id, table_id=table_id)
 
 
-# pyrefly: ignore [missing-attribute]
 br_bd_siga_o_dinheiro.deploy_schedules = []
