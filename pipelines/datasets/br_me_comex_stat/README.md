@@ -167,7 +167,7 @@ Nada no código valida isso nem corrige sozinho: o único escritor do valor cert
 Duas rotas equivalentes:
 
 ```python
-# 1. semear a cobertura já materializada
+# semear a cobertura já materializada
 from pipelines.utils.metadata.client import MetadataClient
 import datetime
 
@@ -180,11 +180,12 @@ seeds = {
 }
 for table_id, latest in seeds.items():
     client.upsert_table_update("br_me_comex_stat", table_id, latest=latest)
-```text
-
 ```
-# 2. disparar cada deployment uma vez com force_run
-parameters = {"force_run": true}
+
+Ou, em vez disso, disparar cada deployment uma vez com estes parâmetros:
+
+```json
+{"force_run": true}
 ```
 
 Conferir depois com `client.get_table_update_latest(...)`: tem que voltar data de
