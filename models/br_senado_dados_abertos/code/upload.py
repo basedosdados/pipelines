@@ -41,10 +41,19 @@ TABLES = [
     "comissao",
     "lideranca",
     "senador",
+    # T2 — small first
+    "votacao_comissao",
+    "senador_mandato",
+    "senador_filiacao",
+    "senador_cargo",
+    "relatoria",
+    "senador_comissao",
+    "votacao_comissao_parlamentar",
     "votacao_orientacao_bancada",
     "votacao",
     "processo",
     "votacao_parlamentar",
+    "discurso",
 ]
 
 # Monkey-patch for the requester-pays staging bucket.
@@ -86,12 +95,23 @@ def upload_table(slug: str) -> int:
         if_dataset_exists="pass",
     )
 
+    # Verify the staging row count against the local parquet. This is a QUERY
+    # job, so it can fail when the dev QueryUsagePerDay quota is exhausted; the
+    # upload itself (a load/external-table op) has already succeeded, so treat a
+    # failed verification as a warning and trust the local count.
     q = f"select count(*) as n from `{BILLING_PROJECT}.{DATASET_ID}_staging.{slug}`"
-    n = int(
-        bd.read_sql(
-            q, billing_project_id=BILLING_PROJECT, from_file=True
-        ).iloc[0, 0]
-    )
+    try:
+        n = int(
+            bd.read_sql(
+                q, billing_project_id=BILLING_PROJECT, from_file=True
+            ).iloc[0, 0]
+        )
+    except Exception as e:
+        print(
+            f"  {slug}: uploaded (local {expected:,}); "
+            f"count verify skipped ({type(e).__name__})"
+        )
+        return expected
     status = "OK" if n == expected else "ROW MISMATCH"
     print(f"  {slug}: uploaded {n:,} rows (local {expected:,}) — {status}")
     if n != expected:
