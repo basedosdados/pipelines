@@ -129,15 +129,6 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
                 bq_project="basedosdados",
             )
 
-            if last_date is not None:
-                commit_source_update_task(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    source_max_date=last_date,
-                    env="prod",
-                    date_format="%Y-%m",
-                )
-
     # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
