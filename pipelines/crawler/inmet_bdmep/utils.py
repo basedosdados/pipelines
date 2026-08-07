@@ -36,6 +36,7 @@ def get_latest_dowload_link() -> str:
 def get_date_from_path(path: str) -> datetime:
     try:
         match_data = re.compile(r"(\d{2}-\d{2}-\d{4})\.CSV$").search(path)
+        # pyrefly: ignore [missing-attribute]
         date = datetime.strptime(match_data.group(1), "%d-%m-%Y")
         return date
 
@@ -66,6 +67,7 @@ def new_names(base: pd.DataFrame, oldname: str, newname: str):
 
     """
     # x = [i for i, name in enumerate(base.columns) if name == oldname]
+    # pyrefly: ignore [no-matching-overload]
     x = re.search(oldname, base.columns)
 
     if len(x) > 1:

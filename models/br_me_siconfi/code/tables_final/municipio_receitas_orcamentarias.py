@@ -89,6 +89,7 @@ def _build_legacy(path_dados, comp, ano):
         df_dados = pd.melt(
             df_dados,
             id_vars=id_vars,
+            # pyrefly: ignore [bad-argument-type]
             value_vars=value_vars,
             var_name="conta",
             value_name="valor",

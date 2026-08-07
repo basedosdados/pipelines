@@ -269,9 +269,11 @@ def build_auxiliary_info(packs):
         else:
             c["census_year"] = pack_year
         tmap_name = dict(
+            # pyrefly: ignore [unsupported-operation]
             zip(tbl["table_code"], tbl["table_name"], strict=False)
         )
         tmap_pop = dict(
+            # pyrefly: ignore [unsupported-operation]
             zip(tbl["table_code"], tbl["table_population"], strict=False)
         )
         c["table_name"] = c["table_code"].map(tmap_name)
@@ -382,12 +384,13 @@ def main():
         tbl = frame_to_arrow(long, LEVEL_ID[lvl], schemas[lvl])
         writers[lvl].write_table(tbl)
         counts[lvl] += tbl.num_rows
+        # pyrefly: ignore [not-iterable]
         for (pr, yr), n in (
             long.groupby(["profile", "census_year"]).size().items()
         ):
             byprofyr[lvl][(pr, int(yr))] = byprofyr[lvl].get(
                 (pr, int(yr)), 0
-            ) + int(n)
+            ) + int(n)  # pyrefly: ignore [unnecessary-type-conversion]
     for w in writers.values():
         w.close()
 
@@ -398,6 +401,7 @@ def main():
     # auxiliary_info: one pack dir per (profile, year); dictionaries only (small)
     packs = {}
     for p in csvs:
+        # pyrefly: ignore [not-iterable]
         year, tablepart, _geo = parse_filename(os.path.basename(p))
         prof = profile_of(table_code_of(tablepart))
         d = os.path.dirname(p)
