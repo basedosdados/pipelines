@@ -91,6 +91,9 @@ models:
       +post-hook:
         - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
         - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "group:bd-pro@basedosdados.org"
+    au_abs_community_profiles:
+      +materialized: table
+      +schema: au_abs_community_profiles
     br_bd_diretorios_au:
       +materialized: table
       +schema: br_bd_diretorios_au
@@ -121,6 +124,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    au_abs_labour_force:
+      +materialized: table
+      +schema: au_abs_labour_force
     us_bls_qcew:
       +materialized: table
       +schema: us_bls_qcew
@@ -418,6 +424,9 @@ models:
     br_rj_isp_estatisticas_seguranca:
       +materialized: table
       +schema: br_rj_isp_estatisticas_seguranca
+    br_senado_dados_abertos:
+      +materialized: table
+      +schema: br_senado_dados_abertos
     br_sfb_sicar:
       +materialized: table
       +schema: br_sfb_sicar

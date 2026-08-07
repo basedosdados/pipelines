@@ -1,0 +1,397 @@
+---
+version: 2
+models:
+  - name: br_senado_dados_abertos__senador
+    description: >
+      Identificação dos senadores e senadoras que exerceram mandato no Senado Federal,
+      a partir das legislaturas registradas no serviço de dados abertos.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_senador]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [url_pagina_particular]
+    columns:
+      - name: id_senador
+        description: Código identificador do parlamentar no Senado Federal
+        tests: [not_null]
+      - name: nome
+        description: Nome parlamentar
+      - name: nome_completo
+        description: Nome civil completo
+      - name: sexo
+        description: Sexo do parlamentar
+      - name: forma_tratamento
+        description: Forma de tratamento
+      - name: sigla_partido
+        description: Sigla do partido informado no registro do parlamentar
+      - name: sigla_uf
+        description: Sigla da unidade da federação de mandato
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: email
+        description: Endereço de e-mail do gabinete
+      - name: url_foto
+        description: URL da foto oficial do parlamentar
+      - name: url_pagina
+        description: URL da página do parlamentar no portal do Senado
+      - name: url_pagina_particular
+        description: URL da página pessoal do parlamentar
+      - name: id_publico_legislatura_atual
+        description: Código público do parlamentar na legislatura atual
+  - name: br_senado_dados_abertos__votacao
+    description: >
+      Votações nominais em processos legislativos no Plenário do Senado Federal e
+      do Congresso Nacional, com uma linha por votação e os totais de votos apurados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_votacao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano da sessão em que ocorreu a votação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_votacao
+        description: Código identificador da votação (sessão de votação)
+        tests: [not_null]
+      - name: data_sessao
+        description: Data da sessão em que ocorreu a votação
+      - name: casa
+        description: Casa legislativa da sessão (SF, CN)
+      - name: id_processo
+        description: Código identificador do processo legislativo votado
+      - name: codigo_materia
+        description: Código legado da matéria no sistema MATE
+      - name: identificacao_materia
+        description: Identificação da matéria votada (sigla, número e ano)
+      - name: sigla_materia
+        description: Sigla do tipo da matéria votada
+      - name: numero_materia
+        description: Número da matéria votada
+      - name: ano_materia
+        description: Ano da matéria votada
+      - name: id_sessao
+        description: Código identificador da sessão
+      - name: id_sessao_legislativa
+        description: Código identificador da sessão legislativa
+      - name: numero_sessao
+        description: Número da sessão
+      - name: sequencial_sessao
+        description: Número sequencial da sessão
+      - name: sequencial
+        description: Número sequencial da votação na sessão
+      - name: sigla_tipo_sessao
+        description: Sigla do tipo de sessão
+      - name: descricao
+        description: Descrição do objeto da votação
+      - name: ementa
+        description: Ementa da matéria votada
+      - name: resultado
+        description: Sigla do resultado da votação
+      - name: votacao_secreta
+        description: Indica se a votação foi secreta (S/N)
+      - name: data_apresentacao
+        description: Data de apresentação da matéria votada
+      - name: sigla_colegiado
+        description: Sigla do colegiado em que ocorreu a votação
+      - name: nome_colegiado
+        description: Nome do colegiado em que ocorreu a votação
+      - name: voto_sim
+        description: Quantidade de votos Sim
+      - name: voto_nao
+        description: Quantidade de votos Não
+      - name: voto_abstencao
+        description: Quantidade de abstenções
+      - name: voto_outro
+        description: Quantidade de outros registros de voto
+  - name: br_senado_dados_abertos__votacao_parlamentar
+    description: >
+      Voto individual de cada parlamentar em cada votação nominal, com uma linha por
+      par votação-parlamentar.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_votacao, id_senador]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano da sessão em que ocorreu a votação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_votacao
+        description: Código identificador da votação
+        tests: [not_null]
+      - name: data_sessao
+        description: Data da sessão em que ocorreu a votação
+      - name: id_senador
+        description: Código identificador do parlamentar votante
+        tests: [not_null]
+      - name: sigla_partido
+        description: Sigla do partido do parlamentar na votação
+      - name: sigla_uf
+        description: Sigla da unidade da federação do parlamentar
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: voto
+        description: Sigla do voto do parlamentar
+      - name: descricao_voto
+        description: Descrição do voto do parlamentar
+  - name: br_senado_dados_abertos__votacao_orientacao_bancada
+    description: >
+      Orientação de voto das lideranças e bancadas para as votações nominais das sessões
+      plenárias, com uma linha por par votação-bancada.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_votacao_sve, bancada]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano da votação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_votacao_sve
+        description: Código identificador da votação no sistema SVE
+        tests: [not_null]
+      - name: sequencial_votacao
+        description: Número sequencial da votação na sessão
+      - name: data_votacao
+        description: Data de início da votação
+      - name: sigla_materia
+        description: Sigla do tipo da matéria votada
+      - name: numero_materia
+        description: Número da matéria votada
+      - name: ano_materia
+        description: Ano da matéria votada
+      - name: bancada
+        description: Bancada ou liderança que emitiu a orientação
+        tests: [not_null]
+      - name: orientacao
+        description: Orientação de voto emitida pela bancada
+      - name: data_hora_orientacao
+        description: Data e hora do registro da orientação
+  - name: br_senado_dados_abertos__processo
+    description: >
+      Processos legislativos (projetos, requerimentos, medidas e demais matérias)
+      apresentados no Senado Federal e no Congresso Nacional, com uma linha por processo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_processo]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [apelido]
+    columns:
+      - name: ano
+        description: Ano de identificação do processo legislativo
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_processo
+        description: Código identificador do processo legislativo
+        tests: [not_null]
+      - name: codigo_materia
+        description: Código legado da matéria no sistema MATE
+      - name: identificacao
+        description: Identificação do processo (sigla, número e ano)
+      - name: sigla
+        description: Sigla do tipo de documento do processo
+      - name: numero
+        description: Número do processo
+      - name: autoria
+        description: Autoria do processo legislativo
+      - name: ementa
+        description: Ementa do processo legislativo
+      - name: objetivo
+        description: Objetivo do documento no processo (iniciadora, acessória)
+      - name: tipo_documento
+        description: Tipo do documento iniciador do processo
+      - name: tipo_conteudo
+        description: Tipo de conteúdo informacional do documento
+      - name: situacao_atual
+        description: Situação atual do processo legislativo
+      - name: sigla_tipo_deliberacao
+        description: Sigla do tipo da última deliberação
+      - name: ente_identificador
+        description: Ente ou colegiado identificador do processo
+      - name: casa_identificadora
+        description: Casa legislativa identificadora do processo
+      - name: norma_gerada
+        description: Norma jurídica gerada pelo processo
+      - name: apelido
+        description: Apelido pelo qual o processo é conhecido
+      - name: tramitando
+        description: Indica se o processo está tramitando (Sim/Não)
+      - name: data_apresentacao
+        description: Data de apresentação do processo
+      - name: data_deliberacao
+        description: Data da última deliberação do processo
+      - name: data_situacao_atual
+        description: Data da situação atual do processo
+      - name: data_ultima_atualizacao
+        description: Data e hora da última atualização do registro
+      - name: ultima_informacao_atualizada
+        description: Tipo da última informação atualizada
+      - name: url_documento
+        description: URL do documento do processo
+  - name: br_senado_dados_abertos__partido
+    description: >
+      Partidos políticos em atividade e extintos registrados no Senado Federal, com
+      datas de criação e extinção.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_partido]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_partido
+        description: Código identificador do partido político
+        tests: [not_null]
+      - name: sigla
+        description: Sigla do partido político
+      - name: nome
+        description: Nome do partido político
+      - name: data_criacao
+        description: Data de criação do partido
+      - name: data_extincao
+        description: Data de extinção do partido
+  - name: br_senado_dados_abertos__bloco
+    description: >
+      Blocos parlamentares constituídos no Senado Federal, com datas de criação e
+      extinção.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_bloco]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [data_extincao]
+    columns:
+      - name: id_bloco
+        description: Código identificador do bloco parlamentar
+        tests: [not_null]
+      - name: nome
+        description: Nome do bloco parlamentar
+      - name: nome_apelido
+        description: Apelido do bloco parlamentar
+      - name: data_criacao
+        description: Data de criação do bloco
+      - name: data_extincao
+        description: Data de extinção do bloco
+  - name: br_senado_dados_abertos__lideranca
+    description: >
+      Cargos de liderança exercidos por parlamentares no Senado Federal, no Congresso
+      Nacional e na Câmara, com uma linha por designação.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_lideranca]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_lideranca
+        description: Código identificador da liderança
+        tests: [not_null]
+      - name: casa
+        description: Casa legislativa da liderança (SF, CN, CD)
+      - name: id_senador
+        description: Código identificador do parlamentar
+      - name: nome_parlamentar
+        description: Nome do parlamentar
+      - name: sigla_tipo_lideranca
+        description: Sigla do tipo de liderança
+      - name: descricao_tipo_lideranca
+        description: Descrição do tipo de liderança
+      - name: sigla_tipo_unidade_lideranca
+        description: Sigla do tipo de unidade da liderança
+      - name: descricao_tipo_unidade_lideranca
+        description: Descrição do tipo de unidade da liderança
+      - name: id_partido_filiacao
+        description: Código do partido de filiação do parlamentar
+      - name: sigla_partido_filiacao
+        description: Sigla do partido de filiação do parlamentar
+      - name: nome_partido_filiacao
+        description: Nome do partido de filiação do parlamentar
+      - name: id_bloco
+        description: Código do bloco parlamentar da liderança
+      - name: sigla_bloco
+        description: Sigla do bloco parlamentar da liderança
+      - name: nome_bloco
+        description: Nome do bloco parlamentar da liderança
+      - name: numero_ordem_vice_lider
+        description: Número de ordem do vice-líder
+      - name: data_designacao
+        description: Data de designação da liderança
+  - name: br_senado_dados_abertos__comissao
+    description: >
+      Colegiados em atividade no Senado Federal e no Congresso Nacional, incluindo
+      comissões, conselhos e demais órgãos, com uma linha por colegiado.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_comissao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_comissao
+        description: Código identificador do colegiado
+        tests: [not_null]
+      - name: sigla
+        description: Sigla do colegiado
+      - name: nome
+        description: Nome do colegiado
+      - name: sigla_casa
+        description: Sigla da casa legislativa do colegiado
+      - name: id_tipo_colegiado
+        description: Código do tipo de colegiado
+      - name: sigla_tipo_colegiado
+        description: Sigla do tipo de colegiado
+      - name: descricao_tipo_colegiado
+        description: Descrição do tipo de colegiado
+      - name: publica
+        description: Indica se o colegiado é público (S/N)
+      - name: data_inicio
+        description: Data de início de atividade do colegiado
+  - name: br_senado_dados_abertos__mesa
+    description: >
+      Composição atual da Mesa Diretora do Senado Federal, com uma linha por cargo
+      ocupado.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_colegiado, cargo]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_colegiado
+        description: Código identificador do colegiado da Mesa
+        tests: [not_null]
+      - name: sigla_colegiado
+        description: Sigla do colegiado da Mesa
+      - name: nome_colegiado
+        description: Nome do colegiado da Mesa
+      - name: cargo
+        description: Cargo ocupado na Mesa Diretora
+        tests: [not_null]
+      - name: id_senador
+        description: Código identificador do parlamentar
+      - name: nome_parlamentar
+        description: Nome do parlamentar
+      - name: bancada
+        description: Bancada do parlamentar (partido e UF)
+      - name: ordem
+        description: Número de ordem do cargo na Mesa
+      - name: origem
+        description: Origem da ocupação do cargo
