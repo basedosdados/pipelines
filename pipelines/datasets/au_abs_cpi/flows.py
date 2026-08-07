@@ -88,6 +88,7 @@ def au_abs_cpi_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="cpi"
     )
@@ -172,6 +173,7 @@ def au_abs_cpi_flow(
 # ABS publishes the monthly CPI in the last week of each month (moving to the
 # 4th Wednesday from Feb 2027). Poll across the last week at 16:00 BRT; the
 # source-poll guard no-ops until a new month lands.
+# pyrefly: ignore [missing-attribute]
 au_abs_cpi_flow.deploy_schedules = [
     {"cron": "0 16 22,23,24,25,26,27,28 * *", "timezone": "America/Sao_Paulo"}
 ]

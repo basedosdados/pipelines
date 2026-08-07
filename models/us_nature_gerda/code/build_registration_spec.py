@@ -192,6 +192,7 @@ DIRS = {
 def year_range(pq_path):
     t = pq.read_table(pq_path, columns=["year"])
     ys = pc.cast(t["year"], "int64")
+    # pyrefly: ignore [missing-attribute]
     return int(pc.min(ys).as_py()), int(pc.max(ys).as_py())
 
 

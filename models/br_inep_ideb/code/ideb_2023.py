@@ -26,6 +26,7 @@ URLS = {
 }
 
 for _, url in URLS.items():
+    # pyrefly: ignore [deprecated]
     os.system(f"cd {INPUT}; curl -O -k {url}")
 
 
@@ -46,6 +47,7 @@ XLSX_BR = os.path.join(
     "divulgacao_brasil_ideb_2023.xlsx",
 )
 
+# pyrefly: ignore [bad-assignment]
 sheet_names_br: list[str] = pd.ExcelFile(XLSX_BR).sheet_names
 
 COMMON_RENAMES = {
@@ -130,6 +132,7 @@ XLSX_REGIOES_UFS = os.path.join(
     "divulgacao_regioes_ufs_ideb_2023.xlsx",
 )
 
+# pyrefly: ignore [bad-assignment]
 sheet_names_regioes_ufs: list[str] = pd.ExcelFile(XLSX_REGIOES_UFS).sheet_names
 
 

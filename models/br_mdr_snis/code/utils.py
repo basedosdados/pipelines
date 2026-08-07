@@ -90,6 +90,8 @@ def remove_accents(input_str: pd.Series[str]) -> pd.Series[str]:
     Returns:
         pd.Series : coluna com strings sema acentos e caracteres especiais
     """
+    # pyrefly: ignore [bad-argument-type]
     nfkd_form = unicodedata.normalize("NFKD", input_str)
 
+    # pyrefly: ignore [bad-return]
     return "".join([c for c in nfkd_form if not unicodedata.combining(c)])

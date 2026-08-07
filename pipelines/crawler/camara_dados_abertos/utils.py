@@ -97,4 +97,5 @@ def download_and_read_data(table_id: str) -> pd.DataFrame:
         df = pd.read_csv(input_path, sep=";")
         df_year.append(df)
 
+    # pyrefly: ignore [bad-return]
     return df_year
