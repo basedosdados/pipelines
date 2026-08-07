@@ -7,7 +7,13 @@ tabela e decide quando materializar. Três passos, um por registro de metadado:
 - `register_source_coverage` — registra até onde a fonte publicou.
 - `check_source_is_ahead_of_table` — a fonte passou a tabela? (o gate)
 - `sync_table_coverage` — registra até onde a tabela materializou (faixas de
-  cobertura + Row Access Policies + `Table.Update` como data de cobertura).
+  cobertura + Row Access Policies) e carimba o `Table.Update` com a hora da
+  materialização.
+
+A cobertura já materializada vive nas faixas de cobertura, não no
+`Table.Update.latest`: o gate compara cobertura com cobertura, e o
+`Table.Update` continua sendo o relógio que o site exibe como "última
+atualização na Base dos Dados".
 
 Lógica pura: recebe o `client` (MetadataClient) e o `bq` (adapter de BigQuery)
 por injeção, de modo a ser testável com fakes, sem rede. Os wrappers Prefect
@@ -83,8 +89,9 @@ def check_source_is_ahead_of_table(
     """Diz se há o que materializar: a fonte está à frente da tabela.
 
     Compara o `RawDataSource.Update.latest` (cobertura publicada pela fonte) com
-    o `Table.Update.latest` (cobertura já materializada). Leitura pura — não grava
-    nada.
+    o fim das faixas de cobertura da tabela (cobertura já materializada). As duas
+    pontas são data de cobertura — o `Table.Update.latest` não entra na conta,
+    porque é relógio. Leitura pura — não grava nada.
 
     Args:
         client: cliente de leitura do backend de metadados (`MetadataClient`).
@@ -94,22 +101,29 @@ def check_source_is_ahead_of_table(
     Returns:
         bool — `True` se a cobertura da fonte é mais recente que a da tabela;
         `False` caso contrário, inclusive quando a fonte não tem Update.
+
+    Note:
+        Tabela sem faixa de cobertura devolve `True` — é a leitura de "nunca
+        materializou". Uma tabela `NonHistorical` também não tem faixa, por
+        definição, e devolveria `True` em toda run: esse tier ainda não tem
+        gate no modelo novo e não deve ser ligado a ele sem um critério
+        próprio.
     """
     source_last_update = client.get_raw_source_update_latest(
         dataset_id=dataset_id, table_id=table_id
     )
 
-    table_last_update = client.get_table_update_latest(
+    table_coverage_end = client.get_table_coverage_end(
         dataset_id=dataset_id, table_id=table_id
     )
 
     if source_last_update is None:
         return False
 
-    if table_last_update is None:
+    if table_coverage_end is None:
         return True
 
-    return source_last_update > table_last_update
+    return source_last_update > table_coverage_end
 
 
 def sync_table_coverage(
@@ -125,9 +139,10 @@ def sync_table_coverage(
     """Registra até onde a tabela materializou (o commit do modelo novo).
 
     Atualiza as faixas de cobertura (free/pro) e as Row Access Policies (só
-    part_bdpro) e grava o `Table.Update` com a **cobertura materializada**
-    (`source_end`, lido do BigQuery) — não o horário de execução. É essa data de
-    cobertura que o `check_source_is_ahead_of_table` compara na run seguinte.
+    part_bdpro), e carimba o `Table.Update` com o `last_modified` da tabela no
+    BigQuery — "a BD atualizou nesta hora", que é o que o site mostra. A
+    cobertura materializada fica nas faixas, e é de lá que o
+    `check_source_is_ahead_of_table` a lê na run seguinte.
 
     Args:
         client: cliente de escrita/leitura do backend de metadados
@@ -191,5 +206,6 @@ def sync_table_coverage(
         log("Pulando Table.Update: billing != bq_project", "warning")
         return
 
-    client.upsert_table_update(dataset_id, table_id, latest=source_coverage)
-    log(f"Table.Update atualizado para a cobertura {source_coverage}")
+    last_modified = bq.last_modified(dataset_id=dataset_id, table_id=table_id)
+    client.upsert_table_update(dataset_id, table_id, latest=last_modified)
+    log(f"Table.Update carimbado com a materialização de {last_modified}")

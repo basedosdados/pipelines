@@ -234,6 +234,44 @@ class MetadataClient:
         )
         return CoverageIds(free=free, pro=pro)
 
+    def get_table_coverage_end(
+        self, dataset_id: str, table_id: str
+    ) -> datetime.date | None:
+        """Lê até onde a tabela já materializou, pelas faixas de cobertura.
+
+        Devolve o maior fim entre as faixas free e pro. Nas três topologias
+        (`all_free`, `all_bdpro`, `part_bdpro`) esse maior fim é o `source_end`
+        que o `sync_table_coverage` acabou de gravar, então é ele — e não o
+        `Table.Update.latest`, que é relógio — que o gate do poll compara com a
+        cobertura publicada pela fonte.
+
+        Campos ausentes na granularidade da faixa (mês numa cobertura anual,
+        dia numa mensal) viram 1, para que a data seja o primeiro instante do
+        período coberto, na mesma convenção do `Update.latest` da fonte.
+        """
+        coverage_ids = self.get_coverage_ids(dataset_id, table_id)
+        query = """query($coverage_Id: ID) {
+            allDatetimerange(coverage_Id: $coverage_Id) {
+                edges { node { endYear, endMonth, endDay } }
+            }
+        }"""
+        ends = []
+        for coverage_id in (coverage_ids.free, coverage_ids.pro):
+            if coverage_id is None:
+                continue
+            response = self._execute(query, {"coverage_Id": coverage_id})
+            for node in response["allDatetimerange"]["items"]:
+                if not node.get("endYear"):
+                    continue
+                ends.append(
+                    datetime.date(
+                        node["endYear"],
+                        node.get("endMonth") or 1,
+                        node.get("endDay") or 1,
+                    )
+                )
+        return max(ends, default=None)
+
     def get_table_update_latest(
         self, dataset_id: str, table_id: str
     ) -> datetime.date | None:
