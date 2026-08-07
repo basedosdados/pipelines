@@ -16,8 +16,12 @@
             {% set max_year_result = run_query(max_year_query) %}
             {% if execute and max_year_result.rows[0][0] %}
                 {% set max_year = max_year_result.rows[0][0] %}
+                {# ano is INT64 (partition column), so compare to an unquoted
+                   integer literal — matching __most_recent_year_en__ and
+                   __most_recent_year_month__. Quoting it ('2026') raised
+                   "No matching signature for operator = (INT64, STRING)". #}
                 {% set where = where | replace(
-                    "__most_recent_year__", "ano = '" ~ max_year ~ "'"
+                    "__most_recent_year__", "ano = " ~ max_year
                 ) %}
                 {% do log(
                     "The test will filter by the most recent year: "
