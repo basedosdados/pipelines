@@ -21,6 +21,7 @@ import glob
 import os
 import sys
 
+# pyrefly: ignore [untyped-import]
 import openpyxl
 import pandas as pd
 import pyarrow as pa
@@ -129,6 +130,7 @@ def parse_workbook(path: str):
                 if v is None or v == "":
                     continue
                 try:
+                    # pyrefly: ignore [bad-argument-type]
                     fv = float(v)
                 except (TypeError, ValueError):
                     n_nonnumeric += 1
@@ -174,6 +176,7 @@ def main(input_dir: str, output_dir: str):
     # ---- values: dedup cross-listed (year, series_id); flag any conflicts ----
     before = len(values)
     conflicts = values.groupby(["year", "series_id"])["value"].nunique()
+    # pyrefly: ignore [unnecessary-type-conversion]
     n_conflict = int((conflicts > 1).sum())
     values = values.drop_duplicates(
         subset=["year", "series_id"], keep="first"

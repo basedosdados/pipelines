@@ -6,15 +6,25 @@ import basedosdados as bd
 import pandas as pd
 import requests
 from constants import (  # type: ignore
+    # pyrefly: ignore [missing-module-attribute]
     rename_afd,
+    # pyrefly: ignore [missing-module-attribute]
     rename_atu,
+    # pyrefly: ignore [missing-module-attribute]
     rename_dsu,
+    # pyrefly: ignore [missing-module-attribute]
     rename_had,
+    # pyrefly: ignore [missing-module-attribute]
     rename_icg,
+    # pyrefly: ignore [missing-module-attribute]
     rename_ied,
+    # pyrefly: ignore [missing-module-attribute]
     rename_ird,
+    # pyrefly: ignore [missing-module-attribute]
     rename_tdi,
+    # pyrefly: ignore [missing-module-attribute]
     rename_tnr,
+    # pyrefly: ignore [missing-module-attribute]
     rename_tx,
 )
 
@@ -77,6 +87,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     afd = afd.rename(columns=rename_afd, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     afd = afd.loc[afd["ano"] == ano,]
     afd["localizacao"] = afd["localizacao"].str.lower()
     afd["rede"] = afd["rede"].str.lower().replace("pública", "publica")
@@ -94,6 +105,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     atu = atu.rename(columns=rename_atu, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     atu = atu.loc[atu["ano"] == ano,]
     atu["localizacao"] = atu["localizacao"].str.lower()
     atu["rede"] = atu["rede"].str.lower().replace("pública", "publica")
@@ -111,6 +123,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     dsu = dsu.rename(columns=rename_dsu, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     dsu = dsu.loc[dsu["ano"] == ano,]
     dsu["localizacao"] = dsu["localizacao"].str.lower()
     dsu["rede"] = dsu["rede"].str.lower().replace("pública", "publica")
@@ -130,6 +143,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     had = had.rename(columns=rename_had, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     had = had.loc[had["ano"] == ano,]
     had["localizacao"] = had["localizacao"].str.lower()
     had["rede"] = had["rede"].str.lower().replace("pública", "publica")
@@ -148,6 +162,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     icg = icg.rename(columns=rename_icg, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     icg = icg.loc[icg["ano"] == ano,]
     icg["localizacao"] = icg["localizacao"].str.lower()
     icg["rede"] = icg["rede"].str.lower().replace("pública", "publica")
@@ -166,6 +181,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     ied = ied.rename(columns=rename_ied, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     ied = ied.loc[ied["ano"] == ano,]
     ied["localizacao"] = ied["localizacao"].str.lower()
     ied["rede"] = ied["rede"].str.lower().replace("pública", "publica")
@@ -184,6 +200,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     ird = ird.rename(columns=rename_ird, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     ird = ird.loc[ird["ano"] == ano,]
     ird["localizacao"] = ird["localizacao"].str.lower()
     ird["rede"] = ird["rede"].str.lower().replace("pública", "publica")
@@ -202,6 +219,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     tdi = tdi.rename(columns=rename_tdi, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     tdi = tdi.loc[tdi["ano"] == ano,]
     tdi["localizacao"] = tdi["localizacao"].str.lower()
     tdi["rede"] = tdi["rede"].str.lower().replace("pública", "publica")
@@ -220,6 +238,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     tnr = tnr.rename(columns=rename_tnr, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     tnr = tnr.loc[tnr["ano"] == ano,]
     tnr["localizacao"] = tnr["localizacao"].str.lower()
     tnr["rede"] = tnr["rede"].str.lower().replace("pública", "publica")
@@ -236,6 +255,7 @@ def brasil(ano: int, tabela: str) -> None:
 
     tx = tx.rename(columns=rename_tx, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     tx = tx.loc[tx["ano"] == ano,]
     tx["localizacao"] = tx["localizacao"].str.lower()
     tx["rede"] = tx["rede"].str.lower().replace("pública", "publica")
@@ -275,6 +295,7 @@ def uf(ano: int, tabela: str) -> None:
 
     afd = afd.rename(columns=rename_afd, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     afd = afd.loc[afd["ano"] == ano,]
     afd["localizacao"] = afd["localizacao"].str.lower()
     afd["rede"] = afd["rede"].str.lower().replace("pública", "publica")
@@ -292,6 +313,7 @@ def uf(ano: int, tabela: str) -> None:
 
     atu = atu.rename(columns=rename_atu, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     atu = atu.loc[atu["ano"] == ano,]
     atu["localizacao"] = atu["localizacao"].str.lower()
     atu["rede"] = atu["rede"].str.lower().replace("pública", "publica")
@@ -309,6 +331,7 @@ def uf(ano: int, tabela: str) -> None:
 
     dsu = dsu.rename(columns=rename_dsu, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     dsu = dsu.loc[dsu["ano"] == ano,]
     dsu["localizacao"] = dsu["localizacao"].str.lower()
     dsu["rede"] = dsu["rede"].str.lower().replace("pública", "publica")
@@ -327,6 +350,7 @@ def uf(ano: int, tabela: str) -> None:
 
     had = had.rename(columns=rename_had, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     had = had.loc[had["ano"] == ano,]
     had["localizacao"] = had["localizacao"].str.lower()
     had["rede"] = had["rede"].str.lower().replace("pública", "publica")
@@ -345,6 +369,7 @@ def uf(ano: int, tabela: str) -> None:
 
     icg = icg.rename(columns=rename_icg, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     icg = icg.loc[icg["ano"] == ano,]
     icg["localizacao"] = icg["localizacao"].str.lower()
     icg["rede"] = icg["rede"].str.lower().replace("pública", "publica")
@@ -363,6 +388,7 @@ def uf(ano: int, tabela: str) -> None:
 
     ied = ied.rename(columns=rename_ied, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     ied = ied.loc[ied["ano"] == ano,]
     ied["localizacao"] = ied["localizacao"].str.lower()
     ied["rede"] = ied["rede"].str.lower().replace("pública", "publica")
@@ -381,6 +407,7 @@ def uf(ano: int, tabela: str) -> None:
 
     ird = ird.rename(columns=rename_ird, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     ird = ird.loc[ird["ano"] == ano,]
     ird["localizacao"] = ird["localizacao"].str.lower()
     ird["rede"] = ird["rede"].str.lower().replace("pública", "publica")
@@ -399,6 +426,7 @@ def uf(ano: int, tabela: str) -> None:
 
     tdi = tdi.rename(columns=rename_tdi, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     tdi = tdi.loc[tdi["ano"] == ano,]
     tdi["localizacao"] = tdi["localizacao"].str.lower()
     tdi["rede"] = tdi["rede"].str.lower().replace("pública", "publica")
@@ -417,6 +445,7 @@ def uf(ano: int, tabela: str) -> None:
 
     tnr = tnr.rename(columns=rename_tnr, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     tnr = tnr.loc[tnr["ano"] == ano,]
     tnr["localizacao"] = tnr["localizacao"].str.lower()
     tnr["rede"] = tnr["rede"].str.lower().replace("pública", "publica")
@@ -433,6 +462,7 @@ def uf(ano: int, tabela: str) -> None:
 
     tx = tx.rename(columns=rename_tx, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     tx = tx.loc[tx["ano"] == ano,]
     tx["localizacao"] = tx["localizacao"].str.lower()
     tx["rede"] = tx["rede"].str.lower().replace("pública", "publica")
@@ -484,6 +514,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     afd = afd.rename(columns=rename_afd, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     afd = afd.loc[afd["ano"] == ano,]
     afd["localizacao"] = afd["localizacao"].str.lower()
     afd["rede"] = afd["rede"].str.lower().replace("pública", "publica")
@@ -501,6 +532,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     atu = atu.rename(columns=rename_atu, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     atu = atu.loc[atu["ano"] == ano,]
     atu["localizacao"] = atu["localizacao"].str.lower()
     atu["rede"] = atu["rede"].str.lower().replace("pública", "publica")
@@ -518,6 +550,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     dsu = dsu.rename(columns=rename_dsu, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     dsu = dsu.loc[dsu["ano"] == ano,]
     dsu["localizacao"] = dsu["localizacao"].str.lower()
     dsu["rede"] = dsu["rede"].str.lower().replace("pública", "publica")
@@ -536,6 +569,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     had = had.rename(columns=rename_had, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     had = had.loc[had["ano"] == ano,]
     had["localizacao"] = had["localizacao"].str.lower()
     had["rede"] = had["rede"].str.lower().replace("pública", "publica")
@@ -554,6 +588,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     icg = icg.rename(columns=rename_icg, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     icg = icg.loc[icg["ano"] == ano,]
     icg["localizacao"] = icg["localizacao"].str.lower()
     icg["rede"] = icg["rede"].str.lower().replace("pública", "publica")
@@ -572,6 +607,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     ied = ied.rename(columns=rename_ied, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     ied = ied.loc[ied["ano"] == ano,]
     ied["localizacao"] = ied["localizacao"].str.lower()
     ied["rede"] = ied["rede"].str.lower().replace("pública", "publica")
@@ -590,6 +626,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     ird = ird.rename(columns=rename_ird, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     ird = ird.loc[ird["ano"] == ano,]
     ird["localizacao"] = ird["localizacao"].str.lower()
     ird["rede"] = ird["rede"].str.lower().replace("pública", "publica")
@@ -608,6 +645,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     tdi = tdi.rename(columns=rename_tdi, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     tdi = tdi.loc[tdi["ano"] == ano,]
     tdi["localizacao"] = tdi["localizacao"].str.lower()
     tdi["rede"] = tdi["rede"].str.lower().replace("pública", "publica")
@@ -626,6 +664,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     tnr = tnr.rename(columns=rename_tnr, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     tnr = tnr.loc[tnr["ano"] == ano,]
     tnr["localizacao"] = tnr["localizacao"].str.lower()
     tnr["rede"] = tnr["rede"].str.lower().replace("pública", "publica")
@@ -642,6 +681,7 @@ def regiao(ano: int, tabela: str) -> None:
 
     tx = tx.rename(columns=rename_tx, errors="raise")
 
+    # pyrefly: ignore [bad-index]
     tx = tx.loc[tx["ano"] == ano,]
     tx["localizacao"] = tx["localizacao"].str.lower()
     tx["rede"] = tx["rede"].str.lower().replace("pública", "publica")

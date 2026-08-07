@@ -51,6 +51,7 @@ def build_table_paths(
 @task
 def get_source_last_date(
     ftp_host: str = caged_constants.FTP_HOST.value,
+    # pyrefly: ignore [bad-return]
 ) -> datetime.date:
     """
     This task reaches 'ftp.mtps.gov.br' subfolders looking for most recent year and month
@@ -68,6 +69,7 @@ def get_source_last_date(
     try:
         folder_items = ftp.nlst()
         year_folders = [
+            # pyrefly: ignore [missing-attribute]
             int(re.search(r"\d{4}", item).group(0))
             for item in folder_items
             if re.search(r"\d{4}", item)
@@ -77,6 +79,7 @@ def get_source_last_date(
         ftp.cwd(str(year_folders[0]))
         folder_items = ftp.nlst()
         month_folders = [
+            # pyrefly: ignore [missing-attribute]
             int(re.search(r"^(?:\d{4})(\d{2})$", item).group(1))
             for item in folder_items
             if re.search(r"^(?:\d{4})(\d{2})$", item)
@@ -288,6 +291,7 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
         filename = filepath.name
         try:
             df = pd.read_csv(filepath, sep=";", dtype={"uf": str})
+            # pyrefly: ignore [missing-attribute]
             date = re.search(r"\d+", filename).group()
             ano = date[:4]
             mes = int(date[-2:])
@@ -324,4 +328,5 @@ def build_partitions(table_id: str, table_output_dir: str | Path) -> str:
             del df
         except Exception as e:
             log(f"Failed to read: {filepath} due to: {e}", "error")
+    # pyrefly: ignore [bad-return]
     return table_output_dir

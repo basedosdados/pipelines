@@ -106,6 +106,7 @@ def br_me_siconfi_flow(
     if end_year is None:
         end_year = now_year
 
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="siconfi"
     )
@@ -212,10 +213,12 @@ def br_me_siconfi_flow(
 
 # SICONFI is annual but revised retroactively; rebuild once a month (1st at
 # 16:00 BRT). Each run rebuilds fully — there is no source-poll no-op here.
+# pyrefly: ignore [missing-attribute]
 br_me_siconfi_flow.deploy_schedules = [
     {"cron": "0 16 1 * *", "timezone": "America/Sao_Paulo"}
 ]
 # The município window build holds a full year of data in pandas at a time.
+# pyrefly: ignore [missing-attribute]
 br_me_siconfi_flow.job_variables = {"memory": "16Gi"}
 
 
@@ -296,4 +299,5 @@ def br_me_siconfi_seed_flow(
 
 
 # The legacy build holds one year of município Excel in pandas at a time.
+# pyrefly: ignore [missing-attribute]
 br_me_siconfi_seed_flow.job_variables = {"memory": "8Gi"}

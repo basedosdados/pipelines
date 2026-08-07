@@ -76,6 +76,7 @@ def backfill(year, profile):
             flush=True,
         )
     # reconstruct group-format JSON: header = NAME + all codes + geo cols
+    # pyrefly: ignore [not-iterable]
     out_header = ["NAME", *full, *geo_names]
     out = [out_header]
     for gk in geo_order:

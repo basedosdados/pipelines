@@ -35,6 +35,7 @@ def _run_rais(
     force_run: bool = False,
     resolve_vinculos: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

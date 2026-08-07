@@ -11,6 +11,7 @@ import functools
 import os
 from pathlib import Path
 
+# pyrefly: ignore [untyped-import]
 import openpyxl
 import pandas as pd
 import pyarrow as pa
@@ -113,6 +114,7 @@ def download_all(out_dir: str, session=None) -> str:
 # --------------------------------------------------------------------------- #
 def _parse_desc(desc: str):
     """ "<measure> ; <item> ; <region> ;" -> (measure, item, region)."""
+    # pyrefly: ignore [unnecessary-type-conversion]
     parts = [p.strip() for p in str(desc).split(";")]
     parts = [p for p in parts if p != ""]
     measure = parts[0] if len(parts) > 0 else None
@@ -153,11 +155,14 @@ def parse_workbook(path: str) -> pd.DataFrame:
             continue
         if sid_idx is None or c0 is None or str(c0).startswith("©"):
             continue
+        # pyrefly: ignore [bad-argument-type]
         measure, item, region = _parse_desc(c0)
+        # pyrefly: ignore [bad-argument-type]
         measure_col = MEASURE_MAP.get(measure)
         if measure_col is None:
             continue
         serie_id = row[sid_idx]
+        # pyrefly: ignore [unsupported-operation]
         meta[serie_id] = (measure_col, item, region)
 
     records = []
@@ -187,6 +192,7 @@ def parse_workbook(path: str) -> pd.DataFrame:
                         "region": region,
                         "serie_id": sid,
                         "year": int(date.year),
+                        # pyrefly: ignore [missing-attribute]
                         "month": int(date.month),
                         "value": val,
                     }
@@ -323,12 +329,15 @@ def clean_all(input_dir: str, output_dir: str) -> dict[str, str]:
     result: dict[str, str] = {}
     max_ym = None
     for freq in constants.SOURCE_TABLES.value:
+        # pyrefly: ignore [unnecessary-type-conversion]
         df = clean_frequency(freq, str(input_dir))
+        # pyrefly: ignore [unnecessary-type-conversion]
         write_partitioned(df, freq, str(output_dir))
         result[freq] = str(Path(output_dir) / freq)
         if freq == "monthly":
             last = df.sort_values(["year", "month"]).iloc[-1]
             max_ym = f"{int(last['year']):04d}-{int(last['month']):02d}"
+    # pyrefly: ignore [unsupported-operation]
     result["max_year_month"] = max_ym
     return result
 
@@ -353,6 +362,7 @@ def write_partitioned(df: pd.DataFrame, table: str, out_dir: str) -> int:
     string_schema = pa.schema([(c, pa.string()) for c in cols])
     n = 0
     for year, part in df.groupby("year", sort=True):
+        # pyrefly: ignore [bad-argument-type]
         dest = Path(out_dir) / table / f"year={int(year)}"
         dest.mkdir(parents=True, exist_ok=True)
         at = pa.Table.from_pandas(

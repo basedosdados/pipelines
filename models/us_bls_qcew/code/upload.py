@@ -102,6 +102,7 @@ def upload_table(slug: str) -> int:
         except Exception as e:
             last = e
     print(
+        # pyrefly: ignore [unbound-name]
         f"  {slug}: uploaded (staging table created); count not verified locally: {last}",
         flush=True,
     )

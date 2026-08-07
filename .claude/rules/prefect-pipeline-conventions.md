@@ -275,8 +275,12 @@ on the **deployed Prefect worker** (its pod SA has access) — the local
 Schedule inline on the flow object (do NOT register storage/run-config by hand):
 
 ```python
-my_flow.deploy_schedules = [{"cron": "0 16 10,11,12,13 * *", "timezone": "America/Sao_Paulo"}]
-my_flow.job_variables = {"memory": "8Gi"}   # optional; size to the clean step's peak RAM
+my_flow.deploy_schedules = [
+    {"cron": "0 16 10,11,12,13 * *", "timezone": "America/Sao_Paulo"}
+]
+my_flow.job_variables = {
+    "memory": "8Gi"
+}  # optional; size to the clean step's peak RAM
 ```
 
 Deploy is CI, via `.github/scripts/deploy_flows.py`:
