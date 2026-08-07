@@ -89,7 +89,14 @@ TRANSLATIONS = {
 }
 
 
-def main():
+def main() -> None:
+    """Write one columns_json file per architecture CSV.
+
+    Reads each ``architecture/<table>.csv`` for the Portuguese description,
+    type, and flags, attaches the English/Spanish translations from
+    ``TRANSLATIONS``, and writes ``columns_json/<table>.json`` for
+    ``bulk_upsert_columns``.
+    """
     OUT.mkdir(parents=True, exist_ok=True)
     for csv_path in sorted(ARCH.glob("*.csv")):
         table = csv_path.stem
