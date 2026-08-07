@@ -32,6 +32,7 @@ from IPython.display import clear_output
 
 def montar_drive():
     """Monta o Google Drive no Colab, se necessário."""
+    # pyrefly: ignore [missing-import]
     from google.colab import drive
 
     drive.mount("/content/drive", force_remount=True)
@@ -44,6 +45,7 @@ def configurar_basedosdados():
 
     # Caminho onde estão suas credenciais
     path_credenciais = "/content/drive/MyDrive/Credenciais/"
+    # pyrefly: ignore [deprecated]
     os.system(f"cp -r {path_credenciais} {destino}")
 
     # Arquivo base de configuração
@@ -131,7 +133,9 @@ def main():
     configurar_basedosdados()
 
     # Instalações (mantidas aqui por compatibilidade com Colab)
+    # pyrefly: ignore [deprecated]
     os.system("pip install -q basedosdados==2.0.0b16 ruamel.yaml")
+    # pyrefly: ignore [deprecated]
     os.system("git clone -q https://github.com/Winzen/utils-colab.git")
     sys.path.insert(0, "/content/utils-colab/scripts")
     clear_output()

@@ -43,8 +43,12 @@ BILLING_PROJECT = "basedosdados-dev"  # or "basedosdados" for prod
 
 # Monkey-patch for requester-pays bucket
 _orig_bucket = gcs.Client.bucket
+
+
 def _patched_bucket(self, bucket_name, user_project=None):
     return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
+
+
 gcs.Client.bucket = _patched_bucket
 ```
 

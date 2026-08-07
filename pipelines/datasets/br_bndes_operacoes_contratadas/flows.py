@@ -41,6 +41,7 @@ def br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas(
     )
 
 
+# pyrefly: ignore [missing-attribute]
 br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas.deploy_schedules = [
     {"cron": "0 6 * * 1", "timezone": "America/Sao_Paulo"}
 ]
@@ -74,6 +75,7 @@ def br_bndes_operacoes_contratadas__operacoes_nao_automaticas(
     )
 
 
+# pyrefly: ignore [missing-attribute]
 br_bndes_operacoes_contratadas__operacoes_nao_automaticas.deploy_schedules = [
     {"cron": "0 6 * * 1", "timezone": "America/Sao_Paulo"}
 ]
@@ -109,6 +111,7 @@ def br_bndes_operacoes_contratadas__operacoes_administracao_publica(
 
 # cron semanal (segunda 06h BRT), igual a irma; a fonte atualiza mensal e o poll
 # deferido no-opa quando nao ha novidade. Ajuste se quiser outra janela.
+# pyrefly: ignore [missing-attribute]
 br_bndes_operacoes_contratadas__operacoes_administracao_publica.deploy_schedules = [
     {"cron": "0 6 * * 1", "timezone": "America/Sao_Paulo"}
 ]

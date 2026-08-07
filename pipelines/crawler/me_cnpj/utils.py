@@ -68,6 +68,7 @@ def data_url(url: str) -> datetime.date:
         f"A data máxima extraida da API da Receita Federal que será utilizada para gerar partições no Storage: {max_last_modified_date}"
     )
 
+    # pyrefly: ignore [bad-return]
     return max_folder_date, max_last_modified_date
 
 
@@ -119,7 +120,9 @@ def fill_left_zeros(
     Returns:
         pd.DataFrame: Updated DataFrame with filled zeros.
     """
+    # pyrefly: ignore [bad-index, unsupported-operation]
     df[column] = df[column].astype(str).str.zfill(num_digits)
+    # pyrefly: ignore [bad-return]
     return df
 
 
@@ -380,8 +383,10 @@ def process_csv_estabelecimentos(
                 # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
                 chunk = fill_left_zeros(chunk, "cnpj_basico", 8)
                 # Preenchimento de zeros à esquerda no campo 'cnpj_ordem'
+                # pyrefly: ignore [bad-argument-type]
                 chunk = fill_left_zeros(chunk, "cnpj_ordem", 4)
                 # Preenchimento de zeros à esquerda no campo 'cnpj_dv'
+                # pyrefly: ignore [bad-argument-type]
                 chunk = fill_left_zeros(chunk, "cnpj_dv", 2)
                 # Gerando a coluna 'cnpj' e 'id_municipio'
                 chunk["cnpj"] = (
@@ -453,6 +458,7 @@ def process_csv_empresas(
                     # Preenchimento de zeros à esquerda no campo 'cnpj_basico'
                     chunk = fill_left_zeros(chunk, "cnpj_basico", 8)
                     # Preenchimento de zeros à esquerda no campo 'natureza_juridica'
+                    # pyrefly: ignore [bad-argument-type]
                     chunk = fill_left_zeros(chunk, "natureza_juridica", 4)
                     # Convertendo a coluna 'capital_social' para float e mudando o separator
                     chunk["capital_social"] = (

@@ -9,6 +9,8 @@ registro é escrito, o negativo (o que NÃO foi tocado), e a mudança-chave — 
 import datetime
 
 import pytest
+
+# pyrefly: ignore [missing-import]
 from conftest import FakeBQ, FakeMetadataClient
 
 from pipelines.utils.metadata.domain import (
