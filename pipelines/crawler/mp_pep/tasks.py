@@ -382,6 +382,7 @@ def clean_data() -> pd.DataFrame:
     replaces_by_col = get_normalized_values_by_col()
 
     for col in replaces_by_col:
+        # pyrefly: ignore [bad-argument-type]
         df[col] = df[col].replace(replaces_by_col[col])
 
     order_cols = [

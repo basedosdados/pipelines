@@ -265,6 +265,7 @@ def _write_chunk(
         [pa.field(a["name"], PA[a["bigquery_type"]]) for a in arch]
     )
     strung = pa.schema([pa.field(a["name"], pa.string()) for a in arch])
+    # pyrefly: ignore [unnecessary-type-conversion]
     pdir = output_dir / table / f"year={int(year)}"
     pdir.mkdir(parents=True, exist_ok=True)
     at = pa.Table.from_pandas(
@@ -314,6 +315,7 @@ def clean_year(
     # clear stale partitions for this (classification, freq, year)
     for g in constants.GEOS.value:
         pdir = (
+            # pyrefly: ignore [unnecessary-type-conversion]
             output_dir / f"{classification}_{freq}_{g}" / f"year={int(year)}"
         )
         if pdir.exists():

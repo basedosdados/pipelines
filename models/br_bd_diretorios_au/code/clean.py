@@ -199,7 +199,9 @@ def build_table(table):
         elif name == "abbreviation_state":
             out[name] = None
         else:
+            # pyrefly: ignore [missing-attribute]
             if original and original in src.columns:
+                # pyrefly: ignore [unsupported-operation]
                 out[name] = src[original].to_numpy()
             else:
                 out[name] = None  # e.g. derived / missing legacy shortcode
@@ -208,10 +210,11 @@ def build_table(table):
     # km². Non-ABS 2011 files (and all 2016/2021 files) already use _SQKM.
     if (
         "area_albers_sqkm" in out.columns
-        and "AREA_ALBERS_SQM" in src.columns
-        and "AREA_ALBERS_SQKM" not in src.columns
+        and "AREA_ALBERS_SQM" in src.columns  # pyrefly: ignore [missing-attribute]
+        and "AREA_ALBERS_SQKM" not in src.columns  # pyrefly: ignore [not-iterable]
     ):
         out["area_albers_sqkm"] = (
+            # pyrefly: ignore [unsupported-operation]
             pd.to_numeric(src["AREA_ALBERS_SQM"], errors="coerce").to_numpy()
             / 1e6
         )

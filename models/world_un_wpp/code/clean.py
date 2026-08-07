@@ -124,6 +124,7 @@ def write_partitions(
     file_schema = pa.schema([f for f in schema if f.name != "year"])
     file_cols = [f.name for f in file_schema]
     for year, group in df.groupby("year", sort=True):
+        # pyrefly: ignore [bad-argument-type]
         part_dir = OUTPUT / table_slug / f"year={int(year)}"
         part_dir.mkdir(parents=True, exist_ok=True)
         table = pa.Table.from_pandas(

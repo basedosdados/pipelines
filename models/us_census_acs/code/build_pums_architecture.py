@@ -26,6 +26,7 @@ with open(f"{WORK}/pums_person_cols.txt") as f:
 with open(f"{WORK}/pums_housing_cols.txt") as f:
     housing_cols = f.read().split("\n")
 
+# pyrefly: ignore [missing-import]
 from _pums_schema import RENAME  # noqa: E402  (shared identity-rename map)
 
 # --- N-vars that are really identifiers/sequences -> STRING (no arithmetic meaning) ---
