@@ -1,0 +1,18 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência do trimestre de extração dos dados,2020(1)2026,no,br_bd_diretorios_data_tempo.ano:ano,,no,Coluna de partição derivada da pasta AAAA_trimestre_QQ da fonte,ano
+trimestre,INT64,"Trimestre de referência da extração dos dados, de 1 a 4",,no,,,no,Derivado da pasta AAAA_trimestre_QQ da fonte,trimestre
+sigla_uf,STRING,Sigla da unidade da federação do devedor,,no,br_bd_diretorios_brasil.uf:sigla,,no,"Corresponde a UF_DEVEDOR (2022 Q4 em diante) ou UF_UNIDADE_RESPONSAVEL (2020 Q1 a 2022 Q3, UF da unidade responsável); valores fora das 27 UFs viram nulo",UF_DEVEDOR
+cpf_cnpj,STRING,CPF parcialmente mascarado ou CNPJ do devedor,,no,,,yes,CPF de pessoa física é mascarado na fonte; CNPJ de pessoa jurídica é completo,CPF_CNPJ
+tipo_pessoa,STRING,"Tipo de pessoa do devedor, física ou jurídica",,no,,,no,,TIPO_PESSOA
+tipo_devedor,STRING,"Tipo de devedor, como principal, corresponsável ou solidário",,no,,,no,,TIPO_DEVEDOR
+nome_devedor,STRING,Nome do devedor,,no,,,yes,,NOME_DEVEDOR
+unidade_responsavel,STRING,Unidade da PGFN responsável pela cobrança da inscrição,,no,,,no,,UNIDADE_RESPONSAVEL
+entidade_responsavel,STRING,Entidade responsável pela inscrição,,no,,,no,Coluna presente apenas na fonte FGTS,ENTIDADE_RESPONSAVEL
+unidade_inscricao,STRING,Unidade em que a inscrição foi realizada,,no,,,no,Coluna presente apenas na fonte FGTS,UNIDADE_INSCRICAO
+numero_inscricao,STRING,Número da inscrição em dívida ativa,,no,,,no,,NUMERO_INSCRICAO
+tipo_situacao_inscricao,STRING,"Tipo de situação da inscrição, como em cobrança, benefício fiscal ou garantia",,no,,,no,,TIPO_SITUACAO_INSCRICAO
+situacao_inscricao,STRING,Situação específica da inscrição em dívida ativa,,no,,,no,,SITUACAO_INSCRICAO
+receita_principal,STRING,Receita ou natureza do crédito principal da inscrição,,no,,,no,Coluna RECEITA_PRINCIPAL da fonte FGTS,RECEITA_PRINCIPAL
+data_inscricao,DATE,Data de inscrição em dívida ativa,,no,,,no,Datas sentinela 01/01/1000 da fonte são convertidas para nulo,DATA_INSCRICAO
+indicador_ajuizado,STRING,Indica se a inscrição está ajuizada (SIM) ou não (NAO),,no,,,no,,INDICADOR_AJUIZADO
+valor_consolidado,FLOAT64,Valor consolidado da inscrição em reais,,no,,real,no,,VALOR_CONSOLIDADO
