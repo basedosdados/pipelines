@@ -47,6 +47,11 @@ LAST_YEAR, LAST_Q = 2026, 2
 
 
 def all_quarters() -> list[tuple[int, int]]:
+    """Every (year, quarter) from FIRST_YEAR/FIRST_Q to LAST_YEAR/LAST_Q.
+
+    Returns:
+        Ordered list of ``(year, quarter)`` pairs spanning the full backfill.
+    """
     out = []
     y, q = FIRST_YEAR, FIRST_Q
     while (y, q) <= (LAST_YEAR, LAST_Q):
@@ -58,16 +63,35 @@ def all_quarters() -> list[tuple[int, int]]:
 
 
 def parse_quarters(tokens: list[str]) -> list[tuple[int, int]]:
+    """Parse quarter tokens such as ``2026Q2``.
+
+    Args:
+        tokens: Quarter tokens in ``YYYYQ[1-4]`` form (case-insensitive Q).
+
+    Returns:
+        A list of ``(year, quarter)`` pairs.
+
+    Raises:
+        SystemExit: If a token is not a valid quarter (only Q1-Q4 accepted).
+    """
     out = []
     for t in tokens:
-        m = re.fullmatch(r"(\d{4})[Qq](\d)", t.strip())
+        m = re.fullmatch(r"(\d{4})[Qq]([1-4])", t.strip())
         if not m:
             raise SystemExit(f"bad quarter token {t!r}; expected e.g. 2026Q2")
         out.append((int(m.group(1)), int(m.group(2))))
     return out
 
 
-def main():
+def main() -> None:
+    """Download and clean the requested quarters into partitioned Parquet.
+
+    Parses CLI args (``--all`` or ``--quarters``, ``--tables``, ``--keep-zip``,
+    ``--skip-existing``), then downloads and cleans each (quarter, table) into
+    the data root. Failures are collected and reported; the process exits
+    non-zero if any occurred, so a wrapper or scheduler can detect a partial
+    backfill.
+    """
     ap = argparse.ArgumentParser()
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument(
@@ -160,6 +184,7 @@ def main():
         )
         for f in failures:
             log.error("  %s", f)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
