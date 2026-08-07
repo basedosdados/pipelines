@@ -34,11 +34,13 @@ def _run_anatel_banda_larga_fixa(
     target: str,
     force_run: bool,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
     new_ano = get_year_and_unzip(day=ano)
+    # pyrefly: ignore [no-matching-overload]
     data_source_max_date = get_max_date_in_table_microdados(
         ano=new_ano, table_id=table_id
     )

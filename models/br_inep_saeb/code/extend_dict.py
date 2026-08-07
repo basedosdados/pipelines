@@ -17,6 +17,7 @@ df = pd.read_csv(
     os.path.join(INPUT, "staging_br_inep_saeb_dicionario_dicionario.csv")
 )
 
+# pyrefly: ignore [bad-index]
 df = df.loc[
     (df["cobertura_temporal"] != "1") & (df["cobertura_temporal"] != "D"),
 ]
@@ -156,6 +157,7 @@ def transform_df(table_id: str, df: pd.DataFrame) -> pd.DataFrame:
         variables={"table_id": table_slug},
     )
 
+    # pyrefly: ignore [missing-attribute]
     payload = backend._simplify_graphql_response(response)["allTable"][0][
         "coverages"
     ][0]["datetimeRanges"][0]

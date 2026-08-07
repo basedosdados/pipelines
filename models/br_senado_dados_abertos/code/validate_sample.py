@@ -1,12 +1,14 @@
 """Probe real column sets + temporal extents for all T1 tables (small slices)."""
 
 import json
-import sys
 
 import pandas as pd
 
-sys.path.insert(0, ".")
-from senado_api import _as_list, dig, get_json
+from pipelines.datasets.br_senado_dados_abertos.senado_api import (
+    _as_list,
+    dig,
+    get_json,
+)
 
 pd.set_option("display.max_columns", 200)
 pd.set_option("display.width", 200)

@@ -119,6 +119,7 @@ async def download_file_async(root: str, url: str) -> None:
             for start in range(0, total_size, chunk_size):
                 end = min(start + chunk_size - 1, total_size - 1)
                 tasks.append(
+                    # pyrefly: ignore [bad-argument-type]
                     download_chunk(
                         client, url, start, end, filepath, semaphore, pbar
                     )
@@ -156,6 +157,7 @@ def process_chunk(
         df_chunk = df_chunk.rename(columns=columns_rename[table_name])
 
     # Ensure all values are strings to avoid schema issues
+    # pyrefly: ignore [not-callable]
     df_chunk = df_chunk.applymap(str)
 
     parquet_file = f"{table_name}_{chunk_index}.parquet"

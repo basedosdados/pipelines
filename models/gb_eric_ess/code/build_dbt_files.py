@@ -21,6 +21,8 @@ from pathlib import Path
 
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
+
+# pyrefly: ignore [untyped-import]
 import yaml
 
 CODE_DIR = Path(__file__).resolve().parent
@@ -124,6 +126,7 @@ def null_rates(round_n):
     if missing:
         tt = pq.read_table(f, columns=sorted(missing))
         for n in missing:
+            # pyrefly: ignore [missing-attribute]
             nulls[n] = pc.sum(pc.is_null(tt[n])).as_py() or 0
     return {n: v / total for n, v in nulls.items()}, total
 
@@ -339,6 +342,7 @@ def dicionario_model_entry():
     for name, cdesc in DICIONARIO_COLS:
         col = {"name": name, "description": Folded(cdesc)}
         if name in ("id_tabela", "nome_coluna", "chave"):
+            # pyrefly: ignore [bad-assignment]
             col["tests"] = ["not_null"]
         entry["columns"].append(col)
     return entry

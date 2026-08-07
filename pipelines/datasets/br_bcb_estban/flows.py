@@ -39,6 +39,7 @@ def _run_bcb_estban(
     target: str,
     force_run: bool,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -71,6 +72,7 @@ def _run_bcb_estban(
         api_mode="prod",
     )
 
+    # pyrefly: ignore [no-matching-overload]
     urls_list = extract_urls_list(
         documents_metadata,
         data_source_max_date,
@@ -165,6 +167,7 @@ def _estban_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

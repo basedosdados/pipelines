@@ -91,6 +91,7 @@ def task_get_api_most_recent_date(
     )
 
 
+# pyrefly: ignore [unsupported-operation]
 def _coerce_to_date(value: object, date_format: str) -> datetime.date | None:
     """Normaliza a data-da-fonte vinda do flow para `datetime.date`.
 
@@ -117,6 +118,7 @@ def _coerce_to_date(value: object, date_format: str) -> datetime.date | None:
 def register_source_poll_task(
     dataset_id: str,
     table_id: str,
+    # pyrefly: ignore [not-a-type]
     source_max_date: datetime.date | str | None = None,
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
@@ -147,6 +149,7 @@ def register_source_poll_task(
         bool — True se um novo `Update` foi gravado (fonte trouxe novidade),
         False caso contrário.
     """
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env=env)
     return register_source_poll(
         client,
@@ -198,6 +201,7 @@ def register_source_poll_by_size_task(
     Returns:
         bool — True se a fonte trouxe novidade (tamanho maior), False se igual.
     """
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env=env)
     redis = _get_redis_client(local_execution=local_execution)
     return register_source_poll_by_size(
@@ -248,6 +252,7 @@ def register_table_materialization_task(
         None.
     """
     billing = metadata_constants.MODE_PROJECT.value[prefect_mode]
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env=env, billing_project=billing)
     bq = BigQueryReader(billing_project_id=billing, bq_project=bq_project)
     register_table_materialization(
@@ -268,6 +273,7 @@ def register_table_materialization_task(
 def poll_source_for_update_task(
     dataset_id: str,
     table_id: str,
+    # pyrefly: ignore [not-a-type]
     source_max_date: datetime.date | str | None = None,
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
@@ -302,6 +308,7 @@ def poll_source_for_update_task(
         False caso contrário.
     """
 
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env=env)
     return poll_source_for_update(
         client,
@@ -319,6 +326,7 @@ def poll_source_for_update_task(
 def commit_source_update_task(
     dataset_id: str,
     table_id: str,
+    # pyrefly: ignore [not-a-type]
     source_max_date: datetime.date | str,
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
@@ -350,6 +358,7 @@ def commit_source_update_task(
         None.
     """
 
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env=env)
     commit_source_update(
         client,
@@ -367,6 +376,7 @@ def commit_source_update_task(
 def register_source_coverage_task(
     dataset_id: str,
     table_id: str,
+    # pyrefly: ignore [not-a-type]
     source_max_date: datetime.date | str | None = None,
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
@@ -387,6 +397,7 @@ def register_source_coverage_task(
     Returns:
         bool — `True` se a cobertura da fonte avançou; `False` caso contrário.
     """
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env=env)
 
     return register_source_coverage(
@@ -421,6 +432,7 @@ def check_source_is_ahead_of_table_task(
     Returns:
         bool — `True` se a cobertura da fonte é mais recente que a da tabela.
     """
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env=env)
 
     return check_source_is_ahead_of_table(
@@ -459,6 +471,7 @@ def sync_table_coverage_task(
     """
     billing = metadata_constants.MODE_PROJECT.value[prefect_mode]
 
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env=env, billing_project=billing)
 
     bq = BigQueryReader(billing_project_id=billing, bq_project=bq_project)
@@ -511,6 +524,7 @@ def poll_source_size_for_update_task(
     Returns:
         bool — True se a fonte trouxe novidade (tamanho maior), False se igual.
     """
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env=env)
     redis = _get_redis_client(local_execution=local_execution)
     return poll_source_size_for_update(
@@ -549,6 +563,7 @@ def commit_source_size_update_task(
     Returns:
         None.
     """
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env=env)
     redis = _get_redis_client(local_execution=local_execution)
     commit_source_size_update(client, redis, dataset_id, table_id, byte_length)

@@ -64,6 +64,19 @@ def get_json(
     return None  # persistent 200-empty: legitimately-empty list endpoint
 
 
+def get_json_safe(path: str, params: dict | None = None, **kw) -> Any:
+    """Like `get_json`, but returns None instead of raising on failure.
+
+    Used for the per-entity fan-out (per senator, per committee), where one
+    endpoint persistently erroring must skip that entity, not abort a run that
+    iterates thousands of them.
+    """
+    try:
+        return get_json(path, params, **kw)
+    except Exception:
+        return None
+
+
 def _as_list(node: Any) -> list:
     """Normalize a possibly-missing / single-object node into a list.
 

@@ -6,6 +6,7 @@ uv run python gen_columns_json.py     # writes code/columns_json/<slug>.json
 import json
 import os
 
+# pyrefly: ignore [missing-import]
 from architecture_spec import TABLES
 
 HERE = os.path.dirname(os.path.abspath(__file__))

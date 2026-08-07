@@ -38,6 +38,7 @@ def br_inmet_bdmep__microdados(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -114,6 +115,7 @@ def br_inmet_bdmep__microdados(
             )
 
 
+# pyrefly: ignore [missing-attribute]
 br_inmet_bdmep__microdados.deploy_schedules = [
     {"cron": "0 22 * * 1-5", "timezone": "America/Sao_Paulo"},
 ]

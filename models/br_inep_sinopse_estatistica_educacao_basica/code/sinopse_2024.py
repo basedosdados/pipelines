@@ -247,6 +247,7 @@ dfs_etapa_ensino_serie = {
 def wide_to_long_etapa_ensino(
     df: pd.DataFrame, var_name: str, value_name: str
 ) -> pd.DataFrame:
+    # pyrefly: ignore [bad-index]
     df = df.copy().loc[
         (df["id_municipio"].notna()) & (df["id_municipio"] != " "),
     ]  # type: ignore

@@ -16,7 +16,9 @@ import json
 import re
 
 spec = importlib.util.spec_from_file_location("ng", "name_gen.py")
+# pyrefly: ignore [bad-argument-type]
 ng = importlib.util.module_from_spec(spec)
+# pyrefly: ignore [missing-attribute]
 spec.loader.exec_module(ng)
 
 
