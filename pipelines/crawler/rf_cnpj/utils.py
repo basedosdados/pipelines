@@ -23,7 +23,9 @@ ufs = constants_cnpj.UFS.value
 timeout = constants_cnpj.TIMEOUT.value
 
 
-def data_url(url: str, folder_date: str | None = None) -> datetime.date:
+def data_url(
+    url: str, folder_date: str | None = None
+) -> tuple[str, datetime.date]:
     """
     Fetches data from a URL, parses the HTML to find the latest folder date, and compares it to today's date.
 
@@ -55,7 +57,9 @@ def data_url(url: str, folder_date: str | None = None) -> datetime.date:
             urls = x.get_text(strip=True).split("/")[-2]
             if len(urls) == 7:
                 value.append(urls)
-        folder_date = max(value)
+        folder_date = str(
+            max(datetime.datetime.strptime(x, "%Y-%m") for x in value)
+        )
         last_modified_date = max(
             datetime.datetime.strptime(
                 p.find("d:getlastmodified").text, "%a, %d %b %Y %H:%M:%S GMT"
@@ -76,13 +80,13 @@ def data_url(url: str, folder_date: str | None = None) -> datetime.date:
                 "%a, %d %b %Y %H:%M:%S GMT",
             ).date()
         except Exception as e:
-            log.error(e)
+            log(e)
 
         log(
             f"A data extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD: {folder_date}"
         )
-
     log(
+        # pyrefly: ignore [unbound-name]
         f"A data máxima extraida da API da Receita Federal que será utilizada para gerar partições no Storage: {last_modified_date}"
     )
 
@@ -124,7 +128,7 @@ def get_table_files(table_name: str, url_base: str):
 # ! Cria o caminho do output
 def build_paths(
     table_id: str, build_input: bool = True, build_output: bool = True
-) -> tuple[Path, Path]:
+):
     """
     Constructs the output directory path based on the suffix and collection date.
 
@@ -156,9 +160,7 @@ def build_paths(
 
 
 # ! Adiciona zero a esquerda nas colunas
-def fill_left_zeros(
-    df: datetime.datetime, column, num_digits: int
-) -> pd.DataFrame:
+def fill_left_zeros(df: pd.DataFrame, column, num_digits: int) -> pd.DataFrame:
     """
     Adds left zeros to the specified column of a DataFrame to meet the required digit count.
 
@@ -196,7 +198,7 @@ def chunk_range(content_length: int, chunk_size: int) -> list[tuple[int, int]]:
 # from https://stackoverflow.com/a/64283770
 async def download(
     url,
-    save_path: Path | str,
+    save_path: Path,
     chunk_size=15 * 1024 * 1024,
     max_retries=5,
     max_parallel=5,
@@ -210,7 +212,7 @@ async def download(
 
     Args:
         url (str): The URL of the file to download.
-        save_path (Path|str): Destination file path; pre-allocated to the full content length.
+        save_path (Path): Destination file path; pre-allocated to the full content length.
         chunk_size (int): The size of each chunk in bytes (default: 15 MB).
         max_retries (int): Maximum number of retries allowed for each chunk (default: 5).
         max_parallel (int): Maximum number of parallel downloads (default: 4).
@@ -297,7 +299,7 @@ async def download_chunk(
     progress: dict,
     total_chunks: int,
     last_logged_progress: dict,
-    save_path: Path | str,
+    save_path: Path,
 ) -> None:
     """
     Downloads a specific chunk of a file asynchronously and writes it directly to
@@ -315,7 +317,7 @@ async def download_chunk(
         progress (dict): Dictionary to track the number of completed chunks.
         total_chunks (int): Total number of chunks to be downloaded.
         last_logged_progress (dict): Dictionary to track the last logged progress percentage.
-        save_path (Path|str): Destination file path the chunk is written into.
+        save_path (Path): Destination file path the chunk is written into.
 
     Raises:
         HTTPError: If the download fails after all retry attempts.
@@ -368,7 +370,7 @@ async def download_chunk(
 # ! Executa o download do zip file
 async def download_unzip_csv(
     url: str,
-    path: Path | str,
+    path: Path,
     chunk_size: int = 15 * 1024 * 1024,
     max_retries: int = 5,
     max_parallel: int = 5,
@@ -379,7 +381,7 @@ async def download_unzip_csv(
 
     Args:
         url (str): The URL of the ZIP file.
-        path (str): The directory to save and extract the ZIP file.
+        path (Path): The directory to save and extract the ZIP file.
     """
     log(f"Baixando o arquivo {url}")
     save_path = path / f"{Path(url).stem}.zip"
@@ -405,10 +407,10 @@ async def download_unzip_csv(
 
 # ! Salva os dados CSV Estabelecimentos
 def process_csv_estabelecimentos(
-    input_path: Path | str,
-    output_path: Path | str,
+    input_path: Path,
+    output_path: Path,
     data_referencia: str,
-    data_coleta: str,
+    data_coleta: str | datetime.date,
     i: int,
     chunk_size: int = 100000,
 ) -> None:
@@ -416,8 +418,8 @@ def process_csv_estabelecimentos(
     Processes and saves CSV data for establishments, organizing data into partitions by state.
 
     Args:
-        input_path (Path|str): Path to the input data.
-        output_path (Path|str): Directory to save processed data.
+        input_path (Path): Path to the input data.
+        output_path (Path): Directory to save processed data.
         data_referencia (str): Data  collection snapshot date as string.
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
@@ -497,10 +499,10 @@ def process_csv_estabelecimentos(
 
 # ! Salva os dados CSV Empresas
 def process_csv_empresas(
-    input_path: Path | str,
-    output_path: Path | str,
+    input_path: Path,
+    output_path: Path,
     data_referencia: str,
-    data_coleta: str,
+    data_coleta: str | datetime.date,
     i: int,
     chunk_size: int = 100000,
 ) -> None:
@@ -508,8 +510,8 @@ def process_csv_empresas(
     Processes and saves CSV data for companies.
 
     Args:
-        input_path (Path|str): Path to the input data.
-        output_path (Path|str): Directory to save processed data.
+        input_path (Path): Path to the input data.
+        output_path (Path): Directory to save processed data.
         data_referencia (str): Data  collection snapshot date as string.
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
@@ -562,10 +564,10 @@ def process_csv_empresas(
 
 # ! Salva os dados CSV Socios
 def process_csv_socios(
-    input_path: Path | str,
-    output_path: Path | str,
+    input_path: Path,
+    output_path: Path,
     data_referencia: str,
-    data_coleta: str,
+    data_coleta: str | datetime.date,
     i: int,
     chunk_size: int = 1000,
 ) -> None:
@@ -573,8 +575,8 @@ def process_csv_socios(
     Processes and saves CSV data for socios (partners).
 
     Args:
-        input_path (Path|str): Path to the input data.
-        output_path (Path|str): Directory to save processed data.
+        input_path (Path): Path to the input data.
+        output_path (Path): Directory to save processed data.
         data_referencia (str): Data  collection snapshot date as string.
         data_coleta (str): Data collection date as string.
         i (int): File number or batch index.
@@ -632,10 +634,10 @@ def process_csv_socios(
 
 # ! Salva os dados CSV Simples
 def process_csv_simples(
-    input_path: Path | str,
-    output_path: Path | str,
+    input_path: Path,
+    output_path: Path,
     data_referencia: str,
-    data_coleta: str,
+    data_coleta: str | datetime.date,
     sufixo: str,
     chunk_size: int = 1000,
 ) -> None:
@@ -643,8 +645,8 @@ def process_csv_simples(
     Processes and saves CSV data for simples.
 
     Args:
-        input_path (Path|str): Path to the input data.
-        output_path (Path|str): Directory to save processed data.
+        input_path (Path): Path to the input data.
+        output_path (Path): Directory to save processed data.
         data_referencia (str): Data  collection snapshot date as string.
         data_coleta (str): Data collection date as string.
         sufixo (str): Suffix used to construct the output filename.
@@ -730,7 +732,7 @@ def get_table_unique_keys(table_id: str, column: str):
     return df_uniques
 
 
-def format_country_name(dataframe: pd.DataFrame) -> None:
+def format_country_name(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
     Formats the 'nome_pais' column of the DataFrame, applying various transformations to standardize country names.
     The transformations include:
@@ -872,10 +874,10 @@ def verify_duplicates(dataframe: pd.DataFrame, columns: list[str]):
 
 
 def process_csv_dicionario(
-    input_path: Path | str,
-    output_path: Path | str,
+    input_path: Path,
+    output_path: Path,
     table_name: str,
-) -> None:
+) -> Path:
     """
     Processes CSV dictionary files and transforms them into a standardized format.
 
@@ -884,8 +886,8 @@ def process_csv_dicionario(
     and appends the transformed data to a single output CSV file.
 
     Args:
-        input_path (Path|str): Directory containing the input CSV files.
-        output_path (Path|str): Base directory for output.
+        input_path (Path): Directory containing the input CSV files.
+        output_path (Path): Base directory for output.
         table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
     """
     save_path = output_path
@@ -893,7 +895,7 @@ def process_csv_dicionario(
     save_path = save_path / "data.csv"
 
     log(f"Save path: {save_path}")
-    table_configs = constants_cnpj.TABLE_CONFIGS.value[table_name]
+    table_configs: dict = constants_cnpj.TABLE_CONFIGS.value[table_name]
     files = [
         fp
         for fp in Path(input_path).iterdir()
@@ -973,18 +975,18 @@ def process_csv_dicionario(
     return save_path
 
 
-def process_manual_dictionaries(output_path: Path | str, table_name: str):
+def process_manual_dictionaries(output_path: Path, table_name: str):
     """
     Processes dictionary keys and values, manually defined.
 
     Args:
-        output_path (Path|str): Base directory for output.
+        output_path (Path): Base directory for output.
         table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
     """
     save_path = output_path
     save_path.mkdir(exist_ok=True, parents=True)
     save_path = save_path / "data.csv"
-    table_configs = constants_cnpj.TABLE_CONFIGS.value[table_name]
+    table_configs: dict = constants_cnpj.TABLE_CONFIGS.value[table_name]
 
     chunk = pd.DataFrame(table_configs["chaves_valores"])
     for relationship in table_configs["relationships"]:

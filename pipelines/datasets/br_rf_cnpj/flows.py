@@ -43,6 +43,7 @@ def _rf_cnpj_flow(table_id: str, cron: str):
             download_timeout=download_timeout,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

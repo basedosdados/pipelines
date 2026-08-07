@@ -39,6 +39,7 @@ def _run_rf_cnpj(
     download_max_parallel: int = 5,
     download_timeout: int = 5 * 60,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
