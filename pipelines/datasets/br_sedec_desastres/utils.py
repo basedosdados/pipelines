@@ -15,6 +15,7 @@ import shutil
 import time
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlparse
 
 import pandas as pd
 import polars as pl
@@ -48,36 +49,54 @@ _HTML_MINIMO = 2000
 
 # ── download ────────────────────────────────────────────────────────────────
 def _checar_fonte() -> None:
-    """Registra o que uma requisição simples recebe da fonte, sem browser.
+    """Registra o que a fonte responde a requisições simples, sem browser.
 
-    Serve para separar dois bloqueios que chegam idênticos ao selenium. Se esta
-    checagem trouxer a página inteira e o Chrome não, o que está sendo barrado é
-    o browser headless, e o caminho é montar o postback com ``requests``. Se ela
-    também vier truncada, o barrado é a origem de rede, e não há correção
-    possível no código do pipeline.
+    Existe para separar três causas que chegam ao selenium como o mesmo timeout:
+
+    - **conteúdo do pedido** (User-Agent, headers, browser headless detectado):
+      se esta checagem passar e o Chrome não, o barrado é o browser, e o caminho
+      é montar o postback com ``requests`` em vez de dirigir o navegador;
+    - **origem de rede**: se a raiz e o caminho do relatório levarem o mesmo
+      erro, o negado é o IP de saída, e não há correção possível no código;
+    - **regra por caminho**: se a raiz passar e só o relatório cair, a política
+      é do path, e vale investigar sessão, ``Referer`` e ordem de navegação.
+
+    O IP de saída vai junto no log para permitir comparar com uma origem que
+    funciona — o mesmo pedido, do mesmo jeito, passa de outras redes.
 
     Nunca levanta: é diagnóstico, e falhar aqui não deve impedir a tentativa com
     o browser.
     """
     try:
-        resposta = requests.get(
-            constants.BASE_URL.value,
-            headers={"User-Agent": constants.USER_AGENT.value},
-            timeout=30,
-        )
-        log(
-            f"pré-checagem HTTP: status={resposta.status_code} | "
-            f"{len(resposta.content)} bytes | "
-            f"server={resposta.headers.get('server')!r} | "
-            f"content-type={resposta.headers.get('content-type')!r}"
-        )
-        if len(resposta.content) < _HTML_MINIMO:
-            log(f"corpo da pré-checagem: {resposta.text!r}", "warning")
+        eco = requests.get("https://api.ipify.org", timeout=15)
+        log(f"IP de saída do worker: {eco.text.strip()}")
     except Exception as erro:
         log(
-            f"pré-checagem HTTP falhou: {type(erro).__name__}: {erro}",
+            f"não consegui ler o IP de saída: {type(erro).__name__}: {erro}",
             "warning",
         )
+
+    raiz = f"{urlparse(constants.BASE_URL.value).scheme}://{urlparse(constants.BASE_URL.value).netloc}/"
+    for url in (raiz, constants.BASE_URL.value):
+        try:
+            resposta = requests.get(
+                url,
+                headers={"User-Agent": constants.USER_AGENT.value},
+                timeout=30,
+            )
+            log(
+                f"pré-checagem {url} → status={resposta.status_code} | "
+                f"{len(resposta.content)} bytes | "
+                f"server={resposta.headers.get('server')!r} | "
+                f"content-type={resposta.headers.get('content-type')!r}"
+            )
+            if len(resposta.content) < _HTML_MINIMO:
+                log(f"corpo de {url}: {resposta.text!r}", "warning")
+        except Exception as erro:
+            log(
+                f"pré-checagem {url} falhou: {type(erro).__name__}: {erro}",
+                "warning",
+            )
 
 
 def _chrome_options(download_dir: Path) -> webdriver.ChromeOptions:
