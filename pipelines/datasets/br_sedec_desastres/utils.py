@@ -20,6 +20,7 @@ import pandas as pd
 import polars as pl
 import pyarrow as pa
 import pyarrow.parquet as pq
+import requests
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -40,7 +41,45 @@ PA = {
 }
 
 
+# Abaixo disto a resposta não é o relatório: a página real passa de 250 KB, e o
+# que o pod recebeu quando o WAF barrou tinha 165 bytes.
+_HTML_MINIMO = 2000
+
+
 # ── download ────────────────────────────────────────────────────────────────
+def _checar_fonte() -> None:
+    """Registra o que uma requisição simples recebe da fonte, sem browser.
+
+    Serve para separar dois bloqueios que chegam idênticos ao selenium. Se esta
+    checagem trouxer a página inteira e o Chrome não, o que está sendo barrado é
+    o browser headless, e o caminho é montar o postback com ``requests``. Se ela
+    também vier truncada, o barrado é a origem de rede, e não há correção
+    possível no código do pipeline.
+
+    Nunca levanta: é diagnóstico, e falhar aqui não deve impedir a tentativa com
+    o browser.
+    """
+    try:
+        resposta = requests.get(
+            constants.BASE_URL.value,
+            headers={"User-Agent": constants.USER_AGENT.value},
+            timeout=30,
+        )
+        log(
+            f"pré-checagem HTTP: status={resposta.status_code} | "
+            f"{len(resposta.content)} bytes | "
+            f"server={resposta.headers.get('server')!r} | "
+            f"content-type={resposta.headers.get('content-type')!r}"
+        )
+        if len(resposta.content) < _HTML_MINIMO:
+            log(f"corpo da pré-checagem: {resposta.text!r}", "warning")
+    except Exception as erro:
+        log(
+            f"pré-checagem HTTP falhou: {type(erro).__name__}: {erro}",
+            "warning",
+        )
+
+
 def _chrome_options(download_dir: Path) -> webdriver.ChromeOptions:
     """Monta as opções do Chrome headless, baixando direto em ``download_dir``.
 
@@ -250,6 +289,8 @@ def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
     shutil.rmtree(input_dir, ignore_errors=True)
     input_dir.mkdir(parents=True)
 
+    _checar_fonte()
+
     log("resolvendo o chromedriver")
     service = ChromeService(ChromeDriverManager().install())
     log(f"chromedriver em {service.path}; abrindo o Chrome")
@@ -264,6 +305,12 @@ def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
         driver.get(constants.BASE_URL.value)
         # Título e tamanho do HTML logo após o get: uma página de bloqueio ou de
         # erro se denuncia aqui, e não 120s depois num timeout sem contexto.
+        html = driver.page_source
+        if len(html) < _HTML_MINIMO:
+            # Curto demais para ser o relatório, que passa de 250 KB. O HTML
+            # inteiro cabe no log e é o que distingue rejeição de WAF, página de
+            # erro do servidor e aplicação que não renderizou.
+            log(f"html recebido na íntegra: {html!r}", "warning")
         log(
             f"página carregada em {time.monotonic() - inicio:.1f}s | "
             f"título={driver.title!r} | html={len(driver.page_source)} bytes"
