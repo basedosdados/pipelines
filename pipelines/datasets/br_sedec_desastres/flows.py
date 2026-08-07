@@ -35,17 +35,12 @@ from pipelines.utils.tasks import (
     upload_to_gcs,
 )
 
-DATASET_ID = constants.DATASET_ID.value
-TABLE_ID = constants.TABLE_ID.value
-
 DATE_FORMAT = "%Y-%m-%d"
 
-_COVERAGE = {
-    TABLE_ID: AllFree(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    ),
-}
+_COVERAGE = AllFree(
+    date_column=DateOnly(col="data_extracao"),
+    date_format=DateFormat.YEAR_MD,
+)
 
 
 # Os parâmetros são documentados aqui, e não numa seção `Args:` do docstring, porque
@@ -54,23 +49,27 @@ _COVERAGE = {
 # demais flows do repo. Ao editar, note que o formulário só reflete a mudança depois
 # de um novo deploy.
 #
-# materialize_to_prod: seguir além da materialização em dev, escrevendo no bucket de
-#     staging de prod e rodando dbt com target="prod". Passar False para exercitar só
+# materialize_after_dump: seguir além da materialização em dev, escrevendo no bucket
+#     de staging de prod e rodando dbt com o `target`. Passar False para exercitar só
 #     a metade de dev, que é o teste seguro, já que o padrão escreve em produção.
 #     Também desliga o poll, que consulta o backend de prod.
 # update_metadata: depois de materializar prod com sucesso, registrar a cobertura da
-#     tabela e gravar o update da fonte. Sem efeito quando materialize_to_prod é
+#     tabela e gravar o update da fonte. Sem efeito quando materialize_after_dump é
 #     False.
 # force_run: materializar mesmo quando o poll não achar dado novo.
 @flow(name="br_sedec_desastres", log_prints=True)
 def br_sedec_desastres_flow(
-    materialize_to_prod: bool = True,
+    dataset_id: str = constants.DATASET_ID.value,
+    table_id: str = constants.TABLE_ID.value,
+    materialize_after_dump: bool = True,
+    dbt_alias: bool = True,
     update_metadata: bool = True,
+    target: str = "prod",
     force_run: bool = False,
 ) -> None:
     """Baixa o relatório do S2ID, remonta a tabela e materializa."""
     rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
     work_dir = tempfile.mkdtemp(prefix="br_sedec_desastres_")
@@ -78,14 +77,18 @@ def br_sedec_desastres_flow(
         input_dir = download_reconhecimentos(work_dir=work_dir)
         result = clean_reconhecimentos(work_dir=work_dir, input_dir=input_dir)
         max_date = result["max_date"]
+        # A chave do `result` vem do `constants.TABLE_ID`, que é o que o
+        # `clean_all` usa para nomear o diretório de saída — não do parâmetro
+        # `table_id`, que só endereça o destino no BigQuery.
+        data_path = result[constants.TABLE_ID.value]
 
         # O poll é pinado em env="prod" e o return dele vem antes do upload de
         # dev: consultado sem condição, um run de dev depende do backend de
         # produção e pode encerrar sem ingerir nada, reportando COMPLETED.
-        if materialize_to_prod:
+        if materialize_after_dump:
             has_new_data = poll_source_for_update_task(
-                dataset_id=DATASET_ID,
-                table_id=TABLE_ID,
+                dataset_id=dataset_id,
+                table_id=table_id,
                 source_max_date=max_date,
                 env="prod",
                 date_format=DATE_FORMAT,
@@ -93,58 +96,55 @@ def br_sedec_desastres_flow(
             if not has_new_data and not force_run:
                 return
 
-        tables = constants.ALL_TABLES.value
-
         dump_mode = "append"
 
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode=dump_mode,
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="dev",
-            )
+        upload_to_gcs(
+            data_path=data_path,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados-dev",
+            dump_mode=dump_mode,
+            source_format="parquet",
+        )
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            dbt_alias=dbt_alias,
+            target="dev",
+        )
 
-        if not materialize_to_prod:
+        if not materialize_after_dump:
             return
 
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode=dump_mode,
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="prod",
-            )
+        upload_to_gcs(
+            data_path=data_path,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados",
+            dump_mode=dump_mode,
+            source_format="parquet",
+        )
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            dbt_alias=dbt_alias,
+            target=target,
+        )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
+            register_table_materialization_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                coverage=_COVERAGE,
+                env="prod",
+                bq_project="basedosdados",
+            )
 
             commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id=TABLE_ID,
+                dataset_id=dataset_id,
+                table_id=table_id,
                 source_max_date=max_date,
                 env="prod",
                 date_format=DATE_FORMAT,

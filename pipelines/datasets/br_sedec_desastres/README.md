@@ -278,7 +278,7 @@ Em consequência:
   (ordem, tipos, `original_name`) vive em `constants.COLUNAS`, e toda alteração na
   planilha precisa ser refletida lá;
 - **não há carga inicial separada.** A primeira carga é o próprio flow rodando em
-  dev com `materialize_to_prod=False`;
+  dev com `materialize_after_dump=False`;
 - as etapas são executáveis localmente por um `run_flow_local.py` na raiz, não
   versionado: ele chama as mesmas `@task` do flow via `.fn()` e escreve em
   `tmp/br_sedec_desastres/`. Não cobre a fiação do `flows.py` nem as tasks de
@@ -327,7 +327,7 @@ apenas id e nome. Conferir descrição de coluna exige o Django admin.
 - [ ] Commitar `flows.py`, `tasks.py`, `utils.py`, o `.sql`, o `schema.yml` e este
       README.
 - [ ] Run de dev no Prefect com
-      `{"materialize_to_prod": false, "update_metadata": false}`, verificando
+      `{"materialize_after_dump": false, "update_metadata": false}`, verificando
       `dbt run OK` e `dbt test OK` nos logs.
 - [ ] Ajustar o `job_variables` de memória a partir do consumo desse run; os `4Gi`
       atuais não foram medidos.

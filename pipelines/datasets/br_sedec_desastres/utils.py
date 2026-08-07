@@ -1,13 +1,16 @@
 """Download e limpeza do br_sedec_desastres.
 
-Funções puras: nada aqui importa Prefect. Quem embala em `@task` é o `tasks.py`.
+Funções puras: nada aqui importa Prefect no nível do módulo. Quem embala em
+`@task` é o `tasks.py`. O `log()` vem de `pipelines.utils.utils` e resolve o
+logger do Prefect só em tempo de chamada — dentro de uma task ele escreve no log
+do run, fora dela cai no `logging` padrão —, então o módulo segue importável sem
+o Prefect instalado.
 
 O schema (ordem das colunas, tipos, nome de origem) vem de `constants.COLUNAS`,
 não de arquivo — a planilha de arquitetura fica fora do repo, em `task_davi/`.
 """
 
 import io
-import logging
 import shutil
 import time
 from datetime import date
@@ -18,6 +21,7 @@ import polars as pl
 import pyarrow as pa
 import pyarrow.parquet as pq
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
@@ -25,8 +29,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
 from pipelines.datasets.br_sedec_desastres.constants import constants
-
-log = logging.getLogger(__name__)
+from pipelines.utils.utils import log
 
 PA = {
     "INT64": pa.int64(),
@@ -70,17 +73,39 @@ def _chrome_options(download_dir: Path) -> webdriver.ChromeOptions:
     return options
 
 
-def _click(driver, xpath: str, timeout: int) -> None:
+def _click(driver, xpath: str, timeout: int, descricao: str) -> None:
     """Espera o elemento ficar clicável e clica nele.
+
+    Ao estourar, registra quantos elementos casam o XPath antes de propagar o
+    erro. É a informação que separa os dois modos de falha: zero significa que o
+    elemento não está na página (bloqueio da fonte, página de erro ou HTML que
+    mudou), enquanto um ou mais significa que ele existe e nunca ficou clicável
+    (painel fechado, overlay por cima). Sem isso, os dois casos chegam como o
+    mesmo ``TimeoutException`` sem contexto nenhum.
 
     Args:
         driver: WebDriver ativo.
         xpath: XPath do elemento.
         timeout: Segundos de espera até o elemento ficar clicável.
+        descricao: Nome do elemento em português, usado nas mensagens de log.
+
+    Raises:
+        TimeoutException: Se o elemento não ficar clicável dentro de ``timeout``.
     """
-    WebDriverWait(driver, timeout).until(
-        ec.element_to_be_clickable((By.XPATH, xpath))
-    ).click()
+    log(f"clicando em {descricao}")
+    try:
+        WebDriverWait(driver, timeout).until(
+            ec.element_to_be_clickable((By.XPATH, xpath))
+        ).click()
+    except TimeoutException:
+        casam = len(driver.find_elements(By.XPATH, xpath))
+        log(
+            f"timeout em {descricao} após {timeout}s: {casam} elemento(s) casam "
+            f"o xpath | url={driver.current_url!r} | título={driver.title!r} | "
+            f"html={len(driver.page_source)} bytes",
+            "error",
+        )
+        raise
 
 
 def _is_in_flight(path: Path) -> bool:
@@ -178,9 +203,17 @@ def _wait_for_download(
             and path.name not in seen
         ]
         if new_files and not in_flight:
-            log.info(f"download concluído: {new_files[0].name}")
+            log(f"download concluído: {new_files[0].name}")
             return new_files[0]
         time.sleep(1)
+    # O conteúdo do diretório é o que separa "o clique não disparou download
+    # nenhum" de "baixou mas travou pela metade" — os dois chegam aqui iguais.
+    presentes = sorted(p.name for p in download_dir.iterdir() if p.is_file())
+    log(
+        f"timeout de download após {timeout}s | {len(seen)} já baixados | "
+        f"no diretório: {presentes}",
+        "error",
+    )
     raise TimeoutError(
         f"nenhum arquivo novo em {download_dir} após {timeout}s "
         f"({len(seen)} já baixados)"
@@ -217,38 +250,71 @@ def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
     shutil.rmtree(input_dir, ignore_errors=True)
     input_dir.mkdir(parents=True)
 
+    log("resolvendo o chromedriver")
+    service = ChromeService(ChromeDriverManager().install())
+    log(f"chromedriver em {service.path}; abrindo o Chrome")
+
     driver = webdriver.Chrome(
-        service=ChromeService(ChromeDriverManager().install()),
+        service=service,
         options=_chrome_options(input_dir),
     )
     try:
+        log(f"carregando {constants.BASE_URL.value}")
+        inicio = time.monotonic()
         driver.get(constants.BASE_URL.value)
+        # Título e tamanho do HTML logo após o get: uma página de bloqueio ou de
+        # erro se denuncia aqui, e não 120s depois num timeout sem contexto.
+        log(
+            f"página carregada em {time.monotonic() - inicio:.1f}s | "
+            f"título={driver.title!r} | html={len(driver.page_source)} bytes"
+        )
 
-        _click(driver, xpaths["painel"], element_timeout)
+        _click(driver, xpaths["painel"], element_timeout, "painel de vigentes")
 
         ufs = _read_ufs(driver)
-        log.info(f"{len(ufs)} estados a exportar")
+        log(f"{len(ufs)} estados a exportar")
 
-        _click(driver, xpaths["todas_tipologias"], element_timeout)
+        _click(
+            driver,
+            xpaths["todas_tipologias"],
+            element_timeout,
+            "checkbox de todas as tipologias",
+        )
 
         seen: set[str] = set()
         for i, (sigla, nome) in enumerate(ufs, start=1):
-            log.info(f"[{i}/{len(ufs)}] {sigla} ({nome})")
+            log(f"[{i}/{len(ufs)}] {sigla} ({nome})")
+            inicio_uf = time.monotonic()
 
-            _click(driver, xpaths["estado_widget"], element_timeout)
+            _click(
+                driver,
+                xpaths["estado_widget"],
+                element_timeout,
+                f"widget de estado ({sigla})",
+            )
             _click(
                 driver,
                 xpaths["estado_item"].format(uf_nome=nome),
                 element_timeout,
+                f"item {nome} do dropdown",
             )
-            _click(driver, xpaths["exportar_csv"], element_timeout)
+            _click(
+                driver,
+                xpaths["exportar_csv"],
+                element_timeout,
+                f"botão Exportar CSV ({sigla})",
+            )
 
             baixado = _wait_for_download(input_dir, download_timeout, seen)
             destino = input_dir / f"{sigla}.csv"
             baixado.rename(destino)
             seen.add(destino.name)
+            log(
+                f"[{i}/{len(ufs)}] {sigla}: {destino.stat().st_size} bytes em "
+                f"{time.monotonic() - inicio_uf:.1f}s"
+            )
 
-        log.info(f"{len(seen)} arquivos em {input_dir}")
+        log(f"{len(seen)} arquivos em {input_dir}")
         return input_dir
     finally:
         driver.quit()
@@ -469,5 +535,5 @@ def write_partitioned(df: pd.DataFrame, table: str, output_dir: Path) -> Path:
         at = at.cast(string_schema)
         pq.write_table(at, pdir / "data.parquet", compression="snappy")
 
-    log.info(f"{table}: {len(out):,} linhas -> {tdir}")
+    log(f"{table}: {len(out):,} linhas -> {tdir}")
     return tdir
