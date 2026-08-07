@@ -105,6 +105,7 @@ GAZ_ALL_MAP = {w.lower(): w for w in GAZ_ALL}
 def _apply(s, mapping):
     keys = sorted(mapping, key=len, reverse=True)
     pat = re.compile(
+        # pyrefly: ignore [bad-specialization, no-matching-overload]
         r"(?<![\w'])(" + "|".join(re.escape(k) for k in keys) + r")(?![\w'])",
         re.I,
     )

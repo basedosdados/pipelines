@@ -43,6 +43,7 @@ def _run_denatran(
     target: str,
     force_run: bool,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -76,6 +77,7 @@ def _run_denatran(
             table_id=table_id,
             temp_dir=denatran_constants.DOWNLOAD_PATH.value,
         )
+        # pyrefly: ignore [no-matching-overload]
         desired_file = get_desired_file_task(
             source_max_date=source_max_date,
             download_directory=denatran_constants.DOWNLOAD_PATH.value,
@@ -195,9 +197,11 @@ def br_denatran_frota__municipio_tipo(
     )
 
 
+# pyrefly: ignore [missing-attribute]
 br_denatran_frota__uf_tipo.deploy_schedules = [
     {"cron": "0 21 10-30 * *", "timezone": "America/Sao_Paulo"}
 ]
+# pyrefly: ignore [missing-attribute]
 br_denatran_frota__municipio_tipo.deploy_schedules = [
     {"cron": "20 21 10-30 * *", "timezone": "America/Sao_Paulo"}
 ]

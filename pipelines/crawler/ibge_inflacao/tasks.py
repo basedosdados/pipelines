@@ -22,6 +22,7 @@ def check_for_updates(
     table_id: str,
     dataset_id: str,
 ) -> None:
+    # pyrefly: ignore [bad-return]
     return get_date_api(table_id=table_id, dataset_id=dataset_id)
 
 
@@ -46,6 +47,7 @@ def collect_data_utils(
                 variables=constants.DATASETS_MES_BRASIL.value[dataset_id][
                     "variables"
                 ],
+                # pyrefly: ignore [bad-argument-type]
                 periods=periodo,
                 geo_level=constants.GEO_LEVELS_MES_BRASIL.value,
             )
@@ -57,6 +59,7 @@ def collect_data_utils(
                 table_id=table_id,
                 aggregates=constants.DATASETS.value[dataset_id]["aggregates"],
                 variables=constants.DATASETS.value[dataset_id]["variables"],
+                # pyrefly: ignore [bad-argument-type]
                 periods=periodo,
                 geo_level=constants.GEO_LEVELS.value[table_id],
             )

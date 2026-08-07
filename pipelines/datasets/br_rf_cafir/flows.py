@@ -43,6 +43,7 @@ def br_rf_cafir__imoveis_rurais(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -68,6 +69,7 @@ def br_rf_cafir__imoveis_rurais(
         if not has_new_data:
             return
 
+    # pyrefly: ignore [no-matching-overload]
     file_path = task_download_files(
         url=br_rf_cafir_constants.URL.value,
         file_list=arquivos,
@@ -132,6 +134,7 @@ def br_rf_cafir__imoveis_rurais(
             )
 
 
+# pyrefly: ignore [missing-attribute]
 br_rf_cafir__imoveis_rurais.deploy_schedules = [
     {"cron": "0 0 * * *", "timezone": "America/Sao_Paulo"}
 ]

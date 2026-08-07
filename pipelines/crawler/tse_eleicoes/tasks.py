@@ -19,10 +19,13 @@ T = TypeVar("T")
 def flows_control(table_id: str, mode: str) -> type[T]:
     catalog = flows_catalog()
 
+    # pyrefly: ignore [unsupported-operation]
     select_flow = catalog.get(table_id)["flow"]
     flow = select_flow(
+        # pyrefly: ignore [unsupported-operation]
         urls=catalog.get(table_id)["urls"],
         table_id=table_id,
+        # pyrefly: ignore [unsupported-operation]
         source=catalog.get(table_id)["source"],
         mode=mode,
     )

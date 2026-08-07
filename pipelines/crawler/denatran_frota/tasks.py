@@ -35,6 +35,7 @@ from pipelines.utils.utils import log
 
 @task
 def crawl_task(
+    # pyrefly: ignore [not-a-type]
     source_max_date: datetime,
     table_id: str,
     temp_dir: str | Path = denatran_constants.DOWNLOAD_PATH.value,
@@ -56,6 +57,7 @@ def crawl_task(
         raise ValueError("Mês inválido.")
     log("Downloading file")
     table_dir = os.path.join(str(temp_dir), table_id)
+    # pyrefly: ignore [unnecessary-type-conversion]
     year_dir_name = os.path.join(str(table_dir), f"{year}")
     Path(year_dir_name).mkdir(exist_ok=True, parents=True)
     if year > 2012:
@@ -96,6 +98,7 @@ def crawl_task(
 
 @task
 def get_desired_file_task(
+    # pyrefly: ignore [not-a-type]
     source_max_date: datetime,
     download_directory: str,
     table_id: str,
@@ -119,7 +122,10 @@ def get_desired_file_task(
     month = source_max_date.month
     log(f"-------- Accessing download directory {download_directory}")
     directory_to_search = os.path.join(
-        str(download_directory), table_id, f"{year}"
+        # pyrefly: ignore [unnecessary-type-conversion]
+        str(download_directory),
+        table_id,
+        f"{year}",
     )
     log(f"-------- Directory to search {directory_to_search}")
 
@@ -178,6 +184,7 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
         columns={new_df.columns[0]: "sigla_uf"}
     )  # Rename for ease of use.
 
+    # pyrefly: ignore [missing-attribute]
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
     clean_df = new_df[new_df.sigla_uf.isin(valid_ufs)].reset_index(
         drop=True
@@ -211,6 +218,7 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
     log("-------- Data Wrangling finished")
     output_path = output_file_to_parquet(clean_pl_df, table_id="uf_tipo")
     log(f"-------- Data Saved: {output_path}")
+    # pyrefly: ignore [bad-return]
     return output_path
 
 
@@ -258,6 +266,7 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
         },
     )  # Rename for ease of use.
 
+    # pyrefly: ignore [missing-attribute]
     new_df.sigla_uf = new_df.sigla_uf.str.strip()  # Remove whitespace.
     new_pl_df = pl.from_pandas(new_df)
     new_pl_df = verify_total(new_pl_df)
@@ -277,7 +286,9 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
     dfs = []
     for uf in denatran_constants.DICT_UFS.value:
         dfs.append(treat_uf(new_pl_df, bd_municipios, uf))
+    # pyrefly: ignore [bad-specialization]
     full_pl_df = pl.concat(dfs)
+    # pyrefly: ignore [missing-attribute]
     full_pl_df = full_pl_df.select(
         pl.exclude("TOTAL", "suggested_nome_ibge", "nome_denatran")
     )
@@ -291,6 +302,7 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
 
     output_path = output_file_to_parquet(full_pl_df, table_id="municipio_tipo")
     log(f"-------- Data Saved: {output_path}")
+    # pyrefly: ignore [bad-return]
     return output_path
 
 
@@ -323,11 +335,13 @@ def get_latest_date_task(
     dates = []
     dates_str = []
     year, month = update_yearmonth(year, month)
+    # pyrefly: ignore [unnecessary-type-conversion]
     while datetime.date(int(year), int(month), 1) <= today:
         if year > 2012:
             files_dir = os.path.join(
                 str(denatran_constants.DOWNLOAD_PATH.value), "files"
             )
+            # pyrefly: ignore [unnecessary-type-conversion]
             year_dir_name = os.path.join(str(files_dir), f"{year}")
             try:
                 files_to_download = extract_links_post_2012(
@@ -345,6 +359,7 @@ def get_latest_date_task(
                         dates_str.append(str_return)
                         year, month = update_yearmonth(year, month)
                 elif (
+                    # pyrefly: ignore [unnecessary-type-conversion]
                     datetime.date(int(year), int(month), 1)
                     + relativedelta(month=1)
                     > today
@@ -364,6 +379,7 @@ def get_latest_date_task(
                 dates_str.append(str_return)
                 year, month = update_yearmonth(year, month)
             elif (
+                # pyrefly: ignore [unnecessary-type-conversion]
                 datetime.date(int(year), int(month), 1)
                 + relativedelta(month=1)
                 > today
@@ -379,6 +395,7 @@ def get_latest_date_task(
         dates_str = [str_return]
     log(f"Ano: {year}, mês: {month}")
     log(f"Available dates: {dates_str}")
+    # pyrefly: ignore [bad-return]
     return dates, dates_str, dates[0], dates_str[0]
 
 

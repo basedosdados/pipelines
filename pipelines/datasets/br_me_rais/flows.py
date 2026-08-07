@@ -61,5 +61,7 @@ def br_me_rais__microdados_vinculos(
     )
 
 
+# pyrefly: ignore [missing-attribute]
 br_me_rais__microdados_estabelecimentos.deploy_schedules = []
+# pyrefly: ignore [missing-attribute]
 br_me_rais__microdados_vinculos.deploy_schedules = []
