@@ -55,15 +55,15 @@ FGTS-only, inserted after `unidade_responsavel`:
 All categorical columns store readable labels ⇒ `covered_by_dictionary = no`; **no dicionario table**.
 
 ## Data location & cleanup
-- All raw archives + cleaned parquet live under **`~/Downloads/pgfn_divida_ativa_data/`** (`input/`, `output/`) — outside Dropbox/the repo; override via `PGFN_DATA_ROOT`.
-- **Final step of this session: delete `~/Downloads/pgfn_divida_ativa_data/` entirely** once dev upload + dbt + dev metadata are done (data is fully reproducible from source). Codified as step 14 in `onboarding-workflow.md`.
+- All raw archives + cleaned parquet live under **`~/Downloads/br_mf_divida_ativa_data/`** (`input/`, `output/`) — outside Dropbox/the repo; override via `PGFN_DATA_ROOT`.
+- **Final step of this session: delete `~/Downloads/br_mf_divida_ativa_data/` entirely** once dev upload + dbt + dev metadata are done (data is fully reproducible from source). Codified as step 14 in `onboarding-workflow.md`.
 
 ## Phase C complete — dev/staging metadata registered (staging backend, status under_review)
 Registered on `staging` backend (env=staging; dev backend 503). Dataset `divida_ativa` id `744fc0f1-c805-43d6-ad1a-a0fcabf7fac4`, org `mf`, theme `economics`.
 - Tables: `nao_previdenciario` `f5585610-42b1-4b6a-bed1-f3cc7cb8a2f8` · `previdenciario` `609fa07e-ca10-4e15-96b6-eb7659b8c4fb` · `fgts` `b9223d6e-0192-4d30-a65a-6942cccd3d53` (status published; gated by dataset under_review).
 - Per table: columns (17/15/15, `measurement_unit=real` accepted), OL entity `other`←`numero_inscricao`, `ano` is_partition, cloud_table→`basedosdados-dev.br_mf_divida_ativa.*`, raw source `970a83ef-...` linked, quarterly table Update.
 - **Paywall topology** per table: free coverage 2020-03..2025-12 (`is_closed=False`) + pro coverage 2026-03..2026-06 (`is_closed=True`).
-- Scratch data (`~/Downloads/pgfn_divida_ativa_data`, 32 GB) deleted (step 14).
+- Scratch data (`~/Downloads/br_mf_divida_ativa_data`, 32 GB) deleted (step 14).
 
 ### Remaining (NOT done this session — needs decisions/approval)
 1. **dbt run/test in dev** was skipped (query quota). Either re-run when quota resets / raised, or rely on prod table-approve to materialize + validate the `safe_cast` model on merge.
@@ -95,7 +95,7 @@ Registered on `staging` backend (env=staging; dev backend 503). Dataset `divida_
   2. `sigla_uf` source drift (confirmed across all 26 quarters × 3 tables): `UF_UNIDADE_RESPONSAVEL` (2020 Q1–2022 Q3) → `UF_DEVEDOR` (2022 Q4+). Added `COLUMN_ALIASES` so both map to `sigla_uf`; the earlier values are the responsible-unit UF (documented). Only these two variants exist — no third.
   3. Invalid UFs (e.g. `Si`, tied to "SEM INFORMACAO") nulled so the UF directory FK stays clean.
   4. Shared macro `get_where_subquery` quoted `ano` for `__most_recent_year__` (`ano = '2026'`) → `INT64 = STRING` error. Fixed to unquoted, matching the `_en`/`_year_month` branches (no existing model used `__most_recent_year__`, so zero blast radius).
-- Uniqueness key `[ano, trimestre, numero_inscricao, cpf_cnpj, tipo_devedor, receita_principal]`: 0 dups on fgts/prev; SIDA validated via dbt.
+- Uniqueness: the initial 6-col key `[ano, trimestre, numero_inscricao, cpf_cnpj, tipo_devedor, receita_principal]` had 0 dups on fgts/prev but **10 dups on SIDA** (masked-CPF collisions between distinct corresponsáveis). **Superseded** by the resolved 7-col key below (adds `nome_devedor`), which the dbt tests use.
 
 ## Phase B notes (backfill)
 - Full source header scan (26 quarters × 3 tables): exactly two variants each (UF column rename at 2022 Q3→Q4); both handled. FGTS 2020 Q1 exists on the server (not linked on the page).

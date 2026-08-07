@@ -20,6 +20,7 @@ import io
 import logging
 import os
 import shutil
+import time
 import zipfile
 from pathlib import Path
 
@@ -107,7 +108,7 @@ def data_root() -> Path:
     return Path(
         os.environ.get(
             "PGFN_DATA_ROOT",
-            str(Path.home() / "Downloads" / "pgfn_divida_ativa_data"),
+            str(Path.home() / "Downloads" / "br_mf_divida_ativa_data"),
         )
     )
 
@@ -178,8 +179,8 @@ def download_quarter(
     input_dir.mkdir(parents=True, exist_ok=True)
     dest = input_dir / f"{table}_{year}_T{quarter}.zip"
     url = quarter_url(year, quarter, table)
-    last = None
-    for attempt in range(1, retries + 1):
+    last: Exception | None = None
+    for attempt in range(1, max(1, retries) + 1):
         try:
             with s.get(
                 url,
@@ -208,6 +209,10 @@ def download_quarter(
                 e,
             )
             dest.unlink(missing_ok=True)
+            if attempt < retries:
+                # exponential backoff (5s, 10s, 20s, ... capped at 60s) so a
+                # connection killed by laptop sleep gets time to recover.
+                time.sleep(min(60, 5 * 2 ** (attempt - 1)))
     raise last
 
 
