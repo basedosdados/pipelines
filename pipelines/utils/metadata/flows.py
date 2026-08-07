@@ -37,4 +37,5 @@ def update_temporal_coverage(
     )
 
 
+# pyrefly: ignore [missing-attribute]
 update_temporal_coverage.deploy_schedules = []

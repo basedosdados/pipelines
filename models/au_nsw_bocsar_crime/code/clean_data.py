@@ -90,6 +90,7 @@ def write_partitioned(df: pd.DataFrame, table: str) -> Path:
     tdir = OUTPUT / table
     total = 0
     for year, g in out.groupby("year", sort=True):
+        # pyrefly: ignore [bad-argument-type]
         pdir = tdir / f"year={int(year)}"
         pdir.mkdir(parents=True, exist_ok=True)
         at = pa.Table.from_pandas(g, schema=typed, preserve_index=False).cast(
