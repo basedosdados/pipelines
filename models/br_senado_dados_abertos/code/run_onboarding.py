@@ -36,9 +36,10 @@ def main() -> None:
     ap.add_argument("--sample", action="store_true", help="recent slice, fast")
     ap.add_argument("--full", action="store_true", help="full history")
     args = ap.parse_args()
-    # Sample: 2024 only for the time-series (dimensions are always full).
+    # Sample: 2024 only for the time-series, and a handful of senators /
+    # committees (dimensions are always full).
     years = None if args.full else range(2024, 2025)
-    result = clean_all(OUTPUT, years=years)
+    result = clean_all(OUTPUT, years=years, sample=not args.full)
     print("\n=== SUMMARY ===")
     for t in ALL_TABLES:
         print(f"  {t:32} {_rows(result[t]):>8} rows")
