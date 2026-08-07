@@ -30,6 +30,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: trimestre
         description: Trimestre de referência da extração dos dados, de 1 a 4
         tests: [not_null]
@@ -82,8 +84,12 @@ models:
             - nome_devedor
             - tipo_devedor
             - receita_principal
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano de referência do trimestre de extração dos dados
@@ -92,6 +98,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: trimestre
         description: Trimestre de referência da extração dos dados, de 1 a 4
         tests: [not_null]
@@ -101,6 +109,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: cpf_cnpj
         description: CPF parcialmente mascarado ou CNPJ do devedor
       - name: tipo_pessoa
@@ -141,8 +151,12 @@ models:
             - nome_devedor
             - tipo_devedor
             - receita_principal
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano de referência do trimestre de extração dos dados
@@ -151,6 +165,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: trimestre
         description: Trimestre de referência da extração dos dados, de 1 a 4
         tests: [not_null]
@@ -160,6 +176,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: cpf_cnpj
         description: CPF parcialmente mascarado ou CNPJ do devedor
       - name: tipo_pessoa
