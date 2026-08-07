@@ -12,6 +12,7 @@ Run: cd models/us_nature_gerda/code && python3 clean_municipal.py
 
 import os
 
+# pyrefly: ignore [missing-import]
 import gerda_common as gc
 import pandas as pd
 

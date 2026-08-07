@@ -33,7 +33,9 @@ def to_partitions(
         )
     """
 
+    # pyrefly: ignore [implicit-import]
     if isinstance(data, (pd.core.frame.DataFrame)):
+        # pyrefly: ignore [bad-assignment]
         savepath = Path(savepath)
         # create unique combinations between partition columns
         unique_combinations = (
@@ -59,6 +61,7 @@ def to_partitions(
             df_filter = df_filter.drop(columns=partition_columns)
 
             # create folder tree
+            # pyrefly: ignore [unsupported-operation]
             filter_save_path = Path(savepath / "/".join(patitions_values))
             filter_save_path.mkdir(parents=True, exist_ok=True)
 
@@ -214,9 +217,11 @@ def read_csv_enem():
             "indicador_questionario_socioeconomico",
         ]
         for col in lista:
+            # pyrefly: ignore [unbound-name]
             if col not in df_lista.columns:  # noqa: F821
                 df_lista[col] = str(np.nan)  # noqa: F821
 
+        # pyrefly: ignore [unbound-name]
         for x in df_lista.columns:  # noqa: F821
             df_lista[x] = df_lista[x].apply(  # noqa: F821
                 lambda x: str(x).replace(".0", "").replace("nan", "")
