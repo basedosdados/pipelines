@@ -6,36 +6,26 @@ models:
       contrato pode ter um ou mais subcréditos Cada linha da planilha corresponde
       a um subcrédito diferente
     columns:
+      - name: ano
+        description: Ano da contratação da operação.
+      - name: data_contratacao
+        description: Data de contratação do projeto
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
+      - name: id_contrato
+        description: Número identificador do contrato do cliente com o BNDES
+        tests: [not_null]
       - name: cnpj_cliente
         description: CNPJ do cliente
         tests:
           - dbt_utils.not_null_proportion:
               at_least: 0.99
-          - dbt_utils.relationships_where:
-              to: ref('br_bd_diretorios_brasil__empresa')
-              field: cnpj
-              from_condition: cnpj_cliente not like '77700001%'
-      - name: id_contrato
-        description: Número identificador do contrato do cliente com o BNDES
-        tests: [not_null]
-      - name: data_contratacao
-        description: Data de contratação do projeto
-        tests: [not_null]
-      - name: data_apuracao
-        description: Data de apuração das informações nos sistemas corporativos do
-          BNDES
-        tests: [not_null]
-      - name: sigla_uf
-        description: Sigla da Unidade da Federação
-      - name: nome_municipio
-        description: Nome do município
-      - name: razao_social_cliente
+      - name: nome_cliente
         description: Razão Social do cliente
         tests: [not_null]
-      - name: situacao_contrato
-        description: Situação do contrato
       - name: porte_cliente
         description: Porte do cliente de acordo com a política de classificação do
           BNDES
@@ -48,6 +38,14 @@ models:
       - name: descricao_projeto
         description: Descrição do projeto
         tests: [not_null]
+      - name: fonte_recurso
+        description: Fonte de recursos registrada nos desembolsos do contrato
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.90
+      - name: custo_financeiro
+        description: Custo financeiro do cliente
+        tests: [not_null]
       - name: modalidade_apoio
         description: Modalidade de Apoio, Reembolsável ou Não Reembolsável (apoio
           financeiro sem a exigência de reembolso financeiro ao BNDES)
@@ -59,7 +57,7 @@ models:
       - name: produto
         description: Produto financeiro, que define regras gerais de financiamento
         tests: [not_null]
-      - name: tipo_instrumento_financeiro
+      - name: instrumento_financeiro
         description: Tipo de instrumento financeiro (Linha de Financiamento, Programa,
           Fundo)
         tests: [not_null]
@@ -68,18 +66,15 @@ models:
         tests: [not_null]
       - name: tipo_excepcionalidade
         description: Classificação de acordo com o tipo de excepcionalidade do contrato
-      - name: tipo_fonte_recursos
-        description: Fonte de recursos registrada nos desembolsos do contrato
-        tests:
-          - dbt_utils.not_null_proportion:
-              at_least: 0.90
-      - name: area_operacional_bndes
+      - name: indicador_inovacao
+        description: Indicador de inovação do projeto
+      - name: area_operacional
         description: Área responsável pela operação no BNDES
         tests: [not_null]
-      - name: setor_cnae_bndes
+      - name: setor_cnae
         description: Setor CNAE agrupado pelo BNDES para fins estatísticos
         tests: [not_null]
-      - name: subsetor_agrupado_cnae_bndes
+      - name: subsetor_cnae_agrupado
         description: Subsetor CNAE agrupado pelo BNDES para fins estatísticos
         tests: [not_null]
       - name: secao_cnae
@@ -113,8 +108,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__cnae_2')
               field: subclasse
-      - name: descricao_subclasse
-        description: Descrição da subclasse CNAE 2
+      - name: descricao_cnae
+        description: Descrição do nível mais granular CNAE disponível
       - name: setor_bndes
         description: Setor segundo BNDES
       - name: subsetor_bndes
@@ -123,18 +118,15 @@ models:
         description: Nome da instituição financeira credenciada
       - name: cnpj_instituicao_financeira_credenciada
         description: CNPJ da instituição financeira credenciada
-      - name: custo_financeiro
-        description: Custo financeiro do cliente
-        tests: [not_null]
-      - name: taxa_juros
-        description: Taxa de juros
-        tests: [not_null]
-      - name: valor_contratado
+      - name: valor_operacao
         description: Valor contratado no projeto
         tests: [not_null]
       - name: valor_desembolsado
         description: Valor liberado convertido com base na data do desembolso e no
           indexador
+        tests: [not_null]
+      - name: taxa_juros
+        description: Taxa de juros
         tests: [not_null]
       - name: prazo_carencia
         description: Prazo de carência
@@ -142,8 +134,8 @@ models:
       - name: prazo_amortizacao
         description: Prazo de amortização em meses
         tests: [not_null]
-      - name: indicador_inovacao
-        description: Indicador de inovação do projeto
+      - name: situacao_operacao
+        description: Situação do contrato
   - name: br_bndes_operacoes_contratadas__operacoes_indiretas_automaticas
     description: >
       Operações de financiamento contratadas pelo BNDES na forma indireta

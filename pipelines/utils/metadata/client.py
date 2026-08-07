@@ -176,9 +176,35 @@ class MetadataClient:
             gcp_dataset_id=dataset_id, gcp_table_id=table_id
         )
 
-    def _raw_source_id(self, dataset_id: str, table_id: str) -> str | None:
+    def _raw_source_id(
+        self, dataset_id: str, table_id: str, url: str | None = None
+    ) -> str | None:
+        """Resolve o `_id` do `RawDataSource` ligado à tabela.
+
+        Com `url=None` (padrão) delega ao `_query_id`: devolve o único nó (ou
+        `None`) e levanta se a tabela tiver mais de uma fonte — comportamento
+        inalterado. Com `url` informado, busca todas as fontes da tabela e
+        filtra localmente pela URL exata, exigindo casar exatamente uma (o
+        backend não expõe filtro por `url`)."""
         table_pk = self.get_table_id(dataset_id, table_id)
-        return self._query_id("allRawdatasource", {"$tables_Id: ID": table_pk})
+        if url is None:
+            return self._query_id(
+                "allRawdatasource", {"$tables_Id: ID": table_pk}
+            )
+        query = (
+            "query($tables_Id: ID) { allRawdatasource(tables_Id: $tables_Id) "
+            "{ edges { node { _id, url } } } }"
+        )
+        response = self._execute(query, {"tables_Id": table_pk})
+        items = response["allRawdatasource"]["items"]
+        matches = [item for item in items if item.get("url") == url]
+        if len(matches) != 1:
+            raise ValueError(
+                f"allRawdatasource: esperava exatamente uma fonte com "
+                f"url={url!r} para {{'tables_Id': {table_pk}}}, encontrei "
+                f"{len(matches)}; verifique a url informada."
+            )
+        return matches[0]["_id"]
 
     # ------------------------------------------------------------------ leitura
     def get_table_status(self, dataset_id: str, table_id: str) -> str | None:
@@ -216,10 +242,14 @@ class MetadataClient:
         return self._read_update_latest("$table_Id: ID", table_pk, "table_Id")
 
     def get_raw_source_update_latest(
-        self, dataset_id: str, table_id: str
+        self, dataset_id: str, table_id: str, url: str | None = None
     ) -> datetime.date | None:
-        """Lê o campo `latest` do `Update` vinculado ao `RawDataSource`."""
-        rds_id = self._raw_source_id(dataset_id, table_id)
+        """Lê o campo `latest` do `Update` vinculado ao `RawDataSource`.
+
+        `url` seleciona a fonte específica (por URL exata) quando a tabela tem
+        mais de uma fonte ligada; `None` (padrão) mantém o comportamento de
+        fonte única."""
+        rds_id = self._raw_source_id(dataset_id, table_id, url=url)
         if rds_id is None:
             return None
         return self._read_update_latest(
@@ -242,10 +272,14 @@ class MetadataClient:
 
     # ------------------------------------------------------ escrita (1 por entidade)
     def upsert_raw_source_poll(
-        self, dataset_id: str, table_id: str, *, latest
+        self, dataset_id: str, table_id: str, *, latest, url: str | None = None
     ) -> str:
-        """Cria/atualiza o `Poll` ligado ao `RawDataSource`."""
-        rds_id = self._raw_source_id(dataset_id, table_id)
+        """Cria/atualiza o `Poll` ligado ao `RawDataSource`.
+
+        `url` seleciona a fonte específica (por URL exata) quando a tabela tem
+        mais de uma fonte ligada; `None` (padrão) mantém o comportamento de
+        fonte única."""
+        rds_id = self._raw_source_id(dataset_id, table_id, url=url)
         existing = self._query_id("allPoll", {"$rawDataSource_Id: ID": rds_id})
         if existing:
             return self._mutate(
@@ -261,10 +295,14 @@ class MetadataClient:
         return self._mutate("CreateUpdatePoll", dto.model_dump())
 
     def upsert_raw_source_update(
-        self, dataset_id: str, table_id: str, *, latest
+        self, dataset_id: str, table_id: str, *, latest, url: str | None = None
     ) -> str:
-        """Cria/atualiza o `Update` ligado ao `RawDataSource`."""
-        rds_id = self._raw_source_id(dataset_id, table_id)
+        """Cria/atualiza o `Update` ligado ao `RawDataSource`.
+
+        `url` seleciona a fonte específica (por URL exata) quando a tabela tem
+        mais de uma fonte ligada; `None` (padrão) mantém o comportamento de
+        fonte única."""
+        rds_id = self._raw_source_id(dataset_id, table_id, url=url)
         existing = self._query_id(
             "allUpdate", {"$rawDataSource_Id: ID": rds_id}
         )

@@ -147,6 +147,72 @@ def test_write_carries_auth_header(client, backend):
     }
 
 
+# ================================================= seletor por url (multi-fonte)
+API_URL = "https://api.example/data"
+HIST_URL = "https://hist.example/frozen"
+RDS_API = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+RDS_HIST = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+
+
+def _two_sources() -> dict:
+    """Duas fontes ligadas à mesma tabela (uma de API, um histórico congelado)."""
+    return {
+        "allRawdatasource": {
+            "items": [
+                {"_id": RDS_API, "url": API_URL},
+                {"_id": RDS_HIST, "url": HIST_URL},
+            ]
+        }
+    }
+
+
+def test_raw_source_id_by_url_selects_matching_source(client, backend):
+    # Tabela com 2 fontes; url seleciona exatamente a que casa (não aborta).
+    backend.set_response("allRawdatasource", _two_sources())
+    assert client._raw_source_id("br_x", "tab", url=HIST_URL) == RDS_HIST
+    assert client._raw_source_id("br_x", "tab", url=API_URL) == RDS_API
+
+
+def test_raw_source_id_by_url_raises_when_no_match(client, backend):
+    backend.set_response("allRawdatasource", _two_sources())
+    with pytest.raises(ValueError, match="exatamente uma fonte com url"):
+        client._raw_source_id("br_x", "tab", url="https://nao.existe/aqui")
+
+
+def test_raw_source_id_by_url_raises_when_multiple_match(client, backend):
+    # Duas fontes com a MESMA url → ambíguo → aborta (mirror de R19).
+    backend.set_response(
+        "allRawdatasource",
+        {
+            "allRawdatasource": {
+                "items": [
+                    {"_id": RDS_API, "url": HIST_URL},
+                    {"_id": RDS_HIST, "url": HIST_URL},
+                ]
+            }
+        },
+    )
+    with pytest.raises(ValueError, match="exatamente uma fonte com url"):
+        client._raw_source_id("br_x", "tab", url=HIST_URL)
+
+
+def test_upsert_poll_by_url_targets_the_matching_source(client, backend):
+    # A ponta a ponta: a url resolve a fonte histórica e esse id vai para a
+    # mutation Poll, mesmo com 2 fontes ligadas (url=None abortaria — vide R19).
+    backend.set_response("allRawdatasource", _two_sources())
+    backend.set_response("allPoll", node_response("allPoll", None))  # create
+    backend.set_response(
+        "CreateUpdatePoll", mutation_response("CreateUpdatePoll")
+    )
+
+    client.upsert_raw_source_poll(
+        "br_x", "tab", latest=datetime.date(2026, 6, 1), url=HIST_URL
+    )
+
+    v = _input(backend.mutation_for("CreateUpdatePoll"))
+    assert v["rawDataSource"] == RDS_HIST  # a fonte histórica, não a de API
+
+
 # ============================================================ TIPO 2 — response
 def test_query_id_rejects_multiple_nodes(client, backend):  # R19
     # _raw_source_id → _query_id("allRawdatasource", ...); 2 nós devem abortar.

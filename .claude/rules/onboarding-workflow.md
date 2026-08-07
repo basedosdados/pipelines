@@ -16,6 +16,7 @@ Work through steps in order. Do not skip steps.
 7.  validate             run DBT tests and data quality checks; fix or flag errors
 8.  discover             resolve all reference IDs from backend (dev)
 9.  metadata             register metadata in dev backend (dataset status = under_review)
+9b. publish dev/staging  flip the dev/staging dataset under_review → published (NOT the public prod frontend) so the reviewer sees it as it will appear
 [PAUSE — verification checkpoint]
 10. metadata --env prod  promote to prod (dataset status = under_review; only after human approval)
 11. pr                   open PR with changelog
@@ -102,17 +103,23 @@ Reply "approved" to promote to prod, or describe what needs fixing.
 
 Do not proceed to step 10 without the user replying "approved" (or equivalent).
 
-## Dataset status lifecycle (create `under_review`, publish only post-merge)
+## Dataset status lifecycle (publish dev/staging pre-promotion; prod only post-merge)
 
-**Every dataset is created with `status = under_review`, at every stage — dev/staging in step 9 and prod in step 10, never `published`.** `under_review` hides the dataset from the production frontend, so a dataset whose metadata is registered before its PR lands (and whose prod cloud tables do not yet exist) cannot leak publicly.
+**Register every dataset as `status = under_review` in step 9**, at every stage. `under_review` hides the dataset from the **production** frontend, so a dataset whose metadata is registered before its PR lands (and whose prod cloud tables do not yet exist) cannot leak publicly.
 
-Turn the dataset to `status = published` **only in step 13, and only after all three hold**:
+**Then, on dev/staging, publish the dataset before the PR/prod-promotion step (step 9b).** Once the dev/staging metadata is registered and the tables verified, flip the **dev/staging** dataset `under_review → published`: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env=<dev|staging>)` (re-pass every required field — no partial updates). The dev/staging frontend is not the public production site, so publishing there is safe, and it lets the human reviewer see the dataset exactly as it will appear at the verification checkpoint. This is the only place a dataset is published before merge — and only on dev/staging, never prod. When extending an already-published dataset, keep it published and refresh its description if the coverage changed.
+
+Turn the **prod** dataset to `status = published` **only in step 13, and only after all three hold**:
 
 1. the onboarding **PR is merged** to `main`;
 2. the GitHub **table-approve action has run successfully** (it materialises `basedosdados.<gcp_dataset_id>.*` via `dbt --target prod`; watch for the phantom-model failure mode where non-model `.sql` in the PR aborts materialisation before any real table builds);
 3. the live prod tables **and** metadata are **verified** — row counts match, cloud tables resolve, and `get_dataset(slug, env="prod")` shows the expected shape.
 
 Publishing is one call: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env="prod")` (re-pass every required field — the API does no partial updates). It is a **separate post-merge action**, independent of the optional recurring-pipeline step (12); never publish inside the onboarding PR, and never publish a dataset whose PR has not merged and materialised. Tables are gated by the dataset's status, so they may remain `published`; flipping the dataset makes everything go live in one step.
+
+## Prod table data — materialised by the merge, never uploaded by hand
+
+**You never upload data to the prod project (`basedosdados`) yourself.** During onboarding the local upload targets **`basedosdados-dev` only** (steps 5, and the `set_datalake_project` dbt macro resolves the `dev` target to `basedosdados-dev`). The **prod table data lands in `basedosdados.<gcp_dataset_id>.*` when the onboarding PR is merged**, via the GitHub **table-approve** action, which runs `dbt --target prod` (that target's `set_datalake_project` reads `basedosdados-staging`). So the sequence is: upload to dev → verify in dev → register prod metadata `under_review` (step 10, cloud tables pointing at the not-yet-existing `basedosdados` tables) → open PR (step 11) → **merge → table-approve materialises the prod tables** → verify → publish (step 13). Do not try to populate `basedosdados` or `basedosdados-staging` from a local machine; local credentials are dev-only, and the merge is the trigger. (Watch the phantom-model failure mode noted above: non-model `.sql` in the PR can abort materialisation before any real table builds.)
 
 ## Commit discipline
 

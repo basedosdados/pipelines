@@ -155,6 +155,7 @@ dev = [
   "basedosdados[all]>=2.0.2",
   "pytest>=8.4.2",
   "pyrefly>=1.1.1",
+  "pypdf>=4.0",
 ]
 
 [tool.ruff]

@@ -23,6 +23,8 @@ from pipelines.utils.metadata.domain import (
 from pipelines.utils.metadata.policy import CoverageIds
 from pipelines.utils.metadata.register import (
     commit_source_size_update,
+    commit_source_update,
+    poll_source_for_update,
     poll_source_size_for_update,
     register_source_poll,
     register_source_poll_by_size,
@@ -79,6 +81,51 @@ def test_poll_latest_is_today():
     register_source_poll(client, "br_x", "tab")
     _, _, kwargs = client.writes[0]
     assert kwargs["latest"].date() == datetime.datetime.today().date()
+
+
+# ================= seletor de fonte por url encadeado até o client (multi-fonte)
+HIST_URL = "https://hist.example/frozen"
+
+
+def test_poll_source_for_update_forwards_raw_source_url_to_client():
+    # A url informada precisa chegar ao upsert_raw_source_poll do client.
+    client = FakeMetadataClient()
+    poll_source_for_update(
+        client, "br_x", "tab", source_max_date=None, raw_source_url=HIST_URL
+    )
+    entity, _args, kwargs = client.writes[0]
+    assert entity == "poll"
+    assert kwargs["url"] == HIST_URL
+
+
+def test_poll_source_for_update_defaults_url_to_none():
+    # Sem raw_source_url, o client recebe url=None (comportamento inalterado).
+    client = FakeMetadataClient()
+    poll_source_for_update(client, "br_x", "tab", source_max_date=None)
+    _entity, _args, kwargs = client.writes[0]
+    assert kwargs["url"] is None
+
+
+def test_commit_source_update_forwards_raw_source_url_to_client():
+    # A url informada precisa chegar ao upsert_raw_source_update do client.
+    client = FakeMetadataClient()
+    commit_source_update(
+        client,
+        "br_x",
+        "tab",
+        datetime.date(2026, 6, 1),
+        raw_source_url=HIST_URL,
+    )
+    entity, _args, kwargs = client.writes[0]
+    assert entity == "raw_source_update"
+    assert kwargs["url"] == HIST_URL
+
+
+def test_commit_source_update_defaults_url_to_none():
+    client = FakeMetadataClient()
+    commit_source_update(client, "br_x", "tab", datetime.date(2026, 6, 1))
+    _entity, _args, kwargs = client.writes[0]
+    assert kwargs["url"] is None
 
 
 # ============================================ register_table_materialization (§1.8)
@@ -245,6 +292,34 @@ def test_poll_size_for_update_smaller_raises_after_poll():
     redis = FakeRedis({"br_x": {"tab": {"2020-01-01": 2000}}})
     with pytest.raises(ValueError, match="MENOR"):
         poll_source_size_for_update(client, redis, "br_x", "tab", 1000)
+    assert client.written_entities == ["poll"]
+
+
+def test_poll_size_for_update_small_shrink_within_tolerance_proceeds():
+    """Queda pequena de tamanho (dentro da tolerância) é re-publicação normal da
+    fonte, não quebra de schema: trata como novidade (True) e grava só o Poll.
+    Reproduz o caso `br_bcb_sicor__saldo` (18565412 vs 18567487, ~0.01%).
+    """
+    client = FakeMetadataClient()
+    redis = FakeRedis({"br_x": {"tab": {"2020-01-01": 18567487}}})
+    outdated = poll_source_size_for_update(
+        client, redis, "br_x", "tab", 18565412
+    )
+    assert outdated is True
+    assert client.written_entities == ["poll"]  # sem Update (fica p/ o commit)
+    assert redis.store == {
+        "br_x": {"tab": {"2020-01-01": 18567487}}
+    }  # intacto
+
+
+def test_poll_size_for_update_large_shrink_still_raises():
+    """Queda grande (acima da tolerância) segue disparando ValueError."""
+    import pytest
+
+    client = FakeMetadataClient()
+    redis = FakeRedis({"br_x": {"tab": {"2020-01-01": 1000}}})
+    with pytest.raises(ValueError, match="MENOR"):
+        poll_source_size_for_update(client, redis, "br_x", "tab", 900)  # -10%
     assert client.written_entities == ["poll"]
 
 
