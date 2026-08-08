@@ -23,12 +23,15 @@ select
     safe_cast(estado_civil as string) estado_civil,
     safe_cast(grupo_idade as string) grupo_idade,
     safe_cast(instrucao as string) instrucao,
-    safe_cast(eleitores as string) eleitores,
-    safe_cast(eleitores_biometria as string) eleitores_biometria,
-    safe_cast(eleitores_deficiencia as string) eleitores_deficiencia
+    safe_cast(eleitores as int64) eleitores,
+    safe_cast(eleitores_biometria as int64) eleitores_biometria,
+    safe_cast(eleitores_deficiencia as int64) eleitores_deficiencia
 from
     {{
         set_datalake_project(
             "br_tse_eleicoes_staging.perfil_eleitorado_municipio_zona"
         )
     }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    

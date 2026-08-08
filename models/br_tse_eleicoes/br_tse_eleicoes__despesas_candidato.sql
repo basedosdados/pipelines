@@ -67,4 +67,8 @@ select
     safe_cast(numero_partido_fornecedor as string) numero_partido_fornecedor,
     safe_cast(sigla_partido_fornecedor as string) sigla_partido_fornecedor,
     safe_cast(cargo_fornecedor as string) cargo_fornecedor
-from {{ set_datalake_project("br_tse_eleicoes_staging.despesas_candidato") }} as t
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.despesas_candidato") }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    

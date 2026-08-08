@@ -71,4 +71,8 @@ select
     safe_cast(sequencial_prestador_contas as string) sequencial_prestador_contas,
     safe_cast(cnpj_prestador_contas as string) cnpj_prestador_contas,
     safe_cast(entrega_conjunto as string) entrega_conjunto
-from {{ set_datalake_project("br_tse_eleicoes_staging.receitas_candidato") }} as t
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.receitas_candidato") }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    
