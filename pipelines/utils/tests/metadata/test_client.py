@@ -245,6 +245,66 @@ def test_update_latest_parsed_to_date(client, backend):
     )
 
 
+class _CoverageBackend(RecordingBackend):
+    """Responde `allCoverage` conforme o `isClosed` pedido e `allDatetimerange`
+    conforme o `coverage_Id` — o `RecordingBackend` casa só por substring da
+    query e devolveria o mesmo id para as coberturas free e pro."""
+
+    def __init__(self, ranges: dict):
+        super().__init__()
+        self._ranges = ranges
+
+    def _execute_query(self, query, variables=None, headers=None):
+        super()._execute_query(query, variables, headers)
+        variables = variables or {}
+        if "allCoverage" in query:
+            return node_response(
+                "allCoverage",
+                "cov-pro" if variables.get("isClosed") else "cov-free",
+            )
+        if "allDatetimerange" in query:
+            items = self._ranges.get(variables.get("coverage_Id"), [])
+            return {"allDatetimerange": {"items": items}}
+        return {}
+
+
+def _coverage_client(backend) -> MetadataClient:
+    return MetadataClient(env="dev", backend=backend)
+
+
+def test_coverage_end_takes_latest_across_free_and_pro():
+    # part_bdpro: a faixa pro é a que carrega o source_end.
+    backend = _CoverageBackend(
+        {
+            "cov-free": [{"endYear": 2025, "endMonth": 12, "endDay": None}],
+            "cov-pro": [{"endYear": 2026, "endMonth": 6, "endDay": None}],
+        }
+    )
+    assert _coverage_client(backend).get_table_coverage_end(
+        "br_x", "tab"
+    ) == datetime.date(2026, 6, 1)
+
+
+def test_coverage_end_defaults_missing_month_and_day():
+    # Cobertura anual: sem mês nem dia, a data é o começo do período coberto.
+    backend = _CoverageBackend(
+        {"cov-free": [{"endYear": 2026, "endMonth": None, "endDay": None}]}
+    )
+    assert _coverage_client(backend).get_table_coverage_end(
+        "br_x", "tab"
+    ) == datetime.date(2026, 1, 1)
+
+
+def test_coverage_end_none_when_table_has_no_ranges():
+    # Tabela nunca materializada: sem faixa, o gate trata como "há o que fazer".
+    assert (
+        _coverage_client(_CoverageBackend({})).get_table_coverage_end(
+            "br_x", "tab"
+        )
+        is None
+    )
+
+
 def test_mutation_errors_raise(client, backend):
     backend.set_response(
         "allRawdatasource", node_response("allRawdatasource", RDS)
