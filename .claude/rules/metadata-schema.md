@@ -79,9 +79,20 @@ For individual lookups: `mcp__databasis__lookup_id(env=<env>, slug=<slug>, type=
 | `description_pt/en/es` | string | 1–3 sentences, technical, no bullet lists |
 | `organization_ids` | list | From `discover_ids` using org slug(s) |
 | `theme_ids` | list | From `discover_ids` |
-| `tag_ids` | list | From `discover_ids`; empty list if none |
+| `tag_ids` | list | **Always scan, choose, and attach — do not leave empty.** See "Choosing tags" below |
 | `status_id` | string | **`status.under_review` on creation**; publish on dev/staging pre-promotion, prod only post-merge (see "Dataset status lifecycle" above) |
 | `id` | string | Pass when updating an existing record |
+
+## Choosing tags (do not leave empty)
+
+Every dataset must carry tags — several recent onboardings shipped with none, which hurts discoverability on the site. Never default `tag_ids` to `[]`.
+
+1. **Scan** the existing tag vocabulary: `discover_ids(env=<env>, keys=["tag"])` returns `{slug: id}` for every tag (there are ~800 — a broad, well-populated vocabulary).
+2. **Choose** the tags that genuinely describe the dataset — its subject, entity/grain, and source domain (e.g. for PGFN active debt: `debt`, `debtor`, `tax`, `revenue-collection`, `public-finance`, `federal`, `social_security`). Match on meaning, not exact string; prefer 4–8 specific tags over one vague one. Almost always an appropriate existing tag exists — use it rather than creating a near-duplicate.
+3. **Only if no existing tag fits**, create the missing one in the backend with `create_update_tag(slug=<kebab_or_snake_slug>, name_pt=…, name_en=…, name_es=…, env=<env>)` and use the returned id. Check for a synonym first (e.g. `covid19` vs `covid-19` already both exist — do not add a third).
+4. **Attach** all chosen ids via `tag_ids` on `create_update_dataset`, then verify with `get_dataset` (tags are M2M — see Known issues).
+
+Resolve tags **per backend**: ids differ across dev/staging/prod, so re-scan (and re-create any new tag) on prod before attaching there. When updating an already-published dataset to add tags, re-pass every required field plus the full `tag_ids` (the API does no partial updates).
 
 ## `create_update_table` fields
 
