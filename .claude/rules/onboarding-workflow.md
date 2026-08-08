@@ -138,6 +138,19 @@ Publishing is one call: `create_update_dataset(id=<dataset_id>, …, status_id=s
 
 **You never upload data to the prod project (`basedosdados`) yourself.** During onboarding the local upload targets **`basedosdados-dev` only** (steps 5, and the `set_datalake_project` dbt macro resolves the `dev` target to `basedosdados-dev`). The **prod table data lands in `basedosdados.<gcp_dataset_id>.*` when the onboarding PR is merged**, via the GitHub **table-approve** action, which runs `dbt --target prod` (that target's `set_datalake_project` reads `basedosdados-staging`). So the sequence is: upload to dev → verify in dev → register prod metadata `under_review` (step 10, cloud tables pointing at the not-yet-existing `basedosdados` tables) → open PR (step 11) → **merge → table-approve materialises the prod tables** → verify → publish (step 13). Do not try to populate `basedosdados` or `basedosdados-staging` from a local machine; local credentials are dev-only, and the merge is the trigger. (Watch the phantom-model failure mode noted above: non-model `.sql` in the PR can abort materialisation before any real table builds.)
 
+## Branch and commit discipline
+
+**Branch names — never the generic `claude/…` prefix.** Name the branch for the work, using a prefix that matches the change (the slug is the `<dataset_id>` whenever there is one):
+
+| Prefix | Use for | Example |
+|--------|---------|---------|
+| `data/` | onboarding a new dataset (cleaning code, dbt models, metadata) | `data/br_mma_cnuc` |
+| `pipeline/` | adding or fixing a recurring Prefect pipeline | `pipeline/br_mf_divida_ativa` |
+| `fix/` | bug fix to existing code, models, or data | `fix/br_tse_eleicoes-schema` |
+| `docs/` | documentation or `.claude/rules` changes only | `docs/tag-conventions` |
+
+If a tool or environment created a `claude/…` branch, rename it (`git branch -m <new-name>`) before opening the PR — **except** when a recurring-pipeline PR has already registered its dev deployment from that branch (the deploy step pins the deployment's `GitRepository` to the PR branch, so renaming mid-PR breaks the deployment's source). In that one case, keep the branch and use the correct prefix next time.
+
 ## Commit discipline
 
 Commit after each logical unit completes:

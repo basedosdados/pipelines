@@ -1,16 +1,17 @@
 """Download + streaming cleaning transform for br_mf_divida_ativa (PGFN Dívida
 Ativa da União).
 
-Pure functions (no Prefect), importable and unit-testable; a later recurring
-pipeline will reuse them. The source publishes one quarterly ZIP per system
-(SIDA / PREV / FGTS); each ZIP holds several `;`-delimited, Latin-1 CSV parts.
-The SIDA (nao_previdenciario) table is ~40-50M rows per quarter, so every part is
-processed in row chunks and streamed to Parquet - the whole table is never held
-in memory.
+Pure functions (no Prefect), importable and unit-testable, shared by the
+recurring pipeline (``tasks.py``/``flows.py``) and the one-shot onboarding
+bootstrap under ``models/br_mf_divida_ativa/code/`` (which imports from here).
+The source publishes one quarterly ZIP per system (SIDA / PREV / FGTS); each ZIP
+holds several ``;``-delimited, Latin-1 CSV parts. The SIDA (nao_previdenciario)
+table is ~40-50M rows per quarter, so every part is processed in row chunks and
+streamed to Parquet — the whole table is never held in memory.
 
-Schema and column order come from the architecture CSVs in ``architecture/`` (the
-single source of truth). Staging Parquet is all-STRING by Data Basis convention;
-the dbt model ``safe_cast``s each column to its real type.
+Schema and column order come from the architecture CSVs (the single source of
+truth, at ``constants.ARCHITECTURE_DIR``). Staging Parquet is all-STRING by Data
+Basis convention; the dbt model ``safe_cast``s each column to its real type.
 """
 
 from __future__ import annotations
@@ -29,6 +30,8 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
 
+from pipelines.datasets.br_mf_divida_ativa.constants import constants
+
 log = logging.getLogger("br_mf_divida_ativa")
 
 # ── constants ────────────────────────────────────────────────────────────────
@@ -42,6 +45,10 @@ CATEGORY = {
     "fgts": "FGTS",
 }
 TABLES = tuple(CATEGORY)
+
+FIRST_YEAR = constants.FIRST_YEAR.value
+FIRST_QUARTER = constants.FIRST_QUARTER.value
+ARCH_DIR = constants.ARCHITECTURE_DIR.value
 
 # Known anomalous filenames on the server (the typo is the real object name).
 URL_OVERRIDES = {
@@ -94,16 +101,14 @@ VALID_UFS = frozenset(
     ]
 )
 
-_HERE = Path(__file__).resolve().parent
-ARCH_DIR = _HERE / "architecture"
-
 
 def data_root() -> Path:
-    """Root for downloaded input + cleaned output - under ~/Downloads.
+    """Root for downloaded input + cleaned output — under ~/Downloads.
 
-    Override with ``PGFN_DATA_ROOT``. Tens of GB land here for the full backfill,
-    so it lives outside Dropbox/the repo (never synced, never committed) and is
-    deleted as the final onboarding step.
+    Override with ``PGFN_DATA_ROOT``. Used by the one-shot bootstrap; the
+    recurring pipeline writes to a per-run temp dir instead. Tens of GB land here
+    for the full backfill, so it lives outside Dropbox/the repo (never synced,
+    never committed) and is deleted as the final onboarding step.
     """
     return Path(
         os.environ.get(
@@ -115,7 +120,7 @@ def data_root() -> Path:
 
 # ── schema ───────────────────────────────────────────────────────────────────
 def read_arch(table: str) -> list[dict]:
-    """Read a table's architecture CSV - column order + types + source mapping."""
+    """Read a table's architecture CSV — column order + types + source mapping."""
     with open(ARCH_DIR / f"{table}.csv", newline="", encoding="utf-8") as fh:
         return list(csv.DictReader(fh))
 
@@ -170,7 +175,7 @@ def download_quarter(
     """Download one quarterly ZIP into ``input_dir``; return its path.
 
     Streams to disk (files reach 1.3 GB). A ``(connect, read)`` timeout means a
-    stalled connection - e.g. after the laptop sleeps and the socket dies - fails
+    stalled connection — e.g. after the laptop sleeps and the socket dies — fails
     within ~2 min instead of hanging, and is retried with backoff; on wake the
     retry succeeds. Raises the last error only after all retries, so a caller can
     distinguish a genuine failure from an absent quarter (use ``source_exists``).
@@ -247,7 +252,7 @@ def _clean_date(s: pd.Series) -> pd.Series:
     """Parse dd/mm/yyyy to ISO ``YYYY-MM-DD``; sentinel/invalid -> None.
 
     ``01/01/1000`` (and any pre-1677 date) is out of pandas' datetime64[ns]
-    range, so ``errors="coerce"`` maps it to NaT - exactly the sentinel handling
+    range, so ``errors="coerce"`` maps it to NaT — exactly the sentinel handling
     we want. Real inscription dates are all modern.
     """
     raw = _clean_series(s)
@@ -377,3 +382,95 @@ def clean_quarter_zip(
         final,
     )
     return total
+
+
+# ── quarter arithmetic + orchestration (recurring pipeline) ───────────────────
+def next_quarter(year: int, quarter: int) -> tuple[int, int]:
+    """The (year, quarter) immediately after the given one."""
+    return (year, quarter + 1) if quarter < 4 else (year + 1, 1)
+
+
+def all_quarters(
+    start: tuple[int, int], end: tuple[int, int]
+) -> list[tuple[int, int]]:
+    """Every (year, quarter) from ``start`` to ``end`` inclusive, ascending."""
+    out: list[tuple[int, int]] = []
+    y, q = start
+    while (y, q) <= end:
+        out.append((y, q))
+        y, q = next_quarter(y, q)
+    return out
+
+
+def quarter_date_str(year: int, quarter: int) -> str:
+    """Represent a quarter as the first day of its last month, ``YYYY-MM-01``.
+
+    Matches the ``DATE(ano, trimestre*3, 1)`` the coverage framework builds for a
+    ``YearQuarter`` column, so poll/commit dates line up with the registered
+    coverage (Q1->03-01, Q2->06-01, Q3->09-01, Q4->12-01).
+    """
+    return f"{year}-{quarter * 3:02d}-01"
+
+
+def latest_available_quarter(
+    session=None,
+    first: tuple[int, int] = (FIRST_YEAR, FIRST_QUARTER),
+    probe_table: str = "nao_previdenciario",
+    max_year: int = 2100,
+) -> tuple[int, int] | None:
+    """Newest quarter published at the source, by probing forward from ``first``.
+
+    Scans quarters in order (SIDA is present every quarter, so it is the probe
+    table) and returns the last one that exists. Quarters are contiguous at the
+    source, so the first missing quarter ends the scan. Returns ``None`` only if
+    even ``first`` is absent (source unreachable).
+    """
+    s = session or requests
+    last_seen: tuple[int, int] | None = None
+    y, q = first
+    while y <= max_year:
+        if source_exists(y, q, probe_table, session=s):
+            last_seen = (y, q)
+            y, q = next_quarter(y, q)
+        else:
+            break
+    return last_seen
+
+
+def clean_quarters(
+    quarters: list[tuple[int, int]],
+    work_dir: Path,
+    session=None,
+) -> dict[str, str | None]:
+    """Download + clean the given quarters for all three tables.
+
+    For each table and quarter present at the source, downloads the ZIP into
+    ``<work_dir>/input`` and streams it to partitioned Parquet under
+    ``<work_dir>/output/<table>/ano=<Y>/trimestre=<Q>/``. Each ZIP is deleted
+    right after cleaning so peak disk stays near a single file (SIDA ZIPs reach
+    1.3 GB).
+
+    Returns a mapping of table slug to its output directory (a hive-partitioned
+    tree ready for ``upload_to_gcs``), or ``None`` for a table with no data in
+    the requested quarters (e.g. some early quarters lack FGTS).
+    """
+    input_dir = Path(work_dir) / "input"
+    output_dir = Path(work_dir) / "output"
+    s = session or requests.Session()
+    result: dict[str, str | None] = {}
+    for table in TABLES:
+        produced = False
+        for year, quarter in quarters:
+            if not source_exists(year, quarter, table, session=s):
+                log.info(
+                    "%s %sQ%s absent at source, skipping", table, year, quarter
+                )
+                continue
+            zip_path = download_quarter(
+                year, quarter, table, input_dir, session=s
+            )
+            clean_quarter_zip(zip_path, table, year, quarter, output_dir)
+            zip_path.unlink(missing_ok=True)
+            produced = True
+        result[table] = str(output_dir / table) if produced else None
+    return result
