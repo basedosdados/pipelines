@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Bootstrap: download + clean PGFN Dívida Ativa quarters into partitioned
-Parquet under the data root (outside Dropbox - see ``divida_ativa.data_root``).
+Parquet under the data root (outside Dropbox - see ``utils.data_root``).
 
-The transform lives in ``divida_ativa.py`` so the recurring pipeline and this
-one-shot bootstrap share one implementation. Downloads one quarter at a time and
+The transform lives in ``pipelines/datasets/br_mf_divida_ativa/utils.py`` so the
+recurring pipeline and this one-shot bootstrap share one implementation.
+Downloads one quarter at a time and
 (by default) deletes each ZIP after cleaning, so peak disk stays near one ZIP.
 
 Usage:
@@ -21,13 +22,10 @@ import argparse
 import logging
 import re
 import sys
-from pathlib import Path
 
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]
-from divida_ativa import (
+from pipelines.datasets.br_mf_divida_ativa.utils import (
     TABLES,
     clean_quarter_zip,
     data_root,
