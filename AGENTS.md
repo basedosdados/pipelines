@@ -299,8 +299,8 @@ Agents use shared rule files in `.claude/rules/`:
 | `data-basis-style.md` | Column naming, ordering, prefixes, directory mappings |
 | `dbt-conventions.md` | SQL patterns, schema.yml structure, test types |
 | `bigquery-conventions.md` | Project references, partitioning, type casting |
-| `metadata-schema.md` | Backend API field mapping, MCP tool sequence |
-| `onboarding-workflow.md` | 11-step sequence, quality gates, commit discipline |
+| `metadata-schema.md` | Backend API field mapping, MCP tool sequence, tag selection |
+| `onboarding-workflow.md` | 11-step sequence, quality gates, branch & commit discipline |
 
 ### Skills (user-callable shortcuts)
 
@@ -330,3 +330,5 @@ Before running AI-assisted onboarding, ensure the following are configured:
 7. **Document exceptions** in `schema.yml` model descriptions when using `custom_relationships` or `custom_unique_combinations_of_columns` with non-zero `proportion_allowed_failures`.
 8. When adding a new dataset pipeline, always run `uv run manage.py add-pipeline <name>` rather than creating files manually.
 9. The `dbt` CLI must be run inside the activated virtual environment: `source .venv/bin/activate` or via `uv run dbt ...`.
+10. **Name branches for the work — never the generic `claude/…` prefix.** Use `data/<dataset_id>`, `pipeline/<dataset_id>`, `fix/<scope>`, or `docs/<topic>`. See "Branch and commit discipline" in `onboarding-workflow.md`.
+11. **Always choose and attach dataset tags — never leave `tag_ids` empty.** Scan `discover_ids(keys=["tag"])`, pick the tags that describe the dataset, and create new ones only when none fit. See "Choosing tags" in `metadata-schema.md`.
