@@ -1,11 +1,12 @@
 """
 Flows for br_senado_dados_abertos — Prefect 3.
 
-Senado Federal legislative open data. One flow refreshes all ten tables from the
-public Legislative Open Data API each day: dimensions in full, the four
+Senado Federal legislative open data. One flow refreshes all 18 tables from the
+public Legislative Open Data API each day: the ten dimensions in full, the eight
 time-series tables (votacao, votacao_parlamentar, votacao_orientacao_bancada,
-processo) for the recent window only — uploaded with ``dump_mode="append"``,
-which replaces just those ``ano=`` partitions and leaves history in place. Like
+processo, relatoria, votacao_comissao, votacao_comissao_parlamentar, discurso)
+for the recent window only — uploaded with ``dump_mode="append"``, which replaces
+just those ``ano=`` partitions and leaves history in place. Like
 the Câmara pipeline, there is no source-poll gate: legislative activity changes
 continuously, so a daily run is always meaningful.
 
@@ -39,7 +40,7 @@ from pipelines.utils.tasks import (
 DATASET_ID = constants.DATASET_ID.value
 ALL_TABLES = constants.ALL_TABLES.value
 
-# BD Pro rolling window: the four time-series tables paywall their most recent
+# BD Pro rolling window: the eight time-series tables paywall their most recent
 # 6 months (part_bdpro), everything older is free. register_table_materialization_task
 # recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges, and
 # re-issues the BigQuery Row Access Policies each run, so the window slides on
@@ -65,6 +66,26 @@ _COVERAGE = {
     ),
     "processo": PartBdpro(
         date_column=DateOnly(col="data_apresentacao"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
+    ),
+    "relatoria": PartBdpro(
+        date_column=DateOnly(col="data_designacao"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
+    ),
+    "votacao_comissao": PartBdpro(
+        date_column=DateOnly(col="data_reuniao"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
+    ),
+    "votacao_comissao_parlamentar": PartBdpro(
+        date_column=DateOnly(col="data_reuniao"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
+    ),
+    "discurso": PartBdpro(
+        date_column=DateOnly(col="data_sessao"),
         date_format=DateFormat.YEAR_MD,
         free_lag=FreeLag(unit="months", value=6),
     ),
