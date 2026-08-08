@@ -21,6 +21,7 @@ def _sia_flow(table_id: str, cron: str):
         target: str = "prod",
         force_run: bool = False,
         year_month_to_extract: str = "",
+        source_format: str = "parquet",
     ) -> None:
         _run_siasus(
             dataset_id=dataset_id,
@@ -31,6 +32,7 @@ def _sia_flow(table_id: str, cron: str):
             target=target,
             force_run=force_run,
             year_month_to_extract=year_month_to_extract,
+            source_format=source_format,
         )
 
     # pyrefly: ignore [missing-attribute]
