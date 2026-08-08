@@ -2,6 +2,8 @@
 Flows for br_rj_isp_estatisticas_seguranca — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.isp.flows import _run_isp
 from pipelines.utils.flow import flow
 
@@ -30,7 +32,7 @@ def _isp_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

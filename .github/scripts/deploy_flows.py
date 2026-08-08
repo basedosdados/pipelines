@@ -17,7 +17,6 @@ from pathlib import Path
 
 from prefect import Flow
 from prefect.runner.storage import GitRepository
-from prefect.schedules import Cron
 
 REPO_URL = "https://github.com/basedosdados/pipelines.git"
 
@@ -75,14 +74,6 @@ def deploy_flow(
     schedules = getattr(flow, "deploy_schedules", None) or None
     if is_dev:
         schedules = None  # flows em dev não têm schedule
-    elif schedules:
-        # Convert dict {"cron": "...", "timezone": "..."} to Cron schedule objects
-        schedules = [
-            Cron(s["cron"], timezone=s.get("timezone", "UTC"))
-            if isinstance(s, dict)
-            else s
-            for s in schedules
-        ]
 
     job_variables = getattr(flow, "job_variables", None) or None
 

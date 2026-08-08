@@ -2,6 +2,8 @@
 Flow br_stf_corte_aberta — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.stf_corte_aberta.tasks import (
     download_and_transform,
     get_data_source_stf_max_date,
@@ -119,5 +121,5 @@ def br_stf_corte_aberta__decisoes(
 
 
 br_stf_corte_aberta__decisoes.deploy_schedules = [
-    {"cron": "0 12 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 12 * * *", timezone="America/Sao_Paulo")
 ]

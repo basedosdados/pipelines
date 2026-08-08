@@ -4,9 +4,8 @@
 `.github/scripts/deploy_flows.py` lê dois atributos do objeto flow que o
 `prefect.Flow` não declara:
 
-- `deploy_schedules`: lista de agendamentos cron, convertida em objetos
-  `prefect.schedules.Cron` no deploy de produção (no pool de dev os schedules
-  são descartados);
+- `deploy_schedules`: lista de agendamentos (`prefect.schedules.Cron`), usada no
+  deploy de produção (no pool de dev os schedules são descartados);
 - `job_variables`: overrides da configuração de infraestrutura do work pool
   (memória, CPU...).
 
@@ -17,6 +16,8 @@ que instancia essa subclasse. Use sempre este `flow` em `flows.py`, nunca o
 `prefect.flow`:
 
 ```python
+from prefect.schedules import Cron
+
 from pipelines.utils.flow import flow
 
 
@@ -25,7 +26,7 @@ def meu_dataset_flow() -> None: ...
 
 
 meu_dataset_flow.deploy_schedules = [
-    {"cron": "0 16 10 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 16 10 * *", timezone="America/Sao_Paulo")
 ]
 meu_dataset_flow.job_variables = {"memory": "8Gi"}
 ```
@@ -35,47 +36,29 @@ script de deploy e do próprio Prefect continuam valendo.
 """
 
 from collections.abc import Callable
-from typing import (
-    Any,
-    NotRequired,
-    ParamSpec,
-    TypedDict,
-    TypeVar,
-    overload,
-)
+from typing import Any, ParamSpec, TypeVar, overload
 
 from prefect import Flow as PrefectFlow
 from prefect.futures import PrefectFuture
+from prefect.schedules import Schedule
 from prefect.task_runners import TaskRunner
 
 P = ParamSpec("P")
 R = TypeVar("R")
 
 
-class DeploySchedule(TypedDict):
-    """Agendamento de um flow, no formato lido por `deploy_flows.py`.
-
-    Attributes:
-        cron: Expressão cron (ver crontab.guru).
-        timezone: Fuso da expressão; `"UTC"` quando omitido. Por convenção do
-            repositório, use `"America/Sao_Paulo"`.
-    """
-
-    cron: str
-    timezone: NotRequired[str]
-
-
 class Flow(PrefectFlow[P, R]):
     """Flow do Prefect 3 com os atributos que o deploy da BD lê.
 
     Attributes:
-        deploy_schedules: Agendamentos do flow. Vazio (o padrão) significa
-            deployment sem schedule — execução apenas manual.
+        deploy_schedules: Agendamentos do flow, construídos com
+            `prefect.schedules.Cron` (que já recebe `timezone`). Vazio (o
+            padrão) significa deployment sem schedule — execução apenas manual.
         job_variables: Overrides da configuração de infraestrutura do work
             pool, por exemplo `{"memory": "8Gi"}`. Vazio usa o padrão do pool.
     """
 
-    deploy_schedules: list[DeploySchedule]
+    deploy_schedules: list[Schedule]
     job_variables: dict[str, Any]
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:

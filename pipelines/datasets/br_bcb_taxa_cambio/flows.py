@@ -2,6 +2,8 @@
 Flow br_bcb_taxa_cambio — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.bcb_taxa_cambio.tasks import (
     get_data_taxa_cambio,
     treat_data_taxa_cambio,
@@ -94,5 +96,5 @@ def br_bcb_taxa_cambio__taxa_cambio(
 
 
 br_bcb_taxa_cambio__taxa_cambio.deploy_schedules = [
-    {"cron": "0 8 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 8 * * *", timezone="America/Sao_Paulo")
 ]

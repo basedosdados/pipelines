@@ -23,6 +23,8 @@ import shutil
 import tempfile
 from datetime import datetime
 
+from prefect.schedules import Cron
+
 from pipelines.datasets.br_me_siconfi import tasks, utils
 from pipelines.datasets.br_me_siconfi.constants import constants
 from pipelines.utils.flow import flow
@@ -213,7 +215,7 @@ def br_me_siconfi_flow(
 # SICONFI is annual but revised retroactively; rebuild once a month (1st at
 # 16:00 BRT). Each run rebuilds fully — there is no source-poll no-op here.
 br_me_siconfi_flow.deploy_schedules = [
-    {"cron": "0 16 1 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 16 1 * *", timezone="America/Sao_Paulo")
 ]
 # The município window build holds a full year of data in pandas at a time.
 br_me_siconfi_flow.job_variables = {"memory": "16Gi"}

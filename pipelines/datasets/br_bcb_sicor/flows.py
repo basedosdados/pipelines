@@ -2,6 +2,8 @@
 Flows para br_bcb_sicor — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.bcb.flows import _run_bcb_sicor
 from pipelines.crawler.bcb.tasks import create_load_dictionary
 from pipelines.utils.flow import flow
@@ -51,7 +53,7 @@ def _sicor_flow(
             local_redis_execution=local_redis_execution,
         )
 
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

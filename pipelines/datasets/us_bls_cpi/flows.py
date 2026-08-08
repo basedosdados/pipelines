@@ -13,6 +13,8 @@ dev pool ignores the schedule, the prod pool activates it.
 import shutil
 import tempfile
 
+from prefect.schedules import Cron
+
 from pipelines.datasets.us_bls_cpi.constants import constants
 from pipelines.datasets.us_bls_cpi.tasks import clean_cpi, download_cpi
 from pipelines.utils.flow import flow
@@ -177,7 +179,7 @@ def us_bls_cpi_flow(
 # mid-month days at 16:00 BRT; the source-poll guard no-ops until a new month
 # actually appears.
 us_bls_cpi_flow.deploy_schedules = [
-    {"cron": "0 16 10,11,12,13,14,15 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 16 10,11,12,13,14,15 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds ~4M rows in pandas; give the worker headroom.
 us_bls_cpi_flow.job_variables = {"memory": "8Gi"}

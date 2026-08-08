@@ -5,6 +5,8 @@ Contexto e decisões do fix de atualização (poll deferido): ver o README.md
 deste diretório.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.anatel.banda_larga_fixa.flows import (
     _run_anatel_banda_larga_fixa,
 )
@@ -39,7 +41,7 @@ def _anatel_blf_flow(table_id: str, cron: str | None):
         )
 
     _flow.deploy_schedules = (
-        [{"cron": cron, "timezone": "America/Sao_Paulo"}] if cron else []
+        [Cron(cron, timezone="America/Sao_Paulo")] if cron else []
     )
     return _flow
 

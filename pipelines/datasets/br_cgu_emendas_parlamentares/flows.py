@@ -2,6 +2,8 @@
 Flows para br_cgu_emendas_parlamentares — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.cgu_emendas_parlamentares.tasks import (
     convert_str_to_float,
     get_last_modified_time,
@@ -119,5 +121,5 @@ def br_cgu_emendas_parlamentares__microdados(
 
 
 br_cgu_emendas_parlamentares__microdados.deploy_schedules = [
-    {"cron": "30 19 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("30 19 * * *", timezone="America/Sao_Paulo")
 ]

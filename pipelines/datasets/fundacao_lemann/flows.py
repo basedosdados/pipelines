@@ -2,6 +2,8 @@
 Flow fundacao_lemann — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.utils.flow import flow
 from pipelines.utils.tasks import (
     download_data_to_gcs,
@@ -40,5 +42,5 @@ def fundacao_lemann__ano_escola_serie_educacao_aprendizagem_adequada(
 
 
 fundacao_lemann__ano_escola_serie_educacao_aprendizagem_adequada.deploy_schedules = [
-    {"cron": "0 9 1 1 *", "timezone": "America/Sao_Paulo"}
+    Cron("0 9 1 1 *", timezone="America/Sao_Paulo")
 ]

@@ -2,6 +2,8 @@
 Flows para br_denatran_frota — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.denatran_frota.constants import (
     constants as denatran_constants,
 )
@@ -197,8 +199,8 @@ def br_denatran_frota__municipio_tipo(
 
 
 br_denatran_frota__uf_tipo.deploy_schedules = [
-    {"cron": "0 21 10-30 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 21 10-30 * *", timezone="America/Sao_Paulo")
 ]
 br_denatran_frota__municipio_tipo.deploy_schedules = [
-    {"cron": "20 21 10-30 * *", "timezone": "America/Sao_Paulo"}
+    Cron("20 21 10-30 * *", timezone="America/Sao_Paulo")
 ]

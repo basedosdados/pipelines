@@ -1,8 +1,9 @@
 """Testes do decorator `flow` da BD (`pipelines.utils.flow`)."""
 
 from prefect import Flow as PrefectFlow
+from prefect.schedules import Cron
 
-from pipelines.utils.flow import DeploySchedule, Flow, flow
+from pipelines.utils.flow import Flow, flow
 
 
 @flow(name="flow_de_teste", log_prints=True)
@@ -47,12 +48,12 @@ def test_atributos_de_deploy_nao_sao_compartilhados():
 
 
 def test_aceita_atribuicao_dos_atributos_de_deploy():
-    schedules: list[DeploySchedule] = [
-        {"cron": "0 16 10 * *", "timezone": "America/Sao_Paulo"}
-    ]
+    schedules = [Cron("0 16 10 * *", timezone="America/Sao_Paulo")]
 
     _flow_com_opcoes.deploy_schedules = schedules
     _flow_com_opcoes.job_variables = {"memory": "8Gi"}
 
     assert _flow_com_opcoes.deploy_schedules == schedules
+    assert _flow_com_opcoes.deploy_schedules[0].cron == "0 16 10 * *"
+    assert _flow_com_opcoes.deploy_schedules[0].timezone == "America/Sao_Paulo"
     assert _flow_com_opcoes.job_variables == {"memory": "8Gi"}

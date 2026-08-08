@@ -69,10 +69,12 @@ uv run manage.py add-pipeline <dataset_id>
 - `constants.py`: Use a `constants` enum or plain constants — no hardcoded values elsewhere.
 - `utils.py`: Pure helper functions with no Prefect decorators.
 
-There is no `schedules.py`. Attach the schedule to the flow object in `flows.py`; CI turns
-these dicts into `Cron` objects at deploy time:
+There is no `schedules.py`. Attach the schedule to the flow object in `flows.py`, as
+`Cron` objects from `prefect.schedules` (the `timezone` is an argument of `Cron`):
 
 ```python
+from prefect.schedules import Cron
+
 from pipelines.utils.flow import flow
 
 
@@ -80,9 +82,7 @@ from pipelines.utils.flow import flow
 def my_flow() -> None: ...
 
 
-my_flow.deploy_schedules = [
-    {"cron": "0 16 10 * *", "timezone": "America/Sao_Paulo"}
-]
+my_flow.deploy_schedules = [Cron("0 16 10 * *", timezone="America/Sao_Paulo")]
 my_flow.job_variables = {
     "memory": "8Gi"
 }  # optional; size to the flow's peak RAM

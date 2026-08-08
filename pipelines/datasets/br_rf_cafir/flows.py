@@ -2,6 +2,8 @@
 Flows for br_rf_cafir — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.rf_cafir.constants import (
     constants as br_rf_cafir_constants,
 )
@@ -134,5 +136,5 @@ def br_rf_cafir__imoveis_rurais(
 
 
 br_rf_cafir__imoveis_rurais.deploy_schedules = [
-    {"cron": "0 0 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 0 * * *", timezone="America/Sao_Paulo")
 ]

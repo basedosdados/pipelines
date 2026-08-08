@@ -2,6 +2,8 @@
 Flows for br_me_comex_stat — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.me_comex_stat.constants import (
     constants as comex_constants,
 )
@@ -129,7 +131,7 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
                     date_format="%Y-%m",
                 )
 
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

@@ -2,6 +2,8 @@
 Flows for br_me_cnpj — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.me_cnpj.flows import _run_me_cnpj
 from pipelines.utils.flow import flow
 
@@ -30,7 +32,7 @@ def _me_cnpj_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

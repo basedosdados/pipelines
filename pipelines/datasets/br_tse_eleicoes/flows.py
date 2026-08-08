@@ -2,6 +2,8 @@
 Flows for br_tse_eleicoes — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.tse_eleicoes.flows import _run_tse_eleicoes
 from pipelines.utils.flow import flow
 
@@ -31,7 +33,7 @@ def _tse_flow(table_id: str, cron: str | None):
         )
 
     _flow.deploy_schedules = (
-        [{"cron": cron, "timezone": "America/Sao_Paulo"}] if cron else []
+        [Cron(cron, timezone="America/Sao_Paulo")] if cron else []
     )
     return _flow
 

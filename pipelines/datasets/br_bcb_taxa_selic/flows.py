@@ -7,6 +7,7 @@ import os
 import pandas as pd
 import requests
 from prefect import task
+from prefect.schedules import Cron
 
 from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
@@ -156,5 +157,5 @@ def br_bcb_taxa_selic__taxa_selic(
 
 
 br_bcb_taxa_selic__taxa_selic.deploy_schedules = [
-    {"cron": "0 8 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 8 * * *", timezone="America/Sao_Paulo")
 ]

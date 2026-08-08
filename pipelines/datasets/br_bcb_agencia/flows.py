@@ -2,6 +2,8 @@
 Flow br_bcb_agencia__agencia — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.bcb_agencia.tasks import (
     clean_data,
     download_table,
@@ -146,5 +148,5 @@ def br_bcb_agencia__agencia(
 
 
 br_bcb_agencia__agencia.deploy_schedules = [
-    {"cron": "0 22 25-31 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 22 25-31 * *", timezone="America/Sao_Paulo")
 ]

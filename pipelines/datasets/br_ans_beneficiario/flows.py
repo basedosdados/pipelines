@@ -2,6 +2,8 @@
 Flow br_ans_beneficiario__informacao_consolidada — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.ans_beneficiario.tasks import (
     crawler_ans,
     extract_links_and_dates,
@@ -133,5 +135,5 @@ def br_ans_beneficiario__informacao_consolidada(
 
 
 br_ans_beneficiario__informacao_consolidada.deploy_schedules = [
-    {"cron": "0 21 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 21 * * *", timezone="America/Sao_Paulo")
 ]

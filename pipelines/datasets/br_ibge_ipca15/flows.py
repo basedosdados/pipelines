@@ -2,6 +2,8 @@
 Flows para br_ibge_ipca15 — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.ibge_inflacao.flows import _run_ibge_inflacao
 from pipelines.utils.flow import flow
 
@@ -32,7 +34,7 @@ def _ipca15_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

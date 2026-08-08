@@ -16,6 +16,8 @@ the dev pool ignores the schedule, the prod pool activates it (paused until arme
 import shutil
 import tempfile
 
+from prefect.schedules import Cron
+
 from pipelines.datasets.world_cricsheet.constants import constants
 from pipelines.datasets.world_cricsheet.tasks import (
     clean_cricsheet,
@@ -212,7 +214,7 @@ def world_cricsheet_flow(
 # freshness fine. The source-poll guard still no-ops between real releases, and
 # the full-replace dump means overlapping windows never duplicate.
 world_cricsheet_flow.deploy_schedules = [
-    {"cron": "0 6 * * 1", "timezone": "America/Sao_Paulo"}
+    Cron("0 6 * * 1", timezone="America/Sao_Paulo")
 ]
 # The deliveries build streams 11.4M rows and the bundle extracts to several GB;
 # give the worker headroom.

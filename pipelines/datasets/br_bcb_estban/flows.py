@@ -2,6 +2,8 @@
 Flows para br_bcb_estban — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.bcb_estban.tasks import (
     cleaning_data,
     download_table,
@@ -166,7 +168,7 @@ def _estban_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

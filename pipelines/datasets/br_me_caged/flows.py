@@ -2,6 +2,8 @@
 Flows para br_me_caged — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.me_caged.tasks import (
     build_partitions,
     build_table_paths,
@@ -148,7 +150,7 @@ def _caged_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

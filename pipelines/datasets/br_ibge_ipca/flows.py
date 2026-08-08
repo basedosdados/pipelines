@@ -5,6 +5,8 @@ Redeploy disparado para propagar a correção dos parsers de ibge_inflacao
 (guards contra bloco vazio da API do IBGE) em utils.py.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.ibge_inflacao.flows import _run_ibge_inflacao
 from pipelines.utils.flow import flow
 
@@ -32,7 +34,7 @@ def _ipca_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

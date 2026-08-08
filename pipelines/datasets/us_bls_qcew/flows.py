@@ -19,6 +19,8 @@ dev pool ignores the schedule, the prod pool activates it (paused until armed).
 import shutil
 import tempfile
 
+from prefect.schedules import Cron
+
 from pipelines.datasets.us_bls_qcew.constants import constants
 from pipelines.datasets.us_bls_qcew.tasks import (
     clean_qcew,
@@ -188,7 +190,7 @@ def us_bls_qcew_flow(
 # Poll across the first ~10 days of those months at 16:00 BRT; the source-poll
 # guard no-ops until a new quarter actually appears in the singlefiles.
 us_bls_qcew_flow.deploy_schedules = [
-    {"cron": "0 16 1-10 3,6,9,12 *", "timezone": "America/Sao_Paulo"}
+    Cron("0 16 1-10 3,6,9,12 *", timezone="America/Sao_Paulo")
 ]
 # The clean step streams ~15M-row singlefiles one chunk at a time (peak ~1.75GB
 # in pandas); give the worker headroom above that.

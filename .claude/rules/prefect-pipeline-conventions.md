@@ -44,7 +44,8 @@ plain Prefect flow is a Pyrefly `missing-attribute` error. `pipelines/utils/flow
 declares both on a `prefect.Flow` subclass and exports a `flow` decorator that
 builds it; it takes the same arguments as `prefect.flow` and the object stays a
 `prefect.Flow` for every `isinstance` check. Both attributes default to empty
-(no schedule, work-pool default infrastructure).
+(no schedule, work-pool default infrastructure). `deploy_schedules` is a list of
+`prefect.schedules.Cron` — `Cron("0 16 10 * *", timezone="America/Sao_Paulo")`.
 
 ## DRY with the onboarding code
 
@@ -289,6 +290,8 @@ on the **deployed Prefect worker** (its pod SA has access) — the local
 Schedule inline on the flow object (do NOT register storage/run-config by hand):
 
 ```python
+from prefect.schedules import Cron
+
 from pipelines.utils.flow import flow
 
 
@@ -297,7 +300,7 @@ def my_flow() -> None: ...
 
 
 my_flow.deploy_schedules = [
-    {"cron": "0 16 10,11,12,13 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 16 10,11,12,13 * *", timezone="America/Sao_Paulo")
 ]
 my_flow.job_variables = {
     "memory": "8Gi"
@@ -311,7 +314,7 @@ Deploy is CI, via `.github/scripts/deploy_flows.py`:
   looks fine. The workflow triggers on `labeled` and `synchronize`, so adding the
   label is itself enough. Schedules are **stripped** — manual runs only.
 - **Prod pool** (`cd-prefect3.yaml`, `--pool basedosdados --all`, on merge to main):
-  schedules become `Cron` objects; deployed **`paused=True`**.
+  `deploy_schedules` is passed straight to the deployment; deployed **`paused=True`**.
 - Cron in `America/Sao_Paulo`; see crontab.guru. For a monthly source, poll across
   a few release-window days — the source-poll guard no-ops until a new period lands.
 

@@ -13,6 +13,8 @@ Vale para toda PR seguinte, não só a que criou este aviso: se o diff não incl
 este arquivo, o deploy sai "0 registrados, N pulados" e passa.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.datasus.flows import _run_cnes
 from pipelines.utils.flow import flow
 
@@ -44,9 +46,7 @@ def _cnes_flow(table_id: str, cron: str | None):
         )
 
     if cron:
-        _flow.deploy_schedules = [
-            {"cron": cron, "timezone": "America/Sao_Paulo"}
-        ]
+        _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

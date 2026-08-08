@@ -17,7 +17,7 @@ Flows for {{cookiecutter.pipeline_name}} — Prefect 3.
 # storage nem run_config manualmente.
 #
 # O agendamento é definido inline no próprio objeto do flow, via
-# `<flow>.deploy_schedules`, uma lista de dicts `{"cron": ..., "timezone": ...}`.
+# `<flow>.deploy_schedules`, uma lista de `Cron` (`prefect.schedules`).
 # Em `dev` os schedules são ignorados; em `prod` são ativados na sincronização
 # com o backend. Veja https://crontab.guru/ para montar a expressão cron.
 #
@@ -26,6 +26,8 @@ Flows for {{cookiecutter.pipeline_name}} — Prefect 3.
 # Abaixo segue um código de exemplo, que pode ser removido.
 #
 ###############################################################################
+
+from prefect.schedules import Cron
 
 from pipelines.datasets.{{cookiecutter.pipeline_name}}.tasks import say_hello
 from pipelines.utils.flow import flow
@@ -38,5 +40,5 @@ def {{cookiecutter.pipeline_name}}_flow(name: str = "World") -> None:
 
 # Agendamento (opcional). Remova se o flow não deve rodar em intervalos fixos.
 {{cookiecutter.pipeline_name}}_flow.deploy_schedules = [
-    {"cron": "0 14 * * 1", "timezone": "America/Sao_Paulo"}  # segundas, 14:00
+    Cron("0 14 * * 1", timezone="America/Sao_Paulo")  # segundas, 14:00
 ]

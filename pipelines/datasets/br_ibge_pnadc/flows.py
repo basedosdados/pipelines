@@ -2,6 +2,8 @@
 Flow br_ibge_pnadc — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.ibge_pnadc.tasks import (
     build_partitions,
     build_table_paths,
@@ -121,7 +123,7 @@ def br_ibge_pnadc__microdados(
 
 
 br_ibge_pnadc__microdados.deploy_schedules = [
-    {"cron": "0 5 15-31 2,5,8,11 *", "timezone": "America/Sao_Paulo"}
+    Cron("0 5 15-31 2,5,8,11 *", timezone="America/Sao_Paulo")
 ]
 
 
@@ -195,5 +197,5 @@ def br_ibge_pnadc__dicionario(
 
 
 br_ibge_pnadc__dicionario.deploy_schedules = [
-    {"cron": "0 5 1,15 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 5 1,15 * *", timezone="America/Sao_Paulo")
 ]

@@ -19,6 +19,8 @@ the dev pool ignores the schedule, the prod pool activates it (paused until arme
 import shutil
 import tempfile
 
+from prefect.schedules import Cron
+
 from pipelines.datasets.au_abs_labour_force.constants import constants
 from pipelines.datasets.au_abs_labour_force.tasks import (
     clean_and_write_task,
@@ -191,7 +193,7 @@ def au_abs_labour_force_flow(
 # 11:30 Canberra time. Poll daily across that window at 06:00 BRT (= evening AEST,
 # after the morning release); the source-poll guard no-ops until a new month lands.
 au_abs_labour_force_flow.deploy_schedules = [
-    {"cron": "0 6 14-27 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 6 14-27 * *", timezone="America/Sao_Paulo")
 ]
 # openpyxl reads the ~38 MB SEM1 pivot; give the worker headroom.
 au_abs_labour_force_flow.job_variables = {"memory": "6Gi"}

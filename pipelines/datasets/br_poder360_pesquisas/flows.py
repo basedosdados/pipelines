@@ -2,6 +2,8 @@
 Flow br_poder360_pesquisas — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.poder360_pesquisas.tasks import crawler
 from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
@@ -88,5 +90,5 @@ def br_poder360_pesquisas__microdados(
 
 
 br_poder360_pesquisas__microdados.deploy_schedules = [
-    {"cron": "42 3 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("42 3 * * *", timezone="America/Sao_Paulo")
 ]

@@ -2,6 +2,8 @@
 Flows for br_inmet_bdmep — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.inmet_bdmep.tasks import (
     extract_last_date_from_source,
     get_base_inmet,
@@ -115,5 +117,5 @@ def br_inmet_bdmep__microdados(
 
 
 br_inmet_bdmep__microdados.deploy_schedules = [
-    {"cron": "0 22 * * 1-5", "timezone": "America/Sao_Paulo"},
+    Cron("0 22 * * 1-5", timezone="America/Sao_Paulo"),
 ]

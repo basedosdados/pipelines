@@ -2,6 +2,8 @@
 Flows para br_cgu_licitacao_contrato — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.cgu.flows import _run_cgu_licitacao_contrato
 from pipelines.utils.flow import flow
 
@@ -33,9 +35,7 @@ def _flow_factory(table_id: str, cron: str | None):
         )
 
     if cron:
-        _flow.deploy_schedules = [
-            {"cron": cron, "timezone": "America/Sao_Paulo"}
-        ]
+        _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

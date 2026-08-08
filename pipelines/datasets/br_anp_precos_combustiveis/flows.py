@@ -2,6 +2,8 @@
 Flow br_anp_precos_combustiveis__microdados — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.anp_precos_combustiveis.tasks import (
     download_and_transform,
     get_data_source_anp_max_date,
@@ -120,5 +122,5 @@ def br_anp_precos_combustiveis__microdados(
 
 
 br_anp_precos_combustiveis__microdados.deploy_schedules = [
-    {"cron": "0 10 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 10 * * *", timezone="America/Sao_Paulo")
 ]

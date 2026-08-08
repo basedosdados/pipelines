@@ -2,6 +2,8 @@
 Flow br_sfb_sicar — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.sfb_sicar.constants import Constants
 from pipelines.crawler.sfb_sicar.tasks import (
     download_car,
@@ -113,5 +115,5 @@ def br_sfb_sicar__area_imovel(
 
 
 br_sfb_sicar__area_imovel.deploy_schedules = [
-    {"cron": "15 21 15 * *", "timezone": "America/Sao_Paulo"}
+    Cron("15 21 15 * *", timezone="America/Sao_Paulo")
 ]

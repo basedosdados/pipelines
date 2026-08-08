@@ -4,6 +4,8 @@ Flow br_mp_pep — Prefect 3.
 
 import datetime
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.mp_pep.tasks import (
     clean_data,
     download_xlsx,
@@ -112,5 +114,5 @@ def br_mp_pep__cargos_funcoes(
 
 
 br_mp_pep__cargos_funcoes.deploy_schedules = [
-    {"cron": "0 14 * * 3", "timezone": "America/Sao_Paulo"}
+    Cron("0 14 * * 3", timezone="America/Sao_Paulo")
 ]

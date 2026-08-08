@@ -2,6 +2,8 @@
 Flows for br_cvm_oferta_publica_distribuicao — Prefect 3.
 """
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.cvm_oferta_publica_distribuicao.tasks import (
     clean_table_oferta_distribuicao,
     crawl,
@@ -95,5 +97,5 @@ def br_cvm_oferta_publica_distribuicao__dia(
 
 
 br_cvm_oferta_publica_distribuicao__dia.deploy_schedules = [
-    {"cron": "45 6 * * 1-5", "timezone": "America/Sao_Paulo"}
+    Cron("45 6 * * 1-5", timezone="America/Sao_Paulo")
 ]

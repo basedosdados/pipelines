@@ -16,6 +16,8 @@ the dev pool ignores the schedule, the prod pool activates it.
 import shutil
 import tempfile
 
+from prefect.schedules import Cron
+
 from pipelines.datasets.br_senado_dados_abertos.constants import constants
 from pipelines.datasets.br_senado_dados_abertos.tasks import extract_clean
 from pipelines.utils.flow import flow
@@ -165,6 +167,6 @@ def br_senado_dados_abertos_flow(
 
 # Legislative activity updates on business days; refresh every morning (BRT).
 br_senado_dados_abertos_flow.deploy_schedules = [
-    {"cron": "0 8 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 8 * * *", timezone="America/Sao_Paulo")
 ]
 br_senado_dados_abertos_flow.job_variables = {"memory": "4Gi"}

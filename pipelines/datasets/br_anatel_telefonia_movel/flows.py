@@ -1,5 +1,7 @@
 """Flows for br_anatel_telefonia_movel — Prefect 3."""
 
+from prefect.schedules import Cron
+
 from pipelines.crawler.anatel.telefonia_movel.flows import (
     _run_anatel_telefonia_movel,
 )
@@ -34,7 +36,7 @@ def _anatel_tm_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     _flow.job_variables = {"memory_limit": "8Gi", "memory_request": "2Gi"}
     return _flow
 
