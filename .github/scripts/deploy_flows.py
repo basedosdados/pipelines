@@ -15,8 +15,9 @@ import os
 import sys
 from pathlib import Path
 
-from prefect import Flow
 from prefect.runner.storage import GitRepository
+
+from pipelines.utils.flow import Flow
 
 REPO_URL = "https://github.com/basedosdados/pipelines.git"
 
@@ -68,18 +69,15 @@ def deploy_flow(
     entrypoint = f"{file_path}:{flow_name}"
     is_dev = "dev" in pool_name
 
-    # `deploy_schedules` e `job_variables` são declarados em
-    # `pipelines.utils.flow.Flow` e vêm vazios quando o flow não os define;
-    # `or None` normaliza para o que o Prefect entende como "não informado".
-    schedules = getattr(flow, "deploy_schedules", None) or None
-    if is_dev:
-        schedules = None  # flows em dev não têm schedule
+    # flows em dev não têm schedule
+    schedules = None if is_dev else flow.deploy_schedules
 
-    job_variables = getattr(flow, "job_variables", None) or None
+    job_variables = flow.job_variables
 
     print(f"  Registrando {flow_name} → {entrypoint}")
 
     try:
+        # pyrefly: ignore [missing-attribute]
         flow.from_source(
             source=GitRepository(
                 url=REPO_URL,

@@ -58,13 +58,13 @@ class Flow(PrefectFlow[P, R]):
             pool, por exemplo `{"memory": "8Gi"}`. Vazio usa o padrão do pool.
     """
 
-    deploy_schedules: list[Schedule]
-    job_variables: dict[str, Any]
+    deploy_schedules: list[Schedule] | None
+    job_variables: dict[str, Any] | None
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self.deploy_schedules = []
-        self.job_variables = {}
+        self.deploy_schedules = None
+        self.job_variables = None
 
 
 # Uso sem parênteses (`@flow`). A assinatura da função decorada não é
