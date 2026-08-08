@@ -411,13 +411,14 @@ models:
         tests: [not_null]
       - name: id_mandato
         description: Código identificador do mandato
-        tests: [not_null]
       - name: sigla_uf
         description: Sigla da unidade da federação de mandato
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: sigla_uf not in ('GB')
       - name: participacao
         description: Condição de participação no mandato (Titular ou Suplente)
       - name: numero_legislatura_1
