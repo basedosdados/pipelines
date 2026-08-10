@@ -106,6 +106,53 @@ def test_poll_source_for_update_defaults_url_to_none():
     assert kwargs["url"] is None
 
 
+# ================================================ compare_against (§1781)
+def test_poll_default_compares_against_table_update():
+    # Sem compare_against, mantém o comportamento histórico: compara contra
+    # Table.Update.latest, ignorando get_coverage_max_date completamente.
+    client = FakeMetadataClient(
+        table_update_latest=datetime.date(2026, 5, 1),
+        coverage_max_date=datetime.date(
+            2026, 1, 1
+        ),  # seria "sem novidade" se lido
+    )
+    result = poll_source_for_update(
+        client, "br_x", "tab", source_max_date=datetime.date(2026, 6, 1)
+    )
+    assert result is True  # 2026-06 > table_update (2026-05)
+
+
+def test_poll_coverage_compares_against_coverage_not_table_update():
+    # compare_against="coverage" ignora Table.Update.latest, mesmo que ele
+    # sozinho indicasse "sem novidade" — é exatamente o defeito do CAGED/ANS.
+    client = FakeMetadataClient(
+        table_update_latest=datetime.date(2026, 7, 7),  # "adiantado" (bug)
+        coverage_max_date=datetime.date(2026, 5, 1),  # cobertura real
+    )
+    result = poll_source_for_update(
+        client,
+        "br_x",
+        "tab",
+        source_max_date=datetime.date(2026, 6, 1),
+        compare_against="coverage",
+    )
+    assert (
+        result is True
+    )  # 2026-06 > coverage (2026-05), apesar de < table_update
+
+
+def test_poll_coverage_false_when_source_not_ahead_of_coverage():
+    client = FakeMetadataClient(coverage_max_date=datetime.date(2026, 6, 1))
+    result = poll_source_for_update(
+        client,
+        "br_x",
+        "tab",
+        source_max_date=datetime.date(2026, 6, 1),
+        compare_against="coverage",
+    )
+    assert result is False
+
+
 def test_commit_source_update_forwards_raw_source_url_to_client():
     # A url informada precisa chegar ao upsert_raw_source_update do client.
     client = FakeMetadataClient()

@@ -278,15 +278,16 @@ def poll_source_for_update_task(
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
     raw_source_url: str | None = None,
+    compare_against: str = "table_update",
 ) -> bool:
     """Detecta se a fonte original tem novidade hoje, sem gravar o Update.
 
     Sempre grava um `Poll` na fonte (data de hoje) e devolve se `source_max_date`
-    indica dados mais novos do que o `Table.Update.latest` atual — mas, ao
-    contrário de `register_source_poll_task`, **não grava** o Update. A gravação
-    fica a cargo de `commit_source_update_task`, chamada ao fim do flow, após a
-    materialização. Use as duas em par quando a gravação do Update precisa ser
-    adiada para não travar runs futuras se o flow falhar no meio.
+    indica dados mais novos do que o alvo de comparação (`compare_against`) —
+    mas, ao contrário de `register_source_poll_task`, **não grava** o Update. A
+    gravação fica a cargo de `commit_source_update_task`, chamada ao fim do
+    flow, após a materialização. Use as duas em par quando a gravação do Update
+    precisa ser adiada para não travar runs futuras se o flow falhar no meio.
 
     Args:
         dataset_id: ID do dataset no GCP/BigQuery.
@@ -302,6 +303,12 @@ def poll_source_for_update_task(
         raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
             uma fonte ligada (ex.: uma API que atualiza e um histórico
             congelado). `None` (padrão) mantém o comportamento de fonte única.
+        compare_against: `"table_update"` (padrão, comportamento histórico) lê
+            `Table.Update.latest` — um timestamp de execução, não a cobertura
+            real. `"coverage"` lê `Coverage.DateTimeRange` (a competência que a
+            tabela de fato cobre) — use quando `source_max_date` representar
+            uma competência (ex.: pasta `YYYYMM` de um FTP), para não comparar
+            uma competência contra um timestamp de execução.
 
     Returns:
         bool — True se a fonte trouxe novidade (Update ainda não gravado),
@@ -316,6 +323,7 @@ def poll_source_for_update_task(
         table_id,
         _coerce_to_date(source_max_date, date_format),
         raw_source_url=raw_source_url,
+        compare_against=compare_against,
     )
 
 

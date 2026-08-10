@@ -318,15 +318,16 @@ def poll_source_for_update(
     table_id,
     source_max_date: datetime.date | None = None,
     raw_source_url: str | None = None,
+    compare_against: str = "table_update",
 ) -> bool:
     """Detecta se a fonte original tem novidade, sem gravar o Update.
 
     Sempre registra um `RawDataSource.Poll` (data de hoje) e devolve se a fonte
-    traz dados mais novos que o `Table.Update.latest` atual. Ao contrário de
-    `register_source_poll`, **não grava** o Update — essa escrita fica a cargo de
-    `commit_source_update`, chamada só após a materialização. Assim, se o flow
-    falha no meio, o Update não avança e a run seguinte ainda detecta a novidade
-    e retenta.
+    traz dados mais novos que o alvo de comparação (`compare_against`). Ao
+    contrário de `register_source_poll`, **não grava** o Update — essa escrita
+    fica a cargo de `commit_source_update`, chamada só após a materialização.
+    Assim, se o flow falha no meio, o Update não avança e a run seguinte ainda
+    detecta a novidade e retenta.
 
     Args:
         client: cliente de escrita/leitura do backend de metadados
@@ -339,10 +340,22 @@ def poll_source_for_update(
         raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
             uma fonte ligada. `None` (padrão) mantém o comportamento de fonte
             única.
+        compare_against: contra qual campo comparar `source_max_date`.
+            `"table_update"` (padrão, mantém o comportamento histórico) lê
+            `Table.Update.latest` — um timestamp de execução (`bq.last_modified`),
+            não a cobertura real. `"coverage"` lê `Coverage.DateTimeRange` (a
+            competência de dados que a tabela de fato cobre) — o que
+            `check_if_data_is_outdated` (Prefect 0) fazia por padrão
+            (`date_type="data_max_date"`) antes da migração para Prefect 3 ter
+            perdido essa escolha. Use `"coverage"` sempre que `source_max_date`
+            represente uma competência (ex.: pasta `YYYYMM` de um FTP) — comparar
+            isso contra um timestamp de execução mistura grandezas diferentes e
+            trava a detecção sempre que uma materialização anterior gravar um
+            timestamp "adiantado" em relação ao dia-1 do próximo mês publicado.
 
     Returns:
-        bool — `True` se a fonte tem dados mais novos que o `Table.Update.latest`
-        atual; `False` caso contrário.
+        bool — `True` se a fonte tem dados mais novos que o alvo de comparação;
+        `False` caso contrário.
     """
 
     client.upsert_raw_source_poll(
@@ -355,7 +368,11 @@ def poll_source_for_update(
     if source_max_date is None:
         return False
 
-    api_latest = client.get_table_update_latest(dataset_id, table_id)
+    if compare_against == "coverage":
+        api_latest = client.get_coverage_max_date(dataset_id, table_id)
+    else:
+        api_latest = client.get_table_update_latest(dataset_id, table_id)
+
     if not policy.should_update_raw_source(api_latest, source_max_date):
         log("Não há novas atualizações na fonte original")
         return False
