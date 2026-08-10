@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 from clean_functions import *  # noqa: F403
 
 
@@ -16,11 +17,13 @@ def rename_columns(df):
 
 def change_types(df):
     df["ano"] = df["ano"].astype("int")
+    # pyrefly: ignore [unknown-name]
     df["mes"] = get_month_number(df["mes"])  # noqa: F405
     df["valor_arrecadado"] = (
         df["valor_arrecadado"]
+        # pyrefly: ignore [unknown-name]
         .apply(replace_commas)  # noqa: F405
-        .apply(remove_dots)  # noqa: F405
+        .apply(remove_dots)  # noqa: F405  # pyrefly: ignore [unknown-name]
         .astype("float")
     )
 
@@ -28,11 +31,13 @@ def change_types(df):
 
 
 def format_state(df):
+    # pyrefly: ignore [unknown-name]
     df["sigla_uf"] = get_state_letters(df["nome_uf"])  # noqa: F405
     return df.drop("nome_uf", axis=1)
 
 
 def format_region(df):
+    # pyrefly: ignore [unknown-name]
     df["sigla_regiao"] = get_region_letters(df["regiao_politica"])  # noqa: F405
     return df.drop("regiao_politica", axis=1)
 
@@ -43,13 +48,15 @@ def format_city(df):
 
 
 if __name__ == "__main__":
+    # pyrefly: ignore [unknown-name]
     df = read_data(file_dir="../input/arrecadacao-itr.csv")  # noqa: F405
-    df = remove_empty_rows(df)  # noqa: F405
+    df = remove_empty_rows(df)  # noqa: F405  # pyrefly: ignore [unknown-name]
     df = rename_columns(df)
     df = change_types(df)
     df = format_state(df)
     df = format_region(df)
     df = format_city(df)
+    # pyrefly: ignore [unknown-name]
     save_data(  # noqa: F405
         df=df,
         file_dir="../output/br_rf_arrecadacao_itr",

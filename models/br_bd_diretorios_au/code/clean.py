@@ -105,20 +105,51 @@ REG = {
         "2016/csv/SED_2016_AUST.csv",
         "meshblock",
     ),
+    # 2011 ABS main structure (aggregate; area is AREA_ALBERS_SQM in m² -> /1e6)
+    "sa1_2011": ("2011/csv/SA1_2011_AUST.csv", "aggregate"),
+    "sa2_2011": ("2011/csv/SA2_2011_AUST.csv", "aggregate"),
+    "sa3_2011": ("2011/csv/SA3_2011_AUST.csv", "aggregate"),
+    "sa4_2011": ("2011/csv/SA4_2011_AUST.csv", "aggregate"),
+    "gccsa_2011": ("2011/csv/GCCSA_2011_AUST.csv", "aggregate"),
+    # 2011 Non-ABS (mesh-block or SA1 grain -> dedup by unit code, sum area km²)
+    "lga_2011": ("2011/csv/LGA_2011_*.csv", "meshblock"),  # per-state, concat
+    "postal_area_2011": ("2011/csv/POA_2011_AUST.csv", "meshblock"),
+    "suburb_2011": ("2011/csv/SSC_2011_AUST.csv", "meshblock"),
+    "commonwealth_electoral_division_2011": (
+        "2011/csv/CED_2011_AUST.csv",
+        "meshblock",
+    ),
+    "state_electoral_division_2011": (
+        "2011/csv/SED_2011_AUST.csv",
+        "meshblock",
+    ),
 }
 
 
 # Per-table derivations run after source->target mapping, before dedup.
-# CED 2016 source has no STATE column; derive it from the SA1 code (first char).
-def _derive_ced_2016_state(out, src):
-    if "SA1_MAINCODE_2016" in src.columns:
-        out["id_state"] = (
-            src["SA1_MAINCODE_2016"].astype(str).str[0].to_numpy()
-        )
-    return out
+# Some Non-ABS sources ship no STATE column; derive it from the SA1 code (first
+# char): CED in both editions, plus SSC (suburb) and SED in 2011.
+def _derive_state_from_sa1(sa1col):
+    def _f(out, src):
+        if sa1col in src.columns:
+            out["id_state"] = src[sa1col].astype(str).str[0].to_numpy()
+        return out
+
+    return _f
 
 
-DERIVE = {"commonwealth_electoral_division_2016": _derive_ced_2016_state}
+DERIVE = {
+    "commonwealth_electoral_division_2016": _derive_state_from_sa1(
+        "SA1_MAINCODE_2016"
+    ),
+    "commonwealth_electoral_division_2011": _derive_state_from_sa1(
+        "SA1_MAINCODE_2011"
+    ),
+    "state_electoral_division_2011": _derive_state_from_sa1(
+        "SA1_MAINCODE_2011"
+    ),
+    "suburb_2011": _derive_state_from_sa1("SA1_MAINCODE_2011"),
+}
 
 
 def read_arch(table):
@@ -168,10 +199,25 @@ def build_table(table):
         elif name == "abbreviation_state":
             out[name] = None
         else:
+            # pyrefly: ignore [missing-attribute]
             if original and original in src.columns:
+                # pyrefly: ignore [unsupported-operation]
                 out[name] = src[original].to_numpy()
             else:
                 out[name] = None  # e.g. derived / missing legacy shortcode
+
+    # 2011 main-structure files carry area as AREA_ALBERS_SQM (m²); convert to
+    # km². Non-ABS 2011 files (and all 2016/2021 files) already use _SQKM.
+    if (
+        "area_albers_sqkm" in out.columns
+        and "AREA_ALBERS_SQM" in src.columns  # pyrefly: ignore [missing-attribute]
+        and "AREA_ALBERS_SQKM" not in src.columns  # pyrefly: ignore [not-iterable]
+    ):
+        out["area_albers_sqkm"] = (
+            # pyrefly: ignore [unsupported-operation]
+            pd.to_numeric(src["AREA_ALBERS_SQM"], errors="coerce").to_numpy()
+            / 1e6
+        )
 
     # per-table derivations that need the raw source (e.g. CED 2016 state)
     if table in DERIVE:
