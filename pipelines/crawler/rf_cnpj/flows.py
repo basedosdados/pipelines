@@ -36,9 +36,51 @@ def _run_rf_cnpj(
     folder_date: str | None = None,
     download_chunk_size: int = 15 * 1024 * 1024,
     download_max_retries: int = 5,
-    download_max_parallel: int = 5,
+    download_max_parallel: int = 15,
     download_timeout: int = 5 * 60,
 ) -> None:
+    """Run the download/clean/upload/dbt/metadata cycle for one br_rf_cnpj table.
+
+    Polls the source for a newer release (unless `force_run`), downloads and
+    cleans the table's raw files, uploads the result to the dev GCS bucket and
+    runs dbt against `dev`. If `materialize_after_dump` is set, also uploads to
+    the prod bucket, runs dbt against `target`, and — if `update_metadata` is
+    set — registers the table materialization and commits the source update.
+    The `estabelecimentos` table additionally refreshes the
+    `br_bd_diretorios_brasil.empresa` directory table.
+
+    Args:
+        dataset_id: BD dataset slug (e.g. "br_rf_cnpj").
+        table_id: Table slug within the dataset (e.g. "empresas",
+            "estabelecimentos", "socios", "simples", "dicionario").
+        materialize_after_dump: If True, also upload to the prod bucket, run
+            dbt against `target`, and register metadata (subject to
+            `update_metadata`). If False, stop after the dev dump and dbt run.
+        dbt_alias: Passed through to `run_dbt`'s `dbt_alias` argument.
+        update_metadata: If True (and `materialize_after_dump` is True),
+            register the table's coverage/materialization and commit the
+            source's max date after a successful prod run.
+        target: dbt target used for the prod run (e.g. "prod").
+        force_run: If True, skip the `poll_source_for_update_task` check and
+            run unconditionally, even if the source has no new data.
+        chunk_size: Row chunk size used when writing the cleaned output file.
+            Defaults to 100000.
+        folder_date: Source folder date to process, formatted "%Y-%m". If
+            None, resolved automatically via `get_data_source_max_date` to the
+            source's latest available folder.
+        download_chunk_size: Byte size of each HTTP range chunk when
+            downloading source files. Defaults to 15 MiB (15 * 1024 * 1024).
+        download_max_retries: Maximum retry attempts per failed download
+            chunk. Defaults to 5.
+        download_max_parallel: Maximum number of download chunks fetched
+            concurrently. Defaults to 15.
+        download_timeout: Per-request download timeout in seconds. Defaults
+            to 5 minutes (5 * 60).
+
+    Returns:
+        None. Returns early (without uploading/running dbt) if `force_run` is
+        False and the source has no new data since the last committed update.
+    """
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
@@ -54,7 +96,7 @@ def _run_rf_cnpj(
             table_id=table_id,
             source_max_date=folder_date,
             env="prod",
-            date_format="%Y-%m",
+            date_format="%Y-%m-%d %H:%M:%S",
         )
         if not has_new_data:
             print(f"Não há atualizações para a tabela {tabelas}!")
