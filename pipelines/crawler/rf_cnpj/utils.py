@@ -57,9 +57,9 @@ def data_url(
             urls = x.get_text(strip=True).split("/")[-2]
             if len(urls) == 7:
                 value.append(urls)
-        folder_date = str(
-            max(datetime.datetime.strptime(x, "%Y-%m") for x in value)
-        )
+        folder_date = max(
+            datetime.datetime.strptime(x, "%Y-%m") for x in value
+        ).strftime("%Y-%m")
         last_modified_date = max(
             datetime.datetime.strptime(
                 p.find("d:getlastmodified").text, "%a, %d %b %Y %H:%M:%S GMT"

@@ -96,7 +96,7 @@ def _run_rf_cnpj(
             table_id=table_id,
             source_max_date=folder_date,
             env="prod",
-            date_format="%Y-%m-%d %H:%M:%S",
+            date_format="%Y-%m",
         )
         if not has_new_data:
             print(f"Não há atualizações para a tabela {tabelas}!")
