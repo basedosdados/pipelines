@@ -43,6 +43,9 @@ models:
     au_abs_cpi:
       +materialized: table
       +schema: au_abs_cpi
+    au_abs_national_accounts:
+      +materialized: table
+      +schema: au_abs_national_accounts
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
