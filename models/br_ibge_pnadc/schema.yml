@@ -2138,8 +2138,8 @@ models:
           - dbt_utils.not_null_proportion:
               at_least: 0.01
       - name: V1028
-        description: "Peso do domicílio e das pessoas (Peso trimestral com correção\
-          \ de não entrevista com calibração pela projeção de população)\n"
+        description: Peso do domicílio e das pessoas (Peso trimestral com correção
+          de não entrevista com calibração pela projeção de população)
         tests:
           - dbt_utils.not_null_proportion:
               at_least: 0.01
