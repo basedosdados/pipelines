@@ -51,6 +51,7 @@ def _run_ibge_inflacao(
         source_max_date=max_date,
         env="prod",
         date_format="%Y-%m",
+        compare_against="coverage",
     )
 
     if not has_new_data and not force_run:

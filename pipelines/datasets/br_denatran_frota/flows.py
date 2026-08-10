@@ -64,6 +64,7 @@ def _run_denatran(
             source_max_date=source_first_available_date_str,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             print("No new data to be downloaded")

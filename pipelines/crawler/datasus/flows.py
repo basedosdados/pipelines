@@ -167,6 +167,7 @@ def _run_dbf_to_parquet(
             source_max_date=source_max_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             print(f"Fonte {fonte_label} sem novidade — encerrando")
@@ -274,6 +275,7 @@ def _run_sinan(
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="coverage",
         )
         if not has_new_data:
             print("Sem atualizações na fonte SINAN — encerrando")

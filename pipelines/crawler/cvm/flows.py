@@ -51,6 +51,7 @@ def _run_cvm_fi(
             source_max_date=max_date,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="table_update",
         )
         if not has_new_data:
             print(

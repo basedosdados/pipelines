@@ -55,6 +55,7 @@ def br_ibge_pnadc__microdados(
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="table_update",
         )
         if not has_new_data:
             return

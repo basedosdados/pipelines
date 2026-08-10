@@ -50,6 +50,7 @@ def _run_rf(
             source_max_date=last_update_original_source,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="coverage",
         )
 
         if not has_new_data:

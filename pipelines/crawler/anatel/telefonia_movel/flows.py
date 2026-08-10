@@ -56,6 +56,7 @@ def _run_anatel_telefonia_movel(
         source_max_date=data_source_max_date,
         env="prod",
         date_format="%Y-%m",
+        compare_against="coverage",
     )
 
     if not has_new_data and not force_run:

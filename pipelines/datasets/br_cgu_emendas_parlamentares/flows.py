@@ -53,6 +53,7 @@ def br_cgu_emendas_parlamentares__microdados(
             source_max_date=max_modified_time,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="table_update",
         )
         if not has_new_data:
             return
