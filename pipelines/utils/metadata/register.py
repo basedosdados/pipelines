@@ -318,7 +318,7 @@ def poll_source_for_update(
     table_id,
     source_max_date: datetime.date | None = None,
     raw_source_url: str | None = None,
-    compare_against: str = "table_update",
+    compare_against: str = "coverage",
 ) -> bool:
     """Detecta se a fonte original tem novidade, sem gravar o Update.
 
@@ -341,17 +341,21 @@ def poll_source_for_update(
             uma fonte ligada. `None` (padrão) mantém o comportamento de fonte
             única.
         compare_against: contra qual campo comparar `source_max_date`.
-            `"table_update"` (padrão, mantém o comportamento histórico) lê
-            `Table.Update.latest` — um timestamp de execução (`bq.last_modified`),
-            não a cobertura real. `"coverage"` lê `Coverage.DateTimeRange` (a
-            competência de dados que a tabela de fato cobre) — o que
-            `check_if_data_is_outdated` (Prefect 0) fazia por padrão
-            (`date_type="data_max_date"`) antes da migração para Prefect 3 ter
-            perdido essa escolha. Use `"coverage"` sempre que `source_max_date`
-            represente uma competência (ex.: pasta `YYYYMM` de um FTP) — comparar
-            isso contra um timestamp de execução mistura grandezas diferentes e
-            trava a detecção sempre que uma materialização anterior gravar um
-            timestamp "adiantado" em relação ao dia-1 do próximo mês publicado.
+            `"coverage"` (padrão) lê `Coverage.DateTimeRange` (a competência de
+            dados que a tabela de fato cobre) — o que `check_if_data_is_outdated`
+            (Prefect 0) fazia por padrão (`date_type="data_max_date"`) antes da
+            migração para Prefect 3 ter perdido essa escolha, e o que a maioria
+            dos flows auditados usa hoje (27 de 32). Use o padrão sempre que
+            `source_max_date` representar uma competência (ex.: pasta `YYYYMM`
+            de um FTP). `"table_update"` lê `Table.Update.latest` — um timestamp
+            de execução (`bq.last_modified`), não a cobertura real; comparar uma
+            competência contra isso mistura grandezas diferentes e trava a
+            detecção sempre que uma materialização anterior gravar um timestamp
+            "adiantado" em relação ao dia-1 do próximo mês publicado. Só faz
+            sentido quando `source_max_date` também for, na prática, um
+            timestamp de publicação/execução (ex.: `last_modified` de um recurso
+            CKAN), não uma competência — nesse caso os dois lados da comparação
+            são grandezas compatíveis.
 
     Returns:
         bool — `True` se a fonte tem dados mais novos que o alvo de comparação;
