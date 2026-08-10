@@ -35,6 +35,17 @@ def _part_bdpro_year_month(year: str, month: str) -> PartBdpro:
     )
 
 
+# Formato em que cada tabela do br_cgu_beneficios_cidadao é gravada em disco por
+# `read_and_partition_beneficios_cidadao`. Precisa casar com o que o
+# `upload_to_gcs` procura: quando a staging já existe, ele chama `dump_header`,
+# que estoura FileNotFoundError se não achar arquivo no formato declarado.
+_SOURCE_FORMAT_BENEFICIOS_CIDADAO = {
+    "novo_bolsa_familia": "parquet",
+    "garantia_safra": "parquet",
+    "bpc": "csv",
+}
+
+
 def _materialize_and_metadata(
     *,
     filepath: str,
@@ -46,6 +57,7 @@ def _materialize_and_metadata(
     update_metadata: bool,
     coverage: CoverageSpec,
     source_max_date=None,
+    source_format: str = "csv",
 ) -> None:
     upload_to_gcs(
         data_path=filepath,
@@ -53,7 +65,7 @@ def _materialize_and_metadata(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
-        source_format="csv",
+        source_format=source_format,
     )
     run_dbt(
         dataset_id=dataset_id,
@@ -72,7 +84,7 @@ def _materialize_and_metadata(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
-        source_format="csv",
+        source_format=source_format,
     )
     run_dbt(
         dataset_id=dataset_id,
@@ -281,4 +293,5 @@ def _run_cgu_beneficios_cidadao(
         update_metadata=update_metadata,
         source_max_date=data_source_max_date,
         coverage=_part_bdpro_year_month(**dict_for_table(table_id)),
+        source_format=_SOURCE_FORMAT_BENEFICIOS_CIDADAO[table_id],
     )
