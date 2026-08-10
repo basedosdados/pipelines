@@ -8,7 +8,7 @@
 
 select
     safe.parse_date('%Y-%m', data_referencia) data_referencia,
-    safe_cast(lpad(cnpj_basico, 8, '0') as string) cnpj_basico,
+    lpad(safe_cast(cnpj_basico as string), 8, '0') cnpj_basico,
     safe_cast(opcao_simples as int64) opcao_simples,
     safe_cast(data_opcao_simples as date) data_opcao_simples,
     safe_cast(data_exclusao_simples as date) data_exclusao_simples,
