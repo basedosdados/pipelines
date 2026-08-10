@@ -1,9 +1,10 @@
 """
 Flows para br_cgu_beneficios_cidadao — Prefect 3.
 
-Redeploy para propagar o fix de detecção/download no portal da CGU
-(User-Agent de browser + tratamento do 202 assíncrono + URL sem barra final)
-em pipelines/crawler/cgu/utils.py e pipelines/utils/utils.py.
+Redeploy para propagar o source_format por tabela, em
+pipelines/crawler/cgu/flows.py: o novo_bolsa_familia e a garantia_safra são
+gravados em parquet, mas o upload declarava csv para as três tabelas. Desde a
+#1677 isso derruba a run em dump_header, antes de qualquer escrita.
 """
 
 from prefect import flow
