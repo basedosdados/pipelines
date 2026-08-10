@@ -656,7 +656,7 @@ def process_csv_simples(
         None
     """
     colunas = constants_cnpj.COLUNAS_SIMPLES.value
-    save_folder = Path(output_path) / f"data_referencia={data_referencia}"
+    save_folder = Path(output_path)
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"{sufixo}.csv"
     for filepath in Path(input_path).iterdir():
