@@ -121,6 +121,7 @@ def world_cricsheet_flow(
             env="prod",
             date_format="%Y-%m-%d",
             raw_source_url=BUNDLE_URL,
+            compare_against="coverage",
         )
         if not has_new_data and not force_run:
             return

@@ -144,6 +144,7 @@ def br_me_siconfi_flow(
                 env="prod",
                 date_format="%Y",
                 raw_source_url=_SOURCE_URL,
+                compare_against="coverage",
             )
 
         # Dev: upload staging + materialize/test.

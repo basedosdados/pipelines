@@ -72,6 +72,7 @@ def _run_operacoes(
         source_max_date=source_max_date,
         env="prod",
         date_format=SOURCE_DATE_FORMAT,
+        compare_against="table_update",
     )
 
     if not has_new_data and not force_run:
@@ -176,6 +177,7 @@ def _run_operacoes_administracao_publica(
         source_max_date=source_max_date,
         env="prod",
         date_format=SOURCE_DATE_FORMAT,
+        compare_against="table_update",
     )
 
     if not has_new_data and not force_run:
