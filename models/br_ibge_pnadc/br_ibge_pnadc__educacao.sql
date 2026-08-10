@@ -12,6 +12,7 @@
         labels={"project_id": "basedosdados"},
     )
 }}
+
 select
     safe_cast(ano as int64) ano,
     safe_cast(trimestre as int64) trimestre,
