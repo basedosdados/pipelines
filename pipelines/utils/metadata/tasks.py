@@ -278,7 +278,7 @@ def poll_source_for_update_task(
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
     raw_source_url: str | None = None,
-    compare_against: str = "table_update",
+    compare_against: str = "coverage",
 ) -> bool:
     """Detecta se a fonte original tem novidade hoje, sem gravar o Update.
 
@@ -303,12 +303,14 @@ def poll_source_for_update_task(
         raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
             uma fonte ligada (ex.: uma API que atualiza e um histórico
             congelado). `None` (padrão) mantém o comportamento de fonte única.
-        compare_against: `"table_update"` (padrão, comportamento histórico) lê
-            `Table.Update.latest` — um timestamp de execução, não a cobertura
-            real. `"coverage"` lê `Coverage.DateTimeRange` (a competência que a
-            tabela de fato cobre) — use quando `source_max_date` representar
-            uma competência (ex.: pasta `YYYYMM` de um FTP), para não comparar
-            uma competência contra um timestamp de execução.
+        compare_against: `"coverage"` (padrão) lê `Coverage.DateTimeRange` (a
+            competência que a tabela de fato cobre) — use quando
+            `source_max_date` representar uma competência (ex.: pasta `YYYYMM`
+            de um FTP); é o que a maioria dos flows auditados usa (27 de 32).
+            `"table_update"` lê `Table.Update.latest` — um timestamp de
+            execução, não a cobertura real; só faz sentido quando
+            `source_max_date` também for um timestamp de publicação/execução
+            (ex.: `last_modified` de um recurso CKAN), não uma competência.
 
     Returns:
         bool — True se a fonte trouxe novidade (Update ainda não gravado),
