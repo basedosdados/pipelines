@@ -277,12 +277,13 @@ Em consequência:
   `upload_columns_from_sheet` (ver Metadados). Como o código não pode lê-la, o schema
   (ordem, tipos, `original_name`) vive em `constants.COLUNAS`, e toda alteração na
   planilha precisa ser refletida lá;
-- **não há carga inicial separada.** A primeira carga é o próprio flow rodando em
-  dev com `materialize_after_dump=False`;
-- as etapas são executáveis localmente por um `run_flow_local.py` na raiz, não
-  versionado: ele chama as mesmas `@task` do flow via `.fn()` e escreve em
-  `tmp/br_sedec_desastres/`. Não cobre a fiação do `flows.py` nem as tasks de
-  metadado.
+- **não há carga inicial separada.** A primeira carga é o `run_local.py` deste
+  diretório rodando `download,clean,upload`, promovida por PR;
+- as etapas são executáveis localmente pelo `run_local.py`: ele chama as mesmas
+  `@task` do flow via `.fn()` e escreve em `tmp/br_sedec_desastres/`. Ele é
+  versionado porque **é** o mecanismo de atualização da base (ver "Atualização
+  mensal" abaixo), não um rascunho. O que ele não cobre é a fiação do `flows.py`
+  — que hoje não roda em lugar nenhum.
 
 ## Metadados
 
@@ -322,16 +323,40 @@ planilha sobrescreve o PT e mantém EN e ES no valor anterior.
 Nenhuma ferramenta de leitura devolve a descrição de uma coluna: o `get_dataset` traz
 apenas id e nome. Conferir descrição de coluna exige o Django admin.
 
+## Atualização mensal — manual, promovida por PR
+
+Decidido em 2026-08-10, com a supervisão. O S2ID barra o IP de saída do cluster
+por geolocalização: a raspagem não roda no pod, e não há correção possível no
+código do pipeline. O `flows.py` continua no repo, sem schedule, para o caso de a
+rede ser liberada; quem atualiza a base é o `run_local.py`, e a promoção para prod
+é a action `table-approve`.
+
+**O prefixo `staging/br_sedec_desastres/reconhecimentos_vigentes/` no bucket
+`basedosdados-dev` é o histórico da série.** No merge, o `push_table_to_bq` do
+`prefect_run_dbt.py` espelha esse prefixo para o bucket `basedosdados` — apaga o
+que havia lá (com backup em `basedosdados-backup`) e copia o que está em dev. Ou
+seja: apagar do prefixo de dev apaga o dado de prod no merge seguinte, e o que
+estiver nele na hora do merge é exatamente o que vai ao ar. O `tmp/` local, esse
+pode limpar à vontade.
+
+1. `uv run python pipelines/datasets/br_sedec_desastres/run_local.py --stages download,clean,upload`
+2. Bumpar o `-- Último retrato promovido:` no topo do `.sql`. Sem `.sql` alterado
+   a action não age: o `prefect_run_dbt.py` monta a lista de tabelas a partir dos
+   arquivos `.sql` modificados na PR.
+3. Abrir a PR com a label `table-approve` e mergear.
+4. Conferir a materialização em `basedosdados.br_sedec_desastres.reconhecimentos_vigentes`.
+5. `uv run python pipelines/datasets/br_sedec_desastres/run_local.py --stages metadata`
+   — depois do merge, porque essa etapa lê a data máxima da tabela de prod.
+
+A etapa `metadata` precisa de Python 3.11: `pipelines/utils/metadata/domain.py`
+usa `enum.StrEnum`. Em venv 3.10 o import falha (`uv venv --python 3.11`).
+
+**Retrato não gerado é retrato perdido.** A fonte publica apenas o estado atual,
+e a vigência é de 180 dias: um mês sem rodar abre um buraco irrecuperável na
+série.
+
 ## O que falta
 
-- [ ] Commitar `flows.py`, `tasks.py`, `utils.py`, o `.sql`, o `schema.yml` e este
-      README.
-- [ ] Run de dev no Prefect com
-      `{"materialize_after_dump": false, "update_metadata": false}`, verificando
-      `dbt run OK` e `dbt test OK` nos logs.
-- [ ] Ajustar o `job_variables` de memória a partir do consumo desse run; os `4Gi`
-      atuais não foram medidos.
-- [ ] Abrir o PR com a label `deploy-flow`. Sem ela o job de deploy reporta
-      `skipped` e nada é deployado.
-- [ ] Pós-merge: confirmar a materialização em prod, ativar o schedule no admin e
-      mudar o dataset para `published`.
+- [ ] Primeira promoção: PR com a label `table-approve`, merge, e a materialização
+      conferida em prod.
+- [ ] Pós-merge: rodar a etapa `metadata` e mudar o dataset para `published`.

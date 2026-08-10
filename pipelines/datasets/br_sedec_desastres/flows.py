@@ -7,6 +7,13 @@ A tabela é uma série de retratos — cada execução grava o conjunto vigente 
 da extração. As decisões de desenho e o que ainda está aberto estão no README do
 diretório.
 
+**Este flow não roda hoje.** O S2ID barra o IP de saída do cluster por
+geolocalização e a raspagem morre no download. Decidido em 2026-08-10, com a
+supervisão: o retrato é gerado na máquina de quem mantém a base, pelo
+`run_local.py` deste diretório, e promovido por PR com a label `table-approve`.
+A receita mensal está no README. O flow fica aqui porque o código é o mesmo — se
+o IP for liberado, basta devolver o `deploy_schedules`.
+
 Deploy: `.github/scripts/deploy_flows.py` descobre `br_sedec_desastres_flow`
 automaticamente, desde que o flow esteja definido neste arquivo (o script filtra
 por `obj.fn.__code__.co_filename`). O pool de dev ignora o schedule; o de prod o
@@ -68,6 +75,7 @@ def br_sedec_desastres_flow(
     force_run: bool = False,
 ) -> None:
     """Baixa o relatório do S2ID, remonta a tabela e materializa."""
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -153,11 +161,15 @@ def br_sedec_desastres_flow(
         shutil.rmtree(work_dir, ignore_errors=True)
 
 
-# Um retrato por mês. A fonte é contínua, então não há janela de publicação a
-# perseguir; mensal basta porque a vigência é de 180 dias.
-br_sedec_desastres_flow.deploy_schedules = [
-    {"cron": "0 9 1 * *", "timezone": "America/Sao_Paulo"}
-]
+# Sem schedule de propósito: o pod não alcança a fonte, então um deployment
+# armado falharia todo dia 1º. Um retrato por mês continua sendo a cadência — a
+# fonte é contínua e a vigência é de 180 dias, então mensal basta —, só que ela é
+# executada à mão pelo run_local.py. Se o IP for liberado, descomentar:
+#
+# br_sedec_desastres_flow.deploy_schedules = [
+#     {"cron": "0 9 1 * *", "timezone": "America/Sao_Paulo"}
+# ]
 
 
+# pyrefly: ignore [missing-attribute]
 br_sedec_desastres_flow.job_variables = {"memory": "4Gi"}
