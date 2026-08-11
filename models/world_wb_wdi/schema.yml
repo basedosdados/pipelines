@@ -1,0 +1,179 @@
+---
+version: 2
+models:
+  - name: world_wb_wdi__data
+    description: >
+      Observações dos indicadores de desenvolvimento do Banco Mundial (WDI) por
+      país/agregado, indicador e ano. Formato longo, uma linha por
+      (ano, país, indicador). A unidade de cada valor depende do indicador e está
+      descrita na tabela indicators.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, country_id, indicator_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Ano de referência da observação
+        tests: [not_null]
+      - name: country_id
+        description: Código do país ou agregado regional (padrão do Banco Mundial)
+        tests: [not_null]
+      - name: indicator_id
+        description: Código do indicador WDI
+        tests:
+          - not_null
+          - relationships:
+              to: ref('world_wb_wdi__indicators')
+              field: indicator_id
+      - name: value
+        description: Valor observado do indicador
+  - name: world_wb_wdi__indicators
+    description: >
+      Metadados dos indicadores WDI, uma linha por indicador: definição, unidade
+      de medida, periodicidade, método de agregação, fonte, metodologia e demais
+      notas fornecidas pelo Banco Mundial.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [indicator_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - short_definition
+            - base_period
+            - notes_from_original_source
+            - general_comments
+            - related_source_links
+            - other_web_links
+            - related_indicators
+    columns:
+      - name: indicator_id
+        description: Código do indicador
+        tests: [not_null]
+      - name: topic
+        description: Tema do indicador
+      - name: short_definition
+        description: Definição curta do indicador
+      - name: long_definition
+        description: Definição longa do indicador
+      - name: measurement_unit
+        description: Unidade de medida do indicador
+      - name: periodicity
+        description: Periodicidade do indicador
+      - name: base_period
+        description: Período base do indicador
+      - name: other_notes
+        description: Outras notas sobre o indicador
+      - name: aggregation_method
+        description: Método de agregação do indicador
+      - name: limitations_exceptions
+        description: Limitações e exceções do indicador
+      - name: notes_from_original_source
+        description: Notas da fonte original
+      - name: general_comments
+        description: Comentários gerais sobre o indicador
+      - name: source
+        description: Fonte do indicador
+      - name: statistical_concept_methodology
+        description: Conceito estatístico e metodologia do indicador
+      - name: development_relevance
+        description: Relevância do indicador para o desenvolvimento
+      - name: related_source_links
+        description: Links de fontes relacionadas
+      - name: other_web_links
+        description: Outros links da web
+      - name: related_indicators
+        description: Indicadores relacionados
+      - name: license_type
+        description: Tipo de licença do indicador
+  - name: world_wb_wdi__country_indicator
+    description: >
+      Observações metodológicas sobre a série de um indicador para um país
+      específico, uma linha por (país, indicador).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [country_id, indicator_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: country_id
+        description: Código do país ou agregado regional
+        tests: [not_null]
+      - name: indicator_id
+        description: Código do indicador WDI
+        tests:
+          - not_null
+          - relationships:
+              to: ref('world_wb_wdi__indicators')
+              field: indicator_id
+      - name: description
+        description: Observação sobre a série do indicador para o país
+  - name: world_wb_wdi__footnote
+    description: >
+      Notas de rodapé associadas a observações específicas, uma linha por
+      (ano, país, indicador).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, country_id, indicator_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Ano de referência da nota de rodapé
+        tests: [not_null]
+      - name: country_id
+        description: Código do país ou agregado regional
+        tests: [not_null]
+      - name: indicator_id
+        description: Código do indicador WDI
+        tests: [not_null]
+      - name: description
+        description: Nota de rodapé associada à observação
+  - name: world_wb_wdi__indicator_time
+    description: >
+      Notas temporais associadas a um indicador em um ano específico, uma linha
+      por (ano, indicador).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, indicator_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Ano de referência da nota temporal
+        tests: [not_null]
+      - name: indicator_id
+        description: Código do indicador WDI
+        tests:
+          - not_null
+          - relationships:
+              to: ref('world_wb_wdi__indicators')
+              field: indicator_id
+      - name: description
+        description: Nota temporal associada ao indicador
+  - name: world_wb_wdi__dicionario
+    description: >
+      Dicionário para tradução dos códigos do conjunto world_wb_wdi. Mapeia o
+      código de cada indicador (coluna indicator_id da tabela data) ao seu nome
+      legível.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: Nome da tabela à qual a chave se refere
+      - name: nome_coluna
+        description: Nome da coluna à qual a chave se refere
+      - name: chave
+        description: Chave (valor codificado) presente na coluna
+      - name: cobertura_temporal
+        description: Cobertura temporal da chave
+      - name: valor
+        description: Valor (rótulo legível) correspondente à chave
