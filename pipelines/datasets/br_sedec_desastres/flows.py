@@ -42,7 +42,7 @@ from pipelines.utils.tasks import (
     upload_to_gcs,
 )
 
-DATE_FORMAT = "%Y-%m-%d"
+DATE_FORMAT = constants.DATE_FORMAT.value
 
 _COVERAGE = AllFree(
     date_column=DateOnly(col="data_extracao"),

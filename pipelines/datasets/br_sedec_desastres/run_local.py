@@ -43,15 +43,25 @@ import logging
 import sys
 from pathlib import Path
 
+from pipelines.datasets.br_sedec_desastres.constants import constants
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%H:%M:%S",
 )
-log = logging.getLogger("run_flow_local")
+log = logging.getLogger("run_local")
 
-DATASET_ID = "br_sedec_desastres"
-TABLE_ID = "reconhecimentos_vigentes"
+# Os identificadores vêm do constants.py, não redigitados aqui: eles endereçam o
+# destino do upload e dos metadados, e duas definições divergentes publicariam a
+# tabela em lugares diferentes.
+DATASET_ID = constants.DATASET_ID.value
+TABLE_ID = constants.TABLE_ID.value
+DATE_FORMAT = constants.DATE_FORMAT.value
+
+# A credencial local é de dev, então o billing das leituras de BigQuery sai do
+# projeto de dev — mesmo quando a tabela lida é a de produção, que é pública.
+BILLING_PROJECT = "basedosdados-dev"
 
 # `tmp/` na raiz já está no .gitignore do repo, então input/ e output/ ficam fora
 # do versionamento — e persistem para inspeção, ao contrário do
@@ -205,6 +215,7 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
     """
     # A spec de cobertura vem do flow, para não existirem duas definições dela.
     from pipelines.datasets.br_sedec_desastres.flows import _COVERAGE
+    from pipelines.utils.metadata.bq import BigQueryReader
     from pipelines.utils.metadata.tasks import (
         commit_source_update_task,
         poll_source_for_update_task,
@@ -213,6 +224,24 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
 
     max_date = max_date or _max_partition_date(work_dir)
     log.info(f"=== metadata (backend de PROD) — retrato {max_date} ===")
+
+    # O retrato tem que estar em prod ANTES de escrever metadado sobre ele. Sem
+    # esta checagem, rodar a etapa antes de a table-approve terminar grava um
+    # update dizendo que a fonte publicou uma data que prod ainda não tem.
+    prod_max = (
+        BigQueryReader(
+            billing_project_id=BILLING_PROJECT, bq_project="basedosdados"
+        )
+        .read_max_date(DATASET_ID, TABLE_ID, _COVERAGE)
+        .strftime(DATE_FORMAT)
+    )
+    if prod_max != max_date:
+        raise RuntimeError(
+            f"prod está em {prod_max} e o retrato é {max_date} — a promoção "
+            "ainda não terminou (ou --max-date está errado). Confira a "
+            "materialização antes de rodar esta etapa"
+        )
+    log.info(f"prod confirmado em {prod_max}")
 
     # O poll existe só para registrar o Poll da fonte; o retorno é ignorado de
     # propósito, porque todo retrato mensal é legitimamente novo (decisão 4 do
@@ -230,6 +259,10 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
         coverage=_COVERAGE,
         env="prod",
         bq_project="basedosdados",
+        # Lê a tabela de prod, mas fatura em dev: a credencial local não tem
+        # permissão de criar job no projeto de produção. O padrão da task é
+        # prefect_mode="prod", que só funciona no worker.
+        prefect_mode="dev",
     )
     commit_source_update_task.fn(
         dataset_id=DATASET_ID,
@@ -271,6 +304,8 @@ def main() -> int:
     args = parser.parse_args()
 
     stages = [s.strip() for s in args.stages.split(",") if s.strip()]
+    if not stages:
+        parser.error(f"--stages vazio; use uma ou mais de {ALL_STAGES}")
     unknown = [s for s in stages if s not in ALL_STAGES]
     if unknown:
         parser.error(f"etapa(s) desconhecida(s): {unknown}; use {ALL_STAGES}")

@@ -30,6 +30,10 @@ class constants(Enum):
     TABLE_ID = "reconhecimentos_vigentes"
     ALL_TABLES = ["reconhecimentos_vigentes"]
 
+    # Formato das datas trocadas com o backend (poll e update da fonte). Vive
+    # aqui porque o flow e o run_local.py precisam do mesmo valor.
+    DATE_FORMAT = "%Y-%m-%d"
+
     # Página do relatório. A fonte é uma aplicação JSF/PrimeFaces: o export sai
     # de um postback no formulário, não de uma URL de download estável — daí a
     # raspagem via browser (selenium), e não via requests.

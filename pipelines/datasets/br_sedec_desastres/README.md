@@ -215,7 +215,8 @@ O painel "Reconhecimentos vigentes" oferece PDF, XLS e CSV.
 ### Edge cases conhecidos
 
 **UF sem nenhum reconhecimento vigente.** Em 2026-08-05, DF e ES vieram com zero
-linhas: arquivo de 263 bytes, só cabeçalho e rodapé `Total: ;0;`. O arquivo é válido,
+linhas: arquivo de 263 bytes, só cabeçalho e o rodapé
+`Total de reconhecimentos vigentes: ;0;`. O arquivo é válido,
 não é erro de download. Por isso as validações checam que os 27 arquivos existem, e
 não que toda UF tem linha.
 
