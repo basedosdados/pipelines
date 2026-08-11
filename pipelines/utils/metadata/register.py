@@ -393,11 +393,22 @@ def poll_source_for_update(
     else:
         api_latest = client.get_table_update_latest(dataset_id, table_id)
 
+    log(
+        f"Comparando fonte em {source_max_date} contra "
+        f"{compare_against} em {api_latest}"
+    )
+
     if not policy.should_update_raw_source(api_latest, source_max_date):
-        log("Não há novas atualizações na fonte original")
+        log(
+            f"Não há novas atualizações na fonte original — "
+            f"fonte em {source_max_date}, {compare_against} em {api_latest}"
+        )
         return False
 
-    log("Há atualizações na fonte original")
+    log(
+        f"Há atualizações na fonte original — "
+        f"fonte em {source_max_date}, {compare_against} em {api_latest}"
+    )
     return True
 
 
