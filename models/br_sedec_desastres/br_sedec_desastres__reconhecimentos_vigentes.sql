@@ -10,8 +10,8 @@
         partition_by={
             "field": "data_extracao",
             "data_type": "date",
+            "granularity": "month",
         },
-        cluster_by=["sigla_uf", "id_municipio"],
     )
 }}
 with
