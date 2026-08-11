@@ -9,6 +9,8 @@ Usa `FakeMetadataClient`/`FakeBQ` (conftest). Sem rede, sem BQ.
 
 import datetime
 
+import pytest
+
 # pyrefly: ignore [missing-import]
 from conftest import FakeBQ, FakeMetadataClient
 
@@ -132,6 +134,21 @@ def test_poll_default_false_when_source_not_ahead_of_coverage():
         client, "br_x", "tab", source_max_date=datetime.date(2026, 6, 1)
     )
     assert result is False
+
+
+def test_poll_rejects_invalid_compare_against():
+    # Um typo em compare_against não pode cair silenciosamente no branch
+    # "table_update" — nem gravar o Poll antes de levantar.
+    client = FakeMetadataClient()
+    with pytest.raises(ValueError, match="compare_against inválido"):
+        poll_source_for_update(
+            client,
+            "br_x",
+            "tab",
+            source_max_date=datetime.date(2026, 6, 1),
+            compare_against="tabel_update",  # typo de propósito
+        )
+    assert client.writes == []
 
 
 def test_poll_explicit_table_update_still_works():

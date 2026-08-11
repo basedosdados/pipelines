@@ -29,6 +29,11 @@ from pipelines.utils.utils import log
 
 DEFAULT_BQ_PROJECT = "basedosdados"
 
+# Valores aceitos por `compare_against` em `poll_source_for_update`. Qualquer
+# outro valor (typo, etc.) cai silenciosamente no branch "table_update" se não
+# for validado — ver o `raise` em `poll_source_for_update`.
+VALID_COMPARE_AGAINST = frozenset({"coverage", "table_update"})
+
 # Tolerância para diminuição do tamanho da fonte na detecção por bytes: quedas de
 # até este percentual são tratadas como re-publicação normal (fontes como
 # `br_bcb_sicor` reexportam arquivos com pequenas variações de tamanho) e seguem
@@ -360,7 +365,18 @@ def poll_source_for_update(
     Returns:
         bool — `True` se a fonte tem dados mais novos que o alvo de comparação;
         `False` caso contrário.
+
+    Raises:
+        ValueError: se `compare_against` não for `"coverage"` nem
+            `"table_update"`. Validado antes de qualquer escrita — um typo não
+            pode gravar o Poll e avaliar a novidade contra o alvo errado.
     """
+
+    if compare_against not in VALID_COMPARE_AGAINST:
+        raise ValueError(
+            f"compare_against inválido: {compare_against!r}. Use um de "
+            f"{sorted(VALID_COMPARE_AGAINST)!r}."
+        )
 
     client.upsert_raw_source_poll(
         dataset_id,
