@@ -53,6 +53,7 @@ def _run_me_caged(
             source_max_date=source_last_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             print(f"No updates for table {table_id}!")
