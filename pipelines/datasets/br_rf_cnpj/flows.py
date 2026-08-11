@@ -24,7 +24,7 @@ def _rf_cnpj_flow(table_id: str, cron: str):
         folder_date: str | None = None,
         download_chunk_size: int = 15 * 1024 * 1024,
         download_max_retries: int = 5,
-        download_max_parallel: int = 5,
+        download_max_parallel: int = 15,
         download_timeout: int = 5 * 60,
     ) -> None:
         _run_rf_cnpj(
