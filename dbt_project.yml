@@ -106,6 +106,9 @@ models:
     br_bd_diretorios_in:
       +materialized: table
       +schema: br_bd_diretorios_in
+    br_bd_diretorios_comercio_internacional:
+      +materialized: table
+      +schema: br_bd_diretorios_comercio_internacional
     br_bd_diretorios_mundo:
       +materialized: table
       +schema: br_bd_diretorios_mundo
