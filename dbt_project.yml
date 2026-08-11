@@ -145,6 +145,9 @@ models:
     world_cricsheet:
       +materialized: table
       +schema: world_cricsheet
+    world_wb_wdi:
+      +materialized: table
+      +schema: world_wb_wdi
     br_bd_indicadores:
       +materialized: table
       +schema: br_bd_indicadores
@@ -466,9 +469,6 @@ models:
     fundacao_lemann:
       +materialized: table
       +schema: fundacao_lemann
-    mundo_bm_wdi:
-      +materialized: table
-      +schema: mundo_bm_wdi
     mundo_transfermarkt_competicoes:
       +materialized: table
       +schema: mundo_transfermarkt_competicoes
