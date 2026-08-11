@@ -365,10 +365,9 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
-          - custom_relationships:
+          - custom_relationships_domestic:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
       - name: proporcao_comparecimento
         description: Proporção de comparecimento
       - name: proporcao_votos_brancos
@@ -452,10 +451,9 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
-          - custom_relationships:
+          - custom_relationships_domestic:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
       - name: proporcao_comparecimento
         description: Proporção de comparecimento
       - name: proporcao_votos_brancos
@@ -540,10 +538,9 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
-          - custom_relationships:
+          - custom_relationships_domestic:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
       - name: proporcao_comparecimento
         description: Proporção de comparecimento
       - name: proporcao_votos_brancos
@@ -943,10 +940,10 @@ models:
       - name: id_municipio_tse_doador
         description: ID Município do doador - TSE
         tests:
-          - custom_relationships:
+          - custom_relationships_domestic:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              exterior_column: sigla_uf_doador
       - name: natureza_receita
         description: Natureza da receita
       - name: nome_administrador

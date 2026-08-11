@@ -59,7 +59,9 @@ select
     safe_cast(tipo_fornecedor as string) tipo_fornecedor,
     safe_cast(esfera_partidaria_fornecedor as string) esfera_partidaria_fornecedor,
     safe_cast(sigla_uf_fornecedor as string) sigla_uf_fornecedor,
-    safe_cast(id_municipio_tse_fornecedor as string) id_municipio_tse_fornecedor,
+    safe_cast(
+        regexp_replace(id_municipio_tse_fornecedor, r'\.0$', '') as string
+    ) id_municipio_tse_fornecedor,
     safe_cast(
         sequencial_candidato_fornecedor as string
     ) sequencial_candidato_fornecedor,

@@ -23,9 +23,11 @@ select
     safe_cast(estado_civil as string) estado_civil,
     safe_cast(grupo_idade as string) grupo_idade,
     safe_cast(instrucao as string) instrucao,
-    safe_cast(eleitores as int64) eleitores,
-    safe_cast(eleitores_biometria as int64) eleitores_biometria,
-    safe_cast(eleitores_deficiencia as int64) eleitores_deficiencia
+    safe_cast(safe_cast(eleitores as float64) as int64) eleitores,
+    safe_cast(safe_cast(eleitores_biometria as float64) as int64) eleitores_biometria,
+    safe_cast(
+        safe_cast(eleitores_deficiencia as float64) as int64
+    ) eleitores_deficiencia
 from
     {{
         set_datalake_project(

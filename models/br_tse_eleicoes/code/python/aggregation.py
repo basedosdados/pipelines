@@ -11,6 +11,7 @@ Equivalent of sub/agregacao.do.
 import pandas as pd
 from config import OUTPUT_PYTHON, YEARS_EVEN
 from sub.results_state import YEARS as YEARS_HISTORICAL
+from utils.helpers import coerce_numeric_for_write
 
 
 def _read_partitioned_csv(
@@ -96,7 +97,7 @@ def build_resultados_candidato_municipio():
                 / f"sigla_uf={uf}"
             )
             dest.mkdir(parents=True, exist_ok=True)
-            agg.to_csv(
+            coerce_numeric_for_write(agg).to_csv(
                 dest / "resultados_candidato_municipio.csv",
                 index=False,
                 encoding="utf-8",
@@ -150,7 +151,7 @@ def build_resultados_partido_municipio():
                 / f"sigla_uf={uf}"
             )
             dest.mkdir(parents=True, exist_ok=True)
-            agg.to_csv(
+            coerce_numeric_for_write(agg).to_csv(
                 dest / "resultados_partido_municipio.csv",
                 index=False,
                 encoding="utf-8",
@@ -268,7 +269,7 @@ def build_resultados_candidato():
 
         dest = OUTPUT_PYTHON / "resultados_candidato" / f"ano={ano}"
         dest.mkdir(parents=True, exist_ok=True)
-        agg.to_csv(
+        coerce_numeric_for_write(agg).to_csv(
             dest / "resultados_candidato.csv",
             index=False,
             encoding="utf-8",
@@ -391,7 +392,7 @@ def build_resultados_candidato():
 
         dest = OUTPUT_PYTHON / "resultados_candidato" / f"ano={ano}"
         dest.mkdir(parents=True, exist_ok=True)
-        agg.to_csv(
+        coerce_numeric_for_write(agg).to_csv(
             dest / "resultados_candidato.csv",
             index=False,
             encoding="utf-8",
@@ -481,7 +482,7 @@ def build_detalhes_votacao_municipio():
                 / f"sigla_uf={uf}"
             )
             dest.mkdir(parents=True, exist_ok=True)
-            agg.to_csv(
+            coerce_numeric_for_write(agg).to_csv(
                 dest / "detalhes_votacao_municipio.csv",
                 index=False,
                 encoding="utf-8",

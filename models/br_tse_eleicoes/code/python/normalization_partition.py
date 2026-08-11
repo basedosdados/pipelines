@@ -16,7 +16,7 @@ from config import (
     UFS_PARTIDOS,
     YEARS_EVEN,
 )
-from utils.helpers import save_partitioned
+from utils.helpers import coerce_numeric_for_write, save_partitioned
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -84,7 +84,9 @@ def _save_secao_partition_parquet(
     d = OUTPUT_PYTHON / name / f"ano={ano}" / f"sigla_uf={uf}"
     d.mkdir(parents=True, exist_ok=True)
     cols = [c for c in df.columns if c not in ("ano", "sigla_uf")]
-    df[cols].to_parquet(d / "data.parquet", index=False)
+    coerce_numeric_for_write(df[cols].copy()).to_parquet(
+        d / "data.parquet", index=False
+    )
 
 
 def _partition_secao_table(name: str, enrich) -> None:

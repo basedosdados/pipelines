@@ -159,7 +159,13 @@ def build_perfil_mun_zona(ano: int) -> pd.DataFrame:
         "eleitores_deficiencia",
         "eleitores_inclusao_nome_social",
     ]
-    return df[[c for c in col_order if c in df.columns]]
+    out = df[[c for c in col_order if c in df.columns]]
+    # From 2024 the TSE profile file emits each municipality-zone-demographic
+    # cell repeated across a new dimension (the TP_OBRIGATORIEDADE_VOTO block),
+    # with the elector count carried identically on every copy — so the rows are
+    # exact duplicates once that dimension is dropped, not partial counts to sum.
+    # Collapse them (a no-op for every earlier year, which has no duplicates).
+    return out.drop_duplicates()
 
 
 def build_all():

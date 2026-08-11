@@ -450,6 +450,41 @@ def merge_municipio(df: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 
+def coerce_numeric_for_write(df: pd.DataFrame) -> pd.DataFrame:
+    """Serialize integer-valued columns cleanly, in place.
+
+    A pandas column that is logically integer becomes float64 the moment it
+    holds a NaN (missing value, or a ``-1`` sentinel mapped to NA), so
+    ``to_csv``/``to_parquet`` emit ``'123.0'``. Some builders further stringify
+    such a column, leaving literal ``'123.0'`` strings. Either way the dbt
+    ``safe_cast(col as int64)`` then returns NULL for every row, because
+    BigQuery rejects the decimal point — silently emptying whole columns
+    (voter counts, vote totals, turnout).
+
+    Fix at the single choke point every staging-bound write passes through:
+    convert whole-valued float columns to pandas nullable ``Int64`` (writes
+    ``'123'`` and ``''`` for NA), and strip a trailing ``.0`` from columns whose
+    non-blank values are entirely integer-formatted strings. Genuine floats
+    (real decimals — monetary values, proportions) and non-numeric strings are
+    left untouched. Dropping ``.0`` never harms a downstream cast, and floats
+    cannot carry leading zeros, so no identifier information is lost.
+    """
+    for col in df.columns:
+        s = df[col]
+        if pd.api.types.is_float_dtype(s):
+            nn = s.dropna()
+            if len(nn) and bool((nn % 1 == 0).all()):
+                df[col] = s.astype("Int64")
+        elif s.dtype == object and not s.isna().any():
+            vals = s.astype(str)
+            nonblank = vals[vals != ""]
+            if len(nonblank) and bool(
+                nonblank.str.fullmatch(r"-?\d+\.0").all()
+            ):
+                df[col] = vals.str.replace(r"\.0$", "", regex=True)
+    return df
+
+
 def save_partitioned(
     df: pd.DataFrame,
     table_name: str,
@@ -467,6 +502,7 @@ def save_partitioned(
     if df.empty:
         return
 
+    df = coerce_numeric_for_write(df)
     data_cols = [c for c in df.columns if c not in partition_cols]
 
     for keys, group in df.groupby(partition_cols, sort=True):
