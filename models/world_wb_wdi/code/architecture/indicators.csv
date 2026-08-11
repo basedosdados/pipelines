@@ -1,0 +1,20 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+indicator_id,STRING,Código do indicador,,no,,,no,,Series Code
+topic,STRING,Tema do indicador,,no,,,no,,Topic
+short_definition,STRING,Definição curta do indicador,,no,,,no,,Short definition
+long_definition,STRING,Definição longa do indicador,,no,,,no,,Long definition
+measurement_unit,STRING,Unidade de medida do indicador,,no,,,no,,Unit of measure
+periodicity,STRING,Periodicidade do indicador,,no,,,no,,Periodicity
+base_period,STRING,Período base do indicador,,no,,,no,,Base Period
+other_notes,STRING,Outras notas sobre o indicador,,no,,,no,,Other notes
+aggregation_method,STRING,Método de agregação do indicador,,no,,,no,,Aggregation method
+limitations_exceptions,STRING,Limitações e exceções do indicador,,no,,,no,,Limitations and exceptions
+notes_from_original_source,STRING,Notas da fonte original,,no,,,no,,Notes from original source
+general_comments,STRING,Comentários gerais sobre o indicador,,no,,,no,,General comments
+source,STRING,Fonte do indicador,,no,,,no,,Source
+statistical_concept_methodology,STRING,Conceito estatístico e metodologia,,no,,,no,,Statistical concept and methodology
+development_relevance,STRING,Relevância do indicador para o desenvolvimento,,no,,,no,,Development relevance
+related_source_links,STRING,Links de fontes relacionadas,,no,,,no,,Related source links
+other_web_links,STRING,Outros links da web,,no,,,no,,Other web links
+related_indicators,STRING,Indicadores relacionados,,no,,,no,,Related indicators
+license_type,STRING,Tipo de licença do indicador,,no,,,no,,License Type
