@@ -161,11 +161,18 @@ def build_perfil_mun_zona(ano: int) -> pd.DataFrame:
     ]
     out = df[[c for c in col_order if c in df.columns]]
     # From 2024 the TSE profile file emits each municipality-zone-demographic
-    # cell repeated across a new dimension (the TP_OBRIGATORIEDADE_VOTO block),
-    # with the elector count carried identically on every copy — so the rows are
-    # exact duplicates once that dimension is dropped, not partial counts to sum.
-    # Collapse them (a no-op for every earlier year, which has no duplicates).
-    return out.drop_duplicates()
+    # cell twice, split on TP_OBRIGATORIEDADE_VOTO. The elector counts are
+    # carried identically on both copies (prod keeps one row, not their sum),
+    # but the copies differ in eleitores_inclusao_nome_social — a column the
+    # dbt model drops. Deduping on the full row therefore leaves two rows that
+    # collapse to identical once the model discards nome_social, breaking the
+    # uniqueness test. Dedup on the model grain instead (exclude nome_social)
+    # so the collapse survives into BigQuery and matches prod exactly.
+    # A no-op for every earlier year, which has no such duplicates.
+    dedup_cols = [
+        c for c in out.columns if c != "eleitores_inclusao_nome_social"
+    ]
+    return out.drop_duplicates(subset=dedup_cols)
 
 
 def build_all():

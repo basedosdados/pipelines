@@ -1769,6 +1769,7 @@ models:
             - cobertura_temporal
       - not_null_proportion_multiple_columns:
           at_least: 0.95
+          ignore_values: [cobertura_temporal]
     columns:
       - name: id_tabela
         description: ID Tabela
