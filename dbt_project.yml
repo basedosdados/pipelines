@@ -106,6 +106,9 @@ models:
     br_bd_diretorios_in:
       +materialized: table
       +schema: br_bd_diretorios_in
+    br_bd_diretorios_comercio_internacional:
+      +materialized: table
+      +schema: br_bd_diretorios_comercio_internacional
     br_bd_diretorios_mundo:
       +materialized: table
       +schema: br_bd_diretorios_mundo
@@ -148,6 +151,9 @@ models:
     world_wb_wdi:
       +materialized: table
       +schema: world_wb_wdi
+    us_harvard_cbdb:
+      +materialized: table
+      +schema: us_harvard_cbdb
     br_bd_indicadores:
       +materialized: table
       +schema: br_bd_indicadores
@@ -430,6 +436,9 @@ models:
     br_rj_isp_estatisticas_seguranca:
       +materialized: table
       +schema: br_rj_isp_estatisticas_seguranca
+    br_sedec_desastres:
+      +materialized: table
+      +schema: br_sedec_desastres
     br_senado_dados_abertos:
       +materialized: table
       +schema: br_senado_dados_abertos

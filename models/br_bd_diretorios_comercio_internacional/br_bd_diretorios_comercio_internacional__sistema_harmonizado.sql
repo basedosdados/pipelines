@@ -1,4 +1,8 @@
-{{ config(alias="sistema_harmonizado", schema="br_bd_diretorios_mundo") }}
+{{
+    config(
+        alias="sistema_harmonizado", schema="br_bd_diretorios_comercio_internacional"
+    )
+}}
 
 with
     safe_select as (
