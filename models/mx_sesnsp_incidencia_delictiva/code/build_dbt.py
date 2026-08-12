@@ -94,7 +94,9 @@ def schema_yaml(ds, cfg):
         out.append(f"  - name: {ds}__{table}")
         out.append("    description: >")
         desc = f"Tabla {table} del conjunto {ds}."
-        if ds == "mx_sesnsp_incidencia_delictiva" and table.startswith("municipio"):
+        if ds == "mx_sesnsp_incidencia_delictiva" and table.startswith(
+            "municipio"
+        ):
             desc += (
                 " Los códigos de municipio agregados del SESNSP (sufijo 998/999, "
                 "'No especificado' / 'Otros municipios') no son municipios reales del "
