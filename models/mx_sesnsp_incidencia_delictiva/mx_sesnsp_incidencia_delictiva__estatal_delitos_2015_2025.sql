@@ -21,5 +21,8 @@ select
     safe_cast(modalidad as string) modalidad,
     safe_cast(cantidad as int64) cantidad
 from
-    {{ set_datalake_project("mx_sesnsp_incidencia_delictiva_staging.estatal_delitos_2015_2025") }}
-    as t
+    {{
+        set_datalake_project(
+            "mx_sesnsp_incidencia_delictiva_staging.estatal_delitos_2015_2025"
+        )
+    }} as t

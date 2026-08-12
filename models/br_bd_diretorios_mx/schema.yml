@@ -6,15 +6,14 @@ models:
       Tabla estado del conjunto br_bd_diretorios_mx
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['id_estado']
+          combination_of_columns: [id_estado]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
       - name: id_estado
         description: >
           Clave geoestadística de la entidad federativa según INEGI, de dos dígitos
-        tests:
-          - not_null
+        tests: [not_null]
       - name: nombre
         description: >
           Nombre de la entidad federativa
@@ -26,15 +25,14 @@ models:
       Tabla municipio del conjunto br_bd_diretorios_mx
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['id_municipio']
+          combination_of_columns: [id_municipio]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
       - name: id_municipio
         description: >
           Clave geoestadística del municipio según INEGI, de cinco dígitos
-        tests:
-          - not_null
+        tests: [not_null]
       - name: id_estado
         description: >
           Clave de la entidad federativa a la que pertenece el municipio
@@ -43,5 +41,5 @@ models:
               to: ref('br_bd_diretorios_mx__estado')
               field: id_estado
       - name: nombre
-        description: >
+        description: >-
           Nombre del municipio

@@ -23,5 +23,8 @@ select
     safe_cast(rango_edad as string) rango_edad,
     safe_cast(cantidad as int64) cantidad
 from
-    {{ set_datalake_project("mx_sesnsp_incidencia_delictiva_staging.estatal_victimas") }}
-    as t
+    {{
+        set_datalake_project(
+            "mx_sesnsp_incidencia_delictiva_staging.estatal_victimas"
+        )
+    }} as t
