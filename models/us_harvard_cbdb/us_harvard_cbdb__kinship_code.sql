@@ -1,6 +1,6 @@
 {{
     config(
-        schema="cn_hvd_cbdb",
+        schema="us_harvard_cbdb",
         alias="kinship_code",
         materialized="table",
     )
@@ -19,4 +19,4 @@ select
     safe_cast(generations_down as int64) generations_down,
     safe_cast(marriage_steps as int64) marriage_steps,
     safe_cast(collateral_steps as int64) collateral_steps
-from {{ set_datalake_project("cn_hvd_cbdb_staging.kinship_code") }} as t
+from {{ set_datalake_project("us_harvard_cbdb_staging.kinship_code") }} as t

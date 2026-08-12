@@ -1,4 +1,4 @@
-"""Master schema spec for cn_hvd_cbdb (China Biographical Database).
+"""Master schema spec for us_harvard_cbdb (China Biographical Database).
 
 Single source of truth for BOTH the architecture CSVs and the cleaning code.
 Each column is a dict:

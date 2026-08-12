@@ -1,6 +1,6 @@
 {{
     config(
-        schema="cn_hvd_cbdb",
+        schema="us_harvard_cbdb",
         alias="person",
         materialized="table",
     )
@@ -29,4 +29,4 @@ select
     safe_cast(choronym_code as string) choronym_code,
     safe_cast(index_address_code as string) index_address_code,
     safe_cast(notes as string) notes
-from {{ set_datalake_project("cn_hvd_cbdb_staging.person") }} as t
+from {{ set_datalake_project("us_harvard_cbdb_staging.person") }} as t

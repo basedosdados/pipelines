@@ -40,9 +40,9 @@ def main():
                 ref = c.get("ref", "")
                 obs = ""
                 if ref == "__person":
-                    obs = "References cn_hvd_cbdb.person.person_id"
+                    obs = "References us_harvard_cbdb.person.person_id"
                 elif ref:
-                    obs = f"References sibling table cn_hvd_cbdb.{ref}"
+                    obs = f"References sibling table us_harvard_cbdb.{ref}"
                 w.writerow(
                     [
                         c["name"],

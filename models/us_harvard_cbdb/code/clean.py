@@ -1,11 +1,11 @@
-"""Clean CBDB SQLite -> typed Parquet for cn_hvd_cbdb.
+"""Clean CBDB SQLite -> typed Parquet for us_harvard_cbdb.
 
 One-shot onboarding upload keeps TYPED parquet (per bigquery-conventions).
 Tables are unpartitioned (directory-like): output/<table>/data.parquet.
 
 Env:
-  CBDB_DB   path to the SQLite file (default ~/Downloads/cn_hvd_cbdb_data/input/cbdb_20260801.sqlite3)
-  CBDB_OUT  output root            (default ~/Downloads/cn_hvd_cbdb_data/output)
+  CBDB_DB   path to the SQLite file (default ~/Downloads/us_harvard_cbdb_data/input/cbdb_20260801.sqlite3)
+  CBDB_OUT  output root            (default ~/Downloads/us_harvard_cbdb_data/output)
 """
 
 import os
@@ -18,9 +18,12 @@ from schema_spec import DICT_SOURCES, TABLE_ORDER, TABLES
 
 HOME = os.path.expanduser("~")
 DB = os.environ.get(
-    "CBDB_DB", f"{HOME}/Downloads/cn_hvd_cbdb_data/input/cbdb_20260801.sqlite3"
+    "CBDB_DB",
+    f"{HOME}/Downloads/us_harvard_cbdb_data/input/cbdb_20260801.sqlite3",
 )
-OUT = os.environ.get("CBDB_OUT", f"{HOME}/Downloads/cn_hvd_cbdb_data/output")
+OUT = os.environ.get(
+    "CBDB_OUT", f"{HOME}/Downloads/us_harvard_cbdb_data/output"
+)
 
 PA_TYPE = {"STRING": pa.string(), "INT64": pa.int64(), "FLOAT64": pa.float64()}
 

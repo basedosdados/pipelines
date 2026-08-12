@@ -1,6 +1,6 @@
 {{
     config(
-        schema="cn_hvd_cbdb",
+        schema="us_harvard_cbdb",
         alias="office_code",
         materialized="table",
     )
@@ -17,4 +17,4 @@ select
     safe_cast(name_english as string) name_english,
     safe_cast(name_english_alt as string) name_english_alt,
     safe_cast(notes as string) notes
-from {{ set_datalake_project("cn_hvd_cbdb_staging.office_code") }} as t
+from {{ set_datalake_project("us_harvard_cbdb_staging.office_code") }} as t

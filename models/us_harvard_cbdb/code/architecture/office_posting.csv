@@ -1,6 +1,6 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
-person_id,STRING,Identificador da pessoa nomeada,,no,,,no,References cn_hvd_cbdb.person.person_id,c_personid
-office_code,STRING,Código do cargo ocupado,,no,,,no,References sibling table cn_hvd_cbdb.office_code,c_office_id
+person_id,STRING,Identificador da pessoa nomeada,,no,,,no,References us_harvard_cbdb.person.person_id,c_personid
+office_code,STRING,Código do cargo ocupado,,no,,,no,References sibling table us_harvard_cbdb.office_code,c_office_id
 posting_id,STRING,Identificador da nomeação (posting),,no,,,no,,c_posting_id
 sequence,STRING,Número de ordem da nomeação na carreira da pessoa,,no,,,no,,c_sequence
 first_year,INT64,Primeiro ano no cargo (calendário ocidental),,no,,year,no,,c_firstyear

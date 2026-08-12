@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: cn_hvd_cbdb__person
+  - name: us_harvard_cbdb__person
     description: >
       Tabela mestra de pessoas do CBDB: um registro por indivíduo histórico, com nomes
       em pinyin e chinês, sexo, dinastia, anos de nascimento e morte e local de origem.
@@ -76,7 +76,7 @@ models:
       - name: notes
         description: >
           Notas textuais livres sobre o registro, conforme o CBDB
-  - name: cn_hvd_cbdb__kinship
+  - name: us_harvard_cbdb__kinship
     description: >
       Relações de parentesco entre pessoas: cada registro liga uma pessoa a um parente
       por meio de um código de relação de parentesco.
@@ -92,7 +92,7 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('cn_hvd_cbdb__person')
+              to: ref('us_harvard_cbdb__person')
               field: person_id
       - name: kin_person_id
         description: >
@@ -100,7 +100,7 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('cn_hvd_cbdb__person')
+              to: ref('us_harvard_cbdb__person')
               field: person_id
       - name: kinship_code
         description: >
@@ -115,7 +115,7 @@ models:
       - name: notes
         description: >
           Notas textuais livres sobre o registro, conforme o CBDB
-  - name: cn_hvd_cbdb__office_posting
+  - name: us_harvard_cbdb__office_posting
     description: >
       Nomeações a cargos oficiais: cada registro liga uma pessoa a um cargo do governo
       imperial, com anos de início e fim e tipo de nomeação.
@@ -131,7 +131,7 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('cn_hvd_cbdb__person')
+              to: ref('us_harvard_cbdb__person')
               field: person_id
       - name: office_code
         description: >
@@ -168,7 +168,7 @@ models:
       - name: notes
         description: >
           Notas textuais livres sobre o registro, conforme o CBDB
-  - name: cn_hvd_cbdb__association
+  - name: us_harvard_cbdb__association
     description: >
       Conexões sociais não familiares entre pessoas (mestres, alunos, colegas, patronos):
       cada registro liga duas pessoas por um tipo de associação, com anos e local.
@@ -195,7 +195,7 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('cn_hvd_cbdb__person')
+              to: ref('us_harvard_cbdb__person')
               field: person_id
       - name: assoc_person_id
         description: >
@@ -203,7 +203,7 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('cn_hvd_cbdb__person')
+              to: ref('us_harvard_cbdb__person')
               field: person_id
       - name: association_code
         description: >
@@ -217,7 +217,7 @@ models:
           Parente da pessoa focal envolvido na associação
         tests:
           - relationships:
-              to: ref('cn_hvd_cbdb__person')
+              to: ref('us_harvard_cbdb__person')
               field: person_id
       - name: assoc_kinship_code
         description: >
@@ -227,7 +227,7 @@ models:
           Parente da pessoa associada envolvido na associação
         tests:
           - relationships:
-              to: ref('cn_hvd_cbdb__person')
+              to: ref('us_harvard_cbdb__person')
               field: person_id
       - name: first_year
         description: >
@@ -251,7 +251,7 @@ models:
       - name: notes
         description: >
           Notas textuais livres sobre o registro, conforme o CBDB
-  - name: cn_hvd_cbdb__address
+  - name: us_harvard_cbdb__address
     description: >
       Vínculos entre pessoas e lugares (residência, local de origem, sepultamento):
       cada registro liga uma pessoa a um lugar por um tipo de endereço, com anos.
@@ -272,7 +272,7 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('cn_hvd_cbdb__person')
+              to: ref('us_harvard_cbdb__person')
               field: person_id
       - name: address_code
         description: >
@@ -304,7 +304,7 @@ models:
       - name: notes
         description: >
           Notas textuais livres sobre o registro, conforme o CBDB
-  - name: cn_hvd_cbdb__office_code
+  - name: us_harvard_cbdb__office_code
     description: >
       Vocabulário de cargos oficiais do governo imperial chinês, com nomes em pinyin,
       chinês e tradução em inglês, por dinastia.
@@ -343,7 +343,7 @@ models:
       - name: notes
         description: >
           Notas textuais livres sobre o registro, conforme o CBDB
-  - name: cn_hvd_cbdb__address_code
+  - name: us_harvard_cbdb__address_code
     description: >
       Gazetteer de lugares históricos referidos no CBDB, com nomes em pinyin e chinês,
       tipo administrativo e coordenadas geográficas.
@@ -390,7 +390,7 @@ models:
       - name: notes
         description: >
           Notas textuais livres sobre o registro, conforme o CBDB
-  - name: cn_hvd_cbdb__kinship_code
+  - name: us_harvard_cbdb__kinship_code
     description: >
       Vocabulário de tipos de relação de parentesco, com o termo em chinês e inglês
       e a distância genealógica em gerações e passos.
@@ -434,7 +434,7 @@ models:
       - name: collateral_steps
         description: >
           Número de passos colaterais na relação
-  - name: cn_hvd_cbdb__association_code
+  - name: us_harvard_cbdb__association_code
     description: >
       Vocabulário de tipos de conexão social não familiar, com descrição em inglês
       e chinês e o tipo de papel.
@@ -463,7 +463,7 @@ models:
       - name: example
         description: >
           Exemplo ilustrativo do tipo de associação
-  - name: cn_hvd_cbdb__dicionario
+  - name: us_harvard_cbdb__dicionario
     description: >
       Dicionário que traduz os valores codificados das colunas cobertas por dicionário
       nas demais tabelas do conjunto.

@@ -18,5 +18,5 @@ flourished_latest_year,INT64,Último ano de atividade documentada (floruit),,no,
 ethnicity_code,STRING,Código de etnia ou tribo da pessoa,,yes,,,no,,c_ethnicity_code
 household_status_code,STRING,Código do status de registro domiciliar da pessoa,,yes,,,no,,c_household_status_code
 choronym_code,STRING,Código do coronímio (nome do clã por local ancestral),,yes,,,no,,c_choronym_code
-index_address_code,STRING,Código do local básico de origem da pessoa,,no,,,no,References sibling table cn_hvd_cbdb.address_code,c_index_addr_id
+index_address_code,STRING,Código do local básico de origem da pessoa,,no,,,no,References sibling table us_harvard_cbdb.address_code,c_index_addr_id
 notes,STRING,"Notas textuais livres sobre o registro, conforme o CBDB",,no,,,no,,c_notes

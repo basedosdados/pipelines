@@ -1,4 +1,4 @@
-"""Generate dbt SQL models + schema.yml for cn_hvd_cbdb from schema_spec.
+"""Generate dbt SQL models + schema.yml for us_harvard_cbdb from schema_spec.
 
 Tables are unpartitioned. All FKs verified 0-orphan, so relationships tests are
 safe. association is the only non-unique table (0.04%) -> relaxed custom test.
@@ -10,8 +10,8 @@ from schema_spec import TABLE_ORDER, TABLES
 
 MODELS = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..")
-)  # models/cn_hvd_cbdb
-DS = "cn_hvd_cbdb"
+)  # models/us_harvard_cbdb
+DS = "us_harvard_cbdb"
 
 BQ = {"STRING": "string", "INT64": "int64", "FLOAT64": "float64"}
 

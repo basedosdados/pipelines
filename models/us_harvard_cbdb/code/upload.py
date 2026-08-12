@@ -1,4 +1,4 @@
-"""Upload cn_hvd_cbdb typed parquet to BigQuery dev (basedosdados-dev).
+"""Upload us_harvard_cbdb typed parquet to BigQuery dev (basedosdados-dev).
 
 Unpartitioned tables: output/<table>/data.parquet -> staging.<table>.
 Usage: uv run python upload.py [table1 table2 ...]   (default: all in order)
@@ -17,8 +17,8 @@ from google.cloud import storage as _gcs
 from schema_spec import TABLE_ORDER
 
 BILLING = "basedosdados-dev"
-DATASET = "cn_hvd_cbdb"
-OUT = os.path.expanduser("~/Downloads/cn_hvd_cbdb_data/output")
+DATASET = "us_harvard_cbdb"
+OUT = os.path.expanduser("~/Downloads/us_harvard_cbdb_data/output")
 
 # requester-pays bucket: force user_project on every bucket() call
 _orig_bucket = _gcs.Client.bucket

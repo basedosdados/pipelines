@@ -1,6 +1,6 @@
 {{
     config(
-        schema="cn_hvd_cbdb",
+        schema="us_harvard_cbdb",
         alias="address_code",
         materialized="table",
     )
@@ -20,4 +20,4 @@ select
     safe_cast(chgis_point_id as string) chgis_point_id,
     safe_cast(alt_names as string) alt_names,
     safe_cast(notes as string) notes
-from {{ set_datalake_project("cn_hvd_cbdb_staging.address_code") }} as t
+from {{ set_datalake_project("us_harvard_cbdb_staging.address_code") }} as t
