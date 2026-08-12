@@ -52,13 +52,19 @@ def _run_me_cnpj(
     max_folder_date, max_last_modified_date = get_data_source_max_date()
 
     if not force_run:
+        # simples é NonHistorical (linha ~109): register_table_materialization
+        # não grava Coverage.DateTimeRange para essa cobertura, só Table.Update
+        # (a partir de bq.last_modified) — não há baseline de coverage pra comparar.
+        compare_against = (
+            "table_update" if table_id == "simples" else "coverage"
+        )
         has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=max_folder_date,
             env="prod",
             date_format="%Y-%m",
-            compare_against="coverage",
+            compare_against=compare_against,
         )
         if not has_new_data:
             print(f"Não há atualizações para a tabela {tabelas}!")
