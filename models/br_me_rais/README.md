@@ -47,7 +47,7 @@ Base segmentada em arquivos regionais:
 
 ---
 
-## 5. Particularidades da fonte (a partir de 2024)
+## 5. Particularidades da fonte (sistema novo, 2023 em diante)
 
 > **Nota oficial do MTE**
 
@@ -55,14 +55,45 @@ A partir do ano-base 2024, o MTE implementou uma nova solução tecnológica, re
 
 Principais mudanças:
 
-### 5.1 Formato e compactação a partir de 2024
+### 5.1 Formato dos arquivos
 
-- Após a descompactação, os dados são fornecidos com extensão `.comt`.
-- Houve mudanças nos nomes das colunas a partir do ano de 2024.
+Os dois formatos são texto delimitado e abrem nos mesmos softwares, mas **não são
+intercambiáveis**: mudam a extensão, o delimitador e os nomes das colunas.
 
-O formato `.comt` é um arquivo de texto estruturado, equivalente ao padrão `.csv`, podendo ser lido pelos mesmos softwares estatísticos e ferramentas de processamento de dados anteriormente utilizados.
+| | Sistema antigo | Sistema novo |
+| :--- | :--- | :--- |
+| Extensão | `.txt` | `.comt` |
+| Delimitador | **ponto e vírgula** | **vírgula** |
+| Campos | sem aspas | entre aspas |
+| Cabeçalhos | `CNAE 2.0 Subclasse` | `CNAE 2.0 Subclasse - Codigo` |
+| Colunas (vínculos) | 60 | 62 |
 
-> Antes de 2024, os dados eram disponibilizados no formato `.txt`, também equivalente a `.csv`.
+O delimitador foi verificado ano a ano de 2012 a 2022: todos usam ponto e vírgula,
+sem nenhuma vírgula no cabeçalho.
+
+**A fronteira é 2023, não 2024.** Embora a mudança tenha sido anunciada para o
+ano-base 2024, a fonte **republicou 2023** sob o sistema novo em 18/05/2026 e moveu
+o arquivo antigo para `2023/Legado/`. O que está hoje no FTP para 2023 é o formato
+novo; 2022 e anteriores seguem no antigo.
+
+O sistema antigo também não é um formato só. A partição dos arquivos e a contagem
+de colunas mudam ao longo da série:
+
+| Anos | Arquivos | Colunas |
+| :--- | :--- | ---: |
+| 2012–2014 | um por UF (`AP2012.7z`, `BA2012.7z`, …) | 45 |
+| 2015 | um por UF | 57 |
+| 2016 | um por UF | 58 |
+| 2017 | um por UF | 60 |
+| 2018–2022 | nacional (`RAIS_ESTAB_PUB.7z`) | 24 |
+
+> **O crawler só lê o formato novo.** O `pd.read_csv` em `tasks.py` fixa
+> `sep=","`, então um arquivo do sistema antigo é lido como uma coluna só; e o
+> caminho de download é montado a partir de `ESTAB_FILE`, que não existe nos anos
+> divididos por UF. Processar qualquer ano até 2022 exige detectar o delimitador e
+> montar a lista de arquivos, não apenas trocar a extensão. Os anos antigos que
+> estão na tabela foram carregados em 2024, por outro código, antes deste crawler
+> existir (ele nasceu em #1510, maio de 2026).
 
 ### 5.2 Dicionário de dados
 
@@ -274,22 +305,39 @@ A verificação tem **duas direções**, e a segunda é a que costuma ser esquec
 - *esperadas e ausentes* — colunas de `*_VARS` que nenhum cabeçalho alimenta;
 - *na fonte e não mapeadas* — cabeçalhos publicados que o rename descarta.
 
-#### Pendência: `Categoria Trabalhador` está sendo descartada
+#### Cabeçalhos publicados que o rename não consumia
 
-A verificação na segunda direção encontrou dois cabeçalhos publicados e não
-mapeados em vínculos:
+A verificação na segunda direção encontrou dois em vínculos:
 
 | Cabeçalho na fonte | Situação |
 | :--- | :--- |
-| `Tipo Estabelecimento - Nome` | Redundante — é o rótulo da variável já capturada por `Tipo Estabelecimento - Código` |
-| `Categoria Trabalhador - Código` | **Variável que estamos descartando** — não aparece no `VINCULOS_RENAME`, nem no macro, nem no `schema.yml` |
+| `Tipo Estabelecimento - Nome` | Redundante — é o rótulo da variável já capturada por `Tipo Estabelecimento - Código`. Ignorado de propósito |
+| `Categoria Trabalhador - Código` | Estava sendo descartado. **Recuperado** — ver abaixo |
 
-A fonte publica a categoria do trabalhador e o crawler a descarta na leitura, sem
-registro em lugar nenhum. Os cabeçalhos de vínculos de 2023 e 2025 são idênticos
-entre si, então não é novidade do lote de dados mais recente: vem acontecendo há
-pelo menos três arquivos. Passou despercebido por ser exatamente a lacuna
-invisível descrita acima — a coluna não existe na nossa tabela, logo não há o que
-ficar nulo nem o que um teste possa acusar.
+#### `categoria_trabalhador`
+
+É a categoria do trabalhador do eSocial: uma classificação bem mais fina que o
+`tipo_vinculo`, agrupada por faixa (1xx empregados, 2xx sem vínculo de emprego,
+3xx servidores públicos, 4xx, 7xx contribuintes individuais).
+
+**Só existe de 2023 em diante**, junto com o sistema novo. Nos anos anteriores o
+macro emite `cast(null as string)`, pelo mesmo mecanismo usado em
+`indicador_vinculo_abandonado` (§10.2). Nulo antes de 2023 é por construção, não
+é falha.
+
+**Não é derivável do que já existe.** Numa amostra de 112 mil vínculos, um mesmo
+`tipo_vinculo` abriga até 5 categorias e uma mesma categoria aparece em até 8
+tipos de vínculo. O caso mais claro é o `tipo_vinculo = 10`, o CLT por prazo
+indeterminado, que se abre em empregado geral (101), doméstico (111) e servidor
+estatutário (301) — populações que o tipo de vínculo sozinho não separa.
+
+> **`on_schema_change` é obrigatório aqui.** O modelo de vínculos é incremental, e
+> o padrão do dbt é `ignore`: uma coluna nova no `select` seria descartada em
+> silêncio. Por isso o modelo fixa `on_schema_change="append_new_columns"`. Sem
+> isso, tudo o mais pode estar certo e a coluna não aparece, sem erro nenhum.
+
+A coluna só se preenche depois de reprocessar vínculos 2023 em diante — os CSVs
+que estão hoje na staging foram gerados sem ela.
 
 Em estabelecimentos a mesma verificação não achou nenhum descarte: depois da
 correção do §6.2, o crawler captura tudo que o arquivo de 2025 publica.
