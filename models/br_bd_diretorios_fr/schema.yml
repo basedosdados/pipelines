@@ -1,0 +1,151 @@
+---
+version: 2
+models:
+  - name: br_bd_diretorios_fr__regiao
+    description: >
+      Diretório das regiões administrativas da França (Code officiel
+      géographique do INSEE). Uma linha por região.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_regiao]
+    columns:
+      - name: id_regiao
+        description: Código INSEE da região
+        tests: [not_null]
+      - name: id_comuna_sede
+        description: Código da comuna sede (chef-lieu) da região
+      - name: nome_regiao
+        description: Nome da região
+      - name: nome_regiao_maiusculo
+        description: Nome da região em grafia enriquecida sem artigo (NCCENR)
+  - name: br_bd_diretorios_fr__departamento
+    description: >
+      Diretório dos departamentos (départements) da França (Code officiel
+      géographique do INSEE). Uma linha por departamento.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_departamento]
+    columns:
+      - name: id_departamento
+        description: Código INSEE do departamento
+        tests: [not_null]
+      - name: id_regiao
+        description: Código INSEE da região do departamento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_fr__regiao')
+              field: id_regiao
+      - name: id_comuna_sede
+        description: Código da comuna sede (chef-lieu) do departamento
+      - name: nome_departamento
+        description: Nome do departamento
+  - name: br_bd_diretorios_fr__comuna
+    description: >
+      Diretório das comunas (communes) da França, incluindo os arrondissements
+      municipais de Paris, Lyon e Marseille (Code officiel géographique do
+      INSEE). Uma linha por comuna.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_comuna]
+    columns:
+      - name: id_comuna
+        description: Código INSEE da comuna (5 caracteres)
+        tests: [not_null]
+      - name: id_departamento
+        description: Código INSEE do departamento da comuna
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_fr__departamento')
+              field: id_departamento
+      - name: id_regiao
+        description: Código INSEE da região da comuna
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_fr__regiao')
+              field: id_regiao
+      - name: nome_comuna
+        description: Nome da comuna
+      - name: tipo_comuna
+        description: Tipo de comuna (COM = comuna, ARM = arrondissement municipal)
+  - name: br_bd_diretorios_fr__naf_rev2
+    description: >
+      Diretório da Nomenclatura de Atividades Francesa NAF rév. 2 (código APE),
+      com os cinco níveis hierárquicos e seus rótulos. Uma linha por
+      subclasse (nível 5).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [naf_rev2]
+    columns:
+      - name: naf_rev2
+        description: Código da subclasse NAF rév. 2 (APE), formato pontuado
+        tests: [not_null]
+      - name: descricao_naf_rev2
+        description: Descrição da subclasse
+      - name: id_classe
+        description: Código da classe (nível 4)
+      - name: descricao_classe
+        description: Descrição da classe
+      - name: id_grupo
+        description: Código do grupo (nível 3)
+      - name: descricao_grupo
+        description: Descrição do grupo
+      - name: id_divisao
+        description: Código da divisão (nível 2)
+      - name: descricao_divisao
+        description: Descrição da divisão
+      - name: id_secao
+        description: Código da seção (nível 1)
+      - name: descricao_secao
+        description: Descrição da seção
+  - name: br_bd_diretorios_fr__naf_2025
+    description: >
+      Diretório da Nomenclatura de Atividades Francesa NAF 2025, com os cinco
+      níveis hierárquicos e seus rótulos. Nomenclatura de referência a partir
+      de 2027-01-01. Uma linha por subclasse.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [naf_2025]
+    columns:
+      - name: naf_2025
+        description: Código da subclasse NAF 2025, formato pontuado
+        tests: [not_null]
+      - name: descricao_naf_2025
+        description: Descrição da subclasse
+      - name: id_classe
+        description: Código da classe (nível 4)
+      - name: descricao_classe
+        description: Descrição da classe
+      - name: id_grupo
+        description: Código do grupo (nível 3)
+      - name: descricao_grupo
+        description: Descrição do grupo
+      - name: id_divisao
+        description: Código da divisão (nível 2)
+      - name: descricao_divisao
+        description: Descrição da divisão
+      - name: id_secao
+        description: Código da seção (nível 1)
+      - name: descricao_secao
+        description: Descrição da seção
+  - name: br_bd_diretorios_fr__categoria_juridica
+    description: >
+      Diretório das categorias jurídicas (catégories juridiques) do INSEE, com
+      os três níveis hierárquicos e seus rótulos. Uma linha por categoria de
+      nível III (4 dígitos).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [categoria_juridica]
+    columns:
+      - name: categoria_juridica
+        description: Código da categoria jurídica de nível III (4 dígitos)
+        tests: [not_null]
+      - name: descricao_categoria_juridica
+        description: Descrição da categoria jurídica de nível III
+      - name: id_nivel_2
+        description: Código do nível II (2 dígitos)
+      - name: descricao_nivel_2
+        description: Descrição do nível II
+      - name: id_nivel_1
+        description: Código do nível I (1 dígito)
+      - name: descricao_nivel_1
+        description: Descrição do nível I
