@@ -103,6 +103,12 @@ models:
     br_bd_diretorios_de:
       +materialized: table
       +schema: br_bd_diretorios_de
+    br_bd_diretorios_fr:
+      +materialized: table
+      +schema: br_bd_diretorios_fr
+    fr_insee_sirene:
+      +materialized: table
+      +schema: fr_insee_sirene
     br_bd_diretorios_in:
       +materialized: table
       +schema: br_bd_diretorios_in
@@ -115,6 +121,12 @@ models:
     br_bd_diretorios_us:
       +materialized: table
       +schema: br_bd_diretorios_us
+    br_bd_diretorios_mx:
+      +materialized: table
+      +schema: br_bd_diretorios_mx
+    mx_sesnsp_incidencia_delictiva:
+      +materialized: table
+      +schema: mx_sesnsp_incidencia_delictiva
     in_tcpd_elections:
       +materialized: table
       +schema: in_tcpd_elections

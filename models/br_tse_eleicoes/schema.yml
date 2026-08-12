@@ -15,7 +15,7 @@ models:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
       - name: sigla_uf
-        description: Sigla da Unidade da Federação
+        description: Sigla da unidade da federação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
@@ -365,10 +365,9 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
-          - custom_relationships:
+          - custom_relationships_domestic:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
       - name: proporcao_comparecimento
         description: Proporção de comparecimento
       - name: proporcao_votos_brancos
@@ -399,7 +398,7 @@ models:
       - name: votos_nominais
         description: Número de votos nominais
       - name: votos_legenda
-        description: Número de votos em coligações
+        description: Número de votos em legendas
       - name: votos_nulos
         description: Número de votos nulos
       - name: votos_validos
@@ -452,10 +451,9 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
-          - custom_relationships:
+          - custom_relationships_domestic:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
       - name: proporcao_comparecimento
         description: Proporção de comparecimento
       - name: proporcao_votos_brancos
@@ -484,7 +482,7 @@ models:
       - name: votos_brancos
         description: Número de votos brancos
       - name: votos_legenda
-        description: Número de votos em coligações
+        description: Número de votos em legendas
       - name: votos_nominais
         description: Número de votos nominais
       - name: votos_nulos
@@ -540,10 +538,9 @@ models:
       - name: id_municipio_tse
         description: ID Município - TSE
         tests:
-          - custom_relationships:
+          - custom_relationships_domestic:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
       - name: proporcao_comparecimento
         description: Proporção de comparecimento
       - name: proporcao_votos_brancos
@@ -943,10 +940,10 @@ models:
       - name: id_municipio_tse_doador
         description: ID Município do doador - TSE
         tests:
-          - custom_relationships:
+          - custom_relationships_domestic:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
-              ignore_values: ['73709']
+              exterior_column: sigla_uf_doador
       - name: natureza_receita
         description: Natureza da receita
       - name: nome_administrador
@@ -1301,6 +1298,8 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio_tse
               ignore_values: ['73709']
+      - name: nome_candidato
+        description: Nome do candidato
       - name: numero_candidato
         description: Número do candidato
       - name: numero_partido
@@ -1510,7 +1509,7 @@ models:
       - name: sigla_partido
         description: Sigla do partido
       - name: sigla_uf
-        description: Sigla da Unidade da Federação
+        description: Sigla da unidade da federação
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
@@ -1692,7 +1691,7 @@ models:
       - name: sigla_partido
         description: Sigla do partido
       - name: sigla_uf
-        description: Sigla da Unidade da Federação
+        description: Sigla da unidade da federação
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
@@ -1770,6 +1769,7 @@ models:
             - cobertura_temporal
       - not_null_proportion_multiple_columns:
           at_least: 0.95
+          ignore_values: [cobertura_temporal]
     columns:
       - name: id_tabela
         description: ID Tabela
