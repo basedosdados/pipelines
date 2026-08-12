@@ -35,4 +35,4 @@ select
     safe_cast(changement_activite_principale as string) changement_activite_principale,
     safe_cast(caractere_employeur as string) caractere_employeur,
     safe_cast(changement_caractere_employeur as string) changement_caractere_employeur
-from {{ set_datalake_project("fr_insee_sirene_staging.etablissement_historico") }} as t
+from {{ set_datalake_project("fr_insee_sirene_staging.etablissement_historique") }} as t
