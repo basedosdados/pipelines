@@ -64,10 +64,24 @@ def _run_denatran(
             source_max_date=source_first_available_date_str,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             print("No new data to be downloaded")
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_first_available_date_str,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     print("Updates found! The run will be started.")
     parquet_outputs = []
@@ -134,15 +148,6 @@ def _run_denatran(
             env="prod",
             bq_project="basedosdados",
         )
-
-        if source_first_available_date_str is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=source_first_available_date_str,
-                env="prod",
-                date_format="%Y-%m",
-            )
 
 
 @flow(
