@@ -253,6 +253,16 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
         env="prod",
         date_format=DATE_FORMAT,
     )
+    # Comita o Update da fonte já aqui, logo depois do poll: se a etapa falhar
+    # mais adiante (ex.: no register), o metadado da fonte já reflete que
+    # havia dado novo publicado.
+    commit_source_update_task.fn(
+        dataset_id=DATASET_ID,
+        table_id=TABLE_ID,
+        source_max_date=max_date,
+        env="prod",
+        date_format=DATE_FORMAT,
+    )
     register_table_materialization_task.fn(
         dataset_id=DATASET_ID,
         table_id=TABLE_ID,
@@ -263,13 +273,6 @@ def stage_metadata(work_dir: Path, max_date: str | None) -> None:
         # permissão de criar job no projeto de produção. O padrão da task é
         # prefect_mode="prod", que só funciona no worker.
         prefect_mode="dev",
-    )
-    commit_source_update_task.fn(
-        dataset_id=DATASET_ID,
-        table_id=TABLE_ID,
-        source_max_date=max_date,
-        env="prod",
-        date_format=DATE_FORMAT,
     )
     log.info("metadata concluído")
 

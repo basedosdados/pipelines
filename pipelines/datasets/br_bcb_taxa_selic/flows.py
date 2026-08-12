@@ -93,9 +93,23 @@ def br_bcb_taxa_selic__taxa_selic(
             source_max_date=file_info["max_date"],
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="coverage",
         )
         if not has_new_data:
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=file_info["max_date"],
+        env="prod",
+        date_format="%Y-%m-%d",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     upload_to_gcs(
         data_path=file_info["save_output_path"],
@@ -143,15 +157,6 @@ def br_bcb_taxa_selic__taxa_selic(
             env="prod",
             bq_project="basedosdados",
         )
-
-        if file_info["max_date"] is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=file_info["max_date"],
-                env="prod",
-                date_format="%Y-%m-%d",
-            )
 
 
 # pyrefly: ignore [missing-attribute]
