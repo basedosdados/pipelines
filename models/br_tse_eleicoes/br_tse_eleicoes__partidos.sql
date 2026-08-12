@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1990, "end": 2024, "interval": 2},
+            "range": {"start": 1990, "end": 2030, "interval": 2},
         },
         cluster_by=["sigla_uf"],
     )
