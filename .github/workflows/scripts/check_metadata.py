@@ -33,9 +33,14 @@ def get_datasets_tables_from_modified_files(
     """
     # Convert to Path
     modified_files_paths: list[Path] = [Path(file) for file in modified_files]
-    # Get SQL files
+    # Get SQL files. Only dbt models live under `models/` (model-paths in
+    # dbt_project.yml); a `.sql` under tests-dbt/, macros/, or analysis/ is a
+    # generic test or macro, not a table, so deriving (dataset, table) from its
+    # path points at a dataset that does not exist and 404s. Restrict to models.
     sql_files: list[Path] = [
-        file for file in modified_files_paths if file.suffix == ".sql"
+        file
+        for file in modified_files_paths
+        if file.suffix == ".sql" and file.parts and file.parts[0] == "models"
     ]
 
     datasets_tables: list[tuple[str, str, bool, bool]] = [
