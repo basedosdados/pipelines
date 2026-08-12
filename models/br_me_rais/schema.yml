@@ -72,6 +72,16 @@ models:
             - bairros_rj
             - regioes_administrativas_df
           dictionary_model: ref('br_me_rais__dicionario')
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year__
+          ignore_values:
+            - tipo_salario
+            - valor_salario_contratual
+            - subatividade_ibge
+            - cbo_1994
+            - grau_instrucao_1985_2005
     columns:
       - name: ano
         description: Ano
@@ -274,6 +284,11 @@ models:
             - tipo_estabelecimento
             - natureza_estabelecimento
           dictionary_model: ref('br_me_rais__dicionario')
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year__
+          ignore_values: [natureza_estabelecimento, subatividade_ibge]
     columns:
       - name: ano
         description: Ano

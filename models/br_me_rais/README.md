@@ -166,14 +166,48 @@ ORDER BY 1;
 
 ### 6.2 Coluna `cnae_2_subclasse`
 
-
-
 Em relação à coluna cnae_2_subclasse, a partir de 2023 observou-se inconsistência no tamanho do código: parte dos registros passou a apresentar 6 dígitos, enquanto outros mantiveram 7 dígitos. Para padronização, aplicamos left padding com zero à esquerda nos códigos de 6 dígitos, garantindo que todos passem a ter 7 dígitos. Com essa normalização, os valores tornam-se compatíveis com o diretório `br_bd_diretorios_brasil.cnae:subclasse`.
 
 **Recomendação:**
 Para análises e relacionamentos, utilizar as colunas:
 
 - `cnae_2_subclasse`
+
+#### O cabeçalho `Codigo` sem acento (leia antes de mexer nesta coluna)
+
+Nos arquivos de 2024 e 2025 a fonte escreve o cabeçalho desta coluna como
+**`CNAE 2.0 Subclasse - Codigo`, sem acento** — e é a única coluna do arquivo
+assim; todas as outras usam `Código`. Se o dicionário de rename só contemplar a
+versão acentuada, a coluna não é reconhecida, o crawler a emite vazia e a tabela
+final sai com `cnae_2_subclasse` **e** `cnae_2` 100% nulas (o modelo deriva a
+classe da subclasse, então as duas caem juntas).
+
+Isso já aconteceu duas vezes:
+
+| Quando | O quê |
+| :--- | :--- |
+| 05/2026 | Diagnosticado em vínculos 2025 e corrigido em `VINCULOS_RENAME` (#1557) |
+| 06/2026 | A correção se perdeu ao migrar o arquivo de `pipelines/datasets/` para `pipelines/crawler/` |
+| 08/2026 | Reportado de novo, agora em estabelecimentos 2023 e 2025 — 25 milhões de linhas publicadas com a coluna nula |
+
+Duas defesas foram acrescentadas depois disso:
+
+- `_fill_absent_columns` em `tasks.py` **levanta erro** quando uma coluna some
+  no rename, em vez de preencher vazio em silêncio. Só as colunas listadas em
+  `ESTAB_ABSENT_IN_SOURCE` / `VINCULOS_ABSENT_IN_SOURCE` são toleradas.
+- O teste `not_null_proportion_multiple_columns` no `schema.yml`, **escopado ao
+  ano mais recente** (`where: __most_recent_year__`). O escopo é essencial: um
+  vazio de um ano se dilui na série inteira — com 2023 e 2025 zerados o total
+  ainda dava 72% preenchido, bem acima do piso de 5%.
+
+Os códigos também vêm com **espaço à esquerda** (`" 5611203"`). O crawler aplica
+`strip` em todas as colunas antes da limpeza de códigos inválidos; sem isso, um
+`" 0000000"` não casa com a lista de inválidos e o `lpad` do modelo enxerga 8
+caracteres em vez de 7.
+
+Por fim, note que a coluna rotulada `CNAE 2.0 Classe - Código` **não contém
+classe**: a fonte repete ali o mesmo código de 7 dígitos da subclasse. O modelo
+ignora essa coluna do staging e deriva `cnae_2` via `left(cnae_2_subclasse, 5)`.
 
 ### 6.3 Coluna `tamanho_estabelecimento`
 
@@ -185,6 +219,80 @@ Até o ano de 2001 (inclusive), os códigos da coluna `tamanho_estabelecimento` 
   • Alguns valores relacionados à conexão com o diretório foram desconsiderados durante os testes.
   • Os códigos de cbo_2002 foram ignorados devido à descontinuidade de parte deles, conforme descrito no documento oficial (https://portalfat.mte.gov.br/wp-content/uploads/2016/04/CBO2002_Liv3.pdf).
   • A variável cnae_2_subclasse apresenta códigos que não existem oficialmente na documentação dos cnae, por isso, não são compatíveis com o diretório e portanto, ignorado nos testes.
+
+### 6.5 Colunas sem correspondência na fonte
+
+O rename é um dicionário que traduz cabeçalho da fonte para nome de coluna nossa.
+Quando os dois lados deixam de casar, aparecem **dois tipos de lacuna**, e elas
+não são idênticas:
+
+| Lacuna | O que acontece | Como se manifesta |
+| :--- | :--- | :--- |
+| Coluna esperada que nenhum cabeçalho alimenta | A coluna sai vazia | Visível: dá coluna nula na tabela publicada, e desde a correção do §6.2 o crawler **interrompe** o processamento |
+| Cabeçalho publicado que o rename não conhece | O dado é descartado na leitura | **Invisível:** nada na tabela indica que a variável existia |
+
+A segunda é a perigosa. Nada no código olha para ela — `_fill_absent_columns`
+verifica apenas a primeira direção, e nenhum teste do dbt pode acusar a falta de
+uma coluna que ninguém declarou. Ela só aparece quando alguém compara o cabeçalho
+do arquivo com o dicionário, na mão.
+
+#### Colunas esperadas que a fonte não entrega
+
+Estas estão declaradas em `ESTAB_ABSENT_IN_SOURCE` / `VINCULOS_ABSENT_IN_SOURCE`,
+emitidas vazias de propósito e ignoradas no teste de proporção de nulos:
+
+| Tabela | Coluna | Situação |
+| :--- | :--- | :--- |
+| estabelecimentos | `natureza_estabelecimento` | Referente apenas ao ano de 1994 |
+| estabelecimentos | `subatividade_ibge` | Preenchida em 1985 (~87%), zerada de 2000 em diante |
+| vínculos | `tipo_salario` | Não existe no arquivo de 2025 |
+| vínculos | `valor_salario_contratual` | Não existe no arquivo de 2025 |
+| vínculos | `subatividade_ibge` | Não existe no arquivo de 2025 (só `IBGE Subsetor`) |
+| vínculos | `cbo_1994` | Não existe no arquivo de 2025 (substituída por `CBO 2002 Ocupação`) |
+| vínculos | `grau_instrucao_1985_2005` | Não existe no arquivo de 2025 (substituída por `Escolaridade Após 2005`) |
+
+As cinco de vínculos foram verificadas contra o cabeçalho do arquivo de 2025:
+**nenhuma delas existe na fonte**. O arquivo traz 62 colunas, e a mais próxima de
+cada uma é uma substituta, não a mesma variável — `CBO 2002 Ocupação` no lugar do
+`cbo_1994`, `Escolaridade Após 2005` no lugar do `grau_instrucao_1985_2005`,
+`IBGE Subsetor` sem a subatividade correspondente. Não há nada a recuperar; o
+`ignore_values` do teste documenta um limite real da fonte.
+
+#### Como refazer essa verificação
+
+Vale repetir a cada ano novo, porque a fonte muda os cabeçalhos sem avisar (§6.2).
+O arquivo `RAIS_VINC_PUB_NI.7z` serve bem: tem o mesmo cabeçalho dos demais e
+apenas algumas centenas de KB.
+
+```bash
+curl -O ftp://ftp.mtps.gov.br/pdet/microdados/RAIS/<ano>/RAIS_VINC_PUB_NI.7z
+7z e -so RAIS_VINC_PUB_NI.7z | head -1 | iconv -f latin1 -t utf-8 | tr ',' '\n'
+```
+
+A verificação tem **duas direções**, e a segunda é a que costuma ser esquecida:
+
+- *esperadas e ausentes* — colunas de `*_VARS` que nenhum cabeçalho alimenta;
+- *na fonte e não mapeadas* — cabeçalhos publicados que o rename descarta.
+
+#### Pendência: `Categoria Trabalhador` está sendo descartada
+
+A verificação na segunda direção encontrou dois cabeçalhos publicados e não
+mapeados em vínculos:
+
+| Cabeçalho na fonte | Situação |
+| :--- | :--- |
+| `Tipo Estabelecimento - Nome` | Redundante — é o rótulo da variável já capturada por `Tipo Estabelecimento - Código` |
+| `Categoria Trabalhador - Código` | **Variável que estamos descartando** — não aparece no `VINCULOS_RENAME`, nem no macro, nem no `schema.yml` |
+
+A fonte publica a categoria do trabalhador e o crawler a descarta na leitura, sem
+registro em lugar nenhum. Os cabeçalhos de vínculos de 2023 e 2025 são idênticos
+entre si, então não é novidade do lote de dados mais recente: vem acontecendo há
+pelo menos três arquivos. Passou despercebido por ser exatamente a lacuna
+invisível descrita acima — a coluna não existe na nossa tabela, logo não há o que
+ficar nulo nem o que um teste possa acusar.
+
+Em estabelecimentos a mesma verificação não achou nenhum descarte: depois da
+correção do §6.2, o crawler captura tudo que o arquivo de 2025 publica.
 
 ---
 
@@ -203,6 +311,33 @@ Em novembro de 2025, o ano de 2024 apresenta aproximadamente 46 milhões de vín
 > **Importante**
 > Essa diferença não indica queda no número de vínculos, mas sim que os dados do ano mais recente ainda não foram totalmente disponibilizados.
 
+### 7.1 O calendário acima não descreve o que está no FTP
+
+Na prática a fonte também **republica anos antigos**, sem aviso, e o diretório
+não segue o calendário. Estado observado em 08/2026:
+
+| Pasta no FTP | `RAIS_ESTAB_PUB.7z` | Publicado em |
+| :--- | ---: | :--- |
+| `2023/Legado/` | 120.943.063 | 30/12/2025 |
+| `2023/` | 127.348.274 | 18/05/2026 |
+| `2024 Parcial/` | 136.902.586 | 25/09/2025 |
+| `2024/` | 140.661.991 | 18/05/2026 |
+| `2025/` | 143.766.046 | 13/05/2026 |
+
+Duas consequências, ambas já observadas:
+
+- **2023 foi reprocessado pela fonte sob o sistema novo** (o arquivo antigo foi
+  movido para `Legado/`). É isso que explica o salto de ~8,45 milhões de
+  estabelecimentos em 2022 para ~11,77 milhões em 2023 — mudança de universo na
+  origem, não erro nosso.
+- **Verifique de qual arquivo veio cada ano do staging.** Um ano baixado antes de
+  18/05/2026 pode ser a divulgação parcial, e o definitivo já estar no ar. Os
+  cabeçalhos ajudam a datar: os arquivos de 2024 e 2025 publicados em maio/2026
+  trazem `CNAE 2.0 Subclasse - Codigo` sem acento (ver §6.2).
+
+Os `Layouts/` publicados no FTP só vão até 2019 e não servem para os anos
+recentes; para conferir o schema, extraia a primeira linha do próprio `.7z`.
+
 ## 8. Verificação
 
 **Observação: Recomendamos fortemente que se utilize a plataforma Dardo (https://bi.mte.gov.br/bgcaged/) para fazer a verificação dos dados antes de leva-lo para produção.**
@@ -213,6 +348,40 @@ Em novembro de 2025, o ano de 2024 apresenta aproximadamente 46 milhões de vín
 ## 9. Materialização
 
 - Quando for atualizar os dados definitivos da RAIS, aconselhamos a adicionar a seguinte estratégia incremental: `incremental_strategy="insert_overwrite` nas configs do dbt, uma vez que ela irá subrescrever os dados existentes na tabela com os novos dados definitivos da RAIS. Para maiores informações, leia: https://docs.getdbt.com/docs/build/incremental-strategy e https://downloads.apache.org/spark/docs/3.1.1/sql-ref-syntax-dml-insert-overwrite-table.html
+
+### 9.1 Correção em ano antigo exige `--full-refresh`
+
+O modelo de estabelecimentos filtra `where safe_cast(ano as int64) > 2022` no
+modo incremental. Um `dbt run` comum, portanto, **só reescreve 2023 em diante** —
+qualquer correção que mire anos anteriores fica no repositório sem entrar nos
+dados, e nada avisa. Foi o que aconteceu com a padronização de
+`tamanho_estabelecimento` (#1580, 08/2026), que mira os anos até 2001.
+
+Para conferir se uma faixa foi de fato reescrita, olhe a data de cada partição —
+não a data do commit:
+
+```sql
+SELECT partition_id, total_rows, last_modified_time
+FROM `basedosdados.br_me_rais.INFORMATION_SCHEMA.PARTITIONS`
+WHERE table_name = 'microdados_estabelecimentos'
+ORDER BY partition_id DESC;
+```
+
+Em produção o full-refresh sai pelo deployment "BD template: Executa DBT model",
+passando o flag — não precisa de credencial local. Antes de disparar, compare as
+contagens por ano entre o staging e a tabela: o staging pode ter sido reescrito
+em bloco sem que a tabela tenha absorvido os anos antigos.
+
+### 9.2 Partições fora do range
+
+O `range` do `partition_by` tem `end` **exclusivo**. Quando ele ficou em `2024`,
+todos os anos de 2023 em diante caíram numa única gaveta `__UNPARTITIONED__` —
+38 milhões de linhas sem poda de partição, e todo filtro por ano recente varria
+as três faixas. Mantenha `end` em pelo menos o último ano + 5.
+
+Note que dbt **não altera o particionamento de uma tabela incremental já
+existente**: corrigir o `range` no arquivo só tem efeito num `--full-refresh`.
+Até lá o arquivo e a tabela divergem silenciosamente.
 
 ---
 

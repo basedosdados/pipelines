@@ -192,6 +192,41 @@ def _detect_csv_file(directory: Path) -> Path:
     raise FileNotFoundError(f"No .comt or .txt file found in {directory}")
 
 
+def _fill_absent_columns(
+    df: pd.DataFrame,
+    vars_list: list[str],
+    absent_in_source: tuple[str, ...],
+    csv_file: Path,
+) -> None:
+    """Emit the known-absent columns as empty and fail on any other gap.
+
+    See README §6.2 for why an unresolved column must not be filled silently.
+
+    Args:
+        df: Chunk already renamed, modified in place.
+        vars_list: Columns the output must carry.
+        absent_in_source: Columns known to be absent, emitted empty.
+        csv_file: Source file, quoted in the error message.
+
+    Raises:
+        ValueError: If a column outside `absent_in_source` is missing.
+    """
+    missing = [
+        var
+        for var in vars_list
+        if var not in df.columns and var not in absent_in_source
+    ]
+    if missing:
+        raise ValueError(
+            f"Colunas ausentes após o rename em {csv_file.name}: {missing}. "
+            f"Cabeçalhos lidos: {sorted(df.columns)}"
+        )
+
+    for var in absent_in_source:
+        if var not in df.columns:
+            df[var] = ""
+
+
 def _build_estab_partitions(
     year: int,
     input_dir: Path,
@@ -262,11 +297,20 @@ def _build_estab_partitions(
         df = df.rename(columns={"sigla": "sigla_uf"})
         df["sigla_uf"] = df["sigla_uf"].replace(np.nan, "IGNORADO")
 
-        for var in vars_list:
-            if var not in df.columns:
-                df[var] = ""
+        _fill_absent_columns(
+            df,
+            vars_list,
+            rais_constants.ESTAB_ABSENT_IN_SOURCE.value,
+            csv_file,
+        )
 
         df = df[vars_list]
+
+        df = df.apply(
+            lambda col: col.map(
+                lambda x: x.strip() if isinstance(x, str) else x
+            )
+        )
 
         for col in [
             "bairros_sp",
@@ -418,9 +462,12 @@ def _build_vinculos_partitions(
             )
             df["sigla_uf"] = df["sigla_uf"].replace([np.nan, "NI"], "IGNORADO")
 
-            for var in vars_list:
-                if var not in df.columns:
-                    df[var] = ""
+            _fill_absent_columns(
+                df,
+                vars_list,
+                rais_constants.VINCULOS_ABSENT_IN_SOURCE.value,
+                csv_file,
+            )
 
             df = df[vars_list]
 
