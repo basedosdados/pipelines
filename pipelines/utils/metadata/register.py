@@ -319,8 +319,8 @@ def register_table_materialization(
 
 def poll_source_for_update(
     client,
-    dataset_id,
-    table_id,
+    dataset_id: str,
+    table_id: str,
     source_max_date: datetime.date | None = None,
     raw_source_url: str | None = None,
     compare_against: str = "coverage",

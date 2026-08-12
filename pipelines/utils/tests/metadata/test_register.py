@@ -160,8 +160,8 @@ def test_poll_explicit_table_update_still_works():
     client = FakeMetadataClient(
         table_update_latest=datetime.date(2026, 5, 1),
         coverage_max_date=datetime.date(
-            2026, 1, 1
-        ),  # seria "sem novidade" se lido
+            2026, 7, 1
+        ),  # retornaria False se coverage fosse lido
     )
     result = poll_source_for_update(
         client,
