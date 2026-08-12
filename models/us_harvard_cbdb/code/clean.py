@@ -14,6 +14,8 @@ import sqlite3
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+
+# pyrefly: ignore [missing-import]
 from schema_spec import DICT_SOURCES, TABLE_ORDER, TABLES
 
 HOME = os.path.expanduser("~")
