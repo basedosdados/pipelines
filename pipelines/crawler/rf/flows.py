@@ -56,6 +56,19 @@ def _run_rf(
         if not has_new_data:
             return
 
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=last_update_original_source,
+        env="prod",
+        date_format="%Y-%m-%d",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
+
     crawl(dataset_id=dataset_id, input_dir="input")
 
     # pyrefly: ignore [no-matching-overload]
@@ -114,12 +127,3 @@ def _run_rf(
             env="prod",
             bq_project="basedosdados",
         )
-
-        if last_update_original_source is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=last_update_original_source,
-                env="prod",
-                date_format="%Y-%m-%d",
-            )

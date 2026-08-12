@@ -111,6 +111,19 @@ def au_abs_cpi_flow(
         if not has_new_data and not force_run:
             return
 
+        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+        # novo publicado, mesmo que a tabela não tenha sido atualizada.
+        commit_source_update_task(
+            dataset_id=DATASET_ID,
+            table_id="monthly",
+            source_max_date=max_ym,
+            env="prod",
+            date_format="%Y-%m",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_to_prod,
+        )
+
         tables = list(constants.SOURCE_TABLES.value)  # quarterly, monthly
 
         # Dev: upload staging + materialize/test.
@@ -159,13 +172,6 @@ def au_abs_cpi_flow(
                     env="prod",
                     bq_project="basedosdados",
                 )
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id="monthly",
-                source_max_date=max_ym,
-                env="prod",
-                date_format="%Y-%m",
-            )
     finally:
         # Covers early returns (no new data, dev-only) and any exception.
         shutil.rmtree(work_dir, ignore_errors=True)

@@ -196,15 +196,19 @@ def br_me_siconfi_flow(
                     env="prod",
                     bq_project="basedosdados",
                 )
-            if max_year is not None:
-                commit_source_update_task(
-                    dataset_id=DATASET_ID,
-                    table_id=_SOURCE_TABLE,
-                    source_max_date=str(max_year),
-                    env="prod",
-                    date_format="%Y",
-                    raw_source_url=_SOURCE_URL,
-                )
+            commit_source_update_task(
+                dataset_id=DATASET_ID,
+                table_id=_SOURCE_TABLE,
+                # max_year pode ser None (linha ~134) — str(None) seria a
+                # string "None", não o valor None, e escaparia do guard
+                # interno da task. Preserva o None real quando for o caso.
+                source_max_date=str(max_year)
+                if max_year is not None
+                else None,
+                env="prod",
+                date_format="%Y",
+                raw_source_url=_SOURCE_URL,
+            )
     finally:
         # Covers early returns (dev-only) and exceptions. k8s gives each run a
         # fresh pod, but a process/local worker reuses its filesystem — the

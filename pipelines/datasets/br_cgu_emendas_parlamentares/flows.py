@@ -58,6 +58,19 @@ def br_cgu_emendas_parlamentares__microdados(
         if not has_new_data:
             return
 
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=max_modified_time,
+        env="prod",
+        date_format="%Y-%m-%d",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
+
     output_path = convert_str_to_float()
 
     upload_to_gcs(
@@ -109,15 +122,6 @@ def br_cgu_emendas_parlamentares__microdados(
             env="prod",
             bq_project="basedosdados",
         )
-
-        if max_modified_time is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=max_modified_time,
-                env="prod",
-                date_format="%Y-%m-%d",
-            )
 
 
 # pyrefly: ignore [missing-attribute]

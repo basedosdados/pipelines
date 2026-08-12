@@ -64,14 +64,17 @@ def _materialize_and_metadata(
     materialize_after_dump: bool,
     update_metadata: bool,
     coverage: CoverageSpec,
-    source_max_date=None,
     source_format: str = "csv",
 ) -> None:
     """Sobe os dados particionados, materializa no dbt e atualiza metadados.
 
     Sempre roda a metade de dev (upload no bucket `basedosdados-dev` +
     `dbt run/test` no target dev). A metade de prod só roda com
-    `materialize_after_dump`, e a escrita de metadados só dentro dela.
+    `materialize_after_dump`, e o registro de materialização só dentro dela.
+
+    O Update da fonte original (`commit_source_update_task`) não é gravado
+    aqui — os callers já o gravam mais cedo, logo depois que o poll confirma
+    dado novo, antes de baixar/materializar.
 
     Args:
         filepath: caminho do diretório particionado gerado pelo passo de
@@ -83,10 +86,8 @@ def _materialize_and_metadata(
             `dev`, independente deste valor.
         materialize_after_dump: se falso, para depois do dbt em dev e não
             toca em prod nem em metadados.
-        update_metadata: se verdadeiro, registra a materialização da tabela
-            e grava o Update da fonte original — sempre em `env="prod"`.
-        source_max_date: data máxima de cobertura da fonte, no formato
-            `%Y-%m`. Quando `None`, o Update da fonte não é gravado.
+        update_metadata: se verdadeiro, registra a materialização da
+            tabela — sempre em `env="prod"`.
         coverage: cobertura da tabela, usada no registro da materialização.
         source_format: formato em que o passo de particionamento gravou os
             arquivos em disco (`csv` ou `parquet`). Vale para os dois
@@ -137,15 +138,6 @@ def _materialize_and_metadata(
             bq_project="basedosdados",
         )
 
-        if source_max_date is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=source_max_date,
-                env="prod",
-                date_format="%Y-%m",
-            )
-
 
 def _run_cgu_cartao_pagamento(
     dataset_id: str,
@@ -195,6 +187,19 @@ def _run_cgu_cartao_pagamento(
         if not has_new_data:
             return
 
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=data_source_max_date,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
+
     filepath = partition_data(table_id=table_id, dataset_id=dataset_id)
     _materialize_and_metadata(
         filepath=filepath,
@@ -204,7 +209,6 @@ def _run_cgu_cartao_pagamento(
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
-        source_max_date=data_source_max_date,
         coverage=_part_bdpro_year_month("ano_extrato", "mes_extrato"),
     )
 
@@ -266,6 +270,19 @@ def _run_cgu_servidores_publicos(
         if not has_new_data:
             return
 
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=data_source_max_date,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
+
     filepath = partition_data(table_id=table_id, dataset_id=dataset_id)
     _materialize_and_metadata(
         filepath=filepath,
@@ -275,7 +292,6 @@ def _run_cgu_servidores_publicos(
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
-        source_max_date=data_source_max_date,
         coverage=_part_bdpro_year_month("ano", "mes"),
     )
 
@@ -325,6 +341,19 @@ def _run_cgu_licitacao_contrato(
         if not has_new_data:
             return
 
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=data_source_max_date,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
+
     filepath = partition_data(table_id=table_id, dataset_id=dataset_id)
     _materialize_and_metadata(
         filepath=filepath,
@@ -334,7 +363,6 @@ def _run_cgu_licitacao_contrato(
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
-        source_max_date=data_source_max_date,
         coverage=_part_bdpro_year_month("ano", "mes"),
     )
 
@@ -389,6 +417,19 @@ def _run_cgu_beneficios_cidadao(
         if not has_new_data:
             return
 
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=data_source_max_date,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
+
     filepath = read_and_partition_beneficios_cidadao(table_id=table_id)
     _materialize_and_metadata(
         filepath=filepath,
@@ -398,7 +439,6 @@ def _run_cgu_beneficios_cidadao(
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
-        source_max_date=data_source_max_date,
         coverage=_part_bdpro_year_month(**dict_for_table(table_id)),
         source_format=_SOURCE_FORMAT_BENEFICIOS_CIDADAO[table_id],
     )

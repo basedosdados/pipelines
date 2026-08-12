@@ -126,6 +126,20 @@ def world_cricsheet_flow(
         if not has_new_data and not force_run:
             return
 
+        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+        # novo publicado, mesmo que a tabela não tenha sido atualizada.
+        commit_source_update_task(
+            dataset_id=DATASET_ID,
+            table_id=POLL_TABLE,
+            source_max_date=max_start,
+            env="prod",
+            date_format="%Y-%m-%d",
+            raw_source_url=BUNDLE_URL,
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_to_prod,
+        )
+
         tables = constants.ALL_TABLES.value
 
         # Dev: upload + build every table first, then test every table. The
@@ -192,14 +206,6 @@ def world_cricsheet_flow(
                     env="prod",
                     bq_project="basedosdados",
                 )
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id=POLL_TABLE,
-                source_max_date=max_start,
-                env="prod",
-                date_format="%Y-%m-%d",
-                raw_source_url=BUNDLE_URL,
-            )
     finally:
         # Covers both early returns (no new data, dev-only) and any exception.
         # A k8s work pool gives each run a fresh pod, but a process/local worker

@@ -422,11 +422,13 @@ def commit_source_update(
     """Grava o `RawDataSource.Update` da fonte original.
 
     Registra `source_max_date` como o novo `RawDataSource.Update.latest`. É a
-    contraparte de `poll_source_for_update`: deve ser chamada **só ao fim do
-    flow**, depois de a materialização ter dado certo, de modo que o Update só
-    avance quando o dado de fato chegou ao destino. Separar a detecção (poll) da
-    gravação (este commit) é o que evita que uma falha no meio do flow deixe o
-    Update adiantado e trave as runs seguintes.
+    contraparte de `poll_source_for_update`: deve ser chamada **logo depois do
+    poll confirmar novidade**, antes de baixar/materializar — não depende da
+    materialização ter dado certo. `poll_source_for_update` nunca lê o
+    `RawDataSource.Update` (compara contra `Coverage` ou `Table.Update`), então
+    não há risco de travar runs seguintes; o benefício é que, se o flow falhar
+    no meio, o metadado da fonte já reflete que havia dado novo publicado,
+    mesmo que a tabela ainda não tenha sido atualizada.
 
     Args:
         client: cliente de escrita/leitura do backend de metadados

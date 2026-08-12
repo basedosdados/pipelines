@@ -65,6 +65,19 @@ def _run_bcb_estban(
             print(f"Não há atualizações para a tabela {table_id}!")
             return
 
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=data_source_max_date,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
+
     print("Existem atualizações! A run será iniciada.")
     api_max_date = task_get_api_most_recent_date(
         dataset_id=dataset_id,
@@ -133,15 +146,6 @@ def _run_bcb_estban(
             env="prod",
             bq_project="basedosdados",
         )
-
-        if data_source_max_date is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=data_source_max_date,
-                env="prod",
-                date_format="%Y-%m",
-            )
 
 
 def _estban_flow(table_id: str, cron: str):
