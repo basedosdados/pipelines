@@ -1,4 +1,8 @@
-{% macro vinculos_select(source_table, has_vinculo_abandonado=false) %}
+{% macro vinculos_select(
+    source_table,
+    has_vinculo_abandonado=false,
+    has_categoria_trabalhador=false
+) %}
     select
         safe_cast(ano as int64) ano,
         safe_cast(sigla_uf as string) sigla_uf,
@@ -88,6 +92,10 @@
                 indicador_vinculo_abandonado as string
             ) indicador_vinculo_abandonado,
         {% else %} cast(null as string) as indicador_vinculo_abandonado,
+        {% endif %}
+        {% if has_categoria_trabalhador %}
+            safe_cast(categoria_trabalhador as string) categoria_trabalhador,
+        {% else %} cast(null as string) as categoria_trabalhador,
         {% endif %}
         case
             when faixa_remuneracao_media_sm = '00'
