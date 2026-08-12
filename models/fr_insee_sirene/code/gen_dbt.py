@@ -13,14 +13,11 @@ MODELS_DIR = Path(__file__).resolve().parents[1]  # models/fr_insee_sirene
 CLUSTER = {
     "unite_legale": "siren",
     "etablissement": "siret",
-    "unite_legale_historico": "siren",
-    "etablissement_historico": "siret",
+    "unite_legale_historique": "siren",
+    "etablissement_historique": "siret",
 }
-# Output/prod table slug (French). Staging source keeps the schema_map key name.
-OUT_ALIAS = {
-    "unite_legale_historico": "unite_legale_historique",
-    "etablissement_historico": "etablissement_historique",
-}
+# schema_map keys are the French slugs (== staging source == output alias).
+OUT_ALIAS: dict[str, str] = {}
 CAST = {
     "STRING": "string",
     "DATE": "date",

@@ -379,6 +379,6 @@ ETABLISSEMENT_HISTORICO = {
 TABLES = {
     "unite_legale": UNITE_LEGALE,
     "etablissement": ETABLISSEMENT,
-    "unite_legale_historico": UNITE_LEGALE_HISTORICO,
-    "etablissement_historico": ETABLISSEMENT_HISTORICO,
+    "unite_legale_historique": UNITE_LEGALE_HISTORICO,
+    "etablissement_historique": ETABLISSEMENT_HISTORICO,
 }
