@@ -121,9 +121,24 @@ def au_abs_labour_force_flow(
                 source_max_date=max_ym,
                 env="prod",
                 date_format="%Y-%m",
+                compare_against="coverage",
             )
             if not has_new_data:
                 return
+
+        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+        # novo publicado, mesmo que a tabela não tenha sido atualizada.
+        for table in _SOURCE_COMMIT_TABLES:
+            commit_source_update_task(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                source_max_date=max_ym,
+                env="prod",
+                date_format="%Y-%m",
+                update_metadata=update_metadata,
+                materialize_after_dump=materialize_to_prod,
+            )
 
         # Only now fetch the heavy Excel spreadsheets and rebuild.
         download_excel_task(input_dir=input_dir, source_max_date=max_ym)
@@ -174,14 +189,6 @@ def au_abs_labour_force_flow(
                     coverage=coverage,
                     env="prod",
                     bq_project="basedosdados",
-                )
-            for table in _SOURCE_COMMIT_TABLES:
-                commit_source_update_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    source_max_date=max_ym,
-                    env="prod",
-                    date_format="%Y-%m",
                 )
     finally:
         # Covers both early returns (no new data, dev-only) and any exception.

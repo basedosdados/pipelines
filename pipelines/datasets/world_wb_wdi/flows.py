@@ -106,6 +106,19 @@ def world_wb_wdi_flow(
             if not has_new_data:
                 return
 
+        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+        # novo publicado, mesmo que a tabela não tenha sido atualizada.
+        commit_source_update_task(
+            dataset_id=DATASET_ID,
+            table_id="data",
+            source_max_date=max_year,
+            env="prod",
+            date_format="%Y",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_to_prod,
+        )
+
         tables = constants.ALL_TABLES.value
 
         # Dev: upload staging + materialize/test.
@@ -154,13 +167,6 @@ def world_wb_wdi_flow(
                     env="prod",
                     bq_project="basedosdados",
                 )
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id="data",
-                source_max_date=max_year,
-                env="prod",
-                date_format="%Y",
-            )
     finally:
         # Covers both early returns (no new data, dev-only) and any exception.
         # The k8s work pool gives each run a fresh pod, but a process/local
