@@ -39,7 +39,9 @@ select
     safe_cast(sequencial_candidato_doador as string) sequencial_candidato_doador,
     safe_cast(cpf_cnpj_doador as string) cpf_cnpj_doador,
     safe_cast(sigla_uf_doador as string) sigla_uf_doador,
-    safe_cast(id_municipio_tse_doador as string) id_municipio_tse_doador,
+    safe_cast(
+        regexp_replace(id_municipio_tse_doador, r'\.0$', '') as string
+    ) id_municipio_tse_doador,
     safe_cast(nome_doador as string) nome_doador,
     safe_cast(nome_doador_rf as string) nome_doador_rf,
     safe_cast(cargo_candidato_doador as string) cargo_candidato_doador,
@@ -71,4 +73,8 @@ select
     safe_cast(sequencial_prestador_contas as string) sequencial_prestador_contas,
     safe_cast(cnpj_prestador_contas as string) cnpj_prestador_contas,
     safe_cast(entrega_conjunto as string) entrega_conjunto
-from {{ set_datalake_project("br_tse_eleicoes_staging.receitas_candidato") }} as t
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.receitas_candidato") }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    
