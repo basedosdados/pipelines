@@ -49,3 +49,53 @@ models:
         description: Descrição do id_sh2 em inglês
       - name: nome_sec_ingles
         description: Descrição do em inglês
+  - name: br_bd_diretorios_comercio_internacional__hs1992
+    description: >
+      Diretório de produtos do Sistema Harmonizado, revisão de 1992 (SH6), com os
+      códigos
+      exatos dessa revisão. Fonte: arquivo de códigos de produto do CEPII BACI (HS92).
+      Usado como chave estrangeira pela tabela de comércio classificada em HS92.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [comercio_internacional]
+          combination_of_columns: [id_sh6]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.97
+    columns:
+      - name: id_sh6
+        description: Identificador de 6 dígitos do Sistema Harmonizado (SH6), revisão
+          1992
+        tests: [not_null]
+      - name: id_sh4
+        description: Identificador de 4 dígitos do Sistema Harmonizado (SH4), revisão
+          1992
+      - name: id_sh2
+        description: Identificador de 2 dígitos do Sistema Harmonizado (SH2), revisão
+          1992
+      - name: nome_ingles
+        description: Descrição do id_sh6 em inglês
+  - name: br_bd_diretorios_comercio_internacional__hs2017
+    description: >
+      Diretório de produtos do Sistema Harmonizado, revisão de 2017 (SH6), com os
+      códigos
+      exatos dessa revisão. Fonte: arquivo de códigos de produto do CEPII BACI (HS17).
+      Usado como chave estrangeira pela tabela de comércio classificada em HS17.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [comercio_internacional]
+          combination_of_columns: [id_sh6]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.97
+    columns:
+      - name: id_sh6
+        description: Identificador de 6 dígitos do Sistema Harmonizado (SH6), revisão
+          2017
+        tests: [not_null]
+      - name: id_sh4
+        description: Identificador de 4 dígitos do Sistema Harmonizado (SH4), revisão
+          2017
+      - name: id_sh2
+        description: Identificador de 2 dígitos do Sistema Harmonizado (SH2), revisão
+          2017
+      - name: nome_ingles
+        description: Descrição do id_sh6 em inglês

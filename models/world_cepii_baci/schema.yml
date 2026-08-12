@@ -1,0 +1,171 @@
+---
+version: 2
+models:
+  - name: world_cepii_baci__trade_hs92
+    description: >
+      Bilateral international trade flows by product, classified under the Harmonized
+      System 1992 revision (HS6), from CEPII BACI (harmonized UN COMTRADE). One row
+      per
+      year, exporter, importer and product. Values in thousands of current USD; quantities
+      in metric tons. Coverage 1995-2024.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_country_exporter
+            - id_country_importer
+            - product_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [quantity]
+    columns:
+      - name: year
+        description: Year of the trade flow
+        tests: [not_null]
+      - name: id_country_exporter
+        description: Exporter country, UN M49 numeric code
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: id_m49
+              # BACI aggregate / former-country codes absent from the standard M49
+              # directory: 842=USA+PR+VI, 251=France+Monaco, 757=CH+Liechtenstein,
+              # 579=Norway+Svalbard, 699=India, 490="Other Asia, nes" (Taiwan),
+              # 58=Belgium-Luxembourg, 530=Netherlands Antilles, 736=fmr Sudan,
+              # 891=Serbia and Montenegro, 697/711/849=BACI aggregates.
+              ignore_values:
+                - '842'
+                - '251'
+                - '699'
+                - '757'
+                - '490'
+                - '579'
+                - '58'
+                - '530'
+                - '697'
+                - '711'
+                - '736'
+                - '849'
+                - '891'
+      - name: id_country_importer
+        description: Importer country, UN M49 numeric code
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: id_m49
+              # BACI aggregate / former-country codes absent from the standard M49
+              # directory: 842=USA+PR+VI, 251=France+Monaco, 757=CH+Liechtenstein,
+              # 579=Norway+Svalbard, 699=India, 490="Other Asia, nes" (Taiwan),
+              # 58=Belgium-Luxembourg, 530=Netherlands Antilles, 736=fmr Sudan,
+              # 891=Serbia and Montenegro, 697/711/849=BACI aggregates.
+              ignore_values:
+                - '842'
+                - '251'
+                - '699'
+                - '757'
+                - '490'
+                - '579'
+                - '58'
+                - '530'
+                - '697'
+                - '711'
+                - '736'
+                - '849'
+                - '891'
+      - name: product_code
+        description: Product code, Harmonized System 1992 revision (HS6)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_comercio_internacional__hs1992')
+              field: id_sh6
+      - name: value
+        description: Trade flow value in thousands of current USD
+      - name: quantity
+        description: Trade flow quantity in metric tons
+  - name: world_cepii_baci__trade_hs17
+    description: >
+      Bilateral international trade flows by product, classified under the Harmonized
+      System 2017 revision (HS6), from CEPII BACI (harmonized UN COMTRADE). One row
+      per
+      year, exporter, importer and product. Values in thousands of current USD; quantities
+      in metric tons. Coverage 2017-2024.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_country_exporter
+            - id_country_importer
+            - product_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [quantity]
+    columns:
+      - name: year
+        description: Year of the trade flow
+        tests: [not_null]
+      - name: id_country_exporter
+        description: Exporter country, UN M49 numeric code
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: id_m49
+              # BACI aggregate / former-country codes absent from the standard M49
+              # directory: 842=USA+PR+VI, 251=France+Monaco, 757=CH+Liechtenstein,
+              # 579=Norway+Svalbard, 699=India, 490="Other Asia, nes" (Taiwan),
+              # 58=Belgium-Luxembourg, 530=Netherlands Antilles, 736=fmr Sudan,
+              # 891=Serbia and Montenegro, 697/711/849=BACI aggregates.
+              ignore_values:
+                - '842'
+                - '251'
+                - '699'
+                - '757'
+                - '490'
+                - '579'
+                - '58'
+                - '530'
+                - '697'
+                - '711'
+                - '736'
+                - '849'
+                - '891'
+      - name: id_country_importer
+        description: Importer country, UN M49 numeric code
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: id_m49
+              # BACI aggregate / former-country codes absent from the standard M49
+              # directory: 842=USA+PR+VI, 251=France+Monaco, 757=CH+Liechtenstein,
+              # 579=Norway+Svalbard, 699=India, 490="Other Asia, nes" (Taiwan),
+              # 58=Belgium-Luxembourg, 530=Netherlands Antilles, 736=fmr Sudan,
+              # 891=Serbia and Montenegro, 697/711/849=BACI aggregates.
+              ignore_values:
+                - '842'
+                - '251'
+                - '699'
+                - '757'
+                - '490'
+                - '579'
+                - '58'
+                - '530'
+                - '697'
+                - '711'
+                - '736'
+                - '849'
+                - '891'
+      - name: product_code
+        description: Product code, Harmonized System 2017 revision (HS6)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_comercio_internacional__hs2017')
+              field: id_sh6
+      - name: value
+        description: Trade flow value in thousands of current USD
+      - name: quantity
+        description: Trade flow quantity in metric tons
