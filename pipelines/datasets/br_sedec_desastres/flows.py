@@ -104,6 +104,18 @@ def br_sedec_desastres_flow(
             if not has_new_data and not force_run:
                 return
 
+            # Comita o Update da fonte já aqui, antes de baixar/materializar: se
+            # o flow falhar no meio, o metadado da fonte ainda reflete que havia
+            # dado novo publicado, mesmo que a tabela não tenha sido atualizada.
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=max_date,
+                env="prod",
+                date_format=DATE_FORMAT,
+                update_metadata=update_metadata,
+            )
+
         dump_mode = "append"
 
         upload_to_gcs(
@@ -148,14 +160,6 @@ def br_sedec_desastres_flow(
                 coverage=_COVERAGE,
                 env="prod",
                 bq_project="basedosdados",
-            )
-
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=max_date,
-                env="prod",
-                date_format=DATE_FORMAT,
             )
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)

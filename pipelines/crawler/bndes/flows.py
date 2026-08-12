@@ -2,8 +2,11 @@
 Shared run logic for br_bndes_operacoes_contratadas — Prefect 3.
 
 Poll DEFERIDO: poll_source_for_update_task detecta novidade (grava so o Poll);
-o Update so e gravado por commit_source_update_task NO FIM, apos materializar.
-Isso evita adiantar o Update e travar runs futuras se o flow falhar no meio.
+o commit_source_update_task grava o Update logo apos essa confirmacao, antes
+de baixar/materializar. O poll nunca le RawDataSource.Update para decidir
+nada (so le Coverage/Table.Update), entao adiantar esse valor nao trava runs
+futuras — e da visibilidade de que havia dado novo publicado mesmo que o
+flow falhe no meio (download, upload, dbt).
 
 Dois conceitos de data (nao confundir):
 - RawDataSource Update (poll/commit) = data de publicacao (CKAN last_modified),
@@ -72,10 +75,24 @@ def _run_operacoes(
         source_max_date=source_max_date,
         env="prod",
         date_format=SOURCE_DATE_FORMAT,
+        compare_against="table_update",
     )
 
     if not has_new_data and not force_run:
         return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format=SOURCE_DATE_FORMAT,
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     csv_path = download_source_csv(table_id=table_id)
 
@@ -129,14 +146,6 @@ def _run_operacoes(
             bq_project="basedosdados",
         )
 
-        commit_source_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=source_max_date,
-            env="prod",
-            date_format=SOURCE_DATE_FORMAT,
-        )
-
 
 def _run_operacoes_administracao_publica(
     dataset_id: str,
@@ -152,7 +161,8 @@ def _run_operacoes_administracao_publica(
 
     Mesma receita de _run_operacoes_indiretas_automaticas: poll deferido — o
     poll_source_for_update_task grava so o Poll ao detectar novidade; o
-    commit_source_update_task grava o Update da fonte no fim, apos materializar prod.
+    commit_source_update_task grava o Update da fonte logo apos essa
+    confirmacao, antes de baixar/materializar prod.
 
     Args:
         dataset_id (str): ID do dataset no GCP/BigQuery.
@@ -176,10 +186,24 @@ def _run_operacoes_administracao_publica(
         source_max_date=source_max_date,
         env="prod",
         date_format=SOURCE_DATE_FORMAT,
+        compare_against="table_update",
     )
 
     if not has_new_data and not force_run:
         return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format=SOURCE_DATE_FORMAT,
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     csv_path = download_administracao_publica_csv()
 
@@ -231,12 +255,4 @@ def _run_operacoes_administracao_publica(
             ),
             env="prod",
             bq_project="basedosdados",
-        )
-
-        commit_source_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=source_max_date,
-            env="prod",
-            date_format=SOURCE_DATE_FORMAT,
         )

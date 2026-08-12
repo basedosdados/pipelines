@@ -80,9 +80,15 @@ def get_datasets_tables_from_modified_files(
     """
     # Convert to Path
     modified_files: list[Path] = [Path(file) for file in modified_files]
-    # Get SQL files
+    # Get SQL files. Only dbt models live under `models/` (model-paths in
+    # dbt_project.yml); a `.sql` under tests-dbt/, macros/, or analysis/ is a
+    # generic test or macro, not a table. Treating it as a phantom model would
+    # abort prod materialization before any real table builds, so restrict to
+    # models.
     sql_files: list[Path] = [
-        file for file in modified_files if file.suffix == ".sql"
+        file
+        for file in modified_files
+        if file.suffix == ".sql" and file.parts and file.parts[0] == "models"
     ]
 
     datasets_tables: list[tuple[str, str, bool, bool]] = [
