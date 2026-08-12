@@ -2,8 +2,9 @@
 Testes do processo de poll (modelo novo) — `pipelines/utils/metadata/poll.py`.
 
 Cobre as 3 funções puras com `FakeMetadataClient`/`FakeBQ` (conftest): quando cada
-registro é escrito, o negativo (o que NÃO foi tocado), e a mudança-chave — o
-`Table.Update` grava a cobertura (`source_end`), não o `last_modified`.
+registro é escrito, o negativo (o que NÃO foi tocado), e a separação dos dois
+sentidos — o gate lê a cobertura nas faixas de cobertura, e o `Table.Update`
+guarda o relógio da materialização (`last_modified`).
 """
 
 import datetime
@@ -83,7 +84,7 @@ def test_register_source_coverage_stale_writes_only_poll():
 def test_check_true_when_source_ahead():
     client = FakeMetadataClient(
         raw_source_update_latest=datetime.date(2026, 6, 1),
-        table_update_latest=datetime.date(2026, 5, 1),
+        table_coverage_end=datetime.date(2026, 5, 1),
     )
     assert check_source_is_ahead_of_table(client, "br_x", "tab") is True
 
@@ -91,7 +92,7 @@ def test_check_true_when_source_ahead():
 def test_check_false_when_caught_up():
     client = FakeMetadataClient(
         raw_source_update_latest=datetime.date(2026, 5, 1),
-        table_update_latest=datetime.date(2026, 5, 1),
+        table_coverage_end=datetime.date(2026, 5, 1),
     )
     assert check_source_is_ahead_of_table(client, "br_x", "tab") is False
 
@@ -99,7 +100,7 @@ def test_check_false_when_caught_up():
 def test_check_false_when_source_has_no_update():
     client = FakeMetadataClient(
         raw_source_update_latest=None,
-        table_update_latest=datetime.date(2026, 5, 1),
+        table_coverage_end=datetime.date(2026, 5, 1),
     )
     assert check_source_is_ahead_of_table(client, "br_x", "tab") is False
 
@@ -107,7 +108,19 @@ def test_check_false_when_source_has_no_update():
 def test_check_true_when_table_never_materialized():
     client = FakeMetadataClient(
         raw_source_update_latest=datetime.date(2026, 5, 1),
-        table_update_latest=None,
+        table_coverage_end=None,
+    )
+    assert check_source_is_ahead_of_table(client, "br_x", "tab") is True
+
+
+def test_check_ignores_table_update_wall_clock():
+    # Regressão: o gate compara cobertura com cobertura. Um relógio de
+    # materialização no Table.Update é sempre maior que a cobertura da fonte —
+    # foi o que congelou as tabelas do CNES entre 17/06 e 03/08.
+    client = FakeMetadataClient(
+        raw_source_update_latest=datetime.date(2026, 6, 1),
+        table_update_latest=datetime.datetime(2026, 8, 7, 14, 15),
+        table_coverage_end=datetime.date(2026, 5, 1),
     )
     assert check_source_is_ahead_of_table(client, "br_x", "tab") is True
 
@@ -140,9 +153,10 @@ def test_sync_part_bdpro_writes_coverages_table_update_and_rap():
     assert len(bq.rap_calls) == 1
 
 
-def test_sync_table_update_grava_cobertura_nao_last_modified():
-    # Mudança-chave do modelo: Table.Update = source_end (max_date), e NÃO o
-    # last_modified (horário de execução). Datas diferentes de propósito.
+def test_sync_table_update_grava_last_modified_nao_cobertura():
+    # O Table.Update é o relógio que o site exibe como "última atualização na
+    # Base dos Dados": last_modified, e NÃO a cobertura (max_date). A cobertura
+    # materializada fica nas faixas. Datas diferentes de propósito.
     client = FakeMetadataClient(coverage_ids=_both_coverages())
     bq = FakeBQ(
         max_date=datetime.date(2026, 6, 1),
@@ -150,7 +164,7 @@ def test_sync_table_update_grava_cobertura_nao_last_modified():
         can_read=True,
     )
     sync_table_coverage(client, bq, "br_x", "tab", _part_bdpro())
-    assert _table_update_latest(client) == datetime.date(2026, 6, 1)
+    assert _table_update_latest(client) == datetime.datetime(2026, 7, 15)
 
 
 def test_sync_all_free_no_rap():

@@ -139,9 +139,10 @@ def test_compute_part_bdpro_monthly_syncs_and_lags():
     assert (r.free.endYear, r.free.endMonth) == (2025, 12)
     # pyrefly: ignore [missing-attribute]
     assert r.free.endDay is None  # granularidade mensal
-    # R11: pro começa onde free termina
+    # pro começa no período seguinte ao fim da free — free termina em free_end
+    # inclusive, então as duas coberturas não reivindicam o mesmo mês
     # pyrefly: ignore [missing-attribute]
-    assert (r.pro.startYear, r.pro.startMonth) == (2025, 12)
+    assert (r.pro.startYear, r.pro.startMonth) == (2026, 1)
     assert r.free_end == date(2025, 12, 1)
 
 
