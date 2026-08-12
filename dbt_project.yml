@@ -427,9 +427,15 @@ models:
     br_rf_cno:
       +materialized: table
       +schema: br_rf_cno
+    br_rf_cnpj:
+      +materialized: table
+      +schema: br_rf_cnpj
     br_rj_isp_estatisticas_seguranca:
       +materialized: table
       +schema: br_rj_isp_estatisticas_seguranca
+    br_sedec_desastres:
+      +materialized: table
+      +schema: br_sedec_desastres
     br_senado_dados_abertos:
       +materialized: table
       +schema: br_senado_dados_abertos
