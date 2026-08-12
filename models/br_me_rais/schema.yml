@@ -82,6 +82,7 @@ models:
             - subatividade_ibge
             - cbo_1994
             - grau_instrucao_1985_2005
+            - categoria_trabalhador
     columns:
       - name: ano
         description: Ano

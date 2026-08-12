@@ -1,6 +1,3 @@
-{# `on_schema_change` precisa ser explícito: o padrão do dbt é "ignore", e uma
-   coluna nova no select seria descartada em silêncio num run incremental.
-   Necessário desde que categoria_trabalhador foi acrescentada — ver README §6.5. #}
 {{
     config(
         alias="microdados_vinculos",
@@ -23,7 +20,6 @@ with
             vinculos_select(
                 "br_me_rais_staging.microdados_vinculos_2023",
                 has_vinculo_abandonado=true,
-                has_categoria_trabalhador=true,
             )
         }}
     )

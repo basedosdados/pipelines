@@ -199,8 +199,6 @@ class constants(Enum):
         "CNAE 2.0 Subclasse - Código": "cnae_2_subclasse",
         # Sem acento de propósito — ver README §6.2.
         "CNAE 2.0 Subclasse - Codigo": "cnae_2_subclasse",
-        # Categoria do trabalhador do eSocial, publicada a partir de 2023 — ver
-        # README §6.5.
         "Categoria Trabalhador - Código": "categoria_trabalhador",
         "Categoria Trabalhador - Codigo": "categoria_trabalhador",
         "Tamanho Estabelecimento": "tamanho_estabelecimento",
@@ -293,9 +291,6 @@ class constants(Enum):
         "bairros_fortaleza",
         "bairros_rj",
         "regioes_administrativas_df",
-        # No fim da lista de propósito: a ordem daqui define a ordem das colunas
-        # no CSV do staging, e acrescentar ao final é o que menos desloca o
-        # schema da tabela externa.
         "categoria_trabalhador",
     ]
 

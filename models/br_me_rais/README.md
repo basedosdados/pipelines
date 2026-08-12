@@ -316,28 +316,31 @@ A verificação na segunda direção encontrou dois em vínculos:
 
 #### `categoria_trabalhador`
 
-É a categoria do trabalhador do eSocial: uma classificação bem mais fina que o
-`tipo_vinculo`, agrupada por faixa (1xx empregados, 2xx sem vínculo de emprego,
-3xx servidores públicos, 4xx, 7xx contribuintes individuais).
+Categoria do trabalhador do eSocial, publicada pela fonte a partir de 2023.
+Classificação mais granular que `tipo_vinculo`, agrupada por faixa: 1xx
+empregados, 2xx sem vínculo de emprego, 3xx servidores públicos, 4xx, 7xx
+contribuintes individuais. Os rótulos estão na Tabela 01 do eSocial.
 
-**Só existe de 2023 em diante**, junto com o sistema novo. Nos anos anteriores o
-macro emite `cast(null as string)`, pelo mesmo mecanismo usado em
-`indicador_vinculo_abandonado` (§10.2). Nulo antes de 2023 é por construção, não
-é falha.
+Não é derivável de `tipo_vinculo`. Em amostra de 112 mil vínculos de 2025, um
+mesmo `tipo_vinculo` comporta até 5 categorias e uma mesma categoria aparece em
+até 8 tipos. O `tipo_vinculo = 10` (CLT por prazo indeterminado) contém as
+categorias 101 (empregado geral), 111 (doméstico) e 301 (servidor estatutário).
 
-**Não é derivável do que já existe.** Numa amostra de 112 mil vínculos, um mesmo
-`tipo_vinculo` abriga até 5 categorias e uma mesma categoria aparece em até 8
-tipos de vínculo. O caso mais claro é o `tipo_vinculo = 10`, o CLT por prazo
-indeterminado, que se abre em empregado geral (101), doméstico (111) e servidor
-estatutário (301) — populações que o tipo de vínculo sozinho não separa.
+Nos anos anteriores a 2023 a coluna é nula, emitida como `cast(null as string)`
+pelo parâmetro `has_categoria_trabalhador` do macro — mesmo mecanismo de
+`indicador_vinculo_abandonado` (§10.2).
 
-> **`on_schema_change` é obrigatório aqui.** O modelo de vínculos é incremental, e
-> o padrão do dbt é `ignore`: uma coluna nova no `select` seria descartada em
-> silêncio. Por isso o modelo fixa `on_schema_change="append_new_columns"`. Sem
-> isso, tudo o mais pode estar certo e a coluna não aparece, sem erro nenhum.
+**Estado atual: o parâmetro está desligado.** A coluna não existe na staging
+`microdados_vinculos_2023`, e ligá-la antes disso faz o `dbt run` falhar com
+`Unrecognized name: categoria_trabalhador`. A sequência para habilitar:
 
-A coluna só se preenche depois de reprocessar vínculos 2023 em diante — os CSVs
-que estão hoje na staging foram gerados sem ela.
+1. reprocessar vínculos de 2023 em diante, com o `VINCULOS_RENAME` já corrigido;
+2. confirmar a coluna na staging;
+3. ligar `has_categoria_trabalhador=true` na CTE `from_2023`;
+4. remover `categoria_trabalhador` do `ignore_values` do teste de proporção.
+
+O modelo de vínculos é incremental e fixa `on_schema_change="append_new_columns"`.
+O padrão do dbt é `ignore`, que descartaria a coluna nova sem erro.
 
 Em estabelecimentos a mesma verificação não achou nenhum descarte: depois da
 correção do §6.2, o crawler captura tudo que o arquivo de 2025 publica.
