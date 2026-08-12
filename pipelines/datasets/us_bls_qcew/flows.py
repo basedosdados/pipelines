@@ -117,6 +117,7 @@ def us_bls_qcew_flow(
             source_max_date=max_ym,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data and not force_run:
             return

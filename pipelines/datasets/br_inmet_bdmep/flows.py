@@ -52,6 +52,7 @@ def br_inmet_bdmep__microdados(
             source_max_date=source_last_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             return

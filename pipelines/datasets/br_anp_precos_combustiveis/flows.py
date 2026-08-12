@@ -54,6 +54,7 @@ def br_anp_precos_combustiveis__microdados(
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="coverage",
         )
         if not has_new_data:
             print(f"Não há atualizações para a tabela {table_id}!")

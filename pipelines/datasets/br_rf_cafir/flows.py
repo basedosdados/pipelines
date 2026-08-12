@@ -65,6 +65,7 @@ def br_rf_cafir__imoveis_rurais(
             source_max_date=data_atualizacao,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="coverage",
         )
         if not has_new_data:
             return

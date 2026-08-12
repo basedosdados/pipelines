@@ -190,6 +190,7 @@ def _run_cgu_cartao_pagamento(
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             return
@@ -260,6 +261,7 @@ def _run_cgu_servidores_publicos(
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             return
@@ -318,6 +320,7 @@ def _run_cgu_licitacao_contrato(
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             return
@@ -381,6 +384,7 @@ def _run_cgu_beneficios_cidadao(
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             return

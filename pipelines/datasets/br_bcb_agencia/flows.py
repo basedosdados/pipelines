@@ -63,6 +63,7 @@ def br_bcb_agencia__agencia(
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             print(f"Não há atualizações para a tabela {table_id}!")
