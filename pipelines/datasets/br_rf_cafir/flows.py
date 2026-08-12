@@ -65,9 +65,23 @@ def br_rf_cafir__imoveis_rurais(
             source_max_date=data_atualizacao,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="coverage",
         )
         if not has_new_data:
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=data_atualizacao,
+        env="prod",
+        date_format="%Y-%m-%d",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     # pyrefly: ignore [no-matching-overload]
     file_path = task_download_files(
@@ -123,15 +137,6 @@ def br_rf_cafir__imoveis_rurais(
             env="prod",
             bq_project="basedosdados",
         )
-
-        if data_atualizacao is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=data_atualizacao,
-                env="prod",
-                date_format="%Y-%m-%d",
-            )
 
 
 # pyrefly: ignore [missing-attribute]

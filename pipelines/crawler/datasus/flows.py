@@ -167,10 +167,24 @@ def _run_dbf_to_parquet(
             source_max_date=source_max_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             print(f"Fonte {fonte_label} sem novidade — encerrando")
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     if not ftp_files:
         print("force_run=True mas FTP não retornou arquivos — encerrando")
@@ -231,15 +245,6 @@ def _run_dbf_to_parquet(
             bq_project="basedosdados",
         )
 
-        if source_max_date is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=source_max_date,
-                env="prod",
-                date_format="%Y-%m",
-            )
-
 
 def _run_siasus(**kwargs) -> None:
     _run_dbf_to_parquet(fonte_label="SIA", **kwargs)
@@ -274,10 +279,24 @@ def _run_sinan(
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="coverage",
         )
         if not has_new_data:
             print("Sem atualizações na fonte SINAN — encerrando")
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=data_source_max_date,
+        env="prod",
+        date_format="%Y-%m-%d",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     ftp_files = list_datasus_table_without_date(
         dataset_id=dataset_id, table_id=table_id
@@ -334,12 +353,3 @@ def _run_sinan(
             env="prod",
             bq_project="basedosdados",
         )
-
-        if data_source_max_date is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=data_source_max_date,
-                env="prod",
-                date_format="%Y-%m-%d",
-            )
