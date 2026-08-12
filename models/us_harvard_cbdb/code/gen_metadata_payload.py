@@ -3,6 +3,7 @@
 import json
 import os
 
+# pyrefly: ignore [missing-import]
 from schema_spec import TABLE_ORDER, TABLES
 
 OUT = os.path.join(os.path.dirname(__file__), "metadata_payload")
