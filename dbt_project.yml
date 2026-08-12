@@ -151,6 +151,9 @@ models:
     world_wb_wdi:
       +materialized: table
       +schema: world_wb_wdi
+    cn_hvd_cbdb:
+      +materialized: table
+      +schema: cn_hvd_cbdb
     br_bd_indicadores:
       +materialized: table
       +schema: br_bd_indicadores

@@ -1,0 +1,12 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+kinship_code,STRING,Código único do tipo de parentesco,,no,,,no,,c_kincode
+relation_chinese,STRING,Termo de parentesco em caracteres chineses,,no,,,no,,c_kinrel_chn
+relation_english,STRING,Termo de parentesco em inglês (abreviado),,no,,,no,,c_kinrel
+relation_english_alt,STRING,Termo de parentesco alternativo em inglês,,no,,,no,,c_kinrel_alt
+relation_simplified,STRING,Termo de parentesco simplificado,,no,,,no,,c_kinrel_simplified
+reciprocal_code_1,STRING,Código da relação recíproca primária,,no,,,no,References sibling table cn_hvd_cbdb.kinship_code,c_kin_pair1
+reciprocal_code_2,STRING,Código da relação recíproca secundária,,no,,,no,References sibling table cn_hvd_cbdb.kinship_code,c_kin_pair2
+generations_up,INT64,Número de gerações acima da pessoa focal,,no,,generation,no,,c_upstep
+generations_down,INT64,Número de gerações abaixo da pessoa focal,,no,,generation,no,,c_dwnstep
+marriage_steps,INT64,Número de passos de casamento na relação,,no,,step,no,,c_marstep
+collateral_steps,INT64,Número de passos colaterais na relação,,no,,step,no,,c_colstep

@@ -1,0 +1,22 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+person_id,STRING,Identificador único da pessoa no CBDB,,no,,,no,,c_personid
+name_pinyin,STRING,Nome completo em pinyin (romanização Hanyu Pinyin),,no,,,no,,c_name
+name_chinese,STRING,Nome completo em caracteres chineses,,no,,,no,,c_name_chn
+surname_pinyin,STRING,Sobrenome em pinyin,,no,,,no,,c_surname
+surname_chinese,STRING,Sobrenome em caracteres chineses,,no,,,no,,c_surname_chn
+given_name_pinyin,STRING,Nome próprio em pinyin,,no,,,no,,c_mingzi
+given_name_chinese,STRING,Nome próprio em caracteres chineses,,no,,,no,,c_mingzi_chn
+sex,STRING,"Sexo da pessoa (código: 0 masculino, 1 feminino)",,yes,,,no,,c_female
+dynasty_code,STRING,Código da dinastia associada à pessoa,,yes,,,no,,c_dy
+birth_year,INT64,Ano de nascimento (calendário ocidental),,no,,year,no,,c_birthyear
+death_year,INT64,Ano de morte (calendário ocidental),,no,,year,no,,c_deathyear
+death_age,INT64,"Idade ao morrer, em anos (contagem chinesa sui)",,no,,year,no,,c_death_age
+index_year,INT64,Ano representativo usado para ordenar a pessoa no tempo,,no,,year,no,,c_index_year
+index_year_type_code,STRING,Código do tipo de ano-índice (como o ano representativo foi derivado),,yes,,,no,,c_index_year_type_code
+flourished_earliest_year,INT64,Primeiro ano de atividade documentada (floruit),,no,,year,no,,c_fl_earliest_year
+flourished_latest_year,INT64,Último ano de atividade documentada (floruit),,no,,year,no,,c_fl_latest_year
+ethnicity_code,STRING,Código de etnia ou tribo da pessoa,,yes,,,no,,c_ethnicity_code
+household_status_code,STRING,Código do status de registro domiciliar da pessoa,,yes,,,no,,c_household_status_code
+choronym_code,STRING,Código do coronímio (nome do clã por local ancestral),,yes,,,no,,c_choronym_code
+index_address_code,STRING,Código do local básico de origem da pessoa,,no,,,no,References sibling table cn_hvd_cbdb.address_code,c_index_addr_id
+notes,STRING,"Notas textuais livres sobre o registro, conforme o CBDB",,no,,,no,,c_notes

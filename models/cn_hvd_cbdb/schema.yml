@@ -1,0 +1,490 @@
+---
+version: 2
+models:
+  - name: cn_hvd_cbdb__person
+    description: >
+      Tabela mestra de pessoas do CBDB: um registro por indivíduo histórico, com nomes
+      em pinyin e chinês, sexo, dinastia, anos de nascimento e morte e local de origem.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [person_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [flourished_earliest_year, flourished_latest_year]
+    columns:
+      - name: person_id
+        description: >
+          Identificador único da pessoa no CBDB
+        tests: [not_null]
+      - name: name_pinyin
+        description: >
+          Nome completo em pinyin (romanização Hanyu Pinyin)
+      - name: name_chinese
+        description: >
+          Nome completo em caracteres chineses
+      - name: surname_pinyin
+        description: >
+          Sobrenome em pinyin
+      - name: surname_chinese
+        description: >
+          Sobrenome em caracteres chineses
+      - name: given_name_pinyin
+        description: >
+          Nome próprio em pinyin
+      - name: given_name_chinese
+        description: >
+          Nome próprio em caracteres chineses
+      - name: sex
+        description: >
+          Sexo da pessoa (código: 0 masculino, 1 feminino)
+      - name: dynasty_code
+        description: >
+          Código da dinastia associada à pessoa
+      - name: birth_year
+        description: >
+          Ano de nascimento (calendário ocidental)
+      - name: death_year
+        description: >
+          Ano de morte (calendário ocidental)
+      - name: death_age
+        description: >
+          Idade ao morrer, em anos (contagem chinesa sui)
+      - name: index_year
+        description: >
+          Ano representativo usado para ordenar a pessoa no tempo
+      - name: index_year_type_code
+        description: >
+          Código do tipo de ano-índice (como o ano representativo foi derivado)
+      - name: flourished_earliest_year
+        description: >
+          Primeiro ano de atividade documentada (floruit)
+      - name: flourished_latest_year
+        description: >
+          Último ano de atividade documentada (floruit)
+      - name: ethnicity_code
+        description: >
+          Código de etnia ou tribo da pessoa
+      - name: household_status_code
+        description: >
+          Código do status de registro domiciliar da pessoa
+      - name: choronym_code
+        description: >
+          Código do coronímio (nome do clã por local ancestral)
+      - name: index_address_code
+        description: >
+          Código do local básico de origem da pessoa
+      - name: notes
+        description: >
+          Notas textuais livres sobre o registro, conforme o CBDB
+  - name: cn_hvd_cbdb__kinship
+    description: >
+      Relações de parentesco entre pessoas: cada registro liga uma pessoa a um parente
+      por meio de um código de relação de parentesco.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [person_id, kin_person_id, kinship_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: person_id
+        description: >
+          Identificador da pessoa focal
+        tests:
+          - not_null
+          - relationships:
+              to: ref('cn_hvd_cbdb__person')
+              field: person_id
+      - name: kin_person_id
+        description: >
+          Identificador da pessoa aparentada
+        tests:
+          - not_null
+          - relationships:
+              to: ref('cn_hvd_cbdb__person')
+              field: person_id
+      - name: kinship_code
+        description: >
+          Código do tipo de relação de parentesco
+        tests: [not_null]
+      - name: source_id
+        description: >
+          Identificador da fonte histórica que documenta o registro
+      - name: source_pages
+        description: >
+          Páginas ou localização na fonte histórica citada
+      - name: notes
+        description: >
+          Notas textuais livres sobre o registro, conforme o CBDB
+  - name: cn_hvd_cbdb__office_posting
+    description: >
+      Nomeações a cargos oficiais: cada registro liga uma pessoa a um cargo do governo
+      imperial, com anos de início e fim e tipo de nomeação.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [office_code, posting_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: person_id
+        description: >
+          Identificador da pessoa nomeada
+        tests:
+          - not_null
+          - relationships:
+              to: ref('cn_hvd_cbdb__person')
+              field: person_id
+      - name: office_code
+        description: >
+          Código do cargo ocupado
+        tests: [not_null]
+      - name: posting_id
+        description: >
+          Identificador da nomeação (posting)
+        tests: [not_null]
+      - name: sequence
+        description: >
+          Número de ordem da nomeação na carreira da pessoa
+      - name: first_year
+        description: >
+          Primeiro ano no cargo (calendário ocidental)
+      - name: last_year
+        description: >
+          Último ano no cargo (calendário ocidental)
+      - name: appointment_code
+        description: >
+          Código do tipo de nomeação (como o cargo foi assumido)
+      - name: assume_office_code
+        description: >
+          Código indicando se a pessoa efetivamente assumiu o cargo
+      - name: dynasty_code
+        description: >
+          Código da dinastia da nomeação
+      - name: source_id
+        description: >
+          Identificador da fonte histórica que documenta o registro
+      - name: source_pages
+        description: >
+          Páginas ou localização na fonte histórica citada
+      - name: notes
+        description: >
+          Notas textuais livres sobre o registro, conforme o CBDB
+  - name: cn_hvd_cbdb__association
+    description: >
+      Conexões sociais não familiares entre pessoas (mestres, alunos, colegas, patronos):
+      cada registro liga duas pessoas por um tipo de associação, com anos e local.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - person_id
+            - assoc_person_id
+            - association_code
+            - kinship_code
+            - kin_person_id
+            - assoc_kinship_code
+            - assoc_kin_person_id
+            - text_title
+            - first_year
+          proportion_allowed_failures: 0.05
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [last_year]
+    columns:
+      - name: person_id
+        description: >
+          Identificador da pessoa focal
+        tests:
+          - not_null
+          - relationships:
+              to: ref('cn_hvd_cbdb__person')
+              field: person_id
+      - name: assoc_person_id
+        description: >
+          Identificador da pessoa associada
+        tests:
+          - not_null
+          - relationships:
+              to: ref('cn_hvd_cbdb__person')
+              field: person_id
+      - name: association_code
+        description: >
+          Código do tipo de associação
+        tests: [not_null]
+      - name: kinship_code
+        description: >
+          Código de parentesco pelo qual a pessoa focal se liga à associação
+      - name: kin_person_id
+        description: >
+          Parente da pessoa focal envolvido na associação
+        tests:
+          - relationships:
+              to: ref('cn_hvd_cbdb__person')
+              field: person_id
+      - name: assoc_kinship_code
+        description: >
+          Código de parentesco pelo qual a pessoa associada se liga à associação
+      - name: assoc_kin_person_id
+        description: >
+          Parente da pessoa associada envolvido na associação
+        tests:
+          - relationships:
+              to: ref('cn_hvd_cbdb__person')
+              field: person_id
+      - name: first_year
+        description: >
+          Primeiro ano da associação (calendário ocidental)
+      - name: last_year
+        description: >
+          Último ano da associação (calendário ocidental)
+      - name: address_code
+        description: >
+          Código do local onde a associação ocorreu
+      - name: text_title
+        description: >
+          Título do texto que documenta a associação, quando aplicável
+        tests: [not_null]
+      - name: source_id
+        description: >
+          Identificador da fonte histórica que documenta o registro
+      - name: source_pages
+        description: >
+          Páginas ou localização na fonte histórica citada
+      - name: notes
+        description: >
+          Notas textuais livres sobre o registro, conforme o CBDB
+  - name: cn_hvd_cbdb__address
+    description: >
+      Vínculos entre pessoas e lugares (residência, local de origem, sepultamento):
+      cada registro liga uma pessoa a um lugar por um tipo de endereço, com anos.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - person_id
+            - address_code
+            - address_type_code
+            - sequence
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [first_year, last_year]
+    columns:
+      - name: person_id
+        description: >
+          Identificador da pessoa
+        tests:
+          - not_null
+          - relationships:
+              to: ref('cn_hvd_cbdb__person')
+              field: person_id
+      - name: address_code
+        description: >
+          Código do lugar
+        tests: [not_null]
+      - name: address_type_code
+        description: >
+          Código do tipo de vínculo com o lugar (residência, origem, sepultamento)
+        tests: [not_null]
+      - name: sequence
+        description: >
+          Número de ordem do vínculo com o lugar para a pessoa
+        tests: [not_null]
+      - name: first_year
+        description: >
+          Primeiro ano do vínculo com o lugar
+      - name: last_year
+        description: >
+          Último ano do vínculo com o lugar
+      - name: is_natal
+        description: >
+          Indica se o endereço se refere à família natal de uma mulher (código)
+      - name: source_id
+        description: >
+          Identificador da fonte histórica que documenta o registro
+      - name: source_pages
+        description: >
+          Páginas ou localização na fonte histórica citada
+      - name: notes
+        description: >
+          Notas textuais livres sobre o registro, conforme o CBDB
+  - name: cn_hvd_cbdb__office_code
+    description: >
+      Vocabulário de cargos oficiais do governo imperial chinês, com nomes em pinyin,
+      chinês e tradução em inglês, por dinastia.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [office_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [name_english_alt]
+    columns:
+      - name: office_code
+        description: >
+          Código único do cargo
+        tests: [not_null]
+      - name: dynasty_code
+        description: >
+          Código da dinastia à qual o cargo pertence
+      - name: name_pinyin
+        description: >
+          Nome do cargo em pinyin
+      - name: name_chinese
+        description: >
+          Nome do cargo em caracteres chineses
+      - name: name_pinyin_alt
+        description: >
+          Nome alternativo do cargo em pinyin
+      - name: name_chinese_alt
+        description: >
+          Nome alternativo do cargo em caracteres chineses
+      - name: name_english
+        description: >
+          Tradução do nome do cargo em inglês
+      - name: name_english_alt
+        description: >
+          Tradução alternativa do nome do cargo em inglês
+      - name: notes
+        description: >
+          Notas textuais livres sobre o registro, conforme o CBDB
+  - name: cn_hvd_cbdb__address_code
+    description: >
+      Gazetteer de lugares históricos referidos no CBDB, com nomes em pinyin e chinês,
+      tipo administrativo e coordenadas geográficas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [address_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: address_code
+        description: >
+          Código único do lugar
+        tests: [not_null]
+      - name: name_pinyin
+        description: >
+          Nome do lugar em pinyin
+      - name: name_chinese
+        description: >
+          Nome do lugar em caracteres chineses
+      - name: first_year
+        description: >
+          Primeiro ano de existência da unidade administrativa
+      - name: last_year
+        description: >
+          Último ano de existência da unidade administrativa
+      - name: admin_type
+        description: >
+          Tipo administrativo do lugar (texto)
+      - name: admin_category_code
+        description: >
+          Código da categoria administrativa do lugar
+      - name: longitude
+        description: >
+          Longitude do lugar em graus decimais
+      - name: latitude
+        description: >
+          Latitude do lugar em graus decimais
+      - name: chgis_point_id
+        description: >
+          Identificador do ponto correspondente no CHGIS (China Historical GIS)
+      - name: alt_names
+        description: >
+          Nomes alternativos do lugar
+      - name: notes
+        description: >
+          Notas textuais livres sobre o registro, conforme o CBDB
+  - name: cn_hvd_cbdb__kinship_code
+    description: >
+      Vocabulário de tipos de relação de parentesco, com o termo em chinês e inglês
+      e a distância genealógica em gerações e passos.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [kinship_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: kinship_code
+        description: >
+          Código único do tipo de parentesco
+        tests: [not_null]
+      - name: relation_chinese
+        description: >
+          Termo de parentesco em caracteres chineses
+      - name: relation_english
+        description: >
+          Termo de parentesco em inglês (abreviado)
+      - name: relation_english_alt
+        description: >
+          Termo de parentesco alternativo em inglês
+      - name: relation_simplified
+        description: >
+          Termo de parentesco simplificado
+      - name: reciprocal_code_1
+        description: >
+          Código da relação recíproca primária
+      - name: reciprocal_code_2
+        description: >
+          Código da relação recíproca secundária
+      - name: generations_up
+        description: >
+          Número de gerações acima da pessoa focal
+      - name: generations_down
+        description: >
+          Número de gerações abaixo da pessoa focal
+      - name: marriage_steps
+        description: >
+          Número de passos de casamento na relação
+      - name: collateral_steps
+        description: >
+          Número de passos colaterais na relação
+  - name: cn_hvd_cbdb__association_code
+    description: >
+      Vocabulário de tipos de conexão social não familiar, com descrição em inglês
+      e chinês e o tipo de papel.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [association_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: association_code
+        description: >
+          Código único do tipo de associação
+        tests: [not_null]
+      - name: description_english
+        description: >
+          Descrição do tipo de associação em inglês
+      - name: description_chinese
+        description: >
+          Descrição do tipo de associação em caracteres chineses
+      - name: role_type
+        description: >
+          Tipo de papel da associação
+      - name: reciprocal_code
+        description: >
+          Código da associação recíproca
+      - name: example
+        description: >
+          Exemplo ilustrativo do tipo de associação
+  - name: cn_hvd_cbdb__dicionario
+    description: >
+      Dicionário que traduz os valores codificados das colunas cobertas por dicionário
+      nas demais tabelas do conjunto.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela à qual a coluna codificada pertence
+      - name: nome_coluna
+        description: >
+          Nome da coluna codificada
+      - name: chave
+        description: >
+          Valor codificado (chave)
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal à qual a chave se aplica
+      - name: valor
+        description: >-
+          Rótulo legível correspondente à chave

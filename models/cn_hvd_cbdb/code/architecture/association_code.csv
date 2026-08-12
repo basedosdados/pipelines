@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+association_code,STRING,Código único do tipo de associação,,no,,,no,,c_assoc_code
+description_english,STRING,Descrição do tipo de associação em inglês,,no,,,no,,c_assoc_desc
+description_chinese,STRING,Descrição do tipo de associação em caracteres chineses,,no,,,no,,c_assoc_desc_chn
+role_type,STRING,Tipo de papel da associação,,no,,,no,,c_assoc_role_type
+reciprocal_code,STRING,Código da associação recíproca,,no,,,no,References sibling table cn_hvd_cbdb.association_code,c_assoc_pair
+example,STRING,Exemplo ilustrativo do tipo de associação,,no,,,no,,c_example
