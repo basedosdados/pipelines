@@ -27,4 +27,8 @@ select
     safe_cast(sigla_partido as string) sigla_partido,
     safe_cast(votos_nominais as int64) votos_nominais,
     safe_cast(votos_legenda as int64) votos_legenda
-from {{ set_datalake_project("br_tse_eleicoes_staging.resultados_partido_secao") }} as t
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.resultados_partido_secao") }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    
