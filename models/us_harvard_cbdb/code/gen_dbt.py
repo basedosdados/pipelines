@@ -6,6 +6,7 @@ safe. association is the only non-unique table (0.04%) -> relaxed custom test.
 
 import os
 
+# pyrefly: ignore [missing-import]
 from schema_spec import TABLE_ORDER, TABLES
 
 MODELS = os.path.abspath(
