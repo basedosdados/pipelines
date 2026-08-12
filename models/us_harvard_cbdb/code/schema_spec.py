@@ -610,6 +610,7 @@ TABLES["office_code"] = dict(
     desc_pt="Vocabulário de cargos oficiais do governo imperial chinês, com nomes em pinyin, chinês e tradução em inglês, por dinastia.",
     desc_en="Vocabulary of official offices of the Chinese imperial government, with pinyin, Chinese, and English names, by dynasty.",
     desc_es="Vocabulario de cargos oficiales del gobierno imperial chino, con nombres en pinyin, chino y traducción al inglés, por dinastía.",
+    # pyrefly: ignore [bad-assignment]
     ol=None,
     columns=[
         C(
@@ -691,6 +692,7 @@ TABLES["address_code"] = dict(
     desc_pt="Gazetteer de lugares históricos referidos no CBDB, com nomes em pinyin e chinês, tipo administrativo e coordenadas geográficas.",
     desc_en="Gazetteer of historical places referenced in CBDB, with pinyin and Chinese names, administrative type, and geographic coordinates.",
     desc_es="Gaceteer de lugares históricos referidos en el CBDB, con nombres en pinyin y chino, tipo administrativo y coordenadas geográficas.",
+    # pyrefly: ignore [bad-assignment]
     ol=None,
     columns=[
         C(
@@ -798,6 +800,7 @@ TABLES["kinship_code"] = dict(
     desc_pt="Vocabulário de tipos de relação de parentesco, com o termo em chinês e inglês e a distância genealógica em gerações e passos.",
     desc_en="Vocabulary of kinship-relation types, with the Chinese and English term and the genealogical distance in generations and steps.",
     desc_es="Vocabulario de tipos de relación de parentesco, con el término en chino e inglés y la distancia genealógica en generaciones y pasos.",
+    # pyrefly: ignore [bad-assignment]
     ol=None,
     columns=[
         C(
@@ -911,6 +914,7 @@ TABLES["association_code"] = dict(
     desc_pt="Vocabulário de tipos de conexão social não familiar, com descrição em inglês e chinês e o tipo de papel.",
     desc_en="Vocabulary of non-kin social-connection types, with English and Chinese description and role type.",
     desc_es="Vocabulario de tipos de conexión social no familiar, con descripción en inglés y chino y el tipo de rol.",
+    # pyrefly: ignore [bad-assignment]
     ol=None,
     columns=[
         C(
@@ -969,6 +973,7 @@ TABLES["association_code"] = dict(
 # ------------------------------------------------------------ dicionario -----
 # Standard BD dictionary. Populated by clean.py from the small CBDB code tables.
 TABLES["dicionario"] = dict(
+    # pyrefly: ignore [bad-assignment]
     source=None,
     name_en="Dictionary",
     name_pt="Dicionário",
@@ -976,6 +981,7 @@ TABLES["dicionario"] = dict(
     desc_pt="Dicionário que traduz os valores codificados das colunas cobertas por dicionário nas demais tabelas do conjunto.",
     desc_en="Dictionary translating the coded values of dictionary-covered columns in the other tables of this dataset.",
     desc_es="Diccionario que traduce los valores codificados de las columnas cubiertas por diccionario en las demás tablas del conjunto.",
+    # pyrefly: ignore [bad-assignment]
     ol=None,
     columns=[
         C(
