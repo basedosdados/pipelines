@@ -2490,7 +2490,7 @@ def build_despesas(ano: int) -> pd.DataFrame:
 def build_all():
     """Build all campaign finance tables."""
     # bens
-    for ano in range(2006, 2025, 2):
+    for ano in range(2006, 2027, 2):
         print(f"  bens_candidato {ano}")
         df = build_bens(ano)
         out = OUTPUT_PYTHON / f"bens_candidato_{ano}.parquet"
