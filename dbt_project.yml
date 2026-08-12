@@ -157,6 +157,9 @@ models:
     world_wb_wdi:
       +materialized: table
       +schema: world_wb_wdi
+    us_harvard_cbdb:
+      +materialized: table
+      +schema: us_harvard_cbdb
     br_bd_indicadores:
       +materialized: table
       +schema: br_bd_indicadores
