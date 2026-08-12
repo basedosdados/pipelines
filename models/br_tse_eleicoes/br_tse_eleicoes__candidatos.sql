@@ -40,4 +40,8 @@ select
     safe_cast(municipio_nascimento as string) municipio_nascimento,
     safe_cast(email as string) email,
     safe_cast(raca as string) raca
-from {{ set_datalake_project("br_tse_eleicoes_staging.candidatos") }} as t
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.candidatos") }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    
