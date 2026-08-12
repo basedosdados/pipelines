@@ -1,0 +1,357 @@
+---
+version: 2
+models:
+  - name: mx_sesnsp_incidencia_delictiva__estatal_delitos
+    description: >
+      Tabla estatal_delitos del conjunto mx_sesnsp_incidencia_delictiva
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['ano', 'mes', 'id_entidad', 'bien_juridico_afectado', 'tipo_delito', 'subtipo_delito', 'modalidad']
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Año de referencia del registro
+        tests:
+          - not_null
+      - name: mes
+        description: >
+          Mes de referencia del registro, de 1 a 12
+        tests:
+          - not_null
+      - name: id_entidad
+        description: >
+          Clave de la entidad federativa según INEGI, de dos dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_mx__estado')
+              field: id_estado
+      - name: bien_juridico_afectado
+        description: >
+          Bien jurídico afectado por el delito según la clasificación del SESNSP
+      - name: tipo_delito
+        description: >
+          Tipo de delito según la clasificación del SESNSP
+      - name: subtipo_delito
+        description: >
+          Subtipo de delito según la clasificación del SESNSP
+      - name: modalidad
+        description: >
+          Modalidad del delito según la clasificación del SESNSP
+      - name: cantidad
+        description: >
+          Cantidad de delitos registrados en el mes para la combinación de clasificación y geografía
+  - name: mx_sesnsp_incidencia_delictiva__estatal_delitos_2015_2025
+    description: >
+      Tabla estatal_delitos_2015_2025 del conjunto mx_sesnsp_incidencia_delictiva
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['ano', 'mes', 'id_entidad', 'bien_juridico_afectado', 'tipo_delito', 'subtipo_delito', 'modalidad']
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Año de referencia del registro
+        tests:
+          - not_null
+      - name: mes
+        description: >
+          Mes de referencia del registro, de 1 a 12
+        tests:
+          - not_null
+      - name: id_entidad
+        description: >
+          Clave de la entidad federativa según INEGI, de dos dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_mx__estado')
+              field: id_estado
+      - name: bien_juridico_afectado
+        description: >
+          Bien jurídico afectado por el delito según la clasificación del SESNSP
+      - name: tipo_delito
+        description: >
+          Tipo de delito según la clasificación del SESNSP
+      - name: subtipo_delito
+        description: >
+          Subtipo de delito según la clasificación del SESNSP
+      - name: modalidad
+        description: >
+          Modalidad del delito según la clasificación del SESNSP
+      - name: cantidad
+        description: >
+          Cantidad de delitos registrados en el mes para la combinación de clasificación y geografía
+  - name: mx_sesnsp_incidencia_delictiva__estatal_victimas
+    description: >
+      Tabla estatal_victimas del conjunto mx_sesnsp_incidencia_delictiva
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['ano', 'mes', 'id_entidad', 'bien_juridico_afectado', 'tipo_delito', 'subtipo_delito', 'modalidad', 'sexo', 'rango_edad']
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Año de referencia del registro
+        tests:
+          - not_null
+      - name: mes
+        description: >
+          Mes de referencia del registro, de 1 a 12
+        tests:
+          - not_null
+      - name: id_entidad
+        description: >
+          Clave de la entidad federativa según INEGI, de dos dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_mx__estado')
+              field: id_estado
+      - name: bien_juridico_afectado
+        description: >
+          Bien jurídico afectado por el delito según la clasificación del SESNSP
+      - name: tipo_delito
+        description: >
+          Tipo de delito según la clasificación del SESNSP
+      - name: subtipo_delito
+        description: >
+          Subtipo de delito según la clasificación del SESNSP
+      - name: modalidad
+        description: >
+          Modalidad del delito según la clasificación del SESNSP
+      - name: sexo
+        description: >
+          Sexo de la víctima
+      - name: rango_edad
+        description: >
+          Rango de edad de la víctima
+      - name: cantidad
+        description: >
+          Cantidad de víctimas registradas en el mes para la combinación de clasificación y geografía
+  - name: mx_sesnsp_incidencia_delictiva__estatal_victimas_2015_2025
+    description: >
+      Tabla estatal_victimas_2015_2025 del conjunto mx_sesnsp_incidencia_delictiva
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['ano', 'mes', 'id_entidad', 'bien_juridico_afectado', 'tipo_delito', 'subtipo_delito', 'modalidad', 'sexo', 'rango_edad']
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Año de referencia del registro
+        tests:
+          - not_null
+      - name: mes
+        description: >
+          Mes de referencia del registro, de 1 a 12
+        tests:
+          - not_null
+      - name: id_entidad
+        description: >
+          Clave de la entidad federativa según INEGI, de dos dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_mx__estado')
+              field: id_estado
+      - name: bien_juridico_afectado
+        description: >
+          Bien jurídico afectado por el delito según la clasificación del SESNSP
+      - name: tipo_delito
+        description: >
+          Tipo de delito según la clasificación del SESNSP
+      - name: subtipo_delito
+        description: >
+          Subtipo de delito según la clasificación del SESNSP
+      - name: modalidad
+        description: >
+          Modalidad del delito según la clasificación del SESNSP
+      - name: sexo
+        description: >
+          Sexo de la víctima
+      - name: rango_edad
+        description: >
+          Rango de edad de la víctima
+      - name: cantidad
+        description: >
+          Cantidad de víctimas registradas en el mes para la combinación de clasificación y geografía
+  - name: mx_sesnsp_incidencia_delictiva__municipio_delitos
+    description: >
+      Tabla municipio_delitos del conjunto mx_sesnsp_incidencia_delictiva
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['ano', 'mes', 'id_entidad', 'id_municipio', 'bien_juridico_afectado', 'tipo_delito', 'subtipo_delito', 'modalidad']
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Año de referencia del registro
+        tests:
+          - not_null
+      - name: mes
+        description: >
+          Mes de referencia del registro, de 1 a 12
+        tests:
+          - not_null
+      - name: id_entidad
+        description: >
+          Clave de la entidad federativa según INEGI, de dos dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_mx__estado')
+              field: id_estado
+              config:
+                where: __most_recent_year_month__
+      - name: id_municipio
+        description: >
+          Clave del municipio según INEGI, de cinco dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_mx__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__ and right(id_municipio, 3) not in ('998', '999')
+      - name: bien_juridico_afectado
+        description: >
+          Bien jurídico afectado por el delito según la clasificación del SESNSP
+      - name: tipo_delito
+        description: >
+          Tipo de delito según la clasificación del SESNSP
+      - name: subtipo_delito
+        description: >
+          Subtipo de delito según la clasificación del SESNSP
+      - name: modalidad
+        description: >
+          Modalidad del delito según la clasificación del SESNSP
+      - name: cantidad
+        description: >
+          Cantidad de delitos registrados en el mes para la combinación de clasificación y geografía
+  - name: mx_sesnsp_incidencia_delictiva__municipio_delitos_2015_2025
+    description: >
+      Tabla municipio_delitos_2015_2025 del conjunto mx_sesnsp_incidencia_delictiva
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['ano', 'mes', 'id_entidad', 'id_municipio', 'bien_juridico_afectado', 'tipo_delito', 'subtipo_delito', 'modalidad']
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Año de referencia del registro
+        tests:
+          - not_null
+      - name: mes
+        description: >
+          Mes de referencia del registro, de 1 a 12
+        tests:
+          - not_null
+      - name: id_entidad
+        description: >
+          Clave de la entidad federativa según INEGI, de dos dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_mx__estado')
+              field: id_estado
+              config:
+                where: __most_recent_year_month__
+      - name: id_municipio
+        description: >
+          Clave del municipio según INEGI, de cinco dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_mx__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__ and right(id_municipio, 3) not in ('998', '999')
+      - name: bien_juridico_afectado
+        description: >
+          Bien jurídico afectado por el delito según la clasificación del SESNSP
+      - name: tipo_delito
+        description: >
+          Tipo de delito según la clasificación del SESNSP
+      - name: subtipo_delito
+        description: >
+          Subtipo de delito según la clasificación del SESNSP
+      - name: modalidad
+        description: >
+          Modalidad del delito según la clasificación del SESNSP
+      - name: cantidad
+        description: >
+          Cantidad de delitos registrados en el mes para la combinación de clasificación y geografía
+  - name: mx_sesnsp_incidencia_delictiva__municipio_victimas
+    description: >
+      Tabla municipio_victimas del conjunto mx_sesnsp_incidencia_delictiva
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['ano', 'mes', 'id_entidad', 'id_municipio', 'bien_juridico_afectado', 'tipo_delito', 'subtipo_delito', 'modalidad', 'sexo', 'rango_edad']
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Año de referencia del registro
+        tests:
+          - not_null
+      - name: mes
+        description: >
+          Mes de referencia del registro, de 1 a 12
+        tests:
+          - not_null
+      - name: id_entidad
+        description: >
+          Clave de la entidad federativa según INEGI, de dos dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_mx__estado')
+              field: id_estado
+              config:
+                where: __most_recent_year_month__
+      - name: id_municipio
+        description: >
+          Clave del municipio según INEGI, de cinco dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_mx__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__ and right(id_municipio, 3) not in ('998', '999')
+      - name: bien_juridico_afectado
+        description: >
+          Bien jurídico afectado por el delito según la clasificación del SESNSP
+      - name: tipo_delito
+        description: >
+          Tipo de delito según la clasificación del SESNSP
+      - name: subtipo_delito
+        description: >
+          Subtipo de delito según la clasificación del SESNSP
+      - name: modalidad
+        description: >
+          Modalidad del delito según la clasificación del SESNSP
+      - name: sexo
+        description: >
+          Sexo de la víctima
+      - name: rango_edad
+        description: >
+          Rango de edad de la víctima
+      - name: cantidad
+        description: >
+          Cantidad de víctimas registradas en el mes para la combinación de clasificación y geografía

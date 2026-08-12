@@ -115,6 +115,12 @@ models:
     br_bd_diretorios_us:
       +materialized: table
       +schema: br_bd_diretorios_us
+    br_bd_diretorios_mx:
+      +materialized: table
+      +schema: br_bd_diretorios_mx
+    mx_sesnsp_incidencia_delictiva:
+      +materialized: table
+      +schema: mx_sesnsp_incidencia_delictiva
     in_tcpd_elections:
       +materialized: table
       +schema: in_tcpd_elections
