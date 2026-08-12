@@ -1,6 +1,6 @@
 {{
     config(
-        alias="categoria_juridica",
+        alias="categorie_juridique",
         schema="br_bd_diretorios_fr",
         materialized="table",
     )

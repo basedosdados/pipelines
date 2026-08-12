@@ -1,7 +1,7 @@
 {{
     config(
         schema="fr_insee_sirene",
-        alias="unite_legale_historico",
+        alias="unite_legale_historique",
         materialized="table",
         partition_by={
             "field": "data",

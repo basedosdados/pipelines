@@ -1,7 +1,7 @@
 {{
     config(
         schema="fr_insee_sirene",
-        alias="etablissement_historico",
+        alias="etablissement_historique",
         materialized="table",
         partition_by={
             "field": "data",

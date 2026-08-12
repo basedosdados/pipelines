@@ -27,8 +27,8 @@ models:
         description: Categoria jurídica (nível III INSEE)
         tests:
           - custom_relationships:
-              to: ref('br_bd_diretorios_fr__categoria_juridica')
-              field: categoria_juridica.categoria_juridica
+              to: ref('br_bd_diretorios_fr__categorie_juridique')
+              field: categoria_juridica
       - name: activite_principale
         description: Atividade principal (código APE / NAF rév.2)
         tests:
@@ -73,7 +73,7 @@ models:
         description: Código INSEE da comuna do estabelecimento
         tests:
           - custom_relationships:
-              to: ref('br_bd_diretorios_fr__comuna')
+              to: ref('br_bd_diretorios_fr__commune')
               field: id_comuna
               config:
                 where: code_commune is not null
@@ -81,7 +81,7 @@ models:
         description: Código INSEE da comuna (geolocalização)
         tests:
           - custom_relationships:
-              to: ref('br_bd_diretorios_fr__comuna')
+              to: ref('br_bd_diretorios_fr__commune')
               field: id_comuna
               config:
                 where: code_commune_geolocalisation is not null
@@ -101,7 +101,7 @@ models:
               field: naf_2025.naf_2025
               config:
                 where: activite_principale_naf25 is not null
-  - name: fr_insee_sirene__unite_legale_historico
+  - name: fr_insee_sirene__unite_legale_historique
     description: >
       Histórico das variáveis das unidades legais (SIREN) do SIRENE. Uma linha por
       período de validade (SIREN × date_debut). Por ser um histórico, contém códigos
@@ -127,8 +127,8 @@ models:
         description: Categoria jurídica no período
         tests:
           - custom_relationships:
-              to: ref('br_bd_diretorios_fr__categoria_juridica')
-              field: categoria_juridica.categoria_juridica
+              to: ref('br_bd_diretorios_fr__categorie_juridique')
+              field: categoria_juridica
               ignore_values:
                 - '5498'
                 - '2200'
@@ -177,7 +177,7 @@ models:
               ignore_values: [00.00Z]
               config:
                 where: nomenclature_activite_principale = 'NAFRev2'
-  - name: fr_insee_sirene__etablissement_historico
+  - name: fr_insee_sirene__etablissement_historique
     description: >
       Histórico das variáveis dos estabelecimentos (SIRET) do SIRENE. Uma linha por
       período de validade (SIRET × date_debut).

@@ -16,6 +16,11 @@ CLUSTER = {
     "unite_legale_historico": "siren",
     "etablissement_historico": "siret",
 }
+# Output/prod table slug (French). Staging source keeps the schema_map key name.
+OUT_ALIAS = {
+    "unite_legale_historico": "unite_legale_historique",
+    "etablissement_historico": "etablissement_historique",
+}
 CAST = {
     "STRING": "string",
     "DATE": "date",
@@ -40,10 +45,11 @@ for table, spec in sm.TABLES.items():
                 "safe_cast(latitude as float64)) end geometria,"
             )
     body = "\n".join(lines).rstrip(",")
+    alias = OUT_ALIAS.get(table, table)
     sql = f"""{{{{
     config(
         schema="fr_insee_sirene",
-        alias="{table}",
+        alias="{alias}",
         materialized="table",
         partition_by={{
             "field": "data",
@@ -56,7 +62,7 @@ select
 {body}
 from {{{{ set_datalake_project("fr_insee_sirene_staging.{table}") }}}} as t
 """
-    out = MODELS_DIR / f"fr_insee_sirene__{table}.sql"
+    out = MODELS_DIR / f"fr_insee_sirene__{alias}.sql"
     out.write_text(sql)
     print(
         f"wrote {out.name} ({len(spec['columns']) + (1 if table == 'etablissement' else 0)} cols)"

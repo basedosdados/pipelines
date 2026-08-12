@@ -1,6 +1,6 @@
 {{
     config(
-        alias="departamento",
+        alias="departement",
         schema="br_bd_diretorios_fr",
         materialized="table",
     )

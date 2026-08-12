@@ -1,6 +1,6 @@
 {{
     config(
-        alias="comuna",
+        alias="commune",
         schema="br_bd_diretorios_fr",
         materialized="table",
     )

@@ -1,6 +1,6 @@
 {{
     config(
-        alias="regiao",
+        alias="region",
         schema="br_bd_diretorios_fr",
         materialized="table",
     )

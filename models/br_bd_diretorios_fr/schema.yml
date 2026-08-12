@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: br_bd_diretorios_fr__regiao
+  - name: br_bd_diretorios_fr__region
     description: >
       Diretório das regiões administrativas da França (Code officiel
       géographique do INSEE). Uma linha por região.
@@ -18,7 +18,7 @@ models:
         description: Nome da região
       - name: nome_regiao_maiusculo
         description: Nome da região em grafia enriquecida sem artigo (NCCENR)
-  - name: br_bd_diretorios_fr__departamento
+  - name: br_bd_diretorios_fr__departement
     description: >
       Diretório dos departamentos (départements) da França (Code officiel
       géographique do INSEE). Uma linha por departamento.
@@ -33,13 +33,13 @@ models:
         description: Código INSEE da região do departamento
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_fr__regiao')
+              to: ref('br_bd_diretorios_fr__region')
               field: id_regiao
       - name: id_comuna_sede
         description: Código da comuna sede (chef-lieu) do departamento
       - name: nome_departamento
         description: Nome do departamento
-  - name: br_bd_diretorios_fr__comuna
+  - name: br_bd_diretorios_fr__commune
     description: >
       Diretório das comunas (communes) da França, incluindo os arrondissements
       municipais de Paris, Lyon e Marseille (Code officiel géographique do
@@ -55,13 +55,13 @@ models:
         description: Código INSEE do departamento da comuna
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_fr__departamento')
+              to: ref('br_bd_diretorios_fr__departement')
               field: id_departamento
       - name: id_regiao
         description: Código INSEE da região da comuna
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_fr__regiao')
+              to: ref('br_bd_diretorios_fr__region')
               field: id_regiao
       - name: nome_comuna
         description: Nome da comuna
@@ -127,7 +127,7 @@ models:
         description: Código da seção (nível 1)
       - name: descricao_secao
         description: Descrição da seção
-  - name: br_bd_diretorios_fr__categoria_juridica
+  - name: br_bd_diretorios_fr__categorie_juridique
     description: >
       Diretório das categorias jurídicas (catégories juridiques) do INSEE, com
       os três níveis hierárquicos e seus rótulos. Uma linha por categoria de
