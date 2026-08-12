@@ -191,7 +191,7 @@ def clean_comuna() -> int:
 # ---------------------------------------------------------------------------
 # NAF rév. 2 (2008)
 # ---------------------------------------------------------------------------
-def _read_liste(fname: str) -> dict[str, str]:
+def _read_liste(fname: str) -> dict[str, str | None]:
     """Read a naf2008_liste_nX.xls: header 'Code|Libellé' at row idx 2, data from row 3."""
     d = pd.read_excel(
         INPUT / fname, sheet_name="Feuil1", header=None, dtype=str
@@ -240,7 +240,7 @@ def clean_naf_rev2(gaps: dict) -> int:
         ("divisao", "id_divisao", "descricao_divisao"),
         ("secao", "id_secao", "descricao_secao"),
     ]:
-        n = int(out[code_col].notna().sum() - out[desc_col].notna().sum())
+        n = out[code_col].notna().sum() - out[desc_col].notna().sum()
         if n:
             gaps[f"naf_rev2/{lvl}"] = n
 
@@ -262,7 +262,7 @@ def clean_naf_rev2(gaps: dict) -> int:
 # ---------------------------------------------------------------------------
 # NAF 2025
 # ---------------------------------------------------------------------------
-def _read_naf2025_sheet(sheet: str) -> dict[str, str]:
+def _read_naf2025_sheet(sheet: str) -> dict[str, str | None]:
     """NAF 2025 per-level sheet: header at row 0, data from row 1, cols code|libellé."""
     d = pd.read_excel(
         INPUT / "Structure_NAF_2025_Maj_2024-10-04.xlsx",
@@ -306,7 +306,7 @@ def clean_naf_2025(gaps: dict) -> int:
         ("divisao", "id_divisao", "descricao_divisao"),
         ("secao", "id_secao", "descricao_secao"),
     ]:
-        n = int(out[code_col].notna().sum() - out[desc_col].notna().sum())
+        n = out[code_col].notna().sum() - out[desc_col].notna().sum()
         if n:
             gaps[f"naf_2025/{lvl}"] = n
 
@@ -366,7 +366,7 @@ def clean_categoria_juridica(gaps: dict) -> int:
         ("nivel_2", "id_nivel_2", "descricao_nivel_2"),
         ("nivel_1", "id_nivel_1", "descricao_nivel_1"),
     ]:
-        n = int(out[code_col].notna().sum() - out[desc_col].notna().sum())
+        n = out[code_col].notna().sum() - out[desc_col].notna().sum()
         if n:
             gaps[f"categoria_juridica/{lvl}"] = n
 

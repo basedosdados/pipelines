@@ -7,7 +7,7 @@ after `longitude`. dicionario has its own hand-written model.
 
 from pathlib import Path
 
-import schema_map as sm
+import schema_map as sm  # pyrefly: ignore [missing-import]
 
 MODELS_DIR = Path(__file__).resolve().parents[1]  # models/fr_insee_sirene
 CLUSTER = {

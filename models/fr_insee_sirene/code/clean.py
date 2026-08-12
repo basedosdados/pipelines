@@ -20,10 +20,10 @@ Casting rules (by target_type):
 import os
 import sys
 
-import duckdb
+import duckdb  # pyrefly: ignore [missing-import]
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from schema_map import (
+from schema_map import (  # pyrefly: ignore [missing-import]
     OUTPUT,
     SNAPSHOT_DATE,
     SNAPSHOT_YEAR,
