@@ -91,16 +91,39 @@ def _run_rf_cnpj(
     folder_date, last_modified_date = get_data_source_max_date(folder_date)
 
     if not force_run:
+        # simples/dicionario são NonHistorical (linha ~152): register_table_
+        # materialization não grava Coverage.DateTimeRange para essa cobertura,
+        # só Table.Update (a partir de bq.last_modified) — não há baseline de
+        # coverage pra comparar.
+        compare_against = (
+            "table_update"
+            if table_id in ("simples", "dicionario")
+            else "coverage"
+        )
         has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=folder_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against=compare_against,
         )
         if not has_new_data:
             print(f"Não há atualizações para a tabela {tabelas}!")
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=folder_date,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     output_filepath = main(
         tables=tabelas,
@@ -170,15 +193,6 @@ def _run_rf_cnpj(
                 ),
                 env="prod",
                 bq_project="basedosdados",
-            )
-
-        if folder_date is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=folder_date,
-                env="prod",
-                date_format="%Y-%m",
             )
 
     # estabelecimentos: atualiza diretório de empresas + download p/ GCS
