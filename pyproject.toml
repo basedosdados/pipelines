@@ -211,6 +211,10 @@ build-backend = "hatchling.build"
 [tool.pyrefly]
 project-excludes = [
   "pipelines/{{cookiecutter.pipeline_name}}",
+  # Pacote `.py` (não notebook) que roda com cwd=code/, então
+  # `from schema_spec import ...` (bare, sys.path-relative) não resolve a
+  # partir da raiz do repo. Mesmo caso do br_tse_eleicoes/code abaixo.
+  "models/us_harvard_cbdb/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
