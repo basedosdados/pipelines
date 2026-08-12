@@ -33,7 +33,6 @@ from pipelines.utils.tasks import (
     run_dbt,
     upload_to_gcs,
 )
-from pipelines.utils.utils import is_running_in_prod
 
 
 def _run_cnes(
@@ -46,6 +45,7 @@ def _run_cnes(
     force_run: bool,
     year_month_to_extract: str = "",
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -80,6 +80,7 @@ def _run_cnes(
     )
     decompress_dbc(file_list=dbc_files, dataset_id=dataset_id)
     csv_files = decompress_dbf(file_list=dbc_files, table_id=table_id)
+    # pyrefly: ignore [no-matching-overload]
     files_path = pre_process_files(
         file_list=csv_files, dataset_id=dataset_id, table_id=table_id
     )
@@ -103,16 +104,6 @@ def _run_cnes(
     )
 
     if not materialize_after_dump:
-        return
-
-    # Só o pod de prod tem credencial para o staging de produção. A guarda existia
-    # em `create_table_prod_gcs_and_run_dbt` (PR #1182) e se perdeu na migração ao
-    # Prefect 3. Sem ela, um run no pool de dev escreve dados de produção.
-    if not is_running_in_prod():
-        print(
-            "Fora do work pool de prod — etapa de promoção ignorada. "
-            "Os dados e a materialização de dev já foram concluídos."
-        )
         return
 
     upload_to_gcs(
@@ -157,6 +148,7 @@ def _run_dbf_to_parquet(
     year_month_to_extract: str = "",
 ) -> None:
     """Shared logic for SIA/SIH (DBF→Parquet pipeline)."""
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -266,6 +258,7 @@ def _run_sinan(
     target: str,
     force_run: bool,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

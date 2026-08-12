@@ -24,9 +24,12 @@ from pathlib import Path
 
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
+
+# pyrefly: ignore [untyped-import]
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+# pyrefly: ignore [missing-import]
 from common import DATASET_ID, META_CACHE, ROUNDS
 
 CODE_DIR = Path(__file__).resolve().parent
@@ -76,6 +79,7 @@ def profile():
         sparse = []
         for name in t.schema.names:
             col = t.column(name)
+            # pyrefly: ignore [missing-attribute]
             nulls = pc.sum(pc.is_null(col)).as_py() or 0
             if n and nulls / n > 0.95:
                 sparse.append(name)

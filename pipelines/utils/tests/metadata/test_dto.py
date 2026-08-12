@@ -66,13 +66,18 @@ def test_poll_input_valid():
 
 def test_poll_input_coerces_date_to_iso():
     # backend usa scalar DateTime: date-only vira datetime à meia-noite
+    # pyrefly: ignore [bad-argument-type]
     dto = PollInput(rawDataSource=UUID, latest=date(2026, 6, 1), entity=UUID)
     assert dto.latest == "2026-06-01T00:00:00"
 
 
 def test_poll_input_coerces_datetime_to_iso():
     dto = PollInput(
-        rawDataSource=UUID, latest=datetime(2026, 6, 1, 12, 30), entity=UUID
+        # pyrefly: ignore [bad-argument-type]
+        rawDataSource=UUID,
+        # pyrefly: ignore [bad-argument-type]
+        latest=datetime(2026, 6, 1, 12, 30),
+        entity=UUID,
     )
     assert dto.latest.startswith("2026-06-01T12:30")
 
@@ -84,6 +89,7 @@ def test_poll_input_rejects_non_iso_latest():  # mata o caminho do bug "Y%"/sent
 
 def test_poll_input_requires_entity():
     with pytest.raises(ValidationError):
+        # pyrefly: ignore [missing-argument]
         PollInput(rawDataSource=UUID, latest="2026-06-01")  # entity ausente
 
 

@@ -153,6 +153,7 @@ def clean_activity_summary():
     tdir = OUTPUT / "activity_summary"
     total = 0
     for year, g in long.groupby("year", sort=True):
+        # pyrefly: ignore [bad-argument-type]
         pdir = tdir / f"year={int(year)}"
         pdir.mkdir(parents=True, exist_ok=True)
         at = pa.Table.from_pandas(

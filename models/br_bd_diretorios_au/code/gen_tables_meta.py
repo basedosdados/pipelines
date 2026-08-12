@@ -14,6 +14,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # --- resolved staging IDs (see session notes) ---
 SRC_2021 = "d39291af-a44c-4dc3-a2b9-ac8477dc6698"
 SRC_2016 = "ab86ad0d-ba9f-49a1-97eb-9dabf29eea44"
+SRC_2011 = "c8966bb4-38e0-443f-b8fd-6c3a2645be58"
 ENT = {
     "state": "839765a7-9c7a-44bd-bb88-357cedba03f6",
     "region": "a84789e9-45a7-45da-a2cc-771c4f3997a4",
@@ -132,7 +133,11 @@ def unit_table(u, year):
         "description_pt": f"Diretório {ppt} da Austrália na edição de {year} do ASGS, com código, nome, hierarquia superior e área.",
         "description_en": f"Directory of {pen} in Australia in the {year} ASGS edition, with code, name, parent hierarchy and area.",
         "description_es": f"Directorio de {pes} en Australia en la edición {year} del ASGS, con código, nombre, jerarquía superior y área.",
-        "raw_data_source_id": SRC_2021 if year == "2021" else SRC_2016,
+        "raw_data_source_id": {
+            "2021": SRC_2021,
+            "2016": SRC_2016,
+            "2011": SRC_2011,
+        }[year],
         "ol_entity_id": ENT[ol],
         "is_directory": True,
         "pk_columns": [f"id_{u}"],
@@ -172,7 +177,7 @@ def main():
             "pk_columns": ["id_state"],
         }
     ]
-    for y in ("2021", "2016"):
+    for y in ("2021", "2016", "2011"):
         for u in UNITS:
             tables.append(unit_table(u, y))
     tables.append(corr("sa2"))

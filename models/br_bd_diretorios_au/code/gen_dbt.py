@@ -20,7 +20,7 @@ TABLES = [
     "state",
     *[
         f"{u}_{y}"
-        for y in ("2021", "2016")
+        for y in ("2021", "2016", "2011")
         for u in (
             "sa1",
             "sa2",
@@ -65,7 +65,7 @@ def parse(table):
         return "state", None
     if table.startswith("correspondence_"):
         return "correspondence", None
-    for y in ("2021", "2016"):
+    for y in ("2021", "2016", "2011"):
         if table.endswith("_" + y):
             return table[: -(len(y) + 1)], y
     raise ValueError(table)

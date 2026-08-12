@@ -1,4 +1,6 @@
 import pandas as pd
+
+# pyrefly: ignore [missing-import]
 from dictionaries import temas, ufs
 
 

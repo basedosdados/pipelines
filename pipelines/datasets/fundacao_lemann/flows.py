@@ -24,6 +24,7 @@ def fundacao_lemann__ano_escola_serie_educacao_aprendizagem_adequada(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -39,6 +40,7 @@ def fundacao_lemann__ano_escola_serie_educacao_aprendizagem_adequada(
     download_data_to_gcs(dataset_id=dataset_id, table_id=table_id)
 
 
+# pyrefly: ignore [missing-attribute]
 fundacao_lemann__ano_escola_serie_educacao_aprendizagem_adequada.deploy_schedules = [
     {"cron": "0 9 1 1 *", "timezone": "America/Sao_Paulo"}
 ]

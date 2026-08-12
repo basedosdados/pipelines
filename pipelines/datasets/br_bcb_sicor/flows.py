@@ -52,6 +52,7 @@ def _sicor_flow(
             local_redis_execution=local_redis_execution,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 
@@ -64,7 +65,8 @@ def _sicor_flow(
 # recriado nos runs seguintes. Quando o BCB adiciona uma coluna (como o
 # `IB_RENEGOCIADA` em 2026), `_sync_staging_schema` a acrescenta à definição da
 # tabela externa durante o upload. Registrar a coluna em `constants.py`, no
-# `.sql` e no `schema.yml` continua sendo manual.
+# `.sql` e no `schema.yml` continua sendo manual — ver a seção
+# `br_bcb_sicor__saldo` do README para a cobertura da coluna e seus testes.
 br_bcb_sicor__operacao = _sicor_flow(
     table_id="operacao",
     cron="5 2 * * 1-5",
@@ -135,6 +137,7 @@ def br_bcb_sicor__dicionario(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

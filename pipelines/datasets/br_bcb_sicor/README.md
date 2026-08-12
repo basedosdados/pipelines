@@ -192,6 +192,25 @@ with validation_errors as (
 select * from validation_errors;
 ```
 
+**Coluna `indicador_renegociacao` (nula em quase todo o histórico):**
+
+O BCB só publica `IB_RENEGOCIADA` a partir do arquivo de base 2026-02. De fevereiro de 2026 em diante a coluna é 100% preenchida (`0`/`1`); janeiro de 2026 tem 49.688 preenchidas em 4,52 milhões de linhas; 2013 a 2025 é toda nula, com uma única linha de exceção em 2025. Não é artefato do `dump_mode="append"`: das 5,9 milhões de chaves de 2026 em dev, nenhuma tem uma versão nula e outra preenchida (verificado em 04/08/2026).
+
+Duas consequências no `schema.yml`:
+
+- a coluna entra em `ignore_values` do `not_null_proportion_multiple_columns`, que cobra `at_least: 1` das outras dez. Sem isso o teste é impossível e derruba o flow — foi o que aconteceu em 03/08/2026, quando o full-refresh materializou a coluna e o run que reaplicaria as row access policies falhou no teste;
+- em troca, ela ganha um `not_null` próprio com escopo `(ano > 2026 or (ano = 2026 and mes >= 2))`.
+
+O `where` tem duas escolhas que parecem redundantes e não são:
+
+| Alternativa | Custo por execução | Em 2027 |
+|---|---|---|
+| `ano = 2026 and mes >= 2` | 98 MB | congela em 2026 — passa verde sem cobrir dado novo |
+| `(ano > 2026 or (ano = 2026 and mes >= 2))` | 98 MB | acompanha os anos seguintes |
+| `date(ano, mes, 1) >= '2026-02-01'` | 10,26 GB | acompanha, mas envolver `ano` numa função desliga o partition pruning |
+
+Pendências de metadado, pelo manual de estilo: falta declarar a cobertura temporal da coluna (`2026-02(1)`) na planilha de arquitetura e no backend — deixar vazio significa "igual à tabela", o que é falso. Isso não é código: o `create_update_coverage` do MCP só aceita `table_id`, então vai por planilha ou GraphQL. O manual também define `indicador_` como booleano `int64` preenchido com 0/1, enquanto aqui a coluna é `STRING`, seguindo a regra do repo para flags 0/1 — divergência conhecida, cuja troca exigiria full-refresh em prod e mudança de `bigquery_type`.
+
 ---
 
 ### br_bcb_sicor__recurso_publico_mutuario
