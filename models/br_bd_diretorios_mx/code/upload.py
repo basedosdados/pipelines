@@ -23,6 +23,8 @@ if "--env" in _argv:
     i = _argv.index("--env")
     ENV = _argv[i + 1]
     _argv = _argv[:i] + _argv[i + 2 :]
+if ENV not in ("dev", "prod"):
+    sys.exit(f"--env must be 'dev' or 'prod', got {ENV!r}")
 BILLING = "basedosdados" if ENV == "prod" else "basedosdados-dev"
 DATASET_ID = "br_bd_diretorios_mx"
 OUT = (
@@ -36,10 +38,16 @@ OUT = (
 )
 TABLES = ["estado", "municipio"]
 
-_orig = gcs.Client.bucket
-gcs.Client.bucket = lambda self, name, user_project=None: _orig(
-    self, name, user_project=BILLING
-)
+_orig_bucket = gcs.Client.bucket
+
+
+def _patched_bucket(self, bucket_name, user_project=None):
+    # Requester-pays: force billing to our project; matches the pinned
+    # google-cloud-storage Client.bucket signature (bucket_name, user_project).
+    return _orig_bucket(self, bucket_name, user_project=BILLING)
+
+
+gcs.Client.bucket = _patched_bucket
 
 
 def local_rows(slug):
@@ -91,6 +99,9 @@ def upload(slug):
 
 def main():
     only = set(_argv)
+    unknown = only - set(TABLES)
+    if unknown:
+        sys.exit(f"unknown table(s): {sorted(unknown)}")
     print(f"=== upload {DATASET_ID} -> {BILLING} ===", flush=True)
     for slug in [t for t in TABLES if not only or t in only]:
         print(f"=== {slug} ===", flush=True)

@@ -93,7 +93,15 @@ def schema_yaml(ds, cfg):
         big = table in cfg["big"]
         out.append(f"  - name: {ds}__{table}")
         out.append("    description: >")
-        out.append(f"      Tabla {table} del conjunto {ds}")
+        desc = f"Tabla {table} del conjunto {ds}."
+        if ds == "mx_sesnsp_incidencia_delictiva" and table.startswith("municipio"):
+            desc += (
+                " Los códigos de municipio agregados del SESNSP (sufijo 998/999, "
+                "'No especificado' / 'Otros municipios') no son municipios reales del "
+                "INEGI y se excluyen de la prueba de llave foránea de id_municipio "
+                "contra br_bd_diretorios_mx.municipio."
+            )
+        out.append(f"      {desc}")
         out.append("    tests:")
         if big:
             out.append("      - dbt_utils.unique_combination_of_columns:")

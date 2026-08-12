@@ -176,8 +176,10 @@ def main():
         i = argv.index("--sample")
         sample = int(argv[i + 1])
         argv = argv[:i] + argv[i + 2 :]
-    only = [a for a in argv if a in TABLES]
-    tables = only or list(TABLES)
+    unknown = [a for a in argv if a not in TABLES]
+    if unknown:
+        sys.exit(f"unknown table(s): {unknown}")
+    tables = argv or list(TABLES)
     for t in tables:
         clean_table(t, sample=sample)
     print("done")

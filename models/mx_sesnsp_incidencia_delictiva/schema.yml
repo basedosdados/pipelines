@@ -3,7 +3,7 @@ version: 2
 models:
   - name: mx_sesnsp_incidencia_delictiva__estatal_delitos
     description: >
-      Tabla estatal_delitos del conjunto mx_sesnsp_incidencia_delictiva
+      Tabla estatal_delitos del conjunto mx_sesnsp_incidencia_delictiva.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -51,7 +51,7 @@ models:
           y geografía
   - name: mx_sesnsp_incidencia_delictiva__estatal_delitos_2015_2025
     description: >
-      Tabla estatal_delitos_2015_2025 del conjunto mx_sesnsp_incidencia_delictiva
+      Tabla estatal_delitos_2015_2025 del conjunto mx_sesnsp_incidencia_delictiva.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -99,7 +99,7 @@ models:
           y geografía
   - name: mx_sesnsp_incidencia_delictiva__estatal_victimas
     description: >
-      Tabla estatal_victimas del conjunto mx_sesnsp_incidencia_delictiva
+      Tabla estatal_victimas del conjunto mx_sesnsp_incidencia_delictiva.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -155,7 +155,7 @@ models:
           y geografía
   - name: mx_sesnsp_incidencia_delictiva__estatal_victimas_2015_2025
     description: >
-      Tabla estatal_victimas_2015_2025 del conjunto mx_sesnsp_incidencia_delictiva
+      Tabla estatal_victimas_2015_2025 del conjunto mx_sesnsp_incidencia_delictiva.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -211,7 +211,10 @@ models:
           y geografía
   - name: mx_sesnsp_incidencia_delictiva__municipio_delitos
     description: >
-      Tabla municipio_delitos del conjunto mx_sesnsp_incidencia_delictiva
+      Tabla municipio_delitos del conjunto mx_sesnsp_incidencia_delictiva. Los códigos
+      de municipio agregados del SESNSP (sufijo 998/999, 'No especificado' / 'Otros
+      municipios') no son municipios reales del INEGI y se excluyen de la prueba de
+      llave foránea de id_municipio contra br_bd_diretorios_mx.municipio.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -275,7 +278,10 @@ models:
           y geografía
   - name: mx_sesnsp_incidencia_delictiva__municipio_delitos_2015_2025
     description: >
-      Tabla municipio_delitos_2015_2025 del conjunto mx_sesnsp_incidencia_delictiva
+      Tabla municipio_delitos_2015_2025 del conjunto mx_sesnsp_incidencia_delictiva.
+      Los códigos de municipio agregados del SESNSP (sufijo 998/999, 'No especificado'
+      / 'Otros municipios') no son municipios reales del INEGI y se excluyen de la
+      prueba de llave foránea de id_municipio contra br_bd_diretorios_mx.municipio.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -339,7 +345,10 @@ models:
           y geografía
   - name: mx_sesnsp_incidencia_delictiva__municipio_victimas
     description: >
-      Tabla municipio_victimas del conjunto mx_sesnsp_incidencia_delictiva
+      Tabla municipio_victimas del conjunto mx_sesnsp_incidencia_delictiva. Los códigos
+      de municipio agregados del SESNSP (sufijo 998/999, 'No especificado' / 'Otros
+      municipios') no son municipios reales del INEGI y se excluyen de la prueba de
+      llave foránea de id_municipio contra br_bd_diretorios_mx.municipio.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
