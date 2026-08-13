@@ -57,7 +57,7 @@ Principais mudanças:
 
 ### 5.1 Formato dos arquivos
 
-Os dois formatos são texto delimitado e abrem nos mesmos softwares, mas **não são
+Os dois formatos usam texto delimitado e abrem nos mesmos softwares, mas **não são
 intercambiáveis**: mudam a extensão, o delimitador e os nomes das colunas.
 
 | | Sistema antigo | Sistema novo |
@@ -76,15 +76,22 @@ ano-base 2024, a fonte **republicou 2023** sob o sistema novo em 18/05/2026 e mo
 o arquivo antigo para `2023/Legado/`. O que está hoje no FTP para 2023 é o formato
 novo; 2022 e anteriores seguem no antigo.
 
-O sistema antigo também não é um formato só. A partição dos arquivos e a contagem
-de colunas mudam ao longo da série:
+O sistema antigo também não é um formato só, e **os dois conjuntos são publicados
+em arquivos separados**. Vínculos muda de empacotamento e de contagem de colunas ao
+longo da série; estabelecimentos não muda nem uma coisa nem outra.
+
+Vínculos:
 
 | Anos | Arquivos | Colunas |
 | :--- | :--- | ---: |
-| 2012–2014 | um por UF (`AP2012.7z`, `BA2012.7z`, …) | 45 |
-| 2015 | um por UF | 57 |
-| 2016 | um por UF | 58 |
-| 2017 | um por UF | 60 |
+| 2012–2017 | um por UF (`RR2014.7z`, `SP2014.7z`, …) | 45, 57, 58 e 60 |
+| 2018–2022 | um por região (`RAIS_VINC_PUB_NORTE.7z`, …) | 60 |
+
+Estabelecimentos:
+
+| Anos | Arquivo | Colunas |
+| :--- | :--- | ---: |
+| 2012–2017 | nacional (`Estb2012.7z`, `ESTB2014.7z`, …) | 24 |
 | 2018–2022 | nacional (`RAIS_ESTAB_PUB.7z`) | 24 |
 
 > **O crawler só lê o formato novo.** O `pd.read_csv` em `tasks.py` fixa
@@ -226,8 +233,8 @@ Duas defesas foram acrescentadas depois disso:
 - `_fill_absent_columns` em `tasks.py` **levanta erro** quando uma coluna some
   no rename, em vez de preencher vazio em silêncio. Só as colunas listadas em
   `ESTAB_ABSENT_IN_SOURCE` / `VINCULOS_ABSENT_IN_SOURCE` são toleradas.
-- O teste `not_null_proportion_multiple_columns` no `schema.yml`, **escopado ao
-  ano mais recente** (`where: __most_recent_year__`). O escopo é essencial: um
+- O teste `not_null_proportion_multiple_columns` no `schema.yml`, **limitado ao
+  ano mais recente** (`where: __most_recent_year__`). O limite é essencial: um
   vazio de um ano se dilui na série inteira — com 2023 e 2025 zerados o total
   ainda dava 72% preenchido, bem acima do piso de 5%.
 
@@ -296,7 +303,8 @@ O arquivo `RAIS_VINC_PUB_NI.7z` serve bem: tem o mesmo cabeçalho dos demais e
 apenas algumas centenas de KB.
 
 ```bash
-curl -O ftp://ftp.mtps.gov.br/pdet/microdados/RAIS/<ano>/RAIS_VINC_PUB_NI.7z
+ANO=2025
+curl -O "ftp://ftp.mtps.gov.br/pdet/microdados/RAIS/$ANO/RAIS_VINC_PUB_NI.7z"
 7z e -so RAIS_VINC_PUB_NI.7z | head -1 | iconv -f latin1 -t utf-8 | tr ',' '\n'
 ```
 
@@ -406,8 +414,7 @@ grande grupo cujo código começa em zero. São ~2,86 milhões de vínculos: 901
 | `10305` | `010305` | Praça da Aeronáutica |
 
 O conjunto de 2022 corresponde um a um ao de 2023-2025 acrescido do zero à
-esquerda, e a participação no total da tabela é a mesma nos dois períodos: 1,131%
-em 2022 e 1,135% em 2025.
+esquerda.
 
 O macro normaliza com `lpad(cbo_2002, 6, '0')`, mesmo tratamento de
 `cnae_2_subclasse`. Como o modelo é incremental e filtra por `ano > max(ano)`,
@@ -415,7 +422,7 @@ aplicar a correção aos anos já materializados exige `--full-refresh`.
 
 O `custom_relationships` de `cbo_2002` não acusava o problema porque calcula
 `round(failure_rate, 2)`: diluídos na série de 1985 a 2025, os 2,86 milhões ficavam
-abaixo de 0,5% e arredondavam para zero. O teste passou a acusar depois de escopado
+abaixo de 0,5% e arredondavam para zero. O teste passou a acusar depois de limitado
 ao ano mais recente.
 
 ---
@@ -498,10 +505,10 @@ em bloco sem que a tabela tenha absorvido os anos antigos.
 
 ### 9.2 Partições fora do range
 
-O `range` do `partition_by` tem `end` **exclusivo**. Quando ele ficou em `2024`,
-todos os anos de 2023 em diante caíram numa única gaveta `__UNPARTITIONED__` —
-38 milhões de linhas sem poda de partição, e todo filtro por ano recente varria
-as três faixas. Mantenha `end` em pelo menos o último ano + 5.
+O `range` do `partition_by` tem `end` **exclusivo**: com `end = 2024` a última
+partição é `[2023, 2024)`, então 2023 fica particionado e **2024 em diante** cai
+numa única gaveta `__UNPARTITIONED__`, sem poda de partição. Mantenha `end` acima
+do último ano esperado, lembrando da exclusividade — para dados até 2025, `2031`.
 
 Note que dbt **não altera o particionamento de uma tabela incremental já
 existente**: corrigir o `range` no arquivo só tem efeito num `--full-refresh`.

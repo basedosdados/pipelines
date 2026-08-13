@@ -307,9 +307,7 @@ def _build_estab_partitions(
         df = df[vars_list]
 
         df = df.apply(
-            lambda col: col.map(
-                lambda x: x.strip() if isinstance(x, str) else x
-            )
+            lambda col: col.str.strip() if col.dtype == "object" else col
         )
 
         for col in [
@@ -472,9 +470,7 @@ def _build_vinculos_partitions(
             df = df[vars_list]
 
             df = df.apply(
-                lambda col: col.map(
-                    lambda x: x.strip() if isinstance(x, str) else x
-                )
+                lambda col: col.str.strip() if col.dtype == "object" else col
             )
 
             for col in [
