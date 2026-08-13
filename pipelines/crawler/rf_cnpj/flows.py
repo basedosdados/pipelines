@@ -173,7 +173,6 @@ def _run_rf_cnpj(
 
     if update_metadata:
         if table_id == "simples" or table_id == "dicionario":
-            # historical_database=False (sem coluna de data confiável) → NonHistorical
             register_table_materialization_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
@@ -182,20 +181,27 @@ def _run_rf_cnpj(
                 bq_project="basedosdados",
             )
         else:
-            # data-only DATE column (partition col in the dbt model) — not
-            # ano/mes, which don't exist in empresas/estabelecimentos/socios
             register_table_materialization_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 coverage=PartBdpro(
                     date_column=DateOnly(col="data_referencia"),
-                    date_format=DateFormat.YEAR_MD,
+                    date_format=DateFormat.YEAR_MONTH,
                 ),
                 env="prod",
                 bq_project="basedosdados",
             )
 
-    # estabelecimentos: atualiza diretório de empresas + download p/ GCS
+        if folder_date is not None:
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=folder_date,
+                env="prod",
+                date_format=DateFormat.YEAR_MONTH,
+            )
+
+    # estabelecimentos: atualiza diretório de empresas
     if table_id == "estabelecimentos":
         run_dbt(
             dataset_id="br_bd_diretorios_brasil",
@@ -214,7 +220,7 @@ def _run_rf_cnpj(
                 table_id="empresa",
                 coverage=AllBdpro(
                     date_column=DateOnly(col="data_referencia"),
-                    date_format=DateFormat.YEAR_MD,
+                    date_format=DateFormat.YEAR_MONTH,
                 ),
                 env="prod",
                 bq_project="basedosdados",
