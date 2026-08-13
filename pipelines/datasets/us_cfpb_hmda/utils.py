@@ -92,8 +92,17 @@ def download_year(year: int, input_dir: Path) -> Path:
     dest = input_dir / f"modern_{year}.csv"
     tmp = dest.with_suffix(".csv.part")
     cmd = [
-        "curl", "-fL", "--retry", "4", "--retry-delay", "5",
-        "--connect-timeout", "30", "-o", str(tmp), MODERN_URL.format(year=year),
+        "curl",
+        "-fL",
+        "--retry",
+        "4",
+        "--retry-delay",
+        "5",
+        "--connect-timeout",
+        "30",
+        "-o",
+        str(tmp),
+        MODERN_URL.format(year=year),
     ]
     subprocess.run(cmd, check=True)
     tmp.rename(dest)
@@ -115,8 +124,11 @@ def _expr(col: dict, present: set[str]) -> pl.Expr:
     s = pl.col(col["original_name"]).str.strip_chars()
     if typ == "STRING":
         return (
-            pl.when(s.str.len_chars() == 0).then(None).otherwise(s)
-            .cast(pl.Utf8).alias(name)
+            pl.when(s.str.len_chars() == 0)
+            .then(None)
+            .otherwise(s)
+            .cast(pl.Utf8)
+            .alias(name)
         )
     num = s.cast(PL_NUM[typ], strict=False)
     if name in MULTIPLY_1000:
