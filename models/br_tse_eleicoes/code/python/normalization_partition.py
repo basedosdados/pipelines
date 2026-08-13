@@ -808,7 +808,7 @@ def _partition_bens(norm_cand: pd.DataFrame):
         subset=["ano", "tipo_eleicao", "sigla_uf", "sequencial"]
     )
 
-    for ano in range(2006, 2025, 2):
+    for ano in range(2006, 2027, 2):
         df = _read_parquet("bens_candidato", ano)
         if df.empty:
             continue

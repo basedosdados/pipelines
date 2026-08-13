@@ -218,6 +218,14 @@ project-excludes = [
   # imports (config, sub.*, utils.*) are unresolvable from the repo root. Exclude
   # the whole tree, consistent with the model-ETL-not-type-checked policy.
   "models/br_tse_eleicoes/code",
+  # Mesmo caso do br_tse_eleicoes acima: pacote `.py` (não notebook) que roda
+  # com cwd=code/, então `from schema_spec import ...` (bare, sys.path-relative)
+  # não resolve a partir da raiz do repo.
+  "models/us_harvard_cbdb/code",
+  # Same policy: us_cfpb_hmda ETL is standalone `.py` (runs via uv run --with
+  # duckdb, with same-dir imports), so duckdb/common/clean/download are
+  # unresolvable from the repo root.
+  "models/us_cfpb_hmda/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
