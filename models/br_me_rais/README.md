@@ -355,9 +355,7 @@ correção do §6.2, o crawler captura tudo que o arquivo de 2025 publica.
 
 No sistema antigo, porém, o cabeçalho de estabelecimentos traz `Tipo Estab`
 **duas vezes**, nas posições 20 e 21 do `ESTB2014.7z`. O crawler não lê esses anos
-(§5.1), então a duplicata não afeta o processamento atual. Fica registrada porque
-um `rename` aplicado sobre esse arquivo mapearia as duas colunas para
-`tipo_estabelecimento`, e a segunda sobrescreveria a primeira em silêncio.
+(§5.1), então a duplicata não afeta o processamento atual.
 
 ### 6.6 Coluna `id_municipio_trabalho`
 
