@@ -219,6 +219,8 @@ models:
                 - '342525'
                 - '{ñ cla'
                 - '722225'
+              config:
+                where: __most_recent_year__
         description: Classificação Brasileira de Ocupações (CBO) 2002
       - name: faixa_etaria
         description: Faixa Etária
@@ -260,6 +262,8 @@ models:
               field: classe
               ignore_values: ['99999', '86305']
               tags: [cnae_2]
+              config:
+                where: __most_recent_year__
       - name: cnae_2_subclasse
         description: Classificação Nacional de Atividades Econômicas (CNAE) 2.0 Subclasse
         tests:
@@ -268,6 +272,8 @@ models:
               field: subclasse
               ignore_values: ['9999997', 00000-1, '8630505', '3312101', '9999999']  # cnae excluídas: https://www.lefisc.com.br/dim/plantoes/22-07-2020/Decreto10410.htm
               tags: [cnae_2_subclasse]
+              config:
+                where: __most_recent_year__
       - name: tamanho_estabelecimento
         description: Tamanho do Estabelecimento
       - name: tipo_estabelecimento

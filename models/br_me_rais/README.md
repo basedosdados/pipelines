@@ -390,6 +390,34 @@ eSocial, que vai de 01 a 46 e não contém 65, 81 nem 82.
 Os seis estão registrados no `br_me_rais__dicionario.sql` como `Código não
 encontrado nos dicionários oficiais.`, mesmo tratamento dos códigos 1-9, 89 e 99.
 
+### 6.8 Coluna `cbo_2002`
+
+De 2023 a 2025 a fonte publica 28 códigos do CBO com cinco dígitos em vez de seis,
+todos do grande grupo `0` — militares, policiais e bombeiros militares, o único
+grande grupo cujo código começa em zero. São ~2,86 milhões de vínculos: 901.840 em
+2023, 922.338 em 2024 e 1.040.562 em 2025. Até 2022 os códigos estão corretos.
+
+| Publicado | Correto | Descrição |
+| :--- | :--- | :--- |
+| `10310` | `010310` | Praça do Exército |
+| `21210` | `021210` | Soldado da Polícia Militar |
+| `21205` | `021205` | Cabo da Polícia Militar |
+| `21110` | `021110` | Sargento da Polícia Militar |
+| `10305` | `010305` | Praça da Aeronáutica |
+
+O conjunto de 2022 corresponde um a um ao de 2023-2025 acrescido do zero à
+esquerda, e a participação no total da tabela é a mesma nos dois períodos: 1,131%
+em 2022 e 1,135% em 2025.
+
+O macro normaliza com `lpad(cbo_2002, 6, '0')`, mesmo tratamento de
+`cnae_2_subclasse`. Como o modelo é incremental e filtra por `ano > max(ano)`,
+aplicar a correção aos anos já materializados exige `--full-refresh`.
+
+O `custom_relationships` de `cbo_2002` não acusava o problema porque calcula
+`round(failure_rate, 2)`: diluídos na série de 1985 a 2025, os 2,86 milhões ficavam
+abaixo de 0,5% e arredondavam para zero. O teste passou a acusar depois de escopado
+ao ano mais recente.
+
 ---
 
 ## 7. Observações sobre a divulgação dos dados

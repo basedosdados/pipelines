@@ -170,7 +170,7 @@
             cast(regexp_replace(subsetor_ibge, r'^0+', '') as int64) as string
         ) as subsetor_ibge,
         safe_cast(cbo_1994 as string) cbo_1994,
-        safe_cast(cbo_2002 as string) cbo_2002,
+        lpad(safe_cast(cbo_2002 as string), 6, '0') cbo_2002,
         coalesce(cnae1_dir.cnae_1, safe_cast(t.cnae_1 as string)) as cnae_1,
         left(lpad(cnae_2_subclasse, 7, '0'), 5) as cnae_2,
         lpad(cnae_2_subclasse, 7, '0') as cnae_2_subclasse,
