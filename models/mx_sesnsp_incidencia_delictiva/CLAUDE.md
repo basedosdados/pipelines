@@ -45,6 +45,25 @@ Landing page: https://www.gob.mx/sesnsp/acciones-y-programas/datos-abiertos-de-i
 - **Tokens and filenames change every monthly release** (filename embeds the month, e.g.
   `Municipal-Delitos-2015-2025_jun2026.zip`). A recurring pipeline must **re-scrape the gob.mx page
   for the current token** each run — do not hardcode tokens.
+- **HEADLESS SCRAPE (pipeline): the gob.mx page is behind an Imperva bot challenge** ("Challenge
+  Validation" — plain curl/requests get a 1850-byte challenge shell) **and is JS-rendered**. The
+  pipeline drives a **real headless Chrome via `selenium` + the in-image `google-chrome-stable`**
+  (driver from `webdriver_manager`); loading the page runs the Imperva challenge and renders the
+  SharePoint anchors into the DOM (`WebDriverWait` until `a[href*='cni_sspc_gob_mx']` is present),
+  then `driver.page_source` is parsed. **Do NOT use `curl_cffi`** (or any new pyproject dep): the
+  Prefect worker runs a **pre-built Docker image** whose venv is baked from `pyproject.toml`+`uv.lock`
+  on `main` — a dep added in a PR is simply not importable on the worker (`ModuleNotFoundError`). A
+  real browser also passes Imperva natively, not by spoofing a TLS fingerprint. Parse the anchors by
+  their visible label text to map the current token to each table:
+    - `municipio_delitos`   ← label "(Fuero común - Delitos). Incidencia delictiva municipal", 2026 methodology
+    - `municipio_victimas`  ← "(Fuero común - Víctimas). Incidencia delictiva municipal"
+    - `estatal_delitos`     ← "(Fuero común - Delitos). Incidencia delictiva estatal", 2026
+    - `estatal_victimas`    ← "(Fuero común - Víctimas). Incidencia delictiva estatal"
+  Match: label contains the grain + measure, is the current-methodology one (label starts with a
+  month range like "Enero - <mes> 2026", NOT "2015 - 2025"), excluding "Fuero federal" and
+  "Tablero dinámico". The SharePoint host (`sspcgob-my.sharepoint.com`, Microsoft) is **not** behind
+  Imperva → download each token's zip via the `download.aspx?share=<TOKEN>` form with plain
+  `requests` + a browser User-Agent.
 
 Fuero Común tokens verified 2026-08-12 (Jan–Jun 2026 data at that point):
 | table | share token |
