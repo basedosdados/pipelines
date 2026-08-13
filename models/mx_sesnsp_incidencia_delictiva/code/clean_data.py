@@ -21,15 +21,20 @@ Usage:
         models/mx_sesnsp_incidencia_delictiva/code/clean_data.py [table ...] [--sample N]
 """
 
-import csv
 import logging
 import os
 import sys
 from pathlib import Path
 
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
+
+# Shared wide→long melt lives in the pipeline utils (DRY): the recurring Prefect
+# pipeline and this one-shot bootstrap must not drift apart.
+from pipelines.datasets.mx_sesnsp_incidencia_delictiva.utils import (
+    MONTHS,  # noqa: F401 (re-exported for callers/tests of this module)
+    melt_wide,
+    write_partition,
+)
 
 DATA = Path(
     os.environ.get(
@@ -39,27 +44,11 @@ DATA = Path(
 )
 INPUT = DATA / "input"
 OUTPUT = DATA / "output"
-ARCH = Path(__file__).resolve().parent / "architecture"
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
 )
 log = logging.getLogger("sesnsp")
-
-MONTHS = {
-    "Enero": 1,
-    "Febrero": 2,
-    "Marzo": 3,
-    "Abril": 4,
-    "Mayo": 5,
-    "Junio": 6,
-    "Julio": 7,
-    "Agosto": 8,
-    "Septiembre": 9,
-    "Octubre": 10,
-    "Noviembre": 11,
-    "Diciembre": 12,
-}
 
 # table_slug -> (municipal, victimas)
 TABLES = {
@@ -73,77 +62,11 @@ TABLES = {
 }
 
 
-def arch_order(table):
-    with open(ARCH / f"{table}.csv", newline="") as fh:
-        return [r["name"] for r in csv.DictReader(fh)]
-
-
 def find_csv(table):
     hits = sorted((INPUT / f"unz_{table}").glob("*.csv"))
     if not hits:
         raise FileNotFoundError(f"no CSV under {INPUT}/unz_{table}")
     return hits[0]
-
-
-def melt_wide(df, muni, victimas):
-    """Melt one wide chunk to the long architecture columns."""
-    id_map = {
-        "Clave_Ent": "id_entidad",
-        "Bien jurídico afectado": "bien_juridico_afectado",
-        "Tipo de delito": "tipo_delito",
-        "Subtipo de delito": "subtipo_delito",
-        "Modalidad": "modalidad",
-    }
-    if muni:
-        id_map["Cve. Municipio"] = "id_municipio"
-    if victimas:
-        id_map["Sexo"] = "sexo"
-        id_map["Rango de edad"] = "rango_edad"
-    id_cols = list(id_map)
-    month_cols = [m for m in MONTHS if m in df.columns]
-    long = df.melt(
-        id_vars=[*id_cols, "Año"],
-        value_vars=month_cols,
-        var_name="_mes",
-        value_name="cantidad",
-    )
-    # drop not-yet-published months (blank), keep explicit 0
-    long["cantidad"] = long["cantidad"].astype(str).str.strip()
-    long = long[long["cantidad"] != ""].copy()
-    long = long[long["cantidad"].str.lower() != "nan"].copy()
-    long = long.rename(columns=id_map)
-    long["ano"] = pd.to_numeric(long["Año"], errors="coerce").astype("Int64")
-    long["mes"] = long["_mes"].map(MONTHS).astype("Int64")
-    long["id_entidad"] = (
-        long["id_entidad"].astype(str).str.strip().str.zfill(2)
-    )
-    if muni:
-        long["id_municipio"] = (
-            long["id_municipio"].astype(str).str.strip().str.zfill(5)
-        )
-    long["cantidad"] = pd.to_numeric(long["cantidad"], errors="coerce").astype(
-        "Int64"
-    )
-    return long
-
-
-def write_partition(long, table, year, mode_first):
-    order = arch_order(table)
-    missing = [c for c in order if c not in long.columns]
-    if missing:
-        raise ValueError(f"{table}: missing {missing}")
-    out = long[order].copy()
-    schema = pa.schema([pa.field(c, pa.string()) for c in order])
-    # to all-STRING, NULL-preserving
-    for c in order:
-        s = out[c]
-        out[c] = s.astype("object").where(s.notna(), None)
-        out[c] = out[c].map(lambda v: None if v is None else str(v))
-    at = pa.Table.from_pandas(out, schema=schema, preserve_index=False)
-    pdir = OUTPUT / table / f"ano={int(year)}"
-    pdir.mkdir(parents=True, exist_ok=True)
-    pq.write_table(at, pdir / "data.parquet", compression="snappy")
-    return at.num_rows
 
 
 def clean_table(table, sample=None):
@@ -162,7 +85,7 @@ def clean_table(table, sample=None):
     for y in years:
         chunk = df[pd.to_numeric(df["Año"], errors="coerce") == y]
         long = melt_wide(chunk, muni, victimas)
-        n = write_partition(long, table, y, y == years[0])
+        n = write_partition(long, table, y, OUTPUT)
         total += n
         log.info("  ano=%s: %s rows", y, f"{n:,}")
     log.info("%s: %s rows across %s year(s)", table, f"{total:,}", len(years))
