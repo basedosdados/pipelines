@@ -11,6 +11,7 @@
     )
 }}
 
+-- Atualizado em 2026-08-11
 with
     cnpj_empresas as (
         select
