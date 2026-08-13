@@ -192,15 +192,6 @@ def _run_rf_cnpj(
                 bq_project="basedosdados",
             )
 
-        if folder_date is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=folder_date,
-                env="prod",
-                date_format=DateFormat.YEAR_MONTH,
-            )
-
     # estabelecimentos: atualiza diretório de empresas
     if table_id == "estabelecimentos":
         run_dbt(
