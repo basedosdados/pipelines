@@ -82,7 +82,6 @@ models:
             - subatividade_ibge
             - cbo_1994
             - grau_instrucao_1985_2005
-            - categoria_trabalhador
             - id_municipio_trabalho
     columns:
       - name: ano
@@ -132,7 +131,7 @@ models:
       - name: quantidade_horas_contratadas
         description: Quantidade de Horas Contratadas
       - name: id_municipio_trabalho
-        description: >
+        description: >-
           ID Município de Trabalho. A fonte deixou de informar o município a partir
           de 2023 e passou a enviar o código 999999 (não informado), que não tem
           correspondência no diretório de municípios; a coluna está preenchida em

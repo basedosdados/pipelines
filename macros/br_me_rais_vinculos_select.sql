@@ -95,7 +95,6 @@
         {% endif %}
         {% if has_categoria_trabalhador %}
             safe_cast(categoria_trabalhador as string) categoria_trabalhador,
-        {% else %} cast(null as string) as categoria_trabalhador,
         {% endif %}
         case
             when faixa_remuneracao_media_sm = '00'

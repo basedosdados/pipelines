@@ -326,32 +326,31 @@ mesmo `tipo_vinculo` comporta até 5 categorias e uma mesma categoria aparece em
 até 8 tipos. O `tipo_vinculo = 10` (CLT por prazo indeterminado) contém as
 categorias 101 (empregado geral), 111 (doméstico) e 301 (servidor estatutário).
 
-Nos anos anteriores a 2023 a coluna é nula, emitida como `cast(null as string)`
-pelo parâmetro `has_categoria_trabalhador` do macro — mesmo mecanismo de
-`indicador_vinculo_abandonado` (§10.2).
-
-**Estado atual: o parâmetro está desligado.** A coluna não existe na staging
-`microdados_vinculos_2023`, e ligá-la antes disso faz o `dbt run` falhar com
-`Unrecognized name: categoria_trabalhador`. A sequência para habilitar:
+O parâmetro `has_categoria_trabalhador` do macro está desligado e a coluna não é
+emitida. Ligá-lo antes de a coluna existir na staging `microdados_vinculos_2023`
+faz o `dbt run` falhar com `Unrecognized name: categoria_trabalhador`. Para
+habilitar:
 
 1. reprocessar vínculos de 2023 em diante, com o `VINCULOS_RENAME` já corrigido;
 2. confirmar a coluna na staging;
 3. ligar `has_categoria_trabalhador=true` na CTE `from_2023`;
-4. remover `categoria_trabalhador` do `ignore_values` do teste de proporção.
+4. registrar a coluna na API;
+5. acrescentar `categoria_trabalhador` ao `ignore_values` do teste de proporção
+   enquanto os anos anteriores a 2023 seguirem nulos.
 
-O modelo de vínculos é incremental e fixa `on_schema_change="append_new_columns"`.
-O padrão do dbt é `ignore`, que descartaria a coluna nova sem erro.
+O modelo de vínculos é incremental e fixa `on_schema_change="append_new_columns"`,
+que absorve a coluna quando ela aparecer; o padrão do dbt é `ignore`, que a
+descartaria sem erro.
 
 Em estabelecimentos a mesma verificação não achou nenhum descarte: depois da
 correção do §6.2, o crawler captura tudo que o arquivo de 2025 publica.
 
 ### 6.6 Coluna `id_municipio_trabalho`
 
-A fonte parou de informar o município de trabalho na virada para o sistema novo.
-Desde 2023 ela envia `999999` — o código de "não informado" —, que não existe no
-diretório de municípios. O crawler converte o código IBGE de 6 dígitos no de 7
-por um `merge` com `br_bd_diretorios_brasil.municipio` (`tasks.py`), e código
-inexistente não acha par: a coluna sai vazia.
+Desde 2023 a fonte envia `999999` no município de trabalho, o código de "não
+informado". O crawler converte o código IBGE de 6 dígitos no de 7 por um `merge`
+com `br_bd_diretorios_brasil.municipio` (`tasks.py`); `999999` não existe no
+diretório, não acha par, e a coluna sai vazia.
 
 | Ano | Linhas | Preenchida |
 | :--- | ---: | ---: |
@@ -361,19 +360,16 @@ inexistente não acha par: a coluna sai vazia.
 | 2024 | 87,7 M | 0,39% |
 | 2025 | 91,7 M | 0,28% |
 
-O corte é seco na virada do sistema, não uma piora gradual. **Não é defeito do
-pipeline:** o dado não existe na origem e nenhum reprocessamento o recupera. Por
-isso a coluna entra no `ignore_values` do teste de proporção de nulos, junto com
-as outras que a fonte deixou de entregar.
+O dado não existe na origem a partir de 2023. A coluna está no `ignore_values` do
+teste de proporção de nulos.
 
-O `merge` apaga a diferença entre "a fonte respondeu que não sabe" (`999999`) e
-"a fonte não mandou a coluna": as duas viram nulo. É deliberado — publicar um
-município falso seria pior —, mas a tabela não distingue os dois casos.
+O `merge` mapeia para nulo tanto o `999999` quanto a ausência da coluna, então a
+tabela não distingue os dois casos.
 
 ### 6.7 Códigos de `motivo_desligamento` sem rótulo
 
-A fonte passou a emitir seis códigos que o dicionário da RAIS não documenta.
-Todos aparecem só a partir de 2025 e somam ~100 mil linhas em 91,7 milhões (0,11%):
+Seis códigos aparecem a partir de 2025 e não constam do dicionário da RAIS. Somam
+~100 mil linhas em 91,7 milhões (0,11%):
 
 | Código | Linhas em 2025 | Família pela dezena |
 | :--- | ---: | :--- |
@@ -384,16 +380,15 @@ Todos aparecem só a partir de 2025 e somam ~100 mil linhas em 91,7 milhões (0,
 | 65 | 1.428 | Falecimento |
 | 36 | 896 | Transferência / cessão |
 
-A família é inferida pelo agrupamento por dezena que a RAIS usa (1x empregador,
-2x empregado, 3x transferência, 6x falecimento, 7x-8x aposentadoria, 9x acordo).
-**Não é rótulo** — serve para conferir o documento oficial quando ele aparecer.
+A família na terceira coluna é inferida do agrupamento por dezena que a RAIS usa
+(1x empregador, 2x empregado, 3x transferência, 6x falecimento, 7x-8x
+aposentadoria, 9x acordo), não do rótulo oficial.
 
-Não confundir com a Tabela 19 do eSocial: ela vai de 01 a 46 e não contém 65, 81
-nem 82. O vocabulário de `motivo_desligamento` é o da própria RAIS.
+O vocabulário de `motivo_desligamento` é o da própria RAIS, não a Tabela 19 do
+eSocial, que vai de 01 a 46 e não contém 65, 81 nem 82.
 
-Enquanto o dicionário oficial de 2025 não é localizado, os seis entram como
-`Código não encontrado nos dicionários oficiais.`, mesmo tratamento dos códigos
-1-9, 89 e 99. Trocar pelos rótulos reais é trabalho de PR separada.
+Os seis estão registrados no `br_me_rais__dicionario.sql` como `Código não
+encontrado nos dicionários oficiais.`, mesmo tratamento dos códigos 1-9, 89 e 99.
 
 ---
 
