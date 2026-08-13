@@ -27,9 +27,8 @@ from pipelines.datasets.mx_sesnsp_incidencia_delictiva.tasks import (
     download_sesnsp,
 )
 from pipelines.utils.metadata.domain import (
+    AllBdpro,
     DateFormat,
-    FreeLag,
-    PartBdpro,
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
@@ -47,21 +46,19 @@ DATASET_ID = constants.DATASET_ID.value
 
 # Coverage spec per table.
 #
-# All four tables refresh monthly, so each carries the BD Pro rolling window:
-# the most recent 6 months are pro-only, everything older is free. Each run
-# recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges, and
-# re-issues the BigQuery Row Access Policies, so the window slides forward on its
-# own.
+# All four tables carry the whole new-methodology series as BD Pro (all_bdpro):
+# every row is pro-gated. The 6-month rolling window (part_bdpro) is not usable
+# yet — with only ~6 months of data the free window (source_end - 6 months)
+# falls before the data starts, producing an inverted DateTimeRange the backend
+# rejects. Revisit part_bdpro once the tables hold more than 6 months of data.
 #
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written. The frozen *_2015_2025 tables are not in this
-# pipeline and stay AllFree.
+# all_bdpro requires a single pro (is_closed=True) Coverage and NO free Coverage
+# on each table, or assert_coverage_topology raises before anything is written.
+# The frozen *_2015_2025 tables are not in this pipeline and stay AllFree.
 _COVERAGE = {
-    table: PartBdpro(
+    table: AllBdpro(
         date_column=YearMonth(year="ano", month="mes"),
         date_format=DateFormat.YEAR_MONTH,
-        free_lag=FreeLag(unit="months", value=6),
     )
     for table in constants.ALL_TABLES.value
 }
