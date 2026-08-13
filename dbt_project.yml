@@ -160,6 +160,9 @@ models:
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
+    world_aiddata_gcdf:
+      +materialized: table
+      +schema: world_aiddata_gcdf
     world_cricsheet:
       +materialized: table
       +schema: world_cricsheet
