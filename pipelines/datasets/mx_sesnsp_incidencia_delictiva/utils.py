@@ -9,10 +9,15 @@ directly so the wide→long melt lives in exactly one place. Schema/column order
 come from the architecture CSVs (the single source of truth).
 
 Download detail: the SESNSP landing page is behind an Imperva bot challenge and
-the files are anonymous SharePoint share links whose tokens rotate monthly. Both
-hops go through ``curl_cffi`` with ``impersonate="chrome"`` (TLS-fingerprint
-spoofing), and the current token for each table is scraped from the landing page
-by matching each anchor's visible label — never hardcoded.
+is JS-rendered, and the files are anonymous SharePoint share links whose tokens
+rotate monthly. The landing page is scraped with a real headless Chrome
+(``selenium`` + the in-image ``google-chrome-stable``; the driver comes from
+``webdriver_manager``) — the Prefect worker runs a pre-built image that does not
+gain new pyproject deps per PR, so a pure-Python HTTP client such as ``curl_cffi``
+cannot be added there, and a real browser passes Imperva natively rather than
+merely spoofing a TLS fingerprint. The SharePoint host is plain Microsoft, so the
+zips download with ``requests`` + a browser User-Agent. The current token for each
+table is resolved by matching each anchor's visible label — never hardcoded.
 """
 
 from __future__ import annotations
@@ -28,7 +33,15 @@ from pathlib import Path
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+import requests
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 
 from pipelines.datasets.mx_sesnsp_incidencia_delictiva.constants import (
     constants,
@@ -108,7 +121,7 @@ def resolve_tokens(html: str) -> dict[str, str]:
     """Parse the landing-page HTML into a ``{table_slug: share_token}`` map.
 
     Args:
-        html: The full landing-page HTML (fetched with curl_cffi impersonation).
+        html: The full landing-page HTML (rendered by headless Chrome).
 
     Returns:
         A mapping of each ongoing table slug to its current SharePoint share
@@ -141,19 +154,40 @@ def resolve_tokens(html: str) -> dict[str, str]:
 def scrape_tokens() -> dict[str, str]:
     """Fetch the SESNSP landing page and resolve the four current share tokens.
 
+    Drives a real headless Chrome (the in-image ``google-chrome-stable``, with the
+    driver from ``webdriver_manager``): loading the page executes the Imperva
+    challenge and renders the SharePoint anchors into the DOM. The wait resolves
+    once at least one SharePoint personal link is present, which is the signal that
+    the challenge passed and the JS finished.
+
     Returns:
         A mapping of each ongoing table slug to its current SharePoint share
         token.
     """
-    from curl_cffi import requests as cffi_requests
+    options = Options()
+    for arg in (
+        "--headless=new",
+        "--disable-gpu",
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+    ):
+        options.add_argument(arg)
+    options.add_argument(f"user-agent={constants.USER_AGENT.value}")
 
-    r = cffi_requests.get(
-        constants.GOB_MX_URL.value,
-        impersonate=constants.IMPERSONATE.value,
-        timeout=120,
-    )
-    r.raise_for_status()
-    return resolve_tokens(r.text)
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
+    try:
+        driver.get(constants.GOB_MX_URL.value)
+        # SharePoint anchors present => Imperva passed and the JS rendered.
+        WebDriverWait(driver, 60).until(
+            ec.presence_of_element_located(
+                (By.CSS_SELECTOR, "a[href*='cni_sspc_gob_mx']")
+            )
+        )
+        html = driver.page_source
+    finally:
+        driver.quit()
+    return resolve_tokens(html)
 
 
 def download_table(token: str, table: str, input_dir: Path) -> Path:
@@ -174,11 +208,11 @@ def download_table(token: str, table: str, input_dir: Path) -> Path:
     Raises:
         ValueError: If the archive contains no CSV.
     """
-    from curl_cffi import requests as cffi_requests
-
     url = constants.SHAREPOINT_DOWNLOAD.value.format(token=token)
-    r = cffi_requests.get(
-        url, impersonate=constants.IMPERSONATE.value, timeout=600
+    # SharePoint (Microsoft) is not behind Imperva — a plain requests GET with a
+    # browser User-Agent returns the zip, as it did during onboarding.
+    r = requests.get(
+        url, headers={"User-Agent": constants.USER_AGENT.value}, timeout=600
     )
     r.raise_for_status()
     dest = input_dir / table
