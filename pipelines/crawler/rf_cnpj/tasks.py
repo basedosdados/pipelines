@@ -54,7 +54,7 @@ def main(
     chunk_size: int = 100000,
     download_chunk_size: int = 15 * 1024 * 1024,
     download_max_retries: int = 5,
-    download_max_parallel: int = 5,
+    download_max_parallel: int = 15,
     download_timeout: int = 5 * 60,
 ) -> Path:
     """
