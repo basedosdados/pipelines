@@ -1,0 +1,43 @@
+name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory_column	measurement_unit	has_sensitive_data	observations	original_name
+year	INT64	Ano de referência do registro de empréstimo/solicitação		no		year	no		as_of_year
+state_id	STRING	Código FIPS de duas posições do estado dos EUA		no	br_bd_diretorios_us.state:id_state		no	Código FIPS numérico de estado; FK para br_bd_diretorios_us resolvida no discover	state_code
+county_id	STRING	Código FIPS de cinco posições do condado		no	br_bd_diretorios_us.county:id_county		no	Código FIPS de condado; FK para br_bd_diretorios_us resolvida no discover	county_code
+census_tract_id	STRING	Código do setor censitário do Census Bureau		no	br_bd_diretorios_us.census_tract_2020:id_census_tract		no	Setor censitário; FK para br_bd_diretorios_us resolvida no discover	census_tract_number
+msa_md_id	STRING	Código da área metropolitana ou divisão metropolitana (MSA/MD)		no			no	Código MSA/MD reportado pela instituição	msamd
+respondent_id	STRING	Identificador da instituição declarante no ano de referência		no			no	Identificador da instituição declarante; combinar com agency_code para unicidade	respondent_id
+agency_code	STRING	Código da agência federal supervisora que recebeu o registro		yes			no		agency_code
+loan_type	STRING	Tipo de empréstimo (convencional, FHA, VA, FSA/RHS)		yes			no		loan_type
+property_type	STRING	Tipo de imóvel (1-4 famílias, multifamiliar, casa pré-fabricada)		yes			no		property_type
+loan_purpose	STRING	Finalidade do empréstimo (compra, melhoria, refinanciamento)		yes			no		loan_purpose
+owner_occupancy	STRING	Ocupação do imóvel pelo proprietário como residência principal		yes			no		owner_occupancy
+preapproval	STRING	Indicador de solicitação de pré-aprovação		yes			no		preapproval
+action_taken	STRING	Ação tomada sobre a solicitação (originado, negado, retirado, etc.)		yes			no		action_taken
+loan_amount	FLOAT64	Valor do empréstimo em dólares		no		USD	no	Valor reportado na fonte em milhares de dólares e multiplicado por 1000	loan_amount_000s
+income	FLOAT64	Renda bruta anual considerada na decisão, em dólares		no		USD	no	Renda reportada na fonte em milhares de dólares e multiplicada por 1000	applicant_income_000s
+rate_spread	FLOAT64	Diferença entre a APR do empréstimo e a taxa de referência (spread)		no		percent	no	Regra de cálculo do spread mudou no 4o trimestre de 2009	rate_spread
+hoepa_status	STRING	Indicador de empréstimo de alto custo sob o HOEPA		yes			no		hoepa_status
+lien_status	STRING	Posição da garantia (primeira, subordinada)		yes			no		lien_status
+purchaser_type	STRING	Tipo de comprador do empréstimo no mercado secundário		yes			no		purchaser_type
+applicant_ethnicity	STRING	Etnia do solicitante (código único, esquema pré-2018)		yes			no		applicant_ethnicity
+co_applicant_ethnicity	STRING	Etnia do cossolicitante (código único, esquema pré-2018)		yes			no		co_applicant_ethnicity
+applicant_race_1	STRING	Primeira raça informada pelo solicitante		yes			no		applicant_race_1
+applicant_race_2	STRING	Segunda raça informada pelo solicitante		yes			no		applicant_race_2
+applicant_race_3	STRING	Terceira raça informada pelo solicitante		yes			no		applicant_race_3
+applicant_race_4	STRING	Quarta raça informada pelo solicitante		yes			no		applicant_race_4
+applicant_race_5	STRING	Quinta raça informada pelo solicitante		yes			no		applicant_race_5
+co_applicant_race_1	STRING	Primeira raça informada pelo cossolicitante		yes			no		co_applicant_race_1
+co_applicant_race_2	STRING	Segunda raça informada pelo cossolicitante		yes			no		co_applicant_race_2
+co_applicant_race_3	STRING	Terceira raça informada pelo cossolicitante		yes			no		co_applicant_race_3
+co_applicant_race_4	STRING	Quarta raça informada pelo cossolicitante		yes			no		co_applicant_race_4
+co_applicant_race_5	STRING	Quinta raça informada pelo cossolicitante		yes			no		co_applicant_race_5
+applicant_sex	STRING	Sexo do solicitante		yes			no		applicant_sex
+co_applicant_sex	STRING	Sexo do cossolicitante		yes			no		co_applicant_sex
+denial_reason_1	STRING	Primeiro motivo de negação da solicitação		yes			no		denial_reason_1
+denial_reason_2	STRING	Segundo motivo de negação da solicitação		yes			no		denial_reason_2
+denial_reason_3	STRING	Terceiro motivo de negação da solicitação		yes			no		denial_reason_3
+tract_population	INT64	População total do setor censitário		no		unit	no		population
+tract_minority_population_percent	FLOAT64	Percentual de população de minorias no setor censitário		no		percent	no		minority_population
+hud_median_family_income	INT64	Renda familiar mediana da MSA/MD definida pelo HUD, em dólares		no		USD	no	Renda mediana definida pelo HUD para a MSA/MD (analog pré-2018 do campo FFIEC)	hud_median_family_income
+tract_to_msa_income_percentage	FLOAT64	Razão entre a renda mediana do setor e a da MSA/MD, em percentual		no		percent	no		tract_to_msamd_income
+tract_owner_occupied_units	INT64	Número de domicílios ocupados pelo proprietário no setor censitário		no		unit	no		number_of_owner_occupied_units
+tract_one_to_four_family_homes	INT64	Número de domicílios de 1 a 4 famílias no setor censitário		no		unit	no		number_of_1_to_4_family_units

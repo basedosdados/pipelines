@@ -151,6 +151,9 @@ models:
     us_census_cps:
       +materialized: table
       +schema: us_census_cps
+    us_cfpb_hmda:
+      +materialized: table
+      +schema: us_cfpb_hmda
     us_nature_gerda:
       +materialized: table
       +schema: us_nature_gerda
