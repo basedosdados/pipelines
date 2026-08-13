@@ -345,6 +345,56 @@ O padrão do dbt é `ignore`, que descartaria a coluna nova sem erro.
 Em estabelecimentos a mesma verificação não achou nenhum descarte: depois da
 correção do §6.2, o crawler captura tudo que o arquivo de 2025 publica.
 
+### 6.6 Coluna `id_municipio_trabalho`
+
+A fonte parou de informar o município de trabalho na virada para o sistema novo.
+Desde 2023 ela envia `999999` — o código de "não informado" —, que não existe no
+diretório de municípios. O crawler converte o código IBGE de 6 dígitos no de 7
+por um `merge` com `br_bd_diretorios_brasil.municipio` (`tasks.py`), e código
+inexistente não acha par: a coluna sai vazia.
+
+| Ano | Linhas | Preenchida |
+| :--- | ---: | ---: |
+| 2021 | 211,6 M | 71,1% |
+| 2022 | 235,5 M | 95,2% |
+| 2023 | 83,0 M | 0,36% |
+| 2024 | 87,7 M | 0,39% |
+| 2025 | 91,7 M | 0,28% |
+
+O corte é seco na virada do sistema, não uma piora gradual. **Não é defeito do
+pipeline:** o dado não existe na origem e nenhum reprocessamento o recupera. Por
+isso a coluna entra no `ignore_values` do teste de proporção de nulos, junto com
+as outras que a fonte deixou de entregar.
+
+O `merge` apaga a diferença entre "a fonte respondeu que não sabe" (`999999`) e
+"a fonte não mandou a coluna": as duas viram nulo. É deliberado — publicar um
+município falso seria pior —, mas a tabela não distingue os dois casos.
+
+### 6.7 Códigos de `motivo_desligamento` sem rótulo
+
+A fonte passou a emitir seis códigos que o dicionário da RAIS não documenta.
+Todos aparecem só a partir de 2025 e somam ~100 mil linhas em 91,7 milhões (0,11%):
+
+| Código | Linhas em 2025 | Família pela dezena |
+| :--- | ---: | :--- |
+| 81 | 86.745 | Aposentadoria |
+| 82 | 5.965 | Aposentadoria |
+| 24 | 3.555 | Iniciativa do empregado |
+| 35 | 1.667 | Transferência / cessão |
+| 65 | 1.428 | Falecimento |
+| 36 | 896 | Transferência / cessão |
+
+A família é inferida pelo agrupamento por dezena que a RAIS usa (1x empregador,
+2x empregado, 3x transferência, 6x falecimento, 7x-8x aposentadoria, 9x acordo).
+**Não é rótulo** — serve para conferir o documento oficial quando ele aparecer.
+
+Não confundir com a Tabela 19 do eSocial: ela vai de 01 a 46 e não contém 65, 81
+nem 82. O vocabulário de `motivo_desligamento` é o da própria RAIS.
+
+Enquanto o dicionário oficial de 2025 não é localizado, os seis entram como
+`Código não encontrado nos dicionários oficiais.`, mesmo tratamento dos códigos
+1-9, 89 e 99. Trocar pelos rótulos reais é trabalho de PR separada.
+
 ---
 
 ## 7. Observações sobre a divulgação dos dados

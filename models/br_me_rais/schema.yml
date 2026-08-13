@@ -83,6 +83,7 @@ models:
             - cbo_1994
             - grau_instrucao_1985_2005
             - categoria_trabalhador
+            - id_municipio_trabalho
     columns:
       - name: ano
         description: Ano
@@ -131,7 +132,11 @@ models:
       - name: quantidade_horas_contratadas
         description: Quantidade de Horas Contratadas
       - name: id_municipio_trabalho
-        description: ID Município de Trabalho
+        description: >
+          ID Município de Trabalho. A fonte deixou de informar o município a partir
+          de 2023 e passou a enviar o código 999999 (não informado), que não tem
+          correspondência no diretório de municípios; a coluna está preenchida em
+          menos de 0,4% das linhas de 2023 em diante
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
