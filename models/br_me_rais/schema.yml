@@ -72,6 +72,8 @@ models:
             - bairros_rj
             - regioes_administrativas_df
           dictionary_model: ref('br_me_rais__dicionario')
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -90,6 +92,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -98,12 +102,16 @@ models:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
               ignore_values: [IGNORADO]
+              config:
+                where: __most_recent_year__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: tipo_vinculo
         description: Tipo do Vínculo
       - name: vinculo_ativo_3112
@@ -140,6 +148,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: quantidade_dias_afastamento
         description: Quantidade de Dias sob Afastamento
       - name: indicador_cei_vinculado
@@ -236,6 +246,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__subatividade_ibge')
               field: id_subatividade
+              config:
+                where: __most_recent_year__
       - name: subsetor_ibge
         description: Subsetor - IBGE
       - name: cnae_1
