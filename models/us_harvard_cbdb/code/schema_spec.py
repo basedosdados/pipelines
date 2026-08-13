@@ -979,6 +979,7 @@ TABLES["dicionario"] = dict(
     name_pt="Dicionário",
     name_es="Diccionario",
     desc_pt="Dicionário que traduz os valores codificados das colunas cobertas por dicionário nas demais tabelas do conjunto.",
+    # pyrefly: ignore [bad-assignment]
     desc_en="Dictionary translating the coded values of dictionary-covered columns in the other tables of this dataset.",
     desc_es="Diccionario que traduce los valores codificados de las columnas cubiertas por diccionario en las demás tablas del conjunto.",
     # pyrefly: ignore [bad-assignment]

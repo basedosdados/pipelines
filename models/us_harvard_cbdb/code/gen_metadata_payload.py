@@ -26,7 +26,9 @@ OL_GRAIN = {
 
 def main():
     index = {}
+    # pyrefly: ignore [unknown-name]
     for name in TABLE_ORDER:
+        # pyrefly: ignore [unknown-name]
         spec = TABLES[name]
         cols = []
         for c in spec["columns"]:
@@ -46,6 +48,7 @@ def main():
         with open(path, "w", encoding="utf-8") as f:
             json.dump(cols, f, ensure_ascii=False)
         index[name] = dict(
+            # pyrefly: ignore [unknown-name]
             source=TABLES[name]["source"],
             name_pt=spec["name_pt"],
             name_en=spec["name_en"],
