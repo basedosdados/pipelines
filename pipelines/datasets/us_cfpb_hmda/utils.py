@@ -3,31 +3,31 @@
 Download + clean the modern HMDA LAR (2018+) into all-STRING, year-partitioned
 parquet. Schema, column order, the raw->clean name map, and the x1000 rule come
 from the architecture TSV (constants.ARCHITECTURE_TSV) - the single source of
-truth shared with the one-shot bootstrap in models/us_cfpb_hmda/code. The typed
-transform here mirrors models/us_cfpb_hmda/code/clean.py; the only difference is
-this writes all-STRING parquet (staging convention - see write note below) while
-keeping the `year` column in-file.
+truth shared with the one-shot bootstrap in models/us_cfpb_hmda/code.
 
-Memory: duckdb streams the COPY with preserve_insertion_order=false, so a 4-5 GB
-CSV cleans at ~0.8 GB RSS. Years are processed one at a time and the raw CSV is
-deleted right after its clean, so peak disk stays near a single raw file.
+Cleaning uses polars' streaming engine (scan_csv -> select -> sink_parquet), which
+is memory-bounded (a 4-5 GB CSV cleans well under the worker's 8 GB) and, unlike
+duckdb, is already in the deployed worker image. Output is all-STRING (the staging
+convention: upload_to_gcs infers a STRING header, and the dbt model safe_casts
+each column back to its architecture type); numeric coercion drops the source
+sentinels (NA/Exempt/blank) to NULL, and NULL stays NULL through the string cast.
+The `year` column is kept in-file. Years are processed one at a time and the raw
+CSV is deleted right after its clean, so peak disk stays near a single raw file.
 """
 
 import csv
 import subprocess
 from pathlib import Path
 
-import duckdb
-import requests
+import polars as pl
 
 from pipelines.datasets.us_cfpb_hmda.constants import constants
 
-DATASET_ID = constants.DATASET_ID.value
 TABLE_ID = constants.TABLE_ID.value
 FIRST_YEAR = constants.FIRST_YEAR.value
 MODERN_URL = constants.MODERN_URL.value
 MULTIPLY_1000 = set(constants.MULTIPLY_1000.value)
-BQ_TO_DUCK = {"INT64": "BIGINT", "FLOAT64": "DOUBLE", "STRING": "VARCHAR"}
+PL_NUM = {"INT64": pl.Int64, "FLOAT64": pl.Float64}
 
 
 def read_arch() -> list[dict]:
@@ -43,16 +43,21 @@ def read_arch() -> list[dict]:
         ]
 
 
+def _header(csv_path: Path) -> set[str]:
+    with open(csv_path, encoding="utf-8-sig", newline="") as fh:
+        return set(next(csv.reader(fh)))
+
+
 def latest_source_year(this_year: int) -> int:
     """Highest modern year CFPB has published, probed from this_year down.
 
     The nationwide endpoint 301-redirects to a real CSV for a published year and
-    returns a small/error body otherwise. We stream a few KB and accept the year
-    only if the payload starts with the expected `activity_year,lei,...` header.
+    returns a small/error body otherwise; we accept a year only if the streamed
+    head starts with the expected `activity_year,lei,...` header.
 
     Args:
-        this_year: Calendar year to start probing down from (caller passes it so
-            the flow controls "now"; keeps this function free of clock calls).
+        this_year: Calendar year to start probing down from (the flow passes it,
+            keeping this function free of clock calls).
 
     Returns:
         The latest published modern year (>= FIRST_YEAR).
@@ -60,6 +65,8 @@ def latest_source_year(this_year: int) -> int:
     Raises:
         RuntimeError: If no published year is found down to FIRST_YEAR.
     """
+    import requests
+
     for y in range(this_year, FIRST_YEAR - 1, -1):
         try:
             with requests.get(
@@ -85,84 +92,63 @@ def download_year(year: int, input_dir: Path) -> Path:
     dest = input_dir / f"modern_{year}.csv"
     tmp = dest.with_suffix(".csv.part")
     cmd = [
-        "curl",
-        "-fL",
-        "--retry",
-        "4",
-        "--retry-delay",
-        "5",
-        "--connect-timeout",
-        "30",
-        "-o",
-        str(tmp),
-        MODERN_URL.format(year=year),
+        "curl", "-fL", "--retry", "4", "--retry-delay", "5",
+        "--connect-timeout", "30", "-o", str(tmp), MODERN_URL.format(year=year),
     ]
     subprocess.run(cmd, check=True)
     tmp.rename(dest)
     return dest
 
 
-def _expr(col: dict, present: set[str]) -> str:
-    """Typed transform for one column, then cast to VARCHAR (all-STRING staging).
+def _expr(col: dict, present: set[str]) -> pl.Expr:
+    """Polars expression for one column -> all-STRING output aliased to `name`.
 
-    STRING -> trimmed, blank -> NULL. INT64/FLOAT64 -> TRY_CAST (source
-    sentinels NA/Exempt/blank -> NULL); x1000 columns scaled to real USD. The
-    outer CAST(... AS VARCHAR) keeps NULL as NULL (never the string "nan"), which
-    the dbt model then safe_casts back to the architecture type.
+    STRING -> trimmed, blank -> NULL, raw codes kept. INT64/FLOAT64 -> non-strict
+    numeric cast (source sentinels NA/Exempt/blank -> NULL); x1000 columns scaled
+    to real USD. The final cast to Utf8 keeps NULL as NULL (never "nan"), which
+    the dbt model then safe_casts back to the architecture type. Columns absent
+    from a given year's header become typed NULLs.
     """
-    q = '"' + col["original_name"].replace('"', '""') + '"'
     name, typ = col["name"], col["bigquery_type"]
     if col["original_name"] not in present:
-        return f"CAST(NULL AS VARCHAR) AS {name}"
+        return pl.lit(None, dtype=pl.Utf8).alias(name)
+    s = pl.col(col["original_name"]).str.strip_chars()
     if typ == "STRING":
-        inner = f"nullif(trim({q}), '')"
-    else:
-        inner = f"TRY_CAST(nullif(trim({q}), '') AS {BQ_TO_DUCK[typ]})"
-        if name in MULTIPLY_1000:
-            inner = f"({inner}) * 1000"
-    return f"CAST({inner} AS VARCHAR) AS {name}"
+        return (
+            pl.when(s.str.len_chars() == 0).then(None).otherwise(s)
+            .cast(pl.Utf8).alias(name)
+        )
+    num = s.cast(PL_NUM[typ], strict=False)
+    if name in MULTIPLY_1000:
+        num = num * 1000
+    return num.cast(pl.Utf8).alias(name)
 
 
 def clean_year(year: int, csv_path: Path, output_dir: Path) -> Path:
     """Clean one year's CSV into all-STRING parquet at
     output_dir/loan_application_register/year=<year>/data.parquet (year in-file)."""
     cols = read_arch()  # includes `year`
-    with open(csv_path, encoding="utf-8-sig", newline="") as fh:
-        present = set(next(csv.reader(fh)))
-    exprs = ",\n    ".join(_expr(c, present) for c in cols)
+    present = _header(csv_path)
+    lf = pl.scan_csv(
+        csv_path,
+        separator=",",
+        has_header=True,
+        infer_schema_length=0,  # read every column as Utf8
+        quote_char='"',
+        truncate_ragged_lines=True,
+    ).select([_expr(c, present) for c in cols])
+
     out_dir = output_dir / TABLE_ID / f"year={year}"
     out_dir.mkdir(parents=True, exist_ok=True)
     out = out_dir / "data.parquet"
-    tmp = output_dir / "duck_tmp"
-    tmp.mkdir(parents=True, exist_ok=True)
-
-    con = duckdb.connect()
-    con.execute("SET preserve_insertion_order=false")
-    con.execute("SET threads=2")
-    con.execute("SET memory_limit='4GB'")
-    con.execute(f"SET temp_directory='{tmp}'")
-    read = (
-        f"read_csv('{csv_path}', header=true, all_varchar=true, sample_size=-1, "
-        f"quote='\"', escape='\"', null_padding=true, ignore_errors=false)"
-    )
-    con.execute(
-        f"COPY (SELECT\n    {exprs}\n FROM {read}) "
-        f"TO '{out}' (FORMAT PARQUET, COMPRESSION SNAPPY, ROW_GROUP_SIZE 100000)"
-    )
-    con.close()
+    lf.sink_parquet(out, compression="snappy", row_group_size=100_000)
     return out
 
 
 def clean_all(output_dir: Path, years: list[int], input_dir: Path) -> dict:
     """Download+clean each modern year one at a time (deleting each raw CSV after).
 
-    Args:
-        output_dir: Root for partitioned output.
-        years: Modern years to process (2018..latest).
-        input_dir: Where raw CSVs land (deleted per year after cleaning).
-
-    Returns:
-        {"loan_application_register": <partition dir>, "max_year": "<YYYY>"}.
+    Returns {"loan_application_register": <partition dir>, "max_year": "<YYYY>"}.
     """
     for y in years:
         csv_path = download_year(y, input_dir)
