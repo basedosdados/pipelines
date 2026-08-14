@@ -7,6 +7,9 @@ particularidades por tabela: ver `pipelines/datasets/br_rf_cno/README.md`.
 
 A data de partição é gravada sem componente de hora (date-only); com hora, o
 `safe_cast(data as date)` do model virava NULL e o filtro incremental nunca inseria.
+
+O `process_file` escreve parquet, então o `_run_rf` declara `source_format="parquet"`
+no upload: com o default `"csv"`, o `dump_header` procura arquivo que não existe.
 """
 
 from prefect import flow
