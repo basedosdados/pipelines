@@ -229,6 +229,9 @@ project-excludes = [
   # clean.py, gen_dbt.py, upload.py use importlib.util.spec_from_file_location
   # with cwd-relative paths), unresolvable from the repo root.
   "models/world_aiddata_gcdf/code",
+  # Same policy: au_geoscape_gnaf ETL is standalone `.py` (clean.py/upload.py use
+  # google-cloud + cwd-relative architecture CSVs), unresolvable from repo root.
+  "models/au_geoscape_gnaf/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
