@@ -1,0 +1,7 @@
+# Never commit data or credentials
+input/
+output/
+*.parquet
+*.csv.gz
+*.json.gz
+.env
