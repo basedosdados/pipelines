@@ -1,0 +1,269 @@
+---
+version: 2
+models:
+  - name: br_cgu_sancoes__ceis
+    description: >
+      Cadastro de Empresas Inidôneas e Suspensas (CEIS): pessoas físicas e
+      jurídicas que sofreram sanções que restringem o direito de participar de
+      licitações ou celebrar contratos com a Administração Pública. Cada
+      snapshot da fonte é empilhado sob data_extracao.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, codigo_sancao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - nome_informado_orgao
+            - razao_social_receita
+            - nome_fantasia_receita
+            - data_final_sancao
+            - data_publicacao
+            - publicacao
+            - detalhamento_meio_publicacao
+            - data_transito_julgado
+            - data_origem_informacao
+            - observacoes
+    columns:
+      - name: data_extracao
+        description: Data de extração dos dados da fonte original
+        tests: [not_null]
+      - name: cadastro
+        description: Nome do cadastro de origem da sanção
+      - name: codigo_sancao
+        description: Código identificador da sanção
+      - name: tipo_pessoa
+        description: Tipo de pessoa sancionada (física ou jurídica)
+      - name: cpf_cnpj_sancionado
+        description: CPF ou CNPJ da pessoa sancionada
+      - name: nome_sancionado
+        description: Nome da pessoa física ou razão social da pessoa jurídica sancionada
+      - name: nome_informado_orgao
+        description: Nome do sancionado conforme informado pelo órgão sancionador
+      - name: razao_social_receita
+        description: Razão social do sancionado conforme a Receita Federal
+      - name: nome_fantasia_receita
+        description: Nome fantasia do sancionado conforme a Receita Federal
+      - name: numero_processo
+        description: Número do processo que originou a sanção
+      - name: categoria_sancao
+        description: Categoria da sanção aplicada
+      - name: data_inicio_sancao
+        description: Data de início da vigência da sanção
+      - name: data_final_sancao
+        description: Data final da vigência da sanção
+      - name: data_publicacao
+        description: Data de publicação da sanção
+      - name: publicacao
+        description: Descrição da publicação da sanção
+      - name: detalhamento_meio_publicacao
+        description: Detalhamento do meio de publicação da sanção
+      - name: data_transito_julgado
+        description: Data do trânsito em julgado da decisão
+      - name: abrangencia_sancao
+        description: Abrangência territorial da sanção
+      - name: orgao_sancionador
+        description: Nome do órgão responsável pela aplicação da sanção
+      - name: sigla_uf_orgao
+        description: Sigla da unidade federativa do órgão sancionador
+      - name: esfera_orgao
+        description: Esfera administrativa do órgão sancionador
+      - name: fundamentacao_legal
+        description: Fundamentação legal da sanção
+      - name: data_origem_informacao
+        description: Data da origem da informação
+      - name: origem_informacao
+        description: Órgão ou sistema de origem da informação
+      - name: observacoes
+        description: Observações adicionais sobre a sanção
+  - name: br_cgu_sancoes__cnep
+    description: >
+      Cadastro Nacional de Empresas Punidas (CNEP): pessoas jurídicas e físicas
+      que sofreram sanções previstas na Lei Anticorrupção (Lei nº 12.846/2013).
+      Cada snapshot da fonte é empilhado sob data_extracao.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, codigo_sancao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - nome_informado_orgao
+            - razao_social_receita
+            - nome_fantasia_receita
+            - valor_multa
+            - data_final_sancao
+            - data_publicacao
+            - publicacao
+            - detalhamento_meio_publicacao
+            - data_transito_julgado
+            - data_origem_informacao
+            - observacoes
+    columns:
+      - name: data_extracao
+        description: Data de extração dos dados da fonte original
+        tests: [not_null]
+      - name: cadastro
+        description: Nome do cadastro de origem da sanção
+      - name: codigo_sancao
+        description: Código identificador da sanção
+      - name: tipo_pessoa
+        description: Tipo de pessoa sancionada (física ou jurídica)
+      - name: cpf_cnpj_sancionado
+        description: CPF ou CNPJ da pessoa sancionada
+      - name: nome_sancionado
+        description: Nome da pessoa física ou razão social da pessoa jurídica sancionada
+      - name: nome_informado_orgao
+        description: Nome do sancionado conforme informado pelo órgão sancionador
+      - name: razao_social_receita
+        description: Razão social do sancionado conforme a Receita Federal
+      - name: nome_fantasia_receita
+        description: Nome fantasia do sancionado conforme a Receita Federal
+      - name: numero_processo
+        description: Número do processo que originou a sanção
+      - name: categoria_sancao
+        description: Categoria da sanção aplicada
+      - name: valor_multa
+        description: Valor da multa aplicada
+      - name: data_inicio_sancao
+        description: Data de início da vigência da sanção
+      - name: data_final_sancao
+        description: Data final da vigência da sanção
+      - name: data_publicacao
+        description: Data de publicação da sanção
+      - name: publicacao
+        description: Descrição da publicação da sanção
+      - name: detalhamento_meio_publicacao
+        description: Detalhamento do meio de publicação da sanção
+      - name: data_transito_julgado
+        description: Data do trânsito em julgado da decisão
+      - name: abrangencia_sancao
+        description: Abrangência territorial da sanção
+      - name: orgao_sancionador
+        description: Nome do órgão responsável pela aplicação da sanção
+      - name: sigla_uf_orgao
+        description: Sigla da unidade federativa do órgão sancionador
+      - name: esfera_orgao
+        description: Esfera administrativa do órgão sancionador
+      - name: fundamentacao_legal
+        description: Fundamentação legal da sanção
+      - name: data_origem_informacao
+        description: Data da origem da informação
+      - name: origem_informacao
+        description: Órgão ou sistema de origem da informação
+      - name: observacoes
+        description: Observações adicionais sobre a sanção
+  - name: br_cgu_sancoes__cepim
+    description: >
+      Cadastro de Entidades Privadas Sem Fins Lucrativos Impedidas (CEPIM):
+      entidades privadas sem fins lucrativos impedidas de celebrar convênios,
+      contratos de repasse ou termos de parceria com a Administração Pública
+      Federal. Cada snapshot da fonte é empilhado sob data_extracao.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - cnpj_entidade
+            - numero_convenio
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: Data de extração dos dados da fonte original
+        tests: [not_null]
+      - name: cnpj_entidade
+        description: CNPJ da entidade privada impedida
+      - name: nome_entidade
+        description: Nome da entidade privada impedida
+      - name: numero_convenio
+        description: Número do convênio associado ao impedimento
+      - name: orgao_concedente
+        description: Nome do órgão concedente do convênio
+      - name: motivo_impedimento
+        description: Motivo do impedimento da entidade
+  - name: br_cgu_sancoes__acordos_leniencia
+    description: >
+      Acordos de leniência celebrados no âmbito da Lei Anticorrupção (Lei nº
+      12.846/2013): um registro por pessoa jurídica participante de cada acordo,
+      com situação e órgão sancionador. Um mesmo id_acordo pode aparecer em
+      várias linhas (uma por CNPJ sancionado), então a chave é a combinação de
+      data_extracao, id_acordo e cnpj_sancionado. Cada snapshot da fonte é
+      empilhado sob data_extracao.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, id_acordo, cnpj_sancionado]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - razao_social_receita
+            - nome_fantasia_receita
+            - data_fim_acordo
+            - data_informacao
+            - termos_acordo
+    columns:
+      - name: data_extracao
+        description: Data de extração dos dados da fonte original
+        tests: [not_null]
+      - name: id_acordo
+        description: Identificador do acordo de leniência
+      - name: cnpj_sancionado
+        description: CNPJ da pessoa jurídica que celebrou o acordo
+      - name: razao_social_receita
+        description: Razão social da pessoa jurídica conforme a Receita Federal
+      - name: nome_fantasia_receita
+        description: Nome fantasia da pessoa jurídica conforme a Receita Federal
+      - name: data_inicio_acordo
+        description: Data de início do acordo de leniência
+      - name: data_fim_acordo
+        description: Data de término do acordo de leniência
+      - name: situacao_acordo
+        description: Situação atual do acordo de leniência
+      - name: data_informacao
+        description: Data da informação do acordo
+      - name: numero_processo
+        description: Número do processo associado ao acordo
+      - name: termos_acordo
+        description: Descrição dos termos do acordo
+      - name: orgao_sancionador
+        description: Nome do órgão responsável pelo acordo
+  - name: br_cgu_sancoes__acordos_leniencia_efeitos
+    description: >
+      Efeitos dos acordos de leniência celebrados no âmbito da Lei
+      Anticorrupção: um ou mais registros por acordo, detalhando cada efeito e
+      seu complemento. Não há chave única natural, pois há uma relação de um
+      para muitos por id_acordo. Cada snapshot da fonte é empilhado sob
+      data_extracao.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [complemento]
+    columns:
+      - name: data_extracao
+        description: Data de extração dos dados da fonte original
+        tests: [not_null]
+      - name: id_acordo
+        description: Identificador do acordo de leniência ao qual o efeito se refere
+      - name: efeito
+        description: Descrição do efeito do acordo de leniência
+      - name: complemento
+        description: Complemento ou detalhamento do efeito
+  - name: br_cgu_sancoes__dicionario
+    description: >
+      Dicionário de códigos das colunas codificadas das tabelas do conjunto
+      br_cgu_sancoes, mapeando cada chave ao seu rótulo (valor).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: Nome da tabela à qual a coluna codificada pertence
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna codificada coberta pelo dicionário
+        tests: [not_null]
+      - name: chave
+        description: Código (chave) presente na coluna codificada
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Cobertura temporal à qual o par chave-valor se aplica
+      - name: valor
+        description: Valor (rótulo) correspondente à chave na coluna codificada
+        tests: [not_null]
