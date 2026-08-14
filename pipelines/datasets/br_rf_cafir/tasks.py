@@ -85,7 +85,7 @@ def decide_files_to_download(
     ValueError: Se não houver arquivos disponíveis para a data específica fornecida.
     """
     if reference_date is None:
-        max_date = df_metadata["data_referencia"].max()
+        max_date = df_metadata["data_referencia"].max().date()
         log(
             f"A data máxima extraida da API da Receita Federal que será utilizada para comparar com os metadados da BD: {max_date}"
         )
@@ -94,11 +94,11 @@ def decide_files_to_download(
             f"A data máxima extraida da API da Receita Federal que será utilizada para gerar partições no Storage: {max_date}"
         )
 
-        return df_metadata[df_metadata["data_referencia"] == max_date]
+        return df_metadata[df_metadata["data_referencia"].dt.date == max_date]
 
     else:
         filtered_df = df_metadata[
-            df_metadata["data_modificacao"] == reference_date
+            df_metadata["data_referencia"].dt.date == reference_date
         ]
         if filtered_df.empty:
             raise ValueError(
