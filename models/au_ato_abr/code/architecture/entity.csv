@@ -1,0 +1,15 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+extraction_date,DATE,Data de extração do snapshot do registro (ABR); cada extração é uma fotografia completa do cadastro,,no,,,no,Partition column; snapshot date from the extract header,ExtractTime
+abn,STRING,"Número de Empresa Australiano (ABN), identificador único de 11 dígitos da entidade",,no,,,no,,ABN
+abn_status,STRING,Situação do ABN: ativo (ACT) ou cancelado (CAN),,yes,,,no,,ABN@status
+abn_status_from_date,DATE,Data a partir da qual a situação atual do ABN passou a vigorar,,no,,,no,Sentinel 19000101 mapped to null,ABN@ABNStatusFromDate
+entity_type,STRING,"Código do tipo de entidade (ex.: IND para pessoa física/autônomo, PRV para empresa privada australiana)",,yes,,,no,,EntityType/EntityTypeInd
+entity_name,STRING,"Nome legal ou principal da entidade; para pessoas físicas (autônomos), o nome completo do indivíduo",,no,,,yes,For individuals assembled as given + family name,NonIndividualNameText or IndividualName
+asic_number,STRING,"Número de registro na ASIC (ACN — Australian Company Number, ou ARBN), quando aplicável",,no,,,no,,ASICNumber
+asic_number_type,STRING,"Tipo do número ASIC (ex.: ACN, ARBN)",,yes,,,no,,ASICNumber@ASICNumberType
+gst_status,STRING,"Situação de registro no GST (imposto sobre bens e serviços): ativo, cancelado ou não registrado",,yes,,,no,,GST@status
+gst_status_from_date,DATE,Data a partir da qual a situação atual do GST passou a vigorar,,no,,,no,Sentinel 19000101 mapped to null,GST@GSTStatusFromDate
+state_code,STRING,"Sigla do estado ou território da localização comercial principal da entidade (ex.: NSW, VIC, QLD)",,yes,,,no,Link to br_bd_diretorios_au state/territory directory when available in prod,BusinessAddress/AddressDetails/State
+postcode,STRING,Código postal (postcode) de 4 dígitos da localização comercial principal da entidade,,no,,,no,Link to an Australian POA postal-area directory when available,BusinessAddress/AddressDetails/Postcode
+record_last_updated_date,DATE,Data da última atualização do registro da entidade no ABR,,no,,,no,,ABR@recordLastUpdatedDate
+replaced,STRING,Indicador de que o registro substituiu um registro anterior nesta extração (Y ou N),,yes,,,no,,ABR@replaced

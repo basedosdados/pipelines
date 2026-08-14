@@ -49,6 +49,9 @@ models:
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
+    au_ato_abr:
+      +materialized: table
+      +schema: au_ato_abr
     au_geoscape_gnaf:
       +materialized: table
       +schema: au_geoscape_gnaf
@@ -142,6 +145,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_fed_fred:
+      +materialized: table
+      +schema: us_fed_fred
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force

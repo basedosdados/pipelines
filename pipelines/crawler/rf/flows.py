@@ -87,6 +87,7 @@ def _run_rf(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
+        source_format="parquet",
     )
 
     run_dbt(
@@ -106,6 +107,7 @@ def _run_rf(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
+        source_format="parquet",
     )
 
     run_dbt(

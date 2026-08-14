@@ -229,6 +229,10 @@ project-excludes = [
   # clean.py, gen_dbt.py, upload.py use importlib.util.spec_from_file_location
   # with cwd-relative paths), unresolvable from the repo root.
   "models/world_aiddata_gcdf/code",
+  # Same policy: us_fed_fred ETL is standalone `.py` (download_clean.py, upload.py
+  # run via uv run; the pure transform is relocated to pipelines/datasets at the
+  # pipeline step), so imports are unresolvable from the repo root.
+  "models/us_fed_fred/code",
   # Same policy: au_geoscape_gnaf ETL is standalone `.py` (clean.py/upload.py use
   # google-cloud + cwd-relative architecture CSVs), unresolvable from repo root.
   "models/au_geoscape_gnaf/code",
