@@ -2,16 +2,20 @@
 Flows for br_rf_cafir — Prefect 3.
 """
 
+import datetime
+
 from prefect import flow
 
-from pipelines.crawler.rf_cafir.constants import (
+from pipelines.datasets.br_rf_cafir.constants import (
     constants as br_rf_cafir_constants,
 )
-from pipelines.crawler.rf_cafir.tasks import (
-    task_decide_files_to_download,
-    task_download_files,
-    task_get_last_update_date,
-    task_parse_api_metadata,
+from pipelines.datasets.br_rf_cafir.tasks import (
+    build_paths,
+    decide_files_to_download,
+    download_files,
+    get_api_metadata,
+    get_last_reference_date,
+    process_files,
 )
 from pipelines.utils.metadata.domain import (
     DateFormat,
@@ -42,43 +46,53 @@ def br_rf_cafir__imoveis_rurais(
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
+    data_referencia: str | None = None,
 ) -> None:
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    df_metadata = task_parse_api_metadata(url=br_rf_cafir_constants.URL.value)
+    input_folder, output_folder = build_paths()
+    df_metadata = get_api_metadata(url=br_rf_cafir_constants.URL.value)
 
-    last_update = task_get_last_update_date(
-        url=br_rf_cafir_constants.URL.value
-    )
-
-    arquivos, data_atualizacao = task_decide_files_to_download(
-        df=df_metadata, last_update_date=last_update
-    )
+    if data_referencia is None:
+        reference_date = get_last_reference_date(df_metadata)
+    else:
+        reference_date = datetime.datetime.strptime(
+            data_referencia, "%Y-%m-%d"
+        ).date()
 
     if not force_run:
         has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            source_max_date=data_atualizacao,
+            source_max_date=reference_date,
             env="prod",
             date_format="%Y-%m-%d",
         )
         if not has_new_data:
             return
 
+    filtered_df = decide_files_to_download(
+        df_metadata=df_metadata, reference_date=reference_date
+    )
+
     # pyrefly: ignore [no-matching-overload]
-    file_path = task_download_files(
+    download_files(
         url=br_rf_cafir_constants.URL.value,
-        file_list=arquivos,
-        data_atualizacao=data_atualizacao,
-        last_update_date=last_update,
+        input_folder=input_folder,
+        df_metadata=filtered_df,
+    )
+
+    output_path = process_files(
+        input_folder=input_folder,
+        output_folder=output_folder,
+        df_metadata=filtered_df,
     )
 
     upload_to_gcs(
-        data_path=file_path,
+        data_path=output_path,
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name="basedosdados-dev",
@@ -97,7 +111,7 @@ def br_rf_cafir__imoveis_rurais(
         return
 
     upload_to_gcs(
-        data_path=file_path,
+        data_path=output_path,
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name="basedosdados",
@@ -124,11 +138,11 @@ def br_rf_cafir__imoveis_rurais(
             bq_project="basedosdados",
         )
 
-        if data_atualizacao is not None:
+        if reference_date is not None:
             commit_source_update_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                source_max_date=data_atualizacao,
+                source_max_date=reference_date,
                 env="prod",
                 date_format="%Y-%m-%d",
             )
