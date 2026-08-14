@@ -12,7 +12,9 @@
 }}
 
 -- Atualizado em 2026-08-14
-select
+-- distinct: the source occasionally repeats the identical (name_type, name) for
+-- an ABN within one snapshot; those rows carry no extra information.
+select distinct
     safe_cast(extraction_date as date) extraction_date,
     safe_cast(abn as string) abn,
     safe_cast(name_type as string) name_type,
