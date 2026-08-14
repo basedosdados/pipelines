@@ -49,6 +49,9 @@ models:
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
+    au_ato_abr:
+      +materialized: table
+      +schema: au_ato_abr
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
