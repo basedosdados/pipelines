@@ -1,0 +1,15 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano de referência,,no,,,no,,TimePeriod,Reference year,Año de referencia
+quarter,STRING,Trimestre (1 a 4); nulo para frequência não trimestral,,no,,,no,,TimePeriod,Quarter (1 to 4); null for non-quarterly frequency,Trimestre (1 a 4); nulo para frecuencia no trimestral
+frequency,STRING,"Frequência da série: A (anual), Q (trimestral), M (mensal)",,yes,,,no,,Frequency,"Series frequency: A (annual), Q (quarterly), M (monthly)","Frecuencia de la serie: A (anual), Q (trimestral), M (mensual)"
+geo_fips,STRING,"Código geográfico BEA da entidade estadual (5 dígitos; NN000 para estados, 00000 EUA, 9x000 regiões BEA)",,no,,,no,,GeoFips,"BEA geographic code of the state-level entity (5 digits; NN000 for states, 00000 US, 9x000 BEA regions)","Código geográfico BEA de la entidad estatal (5 dígitos; NN000 para estados, 00000 EE. UU., 9x000 regiones BEA)"
+id_state,STRING,Código FIPS do estado (2 dígitos); nulo para EUA e regiões BEA,,no,br_bd_diretorios_us.state:id_state,,no,,GeoFips,State FIPS code (2 digits); null for US and BEA regions,Código FIPS del estado (2 dígitos); nulo para EE. UU. y regiones BEA
+geo_name,STRING,Nome da área geográfica,,no,,,no,,GeoName,Name of the geographic area,Nombre del área geográfica
+table_name,STRING,Identificador da tabela BEA (ex.: SAGDP2),,yes,,,no,,TableName,BEA table identifier (e.g. SAGDP2),Identificador de la tabla BEA (p. ej. SAGDP2)
+line_code,STRING,Código da linha dentro da tabela BEA,,no,,,no,,LineCode,Line code within the BEA table,Código de línea dentro de la tabla BEA
+series_code,STRING,Código da série BEA da observação,,no,,,no,,Code,BEA series code of the observation,Código de serie BEA de la observación
+line_description,STRING,Descrição da linha da tabela,,no,,,no,,LineDescription,Description of the table line,Descripción de la línea de la tabla
+unit,STRING,Unidade de medida da série (rótulo BEA CL_UNIT),,no,,,no,,CL_UNIT,Unit of measure of the series (BEA CL_UNIT label),Unidad de medida de la serie (etiqueta BEA CL_UNIT)
+unit_mult,STRING,Multiplicador de base 10 aplicado ao valor (expoente; ex.: 6 = milhões),,no,,,no,,UNIT_MULT,Base-10 multiplier applied to the value (exponent; e.g. 6 = millions),Multiplicador de base 10 aplicado al valor (exponente; p. ej. 6 = millones)
+value,FLOAT64,"Valor observado, na unidade indicada nas colunas unit/unit_mult",,no,,,no,"Unidade varia por linha (dólares correntes, dólares encadeados, índice, porcentagem); a unidade real está em unit, metric_name e unit_mult, por isso measurement_unit fica em branco.",DataValue,"Observed value, in the unit given by the unit/unit_mult columns","Valor observado, en la unidad indicada en las columnas unit/unit_mult"
+note_ref,STRING,Referência(s) de nota de rodapé da BEA para a observação,,no,,,no,,NoteRef,BEA footnote reference(s) for the observation,Referencia(s) de nota al pie de la BEA para la observación

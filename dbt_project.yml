@@ -508,6 +508,9 @@ models:
     test_dataset:
       +materialized: table
       +schema: test_dataset
+    us_bea:
+      +materialized: table
+      +schema: us_bea
     us_census_acs:
       +materialized: table
       +schema: us_census_acs

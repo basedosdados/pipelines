@@ -1,0 +1,10 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano de referência,,no,,,no,,TimePeriod,Reference year,Año de referencia
+quarter,STRING,Trimestre (1 a 4); nulo para frequência não trimestral,,no,,,no,,TimePeriod,Quarter (1 to 4); null for non-quarterly frequency,Trimestre (1 a 4); nulo para frecuencia no trimestral
+frequency,STRING,"Frequência da série: A (anual), Q (trimestral), M (mensal)",,yes,,,no,,Frequency,"Series frequency: A (annual), Q (quarterly), M (monthly)","Frecuencia de la serie: A (anual), Q (trimestral), M (mensual)"
+table_id,STRING,Identificador da tabela de PIB por indústria (ex.: 1),,yes,,,no,,TableID,GDP-by-industry table identifier (e.g. 1),Identificador de la tabla de PIB por industria (p. ej. 1)
+table_description,STRING,Descrição da tabela de PIB por indústria,,no,,,no,,TableID,Description of the GDP-by-industry table,Descripción de la tabla de PIB por industria
+industry,STRING,Código de indústria BEA,,yes,,,no,,Industry,BEA industry code,Código de industria BEA
+industry_description,STRING,Descrição da indústria,,no,,,no,,IndustrYDescription,Description of the industry,Descripción de la industria
+value,FLOAT64,"Valor observado, na unidade indicada nas colunas unit/unit_mult",,no,,,no,"Unidade varia por linha (dólares correntes, dólares encadeados, índice, porcentagem); a unidade real está em unit, metric_name e unit_mult, por isso measurement_unit fica em branco.",DataValue,"Observed value, in the unit given by the unit/unit_mult columns","Valor observado, en la unidad indicada en las columnas unit/unit_mult"
+note_ref,STRING,Referência(s) de nota de rodapé da BEA para a observação,,no,,,no,,NoteRef,BEA footnote reference(s) for the observation,Referencia(s) de nota al pie de la BEA para la observación

@@ -1,0 +1,225 @@
+---
+version: 2
+models:
+  - name: us_bea__nipa
+    description: >
+      Contas Nacionais de Renda e Produto (NIPA) do Bureau of Economic Analysis
+      dos EUA, em formato longo: uma linha por tabela NIPA, linha, métrica e
+      período (anual, trimestral ou mensal). Inclui PIB, renda pessoal, consumo,
+      poupança e demais agregados nacionais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - quarter
+            - month
+            - table_name
+            - line_number
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [quarter, month, note_ref]
+    columns:
+      - name: year
+        description: Ano de referência
+        tests: [not_null]
+      - name: quarter
+        description: Trimestre (1 a 4); nulo para frequência não trimestral
+      - name: month
+        description: Mês (01 a 12); nulo para frequência não mensal
+      - name: frequency
+        description: Frequência da série (A anual, Q trimestral, M mensal)
+      - name: table_name
+        description: Identificador da tabela NIPA
+      - name: line_number
+        description: Número de ordem da linha dentro da tabela
+      - name: series_code
+        description: Código único da série NIPA
+      - name: line_description
+        description: Descrição da linha da tabela
+      - name: metric_name
+        description: Tipo de métrica (dólares correntes, encadeados, índice)
+      - name: unit
+        description: Unidade de medida da série
+      - name: unit_mult
+        description: Multiplicador de base 10 aplicado ao valor
+      - name: value
+        description: Valor observado, na unidade indicada em unit/unit_mult
+      - name: note_ref
+        description: Referência de nota de rodapé da BEA
+  - name: us_bea__gdp_by_industry
+    description: >
+      PIB por indústria do Bureau of Economic Analysis dos EUA, em formato longo:
+      uma linha por tabela, indústria, frequência e período. Inclui valor
+      adicionado, produto bruto e contribuições por indústria.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          # composition tables (25/26/6/7…) break out components of one industry
+          # via industry_description, so it is part of the key.
+          combination_of_columns:
+            - year
+            - quarter
+            - frequency
+            - table_id
+            - industry
+            - industry_description
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [quarter, note_ref]
+    columns:
+      - name: year
+        description: Ano de referência
+        tests: [not_null]
+      - name: quarter
+        description: Trimestre (1 a 4); nulo para frequência anual
+      - name: frequency
+        description: Frequência da série (A anual, Q trimestral)
+      - name: table_id
+        description: Identificador da tabela de PIB por indústria
+      - name: table_description
+        description: Descrição da tabela de PIB por indústria
+      - name: industry
+        description: Código de indústria BEA
+      - name: industry_description
+        description: Descrição da indústria
+      - name: value
+        description: Valor observado
+      - name: note_ref
+        description: Referência de nota de rodapé da BEA
+  - name: us_bea__regional_state
+    description: >
+      Contas regionais da BEA no nível estadual (estados, DF, territórios, regiões
+      BEA e total dos EUA), em formato longo: PIB, renda pessoal, consumo e
+      paridades de preços por estado, anual e trimestral.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - quarter
+            - geo_fips
+            - table_name
+            - line_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [quarter, id_state, note_ref]
+    columns:
+      - name: year
+        description: Ano de referência
+        tests: [not_null]
+      - name: quarter
+        description: Trimestre (1 a 4); nulo para frequência anual
+      - name: frequency
+        description: Frequência da série (A anual, Q trimestral)
+      - name: geo_fips
+        description: Código geográfico BEA da entidade estadual
+        tests: [not_null]
+      - name: id_state
+        description: Código FIPS do estado (2 dígitos); nulo para EUA e regiões
+      - name: geo_name
+        description: Nome da área geográfica
+      - name: table_name
+        description: Identificador da tabela BEA
+      - name: line_code
+        description: Código da linha dentro da tabela
+      - name: series_code
+        description: Código da série BEA da observação
+      - name: line_description
+        description: Descrição da linha da tabela
+      - name: unit
+        description: Unidade de medida da série
+      - name: unit_mult
+        description: Multiplicador de base 10 aplicado ao valor
+      - name: value
+        description: Valor observado, na unidade indicada em unit/unit_mult
+      - name: note_ref
+        description: Referência de nota de rodapé da BEA
+  - name: us_bea__regional_county
+    description: >
+      Contas regionais da BEA no nível de condado (anual): PIB por condado, renda
+      pessoal e componentes, e compensação por indústria, em formato longo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, geo_fips, table_name, line_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [note_ref]
+    columns:
+      - name: year
+        description: Ano de referência
+        tests: [not_null]
+      - name: geo_fips
+        description: Código FIPS do condado (5 dígitos)
+        tests: [not_null]
+      - name: id_county
+        description: Código FIPS do condado (5 dígitos)
+      - name: id_state
+        description: Código FIPS do estado (2 dígitos)
+      - name: geo_name
+        description: Nome da área geográfica
+      - name: table_name
+        description: Identificador da tabela BEA
+      - name: line_code
+        description: Código da linha dentro da tabela
+      - name: series_code
+        description: Código da série BEA da observação
+      - name: line_description
+        description: Descrição da linha da tabela
+      - name: unit
+        description: Unidade de medida da série
+      - name: unit_mult
+        description: Multiplicador de base 10 aplicado ao valor
+      - name: value
+        description: Valor observado, na unidade indicada em unit/unit_mult
+      - name: note_ref
+        description: Referência de nota de rodapé da BEA
+  - name: us_bea__regional_metro
+    description: >
+      Contas regionais da BEA no nível de área metropolitana (CBSA): paridades de
+      preços regionais e deflator implícito por área metropolitana, em formato longo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, geo_fips, table_name, line_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [note_ref]
+    columns:
+      - name: year
+        description: Ano de referência
+        tests: [not_null]
+      - name: geo_fips
+        description: Código CBSA da área metropolitana (5 dígitos)
+        tests: [not_null]
+      - name: id_cbsa
+        description: Código CBSA da área estatística baseada em núcleo
+      - name: geo_name
+        description: Nome da área geográfica
+      - name: table_name
+        description: Identificador da tabela BEA
+      - name: line_code
+        description: Código da linha dentro da tabela
+      - name: series_code
+        description: Código da série BEA da observação
+      - name: line_description
+        description: Descrição da linha da tabela
+      - name: unit
+        description: Unidade de medida da série
+      - name: unit_mult
+        description: Multiplicador de base 10 aplicado ao valor
+      - name: value
+        description: Valor observado, na unidade indicada em unit/unit_mult
+      - name: note_ref
+        description: Referência de nota de rodapé da BEA
+  - name: us_bea__dicionario
+    description: >
+      Dicionário de valores codificados das tabelas do conjunto us_bea (nomes de
+      tabelas, códigos de indústria, frequências) e seus rótulos legíveis.
+    columns:
+      - name: id_tabela
+        description: Nome da tabela à qual a coluna pertence
+      - name: nome_coluna
+        description: Nome da coluna codificada
+      - name: chave
+        description: Valor codificado (chave)
+      - name: cobertura_temporal
+        description: Cobertura temporal do mapeamento
+      - name: valor
+        description: Rótulo legível correspondente à chave
