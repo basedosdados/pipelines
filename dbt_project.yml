@@ -142,6 +142,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_fed_fred:
+      +materialized: table
+      +schema: us_fed_fred
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force
