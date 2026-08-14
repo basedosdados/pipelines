@@ -88,6 +88,7 @@ def parse_api_metadata(response_text: str) -> pd.DataFrame:
     files_metadata = []
     for index, item in enumerate(items_urls):
         href = item.text
+        print(href)
         if href.endswith(".csv"):
             reference_date_str = href.split(".")[-3].replace("D", "202")
             reference_date = datetime.datetime.strptime(
