@@ -1,0 +1,56 @@
+---
+version: 2
+models:
+  - name: br_sedec_desastres__reconhecimentos_vigentes
+    description: >
+      Reconhecimentos federais de situação de emergência e estado de calamidade
+      pública em vigor, registrados no S2ID pela SEDEC/MIDR. O relatório de
+      origem mostra apenas o presente, então a tabela é uma série de retratos:
+      cada execução grava o conjunto vigente na data da extração, identificada
+      por `data_extracao`. Grão de uma linha por município e tipologia de
+      desastre em cada retrato. Cobertura nacional.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - sigla_uf
+            - id_municipio
+            - id_cobrade
+            - data_ocorrencia
+    columns:
+      - name: data_extracao
+        description: >-
+          Data em que o retrato do relatório foi extraído da fonte
+        tests: [not_null]
+      - name: sigla_uf
+        description: >-
+          Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >-
+          Identificador do município no IBGE
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_cobrade
+        description: >-
+          Código COBRADE da tipologia do desastre
+      - name: nome_cobrade
+        description: >-
+          Nome da tipologia do desastre segundo a classificação COBRADE
+      - name: situacao
+        description: >-
+          Situação reconhecida pelo governo federal
+      - name: data_ocorrencia
+        description: >-
+          Data de ocorrência do desastre
+      - name: data_vigencia
+        description: >-
+          Data final de vigência do reconhecimento federal

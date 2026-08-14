@@ -136,8 +136,12 @@ def parquet_partition(path):
 
             df["ano"] = time_col.dt.year
             df["mes"] = time_col.dt.month
-            df["MODALIDADE_OPERADORA"] = df["MODALIDADE_OPERADORA"].apply(
-                remove_accents
+            # volta pra category depois do apply (remove_accents devolve str
+            # puro) — mantém a coluna leve para o fatiamento em to_partitions.
+            df["MODALIDADE_OPERADORA"] = (
+                df["MODALIDADE_OPERADORA"]
+                .apply(remove_accents)
+                .astype("category")
             )
             df = df.rename(
                 columns={
@@ -162,5 +166,12 @@ def parquet_partition(path):
             )
 
             log("Partição feita.")
+
+            # Sem isso, a memória de cada estado se acumula até o gc.collect()
+            # do loop de fora em crawler_ans, que só roda depois dos 27
+            # arquivos — já causou OOM num arquivo pequeno (AP) logo depois
+            # de processar um grande (MG).
+            del df
+            gc.collect()
 
     return "/tmp/data/br_ans_beneficiario/output/"
