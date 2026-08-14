@@ -1,0 +1,100 @@
+name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory_column	measurement_unit	has_sensitive_data	observations	original_name
+year	INT64	Ano-calendário a que se refere o registro de empréstimo ou solicitação		no		year	no	Coluna de particionamento	activity_year
+state_abbreviation	STRING	Código de dois caracteres do estado (EUA) onde se localiza o imóvel		no	br_bd_diretorios_us.state:abbreviation		no	Geografia; FK diretório br_bd_diretorios_us (estado) a resolver no passo discover	state_code
+county_id	STRING	Código FIPS de estado e condado (cinco dígitos) do imóvel		no	br_bd_diretorios_us.county:id_county		no	Geografia; FK diretório br_bd_diretorios_us (condado) a resolver no passo discover	county_code
+census_tract_id	STRING	Código do setor censitário (census tract) de 11 dígitos do imóvel		no	br_bd_diretorios_us.census_tract_2020:id_census_tract		no	Geografia; FK diretório br_bd_diretorios_us (setor censitário) a resolver no passo discover	census_tract
+msa_md_id	STRING	Código de cinco dígitos da área estatística metropolitana (MSA) ou divisão metropolitana (MD) derivado		no			no	Código geográfico de MSA/MD, não é dicionário próprio do conjunto	derived_msa-md
+lei	STRING	Identificador de entidade jurídica (LEI) da instituição financeira declarante		no			no	Identificador da instituição	lei
+conforming_loan_limit	STRING	Indica se o valor do empréstimo excede o limite de empréstimo conforme das GSE		yes			no		conforming_loan_limit
+derived_loan_product_type	STRING	Tipo de produto de empréstimo derivado dos campos tipo de empréstimo e situação da garantia		no			no		derived_loan_product_type
+derived_dwelling_category	STRING	Categoria de habitação derivada dos campos método de construção e número de unidades		no			no		derived_dwelling_category
+derived_ethnicity	STRING	Etnia agregada derivada dos campos de etnia do solicitante e do cossolicitante		no			no		derived_ethnicity
+derived_race	STRING	Raça agregada derivada dos campos de raça do solicitante e do cossolicitante		no			no		derived_race
+derived_sex	STRING	Sexo agregado derivado dos campos de sexo do solicitante e do cossolicitante		no			no		derived_sex
+action_taken	STRING	Ação tomada sobre o empréstimo ou solicitação		yes			no		action_taken
+purchaser_type	STRING	Tipo de entidade que comprou o empréstimo da instituição declarante		yes			no		purchaser_type
+preapproval	STRING	Indica se o empréstimo ou solicitação envolveu pedido de pré-aprovação		yes			no		preapproval
+loan_type	STRING	Tipo de empréstimo (convencional, FHA, VA ou RHS/FSA)		yes			no		loan_type
+loan_purpose	STRING	Finalidade do empréstimo ou solicitação		yes			no		loan_purpose
+lien_status	STRING	Situação da garantia (lien) do imóvel que assegura o empréstimo		yes			no		lien_status
+reverse_mortgage	STRING	Indica se o empréstimo é uma hipoteca reversa		yes			no		reverse_mortgage
+open_end_line_of_credit	STRING	Indica se o empréstimo é uma linha de crédito rotativo (open-end)		yes			no		open-end_line_of_credit
+business_or_commercial_purpose	STRING	Indica se o empréstimo tem finalidade empresarial ou comercial		yes			no		business_or_commercial_purpose
+loan_amount	FLOAT64	Valor do empréstimo concedido ou solicitado, em dólares		no		USD	no		loan_amount
+loan_to_value_ratio	FLOAT64	Razão entre o valor da dívida garantida pelo imóvel e o valor do imóvel, em percentual		no		percent	no		loan_to_value_ratio
+interest_rate	FLOAT64	Taxa de juros do empréstimo, em percentual		no		percent	no		interest_rate
+rate_spread	FLOAT64	Diferença entre a APR do empréstimo e a taxa média de oferta prime (APOR), em pontos percentuais		no		percent	no		rate_spread
+hoepa_status	STRING	Indica se o empréstimo é uma hipoteca de alto custo (HOEPA)		yes			no		hoepa_status
+total_loan_costs	FLOAT64	Total dos custos do empréstimo, em dólares		no		USD	no		total_loan_costs
+total_points_and_fees	FLOAT64	Total de pontos e taxas cobrados no empréstimo, em dólares		no		USD	no		total_points_and_fees
+origination_charges	FLOAT64	Total das cobranças de originação pagas pelo tomador, em dólares		no		USD	no		origination_charges
+discount_points	FLOAT64	Pontos de desconto pagos ao credor para reduzir a taxa de juros, em dólares		no		USD	no		discount_points
+lender_credits	FLOAT64	Valor dos créditos concedidos pelo credor, em dólares		no		USD	no		lender_credits
+loan_term	INT64	Número de meses até o vencimento ou término da obrigação legal		no		month	no		loan_term
+prepayment_penalty_term	INT64	Prazo, em meses, de eventual penalidade por pagamento antecipado		no		month	no		prepayment_penalty_term
+intro_rate_period	INT64	Número de meses até a primeira possível alteração da taxa de juros após o fechamento		no		month	no		intro_rate_period
+negative_amortization	STRING	Indica se os termos contratuais preveem amortização negativa		yes			no		negative_amortization
+interest_only_payment	STRING	Indica se os termos contratuais preveem pagamento somente de juros		yes			no		interest_only_payment
+balloon_payment	STRING	Indica se os termos contratuais preveem pagamento balão (balloon)		yes			no		balloon_payment
+other_nonamortizing_features	STRING	Indica se os termos contratuais preveem outras características não amortizantes		yes			no		other_nonamortizing_features
+property_value	FLOAT64	Valor do imóvel que garante o empréstimo, arredondado ao milhar de dólares mais próximo		no		USD	no		property_value
+construction_method	STRING	Método de construção da habitação (construída no local ou pré-fabricada)		yes			no		construction_method
+occupancy_type	STRING	Tipo de ocupação da habitação (residência principal, secundária ou investimento)		yes			no		occupancy_type
+manufactured_home_secured_property_type	STRING	Indica se a garantia é casa pré-fabricada com terreno ou apenas a casa		yes			no		manufactured_home_secured_property_type
+manufactured_home_land_property_interest	STRING	Tipo de direito do solicitante sobre o terreno da casa pré-fabricada		yes			no		manufactured_home_land_property_interest
+total_units	STRING	Número de unidades habitacionais do imóvel, em faixas (1-4, 5-24, 25-49, 50-99, 100-149, mais de 149)		yes			no		total_units
+multifamily_affordable_units	INT64	Número de unidades habitacionais com aluguel acessível (income-restricted) em imóvel multifamiliar		no		unit	no	Reportado como contagem de unidades, não percentual	multifamily_affordable_units
+income	FLOAT64	Renda anual bruta considerada na decisão de crédito		no		USD	no	Reportada em milhares de dólares na fonte	income
+debt_to_income_ratio	STRING	Razão entre dívida mensal total e renda mensal total, em faixas percentuais		yes			no		debt_to_income_ratio
+applicant_credit_score_type	STRING	Nome e versão do modelo de score de crédito usado para o solicitante		yes			no		applicant_credit_score_type
+co_applicant_credit_score_type	STRING	Nome e versão do modelo de score de crédito usado para o cossolicitante		yes			no		co-applicant_credit_score_type
+applicant_ethnicity_1	STRING	Etnia do solicitante ou tomador (primeira informada)		yes			no		applicant_ethnicity-1
+applicant_ethnicity_2	STRING	Etnia do solicitante ou tomador (segunda informada)		yes			no		applicant_ethnicity-2
+applicant_ethnicity_3	STRING	Etnia do solicitante ou tomador (terceira informada)		yes			no		applicant_ethnicity-3
+applicant_ethnicity_4	STRING	Etnia do solicitante ou tomador (quarta informada)		yes			no		applicant_ethnicity-4
+applicant_ethnicity_5	STRING	Etnia do solicitante ou tomador (quinta informada)		yes			no		applicant_ethnicity-5
+co_applicant_ethnicity_1	STRING	Etnia do primeiro cossolicitante ou cotomador (primeira informada)		yes			no		co-applicant_ethnicity-1
+co_applicant_ethnicity_2	STRING	Etnia do primeiro cossolicitante ou cotomador (segunda informada)		yes			no		co-applicant_ethnicity-2
+co_applicant_ethnicity_3	STRING	Etnia do primeiro cossolicitante ou cotomador (terceira informada)		yes			no		co-applicant_ethnicity-3
+co_applicant_ethnicity_4	STRING	Etnia do primeiro cossolicitante ou cotomador (quarta informada)		yes			no		co-applicant_ethnicity-4
+co_applicant_ethnicity_5	STRING	Etnia do primeiro cossolicitante ou cotomador (quinta informada)		yes			no		co-applicant_ethnicity-5
+applicant_ethnicity_observed	STRING	Indica se a etnia do solicitante foi coletada por observação visual ou sobrenome		yes			no		applicant_ethnicity_observed
+co_applicant_ethnicity_observed	STRING	Indica se a etnia do cossolicitante foi coletada por observação visual ou sobrenome		yes			no		co-applicant_ethnicity_observed
+applicant_race_1	STRING	Raça do solicitante ou tomador (primeira informada)		yes			no		applicant_race-1
+applicant_race_2	STRING	Raça do solicitante ou tomador (segunda informada)		yes			no		applicant_race-2
+applicant_race_3	STRING	Raça do solicitante ou tomador (terceira informada)		yes			no		applicant_race-3
+applicant_race_4	STRING	Raça do solicitante ou tomador (quarta informada)		yes			no		applicant_race-4
+applicant_race_5	STRING	Raça do solicitante ou tomador (quinta informada)		yes			no		applicant_race-5
+co_applicant_race_1	STRING	Raça do primeiro cossolicitante ou cotomador (primeira informada)		yes			no		co-applicant_race-1
+co_applicant_race_2	STRING	Raça do primeiro cossolicitante ou cotomador (segunda informada)		yes			no		co-applicant_race-2
+co_applicant_race_3	STRING	Raça do primeiro cossolicitante ou cotomador (terceira informada)		yes			no		co-applicant_race-3
+co_applicant_race_4	STRING	Raça do primeiro cossolicitante ou cotomador (quarta informada)		yes			no		co-applicant_race-4
+co_applicant_race_5	STRING	Raça do primeiro cossolicitante ou cotomador (quinta informada)		yes			no		co-applicant_race-5
+applicant_race_observed	STRING	Indica se a raça do solicitante foi coletada por observação visual ou sobrenome		yes			no		applicant_race_observed
+co_applicant_race_observed	STRING	Indica se a raça do cossolicitante foi coletada por observação visual ou sobrenome		yes			no		co-applicant_race_observed
+applicant_sex	STRING	Sexo do solicitante ou tomador		yes			no		applicant_sex
+co_applicant_sex	STRING	Sexo do primeiro cossolicitante ou cotomador		yes			no		co-applicant_sex
+applicant_sex_observed	STRING	Indica se o sexo do solicitante foi coletado por observação visual ou sobrenome		yes			no		applicant_sex_observed
+co_applicant_sex_observed	STRING	Indica se o sexo do cossolicitante foi coletado por observação visual ou sobrenome		yes			no		co-applicant_sex_observed
+applicant_age	STRING	Idade do solicitante ou tomador, em faixas etárias		yes			no		applicant_age
+co_applicant_age	STRING	Idade do primeiro cossolicitante ou cotomador, em faixas etárias		yes			no		co-applicant_age
+applicant_age_above_62	STRING	Indica se a idade do solicitante é 62 anos ou mais		yes			no		applicant_age_above_62
+co_applicant_age_above_62	STRING	Indica se a idade do cossolicitante é 62 anos ou mais		yes			no		co-applicant_age_above_62
+submission_of_application	STRING	Indica se a solicitação foi apresentada diretamente à instituição		yes			no		submission_of_application
+initially_payable_to_institution	STRING	Indica se a obrigação era inicialmente pagável à instituição		yes			no		initially_payable_to_institution
+aus_1	STRING	Sistema de decisão automatizada (AUS) usado para avaliar a solicitação (primeiro informado)		yes			no		aus-1
+aus_2	STRING	Sistema de decisão automatizada (AUS) usado para avaliar a solicitação (segundo informado)		yes			no		aus-2
+aus_3	STRING	Sistema de decisão automatizada (AUS) usado para avaliar a solicitação (terceiro informado)		yes			no		aus-3
+aus_4	STRING	Sistema de decisão automatizada (AUS) usado para avaliar a solicitação (quarto informado)		yes			no		aus-4
+aus_5	STRING	Sistema de decisão automatizada (AUS) usado para avaliar a solicitação (quinto informado)		yes			no		aus-5
+denial_reason_1	STRING	Motivo principal da negação (primeiro informado)		yes			no		denial_reason-1
+denial_reason_2	STRING	Motivo principal da negação (segundo informado)		yes			no		denial_reason-2
+denial_reason_3	STRING	Motivo principal da negação (terceiro informado)		yes			no		denial_reason-3
+denial_reason_4	STRING	Motivo principal da negação (quarto informado)		yes			no		denial_reason-4
+tract_population	INT64	População total do setor censitário		no		unit	no		tract_population
+tract_minority_population_percent	FLOAT64	Percentual da população minoritária em relação à população total do setor censitário		no		percent	no		tract_minority_population_percent
+ffiec_msa_md_median_family_income	INT64	Renda familiar mediana FFIEC da MSA/MD, em dólares		no		USD	no		ffiec_msa_md_median_family_income
+tract_to_msa_income_percentage	FLOAT64	Percentual da renda familiar mediana do setor em relação à da MSA/MD		no		percent	no		tract_to_msa_income_percentage
+tract_owner_occupied_units	INT64	Número de habitações ocupadas pelo proprietário no setor censitário		no		unit	no		tract_owner_occupied_units
+tract_one_to_four_family_homes	INT64	Número de habitações construídas para até quatro famílias no setor censitário		no		unit	no		tract_one_to_four_family_homes
+tract_median_age_of_housing_units	INT64	Idade mediana das habitações do setor censitário, em anos		no		year	no		tract_median_age_of_housing_units

@@ -113,6 +113,7 @@ def br_mf_divida_ativa_flow(
             source_max_date=max_date,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="coverage",
         )
 
         if new_quarters:

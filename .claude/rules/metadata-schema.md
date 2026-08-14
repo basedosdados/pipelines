@@ -89,10 +89,18 @@ Every dataset must carry tags — several recent onboardings shipped with none, 
 
 1. **Scan** the existing tag vocabulary: `discover_ids(env=<env>, keys=["tag"])` returns `{slug: id}` for every tag (there are ~800 — a broad, well-populated vocabulary).
 2. **Choose** the tags that genuinely describe the dataset — its subject, entity/grain, and source domain (e.g. for PGFN active debt: `debt`, `debtor`, `tax`, `revenue-collection`, `public-finance`, `federal`, `social_security`). Match on meaning, not exact string; prefer 4–8 specific tags over one vague one. Almost always an appropriate existing tag exists — use it rather than creating a near-duplicate.
-3. **Only if no existing tag fits**, create the missing one in the backend with `create_update_tag(slug=<kebab_or_snake_slug>, name_pt=…, name_en=…, name_es=…, env=<env>)` and use the returned id. Check for a synonym first (e.g. `covid19` vs `covid-19` already both exist — do not add a third).
-4. **Attach** all chosen ids via `tag_ids` on `create_update_dataset`, then verify with `get_dataset` (tags are M2M — see Known issues).
+3. **Do not tag metadata that is already captured elsewhere.** Tags exist for subject matter, not to duplicate fields the dataset already carries as structured metadata. In particular, never create or attach a tag for:
+   - **Area / place names** — country, state, region, city (e.g. `mexico`, `sao-paulo`, `brazil`). Geographic coverage is the `Coverage`/`area` metadata; the frontend already facets on it.
+   - **Themes, or words derived from them** — a theme's own name or a near-synonym (e.g. `geografia`/`geography`, `economia`/`economics`) when it merely restates a `theme_id` already attached. Themes are their own metadata field.
+   - **Organization / source names** already recorded as the dataset's organization.
 
-Resolve tags **per backend**: ids differ across dev/staging/prod, so re-scan (and re-create any new tag) on prod before attaching there. When updating an already-published dataset to add tags, re-pass every required field plus the full `tag_ids` (the API does no partial updates).
+   Prefer existing tags describing the *content* (what the data measures, its entity, its domain) over any tag that mirrors another metadata field.
+4. **Only if no existing tag fits**, create the missing one — but **flag every new tag to the user.** Before (or as) you create them, list the proposed new tags (slug + trilingual names) so the user can veto or correct them; you may proceed without waiting for a reply, and the user can adjust after the fact. Use `create_update_tag(slug=<slug>, name_pt=…, name_en=…, name_es=…, env=<env>)` and the returned id, subject to:
+   - **Slug is always English**, `kebab-case`, lowercase (e.g. `revenue-collection`, not `arrecadacao`). Check for a synonym first (e.g. `covid19` vs `covid-19` already both exist — do not add a third).
+   - **Names are translated and lowercase** in all three languages (`name_pt`, `name_en`, `name_es`), except that **acronyms stay uppercase** (e.g. `name_en="tax"`, but `name_en="GDP"`, `name_pt="PIB"`).
+5. **Attach** all chosen ids via `tag_ids` on `create_update_dataset`, then verify with `get_dataset` (tags are M2M — see Known issues).
+
+Resolve tags **per backend**: ids differ across dev/staging/prod, so re-scan (and re-create any approved new tag) on prod before attaching there. When updating an already-published dataset to add tags, re-pass every required field plus the full `tag_ids` (the API does no partial updates).
 
 ## `create_update_table` fields
 

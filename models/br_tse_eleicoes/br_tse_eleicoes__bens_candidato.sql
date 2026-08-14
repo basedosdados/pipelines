@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2006, "end": 2024, "interval": 2},
+            "range": {"start": 2006, "end": 2030, "interval": 2},
         },
     )
 }}
@@ -22,4 +22,8 @@ select
     safe_cast(tipo_item as string) tipo_item,
     safe_cast(descricao_item as string) descricao_item,
     safe_cast(valor_item as float64) valor_item
-from {{ set_datalake_project("br_tse_eleicoes_staging.bens_candidato") }} as t
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.bens_candidato") }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    
