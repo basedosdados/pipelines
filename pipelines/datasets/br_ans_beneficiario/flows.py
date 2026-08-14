@@ -59,6 +59,7 @@ def br_ans_beneficiario__informacao_consolidada(
             source_max_date=file_last_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             print(f"Não há atualizações para a tabela {table_id}!")
@@ -84,12 +85,16 @@ def br_ans_beneficiario__informacao_consolidada(
 
     output_filepath = crawler_ans(files=files)
 
+    # crawler_ans -> parquet_partition grava .parquet. Sem declarar o
+    # formato, o dump_header chamado por upload_to_gcs procura .csv (default)
+    # e não encontra nada.
     upload_to_gcs(
         data_path=output_filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
+        source_format="parquet",
     )
 
     run_dbt(
@@ -109,6 +114,7 @@ def br_ans_beneficiario__informacao_consolidada(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
+        source_format="parquet",
     )
 
     run_dbt(
@@ -141,3 +147,7 @@ def br_ans_beneficiario__informacao_consolidada(
 br_ans_beneficiario__informacao_consolidada.deploy_schedules = [
     {"cron": "0 21 * * *", "timezone": "America/Sao_Paulo"}
 ]
+# Pico medido em produção após otimizar parquet_partition (category dtype +
+# del/gc.collect() por estado): ~1.78Gi. ~1.7x de margem sobre esse valor.
+# pyrefly: ignore [missing-attribute]
+br_ans_beneficiario__informacao_consolidada.job_variables = {"memory": "3Gi"}
