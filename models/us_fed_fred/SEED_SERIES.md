@@ -33,6 +33,7 @@ Verified programmatically at download; any entry failing a filter is removed and
 logged. `freq` shown for reference.
 
 ### Board of Governors of the Federal Reserve System
+
 | series_id | title | freq |
 |---|---|---|
 | FEDFUNDS | Federal Funds Effective Rate | M |
@@ -55,6 +56,7 @@ logged. `freq` shown for reference.
 | DEXCHUS | China / U.S. Foreign Exchange Rate | D |
 
 ### U.S. Bureau of Labor Statistics
+
 | series_id | title | freq |
 |---|---|---|
 | CPIAUCSL | CPI, All Urban Consumers, SA | M |
@@ -70,6 +72,7 @@ logged. `freq` shown for reference.
 | PPIACO | Producer Price Index: All Commodities | M |
 
 ### U.S. Bureau of Economic Analysis
+
 | series_id | title | freq |
 |---|---|---|
 | GDP | Gross Domestic Product | Q |
@@ -83,6 +86,7 @@ logged. `freq` shown for reference.
 | CP | Corporate Profits After Tax | Q |
 
 ### U.S. Census Bureau
+
 | series_id | title | freq |
 |---|---|---|
 | HOUST | Housing Starts: Total | M |
@@ -93,6 +97,7 @@ logged. `freq` shown for reference.
 | BUSINV | Total Business Inventories | M |
 
 ### U.S. Dept. of the Treasury / Fiscal Service
+
 | series_id | title | freq |
 |---|---|---|
 | GFDEBTN | Federal Debt: Total Public Debt | Q |
@@ -101,11 +106,13 @@ logged. `freq` shown for reference.
 | FYFSD | Federal Surplus or Deficit (annual) | A |
 
 ### U.S. Employment and Training Administration (DOL)
+
 | series_id | title | freq |
 |---|---|---|
 | ICSA | Initial Unemployment Claims | W |
 
 ### Federal Reserve Bank of St. Louis (derived, public)
+
 | series_id | title | freq |
 |---|---|---|
 | USREC | NBER-based Recession Indicator | M |

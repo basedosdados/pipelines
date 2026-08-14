@@ -118,6 +118,14 @@ SEED_SERIES = [
 # API client
 # --------------------------------------------------------------------------- #
 def get_api_key() -> str:
+    """Return the FRED API key from the environment or the scratch ``.env``.
+
+    Returns:
+        The FRED API key.
+
+    Raises:
+        SystemExit: If no key is found in ``FRED_API_KEY`` or the ``.env``.
+    """
     key = os.environ.get("FRED_API_KEY", "").strip()
     if not key:
         env_file = DATA_ROOT / ".env"
@@ -141,7 +149,25 @@ _LAST_CALL = [0.0]
 _MIN_INTERVAL = 0.6  # ~100 req/min, safely under the 120/min FRED limit
 
 
-def fred_get(endpoint: str, api_key: str, **params) -> dict:
+def fred_get(
+    endpoint: str, api_key: str, **params: str | int
+) -> dict[str, object]:
+    """Call a FRED REST endpoint, rate-limited, and return parsed JSON.
+
+    Sleeps to stay under the 120 requests/minute limit and retries on HTTP
+    429 with linear backoff.
+
+    Args:
+        endpoint: Path under the FRED base URL (e.g. ``"series"``).
+        api_key: The FRED API key.
+        **params: Extra query parameters (e.g. ``series_id``, ``release_id``).
+
+    Returns:
+        The decoded JSON response body.
+
+    Raises:
+        RuntimeError: If the endpoint stays rate-limited after retries.
+    """
     params.update({"api_key": api_key, "file_type": "json"})
     for attempt in range(5):
         wait = _MIN_INTERVAL - (time.time() - _LAST_CALL[0])
@@ -179,13 +205,35 @@ def resolve_source_name(series_id: str, api_key: str) -> tuple[str, str]:
     return release_name, _RELEASE_SOURCE_CACHE[release_id]
 
 
-def fetch_series_meta(series_id: str, api_key: str) -> dict | None:
+def fetch_series_meta(
+    series_id: str, api_key: str
+) -> dict[str, object] | None:
+    """Return the ``/series`` metadata object for a series, or None.
+
+    Args:
+        series_id: The FRED series identifier.
+        api_key: The FRED API key.
+
+    Returns:
+        The series metadata dict, or ``None`` if the series does not exist.
+    """
     resp = fred_get("series", api_key, series_id=series_id)
     seriess = resp.get("seriess", [])
     return seriess[0] if seriess else None
 
 
 def is_copyrighted(notes: str) -> bool:
+    """Return whether the series notes flag it as copyrighted.
+
+    FRED marks restricted third-party series with the word "Copyright" in
+    their notes; such series are excluded from this public-domain dataset.
+
+    Args:
+        notes: The series ``notes`` text.
+
+    Returns:
+        True if the notes contain "copyright" (case-insensitive).
+    """
     return "copyright" in (notes or "").lower()
 
 
@@ -249,10 +297,22 @@ SERIES_COLS = [
 SERIES_SCHEMA = pa.schema([(c, pa.string()) for c in SERIES_COLS])
 
 
-def write_observations(rows: list[tuple], out_dir: Path) -> int:
+def write_observations(
+    rows: list[tuple[int, str, str, float]], out_dir: Path
+) -> int:
+    """Write the long observations as year-partitioned all-STRING parquet.
+
+    Args:
+        rows: ``(year, date, series_id, value)`` tuples across all series.
+        out_dir: Output root; files land at
+            ``out_dir/observation/year=<YYYY>/data.parquet``.
+
+    Returns:
+        The total number of observation rows written.
+    """
     import datetime as dt
 
-    by_year: dict[int, list[tuple]] = {}
+    by_year: dict[int, list[tuple[str, str, float]]] = {}
     for year, date, sid, val in rows:
         by_year.setdefault(year, []).append((date, sid, val))
     n = 0
@@ -277,7 +337,17 @@ def write_observations(rows: list[tuple], out_dir: Path) -> int:
     return n
 
 
-def write_series(catalog: list[dict], out_dir: Path) -> int:
+def write_series(catalog: list[dict[str, str]], out_dir: Path) -> int:
+    """Write the series metadata catalog as a single all-STRING parquet.
+
+    Args:
+        catalog: One dict per kept series, keyed by ``SERIES_COLS``.
+        out_dir: Output root; the file lands at
+            ``out_dir/series/data.parquet``.
+
+    Returns:
+        The number of series written.
+    """
     cols = SERIES_SCHEMA.names
     arrays = {
         c: pa.array([r.get(c, "") or "" for r in catalog], pa.string())
@@ -294,13 +364,23 @@ def write_series(catalog: list[dict], out_dir: Path) -> int:
 # Orchestration
 # --------------------------------------------------------------------------- #
 def run(limit: int | None = None) -> None:
+    """Download the seed series, apply the license gate, and write parquet.
+
+    For each seed series, resolves its source, drops it if copyrighted or
+    outside the public-domain source allowlist (logging the reason), and
+    writes the kept observations and catalog to ``DATA_ROOT/output``.
+
+    Args:
+        limit: If given, only process the first ``limit`` seed series
+            (used for smoke tests).
+    """
     api_key = get_api_key()
     out_dir = DATA_ROOT / "output"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    kept_catalog: list[dict] = []
-    all_obs: list[tuple] = []
-    excluded: list[dict] = []
+    kept_catalog: list[dict[str, str]] = []
+    all_obs: list[tuple[int, str, str, float]] = []
+    excluded: list[dict[str, str]] = []
     series_ids = SEED_SERIES[:limit] if limit else SEED_SERIES
 
     for i, sid in enumerate(series_ids, 1):
@@ -326,17 +406,18 @@ def run(limit: int | None = None) -> None:
                 f"[{i}/{len(series_ids)}] {sid}: EXCLUDED (copyright in notes)"
             )
             continue
-        if source_name and source_name not in SOURCE_ALLOWLIST:
+        # Reject an unresolved (empty) source too: it was never verified
+        # against the public-domain allowlist, so it must not be published.
+        if source_name not in SOURCE_ALLOWLIST:
             excluded.append(
                 {
                     "series_id": sid,
                     "source_name": source_name,
-                    "reason": "source not in allowlist",
+                    "reason": "source missing or not in allowlist",
                 }
             )
-            print(
-                f"[{i}/{len(series_ids)}] {sid}: EXCLUDED (source: {source_name})"
-            )
+            shown = source_name or "(unresolved)"
+            print(f"[{i}/{len(series_ids)}] {sid}: EXCLUDED (source: {shown})")
             continue
 
         obs = fetch_observations(sid, api_key)

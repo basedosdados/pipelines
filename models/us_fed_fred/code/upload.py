@@ -41,8 +41,32 @@ OUTPUT_ROOT = DATA_ROOT / "output"
 _orig_bucket = gcs.Client.bucket
 
 
-def _patched_bucket(self, bucket_name, user_project=None):
-    return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
+def _patched_bucket(
+    self: gcs.Client,
+    bucket_name: str,
+    user_project: str | None = None,
+    generation: int | None = None,
+) -> "gcs.Bucket":
+    """Force ``user_project`` so the requester-pays bucket bills our project.
+
+    Mirrors ``gcs.Client.bucket``'s full signature (including ``generation``)
+    so callers passing a bucket generation keep working.
+
+    Args:
+        self: The storage client the method is bound to.
+        bucket_name: Name of the bucket to instantiate.
+        user_project: Ignored; overridden with the billing project.
+        generation: Optional bucket generation, passed through unchanged.
+
+    Returns:
+        The instantiated ``Bucket`` billed to ``BILLING_PROJECT``.
+    """
+    return _orig_bucket(
+        self,
+        bucket_name,
+        user_project=BILLING_PROJECT,
+        generation=generation,
+    )
 
 
 gcs.Client.bucket = _patched_bucket
@@ -55,6 +79,23 @@ TABLES = [
 
 
 def upload_table(slug: str, expected_rows: int) -> int:
+    """Upload one cleaned parquet table to BigQuery staging.
+
+    Deletes any stale staging prefix, recreates the staging table from the
+    parquet under ``OUTPUT_ROOT/slug``, then asserts the loaded row count
+    matches ``expected_rows``.
+
+    Args:
+        slug: Table slug (also the output subdirectory name).
+        expected_rows: Row count the upload must produce.
+
+    Returns:
+        The number of rows loaded into the staging table.
+
+    Raises:
+        FileNotFoundError: If the table's output directory is missing.
+        SystemExit: If the loaded row count differs from ``expected_rows``.
+    """
     path = OUTPUT_ROOT / slug
     if not path.exists():
         raise FileNotFoundError(f"Missing output path: {path}")
@@ -76,16 +117,22 @@ def upload_table(slug: str, expected_rows: int) -> int:
     )
 
     client = bigquery.Client(project=BILLING_PROJECT)
-    q = f"select count(*) as n from `{BILLING_PROJECT}.{DATASET_ID}_staging.{slug}`"
-    n = next(iter(client.query(q).result())).n
-    status = "OK" if n == expected_rows else "ROW MISMATCH"
-    print(
-        f"  {slug}: uploaded {n:,} rows (expected {expected_rows:,}) — {status}"
+    q = (
+        "select count(*) as n from "
+        f"`{BILLING_PROJECT}.{DATASET_ID}_staging.{slug}`"
     )
+    n = next(iter(client.query(q).result())).n
+    if n != expected_rows:
+        raise SystemExit(
+            f"  {slug}: uploaded {n:,} rows but expected "
+            f"{expected_rows:,} — aborting"
+        )
+    print(f"  {slug}: uploaded {n:,} rows (expected {expected_rows:,}) — OK")
     return n
 
 
 def main() -> None:
+    """Upload each table in ``TABLES`` (smallest first), stopping on failure."""
     targets = _argv or [t[0] for t in TABLES]
     print(f"env={ENV} billing={BILLING_PROJECT} dataset={DATASET_ID}")
     for slug, expected in TABLES:

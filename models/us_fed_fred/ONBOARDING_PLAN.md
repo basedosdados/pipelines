@@ -47,7 +47,16 @@ Never under the repo or Dropbox. Deleted at step 14.
       observation (4 cols, OL date+unknown, coverage 1854-12→2026-08, cloud→basedosdados-dev),
       series (14 cols, OL unknown, cloud→basedosdados-dev). One raw source linked to both.
 - [x] 9b. published on staging (preview). dataset id ea171847-2a6d-4b58-99c8-f6b34393dfdd
-- [ ] [PAUSE — verification checkpoint: awaiting user "approved"]
+- [x] [checkpoint approved by user; user also asked: prod must have a real `series` OL entity]
+- [x] 10. metadata --env prod — DONE & verified. dataset 4aa6290b… under_review; org fred
+      b55d48c3…; series dimension uses entity `series` e099d98e… on BOTH tables (not unknown);
+      cloud tables → basedosdados; 10 tags; coverage 1854-12→2026-08; account=4.
+- [x] committed onboarding code (67b9ed8f); branch renamed claude/… → data/us_fed_fred
+- [x] 11. PR — user pushed branch; PAT couldn't create PR (403) → opened via `gh`:
+      https://github.com/basedosdados/pipelines/pull/1810 (OPEN, MERGEABLE, `table-approve` label ✓)
+- [ ] 12. recurring daily pipeline — separate PR AFTER merge (user approved)
+- [ ] 13. publish prod (after merge + table-approve + verify): create_update_dataset id=4aa6290b… status=published env=prod
+- [ ] 14. delete ~/Downloads/us_fed_fred_data/ (rm blocked in-session → user runs, or retry)
 
 - [ ] [PAUSE — verification checkpoint]
 - [ ] 10. metadata --env prod (after approval)
