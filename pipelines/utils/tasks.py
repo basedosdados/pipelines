@@ -3,6 +3,7 @@ Tasks compartilhadas — Prefect 3.
 """
 
 import json
+import re
 from pathlib import Path
 from time import sleep
 from typing import Any
@@ -54,6 +55,23 @@ async def rename_flow_run_dataset_table(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+def _bq_safe_column_name(name: str) -> str:
+    """Normaliza um nome de coluna como o BigQuery faz ao inferir o schema.
+
+    As colunas que o crawler não renomeia chegam com o nome cru da fonte —
+    com espaço e acento, quando é o caso. Ao criar a tabela externa o
+    BigQuery troca cada caractere inválido por `_`, então `Nome do município`
+    vira `Nome_do_munic_pio`.
+
+    Args:
+        name: nome como vem do arquivo de dados.
+
+    Returns:
+        O nome com todo caractere fora de `[0-9a-zA-Z_]` trocado por `_`.
+    """
+    return re.sub(r"[^0-9a-zA-Z_]", "_", name)
+
+
 def _sync_staging_schema(
     tb: bd.Table,
     data_path: str | Path,
@@ -75,6 +93,12 @@ def _sync_staging_schema(
     remove nem reordena. Um arquivo parcial ou uma carga de um período só não
     pode encolher o schema de uma tabela histórica.
 
+    A comparação é feita sobre os nomes normalizados por
+    `_bq_safe_column_name`: o arquivo traz o nome cru e a tabela guarda o nome
+    já sanitizado pelo BigQuery, então comparar as duas grafias direto acusa
+    coluna nova em toda execução. A coluna acrescentada também leva o nome
+    normalizado — o cru pode não ser um identificador válido.
+
     Args:
         tb: tabela `basedosdados` já instanciada, apontando para a staging.
         data_path: arquivo ou diretório com os dados que serão carregados.
@@ -89,8 +113,15 @@ def _sync_staging_schema(
     client = bigquery.Client(project=billing_project_id)
     table = client.get_table(tb.table_full_name["staging"])
 
-    current = {field.name for field in table.schema}
-    new_fields = [field for field in incoming if field.name not in current]
+    current = {_bq_safe_column_name(field.name) for field in table.schema}
+    new_fields = [
+        bigquery.SchemaField(
+            name=_bq_safe_column_name(field.name),
+            field_type=field.field_type,
+        )
+        for field in incoming
+        if _bq_safe_column_name(field.name) not in current
+    ]
 
     if not new_fields:
         return
