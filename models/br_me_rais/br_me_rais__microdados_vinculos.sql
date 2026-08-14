@@ -3,10 +3,11 @@
         alias="microdados_vinculos",
         schema="br_me_rais",
         materialized="incremental",
+        on_schema_change="append_new_columns",
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1985, "end": 2030, "interval": 1},
+            "range": {"start": 1985, "end": 2031, "interval": 1},
         },
         cluster_by=["sigla_uf", "id_municipio"],
     )

@@ -1,5 +1,9 @@
 """
 Flows for br_me_rais — Prefect 3.
+
+Each run processes a single year, passed in `year`. These flows have no source
+poll guard, so `force_run` is accepted for signature compatibility and never
+read — nothing gates the download.
 """
 
 from prefect import flow
