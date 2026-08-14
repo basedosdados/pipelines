@@ -26,7 +26,8 @@ BILLING_PROJECT = "basedosdados-dev"  # DEV ONLY — never prod
 DATASET_ID = "br_cgu_sancoes"
 DATA_ROOT = Path(
     os.environ.get(
-        "BR_CGU_SANCOES_DATA", Path.home() / "Downloads" / "br_cgu_sancoes_data"
+        "BR_CGU_SANCOES_DATA",
+        Path.home() / "Downloads" / "br_cgu_sancoes_data",
     )
 )
 OUTPUT_ROOT = DATA_ROOT / "output"
@@ -36,7 +37,9 @@ _orig_bucket = gcs.Client.bucket
 
 
 def _patched_bucket(self, bucket_name, user_project=None, **kwargs):
-    return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT, **kwargs)
+    return _orig_bucket(
+        self, bucket_name, user_project=BILLING_PROJECT, **kwargs
+    )
 
 
 gcs.Client.bucket = _patched_bucket
@@ -75,7 +78,9 @@ def upload_table(slug: str, expected_rows: int) -> int:
 
     client = bigquery.Client(project=BILLING_PROJECT)
     fqn = f"{BILLING_PROJECT}.{DATASET_ID}_staging.{slug}"
-    n = next(iter(client.query(f"select count(*) as n from `{fqn}`").result())).n
+    n = next(
+        iter(client.query(f"select count(*) as n from `{fqn}`").result())
+    ).n
     status = "OK" if n == expected_rows else "MISMATCH"
     print(f"  {slug}: {n:,} rows (expected {expected_rows:,}) — {status}")
     print(f"  staging: {fqn}")
