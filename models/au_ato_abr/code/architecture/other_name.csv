@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+extraction_date,DATE,Data de extração do snapshot do registro (ABR); cada extração é uma fotografia completa do cadastro,,no,,,no,Partition column; snapshot date from the extract header,ExtractTime
+abn,STRING,Número de Empresa Australiano (ABN) da entidade à qual o nome pertence,,no,,,no,Foreign key to entity.abn,ABN
+name_type,STRING,"Tipo do nome: nome fantasia/comercial (TRD), nome de negócio (BN) ou outro nome (OTN)",,yes,,,no,,OtherEntity/NonIndividualName@type
+name,STRING,"Nome fantasia, comercial ou outro nome sob o qual a entidade opera",,no,,,no,,OtherEntity/NonIndividualName/NonIndividualNameText

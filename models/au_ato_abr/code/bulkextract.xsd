@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	History:
+	April 2012: Added new value of BN to NameTypeEnum
+	Jan 2014: Tightened up definitions
+    Apr 2015: Added date of extract and main dgr
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xsd:element name="Transfer">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="TransferInfo">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="FileSequenceNumber" type="xsd:integer"/>
+							<xsd:element name="RecordCount" type="xsd:integer"/>
+							<xsd:element name="ExtractTime" type="xsd:dateTime"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="ABR" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="ABN" type="ABNType"/>
+							<xsd:element name="EntityType" type="EntityTypeType"/>
+							<xsd:choice>
+								<xsd:element name="MainEntity" type="MainEntityType"/>
+								<xsd:element name="LegalEntity" type="LegalEntityType"/>
+							</xsd:choice>
+							<xsd:element name="ASICNumber" type="ASICNumberType" minOccurs="0"/>
+							<xsd:element name="GST" type="GSTType" minOccurs="0"/>
+							<xsd:element name="DGR" type="DGRType" minOccurs="0" maxOccurs="unbounded"/>
+							<xsd:element name="OtherEntity" type="OtherEntityType" minOccurs="0" maxOccurs="unbounded"/>
+						</xsd:sequence>
+						<xsd:attribute name="recordLastUpdatedDate" type="xsd:int" use="required"/>
+						<xsd:attribute name="replaced" type="xsd:string" use="required"/>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+			<xsd:attribute name="error" type="xsd:string" use="required"/>
+			<!--Attribute for 'Transfer' element-->
+		</xsd:complexType>
+	</xsd:element>
+	<!--EntityTypeType-->
+	<xsd:complexType name="EntityTypeType">
+		<xsd:sequence>
+			<xsd:element name="EntityTypeInd" type="EntityTypeEnum"/>
+			<xsd:element name="EntityTypeText"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--EntityTypeEnum-->
+	<xsd:simpleType name="EntityTypeEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="ADF"/>
+			<xsd:enumeration value="ARF"/>
+			<xsd:enumeration value="COP"/>
+			<xsd:enumeration value="CUT"/>
+			<xsd:enumeration value="DES"/>
+			<xsd:enumeration value="DIP"/>
+			<xsd:enumeration value="FGA"/>
+			<xsd:enumeration value="FGD"/>
+			<xsd:enumeration value="FHS"/>
+			<xsd:enumeration value="FPT"/>
+			<xsd:enumeration value="FSA"/>
+			<xsd:enumeration value="GOV"/>
+			<xsd:enumeration value="IND"/>
+			<xsd:enumeration value="JVT"/>
+			<xsd:enumeration value="LOC"/>
+			<xsd:enumeration value="LPT"/>
+			<xsd:enumeration value="NRF"/>
+			<xsd:enumeration value="OIE"/>
+			<xsd:enumeration value="PDF"/>
+			<xsd:enumeration value="PRV"/>
+			<xsd:enumeration value="PST"/>
+			<xsd:enumeration value="PTR"/>
+			<xsd:enumeration value="PTT"/>
+			<xsd:enumeration value="PUB"/>
+			<xsd:enumeration value="SMF"/>
+			<xsd:enumeration value="SSA"/>
+			<xsd:enumeration value="STA"/>
+			<xsd:enumeration value="STR"/>
+			<xsd:enumeration value="SUP"/>
+			<xsd:enumeration value="TER"/>
+			<xsd:enumeration value="TRT"/>
+			<xsd:enumeration value="UIE"/>
+			<xsd:enumeration value="CGT"/>
+			<xsd:enumeration value="LGA"/>
+			<xsd:enumeration value="LGC"/>
+			<xsd:enumeration value="LGE"/>
+			<xsd:enumeration value="LGP"/>
+			<xsd:enumeration value="LGS"/>
+			<xsd:enumeration value="LGT"/>
+			<xsd:enumeration value="SGA"/>
+			<xsd:enumeration value="SGC"/>
+			<xsd:enumeration value="SGE"/>
+			<xsd:enumeration value="SGP"/>
+			<xsd:enumeration value="SGS"/>
+			<xsd:enumeration value="SGT"/>
+			<xsd:enumeration value="TGA"/>
+			<xsd:enumeration value="TGC"/>
+			<xsd:enumeration value="TGE"/>
+			<xsd:enumeration value="TGP"/>
+			<xsd:enumeration value="TGS"/>
+			<xsd:enumeration value="TGT"/>
+			<xsd:enumeration value="CGA"/>
+			<xsd:enumeration value="CGC"/>
+			<xsd:enumeration value="CGE"/>
+			<xsd:enumeration value="CGP"/>
+			<xsd:enumeration value="CGS"/>
+			<xsd:enumeration value="CCB"/>
+			<xsd:enumeration value="CCC"/>
+			<xsd:enumeration value="CCL"/>
+			<xsd:enumeration value="CCN"/>
+			<xsd:enumeration value="CCO"/>
+			<xsd:enumeration value="CCP"/>
+			<xsd:enumeration value="CCR"/>
+			<xsd:enumeration value="CCS"/>
+			<xsd:enumeration value="CCT"/>
+			<xsd:enumeration value="CCU"/>
+			<xsd:enumeration value="CMT"/>
+			<xsd:enumeration value="CSA"/>
+			<xsd:enumeration value="CSP"/>
+			<xsd:enumeration value="CSS"/>
+			<xsd:enumeration value="CTC"/>
+			<xsd:enumeration value="CTD"/>
+			<xsd:enumeration value="CTF"/>
+			<xsd:enumeration value="CTH"/>
+			<xsd:enumeration value="CTI"/>
+			<xsd:enumeration value="CTL"/>
+			<xsd:enumeration value="CTQ"/>
+			<xsd:enumeration value="CTT"/>
+			<xsd:enumeration value="CTU"/>
+			<xsd:enumeration value="DIT"/>
+			<xsd:enumeration value="DST"/>
+			<xsd:enumeration value="DTT"/>
+			<xsd:enumeration value="FUT"/>
+			<xsd:enumeration value="FXT"/>
+			<xsd:enumeration value="HYT"/>
+			<xsd:enumeration value="LCB"/>
+			<xsd:enumeration value="LCC"/>
+			<xsd:enumeration value="LCL"/>
+			<xsd:enumeration value="LCN"/>
+			<xsd:enumeration value="LCO"/>
+			<xsd:enumeration value="LCP"/>
+			<xsd:enumeration value="LCR"/>
+			<xsd:enumeration value="LCS"/>
+			<xsd:enumeration value="LCT"/>
+			<xsd:enumeration value="LCU"/>
+			<xsd:enumeration value="LSA"/>
+			<xsd:enumeration value="LSP"/>
+			<xsd:enumeration value="LSS"/>
+			<xsd:enumeration value="LTC"/>
+			<xsd:enumeration value="LTD"/>
+			<xsd:enumeration value="LTF"/>
+			<xsd:enumeration value="LTH"/>
+			<xsd:enumeration value="LTI"/>
+			<xsd:enumeration value="LTL"/>
+			<xsd:enumeration value="LTQ"/>
+			<xsd:enumeration value="LTT"/>
+			<xsd:enumeration value="LTU"/>
+			<xsd:enumeration value="NPF"/>
+			<xsd:enumeration value="POF"/>
+			<xsd:enumeration value="PQT"/>
+			<xsd:enumeration value="PUT"/>
+			<xsd:enumeration value="SAF"/>
+			<xsd:enumeration value="SCB"/>
+			<xsd:enumeration value="SCC"/>
+			<xsd:enumeration value="SCL"/>
+			<xsd:enumeration value="SCN"/>
+			<xsd:enumeration value="SCO"/>
+			<xsd:enumeration value="SCP"/>
+			<xsd:enumeration value="SCR"/>
+			<xsd:enumeration value="SCS"/>
+			<xsd:enumeration value="SCT"/>
+			<xsd:enumeration value="SCU"/>
+			<xsd:enumeration value="SSP"/>
+			<xsd:enumeration value="SSS"/>
+			<xsd:enumeration value="STC"/>
+			<xsd:enumeration value="STD"/>
+			<xsd:enumeration value="STF"/>
+			<xsd:enumeration value="STH"/>
+			<xsd:enumeration value="STI"/>
+			<xsd:enumeration value="STL"/>
+			<xsd:enumeration value="STQ"/>
+			<xsd:enumeration value="STT"/>
+			<xsd:enumeration value="STU"/>
+			<xsd:enumeration value="TCB"/>
+			<xsd:enumeration value="TCC"/>
+			<xsd:enumeration value="TCL"/>
+			<xsd:enumeration value="TCN"/>
+			<xsd:enumeration value="TCO"/>
+			<xsd:enumeration value="TCP"/>
+			<xsd:enumeration value="TCR"/>
+			<xsd:enumeration value="TCS"/>
+			<xsd:enumeration value="TCT"/>
+			<xsd:enumeration value="TCU"/>
+			<xsd:enumeration value="TSA"/>
+			<xsd:enumeration value="TSP"/>
+			<xsd:enumeration value="TSS"/>
+			<xsd:enumeration value="TTC"/>
+			<xsd:enumeration value="TTD"/>
+			<xsd:enumeration value="TTF"/>
+			<xsd:enumeration value="TTH"/>
+			<xsd:enumeration value="TTI"/>
+			<xsd:enumeration value="TTL"/>
+			<xsd:enumeration value="TTQ"/>
+			<xsd:enumeration value="TTT"/>
+			<xsd:enumeration value="TTU"/>
+			<xsd:enumeration value="CSF"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--MainEntityType-->
+	<xsd:complexType name="MainEntityType">
+		<xsd:sequence>
+			<xsd:element name="NonIndividualName" type="NonIndividualNameType"/>
+			<xsd:element name="BusinessAddress" type="BusinessAddressType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--ASICNumberType-->
+	<xsd:complexType name="ASICNumberType">
+		<xsd:simpleContent>
+			<xsd:extension base="ASICNumberValue">
+				<xsd:attribute name="ASICNumberType" type="xsd:string" use="required"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!--ASICNumberValue - Follows on from ASICNumberType above-->
+	<xsd:simpleType name="ASICNumberValue">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="0"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--GSTNumberType-->
+	<xsd:complexType name="GSTType">
+		<xsd:simpleContent>
+			<xsd:extension base="GSTValue">
+				<xsd:attribute name="status" type="xsd:string" use="required"/>
+				<xsd:attribute name="GSTStatusFromDate" use="required"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!--GSTValue- Follows on from GSTNumberTypeabove-->
+	<xsd:simpleType name="GSTValue">
+		<xsd:restriction base="xsd:string">
+			<xsd:length value="0"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--DGRType-->
+	<xsd:complexType name="DGRType">
+		<xsd:sequence minOccurs="0">
+			<xsd:element name="NonIndividualName" type="NonIndividualNameType"/>
+		</xsd:sequence>
+		<xsd:attribute name="DGRStatusFromDate" use="required"/>
+		<xsd:attribute name="status" type="xsd:string" use="optional"/>
+	</xsd:complexType>
+	<!--LegalEntityType-->
+	<xsd:complexType name="LegalEntityType">
+		<xsd:sequence>
+			<xsd:element name="IndividualName" type="IndividualNameType"/>
+			<xsd:element name="BusinessAddress" type="BusinessAddressType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--OtherEntityType-->
+	<xsd:complexType name="OtherEntityType">
+		<xsd:sequence>
+			<xsd:element name="NonIndividualName" type="NonIndividualNameType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--IndividualNameType-->
+	<xsd:complexType name="IndividualNameType">
+		<xsd:sequence>
+			<xsd:element name="NameTitle" type="NameTitleType" minOccurs="0"/>
+			<xsd:element name="GivenName" type="GivenNameType" minOccurs="0" maxOccurs="2"/>
+			<xsd:element name="FamilyName" type="FamilyNameType"/>
+		</xsd:sequence>
+		<xsd:attribute name="type" type="NameTypeEnum" use="required"/>
+	</xsd:complexType>
+	<xsd:simpleType name="NameTitleType">
+		<xsd:restriction base="xsd:string"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="GivenNameType">
+		<xsd:restriction base="xsd:string"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="FamilyNameType">
+		<xsd:restriction base="xsd:string"/>
+	</xsd:simpleType>
+	<!--NameTypeEnum-->
+	<xsd:simpleType name="NameTypeEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="MN"/>
+			<xsd:enumeration value="DGR"/>
+			<xsd:enumeration value="LGL"/>
+			<xsd:enumeration value="TRD"/>
+			<xsd:enumeration value="OTN"/>
+			<xsd:enumeration value="BN"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--NonindividualNameType-->
+	<xsd:complexType name="NonIndividualNameType">
+		<xsd:sequence>
+			<xsd:element name="NonIndividualNameText" type="NonIndividualNameTextType"/>
+		</xsd:sequence>
+		<xsd:attribute name="type" type="NameTypeEnum" use="required"/>
+	</xsd:complexType>
+	<!--	NonIndividualNameTextType-->
+	<xsd:simpleType name="NonIndividualNameTextType">
+		<xsd:restriction base="xsd:string"/>
+	</xsd:simpleType>
+	<!--ABNType-->
+	<xsd:complexType name="ABNType">
+		<xsd:simpleContent>
+			<xsd:extension base="ABNIdentifierType">
+				<xsd:attribute name="status" type="ABNTypeEnum" use="required"/>
+				<xsd:attribute name="ABNStatusFromDate" use="required"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!--ABNIdentifierType - Follows on from ABNType above-->
+	<xsd:simpleType name="ABNIdentifierType">
+		<xsd:restriction base="xsd:string">
+			<xsd:length value="11"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--ABNTypeEnum-->
+	<xsd:simpleType name="ABNTypeEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CAN"/>
+			<xsd:enumeration value="ACT"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--BusinessAddressType-->
+	<xsd:complexType name="BusinessAddressType">
+		<xsd:sequence>
+			<xsd:element name="AddressDetails" type="AddressDetailsType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--AddressDetailsType-->
+	<xsd:complexType name="AddressDetailsType">
+		<xsd:sequence>
+			<xsd:element name="State" type="StateEnum"/>
+			<xsd:element name="Postcode"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--'StateEnum-->
+	<xsd:simpleType name="StateEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value=""/>
+			<xsd:enumeration value="AAT"/>
+			<xsd:enumeration value="QLD"/>
+			<xsd:enumeration value="ACT"/>
+			<xsd:enumeration value="NSW"/>
+			<xsd:enumeration value="WA"/>
+			<xsd:enumeration value="VIC"/>
+			<xsd:enumeration value="NT"/>
+			<xsd:enumeration value="TAS"/>
+			<xsd:enumeration value="SA"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>
