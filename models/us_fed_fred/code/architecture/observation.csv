@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano de referência da observação,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento; derivada de date,date
+date,DATE,Data da observação (data exata para séries diárias; primeiro dia do período para séries semanais mensais trimestrais e anuais),,no,,,no,Padrão de datação do FRED (início do período),date
+series_id,STRING,Identificador da série no FRED,,no,,,no,Referencia a tabela series (catálogo de metadados) via teste de relacionamento no dbt,series_id
+value,FLOAT64,Valor observado da série,,no,,,no,A unidade depende da série; ver a coluna units na tabela series,value
