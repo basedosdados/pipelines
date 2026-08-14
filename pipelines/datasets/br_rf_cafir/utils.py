@@ -92,7 +92,8 @@ def parse_api_metadata(response_text: str) -> pd.DataFrame:
             reference_date_str = href.split(".")[-3].replace("D", "202")
             reference_date = datetime.datetime.strptime(
                 reference_date_str, "%Y%m%d"
-            ).strftime("%Y-%m-%d")
+            )
+            # .strftime("%Y-%m-%d")
             update_date = datetime.datetime.strptime(
                 items_dates[index].find("d:getlastmodified").text,
                 "%a, %d %b %Y %H:%M:%S GMT",
