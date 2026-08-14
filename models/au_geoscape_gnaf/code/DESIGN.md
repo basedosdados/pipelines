@@ -85,62 +85,66 @@ Each quarterly release is a full snapshot. We **stack** releases, keeping full h
 
 ## Tables
 
+Coded columns carry NO `_code` suffix (e.g. `flat_type`, `geocode_type`) — see the note at the top;
+the architecture CSVs are authoritative and the cleaning/dbt models use these names. `original_name`
+in the CSVs still points at the raw PSV `*_CODE` columns.
+
 ### 1. address_detail  (core, ~15.9M rows × snapshots)
 Central table, one row per address. Fold in the **default geocode** (ADDRESS_DEFAULT_GEOCODE:
-geocode_type_code, longitude, latitude) and the **ABS mesh-block** codes
+geocode_type, longitude, latitude) and the **ABS mesh-block** codes
 (ADDRESS_MESH_BLOCK_2016→MB_2016.mb_2016_code, ADDRESS_MESH_BLOCK_2021→MB_2021.mb_2021_code).
 
 Columns (order):
 snapshot_date, year, id_state, address_detail_pid, date_created, date_last_modified, date_retired,
-building_name, lot_number_prefix, lot_number, lot_number_suffix, flat_type_code, flat_number_prefix,
-flat_number, flat_number_suffix, level_type_code, level_number_prefix, level_number,
+building_name, lot_number_prefix, lot_number, lot_number_suffix, flat_type, flat_number_prefix,
+flat_number, flat_number_suffix, level_type, level_number_prefix, level_number,
 level_number_suffix, number_first_prefix, number_first, number_first_suffix, number_last_prefix,
 number_last, number_last_suffix, street_locality_pid, location_description, locality_pid,
 alias_principal, postcode, private_street, legal_parcel_id, confidence, address_site_pid,
-level_geocoded_code, property_pid, gnaf_property_pid, primary_secondary, geocode_type_code,
+level_geocoded, property_pid, gnaf_property_pid, primary_secondary, geocode_type,
 longitude, latitude, id_mb_2016, id_mb_2021
 
 - PK (logical, dbt unique test): `snapshot_date + address_detail_pid`.
 - FKs: street_locality_pid→street_locality, locality_pid→locality, id_state→directory.
-- dict columns: flat_type_code, level_type_code, level_geocoded_code, alias_principal, confidence,
-  primary_secondary, geocode_type_code.
+- dict columns: flat_type, level_type, level_geocoded, alias_principal, confidence,
+  primary_secondary, geocode_type.
 
 ### 2. street_locality  (~1.5M rows × snapshots)
 Street reference; fold in STREET_LOCALITY_POINT lat/long. State known from per-state file.
 
 Columns:
 snapshot_date, year, id_state, street_locality_pid, date_created, date_retired, street_name,
-street_type_code, street_suffix_code, street_class_code, locality_pid, gnaf_street_pid,
-gnaf_reliability_code, longitude, latitude
+street_type, street_suffix, street_class, locality_pid, gnaf_street_pid,
+gnaf_reliability, longitude, latitude
 
 - PK: `snapshot_date + street_locality_pid`.
-- dict: street_type_code, street_suffix_code, street_class_code, gnaf_reliability_code.
+- dict: street_type, street_suffix, street_class, gnaf_reliability.
 
 ### 3. locality  (~16k rows × snapshots)
 Locality (suburb) reference; fold in LOCALITY_POINT lat/long. Resolve STATE_PID→id_state.
 
 Columns:
 snapshot_date, year, id_state, locality_pid, date_created, date_retired, locality_name,
-primary_postcode, locality_class_code, gnaf_locality_pid, gnaf_reliability_code, longitude, latitude
+primary_postcode, locality_class, gnaf_locality_pid, gnaf_reliability, longitude, latitude
 
 - PK: `snapshot_date + locality_pid`.
-- dict: locality_class_code, gnaf_reliability_code.
+- dict: locality_class, gnaf_reliability.
 
 ### 4. dicionario  (standard 5-col)
 Covers every coded column above. Source = the G-NAF `*_AUT` tables (CODE/NAME/DESCRIPTION),
-one dictionary entry set per column:
-- flat_type_code ← FLAT_TYPE_AUT
-- level_type_code ← LEVEL_TYPE_AUT
-- level_geocoded_code ← GEOCODED_LEVEL_TYPE_AUT
-- geocode_type_code ← GEOCODE_TYPE_AUT
-- street_type_code ← STREET_TYPE_AUT
-- street_suffix_code ← STREET_SUFFIX_AUT
-- street_class_code ← STREET_CLASS_AUT
-- locality_class_code ← LOCALITY_CLASS_AUT
-- gnaf_reliability_code ← (reliability code list in product desc)
+one dictionary entry set per column (`nome_coluna` uses the canonical, no-`_code` names):
+- flat_type ← FLAT_TYPE_AUT
+- level_type ← LEVEL_TYPE_AUT
+- level_geocoded ← GEOCODED_LEVEL_TYPE_AUT
+- geocode_type ← GEOCODE_TYPE_AUT
+- street_type ← STREET_TYPE_AUT
+- street_suffix ← STREET_SUFFIX_AUT
+- street_class ← STREET_CLASS_AUT
+- locality_class ← LOCALITY_CLASS_AUT
+- gnaf_reliability ← GEOCODE_RELIABILITY_AUT (emitted for both street_locality and locality)
 - alias_principal ← {A: Alias, P: Principal}
-- primary_secondary ← {P: Primary, S: Secondary}
-- confidence ← {0,1,2 confidence levels per product desc}
+- primary_secondary ← {P: Endereço primário, S: Endereço secundário}
+- confidence ← {-1, 0, 1, 2 confidence levels per product desc}
 
 Columns: id_tabela, nome_coluna, chave, cobertura_temporal, valor (all STRING).
 

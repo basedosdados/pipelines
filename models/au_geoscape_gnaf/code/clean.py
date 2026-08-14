@@ -51,9 +51,17 @@ PA_TYPE = {
 }
 
 
-def load_arch(table):
-    """Return list of (name, bigquery_type) in order, excluding partition cols
-    snapshot_date/id_state (encoded in the path)."""
+def load_arch(table: str) -> list[tuple[str, str]]:
+    """Return the architecture (name, bigquery_type) pairs in order.
+
+    Args:
+        table: Table slug whose ``code/architecture/<table>.csv`` to read.
+
+    Returns:
+        Ordered ``(column_name, bigquery_type)`` pairs, including the partition
+        columns ``snapshot_date`` / ``id_state`` (they are filtered out later,
+        in ``write_parquet``, since they are encoded in the hive path).
+    """
     rows = []
     with open(os.path.join(ARCH, f"{table}.csv"), encoding="utf-8") as f:
         for r in csv.DictReader(f):
@@ -61,7 +69,15 @@ def load_arch(table):
     return rows
 
 
-def _zip_base(zf):
+def _zip_base(zf: zipfile.ZipFile) -> tuple[str, str]:
+    """Locate the Standard and Authority-Code folders inside the G-NAF zip.
+
+    Args:
+        zf: Open G-NAF release zip.
+
+    Returns:
+        ``(standard_dir, authority_code_dir)`` member-path prefixes.
+    """
     for n in zf.namelist():
         if n.endswith("_STATE_psv.psv") and "/Standard/" in n:
             std = n.rsplit("/", 1)[0]  # .../Standard
@@ -70,7 +86,19 @@ def _zip_base(zf):
     raise RuntimeError("Standard folder not found in zip")
 
 
-def read_psv(zf, path, usecols=None):
+def read_psv(
+    zf: zipfile.ZipFile, path: str, usecols: list[str] | None = None
+) -> pd.DataFrame:
+    """Read a pipe-separated member of the zip as all-string columns.
+
+    Args:
+        zf: Open G-NAF release zip.
+        path: Member path of the ``.psv`` file to read.
+        usecols: Optional subset of columns to load.
+
+    Returns:
+        The parsed table with empty cells kept as ``""`` (not NaN).
+    """
     with zf.open(path) as fh:
         return pd.read_csv(
             io.TextIOWrapper(fh, "utf-8"),
@@ -81,23 +109,47 @@ def read_psv(zf, path, usecols=None):
         )
 
 
-def _date(s):
-    # 'YYYY-MM-DD' string -> date; '' -> None
+def _date(s: pd.Series) -> pd.Series:
+    """Parse a ``YYYY-MM-DD`` string series to dates (``""`` -> NaT/None)."""
     return pd.to_datetime(s, format="%Y-%m-%d", errors="coerce").dt.date
 
 
-def _float(s):
+def _float(s: pd.Series) -> pd.Series:
+    """Parse a string series to floats (``""`` -> NaN)."""
     return pd.to_numeric(s.replace("", None), errors="coerce")
 
 
-def active(df, key):
-    """Keep only non-retired rows, one per key (first wins)."""
+def active(df: pd.DataFrame, key: str) -> pd.DataFrame:
+    """Keep only non-retired rows, one per key (first wins).
+
+    Args:
+        df: Source frame containing a ``DATE_RETIRED`` column.
+        key: Column to deduplicate on.
+    """
     a = df[df["DATE_RETIRED"] == ""]
     return a.drop_duplicates(subset=[key], keep="first")
 
 
-def write_parquet(df, table, arch, state_pid):
-    """Write one state's dataframe as typed parquet under the hive path."""
+def write_parquet(
+    df: pd.DataFrame,
+    table: str,
+    arch: list[tuple[str, str]],
+    state_pid: str,
+) -> int:
+    """Write one state's dataframe as typed parquet under the hive path.
+
+    The partition columns ``snapshot_date`` / ``id_state`` are excluded from the
+    file (they live in the ``snapshot_date=.../id_state=.../`` path instead).
+
+    Args:
+        df: Cleaned frame for one state.
+        table: Table slug (output subdirectory).
+        arch: Architecture ``(name, bigquery_type)`` pairs giving column order.
+        state_pid: ASGS state code (1-9) used in the hive path.
+
+    Returns:
+        Number of rows written.
+    """
     cols = [c for c, _ in arch if c not in ("snapshot_date", "id_state")]
     fields, data = [], {}
     for name, bqt in arch:
@@ -125,7 +177,29 @@ def write_parquet(df, table, arch, state_pid):
 
 
 # ---------------------------------------------------------------- table builders
-def build_address_detail(zf, std, state, pid, arch):
+def build_address_detail(
+    zf: zipfile.ZipFile,
+    std: str,
+    state: str,
+    pid: str,
+    arch: list[tuple[str, str]],
+) -> pd.DataFrame:
+    """Build the ``address_detail`` frame for one state.
+
+    Folds the active default geocode (geocode_type, longitude, latitude) and the
+    ABS mesh-block codes (id_mb_2016, id_mb_2021) into ADDRESS_DETAIL, and adds
+    the snapshot_date / year / id_state columns.
+
+    Args:
+        zf: Open G-NAF release zip.
+        std: Standard-folder member prefix.
+        state: State/territory abbreviation (e.g. ``NSW``).
+        pid: ASGS state code (1-9) for this state.
+        arch: Architecture pairs (unused here; kept for a uniform builder API).
+
+    Returns:
+        The cleaned per-state address frame.
+    """
     ad = read_psv(zf, f"{std}/{state}_ADDRESS_DETAIL_psv.psv")
     ad = ad.rename(
         columns={
@@ -205,7 +279,28 @@ def build_address_detail(zf, std, state, pid, arch):
     return ad
 
 
-def build_street_locality(zf, std, state, pid, arch):
+def build_street_locality(
+    zf: zipfile.ZipFile,
+    std: str,
+    state: str,
+    pid: str,
+    arch: list[tuple[str, str]],
+) -> pd.DataFrame:
+    """Build the ``street_locality`` frame for one state.
+
+    Folds the active STREET_LOCALITY_POINT longitude/latitude into
+    STREET_LOCALITY and adds snapshot_date / year / id_state.
+
+    Args:
+        zf: Open G-NAF release zip.
+        std: Standard-folder member prefix.
+        state: State/territory abbreviation.
+        pid: ASGS state code (1-9) for this state.
+        arch: Architecture pairs (unused here; uniform builder API).
+
+    Returns:
+        The cleaned per-state street frame.
+    """
     sl = read_psv(zf, f"{std}/{state}_STREET_LOCALITY_psv.psv").rename(
         columns={
             "STREET_LOCALITY_PID": "street_locality_pid",
@@ -249,7 +344,28 @@ def build_street_locality(zf, std, state, pid, arch):
     return sl
 
 
-def build_locality(zf, std, state, pid, arch):
+def build_locality(
+    zf: zipfile.ZipFile,
+    std: str,
+    state: str,
+    pid: str,
+    arch: list[tuple[str, str]],
+) -> pd.DataFrame:
+    """Build the ``locality`` frame for one state.
+
+    Folds the active LOCALITY_POINT longitude/latitude into LOCALITY, resolves
+    ``id_state`` from STATE_PID, and adds snapshot_date / year.
+
+    Args:
+        zf: Open G-NAF release zip.
+        std: Standard-folder member prefix.
+        state: State/territory abbreviation.
+        pid: ASGS state code (1-9); LOCALITY also carries its own STATE_PID.
+        arch: Architecture pairs (unused here; uniform builder API).
+
+    Returns:
+        The cleaned per-state locality frame.
+    """
     lo = read_psv(zf, f"{std}/{state}_LOCALITY_psv.psv").rename(
         columns={
             "LOCALITY_PID": "locality_pid",
@@ -330,7 +446,20 @@ COL_TABLE = {
 }
 
 
-def build_dicionario(zf, auth):
+def build_dicionario(zf: zipfile.ZipFile, auth: str) -> int:
+    """Build the ``dicionario`` from the authority-code tables + hardcoded sets.
+
+    Emits one ``(id_tabela, nome_coluna, chave, cobertura_temporal, valor)`` row
+    per code, using the AUT ``NAME`` as the label for AUT-backed columns and the
+    hardcoded PT labels for the columns G-NAF has no AUT table for.
+
+    Args:
+        zf: Open G-NAF release zip.
+        auth: Authority-Code folder member prefix.
+
+    Returns:
+        Number of dictionary rows written.
+    """
     recs = []
     for aut, col in AUT_MAP.items():
         df = read_psv(zf, f"{auth}/Authority_Code_{aut}_AUT_psv.psv")
@@ -365,7 +494,8 @@ def build_dicionario(zf, auth):
     return len(d)
 
 
-def main():
+def main() -> None:
+    """Clean every selected state into partitioned parquet + the dicionario."""
     arch = {
         t: load_arch(t)
         for t in ("address_detail", "street_locality", "locality")
