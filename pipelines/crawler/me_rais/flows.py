@@ -9,9 +9,8 @@ from pipelines.crawler.me_rais.tasks import (
     resolve_vinculos_table_id,
 )
 from pipelines.utils.metadata.domain import (
+    AllFree,
     DateFormat,
-    FreeLag,
-    PartBdpro,
     YearOnly,
 )
 from pipelines.utils.metadata.tasks import (
@@ -94,10 +93,9 @@ def _run_rais(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=effective_table_id,
-            coverage=PartBdpro(
+            coverage=AllFree(
                 date_column=YearOnly(col="ano"),
                 date_format=DateFormat.YEAR,
-                free_lag=FreeLag(unit="years", value=1),
             ),
             env="prod",
             bq_project="basedosdados",
