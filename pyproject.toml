@@ -233,6 +233,11 @@ project-excludes = [
   # run via uv run; the pure transform is relocated to pipelines/datasets at the
   # pipeline step), so imports are unresolvable from the repo root.
   "models/us_fed_fred/code",
+  # Same policy: br_sfb_sicar onboarding code is standalone `.py` (architecture.py,
+  # gen_*.py, bootstrap_clean.py use bare `import architecture`/`import clean`,
+  # sys.path-relative), unresolvable from the repo root. The pure transform is
+  # relocated to pipelines/crawler/sfb_sicar/utils.py at the pipeline step.
+  "models/br_sfb_sicar/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",

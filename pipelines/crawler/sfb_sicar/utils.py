@@ -1,254 +1,317 @@
-"""
-Utils for br_sfb_sicar
+"""Download + cleaning transform for br_sfb_sicar (Cadastro Ambiental Rural).
+
+Pure functions (no Prefect) — the single canonical location for the transform.
+The recurring pipeline wraps them in @task (see tasks.py); the one-shot bootstrap
+in ``models/br_sfb_sicar/code/clean.py`` re-exports them so the two cannot drift.
+
+Per theme zip: read ALL ``.shp`` parts (large UFs split into ``_1.shp``,
+``_2.shp``, …), reproject SIRGAS 2000 (EPSG:4674) -> WGS84 (EPSG:4326), make the
+geometry valid, emit WKT. Output is an ALL-STRING partitioned parquet dataset
+(the dbt model ``safe_cast``s every column), partitioned by ``data`` (snapshot)
+and ``sigla_uf``. All-string is mandatory: ``upload_to_gcs`` infers the staging
+schema from a stringified header, so typed parquet is rejected — cast via arrow
+(None-for-NaN), never ``astype(str)`` which would render NULL as ``"nan"``.
 """
 
+import glob
 import os
-import shutil
 import tempfile
 import time as tm
 import zipfile
 from datetime import datetime
 
-import fiona
 import geopandas as gpd
 import httpx
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+from shapely import make_valid
+from shapely.geometry.base import BaseGeometry
 
-from pipelines.utils.utils import log
+from pipelines.crawler.sfb_sicar.constants import architecture as arch
 
-
-def unpack_zip(zip_file_path: str) -> str:
-    """
-    Descompacta um arquivo ZIP em um diretório temporário.
-
-    Args:
-        zip_file_path (str): Caminho para o arquivo ZIP.
-
-    Retorna:
-        str: Caminho do diretório temporário onde os arquivos foram extraídos.
-
-    Exceções:
-        zipfile.BadZipFile: Se o arquivo ZIP estiver corrompido ou inválido.
-    """
-    temp_dir = tempfile.mkdtemp()
-
-    with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
-        try:
-            zip_ref.extractall(temp_dir)
-        except zipfile.BadZipFile as e:
-            log(
-                f"O arquivo zip {zip_file_path.split('/')[-1]} está provavelmente corrompido. {e}"
-            )
-            raise e
-    return temp_dir
+WGS84 = "EPSG:4326"
+SIRGAS = "EPSG:4674"
 
 
-def convert_shp_to_parquet(
-    shp_file_path: str,
-    output_parquet_path: str,
-    uf_relase_dates: dict,
-    sigla_uf: str,
-    chunk_size: int = 100000,
-) -> None:
-    """
-    Converte um arquivo .shp para o formato Parquet, incluindo a geometria como WKT e processando em chunks.
-
-    Args:
-        shp_file_path (str): Caminho para o arquivo .shp.
-        output_parquet_path (str): Caminho onde o arquivo Parquet será salvo.
-        uf_relase_dates (dict): Dicionário com as datas de lançamento por estado.
-        sigla_uf (str): Sigla do estado sendo processado.
-        chunk_size (int): Número de registros a serem processados por chunk.
-
-    Exceções:
-        FileNotFoundError: Se o arquivo .shp não for encontrado.
-        ValueError: Se houver erro na conversão de data ou formatação incorreta.
-        RuntimeError: Se houver problemas na conversão da geometria para WKT.
-    """
-    try:
-        # Obter a data de atualização a partir das informações do estado
-        date = datetime.strptime(
-            uf_relase_dates[sigla_uf], "%d/%m/%Y"
-        ).strftime("%Y-%m-%d")
-        log(f"A data de atualização do CAR do Estado {sigla_uf} foi {date}")
-    except ValueError as e:
-        log(
-            f"Erro ao converter a data de lançamento para {sigla_uf}. Verifique o formato no dicionário. {e}"
-        )
-        raise e
-
-    # Abrir o shapefile usando fiona
-    try:
-        log(f"Lendo arquivo {shp_file_path}")
-        with fiona.open(shp_file_path, "r") as src:
-            total_features = len(src)
-            log(f"Total de registros no shapefile: {total_features}")
-
-            features = []
-            writer = None  # Inicializa o writer como None
-
-            for i, feature in enumerate(src, 1):
-                features.append(feature)
-                # Quando atingir o tamanho do chunk ou último registro
-                if len(features) == chunk_size or i == total_features:
-                    # Converter lista de features para GeoDataFrame
-                    gdf_chunk = gpd.GeoDataFrame.from_features(
-                        features, crs=src.crs
-                    )
-                    try:
-                        # Convertendo geometria para WKT
-                        gdf_chunk["geometry"] = gdf_chunk["geometry"].apply(
-                            lambda geom: geom.wkt
-                        )
-                    except Exception as e:
-                        log(
-                            f"Erro ao converter a geometria para WKT no chunk que termina no registro {i}. {e}"
-                        )
-                        raise RuntimeError(
-                            f"Erro na conversão de geometria para WKT: {e}"
-                        ) from e
-
-                    # Adicionar a data de atualização
-                    gdf_chunk["data_atualizacao_car"] = date
-
-                    # Converter para pandas DataFrame
-                    df_chunk = pd.DataFrame(gdf_chunk)
-
-                    # Converter para PyArrow Table
-                    table_chunk = pa.Table.from_pandas(df_chunk)
-
-                    # Inicializar o ParquetWriter com o esquema na primeira iteração
-                    if writer is None:
-                        schema = table_chunk.schema
-                        writer = pq.ParquetWriter(output_parquet_path, schema)
-
-                    # Escrever o chunk no arquivo Parquet
-                    writer.write_table(table_chunk)
-                    log(f"Chunk até registro {i} escrito no arquivo Parquet.")
-
-                    # Limpar lista de features
-                    features = []
-                    del gdf_chunk, df_chunk, table_chunk
-
-            # Fechar o writer após escrever todos os chunks
-            if writer is not None:
-                writer.close()
-
-    except FileNotFoundError as e:
-        log(f"Arquivo .shp {shp_file_path} não encontrado. {e}")
-        raise e
-    except Exception as e:
-        log(f"Erro inesperado ao processar o arquivo {shp_file_path}: {e}")
-        raise e
-
-    log(f"Arquivo Parquet {output_parquet_path} salvo com sucesso.")
-
-
-def process_all_files(
-    zip_folder: str, output_folder: str, uf_relase_dates: dict
-) -> None:
-    """
-    Processa todos os arquivos ZIP em um diretório, descompactando-os e convertendo os arquivos .shp para Parquet.
-
-    Args:
-        zip_folder (str): Caminho para o diretório contendo os arquivos ZIP.
-        output_folder (str): Caminho para o diretório onde os arquivos Parquet serão salvos.
-        uf_relase_dates (dict): Dicionário com as datas de lançamento dos dados por estado.
-    """
-    for zip_filename in os.listdir(zip_folder):
-        if zip_filename.endswith(".zip"):
-            zip_file_path = os.path.join(zip_folder, zip_filename)
-            sigla_uf = zip_filename.split("_")[0]
-            data_particao = datetime.today().strftime("%Y-%m-%d")
-
-            # Descompactar o arquivo em diretório temporário
-            unpacked_dir = unpack_zip(zip_file_path)
-
-            try:
-                # Encontrar o arquivo .shp
-                shp_file = next(
-                    (
-                        f
-                        for f in os.listdir(unpacked_dir)
-                        if f.endswith(".shp")
-                    ),
-                    None,
-                )
-
-                if shp_file:
-                    shp_file_path = os.path.join(unpacked_dir, shp_file)
-                    sigla_uf_dir = os.path.join(
-                        output_folder,
-                        f"data_extracao={data_particao}/sigla_uf={sigla_uf}",
-                    )
-                    os.makedirs(sigla_uf_dir, exist_ok=True)
-
-                    output_parquet_path = os.path.join(
-                        sigla_uf_dir,
-                        f"{os.path.splitext(shp_file)[0]}.parquet",
-                    )
-                    log(f"Salvando {output_parquet_path}")
-
-                    # Converte shapefile para Parquet com geometria em formato WKT
-                    convert_shp_to_parquet(
-                        shp_file_path,
-                        output_parquet_path,
-                        uf_relase_dates,
-                        sigla_uf,
-                    )
-
-            finally:
-                # Remove o diretório temporário após o processamento
-                shutil.rmtree(unpacked_dir)
-                log(f"Diretório temporário {unpacked_dir} removido.")
-
-            # Remover o arquivo ZIP após o processamento
-            os.remove(zip_file_path)
-            log(f"Arquivo ZIP {zip_file_path} removido.")
-
-
+# ── download ────────────────────────────────────────────────────────────────
 def retry_download_car(
-    car, state: str, polygon: bool, folder: str, max_retries: int = 8
+    car,
+    state: str,
+    polygon: str,
+    folder: str,
+    tries: int = 25,
+    max_retries: int = 8,
 ) -> None:
-    """
-    Faz o download do CAR com tentativas em caso de falhas.
-    *NOTE* : A API do CAR é muito instável e timeouts ocorrem com frequência. Por isso a necessidade de tentativas sucessivas de estabelecer conexão e
-    finalizar o download.
+    """Download one state x theme, retrying through the CAR server's timeouts.
+
+    The CAR API is unstable — read timeouts are frequent — so the download is
+    retried on ``httpx.ReadTimeout``. Each ``download_state`` call itself makes
+    ``tries`` captcha attempts (solved by SICAR via Tesseract OCR).
 
     Args:
-        car: Objeto responsável pelo download.
-        state (str): Sigla do estado.
-        polygon (bool): Se o download deve incluir ou não o polígono.
-        folder (str): Diretório onde o arquivo será salvo.
-        max_retries (int): Número máximo de tentativas de download (padrão: 8).
+        car: A ``SICAR.Sicar`` instance.
+        state: Two-letter UF code (SICAR's State enum accepts the string).
+        polygon: SICAR Polygon enum value, e.g. ``"AREA_IMOVEL"``, ``"APPS"``.
+        folder: Directory the zip is written into (``<UF>_<POLYGON>.zip``).
+        tries: Captcha attempts per ``download_state`` call.
+        max_retries: Timeout retries wrapping the whole download.
 
-    Exceções:
-        httpx.ReadTimeout: Se ocorrer um timeout ao tentar o download.
-        Exception: Qualquer outro erro inesperado durante o processo de download.
+    Raises:
+        httpx.ReadTimeout: If every retry times out.
     """
     retries = 0
-    success = False
-
-    while retries < max_retries and not success:
+    while retries < max_retries:
         try:
-            car.download_state(state=state, polygon=polygon, folder=folder)
-            success = True
-            log(f"Download do estado {state} concluído com sucesso.")
-        except httpx.ReadTimeout as e:
-            retries += 1
-            log(
-                f"Erro de timeout ao baixar {state}. Tentativa {retries} de {max_retries}. Exceção: {e}"
+            car.download_state(
+                state=state, polygon=polygon, folder=folder, tries=tries
             )
-            log("Tentando novamente em 8 segundos.")
+            return
+        except httpx.ReadTimeout:
+            retries += 1
+            if retries >= max_retries:
+                raise
             tm.sleep(8)
-            if retries >= max_retries:
-                log(
-                    f"Falha ao baixar o estado {state} após {max_retries} tentativas."
+
+
+def release_dates_to_iso(release_dates: dict) -> dict:
+    """Normalize SICAR's ``get_release_dates`` to ``{UF: 'YYYY-MM-DD'}``.
+
+    ``get_release_dates`` returns ``{State: 'dd/mm/yyyy'}`` (keys are State
+    enums, which are ``str`` subclasses). Both the enum ``.value`` and a bare
+    string key resolve to the two-letter UF code.
+
+    Args:
+        release_dates: The raw mapping from ``Sicar().get_release_dates()``.
+
+    Returns:
+        ``{uf_code: 'YYYY-MM-DD'}``, skipping any UF whose date fails to parse.
+    """
+    out = {}
+    for state, value in release_dates.items():
+        uf = getattr(state, "value", state)
+        try:
+            iso = datetime.strptime(str(value), "%d/%m/%Y").date().isoformat()
+        except (ValueError, TypeError):
+            continue
+        out[str(uf)] = iso
+    return out
+
+
+def max_release_iso(release_iso: dict) -> str | None:
+    """Return the newest per-UF release date (ISO), the source ``max_date``.
+
+    This is the ``latest period`` helper used for the source-update poll: the
+    freshest snapshot the source currently advertises across all UFs.
+
+    Args:
+        release_iso: ``{uf: 'YYYY-MM-DD'}`` from :func:`release_dates_to_iso`.
+
+    Returns:
+        The maximum ISO date string, or ``None`` if the map is empty.
+    """
+    return max(release_iso.values()) if release_iso else None
+
+
+# ── cleaning transform (canonical; bootstrap re-exports these) ───────────────
+def read_theme_zip(zip_path: str) -> gpd.GeoDataFrame:
+    """Read and concatenate ALL ``.shp`` parts inside a theme zip.
+
+    Large UFs ship a theme split across ``_1.shp``, ``_2.shp``, … — the old
+    crawler read only the first part and silently dropped the rest. Every part
+    is read and concatenated here.
+
+    Args:
+        zip_path: Path to a ``<UF>_<THEME>.zip`` download.
+
+    Returns:
+        One GeoDataFrame with all parts stacked, in the source CRS.
+
+    Raises:
+        FileNotFoundError: If the zip contains no ``.shp``.
+    """
+    with tempfile.TemporaryDirectory() as td:
+        with zipfile.ZipFile(zip_path) as z:
+            z.extractall(td)
+        parts = sorted(glob.glob(os.path.join(td, "*.shp")))
+        if not parts:
+            raise FileNotFoundError(f"no .shp in {zip_path}")
+        frames = [gpd.read_file(p) for p in parts]
+        crs = frames[0].crs or SIRGAS
+        gdf = gpd.GeoDataFrame(pd.concat(frames, ignore_index=True), crs=crs)
+    return gdf
+
+
+def geometry_to_wkt(gdf: gpd.GeoDataFrame) -> pd.Series:
+    """Reproject to WGS84, make valid, return WKT strings (None for empty).
+
+    The old crawler skipped the reprojection and emitted SIRGAS-2000 WKT; here
+    the geometry is reprojected to WGS84 and repaired with ``make_valid`` before
+    serialization.
+    """
+    if gdf.crs is None:
+        gdf = gdf.set_crs(SIRGAS)
+    geom = gdf.to_crs(WGS84).geometry
+
+    def _wkt(g):
+        if g is None or g.is_empty:
+            return None
+        if not g.is_valid:
+            g = make_valid(g)
+        return (
+            g.wkt if isinstance(g, BaseGeometry) and not g.is_empty else None
+        )
+
+    return geom.map(_wkt)
+
+
+def _num_str(series: pd.Series) -> pd.Series:
+    """Numeric -> string, NaN/inf -> None (never the literal ``'nan'``)."""
+
+    def f(v):
+        if v is None or pd.isna(v):
+            return None
+        return repr(float(v))
+
+    return series.map(f)
+
+
+def _date_str(series: pd.Series) -> pd.Series:
+    """``dd/mm/yyyy`` -> ``'YYYY-MM-DD'`` string, unparseable -> None."""
+
+    def f(v):
+        if v is None or (isinstance(v, float) and pd.isna(v)):
+            return None
+        s = str(v).strip()
+        if s in ("", "None", "nan", "0", "00/00/0000"):
+            return None
+        try:
+            return datetime.strptime(s, "%d/%m/%Y").date().isoformat()
+        except ValueError:
+            return None
+
+    return series.map(f)
+
+
+def _str(series: pd.Series) -> pd.Series:
+    def f(v):
+        if v is None or (isinstance(v, float) and pd.isna(v)):
+            return None
+        s = str(v).strip()
+        return s if s not in ("", "None", "nan") else None
+
+    return series.map(f)
+
+
+def build_table_df(
+    table: str, gdf: gpd.GeoDataFrame, snapshot_iso: str, sigla_uf: str
+) -> pd.DataFrame:
+    """Map a raw theme GeoDataFrame to the architecture's all-string columns.
+
+    ``sigla_uf`` and ``id_municipio`` are derived from the authoritative CAR key
+    ``cod_imovel`` (``UF-IBGE7-HASH``) so they stay internally consistent.
+
+    Args:
+        table: Output table slug (an ``arch.TABLES`` key).
+        gdf: Raw theme GeoDataFrame.
+        snapshot_iso: Per-UF release date, ``'YYYY-MM-DD'``.
+        sigla_uf: UF code (fallback when ``cod_imovel`` is absent).
+
+    Returns:
+        An all-string DataFrame in architecture column order.
+    """
+    spec = arch.TABLES[table]
+    n = len(gdf)
+    cod = (
+        gdf["cod_imovel"].astype("string")
+        if "cod_imovel" in gdf
+        else pd.Series([None] * n)
+    )
+    out = {}
+    for col in spec:
+        name, src, typ = col["name"], col["src"], col["type"]
+        if src == "__snapshot__":
+            out[name] = pd.Series([snapshot_iso] * n)
+        elif src == "__uf_cod__":
+            out[name] = (
+                _str(gdf["cod_estado"])
+                if "cod_estado" in gdf
+                else pd.Series([sigla_uf] * n)
+            )
+        elif src == "__uf_split__":
+            out[name] = cod.map(
+                lambda c: c.split("-")[0] if isinstance(c, str) else sigla_uf
+            )
+        elif src == "__muni_split__":
+            out[name] = cod.map(
+                lambda c: (
+                    c.split("-")[1]
+                    if isinstance(c, str) and len(c.split("-")) > 1
+                    else None
                 )
-                raise e
-        except Exception as e:
-            if retries >= max_retries:
-                log(f"Erro inesperado ao baixar {state}: {e}")
-                raise e
+            )
+        elif src == "__wkt__":
+            out[name] = geometry_to_wkt(gdf)
+        elif typ == "FLOAT64":
+            out[name] = (
+                _num_str(gdf[src]) if src in gdf else pd.Series([None] * n)
+            )
+        elif typ == "DATE":
+            out[name] = (
+                _date_str(gdf[src]) if src in gdf else pd.Series([None] * n)
+            )
+        else:  # STRING
+            out[name] = _str(gdf[src]) if src in gdf else pd.Series([None] * n)
+    return pd.DataFrame(out)
+
+
+def filter_to_uf(gdf: gpd.GeoDataFrame, sigla_uf: str):
+    """Keep only rows whose ``cod_imovel`` UF-prefix matches this file's UF.
+
+    A handful of properties from a neighbouring state (border/administrative
+    quirks) appear in a UF's download; they are ingested from their own UF's file
+    under that UF's snapshot date, so drop them here to avoid a property landing
+    under two snapshot dates.
+
+    Returns:
+        A ``(gdf, dropped_count)`` tuple.
+    """
+    if "cod_imovel" not in gdf:
+        return gdf, 0
+    pref = gdf["cod_imovel"].astype("string").str.split("-").str[0]
+    keep = pref == sigla_uf
+    return gdf.loc[keep].reset_index(drop=True), (~keep).sum()
+
+
+def all_string_schema(columns) -> pa.Schema:
+    return pa.schema([(c, pa.string()) for c in columns])
+
+
+def write_table_partitioned(
+    df: pd.DataFrame, out_root: str, table: str
+) -> str:
+    """Write hive-partitioned parquet (``data``, ``sigla_uf`` are the keys).
+
+    All columns are cast to arrow string before writing so BigQuery's inferred
+    (all-STRING) staging schema accepts the files.
+
+    Args:
+        df: The all-string DataFrame from :func:`build_table_df`.
+        out_root: Output root; the table lands under ``<out_root>/<table>/``.
+        table: Table slug.
+
+    Returns:
+        The table's output directory.
+    """
+    root = os.path.join(out_root, table)
+    table_pa = pa.Table.from_pandas(
+        df, schema=all_string_schema(list(df.columns)), preserve_index=False
+    )
+    pq.write_to_dataset(
+        table_pa,
+        root_path=root,
+        partition_cols=["data", "sigla_uf"],
+        compression="snappy",
+        existing_data_behavior="overwrite_or_ignore",
+    )
+    return root

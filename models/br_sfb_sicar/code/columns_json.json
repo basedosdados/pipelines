@@ -1,0 +1,850 @@
+{
+ "area_imovel": [
+  {
+   "name": "data",
+   "bigquery_type": "DATE",
+   "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
+   "description_en": "Release (snapshot) date of the CAR database for the state",
+   "description_es": "Fecha de disponibilización (snapshot) de la base del CAR para la unidad federativa",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_data_tempo.data:data"
+  },
+  {
+   "name": "sigla_uf",
+   "bigquery_type": "STRING",
+   "description_pt": "Sigla da Unidade da Federação onde se localiza o imóvel",
+   "description_en": "Abbreviation of the state where the property is located",
+   "description_es": "Sigla de la unidad federativa donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.uf:sigla"
+  },
+  {
+   "name": "id_municipio",
+   "bigquery_type": "STRING",
+   "description_pt": "Identificador do município (IBGE, 7 dígitos) onde se localiza o imóvel",
+   "description_en": "Municipality identifier (IBGE, 7 digits) where the property is located",
+   "description_es": "Identificador del municipio (IBGE, 7 dígitos) donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.municipio:id_municipio"
+  },
+  {
+   "name": "id_imovel",
+   "bigquery_type": "STRING",
+   "description_pt": "Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)",
+   "description_en": "Registration code of the property in the Rural Environmental Registry (CAR)",
+   "description_es": "Código de inscripción del inmueble en el Catastro Ambiental Rural (CAR)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "tipo",
+   "bigquery_type": "STRING",
+   "description_pt": "Tipo do imóvel rural (IRU Imóvel Rural, AST Assentamento de Reforma Agrária, PCT Povos e Comunidades Tradicionais)",
+   "description_en": "Type of rural property (IRU Rural Property, AST Agrarian Reform Settlement, PCT Traditional Peoples and Communities)",
+   "description_es": "Tipo del inmueble rural (IRU Inmueble Rural, AST Asentamiento de Reforma Agraria, PCT Pueblos y Comunidades Tradicionales)",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "status",
+   "bigquery_type": "STRING",
+   "description_pt": "Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso, CA Cancelado)",
+   "description_en": "Registration status in the CAR (AT Active, PE Pending, SU Suspended, CA Cancelled)",
+   "description_es": "Situación del registro en el CAR (AT Activo, PE Pendiente, SU Suspendido, CA Cancelado)",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "condicao",
+   "bigquery_type": "STRING",
+   "description_pt": "Condição atual da análise do registro no fluxo de validação pelo órgão competente",
+   "description_en": "Current condition of the record analysis in the validation workflow by the competent agency",
+   "description_es": "Condición actual del análisis del registro en el flujo de validación por el órgano competente",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "area",
+   "bigquery_type": "FLOAT64",
+   "description_pt": "Área total do imóvel declarada no CAR",
+   "description_en": "Total property area declared in the CAR",
+   "description_es": "Área total del inmueble declarada en el CAR",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "measurement_unit": "hectare"
+  },
+  {
+   "name": "modulos_fiscais",
+   "bigquery_type": "FLOAT64",
+   "description_pt": "Tamanho do imóvel expresso em módulos fiscais",
+   "description_en": "Property size expressed in fiscal modules",
+   "description_es": "Tamaño del inmueble expresado en módulos fiscales",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "measurement_unit": "modulo fiscal"
+  },
+  {
+   "name": "data_criacao",
+   "bigquery_type": "DATE",
+   "description_pt": "Data de inscrição do imóvel no CAR",
+   "description_en": "Date the property was registered in the CAR",
+   "description_es": "Fecha de inscripción del inmueble en el CAR",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "data_atualizacao",
+   "bigquery_type": "DATE",
+   "description_pt": "Data da última modificação dos dados do imóvel no CAR",
+   "description_en": "Date of the last modification of the property data in the CAR",
+   "description_es": "Fecha de la última modificación de los datos del inmueble en el CAR",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "geometria",
+   "bigquery_type": "GEOGRAPHY",
+   "description_pt": "Geometria do polígono em coordenadas geográficas (WGS84)",
+   "description_en": "Polygon geometry in geographic coordinates (WGS84)",
+   "description_es": "Geometría del polígono en coordenadas geográficas (WGS84)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  }
+ ],
+ "app": [
+  {
+   "name": "data",
+   "bigquery_type": "DATE",
+   "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
+   "description_en": "Release (snapshot) date of the CAR database for the state",
+   "description_es": "Fecha de disponibilización (snapshot) de la base del CAR para la unidad federativa",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_data_tempo.data:data"
+  },
+  {
+   "name": "sigla_uf",
+   "bigquery_type": "STRING",
+   "description_pt": "Sigla da Unidade da Federação onde se localiza o imóvel",
+   "description_en": "Abbreviation of the state where the property is located",
+   "description_es": "Sigla de la unidad federativa donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.uf:sigla"
+  },
+  {
+   "name": "id_municipio",
+   "bigquery_type": "STRING",
+   "description_pt": "Identificador do município (IBGE, 7 dígitos) onde se localiza o imóvel",
+   "description_en": "Municipality identifier (IBGE, 7 digits) where the property is located",
+   "description_es": "Identificador del municipio (IBGE, 7 dígitos) donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.municipio:id_municipio"
+  },
+  {
+   "name": "id_imovel",
+   "bigquery_type": "STRING",
+   "description_pt": "Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)",
+   "description_en": "Registration code of the property in the Rural Environmental Registry (CAR)",
+   "description_es": "Código de inscripción del inmueble en el Catastro Ambiental Rural (CAR)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "tipo",
+   "bigquery_type": "STRING",
+   "description_pt": "Tipo de Área de Preservação Permanente (APP)",
+   "description_en": "Type of Permanent Preservation Area (APP)",
+   "description_es": "Tipo de Área de Preservación Permanente (APP)",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "status",
+   "bigquery_type": "STRING",
+   "description_pt": "Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso, CA Cancelado)",
+   "description_en": "Registration status in the CAR (AT Active, PE Pending, SU Suspended, CA Cancelled)",
+   "description_es": "Situación del registro en el CAR (AT Activo, PE Pendiente, SU Suspendido, CA Cancelado)",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "condicao",
+   "bigquery_type": "STRING",
+   "description_pt": "Condição atual da análise do registro no fluxo de validação pelo órgão competente",
+   "description_en": "Current condition of the record analysis in the validation workflow by the competent agency",
+   "description_es": "Condición actual del análisis del registro en el flujo de validación por el órgano competente",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "area",
+   "bigquery_type": "FLOAT64",
+   "description_pt": "Área do polígono do tema",
+   "description_en": "Area of the theme polygon",
+   "description_es": "Área del polígono del tema",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "measurement_unit": "hectare"
+  },
+  {
+   "name": "geometria",
+   "bigquery_type": "GEOGRAPHY",
+   "description_pt": "Geometria do polígono em coordenadas geográficas (WGS84)",
+   "description_en": "Polygon geometry in geographic coordinates (WGS84)",
+   "description_es": "Geometría del polígono en coordenadas geográficas (WGS84)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  }
+ ],
+ "reserva_legal": [
+  {
+   "name": "data",
+   "bigquery_type": "DATE",
+   "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
+   "description_en": "Release (snapshot) date of the CAR database for the state",
+   "description_es": "Fecha de disponibilización (snapshot) de la base del CAR para la unidad federativa",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_data_tempo.data:data"
+  },
+  {
+   "name": "sigla_uf",
+   "bigquery_type": "STRING",
+   "description_pt": "Sigla da Unidade da Federação onde se localiza o imóvel",
+   "description_en": "Abbreviation of the state where the property is located",
+   "description_es": "Sigla de la unidad federativa donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.uf:sigla"
+  },
+  {
+   "name": "id_municipio",
+   "bigquery_type": "STRING",
+   "description_pt": "Identificador do município (IBGE, 7 dígitos) onde se localiza o imóvel",
+   "description_en": "Municipality identifier (IBGE, 7 digits) where the property is located",
+   "description_es": "Identificador del municipio (IBGE, 7 dígitos) donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.municipio:id_municipio"
+  },
+  {
+   "name": "id_imovel",
+   "bigquery_type": "STRING",
+   "description_pt": "Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)",
+   "description_en": "Registration code of the property in the Rural Environmental Registry (CAR)",
+   "description_es": "Código de inscripción del inmueble en el Catastro Ambiental Rural (CAR)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "tipo",
+   "bigquery_type": "STRING",
+   "description_pt": "Situação da Reserva Legal (proposta, averbada, aprovada e não averbada)",
+   "description_en": "Legal Reserve status (proposed, recorded, approved and not recorded)",
+   "description_es": "Situación de la Reserva Legal (propuesta, registrada, aprobada y no registrada)",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "status",
+   "bigquery_type": "STRING",
+   "description_pt": "Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso, CA Cancelado)",
+   "description_en": "Registration status in the CAR (AT Active, PE Pending, SU Suspended, CA Cancelled)",
+   "description_es": "Situación del registro en el CAR (AT Activo, PE Pendiente, SU Suspendido, CA Cancelado)",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "condicao",
+   "bigquery_type": "STRING",
+   "description_pt": "Condição atual da análise do registro no fluxo de validação pelo órgão competente",
+   "description_en": "Current condition of the record analysis in the validation workflow by the competent agency",
+   "description_es": "Condición actual del análisis del registro en el flujo de validación por el órgano competente",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "area",
+   "bigquery_type": "FLOAT64",
+   "description_pt": "Área do polígono do tema",
+   "description_en": "Area of the theme polygon",
+   "description_es": "Área del polígono del tema",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "measurement_unit": "hectare"
+  },
+  {
+   "name": "geometria",
+   "bigquery_type": "GEOGRAPHY",
+   "description_pt": "Geometria do polígono em coordenadas geográficas (WGS84)",
+   "description_en": "Polygon geometry in geographic coordinates (WGS84)",
+   "description_es": "Geometría del polígono en coordenadas geográficas (WGS84)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  }
+ ],
+ "vegetacao_nativa": [
+  {
+   "name": "data",
+   "bigquery_type": "DATE",
+   "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
+   "description_en": "Release (snapshot) date of the CAR database for the state",
+   "description_es": "Fecha de disponibilización (snapshot) de la base del CAR para la unidad federativa",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_data_tempo.data:data"
+  },
+  {
+   "name": "sigla_uf",
+   "bigquery_type": "STRING",
+   "description_pt": "Sigla da Unidade da Federação onde se localiza o imóvel",
+   "description_en": "Abbreviation of the state where the property is located",
+   "description_es": "Sigla de la unidad federativa donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.uf:sigla"
+  },
+  {
+   "name": "id_municipio",
+   "bigquery_type": "STRING",
+   "description_pt": "Identificador do município (IBGE, 7 dígitos) onde se localiza o imóvel",
+   "description_en": "Municipality identifier (IBGE, 7 digits) where the property is located",
+   "description_es": "Identificador del municipio (IBGE, 7 dígitos) donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.municipio:id_municipio"
+  },
+  {
+   "name": "id_imovel",
+   "bigquery_type": "STRING",
+   "description_pt": "Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)",
+   "description_en": "Registration code of the property in the Rural Environmental Registry (CAR)",
+   "description_es": "Código de inscripción del inmueble en el Catastro Ambiental Rural (CAR)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "tipo",
+   "bigquery_type": "STRING",
+   "description_pt": "Tipo de remanescente de vegetação nativa",
+   "description_en": "Type of native vegetation remnant",
+   "description_es": "Tipo de remanente de vegetación nativa",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "status",
+   "bigquery_type": "STRING",
+   "description_pt": "Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso, CA Cancelado)",
+   "description_en": "Registration status in the CAR (AT Active, PE Pending, SU Suspended, CA Cancelled)",
+   "description_es": "Situación del registro en el CAR (AT Activo, PE Pendiente, SU Suspendido, CA Cancelado)",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "condicao",
+   "bigquery_type": "STRING",
+   "description_pt": "Condição atual da análise do registro no fluxo de validação pelo órgão competente",
+   "description_en": "Current condition of the record analysis in the validation workflow by the competent agency",
+   "description_es": "Condición actual del análisis del registro en el flujo de validación por el órgano competente",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "area",
+   "bigquery_type": "FLOAT64",
+   "description_pt": "Área do polígono do tema",
+   "description_en": "Area of the theme polygon",
+   "description_es": "Área del polígono del tema",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "measurement_unit": "hectare"
+  },
+  {
+   "name": "geometria",
+   "bigquery_type": "GEOGRAPHY",
+   "description_pt": "Geometria do polígono em coordenadas geográficas (WGS84)",
+   "description_en": "Polygon geometry in geographic coordinates (WGS84)",
+   "description_es": "Geometría del polígono en coordenadas geográficas (WGS84)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  }
+ ],
+ "area_consolidada": [
+  {
+   "name": "data",
+   "bigquery_type": "DATE",
+   "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
+   "description_en": "Release (snapshot) date of the CAR database for the state",
+   "description_es": "Fecha de disponibilización (snapshot) de la base del CAR para la unidad federativa",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_data_tempo.data:data"
+  },
+  {
+   "name": "sigla_uf",
+   "bigquery_type": "STRING",
+   "description_pt": "Sigla da Unidade da Federação onde se localiza o imóvel",
+   "description_en": "Abbreviation of the state where the property is located",
+   "description_es": "Sigla de la unidad federativa donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.uf:sigla"
+  },
+  {
+   "name": "id_municipio",
+   "bigquery_type": "STRING",
+   "description_pt": "Identificador do município (IBGE, 7 dígitos) onde se localiza o imóvel",
+   "description_en": "Municipality identifier (IBGE, 7 digits) where the property is located",
+   "description_es": "Identificador del municipio (IBGE, 7 dígitos) donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.municipio:id_municipio"
+  },
+  {
+   "name": "id_imovel",
+   "bigquery_type": "STRING",
+   "description_pt": "Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)",
+   "description_en": "Registration code of the property in the Rural Environmental Registry (CAR)",
+   "description_es": "Código de inscripción del inmueble en el Catastro Ambiental Rural (CAR)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "tipo",
+   "bigquery_type": "STRING",
+   "description_pt": "Tipo de área rural consolidada",
+   "description_en": "Type of consolidated rural area",
+   "description_es": "Tipo de área rural consolidada",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "status",
+   "bigquery_type": "STRING",
+   "description_pt": "Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso, CA Cancelado)",
+   "description_en": "Registration status in the CAR (AT Active, PE Pending, SU Suspended, CA Cancelled)",
+   "description_es": "Situación del registro en el CAR (AT Activo, PE Pendiente, SU Suspendido, CA Cancelado)",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "condicao",
+   "bigquery_type": "STRING",
+   "description_pt": "Condição atual da análise do registro no fluxo de validação pelo órgão competente",
+   "description_en": "Current condition of the record analysis in the validation workflow by the competent agency",
+   "description_es": "Condición actual del análisis del registro en el flujo de validación por el órgano competente",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "area",
+   "bigquery_type": "FLOAT64",
+   "description_pt": "Área do polígono do tema",
+   "description_en": "Area of the theme polygon",
+   "description_es": "Área del polígono del tema",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "measurement_unit": "hectare"
+  },
+  {
+   "name": "geometria",
+   "bigquery_type": "GEOGRAPHY",
+   "description_pt": "Geometria do polígono em coordenadas geográficas (WGS84)",
+   "description_en": "Polygon geometry in geographic coordinates (WGS84)",
+   "description_es": "Geometría del polígono en coordenadas geográficas (WGS84)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  }
+ ],
+ "area_pousio": [
+  {
+   "name": "data",
+   "bigquery_type": "DATE",
+   "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
+   "description_en": "Release (snapshot) date of the CAR database for the state",
+   "description_es": "Fecha de disponibilización (snapshot) de la base del CAR para la unidad federativa",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_data_tempo.data:data"
+  },
+  {
+   "name": "sigla_uf",
+   "bigquery_type": "STRING",
+   "description_pt": "Sigla da Unidade da Federação onde se localiza o imóvel",
+   "description_en": "Abbreviation of the state where the property is located",
+   "description_es": "Sigla de la unidad federativa donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.uf:sigla"
+  },
+  {
+   "name": "id_municipio",
+   "bigquery_type": "STRING",
+   "description_pt": "Identificador do município (IBGE, 7 dígitos) onde se localiza o imóvel",
+   "description_en": "Municipality identifier (IBGE, 7 digits) where the property is located",
+   "description_es": "Identificador del municipio (IBGE, 7 dígitos) donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.municipio:id_municipio"
+  },
+  {
+   "name": "id_imovel",
+   "bigquery_type": "STRING",
+   "description_pt": "Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)",
+   "description_en": "Registration code of the property in the Rural Environmental Registry (CAR)",
+   "description_es": "Código de inscripción del inmueble en el Catastro Ambiental Rural (CAR)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "tipo",
+   "bigquery_type": "STRING",
+   "description_pt": "Tipo de área de pousio",
+   "description_en": "Type of fallow area",
+   "description_es": "Tipo de área de barbecho",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "status",
+   "bigquery_type": "STRING",
+   "description_pt": "Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso, CA Cancelado)",
+   "description_en": "Registration status in the CAR (AT Active, PE Pending, SU Suspended, CA Cancelled)",
+   "description_es": "Situación del registro en el CAR (AT Activo, PE Pendiente, SU Suspendido, CA Cancelado)",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "condicao",
+   "bigquery_type": "STRING",
+   "description_pt": "Condição atual da análise do registro no fluxo de validação pelo órgão competente",
+   "description_en": "Current condition of the record analysis in the validation workflow by the competent agency",
+   "description_es": "Condición actual del análisis del registro en el flujo de validación por el órgano competente",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "area",
+   "bigquery_type": "FLOAT64",
+   "description_pt": "Área do polígono do tema",
+   "description_en": "Area of the theme polygon",
+   "description_es": "Área del polígono del tema",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "measurement_unit": "hectare"
+  },
+  {
+   "name": "geometria",
+   "bigquery_type": "GEOGRAPHY",
+   "description_pt": "Geometria do polígono em coordenadas geográficas (WGS84)",
+   "description_en": "Polygon geometry in geographic coordinates (WGS84)",
+   "description_es": "Geometría del polígono en coordenadas geográficas (WGS84)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  }
+ ],
+ "uso_restrito": [
+  {
+   "name": "data",
+   "bigquery_type": "DATE",
+   "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
+   "description_en": "Release (snapshot) date of the CAR database for the state",
+   "description_es": "Fecha de disponibilización (snapshot) de la base del CAR para la unidad federativa",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_data_tempo.data:data"
+  },
+  {
+   "name": "sigla_uf",
+   "bigquery_type": "STRING",
+   "description_pt": "Sigla da Unidade da Federação onde se localiza o imóvel",
+   "description_en": "Abbreviation of the state where the property is located",
+   "description_es": "Sigla de la unidad federativa donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.uf:sigla"
+  },
+  {
+   "name": "id_municipio",
+   "bigquery_type": "STRING",
+   "description_pt": "Identificador do município (IBGE, 7 dígitos) onde se localiza o imóvel",
+   "description_en": "Municipality identifier (IBGE, 7 digits) where the property is located",
+   "description_es": "Identificador del municipio (IBGE, 7 dígitos) donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.municipio:id_municipio"
+  },
+  {
+   "name": "id_imovel",
+   "bigquery_type": "STRING",
+   "description_pt": "Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)",
+   "description_en": "Registration code of the property in the Rural Environmental Registry (CAR)",
+   "description_es": "Código de inscripción del inmueble en el Catastro Ambiental Rural (CAR)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "tipo",
+   "bigquery_type": "STRING",
+   "description_pt": "Tipo de área de uso restrito",
+   "description_en": "Type of restricted-use area",
+   "description_es": "Tipo de área de uso restringido",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "status",
+   "bigquery_type": "STRING",
+   "description_pt": "Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso, CA Cancelado)",
+   "description_en": "Registration status in the CAR (AT Active, PE Pending, SU Suspended, CA Cancelled)",
+   "description_es": "Situación del registro en el CAR (AT Activo, PE Pendiente, SU Suspendido, CA Cancelado)",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "condicao",
+   "bigquery_type": "STRING",
+   "description_pt": "Condição atual da análise do registro no fluxo de validação pelo órgão competente",
+   "description_en": "Current condition of the record analysis in the validation workflow by the competent agency",
+   "description_es": "Condición actual del análisis del registro en el flujo de validación por el órgano competente",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "area",
+   "bigquery_type": "FLOAT64",
+   "description_pt": "Área do polígono do tema",
+   "description_en": "Area of the theme polygon",
+   "description_es": "Área del polígono del tema",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "measurement_unit": "hectare"
+  },
+  {
+   "name": "geometria",
+   "bigquery_type": "GEOGRAPHY",
+   "description_pt": "Geometria do polígono em coordenadas geográficas (WGS84)",
+   "description_en": "Polygon geometry in geographic coordinates (WGS84)",
+   "description_es": "Geometría del polígono en coordenadas geográficas (WGS84)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  }
+ ],
+ "servidao_administrativa": [
+  {
+   "name": "data",
+   "bigquery_type": "DATE",
+   "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
+   "description_en": "Release (snapshot) date of the CAR database for the state",
+   "description_es": "Fecha de disponibilización (snapshot) de la base del CAR para la unidad federativa",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_data_tempo.data:data"
+  },
+  {
+   "name": "sigla_uf",
+   "bigquery_type": "STRING",
+   "description_pt": "Sigla da Unidade da Federação onde se localiza o imóvel",
+   "description_en": "Abbreviation of the state where the property is located",
+   "description_es": "Sigla de la unidad federativa donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.uf:sigla"
+  },
+  {
+   "name": "id_municipio",
+   "bigquery_type": "STRING",
+   "description_pt": "Identificador do município (IBGE, 7 dígitos) onde se localiza o imóvel",
+   "description_en": "Municipality identifier (IBGE, 7 digits) where the property is located",
+   "description_es": "Identificador del municipio (IBGE, 7 dígitos) donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.municipio:id_municipio"
+  },
+  {
+   "name": "id_imovel",
+   "bigquery_type": "STRING",
+   "description_pt": "Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)",
+   "description_en": "Registration code of the property in the Rural Environmental Registry (CAR)",
+   "description_es": "Código de inscripción del inmueble en el Catastro Ambiental Rural (CAR)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "tipo",
+   "bigquery_type": "STRING",
+   "description_pt": "Tipo de servidão administrativa",
+   "description_en": "Type of administrative easement",
+   "description_es": "Tipo de servidumbre administrativa",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "status",
+   "bigquery_type": "STRING",
+   "description_pt": "Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso, CA Cancelado)",
+   "description_en": "Registration status in the CAR (AT Active, PE Pending, SU Suspended, CA Cancelled)",
+   "description_es": "Situación del registro en el CAR (AT Activo, PE Pendiente, SU Suspendido, CA Cancelado)",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "condicao",
+   "bigquery_type": "STRING",
+   "description_pt": "Condição atual da análise do registro no fluxo de validação pelo órgão competente",
+   "description_en": "Current condition of the record analysis in the validation workflow by the competent agency",
+   "description_es": "Condición actual del análisis del registro en el flujo de validación por el órgano competente",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "area",
+   "bigquery_type": "FLOAT64",
+   "description_pt": "Área do polígono do tema",
+   "description_en": "Area of the theme polygon",
+   "description_es": "Área del polígono del tema",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "measurement_unit": "hectare"
+  },
+  {
+   "name": "geometria",
+   "bigquery_type": "GEOGRAPHY",
+   "description_pt": "Geometria do polígono em coordenadas geográficas (WGS84)",
+   "description_en": "Polygon geometry in geographic coordinates (WGS84)",
+   "description_es": "Geometría del polígono en coordenadas geográficas (WGS84)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  }
+ ],
+ "hidrografia": [
+  {
+   "name": "data",
+   "bigquery_type": "DATE",
+   "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
+   "description_en": "Release (snapshot) date of the CAR database for the state",
+   "description_es": "Fecha de disponibilización (snapshot) de la base del CAR para la unidad federativa",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_data_tempo.data:data"
+  },
+  {
+   "name": "sigla_uf",
+   "bigquery_type": "STRING",
+   "description_pt": "Sigla da Unidade da Federação onde se localiza o imóvel",
+   "description_en": "Abbreviation of the state where the property is located",
+   "description_es": "Sigla de la unidad federativa donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.uf:sigla"
+  },
+  {
+   "name": "id_municipio",
+   "bigquery_type": "STRING",
+   "description_pt": "Identificador do município (IBGE, 7 dígitos) onde se localiza o imóvel",
+   "description_en": "Municipality identifier (IBGE, 7 digits) where the property is located",
+   "description_es": "Identificador del municipio (IBGE, 7 dígitos) donde se ubica el inmueble",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false,
+   "directory_column": "br_bd_diretorios_brasil.municipio:id_municipio"
+  },
+  {
+   "name": "id_imovel",
+   "bigquery_type": "STRING",
+   "description_pt": "Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)",
+   "description_en": "Registration code of the property in the Rural Environmental Registry (CAR)",
+   "description_es": "Código de inscripción del inmueble en el Catastro Ambiental Rural (CAR)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "tipo",
+   "bigquery_type": "STRING",
+   "description_pt": "Tipo de corpo hídrico (curso d'água, lago, reservatório)",
+   "description_en": "Type of water body (watercourse, lake, reservoir)",
+   "description_es": "Tipo de cuerpo hídrico (curso de agua, lago, embalse)",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "status",
+   "bigquery_type": "STRING",
+   "description_pt": "Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso, CA Cancelado)",
+   "description_en": "Registration status in the CAR (AT Active, PE Pending, SU Suspended, CA Cancelled)",
+   "description_es": "Situación del registro en el CAR (AT Activo, PE Pendiente, SU Suspendido, CA Cancelado)",
+   "covered_by_dictionary": true,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "condicao",
+   "bigquery_type": "STRING",
+   "description_pt": "Condição atual da análise do registro no fluxo de validação pelo órgão competente",
+   "description_en": "Current condition of the record analysis in the validation workflow by the competent agency",
+   "description_es": "Condición actual del análisis del registro en el flujo de validación por el órgano competente",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "geometria",
+   "bigquery_type": "GEOGRAPHY",
+   "description_pt": "Geometria do polígono em coordenadas geográficas (WGS84)",
+   "description_en": "Polygon geometry in geographic coordinates (WGS84)",
+   "description_es": "Geometría del polígono en coordenadas geográficas (WGS84)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  }
+ ],
+ "dicionario": [
+  {
+   "name": "id_tabela",
+   "bigquery_type": "STRING",
+   "description_pt": "Nome da tabela",
+   "description_en": "Table name",
+   "description_es": "Nombre de la tabla",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "nome_coluna",
+   "bigquery_type": "STRING",
+   "description_pt": "Nome da coluna",
+   "description_en": "Column name",
+   "description_es": "Nombre de la columna",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "chave",
+   "bigquery_type": "STRING",
+   "description_pt": "Chave (valor codificado)",
+   "description_en": "Key (coded value)",
+   "description_es": "Clave (valor codificado)",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "cobertura_temporal",
+   "bigquery_type": "STRING",
+   "description_pt": "Cobertura temporal",
+   "description_en": "Temporal coverage",
+   "description_es": "Cobertura temporal",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  },
+  {
+   "name": "valor",
+   "bigquery_type": "STRING",
+   "description_pt": "Valor traduzido da chave",
+   "description_en": "Translated value of the key",
+   "description_es": "Valor traducido de la clave",
+   "covered_by_dictionary": false,
+   "has_sensitive_data": false
+  }
+ ]
+}
