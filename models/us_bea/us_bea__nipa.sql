@@ -14,10 +14,10 @@
 
 select
     safe_cast(year as int64) year,
-    safe_cast(quarter as string) quarter,
-    safe_cast(month as string) month,
+    safe_cast(quarter as int64) quarter,
+    safe_cast(month as int64) month,
     safe_cast(frequency as string) frequency,
-    safe_cast(table_name as string) table_name,
+    safe_cast(table_name as string) table_id,
     safe_cast(line_number as string) line_number,
     safe_cast(series_code as string) series_code,
     safe_cast(line_description as string) line_description,

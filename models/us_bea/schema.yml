@@ -13,7 +13,7 @@ models:
             - year
             - quarter
             - month
-            - table_name
+            - table_id
             - line_number
       - not_null_proportion_multiple_columns:
           at_least: 0.05
@@ -23,13 +23,13 @@ models:
         description: Ano de referência
         tests: [not_null]
       - name: quarter
-        description: Trimestre (1 a 4); nulo para frequência não trimestral
+        description: Trimestre
       - name: month
-        description: Mês (01 a 12); nulo para frequência não mensal
+        description: Mês
       - name: frequency
-        description: Frequência da série (A anual, Q trimestral, M mensal)
-      - name: table_name
-        description: Identificador da tabela NIPA
+        description: Frequência da série
+      - name: table_id
+        description: Identificador da tabela BEA
       - name: line_number
         description: Número de ordem da linha dentro da tabela
       - name: series_code
@@ -37,13 +37,13 @@ models:
       - name: line_description
         description: Descrição da linha da tabela
       - name: metric_name
-        description: Tipo de métrica (dólares correntes, encadeados, índice)
+        description: Tipo de métrica
       - name: unit
         description: Unidade de medida da série
       - name: unit_mult
         description: Multiplicador de base 10 aplicado ao valor
       - name: value
-        description: Valor observado, na unidade indicada em unit/unit_mult
+        description: Valor observado
       - name: note_ref
         description: Referência de nota de rodapé da BEA
   - name: us_bea__gdp_by_industry
@@ -70,9 +70,9 @@ models:
         description: Ano de referência
         tests: [not_null]
       - name: quarter
-        description: Trimestre (1 a 4); nulo para frequência anual
+        description: Trimestre
       - name: frequency
-        description: Frequência da série (A anual, Q trimestral)
+        description: Frequência da série
       - name: table_id
         description: Identificador da tabela de PIB por indústria
       - name: table_description
@@ -96,7 +96,7 @@ models:
             - year
             - quarter
             - geo_fips
-            - table_name
+            - table_id
             - line_code
       - not_null_proportion_multiple_columns:
           at_least: 0.05
@@ -106,17 +106,17 @@ models:
         description: Ano de referência
         tests: [not_null]
       - name: quarter
-        description: Trimestre (1 a 4); nulo para frequência anual
+        description: Trimestre
       - name: frequency
-        description: Frequência da série (A anual, Q trimestral)
+        description: Frequência da série
       - name: geo_fips
         description: Código geográfico BEA da entidade estadual
         tests: [not_null]
       - name: id_state
-        description: Código FIPS do estado (2 dígitos); nulo para EUA e regiões
+        description: Código FIPS do estado
       - name: geo_name
         description: Nome da área geográfica
-      - name: table_name
+      - name: table_id
         description: Identificador da tabela BEA
       - name: line_code
         description: Código da linha dentro da tabela
@@ -129,7 +129,7 @@ models:
       - name: unit_mult
         description: Multiplicador de base 10 aplicado ao valor
       - name: value
-        description: Valor observado, na unidade indicada em unit/unit_mult
+        description: Valor observado
       - name: note_ref
         description: Referência de nota de rodapé da BEA
   - name: us_bea__regional_county
@@ -138,7 +138,7 @@ models:
       pessoal e componentes, e compensação por indústria, em formato longo.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, geo_fips, table_name, line_code]
+          combination_of_columns: [year, geo_fips, table_id, line_code]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [note_ref]
@@ -147,15 +147,15 @@ models:
         description: Ano de referência
         tests: [not_null]
       - name: geo_fips
-        description: Código FIPS do condado (5 dígitos)
+        description: Código FIPS do condado
         tests: [not_null]
       - name: id_county
-        description: Código FIPS do condado (5 dígitos)
+        description: Código FIPS do condado
       - name: id_state
-        description: Código FIPS do estado (2 dígitos)
+        description: Código FIPS do estado
       - name: geo_name
         description: Nome da área geográfica
-      - name: table_name
+      - name: table_id
         description: Identificador da tabela BEA
       - name: line_code
         description: Código da linha dentro da tabela
@@ -168,7 +168,7 @@ models:
       - name: unit_mult
         description: Multiplicador de base 10 aplicado ao valor
       - name: value
-        description: Valor observado, na unidade indicada em unit/unit_mult
+        description: Valor observado
       - name: note_ref
         description: Referência de nota de rodapé da BEA
   - name: us_bea__regional_metro
@@ -177,7 +177,7 @@ models:
       preços regionais e deflator implícito por área metropolitana, em formato longo.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, geo_fips, table_name, line_code]
+          combination_of_columns: [year, geo_fips, table_id, line_code]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [note_ref]
@@ -186,13 +186,13 @@ models:
         description: Ano de referência
         tests: [not_null]
       - name: geo_fips
-        description: Código CBSA da área metropolitana (5 dígitos)
+        description: Código CBSA da área metropolitana
         tests: [not_null]
       - name: id_cbsa
         description: Código CBSA da área estatística baseada em núcleo
       - name: geo_name
         description: Nome da área geográfica
-      - name: table_name
+      - name: table_id
         description: Identificador da tabela BEA
       - name: line_code
         description: Código da linha dentro da tabela
@@ -205,7 +205,7 @@ models:
       - name: unit_mult
         description: Multiplicador de base 10 aplicado ao valor
       - name: value
-        description: Valor observado, na unidade indicada em unit/unit_mult
+        description: Valor observado
       - name: note_ref
         description: Referência de nota de rodapé da BEA
   - name: us_bea__dicionario

@@ -467,7 +467,7 @@ def run_dicionario():
     # table_name -> description, per db table
     nipa_tabs = bea.param_values("NIPA", "TableName")
     for x in nipa_tabs:
-        add("nipa", "table_name", x["key"], x["desc"])
+        add("nipa", "table_id", x["key"], x["desc"])
     reg_tabs = {
         x["key"]: x["desc"] for x in bea.param_values("Regional", "TableName")
     }
@@ -479,7 +479,7 @@ def run_dicionario():
     for dbt_tbl, prefs in fam.items():
         for code, desc in reg_tabs.items():
             if any(code.startswith(p) for p in prefs):
-                add(dbt_tbl, "table_name", code, desc)
+                add(dbt_tbl, "table_id", code, desc)
     # gdp_by_industry: table_id + industry
     for x in bea.param_values("GDPbyIndustry", "TableID"):
         add("gdp_by_industry", "table_id", x["key"], x["desc"])

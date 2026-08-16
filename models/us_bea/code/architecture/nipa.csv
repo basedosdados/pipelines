@@ -1,14 +1,14 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
-year,INT64,Ano de referência,,no,,,no,,TimePeriod,Reference year,Año de referencia
-quarter,STRING,Trimestre (1 a 4); nulo para frequência não trimestral,,no,,,no,,TimePeriod,Quarter (1 to 4); null for non-quarterly frequency,Trimestre (1 a 4); nulo para frecuencia no trimestral
-month,STRING,Mês (01 a 12); nulo para frequência não mensal,,no,,,no,,TimePeriod,Month (01 to 12); null for non-monthly frequency,Mes (01 a 12); nulo para frecuencia no mensual
-frequency,STRING,"Frequência da série: A (anual), Q (trimestral), M (mensal)",,yes,,,no,,Frequency,"Series frequency: A (annual), Q (quarterly), M (monthly)","Frecuencia de la serie: A (anual), Q (trimestral), M (mensual)"
-table_name,STRING,Identificador da tabela NIPA (ex.: T10105),,yes,,,no,,TableName,NIPA table identifier (e.g. T10105),Identificador de la tabla NIPA (p. ej. T10105)
+year,INT64,Ano de referência,,no,,year,no,,TimePeriod,Reference year,Año de referencia
+quarter,INT64,Trimestre,,no,,quarter,no,Valores de 1 a 4; nulo para frequência não trimestral.,TimePeriod,Quarter,Trimestre
+month,INT64,Mês,,no,,month,no,Valores de 1 a 12; nulo para frequência não mensal.,TimePeriod,Month,Mes
+frequency,STRING,Frequência da série,,yes,,,no,"A (anual/annual), Q (trimestral/quarterly), M (mensal/monthly).",Frequency,Series frequency,Frecuencia de la serie
+table_id,STRING,Identificador da tabela BEA,,yes,,,no,"Por exemplo, T10105.",TableName,BEA table identifier,Identificador de la tabla BEA
 line_number,STRING,Número de ordem da linha dentro da tabela,,no,,,no,,LineNumber,Ordinal line number within the table,Número de orden de la línea dentro de la tabla
-series_code,STRING,Código único da série NIPA (ex.: A191RC),,no,,,no,,SeriesCode,Unique NIPA series code (e.g. A191RC),Código único de serie NIPA (p. ej. A191RC)
+series_code,STRING,Código único da série NIPA,,no,,,no,"Por exemplo, A191RC.",SeriesCode,Unique NIPA series code,Código único de serie NIPA
 line_description,STRING,Descrição da linha da tabela,,no,,,no,,LineDescription,Description of the table line,Descripción de la línea de la tabla
-metric_name,STRING,"Tipo de métrica (ex.: dólares correntes, dólares encadeados, índice)",,no,,,no,,METRIC_NAME,"Metric type (e.g. current dollars, chained dollars, index)","Tipo de métrica (p. ej. dólares corrientes, dólares encadenados, índice)"
-unit,STRING,Unidade de medida da série (rótulo BEA CL_UNIT),,no,,,no,,CL_UNIT,Unit of measure of the series (BEA CL_UNIT label),Unidad de medida de la serie (etiqueta BEA CL_UNIT)
-unit_mult,STRING,Multiplicador de base 10 aplicado ao valor (expoente; ex.: 6 = milhões),,no,,,no,,UNIT_MULT,Base-10 multiplier applied to the value (exponent; e.g. 6 = millions),Multiplicador de base 10 aplicado al valor (exponente; p. ej. 6 = millones)
-value,FLOAT64,"Valor observado, na unidade indicada nas colunas unit/unit_mult",,no,,,no,"Unidade varia por linha (dólares correntes, dólares encadeados, índice, porcentagem); a unidade real está em unit, metric_name e unit_mult, por isso measurement_unit fica em branco.",DataValue,"Observed value, in the unit given by the unit/unit_mult columns","Valor observado, en la unidad indicada en las columnas unit/unit_mult"
-note_ref,STRING,Referência(s) de nota de rodapé da BEA para a observação,,no,,,no,,NoteRef,BEA footnote reference(s) for the observation,Referencia(s) de nota al pie de la BEA para la observación
+metric_name,STRING,Tipo de métrica,,no,,,no,"Por exemplo, dólares correntes, dólares encadeados, índice.",METRIC_NAME,Metric type,Tipo de métrica
+unit,STRING,Unidade de medida da série,,no,,,no,Rótulo BEA CL_UNIT.,CL_UNIT,Unit of measure of the series,Unidad de medida de la serie
+unit_mult,STRING,Multiplicador de base 10 aplicado ao valor,,no,,,no,"Expoente; por exemplo, 6 = milhões, 9 = bilhões.",UNIT_MULT,Base-10 multiplier applied to the value,Multiplicador de base 10 aplicado al valor
+value,FLOAT64,Valor observado,,no,,,no,"Na unidade indicada em unit e unit_mult; a unidade varia por linha (dólares correntes, dólares encadeados, índice, porcentagem), por isso measurement_unit fica em branco.",DataValue,Observed value,Valor observado
+note_ref,STRING,Referência de nota de rodapé da BEA para a observação,,no,,,no,,NoteRef,BEA footnote reference for the observation,Referencia de nota al pie de la BEA para la observación

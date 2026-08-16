@@ -18,7 +18,7 @@ select
     safe_cast(id_county as string) id_county,
     safe_cast(id_state as string) id_state,
     safe_cast(geo_name as string) geo_name,
-    safe_cast(table_name as string) table_name,
+    safe_cast(table_name as string) table_id,
     safe_cast(line_code as string) line_code,
     safe_cast(series_code as string) series_code,
     safe_cast(line_description as string) line_description,

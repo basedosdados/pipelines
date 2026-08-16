@@ -14,7 +14,7 @@
 
 select
     safe_cast(year as int64) year,
-    safe_cast(quarter as string) quarter,
+    safe_cast(quarter as int64) quarter,
     safe_cast(frequency as string) frequency,
     safe_cast(table_id as string) table_id,
     safe_cast(table_description as string) table_description,

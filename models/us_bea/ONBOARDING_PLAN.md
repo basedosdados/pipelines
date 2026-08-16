@@ -12,7 +12,7 @@
   - County (annual): `CAGDP*` (5), `CAINC*` (8) = **13 CA tables**.
   - State annual: `SAGDP*`,`SAINC*`,`SAPCE*`,`SARPI/SARPP/SAIRPD/SASUMMARY`, arts/outdoor-rec satellite (`SAAC*`,`SAO*`).
   - State quarterly: `SQGDP*`,`SQINC*` = 18.
-  - **Excluded (this pass):** metro/MSA (`MA*`,`PA*`), Puerto Rico (`PRGDP*`, 19), territories (`TASUMMARY`) — their geographies are not in `br_bd_diretorios_us` state/county, which would break the FK. Deferred to a future `regional_metro`.
+  - **Included:** Puerto Rico (`PRGDP*`, PR territory 72000) and territories (`TASUMMARY`) fold into `regional_state`; metro (`MA*` = MARPP/MAIRPD) → `regional_metro` (CBSA). **Excluded:** `PA*` (PARPP/PAIRPD, 2 state-portion price-parity tables — awkward geography). The existing `br_bd_diretorios_us` already covers every BEA geography (state incl. territories, county incl. PR, cbsa_2023 incl. MSAs), so no directory changes were needed.
 
 ## Tables (long format, one per BEA dataset)
 
@@ -38,13 +38,11 @@
 - `cbsa_2023`: confirm it covers BEA's ~387 MSA codes; reconcile vintage mismatch (tolerate unmatched in relationship test or append).
 
 ### Column design (English names)
-Common: `year` INT64 (partition), `quarter` STRING (nullable; `frequency` STRING A/Q/M), `value` FLOAT64, `unit` STRING (CL_UNIT / METRIC_NAME), `unit_mult` STRING (UNIT_MULT base-10 exponent). Suppressed `(NA)/(NM)/(D)/''` → NULL. DataValue commas stripped.
+Common: `year`/`quarter`/`month` INT64 (year is partition; each carries a measurement_unit), `frequency` STRING (A/Q/M), `value` FLOAT64 (measurement_unit blank — mixed units per row), `unit`/`unit_mult`/`metric_name` STRING describing the value. The BEA table id column is `table_id` (STRING, dict). Suppressed `(NA)/(NM)/(D)/''` → NULL; DataValue commas stripped. Column descriptions are bare; value legends/examples live in `observations`.
 
-- **nipa:** `year, quarter, frequency, table_name, line_number, series_code, line_description, metric_name, unit, unit_mult, value`. Codes STRING dict-covered.
-- **gdp_by_industry:** `year, quarter, frequency, table_id, table_description, industry, industry_description, unit, value`. Codes STRING dict-covered.
-- **regional_state:** `year, quarter, frequency, table_name, line_code, line_description, geo_fips, geo_name, id_state, unit, unit_mult, value`. `id_state` = 2-digit FIPS (from GeoFips `NN000`), FK → `br_bd_diretorios_us.state:id_state`; null for US/region aggregates.
-- **regional_county:** `year, table_name, line_code, line_description, geo_fips, geo_name, id_county, id_state, unit, unit_mult, value`. `id_county`=5-digit FIPS FK → `br_bd_diretorios_us.county:id_county`; `id_state` FK → state. Combination-FIPS county rows that don't match the directory are tolerated in the relationship test.
-- **dicionario:** standard `id_tabela, nome_coluna, chave, cobertura_temporal, valor`.
+**Raw staging vs. published:** `clean.py` writes raw staging where the table id column is `table_name` and quarter/month are STRING; the dbt models alias `table_name`→`table_id` and `safe_cast` quarter/month to INT64, so the published tables match the architecture. No re-upload needed on schema-shape changes handled in the dbt layer.
+
+Published column names use `table_id` (not `table_name`) and INT64 `quarter`/`month`. `id_state` = 2-digit FIPS (null for US/region aggregates) FK → `state:id_state`; `id_county` = 5-digit FIPS FK → `county:id_county` (combination-FIPS rows tolerated); `id_cbsa` FK → `cbsa_2023:id_cbsa`. `dicionario` is standard `id_tabela, nome_coluna, chave, cobertura_temporal, valor` (nome_coluna uses `table_id`).
 
 ### Value/unit note
 A long table mixes units within one `value` column (current $, chained $, index, percent). Per WDI precedent: `value` FLOAT64 with `measurement_unit` blank + observations note; the real per-row unit lives in the `unit`/`metric_name`/`unit_mult` STRING columns.
