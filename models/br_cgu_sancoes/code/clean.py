@@ -16,6 +16,7 @@ from __future__ import annotations
 import os
 from datetime import date
 from pathlib import Path
+from typing import TypedDict
 
 import pandas as pd
 import pyarrow as pa
@@ -45,6 +46,23 @@ OUTPUT_DIR = Path(
 # raw header (which has been verified to match), skipping the data_extracao
 # column that we synthesise.
 # --------------------------------------------------------------------------- #
+
+
+class TableSpec(TypedDict):
+    """Specification for one raw CGU registry table.
+
+    Attributes:
+        file: Raw CSV filename under the input directory.
+        snapshot: Extraction date used as the ``data_extracao`` partition.
+        cols: Ordered ``(output_column, kind)`` pairs after ``data_extracao``,
+            where ``kind`` is one of ``"str"``, ``"date"``, or ``"float"``.
+    """
+
+    file: str
+    snapshot: date
+    cols: list[tuple[str, str]]
+
+
 CEIS_COLS = [
     ("cadastro", "str"),
     ("codigo_sancao", "str"),
@@ -128,7 +146,7 @@ EFEITOS_COLS = [
     ("complemento", "str"),
 ]
 
-TABLES = {
+TABLES: dict[str, TableSpec] = {
     "ceis": {
         "file": "20260813_CEIS.csv",
         "snapshot": date(2026, 8, 13),
@@ -155,6 +173,23 @@ TABLES = {
         "cols": EFEITOS_COLS,
     },
 }
+
+# Static dictionary decoding the coded `tipo_pessoa` column (F/J) that appears
+# in the ceis and cnep tables. Authored here (not sourced from a CSV) so the
+# staging `dicionario` table is reproducible from this script.
+DICIONARIO_COLS = [
+    "id_tabela",
+    "nome_coluna",
+    "chave",
+    "cobertura_temporal",
+    "valor",
+]
+DICIONARIO_ROWS: list[tuple[str, str, str, str, str]] = [
+    ("ceis", "tipo_pessoa", "F", "", "Pessoa física"),
+    ("ceis", "tipo_pessoa", "J", "", "Pessoa jurídica"),
+    ("cnep", "tipo_pessoa", "F", "", "Pessoa física"),
+    ("cnep", "tipo_pessoa", "J", "", "Pessoa jurídica"),
+]
 
 
 # --------------------------------------------------------------------------- #
@@ -202,7 +237,17 @@ def build_schema(cols: list[tuple[str, str]]) -> pa.Schema:
 # --------------------------------------------------------------------------- #
 # Per-table processing
 # --------------------------------------------------------------------------- #
-def process_table(name: str, spec: dict) -> pd.DataFrame:
+def process_table(name: str, spec: TableSpec) -> pd.DataFrame:
+    """Read one raw CSV, map columns positionally, clean, and prepend snapshot.
+
+    Args:
+        name: Table slug (used for logging and error messages).
+        spec: The table's :class:`TableSpec`.
+
+    Returns:
+        A frame with ``data_extracao`` first, then the architecture columns in
+        order, each cleaned per its ``kind``.
+    """
     path = INPUT_DIR / spec["file"]
     cols = spec["cols"]
     snapshot = spec["snapshot"]
@@ -251,6 +296,15 @@ def process_table(name: str, spec: dict) -> pd.DataFrame:
 
 
 def to_arrow(df: pd.DataFrame, cols: list[tuple[str, str]]) -> pa.Table:
+    """Build a typed Arrow table (date32/float64/string) from a cleaned frame.
+
+    Args:
+        df: Cleaned frame from :func:`process_table`.
+        cols: The table's ordered ``(output_column, kind)`` pairs.
+
+    Returns:
+        An Arrow table whose schema matches the architecture types.
+    """
     schema = build_schema(cols)
     arrays = {}
     # data_extracao
@@ -274,6 +328,16 @@ def to_arrow(df: pd.DataFrame, cols: list[tuple[str, str]]) -> pa.Table:
 
 
 def write_partitioned(table: pa.Table, name: str, snapshot: date) -> Path:
+    """Write hive-partitioned Snappy Parquet, dropping the partition column.
+
+    Args:
+        table: Typed Arrow table including ``data_extracao``.
+        name: Table slug (directory name under the output root).
+        snapshot: Extraction date used as the hive partition value.
+
+    Returns:
+        Path to the written ``data.parquet`` file.
+    """
     out_root = OUTPUT_DIR / name / f"data_extracao={snapshot.isoformat()}"
     out_root.mkdir(parents=True, exist_ok=True)
     # Drop the partition column from the file itself (hive style).
@@ -283,10 +347,45 @@ def write_partitioned(table: pa.Table, name: str, snapshot: date) -> Path:
     return dest
 
 
+def build_dicionario() -> Path:
+    """Write the static dicionario parquet (decodes ``tipo_pessoa`` F/J).
+
+    The dicionario is not sourced from a CSV; its rows are defined in
+    ``DICIONARIO_ROWS`` so the staging table is reproducible from this script.
+
+    Returns:
+        Path to the written (unpartitioned) ``data.parquet`` file.
+    """
+    schema = pa.schema([(c, pa.string()) for c in DICIONARIO_COLS])
+    table = pa.Table.from_pydict(
+        {
+            c: [row[i] for row in DICIONARIO_ROWS]
+            for i, c in enumerate(DICIONARIO_COLS)
+        },
+        schema=schema,
+    )
+    out_root = OUTPUT_DIR / "dicionario"
+    out_root.mkdir(parents=True, exist_ok=True)
+    dest = out_root / "data.parquet"
+    pq.write_table(table, dest, compression="snappy")
+    print(f"[dicionario] rows = {len(DICIONARIO_ROWS)} -> {dest}")
+    return dest
+
+
 # --------------------------------------------------------------------------- #
 # Validation
 # --------------------------------------------------------------------------- #
-def validate(name: str, spec: dict, dest: Path) -> None:
+def validate(name: str, spec: TableSpec, dest: Path) -> None:
+    """Reload the written parquet and print integrity diagnostics.
+
+    Reads the hive-partitioned directory so ``data_extracao`` is reconstructed,
+    then prints row count, column order, dtypes, null fractions, and a sample.
+
+    Args:
+        name: Table slug.
+        spec: The table's :class:`TableSpec`.
+        dest: Path to the written ``data.parquet`` file.
+    """
     cols = spec["cols"]
     expected_order = ["data_extracao"] + [c[0] for c in cols]
 
@@ -294,9 +393,9 @@ def validate(name: str, spec: dict, dest: Path) -> None:
     # the file — hive style).
     file_schema = pq.read_schema(dest)
 
-    # Read via the dataset API so the partition column is reconstructed, then
-    # reorder to the architecture order (partition column first).
-    reloaded = pq.read_table(dest)
+    # Read the partition root so the hive partition column (data_extracao) is
+    # reconstructed, then reorder to the architecture order (partition first).
+    reloaded = pq.read_table(dest.parent.parent, partitioning="hive")
     df = reloaded.to_pandas()
     df = df[[c for c in expected_order if c in df.columns]]
 
@@ -341,6 +440,11 @@ def validate(name: str, spec: dict, dest: Path) -> None:
 # Main
 # --------------------------------------------------------------------------- #
 def main() -> None:
+    """Clean every registry in ``TABLES`` to parquet, then validate.
+
+    Also writes the static ``dicionario`` table. Output goes under
+    ``OUTPUT_DIR``; nothing is uploaded here (see ``upload.py``).
+    """
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     summary = {}
     for name, spec in TABLES.items():
@@ -348,6 +452,9 @@ def main() -> None:
         table = to_arrow(df, spec["cols"])
         dest = write_partitioned(table, name, spec["snapshot"])
         summary[name] = (len(df), dest)
+
+    dic_dest = build_dicionario()
+    summary["dicionario"] = (len(DICIONARIO_ROWS), dic_dest)
 
     for name, spec in TABLES.items():
         dest = summary[name][1]

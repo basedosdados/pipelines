@@ -46,6 +46,7 @@ gcs.Client.bucket = _patched_bucket
 
 # (table_slug, expected_rows) — smallest first
 TABLES = [
+    ("dicionario", 4),
     ("acordos_leniencia", 151),
     ("acordos_leniencia_efeitos", 173),
     ("cnep", 1_757),
@@ -94,6 +95,11 @@ def main() -> None:
     parser.add_argument("--table", default=None, help="Upload only this table")
     args = parser.parse_args()
 
+    known = {t[0] for t in TABLES}
+    if args.table is not None and args.table not in known:
+        raise SystemExit(
+            f"Unknown --table {args.table!r}; choose from {sorted(known)}"
+        )
     targets = [args.table] if args.table else [t[0] for t in TABLES]
     print(f"env=dev billing={BILLING_PROJECT} dataset={DATASET_ID}")
     results = {}

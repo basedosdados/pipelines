@@ -25,26 +25,29 @@ models:
             - observacoes
     columns:
       - name: data_extracao
-        description: Data de extração dos dados da fonte original
+        description: Data de extração do arquivo de dados, correspondente ao snapshot
+          do cadastro
         tests: [not_null]
       - name: cadastro
-        description: Nome do cadastro de origem da sanção
+        description: Nome do cadastro de origem do registro
       - name: codigo_sancao
-        description: Código identificador da sanção
+        description: Código identificador da sanção no cadastro
       - name: tipo_pessoa
-        description: Tipo de pessoa sancionada (física ou jurídica)
+        description: Tipo de pessoa do sancionado, física ou jurídica
       - name: cpf_cnpj_sancionado
-        description: CPF ou CNPJ da pessoa sancionada
+        description: CPF ou CNPJ do sancionado, com dígitos preenchidos com zeros
+          à esquerda
       - name: nome_sancionado
-        description: Nome da pessoa física ou razão social da pessoa jurídica sancionada
+        description: Nome do sancionado, nome civil ou razão social
       - name: nome_informado_orgao
         description: Nome do sancionado conforme informado pelo órgão sancionador
       - name: razao_social_receita
-        description: Razão social do sancionado conforme a Receita Federal
+        description: Razão social do sancionado conforme cadastro da Receita Federal
       - name: nome_fantasia_receita
-        description: Nome fantasia do sancionado conforme a Receita Federal
+        description: Nome fantasia do sancionado conforme cadastro da Receita Federal
       - name: numero_processo
-        description: Número do processo que originou a sanção
+        description: Número do processo administrativo ou judicial que originou a
+          sanção
       - name: categoria_sancao
         description: Categoria da sanção aplicada
       - name: data_inicio_sancao
@@ -54,27 +57,27 @@ models:
       - name: data_publicacao
         description: Data de publicação da sanção
       - name: publicacao
-        description: Descrição da publicação da sanção
+        description: Descrição do meio de publicação da sanção
       - name: detalhamento_meio_publicacao
         description: Detalhamento do meio de publicação da sanção
       - name: data_transito_julgado
         description: Data do trânsito em julgado da decisão
       - name: abrangencia_sancao
-        description: Abrangência territorial da sanção
+        description: Abrangência territorial ou institucional da sanção
       - name: orgao_sancionador
         description: Nome do órgão responsável pela aplicação da sanção
       - name: sigla_uf_orgao
-        description: Sigla da unidade federativa do órgão sancionador
+        description: Sigla da unidade da federação do órgão sancionador
       - name: esfera_orgao
         description: Esfera administrativa do órgão sancionador
       - name: fundamentacao_legal
-        description: Fundamentação legal da sanção
+        description: Fundamentação legal que embasa a sanção
       - name: data_origem_informacao
-        description: Data da origem da informação
+        description: Data de origem da informação registrada
       - name: origem_informacao
-        description: Órgão ou sistema de origem da informação
+        description: Origem das informações do registro
       - name: observacoes
-        description: Observações adicionais sobre a sanção
+        description: Observações adicionais sobre o registro
   - name: br_cgu_sancoes__cnep
     description: >
       Cadastro Nacional de Empresas Punidas (CNEP): pessoas jurídicas e físicas
@@ -99,26 +102,29 @@ models:
             - observacoes
     columns:
       - name: data_extracao
-        description: Data de extração dos dados da fonte original
+        description: Data de extração do arquivo de dados, correspondente ao snapshot
+          do cadastro
         tests: [not_null]
       - name: cadastro
-        description: Nome do cadastro de origem da sanção
+        description: Nome do cadastro de origem do registro
       - name: codigo_sancao
-        description: Código identificador da sanção
+        description: Código identificador da sanção no cadastro
       - name: tipo_pessoa
-        description: Tipo de pessoa sancionada (física ou jurídica)
+        description: Tipo de pessoa do sancionado, física ou jurídica
       - name: cpf_cnpj_sancionado
-        description: CPF ou CNPJ da pessoa sancionada
+        description: CPF ou CNPJ do sancionado, com dígitos preenchidos com zeros
+          à esquerda
       - name: nome_sancionado
-        description: Nome da pessoa física ou razão social da pessoa jurídica sancionada
+        description: Nome do sancionado, nome civil ou razão social
       - name: nome_informado_orgao
         description: Nome do sancionado conforme informado pelo órgão sancionador
       - name: razao_social_receita
-        description: Razão social do sancionado conforme a Receita Federal
+        description: Razão social do sancionado conforme cadastro da Receita Federal
       - name: nome_fantasia_receita
-        description: Nome fantasia do sancionado conforme a Receita Federal
+        description: Nome fantasia do sancionado conforme cadastro da Receita Federal
       - name: numero_processo
-        description: Número do processo que originou a sanção
+        description: Número do processo administrativo ou judicial que originou a
+          sanção
       - name: categoria_sancao
         description: Categoria da sanção aplicada
       - name: valor_multa
@@ -130,27 +136,27 @@ models:
       - name: data_publicacao
         description: Data de publicação da sanção
       - name: publicacao
-        description: Descrição da publicação da sanção
+        description: Descrição do meio de publicação da sanção
       - name: detalhamento_meio_publicacao
         description: Detalhamento do meio de publicação da sanção
       - name: data_transito_julgado
         description: Data do trânsito em julgado da decisão
       - name: abrangencia_sancao
-        description: Abrangência territorial da sanção
+        description: Abrangência territorial ou institucional da sanção
       - name: orgao_sancionador
         description: Nome do órgão responsável pela aplicação da sanção
       - name: sigla_uf_orgao
-        description: Sigla da unidade federativa do órgão sancionador
+        description: Sigla da unidade da federação do órgão sancionador
       - name: esfera_orgao
         description: Esfera administrativa do órgão sancionador
       - name: fundamentacao_legal
-        description: Fundamentação legal da sanção
+        description: Fundamentação legal que embasa a sanção
       - name: data_origem_informacao
-        description: Data da origem da informação
+        description: Data de origem da informação registrada
       - name: origem_informacao
-        description: Órgão ou sistema de origem da informação
+        description: Origem das informações do registro
       - name: observacoes
-        description: Observações adicionais sobre a sanção
+        description: Observações adicionais sobre o registro
   - name: br_cgu_sancoes__cepim
     description: >
       Cadastro de Entidades Privadas Sem Fins Lucrativos Impedidas (CEPIM):
@@ -167,12 +173,13 @@ models:
           at_least: 0.05
     columns:
       - name: data_extracao
-        description: Data de extração dos dados da fonte original
+        description: Data de extração do arquivo de dados, correspondente ao snapshot
+          do cadastro
         tests: [not_null]
       - name: cnpj_entidade
-        description: CNPJ da entidade privada impedida
+        description: CNPJ da entidade privada sem fins lucrativos impedida
       - name: nome_entidade
-        description: Nome da entidade privada impedida
+        description: Nome da entidade privada sem fins lucrativos
       - name: numero_convenio
         description: Número do convênio associado ao impedimento
       - name: orgao_concedente
@@ -200,28 +207,29 @@ models:
             - termos_acordo
     columns:
       - name: data_extracao
-        description: Data de extração dos dados da fonte original
+        description: Data de extração do arquivo de dados, correspondente ao snapshot
+          do cadastro
         tests: [not_null]
       - name: id_acordo
         description: Identificador do acordo de leniência
       - name: cnpj_sancionado
-        description: CNPJ da pessoa jurídica que celebrou o acordo
+        description: CNPJ do sancionado signatário do acordo
       - name: razao_social_receita
-        description: Razão social da pessoa jurídica conforme a Receita Federal
+        description: Razão social do sancionado conforme cadastro da Receita Federal
       - name: nome_fantasia_receita
-        description: Nome fantasia da pessoa jurídica conforme a Receita Federal
+        description: Nome fantasia do sancionado conforme cadastro da Receita Federal
       - name: data_inicio_acordo
         description: Data de início do acordo de leniência
       - name: data_fim_acordo
-        description: Data de término do acordo de leniência
+        description: Data de fim do acordo de leniência
       - name: situacao_acordo
-        description: Situação atual do acordo de leniência
+        description: Situação do acordo de leniência
       - name: data_informacao
-        description: Data da informação do acordo
+        description: Data da informação registrada sobre o acordo
       - name: numero_processo
         description: Número do processo associado ao acordo
       - name: termos_acordo
-        description: Descrição dos termos do acordo
+        description: Termos do acordo de leniência
       - name: orgao_sancionador
         description: Nome do órgão responsável pelo acordo
   - name: br_cgu_sancoes__acordos_leniencia_efeitos
@@ -237,14 +245,15 @@ models:
           ignore_values: [complemento]
     columns:
       - name: data_extracao
-        description: Data de extração dos dados da fonte original
+        description: Data de extração do arquivo de dados, correspondente ao snapshot
+          do cadastro
         tests: [not_null]
       - name: id_acordo
-        description: Identificador do acordo de leniência ao qual o efeito se refere
+        description: Identificador do acordo de leniência
       - name: efeito
-        description: Descrição do efeito do acordo de leniência
+        description: Efeito do acordo de leniência
       - name: complemento
-        description: Complemento ou detalhamento do efeito
+        description: Complemento descritivo do efeito do acordo
   - name: br_cgu_sancoes__dicionario
     description: >
       Dicionário de códigos das colunas codificadas das tabelas do conjunto
@@ -254,16 +263,16 @@ models:
           combination_of_columns: [id_tabela, nome_coluna, chave]
     columns:
       - name: id_tabela
-        description: Nome da tabela à qual a coluna codificada pertence
+        description: Nome da tabela à qual a coluna pertence
         tests: [not_null]
       - name: nome_coluna
-        description: Nome da coluna codificada coberta pelo dicionário
+        description: Nome da coluna cujos valores são traduzidos
         tests: [not_null]
       - name: chave
-        description: Código (chave) presente na coluna codificada
+        description: Código presente na coluna original
         tests: [not_null]
       - name: cobertura_temporal
-        description: Cobertura temporal à qual o par chave-valor se aplica
+        description: Cobertura temporal a que se aplica a chave
       - name: valor
-        description: Valor (rótulo) correspondente à chave na coluna codificada
+        description: Valor traduzido correspondente à chave
         tests: [not_null]
