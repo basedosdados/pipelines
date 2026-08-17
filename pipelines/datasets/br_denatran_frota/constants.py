@@ -3,7 +3,6 @@ Constant values for the datasets projects
 """
 
 from enum import Enum
-from pathlib import Path
 
 
 class constants(Enum):
@@ -33,9 +32,18 @@ class constants(Enum):
 
     DATASET = "br_denatran_frota"
     HEADERS = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36"
+        "sec-ch-ua": '"Not=A?Brand";v="99", "Google Chrome";v="151", "Chromium";v="151"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"Windows"',
+        "Upgrade-Insecure-Requests": "1",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Sec-Fetch-Site": "same-origin",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-User": "?1",
+        "Sec-Fetch-Dest": "document",
+        "host": "www.gov.br",
     }
-
     DICT_UFS = {
         "AC": "Acre",
         "AL": "Alagoas",
@@ -85,17 +93,6 @@ class constants(Enum):
         ("SC", "barra do sul"): "balneario barra do sul",
         ("SP", "ibitiuva"): "pitangueiras",
     }
-
-    ## Paths
-    DOWNLOAD_PATH = Path(f"tmp/input/{DATASET}")
-    OUTPUT_PATH = Path(f"tmp/output/{DATASET}")
-    DOWNLOAD_PATH.mkdir(exist_ok=True, parents=True)
-    OUTPUT_PATH.mkdir(exist_ok=True, parents=True)
-
-    DOWNLOAD_FILES_PATH = Path(DOWNLOAD_PATH / "files")
-    OUTPUT_FILES_PATH = Path(OUTPUT_PATH / "files")
-    DOWNLOAD_FILES_PATH.mkdir(exist_ok=True, parents=True)
-    DOWNLOAD_FILES_PATH.mkdir(exist_ok=True, parents=True)
 
     UF_TIPO_BASIC_FILENAME = "frota_por_uf_e_tipo_de_veiculo"
     MUNIC_TIPO_BASIC_FILENAME = "frota_por_municipio_e_tipo"
