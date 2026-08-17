@@ -7,13 +7,14 @@ the APP theme alone is hundreds of MB per state.
 """
 
 import os
+import subprocess
+import sys
 
 from prefect import task
 from SICAR import Sicar
 
 from pipelines.constants import constants
 from pipelines.crawler.sfb_sicar.utils import (
-    clean_theme_chunked,
     release_dates_to_iso,
     retry_download_car,
 )
@@ -92,16 +93,45 @@ def clean_uf_theme(
     Returns:
         The number of rows written for this UF x theme.
     """
-    n, dropped = clean_theme_chunked(
-        zip_path=zip_path,
-        out_root=output_dir,
-        table=table,
-        snapshot_iso=snapshot_iso,
-        sigla_uf=sigla_uf,
+    # Run the clean in a child process launched with MALLOC_ARENA_MAX in its
+    # environment. glibc reads that only before its first malloc, so it must be
+    # present at process start — capping arenas here is what keeps the dense
+    # Amazonas app clean from ballooning RSS and OOMing the worker. See
+    # ``_clean_runner`` for the mechanism.
+    env = {
+        **os.environ,
+        "MALLOC_ARENA_MAX": "2",
+        "MALLOC_TRIM_THRESHOLD_": "131072",
+    }
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pipelines.crawler.sfb_sicar._clean_runner",
+            zip_path,
+            output_dir,
+            table,
+            snapshot_iso,
+            sigla_uf,
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
     )
+    print(proc.stdout, end="")
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"clean failed for {sigla_uf} {table}:\n{proc.stderr}"
+        )
+    # Parse "RESULT rows=<n> dropped=<n> peak_rss_mb=<n>".
+    result = next(
+        ln for ln in proc.stdout.splitlines() if ln.startswith("RESULT ")
+    )
+    fields = dict(tok.split("=") for tok in result.split()[1:])
+    n, dropped = int(fields["rows"]), int(fields["dropped"])
     print(
         f"{sigla_uf} {table}: rows={n} dropped_foreign_uf={dropped} "
-        f"snapshot={snapshot_iso}"
+        f"snapshot={snapshot_iso} peak_rss_mb={fields['peak_rss_mb']}"
     )
     if os.path.exists(zip_path):
         os.remove(zip_path)

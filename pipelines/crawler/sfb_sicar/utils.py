@@ -400,7 +400,7 @@ def clean_theme_chunked(
     snapshot_iso: str,
     sigla_uf: str,
     chunk_size: int | None = None,
-    budget_bytes: int = 256 * 1024 * 1024,
+    budget_bytes: int = 96 * 1024 * 1024,
 ) -> tuple[int, int]:
     """Stream-clean a theme zip in geometry-bounded chunks (bounded memory).
 
