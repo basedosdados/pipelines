@@ -622,8 +622,10 @@ class _StringWriter:
         # all-string via arrow (NULLs preserved, never "nan").
         typed = pa.Table.from_pylist(self.buf, schema=self.typed)
         at = typed.cast(self.string)
-        for y in pc.unique(at.column("year")).to_pylist():
-            sub = at.filter(pc.equal(at.column("year"), y))
+        # pyarrow.compute builds unique/equal dynamically, so static type checkers
+        # (pyrefly) flag them as missing; they exist at runtime.
+        for y in pc.unique(at.column("year")).to_pylist():  # pyrefly: ignore
+            sub = at.filter(pc.equal(at.column("year"), y))  # pyrefly: ignore
             pdir = self.dir / f"year={y}"
             pdir.mkdir(parents=True, exist_ok=True)
             pq.write_table(
