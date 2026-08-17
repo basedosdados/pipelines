@@ -323,32 +323,43 @@ def _adaptive_chunk_size(
     budget_bytes: int,
     cap: int,
     floor: int = 200,
-    probe: int = 256,
+    windows: int = 5,
+    per_window: int = 128,
 ) -> tuple[int, int]:
     """Return ``(n_features, chunk)``, sizing chunks by geometry bytes not count.
 
-    Feature-count chunking OOMs on vertex-dense themes: ``app`` (APP strips follow
-    every watercourse) in Amazonas carries orders of magnitude more vertices per
-    feature than an ``area_imovel`` property boundary, so a fixed 50k-feature
-    chunk that is a few GB for one table is tens of GB for the other. Probe the
-    first ``probe`` features, measure WKB bytes per feature, and pick the largest
-    chunk whose raw geometry stays under ``budget_bytes`` — peak is a few times
-    that after the reproject copy, ``make_valid``, and WKT expansion, so a 512 MB
-    budget keeps the worker well under 32 GiB regardless of theme or state.
+    Feature-count chunking OOMs on vertex-dense themes: an Amazonas ``app`` (APP
+    strips follow every watercourse) feature carries orders of magnitude more
+    vertices than an ``area_imovel`` boundary, so a fixed 50k chunk that is a few
+    GB for one table is tens of GB for the other.
+
+    Sizing off the file *head* is not enough — the dense features cluster deep in
+    the file, so a 256-feature head probe read Amazonas ``app`` at ~3 KB/feat and
+    still OOMed at a 50k chunk (true average ~65 KB/feat). This samples
+    ``windows`` evenly spaced blocks and sizes off the **densest** block's WKB
+    bytes per feature, so the estimate is driven by the worst region rather than
+    a lucky sparse head. Peak memory runs ~10x the chunk's raw WKB once the
+    shapely load, reproject copy, ``make_valid``, and WKT expansion pile up, so a
+    256 MB budget keeps peak near 3 GB — comfortably under 32 GiB.
     """
     n = int(pyogrio.read_info(shp)["features"])
     if n == 0:
         return 0, cap
-    probe_n = min(probe, n)
-    g = gpd.GeoDataFrame(
-        pyogrio.read_dataframe(shp, max_features=probe_n)
-    ).geometry
-    total = int(g.to_wkb().map(lambda b: len(b) if b else 0).sum())
-    per = max(total / probe_n, 1.0)
+    per = 1.0
+    for i in range(windows):
+        pos = min(int(i * n / windows), max(n - 1, 0))
+        take = min(per_window, n - pos)
+        if take <= 0:
+            continue
+        g = gpd.GeoDataFrame(
+            pyogrio.read_dataframe(shp, skip_features=pos, max_features=take)
+        ).geometry
+        b = int(g.to_wkb().map(lambda x: len(x) if x else 0).sum())
+        per = max(per, b / take)
     chunk = max(floor, min(cap, int(budget_bytes / per)))
     print(
         f"  {os.path.basename(shp)}: {n} feats, "
-        f"~{per / 1024:.1f}KB/feat -> chunk={chunk}"
+        f"~{per / 1024:.1f}KB/feat(densest window) -> chunk={chunk}"
     )
     return n, chunk
 
@@ -360,7 +371,7 @@ def clean_theme_chunked(
     snapshot_iso: str,
     sigla_uf: str,
     chunk_size: int | None = None,
-    budget_bytes: int = 512 * 1024 * 1024,
+    budget_bytes: int = 256 * 1024 * 1024,
 ) -> tuple[int, int]:
     """Stream-clean a theme zip in geometry-bounded chunks (bounded memory).
 
@@ -382,7 +393,7 @@ def clean_theme_chunked(
         snapshot_iso: Per-UF release date, ``'YYYY-MM-DD'`` (the ``data`` key).
         sigla_uf: UF code (the ``sigla_uf`` key).
         chunk_size: Hard cap on features per chunk (adaptive sizing may go
-            smaller); ``None`` uses 50000.
+            smaller); ``None`` uses 25000.
         budget_bytes: Raw-geometry byte budget per chunk driving adaptive sizing.
 
     Returns:
@@ -391,7 +402,7 @@ def clean_theme_chunked(
     Raises:
         FileNotFoundError: If the zip contains no ``.shp``.
     """
-    cap = chunk_size or 50000
+    cap = chunk_size or 25000
     part_dir = os.path.join(
         out_root, table, f"data={snapshot_iso}", f"sigla_uf={sigla_uf}"
     )
