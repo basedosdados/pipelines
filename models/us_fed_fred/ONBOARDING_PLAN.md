@@ -54,8 +54,21 @@ Never under the repo or Dropbox. Deleted at step 14.
 - [x] committed onboarding code (67b9ed8f); branch renamed claude/… → data/us_fed_fred
 - [x] 11. PR — user pushed branch; PAT couldn't create PR (403) → opened via `gh`:
       https://github.com/basedosdados/pipelines/pull/1810 (OPEN, MERGEABLE, `table-approve` label ✓)
-- [ ] 12. recurring daily pipeline — separate PR AFTER merge (user approved)
-- [ ] 13. publish prod (after merge + table-approve + verify): create_update_dataset id=4aa6290b… status=published env=prod
+- [~] 11b. table-approve (post-merge, commit 2d4f814): staging transfer OK, but prod
+      `dbt run` FAILED on BigQuery **QueryUsagePerDay** custom quota (project-wide,
+      transient — table is tiny). Reset ~00:00 Pacific / 07:00 UTC. Fix = re-run the
+      job: `gh run rerun 31769158632` (re-copies staging + runs dbt to prod) after reset.
+- [~] 12. recurring daily pipeline — BUILT + committed on branch `pipeline/us_fed_fred`
+      (commit local; push gated → user pushes). Files: pipelines/datasets/us_fed_fred/
+      {constants,utils,tasks,flows}.py; download_clean.py now imports the shared transform.
+      observation=PartBdpro(6mo), series=NonHistorical(AllFree); daily 21:00 BRT; dump overwrite.
+      Local checks PASS (imports, deploy discovery, limit=3 transform parity, ruff+pyrefly).
+      PENDING: (a) push + open PR to main **with `deploy-flow` label**; (b) FRED_API_KEY in
+      Vault secret `fred` (worker cred — user/admin, I cannot write Vault); (c) dev-pool run
+      {materialize_to_prod:False,update_metadata:False,force_run:True} = definition of done;
+      (d) after prod tables exist: create pro Coverage (is_closed=True) on observation +
+      source Update record, before arming.
+- [ ] 13. publish prod (after 11b re-run + verify): create_update_dataset id=4aa6290b… status=published env=prod
 - [ ] 14. delete ~/Downloads/us_fed_fred_data/ (rm blocked in-session → user runs, or retry)
 
 - [ ] [PAUSE — verification checkpoint]
