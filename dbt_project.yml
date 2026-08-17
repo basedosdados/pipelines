@@ -223,6 +223,9 @@ models:
     br_cgu_receitas_publicas:
       +materialized: table
       +schema: br_cgu_receitas_publicas
+    br_cgu_sancoes:
+      +materialized: table
+      +schema: br_cgu_sancoes
     br_cgu_servidores_executivo_federal:
       +materialized: table
       +schema: br_cgu_servidores_executivo_federal
