@@ -278,8 +278,6 @@ def write_partition(
         # All-STRING, verbatim: empty cells -> NULL. Raw PSV values are already
         # ISO dates / plain decimals / small ints, so no typed round-trip is
         # needed (and none of the "1959.0" / "nan" traps can appear).
-        # pyrefly: ignore [bad-argument-type]  # pandas-stubs rejects None `other`; valid at runtime
-        data = {c: df[c].where(df[c].astype(str) != "", None) for c in cols}
         schema = _string_schema(cols)
         # 0-row header first, so a later save_header_files/dump_header pass never
         # reads a large first parquet (OOM guard, cf. au_ato_abr).
@@ -287,7 +285,18 @@ def write_partition(
             {c: pa.array([], type=pa.string()) for c in cols}, schema=schema
         )
         pq.write_table(header, d / "00_header.parquet", compression="snappy")
-        tbl = pa.Table.from_pydict(data, schema=schema)
+        # Build the table one column at a time, staying in Arrow. Converting the
+        # whole frame back to Python `str` at once (a per-cell object for ~5.6M x
+        # 40) blows past the worker; Arrow keeps it a compact buffer and only one
+        # column is ever transient. Empty string -> NULL (NA is already null).
+        arrays = []
+        for c in cols:
+            # pyrefly: ignore [bad-argument-type]  # pandas-stubs rejects None; valid at runtime
+            a = pa.array(df[c].replace("", None))
+            if not pa.types.is_string(a.type):
+                a = a.cast(pa.string())
+            arrays.append(a)
+        tbl = pa.table(dict(zip(cols, arrays, strict=True)), schema=schema)
     else:
         fields, data = [], {}
         for name, bqt in arch:
