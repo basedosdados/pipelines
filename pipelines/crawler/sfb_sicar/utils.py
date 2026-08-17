@@ -5,8 +5,10 @@ The recurring pipeline wraps them in @task (see tasks.py); the one-shot bootstra
 in ``models/br_sfb_sicar/code/clean.py`` re-exports them so the two cannot drift.
 
 Per theme zip: read ALL ``.shp`` parts (large UFs split into ``_1.shp``,
-``_2.shp``, …), reproject SIRGAS 2000 (EPSG:4674) -> WGS84 (EPSG:4326), make the
-geometry valid, emit WKT. Output is an ALL-STRING partitioned parquet dataset
+``_2.shp``, …), reproject SIRGAS 2000 (EPSG:4674) -> WGS84 (EPSG:4326), emit WKT.
+Geometry validity repair is left to BigQuery on ingest
+(``st_geogfromtext(make_valid => true)``) — GEOS ``make_valid`` on a single dense
+Amazonas ``app`` feature OOMs the worker. Output is an ALL-STRING parquet dataset
 (the dbt model ``safe_cast``s every column), partitioned by ``data`` (snapshot)
 and ``sigla_uf``. All-string is mandatory: ``upload_to_gcs`` infers the staging
 schema from a stringified header, so typed parquet is rejected — cast via arrow
@@ -26,7 +28,6 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import pyogrio
-from shapely import make_valid
 from shapely.geometry.base import BaseGeometry
 
 from pipelines.crawler.sfb_sicar.constants import architecture as arch
@@ -144,11 +145,16 @@ def read_theme_zip(zip_path: str) -> gpd.GeoDataFrame:
 
 
 def geometry_to_wkt(gdf: gpd.GeoDataFrame) -> pd.Series:
-    """Reproject to WGS84, make valid, return WKT strings (None for empty).
+    """Reproject SIRGAS 2000 -> WGS84 and return WKT strings (None for empty).
 
-    The old crawler skipped the reprojection and emitted SIRGAS-2000 WKT; here
-    the geometry is reprojected to WGS84 and repaired with ``make_valid`` before
-    serialization.
+    Validity repair is deliberately NOT done here. GEOS ``make_valid`` on a
+    self-intersecting Amazonas ``app`` multipolygon (hundreds of thousands of
+    vertices tracing every watercourse) can balloon to gigabytes for a *single*
+    feature and OOMs the worker no matter how small the chunk. It is also
+    redundant: every dbt model ingests the WKT via
+    ``safe.st_geogfromtext(geometria, make_valid => true)``, so BigQuery repairs
+    the geometry on load. WKT serialization does not require validity, so the raw
+    (winding-corrected by pyogrio on read) geometry is emitted as-is.
     """
     if gdf.crs is None:
         gdf = gdf.set_crs(SIRGAS)
@@ -157,8 +163,6 @@ def geometry_to_wkt(gdf: gpd.GeoDataFrame) -> pd.Series:
     def _wkt(g):
         if g is None or g.is_empty:
             return None
-        if not g.is_valid:
-            g = make_valid(g)
         return (
             g.wkt if isinstance(g, BaseGeometry) and not g.is_empty else None
         )
@@ -335,12 +339,13 @@ def _adaptive_chunk_size(
 
     Sizing off the file *head* is not enough — the dense features cluster deep in
     the file, so a 256-feature head probe read Amazonas ``app`` at ~3 KB/feat and
-    still OOMed at a 50k chunk (true average ~65 KB/feat). This samples
+    still OOMed at a 50k chunk (densest window ~45 KB/feat). This samples
     ``windows`` evenly spaced blocks and sizes off the **densest** block's WKB
     bytes per feature, so the estimate is driven by the worst region rather than
-    a lucky sparse head. Peak memory runs ~10x the chunk's raw WKB once the
-    shapely load, reproject copy, ``make_valid``, and WKT expansion pile up, so a
-    256 MB budget keeps peak near 3 GB — comfortably under 32 GiB.
+    a lucky sparse head. With ``make_valid`` moved to BigQuery (see
+    :func:`geometry_to_wkt`), the remaining peak is only the shapely load, the
+    reproject copy, and WKT expansion — a few times the chunk's raw WKB — so a
+    256 MB budget keeps peak near 1 GB, well under the 32 GiB worker.
     """
     n = int(pyogrio.read_info(shp)["features"])
     if n == 0:
