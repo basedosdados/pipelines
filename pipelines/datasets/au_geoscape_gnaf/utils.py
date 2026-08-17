@@ -35,6 +35,8 @@ import datetime as dt
 import io
 import logging
 import re
+import resource
+import sys
 import zipfile
 from pathlib import Path
 
@@ -46,6 +48,13 @@ import requests
 from pipelines.datasets.au_geoscape_gnaf.constants import constants
 
 log = logging.getLogger("au_geoscape_gnaf")
+
+
+def _rss_gb() -> float:
+    """Return peak process RSS in GB (``ru_maxrss`` is bytes on macOS, KB on Linux)."""
+    r = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    return r / 1024**3 if sys.platform == "darwin" else r / 1024**2
+
 
 PA_TYPE = {
     "STRING": pa.string(),
@@ -668,6 +677,12 @@ def clean_all(
     }
     totals = {t: 0 for t in builders}
 
+    # print() (not log.info) so Prefect's log_prints captures it on the worker.
+    print(
+        f"[gnaf] clean_all start (arrow read + column-wise writer); "
+        f"stringify={stringify} states={states} RSS={_rss_gb():.1f}GB",
+        flush=True,
+    )
     with zipfile.ZipFile(zip_path) as zf:
         std, auth = _zip_base(zf)
         # state -> pid map from the per-state STATE tables
@@ -675,7 +690,6 @@ def clean_all(
         for s in constants.ALL_STATES.value:
             srow = read_psv(zf, f"{std}/{s}_STATE_psv.psv")
             pid_of[s] = str(srow.iloc[0]["STATE_PID"])
-        log.info("state->pid: %s", pid_of)
         for state in states:
             pid = pid_of[state]
             for t, fn in builders.items():
@@ -684,9 +698,17 @@ def clean_all(
                     df, t, arch[t], pid, snapshot_date, output_dir, stringify
                 )
                 totals[t] += n
-                log.info("  %s %s: %d", state, t, n)
                 del df
+            print(
+                f"[gnaf] cleaned {state} (id_state={pid}) "
+                f"RSS={_rss_gb():.1f}GB",
+                flush=True,
+            )
         ndic = build_dicionario(zf, auth, output_dir)
+    print(
+        f"[gnaf] clean_all done RSS={_rss_gb():.1f}GB counts={totals}",
+        flush=True,
+    )
 
     totals["dicionario"] = ndic
     return {
