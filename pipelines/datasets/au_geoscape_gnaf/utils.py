@@ -51,6 +51,38 @@ from pipelines.datasets.au_geoscape_gnaf.constants import constants
 log = logging.getLogger("au_geoscape_gnaf")
 
 
+def _tune_container_memory() -> None:
+    """Cap glibc arenas + Arrow threads so RSS stays near the live set.
+
+    On a many-core worker node the container sees every CPU, so glibc opens up to
+    ``8 * ncpu`` malloc arenas and pyarrow sizes its pools to the core count. A
+    churn-heavy per-state merge then scatters temporaries across arenas/threads
+    and never returns them, so RSS explodes past the hard 16Gi limit even though
+    the live set is ~2GB — while macOS (one arena, eager release) does the same
+    work in ~1.5GB, which is why it never reproduced locally. Must run before the
+    heavy pandas/pyarrow work (module import time).
+    """
+    if sys.platform.startswith("linux"):
+        try:
+            import ctypes
+
+            libc = ctypes.CDLL("libc.so.6")
+            libc.mallopt(-8, 2)  # M_ARENA_MAX = 2
+            libc.mallopt(
+                -1, 0
+            )  # M_TRIM_THRESHOLD = 0 (return freed mem eagerly)
+        except (OSError, AttributeError):
+            pass
+    try:
+        pa.set_cpu_count(2)
+        pa.set_io_thread_count(2)
+    except (ValueError, OSError):
+        pass
+
+
+_tune_container_memory()
+
+
 def _rss_gb() -> float:
     """Return peak process RSS in GB (``ru_maxrss`` is bytes on macOS, KB on Linux)."""
     r = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
