@@ -129,8 +129,15 @@ class constants(Enum):
         "notes",
     ]
 
-    DATA_TABLES = ["observation", "series"]
-    ALL_TABLES = ["observation", "series"]
+    # Build order is load-bearing: `series` (the catalog) must be materialized
+    # BEFORE `observation`, because observation carries a dbt relationships test
+    # on series_id -> series. Each prod `dbt run` here replaces its table (the
+    # overwrite upload deletes the prod table first), so if observation were
+    # built first its FK test would run while series is momentarily absent and
+    # fail with "Table basedosdados.us_fed_fred.series was not found". Parent
+    # before child keeps every run green.
+    DATA_TABLES = ["series", "observation"]
+    ALL_TABLES = ["series", "observation"]
 
     ARCHITECTURE_DIR = (
         _REPO_ROOT / "models" / "us_fed_fred" / "code" / "architecture"
