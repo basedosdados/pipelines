@@ -5,7 +5,7 @@ month,INT64,Mês,,no,,month,no,Valores de 1 a 12; nulo para frequência não men
 frequency,STRING,Frequência da série,,yes,,,no,"A (anual/annual), Q (trimestral/quarterly), M (mensal/monthly).",Frequency,Series frequency,Frecuencia de la serie
 table_id,STRING,Identificador da tabela BEA,,yes,,,no,"Por exemplo, T10105.",TableName,BEA table identifier,Identificador de la tabla BEA
 line_number,STRING,Número de ordem da linha dentro da tabela,,no,,,no,,LineNumber,Ordinal line number within the table,Número de orden de la línea dentro de la tabla
-series_code,STRING,Código único da série NIPA,,no,,,no,"Por exemplo, A191RC.",SeriesCode,Unique NIPA series code,Código único de serie NIPA
+series_id,STRING,Código único da série NIPA,,no,,,no,"Por exemplo, A191RC.",SeriesCode,Unique NIPA series code,Código único de serie NIPA
 line_description,STRING,Descrição da linha da tabela,,no,,,no,,LineDescription,Description of the table line,Descripción de la línea de la tabla
 metric_name,STRING,Tipo de métrica,,no,,,no,"Por exemplo, dólares correntes, dólares encadeados, índice.",METRIC_NAME,Metric type,Tipo de métrica
 unit,STRING,Unidade de medida da série,,no,,,no,Rótulo BEA CL_UNIT.,CL_UNIT,Unit of measure of the series,Unidad de medida de la serie

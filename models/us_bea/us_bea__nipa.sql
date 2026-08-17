@@ -19,7 +19,7 @@ select
     safe_cast(frequency as string) frequency,
     safe_cast(table_name as string) table_id,
     safe_cast(line_number as string) line_number,
-    safe_cast(series_code as string) series_code,
+    safe_cast(series_code as string) series_id,
     safe_cast(line_description as string) line_description,
     safe_cast(metric_name as string) metric_name,
     safe_cast(unit as string) unit,

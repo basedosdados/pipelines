@@ -6,7 +6,7 @@ id_state,STRING,Código FIPS do estado,,no,br_bd_diretorios_us.state:id_state,,n
 geo_name,STRING,Nome da área geográfica,,no,,,no,,GeoName,Name of the geographic area,Nombre del área geográfica
 table_id,STRING,Identificador da tabela BEA,,yes,,,no,"Por exemplo, CAGDP2.",TableName,BEA table identifier,Identificador de la tabla BEA
 line_code,STRING,Código da linha dentro da tabela BEA,,no,,,no,,LineCode,Line code within the BEA table,Código de línea dentro de la tabla BEA
-series_code,STRING,Código da série BEA da observação,,no,,,no,,Code,BEA series code of the observation,Código de serie BEA de la observación
+series_id,STRING,Código da série BEA da observação,,no,,,no,,Code,BEA series code of the observation,Código de serie BEA de la observación
 line_description,STRING,Descrição da linha da tabela,,no,,,no,,LineDescription,Description of the table line,Descripción de la línea de la tabla
 unit,STRING,Unidade de medida da série,,no,,,no,Rótulo BEA CL_UNIT.,CL_UNIT,Unit of measure of the series,Unidad de medida de la serie
 unit_mult,STRING,Multiplicador de base 10 aplicado ao valor,,no,,,no,"Expoente; por exemplo, 6 = milhões, 9 = bilhões.",UNIT_MULT,Base-10 multiplier applied to the value,Multiplicador de base 10 aplicado al valor

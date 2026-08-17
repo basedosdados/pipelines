@@ -65,7 +65,7 @@ NOTEREF= col("note_ref","STRING","Referência de nota de rodapé da BEA para a o
              "Referencia de nota al pie de la BEA para la observación", original="NoteRef")
 GEONAME= col("geo_name","STRING","Nome da área geográfica",
              "Name of the geographic area","Nombre del área geográfica", original="GeoName")
-SERIES = col("series_code","STRING","Código da série BEA da observação",
+SERIES = col("series_id","STRING","Código da série BEA da observação",
              "BEA series code of the observation","Código de serie BEA de la observación",
              original="Code")
 LINEDESC=col("line_description","STRING","Descrição da linha da tabela",
@@ -96,7 +96,7 @@ TABLES["nipa"] = [
     col("line_number","STRING","Número de ordem da linha dentro da tabela",
         "Ordinal line number within the table","Número de orden de la línea dentro de la tabla",
         original="LineNumber"),
-    col("series_code","STRING","Código único da série NIPA",
+    col("series_id","STRING","Código único da série NIPA",
         "Unique NIPA series code","Código único de serie NIPA",
         obs="Por exemplo, A191RC.", original="SeriesCode"),
     LINEDESC,

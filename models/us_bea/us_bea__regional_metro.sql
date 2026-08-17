@@ -19,7 +19,7 @@ select
     safe_cast(geo_name as string) geo_name,
     safe_cast(table_name as string) table_id,
     safe_cast(line_code as string) line_code,
-    safe_cast(series_code as string) series_code,
+    safe_cast(series_code as string) series_id,
     safe_cast(line_description as string) line_description,
     safe_cast(unit as string) unit,
     safe_cast(unit_mult as string) unit_mult,

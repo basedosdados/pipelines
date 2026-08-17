@@ -32,7 +32,7 @@ models:
         description: Identificador da tabela BEA
       - name: line_number
         description: Número de ordem da linha dentro da tabela
-      - name: series_code
+      - name: series_id
         description: Código único da série NIPA
       - name: line_description
         description: Descrição da linha da tabela
@@ -120,7 +120,7 @@ models:
         description: Identificador da tabela BEA
       - name: line_code
         description: Código da linha dentro da tabela
-      - name: series_code
+      - name: series_id
         description: Código da série BEA da observação
       - name: line_description
         description: Descrição da linha da tabela
@@ -159,7 +159,7 @@ models:
         description: Identificador da tabela BEA
       - name: line_code
         description: Código da linha dentro da tabela
-      - name: series_code
+      - name: series_id
         description: Código da série BEA da observação
       - name: line_description
         description: Descrição da linha da tabela
@@ -196,7 +196,7 @@ models:
         description: Identificador da tabela BEA
       - name: line_code
         description: Código da linha dentro da tabela
-      - name: series_code
+      - name: series_id
         description: Código da série BEA da observação
       - name: line_description
         description: Descrição da linha da tabela
