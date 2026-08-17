@@ -119,6 +119,9 @@ PA_TYPE = {
     "DATE": pa.date32(),
 }
 
+# Row-group slice for the streaming stringify writer (bounds peak write memory).
+_WRITE_CHUNK = 500_000
+
 _FILENAME_RE = re.compile(r"g-naf_([a-z]{3})(\d{2})_", re.IGNORECASE)
 
 
@@ -350,18 +353,35 @@ def write_partition(
             {c: pa.array([], type=pa.string()) for c in cols}, schema=schema
         )
         pq.write_table(header, d / "00_header.parquet", compression="snappy")
-        # Build the table one column at a time, staying in Arrow. Converting the
-        # whole frame back to Python `str` at once (a per-cell object for ~5.6M x
-        # 40) blows past the worker; Arrow keeps it a compact buffer and only one
-        # column is ever transient. Empty string -> NULL (NA is already null).
-        arrays = []
-        for c in cols:
-            # pyrefly: ignore [bad-argument-type]  # pandas-stubs rejects None; valid at runtime
-            a = pa.array(df[c].replace("", None))
-            if not pa.types.is_string(a.type):
-                a = a.cast(pa.string())
-            arrays.append(a)
-        tbl = pa.table(dict(zip(cols, arrays, strict=True)), schema=schema)
+        # Stream the parquet in row-group slices, one column at a time within each
+        # slice. Building all ~45 column arrays for the whole frame at once holds a
+        # second full copy alongside the source frame; on the Linux worker (inflated
+        # allocator, see `_tune_container_memory`) that doubling tops the hard 16Gi
+        # limit at ~5.2M rows. A bounded slice keeps the write near the live set.
+        # Empty string -> NULL (NA is already null).
+        n = len(df)
+        writer = pq.ParquetWriter(
+            d / "data.parquet", schema, compression="snappy"
+        )
+        try:
+            for start in range(0, n, _WRITE_CHUNK):
+                sl = df.iloc[start : start + _WRITE_CHUNK]
+                arrays = []
+                for c in cols:
+                    # pyrefly: ignore [bad-argument-type]  # pandas-stubs rejects None; valid at runtime
+                    a = pa.array(sl[c].replace("", None))
+                    if not pa.types.is_string(a.type):
+                        a = a.cast(pa.string())
+                    arrays.append(a)
+                writer.write_table(
+                    pa.table(
+                        dict(zip(cols, arrays, strict=True)), schema=schema
+                    )
+                )
+                del arrays
+        finally:
+            writer.close()
+        return n
     else:
         fields, data = [], {}
         for name, bqt in arch:
