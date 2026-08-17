@@ -134,6 +134,7 @@ def _run_denatran(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
+        source_format="parquet",
     )
 
     run_dbt(
