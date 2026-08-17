@@ -1,0 +1,154 @@
+---
+version: 2
+models:
+  - name: au_geoscape_gnaf__address_detail
+    description: >
+      Detalhe de endereço do G-NAF (Geocoded National Address File) da Geoscape:
+      um registro por endereço australiano, com o geocódigo padrão (latitude e
+      longitude), componentes do endereço e vínculos com rua/localidade e com os
+      mesh blocks do ABS. Cada release trimestral é empilhado sob snapshot_date.
+      Inclui endereços com confidence = -1 (não mais presentes em nenhuma base
+      contribuidora); filtrar confidence != '-1' reproduz a contagem oficial da
+      Geoscape.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [snapshot_date, address_detail_pid]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - date_retired
+            - lot_number_prefix
+            - lot_number_suffix
+            - flat_number_prefix
+            - flat_number_suffix
+            - level_type
+            - level_number_prefix
+            - level_number
+            - level_number_suffix
+            - number_first_prefix
+            - number_last_prefix
+            - number_last_suffix
+            - location_description
+            - private_street
+            - property_pid
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - flat_type
+            - level_type
+            - level_geocoded
+            - geocode_type
+            - alias_principal
+            - confidence
+            - primary_secondary
+          dictionary_model: ref('au_geoscape_gnaf__dicionario')
+    columns:
+      - name: snapshot_date
+        description: Data do snapshot (release) trimestral do G-NAF
+        tests: [not_null]
+      - name: year
+        description: Ano do snapshot do G-NAF
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_state
+        description: Código do estado ou território australiano (1 a 9)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: address_detail_pid
+        description: Identificador persistente único do endereço
+        tests: [not_null]
+  - name: au_geoscape_gnaf__street_locality
+    description: >
+      Rua dentro de uma localidade no G-NAF da Geoscape: um registro por rua, com
+      nome, tipo, sufixo, classe e o ponto geocodificado (latitude/longitude).
+      Cada release trimestral é empilhado sob snapshot_date.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [snapshot_date, street_locality_pid]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [date_retired, street_suffix]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - street_type
+            - street_suffix
+            - street_class
+            - gnaf_reliability
+          dictionary_model: ref('au_geoscape_gnaf__dicionario')
+    columns:
+      - name: snapshot_date
+        description: Data do snapshot (release) trimestral do G-NAF
+        tests: [not_null]
+      - name: year
+        description: Ano do snapshot do G-NAF
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_state
+        description: Código do estado ou território australiano (1 a 9)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: street_locality_pid
+        description: Identificador persistente único da rua/localidade
+        tests: [not_null]
+  - name: au_geoscape_gnaf__locality
+    description: >
+      Localidade (suburb) no G-NAF da Geoscape: um registro por localidade, com
+      nome, código postal primário, classe, estado e o ponto geocodificado
+      (latitude/longitude). Cada release trimestral é empilhado sob snapshot_date.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [snapshot_date, locality_pid]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [date_retired, primary_postcode]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [locality_class, gnaf_reliability]
+          dictionary_model: ref('au_geoscape_gnaf__dicionario')
+    columns:
+      - name: snapshot_date
+        description: Data do snapshot (release) trimestral do G-NAF
+        tests: [not_null]
+      - name: year
+        description: Ano do snapshot do G-NAF
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_state
+        description: Código do estado ou território australiano (1 a 9)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: locality_pid
+        description: Identificador persistente único da localidade
+        tests: [not_null]
+  - name: au_geoscape_gnaf__dicionario
+    description: >
+      Dicionário de códigos das colunas codificadas das tabelas do G-NAF,
+      mapeando cada chave ao seu rótulo (valor).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: Nome da tabela à qual a coluna codificada pertence
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna codificada coberta pelo dicionário
+        tests: [not_null]
+      - name: chave
+        description: Código (chave) presente na coluna codificada
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Cobertura temporal à qual o par chave-valor se aplica
+      - name: valor
+        description: Valor (rótulo) correspondente à chave na coluna codificada
+        tests: [not_null]
