@@ -49,6 +49,9 @@ models:
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
+    au_ato_abr:
+      +materialized: table
+      +schema: au_ato_abr
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
@@ -139,6 +142,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_fed_fred:
+      +materialized: table
+      +schema: us_fed_fred
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force
@@ -217,6 +223,9 @@ models:
     br_cgu_receitas_publicas:
       +materialized: table
       +schema: br_cgu_receitas_publicas
+    br_cgu_sancoes:
+      +materialized: table
+      +schema: br_cgu_sancoes
     br_cgu_servidores_executivo_federal:
       +materialized: table
       +schema: br_cgu_servidores_executivo_federal
