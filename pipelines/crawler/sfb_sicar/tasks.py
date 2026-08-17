@@ -13,12 +13,9 @@ from SICAR import Sicar
 
 from pipelines.constants import constants
 from pipelines.crawler.sfb_sicar.utils import (
-    build_table_df,
-    filter_to_uf,
-    read_theme_zip,
+    clean_theme_chunked,
     release_dates_to_iso,
     retry_download_car,
-    write_table_partitioned,
 )
 
 
@@ -95,16 +92,17 @@ def clean_uf_theme(
     Returns:
         The number of rows written for this UF x theme.
     """
-    gdf = read_theme_zip(zip_path)
-    gdf, dropped = filter_to_uf(gdf, sigla_uf)
-    df = build_table_df(table, gdf, snapshot_iso, sigla_uf)
-    write_table_partitioned(df, output_dir, table)
-    n = len(df)
+    n, dropped = clean_theme_chunked(
+        zip_path=zip_path,
+        out_root=output_dir,
+        table=table,
+        snapshot_iso=snapshot_iso,
+        sigla_uf=sigla_uf,
+    )
     print(
         f"{sigla_uf} {table}: rows={n} dropped_foreign_uf={dropped} "
         f"snapshot={snapshot_iso}"
     )
-    del gdf, df
     if os.path.exists(zip_path):
         os.remove(zip_path)
     return n

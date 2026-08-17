@@ -25,6 +25,7 @@ import httpx
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+import pyogrio
 from shapely import make_valid
 from shapely.geometry.base import BaseGeometry
 
@@ -315,3 +316,85 @@ def write_table_partitioned(
         existing_data_behavior="overwrite_or_ignore",
     )
     return root
+
+
+def clean_theme_chunked(
+    zip_path: str,
+    out_root: str,
+    table: str,
+    snapshot_iso: str,
+    sigla_uf: str,
+    chunk_size: int = 50000,
+) -> tuple[int, int]:
+    """Stream-clean a theme zip in feature chunks (bounded memory).
+
+    Reading a whole state's shapefile at once OOMs the worker — a big UF's
+    ``area_imovel`` (let alone ``app`` with tens of millions of polygons) far
+    exceeds even 32 GiB once geopandas + ``make_valid`` + WKT expand it. This
+    reads each ``.shp`` part ``chunk_size`` features at a time (pyogrio seeks via
+    the ``.shx`` index, so paging is cheap), cleans the chunk, and writes it as a
+    parquet part directly into the hive partition
+    ``<out_root>/<table>/data=<snapshot>/sigla_uf=<uf>/`` — the same layout
+    :func:`write_table_partitioned` produces, so ``upload_to_gcs`` reads the
+    partition keys from the path and the file payload stays all-STRING.
+
+    Args:
+        zip_path: The downloaded ``<UF>_<THEME>.zip``.
+        out_root: Parquet output root.
+        table: Output table slug.
+        snapshot_iso: Per-UF release date, ``'YYYY-MM-DD'`` (the ``data`` key).
+        sigla_uf: UF code (the ``sigla_uf`` key).
+        chunk_size: Features per chunk; caps peak memory.
+
+    Returns:
+        A ``(rows_written, dropped_foreign_uf)`` tuple.
+
+    Raises:
+        FileNotFoundError: If the zip contains no ``.shp``.
+    """
+    part_dir = os.path.join(
+        out_root, table, f"data={snapshot_iso}", f"sigla_uf={sigla_uf}"
+    )
+    os.makedirs(part_dir, exist_ok=True)
+    rows = 0
+    dropped = 0
+    file_idx = 0
+    with tempfile.TemporaryDirectory() as td:
+        with zipfile.ZipFile(zip_path) as z:
+            z.extractall(td)
+        parts = sorted(glob.glob(os.path.join(td, "*.shp")))
+        if not parts:
+            raise FileNotFoundError(f"no .shp in {zip_path}")
+        for shp in parts:
+            n_feats = int(pyogrio.read_info(shp)["features"])
+            for start in range(0, max(n_feats, 1), chunk_size):
+                gdf = gpd.GeoDataFrame(
+                    pyogrio.read_dataframe(
+                        shp, skip_features=start, max_features=chunk_size
+                    )
+                )
+                if len(gdf) == 0:
+                    continue
+                if gdf.crs is None:
+                    gdf = gdf.set_crs(SIRGAS)
+                gdf, drop_n = filter_to_uf(gdf, sigla_uf)
+                dropped += drop_n
+                if len(gdf) == 0:
+                    continue
+                df = build_table_df(table, gdf, snapshot_iso, sigla_uf)
+                payload = [
+                    c for c in df.columns if c not in ("data", "sigla_uf")
+                ]
+                pq.write_table(
+                    pa.Table.from_pandas(
+                        df[payload],
+                        schema=all_string_schema(payload),
+                        preserve_index=False,
+                    ),
+                    os.path.join(part_dir, f"part-{file_idx:05d}.parquet"),
+                    compression="snappy",
+                )
+                file_idx += 1
+                rows += len(df)
+                del gdf, df
+    return rows, dropped
