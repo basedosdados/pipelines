@@ -144,6 +144,9 @@ class PartitionWriter:
     def flush(self):
         if self.n == 0:
             return
+        assert (
+            self._ed is not None
+        )  # n > 0 implies add() set the partition date
         d = self._part_dir(self._ed)
         typed = pa.table(
             {
