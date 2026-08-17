@@ -128,7 +128,11 @@ def us_fed_fred_flow(
 
         tables = constants.ALL_TABLES.value
 
-        # Dev: upload staging + materialize/test.
+        # Dev: upload + run ALL tables first, THEN test. The observation<->series
+        # relationships test runs during each table's test phase and needs BOTH
+        # tables present. Since the overwrite upload deletes each table before its
+        # run, a per-table run/test would test one table while the other is still
+        # absent — so run and test are split into separate passes.
         for table in tables:
             upload_to_gcs(
                 data_path=result[table],
@@ -141,14 +145,21 @@ def us_fed_fred_flow(
             run_dbt(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                dbt_command="run/test",
+                dbt_command="run",
+                target="dev",
+            )
+        for table in tables:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
                 target="dev",
             )
 
         if not materialize_to_prod:
             return
 
-        # Prod: upload staging + materialize/test.
+        # Prod: upload + run ALL tables first, THEN test (see the dev-phase note).
         for table in tables:
             upload_to_gcs(
                 data_path=result[table],
@@ -161,7 +172,14 @@ def us_fed_fred_flow(
             run_dbt(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                dbt_command="run/test",
+                dbt_command="run",
+                target="prod",
+            )
+        for table in tables:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
                 target="prod",
             )
 
