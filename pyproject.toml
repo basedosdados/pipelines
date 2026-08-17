@@ -211,32 +211,13 @@ build-backend = "hatchling.build"
 [tool.pyrefly]
 project-excludes = [
   "pipelines/{{cookiecutter.pipeline_name}}",
-  # One-shot dataset ETL, not part of the typed `pipelines/` framework. Every
-  # other model keeps its code in a notebook (all excluded below); this dataset
-  # uses a `.py` package that runs with cwd=code/python, so its sys.path-relative
-  # imports (config, sub.*, utils.*) are unresolvable from the repo root. Exclude
-  # the whole tree, consistent with the model-ETL-not-type-checked policy.
   "models/br_tse_eleicoes/code",
-  # Mesmo caso do br_tse_eleicoes acima: pacote `.py` (não notebook) que roda
-  # com cwd=code/, então `from schema_spec import ...` (bare, sys.path-relative)
-  # não resolve a partir da raiz do repo.
   "models/us_harvard_cbdb/code",
-  # Same policy: us_cfpb_hmda ETL is standalone `.py` (runs via uv run --with
-  # duckdb, with same-dir imports), so duckdb/common/clean/download are
-  # unresolvable from the repo root.
   "models/us_cfpb_hmda/code",
-  # Same policy: world_aiddata_gcdf ETL is standalone `.py` (architecture/,
-  # clean.py, gen_dbt.py, upload.py use importlib.util.spec_from_file_location
-  # with cwd-relative paths), unresolvable from the repo root.
   "models/world_aiddata_gcdf/code",
-  # Same policy: us_fed_fred ETL is standalone `.py` (download_clean.py, upload.py
-  # run via uv run; the pure transform is relocated to pipelines/datasets at the
-  # pipeline step), so imports are unresolvable from the repo root.
   "models/us_fed_fred/code",
-  # Same policy: br_cgu_sancoes ETL is standalone `.py` (clean.py, upload.py run
-  # via uv run) — one-shot onboarding code outside the typed `pipelines/`
-  # framework, consistent with the model-ETL-not-type-checked policy.
   "models/br_cgu_sancoes/code",
+  "models/au_geoscape_gnaf/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
