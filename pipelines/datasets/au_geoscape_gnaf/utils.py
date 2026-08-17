@@ -377,6 +377,11 @@ def build_address_detail(
         The cleaned per-state address frame (all string columns).
     """
     ad = read_psv(zf, f"{std}/{state}_ADDRESS_DETAIL_psv.psv")
+    print(
+        f"[gnaf/{state}] read address_detail rows={len(ad)} "
+        f"dtypes={set(str(t) for t in ad.dtypes)} RSS={_rss_gb():.1f}GB",
+        flush=True,
+    )
     ad = ad.rename(
         columns={
             "FLAT_TYPE_CODE": "flat_type",
@@ -414,6 +419,11 @@ def build_address_detail(
     ad = ad.merge(g, on="address_detail_pid", how="left")
     del g
     _free()
+    print(
+        f"[gnaf/{state}] merged geocode "
+        f"dtypes={set(str(t) for t in ad.dtypes)} RSS={_rss_gb():.1f}GB",
+        flush=True,
+    )
 
     # mesh blocks 2016 / 2021 -> id_mb_2016 / id_mb_2021 (bridge -> MB code table)
     for yr in ("2016", "2021"):
@@ -443,6 +453,10 @@ def build_address_detail(
         ad = ad.merge(br, on="address_detail_pid", how="left")
         del br, mb
         _free()
+        print(
+            f"[gnaf/{state}] merged mesh_block_{yr} RSS={_rss_gb():.1f}GB",
+            flush=True,
+        )
 
     ad["snapshot_date"] = snapshot
     ad["year"] = str(dt.date.fromisoformat(snapshot).year)
@@ -707,8 +721,9 @@ def clean_all(
 
     # print() (not log.info) so Prefect's log_prints captures it on the worker.
     print(
-        f"[gnaf] clean_all start (arrow read + column-wise writer); "
-        f"stringify={stringify} states={states} RSS={_rss_gb():.1f}GB",
+        f"[gnaf] clean_all start; pandas={pd.__version__} "
+        f"pyarrow={pa.__version__} stringify={stringify} states={states} "
+        f"RSS={_rss_gb():.1f}GB",
         flush=True,
     )
     with zipfile.ZipFile(zip_path) as zf:
