@@ -1,0 +1,16 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+snapshot_date,DATE,"Data do snapshot (release) trimestral do G-NAF, correspondente ao primeiro dia do mês de publicação",,no,br_bd_diretorios_data_tempo.data:data,,no,Coluna sintetizada: data de referência do release usada para empilhar o histórico e particionar a tabela,
+year,INT64,Ano do snapshot do G-NAF,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna sintetizada: ano derivado de snapshot_date,
+id_state,STRING,Código do estado ou território australiano (1 a 9),,no,br_bd_diretorios_au.state:id_state,,no,"Derivado do arquivo por estado/território (ACT, NSW, NT, OT, QLD, SA, TAS, VIC, WA)",
+street_locality_pid,STRING,Identificador persistente único da rua/localidade no mundo real representado por este registro,,no,,,no,,STREET_LOCALITY_PID
+date_created,DATE,Data de criação deste registro,,no,br_bd_diretorios_data_tempo.data:data,,no,,DATE_CREATED
+date_retired,DATE,Data de aposentadoria (retirada) deste registro,,no,br_bd_diretorios_data_tempo.data:data,,no,,DATE_RETIRED
+street_name,STRING,Nome da rua,,no,,,no,,STREET_NAME
+street_type,STRING,Código do tipo de rua,,yes,,,no,,STREET_TYPE_CODE
+street_suffix,STRING,Código do sufixo da rua,,yes,,,no,,STREET_SUFFIX_CODE
+street_class,STRING,Código que define se a rua é confirmada ou não confirmada,,yes,,,no,,STREET_CLASS_CODE
+locality_pid,STRING,Identificador persistente da localidade,,no,,,no,Chave estrangeira para a tabela locality,LOCALITY_PID
+gnaf_street_pid,STRING,Identificador interno usado na gestão do G-NAF,,no,,,no,,GNAF_STREET_PID
+gnaf_reliability,STRING,Código de confiabilidade: precisão espacial do geocódigo expressa como número de 1 a 6,,yes,,,no,,GNAF_RELIABILITY_CODE
+longitude,FLOAT64,Longitude do ponto da rua/localidade (datum GDA94 ou GDA2020),,no,,degree,no,Extraído de STREET_LOCALITY_POINT,LONGITUDE
+latitude,FLOAT64,Latitude do ponto da rua/localidade (datum GDA94 ou GDA2020),,no,,degree,no,Extraído de STREET_LOCALITY_POINT,LATITUDE
