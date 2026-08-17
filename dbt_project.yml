@@ -52,6 +52,9 @@ models:
     au_ato_abr:
       +materialized: table
       +schema: au_ato_abr
+    au_geoscape_gnaf:
+      +materialized: table
+      +schema: au_geoscape_gnaf
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
@@ -223,6 +226,9 @@ models:
     br_cgu_receitas_publicas:
       +materialized: table
       +schema: br_cgu_receitas_publicas
+    br_cgu_sancoes:
+      +materialized: table
+      +schema: br_cgu_sancoes
     br_cgu_servidores_executivo_federal:
       +materialized: table
       +schema: br_cgu_servidores_executivo_federal
@@ -514,6 +520,9 @@ models:
     test_dataset:
       +materialized: table
       +schema: test_dataset
+    us_bea:
+      +materialized: table
+      +schema: us_bea
     us_census_acs:
       +materialized: table
       +schema: us_census_acs
