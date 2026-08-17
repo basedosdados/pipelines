@@ -15,6 +15,7 @@ schema from a stringified header, so typed parquet is rejected — cast via arro
 (None-for-NaN), never ``astype(str)`` which would render NULL as ``"nan"``.
 """
 
+import ctypes
 import glob
 import os
 import tempfile
@@ -34,6 +35,29 @@ from pipelines.crawler.sfb_sicar.constants import architecture as arch
 
 WGS84 = "EPSG:4326"
 SIRGAS = "EPSG:4674"
+
+
+# ── glibc malloc tuning (Linux workers only; no-op on macOS/non-glibc) ────────
+# The clean churns through millions of tiny per-feature GEOS/shapely/WKT
+# allocations. On the deployed Linux worker, glibc opens ``8 x ncores`` malloc
+# arenas by default and each retains freed memory, so RSS balloons ~10x the
+# real working set — a dense Amazonas ``app`` chunk that peaks at ~3.6 GB on a
+# (non-glibc) macOS laptop OOMed the 32 GiB worker. The Docker image sets
+# MALLOC_ARENA_MAX in the environment (read by glibc before Python starts,
+# which is the reliable path), and the flow re-sets it via ``job_variables``;
+# this ``mallopt`` call and the per-chunk ``malloc_trim`` are the in-process
+# backstops for that same fix.
+try:
+    _LIBC = ctypes.CDLL("libc.so.6")
+    _LIBC.mallopt(-8, 2)  # M_ARENA_MAX = -8: cap arenas at 2
+except OSError:
+    _LIBC = None  # not glibc (macOS) — nothing to tune
+
+
+def _malloc_trim() -> None:
+    """Return freed heap memory to the OS after a chunk (glibc only)."""
+    if _LIBC is not None:
+        _LIBC.malloc_trim(0)
 
 
 # ── download ────────────────────────────────────────────────────────────────
@@ -455,4 +479,5 @@ def clean_theme_chunked(
                 file_idx += 1
                 rows += len(df)
                 del gdf, df
+                _malloc_trim()  # hand freed arenas back to the OS each chunk
     return rows, dropped

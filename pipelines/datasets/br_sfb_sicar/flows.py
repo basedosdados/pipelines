@@ -303,7 +303,14 @@ def br_sfb_sicar_flow(
 br_sfb_sicar_flow.deploy_schedules = [
     {"cron": "0 16 10,11,12,13,14,15 * *", "timezone": "America/Sao_Paulo"}
 ]
-# The APP clean holds millions of polygons through make_valid; give the worker
-# ample headroom.
+# The dense Amazonas APP clean churns millions of tiny per-feature GEOS/WKT
+# allocations. On the Linux worker, glibc's default 8*ncores malloc arenas each
+# retain freed memory and RSS balloons ~10x the real ~4 GB working set, OOMing
+# the pod — a failure that never reproduces on a (non-glibc) macOS laptop.
+# MALLOC_ARENA_MAX caps the arenas (read by glibc before Python starts, the
+# reliable path; utils.py also mallopt/malloc_trims as an in-process backstop).
 # pyrefly: ignore [missing-attribute]
-br_sfb_sicar_flow.job_variables = {"memory": "32Gi"}
+br_sfb_sicar_flow.job_variables = {
+    "memory": "32Gi",
+    "env": {"MALLOC_ARENA_MAX": "2", "MALLOC_TRIM_THRESHOLD_": "131072"},
+}
