@@ -1,0 +1,14 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano de referência,,no,,year,no,,TimePeriod,Reference year,Año de referencia
+quarter,INT64,Trimestre,,no,,quarter,no,Valores de 1 a 4; nulo para frequência não trimestral.,TimePeriod,Quarter,Trimestre
+month,INT64,Mês,,no,,month,no,Valores de 1 a 12; nulo para frequência não mensal.,TimePeriod,Month,Mes
+frequency,STRING,Frequência da série,,yes,,,no,"A (anual/annual), Q (trimestral/quarterly), M (mensal/monthly).",Frequency,Series frequency,Frecuencia de la serie
+table_id,STRING,Identificador da tabela BEA,,yes,,,no,"Por exemplo, T10105.",TableName,BEA table identifier,Identificador de la tabla BEA
+line_number,STRING,Número de ordem da linha dentro da tabela,,no,,,no,,LineNumber,Ordinal line number within the table,Número de orden de la línea dentro de la tabla
+series_id,STRING,Código único da série NIPA,,no,,,no,"Por exemplo, A191RC.",SeriesCode,Unique NIPA series code,Código único de serie NIPA
+line_description,STRING,Descrição da linha da tabela,,no,,,no,,LineDescription,Description of the table line,Descripción de la línea de la tabla
+metric_name,STRING,Tipo de métrica,,no,,,no,"Por exemplo, dólares correntes, dólares encadeados, índice.",METRIC_NAME,Metric type,Tipo de métrica
+unit,STRING,Unidade de medida da série,,no,,,no,Rótulo BEA CL_UNIT.,CL_UNIT,Unit of measure of the series,Unidad de medida de la serie
+unit_mult,STRING,Multiplicador de base 10 aplicado ao valor,,no,,,no,"Expoente; por exemplo, 6 = milhões, 9 = bilhões.",UNIT_MULT,Base-10 multiplier applied to the value,Multiplicador de base 10 aplicado al valor
+value,FLOAT64,Valor observado,,no,,,no,"Na unidade indicada em unit e unit_mult; a unidade varia por linha (dólares correntes, dólares encadeados, índice, porcentagem), por isso measurement_unit fica em branco.",DataValue,Observed value,Valor observado
+note_ref,STRING,Referência de nota de rodapé da BEA para a observação,,no,,,no,,NoteRef,BEA footnote reference for the observation,Referencia de nota al pie de la BEA para la observación
