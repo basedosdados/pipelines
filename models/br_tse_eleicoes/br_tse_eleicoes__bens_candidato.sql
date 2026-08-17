@@ -26,4 +26,3 @@ from
     {{ set_datalake_project("br_tse_eleicoes_staging.bens_candidato") }} as t
 
     -- Rematerialized from the refactored pipeline (PR #1476).
-    
