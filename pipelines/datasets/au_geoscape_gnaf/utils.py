@@ -187,6 +187,12 @@ def read_psv(
 ) -> pd.DataFrame:
     """Read a pipe-separated member of the zip as all-string columns.
 
+    Uses the Arrow-backed ``string`` dtype rather than object strings: NSW alone
+    is ~5.6M addresses across ~40 columns, and object strings (a Python object
+    per cell) blow past the 16 Gi worker — the Arrow buffer representation is
+    ~4x smaller and keeps the per-state clean within budget. Empty cells stay
+    ``""`` (``na_filter=False``); the writer maps them to NULL.
+
     Args:
         zf: Open G-NAF release zip.
         path: Member path of the ``.psv`` file to read.
@@ -199,7 +205,7 @@ def read_psv(
         return pd.read_csv(
             io.TextIOWrapper(fh, "utf-8"),
             sep="|",
-            dtype=str,
+            dtype="string[pyarrow]",
             na_filter=False,
             usecols=usecols,
         )
@@ -659,7 +665,7 @@ def clean_all(
         pid_of = {}
         for s in constants.ALL_STATES.value:
             srow = read_psv(zf, f"{std}/{s}_STATE_psv.psv")
-            pid_of[s] = srow.iloc[0]["STATE_PID"]
+            pid_of[s] = str(srow.iloc[0]["STATE_PID"])
         log.info("state->pid: %s", pid_of)
         for state in states:
             pid = pid_of[state]
