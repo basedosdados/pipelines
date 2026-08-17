@@ -105,6 +105,7 @@ class PartitionWriter:
         self.n = 0
         self.file_idx = 0
         self.part_dirs: set[Path] = set()
+        self._ed: date | None = None
 
     def _part_dir(self, extraction_date: date) -> Path:
         d = (
@@ -127,6 +128,12 @@ class PartitionWriter:
         return d
 
     def add(self, extraction_date: date, row: dict):
+        # Flush before switching partitions so buffered rows are never written
+        # under a later member's extraction_date (the two ZIPs can carry
+        # different ExtractTimes, and dgr/other_name buffer far fewer than CHUNK
+        # rows per member).
+        if self._ed is not None and extraction_date != self._ed:
+            self.flush()
         self._ed = extraction_date
         for c in self.cols:
             self.buf[c].append(row.get(c))
@@ -207,7 +214,13 @@ def download_zips(input_dir: Path) -> Path:
 
 
 def _parse_extract_date(stream) -> date | None:
-    ctx = etree.iterparse(stream, events=("end",), tag="ExtractTime")
+    ctx = etree.iterparse(
+        stream,
+        events=("end",),
+        tag="ExtractTime",
+        resolve_entities=False,
+        no_network=True,
+    )
     for _, el in ctx:
         txt = (el.text or "").strip()  # e.g. 2026-08-12T12:26:57
         return date.fromisoformat(txt[:10])
@@ -221,7 +234,13 @@ def _process_member(zf, member, writers, entity_types, asic_types, counts):
     if extraction_date is None:
         raise RuntimeError(f"No ExtractTime in {member}")
     with zf.open(member) as f:
-        ctx = etree.iterparse(f, events=("end",), tag="ABR")
+        ctx = etree.iterparse(
+            f,
+            events=("end",),
+            tag="ABR",
+            resolve_entities=False,
+            no_network=True,
+        )
         for _, abr in ctx:
             abn_el = abr.find("ABN")
             abn = clean_text(abn_el.text) if abn_el is not None else None
