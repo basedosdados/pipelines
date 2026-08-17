@@ -238,6 +238,10 @@ project-excludes = [
   # sys.path-relative), unresolvable from the repo root. The pure transform is
   # relocated to pipelines/crawler/sfb_sicar/utils.py at the pipeline step.
   "models/br_sfb_sicar/code",
+  # Same policy: br_cgu_sancoes ETL is standalone `.py` (clean.py, upload.py run
+  # via uv run) — one-shot onboarding code outside the typed `pipelines/`
+  # framework, consistent with the model-ETL-not-type-checked policy.
+  "models/br_cgu_sancoes/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
