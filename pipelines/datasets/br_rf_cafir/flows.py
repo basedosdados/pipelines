@@ -12,10 +12,11 @@ from pipelines.datasets.br_rf_cafir.constants import (
 from pipelines.datasets.br_rf_cafir.tasks import (
     build_paths,
     decide_files_to_download,
-    download_files,
+    download_file,
+    extract_file_records,
     get_api_metadata,
     get_last_reference_date,
-    process_files,
+    process_file,
 )
 from pipelines.utils.metadata.domain import (
     DateFormat,
@@ -32,6 +33,7 @@ from pipelines.utils.tasks import (
     run_dbt,
     upload_to_gcs,
 )
+from pipelines.utils.utils import log
 
 
 @flow(
@@ -92,18 +94,43 @@ def br_rf_cafir__imoveis_rurais(
         df_metadata=df_metadata, reference_date=reference_date
     )
 
-    # pyrefly: ignore [no-matching-overload]
-    download_files(
-        url=br_rf_cafir_constants.URL.value,
-        input_folder=input_folder,
-        df_metadata=filtered_df,
+    # Extrai os registros (file_name, reference_date: cada task de
+    # download/processamento paralela recebe apenas o seu próprio registro
+    file_records = extract_file_records(df_metadata=filtered_df)
+
+    log(
+        f"------ Os seguintes arquivos foram selecionados para download: "
+        f"{[r['nome_arquivo'] for r in file_records]}"
     )
 
-    output_path = process_files(
-        input_folder=input_folder,
-        output_folder=output_folder,
-        df_metadata=filtered_df,
-    )
+    # Download por arquivo em paralelo.
+    download_futures = {
+        record["nome_arquivo"]: download_file.submit(
+            file_name=record["nome_arquivo"],
+            url=br_rf_cafir_constants.URL.value,
+            input_folder=input_folder,
+        )
+        for record in file_records
+    }
+
+    # Processamento roda em paralelo, mas só começa depois do seu
+    # próprio download (wait_for).
+    process_futures = [
+        # pyrefly: ignore [no-matching-overload]
+        process_file.submit(
+            file_name=record["nome_arquivo"],
+            reference_date=record["data_referencia"],
+            input_folder=input_folder,
+            output_folder=output_folder,
+            wait_for=[download_futures[record["nome_arquivo"]]],
+        )
+        for record in file_records
+    ]
+
+    for future in process_futures:
+        future.result()
+
+    output_path = output_folder / "imoveis_rurais"
 
     upload_to_gcs(
         data_path=output_path,
