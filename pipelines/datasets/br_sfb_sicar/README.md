@@ -82,3 +82,43 @@ extra não corrompe a tabela; só custa o download inteiro e cria uma partição
 `download_car` tem `retries=3` no Prefect e `max_retries=8` internamente, para timeout de
 leitura. UFs grandes (MG, BA, RS) frequentemente consomem essas tentativas. O run completo
 das 27 UFs leva por volta de uma hora e meia.
+
+### 4. O projeto da staging vem do pod, não do `bucket_name`
+
+O primeiro `upload_to_gcs` do flow recebe `bucket_name="basedosdados-dev"`, mas o projeto
+BigQuery da staging não sai daí: a lib `basedosdados` o resolve pelo `config.toml` do pod,
+em `gcloud-projects.staging.name` — `basedosdados-dev` no worker de dev,
+`basedosdados-staging` no de prod. Rodar o flow no pool de prod faz o upload conferir e
+alterar a tabela de `basedosdados-staging` enquanto escreve no bucket de dev. Run de
+verificação tem que sair do pool `basedosdados-dev`.
+
+### 5. A fonte traz colunas que a tabela externa não declara
+
+O SICAR passou a publicar `dat_criaca` e `dat_atuali` entre dez/2024 e mai/2025. A tabela
+externa `basedosdados-staging.br_sfb_sicar_staging.area_imovel` foi criada em out/2024 e
+declara as onze colunas anteriores, mais `data_atualizacao_car` e as duas de partição.
+Como uma tabela externa lê apenas o que está declarado, as duas colunas novas são
+ignoradas, e o modelo não as usa — a divergência não afetou nenhum run até 07/2026, quando
+o `_sync_staging_schema` passou a comparar os dois schemas e a tentar acrescentar ao
+BigQuery o que falta.
+
+Hoje a sincronização só considera as colunas que o `.sql` do modelo menciona, então as
+duas seguem ignoradas e o upload não altera a tabela. Onboardar qualquer uma delas —
+acrescentá-la ao modelo — passa a exigir o PATCH, que hoje falha (ver Pendências).
+
+---
+
+## Pendências
+
+- **O PATCH do schema da staging falha com 403.** `_sync_staging_schema`
+  (`pipelines/utils/tasks.py`) abre `bigquery.Client(project=...)` sem credencial e cai no
+  ADC do pod, que só lê; o `get_table` passa e o `update_table` estoura com
+  `bigquery.tables.update denied`. O cliente autenticado está em
+  `tb.client["bigquery_staging"]`, no objeto que a função já recebe. Com o filtro por
+  referência do modelo, este conjunto não chega mais ao PATCH; o defeito continua no
+  caminho de quem onboardar uma coluna nova, aqui ou em qualquer outro conjunto.
+- **Não há staging em dev.** Nem o dataset `br_sfb_sicar_staging` em `basedosdados-dev`,
+  nem o prefixo `gs://basedosdados-dev/staging/br_sfb_sicar/`. O próximo run no pool de dev
+  os cria pelo ramo `tb.create` do `upload_to_gcs`.
+- **A tabela de prod está parada em `data_extracao=2025-10-15`**, o último run
+  bem-sucedido, anterior à migração para o Prefect 3.

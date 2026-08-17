@@ -72,6 +72,36 @@ def _bq_safe_column_name(name: str) -> str:
     return re.sub(r"[^0-9a-zA-Z_]", "_", name)
 
 
+def _model_sql(dataset_id: str, table_id: str) -> str | None:
+    """Lê o SQL do modelo dbt de uma tabela.
+
+    O nome do arquivo depende do `dbt_alias` do flow, que esta função não
+    recebe: tenta as duas grafias, na mesma ordem que `run_dbt`.
+
+    Args:
+        dataset_id: id do conjunto, que nomeia o diretório em `models/`.
+        table_id: id da tabela.
+
+    Returns:
+        O conteúdo do `.sql`, ou `None` quando não há arquivo — conjuntos cujo
+        modelo vive fora dessa convenção.
+    """
+    models_folder = Path("models") / dataset_id
+    for name in (f"{dataset_id}__{table_id}.sql", f"{table_id}.sql"):
+        path = models_folder / name
+        if path.exists():
+            return path.read_text(encoding="utf-8")
+    return None
+
+
+def _referenced_in_model(column: str, model_sql: str) -> bool:
+    """Diz se o modelo menciona a coluna, ignorando caixa."""
+    return (
+        re.search(rf"\b{re.escape(column)}\b", model_sql, re.IGNORECASE)
+        is not None
+    )
+
+
 def _sync_staging_schema(
     tb: bd.Table,
     data_path: str | Path,
@@ -99,6 +129,14 @@ def _sync_staging_schema(
     coluna nova em toda execução. A coluna acrescentada também leva o nome
     normalizado — o cru pode não ser um identificador válido.
 
+    Só entram as colunas que o `.sql` do modelo menciona. Uma coluna nova que
+    nenhum modelo lê não quebra o dbt — a tabela externa simplesmente a ignora,
+    como ignorou `dat_criaca` e `dat_atuali` em `br_sfb_sicar` por meses — e
+    alterar a definição da tabela por causa dela faria uma mudança inócua da
+    fonte derrubar o flow depois do download inteiro. Quando alguém onboarda a
+    coluna no modelo, o upload do mesmo run já a sincroniza, porque roda antes
+    do `run_dbt`. Sem arquivo de modelo, sincroniza tudo.
+
     Args:
         tb: tabela `basedosdados` já instanciada, apontando para a staging.
         data_path: arquivo ou diretório com os dados que serão carregados.
@@ -122,6 +160,22 @@ def _sync_staging_schema(
         for field in incoming
         if _bq_safe_column_name(field.name) not in current
     ]
+
+    model_sql = _model_sql(tb.dataset_id, tb.table_id)
+    if model_sql is not None:
+        ignored = [
+            field.name
+            for field in new_fields
+            if not _referenced_in_model(field.name, model_sql)
+        ]
+        if ignored:
+            new_fields = [
+                field for field in new_fields if field.name not in ignored
+            ]
+            print(
+                "Colunas novas na fonte que o modelo não lê, ignoradas: "
+                + ", ".join(ignored)
+            )
 
     if not new_fields:
         return
