@@ -426,8 +426,17 @@ def build_address_detail(
         for c in ad.columns
     ]
 
+    # The folds below use column-wise `.map()` rather than `pd.merge`. A left
+    # merge copies the whole ~34-column `ad` frame on every fold; on the Linux
+    # worker those transients (plus the allocator overhead, see
+    # `_tune_container_memory`) push RSS past the hard 16Gi limit at ~5.2M rows.
+    # `.map()` adds one column at a time against a pid-indexed lookup, so the
+    # peak stays near the live set (macOS merged fine, which is why it only bit
+    # on the worker). Keys are unique — `active()` already dedups each.
+    key = ad["address_detail_pid"]
+
     # default geocode -> geocode_type, longitude, latitude
-    g = active(
+    gi = active(
         read_psv(
             zf,
             f"{std}/{state}_ADDRESS_DEFAULT_GEOCODE_psv.psv",
@@ -440,19 +449,14 @@ def build_address_detail(
             ],
         ),
         "ADDRESS_DETAIL_PID",
-    ).rename(
-        columns={
-            "ADDRESS_DETAIL_PID": "address_detail_pid",
-            "GEOCODE_TYPE_CODE": "geocode_type",
-            "LONGITUDE": "longitude",
-            "LATITUDE": "latitude",
-        }
-    )[["address_detail_pid", "geocode_type", "longitude", "latitude"]]
-    ad = ad.merge(g, on="address_detail_pid", how="left")
-    del g
+    ).set_index("ADDRESS_DETAIL_PID")
+    ad["geocode_type"] = key.map(gi["GEOCODE_TYPE_CODE"])
+    ad["longitude"] = key.map(gi["LONGITUDE"])
+    ad["latitude"] = key.map(gi["LATITUDE"])
+    del gi
     _free()
     print(
-        f"[gnaf/{state}] merged geocode "
+        f"[gnaf/{state}] folded geocode "
         f"dtypes={set(str(t) for t in ad.dtypes)} RSS={_rss_gb():.1f}GB",
         flush=True,
     )
@@ -467,26 +471,23 @@ def build_address_detail(
             ),
             "ADDRESS_DETAIL_PID",
         )
-        mb = active(
+        mbi = active(
             read_psv(
                 zf,
                 f"{std}/{state}_MB_{yr}_psv.psv",
                 usecols=[f"MB_{yr}_PID", "DATE_RETIRED", f"MB_{yr}_CODE"],
             ),
             f"MB_{yr}_PID",
-        )[[f"MB_{yr}_PID", f"MB_{yr}_CODE"]]
-        br = br.merge(mb, on=f"MB_{yr}_PID", how="left")
-        br = br.rename(
-            columns={
-                "ADDRESS_DETAIL_PID": "address_detail_pid",
-                f"MB_{yr}_CODE": f"id_mb_{yr}",
-            }
-        )[["address_detail_pid", f"id_mb_{yr}"]]
-        ad = ad.merge(br, on="address_detail_pid", how="left")
-        del br, mb
+        ).set_index(f"MB_{yr}_PID")
+        # bridge: address_detail_pid -> MB code (map the code onto the bridge,
+        # then map the bridge onto ad — both single-column maps).
+        br[f"id_mb_{yr}"] = br[f"MB_{yr}_PID"].map(mbi[f"MB_{yr}_CODE"])
+        bri = br.set_index("ADDRESS_DETAIL_PID")[f"id_mb_{yr}"]
+        ad[f"id_mb_{yr}"] = key.map(bri)
+        del br, mbi, bri
         _free()
         print(
-            f"[gnaf/{state}] merged mesh_block_{yr} RSS={_rss_gb():.1f}GB",
+            f"[gnaf/{state}] folded mesh_block_{yr} RSS={_rss_gb():.1f}GB",
             flush=True,
         )
 
