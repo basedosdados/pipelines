@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import csv
 import datetime as dt
+import gc
 import io
 import logging
 import re
@@ -54,6 +55,29 @@ def _rss_gb() -> float:
     """Return peak process RSS in GB (``ru_maxrss`` is bytes on macOS, KB on Linux)."""
     r = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     return r / 1024**3 if sys.platform == "darwin" else r / 1024**2
+
+
+def _free() -> None:
+    """Return freed memory to the OS between the big per-state allocations.
+
+    The clean folds several ~5M-row frames per state via successive merges. On
+    Linux the pyarrow pool (jemalloc) retains freed buffers for reuse, so the
+    intermediates accumulate as RSS across the merges and the worker OOMs at its
+    hard 16Gi limit — even though the live set is ~2GB (macOS releases eagerly,
+    which is why it never reproduced locally). Dropping Python refs, purging the
+    Arrow pool, and trimming glibc arenas after each merge/state keeps RSS near
+    the live set.
+    """
+    gc.collect()
+    pa.default_memory_pool().release_unused()
+    if sys.platform.startswith("linux"):
+        # Return glibc malloc arenas (numpy/pandas side) to the OS too.
+        try:
+            import ctypes
+
+            ctypes.CDLL("libc.so.6").malloc_trim(0)
+        except (OSError, AttributeError):
+            pass
 
 
 PA_TYPE = {
@@ -388,6 +412,8 @@ def build_address_detail(
         }
     )[["address_detail_pid", "geocode_type", "longitude", "latitude"]]
     ad = ad.merge(g, on="address_detail_pid", how="left")
+    del g
+    _free()
 
     # mesh blocks 2016 / 2021 -> id_mb_2016 / id_mb_2021 (bridge -> MB code table)
     for yr in ("2016", "2021"):
@@ -415,6 +441,8 @@ def build_address_detail(
             }
         )[["address_detail_pid", f"id_mb_{yr}"]]
         ad = ad.merge(br, on="address_detail_pid", how="left")
+        del br, mb
+        _free()
 
     ad["snapshot_date"] = snapshot
     ad["year"] = str(dt.date.fromisoformat(snapshot).year)
@@ -699,6 +727,7 @@ def clean_all(
                 )
                 totals[t] += n
                 del df
+                _free()
             print(
                 f"[gnaf] cleaned {state} (id_state={pid}) "
                 f"RSS={_rss_gb():.1f}GB",
