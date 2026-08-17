@@ -318,22 +318,59 @@ def write_table_partitioned(
     return root
 
 
+def _adaptive_chunk_size(
+    shp: str,
+    budget_bytes: int,
+    cap: int,
+    floor: int = 200,
+    probe: int = 256,
+) -> tuple[int, int]:
+    """Return ``(n_features, chunk)``, sizing chunks by geometry bytes not count.
+
+    Feature-count chunking OOMs on vertex-dense themes: ``app`` (APP strips follow
+    every watercourse) in Amazonas carries orders of magnitude more vertices per
+    feature than an ``area_imovel`` property boundary, so a fixed 50k-feature
+    chunk that is a few GB for one table is tens of GB for the other. Probe the
+    first ``probe`` features, measure WKB bytes per feature, and pick the largest
+    chunk whose raw geometry stays under ``budget_bytes`` — peak is a few times
+    that after the reproject copy, ``make_valid``, and WKT expansion, so a 512 MB
+    budget keeps the worker well under 32 GiB regardless of theme or state.
+    """
+    n = int(pyogrio.read_info(shp)["features"])
+    if n == 0:
+        return 0, cap
+    probe_n = min(probe, n)
+    g = gpd.GeoDataFrame(
+        pyogrio.read_dataframe(shp, max_features=probe_n)
+    ).geometry
+    total = int(g.to_wkb().map(lambda b: len(b) if b else 0).sum())
+    per = max(total / probe_n, 1.0)
+    chunk = max(floor, min(cap, int(budget_bytes / per)))
+    print(
+        f"  {os.path.basename(shp)}: {n} feats, "
+        f"~{per / 1024:.1f}KB/feat -> chunk={chunk}"
+    )
+    return n, chunk
+
+
 def clean_theme_chunked(
     zip_path: str,
     out_root: str,
     table: str,
     snapshot_iso: str,
     sigla_uf: str,
-    chunk_size: int = 50000,
+    chunk_size: int | None = None,
+    budget_bytes: int = 512 * 1024 * 1024,
 ) -> tuple[int, int]:
-    """Stream-clean a theme zip in feature chunks (bounded memory).
+    """Stream-clean a theme zip in geometry-bounded chunks (bounded memory).
 
-    Reading a whole state's shapefile at once OOMs the worker — a big UF's
-    ``area_imovel`` (let alone ``app`` with tens of millions of polygons) far
-    exceeds even 32 GiB once geopandas + ``make_valid`` + WKT expand it. This
-    reads each ``.shp`` part ``chunk_size`` features at a time (pyogrio seeks via
-    the ``.shx`` index, so paging is cheap), cleans the chunk, and writes it as a
-    parquet part directly into the hive partition
+    Reading a whole state's shapefile at once OOMs the worker, and so does a
+    fixed 50k-*feature* chunk on vertex-dense themes — Amazonas ``app`` blew past
+    32 GiB because peak memory tracks total vertices, not row count. This sizes
+    each chunk by geometry bytes (see :func:`_adaptive_chunk_size`): it reads each
+    ``.shp`` part ``chunk`` features at a time (pyogrio seeks via the ``.shx``
+    index, so paging is cheap), cleans the chunk, and writes it as a parquet part
+    directly into the hive partition
     ``<out_root>/<table>/data=<snapshot>/sigla_uf=<uf>/`` — the same layout
     :func:`write_table_partitioned` produces, so ``upload_to_gcs`` reads the
     partition keys from the path and the file payload stays all-STRING.
@@ -344,7 +381,9 @@ def clean_theme_chunked(
         table: Output table slug.
         snapshot_iso: Per-UF release date, ``'YYYY-MM-DD'`` (the ``data`` key).
         sigla_uf: UF code (the ``sigla_uf`` key).
-        chunk_size: Features per chunk; caps peak memory.
+        chunk_size: Hard cap on features per chunk (adaptive sizing may go
+            smaller); ``None`` uses 50000.
+        budget_bytes: Raw-geometry byte budget per chunk driving adaptive sizing.
 
     Returns:
         A ``(rows_written, dropped_foreign_uf)`` tuple.
@@ -352,6 +391,7 @@ def clean_theme_chunked(
     Raises:
         FileNotFoundError: If the zip contains no ``.shp``.
     """
+    cap = chunk_size or 50000
     part_dir = os.path.join(
         out_root, table, f"data={snapshot_iso}", f"sigla_uf={sigla_uf}"
     )
@@ -366,11 +406,13 @@ def clean_theme_chunked(
         if not parts:
             raise FileNotFoundError(f"no .shp in {zip_path}")
         for shp in parts:
-            n_feats = int(pyogrio.read_info(shp)["features"])
-            for start in range(0, max(n_feats, 1), chunk_size):
+            n_feats, chunk = _adaptive_chunk_size(
+                shp, budget_bytes=budget_bytes, cap=cap
+            )
+            for start in range(0, max(n_feats, 1), chunk):
                 gdf = gpd.GeoDataFrame(
                     pyogrio.read_dataframe(
-                        shp, skip_features=start, max_features=chunk_size
+                        shp, skip_features=start, max_features=chunk
                     )
                 )
                 if len(gdf) == 0:

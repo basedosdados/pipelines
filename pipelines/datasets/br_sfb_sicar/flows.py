@@ -144,6 +144,9 @@ def br_sfb_sicar_flow(
     materialize_to_prod: bool = True,
     update_metadata: bool = True,
     force_run: bool = False,
+    only_themes: str = "",
+    only_ufs: str = "",
+    clean_only: bool = False,
 ) -> None:
     """Refresh all nine SICAR theme tables (snapshot-stacked, append).
 
@@ -160,7 +163,21 @@ def br_sfb_sicar_flow(
             coverage and commit the source update. No effect when
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new snapshot.
+        only_themes: Comma-separated table slugs to restrict the run to (empty =
+            all nine). Scopes cleaning, upload, dbt, and metadata alike.
+        only_ufs: Comma-separated UF codes to restrict the run to (empty = all
+            27). Useful to re-run a single failed state.
+        clean_only: Stop after the download/clean phase without uploading — a
+            memory smoke test for the vertex-dense themes (e.g. Amazonas ``app``)
+            that touches neither dev nor prod.
     """
+    themes = [
+        t
+        for t in THEME_TABLES
+        if not only_themes or t in only_themes.split(",")
+    ]
+    ufs = [u for u in UF_SIGLAS if not only_ufs or u in only_ufs.split(",")]
+
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=ANCHOR_TABLE
@@ -199,9 +216,9 @@ def br_sfb_sicar_flow(
     try:
         # Build all output. One UF x theme at a time: download → clean → delete
         # the zip, so peak disk stays near a single archive (APP is huge).
-        for table in THEME_TABLES:
+        for table in themes:
             polygon = TABLE_TO_POLYGON[table]
-            for sigla_uf in UF_SIGLAS:
+            for sigla_uf in ufs:
                 snapshot_iso = release_iso.get(sigla_uf)
                 if not snapshot_iso:
                     print(f"no release date for {sigla_uf}; skipping")
@@ -221,8 +238,12 @@ def br_sfb_sicar_flow(
                     sigla_uf=sigla_uf,
                 )
 
+        if clean_only:
+            print("clean_only: cleaned without uploading; returning")
+            return
+
         # Dev: upload staging + materialize/test.
-        for table in THEME_TABLES:
+        for table in themes:
             upload_to_gcs(
                 data_path=f"{output_dir}/{table}",
                 dataset_id=DATASET_ID,
@@ -243,7 +264,7 @@ def br_sfb_sicar_flow(
             return
 
         # Prod: upload staging + materialize/test.
-        for table in THEME_TABLES:
+        for table in themes:
             upload_to_gcs(
                 data_path=f"{output_dir}/{table}",
                 dataset_id=DATASET_ID,
@@ -261,7 +282,7 @@ def br_sfb_sicar_flow(
             )
 
         if update_metadata:
-            for table in THEME_TABLES:
+            for table in themes:
                 min_data, max_data = _bq_min_max_data(table, "basedosdados")
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
