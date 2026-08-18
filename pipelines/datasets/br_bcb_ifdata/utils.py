@@ -27,22 +27,36 @@ BASE = "https://www3.bcb.gov.br/ifdata/rest"
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; basedosdados/1.0)"}
 INDEXES = ("relatorios2000a2024", "relatorios2025a2030")
 
-# tipos de consolidado expostos pelo IF.data (arquivo sel<p>.json)
-TIPOS_INSTITUICAO = {
-    "1005": "Conglomerados Financeiros e Instituições Independentes",
-    "1006": "Instituições Individuais",
-    "1009": "Conglomerados Prudenciais e Instituições Independentes",
-}
+# O conjunto de tipos de consolidado **muda ao longo do tempo** — não são
+# fixos. Ao longo das 105 competências aparecem seis:
+#
+#   1004  Conglomerados Prudenciais e Instituições Independentes  201403..202306
+#   1005  Conglomerados Financeiros e Instituições Independentes  200003..202603
+#   1006  Instituições Individuais                                200003..202603
+#   1007  Instituições com Operações de Câmbio                    201412..202306
+#   1008  (descontinuado)                                         201206..201403
+#   1009  Conglomerados Prudenciais e Instituições Independentes  202309..202603
+#
+# 1009 substitui 1004 a partir de 2023-09. Por isso os nomes são lidos do
+# índice por competência (`sel`), nunca de uma constante.
 
 
-def _get(url: str, *, tries: int = 4, timeout: int = 180) -> requests.Response:
-    """GET com retry exponencial — o www3 do BCB é intermitente."""
+def _get_json(url: str, *, tries: int = 5, timeout: int = 180) -> Any:
+    """GET + parse do JSON, com retry exponencial.
+
+    O www3 do BCB falha de forma **silenciosa**: em vez de um 5xx devolve
+    `HTTP 200` com o corpo `Erro interno - Internal error`, então
+    `raise_for_status` passa e só o parse quebra. Numa varredura das 105
+    competências isso aconteceu em 2 dos 315 arquivos de cadastro, e os dois
+    baixaram normalmente na tentativa seguinte — é intermitente, não
+    permanente. Por isso o retry precisa olhar o corpo, não só o status.
+    """
     last: Exception | None = None
     for attempt in range(tries):
         try:
             r = requests.get(url, headers=HEADERS, timeout=timeout)
             r.raise_for_status()
-            return r
+            return r.json()
         except Exception as exc:
             last = exc
             time.sleep(2**attempt)
@@ -53,7 +67,7 @@ def fetch_index() -> list[dict[str, Any]]:
     """Índice de competências (trimestral). Junta as duas faixas publicadas."""
     periods: list[dict[str, Any]] = []
     for name in INDEXES:
-        periods.extend(_get(f"{BASE}/{name}").json())
+        periods.extend(_get_json(f"{BASE}/{name}"))
     return sorted(periods, key=lambda p: p["dt"])
 
 
@@ -73,7 +87,7 @@ def fetch_file(path: str) -> Any:
     O caminho vem com barra dupla (`ifdata_2025_2030//202603/...`); isso é
     literal e exigido pelo endpoint.
     """
-    return _get(f"{BASE}/arquivos?nomeArquivo={path}").json()
+    return _get_json(f"{BASE}/arquivos?nomeArquivo={path}")
 
 
 def _files_by_kind(period_entry: dict[str, Any]) -> dict[str, list[str]]:
@@ -84,6 +98,19 @@ def _files_by_kind(period_entry: dict[str, Any]) -> dict[str, list[str]]:
             0
         ]  # cadastro/dados/trel/info/...
         out.setdefault(kind, []).append(f["f"])
+    return out
+
+
+def period_tipos(period_entry: dict[str, Any]) -> dict[str, dict[str, str]]:
+    """`{id_tipo: {"pt": nome, "en": nome}}` para uma competência.
+
+    Lido do bloco `sel` que o próprio índice já traz — não exige baixar o
+    `sel<p>.json`. O conjunto varia por competência (ver a nota no topo).
+    """
+    out: dict[str, dict[str, str]] = {}
+    for f in period_entry["files"]:
+        for s in f.get("sel") or []:
+            out[str(s["id"])] = {"pt": s["n"], "en": s.get("ni", "")}
     return out
 
 
@@ -115,7 +142,13 @@ ALIAS_MUNICIPIO: dict[tuple[str, str], str] = {
     ("RO", "NOVA BRASILANDIA"): "1100155",  # Nova Brasilândia D'Oeste
     ("RS", "ELDORADO"): "4306767",  # Eldorado do Sul
     ("TO", "PARAISO DO NORTE DO TOCANTINS"): "1716109",  # Paraíso do Tocantins
+    ("RN", "ACU"): "2400208",  # grafia antiga de Assú
 }
+
+# O DF tem um único município (Brasília). O IF.data às vezes informa a região
+# administrativa na cidade — `BRASILIA SAMAMBAIA`, `BRASILIA TAGUATINGA` —, que
+# não é município. Tudo no DF resolve para Brasília.
+ID_MUNICIPIO_DF = "5300108"
 
 
 def normalize_municipio(name: str) -> str:
@@ -150,7 +183,7 @@ def build_municipio_crosswalk() -> tuple[dict, dict]:
     """`(exato, sem_espacos)` — ambos `{(sigla_uf, nome): id_municipio}`."""
     exact: dict[tuple[str, str], str] = {}
     squashed: dict[tuple[str, str], str] = {}
-    for m in _get(IBGE_MUNICIPIOS).json():
+    for m in _get_json(IBGE_MUNICIPIOS):
         uf = _uf_of(m)
         if uf is None:
             continue
@@ -171,6 +204,8 @@ def resolve_id_municipio(
     não-resolvidos em vez de gravar nulo em silêncio.
     """
     uf = (uf or "").strip()
+    if uf == "DF":
+        return ID_MUNICIPIO_DF
     key = (uf, normalize_municipio(nome))
     if key in exact:
         return exact[key]
