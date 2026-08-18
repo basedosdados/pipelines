@@ -3,13 +3,24 @@ General purpose functions for the br_ms_cnes project
 """
 
 import datetime
+import os
 from pathlib import Path
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from requests.adapters import HTTPAdapter
 
+from pipelines.datasets.br_rf_cafir.constants import (
+    constants as br_rf_cafir_constants,
+)
 from pipelines.utils.utils import log
+
+# Sessão compartilhada entre downloads paralelos: pool por host, em vez de abrir uma conexão nova a cada arquivo.
+_session = requests.Session()
+_adapter = HTTPAdapter(pool_connections=10, pool_maxsize=10, max_retries=3)
+_session.mount("https://", _adapter)
+_session.mount("http://", _adapter)
 
 
 def strip_string(x: pd.DataFrame) -> pd.DataFrame:
@@ -88,7 +99,6 @@ def parse_api_metadata(response_text: str) -> pd.DataFrame:
     files_metadata = []
     for index, item in enumerate(items_urls):
         href = item.text
-        print(href)
         if href.endswith(".csv"):
             reference_date_str = href.split(".")[-3].replace("D", "202")
             reference_date = datetime.datetime.strptime(
@@ -119,29 +129,108 @@ def download_csv_files(url: str, file_name: str, input_folder: Path) -> None:
     """
     Faz o download de um arquivo CSV a partir de uma URL e salva em um diretório especificado.
 
+    Usa uma sessão HTTP compartilhada (pool de conexões) e streaming para não
+    carregar o arquivo inteiro na memória antes de gravar em disco.
+
     Args:
         url (str): A URL do arquivo CSV a ser baixado.
         file_name (str): O nome do arquivo a ser salvo.
         input_folder (Path): O diretório onde o arquivo será salvo.
-        headers (dict): Cabeçalhos HTTP a serem enviados com a requisição.
 
     Returns:
         None
+
+    Raises:
+        requests.exceptions.RequestException: Se o download falhar.
     """
     log(f"Downloading--------- {url}")
     file_path = input_folder / file_name
-    response = requests.get(url)
 
-    if response.status_code == 200:
+    with _session.get(
+        url,
+        headers=br_rf_cafir_constants.HEADERS.value,
+        stream=True,
+        timeout=60,
+    ) as response:
+        response.raise_for_status()
         with open(file_path, "wb") as f:
-            f.write(response.content)
-        log(f"Downloaded {file_name}")
-    else:
-        log(
-            f"Failed to download {file_name}. Status code: {response.status_code}"
-        )
+            for chunk in response.iter_content(chunk_size=1024 * 1024):
+                f.write(chunk)
+
+    log(f"Downloaded {file_name}")
 
 
 def preserve_zeros(x):
     """Preserva os zeros a esquerda de um número"""
     return x.strip()
+
+
+def process_csv_file(
+    file_path: Path,
+    reference_date: datetime.date,
+    output_folder: Path,
+) -> Path:
+    """
+    Lê, limpa e particiona um único arquivo csv de largura fixa da Receita
+    Federal (CAFIR). Usada tanto sequencialmente quanto em paralelo.
+
+    Args:
+        file_path (Path): Caminho do arquivo baixado a ser processado.
+        reference_date (date): Data de referência do arquivo.
+        output_folder (Path): Pasta raiz onde as partições serão salvas.
+
+    Returns:
+        Path: Caminho do arquivo csv processado e salvo.
+    """
+    file_name = file_path.name
+    log(f"Lendo arquivo: {file_name} de : {file_path}")
+
+    df = pd.read_fwf(
+        file_path,
+        widths=br_rf_cafir_constants.WIDTHS.value,
+        names=br_rf_cafir_constants.COLUMN_NAMES.value,
+        dtype=br_rf_cafir_constants.DTYPE.value,
+        converters={
+            col: preserve_zeros
+            for col in br_rf_cafir_constants.COLUMN_NAMES.value
+        },
+        encoding="ISO-8859-1",
+    )
+
+    # Remove ascii /x00 (zero) - pois dá erro na materialização no BQ
+    df = remove_ascii_zero_from_df(df)
+
+    # Tira os espacos em branco
+    # pyrefly: ignore [not-callable]
+    df = df.applymap(strip_string)
+
+    log(f"Salvando arquivo: {file_name}")
+
+    # NOTE: Com modificação do formato de divulgação do FTP os arquivos passaram a ser divulgados csvs particionados por UF
+    # A partir de 2025, a nomenclaruta dos no Storage arquivos mudou para: "imoveis_rurais_uf_numero.csv" no lugar de "imoveris_rurais_numero.csv"
+    partitions_path = (
+        output_folder
+        / "imoveis_rurais"
+        / f"data={reference_date.strftime('%Y-%m-%d')}"
+    )
+    partitions_path.mkdir(parents=True, exist_ok=True)
+
+    save_path = partitions_path / (
+        "imoveis_rurais_" + file_name.split(".")[-2] + ".csv"
+    )
+
+    df.to_csv(
+        save_path,
+        index=False,
+        sep=",",
+        na_rep="",
+        encoding="utf-8",
+        escapechar="\\",
+    )
+
+    log(f"Arquivo salvo: {save_path.as_posix().split('/')[-1]}")
+
+    del df
+    os.remove(file_path)
+
+    return save_path

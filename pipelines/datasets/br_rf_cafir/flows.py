@@ -4,7 +4,8 @@ Flows for br_rf_cafir — Prefect 3.
 
 import datetime
 
-from prefect import flow
+from prefect import flow, unmapped
+from prefect.task_runners import ThreadPoolTaskRunner
 
 from pipelines.datasets.br_rf_cafir.constants import (
     constants as br_rf_cafir_constants,
@@ -12,10 +13,11 @@ from pipelines.datasets.br_rf_cafir.constants import (
 from pipelines.datasets.br_rf_cafir.tasks import (
     build_paths,
     decide_files_to_download,
-    download_files,
+    download_file,
+    extract_file_records,
     get_api_metadata,
     get_last_reference_date,
-    process_files,
+    process_file,
 )
 from pipelines.utils.metadata.domain import (
     DateFormat,
@@ -34,9 +36,12 @@ from pipelines.utils.tasks import (
 )
 
 
+# pyrefly: ignore [no-matching-overload]
 @flow(
     name="br_rf_cafir__imoveis_rurais",
     log_prints=True,
+    # Limita a 6 tasks (download/processamento) simultâneas para não sobrecarregar o servidor
+    task_runner=ThreadPoolTaskRunner(max_workers=6),
 )
 def br_rf_cafir__imoveis_rurais(
     dataset_id: str = "br_rf_cafir",
@@ -93,17 +98,27 @@ def br_rf_cafir__imoveis_rurais(
     )
 
     # pyrefly: ignore [no-matching-overload]
-    download_files(
-        url=br_rf_cafir_constants.URL.value,
-        input_folder=input_folder,
-        df_metadata=filtered_df,
+    file_records = extract_file_records(df_metadata=filtered_df)
+    file_names = [record["nome_arquivo"] for record in file_records]
+    reference_dates = [record["data_referencia"] for record in file_records]
+
+    download_futures = download_file.map(
+        file_name=file_names,
+        url=unmapped(br_rf_cafir_constants.URL.value),
+        input_folder=unmapped(input_folder),
     )
 
-    output_path = process_files(
-        input_folder=input_folder,
-        output_folder=output_folder,
-        df_metadata=filtered_df,
+    process_futures = process_file.map(
+        file_name=download_futures,
+        reference_date=reference_dates,
+        input_folder=unmapped(input_folder),
+        output_folder=unmapped(output_folder),
     )
+
+    for future in process_futures:
+        future.result()
+
+    output_path = output_folder / "imoveis_rurais"
 
     upload_to_gcs(
         data_path=output_path,
