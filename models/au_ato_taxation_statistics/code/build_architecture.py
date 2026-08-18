@@ -75,7 +75,7 @@ YEAR = col(
     "Año inicial del ejercicio fiscal al que se refieren los datos; 2023 corresponde al ejercicio 2023-24",
     directory="br_bd_diretorios_data_tempo.ano:ano",
     unit="year",
-    obs="Partition column. Derived from the sheet title, not the release: the GST table shipped in the 2023-24 release covers the 2024-25 financial year",
+    obs="Partition column. Derived from each source sheet's own title rather than from the release that ships it, because some tables cover a different financial year from their release",
 )
 STATE = col(
     "state_abbreviation",
