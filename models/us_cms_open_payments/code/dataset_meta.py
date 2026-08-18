@@ -213,3 +213,154 @@ ENTITY_IDS = {
     "occupation": "859cabcb-db31-4d57-aa3d-ca6b6d840b9c",
     "year": "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
 }
+
+
+# --- raw data sources -------------------------------------------------------
+# Each table is linked to exactly one raw source. The backend's
+# client._raw_source_id resolver raises when a table has two or more, which
+# would make a recurring pipeline fail at its first poll.
+RAW_SOURCES = {
+    "detail": {
+        "name_pt": "Open Payments — arquivos detalhados por ano do programa",
+        "name_en": "Open Payments — detailed files by program year",
+        "name_es": "Open Payments — archivos detallados por año del programa",
+        "description_pt": (
+            "Arquivos CSV com um registro por pagamento declarado, publicados por ano do "
+            "programa. Os anos de 2019 a 2025 são distribuídos como CSV avulsos; 2013 a 2018 "
+            "estão arquivados, um ZIP por ano do programa."
+        ),
+        "description_en": (
+            "CSV files with one row per reported payment, published by program year. Program "
+            "years 2019 to 2025 are distributed as loose CSVs; 2013 to 2018 are archived, one "
+            "ZIP per program year."
+        ),
+        "description_es": (
+            "Archivos CSV con un registro por pago declarado, publicados por año del programa. "
+            "Los años 2019 a 2025 se distribuyen como CSV sueltos; 2013 a 2018 están archivados, "
+            "un ZIP por año del programa."
+        ),
+        "url": "https://openpaymentsdata.cms.gov/datasets",
+        "tables": [
+            "general",
+            "general_legacy",
+            "research",
+            "research_legacy",
+            "research_principal_investigator",
+            "ownership",
+            "dicionario",
+        ],
+    },
+    "profile": {
+        "name_pt": "Open Payments — arquivos de perfil de beneficiários e entidades",
+        "name_en": "Open Payments — recipient and entity profile files",
+        "name_es": "Open Payments — archivos de perfil de beneficiarios y entidades",
+        "description_pt": (
+            "Cadastros de médicos e profissionais não médicos, hospitais universitários e "
+            "entidades declarantes, publicados como instantâneo do ciclo de publicação corrente."
+        ),
+        "description_en": (
+            "Registers of physicians and non-physician practitioners, teaching hospitals and "
+            "reporting entities, published as a snapshot of the current publication cycle."
+        ),
+        "description_es": (
+            "Registros de médicos y profesionales no médicos, hospitales universitarios y "
+            "entidades declarantes, publicados como instantánea del ciclo de publicación actual."
+        ),
+        "url": "https://openpaymentsdata.cms.gov/datasets",
+        "tables": [
+            "covered_recipient_profile",
+            "teaching_hospital_profile",
+            "reporting_entity_profile",
+            "provider_profile_mapping",
+        ],
+    },
+    "summary": {
+        "name_pt": "Open Payments — relatórios agregados",
+        "name_en": "Open Payments — summary reports",
+        "name_es": "Open Payments — informes agregados",
+        "description_pt": (
+            "Relatórios agregados publicados pelo CMS com totais, médias e medianas de pagamento "
+            "por beneficiário, entidade declarante, natureza do pagamento, estado e "
+            "especialidade. Reconstruídos apenas para o ciclo de publicação corrente, portanto "
+            "cobrem 2019 a 2025."
+        ),
+        "description_en": (
+            "Summary reports published by CMS with payment totals, means and medians by "
+            "recipient, reporting entity, nature of payment, state and specialty. Rebuilt only "
+            "for the current publication cycle, so they cover 2019 to 2025."
+        ),
+        "description_es": (
+            "Informes agregados publicados por el CMS con totales, medias y medianas de pago por "
+            "beneficiario, entidad declarante, naturaleza del pago, estado y especialidad. "
+            "Reconstruidos solo para el ciclo de publicación actual, por lo que cubren 2019 a 2025."
+        ),
+        "url": "https://openpaymentsdata.cms.gov/datasets",
+        "tables": [
+            "summary_by_recipient_nature",
+            "summary_by_recipient_entity",
+            "summary_by_entity_nature",
+            "summary_by_entity_recipient_nature",
+            "summary_state_by_nature",
+            "summary_national",
+            "summary_national_by_specialty",
+            "summary_state",
+            "summary_teaching_hospital",
+            "summary_reporting_entity",
+            "summary_physician",
+            "summary_dashboard",
+        ],
+    },
+}
+
+LICENSE_ID = "7fb71004-2abe-4fc8-a258-e2aac27c71d9"  # cc0
+AVAILABILITY_ID = "dd396d7d-0264-4c1f-bf0d-6efe2dc89cbe"  # online
+ORGANIZATION_ID = "893ca241-c99e-4dd4-98d5-6e9172179f2e"
+THEME_IDS = [
+    "1c0535e3-d0ad-47c0-a324-727aa9b1d622",  # health
+    "ad6a413a-e882-4dd6-a497-8a62eec8511b",  # economics
+    "6dd730bb-89ab-4dba-a1bf-a25ca1c35003",  # government
+]
+
+# The entity tables are a snapshot of the current publication cycle, so they
+# describe the recipients and entities appearing in 2019-2025, not the whole
+# 2013-2025 payment history.
+ENTITY_TABLE_COVERAGE = (2019, 2025)
+
+# Tags. Six already existed; conflict-of-interest, pharmaceutical-industry and
+# medical-device were created for this dataset, with English kebab-case slugs
+# per the tag convention. Deliberately absent: `saude`, which would restate the
+# health theme, and any place name, which the coverage metadata already carries.
+TAG_IDS = [
+    "0425779c-5cb0-4256-9d4d-c22a7def8bfd",  # medicamento
+    "3c3b6478-193e-441e-a388-31916405c422",  # hospital
+    "8b187427-519e-48cb-b0a6-5380086edf3b",  # transparencia
+    "6fb25a8e-ca69-40a2-84ec-d5e5a9700b5d",  # lobby
+    "4ae52b90-bc5e-49b3-92f6-c5e86ae5a241",  # pesquisa
+    "4b85b1aa-b40c-455c-94ba-f6362d820042",  # investment
+    "4766c040-828e-4c50-bbc2-0d498f5055eb",  # conflict-of-interest (new)
+    "badbb45a-c23c-4fe4-bbeb-77aa02b0b006",  # pharmaceutical-industry (new)
+    "e195a0bf-3a09-413c-a64b-29c0a45c5526",  # medical-device (new)
+]
+
+# Tags created for this dataset, so they can be recreated on prod where the
+# vocabulary is a separate set of records.
+NEW_TAGS = [
+    (
+        "conflict-of-interest",
+        "conflito de interesse",
+        "conflict of interest",
+        "conflicto de interés",
+    ),
+    (
+        "pharmaceutical-industry",
+        "indústria farmacêutica",
+        "pharmaceutical industry",
+        "industria farmacéutica",
+    ),
+    (
+        "medical-device",
+        "dispositivo médico",
+        "medical device",
+        "dispositivo médico",
+    ),
+]

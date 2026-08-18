@@ -78,15 +78,21 @@ TABLE_DESCRIPTIONS = {
         "identificador nacional de prestador solo se informa a partir de 2015.",
     ),
     "covered_recipient_profile": (
-        "Perfis de médicos e profissionais não médicos com ao menos um pagamento publicado, com "
-        "nome, endereço de prática, especialidade principal e taxonomia de prestador conforme a "
-        "lista mestra de prestadores do CMS.",
-        "Profiles of physicians and non-physician practitioners with at least one published "
-        "payment, with name, practice address, primary specialty and provider taxonomy as listed "
-        "in the CMS master provider list.",
-        "Perfiles de médicos y profesionales no médicos con al menos un pago publicado, con "
-        "nombre, dirección de práctica, especialidad principal y taxonomía de prestador según la "
-        "lista maestra de prestadores del CMS.",
+        "Perfis de médicos e profissionais não médicos com nome, endereço de prática, "
+        "especialidade principal e taxonomia de prestador conforme a lista mestra de prestadores "
+        "do CMS. O CMS publica o arquivo como instantâneo do ciclo corrente e nele inclui apenas "
+        "quem tem ao menos um pagamento publicado nesse ciclo, de modo que a tabela cobre 2019 a "
+        "2025 e não a série completa de pagamentos.",
+        "Profiles of physicians and non-physician practitioners with name, practice address, "
+        "primary specialty and provider taxonomy as listed in the CMS master provider list. CMS "
+        "publishes the file as a snapshot of the current cycle and includes only those with at "
+        "least one payment published in that cycle, so the table covers 2019 to 2025 rather than "
+        "the full payment series.",
+        "Perfiles de médicos y profesionales no médicos con nombre, dirección de práctica, "
+        "especialidad principal y taxonomía de prestador según la lista maestra de prestadores del "
+        "CMS. El CMS publica el archivo como instantánea del ciclo actual e incluye solo a quienes "
+        "tienen al menos un pago publicado en ese ciclo, por lo que la tabla cubre 2019 a 2025 y no "
+        "la serie completa de pagos.",
     ),
     "teaching_hospital_profile": (
         "Hospitais universitários elegíveis a receber pagamentos, com número de certificação do "
