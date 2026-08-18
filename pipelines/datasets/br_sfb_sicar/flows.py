@@ -323,8 +323,8 @@ br_sfb_sicar_flow.deploy_schedules = [
 # cheap second bound on any single range's glibc footprint.
 # pyrefly: ignore [missing-attribute]
 br_sfb_sicar_flow.job_variables = {
-    "memory": "12Gi",
-    "memory_limit": "12Gi",
+    "memory": "16Gi",
+    "memory_limit": "16Gi",
     "memory_request": "4Gi",
     "env": {"MALLOC_ARENA_MAX": "2", "MALLOC_TRIM_THRESHOLD_": "131072"},
 }
