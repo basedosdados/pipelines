@@ -16,14 +16,41 @@ import zipfile
 
 import constants as c
 
+# A single stream from download.cms.gov runs at about 2 MB/s; eight parallel
+# byte ranges reach about 15 MB/s, which is the difference between seven hours
+# and one for the 60 GB of detail files.
+PARALLEL_CHUNKS = 8
+PARALLEL_MIN_BYTES = 200 << 20
 
-def _fetch(url: str, dest) -> None:
-    if dest.exists() and dest.stat().st_size > 0:
-        print(f"  have {dest.name}")
-        return
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    tmp = dest.with_suffix(dest.suffix + ".part")
-    print(f"  get {dest.name}")
+
+def remote_size(url: str) -> int | None:
+    """Total size from a one-byte range request; None when unavailable."""
+    out = subprocess.run(
+        [
+            "curl",
+            "-s",
+            "-m",
+            "60",
+            "-r",
+            "0-0",
+            "-D",
+            "-",
+            "-o",
+            "/dev/null",
+            url,
+        ],
+        capture_output=True,
+        text=True,
+    ).stdout
+    for line in out.splitlines():
+        if line.lower().startswith("content-range") and "/" in line:
+            total = line.rsplit("/", 1)[1].strip()
+            if total.isdigit():
+                return int(total)
+    return None
+
+
+def _fetch_serial(url: str, tmp) -> None:
     subprocess.run(
         [
             "curl",
@@ -38,6 +65,69 @@ def _fetch(url: str, dest) -> None:
         ],
         check=True,
     )
+
+
+def _fetch_parallel(url: str, tmp, size: int) -> None:
+    span = -(-size // PARALLEL_CHUNKS)
+    parts = [
+        tmp.with_suffix(f"{tmp.suffix}.{i:02d}")
+        for i in range(PARALLEL_CHUNKS)
+    ]
+    running = []
+    for index, part in enumerate(parts):
+        start = index * span
+        end = min(start + span, size) - 1
+        if start > end:
+            part.write_bytes(b"")
+            continue
+        running.append(
+            subprocess.Popen(
+                [
+                    "curl",
+                    "-fsS",
+                    "--retry",
+                    "3",
+                    "--retry-delay",
+                    "5",
+                    "-r",
+                    f"{start}-{end}",
+                    url,
+                    "-o",
+                    str(part),
+                ]
+            )
+        )
+    for process in running:
+        if process.wait() != 0:
+            raise RuntimeError(f"chunk download failed for {url}")
+
+    with open(tmp, "wb") as out:
+        for part in parts:
+            if not part.exists():
+                continue
+            with open(part, "rb") as chunk:
+                shutil.copyfileobj(chunk, out, length=8 << 20)
+            part.unlink()
+    got = tmp.stat().st_size
+    if got != size:
+        raise RuntimeError(f"{url}: assembled {got} bytes, expected {size}")
+
+
+def _fetch(url: str, dest) -> None:
+    if dest.exists() and dest.stat().st_size > 0:
+        print(f"  have {dest.name}")
+        return
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    tmp = dest.with_suffix(dest.suffix + ".part")
+    size = remote_size(url)
+    if size and size >= PARALLEL_MIN_BYTES:
+        print(
+            f"  get {dest.name} ({size / 1e9:.2f} GB, {PARALLEL_CHUNKS} streams)"
+        )
+        _fetch_parallel(url, tmp, size)
+    else:
+        print(f"  get {dest.name}")
+        _fetch_serial(url, tmp)
     tmp.rename(dest)
 
 

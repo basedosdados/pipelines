@@ -30,7 +30,25 @@ def _save(counts: dict) -> None:
         json.dump(counts, fh, indent=1, sort_keys=True)
 
 
+def already_done(year: int) -> bool:
+    """True when every table this program year feeds has its parquet on disk."""
+    legacy = year in c.LEGACY_YEARS
+    tables = [
+        "general_legacy" if legacy else "general",
+        "research_legacy" if legacy else "research",
+        "research_principal_investigator",
+        "ownership",
+    ]
+    return all(
+        (c.OUTPUT_DIR / t / f"year={year}" / "data.parquet").exists()
+        for t in tables
+    )
+
+
 def run_year(year: int, counts: dict) -> None:
+    if already_done(year):
+        print(f"\n=== program year {year}: already cleaned, skipped")
+        return
     started = time.time()
     print(f"\n=== program year {year}")
     download.detail(year)
