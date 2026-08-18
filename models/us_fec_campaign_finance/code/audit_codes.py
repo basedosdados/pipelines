@@ -12,12 +12,17 @@ Reads the cleaned parquet directly, so it needs no BigQuery access.
 """
 
 import csv
+import sys
 from collections import defaultdict
 from pathlib import Path
 
 import build_dicionario as bd
-import fec
 import pyarrow.dataset as ds
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from pipelines.datasets.us_fec_campaign_finance import (
+    utils as fec,
+)
 
 ARCH = Path(__file__).resolve().parent / "architecture"
 

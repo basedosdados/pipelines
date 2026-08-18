@@ -30,6 +30,7 @@ import shutil
 import time
 import zipfile
 from dataclasses import dataclass, field
+from datetime import date
 from pathlib import Path
 
 import pandas as pd
@@ -37,13 +38,11 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
 
-BULK_BASE = (
-    "https://cg-519a459a-0ea3-42c2-b7bc-fa1143481f74.s3-us-gov-west-1.amazonaws.com"
-    "/bulk-downloads"
-)
-USER_AGENT = "basedosdados-pipelines/1.0 (+https://basedosdados.org)"
+from pipelines.datasets.us_fec_campaign_finance.constants import constants
 
-ARCHITECTURE_DIR = Path(__file__).resolve().parent / "architecture"
+BULK_BASE = constants.BULK_BASE.value
+USER_AGENT = constants.USER_AGENT.value
+ARCHITECTURE_DIR = constants.ARCHITECTURE_DIR.value
 
 DATA_DIR = Path(
     os.environ.get(
@@ -605,3 +604,85 @@ def clean_all(
 def purge_scratch() -> None:
     """Delete the whole scratch tree — step 14 of the onboarding workflow."""
     shutil.rmtree(DATA_DIR, ignore_errors=True)
+
+
+# --------------------------------------------------------------------------- #
+# Recurring refresh
+# --------------------------------------------------------------------------- #
+
+
+def current_cycle(today: date) -> int:
+    """The FEC election cycle `today` falls in — the next even year, inclusive.
+
+    2025 and 2026 both belong to the 2026 cycle.
+    """
+    return today.year if today.year % 2 == 0 else today.year + 1
+
+
+def refresh_cycle(
+    cycle: int, work_dir: Path, tables: list[str]
+) -> dict[str, object]:
+    """Download and clean one cycle into `work_dir`, ready for upload.
+
+    Returns ``{table: <dir to upload>}`` plus ``max_date``, the latest
+    transaction date seen across the refreshed tables — the source's max coverage
+    date, which is what the raw-source Update records.
+
+    Each table's payload is ``work_dir/<table>/cycle=<CYCLE>/data.parquet``. The
+    *table* directory is handed to ``upload_to_gcs`` so the hive prefix survives:
+    the blob lands at ``staging/<ds>/<table>/cycle=<CYCLE>/data.parquet``,
+    replacing exactly that partition and leaving every frozen cycle untouched.
+    That is why the flow uses ``dump_mode="append"`` — "overwrite" would delete
+    the whole staging table (and, via ``tb.delete(mode="all")``, the prod table)
+    and the history with it.
+    """
+    global INPUT, OUTPUT
+    previous_input, previous_output = INPUT, OUTPUT
+    INPUT = work_dir / "input"
+    OUTPUT = work_dir / "output"
+    INPUT.mkdir(parents=True, exist_ok=True)
+
+    result: dict[str, object] = {}
+    max_date = None
+    try:
+        for table in tables:
+            spec = SPECS[table]
+            if cycle < spec.first_cycle:
+                continue
+            path = download(spec, cycle, force=True)
+            if path is None:
+                continue
+            try:
+                rows = clean_cycle(spec, cycle)
+            finally:
+                path.unlink(missing_ok=True)
+            if not rows:
+                continue
+            result[table] = str(OUTPUT / table)
+            if spec.date_columns:
+                seen = _max_transaction_date(OUTPUT / table / f"cycle={cycle}")
+                if seen and (max_date is None or seen > max_date):
+                    max_date = seen
+    finally:
+        INPUT, OUTPUT = previous_input, previous_output
+
+    result["max_date"] = max_date
+    return result
+
+
+def _max_transaction_date(partition: Path) -> str | None:
+    """Largest non-null transaction_date in a cleaned partition, as YYYY-MM-DD.
+
+    Dates are stored as ISO strings, so a lexicographic max is the calendar max.
+    Filers do enter impossible future dates, so anything beyond today is ignored
+    rather than allowed to push the recorded source coverage into the future.
+    """
+    today = date.today().isoformat()
+    best = None
+    for file in sorted(partition.glob("*.parquet")):
+        table = pq.read_table(file, columns=["transaction_date"])
+        column = table.column("transaction_date")
+        for value in column.to_pylist():
+            if value and value <= today and (best is None or value > best):
+                best = value
+    return best

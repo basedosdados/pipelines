@@ -21,8 +21,10 @@ import basedosdados as bd
 import google.cloud.storage as gcs
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import fec
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from pipelines.datasets.us_fec_campaign_finance import (
+    utils as fec,
+)
 
 BILLING_PROJECT = "basedosdados-dev"
 DATASET_ID = "us_fec_campaign_finance"
