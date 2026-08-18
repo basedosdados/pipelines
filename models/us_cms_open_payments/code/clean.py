@@ -29,7 +29,9 @@ MEMORY_LIMIT = "8GB"
 def _expr(source_column: str | None, bd_column: str, table: str) -> str:
     """SQL for one output column, always VARCHAR."""
     if source_column is None:
-        return f'NULL AS "{bd_column}"'
+        # A bare NULL is typed INTEGER by duckdb, which would break the
+        # all-STRING staging contract for any column absent from this year.
+        return f'CAST(NULL AS VARCHAR) AS "{bd_column}"'
     trimmed = f"nullif(trim(\"{source_column}\"), '')"
     if schema.bigquery_type(table, bd_column) == "DATE":
         # CMS publishes MM/DD/YYYY; safe_cast in dbt needs an ISO date.

@@ -65,4 +65,10 @@ if __name__ == "__main__":
             counts.setdefault(table, {})[year] = rows
         _save(counts)
 
+    if not sys.argv[1:]:
+        print("\n=== enforcing the all-STRING staging schema")
+        import repair_string_schema
+
+        repair_string_schema.main()
+
     print(f"\nrow counts written to {COUNTS_PATH}")
