@@ -8,9 +8,7 @@ models:
       duplicidade, a fonte cancela um dos registros e publica os dois, sob o mesmo
       código.
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [id_imovel]
-      - unique_key_in_latest_ppartition:
+      - unique_key_in_latest_partition:
           key_column: id_imovel
           partition_column: data_extracao
           row_filter: coalesce(condicao, '') not like 'Cancelado por duplicidade%'
