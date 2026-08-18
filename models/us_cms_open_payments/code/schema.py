@@ -161,6 +161,13 @@ STATE_CODE_NULL_ABROAD = (
     "trazem sigla de estado."
 )
 
+PAYMENT_DATE_OUTLIERS = (
+    "Preservada exatamente como declarada ao CMS. Cerca de 93 registros em 148,8 milhões "
+    "trazem anos implausíveis (2, 215, 2105, 3015), erros de digitação da entidade "
+    "declarante que não foram corrigidos na origem — filtre por intervalo de datas com isso "
+    "em mente."
+)
+
 OBSERVATIONS = {
     "taxonomy_code": (
         "Código da taxonomia NUCC de prestadores. A tabela summary_national_by_specialty "
