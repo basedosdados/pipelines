@@ -40,7 +40,8 @@ GCP_PROJECT = {
 
 # When the tables were last refreshed at Data Basis. The table-anchored Update
 # is a wall clock, not a coverage date.
-REFRESHED_ON = "2026-08-18"
+# The backend stores Update.latest as a DateTime, not a date.
+REFRESHED_ON = "2026-08-18T00:00:00+00:00"
 ENTITY_YEAR = meta.ENTITY_IDS["year"]
 
 
@@ -72,10 +73,10 @@ def register_dataset(env: str, publish: bool) -> str:
 
 def register_raw_sources(dataset_id: str, env: str) -> dict[str, str]:
     existing = {
-        s["name"]: s["id"]
-        for s in server.get_raw_data_sources(
+        source["name"]: source["id"]
+        for source in server.get_raw_data_sources(
             dataset_slug=meta.DATASET["slug"], env=env
-        ).get("raw_data_sources", [])
+        )
     }
     ids = {}
     for key, spec in meta.RAW_SOURCES.items():
@@ -143,10 +144,21 @@ def register_table(
     table_id = result["id"]
     log(f"\n{table} -> {table_id}")
 
+    # create_update_observation_level always creates when no id is passed, so
+    # the existing levels are looked up by entity first. Without this an
+    # interrupted run leaves the table with duplicate levels.
+    known = {
+        level["entity_id"]: level["id"]
+        for level in existing.get("observation_levels", [])
+    }
     observation_levels = {}
     for entity in meta.OBSERVATION_LEVELS[table]:
+        entity_id = meta.ENTITY_IDS[entity]
         level = server.create_update_observation_level(
-            table_id=table_id, entity_id=meta.ENTITY_IDS[entity], env=env
+            table_id=table_id,
+            entity_id=entity_id,
+            id=known.get(entity_id),
+            env=env,
         )
         observation_levels[entity] = level["id"]
     if observation_levels:
