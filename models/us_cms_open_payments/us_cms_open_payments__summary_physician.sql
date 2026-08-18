@@ -41,24 +41,14 @@ select
     safe_cast(license_state_5 as string) license_state_5,
     safe_cast(general_payment_amount_total as float64) general_payment_amount_total,
     safe_cast(research_payment_amount_total as float64) research_payment_amount_total,
-    safe_cast(
-        ownership_amount_invested_total as float64
-    ) ownership_amount_invested_total,
+    safe_cast(ownership_amount_invested_total as float64) ownership_amount_invested_total,
     safe_cast(ownership_interest_value_total as float64) ownership_interest_value_total,
     safe_cast(general_transaction_count as int64) general_transaction_count,
     safe_cast(research_transaction_count as int64) research_transaction_count,
-    safe_cast(
-        ownership_invested_transaction_count as int64
-    ) ownership_invested_transaction_count,
-    safe_cast(
-        ownership_interest_transaction_count as int64
-    ) ownership_interest_transaction_count,
-    safe_cast(
-        associated_research_payment_amount_total as float64
-    ) associated_research_payment_amount_total,
-    safe_cast(
-        associated_research_transaction_count as int64
-    ) associated_research_transaction_count,
+    safe_cast(ownership_invested_transaction_count as int64) ownership_invested_transaction_count,
+    safe_cast(ownership_interest_transaction_count as int64) ownership_interest_transaction_count,
+    safe_cast(associated_research_payment_amount_total as float64) associated_research_payment_amount_total,
+    safe_cast(associated_research_transaction_count as int64) associated_research_transaction_count,
     safe_cast(disputed_transaction_count as int64) disputed_transaction_count,
     safe_cast(undisputed_transaction_count as int64) undisputed_transaction_count,
     safe_cast(has_multiple_ids as string) has_multiple_ids

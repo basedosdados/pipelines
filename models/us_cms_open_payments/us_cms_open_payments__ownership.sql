@@ -41,8 +41,6 @@ select
     safe_cast(reporting_entity_state as string) reporting_entity_state,
     safe_cast(reporting_entity_country as string) reporting_entity_country,
     safe_cast(dispute_status as string) dispute_status,
-    safe_cast(
-        interest_held_by_physician_or_family as string
-    ) interest_held_by_physician_or_family,
+    safe_cast(interest_held_by_physician_or_family as string) interest_held_by_physician_or_family,
     safe_cast(publication_date as date) publication_date
 from {{ set_datalake_project("us_cms_open_payments_staging.ownership") }} as t

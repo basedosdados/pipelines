@@ -98,3 +98,15 @@ CLUSTER = {
     ],
     "summary_physician": ["covered_recipient_profile_id"],
 }
+
+# Grain columns that are legitimately NULL for some rows. They stay in the
+# uniqueness test, which handles them, but get no not_null test.
+#
+# The state summaries are published per country: a row for Afghanistan or
+# Austria carries a country code and no state, because those countries have no
+# US state subdivision. 83,752 such rows in summary_state_by_nature and 237 in
+# summary_state.
+NULLABLE_GRAIN_COLUMNS = {
+    ("summary_state", "state_code"),
+    ("summary_state_by_nature", "state_code"),
+}

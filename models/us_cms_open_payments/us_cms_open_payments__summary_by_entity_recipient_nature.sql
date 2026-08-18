@@ -23,9 +23,4 @@ select
     safe_cast(amount_total as float64) amount_total,
     safe_cast(recipient_name as string) recipient_name,
     safe_cast(reporting_entity_name as string) reporting_entity_name
-from
-    {{
-        set_datalake_project(
-            "us_cms_open_payments_staging.summary_by_entity_recipient_nature"
-        )
-    }} as t
+from {{ set_datalake_project("us_cms_open_payments_staging.summary_by_entity_recipient_nature") }} as t

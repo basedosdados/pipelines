@@ -2,7 +2,7 @@ name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory
 year	INT64	Ano do programa a que o registro se refere		no	br_bd_diretorios_data_tempo.ano:ano	year	no		Program_Year
 country_code	STRING	Código do país do beneficiário		no			no		Country_Code
 country_name	STRING	Nome do país do beneficiário		no			no		Country_Name
-state_code	STRING	Sigla de duas letras do estado do beneficiário		no			no		State_Code
+state_code	STRING	Sigla de duas letras do estado do beneficiário		no			no	Nulo nas linhas de países sem subdivisão estadual dos Estados Unidos: os relatórios estaduais do CMS incluem uma linha por país, e apenas os registros dos Estados Unidos trazem sigla de estado.	State_Code
 state_name	STRING	Nome do estado do beneficiário		no			no		State_Name
 payment_type	STRING	Categoria de pagamento agregada: geral, pesquisa ou participação societária		yes			no		Payment_Type
 recipient_type	STRING	Tipo de beneficiário: médico, profissional não médico ou hospital universitário		yes			no		Recipient_Type

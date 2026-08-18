@@ -155,6 +155,12 @@ def directory_column(table: str, column: str) -> str:
 
 
 # --- observations -----------------------------------------------------------
+STATE_CODE_NULL_ABROAD = (
+    "Nulo nas linhas de países sem subdivisão estadual dos Estados Unidos: os relatórios "
+    "estaduais do CMS incluem uma linha por país, e apenas os registros dos Estados Unidos "
+    "trazem sigla de estado."
+)
+
 OBSERVATIONS = {
     "taxonomy_code": (
         "Código da taxonomia NUCC de prestadores. A tabela summary_national_by_specialty "
@@ -174,6 +180,11 @@ _DASHBOARD_NOTE = (
 
 
 def observations(table: str, column: str) -> str:
+    if (
+        table in {"summary_state", "summary_state_by_nature"}
+        and column == "state_code"
+    ):
+        return STATE_CODE_NULL_ABROAD
     if (table, column) in STATE_COLUMNS:
         return STATE_NOT_IN_DIRECTORY
     if table == "summary_dashboard" and column == "value":

@@ -122,7 +122,10 @@ def schema_yaml(prof: dict) -> str:
             out.append("        description: >-")
             out.append(_yaml_block(pt, 10))
             tests = []
-            if col in grain:
+            if (
+                col in grain
+                and (table, col) not in grains.NULLABLE_GRAIN_COLUMNS
+            ):
                 tests.append("not_null")
             directory = schema.directory_column(table, col)
             if tests or directory == schema.TIME_YEAR:

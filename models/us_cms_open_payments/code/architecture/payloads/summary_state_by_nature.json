@@ -39,7 +39,7 @@
   "description_es": "Sigla de dos letras del estado del beneficiario",
   "covered_by_dictionary": false,
   "has_sensitive_data": false,
-  "observations": "Coluna de origem no CMS: State_Code."
+  "observations": "Nulo nas linhas de países sem subdivisão estadual dos Estados Unidos: os relatórios estaduais do CMS incluem uma linha por país, e apenas os registros dos Estados Unidos trazem sigla de estado. Coluna de origem no CMS: State_Code."
  },
  {
   "name": "state_name",

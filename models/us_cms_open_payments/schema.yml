@@ -2364,7 +2364,6 @@ models:
       - name: state_code
         description: >-
           Sigla de duas letras do estado do beneficiário
-        tests: [not_null]
       - name: state_name
         description: >-
           Nome do estado do beneficiário
@@ -2654,7 +2653,6 @@ models:
       - name: state_code
         description: >-
           Sigla de duas letras do estado do beneficiário
-        tests: [not_null]
       - name: state_name
         description: >-
           Nome do estado do beneficiário
