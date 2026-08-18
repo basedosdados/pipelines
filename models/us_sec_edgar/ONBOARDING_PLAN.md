@@ -10,16 +10,36 @@
 
 **License:** work of the U.S. federal government → **public domain** (17 U.S.C. §105).
 SEC's website policy places its content in the public domain and imposes no
-redistribution restriction. → **AllFree** (no BD Pro tier). SEC *does* impose a
+redistribution restriction. SEC *does* impose a
 fair-access rule on automated retrieval: every request must declare a descriptive
 `User-Agent` carrying a contact address, and clients must stay under 10 requests
 per second. Both are honoured in `code/sec.py` (`USER_AGENT`, per-request sleep).
 
 **Commercial value:** high — this is the canonical structured feed of US public-company
 financial statements (finance, accounting, and corporate-finance research; screening and
-factor construction). Flagged for the team; the dataset itself stays free-tier because the
-source is public domain and republishes only quarterly (BD Pro's rolling window applies to
-tables refreshed monthly or more often).
+factor construction).
+
+**Tier: `PartBdpro`, the two most recent quarters behind BD Pro.** Each of the four data
+tables carries a free Coverage and a pro Coverage; `dicionario` has no date column and
+stays free. With `free_lag = 6 months` on a `YearQuarter` date column, the machinery in
+`pipelines/utils/metadata/policy.py` computes exactly a two-quarter pro window and rolls it
+forward on every release:
+
+| source max | free ends | pro window |
+|---|---|---|
+| 2026-03 (2026Q1) | 2025-09 | 2025-10 .. 2026-03 |
+| 2026-06 (2026Q2) | 2025-12 | 2026-01 .. 2026-06 |
+| 2026-09 (2026Q3) | 2026-03 | 2026-04 .. 2026-09 |
+
+`read_max_date` reads a quarter as `DATE(year, quarter*3, 1)`, so 2026Q1 is 2026-03-01 and
+subtracting six months lands on 2025-09-01 — the last month of 2025Q3. The free and pro
+ranges are mutually exclusive because pro starts the period *after* `free_end`.
+
+The registered coverages were computed by hand to match what the pipeline will compute; the
+BigQuery **Row Access Policies that actually enforce the paywall are issued by
+`register_table_materialization_task`**, so they do not exist until the recurring pipeline
+(step 12) runs against prod. Until then the split is metadata only. The dbt models are
+untouched by any of this — the paywall lives in BigQuery, not in SQL.
 
 ## Coverage
 
@@ -87,9 +107,11 @@ architecture CSV.
   under `br_bd_diretorios_us`. `cik` stays STRING with `covered_by_dictionary = no`, and
   the intended FK (`br_bd_diretorios_us.company:cik`) is recorded in `observations`.
   Building that directory is its own onboarding.
-- **`sic` has no directory either.** Industry is a shared entity and should eventually own
-  one (`br_bd_diretorios_us.sic`); until it does, the ~440 SEC SIC codes are carried in
-  this dataset's `dicionario` and `sic` is `covered_by_dictionary = yes`.
+- **`sic` links to `br_bd_diretorios_us.sic:id_sic`**, a directory built as part of this
+  onboarding (see `models/br_bd_diretorios_us/code/build_sic.py`). It holds the full 1987
+  SIC hierarchy — 83 major groups, 409 industry groups, 1,004 industries — plus the 14
+  EDGAR codes with no counterpart in the standard, 1,510 rows in all. All 436 SIC values
+  present in `submission` resolve against it, and a `relationships` test enforces that.
 - **State/province columns are not linked.** `stprba`/`stprma`/`stprinc` mix US state
   codes with Canadian province codes (`BC`, `ON` appear in `state_incorporation`), so they
   do not resolve against `br_bd_diretorios_us.state`.
@@ -127,4 +149,15 @@ near a single quarter. Deleted entirely at step 14.
 
 The source republishes quarterly, roughly five weeks after quarter end (2026Q1 was posted
 2026-04-09). The pipeline polls the landing page for a new `<YYYY>q<Q>.zip`, downloads and
-appends that one partition, and re-runs dbt. All tables are `AllFree`.
+appends that one partition, and re-runs dbt. Coverage specs: the four data tables take
+
+```python
+PartBdpro(
+    date_column=YearQuarter(year="year", quarter="quarter"),
+    date_format=DateFormat.YEAR_MONTH,
+    free_lag=FreeLag(unit="months", value=6),
+)
+```
+
+and `dicionario` takes no spec. `needs_row_access_policy` is True for this tier, so the
+first armed prod run is also the first time the paywall is applied in BigQuery — watch it.

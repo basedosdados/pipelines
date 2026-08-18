@@ -45,9 +45,6 @@ class constants(Enum):
     ARCHITECTURE_DIR = os.path.join(
         _REPO_ROOT, "models", "us_sec_edgar", "code", "architecture"
     )
-    REFERENCE_DIR = os.path.join(
-        _REPO_ROOT, "models", "us_sec_edgar", "code", "reference"
-    )
 
     # 2009q1.zip exists but is header-only (the SEC ships it so every year has
     # four files); it produces no rows and is skipped.

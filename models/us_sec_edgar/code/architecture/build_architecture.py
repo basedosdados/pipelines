@@ -169,10 +169,10 @@ SUBMISSION = [
         "Código de classificação industrial padrão (SIC) do registrante",
         "Standard Industrial Classification (SIC) code of the registrant",
         "Código de clasificación industrial estándar (SIC) del registrante",
-        dic="yes",
-        obs="Quatro dígitos, atribuído pela SEC na data do protocolo. Rótulos em "
-        "`dicionario`. Deveria pertencer a um diretório de indústria "
-        "(br_bd_diretorios_us.sic), que ainda não existe.",
+        directory="br_bd_diretorios_us.sic:id_sic",
+        obs="Quatro dígitos, atribuído pela SEC na data do protocolo. Pode estar "
+        "em qualquer nível da hierarquia SIC: NN00 é um grupo principal e NNN0 "
+        "um grupo industrial.",
         original="sic",
     ),
     col(

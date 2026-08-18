@@ -17,7 +17,6 @@ models:
           ignore_values: [additional_ciks]
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
-            - sic
             - filer_status
             - well_known_seasoned_issuer
             - fiscal_period
@@ -47,6 +46,10 @@ models:
       - name: sic
         description: >
           Código de classificação industrial padrão (SIC) do registrante
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__sic')
+              field: id_sic
       - name: ein
         description: >
           Número de identificação de empregador (EIN) do registrante

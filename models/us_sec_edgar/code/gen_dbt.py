@@ -125,10 +125,17 @@ NOT_NULL = {
     "dicionario": ["id_tabela", "nome_coluna", "chave", "valor"],
 }
 
-# accession_number is a foreign key onto `submission`, verified orphan-free.
+# Foreign keys, as (dbt model name, field). accession_number onto `submission`
+# is verified orphan-free; `sic` resolves against the SIC directory (all 436
+# codes present in the data are in it).
 FOREIGN_KEYS = {
-    "numeric_fact": {"accession_number": ("submission", "accession_number")},
-    "presentation": {"accession_number": ("submission", "accession_number")},
+    "submission": {"sic": ("br_bd_diretorios_us__sic", "id_sic")},
+    "numeric_fact": {
+        "accession_number": (DATASET + "__submission", "accession_number")
+    },
+    "presentation": {
+        "accession_number": (DATASET + "__submission", "accession_number")
+    },
 }
 
 NEWLINE = chr(10)
@@ -263,13 +270,7 @@ def render_schema() -> str:
                         out.append("          - custom_relationships:")
                     else:
                         out.append("          - relationships:")
-                    out.append(
-                        "              to: ref('"
-                        + DATASET
-                        + "__"
-                        + target
-                        + "')"
-                    )
+                    out.append("              to: ref('" + target + "')")
                     out.append("              field: " + field)
                     if table == "numeric_fact":
                         out.append("              ignore_values:")

@@ -42,7 +42,6 @@ YYYYMMDD_COLUMNS = {
 # published table slug, valued by published column name.
 DICTIONARY_COLUMNS = {
     "submission": [
-        "sic",
         "filer_status",
         "well_known_seasoned_issuer",
         "fiscal_period",
@@ -355,14 +354,6 @@ def clean_quarter(
 # --------------------------------------------------------------------------
 # Dictionary
 # --------------------------------------------------------------------------
-def _sic_labels() -> dict[str, str]:
-    path = os.path.join(constants.REFERENCE_DIR.value, "sic_codes.csv")
-    with open(path, encoding="utf-8") as fh:
-        return {
-            row["sic"]: row["industry_title"] for row in csv.DictReader(fh)
-        }
-
-
 def _derive_label(value: str) -> str:
     """Fallback label for a code the SEC documentation does not enumerate."""
     spaced = (
@@ -375,15 +366,11 @@ def build_dicionario(
     output_dir: str, observed: dict[tuple[str, str], Iterable[str]]
 ) -> int:
     """Write the `dicionario` parquet covering every observed coded value."""
-    sic = _sic_labels()
     rows = []
     for (table, column), values in sorted(observed.items()):
         labels = DICTIONARY_LABELS.get((table, column), {})
         for value in sorted(values):
-            if column == "sic":
-                label = sic.get(value) or _derive_label(value)
-            else:
-                label = labels.get(value) or _derive_label(value)
+            label = labels.get(value) or _derive_label(value)
             rows.append(
                 {
                     "id_tabela": table,
