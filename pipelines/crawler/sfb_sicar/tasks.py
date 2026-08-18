@@ -26,12 +26,14 @@ from pipelines.crawler.sfb_sicar.utils import (
 
 # Raw-geometry budget per range. Each range is cleaned in its own subprocess
 # that exits afterwards, so this bounds a single process's peak memory, not an
-# accumulating one. Measured on the worker: a 256 MB range peaks at ~8 GB RSS
-# (the worker's glibc inflates geometry work ~30x the raw WKB), so the peak
-# scales with this budget; 96 MB keeps a single range near ~3 GB, a comfortable
-# ~4x margin under the 12 GiB pod without paying for a larger limit — at the cost
-# of ~2.6x more subprocess spawns on the densest Amazonas app shapefile.
-CLEAN_BUDGET_BYTES = 96 * 1024 * 1024
+# accumulating one. Measured on the worker, the per-range peak is ~8 GB whether
+# the budget is 96 or 256 MB: it is dominated not by the aggregate range size but
+# by a single pathologically dense Amazonas app feature (a river-network
+# multipolygon) whose reproject + WKT serialization lands in whatever range holds
+# it. Shrinking the budget only multiplies subprocess spawns for no memory gain,
+# so keep it large; the ~8 GB peak fits the 12 GiB pod (which the successful runs
+# already used).
+CLEAN_BUDGET_BYTES = 256 * 1024 * 1024
 
 
 @task(
