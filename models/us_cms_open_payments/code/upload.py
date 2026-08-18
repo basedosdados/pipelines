@@ -45,9 +45,12 @@ def write_header_stub(table: str) -> None:
     if table in layout.UNPARTITIONED:
         return
     root = c.OUTPUT_DIR / table
-    first = sorted(root.glob("year=*/data.parquet"))[0]
     stub = root / "00_header.parquet"
-    schema = pq.read_schema(first)
+    # Built from the layout rather than copied from a partition: the schema is
+    # all-STRING by definition, so the stub cannot inherit a partition's type.
+    schema = pa.schema(
+        [pa.field(name, pa.string()) for name in layout.LAYOUT[table]]
+    )
     pq.write_table(
         pa.Table.from_pylist([], schema=schema), stub, compression="snappy"
     )
