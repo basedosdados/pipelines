@@ -3,16 +3,12 @@ General purpose functions for the br_ms_cnes project
 """
 
 import datetime
-import os
 from pathlib import Path
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from pipelines.datasets.br_rf_cafir.constants import (
-    constants as br_rf_cafir_constants,
-)
 from pipelines.utils.utils import log
 
 
@@ -119,7 +115,7 @@ def get_last_date(df_metadata: pd.DataFrame, date_column: str) -> str:
     return str(max_date.date())
 
 
-def download_csv_file(url: str, file_name: str, input_folder: Path) -> None:
+def download_csv_files(url: str, file_name: str, input_folder: Path) -> None:
     """
     Faz o download de um arquivo CSV a partir de uma URL e salva em um diretório especificado.
 
@@ -149,66 +145,3 @@ def download_csv_file(url: str, file_name: str, input_folder: Path) -> None:
 def preserve_zeros(x):
     """Preserva os zeros a esquerda de um número"""
     return x.strip()
-
-
-def process_csv_file(
-    file_path: Path,
-    reference_date: datetime.date,
-    output_folder: Path,
-) -> Path:
-    """
-    Lê, limpa e particiona um único arquivo csv de largura fixa.
-    Args:
-        file_path (Path): O caminho do arquivo a ser processado.
-        reference_date (date): Data de referência do arquivo a ser processado
-        output_folder (Path): Pasta em que o arquivo pocessado terá salvas suas partições
-    """
-    file_name = file_path.name
-    log(f"Lendo arquivo: {file_name} de : {file_path}")
-
-    df = pd.read_fwf(
-        file_path,
-        widths=br_rf_cafir_constants.WIDTHS.value,
-        names=br_rf_cafir_constants.COLUMN_NAMES.value,
-        dtype=br_rf_cafir_constants.DTYPE.value,
-        converters={
-            col: preserve_zeros
-            for col in br_rf_cafir_constants.COLUMN_NAMES.value
-        },
-        encoding="ISO-8859-1",
-    )
-
-    # Remove ascii /x00 (zero) - pois dá erro na materialização no BQ
-    df = remove_ascii_zero_from_df(df)
-
-    # Tira os espacos em branco
-    # pyrefly: ignore [not-callable]
-    df = df.applymap(strip_string)
-
-    log(f"Salvando arquivo: {file_name}")
-    partitions_path = (
-        output_folder / "imoveis_rurais" / f"data={reference_date}"
-    )
-    partitions_path.mkdir(parents=True, exist_ok=True)
-
-    # NOTE: Com modificação do formato de divulgação do FTP os arquivos passaram a ser divulgados csvs particionados por UF
-    # A partir de 2025, a nomenclaruta dos no Storage arquivos mudou para: "imoveis_rurais_uf_numero.csv" no lugar de "imoveris_rurais_numero.csv"
-    save_path = partitions_path / (
-        "imoveis_rurais_" + file_name.split(".")[-2] + ".csv"
-    )
-
-    df.to_csv(
-        save_path,
-        index=False,
-        sep=",",
-        na_rep="",
-        encoding="utf-8",
-        escapechar="\\",
-    )
-
-    log(f"Arquivo salvo: {save_path.as_posix().split('/')[-1]}")
-
-    del df
-    os.remove(file_path)
-
-    return save_path

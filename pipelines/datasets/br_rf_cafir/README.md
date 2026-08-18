@@ -19,25 +19,15 @@ e é atualizada com frequência **diária**.
 
 ---
 
-## Particionamento no Storage
+## Particionamento no Storage — atenção
 
-A partição legado do Storage (`data=YYYY-MM-DD/`) e a coluna `data_referencia` que
-dela deriva **não** guardavam a data de referência do dado, mas som a **data de
-modificação do arquivo no servidor**.
+A partição do Storage (`data=YYYY-MM-DD/`) e a coluna `data_referencia` que
+dela deriva **não** guardam a data de referência do dado. Guardam a **data de
+modificação do arquivo no servidor** — o `max()` de `getlastmodified` sobre
+*todos* os arquivos da pasta (`crawler/rf_cafir/utils.py::get_last_update_date`).
 
-Isso foi modificado e usa-se como `data_referencia` a data do arquivo, presente em seu nome como `YMMDD` (`K34313UF.D60701...` → `2026-07-01`). 
-
-A coluna `data_referencia` passa a armazenar de fato a data de referência do arquivo e foi incluída a `data_modificacao`, que armazena a data da última modificação do arquivo no servidor.
-
-## Download e processamento em paralelo
-
-- `download_files`/`process_files` (que faziam loop interno sequencial) viraram três tasks:
-* `extract_file_records`: converte o DataFrame filtrado em list[dict] de escalares.
-* `download_file`: baixa um único arquivo.
-* `process_file`: processa um único arquivo (chama process_csv_file).
-flows.py
-
-O flow agora dispara download_file.submit(...) para cada registro (download paralelo real via Prefect), e process_file.submit(..., wait_for=[download_futures[...]]) — cada processamento aguarda apenas o seu próprio download, não o lote inteiro, então arquivos diferentes correm em paralelo em todo o pipeline (download₁ pode estar em processamento enquanto download₂ ainda baixa).
+O poll e o commit de metadados, por outro lado, usam a data do **nome do
+arquivo** (`K34313UF.D60701...` → `2026-07-01`). As duas datas divergem.
 
 **Risco:** `data_referencia` é a chave do modelo incremental. Se a Receita
 mexer em qualquer arquivo da pasta — inclusive de anos antigos — a data de
