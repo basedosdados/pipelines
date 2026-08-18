@@ -27,4 +27,6 @@ select
     safe_cast(research_transaction_count as int64) research_transaction_count,
     safe_cast(disputed_transaction_count as int64) disputed_transaction_count,
     safe_cast(undisputed_transaction_count as int64) undisputed_transaction_count
-from {{ set_datalake_project("us_cms_open_payments_staging.summary_teaching_hospital") }} as t
+from
+    {{ set_datalake_project("us_cms_open_payments_staging.summary_teaching_hospital") }}
+    as t

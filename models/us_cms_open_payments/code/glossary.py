@@ -36,6 +36,10 @@ GLOSS = {
     "Stock, stock option, or any other ownership interest": (
         "Ações, opções de ações ou qualquer outra participação societária"
     ),
+    # PY 2016 onwards splits that single legacy value into three.
+    "Stock": "Ações",
+    "Stock option": "Opções de ações",
+    "Any other ownership interest": "Qualquer outra participação societária",
     "Dividend, profit or other return on investment": (
         "Dividendos, lucros ou outro retorno sobre investimento"
     ),
@@ -83,6 +87,8 @@ GLOSS = {
     "General": "Pagamento geral",
     "Research": "Pagamento de pesquisa",
     "Ownership": "Participação societária",
+    "Ownership/investment": "Participação societária ou de investimento",
+    "Associated Research": "Pesquisa associada, em que o beneficiário é pesquisador principal",
     # related_product_indicator
     "Covered": "Associado a produto coberto pelo programa",
     "Non-Covered": "Associado a produto não coberto pelo programa",
@@ -124,3 +130,66 @@ GLOSS = {
     "National": "Âmbito nacional",
     "State": "Âmbito estadual",
 }
+
+
+# Nature-of-payment codes. CMS publishes these codes in the summary reports but
+# never the labels, so the mapping is recovered from the data by
+# derive_nature_codes.py -- each code resolves to one label with hundreds to
+# thousands of independent matching groups and no meaningful runner-up. Keyed by
+# (column, value) because a bare "1" is not self-identifying.
+NATURE_CODES = {
+    "1": "Honorários de consultoria",
+    "2": (
+        "Remuneração por serviços que não consultoria, incluindo atuação como docente ou "
+        "palestrante fora de programa de educação continuada"
+    ),
+    "3": "Honorários",
+    "4": "Presente",
+    "5": "Entretenimento",
+    "6": "Alimentação e bebidas",
+    "7": "Viagem e hospedagem",
+    "8": "Educação",
+    "9": "Contribuição para instituição de caridade",
+    "10": "Royalties ou licenciamento",
+    "11": "Participação societária ou de investimento atual ou futura",
+    "12": (
+        "Remuneração por atuação como docente ou palestrante em programa de educação "
+        "continuada não credenciado e não certificado"
+    ),
+    "13": (
+        "Remuneração por atuação como docente ou palestrante em programa de educação "
+        "continuada credenciado ou certificado"
+    ),
+    "14": "Subvenção",
+    "15": "Aluguel de espaço ou taxas de instalação, apenas para hospitais universitários",
+    "16": "Remuneração por atuação como docente ou palestrante em programa de educação médica",
+    "17": "Perdão de dívida",
+    "18": "Empréstimo de longo prazo de insumo ou dispositivo médico",
+    "19": "Aquisições",
+}
+
+# recipient_type is text everywhere except summary_by_entity_recipient_nature,
+# where it is a code. Recovered the same way -- see derive_codes.py.
+RECIPIENT_TYPE_CODES = {
+    "1": "Médico beneficiário",
+    "2": "Hospital universitário beneficiário",
+    "10": "Profissional não médico beneficiário",
+}
+
+COLUMN_GLOSS = {
+    **{
+        ("payment_nature_code", code): label
+        for code, label in NATURE_CODES.items()
+    },
+    **{
+        ("recipient_type", code): label
+        for code, label in RECIPIENT_TYPE_CODES.items()
+    },
+}
+
+
+def gloss(column: str, value: str) -> str | None:
+    """Portuguese meaning of one value, or None when it is not glossed."""
+    if (column, value) in COLUMN_GLOSS:
+        return COLUMN_GLOSS[(column, value)]
+    return GLOSS.get(value)

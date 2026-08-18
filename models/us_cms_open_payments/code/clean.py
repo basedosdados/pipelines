@@ -52,7 +52,12 @@ def _detail_select(table: str, kind: str, year: int) -> str:
 
 
 def _investigator_select(kind_year: int) -> str:
-    """UNION ALL over the five investigator slots, empty slots dropped."""
+    """UNION ALL over the five investigator slots, empty slots dropped.
+
+    Columns are emitted in layout order, not in the order the pieces are
+    assembled: the layout puts the identifiers first, so the slot number sits
+    after the profile id rather than before it.
+    """
     header = layout.HEADERS["detail"][f"research_{kind_year}"]
     by_slot: dict[int, dict[str, str]] = {i: {} for i in range(1, 6)}
     for source in header:
@@ -61,29 +66,26 @@ def _investigator_select(kind_year: int) -> str:
             by_slot[split[0]][split[1]] = source
 
     table = "research_principal_investigator"
-    fields = [
-        col
-        for col in layout.LAYOUT[table]
-        if col not in {"year", "record_id", "principal_investigator_number"}
-    ]
     blocks = []
     for slot, mapping in by_slot.items():
         if not mapping:
             continue
-        cols = ",\n    ".join(_expr(mapping.get(f), f, table) for f in fields)
+        parts = []
+        for column in layout.LAYOUT[table]:
+            if column == "year":
+                parts.append('nullif(trim("Program_Year"), \'\') AS "year"')
+            elif column == "record_id":
+                parts.append('nullif(trim("Record_ID"), \'\') AS "record_id"')
+            elif column == "principal_investigator_number":
+                parts.append(f"'{slot}' AS \"principal_investigator_number\"")
+            else:
+                parts.append(_expr(mapping.get(column), column, table))
         present = " OR ".join(
             f"nullif(trim(\"{src}\"), '') IS NOT NULL"
             for src in mapping.values()
         )
-        blocks.append(
-            f"""SELECT
-    nullif(trim("Program_Year"), '') AS "year",
-    nullif(trim("Record_ID"), '') AS "record_id",
-    '{slot}' AS "principal_investigator_number",
-    {cols}
-  FROM src
-  WHERE {present}"""
-        )
+        columns = ",\n    ".join(parts)
+        blocks.append(f"SELECT\n    {columns}\n  FROM src\n  WHERE {present}")
     return "\n  UNION ALL\n  ".join(blocks)
 
 

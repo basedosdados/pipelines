@@ -15,6 +15,73 @@ models:
           combination_of_columns: [year, record_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - covered_recipient_license_state_2
+            - covered_recipient_license_state_3
+            - covered_recipient_license_state_4
+            - covered_recipient_license_state_5
+            - covered_recipient_name_suffix
+            - covered_recipient_primary_type_2
+            - covered_recipient_primary_type_3
+            - covered_recipient_primary_type_4
+            - covered_recipient_primary_type_5
+            - covered_recipient_primary_type_6
+            - covered_recipient_specialty_2
+            - covered_recipient_specialty_3
+            - covered_recipient_specialty_4
+            - covered_recipient_specialty_5
+            - covered_recipient_specialty_6
+            - product_category_4
+            - product_category_5
+            - product_covered_indicator_4
+            - product_covered_indicator_5
+            - product_name_4
+            - product_name_5
+            - product_ndc_3
+            - product_ndc_4
+            - product_ndc_5
+            - product_type_4
+            - product_type_5
+            - recipient_postal_code
+            - recipient_province
+            - teaching_hospital_ccn
+            - teaching_hospital_id
+            - teaching_hospital_name
+            - third_party_entity_name
+            - third_party_equals_covered_recipient_indicator
+            - travel_city
+            - travel_country
+            - travel_state
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - change_type
+            - covered_recipient_type
+            - covered_recipient_primary_type_1
+            - covered_recipient_primary_type_2
+            - covered_recipient_primary_type_3
+            - covered_recipient_primary_type_4
+            - covered_recipient_primary_type_5
+            - covered_recipient_primary_type_6
+            - payment_form
+            - payment_nature
+            - physician_ownership_indicator
+            - third_party_payment_recipient_indicator
+            - charity_indicator
+            - third_party_equals_covered_recipient_indicator
+            - delay_in_publication_indicator
+            - dispute_status
+            - related_product_indicator
+            - product_covered_indicator_1
+            - product_type_1
+            - product_covered_indicator_2
+            - product_type_2
+            - product_covered_indicator_3
+            - product_type_3
+            - product_covered_indicator_4
+            - product_type_4
+            - product_covered_indicator_5
+            - product_type_5
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -403,7 +470,6 @@ models:
             - physician_license_state_4
             - physician_license_state_5
             - physician_name_suffix
-            - physician_npi
             - recipient_postal_code
             - recipient_province
             - teaching_hospital_ccn
@@ -695,6 +761,91 @@ models:
           combination_of_columns: [year, record_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - covered_recipient_first_name
+            - covered_recipient_last_name
+            - covered_recipient_license_state_1
+            - covered_recipient_license_state_2
+            - covered_recipient_license_state_3
+            - covered_recipient_license_state_4
+            - covered_recipient_license_state_5
+            - covered_recipient_middle_name
+            - covered_recipient_name_suffix
+            - covered_recipient_npi
+            - covered_recipient_primary_type_1
+            - covered_recipient_primary_type_2
+            - covered_recipient_primary_type_3
+            - covered_recipient_primary_type_4
+            - covered_recipient_primary_type_5
+            - covered_recipient_primary_type_6
+            - covered_recipient_profile_id
+            - covered_recipient_specialty_1
+            - covered_recipient_specialty_2
+            - covered_recipient_specialty_3
+            - covered_recipient_specialty_4
+            - covered_recipient_specialty_5
+            - covered_recipient_specialty_6
+            - expenditure_category_1
+            - expenditure_category_2
+            - expenditure_category_3
+            - expenditure_category_4
+            - expenditure_category_5
+            - expenditure_category_6
+            - product_category_2
+            - product_category_3
+            - product_category_4
+            - product_category_5
+            - product_covered_indicator_2
+            - product_covered_indicator_3
+            - product_covered_indicator_4
+            - product_covered_indicator_5
+            - product_name_2
+            - product_name_3
+            - product_name_4
+            - product_name_5
+            - product_ndc_2
+            - product_ndc_3
+            - product_ndc_4
+            - product_ndc_5
+            - product_type_2
+            - product_type_3
+            - product_type_4
+            - product_type_5
+            - recipient_postal_code
+            - recipient_province
+            - research_information_link
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - change_type
+            - covered_recipient_type
+            - covered_recipient_primary_type_1
+            - covered_recipient_primary_type_2
+            - covered_recipient_primary_type_3
+            - covered_recipient_primary_type_4
+            - covered_recipient_primary_type_5
+            - covered_recipient_primary_type_6
+            - related_product_indicator
+            - product_covered_indicator_1
+            - product_type_1
+            - product_covered_indicator_2
+            - product_type_2
+            - product_covered_indicator_3
+            - product_type_3
+            - product_covered_indicator_4
+            - product_type_4
+            - product_covered_indicator_5
+            - product_type_5
+            - payment_form
+            - expenditure_category_1
+            - expenditure_category_2
+            - expenditure_category_3
+            - expenditure_category_4
+            - expenditure_category_5
+            - expenditure_category_6
+            - preclinical_research_indicator
+            - delay_in_publication_indicator
+            - dispute_status
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -1378,10 +1529,7 @@ models:
           combination_of_columns: [year, record_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - physician_npi
-            - recipient_postal_code
-            - recipient_province
+          ignore_values: [recipient_postal_code, recipient_province]
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - change_type
@@ -1518,8 +1666,6 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
-            - covered_recipient_npi
-            - covered_recipient_type
             - license_state_2
             - license_state_3
             - license_state_4
@@ -1967,6 +2113,10 @@ models:
             - payment_nature_code
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [teaching_hospital_name]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [recipient_type, payment_nature_code]
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -2026,6 +2176,10 @@ models:
             - payment_type
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [teaching_hospital_name]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [recipient_type, payment_type]
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -2088,6 +2242,9 @@ models:
             - payment_nature_code
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [payment_nature_code]
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -2129,6 +2286,9 @@ models:
             - payment_nature_code
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [recipient_type, payment_nature_code]
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -2182,6 +2342,9 @@ models:
             - recipient_type
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [payment_nature, recipient_type]
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -2292,6 +2455,12 @@ models:
             - recipient_type
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - metric_level
+            - payment_type
+            - recipient_type
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -2371,6 +2540,9 @@ models:
             - taxonomy_code
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [payment_type, recipient_type]
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -2460,6 +2632,9 @@ models:
             - recipient_type
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [payment_type, recipient_type]
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -2565,6 +2740,7 @@ models:
           combination_of_columns: [year, teaching_hospital_ccn]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [address_line_2]
     columns:
       - name: year
         description: >-
@@ -2703,6 +2879,14 @@ models:
           combination_of_columns: [year, covered_recipient_profile_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - alternate_name_suffix
+            - license_state_5
+            - name_suffix
+            - province
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [profile_type, has_multiple_ids]
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-

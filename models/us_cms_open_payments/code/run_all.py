@@ -84,9 +84,9 @@ if __name__ == "__main__":
         _save(counts)
 
     if not sys.argv[1:]:
-        print("\n=== enforcing the all-STRING staging schema")
-        import repair_string_schema
+        print("\n=== normalising parquet column order and types")
+        import normalise_parquet
 
-        repair_string_schema.main()
+        normalise_parquet.main()
 
     print(f"\nrow counts written to {COUNTS_PATH}")

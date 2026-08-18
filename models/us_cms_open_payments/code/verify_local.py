@@ -16,7 +16,7 @@ import layout
 import profile_data
 import pyarrow.parquet as pq
 import schema as col_schema
-from glossary import GLOSS
+from glossary import gloss
 
 
 def main() -> None:
@@ -82,7 +82,7 @@ def main() -> None:
             for column, values in data.get("values", {}).items():
                 if col_schema.covered_by_dictionary(table, column) != "yes":
                     continue
-                missing = [v for v in values if v not in GLOSS]
+                missing = [v for v in values if gloss(column, v) is None]
                 if missing:
                     problems.append(
                         f"{table}.{column}: {len(missing)} value(s) without a gloss: {missing[:3]}"

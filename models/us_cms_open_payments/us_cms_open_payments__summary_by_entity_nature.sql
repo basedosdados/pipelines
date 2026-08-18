@@ -19,4 +19,6 @@ select
     safe_cast(transaction_count as int64) transaction_count,
     safe_cast(amount_total as float64) amount_total,
     safe_cast(reporting_entity_name as string) reporting_entity_name
-from {{ set_datalake_project("us_cms_open_payments_staging.summary_by_entity_nature") }} as t
+from
+    {{ set_datalake_project("us_cms_open_payments_staging.summary_by_entity_nature") }}
+    as t

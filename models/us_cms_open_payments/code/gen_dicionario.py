@@ -16,7 +16,7 @@ import sys
 import constants as c
 import layout
 import profile_data
-from glossary import GLOSS
+from glossary import gloss
 
 
 def coverage(table: str) -> str:
@@ -34,8 +34,8 @@ def rows() -> tuple[list[dict[str, str]], list[tuple[str, str, str]]]:
     for table, data in prof.items():
         for column, values in sorted(data.get("values", {}).items()):
             for value in values:
-                gloss = GLOSS.get(value)
-                if gloss is None:
+                meaning = gloss(column, value)
+                if meaning is None:
                     missing.append((table, column, value))
                     continue
                 out.append(
@@ -44,7 +44,7 @@ def rows() -> tuple[list[dict[str, str]], list[tuple[str, str, str]]]:
                         "nome_coluna": column,
                         "chave": value,
                         "cobertura_temporal": coverage(table),
-                        "valor": gloss,
+                        "valor": meaning,
                     }
                 )
     return out, missing
