@@ -11,13 +11,10 @@ models:
       dentro do trimestre de divulgação.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - quarter
-            - accession_number
+          combination_of_columns: [year, quarter, accession_number]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values: [additional_ciks, former_name, former_name_change_date]
+          ignore_values: [additional_ciks]
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - sic
@@ -168,7 +165,7 @@ models:
             - coregistrant
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values: [footnote]
+          ignore_values: [footnote, coregistrant]
     columns:
       - name: year
         description: >
@@ -225,11 +222,7 @@ models:
       para obter a dimensão única, aplique select distinct sobre tag e version.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - quarter
-            - tag
-            - version
+          combination_of_columns: [year, quarter, tag, version]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage:
@@ -353,10 +346,7 @@ models:
       linha por combinação de tabela, coluna, chave e rótulo legível.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - id_tabela
-            - nome_coluna
-            - chave
+          combination_of_columns: [id_tabela, nome_coluna, chave]
     columns:
       - name: id_tabela
         description: >

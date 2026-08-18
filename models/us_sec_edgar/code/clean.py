@@ -20,8 +20,10 @@ import sys
 
 from pipelines.datasets.us_sec_edgar.constants import constants
 from pipelines.datasets.us_sec_edgar.utils import (
+    build_dicionario,
     clean_all,
     list_source_quarters,
+    observed_from_output,
 )
 
 
@@ -37,12 +39,22 @@ def main(argv=None) -> int:
     parser.add_argument("quarters", nargs="*", type=parse_quarter)
     parser.add_argument("--keep-zip", action="store_true")
     parser.add_argument("--data-dir", default=constants.SCRATCH_DIR.value)
+    parser.add_argument(
+        "--dicionario-only",
+        action="store_true",
+        help="rebuild dicionario from the already-written parquet",
+    )
     args = parser.parse_args(argv)
 
     input_dir = os.path.join(args.data_dir, "input")
     output_dir = os.path.join(args.data_dir, "output")
     os.makedirs(input_dir, exist_ok=True)
     os.makedirs(output_dir, exist_ok=True)
+
+    if args.dicionario_only:
+        rows = build_dicionario(output_dir, observed_from_output(output_dir))
+        print(f"dicionario: {rows:,}")
+        return 0
 
     quarters = args.quarters or list_source_quarters()
     print(

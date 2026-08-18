@@ -15,6 +15,7 @@ the "Staging parquet must be all-STRING" note in
 """
 
 import csv
+import glob
 import os
 import re
 import shutil
@@ -68,10 +69,17 @@ DICTIONARY_LABELS: dict[tuple[str, str], dict[str, str]] = {
     },
     ("submission", "fiscal_period"): {
         "FY": "Fiscal year",
+        "CY": "Calendar year",
         "Q1": "First fiscal quarter",
         "Q2": "Second fiscal quarter",
         "Q3": "Third fiscal quarter",
         "Q4": "Fourth fiscal quarter",
+        "H1": "First fiscal half",
+        "H2": "Second fiscal half",
+        "T1": "First fiscal trimester",
+        "T2": "Second fiscal trimester",
+        "T3": "Third fiscal trimester",
+        "M9": "First nine fiscal months",
     },
     ("submission", "previous_report"): {
         "0": "Not subsequently amended",
@@ -105,6 +113,10 @@ DICTIONARY_LABELS: dict[tuple[str, str], dict[str, str]] = {
         "power": "Power",
         "length": "Length",
         "duration": "Duration",
+        "memory": "Memory",
+        "nonNegativeInteger": "Non-negative integer",
+        "positiveInteger": "Positive integer",
+        "monetaryPerVolume": "Monetary amount per unit of volume",
     },
     ("tag", "period_type"): {
         "I": "Instant, a point in time",
@@ -118,6 +130,7 @@ DICTIONARY_LABELS: dict[tuple[str, str], dict[str, str]] = {
         "EQ": "Changes in equity",
         "CI": "Comprehensive income",
         "SI": "Schedule of investments",
+        "CP": "Cover page",
         "UN": "Unclassifiable statement",
     },
     ("presentation", "parenthetical"): {
@@ -394,6 +407,27 @@ def build_dicionario(
         arrow, os.path.join(part_dir, "data.parquet"), compression="snappy"
     )
     return arrow.num_rows
+
+
+def observed_from_output(output_dir: str) -> dict[tuple[str, str], set]:
+    """Rescan the written parquet for the distinct dictionary-covered values.
+
+    Lets `build_dicionario` be re-run after a label change without downloading
+    and cleaning every quarter again.
+    """
+    observed: dict[tuple[str, str], set] = {}
+    for table, columns in DICTIONARY_COLUMNS.items():
+        if not columns:
+            continue
+        pattern = os.path.join(output_dir, table, "**", "*.parquet")
+        for path in sorted(glob.glob(pattern, recursive=True)):
+            arrow = pq.ParquetFile(path).read(columns=columns)
+            for column in columns:
+                values = arrow.column(column).unique().to_pylist()
+                observed.setdefault((table, column), set()).update(
+                    v for v in values if v is not None
+                )
+    return observed
 
 
 # --------------------------------------------------------------------------

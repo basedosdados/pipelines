@@ -29,7 +29,7 @@ fiscal_year_end,STRING,Fim do exercício fiscal do registrante,,no,,,no,"Mês e 
 form,STRING,Tipo de formulário da submissão,,no,,,no,"Por exemplo 10-K, 10-Q, 20-F, 40-F, 8-K, S-1. O próprio código é o nome canônico do formulário, por isso não é coberto por dicionário.",form,Form type of the submission,Tipo de formulario de la presentación
 period,DATE,Data do balanço patrimonial da submissão,,no,,,no,Arredondada para o fim do mês.,period,Balance sheet date of the submission,Fecha del balance de la presentación
 fiscal_year,INT64,Ano fiscal de referência da submissão,,no,,year,no,,fy,Fiscal year focus of the submission,Año fiscal de referencia de la presentación
-fiscal_period,STRING,Período fiscal de referência dentro do ano fiscal,,yes,,,no,"FY, Q1, Q2, Q3 ou Q4.",fp,Fiscal period focus within the fiscal year,Período fiscal de referencia dentro del año fiscal
+fiscal_period,STRING,Período fiscal de referência dentro do ano fiscal,,yes,,,no,"FY, Q1, Q2, Q3, Q4; os dados também trazem CY, H1, H2, T1 e M9. Rótulos em `dicionario`.",fp,Fiscal period focus within the fiscal year,Período fiscal de referencia dentro del año fiscal
 filed_date,DATE,Data do protocolo do registrante junto à SEC,,no,,,no,,filed,Date the registrant filed with the Commission,Fecha de la presentación del registrante ante la SEC
 accepted_datetime,DATETIME,Data e hora de aceitação do protocolo pela SEC,,no,,,no,,accepted,Date and time the filing was accepted by the Commission,Fecha y hora de aceptación de la presentación por la SEC
 previous_report,STRING,Indicador de que a submissão foi posteriormente aditada,,yes,,,no,"1 se verdadeiro, 0 se falso.",prevrpt,Indicator that the submission was subsequently amended,Indicador de que la presentación fue posteriormente enmendada

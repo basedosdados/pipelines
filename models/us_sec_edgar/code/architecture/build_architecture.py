@@ -395,7 +395,8 @@ SUBMISSION = [
         "Fiscal period focus within the fiscal year",
         "Período fiscal de referencia dentro del año fiscal",
         dic="yes",
-        obs="FY, Q1, Q2, Q3 ou Q4.",
+        obs="FY, Q1, Q2, Q3, Q4; os dados também trazem CY, H1, H2, T1 e M9. "
+        "Rótulos em `dicionario`.",
         original="fp",
     ),
     col(
@@ -705,7 +706,8 @@ PRESENTATION = [
         "Financial statement the report belongs to",
         "Estado financiero al que pertenece el informe",
         dic="yes",
-        obs="BS, IS, CF, EQ, CI, SI ou UN.",
+        obs="BS, IS, CF, EQ, CI, SI ou UN; os dados também trazem CP (página de "
+        "rosto), valor ausente da documentação da SEC. Rótulos em `dicionario`.",
         original="stmt",
     ),
     col(

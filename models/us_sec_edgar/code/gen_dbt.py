@@ -5,6 +5,10 @@ descriptions, so the models and their schema are generated rather than
 hand-kept in sync. Re-run after editing any `code/architecture/*.csv`:
 
     uv run python models/us_sec_edgar/code/gen_dbt.py
+
+Run pre-commit afterwards: yamlfix normalizes the generated schema.yml (short
+lists collapse to flow style), so the committed file differs cosmetically from
+this script's raw output.
 """
 
 import os
@@ -83,14 +87,12 @@ UNIQUE_KEYS = {
     "dicionario": ["id_tabela", "nome_coluna", "chave"],
 }
 
-# Columns legitimately empty for the large majority of rows.
+# Columns legitimately empty for the large majority of rows. Measured across the
+# full 2009Q1-2026Q1 export: additional_ciks 1.8% non-null, footnote 0.2%,
+# coregistrant 4.6%.
 SPARSE_COLUMNS = {
-    "submission": [
-        "additional_ciks",
-        "former_name",
-        "former_name_change_date",
-    ],
-    "numeric_fact": ["footnote"],
+    "submission": ["additional_ciks"],
+    "numeric_fact": ["footnote", "coregistrant"],
     "tag": [],
     "presentation": [],
 }
