@@ -60,6 +60,36 @@ def _malloc_trim() -> None:
         _LIBC.malloc_trim(0)
 
 
+def container_memory_limit_gb() -> float | None:
+    """Best-effort read of this container's memory limit, in GiB.
+
+    Returns ``None`` when unlimited or unreadable (e.g. macOS). Used to log the
+    pod's real limit — a ``job_variables`` key the work pool template does not
+    recognize is silently dropped, so the pod can end up on a small default
+    limit rather than the requested one.
+    """
+    for path in (
+        "/sys/fs/cgroup/memory.max",  # cgroup v2
+        "/sys/fs/cgroup/memory/memory.limit_in_bytes",  # cgroup v1
+    ):
+        try:
+            with open(path) as fh:
+                raw = fh.read().strip()
+        except OSError:
+            continue
+        if raw == "max":
+            return None
+        try:
+            val = int(raw)
+        except ValueError:
+            continue
+        # cgroup v1 reports a huge sentinel when unlimited.
+        if val >= 1 << 62:
+            return None
+        return val / 1024**3
+    return None
+
+
 # ── download ────────────────────────────────────────────────────────────────
 def retry_download_car(
     car,

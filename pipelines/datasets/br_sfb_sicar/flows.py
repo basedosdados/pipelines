@@ -28,7 +28,10 @@ from pipelines.crawler.sfb_sicar.tasks import (
     download_uf_theme,
     get_release_dates_task,
 )
-from pipelines.crawler.sfb_sicar.utils import max_release_iso
+from pipelines.crawler.sfb_sicar.utils import (
+    container_memory_limit_gb,
+    max_release_iso,
+)
 from pipelines.utils.metadata.domain import (
     AllFree,
     CoverageSpec,
@@ -171,6 +174,13 @@ def br_sfb_sicar_flow(
             memory smoke test for the vertex-dense themes (e.g. Amazonas ``app``)
             that touches neither dev nor prod.
     """
+    limit_gb = container_memory_limit_gb()
+    print(
+        f"container memory limit: {limit_gb:.1f} GiB"
+        if limit_gb is not None
+        else "container memory limit: unlimited/unknown"
+    )
+
     themes = [
         t
         for t in THEME_TABLES
@@ -303,14 +313,18 @@ def br_sfb_sicar_flow(
 br_sfb_sicar_flow.deploy_schedules = [
     {"cron": "0 16 10,11,12,13,14,15 * *", "timezone": "America/Sao_Paulo"}
 ]
-# The dense Amazonas APP clean churns millions of tiny per-feature GEOS/WKT
-# allocations. On the Linux worker, glibc's default 8*ncores malloc arenas each
-# retain freed memory and RSS balloons ~10x the real ~4 GB working set, OOMing
-# the pod — a failure that never reproduces on a (non-glibc) macOS laptop.
-# MALLOC_ARENA_MAX caps the arenas (read by glibc before Python starts, the
-# reliable path; utils.py also mallopt/malloc_trims as an in-process backstop).
+# Memory: the clean is bounded to one feature range per subprocess, so it does
+# not need much — but the pod must actually get what we ask for. This work pool's
+# job template may key memory as either ``memory`` or ``memory_limit`` /
+# ``memory_request``; a key it does not recognize is silently dropped (the ``env``
+# key was), which can leave the pod on a small default limit. Set both
+# conventions; ``container_memory_limit_gb`` logs the limit the pod actually got.
+# MALLOC_ARENA_MAX (env, plus the utils.py mallopt/malloc_trim backstops) is a
+# cheap second bound on any single range's glibc footprint.
 # pyrefly: ignore [missing-attribute]
 br_sfb_sicar_flow.job_variables = {
-    "memory": "32Gi",
+    "memory": "12Gi",
+    "memory_limit": "12Gi",
+    "memory_request": "4Gi",
     "env": {"MALLOC_ARENA_MAX": "2", "MALLOC_TRIM_THRESHOLD_": "131072"},
 }
