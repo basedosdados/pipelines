@@ -1,0 +1,76 @@
+table_code,series_id,source,source_file,title
+D4,DSOGSAL,AOFM; State Borrowing Authorities,d4-data.csv,Long-term government securities issued in Australia
+D4,DSOGSAS,AOFM; Austraclear Limited,d4-data.csv,Short-term government securities issued in Australia
+D4,DSOLNAA,ABS; Bloomberg; RBA,d4-data.csv,Long-term non-government securities issued in Australia – Asset-backed
+D4,DSOLNAB,Bloomberg,d4-data.csv,Long-term non-government securities issued in Australia – Banks and other financial corporations
+D4,DSOLNANC,Bloomberg,d4-data.csv,Long-term non-government securities issued in Australia – Non-financial corporations
+D4,DSOLNANR,Bloomberg,d4-data.csv,Long-term non-government securities issued in Australia – Non-residents
+D4,DSOLNAT,ABS; Bloomberg; RBA,d4-data.csv,Long-term non-government securities issued in Australia – Total
+D4,DSOMINAE,Bloomberg,d4-data.csv,Long-term non-residents' A$ eurobonds
+D4,DSOMIRMS,ABS; Bloomberg; RBA,d4-data.csv,Residential mortgage securities
+D4,DSONSOA,ABS; Bloomberg; RBA,d4-data.csv,Long-term non-government securities issued offshore – Asset-backed
+D4,DSONSOB,Bloomberg; Private Placement Monitor,d4-data.csv,Long-term non-government securities issued offshore – Banks and other financial corporations
+D4,DSONSONC,Bloomberg; Private Placement Monitor,d4-data.csv,Long-term non-government securities issued offshore – Non-financial corporations
+D4,DSONSOT,ABS; Bloomberg; Private Placement Monitor; RBA,d4-data.csv,Long-term non-government securities issued offshore – Total
+D4,DSOSNAA,ABS; Bloomberg; RBA,d4-data.csv,Short-term non-government securities issued in Australia – Asset-backed
+D4,DSOSNAB,APRA; Austraclear Limited,d4-data.csv,Short-term non-government securities issued in Australia – Banks and other financial corporations
+D4,DSOSNANC,Austraclear Limited,d4-data.csv,Short-term non-government securities issued in Australia – Non-financial corporations
+D4,DSOSNANR,Austraclear Limited,d4-data.csv,Short-term non-government securities issued in Australia – Non-residents
+D4,DSOSNAT,ABS; APRA;  Austraclear Limited; Bloomberg; RBA,d4-data.csv,Short-term non-government securities issued in Australia – Total
+F1,FIRMMBAB180D,ASX,f1-data.csv,EOD 6-month BABs/NCDs
+F1,FIRMMBAB30D,ASX,f1-data.csv,EOD 1-month BABs/NCDs
+F1,FIRMMBAB90D,ASX,f1-data.csv,EOD 3-month BABs/NCDs
+F1,FIRMMOIS1D,FENICS,f1-data.csv,1-month OIS
+F1,FIRMMOIS3D,FENICS,f1-data.csv,3-month OIS
+F1,FIRMMOIS6D,FENICS,f1-data.csv,6-month OIS
+F1.1,FIRMMBAB180,ASX,f1.1-data.csv,6-month BABs/NCDs
+F1.1,FIRMMBAB30,ASX,f1.1-data.csv,1-month BABs/NCDs
+F1.1,FIRMMBAB90,ASX,f1.1-data.csv,3-month BABs/NCDs
+F1.1,FIRMMOIS1,FENICS,f1.1-data.csv,1-month OIS
+F1.1,FIRMMOIS3,FENICS,f1.1-data.csv,3-month OIS
+F1.1,FIRMMOIS6,FENICS,f1.1-data.csv,6-month OIS
+F11.1,FXRSDR,IMF,f11.1-data.csv,A$1=SDR
+F11.1,FXRUSD,WM/Reuters,f11.1-data.csv,A$1=USD
+F12,FUSXRCD,Refinitiv,f12-data.csv,US dollar against the Canadian dollar
+F12,FUSXRE,Refinitiv,f12-data.csv,US dollar against the euro
+F12,FUSXRJY,Refinitiv,f12-data.csv,US dollar against the Japanese yen
+F12,FUSXRSF,Refinitiv,f12-data.csv,US dollar against the Swiss franc
+F12,FUSXRTWI,Board of Governors of the Federal Reserve System,f12-data.csv,US dollar trade-weighted index
+F12,FUSXRUKPS,Refinitiv,f12-data.csv,US dollar against the UK pound sterling
+F3,FNFNA10M,Bloomberg; RBA,f3-data.csv,Non-financial corporate A-rated bonds – Number of bonds – 8–12 years
+F3,FNFNA12M,Bloomberg; RBA,f3-data.csv,Non-financial corporate A-rated bonds – Number of bonds – >12 years
+F3,FNFNA3M,Bloomberg; RBA,f3-data.csv,Non-financial corporate A-rated bonds – Number of bonds – 1–4 years
+F3,FNFNA5M,Bloomberg; RBA,f3-data.csv,Non-financial corporate A-rated bonds – Number of bonds – 4–6 years
+F3,FNFNA7M,Bloomberg; RBA,f3-data.csv,Non-financial corporate A-rated bonds – Number of bonds – 6–8 years
+F3,FNFNBBB10M,Bloomberg; RBA,f3-data.csv,Non-financial corporate BBB-rated bonds – Number of bonds – 8–12 years
+F3,FNFNBBB12M,Bloomberg; RBA,f3-data.csv,Non-financial corporate BBB-rated bonds – Number of bonds – >12 years
+F3,FNFNBBB3M,Bloomberg; RBA,f3-data.csv,Non-financial corporate BBB-rated bonds – Number of bonds – 1–4 years
+F3,FNFNBBB5M,Bloomberg; RBA,f3-data.csv,Non-financial corporate BBB-rated bonds – Number of bonds – 4–6 years
+F3,FNFNBBB7M,Bloomberg; RBA,f3-data.csv,Non-financial corporate BBB-rated bonds – Number of bonds – 6–8 years
+F3,FNFTA10M,Bloomberg; RBA,f3-data.csv,Non-financial corporate A-rated bonds – Effective tenor – 10 year target tenor
+F3,FNFTA3M,Bloomberg; RBA,f3-data.csv,Non-financial corporate A-rated bonds – Effective tenor – 3 year target tenor
+F3,FNFTA5M,Bloomberg; RBA,f3-data.csv,Non-financial corporate A-rated bonds – Effective tenor – 5 year target tenor
+F3,FNFTA7M,Bloomberg; RBA,f3-data.csv,Non-financial corporate A-rated bonds – Effective tenor – 7 year target tenor
+F3,FNFTBBB10M,Bloomberg; RBA,f3-data.csv,Non-financial corporate BBB-rated bonds – Effective tenor – 10 year target tenor
+F3,FNFTBBB3M,Bloomberg; RBA,f3-data.csv,Non-financial corporate BBB-rated bonds – Effective tenor – 3 year target tenor
+F3,FNFTBBB5M,Bloomberg; RBA,f3-data.csv,Non-financial corporate BBB-rated bonds – Effective tenor – 5 year target tenor
+F3,FNFTBBB7M,Bloomberg; RBA,f3-data.csv,Non-financial corporate BBB-rated bonds – Effective tenor – 7 year target tenor
+F3,FNFYA10M,Bloomberg; RBA,f3-data.csv,Non-financial corporate A-rated bonds – Yield – 10 year target tenor
+F3,FNFYA3M,Bloomberg; RBA,f3-data.csv,Non-financial corporate A-rated bonds – Yield – 3 year target tenor
+F3,FNFYA5M,Bloomberg; RBA,f3-data.csv,Non-financial corporate A-rated bonds – Yield – 5 year target tenor
+F3,FNFYA7M,Bloomberg; RBA,f3-data.csv,Non-financial corporate A-rated bonds – Yield – 7 year target tenor
+F3,FNFYBBB10M,Bloomberg; RBA,f3-data.csv,Non-financial corporate BBB-rated bonds – Yield – 10 year target tenor
+F3,FNFYBBB3M,Bloomberg; RBA,f3-data.csv,Non-financial corporate BBB-rated bonds – Yield – 3 year target tenor
+F3,FNFYBBB5M,Bloomberg; RBA,f3-data.csv,Non-financial corporate BBB-rated bonds – Yield – 5 year target tenor
+F3,FNFYBBB7M,Bloomberg; RBA,f3-data.csv,Non-financial corporate BBB-rated bonds – Yield – 7 year target tenor
+F5,FILRSAVIIO,RBA; Securitisation System,f5-data.csv,Lending rates; Securitised housing loans; Average outstanding variable rate; Investor; Interest Only
+F5,FILRSAVIPI,RBA; Securitisation System,f5-data.csv,Lending rates; Securitised housing loans; Average outstanding variable rate; Investor; Principal & Interest
+F5,FILRSAVOI,RBA; Securitisation System,f5-data.csv,Lending rates; Securitised housing loans; Average outstanding variable rate; Owner-occupier; Interest Only
+F5,FILRSAVOPI,RBA; Securitisation System,f5-data.csv,Lending rates; Securitised housing loans; Average outstanding variable rate; Owner-occupier; Principal & Interest
+F5,FILRSAVR,RBA; Securitisation System,f5-data.csv,Lending rates; Securitised housing loans; Average outstanding variable rate
+G3,GBUSEXP,NAB,g3-data.csv,Business inflation expectations – 3-months ahead
+G3,GCONEXP,MI,g3-data.csv,Consumer inflation expectations – 1-year ahead
+G3,GUNIEXPY,"WRC, ERA, ACTU",g3-data.csv,Union officials' inflation expectations – 1-year ahead
+G3,GUNIEXPYY,"WRC, ERA, ACTU",g3-data.csv,Union officials' inflation expectations – 2-year ahead
+H3,GICNBC,NAB,h3-data.csv,Business conditions
+H3,GICWMICS,MI,h3-data.csv,Consumer sentiment

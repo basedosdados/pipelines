@@ -1,0 +1,13 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+table_code,STRING,"Código da tabela estatística do RBA (ex.: F1, D3, B13.1)",,no,,,no,Parte da chave lógica do catálogo junto com series_id,table_code
+series_id,STRING,Mnemônico da série atribuído pelo RBA,,no,,,no,Único apenas em conjunto com table_code; 233 mnemônicos se repetem entre as tabelas B13.1.2 e B13.2.1 com valores distintos,Series ID
+table_name,STRING,Nome da tabela estatística do RBA à qual a série pertence,,no,,,no,,
+title,STRING,Título descritivo da série,,no,,,no,,Title
+description,STRING,Descrição detalhada da série fornecida pelo RBA,,no,,,no,,Description
+frequency,STRING,Frequência de observação da série,,no,,,no,"Normalizado para um vocabulário controlado (Daily, Weekly, Monthly, Quarterly, Semiannual, Yearly, As announced, See notes); corrige a grafia Semiannnual usada na fonte",Frequency
+series_type,STRING,Tipo de tratamento estatístico aplicado à série,,no,,,no,"Valores como Original, Seasonally adjusted e Trend, conforme publicado pelo RBA",Type
+units,STRING,Unidade de medida dos valores da série,,no,,,no,"Define a unidade da coluna value na tabela observation (ex.: Per cent, $ million, Index)",Units
+source,STRING,Órgão responsável pela compilação original da série,,no,,,no,"Preserva a atribuição exigida pela licença CC BY 4.0; apenas séries do RBA, APRA e ABS são redistribuídas",Source
+publication_date,DATE,Data de publicação da tabela estatística que contém a série,,no,,,no,,Publication date
+observation_start,DATE,Data da primeira observação disponível da série,,no,,,no,Derivada dos dados efetivamente carregados na tabela observation,
+observation_end,DATE,Data da última observação disponível da série,,no,,,no,Derivada dos dados efetivamente carregados na tabela observation; nula para séries sem observações,

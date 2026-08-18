@@ -55,6 +55,9 @@ models:
     au_geoscape_gnaf:
       +materialized: table
       +schema: au_geoscape_gnaf
+    au_rba_statistical_tables:
+      +materialized: table
+      +schema: au_rba_statistical_tables
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
