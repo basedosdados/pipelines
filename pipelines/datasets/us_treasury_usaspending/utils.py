@@ -17,11 +17,9 @@ would turn NULL into the literal "nan". The dbt model does the real casting.
 from __future__ import annotations
 
 import csv
-import json
 import re
 import subprocess
 import time
-import urllib.request
 import zipfile
 from collections import defaultdict
 from pathlib import Path
@@ -29,6 +27,7 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.csv as pacsv
 import pyarrow.parquet as pq
+import requests
 
 from pipelines.datasets.us_treasury_usaspending.constants import constants
 
@@ -79,16 +78,17 @@ def latest_stamp(fiscal_year: int, family: str = "Assistance") -> str:
     The archive is rebuilt monthly and every file carries the same stamp, so one
     query answers for the whole set.
     """
-    body = json.dumps(
-        {"fiscal_year": fiscal_year, "agency": "all", "type": family.lower()}
-    ).encode()
-    req = urllib.request.Request(
+    resp = requests.post(
         constants.MONTHLY_FILES_API.value,
-        data=body,
-        headers={"Content-Type": "application/json"},
+        json={
+            "fiscal_year": fiscal_year,
+            "agency": "all",
+            "type": family.lower(),
+        },
+        timeout=120,
     )
-    with urllib.request.urlopen(req, timeout=120) as r:
-        payload = json.loads(r.read())
+    resp.raise_for_status()
+    payload = resp.json()
     for entry in payload["monthly_files"]:
         m = re.search(r"_(\d{8})\.zip$", entry["file_name"])
         if m and entry.get("fiscal_year") == fiscal_year:
@@ -104,10 +104,24 @@ def archive_url(fiscal_year: int, family: str, stamp: str) -> str:
     return f"{ARCHIVE_BASE}/{archive_name(fiscal_year, family, stamp)}"
 
 
-def remote_size(url: str) -> int:
-    req = urllib.request.Request(url, method="HEAD")
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return int(r.headers["Content-Length"])
+def remote_size(url: str, attempts: int = 30, max_backoff: int = 300) -> int:
+    """Content-Length of `url`, retried.
+
+    The origin returns sporadic 500s and drops connections outright when it is
+    throttling, so a single HEAD is not a reliable answer.
+    """
+    delay = 5
+    for i in range(1, attempts + 1):
+        try:
+            resp = requests.head(url, timeout=60, allow_redirects=True)
+            resp.raise_for_status()
+            return int(resp.headers["Content-Length"])
+        except Exception:
+            if i == attempts:
+                raise
+            time.sleep(delay)
+            delay = min(delay * 2, max_backoff)
+    raise RuntimeError("unreachable")
 
 
 def download_archive(
