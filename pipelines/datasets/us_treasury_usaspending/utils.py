@@ -20,6 +20,7 @@ import csv
 import json
 import re
 import subprocess
+import time
 import urllib.request
 import zipfile
 from collections import defaultdict
@@ -114,13 +115,38 @@ def download_archive(
     family: str,
     stamp: str,
     dest_dir: Path,
-    max_attempts: int = 40,
+    max_attempts: int = 200,
+    max_backoff: int = 300,
 ) -> Path:
     """Download one archive zip, resuming until it is complete and readable.
 
-    files.usaspending.gov truncates long transfers often enough that a single
-    curl invocation is not reliable at this size, so the download is retried
-    until the local size matches Content-Length and the zip directory parses.
+    files.usaspending.gov is hostile to bulk clients in three specific ways, and
+    all three are handled here:
+
+    * It rate-limits on concurrency. A handful of parallel streams draws HTTP
+      500s and then a blanket refusal of GET requests from the caller's address
+      that outlasts the burst, so archives are fetched **one at a time**.
+    * It truncates long transfers routinely, and ``curl -C -`` is not a safe
+      resume against it: when it answers a Range request with 200 rather than
+      206 curl overwrites the local file from byte zero. Here the response is
+      appended and the status checked afterwards, rolling back to the resume
+      offset if the origin resent the whole body.
+    * It refuses *small* range requests outright (a two-byte range returns an
+      empty reply), so the range cannot be probed cheaply before committing.
+
+    Args:
+        fiscal_year: Fiscal year of the archive.
+        family: ``"Contracts"`` or ``"Assistance"``.
+        stamp: Archive publication stamp, ``YYYYMMDD``.
+        dest_dir: Directory to download into.
+        max_attempts: Resume attempts before giving up.
+        max_backoff: Ceiling, in seconds, for the backoff between stalled attempts.
+
+    Returns:
+        Path of the downloaded zip.
+
+    Raises:
+        RuntimeError: If the file could not be completed.
     """
     dest_dir = Path(dest_dir)
     dest_dir.mkdir(parents=True, exist_ok=True)
@@ -128,44 +154,67 @@ def download_archive(
     dest = dest_dir / archive_name(fiscal_year, family, stamp)
     expected = remote_size(url)
 
-    for attempt in range(1, max_attempts + 1):
+    delay, stalls = 5, 0
+    for _ in range(max_attempts):
         have = dest.stat().st_size if dest.exists() else 0
         if have == expected and _zip_ok(dest):
             return dest
-        if have > expected:
+        if have > expected:  # corrupt partial, start over
             dest.unlink()
             have = 0
-        subprocess.run(
-            [
-                "curl",
-                "-sS",
-                "--fail",
-                "--retry",
-                "5",
-                "--retry-all-errors",
-                "--retry-delay",
-                "5",
-                "--speed-time",
-                "120",
-                "--speed-limit",
-                "10000",
-                "-C",
-                "-",
-                "-o",
-                str(dest),
-                url,
-            ],
-            capture_output=True,
-            check=False,
-        )
-        after = dest.stat().st_size if dest.exists() else 0
-        if after == have and attempt > 3:
-            raise RuntimeError(
-                f"download stalled for {dest.name} at {after}/{expected} bytes"
-            )
+        written = _append_range(url, dest, have)
+        if written > 0:
+            stalls, delay = 0, 5
+        else:
+            stalls += 1
+            if stalls >= 80:
+                raise RuntimeError(
+                    f"download stalled for {dest.name} at "
+                    f"{dest.stat().st_size if dest.exists() else 0}/{expected} bytes"
+                )
+            time.sleep(delay)
+            delay = min(delay * 2, max_backoff)
     raise RuntimeError(
         f"could not download {dest.name} after {max_attempts} attempts"
     )
+
+
+def _append_range(url: str, dest: Path, start: int) -> int:
+    """Append the response from `start` onward to `dest`; return bytes written."""
+    headers = dest.with_suffix(dest.suffix + ".headers")
+    args = [
+        "curl",
+        "-sS",
+        "--fail",
+        "--speed-time",
+        "180",
+        "--speed-limit",
+        "5000",
+        "--max-time",
+        "3600",
+        "-D",
+        str(headers),
+    ]
+    if start:
+        args += ["-r", f"{start}-"]
+    args.append(url)
+
+    before = dest.stat().st_size if dest.exists() else 0
+    with dest.open("ab") as f:
+        subprocess.run(args, stdout=f, stderr=subprocess.DEVNULL, check=False)
+    after = dest.stat().st_size if dest.exists() else 0
+
+    status = ""
+    if headers.exists():
+        first = headers.read_text(errors="ignore").split("\n", 1)[0].split()
+        status = first[1] if len(first) > 1 else ""
+        headers.unlink(missing_ok=True)
+    if start and status == "200":
+        # The origin ignored the Range and resent the whole body; drop it.
+        with dest.open("r+b") as f:
+            f.truncate(start)
+        return 0
+    return after - before
 
 
 def _zip_ok(path: Path) -> bool:
