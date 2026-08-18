@@ -168,6 +168,7 @@ def preserve_zeros(x):
 def process_csv_file(
     file_path: Path,
     reference_date: datetime.date,
+    last_modified_date: datetime.date,
     output_folder: Path,
 ) -> Path:
     """
@@ -177,6 +178,7 @@ def process_csv_file(
     Args:
         file_path (Path): Caminho do arquivo baixado a ser processado.
         reference_date (date): Data de referência do arquivo.
+        last_modified_date (date): Data da última modificação do arquivo no servidor da Receita.
         output_folder (Path): Pasta raiz onde as partições serão salvas.
 
     Returns:
@@ -203,7 +205,7 @@ def process_csv_file(
     # Tira os espacos em branco
     # pyrefly: ignore [not-callable]
     df = df.applymap(strip_string)
-
+    df["data_modificacao"] = last_modified_date
     log(f"Salvando arquivo: {file_name}")
 
     # NOTE: Com modificação do formato de divulgação do FTP os arquivos passaram a ser divulgados csvs particionados por UF

@@ -101,6 +101,9 @@ def br_rf_cafir__imoveis_rurais(
     file_records = extract_file_records(df_metadata=filtered_df)
     file_names = [record["nome_arquivo"] for record in file_records]
     reference_dates = [record["data_referencia"] for record in file_records]
+    last_modified_dates = [
+        record["data_modificacao"] for record in file_records
+    ]
 
     download_futures = download_file.map(
         file_name=file_names,
@@ -111,6 +114,7 @@ def br_rf_cafir__imoveis_rurais(
     process_futures = process_file.map(
         file_name=download_futures,
         reference_date=reference_dates,
+        last_modified_date=last_modified_dates,
         input_folder=unmapped(input_folder),
         output_folder=unmapped(output_folder),
     )

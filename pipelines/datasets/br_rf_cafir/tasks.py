@@ -103,17 +103,19 @@ def extract_file_records(
     df_metadata: pd.DataFrame,
     filename_col: str = "nome_arquivo",
     reference_date_col: str = "data_referencia",
+    last_modified_date_col: str = "data_modificacao",
 ) -> list[dict]:
     """
     Converte as linhas do DataFrame de metadados filtrado em uma lista de
     dicts com valores escalares, para que cada task de download/processamento
     paralela receba apenas o seu próprio file_name/reference_date
     """
-    records = df_metadata[[filename_col, reference_date_col]].to_dict(
-        "records"
-    )
+    records = df_metadata[
+        [filename_col, reference_date_col, last_modified_date_col]
+    ].to_dict("records")
     for record in records:
         record[reference_date_col] = record[reference_date_col].date()
+        record[last_modified_date_col] = record[last_modified_date_col].date()
     return records
 
 
@@ -138,11 +140,13 @@ def download_file(file_name: str, url: str, input_folder: Path) -> str:
 def process_file(
     file_name: str,
     reference_date: datetime.date,
+    last_modified_date: datetime.date,
     input_folder: Path,
     output_folder: Path,
 ) -> Path:
     return process_csv_file(
         file_path=input_folder / file_name,
         reference_date=reference_date,
+        last_modified_date=last_modified_date,
         output_folder=output_folder,
     )
