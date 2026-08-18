@@ -15,6 +15,7 @@ schema from a stringified header, so typed parquet is rejected — cast via arro
 (None-for-NaN), never ``astype(str)`` which would render NULL as ``"nan"``.
 """
 
+import contextlib
 import ctypes
 import glob
 import os
@@ -24,7 +25,6 @@ import zipfile
 from datetime import datetime
 
 import geopandas as gpd
-import httpx
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -99,11 +99,16 @@ def retry_download_car(
     tries: int = 25,
     max_retries: int = 8,
 ) -> None:
-    """Download one state x theme, retrying through the CAR server's timeouts.
+    """Download one state x theme, retrying until a valid zip exists.
 
-    The CAR API is unstable — read timeouts are frequent — so the download is
-    retried on ``httpx.ReadTimeout``. Each ``download_state`` call itself makes
-    ``tries`` captcha attempts (solved by SICAR via Tesseract OCR).
+    The CAR API is unstable — read timeouts, transient 5xx, and captcha misses
+    are frequent — and ``download_state`` can even return *without* writing a
+    usable zip (a silent failure that would otherwise surface only later as a
+    ``FileNotFoundError`` in the clean step, killing the whole run). So each
+    attempt is verified: the expected ``<UF>_<POLYGON>.zip`` must exist and be a
+    valid zip, else the attempt is treated as a failure, any partial file is
+    removed, and the download is retried. Each ``download_state`` call itself
+    makes ``tries`` captcha attempts (solved by SICAR via Tesseract OCR).
 
     Args:
         car: A ``SICAR.Sicar`` instance.
@@ -111,23 +116,38 @@ def retry_download_car(
         polygon: SICAR Polygon enum value, e.g. ``"AREA_IMOVEL"``, ``"APPS"``.
         folder: Directory the zip is written into (``<UF>_<POLYGON>.zip``).
         tries: Captcha attempts per ``download_state`` call.
-        max_retries: Timeout retries wrapping the whole download.
+        max_retries: Attempts wrapping the whole download.
 
     Raises:
-        httpx.ReadTimeout: If every retry times out.
+        RuntimeError: If no valid zip is produced after ``max_retries`` attempts.
     """
-    retries = 0
-    while retries < max_retries:
+    expected = os.path.join(folder, f"{state}_{polygon}.zip")
+    last_err: str = "no attempt made"
+    for attempt in range(max_retries):
         try:
             car.download_state(
                 state=state, polygon=polygon, folder=folder, tries=tries
             )
-            return
-        except httpx.ReadTimeout:
-            retries += 1
-            if retries >= max_retries:
-                raise
+            if os.path.exists(expected) and zipfile.is_zipfile(expected):
+                return
+            last_err = f"download_state produced no valid zip at {expected}"
+        except Exception as exc:
+            # The CAR API fails many ways (timeouts, 5xx, captcha) — retry all.
+            last_err = f"{type(exc).__name__}: {exc}"
+        # Drop any partial/invalid file so the retry starts clean.
+        if os.path.exists(expected) and not zipfile.is_zipfile(expected):
+            with contextlib.suppress(OSError):
+                os.remove(expected)
+        print(
+            f"download retry {attempt + 1}/{max_retries} for "
+            f"{state} {polygon}: {last_err}"
+        )
+        if attempt < max_retries - 1:
             tm.sleep(8)
+    raise RuntimeError(
+        f"download failed for {state} {polygon} after {max_retries} "
+        f"attempts: {last_err}"
+    )
 
 
 def release_dates_to_iso(release_dates: dict) -> dict:
