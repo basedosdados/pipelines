@@ -1,0 +1,5 @@
+name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory_column	measurement_unit	has_sensitive_data	observations	original_name
+year	INT64	Ano do programa a que o registro se refere		no	br_bd_diretorios_data_tempo.ano:ano	year	no		PY_<year> column header
+dashboard_row_number	STRING	Número da linha da métrica no painel resumo publicado pelo CMS		no			no		Dashboard_Row_Number
+metric	STRING	Nome da métrica agregada do painel resumo		yes			no		Data_Metrics
+value	FLOAT64	Valor da métrica no ano do programa		no			no	A unidade varia por linha: algumas métricas do painel são valores em dólares americanos e outras são contagens de registros. Ver a coluna metric.	PY_<year>

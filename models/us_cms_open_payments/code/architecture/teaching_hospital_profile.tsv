@@ -1,0 +1,13 @@
+name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory_column	measurement_unit	has_sensitive_data	observations	original_name
+teaching_hospital_ccn	STRING	CMS Certification Number (CCN) do hospital universitário		no			no		Teaching_Hospital_CCN
+name	STRING	Nome do hospital universitário, conforme a lista de hospitais universitários do CMS		no			no		Teaching_Hospital_NAME
+address_line_1	STRING	Primeira linha do endereço do hospital universitário		no			no		Teaching_Hospital_ADDRESS1
+address_line_2	STRING	Segunda linha do endereço do hospital universitário		no			no		Teaching_Hospital_ADDRESS2
+city	STRING	Cidade do hospital universitário		no			no		Teaching_Hospital_CITY
+state	STRING	Sigla de duas letras do estado do hospital universitário		no	br_bd_diretorios_us.state:abbreviation		no		Teaching_Hospital_STATE
+zip_code	STRING	CEP do hospital universitário		no			no		Teaching_Hospital_ZIP_CODE
+alternate_name_1	STRING	Nome alternativo pelo qual o hospital universitário também é registrado, nome 1 de 5		no			no		Teaching_Hospital_Alternate_Name1
+alternate_name_2	STRING	Nome alternativo pelo qual o hospital universitário também é registrado, nome 2 de 5		no			no		Teaching_Hospital_Alternate_Name2
+alternate_name_3	STRING	Nome alternativo pelo qual o hospital universitário também é registrado, nome 3 de 5		no			no		Teaching_Hospital_Alternate_Name3
+alternate_name_4	STRING	Nome alternativo pelo qual o hospital universitário também é registrado, nome 4 de 5		no			no		Teaching_Hospital_Alternate_Name4
+alternate_name_5	STRING	Nome alternativo pelo qual o hospital universitário também é registrado, nome 5 de 5		no			no		Teaching_Hospital_Alternate_Name5

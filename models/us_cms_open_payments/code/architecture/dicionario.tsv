@@ -1,0 +1,6 @@
+name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory_column	measurement_unit	has_sensitive_data	observations	original_name
+id_table	STRING	Nome da tabela a que a chave se refere		no			no		
+column_name	STRING	Nome da coluna a que a chave se refere		no			no		
+key	STRING	Chave codificada presente na coluna		no			no		
+temporal_coverage	STRING	Cobertura temporal em que a chave é válida		no			no		
+value	STRING	Significado da chave codificada		no			no		

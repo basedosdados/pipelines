@@ -1,0 +1,31 @@
+name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory_column	measurement_unit	has_sensitive_data	observations	original_name
+year	INT64	Ano do programa a que o registro se refere		no	br_bd_diretorios_data_tempo.ano:ano	year	no		Program_Year
+record_id	STRING	Identificador único do registro de pagamento atribuído pelo sistema Open Payments		no			no		Record_ID
+physician_profile_id	STRING	Identificador único do perfil do médico que recebeu o pagamento		no			no		Physician_Profile_ID
+physician_npi	STRING	National Provider Identifier (NPI) do médico	2015(1)2025	no			yes	Identificador nacional de prestador; armazenado como STRING por não admitir aritmética.	Physician_NPI
+reporting_entity_id	STRING	Identificador único do fabricante ou GPO que declarou o pagamento		no			no		Applicable_Manufacturer_or_Applicable_GPO_Making_Payment_ID
+change_type	STRING	Indica se o registro é novo, adicionado, alterado ou inalterado em relação à publicação anterior		yes			no		Change_Type
+physician_first_name	STRING	Primeiro nome do médico, conforme declarado pela entidade declarante		no			yes		Physician_First_Name
+physician_middle_name	STRING	Nome do meio do médico, conforme declarado pela entidade declarante		no			yes		Physician_Middle_Name
+physician_last_name	STRING	Sobrenome do médico, conforme declarado pela entidade declarante		no			yes		Physician_Last_Name
+physician_name_suffix	STRING	Sufixo do nome do médico, conforme declarado pela entidade declarante		no			yes		Physician_Name_Suffix
+recipient_address_line_1	STRING	Primeira linha do endereço comercial principal do beneficiário		no			yes		Recipient_Primary_Business_Street_Address_Line1
+recipient_address_line_2	STRING	Segunda linha do endereço comercial principal do beneficiário		no			yes		Recipient_Primary_Business_Street_Address_Line2
+recipient_city	STRING	Cidade do endereço comercial principal do beneficiário		no			yes		Recipient_City
+recipient_state	STRING	Sigla de duas letras do estado do endereço comercial principal do beneficiário, quando nos Estados Unidos		no	br_bd_diretorios_us.state:abbreviation		no		Recipient_State
+recipient_zip_code	STRING	CEP de nove dígitos do endereço comercial principal do beneficiário, quando nos Estados Unidos		no			yes		Recipient_Zip_Code
+recipient_country	STRING	País do endereço comercial principal do beneficiário		no			no		Recipient_Country
+recipient_province	STRING	Província do endereço comercial principal do beneficiário, quando fora dos Estados Unidos		no			no		Recipient_Province
+recipient_postal_code	STRING	Código postal do endereço comercial principal do beneficiário, quando fora dos Estados Unidos		no			yes		Recipient_Postal_Code
+physician_primary_type	STRING	Tipo principal de prática do médico		yes			no		Physician_Primary_Type
+physician_specialty	STRING	Especialidade do médico na taxonomia padronizada de prestadores		yes			no		Physician_Specialty
+amount_invested_total	FLOAT64	Valor investido pelo médico ou familiar imediato no fabricante ou GPO durante o ano do programa, em dólares americanos		no		usd	no		Total_Amount_Invested_USDollars
+interest_value	FLOAT64	Valor da participação societária detida, em dólares americanos		no		usd	no		Value_of_Interest
+interest_terms	STRING	Termos da participação societária, como ações ordinárias, opções ou dívida		yes			no		Terms_of_Interest
+submitting_entity_name	STRING	Nome do fabricante ou GPO que submeteu o registro, que pode diferir de quem efetuou o pagamento		no			no		Submitting_Applicable_Manufacturer_or_Applicable_GPO_Name
+reporting_entity_name	STRING	Nome do fabricante ou GPO que efetuou o pagamento		no			no		Applicable_Manufacturer_or_Applicable_GPO_Making_Payment_Name
+reporting_entity_state	STRING	Sigla de duas letras do estado do fabricante ou GPO que efetuou o pagamento		no			no		Applicable_Manufacturer_or_Applicable_GPO_Making_Payment_State
+reporting_entity_country	STRING	País do fabricante ou GPO que efetuou o pagamento		no			no		Applicable_Manufacturer_or_Applicable_GPO_Making_Payment_Country
+dispute_status	STRING	Indica se o registro estava contestado no momento da publicação		yes			no		Dispute_Status_for_Publication
+interest_held_by_physician_or_family	STRING	Indica se a participação é detida pelo próprio médico ou por familiar imediato		yes			no		Interest_Held_by_Physician_or_an_Immediate_Family_Member
+publication_date	DATE	Data em que o registro foi publicado pelo Open Payments		no			no		Payment_Publication_Date

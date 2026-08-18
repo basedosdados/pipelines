@@ -1,0 +1,39 @@
+name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory_column	measurement_unit	has_sensitive_data	observations	original_name
+year	INT64	Ano do programa a que o registro se refere		no	br_bd_diretorios_data_tempo.ano:ano	year	no		Program_Year
+covered_recipient_profile_id	STRING	Identificador único do perfil do médico ou profissional não médico que recebeu o pagamento		no			no		Covered_Recipient_Profile_ID
+covered_recipient_npi	STRING	National Provider Identifier (NPI) do médico ou profissional não médico		no			yes	Identificador nacional de prestador; armazenado como STRING por não admitir aritmética.	Covered_Recipient_NPI
+profile_type	STRING	Tipo do perfil: médico ou profissional não médico		yes			no		Covered_Recipient_Profile_Type
+first_name	STRING	Primeiro nome do profissional conforme a lista mestra de prestadores (MPL) fornecida pelo CMS		no			yes		Covered_Recipient_Profile_First_Name
+middle_name	STRING	Nome do meio do profissional conforme a lista mestra de prestadores (MPL) fornecida pelo CMS		no			yes		Covered_Recipient_Profile_Middle_Name
+last_name	STRING	Sobrenome do profissional conforme a lista mestra de prestadores (MPL) fornecida pelo CMS		no			yes		Covered_Recipient_Profile_Last_Name
+name_suffix	STRING	Sufixo do nome do profissional conforme a lista mestra de prestadores (MPL) fornecida pelo CMS		no			yes		Covered_Recipient_Profile_Suffix
+alternate_first_name	STRING	Primeiro nome alternativo do profissional registrado na lista mestra de prestadores		no			yes		Covered_Recipient_Profile_Alternate_First_Name
+alternate_middle_name	STRING	Nome do meio alternativo do profissional registrado na lista mestra de prestadores		no			yes		Covered_Recipient_Profile_Alternate_Middle_Name
+alternate_last_name	STRING	Sobrenome alternativo do profissional registrado na lista mestra de prestadores		no			yes		Covered_Recipient_Profile_Alternate_Last_Name
+alternate_name_suffix	STRING	Sufixo alternativo do nome do profissional registrado na lista mestra de prestadores		no			yes		Covered_Recipient_Profile_Alternate_Suffix
+address_line_1	STRING	Primeira linha do endereço de prática do profissional conforme a lista mestra de prestadores		no			yes		Covered_Recipient_Profile_Address_Line_1
+address_line_2	STRING	Segunda linha do endereço de prática do profissional conforme a lista mestra de prestadores		no			yes		Covered_Recipient_Profile_Address_Line_2
+city	STRING	Cidade do endereço de prática do profissional conforme a lista mestra de prestadores		no			yes		Covered_Recipient_Profile_City
+state	STRING	Sigla de duas letras do estado do endereço de prática do profissional		no	br_bd_diretorios_us.state:abbreviation		no		Covered_Recipient_Profile_State
+zip_code	STRING	CEP do endereço de prática do profissional		no			yes		Covered_Recipient_Profile_Zipcode
+country	STRING	País do endereço de prática do profissional		no			no		Covered_Recipient_Profile_Country_Name
+province	STRING	Província do endereço de prática do profissional, quando fora dos Estados Unidos		no			no		Covered_Recipient_Profile_Province_Name
+primary_specialty	STRING	Especialidade principal do profissional na taxonomia padronizada de prestadores		yes			no		Covered_Recipient_Profile_Primary_Specialty
+license_state_1	STRING	Sigla de duas letras do estado da licença profissional, licença 1 de 5		no			no		Covered_Recipient_Profile_License_State_Code_1
+license_state_2	STRING	Sigla de duas letras do estado da licença profissional, licença 2 de 5		no			no		Covered_Recipient_Profile_License_State_Code_2
+license_state_3	STRING	Sigla de duas letras do estado da licença profissional, licença 3 de 5		no			no		Covered_Recipient_Profile_License_State_Code_3
+license_state_4	STRING	Sigla de duas letras do estado da licença profissional, licença 4 de 5		no			no		Covered_Recipient_Profile_License_State_Code_4
+license_state_5	STRING	Sigla de duas letras do estado da licença profissional, licença 5 de 5		no			no		Covered_Recipient_Profile_License_State_Code_5
+general_payment_amount_total	FLOAT64	Valor total de pagamentos gerais, em dólares americanos		no		usd	no		General_Total_Payment
+research_payment_amount_total	FLOAT64	Valor total de pagamentos de pesquisa, em dólares americanos		no		usd	no		Research_Total_Payment
+ownership_amount_invested_total	FLOAT64	Valor total investido em participação societária, em dólares americanos		no		usd	no		Invested_Total_Amount
+ownership_interest_value_total	FLOAT64	Valor total da participação societária detida, em dólares americanos		no		usd	no		Interest_Total_Amount
+general_transaction_count	INT64	Quantidade de transações de pagamento geral		no			no	Contagem adimensional, sem unidade de medida aplicável.	General_Total_Transactions
+research_transaction_count	INT64	Quantidade de transações de pagamento de pesquisa		no			no	Contagem adimensional, sem unidade de medida aplicável.	Research_Total_Transactions
+ownership_invested_transaction_count	INT64	Quantidade de registros de investimento em participação societária		no			no	Contagem adimensional, sem unidade de medida aplicável.	Invested_Total_Transactions
+ownership_interest_transaction_count	INT64	Quantidade de registros de participação societária detida		no			no	Contagem adimensional, sem unidade de medida aplicável.	Interest_Total_Transactions
+associated_research_payment_amount_total	FLOAT64	Valor total de pagamentos de pesquisa em que o profissional consta como pesquisador principal, em dólares americanos		no		usd	no		Total_Associated_Research_Payments
+associated_research_transaction_count	INT64	Quantidade de transações de pesquisa em que o profissional consta como pesquisador principal		no			no	Contagem adimensional, sem unidade de medida aplicável.	Total_Associated_Research_Transactions
+disputed_transaction_count	INT64	Quantidade de transações contestadas pelo beneficiário		no			no	Contagem adimensional, sem unidade de medida aplicável.	Total_Disputed_Transactions
+undisputed_transaction_count	INT64	Quantidade de transações não contestadas		no			no	Contagem adimensional, sem unidade de medida aplicável.	Total_Undisputed_Transactions
+has_multiple_ids	STRING	Indica se o profissional possui mais de um identificador de perfil no Open Payments		yes			no		Has_Multiple_IDs

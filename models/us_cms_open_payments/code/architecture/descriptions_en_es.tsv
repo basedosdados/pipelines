@@ -1,0 +1,652 @@
+table	name	description_en	description_es
+general	year	Program year the record refers to	Año del programa al que se refiere el registro
+general	record_id	System-assigned unique identifier of the payment record	Identificador único del registro de pago asignado por el sistema Open Payments
+general	covered_recipient_profile_id	Unique identifier of the covered recipient physician or non-physician practitioner profile	Identificador único del perfil del médico o profesional no médico que recibió el pago
+general	covered_recipient_npi	National Provider Identifier (NPI) of the covered recipient physician or non-physician practitioner	National Provider Identifier (NPI) del médico o profesional no médico
+general	teaching_hospital_ccn	CMS Certification Number (CCN) of the teaching hospital	CMS Certification Number (CCN) del hospital universitario
+general	teaching_hospital_id	System-assigned unique identifier of the teaching hospital	Identificador único del hospital universitario asignado por el sistema Open Payments
+general	reporting_entity_id	Unique identifier of the applicable manufacturer or GPO that reported the payment	Identificador único del fabricante o GPO que declaró el pago
+general	change_type	Indicates whether the record is new, added, changed or unchanged relative to the previous publication	Indica si el registro es nuevo, añadido, modificado o sin cambios respecto a la publicación anterior
+general	covered_recipient_type	Type of recipient: physician, non-physician practitioner, teaching hospital or non-covered entity	Tipo de beneficiario: médico, profesional no médico, hospital universitario o entidad no cubierta
+general	teaching_hospital_name	Name of the teaching hospital, as listed in the CMS teaching hospital list	Nombre del hospital universitario, según la lista de hospitales universitarios del CMS
+general	covered_recipient_first_name	First name of the covered recipient, as reported by the submitting entity	Primer nombre del beneficiario, según lo declarado por la entidad declarante
+general	covered_recipient_middle_name	Middle name of the covered recipient, as reported by the submitting entity	Segundo nombre del beneficiario, según lo declarado por la entidad declarante
+general	covered_recipient_last_name	Last name of the covered recipient, as reported by the submitting entity	Apellido del beneficiario, según lo declarado por la entidad declarante
+general	covered_recipient_name_suffix	Name suffix of the covered recipient, as reported by the submitting entity	Sufijo del nombre del beneficiario, según lo declarado por la entidad declarante
+general	recipient_address_line_1	First line of the primary business street address of the covered recipient	Primera línea de la dirección comercial principal del beneficiario
+general	recipient_address_line_2	Second line of the primary business street address of the covered recipient	Segunda línea de la dirección comercial principal del beneficiario
+general	recipient_city	City of the primary business address of the covered recipient	Ciudad de la dirección comercial principal del beneficiario
+general	recipient_state	Two-letter state abbreviation of the covered recipient primary business address, when in the United States	Sigla de dos letras del estado de la dirección comercial principal del beneficiario, cuando está en Estados Unidos
+general	recipient_zip_code	Nine-digit ZIP code of the covered recipient primary business address, when in the United States	Código postal de nueve dígitos de la dirección comercial principal del beneficiario, cuando está en Estados Unidos
+general	recipient_country	Country of the primary business address of the covered recipient	País de la dirección comercial principal del beneficiario
+general	recipient_province	Province of the covered recipient primary business address, when outside the United States	Provincia de la dirección comercial principal del beneficiario, cuando está fuera de Estados Unidos
+general	recipient_postal_code	Postal code of the covered recipient primary business address, when outside the United States	Código postal de la dirección comercial principal del beneficiario, cuando está fuera de Estados Unidos
+general	covered_recipient_primary_type_1	Primary type of medicine practiced by the covered recipient, type 1 of 6	Tipo principal de práctica del beneficiario, tipo 1 de 6
+general	covered_recipient_primary_type_2	Primary type of medicine practiced by the covered recipient, type 2 of 6	Tipo principal de práctica del beneficiario, tipo 2 de 6
+general	covered_recipient_primary_type_3	Primary type of medicine practiced by the covered recipient, type 3 of 6	Tipo principal de práctica del beneficiario, tipo 3 de 6
+general	covered_recipient_primary_type_4	Primary type of medicine practiced by the covered recipient, type 4 of 6	Tipo principal de práctica del beneficiario, tipo 4 de 6
+general	covered_recipient_primary_type_5	Primary type of medicine practiced by the covered recipient, type 5 of 6	Tipo principal de práctica del beneficiario, tipo 5 de 6
+general	covered_recipient_primary_type_6	Primary type of medicine practiced by the covered recipient, type 6 of 6	Tipo principal de práctica del beneficiario, tipo 6 de 6
+general	covered_recipient_specialty_1	Specialty of the covered recipient from the standardized provider taxonomy, specialty 1 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 1 de 6
+general	covered_recipient_specialty_2	Specialty of the covered recipient from the standardized provider taxonomy, specialty 2 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 2 de 6
+general	covered_recipient_specialty_3	Specialty of the covered recipient from the standardized provider taxonomy, specialty 3 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 3 de 6
+general	covered_recipient_specialty_4	Specialty of the covered recipient from the standardized provider taxonomy, specialty 4 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 4 de 6
+general	covered_recipient_specialty_5	Specialty of the covered recipient from the standardized provider taxonomy, specialty 5 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 5 de 6
+general	covered_recipient_specialty_6	Specialty of the covered recipient from the standardized provider taxonomy, specialty 6 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 6 de 6
+general	covered_recipient_license_state_1	Two-letter state abbreviation of the professional license, license 1 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 1 de 5
+general	covered_recipient_license_state_2	Two-letter state abbreviation of the professional license, license 2 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 2 de 5
+general	covered_recipient_license_state_3	Two-letter state abbreviation of the professional license, license 3 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 3 de 5
+general	covered_recipient_license_state_4	Two-letter state abbreviation of the professional license, license 4 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 4 de 5
+general	covered_recipient_license_state_5	Two-letter state abbreviation of the professional license, license 5 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 5 de 5
+general	submitting_entity_name	Name of the applicable manufacturer or GPO that submitted the record, which may differ from the entity making the payment	Nombre del fabricante o GPO que presentó el registro, que puede diferir de quien efectuó el pago
+general	reporting_entity_name	Name of the applicable manufacturer or GPO making the payment	Nombre del fabricante o GPO que efectuó el pago
+general	reporting_entity_state	Two-letter state abbreviation of the applicable manufacturer or GPO making the payment	Sigla de dos letras del estado del fabricante o GPO que efectuó el pago
+general	reporting_entity_country	Country of the applicable manufacturer or GPO making the payment	País del fabricante o GPO que efectuó el pago
+general	payment_amount_total	Total amount of the payment or other transfer of value to the recipient, in US dollars	Monto total del pago o transferencia de valor al beneficiario, en dólares estadounidenses
+general	payment_date	Date the payment or other transfer of value was made	Fecha en que se efectuó el pago o transferencia de valor
+general	payment_count	Number of individual payments included in the record total amount	Cantidad de pagos individuales agregados en el monto total del registro
+general	payment_form	Form of the payment or other transfer of value, such as cash, stock or in-kind items	Forma del pago o transferencia de valor, como efectivo, acciones o artículos en especie
+general	payment_nature	Nature of the payment or other transfer of value, such as consulting, food and beverage, travel or speaker fees	Naturaleza del pago o transferencia de valor, como consultoría, alimentación, viaje u honorarios de conferencia
+general	travel_city	Destination city, when the payment relates to travel or lodging	Ciudad de destino, cuando el pago se refiere a viaje u hospedaje
+general	travel_state	Destination state, when the payment relates to travel or lodging	Estado de destino, cuando el pago se refiere a viaje u hospedaje
+general	travel_country	Destination country, when the payment relates to travel or lodging	País de destino, cuando el pago se refiere a viaje u hospedaje
+general	physician_ownership_indicator	Indicates whether the physician or an immediate family member holds an ownership interest in the reporting manufacturer or GPO	Indica si el médico o un familiar inmediato posee participación societaria en el fabricante o GPO declarante
+general	third_party_payment_recipient_indicator	Indicates whether the payment was made to a third party on behalf of the covered recipient	Indica si el pago se hizo a un tercero en nombre del beneficiario
+general	third_party_entity_name	Name of the third party entity that received the payment on behalf of the covered recipient	Nombre de la entidad tercera que recibió el pago en nombre del beneficiario
+general	charity_indicator	Indicates whether the third party entity that received the payment is a charity	Indica si la entidad tercera que recibió el pago es una institución de caridad
+general	third_party_equals_covered_recipient_indicator	Indicates that the third party payment was made in the name of the covered recipient	Indica que el pago a un tercero se hizo en nombre del propio beneficiario
+general	contextual_information	Free text supplied by the reporting entity about the payment	Texto libre proporcionado por la entidad declarante sobre el pago
+general	delay_in_publication_indicator	Indicates that the reporting entity requested a delay in publication of the record	Indica que la entidad declarante solicitó aplazamiento de la publicación del registro
+general	dispute_status	Indicates whether the record was under dispute at the time of publication	Indica si el registro estaba en disputa al momento de la publicación
+general	related_product_indicator	Indicates whether the payment is associated with one or more drugs, biologicals, devices or medical supplies	Indica si el pago está asociado a uno o más medicamentos, productos biológicos, dispositivos o insumos médicos
+general	product_covered_indicator_1	Indicates whether the product associated with the payment is covered or non-covered, product 1 of 5	Indica si el producto asociado al pago es cubierto o no cubierto, producto 1 de 5
+general	product_type_1	Indicates whether the product is a drug, biological, device or medical supply, product 1 of 5	Indica si el producto es medicamento, producto biológico, dispositivo o insumo médico, producto 1 de 5
+general	product_category_1	Product category or therapeutic area, product 1 of 5	Categoría del producto o área terapéutica, producto 1 de 5
+general	product_name_1	Name of the drug, biological, device or medical supply associated with the payment, product 1 of 5	Nombre del medicamento, producto biológico, dispositivo o insumo médico asociado al pago, producto 1 de 5
+general	product_ndc_1	National Drug Code (NDC) of the associated drug or biological, product 1 of 5	National Drug Code (NDC) del medicamento o producto biológico asociado, producto 1 de 5
+general	product_pdi_1	Primary Device Identifier (PDI) of the associated device or medical supply, product 1 of 5	Primary Device Identifier (PDI) del dispositivo o insumo médico asociado, producto 1 de 5
+general	product_covered_indicator_2	Indicates whether the product associated with the payment is covered or non-covered, product 2 of 5	Indica si el producto asociado al pago es cubierto o no cubierto, producto 2 de 5
+general	product_type_2	Indicates whether the product is a drug, biological, device or medical supply, product 2 of 5	Indica si el producto es medicamento, producto biológico, dispositivo o insumo médico, producto 2 de 5
+general	product_category_2	Product category or therapeutic area, product 2 of 5	Categoría del producto o área terapéutica, producto 2 de 5
+general	product_name_2	Name of the drug, biological, device or medical supply associated with the payment, product 2 of 5	Nombre del medicamento, producto biológico, dispositivo o insumo médico asociado al pago, producto 2 de 5
+general	product_ndc_2	National Drug Code (NDC) of the associated drug or biological, product 2 of 5	National Drug Code (NDC) del medicamento o producto biológico asociado, producto 2 de 5
+general	product_pdi_2	Primary Device Identifier (PDI) of the associated device or medical supply, product 2 of 5	Primary Device Identifier (PDI) del dispositivo o insumo médico asociado, producto 2 de 5
+general	product_covered_indicator_3	Indicates whether the product associated with the payment is covered or non-covered, product 3 of 5	Indica si el producto asociado al pago es cubierto o no cubierto, producto 3 de 5
+general	product_type_3	Indicates whether the product is a drug, biological, device or medical supply, product 3 of 5	Indica si el producto es medicamento, producto biológico, dispositivo o insumo médico, producto 3 de 5
+general	product_category_3	Product category or therapeutic area, product 3 of 5	Categoría del producto o área terapéutica, producto 3 de 5
+general	product_name_3	Name of the drug, biological, device or medical supply associated with the payment, product 3 of 5	Nombre del medicamento, producto biológico, dispositivo o insumo médico asociado al pago, producto 3 de 5
+general	product_ndc_3	National Drug Code (NDC) of the associated drug or biological, product 3 of 5	National Drug Code (NDC) del medicamento o producto biológico asociado, producto 3 de 5
+general	product_pdi_3	Primary Device Identifier (PDI) of the associated device or medical supply, product 3 of 5	Primary Device Identifier (PDI) del dispositivo o insumo médico asociado, producto 3 de 5
+general	product_covered_indicator_4	Indicates whether the product associated with the payment is covered or non-covered, product 4 of 5	Indica si el producto asociado al pago es cubierto o no cubierto, producto 4 de 5
+general	product_type_4	Indicates whether the product is a drug, biological, device or medical supply, product 4 of 5	Indica si el producto es medicamento, producto biológico, dispositivo o insumo médico, producto 4 de 5
+general	product_category_4	Product category or therapeutic area, product 4 of 5	Categoría del producto o área terapéutica, producto 4 de 5
+general	product_name_4	Name of the drug, biological, device or medical supply associated with the payment, product 4 of 5	Nombre del medicamento, producto biológico, dispositivo o insumo médico asociado al pago, producto 4 de 5
+general	product_ndc_4	National Drug Code (NDC) of the associated drug or biological, product 4 of 5	National Drug Code (NDC) del medicamento o producto biológico asociado, producto 4 de 5
+general	product_pdi_4	Primary Device Identifier (PDI) of the associated device or medical supply, product 4 of 5	Primary Device Identifier (PDI) del dispositivo o insumo médico asociado, producto 4 de 5
+general	product_covered_indicator_5	Indicates whether the product associated with the payment is covered or non-covered, product 5 of 5	Indica si el producto asociado al pago es cubierto o no cubierto, producto 5 de 5
+general	product_type_5	Indicates whether the product is a drug, biological, device or medical supply, product 5 of 5	Indica si el producto es medicamento, producto biológico, dispositivo o insumo médico, producto 5 de 5
+general	product_category_5	Product category or therapeutic area, product 5 of 5	Categoría del producto o área terapéutica, producto 5 de 5
+general	product_name_5	Name of the drug, biological, device or medical supply associated with the payment, product 5 of 5	Nombre del medicamento, producto biológico, dispositivo o insumo médico asociado al pago, producto 5 de 5
+general	product_ndc_5	National Drug Code (NDC) of the associated drug or biological, product 5 of 5	National Drug Code (NDC) del medicamento o producto biológico asociado, producto 5 de 5
+general	product_pdi_5	Primary Device Identifier (PDI) of the associated device or medical supply, product 5 of 5	Primary Device Identifier (PDI) del dispositivo o insumo médico asociado, producto 5 de 5
+general	publication_date	Date the record was published by Open Payments	Fecha en que el registro fue publicado por Open Payments
+general_legacy	year	Program year the record refers to	Año del programa al que se refiere el registro
+general_legacy	record_id	System-assigned unique identifier of the payment record	Identificador único del registro de pago asignado por el sistema Open Payments
+general_legacy	physician_profile_id	Unique identifier of the physician profile receiving the payment	Identificador único del perfil del médico que recibió el pago
+general_legacy	physician_npi	National Provider Identifier (NPI) of the physician	National Provider Identifier (NPI) del médico
+general_legacy	teaching_hospital_ccn	CMS Certification Number (CCN) of the teaching hospital	CMS Certification Number (CCN) del hospital universitario
+general_legacy	teaching_hospital_id	System-assigned unique identifier of the teaching hospital	Identificador único del hospital universitario asignado por el sistema Open Payments
+general_legacy	reporting_entity_id	Unique identifier of the applicable manufacturer or GPO that reported the payment	Identificador único del fabricante o GPO que declaró el pago
+general_legacy	change_type	Indicates whether the record is new, added, changed or unchanged relative to the previous publication	Indica si el registro es nuevo, añadido, modificado o sin cambios respecto a la publicación anterior
+general_legacy	covered_recipient_type	Type of recipient: physician, non-physician practitioner, teaching hospital or non-covered entity	Tipo de beneficiario: médico, profesional no médico, hospital universitario o entidad no cubierta
+general_legacy	teaching_hospital_name	Name of the teaching hospital, as listed in the CMS teaching hospital list	Nombre del hospital universitario, según la lista de hospitales universitarios del CMS
+general_legacy	physician_first_name	First name of the physician, as reported by the submitting entity	Primer nombre del médico, según lo declarado por la entidad declarante
+general_legacy	physician_middle_name	Middle name of the physician, as reported by the submitting entity	Segundo nombre del médico, según lo declarado por la entidad declarante
+general_legacy	physician_last_name	Last name of the physician, as reported by the submitting entity	Apellido del médico, según lo declarado por la entidad declarante
+general_legacy	physician_name_suffix	Name suffix of the physician, as reported by the submitting entity	Sufijo del nombre del médico, según lo declarado por la entidad declarante
+general_legacy	recipient_address_line_1	First line of the primary business street address of the covered recipient	Primera línea de la dirección comercial principal del beneficiario
+general_legacy	recipient_address_line_2	Second line of the primary business street address of the covered recipient	Segunda línea de la dirección comercial principal del beneficiario
+general_legacy	recipient_city	City of the primary business address of the covered recipient	Ciudad de la dirección comercial principal del beneficiario
+general_legacy	recipient_state	Two-letter state abbreviation of the covered recipient primary business address, when in the United States	Sigla de dos letras del estado de la dirección comercial principal del beneficiario, cuando está en Estados Unidos
+general_legacy	recipient_zip_code	Nine-digit ZIP code of the covered recipient primary business address, when in the United States	Código postal de nueve dígitos de la dirección comercial principal del beneficiario, cuando está en Estados Unidos
+general_legacy	recipient_country	Country of the primary business address of the covered recipient	País de la dirección comercial principal del beneficiario
+general_legacy	recipient_province	Province of the covered recipient primary business address, when outside the United States	Provincia de la dirección comercial principal del beneficiario, cuando está fuera de Estados Unidos
+general_legacy	recipient_postal_code	Postal code of the covered recipient primary business address, when outside the United States	Código postal de la dirección comercial principal del beneficiario, cuando está fuera de Estados Unidos
+general_legacy	physician_primary_type	Primary type of medicine practiced by the physician	Tipo principal de práctica del médico
+general_legacy	physician_specialty	Specialty of the physician from the standardized provider taxonomy	Especialidad del médico en la taxonomía estandarizada de prestadores
+general_legacy	physician_license_state_1	Two-letter state abbreviation of the professional license, license 1 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 1 de 5
+general_legacy	physician_license_state_2	Two-letter state abbreviation of the professional license, license 2 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 2 de 5
+general_legacy	physician_license_state_3	Two-letter state abbreviation of the professional license, license 3 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 3 de 5
+general_legacy	physician_license_state_4	Two-letter state abbreviation of the professional license, license 4 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 4 de 5
+general_legacy	physician_license_state_5	Two-letter state abbreviation of the professional license, license 5 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 5 de 5
+general_legacy	submitting_entity_name	Name of the applicable manufacturer or GPO that submitted the record, which may differ from the entity making the payment	Nombre del fabricante o GPO que presentó el registro, que puede diferir de quien efectuó el pago
+general_legacy	reporting_entity_name	Name of the applicable manufacturer or GPO making the payment	Nombre del fabricante o GPO que efectuó el pago
+general_legacy	reporting_entity_state	Two-letter state abbreviation of the applicable manufacturer or GPO making the payment	Sigla de dos letras del estado del fabricante o GPO que efectuó el pago
+general_legacy	reporting_entity_country	Country of the applicable manufacturer or GPO making the payment	País del fabricante o GPO que efectuó el pago
+general_legacy	payment_amount_total	Total amount of the payment or other transfer of value to the recipient, in US dollars	Monto total del pago o transferencia de valor al beneficiario, en dólares estadounidenses
+general_legacy	payment_date	Date the payment or other transfer of value was made	Fecha en que se efectuó el pago o transferencia de valor
+general_legacy	payment_count	Number of individual payments included in the record total amount	Cantidad de pagos individuales agregados en el monto total del registro
+general_legacy	payment_form	Form of the payment or other transfer of value, such as cash, stock or in-kind items	Forma del pago o transferencia de valor, como efectivo, acciones o artículos en especie
+general_legacy	payment_nature	Nature of the payment or other transfer of value, such as consulting, food and beverage, travel or speaker fees	Naturaleza del pago o transferencia de valor, como consultoría, alimentación, viaje u honorarios de conferencia
+general_legacy	travel_city	Destination city, when the payment relates to travel or lodging	Ciudad de destino, cuando el pago se refiere a viaje u hospedaje
+general_legacy	travel_state	Destination state, when the payment relates to travel or lodging	Estado de destino, cuando el pago se refiere a viaje u hospedaje
+general_legacy	travel_country	Destination country, when the payment relates to travel or lodging	País de destino, cuando el pago se refiere a viaje u hospedaje
+general_legacy	physician_ownership_indicator	Indicates whether the physician or an immediate family member holds an ownership interest in the reporting manufacturer or GPO	Indica si el médico o un familiar inmediato posee participación societaria en el fabricante o GPO declarante
+general_legacy	third_party_payment_recipient_indicator	Indicates whether the payment was made to a third party on behalf of the covered recipient	Indica si el pago se hizo a un tercero en nombre del beneficiario
+general_legacy	third_party_entity_name	Name of the third party entity that received the payment on behalf of the covered recipient	Nombre de la entidad tercera que recibió el pago en nombre del beneficiario
+general_legacy	charity_indicator	Indicates whether the third party entity that received the payment is a charity	Indica si la entidad tercera que recibió el pago es una institución de caridad
+general_legacy	third_party_equals_covered_recipient_indicator	Indicates that the third party payment was made in the name of the covered recipient	Indica que el pago a un tercero se hizo en nombre del propio beneficiario
+general_legacy	contextual_information	Free text supplied by the reporting entity about the payment	Texto libre proporcionado por la entidad declarante sobre el pago
+general_legacy	delay_in_publication_indicator	Indicates that the reporting entity requested a delay in publication of the record	Indica que la entidad declarante solicitó aplazamiento de la publicación del registro
+general_legacy	dispute_status	Indicates whether the record was under dispute at the time of publication	Indica si el registro estaba en disputa al momento de la publicación
+general_legacy	related_product_indicator	Indicates whether the payment is associated with one or more drugs, biologicals, devices or medical supplies	Indica si el pago está asociado a uno o más medicamentos, productos biológicos, dispositivos o insumos médicos
+general_legacy	drug_name_1	Name of the associated covered drug or biological, drug 1 of 5	Nombre del medicamento o producto biológico cubierto asociado al pago, medicamento 1 de 5
+general_legacy	drug_name_2	Name of the associated covered drug or biological, drug 2 of 5	Nombre del medicamento o producto biológico cubierto asociado al pago, medicamento 2 de 5
+general_legacy	drug_name_3	Name of the associated covered drug or biological, drug 3 of 5	Nombre del medicamento o producto biológico cubierto asociado al pago, medicamento 3 de 5
+general_legacy	drug_name_4	Name of the associated covered drug or biological, drug 4 of 5	Nombre del medicamento o producto biológico cubierto asociado al pago, medicamento 4 de 5
+general_legacy	drug_name_5	Name of the associated covered drug or biological, drug 5 of 5	Nombre del medicamento o producto biológico cubierto asociado al pago, medicamento 5 de 5
+general_legacy	drug_ndc_1	National Drug Code (NDC) of the associated covered drug or biological, drug 1 of 5	National Drug Code (NDC) del medicamento o producto biológico cubierto asociado, medicamento 1 de 5
+general_legacy	drug_ndc_2	National Drug Code (NDC) of the associated covered drug or biological, drug 2 of 5	National Drug Code (NDC) del medicamento o producto biológico cubierto asociado, medicamento 2 de 5
+general_legacy	drug_ndc_3	National Drug Code (NDC) of the associated covered drug or biological, drug 3 of 5	National Drug Code (NDC) del medicamento o producto biológico cubierto asociado, medicamento 3 de 5
+general_legacy	drug_ndc_4	National Drug Code (NDC) of the associated covered drug or biological, drug 4 of 5	National Drug Code (NDC) del medicamento o producto biológico cubierto asociado, medicamento 4 de 5
+general_legacy	drug_ndc_5	National Drug Code (NDC) of the associated covered drug or biological, drug 5 of 5	National Drug Code (NDC) del medicamento o producto biológico cubierto asociado, medicamento 5 de 5
+general_legacy	device_name_1	Name of the associated covered device or medical supply, device 1 of 5	Nombre del dispositivo o insumo médico cubierto asociado al pago, dispositivo 1 de 5
+general_legacy	device_name_2	Name of the associated covered device or medical supply, device 2 of 5	Nombre del dispositivo o insumo médico cubierto asociado al pago, dispositivo 2 de 5
+general_legacy	device_name_3	Name of the associated covered device or medical supply, device 3 of 5	Nombre del dispositivo o insumo médico cubierto asociado al pago, dispositivo 3 de 5
+general_legacy	device_name_4	Name of the associated covered device or medical supply, device 4 of 5	Nombre del dispositivo o insumo médico cubierto asociado al pago, dispositivo 4 de 5
+general_legacy	device_name_5	Name of the associated covered device or medical supply, device 5 of 5	Nombre del dispositivo o insumo médico cubierto asociado al pago, dispositivo 5 de 5
+general_legacy	publication_date	Date the record was published by Open Payments	Fecha en que el registro fue publicado por Open Payments
+research	year	Program year the record refers to	Año del programa al que se refiere el registro
+research	record_id	System-assigned unique identifier of the payment record	Identificador único del registro de pago asignado por el sistema Open Payments
+research	covered_recipient_profile_id	Unique identifier of the covered recipient physician or non-physician practitioner profile	Identificador único del perfil del médico o profesional no médico que recibió el pago
+research	covered_recipient_npi	National Provider Identifier (NPI) of the covered recipient physician or non-physician practitioner	National Provider Identifier (NPI) del médico o profesional no médico
+research	teaching_hospital_ccn	CMS Certification Number (CCN) of the teaching hospital	CMS Certification Number (CCN) del hospital universitario
+research	teaching_hospital_id	System-assigned unique identifier of the teaching hospital	Identificador único del hospital universitario asignado por el sistema Open Payments
+research	reporting_entity_id	Unique identifier of the applicable manufacturer or GPO that reported the payment	Identificador único del fabricante o GPO que declaró el pago
+research	change_type	Indicates whether the record is new, added, changed or unchanged relative to the previous publication	Indica si el registro es nuevo, añadido, modificado o sin cambios respecto a la publicación anterior
+research	covered_recipient_type	Type of recipient: physician, non-physician practitioner, teaching hospital or non-covered entity	Tipo de beneficiario: médico, profesional no médico, hospital universitario o entidad no cubierta
+research	noncovered_recipient_entity_name	Name of the non-covered recipient entity that received the research payment	Nombre de la entidad no cubierta que recibió el pago de investigación
+research	teaching_hospital_name	Name of the teaching hospital, as listed in the CMS teaching hospital list	Nombre del hospital universitario, según la lista de hospitales universitarios del CMS
+research	covered_recipient_first_name	First name of the covered recipient, as reported by the submitting entity	Primer nombre del beneficiario, según lo declarado por la entidad declarante
+research	covered_recipient_middle_name	Middle name of the covered recipient, as reported by the submitting entity	Segundo nombre del beneficiario, según lo declarado por la entidad declarante
+research	covered_recipient_last_name	Last name of the covered recipient, as reported by the submitting entity	Apellido del beneficiario, según lo declarado por la entidad declarante
+research	covered_recipient_name_suffix	Name suffix of the covered recipient, as reported by the submitting entity	Sufijo del nombre del beneficiario, según lo declarado por la entidad declarante
+research	recipient_address_line_1	First line of the primary business street address of the covered recipient	Primera línea de la dirección comercial principal del beneficiario
+research	recipient_address_line_2	Second line of the primary business street address of the covered recipient	Segunda línea de la dirección comercial principal del beneficiario
+research	recipient_city	City of the primary business address of the covered recipient	Ciudad de la dirección comercial principal del beneficiario
+research	recipient_state	Two-letter state abbreviation of the covered recipient primary business address, when in the United States	Sigla de dos letras del estado de la dirección comercial principal del beneficiario, cuando está en Estados Unidos
+research	recipient_zip_code	Nine-digit ZIP code of the covered recipient primary business address, when in the United States	Código postal de nueve dígitos de la dirección comercial principal del beneficiario, cuando está en Estados Unidos
+research	recipient_country	Country of the primary business address of the covered recipient	País de la dirección comercial principal del beneficiario
+research	recipient_province	Province of the covered recipient primary business address, when outside the United States	Provincia de la dirección comercial principal del beneficiario, cuando está fuera de Estados Unidos
+research	recipient_postal_code	Postal code of the covered recipient primary business address, when outside the United States	Código postal de la dirección comercial principal del beneficiario, cuando está fuera de Estados Unidos
+research	covered_recipient_primary_type_1	Primary type of medicine practiced by the covered recipient, type 1 of 6	Tipo principal de práctica del beneficiario, tipo 1 de 6
+research	covered_recipient_primary_type_2	Primary type of medicine practiced by the covered recipient, type 2 of 6	Tipo principal de práctica del beneficiario, tipo 2 de 6
+research	covered_recipient_primary_type_3	Primary type of medicine practiced by the covered recipient, type 3 of 6	Tipo principal de práctica del beneficiario, tipo 3 de 6
+research	covered_recipient_primary_type_4	Primary type of medicine practiced by the covered recipient, type 4 of 6	Tipo principal de práctica del beneficiario, tipo 4 de 6
+research	covered_recipient_primary_type_5	Primary type of medicine practiced by the covered recipient, type 5 of 6	Tipo principal de práctica del beneficiario, tipo 5 de 6
+research	covered_recipient_primary_type_6	Primary type of medicine practiced by the covered recipient, type 6 of 6	Tipo principal de práctica del beneficiario, tipo 6 de 6
+research	covered_recipient_specialty_1	Specialty of the covered recipient from the standardized provider taxonomy, specialty 1 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 1 de 6
+research	covered_recipient_specialty_2	Specialty of the covered recipient from the standardized provider taxonomy, specialty 2 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 2 de 6
+research	covered_recipient_specialty_3	Specialty of the covered recipient from the standardized provider taxonomy, specialty 3 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 3 de 6
+research	covered_recipient_specialty_4	Specialty of the covered recipient from the standardized provider taxonomy, specialty 4 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 4 de 6
+research	covered_recipient_specialty_5	Specialty of the covered recipient from the standardized provider taxonomy, specialty 5 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 5 de 6
+research	covered_recipient_specialty_6	Specialty of the covered recipient from the standardized provider taxonomy, specialty 6 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 6 de 6
+research	covered_recipient_license_state_1	Two-letter state abbreviation of the professional license, license 1 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 1 de 5
+research	covered_recipient_license_state_2	Two-letter state abbreviation of the professional license, license 2 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 2 de 5
+research	covered_recipient_license_state_3	Two-letter state abbreviation of the professional license, license 3 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 3 de 5
+research	covered_recipient_license_state_4	Two-letter state abbreviation of the professional license, license 4 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 4 de 5
+research	covered_recipient_license_state_5	Two-letter state abbreviation of the professional license, license 5 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 5 de 5
+research	submitting_entity_name	Name of the applicable manufacturer or GPO that submitted the record, which may differ from the entity making the payment	Nombre del fabricante o GPO que presentó el registro, que puede diferir de quien efectuó el pago
+research	reporting_entity_name	Name of the applicable manufacturer or GPO making the payment	Nombre del fabricante o GPO que efectuó el pago
+research	reporting_entity_state	Two-letter state abbreviation of the applicable manufacturer or GPO making the payment	Sigla de dos letras del estado del fabricante o GPO que efectuó el pago
+research	reporting_entity_country	Country of the applicable manufacturer or GPO making the payment	País del fabricante o GPO que efectuó el pago
+research	related_product_indicator	Indicates whether the payment is associated with one or more drugs, biologicals, devices or medical supplies	Indica si el pago está asociado a uno o más medicamentos, productos biológicos, dispositivos o insumos médicos
+research	product_covered_indicator_1	Indicates whether the product associated with the payment is covered or non-covered, product 1 of 5	Indica si el producto asociado al pago es cubierto o no cubierto, producto 1 de 5
+research	product_type_1	Indicates whether the product is a drug, biological, device or medical supply, product 1 of 5	Indica si el producto es medicamento, producto biológico, dispositivo o insumo médico, producto 1 de 5
+research	product_category_1	Product category or therapeutic area, product 1 of 5	Categoría del producto o área terapéutica, producto 1 de 5
+research	product_name_1	Name of the drug, biological, device or medical supply associated with the payment, product 1 of 5	Nombre del medicamento, producto biológico, dispositivo o insumo médico asociado al pago, producto 1 de 5
+research	product_ndc_1	National Drug Code (NDC) of the associated drug or biological, product 1 of 5	National Drug Code (NDC) del medicamento o producto biológico asociado, producto 1 de 5
+research	product_pdi_1	Primary Device Identifier (PDI) of the associated device or medical supply, product 1 of 5	Primary Device Identifier (PDI) del dispositivo o insumo médico asociado, producto 1 de 5
+research	product_covered_indicator_2	Indicates whether the product associated with the payment is covered or non-covered, product 2 of 5	Indica si el producto asociado al pago es cubierto o no cubierto, producto 2 de 5
+research	product_type_2	Indicates whether the product is a drug, biological, device or medical supply, product 2 of 5	Indica si el producto es medicamento, producto biológico, dispositivo o insumo médico, producto 2 de 5
+research	product_category_2	Product category or therapeutic area, product 2 of 5	Categoría del producto o área terapéutica, producto 2 de 5
+research	product_name_2	Name of the drug, biological, device or medical supply associated with the payment, product 2 of 5	Nombre del medicamento, producto biológico, dispositivo o insumo médico asociado al pago, producto 2 de 5
+research	product_ndc_2	National Drug Code (NDC) of the associated drug or biological, product 2 of 5	National Drug Code (NDC) del medicamento o producto biológico asociado, producto 2 de 5
+research	product_pdi_2	Primary Device Identifier (PDI) of the associated device or medical supply, product 2 of 5	Primary Device Identifier (PDI) del dispositivo o insumo médico asociado, producto 2 de 5
+research	product_covered_indicator_3	Indicates whether the product associated with the payment is covered or non-covered, product 3 of 5	Indica si el producto asociado al pago es cubierto o no cubierto, producto 3 de 5
+research	product_type_3	Indicates whether the product is a drug, biological, device or medical supply, product 3 of 5	Indica si el producto es medicamento, producto biológico, dispositivo o insumo médico, producto 3 de 5
+research	product_category_3	Product category or therapeutic area, product 3 of 5	Categoría del producto o área terapéutica, producto 3 de 5
+research	product_name_3	Name of the drug, biological, device or medical supply associated with the payment, product 3 of 5	Nombre del medicamento, producto biológico, dispositivo o insumo médico asociado al pago, producto 3 de 5
+research	product_ndc_3	National Drug Code (NDC) of the associated drug or biological, product 3 of 5	National Drug Code (NDC) del medicamento o producto biológico asociado, producto 3 de 5
+research	product_pdi_3	Primary Device Identifier (PDI) of the associated device or medical supply, product 3 of 5	Primary Device Identifier (PDI) del dispositivo o insumo médico asociado, producto 3 de 5
+research	product_covered_indicator_4	Indicates whether the product associated with the payment is covered or non-covered, product 4 of 5	Indica si el producto asociado al pago es cubierto o no cubierto, producto 4 de 5
+research	product_type_4	Indicates whether the product is a drug, biological, device or medical supply, product 4 of 5	Indica si el producto es medicamento, producto biológico, dispositivo o insumo médico, producto 4 de 5
+research	product_category_4	Product category or therapeutic area, product 4 of 5	Categoría del producto o área terapéutica, producto 4 de 5
+research	product_name_4	Name of the drug, biological, device or medical supply associated with the payment, product 4 of 5	Nombre del medicamento, producto biológico, dispositivo o insumo médico asociado al pago, producto 4 de 5
+research	product_ndc_4	National Drug Code (NDC) of the associated drug or biological, product 4 of 5	National Drug Code (NDC) del medicamento o producto biológico asociado, producto 4 de 5
+research	product_pdi_4	Primary Device Identifier (PDI) of the associated device or medical supply, product 4 of 5	Primary Device Identifier (PDI) del dispositivo o insumo médico asociado, producto 4 de 5
+research	product_covered_indicator_5	Indicates whether the product associated with the payment is covered or non-covered, product 5 of 5	Indica si el producto asociado al pago es cubierto o no cubierto, producto 5 de 5
+research	product_type_5	Indicates whether the product is a drug, biological, device or medical supply, product 5 of 5	Indica si el producto es medicamento, producto biológico, dispositivo o insumo médico, producto 5 de 5
+research	product_category_5	Product category or therapeutic area, product 5 of 5	Categoría del producto o área terapéutica, producto 5 de 5
+research	product_name_5	Name of the drug, biological, device or medical supply associated with the payment, product 5 of 5	Nombre del medicamento, producto biológico, dispositivo o insumo médico asociado al pago, producto 5 de 5
+research	product_ndc_5	National Drug Code (NDC) of the associated drug or biological, product 5 of 5	National Drug Code (NDC) del medicamento o producto biológico asociado, producto 5 de 5
+research	product_pdi_5	Primary Device Identifier (PDI) of the associated device or medical supply, product 5 of 5	Primary Device Identifier (PDI) del dispositivo o insumo médico asociado, producto 5 de 5
+research	payment_amount_total	Total amount of the payment or other transfer of value to the recipient, in US dollars	Monto total del pago o transferencia de valor al beneficiario, en dólares estadounidenses
+research	payment_date	Date the payment or other transfer of value was made	Fecha en que se efectuó el pago o transferencia de valor
+research	payment_form	Form of the payment or other transfer of value, such as cash, stock or in-kind items	Forma del pago o transferencia de valor, como efectivo, acciones o artículos en especie
+research	expenditure_category_1	Expenditure category of the research payment, category 1 of 6	Categoría de gasto del pago de investigación, categoría 1 de 6
+research	expenditure_category_2	Expenditure category of the research payment, category 2 of 6	Categoría de gasto del pago de investigación, categoría 2 de 6
+research	expenditure_category_3	Expenditure category of the research payment, category 3 of 6	Categoría de gasto del pago de investigación, categoría 3 de 6
+research	expenditure_category_4	Expenditure category of the research payment, category 4 of 6	Categoría de gasto del pago de investigación, categoría 4 de 6
+research	expenditure_category_5	Expenditure category of the research payment, category 5 of 6	Categoría de gasto del pago de investigación, categoría 5 de 6
+research	expenditure_category_6	Expenditure category of the research payment, category 6 of 6	Categoría de gasto del pago de investigación, categoría 6 de 6
+research	preclinical_research_indicator	Indicates that the payment relates to preclinical research, for which study details are not published	Indica que el pago se refiere a investigación preclínica, cuyos detalles de estudio no se publican
+research	delay_in_publication_indicator	Indicates that the reporting entity requested a delay in publication of the record	Indica que la entidad declarante solicitó aplazamiento de la publicación del registro
+research	study_name	Name of the research study the payment relates to	Nombre del estudio de investigación al que se refiere el pago
+research	dispute_status	Indicates whether the record was under dispute at the time of publication	Indica si el registro estaba en disputa al momento de la publicación
+research	publication_date	Date the record was published by Open Payments	Fecha en que el registro fue publicado por Open Payments
+research	clinicaltrials_gov_id	Identifier of the study in the clinicaltrials.gov registry, when registered	Identificador del estudio en el registro clinicaltrials.gov, cuando está registrado
+research	research_information_link	Web address with additional information about the research	Dirección web con información adicional sobre la investigación
+research	research_context	Free text describing the context of the research, supplied by the reporting entity	Texto libre con el contexto de la investigación proporcionado por la entidad declarante
+research_legacy	year	Program year the record refers to	Año del programa al que se refiere el registro
+research_legacy	record_id	System-assigned unique identifier of the payment record	Identificador único del registro de pago asignado por el sistema Open Payments
+research_legacy	physician_profile_id	Unique identifier of the physician profile receiving the payment	Identificador único del perfil del médico que recibió el pago
+research_legacy	physician_npi	National Provider Identifier (NPI) of the physician	National Provider Identifier (NPI) del médico
+research_legacy	teaching_hospital_ccn	CMS Certification Number (CCN) of the teaching hospital	CMS Certification Number (CCN) del hospital universitario
+research_legacy	teaching_hospital_id	System-assigned unique identifier of the teaching hospital	Identificador único del hospital universitario asignado por el sistema Open Payments
+research_legacy	reporting_entity_id	Unique identifier of the applicable manufacturer or GPO that reported the payment	Identificador único del fabricante o GPO que declaró el pago
+research_legacy	change_type	Indicates whether the record is new, added, changed or unchanged relative to the previous publication	Indica si el registro es nuevo, añadido, modificado o sin cambios respecto a la publicación anterior
+research_legacy	covered_recipient_type	Type of recipient: physician, non-physician practitioner, teaching hospital or non-covered entity	Tipo de beneficiario: médico, profesional no médico, hospital universitario o entidad no cubierta
+research_legacy	noncovered_recipient_entity_name	Name of the non-covered recipient entity that received the research payment	Nombre de la entidad no cubierta que recibió el pago de investigación
+research_legacy	teaching_hospital_name	Name of the teaching hospital, as listed in the CMS teaching hospital list	Nombre del hospital universitario, según la lista de hospitales universitarios del CMS
+research_legacy	physician_first_name	First name of the physician, as reported by the submitting entity	Primer nombre del médico, según lo declarado por la entidad declarante
+research_legacy	physician_middle_name	Middle name of the physician, as reported by the submitting entity	Segundo nombre del médico, según lo declarado por la entidad declarante
+research_legacy	physician_last_name	Last name of the physician, as reported by the submitting entity	Apellido del médico, según lo declarado por la entidad declarante
+research_legacy	physician_name_suffix	Name suffix of the physician, as reported by the submitting entity	Sufijo del nombre del médico, según lo declarado por la entidad declarante
+research_legacy	recipient_address_line_1	First line of the primary business street address of the covered recipient	Primera línea de la dirección comercial principal del beneficiario
+research_legacy	recipient_address_line_2	Second line of the primary business street address of the covered recipient	Segunda línea de la dirección comercial principal del beneficiario
+research_legacy	recipient_city	City of the primary business address of the covered recipient	Ciudad de la dirección comercial principal del beneficiario
+research_legacy	recipient_state	Two-letter state abbreviation of the covered recipient primary business address, when in the United States	Sigla de dos letras del estado de la dirección comercial principal del beneficiario, cuando está en Estados Unidos
+research_legacy	recipient_zip_code	Nine-digit ZIP code of the covered recipient primary business address, when in the United States	Código postal de nueve dígitos de la dirección comercial principal del beneficiario, cuando está en Estados Unidos
+research_legacy	recipient_country	Country of the primary business address of the covered recipient	País de la dirección comercial principal del beneficiario
+research_legacy	recipient_province	Province of the covered recipient primary business address, when outside the United States	Provincia de la dirección comercial principal del beneficiario, cuando está fuera de Estados Unidos
+research_legacy	recipient_postal_code	Postal code of the covered recipient primary business address, when outside the United States	Código postal de la dirección comercial principal del beneficiario, cuando está fuera de Estados Unidos
+research_legacy	physician_primary_type	Primary type of medicine practiced by the physician	Tipo principal de práctica del médico
+research_legacy	physician_specialty	Specialty of the physician from the standardized provider taxonomy	Especialidad del médico en la taxonomía estandarizada de prestadores
+research_legacy	physician_license_state_1	Two-letter state abbreviation of the professional license, license 1 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 1 de 5
+research_legacy	physician_license_state_2	Two-letter state abbreviation of the professional license, license 2 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 2 de 5
+research_legacy	physician_license_state_3	Two-letter state abbreviation of the professional license, license 3 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 3 de 5
+research_legacy	physician_license_state_4	Two-letter state abbreviation of the professional license, license 4 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 4 de 5
+research_legacy	physician_license_state_5	Two-letter state abbreviation of the professional license, license 5 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 5 de 5
+research_legacy	submitting_entity_name	Name of the applicable manufacturer or GPO that submitted the record, which may differ from the entity making the payment	Nombre del fabricante o GPO que presentó el registro, que puede diferir de quien efectuó el pago
+research_legacy	reporting_entity_name	Name of the applicable manufacturer or GPO making the payment	Nombre del fabricante o GPO que efectuó el pago
+research_legacy	reporting_entity_state	Two-letter state abbreviation of the applicable manufacturer or GPO making the payment	Sigla de dos letras del estado del fabricante o GPO que efectuó el pago
+research_legacy	reporting_entity_country	Country of the applicable manufacturer or GPO making the payment	País del fabricante o GPO que efectuó el pago
+research_legacy	related_product_indicator	Indicates whether the payment is associated with one or more drugs, biologicals, devices or medical supplies	Indica si el pago está asociado a uno o más medicamentos, productos biológicos, dispositivos o insumos médicos
+research_legacy	drug_name_1	Name of the associated covered drug or biological, drug 1 of 5	Nombre del medicamento o producto biológico cubierto asociado al pago, medicamento 1 de 5
+research_legacy	drug_name_2	Name of the associated covered drug or biological, drug 2 of 5	Nombre del medicamento o producto biológico cubierto asociado al pago, medicamento 2 de 5
+research_legacy	drug_name_3	Name of the associated covered drug or biological, drug 3 of 5	Nombre del medicamento o producto biológico cubierto asociado al pago, medicamento 3 de 5
+research_legacy	drug_name_4	Name of the associated covered drug or biological, drug 4 of 5	Nombre del medicamento o producto biológico cubierto asociado al pago, medicamento 4 de 5
+research_legacy	drug_name_5	Name of the associated covered drug or biological, drug 5 of 5	Nombre del medicamento o producto biológico cubierto asociado al pago, medicamento 5 de 5
+research_legacy	drug_ndc_1	National Drug Code (NDC) of the associated covered drug or biological, drug 1 of 5	National Drug Code (NDC) del medicamento o producto biológico cubierto asociado, medicamento 1 de 5
+research_legacy	drug_ndc_2	National Drug Code (NDC) of the associated covered drug or biological, drug 2 of 5	National Drug Code (NDC) del medicamento o producto biológico cubierto asociado, medicamento 2 de 5
+research_legacy	drug_ndc_3	National Drug Code (NDC) of the associated covered drug or biological, drug 3 of 5	National Drug Code (NDC) del medicamento o producto biológico cubierto asociado, medicamento 3 de 5
+research_legacy	drug_ndc_4	National Drug Code (NDC) of the associated covered drug or biological, drug 4 of 5	National Drug Code (NDC) del medicamento o producto biológico cubierto asociado, medicamento 4 de 5
+research_legacy	drug_ndc_5	National Drug Code (NDC) of the associated covered drug or biological, drug 5 of 5	National Drug Code (NDC) del medicamento o producto biológico cubierto asociado, medicamento 5 de 5
+research_legacy	device_name_1	Name of the associated covered device or medical supply, device 1 of 5	Nombre del dispositivo o insumo médico cubierto asociado al pago, dispositivo 1 de 5
+research_legacy	device_name_2	Name of the associated covered device or medical supply, device 2 of 5	Nombre del dispositivo o insumo médico cubierto asociado al pago, dispositivo 2 de 5
+research_legacy	device_name_3	Name of the associated covered device or medical supply, device 3 of 5	Nombre del dispositivo o insumo médico cubierto asociado al pago, dispositivo 3 de 5
+research_legacy	device_name_4	Name of the associated covered device or medical supply, device 4 of 5	Nombre del dispositivo o insumo médico cubierto asociado al pago, dispositivo 4 de 5
+research_legacy	device_name_5	Name of the associated covered device or medical supply, device 5 of 5	Nombre del dispositivo o insumo médico cubierto asociado al pago, dispositivo 5 de 5
+research_legacy	payment_amount_total	Total amount of the payment or other transfer of value to the recipient, in US dollars	Monto total del pago o transferencia de valor al beneficiario, en dólares estadounidenses
+research_legacy	payment_date	Date the payment or other transfer of value was made	Fecha en que se efectuó el pago o transferencia de valor
+research_legacy	payment_form	Form of the payment or other transfer of value, such as cash, stock or in-kind items	Forma del pago o transferencia de valor, como efectivo, acciones o artículos en especie
+research_legacy	expenditure_category_1	Expenditure category of the research payment, category 1 of 6	Categoría de gasto del pago de investigación, categoría 1 de 6
+research_legacy	expenditure_category_2	Expenditure category of the research payment, category 2 of 6	Categoría de gasto del pago de investigación, categoría 2 de 6
+research_legacy	expenditure_category_3	Expenditure category of the research payment, category 3 of 6	Categoría de gasto del pago de investigación, categoría 3 de 6
+research_legacy	expenditure_category_4	Expenditure category of the research payment, category 4 of 6	Categoría de gasto del pago de investigación, categoría 4 de 6
+research_legacy	expenditure_category_5	Expenditure category of the research payment, category 5 of 6	Categoría de gasto del pago de investigación, categoría 5 de 6
+research_legacy	expenditure_category_6	Expenditure category of the research payment, category 6 of 6	Categoría de gasto del pago de investigación, categoría 6 de 6
+research_legacy	preclinical_research_indicator	Indicates that the payment relates to preclinical research, for which study details are not published	Indica que el pago se refiere a investigación preclínica, cuyos detalles de estudio no se publican
+research_legacy	delay_in_publication_indicator	Indicates that the reporting entity requested a delay in publication of the record	Indica que la entidad declarante solicitó aplazamiento de la publicación del registro
+research_legacy	study_name	Name of the research study the payment relates to	Nombre del estudio de investigación al que se refiere el pago
+research_legacy	dispute_status	Indicates whether the record was under dispute at the time of publication	Indica si el registro estaba en disputa al momento de la publicación
+research_legacy	publication_date	Date the record was published by Open Payments	Fecha en que el registro fue publicado por Open Payments
+research_legacy	clinicaltrials_gov_id	Identifier of the study in the clinicaltrials.gov registry, when registered	Identificador del estudio en el registro clinicaltrials.gov, cuando está registrado
+research_legacy	research_information_link	Web address with additional information about the research	Dirección web con información adicional sobre la investigación
+research_legacy	research_context	Free text describing the context of the research, supplied by the reporting entity	Texto libre con el contexto de la investigación proporcionado por la entidad declarante
+ownership	year	Program year the record refers to	Año del programa al que se refiere el registro
+ownership	record_id	System-assigned unique identifier of the payment record	Identificador único del registro de pago asignado por el sistema Open Payments
+ownership	physician_profile_id	Unique identifier of the physician profile receiving the payment	Identificador único del perfil del médico que recibió el pago
+ownership	physician_npi	National Provider Identifier (NPI) of the physician	National Provider Identifier (NPI) del médico
+ownership	reporting_entity_id	Unique identifier of the applicable manufacturer or GPO that reported the payment	Identificador único del fabricante o GPO que declaró el pago
+ownership	change_type	Indicates whether the record is new, added, changed or unchanged relative to the previous publication	Indica si el registro es nuevo, añadido, modificado o sin cambios respecto a la publicación anterior
+ownership	physician_first_name	First name of the physician, as reported by the submitting entity	Primer nombre del médico, según lo declarado por la entidad declarante
+ownership	physician_middle_name	Middle name of the physician, as reported by the submitting entity	Segundo nombre del médico, según lo declarado por la entidad declarante
+ownership	physician_last_name	Last name of the physician, as reported by the submitting entity	Apellido del médico, según lo declarado por la entidad declarante
+ownership	physician_name_suffix	Name suffix of the physician, as reported by the submitting entity	Sufijo del nombre del médico, según lo declarado por la entidad declarante
+ownership	recipient_address_line_1	First line of the primary business street address of the covered recipient	Primera línea de la dirección comercial principal del beneficiario
+ownership	recipient_address_line_2	Second line of the primary business street address of the covered recipient	Segunda línea de la dirección comercial principal del beneficiario
+ownership	recipient_city	City of the primary business address of the covered recipient	Ciudad de la dirección comercial principal del beneficiario
+ownership	recipient_state	Two-letter state abbreviation of the covered recipient primary business address, when in the United States	Sigla de dos letras del estado de la dirección comercial principal del beneficiario, cuando está en Estados Unidos
+ownership	recipient_zip_code	Nine-digit ZIP code of the covered recipient primary business address, when in the United States	Código postal de nueve dígitos de la dirección comercial principal del beneficiario, cuando está en Estados Unidos
+ownership	recipient_country	Country of the primary business address of the covered recipient	País de la dirección comercial principal del beneficiario
+ownership	recipient_province	Province of the covered recipient primary business address, when outside the United States	Provincia de la dirección comercial principal del beneficiario, cuando está fuera de Estados Unidos
+ownership	recipient_postal_code	Postal code of the covered recipient primary business address, when outside the United States	Código postal de la dirección comercial principal del beneficiario, cuando está fuera de Estados Unidos
+ownership	physician_primary_type	Primary type of medicine practiced by the physician	Tipo principal de práctica del médico
+ownership	physician_specialty	Specialty of the physician from the standardized provider taxonomy	Especialidad del médico en la taxonomía estandarizada de prestadores
+ownership	amount_invested_total	Amount the physician or an immediate family member invested in the manufacturer or GPO during the program year, in US dollars	Monto invertido por el médico o un familiar inmediato en el fabricante o GPO durante el año del programa, en dólares estadounidenses
+ownership	interest_value	Value of the ownership or investment interest held, in US dollars	Valor de la participación societaria mantenida, en dólares estadounidenses
+ownership	interest_terms	Terms of the ownership or investment interest, such as common stock, options or debt	Términos de la participación societaria, como acciones ordinarias, opciones o deuda
+ownership	submitting_entity_name	Name of the applicable manufacturer or GPO that submitted the record, which may differ from the entity making the payment	Nombre del fabricante o GPO que presentó el registro, que puede diferir de quien efectuó el pago
+ownership	reporting_entity_name	Name of the applicable manufacturer or GPO making the payment	Nombre del fabricante o GPO que efectuó el pago
+ownership	reporting_entity_state	Two-letter state abbreviation of the applicable manufacturer or GPO making the payment	Sigla de dos letras del estado del fabricante o GPO que efectuó el pago
+ownership	reporting_entity_country	Country of the applicable manufacturer or GPO making the payment	País del fabricante o GPO que efectuó el pago
+ownership	dispute_status	Indicates whether the record was under dispute at the time of publication	Indica si el registro estaba en disputa al momento de la publicación
+ownership	interest_held_by_physician_or_family	Indicates whether the interest is held by the physician or by an immediate family member	Indica si la participación es del propio médico o de un familiar inmediato
+ownership	publication_date	Date the record was published by Open Payments	Fecha en que el registro fue publicado por Open Payments
+research_principal_investigator	year	Program year the record refers to	Año del programa al que se refiere el registro
+research_principal_investigator	record_id	System-assigned unique identifier of the payment record	Identificador único del registro de pago asignado por el sistema Open Payments
+research_principal_investigator	covered_recipient_profile_id	Unique identifier of the covered recipient physician or non-physician practitioner profile	Identificador único del perfil del médico o profesional no médico que recibió el pago
+research_principal_investigator	covered_recipient_npi	National Provider Identifier (NPI) of the covered recipient physician or non-physician practitioner	National Provider Identifier (NPI) del médico o profesional no médico
+research_principal_investigator	principal_investigator_number	Position of the principal investigator within the source record, 1 to 5	Posición del investigador principal en el registro de origen, de 1 a 5
+research_principal_investigator	first_name	First name of the principal investigator	Primer nombre del investigador principal
+research_principal_investigator	middle_name	Middle name of the principal investigator	Segundo nombre del investigador principal
+research_principal_investigator	last_name	Last name of the principal investigator	Apellido del investigador principal
+research_principal_investigator	name_suffix	Name suffix of the principal investigator	Sufijo del nombre del investigador principal
+research_principal_investigator	address_line_1	First line of the business street address of the principal investigator	Primera línea de la dirección comercial del investigador principal
+research_principal_investigator	address_line_2	Second line of the business street address of the principal investigator	Segunda línea de la dirección comercial del investigador principal
+research_principal_investigator	city	City of the business address of the principal investigator	Ciudad de la dirección comercial del investigador principal
+research_principal_investigator	state	Two-letter state abbreviation of the principal investigator business address	Sigla de dos letras del estado de la dirección comercial del investigador principal
+research_principal_investigator	zip_code	ZIP code of the business address of the principal investigator	Código postal de la dirección comercial del investigador principal
+research_principal_investigator	country	Country of the business address of the principal investigator	País de la dirección comercial del investigador principal
+research_principal_investigator	province	Province of the principal investigator business address, when outside the United States	Provincia de la dirección comercial del investigador principal, cuando está fuera de Estados Unidos
+research_principal_investigator	postal_code	Postal code of the principal investigator business address, when outside the United States	Código postal de la dirección comercial del investigador principal, cuando está fuera de Estados Unidos
+research_principal_investigator	primary_type_1	Primary type of medicine practiced by the covered recipient, type 1 of 6	Tipo principal de práctica del beneficiario, tipo 1 de 6
+research_principal_investigator	specialty_1	Specialty of the covered recipient from the standardized provider taxonomy, specialty 1 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 1 de 6
+research_principal_investigator	license_state_1	Two-letter state abbreviation of the professional license, license 1 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 1 de 5
+research_principal_investigator	license_state_2	Two-letter state abbreviation of the professional license, license 2 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 2 de 5
+research_principal_investigator	license_state_3	Two-letter state abbreviation of the professional license, license 3 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 3 de 5
+research_principal_investigator	license_state_4	Two-letter state abbreviation of the professional license, license 4 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 4 de 5
+research_principal_investigator	license_state_5	Two-letter state abbreviation of the professional license, license 5 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 5 de 5
+research_principal_investigator	covered_recipient_type	Covered recipient type of the principal investigator, populated from program year 2016 onwards	Tipo de beneficiario del investigador principal, completado a partir del año del programa 2016
+research_principal_investigator	primary_type_2	Primary type of medicine practiced by the covered recipient, type 2 of 6	Tipo principal de práctica del beneficiario, tipo 2 de 6
+research_principal_investigator	primary_type_3	Primary type of medicine practiced by the covered recipient, type 3 of 6	Tipo principal de práctica del beneficiario, tipo 3 de 6
+research_principal_investigator	primary_type_4	Primary type of medicine practiced by the covered recipient, type 4 of 6	Tipo principal de práctica del beneficiario, tipo 4 de 6
+research_principal_investigator	primary_type_5	Primary type of medicine practiced by the covered recipient, type 5 of 6	Tipo principal de práctica del beneficiario, tipo 5 de 6
+research_principal_investigator	primary_type_6	Primary type of medicine practiced by the covered recipient, type 6 of 6	Tipo principal de práctica del beneficiario, tipo 6 de 6
+research_principal_investigator	specialty_2	Specialty of the covered recipient from the standardized provider taxonomy, specialty 2 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 2 de 6
+research_principal_investigator	specialty_3	Specialty of the covered recipient from the standardized provider taxonomy, specialty 3 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 3 de 6
+research_principal_investigator	specialty_4	Specialty of the covered recipient from the standardized provider taxonomy, specialty 4 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 4 de 6
+research_principal_investigator	specialty_5	Specialty of the covered recipient from the standardized provider taxonomy, specialty 5 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 5 de 6
+research_principal_investigator	specialty_6	Specialty of the covered recipient from the standardized provider taxonomy, specialty 6 of 6	Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 6 de 6
+covered_recipient_profile	profile_type	Type of profile: physician or non-physician practitioner	Tipo de perfil: médico o profesional no médico
+covered_recipient_profile	covered_recipient_profile_id	Unique identifier of the covered recipient physician or non-physician practitioner profile	Identificador único del perfil del médico o profesional no médico que recibió el pago
+covered_recipient_profile	associated_profile_id_1	Identifier of another profile associated with the same practitioner, association 1 of 2	Identificador de otro perfil asociado al mismo profesional, asociación 1 de 2
+covered_recipient_profile	associated_profile_id_2	Identifier of another profile associated with the same practitioner, association 2 of 2	Identificador de otro perfil asociado al mismo profesional, asociación 2 de 2
+covered_recipient_profile	covered_recipient_npi	National Provider Identifier (NPI) of the covered recipient physician or non-physician practitioner	National Provider Identifier (NPI) del médico o profesional no médico
+covered_recipient_profile	first_name	First name of the practitioner as listed in the CMS master provider list	Primer nombre del profesional según la lista maestra de prestadores del CMS
+covered_recipient_profile	middle_name	Middle name of the practitioner as listed in the CMS master provider list	Segundo nombre del profesional según la lista maestra de prestadores del CMS
+covered_recipient_profile	last_name	Last name of the practitioner as listed in the CMS master provider list	Apellido del profesional según la lista maestra de prestadores del CMS
+covered_recipient_profile	name_suffix	Name suffix of the practitioner as listed in the CMS master provider list	Sufijo del nombre del profesional según la lista maestra de prestadores del CMS
+covered_recipient_profile	alternate_first_name	Alternate first name of the practitioner recorded in the master provider list	Primer nombre alternativo del profesional registrado en la lista maestra de prestadores
+covered_recipient_profile	alternate_middle_name	Alternate middle name of the practitioner recorded in the master provider list	Segundo nombre alternativo del profesional registrado en la lista maestra de prestadores
+covered_recipient_profile	alternate_last_name	Alternate last name of the practitioner recorded in the master provider list	Apellido alternativo del profesional registrado en la lista maestra de prestadores
+covered_recipient_profile	alternate_name_suffix	Alternate name suffix of the practitioner recorded in the master provider list	Sufijo alternativo del nombre del profesional registrado en la lista maestra de prestadores
+covered_recipient_profile	address_line_1	First line of the practitioner business practice location address from the master provider list	Primera línea de la dirección de práctica del profesional según la lista maestra de prestadores
+covered_recipient_profile	address_line_2	Second line of the practitioner business practice location address from the master provider list	Segunda línea de la dirección de práctica del profesional según la lista maestra de prestadores
+covered_recipient_profile	city	City of the practitioner business practice location from the master provider list	Ciudad de la dirección de práctica del profesional según la lista maestra de prestadores
+covered_recipient_profile	state	Two-letter state abbreviation of the practitioner business practice location	Sigla de dos letras del estado de la dirección de práctica del profesional
+covered_recipient_profile	zip_code	ZIP code of the practitioner business practice location	Código postal de la dirección de práctica del profesional
+covered_recipient_profile	country	Country of the practitioner business practice location	País de la dirección de práctica del profesional
+covered_recipient_profile	province	Province of the practitioner business practice location, when outside the United States	Provincia de la dirección de práctica del profesional, cuando está fuera de Estados Unidos
+covered_recipient_profile	primary_specialty	Primary specialty of the practitioner from the standardized provider taxonomy	Especialidad principal del profesional en la taxonomía estandarizada de prestadores
+covered_recipient_profile	taxonomy_1	Open Payments provider taxonomy code, taxonomy 1 of 6	Código de taxonomía de prestador de Open Payments, taxonomía 1 de 6
+covered_recipient_profile	taxonomy_2	Open Payments provider taxonomy code, taxonomy 2 of 6	Código de taxonomía de prestador de Open Payments, taxonomía 2 de 6
+covered_recipient_profile	taxonomy_3	Open Payments provider taxonomy code, taxonomy 3 of 6	Código de taxonomía de prestador de Open Payments, taxonomía 3 de 6
+covered_recipient_profile	taxonomy_4	Open Payments provider taxonomy code, taxonomy 4 of 6	Código de taxonomía de prestador de Open Payments, taxonomía 4 de 6
+covered_recipient_profile	taxonomy_5	Open Payments provider taxonomy code, taxonomy 5 of 6	Código de taxonomía de prestador de Open Payments, taxonomía 5 de 6
+covered_recipient_profile	taxonomy_6	Open Payments provider taxonomy code, taxonomy 6 of 6	Código de taxonomía de prestador de Open Payments, taxonomía 6 de 6
+covered_recipient_profile	license_state_1	Two-letter state abbreviation of the professional license, license 1 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 1 de 5
+covered_recipient_profile	license_state_2	Two-letter state abbreviation of the professional license, license 2 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 2 de 5
+covered_recipient_profile	license_state_3	Two-letter state abbreviation of the professional license, license 3 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 3 de 5
+covered_recipient_profile	license_state_4	Two-letter state abbreviation of the professional license, license 4 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 4 de 5
+covered_recipient_profile	license_state_5	Two-letter state abbreviation of the professional license, license 5 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 5 de 5
+teaching_hospital_profile	teaching_hospital_ccn	CMS Certification Number (CCN) of the teaching hospital	CMS Certification Number (CCN) del hospital universitario
+teaching_hospital_profile	name	Name of the teaching hospital, as listed in the CMS teaching hospital list	Nombre del hospital universitario, según la lista de hospitales universitarios del CMS
+teaching_hospital_profile	address_line_1	First line of the teaching hospital street address	Primera línea de la dirección del hospital universitario
+teaching_hospital_profile	address_line_2	Second line of the teaching hospital street address	Segunda línea de la dirección del hospital universitario
+teaching_hospital_profile	city	City of the teaching hospital	Ciudad del hospital universitario
+teaching_hospital_profile	state	Two-letter state abbreviation of the teaching hospital	Sigla de dos letras del estado del hospital universitario
+teaching_hospital_profile	zip_code	ZIP code of the teaching hospital	Código postal del hospital universitario
+teaching_hospital_profile	alternate_name_1	Alternate name under which the teaching hospital is also recorded, name 1 of 5	Nombre alternativo bajo el cual el hospital universitario también está registrado, nombre 1 de 5
+teaching_hospital_profile	alternate_name_2	Alternate name under which the teaching hospital is also recorded, name 2 of 5	Nombre alternativo bajo el cual el hospital universitario también está registrado, nombre 2 de 5
+teaching_hospital_profile	alternate_name_3	Alternate name under which the teaching hospital is also recorded, name 3 of 5	Nombre alternativo bajo el cual el hospital universitario también está registrado, nombre 3 de 5
+teaching_hospital_profile	alternate_name_4	Alternate name under which the teaching hospital is also recorded, name 4 of 5	Nombre alternativo bajo el cual el hospital universitario también está registrado, nombre 4 de 5
+teaching_hospital_profile	alternate_name_5	Alternate name under which the teaching hospital is also recorded, name 5 of 5	Nombre alternativo bajo el cual el hospital universitario también está registrado, nombre 5 de 5
+reporting_entity_profile	reporting_entity_id	Unique identifier of the applicable manufacturer or GPO that reported the payment	Identificador único del fabricante o GPO que declaró el pago
+reporting_entity_profile	name	Name of the applicable manufacturer or GPO	Nombre del fabricante o GPO declarante
+reporting_entity_profile	state	Two-letter state abbreviation of the applicable manufacturer or GPO	Sigla de dos letras del estado del fabricante o GPO declarante
+reporting_entity_profile	country	Country of the applicable manufacturer or GPO	País del fabricante o GPO declarante
+reporting_entity_profile	alternate_name_1	Alternate name under which the manufacturer or GPO is also recorded, name 1 of 5	Nombre alternativo bajo el cual el fabricante o GPO también está registrado, nombre 1 de 5
+reporting_entity_profile	alternate_name_2	Alternate name under which the manufacturer or GPO is also recorded, name 2 of 5	Nombre alternativo bajo el cual el fabricante o GPO también está registrado, nombre 2 de 5
+reporting_entity_profile	alternate_name_3	Alternate name under which the manufacturer or GPO is also recorded, name 3 of 5	Nombre alternativo bajo el cual el fabricante o GPO también está registrado, nombre 3 de 5
+reporting_entity_profile	alternate_name_4	Alternate name under which the manufacturer or GPO is also recorded, name 4 of 5	Nombre alternativo bajo el cual el fabricante o GPO también está registrado, nombre 4 de 5
+reporting_entity_profile	alternate_name_5	Alternate name under which the manufacturer or GPO is also recorded, name 5 of 5	Nombre alternativo bajo el cual el fabricante o GPO también está registrado, nombre 5 de 5
+provider_profile_mapping	primary_profile_id	Primary provider profile identifier, into which secondary profiles are consolidated	Identificador de perfil principal del prestador, en el cual se consolidan los perfiles secundarios
+provider_profile_mapping	secondary_profile_id	Secondary provider profile identifier, which resolves to the primary profile	Identificador de perfil secundario del prestador, que remite al perfil principal
+summary_by_recipient_nature	year	Program year the record refers to	Año del programa al que se refiere el registro
+summary_by_recipient_nature	covered_recipient_npi	National Provider Identifier (NPI) of the covered recipient physician or non-physician practitioner	National Provider Identifier (NPI) del médico o profesional no médico
+summary_by_recipient_nature	recipient_id	Recipient identifier: the practitioner profile identifier or the teaching hospital CCN	Identificador del beneficiario: perfil del profesional o CCN del hospital universitario
+summary_by_recipient_nature	recipient_type	Type of recipient: physician, non-physician practitioner or teaching hospital	Tipo de beneficiario: médico, profesional no médico u hospital universitario
+summary_by_recipient_nature	first_name	First name of the recipient practitioner	Primer nombre del profesional beneficiario
+summary_by_recipient_nature	middle_name	Middle name of the recipient practitioner	Segundo nombre del profesional beneficiario
+summary_by_recipient_nature	last_name	Last name of the recipient practitioner	Apellido del profesional beneficiario
+summary_by_recipient_nature	teaching_hospital_name	Name of the teaching hospital, as listed in the CMS teaching hospital list	Nombre del hospital universitario, según la lista de hospitales universitarios del CMS
+summary_by_recipient_nature	payment_nature_code	Code of the nature of the payment or other transfer of value	Código de la naturaleza del pago o transferencia de valor
+summary_by_recipient_nature	transaction_count	Number of transactions aggregated in the record	Cantidad de transacciones agregadas en el registro
+summary_by_recipient_nature	amount_total	Total amount aggregated in the record, in US dollars	Monto total agregado en el registro, en dólares estadounidenses
+summary_by_recipient_entity	year	Program year the record refers to	Año del programa al que se refiere el registro
+summary_by_recipient_entity	covered_recipient_npi	National Provider Identifier (NPI) of the covered recipient physician or non-physician practitioner	National Provider Identifier (NPI) del médico o profesional no médico
+summary_by_recipient_entity	reporting_entity_id	Unique identifier of the applicable manufacturer or GPO that reported the payment	Identificador único del fabricante o GPO que declaró el pago
+summary_by_recipient_entity	recipient_id	Recipient identifier: the practitioner profile identifier or the teaching hospital CCN	Identificador del beneficiario: perfil del profesional o CCN del hospital universitario
+summary_by_recipient_entity	recipient_type	Type of recipient: physician, non-physician practitioner or teaching hospital	Tipo de beneficiario: médico, profesional no médico u hospital universitario
+summary_by_recipient_entity	first_name	First name of the recipient practitioner	Primer nombre del profesional beneficiario
+summary_by_recipient_entity	middle_name	Middle name of the recipient practitioner	Segundo nombre del profesional beneficiario
+summary_by_recipient_entity	last_name	Last name of the recipient practitioner	Apellido del profesional beneficiario
+summary_by_recipient_entity	teaching_hospital_name	Name of the teaching hospital, as listed in the CMS teaching hospital list	Nombre del hospital universitario, según la lista de hospitales universitarios del CMS
+summary_by_recipient_entity	payment_type	Payment category aggregated: general, research or ownership	Categoría de pago agregada: general, investigación o participación societaria
+summary_by_recipient_entity	reporting_entity_name	Name of the applicable manufacturer or GPO making the payment	Nombre del fabricante o GPO que efectuó el pago
+summary_by_recipient_entity	transaction_count	Number of transactions aggregated in the record	Cantidad de transacciones agregadas en el registro
+summary_by_recipient_entity	amount_total	Total amount aggregated in the record, in US dollars	Monto total agregado en el registro, en dólares estadounidenses
+summary_by_entity_nature	year	Program year the record refers to	Año del programa al que se refiere el registro
+summary_by_entity_nature	reporting_entity_id	Unique identifier of the applicable manufacturer or GPO that reported the payment	Identificador único del fabricante o GPO que declaró el pago
+summary_by_entity_nature	payment_nature_code	Code of the nature of the payment or other transfer of value	Código de la naturaleza del pago o transferencia de valor
+summary_by_entity_nature	transaction_count	Number of transactions aggregated in the record	Cantidad de transacciones agregadas en el registro
+summary_by_entity_nature	amount_total	Total amount aggregated in the record, in US dollars	Monto total agregado en el registro, en dólares estadounidenses
+summary_by_entity_nature	reporting_entity_name	Name of the applicable manufacturer or GPO making the payment	Nombre del fabricante o GPO que efectuó el pago
+summary_by_entity_recipient_nature	year	Program year the record refers to	Año del programa al que se refiere el registro
+summary_by_entity_recipient_nature	reporting_entity_id	Unique identifier of the applicable manufacturer or GPO that reported the payment	Identificador único del fabricante o GPO que declaró el pago
+summary_by_entity_recipient_nature	recipient_id	Recipient identifier: the practitioner profile identifier or the teaching hospital CCN	Identificador del beneficiario: perfil del profesional o CCN del hospital universitario
+summary_by_entity_recipient_nature	recipient_type	Type of recipient: physician, non-physician practitioner or teaching hospital	Tipo de beneficiario: médico, profesional no médico u hospital universitario
+summary_by_entity_recipient_nature	payment_nature_code	Code of the nature of the payment or other transfer of value	Código de la naturaleza del pago o transferencia de valor
+summary_by_entity_recipient_nature	transaction_count	Number of transactions aggregated in the record	Cantidad de transacciones agregadas en el registro
+summary_by_entity_recipient_nature	amount_total	Total amount aggregated in the record, in US dollars	Monto total agregado en el registro, en dólares estadounidenses
+summary_by_entity_recipient_nature	recipient_name	Name of the recipient aggregated in the record	Nombre del beneficiario agregado en el registro
+summary_by_entity_recipient_nature	reporting_entity_name	Name of the applicable manufacturer or GPO making the payment	Nombre del fabricante o GPO que efectuó el pago
+summary_state_by_nature	year	Program year the record refers to	Año del programa al que se refiere el registro
+summary_state_by_nature	country_code	Country code of the recipient	Código del país del beneficiario
+summary_state_by_nature	country_name	Country name of the recipient	Nombre del país del beneficiario
+summary_state_by_nature	state_code	Two-letter state abbreviation of the recipient	Sigla de dos letras del estado del beneficiario
+summary_state_by_nature	state_name	State name of the recipient	Nombre del estado del beneficiario
+summary_state_by_nature	payment_nature	Nature of the payment or other transfer of value	Naturaleza del pago o transferencia de valor
+summary_state_by_nature	recipient_type	Type of recipient: physician, non-physician practitioner or teaching hospital	Tipo de beneficiario: médico, profesional no médico u hospital universitario
+summary_state_by_nature	physician_count	Number of distinct physicians that received payments	Cantidad de médicos distintos que recibieron pagos
+summary_state_by_nature	non_physician_practitioner_count	Number of distinct non-physician practitioners that received payments	Cantidad de profesionales no médicos distintos que recibieron pagos
+summary_state_by_nature	teaching_hospital_count	Number of distinct teaching hospitals that received payments	Cantidad de hospitales universitarios distintos que recibieron pagos
+summary_state_by_nature	payment_amount_total_physician	Total amount paid to physicians, in US dollars	Monto total pagado a médicos, en dólares estadounidenses
+summary_state_by_nature	payment_amount_total_non_physician_practitioner	Total amount paid to non-physician practitioners, in US dollars	Monto total pagado a profesionales no médicos, en dólares estadounidenses
+summary_state_by_nature	payment_amount_total_teaching_hospital	Total amount paid to teaching hospitals, in US dollars	Monto total pagado a hospitales universitarios, en dólares estadounidenses
+summary_state_by_nature	payment_amount_mean_physician	Mean amount paid to physicians, in US dollars	Monto medio pagado a médicos, en dólares estadounidenses
+summary_state_by_nature	payment_amount_mean_non_physician_practitioner	Mean amount paid to non-physician practitioners, in US dollars	Monto medio pagado a profesionales no médicos, en dólares estadounidenses
+summary_state_by_nature	payment_amount_mean_teaching_hospital	Mean amount paid to teaching hospitals, in US dollars	Monto medio pagado a hospitales universitarios, en dólares estadounidenses
+summary_state_by_nature	payment_amount_median_physician	Median amount paid to physicians, in US dollars	Monto mediano pagado a médicos, en dólares estadounidenses
+summary_state_by_nature	payment_amount_median_non_physician_practitioner	Median amount paid to non-physician practitioners, in US dollars	Monto mediano pagado a profesionales no médicos, en dólares estadounidenses
+summary_state_by_nature	payment_amount_median_teaching_hospital	Median amount paid to teaching hospitals, in US dollars	Monto mediano pagado a hospitales universitarios, en dólares estadounidenses
+summary_state_by_nature	payment_count_total_physician	Total number of payments to physicians	Cantidad total de pagos a médicos
+summary_state_by_nature	payment_count_total_non_physician_practitioner	Total number of payments to non-physician practitioners	Cantidad total de pagos a profesionales no médicos
+summary_state_by_nature	payment_count_total_teaching_hospital	Total number of payments to teaching hospitals	Cantidad total de pagos a hospitales universitarios
+summary_state_by_nature	payment_count_mean_physician	Mean number of payments per recipient among physicians	Cantidad media de pagos por beneficiario entre médicos
+summary_state_by_nature	payment_count_mean_non_physician_practitioner	Mean number of payments per recipient among non-physician practitioners	Cantidad media de pagos por beneficiario entre profesionales no médicos
+summary_state_by_nature	payment_count_mean_teaching_hospital	Mean number of payments per recipient among teaching hospitals	Cantidad media de pagos por beneficiario entre hospitales universitarios
+summary_state_by_nature	payment_count_median_physician	Median number of payments per recipient among physicians	Cantidad mediana de pagos por beneficiario entre médicos
+summary_state_by_nature	payment_count_median_non_physician_practitioner	Median number of payments per recipient among non-physician practitioners	Cantidad mediana de pagos por beneficiario entre profesionales no médicos
+summary_state_by_nature	payment_count_median_teaching_hospital	Median number of payments per recipient among teaching hospitals	Cantidad mediana de pagos por beneficiario entre hospitales universitarios
+summary_national	year	Program year the record refers to	Año del programa al que se refiere el registro
+summary_national	metric_level	Aggregation level of the metric	Nivel de agregación de la métrica
+summary_national	payment_type	Payment category aggregated: general, research or ownership	Categoría de pago agregada: general, investigación o participación societaria
+summary_national	recipient_type	Type of recipient: physician, non-physician practitioner or teaching hospital	Tipo de beneficiario: médico, profesional no médico u hospital universitario
+summary_national	physician_count	Number of distinct physicians that received payments	Cantidad de médicos distintos que recibieron pagos
+summary_national	non_physician_practitioner_count	Number of distinct non-physician practitioners that received payments	Cantidad de profesionales no médicos distintos que recibieron pagos
+summary_national	payment_amount_total_physician	Total amount paid to physicians, in US dollars	Monto total pagado a médicos, en dólares estadounidenses
+summary_national	payment_amount_total_non_physician_practitioner	Total amount paid to non-physician practitioners, in US dollars	Monto total pagado a profesionales no médicos, en dólares estadounidenses
+summary_national	payment_amount_mean_physician	Mean amount paid to physicians, in US dollars	Monto medio pagado a médicos, en dólares estadounidenses
+summary_national	payment_amount_mean_non_physician_practitioner	Mean amount paid to non-physician practitioners, in US dollars	Monto medio pagado a profesionales no médicos, en dólares estadounidenses
+summary_national	payment_amount_median_physician	Median amount paid to physicians, in US dollars	Monto mediano pagado a médicos, en dólares estadounidenses
+summary_national	payment_amount_median_non_physician_practitioner	Median amount paid to non-physician practitioners, in US dollars	Monto mediano pagado a profesionales no médicos, en dólares estadounidenses
+summary_national	payment_count_total_physician	Total number of payments to physicians	Cantidad total de pagos a médicos
+summary_national	payment_count_total_non_physician_practitioner	Total number of payments to non-physician practitioners	Cantidad total de pagos a profesionales no médicos
+summary_national	payment_count_mean_physician	Mean number of payments per recipient among physicians	Cantidad media de pagos por beneficiario entre médicos
+summary_national	payment_count_mean_non_physician_practitioner	Mean number of payments per recipient among non-physician practitioners	Cantidad media de pagos por beneficiario entre profesionales no médicos
+summary_national	payment_count_median_physician	Median number of payments per recipient among physicians	Cantidad mediana de pagos por beneficiario entre médicos
+summary_national	payment_count_median_non_physician_practitioner	Median number of payments per recipient among non-physician practitioners	Cantidad mediana de pagos por beneficiario entre profesionales no médicos
+summary_national_by_specialty	year	Program year the record refers to	Año del programa al que se refiere el registro
+summary_national_by_specialty	payment_type	Payment category aggregated: general, research or ownership	Categoría de pago agregada: general, investigación o participación societaria
+summary_national_by_specialty	recipient_type	Type of recipient: physician, non-physician practitioner or teaching hospital	Tipo de beneficiario: médico, profesional no médico u hospital universitario
+summary_national_by_specialty	taxonomy_code	Provider taxonomy code identifying the aggregated specialty	Código de taxonomía de prestador que identifica la especialidad agregada
+summary_national_by_specialty	provider_type_description	Description of the provider grouping in the taxonomy	Descripción del grupo de prestadores en la taxonomía
+summary_national_by_specialty	classification	Classification of the specialty within the provider taxonomy	Clasificación de la especialidad en la taxonomía de prestadores
+summary_national_by_specialty	specialization	Specialization within the provider taxonomy classification	Especialización dentro de la clasificación de la taxonomía de prestadores
+summary_national_by_specialty	physician_count	Number of distinct physicians that received payments	Cantidad de médicos distintos que recibieron pagos
+summary_national_by_specialty	non_physician_practitioner_count	Number of distinct non-physician practitioners that received payments	Cantidad de profesionales no médicos distintos que recibieron pagos
+summary_national_by_specialty	payment_amount_total_physician	Total amount paid to physicians, in US dollars	Monto total pagado a médicos, en dólares estadounidenses
+summary_national_by_specialty	payment_amount_total_non_physician_practitioner	Total amount paid to non-physician practitioners, in US dollars	Monto total pagado a profesionales no médicos, en dólares estadounidenses
+summary_national_by_specialty	payment_amount_mean_physician	Mean amount paid to physicians, in US dollars	Monto medio pagado a médicos, en dólares estadounidenses
+summary_national_by_specialty	payment_amount_mean_non_physician_practitioner	Mean amount paid to non-physician practitioners, in US dollars	Monto medio pagado a profesionales no médicos, en dólares estadounidenses
+summary_national_by_specialty	payment_amount_median_physician	Median amount paid to physicians, in US dollars	Monto mediano pagado a médicos, en dólares estadounidenses
+summary_national_by_specialty	payment_amount_median_non_physician_practitioner	Median amount paid to non-physician practitioners, in US dollars	Monto mediano pagado a profesionales no médicos, en dólares estadounidenses
+summary_national_by_specialty	payment_count_total_physician	Total number of payments to physicians	Cantidad total de pagos a médicos
+summary_national_by_specialty	payment_count_total_non_physician_practitioner	Total number of payments to non-physician practitioners	Cantidad total de pagos a profesionales no médicos
+summary_national_by_specialty	payment_count_mean_physician	Mean number of payments per recipient among physicians	Cantidad media de pagos por beneficiario entre médicos
+summary_national_by_specialty	payment_count_mean_non_physician_practitioner	Mean number of payments per recipient among non-physician practitioners	Cantidad media de pagos por beneficiario entre profesionales no médicos
+summary_national_by_specialty	payment_count_median_physician	Median number of payments per recipient among physicians	Cantidad mediana de pagos por beneficiario entre médicos
+summary_national_by_specialty	payment_count_median_non_physician_practitioner	Median number of payments per recipient among non-physician practitioners	Cantidad mediana de pagos por beneficiario entre profesionales no médicos
+summary_state	year	Program year the record refers to	Año del programa al que se refiere el registro
+summary_state	country_code	Country code of the recipient	Código del país del beneficiario
+summary_state	country_name	Country name of the recipient	Nombre del país del beneficiario
+summary_state	state_code	Two-letter state abbreviation of the recipient	Sigla de dos letras del estado del beneficiario
+summary_state	state_name	State name of the recipient	Nombre del estado del beneficiario
+summary_state	payment_type	Payment category aggregated: general, research or ownership	Categoría de pago agregada: general, investigación o participación societaria
+summary_state	recipient_type	Type of recipient: physician, non-physician practitioner or teaching hospital	Tipo de beneficiario: médico, profesional no médico u hospital universitario
+summary_state	physician_count	Number of distinct physicians that received payments	Cantidad de médicos distintos que recibieron pagos
+summary_state	non_physician_practitioner_count	Number of distinct non-physician practitioners that received payments	Cantidad de profesionales no médicos distintos que recibieron pagos
+summary_state	teaching_hospital_count	Number of distinct teaching hospitals that received payments	Cantidad de hospitales universitarios distintos que recibieron pagos
+summary_state	payment_amount_total_physician	Total amount paid to physicians, in US dollars	Monto total pagado a médicos, en dólares estadounidenses
+summary_state	payment_amount_total_non_physician_practitioner	Total amount paid to non-physician practitioners, in US dollars	Monto total pagado a profesionales no médicos, en dólares estadounidenses
+summary_state	payment_amount_total_teaching_hospital	Total amount paid to teaching hospitals, in US dollars	Monto total pagado a hospitales universitarios, en dólares estadounidenses
+summary_state	payment_amount_mean_physician	Mean amount paid to physicians, in US dollars	Monto medio pagado a médicos, en dólares estadounidenses
+summary_state	payment_amount_mean_non_physician_practitioner	Mean amount paid to non-physician practitioners, in US dollars	Monto medio pagado a profesionales no médicos, en dólares estadounidenses
+summary_state	payment_amount_mean_teaching_hospital	Mean amount paid to teaching hospitals, in US dollars	Monto medio pagado a hospitales universitarios, en dólares estadounidenses
+summary_state	payment_amount_median_physician	Median amount paid to physicians, in US dollars	Monto mediano pagado a médicos, en dólares estadounidenses
+summary_state	payment_amount_median_non_physician_practitioner	Median amount paid to non-physician practitioners, in US dollars	Monto mediano pagado a profesionales no médicos, en dólares estadounidenses
+summary_state	payment_amount_median_teaching_hospital	Median amount paid to teaching hospitals, in US dollars	Monto mediano pagado a hospitales universitarios, en dólares estadounidenses
+summary_state	payment_count_total_physician	Total number of payments to physicians	Cantidad total de pagos a médicos
+summary_state	payment_count_total_non_physician_practitioner	Total number of payments to non-physician practitioners	Cantidad total de pagos a profesionales no médicos
+summary_state	payment_count_total_teaching_hospital	Total number of payments to teaching hospitals	Cantidad total de pagos a hospitales universitarios
+summary_state	payment_count_mean_physician	Mean number of payments per recipient among physicians	Cantidad media de pagos por beneficiario entre médicos
+summary_state	payment_count_mean_non_physician_practitioner	Mean number of payments per recipient among non-physician practitioners	Cantidad media de pagos por beneficiario entre profesionales no médicos
+summary_state	payment_count_mean_teaching_hospital	Mean number of payments per recipient among teaching hospitals	Cantidad media de pagos por beneficiario entre hospitales universitarios
+summary_state	payment_count_median_physician	Median number of payments per recipient among physicians	Cantidad mediana de pagos por beneficiario entre médicos
+summary_state	payment_count_median_non_physician_practitioner	Median number of payments per recipient among non-physician practitioners	Cantidad mediana de pagos por beneficiario entre profesionales no médicos
+summary_state	payment_count_median_teaching_hospital	Median number of payments per recipient among teaching hospitals	Cantidad mediana de pagos por beneficiario entre hospitales universitarios
+summary_teaching_hospital	year	Program year the record refers to	Año del programa al que se refiere el registro
+summary_teaching_hospital	teaching_hospital_ccn	CMS Certification Number (CCN) of the teaching hospital	CMS Certification Number (CCN) del hospital universitario
+summary_teaching_hospital	teaching_hospital_name	Name of the teaching hospital, as listed in the CMS teaching hospital list	Nombre del hospital universitario, según la lista de hospitales universitarios del CMS
+summary_teaching_hospital	address_line_1	First line of the teaching hospital street address	Primera línea de la dirección del hospital universitario
+summary_teaching_hospital	address_line_2	Second line of the teaching hospital street address	Segunda línea de la dirección del hospital universitario
+summary_teaching_hospital	city	City of the teaching hospital	Ciudad del hospital universitario
+summary_teaching_hospital	state	Two-letter state abbreviation of the teaching hospital	Sigla de dos letras del estado del hospital universitario
+summary_teaching_hospital	zip_code	ZIP code of the teaching hospital	Código postal del hospital universitario
+summary_teaching_hospital	general_payment_amount_total	Total amount of general payments, in US dollars	Monto total de pagos generales, en dólares estadounidenses
+summary_teaching_hospital	research_payment_amount_total	Total amount of research payments, in US dollars	Monto total de pagos de investigación, en dólares estadounidenses
+summary_teaching_hospital	general_transaction_count	Number of general payment transactions	Cantidad de transacciones de pago general
+summary_teaching_hospital	research_transaction_count	Number of research payment transactions	Cantidad de transacciones de pago de investigación
+summary_teaching_hospital	disputed_transaction_count	Number of transactions disputed by the recipient	Cantidad de transacciones disputadas por el beneficiario
+summary_teaching_hospital	undisputed_transaction_count	Number of undisputed transactions	Cantidad de transacciones no disputadas
+summary_reporting_entity	year	Program year the record refers to	Año del programa al que se refiere el registro
+summary_reporting_entity	reporting_entity_id	Unique identifier of the applicable manufacturer or GPO that reported the payment	Identificador único del fabricante o GPO que declaró el pago
+summary_reporting_entity	reporting_entity_name	Name of the applicable manufacturer or GPO making the payment	Nombre del fabricante o GPO que efectuó el pago
+summary_reporting_entity	reporting_entity_state	Two-letter state abbreviation of the applicable manufacturer or GPO making the payment	Sigla de dos letras del estado del fabricante o GPO que efectuó el pago
+summary_reporting_entity	reporting_entity_country	Country of the applicable manufacturer or GPO making the payment	País del fabricante o GPO que efectuó el pago
+summary_reporting_entity	general_payment_amount_total	Total amount of general payments, in US dollars	Monto total de pagos generales, en dólares estadounidenses
+summary_reporting_entity	research_payment_amount_total	Total amount of research payments, in US dollars	Monto total de pagos de investigación, en dólares estadounidenses
+summary_reporting_entity	ownership_amount_invested_total	Total amount invested in ownership or investment interest, in US dollars	Monto total invertido en participación societaria, en dólares estadounidenses
+summary_reporting_entity	ownership_interest_value_total	Total value of the ownership or investment interest held, in US dollars	Valor total de la participación societaria mantenida, en dólares estadounidenses
+summary_reporting_entity	general_transaction_count	Number of general payment transactions	Cantidad de transacciones de pago general
+summary_reporting_entity	general_transaction_count_physician	Number of general payment transactions with physicians	Cantidad de transacciones de pago general con médicos
+summary_reporting_entity	general_transaction_count_non_physician_practitioner	Number of general payment transactions with non-physician practitioners	Cantidad de transacciones de pago general con profesionales no médicos
+summary_reporting_entity	general_transaction_count_teaching_hospital	Number of general payment transactions with teaching hospitals	Cantidad de transacciones de pago general con hospitales universitarios
+summary_reporting_entity	research_transaction_count	Number of research payment transactions	Cantidad de transacciones de pago de investigación
+summary_reporting_entity	research_transaction_count_physician	Number of research payment transactions with physicians	Cantidad de transacciones de pago de investigación con médicos
+summary_reporting_entity	research_transaction_count_non_physician_practitioner	Number of research payment transactions with non-physician practitioners	Cantidad de transacciones de pago de investigación con profesionales no médicos
+summary_reporting_entity	research_transaction_count_teaching_hospital	Number of research payment transactions with teaching hospitals	Cantidad de transacciones de pago de investigación con hospitales universitarios
+summary_reporting_entity	ownership_invested_transaction_count	Number of ownership investment records	Cantidad de registros de inversión en participación societaria
+summary_reporting_entity	disputed_transaction_count	Number of transactions disputed by the recipient	Cantidad de transacciones disputadas por el beneficiario
+summary_reporting_entity	undisputed_transaction_count	Number of undisputed transactions	Cantidad de transacciones no disputadas
+summary_physician	year	Program year the record refers to	Año del programa al que se refiere el registro
+summary_physician	covered_recipient_profile_id	Unique identifier of the covered recipient physician or non-physician practitioner profile	Identificador único del perfil del médico o profesional no médico que recibió el pago
+summary_physician	covered_recipient_npi	National Provider Identifier (NPI) of the covered recipient physician or non-physician practitioner	National Provider Identifier (NPI) del médico o profesional no médico
+summary_physician	profile_type	Type of profile: physician or non-physician practitioner	Tipo de perfil: médico o profesional no médico
+summary_physician	first_name	First name of the practitioner as listed in the CMS master provider list	Primer nombre del profesional según la lista maestra de prestadores del CMS
+summary_physician	middle_name	Middle name of the practitioner as listed in the CMS master provider list	Segundo nombre del profesional según la lista maestra de prestadores del CMS
+summary_physician	last_name	Last name of the practitioner as listed in the CMS master provider list	Apellido del profesional según la lista maestra de prestadores del CMS
+summary_physician	name_suffix	Name suffix of the practitioner as listed in the CMS master provider list	Sufijo del nombre del profesional según la lista maestra de prestadores del CMS
+summary_physician	alternate_first_name	Alternate first name of the practitioner recorded in the master provider list	Primer nombre alternativo del profesional registrado en la lista maestra de prestadores
+summary_physician	alternate_middle_name	Alternate middle name of the practitioner recorded in the master provider list	Segundo nombre alternativo del profesional registrado en la lista maestra de prestadores
+summary_physician	alternate_last_name	Alternate last name of the practitioner recorded in the master provider list	Apellido alternativo del profesional registrado en la lista maestra de prestadores
+summary_physician	alternate_name_suffix	Alternate name suffix of the practitioner recorded in the master provider list	Sufijo alternativo del nombre del profesional registrado en la lista maestra de prestadores
+summary_physician	address_line_1	First line of the practitioner business practice location address from the master provider list	Primera línea de la dirección de práctica del profesional según la lista maestra de prestadores
+summary_physician	address_line_2	Second line of the practitioner business practice location address from the master provider list	Segunda línea de la dirección de práctica del profesional según la lista maestra de prestadores
+summary_physician	city	City of the practitioner business practice location from the master provider list	Ciudad de la dirección de práctica del profesional según la lista maestra de prestadores
+summary_physician	state	Two-letter state abbreviation of the practitioner business practice location	Sigla de dos letras del estado de la dirección de práctica del profesional
+summary_physician	zip_code	ZIP code of the practitioner business practice location	Código postal de la dirección de práctica del profesional
+summary_physician	country	Country of the practitioner business practice location	País de la dirección de práctica del profesional
+summary_physician	province	Province of the practitioner business practice location, when outside the United States	Provincia de la dirección de práctica del profesional, cuando está fuera de Estados Unidos
+summary_physician	primary_specialty	Primary specialty of the practitioner from the standardized provider taxonomy	Especialidad principal del profesional en la taxonomía estandarizada de prestadores
+summary_physician	license_state_1	Two-letter state abbreviation of the professional license, license 1 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 1 de 5
+summary_physician	license_state_2	Two-letter state abbreviation of the professional license, license 2 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 2 de 5
+summary_physician	license_state_3	Two-letter state abbreviation of the professional license, license 3 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 3 de 5
+summary_physician	license_state_4	Two-letter state abbreviation of the professional license, license 4 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 4 de 5
+summary_physician	license_state_5	Two-letter state abbreviation of the professional license, license 5 of 5	Sigla de dos letras del estado de la licencia profesional, licencia 5 de 5
+summary_physician	general_payment_amount_total	Total amount of general payments, in US dollars	Monto total de pagos generales, en dólares estadounidenses
+summary_physician	research_payment_amount_total	Total amount of research payments, in US dollars	Monto total de pagos de investigación, en dólares estadounidenses
+summary_physician	ownership_amount_invested_total	Total amount invested in ownership or investment interest, in US dollars	Monto total invertido en participación societaria, en dólares estadounidenses
+summary_physician	ownership_interest_value_total	Total value of the ownership or investment interest held, in US dollars	Valor total de la participación societaria mantenida, en dólares estadounidenses
+summary_physician	general_transaction_count	Number of general payment transactions	Cantidad de transacciones de pago general
+summary_physician	research_transaction_count	Number of research payment transactions	Cantidad de transacciones de pago de investigación
+summary_physician	ownership_invested_transaction_count	Number of ownership investment records	Cantidad de registros de inversión en participación societaria
+summary_physician	ownership_interest_transaction_count	Number of ownership interest records	Cantidad de registros de participación societaria mantenida
+summary_physician	associated_research_payment_amount_total	Total amount of research payments on which the practitioner appears as principal investigator, in US dollars	Monto total de pagos de investigación en los que el profesional consta como investigador principal, en dólares estadounidenses
+summary_physician	associated_research_transaction_count	Number of research transactions on which the practitioner appears as principal investigator	Cantidad de transacciones de investigación en las que el profesional consta como investigador principal
+summary_physician	disputed_transaction_count	Number of transactions disputed by the recipient	Cantidad de transacciones disputadas por el beneficiario
+summary_physician	undisputed_transaction_count	Number of undisputed transactions	Cantidad de transacciones no disputadas
+summary_physician	has_multiple_ids	Indicates whether the practitioner has more than one Open Payments profile identifier	Indica si el profesional tiene más de un identificador de perfil en Open Payments
+summary_dashboard	year	Program year the record refers to	Año del programa al que se refiere el registro
+summary_dashboard	dashboard_row_number	Row number of the metric in the summary dashboard published by CMS	Número de fila de la métrica en el panel resumen publicado por el CMS
+summary_dashboard	metric	Name of the aggregated metric in the summary dashboard	Nombre de la métrica agregada del panel resumen
+summary_dashboard	value	Value of the metric in the program year	Valor de la métrica en el año del programa
+dicionario	id_table	Name of the table the key refers to	Nombre de la tabla a la que se refiere la clave
+dicionario	column_name	Name of the column the key refers to	Nombre de la columna a la que se refiere la clave
+dicionario	key	Coded key present in the column	Clave codificada presente en la columna
+dicionario	temporal_coverage	Temporal coverage over which the key is valid	Cobertura temporal en la que la clave es válida
+dicionario	value	Meaning of the coded key	Significado de la clave codificada

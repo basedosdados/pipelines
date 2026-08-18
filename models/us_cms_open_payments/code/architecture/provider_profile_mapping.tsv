@@ -1,0 +1,3 @@
+name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory_column	measurement_unit	has_sensitive_data	observations	original_name
+primary_profile_id	STRING	Identificador de perfil principal do prestador, para o qual os perfis secundários são consolidados		no			no		Primary_Provider_Profile_ID
+secondary_profile_id	STRING	Identificador de perfil secundário do prestador, que remete ao perfil principal		no			no		Secondary_Provider_Profile_ID
