@@ -11,10 +11,10 @@ from dateutil.relativedelta import relativedelta
 from prefect import task
 from string_utils import asciify
 
-from pipelines.crawler.denatran_frota.constants import (
+from pipelines.datasets.br_denatran_frota.constants import (
     constants as denatran_constants,
 )
-from pipelines.crawler.denatran_frota.utils import (
+from pipelines.datasets.br_denatran_frota.utils import (
     DenatranType,
     call_downloader,
     change_df_header,
@@ -34,11 +34,20 @@ from pipelines.utils.utils import log
 
 
 @task
+def build_paths() -> tuple[Path, Path]:
+    input_dir = Path("tmp/br_denatran_frota/input")
+    output_dir = Path("tmp/br_denatran_frota/output")
+    input_dir.mkdir(exist_ok=True, parents=True)
+    output_dir.mkdir(exist_ok=True, parents=True)
+    return input_dir, output_dir
+
+
+@task
 def crawl_task(
     # pyrefly: ignore [not-a-type]
     source_max_date: datetime,
     table_id: str,
-    temp_dir: str | Path = denatran_constants.DOWNLOAD_PATH.value,
+    temp_dir: str | Path,
 ) -> bool:
     """
     Main task to extract data from *frota por município e tipo* and *frota por UF e tipo*.
@@ -143,7 +152,7 @@ def get_desired_file_task(
 
 
 @task
-def treat_uf_tipo_task(file) -> pl.DataFrame:
+def treat_uf_tipo_task(file: str, output_dir: str | Path) -> pl.DataFrame:
     """Task to treat data from  frota por UF e tipo.
 
 
@@ -216,14 +225,18 @@ def treat_uf_tipo_task(file) -> pl.DataFrame:
     )  # Long format.
 
     log("-------- Data Wrangling finished")
-    output_path = output_file_to_parquet(clean_pl_df, table_id="uf_tipo")
+    output_path = output_file_to_parquet(
+        clean_pl_df, table_id="uf_tipo", output_dir=output_dir
+    )
     log(f"-------- Data Saved: {output_path}")
     # pyrefly: ignore [bad-return]
     return output_path
 
 
 @task
-def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
+def treat_municipio_tipo_task(
+    file: str, output_dir: str | Path
+) -> pl.DataFrame:
     """Task to treat data from  frota por UF e tipo.
 
 
@@ -300,7 +313,9 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
 
     log("-------- Data Wrangling finished")
 
-    output_path = output_file_to_parquet(full_pl_df, table_id="municipio_tipo")
+    output_path = output_file_to_parquet(
+        full_pl_df, table_id="municipio_tipo", output_dir=output_dir
+    )
     log(f"-------- Data Saved: {output_path}")
     # pyrefly: ignore [bad-return]
     return output_path
@@ -308,7 +323,7 @@ def treat_municipio_tipo_task(file: str) -> pl.DataFrame:
 
 @task
 def get_latest_date_task(
-    table_id: str, dataset_id: str
+    table_id: str, dataset_id: str, input_dir: str | Path
 ) -> tuple[list, list, int | None, str | None]:
     """Task to extract the latest data from available on the data source
     Args:
@@ -338,9 +353,8 @@ def get_latest_date_task(
     # pyrefly: ignore [unnecessary-type-conversion]
     while datetime.date(int(year), int(month), 1) <= today:
         if year > 2012:
-            files_dir = os.path.join(
-                str(denatran_constants.DOWNLOAD_PATH.value), "files"
-            )
+            files_dir = Path(input_dir) / "files"
+            files_dir.mkdir(exist_ok=True, parents=True)
             # pyrefly: ignore [unnecessary-type-conversion]
             year_dir_name = os.path.join(str(files_dir), f"{year}")
             try:
