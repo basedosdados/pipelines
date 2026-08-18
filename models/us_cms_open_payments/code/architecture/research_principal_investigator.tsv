@@ -11,7 +11,7 @@ name_suffix	STRING	Sufixo do nome do pesquisador principal		no			yes		Principal_
 address_line_1	STRING	Primeira linha do endereço comercial do pesquisador principal		no			yes		Principal_Investigator_[1-5]_Business_Street_Address_Line1
 address_line_2	STRING	Segunda linha do endereço comercial do pesquisador principal		no			yes		Principal_Investigator_[1-5]_Business_Street_Address_Line2
 city	STRING	Cidade do endereço comercial do pesquisador principal		no			yes		Principal_Investigator_[1-5]_City
-state	STRING	Sigla de duas letras do estado do endereço comercial do pesquisador principal		no	br_bd_diretorios_us.state:abbreviation		no		Principal_Investigator_[1-5]_State
+state	STRING	Sigla de duas letras do estado do endereço comercial do pesquisador principal		no	br_bd_diretorios_us.state:abbreviation		no	Além das siglas de estados e territórios dos Estados Unidos, a coluna traz os códigos das forças armadas AA, AE e AP, ausentes do diretório br_bd_diretorios_us.state.	Principal_Investigator_[1-5]_State
 zip_code	STRING	CEP do endereço comercial do pesquisador principal		no			yes		Principal_Investigator_[1-5]_Zip_Code
 country	STRING	País do endereço comercial do pesquisador principal		no			no		Principal_Investigator_[1-5]_Country
 province	STRING	Província do endereço comercial do pesquisador principal, quando fora dos Estados Unidos		no			no		Principal_Investigator_[1-5]_Province

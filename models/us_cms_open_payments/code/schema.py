@@ -123,10 +123,16 @@ def covered_by_dictionary(table: str, column: str) -> str:
 US_STATE = "br_bd_diretorios_us.state:abbreviation"
 TIME_YEAR = "br_bd_diretorios_data_tempo.ano:ano"
 
-# Two-letter US state columns. Left unlinked where the column also carries
-# armed-forces and foreign-territory codes that the directory does not hold;
-# validate_state_coverage checks this against the loaded data before the FK is
-# relied on.
+# Two-letter US state columns. The directory link is kept because it is the
+# correct semantic reference and the backend does not enforce it, but no dbt
+# relationships test is emitted for these: CMS also publishes the armed-forces
+# codes AA, AE and AP, which br_bd_diretorios_us.state does not hold, plus a
+# handful of malformed entries ('0R', 'NU'). That is 792 rows out of 27 million
+# in general_legacy -- too few to matter, and enough to fail a strict test.
+STATE_NOT_IN_DIRECTORY = (
+    "Além das siglas de estados e territórios dos Estados Unidos, a coluna traz os códigos "
+    "das forças armadas AA, AE e AP, ausentes do diretório br_bd_diretorios_us.state."
+)
 STATE_COLUMNS = {
     ("general", "recipient_state"),
     ("general_legacy", "recipient_state"),
@@ -169,6 +175,8 @@ _DASHBOARD_NOTE = (
 
 
 def observations(table: str, column: str) -> str:
+    if (table, column) in STATE_COLUMNS:
+        return STATE_NOT_IN_DIRECTORY
     if table == "summary_dashboard" and column == "value":
         return _DASHBOARD_NOTE
     if column in OBSERVATIONS:

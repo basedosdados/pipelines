@@ -5,7 +5,7 @@ teaching_hospital_name	STRING	Nome do hospital universitário, conforme a lista 
 address_line_1	STRING	Primeira linha do endereço do hospital universitário		no			no		Teaching_Hospital_ADDRESS1
 address_line_2	STRING	Segunda linha do endereço do hospital universitário		no			no		Teaching_Hospital_ADDRESS2
 city	STRING	Cidade do hospital universitário		no			no		Teaching_Hospital_CITY
-state	STRING	Sigla de duas letras do estado do hospital universitário		no	br_bd_diretorios_us.state:abbreviation		no		Teaching_Hospital_STATE
+state	STRING	Sigla de duas letras do estado do hospital universitário		no	br_bd_diretorios_us.state:abbreviation		no	Além das siglas de estados e territórios dos Estados Unidos, a coluna traz os códigos das forças armadas AA, AE e AP, ausentes do diretório br_bd_diretorios_us.state.	Teaching_Hospital_STATE
 zip_code	STRING	CEP do hospital universitário		no			no		Teaching_Hospital_ZIP_CODE
 general_payment_amount_total	FLOAT64	Valor total de pagamentos gerais, em dólares americanos		no		usd	no		General_Total_Payment
 research_payment_amount_total	FLOAT64	Valor total de pagamentos de pesquisa, em dólares americanos		no		usd	no		Research_Total_Payment

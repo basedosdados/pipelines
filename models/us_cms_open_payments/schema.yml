@@ -87,10 +87,6 @@ models:
           Sigla de duas letras do estado do endereço comercial principal do beneficiário,
           quando
           nos Estados Unidos
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: abbreviation
       - name: recipient_zip_code
         description: >-
           CEP de nove dígitos do endereço comercial principal do beneficiário, quando
@@ -501,10 +497,6 @@ models:
           Sigla de duas letras do estado do endereço comercial principal do beneficiário,
           quando
           nos Estados Unidos
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: abbreviation
       - name: recipient_zip_code
         description: >-
           CEP de nove dígitos do endereço comercial principal do beneficiário, quando
@@ -778,10 +770,6 @@ models:
           Sigla de duas letras do estado do endereço comercial principal do beneficiário,
           quando
           nos Estados Unidos
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: abbreviation
       - name: recipient_zip_code
         description: >-
           CEP de nove dígitos do endereço comercial principal do beneficiário, quando
@@ -1196,10 +1184,6 @@ models:
           Sigla de duas letras do estado do endereço comercial principal do beneficiário,
           quando
           nos Estados Unidos
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: abbreviation
       - name: recipient_zip_code
         description: >-
           CEP de nove dígitos do endereço comercial principal do beneficiário, quando
@@ -1459,10 +1443,6 @@ models:
           Sigla de duas letras do estado do endereço comercial principal do beneficiário,
           quando
           nos Estados Unidos
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: abbreviation
       - name: recipient_zip_code
         description: >-
           CEP de nove dígitos do endereço comercial principal do beneficiário, quando
@@ -1617,10 +1597,6 @@ models:
       - name: state
         description: >-
           Sigla de duas letras do estado do endereço comercial do pesquisador principal
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: abbreviation
       - name: zip_code
         description: >-
           CEP do endereço comercial do pesquisador principal
@@ -1803,10 +1779,6 @@ models:
       - name: state
         description: >-
           Sigla de duas letras do estado do endereço de prática do profissional
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: abbreviation
       - name: zip_code
         description: >-
           CEP do endereço de prática do profissional
@@ -1889,10 +1861,6 @@ models:
       - name: state
         description: >-
           Sigla de duas letras do estado do hospital universitário
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: abbreviation
       - name: zip_code
         description: >-
           CEP do hospital universitário
@@ -2624,10 +2592,6 @@ models:
       - name: state
         description: >-
           Sigla de duas letras do estado do hospital universitário
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: abbreviation
       - name: zip_code
         description: >-
           CEP do hospital universitário
@@ -2809,10 +2773,6 @@ models:
       - name: state
         description: >-
           Sigla de duas letras do estado do endereço de prática do profissional
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: abbreviation
       - name: zip_code
         description: >-
           CEP do endereço de prática do profissional

@@ -15,7 +15,7 @@ alternate_name_suffix	STRING	Sufixo alternativo do nome do profissional registra
 address_line_1	STRING	Primeira linha do endereço de prática do profissional conforme a lista mestra de prestadores		no			yes		Covered_Recipient_Profile_Address_Line_1
 address_line_2	STRING	Segunda linha do endereço de prática do profissional conforme a lista mestra de prestadores		no			yes		Covered_Recipient_Profile_Address_Line_2
 city	STRING	Cidade do endereço de prática do profissional conforme a lista mestra de prestadores		no			yes		Covered_Recipient_Profile_City
-state	STRING	Sigla de duas letras do estado do endereço de prática do profissional		no	br_bd_diretorios_us.state:abbreviation		no		Covered_Recipient_Profile_State
+state	STRING	Sigla de duas letras do estado do endereço de prática do profissional		no	br_bd_diretorios_us.state:abbreviation		no	Além das siglas de estados e territórios dos Estados Unidos, a coluna traz os códigos das forças armadas AA, AE e AP, ausentes do diretório br_bd_diretorios_us.state.	Covered_Recipient_Profile_State
 zip_code	STRING	CEP do endereço de prática do profissional		no			yes		Covered_Recipient_Profile_Zipcode
 country	STRING	País do endereço de prática do profissional		no			no		Covered_Recipient_Profile_Country_Name
 province	STRING	Província do endereço de prática do profissional, quando fora dos Estados Unidos		no			no		Covered_Recipient_Profile_Province_Name

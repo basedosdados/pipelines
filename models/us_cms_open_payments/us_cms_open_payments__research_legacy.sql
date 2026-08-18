@@ -23,9 +23,7 @@ select
     safe_cast(reporting_entity_id as string) reporting_entity_id,
     safe_cast(change_type as string) change_type,
     safe_cast(covered_recipient_type as string) covered_recipient_type,
-    safe_cast(
-        noncovered_recipient_entity_name as string
-    ) noncovered_recipient_entity_name,
+    safe_cast(noncovered_recipient_entity_name as string) noncovered_recipient_entity_name,
     safe_cast(teaching_hospital_name as string) teaching_hospital_name,
     safe_cast(physician_first_name as string) physician_first_name,
     safe_cast(physician_middle_name as string) physician_middle_name,

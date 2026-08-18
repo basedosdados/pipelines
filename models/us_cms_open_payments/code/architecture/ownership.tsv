@@ -12,7 +12,7 @@ physician_name_suffix	STRING	Sufixo do nome do médico, conforme declarado pela 
 recipient_address_line_1	STRING	Primeira linha do endereço comercial principal do beneficiário		no			yes		Recipient_Primary_Business_Street_Address_Line1
 recipient_address_line_2	STRING	Segunda linha do endereço comercial principal do beneficiário		no			yes		Recipient_Primary_Business_Street_Address_Line2
 recipient_city	STRING	Cidade do endereço comercial principal do beneficiário		no			yes		Recipient_City
-recipient_state	STRING	Sigla de duas letras do estado do endereço comercial principal do beneficiário, quando nos Estados Unidos		no	br_bd_diretorios_us.state:abbreviation		no		Recipient_State
+recipient_state	STRING	Sigla de duas letras do estado do endereço comercial principal do beneficiário, quando nos Estados Unidos		no	br_bd_diretorios_us.state:abbreviation		no	Além das siglas de estados e territórios dos Estados Unidos, a coluna traz os códigos das forças armadas AA, AE e AP, ausentes do diretório br_bd_diretorios_us.state.	Recipient_State
 recipient_zip_code	STRING	CEP de nove dígitos do endereço comercial principal do beneficiário, quando nos Estados Unidos		no			yes		Recipient_Zip_Code
 recipient_country	STRING	País do endereço comercial principal do beneficiário		no			no		Recipient_Country
 recipient_province	STRING	Província do endereço comercial principal do beneficiário, quando fora dos Estados Unidos		no			no		Recipient_Province

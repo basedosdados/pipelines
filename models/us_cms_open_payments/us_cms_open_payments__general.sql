@@ -36,45 +36,23 @@ select
     safe_cast(recipient_country as string) recipient_country,
     safe_cast(recipient_province as string) recipient_province,
     safe_cast(recipient_postal_code as string) recipient_postal_code,
-    safe_cast(
-        covered_recipient_primary_type_1 as string
-    ) covered_recipient_primary_type_1,
-    safe_cast(
-        covered_recipient_primary_type_2 as string
-    ) covered_recipient_primary_type_2,
-    safe_cast(
-        covered_recipient_primary_type_3 as string
-    ) covered_recipient_primary_type_3,
-    safe_cast(
-        covered_recipient_primary_type_4 as string
-    ) covered_recipient_primary_type_4,
-    safe_cast(
-        covered_recipient_primary_type_5 as string
-    ) covered_recipient_primary_type_5,
-    safe_cast(
-        covered_recipient_primary_type_6 as string
-    ) covered_recipient_primary_type_6,
+    safe_cast(covered_recipient_primary_type_1 as string) covered_recipient_primary_type_1,
+    safe_cast(covered_recipient_primary_type_2 as string) covered_recipient_primary_type_2,
+    safe_cast(covered_recipient_primary_type_3 as string) covered_recipient_primary_type_3,
+    safe_cast(covered_recipient_primary_type_4 as string) covered_recipient_primary_type_4,
+    safe_cast(covered_recipient_primary_type_5 as string) covered_recipient_primary_type_5,
+    safe_cast(covered_recipient_primary_type_6 as string) covered_recipient_primary_type_6,
     safe_cast(covered_recipient_specialty_1 as string) covered_recipient_specialty_1,
     safe_cast(covered_recipient_specialty_2 as string) covered_recipient_specialty_2,
     safe_cast(covered_recipient_specialty_3 as string) covered_recipient_specialty_3,
     safe_cast(covered_recipient_specialty_4 as string) covered_recipient_specialty_4,
     safe_cast(covered_recipient_specialty_5 as string) covered_recipient_specialty_5,
     safe_cast(covered_recipient_specialty_6 as string) covered_recipient_specialty_6,
-    safe_cast(
-        covered_recipient_license_state_1 as string
-    ) covered_recipient_license_state_1,
-    safe_cast(
-        covered_recipient_license_state_2 as string
-    ) covered_recipient_license_state_2,
-    safe_cast(
-        covered_recipient_license_state_3 as string
-    ) covered_recipient_license_state_3,
-    safe_cast(
-        covered_recipient_license_state_4 as string
-    ) covered_recipient_license_state_4,
-    safe_cast(
-        covered_recipient_license_state_5 as string
-    ) covered_recipient_license_state_5,
+    safe_cast(covered_recipient_license_state_1 as string) covered_recipient_license_state_1,
+    safe_cast(covered_recipient_license_state_2 as string) covered_recipient_license_state_2,
+    safe_cast(covered_recipient_license_state_3 as string) covered_recipient_license_state_3,
+    safe_cast(covered_recipient_license_state_4 as string) covered_recipient_license_state_4,
+    safe_cast(covered_recipient_license_state_5 as string) covered_recipient_license_state_5,
     safe_cast(submitting_entity_name as string) submitting_entity_name,
     safe_cast(reporting_entity_name as string) reporting_entity_name,
     safe_cast(reporting_entity_state as string) reporting_entity_state,
@@ -88,14 +66,10 @@ select
     safe_cast(travel_state as string) travel_state,
     safe_cast(travel_country as string) travel_country,
     safe_cast(physician_ownership_indicator as string) physician_ownership_indicator,
-    safe_cast(
-        third_party_payment_recipient_indicator as string
-    ) third_party_payment_recipient_indicator,
+    safe_cast(third_party_payment_recipient_indicator as string) third_party_payment_recipient_indicator,
     safe_cast(third_party_entity_name as string) third_party_entity_name,
     safe_cast(charity_indicator as string) charity_indicator,
-    safe_cast(
-        third_party_equals_covered_recipient_indicator as string
-    ) third_party_equals_covered_recipient_indicator,
+    safe_cast(third_party_equals_covered_recipient_indicator as string) third_party_equals_covered_recipient_indicator,
     safe_cast(contextual_information as string) contextual_information,
     safe_cast(delay_in_publication_indicator as string) delay_in_publication_indicator,
     safe_cast(dispute_status as string) dispute_status,

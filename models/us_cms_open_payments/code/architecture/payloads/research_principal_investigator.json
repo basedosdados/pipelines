@@ -131,7 +131,7 @@
   "covered_by_dictionary": false,
   "has_sensitive_data": false,
   "directory_column": "br_bd_diretorios_us.state:abbreviation",
-  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_State."
+  "observations": "Além das siglas de estados e territórios dos Estados Unidos, a coluna traz os códigos das forças armadas AA, AE e AP, ausentes do diretório br_bd_diretorios_us.state. Coluna de origem no CMS: Principal_Investigator_[1-5]_State."
  },
  {
   "name": "zip_code",

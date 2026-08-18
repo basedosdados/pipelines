@@ -40,6 +40,4 @@ select
     safe_cast(license_state_3 as string) license_state_3,
     safe_cast(license_state_4 as string) license_state_4,
     safe_cast(license_state_5 as string) license_state_5
-from
-    {{ set_datalake_project("us_cms_open_payments_staging.covered_recipient_profile") }}
-    as t
+from {{ set_datalake_project("us_cms_open_payments_staging.covered_recipient_profile") }} as t

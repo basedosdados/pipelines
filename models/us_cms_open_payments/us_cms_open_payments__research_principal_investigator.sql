@@ -49,9 +49,4 @@ select
     safe_cast(specialty_4 as string) specialty_4,
     safe_cast(specialty_5 as string) specialty_5,
     safe_cast(specialty_6 as string) specialty_6
-from
-    {{
-        set_datalake_project(
-            "us_cms_open_payments_staging.research_principal_investigator"
-        )
-    }} as t
+from {{ set_datalake_project("us_cms_open_payments_staging.research_principal_investigator") }} as t

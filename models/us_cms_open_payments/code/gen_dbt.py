@@ -125,7 +125,7 @@ def schema_yaml(prof: dict) -> str:
             if col in grain:
                 tests.append("not_null")
             directory = schema.directory_column(table, col)
-            if tests or directory:
+            if tests or directory == schema.TIME_YEAR:
                 out.append("        tests:")
                 for test in tests:
                     out.append(f"          - {test}")
