@@ -29,6 +29,7 @@ from pipelines.utils.metadata.domain import (
     DateFormat,
     YearMonth,
     YearOnly,
+    YearQuarter,
 )
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -57,11 +58,17 @@ _COVERAGE = {
         date_column=YearMonth(year="year", month="month"),
         date_format=DateFormat.YEAR_MONTH,
     ),
+    # gdp_by_industry and regional_state mix annual + quarterly rows (no monthly);
+    # the finest grain present is quarterly, so their coverage is quarter-level
+    # (YearQuarter → YEAR_MONTH, quarter mapped to month = quarter*3). County and
+    # metro are genuinely annual and stay year-level.
     "gdp_by_industry": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
+        date_column=YearQuarter(year="year", quarter="quarter"),
+        date_format=DateFormat.YEAR_MONTH,
     ),
     "regional_state": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
+        date_column=YearQuarter(year="year", quarter="quarter"),
+        date_format=DateFormat.YEAR_MONTH,
     ),
     "regional_county": AllFree(
         date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
