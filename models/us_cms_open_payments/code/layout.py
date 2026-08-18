@@ -30,12 +30,14 @@ SUMMARY_WITH_YEAR = {
 # long instead, so adding a program year adds rows rather than columns.
 DASHBOARD_COLUMNS = ["year", "dashboard_row_number", "metric", "value"]
 
+# The dictionary table keeps its Portuguese column names in every dataset,
+# English ones included: it is a Data Basis structure, not dataset content.
 DICIONARIO_COLUMNS = [
-    "id_table",
-    "column_name",
-    "key",
-    "temporal_coverage",
-    "value",
+    "id_tabela",
+    "nome_coluna",
+    "chave",
+    "cobertura_temporal",
+    "valor",
 ]
 
 

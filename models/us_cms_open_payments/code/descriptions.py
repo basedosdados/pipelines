@@ -807,30 +807,30 @@ MAPPING = {
 }
 
 DICIONARIO = {
-    "id_table": (
-        "Nome da tabela a que a chave se refere",
-        "Name of the table the key refers to",
-        "Nombre de la tabla a la que se refiere la clave",
+    "id_tabela": (
+        "Nome da tabela à qual a chave e o valor se referem",
+        "Name of the table the key and value refer to",
+        "Nombre de la tabla a la que se refieren la clave y el valor",
     ),
-    "column_name": (
-        "Nome da coluna a que a chave se refere",
-        "Name of the column the key refers to",
-        "Nombre de la columna a la que se refiere la clave",
+    "nome_coluna": (
+        "Nome da coluna à qual a chave e o valor se referem",
+        "Name of the column the key and value refer to",
+        "Nombre de la columna a la que se refieren la clave y el valor",
     ),
-    "key": (
-        "Chave codificada presente na coluna",
-        "Coded key present in the column",
-        "Clave codificada presente en la columna",
+    "chave": (
+        "Código presente nos dados da coluna",
+        "Code present in the column data",
+        "Código presente en los datos de la columna",
     ),
-    "temporal_coverage": (
-        "Cobertura temporal em que a chave é válida",
-        "Temporal coverage over which the key is valid",
-        "Cobertura temporal en la que la clave es válida",
+    "cobertura_temporal": (
+        "Cobertura temporal a que se aplica o par chave-valor",
+        "Temporal coverage the key-value pair applies to",
+        "Cobertura temporal a la que se aplica el par clave-valor",
     ),
-    "value": (
-        "Significado da chave codificada",
-        "Meaning of the coded key",
-        "Significado de la clave codificada",
+    "valor": (
+        "Rótulo correspondente ao código na coluna",
+        "Label corresponding to the code in the column",
+        "Etiqueta correspondiente al código en la columna",
     ),
 }
 

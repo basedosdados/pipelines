@@ -92,7 +92,6 @@ DICTIONARY_EXACT = {
     "delay_in_publication_indicator",
     "preclinical_research_indicator",
     "interest_held_by_physician_or_family",
-    "interest_terms",
     "physician_primary_type",
     "physician_specialty",
     "primary_specialty",

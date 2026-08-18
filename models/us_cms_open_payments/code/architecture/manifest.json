@@ -935,11 +935,11 @@
   },
   "dicionario": {
    "columns": [
-    "id_table",
-    "column_name",
-    "key",
-    "temporal_coverage",
-    "value"
+    "id_tabela",
+    "nome_coluna",
+    "chave",
+    "cobertura_temporal",
+    "valor"
    ],
    "years": null,
    "partitioned": false

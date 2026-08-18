@@ -21,7 +21,7 @@ physician_primary_type	STRING	Tipo principal de prática do médico		yes			no		P
 physician_specialty	STRING	Especialidade do médico na taxonomia padronizada de prestadores		yes			no		Physician_Specialty
 amount_invested_total	FLOAT64	Valor investido pelo médico ou familiar imediato no fabricante ou GPO durante o ano do programa, em dólares americanos		no		usd	no		Total_Amount_Invested_USDollars
 interest_value	FLOAT64	Valor da participação societária detida, em dólares americanos		no		usd	no		Value_of_Interest
-interest_terms	STRING	Termos da participação societária, como ações ordinárias, opções ou dívida		yes			no		Terms_of_Interest
+interest_terms	STRING	Termos da participação societária, como ações ordinárias, opções ou dívida		no			no		Terms_of_Interest
 submitting_entity_name	STRING	Nome do fabricante ou GPO que submeteu o registro, que pode diferir de quem efetuou o pagamento		no			no		Submitting_Applicable_Manufacturer_or_Applicable_GPO_Name
 reporting_entity_name	STRING	Nome do fabricante ou GPO que efetuou o pagamento		no			no		Applicable_Manufacturer_or_Applicable_GPO_Making_Payment_Name
 reporting_entity_state	STRING	Sigla de duas letras do estado do fabricante ou GPO que efetuou o pagamento		no			no		Applicable_Manufacturer_or_Applicable_GPO_Making_Payment_State

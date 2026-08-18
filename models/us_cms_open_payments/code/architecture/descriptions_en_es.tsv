@@ -645,8 +645,8 @@ summary_dashboard	year	Program year the record refers to	Año del programa al qu
 summary_dashboard	dashboard_row_number	Row number of the metric in the summary dashboard published by CMS	Número de fila de la métrica en el panel resumen publicado por el CMS
 summary_dashboard	metric	Name of the aggregated metric in the summary dashboard	Nombre de la métrica agregada del panel resumen
 summary_dashboard	value	Value of the metric in the program year	Valor de la métrica en el año del programa
-dicionario	id_table	Name of the table the key refers to	Nombre de la tabla a la que se refiere la clave
-dicionario	column_name	Name of the column the key refers to	Nombre de la columna a la que se refiere la clave
-dicionario	key	Coded key present in the column	Clave codificada presente en la columna
-dicionario	temporal_coverage	Temporal coverage over which the key is valid	Cobertura temporal en la que la clave es válida
-dicionario	value	Meaning of the coded key	Significado de la clave codificada
+dicionario	id_tabela	Name of the table the key and value refer to	Nombre de la tabla a la que se refieren la clave y el valor
+dicionario	nome_coluna	Name of the column the key and value refer to	Nombre de la columna a la que se refieren la clave y el valor
+dicionario	chave	Code present in the column data	Código presente en los datos de la columna
+dicionario	cobertura_temporal	Temporal coverage the key-value pair applies to	Cobertura temporal a la que se aplica el par clave-valor
+dicionario	valor	Label corresponding to the code in the column	Etiqueta correspondiente al código en la columna
