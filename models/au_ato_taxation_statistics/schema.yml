@@ -1,0 +1,330 @@
+---
+version: 2
+models:
+  - name: au_ato_taxation_statistics__individuals_income_state
+    description: >
+      Itens tributários declarados por pessoas físicas na Austrália, agregados
+      por sexo, situação tributável, estado ou território de residência e
+      faixa de renda tributável. Cada linha traz um item da declaração com o
+      número de registros que o informaram e o valor agregado em dólares
+      australianos.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - sex
+            - taxable_status
+            - state_abbreviation
+            - taxable_income_range_code
+            - item
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - sex
+            - taxable_status
+            - state_abbreviation
+            - taxable_income_range_code
+            - taxable_income_bracket_code
+          dictionary_model: ref('au_ato_taxation_statistics__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano inicial do exercício fiscal a que se referem os dados; 2023
+          corresponde ao exercício 2023-24
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sex
+        description: >
+          Sexo do contribuinte conforme registrado na declaração
+      - name: taxable_status
+        description: >
+          Situação tributável do contribuinte no exercício
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território de residência do contribuinte
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+              ignore_values: [Overseas, Unknown]
+              proportion_allowed_failures: 0
+      - name: taxable_income_range_code
+        description: >
+          Código ordenador da faixa de renda tributável
+      - name: taxable_income_range
+        description: >
+          Faixa de renda tributável do contribuinte
+      - name: taxable_income_bracket_code
+        description: >
+          Código ordenador da faixa marginal de imposto
+      - name: taxable_income_bracket
+        description: >
+          Faixa marginal de imposto aplicável ao contribuinte
+      - name: item
+        description: >
+          Item tributário declarado, conforme o rótulo da coluna na tabela de
+          origem
+        tests: [not_null]
+      - name: record_count
+        description: >
+          Número de registros com valor informado para o item
+      - name: amount
+        description: >
+          Valor monetário agregado do item, em dólares australianos
+  - name: au_ato_taxation_statistics__individuals_industry
+    description: >
+      Itens tributários declarados por pessoas físicas na Austrália, agregados
+      por sexo, estado ou território de residência e divisão industrial ampla
+      (ANZSIC) da atividade principal.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - sex
+            - state_abbreviation
+            - broad_industry_code
+            - item
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - sex
+            - state_abbreviation
+            - broad_industry_code
+          dictionary_model: ref('au_ato_taxation_statistics__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano inicial do exercício fiscal a que se referem os dados; 2023
+          corresponde ao exercício 2023-24
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sex
+        description: >
+          Sexo do contribuinte conforme registrado na declaração
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território de residência do contribuinte
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+              ignore_values: [Overseas, Unknown]
+              proportion_allowed_failures: 0
+      - name: broad_industry_code
+        description: >
+          Código da divisão industrial ampla (letra ANZSIC)
+      - name: broad_industry
+        description: >
+          Nome da divisão industrial ampla da atividade principal do
+          contribuinte
+      - name: item
+        description: >
+          Item tributário declarado, conforme o rótulo da coluna na tabela de
+          origem
+        tests: [not_null]
+      - name: record_count
+        description: >
+          Número de registros com valor informado para o item
+      - name: amount
+        description: >
+          Valor monetário agregado do item, em dólares australianos
+  - name: au_ato_taxation_statistics__individuals_postcode
+    description: >
+      Itens tributários declarados por pessoas físicas na Austrália, agregados
+      por situação tributável, estado ou território, área estatística nível 4
+      (SA4) e código postal de residência. A coluna sa4_name só é publicada a
+      partir do exercício 2021-22.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - taxable_status
+            - state_abbreviation
+            - postcode
+            - item
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [taxable_status, state_abbreviation]
+          dictionary_model: ref('au_ato_taxation_statistics__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano inicial do exercício fiscal a que se referem os dados; 2023
+          corresponde ao exercício 2023-24
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: taxable_status
+        description: >
+          Situação tributável do contribuinte no exercício
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território de residência do contribuinte
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+              ignore_values: [Overseas, Unknown]
+              proportion_allowed_failures: 0
+      - name: sa4_name
+        description: >
+          Nome da Área Estatística Nível 4 (SA4) de residência do contribuinte
+      - name: postcode
+        description: >
+          Código postal de residência do contribuinte
+      - name: item
+        description: >
+          Item tributário declarado, conforme o rótulo da coluna na tabela de
+          origem
+        tests: [not_null]
+      - name: record_count
+        description: >
+          Número de registros com valor informado para o item
+      - name: amount
+        description: >
+          Valor monetário agregado do item, em dólares australianos
+  - name: au_ato_taxation_statistics__company_industry
+    description: >
+      Itens tributários declarados por empresas na Austrália, agregados por
+      divisão industrial ampla e grupo industrial detalhado (ANZSIC).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - broad_industry_code
+            - fine_industry_code
+            - fine_industry
+            - item
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [broad_industry_code, fine_industry_code]
+          dictionary_model: ref('au_ato_taxation_statistics__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano inicial do exercício fiscal a que se referem os dados; 2023
+          corresponde ao exercício 2023-24
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: broad_industry_code
+        description: >
+          Código da divisão industrial ampla (letra ANZSIC)
+      - name: broad_industry
+        description: >
+          Nome da divisão industrial ampla da atividade principal da empresa
+      - name: fine_industry_code
+        description: >
+          Código do grupo industrial detalhado (ANZSIC de três dígitos)
+      - name: fine_industry
+        description: >
+          Nome do grupo industrial detalhado
+      - name: item
+        description: >
+          Item tributário declarado, conforme o rótulo da coluna na tabela de
+          origem
+        tests: [not_null]
+      - name: record_count
+        description: >
+          Número de registros com valor informado para o item
+      - name: amount
+        description: >
+          Valor monetário agregado do item, em dólares australianos
+  - name: au_ato_taxation_statistics__gst_industry
+    description: >
+      Itens do imposto sobre bens e serviços (GST) na Austrália, agregados por
+      divisão industrial ampla e grupo industrial detalhado (ANZSIC). O
+      exercício de referência é o ano financeiro seguinte ao da publicação.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - broad_industry_code
+            - fine_industry_code
+            - fine_industry
+            - item
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [broad_industry_code, fine_industry_code]
+          dictionary_model: ref('au_ato_taxation_statistics__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano inicial do exercício fiscal a que se referem os dados; 2023
+          corresponde ao exercício 2023-24
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: broad_industry_code
+        description: >
+          Código da divisão industrial ampla (letra ANZSIC)
+      - name: broad_industry
+        description: >
+          Nome da divisão industrial ampla da atividade principal do
+          contribuinte de GST
+      - name: fine_industry_code
+        description: >
+          Código do grupo industrial detalhado (ANZSIC de três dígitos)
+      - name: fine_industry
+        description: >
+          Nome do grupo industrial detalhado
+      - name: item
+        description: >
+          Item tributário declarado, conforme o rótulo da coluna na tabela de
+          origem
+        tests: [not_null]
+      - name: record_count
+        description: >
+          Número de registros com valor informado para o item
+      - name: amount
+        description: >
+          Valor monetário agregado do item, em dólares australianos
+  - name: au_ato_taxation_statistics__dicionario
+    description: >
+      Dicionário com os rótulos legíveis correspondentes às chaves das colunas
+      codificadas do conjunto.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna
+        tests: [not_null]
+      - name: chave
+        description: >
+          Chave (valor armazenado na coluna)
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal da chave
+      - name: valor
+        description: >
+          Valor (rótulo legível correspondente à chave)
+        tests: [not_null]

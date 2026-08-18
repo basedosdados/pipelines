@@ -52,6 +52,9 @@ models:
     au_ato_abr:
       +materialized: table
       +schema: au_ato_abr
+    au_ato_taxation_statistics:
+      +materialized: table
+      +schema: au_ato_taxation_statistics
     au_geoscape_gnaf:
       +materialized: table
       +schema: au_geoscape_gnaf
