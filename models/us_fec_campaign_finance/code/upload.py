@@ -30,7 +30,7 @@ from pipelines.datasets.us_fec_campaign_finance import (
 
 BILLING_PROJECT = "basedosdados-dev"
 
-# FEC_RSYNC=1 uploads via gsutil rsync instead of bd.Table.create's python
+# FEC_RSYNC=1 uploads via gcloud storage rsync instead of bd.Table.create's python
 # resumable session — required for contribution_individual (15 GB).
 RSYNC = os.environ.get("FEC_RSYNC") == "1"
 DATASET_ID = "us_fec_campaign_finance"
@@ -72,22 +72,35 @@ def bq_rows(table: str) -> int:
 
 
 def rsync_to_gcs(table: str) -> None:
-    """Push a table's parquet tree to its staging prefix with gsutil rsync.
+    """Push a table's parquet tree to its staging prefix with `gcloud storage rsync`.
 
     bd.Table.create uploads through a single-threaded python resumable session, which
     does not survive a 15 GB transfer: contribution_individual died partway with
-    `SSLError(5, '[SYS] unknown error')` after ~20 minutes, with no resume. gsutil
-    rsync is parallel, retries on its own, and skips blobs already present, so a
-    failure costs only the file it was on.
+    `SSLError(5, '[SYS] unknown error')` after ~20 minutes, with no resume. rsync is
+    parallel, retries internally, and skips blobs already present, so a failure costs
+    only the file it was on.
 
-    The blob layout is identical either way — staging/<ds>/<table>/cycle=YYYY/data.parquet
+    `gcloud storage`, not `gsutil`: gsutil still carries Python 2 code and dies on
+    these files with `module 'sys' has no attribute 'maxint'`. Under `-m` it swallows
+    the per-object error and only reports "1 files/objects could not be copied",
+    which reads like a transient fault rather than a hard incompatibility.
+
+    The blob layout is identical to bd's — staging/<ds>/<table>/cycle=YYYY/data.parquet
     — so the external table cannot tell which path uploaded it.
     """
     src = str(fec.OUTPUT / table)
     dest = f"gs://{BILLING_PROJECT}/staging/{DATASET_ID}/{table}"
     print(f"[{table}] rsync {src} -> {dest}")
     subprocess.run(
-        ["gsutil", "-m", "-u", BILLING_PROJECT, "rsync", "-r", src, dest],
+        [
+            "gcloud",
+            "storage",
+            "rsync",
+            "-r",
+            f"--billing-project={BILLING_PROJECT}",
+            src,
+            dest,
+        ],
         check=True,
     )
 
