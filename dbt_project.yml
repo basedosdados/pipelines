@@ -568,3 +568,6 @@ models:
     world_wwf_hydrosheds:
       +materialized: table
       +schema: world_wwf_hydrosheds
+  us_treasury_usaspending:
+    +materialized: table
+    +schema: us_treasury_usaspending
