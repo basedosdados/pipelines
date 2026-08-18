@@ -16,7 +16,6 @@ stay NULL rather than becoming the literal ``"nan"``).
 
 from __future__ import annotations
 
-import csv
 import logging
 import zipfile
 from datetime import date
@@ -447,13 +446,9 @@ def _write_dicionario(
             for i, c in enumerate(cols)
         }
     )
+    # Only parquet: upload_to_gcs uploads the whole dicionario/ dir into a
+    # PARQUET-format external table, so a stray data.csv breaks the staging read.
     pq.write_table(table, d / "data.parquet", compression="snappy")
-
-    # also a CSV alongside, handy for inspection / diffing
-    with open(d / "data.csv", "w", newline="", encoding="utf-8") as fh:
-        w = csv.writer(fh)
-        w.writerow(cols)
-        w.writerows(rows)
     return d
 
 
