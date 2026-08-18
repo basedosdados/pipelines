@@ -1,0 +1,10 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência,,no,br_bd_diretorios_data_tempo.ano:ano,,no,Partição,
+mes,INT64,Mês de referência do trimestre (3 março; 6 junho; 9 setembro; 12 dezembro),,no,br_bd_diretorios_data_tempo.mes:mes,,no,,
+id_relatorio,STRING,Código do relatório do IF.data,,yes,,,no,,id
+id_coluna,STRING,Código da coluna dentro do relatório,,no,,,no,,ifd
+tipo_consolidado,STRING,"Tipo de consolidado a que o relatório se aplica (1005 conglomerados financeiros e instituições independentes; 1006 instituições individuais; 1009 conglomerados prudenciais e instituições independentes)",,yes,,,no,Cada relatório se aplica a exatamente um tipo de consolidado,s
+nome_relatorio,STRING,Nome do relatório em português,,no,,,no,,n
+nome_coluna,STRING,Nome da coluna em português,,no,,,no,,n
+nome_coluna_ingles,STRING,Nome da coluna em inglês,,no,,,no,Publicado pela própria fonte,ni
+ordem_coluna,INT64,Posição da coluna no relatório publicado,,no,,,no,Preserva a ordem de exibição do IF.data,o

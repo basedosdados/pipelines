@@ -1,0 +1,16 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência,,no,br_bd_diretorios_data_tempo.ano:ano,,no,Partição. Extraído da competência AAAAMM,c1
+mes,INT64,Mês de referência do trimestre (3 março; 6 junho; 9 setembro; 12 dezembro),,no,br_bd_diretorios_data_tempo.mes:mes,,no,IF.data é trimestral; o mês é sempre o de fechamento do trimestre,c1
+tipo_consolidado,STRING,"Tipo de consolidado do IF.data (1005 conglomerados financeiros e instituições independentes; 1006 instituições individuais; 1009 conglomerados prudenciais e instituições independentes)",,yes,,,no,Corresponde ao arquivo cadastro<competência>_<tipo>.json,
+id_instituicao,STRING,Código da instituição ou conglomerado atribuído pelo Banco Central,,no,,,no,Chave que liga esta tabela a relatorio,c0
+nome_instituicao,STRING,Nome da instituição ou conglomerado,,no,,,no,,c2
+tcb,STRING,Tipo de consolidado bancário (TCB),,yes,,,no,,c3
+td,STRING,Tipo de consolidação (TD),,yes,,,no,,c4
+tc,STRING,Tipo de controle (TC),,yes,,,no,Indica controle público federal estadual privado nacional ou estrangeiro,c6
+ti,STRING,Tipo de instituição (TI),,yes,,,no,,c13
+sr,STRING,Segmento definido pela Resolução nº 4.553/2017 (SR),,yes,,,no,Segmentação prudencial S1 a S5,c32
+segmento,STRING,Segmento de atuação da instituição,,yes,,,no,,c8
+id_municipio,STRING,ID Município - IBGE 7 Dígitos da sede da instituição,,no,br_bd_diretorios_brasil.municipio:id_municipio,,no,Resolvido a partir do nome da cidade e da UF informados pelo IF.data; a fonte não publica o código IBGE,c11
+id_conglomerado_financeiro,STRING,Código do conglomerado financeiro ao qual a instituição pertence,,no,,,no,Vazio quando a instituição é independente,c14
+id_conglomerado_prudencial,STRING,Código do conglomerado prudencial ao qual a instituição pertence,,no,,,no,Vazio quando a instituição é independente,c15
+data_alteracao_segmento,DATE,Data da última alteração de segmento da instituição,,no,,,no,,c20
