@@ -218,6 +218,7 @@ project-excludes = [
   "models/us_fed_fred/code",
   "models/br_cgu_sancoes/code",
   "models/au_geoscape_gnaf/code",
+  "models/us_cms_open_payments/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
