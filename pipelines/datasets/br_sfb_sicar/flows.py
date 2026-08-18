@@ -226,20 +226,40 @@ def br_sfb_sicar_flow(
     try:
         # Build all output. One UF x theme at a time: download → clean → delete
         # the zip, so peak disk stays near a single archive (APP is huge).
+        #
+        # A UF x theme whose download fails after all retries is SKIPPED, not
+        # fatal: SICAR's captcha-gated download is flaky, and one unreachable
+        # state must not discard the (often hours of) work already done for the
+        # rest. The table is still materialized from the UFs that succeeded; the
+        # skipped combos are logged loudly below and re-run later via only_ufs /
+        # only_themes. Clean failures are NOT swallowed — the clean is
+        # deterministic now, so a failure there is a real bug to surface.
+        skipped: list[str] = []
+        produced: set[str] = set()
         for table in themes:
             polygon = TABLE_TO_POLYGON[table]
             for sigla_uf in ufs:
                 snapshot_iso = release_iso.get(sigla_uf)
                 if not snapshot_iso:
                     print(f"no release date for {sigla_uf}; skipping")
+                    skipped.append(f"{table}/{sigla_uf} (no release date)")
                     continue
-                zip_path = download_uf_theme(
-                    input_dir=input_dir,
-                    sigla_uf=sigla_uf,
-                    polygon=polygon,
-                    tries=DOWNLOAD_TRIES,
-                    max_retries=DOWNLOAD_MAX_RETRIES,
-                )
+                try:
+                    zip_path = download_uf_theme(
+                        input_dir=input_dir,
+                        sigla_uf=sigla_uf,
+                        polygon=polygon,
+                        tries=DOWNLOAD_TRIES,
+                        max_retries=DOWNLOAD_MAX_RETRIES,
+                    )
+                except Exception as exc:  # any download failure → skip this UF
+                    print(
+                        f"download failed for {sigla_uf} {table} after "
+                        f"{DOWNLOAD_MAX_RETRIES} retries; SKIPPING this state "
+                        f"and continuing: {exc}"
+                    )
+                    skipped.append(f"{table}/{sigla_uf} (download)")
+                    continue
                 clean_uf_theme(
                     zip_path=zip_path,
                     output_dir=output_dir,
@@ -247,13 +267,30 @@ def br_sfb_sicar_flow(
                     snapshot_iso=snapshot_iso,
                     sigla_uf=sigla_uf,
                 )
+                produced.add(table)
+
+        if skipped:
+            print(
+                f"WARNING: {len(skipped)} UF x theme combo(s) skipped "
+                f"(source unreachable): {', '.join(skipped)}. Their tables were "
+                f"materialized WITHOUT those states — re-run with only_ufs / "
+                f"only_themes once the source is reachable."
+            )
+
+        # Upload / dbt / metadata only the tables that produced output. A table
+        # for which every UF was skipped has no parquet dir, so uploading it
+        # would fail; iterate produced tables (in theme order) instead.
+        built = [t for t in themes if t in produced]
+        if not built:
+            print("no UF x theme produced output; nothing to upload")
+            return
 
         if clean_only:
             print("clean_only: cleaned without uploading; returning")
             return
 
         # Dev: upload staging + materialize/test.
-        for table in themes:
+        for table in built:
             upload_to_gcs(
                 data_path=f"{output_dir}/{table}",
                 dataset_id=DATASET_ID,
@@ -274,7 +311,7 @@ def br_sfb_sicar_flow(
             return
 
         # Prod: upload staging + materialize/test.
-        for table in themes:
+        for table in built:
             upload_to_gcs(
                 data_path=f"{output_dir}/{table}",
                 dataset_id=DATASET_ID,
@@ -292,7 +329,7 @@ def br_sfb_sicar_flow(
             )
 
         if update_metadata:
-            for table in themes:
+            for table in built:
                 min_data, max_data = _bq_min_max_data(table, "basedosdados")
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
