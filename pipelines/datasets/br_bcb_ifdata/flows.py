@@ -13,8 +13,9 @@ from pipelines.datasets.br_bcb_ifdata.tasks import (
     get_source_max_period,
 )
 from pipelines.utils.metadata.domain import (
-    AllFree,
     DateFormat,
+    FreeLag,
+    PartBdpro,
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
@@ -32,14 +33,28 @@ DATASET_ID = constants.DATASET_ID.value
 ALL_TABLES = constants.ALL_TABLES.value
 POLL_TABLE = constants.POLL_TABLE.value
 
-# O IF.data é trimestral, portanto menos frequente que mensal — pela regra de
-# negócio da BD, não entra no paywall rotativo. Todas as tabelas são AllFree, e
-# nenhuma Row Access Policy é emitida. `dicionario` não tem coluna de data e
-# por isso não recebe spec de cobertura.
+# Os dois trimestres mais recentes ficam fechados para assinantes BD Pro; o
+# resto da série é livre. `free_lag` de 6 meses são exatamente 2 competências
+# trimestrais.
+#
+# A coluna de data é `YearMonth`, não `YearQuarter`: `mes` já guarda o mês de
+# fechamento do trimestre (3, 6, 9, 12), enquanto `YearQuarter` multiplicaria o
+# valor por 3 e produziria meses inexistentes (9, 18, 27, 36). Com `YearMonth`
+# a cobertura termina num mês de trimestre de verdade.
+#
+# Uma ressalva sobre o início da faixa pro: `compute_coverage_ranges` faz a pro
+# começar em `free_end + 1 mês`, porque a granularidade do formato é mensal.
+# Com a fonte em 2026-03, a free termina em 2025-09 e a pro começa em 2025-10 —
+# um mês sem dado. Quem decide o acesso é a Row Access Policy (`mes <=
+# free_end`), então o conjunto fechado é exatamente {2025-12, 2026-03}. Só o
+# limite inferior da faixa pro não cai num mês de trimestre.
+#
+# `dicionario` não tem coluna de data e por isso não recebe spec de cobertura.
 _COVERAGE = {
-    table: AllFree(
+    table: PartBdpro(
         date_column=YearMonth(year="ano", month="mes"),
         date_format=DateFormat.YEAR_MONTH,
+        free_lag=FreeLag(unit="months", value=6),
     )
     for table in ("instituicao", "coluna", "relatorio")
 }
