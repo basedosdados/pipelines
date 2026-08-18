@@ -94,8 +94,9 @@ CYCLE = col(
     "Two-year election cycle, identified by the even year in which it ends",
     "Ciclo electoral de dos años, identificado por el año par en que termina",
     unit="year",
-    obs="Coluna de partição. Corresponde ao arquivo em massa da FEC do ciclo "
-    "correspondente (por exemplo, cycle=2026 vem de indiv26.zip).",
+    obs="Coluna de partição. Corresponde ao arquivo em massa da FEC publicado "
+    "para aquele ciclo; o ciclo é rotulado pelo ano par em que termina, de modo "
+    "que cycle=2026 cobre as transações de 2025 e 2026.",
 )
 
 
