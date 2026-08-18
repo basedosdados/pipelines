@@ -2,11 +2,18 @@
 version: 2
 models:
   - name: br_sfb_sicar__area_imovel
-    description: Esta tabela contém o polígono de demarcação da área dos imóveis com
-      cadastro ambiental rural.
+    description: >
+      Esta tabela contém o polígono de demarcação da área dos imóveis com cadastro
+      ambiental rural. O código do CAR não identifica uma linha: quando há
+      duplicidade, a fonte cancela um dos registros e publica os dois, sob o mesmo
+      código.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_imovel]
+      - unique_key_in_latest_ppartition:
+          key_column: id_imovel
+          partition_column: data_extracao
+          row_filter: coalesce(condicao, '') not like 'Cancelado por duplicidade%'
       - not_null_proportion_multiple_columns:
           at_least: 0.95
       - custom_dictionary_coverage:
