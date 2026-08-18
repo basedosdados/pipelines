@@ -1,19 +1,22 @@
-"""Subprocess entrypoint for cleaning one UF x theme with a tuned allocator.
+"""Subprocess entrypoint: clean ONE feature range into ONE parquet part.
 
-The clean churns millions of tiny per-feature GEOS/shapely/WKT allocations. On
-the Linux worker, glibc's default ``8 x ncores`` malloc arenas each retain freed
-memory and RSS balloons ~10x the real working set — a dense Amazonas ``app``
-chunk that peaks at ~3.6 GB on macOS OOMed the 32 GiB pod. ``MALLOC_ARENA_MAX``
-fixes it, but glibc only reads it *before the first malloc*, so it must be in the
-environment when the process starts — not set from Python after import. The
-recurring flow therefore runs the clean here, in a child process it launches with
-``MALLOC_ARENA_MAX`` already in ``env`` (see ``tasks.clean_uf_theme``), rather
-than depending on the k8s work-pool job template to inject a pod env var.
+The clean churns millions of tiny per-feature GEOS/shapely/WKT allocations. In a
+single long-lived process on the Linux worker, glibc never fully returns that
+freed memory (heap fragmentation, and up to ``8 x ncores`` retaining arenas), so
+RSS creeps up range after range and OOMs the 32 GiB pod on a dense Amazonas
+``app`` — a growth that never appears on (non-glibc) macOS.
+
+The recurring flow therefore runs each range here, in its own short-lived
+process that ``tasks.clean_uf_theme`` launches once per range and lets exit. When
+the process exits the OS reclaims everything, so peak RSS is permanently one
+range, regardless of allocator, arena count, or core count. ``MALLOC_ARENA_MAX``
+is set in the child's environment too (glibc reads it only before its first
+malloc) as a cheap second bound.
 
 Invoked as::
 
     python -m pipelines.crawler.sfb_sicar._clean_runner \
-        <zip_path> <out_root> <table> <snapshot_iso> <sigla_uf> [budget_mb]
+        <shp> <start> <count> <part_dir> <table> <snapshot_iso> <sigla_uf> <idx>
 
 Prints one ``RESULT rows=<n> dropped=<n> peak_rss_mb=<n>`` line on success and
 exits non-zero (with a traceback on stderr) on failure.
@@ -22,23 +25,22 @@ exits non-zero (with a traceback on stderr) on failure.
 import resource
 import sys
 
-from pipelines.crawler.sfb_sicar.utils import clean_theme_chunked
+from pipelines.crawler.sfb_sicar.utils import clean_shp_range
 
 
 def main() -> int:
-    zip_path, out_root, table, snapshot_iso, sigla_uf = sys.argv[1:6]
-    budget_bytes = (
-        int(sys.argv[6]) * 1024 * 1024
-        if len(sys.argv) > 6
-        else 96 * 1024 * 1024
-    )
-    rows, dropped = clean_theme_chunked(
-        zip_path=zip_path,
-        out_root=out_root,
+    shp, start, count, part_dir, table, snapshot_iso, sigla_uf, idx = sys.argv[
+        1:9
+    ]
+    rows, dropped = clean_shp_range(
+        shp=shp,
+        start=int(start),
+        count=int(count),
+        part_dir=part_dir,
         table=table,
         snapshot_iso=snapshot_iso,
         sigla_uf=sigla_uf,
-        budget_bytes=budget_bytes,
+        file_idx=int(idx),
     )
     # ru_maxrss is KB on Linux, bytes on macOS; the worker is Linux.
     peak_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss

@@ -393,6 +393,103 @@ def _adaptive_chunk_size(
     return n, chunk
 
 
+def partition_dir(
+    out_root: str, table: str, snapshot_iso: str, sigla_uf: str
+) -> str:
+    """The hive partition directory ``<out_root>/<table>/data=…/sigla_uf=…``."""
+    return os.path.join(
+        out_root, table, f"data={snapshot_iso}", f"sigla_uf={sigla_uf}"
+    )
+
+
+def extract_theme_zip(zip_path: str, dest: str) -> list[str]:
+    """Extract a theme zip to ``dest``; return its sorted ``.shp`` part paths.
+
+    Large UFs split a theme across ``_1.shp``, ``_2.shp``, … — all are returned.
+
+    Raises:
+        FileNotFoundError: If the zip contains no ``.shp``.
+    """
+    with zipfile.ZipFile(zip_path) as z:
+        z.extractall(dest)
+    parts = sorted(glob.glob(os.path.join(dest, "*.shp")))
+    if not parts:
+        raise FileNotFoundError(f"no .shp in {zip_path}")
+    return parts
+
+
+def plan_shp_ranges(
+    parts: list[str], budget_bytes: int, cap: int = 25000
+) -> list[tuple[str, int, int]]:
+    """Split extracted ``.shp`` parts into geometry-budgeted feature ranges.
+
+    Returns ``[(shp_path, start, count), …]`` — one entry per chunk, sized by
+    :func:`_adaptive_chunk_size` so each range holds ~``budget_bytes`` of raw
+    geometry. The recurring pipeline cleans each range in its own subprocess.
+    """
+    ranges = []
+    for shp in parts:
+        n_feats, chunk = _adaptive_chunk_size(
+            shp, budget_bytes=budget_bytes, cap=cap
+        )
+        for start in range(0, max(n_feats, 1), chunk):
+            ranges.append((shp, start, chunk))
+    return ranges
+
+
+def clean_shp_range(
+    shp: str,
+    start: int,
+    count: int,
+    part_dir: str,
+    table: str,
+    snapshot_iso: str,
+    sigla_uf: str,
+    file_idx: int,
+) -> tuple[int, int]:
+    """Clean ONE feature range ``[start, start+count)`` into one parquet part.
+
+    This is the smallest unit of work and the one the recurring pipeline runs in
+    a fresh short-lived subprocess (see
+    :mod:`pipelines.crawler.sfb_sicar._clean_runner`). Because that process exits
+    after writing its single part, the OS reclaims all of its memory — glibc
+    arena growth and heap fragmentation, which otherwise creep up chunk after
+    chunk in one long-lived process and OOM the worker on dense Amazonas ``app``,
+    cannot accumulate. Peak RSS is permanently one range, whatever the allocator
+    or core count.
+
+    Reprojects SIRGAS 2000 -> WGS84 and emits WKT; BigQuery repairs validity on
+    ingest (see :func:`geometry_to_wkt`). Writes
+    ``<part_dir>/part-<file_idx>.parquet`` (all-STRING payload).
+
+    Returns:
+        A ``(rows_written, dropped_foreign_uf)`` tuple.
+    """
+    os.makedirs(part_dir, exist_ok=True)
+    gdf = gpd.GeoDataFrame(
+        pyogrio.read_dataframe(shp, skip_features=start, max_features=count)
+    )
+    if len(gdf) == 0:
+        return 0, 0
+    if gdf.crs is None:
+        gdf = gdf.set_crs(SIRGAS)
+    gdf, dropped = filter_to_uf(gdf, sigla_uf)
+    if len(gdf) == 0:
+        return 0, dropped
+    df = build_table_df(table, gdf, snapshot_iso, sigla_uf)
+    payload = [c for c in df.columns if c not in ("data", "sigla_uf")]
+    pq.write_table(
+        pa.Table.from_pandas(
+            df[payload],
+            schema=all_string_schema(payload),
+            preserve_index=False,
+        ),
+        os.path.join(part_dir, f"part-{file_idx:05d}.parquet"),
+        compression="snappy",
+    )
+    return len(df), dropped
+
+
 def clean_theme_chunked(
     zip_path: str,
     out_root: str,
@@ -402,18 +499,14 @@ def clean_theme_chunked(
     chunk_size: int | None = None,
     budget_bytes: int = 96 * 1024 * 1024,
 ) -> tuple[int, int]:
-    """Stream-clean a theme zip in geometry-bounded chunks (bounded memory).
+    """Clean a whole theme zip in-process, one geometry-budgeted range at a time.
 
-    Reading a whole state's shapefile at once OOMs the worker, and so does a
-    fixed 50k-*feature* chunk on vertex-dense themes — Amazonas ``app`` blew past
-    32 GiB because peak memory tracks total vertices, not row count. This sizes
-    each chunk by geometry bytes (see :func:`_adaptive_chunk_size`): it reads each
-    ``.shp`` part ``chunk`` features at a time (pyogrio seeks via the ``.shx``
-    index, so paging is cheap), cleans the chunk, and writes it as a parquet part
-    directly into the hive partition
-    ``<out_root>/<table>/data=<snapshot>/sigla_uf=<uf>/`` — the same layout
-    :func:`write_table_partitioned` produces, so ``upload_to_gcs`` reads the
-    partition keys from the path and the file payload stays all-STRING.
+    Convenience wrapper for local / one-shot bootstrap use, where a single
+    long-lived process is fine (macOS malloc does not fragment the way the Linux
+    worker's glibc does). The recurring pipeline instead runs each range from
+    :func:`plan_shp_ranges` in its own subprocess via
+    :mod:`pipelines.crawler.sfb_sicar._clean_runner` — see :func:`clean_shp_range`
+    for why per-range process isolation is what keeps the worker bounded.
 
     Args:
         zip_path: The downloaded ``<UF>_<THEME>.zip``.
@@ -421,63 +514,24 @@ def clean_theme_chunked(
         table: Output table slug.
         snapshot_iso: Per-UF release date, ``'YYYY-MM-DD'`` (the ``data`` key).
         sigla_uf: UF code (the ``sigla_uf`` key).
-        chunk_size: Hard cap on features per chunk (adaptive sizing may go
-            smaller); ``None`` uses 25000.
-        budget_bytes: Raw-geometry byte budget per chunk driving adaptive sizing.
+        chunk_size: Hard cap on features per range; ``None`` uses 25000.
+        budget_bytes: Raw-geometry byte budget per range.
 
     Returns:
         A ``(rows_written, dropped_foreign_uf)`` tuple.
-
-    Raises:
-        FileNotFoundError: If the zip contains no ``.shp``.
     """
     cap = chunk_size or 25000
-    part_dir = os.path.join(
-        out_root, table, f"data={snapshot_iso}", f"sigla_uf={sigla_uf}"
-    )
-    os.makedirs(part_dir, exist_ok=True)
+    part_dir = partition_dir(out_root, table, snapshot_iso, sigla_uf)
     rows = 0
     dropped = 0
-    file_idx = 0
     with tempfile.TemporaryDirectory() as td:
-        with zipfile.ZipFile(zip_path) as z:
-            z.extractall(td)
-        parts = sorted(glob.glob(os.path.join(td, "*.shp")))
-        if not parts:
-            raise FileNotFoundError(f"no .shp in {zip_path}")
-        for shp in parts:
-            n_feats, chunk = _adaptive_chunk_size(
-                shp, budget_bytes=budget_bytes, cap=cap
+        parts = extract_theme_zip(zip_path, td)
+        ranges = plan_shp_ranges(parts, budget_bytes=budget_bytes, cap=cap)
+        for idx, (shp, start, count) in enumerate(ranges):
+            r, d = clean_shp_range(
+                shp, start, count, part_dir, table, snapshot_iso, sigla_uf, idx
             )
-            for start in range(0, max(n_feats, 1), chunk):
-                gdf = gpd.GeoDataFrame(
-                    pyogrio.read_dataframe(
-                        shp, skip_features=start, max_features=chunk
-                    )
-                )
-                if len(gdf) == 0:
-                    continue
-                if gdf.crs is None:
-                    gdf = gdf.set_crs(SIRGAS)
-                gdf, drop_n = filter_to_uf(gdf, sigla_uf)
-                dropped += drop_n
-                if len(gdf) == 0:
-                    continue
-                df = build_table_df(table, gdf, snapshot_iso, sigla_uf)
-                payload = [
-                    c for c in df.columns if c not in ("data", "sigla_uf")
-                ]
-                pq.write_table(
-                    pa.Table.from_pandas(
-                        df[payload],
-                        schema=all_string_schema(payload),
-                        preserve_index=False,
-                    ),
-                    os.path.join(part_dir, f"part-{file_idx:05d}.parquet"),
-                    compression="snappy",
-                )
-                file_idx += 1
-                rows += len(df)
-                del gdf, df
-                _malloc_trim()  # hand freed arenas back to the OS each chunk
+            rows += r
+            dropped += d
+            _malloc_trim()
     return rows, dropped

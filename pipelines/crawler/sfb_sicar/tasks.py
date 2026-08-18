@@ -7,17 +7,30 @@ the APP theme alone is hundreds of MB per state.
 """
 
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 
 from prefect import task
 from SICAR import Sicar
 
 from pipelines.constants import constants
 from pipelines.crawler.sfb_sicar.utils import (
+    extract_theme_zip,
+    partition_dir,
+    plan_shp_ranges,
     release_dates_to_iso,
     retry_download_car,
 )
+
+# Raw-geometry budget per range. Each range is cleaned in its own subprocess
+# that exits afterwards, so this bounds a single process's peak memory, not an
+# accumulating one. Measured on the Linux worker's stack (glibc, GEOS 3.13.1):
+# a 96 MB range peaks at ~330 MB RSS and the whole-file footprint stays flat, so
+# 256 MB (~0.9 GB/range, a ~35x margin under 32 GiB) trades a little headroom for
+# far fewer subprocess spawns on the densest Amazonas app shapefile.
+CLEAN_BUDGET_BYTES = 256 * 1024 * 1024
 
 
 @task(
@@ -93,46 +106,66 @@ def clean_uf_theme(
     Returns:
         The number of rows written for this UF x theme.
     """
-    # Run the clean in a child process launched with MALLOC_ARENA_MAX in its
-    # environment. glibc reads that only before its first malloc, so it must be
-    # present at process start — capping arenas here is what keeps the dense
-    # Amazonas app clean from ballooning RSS and OOMing the worker. See
-    # ``_clean_runner`` for the mechanism.
+    # Extract once, then clean each geometry-budgeted feature range in its OWN
+    # short-lived child process. When each child exits the OS reclaims all its
+    # memory, so glibc heap fragmentation / retaining arenas cannot accumulate
+    # across ranges the way they do in one long-lived process (which OOMed the
+    # 32 GiB worker on dense Amazonas app). Peak RSS is permanently one range.
+    # MALLOC_ARENA_MAX is set in the child env too as a cheap second bound.
+    part_dir = partition_dir(output_dir, table, snapshot_iso, sigla_uf)
     env = {
         **os.environ,
         "MALLOC_ARENA_MAX": "2",
         "MALLOC_TRIM_THRESHOLD_": "131072",
     }
-    proc = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pipelines.crawler.sfb_sicar._clean_runner",
-            zip_path,
-            output_dir,
-            table,
-            snapshot_iso,
-            sigla_uf,
-        ],
-        env=env,
-        capture_output=True,
-        text=True,
-    )
-    print(proc.stdout, end="")
-    if proc.returncode != 0:
-        raise RuntimeError(
-            f"clean failed for {sigla_uf} {table}:\n{proc.stderr}"
-        )
-    # Parse "RESULT rows=<n> dropped=<n> peak_rss_mb=<n>".
-    result = next(
-        ln for ln in proc.stdout.splitlines() if ln.startswith("RESULT ")
-    )
-    fields = dict(tok.split("=") for tok in result.split()[1:])
-    n, dropped = int(fields["rows"]), int(fields["dropped"])
+    work = tempfile.mkdtemp(prefix="sicar_clean_")
+    total_rows = 0
+    total_dropped = 0
+    peak_mb = 0.0
+    try:
+        parts = extract_theme_zip(zip_path, work)
+        ranges = plan_shp_ranges(parts, budget_bytes=CLEAN_BUDGET_BYTES)
+        for idx, (shp, start, count) in enumerate(ranges):
+            proc = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "pipelines.crawler.sfb_sicar._clean_runner",
+                    shp,
+                    str(start),
+                    str(count),
+                    part_dir,
+                    table,
+                    snapshot_iso,
+                    sigla_uf,
+                    str(idx),
+                ],
+                env=env,
+                capture_output=True,
+                text=True,
+            )
+            if proc.returncode != 0:
+                raise RuntimeError(
+                    f"clean range {idx} ({os.path.basename(shp)} "
+                    f"@{start}+{count}) failed for {sigla_uf} {table} "
+                    f"(exit {proc.returncode}):\n{proc.stderr}"
+                )
+            result = next(
+                ln
+                for ln in proc.stdout.splitlines()
+                if ln.startswith("RESULT ")
+            )
+            fields = dict(tok.split("=") for tok in result.split()[1:])
+            total_rows += int(fields["rows"])
+            total_dropped += int(fields["dropped"])
+            peak_mb = max(peak_mb, float(fields["peak_rss_mb"]))
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+        if os.path.exists(zip_path):
+            os.remove(zip_path)
     print(
-        f"{sigla_uf} {table}: rows={n} dropped_foreign_uf={dropped} "
-        f"snapshot={snapshot_iso} peak_rss_mb={fields['peak_rss_mb']}"
+        f"{sigla_uf} {table}: rows={total_rows} "
+        f"dropped_foreign_uf={total_dropped} snapshot={snapshot_iso} "
+        f"ranges={len(ranges)} peak_rss_mb_per_range={peak_mb:.0f}"
     )
-    if os.path.exists(zip_path):
-        os.remove(zip_path)
-    return n
+    return total_rows
