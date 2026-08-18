@@ -33,8 +33,8 @@ with
         where
             safe_cast(qualificacao as string) != "qualificacao"
             {% if is_incremental() %}
-                and safe.parse_date('%Y-%m', data_referencia)
-                > (select max(data_referencia) from {{ this }})
+                an data_referencia
+                > format_date('%Y-%m', (select max(data_referencia) from {{ this }}))
         {% else %}
             -- Dados históricos até 2023-04-30 foram migrados do modelo
             -- br_me_cnpj.socios
