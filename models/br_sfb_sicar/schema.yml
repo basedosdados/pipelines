@@ -8,10 +8,8 @@ models:
       duplicidade, a fonte cancela um dos registros e publica os dois, sob o mesmo
       código.
     tests:
-      - unique_key_in_latest_partition:
-          key_column: id_imovel
-          partition_column: data_extracao
-          row_filter: coalesce(condicao, '') not like 'Cancelado por duplicidade%'
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [data_extracao, id_imovel]
       - not_null_proportion_multiple_columns:
           at_least: 0.95
       - custom_dictionary_coverage:
