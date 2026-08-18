@@ -208,6 +208,12 @@ OBSERVATIONS = {
         "A vintage do NAICS acompanha a data da ação e varia ao longo da série, de modo "
         "que não existe um único diretório de vintage ao qual a coluna possa ser ligada"
     ),
+    "prime_award_transaction_recipient_county_fips_code": (
+        "A fonte emite parte dos valores corrompidos por conversão numérica — o código do condado perde o zero à esquerda e ganha o sufixo '.0' (Franklin/OH, 39049, chega como '3949.0') —, corrigidos no modelo dbt. Registros agregados por estado usam o sentinela '<estado>000', que não é um condado. Códigos aposentados (Connecticut antes de 2022, Dade antes de Miami-Dade, Ormsby/NV) não resolvem contra o diretório de vintage corrente, por isso a coluna não tem teste de integridade referencial"
+    ),
+    "prime_award_transaction_place_of_performance_county_fips_code": (
+        "A fonte emite parte dos valores corrompidos por conversão numérica — o código do condado perde o zero à esquerda e ganha o sufixo '.0' (Franklin/OH, 39049, chega como '3949.0') —, corrigidos no modelo dbt. Registros agregados por estado usam o sentinela '<estado>000', que não é um condado. Códigos aposentados (Connecticut antes de 2022, Dade antes de Miami-Dade, Ormsby/NV) não resolvem contra o diretório de vintage corrente, por isso a coluna não tem teste de integridade referencial"
+    ),
     "recipient_duns": "Descontinuado em abril de 2022, quando o UEI passou a ser o identificador oficial",
     "recipient_parent_duns": "Descontinuado em abril de 2022, quando o UEI passou a ser o identificador oficial",
     "recipient_state_code": "Sigla postal; a ligação ao diretório é feita pela coluna de código FIPS",

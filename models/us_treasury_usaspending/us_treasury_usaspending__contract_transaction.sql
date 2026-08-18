@@ -112,7 +112,25 @@ select
     safe_cast(recipient_address_line_2 as string) recipient_address_line_2,
     safe_cast(recipient_city_name as string) recipient_city_name,
     safe_cast(
-        prime_award_transaction_recipient_county_fips_code as string
+        concat(
+            substr(
+                regexp_replace(
+                    prime_award_transaction_recipient_county_fips_code, r'\.0$', ''
+                ),
+                1,
+                2
+            ),
+            lpad(
+                substr(
+                    regexp_replace(
+                        prime_award_transaction_recipient_county_fips_code, r'\.0$', ''
+                    ),
+                    3
+                ),
+                3,
+                '0'
+            )
+        ) as string
     ) prime_award_transaction_recipient_county_fips_code,
     safe_cast(recipient_county_name as string) recipient_county_name,
     safe_cast(
@@ -139,7 +157,29 @@ select
         primary_place_of_performance_city_name as string
     ) primary_place_of_performance_city_name,
     safe_cast(
-        prime_award_transaction_place_of_performance_county_fips_code as string
+        concat(
+            substr(
+                regexp_replace(
+                    prime_award_transaction_place_of_performance_county_fips_code,
+                    r'\.0$',
+                    ''
+                ),
+                1,
+                2
+            ),
+            lpad(
+                substr(
+                    regexp_replace(
+                        prime_award_transaction_place_of_performance_county_fips_code,
+                        r'\.0$',
+                        ''
+                    ),
+                    3
+                ),
+                3,
+                '0'
+            )
+        ) as string
     ) prime_award_transaction_place_of_performance_county_fips_code,
     safe_cast(
         primary_place_of_performance_county_name as string

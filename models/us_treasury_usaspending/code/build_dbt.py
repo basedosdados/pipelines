@@ -43,6 +43,22 @@ CLUSTER = {
     ],
 }
 
+# The source ships a subset of county FIPS values float-corrupted: the county
+# part loses its leading zero and a ".0" is appended, so Ohio/Franklin (39049)
+# arrives as "3949.0" and Texas/Travis as "48453.0". Stripping the suffix and
+# re-padding the county part to three digits recovers the real code and is
+# idempotent for the values that are already correct.
+COUNTY_FIPS_COLUMNS = {
+    "prime_award_transaction_recipient_county_fips_code",
+    "prime_award_transaction_place_of_performance_county_fips_code",
+}
+
+
+def county_fips_expr(col: str) -> str:
+    stripped = f"regexp_replace({col}, r'\\.0$', '')"
+    return f"concat(substr({stripped}, 1, 2), lpad(substr({stripped}, 3), 3, '0'))"
+
+
 UNIQUE_KEY = {
     "contract_transaction": "contract_transaction_unique_key",
     "assistance_transaction": "assistance_transaction_unique_key",
@@ -78,7 +94,8 @@ def sql_for(table: str, rows: list[dict]) -> str:
     casts = []
     for r in rows:
         name, btype = r["name"], r["bigquery_type"]
-        casts.append(f"    safe_cast({name} as {btype.lower()}) {name},")
+        expr = county_fips_expr(name) if name in COUNTY_FIPS_COLUMNS else name
+        casts.append(f"    safe_cast({expr} as {btype.lower()}) {name},")
     casts[-1] = casts[-1].rstrip(",")
     body = "\n".join(casts)
 
@@ -176,7 +193,12 @@ def schema_yaml(
             tests = []
             if r["name"] in (PARTITION, UNIQUE_KEY.get(table)):
                 tests.append("        tests: [not_null]")
-            if r["directory_column"]:
+            # County keeps its directory_column link in the backend metadata,
+            # but carries no relationships test: state-wide aggregate records
+            # use an "<state>000" sentinel that is not a county, and retired
+            # codes (pre-2022 Connecticut, Dade before Miami-Dade, Ormsby NV)
+            # legitimately do not resolve against a current-vintage directory.
+            if r["directory_column"] and r["name"] not in COUNTY_FIPS_COLUMNS:
                 ref_table, field = (
                     r["directory_column"].split(".")[1].split(":")
                 )
