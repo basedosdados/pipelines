@@ -121,6 +121,9 @@ ENTITY_TYPE = {
     "ORG": "Organization (not a committee and not a person)",
     "PAC": "Political action committee",
     "PTY": "Party organization",
+    # Not on the FEC's published entity-type list, but unambiguous: it pairs with
+    # transaction type 11, "Native American tribe contribution".
+    "TRB": "Native American tribe",
     "B": UNDOCUMENTED,
     "C": UNDOCUMENTED,
     "I": UNDOCUMENTED,
@@ -139,6 +142,7 @@ MEMO_CODE = {
     "H": UNDOCUMENTED,
     "M": UNDOCUMENTED,
     "0": UNDOCUMENTED,
+    "*": UNDOCUMENTED,
 }
 
 REPORT_TYPE = {
