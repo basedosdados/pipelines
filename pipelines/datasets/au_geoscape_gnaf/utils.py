@@ -429,11 +429,6 @@ def build_address_detail(
         The cleaned per-state address frame (all string columns).
     """
     ad = read_psv(zf, f"{std}/{state}_ADDRESS_DETAIL_psv.psv")
-    print(
-        f"[gnaf/{state}] read address_detail rows={len(ad)} "
-        f"dtypes={set(str(t) for t in ad.dtypes)} RSS={_rss_gb():.1f}GB",
-        flush=True,
-    )
     ad = ad.rename(
         columns={
             "FLAT_TYPE_CODE": "flat_type",
@@ -475,11 +470,6 @@ def build_address_detail(
     ad["latitude"] = key.map(gi["LATITUDE"])
     del gi
     _free()
-    print(
-        f"[gnaf/{state}] folded geocode "
-        f"dtypes={set(str(t) for t in ad.dtypes)} RSS={_rss_gb():.1f}GB",
-        flush=True,
-    )
 
     # mesh blocks 2016 / 2021 -> id_mb_2016 / id_mb_2021 (bridge -> MB code table)
     for yr in ("2016", "2021"):
@@ -506,10 +496,6 @@ def build_address_detail(
         ad[f"id_mb_{yr}"] = key.map(bri)
         del br, mbi, bri
         _free()
-        print(
-            f"[gnaf/{state}] folded mesh_block_{yr} RSS={_rss_gb():.1f}GB",
-            flush=True,
-        )
 
     ad["snapshot_date"] = snapshot
     ad["year"] = str(dt.date.fromisoformat(snapshot).year)
