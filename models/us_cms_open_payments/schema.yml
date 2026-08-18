@@ -3,9 +3,12 @@ version: 2
 models:
   - name: us_cms_open_payments__general
     description: >-
-      Pagamentos gerais -- transferências de valor de fabricantes de medicamentos e
-      dispositivos médicos e de organizações de compras a médicos, profissionais não médicos
-      e hospitais universitários que não estão ligadas a um estudo de pesquisa. Um registro
+      Pagamentos gerais -- transferências de valor de fabricantes de medicamentos
+      e
+      dispositivos médicos e de organizações de compras a médicos, profissionais não
+      médicos
+      e hospitais universitários que não estão ligadas a um estudo de pesquisa. Um
+      registro
       por pagamento declarado, anos do programa 2016 a 2025.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -23,12 +26,13 @@ models:
               field: ano.ano
       - name: record_id
         description: >-
-          Identificador único do registro de pagamento atribuído pelo sistema Open Payments
-        tests:
-          - not_null
+          Identificador único do registro de pagamento atribuído pelo sistema Open
+          Payments
+        tests: [not_null]
       - name: covered_recipient_profile_id
         description: >-
-          Identificador único do perfil do médico ou profissional não médico que recebeu o
+          Identificador único do perfil do médico ou profissional não médico que recebeu
+          o
           pagamento
       - name: covered_recipient_npi
         description: >-
@@ -38,21 +42,25 @@ models:
           CMS Certification Number (CCN) do hospital universitário
       - name: teaching_hospital_id
         description: >-
-          Identificador único do hospital universitário atribuído pelo sistema Open Payments
+          Identificador único do hospital universitário atribuído pelo sistema Open
+          Payments
       - name: reporting_entity_id
         description: >-
           Identificador único do fabricante ou GPO que declarou o pagamento
       - name: change_type
         description: >-
-          Indica se o registro é novo, adicionado, alterado ou inalterado em relação à
+          Indica se o registro é novo, adicionado, alterado ou inalterado em relação
+          à
           publicação anterior
       - name: covered_recipient_type
         description: >-
-          Tipo de beneficiário: médico, profissional não médico, hospital universitário ou
+          Tipo de beneficiário: médico, profissional não médico, hospital universitário
+          ou
           entidade não coberta
       - name: teaching_hospital_name
         description: >-
-          Nome do hospital universitário, conforme a lista de hospitais universitários do CMS
+          Nome do hospital universitário, conforme a lista de hospitais universitários
+          do CMS
       - name: covered_recipient_first_name
         description: >-
           Primeiro nome do beneficiário, conforme declarado pela entidade declarante
@@ -76,22 +84,26 @@ models:
           Cidade do endereço comercial principal do beneficiário
       - name: recipient_state
         description: >-
-          Sigla de duas letras do estado do endereço comercial principal do beneficiário, quando
+          Sigla de duas letras do estado do endereço comercial principal do beneficiário,
+          quando
           nos Estados Unidos
       - name: recipient_zip_code
         description: >-
-          CEP de nove dígitos do endereço comercial principal do beneficiário, quando nos
+          CEP de nove dígitos do endereço comercial principal do beneficiário, quando
+          nos
           Estados Unidos
       - name: recipient_country
         description: >-
           País do endereço comercial principal do beneficiário
       - name: recipient_province
         description: >-
-          Província do endereço comercial principal do beneficiário, quando fora dos Estados
+          Província do endereço comercial principal do beneficiário, quando fora dos
+          Estados
           Unidos
       - name: recipient_postal_code
         description: >-
-          Código postal do endereço comercial principal do beneficiário, quando fora dos Estados
+          Código postal do endereço comercial principal do beneficiário, quando fora
+          dos Estados
           Unidos
       - name: covered_recipient_primary_type_1
         description: >-
@@ -113,27 +125,33 @@ models:
           Tipo principal de prática do beneficiário, tipo 6 de 6
       - name: covered_recipient_specialty_1
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 1
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          1
           de 6
       - name: covered_recipient_specialty_2
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 2
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          2
           de 6
       - name: covered_recipient_specialty_3
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 3
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          3
           de 6
       - name: covered_recipient_specialty_4
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 4
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          4
           de 6
       - name: covered_recipient_specialty_5
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 5
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          5
           de 6
       - name: covered_recipient_specialty_6
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 6
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          6
           de 6
       - name: covered_recipient_license_state_1
         description: >-
@@ -152,7 +170,8 @@ models:
           Sigla de duas letras do estado da licença profissional, licença 5 de 5
       - name: submitting_entity_name
         description: >-
-          Nome do fabricante ou GPO que submeteu o registro, que pode diferir de quem efetuou o
+          Nome do fabricante ou GPO que submeteu o registro, que pode diferir de quem
+          efetuou o
           pagamento
       - name: reporting_entity_name
         description: >-
@@ -175,10 +194,12 @@ models:
           Quantidade de pagamentos individuais agregados no valor total do registro
       - name: payment_form
         description: >-
-          Forma do pagamento ou transferência de valor, como dinheiro, ações ou itens em espécie
+          Forma do pagamento ou transferência de valor, como dinheiro, ações ou itens
+          em espécie
       - name: payment_nature
         description: >-
-          Natureza do pagamento ou transferência de valor, como consultoria, alimentação, viagem
+          Natureza do pagamento ou transferência de valor, como consultoria, alimentação,
+          viagem
           ou honorários de palestra
       - name: travel_city
         description: >-
@@ -191,7 +212,8 @@ models:
           País de destino, quando o pagamento se refere a viagem ou hospedagem
       - name: physician_ownership_indicator
         description: >-
-          Indica se o médico ou familiar imediato detém participação societária no fabricante ou
+          Indica se o médico ou familiar imediato detém participação societária no
+          fabricante ou
           GPO declarante
       - name: third_party_payment_recipient_indicator
         description: >-
@@ -201,7 +223,8 @@ models:
           Nome da entidade terceira que recebeu o pagamento em nome do beneficiário
       - name: charity_indicator
         description: >-
-          Indica se a entidade terceira que recebeu o pagamento é uma instituição de caridade
+          Indica se a entidade terceira que recebeu o pagamento é uma instituição
+          de caridade
       - name: third_party_equals_covered_recipient_indicator
         description: >-
           Indica que o pagamento a terceiro foi feito em nome do próprio beneficiário
@@ -216,121 +239,150 @@ models:
           Indica se o registro estava contestado no momento da publicação
       - name: related_product_indicator
         description: >-
-          Indica se o pagamento está associado a um ou mais medicamentos, produtos biológicos,
+          Indica se o pagamento está associado a um ou mais medicamentos, produtos
+          biológicos,
           dispositivos ou insumos médicos
       - name: product_covered_indicator_1
         description: >-
-          Indica se o produto associado ao pagamento é coberto ou não coberto, produto 1 de 5
+          Indica se o produto associado ao pagamento é coberto ou não coberto, produto
+          1 de 5
       - name: product_type_1
         description: >-
-          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo médico,
+          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo
+          médico,
           produto 1 de 5
       - name: product_category_1
         description: >-
           Categoria do produto ou área terapêutica, produto 1 de 5
       - name: product_name_1
         description: >-
-          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado ao
+          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado
+          ao
           pagamento, produto 1 de 5
       - name: product_ndc_1
         description: >-
-          National Drug Code (NDC) do medicamento ou produto biológico associado, produto 1 de 5
+          National Drug Code (NDC) do medicamento ou produto biológico associado,
+          produto 1 de 5
       - name: product_pdi_1
         description: >-
-          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado, produto 1
+          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado,
+          produto 1
           de 5
       - name: product_covered_indicator_2
         description: >-
-          Indica se o produto associado ao pagamento é coberto ou não coberto, produto 2 de 5
+          Indica se o produto associado ao pagamento é coberto ou não coberto, produto
+          2 de 5
       - name: product_type_2
         description: >-
-          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo médico,
+          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo
+          médico,
           produto 2 de 5
       - name: product_category_2
         description: >-
           Categoria do produto ou área terapêutica, produto 2 de 5
       - name: product_name_2
         description: >-
-          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado ao
+          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado
+          ao
           pagamento, produto 2 de 5
       - name: product_ndc_2
         description: >-
-          National Drug Code (NDC) do medicamento ou produto biológico associado, produto 2 de 5
+          National Drug Code (NDC) do medicamento ou produto biológico associado,
+          produto 2 de 5
       - name: product_pdi_2
         description: >-
-          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado, produto 2
+          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado,
+          produto 2
           de 5
       - name: product_covered_indicator_3
         description: >-
-          Indica se o produto associado ao pagamento é coberto ou não coberto, produto 3 de 5
+          Indica se o produto associado ao pagamento é coberto ou não coberto, produto
+          3 de 5
       - name: product_type_3
         description: >-
-          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo médico,
+          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo
+          médico,
           produto 3 de 5
       - name: product_category_3
         description: >-
           Categoria do produto ou área terapêutica, produto 3 de 5
       - name: product_name_3
         description: >-
-          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado ao
+          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado
+          ao
           pagamento, produto 3 de 5
       - name: product_ndc_3
         description: >-
-          National Drug Code (NDC) do medicamento ou produto biológico associado, produto 3 de 5
+          National Drug Code (NDC) do medicamento ou produto biológico associado,
+          produto 3 de 5
       - name: product_pdi_3
         description: >-
-          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado, produto 3
+          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado,
+          produto 3
           de 5
       - name: product_covered_indicator_4
         description: >-
-          Indica se o produto associado ao pagamento é coberto ou não coberto, produto 4 de 5
+          Indica se o produto associado ao pagamento é coberto ou não coberto, produto
+          4 de 5
       - name: product_type_4
         description: >-
-          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo médico,
+          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo
+          médico,
           produto 4 de 5
       - name: product_category_4
         description: >-
           Categoria do produto ou área terapêutica, produto 4 de 5
       - name: product_name_4
         description: >-
-          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado ao
+          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado
+          ao
           pagamento, produto 4 de 5
       - name: product_ndc_4
         description: >-
-          National Drug Code (NDC) do medicamento ou produto biológico associado, produto 4 de 5
+          National Drug Code (NDC) do medicamento ou produto biológico associado,
+          produto 4 de 5
       - name: product_pdi_4
         description: >-
-          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado, produto 4
+          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado,
+          produto 4
           de 5
       - name: product_covered_indicator_5
         description: >-
-          Indica se o produto associado ao pagamento é coberto ou não coberto, produto 5 de 5
+          Indica se o produto associado ao pagamento é coberto ou não coberto, produto
+          5 de 5
       - name: product_type_5
         description: >-
-          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo médico,
+          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo
+          médico,
           produto 5 de 5
       - name: product_category_5
         description: >-
           Categoria do produto ou área terapêutica, produto 5 de 5
       - name: product_name_5
         description: >-
-          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado ao
+          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado
+          ao
           pagamento, produto 5 de 5
       - name: product_ndc_5
         description: >-
-          National Drug Code (NDC) do medicamento ou produto biológico associado, produto 5 de 5
+          National Drug Code (NDC) do medicamento ou produto biológico associado,
+          produto 5 de 5
       - name: product_pdi_5
         description: >-
-          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado, produto 5
+          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado,
+          produto 5
           de 5
       - name: publication_date
         description: >-
           Data em que o registro foi publicado pelo Open Payments
   - name: us_cms_open_payments__general_legacy
     description: >-
-      Pagamentos gerais dos anos do programa 2013 a 2015, publicados pelo CMS em um esquema
-      anterior: as colunas de identificação do beneficiário usam o prefixo Physician_ e os
-      produtos associados aparecem em listas separadas de medicamentos e dispositivos, sem
+      Pagamentos gerais dos anos do programa 2013 a 2015, publicados pelo CMS em um
+      esquema
+      anterior: as colunas de identificação do beneficiário usam o prefixo Physician_
+      e os
+      produtos associados aparecem em listas separadas de medicamentos e dispositivos,
+      sem
       categoria terapêutica nem identificador de dispositivo.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -386,9 +438,9 @@ models:
               field: ano.ano
       - name: record_id
         description: >-
-          Identificador único do registro de pagamento atribuído pelo sistema Open Payments
-        tests:
-          - not_null
+          Identificador único do registro de pagamento atribuído pelo sistema Open
+          Payments
+        tests: [not_null]
       - name: physician_profile_id
         description: >-
           Identificador único do perfil do médico que recebeu o pagamento
@@ -400,21 +452,25 @@ models:
           CMS Certification Number (CCN) do hospital universitário
       - name: teaching_hospital_id
         description: >-
-          Identificador único do hospital universitário atribuído pelo sistema Open Payments
+          Identificador único do hospital universitário atribuído pelo sistema Open
+          Payments
       - name: reporting_entity_id
         description: >-
           Identificador único do fabricante ou GPO que declarou o pagamento
       - name: change_type
         description: >-
-          Indica se o registro é novo, adicionado, alterado ou inalterado em relação à
+          Indica se o registro é novo, adicionado, alterado ou inalterado em relação
+          à
           publicação anterior
       - name: covered_recipient_type
         description: >-
-          Tipo de beneficiário: médico, profissional não médico, hospital universitário ou
+          Tipo de beneficiário: médico, profissional não médico, hospital universitário
+          ou
           entidade não coberta
       - name: teaching_hospital_name
         description: >-
-          Nome do hospital universitário, conforme a lista de hospitais universitários do CMS
+          Nome do hospital universitário, conforme a lista de hospitais universitários
+          do CMS
       - name: physician_first_name
         description: >-
           Primeiro nome do médico, conforme declarado pela entidade declarante
@@ -438,22 +494,26 @@ models:
           Cidade do endereço comercial principal do beneficiário
       - name: recipient_state
         description: >-
-          Sigla de duas letras do estado do endereço comercial principal do beneficiário, quando
+          Sigla de duas letras do estado do endereço comercial principal do beneficiário,
+          quando
           nos Estados Unidos
       - name: recipient_zip_code
         description: >-
-          CEP de nove dígitos do endereço comercial principal do beneficiário, quando nos
+          CEP de nove dígitos do endereço comercial principal do beneficiário, quando
+          nos
           Estados Unidos
       - name: recipient_country
         description: >-
           País do endereço comercial principal do beneficiário
       - name: recipient_province
         description: >-
-          Província do endereço comercial principal do beneficiário, quando fora dos Estados
+          Província do endereço comercial principal do beneficiário, quando fora dos
+          Estados
           Unidos
       - name: recipient_postal_code
         description: >-
-          Código postal do endereço comercial principal do beneficiário, quando fora dos Estados
+          Código postal do endereço comercial principal do beneficiário, quando fora
+          dos Estados
           Unidos
       - name: physician_primary_type
         description: >-
@@ -478,7 +538,8 @@ models:
           Sigla de duas letras do estado da licença profissional, licença 5 de 5
       - name: submitting_entity_name
         description: >-
-          Nome do fabricante ou GPO que submeteu o registro, que pode diferir de quem efetuou o
+          Nome do fabricante ou GPO que submeteu o registro, que pode diferir de quem
+          efetuou o
           pagamento
       - name: reporting_entity_name
         description: >-
@@ -501,10 +562,12 @@ models:
           Quantidade de pagamentos individuais agregados no valor total do registro
       - name: payment_form
         description: >-
-          Forma do pagamento ou transferência de valor, como dinheiro, ações ou itens em espécie
+          Forma do pagamento ou transferência de valor, como dinheiro, ações ou itens
+          em espécie
       - name: payment_nature
         description: >-
-          Natureza do pagamento ou transferência de valor, como consultoria, alimentação, viagem
+          Natureza do pagamento ou transferência de valor, como consultoria, alimentação,
+          viagem
           ou honorários de palestra
       - name: travel_city
         description: >-
@@ -517,7 +580,8 @@ models:
           País de destino, quando o pagamento se refere a viagem ou hospedagem
       - name: physician_ownership_indicator
         description: >-
-          Indica se o médico ou familiar imediato detém participação societária no fabricante ou
+          Indica se o médico ou familiar imediato detém participação societária no
+          fabricante ou
           GPO declarante
       - name: third_party_payment_recipient_indicator
         description: >-
@@ -527,7 +591,8 @@ models:
           Nome da entidade terceira que recebeu o pagamento em nome do beneficiário
       - name: charity_indicator
         description: >-
-          Indica se a entidade terceira que recebeu o pagamento é uma instituição de caridade
+          Indica se a entidade terceira que recebeu o pagamento é uma instituição
+          de caridade
       - name: third_party_equals_covered_recipient_indicator
         description: >-
           Indica que o pagamento a terceiro foi feito em nome do próprio beneficiário
@@ -542,27 +607,33 @@ models:
           Indica se o registro estava contestado no momento da publicação
       - name: related_product_indicator
         description: >-
-          Indica se o pagamento está associado a um ou mais medicamentos, produtos biológicos,
+          Indica se o pagamento está associado a um ou mais medicamentos, produtos
+          biológicos,
           dispositivos ou insumos médicos
       - name: drug_name_1
         description: >-
-          Nome do medicamento ou produto biológico coberto associado ao pagamento, medicamento 1
+          Nome do medicamento ou produto biológico coberto associado ao pagamento,
+          medicamento 1
           de 5
       - name: drug_name_2
         description: >-
-          Nome do medicamento ou produto biológico coberto associado ao pagamento, medicamento 2
+          Nome do medicamento ou produto biológico coberto associado ao pagamento,
+          medicamento 2
           de 5
       - name: drug_name_3
         description: >-
-          Nome do medicamento ou produto biológico coberto associado ao pagamento, medicamento 3
+          Nome do medicamento ou produto biológico coberto associado ao pagamento,
+          medicamento 3
           de 5
       - name: drug_name_4
         description: >-
-          Nome do medicamento ou produto biológico coberto associado ao pagamento, medicamento 4
+          Nome do medicamento ou produto biológico coberto associado ao pagamento,
+          medicamento 4
           de 5
       - name: drug_name_5
         description: >-
-          Nome do medicamento ou produto biológico coberto associado ao pagamento, medicamento 5
+          Nome do medicamento ou produto biológico coberto associado ao pagamento,
+          medicamento 5
           de 5
       - name: drug_ndc_1
         description: >-
@@ -586,31 +657,38 @@ models:
           medicamento 5 de 5
       - name: device_name_1
         description: >-
-          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo 1 de
+          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo
+          1 de
           5
       - name: device_name_2
         description: >-
-          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo 2 de
+          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo
+          2 de
           5
       - name: device_name_3
         description: >-
-          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo 3 de
+          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo
+          3 de
           5
       - name: device_name_4
         description: >-
-          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo 4 de
+          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo
+          4 de
           5
       - name: device_name_5
         description: >-
-          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo 5 de
+          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo
+          5 de
           5
       - name: publication_date
         description: >-
           Data em que o registro foi publicado pelo Open Payments
   - name: us_cms_open_payments__research
     description: >-
-      Pagamentos de pesquisa -- transferências de valor ligadas a um estudo, protocolo ou
-      atividade de pesquisa. Um registro por pagamento declarado, anos do programa 2016 a
+      Pagamentos de pesquisa -- transferências de valor ligadas a um estudo, protocolo
+      ou
+      atividade de pesquisa. Um registro por pagamento declarado, anos do programa
+      2016 a
       2025. Os pesquisadores principais estão na tabela research_principal_investigator.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -628,12 +706,13 @@ models:
               field: ano.ano
       - name: record_id
         description: >-
-          Identificador único do registro de pagamento atribuído pelo sistema Open Payments
-        tests:
-          - not_null
+          Identificador único do registro de pagamento atribuído pelo sistema Open
+          Payments
+        tests: [not_null]
       - name: covered_recipient_profile_id
         description: >-
-          Identificador único do perfil do médico ou profissional não médico que recebeu o
+          Identificador único do perfil do médico ou profissional não médico que recebeu
+          o
           pagamento
       - name: covered_recipient_npi
         description: >-
@@ -643,24 +722,28 @@ models:
           CMS Certification Number (CCN) do hospital universitário
       - name: teaching_hospital_id
         description: >-
-          Identificador único do hospital universitário atribuído pelo sistema Open Payments
+          Identificador único do hospital universitário atribuído pelo sistema Open
+          Payments
       - name: reporting_entity_id
         description: >-
           Identificador único do fabricante ou GPO que declarou o pagamento
       - name: change_type
         description: >-
-          Indica se o registro é novo, adicionado, alterado ou inalterado em relação à
+          Indica se o registro é novo, adicionado, alterado ou inalterado em relação
+          à
           publicação anterior
       - name: covered_recipient_type
         description: >-
-          Tipo de beneficiário: médico, profissional não médico, hospital universitário ou
+          Tipo de beneficiário: médico, profissional não médico, hospital universitário
+          ou
           entidade não coberta
       - name: noncovered_recipient_entity_name
         description: >-
           Nome da entidade não coberta que recebeu o pagamento de pesquisa
       - name: teaching_hospital_name
         description: >-
-          Nome do hospital universitário, conforme a lista de hospitais universitários do CMS
+          Nome do hospital universitário, conforme a lista de hospitais universitários
+          do CMS
       - name: covered_recipient_first_name
         description: >-
           Primeiro nome do beneficiário, conforme declarado pela entidade declarante
@@ -684,22 +767,26 @@ models:
           Cidade do endereço comercial principal do beneficiário
       - name: recipient_state
         description: >-
-          Sigla de duas letras do estado do endereço comercial principal do beneficiário, quando
+          Sigla de duas letras do estado do endereço comercial principal do beneficiário,
+          quando
           nos Estados Unidos
       - name: recipient_zip_code
         description: >-
-          CEP de nove dígitos do endereço comercial principal do beneficiário, quando nos
+          CEP de nove dígitos do endereço comercial principal do beneficiário, quando
+          nos
           Estados Unidos
       - name: recipient_country
         description: >-
           País do endereço comercial principal do beneficiário
       - name: recipient_province
         description: >-
-          Província do endereço comercial principal do beneficiário, quando fora dos Estados
+          Província do endereço comercial principal do beneficiário, quando fora dos
+          Estados
           Unidos
       - name: recipient_postal_code
         description: >-
-          Código postal do endereço comercial principal do beneficiário, quando fora dos Estados
+          Código postal do endereço comercial principal do beneficiário, quando fora
+          dos Estados
           Unidos
       - name: covered_recipient_primary_type_1
         description: >-
@@ -721,27 +808,33 @@ models:
           Tipo principal de prática do beneficiário, tipo 6 de 6
       - name: covered_recipient_specialty_1
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 1
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          1
           de 6
       - name: covered_recipient_specialty_2
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 2
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          2
           de 6
       - name: covered_recipient_specialty_3
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 3
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          3
           de 6
       - name: covered_recipient_specialty_4
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 4
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          4
           de 6
       - name: covered_recipient_specialty_5
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 5
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          5
           de 6
       - name: covered_recipient_specialty_6
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 6
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          6
           de 6
       - name: covered_recipient_license_state_1
         description: >-
@@ -760,7 +853,8 @@ models:
           Sigla de duas letras do estado da licença profissional, licença 5 de 5
       - name: submitting_entity_name
         description: >-
-          Nome do fabricante ou GPO que submeteu o registro, que pode diferir de quem efetuou o
+          Nome do fabricante ou GPO que submeteu o registro, que pode diferir de quem
+          efetuou o
           pagamento
       - name: reporting_entity_name
         description: >-
@@ -773,112 +867,138 @@ models:
           País do fabricante ou GPO que efetuou o pagamento
       - name: related_product_indicator
         description: >-
-          Indica se o pagamento está associado a um ou mais medicamentos, produtos biológicos,
+          Indica se o pagamento está associado a um ou mais medicamentos, produtos
+          biológicos,
           dispositivos ou insumos médicos
       - name: product_covered_indicator_1
         description: >-
-          Indica se o produto associado ao pagamento é coberto ou não coberto, produto 1 de 5
+          Indica se o produto associado ao pagamento é coberto ou não coberto, produto
+          1 de 5
       - name: product_type_1
         description: >-
-          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo médico,
+          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo
+          médico,
           produto 1 de 5
       - name: product_category_1
         description: >-
           Categoria do produto ou área terapêutica, produto 1 de 5
       - name: product_name_1
         description: >-
-          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado ao
+          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado
+          ao
           pagamento, produto 1 de 5
       - name: product_ndc_1
         description: >-
-          National Drug Code (NDC) do medicamento ou produto biológico associado, produto 1 de 5
+          National Drug Code (NDC) do medicamento ou produto biológico associado,
+          produto 1 de 5
       - name: product_pdi_1
         description: >-
-          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado, produto 1
+          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado,
+          produto 1
           de 5
       - name: product_covered_indicator_2
         description: >-
-          Indica se o produto associado ao pagamento é coberto ou não coberto, produto 2 de 5
+          Indica se o produto associado ao pagamento é coberto ou não coberto, produto
+          2 de 5
       - name: product_type_2
         description: >-
-          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo médico,
+          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo
+          médico,
           produto 2 de 5
       - name: product_category_2
         description: >-
           Categoria do produto ou área terapêutica, produto 2 de 5
       - name: product_name_2
         description: >-
-          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado ao
+          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado
+          ao
           pagamento, produto 2 de 5
       - name: product_ndc_2
         description: >-
-          National Drug Code (NDC) do medicamento ou produto biológico associado, produto 2 de 5
+          National Drug Code (NDC) do medicamento ou produto biológico associado,
+          produto 2 de 5
       - name: product_pdi_2
         description: >-
-          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado, produto 2
+          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado,
+          produto 2
           de 5
       - name: product_covered_indicator_3
         description: >-
-          Indica se o produto associado ao pagamento é coberto ou não coberto, produto 3 de 5
+          Indica se o produto associado ao pagamento é coberto ou não coberto, produto
+          3 de 5
       - name: product_type_3
         description: >-
-          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo médico,
+          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo
+          médico,
           produto 3 de 5
       - name: product_category_3
         description: >-
           Categoria do produto ou área terapêutica, produto 3 de 5
       - name: product_name_3
         description: >-
-          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado ao
+          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado
+          ao
           pagamento, produto 3 de 5
       - name: product_ndc_3
         description: >-
-          National Drug Code (NDC) do medicamento ou produto biológico associado, produto 3 de 5
+          National Drug Code (NDC) do medicamento ou produto biológico associado,
+          produto 3 de 5
       - name: product_pdi_3
         description: >-
-          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado, produto 3
+          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado,
+          produto 3
           de 5
       - name: product_covered_indicator_4
         description: >-
-          Indica se o produto associado ao pagamento é coberto ou não coberto, produto 4 de 5
+          Indica se o produto associado ao pagamento é coberto ou não coberto, produto
+          4 de 5
       - name: product_type_4
         description: >-
-          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo médico,
+          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo
+          médico,
           produto 4 de 5
       - name: product_category_4
         description: >-
           Categoria do produto ou área terapêutica, produto 4 de 5
       - name: product_name_4
         description: >-
-          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado ao
+          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado
+          ao
           pagamento, produto 4 de 5
       - name: product_ndc_4
         description: >-
-          National Drug Code (NDC) do medicamento ou produto biológico associado, produto 4 de 5
+          National Drug Code (NDC) do medicamento ou produto biológico associado,
+          produto 4 de 5
       - name: product_pdi_4
         description: >-
-          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado, produto 4
+          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado,
+          produto 4
           de 5
       - name: product_covered_indicator_5
         description: >-
-          Indica se o produto associado ao pagamento é coberto ou não coberto, produto 5 de 5
+          Indica se o produto associado ao pagamento é coberto ou não coberto, produto
+          5 de 5
       - name: product_type_5
         description: >-
-          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo médico,
+          Indica se o produto é medicamento, produto biológico, dispositivo ou insumo
+          médico,
           produto 5 de 5
       - name: product_category_5
         description: >-
           Categoria do produto ou área terapêutica, produto 5 de 5
       - name: product_name_5
         description: >-
-          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado ao
+          Nome do medicamento, produto biológico, dispositivo ou insumo médico associado
+          ao
           pagamento, produto 5 de 5
       - name: product_ndc_5
         description: >-
-          National Drug Code (NDC) do medicamento ou produto biológico associado, produto 5 de 5
+          National Drug Code (NDC) do medicamento ou produto biológico associado,
+          produto 5 de 5
       - name: product_pdi_5
         description: >-
-          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado, produto 5
+          Primary Device Identifier (PDI) do dispositivo ou insumo médico associado,
+          produto 5
           de 5
       - name: payment_amount_total
         description: >-
@@ -889,7 +1009,8 @@ models:
           Data em que o pagamento ou transferência de valor foi efetuado
       - name: payment_form
         description: >-
-          Forma do pagamento ou transferência de valor, como dinheiro, ações ou itens em espécie
+          Forma do pagamento ou transferência de valor, como dinheiro, ações ou itens
+          em espécie
       - name: expenditure_category_1
         description: >-
           Categoria de despesa do pagamento de pesquisa, categoria 1 de 6
@@ -910,7 +1031,8 @@ models:
           Categoria de despesa do pagamento de pesquisa, categoria 6 de 6
       - name: preclinical_research_indicator
         description: >-
-          Indica que o pagamento se refere a pesquisa pré-clínica, cujos detalhes de estudo não
+          Indica que o pagamento se refere a pesquisa pré-clínica, cujos detalhes
+          de estudo não
           são publicados
       - name: delay_in_publication_indicator
         description: >-
@@ -935,7 +1057,8 @@ models:
           Texto livre com o contexto da pesquisa fornecido pela entidade declarante
   - name: us_cms_open_payments__research_legacy
     description: >-
-      Pagamentos de pesquisa dos anos do programa 2013 a 2015, no esquema anterior do CMS.
+      Pagamentos de pesquisa dos anos do programa 2013 a 2015, no esquema anterior
+      do CMS.
       Os pesquisadores principais estão na tabela research_principal_investigator.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -999,9 +1122,9 @@ models:
               field: ano.ano
       - name: record_id
         description: >-
-          Identificador único do registro de pagamento atribuído pelo sistema Open Payments
-        tests:
-          - not_null
+          Identificador único do registro de pagamento atribuído pelo sistema Open
+          Payments
+        tests: [not_null]
       - name: physician_profile_id
         description: >-
           Identificador único do perfil do médico que recebeu o pagamento
@@ -1013,24 +1136,28 @@ models:
           CMS Certification Number (CCN) do hospital universitário
       - name: teaching_hospital_id
         description: >-
-          Identificador único do hospital universitário atribuído pelo sistema Open Payments
+          Identificador único do hospital universitário atribuído pelo sistema Open
+          Payments
       - name: reporting_entity_id
         description: >-
           Identificador único do fabricante ou GPO que declarou o pagamento
       - name: change_type
         description: >-
-          Indica se o registro é novo, adicionado, alterado ou inalterado em relação à
+          Indica se o registro é novo, adicionado, alterado ou inalterado em relação
+          à
           publicação anterior
       - name: covered_recipient_type
         description: >-
-          Tipo de beneficiário: médico, profissional não médico, hospital universitário ou
+          Tipo de beneficiário: médico, profissional não médico, hospital universitário
+          ou
           entidade não coberta
       - name: noncovered_recipient_entity_name
         description: >-
           Nome da entidade não coberta que recebeu o pagamento de pesquisa
       - name: teaching_hospital_name
         description: >-
-          Nome do hospital universitário, conforme a lista de hospitais universitários do CMS
+          Nome do hospital universitário, conforme a lista de hospitais universitários
+          do CMS
       - name: physician_first_name
         description: >-
           Primeiro nome do médico, conforme declarado pela entidade declarante
@@ -1054,22 +1181,26 @@ models:
           Cidade do endereço comercial principal do beneficiário
       - name: recipient_state
         description: >-
-          Sigla de duas letras do estado do endereço comercial principal do beneficiário, quando
+          Sigla de duas letras do estado do endereço comercial principal do beneficiário,
+          quando
           nos Estados Unidos
       - name: recipient_zip_code
         description: >-
-          CEP de nove dígitos do endereço comercial principal do beneficiário, quando nos
+          CEP de nove dígitos do endereço comercial principal do beneficiário, quando
+          nos
           Estados Unidos
       - name: recipient_country
         description: >-
           País do endereço comercial principal do beneficiário
       - name: recipient_province
         description: >-
-          Província do endereço comercial principal do beneficiário, quando fora dos Estados
+          Província do endereço comercial principal do beneficiário, quando fora dos
+          Estados
           Unidos
       - name: recipient_postal_code
         description: >-
-          Código postal do endereço comercial principal do beneficiário, quando fora dos Estados
+          Código postal do endereço comercial principal do beneficiário, quando fora
+          dos Estados
           Unidos
       - name: physician_primary_type
         description: >-
@@ -1094,7 +1225,8 @@ models:
           Sigla de duas letras do estado da licença profissional, licença 5 de 5
       - name: submitting_entity_name
         description: >-
-          Nome do fabricante ou GPO que submeteu o registro, que pode diferir de quem efetuou o
+          Nome do fabricante ou GPO que submeteu o registro, que pode diferir de quem
+          efetuou o
           pagamento
       - name: reporting_entity_name
         description: >-
@@ -1107,27 +1239,33 @@ models:
           País do fabricante ou GPO que efetuou o pagamento
       - name: related_product_indicator
         description: >-
-          Indica se o pagamento está associado a um ou mais medicamentos, produtos biológicos,
+          Indica se o pagamento está associado a um ou mais medicamentos, produtos
+          biológicos,
           dispositivos ou insumos médicos
       - name: drug_name_1
         description: >-
-          Nome do medicamento ou produto biológico coberto associado ao pagamento, medicamento 1
+          Nome do medicamento ou produto biológico coberto associado ao pagamento,
+          medicamento 1
           de 5
       - name: drug_name_2
         description: >-
-          Nome do medicamento ou produto biológico coberto associado ao pagamento, medicamento 2
+          Nome do medicamento ou produto biológico coberto associado ao pagamento,
+          medicamento 2
           de 5
       - name: drug_name_3
         description: >-
-          Nome do medicamento ou produto biológico coberto associado ao pagamento, medicamento 3
+          Nome do medicamento ou produto biológico coberto associado ao pagamento,
+          medicamento 3
           de 5
       - name: drug_name_4
         description: >-
-          Nome do medicamento ou produto biológico coberto associado ao pagamento, medicamento 4
+          Nome do medicamento ou produto biológico coberto associado ao pagamento,
+          medicamento 4
           de 5
       - name: drug_name_5
         description: >-
-          Nome do medicamento ou produto biológico coberto associado ao pagamento, medicamento 5
+          Nome do medicamento ou produto biológico coberto associado ao pagamento,
+          medicamento 5
           de 5
       - name: drug_ndc_1
         description: >-
@@ -1151,23 +1289,28 @@ models:
           medicamento 5 de 5
       - name: device_name_1
         description: >-
-          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo 1 de
+          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo
+          1 de
           5
       - name: device_name_2
         description: >-
-          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo 2 de
+          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo
+          2 de
           5
       - name: device_name_3
         description: >-
-          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo 3 de
+          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo
+          3 de
           5
       - name: device_name_4
         description: >-
-          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo 4 de
+          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo
+          4 de
           5
       - name: device_name_5
         description: >-
-          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo 5 de
+          Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo
+          5 de
           5
       - name: payment_amount_total
         description: >-
@@ -1178,7 +1321,8 @@ models:
           Data em que o pagamento ou transferência de valor foi efetuado
       - name: payment_form
         description: >-
-          Forma do pagamento ou transferência de valor, como dinheiro, ações ou itens em espécie
+          Forma do pagamento ou transferência de valor, como dinheiro, ações ou itens
+          em espécie
       - name: expenditure_category_1
         description: >-
           Categoria de despesa do pagamento de pesquisa, categoria 1 de 6
@@ -1199,7 +1343,8 @@ models:
           Categoria de despesa do pagamento de pesquisa, categoria 6 de 6
       - name: preclinical_research_indicator
         description: >-
-          Indica que o pagamento se refere a pesquisa pré-clínica, cujos detalhes de estudo não
+          Indica que o pagamento se refere a pesquisa pré-clínica, cujos detalhes
+          de estudo não
           são publicados
       - name: delay_in_publication_indicator
         description: >-
@@ -1225,7 +1370,8 @@ models:
   - name: us_cms_open_payments__ownership
     description: >-
       Participações societárias e de investimento detidas por médicos ou seus familiares
-      imediatos em fabricantes e organizações de compras, anos do programa 2013 a 2025. O
+      imediatos em fabricantes e organizações de compras, anos do programa 2013 a
+      2025. O
       identificador nacional de prestador só é informado a partir de 2015.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -1254,9 +1400,9 @@ models:
               field: ano.ano
       - name: record_id
         description: >-
-          Identificador único do registro de pagamento atribuído pelo sistema Open Payments
-        tests:
-          - not_null
+          Identificador único do registro de pagamento atribuído pelo sistema Open
+          Payments
+        tests: [not_null]
       - name: physician_profile_id
         description: >-
           Identificador único do perfil do médico que recebeu o pagamento
@@ -1268,7 +1414,8 @@ models:
           Identificador único do fabricante ou GPO que declarou o pagamento
       - name: change_type
         description: >-
-          Indica se o registro é novo, adicionado, alterado ou inalterado em relação à
+          Indica se o registro é novo, adicionado, alterado ou inalterado em relação
+          à
           publicação anterior
       - name: physician_first_name
         description: >-
@@ -1293,22 +1440,26 @@ models:
           Cidade do endereço comercial principal do beneficiário
       - name: recipient_state
         description: >-
-          Sigla de duas letras do estado do endereço comercial principal do beneficiário, quando
+          Sigla de duas letras do estado do endereço comercial principal do beneficiário,
+          quando
           nos Estados Unidos
       - name: recipient_zip_code
         description: >-
-          CEP de nove dígitos do endereço comercial principal do beneficiário, quando nos
+          CEP de nove dígitos do endereço comercial principal do beneficiário, quando
+          nos
           Estados Unidos
       - name: recipient_country
         description: >-
           País do endereço comercial principal do beneficiário
       - name: recipient_province
         description: >-
-          Província do endereço comercial principal do beneficiário, quando fora dos Estados
+          Província do endereço comercial principal do beneficiário, quando fora dos
+          Estados
           Unidos
       - name: recipient_postal_code
         description: >-
-          Código postal do endereço comercial principal do beneficiário, quando fora dos Estados
+          Código postal do endereço comercial principal do beneficiário, quando fora
+          dos Estados
           Unidos
       - name: physician_primary_type
         description: >-
@@ -1318,7 +1469,8 @@ models:
           Especialidade do médico na taxonomia padronizada de prestadores
       - name: amount_invested_total
         description: >-
-          Valor investido pelo médico ou familiar imediato no fabricante ou GPO durante o ano do
+          Valor investido pelo médico ou familiar imediato no fabricante ou GPO durante
+          o ano do
           programa, em dólares americanos
       - name: interest_value
         description: >-
@@ -1328,7 +1480,8 @@ models:
           Termos da participação societária, como ações ordinárias, opções ou dívida
       - name: submitting_entity_name
         description: >-
-          Nome do fabricante ou GPO que submeteu o registro, que pode diferir de quem efetuou o
+          Nome do fabricante ou GPO que submeteu o registro, que pode diferir de quem
+          efetuou o
           pagamento
       - name: reporting_entity_name
         description: >-
@@ -1353,11 +1506,15 @@ models:
       Pesquisadores principais associados a pagamentos de pesquisa, um registro por
       pesquisador. O CMS publica até cinco pesquisadores por pagamento em blocos repetidos
       de colunas; aqui cada bloco é uma linha, identificada por record_id e
-      principal_investigator_number. Cobre 2013 a 2025: os anos anteriores a 2016 não
+      principal_investigator_number. Cobre 2013 a 2025: os anos anteriores a 2016
+      não
       informam tipo de beneficiário nem tipos e especialidades além do primeiro.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, record_id, principal_investigator_number]
+          combination_of_columns:
+            - year
+            - record_id
+            - principal_investigator_number
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -1401,12 +1558,13 @@ models:
               field: ano.ano
       - name: record_id
         description: >-
-          Identificador único do registro de pagamento atribuído pelo sistema Open Payments
-        tests:
-          - not_null
+          Identificador único do registro de pagamento atribuído pelo sistema Open
+          Payments
+        tests: [not_null]
       - name: covered_recipient_profile_id
         description: >-
-          Identificador único do perfil do médico ou profissional não médico que recebeu o
+          Identificador único do perfil do médico ou profissional não médico que recebeu
+          o
           pagamento
       - name: covered_recipient_npi
         description: >-
@@ -1414,8 +1572,7 @@ models:
       - name: principal_investigator_number
         description: >-
           Posição do pesquisador principal no registro de origem, de 1 a 5
-        tests:
-          - not_null
+        tests: [not_null]
       - name: first_name
         description: >-
           Primeiro nome do pesquisador principal
@@ -1448,18 +1605,21 @@ models:
           País do endereço comercial do pesquisador principal
       - name: province
         description: >-
-          Província do endereço comercial do pesquisador principal, quando fora dos Estados
+          Província do endereço comercial do pesquisador principal, quando fora dos
+          Estados
           Unidos
       - name: postal_code
         description: >-
-          Código postal do endereço comercial do pesquisador principal, quando fora dos Estados
+          Código postal do endereço comercial do pesquisador principal, quando fora
+          dos Estados
           Unidos
       - name: primary_type_1
         description: >-
           Tipo principal de prática do beneficiário, tipo 1 de 6
       - name: specialty_1
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 1
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          1
           de 6
       - name: license_state_1
         description: >-
@@ -1478,7 +1638,8 @@ models:
           Sigla de duas letras do estado da licença profissional, licença 5 de 5
       - name: covered_recipient_type
         description: >-
-          Tipo de beneficiário do pesquisador principal, preenchido a partir do ano do programa
+          Tipo de beneficiário do pesquisador principal, preenchido a partir do ano
+          do programa
           2016
       - name: primary_type_2
         description: >-
@@ -1497,30 +1658,37 @@ models:
           Tipo principal de prática do beneficiário, tipo 6 de 6
       - name: specialty_2
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 2
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          2
           de 6
       - name: specialty_3
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 3
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          3
           de 6
       - name: specialty_4
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 4
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          4
           de 6
       - name: specialty_5
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 5
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          5
           de 6
       - name: specialty_6
         description: >-
-          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 6
+          Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade
+          6
           de 6
   - name: us_cms_open_payments__covered_recipient_profile
     description: >-
       Perfis de médicos e profissionais não médicos com nome, endereço de prática,
       especialidade principal e taxonomia de prestador conforme a lista mestra de
-      prestadores do CMS. O CMS publica o arquivo como instantâneo do ciclo corrente e nele
-      inclui apenas quem tem ao menos um pagamento publicado nesse ciclo, de modo que a
+      prestadores do CMS. O CMS publica o arquivo como instantâneo do ciclo corrente
+      e nele
+      inclui apenas quem tem ao menos um pagamento publicado nesse ciclo, de modo
+      que a
       tabela cobre 2019 a 2025 e não a série completa de pagamentos.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -1539,8 +1707,7 @@ models:
             - taxonomy_5
             - taxonomy_6
       - custom_dictionary_coverage:
-          columns_covered_by_dictionary:
-            - profile_type
+          columns_covered_by_dictionary: [profile_type]
           dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: profile_type
@@ -1548,38 +1715,45 @@ models:
           Tipo do perfil: médico ou profissional não médico
       - name: covered_recipient_profile_id
         description: >-
-          Identificador único do perfil do médico ou profissional não médico que recebeu o
+          Identificador único do perfil do médico ou profissional não médico que recebeu
+          o
           pagamento
-        tests:
-          - not_null
+        tests: [not_null]
       - name: associated_profile_id_1
         description: >-
-          Identificador de outro perfil associado ao mesmo profissional, associação 1 de 2
+          Identificador de outro perfil associado ao mesmo profissional, associação
+          1 de 2
       - name: associated_profile_id_2
         description: >-
-          Identificador de outro perfil associado ao mesmo profissional, associação 2 de 2
+          Identificador de outro perfil associado ao mesmo profissional, associação
+          2 de 2
       - name: covered_recipient_npi
         description: >-
           National Provider Identifier (NPI) do médico ou profissional não médico
       - name: first_name
         description: >-
-          Primeiro nome do profissional conforme a lista mestra de prestadores (MPL) fornecida
+          Primeiro nome do profissional conforme a lista mestra de prestadores (MPL)
+          fornecida
           pelo CMS
       - name: middle_name
         description: >-
-          Nome do meio do profissional conforme a lista mestra de prestadores (MPL) fornecida
+          Nome do meio do profissional conforme a lista mestra de prestadores (MPL)
+          fornecida
           pelo CMS
       - name: last_name
         description: >-
-          Sobrenome do profissional conforme a lista mestra de prestadores (MPL) fornecida pelo
+          Sobrenome do profissional conforme a lista mestra de prestadores (MPL) fornecida
+          pelo
           CMS
       - name: name_suffix
         description: >-
-          Sufixo do nome do profissional conforme a lista mestra de prestadores (MPL) fornecida
+          Sufixo do nome do profissional conforme a lista mestra de prestadores (MPL)
+          fornecida
           pelo CMS
       - name: alternate_first_name
         description: >-
-          Primeiro nome alternativo do profissional registrado na lista mestra de prestadores
+          Primeiro nome alternativo do profissional registrado na lista mestra de
+          prestadores
       - name: alternate_middle_name
         description: >-
           Nome do meio alternativo do profissional registrado na lista mestra de prestadores
@@ -1588,18 +1762,22 @@ models:
           Sobrenome alternativo do profissional registrado na lista mestra de prestadores
       - name: alternate_name_suffix
         description: >-
-          Sufixo alternativo do nome do profissional registrado na lista mestra de prestadores
+          Sufixo alternativo do nome do profissional registrado na lista mestra de
+          prestadores
       - name: address_line_1
         description: >-
-          Primeira linha do endereço de prática do profissional conforme a lista mestra de
+          Primeira linha do endereço de prática do profissional conforme a lista mestra
+          de
           prestadores
       - name: address_line_2
         description: >-
-          Segunda linha do endereço de prática do profissional conforme a lista mestra de
+          Segunda linha do endereço de prática do profissional conforme a lista mestra
+          de
           prestadores
       - name: city
         description: >-
-          Cidade do endereço de prática do profissional conforme a lista mestra de prestadores
+          Cidade do endereço de prática do profissional conforme a lista mestra de
+          prestadores
       - name: state
         description: >-
           Sigla de duas letras do estado do endereço de prática do profissional
@@ -1611,7 +1789,8 @@ models:
           País do endereço de prática do profissional
       - name: province
         description: >-
-          Província do endereço de prática do profissional, quando fora dos Estados Unidos
+          Província do endereço de prática do profissional, quando fora dos Estados
+          Unidos
       - name: primary_specialty
         description: >-
           Especialidade principal do profissional na taxonomia padronizada de prestadores
@@ -1650,7 +1829,8 @@ models:
           Sigla de duas letras do estado da licença profissional, licença 5 de 5
   - name: us_cms_open_payments__teaching_hospital_profile
     description: >-
-      Hospitais universitários elegíveis a receber pagamentos, com número de certificação do
+      Hospitais universitários elegíveis a receber pagamentos, com número de certificação
+      do
       CMS, endereço e nomes alternativos.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -1666,11 +1846,11 @@ models:
       - name: teaching_hospital_ccn
         description: >-
           CMS Certification Number (CCN) do hospital universitário
-        tests:
-          - not_null
+        tests: [not_null]
       - name: name
         description: >-
-          Nome do hospital universitário, conforme a lista de hospitais universitários do CMS
+          Nome do hospital universitário, conforme a lista de hospitais universitários
+          do CMS
       - name: address_line_1
         description: >-
           Primeira linha do endereço do hospital universitário
@@ -1688,19 +1868,24 @@ models:
           CEP do hospital universitário
       - name: alternate_name_1
         description: >-
-          Nome alternativo pelo qual o hospital universitário também é registrado, nome 1 de 5
+          Nome alternativo pelo qual o hospital universitário também é registrado,
+          nome 1 de 5
       - name: alternate_name_2
         description: >-
-          Nome alternativo pelo qual o hospital universitário também é registrado, nome 2 de 5
+          Nome alternativo pelo qual o hospital universitário também é registrado,
+          nome 2 de 5
       - name: alternate_name_3
         description: >-
-          Nome alternativo pelo qual o hospital universitário também é registrado, nome 3 de 5
+          Nome alternativo pelo qual o hospital universitário também é registrado,
+          nome 3 de 5
       - name: alternate_name_4
         description: >-
-          Nome alternativo pelo qual o hospital universitário também é registrado, nome 4 de 5
+          Nome alternativo pelo qual o hospital universitário também é registrado,
+          nome 4 de 5
       - name: alternate_name_5
         description: >-
-          Nome alternativo pelo qual o hospital universitário também é registrado, nome 5 de 5
+          Nome alternativo pelo qual o hospital universitário também é registrado,
+          nome 5 de 5
   - name: us_cms_open_payments__reporting_entity_profile
     description: >-
       Fabricantes de medicamentos e dispositivos e organizações de compras que declaram
@@ -1719,8 +1904,7 @@ models:
       - name: reporting_entity_id
         description: >-
           Identificador único do fabricante ou GPO que declarou o pagamento
-        tests:
-          - not_null
+        tests: [not_null]
       - name: name
         description: >-
           Nome do fabricante ou GPO declarante
@@ -1732,22 +1916,28 @@ models:
           País do fabricante ou GPO declarante
       - name: alternate_name_1
         description: >-
-          Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome 1 de 5
+          Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome
+          1 de 5
       - name: alternate_name_2
         description: >-
-          Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome 2 de 5
+          Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome
+          2 de 5
       - name: alternate_name_3
         description: >-
-          Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome 3 de 5
+          Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome
+          3 de 5
       - name: alternate_name_4
         description: >-
-          Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome 4 de 5
+          Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome
+          4 de 5
       - name: alternate_name_5
         description: >-
-          Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome 5 de 5
+          Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome
+          5 de 5
   - name: us_cms_open_payments__provider_profile_mapping
     description: >-
-      Correspondência entre perfis duplicados de um mesmo prestador, ligando cada perfil
+      Correspondência entre perfis duplicados de um mesmo prestador, ligando cada
+      perfil
       secundário ao perfil principal.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -1757,21 +1947,24 @@ models:
     columns:
       - name: primary_profile_id
         description: >-
-          Identificador de perfil principal do prestador, para o qual os perfis secundários são
+          Identificador de perfil principal do prestador, para o qual os perfis secundários
+          são
           consolidados
-        tests:
-          - not_null
+        tests: [not_null]
       - name: secondary_profile_id
         description: >-
           Identificador de perfil secundário do prestador, que remete ao perfil principal
-        tests:
-          - not_null
+        tests: [not_null]
   - name: us_cms_open_payments__summary_by_recipient_nature
     description: >-
       Totais anuais de pagamento por beneficiário e natureza do pagamento.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, recipient_id, recipient_type, payment_nature_code]
+          combination_of_columns:
+            - year
+            - recipient_id
+            - recipient_type
+            - payment_nature_code
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -1788,14 +1981,13 @@ models:
           National Provider Identifier (NPI) do médico ou profissional não médico
       - name: recipient_id
         description: >-
-          Identificador do beneficiário: perfil do profissional ou CCN do hospital universitário
-        tests:
-          - not_null
+          Identificador do beneficiário: perfil do profissional ou CCN do hospital
+          universitário
+        tests: [not_null]
       - name: recipient_type
         description: >-
           Tipo de beneficiário: médico, profissional não médico ou hospital universitário
-        tests:
-          - not_null
+        tests: [not_null]
       - name: first_name
         description: >-
           Primeiro nome do profissional beneficiário
@@ -1807,12 +1999,12 @@ models:
           Sobrenome do profissional beneficiário
       - name: teaching_hospital_name
         description: >-
-          Nome do hospital universitário, conforme a lista de hospitais universitários do CMS
+          Nome do hospital universitário, conforme a lista de hospitais universitários
+          do CMS
       - name: payment_nature_code
         description: >-
           Código da natureza do pagamento ou transferência de valor
-        tests:
-          - not_null
+        tests: [not_null]
       - name: transaction_count
         description: >-
           Quantidade de transações agregadas no registro
@@ -1821,11 +2013,17 @@ models:
           Valor total agregado no registro, em dólares americanos
   - name: us_cms_open_payments__summary_by_recipient_entity
     description: >-
-      Totais anuais de pagamento por beneficiário, entidade declarante e categoria de
+      Totais anuais de pagamento por beneficiário, entidade declarante e categoria
+      de
       pagamento.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, recipient_id, recipient_type, reporting_entity_id, payment_type]
+          combination_of_columns:
+            - year
+            - recipient_id
+            - recipient_type
+            - reporting_entity_id
+            - payment_type
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -1843,18 +2041,16 @@ models:
       - name: reporting_entity_id
         description: >-
           Identificador único do fabricante ou GPO que declarou o pagamento
-        tests:
-          - not_null
+        tests: [not_null]
       - name: recipient_id
         description: >-
-          Identificador do beneficiário: perfil do profissional ou CCN do hospital universitário
-        tests:
-          - not_null
+          Identificador do beneficiário: perfil do profissional ou CCN do hospital
+          universitário
+        tests: [not_null]
       - name: recipient_type
         description: >-
           Tipo de beneficiário: médico, profissional não médico ou hospital universitário
-        tests:
-          - not_null
+        tests: [not_null]
       - name: first_name
         description: >-
           Primeiro nome do profissional beneficiário
@@ -1866,12 +2062,12 @@ models:
           Sobrenome do profissional beneficiário
       - name: teaching_hospital_name
         description: >-
-          Nome do hospital universitário, conforme a lista de hospitais universitários do CMS
+          Nome do hospital universitário, conforme a lista de hospitais universitários
+          do CMS
       - name: payment_type
         description: >-
           Categoria de pagamento agregada: geral, pesquisa ou participação societária
-        tests:
-          - not_null
+        tests: [not_null]
       - name: reporting_entity_name
         description: >-
           Nome do fabricante ou GPO que efetuou o pagamento
@@ -1886,7 +2082,10 @@ models:
       Totais anuais de pagamento por entidade declarante e natureza do pagamento.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, reporting_entity_id, payment_nature_code]
+          combination_of_columns:
+            - year
+            - reporting_entity_id
+            - payment_nature_code
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -1901,13 +2100,11 @@ models:
       - name: reporting_entity_id
         description: >-
           Identificador único do fabricante ou GPO que declarou o pagamento
-        tests:
-          - not_null
+        tests: [not_null]
       - name: payment_nature_code
         description: >-
           Código da natureza do pagamento ou transferência de valor
-        tests:
-          - not_null
+        tests: [not_null]
       - name: transaction_count
         description: >-
           Quantidade de transações agregadas no registro
@@ -1919,11 +2116,17 @@ models:
           Nome do fabricante ou GPO que efetuou o pagamento
   - name: us_cms_open_payments__summary_by_entity_recipient_nature
     description: >-
-      Totais anuais de pagamento por entidade declarante, beneficiário e natureza do
+      Totais anuais de pagamento por entidade declarante, beneficiário e natureza
+      do
       pagamento.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, reporting_entity_id, recipient_id, recipient_type, payment_nature_code]
+          combination_of_columns:
+            - year
+            - reporting_entity_id
+            - recipient_id
+            - recipient_type
+            - payment_nature_code
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -1938,23 +2141,20 @@ models:
       - name: reporting_entity_id
         description: >-
           Identificador único do fabricante ou GPO que declarou o pagamento
-        tests:
-          - not_null
+        tests: [not_null]
       - name: recipient_id
         description: >-
-          Identificador do beneficiário: perfil do profissional ou CCN do hospital universitário
-        tests:
-          - not_null
+          Identificador do beneficiário: perfil do profissional ou CCN do hospital
+          universitário
+        tests: [not_null]
       - name: recipient_type
         description: >-
           Tipo de beneficiário: médico, profissional não médico ou hospital universitário
-        tests:
-          - not_null
+        tests: [not_null]
       - name: payment_nature_code
         description: >-
           Código da natureza do pagamento ou transferência de valor
-        tests:
-          - not_null
+        tests: [not_null]
       - name: transaction_count
         description: >-
           Quantidade de transações agregadas no registro
@@ -1969,11 +2169,17 @@ models:
           Nome do fabricante ou GPO que efetuou o pagamento
   - name: us_cms_open_payments__summary_state_by_nature
     description: >-
-      Totais, médias e medianas anuais de pagamento por estado, natureza do pagamento e tipo
+      Totais, médias e medianas anuais de pagamento por estado, natureza do pagamento
+      e tipo
       de beneficiário.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, country_code, state_code, payment_nature, recipient_type]
+          combination_of_columns:
+            - year
+            - country_code
+            - state_code
+            - payment_nature
+            - recipient_type
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -1988,29 +2194,25 @@ models:
       - name: country_code
         description: >-
           Código do país do beneficiário
-        tests:
-          - not_null
+        tests: [not_null]
       - name: country_name
         description: >-
           Nome do país do beneficiário
       - name: state_code
         description: >-
           Sigla de duas letras do estado do beneficiário
-        tests:
-          - not_null
+        tests: [not_null]
       - name: state_name
         description: >-
           Nome do estado do beneficiário
       - name: payment_nature
         description: >-
           Natureza do pagamento ou transferência de valor
-        tests:
-          - not_null
+        tests: [not_null]
       - name: recipient_type
         description: >-
           Tipo de beneficiário: médico, profissional não médico ou hospital universitário
-        tests:
-          - not_null
+        tests: [not_null]
       - name: physician_count
         description: >-
           Quantidade de médicos distintos que receberam pagamentos
@@ -2061,7 +2263,8 @@ models:
           Quantidade média de pagamentos por beneficiário entre médicos
       - name: payment_count_mean_non_physician_practitioner
         description: >-
-          Quantidade média de pagamentos por beneficiário entre profissionais não médicos
+          Quantidade média de pagamentos por beneficiário entre profissionais não
+          médicos
       - name: payment_count_mean_teaching_hospital
         description: >-
           Quantidade média de pagamentos por beneficiário entre hospitais universitários
@@ -2070,17 +2273,23 @@ models:
           Quantidade mediana de pagamentos por beneficiário entre médicos
       - name: payment_count_median_non_physician_practitioner
         description: >-
-          Quantidade mediana de pagamentos por beneficiário entre profissionais não médicos
+          Quantidade mediana de pagamentos por beneficiário entre profissionais não
+          médicos
       - name: payment_count_median_teaching_hospital
         description: >-
           Quantidade mediana de pagamentos por beneficiário entre hospitais universitários
   - name: us_cms_open_payments__summary_national
     description: >-
-      Totais, médias e medianas anuais de pagamento no âmbito nacional, por categoria de
+      Totais, médias e medianas anuais de pagamento no âmbito nacional, por categoria
+      de
       pagamento e tipo de beneficiário.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, metric_level, payment_type, recipient_type]
+          combination_of_columns:
+            - year
+            - metric_level
+            - payment_type
+            - recipient_type
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -2095,18 +2304,15 @@ models:
       - name: metric_level
         description: >-
           Nível de agregação da métrica
-        tests:
-          - not_null
+        tests: [not_null]
       - name: payment_type
         description: >-
           Categoria de pagamento agregada: geral, pesquisa ou participação societária
-        tests:
-          - not_null
+        tests: [not_null]
       - name: recipient_type
         description: >-
           Tipo de beneficiário: médico, profissional não médico ou hospital universitário
-        tests:
-          - not_null
+        tests: [not_null]
       - name: physician_count
         description: >-
           Quantidade de médicos distintos que receberam pagamentos
@@ -2142,20 +2348,27 @@ models:
           Quantidade média de pagamentos por beneficiário entre médicos
       - name: payment_count_mean_non_physician_practitioner
         description: >-
-          Quantidade média de pagamentos por beneficiário entre profissionais não médicos
+          Quantidade média de pagamentos por beneficiário entre profissionais não
+          médicos
       - name: payment_count_median_physician
         description: >-
           Quantidade mediana de pagamentos por beneficiário entre médicos
       - name: payment_count_median_non_physician_practitioner
         description: >-
-          Quantidade mediana de pagamentos por beneficiário entre profissionais não médicos
+          Quantidade mediana de pagamentos por beneficiário entre profissionais não
+          médicos
   - name: us_cms_open_payments__summary_national_by_specialty
     description: >-
-      Totais, médias e medianas anuais de pagamento no âmbito nacional por especialidade do
+      Totais, médias e medianas anuais de pagamento no âmbito nacional por especialidade
+      do
       prestador, identificada pelo código de taxonomia.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, payment_type, recipient_type, taxonomy_code]
+          combination_of_columns:
+            - year
+            - payment_type
+            - recipient_type
+            - taxonomy_code
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -2170,18 +2383,15 @@ models:
       - name: payment_type
         description: >-
           Categoria de pagamento agregada: geral, pesquisa ou participação societária
-        tests:
-          - not_null
+        tests: [not_null]
       - name: recipient_type
         description: >-
           Tipo de beneficiário: médico, profissional não médico ou hospital universitário
-        tests:
-          - not_null
+        tests: [not_null]
       - name: taxonomy_code
         description: >-
           Código de taxonomia de prestador que identifica a especialidade agregada
-        tests:
-          - not_null
+        tests: [not_null]
       - name: provider_type_description
         description: >-
           Descrição do grupo de prestadores na taxonomia
@@ -2226,20 +2436,28 @@ models:
           Quantidade média de pagamentos por beneficiário entre médicos
       - name: payment_count_mean_non_physician_practitioner
         description: >-
-          Quantidade média de pagamentos por beneficiário entre profissionais não médicos
+          Quantidade média de pagamentos por beneficiário entre profissionais não
+          médicos
       - name: payment_count_median_physician
         description: >-
           Quantidade mediana de pagamentos por beneficiário entre médicos
       - name: payment_count_median_non_physician_practitioner
         description: >-
-          Quantidade mediana de pagamentos por beneficiário entre profissionais não médicos
+          Quantidade mediana de pagamentos por beneficiário entre profissionais não
+          médicos
   - name: us_cms_open_payments__summary_state
     description: >-
-      Totais, médias e medianas anuais de pagamento por estado, categoria de pagamento e
+      Totais, médias e medianas anuais de pagamento por estado, categoria de pagamento
+      e
       tipo de beneficiário.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, country_code, state_code, payment_type, recipient_type]
+          combination_of_columns:
+            - year
+            - country_code
+            - state_code
+            - payment_type
+            - recipient_type
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -2254,29 +2472,25 @@ models:
       - name: country_code
         description: >-
           Código do país do beneficiário
-        tests:
-          - not_null
+        tests: [not_null]
       - name: country_name
         description: >-
           Nome do país do beneficiário
       - name: state_code
         description: >-
           Sigla de duas letras do estado do beneficiário
-        tests:
-          - not_null
+        tests: [not_null]
       - name: state_name
         description: >-
           Nome do estado do beneficiário
       - name: payment_type
         description: >-
           Categoria de pagamento agregada: geral, pesquisa ou participação societária
-        tests:
-          - not_null
+        tests: [not_null]
       - name: recipient_type
         description: >-
           Tipo de beneficiário: médico, profissional não médico ou hospital universitário
-        tests:
-          - not_null
+        tests: [not_null]
       - name: physician_count
         description: >-
           Quantidade de médicos distintos que receberam pagamentos
@@ -2327,7 +2541,8 @@ models:
           Quantidade média de pagamentos por beneficiário entre médicos
       - name: payment_count_mean_non_physician_practitioner
         description: >-
-          Quantidade média de pagamentos por beneficiário entre profissionais não médicos
+          Quantidade média de pagamentos por beneficiário entre profissionais não
+          médicos
       - name: payment_count_mean_teaching_hospital
         description: >-
           Quantidade média de pagamentos por beneficiário entre hospitais universitários
@@ -2336,7 +2551,8 @@ models:
           Quantidade mediana de pagamentos por beneficiário entre médicos
       - name: payment_count_median_non_physician_practitioner
         description: >-
-          Quantidade mediana de pagamentos por beneficiário entre profissionais não médicos
+          Quantidade mediana de pagamentos por beneficiário entre profissionais não
+          médicos
       - name: payment_count_median_teaching_hospital
         description: >-
           Quantidade mediana de pagamentos por beneficiário entre hospitais universitários
@@ -2361,11 +2577,11 @@ models:
       - name: teaching_hospital_ccn
         description: >-
           CMS Certification Number (CCN) do hospital universitário
-        tests:
-          - not_null
+        tests: [not_null]
       - name: teaching_hospital_name
         description: >-
-          Nome do hospital universitário, conforme a lista de hospitais universitários do CMS
+          Nome do hospital universitário, conforme a lista de hospitais universitários
+          do CMS
       - name: address_line_1
         description: >-
           Primeira linha do endereço do hospital universitário
@@ -2401,7 +2617,8 @@ models:
           Quantidade de transações não contestadas
   - name: us_cms_open_payments__summary_reporting_entity
     description: >-
-      Totais anuais de pagamento por entidade declarante, separados por categoria de
+      Totais anuais de pagamento por entidade declarante, separados por categoria
+      de
       pagamento e tipo de beneficiário.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -2420,8 +2637,7 @@ models:
       - name: reporting_entity_id
         description: >-
           Identificador único do fabricante ou GPO que declarou o pagamento
-        tests:
-          - not_null
+        tests: [not_null]
       - name: reporting_entity_name
         description: >-
           Nome do fabricante ou GPO que efetuou o pagamento
@@ -2463,7 +2679,8 @@ models:
           Quantidade de transações de pagamento de pesquisa com médicos
       - name: research_transaction_count_non_physician_practitioner
         description: >-
-          Quantidade de transações de pagamento de pesquisa com profissionais não médicos
+          Quantidade de transações de pagamento de pesquisa com profissionais não
+          médicos
       - name: research_transaction_count_teaching_hospital
         description: >-
           Quantidade de transações de pagamento de pesquisa com hospitais universitários
@@ -2478,7 +2695,8 @@ models:
           Quantidade de transações não contestadas
   - name: us_cms_open_payments__summary_physician
     description: >-
-      Totais anuais de pagamento por perfil de médico ou profissional não médico, com os
+      Totais anuais de pagamento por perfil de médico ou profissional não médico,
+      com os
       dados cadastrais do perfil.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -2496,10 +2714,10 @@ models:
               field: ano.ano
       - name: covered_recipient_profile_id
         description: >-
-          Identificador único do perfil do médico ou profissional não médico que recebeu o
+          Identificador único do perfil do médico ou profissional não médico que recebeu
+          o
           pagamento
-        tests:
-          - not_null
+        tests: [not_null]
       - name: covered_recipient_npi
         description: >-
           National Provider Identifier (NPI) do médico ou profissional não médico
@@ -2508,23 +2726,28 @@ models:
           Tipo do perfil: médico ou profissional não médico
       - name: first_name
         description: >-
-          Primeiro nome do profissional conforme a lista mestra de prestadores (MPL) fornecida
+          Primeiro nome do profissional conforme a lista mestra de prestadores (MPL)
+          fornecida
           pelo CMS
       - name: middle_name
         description: >-
-          Nome do meio do profissional conforme a lista mestra de prestadores (MPL) fornecida
+          Nome do meio do profissional conforme a lista mestra de prestadores (MPL)
+          fornecida
           pelo CMS
       - name: last_name
         description: >-
-          Sobrenome do profissional conforme a lista mestra de prestadores (MPL) fornecida pelo
+          Sobrenome do profissional conforme a lista mestra de prestadores (MPL) fornecida
+          pelo
           CMS
       - name: name_suffix
         description: >-
-          Sufixo do nome do profissional conforme a lista mestra de prestadores (MPL) fornecida
+          Sufixo do nome do profissional conforme a lista mestra de prestadores (MPL)
+          fornecida
           pelo CMS
       - name: alternate_first_name
         description: >-
-          Primeiro nome alternativo do profissional registrado na lista mestra de prestadores
+          Primeiro nome alternativo do profissional registrado na lista mestra de
+          prestadores
       - name: alternate_middle_name
         description: >-
           Nome do meio alternativo do profissional registrado na lista mestra de prestadores
@@ -2533,18 +2756,22 @@ models:
           Sobrenome alternativo do profissional registrado na lista mestra de prestadores
       - name: alternate_name_suffix
         description: >-
-          Sufixo alternativo do nome do profissional registrado na lista mestra de prestadores
+          Sufixo alternativo do nome do profissional registrado na lista mestra de
+          prestadores
       - name: address_line_1
         description: >-
-          Primeira linha do endereço de prática do profissional conforme a lista mestra de
+          Primeira linha do endereço de prática do profissional conforme a lista mestra
+          de
           prestadores
       - name: address_line_2
         description: >-
-          Segunda linha do endereço de prática do profissional conforme a lista mestra de
+          Segunda linha do endereço de prática do profissional conforme a lista mestra
+          de
           prestadores
       - name: city
         description: >-
-          Cidade do endereço de prática do profissional conforme a lista mestra de prestadores
+          Cidade do endereço de prática do profissional conforme a lista mestra de
+          prestadores
       - name: state
         description: >-
           Sigla de duas letras do estado do endereço de prática do profissional
@@ -2556,7 +2783,8 @@ models:
           País do endereço de prática do profissional
       - name: province
         description: >-
-          Província do endereço de prática do profissional, quando fora dos Estados Unidos
+          Província do endereço de prática do profissional, quando fora dos Estados
+          Unidos
       - name: primary_specialty
         description: >-
           Especialidade principal do profissional na taxonomia padronizada de prestadores
@@ -2601,7 +2829,8 @@ models:
           Quantidade de registros de participação societária detida
       - name: associated_research_payment_amount_total
         description: >-
-          Valor total de pagamentos de pesquisa em que o profissional consta como pesquisador
+          Valor total de pagamentos de pesquisa em que o profissional consta como
+          pesquisador
           principal, em dólares americanos
       - name: associated_research_transaction_count
         description: >-
@@ -2615,10 +2844,12 @@ models:
           Quantidade de transações não contestadas
       - name: has_multiple_ids
         description: >-
-          Indica se o profissional possui mais de um identificador de perfil no Open Payments
+          Indica se o profissional possui mais de um identificador de perfil no Open
+          Payments
   - name: us_cms_open_payments__summary_dashboard
     description: >-
-      Métricas agregadas do painel resumo publicado pelo CMS. A publicação original traz uma
+      Métricas agregadas do painel resumo publicado pelo CMS. A publicação original
+      traz uma
       coluna por ano do programa; aqui cada par métrica-ano é uma linha.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -2637,8 +2868,7 @@ models:
       - name: dashboard_row_number
         description: >-
           Número da linha da métrica no painel resumo publicado pelo CMS
-        tests:
-          - not_null
+        tests: [not_null]
       - name: metric
         description: >-
           Nome da métrica agregada do painel resumo
@@ -2651,30 +2881,30 @@ models:
       conjunto.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [id_tabela, nome_coluna, chave, cobertura_temporal]
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
       - name: id_tabela
         description: >-
           Nome da tabela à qual a chave e o valor se referem
-        tests:
-          - not_null
+        tests: [not_null]
       - name: nome_coluna
         description: >-
           Nome da coluna à qual a chave e o valor se referem
-        tests:
-          - not_null
+        tests: [not_null]
       - name: chave
         description: >-
           Código presente nos dados da coluna
-        tests:
-          - not_null
+        tests: [not_null]
       - name: cobertura_temporal
         description: >-
           Cobertura temporal a que se aplica o par chave-valor
-        tests:
-          - not_null
+        tests: [not_null]
       - name: valor
         description: >-
           Rótulo correspondente ao código na coluna

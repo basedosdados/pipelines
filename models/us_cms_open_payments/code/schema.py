@@ -95,7 +95,6 @@ DICTIONARY_EXACT = {
     "physician_primary_type",
     "has_multiple_ids",
     "metric_level",
-    "metric",
 }
 
 DICTIONARY_PATTERNS = [

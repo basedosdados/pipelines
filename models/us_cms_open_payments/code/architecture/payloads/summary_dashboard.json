@@ -27,7 +27,7 @@
   "description_pt": "Nome da métrica agregada do painel resumo",
   "description_en": "Name of the aggregated metric in the summary dashboard",
   "description_es": "Nombre de la métrica agregada del panel resumen",
-  "covered_by_dictionary": true,
+  "covered_by_dictionary": false,
   "has_sensitive_data": false,
   "observations": "Coluna de origem no CMS: Data_Metrics."
  },
