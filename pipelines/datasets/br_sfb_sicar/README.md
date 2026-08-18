@@ -26,7 +26,7 @@ referência de cada UF é lida do próprio portal por `get_each_uf_release_date`
 uma partição `data_extracao` é um retrato do CAR no dia da execução, não um recorte
 temporal da fonte.
 
-O geometry vem em WKT no parquet e é convertido para `GEOGRAPHY` no modelo dbt.
+A coluna `geometry` vem em WKT no parquet e é convertida para `GEOGRAPHY` no modelo dbt.
 
 ## BD Pro
 
@@ -74,8 +74,17 @@ O flow não consulta a fonte antes de baixar: todo run agendado percorre as 27 U
 materializa. O parâmetro `force_run` está na assinatura mas não é usado por nada — não há
 guarda para ele desligar.
 
-Como a fonte não versiona os arquivos e cada extração vira uma partição nova, um run
-extra não corrompe a tabela; só custa o download inteiro e cria uma partição a mais.
+Um run extra não corrompe a tabela, mas o que ele faz depende do dia. A partição é
+`datetime.today()`, então um run no mesmo dia reaproveita a partição existente: o
+`Storage.upload(..., if_exists="replace")` sobrescreve os blobs de mesmo nome, sem criar
+partição nova nem duplicar linha. E o modelo é incremental com
+`data_extracao > (select max(data_extracao) from {{ this }})` — maior, não maior ou igual
+—, de modo que nada do run repetido chega à tabela. O custo é o download inteiro, em
+troca de nada.
+
+Dois efeitos colaterais do `replace`: ele não apaga blobs sem correspondência, então o
+parquet de uma UF que suma da fonte permanece no prefixo e continua sendo lido; e um run
+em outro dia cria, aí sim, uma partição a mais.
 
 ### 3. O download é lento e falha sozinho
 

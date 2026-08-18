@@ -42,6 +42,21 @@ def br_sfb_sicar__area_imovel(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    """Baixa o CAR das 27 UFs, sobe para a staging e materializa `area_imovel`.
+
+    Args:
+        dataset_id: id do conjunto, usado na staging e no dbt.
+        table_id: id da tabela, usado na staging e no dbt.
+        materialize_after_dump: se `False`, para depois do dbt em dev — o upload
+            para o bucket de prod, o dbt em prod e os metadados não acontecem.
+        dbt_alias: se o arquivo do modelo leva o prefixo do conjunto. Precisa ser
+            `True` aqui: o modelo é `br_sfb_sicar__area_imovel.sql`, e é o mesmo
+            valor que decide qual `.sql` a sincronização do schema consulta.
+        update_metadata: se registra a materialização e a cobertura no backend.
+        target: alvo do dbt na materialização de prod.
+        force_run: sem efeito — o flow não tem poll da fonte e nada lê este
+            parâmetro.
+    """
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
@@ -70,6 +85,7 @@ def br_sfb_sicar__area_imovel(
         bucket_name="basedosdados-dev",
         dump_mode="append",
         source_format="parquet",
+        dbt_alias=dbt_alias,
     )
 
     run_dbt(
@@ -90,6 +106,7 @@ def br_sfb_sicar__area_imovel(
         bucket_name="basedosdados",
         dump_mode="append",
         source_format="parquet",
+        dbt_alias=dbt_alias,
     )
 
     run_dbt(

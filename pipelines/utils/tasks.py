@@ -72,30 +72,43 @@ def _bq_safe_column_name(name: str) -> str:
     return re.sub(r"[^0-9a-zA-Z_]", "_", name)
 
 
-def _model_sql(dataset_id: str, table_id: str) -> str | None:
+def _model_sql(dataset_id: str, table_id: str, dbt_alias: bool) -> str | None:
     """Lê o SQL do modelo dbt de uma tabela.
 
-    O nome do arquivo depende do `dbt_alias` do flow, que esta função não
-    recebe: tenta as duas grafias, na mesma ordem que `run_dbt`.
+    O nome do arquivo é montado como em `run_dbt`, a partir do mesmo
+    `dbt_alias`: os dois precisam apontar para o mesmo modelo, ou a
+    sincronização decidiria com base num arquivo que não será executado.
 
     Args:
         dataset_id: id do conjunto, que nomeia o diretório em `models/`.
         table_id: id da tabela.
+        dbt_alias: se o arquivo leva o prefixo do conjunto.
 
     Returns:
         O conteúdo do `.sql`, ou `None` quando não há arquivo — conjuntos cujo
         modelo vive fora dessa convenção.
     """
     models_folder = Path("models") / dataset_id
-    for name in (f"{dataset_id}__{table_id}.sql", f"{table_id}.sql"):
-        path = models_folder / name
-        if path.exists():
-            return path.read_text(encoding="utf-8")
+    name = f"{dataset_id}__{table_id}.sql" if dbt_alias else f"{table_id}.sql"
+    path = models_folder / name
+    if path.exists():
+        return path.read_text(encoding="utf-8")
     return None
 
 
 def _referenced_in_model(column: str, model_sql: str) -> bool:
-    """Diz se o modelo menciona a coluna, ignorando caixa."""
+    """Diz se o modelo menciona a coluna.
+
+    A comparação ignora caixa e casa palavra inteira, para `num_are` não
+    passar por `num_area`.
+
+    Args:
+        column: nome da coluna, já normalizado por `_bq_safe_column_name`.
+        model_sql: conteúdo do `.sql` do modelo.
+
+    Returns:
+        `True` se o nome aparece no SQL.
+    """
     return (
         re.search(rf"\b{re.escape(column)}\b", model_sql, re.IGNORECASE)
         is not None
@@ -107,6 +120,7 @@ def _sync_staging_schema(
     data_path: str | Path,
     source_format: str,
     billing_project_id: str,
+    dbt_alias: bool,
 ) -> None:
     """Adiciona ao schema da staging as colunas que a fonte passou a trazer.
 
@@ -142,6 +156,8 @@ def _sync_staging_schema(
         data_path: arquivo ou diretório com os dados que serão carregados.
         source_format: `"csv"` ou `"parquet"`.
         billing_project_id: projeto GCP usado para faturar a chamada.
+        dbt_alias: o mesmo valor que será passado a `run_dbt`, para que o
+            modelo consultado aqui seja o que de fato vai rodar.
     """
     header_path = dump_header(data_path=data_path, source_format=source_format)
     incoming = tb._load_staging_schema_from_data(
@@ -161,7 +177,7 @@ def _sync_staging_schema(
         if _bq_safe_column_name(field.name) not in current
     ]
 
-    model_sql = _model_sql(tb.dataset_id, tb.table_id)
+    model_sql = _model_sql(tb.dataset_id, tb.table_id, dbt_alias)
     if model_sql is not None:
         ignored = [
             field.name
@@ -199,6 +215,7 @@ def _upload_to_gcs(
     bucket_name: str,
     dump_mode: str = "append",
     source_format: str = "csv",
+    dbt_alias: bool = True,
 ) -> None:
     # billing_project_id casado com o bucket: a SA do pod tem
     # serviceusage.services.use apenas no próprio projeto; o default
@@ -245,6 +262,7 @@ def _upload_to_gcs(
                 data_path=data_path,
                 source_format=source_format,
                 billing_project_id=billing_project_id,
+                dbt_alias=dbt_alias,
             )
 
     elif dump_mode == "overwrite":
@@ -294,8 +312,21 @@ def upload_to_gcs(
     bucket_name: str,
     dump_mode: str = "append",
     source_format: str = "csv",
+    dbt_alias: bool = True,
 ) -> None:
-    """Faz upload dos dados para o bucket GCS e cria a tabela staging no BQ se necessário."""
+    """Faz upload dos dados para o bucket GCS e cria a tabela staging no BQ se necessário.
+
+    Args:
+        data_path: arquivo ou diretório com os dados.
+        dataset_id: id do conjunto.
+        table_id: id da tabela.
+        bucket_name: bucket de destino, que também fatura a operação.
+        dump_mode: `"append"` mantém a tabela existente, `"overwrite"` recria.
+        source_format: `"csv"` ou `"parquet"`.
+        dbt_alias: o mesmo valor passado a `run_dbt`. Em `"append"`, decide qual
+            `.sql` a sincronização do schema consulta para saber quais colunas
+            novas da fonte importam.
+    """
     _upload_to_gcs(
         data_path=data_path,
         dataset_id=dataset_id,
@@ -303,6 +334,7 @@ def upload_to_gcs(
         bucket_name=bucket_name,
         dump_mode=dump_mode,
         source_format=source_format,
+        dbt_alias=dbt_alias,
     )
 
 
