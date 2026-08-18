@@ -20,30 +20,35 @@ models:
             - id_conglomerado_financeiro
             - id_conglomerado_prudencial
             - data_alteracao_segmento
+      # `ti` e `tcb` ficam fora da cobertura: o IF.data usa códigos que ele
+      # próprio nunca rotula em nenhum `filtro` da série — nove valores de `ti`
+      # (194, 196-200, 20, 42, 38) e o `tcb` 'z2'. O dicionário cobre o resto.
       - custom_dictionary_coverage:
-          columns_covered_by_dictionary:
-            - tipo_consolidado
-            - tcb
-            - td
-            - tc
-            - ti
-            - sr
+          columns_covered_by_dictionary: [tipo_consolidado, td, tc, sr]
           dictionary_model: ref('br_bcb_ifdata__dicionario')
     columns:
       - name: ano
         description: Ano de referência
         tests:
           - not_null
+          # `field: ano.ano`, não `ano`. O teste compila para
+          # `select ano from `proj`.`ds`.`ano``, e com o caminho citado em
+          # partes o `ano` cru casa com a *range variable* (a linha inteira,
+          # STRUCT<ano, bissexto>) em vez da coluna, quebrando o join com
+          # "No matching signature for operator = ... INT64, STRUCT<...>".
+          # Qualificar resolve. Afeta todo diretório cujo nome de tabela é
+          # igual ao do campo (ano, mes) — 76 datasets do repositório usam a
+          # forma crua e têm o mesmo teste quebrado.
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: mes
         description: Mês de referência do trimestre
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
-              field: mes
+              field: mes.mes
       - name: tipo_consolidado
         description: Tipo de consolidado do IF.data
         tests: [not_null]
@@ -88,10 +93,24 @@ models:
       tipo de consolidado, e uma mesma rubrica aparece em vários relatórios com
       o mesmo código. Rubricas presentes nos dados que nenhum relatório da
       competência referencia (séries antigas ainda publicadas, mas não exibidas)
-      entram com id_relatorio nulo.
+      entram com id_relatorio nulo. Seis rubricas, presentes entre 2008 e 2024,
+      não têm nome publicado em nenhuma competência: carregam valores monetários
+      reais, mas o IF.data não divulga o rótulo, então nome_coluna é nulo. São
+      335 das 50.240 linhas desta tabela e 0,28% dos valores em relatorio; os
+      valores foram mantidos em vez de descartados.
     tests:
+      # `ordem_coluna` faz parte da chave porque uma mesma rubrica pode
+      # aparecer duas vezes no mesmo relatório, em posições diferentes: em
+      # 2002-12 o relatório 3 traz a 78196 como "Credores por Antecipação de
+      # Valor Residual (e3)", dentro do grupo Arrendamento Mercantil, e de novo
+      # como "(j)" no nível de cima. Os dois rótulos são reais.
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [ano, mes, id_relatorio, id_coluna]
+          combination_of_columns:
+            - ano
+            - mes
+            - id_relatorio
+            - id_coluna
+            - ordem_coluna
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -108,9 +127,17 @@ models:
         description: Ano de referência
         tests:
           - not_null
+          # `field: ano.ano`, não `ano`. O teste compila para
+          # `select ano from `proj`.`ds`.`ano``, e com o caminho citado em
+          # partes o `ano` cru casa com a *range variable* (a linha inteira,
+          # STRUCT<ano, bissexto>) em vez da coluna, quebrando o join com
+          # "No matching signature for operator = ... INT64, STRUCT<...>".
+          # Qualificar resolve. Afeta todo diretório cujo nome de tabela é
+          # igual ao do campo (ano, mes) — 76 datasets do repositório usam a
+          # forma crua e têm o mesmo teste quebrado.
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: mes
         description: Mês de referência do trimestre
         tests: [not_null]
@@ -154,22 +181,31 @@ models:
         description: Ano de referência
         tests:
           - not_null
+          # `field: ano.ano`, não `ano`. O teste compila para
+          # `select ano from `proj`.`ds`.`ano``, e com o caminho citado em
+          # partes o `ano` cru casa com a *range variable* (a linha inteira,
+          # STRUCT<ano, bissexto>) em vez da coluna, quebrando o join com
+          # "No matching signature for operator = ... INT64, STRUCT<...>".
+          # Qualificar resolve. Afeta todo diretório cujo nome de tabela é
+          # igual ao do campo (ano, mes) — 76 datasets do repositório usam a
+          # forma crua e têm o mesmo teste quebrado.
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: mes
         description: Mês de referência do trimestre
         tests: [not_null]
       - name: id_instituicao
         description: >
           Código da instituição ou conglomerado atribuído pelo Banco Central
-        tests:
-          - not_null
-          - relationships:
-              to: ref('br_bcb_ifdata__instituicao')
-              field: id_instituicao
-              config:
-                where: __most_recent_year__
+        # Sem teste de FK contra `instituicao`: o cadastro do IF.data lista
+        # só as instituições exibidas em cada tipo de consolidado, enquanto os
+        # dados trazem toda entidade que reporta. 22,7% dos valores da série
+        # (12,4 milhões de linhas) são de instituições sem linha no cadastro da
+        # competência, e das 1.977 órfãs de 2026-03 apenas 7 aparecem no
+        # cadastro de outra competência. Não é lacuna da limpeza: a fonte não
+        # publica cadastro para elas.
+        tests: [not_null]
       - name: id_coluna
         description: Código da rubrica reportada
         tests: [not_null]
