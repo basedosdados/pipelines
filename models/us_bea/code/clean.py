@@ -1,16 +1,18 @@
-"""Download + clean all six us_bea tables into partitioned Parquet.
+"""Download + clean all six us_bea tables into partitioned Parquet (bootstrap).
 
-Pull strategy (verified against the live API):
-  - NIPA: one GetData per TableName, Frequency='A,Q,M', Year='ALL'
-          (rows carry no Frequency field; derive from TimePeriod).
+One-shot onboarding bootstrap. The download + row-building transform lives in
+``pipelines.datasets.us_bea.utils`` and is imported here rather than duplicated,
+so this bootstrap and the recurring flow cannot diverge (DRY). This module keeps
+only what is bootstrap-specific: the TYPED parquet writer (the one-shot upload
+accepts typed parquet, unlike the pipeline path), and per-BEA-table resume so a
+multi-hour county pull can restart where it left off.
+
+Pull strategy (verified against the live API), all in utils:
+  - NIPA: one GetData per TableName, Frequency='A,Q,M', Year='ALL'.
   - GDPbyIndustry: per TableID, Frequency A then Q, Industry='ALL', Year='ALL'.
-  - Regional: LineCode='ALL' is UNSUPPORTED -> loop specific line codes,
-              wildcard the geography (GeoFips = STATE / COUNTY / MSA).
-      regional_state  = SA*/SQ*/PR*/TA* tables, GeoFips=STATE
-      regional_county = CA* tables,           GeoFips=COUNTY
-      regional_metro  = MA* tables,           GeoFips=MSA
+  - Regional: LineCode='ALL' is UNSUPPORTED -> loop line codes, wildcard geo.
 
-Output: <outdir>/<db_table>/year=<YYYY>/<part>.parquet  (typed pa.Schema).
+Output: <outdir>/<db_table>/year=<YYYY>/<part>.parquet  (typed staging schema).
 Resume: a table is skipped if <outdir>/.done/<db_table> exists.
 
 Run:  python -m models.us_bea.code.clean [table ...]   (default: all)
@@ -18,9 +20,9 @@ Run:  python -m models.us_bea.code.clean [table ...]   (default: all)
 
 from __future__ import annotations
 
+import glob
 import json
 import os
-import re
 import shutil
 import sys
 import time
@@ -29,222 +31,35 @@ import pyarrow as pa
 import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 
-from . import bea
+from pipelines.datasets.us_bea.constants import constants
+from pipelines.datasets.us_bea.utils import (
+    STAGING_SCHEMAS,
+    build_dicionario_rows,
+    fetch_gi_table,
+    fetch_nipa_table,
+    fetch_regional_table,
+    gi_tables,
+    nipa_table_names,
+    regional_table_names,
+)
 
 OUTDIR = os.environ.get(
     "US_BEA_OUT", os.path.expanduser("~/Downloads/us_bea_data/output")
 )
 
-
-# ------------------------------------------------------------------ schemas --
-def _schema(cols: list[tuple[str, pa.DataType]]) -> pa.Schema:
-    return pa.schema([pa.field(n, t) for n, t in cols])
-
-
-STR = pa.string()
-INT = pa.int64()
-FLT = pa.float64()
-SCHEMAS = {
-    "nipa": _schema(
-        [
-            ("year", INT),
-            ("quarter", STR),
-            ("month", STR),
-            ("frequency", STR),
-            ("table_name", STR),
-            ("line_number", STR),
-            ("series_code", STR),
-            ("line_description", STR),
-            ("metric_name", STR),
-            ("unit", STR),
-            ("unit_mult", STR),
-            ("value", FLT),
-            ("note_ref", STR),
-        ]
-    ),
-    "gdp_by_industry": _schema(
-        [
-            ("year", INT),
-            ("quarter", STR),
-            ("frequency", STR),
-            ("table_id", STR),
-            ("table_description", STR),
-            ("industry", STR),
-            ("industry_description", STR),
-            ("value", FLT),
-            ("note_ref", STR),
-        ]
-    ),
-    "regional_state": _schema(
-        [
-            ("year", INT),
-            ("quarter", STR),
-            ("frequency", STR),
-            ("geo_fips", STR),
-            ("id_state", STR),
-            ("geo_name", STR),
-            ("table_name", STR),
-            ("line_code", STR),
-            ("series_code", STR),
-            ("line_description", STR),
-            ("unit", STR),
-            ("unit_mult", STR),
-            ("value", FLT),
-            ("note_ref", STR),
-        ]
-    ),
-    "regional_county": _schema(
-        [
-            ("year", INT),
-            ("geo_fips", STR),
-            ("id_county", STR),
-            ("id_state", STR),
-            ("geo_name", STR),
-            ("table_name", STR),
-            ("line_code", STR),
-            ("series_code", STR),
-            ("line_description", STR),
-            ("unit", STR),
-            ("unit_mult", STR),
-            ("value", FLT),
-            ("note_ref", STR),
-        ]
-    ),
-    "regional_metro": _schema(
-        [
-            ("year", INT),
-            ("geo_fips", STR),
-            ("id_cbsa", STR),
-            ("geo_name", STR),
-            ("table_name", STR),
-            ("line_code", STR),
-            ("series_code", STR),
-            ("line_description", STR),
-            ("unit", STR),
-            ("unit_mult", STR),
-            ("value", FLT),
-            ("note_ref", STR),
-        ]
-    ),
-}
-
-
-# ------------------------------------------------------------------ helpers --
-def _freq(year, quarter, month):
-    return "M" if month else ("Q" if quarter else "A")
-
-
-_REGION_PREFIX = {"91", "92", "93", "94", "95", "96", "97", "98"}
-
-
-def _id_state(geo_fips: str):
-    """NN000 -> NN for real states/territories; None for US(00000) and BEA regions."""
-    if not geo_fips or len(geo_fips) != 5 or not geo_fips.endswith("000"):
-        return None
-    st = geo_fips[:2]
-    if st == "00" or st in _REGION_PREFIX:
-        return None
-    return st
-
-
-def _strip_tag(desc: str) -> str:
-    # "[SAGDP2] Gross domestic product" -> "Gross domestic product"
-    return re.sub(r"^\[[^\]]*\]\s*", "", desc or "").strip()
-
-
-def _line_desc_map(dataset: str, table: str) -> dict:
-    out = {}
-    for x in bea.param_values_filtered(dataset, "LineCode", TableName=table):
-        if x["key"] is not None:
-            out[x["key"]] = _strip_tag(x["desc"])
-    return out
-
-
-# --------------------------------------------------------------- row builders --
-def _rows_nipa(api_rows):
-    for r in api_rows:
-        y, q, m = bea.split_time_period(r.get("TimePeriod"))
-        if y is None:
-            continue
-        yield {
-            "year": y,
-            "quarter": q,
-            "month": m,
-            "frequency": _freq(y, q, m),
-            "table_name": r.get("TableName"),
-            "line_number": r.get("LineNumber"),
-            "series_code": r.get("SeriesCode"),
-            "line_description": r.get("LineDescription"),
-            "metric_name": r.get("METRIC_NAME"),
-            "unit": r.get("CL_UNIT"),
-            "unit_mult": r.get("UNIT_MULT"),
-            "value": bea.clean_value(r.get("DataValue")),
-            "note_ref": r.get("NoteRef"),
-        }
-
-
-def _rows_gi(api_rows, table_desc):
-    for r in api_rows:
-        try:
-            y = int(r.get("Year"))
-        except (TypeError, ValueError):
-            continue
-        freq = r.get("Frequency")
-        yield {
-            "year": y,
-            "quarter": bea.norm_gi_quarter(freq, r.get("Quarter")),
-            "frequency": freq,
-            "table_id": str(r.get("TableID")),
-            "table_description": table_desc,
-            "industry": r.get("Industry"),
-            "industry_description": r.get("IndustrYDescription"),
-            "value": bea.clean_value(r.get("DataValue")),
-            "note_ref": r.get("NoteRef"),
-        }
-
-
-def _rows_regional(api_rows, table, line_code, line_desc, level):
-    for r in api_rows:
-        y, q, _ = bea.split_time_period(r.get("TimePeriod"))
-        if y is None:
-            continue
-        gf = r.get("GeoFips")
-        base = {
-            "year": y,
-            "geo_fips": gf,
-            "geo_name": r.get("GeoName"),
-            "table_name": table,
-            "line_code": line_code,
-            "series_code": r.get("Code"),
-            "line_description": line_desc,
-            "unit": r.get("CL_UNIT"),
-            "unit_mult": r.get("UNIT_MULT"),
-            "value": bea.clean_value(r.get("DataValue")),
-            "note_ref": r.get("NoteRef"),
-        }
-        if level == "state":
-            base.update(
-                quarter=q, frequency=_freq(y, q, None), id_state=_id_state(gf)
-            )
-        elif level == "county":
-            base.update(
-                id_county=gf,
-                id_state=(gf[:2] if gf and len(gf) == 5 else None),
-            )
-        elif level == "metro":
-            base.update(id_cbsa=gf)
-        yield base
+# Staging schema is the single source of truth (shared with the pipeline).
+SCHEMAS = STAGING_SCHEMAS
 
 
 # ----------------------------------------------------------------- writers ---
-FLUSH_ROWS = 500_000
+FLUSH_ROWS = constants.FLUSH_ROWS.value
 
 
 class Writer:
-    """Buffers rows for one db-table, flushing in chunks to bound memory and
-    keep the part-file count reasonable (county would otherwise emit ~20k files).
-    `tag` (the source BEA table) is embedded in each part-file name so a partial
-    BEA table can be purged and re-run on resume."""
+    """Buffers rows for one db-table, flushing TYPED parquet in chunks to bound
+    memory and keep the part-file count reasonable. ``tag`` (the source BEA
+    table) is embedded in each part-file name so a partial BEA table can be
+    purged and re-run on resume."""
 
     def __init__(self, table: str):
         self.table = table
@@ -275,8 +90,6 @@ class Writer:
 
 
 def _purge_tag(table: str, tag: str):
-    import glob
-
     for f in glob.glob(
         os.path.join(OUTDIR, table, "**", f"part-{tag}-*.parquet"),
         recursive=True,
@@ -320,13 +133,8 @@ def _is_done(table: str) -> bool:
 
 
 # ------------------------------------------------------------- table runners --
-def _regional_tables(prefixes) -> list[str]:
-    tabs = [x["key"] for x in bea.param_values("Regional", "TableName")]
-    return [t for t in tabs if any(t.startswith(p) for p in prefixes)]
-
-
 def run_nipa():
-    tabs = [x["key"] for x in bea.param_values("NIPA", "TableName")]
+    tabs = nipa_table_names()
     done = _progress_load("nipa")
     print(f"[nipa] {len(tabs)} tables ({len(done)} already done)")
     w = Writer("nipa")
@@ -335,17 +143,7 @@ def run_nipa():
             continue
         _purge_tag("nipa", t)
         w.tag = t
-        try:
-            w.add(
-                _rows_nipa(
-                    bea.get_data(
-                        "NIPA", TableName=t, Frequency="A,Q,M", Year="ALL"
-                    )
-                )
-            )
-        except bea.BEAError as e:
-            print(f"  [nipa] {t} skipped: {e.desc}")
-            continue
+        w.add(fetch_nipa_table(t))
         w.flush()
         _progress_add("nipa", t)
         if i % 25 == 0:
@@ -356,8 +154,7 @@ def run_nipa():
 
 
 def run_gdp_by_industry():
-    tids = bea.param_values("GDPbyIndustry", "TableID")
-    desc = {x["key"]: (x["desc"] or "").strip() for x in tids}
+    tids = gi_tables()
     done = _progress_load("gdp_by_industry")
     print(f"[gdp_by_industry] {len(tids)} tables")
     w = Writer("gdp_by_industry")
@@ -367,23 +164,7 @@ def run_gdp_by_industry():
             continue
         _purge_tag("gdp_by_industry", tid)
         w.tag = tid
-        for freq in ("A", "Q"):
-            try:
-                w.add(
-                    _rows_gi(
-                        bea.get_data(
-                            "GDPbyIndustry",
-                            TableID=tid,
-                            Industry="ALL",
-                            Frequency=freq,
-                            Year="ALL",
-                        ),
-                        desc.get(tid, ""),
-                    )
-                )
-            except bea.BEAError as e:
-                print(f"  [gi] T{tid} {freq} skipped: {e.desc}")
-                continue
+        w.add(fetch_gi_table(tid, (x["desc"] or "").strip()))
         w.flush()
         _progress_add("gdp_by_industry", tid)
     w.flush()
@@ -392,7 +173,7 @@ def run_gdp_by_industry():
 
 
 def _run_regional(table_key, prefixes, geofips, level):
-    tabs = _regional_tables(prefixes)
+    tabs = regional_table_names(prefixes)
     done = _progress_load(table_key)
     print(
         f"[{table_key}] {len(tabs)} BEA tables ({','.join(prefixes)}) @ GeoFips={geofips} "
@@ -405,95 +186,42 @@ def _run_regional(table_key, prefixes, geofips, level):
             continue
         _purge_tag(table_key, t)
         w.tag = t
-        ldesc = _line_desc_map("Regional", t)
-        codes = list(ldesc.keys())
         before = w.total + len(w.buf)
-        for lc in codes:
-            try:
-                api = bea.get_data(
-                    "Regional",
-                    TableName=t,
-                    LineCode=lc,
-                    GeoFips=geofips,
-                    Year="ALL",
-                )
-            except bea.BEAError as e:
-                if e.code in ("204", "100"):  # no data / invalid line
-                    continue
-                print(f"  [{table_key}] {t} line {lc}: {e.desc}")
-                continue
-            w.add(_rows_regional(api, t, lc, ldesc.get(lc, ""), level))
+        for batch in fetch_regional_table(t, geofips, level):
+            w.add(batch)
         got = w.total + len(w.buf) - before
         w.flush()
         _progress_add(table_key, t)
-        print(
-            f"  [{table_key}] {ti}/{len(tabs)} {t}: {got:,} rows ({len(codes)} lines)"
-        )
+        print(f"  [{table_key}] {ti}/{len(tabs)} {t}: {got:,} rows")
     w.flush()
     _mark_done(table_key, w.total)
     print(f"[{table_key}] done: {w.total:,} rows")
 
 
 def run_regional_state():
-    _run_regional("regional_state", ("SA", "SQ", "PR", "TA"), "STATE", "state")
+    fam = constants.REGIONAL_FAMILIES.value["regional_state"]
+    _run_regional(
+        "regional_state", fam["prefixes"], fam["geofips"], fam["level"]
+    )
 
 
 def run_regional_county():
-    _run_regional("regional_county", ("CA",), "COUNTY", "county")
+    fam = constants.REGIONAL_FAMILIES.value["regional_county"]
+    _run_regional(
+        "regional_county", fam["prefixes"], fam["geofips"], fam["level"]
+    )
 
 
 def run_regional_metro():
-    _run_regional("regional_metro", ("MA",), "MSA", "metro")
-
-
-_FREQ_LABELS = {"A": "Annual", "Q": "Quarterly", "M": "Monthly"}
+    fam = constants.REGIONAL_FAMILIES.value["regional_metro"]
+    _run_regional(
+        "regional_metro", fam["prefixes"], fam["geofips"], fam["level"]
+    )
 
 
 def run_dicionario():
     """Code->label maps for the dictionary-covered columns across all tables."""
-    rows: list[dict] = []
-
-    def add(id_tabela, nome_coluna, chave, valor):
-        rows.append(
-            {
-                "id_tabela": id_tabela,
-                "nome_coluna": nome_coluna,
-                "chave": str(chave),
-                "cobertura_temporal": "",
-                "valor": valor,
-            }
-        )
-
-    # table_name -> description, per db table
-    nipa_tabs = bea.param_values("NIPA", "TableName")
-    for x in nipa_tabs:
-        add("nipa", "table_id", x["key"], x["desc"])
-    reg_tabs = {
-        x["key"]: x["desc"] for x in bea.param_values("Regional", "TableName")
-    }
-    fam = {
-        "regional_state": ("SA", "SQ", "PR", "TA"),
-        "regional_county": ("CA",),
-        "regional_metro": ("MA",),
-    }
-    for dbt_tbl, prefs in fam.items():
-        for code, desc in reg_tabs.items():
-            if any(code.startswith(p) for p in prefs):
-                add(dbt_tbl, "table_id", code, desc)
-    # gdp_by_industry: table_id + industry
-    for x in bea.param_values("GDPbyIndustry", "TableID"):
-        add("gdp_by_industry", "table_id", x["key"], x["desc"])
-    for x in bea.param_values("GDPbyIndustry", "Industry"):
-        add("gdp_by_industry", "industry", x["key"], x["desc"])
-    # frequency labels, per table that has the column
-    for dbt_tbl, freqs in {
-        "nipa": "AQM",
-        "gdp_by_industry": "AQ",
-        "regional_state": "AQ",
-    }.items():
-        for f in freqs:
-            add(dbt_tbl, "frequency", f, _FREQ_LABELS[f])
-
+    rows = build_dicionario_rows()
     outdir = os.path.join(OUTDIR, "dicionario")
     os.makedirs(outdir, exist_ok=True)
     tbl = pa.Table.from_pylist(rows, schema=SCHEMAS["dicionario"])
@@ -501,16 +229,6 @@ def run_dicionario():
     _mark_done("dicionario", len(rows))
     print(f"[dicionario] done: {len(rows):,} rows")
 
-
-SCHEMAS["dicionario"] = _schema(
-    [
-        ("id_tabela", STR),
-        ("nome_coluna", STR),
-        ("chave", STR),
-        ("cobertura_temporal", STR),
-        ("valor", STR),
-    ]
-)
 
 RUNNERS = {
     "nipa": run_nipa,
