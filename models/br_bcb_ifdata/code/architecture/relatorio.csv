@@ -2,6 +2,5 @@ name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory
 ano,INT64,Ano de referência,,no,br_bd_diretorios_data_tempo.ano:ano,,no,Partição,
 mes,INT64,Mês de referência do trimestre (3 março; 6 junho; 9 setembro; 12 dezembro),,no,br_bd_diretorios_data_tempo.mes:mes,,no,,
 id_instituicao,STRING,Código da instituição ou conglomerado atribuído pelo Banco Central,,no,,,no,Liga a instituicao,e
-id_relatorio,STRING,Código do relatório do IF.data (por exemplo 105 Ativo do conglomerado prudencial; 106 Ativo da instituição individual),,yes,,,no,O tipo de consolidado está embutido no relatório; ver a tabela coluna,
-id_coluna,STRING,Código da coluna dentro do relatório,,no,,,no,Liga a coluna; corresponde ao campo ifd do IF.data,ifd
-valor,FLOAT64,Saldo reportado pela instituição,,no,,BRL,no,Valores em reais correntes sem ajuste de inflação,v
+id_coluna,STRING,Código da rubrica reportada,,no,,,no,"Liga a coluna. Uma mesma rubrica aparece em vários relatórios (um por tipo de consolidado) com o mesmo código, por isso o relatório não faz parte da chave desta tabela",i
+valor,FLOAT64,Valor reportado pela instituição para a rubrica,,no,,BRL,no,Valores em reais correntes sem ajuste de inflação,v

@@ -216,3 +216,244 @@ def resolve_id_municipio(
     if doeste in squashed:
         return squashed[doeste]
     return ALIAS_MUNICIPIO.get(key)
+
+
+# ------------------------------------------------------------------- limpeza
+# O staging da BD é todo STRING por convenção da casa (o modelo dbt faz o
+# safe_cast de cada coluna), então o parquet sai com todas as colunas STRING.
+# A conversão passa pelo arrow, nunca por `astype(str)`, que renderiza NULL
+# como a string literal "nan" — que o safe_cast não devolve para NULL.
+
+SCHEMAS: dict[str, list[str]] = {
+    "instituicao": [
+        "ano",
+        "mes",
+        "tipo_consolidado",
+        "id_instituicao",
+        "nome_instituicao",
+        "tcb",
+        "td",
+        "tc",
+        "ti",
+        "sr",
+        "segmento",
+        "id_municipio",
+        "id_conglomerado_financeiro",
+        "id_conglomerado_prudencial",
+        "data_alteracao_segmento",
+    ],
+    "coluna": [
+        "ano",
+        "mes",
+        "id_relatorio",
+        "id_coluna",
+        "tipo_consolidado",
+        "nome_relatorio",
+        "nome_grupo",
+        "nome_coluna",
+        "nome_coluna_ingles",
+        "ordem_coluna",
+    ],
+    "relatorio": ["ano", "mes", "id_instituicao", "id_coluna", "valor"],
+}
+
+# posição -> coluna, para o cadastro (ver `info` com ty=0; `lid` é o índice cN)
+_CADASTRO = {
+    "id_instituicao": "c0",
+    "nome_instituicao": "c2",
+    "tcb": "c3",
+    "td": "c4",
+    "tc": "c6",
+    "segmento": "c8",
+    "ti": "c13",
+    "id_conglomerado_financeiro": "c14",
+    "id_conglomerado_prudencial": "c15",
+    "data_alteracao_segmento": "c20",
+    "sr": "c32",
+}
+
+
+def _clean_str(v: Any) -> str | None:
+    """Normaliza para string, preservando NULL — nunca devolve "nan"."""
+    if v is None:
+        return None
+    s = str(v).strip()
+    return s or None
+
+
+def _write_table(rows: list[dict], table: str, ano: int, dt: int, outdir):
+    """Grava `outdir/<table>/ano=<ano>/data_<dt>.parquet`, tudo STRING."""
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    cols = SCHEMAS[table]
+    arrays = [
+        pa.array([_clean_str(r.get(c)) for r in rows], type=pa.string())
+        for c in cols
+    ]
+    tbl = pa.Table.from_arrays(arrays, names=cols)
+    dest = outdir / table / f"ano={ano}"
+    dest.mkdir(parents=True, exist_ok=True)
+    pq.write_table(tbl, dest / f"data_{dt}.parquet", compression="snappy")
+
+
+def _walk_colunas(cols: list[dict], info: dict, grupo: str | None = None):
+    """Percorre as colunas de um relatório, descendo um nível em `sc`.
+
+    As colunas de primeiro nível de vários relatórios são apenas **cabeçalhos
+    de grupo** (por exemplo `Empréstimo com Consignação em Folha`), e as
+    medidas ficam em `sc` (as faixas de vencimento). O relatório 123 tem 18
+    colunas de primeiro nível e 56 subcolunas. Ignorar `sc` perde ~88% das
+    células, então a varredura precisa ser recursiva.
+
+    Devolve `(coluna, entrada_info, nome_do_grupo)` só para as folhas com
+    `ty=1` e `lid` válido — `ty=0` é atributo cadastral e já está em
+    `instituicao`.
+    """
+    for c in cols:
+        m = info.get(c["ifd"])
+        nome = (m.get("n") or "").replace("\n", " ").strip() if m else None
+        if c.get("sc"):
+            yield from _walk_colunas(c["sc"], info, nome)
+            continue
+        if m is None or m.get("ty") != 1 or m.get("lid") in (None, -1):
+            continue
+        yield c, m, grupo
+
+
+def clean_period(entry, outdir, exact, squashed) -> dict[str, Any]:
+    """Decodifica uma competência e grava o parquet das três tabelas.
+
+    Devolve estatísticas para validação — contagens por tabela, nomes de
+    município não resolvidos e células sem rubrica correspondente. Nada é
+    descartado em silêncio.
+    """
+    import pathlib
+
+    outdir = pathlib.Path(outdir)
+    dt = entry["dt"]
+    ano, mes = divmod(dt, 100)
+    kinds = _files_by_kind(entry)
+
+    info = {i["id"]: i for i in fetch_file(kinds["info"][0])}
+
+    # ---- instituicao (um registro por tipo de consolidado)
+    inst: list[dict] = []
+    unresolved: list[tuple[str, str]] = []
+    for path in sorted(kinds.get("cadastro", [])):
+        tipo = path.rsplit("_", 1)[-1].removesuffix(".json")
+        for r in fetch_file(path):
+            uf = (r.get("c10") or "").strip()
+            cidade = (r.get("c11") or "").strip()
+            id_mun = (
+                resolve_id_municipio(uf, cidade, exact, squashed)
+                if cidade
+                else None
+            )
+            if cidade and id_mun is None:
+                unresolved.append((uf, cidade))
+            row = {"ano": ano, "mes": mes, "tipo_consolidado": tipo}
+            row.update({k: r.get(src) for k, src in _CADASTRO.items()})
+            row["id_municipio"] = id_mun
+            inst.append(row)
+
+    # ---- coluna (definições vêm do próprio índice, em `trel`)
+    colunas: list[dict] = []
+    rotulada: set[int] = set()
+    for f in entry["files"]:
+        t = f.get("trel")
+        if not t:
+            continue
+        tipos = [str(s["id"]) for s in (t.get("s") or [])]
+        for c, m, grupo in _walk_colunas(t.get("c", []), info):
+            rotulada.add(m["lid"])
+            colunas.append(
+                {
+                    "ano": ano,
+                    "mes": mes,
+                    "id_relatorio": str(t["id"]),
+                    "id_coluna": str(m["lid"]),
+                    "tipo_consolidado": tipos[0] if tipos else None,
+                    "nome_relatorio": t.get("n"),
+                    "nome_grupo": grupo,
+                    "nome_coluna": (m.get("n") or "")
+                    .replace("\n", " ")
+                    .strip(),
+                    "nome_coluna_ingles": (m.get("ni") or "")
+                    .replace("\n", " ")
+                    .strip(),
+                    "ordem_coluna": c.get("o"),
+                }
+            )
+
+    # ---- relatorio (fato) — é exatamente o mapa de células
+    cells = build_cell_map(kinds.get("dados", []))
+
+    # Nem toda rubrica presente nos dados é referenciada por um relatório da
+    # competência: em 2026-03 são 258 de 631 (~43% das células), séries antigas
+    # que o IF.data ainda publica mas não exibe mais. Elas têm nome em `info`,
+    # então entram em `coluna` com `id_relatorio` nulo em vez de ficarem sem
+    # rótulo — nenhum valor é descartado.
+    por_lid: dict[int, dict] = {}
+    for i in info.values():
+        if i.get("ty") == 1 and isinstance(i.get("lid"), int):
+            por_lid.setdefault(i["lid"], i)
+
+    orfas = {lid for cm in cells.values() for lid in cm} - rotulada
+    for lid in sorted(orfas):
+        m = por_lid.get(lid)
+        colunas.append(
+            {
+                "ano": ano,
+                "mes": mes,
+                "id_relatorio": None,
+                "id_coluna": str(lid),
+                "tipo_consolidado": None,
+                "nome_relatorio": None,
+                "nome_grupo": None,
+                "nome_coluna": (m.get("n") or "").replace("\n", " ").strip()
+                if m
+                else None,
+                "nome_coluna_ingles": (m.get("ni") or "")
+                .replace("\n", " ")
+                .strip()
+                if m
+                else None,
+                "ordem_coluna": None,
+            }
+        )
+
+    fato: list[dict] = []
+    sem_rotulo = 0
+    for cod, cellmap in cells.items():
+        for lid, valor in cellmap.items():
+            if valor is None:
+                continue
+            if lid not in rotulada and lid not in por_lid:
+                sem_rotulo += 1  # nem relatório nem `info` — só aí é órfã real
+            fato.append(
+                {
+                    "ano": ano,
+                    "mes": mes,
+                    "id_instituicao": str(cod),
+                    "id_coluna": str(lid),
+                    "valor": valor,
+                }
+            )
+
+    for table, rows in (
+        ("instituicao", inst),
+        ("coluna", colunas),
+        ("relatorio", fato),
+    ):
+        if rows:
+            _write_table(rows, table, ano, dt, outdir)
+
+    return {
+        "dt": dt,
+        "instituicao": len(inst),
+        "coluna": len(colunas),
+        "relatorio": len(fato),
+        "municipios_nao_resolvidos": unresolved,
+        "celulas_sem_rubrica": sem_rotulo,
+    }
