@@ -1,0 +1,115 @@
+[
+ {
+  "name": "year",
+  "bigquery_type": "INT64",
+  "description_pt": "Ano do programa a que o registro se refere",
+  "description_en": "Program year the record refers to",
+  "description_es": "Año del programa al que se refiere el registro",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+  "measurement_unit": "year",
+  "observations": "Coluna de origem no CMS: program year from the file name."
+ },
+ {
+  "name": "covered_recipient_npi",
+  "bigquery_type": "STRING",
+  "description_pt": "National Provider Identifier (NPI) do médico ou profissional não médico",
+  "description_en": "National Provider Identifier (NPI) of the covered recipient physician or non-physician practitioner",
+  "description_es": "National Provider Identifier (NPI) del médico o profesional no médico",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": true,
+  "observations": "Identificador nacional de prestador; armazenado como STRING por não admitir aritmética. Coluna de origem no CMS: Covered_Recipient_NPI."
+ },
+ {
+  "name": "recipient_id",
+  "bigquery_type": "STRING",
+  "description_pt": "Identificador do beneficiário: perfil do profissional ou CCN do hospital universitário",
+  "description_en": "Recipient identifier: the practitioner profile identifier or the teaching hospital CCN",
+  "description_es": "Identificador del beneficiario: perfil del profesional o CCN del hospital universitario",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Recipient_ID."
+ },
+ {
+  "name": "recipient_type",
+  "bigquery_type": "STRING",
+  "description_pt": "Tipo de beneficiário: médico, profissional não médico ou hospital universitário",
+  "description_en": "Type of recipient: physician, non-physician practitioner or teaching hospital",
+  "description_es": "Tipo de beneficiario: médico, profesional no médico u hospital universitario",
+  "covered_by_dictionary": true,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Recipient_Type."
+ },
+ {
+  "name": "first_name",
+  "bigquery_type": "STRING",
+  "description_pt": "Primeiro nome do profissional beneficiário",
+  "description_en": "First name of the recipient practitioner",
+  "description_es": "Primer nombre del profesional beneficiario",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": true,
+  "observations": "Coluna de origem no CMS: Covered_Recipient_Profile_First_Name."
+ },
+ {
+  "name": "middle_name",
+  "bigquery_type": "STRING",
+  "description_pt": "Nome do meio do profissional beneficiário",
+  "description_en": "Middle name of the recipient practitioner",
+  "description_es": "Segundo nombre del profesional beneficiario",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": true,
+  "observations": "Coluna de origem no CMS: Covered_Recipient_Profile_Middle_Name."
+ },
+ {
+  "name": "last_name",
+  "bigquery_type": "STRING",
+  "description_pt": "Sobrenome do profissional beneficiário",
+  "description_en": "Last name of the recipient practitioner",
+  "description_es": "Apellido del profesional beneficiario",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": true,
+  "observations": "Coluna de origem no CMS: Covered_Recipient_Profile_Last_Name."
+ },
+ {
+  "name": "teaching_hospital_name",
+  "bigquery_type": "STRING",
+  "description_pt": "Nome do hospital universitário, conforme a lista de hospitais universitários do CMS",
+  "description_en": "Name of the teaching hospital, as listed in the CMS teaching hospital list",
+  "description_es": "Nombre del hospital universitario, según la lista de hospitales universitarios del CMS",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Teaching_Hospital_Name."
+ },
+ {
+  "name": "payment_nature_code",
+  "bigquery_type": "STRING",
+  "description_pt": "Código da natureza do pagamento ou transferência de valor",
+  "description_en": "Code of the nature of the payment or other transfer of value",
+  "description_es": "Código de la naturaleza del pago o transferencia de valor",
+  "covered_by_dictionary": true,
+  "has_sensitive_data": false,
+  "observations": "Código numérico da natureza do pagamento; o rótulo correspondente está no dicionário. Coluna de origem no CMS: Nature_Of_Payment_Type_Code."
+ },
+ {
+  "name": "transaction_count",
+  "bigquery_type": "INT64",
+  "description_pt": "Quantidade de transações agregadas no registro",
+  "description_en": "Number of transactions aggregated in the record",
+  "description_es": "Cantidad de transacciones agregadas en el registro",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Contagem adimensional, sem unidade de medida aplicável. Coluna de origem no CMS: Number_of_Transaction."
+ },
+ {
+  "name": "amount_total",
+  "bigquery_type": "FLOAT64",
+  "description_pt": "Valor total agregado no registro, em dólares americanos",
+  "description_en": "Total amount aggregated in the record, in US dollars",
+  "description_es": "Monto total agregado en el registro, en dólares estadounidenses",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "measurement_unit": "usd",
+  "observations": "Coluna de origem no CMS: Total_Amount."
+ }
+]

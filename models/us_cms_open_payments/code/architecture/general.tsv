@@ -27,12 +27,12 @@ covered_recipient_primary_type_3	STRING	Tipo principal de prática do beneficiá
 covered_recipient_primary_type_4	STRING	Tipo principal de prática do beneficiário, tipo 4 de 6	2021(1)2025	yes			no		Covered_Recipient_Primary_Type_4
 covered_recipient_primary_type_5	STRING	Tipo principal de prática do beneficiário, tipo 5 de 6	2021(1)2025	yes			no		Covered_Recipient_Primary_Type_5
 covered_recipient_primary_type_6	STRING	Tipo principal de prática do beneficiário, tipo 6 de 6	2021(1)2025	yes			no		Covered_Recipient_Primary_Type_6
-covered_recipient_specialty_1	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 1 de 6		yes			no		Covered_Recipient_Specialty_1
-covered_recipient_specialty_2	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 2 de 6	2021(1)2025	yes			no		Covered_Recipient_Specialty_2
-covered_recipient_specialty_3	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 3 de 6	2021(1)2025	yes			no		Covered_Recipient_Specialty_3
-covered_recipient_specialty_4	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 4 de 6	2021(1)2025	yes			no		Covered_Recipient_Specialty_4
-covered_recipient_specialty_5	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 5 de 6	2021(1)2025	yes			no		Covered_Recipient_Specialty_5
-covered_recipient_specialty_6	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 6 de 6	2021(1)2025	yes			no		Covered_Recipient_Specialty_6
+covered_recipient_specialty_1	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 1 de 6		no			no		Covered_Recipient_Specialty_1
+covered_recipient_specialty_2	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 2 de 6	2021(1)2025	no			no		Covered_Recipient_Specialty_2
+covered_recipient_specialty_3	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 3 de 6	2021(1)2025	no			no		Covered_Recipient_Specialty_3
+covered_recipient_specialty_4	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 4 de 6	2021(1)2025	no			no		Covered_Recipient_Specialty_4
+covered_recipient_specialty_5	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 5 de 6	2021(1)2025	no			no		Covered_Recipient_Specialty_5
+covered_recipient_specialty_6	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 6 de 6	2021(1)2025	no			no		Covered_Recipient_Specialty_6
 covered_recipient_license_state_1	STRING	Sigla de duas letras do estado da licença profissional, licença 1 de 5		no			no		Covered_Recipient_License_State_code1
 covered_recipient_license_state_2	STRING	Sigla de duas letras do estado da licença profissional, licença 2 de 5		no			no		Covered_Recipient_License_State_code2
 covered_recipient_license_state_3	STRING	Sigla de duas letras do estado da licença profissional, licença 3 de 5		no			no		Covered_Recipient_License_State_code3

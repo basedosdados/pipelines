@@ -17,7 +17,7 @@ country	STRING	País do endereço comercial do pesquisador principal		no			no		P
 province	STRING	Província do endereço comercial do pesquisador principal, quando fora dos Estados Unidos		no			no		Principal_Investigator_[1-5]_Province
 postal_code	STRING	Código postal do endereço comercial do pesquisador principal, quando fora dos Estados Unidos		no			no		Principal_Investigator_[1-5]_Postal_Code
 primary_type_1	STRING	Tipo principal de prática do beneficiário, tipo 1 de 6		yes			no		Principal_Investigator_[1-5]_Primary_Type_1
-specialty_1	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 1 de 6		yes			no		Principal_Investigator_[1-5]_Specialty_1
+specialty_1	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 1 de 6		no			no		Principal_Investigator_[1-5]_Specialty_1
 license_state_1	STRING	Sigla de duas letras do estado da licença profissional, licença 1 de 5		no			no		Principal_Investigator_[1-5]_License_State_code1
 license_state_2	STRING	Sigla de duas letras do estado da licença profissional, licença 2 de 5		no			no		Principal_Investigator_[1-5]_License_State_code2
 license_state_3	STRING	Sigla de duas letras do estado da licença profissional, licença 3 de 5		no			no		Principal_Investigator_[1-5]_License_State_code3
@@ -29,8 +29,8 @@ primary_type_3	STRING	Tipo principal de prática do beneficiário, tipo 3 de 6	2
 primary_type_4	STRING	Tipo principal de prática do beneficiário, tipo 4 de 6	2016(1)2025	yes			no		Principal_Investigator_[1-5]_Primary_Type_4
 primary_type_5	STRING	Tipo principal de prática do beneficiário, tipo 5 de 6	2016(1)2025	yes			no		Principal_Investigator_[1-5]_Primary_Type_5
 primary_type_6	STRING	Tipo principal de prática do beneficiário, tipo 6 de 6	2016(1)2025	yes			no		Principal_Investigator_[1-5]_Primary_Type_6
-specialty_2	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 2 de 6	2016(1)2025	yes			no		Principal_Investigator_[1-5]_Specialty_2
-specialty_3	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 3 de 6	2016(1)2025	yes			no		Principal_Investigator_[1-5]_Specialty_3
-specialty_4	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 4 de 6	2016(1)2025	yes			no		Principal_Investigator_[1-5]_Specialty_4
-specialty_5	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 5 de 6	2016(1)2025	yes			no		Principal_Investigator_[1-5]_Specialty_5
-specialty_6	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 6 de 6	2016(1)2025	yes			no		Principal_Investigator_[1-5]_Specialty_6
+specialty_2	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 2 de 6	2016(1)2025	no			no		Principal_Investigator_[1-5]_Specialty_2
+specialty_3	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 3 de 6	2016(1)2025	no			no		Principal_Investigator_[1-5]_Specialty_3
+specialty_4	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 4 de 6	2016(1)2025	no			no		Principal_Investigator_[1-5]_Specialty_4
+specialty_5	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 5 de 6	2016(1)2025	no			no		Principal_Investigator_[1-5]_Specialty_5
+specialty_6	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 6 de 6	2016(1)2025	no			no		Principal_Investigator_[1-5]_Specialty_6

@@ -1,0 +1,109 @@
+"""Upload the cleaned parquet to BigQuery staging in basedosdados-dev.
+
+    uv run python upload.py                # every table
+    uv run python upload.py general        # one table
+
+Each table's BigQuery row count is checked against the local parquet row count
+and the run stops at the first mismatch, so a partial upload never passes for
+a complete one.
+
+Requires GOOGLE_APPLICATION_CREDENTIALS pointing at a dev service-account key
+and ~/.basedosdados/config.toml. The bucket is requester-pays, so
+gcs.Client.bucket is pinned to the billing project.
+"""
+
+import sys
+
+import basedosdados as bd
+import constants as c
+import google.cloud.storage as gcs
+import layout
+import pyarrow as pa
+import pyarrow.parquet as pq
+
+BILLING_PROJECT = "basedosdados-dev"
+
+_original_bucket = gcs.Client.bucket
+
+
+def _bucket(self, bucket_name, user_project=None):
+    return _original_bucket(self, bucket_name, user_project=BILLING_PROJECT)
+
+
+gcs.Client.bucket = _bucket
+
+
+def write_header_stub(table: str) -> None:
+    """Seed a 0-row parquet that sorts first in the staging prefix.
+
+    The table-approve action infers a table's schema by reading the first blob
+    in the prefix with pandas, loading the whole file to learn only its column
+    names. On a multi-million-row partition that exhausts the CI runner and
+    prod materialisation dies with no traceback. A 0-row file named so it
+    sorts ahead of "year=..." is read instead, and contributes no rows.
+    """
+    if table in layout.UNPARTITIONED:
+        return
+    root = c.OUTPUT_DIR / table
+    first = sorted(root.glob("year=*/data.parquet"))[0]
+    stub = root / "00_header.parquet"
+    schema = pq.read_schema(first)
+    pq.write_table(
+        pa.Table.from_pylist([], schema=schema), stub, compression="snappy"
+    )
+
+
+def local_rows(table: str) -> tuple[int, int]:
+    files = sorted((c.OUTPUT_DIR / table).rglob("*.parquet"))
+    return sum(pq.ParquetFile(f).metadata.num_rows for f in files), len(files)
+
+
+def expected_files(table: str) -> int:
+    if table in layout.UNPARTITIONED:
+        return 1
+    # One parquet per program year, plus the 0-row header stub.
+    return len(layout.COVERAGE[table]) + 1
+
+
+def upload_table(table: str) -> int:
+    path = c.OUTPUT_DIR / table
+    write_header_stub(table)
+    rows, files = local_rows(table)
+    want = expected_files(table)
+    print(f"[{table}] local: {rows:,} rows across {files} parquet file(s)")
+    if files != want:
+        raise ValueError(
+            f"{table}: found {files} parquet file(s), expected {want}. "
+            "Finish run_all.py before uploading."
+        )
+
+    storage = bd.Storage(dataset_id=c.GCP_DATASET_ID, table_id=table)
+    storage.delete_table(mode="staging", not_found_ok=True)
+
+    bd.Table(dataset_id=c.GCP_DATASET_ID, table_id=table).create(
+        path=str(path),
+        source_format="parquet",
+        if_table_exists="replace",
+        if_storage_data_exists="replace",
+        if_dataset_exists="pass",
+    )
+
+    query = f"select count(*) as n from `{BILLING_PROJECT}.{c.GCP_DATASET_ID}_staging.{table}`"
+    got = int(
+        bd.read_sql(query, billing_project_id=BILLING_PROJECT, from_file=True)[
+            "n"
+        ].iloc[0]
+    )
+    verdict = "MATCH" if got == rows else "MISMATCH"
+    print(f"[{table}] uploaded - bigquery={got:,} local={rows:,} {verdict}")
+    if got != rows:
+        raise ValueError(f"row count mismatch for {table}")
+    return got
+
+
+if __name__ == "__main__":
+    targets = sys.argv[1:] or list(layout.LAYOUT)
+    total = 0
+    for table in targets:
+        total += upload_table(table)
+    print(f"\n{len(targets)} table(s) uploaded, {total:,} rows")

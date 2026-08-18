@@ -1,0 +1,44 @@
+[
+ {
+  "name": "year",
+  "bigquery_type": "INT64",
+  "description_pt": "Ano do programa a que o registro se refere",
+  "description_en": "Program year the record refers to",
+  "description_es": "Año del programa al que se refiere el registro",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+  "measurement_unit": "year",
+  "observations": "Coluna de origem no CMS: PY_<year> column header."
+ },
+ {
+  "name": "dashboard_row_number",
+  "bigquery_type": "STRING",
+  "description_pt": "Número da linha da métrica no painel resumo publicado pelo CMS",
+  "description_en": "Row number of the metric in the summary dashboard published by CMS",
+  "description_es": "Número de fila de la métrica en el panel resumen publicado por el CMS",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Dashboard_Row_Number."
+ },
+ {
+  "name": "metric",
+  "bigquery_type": "STRING",
+  "description_pt": "Nome da métrica agregada do painel resumo",
+  "description_en": "Name of the aggregated metric in the summary dashboard",
+  "description_es": "Nombre de la métrica agregada del panel resumen",
+  "covered_by_dictionary": true,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Data_Metrics."
+ },
+ {
+  "name": "value",
+  "bigquery_type": "FLOAT64",
+  "description_pt": "Valor da métrica no ano do programa",
+  "description_en": "Value of the metric in the program year",
+  "description_es": "Valor de la métrica en el año del programa",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "A unidade varia por linha: algumas métricas do painel são valores em dólares americanos e outras são contagens de registros. Ver a coluna metric. Coluna de origem no CMS: PY_<year>."
+ }
+]

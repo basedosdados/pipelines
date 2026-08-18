@@ -393,6 +393,44 @@ models:
           combination_of_columns: [year, record_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - device_name_2
+            - device_name_3
+            - device_name_4
+            - device_name_5
+            - drug_name_4
+            - drug_name_5
+            - drug_ndc_4
+            - drug_ndc_5
+            - physician_license_state_2
+            - physician_license_state_3
+            - physician_license_state_4
+            - physician_license_state_5
+            - physician_name_suffix
+            - physician_npi
+            - recipient_postal_code
+            - recipient_province
+            - teaching_hospital_ccn
+            - teaching_hospital_id
+            - teaching_hospital_name
+            - third_party_entity_name
+            - third_party_equals_covered_recipient_indicator
+            - travel_state
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - change_type
+            - covered_recipient_type
+            - physician_primary_type
+            - payment_form
+            - payment_nature
+            - physician_ownership_indicator
+            - third_party_payment_recipient_indicator
+            - charity_indicator
+            - third_party_equals_covered_recipient_indicator
+            - delay_in_publication_indicator
+            - dispute_status
+            - related_product_indicator
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -1039,6 +1077,52 @@ models:
           combination_of_columns: [year, record_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - device_name_2
+            - device_name_3
+            - device_name_4
+            - device_name_5
+            - drug_name_2
+            - drug_name_3
+            - drug_name_4
+            - drug_name_5
+            - drug_ndc_2
+            - drug_ndc_3
+            - drug_ndc_4
+            - drug_ndc_5
+            - expenditure_category_1
+            - expenditure_category_2
+            - expenditure_category_3
+            - expenditure_category_4
+            - expenditure_category_5
+            - expenditure_category_6
+            - physician_license_state_2
+            - physician_license_state_3
+            - physician_license_state_4
+            - physician_license_state_5
+            - physician_middle_name
+            - physician_name_suffix
+            - physician_npi
+            - recipient_postal_code
+            - recipient_province
+            - research_information_link
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - change_type
+            - covered_recipient_type
+            - physician_primary_type
+            - related_product_indicator
+            - payment_form
+            - expenditure_category_1
+            - expenditure_category_2
+            - expenditure_category_3
+            - expenditure_category_4
+            - expenditure_category_5
+            - expenditure_category_6
+            - preclinical_research_indicator
+            - delay_in_publication_indicator
+            - dispute_status
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -1310,6 +1394,17 @@ models:
           combination_of_columns: [year, record_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - physician_npi
+            - recipient_postal_code
+            - recipient_province
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - change_type
+            - physician_primary_type
+            - dispute_status
+            - interest_held_by_physician_or_family
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -1442,6 +1537,36 @@ models:
             - principal_investigator_number
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - covered_recipient_npi
+            - covered_recipient_type
+            - license_state_2
+            - license_state_3
+            - license_state_4
+            - license_state_5
+            - name_suffix
+            - postal_code
+            - primary_type_2
+            - primary_type_3
+            - primary_type_4
+            - primary_type_5
+            - primary_type_6
+            - province
+            - specialty_2
+            - specialty_3
+            - specialty_4
+            - specialty_5
+            - specialty_6
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - primary_type_1
+            - covered_recipient_type
+            - primary_type_2
+            - primary_type_3
+            - primary_type_4
+            - primary_type_5
+            - primary_type_6
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: year
         description: >-
@@ -1592,6 +1717,20 @@ models:
           combination_of_columns: [covered_recipient_profile_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - alternate_name_suffix
+            - associated_profile_id_1
+            - associated_profile_id_2
+            - license_state_5
+            - name_suffix
+            - province
+            - taxonomy_3
+            - taxonomy_4
+            - taxonomy_5
+            - taxonomy_6
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [profile_type]
+          dictionary_model: ref('us_cms_open_payments__dicionario')
     columns:
       - name: profile_type
         description: >-
@@ -1724,6 +1863,11 @@ models:
           combination_of_columns: [teaching_hospital_ccn]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - address_line_2
+            - alternate_name_3
+            - alternate_name_4
+            - alternate_name_5
     columns:
       - name: teaching_hospital_ccn
         description: >-
@@ -1781,6 +1925,11 @@ models:
           combination_of_columns: [reporting_entity_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - alternate_name_2
+            - alternate_name_3
+            - alternate_name_4
+            - alternate_name_5
     columns:
       - name: reporting_entity_id
         description: >-

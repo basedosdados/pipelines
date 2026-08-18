@@ -22,7 +22,7 @@ recipient_country	STRING	País do endereço comercial principal do beneficiário
 recipient_province	STRING	Província do endereço comercial principal do beneficiário, quando fora dos Estados Unidos		no			no		Recipient_Province
 recipient_postal_code	STRING	Código postal do endereço comercial principal do beneficiário, quando fora dos Estados Unidos		no			yes		Recipient_Postal_Code
 physician_primary_type	STRING	Tipo principal de prática do médico		yes			no		Physician_Primary_Type
-physician_specialty	STRING	Especialidade do médico na taxonomia padronizada de prestadores		yes			no		Physician_Specialty
+physician_specialty	STRING	Especialidade do médico na taxonomia padronizada de prestadores		no			no		Physician_Specialty
 physician_license_state_1	STRING	Sigla de duas letras do estado da licença profissional, licença 1 de 5		no			no		Physician_License_State_code1
 physician_license_state_2	STRING	Sigla de duas letras do estado da licença profissional, licença 2 de 5		no			no		Physician_License_State_code2
 physician_license_state_3	STRING	Sigla de duas letras do estado da licença profissional, licença 3 de 5		no			no		Physician_License_State_code3

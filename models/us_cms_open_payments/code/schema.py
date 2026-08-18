@@ -93,8 +93,6 @@ DICTIONARY_EXACT = {
     "preclinical_research_indicator",
     "interest_held_by_physician_or_family",
     "physician_primary_type",
-    "physician_specialty",
-    "primary_specialty",
     "has_multiple_ids",
     "metric_level",
     "metric",
@@ -102,9 +100,7 @@ DICTIONARY_EXACT = {
 
 DICTIONARY_PATTERNS = [
     re.compile(r"^covered_recipient_primary_type_\d$"),
-    re.compile(r"^covered_recipient_specialty_\d$"),
     re.compile(r"^primary_type_\d$"),
-    re.compile(r"^specialty_\d$"),
     re.compile(r"^product_covered_indicator_\d$"),
     re.compile(r"^product_type_\d$"),
     re.compile(r"^expenditure_category_\d$"),

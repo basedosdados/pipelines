@@ -1,0 +1,92 @@
+[
+ {
+  "name": "reporting_entity_id",
+  "bigquery_type": "STRING",
+  "description_pt": "Identificador único do fabricante ou GPO que declarou o pagamento",
+  "description_en": "Unique identifier of the applicable manufacturer or GPO that reported the payment",
+  "description_es": "Identificador único del fabricante o GPO que declaró el pago",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: AMGPO_Making_Payment_ID."
+ },
+ {
+  "name": "name",
+  "bigquery_type": "STRING",
+  "description_pt": "Nome do fabricante ou GPO declarante",
+  "description_en": "Name of the applicable manufacturer or GPO",
+  "description_es": "Nombre del fabricante o GPO declarante",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: AMGPO_Making_Payment_Name."
+ },
+ {
+  "name": "state",
+  "bigquery_type": "STRING",
+  "description_pt": "Sigla de duas letras do estado do fabricante ou GPO declarante",
+  "description_en": "Two-letter state abbreviation of the applicable manufacturer or GPO",
+  "description_es": "Sigla de dos letras del estado del fabricante o GPO declarante",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: AMGPO_Making_Payment_State."
+ },
+ {
+  "name": "country",
+  "bigquery_type": "STRING",
+  "description_pt": "País do fabricante ou GPO declarante",
+  "description_en": "Country of the applicable manufacturer or GPO",
+  "description_es": "País del fabricante o GPO declarante",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: AMGPO_Making_Payment_Country."
+ },
+ {
+  "name": "alternate_name_1",
+  "bigquery_type": "STRING",
+  "description_pt": "Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome 1 de 5",
+  "description_en": "Alternate name under which the manufacturer or GPO is also recorded, name 1 of 5",
+  "description_es": "Nombre alternativo bajo el cual el fabricante o GPO también está registrado, nombre 1 de 5",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: AMGPO_Making_Payment_Alternate_Name1."
+ },
+ {
+  "name": "alternate_name_2",
+  "bigquery_type": "STRING",
+  "description_pt": "Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome 2 de 5",
+  "description_en": "Alternate name under which the manufacturer or GPO is also recorded, name 2 of 5",
+  "description_es": "Nombre alternativo bajo el cual el fabricante o GPO también está registrado, nombre 2 de 5",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: AMGPO_Making_Payment_Alternate_Name2."
+ },
+ {
+  "name": "alternate_name_3",
+  "bigquery_type": "STRING",
+  "description_pt": "Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome 3 de 5",
+  "description_en": "Alternate name under which the manufacturer or GPO is also recorded, name 3 of 5",
+  "description_es": "Nombre alternativo bajo el cual el fabricante o GPO también está registrado, nombre 3 de 5",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: AMGPO_Making_Payment_Alternate_Name3."
+ },
+ {
+  "name": "alternate_name_4",
+  "bigquery_type": "STRING",
+  "description_pt": "Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome 4 de 5",
+  "description_en": "Alternate name under which the manufacturer or GPO is also recorded, name 4 of 5",
+  "description_es": "Nombre alternativo bajo el cual el fabricante o GPO también está registrado, nombre 4 de 5",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: AMGPO_Making_Payment_Alternate_Name4."
+ },
+ {
+  "name": "alternate_name_5",
+  "bigquery_type": "STRING",
+  "description_pt": "Nome alternativo pelo qual o fabricante ou GPO também é registrado, nome 5 de 5",
+  "description_en": "Alternate name under which the manufacturer or GPO is also recorded, name 5 of 5",
+  "description_es": "Nombre alternativo bajo el cual el fabricante o GPO también está registrado, nombre 5 de 5",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: AMGPO_Making_Payment_Alternate_Name5."
+ }
+]

@@ -18,7 +18,7 @@ state	STRING	Sigla de duas letras do estado do endereço de prática do profissi
 zip_code	STRING	CEP do endereço de prática do profissional		no			yes		Covered_Recipient_Profile_Zipcode
 country	STRING	País do endereço de prática do profissional		no			no		Covered_Recipient_Profile_Country_Name
 province	STRING	Província do endereço de prática do profissional, quando fora dos Estados Unidos		no			no		Covered_Recipient_Profile_Province_Name
-primary_specialty	STRING	Especialidade principal do profissional na taxonomia padronizada de prestadores		yes			no		Covered_Recipient_Profile_Primary_Specialty
+primary_specialty	STRING	Especialidade principal do profissional na taxonomia padronizada de prestadores		no			no		Covered_Recipient_Profile_Primary_Specialty
 license_state_1	STRING	Sigla de duas letras do estado da licença profissional, licença 1 de 5		no			no		Covered_Recipient_Profile_License_State_Code_1
 license_state_2	STRING	Sigla de duas letras do estado da licença profissional, licença 2 de 5		no			no		Covered_Recipient_Profile_License_State_Code_2
 license_state_3	STRING	Sigla de duas letras do estado da licença profissional, licença 3 de 5		no			no		Covered_Recipient_Profile_License_State_Code_3

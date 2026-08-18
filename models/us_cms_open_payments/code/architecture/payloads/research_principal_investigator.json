@@ -1,0 +1,367 @@
+[
+ {
+  "name": "year",
+  "bigquery_type": "INT64",
+  "description_pt": "Ano do programa a que o registro se refere",
+  "description_en": "Program year the record refers to",
+  "description_es": "Año del programa al que se refiere el registro",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+  "measurement_unit": "year",
+  "observations": "Coluna de origem no CMS: Program_Year."
+ },
+ {
+  "name": "record_id",
+  "bigquery_type": "STRING",
+  "description_pt": "Identificador único do registro de pagamento atribuído pelo sistema Open Payments",
+  "description_en": "System-assigned unique identifier of the payment record",
+  "description_es": "Identificador único del registro de pago asignado por el sistema Open Payments",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Record_ID."
+ },
+ {
+  "name": "covered_recipient_profile_id",
+  "bigquery_type": "STRING",
+  "description_pt": "Identificador único do perfil do médico ou profissional não médico que recebeu o pagamento",
+  "description_en": "Unique identifier of the covered recipient physician or non-physician practitioner profile",
+  "description_es": "Identificador único del perfil del médico o profesional no médico que recibió el pago",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Profile_ID."
+ },
+ {
+  "name": "covered_recipient_npi",
+  "bigquery_type": "STRING",
+  "description_pt": "National Provider Identifier (NPI) do médico ou profissional não médico",
+  "description_en": "National Provider Identifier (NPI) of the covered recipient physician or non-physician practitioner",
+  "description_es": "National Provider Identifier (NPI) del médico o profesional no médico",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": true,
+  "observations": "Identificador nacional de prestador; armazenado como STRING por não admitir aritmética. Coluna de origem no CMS: Principal_Investigator_[1-5]_NPI.",
+  "temporal_coverage": "2015(1)2025"
+ },
+ {
+  "name": "principal_investigator_number",
+  "bigquery_type": "STRING",
+  "description_pt": "Posição do pesquisador principal no registro de origem, de 1 a 5",
+  "description_en": "Position of the principal investigator within the source record, 1 to 5",
+  "description_es": "Posición del investigador principal en el registro de origen, de 1 a 5",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_*."
+ },
+ {
+  "name": "first_name",
+  "bigquery_type": "STRING",
+  "description_pt": "Primeiro nome do pesquisador principal",
+  "description_en": "First name of the principal investigator",
+  "description_es": "Primer nombre del investigador principal",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": true,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_First_Name."
+ },
+ {
+  "name": "middle_name",
+  "bigquery_type": "STRING",
+  "description_pt": "Nome do meio do pesquisador principal",
+  "description_en": "Middle name of the principal investigator",
+  "description_es": "Segundo nombre del investigador principal",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": true,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Middle_Name."
+ },
+ {
+  "name": "last_name",
+  "bigquery_type": "STRING",
+  "description_pt": "Sobrenome do pesquisador principal",
+  "description_en": "Last name of the principal investigator",
+  "description_es": "Apellido del investigador principal",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": true,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Last_Name."
+ },
+ {
+  "name": "name_suffix",
+  "bigquery_type": "STRING",
+  "description_pt": "Sufixo do nome do pesquisador principal",
+  "description_en": "Name suffix of the principal investigator",
+  "description_es": "Sufijo del nombre del investigador principal",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": true,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Name_Suffix."
+ },
+ {
+  "name": "address_line_1",
+  "bigquery_type": "STRING",
+  "description_pt": "Primeira linha do endereço comercial do pesquisador principal",
+  "description_en": "First line of the business street address of the principal investigator",
+  "description_es": "Primera línea de la dirección comercial del investigador principal",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": true,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Business_Street_Address_Line1."
+ },
+ {
+  "name": "address_line_2",
+  "bigquery_type": "STRING",
+  "description_pt": "Segunda linha do endereço comercial do pesquisador principal",
+  "description_en": "Second line of the business street address of the principal investigator",
+  "description_es": "Segunda línea de la dirección comercial del investigador principal",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": true,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Business_Street_Address_Line2."
+ },
+ {
+  "name": "city",
+  "bigquery_type": "STRING",
+  "description_pt": "Cidade do endereço comercial do pesquisador principal",
+  "description_en": "City of the business address of the principal investigator",
+  "description_es": "Ciudad de la dirección comercial del investigador principal",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": true,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_City."
+ },
+ {
+  "name": "state",
+  "bigquery_type": "STRING",
+  "description_pt": "Sigla de duas letras do estado do endereço comercial do pesquisador principal",
+  "description_en": "Two-letter state abbreviation of the principal investigator business address",
+  "description_es": "Sigla de dos letras del estado de la dirección comercial del investigador principal",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "directory_column": "br_bd_diretorios_us.state:abbreviation",
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_State."
+ },
+ {
+  "name": "zip_code",
+  "bigquery_type": "STRING",
+  "description_pt": "CEP do endereço comercial do pesquisador principal",
+  "description_en": "ZIP code of the business address of the principal investigator",
+  "description_es": "Código postal de la dirección comercial del investigador principal",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": true,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Zip_Code."
+ },
+ {
+  "name": "country",
+  "bigquery_type": "STRING",
+  "description_pt": "País do endereço comercial do pesquisador principal",
+  "description_en": "Country of the business address of the principal investigator",
+  "description_es": "País de la dirección comercial del investigador principal",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Country."
+ },
+ {
+  "name": "province",
+  "bigquery_type": "STRING",
+  "description_pt": "Província do endereço comercial do pesquisador principal, quando fora dos Estados Unidos",
+  "description_en": "Province of the principal investigator business address, when outside the United States",
+  "description_es": "Provincia de la dirección comercial del investigador principal, cuando está fuera de Estados Unidos",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Province."
+ },
+ {
+  "name": "postal_code",
+  "bigquery_type": "STRING",
+  "description_pt": "Código postal do endereço comercial do pesquisador principal, quando fora dos Estados Unidos",
+  "description_en": "Postal code of the principal investigator business address, when outside the United States",
+  "description_es": "Código postal de la dirección comercial del investigador principal, cuando está fuera de Estados Unidos",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Postal_Code."
+ },
+ {
+  "name": "primary_type_1",
+  "bigquery_type": "STRING",
+  "description_pt": "Tipo principal de prática do beneficiário, tipo 1 de 6",
+  "description_en": "Primary type of medicine practiced by the covered recipient, type 1 of 6",
+  "description_es": "Tipo principal de práctica del beneficiario, tipo 1 de 6",
+  "covered_by_dictionary": true,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Primary_Type_1."
+ },
+ {
+  "name": "specialty_1",
+  "bigquery_type": "STRING",
+  "description_pt": "Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 1 de 6",
+  "description_en": "Specialty of the covered recipient from the standardized provider taxonomy, specialty 1 of 6",
+  "description_es": "Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 1 de 6",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Specialty_1."
+ },
+ {
+  "name": "license_state_1",
+  "bigquery_type": "STRING",
+  "description_pt": "Sigla de duas letras do estado da licença profissional, licença 1 de 5",
+  "description_en": "Two-letter state abbreviation of the professional license, license 1 of 5",
+  "description_es": "Sigla de dos letras del estado de la licencia profesional, licencia 1 de 5",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_License_State_code1."
+ },
+ {
+  "name": "license_state_2",
+  "bigquery_type": "STRING",
+  "description_pt": "Sigla de duas letras do estado da licença profissional, licença 2 de 5",
+  "description_en": "Two-letter state abbreviation of the professional license, license 2 of 5",
+  "description_es": "Sigla de dos letras del estado de la licencia profesional, licencia 2 de 5",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_License_State_code2."
+ },
+ {
+  "name": "license_state_3",
+  "bigquery_type": "STRING",
+  "description_pt": "Sigla de duas letras do estado da licença profissional, licença 3 de 5",
+  "description_en": "Two-letter state abbreviation of the professional license, license 3 of 5",
+  "description_es": "Sigla de dos letras del estado de la licencia profesional, licencia 3 de 5",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_License_State_code3."
+ },
+ {
+  "name": "license_state_4",
+  "bigquery_type": "STRING",
+  "description_pt": "Sigla de duas letras do estado da licença profissional, licença 4 de 5",
+  "description_en": "Two-letter state abbreviation of the professional license, license 4 of 5",
+  "description_es": "Sigla de dos letras del estado de la licencia profesional, licencia 4 de 5",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_License_State_code4."
+ },
+ {
+  "name": "license_state_5",
+  "bigquery_type": "STRING",
+  "description_pt": "Sigla de duas letras do estado da licença profissional, licença 5 de 5",
+  "description_en": "Two-letter state abbreviation of the professional license, license 5 of 5",
+  "description_es": "Sigla de dos letras del estado de la licencia profesional, licencia 5 de 5",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_License_State_code5."
+ },
+ {
+  "name": "covered_recipient_type",
+  "bigquery_type": "STRING",
+  "description_pt": "Tipo de beneficiário do pesquisador principal, preenchido a partir do ano do programa 2016",
+  "description_en": "Covered recipient type of the principal investigator, populated from program year 2016 onwards",
+  "description_es": "Tipo de beneficiario del investigador principal, completado a partir del año del programa 2016",
+  "covered_by_dictionary": true,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Covered_Recipient_Type.",
+  "temporal_coverage": "2016(1)2025"
+ },
+ {
+  "name": "primary_type_2",
+  "bigquery_type": "STRING",
+  "description_pt": "Tipo principal de prática do beneficiário, tipo 2 de 6",
+  "description_en": "Primary type of medicine practiced by the covered recipient, type 2 of 6",
+  "description_es": "Tipo principal de práctica del beneficiario, tipo 2 de 6",
+  "covered_by_dictionary": true,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Primary_Type_2.",
+  "temporal_coverage": "2016(1)2025"
+ },
+ {
+  "name": "primary_type_3",
+  "bigquery_type": "STRING",
+  "description_pt": "Tipo principal de prática do beneficiário, tipo 3 de 6",
+  "description_en": "Primary type of medicine practiced by the covered recipient, type 3 of 6",
+  "description_es": "Tipo principal de práctica del beneficiario, tipo 3 de 6",
+  "covered_by_dictionary": true,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Primary_Type_3.",
+  "temporal_coverage": "2016(1)2025"
+ },
+ {
+  "name": "primary_type_4",
+  "bigquery_type": "STRING",
+  "description_pt": "Tipo principal de prática do beneficiário, tipo 4 de 6",
+  "description_en": "Primary type of medicine practiced by the covered recipient, type 4 of 6",
+  "description_es": "Tipo principal de práctica del beneficiario, tipo 4 de 6",
+  "covered_by_dictionary": true,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Primary_Type_4.",
+  "temporal_coverage": "2016(1)2025"
+ },
+ {
+  "name": "primary_type_5",
+  "bigquery_type": "STRING",
+  "description_pt": "Tipo principal de prática do beneficiário, tipo 5 de 6",
+  "description_en": "Primary type of medicine practiced by the covered recipient, type 5 of 6",
+  "description_es": "Tipo principal de práctica del beneficiario, tipo 5 de 6",
+  "covered_by_dictionary": true,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Primary_Type_5.",
+  "temporal_coverage": "2016(1)2025"
+ },
+ {
+  "name": "primary_type_6",
+  "bigquery_type": "STRING",
+  "description_pt": "Tipo principal de prática do beneficiário, tipo 6 de 6",
+  "description_en": "Primary type of medicine practiced by the covered recipient, type 6 of 6",
+  "description_es": "Tipo principal de práctica del beneficiario, tipo 6 de 6",
+  "covered_by_dictionary": true,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Primary_Type_6.",
+  "temporal_coverage": "2016(1)2025"
+ },
+ {
+  "name": "specialty_2",
+  "bigquery_type": "STRING",
+  "description_pt": "Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 2 de 6",
+  "description_en": "Specialty of the covered recipient from the standardized provider taxonomy, specialty 2 of 6",
+  "description_es": "Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 2 de 6",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Specialty_2.",
+  "temporal_coverage": "2016(1)2025"
+ },
+ {
+  "name": "specialty_3",
+  "bigquery_type": "STRING",
+  "description_pt": "Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 3 de 6",
+  "description_en": "Specialty of the covered recipient from the standardized provider taxonomy, specialty 3 of 6",
+  "description_es": "Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 3 de 6",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Specialty_3.",
+  "temporal_coverage": "2016(1)2025"
+ },
+ {
+  "name": "specialty_4",
+  "bigquery_type": "STRING",
+  "description_pt": "Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 4 de 6",
+  "description_en": "Specialty of the covered recipient from the standardized provider taxonomy, specialty 4 of 6",
+  "description_es": "Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 4 de 6",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Specialty_4.",
+  "temporal_coverage": "2016(1)2025"
+ },
+ {
+  "name": "specialty_5",
+  "bigquery_type": "STRING",
+  "description_pt": "Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 5 de 6",
+  "description_en": "Specialty of the covered recipient from the standardized provider taxonomy, specialty 5 of 6",
+  "description_es": "Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 5 de 6",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Specialty_5.",
+  "temporal_coverage": "2016(1)2025"
+ },
+ {
+  "name": "specialty_6",
+  "bigquery_type": "STRING",
+  "description_pt": "Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 6 de 6",
+  "description_en": "Specialty of the covered recipient from the standardized provider taxonomy, specialty 6 of 6",
+  "description_es": "Especialidad del beneficiario en la taxonomía estandarizada de prestadores, especialidad 6 de 6",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations": "Coluna de origem no CMS: Principal_Investigator_[1-5]_Specialty_6.",
+  "temporal_coverage": "2016(1)2025"
+ }
+]
