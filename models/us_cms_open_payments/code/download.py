@@ -9,6 +9,7 @@ in the repo or in Dropbox -- see constants.DATA_ROOT.
     uv run python download.py summary
 """
 
+import concurrent.futures as cf
 import shutil
 import subprocess
 import sys
@@ -67,44 +68,74 @@ def _fetch_serial(url: str, tmp) -> None:
     )
 
 
+def _chunk(url: str, part, first: int, last: int, attempts: int = 5) -> None:
+    """Fetch one byte range, resuming from whatever is already on disk.
+
+    download.cms.gov stalls a connection now and then; curl reports it as
+    "Recv failure: Operation timed out" and its own --retry does not cover a
+    mid-transfer stall. --speed-limit turns a stall into a fast failure, and
+    each attempt resumes from the bytes already fetched rather than starting
+    the whole 800 MB chunk again.
+    """
+    wanted = last - first + 1
+    for attempt in range(attempts):
+        have = part.stat().st_size if part.exists() else 0
+        if have >= wanted:
+            return
+        piece = part.with_suffix(part.suffix + ".resume")
+        result = subprocess.run(
+            [
+                "curl",
+                "-fsS",
+                "--retry",
+                "3",
+                "--retry-delay",
+                "5",
+                "--retry-all-errors",
+                "--speed-limit",
+                "102400",
+                "--speed-time",
+                "30",
+                "-r",
+                f"{first + have}-{last}",
+                url,
+                "-o",
+                str(piece),
+            ]
+        )
+        if piece.exists() and piece.stat().st_size:
+            with open(part, "ab") as out, open(piece, "rb") as chunk:
+                shutil.copyfileobj(chunk, out, length=8 << 20)
+            piece.unlink()
+        if result.returncode == 0 and part.stat().st_size >= wanted:
+            return
+        print(f"    retry {attempt + 1}/{attempts} for bytes {first}-{last}")
+    raise RuntimeError(
+        f"chunk {first}-{last} of {url} failed after {attempts} attempts"
+    )
+
+
 def _fetch_parallel(url: str, tmp, size: int) -> None:
     span = -(-size // PARALLEL_CHUNKS)
-    parts = [
-        tmp.with_suffix(f"{tmp.suffix}.{i:02d}")
-        for i in range(PARALLEL_CHUNKS)
-    ]
-    running = []
-    for index, part in enumerate(parts):
-        start = index * span
-        end = min(start + span, size) - 1
-        if start > end:
-            part.write_bytes(b"")
-            continue
-        running.append(
-            subprocess.Popen(
-                [
-                    "curl",
-                    "-fsS",
-                    "--retry",
-                    "3",
-                    "--retry-delay",
-                    "5",
-                    "-r",
-                    f"{start}-{end}",
-                    url,
-                    "-o",
-                    str(part),
-                ]
+    ranges = []
+    for index in range(PARALLEL_CHUNKS):
+        first = index * span
+        last = min(first + span, size) - 1
+        if first <= last:
+            ranges.append(
+                (tmp.with_suffix(f"{tmp.suffix}.{index:02d}"), first, last)
             )
-        )
-    for process in running:
-        if process.wait() != 0:
-            raise RuntimeError(f"chunk download failed for {url}")
+
+    with cf.ThreadPoolExecutor(max_workers=len(ranges)) as pool:
+        futures = [
+            pool.submit(_chunk, url, part, first, last)
+            for part, first, last in ranges
+        ]
+        for future in futures:
+            future.result()
 
     with open(tmp, "wb") as out:
-        for part in parts:
-            if not part.exists():
-                continue
+        for part, _, _ in ranges:
             with open(part, "rb") as chunk:
                 shutil.copyfileobj(chunk, out, length=8 << 20)
             part.unlink()
