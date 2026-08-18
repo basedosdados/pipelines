@@ -27,6 +27,34 @@ CAST = {
     "DATE": "safe_cast({c} as date) {c}",
 }
 
+# Filers mistype transaction dates, and the FEC publishes what was filed: the raw
+# data carries dates from 1899 to 2202. There are only ~128 such rows across 79M,
+# but they are not harmless — the BD Pro rolling window is computed as
+# max(transaction_date) - free_lag, so a single row dated 2202 puts free_end 176
+# years in the future and silently drops the entire table into the free tier.
+#
+# Dates outside a plausible window are therefore set to NULL, and only the date is
+# dropped — the row and all its other fields are kept. The bounds are deterministic
+# rather than relative to the run date, so the model is reproducible: no federal
+# filing predates the FEC's creation in 1975, and nothing can legitimately be dated
+# more than a year past the end of its own two-year cycle.
+BOUNDED_DATE = (
+    "case\n"
+    "        when safe_cast({c} as date)\n"
+    "            between date(1975, 1, 1)\n"
+    "            and date(safe_cast(cycle as int64) + 1, 12, 31)\n"
+    "        then safe_cast({c} as date)\n"
+    "    end {c}"
+)
+
+# Tables whose transaction_date feeds the BD Pro window.
+DATE_BOUNDED_TABLES = {
+    "contribution_individual",
+    "contribution_committee",
+    "committee_transaction",
+    "disbursement",
+}
+
 # Tables partitioned by cycle; dicionario has no temporal dimension.
 UNPARTITIONED = {"dicionario"}
 
@@ -101,9 +129,13 @@ def render_sql(table: str, arch: list[dict]) -> str:
             f'"end": {PARTITION_END}, "interval": 1}},\n'
             "        },"
         )
-    casts = ",\n".join(
-        "    " + CAST[a["bigquery_type"]].format(c=a["name"]) for a in arch
-    )
+
+    def cast_for(a: dict) -> str:
+        if a["name"] == "transaction_date" and table in DATE_BOUNDED_TABLES:
+            return BOUNDED_DATE.format(c=a["name"])
+        return CAST[a["bigquery_type"]].format(c=a["name"])
+
+    casts = ",\n".join("    " + cast_for(a) for a in arch)
     return (
         "{{\n    config(\n"
         + "\n".join(config)

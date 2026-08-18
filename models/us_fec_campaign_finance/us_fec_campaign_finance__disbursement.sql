@@ -32,7 +32,12 @@ select
     safe_cast(payee_city as string) payee_city,
     safe_cast(payee_state as string) payee_state,
     safe_cast(payee_zip_code as string) payee_zip_code,
-    safe_cast(transaction_date as date) transaction_date,
+    case
+        when
+            safe_cast(transaction_date as date)
+            between date(1975, 1, 1) and date(safe_cast(cycle as int64) + 1, 12, 31)
+        then safe_cast(transaction_date as date)
+    end transaction_date,
     safe_cast(transaction_amount as float64) transaction_amount,
     safe_cast(purpose as string) purpose,
     safe_cast(category as string) category,

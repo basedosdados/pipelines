@@ -31,7 +31,12 @@ select
     safe_cast(counterparty_zip_code as string) counterparty_zip_code,
     safe_cast(counterparty_employer as string) counterparty_employer,
     safe_cast(counterparty_occupation as string) counterparty_occupation,
-    safe_cast(transaction_date as date) transaction_date,
+    case
+        when
+            safe_cast(transaction_date as date)
+            between date(1975, 1, 1) and date(safe_cast(cycle as int64) + 1, 12, 31)
+        then safe_cast(transaction_date as date)
+    end transaction_date,
     safe_cast(transaction_amount as float64) transaction_amount,
     safe_cast(memo_code as string) memo_code,
     safe_cast(memo_text as string) memo_text

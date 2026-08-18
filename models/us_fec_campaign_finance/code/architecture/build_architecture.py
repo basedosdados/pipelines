@@ -235,6 +235,7 @@ def txn_tail():
             "Data da transação",
             "Date of the transaction",
             "Fecha de la transacción",
+            obs="A FEC publica a data como declarada, e há erros de digitação: os dados brutos trazem datas de 1899 a 2202. Datas fora da janela plausível (anteriores à criação da FEC em 1975 ou mais de um ano após o fim do próprio ciclo) são gravadas como nulas; apenas a data é descartada, a linha é preservada. São cerca de 128 linhas em 79 milhões.",
             original="TRANSACTION_DT",
         ),
         col(
@@ -810,6 +811,7 @@ TABLES["disbursement"] = [
         "Data do desembolso",
         "Date of the disbursement",
         "Fecha del desembolso",
+        obs="A FEC publica a data como declarada, e há erros de digitação: os dados brutos trazem datas de 1899 a 2202. Datas fora da janela plausível (anteriores à criação da FEC em 1975 ou mais de um ano após o fim do próprio ciclo) são gravadas como nulas; apenas a data é descartada, a linha é preservada. São cerca de 128 linhas em 79 milhões.",
         original="TRANSACTION_DT",
     ),
     col(
