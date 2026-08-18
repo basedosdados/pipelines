@@ -523,6 +523,9 @@ models:
     us_bea:
       +materialized: table
       +schema: us_bea
+    us_sec_edgar:
+      +materialized: table
+      +schema: us_sec_edgar
     us_census_acs:
       +materialized: table
       +schema: us_census_acs
