@@ -9,7 +9,7 @@ td,STRING,Tipo de consolidação (TD),,yes,,,no,,c4
 tc,STRING,Tipo de controle (TC),,yes,,,no,Indica controle público federal estadual privado nacional ou estrangeiro,c6
 ti,STRING,Tipo de instituição (TI),,yes,,,no,,c13
 sr,STRING,Segmento definido pela Resolução nº 4.553/2017 (SR),,yes,,,no,Segmentação prudencial S1 a S5,c32
-segmento,STRING,Segmento de atuação da instituição,,yes,,,no,,c8
+segmento,STRING,Código de segmento de atuação da instituição,,no,,,no,O IF.data publica o código sem tabela de rótulos; 31 valores distintos observados,c8
 id_municipio,STRING,ID Município - IBGE 7 Dígitos da sede da instituição,,no,br_bd_diretorios_brasil.municipio:id_municipio,,no,Resolvido a partir do nome da cidade e da UF informados pelo IF.data; a fonte não publica o código IBGE,c11
 id_conglomerado_financeiro,STRING,Código do conglomerado financeiro ao qual a instituição pertence,,no,,,no,Vazio quando a instituição é independente,c14
 id_conglomerado_prudencial,STRING,Código do conglomerado prudencial ao qual a instituição pertence,,no,,,no,Vazio quando a instituição é independente,c15

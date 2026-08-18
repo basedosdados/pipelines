@@ -457,3 +457,89 @@ def clean_period(entry, outdir, exact, squashed) -> dict[str, Any]:
         "municipios_nao_resolvidos": unresolved,
         "celulas_sem_rubrica": sem_rotulo,
     }
+
+
+# ------------------------------------------------------------------ dicionário
+# Os rótulos das colunas codificadas do cadastro vêm de `filtro<p>.json`: cada
+# filtro traz `ii` (o id em `info`, cujo `lid` é o índice `cN` do cadastro) e
+# `d[]` com `{v: chave, n: rótulo PT, ni: rótulo EN}`. O `tipo_consolidado` vem
+# do bloco `sel` do índice. `segmento` (c8) é código sem tabela de rótulos
+# publicada — fica sem dicionário, de propósito.
+
+# índice `cN` do cadastro -> coluna nas nossas tabelas
+_LID_PARA_COLUNA = {3: "tcb", 4: "td", 6: "tc", 13: "ti", 32: "sr"}
+
+
+def build_dicionario(index: list[dict], outdir) -> dict[str, Any]:
+    """Monta o `dicionario` varrendo o `filtro` de todas as competências.
+
+    `cobertura_temporal` sai como `AAAA(1)AAAA` — o intervalo de anos em que
+    aquele par (chave, valor) foi observado. Rótulos que mudam de texto ao
+    longo da série viram linhas distintas, cada uma com sua cobertura.
+    """
+    import pathlib
+
+    outdir = pathlib.Path(outdir)
+    # (id_tabela, nome_coluna, chave, valor) -> [anos]
+    visto: dict[tuple[str, str, str, str], list[int]] = {}
+
+    def marcar(tabela: str, coluna: str, chave: Any, valor: Any, ano: int):
+        if chave is None or valor is None:
+            return
+        visto.setdefault(
+            (tabela, coluna, str(chave).strip(), str(valor).strip()), []
+        ).append(ano)
+
+    for entry in index:
+        ano = entry["dt"] // 100
+        for tipo, nomes in period_tipos(entry).items():
+            for tabela in ("instituicao", "coluna"):
+                marcar(tabela, "tipo_consolidado", tipo, nomes["pt"], ano)
+
+        kinds = _files_by_kind(entry)
+        if not kinds.get("filtro"):
+            continue
+        info = {i["id"]: i for i in fetch_file(kinds["info"][0])}
+        for filtro in fetch_file(kinds["filtro"][0]):
+            m = info.get(filtro.get("ii"))
+            coluna = _LID_PARA_COLUNA.get(m.get("lid")) if m else None
+            if coluna is None:
+                continue
+            for v in filtro.get("d") or []:
+                marcar("instituicao", coluna, v.get("v"), v.get("n"), ano)
+
+    linhas = []
+    for (tabela, coluna, chave, valor), anos in sorted(visto.items()):
+        linhas.append(
+            {
+                "id_tabela": tabela,
+                "nome_coluna": coluna,
+                "chave": chave,
+                "cobertura_temporal": f"{min(anos)}(1){max(anos)}",
+                "valor": valor,
+            }
+        )
+
+    if linhas:
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+
+        cols = [
+            "id_tabela",
+            "nome_coluna",
+            "chave",
+            "cobertura_temporal",
+            "valor",
+        ]
+        tbl = pa.Table.from_arrays(
+            [
+                pa.array([_clean_str(r[c]) for r in linhas], type=pa.string())
+                for c in cols
+            ],
+            names=cols,
+        )
+        dest = outdir / "dicionario"
+        dest.mkdir(parents=True, exist_ok=True)
+        pq.write_table(tbl, dest / "data.parquet", compression="snappy")
+
+    return {"dicionario": len(linhas)}
