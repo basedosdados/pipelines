@@ -47,7 +47,14 @@ DESCRIPTIONS = {
         "Uma linha por valor numérico das demonstrações financeiras principais "
         "renderizadas pela SEC, conforme protocolado. Cada linha identifica a "
         "submissão, o marcador (tag) da taxonomia XBRL e sua versão, o período, "
-        "a unidade de medida, o eixo dimensional (segments) e o corregistrante."
+        "a unidade de medida, o eixo dimensional (segments) e o corregistrante. "
+        "Duas inconsistências da fonte são toleradas nos testes. Primeira: a "
+        "chave documentada pela SEC não é única em 212 casos (434 linhas de "
+        "181.351.169, ou 0,0002%), quando o declarante reaproveita o mesmo "
+        "identificador de membro em segments para contratos distintos e as duas "
+        "linhas trazem valores diferentes. Segunda: quatro números de adesão de "
+        "2013Q1 aparecem em num.txt sem a linha correspondente em sub.txt "
+        "(1.953 linhas), e são excluídos do teste de integridade referencial."
     ),
     "tag": (
         "Uma linha por marcador (tag) da taxonomia XBRL usado nas submissões do "
@@ -67,6 +74,19 @@ DESCRIPTIONS = {
         "linha por combinação de tabela, coluna, chave e rótulo legível."
     ),
 }
+
+# Accession numbers present in the source num.txt of 2013Q1 with no matching row
+# in that quarter's sub.txt (verified against the raw SEC file). Excluded by name
+# rather than by a tolerance, so any NEW orphan still fails the test.
+ORPHAN_ACCESSION_NUMBERS = [
+    "0001084048-13-000002",
+    "0001193125-13-087866",
+    "0001193125-13-087869",
+    "0001524777-13-000093",
+]
+
+# numeric_fact's documented key is not unique in 212 cases out of 181.4M rows.
+NUMERIC_FACT_DUPLICATE_TOLERANCE = 0.0001
 
 UNIQUE_KEYS = {
     "submission": ["year", "quarter", "accession_number"],
@@ -190,10 +210,18 @@ def render_schema() -> str:
         out.append("  - name: " + DATASET + "__" + table)
         out.append("    description: " + block(DESCRIPTIONS[table], "      "))
         out.append("    tests:")
-        out.append("      - dbt_utils.unique_combination_of_columns:")
+        if table == "numeric_fact":
+            out.append("      - custom_unique_combinations_of_columns:")
+        else:
+            out.append("      - dbt_utils.unique_combination_of_columns:")
         out.append("          combination_of_columns:")
         for key in UNIQUE_KEYS[table]:
             out.append("            - " + key)
+        if table == "numeric_fact":
+            out.append(
+                "          proportion_allowed_failures: "
+                + str(NUMERIC_FACT_DUPLICATE_TOLERANCE)
+            )
         if table != "dicionario":
             out.append("      - not_null_proportion_multiple_columns:")
             out.append("          at_least: 0.05")
@@ -231,7 +259,10 @@ def render_schema() -> str:
                     out.append("          - not_null")
                 if foreign:
                     target, field = foreign
-                    out.append("          - relationships:")
+                    if table == "numeric_fact":
+                        out.append("          - custom_relationships:")
+                    else:
+                        out.append("          - relationships:")
                     out.append(
                         "              to: ref('"
                         + DATASET
@@ -240,6 +271,10 @@ def render_schema() -> str:
                         + "')"
                     )
                     out.append("              field: " + field)
+                    if table == "numeric_fact":
+                        out.append("              ignore_values:")
+                        for value in ORPHAN_ACCESSION_NUMBERS:
+                            out.append("                - " + value)
     return NEWLINE.join(out) + NEWLINE
 
 

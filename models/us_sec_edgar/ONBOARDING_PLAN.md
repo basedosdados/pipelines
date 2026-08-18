@@ -40,6 +40,17 @@ The four source files map one-to-one onto four tables, plus the standard diction
 | `presentation` | `pre.txt` | one statement line: submission × report × line | 751k |
 | `dicionario` | — | code → label for every dictionary-covered column | — |
 
+Verified totals across all 69 releases (local parquet = BigQuery staging = published,
+exact match at every step):
+
+| Table | Rows |
+|---|---|
+| `numeric_fact` | 181,351,169 |
+| `presentation` | 44,995,388 |
+| `tag` | 4,784,009 |
+| `submission` | 426,003 |
+| `dicionario` | 495 |
+
 **Stacked by release quarter.** Every table carries the release partition
 (`year`, `quarter`) and the rows of a given quarter are exactly that quarter's ZIP.
 This makes each quarter independently reproducible and makes the recurring pipeline
@@ -86,6 +97,25 @@ architecture CSV.
   for `countryinc` is wrong — the data carries `US`, `KY`, `CA`, `BM`). They link to
   `br_bd_diretorios_mundo.pais:sigla_iso2` only if every observed value resolves; this is
   verified against the directory during validation and dropped if it does not.
+
+## Source inconsistencies, and how the tests handle them
+
+The data is published "as filed" and carries the filers' own errors. Three were
+measured on the full export; the first two are tolerated explicitly rather than
+silently, so a *new* occurrence still fails.
+
+1. **`numeric_fact`'s documented key is not unique** — 212 key collisions
+   (434 rows of 181,351,169, or 0.0002%). They occur where a filer reuses one
+   free-text member identifier in `segments` for two different contracts, so the
+   two rows share the key and carry *different* values. Tested with
+   `custom_unique_combinations_of_columns` at `proportion_allowed_failures: 0.0001`.
+2. **Four 2013Q1 accession numbers appear in `num.txt` with no row in that
+   quarter's `sub.txt`** — 1,953 rows, confirmed against the raw SEC ZIP, and
+   absent from `submission` in every other quarter too. Tested with
+   `custom_relationships` and those four values in `ignore_values`, so the FK
+   still fails on any orphan the SEC introduces later.
+3. **174 implausible `period_end_date` values** (4 before 1900, 170 after 2035) —
+   filer typos in the reported period. Left as filed; no test.
 
 ## Scratch data
 

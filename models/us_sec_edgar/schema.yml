@@ -149,9 +149,16 @@ models:
       Uma linha por valor numérico das demonstrações financeiras principais
       renderizadas pela SEC, conforme protocolado. Cada linha identifica a
       submissão, o marcador (tag) da taxonomia XBRL e sua versão, o período, a
-      unidade de medida, o eixo dimensional (segments) e o corregistrante.
+      unidade de medida, o eixo dimensional (segments) e o corregistrante. Duas
+      inconsistências da fonte são toleradas nos testes. Primeira: a chave
+      documentada pela SEC não é única em 212 casos (434 linhas de 181.351.169,
+      ou 0,0002%), quando o declarante reaproveita o mesmo identificador de
+      membro em segments para contratos distintos e as duas linhas trazem
+      valores diferentes. Segunda: quatro números de adesão de 2013Q1 aparecem
+      em num.txt sem a linha correspondente em sub.txt (1.953 linhas), e são
+      excluídos do teste de integridade referencial.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns:
             - year
             - quarter
@@ -163,6 +170,7 @@ models:
             - unit_of_measure
             - segments
             - coregistrant
+          proportion_allowed_failures: 0.0001
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [footnote, coregistrant]
@@ -180,9 +188,14 @@ models:
           Número de adesão (accession number) da submissão no EDGAR
         tests:
           - not_null
-          - relationships:
+          - custom_relationships:
               to: ref('us_sec_edgar__submission')
               field: accession_number
+              ignore_values:
+                - 0001084048-13-000002
+                - 0001193125-13-087866
+                - 0001193125-13-087869
+                - 0001524777-13-000093
       - name: tag
         description: >
           Identificador do marcador (tag) da taxonomia XBRL
