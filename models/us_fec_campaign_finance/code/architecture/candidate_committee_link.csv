@@ -1,0 +1,9 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+cycle,INT64,"Ciclo eleitoral de dois anos, identificado pelo ano par em que termina",2010(2)2026,no,,year,no,"Coluna de partição. Corresponde ao arquivo em massa da FEC do ciclo correspondente (por exemplo, cycle=2026 vem de indiv26.zip).",,"Two-year election cycle, identified by the even year in which it ends","Ciclo electoral de dos años, identificado por el año par en que termina"
+candidate_id,STRING,Identificador do candidato,,no,,,no,,CAND_ID,Candidate identifier,Identificador del candidato
+committee_id,STRING,Identificador do comitê ligado ao candidato,,no,,,no,,CMTE_ID,Identifier of the committee linked to the candidate,Identificador del comité vinculado al candidato
+linkage_id,STRING,Identificador da ligação entre candidato e comitê,,no,,,no,,LINKAGE_ID,Identifier of the candidate-committee linkage,Identificador del vínculo entre candidato y comité
+candidate_election_year,INT64,Ano da eleição do candidato,,no,,year,no,,CAND_ELECTION_YR,Election year of the candidate,Año de la elección del candidato
+fec_election_year,INT64,Ano do ciclo eleitoral de dois anos ao qual a ligação se refere,,no,,year,no,,FEC_ELECTION_YR,Year of the two-year election cycle the linkage refers to,Año del ciclo electoral de dos años al que se refiere el vínculo
+committee_type,STRING,Tipo do comitê ligado ao candidato,,yes,,,no,,CMTE_TP,Type of the committee linked to the candidate,Tipo del comité vinculado al candidato
+committee_designation,STRING,Designação do comitê ligado ao candidato,,yes,,,no,,CMTE_DSGN,Designation of the committee linked to the candidate,Designación del comité vinculado al candidato
