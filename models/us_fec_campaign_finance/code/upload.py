@@ -14,6 +14,8 @@ Requires ~/.basedosdados/config.toml. The GCS bucket is requester-pays, so
 gcs.Client.bucket is monkeypatched to pin user_project to the billing project.
 """
 
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -27,6 +29,10 @@ from pipelines.datasets.us_fec_campaign_finance import (
 )
 
 BILLING_PROJECT = "basedosdados-dev"
+
+# FEC_RSYNC=1 uploads via gsutil rsync instead of bd.Table.create's python
+# resumable session — required for contribution_individual (15 GB).
+RSYNC = os.environ.get("FEC_RSYNC") == "1"
 DATASET_ID = "us_fec_campaign_finance"
 
 TABLES = [
@@ -65,6 +71,43 @@ def bq_rows(table: str) -> int:
     return int(result["n"].iloc[0])
 
 
+def rsync_to_gcs(table: str) -> None:
+    """Push a table's parquet tree to its staging prefix with gsutil rsync.
+
+    bd.Table.create uploads through a single-threaded python resumable session, which
+    does not survive a 15 GB transfer: contribution_individual died partway with
+    `SSLError(5, '[SYS] unknown error')` after ~20 minutes, with no resume. gsutil
+    rsync is parallel, retries on its own, and skips blobs already present, so a
+    failure costs only the file it was on.
+
+    The blob layout is identical either way — staging/<ds>/<table>/cycle=YYYY/data.parquet
+    — so the external table cannot tell which path uploaded it.
+    """
+    src = str(fec.OUTPUT / table)
+    dest = f"gs://{BILLING_PROJECT}/staging/{DATASET_ID}/{table}"
+    print(f"[{table}] rsync {src} -> {dest}")
+    subprocess.run(
+        ["gsutil", "-m", "-u", BILLING_PROJECT, "rsync", "-r", src, dest],
+        check=True,
+    )
+
+
+def create_external_table(table: str) -> None:
+    """Create the staging external table over an already-populated GCS prefix.
+
+    Schema comes from the 0-row 00_header.parquet, so this never reads a multi-GB
+    file into pandas — the same reason that stub exists for the table-approve action.
+    """
+    bq_table = bd.Table(dataset_id=DATASET_ID, table_id=table)
+    bq_table.create(
+        path=str(fec.OUTPUT / table),
+        source_format="parquet",
+        if_table_exists="replace",
+        if_storage_data_exists="pass",  # data is already there from the rsync
+        if_dataset_exists="pass",
+    )
+
+
 def upload_table(table: str) -> None:
     path = fec.OUTPUT / table
     if not path.exists():
@@ -75,19 +118,24 @@ def upload_table(table: str) -> None:
     expected, nfiles = local_rows(table)
     print(f"[{table}] local: {expected:,} rows in {nfiles} parquet file(s)")
 
-    # Clear the staging prefix first: leftover objects from an earlier shape produce
-    # BigQuery partition-key conflicts on the external table.
-    storage = bd.Storage(dataset_id=DATASET_ID, table_id=table)
-    storage.delete_table(mode="staging", not_found_ok=True)
+    if RSYNC:
+        # Large tables: rsync is resumable and skips what is already uploaded.
+        rsync_to_gcs(table)
+        create_external_table(table)
+    else:
+        # Clear the staging prefix first: leftover objects from an earlier shape
+        # produce BigQuery partition-key conflicts on the external table.
+        storage = bd.Storage(dataset_id=DATASET_ID, table_id=table)
+        storage.delete_table(mode="staging", not_found_ok=True)
 
-    bq_table = bd.Table(dataset_id=DATASET_ID, table_id=table)
-    bq_table.create(
-        path=str(path),
-        source_format="parquet",
-        if_table_exists="replace",
-        if_storage_data_exists="replace",
-        if_dataset_exists="pass",
-    )
+        bq_table = bd.Table(dataset_id=DATASET_ID, table_id=table)
+        bq_table.create(
+            path=str(path),
+            source_format="parquet",
+            if_table_exists="replace",
+            if_storage_data_exists="replace",
+            if_dataset_exists="pass",
+        )
 
     got = bq_rows(table)
     if got != expected:
