@@ -428,6 +428,72 @@ def download(
     return dest
 
 
+def download_all(
+    input_dir: Path, session: requests.Session | None = None
+) -> list[str]:
+    """Download every curated workbook for every in-scope release.
+
+    The ATO reissues the whole collection each year and revises earlier years
+    in place, so each run refetches all releases and rebuilds every table
+    rather than appending the newest one.
+
+    Args:
+        input_dir: Directory to download into, as ``<table>__<release>.xlsx``.
+        session: Optional requests session to reuse across the ~40 downloads.
+
+    Returns:
+        The in-scope release keys present at the source, oldest first.
+
+    Raises:
+        ValueError: If no in-scope release is found, or a release is missing
+            one of the curated tables — which would silently shrink coverage.
+    """
+    session = session or requests.Session()
+    packages = list_packages(session)
+    mapping = resource_map(packages)
+    # Derive the in-scope releases from the packages themselves, not from
+    # `mapping`: resource_map only creates an entry once a selector matches, so
+    # a release whose workbooks were all renamed would silently vanish here,
+    # max_year would come from an older release, and the poll would report the
+    # collection as up to date while never ingesting the new year.
+    releases = sorted(
+        r
+        for r in (
+            p["name"].removeprefix("taxation-statistics-") for p in packages
+        )
+        if r >= constants.MIN_RELEASE.value
+    )
+    if not releases:
+        raise ValueError(
+            f"no release at or after {constants.MIN_RELEASE.value} found; "
+            "the ATO may have changed its resource naming"
+        )
+    expected = set(constants.TABLE_SELECTORS.value)
+    for release in releases:
+        found = mapping.get(release, {})
+        missing = expected - set(found)
+        if missing:
+            raise ValueError(
+                f"release {release} is missing {sorted(missing)}; refusing to "
+                "rebuild with partial coverage"
+            )
+        for table, url in sorted(found.items()):
+            download(url, input_dir / f"{table}__{release}.xlsx", session)
+    return releases
+
+
+def release_year(release: str) -> int:
+    """Start year of a release key such as ``"2023-24"``.
+
+    Args:
+        release: Release key in ``YYYY-YY`` form.
+
+    Returns:
+        The starting calendar year.
+    """
+    return int(release.split("-")[0])
+
+
 def clean_all(input_dir: Path, output_dir: Path) -> dict[str, int]:
     """Clean every downloaded workbook into partitioned parquet.
 
