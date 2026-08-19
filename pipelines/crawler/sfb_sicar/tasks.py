@@ -24,15 +24,14 @@ from pipelines.crawler.sfb_sicar.utils import (
     retry_download_car,
 )
 
-# Raw-geometry budget per range. Each range is cleaned in its own subprocess
-# that exits afterwards, so this bounds a single process's peak memory, not an
-# accumulating one. Measured on the worker, the per-range peak is ~8 GB whether
-# the budget is 96 or 256 MB: it is dominated not by the aggregate range size but
-# by a single pathologically dense Amazonas app feature (a river-network
-# multipolygon) whose reproject + WKT serialization lands in whatever range holds
-# it. Shrinking the budget only multiplies subprocess spawns for no memory gain,
-# so keep it large; the ~8 GB peak fits the 12 GiB pod (which the successful runs
-# already used).
+# Raw-geometry budget per range. This sizes the parquet part (how many features
+# land in one file), NOT the peak memory: clean_shp_range reprojects + WKT-encodes
+# each range in 64-feature batches, so the transient is one batch's expansion
+# regardless of how dense the range is. (An earlier design reprojected the whole
+# range at once, and a 256 MB range of Amazonas app — river-network multipolygons
+# that expand ~50x through reproject + WKT — OOMed the 12 GiB pod; the batching in
+# clean_shp_range removes that coupling.) With memory decoupled, keep the budget
+# large so dense themes don't fragment into excessive subprocess spawns.
 CLEAN_BUDGET_BYTES = 256 * 1024 * 1024
 
 

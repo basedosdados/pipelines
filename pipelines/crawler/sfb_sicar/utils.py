@@ -487,6 +487,16 @@ def plan_shp_ranges(
     return ranges
 
 
+# Features reprojected + WKT-serialized per inner batch. This — not the range
+# size — is what bounds peak memory: reprojecting and WKT-encoding a whole
+# vertex-dense range at once (an Amazonas ``app`` range is ~256 MB of raw
+# geometry that balloons ~50x through the reproject copy + WKT strings) is what
+# OOMs a 12 GiB pod. Encoding 64 features at a time and appending each to the
+# open ParquetWriter caps the transient to one batch's expansion, whatever the
+# range's density, while the part file still holds the entire range.
+_WKT_BATCH = 64
+
+
 def clean_shp_range(
     shp: str,
     start: int,
@@ -501,12 +511,13 @@ def clean_shp_range(
 
     This is the smallest unit of work and the one the recurring pipeline runs in
     a fresh short-lived subprocess (see
-    :mod:`pipelines.crawler.sfb_sicar._clean_runner`). Because that process exits
-    after writing its single part, the OS reclaims all of its memory — glibc
-    arena growth and heap fragmentation, which otherwise creep up chunk after
-    chunk in one long-lived process and OOM the worker on dense Amazonas ``app``,
-    cannot accumulate. Peak RSS is permanently one range, whatever the allocator
-    or core count.
+    :mod:`pipelines.crawler.sfb_sicar._clean_runner`). Two bounds stack to keep
+    memory flat: (1) the process exits after writing its single part, so the OS
+    reclaims all of its memory and glibc arena growth cannot accumulate range to
+    range; (2) the reproject + WKT serialization runs in ``_WKT_BATCH``-feature
+    batches appended to one ``ParquetWriter``, so peak is one batch's expansion,
+    not the whole range's — the range's own reproject + WKT off a 256 MB raw
+    budget otherwise balloons past 12 GiB on dense Amazonas ``app``.
 
     Reprojects SIRGAS 2000 -> WGS84 and emits WKT; BigQuery repairs validity on
     ingest (see :func:`geometry_to_wkt`). Writes
@@ -526,18 +537,34 @@ def clean_shp_range(
     gdf, dropped = filter_to_uf(gdf, sigla_uf)
     if len(gdf) == 0:
         return 0, dropped
-    df = build_table_df(table, gdf, snapshot_iso, sigla_uf)
-    payload = [c for c in df.columns if c not in ("data", "sigla_uf")]
-    pq.write_table(
-        pa.Table.from_pandas(
-            df[payload],
-            schema=all_string_schema(payload),
-            preserve_index=False,
-        ),
-        os.path.join(part_dir, f"part-{file_idx:05d}.parquet"),
-        compression="snappy",
-    )
-    return len(df), dropped
+
+    out_path = os.path.join(part_dir, f"part-{file_idx:05d}.parquet")
+    payload: list[str] | None = None
+    writer: pq.ParquetWriter | None = None
+    total = 0
+    try:
+        for i in range(0, len(gdf), _WKT_BATCH):
+            sub = gdf.iloc[i : i + _WKT_BATCH].reset_index(drop=True)
+            df = build_table_df(table, sub, snapshot_iso, sigla_uf)
+            if payload is None:
+                payload = [
+                    c for c in df.columns if c not in ("data", "sigla_uf")
+                ]
+            batch = pa.Table.from_pandas(
+                df[payload],
+                schema=all_string_schema(payload),
+                preserve_index=False,
+            )
+            if writer is None:
+                writer = pq.ParquetWriter(
+                    out_path, batch.schema, compression="snappy"
+                )
+            writer.write_table(batch)
+            total += len(df)
+    finally:
+        if writer is not None:
+            writer.close()
+    return total, dropped
 
 
 def clean_theme_chunked(
