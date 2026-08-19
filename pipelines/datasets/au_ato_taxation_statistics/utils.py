@@ -58,14 +58,21 @@ def _clean_label(value: Any) -> str:
     return FOOTNOTE.sub("", text).strip()
 
 
-def _norm(text: str) -> str:
-    """Collapse whitespace and strip a trailing footnote digit."""
+def _norm(text: Any) -> str:
+    """Collapse whitespace and strip a trailing footnote digit.
+
+    Args:
+        text: Raw cell or header value of any type.
+
+    Returns:
+        The normalised text.
+    """
     text = str(text).replace("\n", " ")
     text = re.sub(r"\s+", " ", text).strip()
     return FOOTNOTE.sub("", text).strip()
 
 
-def clean_item(header: str) -> str:
+def clean_item(header: Any) -> str:
     """Turn a measure header into its canonical item label."""
     base = MEASURE_SUFFIX.sub("", str(header))
     base = _norm(base)
@@ -74,7 +81,7 @@ def clean_item(header: str) -> str:
     return constants.ITEM_ALIASES.value.get(base.lower(), base)
 
 
-def measure_kind(header: str) -> str | None:
+def measure_kind(header: Any) -> str | None:
     """Return ``"count"``, ``"amount"`` or ``None`` for a header cell."""
     header = str(header)
     match = MEASURE_SUFFIX.search(header)
@@ -162,6 +169,7 @@ def _to_number(value: Any) -> float | None:
 
 def read_table(path: Path, table: str) -> pd.DataFrame:
     """Read one workbook and return the long-format frame for ``table``."""
+    # pyrefly: ignore [untyped-import]
     import openpyxl
 
     workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
@@ -434,7 +442,11 @@ def clean_all(input_dir: Path, output_dir: Path) -> dict[str, int]:
             if not part.empty:
                 parts.append(part)
         if not parts:
-            continue
+            raise FileNotFoundError(
+                f"no input workbooks for {table!r} in {input_dir}; refusing to "
+                "write a partial snapshot, since upload.py publishes the whole "
+                "output tree and stale partitions would survive"
+            )
         frame = pd.concat(parts, ignore_index=True)
         frames[table] = frame
         columns = [

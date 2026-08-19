@@ -86,6 +86,9 @@ def upload_table(slug: str) -> int:
 def main() -> None:
     """Upload every table, stopping at the first failure."""
     only = set(sys.argv[1:])
+    unknown = only - set(TABLES)
+    if unknown:
+        raise SystemExit(f"unknown table(s): {', '.join(sorted(unknown))}")
     tables = [t for t in TABLES if not only or t in only]
     print(f"=== uploading {tables} to {BILLING_PROJECT} ===", flush=True)
     for slug in tables:

@@ -37,20 +37,37 @@ FIELDS = [
 
 
 def col(
-    name,
-    btype,
-    pt,
-    en,
-    es,
+    name: str,
+    btype: str,
+    pt: str,
+    en: str,
+    es: str,
     *,
-    dic="no",
-    directory="",
-    unit="",
-    obs="",
-    original="",
-    coverage="",
-):
-    """Build one architecture row."""
+    dic: str = "no",
+    directory: str = "",
+    unit: str = "",
+    obs: str = "",
+    original: str = "",
+    coverage: str = "",
+) -> dict[str, str]:
+    """Build one architecture row.
+
+    Args:
+        name: Column name in BigQuery.
+        btype: BigQuery type, chosen by arithmetic meaning.
+        pt: Portuguese description.
+        en: English description.
+        es: Spanish description.
+        dic: "yes" when a dicionario entry covers the column.
+        directory: Directory foreign key, as ``<dataset>.<table>:<col>``.
+        unit: Measurement unit; required on every numeric quantity.
+        obs: Free-text notes on source quirks or coverage.
+        original: Column name in the raw source.
+        coverage: Temporal coverage, when narrower than the table's.
+
+    Returns:
+        The architecture row as a field-name to value mapping.
+    """
     return {
         "name": name,
         "bigquery_type": btype,
@@ -134,8 +151,19 @@ AMOUNT = col(
 )
 
 
-def industry(entity_pt, entity_en, entity_es):
-    """Broad and fine ANZSIC-based industry columns."""
+def industry(
+    entity_pt: str, entity_en: str, entity_es: str
+) -> list[dict[str, str]]:
+    """Build the broad and fine ANZSIC-based industry columns.
+
+    Args:
+        entity_pt: Portuguese noun phrase naming the classified entity.
+        entity_en: English noun phrase naming the classified entity.
+        entity_es: Spanish noun phrase naming the classified entity.
+
+    Returns:
+        The four industry architecture rows, code before label.
+    """
     return [
         col(
             "broad_industry_id",
@@ -368,7 +396,9 @@ def main() -> None:
             )
         path = OUT / f"{table}.csv"
         with path.open("w", newline="", encoding="utf-8") as handle:
-            writer = csv.DictWriter(handle, fieldnames=FIELDS)
+            writer = csv.DictWriter(
+                handle, fieldnames=FIELDS, lineterminator="\n"
+            )
             writer.writeheader()
             writer.writerows(columns)
         print(f"{table:28s} {len(columns):>2} columns -> {path.name}")

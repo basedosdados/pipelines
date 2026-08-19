@@ -71,9 +71,12 @@ clean follow-up, not a blocker.
   with the stacked panel here.
 - **Company Table 4B**, the finer ATO industry-code grain with business
   descriptions, once its pre-2018-19 shape is handled.
-- **Geography linking beyond state.** `postcode` carries ATO residual
-  groupings (`NSW other`, `Overseas`, `Unknown`) and `sa4_name` is a name
-  rather than a code, so neither is linked to `br_bd_diretorios_au`.
+- **Geography linking beyond state and SA4.** `postcode` carries ATO residual
+  groupings (`NSW other`, `Overseas`, `Unknown`), so it stays unlinked to a
+  postal area directory. SA4 *is* linked: the model joins `sa4_name` against
+  `br_bd_diretorios_au.sa4_2021` to publish `sa4_id`, which is null wherever
+  the name is absent (every year before 2021-22) or unmatched (the nine ATO
+  residual groupings).
 - **Step 12, the recurring annual pipeline.** The transform already lives in
   `pipelines/datasets/au_ato_taxation_statistics/` for exactly this.
 
