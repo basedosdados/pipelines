@@ -408,6 +408,35 @@ def _derive_label(value: str) -> str:
     return spaced[:1].upper() + spaced[1:] if spaced else value
 
 
+def observed_from_rows(
+    rows: Iterable[Mapping[str, str]],
+) -> dict[tuple[str, str], set[str]]:
+    """Turn already-published `dicionario` rows back into an observed mapping.
+
+    The recurring pipeline cleans one quarter, but the dictionary must keep
+    covering every code seen in *any* quarter — a `datatype` used only in 2011
+    still has to resolve, or `custom_dictionary_coverage` fails on that
+    partition. Rebuilding from the new quarter alone would silently drop those,
+    so the pipeline reads the current table and unions it with the new quarter.
+    """
+    observed: dict[tuple[str, str], set[str]] = {}
+    for row in rows:
+        key = (row["id_tabela"], row["nome_coluna"])
+        observed.setdefault(key, set()).add(row["chave"])
+    return observed
+
+
+def merge_observed(
+    *sources: Mapping[tuple[str, str], Iterable[str]],
+) -> dict[tuple[str, str], set[str]]:
+    """Union several observed mappings."""
+    merged: dict[tuple[str, str], set[str]] = {}
+    for source in sources:
+        for key, values in source.items():
+            merged.setdefault(key, set()).update(values)
+    return merged
+
+
 def build_dicionario(
     output_dir: str, observed: Mapping[tuple[str, str], Iterable[str]]
 ) -> int:
