@@ -58,13 +58,17 @@ download → clean                      # your @task wrappers over utils
 max_date = <latest period in source>  # e.g. "YYYY-MM"
 has_new = poll_source_for_update_task(dataset_id, table_id, max_date, env="prod", date_format)
 if not has_new and not force_run: return
-for table in tables:                  # dev first
+for table in tables:                  # dev: upload + RUN every table first
     upload_to_gcs(data_path, dataset_id, table, bucket_name="basedosdados-dev", dump_mode, source_format)
-    run_dbt(dataset_id, table, dbt_command="run/test", target="dev")
+    run_dbt(dataset_id, table, dbt_command="run", target="dev")
+for table in tables:                  # THEN test — every sibling now exists
+    run_dbt(dataset_id, table, dbt_command="test", target="dev")
 if not materialize_to_prod: return
-for table in tables:                  # then prod
+for table in tables:                  # prod: upload + RUN every table first
     upload_to_gcs(..., bucket_name="basedosdados", ...)
-    run_dbt(..., target="prod")
+    run_dbt(..., dbt_command="run", target="prod")
+for table in tables:                  # THEN test
+    run_dbt(..., dbt_command="test", target="prod")
 if update_metadata:
     register_table_materialization_task(dataset_id, table, coverage=<CoverageSpec>, env="prod", bq_project="basedosdados")
     commit_source_update_task(dataset_id, table, max_date, env="prod", date_format)  # ONLY at the very end
@@ -74,6 +78,18 @@ if update_metadata:
 newer than the registered `Update.latest`; `commit_source_update_task` writes the
 new `Update.latest` and must run **last**, only after prod succeeded. The poll
 guard makes a scheduled run a no-op until the source actually publishes.
+
+**Run every table, then test every table — never interleave `run`/`test` per
+table.** Use `dbt_command="run"` in the first loop and `dbt_command="test"` in a
+second loop, per environment (do **not** use the combined `"run/test"` inside a
+per-table loop). Cross-table tests — `relationships`, `dbt_utils` referential
+checks, `custom_dictionary_coverage` with `ref('..._dicionario')` — read *sibling*
+models. Interleaved, the first table's test runs before its referenced sibling is
+built and fails: `Not found: Table ... au_ato_abr.dicionario`. This is silent in a
+re-run where a stale sibling from an earlier build survives (dev), and only bites
+in a clean environment (a freshly-emptied prod) — so it must be structural, not
+left to luck. `us_fed_fred` hit the same class of bug on its `observation`↔`series`
+FK test. → `project_au_ato_abr`
 
 ## Shared building blocks (`pipelines/utils`)
 
@@ -112,8 +128,17 @@ schema. Two details are load-bearing:
 
 This costs nothing downstream: staging is all-STRING by house convention anyway and the
 dbt model `safe_cast`s every column. `us_bls_cpi/utils.py::write_partitioned` is the
-reference. Note `bigquery-conventions.md` tells you to pin an explicit `pa.Schema` —
-correct for the one-shot onboarding upload, wrong here. → `project_dump_header_parquet_bug`
+reference.
+
+**Write all-STRING staging for the one-shot onboarding upload too, not only the pipeline.**
+Both paths share one staging dataset, so their external-table schemas must match. A dataset
+onboarded with *typed* parquet gets a *typed* external table; add a pipeline later and its
+all-STRING overwrite leaves dbt reading the stale typed table against string files
+(`Parquet column ... has type BYTE_ARRAY which does not match the target cpp_type INT32`), or
+`safe_cast`ing a still-typed column (`Invalid cast from INT64 to DATE`). Keeping both paths
+all-STRING removes the divergence — so `bigquery-conventions.md` no longer pins a *typed*
+`pa.Schema` for onboarding; it pins an all-STRING one with stable column order.
+→ `project_au_ato_abr`, `project_dump_header_parquet_bug`
 
 ### One raw data source per table (current limitation)
 
