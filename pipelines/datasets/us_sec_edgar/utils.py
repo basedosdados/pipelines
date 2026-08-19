@@ -21,7 +21,7 @@ import re
 import shutil
 import time
 import zipfile
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -290,15 +290,30 @@ def _read_tsv(handle, columns: list[str]) -> pa.Table:
 
 def _to_iso_date(array: pa.Array) -> pa.Array:
     """yyyymmdd -> YYYY-MM-DD, so `safe_cast(col as date)` resolves in dbt."""
+    # pyarrow.compute generates its kernels at import time, so pyrefly cannot
+    # see any of them.
+    # pyrefly: ignore [missing-attribute]
     trimmed = pc.utf8_trim_whitespace(array)
+    # pyrefly: ignore [missing-attribute]
     iso = pc.binary_join_element_wise(
+        # pyrefly: ignore [missing-attribute]
         pc.utf8_slice_codeunits(trimmed, 0, 4),
+        # pyrefly: ignore [missing-attribute]
         pc.utf8_slice_codeunits(trimmed, 4, 6),
+        # pyrefly: ignore [missing-attribute]
         pc.utf8_slice_codeunits(trimmed, 6, 8),
         "-",
     )
+    # pyrefly: ignore [missing-attribute]
     return pc.if_else(
-        pc.equal(pc.utf8_length(trimmed), 8), iso, pa.scalar(None, pa.string())
+        # pyrefly: ignore [missing-attribute]
+        pc.equal(
+            # pyrefly: ignore [missing-attribute]
+            pc.utf8_length(trimmed),
+            8,
+        ),
+        iso,
+        pa.scalar(None, pa.string()),
     )
 
 
@@ -394,7 +409,7 @@ def _derive_label(value: str) -> str:
 
 
 def build_dicionario(
-    output_dir: str, observed: dict[tuple[str, str], Iterable[str]]
+    output_dir: str, observed: Mapping[tuple[str, str], Iterable[str]]
 ) -> int:
     """Write the `dicionario` parquet covering every observed coded value."""
     rows = []
