@@ -52,9 +52,15 @@ models:
     au_ato_abr:
       +materialized: table
       +schema: au_ato_abr
+    au_ato_taxation_statistics:
+      +materialized: table
+      +schema: au_ato_taxation_statistics
     au_geoscape_gnaf:
       +materialized: table
       +schema: au_geoscape_gnaf
+    au_rba_statistical_tables:
+      +materialized: table
+      +schema: au_rba_statistical_tables
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
@@ -79,6 +85,9 @@ models:
     br_bcb_estban:
       +materialized: table
       +schema: br_bcb_estban
+    br_bcb_ifdata:
+      +materialized: table
+      +schema: br_bcb_ifdata
     br_bcb_sicor:
       +materialized: table
       +schema: br_bcb_sicor
@@ -163,6 +172,9 @@ models:
     us_cfpb_hmda:
       +materialized: table
       +schema: us_cfpb_hmda
+    us_fec_campaign_finance:
+      +materialized: table
+      +schema: us_fec_campaign_finance
     us_nature_gerda:
       +materialized: table
       +schema: us_nature_gerda
@@ -523,6 +535,9 @@ models:
     us_bea:
       +materialized: table
       +schema: us_bea
+    us_sec_edgar:
+      +materialized: table
+      +schema: us_sec_edgar
     us_census_acs:
       +materialized: table
       +schema: us_census_acs

@@ -139,9 +139,11 @@ def test_compute_part_bdpro_monthly_syncs_and_lags():
     assert (r.free.endYear, r.free.endMonth) == (2025, 12)
     # pyrefly: ignore [missing-attribute]
     assert r.free.endDay is None  # granularidade mensal
-    # R11: pro começa onde free termina
+    # R11: pro starts in the period after free ends — `free_end` is inclusive
+    # (the RAP grants `date <= free_end`), so free 2025-12 and pro 2026-01 do
+    # not overlap. See `test_compute_part_bdpro_ranges_never_overlap`.
     # pyrefly: ignore [missing-attribute]
-    assert (r.pro.startYear, r.pro.startMonth) == (2025, 12)
+    assert (r.pro.startYear, r.pro.startMonth) == (2026, 1)
     assert r.free_end == date(2025, 12, 1)
 
 
