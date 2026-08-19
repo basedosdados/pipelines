@@ -52,9 +52,15 @@ models:
     au_ato_abr:
       +materialized: table
       +schema: au_ato_abr
+    au_ato_taxation_statistics:
+      +materialized: table
+      +schema: au_ato_taxation_statistics
     au_geoscape_gnaf:
       +materialized: table
       +schema: au_geoscape_gnaf
+    au_rba_statistical_tables:
+      +materialized: table
+      +schema: au_rba_statistical_tables
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
@@ -79,6 +85,9 @@ models:
     br_bcb_estban:
       +materialized: table
       +schema: br_bcb_estban
+    br_bcb_ifdata:
+      +materialized: table
+      +schema: br_bcb_ifdata
     br_bcb_sicor:
       +materialized: table
       +schema: br_bcb_sicor
