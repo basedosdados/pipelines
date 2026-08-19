@@ -27,12 +27,12 @@ forward on every release:
 
 | source max | free ends | pro window |
 |---|---|---|
-| 2026-03 (2026Q1) | 2025-09 | 2025-10 .. 2026-03 |
-| 2026-06 (2026Q2) | 2025-12 | 2026-01 .. 2026-06 |
+| **2026-06 (2026Q2), current** | **2025-12** | **2026-01 .. 2026-06** |
 | 2026-09 (2026Q3) | 2026-03 | 2026-04 .. 2026-09 |
+| 2026-12 (2026Q4) | 2026-06 | 2026-07 .. 2026-12 |
 
-`read_max_date` reads a quarter as `DATE(year, quarter*3, 1)`, so 2026Q1 is 2026-03-01 and
-subtracting six months lands on 2025-09-01 — the last month of 2025Q3. The free and pro
+`read_max_date` reads a quarter as `DATE(year, quarter*3, 1)`, so 2026Q2 is 2026-06-01 and
+subtracting six months lands on 2025-12-01 — the last month of 2025Q4. The free and pro
 ranges are mutually exclusive because pro starts the period *after* `free_end`.
 
 The registered coverages were computed by hand to match what the pipeline will compute; the
@@ -43,10 +43,18 @@ untouched by any of this — the paywall lives in BigQuery, not in SQL.
 
 ## Coverage
 
-January 2009 – March 2026 (69 quarterly releases, `2009q1` … `2026q1`). `2009q1.zip`
-is a header-only file with no rows — the SEC ships it so that every year has four ZIPs.
-A quarter's ZIP holds every XBRL submission *filed* in that quarter, so the fiscal
-periods it reports on reach back years before the release quarter.
+April 2009 – June 2026 (70 quarterly releases, `2009q1` … `2026q2`). `2009q1.zip` is a
+header-only file with no rows — the SEC ships it so that every year has four ZIPs — so the
+data itself starts at 2009Q2. A quarter's ZIP holds every XBRL submission *filed* in that
+quarter, so the fiscal periods it reports on reach back years before the release quarter.
+
+**The index page's link list lags the files.** `2026q2.zip` has been served since
+2026-07-06 while the landing page still listed 2026Q1 as the newest release. Scraping the
+page alone would have hidden a whole live quarter, and the recurring pipeline would have
+reported "no new data" while completing green — the exact failure mode that left
+`br_ibge_ipca` at 4 ingests in 60 completed runs. `list_source_quarters` therefore scrapes
+the page and then **probes forward by URL** from the newest listed quarter until it gets a
+404, trusting the files over the page.
 
 ## Tables
 
@@ -65,11 +73,11 @@ exact match at every step):
 
 | Table | Rows |
 |---|---|
-| `numeric_fact` | 181,351,169 |
-| `presentation` | 44,995,388 |
-| `tag` | 4,784,009 |
-| `submission` | 426,003 |
-| `dicionario` | 495 |
+| `numeric_fact` | 184,959,880 |
+| `presentation` | 45,780,878 |
+| `tag` | 4,876,740 |
+| `submission` | 433,717 |
+| `dicionario` | 59 |
 
 **Stacked by release quarter.** Every table carries the release partition
 (`year`, `quarter`) and the rows of a given quarter are exactly that quarter's ZIP.
@@ -126,8 +134,8 @@ The data is published "as filed" and carries the filers' own errors. Three were
 measured on the full export; the first two are tolerated explicitly rather than
 silently, so a *new* occurrence still fails.
 
-1. **`numeric_fact`'s documented key is not unique** — 212 key collisions
-   (434 rows of 181,351,169, or 0.0002%). They occur where a filer reuses one
+1. **`numeric_fact`'s documented key is not unique** — a few hundred key collisions in
+   185.0M rows (0.0002%). They occur where a filer reuses one
    free-text member identifier in `segments` for two different contracts, so the
    two rows share the key and carry *different* values. Tested with
    `custom_unique_combinations_of_columns` at `proportion_allowed_failures: 0.0001`.

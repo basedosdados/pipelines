@@ -186,20 +186,51 @@ def make_session() -> requests.Session:
     return session
 
 
+def next_quarter(year: int, quarter: int) -> tuple[int, int]:
+    return (year + 1, 1) if quarter == 4 else (year, quarter + 1)
+
+
+def quarter_exists(
+    year: int, quarter: int, session: requests.Session | None = None
+) -> bool:
+    """Is this quarter's ZIP actually served, whether or not it is linked?"""
+    session = session or make_session()
+    url = constants.ZIP_URL_TEMPLATE.value.format(year=year, quarter=quarter)
+    time.sleep(constants.REQUEST_INTERVAL_SECONDS.value)
+    return (
+        session.head(url, timeout=60, allow_redirects=True).status_code == 200
+    )
+
+
 def list_source_quarters(
     session: requests.Session | None = None,
+    probe_ahead: bool = True,
 ) -> list[tuple[int, int]]:
-    """Every (year, quarter) the SEC currently publishes, oldest first."""
+    """Every (year, quarter) the SEC currently publishes, oldest first.
+
+    The index page's link list lags the files: 2026Q2 was served from
+    2026-07-06 while the page still stopped at 2026Q1, so scraping alone would
+    have made this pipeline report "no new data" for a quarter that was live —
+    a run that completes green while ingesting nothing. After scraping we
+    therefore probe forward by URL from the newest listed quarter until a 404,
+    and trust the files over the page.
+    """
     session = session or make_session()
     response = session.get(constants.INDEX_URL.value, timeout=120)
     response.raise_for_status()
-    found = set(
+    found = {
         (int(y), int(q))
         for y, q in re.findall(
             r"financial-statement-data-sets/(\d{4})q(\d)\.zip", response.text
         )
-    )
-    return sorted(found)
+    }
+    quarters = sorted(found)
+    if probe_ahead and quarters:
+        candidate = next_quarter(*quarters[-1])
+        while quarter_exists(*candidate, session=session):
+            quarters.append(candidate)
+            candidate = next_quarter(*candidate)
+    return quarters
 
 
 def latest_source_quarter(

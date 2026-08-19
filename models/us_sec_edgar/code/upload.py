@@ -11,6 +11,10 @@ the local parquet row count and the run stops at the first mismatch.
 rows. It sorts first, which keeps both `bd.Table.create` and the CI table-approve action
 off the "read the first parquet whole" OOM path — do not delete it.
 
+`numeric_fact` is ~7 GB across 70 files, long enough that a single resumable upload
+regularly loses its connection mid-chunk (`SSLEOFError`). Each table is therefore retried
+a few times; a retry re-deletes the staging prefix and starts clean, so it is safe.
+
 Requires GOOGLE_APPLICATION_CREDENTIALS pointing at a BD dev service-account key plus
 `~/.basedosdados/config.toml`. The GCS bucket is requester-pays, so `gcs.Client.bucket`
 is monkeypatched to pin `user_project` to the billing project.
@@ -19,6 +23,7 @@ is monkeypatched to pin `user_project` to the billing project.
 import glob
 import os
 import sys
+import time
 
 import basedosdados as bd
 import google.cloud.storage as gcs
@@ -30,6 +35,7 @@ BILLING_PROJECT = "basedosdados-dev"
 DATASET_ID = constants.DATASET_ID.value
 TABLES = constants.TABLES.value
 OUTPUT = os.path.join(constants.SCRATCH_DIR.value, "output")
+MAX_ATTEMPTS = 4
 
 _orig_bucket = gcs.Client.bucket
 
@@ -89,9 +95,26 @@ def upload_table(table_slug: str) -> int:
     return got
 
 
+def upload_with_retry(table_slug: str) -> int:
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            return upload_table(table_slug)
+        except Exception as error:  # network faults of any shape
+            if attempt == MAX_ATTEMPTS:
+                raise
+            wait = 30 * attempt
+            print(
+                f"[{table_slug}] attempt {attempt}/{MAX_ATTEMPTS} failed "
+                f"({type(error).__name__}); retrying in {wait}s",
+                flush=True,
+            )
+            time.sleep(wait)
+    raise AssertionError("unreachable")
+
+
 if __name__ == "__main__":
     for slug in sys.argv[1:] or TABLES:
         if slug not in TABLES:
             raise SystemExit(f"unknown table {slug!r}")
-        upload_table(slug)
+        upload_with_retry(slug)
     print("done.")
