@@ -132,7 +132,10 @@ def main() -> None:
         path = c.ARCH_DIR / f"{table}.tsv"
         with open(path, "w", newline="") as fh:
             writer = csv.DictWriter(
-                fh, fieldnames=ARCH_COLUMNS, delimiter="\t"
+                fh,
+                fieldnames=ARCH_COLUMNS,
+                delimiter="\t",
+                lineterminator="\n",
             )
             writer.writeheader()
             writer.writerows(rows(table))
@@ -156,6 +159,7 @@ def main() -> None:
             fh,
             fieldnames=["table", "name", "description_en", "description_es"],
             delimiter="\t",
+            lineterminator="\n",
         )
         writer.writeheader()
         writer.writerows(sidecar)
