@@ -86,6 +86,7 @@ run`/`dbt test` verde logo depois da mudança não prova que ela está correta.
   exclusivo. 2025 e 2026 caem em `__UNPARTITIONED__` (~2,97 milhões de linhas em dev), e filtro por `ano`
   não poda partição nos anos recentes. Estender o `end` exige `--full-refresh`.
 - **Buracos na staging de dev:** `basedosdados-dev.br_ibge_pnadc_staging.microdados` não tem
-  2024 T3 nem 2024 T4 (prod tem os dois). A staging de dev também só traz zero à esquerda a
-  partir de 2021 T4 — antes disso o dado já foi gravado sem ele, então um `--full-refresh` em
+  o 3º nem o 4º trimestre de 2024 (prod tem os dois). A staging de dev também só traz zero à
+  esquerda a partir do 4º trimestre de 2021 — antes disso o dado já foi gravado sem ele, então
+  um `--full-refresh` em
   dev não reproduz a série toda a partir da staging.
