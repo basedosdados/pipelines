@@ -219,7 +219,11 @@ def us_fec_campaign_finance_flow(
 
         if update_metadata:
             for table in tables:
-                coverage = _COVERAGE.get(table, AllFree())
+                # Indexed, not .get() with a default: every refreshed table must
+                # declare its own tier. A silent fallback here would register a
+                # PartBdpro table as free and quietly disable its paywall, so a
+                # missing spec should fail loudly instead.
+                coverage = _COVERAGE[table]
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
