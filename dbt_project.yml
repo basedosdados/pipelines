@@ -82,6 +82,9 @@ models:
     br_bcb_estban:
       +materialized: table
       +schema: br_bcb_estban
+    br_bcb_ifdata:
+      +materialized: table
+      +schema: br_bcb_ifdata
     br_bcb_sicor:
       +materialized: table
       +schema: br_bcb_sicor
