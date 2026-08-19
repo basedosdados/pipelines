@@ -69,7 +69,7 @@ def _upload_with_retry(blob, path: Path, attempts: int = 6) -> None:
         try:
             blob.upload_from_filename(str(path), timeout=3600)
             return
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             if attempt == attempts:
                 raise
             print(
