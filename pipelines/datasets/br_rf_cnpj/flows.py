@@ -5,7 +5,7 @@ Flows for br_rf_cnpj — Prefect 3.
 from prefect import flow
 
 from pipelines.datasets.br_rf_cnpj.constants import constants as constants_cnpj
-from pipelines.datasets.br_rf_cnpj.tasks import get_data_source_max_date, main
+from pipelines.datasets.br_rf_cnpj.tasks import get_data_source_max_date
 from pipelines.utils.metadata.domain import (
     AllBdpro,
     DateFormat,
@@ -22,7 +22,6 @@ from pipelines.utils.tasks import (
     download_data_to_gcs,
     rename_flow_run_dataset_table,
     run_dbt,
-    upload_to_gcs,
 )
 
 
@@ -132,24 +131,24 @@ def _rf_cnpj_flow(table_id: str, cron: str):
             materialize_after_dump=materialize_after_dump,
         )
 
-        output_filepath = main(
-            tables=tabelas,
-            folder_date=folder_date,
-            last_modified_date=last_modified_date,
-            chunk_size=chunk_size,
-            download_chunk_size=download_chunk_size,
-            download_max_retries=download_max_retries,
-            download_max_parallel=download_max_parallel,
-            download_timeout=download_timeout,
-        )
+        # output_filepath = main(
+        #     tables=tabelas,
+        #     folder_date=folder_date,
+        #     last_modified_date=last_modified_date,
+        #     chunk_size=chunk_size,
+        #     download_chunk_size=download_chunk_size,
+        #     download_max_retries=download_max_retries,
+        #     download_max_parallel=download_max_parallel,
+        #     download_timeout=download_timeout,
+        # )
 
-        upload_to_gcs(
-            data_path=output_filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            bucket_name="basedosdados-dev",
-            dump_mode="append",
-        )
+        # upload_to_gcs(
+        #     data_path=output_filepath,
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     bucket_name="basedosdados-dev",
+        #     dump_mode="append",
+        # )
 
         run_dbt(
             dataset_id=dataset_id,
@@ -162,21 +161,21 @@ def _rf_cnpj_flow(table_id: str, cron: str):
         if not materialize_after_dump:
             return
 
-        upload_to_gcs(
-            data_path=output_filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            bucket_name="basedosdados",
-            dump_mode="append",
-        )
+        # upload_to_gcs(
+        #     data_path=output_filepath,
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     bucket_name="basedosdados",
+        #     dump_mode="append",
+        # )
 
-        run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            target=target,
-        )
+        # run_dbt(
+        #     dataset_id=dataset_id,
+        #     table_id=table_id,
+        #     dbt_command="run/test",
+        #     dbt_alias=dbt_alias,
+        #     target=target,
+        # )
 
         if update_metadata:
             if table_id == "simples" or table_id == "dicionario":
