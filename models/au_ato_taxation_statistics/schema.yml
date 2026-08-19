@@ -4,7 +4,7 @@ models:
   - name: au_ato_taxation_statistics__individuals_income_state
     description: >
       Itens tributários declarados por pessoas físicas na Austrália, agregados
-      por sexo, situação tributável, estado ou território de residência e
+      por estado ou território de residência, sexo, situação tributável e
       faixa de renda tributável. Cada linha traz um item da declaração com o
       número de registros que o informaram e o valor agregado em dólares
       australianos.
@@ -12,18 +12,18 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - year
+            - state_abbreviation
             - sex
             - taxable_status
-            - state_abbreviation
             - taxable_income_range_code
             - item
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
+            - state_abbreviation
             - sex
             - taxable_status
-            - state_abbreviation
             - taxable_income_range_code
             - taxable_income_bracket_code
           dictionary_model: ref('au_ato_taxation_statistics__dicionario')
@@ -37,12 +37,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: sex
-        description: >
-          Sexo do contribuinte conforme registrado na declaração
-      - name: taxable_status
-        description: >
-          Situação tributável do contribuinte no exercício
       - name: state_abbreviation
         description: >
           Sigla do estado ou território de residência do contribuinte
@@ -53,6 +47,12 @@ models:
               field: abbreviation
               ignore_values: [Overseas, Unknown]
               proportion_allowed_failures: 0
+      - name: sex
+        description: >
+          Sexo do contribuinte conforme registrado na declaração
+      - name: taxable_status
+        description: >
+          Situação tributável do contribuinte no exercício
       - name: taxable_income_range_code
         description: >
           Código ordenador da faixa de renda tributável
@@ -79,23 +79,23 @@ models:
   - name: au_ato_taxation_statistics__individuals_industry
     description: >
       Itens tributários declarados por pessoas físicas na Austrália, agregados
-      por sexo, estado ou território de residência e divisão industrial ampla
+      por estado ou território de residência, sexo e divisão industrial ampla
       (ANZSIC) da atividade principal.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - year
-            - sex
             - state_abbreviation
-            - broad_industry_code
+            - sex
+            - broad_industry_id
             - item
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
-            - sex
             - state_abbreviation
-            - broad_industry_code
+            - sex
+            - broad_industry_id
           dictionary_model: ref('au_ato_taxation_statistics__dicionario')
     columns:
       - name: year
@@ -107,9 +107,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: sex
-        description: >
-          Sexo do contribuinte conforme registrado na declaração
       - name: state_abbreviation
         description: >
           Sigla do estado ou território de residência do contribuinte
@@ -120,7 +117,10 @@ models:
               field: abbreviation
               ignore_values: [Overseas, Unknown]
               proportion_allowed_failures: 0
-      - name: broad_industry_code
+      - name: sex
+        description: >
+          Sexo do contribuinte conforme registrado na declaração
+      - name: broad_industry_id
         description: >
           Código da divisão industrial ampla (letra ANZSIC)
       - name: broad_industry
@@ -141,21 +141,22 @@ models:
   - name: au_ato_taxation_statistics__individuals_postcode
     description: >
       Itens tributários declarados por pessoas físicas na Austrália, agregados
-      por situação tributável, estado ou território, área estatística nível 4
-      (SA4) e código postal de residência. A coluna sa4_name só é publicada a
-      partir do exercício 2021-22.
+      por estado ou território, área estatística nível 4 (SA4), código postal
+      de residência e situação tributável. A coluna sa4_name só é publicada a
+      partir do exercício 2021-22, e sa4_id é resolvido a partir dela pelo
+      diretório SA4 2021.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - year
-            - taxable_status
             - state_abbreviation
             - postcode
+            - taxable_status
             - item
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage:
-          columns_covered_by_dictionary: [taxable_status, state_abbreviation]
+          columns_covered_by_dictionary: [state_abbreviation, taxable_status]
           dictionary_model: ref('au_ato_taxation_statistics__dicionario')
     columns:
       - name: year
@@ -167,9 +168,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: taxable_status
-        description: >
-          Situação tributável do contribuinte no exercício
       - name: state_abbreviation
         description: >
           Sigla do estado ou território de residência do contribuinte
@@ -180,12 +178,23 @@ models:
               field: abbreviation
               ignore_values: [Overseas, Unknown]
               proportion_allowed_failures: 0
+      - name: sa4_id
+        description: >
+          Código da Área Estatística Nível 4 (SA4) de residência do
+          contribuinte
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__sa4_2021')
+              field: id_sa4
       - name: sa4_name
         description: >
           Nome da Área Estatística Nível 4 (SA4) de residência do contribuinte
       - name: postcode
         description: >
           Código postal de residência do contribuinte
+      - name: taxable_status
+        description: >
+          Situação tributável do contribuinte no exercício
       - name: item
         description: >
           Item tributário declarado, conforme o rótulo da coluna na tabela de
@@ -205,14 +214,14 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - year
-            - broad_industry_code
-            - fine_industry_code
+            - broad_industry_id
+            - fine_industry_id
             - fine_industry
             - item
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage:
-          columns_covered_by_dictionary: [broad_industry_code, fine_industry_code]
+          columns_covered_by_dictionary: [broad_industry_id, fine_industry_id]
           dictionary_model: ref('au_ato_taxation_statistics__dicionario')
     columns:
       - name: year
@@ -224,13 +233,13 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: broad_industry_code
+      - name: broad_industry_id
         description: >
           Código da divisão industrial ampla (letra ANZSIC)
       - name: broad_industry
         description: >
           Nome da divisão industrial ampla da atividade principal da empresa
-      - name: fine_industry_code
+      - name: fine_industry_id
         description: >
           Código do grupo industrial detalhado (ANZSIC de três dígitos)
       - name: fine_industry
@@ -256,14 +265,14 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - year
-            - broad_industry_code
-            - fine_industry_code
+            - broad_industry_id
+            - fine_industry_id
             - fine_industry
             - item
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage:
-          columns_covered_by_dictionary: [broad_industry_code, fine_industry_code]
+          columns_covered_by_dictionary: [broad_industry_id, fine_industry_id]
           dictionary_model: ref('au_ato_taxation_statistics__dicionario')
     columns:
       - name: year
@@ -275,14 +284,14 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: broad_industry_code
+      - name: broad_industry_id
         description: >
           Código da divisão industrial ampla (letra ANZSIC)
       - name: broad_industry
         description: >
           Nome da divisão industrial ampla da atividade principal do
           contribuinte de GST
-      - name: fine_industry_code
+      - name: fine_industry_id
         description: >
           Código do grupo industrial detalhado (ANZSIC de três dígitos)
       - name: fine_industry

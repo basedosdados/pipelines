@@ -208,9 +208,10 @@ def read_table(path: Path, table: str) -> pd.DataFrame:
         dims: dict[str, Any] = {}
         for idx, name in dim_cols:
             value = row[idx] if idx < len(row) else None
-            if name in constants.PREFIXED_DIMENSIONS.value:
+            suffix = constants.PREFIXED_DIMENSIONS.value.get(name)
+            if suffix:
                 code, label = split_prefix(value)
-                dims[f"{name}_code"] = code
+                dims[f"{name}_{suffix}"] = code
                 dims[name] = _clean_label(label) if label else None
             elif value is None:
                 dims[name] = None
@@ -265,7 +266,11 @@ def build_dicionario(frames: dict[str, pd.DataFrame]) -> pd.DataFrame:
         for column in constants.DICTIONARY_COLUMNS.value.get(table, []):
             if column not in frame.columns:
                 continue
-            label_col = column[:-5] if column.endswith("_code") else None
+            label_col = None
+            for suffix in ("_id", "_code"):
+                if column.endswith(suffix):
+                    label_col = column[: -len(suffix)]
+                    break
             if label_col and label_col in frame.columns:
                 pairs = (
                     frame[[column, label_col]]

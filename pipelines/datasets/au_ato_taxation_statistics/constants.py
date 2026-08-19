@@ -58,14 +58,17 @@ class constants(Enum):
     }
 
     # Dimensions whose values carry a leading sort/classification prefix
-    # ("A. Mining", "011 Nursery ...", "ab. $6,001 to $10,000"). These are
-    # split into a <name>_code column and a readable label column.
-    PREFIXED_DIMENSIONS = (
-        "broad_industry",
-        "fine_industry",
-        "taxable_income_range",
-        "taxable_income_bracket",
-    )
+    # ("A. Mining", "011 Nursery ...", "ab. $6,001 to $10,000"). Each is
+    # split into an identifier column and a readable label column. The
+    # suffix distinguishes the two kinds: ANZSIC industry codes are real
+    # classification identifiers (_id), while the income-range prefixes are
+    # presentation sort keys (_code).
+    PREFIXED_DIMENSIONS = {
+        "broad_industry": "id",
+        "fine_industry": "id",
+        "taxable_income_range": "code",
+        "taxable_income_bracket": "code",
+    }
 
     # Item labels that differ only by capitalisation between releases.
     # Canonicalised so a single item does not fragment the panel.
@@ -79,40 +82,50 @@ class constants(Enum):
         ),
     }
 
+    # Column order of the staging parquet the cleaner writes. Geography
+    # leads the non-temporal dimensions, per the house column-ordering rule.
     DIMENSIONS = {
         "individuals_income_state": [
+            "state_abbreviation",
             "sex",
             "taxable_status",
-            "state_abbreviation",
             "taxable_income_range_code",
             "taxable_income_range",
             "taxable_income_bracket_code",
             "taxable_income_bracket",
         ],
         "individuals_industry": [
-            "sex",
             "state_abbreviation",
-            "broad_industry_code",
+            "sex",
+            "broad_industry_id",
             "broad_industry",
         ],
         "individuals_postcode": [
-            "taxable_status",
             "state_abbreviation",
             "sa4_name",
             "postcode",
+            "taxable_status",
         ],
         "company_industry": [
-            "broad_industry_code",
+            "broad_industry_id",
             "broad_industry",
-            "fine_industry_code",
+            "fine_industry_id",
             "fine_industry",
         ],
         "gst_industry": [
-            "broad_industry_code",
+            "broad_industry_id",
             "broad_industry",
-            "fine_industry_code",
+            "fine_industry_id",
             "fine_industry",
         ],
+    }
+
+    # Columns the dbt model derives rather than the cleaner: {table:
+    # {column: column it is inserted after}}. sa4_id is resolved by joining
+    # the ATO's SA4 name against br_bd_diretorios_au.sa4_2021, because the
+    # source publishes the SA4 name only and never its ABS code.
+    DERIVED_COLUMNS = {
+        "individuals_postcode": {"sa4_id": "state_abbreviation"},
     }
 
     MEASURES = ["item", "record_count", "amount"]
@@ -120,18 +133,18 @@ class constants(Enum):
     # Columns whose distinct values are recorded in the dicionario table.
     DICTIONARY_COLUMNS = {
         "individuals_income_state": [
+            "state_abbreviation",
             "sex",
             "taxable_status",
-            "state_abbreviation",
             "taxable_income_range_code",
             "taxable_income_bracket_code",
         ],
         "individuals_industry": [
-            "sex",
             "state_abbreviation",
-            "broad_industry_code",
+            "sex",
+            "broad_industry_id",
         ],
-        "individuals_postcode": ["taxable_status", "state_abbreviation"],
-        "company_industry": ["broad_industry_code", "fine_industry_code"],
-        "gst_industry": ["broad_industry_code", "fine_industry_code"],
+        "individuals_postcode": ["state_abbreviation", "taxable_status"],
+        "company_industry": ["broad_industry_id", "fine_industry_id"],
+        "gst_industry": ["broad_industry_id", "fine_industry_id"],
     }

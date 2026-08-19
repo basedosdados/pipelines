@@ -13,14 +13,14 @@
 
 
 select
-    safe_cast(year as int64) year,
-    safe_cast(broad_industry_code as string) broad_industry_code,
-    safe_cast(broad_industry as string) broad_industry,
-    safe_cast(fine_industry_code as string) fine_industry_code,
-    safe_cast(fine_industry as string) fine_industry,
-    safe_cast(item as string) item,
-    safe_cast(record_count as int64) record_count,
-    safe_cast(amount as float64) amount
+    safe_cast(t.year as int64) year,
+    safe_cast(t.broad_industry_id as string) broad_industry_id,
+    safe_cast(t.broad_industry as string) broad_industry,
+    safe_cast(t.fine_industry_id as string) fine_industry_id,
+    safe_cast(t.fine_industry as string) fine_industry,
+    safe_cast(t.item as string) item,
+    safe_cast(t.record_count as int64) record_count,
+    safe_cast(t.amount as float64) amount
 from
     {{ set_datalake_project("au_ato_taxation_statistics_staging.company_industry") }}
     as t

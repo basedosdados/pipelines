@@ -8,9 +8,9 @@
 
 
 select
-    safe_cast(id_tabela as string) id_tabela,
-    safe_cast(nome_coluna as string) nome_coluna,
-    safe_cast(chave as string) chave,
-    safe_cast(cobertura_temporal as string) cobertura_temporal,
-    safe_cast(valor as string) valor
+    safe_cast(t.id_tabela as string) id_tabela,
+    safe_cast(t.nome_coluna as string) nome_coluna,
+    safe_cast(t.chave as string) chave,
+    safe_cast(t.cobertura_temporal as string) cobertura_temporal,
+    safe_cast(t.valor as string) valor
 from {{ set_datalake_project("au_ato_taxation_statistics_staging.dicionario") }} as t

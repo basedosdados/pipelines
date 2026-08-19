@@ -138,7 +138,7 @@ def industry(entity_pt, entity_en, entity_es):
     """Broad and fine ANZSIC-based industry columns."""
     return [
         col(
-            "broad_industry_code",
+            "broad_industry_id",
             "STRING",
             "Código da divisão industrial ampla (letra ANZSIC)",
             "Broad industry division code (ANZSIC letter)",
@@ -155,7 +155,7 @@ def industry(entity_pt, entity_en, entity_es):
             original="Broad industry",
         ),
         col(
-            "fine_industry_code",
+            "fine_industry_id",
             "STRING",
             "Código do grupo industrial detalhado (ANZSIC de três dígitos)",
             "Fine industry group code (three-digit ANZSIC)",
@@ -177,9 +177,9 @@ def industry(entity_pt, entity_en, entity_es):
 TABLES = {
     "individuals_income_state": [
         YEAR,
+        STATE,
         SEX,
         TAXSTAT,
-        STATE,
         col(
             "taxable_income_range_code",
             "STRING",
@@ -221,10 +221,10 @@ TABLES = {
     ],
     "individuals_industry": [
         YEAR,
-        SEX,
         STATE,
+        SEX,
         col(
-            "broad_industry_code",
+            "broad_industry_id",
             "STRING",
             "Código da divisão industrial ampla (letra ANZSIC)",
             "Broad industry division code (ANZSIC letter)",
@@ -246,15 +246,31 @@ TABLES = {
     ],
     "individuals_postcode": [
         YEAR,
-        TAXSTAT,
         STATE,
+        col(
+            "sa4_id",
+            "STRING",
+            "Código da Área Estatística Nível 4 (SA4) de residência do contribuinte",
+            "Code of the Statistical Area Level 4 (SA4) of the taxpayer's residence",
+            "Código del Área Estadística Nivel 4 (SA4) de residencia del contribuyente",
+            directory="br_bd_diretorios_au.sa4_2021:id_sa4",
+            obs=(
+                "Not published by the ATO: resolved by matching sa4_name against "
+                "the SA4 2021 directory. Null for the nine ATO residual groupings "
+                "such as 'NSW other' and 'Overseas', and for years before 2021-22"
+            ),
+        ),
         col(
             "sa4_name",
             "STRING",
             "Nome da Área Estatística Nível 4 (SA4) de residência do contribuinte",
             "Name of the Statistical Area Level 4 (SA4) of the taxpayer's residence",
             "Nombre del Área Estadística Nivel 4 (SA4) de residencia del contribuyente",
-            obs="Only published from the 2021-22 release; null for earlier years",
+            obs=(
+                "Only published from the 2021-22 release; null for earlier "
+                "years. Retains the ATO residual groupings ('NSW other', "
+                "'Overseas') that have no ABS SA4 code"
+            ),
             original="Statistical Area Level 4 (SA4)",
         ),
         col(
@@ -266,6 +282,7 @@ TABLES = {
             obs="Includes ATO residual groupings such as 'NSW other', 'Overseas' and 'Unknown', so it is not linked to a postal area directory",
             original="Postcode",
         ),
+        TAXSTAT,
         ITEM,
         COUNT,
         AMOUNT,
@@ -336,15 +353,14 @@ def main() -> None:
     """Write one CSV per table."""
     OUT.mkdir(parents=True, exist_ok=True)
     for table, columns in TABLES.items():
-        expected = (
-            [
-                "year",
-                *constants.DIMENSIONS.value[table],
-                *constants.MEASURES.value,
-            ]
-            if table in constants.DIMENSIONS.value
-            else [c["name"] for c in columns]
-        )
+        if table in constants.DIMENSIONS.value:
+            dims = list(constants.DIMENSIONS.value[table])
+            derived = constants.DERIVED_COLUMNS.value.get(table, {})
+            for name, after in derived.items():
+                dims.insert(dims.index(after) + 1, name)
+            expected = ["year", *dims, *constants.MEASURES.value]
+        else:
+            expected = [c["name"] for c in columns]
         got = [c["name"] for c in columns]
         if got != expected:
             raise SystemExit(

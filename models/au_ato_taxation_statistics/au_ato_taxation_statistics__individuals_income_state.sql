@@ -13,17 +13,17 @@
 
 
 select
-    safe_cast(year as int64) year,
-    safe_cast(sex as string) sex,
-    safe_cast(taxable_status as string) taxable_status,
-    safe_cast(state_abbreviation as string) state_abbreviation,
-    safe_cast(taxable_income_range_code as string) taxable_income_range_code,
-    safe_cast(taxable_income_range as string) taxable_income_range,
-    safe_cast(taxable_income_bracket_code as string) taxable_income_bracket_code,
-    safe_cast(taxable_income_bracket as string) taxable_income_bracket,
-    safe_cast(item as string) item,
-    safe_cast(record_count as int64) record_count,
-    safe_cast(amount as float64) amount
+    safe_cast(t.year as int64) year,
+    safe_cast(t.state_abbreviation as string) state_abbreviation,
+    safe_cast(t.sex as string) sex,
+    safe_cast(t.taxable_status as string) taxable_status,
+    safe_cast(t.taxable_income_range_code as string) taxable_income_range_code,
+    safe_cast(t.taxable_income_range as string) taxable_income_range,
+    safe_cast(t.taxable_income_bracket_code as string) taxable_income_bracket_code,
+    safe_cast(t.taxable_income_bracket as string) taxable_income_bracket,
+    safe_cast(t.item as string) item,
+    safe_cast(t.record_count as int64) record_count,
+    safe_cast(t.amount as float64) amount
 from
     {{
         set_datalake_project(
