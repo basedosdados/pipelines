@@ -172,6 +172,9 @@ models:
     us_cfpb_hmda:
       +materialized: table
       +schema: us_cfpb_hmda
+    us_fec_campaign_finance:
+      +materialized: table
+      +schema: us_fec_campaign_finance
     us_nature_gerda:
       +materialized: table
       +schema: us_nature_gerda
