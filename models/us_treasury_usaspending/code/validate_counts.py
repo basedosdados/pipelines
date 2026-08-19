@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from datetime import date
 from pathlib import Path
 
 import requests
@@ -37,6 +38,12 @@ FIRST_API_FISCAL_YEAR = 2008
 CONTRACT_KEYS = ("contracts", "idvs")
 ASSISTANCE_KEYS = ("grants", "loans", "direct_payments", "other")
 TOLERANCE = 0.001  # 0.1%
+# The open fiscal year is measured against a snapshot that is by construction
+# behind the live API — the archive is rebuilt monthly, so on any given day it
+# is missing everything filed since the last build. That gap is the reason the
+# recurring pipeline re-pulls the current fiscal year, not a defect, so it is
+# reported as "open" rather than counted against the tolerance.
+OPEN_YEAR_LABEL = "open"
 
 DATA_DIR = Path(
     os.environ.get(
@@ -63,6 +70,12 @@ def api_counts(fiscal_year: int) -> dict[str, int]:
     return resp.json()["results"]
 
 
+def current_fiscal_year(today: date | None = None) -> int:
+    """US federal fiscal year of `today` — FY N runs Oct 1 N-1 to Sep 30 N."""
+    today = today or date.today()
+    return today.year + 1 if today.month >= 10 else today.year
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument(
@@ -87,7 +100,9 @@ def main() -> None:
     print(
         f"{'FY':<6}{'table':<24}{'cleaned':>14}{'api':>14}{'diff':>10}  status"
     )
+    open_fy = current_fiscal_year()
     worst = 0.0
+    worst_closed = 0.0
     for fy in years:
         results = api_counts(fy)
         for table, keys in (
@@ -100,14 +115,28 @@ def main() -> None:
             want = sum(results.get(k, 0) for k in keys)
             diff = have - want
             rel = abs(diff) / want if want else 0.0
-            worst = max(worst, rel)
-            status = "ok" if rel <= TOLERANCE else "CHECK"
+            if fy != open_fy:
+                worst = max(worst, rel)
+            if fy == open_fy:
+                status = OPEN_YEAR_LABEL
+            elif rel <= TOLERANCE:
+                status = "ok"
+            else:
+                status = "CHECK"
+                worst_closed = max(worst_closed, rel)
             print(
                 f"{fy:<6}{table:<24}{have:>14,}{want:>14,}{diff:>10,}  {status}"
             )
     print(
-        f"\nlargest relative difference: {worst:.4%} (tolerance {TOLERANCE:.1%})"
+        f"\nlargest relative difference among closed fiscal years: "
+        f"{worst:.4%} (tolerance {TOLERANCE:.1%})"
     )
+    print(
+        f"FY{open_fy} is still open; its shortfall against the live API is the "
+        "archive snapshot's age and is refreshed by the recurring pipeline."
+    )
+    if worst_closed:
+        raise SystemExit("a closed fiscal year exceeded the tolerance")
 
 
 if __name__ == "__main__":
