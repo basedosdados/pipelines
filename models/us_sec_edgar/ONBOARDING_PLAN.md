@@ -169,3 +169,25 @@ PartBdpro(
 
 and `dicionario` takes no spec. `needs_row_access_policy` is True for this tier, so the
 first armed prod run is also the first time the paywall is applied in BigQuery — watch it.
+
+### How the run differs from us_bls_cpi
+
+- **Append, not replace.** The SEC never rewrites an earlier quarter, so each run adds one
+  partition (`dump_mode="append"`) instead of rebuilding the history. Only `dicionario`
+  overwrites.
+- **`dicionario` is rebuilt as a union**, not from the new quarter alone. It is the
+  accumulated record of every code ever seen; a `datatype` last used in 2011 still has to
+  resolve or `custom_dictionary_coverage` fails on that partition. The task reads the
+  published table, unions it with the quarter's observed values, and overwrites.
+- **Run every table, then test every table**, per environment — never `run/test` inside the
+  per-table loop. The tests are cross-table: `numeric_fact` and `presentation` have
+  `relationships` onto `submission`, and three tables check `custom_dictionary_coverage`
+  against `dicionario`. Interleaving would test a table before its sibling is built.
+- **The poll compares against coverage, not `Table.Update`.** `max_date` is the quarter's
+  last month (`2026-06` for 2026Q2), which is how `read_max_date` reads a year/quarter
+  column, so it is compared like with like. `get_api_most_recent_date` takes the max across
+  *all* the table's coverage ranges, so the pro range is what it sees — correct here.
+- **The source Update is committed right after the poll**, before materializing, following
+  `commit_source_update_task`'s own contract: the poll never reads the source Update, so an
+  early commit cannot strand a later run, and a mid-flow failure still records that the SEC
+  published.
