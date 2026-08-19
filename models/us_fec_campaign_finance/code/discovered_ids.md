@@ -91,3 +91,60 @@ Planned assignment:
 
 `update_column`'s boolean arguments default to `False`, so re-pass `is_partition=True`
 when linking the observation level on `cycle`, or the flag is clobbered.
+
+---
+
+## Prod IDs (resolved 2026-08-19, before promotion)
+
+**Not all reference UUIDs carry across from staging** — re-resolve, do not copy.
+`cc0` and the `committee` entity differ; most others happen to match.
+
+| Category | Slug | Prod ID | Same as staging? |
+|---|---|---|---|
+| license | `cc0` | `afd7b13d-98f5-4023-9cb3-e9b91b1962ca` | **NO** |
+| entity | `committee` | `2ddfc4aa-8a47-44fe-bc03-4d2750bcda4b` | **NO** |
+| theme | `politics` | `c4e75f8c-29de-4b76-9607-657d4ac7f490` | yes |
+| area | `us` | `61a2c232-c649-4b41-a5a3-1467b7393e11` | yes |
+| availability | `online` | `dd396d7d-0264-4c1f-bf0d-6efe2dc89cbe` | yes |
+| status | `under_review` | `47208305-325a-4da9-9222-ac6849405b78` | yes |
+| status | `published` | `e16221de-ac30-4926-83d3-de219998dab3` | yes |
+| language | `en` | `0420c9c1-3ba3-4620-a074-56207eba5ae9` | yes |
+| entity | `person` | `b4e76213-888b-40ea-b877-d82ce76d71a2` | yes |
+| entity | `donation` | `add96ebe-acb8-43e2-b665-43c03882027e` | yes |
+| entity | `transaction` | `26887c0c-2a57-4808-b317-9c6cc63c2f3b` | yes |
+| entity | `expenditure` | `5e4f445b-02e4-4eda-b06e-8d16fe2a8741` | yes |
+| entity | `year` | `e1bf146e-b6bb-4b65-bee7-c800876e80a5` | yes |
+| entity | `week` | `485194cb-6656-492b-9ef5-436b22d2d202` | yes |
+| entity | `month` | `f9659fea-e9bb-4177-9ca0-54076a8c0932` | yes |
+
+**Must be created on prod** — neither exists there:
+- organization `fec` (name/description as registered on staging, website
+  <https://www.fec.gov/>, area `us`)
+- tag `campaign-finance` (pt "financiamento de campanha", en "campaign finance",
+  es "financiamiento de campaña")
+
+The other eight tags (`eleicao`, `candidatura`, `partido`, `doacao`, `financiamento`,
+`despesa`, `lobby`, `transparencia`) exist in the shared vocabulary but their prod IDs
+still need resolving — they were not checked on prod.
+
+## Prod registration order
+
+Same sequence as staging, all with `env="prod"` and dataset `status.under_review`:
+organization → tag → dataset → 8 raw data sources (one per table) → 8 tables →
+columns via `bulk_upsert_columns` from `gen_columns_json.py` → observation levels →
+link the grain columns (re-passing `is_partition=True` and `measurement_unit="year"`
+on `year`, or they are clobbered) → cloud tables (`gcp_project_id="basedosdados"`) →
+coverages (free on all 8, **pro on the 4 transaction tables**) → datetime ranges →
+Updates → `reorder_columns` → deferred `raw_data_source_ids` link.
+
+Coverage bounds to reuse (source-published maxima, not the data maxima — 71 typo'd
+rows run past them):
+
+| Table | free | pro |
+|---|---|---|
+| candidate / committee | 1980..2026 (interval 2) | — |
+| candidate_committee_link | 2000..2026 (interval 2) | — |
+| contribution_individual | 1975-07-28 .. 2026-01-31 | 2026-02-01 .. 2026-07-31 |
+| contribution_committee | 1976-10-26 .. 2026-01-31 | 2026-02-01 .. 2026-07-31 |
+| committee_transaction | 1976-10-26 .. 2026-01-31 | 2026-02-01 .. 2026-07-31 |
+| disbursement | 1976-01-22 .. 2026-02-12 | 2026-02-13 .. 2026-08-12 |
