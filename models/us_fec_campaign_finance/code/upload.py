@@ -33,6 +33,8 @@ BILLING_PROJECT = "basedosdados-dev"
 # FEC_RSYNC=1 uploads via gcloud storage rsync instead of bd.Table.create's python
 # resumable session — required for contribution_individual (15 GB).
 RSYNC = os.environ.get("FEC_RSYNC") == "1"
+# Resume an interrupted rsync instead of clearing the prefix first.
+RSYNC_RESUME = os.environ.get("FEC_RSYNC_RESUME") == "1"
 DATASET_ID = "us_fec_campaign_finance"
 
 TABLES = [
@@ -161,9 +163,16 @@ def upload_table(table: str) -> None:
         # and overwrites; it does not remove objects that no longer exist locally, so
         # skipping this would leave a stale partition layout sitting alongside the new
         # one and the external table would read both — silently double-counting.
-        bd.Storage(dataset_id=DATASET_ID, table_id=table).delete_table(
-            mode="staging", not_found_ok=True
-        )
+        #
+        # FEC_RSYNC_RESUME=1 skips that delete so an interrupted transfer picks up
+        # where it stopped instead of re-sending 13 GB. Only safe when the local
+        # layout has not changed since the prefix was last cleared — otherwise the
+        # double-counting above is exactly what you get. The row-count check at the
+        # end of this function is the backstop.
+        if not RSYNC_RESUME:
+            bd.Storage(dataset_id=DATASET_ID, table_id=table).delete_table(
+                mode="staging", not_found_ok=True
+            )
         rsync_to_gcs(table)
         create_external_table(table)
     else:
