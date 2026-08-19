@@ -60,9 +60,21 @@ _COVERAGE = {
     for table in constants.SOURCE_FILES.value.values()
 }
 
-# dicionario is a full rebuild every run — it is the union of the published
-# table and the new quarter — so it overwrites while the rest append.
-_DUMP_MODE = {"dicionario": "overwrite"}
+# Every table uploads with dump_mode="append", including dicionario.
+#
+# dicionario IS a full rebuild each run — it is the union of the published table
+# and the new quarter — but it must NOT use dump_mode="overwrite" to get that.
+# The overwrite branch of _upload_to_gcs calls `tb.delete(mode="all")`, and
+# mode="all" drops the MATERIALIZED PRODUCTION table, not just the staging
+# external table. bd.Table resolves its BigQuery projects from the pod config
+# rather than from bucket_name, so the dev half of the loop deletes the prod
+# table too; a run with materialize_to_prod=False then never rebuilds it. That
+# is exactly how basedosdados.us_sec_edgar.dicionario was lost on 2026-08-19,
+# and the same defect previously bit us_fed_fred.
+#
+# append gives identical semantics here without any delete: build_dicionario
+# writes a single fixed dicionario/data.parquet, and the append branch ends in
+# st.upload(..., if_exists="replace"), which replaces that one blob wholesale.
 
 
 @flow(name="us_sec_edgar", log_prints=True)
@@ -175,7 +187,7 @@ def us_sec_edgar_flow(
                     dataset_id=DATASET_ID,
                     table_id=table,
                     bucket_name=bucket,
-                    dump_mode=_DUMP_MODE.get(table, "append"),
+                    dump_mode="append",
                     source_format="parquet",
                 )
                 run_dbt(
