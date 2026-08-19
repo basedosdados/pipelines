@@ -48,6 +48,13 @@ DICT_CACHE = DATA_DIR / "ref" / "data_dictionary.json"
 # build does not require a multi-gigabyte download.
 HEADERS_FILE = HERE / "source_headers.json"
 
+# Which half of each code/label pair really holds the code, per table, as
+# measured by ../code_label_orientation.py. The Contracts archive inverts 24 of
+# them — `action_type_code` holds "OTHER ADMINISTRATIVE ACTION" while
+# `action_type` holds "M" — so the column names cannot be trusted and this file
+# is the authority.
+ORIENTATION_FILE = HERE.parent / "code_label_orientation.json"
+
 # --------------------------------------------------------------------------
 # Column naming
 # --------------------------------------------------------------------------
@@ -124,18 +131,26 @@ DIRECTORY = {
 # Dictionary coverage beyond the code columns detected from the source's own
 # enumerated domain values.
 # --------------------------------------------------------------------------
-DICT_EXTRA = {
-    "award_or_idv_flag",
-    "organizational_type",
+# Stored as 'f'/'t' like the recipient business-type flags, even though the
+# published domain writes them as "Y = Hospital Flag" style prose.
+BOOLEAN_EXTRA = {
     "hospital_flag",
     "small_disadvantaged_business",
     "small_business_competitiveness_demonstration_program",
-    "disaster_emergency_fund_codes_for_overall_award",
 }
+
+DICT_EXTRA = {}
 
 # Columns whose "domain" in the source dictionary is a pointer to an external
 # reference system rather than an enumerated list — not dictionary-covered.
 DICT_NEVER = {
+    # Stores readable labels ("AWARD"/"IDV"), not codes.
+    "award_or_idv_flag",
+    # Stores the label itself ("CORPORATE NOT TAX EXEMPT").
+    "organizational_type",
+    # Stores self-describing "code: label" strings, concatenated when an award
+    # draws on several funds, so no single key resolves a value.
+    "disaster_emergency_fund_codes_for_overall_award",
     # Stores readable labels ("SINGLE ZIP CODE"), not codes, so the dictionary
     # has nothing to resolve.
     "primary_place_of_performance_scope",
@@ -239,6 +254,12 @@ OBSERVATIONS = {
 FLAG_OBSERVATION = "Valores armazenados como 't' e 'f' na fonte"
 
 
+def load_orientation() -> dict[str, dict]:
+    if not ORIENTATION_FILE.exists():
+        return {}
+    return json.loads(ORIENTATION_FILE.read_text())
+
+
 def load_headers() -> dict[str, list[str]]:
     return json.loads(HEADERS_FILE.read_text())
 
@@ -315,7 +336,9 @@ def measurement_unit(src: str) -> str:
     return COUNTS.get(src, "")
 
 
-def describe(src: str) -> tuple[str, str, str]:
+def describe(
+    src: str, orientation: dict | None = None
+) -> tuple[str, str, str]:
     if src in FLAGS:
         return tuple(
             tpl.format(lbl)
@@ -323,37 +346,48 @@ def describe(src: str) -> tuple[str, str, str]:
         )  # type: ignore[return-value]
     if src in DESCRIPTIONS:
         return DESCRIPTIONS[src]
+    orientation = orientation or {}
     for code_col, (labels, pt, en, es) in CODE_PAIRS.items():
-        if src == code_col:
+        if src != code_col and src not in labels:
+            continue
+        holder = (orientation.get(code_col) or {}).get("code", code_col)
+        if src == holder:
             return (f"Código de {pt}", f"Code for {en}", f"Código de {es}")
-        if src in labels:
-            return (
-                f"Descrição de {pt}",
-                f"Description of {en}",
-                f"Descripción de {es}",
-            )
+        return (
+            f"Descrição de {pt}",
+            f"Description of {en}",
+            f"Descripción de {es}",
+        )
     raise KeyError(f"no description authored for column {src!r}")
 
 
-def covered_by_dictionary(src: str, ddict: dict) -> str:
+def covered_by_dictionary(
+    src: str, ddict: dict, orientation: dict | None = None
+) -> str:
     if src in DICT_NEVER:
         return "no"
-    if src in FLAGS or src in DICT_EXTRA:
+    if src in FLAGS or src in BOOLEAN_EXTRA or src in DICT_EXTRA:
         return "yes"
-    # label halves of a code/label pair store readable text, not codes
+    # Only the half that actually holds the code is dictionary-covered, and
+    # which half that is depends on the table — see ORIENTATION_FILE.
+    orientation = orientation or {}
     for code_col, (labels, *_rest) in CODE_PAIRS.items():
-        if src in labels:
+        if src != code_col and src not in labels:
+            continue
+        holder = (orientation.get(code_col) or {}).get("code", code_col)
+        if src != holder:
             return "no"
-        if src == code_col:
-            return (
-                "yes"
-                if enumerated_domain(ddict.get(src, {}).get("domain", ""))
-                else "no"
-            )
+        return (
+            "yes"
+            if enumerated_domain(ddict.get(code_col, {}).get("domain", ""))
+            else "no"
+        )
     return "no"
 
 
-def build_table(name: str, header: list[str], ddict: dict) -> list[dict]:
+def build_table(
+    name: str, header: list[str], ddict: dict, orientation: dict | None = None
+) -> list[dict]:
     ordered = [PARTITION] + [
         c for c in header if c != "action_date_fiscal_year"
     ]
@@ -364,7 +398,7 @@ def build_table(name: str, header: list[str], ddict: dict) -> list[dict]:
         obs = OBSERVATIONS.get(key, "") or OBSERVATIONS.get(original, "")
         if original in FLAGS and not obs:
             obs = FLAG_OBSERVATION
-        pt, en, es = describe(key)
+        pt, en, es = describe(key, orientation)
         rows.append(
             {
                 "name": RENAMES.get(src, src),
@@ -374,7 +408,7 @@ def build_table(name: str, header: list[str], ddict: dict) -> list[dict]:
                 "description_es": es,
                 "temporal_coverage": "",
                 "covered_by_dictionary": covered_by_dictionary(
-                    original, ddict
+                    original, ddict, orientation
                 ),
                 "directory_column": DIRECTORY.get(original, ""),
                 "measurement_unit": measurement_unit(original),
@@ -456,6 +490,19 @@ def write_csv(path: Path, rows: list[dict]) -> None:
             w.writerow({k: r.get(k, "") for k in FIELDS})
 
 
+def domain_source(src: str, ddict: dict) -> str:
+    """Domain text for a column, resolved through its code/label pair.
+
+    An inverted pair means the column holding the code is not the one the
+    dictionary indexes by name, so the concept's domain has to be looked up via
+    the pair rather than the column.
+    """
+    for code_col, (labels, *_rest) in CODE_PAIRS.items():
+        if src == code_col or src in labels:
+            return ddict.get(code_col, {}).get("domain", "")
+    return ddict.get(src, {}).get("domain", "")
+
+
 def build_dicionario_data(
     tables: dict[str, list[dict]], ddict: dict
 ) -> list[dict]:
@@ -467,9 +514,12 @@ def build_dicionario_data(
             if row["covered_by_dictionary"] != "yes":
                 continue
             src = row["original_name"]
-            pairs = enumerated_domain(ddict.get(src, {}).get("domain", ""))
-            if not pairs and src in FLAGS:
+            if src in FLAGS or src in BOOLEAN_EXTRA:
+                # The published domain says "F = False", but the archive stores
+                # lowercase 'f'/'t'; the dictionary has to match the data.
                 pairs = [("f", "False"), ("t", "True")]
+            else:
+                pairs = enumerated_domain(domain_source(src, ddict))
             for key, val in pairs:
                 sig = (table, row["name"], key)
                 if sig in seen:
@@ -491,12 +541,19 @@ def main() -> None:
     headers = load_headers()
     ddict = load_data_dictionary()
 
+    orientation = load_orientation()
     tables = {
         "contract_transaction": build_table(
-            "contract_transaction", headers["contracts"], ddict
+            "contract_transaction",
+            headers["contracts"],
+            ddict,
+            orientation.get("contract_transaction"),
         ),
         "assistance_transaction": build_table(
-            "assistance_transaction", headers["assistance"], ddict
+            "assistance_transaction",
+            headers["assistance"],
+            ddict,
+            orientation.get("assistance_transaction"),
         ),
     }
     for name, rows in tables.items():

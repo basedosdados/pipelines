@@ -16,6 +16,146 @@ models:
           at_least: 0.05
           config:
             where: __most_recent_fiscal_year__
+          ignore_values:
+            - dod_claimant_program_code
+            - dod_claimant_program_description
+            - national_interest_action
+            - national_interest_action_code
+            - obligated_amount_from_IIJA_supplemental_for_overall_award
+            - obligated_amount_from_covid19_supplementals_for_overall_award
+            - other_statutory_authority
+            - outlayed_amount_from_IIJA_supplemental_for_overall_award
+            - outlayed_amount_from_covid19_supplementals_for_overall_award
+            - period_of_performance_potential_end_date
+            - price_evaluation_adjustment_preference_percent_difference
+            - program_acronym
+            - recipient_duns
+            - recipient_parent_duns
+            - research
+            - research_code
+            - sam_exception
+            - sam_exception_description
+            - sea_transportation
+            - sea_transportation_code
+            - type_of_idc
+            - type_of_idc_code
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - action_type
+            - airport_authority
+            - alaskan_native_corporation_owned_firm
+            - alaskan_native_servicing_institution
+            - american_indian_owned_business
+            - asian_pacific_american_owned_business
+            - award_type_code
+            - black_american_owned_business
+            - c8a_program_participant
+            - city_local_government
+            - community_developed_corporation_owned_firm
+            - community_development_corporation
+            - consolidated_contract
+            - construction_wage_rate_requirements_code
+            - contingency_humanitarian_or_peacekeeping_operation_code
+            - contracting_officers_determination_of_business_size_code
+            - corporate_entity_not_tax_exempt
+            - corporate_entity_tax_exempt
+            - cost_accounting_standards_clause_code
+            - cost_or_pricing_data
+            - council_of_governments
+            - county_local_government
+            - domestic_shelter
+            - dot_certified_disadvantage
+            - economically_disadvantaged_women_owned_small_business
+            - educational_institution
+            - emerging_small_business
+            - epa_designated_product
+            - extent_competed
+            - fed_biz_opps
+            - federal_agency
+            - federally_funded_research_and_development_corp
+            - for_profit_organization
+            - foreign_government
+            - foreign_owned
+            - foundation
+            - government_furnished_property_code
+            - hispanic_american_owned_business
+            - hispanic_servicing_institution
+            - historically_black_college
+            - historically_underutilized_business_zone_hubzone_firm
+            - hospital_flag
+            - housing_authorities_public_tribal
+            - idv_type
+            - indian_tribe_federally_recognized
+            - information_technology_commercial_item_category_code
+            - inter_municipal_local_government
+            - interagency_contracting_authority_code
+            - international_organization
+            - interstate_entity
+            - joint_venture_economic_disadvantaged_women_owned_small_bus
+            - joint_venture_women_owned_small_business
+            - labor_standards
+            - labor_surplus_area_firm
+            - land_grant_college_1862
+            - land_grant_college_1890
+            - land_grant_college_1994
+            - limited_liability_corporation
+            - local_government_owned
+            - manufacturer_of_goods
+            - materials_supplies_articles_equipment_code
+            - minority_institution
+            - minority_owned_business
+            - multi_year_contract
+            - municipality_local_government
+            - native_american_owned_business
+            - native_hawaiian_organization_owned_firm
+            - native_hawaiian_servicing_institution
+            - nonprofit_organization
+            - other_minority_owned_business
+            - other_not_for_profit_organization
+            - parent_award_type_code
+            - partnership_or_limited_liability_partnership
+            - performance_based_service_acquisition_code
+            - planning_commission
+            - port_authority
+            - private_university_or_college
+            - purchase_card_as_payment_method_code
+            - receives_contracts
+            - receives_contracts_and_financial_assistance
+            - receives_financial_assistance
+            - research
+            - sam_exception
+            - sba_certified_8a_joint_venture
+            - school_district_local_government
+            - school_of_forestry
+            - sea_transportation
+            - self_certified_small_disadvantaged_business
+            - service_disabled_veteran_owned_business
+            - simplified_procedures_for_certain_commercial_items_code
+            - small_agricultural_cooperative
+            - small_business_competitiveness_demonstration_program
+            - small_disadvantaged_business
+            - sole_proprietorship
+            - state_controlled_institution_of_higher_learning
+            - subchapter_scorporation
+            - subcontinent_asian_asian_indian_american_owned_business
+            - subcontracting_plan
+            - the_ability_one_program
+            - township_local_government
+            - transit_authority
+            - tribal_college
+            - tribally_owned_firm
+            - type_of_idc
+            - us_federal_government
+            - us_government_entity
+            - us_local_government
+            - us_state_government
+            - us_tribal_government
+            - veteran_owned_business
+            - veterinary_college
+            - veterinary_hospital
+            - woman_owned_business
+            - women_owned_small_business
+          dictionary_model: ref('us_treasury_usaspending__dicionario')
     columns:
       - name: fiscal_year
         description: >
@@ -312,10 +452,10 @@ models:
           Descrição de tipo de contrato firmado
       - name: idv_type_code
         description: >
-          Código de tipo de veículo de entrega indefinida (IDV)
+          Descrição de tipo de veículo de entrega indefinida (IDV)
       - name: idv_type
         description: >
-          Descrição de tipo de veículo de entrega indefinida (IDV)
+          Código de tipo de veículo de entrega indefinida (IDV)
       - name: multiple_or_single_award_idv_code
         description: >
           Código de indicação de que o IDV admite um ou múltiplos contratados
@@ -324,16 +464,16 @@ models:
           Descrição de indicação de que o IDV admite um ou múltiplos contratados
       - name: type_of_idc_code
         description: >
-          Código de tipo de contrato de entrega indefinida (IDC)
+          Descrição de tipo de contrato de entrega indefinida (IDC)
       - name: type_of_idc
         description: >
-          Descrição de tipo de contrato de entrega indefinida (IDC)
+          Código de tipo de contrato de entrega indefinida (IDC)
       - name: type_of_contract_pricing_code
         description: >
-          Código de regime de preços do contrato
+          Descrição de regime de preços do contrato
       - name: type_of_contract_pricing
         description: >
-          Descrição de regime de preços do contrato
+          Código de regime de preços do contrato
       - name: transaction_description
         description: >
           Descrição do objeto desta transação
@@ -342,10 +482,10 @@ models:
           Descrição do objeto da transação inicial do auxílio ou contrato
       - name: action_type_code
         description: >
-          Código de tipo de ação registrada na transação
+          Descrição de tipo de ação registrada na transação
       - name: action_type
         description: >
-          Descrição de tipo de ação registrada na transação
+          Código de tipo de ação registrada na transação
       - name: solicitation_identifier
         description: >
           Identificador do edital que originou a contratação
@@ -368,10 +508,10 @@ models:
           Descrição de produto ou serviço adquirido, segundo o PSC Manual
       - name: contract_bundling_code
         description: >
-          Código de agrupamento (bundling) de requisitos no contrato
+          Descrição de agrupamento (bundling) de requisitos no contrato
       - name: contract_bundling
         description: >
-          Descrição de agrupamento (bundling) de requisitos no contrato
+          Código de agrupamento (bundling) de requisitos no contrato
       - name: dod_claimant_program_code
         description: >
           Código de programa reivindicante do Departamento de Defesa
@@ -392,10 +532,10 @@ models:
           Descrição de cláusulas de materiais recuperados e sustentabilidade aplicadas
       - name: domestic_or_foreign_entity_code
         description: >
-          Código de natureza doméstica ou estrangeira do contratado
+          Descrição de natureza doméstica ou estrangeira do contratado
       - name: domestic_or_foreign_entity
         description: >
-          Descrição de natureza doméstica ou estrangeira do contratado
+          Código de natureza doméstica ou estrangeira do contratado
       - name: dod_acquisition_program_code
         description: >
           Código de programa de aquisição do Departamento de Defesa
@@ -411,10 +551,10 @@ models:
           adquirido
       - name: epa_designated_product_code
         description: >
-          Código de atendimento aos requisitos de produtos designados pela EPA
+          Descrição de atendimento aos requisitos de produtos designados pela EPA
       - name: epa_designated_product
         description: >
-          Descrição de atendimento aos requisitos de produtos designados pela EPA
+          Código de atendimento aos requisitos de produtos designados pela EPA
       - name: country_of_product_or_service_origin_code
         description: >
           Código de país de origem do produto ou serviço adquirido
@@ -423,28 +563,28 @@ models:
           Descrição de país de origem do produto ou serviço adquirido
       - name: place_of_manufacture_code
         description: >
-          Código de local de fabricação do produto ou de prestação do serviço
+          Descrição de local de fabricação do produto ou de prestação do serviço
       - name: place_of_manufacture
         description: >
-          Descrição de local de fabricação do produto ou de prestação do serviço
+          Código de local de fabricação do produto ou de prestação do serviço
       - name: subcontracting_plan_code
         description: >
-          Código de exigência de plano de subcontratação
+          Descrição de exigência de plano de subcontratação
       - name: subcontracting_plan
         description: >
-          Descrição de exigência de plano de subcontratação
+          Código de exigência de plano de subcontratação
       - name: extent_competed_code
         description: >
-          Código de grau de competição na contratação
+          Descrição de grau de competição na contratação
       - name: extent_competed
         description: >
-          Descrição de grau de competição na contratação
+          Código de grau de competição na contratação
       - name: solicitation_procedures_code
         description: >
-          Código de procedimento de solicitação de propostas utilizado
+          Descrição de procedimento de solicitação de propostas utilizado
       - name: solicitation_procedures
         description: >
-          Descrição de procedimento de solicitação de propostas utilizado
+          Código de procedimento de solicitação de propostas utilizado
       - name: type_of_set_aside_code
         description: >
           Código de tipo de reserva de mercado (set-aside) aplicada
@@ -453,17 +593,17 @@ models:
           Descrição de tipo de reserva de mercado (set-aside) aplicada
       - name: evaluated_preference_code
         description: >
-          Código de preferência avaliada na comparação de propostas
+          Descrição de preferência avaliada na comparação de propostas
       - name: evaluated_preference
         description: >
-          Descrição de preferência avaliada na comparação de propostas
+          Código de preferência avaliada na comparação de propostas
       - name: research_code
         description: >
-          Código de enquadramento da ação em programa de pesquisa para pequenas
+          Descrição de enquadramento da ação em programa de pesquisa para pequenas
           empresas
       - name: research
         description: >
-          Descrição de enquadramento da ação em programa de pesquisa para pequenas
+          Código de enquadramento da ação em programa de pesquisa para pequenas
           empresas
       - name: fair_opportunity_limited_sources_code
         description: >
@@ -506,26 +646,26 @@ models:
           Descrição de vínculo da ação a estudo de terceirização A-76 (FAIR Act)
       - name: fed_biz_opps_code
         description: >
-          Código de publicação da oportunidade no FedBizOpps
+          Descrição de publicação da oportunidade no FedBizOpps
       - name: fed_biz_opps
         description: >
-          Descrição de publicação da oportunidade no FedBizOpps
+          Código de publicação da oportunidade no FedBizOpps
       - name: local_area_set_aside_code
         description: >
-          Código de reserva de mercado para empresas da área atingida por desastre
+          Descrição de reserva de mercado para empresas da área atingida por desastre
       - name: local_area_set_aside
         description: >
-          Descrição de reserva de mercado para empresas da área atingida por desastre
+          Código de reserva de mercado para empresas da área atingida por desastre
       - name: price_evaluation_adjustment_preference_percent_difference
         description: >
           Percentual de ajuste de preço aplicado em favor de pequenas empresas
           desfavorecidas
       - name: clinger_cohen_act_planning_code
         description: >
-          Código de conformidade da aquisição de TI com o Clinger-Cohen Act
+          Descrição de conformidade da aquisição de TI com o Clinger-Cohen Act
       - name: clinger_cohen_act_planning
         description: >
-          Descrição de conformidade da aquisição de TI com o Clinger-Cohen Act
+          Código de conformidade da aquisição de TI com o Clinger-Cohen Act
       - name: materials_supplies_articles_equipment_code
         description: >
           Código de aplicação da cláusula Walsh-Healey de materiais e equipamentos
@@ -534,10 +674,10 @@ models:
           Descrição de aplicação da cláusula Walsh-Healey de materiais e equipamentos
       - name: labor_standards_code
         description: >
-          Código de aplicação das normas trabalhistas do Service Contract Act
+          Descrição de aplicação das normas trabalhistas do Service Contract Act
       - name: labor_standards
         description: >
-          Descrição de aplicação das normas trabalhistas do Service Contract Act
+          Código de aplicação das normas trabalhistas do Service Contract Act
       - name: construction_wage_rate_requirements_code
         description: >
           Código de aplicação dos pisos salariais de construção do Davis-Bacon Act
@@ -574,16 +714,16 @@ models:
           Nome do programa principal ao qual a contratação se vincula
       - name: national_interest_action_code
         description: >
-          Código de evento de interesse nacional associado à ação
+          Descrição de evento de interesse nacional associado à ação
       - name: national_interest_action
         description: >
-          Descrição de evento de interesse nacional associado à ação
+          Código de evento de interesse nacional associado à ação
       - name: cost_or_pricing_data_code
         description: >
-          Código de obtenção de dados de custo ou preço do fornecedor
+          Descrição de obtenção de dados de custo ou preço do fornecedor
       - name: cost_or_pricing_data
         description: >
-          Descrição de obtenção de dados de custo ou preço do fornecedor
+          Código de obtenção de dados de custo ou preço do fornecedor
       - name: cost_accounting_standards_clause_code
         description: >
           Código de inclusão da cláusula de normas de contabilidade de custos (CAS)
@@ -598,23 +738,23 @@ models:
           Descrição de uso de bens ou equipamentos fornecidos pelo governo
       - name: sea_transportation_code
         description: >
-          Código de previsão de transporte marítimo na execução do contrato
+          Descrição de previsão de transporte marítimo na execução do contrato
       - name: sea_transportation
         description: >
-          Descrição de previsão de transporte marítimo na execução do contrato
+          Código de previsão de transporte marítimo na execução do contrato
       - name: undefinitized_action_code
         description: >
-          Código de situação da ação quanto à definição de termos e preço
+          Descrição de situação da ação quanto à definição de termos e preço
       - name: undefinitized_action
         description: >
-          Descrição de situação da ação quanto à definição de termos e preço
+          Código de situação da ação quanto à definição de termos e preço
       - name: consolidated_contract_code
-        description: >
-          Código de consolidação de requisitos anteriormente contratados em separado
-      - name: consolidated_contract
         description: >
           Descrição de consolidação de requisitos anteriormente contratados em
           separado
+      - name: consolidated_contract
+        description: >
+          Código de consolidação de requisitos anteriormente contratados em separado
       - name: performance_based_service_acquisition_code
         description: >
           Código de uso de aquisição de serviços baseada em desempenho
@@ -623,16 +763,16 @@ models:
           Descrição de uso de aquisição de serviços baseada em desempenho
       - name: multi_year_contract_code
         description: >
-          Código de enquadramento como contrato plurianual
+          Descrição de enquadramento como contrato plurianual
       - name: multi_year_contract
         description: >
-          Descrição de enquadramento como contrato plurianual
+          Código de enquadramento como contrato plurianual
       - name: contract_financing_code
         description: >
-          Código de modalidade de financiamento do contrato
+          Descrição de modalidade de financiamento do contrato
       - name: contract_financing
         description: >
-          Descrição de modalidade de financiamento do contrato
+          Código de modalidade de financiamento do contrato
       - name: purchase_card_as_payment_method_code
         description: >
           Código de uso do cartão de compras governamental como meio de pagamento
@@ -1013,23 +1153,8 @@ models:
           config:
             where: __most_recent_fiscal_year__
           ignore_values:
-            - action_type_description
-            - assistance_type_description
-            - awarding_office_code
-            - awarding_office_name
-            - business_funds_indicator_description
             - correction_delete_indicator_code
             - correction_delete_indicator_description
-            - disaster_emergency_fund_codes_for_overall_award
-            - federal_accounts_funding_this_award
-            - funding_agency_code
-            - funding_agency_name
-            - funding_office_code
-            - funding_office_name
-            - funding_opportunity_goals_text
-            - funding_opportunity_number
-            - funding_sub_agency_code
-            - funding_sub_agency_name
             - highly_compensated_officer_1_amount
             - highly_compensated_officer_1_name
             - highly_compensated_officer_2_amount
@@ -1040,25 +1165,21 @@ models:
             - highly_compensated_officer_4_name
             - highly_compensated_officer_5_amount
             - highly_compensated_officer_5_name
-            - indirect_cost_federal_share_amount
-            - object_classes_funding_this_award
             - obligated_amount_from_IIJA_supplemental_for_overall_award
             - obligated_amount_from_covid19_supplementals_for_overall_award
             - outlayed_amount_from_IIJA_supplemental_for_overall_award
             - outlayed_amount_from_covid19_supplementals_for_overall_award
             - primary_place_of_performance_foreign_location
-            - program_activities_funding_this_award
+            - recipient_address_line_2
+            - recipient_duns
             - recipient_foreign_city_name
             - recipient_foreign_postal_code
             - recipient_foreign_province_name
-            - record_type_description
-            - total_outlayed_amount_for_overall_award
-            - treasury_accounts_funding_this_award
+            - recipient_parent_duns
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - action_type_code
             - business_funds_indicator_code
-            - disaster_emergency_fund_codes_for_overall_award
             - record_type_code
           dictionary_model: ref('us_treasury_usaspending__dicionario')
     columns:
