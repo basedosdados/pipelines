@@ -151,24 +151,33 @@ def _staging_uf_done(
     uploaded the moment it is cleaned, so a pod eviction mid-run loses only the
     in-flight UF and the resubmit skips everything already here.
 
-    Only the prod bucket (``basedosdados``) is requester-pays and needs
-    ``user_project``; forcing it on the non-requester-pays dev bucket bills the
-    request there and trips a ``serviceusage.services.use`` check the dev-pool SA
-    fails with 403. On any transient error, return False (treat as not-staged) so
-    the UF is re-cleaned and re-uploaded (idempotent) rather than crashing the run.
+    The staging bucket is requester-pays, and its ``user_project`` must be billed
+    to a project the *storage_staging* credentials can use — which a raw
+    ``storage.Client`` (pod ADC) cannot: without ``user_project`` it 400s
+    ("requester pays … no user project"), and billing the pod's own project 403s
+    on ``serviceusage.services.use``. So reuse ``bd.Storage``'s own bucket — the
+    exact object ``_upload_to_gcs`` uploads through — which is built from the
+    storage_staging credentials with ``user_project=billing_project_id``. On any
+    transient error, return False (treat as not-staged) so the UF is re-cleaned
+    and re-uploaded (idempotent) rather than crashing the run.
     """
-    from google.cloud import storage
+    import basedosdados as bd
 
-    client = storage.Client(project=bucket_name)
+    st = bd.Storage(
+        dataset_id=DATASET_ID,
+        table_id=table_id,
+        bucket_name=bucket_name,
+        billing_project_id=bucket_name,
+    )
     prefix = (
         f"staging/{DATASET_ID}/{table_id}/"
         f"data={snapshot_iso}/sigla_uf={sigla_uf}/"
     )
-    user_project = bucket_name if bucket_name == "basedosdados" else None
-    bucket = client.bucket(bucket_name, user_project=user_project)
     try:
         return (
-            next(iter(bucket.list_blobs(prefix=prefix, max_results=1)), None)
+            next(
+                iter(st.bucket.list_blobs(prefix=prefix, max_results=1)), None
+            )
             is not None
         )
     except Exception as exc:
