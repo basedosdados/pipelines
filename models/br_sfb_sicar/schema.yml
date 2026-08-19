@@ -9,7 +9,7 @@ models:
       código.
     tests:
       - custom_unique_combinations_of_columns:
-          combination_of_columns: [data_extracao, id_imovel]
+          combination_of_columns: [id_imovel, data_extracao]
       - not_null_proportion_multiple_columns:
           at_least: 0.95
       - custom_dictionary_coverage:

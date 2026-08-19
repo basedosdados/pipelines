@@ -70,7 +70,6 @@ def br_sfb_sicar__area_imovel(
         bucket_name="basedosdados-dev",
         dump_mode="append",
         source_format="parquet",
-        dbt_alias=dbt_alias,
     )
 
     run_dbt(
@@ -91,7 +90,6 @@ def br_sfb_sicar__area_imovel(
         bucket_name="basedosdados",
         dump_mode="append",
         source_format="parquet",
-        dbt_alias=dbt_alias,
     )
 
     run_dbt(

@@ -111,9 +111,8 @@ ignoradas, e o modelo não as usa — a divergência não afetou nenhum run até
 o `_sync_staging_schema` passou a comparar os dois schemas e a tentar acrescentar ao
 BigQuery o que falta.
 
-Hoje a sincronização só considera as colunas que o `.sql` do modelo menciona, então as
-duas seguem ignoradas e o upload não altera a tabela. Onboardar qualquer uma delas —
-acrescentá-la ao modelo — passa a exigir o PATCH, que hoje falha (ver Pendências).
+Como o PATCH falha (ver Pendências), qualquer coluna nova na fonte derruba o upload, mesmo
+sem nenhum modelo lendo essa coluna — e derruba depois do download inteiro.
 
 ---
 
@@ -123,9 +122,8 @@ acrescentá-la ao modelo — passa a exigir o PATCH, que hoje falha (ver Pendên
   (`pipelines/utils/tasks.py`) abre `bigquery.Client(project=...)` sem credencial e cai no
   ADC do pod, que só lê; o `get_table` passa e o `update_table` estoura com
   `bigquery.tables.update denied`. O cliente autenticado está em
-  `tb.client["bigquery_staging"]`, no objeto que a função já recebe. Com o filtro por
-  referência do modelo, este conjunto não chega mais ao PATCH; o defeito continua no
-  caminho de quem onboardar uma coluna nova, aqui ou em qualquer outro conjunto.
+  `tb.client["bigquery_staging"]`, no objeto que a função já recebe. Vale para este e para
+  qualquer outro conjunto; o conserto sai em PR à parte.
 - **Não há staging em dev.** Nem o dataset `br_sfb_sicar_staging` em `basedosdados-dev`,
   nem o prefixo `gs://basedosdados-dev/staging/br_sfb_sicar/`. O próximo run no pool de dev
   os cria pelo ramo `tb.create` do `upload_to_gcs`.
