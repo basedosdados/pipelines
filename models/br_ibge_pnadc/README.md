@@ -3,7 +3,7 @@
 PNAD Contínua trimestral (IBGE). Tabelas: `microdados`, `educacao`,
 `rendimentos_outras_fontes` e `dicionario`.
 
-## Dicionário — pipeline in-repo
+## Dicionário — pipeline dentro do repo
 
 O dicionário é gerado por uma pipeline **dentro do repo**:
 
@@ -13,9 +13,8 @@ O dicionário é gerado por uma pipeline **dentro do repo**:
   `br_ibge_pnadc__dicionario` (quinzenal) que reconstrói o dicionário, sobe para o
   staging (`dump_mode="overwrite"`) e materializa via dbt.
 
-Por isso o modelo `br_ibge_pnadc__dicionario.sql` é um **passthrough** simples
-(`safe_cast` das 5 colunas) — todas as correções de domínio ficam no `build_dicionario`,
-não no SQL.
+Por isso o modelo `br_ibge_pnadc__dicionario.sql` só faz `safe_cast` das 5 colunas, sem
+transformar nada — todas as correções de domínio ficam no `build_dicionario`, não no SQL.
 
 ### Fontes (FTP do IBGE)
 
@@ -47,22 +46,46 @@ esquerda (críticos no `V4010`).
 
 `V4010` está **fora** do `custom_dictionary_coverage` (e fora do `COLUNAS_STRIP_ZERO`). É
 código de ocupação hierárquico (COD/IBGE), onde o zero à esquerda é **semântico**
-(`0110` ≠ `110`) — stripar colidiria códigos e achataria a hierarquia (GG/SG/SUB/GB). Em dev,
-3 códigos de forças armadas do dado (`210` ≈ 34k linhas, `110` ≈ 7k, `000` ≈ 0,4k) não têm par
-no dicionário, que tem os padded `0210`/`0110`/`0`. O padding inconsistente vem do **dado do
-microdados**, não do dicionário; corrigi-lo alteraria dado de produção — decisão do time é
-**não** normalizar por ora. Ver issue **#1699**.
+(`0110` ≠ `110`), e a hierarquia (GG/SG/SUB/GB) depende dele. O strip do modelo (ver abaixo)
+alcança `V4010` e come um zero, então o dado tem `210`/`110`/`000` onde o dicionário tem
+`0210`/`0110`/`0`. Em dev são ~34k linhas em `210`, ~7k em `110` e ~0,4k em `000`. Excluir
+`V4010` do strip mudaria dado de produção já publicado — decisão do time é **não** normalizar
+por ora. Ver issue **#1699**.
 
-## microdados — strip de zero removido
+## microdados — strip de zero à esquerda
 
-O `br_ibge_pnadc__microdados.sql` tinha um bloco que "limpava" zero à esquerda de colunas
-`V*`, mas era **código morto**: `column.name.startswith("V")` nunca casava porque
-`get_columns_in_relation` devolve nomes minúsculos. Removido; a normalização de zero à
-esquerda é responsabilidade do `build_dicionario`.
+O `br_ibge_pnadc__microdados.sql` fecha com um bloco que remove o zero à esquerda das colunas
+`V*` de tipo STRING (`'05'` → `'5'`). É ele que alinha o dado com as chaves do
+`br_ibge_pnadc__dicionario`, e ele cobre as duas famílias de coluna:
+
+- as de `COLUNAS_STRIP_ZERO`, cuja chave o `build_dicionario` normaliza (`lstrip`);
+- as que o `.xls` do IBGE já publica sem zero (`VD2002`, `VD4009`, `VD4010`, `VD4011`), onde
+  não há normalização nenhuma do lado do dicionário.
+
+O arquivo de largura fixa do IBGE traz os campos com zero à esquerda em toda a série; o strip
+é o que mantém o histórico consistente desde 2012.
+
+**O bloco depende de as colunas estarem em maiúscula.** `adapter.get_columns_in_relation`
+devolve os nomes como estão na tabela, e as colunas `V*` existem em MAIÚSCULA (`V2005`,
+`VD4010`) — só as que o modelo cria minúsculas (`ano`, `capital`, `rm_ride`) vêm assim. É isso que
+faz o `column.name.startswith("V")` casar. Remover o bloco por parecer que ele não faz nada
+quebra o `custom_dictionary_coverage`.
+
+Mexer nesse `select` **só produz efeito depois**: o modelo é `incremental`, então a alteração
+não toca nenhuma linha já materializada e só aparece quando entra um trimestre novo. Um `dbt
+run`/`dbt test` verde logo depois da mudança não prova que ela está correta.
 
 ## Pendências
 
 - **BD Pro:** `microdados` passa a `PartBdpro` (janela móvel, `free_lag` de 6 meses). Antes de
   ativar o agendamento é preciso criar a Coverage **pro** (`is_closed=True`) + DateTimeRange na
-  tabela, senão `assert_coverage_topology` dá hard-fail. Slug no backend é `pnadc` (não
+  tabela, senão `assert_coverage_topology` falha antes de escrever qualquer coisa. Slug no
+  backend é `pnadc` (não
   `br_ibge_pnadc`).
+- **Range de partição vencido:** o `partition_by` de `microdados` vai até `end: 2025`, que é
+  exclusivo. 2025 e 2026 caem em `__UNPARTITIONED__` (~2,97 milhões de linhas em dev), e filtro por `ano`
+  não poda partição nos anos recentes. Estender o `end` exige `--full-refresh`.
+- **Buracos na staging de dev:** `basedosdados-dev.br_ibge_pnadc_staging.microdados` não tem
+  2024 T3 nem 2024 T4 (prod tem os dois). A staging de dev também só traz zero à esquerda a
+  partir de 2021 T4 — antes disso o dado já foi gravado sem ele, então um `--full-refresh` em
+  dev não reproduz a série toda a partir da staging.
