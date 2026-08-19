@@ -449,8 +449,20 @@ def download_all(
             one of the curated tables — which would silently shrink coverage.
     """
     session = session or requests.Session()
-    mapping = resource_map(list_packages(session))
-    releases = sorted(r for r in mapping if r >= constants.MIN_RELEASE.value)
+    packages = list_packages(session)
+    mapping = resource_map(packages)
+    # Derive the in-scope releases from the packages themselves, not from
+    # `mapping`: resource_map only creates an entry once a selector matches, so
+    # a release whose workbooks were all renamed would silently vanish here,
+    # max_year would come from an older release, and the poll would report the
+    # collection as up to date while never ingesting the new year.
+    releases = sorted(
+        r
+        for r in (
+            p["name"].removeprefix("taxation-statistics-") for p in packages
+        )
+        if r >= constants.MIN_RELEASE.value
+    )
     if not releases:
         raise ValueError(
             f"no release at or after {constants.MIN_RELEASE.value} found; "
@@ -458,13 +470,14 @@ def download_all(
         )
     expected = set(constants.TABLE_SELECTORS.value)
     for release in releases:
-        missing = expected - set(mapping[release])
+        found = mapping.get(release, {})
+        missing = expected - set(found)
         if missing:
             raise ValueError(
                 f"release {release} is missing {sorted(missing)}; refusing to "
                 "rebuild with partial coverage"
             )
-        for table, url in sorted(mapping[release].items()):
+        for table, url in sorted(found.items()):
             download(url, input_dir / f"{table}__{release}.xlsx", session)
     return releases
 
