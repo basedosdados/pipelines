@@ -132,7 +132,13 @@ def upload_table(table: str) -> None:
     print(f"[{table}] local: {expected:,} rows in {nfiles} parquet file(s)")
 
     if RSYNC:
-        # Large tables: rsync is resumable and skips what is already uploaded.
+        # Clear the prefix first, exactly as the non-rsync path does. rsync only adds
+        # and overwrites; it does not remove objects that no longer exist locally, so
+        # skipping this would leave a stale partition layout sitting alongside the new
+        # one and the external table would read both — silently double-counting.
+        bd.Storage(dataset_id=DATASET_ID, table_id=table).delete_table(
+            mode="staging", not_found_ok=True
+        )
         rsync_to_gcs(table)
         create_external_table(table)
     else:
