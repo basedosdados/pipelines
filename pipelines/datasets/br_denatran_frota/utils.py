@@ -19,7 +19,7 @@ from dateutil import relativedelta
 from rarfile import RarFile
 from string_utils import asciify
 
-from pipelines.crawler.denatran_frota.constants import (
+from pipelines.datasets.br_denatran_frota.constants import (
     constants as denatran_constants,
 )
 from pipelines.utils.utils import log, to_partitions
@@ -732,7 +732,7 @@ def treat_uf(
 def output_file_to_parquet(
     df: pl.DataFrame,
     table_id: str,
-    output_path: str | Path = denatran_constants.OUTPUT_PATH.value,
+    output_dir: str | Path,
 ) -> Path:
     """Task to save .parquet uf_tipo and municipio_tipo files
 
@@ -745,14 +745,16 @@ def output_file_to_parquet(
 
     pd_df = df.to_pandas()
     pd_df = pd_df.astype(str)
+    savepath = Path(output_dir) / table_id
+
     to_partitions(
         pd_df,
         partition_columns=["ano", "mes"],
-        savepath=os.path.join(output_path, table_id),
+        savepath=savepath.as_posix(),
         file_type="parquet",
     )
     # pyrefly: ignore [bad-return]
-    return os.path.join(output_path, table_id)
+    return savepath
 
 
 # pyrefly: ignore [bad-return]
