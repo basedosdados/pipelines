@@ -204,15 +204,16 @@ OBSERVATION_LEVEL_COLUMN = {
     ("summary_physician", "person"): "covered_recipient_profile_id",
 }
 
-ENTITY_IDS = {
-    "payment": "7cd9f097-f7ad-4b8a-8c07-746b6fbef450",
-    "person": "b4e76213-888b-40ea-b877-d82ce76d71a2",
-    "hospital": "72cd18a6-42c4-4fbb-987e-cb26272a5c14",
-    "company": "b585c285-3ad7-4b86-9c36-6195e4760a46",
-    "state": "839765a7-9c7a-44bd-bb88-357cedba03f6",
-    "occupation": "859cabcb-db31-4d57-aa3d-ca6b6d840b9c",
-    "year": "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
-}
+# Entity slugs used as observation levels; ids resolved per environment.
+ENTITY_SLUGS = [
+    "payment",
+    "person",
+    "hospital",
+    "company",
+    "state",
+    "occupation",
+    "year",
+]
 
 
 # --- raw data sources -------------------------------------------------------
@@ -312,14 +313,13 @@ RAW_SOURCES = {
     },
 }
 
-LICENSE_ID = "7fb71004-2abe-4fc8-a258-e2aac27c71d9"  # cc0
-AVAILABILITY_ID = "dd396d7d-0264-4c1f-bf0d-6efe2dc89cbe"  # online
-ORGANIZATION_ID = "893ca241-c99e-4dd4-98d5-6e9172179f2e"
-THEME_IDS = [
-    "1c0535e3-d0ad-47c0-a324-727aa9b1d622",  # health
-    "ad6a413a-e882-4dd6-a497-8a62eec8511b",  # economics
-    "6dd730bb-89ab-4dba-a1bf-a25ca1c35003",  # government
-]
+# Reference objects are named by slug, not id: most UUIDs happen to match
+# between staging and prod, but the cc0 licence does not, and a hardcoded id
+# would have written the wrong licence to prod without any error.
+LICENSE_SLUG = "cc0"
+AVAILABILITY_SLUG = "online"
+ORGANIZATION_SLUG = "centers_for_medicare_medicaid_services_cms"
+THEME_SLUGS = ["health", "economics", "government"]
 
 # The entity tables are a snapshot of the current publication cycle, so they
 # describe the recipients and entities appearing in 2019-2025, not the whole
@@ -330,16 +330,19 @@ ENTITY_TABLE_COVERAGE = (2019, 2025)
 # medical-device were created for this dataset, with English kebab-case slugs
 # per the tag convention. Deliberately absent: `saude`, which would restate the
 # health theme, and any place name, which the coverage metadata already carries.
-TAG_IDS = [
-    "0425779c-5cb0-4256-9d4d-c22a7def8bfd",  # medicamento
-    "3c3b6478-193e-441e-a388-31916405c422",  # hospital
-    "8b187427-519e-48cb-b0a6-5380086edf3b",  # transparencia
-    "6fb25a8e-ca69-40a2-84ec-d5e5a9700b5d",  # lobby
-    "4ae52b90-bc5e-49b3-92f6-c5e86ae5a241",  # pesquisa
-    "4b85b1aa-b40c-455c-94ba-f6362d820042",  # investment
-    "4766c040-828e-4c50-bbc2-0d498f5055eb",  # conflict-of-interest (new)
-    "badbb45a-c23c-4fe4-bbeb-77aa02b0b006",  # pharmaceutical-industry (new)
-    "e195a0bf-3a09-413c-a64b-29c0a45c5526",  # medical-device (new)
+# Prod renamed many tags to English slugs while keeping the same records, so
+# each tag is listed as the aliases to try in order. `medicamento` on staging
+# and `medication` on prod are the same UUID.
+TAG_SLUGS = [
+    ("medicamento", "medication"),
+    ("hospital",),
+    ("transparencia", "transparency"),
+    ("lobby",),
+    ("pesquisa", "research"),
+    ("investment",),
+    ("conflict-of-interest",),
+    ("pharmaceutical-industry",),
+    ("medical-device",),
 ]
 
 # Tags created for this dataset, so they can be recreated on prod where the

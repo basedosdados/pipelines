@@ -27,11 +27,6 @@ import dataset_meta as meta
 import layout
 from table_descriptions import TABLE_DESCRIPTIONS
 
-AREA_US = "61a2c232-c649-4b41-a5a3-1467b7393e11"
-STATUS = {
-    "under_review": "47208305-325a-4da9-9222-ac6849405b78",
-    "published": "e16221de-ac30-4926-83d3-de219998dab3",
-}
 GCP_PROJECT = {
     "staging": "basedosdados-dev",
     "dev": "basedosdados-dev",
@@ -42,16 +37,65 @@ GCP_PROJECT = {
 # is a wall clock, not a coverage date.
 # The backend stores Update.latest as a DateTime, not a date.
 REFRESHED_ON = "2026-08-18T00:00:00+00:00"
-ENTITY_YEAR = meta.ENTITY_IDS["year"]
 
 
 def log(message: str) -> None:
     print(message, flush=True)
 
 
-def register_dataset(env: str, publish: bool) -> str:
+class References:
+    """Reference-object ids for one environment, resolved by slug.
+
+    Most of these UUIDs happen to be identical between staging and prod, but
+    the cc0 licence is not -- so nothing is hardcoded. A tag missing from this
+    environment is created, since each backend keeps its own vocabulary.
+    """
+
+    def __init__(self, env: str):
+        self.env = env
+        catalogue = server.discover_ids(
+            env=env,
+            keys=["status", "license", "availability", "theme", "entity"],
+        )
+        self.status = catalogue["status"]
+        self.license = catalogue["license"][meta.LICENSE_SLUG]
+        self.availability = catalogue["availability"][meta.AVAILABILITY_SLUG]
+        self.themes = [catalogue["theme"][slug] for slug in meta.THEME_SLUGS]
+        self.entities = {
+            slug: catalogue["entity"][slug] for slug in meta.ENTITY_SLUGS
+        }
+        self.area = server.lookup_id(category="area", slug="us", env=env)["id"]
+        self.organization = server.lookup_id(
+            category="organization", slug=meta.ORGANIZATION_SLUG, env=env
+        )["id"]
+        self.tags = [self._tag(aliases) for aliases in meta.TAG_SLUGS]
+
+    def _tag(self, aliases: tuple[str, ...]) -> str:
+        for slug in aliases:
+            try:
+                return server.lookup_id(
+                    category="tag", slug=slug, env=self.env
+                )["id"]
+            except Exception:
+                continue
+        slug = aliases[0]
+        _, name_pt, name_en, name_es = next(
+            t for t in meta.NEW_TAGS if t[0] == slug
+        )
+        created = server.create_update_tag(
+            slug=slug,
+            name_pt=name_pt,
+            name_en=name_en,
+            name_es=name_es,
+            env=self.env,
+        )
+        log(f"  created tag {slug} -> {created['id']}")
+        return created["id"]
+
+
+def register_dataset(env: str, publish: bool, refs: References) -> str:
     existing = server.get_dataset(slug=meta.DATASET["slug"], env=env)
-    status = STATUS["published" if publish else "under_review"]
+    status = refs.status["published" if publish else "under_review"]
     result = server.create_update_dataset(
         slug=meta.DATASET["slug"],
         name_pt=meta.DATASET["name_pt"],
@@ -60,9 +104,9 @@ def register_dataset(env: str, publish: bool) -> str:
         description_pt=meta.DATASET["description_pt"],
         description_en=meta.DATASET["description_en"],
         description_es=meta.DATASET["description_es"],
-        organization_ids=[meta.ORGANIZATION_ID],
-        theme_ids=meta.THEME_IDS,
-        tag_ids=meta.TAG_IDS,
+        organization_ids=[refs.organization],
+        theme_ids=refs.themes,
+        tag_ids=refs.tags,
         status_id=status,
         id=existing.get("id"),
         env=env,
@@ -71,7 +115,9 @@ def register_dataset(env: str, publish: bool) -> str:
     return result["id"]
 
 
-def register_raw_sources(dataset_id: str, env: str) -> dict[str, str]:
+def register_raw_sources(
+    dataset_id: str, env: str, refs: References
+) -> dict[str, str]:
     existing = {
         source["name"]: source["id"]
         for source in server.get_raw_data_sources(
@@ -89,8 +135,8 @@ def register_raw_sources(dataset_id: str, env: str) -> dict[str, str]:
             description_en=spec["description_en"],
             description_es=spec["description_es"],
             url=spec["url"],
-            license_id=meta.LICENSE_ID,
-            availability_id=meta.AVAILABILITY_ID,
+            license_id=refs.license,
+            availability_id=refs.availability,
             has_structured_data=True,
             is_free=True,
             contains_api=True,
@@ -120,7 +166,12 @@ def table_coverage(table: str) -> tuple[int, int]:
 
 
 def register_table(
-    table: str, dataset_id: str, account_id: str, env: str, snapshot: dict
+    table: str,
+    dataset_id: str,
+    account_id: str,
+    env: str,
+    snapshot: dict,
+    refs: References,
 ) -> str:
     name_pt, name_en, name_es = meta.TABLE_NAMES[table]
     desc_pt, desc_en, desc_es = TABLE_DESCRIPTIONS[table]
@@ -135,7 +186,7 @@ def register_table(
         description_en=desc_en,
         description_es=desc_es,
         dataset_id=dataset_id,
-        status_id=STATUS["published"],
+        status_id=refs.status["published"],
         published_by_ids=[account_id],
         data_cleaned_by_ids=[account_id],
         id=existing.get("id"),
@@ -153,7 +204,7 @@ def register_table(
     }
     observation_levels = {}
     for entity in meta.OBSERVATION_LEVELS[table]:
-        entity_id = meta.ENTITY_IDS[entity]
+        entity_id = refs.entities[entity]
         level = server.create_update_observation_level(
             table_id=table_id,
             entity_id=entity_id,
@@ -211,7 +262,7 @@ def register_table(
 
     coverage = server.create_update_coverage(
         table_id=table_id,
-        area_id=AREA_US,
+        area_id=refs.area,
         id=(existing.get("coverages") or [{}])[0].get("id"),
         env=env,
     )
@@ -229,7 +280,7 @@ def register_table(
             env=env,
         )
         server.create_update_update(
-            entity_id=ENTITY_YEAR,
+            entity_id=refs.entities["year"],
             frequency=1,
             latest=REFRESHED_ON,
             table_id=table_id,
@@ -247,14 +298,15 @@ def main() -> None:
     account = server.get_authenticated_account(env=env)
     log(f"authenticated as {account['email']} (id {account['id']}) on {env}")
 
-    dataset_id = register_dataset(env, publish)
-    raw_sources = register_raw_sources(dataset_id, env)
+    refs = References(env)
+    dataset_id = register_dataset(env, publish, refs)
+    raw_sources = register_raw_sources(dataset_id, env, refs)
 
     snapshot = server.get_dataset(slug=meta.DATASET["slug"], env=env)
     table_ids = {}
     for table in layout.LAYOUT:
         table_ids[table] = register_table(
-            table, dataset_id, account["id"], env, snapshot
+            table, dataset_id, account["id"], env, snapshot, refs
         )
 
     log("\nlinking raw data sources")
@@ -270,7 +322,7 @@ def main() -> None:
             description_en=desc_en,
             description_es=desc_es,
             dataset_id=dataset_id,
-            status_id=STATUS["published"],
+            status_id=refs.status["published"],
             published_by_ids=[account["id"]],
             data_cleaned_by_ids=[account["id"]],
             raw_data_source_ids=[raw_sources[raw_source_for(table)]],
