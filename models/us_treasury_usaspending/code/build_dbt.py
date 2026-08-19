@@ -60,9 +60,28 @@ def county_fips_expr(col: str) -> str:
 
 
 UNIQUE_KEY = {
-    "contract_transaction": "contract_transaction_unique_key",
-    "assistance_transaction": "assistance_transaction_unique_key",
+    "contract_transaction": "contract_transaction_id",
+    "assistance_transaction": "assistance_transaction_id",
 }
+
+# Renames the cleaning step already applied, so these columns arrive in staging
+# under the new name. Everything else is read from staging under its source
+# spelling and renamed here.
+STAGING_RENAMES = {
+    "action_date_fiscal_year": "fiscal_year",
+    "outlayed_amount_from_COVID-19_supplementals_for_overall_award": "outlayed_amount_from_covid19_supplementals_for_overall_award",
+    "obligated_amount_from_COVID-19_supplementals_for_overall_award": "obligated_amount_from_covid19_supplementals_for_overall_award",
+    "1862_land_grant_college": "land_grant_college_1862",
+    "1890_land_grant_college": "land_grant_college_1890",
+    "1994_land_grant_college": "land_grant_college_1994",
+}
+
+
+def staging_column(row: dict) -> str:
+    """Name the column has in the staging table."""
+    original = row["original_name"]
+    return STAGING_RENAMES.get(original, original)
+
 
 TABLE_DESCRIPTION = {
     "contract_transaction": (
@@ -94,7 +113,10 @@ def sql_for(table: str, rows: list[dict]) -> str:
     casts = []
     for r in rows:
         name, btype = r["name"], r["bigquery_type"]
-        expr = county_fips_expr(name) if name in COUNTY_FIPS_COLUMNS else name
+        source = staging_column(r)
+        expr = (
+            county_fips_expr(source) if name in COUNTY_FIPS_COLUMNS else source
+        )
         casts.append(f"    safe_cast({expr} as {btype.lower()}) {name},")
     casts[-1] = casts[-1].rstrip(",")
     body = "\n".join(casts)
@@ -179,10 +201,13 @@ def schema_yaml(
             )
             out.append("          config:")
             out.append("            where: __most_recent_fiscal_year__")
+            # Deliberately unscoped: the shared macro discovers this test's
+            # columns by introspecting the where-subquery, and that returns the
+            # staging column names, which differ here (*_unique_key -> *_id).
+            # A full-history pass is a single aggregate and also the stricter
+            # reading of "mostly empty".
             out.append("      - not_null_proportion_multiple_columns:")
             out.append("          at_least: 0.05")
-            out.append("          config:")
-            out.append("            where: __most_recent_fiscal_year__")
             cols = sparse.get(table, [])
             if cols:
                 out.append("          ignore_values:")

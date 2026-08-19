@@ -15,10 +15,8 @@
 
 select
     safe_cast(fiscal_year as int64) fiscal_year,
-    safe_cast(
-        contract_transaction_unique_key as string
-    ) contract_transaction_unique_key,
-    safe_cast(contract_award_unique_key as string) contract_award_unique_key,
+    safe_cast(contract_transaction_unique_key as string) contract_transaction_id,
+    safe_cast(contract_award_unique_key as string) contract_award_id,
     safe_cast(award_id_piid as string) award_id_piid,
     safe_cast(modification_number as string) modification_number,
     safe_cast(transaction_number as string) transaction_number,

@@ -15,10 +15,8 @@
 
 select
     safe_cast(fiscal_year as int64) fiscal_year,
-    safe_cast(
-        assistance_transaction_unique_key as string
-    ) assistance_transaction_unique_key,
-    safe_cast(assistance_award_unique_key as string) assistance_award_unique_key,
+    safe_cast(assistance_transaction_unique_key as string) assistance_transaction_id,
+    safe_cast(assistance_award_unique_key as string) assistance_award_id,
     safe_cast(award_id_fain as string) award_id_fain,
     safe_cast(modification_number as string) modification_number,
     safe_cast(award_id_uri as string) award_id_uri,

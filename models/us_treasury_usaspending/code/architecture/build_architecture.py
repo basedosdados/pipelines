@@ -60,6 +60,9 @@ ORIENTATION_FILE = HERE.parent / "code_label_orientation.json"
 # --------------------------------------------------------------------------
 PARTITION = "fiscal_year"
 
+# Renames applied by the *cleaning* step, so the staging column carries this
+# name. Limited to what BigQuery cannot accept (hyphens, leading digits) plus
+# the partition column, whose name has to match the hive directory.
 RENAMES = {
     "action_date_fiscal_year": PARTITION,
     # BigQuery rejects hyphens and leading digits in column names.
@@ -69,6 +72,23 @@ RENAMES = {
     "1890_land_grant_college": "land_grant_college_1890",
     "1994_land_grant_college": "land_grant_college_1994",
 }
+
+# Renames applied by the *dbt model* rather than the cleaning step. Staging
+# stays faithful to the source spelling; the published column takes the house
+# name. Doing it here rather than in the transform means a rename costs a model
+# rebuild instead of re-cleaning a quarter of a billion rows.
+MODEL_RENAMES = {
+    "contract_transaction_unique_key": "contract_transaction_id",
+    "contract_award_unique_key": "contract_award_id",
+    "assistance_transaction_unique_key": "assistance_transaction_id",
+    "assistance_award_unique_key": "assistance_award_id",
+}
+
+
+def published_name(src: str) -> str:
+    """Column name as published, after both rename layers."""
+    return MODEL_RENAMES.get(src, RENAMES.get(src, src))
+
 
 # --------------------------------------------------------------------------
 # Types
@@ -401,7 +421,7 @@ def build_table(
         pt, en, es = describe(key, orientation)
         rows.append(
             {
-                "name": RENAMES.get(src, src),
+                "name": published_name(src),
                 "bigquery_type": bigquery_type(original),
                 "description": pt,
                 "description_en": en,
