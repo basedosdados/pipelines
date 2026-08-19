@@ -191,3 +191,35 @@ first armed prod run is also the first time the paywall is applied in BigQuery �
   `commit_source_update_task`'s own contract: the poll never reads the source Update, so an
   early commit cannot strand a later run, and a mid-flow failure still records that the SEC
   published.
+
+## Why `dicionario` uploads with `dump_mode="append"`
+
+`dicionario` is a full rebuild on every run — the union of the published table and the
+new quarter — so `dump_mode="overwrite"` looks like the obvious choice. It is wrong, and
+destructively so.
+
+The overwrite branch of `pipelines/utils/tasks.py::_upload_to_gcs` calls
+`tb.delete(mode="all")`. `mode="all"` drops the **materialized production table**
+(`basedosdados.us_sec_edgar.dicionario`), not just the staging external table. And it
+fires from the **dev** iteration of the environment loop as well, because `bd.Table`
+resolves its BigQuery projects from the worker's `config.toml` rather than from the
+`bucket_name` argument. A run with `materialize_to_prod=False` therefore deletes the
+prod table and then returns before the prod half that would have rebuilt it.
+
+This happened on 2026-08-19. The dev validation run reported every task `Completed()`
+with zero WARNING/ERROR logs while silently doing two things:
+
+1. deleting `basedosdados.us_sec_edgar.dicionario`;
+2. recreating `basedosdados-staging.us_sec_edgar_staging.dicionario` pointed at
+   `gs://basedosdados-dev/...` — its four siblings still point at `gs://basedosdados/...`
+   — so a later `dbt --target prod` would have built the prod table from dev blobs.
+
+The log signature is the pair `Tabela anterior removida: basedosdados-staging...`
+followed by `Tabela recriada: ... /basedosdados-dev/staging/...`.
+
+`append` gives identical semantics with no delete: `build_dicionario` writes a single
+fixed `dicionario/data.parquet`, and the append branch ends in
+`st.upload(..., if_exists="replace")`, which replaces that one blob wholesale.
+
+The underlying `tb.delete(mode="all")` remains a hazard for any dataset that uses
+`dump_mode="overwrite"`; the same class of bug previously bit `us_fed_fred`.
