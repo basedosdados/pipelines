@@ -56,6 +56,21 @@ def _patched_bucket(self, bucket_name, user_project=None):
 gcs.Client.bucket = _patched_bucket
 
 
+def _credentials_path() -> str:
+    """Path to the service-account key basedosdados is configured to use.
+
+    Read from ~/.basedosdados/config.toml so gcloud and the python client cannot
+    drift onto different identities. The file itself is never opened here — only
+    its path is passed to gcloud.
+    """
+    import tomli
+
+    cfg = tomli.loads(
+        (Path.home() / ".basedosdados" / "config.toml").read_text()
+    )
+    return cfg["gcloud-projects"]["staging"]["credentials_path"]
+
+
 def local_rows(table: str) -> tuple[int, int]:
     files = sorted((fec.OUTPUT / table).rglob("*.parquet"))
     return sum(pq.ParquetFile(f).metadata.num_rows for f in files), len(files)
@@ -85,12 +100,21 @@ def rsync_to_gcs(table: str) -> None:
     the per-object error and only reports "1 files/objects could not be copied",
     which reads like a transient fault rather than a hard incompatibility.
 
-    The blob layout is identical to bd's — staging/<ds>/<table>/cycle=YYYY/data.parquet
+    The blob layout is identical to bd's — staging/<ds>/<table>/year=YYYY/data.parquet
     — so the external table cannot tell which path uploaded it.
     """
     src = str(fec.OUTPUT / table)
     dest = f"gs://{BILLING_PROJECT}/staging/{DATASET_ID}/{table}"
     print(f"[{table}] rsync {src} -> {dest}")
+
+    # Drive gcloud with the same service account the rest of this script uses,
+    # rather than whatever user credentials happen to be cached. Those expire, and
+    # when they do gcloud fails with "Reauthentication failed. cannot prompt during
+    # non-interactive execution" — which cannot be recovered from inside a script.
+    env = {
+        **os.environ,
+        "CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE": _credentials_path(),
+    }
     subprocess.run(
         [
             "gcloud",
@@ -102,6 +126,7 @@ def rsync_to_gcs(table: str) -> None:
             dest,
         ],
         check=True,
+        env=env,
     )
 
 
