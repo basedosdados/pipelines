@@ -97,9 +97,15 @@ def us_sec_edgar_flow(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="numeric_fact"
     )
 
+    # Both or neither: `year=2020, quarter=None` silently ingesting the latest
+    # quarter into production is not a backfill anyone asked for.
+    if (year is None) != (quarter is None):
+        raise ValueError("pass both year and quarter, or neither")
     if year is None or quarter is None:
         latest = resolve_latest_quarter()
         year, quarter = int(latest["year"]), int(latest["quarter"])
+    if not 1 <= quarter <= 4:
+        raise ValueError(f"quarter must be 1-4, got {quarter}")
     max_date = f"{year}-{quarter * 3:02d}"
 
     # Skip the run when the SEC has not published a newer quarter. Compared
@@ -120,15 +126,21 @@ def us_sec_edgar_flow(
     # poll_source_for_update never reads the source Update (it compares against
     # Coverage), so an early commit cannot strand a later run, and if this flow
     # dies mid-way the source metadata still records that the SEC published.
-    commit_source_update_task(
-        dataset_id=DATASET_ID,
-        table_id="numeric_fact",
-        source_max_date=max_date,
-        env="prod",
-        date_format="%Y-%m",
-        update_metadata=update_metadata,
-        materialize_after_dump=materialize_to_prod,
-    )
+    #
+    # Only when the poll actually saw something newer. A forced run and an
+    # explicit backfill of an older quarter both reach here with
+    # has_new_data=False, and committing then would move
+    # RawDataSource.Update.latest *backwards*.
+    if has_new_data:
+        commit_source_update_task(
+            dataset_id=DATASET_ID,
+            table_id="numeric_fact",
+            source_max_date=max_date,
+            env="prod",
+            date_format="%Y-%m",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_to_prod,
+        )
 
     work_dir = tempfile.mkdtemp(prefix="us_sec_edgar_")
     try:

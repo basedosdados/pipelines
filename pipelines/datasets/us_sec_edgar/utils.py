@@ -418,6 +418,15 @@ def observed_from_rows(
     still has to resolve, or `custom_dictionary_coverage` fails on that
     partition. Rebuilding from the new quarter alone would silently drop those,
     so the pipeline reads the current table and unions it with the new quarter.
+
+    Args:
+        rows: Published dictionary rows, each carrying at least `id_tabela`,
+            `nome_coluna` and `chave`.
+
+    Returns:
+        A mapping of (table slug, column name) to the set of coded values seen
+        for that column — the same shape `clean_quarter` accumulates and
+        `build_dicionario` consumes.
     """
     observed: dict[tuple[str, str], set[str]] = {}
     for row in rows:
@@ -429,7 +438,17 @@ def observed_from_rows(
 def merge_observed(
     *sources: Mapping[tuple[str, str], Iterable[str]],
 ) -> dict[tuple[str, str], set[str]]:
-    """Union several observed mappings."""
+    """Union several observed mappings.
+
+    Args:
+        *sources: Observed mappings to merge, as produced by `clean_quarter` or
+            `observed_from_rows`. Later sources add to earlier ones; none wins
+            over another, since the result is a union of the value sets.
+
+    Returns:
+        A mapping of (table slug, column name) to the union of the coded values
+        each source held for that column.
+    """
     merged: dict[tuple[str, str], set[str]] = {}
     for source in sources:
         for key, values in source.items():

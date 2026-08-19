@@ -3,6 +3,7 @@
 import os
 
 import basedosdados as bd
+from pandas_gbq.exceptions import GenericGBQException
 from prefect import task
 
 from pipelines.datasets.us_sec_edgar.constants import constants
@@ -86,6 +87,47 @@ def download_and_clean(work_dir: str, year: int, quarter: int) -> dict:
     return result
 
 
+def _read_published_dicionario(
+    billing_project_id: str,
+) -> list[dict[str, str]]:
+    """Read the currently published dictionary rows.
+
+    Args:
+        billing_project_id: GCP project holding the table and billing the read.
+
+    Returns:
+        One dict per row with keys ``id_tabela``, ``nome_coluna`` and ``chave``;
+        empty when the table does not exist yet.
+
+    Raises:
+        GenericGBQException: for anything other than a missing table. The
+            caller **overwrites** the published dictionary with what it builds,
+            so swallowing an auth, quota or transport error here would rebuild
+            from the current quarter alone and silently drop every code last
+            seen in an earlier one. Only a genuine 404 is a safe empty result.
+    """
+    try:
+        frame = bd.read_sql(
+            f"select id_tabela, nome_coluna, chave "
+            f"from `{billing_project_id}.{DATASET_ID}.dicionario`",
+            billing_project_id=billing_project_id,
+            from_file=True,
+        )
+    except GenericGBQException as error:
+        # pandas_gbq collapses every BigQuery error into this one class, so the
+        # 404 has to be recognised from the message.
+        if "Not found" not in str(error):
+            raise
+        print(
+            f"dicionario not materialized yet in {billing_project_id}: {error}"
+        )
+        return []
+    return [
+        {str(k): str(v) for k, v in record.items()}
+        for record in frame.to_dict("records")
+    ]
+
+
 @task
 def build_dicionario_task(
     work_dir: str, observed: list, billing_project_id: str
@@ -109,23 +151,7 @@ def build_dicionario_task(
         (row["id_tabela"], row["nome_coluna"]): set(row["chaves"])
         for row in observed
     }
-    try:
-        frame = bd.read_sql(
-            f"select id_tabela, nome_coluna, chave "
-            f"from `{billing_project_id}.{DATASET_ID}.dicionario`",
-            billing_project_id=billing_project_id,
-            from_file=True,
-        )
-        published = [
-            {str(k): str(v) for k, v in record.items()}
-            for record in frame.to_dict("records")
-        ]
-    except Exception as error:
-        # First run, or the table is not materialized yet in this project.
-        print(
-            f"could not read the published dicionario ({error}); rebuilding from this quarter only"
-        )
-        published: list[dict[str, str]] = []
+    published = _read_published_dicionario(billing_project_id)
 
     merged = merge_observed(observed_from_rows(published), fresh)
     output_dir = os.path.join(work_dir, "output")
