@@ -236,7 +236,7 @@ def txn_tail():
             "Data da transação",
             "Date of the transaction",
             "Fecha de la transacción",
-            obs="A FEC publica a data como declarada, e há erros de digitação: os dados brutos trazem datas de 1899 a 2202. Datas fora da janela plausível (anteriores à criação da FEC em 1975 ou mais de um ano após o fim do próprio ciclo) são gravadas como nulas; apenas a data é descartada, a linha é preservada. São cerca de 128 linhas em 79 milhões.",
+            obs="A FEC publica a data como declarada, e há erros de digitação: os dados brutos trazem datas de 1899 a 2202. Datas fora da janela plausível são gravadas como nulas — anteriores à criação da FEC em 1975, ou posteriores a 31 de dezembro do próprio ciclo, já que uma transação não pode ser datada depois do ciclo a que pertence. Apenas a data é descartada; a linha e seus demais campos são preservados. São cerca de 7 mil datas em 367 milhões de linhas. O limite inferior é global, e não relativo ao ciclo, porque 2,29 milhões de linhas antecedem legitimamente o próprio ciclo: quitações de empréstimo, reembolsos e memorandos carregam a data da transação original.",
             original="TRANSACTION_DT",
         ),
         col(
@@ -812,7 +812,7 @@ TABLES["disbursement"] = [
         "Data do desembolso",
         "Date of the disbursement",
         "Fecha del desembolso",
-        obs="A FEC publica a data como declarada, e há erros de digitação: os dados brutos trazem datas de 1899 a 2202. Datas fora da janela plausível (anteriores à criação da FEC em 1975 ou mais de um ano após o fim do próprio ciclo) são gravadas como nulas; apenas a data é descartada, a linha é preservada. São cerca de 128 linhas em 79 milhões.",
+        obs="A FEC publica a data como declarada, e há erros de digitação: os dados brutos trazem datas de 1899 a 2202. Datas fora da janela plausível são gravadas como nulas — anteriores à criação da FEC em 1975, ou posteriores a 31 de dezembro do próprio ciclo, já que uma transação não pode ser datada depois do ciclo a que pertence. Apenas a data é descartada; a linha e seus demais campos são preservados. São cerca de 7 mil datas em 367 milhões de linhas. O limite inferior é global, e não relativo ao ciclo, porque 2,29 milhões de linhas antecedem legitimamente o próprio ciclo: quitações de empréstimo, reembolsos e memorandos carregam a data da transação original.",
         original="TRANSACTION_DT",
     ),
     col(
