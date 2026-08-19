@@ -6,6 +6,20 @@ from enum import Enum
 class constants(Enum):
     """Dataset-level constants for ATO Taxation Statistics."""
 
+    DATASET_ID = "au_ato_taxation_statistics"
+
+    # Releases before 2016-17 use the older `taxstats<YYYY>` filenames, split
+    # the postcode table into 06a/06b/06c and ship duplicate CSV copies, so the
+    # selectors below cannot pin them unambiguously. The onboarding covers
+    # 2016-17 onwards; anything earlier is deliberately out of scope.
+    MIN_RELEASE = "2016-17"
+
+    # The table whose coverage the source poll compares against. Its coverage
+    # end year equals the release start year, so a new release moves it. GST
+    # would be wrong here: its data year runs one ahead of the release, so its
+    # coverage never equals the release year being polled.
+    POLL_TABLE = "individuals_income_state"
+
     CKAN_API = "https://data.gov.au/data/api/3/action/package_search"
     CKAN_PACKAGE = "https://data.gov.au/data/api/3/action/package_show"
     CKAN_ORG = "australiantaxationoffice"
@@ -129,6 +143,17 @@ class constants(Enum):
     }
 
     MEASURES = ["item", "record_count", "amount"]
+
+    # Every table the pipeline materializes, dicionario last so the
+    # dictionary-coverage tests on the fact tables resolve against it.
+    ALL_TABLES = [
+        "individuals_income_state",
+        "individuals_industry",
+        "individuals_postcode",
+        "company_industry",
+        "gst_industry",
+        "dicionario",
+    ]
 
     # Columns whose distinct values are recorded in the dicionario table.
     DICTIONARY_COLUMNS = {
