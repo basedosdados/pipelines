@@ -169,3 +169,57 @@ PartBdpro(
 
 and `dicionario` takes no spec. `needs_row_access_policy` is True for this tier, so the
 first armed prod run is also the first time the paywall is applied in BigQuery — watch it.
+
+### How the run differs from us_bls_cpi
+
+- **Append, not replace.** The SEC never rewrites an earlier quarter, so each run adds one
+  partition (`dump_mode="append"`) instead of rebuilding the history. Only `dicionario`
+  overwrites.
+- **`dicionario` is rebuilt as a union**, not from the new quarter alone. It is the
+  accumulated record of every code ever seen; a `datatype` last used in 2011 still has to
+  resolve or `custom_dictionary_coverage` fails on that partition. The task reads the
+  published table, unions it with the quarter's observed values, and overwrites.
+- **Run every table, then test every table**, per environment — never `run/test` inside the
+  per-table loop. The tests are cross-table: `numeric_fact` and `presentation` have
+  `relationships` onto `submission`, and three tables check `custom_dictionary_coverage`
+  against `dicionario`. Interleaving would test a table before its sibling is built.
+- **The poll compares against coverage, not `Table.Update`.** `max_date` is the quarter's
+  last month (`2026-06` for 2026Q2), which is how `read_max_date` reads a year/quarter
+  column, so it is compared like with like. `get_api_most_recent_date` takes the max across
+  *all* the table's coverage ranges, so the pro range is what it sees — correct here.
+- **The source Update is committed right after the poll**, before materializing, following
+  `commit_source_update_task`'s own contract: the poll never reads the source Update, so an
+  early commit cannot strand a later run, and a mid-flow failure still records that the SEC
+  published.
+
+## Why `dicionario` uploads with `dump_mode="append"`
+
+`dicionario` is a full rebuild on every run — the union of the published table and the
+new quarter — so `dump_mode="overwrite"` looks like the obvious choice. It is wrong, and
+destructively so.
+
+The overwrite branch of `pipelines/utils/tasks.py::_upload_to_gcs` calls
+`tb.delete(mode="all")`. `mode="all"` drops the **materialized production table**
+(`basedosdados.us_sec_edgar.dicionario`), not just the staging external table. And it
+fires from the **dev** iteration of the environment loop as well, because `bd.Table`
+resolves its BigQuery projects from the worker's `config.toml` rather than from the
+`bucket_name` argument. A run with `materialize_to_prod=False` therefore deletes the
+prod table and then returns before the prod half that would have rebuilt it.
+
+This happened on 2026-08-19. The dev validation run reported every task `Completed()`
+with zero WARNING/ERROR logs while silently doing two things:
+
+1. deleting `basedosdados.us_sec_edgar.dicionario`;
+2. recreating `basedosdados-staging.us_sec_edgar_staging.dicionario` pointed at
+   `gs://basedosdados-dev/...` — its four siblings still point at `gs://basedosdados/...`
+   — so a later `dbt --target prod` would have built the prod table from dev blobs.
+
+The log signature is the pair `Tabela anterior removida: basedosdados-staging...`
+followed by `Tabela recriada: ... /basedosdados-dev/staging/...`.
+
+`append` gives identical semantics with no delete: `build_dicionario` writes a single
+fixed `dicionario/data.parquet`, and the append branch ends in
+`st.upload(..., if_exists="replace")`, which replaces that one blob wholesale.
+
+The underlying `tb.delete(mode="all")` remains a hazard for any dataset that uses
+`dump_mode="overwrite"`; the same class of bug previously bit `us_fed_fred`.
