@@ -33,7 +33,7 @@ with
         where
             safe_cast(qualificacao as string) != "qualificacao"
             {% if is_incremental() %}
-                an data_referencia
+                and data_referencia
                 > format_date('%Y-%m', (select max(data_referencia) from {{ this }}))
         {% else %}
             -- Dados históricos até 2023-04-30 foram migrados do modelo
