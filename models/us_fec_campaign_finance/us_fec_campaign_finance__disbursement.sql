@@ -4,7 +4,7 @@
         alias="disbursement",
         materialized="table",
         partition_by={
-            "field": "cycle",
+            "field": "year",
             "data_type": "int64",
             "range": {"start": 1980, "end": 2031, "interval": 1},
         },
@@ -13,7 +13,7 @@
 
 
 select
-    safe_cast(cycle as int64) cycle,
+    safe_cast(year as int64) year,
     safe_cast(committee_id as string) committee_id,
     safe_cast(back_reference_transaction_id as string) back_reference_transaction_id,
     safe_cast(transaction_id as string) transaction_id,
@@ -35,7 +35,7 @@ select
     case
         when
             safe_cast(transaction_date as date)
-            between date(1975, 1, 1) and date(safe_cast(cycle as int64) + 1, 12, 31)
+            between date(1975, 1, 1) and date(safe_cast(year as int64), 12, 31)
         then safe_cast(transaction_date as date)
     end transaction_date,
     safe_cast(transaction_amount as float64) transaction_amount,

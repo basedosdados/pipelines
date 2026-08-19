@@ -4,7 +4,7 @@
         alias="committee",
         materialized="table",
         partition_by={
-            "field": "cycle",
+            "field": "year",
             "data_type": "int64",
             "range": {"start": 1980, "end": 2031, "interval": 1},
         },
@@ -13,7 +13,7 @@
 
 
 select
-    safe_cast(cycle as int64) cycle,
+    safe_cast(year as int64) year,
     safe_cast(committee_id as string) committee_id,
     safe_cast(candidate_id as string) candidate_id,
     safe_cast(committee_name as string) committee_name,

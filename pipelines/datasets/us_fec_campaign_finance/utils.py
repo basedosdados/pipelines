@@ -15,7 +15,9 @@ the only per-file quirks are:
   parsed with QUOTE_NONE or lines get swallowed.
 * Encoding is latin-1, not UTF-8.
 
-Output is hive-partitioned all-STRING parquet under ``output/<table>/cycle=<YYYY>/``.
+Output is hive-partitioned all-STRING parquet under ``output/<table>/year=<YYYY>/``.
+The partition column is named ``year`` per the house convention; its value is the
+two-year FEC election cycle, labelled by the even year in which it ends.
 All-STRING is deliberate: staging is all-STRING by house convention, the dbt model
 safe_casts every column, and ``gcs.py::dump_header`` stringifies the pipeline's staging
 header anyway, so typed parquet would be rejected there
@@ -458,7 +460,7 @@ def _to_string_frame(
     chunk: pd.DataFrame, spec: FileSpec, cycle: int, columns: list[str]
 ) -> pd.DataFrame:
     chunk = chunk.rename(columns=spec.rename)
-    chunk["cycle"] = str(cycle)
+    chunk["year"] = str(cycle)
 
     for date_col in spec.date_columns:
         if date_col in chunk.columns and spec.date_format:
@@ -497,7 +499,7 @@ def clean_cycle(spec: FileSpec, cycle: int, *, quiet: bool = False) -> int:
 
     columns = architecture_columns(spec.table)
     schema = pa.schema([(c, pa.string()) for c in columns])
-    dest_dir = OUTPUT / spec.table / f"cycle={cycle}"
+    dest_dir = OUTPUT / spec.table / f"year={cycle}"
     dest_dir.mkdir(parents=True, exist_ok=True)
     dest = dest_dir / "data.parquet"
 
@@ -554,7 +556,7 @@ def write_header_stub(table: str) -> None:
     and prod materialization never runs. "00_header.parquet" sorts ahead of
     "data.parquet", so it is read instead.
     """
-    partitions = sorted((OUTPUT / table).glob("cycle=*"))
+    partitions = sorted((OUTPUT / table).glob("year=*"))
     if not partitions:
         return
     first = partitions[0]
@@ -628,9 +630,9 @@ def refresh_cycle(
     transaction date seen across the refreshed tables — the source's max coverage
     date, which is what the raw-source Update records.
 
-    Each table's payload is ``work_dir/<table>/cycle=<CYCLE>/data.parquet``. The
+    Each table's payload is ``work_dir/<table>/year=<CYCLE>/data.parquet``. The
     *table* directory is handed to ``upload_to_gcs`` so the hive prefix survives:
-    the blob lands at ``staging/<ds>/<table>/cycle=<CYCLE>/data.parquet``,
+    the blob lands at ``staging/<ds>/<table>/year=<CYCLE>/data.parquet``,
     replacing exactly that partition and leaving every frozen cycle untouched.
     That is why the flow uses ``dump_mode="append"`` — "overwrite" would delete
     the whole staging table (and, via ``tb.delete(mode="all")``, the prod table)
@@ -660,7 +662,7 @@ def refresh_cycle(
                 continue
             result[table] = str(OUTPUT / table)
             if spec.date_columns:
-                seen = _max_transaction_date(OUTPUT / table / f"cycle={cycle}")
+                seen = _max_transaction_date(OUTPUT / table / f"year={cycle}")
                 if seen and (max_date is None or seen > max_date):
                     max_date = seen
     finally:

@@ -20,10 +20,10 @@ models:
             - candidate_status
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
     columns:
-      - name: cycle
+      - name: year
         description: >
-          Ciclo eleitoral de dois anos, identificado pelo ano par em que termina
-        tests: [not_null]
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
       - name: candidate_id
         description: >
           Identificador de nove caracteres do candidato atribuído pela FEC
@@ -102,10 +102,10 @@ models:
             - organization_type
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
     columns:
-      - name: cycle
+      - name: year
         description: >
-          Ciclo eleitoral de dois anos, identificado pelo ano par em que termina
-        tests: [not_null]
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
       - name: committee_id
         description: >
           Identificador de nove caracteres do comitê atribuído pela FEC
@@ -168,10 +168,10 @@ models:
           columns_covered_by_dictionary: [committee_type, committee_designation]
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
     columns:
-      - name: cycle
+      - name: year
         description: >
-          Ciclo eleitoral de dois anos, identificado pelo ano par em que termina
-        tests: [not_null]
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
       - name: candidate_id
         description: >
           Identificador do candidato
@@ -222,10 +222,10 @@ models:
             - memo_code
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
     columns:
-      - name: cycle
+      - name: year
         description: >
-          Ciclo eleitoral de dois anos, identificado pelo ano par em que termina
-        tests: [not_null]
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
       - name: committee_id
         description: >
           Identificador de nove caracteres do comitê declarante atribuído pela FEC
@@ -321,10 +321,10 @@ models:
             - memo_code
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
     columns:
-      - name: cycle
+      - name: year
         description: >
-          Ciclo eleitoral de dois anos, identificado pelo ano par em que termina
-        tests: [not_null]
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
       - name: committee_id
         description: >
           Identificador de nove caracteres do comitê declarante atribuído pela FEC
@@ -423,10 +423,10 @@ models:
             - memo_code
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
     columns:
-      - name: cycle
+      - name: year
         description: >
-          Ciclo eleitoral de dois anos, identificado pelo ano par em que termina
-        tests: [not_null]
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
       - name: committee_id
         description: >
           Identificador de nove caracteres do comitê declarante atribuído pela FEC
@@ -522,10 +522,10 @@ models:
             - memo_code
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
     columns:
-      - name: cycle
+      - name: year
         description: >
-          Ciclo eleitoral de dois anos, identificado pelo ano par em que termina
-        tests: [not_null]
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
       - name: committee_id
         description: >
           Identificador de nove caracteres do comitê declarante atribuído pela FEC

@@ -10,10 +10,11 @@ Design notes
 ------------
 * Column names are English, because the data and its documentation are English
   (.claude/rules/data-basis-style.md).
-* The partition column is ``cycle`` (INT64): the FEC publishes bulk files per
-  two-year election cycle, labelled by the even year in which the cycle ends.
-  It is deliberately *not* linked to br_bd_diretorios_data_tempo.ano, because a
-  cycle is a two-year period, not a year.
+* The partition column is ``year`` (INT64), following the house convention for
+  English datasets. Its value is the FEC election cycle: cycles run two years and
+  are labelled by the even year in which they end, so year=2026 covers 2025-2026.
+  That two-year meaning is spelled out in the column description and observations,
+  and it is why the column is not linked to br_bd_diretorios_data_tempo.ano.
 * Types follow arithmetic meaning: only ``transaction_amount`` (USD) and the year
   columns are numeric. Every FEC code, identifier and flag is STRING, and the
   coded ones carry covered_by_dictionary=yes.
@@ -88,15 +89,15 @@ def col(
 # --------------------------------------------------------------------------- #
 
 CYCLE = col(
-    "cycle",
+    "year",
     "INT64",
-    "Ciclo eleitoral de dois anos, identificado pelo ano par em que termina",
-    "Two-year election cycle, identified by the even year in which it ends",
-    "Ciclo electoral de dos años, identificado por el año par en que termina",
+    "Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que termina",
+    "Year of the two-year election cycle, identified by the even year in which it ends",
+    "Año del ciclo electoral de dos años, identificado por el año par en que termina",
     unit="year",
-    obs="Coluna de partição. Corresponde ao arquivo em massa da FEC publicado "
-    "para aquele ciclo; o ciclo é rotulado pelo ano par em que termina, de modo "
-    "que cycle=2026 cobre as transações de 2025 e 2026.",
+    obs="Coluna de partição. Identifica o arquivo em massa da FEC publicado para "
+    "aquele ciclo. Um ciclo cobre dois anos e é rotulado pelo ano par em que "
+    "termina, de modo que year=2026 abrange as transações de 2025 e 2026.",
 )
 
 

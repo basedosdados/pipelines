@@ -42,7 +42,7 @@ BOUNDED_DATE = (
     "case\n"
     "        when safe_cast({c} as date)\n"
     "            between date(1975, 1, 1)\n"
-    "            and date(safe_cast(cycle as int64) + 1, 12, 31)\n"
+    "            and date(safe_cast(year as int64), 12, 31)\n"
     "        then safe_cast({c} as date)\n"
     "    end {c}"
 )
@@ -123,7 +123,7 @@ def render_sql(table: str, arch: list[dict]) -> str:
     if table not in UNPARTITIONED:
         config.append(
             "        partition_by={\n"
-            '            "field": "cycle",\n'
+            '            "field": "year",\n'
             '            "data_type": "int64",\n'
             f'            "range": {{"start": {PARTITION_START}, '
             f'"end": {PARTITION_END}, "interval": 1}},\n'
