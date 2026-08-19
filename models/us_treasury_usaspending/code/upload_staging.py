@@ -56,7 +56,11 @@ def write_header(table: str, partition_dir: Path) -> Path:
 
 
 def upload_table(
-    table: str, project: str, bucket_name: str, dry_run: bool
+    table: str,
+    project: str,
+    bucket_name: str,
+    dry_run: bool,
+    skip_existing: bool = False,
 ) -> tuple[int, int]:
     table_dir = OUTPUT / table
     if not table_dir.exists():
@@ -74,15 +78,26 @@ def upload_table(
 
     client = storage.Client(project=project)
     bucket = client.bucket(bucket_name, user_project=project)
+    skipped = 0
     for f in files:
         rel = f.relative_to(table_dir)
         blob = bucket.blob(f"staging/{DATASET_ID}/{table}/{rel.as_posix()}")
+        if skip_existing:
+            # Cleaning writes one deterministically-named object per fiscal
+            # year, so a same-size blob is the same content and re-sending it
+            # would only cost time. Lets the upload run alongside cleaning.
+            existing = bucket.get_blob(blob.name)
+            if existing and existing.size == f.stat().st_size:
+                skipped += 1
+                continue
         blob.chunk_size = CHUNK
         blob.upload_from_filename(str(f))
         print(
             f"    uploaded {rel.as_posix()} ({f.stat().st_size / 1e6:.0f} MB)",
             flush=True,
         )
+    if skipped:
+        print(f"    {skipped} object(s) already present, skipped")
 
     bq = bigquery.Client(project=project)
     bq.create_dataset(f"{project}.{DATASET_ID}_staging", exists_ok=True)
@@ -113,11 +128,22 @@ def main() -> None:
     ap.add_argument("--bucket", default="basedosdados-dev")
     ap.add_argument("--tables", nargs="*", default=constants.TABLES.value)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument(
+        "--skip-existing",
+        action="store_true",
+        help="do not re-send objects already in GCS at the same size",
+    )
     args = ap.parse_args()
 
     for table in args.tables:
         print(f"{table}:")
-        upload_table(table, args.project, args.bucket, args.dry_run)
+        upload_table(
+            table,
+            args.project,
+            args.bucket,
+            args.dry_run,
+            skip_existing=args.skip_existing,
+        )
 
 
 if __name__ == "__main__":
