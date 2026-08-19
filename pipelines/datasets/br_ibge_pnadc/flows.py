@@ -28,7 +28,8 @@ from pipelines.utils.tasks import (
 from pipelines.utils.to_download.tasks import download_async
 
 
-# Modelo incremental: apague a partição a reprocessar antes de rodar, e use force_run.
+# Modelo incremental: para reprocessar o trimestre mais recente, apague a
+# partição dele antes de rodar e use force_run.
 @flow(
     name="br_ibge_pnadc__microdados",
     log_prints=True,
