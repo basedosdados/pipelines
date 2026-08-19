@@ -142,6 +142,52 @@ def _bq_min_max_data(
     return row["mn"], row["mx"]
 
 
+def _staging_uf_done(
+    bucket_name: str, table_id: str, snapshot_iso: str, sigla_uf: str
+) -> bool:
+    """True if this UF's partition already sits in GCS staging.
+
+    The staging prefix is the pipeline's durable resume checkpoint: each UF is
+    uploaded the moment it is cleaned, so a pod eviction mid-run loses only the
+    in-flight UF and the resubmit skips everything already here. ``user_project``
+    is set for requester-pays safety; ``project`` is the bucket's project so the
+    pod SA's ``serviceusage`` right resolves (mirrors ``_upload_to_gcs``).
+    """
+    from google.cloud import storage
+
+    client = storage.Client(project=bucket_name)
+    prefix = (
+        f"staging/{DATASET_ID}/{table_id}/"
+        f"data={snapshot_iso}/sigla_uf={sigla_uf}/"
+    )
+    bucket = client.bucket(bucket_name, user_project=bucket_name)
+    return (
+        next(iter(bucket.list_blobs(prefix=prefix, max_results=1)), None)
+        is not None
+    )
+
+
+def _bq_table_exists(project: str, table_id: str) -> bool:
+    """True if the materialized table exists in ``<project>.<dataset>``.
+
+    Lets a resubmit skip re-running dbt for a theme already built in an earlier
+    pod, while still building a theme whose UFs were staged but not yet
+    materialized (staged in a pod that was evicted before its dbt run).
+    """
+    from google.cloud import bigquery
+
+    client = bigquery.Client(project=project)
+    sql = (
+        f"SELECT COUNT(1) AS c FROM `{project}.{DATASET_ID}.__TABLES__` "
+        f"WHERE table_id = '{table_id}'"
+    )
+    try:
+        return next(iter(client.query(sql).result()))["c"] > 0
+    except Exception as exc:  # dataset absent on the very first run
+        print(f"table-exists check failed for {project}.{table_id}: {exc}")
+        return False
+
+
 @flow(name="br_sfb_sicar", log_prints=True)
 def br_sfb_sicar_flow(
     materialize_to_prod: bool = True,
@@ -154,8 +200,12 @@ def br_sfb_sicar_flow(
     """Refresh all nine SICAR theme tables (snapshot-stacked, append).
 
     Downloads each UF x theme, cleans it to all-string partitioned parquet, and
-    appends it under its per-UF release-date partition. The source-update poll on
-    ``area_imovel`` short-circuits the run until a UF publishes a newer snapshot.
+    stages it to GCS under its per-UF release-date partition the instant it is
+    cleaned. That per-UF staging is a durable checkpoint: the run is resumable
+    across node evictions (Prefect resubmits the flow from scratch on SIGTERM,
+    but staged UFs are skipped, so progress accumulates). The source-update poll
+    on ``area_imovel`` short-circuits the run until a UF publishes a newer
+    snapshot.
 
     Args:
         materialize_to_prod: Continue past the dev materialization to write the
@@ -170,9 +220,9 @@ def br_sfb_sicar_flow(
             all nine). Scopes cleaning, upload, dbt, and metadata alike.
         only_ufs: Comma-separated UF codes to restrict the run to (empty = all
             27). Useful to re-run a single failed state.
-        clean_only: Stop after the download/clean phase without uploading — a
-            memory smoke test for the vertex-dense themes (e.g. Amazonas ``app``)
-            that touches neither dev nor prod.
+        clean_only: Clean each UF but stage nothing — a memory smoke test for the
+            vertex-dense themes (e.g. Amazonas ``app``) that touches neither dev
+            nor prod. No GCS checkpoint is written, so it is not resumable.
     """
     limit_gb = container_memory_limit_gb()
     print(
@@ -223,26 +273,48 @@ def br_sfb_sicar_flow(
     work_dir = tempfile.mkdtemp(prefix="br_sfb_sicar_")
     input_dir = f"{work_dir}/input"
     output_dir = f"{work_dir}/output"
+    dev_bucket = "basedosdados-dev"
+    prod_bucket = "basedosdados"
     try:
-        # Build all output. One UF x theme at a time: download → clean → delete
-        # the zip, so peak disk stays near a single archive (APP is huge).
+        # Resumable per-UF staging. The full national backfill is ~30 h of
+        # download+clean across 9 themes x 27 UFs — far longer than the ~hourly
+        # node eviction window of this pool. A single monolithic pod is therefore
+        # SIGTERM'd mid-run and Prefect resubmits the flow from scratch (empty
+        # /tmp, no task cache), so it can never finish.
         #
-        # A UF x theme whose download fails after all retries is SKIPPED, not
-        # fatal: SICAR's captcha-gated download is flaky, and one unreachable
-        # state must not discard the (often hours of) work already done for the
-        # rest. The table is still materialized from the UFs that succeeded; the
-        # skipped combos are logged loudly below and re-run later via only_ufs /
-        # only_themes. Clean failures are NOT swallowed — the clean is
-        # deterministic now, so a failure there is a real bug to surface.
+        # So each UF is staged to GCS the instant it is cleaned: GCS staging is a
+        # durable checkpoint. An eviction loses only the in-flight UF; the
+        # resubmit skips every already-staged UF (no re-download — the expensive
+        # part) and continues. Progress is monotonic and the run completes across
+        # however many resubmits. dbt runs per theme once its UFs are staged;
+        # tests run after every theme is built (cross-table refs need siblings).
+        #
+        # A UF whose download fails after all retries is SKIPPED, not fatal
+        # (SICAR's captcha download is flaky); a resubmit retries it, since a
+        # skipped UF is never staged. Clean failures stay fatal — the clean is
+        # deterministic, so a failure there is a real bug to surface.
         skipped: list[str] = []
-        produced: set[str] = set()
+        built_themes: list[str] = []
         for table in themes:
             polygon = TABLE_TO_POLYGON[table]
+            theme_root = f"{output_dir}/{table}"
+            fresh_dev = False
+            fresh_prod = False
+            any_staged = False
             for sigla_uf in ufs:
                 snapshot_iso = release_iso.get(sigla_uf)
                 if not snapshot_iso:
                     print(f"no release date for {sigla_uf}; skipping")
                     skipped.append(f"{table}/{sigla_uf} (no release date)")
+                    continue
+                dev_done = _staging_uf_done(
+                    dev_bucket, table, snapshot_iso, sigla_uf
+                )
+                prod_done = not materialize_to_prod or _staging_uf_done(
+                    prod_bucket, table, snapshot_iso, sigla_uf
+                )
+                if dev_done and prod_done:
+                    any_staged = True  # already checkpointed in a prior pod
                     continue
                 try:
                     zip_path = download_uf_theme(
@@ -260,76 +332,110 @@ def br_sfb_sicar_flow(
                     )
                     skipped.append(f"{table}/{sigla_uf} (download)")
                     continue
-                clean_uf_theme(
+                rows = clean_uf_theme(
                     zip_path=zip_path,
                     output_dir=output_dir,
                     table=table,
                     snapshot_iso=snapshot_iso,
                     sigla_uf=sigla_uf,
                 )
-                produced.add(table)
+                if not rows:
+                    continue
+                if clean_only:
+                    # Smoke test: cleaned locally, stage nothing. Free the disk.
+                    shutil.rmtree(theme_root, ignore_errors=True)
+                    any_staged = True
+                    continue
+                # Upload just this UF's hive partition. Storage.upload globs the
+                # table root and preserves data=…/sigla_uf=…, so passing the root
+                # (which holds only this UF now) appends one partition to staging
+                # without touching the others. Then clear the root for the next UF
+                # so peak disk stays near a single UF.
+                if not dev_done:
+                    upload_to_gcs(
+                        data_path=theme_root,
+                        dataset_id=DATASET_ID,
+                        table_id=table,
+                        bucket_name=dev_bucket,
+                        dump_mode="append",
+                        source_format="parquet",
+                    )
+                    fresh_dev = True
+                if materialize_to_prod and not prod_done:
+                    upload_to_gcs(
+                        data_path=theme_root,
+                        dataset_id=DATASET_ID,
+                        table_id=table,
+                        bucket_name=prod_bucket,
+                        dump_mode="append",
+                        source_format="parquet",
+                    )
+                    fresh_prod = True
+                shutil.rmtree(theme_root, ignore_errors=True)
+                any_staged = True
+
+            if clean_only or not any_staged:
+                continue
+            built_themes.append(table)
+            # Build (dbt run) this theme now that its UFs are staged. Skip if it
+            # is already materialized and nothing new was staged this pod — but
+            # always build when the table is missing (staged in a pod evicted
+            # before its dbt run). Tests are deferred to the loop below.
+            if fresh_dev or not _bq_table_exists(dev_bucket, table):
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run",
+                    dbt_alias=True,
+                    target="dev",
+                )
+            if materialize_to_prod and (
+                fresh_prod or not _bq_table_exists(prod_bucket, table)
+            ):
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run",
+                    dbt_alias=True,
+                    target="prod",
+                )
 
         if skipped:
             print(
                 f"WARNING: {len(skipped)} UF x theme combo(s) skipped "
-                f"(source unreachable): {', '.join(skipped)}. Their tables were "
-                f"materialized WITHOUT those states — re-run with only_ufs / "
-                f"only_themes once the source is reachable."
+                f"(source unreachable): {', '.join(skipped)}. A resubmit / "
+                f"only_ufs re-run retries them (staged UFs are fast-forwarded)."
             )
-
-        # Upload / dbt / metadata only the tables that produced output. A table
-        # for which every UF was skipped has no parquet dir, so uploading it
-        # would fail; iterate produced tables (in theme order) instead.
-        built = [t for t in themes if t in produced]
-        if not built:
-            print("no UF x theme produced output; nothing to upload")
-            return
 
         if clean_only:
-            print("clean_only: cleaned without uploading; returning")
+            print("clean_only: cleaned without staging; returning")
             return
 
-        # Dev: upload staging + materialize/test.
-        for table in built:
-            upload_to_gcs(
-                data_path=f"{output_dir}/{table}",
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="append",
-                source_format="parquet",
-            )
+        if not built_themes:
+            print("no UF x theme produced output; nothing to build")
+            return
+
+        # Test after every theme is built: cross-table tests (relationships,
+        # dictionary coverage) read sibling models, so all must exist first.
+        for table in built_themes:
             run_dbt(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                dbt_command="run/test",
+                dbt_command="test",
                 dbt_alias=True,
                 target="dev",
             )
+            if materialize_to_prod:
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="test",
+                    dbt_alias=True,
+                    target="prod",
+                )
 
-        if not materialize_to_prod:
-            return
-
-        # Prod: upload staging + materialize/test.
-        for table in built:
-            upload_to_gcs(
-                data_path=f"{output_dir}/{table}",
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode="append",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                dbt_alias=True,
-                target="prod",
-            )
-
-        if update_metadata:
-            for table in built:
+        if update_metadata and materialize_to_prod:
+            for table in built_themes:
                 min_data, max_data = _bq_min_max_data(table, "basedosdados")
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
