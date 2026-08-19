@@ -16,7 +16,10 @@ prod after the PR has merged and the tables are verified.
 
 import json
 import sys
+import time
 from pathlib import Path
+
+import requests
 
 sys.path.insert(0, str(Path.home() / "Dropbox" / "BD" / "mcp"))
 import server
@@ -41,6 +44,56 @@ REFRESHED_ON = "2026-08-18T00:00:00+00:00"
 
 def log(message: str) -> None:
     print(message, flush=True)
+
+
+def _with_retries(call, attempts: int = 5, delay: float = 5.0):
+    """Retry a backend call through transient network failures.
+
+    The production backend intermittently drops requests and stalls past the
+    client's 60s timeout, and DNS for it has failed mid-run. Every write here
+    is an upsert keyed by name or slug, so retrying is safe -- and far better
+    than a half-registered dataset that has to be reasoned about afterwards.
+    """
+
+    def wrapped(*args, **kwargs):
+        last = None
+        for attempt in range(attempts):
+            try:
+                return call(*args, **kwargs)
+            except (requests.RequestException, RuntimeError) as error:
+                message = str(error)
+                if "HTTP 4" in message and "HTTP 429" not in message:
+                    raise  # a real rejection, not a transport failure
+                last = error
+                log(
+                    f"    transient failure ({type(error).__name__}), retry {attempt + 1}/{attempts}"
+                )
+                time.sleep(delay * (attempt + 1))
+        raise last
+
+    return wrapped
+
+
+for _name in (
+    "create_update_dataset",
+    "create_update_raw_data_source",
+    "create_update_table",
+    "create_update_observation_level",
+    "bulk_upsert_columns",
+    "update_column",
+    "create_update_cloud_table",
+    "create_update_coverage",
+    "create_update_datetime_range",
+    "create_update_update",
+    "create_update_tag",
+    "reorder_tables",
+    "reorder_columns",
+    "get_dataset",
+    "get_raw_data_sources",
+    "lookup_id",
+    "discover_ids",
+):
+    setattr(server, _name, _with_retries(getattr(server, _name)))
 
 
 class References:
