@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import time
 from pathlib import Path
 
 import pyarrow as pa
@@ -53,6 +54,30 @@ def write_header(table: str, partition_dir: Path) -> Path:
     )
     pq.write_table(empty, path, compression="snappy")
     return path
+
+
+def _upload_with_retry(blob, path: Path, attempts: int = 6) -> None:
+    """Upload one object, retrying on transport errors.
+
+    These objects run to a gigabyte each and the uplink is usually shared with
+    the archive download, so a write timeout mid-transfer is routine rather than
+    exceptional. A resumable upload restarts from the beginning, so the retry is
+    simply reissued.
+    """
+    delay = 15
+    for attempt in range(1, attempts + 1):
+        try:
+            blob.upload_from_filename(str(path), timeout=3600)
+            return
+        except Exception as e:  # noqa: BLE001
+            if attempt == attempts:
+                raise
+            print(
+                f"    retry {attempt} for {path.name}: {type(e).__name__}",
+                flush=True,
+            )
+            time.sleep(delay)
+            delay = min(delay * 2, 300)
 
 
 def upload_table(
@@ -91,7 +116,7 @@ def upload_table(
                 skipped += 1
                 continue
         blob.chunk_size = CHUNK
-        blob.upload_from_filename(str(f))
+        _upload_with_retry(blob, f)
         print(
             f"    uploaded {rel.as_posix()} ({f.stat().st_size / 1e6:.0f} MB)",
             flush=True,
