@@ -25,7 +25,8 @@ The recurring error is defaulting temporal/geographic columns to Portuguese on a
 | `ano` | `year` |
 | `mes` | `month` |
 | `data` | `date` |
-| `sigla_uf` / `id_municipio` | the source country's own geography names/codes (e.g. `id_sa4`, `lga_name`, `country_iso3_code`) — never `sigla_uf`/`id_municipio`, which are Brazil-specific |
+| `id_` prefix (`id_municipio`, `id_pais`) | **`_id` SUFFIX** (`sa4_id`, `municipality_id`, `country_id`) — see [Identifier columns](#identifier-columns-id-prefix-in-portuguese-_id-suffix-in-english) |
+| `sigla_uf` / `id_municipio` | the source country's own geography names/codes (e.g. `sa4_id`, `lga_name`, `country_iso3_code`) — never `sigla_uf`/`id_municipio`, which are Brazil-specific |
 | `nome_`, `quantidade_`, `valor_`, `tipo_`, `descricao_` prefixes | natural English snake_case (`name_*`, `quantity_*` / a plain count noun, `value_*`, `type_*`, `description_*`) |
 
 The **partition column is `year` (INT64), not `ano`**, on an English annual/monthly dataset. The rest of this file's examples use Portuguese because the default dataset is Brazilian; translate the column *names* (not just the descriptions) whenever the data language is English. Column descriptions are always written in all three languages (PT/EN/ES) regardless — see [Descriptions](#descriptions).
@@ -33,7 +34,8 @@ The **partition column is `year` (INT64), not `ano`**, on an English annual/mont
 ## Column naming conventions
 
 - All column names: **snake_case**, lowercase, no accents.
-- Standard prefixes and what they signal (Portuguese datasets; use the English equivalents above for English data):
+- Standard prefixes and what they signal (Portuguese datasets; use the English equivalents
+  above for English data — note that `id_` in particular becomes the `_id` **suffix**):
 
 | Prefix | Meaning | Example |
 |--------|---------|---------|
@@ -51,10 +53,31 @@ The **partition column is `year` (INT64), not `ano`**, on an English annual/mont
 | `descricao_` | Free-text description | `descricao_atividade` |
 | `tipo_` | Category type | `tipo_unidade` |
 
+### Identifier columns: `id_` prefix in Portuguese, `_id` suffix in English
+
+**On an English-language dataset, identifier columns take the `_id` SUFFIX, not the
+Portuguese `id_` prefix.** `sa4_id`, `broad_industry_id`, `country_id` — not `id_sa4`,
+`id_broad_industry`, `id_country`. Portuguese/Brazilian datasets keep `id_municipio`,
+`id_pais` and the rest of the prefix form unchanged.
+
+This applies to the column *name* only. The directory foreign key it points at keeps
+whatever the directory itself calls the column, so an English dataset routinely maps
+`sa4_id` → `br_bd_diretorios_au.sa4_2021:id_sa4`. The two spellings coexist by design:
+the directory is the older convention and is not being renamed here.
+
+**Reserve `_code` for values that are not identifiers.** A sort or presentation key —
+the `aa.`, `ab.` prefixes ordering income bands, for instance — is `..._code`, because
+nothing references it and it identifies nothing. If another table could join on it, or
+a directory could own it, it is an `_id`.
+
+Some datasets predate this rule (`br_bd_diretorios_au` and `au_geoscape_gnaf` use
+`id_sa4` / `id_state`), so expect a mix in English datasets until they are migrated.
+New work follows the suffix.
+
 ## Column ordering (strict)
 
 1. **Partition columns** (temporal first, then geographic): `ano`, `mes`, `sigla_uf`, `id_municipio`
-2. **Identifiers** (`id_*`, `sigla_*`, `codigo_*`)
+2. **Identifiers** (`id_*`, `sigla_*`, `codigo_*`; on English datasets `*_id`)
 3. **Descriptive columns** (all other columns)
 
 ## Standard partition columns
@@ -86,7 +109,7 @@ On an English dataset the temporal columns are named `year`/`month`; the time-di
 
 Any entity that recurs across datasets — geography (state, county, metro area), **industry**, **occupation**, institutions, people — belongs in a directory table, not repeated inline. In every non-directory dataset that references such an entity:
 
-- Keep the entity's ID column as **STRING** with **`covered_by_dictionary = no`** (a directory, not a per-dataset dictionary, is the source of truth).
+- Keep the entity's ID column as **STRING** with **`covered_by_dictionary = no`** (a directory, not a per-dataset dictionary, is the source of truth). Name it `id_<entity>` on a Portuguese dataset and `<entity>_id` on an English one.
 - Set `directory_column` to the directory's foreign key (`<dataset>.<table>:<pk>`).
 - If the appropriate directory does not exist yet, note the intended FK in `observations` and create the directory before metadata registration (an unresolved `directory_column` gets the whole column dropped at `upload_columns_from_sheet`).
 
