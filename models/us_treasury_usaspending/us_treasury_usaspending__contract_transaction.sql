@@ -129,11 +129,11 @@ select
                 '0'
             )
         ) as string
-    ) prime_award_transaction_recipient_county_fips_code,
+    ) prime_award_transaction_recipient_county_id,
     safe_cast(recipient_county_name as string) recipient_county_name,
     safe_cast(
         prime_award_transaction_recipient_state_fips_code as string
-    ) prime_award_transaction_recipient_state_fips_code,
+    ) prime_award_transaction_recipient_state_id,
     safe_cast(recipient_state_code as string) recipient_state_code,
     safe_cast(recipient_state_name as string) recipient_state_name,
     safe_cast(recipient_zip_4_code as string) recipient_zip_4_code,
@@ -178,13 +178,13 @@ select
                 '0'
             )
         ) as string
-    ) prime_award_transaction_place_of_performance_county_fips_code,
+    ) prime_award_transaction_place_of_performance_county_id,
     safe_cast(
         primary_place_of_performance_county_name as string
     ) primary_place_of_performance_county_name,
     safe_cast(
         prime_award_transaction_place_of_performance_state_fips_code as string
-    ) prime_award_transaction_place_of_performance_state_fips_code,
+    ) prime_award_transaction_place_of_performance_state_id,
     safe_cast(
         primary_place_of_performance_state_code as string
     ) primary_place_of_performance_state_code,

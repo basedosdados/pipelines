@@ -49,8 +49,8 @@ CLUSTER = {
 # re-padding the county part to three digits recovers the real code and is
 # idempotent for the values that are already correct.
 COUNTY_FIPS_COLUMNS = {
-    "prime_award_transaction_recipient_county_fips_code",
-    "prime_award_transaction_place_of_performance_county_fips_code",
+    "prime_award_transaction_recipient_county_id",
+    "prime_award_transaction_place_of_performance_county_id",
 }
 
 

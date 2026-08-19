@@ -360,13 +360,13 @@ models:
       - name: recipient_city_name
         description: >
           Nome da cidade do beneficiário
-      - name: prime_award_transaction_recipient_county_fips_code
+      - name: prime_award_transaction_recipient_county_id
         description: >
           Código FIPS de cinco dígitos do condado do beneficiário
       - name: recipient_county_name
         description: >
           Nome do condado do beneficiário
-      - name: prime_award_transaction_recipient_state_fips_code
+      - name: prime_award_transaction_recipient_state_id
         description: >
           Código FIPS de dois dígitos do estado do beneficiário
         tests:
@@ -405,13 +405,13 @@ models:
       - name: primary_place_of_performance_city_name
         description: >
           Nome da cidade onde a execução ocorre
-      - name: prime_award_transaction_place_of_performance_county_fips_code
+      - name: prime_award_transaction_place_of_performance_county_id
         description: >
           Código FIPS de cinco dígitos do condado onde a execução ocorre
       - name: primary_place_of_performance_county_name
         description: >
           Nome do condado onde a execução ocorre
-      - name: prime_award_transaction_place_of_performance_state_fips_code
+      - name: prime_award_transaction_place_of_performance_state_id
         description: >
           Código FIPS de dois dígitos do estado onde a execução ocorre
         tests:
@@ -1359,13 +1359,13 @@ models:
       - name: recipient_city_name
         description: >
           Nome da cidade do beneficiário
-      - name: prime_award_transaction_recipient_county_fips_code
+      - name: prime_award_transaction_recipient_county_id
         description: >
           Código FIPS de cinco dígitos do condado do beneficiário
       - name: recipient_county_name
         description: >
           Nome do condado do beneficiário
-      - name: prime_award_transaction_recipient_state_fips_code
+      - name: prime_award_transaction_recipient_state_id
         description: >
           Código FIPS de dois dígitos do estado do beneficiário
         tests:
@@ -1416,13 +1416,13 @@ models:
       - name: primary_place_of_performance_city_name
         description: >
           Nome da cidade onde a execução ocorre
-      - name: prime_award_transaction_place_of_performance_county_fips_code
+      - name: prime_award_transaction_place_of_performance_county_id
         description: >
           Código FIPS de cinco dígitos do condado onde a execução ocorre
       - name: primary_place_of_performance_county_name
         description: >
           Nome do condado onde a execução ocorre
-      - name: prime_award_transaction_place_of_performance_state_fips_code
+      - name: prime_award_transaction_place_of_performance_state_id
         description: >
           Código FIPS de dois dígitos do estado onde a execução ocorre
         tests:

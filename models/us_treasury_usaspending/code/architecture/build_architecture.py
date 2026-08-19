@@ -79,6 +79,13 @@ RENAMES = {
 # rebuild instead of re-cleaning a quarter of a billion rows.
 MODEL_RENAMES = {
     "contract_transaction_unique_key": "contract_transaction_id",
+    # A directory owns these, so they are identifiers rather than codes and take
+    # the `_id` suffix. The FIPS scheme is named in each column's description,
+    # so dropping "fips_code" from the name loses nothing.
+    "prime_award_transaction_recipient_state_fips_code": "prime_award_transaction_recipient_state_id",
+    "prime_award_transaction_recipient_county_fips_code": "prime_award_transaction_recipient_county_id",
+    "prime_award_transaction_place_of_performance_state_fips_code": "prime_award_transaction_place_of_performance_state_id",
+    "prime_award_transaction_place_of_performance_county_fips_code": "prime_award_transaction_place_of_performance_county_id",
     "contract_award_unique_key": "contract_award_id",
     "assistance_transaction_unique_key": "assistance_transaction_id",
     "assistance_award_unique_key": "assistance_award_id",
