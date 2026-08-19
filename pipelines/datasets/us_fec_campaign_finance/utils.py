@@ -37,6 +37,7 @@ from pathlib import Path
 
 import pandas as pd
 import pyarrow as pa
+import pyarrow.compute as pc
 import pyarrow.parquet as pq
 import requests
 
@@ -682,9 +683,32 @@ def _max_transaction_date(partition: Path) -> str | None:
     today = date.today().isoformat()
     best = None
     for file in sorted(partition.glob("*.parquet")):
-        table = pq.read_table(file, columns=["transaction_date"])
-        column = table.column("transaction_date")
-        for value in column.to_pylist():
-            if value and value <= today and (best is None or value > best):
-                best = value
+        # ParquetFile, not pq.read_table: the latter defaults to
+        # partitioning="hive", reads `year` from the `year=YYYY` directory as
+        # dictionary<int32>, and tries to merge it with the STRING `year`
+        # column stored inside the file (staging is all-STRING by convention).
+        # The two do not merge: ArrowTypeError, Field year has incompatible
+        # types. This path is only reached by refresh_cycle, so the onboarding
+        # never exercised it.
+        #
+        # Read in batches because the largest partition holds 30.6M rows: the
+        # previous version called to_pylist() on the whole column, building
+        # tens of millions of Python strings inside an 8Gi worker.
+        parquet_file = pq.ParquetFile(file)
+        for batch in parquet_file.iter_batches(
+            columns=["transaction_date"], batch_size=1_000_000
+        ):
+            column = batch.column("transaction_date").drop_null()
+            if len(column) == 0:
+                continue
+            # Dates are ISO strings, so the lexicographic max is the calendar
+            # max. Future dates are filer typos and are ignored.
+            # pyarrow.compute builds less_equal/max dynamically, so static
+            # checkers cannot see them (cf. us_bea/utils.py).
+            column = column.filter(pc.less_equal(column, today))  # pyrefly: ignore
+            if len(column) == 0:
+                continue
+            candidate = pc.max(column).as_py()  # pyrefly: ignore
+            if candidate is not None and (best is None or candidate > best):
+                best = candidate
     return best
