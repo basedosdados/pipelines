@@ -8,7 +8,7 @@
 
 
 select
-    safe_cast(table_code as string) table_code,
+    safe_cast(table_id as string) table_id,
     safe_cast(table_name as string) table_name,
     safe_cast(date as date) date,
     safe_cast(break_type as string) break_type,

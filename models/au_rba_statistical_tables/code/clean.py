@@ -32,48 +32,44 @@ DATA = Path(
 
 def validate(cleaned, counts):
     """Assert the invariants the dbt tests will later enforce in BigQuery."""
-    obs, series = cleaned["observation"], cleaned["series"]
+    obs, series = cleaned["data"], cleaned["series"]
     problems = []
 
     keys = Counter((o[0], o[1], o[2]) for o in obs)
     dups = sum(1 for v in keys.values() if v > 1)
     if dups:
-        problems.append(f"{dups:,} duplicate (table_code, series_id, date)")
+        problems.append(f"{dups:,} duplicate (table_id, series_id, date)")
 
-    skeys = Counter((s["table_code"], s["series_id"]) for s in series)
+    skeys = Counter((s["table_id"], s["series_id"]) for s in series)
     sdups = sum(1 for v in skeys.values() if v > 1)
     if sdups:
-        problems.append(
-            f"{sdups:,} duplicate (table_code, series_id) in series"
-        )
+        problems.append(f"{sdups:,} duplicate (table_id, series_id) in series")
 
-    catalogue = {(s["table_code"], s["series_id"]) for s in series}
+    catalogue = {(s["table_id"], s["series_id"]) for s in series}
     orphans = {(o[0], o[1]) for o in obs} - catalogue
     if orphans:
-        problems.append(
-            f"{len(orphans):,} observation series missing from catalogue"
-        )
+        problems.append(f"{len(orphans):,} data series missing from catalogue")
 
     if any(o[3] is None for o in obs):
-        problems.append("null values present in observation.value")
+        problems.append("null values present in data.value")
 
     dates = [o[2] for o in obs]
     if max(dates) > "2027-12-31":
         problems.append(f"implausible future date {max(dates)}")
 
     print("\n=== VALIDATION ===")
-    print(f"observation rows          : {counts['observation']:,}")
+    print(f"data rows                 : {counts['data']:,}")
     print(f"series rows               : {counts['series']:,}")
     print(f"series_break rows         : {counts['series_break']:,}")
     print(f"dicionario rows           : {counts['dicionario']:,}")
     print(
-        f"distinct tables           : {len({s['table_code'] for s in series})}"
+        f"distinct tables           : {len({s['table_id'] for s in series})}"
     )
     print(f"date range                : {min(dates)} -> {max(dates)}")
-    print(f"duplicate observation keys: {dups}")
+    print(f"duplicate data keys      : {dups}")
     print(f"orphan series             : {len(orphans)}")
     print(
-        f"series with no observation: {sum(1 for s in series if s['observation_start'] is None)}"
+        f"series with no data       : {sum(1 for s in series if s['observation_start'] is None)}"
     )
 
     print("\nfrequency:")
@@ -102,16 +98,14 @@ def write_exclusion_list(cleaned):
     out = Path(__file__).parent / "excluded_series.csv"
     with open(out, "w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh, lineterminator="\n")
-        w.writerow(
-            ["table_code", "series_id", "source", "source_file", "title"]
-        )
+        w.writerow(["table_id", "series_id", "source", "source_file", "title"])
         for s in sorted(
             cleaned["excluded"],
-            key=lambda r: (r["table_code"], r["series_id"]),
+            key=lambda r: (r["table_id"], r["series_id"]),
         ):
             w.writerow(
                 [
-                    s["table_code"],
+                    s["table_id"],
                     s["series_id"],
                     s["source"],
                     s["source_file"],

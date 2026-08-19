@@ -70,7 +70,7 @@ TABLES = [
     ("dicionario", 5),
     ("series_break", 2_034),
     ("series", 3_861),
-    ("observation", 924_206),
+    ("data", 924_206),
 ]
 
 

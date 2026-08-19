@@ -8,7 +8,7 @@
 
 
 select
-    safe_cast(table_code as string) table_code,
+    safe_cast(table_id as string) table_id,
     safe_cast(series_id as string) series_id,
     safe_cast(table_name as string) table_name,
     safe_cast(title as string) title,

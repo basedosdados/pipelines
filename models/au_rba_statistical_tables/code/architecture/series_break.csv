@@ -1,5 +1,5 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
-table_code,STRING,Código da tabela estatística do RBA à qual a quebra se refere,,no,,,no,,
+table_id,STRING,Código da tabela estatística do RBA à qual a quebra se refere,,no,,,no,,Derivada do cabeçalho do arquivo CSV
 table_name,STRING,Nome da tabela estatística do RBA à qual a quebra se refere,,no,,,no,,
 date,DATE,Data em que a quebra na série ocorreu,,no,,,no,,
 break_type,STRING,Código do tipo de quebra na série,,yes,,,no,"Rótulos legíveis na tabela dicionario; o RBA repete as mesmas definições de A, B e C no preâmbulo dos 32 arquivos de quebras",Break type

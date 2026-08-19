@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: au_rba_statistical_tables__observation
+  - name: au_rba_statistical_tables__data
     description: >-
       Long time-series table of Reserve Bank of Australia statistical-table
       observations, one row per statistical table, series and date, with the
@@ -10,7 +10,7 @@ models:
       source publishes under CC BY 4.0 (RBA, APRA, ABS).
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [table_code, series_id, date]
+          combination_of_columns: [table_id, series_id, date]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       # Composite foreign key to the series catalogue. dbt's built-in
@@ -18,8 +18,8 @@ models:
       # unique across tables, so the key is compared as a concatenation.
       - dbt_utils.expression_is_true:
           expression: >-
-            concat(table_code, '|', series_id) in (
-              select concat(s.table_code, '|', s.series_id)
+            concat(table_id, '|', series_id) in (
+              select concat(s.table_id, '|', s.series_id)
               from {{ ref('au_rba_statistical_tables__series') }} as s
             )
     columns:
@@ -36,7 +36,7 @@ models:
           period for monthly, quarterly and semiannual series, and the exact date
           for daily series
         tests: [not_null]
-      - name: table_code
+      - name: table_id
         description: >-
           Code of the RBA statistical table the series belongs to, such as F1, D3
           or B13.1
@@ -44,7 +44,7 @@ models:
       - name: series_id
         description: >-
           Series mnemonic assigned by the RBA, unique only in combination with
-          table_code
+          table_id
         tests: [not_null]
       - name: value
         description: >-
@@ -54,17 +54,17 @@ models:
     description: >-
       Metadata catalogue with one row per series in the dataset: title,
       description, unit, frequency, statistical treatment, originating source
-      agency, publication date and coverage dates. Keyed by table_code and
-      series_id together, because the RBA reuses 233 mnemonics across the B13.1.2
+      agency, publication date and coverage dates. Keyed by table_id and
+      series_id together, because the RBA reuses 228 mnemonics across the B13.1.2
       and B13.2.1 tables for different measures.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [table_code, series_id]
+          combination_of_columns: [table_id, series_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [observation_start, observation_end]
     columns:
-      - name: table_code
+      - name: table_id
         description: >-
           Code of the RBA statistical table, such as F1, D3 or B13.1
         tests: [not_null]
@@ -89,7 +89,7 @@ models:
       - name: units
         description: >-
           Unit of measure of the series values, which defines the unit of the
-          value column in the observation table
+          value column in the data table
       - name: source
         description: >-
           Agency responsible for compiling the series, preserved to carry the
@@ -115,7 +115,7 @@ models:
           columns_covered_by_dictionary: [break_type]
           dictionary_model: ref('au_rba_statistical_tables__dicionario')
     columns:
-      - name: table_code
+      - name: table_id
         description: Code of the RBA statistical table the break refers to
         tests: [not_null]
       - name: table_name

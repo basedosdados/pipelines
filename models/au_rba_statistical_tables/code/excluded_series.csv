@@ -1,4 +1,4 @@
-table_code,series_id,source,source_file,title
+table_id,series_id,source,source_file,title
 D4,DSOGSAL,AOFM; State Borrowing Authorities,d4-data.csv,Long-term government securities issued in Australia
 D4,DSOGSAS,AOFM; Austraclear Limited,d4-data.csv,Short-term government securities issued in Australia
 D4,DSOLNAA,ABS; Bloomberg; RBA,d4-data.csv,Long-term non-government securities issued in Australia – Asset-backed

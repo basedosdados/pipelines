@@ -8,14 +8,14 @@ The RBA publishes each statistical table as a CSV with a metadata block keyed by
 row label (``Title``, ``Description``, ``Frequency``, ``Type``, ``Units``,
 ``Source``, ``Publication date``, ``Series ID``) above a dated data block. Each
 data column is one series; the transform pivots that wide block into long
-``(table_code, series_id, date, value)`` rows and lifts the metadata block into
+``(table_id, series_id, date, value)`` rows and lifts the metadata block into
 a series catalogue.
 
 Two source properties drive the design:
 
-1. ``series_id`` is NOT globally unique. 233 mnemonics appear in both the
+1. ``series_id`` is NOT globally unique. 228 mnemonics appear in both the
    ``b13.1.2-*`` and ``b13.2.1-*`` tables carrying different values (827 of 834
-   overlapping cells differ). The key is therefore ``(table_code, series_id)``.
+   overlapping cells differ). The key is therefore ``(table_id, series_id)``.
 
 2. Four file families are not ``(series_id, date)`` time series at all and are
    excluded — see ``NON_TIMESERIES_PREFIXES``.
@@ -234,7 +234,7 @@ def is_redistributable(source: str) -> bool:
     return bool(tokens) and all(t in CCBY_PUBLISHERS for t in tokens)
 
 
-def table_code_and_name(header: str) -> tuple[str, str]:
+def table_id_and_name(header: str) -> tuple[str, str]:
     """Split ``"F1 INTEREST RATES AND YIELDS – MONEY MARKET"`` into code + name."""  # noqa: RUF002
     h = (header or "").strip()
     m = re.match(r"^([A-Z]\d+(?:\.\d+)*)\s+(.*)$", h)
@@ -254,10 +254,10 @@ def is_timeseries_file(name: str) -> bool:
 @dataclass
 class ParsedTable:
     file: str
-    table_code: str
+    table_id: str
     table_name: str
     series: list[dict] = field(default_factory=list)
-    # (table_code, series_id, iso_date, value)
+    # (table_id, series_id, iso_date, value)
     observations: list[tuple] = field(default_factory=list)
     skipped_reason: str = ""
 
@@ -273,7 +273,7 @@ def parse_table(path: Path) -> ParsedTable:
     if not rows:
         return ParsedTable(path.name, "", "", skipped_reason="empty file")
 
-    code, name = table_code_and_name(rows[0][0] if rows[0] else "")
+    code, name = table_id_and_name(rows[0][0] if rows[0] else "")
     out = ParsedTable(path.name, code, name)
 
     meta: dict[str, list[str]] = {}
@@ -306,7 +306,7 @@ def parse_table(path: Path) -> ParsedTable:
         source = col("source", j)
         out.series.append(
             {
-                "table_code": code,
+                "table_id": code,
                 "series_id": sid,
                 "table_name": name,
                 "title": col("title", j),
@@ -351,7 +351,7 @@ def parse_series_breaks(path: Path) -> list[dict]:
     )
     if not rows:
         return []
-    code, name = table_code_and_name(rows[0][0] if rows[0] else "")
+    code, name = table_id_and_name(rows[0][0] if rows[0] else "")
     header_i = next(
         (
             i
@@ -376,7 +376,7 @@ def parse_series_breaks(path: Path) -> list[dict]:
 
         out.append(
             {
-                "table_code": code,
+                "table_id": code,
                 "table_name": name,
                 "date": iso,
                 "break_type": cell(1),
@@ -393,7 +393,7 @@ def parse_series_breaks(path: Path) -> list[dict]:
 def clean_all(input_dir: Path) -> dict:
     """Parse every CSV in ``input_dir`` into the three output tables.
 
-    Returns ``{"observation", "series", "series_break", "excluded", "skipped"}``.
+    Returns ``{"data", "series", "series_break", "excluded", "skipped"}``.
     Licence gate and the non-time-series family filter are both applied here.
     """
     files = sorted(Path(input_dir).glob("*.csv"))
@@ -418,7 +418,7 @@ def clean_all(input_dir: Path) -> dict:
         obs_all.extend(parsed.observations)
 
     keep = {
-        (s["table_code"], s["series_id"])
+        (s["table_id"], s["series_id"])
         for s in series_all
         if s["redistributable"]
     }
@@ -438,7 +438,7 @@ def clean_all(input_dir: Path) -> dict:
     for s in series_all:
         if not s["redistributable"]:
             continue
-        start, end = span.get((s["table_code"], s["series_id"]), (None, None))
+        start, end = span.get((s["table_id"], s["series_id"]), (None, None))
         rec = {
             k: v
             for k, v in s.items()
@@ -462,7 +462,7 @@ def clean_all(input_dir: Path) -> dict:
     ]
 
     return {
-        "observation": observations,
+        "data": observations,
         "series": series,
         "series_break": breaks,
         "dicionario": dicionario,
@@ -498,9 +498,9 @@ def _string_table(rows: list[dict], columns: list[str]) -> pa.Table:
     return pa.Table.from_arrays(arrays, names=columns)
 
 
-OBSERVATION_COLUMNS = ["year", "date", "table_code", "series_id", "value"]
+DATA_COLUMNS = ["year", "date", "table_id", "series_id", "value"]
 SERIES_COLUMNS = [
-    "table_code",
+    "table_id",
     "series_id",
     "table_name",
     "title",
@@ -514,7 +514,7 @@ SERIES_COLUMNS = [
     "observation_end",
 ]
 SERIES_BREAK_COLUMNS = [
-    "table_code",
+    "table_id",
     "table_name",
     "date",
     "break_type",
@@ -533,34 +533,34 @@ DICIONARIO_COLUMNS = [
 def write_partitioned(cleaned: dict, output_dir: Path) -> dict:
     """Write the three tables as all-STRING parquet. Returns row counts.
 
-    ``observation`` is hive-partitioned by ``year``; the two small catalogue
+    ``data`` is hive-partitioned by ``year``; the two small catalogue
     tables are single files.
     """
     output_dir = Path(output_dir)
     counts = {}
 
     by_year: dict[str, list[dict]] = defaultdict(list)
-    for tc, sid, iso, value in cleaned["observation"]:
+    for tc, sid, iso, value in cleaned["data"]:
         by_year[iso[:4]].append(
             {
                 "year": iso[:4],
                 "date": iso,
-                "table_code": tc,
+                "table_id": tc,
                 "series_id": sid,
                 "value": value,
             }
         )
     total = 0
     for year, rows in sorted(by_year.items()):
-        d = output_dir / "observation" / f"year={year}"
+        d = output_dir / "data" / f"year={year}"
         d.mkdir(parents=True, exist_ok=True)
         # `year` is the partition key: hive-encoded in the path, dropped from the file.
-        cols = [c for c in OBSERVATION_COLUMNS if c != "year"]
+        cols = [c for c in DATA_COLUMNS if c != "year"]
         pq.write_table(
             _string_table(rows, cols), d / "data.parquet", compression="snappy"
         )
         total += len(rows)
-    counts["observation"] = total
+    counts["data"] = total
 
     for name, cols in (
         ("series", SERIES_COLUMNS),
