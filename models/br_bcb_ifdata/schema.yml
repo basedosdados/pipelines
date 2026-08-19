@@ -1,0 +1,239 @@
+---
+version: 2
+models:
+  - name: br_bcb_ifdata__instituicao
+    description: >
+      Cadastro das instituições e conglomerados financeiros que reportam ao
+      IF.data, com uma linha por competência trimestral, tipo de consolidado e
+      instituição. Traz a classificação regulatória (TCB, TD, TC, TI, SR), o
+      município da sede e os conglomerados financeiro e prudencial aos quais a
+      instituição pertence.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, tipo_consolidado, id_instituicao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - ti
+            - sr
+            - segmento
+            - id_conglomerado_financeiro
+            - id_conglomerado_prudencial
+            - data_alteracao_segmento
+      # `ti` e `tcb` ficam fora da cobertura: o IF.data usa códigos que ele
+      # próprio nunca rotula em nenhum `filtro` da série — nove valores de `ti`
+      # (194, 196-200, 20, 42, 38) e o `tcb` 'z2'. O dicionário cobre o resto.
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [tipo_consolidado, td, tc, sr]
+          dictionary_model: ref('br_bcb_ifdata__dicionario')
+    columns:
+      - name: ano
+        description: Ano de referência
+        tests:
+          - not_null
+          # `field: ano.ano`, não `ano`. O teste compila para
+          # `select ano from `proj`.`ds`.`ano``, e com o caminho citado em
+          # partes o `ano` cru casa com a *range variable* (a linha inteira,
+          # STRUCT<ano, bissexto>) em vez da coluna, quebrando o join com
+          # "No matching signature for operator = ... INT64, STRUCT<...>".
+          # Qualificar resolve. Afeta todo diretório cujo nome de tabela é
+          # igual ao do campo (ano, mes) — 76 datasets do repositório usam a
+          # forma crua e têm o mesmo teste quebrado.
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês de referência do trimestre
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: tipo_consolidado
+        description: Tipo de consolidado do IF.data
+        tests: [not_null]
+      - name: id_instituicao
+        description: >
+          Código da instituição ou conglomerado atribuído pelo Banco Central
+        tests: [not_null]
+      - name: nome_instituicao
+        description: Nome da instituição ou conglomerado
+      - name: tcb
+        description: Tipo de consolidado bancário (TCB)
+      - name: td
+        description: Tipo de consolidação (TD)
+      - name: tc
+        description: Tipo de controle (TC)
+      - name: ti
+        description: Tipo de instituição (TI)
+      - name: sr
+        description: Segmento definido pela Resolução nº 4.553/2017 (SR)
+      - name: segmento
+        description: >
+          Código de segmento de atuação da instituição. O IF.data publica o
+          código sem tabela de rótulos, por isso não há entrada no dicionário
+      - name: id_municipio
+        description: >
+          ID Município - IBGE 7 Dígitos da sede da instituição. A fonte informa
+          apenas UF e nome da cidade; o código é resolvido por nome
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_conglomerado_financeiro
+        description: Código do conglomerado financeiro
+      - name: id_conglomerado_prudencial
+        description: Código do conglomerado prudencial
+      - name: data_alteracao_segmento
+        description: Data da última alteração de segmento da instituição
+  - name: br_bcb_ifdata__coluna
+    description: >
+      Dimensão das rubricas publicadas pelo IF.data, com uma linha por
+      competência, relatório e rubrica. Cada relatório se aplica a exatamente um
+      tipo de consolidado, e uma mesma rubrica aparece em vários relatórios com
+      o mesmo código. Rubricas presentes nos dados que nenhum relatório da
+      competência referencia (séries antigas ainda publicadas, mas não exibidas)
+      entram com id_relatorio nulo. Seis rubricas, presentes entre 2008 e 2024,
+      não têm nome publicado em nenhuma competência: carregam valores monetários
+      reais, mas o IF.data não divulga o rótulo, então nome_coluna é nulo. São
+      335 das 50.240 linhas desta tabela e 0,28% dos valores em relatorio; os
+      valores foram mantidos em vez de descartados.
+    tests:
+      # `ordem_coluna` faz parte da chave porque uma mesma rubrica pode
+      # aparecer duas vezes no mesmo relatório, em posições diferentes: em
+      # 2002-12 o relatório 3 traz a 78196 como "Credores por Antecipação de
+      # Valor Residual (e3)", dentro do grupo Arrendamento Mercantil, e de novo
+      # como "(j)" no nível de cima. Os dois rótulos são reais.
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - id_relatorio
+            - id_coluna
+            - ordem_coluna
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - id_relatorio
+            - tipo_consolidado
+            - nome_relatorio
+            - nome_grupo
+            - ordem_coluna
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [tipo_consolidado]
+          dictionary_model: ref('br_bcb_ifdata__dicionario')
+    columns:
+      - name: ano
+        description: Ano de referência
+        tests:
+          - not_null
+          # `field: ano.ano`, não `ano`. O teste compila para
+          # `select ano from `proj`.`ds`.`ano``, e com o caminho citado em
+          # partes o `ano` cru casa com a *range variable* (a linha inteira,
+          # STRUCT<ano, bissexto>) em vez da coluna, quebrando o join com
+          # "No matching signature for operator = ... INT64, STRUCT<...>".
+          # Qualificar resolve. Afeta todo diretório cujo nome de tabela é
+          # igual ao do campo (ano, mes) — 76 datasets do repositório usam a
+          # forma crua e têm o mesmo teste quebrado.
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês de referência do trimestre
+        tests: [not_null]
+      - name: id_relatorio
+        description: >
+          Código do relatório do IF.data. Nulo quando a rubrica não é
+          referenciada por nenhum relatório da competência
+      - name: id_coluna
+        description: Código da rubrica reportada
+        tests: [not_null]
+      - name: tipo_consolidado
+        description: Tipo de consolidado a que o relatório se aplica
+      - name: nome_relatorio
+        description: Nome do relatório em português
+      - name: nome_grupo
+        description: >
+          Nome do grupo de colunas ao qual a rubrica pertence, quando o
+          relatório agrupa rubricas sob um cabeçalho
+      - name: nome_coluna
+        description: Nome da rubrica em português
+      - name: nome_coluna_ingles
+        description: Nome da rubrica em inglês, publicado pela própria fonte
+      - name: ordem_coluna
+        description: Posição da rubrica no relatório publicado
+  - name: br_bcb_ifdata__relatorio
+    description: >
+      Valores reportados pelas instituições ao IF.data, em formato longo, com
+      uma linha por competência trimestral, instituição e rubrica. O relatório
+      não faz parte da chave: suas variantes por tipo de consolidado
+      compartilham os mesmos códigos de rubrica e o mesmo valor. Use a tabela
+      coluna para recuperar relatório, tipo de consolidado e nome da rubrica.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, id_instituicao, id_coluna]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de referência
+        tests:
+          - not_null
+          # `field: ano.ano`, não `ano`. O teste compila para
+          # `select ano from `proj`.`ds`.`ano``, e com o caminho citado em
+          # partes o `ano` cru casa com a *range variable* (a linha inteira,
+          # STRUCT<ano, bissexto>) em vez da coluna, quebrando o join com
+          # "No matching signature for operator = ... INT64, STRUCT<...>".
+          # Qualificar resolve. Afeta todo diretório cujo nome de tabela é
+          # igual ao do campo (ano, mes) — 76 datasets do repositório usam a
+          # forma crua e têm o mesmo teste quebrado.
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês de referência do trimestre
+        tests: [not_null]
+      - name: id_instituicao
+        description: >
+          Código da instituição ou conglomerado atribuído pelo Banco Central
+        # Sem teste de FK contra `instituicao`: o cadastro do IF.data lista
+        # só as instituições exibidas em cada tipo de consolidado, enquanto os
+        # dados trazem toda entidade que reporta. 22,7% dos valores da série
+        # (12,4 milhões de linhas) são de instituições sem linha no cadastro da
+        # competência, e das 1.977 órfãs de 2026-03 apenas 7 aparecem no
+        # cadastro de outra competência. Não é lacuna da limpeza: a fonte não
+        # publica cadastro para elas.
+        tests: [not_null]
+      - name: id_coluna
+        description: Código da rubrica reportada
+        tests: [not_null]
+      - name: valor
+        description: Valor reportado pela instituição para a rubrica, em reais
+  - name: br_bcb_ifdata__dicionario
+    description: >
+      Dicionário com a tradução de todas as variáveis codificadas do conjunto,
+      montado a partir dos filtros publicados pelo próprio IF.data.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+    columns:
+      - name: id_tabela
+        description: Nome da tabela
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna
+        tests: [not_null]
+      - name: chave
+        description: Chave (valor codificado da coluna)
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Cobertura temporal da chave
+      - name: valor
+        description: Valor (descrição da chave)
+        tests: [not_null]
