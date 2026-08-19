@@ -1054,6 +1054,13 @@ models:
             - record_type_description
             - total_outlayed_amount_for_overall_award
             - treasury_accounts_funding_this_award
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - action_type_code
+            - business_funds_indicator_code
+            - disaster_emergency_fund_codes_for_overall_award
+            - record_type_code
+          dictionary_model: ref('us_treasury_usaspending__dicionario')
     columns:
       - name: fiscal_year
         description: >

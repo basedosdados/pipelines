@@ -152,7 +152,9 @@ def yaml_block(text: str, indent: int) -> str:
 
 
 def schema_yaml(
-    arch: dict[str, list[dict]], sparse: dict[str, list[str]]
+    arch: dict[str, list[dict]],
+    sparse: dict[str, list[str]],
+    covered: dict[str, dict],
 ) -> str:
     out = ["---", "version: 2", "models:"]
     for table, rows in arch.items():
@@ -185,6 +187,20 @@ def schema_yaml(
             if cols:
                 out.append("          ignore_values:")
                 out.extend(f"            - {c}" for c in cols)
+            # Only the columns measured as fully covered carry the dictionary
+            # test. The rest are still coded — and still flagged
+            # covered_by_dictionary — but the DATA Act published domains do not
+            # enumerate every value the data holds: business_types_code stores
+            # concatenations of single-letter codes, and a few code sets have
+            # grown sentinels the domain never listed.
+            dict_cols = (covered.get(table) or {}).get("covered", [])
+            if dict_cols:
+                out.append("      - custom_dictionary_coverage:")
+                out.append("          columns_covered_by_dictionary:")
+                out.extend(f"            - {c}" for c in dict_cols)
+                out.append(
+                    f"          dictionary_model: ref('{DATASET}__dicionario')"
+                )
         out.append("    columns:")
         for r in rows:
             out.append(f"      - name: {r['name']}")
@@ -222,8 +238,15 @@ def main() -> None:
         "--sparse",
         help="JSON file mapping table -> columns to exempt from the null-proportion test",
     )
+    ap.add_argument(
+        "--covered",
+        help="JSON file from dictionary_coverage.py naming the columns the dicionario fully covers",
+    )
     args = ap.parse_args()
     sparse = json.loads(Path(args.sparse).read_text()) if args.sparse else {}
+    covered = (
+        json.loads(Path(args.covered).read_text()) if args.covered else {}
+    )
 
     arch = {
         t: read_arch(t)
@@ -238,7 +261,7 @@ def main() -> None:
         path.write_text(sql_for(table, rows))
         print(f"{path.name}: {len(rows)} columns")
 
-    (MODELS / "schema.yml").write_text(schema_yaml(arch, sparse))
+    (MODELS / "schema.yml").write_text(schema_yaml(arch, sparse, covered))
     print(
         f"schema.yml: {sum(len(r) for r in arch.values())} columns documented"
     )

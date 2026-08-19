@@ -126,7 +126,6 @@ DIRECTORY = {
 # --------------------------------------------------------------------------
 DICT_EXTRA = {
     "award_or_idv_flag",
-    "primary_place_of_performance_scope",
     "organizational_type",
     "hospital_flag",
     "small_disadvantaged_business",
@@ -137,6 +136,9 @@ DICT_EXTRA = {
 # Columns whose "domain" in the source dictionary is a pointer to an external
 # reference system rather than an enumerated list — not dictionary-covered.
 DICT_NEVER = {
+    # Stores readable labels ("SINGLE ZIP CODE"), not codes, so the dictionary
+    # has nothing to resolve.
+    "primary_place_of_performance_scope",
     "awarding_agency_code",
     "awarding_agency_name",
     "awarding_sub_agency_code",

@@ -1,0 +1,37 @@
+{
+ "assistance_transaction": {
+  "covered": [
+   "action_type_code",
+   "business_funds_indicator_code",
+   "disaster_emergency_fund_codes_for_overall_award",
+   "record_type_code"
+  ],
+  "gaps": {
+   "assistance_type_code": [
+    "-1 (2,885)"
+   ],
+   "business_types_code": [
+    "07 (36)",
+    "OMX (4)",
+    "BC (3)",
+    "BE (3)",
+    "90 (2)",
+    "OM (1)",
+    "HA (1)",
+    "HAX (1)"
+   ],
+   "correction_delete_indicator_code": [
+    "L (18,488)",
+    "_ (113)"
+   ],
+   "primary_place_of_performance_scope": [
+    "SINGLE ZIP CODE (1,747,287)",
+    "COUNTY-WIDE (191,529)",
+    "CITY-WIDE (27,883)",
+    "FOREIGN (9,203)",
+    "MULTI-STATE (599)",
+    "STATE-WIDE (126)"
+   ]
+  }
+ }
+}
