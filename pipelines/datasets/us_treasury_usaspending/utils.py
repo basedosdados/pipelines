@@ -272,6 +272,12 @@ def clean_archive(
     zip_path = Path(zip_path)
     schema = staging_schema(table)
     read = pacsv.ReadOptions(block_size=64 << 20)
+    # Free-text fields (transaction_description above all) carry embedded
+    # newlines inside quoted values from FY2017 on. Without this the block
+    # chunker desynchronises from the parser and pyarrow aborts the file
+    # ("CSV parser got out of sync with chunker"). It costs block-parallel
+    # parsing, which is a fair price for reading the file at all.
+    parse = pacsv.ParseOptions(newlines_in_values=True)
 
     counts: dict[int, int] = defaultdict(int)
     writers: dict[int, pq.ParquetWriter] = {}
@@ -297,7 +303,10 @@ def clean_archive(
                 )
                 with z.open(member) as raw:
                     reader = pacsv.open_csv(
-                        raw, read_options=read, convert_options=convert
+                        raw,
+                        read_options=read,
+                        parse_options=parse,
+                        convert_options=convert,
                     )
                     for batch in reader:
                         chunk = _normalize_batch(batch, schema)
