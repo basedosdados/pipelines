@@ -107,6 +107,31 @@ Estabelecimentos:
 - Alterações na nomenclatura e na formatação de determinadas variáveis.
 - Recomenda-se validar o schema a cada nova versão anual da base.
 
+### 5.3 Quebra de série em 2023
+
+2023 é o primeiro ano-base captado integralmente pelo eSocial, com a entrada do
+Grupo 4 (órgãos públicos e organizações internacionais). O MTE desaconselha a
+comparação direta de 2023 com anos anteriores ([nota técnica][nt2023]).
+
+Em `microdados_estabelecimentos`, a diferença entre 2022 e 2023 está nas
+declarações sem vínculo:
+
+| ano | declarantes | com empregados (`= 0`) | RAIS negativa (`= 1`) | `= 2` |
+| :--- | ---: | ---: | ---: | ---: |
+| 2022 | 8.453.190 | 4.448.919 | 4.004.271 | — |
+| 2023 | 11.768.420 | 4.570.012 | 7.180.937 | 17.471 |
+| 2024 | 13.186.059 | 4.700.860 | 8.465.745 | 19.454 |
+| 2025 | 13.481.949 | 4.799.632 | 8.669.124 | 13.193 |
+
+`indicador_rais_negativa` tem três valores a partir de 2023. Até 2022 só existem
+`0` e `1`. O código `2` não aparece em nenhum layout da fonte e não tem entrada
+no `dicionario`.
+
+Os números de 2023 vêm da republicação descrita em §5.1. A apresentação da
+RAIS 2023 usa os dados anteriores a ela.
+
+[nt2023]: https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/acoes-e-programas/programas-projetos-acoes-obras-e-atividades/estatisticas-trabalho/rais/rais-2023/nota-tecnica-rais-2023_11-12-2024.pdf
+
 ---
 
 ## 6. Mudanças e particularidades do schema
