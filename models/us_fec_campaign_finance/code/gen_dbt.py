@@ -163,24 +163,24 @@ def yaml_block(text: str, indent: int) -> str:
 
 # Column-level dbt tests, beyond the model-level ones every table gets.
 NOT_NULL = {
-    "candidate": ["cycle", "candidate_id"],
-    "committee": ["cycle", "committee_id"],
-    "candidate_committee_link": ["cycle", "candidate_id", "committee_id"],
-    "contribution_individual": ["cycle", "committee_id", "sub_id"],
-    "contribution_committee": ["cycle", "committee_id", "sub_id"],
-    "committee_transaction": ["cycle", "committee_id", "sub_id"],
-    "disbursement": ["cycle", "committee_id", "sub_id"],
+    "candidate": ["year", "candidate_id"],
+    "committee": ["year", "committee_id"],
+    "candidate_committee_link": ["year", "candidate_id", "committee_id"],
+    "contribution_individual": ["year", "committee_id", "sub_id"],
+    "contribution_committee": ["year", "committee_id", "sub_id"],
+    "committee_transaction": ["year", "committee_id", "sub_id"],
+    "disbursement": ["year", "committee_id", "sub_id"],
     "dicionario": ["id_tabela", "nome_coluna", "chave"],
 }
 
 UNIQUE_KEY = {
-    "candidate": ["cycle", "candidate_id"],
-    "committee": ["cycle", "committee_id"],
-    "candidate_committee_link": ["cycle", "linkage_id"],
-    "contribution_individual": ["cycle", "sub_id"],
-    "contribution_committee": ["cycle", "sub_id"],
-    "committee_transaction": ["cycle", "sub_id"],
-    "disbursement": ["cycle", "sub_id"],
+    "candidate": ["year", "candidate_id"],
+    "committee": ["year", "committee_id"],
+    "candidate_committee_link": ["year", "linkage_id"],
+    "contribution_individual": ["year", "sub_id"],
+    "contribution_committee": ["year", "sub_id"],
+    "committee_transaction": ["year", "sub_id"],
+    "disbursement": ["year", "sub_id"],
     "dicionario": ["id_tabela", "nome_coluna", "chave"],
 }
 

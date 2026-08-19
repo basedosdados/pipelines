@@ -9,7 +9,7 @@ models:
       situação de incumbência e o comitê de campanha principal.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [cycle, candidate_id]
+          combination_of_columns: [year, candidate_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [address_2, office_district]
@@ -24,6 +24,7 @@ models:
         description: >
           Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
           termina
+        tests: [not_null]
       - name: candidate_id
         description: >
           Identificador de nove caracteres do candidato atribuído pela FEC
@@ -85,7 +86,7 @@ models:
       conectada.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [cycle, committee_id]
+          combination_of_columns: [year, committee_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -106,6 +107,7 @@ models:
         description: >
           Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
           termina
+        tests: [not_null]
       - name: committee_id
         description: >
           Identificador de nove caracteres do comitê atribuído pela FEC
@@ -161,7 +163,7 @@ models:
       committee e, por meio de committee_id, às tabelas de transações.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [cycle, linkage_id]
+          combination_of_columns: [year, linkage_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage:
@@ -172,6 +174,7 @@ models:
         description: >
           Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
           termina
+        tests: [not_null]
       - name: candidate_id
         description: >
           Identificador do candidato
@@ -203,7 +206,7 @@ models:
       de transação. É o arquivo de maior volume da FEC.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [cycle, sub_id]
+          combination_of_columns: [year, sub_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -226,6 +229,7 @@ models:
         description: >
           Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
           termina
+        tests: [not_null]
       - name: committee_id
         description: >
           Identificador de nove caracteres do comitê declarante atribuído pela FEC
@@ -302,7 +306,7 @@ models:
       contra candidatos e despesas coordenadas de partido.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [cycle, sub_id]
+          combination_of_columns: [year, sub_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -325,6 +329,7 @@ models:
         description: >
           Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
           termina
+        tests: [not_null]
       - name: committee_id
         description: >
           Identificador de nove caracteres do comitê declarante atribuído pela FEC
@@ -404,7 +409,7 @@ models:
       completando o fluxo de recursos entre PACs, partidos e campanhas.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [cycle, sub_id]
+          combination_of_columns: [year, sub_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -427,6 +432,7 @@ models:
         description: >
           Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
           termina
+        tests: [not_null]
       - name: committee_id
         description: >
           Identificador de nove caracteres do comitê declarante atribuído pela FEC
@@ -503,7 +509,7 @@ models:
       categoria de despesa.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [cycle, sub_id]
+          combination_of_columns: [year, sub_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -526,6 +532,7 @@ models:
         description: >
           Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
           termina
+        tests: [not_null]
       - name: committee_id
         description: >
           Identificador de nove caracteres do comitê declarante atribuído pela FEC
