@@ -149,9 +149,13 @@ def _staging_uf_done(
 
     The staging prefix is the pipeline's durable resume checkpoint: each UF is
     uploaded the moment it is cleaned, so a pod eviction mid-run loses only the
-    in-flight UF and the resubmit skips everything already here. ``user_project``
-    is set for requester-pays safety; ``project`` is the bucket's project so the
-    pod SA's ``serviceusage`` right resolves (mirrors ``_upload_to_gcs``).
+    in-flight UF and the resubmit skips everything already here.
+
+    Only the prod bucket (``basedosdados``) is requester-pays and needs
+    ``user_project``; forcing it on the non-requester-pays dev bucket bills the
+    request there and trips a ``serviceusage.services.use`` check the dev-pool SA
+    fails with 403. On any transient error, return False (treat as not-staged) so
+    the UF is re-cleaned and re-uploaded (idempotent) rather than crashing the run.
     """
     from google.cloud import storage
 
@@ -160,11 +164,16 @@ def _staging_uf_done(
         f"staging/{DATASET_ID}/{table_id}/"
         f"data={snapshot_iso}/sigla_uf={sigla_uf}/"
     )
-    bucket = client.bucket(bucket_name, user_project=bucket_name)
-    return (
-        next(iter(bucket.list_blobs(prefix=prefix, max_results=1)), None)
-        is not None
-    )
+    user_project = bucket_name if bucket_name == "basedosdados" else None
+    bucket = client.bucket(bucket_name, user_project=user_project)
+    try:
+        return (
+            next(iter(bucket.list_blobs(prefix=prefix, max_results=1)), None)
+            is not None
+        )
+    except Exception as exc:
+        print(f"staging check failed for {table_id}/{sigla_uf}: {exc}")
+        return False
 
 
 def _bq_table_exists(project: str, table_id: str) -> bool:
