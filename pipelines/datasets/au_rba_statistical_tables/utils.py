@@ -393,7 +393,8 @@ def parse_series_breaks(path: Path) -> list[dict]:
 def clean_all(input_dir: Path) -> dict:
     """Parse every CSV in ``input_dir`` into the three output tables.
 
-    Returns ``{"data", "series", "series_break", "excluded", "skipped"}``.
+    Returns ``{"data", "series", "series_break", "dicionario", "excluded",
+    "skipped", "max_publication_date"}``.
     Licence gate and the non-time-series family filter are both applied here.
     """
     files = sorted(Path(input_dir).glob("*.csv"))
@@ -461,9 +462,19 @@ def clean_all(input_dir: Path) -> dict:
         for code in used_types
     ]
 
+    # Freshness signal for the source poll: the RBA stamps each statistical
+    # table with its own publication date, and the max across all series moves
+    # every business day. Using the max *observation* date instead would stall
+    # the poll for weeks, because the newest coverage date belongs to a
+    # forward-dated quarterly expectations series.
+    pub_dates = [
+        s["publication_date"] for s in series if s["publication_date"]
+    ]
+
     return {
         "data": observations,
         "series": series,
+        "max_publication_date": max(pub_dates) if pub_dates else None,
         "series_break": breaks,
         "dicionario": dicionario,
         "excluded": excluded,
