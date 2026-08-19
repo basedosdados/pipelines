@@ -33,7 +33,7 @@ reporting_entity_name	STRING	Nome do fabricante ou GPO que efetuou o pagamento		
 reporting_entity_state	STRING	Sigla de duas letras do estado do fabricante ou GPO que efetuou o pagamento		no			no		Applicable_Manufacturer_or_Applicable_GPO_Making_Payment_State
 reporting_entity_country	STRING	País do fabricante ou GPO que efetuou o pagamento		no			no		Applicable_Manufacturer_or_Applicable_GPO_Making_Payment_Country
 payment_amount_total	FLOAT64	Valor total do pagamento ou transferência de valor ao beneficiário, em dólares americanos		no		usd	no		Total_Amount_of_Payment_USDollars
-payment_date	DATE	Data em que o pagamento ou transferência de valor foi efetuado		no			no		Date_of_Payment
+payment_date	DATE	Data em que o pagamento ou transferência de valor foi efetuado		no			no	Preservada exatamente como declarada ao CMS. Cerca de 93 registros em 148,8 milhões trazem anos implausíveis (2, 215, 2105, 3015), erros de digitação da entidade declarante que não foram corrigidos na origem — filtre por intervalo de datas com isso em mente.	Date_of_Payment
 payment_count	INT64	Quantidade de pagamentos individuais agregados no valor total do registro		no			no	Contagem adimensional, sem unidade de medida aplicável.	Number_of_Payments_Included_in_Total_Amount
 payment_form	STRING	Forma do pagamento ou transferência de valor, como dinheiro, ações ou itens em espécie		yes			no		Form_of_Payment_or_Transfer_of_Value
 payment_nature	STRING	Natureza do pagamento ou transferência de valor, como consultoria, alimentação, viagem ou honorários de palestra		yes			no		Nature_of_Payment_or_Transfer_of_Value

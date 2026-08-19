@@ -15,20 +15,31 @@ prod after the PR has merged and the tables are verified.
 """
 
 import json
+import os
 import sys
 import time
 from pathlib import Path
 
 import requests
 
-sys.path.insert(0, str(Path.home() / "Dropbox" / "BD" / "mcp"))
-import server
+# The databasis MCP server is a standalone checkout, not a package dependency.
+# BD_MCP_PATH overrides the usual location so this runs off one machine.
+_MCP_PATH = Path(
+    os.environ.get("BD_MCP_PATH", Path.home() / "Dropbox" / "BD" / "mcp")
+)
+if not (_MCP_PATH / "server.py").exists():
+    raise SystemExit(
+        f"databasis MCP server not found at {_MCP_PATH}. "
+        "Set BD_MCP_PATH to the directory containing server.py."
+    )
+sys.path.insert(0, str(_MCP_PATH))
+import server  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import constants as c
-import dataset_meta as meta
-import layout
-from table_descriptions import TABLE_DESCRIPTIONS
+import constants as c  # noqa: E402
+import dataset_meta as meta  # noqa: E402
+import layout  # noqa: E402
+from table_descriptions import TABLE_DESCRIPTIONS  # noqa: E402
 
 GCP_PROJECT = {
     "staging": "basedosdados-dev",
@@ -50,9 +61,15 @@ def _with_retries(call, attempts: int = 5, delay: float = 5.0):
     """Retry a backend call through transient network failures.
 
     The production backend intermittently drops requests and stalls past the
-    client's 60s timeout, and DNS for it has failed mid-run. Every write here
-    is an upsert keyed by name or slug, so retrying is safe -- and far better
-    than a half-registered dataset that has to be reasoned about afterwards.
+    client's 60s timeout, and DNS for it has failed mid-run.
+
+    Only calls that upsert by name or slug are wrapped. The create-only
+    mutations -- observation level, coverage, datetime range, cloud table --
+    are deliberately left bare: they create whenever no id is passed, so a
+    write that lands and then times out would be duplicated by the retry.
+    That is exactly how `general` ended up with four observation levels.
+    Re-running the script instead is safe, because by then the previous
+    attempt's records are in the snapshot and get passed as ids.
     """
 
     def wrapped(*args, **kwargs):
@@ -78,13 +95,8 @@ for _name in (
     "create_update_dataset",
     "create_update_raw_data_source",
     "create_update_table",
-    "create_update_observation_level",
     "bulk_upsert_columns",
     "update_column",
-    "create_update_cloud_table",
-    "create_update_coverage",
-    "create_update_datetime_range",
-    "create_update_update",
     "create_update_tag",
     "reorder_tables",
     "reorder_columns",

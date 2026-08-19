@@ -22,7 +22,8 @@ _MONEY = re.compile(
 # Counts. Means and medians of a count are not integers, so they are FLOAT64.
 _COUNT = re.compile(
     r"(^payment_count$|_count$|^payment_count_(total|mean|median)_|^transaction_count$"
-    r"|^physician_count$|^non_physician_practitioner_count$|^teaching_hospital_count$)"
+    r"|_transaction_count_|^physician_count$|^non_physician_practitioner_count$"
+    r"|^teaching_hospital_count$)"
 )
 _FRACTIONAL = re.compile(
     r"^(payment_amount_(mean|median)|payment_count_(mean|median))"
@@ -161,6 +162,19 @@ STATE_CODE_NULL_ABROAD = (
     "trazem sigla de estado."
 )
 
+YEAR_FROM_FILE_NAME = (
+    "Derivada do nome do arquivo publicado pelo CMS, que não traz o ano do programa "
+    "como coluna neste relatório."
+)
+
+# The per-year summary reports carry no Program_Year column.
+SUMMARY_YEAR_FROM_FILE = {
+    "summary_by_recipient_nature",
+    "summary_by_recipient_entity",
+    "summary_by_entity_nature",
+    "summary_by_entity_recipient_nature",
+}
+
 PAYMENT_DATE_OUTLIERS = (
     "Preservada exatamente como declarada ao CMS. Cerca de 93 registros em 148,8 milhões "
     "trazem anos implausíveis (2, 215, 2105, 3015), erros de digitação da entidade "
@@ -187,6 +201,10 @@ _DASHBOARD_NOTE = (
 
 
 def observations(table: str, column: str) -> str:
+    if column == "payment_date":
+        return PAYMENT_DATE_OUTLIERS
+    if column == "year" and table in SUMMARY_YEAR_FROM_FILE:
+        return YEAR_FROM_FILE_NAME
     if (
         table in {"summary_state", "summary_state_by_nature"}
         and column == "state_code"
@@ -211,7 +229,8 @@ def observations(table: str, column: str) -> str:
 # the name and address columns are personal, so they are flagged as such.
 _PERSONAL = re.compile(
     r"(first_name|middle_name|last_name|name_suffix|address_line|_npi$|^recipient_city$"
-    r"|^recipient_zip_code$|^recipient_postal_code$|^city$|^zip_code$)"
+    r"|^recipient_zip_code$|^recipient_postal_code$|^recipient_name$|^city$|^zip_code$"
+    r"|^postal_code$)"
 )
 
 

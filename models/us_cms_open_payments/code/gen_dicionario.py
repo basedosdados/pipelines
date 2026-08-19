@@ -62,9 +62,15 @@ def main() -> None:
         print("\nAdd them to glossary.py and re-run.")
         sys.exit(1)
 
-    schema = pa.schema(
-        [pa.field(name, pa.string()) for name in layout.LAYOUT["dicionario"]]
-    )
+    expected = layout.LAYOUT["dicionario"]
+    # from_pylist silently nulls any schema field the dicts do not carry, so a
+    # renamed column would write an all-null column and exit zero.
+    if data and set(data[0]) != set(expected):
+        raise SystemExit(
+            "dicionario row keys do not match the layout: "
+            f"{sorted(set(data[0]) ^ set(expected))}"
+        )
+    schema = pa.schema([pa.field(name, pa.string()) for name in expected])
     target = c.OUTPUT_DIR / "dicionario"
     target.mkdir(parents=True, exist_ok=True)
     pq.write_table(

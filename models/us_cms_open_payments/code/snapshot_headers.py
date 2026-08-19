@@ -9,6 +9,7 @@ import csv
 import io
 import json
 import subprocess
+from pathlib import Path
 
 import constants as c
 import remote_zip
@@ -61,5 +62,7 @@ if __name__ == "__main__":
         headers["summary"][name] = current_header(c.summary_url(stem, joined))
         print(f"summary {name}: {len(headers['summary'][name])} cols")
 
-    with open("headers.json", "w") as fh:
+    # tables.py always reads this from the module directory, so writing it
+    # relative to the cwd would leave the consumer on a stale snapshot.
+    with open(Path(__file__).resolve().parent / "headers.json", "w") as fh:
         json.dump(headers, fh, indent=1)

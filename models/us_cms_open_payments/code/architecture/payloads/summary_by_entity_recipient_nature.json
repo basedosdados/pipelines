@@ -9,7 +9,7 @@
   "has_sensitive_data": false,
   "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
   "measurement_unit": "year",
-  "observations": "Coluna de origem no CMS: program year from the file name."
+  "observations": "Derivada do nome do arquivo publicado pelo CMS, que não traz o ano do programa como coluna neste relatório."
  },
  {
   "name": "reporting_entity_id",
@@ -79,7 +79,7 @@
   "description_en": "Name of the recipient aggregated in the record",
   "description_es": "Nombre del beneficiario agregado en el registro",
   "covered_by_dictionary": false,
-  "has_sensitive_data": false,
+  "has_sensitive_data": true,
   "observations": "Coluna de origem no CMS: Recipient_Name."
  },
  {

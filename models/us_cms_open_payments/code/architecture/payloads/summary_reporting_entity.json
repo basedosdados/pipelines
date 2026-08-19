@@ -107,33 +107,33 @@
  },
  {
   "name": "general_transaction_count_physician",
-  "bigquery_type": "STRING",
+  "bigquery_type": "INT64",
   "description_pt": "Quantidade de transações de pagamento geral com médicos",
   "description_en": "Number of general payment transactions with physicians",
   "description_es": "Cantidad de transacciones de pago general con médicos",
   "covered_by_dictionary": false,
   "has_sensitive_data": false,
-  "observations": "Coluna de origem no CMS: Trans_General_Physician."
+  "observations": "Contagem adimensional, sem unidade de medida aplicável. Coluna de origem no CMS: Trans_General_Physician."
  },
  {
   "name": "general_transaction_count_non_physician_practitioner",
-  "bigquery_type": "STRING",
+  "bigquery_type": "INT64",
   "description_pt": "Quantidade de transações de pagamento geral com profissionais não médicos",
   "description_en": "Number of general payment transactions with non-physician practitioners",
   "description_es": "Cantidad de transacciones de pago general con profesionales no médicos",
   "covered_by_dictionary": false,
   "has_sensitive_data": false,
-  "observations": "Coluna de origem no CMS: Trans_General_Non_Physician_Practitioner."
+  "observations": "Contagem adimensional, sem unidade de medida aplicável. Coluna de origem no CMS: Trans_General_Non_Physician_Practitioner."
  },
  {
   "name": "general_transaction_count_teaching_hospital",
-  "bigquery_type": "STRING",
+  "bigquery_type": "INT64",
   "description_pt": "Quantidade de transações de pagamento geral com hospitais universitários",
   "description_en": "Number of general payment transactions with teaching hospitals",
   "description_es": "Cantidad de transacciones de pago general con hospitales universitarios",
   "covered_by_dictionary": false,
   "has_sensitive_data": false,
-  "observations": "Coluna de origem no CMS: Trans_General_Teachinghospital."
+  "observations": "Contagem adimensional, sem unidade de medida aplicável. Coluna de origem no CMS: Trans_General_Teachinghospital."
  },
  {
   "name": "research_transaction_count",
@@ -147,33 +147,33 @@
  },
  {
   "name": "research_transaction_count_physician",
-  "bigquery_type": "STRING",
+  "bigquery_type": "INT64",
   "description_pt": "Quantidade de transações de pagamento de pesquisa com médicos",
   "description_en": "Number of research payment transactions with physicians",
   "description_es": "Cantidad de transacciones de pago de investigación con médicos",
   "covered_by_dictionary": false,
   "has_sensitive_data": false,
-  "observations": "Coluna de origem no CMS: Trans_Research_Physician."
+  "observations": "Contagem adimensional, sem unidade de medida aplicável. Coluna de origem no CMS: Trans_Research_Physician."
  },
  {
   "name": "research_transaction_count_non_physician_practitioner",
-  "bigquery_type": "STRING",
+  "bigquery_type": "INT64",
   "description_pt": "Quantidade de transações de pagamento de pesquisa com profissionais não médicos",
   "description_en": "Number of research payment transactions with non-physician practitioners",
   "description_es": "Cantidad de transacciones de pago de investigación con profesionales no médicos",
   "covered_by_dictionary": false,
   "has_sensitive_data": false,
-  "observations": "Coluna de origem no CMS: Trans_Research_Non_Physician_Practitioner."
+  "observations": "Contagem adimensional, sem unidade de medida aplicável. Coluna de origem no CMS: Trans_Research_Non_Physician_Practitioner."
  },
  {
   "name": "research_transaction_count_teaching_hospital",
-  "bigquery_type": "STRING",
+  "bigquery_type": "INT64",
   "description_pt": "Quantidade de transações de pagamento de pesquisa com hospitais universitários",
   "description_en": "Number of research payment transactions with teaching hospitals",
   "description_es": "Cantidad de transacciones de pago de investigación con hospitales universitarios",
   "covered_by_dictionary": false,
   "has_sensitive_data": false,
-  "observations": "Coluna de origem no CMS: Trans_Research_Teachinghospital."
+  "observations": "Contagem adimensional, sem unidade de medida aplicável. Coluna de origem no CMS: Trans_Research_Teachinghospital."
  },
  {
   "name": "ownership_invested_transaction_count",

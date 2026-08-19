@@ -15,7 +15,7 @@ state	STRING	Sigla de duas letras do estado do endereço comercial do pesquisado
 zip_code	STRING	CEP do endereço comercial do pesquisador principal		no			yes		Principal_Investigator_[1-5]_Zip_Code
 country	STRING	País do endereço comercial do pesquisador principal		no			no		Principal_Investigator_[1-5]_Country
 province	STRING	Província do endereço comercial do pesquisador principal, quando fora dos Estados Unidos		no			no		Principal_Investigator_[1-5]_Province
-postal_code	STRING	Código postal do endereço comercial do pesquisador principal, quando fora dos Estados Unidos		no			no		Principal_Investigator_[1-5]_Postal_Code
+postal_code	STRING	Código postal do endereço comercial do pesquisador principal, quando fora dos Estados Unidos		no			yes		Principal_Investigator_[1-5]_Postal_Code
 primary_type_1	STRING	Tipo principal de prática do beneficiário, tipo 1 de 6		yes			no		Principal_Investigator_[1-5]_Primary_Type_1
 specialty_1	STRING	Especialidade do beneficiário na taxonomia padronizada de prestadores, especialidade 1 de 6		no			no		Principal_Investigator_[1-5]_Specialty_1
 license_state_1	STRING	Sigla de duas letras do estado da licença profissional, licença 1 de 5		no			no		Principal_Investigator_[1-5]_License_State_code1

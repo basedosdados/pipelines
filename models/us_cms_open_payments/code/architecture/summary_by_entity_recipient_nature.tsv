@@ -1,10 +1,10 @@
 name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory_column	measurement_unit	has_sensitive_data	observations	original_name
-year	INT64	Ano do programa a que o registro se refere		no	br_bd_diretorios_data_tempo.ano:ano	year	no		program year from the file name
+year	INT64	Ano do programa a que o registro se refere		no	br_bd_diretorios_data_tempo.ano:ano	year	no	Derivada do nome do arquivo publicado pelo CMS, que não traz o ano do programa como coluna neste relatório.	
 reporting_entity_id	STRING	Identificador único do fabricante ou GPO que declarou o pagamento		no			no		AMGPO_ID
 recipient_id	STRING	Identificador do beneficiário: perfil do profissional ou CCN do hospital universitário		no			no		Recipient_ID
 recipient_type	STRING	Tipo de beneficiário: médico, profissional não médico ou hospital universitário		yes			no		Recipient_Type
 payment_nature_code	STRING	Código da natureza do pagamento ou transferência de valor		yes			no	Código numérico da natureza do pagamento; o rótulo correspondente está no dicionário.	Nature_Of_Payment_Type_Code
 transaction_count	INT64	Quantidade de transações agregadas no registro		no			no	Contagem adimensional, sem unidade de medida aplicável.	Number_of_Transaction
 amount_total	FLOAT64	Valor total agregado no registro, em dólares americanos		no		usd	no		Total_Amount
-recipient_name	STRING	Nome do beneficiário agregado no registro		no			no		Recipient_Name
+recipient_name	STRING	Nome do beneficiário agregado no registro		no			yes		Recipient_Name
 reporting_entity_name	STRING	Nome do fabricante ou GPO que efetuou o pagamento		no			no		AMGPO_Name

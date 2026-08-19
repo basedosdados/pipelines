@@ -159,6 +159,13 @@ def _fetch(url: str, dest) -> None:
     else:
         print(f"  get {dest.name}")
         _fetch_serial(url, tmp)
+        # The parallel path checks its own assembly; the serial one needs the
+        # same guard, or a truncated file becomes the cached destination and
+        # every later run skips re-fetching it.
+        if size is not None and tmp.stat().st_size != size:
+            raise RuntimeError(
+                f"{url}: downloaded {tmp.stat().st_size} bytes, expected {size}"
+            )
     tmp.rename(dest)
 
 

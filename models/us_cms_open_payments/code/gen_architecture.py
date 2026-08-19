@@ -87,7 +87,6 @@ def original_names(table: str) -> dict[str, str]:
             naming.rename_summary(s): s
             for s in layout.HEADERS["summary"][table]
         }
-        out.setdefault("year", "program year from the file name")
         return out
     if table == "dicionario":
         return {}

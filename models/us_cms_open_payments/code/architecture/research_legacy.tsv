@@ -50,7 +50,7 @@ device_name_3	STRING	Nome do dispositivo ou insumo médico coberto associado ao 
 device_name_4	STRING	Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo 4 de 5		no			no		Name_of_Associated_Covered_Device_or_Medical_Supply4
 device_name_5	STRING	Nome do dispositivo ou insumo médico coberto associado ao pagamento, dispositivo 5 de 5		no			no		Name_of_Associated_Covered_Device_or_Medical_Supply5
 payment_amount_total	FLOAT64	Valor total do pagamento ou transferência de valor ao beneficiário, em dólares americanos		no		usd	no		Total_Amount_of_Payment_USDollars
-payment_date	DATE	Data em que o pagamento ou transferência de valor foi efetuado		no			no		Date_of_Payment
+payment_date	DATE	Data em que o pagamento ou transferência de valor foi efetuado		no			no	Preservada exatamente como declarada ao CMS. Cerca de 93 registros em 148,8 milhões trazem anos implausíveis (2, 215, 2105, 3015), erros de digitação da entidade declarante que não foram corrigidos na origem — filtre por intervalo de datas com isso em mente.	Date_of_Payment
 payment_form	STRING	Forma do pagamento ou transferência de valor, como dinheiro, ações ou itens em espécie		yes			no		Form_of_Payment_or_Transfer_of_Value
 expenditure_category_1	STRING	Categoria de despesa do pagamento de pesquisa, categoria 1 de 6		yes			no		Expenditure_Category1
 expenditure_category_2	STRING	Categoria de despesa do pagamento de pesquisa, categoria 2 de 6		yes			no		Expenditure_Category2

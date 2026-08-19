@@ -351,7 +351,7 @@
   "description_es": "Fecha en que se efectuó el pago o transferencia de valor",
   "covered_by_dictionary": false,
   "has_sensitive_data": false,
-  "observations": "Coluna de origem no CMS: Date_of_Payment."
+  "observations": "Preservada exatamente como declarada ao CMS. Cerca de 93 registros em 148,8 milhões trazem anos implausíveis (2, 215, 2105, 3015), erros de digitação da entidade declarante que não foram corrigidos na origem — filtre por intervalo de datas com isso em mente. Coluna de origem no CMS: Date_of_Payment."
  },
  {
   "name": "payment_count",

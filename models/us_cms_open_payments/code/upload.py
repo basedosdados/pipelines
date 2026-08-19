@@ -61,24 +61,36 @@ def local_rows(table: str) -> tuple[int, int]:
     return sum(pq.ParquetFile(f).metadata.num_rows for f in files), len(files)
 
 
-def expected_files(table: str) -> int:
+def check_partitions(table: str) -> None:
+    """Reject an upload whose program years are not exactly the expected set.
+
+    Counting files is not enough: a missing program year alongside a stale one
+    gives the right total and the wrong data, and staging is dropped before
+    the upload, so the mistake is not recoverable from the previous state.
+    """
+    root = c.OUTPUT_DIR / table
+    partitions = [
+        f for f in root.rglob("*.parquet") if f.name != "00_header.parquet"
+    ]
     if table in layout.UNPARTITIONED:
-        return 1
-    # One parquet per program year, plus the 0-row header stub.
-    return len(layout.COVERAGE[table]) + 1
+        if len(partitions) != 1:
+            raise ValueError(f"{table}: {len(partitions)} file(s), expected 1")
+        return
+    found = {int(f.parent.name.split("=")[1]) for f in partitions}
+    want = set(layout.COVERAGE[table])
+    if found != want:
+        raise ValueError(
+            f"{table}: partitions missing={sorted(want - found)} "
+            f"unexpected={sorted(found - want)}. Finish run_all.py before uploading."
+        )
 
 
 def upload_table(table: str) -> int:
     path = c.OUTPUT_DIR / table
+    check_partitions(table)
     write_header_stub(table)
     rows, files = local_rows(table)
-    want = expected_files(table)
     print(f"[{table}] local: {rows:,} rows across {files} parquet file(s)")
-    if files != want:
-        raise ValueError(
-            f"{table}: found {files} parquet file(s), expected {want}. "
-            "Finish run_all.py before uploading."
-        )
 
     storage = bd.Storage(dataset_id=c.GCP_DATASET_ID, table_id=table)
     storage.delete_table(mode="staging", not_found_ok=True)
@@ -100,6 +112,9 @@ def upload_table(table: str) -> int:
     verdict = "MATCH" if got == rows else "MISMATCH"
     print(f"[{table}] uploaded - bigquery={got:,} local={rows:,} {verdict}")
     if got != rows:
+        # Leave nothing behind that a later materialisation could consume:
+        # the staging table failed validation, so it should not exist.
+        storage.delete_table(mode="staging", not_found_ok=True)
         raise ValueError(f"row count mismatch for {table}")
     return got
 

@@ -25,4 +25,9 @@ select
     safe_cast(payment_nature_code as string) payment_nature_code,
     safe_cast(transaction_count as int64) transaction_count,
     safe_cast(amount_total as float64) amount_total
-from {{ set_datalake_project("us_cms_open_payments_staging.summary_by_recipient_nature") }} as t
+from
+    {{
+        set_datalake_project(
+            "us_cms_open_payments_staging.summary_by_recipient_nature"
+        )
+    }} as t

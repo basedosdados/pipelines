@@ -63,7 +63,7 @@ eras stay in separate tables rather than being silently reconciled.
 
 `constants.py` (URLs, both regimes) → `download.py` → `clean.py` → `run_all.py`
 (download, clean and delete one program year at a time; peak disk ~10 GB rather than 105 GB)
-→ `repair_string_schema.py` → `profile_data.py` → `gen_dicionario.py` → `upload.py`.
+→ `normalise_parquet.py` → `profile_data.py` → `gen_dicionario.py` → `upload.py`.
 
 Generators: `gen_architecture.py`, `gen_dbt.py`, `gen_metadata_payloads.py`.
 Backend registration: `register_metadata.py` (drives the databasis MCP module directly).
@@ -77,7 +77,7 @@ Scratch lives in `~/Downloads/us_cms_open_payments_data`, never in the repo or D
    are written as NULL literals, and duckdb types those INTEGER — producing parquet where
    `physician_npi` is INT32 in the 2013 partition and STRING in 2015. BigQuery builds the
    staging external table from one file's schema, so dbt then reads the whole table against
-   the wrong type. `clean.py` casts them with `CAST(NULL AS VARCHAR)`; `repair_string_schema.py`
+   the wrong type. `clean.py` casts them with `CAST(NULL AS VARCHAR)`; `normalise_parquet.py`
    fixes anything written before that and runs as a final pass.
 2. **Do not set `strict_mode=false` on `read_csv`.** It forces duckdb's single-threaded
    reader, which rejects these files outright ("Parallel CSV Reader does not support a full
