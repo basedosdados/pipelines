@@ -118,9 +118,9 @@ def _run_rf_cnpj(
     commit_source_update_task(
         dataset_id=dataset_id,
         table_id=table_id,
-        source_max_date=folder_date,
+        source_max_date=last_modified_date,
         env="prod",
-        date_format="%Y-%m",
+        date_format="%Y-%m-%d",
         update_metadata=update_metadata,
         materialize_after_dump=materialize_after_dump,
     )
