@@ -120,12 +120,33 @@ def extract_last_date_from_bq(
 
     query_date_column = format_date_column(date_column)
 
+    # Coverage dates in the future are filer typos, not real coverage, and a
+    # handful of them distorts the whole BD Pro window: `free_end` is
+    # `max_date - free_lag`, so an impossible date pushes the boundary forward
+    # and releases for free the period that should be paid. In
+    # us_fec_campaign_finance, 71 rows dated up to 2026-12-31 (against a real
+    # maximum of 2026-07-31) shrank the paid window from 8,614,269 rows to
+    # 25,277.
+    #
+    # The filter applies only to date columns (`{'date'}`). Year, year/month
+    # and year/quarter are deliberately left out: there the value labels a
+    # period, and a future label is often legitimate — budget year, crop year,
+    # school year — so filtering would shrink the coverage of correct datasets.
+    # `_max_transaction_date` in us_fec_campaign_finance/utils.py already
+    # applies this rule to the poll; this aligns coverage with what the poll
+    # was already doing.
+    date_filter = (
+        f"\n        WHERE {query_date_column} <= CURRENT_DATE()"
+        if date_column.keys() == {"date"}
+        else ""
+    )
+
     try:
         query_bd = f"""
         SELECT
         MAX({query_date_column}) as max_date
         FROM
-        `{project_id}.{dataset_id}.{table_id}`
+        `{project_id}.{dataset_id}.{table_id}`{date_filter}
         """
         log(query_bd)
         t = bd.read_sql(
