@@ -17,4 +17,6 @@ select
     safe_cast(alternate_name_3 as string) alternate_name_3,
     safe_cast(alternate_name_4 as string) alternate_name_4,
     safe_cast(alternate_name_5 as string) alternate_name_5
-from {{ set_datalake_project("us_cms_open_payments_staging.reporting_entity_profile") }} as t
+from
+    {{ set_datalake_project("us_cms_open_payments_staging.reporting_entity_profile") }}
+    as t
