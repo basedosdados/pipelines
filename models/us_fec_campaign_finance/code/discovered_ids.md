@@ -80,17 +80,17 @@ Planned assignment:
 
 | Table | Observation levels (column → entity) |
 |---|---|
-| `candidate` | candidate_id → person, cycle → year |
-| `committee` | committee_id → committee, cycle → year |
-| `candidate_committee_link` | candidate_id → person, committee_id → committee, cycle → year |
-| `contribution_individual` | sub_id → donation, committee_id → committee, cycle → year |
-| `contribution_committee` | sub_id → donation, committee_id → committee, cycle → year |
-| `committee_transaction` | sub_id → transaction, committee_id → committee, cycle → year |
-| `disbursement` | sub_id → expenditure, committee_id → committee, cycle → year |
+| `candidate` | candidate_id → person, year → year |
+| `committee` | committee_id → committee, year → year |
+| `candidate_committee_link` | candidate_id → person, committee_id → committee, year → year |
+| `contribution_individual` | sub_id → donation, committee_id → committee, year → year |
+| `contribution_committee` | sub_id → donation, committee_id → committee, year → year |
+| `committee_transaction` | sub_id → transaction, committee_id → committee, year → year |
+| `disbursement` | sub_id → expenditure, committee_id → committee, year → year |
 | `dicionario` | none |
 
 `update_column`'s boolean arguments default to `False`, so re-pass `is_partition=True`
-when linking the observation level on `cycle`, or the flag is clobbered.
+when linking the observation level on `year`, or the flag is clobbered.
 
 ---
 
