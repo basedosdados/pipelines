@@ -214,6 +214,7 @@ def br_sfb_sicar_flow(
     only_themes: str = "",
     only_ufs: str = "",
     clean_only: bool = False,
+    stage_only: bool = False,
 ) -> None:
     """Refresh all nine SICAR theme tables (snapshot-stacked, append).
 
@@ -241,6 +242,12 @@ def br_sfb_sicar_flow(
         clean_only: Clean each UF but stage nothing — a memory smoke test for the
             vertex-dense themes (e.g. Amazonas ``app``) that touches neither dev
             nor prod. No GCS checkpoint is written, so it is not resumable.
+        stage_only: Download → clean → stage every UF to GCS (the full, resumable
+            checkpoint), but skip all dbt run/test and metadata. Use to complete
+            the national backfill's staging without touching the BigQuery daily
+            query quota (which the 9 large geo tables' full materializations
+            exhaust); verify staging row counts afterwards, and let table-approve
+            materialize prod on merge.
     """
     limit_gb = container_memory_limit_gb()
     print(
@@ -395,6 +402,8 @@ def br_sfb_sicar_flow(
             if clean_only or not any_staged:
                 continue
             built_themes.append(table)
+            if stage_only:
+                continue  # staging is the durable output; skip dbt entirely
             # Build (dbt run) this theme now that its UFs are staged. Skip if it
             # is already materialized and nothing new was staged this pod — but
             # always build when the table is missing (staged in a pod evicted
@@ -431,6 +440,14 @@ def br_sfb_sicar_flow(
 
         if not built_themes:
             print("no UF x theme produced output; nothing to build")
+            return
+
+        if stage_only:
+            print(
+                f"stage_only: {len(built_themes)} theme(s) fully staged to GCS "
+                f"(dev bucket); skipped dbt run/test and metadata. Verify staging "
+                f"row counts; prod materializes via table-approve on merge."
+            )
             return
 
         # Test after every theme is built: cross-table tests (relationships,
