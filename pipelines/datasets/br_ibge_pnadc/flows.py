@@ -36,7 +36,6 @@ def br_ibge_pnadc__microdados(
     dataset_id: str = "br_ibge_pnadc",
     table_id: str = "microdados",
     materialize_after_dump: bool = False,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -90,7 +89,6 @@ def br_ibge_pnadc__microdados(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -109,7 +107,6 @@ def br_ibge_pnadc__microdados(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -140,7 +137,6 @@ def br_ibge_pnadc__dicionario(
     dataset_id: str = "br_ibge_pnadc",
     table_id: str = "dicionario",
     materialize_after_dump: bool = False,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     """Reconstrói o dicionário da PNADC e materializa via dbt (dev e prod).
@@ -149,7 +145,6 @@ def br_ibge_pnadc__dicionario(
         dataset_id: ID do dataset no BigQuery.
         table_id: Slug da tabela do dicionário.
         materialize_after_dump: Se True, sobe também para prod e materializa lá.
-        dbt_alias: Usa o alias do modelo dbt (nome com prefixo `<ds>__`).
         target: Target dbt para a materialização em prod.
     """
     # pyrefly: ignore [unused-coroutine]
@@ -176,7 +171,6 @@ def br_ibge_pnadc__dicionario(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -196,7 +190,6 @@ def br_ibge_pnadc__dicionario(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 

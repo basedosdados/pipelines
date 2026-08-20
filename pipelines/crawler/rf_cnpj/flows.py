@@ -28,7 +28,6 @@ def _run_rf_cnpj(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
@@ -56,7 +55,6 @@ def _run_rf_cnpj(
         materialize_after_dump: If True, also upload to the prod bucket, run
             dbt against `target`, and register metadata (subject to
             `update_metadata`). If False, stop after the dev dump and dbt run.
-        dbt_alias: Passed through to `run_dbt`'s `dbt_alias` argument.
         update_metadata: If True (and `materialize_after_dump` is True),
             register the table's coverage/materialization and commit the
             source's max date after a successful prod run.
@@ -148,7 +146,6 @@ def _run_rf_cnpj(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -167,7 +164,6 @@ def _run_rf_cnpj(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -198,7 +194,6 @@ def _run_rf_cnpj(
             dataset_id="br_bd_diretorios_brasil",
             table_id="empresa",
             dbt_command="run/test",
-            dbt_alias=dbt_alias,
             target=target,
         )
         download_data_to_gcs(
