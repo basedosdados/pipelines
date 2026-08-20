@@ -38,7 +38,6 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
         dataset_id: str = "br_me_comex_stat",
         table_id: str = table_id,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -93,7 +92,6 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            dbt_alias=dbt_alias,
             target="dev",
         )
 
@@ -113,7 +111,6 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            dbt_alias=dbt_alias,
             target=target,
         )
 

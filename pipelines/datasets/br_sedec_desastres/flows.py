@@ -69,7 +69,6 @@ def br_sedec_desastres_flow(
     dataset_id: str = constants.DATASET_ID.value,
     table_id: str = constants.TABLE_ID.value,
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -130,7 +129,6 @@ def br_sedec_desastres_flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            dbt_alias=dbt_alias,
             target="dev",
         )
 
@@ -149,7 +147,6 @@ def br_sedec_desastres_flow(
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            dbt_alias=dbt_alias,
             target=target,
         )
 
