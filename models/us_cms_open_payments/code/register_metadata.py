@@ -38,6 +38,7 @@ import server  # noqa: E402
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import constants as c  # noqa: E402
 import dataset_meta as meta  # noqa: E402
+import gen_metadata_payloads  # noqa: E402
 import layout  # noqa: E402
 from table_descriptions import TABLE_DESCRIPTIONS  # noqa: E402
 
@@ -280,9 +281,12 @@ def register_table(
     if observation_levels:
         log(f"  observation levels: {', '.join(observation_levels)}")
 
-    payload = (c.ARCH_DIR / "payloads" / f"{table}.json").read_text()
     upserted = server.bulk_upsert_columns(
-        table_id=table_id, columns_json=payload, env=env
+        table_id=table_id,
+        columns_json=json.dumps(
+            gen_metadata_payloads.payload(table), ensure_ascii=False
+        ),
+        env=env,
     )
     log(f"  columns: {json.dumps(upserted)[:160]}")
 

@@ -11,8 +11,10 @@ as `cc0` in the backend, following `us_fed_fred` and `us_cfpb_hmda`. GCP id
 `open_payments`.
 
 `code/layout.py` is the single source of truth for the table and column inventory. The
-architecture TSVs, the dbt models, the metadata payloads and the cleaning SQL are all
-generated from it, so a column is renamed in exactly one place.
+architecture CSVs, the dbt models, the metadata payloads and the cleaning SQL are all
+generated from it, so a column is renamed in exactly one place. Only the architecture CSVs
+are committed; the payloads `bulk_upsert_columns` wants are built in memory at registration
+time, so there is no second copy to drift.
 
 ## Two schema eras, two publication regimes — and they do not line up
 
@@ -65,9 +67,12 @@ eras stay in separate tables rather than being silently reconciled.
 (download, clean and delete one program year at a time; peak disk ~10 GB rather than 105 GB)
 → `normalise_parquet.py` → `profile_data.py` → `gen_dicionario.py` → `upload.py`.
 
-Generators: `gen_architecture.py`, `gen_dbt.py`, `gen_metadata_payloads.py`.
+Generators: `gen_architecture.py` (writes `code/architecture/*.csv`), `gen_dbt.py`,
+`gen_metadata_payloads.py` (a module — `payload(table)`, no output files).
 Backend registration: `register_metadata.py` (drives the databasis MCP module directly).
-Backend IDs in `code/discovered_ids.md`.
+Backend IDs in `code/discovered_ids.md`. `code/cms_dictionary/*.json` are CMS's own
+published field definitions, kept as the provenance for the 651 descriptions in
+`descriptions.py`; each file records the CMS metastore identifier it was fetched by.
 
 Scratch lives in `~/Downloads/us_cms_open_payments_data`, never in the repo or Dropbox.
 

@@ -1,13 +1,12 @@
 """Emit one architecture table per table, plus the EN/ES description sidecar.
 
-The architecture TSV carries the Portuguese description, because
+The architecture CSV carries the Portuguese description, because
 ``upload_columns_from_sheet`` maps the bare ``description`` column to
-``description_pt``. English and Spanish go to ``descriptions_en_es.tsv`` and
+``description_pt``. English and Spanish go to ``descriptions_en_es.csv`` and
 are applied afterwards with ``bulk_upsert_columns``.
 """
 
 import csv
-import json
 
 import constants as c
 import descriptions
@@ -129,13 +128,10 @@ def main() -> None:
     c.ARCH_DIR.mkdir(parents=True, exist_ok=True)
     sidecar = []
     for table in layout.LAYOUT:
-        path = c.ARCH_DIR / f"{table}.tsv"
+        path = c.ARCH_DIR / f"{table}.csv"
         with open(path, "w", newline="") as fh:
             writer = csv.DictWriter(
-                fh,
-                fieldnames=ARCH_COLUMNS,
-                delimiter="\t",
-                lineterminator="\n",
+                fh, fieldnames=ARCH_COLUMNS, lineterminator="\n"
             )
             writer.writeheader()
             writer.writerows(rows(table))
@@ -153,31 +149,16 @@ def main() -> None:
             f"{table:38s} {len(layout.LAYOUT[table]):3d} cols -> {path.name}"
         )
 
-    side = c.ARCH_DIR / "descriptions_en_es.tsv"
+    side = c.ARCH_DIR / "descriptions_en_es.csv"
     with open(side, "w", newline="") as fh:
         writer = csv.DictWriter(
             fh,
             fieldnames=["table", "name", "description_en", "description_es"],
-            delimiter="\t",
             lineterminator="\n",
         )
         writer.writeheader()
         writer.writerows(sidecar)
     print(f"\n{len(layout.LAYOUT)} tables, {len(sidecar)} columns")
-
-    manifest = {
-        "gcp_dataset_id": c.GCP_DATASET_ID,
-        "tables": {
-            t: {
-                "columns": layout.LAYOUT[t],
-                "years": layout.COVERAGE.get(t),
-                "partitioned": t not in layout.UNPARTITIONED,
-            }
-            for t in layout.LAYOUT
-        },
-    }
-    with open(c.ARCH_DIR / "manifest.json", "w") as fh:
-        json.dump(manifest, fh, indent=1)
 
 
 if __name__ == "__main__":

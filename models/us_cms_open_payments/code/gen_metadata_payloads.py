@@ -1,20 +1,15 @@
-"""Emit the columns_json payload for bulk_upsert_columns, one file per table.
+"""Build the columns_json payload bulk_upsert_columns expects, per table.
 
 bulk_upsert_columns matches by column name and writes bigquery_type, so the
 whole 651-column registration is 23 calls with no Google Sheet in the loop.
-
-    uv run python gen_metadata_payloads.py
+The payload is derived from the layout and never stored: ``register_metadata``
+builds it in memory, so there is no committed copy to drift from its source.
 """
 
-import json
-
-import constants as c
 import descriptions
 import gen_architecture
 import layout
 import schema
-
-OUT_DIR = c.ARCH_DIR / "payloads"
 
 
 def payload(table: str) -> list[dict]:
@@ -54,16 +49,3 @@ def payload(table: str) -> list[dict]:
             entry["temporal_coverage"] = coverage
         out.append(entry)
     return out
-
-
-if __name__ == "__main__":
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    total = 0
-    for table in layout.LAYOUT:
-        rows = payload(table)
-        path = OUT_DIR / f"{table}.json"
-        with open(path, "w") as fh:
-            json.dump(rows, fh, ensure_ascii=False, indent=1)
-        total += len(rows)
-        print(f"{table:38s} {len(rows):3d} columns -> {path.name}")
-    print(f"\n{total} columns across {len(layout.LAYOUT)} tables")
