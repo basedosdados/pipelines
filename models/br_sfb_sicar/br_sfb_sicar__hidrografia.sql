@@ -23,4 +23,6 @@ select
     safe_cast(condicao as string) condicao,
     safe.st_geogfromtext(geometria, make_valid => true) geometria,
 from {{ set_datalake_project("br_sfb_sicar_staging.hidrografia") }} as t
-{% if is_incremental() %} where data > (select max(data) from {{ this }}) {% endif %}
+{% if is_incremental() %}
+    where safe_cast(data as date) > (select max(data) from {{ this }})
+{% endif %}

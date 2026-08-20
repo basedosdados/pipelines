@@ -58,7 +58,7 @@ select
 {selects}
 from {{{{ set_datalake_project("{DS}_staging.{table}") }}}} as t
 {{% if is_incremental() %}}
-    where data > (select max(data) from {{{{ this }}}})
+    where safe_cast(data as date) > (select max(data) from {{{{ this }}}})
 {{% endif %}}
 """
 

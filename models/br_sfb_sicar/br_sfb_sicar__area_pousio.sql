@@ -24,4 +24,6 @@ select
     safe_cast(area as float64) area,
     safe.st_geogfromtext(geometria, make_valid => true) geometria,
 from {{ set_datalake_project("br_sfb_sicar_staging.area_pousio") }} as t
-{% if is_incremental() %} where data > (select max(data) from {{ this }}) {% endif %}
+{% if is_incremental() %}
+    where safe_cast(data as date) > (select max(data) from {{ this }})
+{% endif %}
