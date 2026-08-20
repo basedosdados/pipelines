@@ -138,6 +138,70 @@ def _sync_staging_schema(
     )
 
 
+def _sync_staging_source_uris(
+    tb: bd.Table,
+    bucket_name: str,
+    dataset_id: str,
+    table_id: str,
+    billing_project_id: str,
+) -> None:
+    """Reaponta a tabela externa de staging para o bucket do ambiente corrente.
+
+    A definição da tabela externa guarda o bucket que estava em uso quando ela
+    foi criada. Como `dump_mode="append"` só cria a tabela quando ela ainda não
+    existe, um bucket errado gravado uma vez fica gravado para sempre: as
+    execuções seguintes escrevem os blobs no bucket certo e o dbt continua lendo
+    o errado, silenciosamente.
+
+    Isso não é hipotético. Em 2026-08-19 a metade dev de um flow recriou
+    `basedosdados-staging.us_sec_edgar_staging.dicionario` apontando para
+    `gs://basedosdados-dev/...`, divergindo das quatro tabelas irmãs, e a
+    materialização de produção passou a ser construída a partir de blobs do
+    bucket de dev. Nenhum log de erro, nenhuma task falha.
+
+    A correção é feita no lugar, pela API do BigQuery, e é idempotente: quando a
+    URI já está correta a função não faz nada.
+
+    Args:
+        tb: tabela `basedosdados` já instanciada, apontando para a staging.
+        bucket_name: bucket do ambiente corrente.
+        dataset_id: `gcp_dataset_id` sem o sufixo `_staging`.
+        table_id: slug da tabela.
+        billing_project_id: projeto GCP usado para faturar a chamada.
+    """
+    suffix = f"/staging/{dataset_id}/{table_id}/*"
+    expected = f"gs://{bucket_name}{suffix}"
+
+    client = bigquery.Client(project=billing_project_id)
+    table = client.get_table(tb.table_full_name["staging"])
+
+    config = table.external_data_configuration
+    if config is None:
+        return
+
+    current = list(config.source_uris or [])
+    if current == [expected]:
+        return
+
+    # Conservador de propósito: só corrige o caso em que a ÚNICA diferença é o
+    # bucket. Uma tabela com várias URIs, ou com um caminho fora da convenção,
+    # foi montada à mão por alguém — reescrevê-la seria trocar um estrago
+    # silencioso por outro. Nesses casos apenas avisa.
+    if len(current) != 1 or not current[0].endswith(suffix):
+        print(
+            f"AVISO: staging {tb.table_full_name['staging']} tem URIs fora da "
+            f"convenção ({current}); esperado {[expected]}. Não alterado — "
+            "verifique manualmente."
+        )
+        return
+
+    config.source_uris = [expected]
+    table.external_data_configuration = config
+    client.update_table(table, ["external_data_configuration"])
+
+    print(f"URI da staging corrigida: {current} -> {[expected]}")
+
+
 def _upload_to_gcs(
     data_path: str | Path,
     dataset_id: str,
@@ -186,6 +250,13 @@ def _upload_to_gcs(
             )
         else:
             print(f"Tabela já existe: {tb.table_full_name['staging']}")
+            _sync_staging_source_uris(
+                tb=tb,
+                bucket_name=bucket_name,
+                dataset_id=dataset_id,
+                table_id=table_id,
+                billing_project_id=billing_project_id,
+            )
             _sync_staging_schema(
                 tb=tb,
                 data_path=data_path,
@@ -198,7 +269,13 @@ def _upload_to_gcs(
             st.delete_table(
                 mode="staging", bucket_name=bucket_name, not_found_ok=True
             )
-            tb.delete(mode="all")
+            # mode="staging", NUNCA mode="all": `all` percorre staging E prod,
+            # apagando a tabela MATERIALIZADA de produção. E isso dispara na
+            # iteração dev do laço de ambientes também, porque `bd.Table`
+            # resolve os projetos do BigQuery pelo config do worker, não pelo
+            # `bucket_name` — então uma execução com materialize_to_prod=False
+            # apagava a tabela de produção e retornava antes de reconstruí-la.
+            tb.delete(mode="staging")
             print(f"Tabela anterior removida: {tb.table_full_name['staging']}")
         header_path = dump_header(
             data_path=data_path, source_format=source_format
