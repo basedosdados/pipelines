@@ -78,8 +78,15 @@ STAGING_RENAMES = {
 
 
 def staging_column(row: dict) -> str:
-    """Name the column has in the staging table."""
-    original = row["original_name"]
+    """Name the column has in the staging table.
+
+    ``original_name`` is blank for columns the cleaning step invents rather than
+    carries over from the archive — every column of the dicionario, which is
+    built here rather than downloaded. Fall back to the published name in that
+    case: returning the blank emits ``safe_cast( as string)``, which is not
+    valid SQL and only shows up when the model is next built from scratch.
+    """
+    original = row["original_name"] or row["name"]
     return STAGING_RENAMES.get(original, original)
 
 
@@ -201,13 +208,18 @@ def schema_yaml(
             )
             out.append("          config:")
             out.append("            where: __most_recent_fiscal_year__")
-            # Deliberately unscoped: the shared macro discovers this test's
-            # columns by introspecting the where-subquery, and that returns the
-            # staging column names, which differ here (*_unique_key -> *_id).
-            # A full-history pass is a single aggregate and also the stricter
-            # reading of "mostly empty".
+            # Scoped to the newest fiscal year, like the tests above. The
+            # macro sums a CASE expression over every column, so unscoped it
+            # reads the whole table: 364 GB across the two transaction tables,
+            # which exhausts the project's daily query quota in one pass — and
+            # would do so monthly, in each environment. One fiscal year costs
+            # about a twentieth of that. The exemptions are unioned across the
+            # recent fiscal years so the moving scope does not make the list
+            # churn; see null_proportions.py.
             out.append("      - not_null_proportion_multiple_columns:")
             out.append("          at_least: 0.05")
+            out.append("          config:")
+            out.append("            where: __most_recent_fiscal_year__")
             cols = sparse.get(table, [])
             if cols:
                 out.append("          ignore_values:")

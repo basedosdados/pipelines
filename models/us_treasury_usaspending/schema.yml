@@ -14,26 +14,37 @@ models:
             where: __most_recent_fiscal_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_fiscal_year__
           ignore_values:
-            - highly_compensated_officer_4_amount
-            - highly_compensated_officer_5_amount
-            - highly_compensated_officer_5_name
+            - dod_claimant_program_code
+            - dod_claimant_program_description
             - idv_type
             - idv_type_code
             - multiple_or_single_award_idv
             - multiple_or_single_award_idv_code
+            - national_interest_action
+            - national_interest_action_code
             - obligated_amount_from_IIJA_supplemental_for_overall_award
             - obligated_amount_from_covid19_supplementals_for_overall_award
             - ordering_period_end_date
             - other_statutory_authority
             - outlayed_amount_from_IIJA_supplemental_for_overall_award
             - outlayed_amount_from_covid19_supplementals_for_overall_award
+            - price_evaluation_adjustment_preference_percent_difference
             - program_acronym
             - recipient_address_line_2
             - recipient_doing_business_as_name
+            - recipient_duns
+            - recipient_parent_duns
             - research
+            - research_code
             - sam_exception
+            - sam_exception_description
+            - sea_transportation
+            - sea_transportation_code
             - type_of_idc
+            - type_of_idc_code
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - action_type
@@ -1145,9 +1156,11 @@ models:
             where: __most_recent_fiscal_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_fiscal_year__
           ignore_values:
-            - funding_opportunity_goals_text
-            - funding_opportunity_number
+            - correction_delete_indicator_code
+            - correction_delete_indicator_description
             - highly_compensated_officer_1_amount
             - highly_compensated_officer_1_name
             - highly_compensated_officer_2_amount
@@ -1158,13 +1171,17 @@ models:
             - highly_compensated_officer_4_name
             - highly_compensated_officer_5_amount
             - highly_compensated_officer_5_name
-            - indirect_cost_federal_share_amount
             - obligated_amount_from_IIJA_supplemental_for_overall_award
+            - obligated_amount_from_covid19_supplementals_for_overall_award
             - outlayed_amount_from_IIJA_supplemental_for_overall_award
+            - outlayed_amount_from_covid19_supplementals_for_overall_award
             - primary_place_of_performance_foreign_location
+            - recipient_address_line_2
+            - recipient_duns
             - recipient_foreign_city_name
             - recipient_foreign_postal_code
             - recipient_foreign_province_name
+            - recipient_parent_duns
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - action_type_code
