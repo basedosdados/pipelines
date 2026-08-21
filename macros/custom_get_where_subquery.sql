@@ -171,6 +171,14 @@
         {% set placeholders = modules.re.findall(
             "__most_recent__\\(\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\)", where
         ) %}
+        {#- A namespace, not a plain `{% set where = ... %}`. Jinja gives every
+            `{% for %}` its own scope, so an assignment made inside the loop is
+            DISCARDED at `{% endfor %}` — unlike the `{% if %}` blocks above,
+            which share the macro's scope and can rewrite `where` directly.
+            Without this the loop still runs and still logs the max value, so
+            the run looks right, while the raw placeholder reaches BigQuery and
+            the test dies with `Function not found: __most_recent__`. -#}
+        {% set ns = namespace(where=where) %}
         {% for column in placeholders %}
             {% set max_query = (
                 "select max(" ~ column ~ ") as max_value from " ~ relation
@@ -182,7 +190,7 @@
                     {% set literal = column ~ " = " ~ max_value %}
                 {% else %} {% set literal = column ~ " = '" ~ max_value ~ "'" %}
                 {% endif %}
-                {% set where = where | replace(
+                {% set ns.where = ns.where | replace(
                     "__most_recent__(" ~ column ~ ")", literal
                 ) %}
                 {% do log(
@@ -194,6 +202,7 @@
                 ) %}
             {% endif %}
         {% endfor %}
+        {% set where = ns.where %}
 
         {# Return the filtered subquery #}
         {% set filtered = (
