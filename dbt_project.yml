@@ -172,6 +172,9 @@ models:
     us_cfpb_hmda:
       +materialized: table
       +schema: us_cfpb_hmda
+    us_cms_open_payments:
+      +materialized: table
+      +schema: us_cms_open_payments
     us_fec_campaign_finance:
       +materialized: table
       +schema: us_fec_campaign_finance

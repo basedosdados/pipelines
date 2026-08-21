@@ -218,6 +218,7 @@ project-excludes = [
   "models/us_fed_fred/code",
   "models/br_cgu_sancoes/code",
   "models/au_geoscape_gnaf/code",
+  "models/us_cms_open_payments/code",
   "models/us_fec_campaign_finance/code",
   "models/us_treasury_usaspending/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
