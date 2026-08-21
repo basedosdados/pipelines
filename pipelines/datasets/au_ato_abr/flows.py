@@ -192,7 +192,7 @@ def au_ato_abr_flow(
 # snapshot actually appears.
 # pyrefly: ignore [missing-attribute]
 au_ato_abr_flow.deploy_schedules = [
-    {"cron": "0 16 * * 1,2,3,4", "timezone": "America/Sao_Paulo"}
+    {"cron": "30 16 * * 1,2,3,4", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step streams from the ZIPs and flushes in 400k-row chunks, but the
 # download is ~1 GB; give the worker headroom.

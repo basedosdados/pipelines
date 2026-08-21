@@ -181,7 +181,7 @@ def world_wb_wdi_flow(
 # this ingests the annual update whenever the World Bank publishes it.
 # pyrefly: ignore [missing-attribute]
 world_wb_wdi_flow.deploy_schedules = [
-    {"cron": "0 16 15 3,6,9,12 *", "timezone": "America/Sao_Paulo"}
+    {"cron": "20 16 15 3,6,9,12 *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step melts the wide file into ~26M rows in pandas; give the worker
 # headroom.
