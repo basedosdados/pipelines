@@ -259,9 +259,13 @@ def reserved_codes(
         table_id, column = record["table_id"], record["column_name"]
         if column not in numeric_by_table.get(table_id, set()):
             continue
-        codes.setdefault(table_id, {}).setdefault(column, {})[
-            record["key"]
-        ] = record["value"]
+        # Accept every spelling of the code, not only this cycle's canonical one,
+        # so a country file that deviates cannot slip a sentinel into a numeric
+        # column. Safe to over-accept: these are letter tokens and the columns
+        # they are stripped from hold numbers.
+        target = codes.setdefault(table_id, {}).setdefault(column, {})
+        for variant in cb.sas_code_variants(record["key"]) or {record["key"]}:
+            target[variant] = record["value"]
     return codes
 
 
@@ -282,17 +286,23 @@ def build_dictionary(all_variables: dict, sheets: dict) -> list[dict]:
             # reserved codes in its missing scheme -- and those must be collected,
             # or the cleaning transform would leave 9999 sitting in a numeric
             # column. They are filtered back out of the published dictionary.
-            if not variable.has_value_scheme and not variable.missing_scheme:
+            if (
+                not variable.has_value_scheme
+                and not variable.missing_scheme_sas
+            ):
                 continue
             scheme = variable.value_scheme.strip()
             pairs = sheets.get(scheme) or split_packed(scheme)
             # Reserved codes are answers too -- refused, don't know, valid skip --
-            # and belong in the dictionary alongside the substantive ones.
-            if variable.missing_scheme:
+            # and belong in the dictionary alongside the substantive ones. Key
+            # them on the SAS coding, which is what the CSV PUFs carry; the SPSS
+            # numeric codes the codebook lists beside them appear nowhere in the
+            # data.
+            if variable.missing_scheme_sas:
                 pairs = pairs + [
-                    (k, v)
-                    for k, v in split_packed(variable.missing_scheme)
-                    if not k.lower().startswith("sysmis")
+                    (cb.sas_code_as_written(k, variable.cycle), v)
+                    for k, v in split_packed(variable.missing_scheme_sas)
+                    if k.strip() and k.strip() != "."
                 ]
             column = variable.name.lower()
             for key, value in pairs:
@@ -324,9 +334,14 @@ def build_cycle_1_dictionary(
         column = str(row[0]).strip().lower()
         if column not in respondent_names:
             continue
-        # Column 3 is the SPSS coding, which is what the CSV PUFs carry; column 2
-        # is the SAS coding, which uses .V / .D / .R for the reserved codes.
-        key, value = str(row[3]).strip(), str(row[1]).strip()
+        # Column 2 is the SAS coding, which is what the CSV PUFs actually carry:
+        # Cycle 1 writes .N as a bare N. Column 3 is the SPSS numeric coding,
+        # which appears nowhere in the CSVs. Valid values are identical in both
+        # codings (verified: zero disagreements), so SAS is safe throughout.
+        raw_key = str(row[2]).strip()
+        if not raw_key or raw_key in {"None", "."}:
+            continue
+        key, value = cb.sas_code_as_written(raw_key, "1"), str(row[1]).strip()
         identity = ("respondent_cycle_1", column, key)
         if identity in seen:
             continue
@@ -457,8 +472,10 @@ def main() -> None:
             entry = codes.get(slug, {}).get(column.name)
             if not entry:
                 continue
-            listed = ", ".join(f"{k} ({v})" for k, v in sorted(entry.items()))
-            note = f"Reserved codes set to NULL when loading: {listed}"
+            listed = ", ".join(sorted({f"{v}" for v in entry.values()}))
+            note = (
+                f"Set to NULL when loading where the source recorded: {listed}"
+            )
             column.observations = (
                 f"{column.observations}. {note}"
                 if column.observations

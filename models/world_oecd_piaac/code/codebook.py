@@ -176,6 +176,7 @@ class Variable:
     domain: str
     value_scheme: str
     missing_scheme: str
+    missing_scheme_sas: str = ""
 
     @property
     def is_item(self) -> bool:
@@ -229,6 +230,7 @@ def load_codebook(path: Path, cycle: str) -> list[Variable]:
                     _text(row[11]),
                     _text(row[8]),
                     _text(row[9]),
+                    _text(row[10]),
                 )
             )
     workbook.close()
@@ -241,6 +243,37 @@ def split_item(name: str) -> tuple[str, str, str, str] | None:
         if len(name) > len(suffix) and name.endswith(suffix):
             return name[: -len(suffix)], column, bq_type, unit
     return None
+
+
+def sas_code_as_written(code: str, cycle: str) -> str:
+    """How a SAS special-missing code actually appears in the CSV Public Use File.
+
+    Neither cycle writes the SPSS numeric codes the codebook also lists. Cycle 1
+    strips the leading dot and upper-cases (.N -> N); Cycle 2 keeps the dot and
+    lower-cases (.N -> .n). Verified against JPN, DEU, ECU and the US national
+    file for Cycle 1, and AUT and DEU for Cycle 2.
+    """
+    code = code.strip()
+    if not code.startswith("."):
+        return code
+    if code == ".":
+        return "."
+    return code.lstrip(".").upper() if cycle == "1" else code.lower()
+
+
+def sas_code_variants(code: str) -> set[str]:
+    """Every spelling of a SAS missing code, so a match never depends on cycle.
+
+    Safe to over-accept: these are letter tokens, and the columns they are
+    stripped from hold numbers. Legitimate single-letter values do exist in the
+    data -- ISIC section codes run A to U -- which is exactly why the accepted
+    set is built per column from the codebook rather than from a global token list.
+    """
+    code = code.strip()
+    if not code or code == ".":
+        return {"."} if code else set()
+    bare = code.lstrip(".")
+    return {code, code.lower(), code.upper(), bare, bare.lower(), bare.upper()}
 
 
 class UnclassifiedColumnError(ValueError):

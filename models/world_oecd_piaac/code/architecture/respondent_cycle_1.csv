@@ -6,7 +6,7 @@ country_id_iso_3,STRING,ISO 3166-1 alpha-3 code of the participating country,,no
 country_id_m49,STRING,UN M49 numeric code of the participating country,,no,br_bd_diretorios_mundo.pais:id_m49,,no,,CNTRYID
 country_entity_id,STRING,Code of the participating country or sub-national entity as reported by PIAAC,,yes,,,no,"Distinct from country_id_m49 where a country took part as a sub-national entity: Belgium participated as Flanders in both cycles and the United Kingdom as England in Cycle 2. Not a country code, so it carries no directory link",CNTRYID_E
 respondent_id,STRING,Randomly derived sequential identifier of the respondent,,no,,,no,"Unique within a country and cycle only, never across them; combine with year and country_id_iso_3 for a unique key",SEQID
-age_r,INT64,Person resolved age from BQ and QC check (derived),,no,,year,no,Reserved codes set to NULL when loading: 99 (Not stated or inferred),AGE_R
+age_r,INT64,Person resolved age from BQ and QC check (derived),,no,,year,no,Set to NULL when loading where the source recorded: Not stated or inferred,AGE_R
 gender_r,STRING,Person resolved gender from BQ and QC check (derived),,yes,,,no,,GENDER_R
 disp_cibq,STRING,Final disposition code for person - combining CI and BQ/JRA (derived),,yes,,,no,,DISP_CIBQ
 disp_main,STRING,Final disposition code for person for Main task instrument (derived),,yes,,,no,,DISP_MAIN
@@ -17,12 +17,12 @@ b_q01a_t,STRING,Highest level of schooling (Trend-IALS/ALL),,yes,,,no,,B_Q01a_T
 b_q01a3,STRING,Education - Highest qualification - Level of foreign qualification,,yes,,,no,,B_Q01a3
 b_q01a3_c,STRING,"Education - Highest Qualification - Level of foreign qualification (collapsed, 14 categories)",,yes,,,no,,B_Q01a3_C
 b_q01b,STRING,Education - Highest qualification - Area of study,,yes,,,no,,B_Q01b
-b_q01c1,INT64,Education - Highest qualification - Age of finish,,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",B_Q01c1
+b_q01c1,INT64,Education - Highest qualification - Age of finish,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q01c1
 b_q01c1_c,STRING,"Education - Highest qualification - Age of finish (categorised, 6 categories)",,yes,,,no,,B_Q01c1_C
-b_q01c1_t,INT64,Age at completion of highest level of schooling (Trend-IALS/ALL),,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",B_Q01c1_T
-b_q01c2,INT64,Education - Highest qualification - Year of finish,,no,,year,no,"Reserved codes set to NULL when loading: 9996 (Valid skip), 9997 (Don't know), 9998 (Refused), 9999 (Not stated or inferred)",B_Q01c2
+b_q01c1_t,INT64,Age at completion of highest level of schooling (Trend-IALS/ALL),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q01c1_T
+b_q01c2,INT64,Education - Highest qualification - Year of finish,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q01c2
 b_q01d,STRING,Education - Highest qualification - Month of finish,,yes,,,no,,B_Q01d
-b_d01d,INT64,Education - Highest qualification - Months elapsed since finished (DERIVED BY CAPI),,no,,month,no,"Reserved codes set to NULL when loading: 996 (Valid skip), 997 (Don't know), 998 (Refused), 999 (Not stated or inferred)",B_D01d
+b_d01d,INT64,Education - Highest qualification - Months elapsed since finished (DERIVED BY CAPI),,no,,month,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_D01d
 b_d01d_c,STRING,"Education - Time elapsed since finished highest qualification (categorised, 5 categories)",,yes,,,no,,B_D01d_C
 b_q02a,STRING,Education - Current qualification,,yes,,,no,,B_Q02a
 b_q02a_t1,STRING,Education or training in last 12 months (Trend-IALS/ALL),,yes,,,no,,B_Q02a_T1
@@ -33,15 +33,15 @@ b_q02c,STRING,Education - Current qualification - Area of study,,yes,,,no,,B_Q02
 b_q03a,STRING,Education - Uncompleted qualification,,yes,,,no,,B_Q03a
 b_q03b,STRING,Education - Uncompleted qualification - Level,,yes,,,no,,B_Q03b
 b_q03b_c,STRING,"Education - Uncompleted qualification - Level (collapsed, 10 categories)",,yes,,,no,,B_Q03b_C
-b_q03c1,INT64,Education - Uncompleted qualification - Age of dropout,,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",B_Q03c1
+b_q03c1,INT64,Education - Uncompleted qualification - Age of dropout,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q03c1
 b_q03c1_c,STRING,"Education - Uncompleted qualification - Age of dropout (categorised, 6 categories)",,yes,,,no,,B_Q03c1_C
-b_q03c2,INT64,Education - Uncompleted qualification - Year of dropout,,no,,year,no,"Reserved codes set to NULL when loading: 9996 (Valid skip), 9997 (Don't know), 9998 (Refused), 9999 (Not stated or inferred)",B_Q03c2
+b_q03c2,INT64,Education - Uncompleted qualification - Year of dropout,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q03c2
 b_q03d,STRING,Education - Uncompleted qualification - Month of dropout,,yes,,,no,,B_Q03d
-b_d03d,INT64,Education - Uncompleted qualification - Months elapsed since dropout (DERIVED BY CAPI),,no,,month,no,"Reserved codes set to NULL when loading: 996 (Valid skip), 997 (Don't know), 998 (Refused), 999 (Not stated or inferred)",B_D03d
+b_d03d,INT64,Education - Uncompleted qualification - Months elapsed since dropout (DERIVED BY CAPI),,no,,month,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_D03d
 b_d03d_c,STRING,"Education - Derived Months elapsed since leaving education without completing program (categorized, 3 categories)",,yes,,,no,,B_D03d_C
 b_q04a,STRING,Education - Formal qualification,,yes,,,no,,B_Q04a
-b_q04b,INT64,Education - Formal qualification - Count,,no,,,no,"Simple count; the counted item is named in the description. Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",B_Q04b
-b_q04b_c,INT64,Education - Formal qualification - Count (top-coded at 2),,no,,,no,"Simple count; the counted item is named in the description. Reserved codes set to NULL when loading: 6 (Valid skip), 7 (Don't know), 8 (Refused), 9 (Not stated or inferred)",B_Q04b_C
+b_q04b,INT64,Education - Formal qualification - Count,,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q04b
+b_q04b_c,INT64,Education - Formal qualification - Count (top-coded at 2),,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q04b_C
 b_q05a,STRING,Education - Formal qualification - Level,,yes,,,no,,B_Q05a
 b_q05b,STRING,Education - Formal qualification - Area of study,,yes,,,no,,B_Q05b
 b_q05c,STRING,Education - Formal qualification - Reason job related,,yes,,,no,,B_Q05c
@@ -52,16 +52,16 @@ b_q10c,STRING,Education - Formal qualification - Employed - Useful for job,,yes,
 b_q11,STRING,Education - Formal qualification - Grant from employer,,yes,,,no,,B_Q11
 b_q12a,STRING,Activities - Last year - Open or distance education,,yes,,,no,,B_Q12a
 b_q12a_t,STRING,Courses outside of program of studies in last 12 months (Trend-IALS/ALL),,yes,,,no,,B_Q12a_T
-b_q12b,INT64,Activities - Last year - Open or distance education - Count,,no,,,no,"Simple count; the counted item is named in the description. Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",B_Q12b
+b_q12b,INT64,Activities - Last year - Open or distance education - Count,,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q12b
 b_q12c,STRING,Activities - Last year - On the job training,,yes,,,no,,B_Q12c
-b_q12d,INT64,Activities - Last year - On the job training - Count,,no,,,no,"Simple count; the counted item is named in the description. Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",B_Q12d
-b_q12d_c,INT64,Activities - Last year - On the job training - Count (top-coded at 5),,no,,,no,"Simple count; the counted item is named in the description. Reserved codes set to NULL when loading: 6 (Valid skip), 7 (Don't know), 8 (Refused), 9 (Not stated or inferred)",B_Q12d_C
+b_q12d,INT64,Activities - Last year - On the job training - Count,,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q12d
+b_q12d_c,INT64,Activities - Last year - On the job training - Count (top-coded at 5),,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q12d_C
 b_q12e,STRING,Activities - Last year - Seminars or workshops,,yes,,,no,,B_Q12e
-b_q12f,INT64,Activities - Last year - Seminars or workshops - Count,,no,,,no,"Simple count; the counted item is named in the description. Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",B_Q12f
-b_q12f_c,INT64,Activities - Last year - Seminars or workshops - Count (top-coded at 5),,no,,,no,"Simple count; the counted item is named in the description. Reserved codes set to NULL when loading: 6 (Valid skip), 7 (Don't know), 8 (Refused), 9 (Not stated or inferred)",B_Q12f_C
+b_q12f,INT64,Activities - Last year - Seminars or workshops - Count,,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q12f
+b_q12f_c,INT64,Activities - Last year - Seminars or workshops - Count (top-coded at 5),,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q12f_C
 b_q12g,STRING,Activities - Last year - Private lessons,,yes,,,no,,B_Q12g
-b_q12h,INT64,Activities - Last year - Private lessons - Count,,no,,,no,"Simple count; the counted item is named in the description. Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",B_Q12h
-b_q12h_c,INT64,Activities - Last year - Private lessons - Count (top-coded at 5),,no,,,no,"Simple count; the counted item is named in the description. Reserved codes set to NULL when loading: 6 (Valid skip), 7 (Don't know), 8 (Refused), 9 (Not stated or inferred)",B_Q12h_C
+b_q12h,INT64,Activities - Last year - Private lessons - Count,,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q12h
+b_q12h_c,INT64,Activities - Last year - Private lessons - Count (top-coded at 5),,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q12h_C
 b_d12h,STRING,Activities - Last year - Number of learning activities (DERIVED BY CAPI),,yes,,,no,,B_D12h
 b_q13,STRING,Activities - Last year - Activity specified,,yes,,,no,,B_Q13
 b_q14a,STRING,Activities - Last year - Job related,,yes,,,no,,B_Q14a
@@ -71,9 +71,9 @@ b_q15b,STRING,Activities - Last year - During working hours,,yes,,,no,,B_Q15b
 b_q15c,STRING,Activities - Last year - Useful for job,,yes,,,no,,B_Q15c
 b_q16,STRING,Activities - Last year - Grant from employer,,yes,,,no,,B_Q16
 b_q17,STRING,Activities - Last year - Time spend - Unit,,yes,,,no,,B_Q17
-b_q18a,INT64,Activities - Last year - Time spend for activities - Weeks,,no,,week,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",B_Q18a
-b_q19a,INT64,Activities - Last year - Time spend for activities - Days,,no,,day,no,"Reserved codes set to NULL when loading: 996 (Valid skip), 997 (Don't know), 998 (Refused), 999 (Not stated or inferred)",B_Q19a
-b_q20a,INT64,Activities - Last year - Time spend for activities - Hours,,no,,hour,no,"Reserved codes set to NULL when loading: 9996 (Valid skip), 9997 (Don't know), 9998 (Refused), 9999 (Not stated or inferred)",B_Q20a
+b_q18a,INT64,Activities - Last year - Time spend for activities - Weeks,,no,,week,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q18a
+b_q19a,INT64,Activities - Last year - Time spend for activities - Days,,no,,day,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q19a
+b_q20a,INT64,Activities - Last year - Time spend for activities - Hours,,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q20a
 b_q20b,STRING,Activities - Last year - Time spend for activities - Proportion of job-related hours,,yes,,,no,,B_Q20b
 b_q26a,STRING,Activities - Last year - Wanted but didn't start,,yes,,,no,,B_Q26a
 b_q26a_t,STRING,Training or education for career or job wanted but not taken in last 12 months (Trend-IALS/ALL),,yes,,,no,,B_Q26a_T
@@ -94,7 +94,7 @@ c_q03_07,STRING,Current status/work history - Last month - Reason not looking fo
 c_q03_08,STRING,Current status/work history - Last month - Reason not looking for work - No need,,yes,,,no,,C_Q03_08
 c_q03_09,STRING,Current status/work history - Last month - Reason not looking for work - Retired,,yes,,,no,,C_Q03_09
 c_q03_10,STRING,Current status/work history - Last month - Reason not looking for work - Other,,yes,,,no,,C_Q03_10
-c_s03,INT64,Current status/work history - Last month - Months looking for paid work,,no,,month,no,"Reserved codes set to NULL when loading: 996 (Valid skip), 997 (Don't know), 998 (Refused), 999 (Not stated or inferred)",C_S03
+c_s03,INT64,Current status/work history - Last month - Months looking for paid work,,no,,month,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C_S03
 c_q04a,STRING,Current status/work history - Last month - Ways of looking for work - Contact public employment,,yes,,,no,,C_Q04a
 c_q04b,STRING,Current status/work history - Last month - Ways of looking for work - Contact private agency,,yes,,,no,,C_Q04b
 c_q04c,STRING,Current status/work history - Last month - Ways of looking for work - Apply to employers,,yes,,,no,,C_Q04c
@@ -114,27 +114,27 @@ c_q07,STRING,Current status/work history - Subjective status,,yes,,,no,,C_Q07
 c_q07_t,STRING,Current work situation (Trend-IALS/ALL),,yes,,,no,,C_Q07_T
 c_q08a,STRING,Current status/work history - Ever paid work,,yes,,,no,,C_Q08a
 c_q08b,STRING,Current status/work history - Last year - Paid work,,yes,,,no,,C_Q08b
-c_q08c1,INT64,Current status/work history - Age when stopped working in last job,,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",C_Q08c1
+c_q08c1,INT64,Current status/work history - Age when stopped working in last job,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C_Q08c1
 c_q08c1_c,STRING,"Current status/work history - Age when stopped working in last job (categorised, 10 categories)",,yes,,,no,,C_Q08c1_C
-c_q08c2,INT64,Current status/work history - Year when stopped working in last job,,no,,year,no,"Reserved codes set to NULL when loading: 9996 (Valid skip), 9997 (Don't know), 9998 (Refused), 9999 (Not stated or inferred)",C_Q08c2
+c_q08c2,INT64,Current status/work history - Year when stopped working in last job,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C_Q08c2
 c_d08c,STRING,Current status/work history - Left work in past 5 years (DERIVED BY CAPI),,yes,,,no,,C_D08c
-c_q09,INT64,Current status/work history - Years of paid work during lifetime,,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",C_Q09
-c_q09_c,INT64,Current status/work history - Years of paid work during lifetime (top-coded at 47),,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",C_Q09_C
+c_q09,INT64,Current status/work history - Years of paid work during lifetime,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C_Q09
+c_q09_c,INT64,Current status/work history - Years of paid work during lifetime (top-coded at 47),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C_Q09_C
 c_d09,STRING,Current status/work history - Work experience (DERIVED BY CAPI),,yes,,,no,,C_D09
 c_d09_t,STRING,Worked at job or business in last 12 months (any number of hours) (Trend-IALS/ALL),,yes,,,no,,C_D09_T
-c_q10a,INT64,Current status/work history - Last 5 years - How many different firms or organisations,,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",C_Q10a
-c_q10a_c,INT64,Current status/work history - Last 5 years - How many different firms or organisations (top-coded at 7),,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",C_Q10a_C
+c_q10a,INT64,Current status/work history - Last 5 years - How many different firms or organisations,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C_Q10a
+c_q10a_c,INT64,Current status/work history - Last 5 years - How many different firms or organisations (top-coded at 7),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C_Q10a_C
 d_q03,STRING,Current work - Economic sector,,yes,,,no,,D_Q03
 d_q04,STRING,Current work - Employee or self-employed,,yes,,,no,,D_Q04
 d_q04_t,STRING,Status at this job or business - six levels (Trend-IALS/ALL),,yes,,,no,,D_Q04_T
 d_q04_t1,STRING,Status at this job or business - four levels (Trend-IALS/ALL),,yes,,,no,,D_Q04_T1
-d_q05a1,INT64,Current work - Start of work for employer - Age,,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",D_Q05a1
+d_q05a1,INT64,Current work - Start of work for employer - Age,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_Q05a1
 d_q05a1_c,STRING,"Current work - Start of work for employer - Age (categorised, 9 categories)",,yes,,,no,,D_Q05a1_C
-d_q05a2,INT64,Current work - Start of work for employer - Year,,no,,year,no,"Reserved codes set to NULL when loading: 9996 (Valid skip), 9997 (Don't know), 9998 (Refused), 9999 (Not stated or inferred)",D_Q05a2
+d_q05a2,INT64,Current work - Start of work for employer - Year,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_Q05a2
 d_q05a3,STRING,Current work - Start of work for employer - Month,,yes,,,no,,D_Q05a3
-d_q05b1,INT64,Current work - Start of work for business - Age,,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",D_Q05b1
+d_q05b1,INT64,Current work - Start of work for business - Age,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_Q05b1
 d_q05b1_c,STRING,"Current work - Start of work for business - Age (categorised, 9 categories)",,yes,,,no,,D_Q05b1_C
-d_q05b2,INT64,Current work - Start of work for business - Year,,no,,year,no,"Reserved codes set to NULL when loading: 9996 (Valid skip), 9997 (Don't know), 9998 (Refused), 9999 (Not stated or inferred)",D_Q05b2
+d_q05b2,INT64,Current work - Start of work for business - Year,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_Q05b2
 d_q05b3,STRING,Current work - Start of work for business - Month,,yes,,,no,,D_Q05b3
 d_q06a,STRING,Current work - Amount of people working for employer,,yes,,,no,,D_Q06a
 d_q06b,STRING,Current work - Amount of people working for employer increased,,yes,,,no,,D_Q06b
@@ -145,9 +145,9 @@ d_q07b_c,STRING,"Current work - Employees working for you - Count (collapsed, 2 
 d_q08a,STRING,Current work - Managing other employees,,yes,,,no,,D_Q08a
 d_q08b,STRING,Current work - Managing other employees - Count,,yes,,,no,,D_Q08b
 d_q09,STRING,Current work - Type of contract,,yes,,,no,,D_Q09
-d_q10,INT64,Current work - Hours/week,,no,,hour,no,"Reserved codes set to NULL when loading: 996 (Valid skip), 997 (Don't know), 998 (Refused), 999 (Not stated or inferred)",D_Q10
-d_q10_c,INT64,Current work - Hours/week (top-coded at 60),,no,,hour,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",D_Q10_C
-d_q10_t,INT64,"Hours per week at this job or business - number of hours (top coded at 97, Trend-IALS/ALL)",,no,,hour,no,"Reserved codes set to NULL when loading: 996 (Valid skip), 998 (Don't know/Refused), 999 (Not stated or inferred)",D_Q10_T
+d_q10,INT64,Current work - Hours/week,,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_Q10
+d_q10_c,INT64,Current work - Hours/week (top-coded at 60),,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_Q10_C
+d_q10_t,INT64,"Hours per week at this job or business - number of hours (top coded at 97, Trend-IALS/ALL)",,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know/Refused, Not stated or inferred, Valid skip",D_Q10_T
 d_q10_t1,STRING,Hours per week at this job or business - range of hours (Trend-IALS/ALL),,yes,,,no,,D_Q10_T1
 d_q11a,STRING,Current work - Work flexibility - Sequence of tasks,,yes,,,no,,D_Q11a
 d_q11b,STRING,Current work - Work flexibility - How to do the work,,yes,,,no,,D_Q11b
@@ -161,9 +161,9 @@ d_q13b,STRING,Current work - Learning - Learning-by-doing,,yes,,,no,,D_Q13b
 d_q13c,STRING,Current work - Learning - Keeping up to date,,yes,,,no,,D_Q13c
 d_q14,STRING,Current work - Job satisfaction,,yes,,,no,,D_Q14
 d_q16a,STRING,Current work - Earnings - Salary interval,,yes,,,no,,D_Q16a
-d_s16a,FLOAT64,Current work - Earnings - Hours per piece,,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Reserved codes set to NULL when loading: 9996 (Valid skip), 9997 (Don't know), 9998 (Refused), 9999 (Not stated or inferred)",D_S16a
-d_d16a,FLOAT64,Current work - Earnings - Salary interval per hour (DERIVED BY CAPI),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Reserved codes set to NULL when loading: 9996 (Valid skip), 9997 (Don't know), 9998 (Refused), 9999 (Not stated or inferred)",D_D16a
-d_q16b,FLOAT64,Current work - Earnings - Gross pay,,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Reserved codes set to NULL when loading: 99999999996 (Valid skip), 99999999997 (Don't know), 99999999998 (Refused), 99999999999 (Not stated or inferred)",D_Q16b
+d_s16a,FLOAT64,Current work - Earnings - Hours per piece,,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_S16a
+d_d16a,FLOAT64,Current work - Earnings - Salary interval per hour (DERIVED BY CAPI),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_D16a
+d_q16b,FLOAT64,Current work - Earnings - Gross pay,,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_Q16b
 d_q16b_t,STRING,Wage or salary [weekly/hourly] before taxes and deductions (Trend-IALS/ALL),,yes,,,no,,D_Q16b_T
 d_q16c,STRING,Current work - Earnings - Gross pay in broad categories,,yes,,,no,,D_Q16c
 d_q16d1,STRING,Current work - Earnings - Broad categories - Gross pay per hour,,yes,,,no,,D_Q16d1
@@ -173,28 +173,28 @@ d_q16d4,STRING,Current work - Earnings - Broad categories - Gross pay per 2 week
 d_q16d5,STRING,Current work - Earnings - Broad categories - Gross pay per month,,yes,,,no,,D_Q16d5
 d_q16d6,STRING,Current work - Earnings - Broad categories - Gross pay per year,,yes,,,no,,D_Q16d6
 d_q17a,STRING,Current work - Earnings - Additional payments,,yes,,,no,,D_Q17a
-d_q17b,INT64,Current work - Earnings - Additional payments amount last year,,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Reserved codes set to NULL when loading: 99999999996 (Valid skip), 99999999997 (Don't know), 99999999998 (Refused), 99999999999 (Not stated or inferred)",D_Q17b
+d_q17b,INT64,Current work - Earnings - Additional payments amount last year,,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_Q17b
 d_q17c,STRING,Current work - Earnings - Additional payments in broad categories,,yes,,,no,,D_Q17c
 d_q17d,STRING,Current work - Earnings - Additional payments - Broad - Last year,,yes,,,no,,D_Q17d
-d_q18a,INT64,Current work - Earnings - Total earnings last year,,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Reserved codes set to NULL when loading: 99999999996 (Valid skip), 99999999997 (Don't know), 99999999998 (Refused), 99999999999 (Not stated or inferred)",D_Q18a
+d_q18a,INT64,Current work - Earnings - Total earnings last year,,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_Q18a
 d_q18a_t,STRING,Annual net income before taxes and deductions (Trend-IALS/ALL),,yes,,,no,,D_Q18a_T
 d_q18b,STRING,Current work - Earnings - Total earnings broad categories,,yes,,,no,,D_Q18b
 d_q18c1,STRING,Current work - Earnings - Broad categories - Total earnings last month,,yes,,,no,,D_Q18c1
 d_q18c2,STRING,Current work - Earnings - Broad categories - Total earnings last year,,yes,,,no,,D_Q18c2
 e_q03,STRING,Last job - Economic sector,,yes,,,no,,E_Q03
 e_q04,STRING,Last job - Employee or self-employed,,yes,,,no,,E_Q04
-e_q05a1,INT64,Last job - Start of work for employer - Age,,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",E_Q05a1
+e_q05a1,INT64,Last job - Start of work for employer - Age,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E_Q05a1
 e_q05a1_c,STRING,"Last job - Start of work for employer - Age (categorised, 9 categories)",,yes,,,no,,E_Q05a1_C
-e_q05a2,INT64,Last job - Start of work for employer - Year,,no,,year,no,"Reserved codes set to NULL when loading: 9996 (Valid skip), 9997 (Don't know), 9998 (Refused), 9999 (Not stated or inferred)",E_Q05a2
-e_q05b1,INT64,Last job - Start of work for business - Age,,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",E_Q05b1
+e_q05a2,INT64,Last job - Start of work for employer - Year,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E_Q05a2
+e_q05b1,INT64,Last job - Start of work for business - Age,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E_Q05b1
 e_q05b1_c,STRING,"Last job - Start of work for business - Age (categorised, 9 categories)",,yes,,,no,,E_Q05b1_C
-e_q05b2,INT64,Last job - Start of work for business - Year,,no,,year,no,"Reserved codes set to NULL when loading: 9996 (Valid skip), 9997 (Don't know), 9998 (Refused), 9999 (Not stated or inferred)",E_Q05b2
+e_q05b2,INT64,Last job - Start of work for business - Year,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E_Q05b2
 e_q06,STRING,Last job - Amount of people working for employer,,yes,,,no,,E_Q06
 e_q07a,STRING,Last job - Employees working for you,,yes,,,no,,E_Q07a
 e_q07b,STRING,Last job - Employees working for you - Count,,yes,,,no,,E_Q07b
 e_q08,STRING,Last job - Type of contract,,yes,,,no,,E_Q08
-e_q09,INT64,Last job - Hours/week,,no,,hour,no,"Reserved codes set to NULL when loading: 996 (Valid skip), 997 (Don't know), 998 (Refused), 999 (Not stated or inferred)",E_Q09
-e_q09_c,INT64,Last work - Hours/week (top-coded at 60),,no,,hour,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",E_Q09_C
+e_q09,INT64,Last job - Hours/week,,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E_Q09
+e_q09_c,INT64,Last work - Hours/week (top-coded at 60),,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E_Q09_C
 e_q10,STRING,Last job - Reason for end of job,,yes,,,no,,E_Q10
 f_q01b,STRING,Skill use work - Time cooperating with co-workers,,yes,,,no,,F_Q01b
 f_q02a,STRING,Skill use work - How often - Sharing work-related info,,yes,,,no,,F_Q02a
@@ -297,27 +297,27 @@ i_q07a,STRING,About yourself - Social trust - Trust only few people,,yes,,,no,,I
 i_q07b,STRING,About yourself - Social trust - Other people take advantage of you,,yes,,,no,,I_Q07b
 i_q08,STRING,About yourself - Health - State,,yes,,,no,,I_Q08
 i_q08_t,STRING,General health (Trend-IALS/ALL),,yes,,,no,,I_Q08_T
-j_q01,INT64,Background - People in household,,no,,person,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",J_Q01
-j_q01_c,INT64,Background - People in household (top-coded at 6),,no,,person,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",J_Q01_C
-j_q01_t,INT64,Number living in household (Trend-IALS/ALL),,no,,person,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 98 (Don't know/Refused), 99 (Not stated or inferred)",J_Q01_T
+j_q01,INT64,Background - People in household,,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J_Q01
+j_q01_c,INT64,Background - People in household (top-coded at 6),,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J_Q01_C
+j_q01_t,INT64,Number living in household (Trend-IALS/ALL),,no,,person,no,"Set to NULL when loading where the source recorded: Don't know/Refused, Not stated or inferred, Valid skip",J_Q01_T
 j_q01_t1,STRING,Number living in household (from 1 to 7) (Trend-IALS/ALL),,yes,,,no,,J_Q01_T1
 j_q02a,STRING,Background - Living with spouse or partner,,yes,,,no,,J_Q02a
 j_q02c,STRING,Background - Work situation of spouse or partner,,yes,,,no,,J_Q02c
 j_q03a,STRING,Background - Children,,yes,,,no,,J_Q03a
-j_q03b,INT64,Background - Number of children,,no,,person,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",J_Q03b
-j_q03b_c,INT64,Background - Number of children (top-coded at 4),,no,,person,no,"Reserved codes set to NULL when loading: 6 (Valid skip), 7 (Don't know), 8 (Refused), 9 (Not stated or inferred)",J_Q03b_C
-j_q03c,INT64,Background - Age of the child,,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",J_Q03c
+j_q03b,INT64,Background - Number of children,,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J_Q03b
+j_q03b_c,INT64,Background - Number of children (top-coded at 4),,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J_Q03b_C
+j_q03c,INT64,Background - Age of the child,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J_Q03c
 j_q03c_c,STRING,"Background - Age of the child (categorised, 4 categories)",,yes,,,no,,J_Q03c_C
-j_q03d1,INT64,Background - Age of the youngest child,,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",J_Q03d1
+j_q03d1,INT64,Background - Age of the youngest child,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J_Q03d1
 j_q03d1_c,STRING,"Background - Age of the youngest child (categorised, 4 categories)",,yes,,,no,,J_Q03d1_C
-j_q03d2,INT64,Background - Age of the oldest child,,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",J_Q03d2
+j_q03d2,INT64,Background - Age of the oldest child,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J_Q03d2
 j_q03d2_c,STRING,"Background - Age of the oldest child (categorised, 4 categories)",,yes,,,no,,J_Q03d2_C
 j_q04a,STRING,Background - Born in country,,yes,,,no,,J_Q04a
 j_q04a_t,STRING,Born in country (Trend-IALS/ALL),,yes,,,no,,J_Q04a_T
-j_q04c1,INT64,Background - Age of immigration,,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",J_Q04c1
+j_q04c1,INT64,Background - Age of immigration,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J_Q04c1
 j_q04c1_c,STRING,"Background - Age of immigration (categorised, 9 categories)",,yes,,,no,,J_Q04c1_C
-j_q04c2,INT64,Background - Year of immigration,,no,,year,no,"Reserved codes set to NULL when loading: 9996 (Valid skip), 9997 (Don't know), 9998 (Refused), 9999 (Not stated or inferred)",J_Q04c2
-j_q04c2_t,INT64,Year of immigration to country (Trend-IALS/ALL),,no,,year,no,"Reserved codes set to NULL when loading: 9996 (Valid skip), 9997 (Citizen by birth), 9998 (Don't know/Refused), 9999 (Not stated or inferred)",J_Q04c2_T
+j_q04c2,INT64,Background - Year of immigration,,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J_Q04c2
+j_q04c2_t,INT64,Year of immigration to country (Trend-IALS/ALL),,no,,year,no,"Set to NULL when loading where the source recorded: Citizen by birth, Don't know/Refused, Not stated or inferred, Valid skip",J_Q04c2_T
 j_q04c2_t1,STRING,Year of immigration to country - range of years (Trend-IALS/ALL),,yes,,,no,,J_Q04c2_T1
 j_n05a2,STRING,Background - More than one language mentioned,,yes,,,no,,J_N05a2
 j_q06a,STRING,Background - Mother/female guardian - Whether born in country,,yes,,,no,,J_Q06a
@@ -345,11 +345,11 @@ random_cba_module2_stage2,STRING,Random number for selection of domain (L/N) in 
 cba_start,STRING,Computer-based exercise agreement,,yes,,,no,,CBA_START
 ppc_score,FLOAT64,Final score for the paper core assessment,,no,,,no,"Raw number of correct responses, not a scaled proficiency score",PPC_SCORE
 random_pp,STRING,Random number for selection of Paper Booklets,,no,,,no,,RANDOM_PP
-prc_pv_q1,INT64,Sentence Timer for Print Vocabulary items,,no,,second,no,"Reserved codes set to NULL when loading: 99999996 (Valid skip), 99999999 (Not stated or inferred)",PRC_PV_Q1
-prc_sp_q1,INT64,Sentence Timer for Sentence Processing items,,no,,second,no,"Reserved codes set to NULL when loading: 99999996 (Valid skip), 99999999 (Not stated or inferred)",PRC_SP_Q1
-prc_pf_q1,INT64,Sentence Timer for Passage Comprehension items - passage 1,,no,,second,no,"Reserved codes set to NULL when loading: 99999996 (Valid skip), 99999999 (Not stated or inferred)",PRC_PF_Q1
-prc_pf_q2,INT64,Sentence Timer for Passage Comprehension items - passage 2,,no,,second,no,"Reserved codes set to NULL when loading: 99999996 (Valid skip), 99999999 (Not stated or inferred)",PRC_PF_Q2
-prc_pf_q3,INT64,Sentence Timer for Passage Comprehension items - passage 3 and 4,,no,,second,no,"Reserved codes set to NULL when loading: 99999996 (Valid skip), 99999999 (Not stated or inferred)",PRC_PF_Q3
+prc_pv_q1,INT64,Sentence Timer for Print Vocabulary items,,no,,second,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PV_Q1
+prc_sp_q1,INT64,Sentence Timer for Sentence Processing items,,no,,second,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_SP_Q1
+prc_pf_q1,INT64,Sentence Timer for Passage Comprehension items - passage 1,,no,,second,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PF_Q1
+prc_pf_q2,INT64,Sentence Timer for Passage Comprehension items - passage 2,,no,,second,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PF_Q2
+prc_pf_q3,INT64,Sentence Timer for Passage Comprehension items - passage 3 and 4,,no,,second,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PF_Q3
 paper,STRING,Paper branch (derived),,yes,,,no,,PAPER
 cbamod1,STRING,CBA module 1 branch (derived),,yes,,,no,,CBAMOD1
 cbamod2,STRING,CBA module 2 branch (derived),,yes,,,no,,CBAMOD2
@@ -388,9 +388,9 @@ cnt_brth,STRING,Country of birth - Respondent (UN M49 numerical) (coded),,yes,,,
 reg_tl2,STRING,Geographical region - Respondent (OECD TL2) (coded),,yes,,,no,,REG_TL2
 lng_bq,STRING,"Language for background questionnaire (derived, ISO 639-2/T)",,yes,,,no,,LNG_BQ
 lng_ci,STRING,"Language for exercise (derived, ISO 639-2/T)",,yes,,,no,,LNG_CI
-yrsqual,INT64,Highest level of education obtained imputed into years of education (derived),,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",YRSQUAL
-yrsqual_t,INT64,Derived variable on total years of schooling during lifetime - top coded at 24 (Trend-IALS/ALL),,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 98 (Don't know/Refused), 99 (Not stated or inferred)",YRSQUAL_T
-yrsget,INT64,Imputed years of formal education needed to get the job (self-reported - derived),,no,,year,no,"Reserved codes set to NULL when loading: 96 (Valid skip), 97 (Don't know), 98 (Refused), 99 (Not stated or inferred)",YRSGET
+yrsqual,INT64,Highest level of education obtained imputed into years of education (derived),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",YRSQUAL
+yrsqual_t,INT64,Derived variable on total years of schooling during lifetime - top coded at 24 (Trend-IALS/ALL),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know/Refused, Not stated or inferred, Valid skip",YRSQUAL_T
+yrsget,INT64,Imputed years of formal education needed to get the job (self-reported - derived),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",YRSGET
 vet,STRING,"Respondent's highest level of education obtained is vocationally oriented (derived, ISCED3 and 4 only)",,yes,,,no,,VET
 ctryqual,STRING,Country where highest qualification obtained (9 regions - derived),,yes,,,no,,CTRYQUAL
 birthrgn,STRING,Country of birth (9 regions - derived),,yes,,,no,,BIRTHRGN
@@ -407,7 +407,7 @@ homlang,STRING,Test language same as language spoken most often at home (derived
 ctryrgn,STRING,Country region (9 regions),,yes,,,no,,CTRYRGN
 impar,STRING,Parents' immigration status (derived),,yes,,,no,,IMPAR
 imgen,STRING,First and second generation immigrants (derived),,yes,,,no,,IMGEN
-imyrs,INT64,Years in country (derived),,no,,year,no,"Reserved codes set to NULL when loading: 94 (Native born), 99 (Not stated or inferred)",IMYRS
+imyrs,INT64,Years in country (derived),,no,,year,no,"Set to NULL when loading where the source recorded: Native born, Not stated or inferred",IMYRS
 imyrs_c,STRING,"Years in country (categorised, 4 categories)",,yes,,,no,,IMYRS_C
 imyrcat,STRING,Years in country (2-category - derived),,yes,,,no,,IMYRCAT
 ageg5lfs,STRING,Age groups in 5-year intervals based on LFS groupings (derived),,yes,,,no,,AGEG5LFS
@@ -417,7 +417,7 @@ edcat8,STRING,Highest level of formal education obtained (8 categories - derived
 edcat7,STRING,Highest level of formal education obtained (7 categories - derived),,yes,,,no,,EDCAT7
 edcat6,STRING,Highest level of formal education obtained (6 categories - derived),,yes,,,no,,EDCAT6
 leaver1624,STRING,Youth aged 16 to 24 who have left education without completing ISCED 3 or higher (derived),,yes,,,no,,LEAVER1624
-leavedu,INT64,Respondent's age when leaving formal education (derived),,no,,year,no,"Reserved codes set to NULL when loading: 94 (Still in education), 99 (Not stated or inferred)",LEAVEDU
+leavedu,INT64,Respondent's age when leaving formal education (derived),,no,,year,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Still in education",LEAVEDU
 fe12,STRING,Participated in formal education in 12 months preceding survey (derived),,yes,,,no,,FE12
 aetpop,STRING,Adult education/training population (AET) - excludes youths 16-24 in initial cycle of studies (derived),,yes,,,no,,AETPOP
 faet12,STRING,Participated in formal AET in 12 months preceding survey (see AETPOP - derived),,yes,,,no,,FAET12
@@ -432,9 +432,9 @@ fnfaet12jr,STRING,Participated in formal or non-formal AET for job-related reaso
 fnfaet12njr,STRING,Participated in formal or non-formal AET for non job-related reasons in 12 mon. preceding survey (see AETPOP - derived),,yes,,,no,,FNFAET12NJR
 edwork,STRING,Interaction between adults' work and education status (derived),,yes,,,no,,EDWORK
 neet,STRING,Adults not employed at time of survey and not in education or training in 12 months preceding the survey (derived),,yes,,,no,,NEET
-nfehrsnjr,FLOAT64,Number of hours of participation in non-formal education for non-job-related reasons (derived),,no,,hour,no,"Reserved codes set to NULL when loading: 9994 (Did not participate), 9999 (Not stated or inferred)",NFEHRSNJR
-nfehrsjr,FLOAT64,Number of hours of participation in non-formal education for job-related reasons (derived),,no,,hour,no,"Reserved codes set to NULL when loading: 9994 (Did not participate), 9999 (Not stated or inferred)",NFEHRSJR
-nfehrs,INT64,Number of hours of participation in non-formal education (derived),,no,,hour,no,"Reserved codes set to NULL when loading: 9994 (Did not participate), 9999 (Not stated or inferred)",NFEHRS
+nfehrsnjr,FLOAT64,Number of hours of participation in non-formal education for non-job-related reasons (derived),,no,,hour,no,"Set to NULL when loading where the source recorded: Did not participate, Not stated or inferred",NFEHRSNJR
+nfehrsjr,FLOAT64,Number of hours of participation in non-formal education for job-related reasons (derived),,no,,hour,no,"Set to NULL when loading where the source recorded: Did not participate, Not stated or inferred",NFEHRSJR
+nfehrs,INT64,Number of hours of participation in non-formal education (derived),,no,,hour,no,"Set to NULL when loading where the source recorded: Did not participate, Not stated or inferred",NFEHRS
 nopaidworkever,STRING,Adults who never had paid work including self-employment in past (derived),,yes,,,no,,NOPAIDWORKEVER
 paidwork12,STRING,Adults who have had paid work during the 12 months preceding the survey (derived),,yes,,,no,,PAIDWORK12
 paidwork5,STRING,Adults who have had paid work in last 5 years (derived),,yes,,,no,,PAIDWORK5
@@ -447,46 +447,46 @@ isco1c,STRING,"Occupational classification of respondent's job at 1-digit level 
 isco2c,STRING,"Occupational classification of respondent's job at 2-digit level (ISCO 2008), current job (derived)",,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO2C
 isco1l,STRING,"Occupational classification of respondent's job at 1-digit level (ISCO 2008), last job (derived)",,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO1L
 isco2l,STRING,"Occupational classification of respondent's job at 2-digit level (ISCO 2008), last job (derived)",,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO2L
-earnhr,FLOAT64,Hourly earnings excluding bonuses for wage and salary earners (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Reserved codes set to NULL when loading: 999999999996 (Valid skip), 999999999999 (Not stated or inferred)",EARNHR
+earnhr,FLOAT64,Hourly earnings excluding bonuses for wage and salary earners (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNHR
 earnhrdcl,STRING,"Hourly earnings excluding bonuses for wage and salary earners, in deciles (derived)",,yes,,,no,,EARNHRDCL
-earnhrppp,FLOAT64,"Hourly earnings excluding bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Reserved codes set to NULL when loading: 999999999996 (Valid skip), 999999999999 (Not stated or inferred)",EARNHRPPP
-earnhrbonus,FLOAT64,Hourly earnings including bonuses for wage and salary earners (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Reserved codes set to NULL when loading: 999999999996 (Valid skip), 999999999999 (Not stated or inferred)",EARNHRBONUS
+earnhrppp,FLOAT64,"Hourly earnings excluding bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNHRPPP
+earnhrbonus,FLOAT64,Hourly earnings including bonuses for wage and salary earners (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNHRBONUS
 earnhrbonusdcl,STRING,"Hourly earnings including bonuses for wage and salary earners, in deciles (derived)",,yes,,,no,,EARNHRBONUSDCL
-earnhrbonusppp,FLOAT64,"Hourly earnings including bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Reserved codes set to NULL when loading: 999999999996 (Valid skip), 999999999999 (Not stated or inferred)",EARNHRBONUSPPP
-earnmth,FLOAT64,Monthly earnings excluding bonuses for wage and salary earners (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Reserved codes set to NULL when loading: 999999999996 (Valid skip), 999999999999 (Not stated or inferred)",EARNMTH
-earnmthppp,FLOAT64,"Monthly earnings excluding bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Reserved codes set to NULL when loading: 999999999996 (Valid skip), 999999999999 (Not stated or inferred)",EARNMTHPPP
-earnmthselfppp,FLOAT64,"Monthly earnings for self-employed, PPP corrected $US (derived)",,no,,usd,no,"Reserved codes set to NULL when loading: 999999999996 (Valid skip), 999999999999 (Not stated or inferred)",EARNMTHSELFPPP
-earnmthbonus,FLOAT64,Monthly earnings including bonuses for wage and salary earners (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Reserved codes set to NULL when loading: 999999999996 (Valid skip), 999999999999 (Not stated or inferred)",EARNMTHBONUS
-earnmthall,FLOAT64,Monthly earnings including bonuses for wage and salary earners and self-employed (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Reserved codes set to NULL when loading: 999999999996 (Valid skip), 999999999999 (Not stated or inferred)",EARNMTHALL
+earnhrbonusppp,FLOAT64,"Hourly earnings including bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNHRBONUSPPP
+earnmth,FLOAT64,Monthly earnings excluding bonuses for wage and salary earners (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNMTH
+earnmthppp,FLOAT64,"Monthly earnings excluding bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNMTHPPP
+earnmthselfppp,FLOAT64,"Monthly earnings for self-employed, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNMTHSELFPPP
+earnmthbonus,FLOAT64,Monthly earnings including bonuses for wage and salary earners (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNMTHBONUS
+earnmthall,FLOAT64,Monthly earnings including bonuses for wage and salary earners and self-employed (derived),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNMTHALL
 earnmthalldcl,STRING,"Monthly earnings including bonuses for wage and salary earners and self-employed, in deciles (derived)",,yes,,,no,,EARNMTHALLDCL
-earnmthallppp,FLOAT64,"Monthly earnings including bonuses for wage and salary earners and self-employed, PPP corrected $US (derived)",,no,,usd,no,"Reserved codes set to NULL when loading: 999999999996 (Valid skip), 999999999999 (Not stated or inferred)",EARNMTHALLPPP
-earnmthbonusppp,FLOAT64,"Monthly earnings including bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Reserved codes set to NULL when loading: 999999999996 (Valid skip), 999999999999 (Not stated or inferred)",EARNMTHBONUSPPP
+earnmthallppp,FLOAT64,"Monthly earnings including bonuses for wage and salary earners and self-employed, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNMTHALLPPP
+earnmthbonusppp,FLOAT64,"Monthly earnings including bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNMTHBONUSPPP
 earnflag,STRING,Earnings including bonuses reporting method (derived),,yes,,,no,,EARNFLAG
-learnatwork,FLOAT64,Index of learning at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Reserved codes set to NULL when loading: 9996 (Valid skip), 9999 (All zero response)",LEARNATWORK
+learnatwork,FLOAT64,Index of learning at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",LEARNATWORK
 learnatwork_wle_ca,STRING,"Index of learning at work, categorised WLE (derived)",,yes,,,no,,LEARNATWORK_WLE_CA
-readytolearn,FLOAT64,Index of readiness to learn (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Reserved codes set to NULL when loading: 9996 (Valid skip), 9999 (All zero response)",READYTOLEARN
+readytolearn,FLOAT64,Index of readiness to learn (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",READYTOLEARN
 readytolearn_wle_ca,STRING,"Index of readiness to learn, categorised WLE (derived)",,yes,,,no,,READYTOLEARN_WLE_CA
-icthome,FLOAT64,Index of use of ICT skills at home (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Reserved codes set to NULL when loading: 9996 (Valid skip), 9999 (All zero response)",ICTHOME
+icthome,FLOAT64,Index of use of ICT skills at home (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",ICTHOME
 icthome_wle_ca,STRING,"Index of use of ICT skills at home, categorised WLE (derived)",,yes,,,no,,ICTHOME_WLE_CA
-ictwork,FLOAT64,Index of use of ICT skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Reserved codes set to NULL when loading: 9996 (Valid skip), 9999 (All zero response)",ICTWORK
+ictwork,FLOAT64,Index of use of ICT skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",ICTWORK
 ictwork_wle_ca,STRING,"Index of use of ICT skills at work, categorised WLE (derived)",,yes,,,no,,ICTWORK_WLE_CA
-influence,FLOAT64,Index of use of influencing skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Reserved codes set to NULL when loading: 9996 (Valid skip), 9999 (All zero response)",INFLUENCE
+influence,FLOAT64,Index of use of influencing skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",INFLUENCE
 influence_wle_ca,STRING,"Index of use of influencing skills at work, categorised WLE (derived)",,yes,,,no,,INFLUENCE_WLE_CA
-numhome,FLOAT64,Index of use of numeracy skills at home (basic and advanced - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Reserved codes set to NULL when loading: 9996 (Valid skip), 9999 (All zero response)",NUMHOME
+numhome,FLOAT64,Index of use of numeracy skills at home (basic and advanced - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",NUMHOME
 numhome_wle_ca,STRING,"Index of use of numeracy skills at home (basic and advanced), categorised WLE (derived)",,yes,,,no,,NUMHOME_WLE_CA
-numwork,FLOAT64,Index of use of numeracy skills at work (basic and advanced - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Reserved codes set to NULL when loading: 9996 (Valid skip), 9999 (All zero response)",NUMWORK
+numwork,FLOAT64,Index of use of numeracy skills at work (basic and advanced - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",NUMWORK
 numwork_wle_ca,STRING,"Index of use of numeracy skills at work (basic and advanced), categorised WLE (derived)",,yes,,,no,,NUMWORK_WLE_CA
-planning,FLOAT64,Index of use of planning skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Reserved codes set to NULL when loading: 9996 (Valid skip), 9999 (All zero response)",PLANNING
+planning,FLOAT64,Index of use of planning skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",PLANNING
 planning_wle_ca,STRING,"Index of use of planning skills at work, categorised WLE (derived)",,yes,,,no,,PLANNING_WLE_CA
-readhome,FLOAT64,Index of use of reading skills at home (prose and document texts - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Reserved codes set to NULL when loading: 9996 (Valid skip), 9999 (All zero response)",READHOME
+readhome,FLOAT64,Index of use of reading skills at home (prose and document texts - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",READHOME
 readhome_wle_ca,STRING,"Index of use of reading skills at home (prose and document texts), categorised WLE (derived)",,yes,,,no,,READHOME_WLE_CA
-readwork,FLOAT64,Index of use of reading skills at work (prose and document texts - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Reserved codes set to NULL when loading: 9996 (Valid skip), 9999 (All zero response)",READWORK
+readwork,FLOAT64,Index of use of reading skills at work (prose and document texts - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",READWORK
 readwork_wle_ca,STRING,"Index of use of reading skills at work (prose and document texts), categorised WLE (derived)",,yes,,,no,,READWORK_WLE_CA
-taskdisc,FLOAT64,Index of use of task discretion at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Reserved codes set to NULL when loading: 9996 (Valid skip), 9999 (All zero response)",TASKDISC
+taskdisc,FLOAT64,Index of use of task discretion at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",TASKDISC
 taskdisc_wle_ca,STRING,"Index of use of task discretion at work, categorised WLE (derived)",,yes,,,no,,TASKDISC_WLE_CA
-writhome,FLOAT64,Index of use of writing skills at home (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Reserved codes set to NULL when loading: 9996 (Valid skip), 9999 (All zero response)",WRITHOME
+writhome,FLOAT64,Index of use of writing skills at home (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",WRITHOME
 writhome_wle_ca,STRING,"Index of use of writing skills at home, categorised WLE (derived)",,yes,,,no,,WRITHOME_WLE_CA
-writwork,FLOAT64,Index of use of writing skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Reserved codes set to NULL when loading: 9996 (Valid skip), 9999 (All zero response)",WRITWORK
+writwork,FLOAT64,Index of use of writing skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",WRITWORK
 writwork_wle_ca,STRING,"Index of use of writing skills at work, categorised WLE (derived)",,yes,,,no,,WRITWORK_WLE_CA
 litstatus,STRING,Literacy - PV Status,,yes,,,no,,LITSTATUS
 pvlit1,FLOAT64,Literacy scale score - Plausible value 1,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT1
@@ -521,9 +521,9 @@ pvpsl7,FLOAT64,Problem-solving scale score - Plausible value 7,,no,,,no,"Plausib
 pvpsl8,FLOAT64,Problem-solving scale score - Plausible value 8,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL8
 pvpsl9,FLOAT64,Problem-solving scale score - Plausible value 9,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL9
 pvpsl10,FLOAT64,Problem-solving scale score - Plausible value 10,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL10
-prc_pv_scr,FLOAT64,Total Score for Reading Components Section - Print Vocabulary (derived),,no,,,no,"Raw number of correct responses, not a scaled proficiency score. Reserved codes set to NULL when loading: 96 (Valid skip), 99 (Not stated or inferred)",PRC_PV_SCR
-prc_sp_scr,FLOAT64,Total Score for Reading Components Section - Sentence Processing (derived),,no,,,no,"Raw number of correct responses, not a scaled proficiency score. Reserved codes set to NULL when loading: 96 (Valid skip), 99 (Not stated or inferred)",PRC_SP_SCR
-prc_pc_scr,FLOAT64,Total Score for Reading Components Section - Passage Comprehension (derived),,no,,,no,"Raw number of correct responses, not a scaled proficiency score. Reserved codes set to NULL when loading: 96 (Valid skip), 99 (Not stated or inferred)",PRC_PC_SCR
+prc_pv_scr,FLOAT64,Total Score for Reading Components Section - Print Vocabulary (derived),,no,,,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PV_SCR
+prc_sp_scr,FLOAT64,Total Score for Reading Components Section - Sentence Processing (derived),,no,,,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_SP_SCR
+prc_pc_scr,FLOAT64,Total Score for Reading Components Section - Passage Comprehension (derived),,no,,,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PC_SCR
 vemethod,STRING,Replication approach (string),,yes,,,no,,VEMETHOD
 vemethodn,STRING,Replication approach (numeric),,yes,,,no,,VEMETHODN
 vefayfac,FLOAT64,Fay's K factor used in creating replicate weights (BRR only),,no,,,no,Fay factor used in replicate-weight variance estimation,VEFAYFAC
