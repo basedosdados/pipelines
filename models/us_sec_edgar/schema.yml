@@ -211,6 +211,8 @@ models:
                 - 0001193125-13-087866
                 - 0001193125-13-087869
                 - 0001524777-13-000093
+              config:
+                where: __most_recent_year_en__
       - name: tag
         description: >
           Identificador do marcador (tag) da taxonomia XBRL

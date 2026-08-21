@@ -55,6 +55,8 @@ models:
               field: abbreviation
               ignore_values: [Overseas, Unknown]
               proportion_allowed_failures: 0
+              config:
+                where: __most_recent_year_en__
       - name: sex
         description: >
           Sexo do contribuinte conforme registrado na declaração
@@ -133,6 +135,8 @@ models:
               field: abbreviation
               ignore_values: [Overseas, Unknown]
               proportion_allowed_failures: 0
+              config:
+                where: __most_recent_year_en__
       - name: sex
         description: >
           Sexo do contribuinte conforme registrado na declaração
@@ -202,6 +206,8 @@ models:
               field: abbreviation
               ignore_values: [Overseas, Unknown]
               proportion_allowed_failures: 0
+              config:
+                where: __most_recent_year_en__
       - name: sa4_id
         description: >
           Código da Área Estatística Nível 4 (SA4) de residência do

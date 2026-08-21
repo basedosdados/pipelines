@@ -58,6 +58,8 @@ models:
               to: ref('br_bd_diretorios_us__state')
               field: abbreviation
               ignore_values: [US]
+              config:
+                where: __most_recent_year_en__
       - name: office_district
         description: >
           Distrito eleitoral do cargo disputado; 00 para Senado e Presidência

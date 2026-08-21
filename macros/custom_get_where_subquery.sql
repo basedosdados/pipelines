@@ -168,8 +168,13 @@
            `extraction_date` or `snapshot_date` needs no new macro. Numbers are
            emitted unquoted (INT64 partitions such as `ano`/`year`); anything else
            is quoted (DATE partitions). #}
+        {#- Captura o texto casado INTEIRO junto com a coluna. Reconstruir o
+            alvo como "__most_recent__(" ~ column ~ ")" erra quando o
+            placeholder tem espaço — `__most_recent__( col )` casa no regex,
+            loga o max e NÃO é substituído, e o placeholder cru chega no
+            BigQuery. Mesmo modo de falha silenciosa do escopo do `for`. -#}
         {% set placeholders = modules.re.findall(
-            "__most_recent__\\(\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\)", where
+            "(__most_recent__\\(\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\))", where
         ) %}
         {#- A namespace, not a plain `{% set where = ... %}`. Jinja gives every
             `{% for %}` its own scope, so an assignment made inside the loop is
@@ -179,7 +184,7 @@
             the run looks right, while the raw placeholder reaches BigQuery and
             the test dies with `Function not found: __most_recent__`. -#}
         {% set ns = namespace(where=where) %}
-        {% for column in placeholders %}
+        {% for matched, column in placeholders %}
             {% set max_query = (
                 "select max(" ~ column ~ ") as max_value from " ~ relation
             ) %}
@@ -190,9 +195,7 @@
                     {% set literal = column ~ " = " ~ max_value %}
                 {% else %} {% set literal = column ~ " = '" ~ max_value ~ "'" %}
                 {% endif %}
-                {% set ns.where = ns.where | replace(
-                    "__most_recent__(" ~ column ~ ")", literal
-                ) %}
+                {% set ns.where = ns.where | replace(matched, literal) %}
                 {% do log(
                     "The test will filter by the most recent "
                     ~ column
