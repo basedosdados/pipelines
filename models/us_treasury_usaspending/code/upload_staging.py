@@ -80,6 +80,33 @@ def _upload_with_retry(blob, path: Path, attempts: int = 6) -> None:
             delay = min(delay * 2, 300)
 
 
+def _publicize_staging(bq: bigquery.Client, dataset_ref: str) -> None:
+    """Grant `allUsers` dataViewer on the staging dataset, as bd.Dataset would.
+
+    Going around `bd.Table.create` (see the module docstring) also skips
+    `bd.Dataset.publicize()`, which is the only thing that adds this entry —
+    `roles/bigquery.dataViewer` for `allUsers`, the single grant that call makes
+    for a *staging* dataset. Without it the Prefect worker cannot read the
+    external tables and `upload_to_gcs` dies in `_sync_staging_schema` with
+    `403 ... Permission bigquery.tables.get denied`, which reads as "or it may
+    not exist" even though the table is right there.
+    """
+    dataset = bq.get_dataset(dataset_ref)
+    if any(a.entity_id == "allUsers" for a in dataset.access_entries):
+        return
+    entries = list(dataset.access_entries)
+    entries.append(
+        bigquery.AccessEntry(
+            role="roles/bigquery.dataViewer",
+            entity_type="iamMember",
+            entity_id="allUsers",
+        )
+    )
+    dataset.access_entries = entries
+    bq.update_dataset(dataset, ["access_entries"])
+    print(f"  granted allUsers dataViewer on {dataset_ref}")
+
+
 def upload_table(
     table: str,
     project: str,
@@ -126,6 +153,7 @@ def upload_table(
 
     bq = bigquery.Client(project=project)
     bq.create_dataset(f"{project}.{DATASET_ID}_staging", exists_ok=True)
+    _publicize_staging(bq, f"{project}.{DATASET_ID}_staging")
     prefix = f"gs://{bucket_name}/staging/{DATASET_ID}/{table}/"
     config = bigquery.ExternalConfig("PARQUET")
     config.source_uris = [f"{prefix}*"]
