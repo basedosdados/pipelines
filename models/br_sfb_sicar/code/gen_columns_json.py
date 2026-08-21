@@ -10,8 +10,10 @@ import architecture as A  # noqa: N812
 
 
 def col_json(c):
+    # Published column name: the staging snapshot `data` is published as
+    # `data_extracao` (see gen_dbt.pub); everything else is identity.
     d = {
-        "name": c["name"],
+        "name": "data_extracao" if c["name"] == "data" else c["name"],
         "bigquery_type": c["type"],
         "description_pt": c["desc_pt"],
         "description_en": c["desc_en"],

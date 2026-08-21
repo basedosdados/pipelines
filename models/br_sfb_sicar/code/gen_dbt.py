@@ -25,15 +25,29 @@ TABLE_DESC = {
 }
 
 
+# The snapshot partition is `data` inside the all-STRING staging (hive path
+# `data=…`), but the published column is `data_extracao` — the per-UF
+# disponibilização date. Read `data` from staging, emit `data_extracao`; the
+# staging layer is never renamed (no re-staging of the 62M rows).
+STAGING_SNAPSHOT = "data"
+PUBLISHED_SNAPSHOT = "data_extracao"
+
+
+def pub(name):
+    """Published column name (renames the snapshot column, else identity)."""
+    return PUBLISHED_SNAPSHOT if name == STAGING_SNAPSHOT else name
+
+
 def cast(col):
     name, typ = col["name"], col["type"]
+    out = pub(name)
     if typ == "GEOGRAPHY":
-        return f"    safe.st_geogfromtext({name}, make_valid => true) {name},"
+        return f"    safe.st_geogfromtext({name}, make_valid => true) {out},"
     if typ == "DATE":
-        return f"    safe_cast({name} as date) {name},"
+        return f"    safe_cast({name} as date) {out},"
     if typ == "FLOAT64":
-        return f"    safe_cast({name} as float64) {name},"
-    return f"    safe_cast({name} as string) {name},"
+        return f"    safe_cast({name} as float64) {out},"
+    return f"    safe_cast({name} as string) {out},"
 
 
 def model_sql(table):
@@ -46,7 +60,7 @@ def model_sql(table):
         materialized="incremental",
         incremental_strategy="insert_overwrite",
         partition_by={{
-            "field": "data",
+            "field": "{PUBLISHED_SNAPSHOT}",
             "data_type": "date",
             "granularity": "day",
         }},
@@ -58,7 +72,7 @@ select
 {selects}
 from {{{{ set_datalake_project("{DS}_staging.{table}") }}}} as t
 {{% if is_incremental() %}}
-    where safe_cast(data as date) > (select max(data) from {{{{ this }}}})
+    where safe_cast({STAGING_SNAPSHOT} as date) > (select max({PUBLISHED_SNAPSHOT}) from {{{{ this }}}})
 {{% endif %}}
 """
 
@@ -73,7 +87,10 @@ def schema_model(table):
         tests.append(
             {
                 "custom_unique_combinations_of_columns": {
-                    "combination_of_columns": ["data", "id_imovel"],
+                    "combination_of_columns": [
+                        PUBLISHED_SNAPSHOT,
+                        "id_imovel",
+                    ],
                     "proportion_allowed_failures": 0.005,
                 }
             }
@@ -89,7 +106,7 @@ def schema_model(table):
     )
     col_entries = []
     for c in cols:
-        e = {"name": c["name"], "description": c["desc_pt"]}
+        e = {"name": pub(c["name"]), "description": c["desc_pt"]}
         if c["name"] == "data":
             # directory table is named `data`; disambiguate table.column
             e["tests"] = [

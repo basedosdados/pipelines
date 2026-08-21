@@ -8,7 +8,7 @@ models:
       Rural (CAR/SICAR). Uma linha por imóvel por snapshot da base.
     tests:
       - custom_unique_combinations_of_columns:
-          combination_of_columns: [data, id_imovel]
+          combination_of_columns: [data_extracao, id_imovel]
           proportion_allowed_failures: 0.005
       - not_null_proportion_multiple_columns:
           at_least: 0.05
@@ -16,7 +16,7 @@ models:
           columns_covered_by_dictionary: [status, tipo]
           dictionary_model: ref('br_sfb_sicar__dicionario')
     columns:
-      - name: data
+      - name: data_extracao
         description: Data de disponibilização (snapshot) da base do CAR para a Unidade
           da Federação
         tests:
@@ -68,7 +68,7 @@ models:
           columns_covered_by_dictionary: [status, tipo]
           dictionary_model: ref('br_sfb_sicar__dicionario')
     columns:
-      - name: data
+      - name: data_extracao
         description: Data de disponibilização (snapshot) da base do CAR para a Unidade
           da Federação
         tests:
@@ -111,7 +111,7 @@ models:
           columns_covered_by_dictionary: [status, tipo]
           dictionary_model: ref('br_sfb_sicar__dicionario')
     columns:
-      - name: data
+      - name: data_extracao
         description: Data de disponibilização (snapshot) da base do CAR para a Unidade
           da Federação
         tests:
@@ -155,7 +155,7 @@ models:
           columns_covered_by_dictionary: [status, tipo]
           dictionary_model: ref('br_sfb_sicar__dicionario')
     columns:
-      - name: data
+      - name: data_extracao
         description: Data de disponibilização (snapshot) da base do CAR para a Unidade
           da Federação
         tests:
@@ -198,7 +198,7 @@ models:
           columns_covered_by_dictionary: [status, tipo]
           dictionary_model: ref('br_sfb_sicar__dicionario')
     columns:
-      - name: data
+      - name: data_extracao
         description: Data de disponibilização (snapshot) da base do CAR para a Unidade
           da Federação
         tests:
@@ -241,7 +241,7 @@ models:
           columns_covered_by_dictionary: [status, tipo]
           dictionary_model: ref('br_sfb_sicar__dicionario')
     columns:
-      - name: data
+      - name: data_extracao
         description: Data de disponibilização (snapshot) da base do CAR para a Unidade
           da Federação
         tests:
@@ -284,7 +284,7 @@ models:
           columns_covered_by_dictionary: [status, tipo]
           dictionary_model: ref('br_sfb_sicar__dicionario')
     columns:
-      - name: data
+      - name: data_extracao
         description: Data de disponibilização (snapshot) da base do CAR para a Unidade
           da Federação
         tests:
@@ -327,7 +327,7 @@ models:
           columns_covered_by_dictionary: [status, tipo]
           dictionary_model: ref('br_sfb_sicar__dicionario')
     columns:
-      - name: data
+      - name: data_extracao
         description: Data de disponibilização (snapshot) da base do CAR para a Unidade
           da Federação
         tests:
@@ -370,7 +370,7 @@ models:
           columns_covered_by_dictionary: [status, tipo]
           dictionary_model: ref('br_sfb_sicar__dicionario')
     columns:
-      - name: data
+      - name: data_extracao
         description: Data de disponibilização (snapshot) da base do CAR para a Unidade
           da Federação
         tests:

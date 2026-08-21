@@ -1,7 +1,7 @@
 {
  "area_imovel": [
   {
-   "name": "data",
+   "name": "data_extracao",
    "bigquery_type": "DATE",
    "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
    "description_en": "Release (snapshot) date of the CAR database for the state",
@@ -116,7 +116,7 @@
  ],
  "app": [
   {
-   "name": "data",
+   "name": "data_extracao",
    "bigquery_type": "DATE",
    "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
    "description_en": "Release (snapshot) date of the CAR database for the state",
@@ -203,7 +203,7 @@
  ],
  "reserva_legal": [
   {
-   "name": "data",
+   "name": "data_extracao",
    "bigquery_type": "DATE",
    "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
    "description_en": "Release (snapshot) date of the CAR database for the state",
@@ -290,7 +290,7 @@
  ],
  "vegetacao_nativa": [
   {
-   "name": "data",
+   "name": "data_extracao",
    "bigquery_type": "DATE",
    "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
    "description_en": "Release (snapshot) date of the CAR database for the state",
@@ -377,7 +377,7 @@
  ],
  "area_consolidada": [
   {
-   "name": "data",
+   "name": "data_extracao",
    "bigquery_type": "DATE",
    "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
    "description_en": "Release (snapshot) date of the CAR database for the state",
@@ -464,7 +464,7 @@
  ],
  "area_pousio": [
   {
-   "name": "data",
+   "name": "data_extracao",
    "bigquery_type": "DATE",
    "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
    "description_en": "Release (snapshot) date of the CAR database for the state",
@@ -551,7 +551,7 @@
  ],
  "uso_restrito": [
   {
-   "name": "data",
+   "name": "data_extracao",
    "bigquery_type": "DATE",
    "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
    "description_en": "Release (snapshot) date of the CAR database for the state",
@@ -638,7 +638,7 @@
  ],
  "servidao_administrativa": [
   {
-   "name": "data",
+   "name": "data_extracao",
    "bigquery_type": "DATE",
    "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
    "description_en": "Release (snapshot) date of the CAR database for the state",
@@ -725,7 +725,7 @@
  ],
  "hidrografia": [
   {
-   "name": "data",
+   "name": "data_extracao",
    "bigquery_type": "DATE",
    "description_pt": "Data de disponibilização (snapshot) da base do CAR para a Unidade da Federação",
    "description_en": "Release (snapshot) date of the CAR database for the state",
