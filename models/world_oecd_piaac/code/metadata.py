@@ -404,9 +404,24 @@ def main() -> None:
         source_ids[slug] = source["id"]
         print(f"  raw source {slug}: {source['id']}")
 
+    # get_dataset returns tables as a dict keyed by slug once any exist, and an
+    # empty list when none do. Without the id, create_update_table raises
+    # "Table com este Dataset e Slug ja existe" on a re-run.
+    raw_tables = (
+        tool(BD.get_dataset)(slug=DATASET_SLUG, env=env).get("tables") or {}
+    )
+    existing_tables = (
+        {slug: entry.get("id") for slug, entry in raw_tables.items()}
+        if isinstance(raw_tables, dict)
+        else {}
+    )
+    if existing_tables:
+        print(f"reusing {len(existing_tables)} existing table(s)")
+
     for table_slug in TABLE_NAMES:
         names = TABLE_NAMES[table_slug]
         table = tool(BD.create_update_table)(
+            id=existing_tables.get(table_slug),
             slug=table_slug,
             name_pt=names[0],
             name_en=names[1],
