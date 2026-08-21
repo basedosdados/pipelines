@@ -645,9 +645,4 @@ select
     safe_cast(earnmthallus_c as string) earnmthallus_c,
     safe_cast(earnmthallpppus_c as string) earnmthallpppus_c,
     safe_cast(earnmthselfpppus_c as string) earnmthselfpppus_c
-from
-    {{
-        set_datalake_project(
-            "world_oecd_piaac_staging.respondent_cycle_1_usa_national"
-        )
-    }} as t
+from {{ set_datalake_project("world_oecd_piaac_staging.respondent_cycle_1_usa_national") }} as t

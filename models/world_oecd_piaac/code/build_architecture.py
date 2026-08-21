@@ -304,6 +304,14 @@ def build_dictionary(all_variables: dict, sheets: dict) -> list[dict]:
                     for k, v in split_packed(variable.missing_scheme_sas)
                     if k.strip() and k.strip() != "."
                 ]
+            # The data carries the numeric reserved family on columns whose
+            # codebook entry only declares SAS letters. Existing pairs win.
+            declared = {k for k, _ in pairs}
+            pairs = pairs + [
+                (k, v)
+                for k, v in cb.reserved_code_family(variable.width).items()
+                if k not in declared
+            ]
             column = variable.name.lower()
             for key, value in pairs:
                 identity = (table_id, column, key)
@@ -323,7 +331,10 @@ def build_dictionary(all_variables: dict, sheets: dict) -> list[dict]:
 
 
 def build_cycle_1_dictionary(
-    path: Path, respondent_names: set[str], sheets: dict
+    path: Path,
+    respondent_names: set[str],
+    sheets: dict,
+    widths: dict[str, int],
 ) -> list[dict]:
     """Cycle 1 publishes its value labels as a long sheet rather than packed text."""
     workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
@@ -356,6 +367,25 @@ def build_cycle_1_dictionary(
             }
         )
     workbook.close()
+
+    # As in Cycle 2: the coded language, occupation and industry columns carry the
+    # numeric reserved family in the data even though the Values sheet lists only
+    # the SAS letters for them.
+    declared = {(r["column_name"], r["key"]) for r in records}
+    for column in sorted({r["column_name"] for r in records}):
+        for key, value in cb.reserved_code_family(
+            widths.get(column, 0)
+        ).items():
+            if (column, key) not in declared:
+                records.append(
+                    {
+                        "table_id": "respondent_cycle_1",
+                        "column_name": column,
+                        "key": key,
+                        "temporal_coverage": TEMPORAL_COVERAGE["1"],
+                        "value": value,
+                    }
+                )
     return records
 
 
@@ -433,8 +463,12 @@ def main() -> None:
     )
 
     respondent_1 = {v.name.lower() for v in cy1 if not v.is_item}
+    widths_1 = {v.name.lower(): v.width for v in cy1}
     dictionary = build_cycle_1_dictionary(
-        docs / "cycle_1" / "international_codebook.xlsx", respondent_1, sheets
+        docs / "cycle_1" / "international_codebook.xlsx",
+        respondent_1,
+        sheets,
+        widths_1,
     )
     dictionary += build_dictionary({"respondent_cycle_2": (cy2, "2")}, sheets)
 
@@ -453,6 +487,18 @@ def main() -> None:
         declared_by_table[slug] = {
             c.name for c in columns if c.covered_by_dictionary == "yes"
         }
+
+    # The US national table shares Cycle 1's coded columns, but the coverage test
+    # matches on table_id, so it needs its own copy of the relevant entries.
+    usa_covered = declared_by_table.get(
+        "respondent_cycle_1_usa_national", set()
+    )
+    dictionary += [
+        {**record, "table_id": "respondent_cycle_1_usa_national"}
+        for record in list(dictionary)
+        if record["table_id"] == "respondent_cycle_1"
+        and record["column_name"] in usa_covered
+    ]
 
     codes = reserved_codes(dictionary, numeric_by_table)
     (ARCHITECTURE_DIR / "reserved_codes.json").write_text(

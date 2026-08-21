@@ -23,9 +23,12 @@
   "e2_q05b1",
   "e2_q05b2",
   "earnmthselfc2",
-  "earnmthselfpppc2"
+  "earnmthselfpppc2",
+  "wf_hmpairs"
  ],
- "respondent_cycle_1_usa_national": [],
+ "respondent_cycle_1_usa_national": [
+  "b_q04b_c"
+ ],
  "item_response_cycle_1": [
   "n_short_visits",
   "n_visits"

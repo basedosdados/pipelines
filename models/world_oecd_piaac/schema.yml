@@ -1833,6 +1833,7 @@ models:
             - e2_q05b2
             - earnmthselfc2
             - earnmthselfpppc2
+            - wf_hmpairs
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('world_oecd_piaac__dictionary')
           columns_covered_by_dictionary:
@@ -4180,6 +4181,7 @@ models:
           combination_of_columns: [year, country_id_iso_3, respondent_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [b_q04b_c]
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('world_oecd_piaac__dictionary')
           columns_covered_by_dictionary:

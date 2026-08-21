@@ -189,6 +189,7 @@ class Variable:
     value_scheme: str
     missing_scheme: str
     missing_scheme_sas: str = ""
+    width: int = 0
 
     @property
     def is_item(self) -> bool:
@@ -243,6 +244,7 @@ def load_codebook(path: Path, cycle: str) -> list[Variable]:
                     _text(row[8]),
                     _text(row[9]),
                     _text(row[10]),
+                    int(row[4] or 0),
                 )
             )
     workbook.close()
@@ -286,6 +288,28 @@ def sas_code_variants(code: str) -> set[str]:
         return {"."} if code else set()
     bare = code.lstrip(".")
     return {code, code.lower(), code.upper(), bare, bare.lower(), bare.upper()}
+
+
+# PIAAC pads its reserved codes to the width of the field, so a 3-wide column
+# uses 996-999 and a 4-wide one 9996-9999. The codebook declares the SAS letter
+# forms for most columns but the data uses the numeric family on the coded
+# language, occupation and industry columns, so both spellings are generated.
+RESERVED_LABELS = {
+    "6": "Valid skip",
+    "7": "Don't know",
+    "8": "Refused",
+    "9": "Not stated or inferred",
+}
+
+
+def reserved_code_family(width: int) -> dict[str, str]:
+    """The numeric reserved codes a column of this width can carry."""
+    if width < 1 or width > 12:
+        return {}
+    return {
+        "9" * (width - 1) + digit: label
+        for digit, label in RESERVED_LABELS.items()
+    }
 
 
 class UnclassifiedColumnError(ValueError):
