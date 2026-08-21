@@ -1,3 +1,5 @@
+-- Dados de 2026 reprocessados em 2026-08-21 a partir dos arquivos do TSE
+-- gerados em 19/08/2026, apos o encerramento do registro de candidaturas.
 {{
     config(
         schema="br_tse_eleicoes",
