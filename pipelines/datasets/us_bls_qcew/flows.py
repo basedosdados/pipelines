@@ -138,24 +138,28 @@ def us_bls_qcew_flow(
         # Expensive: re-clean the full NAICS history into partitioned parquet.
         paths = clean_qcew(work_dir=work_dir)
 
-        # Dev: upload staging + materialize/test.
-        for table in NAICS_TABLES:
-            upload_to_gcs(
-                data_path=paths[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: upload staging + materialize/test.
+            for table in NAICS_TABLES:
+                upload_to_gcs(
+                    data_path=paths[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="overwrite",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run/test",
+                    target="dev",
+                )
             return
 
         # Prod: upload staging + materialize/test.
