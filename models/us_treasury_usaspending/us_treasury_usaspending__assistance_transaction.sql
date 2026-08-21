@@ -55,12 +55,12 @@ select
     safe_cast(
         obligated_amount_from_iija_supplemental_for_overall_award as float64
     ) obligated_amount_from_iija_supplemental_for_overall_award,
-    safe_cast(action_date as date) action_date,
-    safe_cast(
-        period_of_performance_start_date as date
+    date(safe_cast(action_date as datetime)) action_date,
+    date(
+        safe_cast(period_of_performance_start_date as datetime)
     ) period_of_performance_start_date,
-    safe_cast(
-        period_of_performance_current_end_date as date
+    date(
+        safe_cast(period_of_performance_current_end_date as datetime)
     ) period_of_performance_current_end_date,
     safe_cast(awarding_agency_code as string) awarding_agency_code,
     safe_cast(awarding_agency_name as string) awarding_agency_name,

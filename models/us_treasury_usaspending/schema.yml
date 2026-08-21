@@ -25,12 +25,12 @@ models:
             - multiple_or_single_award_idv_code
             - national_interest_action
             - national_interest_action_code
-            - obligated_amount_from_IIJA_supplemental_for_overall_award
             - obligated_amount_from_covid19_supplementals_for_overall_award
+            - obligated_amount_from_iija_supplemental_for_overall_award
             - ordering_period_end_date
             - other_statutory_authority
-            - outlayed_amount_from_IIJA_supplemental_for_overall_award
             - outlayed_amount_from_covid19_supplementals_for_overall_award
+            - outlayed_amount_from_iija_supplemental_for_overall_award
             - price_evaluation_adjustment_preference_percent_difference
             - program_acronym
             - recipient_address_line_2
@@ -231,12 +231,12 @@ models:
         description: >
           Valor empenhado no auxílio ou contrato com recursos suplementares de
           resposta à COVID-19
-      - name: outlayed_amount_from_IIJA_supplemental_for_overall_award
+      - name: outlayed_amount_from_iija_supplemental_for_overall_award
         description: >
           Valor desembolsado no auxílio ou contrato com recursos suplementares da
           lei
           de infraestrutura (IIJA)
-      - name: obligated_amount_from_IIJA_supplemental_for_overall_award
+      - name: obligated_amount_from_iija_supplemental_for_overall_award
         description: >
           Valor empenhado no auxílio ou contrato com recursos suplementares da lei
           de
@@ -1171,10 +1171,10 @@ models:
             - highly_compensated_officer_4_name
             - highly_compensated_officer_5_amount
             - highly_compensated_officer_5_name
-            - obligated_amount_from_IIJA_supplemental_for_overall_award
             - obligated_amount_from_covid19_supplementals_for_overall_award
-            - outlayed_amount_from_IIJA_supplemental_for_overall_award
+            - obligated_amount_from_iija_supplemental_for_overall_award
             - outlayed_amount_from_covid19_supplementals_for_overall_award
+            - outlayed_amount_from_iija_supplemental_for_overall_award
             - primary_place_of_performance_foreign_location
             - recipient_address_line_2
             - recipient_duns
@@ -1260,12 +1260,12 @@ models:
         description: >
           Valor empenhado no auxílio ou contrato com recursos suplementares de
           resposta à COVID-19
-      - name: outlayed_amount_from_IIJA_supplemental_for_overall_award
+      - name: outlayed_amount_from_iija_supplemental_for_overall_award
         description: >
           Valor desembolsado no auxílio ou contrato com recursos suplementares da
           lei
           de infraestrutura (IIJA)
-      - name: obligated_amount_from_IIJA_supplemental_for_overall_award
+      - name: obligated_amount_from_iija_supplemental_for_overall_award
         description: >
           Valor empenhado no auxílio ou contrato com recursos suplementares da lei
           de

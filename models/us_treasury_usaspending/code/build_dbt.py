@@ -116,6 +116,21 @@ def read_arch(table: str) -> list[dict]:
         return list(csv.DictReader(f))
 
 
+def date_expr(col: str) -> str:
+    """Cast a staging string to DATE, tolerating a time part.
+
+    Most date columns in the archive are plain `YYYY-MM-DD`, but
+    period_of_performance_potential_end_date ships a full timestamp
+    (`2027-06-15 07:20:58`). `safe_cast(... as date)` rejects the time part and
+    returns NULL rather than raising, so that column arrived 100% empty across
+    all 97M contract rows and nothing failed. Parsing as DATETIME first accepts
+    both spellings — BigQuery reads a bare date as midnight — and `date()` then
+    drops the time, which the architecture says is not part of this column
+    anyway.
+    """
+    return f"date(safe_cast({col} as datetime))"
+
+
 def sql_for(table: str, rows: list[dict]) -> str:
     casts = []
     for r in rows:
@@ -124,6 +139,9 @@ def sql_for(table: str, rows: list[dict]) -> str:
         expr = (
             county_fips_expr(source) if name in COUNTY_FIPS_COLUMNS else source
         )
+        if btype == "DATE":
+            casts.append(f"    {date_expr(expr)} {name},")
+            continue
         casts.append(f"    safe_cast({expr} as {btype.lower()}) {name},")
     casts[-1] = casts[-1].rstrip(",")
     body = "\n".join(casts)

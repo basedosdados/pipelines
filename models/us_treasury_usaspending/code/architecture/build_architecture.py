@@ -89,6 +89,12 @@ MODEL_RENAMES = {
     "contract_award_unique_key": "contract_award_id",
     "assistance_transaction_unique_key": "assistance_transaction_id",
     "assistance_award_unique_key": "assistance_award_id",
+    # Column names are lowercase, per the style manual. The COVID-19 pair is
+    # renamed by the cleaning step because its hyphen is illegal in a BigQuery
+    # column name; IIJA is legal, merely uppercase, so it is renamed here and
+    # the staging column keeps the archive's spelling.
+    "outlayed_amount_from_IIJA_supplemental_for_overall_award": "outlayed_amount_from_iija_supplemental_for_overall_award",
+    "obligated_amount_from_IIJA_supplemental_for_overall_award": "obligated_amount_from_iija_supplemental_for_overall_award",
 }
 
 
