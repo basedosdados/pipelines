@@ -12,6 +12,7 @@
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
+-- Atualualiziado em: 2024-06-19
 with
     safe_select as (
         select
