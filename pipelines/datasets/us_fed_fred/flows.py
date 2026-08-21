@@ -206,5 +206,5 @@ def us_fed_fred_flow(
 # observation, so a plain daily cron is cheap.
 # pyrefly: ignore [missing-attribute]
 us_fed_fred_flow.deploy_schedules = [
-    {"cron": "0 21 * * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "25 21 * * *", "timezone": "America/Sao_Paulo"}
 ]

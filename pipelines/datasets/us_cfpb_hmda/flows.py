@@ -156,7 +156,7 @@ def us_cfpb_hmda_flow(
 # source-poll guard no-ops until a new year actually appears.
 # pyrefly: ignore [missing-attribute]
 us_cfpb_hmda_flow.deploy_schedules = [
-    {"cron": "0 16 8,9,10 3,4,5,6,7,8 *", "timezone": "America/Sao_Paulo"}
+    {"cron": "25 16 8,9,10 3,4,5,6,7,8 *", "timezone": "America/Sao_Paulo"}
 ]
 # Clean is out-of-core (~0.8 GB), but the download is several GB per year; give
 # the worker headroom. Peak disk ~ one raw CSV (~5 GB) + all-year parquet (~6 GB).

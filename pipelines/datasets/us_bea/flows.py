@@ -198,7 +198,7 @@ def us_bea_flow(
 # the source-poll guard no-ops until a new month actually appears.
 # pyrefly: ignore [missing-attribute]
 us_bea_flow.deploy_schedules = [
-    {"cron": "0 16 25,26,27,28 * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "40 16 25,26,27,28 * *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step streams the ~50M-row county family through pandas/arrow in
 # 500k-row flushes; give the worker headroom.

@@ -212,7 +212,7 @@ def au_rba_statistical_tables_flow(
 # the source-poll guard makes weekends and quiet days a no-op.
 # pyrefly: ignore [missing-attribute]
 au_rba_statistical_tables_flow.deploy_schedules = [
-    {"cron": "0 9 * * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "40 9 * * *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step holds ~1.5M parsed observations in memory before writing.
 # pyrefly: ignore [missing-attribute]

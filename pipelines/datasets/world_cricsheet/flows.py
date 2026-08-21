@@ -225,7 +225,7 @@ def world_cricsheet_flow(
 # the full-replace dump means overlapping windows never duplicate.
 # pyrefly: ignore [missing-attribute]
 world_cricsheet_flow.deploy_schedules = [
-    {"cron": "0 6 * * 1", "timezone": "America/Sao_Paulo"}
+    {"cron": "15 6 * * 1", "timezone": "America/Sao_Paulo"}
 ]
 # The deliveries build streams 11.4M rows and the bundle extracts to several GB;
 # give the worker headroom.

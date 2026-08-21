@@ -175,7 +175,7 @@ def br_sedec_desastres_flow(
 # executada à mão pelo run_local.py. Se o IP for liberado, descomentar:
 #
 # br_sedec_desastres_flow.deploy_schedules = [
-#     {"cron": "0 9 1 * *", "timezone": "America/Sao_Paulo"}
+#     {"cron": "10 9 1 * *", "timezone": "America/Sao_Paulo"}
 # ]
 
 

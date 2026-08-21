@@ -190,7 +190,7 @@ def us_bls_cpi_flow(
 # actually appears.
 # pyrefly: ignore [missing-attribute]
 us_bls_cpi_flow.deploy_schedules = [
-    {"cron": "0 16 10,11,12,13,14,15 * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "5 16 10,11,12,13,14,15 * *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step holds ~4M rows in pandas; give the worker headroom.
 # pyrefly: ignore [missing-attribute]

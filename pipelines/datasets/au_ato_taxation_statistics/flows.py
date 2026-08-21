@@ -184,7 +184,7 @@ def au_ato_taxation_statistics_flow(
 # no-ops until a new financial year actually appears.
 # pyrefly: ignore [missing-attribute]
 au_ato_taxation_statistics_flow.deploy_schedules = [
-    {"cron": "0 16 20 * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "45 16 20 * *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step holds ~4.5M rows in pandas before writing partitions.
 # pyrefly: ignore [missing-attribute]

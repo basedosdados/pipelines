@@ -247,7 +247,7 @@ def us_fec_campaign_finance_flow(
 # source-poll guard makes a run with nothing new a cheap no-op.
 # pyrefly: ignore [missing-attribute]
 us_fec_campaign_finance_flow.deploy_schedules = [
-    {"cron": "0 5 * * 0", "timezone": "America/Sao_Paulo"}
+    {"cron": "20 5 * * 0", "timezone": "America/Sao_Paulo"}
 ]
 
 # The current cycle's individual-contributions file is ~2 GB compressed and is parsed

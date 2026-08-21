@@ -211,7 +211,10 @@ def au_geoscape_gnaf_flow(
 # coverage-based source poll no-ops (no download) until a new snapshot appears.
 # pyrefly: ignore [missing-attribute]
 au_geoscape_gnaf_flow.deploy_schedules = [
-    {"cron": "0 16 14,17,20,23,26 2,5,8,11 *", "timezone": "America/Sao_Paulo"}
+    {
+        "cron": "35 16 14,17,20,23,26 2,5,8,11 *",
+        "timezone": "America/Sao_Paulo",
+    }
 ]
 # The clean step builds one state's frames at a time (NSW is the largest) and the
 # download is ~1.6 GB; give the worker headroom.

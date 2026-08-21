@@ -192,7 +192,7 @@ def br_senado_dados_abertos_flow(
 # Legislative activity updates on business days; refresh every morning (BRT).
 # pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_flow.deploy_schedules = [
-    {"cron": "0 8 * * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "15 8 * * *", "timezone": "America/Sao_Paulo"}
 ]
 # pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_flow.job_variables = {"memory": "4Gi"}

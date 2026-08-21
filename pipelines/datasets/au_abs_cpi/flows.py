@@ -186,5 +186,5 @@ def au_abs_cpi_flow(
 # source-poll guard no-ops until a new month lands.
 # pyrefly: ignore [missing-attribute]
 au_abs_cpi_flow.deploy_schedules = [
-    {"cron": "0 16 22,23,24,25,26,27,28 * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "15 16 22,23,24,25,26,27,28 * *", "timezone": "America/Sao_Paulo"}
 ]
