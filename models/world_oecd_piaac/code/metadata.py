@@ -356,7 +356,15 @@ def main() -> None:
     account_id = account["id"]
     print(f"authenticated as {account.get('email', account_id)}")
 
+    # create_update_dataset matches on id, not slug: calling it without one
+    # creates a second dataset with the same slug rather than updating the first.
+    existing = tool(BD.get_dataset)(slug=DATASET_SLUG, env=env)
+    existing_id = existing.get("id") if isinstance(existing, dict) else None
+    if existing_id:
+        print(f"reusing existing dataset {existing_id}")
+
     dataset = tool(BD.create_update_dataset)(
+        id=existing_id,
         slug=DATASET_SLUG,
         name_pt=DATASET_NAME["pt"],
         name_en=DATASET_NAME["en"],
@@ -387,7 +395,7 @@ def main() -> None:
             availability_id=ids["availability"]["online"],
             license_id=ids["license"]["cc_by_igo"],
             status_id=ids["status"]["published"],
-            contains_structured_data=True,
+            has_structured_data=True,
             contains_api=False,
             is_free=True,
             requires_registration=False,
