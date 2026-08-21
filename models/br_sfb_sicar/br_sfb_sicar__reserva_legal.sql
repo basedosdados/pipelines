@@ -1,6 +1,6 @@
 {{
     config(
-        alias="area_imovel",
+        alias="reserva_legal",
         schema="br_sfb_sicar",
         materialized="incremental",
         incremental_strategy="insert_overwrite",
@@ -22,11 +22,8 @@ select
     safe_cast(status as string) status,
     safe_cast(condicao as string) condicao,
     safe_cast(area as float64) area,
-    safe_cast(modulos_fiscais as float64) modulos_fiscais,
-    safe_cast(data_criacao as date) data_criacao,
-    safe_cast(data_atualizacao as date) data_atualizacao,
     safe.st_geogfromtext(geometria, make_valid => true) geometria,
-from {{ set_datalake_project("br_sfb_sicar_staging.area_imovel") }} as t
+from {{ set_datalake_project("br_sfb_sicar_staging.reserva_legal") }} as t
 {% if is_incremental() %}
     where safe_cast(data as date) > (select max(data_extracao) from {{ this }})
 {% endif %}
