@@ -216,6 +216,14 @@ project-excludes = [
   "models/us_cfpb_hmda/code",
   "models/world_aiddata_gcdf/code",
   "models/us_fed_fred/code",
+  # Same policy: br_sfb_sicar onboarding code is standalone `.py` (architecture.py,
+  # gen_*.py, bootstrap_clean.py use bare `import architecture`/`import clean`,
+  # sys.path-relative), unresolvable from the repo root. The pure transform is
+  # relocated to pipelines/crawler/sfb_sicar/utils.py at the pipeline step.
+  "models/br_sfb_sicar/code",
+  # Same policy: br_cgu_sancoes ETL is standalone `.py` (clean.py, upload.py run
+  # via uv run) — one-shot onboarding code outside the typed `pipelines/`
+  # framework, consistent with the model-ETL-not-type-checked policy.
   "models/br_cgu_sancoes/code",
   "models/au_geoscape_gnaf/code",
   "models/us_cms_open_payments/code",
