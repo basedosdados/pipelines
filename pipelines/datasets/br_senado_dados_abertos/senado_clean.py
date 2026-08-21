@@ -305,8 +305,10 @@ def _legislatura_parlamentares(leg: int) -> list[dict]:
     2026-08-20, and its JSON form now collapses the whole roster into a single
     `Parlamentar` object. See `get_xml_records`.
 
-    The old enveloped JSON is still accepted, so a restored endpoint needs no
-    change here.
+    `get_xml_records` parses the enveloped form too, so a restored endpoint needs
+    no change here. The JSON call is not attempted first: it cannot distinguish a
+    lost envelope from an empty roster, and every legislature that is legitimately
+    empty would pay a second full retry-and-backoff cycle (~30s) for nothing.
 
     Args:
         leg: Legislature number.
@@ -314,17 +316,6 @@ def _legislatura_parlamentares(leg: int) -> list[dict]:
     Returns:
         One dict per parlamentar; empty when the legislature has no roster.
     """
-    enveloped = get_json_safe(f"/senador/lista/legislatura/{leg}")
-    parlamentares = _as_list(
-        dig(
-            enveloped,
-            "ListaParlamentarLegislatura",
-            "Parlamentares",
-            "Parlamentar",
-        )
-    )
-    if parlamentares:
-        return parlamentares
     return get_xml_records(
         f"/senador/lista/legislatura/{leg}", record_tag="Parlamentar"
     )
