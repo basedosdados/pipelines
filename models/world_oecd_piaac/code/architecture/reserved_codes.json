@@ -1,0 +1,1066 @@
+{
+  "respondent_cycle_1": {
+    "age_r": {
+      "99": "Not stated or inferred"
+    },
+    "b_d01d": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred"
+    },
+    "b_d03d": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred"
+    },
+    "b_q01c1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "b_q01c1_t": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "b_q01c2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "b_q03c1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "b_q03c2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "b_q04b": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "b_q04b_c": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred"
+    },
+    "b_q12b": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "b_q12d": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "b_q12d_c": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred"
+    },
+    "b_q12f": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "b_q12f_c": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred"
+    },
+    "b_q12h": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "b_q12h_c": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred"
+    },
+    "b_q18a": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "b_q19a": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred"
+    },
+    "b_q20a": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "c_q08c1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "c_q08c2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "c_q09": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "c_q09_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "c_q10a": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "c_q10a_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "c_s03": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred"
+    },
+    "d_d16a": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "d_q05a1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "d_q05a2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "d_q05b1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "d_q05b2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "d_q10": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred"
+    },
+    "d_q10_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "d_q10_t": {
+      "996": "Valid skip",
+      "998": "Don't know/Refused",
+      "999": "Not stated or inferred"
+    },
+    "d_q16b": {
+      "99999999996": "Valid skip",
+      "99999999997": "Don't know",
+      "99999999998": "Refused",
+      "99999999999": "Not stated or inferred"
+    },
+    "d_q17b": {
+      "99999999996": "Valid skip",
+      "99999999997": "Don't know",
+      "99999999998": "Refused",
+      "99999999999": "Not stated or inferred"
+    },
+    "d_q18a": {
+      "99999999996": "Valid skip",
+      "99999999997": "Don't know",
+      "99999999998": "Refused",
+      "99999999999": "Not stated or inferred"
+    },
+    "d_s16a": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "e_q05a1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "e_q05a2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "e_q05b1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "e_q05b2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "e_q09": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred"
+    },
+    "e_q09_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "earnhr": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnhrbonus": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnhrbonusppp": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnhrppp": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmth": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthall": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthallppp": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthbonus": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthbonusppp": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthppp": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthselfppp": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred"
+    },
+    "icthome": {
+      "9996": "Valid skip",
+      "9999": "All zero response"
+    },
+    "ictwork": {
+      "9996": "Valid skip",
+      "9999": "All zero response"
+    },
+    "imyrs": {
+      "94": "Native born",
+      "99": "Not stated or inferred"
+    },
+    "influence": {
+      "9996": "Valid skip",
+      "9999": "All zero response"
+    },
+    "j_q01": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j_q01_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j_q01_t": {
+      "96": "Valid skip",
+      "98": "Don't know/Refused",
+      "99": "Not stated or inferred"
+    },
+    "j_q03b": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j_q03b_c": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred"
+    },
+    "j_q03c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j_q03d1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j_q03d2": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j_q04c1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j_q04c2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "j_q04c2_t": {
+      "9996": "Valid skip",
+      "9997": "Citizen by birth",
+      "9998": "Don't know/Refused",
+      "9999": "Not stated or inferred"
+    },
+    "learnatwork": {
+      "9996": "Valid skip",
+      "9999": "All zero response"
+    },
+    "leavedu": {
+      "94": "Still in education",
+      "99": "Not stated or inferred"
+    },
+    "nfehrs": {
+      "9994": "Did not participate",
+      "9999": "Not stated or inferred"
+    },
+    "nfehrsjr": {
+      "9994": "Did not participate",
+      "9999": "Not stated or inferred"
+    },
+    "nfehrsnjr": {
+      "9994": "Did not participate",
+      "9999": "Not stated or inferred"
+    },
+    "numhome": {
+      "9996": "Valid skip",
+      "9999": "All zero response"
+    },
+    "numwork": {
+      "9996": "Valid skip",
+      "9999": "All zero response"
+    },
+    "planning": {
+      "9996": "Valid skip",
+      "9999": "All zero response"
+    },
+    "prc_pc_scr": {
+      "96": "Valid skip",
+      "99": "Not stated or inferred"
+    },
+    "prc_pf_q1": {
+      "99999996": "Valid skip",
+      "99999999": "Not stated or inferred"
+    },
+    "prc_pf_q2": {
+      "99999996": "Valid skip",
+      "99999999": "Not stated or inferred"
+    },
+    "prc_pf_q3": {
+      "99999996": "Valid skip",
+      "99999999": "Not stated or inferred"
+    },
+    "prc_pv_q1": {
+      "99999996": "Valid skip",
+      "99999999": "Not stated or inferred"
+    },
+    "prc_pv_scr": {
+      "96": "Valid skip",
+      "99": "Not stated or inferred"
+    },
+    "prc_sp_q1": {
+      "99999996": "Valid skip",
+      "99999999": "Not stated or inferred"
+    },
+    "prc_sp_scr": {
+      "96": "Valid skip",
+      "99": "Not stated or inferred"
+    },
+    "readhome": {
+      "9996": "Valid skip",
+      "9999": "All zero response"
+    },
+    "readwork": {
+      "9996": "Valid skip",
+      "9999": "All zero response"
+    },
+    "readytolearn": {
+      "9996": "Valid skip",
+      "9999": "All zero response"
+    },
+    "taskdisc": {
+      "9996": "Valid skip",
+      "9999": "All zero response"
+    },
+    "writhome": {
+      "9996": "Valid skip",
+      "9999": "All zero response"
+    },
+    "writwork": {
+      "9996": "Valid skip",
+      "9999": "All zero response"
+    },
+    "yrsget": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "yrsqual": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "yrsqual_t": {
+      "96": "Valid skip",
+      "98": "Don't know/Refused",
+      "99": "Not stated or inferred"
+    }
+  },
+  "respondent_cycle_2": {
+    "a2_q03c1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "a2_q03c2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "a2_q03c2_t": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "age_r": {
+      "99": "Not stated or inferred"
+    },
+    "agre": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "agre_6": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "agre_comp": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "agre_resp": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "agre_trus": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "b2_d01d": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "b2_d03d": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "b2_q01c1_t": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "b2_q04b1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "b2_q04b2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "b2_q06c1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "b2_q06c2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "b2_q08b": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred"
+    },
+    "b2_q08b_c": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred"
+    },
+    "b2_q21": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "c2_q04": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred"
+    },
+    "c2_q09c1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "c2_q09c2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "c2_q10": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "c2_q10_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "c2_q12": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "c2_q12_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "childnr": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred"
+    },
+    "cons": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "cons_6": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "cons_orga": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "cons_prod": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "cons_resp": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "d2_d14a": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "d2_q05a1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "d2_q05a2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "d2_q05b1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "d2_q05b2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "d2_q11": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred"
+    },
+    "d2_q11_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "d2_q11_t": {
+      "996": "Valid skip",
+      "999": "Not stated or inferred"
+    },
+    "d2_q14b": {
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred"
+    },
+    "d2_q15b": {
+      "999999996": "Valid skip",
+      "999999997": "Don't know",
+      "999999998": "Refused",
+      "999999999": "Not stated or inferred"
+    },
+    "d2_q16a": {
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred"
+    },
+    "d2_s14a": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "e2_q05a1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "e2_q05a2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "e2_q05b1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "e2_q05b2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred"
+    },
+    "e2_q09": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred"
+    },
+    "e2_q09_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "earnhrbonusc2": {
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnhrbonuspppc2": {
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnhrc2": {
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnhrpppc2": {
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthallc2": {
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthallpppc2": {
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthbonusc2": {
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthbonuspppc2": {
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthc2": {
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthpppc2": {
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthselfc2": {
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred"
+    },
+    "earnmthselfpppc2": {
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred"
+    },
+    "emos": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "emos_6": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "emos_anxi": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "emos_depr": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "emos_vola": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "extr": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "extr_6": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "extr_asse": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "extr_ener": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "extr_soci": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "icthomec2": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "icthomec2_se": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "ictworkc2": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "ictworkc2_se": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "imyrs": {
+      "95": "Native born",
+      "99": "Not stated or inferred"
+    },
+    "influencec2_se_t1": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "influencec2_t1": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "j2_q01": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j2_q01_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j2_q01_t": {
+      "96": "Valid skip",
+      "99": "Not stated or inferred"
+    },
+    "j2_q03b": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j2_q03b_c": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred"
+    },
+    "j2_q03c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j2_q03d1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j2_q03d2": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j2_q09a": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "j2_q09a_c": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred"
+    },
+    "learnatworkc2": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "learnatworkc2_se": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "leavedu": {
+      "95": "Still in education",
+      "99": "Not stated or inferred"
+    },
+    "nfe12nr": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred"
+    },
+    "numhomec2": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "numhomec2_se": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "numworkc2": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "numworkc2_se": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "opem": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "opem_6": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "opem_aest": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "opem_curi": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "opem_imag": {
+      "9999": "Variable not derived because of item nonresponse"
+    },
+    "readhomec2_se_t1": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "readhomec2_t1": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "readworkc2_se_t1": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "readworkc2_t1": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "taskdiscc2_se_t1": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "taskdiscc2_t1": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "writhomec2": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "writhomec2_se": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "writworkc2": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "writworkc2_se": {
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred"
+    },
+    "yrsgetc2": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "yrsgetlast": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "yrsqualc2": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    },
+    "yrsqualc2_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred"
+    }
+  }
+}

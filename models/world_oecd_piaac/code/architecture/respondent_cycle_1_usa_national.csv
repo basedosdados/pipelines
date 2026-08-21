@@ -1,0 +1,632 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Reference year of data collection, derived from the survey cycle and round",,no,,year,no,"PIAAC carries no year-of-collection variable. Cycle 1 Round 1 was collected Aug 2011-Mar 2012 (2012), Round 2 Apr 2014-Mar 2015 (2015), Round 3 Jul-Dec 2017 (2017); Cycle 2 Round 1 was collected Sep 2022-Aug 2023 (2023)",
+cycle,STRING,Survey cycle of the Survey of Adult Skills (1 or 2),,no,,,no,,
+round,STRING,Round of data collection within the cycle,,no,,,no,Cycle 1 ran three rounds; Cycle 2 has run one so far,
+country_id_iso_3,STRING,ISO 3166-1 alpha-3 code of the participating country,,no,br_bd_diretorios_mundo.pais:sigla_iso3,,no,,
+country_id_m49,STRING,UN M49 numeric code of the participating country,,no,br_bd_diretorios_mundo.pais:id_m49,,no,,CNTRYID
+country_entity_id,STRING,Code of the participating country or sub-national entity as reported by PIAAC,,no,,,no,"Distinct from country_id_m49 where a country took part as a sub-national entity: Belgium participated as Flanders in both cycles and the United Kingdom as England in Cycle 2. Not a country code, so it carries no directory link",CNTRYID_E
+respondent_id,STRING,Randomly derived sequential identifier of the respondent,,no,,,no,"Unique within a country and cycle only, never across them; combine with year and country_id_iso_3 for a unique key",SEQID
+gender_r,STRING,Person resolved gender from BQ and QC check (derived),,yes,,,no,,GENDER_R
+disp_cibq,STRING,Final disposition code for person - combining CI and BQ/JRA (derived),,yes,,,no,,DISP_CIBQ
+a_n01_t,STRING,Gender (Trend-IALS/ALL),,yes,,,no,,A_N01_T
+b_q01a,STRING,Education - Highest qualification - Level,,yes,,,no,,B_Q01A
+b_q01a_t,STRING,Highest level of schooling (Trend-IALS/ALL),,yes,,,no,,B_Q01A_T
+b_q01b,STRING,Education - Highest qualification - Area of study,,yes,,,no,,B_Q01B
+b_q01c1_c,STRING,"Education - Highest qualification - Age of finish (categorised, 6 categories)",,yes,,,no,,B_Q01C1_C
+b_d01d_c,STRING,"Education - Time elapsed since finished highest qualification (categorised, 5 categories)",,yes,,,no,,B_D01D_C
+b_q02a,STRING,Education - Current qualification,,yes,,,no,,B_Q02A
+b_q02a_t1,STRING,Education or training in last 12 months (Trend-IALS/ALL),,yes,,,no,,B_Q02A_T1
+b_q02a_t2,STRING,"Courses toward certificate, diploma, or degree in program of studies in last 12 months (Trend-IALS/ALL)",,yes,,,no,,B_Q02A_T2
+b_q03a,STRING,Education - Uncompleted qualification,,yes,,,no,,B_Q03A
+b_q03c1_c,STRING,"Education - Uncompleted qualification - Age of dropout (categorised, 6 categories)",,yes,,,no,,B_Q03C1_C
+b_d03d_c,STRING,"Education - Derived Months elapsed since leaving education without completing program (categorized, 3 categories)",,yes,,,no,,B_D03D_C
+b_q04a,STRING,Education - Formal qualification,,yes,,,no,,B_Q04A
+b_q04b_c,INT64,Education - Formal qualification - Count (top-coded at 2),,no,,,no,Simple count; the counted item is named in the description,B_Q04B_C
+b_q05c,STRING,Education - Formal qualification - Reason job related,,yes,,,no,,B_Q05C
+b_q05c_t,STRING,Main reason for program of studies (Trend-IALS/ALL),,yes,,,no,,B_Q05C_T
+b_q10a,STRING,Education - Formal qualification - Employed,,yes,,,no,,B_Q10A
+b_q10b,STRING,Education - Formal qualification - Employed - Working hours,,yes,,,no,,B_Q10B
+b_q10c,STRING,Education - Formal qualification - Employed - Useful for job,,yes,,,no,,B_Q10C
+b_q11,STRING,Education - Formal qualification - Grant from employer,,yes,,,no,,B_Q11
+b_q12a,STRING,Activities - Last year - Open or distance education,,yes,,,no,,B_Q12A
+b_q12a_t,STRING,Courses outside of program of studies in last 12 months (Trend-IALS/ALL),,yes,,,no,,B_Q12A_T
+b_q12c,STRING,Activities - Last year - On the job training,,yes,,,no,,B_Q12C
+b_q12d_c,INT64,Activities - Last year - On the job training - Count (top-coded at 5),,no,,,no,Simple count; the counted item is named in the description,B_Q12D_C
+b_q12e,STRING,Activities - Last year - Seminars or workshops,,yes,,,no,,B_Q12E
+b_q12f_c,INT64,Activities - Last year - Seminars or workshops - Count (top-coded at 5),,no,,,no,Simple count; the counted item is named in the description,B_Q12F_C
+b_q12g,STRING,Activities - Last year - Private lessons,,yes,,,no,,B_Q12G
+b_q12h_c,INT64,Activities - Last year - Private lessons - Count (top-coded at 5),,no,,,no,Simple count; the counted item is named in the description,B_Q12H_C
+b_d12h,STRING,Activities - Last year - Number of learning activities (DERIVED BY CAPI),,yes,,,no,,B_D12H
+b_q13,STRING,Activities - Last year - Activity specified,,yes,,,no,,B_Q13
+b_q14a,STRING,Activities - Last year - Job related,,yes,,,no,,B_Q14A
+b_q14b,STRING,Activities - Last year - Reason for participating,,yes,,,no,,B_Q14B
+b_q15a,STRING,Activities - Last year - Employed,,yes,,,no,,B_Q15A
+b_q15b,STRING,Activities - Last year - During working hours,,yes,,,no,,B_Q15B
+b_q15c,STRING,Activities - Last year - Useful for job,,yes,,,no,,B_Q15C
+b_q16,STRING,Activities - Last year - Grant from employer,,yes,,,no,,B_Q16
+b_q17,STRING,Activities - Last year - Time spend - Unit,,yes,,,no,,B_Q17
+b_q18a,INT64,Activities - Last year - Time spend for activities - Weeks,,no,,week,no,,B_Q18A
+b_q19a,INT64,Activities - Last year - Time spend for activities - Days,,no,,day,no,,B_Q19A
+b_q20a,INT64,Activities - Last year - Time spend for activities - Hours,,no,,hour,no,,B_Q20A
+b_q20b,STRING,Activities - Last year - Time spend for activities - Proportion of job-related hours,,yes,,,no,,B_Q20B
+b_q26a,STRING,Activities - Last year - Wanted but didn't start,,yes,,,no,,B_Q26A
+b_q26a_t,STRING,Training or education for career or job wanted but not taken in last 12 months (Trend-IALS/ALL),,yes,,,no,,B_Q26A_T
+b_q26b,STRING,Activities - Last year - Wanted but didn't start - Reason,,yes,,,no,,B_Q26B
+c_q01a,STRING,Current status/work history - Last week - Paid work,,yes,,,no,,C_Q01A
+c_q01b,STRING,Current status/work history - Last week - Away from job but will return,,yes,,,no,,C_Q01B
+c_q01c,STRING,Current status/work history - Last week - Unpaid work for own business,,yes,,,no,,C_Q01C
+c_q02a,STRING,Current status/work history - Last month - Looking for paid work,,yes,,,no,,C_Q02A
+c_q02b,STRING,Current status/work history - Last month - Waiting to start job,,yes,,,no,,C_Q02B
+c_q03_01,STRING,Current status/work history - Last month - Reason not looking for work - Waiting for result of application,,yes,,,no,,C_Q03_01
+c_q03_02,STRING,Current status/work history - Last month - Reason not looking for work - Being a student,,yes,,,no,,C_Q03_02
+c_q03_03,STRING,Current status/work history - Last month - Reason not looking for work - Looking after the family,,yes,,,no,,C_Q03_03
+c_q03_04,STRING,Current status/work history - Last month - Reason not looking for work - Temp sick,,yes,,,no,,C_Q03_04
+c_q03_05,STRING,Current status/work history - Last month - Reason not looking for work - Long-term illness,,yes,,,no,,C_Q03_05
+c_q03_06,STRING,Current status/work history - Last month - Reason not looking for work - Nothing available,,yes,,,no,,C_Q03_06
+c_q03_07,STRING,Current status/work history - Last month - Reason not looking for work - Did not get around,,yes,,,no,,C_Q03_07
+c_q03_08,STRING,Current status/work history - Last month - Reason not looking for work - No need,,yes,,,no,,C_Q03_08
+c_q03_09,STRING,Current status/work history - Last month - Reason not looking for work - Retired,,yes,,,no,,C_Q03_09
+c_q03_10,STRING,Current status/work history - Last month - Reason not looking for work - Other,,yes,,,no,,C_Q03_10
+c_q04a,STRING,Current status/work history - Last month - Ways of looking for work - Contact public employment,,yes,,,no,,C_Q04A
+c_q04b,STRING,Current status/work history - Last month - Ways of looking for work - Contact private agency,,yes,,,no,,C_Q04B
+c_q04c,STRING,Current status/work history - Last month - Ways of looking for work - Apply to employers,,yes,,,no,,C_Q04C
+c_q04d,STRING,Current status/work history - Last month - Ways of looking for work - Ask family/friends,,yes,,,no,,C_Q04D
+c_q04e,STRING,Current status/work history - Last month - Ways of looking for work - Place/answer advertisements,,yes,,,no,,C_Q04E
+c_q04f,STRING,Current status/work history - Last month - Ways of looking for work - Study advertisements,,yes,,,no,,C_Q04F
+c_q04g,STRING,Current status/work history - Last month - Ways of looking for work - Recruitment test,,yes,,,no,,C_Q04G
+c_q04h,STRING,Current status/work history - Last month - Ways of looking for work - Premises,,yes,,,no,,C_Q04H
+c_q04j,STRING,Current status/work history - Last month - Ways of looking for work - Other,,yes,,,no,,C_Q04J
+c_d04,STRING,Current status/work history - Last month - Active steps to find job (DERIVED BY CAPI),,yes,,,no,,C_D04
+c_d05,STRING,Current status/work history - Employment status (DERIVED BY CAPI),,yes,,,no,,C_D05
+c_q06,STRING,Current status/work history - Last week - Number of jobs,,yes,,,no,,C_Q06
+c_d06,STRING,Current status/work history - Current - Paid job or family business (DERIVED BY CAPI),,yes,,,no,,C_D06
+c_q07,STRING,Current status/work history - Subjective status,,yes,,,no,,C_Q07
+c_q07_t,STRING,Current work situation (Trend-IALS/ALL),,yes,,,no,,C_Q07_T
+c_q08a,STRING,Current status/work history - Ever paid work,,yes,,,no,,C_Q08A
+c_q08b,STRING,Current status/work history - Last year - Paid work,,yes,,,no,,C_Q08B
+c_q08c1_c,STRING,"Current status/work history - Age when stopped working in last job (categorised, 10 categories)",,yes,,,no,,C_Q08C1_C
+c_d08c,STRING,Current status/work history - Left work in past 5 years (DERIVED BY CAPI),,yes,,,no,,C_D08C
+c_q09_c,INT64,Current status/work history - Years of paid work during lifetime (top-coded at 47),,no,,year,no,,C_Q09_C
+c_d09,STRING,Current status/work history - Work experience (DERIVED BY CAPI),,yes,,,no,,C_D09
+c_d09_t,STRING,Worked at job or business in last 12 months (any number of hours) (Trend-IALS/ALL),,yes,,,no,,C_D09_T
+c_q10a_c,INT64,Current status/work history - Last 5 years - How many different firms or organisations (top-coded at 7),,no,,year,no,,C_Q10A_C
+d_q03,STRING,Current work - Economic sector,,yes,,,no,,D_Q03
+d_q04,STRING,Current work - Employee or self-employed,,yes,,,no,,D_Q04
+d_q04_t,STRING,Status at this job or business - six levels (Trend-IALS/ALL),,yes,,,no,,D_Q04_T
+d_q04_t1,STRING,Status at this job or business - four levels (Trend-IALS/ALL),,yes,,,no,,D_Q04_T1
+d_q05a1_c,STRING,"Current work - Start of work for employer - Age (categorised, 9 categories)",,yes,,,no,,D_Q05A1_C
+d_q05b1_c,STRING,"Current work - Start of work for business - Age (categorised, 9 categories)",,yes,,,no,,D_Q05B1_C
+d_q06a,STRING,Current work - Amount of people working for employer,,yes,,,no,,D_Q06A
+d_q06b,STRING,Current work - Amount of people working for employer increased,,yes,,,no,,D_Q06B
+d_q06c,STRING,Current work - Part of a larger organisation,,yes,,,no,,D_Q06C
+d_q07a,STRING,Current work - Employees working for you,,yes,,,no,,D_Q07A
+d_q07b_c,STRING,"Current work - Employees working for you - Count (collapsed, 2 categories)",,yes,,,no,,D_Q07B_C
+d_q08a,STRING,Current work - Managing other employees,,yes,,,no,,D_Q08A
+d_q08b,STRING,Current work - Managing other employees - Count,,yes,,,no,,D_Q08B
+d_q10,INT64,Current work - Hours/week,,no,,hour,no,,D_Q10
+d_q10_c,INT64,Current work - Hours/week (top-coded at 60),,no,,hour,no,,D_Q10_C
+d_q10_t,INT64,"Hours per week at this job or business - number of hours (top coded at 97, Trend-IALS/ALL)",,no,,hour,no,,D_Q10_T
+d_q10_t1,STRING,Hours per week at this job or business - range of hours (Trend-IALS/ALL),,yes,,,no,,D_Q10_T1
+d_q11a,STRING,Current work - Work flexibility - Sequence of tasks,,yes,,,no,,D_Q11A
+d_q11b,STRING,Current work - Work flexibility - How to do the work,,yes,,,no,,D_Q11B
+d_q11c,STRING,Current work - Work flexibility - Speed of work,,yes,,,no,,D_Q11C
+d_q11d,STRING,Current work - Work flexibility - Working hours,,yes,,,no,,D_Q11D
+d_q12a,STRING,Current work - Requirements - Education level,,yes,,,no,,D_Q12A
+d_q12b,STRING,Current work - Requirements - To do the job satisfactorily,,yes,,,no,,D_Q12B
+d_q12c,STRING,Current work - Requirements - Related work experience,,yes,,,no,,D_Q12C
+d_q13a,STRING,Current work - Learning - Learning from co-workers/supervisors,,yes,,,no,,D_Q13A
+d_q13b,STRING,Current work - Learning - Learning-by-doing,,yes,,,no,,D_Q13B
+d_q13c,STRING,Current work - Learning - Keeping up to date,,yes,,,no,,D_Q13C
+d_q14,STRING,Current work - Job satisfaction,,yes,,,no,,D_Q14
+d_q16a,STRING,Current work - Earnings - Salary interval,,yes,,,no,,D_Q16A
+d_d16a,FLOAT64,Current work - Earnings - Salary interval per hour (DERIVED BY CAPI),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country",D_D16A
+d_q16c,STRING,Current work - Earnings - Gross pay in broad categories,,yes,,,no,,D_Q16C
+d_q17a,STRING,Current work - Earnings - Additional payments,,yes,,,no,,D_Q17A
+d_q17c,STRING,Current work - Earnings - Additional payments in broad categories,,yes,,,no,,D_Q17C
+d_q18a_t,STRING,Annual net income before taxes and deductions (Trend-IALS/ALL),,yes,,,no,,D_Q18A_T
+d_q18b,STRING,Current work - Earnings - Total earnings broad categories,,yes,,,no,,D_Q18B
+e_q03,STRING,Last job - Economic sector,,yes,,,no,,E_Q03
+e_q04,STRING,Last job - Employee or self-employed,,yes,,,no,,E_Q04
+e_q05a1_c,STRING,"Last job - Start of work for employer - Age (categorised, 9 categories)",,yes,,,no,,E_Q05A1_C
+e_q05b1_c,STRING,"Last job - Start of work for business - Age (categorised, 9 categories)",,yes,,,no,,E_Q05B1_C
+e_q06,STRING,Last job - Amount of people working for employer,,yes,,,no,,E_Q06
+e_q09,INT64,Last job - Hours/week,,no,,hour,no,,E_Q09
+e_q09_c,INT64,Last work - Hours/week (top-coded at 60),,no,,hour,no,,E_Q09_C
+e_q10,STRING,Last job - Reason for end of job,,yes,,,no,,E_Q10
+f_q01b,STRING,Skill use work - Time cooperating with co-workers,,yes,,,no,,F_Q01B
+f_q02a,STRING,Skill use work - How often - Sharing work-related info,,yes,,,no,,F_Q02A
+f_q02b,STRING,Skill use work - How often - Teaching people,,yes,,,no,,F_Q02B
+f_q02c,STRING,Skill use work - How often - Presentations,,yes,,,no,,F_Q02C
+f_q02d,STRING,Skill use work - How often - Selling,,yes,,,no,,F_Q02D
+f_q02e,STRING,Skill use work - How often - Advising people,,yes,,,no,,F_Q02E
+f_q03a,STRING,Skill use work - How often - Planning own activities,,yes,,,no,,F_Q03A
+f_q03b,STRING,Skill use work - How often - Planning others activities,,yes,,,no,,F_Q03B
+f_q03c,STRING,Skill use work - How often - Organising own time,,yes,,,no,,F_Q03C
+f_q04a,STRING,Skill use work - How often - Influencing people,,yes,,,no,,F_Q04A
+f_q04b,STRING,Skill use work - How often - Negotiating with people,,yes,,,no,,F_Q04B
+f_q05a,STRING,Skill use work - Problem solving - Simple problems,,yes,,,no,,F_Q05A
+f_q05b,STRING,Skill use work - Problem solving - Complex problems,,yes,,,no,,F_Q05B
+f_q06b,STRING,Skill use work - How often - Working physically for long,,yes,,,no,,F_Q06B
+f_q06c,STRING,Skill use work - How often - Using hands or fingers,,yes,,,no,,F_Q06C
+f_q07a,STRING,Skill use work - Not challenged enough,,yes,,,no,,F_Q07A
+f_q07b,STRING,Skill use work - Need more training,,yes,,,no,,F_Q07B
+g_q01a,STRING,Skill use work - Literacy - Read directions or instructions,,yes,,,no,,G_Q01A
+g_q01a_t,STRING,"As part of job, read or use directions or instructions (Trend-IALS/ALL)",,yes,,,no,,G_Q01A_T
+g_q01a_t1,STRING,"As part of job, read or use directions or instructions - levels collapsed (Trend-IALS/ALL)",,yes,,,no,,G_Q01A_T1
+g_q01b,STRING,Skill use work - Literacy - Read letters memos or mails,,yes,,,no,,G_Q01B
+g_q01b_t,STRING,"As part of job, read or use letters, memos, e-mails (Trend-IALS/ALL)",,yes,,,no,,G_Q01B_T
+g_q01b_t1,STRING,"As part of job, read or use letters, memos, e-mails - levels collapsed (Trend-IALS/ALL)",,yes,,,no,,G_Q01B_T1
+g_q01c,STRING,Skill use work - Literacy - Read newspapers or magazines,,yes,,,no,,G_Q01C
+g_q01c_t,STRING,"As part of job, read or use reports, articles, magazines, journals (Trend-IALS/ALL)",,yes,,,no,,G_Q01C_T
+g_q01c_t1,STRING,"As part of job, read or use reports, articles, magazines, journals - levels collapsed (Trend-IALS/ALL)",,yes,,,no,,G_Q01C_T1
+g_q01d,STRING,Skill use work - Literacy - Read professional journals or publications,,yes,,,no,,G_Q01D
+g_q01e,STRING,Skill use work - Literacy - Read books,,yes,,,no,,G_Q01E
+g_q01f,STRING,Skill use work - Literacy - Read manuals or reference materials,,yes,,,no,,G_Q01F
+g_q01f_t,STRING,"As part of job, read or use manuals, reference books, catalogues (Trend-IALS/ALL)",,yes,,,no,,G_Q01F_T
+g_q01f_t1,STRING,"As part of job, read or use manuals, reference books, catalogues - levels collapsed (Trend-IALS/ALL)",,yes,,,no,,G_Q01F_T1
+g_q01g,STRING,Skill use work - Literacy - Read financial statements,,yes,,,no,,G_Q01G
+g_q01g_t,STRING,"As part of job, read or use bills, invoices, spreadsheets, budget tables (Trend-IALS/ALL)",,yes,,,no,,G_Q01G_T
+g_q01g_t1,STRING,"As part of job, read or use bills, invoices, spreadsheets, budget tables - levels collapsed (Trend-IALS/ALL)",,yes,,,no,,G_Q01G_T1
+g_q01h,STRING,Skill use work - Literacy - Read diagrams maps or schematics,,yes,,,no,,G_Q01H
+g_q01h_t,STRING,"As part of job, read or use diagrams or schematics (Trend-IALS/ALL)",,yes,,,no,,G_Q01H_T
+g_q01h_t1,STRING,"As part of job, read or use diagrams or schematics - levels collapsed (Trend-IALS/ALL)",,yes,,,no,,G_Q01H_T1
+g_q02a,STRING,Skill use work - Literacy - Write letters memos or mails,,yes,,,no,,G_Q02A
+g_q02b,STRING,Skill use work - Literacy - Write articles,,yes,,,no,,G_Q02B
+g_q02c,STRING,Skill use work - Literacy - Write reports,,yes,,,no,,G_Q02C
+g_q02d,STRING,Skill use work - Literacy - Fill in forms,,yes,,,no,,G_Q02D
+g_q03b,STRING,Skill use work - Numeracy - How often - Calculating costs or budgets,,yes,,,no,,G_Q03B
+g_q03c,STRING,Skill use work - Numeracy - How often - Use or calculate fractions or percentages,,yes,,,no,,G_Q03C
+g_q03d,STRING,Skill use work - Numeracy - How often - Use a calculator,,yes,,,no,,G_Q03D
+g_q03f,STRING,Skill use work - Numeracy - How often - Prepare charts graphs or tables,,yes,,,no,,G_Q03F
+g_q03g,STRING,Skill use work - Numeracy - How often - Use simple algebra or formulas,,yes,,,no,,G_Q03G
+g_q03h,STRING,Skill use work - Numeracy - How often - Use advanced math or statistics,,yes,,,no,,G_Q03H
+g_q04,STRING,Skill use work - ICT - Experience with computer in job,,yes,,,no,,G_Q04
+g_q04_t,STRING,Ever used computer (Trend-IALS/ALL),,yes,,,no,,G_Q04_T
+g_q05a,STRING,Skill use work - ICT - Internet - How often - For mail,,yes,,,no,,G_Q05A
+g_q05c,STRING,Skill use work - ICT - Internet - How often - Work related info,,yes,,,no,,G_Q05C
+g_q05d,STRING,Skill use work - ICT - Internet - How often - Conduct transactions,,yes,,,no,,G_Q05D
+g_q05e,STRING,Skill use work - ICT - Computer - How often - Spreadsheets,,yes,,,no,,G_Q05E
+g_q05f,STRING,Skill use work - ICT - Computer - How often - Word,,yes,,,no,,G_Q05F
+g_q05g,STRING,Skill use work - ICT - Computer - How often - Programming language,,yes,,,no,,G_Q05G
+g_q05h,STRING,Skill use work - ICT - Computer - How often - Real-time discussions,,yes,,,no,,G_Q05H
+g_q06,STRING,Skill use work - ICT - Computer - Level of computer use,,yes,,,no,,G_Q06
+g_q07,STRING,Skill use work - ICT - Computer - Got the skills needed,,yes,,,no,,G_Q07
+g_q08,STRING,Skill use work - ICT - Computer - Lack of skills affect career,,yes,,,no,,G_Q08
+h_q01a,STRING,Skill use everyday life - Literacy - Read directions or instructions,,yes,,,no,,H_Q01A
+h_q01b,STRING,Skill use everyday life - Literacy - Read letters memos or mails,,yes,,,no,,H_Q01B
+h_q01b_t,STRING,"In daily life, read or use letters, notes, e-mails (Trend-IALS/ALL)",,yes,,,no,,H_Q01B_T
+h_q01c,STRING,Skill use everyday life - Literacy - Read newspapers or magazines,,yes,,,no,,H_Q01C
+h_q01c_t,STRING,"In daily life, read or use newspapers, magazines, articles (Trend-IALS/ALL)",,yes,,,no,,H_Q01C_T
+h_q01d,STRING,Skill use everyday life - Literacy - Read professional journals or publications,,yes,,,no,,H_Q01D
+h_q01e,STRING,Skill use everyday life - Literacy - Read books,,yes,,,no,,H_Q01E
+h_q01e_t,STRING,"In daily life, read or use books (fiction or nonfiction; not for job or school) (Trend-IALS/ALL)",,yes,,,no,,H_Q01E_T
+h_q01f,STRING,Skill use everyday life - Literacy - Read manuals or reference materials,,yes,,,no,,H_Q01F
+h_q01g,STRING,Skill use everyday life - Literacy - Read financial statements,,yes,,,no,,H_Q01G
+h_q01h,STRING,Skill use everyday life - Literacy - Read diagrams maps or schematics,,yes,,,no,,H_Q01H
+h_q02a,STRING,Skill use everyday life - Literacy - Write letters memos or mails,,yes,,,no,,H_Q02A
+h_q02b,STRING,Skill use everyday life - Literacy - Write articles,,yes,,,no,,H_Q02B
+h_q02c,STRING,Skill use everyday life - Literacy - Write reports,,yes,,,no,,H_Q02C
+h_q02d,STRING,Skill use everyday life - Literacy - Fill in forms,,yes,,,no,,H_Q02D
+h_q03b,STRING,Skill use everyday life - Numeracy - How often - Calculating costs or budgets,,yes,,,no,,H_Q03B
+h_q03c,STRING,Skill use everyday life - Numeracy - How often - Use or calculate fractions or percentages,,yes,,,no,,H_Q03C
+h_q03d,STRING,Skill use everyday life - Numeracy - How often - Use a calculator,,yes,,,no,,H_Q03D
+h_q03f,STRING,Skill use everyday life - Numeracy - How often - Prepare charts graphs or tables,,yes,,,no,,H_Q03F
+h_q03g,STRING,Skill use everyday life - Numeracy - How often - Use simple algebra or formulas,,yes,,,no,,H_Q03G
+h_q03h,STRING,Skill use everyday life - Numeracy - How often - Use advanced math or statistics,,yes,,,no,,H_Q03H
+h_q04a,STRING,Skill use everyday life - ICT - Ever used computer,,yes,,,no,,H_Q04A
+h_q04b,STRING,Skill use everyday life - ICT - Experience with computer everyday life,,yes,,,no,,H_Q04B
+h_q05a,STRING,Skill use everyday life - ICT - Internet - How often - For mail,,yes,,,no,,H_Q05A
+h_q05c,STRING,Skill use everyday life - ICT - Internet - How often - In order to better understand various issues,,yes,,,no,,H_Q05C
+h_q05d,STRING,Skill use everyday life - ICT - Internet - How often - Conduct transactions,,yes,,,no,,H_Q05D
+h_q05e,STRING,Skill use everyday life - ICT - Computer - How often - Spreadsheets,,yes,,,no,,H_Q05E
+h_q05f,STRING,Skill use everyday life - ICT - Computer - How often - Word,,yes,,,no,,H_Q05F
+h_q05g,STRING,Skill use everyday life - ICT - Computer - How often - Programming language,,yes,,,no,,H_Q05G
+h_q05h,STRING,Skill use everyday life - ICT - Computer - How often - Real-time discussions,,yes,,,no,,H_Q05H
+i_q04b,STRING,About yourself - Learning strategies - Relate new ideas into real life,,yes,,,no,,I_Q04B
+i_q04d,STRING,About yourself - Learning strategies - Like learning new things,,yes,,,no,,I_Q04D
+i_q04h,STRING,About yourself - Learning strategies - Attribute something new,,yes,,,no,,I_Q04H
+i_q04j,STRING,About yourself - Learning strategies - Get to the bottom of difficult things,,yes,,,no,,I_Q04J
+i_q04l,STRING,About yourself - Learning strategies - Figure out how different ideas fit together,,yes,,,no,,I_Q04L
+i_q04m,STRING,About yourself - Learning strategies - Looking for additional info,,yes,,,no,,I_Q04M
+i_q05f,STRING,About yourself - Cultural engagement - Voluntary work for non-profit organisations,,yes,,,no,,I_Q05F
+i_q06a,STRING,About yourself - Political efficacy - No influence on the government,,yes,,,no,,I_Q06A
+i_q07a,STRING,About yourself - Social trust - Trust only few people,,yes,,,no,,I_Q07A
+i_q07b,STRING,About yourself - Social trust - Other people take advantage of you,,yes,,,no,,I_Q07B
+i_q08,STRING,About yourself - Health - State,,yes,,,no,,I_Q08
+i_q08_t,STRING,General health (Trend-IALS/ALL),,yes,,,no,,I_Q08_T
+j_q01_c,INT64,Background - People in household (top-coded at 6),,no,,person,no,,J_Q01_C
+j_q01_t1,STRING,Number living in household (from 1 to 7) (Trend-IALS/ALL),,yes,,,no,,J_Q01_T1
+j_q02a,STRING,Background - Living with spouse or partner,,yes,,,no,,J_Q02A
+j_q02c,STRING,Background - Work situation of spouse or partner,,yes,,,no,,J_Q02C
+j_q03a,STRING,Background - Children,,yes,,,no,,J_Q03A
+j_q03b_c,INT64,Background - Number of children (top-coded at 4),,no,,person,no,,J_Q03B_C
+j_q03c_c,STRING,"Background - Age of the child (categorised, 4 categories)",,yes,,,no,,J_Q03C_C
+j_q03d1_c,STRING,"Background - Age of the youngest child (categorised, 4 categories)",,yes,,,no,,J_Q03D1_C
+j_q03d2_c,STRING,"Background - Age of the oldest child (categorised, 4 categories)",,yes,,,no,,J_Q03D2_C
+j_q04a,STRING,Background - Born in country,,yes,,,no,,J_Q04A
+j_q04a_t,STRING,Born in country (Trend-IALS/ALL),,yes,,,no,,J_Q04A_T
+j_q04c1_c,STRING,"Background - Age of immigration (categorised, 9 categories)",,yes,,,no,,J_Q04C1_C
+j_q04c2_t1,STRING,Year of immigration to country - range of years (Trend-IALS/ALL),,yes,,,no,,J_Q04C2_T1
+j_n05a2,STRING,Background - More than one language mentioned,,yes,,,no,,J_N05A2
+j_q06a,STRING,Background - Mother/female guardian - Whether born in country,,yes,,,no,,J_Q06A
+j_q06a_t,STRING,Mother or female guardian born in country (Trend-IALS/ALL),,yes,,,no,,J_Q06A_T
+j_q06b,STRING,Background - Mother/female guardian - Highest level of education,,yes,,,no,,J_Q06B
+j_q06b_t,STRING,Highest level of education - mother or female guardian (Trend-IALS/ALL),,yes,,,no,,J_Q06B_T
+j_q07a,STRING,Background - Father/male guardian - Whether born in #counrtyname,,yes,,,no,,J_Q07A
+j_q07a_t,STRING,Father or male guardian born in country (Trend-IALS/ALL),,yes,,,no,,J_Q07A_T
+j_q07b,STRING,Background - Father/male guardian - Highest level of education,,yes,,,no,,J_Q07B
+j_q07b_t,STRING,Highest level of education - father or male guardian (Trend-IALS/ALL),,yes,,,no,,J_Q07B_T
+j_q08,STRING,Background - Number of books at home,,yes,,,no,,J_Q08
+computerexperience,STRING,Respondent experience with computer (DERIVED BY CAPI),,yes,,,no,,COMPUTEREXPERIENCE
+nativespeaker,STRING,Respondent is a native speaker (DERIVED BY CAPI),,yes,,,no,,NATIVESPEAKER
+edlevel3,STRING,Educational level of the respondent (DERIVED BY CAPI),,yes,,,no,,EDLEVEL3
+disp_bq,STRING,United States national variable DISP_BQ,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,DISP_BQ
+cilang,STRING,United States national variable CILANG,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,CILANG
+cba_core_stage1_score,FLOAT64,CBA Core score for stage 1,,no,,,no,"Raw number of correct responses, not a scaled proficiency score",CBA_CORE_STAGE1_SCORE
+cba_core_stage2_score,FLOAT64,CBA Core score for stage 2,,no,,,no,"Raw number of correct responses, not a scaled proficiency score",CBA_CORE_STAGE2_SCORE
+corestage1_pass,STRING,Core Stage 1 pass status,,yes,,,no,,CORESTAGE1_PASS
+corestage2_pass,STRING,Core Stage 2 pass status,,yes,,,no,,CORESTAGE2_PASS
+cba_start,STRING,Computer-based exercise agreement,,yes,,,no,,CBA_START
+ppc_score,FLOAT64,Final score for the paper core assessment,,no,,,no,"Raw number of correct responses, not a scaled proficiency score",PPC_SCORE
+prc_pv_q1,INT64,Sentence Timer for Print Vocabulary items,,no,,second,no,,PRC_PV_Q1
+prc_sp_q1,INT64,Sentence Timer for Sentence Processing items,,no,,second,no,,PRC_SP_Q1
+prc_pf_q1,INT64,Sentence Timer for Passage Comprehension items - passage 1,,no,,second,no,,PRC_PF_Q1
+prc_pf_q2,INT64,Sentence Timer for Passage Comprehension items - passage 2,,no,,second,no,,PRC_PF_Q2
+prc_pf_q3,INT64,Sentence Timer for Passage Comprehension items - passage 3 and 4,,no,,second,no,,PRC_PF_Q3
+paper,STRING,Paper branch (derived),,yes,,,no,,PAPER
+cbamod1,STRING,CBA module 1 branch (derived),,yes,,,no,,CBAMOD1
+cbamod2,STRING,CBA module 2 branch (derived),,yes,,,no,,CBAMOD2
+cbamod2alt,STRING,CBA module 1 and 2 branch (derived),,yes,,,no,,CBAMOD2ALT
+cbamod1stg1,STRING,"CBA module 1, stage 1 branch (derived)",,yes,,,no,,CBAMOD1STG1
+cbamod2stg1,STRING,"CBA module 2, stage 1 branch (derived)",,yes,,,no,,CBAMOD2STG1
+cbamod1stg2,STRING,"CBA module 1, stage 2 branch (derived)",,yes,,,no,,CBAMOD1STG2
+cbamod2stg2,STRING,"CBA module 2, stage 2 branch (derived)",,yes,,,no,,CBAMOD2STG2
+monthlyincpr,STRING,Monthly income percentile rank category (derived),,yes,,,no,,MONTHLYINCPR
+yearlyincpr,STRING,Yearly income percentile rank category (derived),,yes,,,no,,YEARLYINCPR
+pbroute,STRING,Paper-based routing code (derived),,yes,,,no,,PBROUTE
+zz1a,STRING,Observation module: Presence of additional person,,yes,,,no,,ZZ1A
+zz1b_01,STRING,Observation module: Assistance in background questionnaire,,yes,,,no,,ZZ1B_01
+zz1b_02,STRING,Observation module: Assistance in skills assessment,,yes,,,no,,ZZ1B_02
+zz2,STRING,Observation module: Respondent understood the questions,,yes,,,no,,ZZ2
+zz3,STRING,Observation module: Clarification necessary,,yes,,,no,,ZZ3
+zz4_01,STRING,Observation module: Respondent held a conversation with someone else,,yes,,,no,,ZZ4_01
+zz4_02,STRING,"Observation module: Respondent answered a phone call, text message or e-mail",,yes,,,no,,ZZ4_02
+zz4_03,STRING,Observation module: Respondent was looking after children,,yes,,,no,,ZZ4_03
+zz4_04,STRING,Observation module: Respondent was undertaking domestic tasks,,yes,,,no,,ZZ4_04
+zz4_05,STRING,"Observation module: Television, radio, game console or music player was in use in the vicinity of respondent",,yes,,,no,,ZZ4_05
+zz4_06,STRING,"Observation module: Respondent was interrupted by some other activity, task or event",,yes,,,no,,ZZ4_06
+zz5,STRING,Observation module: Assessment taking too long,,yes,,,no,,ZZ5
+zz6,STRING,Observation module: Room of assessment,,yes,,,no,,ZZ6
+reg_tl2,STRING,Geographical region - Respondent (OECD TL2) (coded),,yes,,,no,,REG_TL2
+lng_bq,STRING,"Language for background questionnaire (derived, ISO 639-2/T)",,yes,,,no,,LNG_BQ
+lng_ci,STRING,"Language for exercise (derived, ISO 639-2/T)",,yes,,,no,,LNG_CI
+yrsqual,INT64,Highest level of education obtained imputed into years of education (derived),,no,,year,no,,YRSQUAL
+yrsqual_t,INT64,Derived variable on total years of schooling during lifetime - top coded at 24 (Trend-IALS/ALL),,no,,year,no,,YRSQUAL_T
+yrsget,INT64,Imputed years of formal education needed to get the job (self-reported - derived),,no,,year,no,,YRSGET
+vet,STRING,"Respondent's highest level of education obtained is vocationally oriented (derived, ISCED3 and 4 only)",,yes,,,no,,VET
+forbornlang,STRING,Interactions between foreign-born and language status (2 categories - derived),,yes,,,no,,FORBORNLANG
+pared,STRING,Highest of mother or father's level of education (derived),,yes,,,no,,PARED
+nativelang,STRING,Test language same as native language	 (derived),,yes,,,no,,NATIVELANG
+bornlang,STRING,Interactions between place of birth and language status (derived),,yes,,,no,,BORNLANG
+natbilang,STRING,Has learned as a child and still understands at least two languages including test language (derived),,yes,,,no,,NATBILANG
+forbilang,STRING,Has learned as a child and still understands at least two languages not including test language (derived),,yes,,,no,,FORBILANG
+homlang,STRING,Test language same as language spoken most often at home (derived),,yes,,,no,,HOMLANG
+ctryrgn,STRING,Country region (9 regions),,yes,,,no,,CTRYRGN
+impar,STRING,Parents' immigration status (derived),,yes,,,no,,IMPAR
+imgen,STRING,First and second generation immigrants (derived),,yes,,,no,,IMGEN
+imyrs_c,STRING,"Years in country (categorised, 4 categories)",,yes,,,no,,IMYRS_C
+imyrcat,STRING,Years in country (2-category - derived),,yes,,,no,,IMYRCAT
+ageg10lfs_t,STRING,Age in 10 year bands (Trend-IALS/ALL),,yes,,,no,,AGEG10LFS_T
+edcat8,STRING,Highest level of formal education obtained (8 categories - derived),,yes,,,no,,EDCAT8
+edcat7,STRING,Highest level of formal education obtained (7 categories - derived),,yes,,,no,,EDCAT7
+edcat6,STRING,Highest level of formal education obtained (6 categories - derived),,yes,,,no,,EDCAT6
+leaver1624,STRING,Youth aged 16 to 24 who have left education without completing ISCED 3 or higher (derived),,yes,,,no,,LEAVER1624
+fe12,STRING,Participated in formal education in 12 months preceding survey (derived),,yes,,,no,,FE12
+aetpop,STRING,Adult education/training population (AET) - excludes youths 16-24 in initial cycle of studies (derived),,yes,,,no,,AETPOP
+faet12,STRING,Participated in formal AET in 12 months preceding survey (see AETPOP - derived),,yes,,,no,,FAET12
+faet12jr,STRING,Participated in formal AET for job-related reasons in 12 months preceding survey (see AETPOP - derived),,yes,,,no,,FAET12JR
+faet12njr,STRING,Participated in formal AET for non job-related reasons in 12 months preceding survey (see AETPOP - derived),,yes,,,no,,FAET12NJR
+nfe12,STRING,Participated in non-formal education in 12 months preceding survey (derived),,yes,,,no,,NFE12
+nfe12jr,STRING,Participated in non-formal education for job-related reasons in 12 months preceding survey (derived),,yes,,,no,,NFE12JR
+nfe12njr,STRING,Participated in non-formal education for non job-related reasons in 12 months preceding survey (derived),,yes,,,no,,NFE12NJR
+fnfaet12,STRING,Participated in formal or non-formal AET in 12 months preceding survey (see AETPOP - derived),,yes,,,no,,FNFAET12
+fnfe12jr,STRING,Participated in formal or non-formal education for job-related reasons in 12 months preceding the survey (derived),,yes,,,no,,FNFE12JR
+fnfaet12jr,STRING,Participated in formal or non-formal AET for job-related reasons in 12 months preceding survey (see AETPOP - derived),,yes,,,no,,FNFAET12JR
+fnfaet12njr,STRING,Participated in formal or non-formal AET for non job-related reasons in 12 mon. preceding survey (see AETPOP - derived),,yes,,,no,,FNFAET12NJR
+edwork,STRING,Interaction between adults' work and education status (derived),,yes,,,no,,EDWORK
+neet,STRING,Adults not employed at time of survey and not in education or training in 12 months preceding the survey (derived),,yes,,,no,,NEET
+nfehrsnjr,FLOAT64,Number of hours of participation in non-formal education for non-job-related reasons (derived),,no,,hour,no,,NFEHRSNJR
+nfehrsjr,FLOAT64,Number of hours of participation in non-formal education for job-related reasons (derived),,no,,hour,no,,NFEHRSJR
+nfehrs,INT64,Number of hours of participation in non-formal education (derived),,no,,hour,no,,NFEHRS
+nopaidworkever,STRING,Adults who never had paid work including self-employment in past (derived),,yes,,,no,,NOPAIDWORKEVER
+paidwork12,STRING,Adults who have had paid work during the 12 months preceding the survey (derived),,yes,,,no,,PAIDWORK12
+iscoskil4,STRING,"Occupational classification of respondent's job (4 skill based categories), last or current (derived)",,yes,,,no,,ISCOSKIL4
+isic1l,STRING,"Industry classification of respondent's job at 1-digit level(ISIC rev 4), last job (derived)",,no,br_bd_diretorios_mundo.isic_4:id_isic_4,,no,,ISIC1L
+isic2l,STRING,"Industry classification of respondent's job at 2-digit level (ISIC rev 4), last job (derived)",,no,br_bd_diretorios_mundo.isic_4:id_isic_4,,no,,ISIC2L
+isic1c,STRING,"Industry classification of respondent's job at 1-digit level (ISIC rev 4), current job (derived)",,no,br_bd_diretorios_mundo.isic_4:id_isic_4,,no,,ISIC1C
+isic2c,STRING,"Industry classification of respondent's job at 2-digit level (ISIC rev 4), current job (derived)",,no,br_bd_diretorios_mundo.isic_4:id_isic_4,,no,,ISIC2C
+isco1c,STRING,"Occupational classification of respondent's job at 1-digit level (ISCO 2008), current job (derived)",,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO1C
+isco2c,STRING,"Occupational classification of respondent's job at 2-digit level (ISCO 2008), current job (derived)",,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO2C
+isco1l,STRING,"Occupational classification of respondent's job at 1-digit level (ISCO 2008), last job (derived)",,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO1L
+isco2l,STRING,"Occupational classification of respondent's job at 2-digit level (ISCO 2008), last job (derived)",,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO2L
+litstatus,STRING,Literacy - PV Status,,yes,,,no,,LITSTATUS
+pvlit1,FLOAT64,Literacy scale score - Plausible value 1,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT1
+pvlit2,FLOAT64,Literacy scale score - Plausible value 2,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT2
+pvlit3,FLOAT64,Literacy scale score - Plausible value 3,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT3
+pvlit4,FLOAT64,Literacy scale score - Plausible value 4,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT4
+pvlit5,FLOAT64,Literacy scale score - Plausible value 5,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT5
+pvlit6,FLOAT64,Literacy scale score - Plausible value 6,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT6
+pvlit7,FLOAT64,Literacy scale score - Plausible value 7,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT7
+pvlit8,FLOAT64,Literacy scale score - Plausible value 8,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT8
+pvlit9,FLOAT64,Literacy scale score - Plausible value 9,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT9
+pvlit10,FLOAT64,Literacy scale score - Plausible value 10,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT10
+numstatus,STRING,Numeracy - PV Status,,yes,,,no,,NUMSTATUS
+pvnum1,FLOAT64,Numeracy scale score - Plausible value 1,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM1
+pvnum2,FLOAT64,Numeracy scale score - Plausible value 2,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM2
+pvnum3,FLOAT64,Numeracy scale score - Plausible value 3,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM3
+pvnum4,FLOAT64,Numeracy scale score - Plausible value 4,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM4
+pvnum5,FLOAT64,Numeracy scale score - Plausible value 5,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM5
+pvnum6,FLOAT64,Numeracy scale score - Plausible value 6,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM6
+pvnum7,FLOAT64,Numeracy scale score - Plausible value 7,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM7
+pvnum8,FLOAT64,Numeracy scale score - Plausible value 8,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM8
+pvnum9,FLOAT64,Numeracy scale score - Plausible value 9,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM9
+pvnum10,FLOAT64,Numeracy scale score - Plausible value 10,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM10
+pslstatus,STRING,Problem Solving - PV Status,,yes,,,no,,PSLSTATUS
+pvpsl1,FLOAT64,Problem-solving scale score - Plausible value 1,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL1
+pvpsl2,FLOAT64,Problem-solving scale score - Plausible value 2,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL2
+pvpsl3,FLOAT64,Problem-solving scale score - Plausible value 3,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL3
+pvpsl4,FLOAT64,Problem-solving scale score - Plausible value 4,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL4
+pvpsl5,FLOAT64,Problem-solving scale score - Plausible value 5,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL5
+pvpsl6,FLOAT64,Problem-solving scale score - Plausible value 6,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL6
+pvpsl7,FLOAT64,Problem-solving scale score - Plausible value 7,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL7
+pvpsl8,FLOAT64,Problem-solving scale score - Plausible value 8,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL8
+pvpsl9,FLOAT64,Problem-solving scale score - Plausible value 9,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL9
+pvpsl10,FLOAT64,Problem-solving scale score - Plausible value 10,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL10
+prc_pv_scr,FLOAT64,Total Score for Reading Components Section - Print Vocabulary (derived),,no,,,no,"Raw number of correct responses, not a scaled proficiency score",PRC_PV_SCR
+prc_sp_scr,FLOAT64,Total Score for Reading Components Section - Sentence Processing (derived),,no,,,no,"Raw number of correct responses, not a scaled proficiency score",PRC_SP_SCR
+prc_pc_scr,FLOAT64,Total Score for Reading Components Section - Passage Comprehension (derived),,no,,,no,"Raw number of correct responses, not a scaled proficiency score",PRC_PC_SCR
+vemethod,STRING,Replication approach (string),,yes,,,no,,VEMETHOD
+vemethodn,STRING,Replication approach (numeric),,yes,,,no,,VEMETHODN
+vefayfac,FLOAT64,Fay's K factor used in creating replicate weights (BRR only),,no,,,no,Fay factor used in replicate-weight variance estimation,VEFAYFAC
+venreps,STRING,Number of replicate weights used,,no,,,no,,VENREPS
+varstrat,STRING,Variance stratum,,no,,,no,,VARSTRAT
+varunit,STRING,Variance unit,,no,,,no,,VARUNIT
+spfwt0,FLOAT64,Final full sample weight,,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT0
+spfwt1,FLOAT64,Final replicate weight (1),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT1
+spfwt2,FLOAT64,Final replicate weight (2),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT2
+spfwt3,FLOAT64,Final replicate weight (3),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT3
+spfwt4,FLOAT64,Final replicate weight (4),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT4
+spfwt5,FLOAT64,Final replicate weight (5),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT5
+spfwt6,FLOAT64,Final replicate weight (6),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT6
+spfwt7,FLOAT64,Final replicate weight (7),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT7
+spfwt8,FLOAT64,Final replicate weight (8),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT8
+spfwt9,FLOAT64,Final replicate weight (9),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT9
+spfwt10,FLOAT64,Final replicate weight (10),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT10
+spfwt11,FLOAT64,Final replicate weight (11),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT11
+spfwt12,FLOAT64,Final replicate weight (12),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT12
+spfwt13,FLOAT64,Final replicate weight (13),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT13
+spfwt14,FLOAT64,Final replicate weight (14),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT14
+spfwt15,FLOAT64,Final replicate weight (15),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT15
+spfwt16,FLOAT64,Final replicate weight (16),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT16
+spfwt17,FLOAT64,Final replicate weight (17),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT17
+spfwt18,FLOAT64,Final replicate weight (18),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT18
+spfwt19,FLOAT64,Final replicate weight (19),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT19
+spfwt20,FLOAT64,Final replicate weight (20),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT20
+spfwt21,FLOAT64,Final replicate weight (21),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT21
+spfwt22,FLOAT64,Final replicate weight (22),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT22
+spfwt23,FLOAT64,Final replicate weight (23),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT23
+spfwt24,FLOAT64,Final replicate weight (24),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT24
+spfwt25,FLOAT64,Final replicate weight (25),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT25
+spfwt26,FLOAT64,Final replicate weight (26),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT26
+spfwt27,FLOAT64,Final replicate weight (27),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT27
+spfwt28,FLOAT64,Final replicate weight (28),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT28
+spfwt29,FLOAT64,Final replicate weight (29),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT29
+spfwt30,FLOAT64,Final replicate weight (30),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT30
+spfwt31,FLOAT64,Final replicate weight (31),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT31
+spfwt32,FLOAT64,Final replicate weight (32),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT32
+spfwt33,FLOAT64,Final replicate weight (33),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT33
+spfwt34,FLOAT64,Final replicate weight (34),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT34
+spfwt35,FLOAT64,Final replicate weight (35),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT35
+spfwt36,FLOAT64,Final replicate weight (36),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT36
+spfwt37,FLOAT64,Final replicate weight (37),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT37
+spfwt38,FLOAT64,Final replicate weight (38),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT38
+spfwt39,FLOAT64,Final replicate weight (39),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT39
+spfwt40,FLOAT64,Final replicate weight (40),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT40
+spfwt41,FLOAT64,Final replicate weight (41),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT41
+spfwt42,FLOAT64,Final replicate weight (42),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT42
+spfwt43,FLOAT64,Final replicate weight (43),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT43
+spfwt44,FLOAT64,Final replicate weight (44),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT44
+spfwt45,FLOAT64,Final replicate weight (45),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT45
+spfwt46,FLOAT64,Final replicate weight (46),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT46
+spfwt47,FLOAT64,Final replicate weight (47),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT47
+spfwt48,FLOAT64,Final replicate weight (48),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT48
+spfwt49,FLOAT64,Final replicate weight (49),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT49
+spfwt50,FLOAT64,Final replicate weight (50),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT50
+spfwt51,FLOAT64,Final replicate weight (51),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT51
+spfwt52,FLOAT64,Final replicate weight (52),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT52
+spfwt53,FLOAT64,Final replicate weight (53),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT53
+spfwt54,FLOAT64,Final replicate weight (54),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT54
+spfwt55,FLOAT64,Final replicate weight (55),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT55
+spfwt56,FLOAT64,Final replicate weight (56),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT56
+spfwt57,FLOAT64,Final replicate weight (57),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT57
+spfwt58,FLOAT64,Final replicate weight (58),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT58
+spfwt59,FLOAT64,Final replicate weight (59),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT59
+spfwt60,FLOAT64,Final replicate weight (60),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT60
+spfwt61,FLOAT64,Final replicate weight (61),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT61
+spfwt62,FLOAT64,Final replicate weight (62),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT62
+spfwt63,FLOAT64,Final replicate weight (63),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT63
+spfwt64,FLOAT64,Final replicate weight (64),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT64
+spfwt65,FLOAT64,Final replicate weight (65),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT65
+spfwt66,FLOAT64,Final replicate weight (66),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT66
+spfwt67,FLOAT64,Final replicate weight (67),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT67
+spfwt68,FLOAT64,Final replicate weight (68),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT68
+spfwt69,FLOAT64,Final replicate weight (69),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT69
+spfwt70,FLOAT64,Final replicate weight (70),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT70
+spfwt71,FLOAT64,Final replicate weight (71),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT71
+spfwt72,FLOAT64,Final replicate weight (72),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT72
+spfwt73,FLOAT64,Final replicate weight (73),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT73
+spfwt74,FLOAT64,Final replicate weight (74),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT74
+spfwt75,FLOAT64,Final replicate weight (75),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT75
+spfwt76,FLOAT64,Final replicate weight (76),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT76
+spfwt77,FLOAT64,Final replicate weight (77),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT77
+spfwt78,FLOAT64,Final replicate weight (78),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT78
+spfwt79,FLOAT64,Final replicate weight (79),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT79
+spfwt80,FLOAT64,Final replicate weight (80),,no,,,no,Dimensionless final or replicate sampling weight. SPFWT0 is the final weight; SPFWT1-80 are the 80 replicate weights used for variance estimation,SPFWT80
+inpiaac,STRING,United States national variable INPIAAC,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,INPIAAC
+b_q01ausx,STRING,United States national variable B_Q01AUSX,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q01AUSX
+b_q05cusx1,STRING,United States national variable B_Q05CUSX1,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q05CUSX1
+b_q05cusx2,STRING,United States national variable B_Q05CUSX2,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q05CUSX2
+b_q14busx1,STRING,United States national variable B_Q14BUSX1,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q14BUSX1
+b_q14busx2,STRING,United States national variable B_Q14BUSX2,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q14BUSX2
+b_q27ausx,STRING,United States national variable B_Q27AUSX,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q27AUSX
+b_q27busx,STRING,United States national variable B_Q27BUSX,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q27BUSX
+b_q27cusx,STRING,United States national variable B_Q27CUSX,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q27CUSX
+b_q27dusx,STRING,United States national variable B_Q27DUSX,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q27DUSX
+b_q29ausx,STRING,United States national variable B_Q29AUSX,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q29AUSX
+b_q29cusx1,STRING,United States national variable B_Q29CUSX1,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q29CUSX1
+b_q29cusx3,STRING,United States national variable B_Q29CUSX3,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q29CUSX3
+b_q29cusx4,STRING,United States national variable B_Q29CUSX4,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q29CUSX4
+b_q29cusx5,STRING,United States national variable B_Q29CUSX5,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q29CUSX5
+b_q29dusx,STRING,United States national variable B_Q29DUSX,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q29DUSX
+d_q03us,STRING,United States national variable D_Q03US,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,D_Q03US
+d_q09usx,STRING,United States national variable D_Q09USX,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,D_Q09USX
+d_q10usx,STRING,United States national variable D_Q10USX,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,D_Q10USX
+e_q03us,STRING,United States national variable E_Q03US,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,E_Q03US
+i_q06dusx1a,STRING,United States national variable I_Q06DUSX1A,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q06DUSX1A
+i_q06dusx1b,STRING,United States national variable I_Q06DUSX1B,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q06DUSX1B
+i_q06dusx1c,STRING,United States national variable I_Q06DUSX1C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q06DUSX1C
+i_q06dusx1d,STRING,United States national variable I_Q06DUSX1D,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q06DUSX1D
+i_q06dusx1e,STRING,United States national variable I_Q06DUSX1E,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q06DUSX1E
+i_q06dusx1f,STRING,United States national variable I_Q06DUSX1F,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q06DUSX1F
+i_q06dusx1g,STRING,United States national variable I_Q06DUSX1G,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q06DUSX1G
+i_q08usx1,STRING,United States national variable I_Q08USX1,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q08USX1
+i_q08usx2,STRING,United States national variable I_Q08USX2,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q08USX2
+i_q08usx3,STRING,United States national variable I_Q08USX3,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q08USX3
+i_q10busx1,STRING,United States national variable I_Q10BUSX1,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX1
+i_q10busx2a,STRING,United States national variable I_Q10BUSX2A,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX2A
+i_q10busx2b,STRING,United States national variable I_Q10BUSX2B,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX2B
+i_q10busx2c,STRING,United States national variable I_Q10BUSX2C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX2C
+i_q10busx2d,STRING,United States national variable I_Q10BUSX2D,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX2D
+i_q10busx2e,STRING,United States national variable I_Q10BUSX2E,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX2E
+i_q10busx2f,STRING,United States national variable I_Q10BUSX2F,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX2F
+i_q10busx2g,STRING,United States national variable I_Q10BUSX2G,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX2G
+i_q10busx2h,STRING,United States national variable I_Q10BUSX2H,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX2H
+i_q10busx3a,STRING,United States national variable I_Q10BUSX3A,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX3A
+i_q10busx3b,STRING,United States national variable I_Q10BUSX3B,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX3B
+i_q10busx3c,STRING,United States national variable I_Q10BUSX3C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX3C
+i_q10busx3d,STRING,United States national variable I_Q10BUSX3D,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX3D
+i_q10busx3e,STRING,United States national variable I_Q10BUSX3E,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX3E
+i_q10busx3f,STRING,United States national variable I_Q10BUSX3F,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX3F
+i_q10busx3g,STRING,United States national variable I_Q10BUSX3G,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX3G
+i_q10busx3h,STRING,United States national variable I_Q10BUSX3H,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,I_Q10BUSX3H
+j_q04dusx1a,STRING,United States national variable J_Q04DUSX1A,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q04DUSX1A
+j_q05a2usx2,STRING,United States national variable J_Q05A2USX2,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q05A2USX2
+j_q05cusx2,STRING,United States national variable J_Q05CUSX2,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q05CUSX2
+j_q05cusx3a,STRING,United States national variable J_Q05CUSX3A,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q05CUSX3A
+j_q05cusx3b,STRING,United States national variable J_Q05CUSX3B,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q05CUSX3B
+j_q05cusx3d,STRING,United States national variable J_Q05CUSX3D,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q05CUSX3D
+j_q05cusx3e,STRING,United States national variable J_Q05CUSX3E,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q05CUSX3E
+j_q05cusx4,STRING,United States national variable J_Q05CUSX4,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q05CUSX4
+j_q05cusx6,STRING,United States national variable J_Q05CUSX6,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q05CUSX6
+j_q06bus,STRING,United States national variable J_Q06BUS,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q06BUS
+j_q07bus,STRING,United States national variable J_Q07BUS,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q07BUS
+j_q09usx,STRING,United States national variable J_Q09USX,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q09USX
+region_us,STRING,United States national variable REGION_US,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,REGION_US
+b_q01a_c,STRING,United States national variable B_Q01A_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q01A_C
+b_q01aus_c,STRING,United States national variable B_Q01AUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q01AUS_C
+b_q02bus_c,STRING,United States national variable B_Q02BUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q02BUS_C
+b_q02cus_c,STRING,United States national variable B_Q02CUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q02CUS_C
+b_q03bus_c,STRING,United States national variable B_Q03BUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q03BUS_C
+b_q12bus_c,STRING,United States national variable B_Q12BUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q12BUS_C
+b_q29cusx2_c,STRING,United States national variable B_Q29CUSX2_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q29CUSX2_C
+c_s03us_c,STRING,United States national variable C_S03US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,C_S03US_C
+c_q08c2us_c,STRING,United States national variable C_Q08C2US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,C_Q08C2US_C
+d_q05a2us_c,STRING,United States national variable D_Q05A2US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,D_Q05A2US_C
+d_q05b2us_c,STRING,United States national variable D_Q05B2US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,D_Q05B2US_C
+d_q09us_c,STRING,United States national variable D_Q09US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,D_Q09US_C
+d_q12a_c,STRING,United States national variable D_Q12A_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,D_Q12A_C
+d_q12aus_c,STRING,United States national variable D_Q12AUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,D_Q12AUS_C
+d_q16bus_c,STRING,United States national variable D_Q16BUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,D_Q16BUS_C
+d_q17bus_c,STRING,United States national variable D_Q17BUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,D_Q17BUS_C
+e_q05a2us_c,STRING,United States national variable E_Q05A2US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,E_Q05A2US_C
+e_q05b2us_c,STRING,United States national variable E_Q05B2US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,E_Q05B2US_C
+e_q08us_c,STRING,United States national variable E_Q08US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,E_Q08US_C
+j_q03cus_c,STRING,United States national variable J_Q03CUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q03CUS_C
+j_q03d1us_c,STRING,United States national variable J_Q03D1US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q03D1US_C
+j_q03d2us_c,STRING,United States national variable J_Q03D2US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q03D2US_C
+j_q04c2us_c,STRING,United States national variable J_Q04C2US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q04C2US_C
+birthrgnus_c,STRING,United States national variable BIRTHRGNUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,BIRTHRGNUS_C
+cnt_brthus_c,STRING,United States national variable CNT_BRTHUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,CNT_BRTHUS_C
+firlgrgnus_c,STRING,United States national variable FIRLGRGNUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,FIRLGRGNUS_C
+homlgrgnus_c,STRING,United States national variable HOMLGRGNUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,HOMLGRGNUS_C
+language,STRING,United States national variable LANGUAGE,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,LANGUAGE
+lng_homeus_c,STRING,United States national variable LNG_HOMEUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,LNG_HOMEUS_C
+lng_l1us_c,STRING,United States national variable LNG_L1US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,LNG_L1US_C
+lng_l2us_c,STRING,United States national variable LNG_L2US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,LNG_L2US_C
+seclgrgnus_c,STRING,United States national variable SECLGRGNUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,SECLGRGNUS_C
+racethn_4cat,STRING,United States national variable RACETHN_4CAT,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,RACETHN_4CAT
+racethn_5cat,STRING,United States national variable RACETHN_5CAT,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,RACETHN_5CAT
+leaveduus_c,STRING,United States national variable LEAVEDUUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,LEAVEDUUS_C
+isco08_cus_c,STRING,United States national variable ISCO08_CUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,ISCO08_CUS_C
+isco08_lus_c,STRING,United States national variable ISCO08_LUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,ISCO08_LUS_C
+isco08_us_c,STRING,United States national variable ISCO08_US_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,ISCO08_US_C
+isic4_cus_c,STRING,United States national variable ISIC4_CUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,ISIC4_CUS_C
+isic4_lus_c,STRING,United States national variable ISIC4_LUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,ISIC4_LUS_C
+uscip_c_c,STRING,United States national variable USCIP_C_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,USCIP_C_C
+uscip_h_c,STRING,United States national variable USCIP_H_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,USCIP_H_C
+uscip_l_c,STRING,United States national variable USCIP_L_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,USCIP_L_C
+ageg5lfsext,STRING,United States national variable AGEG5LFSEXT,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,AGEG5LFSEXT
+ageg10lfsext,STRING,United States national variable AGEG10LFSEXT,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,AGEG10LFSEXT
+age1634,STRING,United States national variable AGE1634,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,AGE1634
+age6674,STRING,United States national variable AGE6674,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,AGE6674
+intlflag,STRING,United States national variable INTLFLAG,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,INTLFLAG
+emp_6cat,STRING,United States national variable EMP_6CAT,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,EMP_6CAT
+unempflag,STRING,United States national variable UNEMPFLAG,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,UNEMPFLAG
+urban_4cat,STRING,United States national variable URBAN_4CAT,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,URBAN_4CAT
+b_q01a_isced11,STRING,United States national variable B_Q01A_ISCED11,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,B_Q01A_ISCED11
+d_q12a_isced11,STRING,United States national variable D_Q12A_ISCED11,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,D_Q12A_ISCED11
+j_q06b_isced11,STRING,United States national variable J_Q06B_ISCED11,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q06B_ISCED11
+j_q07b_isced11,STRING,United States national variable J_Q07B_ISCED11,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q07B_ISCED11
+learnatwork,FLOAT64,Index of learning at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points",LEARNATWORK
+learnatwork_wle_ca,STRING,"Index of learning at work, categorised WLE (derived)",,yes,,,no,,LEARNATWORK_WLE_CA
+readytolearn,FLOAT64,Index of readiness to learn (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points",READYTOLEARN
+readytolearn_wle_ca,STRING,"Index of readiness to learn, categorised WLE (derived)",,yes,,,no,,READYTOLEARN_WLE_CA
+icthome,FLOAT64,Index of use of ICT skills at home (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points",ICTHOME
+icthome_wle_ca,STRING,"Index of use of ICT skills at home, categorised WLE (derived)",,yes,,,no,,ICTHOME_WLE_CA
+ictwork,FLOAT64,Index of use of ICT skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points",ICTWORK
+ictwork_wle_ca,STRING,"Index of use of ICT skills at work, categorised WLE (derived)",,yes,,,no,,ICTWORK_WLE_CA
+influence,FLOAT64,Index of use of influencing skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points",INFLUENCE
+influence_wle_ca,STRING,"Index of use of influencing skills at work, categorised WLE (derived)",,yes,,,no,,INFLUENCE_WLE_CA
+numhome,FLOAT64,Index of use of numeracy skills at home (basic and advanced - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points",NUMHOME
+numhome_wle_ca,STRING,"Index of use of numeracy skills at home (basic and advanced), categorised WLE (derived)",,yes,,,no,,NUMHOME_WLE_CA
+numwork,FLOAT64,Index of use of numeracy skills at work (basic and advanced - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points",NUMWORK
+numwork_wle_ca,STRING,"Index of use of numeracy skills at work (basic and advanced), categorised WLE (derived)",,yes,,,no,,NUMWORK_WLE_CA
+planning,FLOAT64,Index of use of planning skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points",PLANNING
+planning_wle_ca,STRING,"Index of use of planning skills at work, categorised WLE (derived)",,yes,,,no,,PLANNING_WLE_CA
+readhome,FLOAT64,Index of use of reading skills at home (prose and document texts - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points",READHOME
+readhome_wle_ca,STRING,"Index of use of reading skills at home (prose and document texts), categorised WLE (derived)",,yes,,,no,,READHOME_WLE_CA
+readwork,FLOAT64,Index of use of reading skills at work (prose and document texts - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points",READWORK
+readwork_wle_ca,STRING,"Index of use of reading skills at work (prose and document texts), categorised WLE (derived)",,yes,,,no,,READWORK_WLE_CA
+taskdisc,FLOAT64,Index of use of task discretion at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points",TASKDISC
+taskdisc_wle_ca,STRING,"Index of use of task discretion at work, categorised WLE (derived)",,yes,,,no,,TASKDISC_WLE_CA
+writhome,FLOAT64,Index of use of writing skills at home (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points",WRITHOME
+writhome_wle_ca,STRING,"Index of use of writing skills at home, categorised WLE (derived)",,yes,,,no,,WRITHOME_WLE_CA
+writwork,FLOAT64,Index of use of writing skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points",WRITWORK
+writwork_wle_ca,STRING,"Index of use of writing skills at work, categorised WLE (derived)",,yes,,,no,,WRITWORK_WLE_CA
+earnhrdcl,STRING,"Hourly earnings excluding bonuses for wage and salary earners, in deciles (derived)",,yes,,,no,,EARNHRDCL
+earnhrbonusdcl,STRING,"Hourly earnings including bonuses for wage and salary earners, in deciles (derived)",,yes,,,no,,EARNHRBONUSDCL
+earnmthalldcl,STRING,"Monthly earnings including bonuses for wage and salary earners and self-employed, in deciles (derived)",,yes,,,no,,EARNMTHALLDCL
+earnflag,STRING,Earnings including bonuses reporting method (derived),,yes,,,no,,EARNFLAG
+paidwork5,STRING,Adults who have had paid work in last 5 years (derived),,yes,,,no,,PAIDWORK5
+empstat,STRING,United States national variable EMPSTAT,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,EMPSTAT
+earnhrus_c,STRING,United States national variable EARNHRUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,EARNHRUS_C
+earnhrpppus_c,STRING,United States national variable EARNHRPPPUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,EARNHRPPPUS_C
+earnhrbonusus_c,STRING,United States national variable EARNHRBONUSUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,EARNHRBONUSUS_C
+earnhrbonuspppus_c,STRING,United States national variable EARNHRBONUSPPPUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,EARNHRBONUSPPPUS_C
+earnmthus_c,STRING,United States national variable EARNMTHUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,EARNMTHUS_C
+earnmthpppus_c,STRING,United States national variable EARNMTHPPPUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,EARNMTHPPPUS_C
+earnmthbonusus_c,STRING,United States national variable EARNMTHBONUSUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,EARNMTHBONUSUS_C
+earnmthbonuspppus_c,STRING,United States national variable EARNMTHBONUSPPPUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,EARNMTHBONUSPPPUS_C
+earnmthallus_c,STRING,United States national variable EARNMTHALLUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,EARNMTHALLUS_C
+earnmthallpppus_c,STRING,United States national variable EARNMTHALLPPPUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,EARNMTHALLPPPUS_C
+earnmthselfpppus_c,STRING,United States national variable EARNMTHSELFPPPUS_C,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,EARNMTHSELFPPPUS_C
