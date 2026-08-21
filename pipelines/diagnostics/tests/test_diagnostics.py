@@ -98,6 +98,10 @@ def test_build_query_rejects_non_positive_days():
     """`days` is interpolated, not bound — so it must be validated."""
     for bad in (0, -1, "7", True):
         with pytest.raises(ValueError):
+            # pyrefly: ignore [bad-argument-type]
+            # Passing the wrong type on purpose: the guard exists because `days`
+            # is interpolated into the SQL, so it must reject what the annotation
+            # already forbids.
             build_query("basedosdados", bad)
 
 
