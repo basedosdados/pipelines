@@ -145,7 +145,14 @@ def au_ato_abr_flow(
                 run_dbt(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    dbt_command="run/test",
+                    dbt_command="run",
+                    target="dev",
+                )
+            for table in tables:
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="test",
                     target="dev",
                 )
             return
@@ -164,7 +171,14 @@ def au_ato_abr_flow(
             run_dbt(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                dbt_command="run/test",
+                dbt_command="run",
+                target="prod",
+            )
+        for table in tables:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
                 target="prod",
             )
 
