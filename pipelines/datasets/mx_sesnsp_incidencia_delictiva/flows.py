@@ -181,7 +181,7 @@ def mx_sesnsp_incidencia_delictiva_flow(
 # few days; the source-poll guard no-ops until a new month actually appears.
 # pyrefly: ignore [missing-attribute]
 mx_sesnsp_incidencia_delictiva_flow.deploy_schedules = [
-    {"cron": "0 9 20,21,22,23,24 * *", "timezone": "America/Mexico_City"}
+    {"cron": "20 9 20,21,22,23,24 * *", "timezone": "America/Mexico_City"}
 ]
 # The municipal melt holds ~1.7M rows in pandas; give the worker headroom.
 # pyrefly: ignore [missing-attribute]

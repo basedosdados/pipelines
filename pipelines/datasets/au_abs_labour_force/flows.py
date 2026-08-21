@@ -200,7 +200,7 @@ def au_abs_labour_force_flow(
 # after the morning release); the source-poll guard no-ops until a new month lands.
 # pyrefly: ignore [missing-attribute]
 au_abs_labour_force_flow.deploy_schedules = [
-    {"cron": "0 6 14-27 * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "30 6 14-27 * *", "timezone": "America/Sao_Paulo"}
 ]
 # openpyxl reads the ~38 MB SEM1 pivot; give the worker headroom.
 # pyrefly: ignore [missing-attribute]
