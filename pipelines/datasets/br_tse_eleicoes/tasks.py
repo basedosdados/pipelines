@@ -7,7 +7,7 @@ from typing import TypeVar
 
 from prefect import task
 
-from pipelines.crawler.tse_eleicoes.utils import (
+from pipelines.datasets.br_tse_eleicoes.utils import (
     flows_catalog,
 )
 

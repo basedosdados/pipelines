@@ -12,7 +12,7 @@ import basedosdados as bd
 import pandas as pd
 import requests
 
-from pipelines.crawler.tse_eleicoes.constants import (
+from pipelines.datasets.br_tse_eleicoes.constants import (
     constants as tse_constants,
 )
 
