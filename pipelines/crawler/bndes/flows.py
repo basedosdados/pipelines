@@ -154,7 +154,6 @@ def _run_operacoes_exportacao_bens(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
@@ -168,7 +167,6 @@ def _run_operacoes_exportacao_bens(
         dataset_id (str): ID do dataset no GCP/BigQuery.
         table_id (str): ID da tabela no GCP/BigQuery.
         materialize_after_dump (bool): se False, para apos o dbt em dev (nao toca prod).
-        dbt_alias (bool): passa adiante para run_dbt.
         update_metadata (bool): se True, registra materializacao e commita o Update da fonte.
         target (str): target do dbt na etapa de prod.
         force_run (bool): ignora o early-return quando nao ha novidade.
@@ -219,7 +217,6 @@ def _run_operacoes_exportacao_bens(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -239,7 +236,6 @@ def _run_operacoes_exportacao_bens(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 

@@ -166,7 +166,7 @@ de engenharia — recursos distintos, fora desta tabela. Sinal de atualização 
   e divisões da CNAE"), então **não vira FK de CNAE** — mesma decisão da
   `operacoes_indiretas_automaticas`.
 - **`tipo_garantia` é multivalorado e precisa de normalização.** A operação pode combinar
-  vários tipos, separados por `/`, e a fonte varia espaçamento e caixa (`Real / Pessoal` e
+  vários tipos, separados por `/`, e a fonte varia o espaçamento e a caixa (`Real / Pessoal` e
   `Real/ Pessoal`; `Seguro de crédito/FGE`, `Seguro de Crédito / FGE` e
   `Seguro de crédito/ FGE`). O `clean` padroniza o separador de combinação para ` / `,
   protegendo antes os rótulos que têm barra no próprio nome (`Seguro de crédito/FGE`,
