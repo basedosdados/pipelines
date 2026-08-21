@@ -71,6 +71,126 @@ MONTHS = {
 # `.../personal/cni_sspc_gob_mx/`.
 _TOKEN_RE = re.compile(r"/personal/cni_sspc_gob_mx/([^?/]+)")
 
+# Canonical spelling of every source header the melt reads. Matching is done on
+# the normalized key (see `_canonical_key`), so a case change, added whitespace
+# or dropped punctuation in a future SESNSP release still resolves.
+_SOURCE_COLUMNS = (
+    "Año",
+    "Clave_Ent",
+    "Entidad",
+    "Cve. Municipio",
+    "Municipio",
+    "Bien jurídico afectado",
+    "Tipo de delito",
+    "Subtipo de delito",
+    "Modalidad",
+    "Sexo",
+    "Rango de edad",
+    *MONTHS,
+)
+
+# Extra normalized keys that map onto a canonical header. Accent-stripping alone
+# cannot reach these: Spanish exports routinely spell "Año" as "anio" to dodge
+# the ñ, which normalizes to a different key.
+_HEADER_ALIASES = {
+    "anio": "Año",
+    "annio": "Año",
+    "cvemun": "Cve. Municipio",
+    "clavemunicipio": "Cve. Municipio",
+    "claveent": "Clave_Ent",
+    "cveent": "Clave_Ent",
+    "rangoedad": "Rango de edad",
+}
+
+# utf-8 first: it raises on latin-1 accented bytes, so a genuine latin-1 file
+# falls through. The reverse order would silently mojibake a utf-8 file, since
+# latin-1 decodes every byte sequence.
+_ENCODINGS = ("utf-8-sig", "latin-1")
+
+
+def _canonical_key(name: str) -> str:
+    """Reduce a header cell to an accent-, case- and punctuation-free key.
+
+    ``"Año"``, ``"AÑO"`` and ``"anio "`` all collapse to ``"ano"``; ``"Cve.
+    Municipio"`` collapses to ``"cvemunicipio"``.
+
+    Args:
+        name: A raw header cell.
+
+    Returns:
+        The normalized matching key.
+    """
+    text = unicodedata.normalize("NFKD", str(name))
+    text = "".join(c for c in text if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9]+", "", text.lower())
+
+
+def normalize_headers(df: pd.DataFrame) -> pd.DataFrame:
+    """Rename raw headers to the canonical spelling the melt expects.
+
+    SESNSP re-exports these files monthly and the header spelling is not stable
+    across releases. Renaming through `_canonical_key` absorbs case changes,
+    stray whitespace and dropped punctuation without touching the melt.
+
+    Note this does *not* repair mojibake — a utf-8 file decoded as latin-1 turns
+    ``"Año"`` into ``"AÃ±o"``, whose key is ``"aao"``. That case is handled
+    upstream by `_read_source_csv` trying utf-8 first.
+
+    Args:
+        df: The wide frame as read from the raw CSV.
+
+    Returns:
+        The same frame with recognized headers renamed in place.
+    """
+    lookup = {_canonical_key(c): c for c in _SOURCE_COLUMNS}
+    lookup.update(_HEADER_ALIASES)
+    rename = {}
+    for actual in df.columns:
+        canonical = lookup.get(_canonical_key(actual))
+        if canonical is not None and canonical != actual:
+            rename[actual] = canonical
+    if rename:
+        log.info("normalized %s header(s): %s", len(rename), rename)
+    return df.rename(columns=rename)
+
+
+def _read_source_csv(csv_path: Path) -> pd.DataFrame:
+    """Read one wide SESNSP CSV, tolerating an encoding or header-spelling change.
+
+    The 2026-08 release broke the pipeline with ``KeyError: 'Año'`` — the
+    signature of an accented header that no longer resolves. Rather than pin a
+    second guess, try each candidate encoding and accept the first whose header
+    yields a usable year column after normalization.
+
+    Args:
+        csv_path: The raw wide CSV.
+
+    Returns:
+        The frame with canonical headers.
+
+    Raises:
+        ValueError: If no candidate encoding produces a year column. The message
+            carries the decoded header so the next source change is one log line
+            to diagnose, not a pandas traceback.
+    """
+    attempts: list[tuple[str, list[str]]] = []
+    for encoding in _ENCODINGS:
+        try:
+            df = pd.read_csv(csv_path, encoding=encoding, dtype=str)
+        except UnicodeDecodeError:
+            continue
+        df = normalize_headers(df)
+        if "Año" in df.columns:
+            log.info("%s: decoded as %s", csv_path.name, encoding)
+            return df
+        attempts.append((encoding, list(df.columns)[:12]))
+
+    detail = "; ".join(f"{enc} -> {cols}" for enc, cols in attempts)
+    raise ValueError(
+        f"{csv_path.name}: no year column after trying {list(_ENCODINGS)}. "
+        f"The SESNSP header changed. Decoded headers: {detail}"
+    )
+
 
 # ── download ────────────────────────────────────────────────────────────────
 def _norm(text: str) -> str:
@@ -270,7 +390,7 @@ def melt_wide(df: pd.DataFrame, muni: bool, victimas: bool) -> pd.DataFrame:
     they live in br_bd_diretorios_mx.
 
     Args:
-        df: A wide chunk read from the raw latin-1 CSV (all-string).
+        df: A wide chunk with canonical headers (all-string).
         muni: True for municipal tables (keeps ``id_municipio``).
         victimas: True for víctimas tables (keeps ``sexo``/``rango_edad``).
 
@@ -384,7 +504,7 @@ def clean_table(
     """Clean one table's wide CSV into partitioned parquet.
 
     Args:
-        csv_path: The raw latin-1 CSV.
+        csv_path: The raw wide CSV (encoding resolved by `_read_source_csv`).
         table: Table slug.
         output_dir: Root output directory.
 
@@ -394,7 +514,7 @@ def clean_table(
     """
     muni, victimas = ONGOING_TABLES[table]
     log.info("%s <- %s", table, csv_path.name)
-    df = pd.read_csv(csv_path, encoding="latin-1", dtype=str)
+    df = _read_source_csv(csv_path)
     total = 0
     max_ym: tuple[int, int] | None = None
     years = sorted(
