@@ -23,6 +23,7 @@ from pipelines.datasets.br_senado_dados_abertos.senado_api import (
     dig,
     get_json,
     get_json_safe,
+    get_xml_records,
 )
 
 
@@ -296,18 +297,43 @@ SENADOR_COLS = [
 ]
 
 
+def _legislatura_parlamentares(leg: int) -> list[dict]:
+    """Return every parlamentar of one legislature.
+
+    Read as XML rather than JSON: `senador/lista/legislatura/{leg}` lost its
+    `ListaParlamentarLegislatura` envelope some time between 2026-08-13 and
+    2026-08-20, and its JSON form now collapses the whole roster into a single
+    `Parlamentar` object. See `get_xml_records`.
+
+    The old enveloped JSON is still accepted, so a restored endpoint needs no
+    change here.
+
+    Args:
+        leg: Legislature number.
+
+    Returns:
+        One dict per parlamentar; empty when the legislature has no roster.
+    """
+    enveloped = get_json_safe(f"/senador/lista/legislatura/{leg}")
+    parlamentares = _as_list(
+        dig(
+            enveloped,
+            "ListaParlamentarLegislatura",
+            "Parlamentares",
+            "Parlamentar",
+        )
+    )
+    if parlamentares:
+        return parlamentares
+    return get_xml_records(
+        f"/senador/lista/legislatura/{leg}", record_tag="Parlamentar"
+    )
+
+
 def clean_senador() -> pd.DataFrame:
     rows: list[dict] = []
     for leg in range(LEG_START, CURRENT_LEG + 1):
-        d = get_json(f"/senador/lista/legislatura/{leg}")
-        for p in _as_list(
-            dig(
-                d,
-                "ListaParlamentarLegislatura",
-                "Parlamentares",
-                "Parlamentar",
-            )
-        ):
+        for p in _legislatura_parlamentares(leg):
             ip = p.get("IdentificacaoParlamentar", {}) or {}
             ft = s(ip.get("FormaTratamento"))
             rows.append(
@@ -329,6 +355,15 @@ def clean_senador() -> pd.DataFrame:
                     "_leg": leg,
                 }
             )
+    if not rows:
+        # Fail loudly. The 2026-08 upstream regression made the JSON form of this
+        # endpoint return 1 of 245 senators, so an empty or thin roster must never
+        # be written as if it were the real one.
+        raise RuntimeError(
+            "senador: no parlamentares returned for legislaturas "
+            f"{LEG_START}..{CURRENT_LEG} — the dados-abertos roster endpoint "
+            "changed shape again; inspect /senador/lista/legislatura/{leg}"
+        )
     df = pd.DataFrame(rows)
     df = df[df["id_senador"].notna()].copy()
     # A senator recurs across legislatures; keep one row deterministically:
