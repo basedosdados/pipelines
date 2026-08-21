@@ -2,14 +2,29 @@
 Flows for us_fec_campaign_finance — Prefect 3.
 
 FEC bulk campaign-finance data. The FEC republishes the **current** election cycle
-daily and freezes past cycles, so a scheduled run re-pulls only the current cycle and
-overwrites that one partition. Every frozen cycle stays in the staging bucket
-untouched, and the dbt models — plain `materialized="table"` — rebuild the full
-1980-present table from all of them.
+daily, so a scheduled run re-pulls only that cycle and overwrites its one partition.
+Every other cycle stays in the staging bucket untouched, and the dbt models — plain
+`materialized="table"` — rebuild the full 1980-present table from all of them.
 
-That is why the upload uses ``dump_mode="append"``. "overwrite" would delete the whole
-staging table and, via ``tb.delete(mode="all")``, the prod table with it — throwing
-away 45 years of frozen cycles to refresh one. "append" with a deterministic blob path
+**Past cycles are NOT frozen, and this flow does not pick up their changes.** Amendments
+keep landing in a closed cycle for years; the bulk files are re-published when they do.
+Checking ``Last-Modified`` on the individual-contributions zips (2026-08-20)::
+
+    1980, 1996 -> 2017-08-31    2020 -> 2024-12-29
+    2008       -> 2021-11-01    2024 -> 2026-03-08
+    2016       -> 2022-10-16    2022 -> 2026-08-16   (four days earlier)
+
+Only the oldest cycles look settled. Since ``refresh_cycle`` downloads just the current
+cycle, an amendment filed today against 2022 never reaches these tables — the data is
+correct as of each cycle's last ingest, not as of today. Note the full table rebuild does
+**not** mitigate this: staging for past cycles never changes, so every rebuilt past
+partition is recomputed byte-identical. Fixing it means widening the refresh window to
+the current cycle plus one or two prior, which pairs naturally with an incremental
+(``insert_overwrite`` on ``year``) materialization.
+
+The upload uses ``dump_mode="append"``. "overwrite" would delete the whole staging table
+and, via ``tb.delete(mode="all")``, the prod table with it — throwing away 45 years of
+history to refresh one cycle. "append" with a deterministic blob path
 (``staging/<ds>/<table>/year=<CYCLE>/data.parquet``) replaces exactly the current
 cycle's partition, which is the intended semantics.
 
@@ -18,8 +33,11 @@ window: the most recent 6 months are pro-only, everything older is free. The
 registration tables (candidate, committee, candidate_committee_link) have no date
 column and stay fully free.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_fec_campaign_finance_flow``;
-the dev pool ignores the schedule, the prod pool activates it.
+Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_fec_campaign_finance_flow``.
+The dev pool strips the schedule entirely. The prod pool keeps it but deploys
+``paused=True``, and the backend sync leaves an unknown deployment paused — arming is a
+manual step in Django admin (``/admin/admin_data_tools/disabledflowschedule/``), not a
+consequence of merging.
 """
 
 import shutil
