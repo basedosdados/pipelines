@@ -455,7 +455,7 @@ def melt_wide(
     if is_future.any():
         log.info(
             "dropped %s row(s) after %s-%02d (source pads future months with 0)",
-            f"{int(is_future.sum()):,}",
+            f"{is_future.sum():,}",
             max_year,
             max_month,
         )
