@@ -226,7 +226,7 @@ def us_sec_edgar_flow(
 # pyrefly: ignore [missing-attribute]
 us_sec_edgar_flow.deploy_schedules = [
     {
-        "cron": "0 16 5,8,11,14,17,20 1,4,7,10 *",
+        "cron": "55 16 5,8,11,14,17,20 1,4,7,10 *",
         "timezone": "America/Sao_Paulo",
     }
 ]
