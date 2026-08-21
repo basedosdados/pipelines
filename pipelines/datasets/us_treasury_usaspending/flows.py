@@ -141,34 +141,38 @@ def us_treasury_usaspending_flow(
         )
         print(f"row counts: {result['row_counts']}")
 
-        # Dev: upload staging for every table, materialize every table, and
-        # only then test. Tests read sibling models (the dictionary-coverage
-        # test references the dicionario model), so interleaving run and test
-        # per table fails on the first table in a clean environment.
-        for table in REFRESHED_TABLES:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="append",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target="dev",
-            )
-        for table in REFRESHED_TABLES:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads, while prod runs the
+        # same models and the same tests seconds later. On tables this size that
+        # duplication is a large share of the daily BigQuery byte quota.
         if not materialize_to_prod:
+            # Upload staging for every table, materialize every table, and only
+            # then test. Tests read sibling models (the dictionary-coverage test
+            # references the dicionario model), so interleaving run and test per
+            # table fails on the first table in a clean environment.
+            for table in REFRESHED_TABLES:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="append",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run",
+                    target="dev",
+                )
+            for table in REFRESHED_TABLES:
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="test",
+                    target="dev",
+                )
             return
 
         for table in REFRESHED_TABLES:
@@ -220,10 +224,17 @@ def us_treasury_usaspending_flow(
 
 
 # The archive is rebuilt monthly, in the first half of the month. Poll across a
-# few days at 16:00 BRT; the source-poll guard no-ops until a new build lands.
+# few days; the source-poll guard no-ops until a new build lands.
+#
+# 17:20 BRT, not 16:00. The hour normally follows the source's publication time,
+# but this source stamps builds with a date and no time, so the hour is free —
+# and hour 16 is full: every five-minute slot from :00 to :55 is taken, so no
+# minute there can be both unused and five minutes clear of a neighbour. Hour 17
+# has nothing in it. Minute 0 is the worst instant to pick regardless, with 15+
+# pipelines already on it across the day.
 # pyrefly: ignore [missing-attribute]
 us_treasury_usaspending_flow.deploy_schedules = [
-    {"cron": "0 16 8,9,10,11,12 * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "20 17 8,9,10,11,12 * *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step streams CSV in batches, but a 297-column arrow batch plus the
 # parquet writer still wants headroom, and the archives are several GB on disk.
