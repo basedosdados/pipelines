@@ -71,6 +71,128 @@ MONTHS = {
 # `.../personal/cni_sspc_gob_mx/`.
 _TOKEN_RE = re.compile(r"/personal/cni_sspc_gob_mx/([^?/]+)")
 
+# Canonical spelling of every source header the melt reads. Matching is done on
+# the normalized key (see `_canonical_key`), so a case change, added whitespace
+# or dropped punctuation in a future SESNSP release still resolves.
+_SOURCE_COLUMNS = (
+    "Año",
+    "Clave_Ent",
+    "Entidad",
+    "Cve. Municipio",
+    "Municipio",
+    "Bien jurídico afectado",
+    "Tipo de delito",
+    "Subtipo de delito",
+    "Modalidad",
+    "Sexo",
+    "Rango de edad",
+    *MONTHS,
+)
+
+# Extra normalized keys that map onto a canonical header. Accent-stripping alone
+# cannot reach these: Spanish exports routinely spell "Año" as "anio" to dodge
+# the ñ, which normalizes to a different key.
+_HEADER_ALIASES = {
+    "anio": "Año",
+    "annio": "Año",
+    "cvemun": "Cve. Municipio",
+    "clavemunicipio": "Cve. Municipio",
+    "claveent": "Clave_Ent",
+    "cveent": "Clave_Ent",
+    "rangoedad": "Rango de edad",
+}
+
+# utf-8 first: it raises on latin-1 accented bytes, so a genuine latin-1 file
+# falls through. The reverse order would silently mojibake a utf-8 file, since
+# latin-1 decodes every byte sequence.
+_ENCODINGS = ("utf-8-sig", "latin-1")
+
+
+def _canonical_key(name: object) -> str:
+    """Reduce a header cell to an accent-, case- and punctuation-free key.
+
+    ``"Año"``, ``"AÑO"`` and ``"anio "`` all collapse to ``"ano"``; ``"Cve.
+    Municipio"`` collapses to ``"cvemunicipio"``.
+
+    Args:
+        name: A raw header cell. Typed `object` because a pandas column label is
+            not guaranteed to be a str — an all-numeric header row reads back as
+            ints — so the `str()` below is load-bearing, not redundant.
+
+    Returns:
+        The normalized matching key.
+    """
+    text = unicodedata.normalize("NFKD", str(name))
+    text = "".join(c for c in text if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9]+", "", text.lower())
+
+
+def normalize_headers(df: pd.DataFrame) -> pd.DataFrame:
+    """Rename raw headers to the canonical spelling the melt expects.
+
+    SESNSP re-exports these files monthly and the header spelling is not stable
+    across releases. Renaming through `_canonical_key` absorbs case changes,
+    stray whitespace and dropped punctuation without touching the melt.
+
+    Note this does *not* repair mojibake — a utf-8 file decoded as latin-1 turns
+    ``"Año"`` into ``"AÃ±o"``, whose key is ``"aao"``. That case is handled
+    upstream by `_read_source_csv` trying utf-8 first.
+
+    Args:
+        df: The wide frame as read from the raw CSV.
+
+    Returns:
+        The same frame with recognized headers renamed in place.
+    """
+    lookup = {_canonical_key(c): c for c in _SOURCE_COLUMNS}
+    lookup.update(_HEADER_ALIASES)
+    rename = {}
+    for actual in df.columns:
+        canonical = lookup.get(_canonical_key(actual))
+        if canonical is not None and canonical != actual:
+            rename[actual] = canonical
+    if rename:
+        log.info("normalized %s header(s): %s", len(rename), rename)
+    return df.rename(columns=rename)
+
+
+def _read_source_csv(csv_path: Path) -> pd.DataFrame:
+    """Read one wide SESNSP CSV, tolerating an encoding or header-spelling change.
+
+    The 2026-08 release broke the pipeline with ``KeyError: 'Año'`` — the
+    signature of an accented header that no longer resolves. Rather than pin a
+    second guess, try each candidate encoding and accept the first whose header
+    yields a usable year column after normalization.
+
+    Args:
+        csv_path: The raw wide CSV.
+
+    Returns:
+        The frame with canonical headers.
+
+    Raises:
+        ValueError: If no candidate encoding produces a year column. The message
+            carries the decoded header so the next source change is one log line
+            to diagnose, not a pandas traceback.
+    """
+    attempts: list[tuple[str, list[str]]] = []
+    for encoding in _ENCODINGS:
+        try:
+            df = pd.read_csv(csv_path, encoding=encoding, dtype=str)
+        except UnicodeDecodeError:
+            continue
+        df = normalize_headers(df)
+        if "Año" in df.columns:
+            log.info("%s: decoded as %s", csv_path.name, encoding)
+            return df
+        attempts.append((encoding, list(df.columns)[:12]))
+
+    detail = "; ".join(f"{enc} -> {cols}" for enc, cols in attempts)
+    raise ValueError(
+        f"{csv_path.name}: no year column after trying {list(_ENCODINGS)}. "
+        f"The SESNSP header changed. Decoded headers: {detail}"
+    )
+
 
 # ── download ────────────────────────────────────────────────────────────────
 def _norm(text: str) -> str:
@@ -261,7 +383,12 @@ def arch_order(table: str) -> list[str]:
 
 
 # ── transform (shared with the validated bootstrap) ─────────────────────────
-def melt_wide(df: pd.DataFrame, muni: bool, victimas: bool) -> pd.DataFrame:
+def melt_wide(
+    df: pd.DataFrame,
+    muni: bool,
+    victimas: bool,
+    max_period: tuple[int, int] | None = None,
+) -> pd.DataFrame:
     """Melt one wide chunk to the long architecture columns.
 
     Melts the 12 Spanish month columns (Enero..Diciembre) into ``mes`` (1..12) +
@@ -269,10 +396,20 @@ def melt_wide(df: pd.DataFrame, muni: bool, victimas: bool) -> pd.DataFrame:
     yet published). Drops the geography *name* columns (Entidad, Municipio) —
     they live in br_bd_diretorios_mx.
 
+    Rows for a period **after** ``max_period`` are dropped. Blank-means-unpublished
+    was the only guard until the 2026-08 release began padding the rest of the
+    calendar year with explicit ``0`` instead of leaving it blank, which pushed the
+    reported source coverage to 2026-12 while real data ended months earlier. A
+    count for a month that has not happened yet is padding, not an observation, and
+    letting it through makes the pipeline register coverage it does not have.
+
     Args:
-        df: A wide chunk read from the raw latin-1 CSV (all-string).
+        df: A wide chunk with canonical headers (all-string).
         muni: True for municipal tables (keeps ``id_municipio``).
         victimas: True for víctimas tables (keeps ``sexo``/``rango_edad``).
+        max_period: Latest ``(year, month)`` to keep, inclusive. Defaults to the
+            current month. Passed explicitly by tests so the transform stays
+            deterministic.
 
     Returns:
         The long frame with the architecture columns present.
@@ -304,6 +441,25 @@ def melt_wide(df: pd.DataFrame, muni: bool, victimas: bool) -> pd.DataFrame:
     long = long.rename(columns=id_map)
     long["ano"] = pd.to_numeric(long["Año"], errors="coerce").astype("Int64")
     long["mes"] = long["_mes"].map(MONTHS).astype("Int64")
+
+    if max_period is None:
+        today = pd.Timestamp.today()
+        max_period = (today.year, today.month)
+    max_year, max_month = max_period
+    # NA year/month are left untouched — `fillna(False)` keeps them out of the
+    # "future" mask so this only ever removes rows it can positively date.
+    is_future = (long["ano"] > max_year) | (
+        (long["ano"] == max_year) & (long["mes"] > max_month)
+    )
+    is_future = is_future.fillna(False).astype(bool)
+    if is_future.any():
+        log.info(
+            "dropped %s row(s) after %s-%02d (source pads future months with 0)",
+            f"{is_future.sum():,}",
+            max_year,
+            max_month,
+        )
+        long = long[~is_future].copy()
     long["id_entidad"] = (
         long["id_entidad"].astype(str).str.strip().str.zfill(2)
     )
@@ -314,6 +470,56 @@ def melt_wide(df: pd.DataFrame, muni: bool, victimas: bool) -> pd.DataFrame:
     long["cantidad"] = pd.to_numeric(long["cantidad"], errors="coerce").astype(
         "Int64"
     )
+    return long
+
+
+def trim_trailing_empty_months(
+    long: pd.DataFrame, table: str = "", year: int | None = None
+) -> pd.DataFrame:
+    """Drop trailing months of the newest year that are entirely zero.
+
+    The future-period filter in `melt_wide` removes months that cannot have
+    happened. This removes the ones that *have* happened but are not published
+    yet — which used to be blank, and since the 2026-08 release are padded with an
+    explicit ``0`` on every row instead.
+
+    Measured on that release (``estatal_delitos``, ano=2026): months 1-7 carry
+    150k-175k events across ~2,000 non-zero rows each, while months 8-12 each
+    carry 3,648 rows summing to exactly 0, with no non-zero row at all. A
+    nationwide month of literally zero recorded crime is padding, not an
+    observation.
+
+    Only *trailing* months are dropped, and only for the year the caller passes as
+    newest, so no historical month can be removed and a genuine zero inside the
+    series is left alone.
+
+    Args:
+        long: One year's melted rows.
+        table: Table slug, for the log line.
+        year: The year being trimmed, for the log line.
+
+    Returns:
+        The frame with trailing all-zero months removed.
+    """
+    if long.empty:
+        return long
+    totals = long.groupby("mes")["cantidad"].sum()
+    non_zero = [m for m in sorted(totals.index) if totals[m] > 0]
+    if not non_zero:
+        log.info("%s: ano=%s is entirely zero, dropping", table, year)
+        return long.iloc[0:0]
+    last_real = max(non_zero)
+    dropped = [m for m in sorted(totals.index) if m > last_real]
+    if dropped:
+        log.info(
+            "%s: ano=%s dropping trailing all-zero month(s) %s (data ends %s-%02d)",
+            table,
+            year,
+            dropped,
+            year,
+            last_real,
+        )
+        long = long[long["mes"] <= last_real].copy()
     return long
 
 
@@ -384,7 +590,7 @@ def clean_table(
     """Clean one table's wide CSV into partitioned parquet.
 
     Args:
-        csv_path: The raw latin-1 CSV.
+        csv_path: The raw wide CSV (encoding resolved by `_read_source_csv`).
         table: Table slug.
         output_dir: Root output directory.
 
@@ -394,21 +600,33 @@ def clean_table(
     """
     muni, victimas = ONGOING_TABLES[table]
     log.info("%s <- %s", table, csv_path.name)
-    df = pd.read_csv(csv_path, encoding="latin-1", dtype=str)
+    df = _read_source_csv(csv_path)
     total = 0
     max_ym: tuple[int, int] | None = None
     years = sorted(
         pd.to_numeric(df["Año"], errors="coerce").dropna().astype(int).unique()
     )
+    written_years = 0
+    latest_year = years[-1] if years else None
     for y in years:
         chunk = df[pd.to_numeric(df["Año"], errors="coerce") == y]
         long = melt_wide(chunk, muni, victimas)
+        if y == latest_year:
+            long = trim_trailing_empty_months(long, table, y)
+        if not len(long):
+            # Every row of this year was dropped as a future period. Writing the
+            # partition anyway would create an empty ano=<year> in BigQuery and a
+            # year of "coverage" holding no observations.
+            log.info("%s: ano=%s has no published rows, skipping", table, y)
+            continue
         total += write_partition(long, table, y, output_dir)
-        if len(long):
-            mmax = int(long["mes"].dropna().max())
-            if max_ym is None or (y, mmax) > max_ym:
-                max_ym = (y, mmax)
-    log.info("%s: %s rows across %s year(s)", table, f"{total:,}", len(years))
+        written_years += 1
+        mmax = int(long["mes"].dropna().max())
+        if max_ym is None or (y, mmax) > max_ym:
+            max_ym = (y, mmax)
+    log.info(
+        "%s: %s rows across %s year(s)", table, f"{total:,}", written_years
+    )
     return total, max_ym
 
 

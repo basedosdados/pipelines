@@ -118,23 +118,27 @@ def br_sedec_desastres_flow(
 
         dump_mode = "append"
 
-        upload_to_gcs(
-            data_path=data_path,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            bucket_name="basedosdados-dev",
-            dump_mode=dump_mode,
-            source_format="parquet",
-        )
-        run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            dbt_alias=dbt_alias,
-            target="dev",
-        )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_after_dump:
+            upload_to_gcs(
+                data_path=data_path,
+                dataset_id=dataset_id,
+                table_id=table_id,
+                bucket_name="basedosdados-dev",
+                dump_mode=dump_mode,
+                source_format="parquet",
+            )
+            run_dbt(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                dbt_command="run/test",
+                dbt_alias=dbt_alias,
+                target="dev",
+            )
             return
 
         upload_to_gcs(
@@ -171,7 +175,7 @@ def br_sedec_desastres_flow(
 # executada à mão pelo run_local.py. Se o IP for liberado, descomentar:
 #
 # br_sedec_desastres_flow.deploy_schedules = [
-#     {"cron": "0 9 1 * *", "timezone": "America/Sao_Paulo"}
+#     {"cron": "10 9 1 * *", "timezone": "America/Sao_Paulo"}
 # ]
 
 

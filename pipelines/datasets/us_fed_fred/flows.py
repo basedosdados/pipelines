@@ -128,35 +128,39 @@ def us_fed_fred_flow(
 
         tables = constants.ALL_TABLES.value
 
-        # Dev: upload + run ALL tables first, THEN test. The observation<->series
-        # relationships test runs during each table's test phase and needs BOTH
-        # tables present. Since the overwrite upload deletes each table before its
-        # run, a per-table run/test would test one table while the other is still
-        # absent — so run and test are split into separate passes.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target="dev",
-            )
-        for table in tables:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: upload + run ALL tables first, THEN test. The observation<->series
+            # relationships test runs during each table's test phase and needs BOTH
+            # tables present. Since the overwrite upload deletes each table before its
+            # run, a per-table run/test would test one table while the other is still
+            # absent — so run and test are split into separate passes.
+            for table in tables:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="overwrite",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run",
+                    target="dev",
+                )
+            for table in tables:
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="test",
+                    target="dev",
+                )
             return
 
         # Prod: upload + run ALL tables first, THEN test (see the dev-phase note).
@@ -202,5 +206,5 @@ def us_fed_fred_flow(
 # observation, so a plain daily cron is cheap.
 # pyrefly: ignore [missing-attribute]
 us_fed_fred_flow.deploy_schedules = [
-    {"cron": "0 21 * * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "25 21 * * *", "timezone": "America/Sao_Paulo"}
 ]

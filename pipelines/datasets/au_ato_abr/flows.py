@@ -126,24 +126,35 @@ def au_ato_abr_flow(
 
         tables = constants.ALL_TABLES.value
 
-        # Dev: upload staging (overwrite with the new snapshot) + materialize/test.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: upload staging (overwrite with the new snapshot) + materialize/test.
+            for table in tables:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="overwrite",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run",
+                    target="dev",
+                )
+            for table in tables:
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="test",
+                    target="dev",
+                )
             return
 
         # Prod: upload staging + materialize/test (incremental dbt appends the
@@ -160,7 +171,14 @@ def au_ato_abr_flow(
             run_dbt(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                dbt_command="run/test",
+                dbt_command="run",
+                target="prod",
+            )
+        for table in tables:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
                 target="prod",
             )
 
@@ -192,7 +210,7 @@ def au_ato_abr_flow(
 # snapshot actually appears.
 # pyrefly: ignore [missing-attribute]
 au_ato_abr_flow.deploy_schedules = [
-    {"cron": "0 16 * * 1,2,3,4", "timezone": "America/Sao_Paulo"}
+    {"cron": "30 16 * * 1,2,3,4", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step streams from the ZIPs and flushes in 400k-row chunks, but the
 # download is ~1 GB; give the worker headroom.

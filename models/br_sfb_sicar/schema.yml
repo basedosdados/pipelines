@@ -2,56 +2,408 @@
 version: 2
 models:
   - name: br_sfb_sicar__area_imovel
-    description: >
-      Esta tabela contém o polígono de demarcação da área dos imóveis com cadastro
-      ambiental rural. O código do CAR não identifica uma linha: quando há
-      duplicidade, a fonte cancela um dos registros e publica os dois, sob o mesmo
-      código.
+    description: >-
+      Perímetro e atributos declaratórios dos imóveis rurais cadastrados no Cadastro
+      Ambiental
+      Rural (CAR/SICAR). Uma linha por imóvel por snapshot da base.
     tests:
       - custom_unique_combinations_of_columns:
-          combination_of_columns: [id_imovel, data_extracao]
+          combination_of_columns: [data_extracao, id_imovel]
+          proportion_allowed_failures: 0.005
       - not_null_proportion_multiple_columns:
-          at_least: 0.95
+          at_least: 0.05
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [status, tipo]
           dictionary_model: ref('br_sfb_sicar__dicionario')
     columns:
-      - name: data_atualizacao_car
-        description: Data de atualização dos dados na fonte original. O data de atualização
-          pode variar a depender da Unidade da Federação.
+      - name: data_extracao
+        description: Data de disponibilização (snapshot) da base do CAR para a Unidade
+          da Federação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__data')
               field: data.data
       - name: sigla_uf
-        description: Sigla da Unidade da Federação (UF) onde se localiza o cadastro
+        description: Sigla da Unidade da Federação onde se localiza o imóvel
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
       - name: id_municipio
-        description: ID Município - IBGE 7 Dígitos onde se localiza o cadastro
+        description: Identificador do município (IBGE, 7 dígitos) onde se localiza
+          o imóvel
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
       - name: id_imovel
-        description: Código de Inscrição no do Cadastro Ambiental Rural (CAR)
-      - name: modulos_fiscais
-        description: Quantidade de módulos fiscais do imóvel
-      - name: area
-        description: Área do imóvel
-      - name: status
-        description: Status do cadastro do imóvel
+        description: Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)
       - name: tipo
-        description: Tipo do Imóvel Rural
+        description: >-
+          Tipo do imóvel rural (IRU Imóvel Rural, AST Assentamento de Reforma Agrária,
+          PCT Povos
+          e Comunidades Tradicionais)
+      - name: status
+        description: Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso,
+          CA Cancelado)
       - name: condicao
-        description: Condição em que o cadastro se encontra no fluxo de análise pelo
-          órgão competente
+        description: >-
+          Condição atual da análise do registro no fluxo de validação pelo órgão competente
+      - name: area
+        description: Área total do imóvel declarada no CAR
+      - name: modulos_fiscais
+        description: Tamanho do imóvel expresso em módulos fiscais
+      - name: data_criacao
+        description: Data de inscrição do imóvel no CAR
+      - name: data_atualizacao
+        description: Data da última modificação dos dados do imóvel no CAR
       - name: geometria
-        description: Geometria do imóvel
+        description: Geometria do polígono em coordenadas geográficas (WGS84)
+  - name: br_sfb_sicar__app
+    description: Áreas de Preservação Permanente (APP) declaradas nos imóveis do CAR/SICAR.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [status, tipo]
+          dictionary_model: ref('br_sfb_sicar__dicionario')
+    columns:
+      - name: data_extracao
+        description: Data de disponibilização (snapshot) da base do CAR para a Unidade
+          da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação onde se localiza o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador do município (IBGE, 7 dígitos) onde se localiza
+          o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_imovel
+        description: Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)
+      - name: tipo
+        description: Tipo de Área de Preservação Permanente (APP)
+      - name: status
+        description: Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso,
+          CA Cancelado)
+      - name: condicao
+        description: >-
+          Condição atual da análise do registro no fluxo de validação pelo órgão competente
+      - name: area
+        description: Área do polígono do tema
+      - name: geometria
+        description: Geometria do polígono em coordenadas geográficas (WGS84)
+  - name: br_sfb_sicar__reserva_legal
+    description: Áreas de Reserva Legal declaradas nos imóveis do CAR/SICAR.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [status, tipo]
+          dictionary_model: ref('br_sfb_sicar__dicionario')
+    columns:
+      - name: data_extracao
+        description: Data de disponibilização (snapshot) da base do CAR para a Unidade
+          da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação onde se localiza o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador do município (IBGE, 7 dígitos) onde se localiza
+          o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_imovel
+        description: Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)
+      - name: tipo
+        description: Situação da Reserva Legal (proposta, averbada, aprovada e não
+          averbada)
+      - name: status
+        description: Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso,
+          CA Cancelado)
+      - name: condicao
+        description: >-
+          Condição atual da análise do registro no fluxo de validação pelo órgão competente
+      - name: area
+        description: Área do polígono do tema
+      - name: geometria
+        description: Geometria do polígono em coordenadas geográficas (WGS84)
+  - name: br_sfb_sicar__vegetacao_nativa
+    description: Remanescentes de vegetação nativa declarados nos imóveis do CAR/SICAR.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [status, tipo]
+          dictionary_model: ref('br_sfb_sicar__dicionario')
+    columns:
+      - name: data_extracao
+        description: Data de disponibilização (snapshot) da base do CAR para a Unidade
+          da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação onde se localiza o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador do município (IBGE, 7 dígitos) onde se localiza
+          o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_imovel
+        description: Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)
+      - name: tipo
+        description: Tipo de remanescente de vegetação nativa
+      - name: status
+        description: Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso,
+          CA Cancelado)
+      - name: condicao
+        description: >-
+          Condição atual da análise do registro no fluxo de validação pelo órgão competente
+      - name: area
+        description: Área do polígono do tema
+      - name: geometria
+        description: Geometria do polígono em coordenadas geográficas (WGS84)
+  - name: br_sfb_sicar__area_consolidada
+    description: Áreas rurais consolidadas declaradas nos imóveis do CAR/SICAR.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [status, tipo]
+          dictionary_model: ref('br_sfb_sicar__dicionario')
+    columns:
+      - name: data_extracao
+        description: Data de disponibilização (snapshot) da base do CAR para a Unidade
+          da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação onde se localiza o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador do município (IBGE, 7 dígitos) onde se localiza
+          o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_imovel
+        description: Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)
+      - name: tipo
+        description: Tipo de área rural consolidada
+      - name: status
+        description: Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso,
+          CA Cancelado)
+      - name: condicao
+        description: >-
+          Condição atual da análise do registro no fluxo de validação pelo órgão competente
+      - name: area
+        description: Área do polígono do tema
+      - name: geometria
+        description: Geometria do polígono em coordenadas geográficas (WGS84)
+  - name: br_sfb_sicar__area_pousio
+    description: Áreas de pousio declaradas nos imóveis do CAR/SICAR.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [status, tipo]
+          dictionary_model: ref('br_sfb_sicar__dicionario')
+    columns:
+      - name: data_extracao
+        description: Data de disponibilização (snapshot) da base do CAR para a Unidade
+          da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação onde se localiza o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador do município (IBGE, 7 dígitos) onde se localiza
+          o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_imovel
+        description: Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)
+      - name: tipo
+        description: Tipo de área de pousio
+      - name: status
+        description: Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso,
+          CA Cancelado)
+      - name: condicao
+        description: >-
+          Condição atual da análise do registro no fluxo de validação pelo órgão competente
+      - name: area
+        description: Área do polígono do tema
+      - name: geometria
+        description: Geometria do polígono em coordenadas geográficas (WGS84)
+  - name: br_sfb_sicar__uso_restrito
+    description: Áreas de uso restrito declaradas nos imóveis do CAR/SICAR.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [status, tipo]
+          dictionary_model: ref('br_sfb_sicar__dicionario')
+    columns:
+      - name: data_extracao
+        description: Data de disponibilização (snapshot) da base do CAR para a Unidade
+          da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação onde se localiza o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador do município (IBGE, 7 dígitos) onde se localiza
+          o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_imovel
+        description: Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)
+      - name: tipo
+        description: Tipo de área de uso restrito
+      - name: status
+        description: Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso,
+          CA Cancelado)
+      - name: condicao
+        description: >-
+          Condição atual da análise do registro no fluxo de validação pelo órgão competente
+      - name: area
+        description: Área do polígono do tema
+      - name: geometria
+        description: Geometria do polígono em coordenadas geográficas (WGS84)
+  - name: br_sfb_sicar__servidao_administrativa
+    description: Áreas de servidão administrativa declaradas nos imóveis do CAR/SICAR.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [status, tipo]
+          dictionary_model: ref('br_sfb_sicar__dicionario')
+    columns:
+      - name: data_extracao
+        description: Data de disponibilização (snapshot) da base do CAR para a Unidade
+          da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação onde se localiza o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador do município (IBGE, 7 dígitos) onde se localiza
+          o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_imovel
+        description: Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)
+      - name: tipo
+        description: Tipo de servidão administrativa
+      - name: status
+        description: Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso,
+          CA Cancelado)
+      - name: condicao
+        description: >-
+          Condição atual da análise do registro no fluxo de validação pelo órgão competente
+      - name: area
+        description: Área do polígono do tema
+      - name: geometria
+        description: Geometria do polígono em coordenadas geográficas (WGS84)
+  - name: br_sfb_sicar__hidrografia
+    description: Feições de hidrografia declaradas nos imóveis do CAR/SICAR.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [status, tipo]
+          dictionary_model: ref('br_sfb_sicar__dicionario')
+    columns:
+      - name: data_extracao
+        description: Data de disponibilização (snapshot) da base do CAR para a Unidade
+          da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação onde se localiza o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador do município (IBGE, 7 dígitos) onde se localiza
+          o imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_imovel
+        description: Código de inscrição do imóvel no Cadastro Ambiental Rural (CAR)
+      - name: tipo
+        description: Tipo de corpo hídrico (curso d'água, lago, reservatório)
+      - name: status
+        description: Situação do cadastro no CAR (AT Ativo, PE Pendente, SU Suspenso,
+          CA Cancelado)
+      - name: condicao
+        description: >-
+          Condição atual da análise do registro no fluxo de validação pelo órgão competente
+      - name: geometria
+        description: Geometria do polígono em coordenadas geográficas (WGS84)
   - name: br_sfb_sicar__dicionario
-    description: Dicionário para tradução dos códigos das tabelas do conjunto br_sfb_sicar
+    description: Dicionário para tradução dos códigos das tabelas do conjunto br_sfb_sicar.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -61,12 +413,12 @@ models:
             - cobertura_temporal
     columns:
       - name: id_tabela
-        description: ID Tabela
+        description: Nome da tabela
       - name: nome_coluna
         description: Nome da coluna
       - name: chave
-        description: Chave
+        description: Chave (valor codificado)
       - name: cobertura_temporal
-        description: Cobertura Temporal
+        description: Cobertura temporal
       - name: valor
-        description: Valor
+        description: Valor traduzido da chave
