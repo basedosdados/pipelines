@@ -197,7 +197,7 @@ def us_bls_qcew_flow(
 # guard no-ops until a new quarter actually appears in the singlefiles.
 # pyrefly: ignore [missing-attribute]
 us_bls_qcew_flow.deploy_schedules = [
-    {"cron": "0 16 1-10 3,6,9,12 *", "timezone": "America/Sao_Paulo"}
+    {"cron": "10 16 1-10 3,6,9,12 *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step streams ~15M-row singlefiles one chunk at a time (peak ~1.75GB
 # in pandas); give the worker headroom above that.

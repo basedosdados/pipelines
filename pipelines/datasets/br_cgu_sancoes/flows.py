@@ -227,5 +227,5 @@ def br_cgu_sancoes_flow(
 # idempotent.
 # pyrefly: ignore [missing-attribute]
 br_cgu_sancoes_flow.deploy_schedules = [
-    {"cron": "0 8 * * 1,2", "timezone": "America/Sao_Paulo"}
+    {"cron": "30 8 * * 1,2", "timezone": "America/Sao_Paulo"}
 ]
