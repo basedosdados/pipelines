@@ -111,3 +111,40 @@ def test_empty_roster_raises_instead_of_shipping_a_thin_table(monkeypatch):
 
     with pytest.raises(RuntimeError, match="no parlamentares returned"):
         senado_clean.clean_senador()
+
+
+def test_persistent_empty_200_is_an_empty_roster_not_a_failure(monkeypatch):
+    """Legislatures predating the API answer 200 with a zero-byte body.
+
+    Verified live: legislature 36 returns HTTP 200 / 0 bytes, legislature 40
+    returns ~92 KB. Treating the empty one as an error aborted the whole run on
+    the first such legislature — `get_json` already documented this case as a
+    legitimately-empty list endpoint.
+    """
+    from pipelines.datasets.br_senado_dados_abertos import senado_api
+
+    class _Empty:
+        status_code = 200
+        text = ""
+
+    monkeypatch.setattr(senado_api.time, "sleep", lambda *_: None)
+    monkeypatch.setattr(senado_api.requests, "get", lambda *a, **k: _Empty())
+
+    assert senado_api.get_xml_records("/x", "Parlamentar", retries=2) == []
+
+
+def test_persistent_non_200_still_raises(monkeypatch):
+    """An empty body is benign; a real HTTP failure must not be swallowed."""
+    from pipelines.datasets.br_senado_dados_abertos import senado_api
+
+    class _ServerError:
+        status_code = 503
+        text = ""
+
+    monkeypatch.setattr(senado_api.time, "sleep", lambda *_: None)
+    monkeypatch.setattr(
+        senado_api.requests, "get", lambda *a, **k: _ServerError()
+    )
+
+    with pytest.raises(RuntimeError, match="503"):
+        senado_api.get_xml_records("/x", "Parlamentar", retries=2)

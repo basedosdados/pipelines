@@ -143,15 +143,26 @@ def get_xml_records(
     headers = {**HEADERS, "Accept": "application/xml"}
     last_exc: Exception | None = None
     last_status: int | None = None
+    saw_empty_200 = False
     for attempt in range(retries):
         try:
             r = requests.get(url, headers=headers, timeout=timeout)
             last_status = r.status_code
-            if r.status_code == 200 and r.text.strip():
-                return _parse_xml_records(r.text, record_tag)
+            if r.status_code == 200:
+                body = r.text.strip()
+                if body:
+                    return _parse_xml_records(body, record_tag)
+                saw_empty_200 = True
         except requests.RequestException as exc:
             last_exc = exc
         time.sleep(backoff * (attempt + 1))
+    if saw_empty_200:
+        # Mirrors `get_json`: a persistent 200 with an empty body is a
+        # legitimately-empty list endpoint, not a failure. The roster endpoint
+        # answers exactly this for legislatures that predate the API's coverage
+        # (36 returns 200 with 0 bytes; 40 returns ~92 KB). Raising here aborted
+        # the whole run on the first such legislature.
+        return []
     if last_exc is not None:
         raise last_exc
     raise RuntimeError(
