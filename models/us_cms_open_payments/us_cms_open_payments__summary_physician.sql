@@ -1,0 +1,65 @@
+{{
+    config(
+        schema="us_cms_open_payments",
+        alias="summary_physician",
+        materialized="table",
+        partition_by={
+            "field": "year",
+            "data_type": "int64",
+            "range": {"start": 2019, "end": 2030, "interval": 1},
+        },
+        cluster_by=["covered_recipient_profile_id"],
+    )
+}}
+
+
+select
+    safe_cast(year as int64) year,
+    safe_cast(covered_recipient_profile_id as string) covered_recipient_profile_id,
+    safe_cast(covered_recipient_npi as string) covered_recipient_npi,
+    safe_cast(profile_type as string) profile_type,
+    safe_cast(first_name as string) first_name,
+    safe_cast(middle_name as string) middle_name,
+    safe_cast(last_name as string) last_name,
+    safe_cast(name_suffix as string) name_suffix,
+    safe_cast(alternate_first_name as string) alternate_first_name,
+    safe_cast(alternate_middle_name as string) alternate_middle_name,
+    safe_cast(alternate_last_name as string) alternate_last_name,
+    safe_cast(alternate_name_suffix as string) alternate_name_suffix,
+    safe_cast(address_line_1 as string) address_line_1,
+    safe_cast(address_line_2 as string) address_line_2,
+    safe_cast(city as string) city,
+    safe_cast(state as string) state,
+    safe_cast(zip_code as string) zip_code,
+    safe_cast(country as string) country,
+    safe_cast(province as string) province,
+    safe_cast(primary_specialty as string) primary_specialty,
+    safe_cast(license_state_1 as string) license_state_1,
+    safe_cast(license_state_2 as string) license_state_2,
+    safe_cast(license_state_3 as string) license_state_3,
+    safe_cast(license_state_4 as string) license_state_4,
+    safe_cast(license_state_5 as string) license_state_5,
+    safe_cast(general_payment_amount_total as float64) general_payment_amount_total,
+    safe_cast(research_payment_amount_total as float64) research_payment_amount_total,
+    safe_cast(
+        ownership_amount_invested_total as float64
+    ) ownership_amount_invested_total,
+    safe_cast(ownership_interest_value_total as float64) ownership_interest_value_total,
+    safe_cast(general_transaction_count as int64) general_transaction_count,
+    safe_cast(research_transaction_count as int64) research_transaction_count,
+    safe_cast(
+        ownership_invested_transaction_count as int64
+    ) ownership_invested_transaction_count,
+    safe_cast(
+        ownership_interest_transaction_count as int64
+    ) ownership_interest_transaction_count,
+    safe_cast(
+        associated_research_payment_amount_total as float64
+    ) associated_research_payment_amount_total,
+    safe_cast(
+        associated_research_transaction_count as int64
+    ) associated_research_transaction_count,
+    safe_cast(disputed_transaction_count as int64) disputed_transaction_count,
+    safe_cast(undisputed_transaction_count as int64) undisputed_transaction_count,
+    safe_cast(has_multiple_ids as string) has_multiple_ids
+from {{ set_datalake_project("us_cms_open_payments_staging.summary_physician") }} as t
