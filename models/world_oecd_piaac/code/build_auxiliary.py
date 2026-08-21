@@ -231,6 +231,38 @@ def build_bundle(table_slug: str) -> Path:
     return archive
 
 
+def upload_bundles(bucket_name: str) -> None:
+    """Upload each bundle to the documented auxiliary_files path and report the
+    status an anonymous visitor actually gets.
+
+    Both Data Basis buckets are requester-pays, so the published URL returns
+    HTTP 400 UserProjectMissing to the public. That is a bucket setting, not
+    something this dataset can fix, but it must be reported rather than assumed
+    away -- see .claude/rules/auxiliary-files.md.
+    """
+    import urllib.error
+    import urllib.request
+
+    from google.cloud import storage
+
+    client = storage.Client(project="basedosdados-dev")
+    bucket = client.bucket(bucket_name, user_project="basedosdados-dev")
+    for table_slug in BUNDLES:
+        archive = BUNDLE_ROOT / table_slug / "auxiliary_files.zip"
+        blob_path = f"auxiliary_files/world_oecd_piaac/{table_slug}/auxiliary_files.zip"
+        bucket.blob(blob_path).upload_from_filename(str(archive))
+        url = f"https://storage.googleapis.com/{bucket_name}/{blob_path}"
+        try:
+            with urllib.request.urlopen(url, timeout=30) as response:
+                status = f"{response.status} ({response.length} bytes)"
+        except urllib.error.HTTPError as exc:
+            status = f"{exc.code} {exc.reason}"
+        except Exception as exc:
+            status = f"{type(exc).__name__}: {exc}"
+        print(f"  {table_slug:<34} anonymous GET -> {status}")
+        print(f"    {url}")
+
+
 def main() -> None:
     total = 0
     for table_slug in BUNDLES:
@@ -241,6 +273,13 @@ def main() -> None:
             n = len(zf.namelist())
         print(f"  {table_slug:<34} {n:>2} files  {size / 1e6:>6.1f} MB")
     print(f"  {'total':<34}    {total / 1e6:>9.1f} MB")
+
+    argv = sys.argv[1:]
+    if "--upload" in argv:
+        env = argv[argv.index("--env") + 1] if "--env" in argv else "dev"
+        bucket_name = "basedosdados" if env == "prod" else "basedosdados-dev"
+        print(f"\n=== uploading to gs://{bucket_name}/auxiliary_files/ ===")
+        upload_bundles(bucket_name)
 
 
 if __name__ == "__main__":
