@@ -108,14 +108,16 @@ _HEADER_ALIASES = {
 _ENCODINGS = ("utf-8-sig", "latin-1")
 
 
-def _canonical_key(name: str) -> str:
+def _canonical_key(name: object) -> str:
     """Reduce a header cell to an accent-, case- and punctuation-free key.
 
     ``"Año"``, ``"AÑO"`` and ``"anio "`` all collapse to ``"ano"``; ``"Cve.
     Municipio"`` collapses to ``"cvemunicipio"``.
 
     Args:
-        name: A raw header cell.
+        name: A raw header cell. Typed `object` because a pandas column label is
+            not guaranteed to be a str — an all-numeric header row reads back as
+            ints — so the `str()` below is load-bearing, not redundant.
 
     Returns:
         The normalized matching key.
