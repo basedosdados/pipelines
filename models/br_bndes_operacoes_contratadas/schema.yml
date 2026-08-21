@@ -345,3 +345,112 @@ models:
       - name: valor_saldo_liberar
         description: >-
           Saldo remanescente da operação em reais passível de desembolso
+  - name: br_bndes_operacoes_contratadas__operacoes_exportacao_bens
+    description: >
+      Operações de financiamento do BNDES à exportação pós-embarque de bens,
+      destinadas à comercialização de bens brasileiros no exterior, com
+      desembolso em reais ao exportador no Brasil. Cada linha é um subcrédito:
+      uma operação pode ter vários subcréditos, com condições financeiras
+      distintas, e ser formalizada em mais de um contrato. A fonte não publica
+      valores, por sigilo do preço unitário dos bens. Cobertura nacional,
+      2002–2026.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [subsetor_bndes]
+    columns:
+      - name: ano
+        description: >-
+          Ano de contratação da operação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data_contratacao
+        description: >-
+          Data da efetiva contratação da operação no sistema BNDES
+        tests: [not_null]
+      - name: sigla_uf
+        description: >-
+          Sigla da unidade federativa do endereço da empresa exportadora
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: sigla_pais_destino
+        description: >-
+          Código ISO 3166-1 alfa-3 do país de destino dos bens exportados
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: id_operacao
+        description: >-
+          Número da operação no BNDES; nas operações da linha Exim Automático
+          traz um desdobramento após a barra. Não identifica a linha de forma
+          única, já que uma operação pode ter vários subcréditos
+      - name: cnpj_exportador
+        description: >-
+          CNPJ da empresa brasileira que realizou a exportação
+      - name: nome_exportador
+        description: >-
+          Razão social da empresa brasileira que realizou a exportação
+      - name: porte_exportador
+        description: >-
+          Porte do exportador na data da contratação, pela política de
+          classificação do BNDES vigente à época
+      - name: tipo_operacao
+        description: >-
+          Objetivo da operação de financiamento
+      - name: categoria
+        description: >-
+          Classificação da operação entre exportação de serviços de engenharia
+          para obras no exterior e exportação de outros bens e serviços
+      - name: modalidade_operacional
+        description: >-
+          Forma de realização da operação: supplier, por desconto de títulos de
+          crédito, ou buyer, apenas por contrato de financiamento
+      - name: tipo_mutuario
+        description: >-
+          Natureza pública ou privada do mutuário, o ente estrangeiro
+          responsável pelo pagamento do financiamento
+      - name: produto
+        description: >-
+          Produto do BNDES que define as regras gerais do financiamento, com
+          indicação adicional quando utilizada a linha Exim Automático
+      - name: modalidade_apoio
+        description: >-
+          Modalidade de apoio financeiro; toda operação de financiamento à
+          exportação do BNDES é reembolsável
+      - name: forma_apoio
+        description: >-
+          Forma de apoio do financiamento, direta ou indireta
+      - name: area_operacional
+        description: >-
+          Área do BNDES responsável pela operação
+      - name: fonte_recurso
+        description: >-
+          Fonte de recursos registrada nos desembolsos do contrato
+      - name: custo_financeiro
+        description: >-
+          Remuneração da operação, composta pela variação cambial da moeda e,
+          quando houver, por indexador adicional
+      - name: sigla_moeda
+        description: >-
+          Código ISO 4217 da moeda em que a operação foi contratada
+      - name: setor_bndes
+        description: >-
+          Setor de atividade econômica do exportador, no agrupamento estatístico
+          do BNDES
+      - name: subsetor_bndes
+        description: >-
+          Subsetor de atividade econômica do exportador, no agrupamento
+          estatístico do BNDES
+      - name: tipo_garantia
+        description: >-
+          Garantias estabelecidas na contratação, separadas por barra quando a
+          operação combina mais de um tipo
+      - name: situacao_operacao
+        description: >-
+          Status da obrigação financeira e não financeira do contrato
