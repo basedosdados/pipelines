@@ -301,12 +301,29 @@ Schedule inline on the flow object (do NOT register storage/run-config by hand):
 
 ```python
 my_flow.deploy_schedules = [
-    {"cron": "0 16 10,11,12,13 * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "35 16 10,11,12,13 * *", "timezone": "America/Sao_Paulo"}
 ]
 my_flow.job_variables = {
     "memory": "8Gi"
 }  # optional; size to the clean step's peak RAM
 ```
+
+**Pick a minute nobody else is using — never `0`.** The hour follows the source's
+publication time, but the minute is free, and defaulting it to `0` piles every
+pipeline onto the same instant. Twelve of the pipelines added in Aug 2026 all fired
+at `0 16 * * *` before that was spread out. Same-instant runs compete for BigQuery
+slots, and if the daily processing quota trips at that moment they **all** fail
+together, which also makes it hard to tell which pipeline actually caused the spike.
+
+Before choosing, list what is already taken and pick a free slot:
+
+```bash
+grep -rho '"cron": "[^"]*"' pipelines/datasets/*/flows.py | sort | uniq -c | sort -rn
+```
+
+Spacing of 5 minutes is plenty. Note this reduces contention, **not** bytes billed
+per day — the daily quota is a byte ceiling, and only doing less work (scoped tests,
+incremental models, no redundant dev materialization) moves that.
 
 Deploy is CI, via `.github/scripts/deploy_flows.py`:
 - **Dev pool** (`cd-prefect3-staging.yaml`, `--pool basedosdados-dev`, on PR):
@@ -314,10 +331,54 @@ Deploy is CI, via `.github/scripts/deploy_flows.py`:
   the job reports `skipped`, not failed. A PR without it deploys **nothing** and
   looks fine. The workflow triggers on `labeled` and `synchronize`, so adding the
   label is itself enough. Schedules are **stripped** — manual runs only.
+  **The label only covers `flows.py`** — see the subsection below.
 - **Prod pool** (`cd-prefect3.yaml`, `--pool basedosdados --all`, on merge to main):
   schedules become `Cron` objects; deployed **`paused=True`**.
 - Cron in `America/Sao_Paulo`; see crontab.guru. For a monthly source, poll across
   a few release-window days — the source-poll guard no-ops until a new period lands.
+
+### `deploy-flow` only deploys a PR that changes `flows.py`
+
+The workflow passes every changed `pipelines/**/*.py` to `deploy_flows.py --files`,
+and the script keeps only the files that **define a `Flow` object**. A PR that fixes
+`utils.py`, `tasks.py`, `constants.py` or a `*_clean.py` — the usual place a pipeline
+bug lives — contributes **zero** deployments.
+
+The job still reports **`pass`**. Nothing says it deployed nothing.
+
+```
+senado_api.py:   0 flow(s)     <- load_flows_from_file
+senado_clean.py: 0 flow(s)
+flows.py:        1 flow(s)
+```
+
+The consequence is that the dev run in "Verification" below **cannot validate that
+PR**. The deployment keeps whatever git ref it already had, so a trigger silently
+runs a *different branch* — whichever PR last touched that `flows.py`, or `main`.
+This is not theoretical: `mx_sesnsp_incidencia_delictiva` (#1873) and
+`br_senado_dados_abertos` (#1874) both fixed non-`flows.py` code, and three separate
+trigger attempts ran another branch's code and reproduced the original error, which
+reads exactly like "the fix does not work".
+
+**Confirm which branch actually ran.** The clone path in the logs names it:
+
+```
+File "/app/pipelines-<branch-slug>/pipelines/datasets/<ds>/utils.py", line ...
+```
+
+`/app/pipelines-main/` means it ran `main`, not your PR. Check this before drawing
+any conclusion from a validation run.
+
+To validate a non-`flows.py` fix, pick one:
+- **Merge it and watch the next scheduled run** — usually right when the flow is
+  already failing every run, so the fix cannot make things worse. Then confirm with
+  `uv run python -m pipelines.diagnostics health`.
+- **Touch `flows.py` in the same PR** (a real change, not a whitespace nudge) so the
+  deploy has something to pick up.
+
+Related: `load_flows_from_file` also **swallows import errors** and returns `{}`, so a
+broken import is a silent no-deploy with a green check for the same reason. A green
+"deploy flows" is never evidence that anything deployed.
 
 ### Arming is a manual step — merging does NOT start the schedule
 
@@ -362,7 +423,10 @@ checks to fail fast, then **run it**.
 ### 2. A real dev run (the actual gate)
 
 Add the **`deploy-flow`** label, wait for `cd-prefect3 (staging)` to report
-`registrado`, then trigger the deployment manually **with prod off**:
+`registrado`, then trigger the deployment manually **with prod off**. First confirm
+the PR actually changes `flows.py` — if it does not, this gate does not apply to it
+and the run will execute another branch's code (see "`deploy-flow` only deploys a PR
+that changes `flows.py`" above):
 
 ```
 parameters = {"materialize_to_prod": False, "update_metadata": False, "force_run": True}
@@ -374,8 +438,9 @@ and applies the paywall**, from the dev pool, because the metadata tasks are pin
 `env="prod"` regardless of pool. `force_run=True` bypasses the poll guard, which
 otherwise returns before doing anything.
 
-Done means: every task `COMPLETED`, and the logs show `dbt run OK` **and**
-`dbt test OK` for each table.
+Done means: every task `COMPLETED`, the logs show `dbt run OK` **and**
+`dbt test OK` for each table, **and** the clone path in the logs is your branch
+(`/app/pipelines-<your-branch>/`), not `/app/pipelines-main/`.
 
 ### 3. Reading the result — green does not mean it ingested
 
