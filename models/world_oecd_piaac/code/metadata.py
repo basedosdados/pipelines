@@ -381,9 +381,25 @@ def main() -> None:
     dataset_id = dataset["id"]
     print(f"dataset {DATASET_SLUG}: {dataset_id}")
 
+    # Key on url: get_raw_data_sources returns `name`, which is the Portuguese
+    # name, so matching on the English one never hits and every re-run creates a
+    # fresh set of sources. The url is stable and unique per source.
+    existing_sources: dict[str, str] = {}
+    try:
+        for source in (
+            tool(BD.get_raw_data_sources)(dataset_slug=DATASET_SLUG, env=env)
+            or []
+        ):
+            existing_sources.setdefault(source.get("url"), source.get("id"))
+    except Exception as exc:
+        print(f"  [warn] could not list existing raw sources: {exc}")
+    if existing_sources:
+        print(f"reusing {len(existing_sources)} existing raw source(s)")
+
     source_ids = {}
     for slug, names, url, descriptions in RAW_SOURCES:
         source = tool(BD.create_update_raw_data_source)(
+            id=existing_sources.get(url),
             name_pt=names[0],
             name_en=names[1],
             name_es=names[2],
@@ -448,10 +464,17 @@ def main() -> None:
             env=env,
         )
         print(
-            f"    columns: created={len(result.get('created', []))} updated={len(result.get('updated', []))} errors={len(result.get('errors', []))}"
+            "    columns: "
+            + ", ".join(
+                f"{key}={value if isinstance(value, int) else len(value)}"
+                for key, value in sorted(result.items())
+                if key in {"created", "updated", "unchanged", "errors"}
+            )
         )
-        for error in result.get("errors", [])[:3]:
-            print(f"      ERROR {error}")
+        errors = result.get("errors")
+        if isinstance(errors, list):
+            for error in errors[:3]:
+                print(f"      ERROR {error}")
 
         tool(BD.create_update_cloud_table)(
             table_id=table_id,
