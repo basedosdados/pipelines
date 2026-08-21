@@ -110,24 +110,24 @@ def _sia_flow(table_id: str, cron: str):
             target="dev",
         )
 
-        # if not materialize_after_dump:
-        #     return
+        if not materialize_after_dump:
+            return
 
-        # upload_to_gcs(
-        #     data_path=files_path,
-        #     dataset_id=dataset_id,
-        #     table_id=table_id,
-        #     bucket_name="basedosdados",
-        #     dump_mode="append",
-        #     source_format=source_format,
-        # )
-        # run_dbt(
-        #     dataset_id=dataset_id,
-        #     table_id=table_id,
-        #     dbt_command="run/test",
-        #     dbt_alias=dbt_alias,
-        #     target=target,
-        # )
+        upload_to_gcs(
+            data_path=files_path,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados",
+            dump_mode="append",
+            source_format=source_format,
+        )
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            dbt_alias=dbt_alias,
+            target=target,
+        )
 
         if update_metadata:
             register_table_materialization_task(
