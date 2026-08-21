@@ -10,7 +10,7 @@ untouched, and the dbt models — plain `materialized="table"` — rebuild the f
 That is why the upload uses ``dump_mode="append"``. "overwrite" would delete the whole
 staging table and, via ``tb.delete(mode="all")``, the prod table with it — throwing
 away 45 years of frozen cycles to refresh one. "append" with a deterministic blob path
-(``staging/<ds>/<table>/cycle=<CYCLE>/data.parquet``) replaces exactly the current
+(``staging/<ds>/<table>/year=<CYCLE>/data.parquet``) replaces exactly the current
 cycle's partition, which is the intended semantics.
 
 The four transaction tables are high-frequency, so they carry the BD Pro rolling
@@ -93,16 +93,17 @@ _COVERAGE = {
         date_format=DateFormat.YEAR_MD,
         free_lag=_FREE_LAG,
     ),
-    # Registration snapshots: their only temporal column is the cycle, so coverage
-    # is expressed on it at year granularity.
+    # Registration snapshots: their only temporal column is `year`, the two-year
+    # election cycle labelled by the even year it ends in, so coverage is
+    # expressed on it at year granularity.
     "candidate": AllFree(
-        date_column=YearOnly(col="cycle"), date_format=DateFormat.YEAR
+        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
     ),
     "committee": AllFree(
-        date_column=YearOnly(col="cycle"), date_format=DateFormat.YEAR
+        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
     ),
     "candidate_committee_link": AllFree(
-        date_column=YearOnly(col="cycle"), date_format=DateFormat.YEAR
+        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
     ),
 }
 
