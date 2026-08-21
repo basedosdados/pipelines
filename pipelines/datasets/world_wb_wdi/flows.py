@@ -127,7 +127,9 @@ def world_wb_wdi_flow(
         # armed run doubled the BigQuery bytes billed for no signal — prod
         # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
-            # Dev: upload staging + materialize/test.
+            # Dev: sobe e roda TODAS as tabelas antes de testar qualquer
+            # uma — data/country_indicator/indicator_time testam relationships contra
+            # ref('world_wb_wdi__indicators'), que é construída depois delas.
             for table in tables:
                 upload_to_gcs(
                     data_path=result[table],
@@ -140,12 +142,20 @@ def world_wb_wdi_flow(
                 run_dbt(
                     dataset_id=DATASET_ID,
                     table_id=table,
-                    dbt_command="run/test",
+                    dbt_command="run",
+                    target="dev",
+                )
+            for table in tables:
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="test",
                     target="dev",
                 )
             return
 
-        # Prod: upload staging + materialize/test.
+        # Prod: sobe e roda TODAS as tabelas antes de testar qualquer uma
+        # (mesma razão da fase de dev).
         for table in tables:
             upload_to_gcs(
                 data_path=result[table],
@@ -158,7 +168,14 @@ def world_wb_wdi_flow(
             run_dbt(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                dbt_command="run/test",
+                dbt_command="run",
+                target="prod",
+            )
+        for table in tables:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
                 target="prod",
             )
 
