@@ -1,0 +1,21 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano do programa a que o registro se refere,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,Program_Year
+reporting_entity_id,STRING,Identificador único do fabricante ou GPO que declarou o pagamento,,no,,,no,,AMGPO_Making_Payment_ID
+reporting_entity_name,STRING,Nome do fabricante ou GPO que efetuou o pagamento,,no,,,no,,AMGPO_Making_Payment_Name
+reporting_entity_state,STRING,Sigla de duas letras do estado do fabricante ou GPO que efetuou o pagamento,,no,,,no,,AMGPO_Making_Payment_State
+reporting_entity_country,STRING,País do fabricante ou GPO que efetuou o pagamento,,no,,,no,,AMGPO_Making_Payment_Country
+general_payment_amount_total,FLOAT64,"Valor total de pagamentos gerais, em dólares americanos",,no,,usd,no,,Total_Amount_General
+research_payment_amount_total,FLOAT64,"Valor total de pagamentos de pesquisa, em dólares americanos",,no,,usd,no,,Total_Amount_Research
+ownership_amount_invested_total,FLOAT64,"Valor total investido em participação societária, em dólares americanos",,no,,usd,no,,Total_Amount_Investment
+ownership_interest_value_total,FLOAT64,"Valor total da participação societária detida, em dólares americanos",,no,,usd,no,,Total_Amount_Interest
+general_transaction_count,INT64,Quantidade de transações de pagamento geral,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Trans_General
+general_transaction_count_physician,INT64,Quantidade de transações de pagamento geral com médicos,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Trans_General_Physician
+general_transaction_count_non_physician_practitioner,INT64,Quantidade de transações de pagamento geral com profissionais não médicos,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Trans_General_Non_Physician_Practitioner
+general_transaction_count_teaching_hospital,INT64,Quantidade de transações de pagamento geral com hospitais universitários,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Trans_General_Teachinghospital
+research_transaction_count,INT64,Quantidade de transações de pagamento de pesquisa,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Trans_Research
+research_transaction_count_physician,INT64,Quantidade de transações de pagamento de pesquisa com médicos,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Trans_Research_Physician
+research_transaction_count_non_physician_practitioner,INT64,Quantidade de transações de pagamento de pesquisa com profissionais não médicos,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Trans_Research_Non_Physician_Practitioner
+research_transaction_count_teaching_hospital,INT64,Quantidade de transações de pagamento de pesquisa com hospitais universitários,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Trans_Research_Teachinghospital
+ownership_invested_transaction_count,INT64,Quantidade de registros de investimento em participação societária,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Trans_Invested
+disputed_transaction_count,INT64,Quantidade de transações contestadas pelo beneficiário,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Total_Disputed_Transactions
+undisputed_transaction_count,INT64,Quantidade de transações não contestadas,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Total_Undisputed_Transactions

@@ -181,7 +181,7 @@ def br_bcb_ifdata_flow(
 # BRT; a trava do poll no-opa até uma competência nova aparecer de fato.
 # pyrefly: ignore [missing-attribute]
 br_bcb_ifdata_flow.deploy_schedules = [
-    {"cron": "0 16 1,2,3,4,5 * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "50 16 1,2,3,4,5 * *", "timezone": "America/Sao_Paulo"}
 ]
 # A limpeza percorre 105 competências, mantendo no máximo uma na memória
 # (~1M células), mas o crosswalk do IBGE e o índice ficam residentes.
