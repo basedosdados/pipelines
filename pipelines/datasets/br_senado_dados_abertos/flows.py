@@ -128,24 +128,28 @@ def br_senado_dados_abertos_flow(
         )
         max_ds = result["max_data_sessao"]
 
-        # Dev: upload staging (append = replace refreshed partitions) + dbt.
-        for table in ALL_TABLES:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="append",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: upload staging (append = replace refreshed partitions) + dbt.
+            for table in ALL_TABLES:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="append",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run/test",
+                    target="dev",
+                )
             return
 
         # Prod: upload staging + dbt.
@@ -188,7 +192,7 @@ def br_senado_dados_abertos_flow(
 # Legislative activity updates on business days; refresh every morning (BRT).
 # pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_flow.deploy_schedules = [
-    {"cron": "0 8 * * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "15 8 * * *", "timezone": "America/Sao_Paulo"}
 ]
 # pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_flow.job_variables = {"memory": "4Gi"}
