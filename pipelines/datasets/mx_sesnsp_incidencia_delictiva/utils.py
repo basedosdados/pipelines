@@ -383,7 +383,12 @@ def arch_order(table: str) -> list[str]:
 
 
 # ── transform (shared with the validated bootstrap) ─────────────────────────
-def melt_wide(df: pd.DataFrame, muni: bool, victimas: bool) -> pd.DataFrame:
+def melt_wide(
+    df: pd.DataFrame,
+    muni: bool,
+    victimas: bool,
+    max_period: tuple[int, int] | None = None,
+) -> pd.DataFrame:
     """Melt one wide chunk to the long architecture columns.
 
     Melts the 12 Spanish month columns (Enero..Diciembre) into ``mes`` (1..12) +
@@ -391,10 +396,20 @@ def melt_wide(df: pd.DataFrame, muni: bool, victimas: bool) -> pd.DataFrame:
     yet published). Drops the geography *name* columns (Entidad, Municipio) —
     they live in br_bd_diretorios_mx.
 
+    Rows for a period **after** ``max_period`` are dropped. Blank-means-unpublished
+    was the only guard until the 2026-08 release began padding the rest of the
+    calendar year with explicit ``0`` instead of leaving it blank, which pushed the
+    reported source coverage to 2026-12 while real data ended months earlier. A
+    count for a month that has not happened yet is padding, not an observation, and
+    letting it through makes the pipeline register coverage it does not have.
+
     Args:
         df: A wide chunk with canonical headers (all-string).
         muni: True for municipal tables (keeps ``id_municipio``).
         victimas: True for víctimas tables (keeps ``sexo``/``rango_edad``).
+        max_period: Latest ``(year, month)`` to keep, inclusive. Defaults to the
+            current month. Passed explicitly by tests so the transform stays
+            deterministic.
 
     Returns:
         The long frame with the architecture columns present.
@@ -426,6 +441,25 @@ def melt_wide(df: pd.DataFrame, muni: bool, victimas: bool) -> pd.DataFrame:
     long = long.rename(columns=id_map)
     long["ano"] = pd.to_numeric(long["Año"], errors="coerce").astype("Int64")
     long["mes"] = long["_mes"].map(MONTHS).astype("Int64")
+
+    if max_period is None:
+        today = pd.Timestamp.today()
+        max_period = (today.year, today.month)
+    max_year, max_month = max_period
+    # NA year/month are left untouched — `fillna(False)` keeps them out of the
+    # "future" mask so this only ever removes rows it can positively date.
+    is_future = (long["ano"] > max_year) | (
+        (long["ano"] == max_year) & (long["mes"] > max_month)
+    )
+    is_future = is_future.fillna(False).astype(bool)
+    if is_future.any():
+        log.info(
+            "dropped %s row(s) after %s-%02d (source pads future months with 0)",
+            f"{int(is_future.sum()):,}",
+            max_year,
+            max_month,
+        )
+        long = long[~is_future].copy()
     long["id_entidad"] = (
         long["id_entidad"].astype(str).str.strip().str.zfill(2)
     )
@@ -436,6 +470,56 @@ def melt_wide(df: pd.DataFrame, muni: bool, victimas: bool) -> pd.DataFrame:
     long["cantidad"] = pd.to_numeric(long["cantidad"], errors="coerce").astype(
         "Int64"
     )
+    return long
+
+
+def trim_trailing_empty_months(
+    long: pd.DataFrame, table: str = "", year: int | None = None
+) -> pd.DataFrame:
+    """Drop trailing months of the newest year that are entirely zero.
+
+    The future-period filter in `melt_wide` removes months that cannot have
+    happened. This removes the ones that *have* happened but are not published
+    yet — which used to be blank, and since the 2026-08 release are padded with an
+    explicit ``0`` on every row instead.
+
+    Measured on that release (``estatal_delitos``, ano=2026): months 1-7 carry
+    150k-175k events across ~2,000 non-zero rows each, while months 8-12 each
+    carry 3,648 rows summing to exactly 0, with no non-zero row at all. A
+    nationwide month of literally zero recorded crime is padding, not an
+    observation.
+
+    Only *trailing* months are dropped, and only for the year the caller passes as
+    newest, so no historical month can be removed and a genuine zero inside the
+    series is left alone.
+
+    Args:
+        long: One year's melted rows.
+        table: Table slug, for the log line.
+        year: The year being trimmed, for the log line.
+
+    Returns:
+        The frame with trailing all-zero months removed.
+    """
+    if long.empty:
+        return long
+    totals = long.groupby("mes")["cantidad"].sum()
+    non_zero = [m for m in sorted(totals.index) if totals[m] > 0]
+    if not non_zero:
+        log.info("%s: ano=%s is entirely zero, dropping", table, year)
+        return long.iloc[0:0]
+    last_real = max(non_zero)
+    dropped = [m for m in sorted(totals.index) if m > last_real]
+    if dropped:
+        log.info(
+            "%s: ano=%s dropping trailing all-zero month(s) %s (data ends %s-%02d)",
+            table,
+            year,
+            dropped,
+            year,
+            last_real,
+        )
+        long = long[long["mes"] <= last_real].copy()
     return long
 
 
@@ -522,15 +606,27 @@ def clean_table(
     years = sorted(
         pd.to_numeric(df["Año"], errors="coerce").dropna().astype(int).unique()
     )
+    written_years = 0
+    latest_year = years[-1] if years else None
     for y in years:
         chunk = df[pd.to_numeric(df["Año"], errors="coerce") == y]
         long = melt_wide(chunk, muni, victimas)
+        if y == latest_year:
+            long = trim_trailing_empty_months(long, table, y)
+        if not len(long):
+            # Every row of this year was dropped as a future period. Writing the
+            # partition anyway would create an empty ano=<year> in BigQuery and a
+            # year of "coverage" holding no observations.
+            log.info("%s: ano=%s has no published rows, skipping", table, y)
+            continue
         total += write_partition(long, table, y, output_dir)
-        if len(long):
-            mmax = int(long["mes"].dropna().max())
-            if max_ym is None or (y, mmax) > max_ym:
-                max_ym = (y, mmax)
-    log.info("%s: %s rows across %s year(s)", table, f"{total:,}", len(years))
+        written_years += 1
+        mmax = int(long["mes"].dropna().max())
+        if max_ym is None or (y, mmax) > max_ym:
+            max_ym = (y, mmax)
+    log.info(
+        "%s: %s rows across %s year(s)", table, f"{total:,}", written_years
+    )
     return total, max_ym
 
 
