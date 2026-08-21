@@ -60,10 +60,16 @@ cleaning transform is shared with `models/<ds>/code/` rather than duplicated.
 `us_bls_cpi` it passed while three separate bugs waited in the upload, the poll, and the
 staging schema. Step 12 is not finished until the flow has run on the **dev pool** with
 `{"materialize_to_prod": False, "update_metadata": False, "force_run": True}` and the logs
-show `dbt run OK` + `dbt test OK` for every table. Two traps around that run:
+show `dbt run OK` + `dbt test OK` for every table. Three traps around that run:
 
 - The PR needs the **`deploy-flow` label** or the staging deploy is `skipped` and nothing
   is deployed — silently.
+- The label only covers a PR that changes **`flows.py`**. `deploy_flows.py` keeps only
+  files defining a `Flow`, so a fix in `utils.py`/`tasks.py`/`*_clean.py` deploys
+  **nothing** while the job still reports `pass`, and the trigger then runs whatever
+  branch the deployment already pointed at. Confirm the clone path in the logs is
+  `/app/pipelines-<your-branch>/`, not `/app/pipelines-main/`. See
+  `prefect-pipeline-conventions`.
 - The defaults are `materialize_to_prod=True, update_metadata=True`, and the metadata
   tasks are pinned `env="prod"` even from the dev pool. A run triggered with `{}` writes
   **prod** data and metadata and applies the paywall.
