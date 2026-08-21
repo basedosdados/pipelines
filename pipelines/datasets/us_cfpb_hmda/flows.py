@@ -100,23 +100,27 @@ def us_cfpb_hmda_flow(
         result = build_tables(work_dir=work_dir, years=resolved["years"])
         data_path = result[TABLE_ID]
 
-        # Dev: upload staging (overwrite -> clean all-STRING schema) + materialize.
-        upload_to_gcs(
-            data_path=data_path,
-            dataset_id=DATASET_ID,
-            table_id=TABLE_ID,
-            bucket_name="basedosdados-dev",
-            dump_mode="overwrite",
-            source_format="parquet",
-        )
-        run_dbt(
-            dataset_id=DATASET_ID,
-            table_id=TABLE_ID,
-            dbt_command="run/test",
-            target="dev",
-        )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: upload staging (overwrite -> clean all-STRING schema) + materialize.
+            upload_to_gcs(
+                data_path=data_path,
+                dataset_id=DATASET_ID,
+                table_id=TABLE_ID,
+                bucket_name="basedosdados-dev",
+                dump_mode="overwrite",
+                source_format="parquet",
+            )
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=TABLE_ID,
+                dbt_command="run/test",
+                target="dev",
+            )
             return
 
         # Prod: upload staging + materialize/test.
@@ -152,7 +156,7 @@ def us_cfpb_hmda_flow(
 # source-poll guard no-ops until a new year actually appears.
 # pyrefly: ignore [missing-attribute]
 us_cfpb_hmda_flow.deploy_schedules = [
-    {"cron": "0 16 8,9,10 3,4,5,6,7,8 *", "timezone": "America/Sao_Paulo"}
+    {"cron": "25 16 8,9,10 3,4,5,6,7,8 *", "timezone": "America/Sao_Paulo"}
 ]
 # Clean is out-of-core (~0.8 GB), but the download is several GB per year; give
 # the worker headroom. Peak disk ~ one raw CSV (~5 GB) + all-year parquet (~6 GB).
