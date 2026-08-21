@@ -33,8 +33,8 @@ with
                     else id_municipio
                 end as string
             ) id_municipio,
-            safe_cast(peso_liquido_kg as int64) peso_liquido_kg,
-            safe_cast(valor_fob_dolar as int64) valor_fob_dolar
+            safe_cast(peso_liquido_kg as float64) peso_liquido_kg,
+            safe_cast(valor_fob_dolar as float64) valor_fob_dolar
         from
             {{ set_datalake_project("br_me_comex_stat_staging.municipio_importacao") }}
             as t
