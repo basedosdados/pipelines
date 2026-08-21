@@ -51,26 +51,6 @@
             {% endif %}
         {% endif %}
 
-        {# This block looks for __most_recent_year_en__ placeholder #}
-        {# English-language datasets partition on `year` (INT64), not `ano`. #}
-        {% if "__most_recent_year_en__" in where %}
-            {% set max_year_query = (
-                "select max(cast(year as int64)) as max_year from " ~ relation
-            ) %}
-            {% set max_year_result = run_query(max_year_query) %}
-            {% if execute and max_year_result.rows[0][0] %}
-                {% set max_year = max_year_result.rows[0][0] %}
-                {% set where = where | replace(
-                    "__most_recent_year_en__", "year = " ~ max_year
-                ) %}
-                {% do log(
-                    "The test will filter by the most recent year: "
-                    ~ max_year,
-                    info=True,
-                ) %}
-            {% endif %}
-        {% endif %}
-
         {# This block looks for __most_recent_date__  placeholder #}
         {% if "__most_recent_date__" in where %}
             {% set max_date_query = "select max(data) as max_date from " ~ relation %}
@@ -179,6 +159,41 @@
 
             {% endif %}
         {% endif %}
+
+        {# Generic, column-parameterized placeholder: `__most_recent__(col)`.
+
+           The blocks above each hardcode one column name, which is why this file
+           grew a _cnpj, a _cno and a _sicor variant. This form takes the column
+           from the placeholder itself, so a dataset partitioned on
+           `extraction_date` or `snapshot_date` needs no new macro. Numbers are
+           emitted unquoted (INT64 partitions such as `ano`/`year`); anything else
+           is quoted (DATE partitions). #}
+        {% set placeholders = modules.re.findall(
+            "__most_recent__\\(\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\)", where
+        ) %}
+        {% for column in placeholders %}
+            {% set max_query = (
+                "select max(" ~ column ~ ") as max_value from " ~ relation
+            ) %}
+            {% set max_result = run_query(max_query) %}
+            {% if execute and max_result.rows[0][0] is not none %}
+                {% set max_value = max_result.rows[0][0] %}
+                {% if max_value is number %}
+                    {% set literal = column ~ " = " ~ max_value %}
+                {% else %} {% set literal = column ~ " = '" ~ max_value ~ "'" %}
+                {% endif %}
+                {% set where = where | replace(
+                    "__most_recent__(" ~ column ~ ")", literal
+                ) %}
+                {% do log(
+                    "The test will filter by the most recent "
+                    ~ column
+                    ~ ": "
+                    ~ max_value,
+                    info=True,
+                ) %}
+            {% endif %}
+        {% endfor %}
 
         {# Return the filtered subquery #}
         {% set filtered = (

@@ -10,15 +10,21 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, candidate_id]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [address_2, office_district]
+          config:
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - office
             - incumbent_challenger_status
             - candidate_status
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -87,6 +93,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, committee_id]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -95,6 +103,8 @@ models:
             - organization_type
             - connected_organization_name
             - treasurer_name
+          config:
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - committee_designation
@@ -102,6 +112,8 @@ models:
             - filing_frequency
             - organization_type
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -164,11 +176,17 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, linkage_id]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [committee_type, committee_designation]
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -207,6 +225,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, sub_id]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -216,6 +236,8 @@ models:
             - election_type_year
             - contributor_employer
             - contributor_occupation
+          config:
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - amendment_indicator
@@ -224,6 +246,8 @@ models:
             - entity_type
             - memo_code
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -307,6 +331,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, sub_id]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -316,6 +342,8 @@ models:
             - contributor_employer
             - contributor_occupation
             - candidate_id
+          config:
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - amendment_indicator
@@ -324,6 +352,8 @@ models:
             - entity_type
             - memo_code
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -410,6 +440,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, sub_id]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -419,6 +451,8 @@ models:
             - election_type_year
             - counterparty_employer
             - counterparty_occupation
+          config:
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - amendment_indicator
@@ -427,6 +461,8 @@ models:
             - entity_type
             - memo_code
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -510,6 +546,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, sub_id]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -520,6 +558,8 @@ models:
             - memo_code
             - memo_text
             - purpose
+          config:
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - amendment_indicator
@@ -527,6 +567,8 @@ models:
             - entity_type
             - memo_code
           dictionary_model: ref('us_fec_campaign_finance__dicionario')
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >

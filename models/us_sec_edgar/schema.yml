@@ -12,9 +12,13 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, quarter, accession_number]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [additional_ciks]
+          config:
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - filer_status
@@ -23,6 +27,8 @@ models:
             - previous_report
             - detail
           dictionary_model: ref('us_sec_edgar__dicionario')
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -50,6 +56,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_us__sic')
               field: id_sic
+              config:
+                where: __most_recent_year_en__
       - name: ein
         description: >
           Número de identificação de empregador (EIN) do registrante
@@ -174,9 +182,13 @@ models:
             - segments
             - coregistrant
           proportion_allowed_failures: 0.0001
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [footnote, coregistrant]
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -239,8 +251,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, quarter, tag, version]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - custom
@@ -249,6 +265,8 @@ models:
             - period_type
             - balance
           dictionary_model: ref('us_sec_edgar__dicionario')
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -301,8 +319,12 @@ models:
             - accession_number
             - report
             - line
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - statement
@@ -310,6 +332,8 @@ models:
             - render_file
             - negating
           dictionary_model: ref('us_sec_edgar__dicionario')
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -327,6 +351,8 @@ models:
           - relationships:
               to: ref('us_sec_edgar__submission')
               field: accession_number
+              config:
+                where: __most_recent_year_en__
       - name: report
         description: >
           Identificador do relatório dentro das demonstrações financeiras

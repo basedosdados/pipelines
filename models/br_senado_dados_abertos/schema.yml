@@ -48,8 +48,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_votacao]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano da sessão em que ocorreu a votação
@@ -58,6 +62,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_votacao
         description: Código identificador da votação (sessão de votação)
         tests: [not_null]
@@ -118,8 +124,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_votacao, id_senador]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano da sessão em que ocorreu a votação
@@ -128,6 +138,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_votacao
         description: Código identificador da votação
         tests: [not_null]
@@ -144,6 +156,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: voto
         description: Sigla do voto do parlamentar
       - name: descricao_voto
@@ -155,8 +169,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_votacao_sve, bancada]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano da votação
@@ -165,6 +183,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_votacao_sve
         description: Código identificador da votação no sistema SVE
         tests: [not_null]
@@ -192,9 +212,13 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_processo]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [apelido]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano de identificação do processo legislativo
@@ -203,6 +227,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_processo
         description: Código identificador do processo legislativo
         tests: [not_null]
@@ -518,9 +544,13 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_relatoria]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [tipo_encerramento, data_destituicao]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano de apresentação do processo relatado
@@ -529,6 +559,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_relatoria
         description: Código identificador da relatoria
         tests: [not_null]
@@ -573,8 +605,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_votacao]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano da reunião em que ocorreu a votação
@@ -583,6 +619,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_votacao
         description: Código identificador da votação em comissão
         tests: [not_null]
@@ -627,8 +665,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_votacao, id_senador]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano da reunião em que ocorreu a votação
@@ -637,6 +679,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_votacao
         description: Código identificador da votação em comissão
         tests: [not_null]
@@ -661,8 +705,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_pronunciamento]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano da sessão em que ocorreu o pronunciamento
@@ -671,6 +719,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: id_pronunciamento
         description: Código identificador do pronunciamento
         tests: [not_null]
