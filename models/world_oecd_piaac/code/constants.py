@@ -45,10 +45,12 @@ ROUND_YEAR = {
     ("2", "1"): 2023,
 }
 
-# ISO 3166-1 numeric (M49), used by PIAAC's CNTRYID.
+# ISO 3166-1 numeric (M49), used by PIAAC's CNTRYID. Stored WITHOUT leading
+# zeros, because that is how br_bd_diretorios_mundo.pais stores id_m49 -- Austria
+# is "40" there, not "040" -- and the directory foreign key has to match.
 COUNTRY_M49 = {
-    "AUT": "040",
-    "BEL": "056",
+    "AUT": "40",
+    "BEL": "56",
     "CAN": "124",
     "CHE": "756",
     "CHL": "152",
