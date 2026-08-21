@@ -332,8 +332,8 @@ j_q08,STRING,Background - Number of books at home,,yes,,,no,,J_Q08
 computerexperience,STRING,Respondent experience with computer (DERIVED BY CAPI),,yes,,,no,,COMPUTEREXPERIENCE
 nativespeaker,STRING,Respondent is a native speaker (DERIVED BY CAPI),,yes,,,no,,NATIVESPEAKER
 edlevel3,STRING,Educational level of the respondent (DERIVED BY CAPI),,yes,,,no,,EDLEVEL3
-cba_core_stage1_score,FLOAT64,CBA Core score for stage 1,,no,,,no,"Raw number of correct responses, not a scaled proficiency score",CBA_CORE_STAGE1_SCORE
-cba_core_stage2_score,FLOAT64,CBA Core score for stage 2,,no,,,no,"Raw number of correct responses, not a scaled proficiency score",CBA_CORE_STAGE2_SCORE
+cba_core_stage1_score,FLOAT64,CBA Core score for stage 1,,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score",CBA_CORE_STAGE1_SCORE
+cba_core_stage2_score,FLOAT64,CBA Core score for stage 2,,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score",CBA_CORE_STAGE2_SCORE
 corestage1_pass,STRING,Core Stage 1 pass status,,yes,,,no,,CORESTAGE1_PASS
 corestage2_pass,STRING,Core Stage 2 pass status,,yes,,,no,,CORESTAGE2_PASS
 random_cba_module1,STRING,Random number for selection of domain (L/N/P) in CBA Module 1,,no,,,no,,RANDOM_CBA_MODULE1
@@ -343,7 +343,7 @@ random_cba_module1_stage2,STRING,Random number for selection of domain (L/N) in 
 random_cba_module2_stage1,STRING,Random number for selection of domain (L/N) in stage1 of CBA Module 2,,no,,,no,,RANDOM_CBA_MODULE2_STAGE1
 random_cba_module2_stage2,STRING,Random number for selection of domain (L/N) in stage2 of CBA Module 2,,no,,,no,,RANDOM_CBA_MODULE2_STAGE2
 cba_start,STRING,Computer-based exercise agreement,,yes,,,no,,CBA_START
-ppc_score,FLOAT64,Final score for the paper core assessment,,no,,,no,"Raw number of correct responses, not a scaled proficiency score",PPC_SCORE
+ppc_score,FLOAT64,Final score for the paper core assessment,,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score",PPC_SCORE
 random_pp,STRING,Random number for selection of Paper Booklets,,no,,,no,,RANDOM_PP
 prc_pv_q1,INT64,Sentence Timer for Print Vocabulary items,,no,,second,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PV_Q1
 prc_sp_q1,INT64,Sentence Timer for Sentence Processing items,,no,,second,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_SP_Q1
@@ -462,71 +462,71 @@ earnmthalldcl,STRING,"Monthly earnings including bonuses for wage and salary ear
 earnmthallppp,FLOAT64,"Monthly earnings including bonuses for wage and salary earners and self-employed, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNMTHALLPPP
 earnmthbonusppp,FLOAT64,"Monthly earnings including bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNMTHBONUSPPP
 earnflag,STRING,Earnings including bonuses reporting method (derived),,yes,,,no,,EARNFLAG
-learnatwork,FLOAT64,Index of learning at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",LEARNATWORK
+learnatwork,FLOAT64,Index of learning at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",LEARNATWORK
 learnatwork_wle_ca,STRING,"Index of learning at work, categorised WLE (derived)",,yes,,,no,,LEARNATWORK_WLE_CA
-readytolearn,FLOAT64,Index of readiness to learn (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",READYTOLEARN
+readytolearn,FLOAT64,Index of readiness to learn (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",READYTOLEARN
 readytolearn_wle_ca,STRING,"Index of readiness to learn, categorised WLE (derived)",,yes,,,no,,READYTOLEARN_WLE_CA
-icthome,FLOAT64,Index of use of ICT skills at home (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",ICTHOME
+icthome,FLOAT64,Index of use of ICT skills at home (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",ICTHOME
 icthome_wle_ca,STRING,"Index of use of ICT skills at home, categorised WLE (derived)",,yes,,,no,,ICTHOME_WLE_CA
-ictwork,FLOAT64,Index of use of ICT skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",ICTWORK
+ictwork,FLOAT64,Index of use of ICT skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",ICTWORK
 ictwork_wle_ca,STRING,"Index of use of ICT skills at work, categorised WLE (derived)",,yes,,,no,,ICTWORK_WLE_CA
-influence,FLOAT64,Index of use of influencing skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",INFLUENCE
+influence,FLOAT64,Index of use of influencing skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",INFLUENCE
 influence_wle_ca,STRING,"Index of use of influencing skills at work, categorised WLE (derived)",,yes,,,no,,INFLUENCE_WLE_CA
-numhome,FLOAT64,Index of use of numeracy skills at home (basic and advanced - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",NUMHOME
+numhome,FLOAT64,Index of use of numeracy skills at home (basic and advanced - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",NUMHOME
 numhome_wle_ca,STRING,"Index of use of numeracy skills at home (basic and advanced), categorised WLE (derived)",,yes,,,no,,NUMHOME_WLE_CA
-numwork,FLOAT64,Index of use of numeracy skills at work (basic and advanced - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",NUMWORK
+numwork,FLOAT64,Index of use of numeracy skills at work (basic and advanced - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",NUMWORK
 numwork_wle_ca,STRING,"Index of use of numeracy skills at work (basic and advanced), categorised WLE (derived)",,yes,,,no,,NUMWORK_WLE_CA
-planning,FLOAT64,Index of use of planning skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",PLANNING
+planning,FLOAT64,Index of use of planning skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",PLANNING
 planning_wle_ca,STRING,"Index of use of planning skills at work, categorised WLE (derived)",,yes,,,no,,PLANNING_WLE_CA
-readhome,FLOAT64,Index of use of reading skills at home (prose and document texts - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",READHOME
+readhome,FLOAT64,Index of use of reading skills at home (prose and document texts - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",READHOME
 readhome_wle_ca,STRING,"Index of use of reading skills at home (prose and document texts), categorised WLE (derived)",,yes,,,no,,READHOME_WLE_CA
-readwork,FLOAT64,Index of use of reading skills at work (prose and document texts - derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",READWORK
+readwork,FLOAT64,Index of use of reading skills at work (prose and document texts - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",READWORK
 readwork_wle_ca,STRING,"Index of use of reading skills at work (prose and document texts), categorised WLE (derived)",,yes,,,no,,READWORK_WLE_CA
-taskdisc,FLOAT64,Index of use of task discretion at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",TASKDISC
+taskdisc,FLOAT64,Index of use of task discretion at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",TASKDISC
 taskdisc_wle_ca,STRING,"Index of use of task discretion at work, categorised WLE (derived)",,yes,,,no,,TASKDISC_WLE_CA
-writhome,FLOAT64,Index of use of writing skills at home (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",WRITHOME
+writhome,FLOAT64,Index of use of writing skills at home (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",WRITHOME
 writhome_wle_ca,STRING,"Index of use of writing skills at home, categorised WLE (derived)",,yes,,,no,,WRITHOME_WLE_CA
-writwork,FLOAT64,Index of use of writing skills at work (derived),,no,,,no,"Weighted likelihood estimate on a derived skill-use scale, in score points. Set to NULL when loading where the source recorded: All zero response, Valid skip",WRITWORK
+writwork,FLOAT64,Index of use of writing skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",WRITWORK
 writwork_wle_ca,STRING,"Index of use of writing skills at work, categorised WLE (derived)",,yes,,,no,,WRITWORK_WLE_CA
 litstatus,STRING,Literacy - PV Status,,yes,,,no,,LITSTATUS
-pvlit1,FLOAT64,Literacy scale score - Plausible value 1,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT1
-pvlit2,FLOAT64,Literacy scale score - Plausible value 2,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT2
-pvlit3,FLOAT64,Literacy scale score - Plausible value 3,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT3
-pvlit4,FLOAT64,Literacy scale score - Plausible value 4,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT4
-pvlit5,FLOAT64,Literacy scale score - Plausible value 5,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT5
-pvlit6,FLOAT64,Literacy scale score - Plausible value 6,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT6
-pvlit7,FLOAT64,Literacy scale score - Plausible value 7,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT7
-pvlit8,FLOAT64,Literacy scale score - Plausible value 8,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT8
-pvlit9,FLOAT64,Literacy scale score - Plausible value 9,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT9
-pvlit10,FLOAT64,Literacy scale score - Plausible value 10,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVLIT10
+pvlit1,FLOAT64,Literacy scale score - Plausible value 1,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT1
+pvlit2,FLOAT64,Literacy scale score - Plausible value 2,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT2
+pvlit3,FLOAT64,Literacy scale score - Plausible value 3,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT3
+pvlit4,FLOAT64,Literacy scale score - Plausible value 4,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT4
+pvlit5,FLOAT64,Literacy scale score - Plausible value 5,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT5
+pvlit6,FLOAT64,Literacy scale score - Plausible value 6,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT6
+pvlit7,FLOAT64,Literacy scale score - Plausible value 7,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT7
+pvlit8,FLOAT64,Literacy scale score - Plausible value 8,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT8
+pvlit9,FLOAT64,Literacy scale score - Plausible value 9,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT9
+pvlit10,FLOAT64,Literacy scale score - Plausible value 10,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT10
 numstatus,STRING,Numeracy - PV Status,,yes,,,no,,NUMSTATUS
-pvnum1,FLOAT64,Numeracy scale score - Plausible value 1,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM1
-pvnum2,FLOAT64,Numeracy scale score - Plausible value 2,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM2
-pvnum3,FLOAT64,Numeracy scale score - Plausible value 3,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM3
-pvnum4,FLOAT64,Numeracy scale score - Plausible value 4,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM4
-pvnum5,FLOAT64,Numeracy scale score - Plausible value 5,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM5
-pvnum6,FLOAT64,Numeracy scale score - Plausible value 6,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM6
-pvnum7,FLOAT64,Numeracy scale score - Plausible value 7,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM7
-pvnum8,FLOAT64,Numeracy scale score - Plausible value 8,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM8
-pvnum9,FLOAT64,Numeracy scale score - Plausible value 9,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM9
-pvnum10,FLOAT64,Numeracy scale score - Plausible value 10,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVNUM10
+pvnum1,FLOAT64,Numeracy scale score - Plausible value 1,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM1
+pvnum2,FLOAT64,Numeracy scale score - Plausible value 2,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM2
+pvnum3,FLOAT64,Numeracy scale score - Plausible value 3,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM3
+pvnum4,FLOAT64,Numeracy scale score - Plausible value 4,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM4
+pvnum5,FLOAT64,Numeracy scale score - Plausible value 5,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM5
+pvnum6,FLOAT64,Numeracy scale score - Plausible value 6,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM6
+pvnum7,FLOAT64,Numeracy scale score - Plausible value 7,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM7
+pvnum8,FLOAT64,Numeracy scale score - Plausible value 8,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM8
+pvnum9,FLOAT64,Numeracy scale score - Plausible value 9,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM9
+pvnum10,FLOAT64,Numeracy scale score - Plausible value 10,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVNUM10
 pslstatus,STRING,Problem Solving - PV Status,,yes,,,no,,PSLSTATUS
-pvpsl1,FLOAT64,Problem-solving scale score - Plausible value 1,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL1
-pvpsl2,FLOAT64,Problem-solving scale score - Plausible value 2,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL2
-pvpsl3,FLOAT64,Problem-solving scale score - Plausible value 3,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL3
-pvpsl4,FLOAT64,Problem-solving scale score - Plausible value 4,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL4
-pvpsl5,FLOAT64,Problem-solving scale score - Plausible value 5,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL5
-pvpsl6,FLOAT64,Problem-solving scale score - Plausible value 6,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL6
-pvpsl7,FLOAT64,Problem-solving scale score - Plausible value 7,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL7
-pvpsl8,FLOAT64,Problem-solving scale score - Plausible value 8,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL8
-pvpsl9,FLOAT64,Problem-solving scale score - Plausible value 9,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL9
-pvpsl10,FLOAT64,Problem-solving scale score - Plausible value 10,,no,,,no,"Plausible value on the PIAAC proficiency scale (roughly 0-500 score points). Use all ten plausible values together, never a single one",PVPSL10
-prc_pv_scr,FLOAT64,Total Score for Reading Components Section - Print Vocabulary (derived),,no,,,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PV_SCR
-prc_sp_scr,FLOAT64,Total Score for Reading Components Section - Sentence Processing (derived),,no,,,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_SP_SCR
-prc_pc_scr,FLOAT64,Total Score for Reading Components Section - Passage Comprehension (derived),,no,,,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PC_SCR
+pvpsl1,FLOAT64,Problem-solving scale score - Plausible value 1,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL1
+pvpsl2,FLOAT64,Problem-solving scale score - Plausible value 2,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL2
+pvpsl3,FLOAT64,Problem-solving scale score - Plausible value 3,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL3
+pvpsl4,FLOAT64,Problem-solving scale score - Plausible value 4,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL4
+pvpsl5,FLOAT64,Problem-solving scale score - Plausible value 5,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL5
+pvpsl6,FLOAT64,Problem-solving scale score - Plausible value 6,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL6
+pvpsl7,FLOAT64,Problem-solving scale score - Plausible value 7,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL7
+pvpsl8,FLOAT64,Problem-solving scale score - Plausible value 8,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL8
+pvpsl9,FLOAT64,Problem-solving scale score - Plausible value 9,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL9
+pvpsl10,FLOAT64,Problem-solving scale score - Plausible value 10,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL10
+prc_pv_scr,FLOAT64,Total Score for Reading Components Section - Print Vocabulary (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PV_SCR
+prc_sp_scr,FLOAT64,Total Score for Reading Components Section - Sentence Processing (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_SP_SCR
+prc_pc_scr,FLOAT64,Total Score for Reading Components Section - Passage Comprehension (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PC_SCR
 vemethod,STRING,Replication approach (string),,yes,,,no,,VEMETHOD
 vemethodn,STRING,Replication approach (numeric),,yes,,,no,,VEMETHODN
-vefayfac,FLOAT64,Fay's K factor used in creating replicate weights (BRR only),,no,,,no,Fay factor used in replicate-weight variance estimation,VEFAYFAC
+vefayfac,FLOAT64,Fay's K factor used in creating replicate weights (BRR only),,no,,,no,Dimensionless Fay factor used in replicate-weight variance estimation,VEFAYFAC
 venreps,STRING,Number of replicate weights used,,no,,,no,,VENREPS
 varstrat,STRING,Variance stratum,,no,,,no,,VARSTRAT
 varunit,STRING,Variance unit,,no,,,no,,VARUNIT

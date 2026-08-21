@@ -58,16 +58,22 @@ ITEM_MEASURES: list[tuple[str, str, str, str]] = [
 # Numeric columns that genuinely have no measurement unit. These are the only
 # columns allowed to ship unitless, and each carries an explanation in
 # `observations`. Everything else must match a UNIT_RULES pattern.
-UNITLESS_NUMERIC: list[tuple[re.Pattern, str]] = [
+# Numeric columns whose unit cannot be read off the label. A blank unit means the
+# quantity is genuinely dimensionless -- a sampling weight, a Fay factor, a
+# z-score -- and every such column explains itself in `observations`. Nothing
+# ships unitless by accident.
+UNITLESS_NUMERIC: list[tuple[re.Pattern, str, str]] = [
     (
         re.compile(r"^SPFWT\d+$", re.I),
+        "",
         "Dimensionless final or replicate sampling weight. SPFWT0 is the final "
         "weight; SPFWT1-80 are the 80 replicate weights used for variance estimation",
     ),
     (
         re.compile(r"^PV(LIT|NUM|PSL|APS)\d+$", re.I),
-        "Plausible value on the PIAAC proficiency scale (roughly 0-500 score "
-        "points). Use all ten plausible values together, never a single one",
+        "score_point",
+        "Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. "
+        "Use all ten plausible values together, never a single one",
     ),
     (
         re.compile(
@@ -76,36 +82,42 @@ UNITLESS_NUMERIC: list[tuple[re.Pattern, str]] = [
             r"WRITWORK)$",
             re.I,
         ),
-        "Weighted likelihood estimate on a derived skill-use scale, in score points",
+        "score_point",
+        "Weighted likelihood estimate on a derived skill-use scale",
     ),
     (
         re.compile(r"^VEFAYFAC$", re.I),
-        "Fay factor used in replicate-weight variance estimation",
+        "",
+        "Dimensionless Fay factor used in replicate-weight variance estimation",
     ),
     (
         re.compile(
             r"^(CBA_CORE_STAGE\d_SCORE|PPC_SCORE|PRC_(PV|SP|PC)_SCR)$", re.I
         ),
+        "score_point",
         "Raw number of correct responses, not a scaled proficiency score",
     ),
 ]
 
 # Same idea, but matched against the label, for families whose names carry no
-# common stem. Cycle 2 added both of these; Cycle 1 has neither.
-UNITLESS_NUMERIC_BY_LABEL: list[tuple[re.Pattern, str]] = [
+# common stem. Cycle 2 added all of these; Cycle 1 has none.
+UNITLESS_NUMERIC_BY_LABEL: list[tuple[re.Pattern, str, str]] = [
     (
         re.compile(r"z-score", re.I),
-        "Standardised score (mean 0, standard deviation 1) on a BFI-2 personality "
-        "inventory dimension or facet",
+        "",
+        "Dimensionless standardised score (mean 0, standard deviation 1) on a "
+        "BFI-2 personality inventory dimension or facet",
     ),
     (
         re.compile(r"^index of\b", re.I),
-        "Derived index of skill use, in score points. Cycle 2 only, and not "
-        "comparable with the Cycle 1 scale of the same name",
+        "score_point",
+        "Derived index of skill use. Cycle 2 only, and not comparable with the "
+        "Cycle 1 scale of the same name",
     ),
     (
         re.compile(r"standard error", re.I),
-        "Standard error of the derived index, in the same score points as the index",
+        "score_point",
+        "Standard error of the derived index, on the same scale as the index",
     ),
 ]
 
@@ -294,13 +306,13 @@ def classify(variable: Variable) -> tuple[str, str, str, str]:
     if STRING_BY_NAME.match(variable.name):
         return "STRING", "no", "", ""
 
-    for pattern, explanation in UNITLESS_NUMERIC:
+    for pattern, unit, explanation in UNITLESS_NUMERIC:
         if pattern.search(variable.name):
-            return "FLOAT64", "no", "", explanation
+            return "FLOAT64", "no", unit, explanation
 
-    for pattern, explanation in UNITLESS_NUMERIC_BY_LABEL:
+    for pattern, unit, explanation in UNITLESS_NUMERIC_BY_LABEL:
         if pattern.search(variable.label):
-            return "FLOAT64", "no", "", explanation
+            return "FLOAT64", "no", unit, explanation
 
     measure = MEASURE_PARENTHETICAL.search(variable.label)
     if measure:
