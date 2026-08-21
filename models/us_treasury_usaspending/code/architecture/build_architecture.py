@@ -516,8 +516,13 @@ for _row in DICIONARIO_ARCH:
 
 
 def write_csv(path: Path, rows: list[dict]) -> None:
+    # lineterminator="\n": csv.writer defaults to CRLF, which the repo's
+    # mixed-line-ending hook rewrites on every commit, so each regeneration
+    # showed up as a whole-file diff carrying no change.
     with path.open("w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=FIELDS, extrasaction="ignore")
+        w = csv.DictWriter(
+            f, fieldnames=FIELDS, extrasaction="ignore", lineterminator="\n"
+        )
         w.writeheader()
         for r in rows:
             w.writerow({k: r.get(k, "") for k in FIELDS})
@@ -602,6 +607,7 @@ def main() -> None:
     with out.open("w", newline="") as f:
         w = csv.DictWriter(
             f,
+            lineterminator="\n",
             fieldnames=[
                 "id_tabela",
                 "nome_coluna",
