@@ -72,11 +72,34 @@ def _bq_safe_column_name(name: str) -> str:
     return re.sub(r"[^0-9a-zA-Z_]", "_", name)
 
 
+def _staging_client(tb: bd.Table) -> bigquery.Client:
+    """Devolve o cliente BigQuery que a própria `bd.Table` usa para a staging.
+
+    Nunca construa um `bigquery.Client()` novo para falar com a staging. O
+    cliente novo cai no ADC do pod, que não tem `bigquery.tables.get` nas
+    tabelas de staging; a lib carrega `BASEDOSDADOS_CREDENTIALS_STAGING`, que
+    tem. Os dois convivem no mesmo processo, então o sintoma é enganoso: em
+    2026-08-21 o flow `us_treasury_usaspending` (run `nano-cheetah`) logou
+    "Tabela já existe" — `tb.table_exists()`, cliente da lib — e um segundo
+    depois levou 403 `Permission bigquery.tables.get denied` na mesma tabela,
+    vindo de um `bigquery.Client()` construído à mão.
+
+    Só morde `dump_mode="append"`: o ramo `overwrite` não chama nenhuma das
+    duas funções de sync, e por isso o defeito passou despercebido.
+
+    Args:
+        tb: tabela `basedosdados` já instanciada, apontando para a staging.
+
+    Returns:
+        O cliente BigQuery autenticado com as credenciais de staging.
+    """
+    return tb.client["bigquery_staging"]
+
+
 def _sync_staging_schema(
     tb: bd.Table,
     data_path: str | Path,
     source_format: str,
-    billing_project_id: str,
 ) -> None:
     """Adiciona ao schema da staging as colunas que a fonte passou a trazer.
 
@@ -103,14 +126,13 @@ def _sync_staging_schema(
         tb: tabela `basedosdados` já instanciada, apontando para a staging.
         data_path: arquivo ou diretório com os dados que serão carregados.
         source_format: `"csv"` ou `"parquet"`.
-        billing_project_id: projeto GCP usado para faturar a chamada.
     """
     header_path = dump_header(data_path=data_path, source_format=source_format)
     incoming = tb._load_staging_schema_from_data(
         data_sample_path=header_path, source_format=source_format
     )
 
-    client = bigquery.Client(project=billing_project_id)
+    client = _staging_client(tb)
     table = client.get_table(tb.table_full_name["staging"])
 
     current = {_bq_safe_column_name(field.name) for field in table.schema}
@@ -143,7 +165,6 @@ def _sync_staging_source_uris(
     bucket_name: str,
     dataset_id: str,
     table_id: str,
-    billing_project_id: str,
 ) -> None:
     """Reaponta a tabela externa de staging para o bucket do ambiente corrente.
 
@@ -167,12 +188,11 @@ def _sync_staging_source_uris(
         bucket_name: bucket do ambiente corrente.
         dataset_id: `gcp_dataset_id` sem o sufixo `_staging`.
         table_id: slug da tabela.
-        billing_project_id: projeto GCP usado para faturar a chamada.
     """
     suffix = f"/staging/{dataset_id}/{table_id}/*"
     expected = f"gs://{bucket_name}{suffix}"
 
-    client = bigquery.Client(project=billing_project_id)
+    client = _staging_client(tb)
     table = client.get_table(tb.table_full_name["staging"])
 
     config = table.external_data_configuration
@@ -255,13 +275,11 @@ def _upload_to_gcs(
                 bucket_name=bucket_name,
                 dataset_id=dataset_id,
                 table_id=table_id,
-                billing_project_id=billing_project_id,
             )
             _sync_staging_schema(
                 tb=tb,
                 data_path=data_path,
                 source_format=source_format,
-                billing_project_id=billing_project_id,
             )
 
     elif dump_mode == "overwrite":

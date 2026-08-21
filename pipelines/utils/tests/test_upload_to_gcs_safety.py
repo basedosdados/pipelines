@@ -1,6 +1,6 @@
 """Garantias de que `_upload_to_gcs` nunca toca a tabela de produção.
 
-Dois estragos silenciosos já aconteceram por causa do que estes testes fixam:
+Três estragos silenciosos já aconteceram por causa do que estes testes fixam:
 
 1. `dump_mode="overwrite"` chamava `tb.delete(mode="all")`, e `all` percorre
    staging E prod — apagando a tabela materializada de produção, inclusive a
@@ -9,42 +9,51 @@ Dois estragos silenciosos já aconteceram por causa do que estes testes fixam:
    `append` só cria a tabela quando ela não existe, um bucket errado gravado uma
    vez ficava gravado para sempre, e o dbt de produção passava a ler blobs de
    dev sem nenhum erro.
+3. As duas funções de sync falavam com a staging por um `bigquery.Client()`
+   construído à mão, que cai no ADC do pod e leva 403 — enquanto a `bd.Table`
+   ao lado, com as credenciais de staging da lib, lia a mesma tabela sem
+   problema.
 """
 
 from unittest.mock import MagicMock, patch
 
-from pipelines.utils.tasks import _sync_staging_source_uris, _upload_to_gcs
+from pipelines.utils.tasks import (
+    _staging_client,
+    _sync_staging_source_uris,
+    _upload_to_gcs,
+)
 
 STAGING = "basedosdados-staging.us_sec_edgar_staging.dicionario"
 
 
-def _table(uris):
-    table = MagicMock()
-    table.external_data_configuration.source_uris = uris
-    return table
-
-
-def _bd_table():
+def _bd_table(uris=None):
+    """`bd.Table` de mentira cujo cliente de staging devolve `uris`."""
     tb = MagicMock()
     tb.table_full_name = {"staging": STAGING}
+    table = MagicMock()
+    table.external_data_configuration.source_uris = uris
+    tb.client = {"bigquery_staging": MagicMock()}
+    tb.client["bigquery_staging"].get_table.return_value = table
     return tb
 
 
-@patch("pipelines.utils.tasks.bigquery.Client")
-def test_repoints_when_only_the_bucket_differs(client_cls):
-    client = client_cls.return_value
-    client.get_table.return_value = _table(
-        ["gs://basedosdados-dev/staging/us_sec_edgar/dicionario/*"]
-    )
+def test_staging_client_is_the_libs_not_a_fresh_one():
+    """O ponto do 403: o cliente tem de vir da `bd.Table`, não do ADC."""
+    tb = _bd_table()
+    assert _staging_client(tb) is tb.client["bigquery_staging"]
+
+
+def test_repoints_when_only_the_bucket_differs():
+    tb = _bd_table(["gs://basedosdados-dev/staging/us_sec_edgar/dicionario/*"])
 
     _sync_staging_source_uris(
-        tb=_bd_table(),
+        tb=tb,
         bucket_name="basedosdados",
         dataset_id="us_sec_edgar",
         table_id="dicionario",
-        billing_project_id="basedosdados",
     )
 
+    client = tb.client["bigquery_staging"]
     client.update_table.assert_called_once()
     updated, fields = client.update_table.call_args[0]
     assert fields == ["external_data_configuration"]
@@ -53,29 +62,22 @@ def test_repoints_when_only_the_bucket_differs(client_cls):
     ]
 
 
-@patch("pipelines.utils.tasks.bigquery.Client")
-def test_noop_when_already_correct(client_cls):
-    client = client_cls.return_value
-    client.get_table.return_value = _table(
-        ["gs://basedosdados/staging/us_sec_edgar/dicionario/*"]
-    )
+def test_noop_when_already_correct():
+    tb = _bd_table(["gs://basedosdados/staging/us_sec_edgar/dicionario/*"])
 
     _sync_staging_source_uris(
-        tb=_bd_table(),
+        tb=tb,
         bucket_name="basedosdados",
         dataset_id="us_sec_edgar",
         table_id="dicionario",
-        billing_project_id="basedosdados",
     )
 
-    client.update_table.assert_not_called()
+    tb.client["bigquery_staging"].update_table.assert_not_called()
 
 
-@patch("pipelines.utils.tasks.bigquery.Client")
-def test_leaves_non_conventional_uris_alone(client_cls):
+def test_leaves_non_conventional_uris_alone():
     """Várias URIs, ou caminho fora da convenção: avisa e não mexe."""
-    client = client_cls.return_value
-    client.get_table.return_value = _table(
+    tb = _bd_table(
         [
             "gs://outro/caminho/custom/*",
             "gs://outro/caminho/extra/*",
@@ -83,14 +85,13 @@ def test_leaves_non_conventional_uris_alone(client_cls):
     )
 
     _sync_staging_source_uris(
-        tb=_bd_table(),
+        tb=tb,
         bucket_name="basedosdados",
         dataset_id="us_sec_edgar",
         table_id="dicionario",
-        billing_project_id="basedosdados",
     )
 
-    client.update_table.assert_not_called()
+    tb.client["bigquery_staging"].update_table.assert_not_called()
 
 
 @patch("pipelines.utils.tasks.dump_header")
