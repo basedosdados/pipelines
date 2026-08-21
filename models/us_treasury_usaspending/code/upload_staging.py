@@ -93,6 +93,7 @@ def _publicize_staging(bq: bigquery.Client, dataset_ref: str) -> None:
     """
     dataset = bq.get_dataset(dataset_ref)
     if any(a.entity_id == "allUsers" for a in dataset.access_entries):
+        print(f"  allUsers dataViewer already granted on {dataset_ref}")
         return
     entries = list(dataset.access_entries)
     entries.append(
@@ -186,7 +187,22 @@ def main() -> None:
         action="store_true",
         help="do not re-send objects already in GCS at the same size",
     )
+    ap.add_argument(
+        "--publicize-only",
+        action="store_true",
+        help="only grant allUsers dataViewer on the staging dataset, then exit",
+    )
     args = ap.parse_args()
+
+    if args.publicize_only:
+        # Run with GOOGLE_APPLICATION_CREDENTIALS pointing at the service
+        # account that owns the dataset — `bq` uses gcloud's own auth and will
+        # not pick that key up, which reads as needing an admin account.
+        _publicize_staging(
+            bigquery.Client(project=args.project),
+            f"{args.project}.{DATASET_ID}_staging",
+        )
+        return
 
     for table in args.tables:
         print(f"{table}:")
