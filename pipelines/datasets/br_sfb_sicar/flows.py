@@ -20,7 +20,7 @@ import tempfile
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
-from prefect import flow
+from prefect import flow  # noqa: F401 — unused while @flow below is disabled
 
 from pipelines.crawler.sfb_sicar.constants import Constants
 from pipelines.crawler.sfb_sicar.tasks import (
@@ -206,7 +206,12 @@ def _bq_table_exists(project: str, table_id: str) -> bool:
         return False
 
 
-@flow(name="br_sfb_sicar", log_prints=True)
+# Desativado temporariamente: job_variables["env"] só é aceito num formato
+# pelo work pool basedosdados (array) e noutro pelo basedosdados-dev (dict),
+# então nenhum formato único passa nos dois — quebra `deploy_flows.py --all`
+# a cada push em main (basedosdados/pipelines#1893). Reativar com @flow(...)
+# quando os work pools tiverem o mesmo schema pra env.
+# @flow(name="br_sfb_sicar", log_prints=True)
 def br_sfb_sicar_flow(
     materialize_to_prod: bool = True,
     update_metadata: bool = True,
