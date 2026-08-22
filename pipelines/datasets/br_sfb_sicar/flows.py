@@ -20,7 +20,7 @@ import tempfile
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
-from prefect import flow
+from prefect import flow  # noqa: F401 — unused while @flow below is disabled
 
 from pipelines.crawler.sfb_sicar.constants import Constants
 from pipelines.crawler.sfb_sicar.tasks import (
@@ -206,7 +206,12 @@ def _bq_table_exists(project: str, table_id: str) -> bool:
         return False
 
 
-@flow(name="br_sfb_sicar", log_prints=True)
+# Desativado temporariamente: job_variables["env"] só é aceito num formato
+# pelo work pool basedosdados (array) e noutro pelo basedosdados-dev (dict),
+# então nenhum formato único passa nos dois — quebra `deploy_flows.py --all`
+# a cada push em main (basedosdados/pipelines#1893). Reativar com @flow(...)
+# quando os work pools tiverem o mesmo schema pra env.
+# @flow(name="br_sfb_sicar", log_prints=True)
 def br_sfb_sicar_flow(
     materialize_to_prod: bool = True,
     update_metadata: bool = True,
@@ -494,15 +499,20 @@ br_sfb_sicar_flow.deploy_schedules = [
 # Memory: the clean is bounded to one feature range per subprocess, so it does
 # not need much — but the pod must actually get what we ask for. This work pool's
 # job template may key memory as either ``memory`` or ``memory_limit`` /
-# ``memory_request``; a key it does not recognize is silently dropped (the ``env``
-# key was), which can leave the pod on a small default limit. Set both
-# conventions; ``container_memory_limit_gb`` logs the limit the pod actually got.
+# ``memory_request``. Set both conventions; ``container_memory_limit_gb`` logs
+# the limit the pod actually got.
 # MALLOC_ARENA_MAX (env, plus the utils.py mallopt/malloc_trim backstops) is a
-# cheap second bound on any single range's glibc footprint.
+# cheap second bound on any single range's glibc footprint. The work pool's
+# `env` variable is a Kubernetes-style array of {name, value} objects, not a
+# flat dict — a dict here fails server-side schema validation on every
+# full-catalog deploy (basedosdados/pipelines#1893).
 # pyrefly: ignore [missing-attribute]
 br_sfb_sicar_flow.job_variables = {
     "memory": "12Gi",
     "memory_limit": "12Gi",
     "memory_request": "4Gi",
-    "env": {"MALLOC_ARENA_MAX": "2", "MALLOC_TRIM_THRESHOLD_": "131072"},
+    "env": [
+        {"name": "MALLOC_ARENA_MAX", "value": "2"},
+        {"name": "MALLOC_TRIM_THRESHOLD_", "value": "131072"},
+    ],
 }
