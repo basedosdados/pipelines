@@ -6,9 +6,8 @@
         partition_by={
             "field": "data_referencia",
             "data_type": "date",
+            "granularity": "month",
         },
-        cluster_by=["sigla_uf"],
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
 
@@ -114,33 +113,28 @@ with
             ) as mun
             on lower_munis.nome_mun = mun.nome_municipio
             and lower_munis.sigla_uf = mun.sigla_uf1
-    ),
-    final as (
-        select
-            safe_cast(data as date) data_referencia,
-            safe_cast(
-                format_date(
-                    '%Y-%m-%d', safe.parse_date('%Y%m%d', data_inscricao)
-                ) as date
-            ) as data_inscricao,
-            safe_cast(id_imovel_receita_federal as string) id_imovel_receita_federal,
-            safe_cast(id_imovel_incra as string) id_imovel_incra,
-            safe_cast(nome as string) nome,
-            safe_cast(area as float64) area,
-            safe_cast(cd_rever as string) status_sncr,
-            safe_cast(status_rever as string) tipo_itr,
-            safe_cast(situacao as string) situacao_imovel,
-            safe_cast(endereco as string) endereco,
-            safe_cast(cep as string) cep,
-            safe_cast(zona_redefinir as string) distrito,
-            safe_cast(id_municipio as string) id_municipio,
-            safe_cast(sigla_uf as string) sigla_uf,
-        -- - esta coluna não é identifica no dicionário nem nomeada nos arquivos
-        -- - SAFE_CAST(LOWER(status_rever) as STRING) coluna_nao_identificada,
-        from fixed_names as t
     )
-select *
-from final
+select
+    safe_cast(data as date) data_referencia,
+    safe_cast(data_modificacao as date) data_modificacao,
+    safe_cast(
+        format_date('%Y-%m-%d', safe.parse_date('%Y%m%d', data_inscricao)) as date
+    ) as data_inscricao,
+    safe_cast(id_imovel_receita_federal as string) id_imovel_receita_federal,
+    safe_cast(id_imovel_incra as string) id_imovel_incra,
+    safe_cast(nome as string) nome,
+    safe_cast(area as float64) area,
+    safe_cast(cd_rever as string) status_sncr,
+    safe_cast(status_rever as string) tipo_itr,
+    safe_cast(situacao as string) situacao_imovel,
+    safe_cast(endereco as string) endereco,
+    safe_cast(cep as string) cep,
+    safe_cast(zona_redefinir as string) distrito,
+    safe_cast(id_municipio as string) id_municipio,
+    safe_cast(sigla_uf as string) sigla_uf,
+-- - esta coluna não é identifica no dicionário nem nomeada nos arquivos
+-- - SAFE_CAST(LOWER(status_rever) as STRING) coluna_nao_identificada,
+from fixed_names as t
 {% if is_incremental() %}
-    where data_referencia > (select max(data_referencia) from {{ this }})
+    where data > format_date('%Y-%m-%d', (select max(data_referencia) from {{ this }}))
 {% endif %}
