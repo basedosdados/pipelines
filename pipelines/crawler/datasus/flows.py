@@ -255,10 +255,6 @@ def _run_dbf_to_parquet(
         )
 
 
-def _run_siasus(**kwargs) -> None:
-    _run_dbf_to_parquet(source_format="csv", fonte_label="SIA", **kwargs)
-
-
 def _run_sihsus(**kwargs) -> None:
     _run_dbf_to_parquet(source_format="parquet", fonte_label="SIH", **kwargs)
 
