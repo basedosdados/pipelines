@@ -550,6 +550,9 @@ models:
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections
+    us_treasury_usaspending:
+      +materialized: table
+      +schema: us_treasury_usaspending
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
