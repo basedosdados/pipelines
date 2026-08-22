@@ -10,6 +10,7 @@ Tabelas:
 |---|---|---|
 | `operacoes_indiretas_automaticas` | operação (forma indireta automática) | ✅ |
 | `operacoes_administracao_publica` | operação com ente da Administração Pública Direta | ✅ |
+| `operacoes_exportacao_bens` | subcrédito de operação de exportação pós-embarque de bens | ✅ |
 | `operacoes_nao_automaticas` | subcrédito (forma direta e indireta não automática) | ❌ (só modelo dbt) |
 
 ## Estrutura (compartilhada)
@@ -121,6 +122,89 @@ Estadual, Administração Municipal). Grão = uma operação. Cobertura nacional
   `FLOAT64`, BRL.
 - `has_sensitive_data = no` (entes públicos, sem CPF/CNPJ de pessoa). Cobertura pública →
   `AllFree`, sem paywall BD Pro.
+
+## operacoes_exportacao_bens
+
+### O que é
+
+Operações de financiamento à **exportação pós-embarque de bens** (comercialização de bens
+brasileiros no exterior; os desembolsos são feitos no Brasil, em reais, ao exportador).
+Grão = **subcrédito**: o dicionário do BNDES diz que cada operação pode ter um ou mais
+subcréditos, com condições financeiras distintas, e que o somatório das linhas com o mesmo
+número de operação equivale ao valor total da operação. Cobertura nacional, **2002-01 a
+2026-06**, ~2,3 mil linhas.
+
+### Fonte
+
+Conjunto CKAN `operacoes-exportacao`, recurso `0cfe4594-44bf-48a8-a79a-686fc2d0db95`
+(~978 KB, `;` / cp1252). O mesmo conjunto publica pré-embarque e pós-embarque de serviços
+de engenharia — recursos distintos, fora desta tabela. Sinal de atualização =
+`last_modified` do recurso, mensal.
+
+### Decisões de modelagem
+
+- **A fonte não publica valores.** O BNDES omite os montantes por sigilo de preço unitário
+  dos bens, então a tabela não tem nenhuma coluna monetária — é um catálogo de operações.
+  Por isso `parse_decimal_ptbr` não é usado aqui.
+- **Sem chave primária, e sem `unique_combination_of_columns`** — igual às irmãs. Nenhuma
+  combinação de colunas identifica a linha: 47 linhas são idênticas a outra em todas as 21
+  colunas da fonte. `id_operacao` tem 1.888 valores distintos em 2.321 linhas; o prefixo
+  `id_` marca a entidade, não unicidade. A repetição é estrutural (subcréditos da mesma
+  operação, e mais de um contrato/desconto de título por operação — o que também explica
+  datas diferentes para o mesmo número).
+- **`id_operacao` tem dois formatos.** 796 linhas trazem só o número de 7 dígitos
+  (117 com zero à esquerda significativo) e 1.525 vêm como `numero_base/desdobramento`
+  (`2272455/0001`). Os desdobramentos são exclusivos da linha **Exim Automático** — a
+  correspondência com `produto` é exata. O dicionário os atribui a "cada número base poder
+  ter um exportador/importador diferente", mas isso só se confirma em 25 das 210 bases com
+  mais de um desdobramento (o importador não é publicado). Fica STRING, sem desmembrar.
+- **`setor_subsetor_de_atividade` vira `setor_bndes` + `subsetor_bndes`, cortando no
+  ÚLTIMO `/`.** O corte no primeiro separador estaria errado: o próprio setor pode conter
+  barra (`COMERCIO/SERVICOS/<subsetor>`, 106 linhas). Pelo último `/` os setores são
+  `INDUSTRIA`, `COMERCIO/SERVICOS` e `COMERCIO`; 9 linhas não têm barra e ficam sem
+  subsetor. É agrupamento estatístico próprio do BNDES ("agrupamentos de códigos das seções
+  e divisões da CNAE"), então **não vira FK de CNAE** — mesma decisão da
+  `operacoes_indiretas_automaticas`.
+- **`tipo_garantia` é multivalorado e precisa de normalização.** A operação pode combinar
+  vários tipos, separados por `/`, e a fonte varia o espaçamento e a caixa (`Real / Pessoal` e
+  `Real/ Pessoal`; `Seguro de crédito/FGE`, `Seguro de Crédito / FGE` e
+  `Seguro de crédito/ FGE`). O `clean` padroniza o separador de combinação para ` / `,
+  protegendo antes os rótulos que têm barra no próprio nome (`Seguro de crédito/FGE`,
+  `CCR/ALADI`) — 15 grafias viram 11 valores. É a primeira normalização de grafia do
+  conjunto.
+- **Geografia pelo diretório:** `sigla_uf` direto da fonte; `pais_destino` (NOME) fica como
+  `nome_pais_destino` no staging e vira **`sigla_pais_destino`** (ISO 3166-1 alfa-3) no
+  dbt, por join normalizado (maiúsculas, sem acento) contra
+  `br_bd_diretorios_mundo.pais` — mesmo desenho que a `operacoes_administracao_publica`
+  usa para município. A coluna é `sigla_`, e não `id_`, porque a chave do diretório é
+  `sigla_iso3`; não existe `id_pais`. `DIVERSOS` (82 linhas) vira NA; dos 25 países, 24
+  casam automaticamente e só `PAISES BAIXOS(HOLAN)` entra por CASE (no diretório o nome é
+  "Holanda", `NLD`).
+- **`sigla_moeda` normalizada para ISO**: a fonte traz `US$ COMPRA` e `EUR C`.
+- **`descricao_da_operacao` → `tipo_operacao`** e **`mutuario` → `tipo_mutuario`**: são
+  categóricos de 2 valores e `descricao_` não está entre os prefixos do manual de estilo.
+  Atenção na descrição da coluna: o **mutuário é o ente estrangeiro** responsável pelo
+  pagamento, não o exportador.
+- **Tipos do dicionário oficial não são confiáveis** (mesmo padrão do erro de unidade em
+  `operacoes_administracao_publica`): ele declara `CNPJ do Exportador` como `int64` — o CSV
+  traz `88.611.835/0001-29`, com pontuação — e `Numero da operacao` como `Int64`, que
+  contém `/` e zeros à esquerda. Ambos são STRING.
+- Quatro colunas são constantes na série inteira (`area_operacional`, `modalidade_apoio`,
+  `forma_apoio`, `categoria`) e permanecem no schema. O dicionário explica: toda operação
+  de financiamento à exportação do BNDES é reembolsável, e toda a base é do produto BNDES
+  Exim Pós-embarque (a linha Exim Automático é a indicação adicional em `produto`).
+- Cobertura pública → `AllFree`, sem paywall BD Pro.
+
+### Notas para descrição de coluna
+
+- `porte_exportador` é o porte **na data da contratação**, pela política vigente à época —
+  não é comparável ao longo da série.
+- `fonte_recurso` refere-se aos **desembolsos**; um contrato pode ter várias fontes entre
+  seus subcréditos.
+- `custo_financeiro` pode ser composto (variação cambial + indexador); em
+  `Taxa de juros em moeda estrangeira` a taxa é só variação cambial + juros.
+- `modalidade_operacional`: `Supplier` = desconto de títulos de crédito; `Buyer` = apenas
+  contrato de financiamento.
 
 ## operacoes_nao_automaticas
 
