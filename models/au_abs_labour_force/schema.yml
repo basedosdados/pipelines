@@ -15,8 +15,12 @@ models:
             - sex
             - age_group
             - adjustment_type
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >-
@@ -26,6 +30,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year_en__
       - name: month
         description: >-
           Reference month of the observation, from 1 to 12
@@ -34,6 +40,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
               field: mes.mes
+              config:
+                where: __most_recent_year_en__
       - name: geography
         description: >-
           Geographic area: Australia (national) or one of the eight states and territories
@@ -102,8 +110,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, month, geography, sex, hours_band]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >-
@@ -113,6 +125,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year_en__
       - name: month
         description: >-
           Reference month of the observation, from 1 to 12
@@ -121,6 +135,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
               field: mes.mes
+              config:
+                where: __most_recent_year_en__
       - name: geography
         description: >-
           Geographic area: Australia (national) or one of the eight states and territories
@@ -154,8 +170,12 @@ models:
             - geography
             - sex
             - status_in_employment
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >-
@@ -165,6 +185,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year_en__
       - name: month
         description: >-
           Reference month of the observation, from 1 to 12
@@ -173,6 +195,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
               field: mes.mes
+              config:
+                where: __most_recent_year_en__
       - name: geography
         description: >-
           Geographic area: Australia (national) or one of the eight states and territories
@@ -209,8 +233,12 @@ models:
             - sex
             - age_group
             - adjustment_type
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >-
@@ -220,6 +248,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year_en__
       - name: month
         description: >-
           Reference month of the observation, from 1 to 12
@@ -228,6 +258,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
               field: mes.mes
+              config:
+                where: __most_recent_year_en__
       - name: geography
         description: >-
           Geographic area: Australia (national) or one of the eight states and territories

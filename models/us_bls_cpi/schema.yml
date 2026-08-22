@@ -15,8 +15,12 @@ models:
             - seasonal_adjustment
             - area_id
             - item_id
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Reference year of the index observation
@@ -25,6 +29,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year_en__
       - name: month
         description: Reference month of the index observation, from 1 to 12
         tests:
@@ -32,6 +38,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
               field: mes.mes
+              config:
+                where: __most_recent_year_en__
       - name: survey
         description: >-
           CPI survey population: CPI-U for all urban consumers or CPI-W for urban
@@ -79,8 +87,12 @@ models:
             - seasonal_adjustment
             - area_id
             - item_id
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Reference year of the annual average
@@ -89,6 +101,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year_en__
       - name: survey
         description: >-
           CPI survey population: CPI-U for all urban consumers or CPI-W for urban
@@ -134,8 +148,12 @@ models:
             - seasonal_adjustment
             - area_id
             - item_id
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Reference year of the index observation
@@ -144,6 +162,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year_en__
       - name: half
         description: >-
           Half of the year for semiannual series, 1 for the first half and 2 for
