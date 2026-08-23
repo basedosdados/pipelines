@@ -51,7 +51,7 @@ gcs.Client.bucket = _patched_bucket
 # the source Public Use Files: 227,031 + 157,525 + 3,660 = 388,216 respondents.
 TABLES = [
     ("variable", 3_811),
-    ("dictionary", 33_424),
+    ("dictionary", 35_190),
     ("respondent_cycle_1_usa_national", 3_660),
     ("respondent_cycle_2", 157_525),
     ("respondent_cycle_1", 227_031),

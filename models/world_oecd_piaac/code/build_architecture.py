@@ -72,6 +72,55 @@ TEMPORAL_COVERAGE = {"1": "2012(1)2017", "2": "2023(1)2023"}
 RENAMED_INTO_GRAIN_LOWER = {"cntryid_e": "country_entity_id"}
 
 
+# The codebook names a lookup sheet in the value-scheme cell, but not always by
+# the sheet's own name: CNT_BRTH and CNT_H both mean the CNT_H_BRTH sheet. Cycle
+# 1 has no lookup sheets at all, so its equivalent columns borrow Cycle 2's --
+# the code lists are the same international standards.
+SHEET_ALIASES = {
+    "CNT_BRTH": "CNT_H_BRTH",
+    "CNT_H": "CNT_H_BRTH",
+    "CTRYQUAL": "CNT_H_BRTH",
+    "CNT_QUAL": "CNT_H_BRTH",
+    "REG_TL2_NEW": "REG_TL2_new",
+}
+COLUMN_SHEETS = {
+    "REG_TL2": ("REG_TL2", "REG_TL2_new", "REG_MACRO"),
+    "REG_MACRO": ("REG_MACRO",),
+    "CNT_H": ("CNT_H_BRTH",),
+    "CNT_BRTH": ("CNT_H_BRTH",),
+    "CTRYQUAL": ("CNT_H_BRTH",),
+    "LNG_HOME": ("Languages",),
+    "LNG_L1": ("Languages",),
+    "LNG_L2": ("Languages",),
+    "LNG_BQ": ("Languages",),
+    "LNG_CI": ("Languages",),
+    "LNG_DS": ("Languages",),
+}
+
+
+def sheet_pairs(variable, sheets: dict) -> list[tuple[str, str]]:
+    """Every (code, label) pair a variable's lookup sheets can supply.
+
+    Resolved by the scheme cell, by alias, and by the variable's own name, and
+    merged across sheets where a column draws on more than one (a TL2 region can
+    be a region, a new-vintage region or a macro region).
+    """
+    pairs: list[tuple[str, str]] = []
+    scheme = variable.value_scheme.strip()
+    names = []
+    for candidate in (scheme, SHEET_ALIASES.get(scheme.upper(), "")):
+        if candidate and candidate in sheets:
+            names.append(candidate)
+    names.extend(COLUMN_SHEETS.get(variable.name.upper(), ()))
+    seen = set()
+    for name in names:
+        for key, value in sheets.get(name, []):
+            if key not in seen:
+                seen.add(key)
+                pairs.append((key, value))
+    return pairs
+
+
 def split_packed(scheme: str) -> list[tuple[str, str]]:
     """Split "1: Male; 2: Female" into pairs.
 
@@ -292,7 +341,7 @@ def build_dictionary(all_variables: dict, sheets: dict) -> list[dict]:
             ):
                 continue
             scheme = variable.value_scheme.strip()
-            pairs = sheets.get(scheme) or split_packed(scheme)
+            pairs = sheet_pairs(variable, sheets) or split_packed(scheme)
             # Reserved codes are answers too -- refused, don't know, valid skip --
             # and belong in the dictionary alongside the substantive ones. Key
             # them on the SAS coding, which is what the CSV PUFs carry; the SPSS
@@ -386,6 +435,29 @@ def build_cycle_1_dictionary(
                 }
             )
     workbook.close()
+
+    # Cycle 1's Values sheet does not enumerate the big international code lists
+    # (regions, countries of birth, languages), so borrow Cycle 2's lookup
+    # sheets for the same columns. The lists are the same standards.
+    declared_keys = {(r["column_name"], r["key"]) for r in records}
+    for column in sorted(
+        set(COLUMN_SHEETS) & {c.upper() for c in respondent_names}
+    ):
+        column = column.lower()
+        for sheet_name in COLUMN_SHEETS.get(column.upper(), ()):
+            for key, value in sheets.get(sheet_name, []):
+                if (column, key) in declared_keys:
+                    continue
+                declared_keys.add((column, key))
+                records.append(
+                    {
+                        "table_id": "respondent_cycle_1",
+                        "column_name": column,
+                        "key": key,
+                        "temporal_coverage": TEMPORAL_COVERAGE["1"],
+                        "value": value,
+                    }
+                )
 
     # As in Cycle 2: the coded language, occupation and industry columns carry the
     # numeric reserved family in the data even though the Values sheet lists only
