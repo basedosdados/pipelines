@@ -225,6 +225,8 @@ def load_codebook(path: Path, cycle: str) -> list[Variable]:
                     _text(row[7]),
                     _text(row[8]),
                     "",
+                    "",
+                    int(row[5] or 0),
                 )
             )
     else:

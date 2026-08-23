@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import datetime as dt
 import importlib.util
 import json
 import sys
@@ -108,6 +109,52 @@ TABLE_NAMES = {
     "variable": ("Variáveis", "Variables", "Variables"),
     "dictionary": ("Dicionário", "Dictionary", "Diccionario"),
 }
+
+# Chosen from the existing vocabulary and describing the subject matter only.
+# Deliberately excludes anything already carried as other metadata: no place
+# names (that is Coverage) and no theme words -- `educacao` and `economia` would
+# just restate the two themes attached above.
+TAGS = [
+    "alfabetizacao",
+    "habilidade",
+    "escolaridade",
+    "aprendizagem",
+    "avaliacao_da_educacao",
+    "ocupacao",
+    "emprego",
+    "salario",
+]
+
+# Which entities each table is observed at, and the column identifying each.
+# Microdata is one row per person, so a single `person` level -- not
+# [person, year] -- with the item tables adding `item`.
+OBSERVATION_LEVELS: dict[str, list[tuple[str, str]]] = {
+    "respondent_cycle_1": [("person", "respondent_id")],
+    "respondent_cycle_2": [("person", "respondent_id")],
+    "respondent_cycle_1_usa_national": [("person", "respondent_id")],
+    "item_response_cycle_1": [
+        ("person", "respondent_id"),
+        ("item", "item_code"),
+    ],
+    "item_response_cycle_2": [
+        ("person", "respondent_id"),
+        ("item", "item_code"),
+    ],
+}
+
+# Years each table covers. PIAAC has no year variable; these follow the cycle
+# and round mapping in constants.py.
+COVERAGE_YEARS = {
+    "respondent_cycle_1": (2012, 2017),
+    "item_response_cycle_1": (2012, 2017),
+    "respondent_cycle_1_usa_national": (2017, 2017),
+    "respondent_cycle_2": (2023, 2023),
+    "item_response_cycle_2": (2023, 2023),
+    "variable": (2012, 2023),
+    "dictionary": (2012, 2023),
+}
+
+AREA_WORLD = "world"
 
 RAW_SOURCES = [
     (
@@ -301,6 +348,17 @@ TRANSLATED: dict[str, tuple[str, str]] = {
 }
 
 
+def column_ids(dataset_slug: str, table_slug: str, env: str) -> dict[str, str]:
+    """Map column name to id for one table, read back after registration."""
+    tables = (
+        tool(BD.get_dataset)(slug=dataset_slug, env=env).get("tables") or {}
+    )
+    if not isinstance(tables, dict):
+        return {}
+    entry = tables.get(table_slug) or {}
+    return {c["name"]: c["id"] for c in entry.get("columns", [])}
+
+
 def read_architecture(slug: str) -> list[dict]:
     with (CODE_DIR / "architecture" / f"{slug}.csv").open(
         encoding="utf-8"
@@ -340,6 +398,7 @@ def main() -> None:
     bucket = "basedosdados" if env == "prod" else "basedosdados-dev"
     gcp_project = "basedosdados" if env == "prod" else "basedosdados-dev"
 
+    today = dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat()
     tool(BD.auth)(env=env)
     ids = tool(BD.discover_ids)(
         env=env,
@@ -349,11 +408,15 @@ def main() -> None:
             "availability",
             "organization",
             "theme",
+            "tag",
             "entity",
         ],
     )
     account = tool(BD.get_authenticated_account)(env=env)
     account_id = account["id"]
+    area_id = tool(BD.lookup_id)(category="area", slug=AREA_WORLD, env=env)[
+        "id"
+    ]
     print(f"authenticated as {account.get('email', account_id)}")
 
     # create_update_dataset matches on id, not slug: calling it without one
@@ -374,7 +437,7 @@ def main() -> None:
         description_es=DATASET_DESCRIPTION["es"],
         organization_ids=[ids["organization"]["oecd"]],
         theme_ids=[ids["theme"]["education"], ids["theme"]["economics"]],
-        tag_ids=[],
+        tag_ids=[ids["tag"][t] for t in TAGS],
         status_id=ids["status"]["under_review"],
         env=env,
     )
@@ -484,6 +547,53 @@ def main() -> None:
             env=env,
         )
 
+        # Observation levels, and the column identifying each. Without the column
+        # link the site renders the level's columns as "Nao informado".
+        by_name = column_ids(DATASET_SLUG, table_slug, env)
+        for entity_slug, identifying_column in OBSERVATION_LEVELS.get(
+            table_slug, []
+        ):
+            level = tool(BD.create_update_observation_level)(
+                table_id=table_id,
+                entity_id=ids["entity"][entity_slug],
+                env=env,
+            )
+            column_id = by_name.get(identifying_column)
+            if column_id:
+                # update_column's booleans default to False, so a bare call would
+                # clear is_partition on the way past.
+                tool(BD.update_column)(
+                    column_id=column_id,
+                    column_name=identifying_column,
+                    table_id=table_id,
+                    observation_level_id=level["id"],
+                    is_partition=identifying_column == "year",
+                    env=env,
+                )
+
+        coverage = tool(BD.create_update_coverage)(
+            table_id=table_id, area_id=area_id, env=env
+        )
+        start_year, end_year = COVERAGE_YEARS[table_slug]
+        tool(BD.create_update_datetime_range)(
+            coverage_id=coverage["id"],
+            start_year=start_year,
+            end_year=end_year,
+            interval=1,
+            env=env,
+        )
+
+        # Table-anchored: `latest` is when Data Basis last refreshed the table,
+        # not the newest date in the data. PIAAC releases roughly once a decade.
+        tool(BD.create_update_update)(
+            table_id=table_id,
+            entity_id=ids["entity"]["year"],
+            frequency=10,
+            latest=today,
+            env=env,
+        )
+        print(f"    levels/coverage/update ok ({start_year}-{end_year})")
+
     print(
         "\nregistered. run with --publish to flip the dataset to published on this env."
     )
@@ -499,7 +609,7 @@ def main() -> None:
             description_es=DATASET_DESCRIPTION["es"],
             organization_ids=[ids["organization"]["oecd"]],
             theme_ids=[ids["theme"]["education"], ids["theme"]["economics"]],
-            tag_ids=[],
+            tag_ids=[ids["tag"][t] for t in TAGS],
             status_id=ids["status"]["published"],
             env=env,
         )

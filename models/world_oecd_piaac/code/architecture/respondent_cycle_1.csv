@@ -6,7 +6,7 @@ country_id_iso_3,STRING,ISO 3166-1 alpha-3 code of the participating country,,no
 country_id_m49,STRING,UN M49 numeric code of the participating country,,no,br_bd_diretorios_mundo.pais:id_m49,,no,,CNTRYID
 country_entity_id,STRING,Code of the participating country or sub-national entity as reported by PIAAC,,yes,,,no,"Distinct from country_id_m49 where a country took part as a sub-national entity: Belgium participated as Flanders in both cycles and the United Kingdom as England in Cycle 2. Not a country code, so it carries no directory link",CNTRYID_E
 respondent_id,STRING,Randomly derived sequential identifier of the respondent,,no,,,no,"Unique within a country and cycle only, never across them; combine with year and country_id_iso_3 for a unique key",SEQID
-age_r,INT64,Person resolved age from BQ and QC check (derived),,no,,year,no,Set to NULL when loading where the source recorded: Not stated or inferred,AGE_R
+age_r,INT64,Person resolved age from BQ and QC check (derived),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",AGE_R
 gender_r,STRING,Person resolved gender from BQ and QC check (derived),,yes,,,no,,GENDER_R
 disp_cibq,STRING,Final disposition code for person - combining CI and BQ/JRA (derived),,yes,,,no,,DISP_CIBQ
 disp_main,STRING,Final disposition code for person for Main task instrument (derived),,yes,,,no,,DISP_MAIN
@@ -147,7 +147,7 @@ d_q08b,STRING,Current work - Managing other employees - Count,,yes,,,no,,D_Q08b
 d_q09,STRING,Current work - Type of contract,,yes,,,no,,D_Q09
 d_q10,INT64,Current work - Hours/week,,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_Q10
 d_q10_c,INT64,Current work - Hours/week (top-coded at 60),,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_Q10_C
-d_q10_t,INT64,"Hours per week at this job or business - number of hours (top coded at 97, Trend-IALS/ALL)",,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know/Refused, Not stated or inferred, Valid skip",D_Q10_T
+d_q10_t,INT64,"Hours per week at this job or business - number of hours (top coded at 97, Trend-IALS/ALL)",,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Don't know/Refused, Not stated or inferred, Valid skip",D_Q10_T
 d_q10_t1,STRING,Hours per week at this job or business - range of hours (Trend-IALS/ALL),,yes,,,no,,D_Q10_T1
 d_q11a,STRING,Current work - Work flexibility - Sequence of tasks,,yes,,,no,,D_Q11a
 d_q11b,STRING,Current work - Work flexibility - How to do the work,,yes,,,no,,D_Q11b
@@ -299,7 +299,7 @@ i_q08,STRING,About yourself - Health - State,,yes,,,no,,I_Q08
 i_q08_t,STRING,General health (Trend-IALS/ALL),,yes,,,no,,I_Q08_T
 j_q01,INT64,Background - People in household,,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J_Q01
 j_q01_c,INT64,Background - People in household (top-coded at 6),,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J_Q01_C
-j_q01_t,INT64,Number living in household (Trend-IALS/ALL),,no,,person,no,"Set to NULL when loading where the source recorded: Don't know/Refused, Not stated or inferred, Valid skip",J_Q01_T
+j_q01_t,INT64,Number living in household (Trend-IALS/ALL),,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Don't know/Refused, Not stated or inferred, Valid skip",J_Q01_T
 j_q01_t1,STRING,Number living in household (from 1 to 7) (Trend-IALS/ALL),,yes,,,no,,J_Q01_T1
 j_q02a,STRING,Background - Living with spouse or partner,,yes,,,no,,J_Q02a
 j_q02c,STRING,Background - Work situation of spouse or partner,,yes,,,no,,J_Q02c
@@ -345,11 +345,11 @@ random_cba_module2_stage2,STRING,Random number for selection of domain (L/N) in 
 cba_start,STRING,Computer-based exercise agreement,,yes,,,no,,CBA_START
 ppc_score,FLOAT64,Final score for the paper core assessment,,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score",PPC_SCORE
 random_pp,STRING,Random number for selection of Paper Booklets,,no,,,no,,RANDOM_PP
-prc_pv_q1,INT64,Sentence Timer for Print Vocabulary items,,no,,second,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PV_Q1
-prc_sp_q1,INT64,Sentence Timer for Sentence Processing items,,no,,second,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_SP_Q1
-prc_pf_q1,INT64,Sentence Timer for Passage Comprehension items - passage 1,,no,,second,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PF_Q1
-prc_pf_q2,INT64,Sentence Timer for Passage Comprehension items - passage 2,,no,,second,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PF_Q2
-prc_pf_q3,INT64,Sentence Timer for Passage Comprehension items - passage 3 and 4,,no,,second,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PF_Q3
+prc_pv_q1,INT64,Sentence Timer for Print Vocabulary items,,no,,second,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_PV_Q1
+prc_sp_q1,INT64,Sentence Timer for Sentence Processing items,,no,,second,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_SP_Q1
+prc_pf_q1,INT64,Sentence Timer for Passage Comprehension items - passage 1,,no,,second,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_PF_Q1
+prc_pf_q2,INT64,Sentence Timer for Passage Comprehension items - passage 2,,no,,second,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_PF_Q2
+prc_pf_q3,INT64,Sentence Timer for Passage Comprehension items - passage 3 and 4,,no,,second,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_PF_Q3
 paper,STRING,Paper branch (derived),,yes,,,no,,PAPER
 cbamod1,STRING,CBA module 1 branch (derived),,yes,,,no,,CBAMOD1
 cbamod2,STRING,CBA module 2 branch (derived),,yes,,,no,,CBAMOD2
@@ -389,7 +389,7 @@ reg_tl2,STRING,Geographical region - Respondent (OECD TL2) (coded),,yes,,,no,,RE
 lng_bq,STRING,"Language for background questionnaire (derived, ISO 639-2/T)",,yes,,,no,,LNG_BQ
 lng_ci,STRING,"Language for exercise (derived, ISO 639-2/T)",,yes,,,no,,LNG_CI
 yrsqual,INT64,Highest level of education obtained imputed into years of education (derived),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",YRSQUAL
-yrsqual_t,INT64,Derived variable on total years of schooling during lifetime - top coded at 24 (Trend-IALS/ALL),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know/Refused, Not stated or inferred, Valid skip",YRSQUAL_T
+yrsqual_t,INT64,Derived variable on total years of schooling during lifetime - top coded at 24 (Trend-IALS/ALL),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Don't know/Refused, Not stated or inferred, Valid skip",YRSQUAL_T
 yrsget,INT64,Imputed years of formal education needed to get the job (self-reported - derived),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",YRSGET
 vet,STRING,"Respondent's highest level of education obtained is vocationally oriented (derived, ISCED3 and 4 only)",,yes,,,no,,VET
 ctryqual,STRING,Country where highest qualification obtained (9 regions - derived),,yes,,,no,,CTRYQUAL
@@ -407,7 +407,7 @@ homlang,STRING,Test language same as language spoken most often at home (derived
 ctryrgn,STRING,Country region (9 regions),,yes,,,no,,CTRYRGN
 impar,STRING,Parents' immigration status (derived),,yes,,,no,,IMPAR
 imgen,STRING,First and second generation immigrants (derived),,yes,,,no,,IMGEN
-imyrs,INT64,Years in country (derived),,no,,year,no,"Set to NULL when loading where the source recorded: Native born, Not stated or inferred",IMYRS
+imyrs,INT64,Years in country (derived),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Native born, Not stated or inferred, Refused, Valid skip",IMYRS
 imyrs_c,STRING,"Years in country (categorised, 4 categories)",,yes,,,no,,IMYRS_C
 imyrcat,STRING,Years in country (2-category - derived),,yes,,,no,,IMYRCAT
 ageg5lfs,STRING,Age groups in 5-year intervals based on LFS groupings (derived),,yes,,,no,,AGEG5LFS
@@ -417,7 +417,7 @@ edcat8,STRING,Highest level of formal education obtained (8 categories - derived
 edcat7,STRING,Highest level of formal education obtained (7 categories - derived),,yes,,,no,,EDCAT7
 edcat6,STRING,Highest level of formal education obtained (6 categories - derived),,yes,,,no,,EDCAT6
 leaver1624,STRING,Youth aged 16 to 24 who have left education without completing ISCED 3 or higher (derived),,yes,,,no,,LEAVER1624
-leavedu,INT64,Respondent's age when leaving formal education (derived),,no,,year,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Still in education",LEAVEDU
+leavedu,INT64,Respondent's age when leaving formal education (derived),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Still in education, Valid skip",LEAVEDU
 fe12,STRING,Participated in formal education in 12 months preceding survey (derived),,yes,,,no,,FE12
 aetpop,STRING,Adult education/training population (AET) - excludes youths 16-24 in initial cycle of studies (derived),,yes,,,no,,AETPOP
 faet12,STRING,Participated in formal AET in 12 months preceding survey (see AETPOP - derived),,yes,,,no,,FAET12
@@ -432,9 +432,9 @@ fnfaet12jr,STRING,Participated in formal or non-formal AET for job-related reaso
 fnfaet12njr,STRING,Participated in formal or non-formal AET for non job-related reasons in 12 mon. preceding survey (see AETPOP - derived),,yes,,,no,,FNFAET12NJR
 edwork,STRING,Interaction between adults' work and education status (derived),,yes,,,no,,EDWORK
 neet,STRING,Adults not employed at time of survey and not in education or training in 12 months preceding the survey (derived),,yes,,,no,,NEET
-nfehrsnjr,FLOAT64,Number of hours of participation in non-formal education for non-job-related reasons (derived),,no,,hour,no,"Set to NULL when loading where the source recorded: Did not participate, Not stated or inferred",NFEHRSNJR
-nfehrsjr,FLOAT64,Number of hours of participation in non-formal education for job-related reasons (derived),,no,,hour,no,"Set to NULL when loading where the source recorded: Did not participate, Not stated or inferred",NFEHRSJR
-nfehrs,INT64,Number of hours of participation in non-formal education (derived),,no,,hour,no,"Set to NULL when loading where the source recorded: Did not participate, Not stated or inferred",NFEHRS
+nfehrsnjr,FLOAT64,Number of hours of participation in non-formal education for non-job-related reasons (derived),,no,,hour,no,"Set to NULL when loading where the source recorded: Did not participate, Don't know, Not stated or inferred, Refused, Valid skip",NFEHRSNJR
+nfehrsjr,FLOAT64,Number of hours of participation in non-formal education for job-related reasons (derived),,no,,hour,no,"Set to NULL when loading where the source recorded: Did not participate, Don't know, Not stated or inferred, Refused, Valid skip",NFEHRSJR
+nfehrs,INT64,Number of hours of participation in non-formal education (derived),,no,,hour,no,"Set to NULL when loading where the source recorded: Did not participate, Don't know, Not stated or inferred, Refused, Valid skip",NFEHRS
 nopaidworkever,STRING,Adults who never had paid work including self-employment in past (derived),,yes,,,no,,NOPAIDWORKEVER
 paidwork12,STRING,Adults who have had paid work during the 12 months preceding the survey (derived),,yes,,,no,,PAIDWORK12
 paidwork5,STRING,Adults who have had paid work in last 5 years (derived),,yes,,,no,,PAIDWORK5
@@ -462,31 +462,31 @@ earnmthalldcl,STRING,"Monthly earnings including bonuses for wage and salary ear
 earnmthallppp,FLOAT64,"Monthly earnings including bonuses for wage and salary earners and self-employed, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNMTHALLPPP
 earnmthbonusppp,FLOAT64,"Monthly earnings including bonuses for wage and salary earners, PPP corrected $US (derived)",,no,,usd,no,"Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",EARNMTHBONUSPPP
 earnflag,STRING,Earnings including bonuses reporting method (derived),,yes,,,no,,EARNFLAG
-learnatwork,FLOAT64,Index of learning at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",LEARNATWORK
+learnatwork,FLOAT64,Index of learning at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",LEARNATWORK
 learnatwork_wle_ca,STRING,"Index of learning at work, categorised WLE (derived)",,yes,,,no,,LEARNATWORK_WLE_CA
-readytolearn,FLOAT64,Index of readiness to learn (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",READYTOLEARN
+readytolearn,FLOAT64,Index of readiness to learn (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",READYTOLEARN
 readytolearn_wle_ca,STRING,"Index of readiness to learn, categorised WLE (derived)",,yes,,,no,,READYTOLEARN_WLE_CA
-icthome,FLOAT64,Index of use of ICT skills at home (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",ICTHOME
+icthome,FLOAT64,Index of use of ICT skills at home (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",ICTHOME
 icthome_wle_ca,STRING,"Index of use of ICT skills at home, categorised WLE (derived)",,yes,,,no,,ICTHOME_WLE_CA
-ictwork,FLOAT64,Index of use of ICT skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",ICTWORK
+ictwork,FLOAT64,Index of use of ICT skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",ICTWORK
 ictwork_wle_ca,STRING,"Index of use of ICT skills at work, categorised WLE (derived)",,yes,,,no,,ICTWORK_WLE_CA
-influence,FLOAT64,Index of use of influencing skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",INFLUENCE
+influence,FLOAT64,Index of use of influencing skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",INFLUENCE
 influence_wle_ca,STRING,"Index of use of influencing skills at work, categorised WLE (derived)",,yes,,,no,,INFLUENCE_WLE_CA
-numhome,FLOAT64,Index of use of numeracy skills at home (basic and advanced - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",NUMHOME
+numhome,FLOAT64,Index of use of numeracy skills at home (basic and advanced - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",NUMHOME
 numhome_wle_ca,STRING,"Index of use of numeracy skills at home (basic and advanced), categorised WLE (derived)",,yes,,,no,,NUMHOME_WLE_CA
-numwork,FLOAT64,Index of use of numeracy skills at work (basic and advanced - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",NUMWORK
+numwork,FLOAT64,Index of use of numeracy skills at work (basic and advanced - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",NUMWORK
 numwork_wle_ca,STRING,"Index of use of numeracy skills at work (basic and advanced), categorised WLE (derived)",,yes,,,no,,NUMWORK_WLE_CA
-planning,FLOAT64,Index of use of planning skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",PLANNING
+planning,FLOAT64,Index of use of planning skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",PLANNING
 planning_wle_ca,STRING,"Index of use of planning skills at work, categorised WLE (derived)",,yes,,,no,,PLANNING_WLE_CA
-readhome,FLOAT64,Index of use of reading skills at home (prose and document texts - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",READHOME
+readhome,FLOAT64,Index of use of reading skills at home (prose and document texts - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",READHOME
 readhome_wle_ca,STRING,"Index of use of reading skills at home (prose and document texts), categorised WLE (derived)",,yes,,,no,,READHOME_WLE_CA
-readwork,FLOAT64,Index of use of reading skills at work (prose and document texts - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",READWORK
+readwork,FLOAT64,Index of use of reading skills at work (prose and document texts - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",READWORK
 readwork_wle_ca,STRING,"Index of use of reading skills at work (prose and document texts), categorised WLE (derived)",,yes,,,no,,READWORK_WLE_CA
-taskdisc,FLOAT64,Index of use of task discretion at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",TASKDISC
+taskdisc,FLOAT64,Index of use of task discretion at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",TASKDISC
 taskdisc_wle_ca,STRING,"Index of use of task discretion at work, categorised WLE (derived)",,yes,,,no,,TASKDISC_WLE_CA
-writhome,FLOAT64,Index of use of writing skills at home (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",WRITHOME
+writhome,FLOAT64,Index of use of writing skills at home (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",WRITHOME
 writhome_wle_ca,STRING,"Index of use of writing skills at home, categorised WLE (derived)",,yes,,,no,,WRITHOME_WLE_CA
-writwork,FLOAT64,Index of use of writing skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Valid skip",WRITWORK
+writwork,FLOAT64,Index of use of writing skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",WRITWORK
 writwork_wle_ca,STRING,"Index of use of writing skills at work, categorised WLE (derived)",,yes,,,no,,WRITWORK_WLE_CA
 litstatus,STRING,Literacy - PV Status,,yes,,,no,,LITSTATUS
 pvlit1,FLOAT64,Literacy scale score - Plausible value 1,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVLIT1
@@ -521,9 +521,9 @@ pvpsl7,FLOAT64,Problem-solving scale score - Plausible value 7,,no,,score_point,
 pvpsl8,FLOAT64,Problem-solving scale score - Plausible value 8,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL8
 pvpsl9,FLOAT64,Problem-solving scale score - Plausible value 9,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL9
 pvpsl10,FLOAT64,Problem-solving scale score - Plausible value 10,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL10
-prc_pv_scr,FLOAT64,Total Score for Reading Components Section - Print Vocabulary (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PV_SCR
-prc_sp_scr,FLOAT64,Total Score for Reading Components Section - Sentence Processing (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_SP_SCR
-prc_pc_scr,FLOAT64,Total Score for Reading Components Section - Passage Comprehension (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Not stated or inferred, Valid skip",PRC_PC_SCR
+prc_pv_scr,FLOAT64,Total Score for Reading Components Section - Print Vocabulary (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_PV_SCR
+prc_sp_scr,FLOAT64,Total Score for Reading Components Section - Sentence Processing (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_SP_SCR
+prc_pc_scr,FLOAT64,Total Score for Reading Components Section - Passage Comprehension (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_PC_SCR
 vemethod,STRING,Replication approach (string),,yes,,,no,,VEMETHOD
 vemethodn,STRING,Replication approach (numeric),,yes,,,no,,VEMETHODN
 vefayfac,FLOAT64,Fay's K factor used in creating replicate weights (BRR only),,no,,,no,Dimensionless Fay factor used in replicate-weight variance estimation,VEFAYFAC

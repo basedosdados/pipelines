@@ -298,6 +298,16 @@ def build_dictionary(all_variables: dict, sheets: dict) -> list[dict]:
             # them on the SAS coding, which is what the CSV PUFs carry; the SPSS
             # numeric codes the codebook lists beside them appear nowhere in the
             # data.
+            # Take both codings. These columns' reserved codes appear in the data
+            # as the SPSS numerics (996, 9996) on the language, occupation and
+            # industry columns, and as the SAS letters elsewhere, so neither
+            # scheme alone covers the data.
+            if variable.missing_scheme:
+                pairs = pairs + [
+                    (k, v)
+                    for k, v in split_packed(variable.missing_scheme)
+                    if k.strip() and not k.lower().startswith("sysmis")
+                ]
             if variable.missing_scheme_sas:
                 pairs = pairs + [
                     (cb.sas_code_as_written(k, variable.cycle), v)
@@ -352,20 +362,29 @@ def build_cycle_1_dictionary(
         raw_key = str(row[2]).strip()
         if not raw_key or raw_key in {"None", "."}:
             continue
-        key, value = cb.sas_code_as_written(raw_key, "1"), str(row[1]).strip()
-        identity = ("respondent_cycle_1", column, key)
-        if identity in seen:
-            continue
-        seen.add(identity)
-        records.append(
-            {
-                "table_id": "respondent_cycle_1",
-                "column_name": column,
-                "key": key,
-                "temporal_coverage": TEMPORAL_COVERAGE["1"],
-                "value": value,
-            }
-        )
+        value = str(row[1]).strip()
+        # Emit the SAS spelling and, where it differs, the SPSS one. The data
+        # uses SAS letters on most columns but SPSS numerics (996, 9996) on the
+        # coded language, occupation and industry columns, so neither alone
+        # covers what is actually stored.
+        spellings = {cb.sas_code_as_written(raw_key, "1")}
+        spss = str(row[3]).strip() if row[3] is not None else ""
+        if spss and spss not in {"None", "."}:
+            spellings.add(spss)
+        for key in sorted(spellings):
+            identity = ("respondent_cycle_1", column, key)
+            if identity in seen:
+                continue
+            seen.add(identity)
+            records.append(
+                {
+                    "table_id": "respondent_cycle_1",
+                    "column_name": column,
+                    "key": key,
+                    "temporal_coverage": TEMPORAL_COVERAGE["1"],
+                    "value": value,
+                }
+            )
     workbook.close()
 
     # As in Cycle 2: the coded language, occupation and industry columns carry the
@@ -499,6 +518,53 @@ def main() -> None:
         if record["table_id"] == "respondent_cycle_1"
         and record["column_name"] in usa_covered
     ]
+
+    # Two spellings the codebook does not anticipate but the data uses.
+    #
+    # Case: language columns store ISO 639-2 codes upper-cased in the data
+    # (ENG) while the codebook lists them lower-cased (eng). Alpha-3 codes are
+    # case-insensitive by convention, so both spellings map to one meaning.
+    #
+    # SAS letters: N, V, D and R are universal in PIAAC and appear on columns
+    # whose codebook entry happens not to declare them.
+    universal = {
+        "N": "Not stated or inferred",
+        "V": "Valid skip",
+        "D": "Don't know",
+        "R": "Refused",
+    }
+    present = {(r["table_id"], r["column_name"], r["key"]) for r in dictionary}
+    covered_pairs = {
+        (table_id, column)
+        for table_id, columns in declared_by_table.items()
+        for column in columns
+    }
+    extra = []
+    for record in dictionary:
+        key = record["key"]
+        if key.isalpha() and key != key.upper():
+            variant = (record["table_id"], record["column_name"], key.upper())
+            if variant not in present:
+                present.add(variant)
+                extra.append({**record, "key": key.upper()})
+    for table_id, column in sorted(covered_pairs):
+        cycle = "2" if table_id.endswith("cycle_2") else "1"
+        for letter, label in universal.items():
+            written = letter if cycle == "1" else f".{letter.lower()}"
+            if (table_id, column, written) in present:
+                continue
+            present.add((table_id, column, written))
+            extra.append(
+                {
+                    "table_id": table_id,
+                    "column_name": column,
+                    "key": written,
+                    "temporal_coverage": TEMPORAL_COVERAGE[cycle],
+                    "value": label,
+                }
+            )
+    dictionary += extra
+    print(f"  spelling variants added              {len(extra):>5} rows")
 
     codes = reserved_codes(dictionary, numeric_by_table)
     (ARCHITECTURE_DIR / "reserved_codes.json").write_text(

@@ -1,10 +1,18 @@
 {
   "respondent_cycle_1": {
     "age_r": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "N": "Not stated or inferred",
       "n": "Not stated or inferred"
     },
     "b_d01d": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -15,6 +23,10 @@
       "v": "Valid skip"
     },
     "b_d03d": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -25,6 +37,10 @@
       "v": "Valid skip"
     },
     "b_q01c1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -35,6 +51,10 @@
       "v": "Valid skip"
     },
     "b_q01c1_t": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -45,6 +65,10 @@
       "v": "Valid skip"
     },
     "b_q01c2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -55,6 +79,10 @@
       "v": "Valid skip"
     },
     "b_q03c1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -65,6 +93,10 @@
       "v": "Valid skip"
     },
     "b_q03c2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -75,6 +107,10 @@
       "v": "Valid skip"
     },
     "b_q04b": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -85,6 +121,10 @@
       "v": "Valid skip"
     },
     "b_q04b_c": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -95,6 +135,10 @@
       "v": "Valid skip"
     },
     "b_q12b": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -105,6 +149,10 @@
       "v": "Valid skip"
     },
     "b_q12d": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -115,6 +163,10 @@
       "v": "Valid skip"
     },
     "b_q12d_c": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -125,6 +177,10 @@
       "v": "Valid skip"
     },
     "b_q12f": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -135,6 +191,10 @@
       "v": "Valid skip"
     },
     "b_q12f_c": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -145,6 +205,10 @@
       "v": "Valid skip"
     },
     "b_q12h": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -155,6 +219,10 @@
       "v": "Valid skip"
     },
     "b_q12h_c": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -165,6 +233,10 @@
       "v": "Valid skip"
     },
     "b_q18a": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -175,6 +247,10 @@
       "v": "Valid skip"
     },
     "b_q19a": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -185,6 +261,10 @@
       "v": "Valid skip"
     },
     "b_q20a": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -195,6 +275,10 @@
       "v": "Valid skip"
     },
     "c_q08c1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -205,6 +289,10 @@
       "v": "Valid skip"
     },
     "c_q08c2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -215,6 +303,10 @@
       "v": "Valid skip"
     },
     "c_q09": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -225,6 +317,10 @@
       "v": "Valid skip"
     },
     "c_q09_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -235,6 +331,10 @@
       "v": "Valid skip"
     },
     "c_q10a": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -245,6 +345,10 @@
       "v": "Valid skip"
     },
     "c_q10a_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -255,6 +359,10 @@
       "v": "Valid skip"
     },
     "c_s03": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -265,6 +373,14 @@
       "v": "Valid skip"
     },
     "d_d16a": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
+      "9999996": "Valid skip",
+      "9999997": "Don't know",
+      "9999998": "Refused",
+      "9999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -275,6 +391,10 @@
       "v": "Valid skip"
     },
     "d_q05a1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -285,6 +405,10 @@
       "v": "Valid skip"
     },
     "d_q05a2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -295,6 +419,10 @@
       "v": "Valid skip"
     },
     "d_q05b1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -305,6 +433,10 @@
       "v": "Valid skip"
     },
     "d_q05b2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -315,6 +447,10 @@
       "v": "Valid skip"
     },
     "d_q10": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -325,6 +461,10 @@
       "v": "Valid skip"
     },
     "d_q10_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -335,6 +475,10 @@
       "v": "Valid skip"
     },
     "d_q10_t": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Don't know/Refused",
+      "999": "Not stated or inferred",
       "M": "Don't know/Refused",
       "N": "Not stated or inferred",
       "V": "Valid skip",
@@ -343,6 +487,10 @@
       "v": "Valid skip"
     },
     "d_q16b": {
+      "99999999996": "Valid skip",
+      "99999999997": "Don't know",
+      "99999999998": "Refused",
+      "99999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -353,6 +501,10 @@
       "v": "Valid skip"
     },
     "d_q17b": {
+      "99999999996": "Valid skip",
+      "99999999997": "Don't know",
+      "99999999998": "Refused",
+      "99999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -363,6 +515,10 @@
       "v": "Valid skip"
     },
     "d_q18a": {
+      "99999999996": "Valid skip",
+      "99999999997": "Don't know",
+      "99999999998": "Refused",
+      "99999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -373,6 +529,14 @@
       "v": "Valid skip"
     },
     "d_s16a": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
+      "9999996": "Valid skip",
+      "9999997": "Don't know",
+      "9999998": "Refused",
+      "9999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -383,6 +547,10 @@
       "v": "Valid skip"
     },
     "e_q05a1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -393,6 +561,10 @@
       "v": "Valid skip"
     },
     "e_q05a2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -403,6 +575,10 @@
       "v": "Valid skip"
     },
     "e_q05b1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -413,6 +589,10 @@
       "v": "Valid skip"
     },
     "e_q05b2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -423,6 +603,10 @@
       "v": "Valid skip"
     },
     "e_q09": {
+      "996": "Valid skip",
+      "997": "Don't know",
+      "998": "Refused",
+      "999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -433,6 +617,10 @@
       "v": "Valid skip"
     },
     "e_q09_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -443,96 +631,145 @@
       "v": "Valid skip"
     },
     "earnhr": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "earnhrbonus": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "earnhrbonusppp": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "earnhrppp": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "earnmth": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "earnmthall": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "earnmthallppp": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "earnmthbonus": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "earnmthbonusppp": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "earnmthppp": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "earnmthselfppp": {
+      "999999999996": "Valid skip",
+      "999999999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "icthome": {
+      "9996": "Valid skip",
+      "9999": "All zero response",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "N": "All zero response",
       "V": "Valid skip",
       "n": "All zero response",
       "v": "Valid skip"
     },
     "ictwork": {
+      "9996": "Valid skip",
+      "9999": "All zero response",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "N": "All zero response",
       "V": "Valid skip",
       "n": "All zero response",
       "v": "Valid skip"
     },
     "imyrs": {
+      "94": "Native born",
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "A": "Native born",
       "N": "Not stated or inferred",
       "a": "Native born",
       "n": "Not stated or inferred"
     },
     "influence": {
+      "9996": "Valid skip",
+      "9999": "All zero response",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "N": "All zero response",
       "V": "Valid skip",
       "n": "All zero response",
       "v": "Valid skip"
     },
     "j_q01": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -543,6 +780,10 @@
       "v": "Valid skip"
     },
     "j_q01_c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -553,6 +794,10 @@
       "v": "Valid skip"
     },
     "j_q01_t": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Don't know/Refused",
+      "99": "Not stated or inferred",
       "M": "Don't know/Refused",
       "N": "Not stated or inferred",
       "V": "Valid skip",
@@ -561,6 +806,10 @@
       "v": "Valid skip"
     },
     "j_q03b": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -571,6 +820,10 @@
       "v": "Valid skip"
     },
     "j_q03b_c": {
+      "6": "Valid skip",
+      "7": "Don't know",
+      "8": "Refused",
+      "9": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -581,6 +834,10 @@
       "v": "Valid skip"
     },
     "j_q03c": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -591,6 +848,10 @@
       "v": "Valid skip"
     },
     "j_q03d1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -601,6 +862,10 @@
       "v": "Valid skip"
     },
     "j_q03d2": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -611,6 +876,10 @@
       "v": "Valid skip"
     },
     "j_q04c1": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -621,6 +890,10 @@
       "v": "Valid skip"
     },
     "j_q04c2": {
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -631,6 +904,10 @@
       "v": "Valid skip"
     },
     "j_q04c2_t": {
+      "9996": "Valid skip",
+      "9997": "Citizen by birth",
+      "9998": "Don't know/Refused",
+      "9999": "Not stated or inferred",
       "A": "Citizen by birth",
       "M": "Don't know/Refused",
       "N": "Not stated or inferred",
@@ -641,138 +918,256 @@
       "v": "Valid skip"
     },
     "learnatwork": {
+      "9996": "Valid skip",
+      "9999": "All zero response",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "N": "All zero response",
       "V": "Valid skip",
       "n": "All zero response",
       "v": "Valid skip"
     },
     "leavedu": {
+      "94": "Still in education",
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "A": "Still in education",
       "N": "Not stated or inferred",
       "a": "Still in education",
       "n": "Not stated or inferred"
     },
     "nfehrs": {
+      "9994": "Did not participate",
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
       "A": "Did not participate",
       "N": "Not stated or inferred",
       "a": "Did not participate",
       "n": "Not stated or inferred"
     },
     "nfehrsjr": {
+      "9994": "Did not participate",
+      "9999": "Not stated or inferred",
+      "9999996": "Valid skip",
+      "9999997": "Don't know",
+      "9999998": "Refused",
+      "9999999": "Not stated or inferred",
       "A": "Did not participate",
       "N": "Not stated or inferred",
       "a": "Did not participate",
       "n": "Not stated or inferred"
     },
     "nfehrsnjr": {
+      "9994": "Did not participate",
+      "9999": "Not stated or inferred",
+      "9999996": "Valid skip",
+      "9999997": "Don't know",
+      "9999998": "Refused",
+      "9999999": "Not stated or inferred",
       "A": "Did not participate",
       "N": "Not stated or inferred",
       "a": "Did not participate",
       "n": "Not stated or inferred"
     },
     "numhome": {
+      "9996": "Valid skip",
+      "9999": "All zero response",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "N": "All zero response",
       "V": "Valid skip",
       "n": "All zero response",
       "v": "Valid skip"
     },
     "numwork": {
+      "9996": "Valid skip",
+      "9999": "All zero response",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "N": "All zero response",
       "V": "Valid skip",
       "n": "All zero response",
       "v": "Valid skip"
     },
     "planning": {
+      "9996": "Valid skip",
+      "9999": "All zero response",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "N": "All zero response",
       "V": "Valid skip",
       "n": "All zero response",
       "v": "Valid skip"
     },
     "prc_pc_scr": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "prc_pf_q1": {
+      "99999996": "Valid skip",
+      "99999997": "Don't know",
+      "99999998": "Refused",
+      "99999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "prc_pf_q2": {
+      "99999996": "Valid skip",
+      "99999997": "Don't know",
+      "99999998": "Refused",
+      "99999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "prc_pf_q3": {
+      "99999996": "Valid skip",
+      "99999997": "Don't know",
+      "99999998": "Refused",
+      "99999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "prc_pv_q1": {
+      "99999996": "Valid skip",
+      "99999997": "Don't know",
+      "99999998": "Refused",
+      "99999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "prc_pv_scr": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "prc_sp_q1": {
+      "99999996": "Valid skip",
+      "99999997": "Don't know",
+      "99999998": "Refused",
+      "99999999": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "prc_sp_scr": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "N": "Not stated or inferred",
       "V": "Valid skip",
       "n": "Not stated or inferred",
       "v": "Valid skip"
     },
     "readhome": {
+      "9996": "Valid skip",
+      "9999": "All zero response",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "N": "All zero response",
       "V": "Valid skip",
       "n": "All zero response",
       "v": "Valid skip"
     },
     "readwork": {
+      "9996": "Valid skip",
+      "9999": "All zero response",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "N": "All zero response",
       "V": "Valid skip",
       "n": "All zero response",
       "v": "Valid skip"
     },
     "readytolearn": {
+      "9996": "Valid skip",
+      "9999": "All zero response",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "N": "All zero response",
       "V": "Valid skip",
       "n": "All zero response",
       "v": "Valid skip"
     },
     "taskdisc": {
+      "9996": "Valid skip",
+      "9999": "All zero response",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "N": "All zero response",
       "V": "Valid skip",
       "n": "All zero response",
       "v": "Valid skip"
     },
     "writhome": {
+      "9996": "Valid skip",
+      "9999": "All zero response",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "N": "All zero response",
       "V": "Valid skip",
       "n": "All zero response",
       "v": "Valid skip"
     },
     "writwork": {
+      "9996": "Valid skip",
+      "9999": "All zero response",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "N": "All zero response",
       "V": "Valid skip",
       "n": "All zero response",
       "v": "Valid skip"
     },
     "yrsget": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -783,6 +1178,10 @@
       "v": "Valid skip"
     },
     "yrsqual": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Refused",
+      "99": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -793,6 +1192,10 @@
       "v": "Valid skip"
     },
     "yrsqual_t": {
+      "96": "Valid skip",
+      "97": "Don't know",
+      "98": "Don't know/Refused",
+      "99": "Not stated or inferred",
       "M": "Don't know/Refused",
       "N": "Not stated or inferred",
       "V": "Valid skip",
@@ -873,6 +1276,7 @@
     "agre": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -883,6 +1287,7 @@
     "agre_6": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -893,6 +1298,7 @@
     "agre_comp": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -903,6 +1309,7 @@
     "agre_resp": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -913,6 +1320,7 @@
     "agre_trus": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -1319,6 +1727,7 @@
     "cons": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -1329,6 +1738,7 @@
     "cons_6": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -1339,6 +1749,7 @@
     "cons_orga": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -1349,6 +1760,7 @@
     "cons_prod": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -1359,6 +1771,7 @@
     "cons_resp": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -1375,6 +1788,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
       "99996": "Valid skip",
       "99997": "Don't know",
       "99998": "Refused",
@@ -1543,6 +1960,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "9999999996": "Valid skip",
+      "9999999997": "Don't know",
+      "9999999998": "Refused",
+      "9999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -1605,6 +2026,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9997": "Don't know",
+      "9998": "Refused",
+      "9999": "Not stated or inferred",
       "9999996": "Valid skip",
       "9999997": "Don't know",
       "9999998": "Refused",
@@ -1759,6 +2184,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -1777,6 +2206,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -1795,6 +2228,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -1813,6 +2250,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -1831,6 +2272,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -1849,6 +2294,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -1867,6 +2316,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -1885,6 +2338,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -1903,6 +2360,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -1921,6 +2382,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -1939,6 +2404,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -1957,6 +2426,10 @@
       ".n": "Not stated or inferred",
       ".r": "Refused",
       ".v": "Valid skip",
+      "999999999996": "Valid skip",
+      "999999999997": "Don't know",
+      "999999999998": "Refused",
+      "999999999999": "Not stated or inferred",
       "D": "Don't know",
       "N": "Not stated or inferred",
       "R": "Refused",
@@ -1969,6 +2442,7 @@
     "emos": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -1979,6 +2453,7 @@
     "emos_6": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -1989,6 +2464,7 @@
     "emos_anxi": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -1999,6 +2475,7 @@
     "emos_depr": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2009,6 +2486,7 @@
     "emos_vola": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2019,6 +2497,7 @@
     "extr": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2029,6 +2508,7 @@
     "extr_6": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2039,6 +2519,7 @@
     "extr_asse": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2049,6 +2530,7 @@
     "extr_ener": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2059,6 +2541,7 @@
     "extr_soci": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2071,6 +2554,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2085,6 +2570,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2099,6 +2586,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2113,6 +2602,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2127,6 +2618,7 @@
       ".N": "Not stated or inferred",
       ".a": "Native born",
       ".n": "Not stated or inferred",
+      "95": "Native born",
       "96": "Valid skip",
       "97": "Don't know",
       "98": "Refused",
@@ -2141,6 +2633,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2155,6 +2649,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2381,6 +2877,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2395,6 +2893,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2409,6 +2909,7 @@
       ".N": "Not stated or inferred",
       ".a": "Still in education",
       ".n": "Not stated or inferred",
+      "95": "Still in education",
       "96": "Valid skip",
       "97": "Don't know",
       "98": "Refused",
@@ -2445,6 +2946,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2459,6 +2962,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2473,6 +2978,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2487,6 +2994,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2499,6 +3008,7 @@
     "opem": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2509,6 +3019,7 @@
     "opem_6": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2519,6 +3030,7 @@
     "opem_aest": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2529,6 +3041,7 @@
     "opem_curi": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2539,6 +3052,7 @@
     "opem_imag": {
       ".N": "Variable not derived because of item nonresponse",
       ".n": "Variable not derived because of item nonresponse",
+      "9999": "Variable not derived because of item nonresponse",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2551,6 +3065,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2565,6 +3081,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2579,6 +3097,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2593,6 +3113,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2607,6 +3129,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2621,6 +3145,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2647,6 +3173,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2661,6 +3189,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2675,6 +3205,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
@@ -2689,6 +3221,8 @@
       ".V": "Valid skip",
       ".n": "Not stated or inferred",
       ".v": "Valid skip",
+      "9996": "Valid skip",
+      "9999": "Not stated or inferred",
       "9999999996": "Valid skip",
       "9999999997": "Don't know",
       "9999999998": "Refused",
