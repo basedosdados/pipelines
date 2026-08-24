@@ -321,6 +321,34 @@ def _legislatura_parlamentares(leg: int) -> list[dict]:
     )
 
 
+def _parlamentar_uf(p: dict) -> str | None:
+    """UF of a parlamentar, preferring the mandate over the identification block.
+
+    `IdentificacaoParlamentar/UfParlamentar` is only populated for a minority of
+    records — 97 of 1,567 across the full roster — while
+    `Mandatos/Mandato/UfParlamentar` is populated for every one. Reading only the
+    identification field left `sigla_uf` 6% filled, just above the 5% floor the
+    dbt `not_null_proportion_multiple_columns` test enforces, so the gap never
+    surfaced as a failure.
+
+    The two never disagree: across legislatures 30, 40, 50, 56 and 57 (904
+    records) every record carried a mandate UF, 151 also carried an
+    identification UF, and all 151 matched. No record listed two distinct UFs
+    across its mandates within one legislature.
+
+    Args:
+        p: One `Parlamentar` record from the roster endpoint.
+
+    Returns:
+        The two-letter UF, or None when neither source carries one.
+    """
+    for m in _as_list(dig(p, "Mandatos", "Mandato")):
+        if isinstance(m, dict) and (uf := s(m.get("UfParlamentar"))):
+            return uf
+    ip = p.get("IdentificacaoParlamentar", {}) or {}
+    return s(ip.get("UfParlamentar"))
+
+
 def clean_senador() -> pd.DataFrame:
     rows: list[dict] = []
     for leg in range(LEG_START, CURRENT_LEG + 1):
@@ -335,7 +363,7 @@ def clean_senador() -> pd.DataFrame:
                     "sexo": s(ip.get("SexoParlamentar")),
                     "forma_tratamento": ft.strip() if ft else None,
                     "sigla_partido": s(ip.get("SiglaPartidoParlamentar")),
-                    "sigla_uf": s(ip.get("UfParlamentar")),
+                    "sigla_uf": _parlamentar_uf(p),
                     "email": s(ip.get("EmailParlamentar")),
                     "url_foto": s(ip.get("UrlFotoParlamentar")),
                     "url_pagina": s(ip.get("UrlPaginaParlamentar")),
@@ -360,6 +388,15 @@ def clean_senador() -> pd.DataFrame:
     # A senator recurs across legislatures; keep one row deterministically:
     # most complete (non-null count), tie-broken by the most recent
     # legislature, then id — reproducible regardless of API row order.
+    # The row is kept whole: every column comes from one legislature, rather
+    # than each column being sourced independently. So for a senator who
+    # represented two UFs, `sigla_uf` follows the most complete row, and `_leg`
+    # only decides ties — an older row with more fields populated wins, and
+    # keeps its (older) UF. Measured against the live API: 9 of 1,567 senators
+    # have more than one UF, and for all 9 the row chosen here already carries
+    # the most recent one, so the two rules do not disagree today. Sourcing
+    # `sigla_uf` separately would buy nothing and would produce a row matching
+    # no single legislature. `senador_mandato` carries the per-mandate history.
     df["_score"] = df[SENADOR_COLS].notna().sum(axis=1)
     df = (
         df.sort_values(
