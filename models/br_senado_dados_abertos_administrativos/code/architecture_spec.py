@@ -222,7 +222,6 @@ _t(
             "Condição do senador no mandato, titular ou suplente",
             "Senator's standing in the term, incumbent or substitute",
             "Condición del senador en el mandato, titular o suplente",
-            {"dict": True},
         ),
         (
             "mandato",
@@ -504,7 +503,6 @@ _t(
             "Tipo de vínculo do servidor com o Senado Federal",
             "Type of the staff member's tie to the Federal Senate",
             "Tipo de vínculo del servidor con el Senado Federal",
-            {"dict": True},
         ),
         (
             "situacao",
@@ -512,7 +510,6 @@ _t(
             "Situação funcional do servidor",
             "Staff member's employment status",
             "Situación funcional del servidor",
-            {"dict": True},
         ),
         (
             "cargo",
@@ -583,7 +580,6 @@ _t(
             "Tipo de cessão do servidor, quando cedido",
             "Type of secondment, where the staff member is seconded",
             "Tipo de cesión del servidor, cuando es cedido",
-            {"dict": True},
         ),
         (
             "orgao_origem",
@@ -637,7 +633,6 @@ _t(
             "Tipo de vínculo do servidor com o Senado Federal",
             "Type of the staff member's tie to the Federal Senate",
             "Tipo de vínculo del servidor con el Senado Federal",
-            {"dict": True},
         ),
         (
             "cargo",
@@ -756,7 +751,6 @@ _t(
             "Tipo da folha de pagamento em que a remuneração foi processada",
             "Type of the payroll in which the remuneration was processed",
             "Tipo de la nómina en que la remuneración fue procesada",
-            {"dict": True},
         ),
         (
             "remuneracao_basica",
@@ -1053,7 +1047,6 @@ _t(
             "Modalidade da aposentadoria concedida",
             "Type of retirement granted",
             "Modalidad de la jubilación concedida",
-            {"dict": True},
         ),
     ],
     unique=["data_extracao", "matricula", "tipo_quadro"],
@@ -1092,7 +1085,6 @@ _t(
             "Forma pela qual o cargo tornou-se vago",
             "Form by which the position became vacant",
             "Forma por la cual el cargo quedó vacante",
-            {"dict": True},
         ),
         (
             "data_exercicio",
@@ -1226,7 +1218,6 @@ _t(
             "Vínculo do pensionista com o servidor instituidor",
             "Pensioner's relationship to the originating staff member",
             "Vínculo del pensionista con el servidor instituidor",
-            {"dict": True},
         ),
         (
             "fundamento",
@@ -1368,7 +1359,6 @@ _t(
             "Situação da contratação, informada apenas para contratos",
             "Status of the contratação, reported only for contracts",
             "Situación de la contratación, informada solo para contratos",
-            {"dict": True},
         ),
         (
             "sigla_sub_especie",
@@ -1418,7 +1408,6 @@ _t(
             "Modalidade da licitação que originou a contratação",
             "Modality of the tender that originated the contratação",
             "Modalidad de la licitación que originó la contratación",
-            {"dict": True},
         ),
         (
             "sigla_unidade_gestora",
@@ -1536,7 +1525,6 @@ _t(
             "Tipo de gestão exercida pelo órgão sobre a contratação",
             "Type of management the body exercises over the contratação",
             "Tipo de gestión ejercida por el órgano sobre la contratación",
-            {"dict": True},
         ),
     ],
     unique=[
@@ -1630,7 +1618,6 @@ _t(
             "Modalidade da garantia prestada",
             "Type of the guarantee provided",
             "Modalidad de la garantía prestada",
-            {"dict": True},
         ),
         (
             "valor",
@@ -1813,7 +1800,6 @@ _t(
             "Natureza da despesa empenhada",
             "Nature of the committed expense",
             "Naturaleza del gasto comprometido",
-            {"dict": True},
         ),
         (
             "valor_empenhado",
@@ -1983,7 +1969,6 @@ _t(
             "Modalidade da licitação",
             "Modality of the tender",
             "Modalidad de la licitación",
-            {"dict": True},
         ),
         (
             "situacao",
@@ -1991,7 +1976,6 @@ _t(
             "Situação da licitação",
             "Status of the tender",
             "Situación de la licitación",
-            {"dict": True},
         ),
         (
             "objeto",
@@ -2067,7 +2051,6 @@ _t(
             "Tipo do documento de detalhamento",
             "Type of the detailing document",
             "Tipo del documento de detalle",
-            {"dict": True},
         ),
         (
             "descricao",
@@ -2175,7 +2158,6 @@ _t(
             "Situação do terceirizado no contrato",
             "Outsourced worker's status under the contract",
             "Situación del trabajador tercerizado en el contrato",
-            {"dict": True},
         ),
         (
             "empresa",
@@ -2256,7 +2238,6 @@ _t(
             "Situação do menor aprendiz no contrato",
             "Apprentice's status under the contract",
             "Situación del menor aprendiz en el contrato",
-            {"dict": True},
         ),
         (
             "fornecedor",
@@ -2605,7 +2586,6 @@ _t(
             "Espécie do documento que ampara a transação",
             "Type of the document underpinning the transaction",
             "Tipo del documento que ampara la transacción",
-            {"dict": True},
         ),
         (
             "numero",
@@ -2620,7 +2600,6 @@ _t(
             "Natureza da inscrição do fornecedor, pessoa física ou jurídica",
             "Nature of the supplier's registration, individual or legal entity",
             "Naturaleza de la inscripción del proveedor, persona física o jurídica",
-            {"dict": True},
         ),
         (
             "inscricao",
@@ -2710,7 +2689,6 @@ _t(
             "Tipo de despesa do objeto",
             "Expense type of the object",
             "Tipo de gasto del objeto",
-            {"dict": True},
         ),
         (
             "subtipo_despesa",
@@ -2718,7 +2696,6 @@ _t(
             "Subtipo de despesa do objeto",
             "Expense sub-type of the object",
             "Subtipo de gasto del objeto",
-            {"dict": True},
         ),
         (
             "rubrica",
@@ -2790,7 +2767,6 @@ _t(
             "Espécie do documento que ampara a movimentação",
             "Type of the document underpinning the movement",
             "Tipo del documento que ampara el movimiento",
-            {"dict": True},
         ),
         (
             "numero",
@@ -2805,7 +2781,6 @@ _t(
             "Natureza da inscrição do fornecedor, pessoa física ou jurídica",
             "Nature of the supplier's registration, individual or legal entity",
             "Naturaleza de la inscripción del proveedor, persona física o jurídica",
-            {"dict": True},
         ),
         (
             "inscricao",
@@ -2888,7 +2863,6 @@ _t(
             "Tipo de despesa",
             "Expense type",
             "Tipo de gasto",
-            {"dict": True},
         ),
         (
             "subtipo_despesa",
@@ -2896,7 +2870,6 @@ _t(
             "Subtipo de despesa",
             "Expense sub-type",
             "Subtipo de gasto",
-            {"dict": True},
         ),
         (
             "rubrica",
@@ -2936,9 +2909,9 @@ _t(
         (
             "data_referencia",
             "date",
-            "Data de referência do quantitativo, informada apenas no quadro de senadores",
-            "Reference date of the headcount, reported only in the senator report",
-            "Fecha de referencia de la cantidad, informada solo en el cuadro de senadores",
+            "Data de referência do quantitativo, informada apenas no quadro de senadores, que a fonte publica como série histórica",
+            "Reference date of the headcount, reported only in the senator report, which the source publishes as a historical series",
+            "Fecha de referencia de la cantidad, informada solo en el cuadro de senadores, que la fuente publica como serie histórica",
         ),
         (
             "quadro",
@@ -3156,6 +3129,9 @@ _t(
     ],
     unique=[
         "data_extracao",
+        # quantitativos/senadores is a historical series: 13 rows that differ
+        # only by their reference date, so it is part of the key.
+        "data_referencia",
         "quadro",
         "periodo",
         "categoria",
@@ -3165,6 +3141,10 @@ _t(
         "nivel",
         "especialidade",
         "referencia",
+        "tabela_vencimento",
+        "plano_carreira",
+        "nivel_escolaridade",
+        "padrao_nivel_referencia",
     ],
     partition="data_extracao",
     ol=["quadro"],
