@@ -148,3 +148,76 @@ def test_persistent_non_200_still_raises(monkeypatch):
 
     with pytest.raises(RuntimeError, match="503"):
         senado_api.get_xml_records("/x", "Parlamentar", retries=2)
+
+
+def test_uf_comes_from_the_mandate_when_identification_omits_it():
+    """`Mandatos/Mandato/UfParlamentar` is populated where the identification is not.
+
+    Reading only `IdentificacaoParlamentar/UfParlamentar` left `sigla_uf` filled
+    on 97 of 1,567 senators (6%), just above the 5% floor the dbt proportion test
+    enforces — so the gap never failed a run.
+    """
+    from pipelines.datasets.br_senado_dados_abertos.senado_clean import (
+        _parlamentar_uf,
+    )
+
+    record = _parse_xml_records(
+        "<Parlamentar>"
+        "<IdentificacaoParlamentar>"
+        "<CodigoParlamentar>5918</CodigoParlamentar>"
+        "</IdentificacaoParlamentar>"
+        "<Mandatos><Mandato><UfParlamentar>PE</UfParlamentar></Mandato></Mandatos>"
+        "</Parlamentar>",
+        "Parlamentar",
+    )[0]
+
+    assert _parlamentar_uf(record) == "PE"
+
+
+def test_uf_prefers_the_mandate_but_they_agree_upstream():
+    """Verified live: 151 records carry both, and all 151 match."""
+    from pipelines.datasets.br_senado_dados_abertos.senado_clean import (
+        _parlamentar_uf,
+    )
+
+    record = _parse_xml_records(
+        "<Parlamentar>"
+        "<IdentificacaoParlamentar><UfParlamentar>SC</UfParlamentar>"
+        "</IdentificacaoParlamentar>"
+        "<Mandatos><Mandato><UfParlamentar>SC</UfParlamentar></Mandato></Mandatos>"
+        "</Parlamentar>",
+        "Parlamentar",
+    )[0]
+
+    assert _parlamentar_uf(record) == "SC"
+
+
+def test_uf_falls_back_to_identification_without_a_mandate():
+    """A record with no `Mandatos` still yields its identification UF."""
+    from pipelines.datasets.br_senado_dados_abertos.senado_clean import (
+        _parlamentar_uf,
+    )
+
+    record = _parse_xml_records(
+        "<Parlamentar><IdentificacaoParlamentar>"
+        "<UfParlamentar>BA</UfParlamentar>"
+        "</IdentificacaoParlamentar></Parlamentar>",
+        "Parlamentar",
+    )[0]
+
+    assert _parlamentar_uf(record) == "BA"
+
+
+def test_uf_is_none_when_neither_source_carries_one():
+    from pipelines.datasets.br_senado_dados_abertos.senado_clean import (
+        _parlamentar_uf,
+    )
+
+    record = _parse_xml_records(
+        "<Parlamentar><IdentificacaoParlamentar>"
+        "<CodigoParlamentar>1</CodigoParlamentar>"
+        "</IdentificacaoParlamentar></Parlamentar>",
+        "Parlamentar",
+    )[0]
+
+    assert _parlamentar_uf(record) is None
