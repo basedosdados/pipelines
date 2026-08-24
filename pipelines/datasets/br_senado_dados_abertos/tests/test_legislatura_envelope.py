@@ -174,8 +174,15 @@ def test_uf_comes_from_the_mandate_when_identification_omits_it():
     assert _parlamentar_uf(record) == "PE"
 
 
-def test_uf_prefers_the_mandate_but_they_agree_upstream():
-    """Verified live: 151 records carry both, and all 151 match."""
+def test_uf_takes_the_mandate_when_the_two_sources_contradict():
+    """Pins the precedence, using a contradiction the live API does not produce.
+
+    Upstream the two always agree — 151 records carry both across legislatures
+    30, 40, 50, 56 and 57, and all 151 match — so equal values would pass under
+    an identification-first implementation too and prove nothing. Distinct
+    values are synthetic on purpose: they fix which source wins if the Senate
+    ever lets them diverge.
+    """
     from pipelines.datasets.br_senado_dados_abertos.senado_clean import (
         _parlamentar_uf,
     )
@@ -184,12 +191,12 @@ def test_uf_prefers_the_mandate_but_they_agree_upstream():
         "<Parlamentar>"
         "<IdentificacaoParlamentar><UfParlamentar>SC</UfParlamentar>"
         "</IdentificacaoParlamentar>"
-        "<Mandatos><Mandato><UfParlamentar>SC</UfParlamentar></Mandato></Mandatos>"
+        "<Mandatos><Mandato><UfParlamentar>PE</UfParlamentar></Mandato></Mandatos>"
         "</Parlamentar>",
         "Parlamentar",
     )[0]
 
-    assert _parlamentar_uf(record) == "SC"
+    assert _parlamentar_uf(record) == "PE"
 
 
 def test_uf_falls_back_to_identification_without_a_mandate():
@@ -221,3 +228,54 @@ def test_uf_is_none_when_neither_source_carries_one():
     )[0]
 
     assert _parlamentar_uf(record) is None
+
+
+def test_row_is_kept_whole_when_a_senator_changed_uf(monkeypatch):
+    """The chosen row comes from one legislature; `sigla_uf` is not sourced apart.
+
+    A senator whose older legislature has more fields populated keeps that
+    row — and therefore its older UF — because `_score` outranks `_leg`. That
+    is deliberate: sourcing `sigla_uf` from the newest legislature instead
+    would yield a row matching no single legislature.
+
+    Measured against the live API, the two rules never disagree: 9 of 1,567
+    senators have more than one UF, and for all 9 the row chosen here already
+    carries the most recent one. This test pins the semantics for the case the
+    live data does not currently exercise.
+    """
+    from pipelines.datasets.br_senado_dados_abertos import senado_clean
+
+    def _roster(leg: int) -> list[dict]:
+        if leg == senado_clean.CURRENT_LEG:  # newest, but sparse
+            return _parse_xml_records(
+                "<Parlamentar><IdentificacaoParlamentar>"
+                "<CodigoParlamentar>1</CodigoParlamentar>"
+                "</IdentificacaoParlamentar>"
+                "<Mandatos><Mandato><UfParlamentar>RJ</UfParlamentar>"
+                "</Mandato></Mandatos></Parlamentar>",
+                "Parlamentar",
+            )
+        if leg == senado_clean.CURRENT_LEG - 1:  # older, but complete
+            return _parse_xml_records(
+                "<Parlamentar><IdentificacaoParlamentar>"
+                "<CodigoParlamentar>1</CodigoParlamentar>"
+                "<NomeParlamentar>Fulano</NomeParlamentar>"
+                "<NomeCompletoParlamentar>Fulano de Tal</NomeCompletoParlamentar>"
+                "<SexoParlamentar>Masculino</SexoParlamentar>"
+                "<FormaTratamento>Senador </FormaTratamento>"
+                "<SiglaPartidoParlamentar>XYZ</SiglaPartidoParlamentar>"
+                "<EmailParlamentar>f@senado.leg.br</EmailParlamentar>"
+                "</IdentificacaoParlamentar>"
+                "<Mandatos><Mandato><UfParlamentar>SP</UfParlamentar>"
+                "</Mandato></Mandatos></Parlamentar>",
+                "Parlamentar",
+            )
+        return []
+
+    monkeypatch.setattr(senado_clean, "_legislatura_parlamentares", _roster)
+
+    df = senado_clean.clean_senador()
+
+    assert len(df) == 1
+    assert df.loc[0, "sigla_uf"] == "SP"
+    assert df.loc[0, "nome"] == "Fulano"

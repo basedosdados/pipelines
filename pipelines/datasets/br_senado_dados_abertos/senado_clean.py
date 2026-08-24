@@ -388,10 +388,15 @@ def clean_senador() -> pd.DataFrame:
     # A senator recurs across legislatures; keep one row deterministically:
     # most complete (non-null count), tie-broken by the most recent
     # legislature, then id — reproducible regardless of API row order.
-    # `sigla_uf` is now filled on every row, so it no longer separates rows by
-    # completeness: a senator who represented two UFs across legislatures keeps
-    # the most recent one, via the `_leg` tie-break. `senador_mandato` carries
-    # the per-mandate history.
+    # The row is kept whole: every column comes from one legislature, rather
+    # than each column being sourced independently. So for a senator who
+    # represented two UFs, `sigla_uf` follows the most complete row, and `_leg`
+    # only decides ties — an older row with more fields populated wins, and
+    # keeps its (older) UF. Measured against the live API: 9 of 1,567 senators
+    # have more than one UF, and for all 9 the row chosen here already carries
+    # the most recent one, so the two rules do not disagree today. Sourcing
+    # `sigla_uf` separately would buy nothing and would produce a row matching
+    # no single legislature. `senador_mandato` carries the per-mandate history.
     df["_score"] = df[SENADOR_COLS].notna().sum(axis=1)
     df = (
         df.sort_values(
