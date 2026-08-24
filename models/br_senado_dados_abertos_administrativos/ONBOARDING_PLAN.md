@@ -203,10 +203,20 @@ cron minute per the repo convention.
    description rather than dropping `dataAdmissao` / `jornadaSemanal` /
    `hierarquiaCompleta`.
 2. **`empresas` pagination** (trap 5) — settle before the architecture is frozen.
-3. **BD Pro tiering.** Mirroring `br_senado_dados_abertos`: time series
-   (`despesa_ceaps`, `servidor_remuneracao`, `servidor_hora_extra`, supridos) →
-   `PartBdpro`; snapshot dimensions → `AllFree`. Needs a pro Coverage created on
-   each `PartBdpro` table before the first armed run.
+3. ~~BD Pro tiering~~ — **RESOLVED 2026-08-24: the standard 6-month paywall.**
+   The ten `ano`-partitioned time series take
+   `PartBdpro(free_lag=FreeLag(unit="months", value=6))` on their own date
+   column; the `data_extracao` snapshots stay `AllFree` at onboarding, for the
+   reason below. Each `PartBdpro` table needs a pro Coverage
+   (`is_closed=True`) created **before** the first armed run, or
+   `assert_coverage_topology` hard-fails.
+
+   *Open sub-question for step 12, not for onboarding:* a rolling window over
+   `data_extracao` would paywall a stacked-snapshot table **entirely** at
+   launch, since the only snapshot is the current one — the whole table would
+   sit inside the most recent 6 months. `au_ato_abr` hit the same shape. The
+   snapshots therefore stay `AllFree` until enough history has accrued for a
+   6-month cut to leave something free; revisit when arming the pipeline.
 4. ~~Consolidation option for group F~~ — **RESOLVED 2026-08-24: consolidated**
    into `quadro_pessoal` (six count endpoints), with `diretor_coordenador` and
    `previsao_aposentadoria` left standalone. See group F above.

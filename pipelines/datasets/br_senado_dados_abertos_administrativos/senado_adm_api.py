@@ -22,11 +22,14 @@ ONBOARDING_PLAN.md for the evidence behind each.
 from __future__ import annotations
 
 import concurrent.futures as cf
+import logging
 import time
 from collections.abc import Callable, Iterable
 from typing import Any
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 BASE = "https://adm.senado.gov.br/adm-dadosabertos/api/v1"
 HEADERS = {
@@ -105,6 +108,8 @@ def fan_out(
     items: Iterable[Any],
     fn: Callable[[Any], Any],
     workers: int = MAX_WORKERS,
+    label: str = "",
+    fail_ratio: float = 0.01,
 ) -> list[tuple[Any, Any]]:
     """Map ``fn`` over ``items`` concurrently, preserving (item, result) pairs.
 
@@ -112,16 +117,38 @@ def fan_out(
     order; callers that need determinism sort afterwards. An item whose call
     raises after all retries yields ``(item, None)`` so one bad parent cannot
     abort a crawl over thousands.
+
+    Those failures are counted and logged, and — above ``fail_ratio`` of the
+    batch — raised. A crawl of tens of thousands of parents that quietly drops
+    some of them produces a table that is short by an unknown amount and looks
+    perfectly healthy, which is worse than failing.
     """
     out: list[tuple[Any, Any]] = []
+    failures: list[tuple[Any, Exception]] = []
     with cf.ThreadPoolExecutor(workers) as ex:
         futures = {ex.submit(fn, it): it for it in items}
         for fut in cf.as_completed(futures):
             item = futures[fut]
             try:
                 out.append((item, fut.result()))
-            except Exception:
+            except Exception as exc:
+                failures.append((item, exc))
                 out.append((item, None))
+
+    if failures:
+        total = len(out)
+        ratio = len(failures) / total if total else 0.0
+        sample = ", ".join(repr(i) for i, _ in failures[:5])
+        message = (
+            f"{len(failures)}/{total} requests failed after retries "
+            f"({ratio:.1%}); first: {sample}"
+        )
+        if ratio > fail_ratio:
+            raise RuntimeError(
+                f"{label or 'fan_out'}: {message} — refusing to return a "
+                f"silently incomplete crawl"
+            )
+        logger.warning("%s: %s", label or "fan_out", message)
     return out
 
 
@@ -177,7 +204,7 @@ def fetch_sub_resource(
         )
 
     rows: list[dict] = []
-    for parent, result in fan_out(targets, one):
+    for parent, result in fan_out(targets, one, label=f"contratacoes/{sub}"):
         for rec in result or []:
             rows.append(
                 dict(
@@ -207,7 +234,9 @@ def fetch_pagamento_empenhos(pagamentos: list[dict]) -> list[dict]:
         )
 
     rows: list[dict] = []
-    for pag, result in fan_out(pagamentos, one):
+    for pag, result in fan_out(
+        pagamentos, one, label="contratacoes/pagamentos/empenhos"
+    ):
         for rec in result or []:
             rows.append(
                 dict(

@@ -299,3 +299,43 @@ class TestStreamingWrites:
         # and the default still replaces, so a re-run cannot leave stale years
         utils.write_partitioned(rows(2026, 1), out, "despesa_ceaps", "ano")
         assert sorted(p.name for p in table_dir.iterdir()) == ["ano=2026"]
+
+
+class TestFanOutFailuresAreNotSilent:
+    """A crawl that drops parents must say so, not return short data.
+
+    The contratação fan-out is ~61k requests over ~12.7k parents. Before this,
+    a parent whose request failed after all retries was recorded as "no
+    children", so a network blip produced a table short by an unknown amount
+    that looked perfectly healthy.
+    """
+
+    def test_a_few_failures_warn_but_return(self, caplog):
+        from pipelines.datasets.br_senado_dados_abertos_administrativos import (
+            senado_adm_api as api,
+        )
+
+        def flaky(item: int):
+            if item == 7:
+                raise RuntimeError("connection reset")
+            return [item]
+
+        with caplog.at_level("WARNING"):
+            out = api.fan_out(range(200), flaky, workers=4, label="itens")
+
+        assert len(out) == 200
+        assert sum(1 for _, r in out if r is None) == 1
+        assert "1/200 requests failed" in caplog.text
+
+    def test_a_broadly_failing_crawl_raises(self):
+        import pytest
+
+        from pipelines.datasets.br_senado_dados_abertos_administrativos import (
+            senado_adm_api as api,
+        )
+
+        def broken(item: int):
+            raise RuntimeError("host unreachable")
+
+        with pytest.raises(RuntimeError, match="silently incomplete"):
+            api.fan_out(range(50), broken, workers=4, label="itens")
