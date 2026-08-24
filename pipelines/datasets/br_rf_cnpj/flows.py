@@ -107,9 +107,9 @@ def _rf_cnpj_flow(table_id: str, cron: str):
             has_new_data = poll_source_for_update_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                source_max_date=folder_date,
+                source_max_date=last_modified_date,
                 env="prod",
-                date_format="%Y-%m",
+                date_format="%Y-%m-%d",
                 compare_against=compare_against,
             )
             if not has_new_data:
