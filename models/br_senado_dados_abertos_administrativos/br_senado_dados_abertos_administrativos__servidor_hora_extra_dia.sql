@@ -16,6 +16,7 @@ select
     safe_cast(ano as int64) ano,
     safe_cast(mes as int64) mes,
     safe_cast(id_hora_extra as string) id_hora_extra,
+    safe_cast(mes_ano_prestacao as string) mes_ano_prestacao,
     safe_cast(data as date) data,
     safe_cast(quantidade_horas as float64) quantidade_horas,
     safe_cast(sigla_setor_prestacao as string) sigla_setor_prestacao,

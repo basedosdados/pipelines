@@ -175,8 +175,8 @@ models:
         tests: [not_null]
       - name: nome_parlamentar
         description: >
-          Nome parlamentar do senador
-        tests: [not_null]
+          Nome parlamentar do senador, ausente em um registro publicado pela fonte
+          sem identificação
       - name: sigla_uf
         description: >
           Sigla da unidade da federação pela qual o senador foi eleito
@@ -372,7 +372,7 @@ models:
       folha.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [ano, mes, id_remuneracao]
+          combination_of_columns: [ano, mes, id_remuneracao, tipo_folha]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -394,7 +394,8 @@ models:
               field: mes.mes
       - name: id_remuneracao
         description: >
-          Código sequencial identificador do registro de remuneração
+          Código sequencial identificador do registro de remuneração, repetido entre
+          tipos de folha do mesmo servidor e mês
         tests: [not_null]
       - name: nome
         description: >
@@ -454,7 +455,7 @@ models:
       `servidor_hora_extra_dia`.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [ano, mes, id_hora_extra]
+          combination_of_columns: [ano, mes, id_hora_extra, mes_ano_prestacao]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -499,6 +500,7 @@ models:
           combination_of_columns:
             - ano
             - id_hora_extra
+            - mes_ano_prestacao
             - data
             - sigla_setor_prestacao
       - not_null_proportion_multiple_columns:
@@ -523,6 +525,12 @@ models:
       - name: id_hora_extra
         description: >
           Código sequencial do registro de horas extras a que o dia pertence
+        tests: [not_null]
+      - name: mes_ano_prestacao
+        description: >
+          Mês e ano de prestação do registro a que o dia pertence, no formato MM/AAAA,
+          necessário porque o código sequencial se repete entre meses de prestação
+          pagos juntos
         tests: [not_null]
       - name: data
         description: >
@@ -796,14 +804,17 @@ models:
   - name: br_senado_dados_abertos_administrativos__contratacao_orgao_gestor
     description: >
       Órgãos responsáveis pela gestão de cada contratação, com o tipo de gestão exercida.
-      Uma contratação pode ter mais de um órgão gestor.
+      Uma contratação pode ter mais de um órgão gestor. O identificador de órgão publicado
+      pela fonte não é aproveitado: em metade dos registros ele repete o próprio código
+      da contratação, de modo que o órgão é identificado pela sigla.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - data_extracao
             - tipo_contratacao
             - id_contratacao
-            - id_orgao_gestor
+            - sigla_orgao_gestor
+            - tipo_gestao
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -820,9 +831,6 @@ models:
         description: >
           Código identificador da contratação, único apenas dentro da mesma espécie
         tests: [not_null]
-      - name: id_orgao_gestor
-        description: >
-          Código identificador do órgão gestor
       - name: sigla_orgao_gestor
         description: >
           Sigla do órgão gestor
@@ -1272,7 +1280,7 @@ models:
       e o órgão de lotação.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [data_extracao, cpf, fornecedor]
+          combination_of_columns: [data_extracao, cpf, nome, fornecedor]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -1282,7 +1290,8 @@ models:
         tests: [not_null]
       - name: cpf
         description: >
-          CPF do menor aprendiz, parcialmente mascarado pela fonte
+          CPF do menor aprendiz, parcialmente mascarado pela fonte, de modo que o
+          mesmo valor mascarado pode corresponder a pessoas distintas
         tests: [not_null]
       - name: nome
         description: >
