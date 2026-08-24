@@ -172,6 +172,9 @@ models:
     us_cfpb_hmda:
       +materialized: table
       +schema: us_cfpb_hmda
+    us_cms_open_payments:
+      +materialized: table
+      +schema: us_cms_open_payments
     us_fec_campaign_finance:
       +materialized: table
       +schema: us_fec_campaign_finance
@@ -580,6 +583,9 @@ models:
     world_wb_mides:
       +materialized: table
       +schema: world_wb_mides
+    world_wil_wid:
+      +materialized: table
+      +schema: world_wil_wid
     world_wwf_hydrosheds:
       +materialized: table
       +schema: world_wwf_hydrosheds
