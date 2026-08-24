@@ -348,15 +348,75 @@ TRANSLATED: dict[str, tuple[str, str]] = {
 }
 
 
-def column_ids(dataset_slug: str, table_slug: str, env: str) -> dict[str, str]:
-    """Map column name to id for one table, read back after registration."""
-    tables = (
-        tool(BD.get_dataset)(slug=dataset_slug, env=env).get("tables") or {}
-    )
-    if not isinstance(tables, dict):
-        return {}
-    entry = tables.get(table_slug) or {}
-    return {c["name"]: c["id"] for c in entry.get("columns", [])}
+def existing_levels_and_coverage(
+    table_id: str, env: str
+) -> tuple[dict, dict, list]:
+    """What a table already has, so a re-run updates rather than duplicating.
+
+    create_update_observation_level and create_update_coverage key on id like
+    everything else here; without one they add a second record. A run that
+    crashed part-way had already left respondent_cycle_1 with two person levels
+    and two identical coverages.
+    """
+    query = """
+    query($t: ID!) {
+      allTable(id: $t) { edges { node {
+        observationLevels { edges { node { id entity { slug } } } }
+        coverages { edges { node { id area { slug }
+          datetimeRanges { edges { node { id } } } } } }
+        updates { edges { node { id } } }
+      } } }
+    }
+    """
+    edges = BD._gql(query, {"t": table_id}, env=env)["allTable"]["edges"]
+    if not edges:
+        return {}, {}, []
+    node = edges[0]["node"]
+    levels = {
+        o["node"]["entity"]["slug"]: BD._strip_id(o["node"]["id"])
+        for o in node["observationLevels"]["edges"]
+    }
+    coverages = {
+        c["node"]["area"]["slug"]: (
+            BD._strip_id(c["node"]["id"]),
+            [
+                BD._strip_id(r["node"]["id"])
+                for r in c["node"]["datetimeRanges"]["edges"]
+            ],
+        )
+        for c in node["coverages"]["edges"]
+    }
+    updates = [BD._strip_id(u["node"]["id"]) for u in node["updates"]["edges"]]
+    return levels, coverages, updates
+
+
+def column_ids(table_id: str, env: str) -> dict[str, str]:
+    """Map column name to id for one table.
+
+    Not via get_dataset: that caps columns at 200, so on the 612- and 788-column
+    respondent tables respondent_id fell outside the cap and the observation
+    level was silently registered with no identifying column -- which the site
+    renders as "Nao informado". Cursor-paginated instead, and asserted complete.
+    """
+    query = """
+    query($table: ID!, $after: String) {
+      allColumn(table_Id: $table, first: 200, after: $after) {
+        pageInfo { hasNextPage endCursor }
+        edges { node { id name } }
+      }
+    }
+    """
+    out: dict[str, str] = {}
+    after = None
+    while True:
+        page = BD._gql(query, {"table": table_id, "after": after}, env=env)[
+            "allColumn"
+        ]
+        for edge in page["edges"]:
+            out[edge["node"]["name"]] = BD._strip_id(edge["node"]["id"])
+        if not page["pageInfo"]["hasNextPage"]:
+            return out
+        after = page["pageInfo"]["endCursor"]
 
 
 def read_architecture(slug: str) -> list[dict]:
@@ -549,11 +609,15 @@ def main() -> None:
 
         # Observation levels, and the column identifying each. Without the column
         # link the site renders the level's columns as "Nao informado".
-        by_name = column_ids(DATASET_SLUG, table_slug, env)
+        by_name = column_ids(table_id, env)
+        have_levels, have_coverages, have_updates = (
+            existing_levels_and_coverage(table_id, env)
+        )
         for entity_slug, identifying_column in OBSERVATION_LEVELS.get(
             table_slug, []
         ):
             level = tool(BD.create_update_observation_level)(
+                id=have_levels.get(entity_slug),
                 table_id=table_id,
                 entity_id=ids["entity"][entity_slug],
                 env=env,
@@ -571,11 +635,15 @@ def main() -> None:
                     env=env,
                 )
 
+        prior_coverage, prior_ranges = have_coverages.get(
+            AREA_WORLD, (None, [])
+        )
         coverage = tool(BD.create_update_coverage)(
-            table_id=table_id, area_id=area_id, env=env
+            id=prior_coverage, table_id=table_id, area_id=area_id, env=env
         )
         start_year, end_year = COVERAGE_YEARS[table_slug]
         tool(BD.create_update_datetime_range)(
+            id=prior_ranges[0] if prior_ranges else None,
             coverage_id=coverage["id"],
             start_year=start_year,
             end_year=end_year,
@@ -586,6 +654,7 @@ def main() -> None:
         # Table-anchored: `latest` is when Data Basis last refreshed the table,
         # not the newest date in the data. PIAAC releases roughly once a decade.
         tool(BD.create_update_update)(
+            id=have_updates[0] if have_updates else None,
             table_id=table_id,
             entity_id=ids["entity"]["year"],
             frequency=10,
