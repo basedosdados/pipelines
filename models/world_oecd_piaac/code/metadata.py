@@ -114,16 +114,49 @@ TABLE_NAMES = {
 # Deliberately excludes anything already carried as other metadata: no place
 # names (that is Coverage) and no theme words -- `educacao` and `economia` would
 # just restate the two themes attached above.
-TAGS = [
-    "alfabetizacao",
-    "habilidade",
-    "escolaridade",
-    "aprendizagem",
-    "avaliacao_da_educacao",
-    "ocupacao",
-    "emprego",
-    "salario",
-]
+# The tag vocabulary is Portuguese on staging but English on prod, and the two do
+# not share slugs, so the set is resolved per backend. Same eight subjects either
+# way; prod has no `numeracy` tag, and its closest to `salario` is `income`.
+TAGS_BY_BACKEND = {
+    "pt": [
+        "alfabetizacao",
+        "habilidade",
+        "escolaridade",
+        "aprendizagem",
+        "avaliacao_da_educacao",
+        "ocupacao",
+        "emprego",
+        "salario",
+    ],
+    "en": [
+        "literacy",
+        "skill",
+        "schooling",
+        "learning",
+        "education-assessment",
+        "occupation",
+        "employment",
+        "income",
+    ],
+}
+
+
+def tags_for(ids: dict) -> list[str]:
+    """Pick whichever vocabulary this backend actually has."""
+    available = ids["tag"]
+    for slugs in (TAGS_BY_BACKEND["en"], TAGS_BY_BACKEND["pt"]):
+        if all(slug in available for slug in slugs):
+            return [available[slug] for slug in slugs]
+    # Neither set is complete; attach what resolves and report the rest.
+    resolved, missing = [], []
+    for slug in TAGS_BY_BACKEND["en"] + TAGS_BY_BACKEND["pt"]:
+        (resolved if slug in available else missing).append(slug)
+    if missing:
+        print(
+            f"  [warn] tags not found on this backend: {sorted(set(missing))}"
+        )
+    return [available[s] for s in dict.fromkeys(resolved)]
+
 
 # Which entities each table is observed at, and the column identifying each.
 # Microdata is one row per person, so a single `person` level -- not
@@ -497,7 +530,7 @@ def main() -> None:
         description_es=DATASET_DESCRIPTION["es"],
         organization_ids=[ids["organization"]["oecd"]],
         theme_ids=[ids["theme"]["education"], ids["theme"]["economics"]],
-        tag_ids=[ids["tag"][t] for t in TAGS],
+        tag_ids=tags_for(ids),
         status_id=ids["status"]["under_review"],
         env=env,
     )
@@ -678,7 +711,7 @@ def main() -> None:
             description_es=DATASET_DESCRIPTION["es"],
             organization_ids=[ids["organization"]["oecd"]],
             theme_ids=[ids["theme"]["education"], ids["theme"]["economics"]],
-            tag_ids=[ids["tag"][t] for t in TAGS],
+            tag_ids=tags_for(ids),
             status_id=ids["status"]["published"],
             env=env,
         )
