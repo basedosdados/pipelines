@@ -714,3 +714,36 @@ def build_dicionario(output_dir: Path) -> Path:
     )
     log.info(f"dicionario: {len(df):,} entries -> {dest}")
     return dest / "data.parquet"
+
+
+def assert_dictionary_labels(output_dir: Path, year: int) -> None:
+    """Fail loudly if a release introduces a code the dictionary cannot label.
+
+    The recurring pipeline cleans one year at a time and does not rebuild the
+    `dicionario` (which needs the whole panel to compute each entry's temporal
+    coverage). Without this check a new ownership or area type would reach
+    BigQuery with nothing to explain it. When it fires, re-run the full bootstrap
+    — `clean_data.py` then `build_dicionario.py` — after adding the label.
+
+    Args:
+        output_dir: Root output directory.
+        year: Reference year to check.
+
+    Raises:
+        ValueError: If a code in the year has no label.
+    """
+    labels = constants.DICTIONARY_LABELS.value
+    for table in constants.DATA_TABLES.value:
+        columns = {a["name"] for a in read_arch(table)}
+        path = output_dir / table / f"year={year}" / "data.parquet"
+        for column, mapping in labels.items():
+            if column not in columns:
+                continue
+            found = pd.read_parquet(path, columns=[column])[column].dropna()
+            unknown = sorted(set(found.astype(str)) - set(mapping))
+            if unknown:
+                raise ValueError(
+                    f"{year}: {table}.{column} has unlabelled code(s) {unknown} "
+                    f"— add them to constants.DICTIONARY_LABELS and rebuild the "
+                    f"dicionario"
+                )
