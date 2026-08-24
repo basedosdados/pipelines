@@ -31,14 +31,14 @@ class constants(Enum):
 
     # Candidtos
 
-    CANDIDATOS24_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2024.zip"
-    COMPLEMENTR24_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand_complementar/consulta_cand_complementar_2024.zip"
+    CANDIDATOS_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2026.zip"
+    COMPLEMENTR_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand_complementar/consulta_cand_complementar_2026.zip"
 
     MUNICIPIOS_CSV = "https://storage.googleapis.com/basedosdados/staging/br_bd_diretorios_brasil/municipio/municipio.csv"
 
-    QUERY_MUNIPIPIOS = "select id_municipio, id_municipio_tse from `basedosdados.br_bd_diretorios_brasil.municipio`"
+    QUERY_MUNICIPIOS = "select id_municipio, id_municipio_tse from `basedosdados.br_bd_diretorios_brasil.municipio`"
 
-    CANDIDATOS_URLS = [CANDIDATOS24_ZIP, COMPLEMENTR24_ZIP]
+    CANDIDATOS_URLS = [CANDIDATOS_ZIP, COMPLEMENTR_ZIP]
 
     ORDER = {
         "id_eleicao": "CD_ELEICAO_x",
@@ -73,7 +73,7 @@ class constants(Enum):
 
     # Constantes BENS CANDIDATO
 
-    BENS_CANDIDATOS24 = "https://cdn.tse.jus.br/estatistica/sead/odsele/bem_candidato/bem_candidato_2024.zip"
+    BENS_CANDIDATOS = "https://cdn.tse.jus.br/estatistica/sead/odsele/bem_candidato/bem_candidato_2026.zip"
 
     ORDER_BENS = {
         "id_eleicao": "CD_ELEICAO",
@@ -90,7 +90,7 @@ class constants(Enum):
 
     # Despesas Candidato
 
-    DESPESAS_RECEITAS24 = "https://cdn.tse.jus.br/estatistica/sead/odsele/prestacao_contas/prestacao_de_contas_eleitorais_candidatos_2024.zip"
+    DESPESAS_RECEITAS = "https://cdn.tse.jus.br/estatistica/sead/odsele/prestacao_contas/prestacao_de_contas_eleitorais_candidatos_2026.zip"
 
     ORDER_DESPESAS = {
         "turno": "ST_TURNO",

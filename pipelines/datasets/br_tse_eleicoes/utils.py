@@ -52,22 +52,22 @@ def flows_catalog() -> dict:
         "candidatos": {
             "flow": Candidatos,
             "urls": tse_constants.CANDIDATOS_URLS.value,
-            "source": "consulta_cand_2024_BRASIL.csv",
+            "source": "consulta_cand_2026_BRASIL.csv",
         },
         "bens_candidato": {
             "flow": BensCandidato,
-            "urls": [tse_constants.BENS_CANDIDATOS24.value],
-            "source": "bem_candidato_2024_BRASIL.csv",
+            "urls": [tse_constants.BENS_CANDIDATOS.value],
+            "source": "bem_candidato_2026_BRASIL.csv",
         },
         "despesas_candidato": {
             "flow": DespesasCandidato,
-            "urls": [tse_constants.DESPESAS_RECEITAS24.value],
-            "source": "despesas_contratadas_candidatos_2024_BRASIL.csv",
+            "urls": [tse_constants.DESPESAS_RECEITAS.value],
+            "source": "despesas_contratadas_candidatos_2026_BRASIL.csv",
         },
         "receitas_candidato": {
             "flow": ReceitasCandidato,
-            "urls": [tse_constants.DESPESAS_RECEITAS24.value],
-            "source": "receitas_candidatos_2024_BRASIL.csv",
+            "urls": [tse_constants.DESPESAS_RECEITAS.value],
+            "source": "receitas_candidatos_2026_BRASIL.csv",
         },
     }
 
@@ -83,7 +83,7 @@ class BrTseEleicoes:
         urls: list,
         table_id: str,
         source: str,
-        year: int = 2024,
+        year: int = 2026,
         mode: str = "dev",
     ):
         self.urls = urls
@@ -120,7 +120,12 @@ class BrTseEleicoes:
         self.path_input.mkdir(parents=True, exist_ok=True)
 
         request_headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
+            "referer": "https://dadosabertos.tse.jus.br/",
+            "sec-ch-ua": '"Not=A?Brand";v="99", "Google Chrome";v="151", "Chromium";v="151"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": '"Windows"',
+            "upgrade-insecure-requests": "1",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
         }
 
         r = requests.get(url, headers=request_headers, stream=True, timeout=60)
@@ -193,7 +198,7 @@ class Candidatos(BrTseEleicoes):
     # pyrefly: ignore [bad-override]
     def form_df_base(self) -> pd.DataFrame:
         municipios = bd.read_sql(
-            tse_constants.QUERY_MUNIPIPIOS.value,
+            tse_constants.QUERY_MUNICIPIOS.value,
             from_file=True,
             billing_project_id=self.billing_project_id,
         )
@@ -296,7 +301,7 @@ class DespesasCandidato(BrTseEleicoes):
     # pyrefly: ignore [bad-override]
     def form_df_base(self) -> pd.DataFrame:
         municipios = bd.read_sql(
-            tse_constants.QUERY_MUNIPIPIOS.value,
+            tse_constants.QUERY_MUNICIPIOS.value,
             from_file=True,
             billing_project_id=self.billing_project_id,
         )
@@ -374,7 +379,7 @@ class ReceitasCandidato(BrTseEleicoes):
     # pyrefly: ignore [bad-override]
     def form_df_base(self) -> pd.DataFrame:
         municipios = bd.read_sql(
-            tse_constants.QUERY_MUNIPIPIOS.value,
+            tse_constants.QUERY_MUNICIPIOS.value,
             from_file=True,
             billing_project_id=self.billing_project_id,
         )
