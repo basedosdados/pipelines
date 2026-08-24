@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1996, "end": 2022, "interval": 1},
+            "range": {"start": 1994, "end": 2029, "interval": 1},
         },
         cluster_by=["mes", "sigla_uf"],
         labels={"tema": "economia"},
@@ -68,8 +68,11 @@ from
                 from
                     {{ set_datalake_project("world_wb_mides_staging.raw_empenho_ce") }} e
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_ce` m
-                    on e.codigo_municipio = m.codigo_municipio
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_ce"
+                        )
+                    }} m on e.codigo_municipio = m.codigo_municipio
             ),
             pago_ce as (
                 select
@@ -144,8 +147,11 @@ from
                         )
                     }} p
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_ce` m
-                    on p.codigo_municipio = m.codigo_municipio
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_ce"
+                        )
+                    }} m on p.codigo_municipio = m.codigo_municipio
             ),
             frequencia_ce as (
                 select id_pagamento_bd, count(id_pagamento_bd) as frequencia_id
@@ -309,7 +315,7 @@ from
                         )
                     }} as p
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.raw_rsp_mg` as r
+                    {{ set_datalake_project("world_wb_mides_staging.raw_rsp_mg") }} as r
                     on p.id_rsp = r.id_rsp
             ),
             pago_pb as (
@@ -382,13 +388,17 @@ from
                         )
                     }} p
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.raw_empenho_pb` e
+                    {{ set_datalake_project("world_wb_mides_staging.raw_empenho_pb") }} e
                     on p.nu_empenho = e.nu_empenho
                     and p.cd_ugestora = e.cd_ugestora
                     and p.de_uorcamentaria = e.de_uorcamentaria
                     and p.dt_ano = e.dt_ano
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_pb` m
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_pb"
+                        )
+                    }} m
                     on safe_cast(e.cd_ugestora as string)
                     = safe_cast(m.id_unidade_gestora as string)
             ),
@@ -478,7 +488,11 @@ from
                         )
                     }} p
                 inner join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_pe` m
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_pe"
+                        )
+                    }} m
                     on safe_cast(p.id_unidade_gestora as string)
                     = safe_cast(m.id_unidadegestora as string)
             ),
@@ -524,7 +538,7 @@ from
                         )
                     }} p
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.raw_empenho_pr` e
+                    {{ set_datalake_project("world_wb_mides_staging.raw_empenho_pr") }} e
                     on p.idempenho = e.idempenho
                 left join
                     basedosdados.br_bd_diretorios_brasil.municipio m
@@ -602,7 +616,8 @@ from
                     {{ set_datalake_project("world_wb_mides_staging.raw_despesa_rs") }}
                     as c
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_orgao_rs` as a
+                    {{ set_datalake_project("world_wb_mides_staging.aux_orgao_rs") }}
+                    as a
                     on c.cd_orgao = a.cd_orgao
                 left join
                     `basedosdados.br_bd_diretorios_brasil.municipio` m
@@ -649,7 +664,8 @@ from
                     {{ set_datalake_project("world_wb_mides_staging.raw_despesa_rs") }}
                     as c
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_orgao_rs` as a
+                    {{ set_datalake_project("world_wb_mides_staging.aux_orgao_rs") }}
+                    as a
                     on c.cd_orgao = a.cd_orgao
                 left join
                     `basedosdados.br_bd_diretorios_brasil.municipio` m
@@ -910,13 +926,16 @@ from
                 from
                     {{ set_datalake_project("world_wb_mides_staging.raw_despesa_sp") }} e
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_sp` m
-                    on m.ds_orgao = e.ds_orgao
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_sp"
+                        )
+                    }} m on m.ds_orgao = e.ds_orgao
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_funcao`
+                    {{ set_datalake_project("world_wb_mides_staging.aux_funcao") }}
                     on ds_funcao_governo = upper(nome_funcao)
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_subfuncao`
+                    {{ set_datalake_project("world_wb_mides_staging.aux_subfuncao") }}
                     on ds_subfuncao_governo = upper(nome_subfuncao)
                 where tp_despesa = 'Valor Pago'
             ),

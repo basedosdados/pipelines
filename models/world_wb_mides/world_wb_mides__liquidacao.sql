@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1995, "end": 2024, "interval": 1},
+            "range": {"start": 1992, "end": 2029, "interval": 1},
         },
         cluster_by=["mes", "sigla_uf"],
         labels={"tema": "economia"},
@@ -89,8 +89,11 @@ from
                         )
                     }} l
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_ce` m
-                    on l.codigo_municipio = m.codigo_municipio
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_ce"
+                        )
+                    }} m on l.codigo_municipio = m.codigo_municipio
             ),
             liquidacao_mg as (
                 select
@@ -173,7 +176,7 @@ from
                         )
                     }} as l
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.raw_rsp_mg` as r
+                    {{ set_datalake_project("world_wb_mides_staging.raw_rsp_mg") }} as r
                     on l.id_rsp = r.id_rsp
             ),
             liquidacao_pb as (
@@ -223,8 +226,11 @@ from
                         )
                     }} l
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_pb` m
-                    on l.cd_ugestora = safe_cast(m.id_unidade_gestora as string)
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_pb"
+                        )
+                    }} m on l.cd_ugestora = safe_cast(m.id_unidade_gestora as string)
             ),
             liquidacao_pr as (
                 select
@@ -266,7 +272,7 @@ from
                     basedosdados.br_bd_diretorios_brasil.municipio m
                     on cdibge = id_municipio_6
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.raw_empenho_pr` e
+                    {{ set_datalake_project("world_wb_mides_staging.raw_empenho_pr") }} e
                     on l.idempenho = e.idempenho
             ),
             liquidacao_pe as (
@@ -298,7 +304,11 @@ from
                         )
                     }} l
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_pe` m
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_pe"
+                        )
+                    }} m
                     on l.id_unidade_gestora = safe_cast(m.id_unidadegestora as string)
             ),
             liquidado_rs as (
@@ -353,7 +363,8 @@ from
                     {{ set_datalake_project("world_wb_mides_staging.raw_despesa_rs") }}
                     as c
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_orgao_rs` as a
+                    {{ set_datalake_project("world_wb_mides_staging.aux_orgao_rs") }}
+                    as a
                     on c.cd_orgao = a.cd_orgao
                 left join
                     `basedosdados.br_bd_diretorios_brasil.municipio` m
@@ -379,7 +390,8 @@ from
                     {{ set_datalake_project("world_wb_mides_staging.raw_despesa_rs") }}
                     as c
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_orgao_rs` as a
+                    {{ set_datalake_project("world_wb_mides_staging.aux_orgao_rs") }}
+                    as a
                     on c.cd_orgao = a.cd_orgao
                 left join
                     `basedosdados.br_bd_diretorios_brasil.municipio` m
@@ -541,13 +553,16 @@ from
                 from
                     {{ set_datalake_project("world_wb_mides_staging.raw_despesa_sp") }} e
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_sp` m
-                    on m.ds_orgao = e.ds_orgao
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_sp"
+                        )
+                    }} m on m.ds_orgao = e.ds_orgao
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_funcao`
+                    {{ set_datalake_project("world_wb_mides_staging.aux_funcao") }}
                     on ds_funcao_governo = upper(nome_funcao)
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_subfuncao`
+                    {{ set_datalake_project("world_wb_mides_staging.aux_subfuncao") }}
                     on ds_subfuncao_governo = upper(nome_subfuncao)
                 where tp_despesa = 'Valor Liquidado'
             ),

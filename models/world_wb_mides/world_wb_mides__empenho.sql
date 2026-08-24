@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1994, "end": 2024, "interval": 1},
+            "range": {"start": 1989, "end": 2029, "interval": 1},
         },
         cluster_by=["mes", "sigla_uf"],
         labels={"tema": "economia"},
@@ -424,13 +424,16 @@ from
                 from
                     {{ set_datalake_project("world_wb_mides_staging.raw_empenho_pb") }} e
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_pb` m
-                    on e.cd_ugestora = safe_cast(m.id_unidade_gestora as string)
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_pb"
+                        )
+                    }} m on e.cd_ugestora = safe_cast(m.id_unidade_gestora as string)
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_funcao` f
+                    {{ set_datalake_project("world_wb_mides_staging.aux_funcao") }} f
                     on e.de_funcao = f.nome_funcao
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_subfuncao` sf
+                    {{ set_datalake_project("world_wb_mides_staging.aux_subfuncao") }} sf
                     on e.de_subfuncao = sf.nome_subfuncao
             ),
             anulacao_pb as (
@@ -450,8 +453,11 @@ from
                 from
                     {{ set_datalake_project("world_wb_mides_staging.raw_estorno_pb") }} a
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_pb` m
-                    on a.cd_ugestora = safe_cast(m.id_unidade_gestora as string)
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_pb"
+                        )
+                    }} m on a.cd_ugestora = safe_cast(m.id_unidade_gestora as string)
                 group by 1
             ),
             frequencia_pb as (
@@ -855,10 +861,13 @@ from
                 from
                     {{ set_datalake_project("world_wb_mides_staging.raw_empenho_pe") }} e
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_pe` m
-                    on e.nomeunidadegestora = m.nomeunidadegestora
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_pe"
+                        )
+                    }} m on e.nomeunidadegestora = m.nomeunidadegestora
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_funcao` fun
+                    {{ set_datalake_project("world_wb_mides_staging.aux_funcao") }} fun
                     on upper(
                         trim(
                             replace(
@@ -872,7 +881,7 @@ from
                     )
                     = upper(nome_funcao)
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_subfuncao` sub
+                    {{ set_datalake_project("world_wb_mides_staging.aux_subfuncao") }} sub
                     on upper(trim(e.subfuncao)) = upper(nome_subfuncao)
             ),
             empenho_pr as (
@@ -969,7 +978,8 @@ from
                     {{ set_datalake_project("world_wb_mides_staging.raw_despesa_rs") }}
                     as c
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_orgao_rs` as a
+                    {{ set_datalake_project("world_wb_mides_staging.aux_orgao_rs") }}
+                    as a
                     on c.cd_orgao = a.cd_orgao
                 left join
                     `basedosdados.br_bd_diretorios_brasil.municipio` m
@@ -1021,7 +1031,8 @@ from
                     {{ set_datalake_project("world_wb_mides_staging.raw_despesa_rs") }}
                     as c
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_orgao_rs` as a
+                    {{ set_datalake_project("world_wb_mides_staging.aux_orgao_rs") }}
+                    as a
                     on c.cd_orgao = a.cd_orgao
                 left join
                     `basedosdados.br_bd_diretorios_brasil.municipio` m
@@ -1265,13 +1276,16 @@ from
                 from
                     {{ set_datalake_project("world_wb_mides_staging.raw_despesa_sp") }} e
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_sp` m
-                    on m.ds_orgao = e.ds_orgao
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_sp"
+                        )
+                    }} m on m.ds_orgao = e.ds_orgao
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_funcao`
+                    {{ set_datalake_project("world_wb_mides_staging.aux_funcao") }}
                     on ds_funcao_governo = upper(nome_funcao)
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_subfuncao`
+                    {{ set_datalake_project("world_wb_mides_staging.aux_subfuncao") }}
                     on ds_subfuncao_governo = upper(nome_subfuncao)
                 where tp_despesa = 'Empenhado'
             ),
@@ -1300,8 +1314,11 @@ from
                 from
                     {{ set_datalake_project("world_wb_mides_staging.raw_despesa_sp") }} a
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_sp` m
-                    on m.ds_orgao = a.ds_orgao
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_sp"
+                        )
+                    }} m on m.ds_orgao = a.ds_orgao
                 where tp_despesa = 'Anulação'
                 group by 1
             ),
@@ -1324,8 +1341,11 @@ from
                 from
                     {{ set_datalake_project("world_wb_mides_staging.raw_despesa_sp") }} r
                 left join
-                    `basedosdados-staging.world_wb_mides_staging.aux_municipio_sp` m
-                    on m.ds_orgao = r.ds_orgao
+                    {{
+                        set_datalake_project(
+                            "world_wb_mides_staging.aux_municipio_sp"
+                        )
+                    }} m on m.ds_orgao = r.ds_orgao
                 where tp_despesa = 'Reforço'
                 group by 1
             ),
