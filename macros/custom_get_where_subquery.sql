@@ -71,6 +71,27 @@
             {% endif %}
         {% endif %}
 
+        {# Same as __most_recent_year_en__, for datasets partitioned on a fiscal
+           year rather than a calendar year (us_treasury_usaspending). #}
+        {% if "__most_recent_fiscal_year__" in where %}
+            {% set max_year_query = (
+                "select max(cast(fiscal_year as int64)) as max_year from "
+                ~ relation
+            ) %}
+            {% set max_year_result = run_query(max_year_query) %}
+            {% if execute and max_year_result.rows[0][0] %}
+                {% set max_year = max_year_result.rows[0][0] %}
+                {% set where = where | replace(
+                    "__most_recent_fiscal_year__", "fiscal_year = " ~ max_year
+                ) %}
+                {% do log(
+                    "The test will filter by the most recent fiscal year: "
+                    ~ max_year,
+                    info=True,
+                ) %}
+            {% endif %}
+        {% endif %}
+
         {# This block looks for __most_recent_date__  placeholder #}
         {% if "__most_recent_date__" in where %}
             {% set max_date_query = "select max(data) as max_date from " ~ relation %}
