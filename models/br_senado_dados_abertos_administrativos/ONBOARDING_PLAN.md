@@ -77,9 +77,10 @@ Each verified against the live API, not inferred from the spec.
    `(tipo_contratacao, id)` grain and deduplicate, or row counts inflate ~20×.
    Same bug family as the `empresas[]` keys. `pagamentos/{id}/empenhos`, by
    contrast, *is* genuine — distinct empenhos per payment.
-5. **`/contratacoes/empresas?pagina=` disagrees with the bare call.** Bare returns
-   2,906 rows / 2,903 unique ids (3 duplicate ids); page 20 held an id absent from
-   the bare response. Confirm during build whether pagination is required.
+5. **`/contratacoes/empresas?pagina=` is broken — do not use it.** It truncates
+   at page 5, returning 999 rows with only 774 unique ids (the pages overlap),
+   against the bare call's 2,906 rows / 2,903 unique ids. The bare call is the
+   complete one; it does repeat three ids, which the transform deduplicates.
 
 ---
 
@@ -202,7 +203,12 @@ cron minute per the repo convention.
    name-joined to `servidor`. Documented as a known limitation in the table
    description rather than dropping `dataAdmissao` / `jornadaSemanal` /
    `hierarquiaCompleta`.
-2. **`empresas` pagination** (trap 5) — settle before the architecture is frozen.
+2. ~~`empresas` pagination~~ — **RESOLVED 2026-08-24: the bare call is correct.**
+   `?pagina=` is the broken one: it truncates at page 5 (999 rows, only 774
+   unique ids, pages overlapping) against the bare call's 2,906 rows / 2,903
+   unique ids. The single id reachable only by pagination (583) is a duplicate
+   person record — same masked CPF as id 200, already present — and its CPF does
+   appear in `contratacao`. Nothing is lost by ignoring pagination.
 3. ~~BD Pro tiering~~ — **RESOLVED 2026-08-24: the standard 6-month paywall.**
    The ten `ano`-partitioned time series take
    `PartBdpro(free_lag=FreeLag(unit="months", value=6))` on their own date

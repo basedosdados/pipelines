@@ -2100,9 +2100,9 @@ _t(
         (
             "cpf_cnpj",
             "str",
-            "CPF ou CNPJ da empresa contratada",
-            "Contracted company's CPF or CNPJ",
-            "CPF o CNPJ de la empresa contratada",
+            "CPF ou CNPJ do contratado, com o CPF parcialmente mascarado pela fonte quando pessoa física",
+            "Contractor's CPF or CNPJ, with the CPF partially masked by the source for individuals",
+            "CPF o CNPJ del contratado, con el CPF parcialmente enmascarado por la fuente cuando es persona física",
         ),
         (
             "nome",
