@@ -1,0 +1,142 @@
+---
+version: 2
+models:
+  - name: au_ato_abr__entity
+    description: >
+      Registro de entidades do Australian Business Register (ABR), com uma linha
+      por Número de Empresa Australiano (ABN) em cada extração (snapshot). Cada
+      extração é uma fotografia completa do cadastro; a coluna extraction_date
+      identifica a data em que os dados foram extraídos pelo ABR.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [extraction_date, abn]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [asic_number, asic_number_type, gst_status_from_date]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - abn_status
+            - entity_type
+            - gst_status
+            - state_code
+            - asic_number_type
+            - replaced
+          dictionary_model: ref('au_ato_abr__dicionario')
+    columns:
+      - name: extraction_date
+        description: >
+          Data de extração do snapshot do registro (ABR)
+        tests: [not_null]
+      - name: abn
+        description: >
+          Número de Empresa Australiano (ABN), identificador único de 11 dígitos
+        tests: [not_null]
+      - name: abn_status
+        description: >
+          Situação do ABN: ativo (ACT) ou cancelado (CAN)
+      - name: abn_status_from_date
+        description: >
+          Data a partir da qual a situação atual do ABN passou a vigorar
+      - name: entity_type
+        description: >
+          Código do tipo de entidade (ex.: IND, PRV, PUB)
+      - name: entity_name
+        description: >
+          Nome legal ou principal da entidade
+      - name: asic_number
+        description: >
+          Número de registro na ASIC (ACN ou ARBN), quando aplicável
+      - name: asic_number_type
+        description: >
+          Tipo do número ASIC
+      - name: gst_status
+        description: >
+          Situação de registro no GST
+      - name: gst_status_from_date
+        description: >
+          Data a partir da qual a situação atual do GST passou a vigorar
+      - name: state_code
+        description: >
+          Sigla do estado ou território da localização comercial principal
+      - name: postcode
+        description: >
+          Código postal de 4 dígitos da localização comercial principal
+      - name: record_last_updated_date
+        description: >
+          Data da última atualização do registro no ABR
+      - name: replaced
+        description: >
+          Indicador de que o registro substituiu um anterior (Y ou N)
+  - name: au_ato_abr__other_name
+    description: >
+      Nomes fantasia, comerciais e outros nomes ("other entity names") sob os
+      quais as entidades do ABR operam. Uma linha por nome; relaciona-se à tabela
+      entity pela coluna abn.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [extraction_date, abn, name_type, name]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [name_type]
+          dictionary_model: ref('au_ato_abr__dicionario')
+    columns:
+      - name: extraction_date
+        description: >
+          Data de extração do snapshot do registro (ABR)
+        tests: [not_null]
+      - name: abn
+        description: >
+          Número de Empresa Australiano (ABN) da entidade à qual o nome pertence
+        tests: [not_null]
+      - name: name_type
+        description: >
+          Tipo do nome: nome fantasia/comercial (TRD), nome de negócio (BN) ou
+          outro nome (OTN)
+      - name: name
+        description: >
+          Nome fantasia, comercial ou outro nome sob o qual a entidade opera
+  - name: au_ato_abr__dgr
+    description: >
+      Endossos de beneficiária de doações dedutíveis (Deductible Gift Recipient,
+      DGR) das entidades do ABR. Uma linha por endosso; relaciona-se à tabela
+      entity pela coluna abn.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [dgr_name]
+    columns:
+      - name: extraction_date
+        description: >
+          Data de extração do snapshot do registro (ABR)
+        tests: [not_null]
+      - name: abn
+        description: >
+          Número de Empresa Australiano (ABN) da entidade endossada como DGR
+        tests: [not_null]
+      - name: dgr_status_from_date
+        description: >
+          Data a partir da qual a entidade foi endossada como DGR
+      - name: dgr_name
+        description: >
+          Nome do fundo ou instituição endossada como DGR, quando informado
+  - name: au_ato_abr__dicionario
+    description: >
+      Dicionário de códigos e categorias das colunas codificadas do conjunto
+      au_ato_abr.
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela à qual a chave se refere
+      - name: nome_coluna
+        description: >
+          Nome da coluna à qual a chave se refere
+      - name: chave
+        description: >
+          Chave (valor codificado) presente na coluna original
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal da chave
+      - name: valor
+        description: >-
+          Valor traduzido correspondente à chave

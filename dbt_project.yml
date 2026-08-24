@@ -49,6 +49,18 @@ models:
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
+    au_ato_abr:
+      +materialized: table
+      +schema: au_ato_abr
+    au_ato_taxation_statistics:
+      +materialized: table
+      +schema: au_ato_taxation_statistics
+    au_geoscape_gnaf:
+      +materialized: table
+      +schema: au_geoscape_gnaf
+    au_rba_statistical_tables:
+      +materialized: table
+      +schema: au_rba_statistical_tables
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
@@ -73,6 +85,9 @@ models:
     br_bcb_estban:
       +materialized: table
       +schema: br_bcb_estban
+    br_bcb_ifdata:
+      +materialized: table
+      +schema: br_bcb_ifdata
     br_bcb_sicor:
       +materialized: table
       +schema: br_bcb_sicor
@@ -103,15 +118,30 @@ models:
     br_bd_diretorios_de:
       +materialized: table
       +schema: br_bd_diretorios_de
+    br_bd_diretorios_fr:
+      +materialized: table
+      +schema: br_bd_diretorios_fr
+    fr_insee_sirene:
+      +materialized: table
+      +schema: fr_insee_sirene
     br_bd_diretorios_in:
       +materialized: table
       +schema: br_bd_diretorios_in
+    br_bd_diretorios_comercio_internacional:
+      +materialized: table
+      +schema: br_bd_diretorios_comercio_internacional
     br_bd_diretorios_mundo:
       +materialized: table
       +schema: br_bd_diretorios_mundo
     br_bd_diretorios_us:
       +materialized: table
       +schema: br_bd_diretorios_us
+    br_bd_diretorios_mx:
+      +materialized: table
+      +schema: br_bd_diretorios_mx
+    mx_sesnsp_incidencia_delictiva:
+      +materialized: table
+      +schema: mx_sesnsp_incidencia_delictiva
     in_tcpd_elections:
       +materialized: table
       +schema: in_tcpd_elections
@@ -124,6 +154,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_fed_fred:
+      +materialized: table
+      +schema: us_fed_fred
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force
@@ -136,18 +169,33 @@ models:
     us_census_cps:
       +materialized: table
       +schema: us_census_cps
+    us_cfpb_hmda:
+      +materialized: table
+      +schema: us_cfpb_hmda
+    us_cms_open_payments:
+      +materialized: table
+      +schema: us_cms_open_payments
+    us_fec_campaign_finance:
+      +materialized: table
+      +schema: us_fec_campaign_finance
     us_nature_gerda:
       +materialized: table
       +schema: us_nature_gerda
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
+    world_aiddata_gcdf:
+      +materialized: table
+      +schema: world_aiddata_gcdf
     world_cricsheet:
       +materialized: table
       +schema: world_cricsheet
     world_wb_wdi:
       +materialized: table
       +schema: world_wb_wdi
+    us_harvard_cbdb:
+      +materialized: table
+      +schema: us_harvard_cbdb
     br_bd_indicadores:
       +materialized: table
       +schema: br_bd_indicadores
@@ -193,6 +241,9 @@ models:
     br_cgu_receitas_publicas:
       +materialized: table
       +schema: br_cgu_receitas_publicas
+    br_cgu_sancoes:
+      +materialized: table
+      +schema: br_cgu_sancoes
     br_cgu_servidores_executivo_federal:
       +materialized: table
       +schema: br_cgu_servidores_executivo_federal
@@ -430,6 +481,9 @@ models:
     br_rj_isp_estatisticas_seguranca:
       +materialized: table
       +schema: br_rj_isp_estatisticas_seguranca
+    br_sedec_desastres:
+      +materialized: table
+      +schema: br_sedec_desastres
     br_senado_dados_abertos:
       +materialized: table
       +schema: br_senado_dados_abertos
@@ -481,6 +535,12 @@ models:
     test_dataset:
       +materialized: table
       +schema: test_dataset
+    us_bea:
+      +materialized: table
+      +schema: us_bea
+    us_sec_edgar:
+      +materialized: table
+      +schema: us_sec_edgar
     us_census_acs:
       +materialized: table
       +schema: us_census_acs
@@ -523,6 +583,9 @@ models:
     world_wb_mides:
       +materialized: table
       +schema: world_wb_mides
+    world_wil_wid:
+      +materialized: table
+      +schema: world_wil_wid
     world_wwf_hydrosheds:
       +materialized: table
       +schema: world_wwf_hydrosheds

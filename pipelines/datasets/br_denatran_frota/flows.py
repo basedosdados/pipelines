@@ -4,10 +4,11 @@ Flows para br_denatran_frota — Prefect 3.
 
 from prefect import flow
 
-from pipelines.crawler.denatran_frota.constants import (
+from pipelines.datasets.br_denatran_frota.constants import (
     constants as denatran_constants,
 )
-from pipelines.crawler.denatran_frota.tasks import (
+from pipelines.datasets.br_denatran_frota.tasks import (
+    build_paths,
     crawl_task,
     get_desired_file_task,
     get_latest_date_task,
@@ -48,12 +49,16 @@ def _run_denatran(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
+    input_dir, output_dir = build_paths()
+
     (
         source_available_dates,
         _source_available_dates_str,
         _source_first_available_date,
         source_first_available_date_str,
-    ) = get_latest_date_task(table_id=table_id, dataset_id=dataset_id)
+    ) = get_latest_date_task(
+        table_id=table_id, dataset_id=dataset_id, input_dir=input_dir
+    )
 
     print(f"First available date: {source_first_available_date_str}")
 
@@ -64,10 +69,24 @@ def _run_denatran(
             source_max_date=source_first_available_date_str,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             print("No new data to be downloaded")
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_first_available_date_str,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     print("Updates found! The run will be started.")
     parquet_outputs = []
@@ -75,16 +94,18 @@ def _run_denatran(
         crawl_task(
             source_max_date=source_max_date,
             table_id=table_id,
-            temp_dir=denatran_constants.DOWNLOAD_PATH.value,
+            temp_dir=input_dir,
         )
         # pyrefly: ignore [no-matching-overload]
         desired_file = get_desired_file_task(
             source_max_date=source_max_date,
-            download_directory=denatran_constants.DOWNLOAD_PATH.value,
+            download_directory=input_dir,
             table_id=table_id,
             filetype=filetype,
         )
-        parquet_outputs.append(treat_task(file=desired_file))
+        parquet_outputs.append(
+            treat_task(file=desired_file, output_dir=output_dir)
+        )
 
     filepath = parquet_outputs[0]
 
@@ -94,6 +115,7 @@ def _run_denatran(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
+        source_format="parquet",
     )
 
     run_dbt(
@@ -113,6 +135,7 @@ def _run_denatran(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
+        source_format="parquet",
     )
 
     run_dbt(
@@ -134,15 +157,6 @@ def _run_denatran(
             env="prod",
             bq_project="basedosdados",
         )
-
-        if source_first_available_date_str is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=source_first_available_date_str,
-                env="prod",
-                date_format="%Y-%m",
-            )
 
 
 @flow(

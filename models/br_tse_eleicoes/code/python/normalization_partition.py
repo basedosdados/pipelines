@@ -1,0 +1,1135 @@
+"""
+Phase 3a: Normalization and partitioning.
+Equivalent of sub/normalizacao_particao.do.
+
+1. Candidate normalization (append all years, CPF-titulo mapping, multi-step dedup)
+2. Party normalization
+3. Merge titulo_eleitoral into results/finance tables
+4. Partition ALL tables into Hive-style CSV output
+"""
+
+import pandas as pd
+from config import (
+    OUTPUT_PYTHON,
+    STREAM_SECAO_ROOT,
+    UFS_CANDIDATOS,
+    UFS_PARTIDOS,
+    YEARS_EVEN,
+)
+from utils.helpers import coerce_numeric_for_write, save_partitioned
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _read_parquet(name: str, ano: int) -> pd.DataFrame:
+    path = OUTPUT_PYTHON / f"{name}_{ano}.parquet"
+    if path.exists():
+        return pd.read_parquet(path)
+    return pd.DataFrame()
+
+
+def _read_parquet_single(name: str) -> pd.DataFrame:
+    path = OUTPUT_PYTHON / f"{name}.parquet"
+    if path.exists():
+        return pd.read_parquet(path)
+    return pd.DataFrame()
+
+
+def _stream_ufs(name: str, ano: int) -> list[str] | None:
+    """UFs present as streamed per-(ano,uf) partitions for a giant seção
+    table, or None if the streamed layout is absent (fall back to the
+    monolithic ``{name}_{ano}.parquet`` path)."""
+    d = STREAM_SECAO_ROOT / name / f"ano={ano}"
+    if not d.is_dir():
+        return None
+    ufs = sorted(p.name.split("=", 1)[1] for p in d.glob("sigla_uf=*"))
+    return ufs or None
+
+
+def _read_stream(name: str, ano: int, uf: str) -> pd.DataFrame:
+    """Read one streamed (ano, uf) partition of a giant seção table.
+
+    Re-adds ``ano``/``sigla_uf`` (they live in the path, not the file) so
+    the downstream merge + save_partitioned see the same columns the
+    monolithic intermediate carried.
+    """
+    p = (
+        STREAM_SECAO_ROOT
+        / name
+        / f"ano={ano}"
+        / f"sigla_uf={uf}"
+        / "data.parquet"
+    )
+    df = pd.read_parquet(p)
+    if "ano" not in df.columns:
+        df["ano"] = ano
+    if "sigla_uf" not in df.columns:
+        df["sigla_uf"] = uf
+    return df
+
+
+def _save_secao_partition_parquet(
+    df: pd.DataFrame, name: str, ano: int, uf: str
+) -> None:
+    """Write one enriched giant-seção partition as compact Hive parquet.
+
+    The three seção giants reach 60M+ rows/year; as all-string CSV a single
+    table exceeds 50 GB and overflows a constrained host, while the same data
+    is ~1.5 GB as parquet. The dbt models ``safe_cast`` every column, so
+    parquet-typed staging is equivalent to the all-string CSV convention.
+    Partition columns live in the path (mirroring ``save_partitioned``).
+    """
+    d = OUTPUT_PYTHON / name / f"ano={ano}" / f"sigla_uf={uf}"
+    d.mkdir(parents=True, exist_ok=True)
+    cols = [c for c in df.columns if c not in ("ano", "sigla_uf")]
+    coerce_numeric_for_write(df[cols].copy()).to_parquet(
+        d / "data.parquet", index=False
+    )
+
+
+def _partition_secao_table(name: str, enrich) -> None:
+    """Enrich + write a giant seção table as Hive-partitioned parquet.
+
+    Prefers the streamed per-(ano,uf) parquet intermediates (memory-bounded,
+    one partition at a time). Falls back to the monolithic
+    ``{name}_{ano}.parquet`` when no streamed layout exists, so a big-host
+    in-RAM build still works unchanged. ``enrich(df, ano)`` applies the
+    per-row merge (titulo / sigla_partido); it is row-wise, so per-partition
+    application is identical to whole-year. Output is parquet, not CSV — see
+    ``_save_secao_partition_parquet`` for why (disk footprint).
+    """
+    import gc
+
+    for ano in YEARS_EVEN:
+        ufs = _stream_ufs(name, ano)
+        if ufs is not None:
+            for uf in ufs:
+                df = enrich(_read_stream(name, ano, uf), ano)
+                _save_secao_partition_parquet(df, name, ano, uf)
+                del df
+                gc.collect()
+            continue
+        df = _read_parquet(name, ano)
+        if df.empty:
+            continue
+        enriched = enrich(df, ano)
+        for uf, group in enriched.groupby("sigla_uf", dropna=False):
+            _save_secao_partition_parquet(group, name, ano, uf)
+        del df, enriched
+        gc.collect()
+
+
+# ---------------------------------------------------------------------------
+# 1. Candidate normalization
+# ---------------------------------------------------------------------------
+
+
+def normalize_candidates() -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Normalize candidates table. Returns (norm_candidatos, cleaned_candidatos).
+
+    norm_candidatos: deduplicated reference table (used to merge titulo_eleitoral
+    into results/finance tables).
+    cleaned_candidatos: full table after complex dedup (for the candidatos output).
+    """
+    print("  normalizing candidates...")
+
+    # 1. Append all years
+    frames = []
+    for ano in sorted(UFS_CANDIDATOS.keys()):
+        df = _read_parquet("candidatos", ano)
+        if not df.empty:
+            frames.append(df)
+
+    if not frames:
+        return pd.DataFrame(), pd.DataFrame()
+
+    all_cand = pd.concat(frames, ignore_index=True)
+
+    # Drop turno == 2 and drop turno + resultado columns
+    all_cand["turno"] = pd.to_numeric(all_cand["turno"], errors="coerce")
+    all_cand = all_cand[all_cand["turno"] != 2].copy()
+    all_cand = all_cand.drop(columns=["turno", "resultado"], errors="ignore")
+
+    # Ensure string columns
+    for col in ["cpf", "titulo_eleitoral"]:
+        if col in all_cand.columns:
+            all_cand[col] = all_cand[col].fillna("").astype(str)
+
+    # --- Build unique CPF-titulo mapping ---
+    cpf_titulo = all_cand[["cpf", "titulo_eleitoral"]].copy()
+    cpf_titulo = cpf_titulo[
+        (cpf_titulo["cpf"] != "") & (cpf_titulo["titulo_eleitoral"] != "")
+    ]
+    cpf_titulo = cpf_titulo.drop_duplicates()
+
+    # Drop rows where key maps to multiple values (non-unique mapping)
+    for col in ["cpf", "titulo_eleitoral"]:
+        dup_counts = cpf_titulo[col].value_counts()
+        non_unique = dup_counts[dup_counts > 1].index
+        cpf_titulo = cpf_titulo[~cpf_titulo[col].isin(non_unique)]
+
+    # Drop cpf from main, re-merge using titulo_eleitoral to get clean cpf
+    all_cand = all_cand.drop(columns=["cpf"])
+    all_cand = all_cand.merge(
+        cpf_titulo[["titulo_eleitoral", "cpf"]],
+        on="titulo_eleitoral",
+        how="left",
+    )
+    all_cand["cpf"] = all_cand["cpf"].fillna("")
+
+    all_cand = all_cand.reset_index(drop=True)
+    all_cand["aux_id"] = all_cand.index
+
+    # --- Step 2: Produce norm_candidatos (deduplicated reference) ---
+    norm = all_cand[all_cand["titulo_eleitoral"] != ""].copy()
+
+    # Dedup 1: full key with titulo_eleitoral, keep first
+    key_full = [
+        "ano",
+        "tipo_eleicao",
+        "sigla_uf",
+        "id_municipio_tse",
+        "numero",
+        "cargo",
+        "titulo_eleitoral",
+    ]
+    available_full = [c for c in key_full if c in norm.columns]
+    norm = norm.drop_duplicates(subset=available_full, keep="first")
+
+    # Dedup 2: on key without titulo_eleitoral, drop non-deferido
+    key_base = [
+        "ano",
+        "tipo_eleicao",
+        "sigla_uf",
+        "id_municipio_tse",
+        "numero",
+        "cargo",
+    ]
+    available_base = [c for c in key_base if c in norm.columns]
+    dup_mask = norm.duplicated(subset=available_base, keep=False)
+    if "situacao" in norm.columns:
+        norm = norm[~(dup_mask & (norm["situacao"] != "deferido"))]
+
+    # Dedup 3: remaining dups on same key, drop all
+    dup_mask = norm.duplicated(subset=available_base, keep=False)
+    norm = norm[~dup_mask]
+
+    # Dedup 4: force on (titulo_eleitoral, ano, tipo_eleicao)
+    key_titulo = ["titulo_eleitoral", "ano", "tipo_eleicao"]
+    norm = norm.drop_duplicates(subset=key_titulo, keep="first")
+
+    norm_candidatos = norm.copy()
+
+    # Save norm_candidatos
+    norm_out = norm_candidatos.drop(columns=["aux_id"], errors="ignore")
+    norm_out.to_parquet(OUTPUT_PYTHON / "norm_candidatos.parquet", index=False)
+    norm_out.to_csv(
+        OUTPUT_PYTHON / "norm_candidatos.csv", index=False, encoding="utf-8"
+    )
+    print(f"    norm_candidatos: {len(norm_out)} rows")
+
+    # --- Step 3: Clean errors in final candidatos table ---
+    # The full all_cand remains; we apply complex dedup on titulo_eleitoral groups
+
+    # Compute group-level stats for (ano, tipo_eleicao, titulo_eleitoral)
+    grp_key = ["ano", "tipo_eleicao", "titulo_eleitoral"]
+    has_titulo = all_cand["titulo_eleitoral"] != ""
+
+    # Tag duplicates (only for rows with titulo_eleitoral)
+    all_cand["_is_dup"] = False
+    titulo_rows = all_cand[has_titulo]
+    dup_in_titulo = titulo_rows.duplicated(subset=grp_key, keep=False)
+    all_cand.loc[titulo_rows.index[dup_in_titulo], "_is_dup"] = True
+
+    # Compute N_cargo, N_numero, N_deferido, N_nome, N_cpf per group
+    titulo_data = all_cand[has_titulo].copy()
+    if not titulo_data.empty:
+        # N_cargo: number of distinct cargos per group
+        n_cargo = (
+            titulo_data.groupby(grp_key)["cargo"].nunique().rename("_N_cargo")
+        )
+        # N_numero: number of distinct numeros per group
+        n_numero = (
+            titulo_data.groupby(grp_key)["numero"]
+            .nunique()
+            .rename("_N_numero")
+        )
+        # N_deferido: count of deferido rows per group
+        titulo_data["_is_def"] = (
+            titulo_data["situacao"] == "deferido"
+            if "situacao" in titulo_data.columns
+            else False
+        )
+        n_deferido = (
+            titulo_data.groupby(grp_key)["_is_def"].sum().rename("_N_deferido")
+        )
+        # N_nome: number of distinct nomes per group
+        n_nome = (
+            titulo_data.groupby(grp_key)["nome"].nunique().rename("_N_nome")
+        )
+        # N_cpf: number of distinct cpfs per group
+        n_cpf = titulo_data.groupby(grp_key)["cpf"].nunique().rename("_N_cpf")
+
+        stats = pd.concat(
+            [n_cargo, n_numero, n_deferido, n_nome, n_cpf], axis=1
+        ).reset_index()
+        all_cand = all_cand.merge(stats, on=grp_key, how="left")
+    else:
+        for col in [
+            "_N_cargo",
+            "_N_numero",
+            "_N_deferido",
+            "_N_nome",
+            "_N_cpf",
+        ]:
+            all_cand[col] = 0
+
+    # Fill NaN stats for non-titulo rows
+    for col in [
+        "_N_cargo",
+        "_N_numero",
+        "_N_deferido",
+        "_N_nome",
+        "_N_cpf",
+    ]:
+        all_cand[col] = all_cand[col].fillna(0).astype(int)
+
+    is_dup = all_cand["_is_dup"]
+
+    # Rule 1: N_deferido == 0 -> force dedup (keep first)
+    mask1 = is_dup & (all_cand["_N_deferido"] == 0)
+    drop1 = all_cand[mask1].duplicated(subset=grp_key, keep="first")
+    all_cand = all_cand.drop(all_cand[mask1].index[drop1])
+
+    # Rule 2: N_deferido == 1 -> drop non-deferido
+    is_dup = all_cand.index.isin(
+        all_cand[all_cand["titulo_eleitoral"] != ""]
+        .loc[lambda d: d.duplicated(subset=grp_key, keep=False)]
+        .index
+    )
+    mask2 = is_dup & (all_cand["_N_deferido"] == 1)
+    if "situacao" in all_cand.columns:
+        drop2 = mask2 & (all_cand["situacao"] != "deferido")
+        all_cand = all_cand[~drop2]
+
+    # Recompute is_dup
+    is_dup = all_cand.index.isin(
+        all_cand[all_cand["titulo_eleitoral"] != ""]
+        .loc[lambda d: d.duplicated(subset=grp_key, keep=False)]
+        .index
+    )
+
+    # Rule 3: N_deferido > 1, N_numero == 1, N_cargo == 1 -> force dedup
+    mask3 = (
+        is_dup
+        & (all_cand["_N_deferido"] > 1)
+        & (all_cand["_N_numero"] == 1)
+        & (all_cand["_N_cargo"] == 1)
+    )
+    drop3 = all_cand[mask3].duplicated(subset=grp_key, keep="first")
+    all_cand = all_cand.drop(all_cand[mask3].index[drop3])
+
+    # Rule 4: N_deferido > 1, N_numero > 1, N_cargo == 1, N_nome == 1
+    is_dup = all_cand.index.isin(
+        all_cand[all_cand["titulo_eleitoral"] != ""]
+        .loc[lambda d: d.duplicated(subset=grp_key, keep=False)]
+        .index
+    )
+    mask4 = (
+        is_dup
+        & (all_cand["_N_deferido"] > 1)
+        & (all_cand["_N_numero"] > 1)
+        & (all_cand["_N_cargo"] == 1)
+        & (all_cand["_N_nome"] == 1)
+    )
+    drop4 = all_cand[mask4].duplicated(subset=grp_key, keep="first")
+    all_cand = all_cand.drop(all_cand[mask4].index[drop4])
+
+    # Rule 5: N_deferido > 1, N_numero > 1, N_cargo > 1, N_nome == 1
+    is_dup = all_cand.index.isin(
+        all_cand[all_cand["titulo_eleitoral"] != ""]
+        .loc[lambda d: d.duplicated(subset=grp_key, keep=False)]
+        .index
+    )
+    mask5 = (
+        is_dup
+        & (all_cand["_N_deferido"] > 1)
+        & (all_cand["_N_numero"] > 1)
+        & (all_cand["_N_cargo"] > 1)
+        & (all_cand["_N_nome"] == 1)
+    )
+    drop5 = all_cand[mask5].duplicated(subset=grp_key, keep="first")
+    all_cand = all_cand.drop(all_cand[mask5].index[drop5])
+
+    # Final catch-all dedup on (ano, tipo_eleicao, titulo_eleitoral)
+    titulo_rows = all_cand[all_cand["titulo_eleitoral"] != ""]
+    final_dups = titulo_rows.duplicated(subset=grp_key, keep="first")
+    all_cand = all_cand.drop(titulo_rows.index[final_dups])
+
+    # Final dedup on composite key
+    final_key = [
+        "ano",
+        "sigla_uf",
+        "id_municipio_tse",
+        "sequencial",
+        "numero",
+        "titulo_eleitoral",
+    ]
+    available_final = [c for c in final_key if c in all_cand.columns]
+    all_cand = all_cand.drop_duplicates(subset=available_final, keep="first")
+
+    # Drop temp columns
+    drop_cols = [
+        "aux_id",
+        "_is_dup",
+        "_N_cargo",
+        "_N_numero",
+        "_N_deferido",
+        "_N_nome",
+        "_N_cpf",
+        "_is_def",
+    ]
+    all_cand = all_cand.drop(
+        columns=[c for c in drop_cols if c in all_cand.columns]
+    )
+
+    # Column ordering
+    col_order = [
+        "ano",
+        "id_eleicao",
+        "tipo_eleicao",
+        "data_eleicao",
+        "sigla_uf",
+        "id_municipio",
+        "id_municipio_tse",
+        "titulo_eleitoral",
+        "cpf",
+        "sequencial",
+        "numero",
+        "nome",
+        "nome_urna",
+        "numero_partido",
+        "sigla_partido",
+        "cargo",
+    ]
+    existing_order = [c for c in col_order if c in all_cand.columns]
+    remaining = [c for c in all_cand.columns if c not in existing_order]
+    all_cand = all_cand[existing_order + remaining]
+
+    print(f"    cleaned candidatos: {len(all_cand)} rows")
+    return norm_out, all_cand
+
+
+# ---------------------------------------------------------------------------
+# 2. Party normalization
+# ---------------------------------------------------------------------------
+
+
+def normalize_parties() -> pd.DataFrame:
+    """
+    Build norm_partidos: append all years, keep (ano, numero, sigla), dedup.
+    Also builds the partidos table for partitioning.
+    """
+    print("  normalizing parties...")
+
+    frames = []
+    for ano in sorted(UFS_PARTIDOS.keys()):
+        df = _read_parquet("partidos", ano)
+        if not df.empty:
+            frames.append(df)
+
+    if not frames:
+        return pd.DataFrame()
+
+    all_part = pd.concat(frames, ignore_index=True)
+
+    # norm_partidos: keep only (ano, numero, sigla), dedup
+    norm_cols = ["ano", "numero", "sigla"]
+    available = [c for c in norm_cols if c in all_part.columns]
+    # Fallback: some builders may use sigla_partido instead of sigla
+    if "sigla" not in all_part.columns and "sigla_partido" in all_part.columns:
+        all_part = all_part.rename(columns={"sigla_partido": "sigla"})
+        available = [c for c in norm_cols if c in all_part.columns]
+    if (
+        "numero" not in all_part.columns
+        and "numero_partido" in all_part.columns
+    ):
+        all_part = all_part.rename(columns={"numero_partido": "numero"})
+        available = [c for c in norm_cols if c in all_part.columns]
+
+    norm = all_part[available].copy()
+
+    # Drop specific known duplicate
+    mask = (
+        (norm["ano"].astype(str) == "2020")
+        & (norm["numero"].astype(str) == "36")
+        & (norm["sigla"] == "PTC")
+    )
+    norm = norm[~mask]
+    norm = norm.drop_duplicates()
+
+    norm.to_parquet(OUTPUT_PYTHON / "norm_partidos.parquet", index=False)
+    print(f"    norm_partidos: {len(norm)} rows")
+
+    return all_part
+
+
+# ---------------------------------------------------------------------------
+# 3. Merge titulo_eleitoral into results/finance tables
+# ---------------------------------------------------------------------------
+
+
+def _build_norm_cand_subsets(
+    norm_cand: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+    Build three subsets of norm_candidatos for merging into results/finance:
+    - mod0: municipal years (mod(ano,4)==0)
+    - mod2_estadual: federal years, non-presidente
+    - mod2_presid: federal years, presidente
+    """
+    norm_cand["ano"] = pd.to_numeric(norm_cand["ano"], errors="coerce")
+
+    # Ensure numero is string for merge
+    for col in ["numero", "numero_partido"]:
+        if col in norm_cand.columns:
+            norm_cand[col] = norm_cand[col].astype(str)
+
+    mod0 = norm_cand[norm_cand["ano"] % 4 == 0].copy()
+    mod2 = norm_cand[norm_cand["ano"] % 4 == 2].copy()
+    mod2_est = mod2[mod2["cargo"] != "presidente"].copy()
+    mod2_pres = mod2[mod2["cargo"] == "presidente"].copy()
+
+    return mod0, mod2_est, mod2_pres
+
+
+def _merge_titulo_into_results(
+    df: pd.DataFrame,
+    ano: int,
+    mod0: pd.DataFrame,
+    mod2_est: pd.DataFrame,
+    mod2_pres: pd.DataFrame,
+    merge_cols_mod0: list[str],
+    merge_cols_mod2_est: list[str],
+    merge_cols_mod2_pres: list[str],
+    bring_cols: list[str],
+) -> pd.DataFrame:
+    """
+    Merge norm_candidatos into a results/finance table using mod(ano,4) logic.
+    """
+    # Rename numero_candidato -> numero for merge
+    has_numero_cand = "numero_candidato" in df.columns
+    if has_numero_cand:
+        df = df.rename(columns={"numero_candidato": "numero"})
+
+    df["numero"] = df["numero"].astype(str)
+
+    if ano % 4 == 0:
+        subset = mod0[merge_cols_mod0 + bring_cols].drop_duplicates(
+            subset=merge_cols_mod0
+        )
+        df = df.merge(subset, on=merge_cols_mod0, how="left")
+    else:
+        # Split presidente vs others
+        df_est = df[df["cargo"] != "presidente"].copy()
+        df_pres = df[df["cargo"] == "presidente"].copy()
+
+        sub_est = mod2_est[merge_cols_mod2_est + bring_cols].drop_duplicates(
+            subset=merge_cols_mod2_est
+        )
+        df_est = df_est.merge(sub_est, on=merge_cols_mod2_est, how="left")
+
+        sub_pres = mod2_pres[
+            merge_cols_mod2_pres + bring_cols
+        ].drop_duplicates(subset=merge_cols_mod2_pres)
+        df_pres = df_pres.merge(sub_pres, on=merge_cols_mod2_pres, how="left")
+
+        df = pd.concat([df_est, df_pres], ignore_index=True)
+
+    # Rename back
+    if has_numero_cand:
+        df = df.rename(columns={"numero": "numero_candidato"})
+    if "titulo_eleitoral" in df.columns:
+        df = df.rename(
+            columns={"titulo_eleitoral": "titulo_eleitoral_candidato"}
+        )
+
+    # Fill NaN in brought columns
+    for col in bring_cols:
+        renamed = (
+            col.replace("titulo_eleitoral", "titulo_eleitoral_candidato")
+            if col == "titulo_eleitoral"
+            else col
+        )
+        if renamed in df.columns:
+            df[renamed] = df[renamed].fillna("")
+
+    return df
+
+
+# ---------------------------------------------------------------------------
+# 4. Partition all tables
+# ---------------------------------------------------------------------------
+
+
+def _partition_candidatos(cleaned_cand: pd.DataFrame):
+    """Partition candidatos by ano only (presidente has empty sigla_uf)."""
+    print("  partitioning candidatos...")
+    save_partitioned(cleaned_cand, "candidatos", ["ano"], OUTPUT_PYTHON)
+
+
+def _partition_partidos(all_partidos: pd.DataFrame):
+    """Partition partidos by ano. Keep only eleicao ordinaria."""
+    print("  partitioning partidos...")
+    if "tipo_eleicao" in all_partidos.columns:
+        all_partidos = all_partidos[
+            all_partidos["tipo_eleicao"] == "eleicao ordinaria"
+        ].copy()
+    save_partitioned(all_partidos, "partidos", ["ano"], OUTPUT_PYTHON)
+
+
+def _partition_simple(table_name: str, years: list[int], by_uf: bool = True):
+    """Partition a table that doesn't need merges."""
+    print(f"  partitioning {table_name}...")
+    partition_cols = ["ano", "sigla_uf"] if by_uf else ["ano"]
+    for ano in years:
+        df = _read_parquet(table_name, ano)
+        if df.empty:
+            continue
+        save_partitioned(df, table_name, partition_cols, OUTPUT_PYTHON)
+
+
+# Canonical CSV column order for the mun-zona results tables. TSE's federal
+# vs municipal raw files order id_municipio differently (pos 5 vs last), so the
+# per-year builder output is non-uniform; bd's CSV staging assigns its schema by
+# POSITION from one sample partition, which then mis-reads votos as resultado
+# ('suplente'/'eleito') for the years with the other order. Reindexing every
+# year to a single order fixes the staging-schema misalignment (2018/2022 votos
+# were silently nulled otherwise). Partition cols (ano, sigla_uf) lead; they are
+# dropped to the Hive path by save_partitioned.
+_RCMZ_ORDER = [
+    "ano", "sigla_uf", "turno", "id_eleicao", "tipo_eleicao", "data_eleicao",
+    "id_municipio", "id_municipio_tse", "zona", "cargo", "sequencial_candidato",
+    "numero_candidato", "numero_partido", "sigla_partido", "resultado", "votos",
+    "titulo_eleitoral_candidato",
+]  # fmt: skip
+_RPMZ_ORDER = [
+    "ano", "sigla_uf", "turno", "id_eleicao", "tipo_eleicao", "data_eleicao",
+    "id_municipio", "id_municipio_tse", "zona", "cargo", "numero_partido",
+    "sigla_partido", "votos_nominais", "votos_legenda",
+]  # fmt: skip
+
+
+def _reorder(df: pd.DataFrame, order: list[str]) -> pd.DataFrame:
+    return df[[c for c in order if c in df.columns]]
+
+
+def _partition_results_mun_zone(
+    norm_cand: pd.DataFrame,
+):
+    """Partition resultados_candidato_municipio_zona and partido variant."""
+    print("  partitioning resultados_candidato_municipio_zona...")
+
+    # Build norm subsets with appropriate columns
+    keep_cols = [
+        "titulo_eleitoral",
+        "ano",
+        "tipo_eleicao",
+        "sigla_uf",
+        "id_municipio_tse",
+        "cargo",
+        "numero",
+    ]
+    nc = norm_cand[[c for c in keep_cols if c in norm_cand.columns]].copy()
+    mod0, mod2_est, mod2_pres = _build_norm_cand_subsets(nc)
+
+    merge_mod0 = [
+        "ano",
+        "tipo_eleicao",
+        "sigla_uf",
+        "id_municipio_tse",
+        "cargo",
+        "numero",
+    ]
+    merge_mod2_est = ["ano", "tipo_eleicao", "sigla_uf", "cargo", "numero"]
+    merge_mod2_pres = ["ano", "tipo_eleicao", "cargo", "numero"]
+    bring = ["titulo_eleitoral"]
+
+    for ano in YEARS_EVEN:
+        df = _read_parquet("resultados_candidato_municipio_zona", ano)
+        if df.empty:
+            continue
+
+        df = _merge_titulo_into_results(
+            df,
+            ano,
+            mod0,
+            mod2_est,
+            mod2_pres,
+            merge_mod0,
+            merge_mod2_est,
+            merge_mod2_pres,
+            bring,
+        )
+
+        # Drop nome columns as in Stata
+        df = df.drop(
+            columns=["nome_candidato", "nome_urna_candidato"],
+            errors="ignore",
+        )
+
+        save_partitioned(
+            _reorder(df, _RCMZ_ORDER),
+            "resultados_candidato_municipio_zona",
+            ["ano", "sigla_uf"],
+            OUTPUT_PYTHON,
+        )
+
+    # Partido variant: no merge needed, just partition
+    print("  partitioning resultados_partido_municipio_zona...")
+    for ano in YEARS_EVEN:
+        df = _read_parquet("resultados_partido_municipio_zona", ano)
+        if df.empty:
+            continue
+        save_partitioned(
+            _reorder(df, _RPMZ_ORDER),
+            "resultados_partido_municipio_zona",
+            ["ano", "sigla_uf"],
+            OUTPUT_PYTHON,
+        )
+
+
+def _partition_results_section(
+    norm_cand: pd.DataFrame,
+    norm_part: pd.DataFrame,
+):
+    """Partition resultados_candidato_secao and partido variant."""
+    print("  partitioning resultados_candidato_secao...")
+
+    # Candidato: merge titulo_eleitoral + sequencial + numero_partido + sigla_partido
+    keep_cols = [
+        "titulo_eleitoral",
+        "sequencial",
+        "numero_partido",
+        "sigla_partido",
+        "ano",
+        "tipo_eleicao",
+        "sigla_uf",
+        "id_municipio_tse",
+        "cargo",
+        "numero",
+    ]
+    nc = norm_cand[[c for c in keep_cols if c in norm_cand.columns]].copy()
+    mod0, mod2_est, mod2_pres = _build_norm_cand_subsets(nc)
+
+    merge_mod0 = [
+        "ano",
+        "tipo_eleicao",
+        "sigla_uf",
+        "id_municipio_tse",
+        "cargo",
+        "numero",
+    ]
+    merge_mod2_est = ["ano", "tipo_eleicao", "sigla_uf", "cargo", "numero"]
+    merge_mod2_pres = ["ano", "tipo_eleicao", "cargo", "numero"]
+    bring = [
+        "titulo_eleitoral",
+        "sequencial",
+        "numero_partido",
+        "sigla_partido",
+    ]
+    # Only bring columns that exist
+    bring = [c for c in bring if c in nc.columns]
+
+    def _enrich_cand(df: pd.DataFrame, ano: int) -> pd.DataFrame:
+        df = _merge_titulo_into_results(
+            df, ano, mod0, mod2_est, mod2_pres,
+            merge_mod0, merge_mod2_est, merge_mod2_pres, bring,
+        )  # fmt: skip
+        if "sequencial" in df.columns:
+            df = df.rename(columns={"sequencial": "sequencial_candidato"})
+        return df
+
+    _partition_secao_table("resultados_candidato_secao", _enrich_cand)
+
+    # Partido: merge with norm_partidos to get sigla_partido
+    print("  partitioning resultados_partido_secao...")
+    if not norm_part.empty:
+        norm_part["numero"] = norm_part["numero"].astype(str)
+        norm_part["ano"] = pd.to_numeric(norm_part["ano"], errors="coerce")
+        part_lookup = norm_part[["ano", "numero", "sigla"]].drop_duplicates()
+
+    def _enrich_part(df: pd.DataFrame, ano: int) -> pd.DataFrame:
+        if not norm_part.empty and "numero_partido" in df.columns:
+            df["numero_partido"] = df["numero_partido"].astype(str)
+            df["ano"] = pd.to_numeric(df["ano"], errors="coerce")
+            df = df.merge(
+                part_lookup.rename(
+                    columns={
+                        "numero": "numero_partido",
+                        "sigla": "sigla_partido",
+                    }
+                ),
+                on=["ano", "numero_partido"],
+                how="left",
+                suffixes=("", "_norm"),
+            )
+            if "sigla_partido_norm" in df.columns:
+                df["sigla_partido"] = df["sigla_partido"].fillna(
+                    df["sigla_partido_norm"]
+                )
+                df = df.drop(columns=["sigla_partido_norm"])
+        return df
+
+    _partition_secao_table("resultados_partido_secao", _enrich_part)
+
+
+def _partition_bens(norm_cand: pd.DataFrame):
+    """Partition bens_candidato with titulo_eleitoral merge."""
+    print("  partitioning bens_candidato...")
+
+    # For bens, merge on (ano, tipo_eleicao, sigla_uf, sequencial)
+    keep = [
+        "ano",
+        "tipo_eleicao",
+        "sigla_uf",
+        "sequencial",
+        "titulo_eleitoral",
+    ]
+    nc = norm_cand[[c for c in keep if c in norm_cand.columns]].copy()
+    nc = nc[
+        nc["ano"].apply(lambda x: pd.to_numeric(x, errors="coerce")) >= 2006
+    ]
+    nc["ano"] = pd.to_numeric(nc["ano"], errors="coerce")
+    nc = nc.drop_duplicates(
+        subset=["ano", "tipo_eleicao", "sigla_uf", "sequencial"]
+    )
+
+    for ano in range(2006, 2027, 2):
+        df = _read_parquet("bens_candidato", ano)
+        if df.empty:
+            continue
+
+        # Rename sequencial_candidato -> sequencial for merge
+        if "sequencial_candidato" in df.columns:
+            df = df.rename(columns={"sequencial_candidato": "sequencial"})
+
+        df["ano"] = pd.to_numeric(df["ano"], errors="coerce")
+        merge_keys = ["ano", "tipo_eleicao", "sigla_uf", "sequencial"]
+        available_keys = [
+            k for k in merge_keys if k in df.columns and k in nc.columns
+        ]
+        df = df.merge(
+            nc[[*available_keys, "titulo_eleitoral"]].drop_duplicates(
+                subset=available_keys
+            ),
+            on=available_keys,
+            how="left",
+        )
+        df = df.rename(
+            columns={
+                "titulo_eleitoral": "titulo_eleitoral_candidato",
+                "sequencial": "sequencial_candidato",
+            }
+        )
+        if "titulo_eleitoral_candidato" in df.columns:
+            df["titulo_eleitoral_candidato"] = df[
+                "titulo_eleitoral_candidato"
+            ].fillna("")
+
+        save_partitioned(df, "bens_candidato", ["ano"], OUTPUT_PYTHON)
+
+
+# Uniform superset column schemas for the campaign-finance tables, taken from
+# the dbt models' input columns. TSE widened these files over the years
+# (despesas 2002=17, 2014=24, 2018+=38 raw cols), so per-year output is ragged
+# and the single CSV staging schema comes out too narrow for the model to read.
+# Reindexing every year to the full model schema (missing fields -> empty)
+# gives a uniform staging table. `especie_recurso`/`fonte_recurso` are absent
+# from every raw despesas generation, so they are always empty here (as in
+# prod); the dbt model still safe_casts them.
+_FINANCE_COLS = {
+    "despesas_candidato": [
+        "ano",
+        "turno",
+        "id_eleicao",
+        "tipo_eleicao",
+        "data_eleicao",
+        "sigla_uf",
+        "id_municipio",
+        "id_municipio_tse",
+        "titulo_eleitoral_candidato",
+        "sequencial_candidato",
+        "numero_candidato",
+        "cnpj_candidato",
+        "numero_partido",
+        "sigla_partido",
+        "cargo",
+        "sequencial_despesa",
+        "data_despesa",
+        "tipo_despesa",
+        "descricao_despesa",
+        "origem_despesa",
+        "valor_despesa",
+        "tipo_prestacao_contas",
+        "data_prestacao_contas",
+        "sequencial_prestador_contas",
+        "cnpj_prestador_contas",
+        "tipo_documento",
+        "numero_documento",
+        "especie_recurso",
+        "fonte_recurso",
+        "cpf_cnpj_fornecedor",
+        "nome_fornecedor",
+        "nome_fornecedor_rf",
+        "cnae_2_fornecedor",
+        "descricao_cnae_2_fornecedor",
+        "tipo_fornecedor",
+        "esfera_partidaria_fornecedor",
+        "sigla_uf_fornecedor",
+        "id_municipio_tse_fornecedor",
+        "sequencial_candidato_fornecedor",
+        "numero_candidato_fornecedor",
+        "numero_partido_fornecedor",
+        "sigla_partido_fornecedor",
+        "cargo_fornecedor",
+    ],
+    "receitas_candidato": [
+        "ano",
+        "turno",
+        "id_eleicao",
+        "tipo_eleicao",
+        "data_eleicao",
+        "sigla_uf",
+        "id_municipio",
+        "id_municipio_tse",
+        "titulo_eleitoral_candidato",
+        "sequencial_candidato",
+        "numero_candidato",
+        "cnpj_candidato",
+        "numero_partido",
+        "sigla_partido",
+        "cargo",
+        "sequencial_receita",
+        "data_receita",
+        "fonte_receita",
+        "origem_receita",
+        "natureza_receita",
+        "especie_receita",
+        "situacao_receita",
+        "descricao_receita",
+        "valor_receita",
+        "sequencial_candidato_doador",
+        "cpf_cnpj_doador",
+        "sigla_uf_doador",
+        "id_municipio_tse_doador",
+        "nome_doador",
+        "nome_doador_rf",
+        "cargo_candidato_doador",
+        "numero_partido_doador",
+        "sigla_partido_doador",
+        "esfera_partidaria_doador",
+        "numero_candidato_doador",
+        "cnae_2_doador",
+        "descricao_cnae_2_doador",
+        "cpf_cnpj_doador_orig",
+        "nome_doador_orig",
+        "nome_doador_orig_rf",
+        "tipo_doador_orig",
+        "descricao_cnae_2_doador_orig",
+        "nome_administrador",
+        "cpf_administrador",
+        "numero_recibo_eleitoral",
+        "numero_documento",
+        "numero_recibo_doacao",
+        "numero_documento_doacao",
+        "tipo_prestacao_contas",
+        "data_prestacao_contas",
+        "sequencial_prestador_contas",
+        "cnpj_prestador_contas",
+        "entrega_conjunto",
+    ],
+}
+
+
+def _partition_finance(
+    table_name: str,
+    norm_cand: pd.DataFrame,
+    years: range,
+):
+    """Partition receitas or despesas with titulo_eleitoral merge."""
+    print(f"  partitioning {table_name}...")
+
+    keep_cols = [
+        "titulo_eleitoral",
+        "ano",
+        "tipo_eleicao",
+        "sigla_uf",
+        "id_municipio_tse",
+        "cargo",
+        "numero",
+    ]
+    nc = norm_cand[[c for c in keep_cols if c in norm_cand.columns]].copy()
+    mod0, mod2_est, mod2_pres = _build_norm_cand_subsets(nc)
+
+    merge_mod0 = [
+        "ano",
+        "tipo_eleicao",
+        "sigla_uf",
+        "id_municipio_tse",
+        "cargo",
+        "numero",
+    ]
+    merge_mod2_est = ["ano", "tipo_eleicao", "sigla_uf", "cargo", "numero"]
+    merge_mod2_pres = ["ano", "tipo_eleicao", "cargo", "numero"]
+    bring = ["titulo_eleitoral"]
+
+    for ano in years:
+        df = _read_parquet(table_name, ano)
+        if df.empty:
+            continue
+
+        # For years <= 2012, fill empty tipo_eleicao
+        if ano <= 2012 and "tipo_eleicao" in df.columns:
+            df.loc[df["tipo_eleicao"] == "", "tipo_eleicao"] = (
+                "eleicao ordinaria"
+            )
+
+        df = _merge_titulo_into_results(
+            df,
+            ano,
+            mod0,
+            mod2_est,
+            mod2_pres,
+            merge_mod0,
+            merge_mod2_est,
+            merge_mod2_pres,
+            bring,
+        )
+
+        # Reindex to the uniform model schema so the CSV staging table has a
+        # consistent, complete column set across the ragged per-year files.
+        target = _FINANCE_COLS.get(table_name)
+        if target:
+            df = df.reindex(columns=target, fill_value="")
+
+        save_partitioned(df, table_name, ["ano"], OUTPUT_PYTHON)
+
+
+def _partition_vagas():
+    """Partition vagas: append all years, then partition by ano/sigla_uf."""
+    print("  partitioning vagas...")
+    frames = []
+    for ano in YEARS_EVEN:
+        df = _read_parquet("vagas", ano)
+        if not df.empty:
+            frames.append(df)
+    if not frames:
+        return
+    all_vagas = pd.concat(frames, ignore_index=True)
+    save_partitioned(all_vagas, "vagas", ["ano", "sigla_uf"], OUTPUT_PYTHON)
+
+
+# ---------------------------------------------------------------------------
+# Perfil eleitorado secao: year-specific UF lists
+# ---------------------------------------------------------------------------
+
+# fmt: off
+_UFS_PERFIL_SECAO = {
+    2008: ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
+    2010: ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
+    2012: ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
+    2014: ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
+    2016: ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
+    2018: ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO", "ZZ"],
+    2020: ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
+    2022: ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO", "ZZ"],
+    2024: ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
+}
+# fmt: on
+
+
+# ---------------------------------------------------------------------------
+# Main entry point
+# ---------------------------------------------------------------------------
+
+
+def build_all():
+    """Run all normalization and partitioning steps."""
+
+    # 1. Normalize candidates
+    norm_cand, cleaned_cand = normalize_candidates()
+
+    # 2. Normalize parties
+    all_partidos = normalize_parties()
+
+    # Load norm tables for merging
+    norm_part = pd.DataFrame()
+    norm_part_path = OUTPUT_PYTHON / "norm_partidos.parquet"
+    if norm_part_path.exists():
+        norm_part = pd.read_parquet(norm_part_path)
+
+    # 3. Partition candidatos
+    if not cleaned_cand.empty:
+        _partition_candidatos(cleaned_cand)
+
+    # 4. Partition partidos
+    if not all_partidos.empty:
+        _partition_partidos(all_partidos)
+
+    # 5. Partition results (mun-zona) with titulo merge
+    if not norm_cand.empty:
+        _partition_results_mun_zone(norm_cand)
+
+    # 6. Partition results (secao) with titulo merge
+    if not norm_cand.empty:
+        _partition_results_section(norm_cand, norm_part)
+
+    # 7. Partition simple tables (no merge needed)
+    _partition_simple(
+        "perfil_eleitorado_municipio_zona", YEARS_EVEN, by_uf=True
+    )
+    _partition_simple(
+        "detalhes_votacao_municipio_zona", YEARS_EVEN, by_uf=True
+    )
+    _partition_simple("detalhes_votacao_secao", YEARS_EVEN, by_uf=True)
+
+    # perfil_eleitorado_secao: streamed per-(ano,uf) intermediates (no merge)
+    print("  partitioning perfil_eleitorado_secao...")
+    _partition_secao_table("perfil_eleitorado_secao", lambda df, ano: df)
+
+    # perfil_eleitorado_local_votacao: single all-years file
+    print("  partitioning perfil_eleitorado_local_votacao...")
+    df_plv = _read_parquet_single("perfil_eleitorado_local_votacao")
+    if not df_plv.empty:
+        save_partitioned(
+            df_plv,
+            "perfil_eleitorado_local_votacao",
+            ["ano", "sigla_uf"],
+            OUTPUT_PYTHON,
+        )
+
+    # 8. Partition vagas
+    _partition_vagas()
+
+    # 9. Partition bens
+    if not norm_cand.empty:
+        _partition_bens(norm_cand)
+
+    # 10. Partition receitas and despesas
+    if not norm_cand.empty:
+        _partition_finance(
+            "receitas_candidato", norm_cand, range(2002, 2025, 2)
+        )
+        _partition_finance(
+            "despesas_candidato", norm_cand, range(2002, 2025, 2)
+        )
+
+    print("  normalization & partitioning complete.")
+
+
+if __name__ == "__main__":
+    build_all()

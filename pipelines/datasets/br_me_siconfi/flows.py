@@ -144,26 +144,31 @@ def br_me_siconfi_flow(
                 env="prod",
                 date_format="%Y",
                 raw_source_url=_SOURCE_URL,
+                compare_against="coverage",
             )
 
-        # Dev: upload staging + materialize/test.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: upload staging + materialize/test.
+            for table in tables:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="overwrite",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run/test",
+                    target="dev",
+                )
             return
 
         # Archive the raw source JSON (provenance) to the prod bucket's raw/ prefix.
@@ -195,15 +200,19 @@ def br_me_siconfi_flow(
                     env="prod",
                     bq_project="basedosdados",
                 )
-            if max_year is not None:
-                commit_source_update_task(
-                    dataset_id=DATASET_ID,
-                    table_id=_SOURCE_TABLE,
-                    source_max_date=str(max_year),
-                    env="prod",
-                    date_format="%Y",
-                    raw_source_url=_SOURCE_URL,
-                )
+            commit_source_update_task(
+                dataset_id=DATASET_ID,
+                table_id=_SOURCE_TABLE,
+                # max_year pode ser None (linha ~134) — str(None) seria a
+                # string "None", não o valor None, e escaparia do guard
+                # interno da task. Preserva o None real quando for o caso.
+                source_max_date=str(max_year)
+                if max_year is not None
+                else None,
+                env="prod",
+                date_format="%Y",
+                raw_source_url=_SOURCE_URL,
+            )
     finally:
         # Covers early returns (dev-only) and exceptions. k8s gives each run a
         # fresh pod, but a process/local worker reuses its filesystem — the

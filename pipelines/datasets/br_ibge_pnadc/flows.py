@@ -28,6 +28,8 @@ from pipelines.utils.tasks import (
 from pipelines.utils.to_download.tasks import download_async
 
 
+# Modelo incremental: para reprocessar o trimestre mais recente, apague a
+# partição dele antes de rodar e use force_run.
 @flow(
     name="br_ibge_pnadc__microdados",
     log_prints=True,
@@ -55,9 +57,23 @@ def br_ibge_pnadc__microdados(
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="table_update",
         )
         if not has_new_data:
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=data_source_max_date,
+        env="prod",
+        date_format="%Y-%m-%d",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     input_dir, output_dir = build_table_paths(table_id=table_id)
     # pyrefly: ignore [no-matching-overload]
@@ -110,15 +126,6 @@ def br_ibge_pnadc__microdados(
             env="prod",
             bq_project="basedosdados",
         )
-
-        if data_source_max_date is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=data_source_max_date,
-                env="prod",
-                date_format="%Y-%m-%d",
-            )
 
 
 # pyrefly: ignore [missing-attribute]
