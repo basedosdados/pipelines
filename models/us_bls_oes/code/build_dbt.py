@@ -152,11 +152,17 @@ def model_schema(table: str) -> dict:
     entry["tests"] = tests
 
     key = set(constants.KEYS.value.get(table, []))
+    # The level-tag columns are part of the uniqueness key but are legitimately
+    # null: BLS only labels the aggregation level of some rows. `industry_group`
+    # did not exist before 2017; `occupation_group` (the older `group` field)
+    # tags only major/total rows in the 2011-2016 releases and is blank for
+    # detailed rows. Both stay in the combination key but take no not_null test.
+    nullable_key = {"industry_group", "occupation_group"}
     columns = []
     for a in arch:
         c: dict = {"name": a["name"], "description": wrap(a["description"])}
         col_tests: list = []
-        if a["name"] in key and a["name"] != "industry_group":
+        if a["name"] in key and a["name"] not in nullable_key:
             col_tests.append("not_null")
         if a["directory_column"]:
             ds, rest = a["directory_column"].split(".", 1)

@@ -6,9 +6,9 @@
         partition_by={
             "field": "year",
             "data_type": "int64",
-            "range": {"start": 2003, "end": 2030, "interval": 1},
+            "range": {'start': 2003, 'end': 2030, 'interval': 1},
         },
-        cluster_by=["area_type", "area_id", "occupation_id"],
+        cluster_by=['area_type', 'area_id', 'occupation_id'],
     )
 }}
 
