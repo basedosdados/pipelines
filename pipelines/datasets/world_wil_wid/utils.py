@@ -355,7 +355,9 @@ def _derive_code_parts(
     Returns:
         ``(series_type, concept)``.
     """
+    # pyrefly: ignore [missing-attribute]
     series_type = pc.utf8_slice_codeunits(variable, 0, 1)
+    # pyrefly: ignore [missing-attribute]
     concept = pc.utf8_slice_codeunits(variable, 1, 6)
     return series_type, concept
 
