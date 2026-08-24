@@ -583,6 +583,12 @@ models:
     world_wb_mides:
       +materialized: table
       +schema: world_wb_mides
+      # One model per state feeds each published table. Ephemeral keeps them as
+      # inlined CTEs, so the compiled SQL and the published tables are unchanged
+      # by the split. Switch to `table` (plus a non-published +schema) when the
+      # per-state pipelines need to rebuild one state without touching the rest.
+      states:
+        +materialized: ephemeral
     world_wwf_hydrosheds:
       +materialized: table
       +schema: world_wwf_hydrosheds
