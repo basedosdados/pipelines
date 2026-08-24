@@ -33,7 +33,7 @@ is `industry` (always national).
 The level tags are in the key because BLS republishes some rows twice under two
 tags with identical values (a broad occupation also tagged `detailed`).
 
-## Three source quirks the code handles (all asserted, not assumed)
+## Four source quirks the code handles (all asserted, not assumed)
 
 1. **May 2012 publishes `own_code = 5` (Private) on every cross-industry and
    government pseudo-NAICS row.** 2011, 2013 and 2014 all publish `1235` on
@@ -46,6 +46,9 @@ tags with identical values (a broad occupation also tagged `detailed`).
 3. **2003–2004 metropolitan areas use the pre-CBSA 4-digit MSA/PMSA codes**, a
    different system from the 5-digit CBSA codes used from 2005. Nonmetropolitan
    estimates start in 2006.
+4. **May 2022 publishes one row twice, verbatim** (Minneapolis-St. Paul, occ
+   43-5053). Exact full-row duplicates are dropped and logged; a key collision
+   whose values differ still fails the run.
 
 ## Gotchas
 

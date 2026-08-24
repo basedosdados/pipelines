@@ -108,6 +108,11 @@ the level tags join the key:
 
 Verified zero duplicates on both keys for May 2014 and May 2025.
 
+Separately, OEWS occasionally repeats a row **verbatim**: the May 2022 release
+publishes one estimate (Minneapolis-St. Paul, Postal Service Mail Sorters) twice,
+identical in all 29 columns. Exact full-row duplicates are dropped, which loses
+nothing; a key collision whose values differ still fails the run.
+
 ---
 
 ## 3. Columns

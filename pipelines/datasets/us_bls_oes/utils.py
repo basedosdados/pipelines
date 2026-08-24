@@ -549,8 +549,18 @@ def finalise(df: pd.DataFrame, table: str, year: int) -> pd.DataFrame:
             out[name] = _code(df[name])
 
     out = out[order]
-    assert_unique_key(out, table, year)
-    return out
+
+    # OEWS occasionally repeats a row verbatim — the May 2022 release publishes
+    # one estimate twice, identical in all 29 columns. Dropping exact duplicates
+    # loses nothing, and a key collision whose values differ still raises below.
+    deduped = out.drop_duplicates(ignore_index=True)
+    if len(deduped) < len(out):
+        log.warning(
+            f"{year}: {table} dropped {len(out) - len(deduped):,} row(s) "
+            f"repeated verbatim by the source"
+        )
+    assert_unique_key(deduped, table, year)
+    return deduped
 
 
 def split_release(df: pd.DataFrame, year: int) -> dict[str, pd.DataFrame]:
