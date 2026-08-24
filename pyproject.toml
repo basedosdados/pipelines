@@ -216,6 +216,7 @@ project-excludes = [
   "models/us_cfpb_hmda/code",
   "models/world_aiddata_gcdf/code",
   "models/us_fed_fred/code",
+  "models/br_senado_dados_abertos_administrativos/code",
   # Same policy: br_sfb_sicar onboarding code is standalone `.py` (architecture.py,
   # gen_*.py, bootstrap_clean.py use bare `import architecture`/`import clean`,
   # sys.path-relative), unresolvable from the repo root. The pure transform is
