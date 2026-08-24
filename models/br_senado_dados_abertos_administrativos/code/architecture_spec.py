@@ -358,10 +358,9 @@ _t(
         (
             "nome_parlamentar",
             "str",
-            "Nome parlamentar do senador",
-            "Senator's parliamentary name",
-            "Nombre parlamentario del senador",
-            {"notnull": True},
+            "Nome parlamentar do senador, ausente em um registro publicado pela fonte sem identificação",
+            "Senator's parliamentary name, absent from one record the source publishes without identification",
+            "Nombre parlamentario del senador, ausente en un registro publicado por la fuente sin identificación",
         ),
         (
             "sigla_uf",
@@ -733,9 +732,9 @@ _t(
         (
             "id_remuneracao",
             "str",
-            "Código sequencial identificador do registro de remuneração",
-            "Sequential identifier code of the remuneration record",
-            "Código secuencial identificador del registro de remuneración",
+            "Código sequencial identificador do registro de remuneração, repetido entre tipos de folha do mesmo servidor e mês",
+            "Sequential identifier code of the remuneration record, repeated across payroll types for the same staff member and month",
+            "Código secuencial identificador del registro de remuneración, repetido entre tipos de nómina del mismo servidor y mes",
             {"notnull": True},
         ),
         (
@@ -873,7 +872,7 @@ _t(
             {"unit": "BRL"},
         ),
     ],
-    unique=["ano", "mes", "id_remuneracao"],
+    unique=["ano", "mes", "id_remuneracao", "tipo_folha"],
     partition="ano",
     ol=["servidor"],
 )
@@ -927,7 +926,7 @@ _t(
             {"unit": "BRL"},
         ),
     ],
-    unique=["ano", "mes", "id_hora_extra"],
+    unique=["ano", "mes", "id_hora_extra", "mes_ano_prestacao"],
     partition="ano",
     ol=["servidor"],
 )
@@ -949,6 +948,14 @@ _t(
             "Código sequencial do registro de horas extras a que o dia pertence",
             "Sequential code of the overtime record the day belongs to",
             "Código secuencial del registro de horas extras al que pertenece el día",
+            {"notnull": True},
+        ),
+        (
+            "mes_ano_prestacao",
+            "str",
+            "Mês e ano de prestação do registro a que o dia pertence, no formato MM/AAAA, necessário porque o código sequencial se repete entre meses de prestação pagos juntos",
+            "Month and year worked for the record the day belongs to, in MM/YYYY format, needed because the sequential code repeats across months worked that are paid together",
+            "Mes y año de prestación del registro al que pertenece el día, en formato MM/AAAA, necesario porque el código secuencial se repite entre meses de prestación pagados juntos",
             {"notnull": True},
         ),
         (
@@ -981,7 +988,13 @@ _t(
             "Nombre del sector en que las horas extras fueron prestadas",
         ),
     ],
-    unique=["ano", "id_hora_extra", "data", "sigla_setor_prestacao"],
+    unique=[
+        "ano",
+        "id_hora_extra",
+        "mes_ano_prestacao",
+        "data",
+        "sigla_setor_prestacao",
+    ],
     partition="ano",
     ol=["servidor"],
 )
@@ -1491,20 +1504,13 @@ _t(
     "Órgãos gestores das contratações",
     "Managing Bodies of Contracting Instruments",
     "Órganos gestores de las contrataciones",
-    "Órgãos responsáveis pela gestão de cada contratação, com o tipo de gestão exercida. Uma contratação pode ter mais de um órgão gestor.",
-    "Bodies responsible for managing each contratação, with the type of management exercised. A contratação may have more than one managing body.",
-    "Órganos responsables de la gestión de cada contratación, con el tipo de gestión ejercida. Una contratación puede tener más de un órgano gestor.",
+    "Órgãos responsáveis pela gestão de cada contratação, com o tipo de gestão exercida. Uma contratação pode ter mais de um órgão gestor. O identificador de órgão publicado pela fonte não é aproveitado: em metade dos registros ele repete o próprio código da contratação, de modo que o órgão é identificado pela sigla.",
+    "Bodies responsible for managing each contratação, with the type of management exercised. A contratação may have more than one managing body. The body identifier published by the source is not carried: in half the records it repeats the contratação's own code, so the body is identified by its abbreviation.",
+    "Órganos responsables de la gestión de cada contratación, con el tipo de gestión ejercida. Una contratación puede tener más de un órgano gestor. El identificador de órgano publicado por la fuente no se aprovecha: en la mitad de los registros repite el propio código de la contratación, por lo que el órgano se identifica por su sigla.",
     [
         DATA_EXTRACAO,
         TIPO_CONTRATACAO,
         ID_CONTRATACAO,
-        (
-            "id_orgao_gestor",
-            "str",
-            "Código identificador do órgão gestor",
-            "Managing body identifier code",
-            "Código identificador del órgano gestor",
-        ),
         (
             "sigla_orgao_gestor",
             "str",
@@ -1531,7 +1537,8 @@ _t(
         "data_extracao",
         "tipo_contratacao",
         "id_contratacao",
-        "id_orgao_gestor",
+        "sigla_orgao_gestor",
+        "tipo_gestao",
     ],
     partition="data_extracao",
     ol=["contratacao"],
@@ -2220,9 +2227,9 @@ _t(
         (
             "cpf",
             "str",
-            "CPF do menor aprendiz, parcialmente mascarado pela fonte",
-            "Apprentice's CPF, partially masked by the source",
-            "CPF del menor aprendiz, parcialmente enmascarado por la fuente",
+            "CPF do menor aprendiz, parcialmente mascarado pela fonte, de modo que o mesmo valor mascarado pode corresponder a pessoas distintas",
+            "Apprentice's CPF, partially masked by the source, so the same masked value may correspond to different people",
+            "CPF del menor aprendiz, parcialmente enmascarado por la fuente, de modo que el mismo valor enmascarado puede corresponder a personas distintas",
             {"notnull": True},
         ),
         (
@@ -2261,7 +2268,7 @@ _t(
             "Nombre del órgano de destino",
         ),
     ],
-    unique=["data_extracao", "cpf", "fornecedor"],
+    unique=["data_extracao", "cpf", "nome", "fornecedor"],
     partition="data_extracao",
     ol=["pessoa"],
 )

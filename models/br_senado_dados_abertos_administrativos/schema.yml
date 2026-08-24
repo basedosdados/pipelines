@@ -1216,7 +1216,8 @@ models:
         tests: [not_null]
       - name: cpf_cnpj
         description: >
-          CPF ou CNPJ da empresa contratada
+          CPF ou CNPJ do contratado, com o CPF parcialmente mascarado pela fonte quando
+          pessoa física
       - name: nome
         description: >
           Razão social ou nome da empresa contratada

@@ -417,7 +417,11 @@ def build_servidor_remuneracao(
                     "remuneracao_liquida": num(r.get("remuneracao_liquida")),
                 }
             )
-    return rows
+    # `sequencial` identifies the servidor-month, not the row: the same code
+    # carries a Normal and a Suplementar folha for one person and month, so
+    # tipo_folha completes the key. A few rows are then still repeated verbatim
+    # by the source (389 in 1.9M) and are dropped.
+    return dedupe(rows, ["ano", "mes", "id_remuneracao", "tipo_folha"])
 
 
 def build_servidor_hora_extra(
@@ -435,13 +439,14 @@ def build_servidor_hora_extra(
     for year, month in periods:
         for r in api.fetch(f"/servidores/horas-extras/{year}/{month}"):
             record_id = s(r.get("sequencial"))
+            prestacao = s(r.get("mes_ano_prestacao"))
             parents.append(
                 {
                     "ano": year,
                     "mes": month,
                     "id_hora_extra": record_id,
                     "nome": s(r.get("nome")),
-                    "mes_ano_prestacao": s(r.get("mes_ano_prestacao")),
+                    "mes_ano_prestacao": prestacao,
                     "mes_ano_pagamento": s(r.get("mes_ano_pagamento")),
                     "valor_total": num(r.get("valorTotal")),
                 }
@@ -452,6 +457,7 @@ def build_servidor_hora_extra(
                         "ano": year,
                         "mes": month,
                         "id_hora_extra": record_id,
+                        "mes_ano_prestacao": prestacao,
                         "data": date(d.get("dia")),
                         "quantidade_horas": hours(d.get("quantidade")),
                         "sigla_setor_prestacao": s(
@@ -460,6 +466,22 @@ def build_servidor_hora_extra(
                         "setor_prestacao": s(g(d, "setor_prestacao", "nome")),
                     }
                 )
+    # One payment month can settle several months worked, and the source reuses
+    # the same `sequencial` for each — so the month worked is part of the key,
+    # and the day rows carry it too or they cannot be joined unambiguously.
+    parents = dedupe(
+        parents, ["ano", "mes", "id_hora_extra", "mes_ano_prestacao"]
+    )
+    days = dedupe(
+        days,
+        [
+            "ano",
+            "id_hora_extra",
+            "mes_ano_prestacao",
+            "data",
+            "sigla_setor_prestacao",
+        ],
+    )
     return parents, days
 
 
@@ -622,7 +644,14 @@ def build_contratacao(raw: list[dict], extracted_at: str) -> list[dict]:
 def build_contratacao_orgao_gestor(
     raw: list[dict], extracted_at: str
 ) -> list[dict]:
-    """Explode the ``orgaos_gestores`` already nested in the parent payload."""
+    """Explode the ``orgaos_gestores`` already nested in the parent payload.
+
+    The source's ``id`` for the órgão is not kept: in half the rows it simply
+    repeats the contratação's own code (contratação 2412 lists two different
+    órgãos, COPEGE and NGCIC, both under id 2412), so it identifies nothing. The
+    órgão is identified by its sigla instead, and the residual verbatim repeats
+    the source emits are dropped.
+    """
     rows = []
     for r in raw:
         for o in r.get("orgaos_gestores") or []:
@@ -631,13 +660,21 @@ def build_contratacao_orgao_gestor(
                     "data_extracao": extracted_at,
                     "tipo_contratacao": s(r.get("tipo_contratacao")),
                     "id_contratacao": s(r.get("id")),
-                    "id_orgao_gestor": s(o.get("id")),
                     "sigla_orgao_gestor": s(o.get("sigla")),
                     "orgao_gestor": s(o.get("nome")),
                     "tipo_gestao": s(o.get("tipo_gestao")),
                 }
             )
-    return rows
+    return dedupe(
+        rows,
+        [
+            "data_extracao",
+            "tipo_contratacao",
+            "id_contratacao",
+            "sigla_orgao_gestor",
+            "tipo_gestao",
+        ],
+    )
 
 
 def build_contratacao_item(raw: list[dict], extracted_at: str) -> list[dict]:

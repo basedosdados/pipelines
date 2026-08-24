@@ -31,6 +31,7 @@ ACCEPTED_ORDERING = {
     "menor_aprendiz",
     "estagiario",
     "diretor_coordenador",
+    "contratacao_orgao_gestor",
 }
 
 errors: list[str] = []
