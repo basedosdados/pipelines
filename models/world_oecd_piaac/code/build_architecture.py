@@ -76,6 +76,25 @@ RENAMED_INTO_GRAIN_LOWER = {"cntryid_e": "country_entity_id"}
 # the sheet's own name: CNT_BRTH and CNT_H both mean the CNT_H_BRTH sheet. Cycle
 # 1 has no lookup sheets at all, so its equivalent columns borrow Cycle 2's --
 # the code lists are the same international standards.
+# Codes present in the data that the PIAAC international codebook does not
+# define anywhere -- not in the variable's value scheme, its missing scheme, or
+# any lookup sheet. Each was checked individually. Labelling them as
+# undocumented is more useful than leaving them unexplained, and keeps the
+# claim honest rather than inventing a meaning.
+UNDOCUMENTED_CODES = [
+    ("respondent_cycle_1", "ctryqual", "Z"),
+    ("respondent_cycle_1", "seclgrgn", "Z"),
+    ("respondent_cycle_1", "birthrgn", "Z"),
+    ("respondent_cycle_1", "vet", "Z"),
+    ("respondent_cycle_2", "imyrs_c", ".a"),
+    ("respondent_cycle_2", "lng_bq", "QDE"),
+    ("respondent_cycle_2", "lng_bq", "-99"),
+    ("respondent_cycle_2", "c2_q09c1_c", "66"),
+    ("respondent_cycle_1_usa_national", "c_q08c1_c", "11"),
+    ("respondent_cycle_1_usa_national", "c_q08c1_c", "12"),
+]
+UNDOCUMENTED_LABEL = "Code present in the data but not documented in the PIAAC international codebook"
+
 SHEET_ALIASES = {
     "CNT_BRTH": "CNT_H_BRTH",
     "CNT_H": "CNT_H_BRTH",
@@ -83,6 +102,7 @@ SHEET_ALIASES = {
 }
 COLUMN_SHEETS = {
     "REG_TL2": ("REG_TL2", "REG_TL2_new", "REG_MACRO"),
+    "REG_TL2_NEW": ("REG_TL2_new", "REG_TL2", "REG_MACRO"),
     "REG_MACRO": ("REG_MACRO",),
     "CNT_H": ("CNT_H_BRTH",),
     "CNT_BRTH": ("CNT_H_BRTH",),
@@ -634,6 +654,21 @@ def main() -> None:
                     "value": label,
                 }
             )
+    for table_id, column, key in UNDOCUMENTED_CODES:
+        if (table_id, column, key) in present:
+            continue
+        present.add((table_id, column, key))
+        cycle = "2" if table_id.endswith("cycle_2") else "1"
+        extra.append(
+            {
+                "table_id": table_id,
+                "column_name": column,
+                "key": key,
+                "temporal_coverage": TEMPORAL_COVERAGE[cycle],
+                "value": UNDOCUMENTED_LABEL,
+            }
+        )
+
     dictionary += extra
     print(f"  spelling variants added              {len(extra):>5} rows")
 

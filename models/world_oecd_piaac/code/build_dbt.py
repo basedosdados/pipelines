@@ -64,7 +64,7 @@ GRAIN_UNIQUE = {
 # trimmed. nullif keeps a value that was nothing but spaces as NULL rather than
 # turning it into an empty string.
 CAST = {
-    "STRING": "nullif(trim(safe_cast({c} as string)), '') {c}",
+    "STRING": "nullif(nullif(trim(safe_cast({c} as string)), ''), '.') {c}",
     "INT64": "safe_cast({c} as int64) {c}",
     "FLOAT64": "safe_cast({c} as float64) {c}",
 }
