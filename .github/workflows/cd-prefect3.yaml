@@ -25,6 +25,7 @@ jobs:
             --branch ${{ github.ref_name }} \
             --all
       - name: Sync deployments with backend
+        if: always()
         env:
           PREFECT3_AUTH_TOKEN: ${{ secrets.PREFECT3_AUTH_TOKEN }}
         run: |-
