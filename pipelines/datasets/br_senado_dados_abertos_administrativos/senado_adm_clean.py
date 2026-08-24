@@ -1350,11 +1350,15 @@ RUBRICA_TABELAS = (
 )
 
 
-def build_dicionario(tables: dict[str, list[dict]]) -> list[dict]:
+def build_dicionario(
+    rubricas_por_tabela: dict[str, dict[str, str]] | None = None,
+) -> list[dict]:
     """Assemble the dicionário from the static maps plus derived rubricas.
 
-    ``tables`` is the already-built table set, so the rubrica labels come from
-    the same extraction the data does and cannot drift from it.
+    ``rubricas_por_tabela`` maps each supridos table to the ``{código: rótulo}``
+    pairs seen in it. It is accumulated during the extraction rather than
+    recomputed from the finished tables, so the labels come from the same run as
+    the data and the caller never has to hold those tables in memory.
     """
     rows = []
 
@@ -1377,18 +1381,15 @@ def build_dicionario(tables: dict[str, list[dict]]) -> list[dict]:
         for key, value in TIPO_CONTRATACAO_VALORES.items():
             add(table, "tipo_contratacao", key, value)
 
-    # suprido_empenho pairs each rubrica with its descrição; reuse that mapping
-    # for the two child tables, which carry the code without a label.
-    rubricas: dict[str, str] = {}
-    for r in tables.get("suprido_empenho") or []:
-        code, label = r.get("rubrica"), r.get("descricao")
-        if code and label:
-            rubricas.setdefault(code, label)
+    # suprido_empenho is the only endpoint pairing a rubrica with its descrição;
+    # the two child tables carry the bare code, so they borrow those labels.
+    seen = rubricas_por_tabela or {}
+    labels: dict[str, str] = {}
+    for code, label in (seen.get("suprido_empenho") or {}).items():
+        if label:
+            labels.setdefault(code, label)
     for table in RUBRICA_TABELAS:
-        if table not in tables:
-            continue
-        present = {r.get("rubrica") for r in tables[table] if r.get("rubrica")}
-        for code in sorted(present):
-            add(table, "rubrica", code, rubricas.get(code) or code)
+        for code in sorted(seen.get(table) or {}):
+            add(table, "rubrica", code, labels.get(code) or code)
 
     return dedupe(rows, ["id_tabela", "nome_coluna", "chave"])

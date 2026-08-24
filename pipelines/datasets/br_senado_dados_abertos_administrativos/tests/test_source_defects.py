@@ -258,3 +258,44 @@ class TestQuadroPessoalConsolidation:
         assert anterior["quantidade_cargos"] is None
         assert anterior["quantidade_vagos"] == 5
         assert all(r["quadro"] == "cargo_efetivo" for r in rows)
+
+
+class TestStreamingWrites:
+    """clean_all must not hold the whole extraction in memory.
+
+    As Python dicts, servidor_remuneracao and servidor_hora_extra_dia alone come
+    to roughly 9 GB over full history — against a 4 GiB worker — so the time
+    series are written a year at a time. This pins the mechanism that allows it:
+    a second write with reset=False must add a partition rather than replace the
+    table.
+    """
+
+    def test_reset_false_appends_a_partition(self, tmp_path):
+        from pipelines.datasets.br_senado_dados_abertos_administrativos import (
+            utils,
+        )
+
+        def rows(year: int, n: int) -> list[dict]:
+            return [
+                {
+                    "ano": year,
+                    "mes": 1,
+                    "id_despesa": str(i),
+                    "valor_reembolsado": 1.0,
+                }
+                for i in range(n)
+            ]
+
+        out = str(tmp_path)
+        utils.write_partitioned(rows(2024, 3), out, "despesa_ceaps", "ano")
+        utils.write_partitioned(
+            rows(2025, 2), out, "despesa_ceaps", "ano", reset=False
+        )
+
+        table_dir = tmp_path / "despesa_ceaps"
+        parts = sorted(p.name for p in table_dir.iterdir())
+        assert parts == ["ano=2024", "ano=2025"], "the first year must survive"
+
+        # and the default still replaces, so a re-run cannot leave stale years
+        utils.write_partitioned(rows(2026, 1), out, "despesa_ceaps", "ano")
+        assert sorted(p.name for p in table_dir.iterdir()) == ["ano=2026"]

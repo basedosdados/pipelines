@@ -85,8 +85,12 @@ def write_partitioned(
     out_dir: str,
     table: str,
     partition: str | None,
+    reset: bool = True,
 ) -> str:
     """Write rows as all-STRING parquet, hive-partitioned where applicable.
+
+    ``reset=False`` appends partitions to a table already begun, which is how the
+    time series are written a year at a time — see :func:`clean_all`.
 
     A table with no rows for the requested window writes no files and leaves an
     empty directory — `suprido_movimentacao` is genuinely empty in some years,
@@ -100,7 +104,7 @@ def write_partitioned(
     literal ``"nan"``, which ``safe_cast`` will not turn back into NULL.
     """
     target = os.path.join(out_dir, table)
-    if os.path.isdir(target):
+    if reset and os.path.isdir(target):
         shutil.rmtree(target)
     os.makedirs(target, exist_ok=True)
 
@@ -144,104 +148,13 @@ def write_partitioned(
     return target
 
 
-def build_all(
-    years: Iterable[int] | None = None,
-    extracted_at: str | None = None,
-    today: dt.date | None = None,
-    sub_resources: bool = True,
-) -> dict[str, list[dict]]:
-    """Run every builder and return the full table set, keyed by table slug.
-
-    ``years`` bounds the four genuine time series; ``None`` means full history
-    from each source's own first year. ``sub_resources=False`` skips the
-    contratação fan-out (itens, garantias, pagamentos and their children), which
-    is the slow half of the extract and refreshes on its own weekly schedule.
-    """
-    today = today or dt.date.today()
-    extracted_at = extracted_at or today.isoformat()
-    out: dict[str, list[dict]] = {}
-
-    def span(first: int) -> list[int]:
-        return (
-            list(years)
-            if years is not None
-            else list(range(first, today.year + 1))
-        )
-
-    # --- Senadores
-    out["despesa_ceaps"] = clean.build_despesa_ceaps(span(FIRST_YEAR_CEAPS))
-    out["senador_gabinete"] = clean.build_senador_gabinete(extracted_at)
-    out["senador_escritorio_apoio"] = clean.build_senador_escritorio_apoio(
-        extracted_at
-    )
-    out["senador_auxilio_moradia"] = clean.build_senador_auxilio_moradia(
-        extracted_at
-    )
-    out["senador_aposentado_pensionista"] = (
-        clean.build_senador_aposentado_pensionista(extracted_at)
-    )
-
-    # --- Servidores
-    out["servidor"] = clean.build_servidor(extracted_at)
-    out["servidor_ativo"] = clean.build_servidor_ativo(extracted_at)
-    out["servidor_remuneracao"] = clean.build_servidor_remuneracao(
-        months(span(FIRST_YEAR_REMUNERACAO), today)
-    )
-    parents, days = clean.build_servidor_hora_extra(
-        months(span(FIRST_YEAR_HORA_EXTRA), today)
-    )
-    out["servidor_hora_extra"] = parents
-    out["servidor_hora_extra_dia"] = days
-    out["servidor_aposentado"] = clean.build_servidor_aposentado(extracted_at)
-    out["servidor_exonerado"] = clean.build_servidor_exonerado(extracted_at)
-    out["servidor_cedido"] = clean.build_servidor_cedido(extracted_at)
-    out["pensionista"] = clean.build_pensionista(extracted_at)
-
-    # --- Contratações. One fan-out over the status enum feeds every child.
-    raw = api.fetch_contratacoes()
-    out["contratacao"] = clean.build_contratacao(raw, extracted_at)
-    out["contratacao_orgao_gestor"] = clean.build_contratacao_orgao_gestor(
-        raw, extracted_at
-    )
-    licitacoes, detalhamentos = clean.build_licitacao(extracted_at)
-    out["licitacao"] = licitacoes
-    out["licitacao_detalhamento"] = detalhamentos
-    out["empresa"] = clean.build_empresa(extracted_at)
-
-    if sub_resources:
-        out["contratacao_item"] = clean.build_contratacao_item(
-            raw, extracted_at
-        )
-        out["contratacao_garantia"] = clean.build_contratacao_garantia(
-            raw, extracted_at
-        )
-        pagamentos, documentos, empenhos = clean.build_contratacao_pagamento(
-            raw, extracted_at
-        )
-        out["contratacao_pagamento"] = pagamentos
-        out["contratacao_documento_fiscal"] = documentos
-        out["contratacao_pagamento_empenho"] = empenhos
-        out["contrato_aditivo"] = clean.build_contrato_aditivo(
-            raw, extracted_at
-        )
-        out["ata_acionamento"] = clean.build_ata_acionamento(raw, extracted_at)
-
-    # --- Colaboradores
-    out["terceirizado"] = clean.build_terceirizado(extracted_at)
-    out["menor_aprendiz"] = clean.build_menor_aprendiz(extracted_at)
-    out["estagiario"] = clean.build_estagiario(extracted_at)
-
-    # --- Supridos: one request per year yields all six tables
-    out.update(clean.build_supridos(span(FIRST_YEAR_SUPRIDOS)))
-
-    # --- Gestão
-    out["quadro_pessoal"] = clean.build_quadro_pessoal(extracted_at)
-    out["diretor_coordenador"] = clean.build_diretor_coordenador(extracted_at)
-    out["previsao_aposentadoria"] = clean.build_previsao_aposentadoria(
-        extracted_at
-    )
-
-    out["dicionario"] = clean.build_dicionario(out)
+def _rubricas(rows: list[dict]) -> dict[str, str]:
+    """Collect the {rubrica: descrição} pairs present in a supridos table."""
+    out: dict[str, str] = {}
+    for row in rows:
+        code = row.get("rubrica")
+        if code:
+            out.setdefault(code, row.get("descricao") or "")
     return out
 
 
@@ -251,20 +164,130 @@ def clean_all(
     extracted_at: str | None = None,
     today: dt.date | None = None,
     sub_resources: bool = True,
-) -> dict[str, str]:
+) -> dict[str, int]:
     """Build every table and write it as all-STRING partitioned parquet.
 
-    Returns the output directory per table.
+    Tables are written and released one at a time, and the four time series a
+    year at a time, so peak memory stays near the largest single year rather
+    than the whole extraction. Holding everything first is not an option: as
+    Python dicts, servidor_remuneracao and servidor_hora_extra_dia alone come to
+    roughly 9 GB over full history, against a 4 GiB worker.
+
+    ``years`` bounds the time series; ``None`` means full history from each
+    source's own first year. ``sub_resources=False`` skips the contratação
+    fan-out — the slow half of the extract, which refreshes on its own weekly
+    schedule.
+
+    Returns the row count written per table.
     """
-    tables = build_all(
-        years=years,
-        extracted_at=extracted_at,
-        today=today,
-        sub_resources=sub_resources,
-    )
-    written = {}
-    for table, rows in tables.items():
-        written[table] = write_partitioned(
-            rows, output, table, TABLES[table]["partition"]
+    today = today or dt.date.today()
+    extracted_at = extracted_at or today.isoformat()
+    counts: dict[str, int] = {}
+    rubricas: dict[str, dict[str, str]] = {}
+
+    def emit(table: str, rows: list[dict], reset: bool = True) -> None:
+        write_partitioned(
+            rows, output, table, TABLES[table]["partition"], reset=reset
         )
-    return written
+        counts[table] = (0 if reset else counts.get(table, 0)) + len(rows)
+
+    def span(first: int) -> list[int]:
+        return (
+            list(years)
+            if years is not None
+            else list(range(first, today.year + 1))
+        )
+
+    # --- Senadores
+    emit("senador_gabinete", clean.build_senador_gabinete(extracted_at))
+    emit(
+        "senador_escritorio_apoio",
+        clean.build_senador_escritorio_apoio(extracted_at),
+    )
+    emit(
+        "senador_auxilio_moradia",
+        clean.build_senador_auxilio_moradia(extracted_at),
+    )
+    emit(
+        "senador_aposentado_pensionista",
+        clean.build_senador_aposentado_pensionista(extracted_at),
+    )
+
+    # --- Servidores: snapshots
+    emit("servidor", clean.build_servidor(extracted_at))
+    emit("servidor_ativo", clean.build_servidor_ativo(extracted_at))
+    emit("servidor_aposentado", clean.build_servidor_aposentado(extracted_at))
+    emit("servidor_exonerado", clean.build_servidor_exonerado(extracted_at))
+    emit("servidor_cedido", clean.build_servidor_cedido(extracted_at))
+    emit("pensionista", clean.build_pensionista(extracted_at))
+
+    # --- Time series, one year at a time (the memory-critical path)
+    for i, year in enumerate(span(FIRST_YEAR_CEAPS)):
+        emit("despesa_ceaps", clean.build_despesa_ceaps([year]), reset=i == 0)
+
+    for i, year in enumerate(span(FIRST_YEAR_REMUNERACAO)):
+        emit(
+            "servidor_remuneracao",
+            clean.build_servidor_remuneracao(months([year], today)),
+            reset=i == 0,
+        )
+
+    for i, year in enumerate(span(FIRST_YEAR_HORA_EXTRA)):
+        parents, days = clean.build_servidor_hora_extra(months([year], today))
+        emit("servidor_hora_extra", parents, reset=i == 0)
+        emit("servidor_hora_extra_dia", days, reset=i == 0)
+
+    for i, year in enumerate(span(FIRST_YEAR_SUPRIDOS)):
+        supridos = clean.build_supridos([year])
+        for table, rows in supridos.items():
+            emit(table, rows, reset=i == 0)
+            if table in clean.RUBRICA_TABELAS:
+                rubricas.setdefault(table, {}).update(_rubricas(rows))
+
+    # --- Contratações. One status fan-out feeds the parent and every child.
+    raw = api.fetch_contratacoes()
+    emit("contratacao", clean.build_contratacao(raw, extracted_at))
+    emit(
+        "contratacao_orgao_gestor",
+        clean.build_contratacao_orgao_gestor(raw, extracted_at),
+    )
+    licitacoes, detalhamentos = clean.build_licitacao(extracted_at)
+    emit("licitacao", licitacoes)
+    emit("licitacao_detalhamento", detalhamentos)
+    emit("empresa", clean.build_empresa(extracted_at))
+
+    if sub_resources:
+        emit(
+            "contratacao_item", clean.build_contratacao_item(raw, extracted_at)
+        )
+        emit(
+            "contratacao_garantia",
+            clean.build_contratacao_garantia(raw, extracted_at),
+        )
+        pagamentos, documentos, empenhos = clean.build_contratacao_pagamento(
+            raw, extracted_at
+        )
+        emit("contratacao_pagamento", pagamentos)
+        emit("contratacao_documento_fiscal", documentos)
+        emit("contratacao_pagamento_empenho", empenhos)
+        emit(
+            "contrato_aditivo", clean.build_contrato_aditivo(raw, extracted_at)
+        )
+        emit("ata_acionamento", clean.build_ata_acionamento(raw, extracted_at))
+    del raw
+
+    # --- Colaboradores
+    emit("terceirizado", clean.build_terceirizado(extracted_at))
+    emit("menor_aprendiz", clean.build_menor_aprendiz(extracted_at))
+    emit("estagiario", clean.build_estagiario(extracted_at))
+
+    # --- Gestão
+    emit("quadro_pessoal", clean.build_quadro_pessoal(extracted_at))
+    emit("diretor_coordenador", clean.build_diretor_coordenador(extracted_at))
+    emit(
+        "previsao_aposentadoria",
+        clean.build_previsao_aposentadoria(extracted_at),
+    )
+
+    emit("dicionario", clean.build_dicionario(rubricas))
+    return counts

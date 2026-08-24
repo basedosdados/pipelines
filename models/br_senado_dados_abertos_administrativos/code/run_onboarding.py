@@ -73,15 +73,20 @@ def main() -> None:
     print(f"  years={'full history' if years is None else years}")
     print(f"  contratação sub-resources={sub_resources}")
 
-    result = clean_all(OUTPUT, years=years, sub_resources=sub_resources)
+    counts = clean_all(OUTPUT, years=years, sub_resources=sub_resources)
 
     print("\n=== SUMMARY ===")
     total = 0
     for table in ALL_TABLES:
-        if table not in result:
+        if table not in counts:
             print(f"  {table:34} {'skipped':>10}")
             continue
-        count = rows_in(result[table])
+        # Read back from disk rather than trusting the in-memory tally.
+        count = rows_in(os.path.join(OUTPUT, table))
+        if count != counts[table]:
+            print(
+                f"  {table:34} {'MISMATCH':>10}  built={counts[table]:,} on-disk={count:,}"
+            )
         total += count
         part = TABLES[table]["partition"] or "-"
         print(f"  {table:34} {count:>10,} rows   partition={part}")
