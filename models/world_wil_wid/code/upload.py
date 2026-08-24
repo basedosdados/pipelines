@@ -58,18 +58,21 @@ def _patched_bucket(
 ) -> "gcs.Bucket":
     """Force ``user_project`` so the requester-pays bucket bills our project.
 
-    Mirrors ``gcs.Client.bucket``'s full signature (including ``generation``)
-    so callers passing a bucket generation keep working.
+    Accepts ``generation`` so a caller that passes one keeps working, but only
+    forwards it when it is set: older google-cloud-storage releases have no
+    such parameter and reject it outright.
 
     Args:
         self: The storage client the method is bound to.
         bucket_name: Name of the bucket to instantiate.
         user_project: Ignored; overridden with the billing project.
-        generation: Optional bucket generation, passed through unchanged.
+        generation: Optional bucket generation, forwarded only when provided.
 
     Returns:
         The instantiated ``Bucket`` billed to ``BILLING_PROJECT``.
     """
+    if generation is None:
+        return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
     return _orig_bucket(
         self,
         bucket_name,

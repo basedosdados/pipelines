@@ -82,11 +82,7 @@ models:
           combination_of_columns: [country_code, variable]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - simple_description
-            - technical_description
-            - data_points
-            - data_quality_score
+          ignore_values: [extrapolation, data_points, data_quality_score]
     columns:
       - name: country_code
         description: Código da área geográfica na notação da WID
@@ -157,7 +153,6 @@ models:
           combination_of_columns: [country_code]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values: [conversion]
     columns:
       - name: country_code
         description: Código da área geográfica na notação da WID
