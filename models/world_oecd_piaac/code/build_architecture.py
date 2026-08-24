@@ -59,11 +59,11 @@ SHEET_DIRECTORY = {
 # not an ISCO code, and its values 1-4 would collide with ISCO major groups 1-4.
 CY1_DIRECTORY = [
     (
-        re.compile(r"^ISCO[12][CL]$", re.I),
+        re.compile(r"^ISCO[12][CL]$|^ISCO08_[CL]$", re.I),
         "br_bd_diretorios_mundo.isco_08:id_isco_08",
     ),
     (
-        re.compile(r"^ISIC[12][CL]$", re.I),
+        re.compile(r"^ISIC[12][CL]$|^ISIC4_[CL]$", re.I),
         "br_bd_diretorios_mundo.isic_4:id_isic_4",
     ),
 ]
@@ -79,8 +79,6 @@ RENAMED_INTO_GRAIN_LOWER = {"cntryid_e": "country_entity_id"}
 SHEET_ALIASES = {
     "CNT_BRTH": "CNT_H_BRTH",
     "CNT_H": "CNT_H_BRTH",
-    "CTRYQUAL": "CNT_H_BRTH",
-    "CNT_QUAL": "CNT_H_BRTH",
     "REG_TL2_NEW": "REG_TL2_new",
 }
 COLUMN_SHEETS = {
@@ -88,7 +86,6 @@ COLUMN_SHEETS = {
     "REG_MACRO": ("REG_MACRO",),
     "CNT_H": ("CNT_H_BRTH",),
     "CNT_BRTH": ("CNT_H_BRTH",),
-    "CTRYQUAL": ("CNT_H_BRTH",),
     "LNG_HOME": ("Languages",),
     "LNG_L1": ("Languages",),
     "LNG_L2": ("Languages",),
@@ -341,7 +338,9 @@ def build_dictionary(all_variables: dict, sheets: dict) -> list[dict]:
             ):
                 continue
             scheme = variable.value_scheme.strip()
-            pairs = sheet_pairs(variable, sheets) or split_packed(scheme)
+            # A scheme that spells out its own pairs always wins; fall back to a
+            # lookup sheet only when the cell names one instead of listing them.
+            pairs = split_packed(scheme) or sheet_pairs(variable, sheets)
             # Reserved codes are answers too -- refused, don't know, valid skip --
             # and belong in the dictionary alongside the substantive ones. Key
             # them on the SAS coding, which is what the CSV PUFs carry; the SPSS

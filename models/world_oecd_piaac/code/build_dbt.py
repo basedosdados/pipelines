@@ -59,8 +59,12 @@ GRAIN_UNIQUE = {
     "dictionary": ["table_id", "column_name", "key"],
 }
 
+# Some source values arrive space-padded -- isco1_fath carries 4,370 values like
+# "  7" -- and padding is never meaningful in a code, so string columns are
+# trimmed. nullif keeps a value that was nothing but spaces as NULL rather than
+# turning it into an empty string.
 CAST = {
-    "STRING": "safe_cast({c} as string) {c}",
+    "STRING": "nullif(trim(safe_cast({c} as string)), '') {c}",
     "INT64": "safe_cast({c} as int64) {c}",
     "FLOAT64": "safe_cast({c} as float64) {c}",
 }

@@ -376,10 +376,10 @@ zz5,STRING,Observation module: Assessment taking too long,,yes,,,no,,ZZ5
 zz6,STRING,Observation module: Room of assessment,,yes,,,no,,ZZ6
 isced_hf,STRING,Level of Highest Qualification (Foreign) - Respondent (ISCED) (coded),,yes,,,no,,ISCED_HF
 isced_hf_c,STRING,"Level of Highest Qualification (collapsed, 14 categories)",,yes,,,no,,ISCED_HF_C
-isco08_c,STRING,Current Job Occupation - Respondent (ISCO 2008) (coded),,yes,,,no,,ISCO08_C
-isco08_l,STRING,Last Job Occupation - Respondent (ISCO 2008) (coded),,yes,,,no,,ISCO08_L
-isic4_c,STRING,Current Job Industry - Respondent (ISIC rev 4) (coded),,yes,,,no,,ISIC4_C
-isic4_l,STRING,Last Job Industry - Respondent (ISIC rev 4) (coded),,yes,,,no,,ISIC4_L
+isco08_c,STRING,Current Job Occupation - Respondent (ISCO 2008) (coded),,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO08_C
+isco08_l,STRING,Last Job Occupation - Respondent (ISCO 2008) (coded),,no,br_bd_diretorios_mundo.isco_08:id_isco_08,,no,,ISCO08_L
+isic4_c,STRING,Current Job Industry - Respondent (ISIC rev 4) (coded),,no,br_bd_diretorios_mundo.isic_4:id_isic_4,,no,,ISIC4_C
+isic4_l,STRING,Last Job Industry - Respondent (ISIC rev 4) (coded),,no,br_bd_diretorios_mundo.isic_4:id_isic_4,,no,,ISIC4_L
 lng_l1,STRING,First language learned at home in childhood and still understood - Respondent (ISO 639-2/T) (coded),,yes,,,no,,LNG_L1
 lng_l2,STRING,Second language learned at home in childhood and still understood - Respondent (ISO 639-2/T) (coded),,yes,,,no,,LNG_L2
 lng_home,STRING,Language most often spoken at home - Respondent (ISO 639-2/T) (coded),,yes,,,no,,LNG_HOME
