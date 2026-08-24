@@ -1,0 +1,161 @@
+---
+models:
+  - name: br_fnde_fundeb__indicador_estadual
+    description: >-
+      Indicadores legais e educacionais dos estados e do Distrito Federal,
+      calculados pelo FNDE a partir das declarações bimestrais no SIOPE. Uma
+      linha por unidade da federação, bimestre e indicador.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, bimestre, sigla_uf, id_indicador]
+      # As duas colunas de valor ficam de fora porque cada linha preenche
+      # exatamente uma delas: valor_percentual é ~60% não-nula e valor_real
+      # ~40%, por desenho.
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+          ignore_values: [valor_percentual, valor_real]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [id_indicador]
+          dictionary_model: ref('br_fnde_fundeb__dicionario')
+    columns:
+      - name: ano
+        description: Ano de referência do indicador
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: bimestre
+        description: Bimestre de referência do indicador, de 1 a 6
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__bimestre')
+              field: bimestre.bimestre
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_indicador
+        description: >-
+          Código do indicador no SIOPE. O mesmo código designa indicadores
+          diferentes nas esferas estadual e municipal, então vale apenas dentro
+          desta tabela
+        tests: [not_null]
+      - name: codigo_indicador
+        description: >-
+          Código de exibição do indicador nos relatórios do FNDE, no formato
+          grupo.item. O prefixo é o agrupamento temático: 1 aplicações mínimas
+          legais, 2 despesas por etapa de ensino, 3 pessoal, 4 investimento por
+          aluno, 5 IDEB, 6 receitas, 7 resultado do exercício, 8 valores de MDE
+      - name: valor_percentual
+        description: >-
+          Valor do indicador quando expresso em percentual. Nulo nos
+          indicadores medidos em reais. Valores acima de 100 são legítimos e
+          indicam aplicação acima do mínimo exigido; valores negativos ocorrem
+          nos indicadores de aplicação mínima e vêm assim da fonte
+      - name: valor_real
+        description: >-
+          Valor do indicador quando expresso em reais. Nulo nos indicadores
+          medidos em percentual
+  - name: br_fnde_fundeb__indicador_municipal
+    description: >-
+      Indicadores legais e educacionais dos municípios, calculados pelo FNDE a
+      partir das declarações bimestrais no SIOPE. Uma linha por município,
+      bimestre e indicador.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, bimestre, id_municipio, id_indicador]
+      # As duas colunas de valor ficam de fora porque cada linha preenche
+      # exatamente uma delas: valor_percentual é ~60% não-nula e valor_real
+      # ~40%, por desenho.
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+          ignore_values: [valor_percentual, valor_real]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [id_indicador]
+          dictionary_model: ref('br_fnde_fundeb__dicionario')
+    columns:
+      - name: ano
+        description: Ano de referência do indicador
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: bimestre
+        description: Bimestre de referência do indicador, de 1 a 6
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__bimestre')
+              field: bimestre.bimestre
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador do município (IBGE, 7 dígitos)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_indicador
+        description: >-
+          Código do indicador no SIOPE. O mesmo código designa indicadores
+          diferentes nas esferas estadual e municipal, então vale apenas dentro
+          desta tabela
+        tests: [not_null]
+      - name: codigo_indicador
+        description: >-
+          Código de exibição do indicador nos relatórios do FNDE, no formato
+          grupo.item. O prefixo é o agrupamento temático: 1 aplicações mínimas
+          legais, 2 despesas por etapa de ensino, 3 pessoal, 4 investimento por
+          aluno, 5 IDEB, 6 receitas, 7 resultado do exercício, 8 valores de MDE
+      - name: valor_percentual
+        description: >-
+          Valor do indicador quando expresso em percentual. Nulo nos
+          indicadores medidos em reais. Valores acima de 100 são legítimos e
+          indicam aplicação acima do mínimo exigido; valores negativos ocorrem
+          nos indicadores de aplicação mínima e vêm assim da fonte
+      - name: valor_real
+        description: >-
+          Valor do indicador quando expresso em reais. Nulo nos indicadores
+          medidos em percentual
+  - name: br_fnde_fundeb__dicionario
+    description: >-
+      Nome de cada indicador do SIOPE por tabela e por período de vigência. O
+      FNDE reescreve o nome dos indicadores ao longo da série, então a mesma
+      chave pode ter mais de um nome, cada um com sua cobertura temporal.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: id_tabela
+        description: Nome da tabela que contém a coluna traduzida por esta linha
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna traduzida por esta linha
+        tests: [not_null]
+      - name: chave
+        description: Valor da coluna traduzida por esta linha
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Cobertura temporal em que a tradução é válida
+        tests: [not_null]
+      - name: valor
+        description: Descrição do valor da coluna traduzida por esta linha
+        tests: [not_null]
