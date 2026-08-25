@@ -68,8 +68,8 @@ models:
         description: Identificador da Classificação por Grandes Categorias Econômicas
           (CGCE) do id_ncm
       - name: id_isic_classe
-        description: 'Identificador da classe da Classificação de Setores Industriais
-          ISIC (International Standard Industrial Classification) do id_ncm '
+        description: Identificador da classe da Classificação de Setores Industriais
+          ISIC (International Standard Industrial Classification) do id_ncm
       - name: id_siit
         description: Identificador da classificação de Setores Industriais por Intensidade
           Tecnológica (SIIT) do id_ncm
