@@ -22,6 +22,7 @@ class constants(Enum):
         "simples": ["simples"],
         "dicionario": [
             "qualificacoes",
+            "paises",
             "motivos",
             "situacao_cadastral",
             "identificador_matriz_filial",

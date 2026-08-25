@@ -732,6 +732,142 @@ def get_table_unique_keys(table_id: str, column: str):
     return df_uniques
 
 
+def format_country_name(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Formats the 'nome_pais' column of the DataFrame, applying various transformations to standardize country names.
+    The transformations include:
+    - Convert names to title case (first letter uppercase) with prepositions and conjunctions lowercase.
+    - Add a space after abbreviation periods.
+    - Ensure parentheses are balanced, adding a closing parenthesis if there is an opening one without a corresponding closing one.
+    - Extract content within parentheses to a new "parenteses" column to append at the end of the string.
+    - Split the country name into two parts, "nome_pais_1" and "nome_pais_2", based on commas or parentheses, and reorder the names.
+    Example: 'WALLIS E FUTURNA, ILHAS' becomes 'Ilhas Wallis e Futurna'
+             'Pacífico, Ilhas do (Administ.dos Eua)' becomes 'Ilhas do Pacífico (Administ. dos Eua)'
+    Args:
+        dataframe (pd.DataFrame): The DataFrame containing the 'nome_pais' column to be formatted. The formatting is done in-place, modifying the provided DataFrame directly.
+    """
+    df_pais = dataframe.copy()
+    df_pais = df_pais.rename(columns={"valor": "nome_pais"})
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.title()
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.replace(
+        r"(D)(?=[aeo]{1}s?)", "d", regex=True
+    )
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.replace(
+        r"(?<=\s)(E)(?=\s)", "e", regex=True
+    )
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.replace(
+        r"(?<=\w)(\.)(?=\w)", ". ", regex=True
+    )
+    df_pais.loc[
+        df_pais["nome_pais"].str.contains("(", regex=False, na=False)
+        & (~df_pais["nome_pais"].str.contains(")", regex=False, na=False)),
+        "nome_pais",
+    ] = df_pais["nome_pais"] + ")"
+    df_pais["parenteses"] = df_pais["nome_pais"].str.extract(r"(\(.*\))")
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.replace(
+        r"(\(.*\))$", "", regex=True
+    )
+
+    df_pais["parenteses"] = df_pais["parenteses"].str.replace(
+        r"\(", "", regex=True
+    )
+    df_pais["parenteses"] = df_pais["parenteses"].str.replace(
+        r"\)", "", regex=True
+    )
+    df_pais.loc[
+        (df_pais["parenteses"].str.contains(","))
+        & (df_pais["parenteses"].notna()),
+        "parenteses",
+    ] = (
+        df_pais["parenteses"].str.split(",").str[1].str.strip()
+        + " "
+        + df_pais["parenteses"].str.split(",").str[0].str.strip().fillna("")
+    )
+    df_pais.loc[df_pais["parenteses"].notna(), "parenteses"] = (
+        "(" + df_pais["parenteses"].str.strip() + ")"
+    )
+
+    df_pais["nome_pais"] = df_pais["nome_pais"].str.strip()
+    df_pais["nome_pais_2"] = df_pais["nome_pais"].str.extract(
+        r"([\w.\s]+)(?=\s*,|\(\s*)"
+    )
+    df_pais["nome_pais_1"] = df_pais["nome_pais"].str.extract(
+        r"(?:\s*,|\)\s*)([\w.\s]+)"
+    )
+    df_pais["nome_pais_1"] = df_pais["nome_pais_1"].fillna(
+        df_pais["nome_pais"]
+    )
+    df_pais["nome_pais_2"] = df_pais["nome_pais_2"].fillna("")
+    df_pais["parenteses"] = df_pais["parenteses"].fillna("")
+
+    df_pais["novo_nome_pais"] = (
+        df_pais["nome_pais_1"]
+        + " "
+        + df_pais["nome_pais_2"]
+        + " "
+        + df_pais["parenteses"]
+    )
+    df_pais["novo_nome_pais"] = df_pais["novo_nome_pais"].str.strip()
+
+    df_pais = df_pais.drop(
+        columns=["nome_pais", "nome_pais_1", "nome_pais_2", "parenteses"],
+    )
+    df_pais = df_pais.rename(columns={"novo_nome_pais": "valor"})
+    df_pais.loc[df_pais["valor"].isin(["Nan", "NaN", "None", ""]), "valor"] = (
+        None
+    )
+    return df_pais
+
+
+def find_missing_countries(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Finds and fills missing country names by querying the world directory and matching with import/export data.
+
+    Retrieves distinct country IDs and names from the comex tables (importação and exportação),
+    joins them with the world directory, and fills missing country names in the input DataFrame
+    with data from the directory.
+
+    Args:
+        dataframe (pd.DataFrame): DataFrame containing 'chave' (id_pais) and 'valor' (country name) columns.
+
+    Returns:
+        pd.DataFrame: DataFrame with filled country names, deduplicated by id_pais and value.
+    """
+    query = """SELECT DISTINCT a.id_pais, nome_pt
+        FROM(
+        SELECT DISTINCT id_pais, sigla_pais_iso3
+        FROM `basedosdados.br_me_comex_stat.ncm_importacao`
+        UNION ALL
+        SELECT DISTINCT id_pais, sigla_pais_iso3
+        FROM `basedosdados.br_me_comex_stat.ncm_exportacao`
+        ) a
+        INNER JOIN 
+        `basedosdados.br_bd_diretorios_mundo.pais` b
+        ON a.sigla_pais_iso3 = b.sigla_iso3"""
+
+    df_pais = dataframe.copy()
+
+    df_pais_dir = bd.read_sql(query=query, from_file=True)
+    df_pais_dir = df_pais_dir.astype(
+        {col: "str" for col in df_pais_dir.columns}
+    )
+
+    df_pais = df_pais.rename(
+        columns={"valor": "nome_pais", "chave": "id_pais"}
+    )
+    df_merge = df_pais.merge(
+        df_pais_dir, how="left", left_on="id_pais", right_on="id_pais"
+    )
+    df_merge["nome_pais"] = df_merge["nome_pais"].fillna(df_merge["nome_pt"])
+    df_merge = df_merge.drop(columns=["nome_pt"])
+    df_merge = df_merge.rename(
+        columns={"id_pais": "chave", "nome_pais": "valor"}
+    )
+    df_merge = df_merge.drop_duplicates(subset=df_merge.columns.to_list())
+
+    return df_merge
+
+
 def verify_duplicates(dataframe: pd.DataFrame, columns: list[str]):
     duplicated = dataframe.duplicated(subset=columns).sum()
     log(f"Duplicated values:\n{duplicated}")
@@ -806,6 +942,10 @@ def process_csv_dicionario(
                     chunk, how="left", on="chave"
                 )
                 chunk_save["cobertura_temporal"] = "(1)"
+
+                if "pais" in table_name.lower():
+                    chunk_save = find_missing_countries(chunk_save)
+                    chunk_save = format_country_name(chunk_save)
 
                 chunk_save = chunk_save.dropna(
                     subset=["chave", "valor"], how="all"
