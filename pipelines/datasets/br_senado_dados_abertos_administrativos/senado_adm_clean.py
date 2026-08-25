@@ -181,11 +181,15 @@ LEGISLATURAS = range(53, 58)
 CROSSWALK_OVERRIDES = {"NELSINHO TRAD FILHO": "Nelsinho Trad"}
 
 
-def norm_nome(value: Any) -> str | None:
-    """Accent- and case-fold a name for the senator crosswalk."""
+def norm_nome(value: Any) -> str:
+    """Accent- and case-fold a name for the senator crosswalk.
+
+    Returns ``""`` for an absent name — no real senator name folds to empty, so
+    an empty key never collides, and a lookup on it simply misses.
+    """
     text = s(value)
     if text is None:
-        return None
+        return ""
     folded = (
         unicodedata.normalize("NFKD", text)
         .encode("ascii", "ignore")
@@ -1392,7 +1396,7 @@ def build_quadro_pessoal(extracted_at: str) -> list[dict]:
     for path, quadro, dims, periods in QUADROS:
         for r in api.fetch(path):
             for periodo, measures in periods.items():
-                row = {
+                row: dict[str, Any] = {
                     "data_extracao": extracted_at,
                     "data_referencia": date(r.get("data")),
                     "quadro": quadro,

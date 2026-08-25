@@ -197,7 +197,7 @@ def fetch_contratacoes() -> list[dict]:
     both ``contratos`` and ``notas_empenho`` as different entities — so the
     dedup key here, and the table's primary key, is the pair.
     """
-    by_key: dict[tuple[str, int], dict] = {}
+    by_key: dict[tuple[str, str | None], dict] = {}
 
     for status in CONTRATO_STATUSES:
         for row in fetch(
