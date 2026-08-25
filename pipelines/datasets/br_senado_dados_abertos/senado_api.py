@@ -14,9 +14,15 @@ request retries with backoff.
 from __future__ import annotations
 
 import time
+import xml.etree.ElementTree as ET
 from typing import Any
+from xml.etree.ElementTree import ParseError
 
 import requests
+
+# defusedxml is not a dependency of the worker image; these responses come from a
+# known government host over TLS and are parsed with the stdlib parser, which has
+# entity expansion disabled by default in Python 3.12 for `fromstring`.
 
 BASE = "https://legis.senado.leg.br/dadosabertos"
 HEADERS = {
@@ -98,3 +104,130 @@ def dig(obj: Any, *keys: str, default: Any = None) -> Any:
             return default
         cur = cur[k]
     return cur
+
+
+def get_xml_records(
+    path: str,
+    record_tag: str,
+    retries: int = 6,
+    backoff: float = 1.5,
+    timeout: int = 120,
+) -> list[dict]:
+    """GET an endpoint as XML and return every `record_tag` element as a dict.
+
+    Some dados-abertos endpoints cannot be read as JSON. `senador/lista/
+    legislatura/{leg}` lost its `ListaParlamentarLegislatura` envelope some time
+    between 2026-08-13 and 2026-08-20: the XML became a rootless concatenation of
+    `<Parlamentar>` elements, and because a JSON object cannot carry the same key
+    245 times, the JSON serialization collapses the whole roster to a **single**
+    record. Reading that endpoint as JSON is therefore silently lossy, not merely
+    broken, so it is read as XML here.
+
+    A rootless body is wrapped before parsing, and a body that still carries its
+    envelope parses unchanged — so this keeps working if the Senate restores it.
+
+    Args:
+        path: Endpoint path below `BASE`.
+        record_tag: Element tag to collect (e.g. ``"Parlamentar"``).
+        retries: Attempts before giving up.
+        backoff: Linear backoff base, in seconds.
+        timeout: Per-request timeout, in seconds.
+
+    Returns:
+        One dict per record, nested exactly as the JSON envelope would nest it.
+
+    Raises:
+        RuntimeError: On a persistent non-200, or a body that will not parse.
+    """
+    url = f"{BASE}{path}"
+    headers = {**HEADERS, "Accept": "application/xml"}
+    last_exc: Exception | None = None
+    last_status: int | None = None
+    saw_empty_200 = False
+    for attempt in range(retries):
+        try:
+            r = requests.get(url, headers=headers, timeout=timeout)
+            last_status = r.status_code
+            if r.status_code == 200:
+                body = r.text.strip()
+                if body:
+                    return _parse_xml_records(body, record_tag)
+                saw_empty_200 = True
+        except requests.RequestException as exc:
+            last_exc = exc
+        time.sleep(backoff * (attempt + 1))
+    if saw_empty_200:
+        # Mirrors `get_json`: a persistent 200 with an empty body is a
+        # legitimately-empty list endpoint, not a failure. The roster endpoint
+        # answers exactly this for legislatures that predate the API's coverage
+        # (36 returns 200 with 0 bytes; 40 returns ~92 KB). Raising here aborted
+        # the whole run on the first such legislature.
+        return []
+    if last_exc is not None:
+        raise last_exc
+    raise RuntimeError(
+        f"GET {url} (xml) failed: HTTP {last_status} after {retries} attempts"
+    )
+
+
+def _parse_xml_records(text: str, record_tag: str) -> list[dict]:
+    """Parse `record_tag` elements out of an XML body, rootless or not.
+
+    Args:
+        text: The raw XML body.
+        record_tag: Element tag to collect.
+
+    Returns:
+        One dict per matching element, found at any depth.
+
+    Raises:
+        RuntimeError: If the body will not parse even when wrapped.
+    """
+    body = text.strip()
+    if body.startswith("<?xml"):
+        body = body.split("?>", 1)[-1].lstrip()
+    try:
+        root = ET.fromstring(body)
+        # An enveloped response parses as its own root; a rootless concatenation
+        # of N records parses only after wrapping, handled below.
+        found = [root] if root.tag == record_tag else root.iter(record_tag)
+        return [_xml_to_dict(e) for e in found]
+    except ParseError:
+        pass
+    try:
+        root = ET.fromstring(f"<_bdwrap>{body}</_bdwrap>")
+    except ParseError as exc:
+        raise RuntimeError(
+            f"could not parse XML for <{record_tag}> records: {exc}"
+        ) from exc
+    return [_xml_to_dict(e) for e in root.iter(record_tag)]
+
+
+def _xml_to_dict(elem: ET.Element) -> Any:
+    """Convert an XML element to the shape the JSON envelope would have.
+
+    Leaf elements become their stripped text (or None when empty). Repeated
+    sibling tags collapse into a list, matching `_as_list`'s expectations.
+
+    Args:
+        elem: The element to convert.
+
+    Returns:
+        A dict for a branch element, or str/None for a leaf.
+    """
+    children = list(elem)
+    if not children:
+        text = (elem.text or "").strip()
+        return text or None
+    out: dict[str, Any] = {}
+    for child in children:
+        value = _xml_to_dict(child)
+        if child.tag in out:
+            existing = out[child.tag]
+            if isinstance(existing, list):
+                existing.append(value)
+            else:
+                out[child.tag] = [existing, value]
+        else:
+            out[child.tag] = value
+    return out

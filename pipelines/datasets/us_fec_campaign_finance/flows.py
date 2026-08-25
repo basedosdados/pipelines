@@ -2,15 +2,30 @@
 Flows for us_fec_campaign_finance — Prefect 3.
 
 FEC bulk campaign-finance data. The FEC republishes the **current** election cycle
-daily and freezes past cycles, so a scheduled run re-pulls only the current cycle and
-overwrites that one partition. Every frozen cycle stays in the staging bucket
-untouched, and the dbt models — plain `materialized="table"` — rebuild the full
-1980-present table from all of them.
+daily, so a scheduled run re-pulls only that cycle and overwrites its one partition.
+Every other cycle stays in the staging bucket untouched, and the dbt models — plain
+`materialized="table"` — rebuild the full 1980-present table from all of them.
 
-That is why the upload uses ``dump_mode="append"``. "overwrite" would delete the whole
-staging table and, via ``tb.delete(mode="all")``, the prod table with it — throwing
-away 45 years of frozen cycles to refresh one. "append" with a deterministic blob path
-(``staging/<ds>/<table>/cycle=<CYCLE>/data.parquet``) replaces exactly the current
+**Past cycles are NOT frozen, and this flow does not pick up their changes.** Amendments
+keep landing in a closed cycle for years; the bulk files are re-published when they do.
+Checking ``Last-Modified`` on the individual-contributions zips (2026-08-20)::
+
+    1980, 1996 -> 2017-08-31    2020 -> 2024-12-29
+    2008       -> 2021-11-01    2024 -> 2026-03-08
+    2016       -> 2022-10-16    2022 -> 2026-08-16   (four days earlier)
+
+Only the oldest cycles look settled. Since ``refresh_cycle`` downloads just the current
+cycle, an amendment filed today against 2022 never reaches these tables — the data is
+correct as of each cycle's last ingest, not as of today. Note the full table rebuild does
+**not** mitigate this: staging for past cycles never changes, so every rebuilt past
+partition is recomputed byte-identical. Fixing it means widening the refresh window to
+the current cycle plus one or two prior, which pairs naturally with an incremental
+(``insert_overwrite`` on ``year``) materialization.
+
+The upload uses ``dump_mode="append"``. "overwrite" would delete the whole staging table
+and, via ``tb.delete(mode="all")``, the prod table with it — throwing away 45 years of
+history to refresh one cycle. "append" with a deterministic blob path
+(``staging/<ds>/<table>/year=<CYCLE>/data.parquet``) replaces exactly the current
 cycle's partition, which is the intended semantics.
 
 The four transaction tables are high-frequency, so they carry the BD Pro rolling
@@ -18,8 +33,11 @@ window: the most recent 6 months are pro-only, everything older is free. The
 registration tables (candidate, committee, candidate_committee_link) have no date
 column and stay fully free.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_fec_campaign_finance_flow``;
-the dev pool ignores the schedule, the prod pool activates it.
+Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_fec_campaign_finance_flow``.
+The dev pool strips the schedule entirely. The prod pool keeps it but deploys
+``paused=True``, and the backend sync leaves an unknown deployment paused — arming is a
+manual step in Django admin (``/admin/admin_data_tools/disabledflowschedule/``), not a
+consequence of merging.
 """
 
 import shutil
@@ -93,16 +111,17 @@ _COVERAGE = {
         date_format=DateFormat.YEAR_MD,
         free_lag=_FREE_LAG,
     ),
-    # Registration snapshots: their only temporal column is the cycle, so coverage
-    # is expressed on it at year granularity.
+    # Registration snapshots: their only temporal column is `year`, the two-year
+    # election cycle labelled by the even year it ends in, so coverage is
+    # expressed on it at year granularity.
     "candidate": AllFree(
-        date_column=YearOnly(col="cycle"), date_format=DateFormat.YEAR
+        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
     ),
     "committee": AllFree(
-        date_column=YearOnly(col="cycle"), date_format=DateFormat.YEAR
+        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
     ),
     "candidate_committee_link": AllFree(
-        date_column=YearOnly(col="cycle"), date_format=DateFormat.YEAR
+        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
     ),
 }
 
@@ -163,34 +182,38 @@ def us_fec_campaign_finance_flow(
 
         tables = [t for t in constants.ALL_TABLES.value if t in result]
 
-        # Run every table, THEN test every table — never interleave per table. The
-        # custom_dictionary_coverage tests read the sibling dicionario model, so a
-        # per-table run/test would test a table before its sibling exists in a clean
-        # environment. Same class of bug as us_fed_fred's observation<->series FK.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="append",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target="dev",
-            )
-        for table in tables:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Run every table, THEN test every table — never interleave per table. The
+            # custom_dictionary_coverage tests read the sibling dicionario model, so a
+            # per-table run/test would test a table before its sibling exists in a clean
+            # environment. Same class of bug as us_fed_fred's observation<->series FK.
+            for table in tables:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="append",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run",
+                    target="dev",
+                )
+            for table in tables:
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="test",
+                    target="dev",
+                )
             return
 
         # Prod: upload + run ALL tables first, THEN test (see the dev-phase note).
@@ -242,7 +265,7 @@ def us_fec_campaign_finance_flow(
 # source-poll guard makes a run with nothing new a cheap no-op.
 # pyrefly: ignore [missing-attribute]
 us_fec_campaign_finance_flow.deploy_schedules = [
-    {"cron": "0 5 * * 0", "timezone": "America/Sao_Paulo"}
+    {"cron": "20 5 * * 0", "timezone": "America/Sao_Paulo"}
 ]
 
 # The current cycle's individual-contributions file is ~2 GB compressed and is parsed
