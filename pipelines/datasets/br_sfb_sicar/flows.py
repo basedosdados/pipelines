@@ -413,7 +413,6 @@ def br_sfb_sicar_flow(
                     dataset_id=DATASET_ID,
                     table_id=table,
                     dbt_command="run",
-                    dbt_alias=True,
                     target="dev",
                 )
             if materialize_to_prod and (
@@ -423,7 +422,6 @@ def br_sfb_sicar_flow(
                     dataset_id=DATASET_ID,
                     table_id=table,
                     dbt_command="run",
-                    dbt_alias=True,
                     target="prod",
                 )
 
@@ -457,7 +455,6 @@ def br_sfb_sicar_flow(
                 dataset_id=DATASET_ID,
                 table_id=table,
                 dbt_command="test",
-                dbt_alias=True,
                 target="dev",
             )
             if materialize_to_prod:
@@ -465,7 +462,6 @@ def br_sfb_sicar_flow(
                     dataset_id=DATASET_ID,
                     table_id=table,
                     dbt_command="test",
-                    dbt_alias=True,
                     target="prod",
                 )
 
