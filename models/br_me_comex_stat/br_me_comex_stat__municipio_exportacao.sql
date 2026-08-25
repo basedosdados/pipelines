@@ -6,12 +6,13 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1997, "end": 2025, "interval": 1},
+            "range": {"start": 1997, "end": 2026, "interval": 1},
         },
         cluster_by=["mes", "sigla_uf"],
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
+-- Atualizado em: 2024-06-19
 with
     safe_select as (
         select
