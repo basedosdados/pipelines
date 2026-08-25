@@ -81,6 +81,20 @@ older years. The intended links are recorded in each column's `observations`.
 - [x] Cleaning code (`pipelines/datasets/us_bls_oes/{constants,utils}.py` + bootstrap)
 - [x] dbt models + `schema.yml` (`code/build_dbt.py`), `dbt_project.yml` entry
 - [x] Recurring pipeline (`tasks.py`, `flows.py`) — annual, append-per-year
-- [ ] Full clean 2003–2025 → verify row counts
-- [ ] Upload dev → dbt run/test → metadata dev → **CHECKPOINT**
-- [ ] Prod metadata → PR → pipeline dev run → merge → publish → cleanup
+- [x] Full clean 2003–2025 → verified (area 5,489,929 · industry 3,125,705 · both key-unique; national all-occ matches BLS)
+- [x] Upload dev (basedosdados-dev) → dbt run 3/3, test 15/15 → metadata on **staging** backend (dev was 503) → published on staging
+- [x] **CHECKPOINT approved** → prod metadata registered (under_review), PR #1902 (draft, deploy-flow label) open, pipeline deployed to dev pool
+- [x] Pipeline dev-run GREEN: run 2 (`hungry-cormorant`, d0a54b88) COMPLETED — poll OK, clean area=243,175/industry=170,352, dev append upload, dbt run OK + test OK both tables. Step 12 definition-of-done met. (run 1 `cerise-mule` failed at poll before prod metadata existed.)
+- [ ] Merge PR #1902 (mark ready first) → table-approve materializes prod tables → verify prod counts → publish prod dataset → arm pipeline (Django admin) → rm scratch
+
+## Prod backend IDs (2026-08-25)
+Dataset `oes`=332a9a40-4898-4b21-a38d-b89ff41c8c96 (**under_review**). Raw source=4d6f5851. Org **bls**=442d7a4c (NOT us-bls). License cc0=afd7b13d (differs from staging). Account=**4**. Entity `industry`=e1288043 (differs from staging).
+Tables: area=ef396558 · industry=c001ef53 · dicionario=5c7e9f6c. Cloud tables → **basedosdados** (prod). Coverage 2003(1)2025 area+industry. OLs: area{region+occupation}, industry{industry+occupation}. Prod tags use English slugs (employment/salary/occupation/income/labor) but SAME UUIDs as staging.
+
+## Backend IDs (staging, 2026-08-25)
+Dataset `oes`=bf17cb5a-f0e8-4046-a01a-d2f877549aef (published). Raw source=9bc70214.
+Tables: area=38f1cf99 · industry=abdb4c50 · dicionario=8017e472. Cloud tables → basedosdados-dev.
+OLs: area {region←area_id, occupation←occupation_id}; industry {industry←industry_id, occupation←occupation_id}.
+Coverage 2003(1)2025 on area+industry (AllFree). Table Updates (year, freq 1, latest today) on area+industry; source Update latest 2025-05-01.
+Org us-bls=b80682c0 · theme economics=ad6a413a · area us=61a2c232 · status published=e16221de/under_review=47208305 · license cc0=7fb71004 · account 57.
+Prod org slug likely `us_bls` (underscore) — re-resolve on prod backend.
