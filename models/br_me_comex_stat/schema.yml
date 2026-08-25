@@ -217,7 +217,7 @@ models:
               config:
                 where: __most_recent_year_month__
       - name: sigla_uf_ncm
-        description: Sigla da Unidade da Federação - Nomenclatura Comum do Mercosu
+        description: Sigla da Unidade da Federação - Nomenclatura Comum do Mercosul
       - name: id_via
         description: ID Via de Transporte
       - name: id_urf
