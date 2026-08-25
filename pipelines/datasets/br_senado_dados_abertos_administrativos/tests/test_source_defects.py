@@ -356,8 +356,10 @@ class TestSenadorNormalization:
 
         assert clean.norm_nome("Esperidião Amin") == "ESPERIDIAO AMIN"
         assert clean.norm_nome("  confúcio   moura ") == "CONFUCIO MOURA"
-        assert clean.norm_nome("---") is None
-        assert clean.norm_nome(None) is None
+        # Absent names fold to "" (no real name folds to empty, so an empty key
+        # never collides and a lookup on it simply misses).
+        assert clean.norm_nome("---") == ""
+        assert clean.norm_nome(None) == ""
 
     def test_gabinete_resolves_id_via_crosswalk_only(self, monkeypatch):
         from pipelines.datasets.br_senado_dados_abertos_administrativos import (
