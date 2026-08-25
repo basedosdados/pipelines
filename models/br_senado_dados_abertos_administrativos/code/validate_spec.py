@@ -32,6 +32,13 @@ ACCEPTED_ORDERING = {
     "estagiario",
     "diretor_coordenador",
     "contratacao_orgao_gestor",
+    # tipo_folha distinguishes suplementar vs normal payroll for one
+    # person-month; mes_ano_prestacao distinguishes overtime worked in
+    # different months but paid together; terceirizado's item is the last
+    # component of its person-on-item key.
+    "servidor_remuneracao",
+    "servidor_hora_extra",
+    "terceirizado",
 }
 
 errors: list[str] = []

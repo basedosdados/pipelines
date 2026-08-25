@@ -2138,14 +2138,6 @@ _t(
     [
         DATA_EXTRACAO,
         (
-            "id_terceirizado",
-            "str",
-            "Código identificador do terceirizado",
-            "Outsourced worker identifier code",
-            "Código identificador del trabajador tercerizado",
-            {"notnull": True},
-        ),
-        (
             "cpf",
             "str",
             "CPF do terceirizado, parcialmente mascarado pela fonte",
@@ -2158,20 +2150,6 @@ _t(
             "Nome do terceirizado",
             "Outsourced worker's name",
             "Nombre del trabajador tercerizado",
-        ),
-        (
-            "situacao",
-            "str",
-            "Situação do terceirizado no contrato",
-            "Outsourced worker's status under the contract",
-            "Situación del trabajador tercerizado en el contrato",
-        ),
-        (
-            "empresa",
-            "str",
-            "Razão social da empresa contratada",
-            "Contracted company's legal name",
-            "Razón social de la empresa contratada",
         ),
         (
             "id_contrato",
@@ -2195,6 +2173,20 @@ _t(
             "Código del ítem del contrato al que está vinculado el trabajador",
         ),
         (
+            "situacao",
+            "str",
+            "Situação do terceirizado no contrato",
+            "Outsourced worker's status under the contract",
+            "Situación del trabajador tercerizado en el contrato",
+        ),
+        (
+            "empresa",
+            "str",
+            "Razão social da empresa contratada",
+            "Contracted company's legal name",
+            "Razón social de la empresa contratada",
+        ),
+        (
             "sigla_lotacao",
             "str",
             "Sigla da unidade de lotação",
@@ -2209,7 +2201,10 @@ _t(
             "Nombre de la unidad de destino",
         ),
     ],
-    unique=["data_extracao", "id_terceirizado"],
+    # The source exposes no person identifier: its `id` field is the contract
+    # item (kept as id_item_contrato), so the person is keyed by cpf and nome,
+    # with the item to allow one worker across two contract items.
+    unique=["data_extracao", "cpf", "nome", "id_item_contrato"],
     partition="data_extracao",
     ol=["pessoa"],
 )

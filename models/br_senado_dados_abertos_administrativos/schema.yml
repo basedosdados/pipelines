@@ -1235,7 +1235,7 @@ models:
       o contrato de origem e a unidade de lotação.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [data_extracao, id_terceirizado]
+          combination_of_columns: [data_extracao, cpf, nome, id_item_contrato]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -1243,22 +1243,12 @@ models:
         description: >
           Data em que o retrato foi extraído da API de dados abertos administrativos
         tests: [not_null]
-      - name: id_terceirizado
-        description: >
-          Código identificador do terceirizado
-        tests: [not_null]
       - name: cpf
         description: >
           CPF do terceirizado, parcialmente mascarado pela fonte
       - name: nome
         description: >
           Nome do terceirizado
-      - name: situacao
-        description: >
-          Situação do terceirizado no contrato
-      - name: empresa
-        description: >
-          Razão social da empresa contratada
       - name: id_contrato
         description: >
           Código do contrato que ampara a terceirização
@@ -1268,6 +1258,12 @@ models:
       - name: id_item_contrato
         description: >
           Código do item do contrato ao qual o terceirizado está vinculado
+      - name: situacao
+        description: >
+          Situação do terceirizado no contrato
+      - name: empresa
+        description: >
+          Razão social da empresa contratada
       - name: sigla_lotacao
         description: >
           Sigla da unidade de lotação

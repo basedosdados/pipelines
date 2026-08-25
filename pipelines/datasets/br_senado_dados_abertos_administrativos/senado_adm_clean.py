@@ -782,11 +782,18 @@ def build_contratacao_pagamento(
         }
         for e in api.fetch_pagamento_empenhos(fanout)
     ]
+    # The source repeats some empenhos on a payment — 111 keys over full
+    # history, all but one field-identical (the exception differs only in the
+    # casing of natureza_despesa, same amounts) — so collapse on the key.
+    empenhos = dedupe(
+        empenhos,
+        ["tipo_contratacao", "id_contratacao", "id_pagamento", "id_empenho"],
+    )
     return pagamentos, documentos, empenhos
 
 
 def build_contrato_aditivo(raw: list[dict], extracted_at: str) -> list[dict]:
-    return [
+    rows = [
         {
             "data_extracao": extracted_at,
             "id_contratacao": s(r["id_contratacao"]),
@@ -799,6 +806,9 @@ def build_contrato_aditivo(raw: list[dict], extracted_at: str) -> list[dict]:
         }
         for r in api.fetch_sub_resource(raw, "aditivos", tipos=("contratos",))
     ]
+    # The source repeats some aditivos verbatim — 34 keys over full history,
+    # identical down to every field — so collapse them on the declared key.
+    return dedupe(rows, ["id_contratacao", "id_aditivo"])
 
 
 def build_ata_acionamento(raw: list[dict], extracted_at: str) -> list[dict]:
@@ -880,17 +890,20 @@ def build_empresa(extracted_at: str) -> list[dict]:
 
 
 def build_terceirizado(extracted_at: str) -> list[dict]:
+    # The source's `id` field is not a person identifier — it equals `codItem`,
+    # the contract-item id, and is shared by every worker on that item (one item
+    # covered 137 different people). It is therefore not read; the item id is
+    # kept as `id_item_contrato`, and the person is identified by cpf and nome.
     return [
         {
             "data_extracao": extracted_at,
-            "id_terceirizado": s(r.get("id")),
             "cpf": s(r.get("cpf")),
             "nome": s(r.get("nome")),
-            "situacao": s(r.get("situacao")),
-            "empresa": s(r.get("empresa")),
             "id_contrato": s(r.get("codContrato")),
             "numero_contrato": s(r.get("numeroContrato")),
             "id_item_contrato": s(r.get("codItem")),
+            "situacao": s(r.get("situacao")),
+            "empresa": s(r.get("empresa")),
             "sigla_lotacao": s(g(r, "lotacao", "sigla")),
             "lotacao": s(g(r, "lotacao", "nome")),
         }
