@@ -39,7 +39,6 @@ def _run_denatran(
     filetype: str,
     treat_task,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
@@ -122,7 +121,6 @@ def _run_denatran(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -142,7 +140,6 @@ def _run_denatran(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -167,7 +164,6 @@ def br_denatran_frota__uf_tipo(
     dataset_id: str = "br_denatran_frota",
     table_id: str = "uf_tipo",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -178,7 +174,6 @@ def br_denatran_frota__uf_tipo(
         filetype=denatran_constants.UF_TIPO_BASIC_FILENAME.value,
         treat_task=treat_uf_tipo_task,
         materialize_after_dump=materialize_after_dump,
-        dbt_alias=dbt_alias,
         update_metadata=update_metadata,
         target=target,
         force_run=force_run,
@@ -193,7 +188,6 @@ def br_denatran_frota__municipio_tipo(
     dataset_id: str = "br_denatran_frota",
     table_id: str = "municipio_tipo",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -204,7 +198,6 @@ def br_denatran_frota__municipio_tipo(
         filetype=denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value,
         treat_task=treat_municipio_tipo_task,
         materialize_after_dump=materialize_after_dump,
-        dbt_alias=dbt_alias,
         update_metadata=update_metadata,
         target=target,
         force_run=force_run,
