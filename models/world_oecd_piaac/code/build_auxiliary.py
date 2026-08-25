@@ -231,7 +231,7 @@ def build_bundle(table_slug: str) -> Path:
     return archive
 
 
-def upload_bundles(bucket_name: str) -> None:
+def upload_bundles(bucket_name: str, billing_project: str) -> None:
     """Upload each bundle to the documented auxiliary_files path and report the
     status an anonymous visitor actually gets.
 
@@ -245,8 +245,10 @@ def upload_bundles(bucket_name: str) -> None:
 
     from google.cloud import storage
 
-    client = storage.Client(project="basedosdados-dev")
-    bucket = client.bucket(bucket_name, user_project="basedosdados-dev")
+    # Both buckets are requester-pays, so the client and the bucket handle must
+    # bill the project matching the target env, not a hardcoded dev project.
+    client = storage.Client(project=billing_project)
+    bucket = client.bucket(bucket_name, user_project=billing_project)
     for table_slug in BUNDLES:
         archive = BUNDLE_ROOT / table_slug / "auxiliary_files.zip"
         blob_path = f"auxiliary_files/world_oecd_piaac/{table_slug}/auxiliary_files.zip"
@@ -279,7 +281,7 @@ def main() -> None:
         env = argv[argv.index("--env") + 1] if "--env" in argv else "dev"
         bucket_name = "basedosdados" if env == "prod" else "basedosdados-dev"
         print(f"\n=== uploading to gs://{bucket_name}/auxiliary_files/ ===")
-        upload_bundles(bucket_name)
+        upload_bundles(bucket_name, billing_project=bucket_name)
 
 
 if __name__ == "__main__":

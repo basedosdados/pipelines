@@ -155,7 +155,15 @@ def tags_for(ids: dict) -> list[str]:
         print(
             f"  [warn] tags not found on this backend: {sorted(set(missing))}"
         )
-    return [available[s] for s in dict.fromkeys(resolved)]
+    result = [available[s] for s in dict.fromkeys(resolved)]
+    if not result:
+        # Every dataset must carry tags; empty tag_ids violates the metadata
+        # contract. Fail here rather than register an untagged dataset.
+        raise RuntimeError(
+            "No PIAAC tags resolved on this backend. Add the vocabulary or map "
+            f"the slugs before registering: {TAGS_BY_BACKEND}"
+        )
+    return result
 
 
 # Which entities each table is observed at, and the column identifying each.
@@ -390,6 +398,11 @@ def existing_levels_and_coverage(
     everything else here; without one they add a second record. A run that
     crashed part-way had already left respondent_cycle_1 with two person levels
     and two identical coverages.
+
+    This maps the FIRST id per key so a re-run updates it rather than adding a
+    third. It does not delete pre-existing duplicates -- those already in the
+    backend must be removed with DeleteObservationLevel/DeleteCoverage (the
+    respondent_cycle_1 duplicates were cleaned this way).
     """
     query = """
     query($t: ID!) {
@@ -548,7 +561,12 @@ def main() -> None:
         ):
             existing_sources.setdefault(source.get("url"), source.get("id"))
     except Exception as exc:
-        print(f"  [warn] could not list existing raw sources: {exc}")
+        # Continuing here would call create_update_raw_data_source with no id and
+        # duplicate every source on a rerun. Abort instead.
+        raise RuntimeError(
+            f"Could not list existing raw sources for {DATASET_SLUG!r}; aborting "
+            "to avoid creating duplicates"
+        ) from exc
     if existing_sources:
         print(f"reusing {len(existing_sources)} existing raw source(s)")
 

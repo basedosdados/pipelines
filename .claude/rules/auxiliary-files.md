@@ -52,13 +52,13 @@ Rule of thumb: if it is over ~5 MB and a user would read it once, link it.
 
 ## Where auxiliary files are stored
 
-```
+```text
 gs://basedosdados/auxiliary_files/<gcp_dataset_id>/<table_slug>/auxiliary_files.zip
 ```
 
 recorded as the matching public URL:
 
-```
+```text
 https://storage.googleapis.com/basedosdados/auxiliary_files/<gcp_dataset_id>/<table_slug>/auxiliary_files.zip
 ```
 

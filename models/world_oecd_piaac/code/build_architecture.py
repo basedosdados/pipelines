@@ -242,6 +242,12 @@ def usa_national_columns(
     by_upper = {v.name.upper(): v for v in cy1}
     skip = {"SEQID", "CNTRYID", "CNTRYID_E", "CNTRY", "CNTRY_E"}
     columns = arch.grain_columns("1")
+    # CNTRYID_E keeps its coding under the renamed column, exactly as in
+    # respondent_columns -- otherwise this table alone declares no coverage for it
+    # and its dictionary rows are dropped.
+    for column in columns:
+        if column.name == "country_entity_id":
+            column.covered_by_dictionary = "yes"
     for raw in header:
         upper = raw.upper()
         if upper in skip:
@@ -600,16 +606,21 @@ def main() -> None:
             c.name for c in columns if c.covered_by_dictionary == "yes"
         }
 
-    # The US national table shares Cycle 1's coded columns, but the coverage test
-    # matches on table_id, so it needs its own copy of the relevant entries.
-    usa_covered = declared_by_table.get(
-        "respondent_cycle_1_usa_national", set()
-    )
+    # The US national table shares Cycle 1's columns, so it needs its own copy of
+    # Cycle 1's dictionary rows for every column it actually has -- not only the
+    # dictionary-covered ones. The reserved-code rows on numeric columns are what
+    # let reserved_codes() null the padded sentinels for this table too; the final
+    # filter below drops them from the published dictionary, keeping only the
+    # covered categorical rows. Copying only the covered columns (as before) left
+    # this table's numeric columns with no reserved-code null-list.
+    usa_columns = {
+        c.name for c in tables.get("respondent_cycle_1_usa_national", [])
+    }
     dictionary += [
         {**record, "table_id": "respondent_cycle_1_usa_national"}
         for record in list(dictionary)
         if record["table_id"] == "respondent_cycle_1"
-        and record["column_name"] in usa_covered
+        and record["column_name"] in usa_columns
     ]
 
     # Two spellings the codebook does not anticipate but the data uses.

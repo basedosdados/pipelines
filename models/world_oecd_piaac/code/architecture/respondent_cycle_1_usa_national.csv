@@ -4,7 +4,7 @@ cycle,STRING,Survey cycle of the Survey of Adult Skills (1 or 2),,no,,,no,,
 round,STRING,Round of data collection within the cycle,,no,,,no,Cycle 1 ran three rounds; Cycle 2 has run one so far,
 country_id_iso_3,STRING,ISO 3166-1 alpha-3 code of the participating country,,no,br_bd_diretorios_mundo.pais:sigla_iso3,,no,,
 country_id_m49,STRING,UN M49 numeric code of the participating country,,no,br_bd_diretorios_mundo.pais:id_m49,,no,,CNTRYID
-country_entity_id,STRING,Code of the participating country or sub-national entity as reported by PIAAC,,no,,,no,"Distinct from country_id_m49 where a country took part as a sub-national entity: Belgium participated as Flanders in both cycles and the United Kingdom as England in Cycle 2. Not a country code, so it carries no directory link",CNTRYID_E
+country_entity_id,STRING,Code of the participating country or sub-national entity as reported by PIAAC,,yes,,,no,"Distinct from country_id_m49 where a country took part as a sub-national entity: Belgium participated as Flanders in both cycles and the United Kingdom as England in Cycle 2. Not a country code, so it carries no directory link",CNTRYID_E
 respondent_id,STRING,Randomly derived sequential identifier of the respondent,,no,,,no,"Unique within a country and cycle only, never across them; combine with year and country_id_iso_3 for a unique key",SEQID
 gender_r,STRING,Person resolved gender from BQ and QC check (derived),,yes,,,no,,GENDER_R
 disp_cibq,STRING,Final disposition code for person - combining CI and BQ/JRA (derived),,yes,,,no,,DISP_CIBQ
@@ -21,7 +21,7 @@ b_q03a,STRING,Education - Uncompleted qualification,,yes,,,no,,B_Q03A
 b_q03c1_c,STRING,"Education - Uncompleted qualification - Age of dropout (categorised, 6 categories)",,yes,,,no,,B_Q03C1_C
 b_d03d_c,STRING,"Education - Derived Months elapsed since leaving education without completing program (categorized, 3 categories)",,yes,,,no,,B_D03D_C
 b_q04a,STRING,Education - Formal qualification,,yes,,,no,,B_Q04A
-b_q04b_c,INT64,Education - Formal qualification - Count (top-coded at 2),,no,,,no,Simple count; the counted item is named in the description,B_Q04B_C
+b_q04b_c,INT64,Education - Formal qualification - Count (top-coded at 2),,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q04B_C
 b_q05c,STRING,Education - Formal qualification - Reason job related,,yes,,,no,,B_Q05C
 b_q05c_t,STRING,Main reason for program of studies (Trend-IALS/ALL),,yes,,,no,,B_Q05C_T
 b_q10a,STRING,Education - Formal qualification - Employed,,yes,,,no,,B_Q10A
@@ -31,11 +31,11 @@ b_q11,STRING,Education - Formal qualification - Grant from employer,,yes,,,no,,B
 b_q12a,STRING,Activities - Last year - Open or distance education,,yes,,,no,,B_Q12A
 b_q12a_t,STRING,Courses outside of program of studies in last 12 months (Trend-IALS/ALL),,yes,,,no,,B_Q12A_T
 b_q12c,STRING,Activities - Last year - On the job training,,yes,,,no,,B_Q12C
-b_q12d_c,INT64,Activities - Last year - On the job training - Count (top-coded at 5),,no,,,no,Simple count; the counted item is named in the description,B_Q12D_C
+b_q12d_c,INT64,Activities - Last year - On the job training - Count (top-coded at 5),,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q12D_C
 b_q12e,STRING,Activities - Last year - Seminars or workshops,,yes,,,no,,B_Q12E
-b_q12f_c,INT64,Activities - Last year - Seminars or workshops - Count (top-coded at 5),,no,,,no,Simple count; the counted item is named in the description,B_Q12F_C
+b_q12f_c,INT64,Activities - Last year - Seminars or workshops - Count (top-coded at 5),,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q12F_C
 b_q12g,STRING,Activities - Last year - Private lessons,,yes,,,no,,B_Q12G
-b_q12h_c,INT64,Activities - Last year - Private lessons - Count (top-coded at 5),,no,,,no,Simple count; the counted item is named in the description,B_Q12H_C
+b_q12h_c,INT64,Activities - Last year - Private lessons - Count (top-coded at 5),,no,,,no,"Simple count; the counted item is named in the description. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q12H_C
 b_d12h,STRING,Activities - Last year - Number of learning activities (DERIVED BY CAPI),,yes,,,no,,B_D12H
 b_q13,STRING,Activities - Last year - Activity specified,,yes,,,no,,B_Q13
 b_q14a,STRING,Activities - Last year - Job related,,yes,,,no,,B_Q14A
@@ -45,9 +45,9 @@ b_q15b,STRING,Activities - Last year - During working hours,,yes,,,no,,B_Q15B
 b_q15c,STRING,Activities - Last year - Useful for job,,yes,,,no,,B_Q15C
 b_q16,STRING,Activities - Last year - Grant from employer,,yes,,,no,,B_Q16
 b_q17,STRING,Activities - Last year - Time spend - Unit,,yes,,,no,,B_Q17
-b_q18a,INT64,Activities - Last year - Time spend for activities - Weeks,,no,,week,no,,B_Q18A
-b_q19a,INT64,Activities - Last year - Time spend for activities - Days,,no,,day,no,,B_Q19A
-b_q20a,INT64,Activities - Last year - Time spend for activities - Hours,,no,,hour,no,,B_Q20A
+b_q18a,INT64,Activities - Last year - Time spend for activities - Weeks,,no,,week,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q18A
+b_q19a,INT64,Activities - Last year - Time spend for activities - Days,,no,,day,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q19A
+b_q20a,INT64,Activities - Last year - Time spend for activities - Hours,,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",B_Q20A
 b_q20b,STRING,Activities - Last year - Time spend for activities - Proportion of job-related hours,,yes,,,no,,B_Q20B
 b_q26a,STRING,Activities - Last year - Wanted but didn't start,,yes,,,no,,B_Q26A
 b_q26a_t,STRING,Training or education for career or job wanted but not taken in last 12 months (Trend-IALS/ALL),,yes,,,no,,B_Q26A_T
@@ -86,10 +86,10 @@ c_q08a,STRING,Current status/work history - Ever paid work,,yes,,,no,,C_Q08A
 c_q08b,STRING,Current status/work history - Last year - Paid work,,yes,,,no,,C_Q08B
 c_q08c1_c,STRING,"Current status/work history - Age when stopped working in last job (categorised, 10 categories)",,yes,,,no,,C_Q08C1_C
 c_d08c,STRING,Current status/work history - Left work in past 5 years (DERIVED BY CAPI),,yes,,,no,,C_D08C
-c_q09_c,INT64,Current status/work history - Years of paid work during lifetime (top-coded at 47),,no,,year,no,,C_Q09_C
+c_q09_c,INT64,Current status/work history - Years of paid work during lifetime (top-coded at 47),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C_Q09_C
 c_d09,STRING,Current status/work history - Work experience (DERIVED BY CAPI),,yes,,,no,,C_D09
 c_d09_t,STRING,Worked at job or business in last 12 months (any number of hours) (Trend-IALS/ALL),,yes,,,no,,C_D09_T
-c_q10a_c,INT64,Current status/work history - Last 5 years - How many different firms or organisations (top-coded at 7),,no,,year,no,,C_Q10A_C
+c_q10a_c,INT64,Current status/work history - Last 5 years - How many different firms or organisations (top-coded at 7),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",C_Q10A_C
 d_q03,STRING,Current work - Economic sector,,yes,,,no,,D_Q03
 d_q04,STRING,Current work - Employee or self-employed,,yes,,,no,,D_Q04
 d_q04_t,STRING,Status at this job or business - six levels (Trend-IALS/ALL),,yes,,,no,,D_Q04_T
@@ -103,9 +103,9 @@ d_q07a,STRING,Current work - Employees working for you,,yes,,,no,,D_Q07A
 d_q07b_c,STRING,"Current work - Employees working for you - Count (collapsed, 2 categories)",,yes,,,no,,D_Q07B_C
 d_q08a,STRING,Current work - Managing other employees,,yes,,,no,,D_Q08A
 d_q08b,STRING,Current work - Managing other employees - Count,,yes,,,no,,D_Q08B
-d_q10,INT64,Current work - Hours/week,,no,,hour,no,,D_Q10
-d_q10_c,INT64,Current work - Hours/week (top-coded at 60),,no,,hour,no,,D_Q10_C
-d_q10_t,INT64,"Hours per week at this job or business - number of hours (top coded at 97, Trend-IALS/ALL)",,no,,hour,no,,D_Q10_T
+d_q10,INT64,Current work - Hours/week,,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_Q10
+d_q10_c,INT64,Current work - Hours/week (top-coded at 60),,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_Q10_C
+d_q10_t,INT64,"Hours per week at this job or business - number of hours (top coded at 97, Trend-IALS/ALL)",,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Don't know/Refused, Not stated or inferred, Valid skip",D_Q10_T
 d_q10_t1,STRING,Hours per week at this job or business - range of hours (Trend-IALS/ALL),,yes,,,no,,D_Q10_T1
 d_q11a,STRING,Current work - Work flexibility - Sequence of tasks,,yes,,,no,,D_Q11A
 d_q11b,STRING,Current work - Work flexibility - How to do the work,,yes,,,no,,D_Q11B
@@ -119,7 +119,7 @@ d_q13b,STRING,Current work - Learning - Learning-by-doing,,yes,,,no,,D_Q13B
 d_q13c,STRING,Current work - Learning - Keeping up to date,,yes,,,no,,D_Q13C
 d_q14,STRING,Current work - Job satisfaction,,yes,,,no,,D_Q14
 d_q16a,STRING,Current work - Earnings - Salary interval,,yes,,,no,,D_Q16A
-d_d16a,FLOAT64,Current work - Earnings - Salary interval per hour (DERIVED BY CAPI),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country",D_D16A
+d_d16a,FLOAT64,Current work - Earnings - Salary interval per hour (DERIVED BY CAPI),,no,,,no,"Reported in the respondent's national currency, so the unit varies by country. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",D_D16A
 d_q16c,STRING,Current work - Earnings - Gross pay in broad categories,,yes,,,no,,D_Q16C
 d_q17a,STRING,Current work - Earnings - Additional payments,,yes,,,no,,D_Q17A
 d_q17c,STRING,Current work - Earnings - Additional payments in broad categories,,yes,,,no,,D_Q17C
@@ -130,8 +130,8 @@ e_q04,STRING,Last job - Employee or self-employed,,yes,,,no,,E_Q04
 e_q05a1_c,STRING,"Last job - Start of work for employer - Age (categorised, 9 categories)",,yes,,,no,,E_Q05A1_C
 e_q05b1_c,STRING,"Last job - Start of work for business - Age (categorised, 9 categories)",,yes,,,no,,E_Q05B1_C
 e_q06,STRING,Last job - Amount of people working for employer,,yes,,,no,,E_Q06
-e_q09,INT64,Last job - Hours/week,,no,,hour,no,,E_Q09
-e_q09_c,INT64,Last work - Hours/week (top-coded at 60),,no,,hour,no,,E_Q09_C
+e_q09,INT64,Last job - Hours/week,,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E_Q09
+e_q09_c,INT64,Last work - Hours/week (top-coded at 60),,no,,hour,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",E_Q09_C
 e_q10,STRING,Last job - Reason for end of job,,yes,,,no,,E_Q10
 f_q01b,STRING,Skill use work - Time cooperating with co-workers,,yes,,,no,,F_Q01B
 f_q02a,STRING,Skill use work - How often - Sharing work-related info,,yes,,,no,,F_Q02A
@@ -234,12 +234,12 @@ i_q07a,STRING,About yourself - Social trust - Trust only few people,,yes,,,no,,I
 i_q07b,STRING,About yourself - Social trust - Other people take advantage of you,,yes,,,no,,I_Q07B
 i_q08,STRING,About yourself - Health - State,,yes,,,no,,I_Q08
 i_q08_t,STRING,General health (Trend-IALS/ALL),,yes,,,no,,I_Q08_T
-j_q01_c,INT64,Background - People in household (top-coded at 6),,no,,person,no,,J_Q01_C
+j_q01_c,INT64,Background - People in household (top-coded at 6),,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J_Q01_C
 j_q01_t1,STRING,Number living in household (from 1 to 7) (Trend-IALS/ALL),,yes,,,no,,J_Q01_T1
 j_q02a,STRING,Background - Living with spouse or partner,,yes,,,no,,J_Q02A
 j_q02c,STRING,Background - Work situation of spouse or partner,,yes,,,no,,J_Q02C
 j_q03a,STRING,Background - Children,,yes,,,no,,J_Q03A
-j_q03b_c,INT64,Background - Number of children (top-coded at 4),,no,,person,no,,J_Q03B_C
+j_q03b_c,INT64,Background - Number of children (top-coded at 4),,no,,person,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",J_Q03B_C
 j_q03c_c,STRING,"Background - Age of the child (categorised, 4 categories)",,yes,,,no,,J_Q03C_C
 j_q03d1_c,STRING,"Background - Age of the youngest child (categorised, 4 categories)",,yes,,,no,,J_Q03D1_C
 j_q03d2_c,STRING,"Background - Age of the oldest child (categorised, 4 categories)",,yes,,,no,,J_Q03D2_C
@@ -268,11 +268,11 @@ corestage1_pass,STRING,Core Stage 1 pass status,,yes,,,no,,CORESTAGE1_PASS
 corestage2_pass,STRING,Core Stage 2 pass status,,yes,,,no,,CORESTAGE2_PASS
 cba_start,STRING,Computer-based exercise agreement,,yes,,,no,,CBA_START
 ppc_score,FLOAT64,Final score for the paper core assessment,,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score",PPC_SCORE
-prc_pv_q1,INT64,Sentence Timer for Print Vocabulary items,,no,,second,no,,PRC_PV_Q1
-prc_sp_q1,INT64,Sentence Timer for Sentence Processing items,,no,,second,no,,PRC_SP_Q1
-prc_pf_q1,INT64,Sentence Timer for Passage Comprehension items - passage 1,,no,,second,no,,PRC_PF_Q1
-prc_pf_q2,INT64,Sentence Timer for Passage Comprehension items - passage 2,,no,,second,no,,PRC_PF_Q2
-prc_pf_q3,INT64,Sentence Timer for Passage Comprehension items - passage 3 and 4,,no,,second,no,,PRC_PF_Q3
+prc_pv_q1,INT64,Sentence Timer for Print Vocabulary items,,no,,second,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_PV_Q1
+prc_sp_q1,INT64,Sentence Timer for Sentence Processing items,,no,,second,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_SP_Q1
+prc_pf_q1,INT64,Sentence Timer for Passage Comprehension items - passage 1,,no,,second,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_PF_Q1
+prc_pf_q2,INT64,Sentence Timer for Passage Comprehension items - passage 2,,no,,second,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_PF_Q2
+prc_pf_q3,INT64,Sentence Timer for Passage Comprehension items - passage 3 and 4,,no,,second,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_PF_Q3
 paper,STRING,Paper branch (derived),,yes,,,no,,PAPER
 cbamod1,STRING,CBA module 1 branch (derived),,yes,,,no,,CBAMOD1
 cbamod2,STRING,CBA module 2 branch (derived),,yes,,,no,,CBAMOD2
@@ -300,9 +300,9 @@ zz6,STRING,Observation module: Room of assessment,,yes,,,no,,ZZ6
 reg_tl2,STRING,Geographical region - Respondent (OECD TL2) (coded),,yes,,,no,,REG_TL2
 lng_bq,STRING,"Language for background questionnaire (derived, ISO 639-2/T)",,yes,,,no,,LNG_BQ
 lng_ci,STRING,"Language for exercise (derived, ISO 639-2/T)",,yes,,,no,,LNG_CI
-yrsqual,INT64,Highest level of education obtained imputed into years of education (derived),,no,,year,no,,YRSQUAL
-yrsqual_t,INT64,Derived variable on total years of schooling during lifetime - top coded at 24 (Trend-IALS/ALL),,no,,year,no,,YRSQUAL_T
-yrsget,INT64,Imputed years of formal education needed to get the job (self-reported - derived),,no,,year,no,,YRSGET
+yrsqual,INT64,Highest level of education obtained imputed into years of education (derived),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",YRSQUAL
+yrsqual_t,INT64,Derived variable on total years of schooling during lifetime - top coded at 24 (Trend-IALS/ALL),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Don't know/Refused, Not stated or inferred, Valid skip",YRSQUAL_T
+yrsget,INT64,Imputed years of formal education needed to get the job (self-reported - derived),,no,,year,no,"Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",YRSGET
 vet,STRING,"Respondent's highest level of education obtained is vocationally oriented (derived, ISCED3 and 4 only)",,yes,,,no,,VET
 forbornlang,STRING,Interactions between foreign-born and language status (2 categories - derived),,yes,,,no,,FORBORNLANG
 pared,STRING,Highest of mother or father's level of education (derived),,yes,,,no,,PARED
@@ -335,9 +335,9 @@ fnfaet12jr,STRING,Participated in formal or non-formal AET for job-related reaso
 fnfaet12njr,STRING,Participated in formal or non-formal AET for non job-related reasons in 12 mon. preceding survey (see AETPOP - derived),,yes,,,no,,FNFAET12NJR
 edwork,STRING,Interaction between adults' work and education status (derived),,yes,,,no,,EDWORK
 neet,STRING,Adults not employed at time of survey and not in education or training in 12 months preceding the survey (derived),,yes,,,no,,NEET
-nfehrsnjr,FLOAT64,Number of hours of participation in non-formal education for non-job-related reasons (derived),,no,,hour,no,,NFEHRSNJR
-nfehrsjr,FLOAT64,Number of hours of participation in non-formal education for job-related reasons (derived),,no,,hour,no,,NFEHRSJR
-nfehrs,INT64,Number of hours of participation in non-formal education (derived),,no,,hour,no,,NFEHRS
+nfehrsnjr,FLOAT64,Number of hours of participation in non-formal education for non-job-related reasons (derived),,no,,hour,no,"Set to NULL when loading where the source recorded: Did not participate, Don't know, Not stated or inferred, Refused, Valid skip",NFEHRSNJR
+nfehrsjr,FLOAT64,Number of hours of participation in non-formal education for job-related reasons (derived),,no,,hour,no,"Set to NULL when loading where the source recorded: Did not participate, Don't know, Not stated or inferred, Refused, Valid skip",NFEHRSJR
+nfehrs,INT64,Number of hours of participation in non-formal education (derived),,no,,hour,no,"Set to NULL when loading where the source recorded: Did not participate, Don't know, Not stated or inferred, Refused, Valid skip",NFEHRS
 nopaidworkever,STRING,Adults who never had paid work including self-employment in past (derived),,yes,,,no,,NOPAIDWORKEVER
 paidwork12,STRING,Adults who have had paid work during the 12 months preceding the survey (derived),,yes,,,no,,PAIDWORK12
 iscoskil4,STRING,"Occupational classification of respondent's job (4 skill based categories), last or current (derived)",,yes,,,no,,ISCOSKIL4
@@ -382,9 +382,9 @@ pvpsl7,FLOAT64,Problem-solving scale score - Plausible value 7,,no,,score_point,
 pvpsl8,FLOAT64,Problem-solving scale score - Plausible value 8,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL8
 pvpsl9,FLOAT64,Problem-solving scale score - Plausible value 9,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL9
 pvpsl10,FLOAT64,Problem-solving scale score - Plausible value 10,,no,,score_point,no,"Plausible value on the PIAAC proficiency scale, which runs from 0 to 500. Use all ten plausible values together, never a single one",PVPSL10
-prc_pv_scr,FLOAT64,Total Score for Reading Components Section - Print Vocabulary (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score",PRC_PV_SCR
-prc_sp_scr,FLOAT64,Total Score for Reading Components Section - Sentence Processing (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score",PRC_SP_SCR
-prc_pc_scr,FLOAT64,Total Score for Reading Components Section - Passage Comprehension (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score",PRC_PC_SCR
+prc_pv_scr,FLOAT64,Total Score for Reading Components Section - Print Vocabulary (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_PV_SCR
+prc_sp_scr,FLOAT64,Total Score for Reading Components Section - Sentence Processing (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_SP_SCR
+prc_pc_scr,FLOAT64,Total Score for Reading Components Section - Passage Comprehension (derived),,no,,score_point,no,"Raw number of correct responses, not a scaled proficiency score. Set to NULL when loading where the source recorded: Don't know, Not stated or inferred, Refused, Valid skip",PRC_PC_SCR
 vemethod,STRING,Replication approach (string),,yes,,,no,,VEMETHOD
 vemethodn,STRING,Replication approach (numeric),,yes,,,no,,VEMETHODN
 vefayfac,FLOAT64,Fay's K factor used in creating replicate weights (BRR only),,no,,,no,Dimensionless Fay factor used in replicate-weight variance estimation,VEFAYFAC
@@ -587,31 +587,31 @@ b_q01a_isced11,STRING,United States national variable B_Q01A_ISCED11,,no,,,no,No
 d_q12a_isced11,STRING,United States national variable D_Q12A_ISCED11,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,D_Q12A_ISCED11
 j_q06b_isced11,STRING,United States national variable J_Q06B_ISCED11,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q06B_ISCED11
 j_q07b_isced11,STRING,United States national variable J_Q07B_ISCED11,,no,,,no,Not present in the PIAAC international codebook. See the U.S. PIAAC national codebook for its definition,J_Q07B_ISCED11
-learnatwork,FLOAT64,Index of learning at work (derived),,no,,score_point,no,Weighted likelihood estimate on a derived skill-use scale,LEARNATWORK
+learnatwork,FLOAT64,Index of learning at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",LEARNATWORK
 learnatwork_wle_ca,STRING,"Index of learning at work, categorised WLE (derived)",,yes,,,no,,LEARNATWORK_WLE_CA
-readytolearn,FLOAT64,Index of readiness to learn (derived),,no,,score_point,no,Weighted likelihood estimate on a derived skill-use scale,READYTOLEARN
+readytolearn,FLOAT64,Index of readiness to learn (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",READYTOLEARN
 readytolearn_wle_ca,STRING,"Index of readiness to learn, categorised WLE (derived)",,yes,,,no,,READYTOLEARN_WLE_CA
-icthome,FLOAT64,Index of use of ICT skills at home (derived),,no,,score_point,no,Weighted likelihood estimate on a derived skill-use scale,ICTHOME
+icthome,FLOAT64,Index of use of ICT skills at home (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",ICTHOME
 icthome_wle_ca,STRING,"Index of use of ICT skills at home, categorised WLE (derived)",,yes,,,no,,ICTHOME_WLE_CA
-ictwork,FLOAT64,Index of use of ICT skills at work (derived),,no,,score_point,no,Weighted likelihood estimate on a derived skill-use scale,ICTWORK
+ictwork,FLOAT64,Index of use of ICT skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",ICTWORK
 ictwork_wle_ca,STRING,"Index of use of ICT skills at work, categorised WLE (derived)",,yes,,,no,,ICTWORK_WLE_CA
-influence,FLOAT64,Index of use of influencing skills at work (derived),,no,,score_point,no,Weighted likelihood estimate on a derived skill-use scale,INFLUENCE
+influence,FLOAT64,Index of use of influencing skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",INFLUENCE
 influence_wle_ca,STRING,"Index of use of influencing skills at work, categorised WLE (derived)",,yes,,,no,,INFLUENCE_WLE_CA
-numhome,FLOAT64,Index of use of numeracy skills at home (basic and advanced - derived),,no,,score_point,no,Weighted likelihood estimate on a derived skill-use scale,NUMHOME
+numhome,FLOAT64,Index of use of numeracy skills at home (basic and advanced - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",NUMHOME
 numhome_wle_ca,STRING,"Index of use of numeracy skills at home (basic and advanced), categorised WLE (derived)",,yes,,,no,,NUMHOME_WLE_CA
-numwork,FLOAT64,Index of use of numeracy skills at work (basic and advanced - derived),,no,,score_point,no,Weighted likelihood estimate on a derived skill-use scale,NUMWORK
+numwork,FLOAT64,Index of use of numeracy skills at work (basic and advanced - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",NUMWORK
 numwork_wle_ca,STRING,"Index of use of numeracy skills at work (basic and advanced), categorised WLE (derived)",,yes,,,no,,NUMWORK_WLE_CA
-planning,FLOAT64,Index of use of planning skills at work (derived),,no,,score_point,no,Weighted likelihood estimate on a derived skill-use scale,PLANNING
+planning,FLOAT64,Index of use of planning skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",PLANNING
 planning_wle_ca,STRING,"Index of use of planning skills at work, categorised WLE (derived)",,yes,,,no,,PLANNING_WLE_CA
-readhome,FLOAT64,Index of use of reading skills at home (prose and document texts - derived),,no,,score_point,no,Weighted likelihood estimate on a derived skill-use scale,READHOME
+readhome,FLOAT64,Index of use of reading skills at home (prose and document texts - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",READHOME
 readhome_wle_ca,STRING,"Index of use of reading skills at home (prose and document texts), categorised WLE (derived)",,yes,,,no,,READHOME_WLE_CA
-readwork,FLOAT64,Index of use of reading skills at work (prose and document texts - derived),,no,,score_point,no,Weighted likelihood estimate on a derived skill-use scale,READWORK
+readwork,FLOAT64,Index of use of reading skills at work (prose and document texts - derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",READWORK
 readwork_wle_ca,STRING,"Index of use of reading skills at work (prose and document texts), categorised WLE (derived)",,yes,,,no,,READWORK_WLE_CA
-taskdisc,FLOAT64,Index of use of task discretion at work (derived),,no,,score_point,no,Weighted likelihood estimate on a derived skill-use scale,TASKDISC
+taskdisc,FLOAT64,Index of use of task discretion at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",TASKDISC
 taskdisc_wle_ca,STRING,"Index of use of task discretion at work, categorised WLE (derived)",,yes,,,no,,TASKDISC_WLE_CA
-writhome,FLOAT64,Index of use of writing skills at home (derived),,no,,score_point,no,Weighted likelihood estimate on a derived skill-use scale,WRITHOME
+writhome,FLOAT64,Index of use of writing skills at home (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",WRITHOME
 writhome_wle_ca,STRING,"Index of use of writing skills at home, categorised WLE (derived)",,yes,,,no,,WRITHOME_WLE_CA
-writwork,FLOAT64,Index of use of writing skills at work (derived),,no,,score_point,no,Weighted likelihood estimate on a derived skill-use scale,WRITWORK
+writwork,FLOAT64,Index of use of writing skills at work (derived),,no,,score_point,no,"Weighted likelihood estimate on a derived skill-use scale. Set to NULL when loading where the source recorded: All zero response, Don't know, Not stated or inferred, Refused, Valid skip",WRITWORK
 writwork_wle_ca,STRING,"Index of use of writing skills at work, categorised WLE (derived)",,yes,,,no,,WRITWORK_WLE_CA
 earnhrdcl,STRING,"Hourly earnings excluding bonuses for wage and salary earners, in deciles (derived)",,yes,,,no,,EARNHRDCL
 earnhrbonusdcl,STRING,"Hourly earnings including bonuses for wage and salary earners, in deciles (derived)",,yes,,,no,,EARNHRBONUSDCL
