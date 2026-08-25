@@ -84,7 +84,7 @@ Each verified against the live API, not inferred from the spec.
 
 ---
 
-## 4. Proposed tables — 37
+## 4. Proposed tables — 40 (39 built + the senador dimension added post-build)
 
 Naming mirrors `br_camara_dados_abertos` where the concept matches, so the two
 houses stay comparable (`despesa`, `licitacao`, `servidor`≈`funcionario`).
@@ -175,6 +175,27 @@ carries a single unambiguous unit.
 keeps every measure an integer headcount rather than mixing counts with percentages.
 
 ---
+
+## 4b. Post-build refinements (2026-08-25)
+
+Two changes after the initial 39-table build, at the user's request:
+
+1. **`senador` dimension added (table 40) and senator-keyed tables normalized.**
+   The administrative API exposes no senator code, only names, so `id_senador`
+   comes from the Legislative Open Data API (legislaturas 53–57), whose
+   `CodigoParlamentar` is the same code CEAPS carries as `codSenador` (verified
+   77/77). The dimension is comprehensive (681 senators, current + historical)
+   and covers every `id_senador` in `despesa_ceaps` (328/328). `senador_gabinete`,
+   `senador_escritorio_apoio` and `senador_auxilio_moradia` are now keyed by
+   `id_senador` (identity moved to `senador`), and `despesa_ceaps` drops
+   `nome_senador`. An intra-dataset relationships test enforces the FK.
+
+2. **Coverage granularity set per table.** Daily where a content date exists
+   (CEAPS 2008→2026 by expense date, contratação by signing date, etc.) or on the
+   snapshot date for pure current-state tables; monthly for the two payroll
+   tables; annual for the two supridos child tables with no date; area-only for
+   the `senador` and `dicionario` dimensions. Previously every table was
+   registered year-only.
 
 ## 5. Refresh design
 
