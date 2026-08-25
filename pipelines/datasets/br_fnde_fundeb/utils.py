@@ -1,11 +1,11 @@
 """Download e limpeza do br_fnde_fundeb — Indicadores do SIOPE.
 
-Funções puras, sem import do Prefect: o `tasks.py` embrulha o que está aqui, e
-quem roda a carga fora do worker chama as mesmas tasks pelo `.fn()`. Uma
-implementação só, dois caminhos de execução.
+Funções sem import do Prefect: o `tasks.py` as embrulha, e uma carga executada
+fora do worker chama as mesmas tasks pelo `.fn()` — uma implementação, dois
+caminhos de execução.
 
-As armadilhas da fonte que estas funções têm que absorver estão no README do
-diretório, seção "Estrutura do arquivo":
+As particularidades da fonte tratadas aqui estão detalhadas na seção "Estrutura
+do arquivo" do README do diretório:
 
 - linha `Estadual` tem 12 campos, não 14 (COD_MUNI e NOM_MUNI são omitidos);
 - `COD_MUNI` tem 6 dígitos e vem como float (`520870.000000000000000000`);
@@ -69,7 +69,8 @@ def _iter_rows(path: Path) -> Iterator[dict[str, str]]:
     """Percorre o `.gz` devolvendo uma linha por vez, já resolvida por esfera.
 
     Descomprime em stream — o arquivo do histórico não cabe confortavelmente em
-    memória. O cabeçalho é descartado.
+    memória. A primeira linha, o cabeçalho, é descartada, e a contagem começa em
+    2 para que o número citado no erro seja o do arquivo.
 
     Args:
         path: Caminho do `.txt.gz` da fonte.
@@ -86,10 +87,8 @@ def _iter_rows(path: Path) -> Iterator[dict[str, str]]:
     """
 
     with gzip.open(path, "rt", encoding=constants.ENCODING.value) as f:
-        # pulando o cabeçalho
         next(f)
 
-        # start=2 porque o cabeçalho já saiu: a numeração é a do arquivo.
         for lineno, line in enumerate(f, start=2):
             fields = line.rstrip("\n").split(constants.SEPARATOR.value)
 
@@ -110,10 +109,10 @@ def _iter_rows(path: Path) -> Iterator[dict[str, str]]:
 def _clean_municipality_code(cod_muni: str) -> str:
     """Normaliza o `COD_MUNI` da fonte para o código IBGE de 6 dígitos.
 
-    A fonte manda `520870.000000000000000000` para Goiânia, cujo código IBGE é
-    `5208707` — falta o dígito verificador. O 7º dígito NÃO é calculado aqui: os
-    6 dígitos são o prefixo do código de 7, e a resolução acontece no modelo dbt
-    por join contra `br_bd_diretorios_brasil.municipio` (decisão 4 do README).
+    A fonte publica `520870.000000000000000000` para Goiânia, cujo código IBGE é
+    `5208707`: falta o dígito verificador. O 7º dígito não é calculado aqui — os
+    6 dígitos são o prefixo do código completo, e o modelo dbt resolve o restante
+    por join contra `br_bd_diretorios_brasil.municipio`.
 
     Args:
         cod_muni: Valor cru da coluna ``COD_MUNI``.
@@ -128,11 +127,11 @@ def _clean_municipality_code(cod_muni: str) -> str:
 
 
 def _indicator_unit(tipo: str, cod_indi: str) -> str | None:
-    """Diz se o VAL_INDI daquele indicador é percentual, reais ou nenhum.
+    """Informa se o VAL_INDI daquele indicador é percentual, reais ou nenhum.
 
-    Decide qual das duas colunas de valor a linha preenche. A chave é o par
-    esfera/código porque o mesmo ``COD_INDI`` significa indicadores diferentes
-    em cada esfera.
+    Determina qual das duas colunas de valor a linha preenche. A chave é o par
+    esfera/código porque o mesmo ``COD_INDI`` designa indicadores diferentes em
+    cada esfera.
 
     Args:
         tipo: Valor da coluna ``TIPO`` — a esfera.
@@ -155,8 +154,8 @@ def build_indicator_tables(
 ) -> tuple[list[dict], list[dict], set[tuple[str, str, str, str]]]:
     """Separa o arquivo da fonte nas duas tabelas de fato e no catálogo.
 
-    Uma passada só sobre o arquivo: as linhas vão para a tabela da sua esfera, e
-    os pares indicador/nome vistos no caminho alimentam o dicionário.
+    Percorre o arquivo uma vez: cada linha vai para a tabela da sua esfera, e os
+    pares indicador/nome encontrados formam o catálogo.
 
     Args:
         source_path: Caminho do `.txt.gz` da fonte.
@@ -164,9 +163,9 @@ def build_indicator_tables(
     Returns:
         Uma tripla ``(estadual, municipal, catalogo)``. As duas primeiras são
         listas de linhas nas colunas de ``COLUMNS_STATE`` e
-        ``COLUMNS_MUNICIPALITY``; a terceira são os pares
-        ``(esfera, cod_indi, nome, ano)`` observados, matéria-prima do
-        dicionário.
+        ``COLUMNS_MUNICIPALITY``; a terceira reúne os pares
+        ``(esfera, cod_indi, nome, ano)`` observados, que
+        :func:`warn_unknown_names` confere contra o dicionário.
     """
 
     state_table = []
@@ -215,10 +214,10 @@ def build_indicator_tables(
 def dictionary_rows() -> list[dict]:
     """Devolve a tabela `dicionario`, nas colunas de ``COLUMNS_DICTIONARY``.
 
-    As 112 linhas são fixas e moram em ``constants.DICTIONARY_ROWS``, mantidas
-    à mão: a fonte reescreve o nome dos indicadores de tempos em tempos, e
-    quando isso acontece a lista é editada. A seção "Os nomes mudam de ano para
-    ano" do README do conjunto registra quais mudaram e quando.
+    As 112 linhas são fixas, estão em ``constants.DICTIONARY_ROWS`` e são
+    mantidas à mão: a fonte reescreve o nome dos indicadores ao longo da série, e
+    a lista é editada quando isso ocorre. A seção "Os nomes mudam de ano para
+    ano" do README do diretório registra quais mudaram e quando.
 
     Returns:
         Uma linha por indicador e nome vigente.
@@ -242,20 +241,19 @@ def write_partitioned(
     columns: list[str],
     output_dir: Path,
 ) -> Path:
-    """Escreve as linhas em parquet particionado por ano, tudo STRING.
+    """Escreve as linhas em parquet particionado por ano, com todas as colunas
+    em STRING.
 
-    Toda coluna sai STRING de propósito: a staging é all-STRING por convenção da
-    casa e o `dump_header` do `gcs.py` estringifica o cabeçalho, então parquet
-    tipado é rejeitado na leitura. O modelo dbt faz o `safe_cast` de cada
-    coluna.
+    A staging é all-STRING por convenção da casa, e o `dump_header` do `gcs.py`
+    converte o cabeçalho para string — parquet tipado é rejeitado na leitura. O
+    modelo dbt faz o `safe_cast` de cada coluna para o tipo da arquitetura.
 
-    Dois detalhes que carregam peso, dos rules do repo:
+    Os valores chegam aqui como texto cru da fonte e vão para o arrow sem passar
+    por número, o que preserva NULL como NULL (`astype(str)` o escreveria como a
+    string ``"nan"``) e mantém `ano` como ``"2021"`` em vez de ``"2021.0"``.
 
-    - converter para string **pelo arrow**, nunca com `astype(str)` — este
-      último escreve NULL como a string literal ``"nan"``, que o `safe_cast` não
-      transforma de volta em NULL;
-    - passar os tipos reais antes de converter, senão `ano` serializa como
-      ``"2021.0"`` e o `safe_cast(ano as int64)` devolve NULL.
+    Tabelas sem coluna `ano` — o `dicionario` — saem num arquivo único, sem
+    diretório de partição.
 
     Args:
         rows: Linhas a escrever.
@@ -309,14 +307,21 @@ def warn_unknown_names(
 ) -> list[tuple[str, str, str]]:
     """Avisa quando o arquivo traz um nome de indicador fora do dicionário.
 
-    O `dicionario` é uma lista fixa em ``constants.DICTIONARY_ROWS``, então uma
-    reescrita de nome pela fonte a deixa desatualizada sem que nada quebre — o
-    dado sobe certo e só o rótulo mente. Esta comparação é o que torna isso
-    visível.
+    O `dicionario` é a lista fixa de ``constants.DICTIONARY_ROWS``, e uma
+    reescrita de nome pela fonte a deixa desatualizada sem interromper a carga:
+    o dado sobe correto e só o rótulo fica errado. Esta comparação é o sinal de
+    que a lista precisa ser editada.
 
-    Não levanta erro de propósito: rótulo velho não invalida linha de dado.
-    Indicador inteiramente novo já para a execução antes daqui, no
-    :func:`_indicator_unit`, cujo mapa é fechado.
+    Registra WARNING e não levanta erro, porque rótulo desatualizado não
+    invalida linha de dado. Indicador inédito interrompe a execução antes daqui,
+    em :func:`_indicator_unit`, cujo mapa é fechado.
+
+    A comparação ignora o ano nas duas pontas — o que se verifica é se o nome
+    está registrado, não em que anos ele vale — e normaliza o espaço nas bordas,
+    porque a fonte publica vários nomes com espaço sobrando no fim
+    ("... Nº 33 de30-08-2023 ") enquanto ``DICTIONARY_ROWS`` está normalizada.
+    Sem essa normalização, dois indicadores municipais apareceriam como nome
+    novo em toda execução.
 
     Args:
         catalog: As tuplas ``(esfera, cod_indi, nome, ano)`` do arquivo, vindas
@@ -331,12 +336,6 @@ def warn_unknown_names(
         constants.TIPO_MUNICIPALITY.value: constants.TABLE_MUNICIPALITY.value,
     }
 
-    # O ano sai das duas pontas: a pergunta é se o nome está registrado, não em
-    # que anos ele valia — a cobertura se resolve ao editar a lista.
-    #
-    # O `strip` importa: a fonte manda vários nomes com espaço sobrando no fim
-    # ("... Nº 33 de30-08-2023 ") e as linhas congeladas estão normalizadas.
-    # Sem ele, dois indicadores acusam mudança de nome em toda execução.
     seen = {
         (table_of[esfera], cod_indi, nome.strip())
         for esfera, cod_indi, nome, _ in catalog
@@ -357,9 +356,11 @@ def warn_unknown_names(
 
 
 def clean_all(source_path: Path, output_dir: Path) -> dict:
-    """Roda a limpeza completa de um arquivo da fonte.
+    """Executa a limpeza completa de um arquivo da fonte.
 
-    Ponto de entrada único da limpeza: é o que a task `clean_siope` chama.
+    Ponto de entrada da limpeza, chamado pela task :func:`clean_siope`: monta as
+    três tabelas, escreve as partições e confere os nomes de indicador contra o
+    dicionário.
 
     Args:
         source_path: Caminho do `.txt.gz` baixado.

@@ -13,17 +13,17 @@ _UNIT_PERCENT = "percentual"
 _UNIT_CURRENCY = "reais"
 
 # Unidade do VAL_INDI por par (esfera, COD_INDI). A fonte mistura percentual e
-# reais na mesma coluna, e o par é a chave porque o mesmo COD_INDI significa
-# indicadores diferentes em cada esfera — 27 códigos aparecem nas duas, e nos 27
+# reais na mesma coluna, e a chave é o par porque o mesmo COD_INDI designa
+# indicadores diferentes em cada esfera: 27 códigos aparecem nas duas, e nos 27
 # o indicador é outro.
 #
-# São 57 percentuais, 36 em reais e 2 sem unidade: os do grupo 5 (IDEB), que
+# São 57 percentuais, 36 em reais e 2 sem unidade — os do grupo 5 (IDEB), que
 # somam duas linhas na série inteira e não preenchem nenhuma das duas colunas de
-# valor (decisão 3 do README). O comentário ao lado é o COD_EXIB.
+# valor. O comentário ao lado de cada entrada é o COD_EXIB.
 #
-# Mapa fechado de propósito: indicador ausente daqui tem que levantar erro, não
-# cair num default. O 1.9 apareceu em 2026 e o próximo vai aparecer também; um
-# default silencioso põe reais na coluna de percentual sem ninguém ver.
+# O mapa é fechado: indicador ausente daqui levanta KeyError em vez de cair num
+# default. A fonte cria indicadores novos ao longo do tempo (o 1.9 apareceu em
+# 2026), e um default silencioso gravaria reais na coluna de percentual.
 _INDICATOR_UNITS = {
     # Estadual
     ("Estadual", "5"): _UNIT_PERCENT,  # 1.5
@@ -125,21 +125,23 @@ _INDICATOR_UNITS = {
 }
 
 
-# Tabela `dicionario` congelada: (id_tabela, chave, cobertura_temporal, valor).
-# A coluna `nome_coluna` é sempre "id_indicador" e não se repete aqui.
+# Linhas da tabela `dicionario`: (id_tabela, chave, cobertura_temporal, valor).
+# A coluna `nome_coluna` é sempre "id_indicador" e por isso não se repete aqui.
 #
 # São as 112 linhas observadas na série 2021-2024 (produto 53) mais 2026
-# (produto 54). O nome do indicador é texto livre que a fonte reescreve: 9 dos
-# 95 pares esfera/indicador mudaram de nome em 5 anos, sempre em 2022, e em
-# quatro deles o texto de 2021 volta em 2023 — daí as coberturas partidas
-# `(1)2021` + `2023(1)`.
+# (produto 54). O nome do indicador é texto livre reescrito pela fonte: 9 dos 95
+# pares esfera/indicador mudaram de nome, sempre em 2022, e em quatro deles o
+# texto de 2021 volta em 2023 — daí as coberturas partidas `(1)2021` e
+# `2023(1)`.
 #
-# Notação: `inicio(1)fim`, com a ponta em branco significando "até onde a
-# tabela vai". Por isso `(1)` e `2023(1)` continuam corretas quando um ano novo
-# entra na base, e só as coberturas fechadas envelhecem.
+# Notação `inicio(1)fim`, em que a ponta em branco significa "até onde a tabela
+# vai": `(1)` e `2023(1)` seguem válidas quando um ano novo entra na base, e só
+# as coberturas fechadas envelhecem.
 #
-# ATUALIZAR À MÃO quando a fonte reescrever um nome ou criar um indicador. Ver
-# a seção "Os nomes mudam de ano para ano" do README do conjunto.
+# A lista é mantida à mão, e é editada quando a fonte reescreve um nome ou cria
+# um indicador — situação que o `warn_unknown_names` registra em WARNING durante
+# a limpeza. Ver a seção "Os nomes mudam de ano para ano" do README do
+# diretório.
 _DICTIONARY_ROWS = [
     (
         "indicador_estadual",
@@ -833,12 +835,9 @@ class constants(Enum):
     ARTIFACT_URL = "{api}/products/data-products/{product_id}/artifact"
     PRODUCT_URL = "{api}/products/data-products/{product_id}"
 
-    # Os dois produtos que compõem a série. O 53 cobre 2021 a 2024 com os 6
-    # bimestres fechados; o 54 cobre o exercício corrente.
-    #
-    # O 53 NÃO é histórico congelado: 2025 não está em nenhum dos dois produtos,
-    # e entra no 53 quando o FNDE migrar. Quando isso acontecer, a carga do
-    # histórico precisa ser refeita.
+    # Os dois produtos que compõem a série: o 53 cobre 2021 a 2024 com os 6
+    # bimestres fechados, o 54 cobre o exercício corrente. Nenhum dos dois
+    # publica 2025 (ver "O hiato de 2025" no README do diretório).
     PRODUCT_HISTORY = 53
     PRODUCT_CURRENT = 54
 
@@ -869,9 +868,9 @@ class constants(Enum):
         "DT_ATUALIZACAO",
     ]
 
-    # Em linha `TIPO=Estadual` os campos COD_MUNI e NOM_MUNI são OMITIDOS, não
-    # enviados vazios — a linha tem 12 campos, não 14. Daí dois mapas de índice:
-    # o número de campos da linha é o que decide qual usar.
+    # Em linha `TIPO=Estadual` os campos COD_MUNI e NOM_MUNI são omitidos, não
+    # enviados vazios: a linha tem 12 campos, não 14. Daí dois mapas de índice,
+    # escolhidos pela contagem de campos da linha.
     FIELDS_STATE = 12
     FIELDS_MUNICIPALITY = 14
 
@@ -911,9 +910,8 @@ class constants(Enum):
     TIPO_STATE = "Estadual"
     TIPO_MUNICIPALITY = "Municipal"
 
-    # Ordem das colunas de cada tabela, espelhando a arquitetura. A ordem é
-    # normativa: o schema da staging carrega ordem, não tipo (staging é
-    # all-STRING por convenção da casa, e o modelo dbt faz o safe_cast).
+    # Ordem das colunas de cada tabela, espelhando a arquitetura. É o que o
+    # schema do parquet de staging carrega.
     COLUMNS_STATE = [
         "ano",
         "bimestre",
@@ -943,17 +941,15 @@ class constants(Enum):
         "valor",
     ]
 
-    # Valor fixo da coluna `nome_coluna` do dicionário: é `id_indicador` que
-    # cada chave decodifica, nas duas tabelas de fato.
+    # Valor fixo da coluna `nome_coluna` do dicionário: a coluna que cada chave
+    # decodifica nas duas tabelas de fato.
     DICTIONARY_COLUMN = "id_indicador"
 
-    # As 112 linhas do dicionário. Ver _DICTIONARY_ROWS no topo do módulo.
     DICTIONARY_ROWS = _DICTIONARY_ROWS
 
     # Coluna de particionamento das duas tabelas de fato.
     PARTITION_COLUMNS = ["ano"]
 
-    # Unidade do VAL_INDI por indicador. Ver _INDICATOR_UNITS no topo do módulo.
     UNIT_PERCENT = _UNIT_PERCENT
     UNIT_CURRENCY = _UNIT_CURRENCY
     INDICATOR_UNITS = _INDICATOR_UNITS

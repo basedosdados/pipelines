@@ -158,28 +158,26 @@ cobertura temporal da BD não expressa hiato.
 
 Único caso de nome ambíguo no mesmo ano. O bimestre 1 de 2024 diz "máximo de
 30%" (26 linhas) e os bimestres 2 a 6 dizem "máximo de 40%", que é também o
-texto de 2021 a 2023 e de 2026 — erro de cadastro corrigido no bimestre
-seguinte, não mudança de norma.
+texto de 2021 a 2023 e de 2026. O limite legal não mudou nesse intervalo, então
+o bimestre 1 registra um texto que a fonte corrigiu na exportação seguinte.
 
 O `dicionario` da BD data seus valores por ano, então o bimestre isolado não é
-representável: ou as duas linhas coexistem com cobertura sobreposta em 2024, ou
-o nome do bimestre mais recente prevalece sobre o ano inteiro.
+representável: as duas linhas coexistem, ambas cobrindo 2024. A alternativa
+seria descartar o texto do bimestre 1, que existe no dado publicado.
 
 Por isso o nome vive no `dicionario`, cuja coluna `cobertura_temporal` data cada
 valor, e não numa coluna da tabela de fato.
 
 ### O `dicionario` é fixo
 
-As 112 linhas estão em `constants.DICTIONARY_ROWS` e são mantidas à mão — o
-mesmo padrão de `us_bls_qcew`, `us_fec_campaign_finance` e `br_sfb_sicar`. Nove
-mudanças de nome em cinco anos não justificam derivar a tabela a cada carga, e
-a tabela não é particionada: reescrevê-la a partir de um produto só apagaria as
-linhas do outro.
+As 112 linhas estão em `constants.DICTIONARY_ROWS` e são mantidas à mão, como em
+`us_bls_qcew`, `us_fec_campaign_finance` e `br_sfb_sicar`. A tabela não é
+particionada, então derivá-la de um produto só apagaria as linhas do outro.
 
 A notação com ponta em branco significa "até onde a tabela vai", então `(1)` e
-`2023(1)` continuam corretas quando um ano novo entra. Só há o que editar quando
-a fonte reescreve um nome ou cria um indicador — a limpeza avisa em WARNING
-quando encontra um par indicador/nome que não está na lista.
+`2023(1)` seguem válidas quando um ano novo entra. A lista muda quando a fonte
+reescreve um nome ou cria um indicador; nesse caso a limpeza registra um WARNING
+com o par indicador/nome que não consta dela.
 
 ### O que 2026 acrescenta
 
@@ -240,7 +238,7 @@ ganha uma linha em `indicador_estadual` e outra em `indicador_municipal`.
 A tabela estadual também não carrega `id_municipio`, que seria nulo em todas as
 suas linhas.
 
-Efeito: quem quiser o Brasil inteiro faz `union` das duas.
+Consultas que abrangem as duas esferas exigem `union` das duas tabelas.
 
 ### 2. `valor_percentual` e `valor_real`, não uma coluna `valor`
 
@@ -249,8 +247,8 @@ e reais em 36 (2.488.171 linhas). Uma coluna `valor` única não teria
 `measurement_unit`, que a BD exige em coluna numérica.
 
 Cada linha preenche exatamente uma das duas colunas: `valor_percentual` fica 60%
-não-nula e `valor_real` 40%, ambas acima do piso de 5% do
-`not_null_proportion_multiple_columns`.
+não-nula e `valor_real` 40%. Por isso as duas entram em `ignore_values` no
+`not_null_proportion_multiple_columns`, que exige 95% nas demais colunas.
 
 ### 3. Não existe coluna `valor_indice`
 
@@ -283,8 +281,8 @@ municípios.
 ### 5. `id_indicador` e `codigo_indicador` convivem
 
 São biunívocos dentro de cada tabela, logo redundantes. O `COD_INDI` é a chave
-da fonte e o que o `dicionario` indexa; o `COD_EXIB` é o número que aparece nos
-relatórios do FNDE e que as pessoas citam.
+da fonte e o que o `dicionario` indexa; o `COD_EXIB` é o número usado para
+identificar o indicador nos relatórios do FNDE.
 
 ---
 
@@ -301,10 +299,16 @@ O upload local escreve em `basedosdados-dev`; prod é materializado no merge pel
 action `table-approve`. O prefixo de staging de dev **é** o histórico da série —
 apagá-lo apaga o dado em prod no merge seguinte.
 
-**Os dois caminhos escrevem no mesmo prefixo.** `dump_mode="overwrite"` no flow
-levaria 2021–2024 junto, e `append` puro duplica quando um bimestre é revisado.
-O flow precisa limpar o prefixo `ano=<exercício>` no GCS e então anexar,
-escrevendo somente as partições do exercício que baixou.
+**Os dois caminhos compartilham o prefixo de staging, e a convivência depende de
+`dump_mode="append"`.** O `if_exists="replace"` do upload age por blob, e o
+`write_partitioned` grava sempre um `ano=<ano>/data.parquet` por partição: subir
+o exercício corrente substitui a partição daquele ano e preserva as de 2021 a
+2024. Bimestre revisado sobrescreve a partição em vez de duplicar linha.
+
+`dump_mode="overwrite"` recria a tabela de staging e removeria o histórico.
+
+O `dicionario` não entra no flow. As 112 linhas são fixas e mudam quando a fonte
+reescreve o nome de um indicador, caso em que a limpeza registra um WARNING.
 
 ### Os módulos
 
@@ -313,6 +317,7 @@ escrevendo somente as partições do exercício que baixou.
 | `constants.py` | identificadores, endpoints, mapas de índice e de unidade, e as 112 linhas do `dicionario` |
 | `utils.py` | download e limpeza, sem Prefect: `download_product`, `clean_all` e o que elas usam |
 | `tasks.py` | as `@task` que embrulham o `utils.py` |
+| `flows.py` | o flow do exercício corrente, agendado nos dias 5, 12, 19 e 26 |
 
 ### Ordem do dbt na carga
 

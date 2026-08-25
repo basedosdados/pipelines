@@ -1,4 +1,4 @@
-"""Tasks Prefect 3 do br_fnde_fundeb — cascas finas sobre o utils.py."""
+"""Tasks Prefect 3 do br_fnde_fundeb, sobre as funções do `utils.py`."""
 
 from pathlib import Path
 
@@ -11,8 +11,8 @@ from pipelines.datasets.br_fnde_fundeb.utils import clean_all, download_product
 def download_siope(work_dir: str, product_id: int) -> str:
     """Baixa o `.txt.gz` de um produto do SIOPE.
 
-    Tenta duas vezes de novo, com espera folgada: a API não honra `Range`, então
-    cada tentativa é o download inteiro — 45 MB no produto do histórico.
+    Duas novas tentativas, com intervalo de 60 s: a API não honra `Range`, então
+    cada tentativa refaz o download inteiro — 45 MB no produto do histórico.
 
     Args:
         work_dir: Diretório de trabalho; o arquivo cai em ``<work_dir>/input``.
