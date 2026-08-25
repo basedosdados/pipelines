@@ -52,8 +52,7 @@ fato representam.
 ## 5. Pipeline recorrente de dicionário
 
 A tabela `br_rf_cnpj__dicionario` traduz os códigos usados nas demais tabelas
-(natureza jurídica, qualificação do responsável, motivo da situação
-cadastral, município, país, CNAE, etc.) para seus valores legíveis
+(qualificação do responsável, motivo da situação cadastral, porte, etc.) para seus valores legíveis
 (`chave` - `valor`). Ela é materializada como `table`, não incremental,
 apenas o snapshot mais atual dos códigos.
 
@@ -88,7 +87,7 @@ incrementais normais, apenas os dados novos vindos da staging atual
 (`empresas`, `estabelecimentos`, `socios`) são adicionados.
 
 
-## 7. Alerta: mudança na fonte na representação do documento de sócio pessoa jurídica (14 → 8 caracteres)
+## 7. Alerta: houve erro na divulgação pela Receita Federal. A representação do documento de sócio pessoa jurídica passou de 14 para 8 caracteres a partir do mês de agosto de 2026.
 
 Na tabela de sócios, para registros de sócio **pessoa jurídica** (`tipo = "1"`),
 a coluna `documento` armazenava historicamente o **CNPJ completo (14

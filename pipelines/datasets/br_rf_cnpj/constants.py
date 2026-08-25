@@ -22,9 +22,7 @@ class constants(Enum):
         "simples": ["simples"],
         "dicionario": [
             "qualificacoes",
-            "paises",
             "motivos",
-            "cnaes",
             "naturezas",
             "situacao_cadastral",
             "identificador_matriz_filial",
@@ -34,22 +32,6 @@ class constants(Enum):
         ],
     }
     TABLE_CONFIGS = {
-        "cnaes": {
-            "table_name": "Cnaes",
-            "segmentada": False,  # Defines whether the table is split into files
-            "dicionario": True,  # Defines whether the table comprises the dictionary
-            "manual": False,  # Defines whether the dictionary table should be created manually
-            "relationships": [
-                {
-                    "id_tabela": "estabelecimentos",
-                    "nome_coluna": "cnae_fiscal_principal",
-                },
-                {
-                    "id_tabela": "estabelecimentos",
-                    "nome_coluna": "cnae_fiscal_secundaria",
-                },
-            ],
-        },
         "empresas": {
             "table_name": "Empresas",
             "segmentada": True,
@@ -72,21 +54,6 @@ class constants(Enum):
                     "id_tabela": "estabelecimentos",
                     "nome_coluna": "motivo_situacao_cadastral",
                 }
-            ],
-        },
-        "municipios": {
-            "table_name": "Municipios",
-            "segmentada": False,
-            "dicionario": False,
-            "manual": False,
-        },
-        "naturezas": {
-            "table_name": "Naturezas",
-            "segmentada": False,
-            "dicionario": True,
-            "manual": False,
-            "relationships": [
-                {"id_tabela": "empresas", "nome_coluna": "natureza_juridica"}
             ],
         },
         "paises": {

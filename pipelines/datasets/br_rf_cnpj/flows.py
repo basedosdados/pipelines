@@ -107,9 +107,13 @@ def _rf_cnpj_flow(table_id: str, cron: str):
             has_new_data = poll_source_for_update_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                source_max_date=last_modified_date,
+                source_max_date=last_modified_date
+                if table_id in ("simples", "dicionario")
+                else folder_date,
                 env="prod",
-                date_format="%Y-%m-%d",
+                date_format="%Y-%m-%d"
+                if table_id in ("simples", "dicionario")
+                else "%Y-%m",
                 compare_against=compare_against,
             )
             if not has_new_data:
@@ -206,8 +210,8 @@ def _rf_cnpj_flow(table_id: str, cron: str):
                 target=target,
             )
             download_data_to_gcs(
-                dataset_id=dataset_id,
-                table_id=table_id,
+                dataset_id="br_bd_diretorios_brasil",
+                table_id="empresa",
             )
             if update_metadata:
                 register_table_materialization_task(
