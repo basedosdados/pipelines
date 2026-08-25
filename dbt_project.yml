@@ -154,6 +154,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_bls_oes:
+      +materialized: table
+      +schema: us_bls_oes
     us_fed_fred:
       +materialized: table
       +schema: us_fed_fred
