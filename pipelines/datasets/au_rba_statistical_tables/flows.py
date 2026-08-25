@@ -128,39 +128,43 @@ def au_rba_statistical_tables_flow(
 
         tables = constants.ALL_TABLES.value
 
-        # Dev: upload + build EVERY table first, then test them all.
-        #
-        # Never interleave run/test per table. `data` carries a composite
-        # foreign-key test against `series`, and `series_break` a
-        # dictionary-coverage test against `dicionario` — both read sibling
-        # models. Interleaved, the first table's tests run before its sibling
-        # exists and fail with "Not found: Table ...". This is silent in a
-        # re-run where a stale sibling survives, and only bites in a clean
-        # environment, so it has to be structural.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target="dev",
-            )
-        for table in tables:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: upload + build EVERY table first, then test them all.
+            #
+            # Never interleave run/test per table. `data` carries a composite
+            # foreign-key test against `series`, and `series_break` a
+            # dictionary-coverage test against `dicionario` — both read sibling
+            # models. Interleaved, the first table's tests run before its sibling
+            # exists and fail with "Not found: Table ...". This is silent in a
+            # re-run where a stale sibling survives, and only bites in a clean
+            # environment, so it has to be structural.
+            for table in tables:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="overwrite",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run",
+                    target="dev",
+                )
+            for table in tables:
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="test",
+                    target="dev",
+                )
             return
 
         # Prod: same two-pass shape.
@@ -208,7 +212,7 @@ def au_rba_statistical_tables_flow(
 # the source-poll guard makes weekends and quiet days a no-op.
 # pyrefly: ignore [missing-attribute]
 au_rba_statistical_tables_flow.deploy_schedules = [
-    {"cron": "0 9 * * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "40 9 * * *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step holds ~1.5M parsed observations in memory before writing.
 # pyrefly: ignore [missing-attribute]
