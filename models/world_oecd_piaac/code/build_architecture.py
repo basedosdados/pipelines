@@ -287,7 +287,7 @@ def write_architecture(
     with (ARCHITECTURE_DIR / f"{slug}.csv").open(
         "w", newline="", encoding="utf-8"
     ) as handle:
-        writer = csv.DictWriter(handle, fieldnames=CSV_FIELDS)
+        writer = csv.DictWriter(handle, fieldnames=CSV_FIELDS, lineterminator="\n")
         writer.writeheader()
         for column in columns:
             row = asdict(column)
