@@ -90,7 +90,6 @@ _COVERAGE = AllFree(
 def br_fnde_fundeb_flow(
     dataset_id: str = constants.DATASET_ID.value,
     materialize_to_prod: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -138,7 +137,6 @@ def br_fnde_fundeb_flow(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 dbt_command="run",
-                dbt_alias=dbt_alias,
                 target=dbt_target,
             )
 
@@ -147,7 +145,6 @@ def br_fnde_fundeb_flow(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 dbt_command="test",
-                dbt_alias=dbt_alias,
                 target=dbt_target,
             )
 

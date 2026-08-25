@@ -19,48 +19,37 @@ models:
           dictionary_model: ref('br_fnde_fundeb__dicionario')
     columns:
       - name: ano
-        description: Ano de referência do indicador
+        description: Ano do exercício financeiro declarado
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
       - name: bimestre
-        description: Bimestre de referência do indicador, de 1 a 6
+        description: >-
+          Bimestre do exercício a que se refere a declaração, de 1 a 6
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__bimestre')
               field: bimestre.bimestre
       - name: sigla_uf
-        description: Sigla da Unidade da Federação
+        description: Sigla da unidade federativa do ente declarante
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
       - name: id_indicador
-        description: >-
-          Código do indicador no SIOPE. O mesmo código designa indicadores
-          diferentes nas esferas estadual e municipal, então vale apenas dentro
-          desta tabela
+        description: Código do indicador no SIOPE
         tests: [not_null]
       - name: codigo_indicador
         description: >-
-          Código de exibição do indicador nos relatórios do FNDE, no formato
-          grupo.item. O prefixo é o agrupamento temático: 1 aplicações mínimas
-          legais, 2 despesas por etapa de ensino, 3 pessoal, 4 investimento por
-          aluno, 5 IDEB, 6 receitas, 7 resultado do exercício, 8 valores de MDE
+          Código de exibição do indicador, no formato grupo.item
       - name: valor_percentual
-        description: >-
-          Valor do indicador quando expresso em percentual. Nulo nos
-          indicadores medidos em reais. Valores acima de 100 são legítimos e
-          indicam aplicação acima do mínimo exigido; valores negativos ocorrem
-          nos indicadores de aplicação mínima e vêm assim da fonte
+        description: Valor do indicador, quando expresso em percentual
       - name: valor_real
-        description: >-
-          Valor do indicador quando expresso em reais. Nulo nos indicadores
-          medidos em percentual
+        description: Valor do indicador, quando expresso em reais
   - name: br_fnde_fundeb__indicador_municipal
     description: >-
       Indicadores legais e educacionais dos municípios, calculados pelo FNDE a
@@ -80,55 +69,44 @@ models:
           dictionary_model: ref('br_fnde_fundeb__dicionario')
     columns:
       - name: ano
-        description: Ano de referência do indicador
+        description: Ano do exercício financeiro declarado
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
       - name: bimestre
-        description: Bimestre de referência do indicador, de 1 a 6
+        description: >-
+          Bimestre do exercício a que se refere a declaração, de 1 a 6
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__bimestre')
               field: bimestre.bimestre
       - name: sigla_uf
-        description: Sigla da Unidade da Federação
+        description: Sigla da unidade federativa do ente declarante
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
       - name: id_municipio
-        description: Identificador do município (IBGE, 7 dígitos)
+        description: Código IBGE de 7 dígitos do município declarante
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
       - name: id_indicador
-        description: >-
-          Código do indicador no SIOPE. O mesmo código designa indicadores
-          diferentes nas esferas estadual e municipal, então vale apenas dentro
-          desta tabela
+        description: Código do indicador no SIOPE
         tests: [not_null]
       - name: codigo_indicador
         description: >-
-          Código de exibição do indicador nos relatórios do FNDE, no formato
-          grupo.item. O prefixo é o agrupamento temático: 1 aplicações mínimas
-          legais, 2 despesas por etapa de ensino, 3 pessoal, 4 investimento por
-          aluno, 5 IDEB, 6 receitas, 7 resultado do exercício, 8 valores de MDE
+          Código de exibição do indicador, no formato grupo.item
       - name: valor_percentual
-        description: >-
-          Valor do indicador quando expresso em percentual. Nulo nos
-          indicadores medidos em reais. Valores acima de 100 são legítimos e
-          indicam aplicação acima do mínimo exigido; valores negativos ocorrem
-          nos indicadores de aplicação mínima e vêm assim da fonte
+        description: Valor do indicador, quando expresso em percentual
       - name: valor_real
-        description: >-
-          Valor do indicador quando expresso em reais. Nulo nos indicadores
-          medidos em percentual
+        description: Valor do indicador, quando expresso em reais
   - name: br_fnde_fundeb__dicionario
     description: >-
       Nome de cada indicador do SIOPE por tabela e por período de vigência. O
@@ -145,17 +123,17 @@ models:
           at_least: 0.95
     columns:
       - name: id_tabela
-        description: Nome da tabela que contém a coluna traduzida por esta linha
+        description: Nome da tabela a que a chave se refere
         tests: [not_null]
       - name: nome_coluna
-        description: Nome da coluna traduzida por esta linha
+        description: Nome da coluna a que a chave se refere
         tests: [not_null]
       - name: chave
-        description: Valor da coluna traduzida por esta linha
+        description: Valor codificado presente na coluna
         tests: [not_null]
       - name: cobertura_temporal
-        description: Cobertura temporal em que a tradução é válida
+        description: Anos em que a chave assume esse valor
         tests: [not_null]
       - name: valor
-        description: Descrição do valor da coluna traduzida por esta linha
+        description: Nome do indicador correspondente à chave
         tests: [not_null]

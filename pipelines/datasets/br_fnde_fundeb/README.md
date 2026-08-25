@@ -22,7 +22,7 @@ e [produto 54](https://www.fnde.gov.br/plataforma-antonieta-de-barros/dados/prod
 
 O portal é uma SPA — a página não carrega link de download. O arquivo sai da API:
 
-```
+```text
 GET https://www.fnde.gov.br/plataforma-antonieta-de-barros-api/products/data-products/{id}/artifact
 ```
 
@@ -48,14 +48,14 @@ O produto 54 se descreve como "Dados a partir de 2025", mas contém apenas o
 exercício corrente: quando 2026 abriu, 2025 saiu do 54 e ainda não entrou no 53.
 **Nenhum dos dois produtos publica 2025.**
 
-Consequência: o produto 53 não é histórico congelado. Quando o FNDE migrar 2025
-para ele, a carga do histórico precisa ser refeita — não é o flow que resolve.
+Consequência: o produto 53 não é histórico congelado. Se 2025 for publicado, será
+por uma carga, não pelo flow, que lê apenas o produto do exercício corrente.
 
 ## Estrutura do arquivo
 
 Texto separado por `;`, UTF-8, 14 colunas declaradas no cabeçalho:
 
-```
+```text
 TIPO;NUM_ANO;NUM_PERI;COD_UF;SIG_UF;COD_MUNI;NOM_MUNI;COD_INDI;COD_EXIB;NOM_INDI;COD_GRUP;NOM_GRUP_INDI;VAL_INDI;DT_ATUALIZACAO
 ```
 
@@ -68,7 +68,7 @@ Em linha `TIPO=Estadual` os campos `COD_MUNI` e `NOM_MUNI` são **omitidos**, n�
 enviados vazios. O leitor tem que tratar o número de campos, não confiar no
 cabeçalho: com 12 campos, o que vem depois de `SIG_UF` é `COD_INDI`.
 
-```
+```text
 Estadual;2024;6;52;GO;42;1.2;Percentual de aplicação…;3;Indicadores…;70.69;2026-07-07 11:20:48.93005
 Municipal;2024;6;52;GO;520870.000…;Goiânia;42;3.5;Percentual das despesas…;3;Indicadores…;…
 ```
@@ -192,14 +192,14 @@ estão em `models/br_fnde_fundeb/`.
 
 **`indicador_estadual`** — 28.209 linhas
 
-```
+```text
 ano, bimestre, sigla_uf, id_indicador, codigo_indicador,
 valor_percentual, valor_real
 ```
 
 **`indicador_municipal`** — 6.133.478 linhas
 
-```
+```text
 ano, bimestre, sigla_uf, id_municipio, id_indicador, codigo_indicador,
 valor_percentual, valor_real
 ```
