@@ -655,6 +655,64 @@ models:
         description: Código da indústria NAICS (5 dígitos)
       - name: name_naics_industry
         description: Nome da indústria NAICS
+  - name: br_bd_diretorios_us__soc_2000
+    description: >
+      Diretório da classificação ocupacional SOC 2000 (Standard Occupational
+      Classification), com hierarquia de grupo principal, grupo menor e
+      ocupação ampla.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_soc]
+    columns:
+      - name: id_soc
+        description: Código SOC (formato XX-XXXX)
+        tests: [not_null]
+      - name: name
+        description: Nome da ocupação ou grupo
+      - name: level
+        description: Nível hierárquico do código
+      - name: id_major_group
+        description: Código do grupo principal
+      - name: name_major_group
+        description: Nome do grupo principal
+      - name: id_minor_group
+        description: Código do grupo menor
+      - name: name_minor_group
+        description: Nome do grupo menor
+      - name: id_broad_occupation
+        description: Código da ocupação ampla
+      - name: name_broad_occupation
+        description: Nome da ocupação ampla
+  - name: br_bd_diretorios_us__soc_2010
+    description: >
+      Diretório da classificação ocupacional SOC 2010 (Standard Occupational
+      Classification), com hierarquia de grupo principal, grupo menor e
+      ocupação ampla.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_soc]
+    columns:
+      - name: id_soc
+        description: Código SOC (formato XX-XXXX)
+        tests: [not_null]
+      - name: name
+        description: Nome da ocupação ou grupo
+      - name: level
+        description: Nível hierárquico do código
+      - name: id_major_group
+        description: Código do grupo principal
+      - name: name_major_group
+        description: Nome do grupo principal
+      - name: id_minor_group
+        description: Código do grupo menor
+      - name: name_minor_group
+        description: Nome do grupo menor
+      - name: id_broad_occupation
+        description: Código da ocupação ampla
+      - name: name_broad_occupation
+        description: Nome da ocupação ampla
   - name: br_bd_diretorios_us__soc_2018
     description: >
       Diretório da classificação ocupacional SOC 2018 (Standard Occupational
