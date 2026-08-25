@@ -32,6 +32,11 @@ import requests
 logger = logging.getLogger(__name__)
 
 BASE = "https://adm.senado.gov.br/adm-dadosabertos/api/v1"
+# The administrative API exposes no senator code (only names), so the senador
+# dimension's ids come from the Legislative Open Data API — the same source the
+# sibling br_senado_dados_abertos uses, and whose CodigoParlamentar is the exact
+# code the administrative CEAPS data carries as codSenador (verified 77/77).
+LEGIS_BASE = "https://legis.senado.leg.br/dadosabertos"
 HEADERS = {
     "Accept": "application/json",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -102,6 +107,30 @@ def unwrap(payload: Any) -> list[dict]:
 def fetch(path: str, params: dict | None = None) -> list[dict]:
     """GET and unwrap in one step — the common case for a list endpoint."""
     return unwrap(get_json(path, params))
+
+
+def get_legislativo(
+    path: str, retries: int = 5, backoff: float = 1.5, timeout: int = 120
+) -> Any:
+    """GET a Legislative Open Data endpoint and parse JSON.
+
+    Separate from :func:`get_json` because it targets a different host
+    (:data:`LEGIS_BASE`) and never uses the administrative API's 404-as-empty
+    convention — a 404 here is a real error worth raising.
+    """
+    url = f"{LEGIS_BASE}{path}"
+    last_exc: Exception | None = None
+    for attempt in range(retries):
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=timeout)
+            if r.status_code == 200 and r.content and r.text.strip():
+                return r.json()
+        except requests.RequestException as exc:
+            last_exc = exc
+        time.sleep(backoff * (attempt + 1))
+    if last_exc is not None:
+        raise last_exc
+    raise RuntimeError(f"GET {url} failed after {retries} attempts")
 
 
 def fan_out(

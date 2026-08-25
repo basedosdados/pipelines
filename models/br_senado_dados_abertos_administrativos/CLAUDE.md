@@ -9,7 +9,7 @@ Sibling to `br_senado_dados_abertos`, which covers the **legislative** API
 separate coverage and cadence. Backend slug is `dados_abertos_administrativos`,
 mirroring the sibling's `dados_abertos_legislativos` — not the GCP dataset id.
 
-39 tables. The design, the endpoint-by-endpoint study and the exclusions are in
+40 tables. The design, the endpoint-by-endpoint study and the exclusions are in
 [ONBOARDING_PLAN.md](ONBOARDING_PLAN.md).
 
 ## Two partition schemes, because the source has two shapes
@@ -21,6 +21,20 @@ mirroring the sibling's `dados_abertos_legislativos` — not the GCP dataset id.
 
 The API exposes only current state for the snapshot tables; there is no time
 dimension to recover.
+
+## The senador dimension is cross-API
+
+`senador` is a dimension keyed by `id_senador`, referenced by `despesa_ceaps`,
+`senador_gabinete`, `senador_escritorio_apoio` and `senador_auxilio_moradia`.
+The administrative API exposes **no senator code** — only names — so `id_senador`
+comes from the **Legislative Open Data API** (`legis.senado.leg.br`, legislaturas
+53–57), whose `CodigoParlamentar` is the exact code CEAPS carries as `codSenador`
+(verified 77/77). Names crosswalk accent- and case-folded (`norm_nome`), with one
+override (`NELSINHO TRAD FILHO`→`Nelsinho Trad`). The dimension is comprehensive
+(681 senators, current + historical) and covers every `id_senador` in CEAPS
+(328/328), so `despesa_ceaps` drops `nome_senador`. Current senators are enriched
+from the admin `/senadores` (uf, partido, mandate, birth date, e-mail) and flagged
+`indicador_em_exercicio`.
 
 ## Source defects the transform compensates for
 

@@ -23,6 +23,7 @@ Source quirks handled here rather than downstream:
 from __future__ import annotations
 
 import re
+import unicodedata
 from collections.abc import Iterable
 from typing import Any
 
@@ -172,8 +173,129 @@ def dedupe(rows: list[dict], keys: Iterable[str]) -> list[dict]:
 
 # ================================================== A. Senadores ============
 
+# Legislaturas covering the administrative data (2007-2027); their union is the
+# comprehensive senator set, and it covers every id_senador in CEAPS (2008-2026).
+LEGISLATURAS = range(53, 58)
+
+# One admin name the legislative list spells differently.
+CROSSWALK_OVERRIDES = {"NELSINHO TRAD FILHO": "Nelsinho Trad"}
+
+
+def norm_nome(value: Any) -> str | None:
+    """Accent- and case-fold a name for the senator crosswalk."""
+    text = s(value)
+    if text is None:
+        return None
+    folded = (
+        unicodedata.normalize("NFKD", text)
+        .encode("ascii", "ignore")
+        .decode()
+        .upper()
+    )
+    return " ".join(folded.split())
+
+
+def build_senador_reference() -> tuple[dict[str, dict], dict[str, str]]:
+    """Return the senador dimension core and a name→id_senador crosswalk.
+
+    Built from the Legislative Open Data API — the administrative API exposes no
+    senator code. The core carries id, nome, nome completo and sexo for every
+    senator across :data:`LEGISLATURAS`; the crosswalk maps a normalised
+    parliamentary name to its id (most recent legislature wins), and is what the
+    gabinete, escritório and auxílio tables use to resolve their senators.
+    """
+    core: dict[str, dict] = {}
+    crosswalk: dict[str, str] = {}
+    for leg in LEGISLATURAS:
+        payload = api.get_legislativo(f"/senador/lista/legislatura/{leg}")
+        node = g(
+            payload,
+            "ListaParlamentarLegislatura",
+            "Parlamentares",
+            "Parlamentar",
+        )
+        for p in node if isinstance(node, list) else [node] if node else []:
+            ident = p.get("IdentificacaoParlamentar") or {}
+            code = s(ident.get("CodigoParlamentar"))
+            if not code:
+                continue
+            nome = s(ident.get("NomeParlamentar"))
+            core[code] = {
+                "id_senador": code,
+                "nome_parlamentar": nome,
+                "nome_completo": s(ident.get("NomeCompletoParlamentar")),
+                "sexo": s(ident.get("SexoParlamentar")),
+            }
+            key = norm_nome(nome)
+            if key:
+                crosswalk[key] = code
+    for admin_name, legis_name in CROSSWALK_OVERRIDES.items():
+        code = crosswalk.get(norm_nome(legis_name))
+        if code:
+            crosswalk[norm_nome(admin_name)] = code
+    return core, crosswalk
+
+
+def build_senador(
+    extracted_at: str,
+    reference: tuple[dict[str, dict], dict[str, str]] | None = None,
+) -> list[dict]:
+    """The senador dimension: comprehensive identity + current-senator detail.
+
+    Identity (id, nome, nome completo, sexo) is comprehensive, from the
+    legislative reference. The sitting senators are then enriched from the
+    administrative ``/senadores`` endpoint (uf, partido, mandate, birth date,
+    e-mail), and flagged ``em_exercicio``. Historical senators keep the identity
+    core with the current-only fields left null.
+    """
+    core, crosswalk = reference or build_senador_reference()
+    rows = {
+        code: {
+            "id_senador": code,
+            "nome_parlamentar": rec["nome_parlamentar"],
+            "nome_completo": rec["nome_completo"],
+            "sexo": rec["sexo"],
+            "sigla_uf": None,
+            "sigla_partido": None,
+            "titular_suplente": None,
+            "mandato": None,
+            "data_nascimento": None,
+            "email": None,
+            "indicador_em_exercicio": "nao",
+        }
+        for code, rec in core.items()
+    }
+    for r in api.fetch("/senadores"):
+        code = crosswalk.get(norm_nome(r.get("nomeParlamentar")))
+        if not code:
+            continue
+        row = rows.setdefault(
+            code,
+            {
+                "id_senador": code,
+                "nome_parlamentar": s(r.get("nomeParlamentar")),
+                "nome_completo": None,
+                "sexo": None,
+            },
+        )
+        row.update(
+            {
+                "sigla_uf": s(r.get("uf")),
+                "sigla_partido": s(r.get("partido")),
+                "titular_suplente": s(r.get("titularSuplente")),
+                "mandato": s(r.get("mandato")),
+                "data_nascimento": date(r.get("dataNascimento")),
+                "email": s(r.get("email")),
+                "indicador_em_exercicio": "sim",
+            }
+        )
+    return sorted(rows.values(), key=lambda x: int(x["id_senador"]))
+
 
 def build_despesa_ceaps(years: Iterable[int]) -> list[dict]:
+    # nome_senador is not carried: id_senador (codSenador) is the legislative
+    # CodigoParlamentar, so the name resolves through the senador dimension,
+    # which covers every id present here (2008-2026).
     rows = []
     for year in years:
         for r in api.fetch(f"/senadores/despesas_ceaps/{year}"):
@@ -183,7 +305,6 @@ def build_despesa_ceaps(years: Iterable[int]) -> list[dict]:
                     "mes": integer(r.get("mes")),
                     "id_despesa": s(r.get("id")),
                     "id_senador": s(r.get("codSenador")),
-                    "nome_senador": s(r.get("nomeSenador")),
                     "tipo_despesa": s(r.get("tipoDespesa")),
                     "tipo_documento": s(r.get("tipoDocumento")),
                     "documento": s(r.get("documento")),
@@ -197,33 +318,31 @@ def build_despesa_ceaps(years: Iterable[int]) -> list[dict]:
     return rows
 
 
-def build_senador_gabinete(extracted_at: str) -> list[dict]:
+def build_senador_gabinete(
+    extracted_at: str, crosswalk: dict[str, str] | None = None
+) -> list[dict]:
+    xw = crosswalk if crosswalk is not None else build_senador_reference()[1]
     return [
         {
             "data_extracao": extracted_at,
-            "nome_parlamentar": s(r.get("nomeParlamentar")),
-            "sigla_uf": s(r.get("uf")),
-            "sigla_partido": s(r.get("partido")),
-            "titular_suplente": s(r.get("titularSuplente")),
-            "mandato": s(r.get("mandato")),
-            "data_nascimento": date(r.get("dataNascimento")),
+            "id_senador": xw.get(norm_nome(r.get("nomeParlamentar"))),
             "endereco": s(r.get("endereco")),
             "telefones": s(r.get("telefones")),
             "fax": s(r.get("fax")),
-            "email": s(r.get("email")),
             "chefe_gabinete": s(r.get("chefeGabinete")),
         }
         for r in api.fetch("/senadores")
     ]
 
 
-def build_senador_escritorio_apoio(extracted_at: str) -> list[dict]:
+def build_senador_escritorio_apoio(
+    extracted_at: str, crosswalk: dict[str, str] | None = None
+) -> list[dict]:
+    xw = crosswalk if crosswalk is not None else build_senador_reference()[1]
     return [
         {
             "data_extracao": extracted_at,
-            "nome_parlamentar": s(g(r, "parlamentar", "nome")),
-            "sigla_uf": s(g(r, "parlamentar", "estado")),
-            "sigla_partido": s(g(r, "parlamentar", "partido")),
+            "id_senador": xw.get(norm_nome(g(r, "parlamentar", "nome"))),
             "nome_escritorio": s(g(r, "setor", "nome")),
             "sigla_setor": s(g(r, "setor", "sigla")),
             "endereco": s(g(r, "setor", "endereco")),
@@ -233,13 +352,14 @@ def build_senador_escritorio_apoio(extracted_at: str) -> list[dict]:
     ]
 
 
-def build_senador_auxilio_moradia(extracted_at: str) -> list[dict]:
+def build_senador_auxilio_moradia(
+    extracted_at: str, crosswalk: dict[str, str] | None = None
+) -> list[dict]:
+    xw = crosswalk if crosswalk is not None else build_senador_reference()[1]
     return [
         {
             "data_extracao": extracted_at,
-            "nome_parlamentar": s(r.get("nomeParlamentar")),
-            "sigla_uf": s(r.get("estadoEleito")),
-            "sigla_partido": s(r.get("partidoEleito")),
+            "id_senador": xw.get(norm_nome(r.get("nomeParlamentar"))),
             "indicador_auxilio_moradia": flag(r.get("auxilioMoradia")),
             "indicador_imovel_funcional": flag(r.get("imovelFuncional")),
         }
@@ -1337,6 +1457,7 @@ def build_previsao_aposentadoria(extracted_at: str) -> list[dict]:
 SIM_NAO = {"sim": "Sim", "nao": "Não"}
 
 DICIONARIO_ESTATICO: dict[tuple[str, str], dict[str, str]] = {
+    ("senador", "indicador_em_exercicio"): SIM_NAO,
     ("senador_auxilio_moradia", "indicador_auxilio_moradia"): SIM_NAO,
     ("senador_auxilio_moradia", "indicador_imovel_funcional"): SIM_NAO,
     ("contratacao", "indicador_mao_de_obra"): SIM_NAO,

@@ -17,7 +17,6 @@ select
     safe_cast(mes as int64) mes,
     safe_cast(id_despesa as string) id_despesa,
     safe_cast(id_senador as string) id_senador,
-    safe_cast(nome_senador as string) nome_senador,
     safe_cast(tipo_despesa as string) tipo_despesa,
     safe_cast(tipo_documento as string) tipo_documento,
     safe_cast(documento as string) documento,

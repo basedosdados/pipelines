@@ -45,6 +45,7 @@ OUTPUT_ROOT = Path(DATA_DIR) / "output"
 # Smallest first, so a credentials or schema problem surfaces on a cheap table
 # rather than after uploading millions of remuneração rows.
 TABLES = [
+    "senador",
     "senador_gabinete",
     "senador_escritorio_apoio",
     "senador_auxilio_moradia",

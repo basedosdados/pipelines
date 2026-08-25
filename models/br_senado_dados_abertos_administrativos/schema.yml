@@ -1,6 +1,62 @@
 ---
 version: 2
 models:
+  - name: br_senado_dados_abertos_administrativos__senador
+    description: >
+      Dimensão de identificação dos senadores e senadoras referenciados nas demais
+      tabelas do conjunto, com nome, sexo e, para os senadores em exercício, partido,
+      unidade da federação, mandato e data de nascimento. A identificação e os códigos
+      vêm do Serviço de Dados Abertos Legislativos do Senado Federal, cujo código
+      de parlamentar é o mesmo usado nos dados administrativos.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_senador]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_senador
+        description: >
+          Código identificador do senador, correspondente ao código de parlamentar
+          do Senado Federal
+        tests: [not_null]
+      - name: nome_parlamentar
+        description: >
+          Nome parlamentar do senador
+      - name: nome_completo
+        description: >
+          Nome civil completo do senador
+      - name: sexo
+        description: >
+          Sexo do senador
+      - name: sigla_uf
+        description: >
+          Sigla da unidade da federação pela qual o senador exerce o mandato, informada
+          apenas para senadores em exercício
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: sigla_partido
+        description: >
+          Sigla do partido do senador, informada apenas para senadores em exercício
+      - name: titular_suplente
+        description: >
+          Condição do senador no mandato, titular ou suplente, informada apenas para
+          senadores em exercício
+      - name: mandato
+        description: >
+          Período do mandato em exercício, no formato AAAA / AAAA, informado apenas
+          para senadores em exercício
+      - name: data_nascimento
+        description: >
+          Data de nascimento do senador, informada apenas para senadores em exercício
+      - name: email
+        description: >
+          Endereço eletrônico institucional do senador, informado apenas para senadores
+          em exercício
+      - name: indicador_em_exercicio
+        description: >
+          Indica se o senador está em exercício na data de extração
   - name: br_senado_dados_abertos_administrativos__despesa_ceaps
     description: >
       Despesas reembolsadas pela Cota para o Exercício da Atividade Parlamentar dos
@@ -34,10 +90,13 @@ models:
         tests: [not_null]
       - name: id_senador
         description: >
-          Código identificador do senador na API administrativa
-      - name: nome_senador
-        description: >
-          Nome parlamentar do senador
+          Código identificador do senador, referenciando a tabela senador
+        tests:
+          - relationships:
+              to: ref('br_senado_dados_abertos_administrativos__senador')
+              field: id_senador
+              config:
+                where: id_senador is not null
       - name: tipo_despesa
         description: >
           Natureza da despesa reembolsada
@@ -64,11 +123,11 @@ models:
           Valor reembolsado ao senador
   - name: br_senado_dados_abertos_administrativos__senador_gabinete
     description: >
-      Retrato do gabinete parlamentar de cada senador em exercício: endereço, telefones,
-      chefe de gabinete e período do mandato.
+      Retrato do gabinete parlamentar de cada senador em exercício: endereço, telefones
+      e chefe de gabinete. A identificação do senador está na tabela senador.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [data_extracao, nome_parlamentar]
+          combination_of_columns: [data_extracao, id_senador]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [fax]
@@ -77,29 +136,15 @@ models:
         description: >
           Data em que o retrato foi extraído da API de dados abertos administrativos
         tests: [not_null]
-      - name: nome_parlamentar
+      - name: id_senador
         description: >
-          Nome parlamentar do senador
-        tests: [not_null]
-      - name: sigla_uf
-        description: >
-          Sigla da unidade da federação pela qual o senador foi eleito
+          Código identificador do senador, referenciando a tabela senador
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_brasil__uf')
-              field: sigla
-      - name: sigla_partido
-        description: >
-          Sigla do partido do senador
-      - name: titular_suplente
-        description: >
-          Condição do senador no mandato, titular ou suplente
-      - name: mandato
-        description: >
-          Período do mandato em exercício, no formato AAAA / AAAA
-      - name: data_nascimento
-        description: >
-          Data de nascimento do senador
+              to: ref('br_senado_dados_abertos_administrativos__senador')
+              field: id_senador
+              config:
+                where: id_senador is not null
       - name: endereco
         description: >
           Endereço do gabinete no complexo do Senado Federal
@@ -109,44 +154,35 @@ models:
       - name: fax
         description: >
           Fax do gabinete, quando informado
-      - name: email
-        description: >
-          Endereço eletrônico institucional do senador
       - name: chefe_gabinete
         description: >
           Nome do chefe de gabinete
   - name: br_senado_dados_abertos_administrativos__senador_escritorio_apoio
     description: >
       Escritórios de apoio parlamentar mantidos pelos senadores nos estados, com o
-      setor responsável e o endereço declarado.
+      setor responsável e o endereço declarado. A identificação do senador está na
+      tabela senador.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - data_extracao
-            - nome_parlamentar
-            - nome_escritorio
+          combination_of_columns: [data_extracao, id_senador, nome_escritorio]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values: [sigla_partido, sigla_setor]
+          ignore_values: [sigla_setor]
     columns:
       - name: data_extracao
         description: >
           Data em que o retrato foi extraído da API de dados abertos administrativos
         tests: [not_null]
-      - name: nome_parlamentar
+      - name: id_senador
         description: >
-          Nome parlamentar do senador titular do escritório
-        tests: [not_null]
-      - name: sigla_uf
-        description: >
-          Sigla da unidade da federação do senador
+          Código identificador do senador titular do escritório, referenciando a tabela
+          senador
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_brasil__uf')
-              field: sigla
-      - name: sigla_partido
-        description: >
-          Sigla do partido do senador, quando informada
+              to: ref('br_senado_dados_abertos_administrativos__senador')
+              field: id_senador
+              config:
+                where: id_senador is not null
       - name: nome_escritorio
         description: >
           Denominação do escritório de apoio
@@ -162,10 +198,10 @@ models:
   - name: br_senado_dados_abertos_administrativos__senador_auxilio_moradia
     description: >
       Indicação, por senador, de recebimento de auxílio-moradia e de ocupação de imóvel
-      funcional.
+      funcional. A identificação do senador está na tabela senador.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [data_extracao, nome_parlamentar]
+          combination_of_columns: [data_extracao, id_senador]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -173,20 +209,16 @@ models:
         description: >
           Data em que o retrato foi extraído da API de dados abertos administrativos
         tests: [not_null]
-      - name: nome_parlamentar
+      - name: id_senador
         description: >
-          Nome parlamentar do senador, ausente em um registro publicado pela fonte
-          sem identificação
-      - name: sigla_uf
-        description: >
-          Sigla da unidade da federação pela qual o senador foi eleito
+          Código identificador do senador, referenciando a tabela senador, ausente
+          em um registro publicado pela fonte sem identificação
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_brasil__uf')
-              field: sigla
-      - name: sigla_partido
-        description: >
-          Sigla do partido pelo qual o senador foi eleito
+              to: ref('br_senado_dados_abertos_administrativos__senador')
+              field: id_senador
+              config:
+                where: id_senador is not null
       - name: indicador_auxilio_moradia
         description: >
           Indica se o senador recebe auxílio-moradia

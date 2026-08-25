@@ -170,6 +170,15 @@ def gen_schema_entry(slug: str, spec: dict, frame: pd.DataFrame | None) -> str:
             tests.append("          - relationships:")
             tests.append(f"              to: ref('{model}')")
             tests.append(f"              field: {field}")
+        # Intra-dataset foreign key (e.g. id_senador -> the senador dimension).
+        # ref value is the target table slug; the field is this column's name.
+        ref = opts.get("ref")
+        if ref:
+            tests.append("          - relationships:")
+            tests.append(f"              to: ref('{DATASET}__{ref}')")
+            tests.append(f"              field: {name}")
+            tests.append("              config:")
+            tests.append(f'                where: "{name} is not null"')
         if tests:
             out.append("        tests:")
             out.extend(tests)

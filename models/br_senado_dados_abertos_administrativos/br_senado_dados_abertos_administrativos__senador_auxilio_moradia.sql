@@ -14,9 +14,7 @@
 
 select
     safe_cast(data_extracao as date) data_extracao,
-    safe_cast(nome_parlamentar as string) nome_parlamentar,
-    safe_cast(sigla_uf as string) sigla_uf,
-    safe_cast(sigla_partido as string) sigla_partido,
+    safe_cast(id_senador as string) id_senador,
     safe_cast(indicador_auxilio_moradia as string) indicador_auxilio_moradia,
     safe_cast(indicador_imovel_funcional as string) indicador_imovel_funcional
 from

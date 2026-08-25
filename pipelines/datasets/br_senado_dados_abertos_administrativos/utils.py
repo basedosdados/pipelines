@@ -198,15 +198,22 @@ def clean_all(
             else list(range(first, today.year + 1))
         )
 
-    # --- Senadores
-    emit("senador_gabinete", clean.build_senador_gabinete(extracted_at))
+    # --- Senadores. The senador dimension and the tables keyed by id_senador
+    # share one legislative reference, fetched once here.
+    reference = clean.build_senador_reference()
+    crosswalk = reference[1]
+    emit("senador", clean.build_senador(extracted_at, reference))
+    emit(
+        "senador_gabinete",
+        clean.build_senador_gabinete(extracted_at, crosswalk),
+    )
     emit(
         "senador_escritorio_apoio",
-        clean.build_senador_escritorio_apoio(extracted_at),
+        clean.build_senador_escritorio_apoio(extracted_at, crosswalk),
     )
     emit(
         "senador_auxilio_moradia",
-        clean.build_senador_auxilio_moradia(extracted_at),
+        clean.build_senador_auxilio_moradia(extracted_at, crosswalk),
     )
     emit(
         "senador_aposentado_pensionista",

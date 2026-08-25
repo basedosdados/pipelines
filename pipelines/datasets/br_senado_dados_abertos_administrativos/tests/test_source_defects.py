@@ -339,3 +339,105 @@ class TestFanOutFailuresAreNotSilent:
 
         with pytest.raises(RuntimeError, match="silently incomplete"):
             api.fan_out(range(50), broken, workers=4, label="itens")
+
+
+class TestSenadorNormalization:
+    """The senador dimension is keyed by id_senador the admin API doesn't expose.
+
+    Names are crosswalked to the legislative API. The normalization must be
+    accent- and case-insensitive, and the tables keyed by id_senador must resolve
+    only through the crosswalk, never carry a stray name column.
+    """
+
+    def test_name_normalization_is_accent_case_insensitive(self):
+        from pipelines.datasets.br_senado_dados_abertos_administrativos import (
+            senado_adm_clean as clean,
+        )
+
+        assert clean.norm_nome("Esperidião Amin") == "ESPERIDIAO AMIN"
+        assert clean.norm_nome("  confúcio   moura ") == "CONFUCIO MOURA"
+        assert clean.norm_nome("---") is None
+        assert clean.norm_nome(None) is None
+
+    def test_gabinete_resolves_id_via_crosswalk_only(self, monkeypatch):
+        from pipelines.datasets.br_senado_dados_abertos_administrativos import (
+            senado_adm_clean as clean,
+        )
+
+        monkeypatch.setattr(
+            clean.api,
+            "fetch",
+            lambda path, *a, **k: [
+                {
+                    "nomeParlamentar": "ESPERIDIÃO AMIN",
+                    "endereco": "Anexo 2",
+                    "telefones": "(61) 0000",
+                    "fax": "-",
+                    "chefeGabinete": "Fulano",
+                }
+            ],
+        )
+        rows = clean.build_senador_gabinete(
+            "2026-08-25", {"ESPERIDIAO AMIN": "22"}
+        )
+
+        assert rows[0]["id_senador"] == "22"
+        # identity columns must be gone — only the office fields remain
+        assert set(rows[0]) == {
+            "data_extracao",
+            "id_senador",
+            "endereco",
+            "telefones",
+            "fax",
+            "chefe_gabinete",
+        }
+
+    def test_dimension_flags_em_exercicio_and_keeps_historical(
+        self, monkeypatch
+    ):
+        from pipelines.datasets.br_senado_dados_abertos_administrativos import (
+            senado_adm_clean as clean,
+        )
+
+        core = {
+            "22": {
+                "id_senador": "22",
+                "nome_parlamentar": "Esperidião Amin",
+                "nome_completo": "Esperidião Amin H. Filho",
+                "sexo": "Masculino",
+            },
+            "3": {
+                "id_senador": "3",
+                "nome_parlamentar": "Antonio Valadares",
+                "nome_completo": "Antonio C. Valadares",
+                "sexo": "Masculino",
+            },
+        }
+        crosswalk = {"ESPERIDIAO AMIN": "22", "ANTONIO VALADARES": "3"}
+        monkeypatch.setattr(
+            clean.api,
+            "fetch",
+            lambda path, *a, **k: [
+                {
+                    "nomeParlamentar": "Esperidião Amin",
+                    "uf": "SC",
+                    "partido": "PP",
+                    "titularSuplente": "Titular",
+                    "mandato": "2019 / 2027",
+                    "dataNascimento": "21/12/1947",
+                    "email": "x@senado",
+                }
+            ],
+        )
+        rows = {
+            r["id_senador"]: r
+            for r in clean.build_senador("2026-08-25", (core, crosswalk))
+        }
+
+        assert rows["22"]["indicador_em_exercicio"] == "sim"
+        assert rows["22"]["sigla_uf"] == "SC"
+        assert rows["22"]["data_nascimento"] == "1947-12-21"
+        # historical senator kept, current-only fields null
+        assert rows["3"]["indicador_em_exercicio"] == "nao"
+        assert rows["3"]["sigla_uf"] is None
+        assert rows["3"]["nome_completo"] == "Antonio C. Valadares"
