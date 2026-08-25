@@ -23,7 +23,6 @@ class constants(Enum):
         "dicionario": [
             "qualificacoes",
             "motivos",
-            "naturezas",
             "situacao_cadastral",
             "identificador_matriz_filial",
             "faixa_etaria",
