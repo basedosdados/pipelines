@@ -38,7 +38,6 @@ def br_rf_cafir__imoveis_rurais(
     dataset_id: str = "br_rf_cafir",
     table_id: str = "imoveis_rurais",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -103,7 +102,6 @@ def br_rf_cafir__imoveis_rurais(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -122,7 +120,6 @@ def br_rf_cafir__imoveis_rurais(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
