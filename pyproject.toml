@@ -226,9 +226,28 @@ project-excludes = [
   # via uv run) — one-shot onboarding code outside the typed `pipelines/`
   # framework, consistent with the model-ETL-not-type-checked policy.
   "models/br_cgu_sancoes/code",
+  # Same policy: world_oecd_piaac onboarding code is standalone `.py`
+  # (codebook.py, architecture.py, build_*.py, clean.py, metadata.py) using bare
+  # `import codebook`/`import constants` resolved via sys.path.insert, and
+  # importlib.util.spec_from_file_location for the databasis MCP module —
+  # unresolvable from the repo root. One-shot onboarding code, not the typed
+  # `pipelines/` framework, consistent with the model-ETL-not-type-checked policy.
+  "models/world_oecd_piaac/code",
+  # Same policy: br_bd_diretorios_mundo ISCO/ISIC directory build/upload code is
+  # standalone one-shot `.py` run via `uv run`, outside the typed framework.
+  "models/br_bd_diretorios_mundo/code",
   "models/au_geoscape_gnaf/code",
   "models/us_cms_open_payments/code",
   "models/us_fec_campaign_finance/code",
+  # Same policy: world_wil_wid onboarding code (clean.py, upload.py run via uv
+  # run) is one-shot bootstrap outside the typed `pipelines/` framework; the
+  # pure transform lives in pipelines/datasets/world_wil_wid/utils.py.
+  "models/world_wil_wid/code",
+  # Same policy: us_bls_oes onboarding code is standalone `.py` (build_*.py,
+  # clean_data.py, upload.py run via uv run) — one-shot bootstrap outside the
+  # typed `pipelines/` framework. The shared transform lives in the typed
+  # pipelines/datasets/us_bls_oes/ and is type-checked there.
+  "models/us_bls_oes/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
