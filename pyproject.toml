@@ -232,6 +232,11 @@ project-excludes = [
   # run) is one-shot bootstrap outside the typed `pipelines/` framework; the
   # pure transform lives in pipelines/datasets/world_wil_wid/utils.py.
   "models/world_wil_wid/code",
+  # Same policy: us_bls_oes onboarding code is standalone `.py` (build_*.py,
+  # clean_data.py, upload.py run via uv run) — one-shot bootstrap outside the
+  # typed `pipelines/` framework. The shared transform lives in the typed
+  # pipelines/datasets/us_bls_oes/ and is type-checked there.
+  "models/us_bls_oes/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
