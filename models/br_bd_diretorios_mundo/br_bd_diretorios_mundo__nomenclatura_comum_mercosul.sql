@@ -1,6 +1,6 @@
 {{ config(alias="nomenclatura_comum_mercosul", schema="br_bd_diretorios_mundo") }}
 
--- Atualualiziado em: 2024-06-19
+-- Atualizado em: 2024-06-19
 with
     safe_select as (
         select

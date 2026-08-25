@@ -6,13 +6,13 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1997, "end": 2025, "interval": 1},
+            "range": {"start": 1997, "end": 2026, "interval": 1},
         },
         cluster_by=["mes", "sigla_uf_ncm"],
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )
 }}
--- Atualualiziado em: 2024-06-19
+-- Atualizado em: 2024-06-19
 with
     safe_select as (
         select
@@ -29,11 +29,11 @@ with
             ) sigla_uf_ncm,
             safe_cast(id_via as string) id_via,
             safe_cast(id_urf as string) id_urf,
-            safe_cast(quantidade_estatistica as float64) quantidade_estatistica,
-            safe_cast(peso_liquido_kg as float64) peso_liquido_kg,
-            safe_cast(valor_fob_dolar as float64) valor_fob_dolar,
-            safe_cast(valor_frete as float64) valor_frete,
-            safe_cast(valor_seguro as float64) valor_seguro
+            safe_cast(quantidade_estatistica as int64) quantidade_estatistica,
+            safe_cast(peso_liquido_kg as int64) peso_liquido_kg,
+            safe_cast(valor_fob_dolar as int64) valor_fob_dolar,
+            safe_cast(valor_frete as int64) valor_frete,
+            safe_cast(valor_seguro as int64) valor_seguro
         from {{ set_datalake_project("br_me_comex_stat_staging.ncm_importacao") }} as t
         {% if is_incremental() %}
             where
