@@ -100,3 +100,65 @@ models:
         description: Nome (português)
       - name: nome_en
         description: Nome (inglês)
+  - name: br_bd_diretorios_mundo__isco_08
+    description: >
+      Diretório da Classificação Internacional Uniforme de Ocupações (ISCO-08),
+      publicada pela Organização Internacional do Trabalho. Contém os quatro níveis
+      hierárquicos em uma única tabela — 10 grandes grupos, 43 subgrupos principais,
+      130 subgrupos e 436 grupos de base — com o código de cada nível superior
+      correspondente. Títulos disponíveis apenas em inglês na fonte.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [mundo]
+          combination_of_columns: [id_isco_08]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_isco_08
+        description: Código ISCO-08 (1 a 4 dígitos, conforme o nível)
+        tests: [not_null]
+      - name: id_isco_08_grande_grupo
+        description: Código ISCO-08 do grande grupo (1 dígito) ao qual o código pertence
+      - name: id_isco_08_subgrupo_principal
+        description: Código ISCO-08 do subgrupo principal (2 dígitos) ao qual o código
+          pertence
+      - name: id_isco_08_subgrupo
+        description: Código ISCO-08 do subgrupo (3 dígitos) ao qual o código pertence
+      - name: nivel
+        description: >
+          Nível hierárquico do código: grande_grupo, subgrupo_principal, subgrupo
+          ou grupo_base
+      - name: nome_en
+        description: Título da ocupação em inglês, conforme publicado pela OIT
+  - name: br_bd_diretorios_mundo__isic_4
+    description: >
+      Diretório da Classificação Industrial Internacional Uniforme de todas as
+      atividades econômicas (ISIC Rev.4), publicada pela Divisão de Estatística das
+      Nações Unidas. Contém os quatro níveis hierárquicos em uma única tabela — 21
+      seções (identificadas por letra), 88 divisões, 238 grupos e 419 classes — com
+      o
+      código de cada nível superior correspondente. A seção de uma divisão não é
+      dedutível do código numérico e vem da ordem hierárquica da fonte. Títulos
+      disponíveis apenas em inglês na fonte.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [mundo]
+          combination_of_columns: [id_isic_4]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_isic_4
+        description: Código ISIC Rev.4 (letra para seção, 2 a 4 dígitos para os demais
+          níveis)
+        tests: [not_null]
+      - name: id_isic_4_secao
+        description: Código ISIC Rev.4 da seção (letra) à qual o código pertence
+      - name: id_isic_4_divisao
+        description: Código ISIC Rev.4 da divisão (2 dígitos) à qual o código pertence
+      - name: id_isic_4_grupo
+        description: Código ISIC Rev.4 do grupo (3 dígitos) ao qual o código pertence
+      - name: nivel
+        description: 'Nível hierárquico do código: secao, divisao, grupo ou classe'
+      - name: nome_en
+        description: Título da atividade econômica em inglês, conforme publicado pela
+          ONU
