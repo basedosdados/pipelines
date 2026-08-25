@@ -154,6 +154,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_bls_oes:
+      +materialized: table
+      +schema: us_bls_oes
     us_fed_fred:
       +materialized: table
       +schema: us_fed_fred
@@ -589,6 +592,9 @@ models:
       # per-state pipelines need to rebuild one state without touching the rest.
       states:
         +materialized: ephemeral
+    world_wil_wid:
+      +materialized: table
+      +schema: world_wil_wid
     world_wwf_hydrosheds:
       +materialized: table
       +schema: world_wwf_hydrosheds
