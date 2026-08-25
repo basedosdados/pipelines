@@ -69,4 +69,7 @@ from
         union all
         select *
         from {{ ref("world_wb_mides__pagamento_sc") }}
+        union all
+        select *
+        from {{ ref("world_wb_mides__pagamento_to") }}
     )
