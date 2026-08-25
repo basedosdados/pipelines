@@ -1,295 +1,321 @@
 ---
 version: 2
 models:
-- name: us_bls_oes__area
-  description: >-
-    Estimativas do OEWS de emprego e salários por ocupação e área geográfica, abrangendo o total nacional,
-    estados, territórios, áreas metropolitanas e áreas não metropolitanas, para todos os setores de atividade
-    combinados. Uma linha por ano, área, tipo de propriedade e ocupação, com emprego, salário médio e
-    os percentis 10, 25, 50, 75 e 90 em base horária e anual. As estimativas referem-se a maio do ano
-    indicado.
-  tests:
-  - dbt_utils.unique_combination_of_columns:
-      combination_of_columns:
-      - year
-      - area_id
-      - ownership_id
-      - occupation_id
-      - occupation_group
-  - not_null_proportion_multiple_columns:
-      at_least: 0.05
-      ignore_values:
-      - state_abbreviation
-      - jobs_per_1000
-      - location_quotient
-      - hourly_wage_mean
-      - hourly_wage_percentile_10
-      - hourly_wage_percentile_25
-      - hourly_wage_median
-      - hourly_wage_percentile_75
-      - hourly_wage_percentile_90
-      - hourly_wage_only
-  columns:
-  - name: year
+  - name: us_bls_oes__area
     description: >-
-      Reference year of the estimate; OEWS estimates refer to May of this year
+      Estimativas do OEWS de emprego e salários por ocupação e área geográfica, abrangendo
+      o total nacional,
+      estados, territórios, áreas metropolitanas e áreas não metropolitanas, para
+      todos os setores de atividade
+      combinados. Uma linha por ano, área, tipo de propriedade e ocupação, com emprego,
+      salário médio e
+      os percentis 10, 25, 50, 75 e 90 em base horária e anual. As estimativas referem-se
+      a maio do ano
+      indicado.
     tests:
-    - not_null
-    - relationships:
-        to: ref('br_bd_diretorios_data_tempo__ano')
-        field: ano.ano
-  - name: area_id
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - area_id
+            - ownership_id
+            - occupation_id
+            - occupation_group
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - state_abbreviation
+            - jobs_per_1000
+            - location_quotient
+            - hourly_wage_mean
+            - hourly_wage_percentile_10
+            - hourly_wage_percentile_25
+            - hourly_wage_median
+            - hourly_wage_percentile_75
+            - hourly_wage_percentile_90
+            - hourly_wage_only
+    columns:
+      - name: year
+        description: >-
+          Reference year of the estimate; OEWS estimates refer to May of this year
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: area_id
+        description: >-
+          Area code: 99 for the United States, the state FIPS code for states and
+          territories, the Metropolitan
+          Statistical Area code, or the OEWS-specific nonmetropolitan area code
+        tests: [not_null]
+      - name: area_type
+        description: >-
+          Type of area the estimate covers: nation, state, territory, metropolitan
+          statistical area, metropolitan
+          division or nonmetropolitan area
+      - name: state_abbreviation
+        description: >-
+          Two-letter abbreviation of the primary state of the area, or US for the
+          national estimates
+      - name: ownership_id
+        description: >-
+          Ownership of the establishments covered by the estimate
+        tests: [not_null]
+      - name: occupation_id
+        description: >-
+          Standard Occupational Classification (SOC) code, or an OEWS-specific code
+          where OEWS publishes a
+          combination of SOC occupations
+        tests: [not_null]
+      - name: occupation_group
+        description: >-
+          SOC aggregation level of the occupation: total, major, minor, broad or detailed
+      - name: area_name
+        description: >-
+          Name of the area the estimate covers
+      - name: occupation_name
+        description: >-
+          SOC title, or the OEWS-specific title where OEWS publishes a combination
+          of SOC occupations
+      - name: employment
+        description: >-
+          Estimated total employment, rounded to the nearest 10 and excluding the
+          self-employed
+      - name: employment_prse
+        description: >-
+          Percent relative standard error of the employment estimate
+      - name: jobs_per_1000
+        description: >-
+          Jobs in the occupation per 1,000 jobs in the area
+      - name: location_quotient
+        description: >-
+          Ratio of the occupation's share of area employment to its share of national
+          employment
+      - name: hourly_wage_mean
+        description: >-
+          Mean hourly wage
+      - name: annual_wage_mean
+        description: >-
+          Mean annual wage
+      - name: wage_mean_prse
+        description: >-
+          Percent relative standard error of the mean wage estimate
+      - name: hourly_wage_percentile_10
+        description: >-
+          Hourly wage at the 10th percentile
+      - name: hourly_wage_percentile_25
+        description: >-
+          Hourly wage at the 25th percentile
+      - name: hourly_wage_median
+        description: >-
+          Median hourly wage, the 50th percentile
+      - name: hourly_wage_percentile_75
+        description: >-
+          Hourly wage at the 75th percentile
+      - name: hourly_wage_percentile_90
+        description: >-
+          Hourly wage at the 90th percentile
+      - name: annual_wage_percentile_10
+        description: >-
+          Annual wage at the 10th percentile
+      - name: annual_wage_percentile_25
+        description: >-
+          Annual wage at the 25th percentile
+      - name: annual_wage_median
+        description: >-
+          Median annual wage, the 50th percentile
+      - name: annual_wage_percentile_75
+        description: >-
+          Annual wage at the 75th percentile
+      - name: annual_wage_percentile_90
+        description: >-
+          Annual wage at the 90th percentile
+      - name: annual_wage_only
+        description: >-
+          TRUE when the source releases only annual wages for the occupation, which
+          applies to occupations
+          paid annually but typically working fewer than 2,080 hours per year, such
+          as teachers, pilots and
+          athletes
+      - name: hourly_wage_only
+        description: >-
+          TRUE when the source releases only hourly wages for the occupation, which
+          applies to occupations
+          paid hourly but typically working fewer than 2,080 hours per year, such
+          as actors, dancers and musicians
+      - name: wage_top_coded
+        description: >-
+          TRUE when at least one wage estimate in the row is at or above $115.00 per
+          hour or $239,200 per
+          year and was therefore withheld by the source
+  - name: us_bls_oes__industry
     description: >-
-      Area code: 99 for the United States, the state FIPS code for states and territories, the Metropolitan
-      Statistical Area code, or the OEWS-specific nonmetropolitan area code
+      Estimativas nacionais do OEWS de emprego e salários por ocupação e setor de
+      atividade (NAICS). Uma
+      linha por ano, setor, tipo de propriedade e ocupação, com emprego, participação
+      da ocupação no emprego
+      do setor, salário médio e os percentis 10, 25, 50, 75 e 90 em base horária e
+      anual. As estimativas
+      referem-se a maio do ano indicado.
     tests:
-    - not_null
-  - name: area_type
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - industry_id
+            - ownership_id
+            - occupation_id
+            - occupation_group
+            - industry_group
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - industry_group
+            - percent_establishments_reporting
+            - establishments_reporting_below_threshold
+            - hourly_wage_mean
+            - hourly_wage_percentile_10
+            - hourly_wage_percentile_25
+            - hourly_wage_median
+            - hourly_wage_percentile_75
+            - hourly_wage_percentile_90
+            - hourly_wage_only
+    columns:
+      - name: year
+        description: >-
+          Reference year of the estimate; OEWS estimates refer to May of this year
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: industry_id
+        description: >-
+          North American Industry Classification System (NAICS) code, or an OEWS-specific
+          code where OEWS
+          publishes a combination of industries
+        tests: [not_null]
+      - name: industry_group
+        description: >-
+          NAICS aggregation level of the industry: sector, 3-digit, 4-digit, 5-digit
+          or 6-digit, with or without
+          an ownership split
+      - name: ownership_id
+        description: >-
+          Ownership of the establishments covered by the estimate
+        tests: [not_null]
+      - name: occupation_id
+        description: >-
+          Standard Occupational Classification (SOC) code, or an OEWS-specific code
+          where OEWS publishes a
+          combination of SOC occupations
+        tests: [not_null]
+      - name: occupation_group
+        description: >-
+          SOC aggregation level of the occupation: total, major, minor, broad or detailed
+      - name: industry_name
+        description: >-
+          NAICS title, or the OEWS-specific title where OEWS publishes a combination
+          of industries
+      - name: occupation_name
+        description: >-
+          SOC title, or the OEWS-specific title where OEWS publishes a combination
+          of SOC occupations
+      - name: employment
+        description: >-
+          Estimated total employment, rounded to the nearest 10 and excluding the
+          self-employed
+      - name: employment_prse
+        description: >-
+          Percent relative standard error of the employment estimate
+      - name: percent_total_employment
+        description: >-
+          Percent of the industry's employment accounted for by the occupation
+      - name: percent_establishments_reporting
+        description: >-
+          Percent of establishments reporting the occupation for the cell
+      - name: establishments_reporting_below_threshold
+        description: >-
+          TRUE when the percent of establishments reporting the occupation is below
+          0.5 percent, which the
+          source reports as a symbol rather than a value
+      - name: hourly_wage_mean
+        description: >-
+          Mean hourly wage
+      - name: annual_wage_mean
+        description: >-
+          Mean annual wage
+      - name: wage_mean_prse
+        description: >-
+          Percent relative standard error of the mean wage estimate
+      - name: hourly_wage_percentile_10
+        description: >-
+          Hourly wage at the 10th percentile
+      - name: hourly_wage_percentile_25
+        description: >-
+          Hourly wage at the 25th percentile
+      - name: hourly_wage_median
+        description: >-
+          Median hourly wage, the 50th percentile
+      - name: hourly_wage_percentile_75
+        description: >-
+          Hourly wage at the 75th percentile
+      - name: hourly_wage_percentile_90
+        description: >-
+          Hourly wage at the 90th percentile
+      - name: annual_wage_percentile_10
+        description: >-
+          Annual wage at the 10th percentile
+      - name: annual_wage_percentile_25
+        description: >-
+          Annual wage at the 25th percentile
+      - name: annual_wage_median
+        description: >-
+          Median annual wage, the 50th percentile
+      - name: annual_wage_percentile_75
+        description: >-
+          Annual wage at the 75th percentile
+      - name: annual_wage_percentile_90
+        description: >-
+          Annual wage at the 90th percentile
+      - name: annual_wage_only
+        description: >-
+          TRUE when the source releases only annual wages for the occupation, which
+          applies to occupations
+          paid annually but typically working fewer than 2,080 hours per year, such
+          as teachers, pilots and
+          athletes
+      - name: hourly_wage_only
+        description: >-
+          TRUE when the source releases only hourly wages for the occupation, which
+          applies to occupations
+          paid hourly but typically working fewer than 2,080 hours per year, such
+          as actors, dancers and musicians
+      - name: wage_top_coded
+        description: >-
+          TRUE when at least one wage estimate in the row is at or above $115.00 per
+          hour or $239,200 per
+          year and was therefore withheld by the source
+  - name: us_bls_oes__dicionario
     description: >-
-      Type of area the estimate covers: nation, state, territory, metropolitan statistical area, metropolitan
-      division or nonmetropolitan area
-  - name: state_abbreviation
-    description: >-
-      Two-letter abbreviation of the primary state of the area, or US for the national estimates
-  - name: ownership_id
-    description: >-
-      Ownership of the establishments covered by the estimate
+      Dicionário de códigos das tabelas do conjunto us_bls_oes, com o rótulo correspondente
+      a cada código
+      armazenado nas colunas codificadas.
     tests:
-    - not_null
-  - name: occupation_id
-    description: >-
-      Standard Occupational Classification (SOC) code, or an OEWS-specific code where OEWS publishes a
-      combination of SOC occupations
-    tests:
-    - not_null
-  - name: occupation_group
-    description: >-
-      SOC aggregation level of the occupation: total, major, minor, broad or detailed
-  - name: area_name
-    description: >-
-      Name of the area the estimate covers
-  - name: occupation_name
-    description: >-
-      SOC title, or the OEWS-specific title where OEWS publishes a combination of SOC occupations
-  - name: employment
-    description: >-
-      Estimated total employment, rounded to the nearest 10 and excluding the self-employed
-  - name: employment_prse
-    description: >-
-      Percent relative standard error of the employment estimate
-  - name: jobs_per_1000
-    description: >-
-      Jobs in the occupation per 1,000 jobs in the area
-  - name: location_quotient
-    description: >-
-      Ratio of the occupation's share of area employment to its share of national employment
-  - name: hourly_wage_mean
-    description: >-
-      Mean hourly wage
-  - name: annual_wage_mean
-    description: >-
-      Mean annual wage
-  - name: wage_mean_prse
-    description: >-
-      Percent relative standard error of the mean wage estimate
-  - name: hourly_wage_percentile_10
-    description: >-
-      Hourly wage at the 10th percentile
-  - name: hourly_wage_percentile_25
-    description: >-
-      Hourly wage at the 25th percentile
-  - name: hourly_wage_median
-    description: >-
-      Median hourly wage, the 50th percentile
-  - name: hourly_wage_percentile_75
-    description: >-
-      Hourly wage at the 75th percentile
-  - name: hourly_wage_percentile_90
-    description: >-
-      Hourly wage at the 90th percentile
-  - name: annual_wage_percentile_10
-    description: >-
-      Annual wage at the 10th percentile
-  - name: annual_wage_percentile_25
-    description: >-
-      Annual wage at the 25th percentile
-  - name: annual_wage_median
-    description: >-
-      Median annual wage, the 50th percentile
-  - name: annual_wage_percentile_75
-    description: >-
-      Annual wage at the 75th percentile
-  - name: annual_wage_percentile_90
-    description: >-
-      Annual wage at the 90th percentile
-  - name: annual_wage_only
-    description: >-
-      TRUE when the source releases only annual wages for the occupation, which applies to occupations
-      paid annually but typically working fewer than 2,080 hours per year, such as teachers, pilots and
-      athletes
-  - name: hourly_wage_only
-    description: >-
-      TRUE when the source releases only hourly wages for the occupation, which applies to occupations
-      paid hourly but typically working fewer than 2,080 hours per year, such as actors, dancers and musicians
-  - name: wage_top_coded
-    description: >-
-      TRUE when at least one wage estimate in the row is at or above $115.00 per hour or $239,200 per
-      year and was therefore withheld by the source
-- name: us_bls_oes__industry
-  description: >-
-    Estimativas nacionais do OEWS de emprego e salários por ocupação e setor de atividade (NAICS). Uma
-    linha por ano, setor, tipo de propriedade e ocupação, com emprego, participação da ocupação no emprego
-    do setor, salário médio e os percentis 10, 25, 50, 75 e 90 em base horária e anual. As estimativas
-    referem-se a maio do ano indicado.
-  tests:
-  - dbt_utils.unique_combination_of_columns:
-      combination_of_columns:
-      - year
-      - industry_id
-      - ownership_id
-      - occupation_id
-      - occupation_group
-      - industry_group
-  - not_null_proportion_multiple_columns:
-      at_least: 0.05
-      ignore_values:
-      - industry_group
-      - percent_establishments_reporting
-      - establishments_reporting_below_threshold
-      - hourly_wage_mean
-      - hourly_wage_percentile_10
-      - hourly_wage_percentile_25
-      - hourly_wage_median
-      - hourly_wage_percentile_75
-      - hourly_wage_percentile_90
-      - hourly_wage_only
-  columns:
-  - name: year
-    description: >-
-      Reference year of the estimate; OEWS estimates refer to May of this year
-    tests:
-    - not_null
-    - relationships:
-        to: ref('br_bd_diretorios_data_tempo__ano')
-        field: ano.ano
-  - name: industry_id
-    description: >-
-      North American Industry Classification System (NAICS) code, or an OEWS-specific code where OEWS
-      publishes a combination of industries
-    tests:
-    - not_null
-  - name: industry_group
-    description: >-
-      NAICS aggregation level of the industry: sector, 3-digit, 4-digit, 5-digit or 6-digit, with or without
-      an ownership split
-  - name: ownership_id
-    description: >-
-      Ownership of the establishments covered by the estimate
-    tests:
-    - not_null
-  - name: occupation_id
-    description: >-
-      Standard Occupational Classification (SOC) code, or an OEWS-specific code where OEWS publishes a
-      combination of SOC occupations
-    tests:
-    - not_null
-  - name: occupation_group
-    description: >-
-      SOC aggregation level of the occupation: total, major, minor, broad or detailed
-  - name: industry_name
-    description: >-
-      NAICS title, or the OEWS-specific title where OEWS publishes a combination of industries
-  - name: occupation_name
-    description: >-
-      SOC title, or the OEWS-specific title where OEWS publishes a combination of SOC occupations
-  - name: employment
-    description: >-
-      Estimated total employment, rounded to the nearest 10 and excluding the self-employed
-  - name: employment_prse
-    description: >-
-      Percent relative standard error of the employment estimate
-  - name: percent_total_employment
-    description: >-
-      Percent of the industry's employment accounted for by the occupation
-  - name: percent_establishments_reporting
-    description: >-
-      Percent of establishments reporting the occupation for the cell
-  - name: establishments_reporting_below_threshold
-    description: >-
-      TRUE when the percent of establishments reporting the occupation is below 0.5 percent, which the
-      source reports as a symbol rather than a value
-  - name: hourly_wage_mean
-    description: >-
-      Mean hourly wage
-  - name: annual_wage_mean
-    description: >-
-      Mean annual wage
-  - name: wage_mean_prse
-    description: >-
-      Percent relative standard error of the mean wage estimate
-  - name: hourly_wage_percentile_10
-    description: >-
-      Hourly wage at the 10th percentile
-  - name: hourly_wage_percentile_25
-    description: >-
-      Hourly wage at the 25th percentile
-  - name: hourly_wage_median
-    description: >-
-      Median hourly wage, the 50th percentile
-  - name: hourly_wage_percentile_75
-    description: >-
-      Hourly wage at the 75th percentile
-  - name: hourly_wage_percentile_90
-    description: >-
-      Hourly wage at the 90th percentile
-  - name: annual_wage_percentile_10
-    description: >-
-      Annual wage at the 10th percentile
-  - name: annual_wage_percentile_25
-    description: >-
-      Annual wage at the 25th percentile
-  - name: annual_wage_median
-    description: >-
-      Median annual wage, the 50th percentile
-  - name: annual_wage_percentile_75
-    description: >-
-      Annual wage at the 75th percentile
-  - name: annual_wage_percentile_90
-    description: >-
-      Annual wage at the 90th percentile
-  - name: annual_wage_only
-    description: >-
-      TRUE when the source releases only annual wages for the occupation, which applies to occupations
-      paid annually but typically working fewer than 2,080 hours per year, such as teachers, pilots and
-      athletes
-  - name: hourly_wage_only
-    description: >-
-      TRUE when the source releases only hourly wages for the occupation, which applies to occupations
-      paid hourly but typically working fewer than 2,080 hours per year, such as actors, dancers and musicians
-  - name: wage_top_coded
-    description: >-
-      TRUE when at least one wage estimate in the row is at or above $115.00 per hour or $239,200 per
-      year and was therefore withheld by the source
-- name: us_bls_oes__dicionario
-  description: >-
-    Dicionário de códigos das tabelas do conjunto us_bls_oes, com o rótulo correspondente a cada código
-    armazenado nas colunas codificadas.
-  tests:
-  - not_null_proportion_multiple_columns:
-      at_least: 0.05
-  columns:
-  - name: id_tabela
-    description: >-
-      Slug of the us_bls_oes table the dictionary entry describes
-  - name: nome_coluna
-    description: >-
-      Name of the column the dictionary entry describes
-  - name: chave
-    description: >-
-      Code stored in the column
-  - name: cobertura_temporal
-    description: >-
-      Temporal coverage of the dictionary entry
-  - name: valor
-    description: >-
-      Label the code stands for
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the us_bls_oes table the dictionary entry describes
+      - name: nome_coluna
+        description: >-
+          Name of the column the dictionary entry describes
+      - name: chave
+        description: >-
+          Code stored in the column
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage of the dictionary entry
+      - name: valor
+        description: >-
+          Label the code stands for

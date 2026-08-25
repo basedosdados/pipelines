@@ -6,9 +6,9 @@
         partition_by={
             "field": "year",
             "data_type": "int64",
-            "range": {'start': 2003, 'end': 2030, 'interval': 1},
+            "range": {"start": 2003, "end": 2030, "interval": 1},
         },
-        cluster_by=['industry_id', 'occupation_id'],
+        cluster_by=["industry_id", "occupation_id"],
     )
 }}
 
@@ -25,8 +25,12 @@ select
     safe_cast(employment as int64) employment,
     safe_cast(employment_prse as float64) employment_prse,
     safe_cast(percent_total_employment as float64) percent_total_employment,
-    safe_cast(percent_establishments_reporting as float64) percent_establishments_reporting,
-    safe_cast(establishments_reporting_below_threshold as string) establishments_reporting_below_threshold,
+    safe_cast(
+        percent_establishments_reporting as float64
+    ) percent_establishments_reporting,
+    safe_cast(
+        establishments_reporting_below_threshold as string
+    ) establishments_reporting_below_threshold,
     safe_cast(hourly_wage_mean as float64) hourly_wage_mean,
     safe_cast(annual_wage_mean as float64) annual_wage_mean,
     safe_cast(wage_mean_prse as float64) wage_mean_prse,
