@@ -490,6 +490,9 @@ models:
     br_senado_dados_abertos:
       +materialized: table
       +schema: br_senado_dados_abertos
+    br_senado_dados_abertos_administrativos:
+      +materialized: table
+      +schema: br_senado_dados_abertos_administrativos
     br_sfb_sicar:
       +materialized: table
       +schema: br_sfb_sicar
