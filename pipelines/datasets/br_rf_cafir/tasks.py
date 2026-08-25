@@ -57,6 +57,12 @@ def get_last_reference_date(df_metadata: pd.DataFrame) -> datetime.date:
     return max_date.date()
 
 
+@task
+def get_last_modified_date(df_metadata: pd.DataFrame) -> datetime.date:
+    max_date = df_metadata["data_modificacao"].max()
+    return max_date.date()
+
+
 @task(
     retries=2,
     retry_delay_seconds=constants.TASK_RETRY_DELAY.value,

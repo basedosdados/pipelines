@@ -16,6 +16,7 @@ from pipelines.datasets.br_rf_cafir.tasks import (
     download_file,
     extract_file_records,
     get_api_metadata,
+    get_last_modified_date,
     get_last_reference_date,
     process_file,
 )
@@ -67,6 +68,7 @@ def br_rf_cafir__imoveis_rurais(
         reference_date = datetime.datetime.strptime(
             data_referencia, "%Y-%m-%d"
         ).date()
+    last_modified_date = get_last_modified_date(df_metadata)
 
     if not force_run:
         has_new_data = poll_source_for_update_task(
@@ -86,7 +88,7 @@ def br_rf_cafir__imoveis_rurais(
     commit_source_update_task(
         dataset_id=dataset_id,
         table_id=table_id,
-        source_max_date=reference_date,
+        source_max_date=last_modified_date,
         env="prod",
         date_format="%Y-%m-%d",
         update_metadata=update_metadata,
