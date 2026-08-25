@@ -34,7 +34,6 @@ def _run_bcb_estban(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
@@ -112,7 +111,6 @@ def _run_bcb_estban(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -131,7 +129,6 @@ def _run_bcb_estban(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -157,7 +154,6 @@ def _estban_flow(table_id: str, cron: str):
         dataset_id: str = "br_bcb_estban",
         table_id: str = table_id,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -166,7 +162,6 @@ def _estban_flow(table_id: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             materialize_after_dump=materialize_after_dump,
-            dbt_alias=dbt_alias,
             update_metadata=update_metadata,
             target=target,
             force_run=force_run,

@@ -30,7 +30,6 @@ def _run_cvm_fi(
     table_id: str,
     date_column_name: dict,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
@@ -93,7 +92,6 @@ def _run_cvm_fi(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -112,7 +110,6 @@ def _run_cvm_fi(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
