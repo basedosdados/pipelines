@@ -228,6 +228,10 @@ project-excludes = [
   "models/au_geoscape_gnaf/code",
   "models/us_cms_open_payments/code",
   "models/us_fec_campaign_finance/code",
+  # Same policy: world_wil_wid onboarding code (clean.py, upload.py run via uv
+  # run) is one-shot bootstrap outside the typed `pipelines/` framework; the
+  # pure transform lives in pipelines/datasets/world_wil_wid/utils.py.
+  "models/world_wil_wid/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
