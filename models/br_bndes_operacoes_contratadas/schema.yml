@@ -356,8 +356,7 @@ models:
       2002–2026.
     tests:
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [subsetor_bndes]
+          at_least: 0.95
     columns:
       - name: ano
         description: >-

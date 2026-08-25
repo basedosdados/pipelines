@@ -555,14 +555,17 @@ def _transform_exportacao_bens(df: pd.DataFrame) -> pd.DataFrame:
     Limpa o CSV de operacoes_exportacao_bens (tudo string na entrada).
 
     Renomeia para os nomes BD, quebra setor_subsetor em setor_bndes/
-    subsetor_bndes, normaliza tipo_garantia e sigla_moeda, anula a sentinela de
-    pais e deriva o ano da contratacao.
+    subsetor_bndes, normaliza tipo_garantia e sigla_moeda, anula o pais
+    indefinido e deriva o ano da contratacao.
 
     Args:
         df (pd.DataFrame): CSV cru lido com dtype=str.
 
     Returns:
         pd.DataFrame: colunas de ORDER_COLUMNS (inclui `ano`).
+
+    Raises:
+        ValueError: quando alguma data_contratacao nao casa com %Y-%m-%d.
     """
     df = df.rename(columns=constants_exportacao_bens.RENAME.value)
 
@@ -579,7 +582,7 @@ def _transform_exportacao_bens(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     df["nome_pais_destino"] = df["nome_pais_destino"].replace(
-        constants_exportacao_bens.PAIS_SENTINELA.value, pd.NA
+        constants_exportacao_bens.PAIS_DESTINO_INDEFINIDO.value, pd.NA
     )
 
     df["ano"] = pd.to_datetime(
@@ -588,11 +591,11 @@ def _transform_exportacao_bens(df: pd.DataFrame) -> pd.DataFrame:
 
     n_sem_ano = int(df["ano"].isna().sum())
     if n_sem_ano:
-        log(
-            f"AVISO: {n_sem_ano} linha(s) com data_contratacao inválida "
-            "(ano nulo) — descartada(s) do particionamento."
+        raise ValueError(
+            f"{n_sem_ano} linha(s) com data_contratacao fora do formato "
+            "%Y-%m-%d: o ano particiona o parquet, entao a fonte mudou de "
+            "formato e o clean precisa ser revisto."
         )
-        df = df[df["ano"].notna()]
 
     return df[constants_exportacao_bens.ORDER_COLUMNS.value]
 

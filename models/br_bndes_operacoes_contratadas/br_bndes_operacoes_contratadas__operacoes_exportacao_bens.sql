@@ -3,11 +3,6 @@
         alias="operacoes_exportacao_bens",
         schema="br_bndes_operacoes_contratadas",
         materialized="table",
-        partition_by={
-            "field": "ano",
-            "data_type": "int64",
-            "range": {"start": 2002, "end": 2031, "interval": 1},
-        },
         labels={"project_id": "basedosdados"},
     )
 }}

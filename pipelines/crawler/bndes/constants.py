@@ -440,7 +440,9 @@ class constants_exportacao_bens(Enum):
 
     MOEDA = {"US$ COMPRA": "USD", "EUR C": "EUR"}
 
-    PAIS_SENTINELA = "DIVERSOS"
+    # unico valor de pais_destino_das_exportacoes que nao nomeia um pais
+    # (82 linhas); o clean troca por NA.
+    PAIS_DESTINO_INDEFINIDO = "DIVERSOS"
 
     ROTULOS_COMPOSTOS = ("Seguro de crédito/FGE", "CCR/ALADI")
 
