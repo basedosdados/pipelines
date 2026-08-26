@@ -2,7 +2,8 @@
     config(
         schema="br_senado_dados_abertos_administrativos",
         alias="estagiario",
-        materialized="table",
+        materialized="incremental",
+        incremental_strategy="insert_overwrite",
         partition_by={
             "field": "data_extracao",
             "data_type": "date",
