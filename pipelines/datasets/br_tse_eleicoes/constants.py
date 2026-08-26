@@ -47,9 +47,9 @@ class constants(Enum):
         "sigla_uf": "SG_UF",
         "id_municipio": "id_municipio",
         "id_municipio_tse": "SG_UE",
-        "id_candidato_bd": "id_candidato_bd",
-        "cpf": "NR_CPF_CANDIDATO",
+        # "id_candidato_bd": "id_candidato_bd",
         "titulo_eleitoral": "NR_TITULO_ELEITORAL_CANDIDATO",
+        "cpf": "NR_CPF_CANDIDATO",
         "sequencial": "SQ_CANDIDATO",
         "numero": "NR_CANDIDATO",
         "nome": "NM_CANDIDATO",
@@ -81,10 +81,9 @@ class constants(Enum):
         "data_eleicao": "DT_ELEICAO",
         "sigla_uf": "SG_UF",
         "sequencial_candidato": "SQ_CANDIDATO",
-        "id_candidato_bd": "id_candidato_bd",
-        "id_tipo_item": "CD_TIPO_BEM_CANDIDATO",
         "tipo_item": "DS_TIPO_BEM_CANDIDATO",
         "descricao_item": "DS_BEM_CANDIDATO",
+        # "id_candidato_bd": "id_candidato_bd",
         "valor_item": "VR_BEM_CANDIDATO",
     }
 
