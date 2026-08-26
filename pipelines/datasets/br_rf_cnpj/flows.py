@@ -35,8 +35,8 @@ def _rf_cnpj_flow(table_id: str, cron: str):
         dataset_id: str = "br_rf_cnpj",
         table_id: str = table_id,
         materialize_after_dump: bool = True,
-        update_metadata: bool = True,
         dbt_alias: bool = True,
+        update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
         chunk_size: int = 100000,
@@ -99,21 +99,21 @@ def _rf_cnpj_flow(table_id: str, cron: str):
 
         if not force_run:
             # simples/dicionario são NonHistorical
-            compare_against = (
-                "table_update"
-                if table_id in ("simples", "dicionario")
-                else "coverage"
-            )
+            if table_id in ("simples", "dicionario"):
+                source_max_date = last_modified_date
+                date_format = "%Y-%m-%d"
+                compare_against = "table_update"
+            else:
+                source_max_date = folder_date
+                date_format = "%Y-%m"
+                compare_against = "coverage"
+
             has_new_data = poll_source_for_update_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                source_max_date=last_modified_date
-                if table_id in ("simples", "dicionario")
-                else folder_date,
+                source_max_date=source_max_date,
                 env="prod",
-                date_format="%Y-%m-%d"
-                if table_id in ("simples", "dicionario")
-                else "%Y-%m",
+                date_format=date_format,
                 compare_against=compare_against,
             )
             if not has_new_data:
