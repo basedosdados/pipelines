@@ -1,43 +1,8 @@
 """Flow do br_fnde_fundeb — Prefect 3.
 
 Atualiza o exercício corrente dos Indicadores do SIOPE a partir do produto 54 da
-Plataforma Antonieta de Barros. O histórico, 2021 a 2024, vem do produto 53 e é
-carregado fora deste flow; a divisão está na seção "Carga e atualização" do
-README do diretório.
-
-O `dump_mode` é `append`, não `overwrite`: as duas cargas compartilham o prefixo
-de staging, e `overwrite` recria a tabela levando o histórico junto. Com
-`append`, o `if_exists="replace"` do upload age por blob e o `write_partitioned`
-grava sempre um `ano=<ano>/data.parquet`, então o exercício corrente substitui a
-própria partição e as de 2021 a 2024 permanecem.
-
-O `dicionario` não entra no flow: as 112 linhas estão fixas em
-`constants.DICTIONARY_ROWS` e mudam quando a fonte reescreve o nome de um
-indicador, caso em que a limpeza registra um WARNING.
-
-As tabelas são materializadas na ordem `run` de todas, depois `test` de todas,
-porque o `custom_dictionary_coverage` de cada uma lê o modelo do `dicionario` e
-um `test` intercalado executa antes de a tabela irmã existir num ambiente limpo.
-
-A cobertura registrada é anual: o grão do dado é ano e bimestre, e `DateColumn`
-não tem variante de bimestre — só ano, ano-mês, ano-trimestre e data. O poll
-continua distinguindo bimestres, porque usa o `max_date` do `clean_all`, que é o
-primeiro dia do último mês do bimestre em `%Y-%m-%d`.
-
-O poll é consultado somente quando o run vai até prod, já que lê o backend de
-produção; incondicional, ele faria um run de dev depender de produção e encerrar
-sem ingerir nada, reportando COMPLETED. O commit do update da fonte é o último
-passo, porque registra até onde a fonte foi ingerida — gravá-lo antes faria um
-run interrompido no meio parecer concluído para o poll seguinte.
-
-A cadência é de quatro execuções por mês. A fonte é bimestral, mas o bimestre
-publicado é revisado por semanas: os entes declaram com prazo e o FNDE reexporta
-o arquivo. Nas execuções sem período novo o poll encerra antes de materializar.
-
-Deploy: `.github/scripts/deploy_flows.py` descobre `br_fnde_fundeb_flow`
-automaticamente, desde que o flow esteja definido neste arquivo (o script filtra
-por `obj.fn.__code__.co_filename`). O pool de dev ignora o schedule; o de prod o
-ativa, mas entra pausado — armar é um passo manual no admin do Django.
+Plataforma Antonieta de Barros. Contexto da fonte, decisões de modelagem e a
+divisão entre carga histórica e atualização estão no README do conjunto.
 """
 
 import shutil
@@ -47,7 +12,12 @@ from prefect import flow
 
 from pipelines.datasets.br_fnde_fundeb.constants import constants
 from pipelines.datasets.br_fnde_fundeb.tasks import clean_siope, download_siope
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    FreeLag,
+    PartBdpro,
+    YearOnly,
+)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -68,9 +38,10 @@ TABLES = [
 
 POLL_TABLE = constants.TABLE_MUNICIPALITY.value
 
-_COVERAGE = AllFree(
+_COVERAGE = PartBdpro(
     date_column=YearOnly(col="ano"),
     date_format=DateFormat.YEAR,
+    free_lag=FreeLag(unit="years", value=1),
 )
 
 
@@ -106,6 +77,16 @@ def br_fnde_fundeb_flow(
             if not has_new_data and not force_run:
                 return
 
+            commit_source_update_task(
+                dataset_id=dataset_id,
+                table_id=POLL_TABLE,
+                source_max_date=max_date,
+                env="prod",
+                date_format=DATE_FORMAT,
+                update_metadata=update_metadata,
+                materialize_after_dump=materialize_to_prod,
+            )
+
         for table_id in TABLES:
             upload_to_gcs(
                 data_path=result[table_id],
@@ -118,15 +99,7 @@ def br_fnde_fundeb_flow(
             run_dbt(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dbt_command="run",
-                target="dev",
-            )
-
-        for table_id in TABLES:
-            run_dbt(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dbt_command="test",
+                dbt_command="run/test",
                 target="dev",
             )
 
@@ -145,15 +118,7 @@ def br_fnde_fundeb_flow(
             run_dbt(
                 dataset_id=dataset_id,
                 table_id=table_id,
-                dbt_command="run",
-                target="prod",
-            )
-
-        for table_id in TABLES:
-            run_dbt(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dbt_command="test",
+                dbt_command="run/test",
                 target="prod",
             )
 
@@ -168,14 +133,6 @@ def br_fnde_fundeb_flow(
                 env="prod",
                 bq_project="basedosdados",
             )
-
-        commit_source_update_task(
-            dataset_id=dataset_id,
-            table_id=POLL_TABLE,
-            source_max_date=max_date,
-            env="prod",
-            date_format=DATE_FORMAT,
-        )
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
 

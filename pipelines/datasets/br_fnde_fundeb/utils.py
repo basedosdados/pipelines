@@ -5,7 +5,7 @@ fora do worker chama as mesmas tasks pelo `.fn()` — uma implementação, dois
 caminhos de execução.
 
 As particularidades da fonte tratadas aqui estão detalhadas na seção "Estrutura
-do arquivo" do README do diretório:
+do arquivo" do README do conjunto:
 
 - linha `Estadual` tem 12 campos, não 14 (COD_MUNI e NOM_MUNI são omitidos);
 - `COD_MUNI` tem 6 dígitos e vem como float (`520870.000000000000000000`);
@@ -217,7 +217,7 @@ def dictionary_rows() -> list[dict]:
     As 112 linhas são fixas, estão em ``constants.DICTIONARY_ROWS`` e são
     mantidas à mão: a fonte reescreve o nome dos indicadores ao longo da série, e
     a lista é editada quando isso ocorre. A seção "Os nomes mudam de ano para
-    ano" do README do diretório registra quais mudaram e quando.
+    ano" do README do conjunto registra quais mudaram e quando.
 
     Returns:
         Uma linha por indicador e nome vigente.

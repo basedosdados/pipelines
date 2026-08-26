@@ -141,7 +141,7 @@ _INDICATOR_UNITS = {
 # A lista é mantida à mão, e é editada quando a fonte reescreve um nome ou cria
 # um indicador — situação que o `warn_unknown_names` registra em WARNING durante
 # a limpeza. Ver a seção "Os nomes mudam de ano para ano" do README do
-# diretório.
+# conjunto.
 _DICTIONARY_ROWS = [
     (
         "indicador_estadual",
@@ -837,7 +837,7 @@ class constants(Enum):
 
     # Os dois produtos que compõem a série: o 53 cobre 2021 a 2024 com os 6
     # bimestres fechados, o 54 cobre o exercício corrente. Nenhum dos dois
-    # publica 2025 (ver "O hiato de 2025" no README do diretório).
+    # publica 2025 (ver "O hiato de 2025" no README do conjunto).
     PRODUCT_HISTORY = 53
     PRODUCT_CURRENT = 54
 

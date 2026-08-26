@@ -317,13 +317,6 @@ reescreve o nome de um indicador, caso em que a limpeza registra um WARNING.
 | `tasks.py` | as `@task` que embrulham o `utils.py` |
 | `flows.py` | o flow do exercício corrente, agendado nos dias 5, 12, 19 e 26 |
 
-### Ordem do dbt na carga
-
-`run` nas três tabelas **antes** de qualquer `test`. O
-`custom_dictionary_coverage` das duas tabelas de fato lê o modelo do
-`dicionario`, então testar uma tabela antes de o dicionário existir falha por
-tabela ausente.
-
 ## Anomalias da fonte
 
 Entram documentadas; não há como corrigir sem inventar dado.
