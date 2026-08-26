@@ -41,7 +41,9 @@ def main() -> None:
         cols = schema.TABLES[table]
         path = ARCHITECTURE_DIR / f"{table}.csv"
         with path.open("w", newline="", encoding="utf-8") as fh:
-            writer = csv.writer(fh)
+            # csv.writer defaults to CRLF; force LF so regenerating does not
+            # reintroduce mixed line endings that pre-commit then has to fix.
+            writer = csv.writer(fh, lineterminator="\n")
             writer.writerow(HEADER)
             for c in cols:
                 writer.writerow(
