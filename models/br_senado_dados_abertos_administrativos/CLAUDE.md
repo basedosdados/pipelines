@@ -76,7 +76,9 @@ OOMs a 4 GiB worker, and a 16 GB laptop.
 - `pipelines/datasets/br_senado_dados_abertos_administrativos/` —
   `senado_adm_api.py` (client + the status fan-out), `senado_adm_clean.py` (one
   builder per table), `utils.py` (registry, `clean_all`, parquet writer),
-  `tests/`.
+  `tests/`. The recurring Prefect pipeline adds `constants.py`, `tasks.py` and
+  `flows.py` (a daily and a weekly flow over the shared `clean_all`) — see
+  [PIPELINE_PLAN.md](PIPELINE_PLAN.md).
 - `models/br_senado_dados_abertos_administrativos/code/` —
   `architecture_spec.py` (**the** source of truth: 39 tables, 406 columns,
   trilingual), `validate_spec.py` (house-rule gate), `gen_dbt.py`,
