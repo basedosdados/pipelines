@@ -93,7 +93,11 @@ def build_quarter(report_date: str) -> dict:
     ):
         path.parent.mkdir(parents=True, exist_ok=True)
         table_arrow = utils.to_string_table(frame, columns_of(table))
-        pq.write_table(table_arrow, path, compression="snappy")
+        # written to a temp name and renamed, so a run killed mid-write cannot
+        # leave a truncated parquet that the resume logic would then skip
+        staged = path.with_suffix(".parquet.tmp")
+        pq.write_table(table_arrow, staged, compression="snappy")
+        staged.replace(path)
 
     return {
         "report_date": report_date,
