@@ -34,10 +34,12 @@ from __future__ import annotations
 import concurrent.futures
 import csv
 import gzip
+import http.client
 import json
 import os
 import random
 import shutil
+import ssl
 import threading
 import time
 import urllib.error
@@ -158,6 +160,19 @@ THROTTLE = Throttle(float(os.environ.get("PNCP_MIN_INTERVAL", "0.05")))
 # stalled one are indistinguishable from the outside.
 VERBOSE = os.environ.get("PNCP_VERBOSE", "1") == "1"
 
+# Everything meaning "the connection misbehaved, retry" rather than "the
+# server answered and said no". IncompleteRead is an http.client exception,
+# not a URLError, so a narrower tuple lets a truncated chunked response
+# escape and abort a multi-hour harvest.
+TRANSPORT_ERRORS = (
+    urllib.error.URLError,
+    http.client.HTTPException,
+    ConnectionError,
+    TimeoutError,
+    ssl.SSLError,
+    json.JSONDecodeError,
+)
+
 
 def request(path: str, params: dict, max_tries: int = 6) -> dict:
     """One API call, with rate-limit backoff and overload detection."""
@@ -198,7 +213,7 @@ def request(path: str, params: dict, max_tries: int = 6) -> dict:
             raise RuntimeError(
                 f"HTTP {exc.code} on {url}: {exc.read()[:200]!r}"
             ) from exc
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+        except TRANSPORT_ERRORS:
             if attempt >= max_tries - 2:
                 raise ServerOverloadError(
                     f"transport failure on {url}"
@@ -356,12 +371,26 @@ def harvest(
     if not jobs:
         return 0
 
+    failures: list[str] = []
+
     def run_job(job) -> int:
         lo, hi, extra, tag, target = job
         print(f"  {table} {tag}: start", flush=True)
-        records = fetch_range(
-            path, spec["date_params"], lo, hi, extra, f"{table} {tag}"
-        )
+        try:
+            records = fetch_range(
+                path, spec["date_params"], lo, hi, extra, f"{table} {tag}"
+            )
+        except Exception as exc:
+            # Deliberately broad. A harvest runs for hours; one window that
+            # cannot be fetched must not discard the other thousands. No chunk
+            # file is written, so re-running retries exactly this window, and
+            # the count is reported at the end so it is never silent.
+            failures.append(tag)
+            print(
+                f"  !! {table} {tag}: FAILED ({type(exc).__name__}: {exc})",
+                flush=True,
+            )
+            return 0
         write_chunk(target, records)
         print(f"  {table} {tag}: {len(records):>7,} rows", flush=True)
         return len(records)
@@ -381,6 +410,13 @@ def harvest(
     ) as pool:
         for count in pool.map(run_job, jobs):
             total += count
+    if failures:
+        print(
+            f"  !! {table}: {len(failures)} window(s) failed and were left for a "
+            f"re-run: {', '.join(failures[:10])}"
+            + (" ..." if len(failures) > 10 else ""),
+            flush=True,
+        )
     return total
 
 

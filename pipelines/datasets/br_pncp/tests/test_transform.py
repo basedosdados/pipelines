@@ -297,3 +297,84 @@ class TestCleanTable:
 
         assert (output_dir / "contrato" / "ano=2024").is_dir()
         assert (output_dir / "contrato" / "ano=2025").is_dir()
+
+
+class TestHarvestResilience:
+    """A multi-hour harvest must survive one bad response and one bad window."""
+
+    def test_truncated_chunked_response_is_retryable_not_fatal(self):
+        # The real crash: PNCP truncated a chunked response, and
+        # http.client.IncompleteRead is an HTTPException rather than a
+        # URLError, so it escaped the retry clause and killed the whole run.
+        import http.client
+
+        assert isinstance(
+            http.client.IncompleteRead(b""), utils.TRANSPORT_ERRORS
+        )
+
+    def test_the_other_transport_faults_are_retryable_too(self):
+        import json as _json
+        import ssl
+        import urllib.error
+
+        for exc in (
+            urllib.error.URLError("boom"),
+            ConnectionResetError(),
+            TimeoutError(),
+            ssl.SSLError(),
+            _json.JSONDecodeError("bad", "", 0),
+        ):
+            assert isinstance(exc, utils.TRANSPORT_ERRORS), exc
+
+    def test_a_server_refusal_is_not_treated_as_a_transport_fault(self):
+        # HTTPError means the server answered; it is handled by status code, so
+        # sweeping it into the retry tuple would hide 4xx/5xx handling.
+        import urllib.error
+
+        refusal = urllib.error.HTTPError("u", 429, "Too Many", {}, None)
+        assert isinstance(
+            refusal, urllib.error.URLError
+        )  # it is a subclass...
+        # ...so the status-code branch must come first in request(); assert the
+        # source still orders it that way.
+        import inspect
+
+        src = inspect.getsource(utils.request)
+        assert src.index("except urllib.error.HTTPError") < src.index(
+            "except TRANSPORT_ERRORS"
+        )
+
+    def test_one_failed_window_does_not_abort_the_harvest(
+        self, tmp_path, monkeypatch
+    ):
+        # The window that raises must be skipped without a chunk file (so a
+        # re-run retries it) while every other window still completes.
+        calls = []
+
+        def fake_fetch_range(path, date_params, lo, hi, extra, label=""):
+            calls.append(label)
+            if "20210116" in label:
+                raise ConnectionResetError("simulated")
+            return [
+                {
+                    "numeroControlePNCP": label,
+                    "dataPublicacaoPncp": "2021-03-01",
+                }
+            ]
+
+        monkeypatch.setattr(utils, "fetch_range", fake_fetch_range)
+        input_dir = tmp_path / "input"
+        count = utils.harvest(
+            table="contrato",
+            input_dir=input_dir,
+            start=__import__("datetime").date(2021, 1, 1),
+            end=__import__("datetime").date(2021, 2, 14),
+            max_workers=1,
+        )
+        written = sorted(
+            p.name for p in (input_dir / "contrato").glob("*.jsonl.gz")
+        )
+        assert len(calls) == 3
+        assert count == 2  # the two that succeeded
+        assert "20210116_20210130.jsonl.gz" not in written
+        assert len(written) == 2
