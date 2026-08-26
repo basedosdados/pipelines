@@ -33,7 +33,9 @@ class constants(Enum):
         _REPO_ROOT / "models" / "br_pncp" / "code" / "architecture"
     )
 
-    # tamanhoPagina is capped at 500 by the API (and floored at 10).
+    # tamanhoPagina is capped at 500 on most endpoints (and floored at 10), but
+    # instrumentoscobranca caps at 100 and answers 400 "Tamanho de página
+    # inválido" above it. The cap is per endpoint; see ENDPOINTS["page_size"].
     PAGE_SIZE = 500
 
     # PNCP publishes from 2021 (Lei 14.133/2021).
@@ -80,7 +82,15 @@ class constants(Enum):
             "date_params": ("dataInicial", "dataFinal"),
             "by_modalidade": False,
             "window_days": 30,
+            # 200 and 500 are rejected with 400 "Tamanho de página inválido".
+            "page_size": 100,
         },
+        # NOTE: this endpoint paginates over *items*, not plans. Each page
+        # returns one plan record carrying up to tamanhoPagina items, and
+        # totalRegistros counts items. Successive pages carry disjoint item
+        # slices of the same plan, so paging through and exploding on `itens`
+        # yields each item exactly once — verified against pages 1 and 2 of
+        # 2025-03-01..10, which shared zero numeroItem values.
         "plano_contratacao_anual": {
             "path": "pca/atualizacao",
             "date_params": ("dataInicio", "dataFim"),

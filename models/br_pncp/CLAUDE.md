@@ -70,7 +70,20 @@ Every one of these was found by probing; none is stated in the OpenAPI spec.
 3. **`codigoModalidadeContratacao` is mandatory** on both `/contratacoes` endpoints, so
    every date window must be crossed with all 14 modalidades.
 
-4. **Hard caps:** `tamanhoPagina` max 500 (min 10), date window max 365 days (HTTP 422
+3b. **Two endpoints do not behave like the others, and both fail silently or
+   confusingly if treated uniformly:**
+
+   - **`instrumentoscobranca/inclusao` caps `tamanhoPagina` at 100**, not 500. Above it
+     the response is `400 Tamanho de página inválido`. The cap is per endpoint, so it
+     lives in `ENDPOINTS[...]["page_size"]`.
+   - **`pca/atualizacao` paginates over *items*, not plans.** Each page returns **one**
+     plan record carrying up to `tamanhoPagina` items, and `totalRegistros` counts
+     items rather than plans. `totalPaginas` does honour the page size, so paging
+     through and exploding on `itens` yields every item exactly once — verified by
+     diffing pages 1 and 2 of 2025-03-01..10, which shared **zero** `numeroItem`
+     values. Do not "fix" the one-record-per-page response; it is the contract.
+
+4. **Hard caps:** `tamanhoPagina` max 500 on most endpoints (min 10), date window max 365 days (HTTP 422
    beyond). Large result sets make the server fail rather than paginate — a full-year
    window on a high-volume modalidade intermittently returns HTTP 500, and pages deep
    into a big result set return HTTP 504. `download.py` splits any window the server
@@ -109,6 +122,13 @@ Every one of these was found by probing; none is stated in the OpenAPI spec.
    replaces one refused request with two against the component already complaining. The
    downloader raises a distinct `RateLimitedError` for this reason, and only
    `ServerOverloadError` reaches the splitting path.
+
+5b. **"No results" is signalled three different ways, none of them an error.** A 204;
+   a `200` with a **zero-length body** (`pca/atualizacao` on a quiet day); and a **404**
+   carrying `{"message": "Nenhum instrumento de Cobrança encontrado."}`. Treating the
+   latter two as failures made both endpoints look permanently dead — they are not, and
+   an earlier revision of this branch wrongly concluded the two tables could not be
+   built at all.
 
 6. **There is no item-level detail for contratações.** `RecuperarCompraPublicacaoDTO`
    carries only free-text `objetoCompra`. Item and catalogue (CPV-like) data exists in

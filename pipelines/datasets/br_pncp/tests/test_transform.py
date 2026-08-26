@@ -351,7 +351,9 @@ class TestHarvestResilience:
         # re-run retries it) while every other window still completes.
         calls = []
 
-        def fake_fetch_range(path, date_params, lo, hi, extra, label=""):
+        def fake_fetch_range(
+            path, date_params, lo, hi, extra, label="", page_size=500
+        ):
             calls.append(label)
             if "20210116" in label:
                 raise ConnectionResetError("simulated")

@@ -235,14 +235,16 @@ def request(path: str, params: dict, max_tries: int = 6) -> dict:
     raise ServerOverloadError(f"exhausted retries on {url}")
 
 
-def fetch_window(path: str, params: dict, label: str = "") -> list[dict]:
+def fetch_window(
+    path: str, params: dict, label: str = "", page_size: int = PAGE_SIZE
+) -> list[dict]:
     """Page through one window, raising ServerOverloadError if it is too large."""
     records: list[dict] = []
     page = 1
     started = time.monotonic()
     while True:
         payload = request(
-            path, {**params, "pagina": page, "tamanhoPagina": PAGE_SIZE}
+            path, {**params, "pagina": page, "tamanhoPagina": page_size}
         )
         batch = payload.get("data") or []
         records.extend(batch)
@@ -275,6 +277,7 @@ def fetch_range(
     hi: date,
     extra: dict,
     label: str = "",
+    page_size: int = PAGE_SIZE,
 ) -> list[dict]:
     """Fetch [lo, hi], halving the window whenever the server buckles."""
     p_from, p_to = date_params
@@ -285,7 +288,7 @@ def fetch_range(
     }
     for cooldown in (60, 180, 420):
         try:
-            return fetch_window(path, params, label)
+            return fetch_window(path, params, label, page_size)
         except RateLimitedError:
             print(
                 f"      .. rate limited on {lo}..{hi}, cooling down {cooldown}s",
@@ -300,7 +303,7 @@ def fetch_range(
         )
 
     try:
-        return fetch_window(path, params, label)
+        return fetch_window(path, params, label, page_size)
     except ServerOverloadError:
         if lo == hi:
             # A single day the server cannot serve. Report and continue rather
@@ -389,7 +392,13 @@ def harvest(
         print(f"  {table} {tag}: start", flush=True)
         try:
             records = fetch_range(
-                path, spec["date_params"], lo, hi, extra, f"{table} {tag}"
+                path,
+                spec["date_params"],
+                lo,
+                hi,
+                extra,
+                f"{table} {tag}",
+                spec.get("page_size", PAGE_SIZE),
             )
         except Exception as exc:
             # Deliberately broad. A harvest runs for hours; one window that
