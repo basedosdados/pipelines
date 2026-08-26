@@ -378,3 +378,57 @@ class TestHarvestResilience:
         assert count == 2  # the two that succeeded
         assert "20210116_20210130.jsonl.gz" not in written
         assert len(written) == 2
+
+
+class TestEmptyResultSignalling:
+    """PNCP signals "nothing matched" three different ways. None is an error."""
+
+    def _fake_response(self, status, body):
+        class _Resp:
+            def __init__(self):
+                self.status = status
+
+            def read(self):
+                return body.encode()
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+        return _Resp()
+
+    def test_200_with_an_empty_body_is_an_empty_page(self, monkeypatch):
+        # pca/atualizacao answers 200 with a zero-length body on a quiet day.
+        # Parsing that as JSON raised, and the retry then burned the window.
+        monkeypatch.setattr(
+            utils.urllib.request,
+            "urlopen",
+            lambda *a, **k: self._fake_response(200, ""),
+        )
+        assert utils.request("pca/atualizacao", {}) == utils.EMPTY_PAGE
+
+    def test_204_is_an_empty_page(self, monkeypatch):
+        monkeypatch.setattr(
+            utils.urllib.request,
+            "urlopen",
+            lambda *a, **k: self._fake_response(204, ""),
+        )
+        assert utils.request("contratos", {}) == utils.EMPTY_PAGE
+
+    def test_404_is_an_empty_page_not_a_dead_route(self, monkeypatch):
+        # instrumentoscobranca returns 404 with
+        # {"message": "Nenhum instrumento de Cobrança encontrado."} when the
+        # window is empty. Treating it as an error made a working endpoint —
+        # one that really does carry 17,536 records in Jan 2026 — look dead.
+        import urllib.error
+
+        def _raise(*a, **k):
+            raise urllib.error.HTTPError("u", 404, "Not Found", {}, None)
+
+        monkeypatch.setattr(utils.urllib.request, "urlopen", _raise)
+        assert (
+            utils.request("instrumentoscobranca/inclusao", {})
+            == utils.EMPTY_PAGE
+        )

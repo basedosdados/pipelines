@@ -160,6 +160,9 @@ THROTTLE = Throttle(float(os.environ.get("PNCP_MIN_INTERVAL", "0.05")))
 # stalled one are indistinguishable from the outside.
 VERBOSE = os.environ.get("PNCP_VERBOSE", "1") == "1"
 
+# What the client hands back for "the query matched nothing".
+EMPTY_PAGE = {"data": [], "totalRegistros": 0, "totalPaginas": 0}
+
 # Everything meaning "the connection misbehaved, retry" rather than "the
 # server answered and said no". IncompleteRead is an http.client exception,
 # not a URLError, so a narrower tuple lets a truncated chunked response
@@ -189,12 +192,14 @@ def request(path: str, params: dict, max_tries: int = 6) -> dict:
                 },
             )
             with urllib.request.urlopen(req, timeout=240) as resp:
-                if resp.status == 204:
-                    THROTTLE.relax()
-                    return {"data": [], "totalRegistros": 0, "totalPaginas": 0}
-                payload = json.loads(resp.read().decode("utf-8"))
+                body = resp.read().decode("utf-8")
             THROTTLE.relax()
-            return payload
+            # An empty result is signalled three different ways depending on the
+            # endpoint: 204, or 200 with a zero-length body (pca/atualizacao on
+            # a quiet day), or 404 below. None of them is an error.
+            if resp.status == 204 or not body.strip():
+                return EMPTY_PAGE
+            return json.loads(body)
         except urllib.error.HTTPError as exc:
             if exc.code == 429:
                 THROTTLE.penalise()
@@ -208,6 +213,12 @@ def request(path: str, params: dict, max_tries: int = 6) -> dict:
                     raise ServerOverloadError(f"{exc.code} on {url}") from exc
                 time.sleep(4 * (attempt + 1))
                 continue
+            if exc.code == 404:
+                # PNCP answers 404 for "no results", not only for a missing
+                # route: instrumentoscobranca returns
+                # {"message": "Nenhum instrumento de Cobrança encontrado."}.
+                # Treating it as an error made a working endpoint look dead.
+                return EMPTY_PAGE
             if exc.code == 422:
                 raise ServerOverloadError(f"422 on {url}") from exc
             raise RuntimeError(
