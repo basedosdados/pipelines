@@ -132,4 +132,13 @@ class constants(Enum):
     # window wider than the schedule interval is deliberate: overlapping runs are
     # idempotent because the dbt models deduplicate on the PNCP control number,
     # keeping the row with the latest data_atualizacao.
+    #
+    # Measured cost at 10 days: ~520 pages, ~25 minutes of API time.
+    #
+    # WARNING: an outage longer than this leaves a *permanent* gap. The window is
+    # keyed on update date, so a record published outside it and untouched since
+    # is never fetched, and deduplication cannot recover what was never
+    # downloaded — the run still reports success. After any outage longer than
+    # this, trigger a catch-up run with a wider `lookback_days` before trusting
+    # the schedule again. See models/br_pncp/CLAUDE.md.
     LOOKBACK_DAYS = 10

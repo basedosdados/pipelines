@@ -44,7 +44,45 @@ each record is filed under the year it was published; the recurring pipeline use
 - `12 4 * * *` — daily, 04:12 America/Sao_Paulo.
 
 Each run re-harvests a 10-day trailing window, deliberately wider than the schedule
-interval because PNCP backdates amendments. Overlapping runs are idempotent: staging is
+interval because PNCP backdates amendments.
+
+### Cost: the backfill is one-time, the daily run is not
+
+The historical backfill is ~28 hours because it pulls 5.7 years through an API that
+answers a page in 5-8s. That never recurs. Measured cost of a single scheduled run, on
+the update-date endpoints the pipeline actually uses (10-day window, 2026-08-17..26):
+
+| table | records in window | pages |
+|---|---|---|
+| `contrato` | 81,275 | 163 |
+| `contratacao` | 72,555 | 146 |
+| `ata_registro_preco` | 27,641 | 56 |
+| `instrumento_cobranca` | 4,961 | 50 (100/page) |
+| `plano_contratacao_anual` | ~53,000 est. | ~107 |
+| **total** | | **~520** |
+
+At the measured ~1,300 pages/hour that is **~25 minutes of API time** per run, plus dbt.
+
+### A >10-day outage leaves a permanent gap
+
+This is the failure mode to watch, and it fails **green**. The harvest window is keyed on
+*update* date, so a record published 20 days ago and untouched since falls outside a
+10-day window: a run after a two-week outage will never fetch it, and no amount of
+deduplication recovers a record that was never downloaded.
+
+`br_ibge_ipca` (4 ingests in 60 completed runs) and `br_bcb_estban` (nothing ingested for
+months) are the precedents in this repo.
+
+Recovery is a manual trigger with a wider window — the flow takes `lookback_days`:
+
+```
+run_deployment(..., parameters={"lookback_days": 90, "force_run": True,
+                                "materialize_to_prod": True})
+```
+
+After any outage longer than the lookback, run that **before** trusting the next
+scheduled run. Widening the default instead is not free: 30 days is ~1,560 pages, roughly
+72 minutes per daily run. Overlapping runs are idempotent: staging is
 append-only and the dbt models are incremental with `insert_overwrite` on `ano`,
 collapsing repeats on the PNCP control number and keeping the latest `data_atualizacao`.
 
