@@ -66,7 +66,6 @@ TABLES = [
     constants.TABLE_MUNICIPALITY.value,
 ]
 
-# As duas tabelas apontam para a mesma raw data source, então uma âncora basta.
 POLL_TABLE = constants.TABLE_MUNICIPALITY.value
 
 _COVERAGE = AllFree(
@@ -75,23 +74,11 @@ _COVERAGE = AllFree(
 )
 
 
-# Os parâmetros ficam em comentário, e não numa seção `Args:`, porque o Prefect 3
-# converte essa seção no `description` de cada parâmetro do deployment e o formulário
-# de run passa a exibir os textos.
-#
-# materialize_to_prod: seguir além da materialização em dev, escrevendo no bucket de
-#     staging de prod e rodando dbt com o `target`. False materializa somente em dev
-#     e não consulta o poll, que lê o backend de produção.
-# update_metadata: depois de materializar prod com sucesso, registrar a cobertura das
-#     tabelas e gravar o update da fonte. Sem efeito quando materialize_to_prod é
-#     False.
-# force_run: materializar mesmo quando o poll não achar dado novo.
 @flow(name="br_fnde_fundeb", log_prints=True)
 def br_fnde_fundeb_flow(
     dataset_id: str = constants.DATASET_ID.value,
     materialize_to_prod: bool = True,
     update_metadata: bool = True,
-    target: str = "prod",
     force_run: bool = False,
 ) -> None:
     """Baixa o exercício corrente do SIOPE, remonta as tabelas e materializa."""
@@ -119,17 +106,12 @@ def br_fnde_fundeb_flow(
             if not has_new_data and not force_run:
                 return
 
-        bucket_name = (
-            "basedosdados" if materialize_to_prod else "basedosdados-dev"
-        )
-        dbt_target = target if materialize_to_prod else "dev"
-
         for table_id in TABLES:
             upload_to_gcs(
                 data_path=result[table_id],
                 dataset_id=dataset_id,
                 table_id=table_id,
-                bucket_name=bucket_name,
+                bucket_name="basedosdados-dev",
                 dump_mode="append",
                 source_format="parquet",
             )
@@ -137,7 +119,7 @@ def br_fnde_fundeb_flow(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 dbt_command="run",
-                target=dbt_target,
+                target="dev",
             )
 
         for table_id in TABLES:
@@ -145,10 +127,37 @@ def br_fnde_fundeb_flow(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 dbt_command="test",
-                target=dbt_target,
+                target="dev",
             )
 
-        if not materialize_to_prod or not update_metadata:
+        if not materialize_to_prod:
+            return
+
+        for table_id in TABLES:
+            upload_to_gcs(
+                data_path=result[table_id],
+                dataset_id=dataset_id,
+                table_id=table_id,
+                bucket_name="basedosdados",
+                dump_mode="append",
+                source_format="parquet",
+            )
+            run_dbt(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                dbt_command="run",
+                target="prod",
+            )
+
+        for table_id in TABLES:
+            run_dbt(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                dbt_command="test",
+                target="prod",
+            )
+
+        if not update_metadata:
             return
 
         for table_id in TABLES:
@@ -171,7 +180,6 @@ def br_fnde_fundeb_flow(
         shutil.rmtree(work_dir, ignore_errors=True)
 
 
-# Minuto 17 por não estar em uso no repo: vinte flows disparam no minuto 0.
 # pyrefly: ignore [missing-attribute]
 br_fnde_fundeb_flow.deploy_schedules = [
     {"cron": "17 10 5,12,19,26 * *", "timezone": "America/Sao_Paulo"}
