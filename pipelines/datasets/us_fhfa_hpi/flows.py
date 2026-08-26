@@ -86,12 +86,16 @@ _MASTER_COVERAGE = {
 }
 
 _ANNUAL_COVERAGE = {
-    table: AllFree(date_column=YearOnly(col="year"), date_format=DateFormat.YEAR)
+    table: AllFree(
+        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
+    )
     for table in ANNUAL_TABLES
 }
 
 
-def _materialize(tables: list[str], paths: dict, target: str, bucket: str) -> None:
+def _materialize(
+    tables: list[str], paths: dict, target: str, bucket: str
+) -> None:
     """Upload every table, run every model, then test every model.
 
     Run and test are two separate loops on purpose. The master tables carry a
@@ -108,9 +112,19 @@ def _materialize(tables: list[str], paths: dict, target: str, bucket: str) -> No
             dump_mode="overwrite",
             source_format="parquet",
         )
-        run_dbt(dataset_id=DATASET_ID, table_id=table, dbt_command="run", target=target)
+        run_dbt(
+            dataset_id=DATASET_ID,
+            table_id=table,
+            dbt_command="run",
+            target=target,
+        )
     for table in tables:
-        run_dbt(dataset_id=DATASET_ID, table_id=table, dbt_command="test", target=target)
+        run_dbt(
+            dataset_id=DATASET_ID,
+            table_id=table,
+            dbt_command="test",
+            target=target,
+        )
 
 
 @flow(name="us_fhfa_hpi_master", log_prints=True)
@@ -170,10 +184,14 @@ def us_fhfa_hpi_master_flow(
         )
 
         if not materialize_to_prod:
-            _materialize(MASTER_TABLES, paths, target="dev", bucket="basedosdados-dev")
+            _materialize(
+                MASTER_TABLES, paths, target="dev", bucket="basedosdados-dev"
+            )
             return
 
-        _materialize(MASTER_TABLES, paths, target="prod", bucket="basedosdados")
+        _materialize(
+            MASTER_TABLES, paths, target="prod", bucket="basedosdados"
+        )
 
         if update_metadata:
             for table, coverage in _MASTER_COVERAGE.items():
@@ -233,10 +251,14 @@ def us_fhfa_hpi_annual_flow(
         )
 
         if not materialize_to_prod:
-            _materialize(ANNUAL_TABLES, paths, target="dev", bucket="basedosdados-dev")
+            _materialize(
+                ANNUAL_TABLES, paths, target="dev", bucket="basedosdados-dev"
+            )
             return
 
-        _materialize(ANNUAL_TABLES, paths, target="prod", bucket="basedosdados")
+        _materialize(
+            ANNUAL_TABLES, paths, target="prod", bucket="basedosdados"
+        )
 
         if update_metadata:
             for table, coverage in _ANNUAL_COVERAGE.items():

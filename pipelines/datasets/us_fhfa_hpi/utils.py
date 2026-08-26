@@ -295,7 +295,11 @@ def clean_master(input_dir: Path, output_dir: Path) -> dict:
     monthly = frames["monthly_national"]
     year = int(monthly["year"].max())
     month = int(monthly.loc[monthly["year"] == year, "month"].max())
-    return {"paths": paths, "counts": counts, "max_year_month": f"{year:04d}-{month:02d}"}
+    return {
+        "paths": paths,
+        "counts": counts,
+        "max_year_month": f"{year:04d}-{month:02d}",
+    }
 
 
 def clean_annual(input_dir: Path, output_dir: Path) -> dict:

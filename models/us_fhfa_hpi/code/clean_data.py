@@ -20,7 +20,6 @@ from pathlib import Path
 from pipelines.datasets.us_fhfa_hpi.utils import (
     clean_all,
     download_all,
-    master_max_period,
 )
 
 DATA_DIR = Path(
