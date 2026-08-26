@@ -1195,8 +1195,11 @@ models:
       - name: valor_documento
         description: Valor de face do documento comprobatório da despesa
       - name: valor_retido
-        description: Valor retido
-        tests: [not_null]
+        description: >
+          Valor retido. A fonte publica este campo vazio quando não há glosa
+          registrada, o que é distinto de uma glosa igual a zero — por isso a
+          coluna é anulável e não tem teste `not_null`. Em 2026-08-25 eram 1.375
+          de 307.943 linhas (0,45%) nos arquivos Ano-2025 e Ano-2026
       - name: valor_liquido
         description: Valor da despesa efetivamente debitado da Cota Parlamentar
         tests: [not_null]
