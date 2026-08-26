@@ -42,14 +42,16 @@ O produto 54 comprimido tem cerca de 2,6 MB e baixa em segundos; o 53 tem 45 MB
 comprimidos e 1,4 GB expandidos. O 53 deve ser mantido comprimido e
 descomprimido em stream na limpeza.
 
-## O hiato de 2025
+## 2025 não está publicado
 
-O produto 54 se descreve como "Dados a partir de 2025", mas contém apenas o
-exercício corrente: quando 2026 abriu, 2025 saiu do 54 e ainda não entrou no 53.
-**Nenhum dos dois produtos publica 2025.**
+O produto 54 se descreve como "Dados a partir de 2025", mas traz apenas o
+exercício corrente: um download do 54 feito enquanto 2025 corria trouxe 2025 e
+não 2026; hoje o mesmo endpoint traz 2026 e não 2025. O produto 53 vai de 2021 a
+2024, e seu artifact responde 404 desde 2026-08-25.
 
-Consequência: o produto 53 não é histórico congelado. Se 2025 for publicado, será
-por uma carga, não pelo flow, que lê apenas o produto do exercício corrente.
+**Nenhum dos dois produtos publica 2025 hoje.** 2025 entra na série pela cópia
+daquele download, carregada à mão como o histórico. Não se sabe se, e por onde, a
+fonte volta a publicá-lo — o flow lê apenas o produto do exercício corrente.
 
 ## Estrutura do arquivo
 
@@ -101,21 +103,14 @@ registro.
 Uma linha por ente, bimestre e indicador. `NUM_PERI` vai de 1 a 6 (bimestres).
 
 A chave `TIPO + NUM_ANO + NUM_PERI + COD_UF + COD_MUNI + COD_INDI` é única em
-6.161.687 linhas, sem duplicata.
+toda a série, sem duplicata. O `dbt_utils.unique_combination_of_columns` de cada
+modelo é o que verifica isso a cada carga.
 
-| | linhas |
-|---|---|
-| 2021–2024 (produto 53) | 5.854.777 |
-| 2026 (produto 54) | 306.910 |
-| linhas estaduais | 28.209 |
-| linhas municipais | 6.133.478 |
+Cobertura geográfica: 27 UFs e os municípios que declararam. O Distrito Federal
+aparece somente como `Estadual`.
 
-Cobertura geográfica: 27 UFs e 5.566 municípios. O Distrito Federal aparece
-somente como `Estadual`.
-
-O exercício corrente é alvo móvel: em 2026 os bimestres 1 e 2 têm 116 mil e 186
-mil linhas municipais, e o bimestre 3 tem 2.702 — está em coleta. Bimestre
-revisado reescreve linha já publicada.
+O exercício corrente é alvo móvel: o bimestre em coleta tem uma fração das linhas
+de um bimestre fechado. Bimestre revisado reescreve linha já publicada.
 
 ## O catálogo de indicadores
 
@@ -157,8 +152,8 @@ cobertura temporal da BD não expressa hiato.
 ### O Estadual 43 tem dois nomes dentro de 2024
 
 Único caso de nome ambíguo no mesmo ano. O bimestre 1 de 2024 diz "máximo de
-30%" (26 linhas) e os bimestres 2 a 6 dizem "máximo de 40%", que é também o
-texto de 2021 a 2023 e de 2026. O limite legal não mudou nesse intervalo, então
+30%" e os bimestres 2 a 6 dizem "máximo de 40%", que é também o texto de 2021 a
+2023 e de 2026. O limite legal não mudou nesse intervalo, então
 o bimestre 1 registra um texto que a fonte corrigiu na exportação seguinte.
 
 O `dicionario` da BD data seus valores por ano, então o bimestre isolado não é
@@ -190,14 +185,14 @@ Municipal. Nenhum indicador de 2024 desapareceu.
 Duas tabelas de fato, uma por esfera, mais o dicionário. Os modelos e os testes
 estão em `models/br_fnde_fundeb/`.
 
-**`indicador_estadual`** — 28.209 linhas
+**`indicador_estadual`**
 
 ```text
 ano, bimestre, sigla_uf, id_indicador, codigo_indicador,
 valor_percentual, valor_real
 ```
 
-**`indicador_municipal`** — 6.133.478 linhas
+**`indicador_municipal`**
 
 ```text
 ano, bimestre, sigla_uf, id_municipio, id_indicador, codigo_indicador,
@@ -242,23 +237,23 @@ Consultas que abrangem as duas esferas exigem `union` das duas tabelas.
 
 ### 2. `valor_percentual` e `valor_real`, não uma coluna `valor`
 
-A unidade varia por indicador — percentual em 57 dos 95 pares (3.673.514 linhas)
-e reais em 36 (2.488.171 linhas). Uma coluna `valor` única não teria
-`measurement_unit`, que a BD exige em coluna numérica.
+A unidade varia por indicador — percentual em 57 dos 95 pares esfera/indicador e
+reais em 36. Uma coluna `valor` única não teria `measurement_unit`, que a BD
+exige em coluna numérica.
 
-Cada linha preenche exatamente uma das duas colunas: `valor_percentual` fica 60%
-não-nula e `valor_real` 40%. Por isso as duas entram em `ignore_values` no
-`not_null_proportion_multiple_columns`, que exige 95% nas demais colunas.
+Cada linha preenche exatamente uma das duas colunas, então nenhuma das duas chega
+perto de ser integralmente não-nula. Por isso as duas entram em `ignore_values`
+no `not_null_proportion_multiple_columns`, que exige 95% nas demais colunas.
 
 ### 3. Não existe coluna `valor_indice`
 
 Os indicadores do grupo 5 (IDEB séries iniciais e finais) são a terceira
 unidade, mas somam **duas linhas** no conjunto inteiro — Rio Branco, 2023,
-bimestre 1, valor zero nas duas, e nenhuma linha de IDEB no produto de 2026.
+bimestre 1, valor zero nas duas. Não há linha de IDEB em 2025 nem em 2026.
 
-Uma coluna dedicada seria duas células não-nulas em 6,16 milhões de linhas.
-Essas duas linhas sobem com `valor_percentual` e `valor_real` nulos, e o grupo 5
-fica registrado no `dicionario`.
+Uma coluna dedicada seria duas células não-nulas na série inteira. Essas duas
+linhas sobem com `valor_percentual` e `valor_real` nulos, e o grupo 5 fica
+registrado no `dicionario`.
 
 ### 4. O `id_municipio` sai de join, não de cálculo
 
@@ -275,8 +270,8 @@ left join `basedosdados.br_bd_diretorios_brasil.municipio` as bd
 ```
 
 A staging carrega os 6 dígitos crus; o `id_municipio` de 7 dígitos nasce no
-modelo. Na carga do histórico casaram todas as 5.828.321 linhas, em 5.566
-municípios.
+modelo. Todo código publicado casou com o diretório, e o teste `relationships`
+acende se algum deixar de casar.
 
 ### 5. `id_indicador` e `codigo_indicador` convivem
 
@@ -288,11 +283,13 @@ identificar o indicador nos relatórios do FNDE.
 
 ## Carga e atualização
 
-A série é carregada por dois caminhos, com partições disjuntas:
+A série é carregada por dois caminhos — a máquina local e o worker —, com
+partições disjuntas:
 
 | | fonte | quem escreve |
 |---|---|---|
 | 2021–2024 | produto 53 | máquina local, chamando as tasks por `.fn()` |
+| 2025 | cópia do produto 54 de quando 2025 era o exercício corrente | máquina local, idem |
 | exercício corrente | produto 54 | worker, flow agendado |
 
 O upload local escreve em `basedosdados-dev`; prod é materializado no merge pela
@@ -333,36 +330,28 @@ Entram documentadas; não há como corrigir sem inventar dado.
 ### Percentual acima de 100
 
 Vários indicadores percentuais passam de 100 legitimamente — aplicação acima do
-mínimo exigido. Dois casos, os dois no Municipal, não são percentuais em linhas
-isoladas:
-
-| indicador | máximo | linhas > 100 | de |
-|---|---|---|---|
-| 2.8 despesas em educação sobre todas as áreas | 127.082.379.550 | 525 | 142.087 |
-| 6.3 receitas de transferências constitucionais | 1.824.006.897.611 | 118 | 134.914 |
+mínimo exigido. Dois casos, os dois no Municipal, não são percentuais numa
+fração isolada das suas linhas: o 2.8, despesas em educação sobre todas as
+áreas, e o 6.3, receitas de transferências constitucionais, que nessas linhas
+chegam à casa dos bilhões.
 
 Nas demais linhas os dois se comportam como percentual. É valor em reais
 vazando para um campo percentual.
 
 ### Percentual negativo
 
-9.605 linhas municipais têm `valor_percentual` negativo, chegando a −13.990. São
-quase todas do grupo 1, as aplicações mínimas legais:
-
-| indicador | linhas negativas | mínimo |
-|---|---|---|
-| 1.3 aplicação do FUNDEB em MDE que não remuneração | 7.056 | −13.990,46 |
-| 1.1 aplicação em MDE | 1.959 | −3.535,24 |
-| 1.4 receitas do FUNDEB não aplicadas | 529 | −324,97 |
+Parte das linhas municipais tem `valor_percentual` negativo, chegando a milhares
+de pontos abaixo de zero. São quase todas do grupo 1, as aplicações mínimas
+legais: o 1.3, aplicação do FUNDEB em MDE que não remuneração; o 1.1, aplicação
+em MDE; e o 1.4, receitas do FUNDEB não aplicadas.
 
 O valor vem negativo da fonte, não do parsing. A ocorrência cai a quase zero no
-bimestre 6 (31 linhas contra ~1.000 nos demais no indicador 1.3), o que aponta
-para declaração em aberto que é corrigida até o fechamento do exercício.
+bimestre 6, o que aponta para declaração em aberto que é corrigida até o
+fechamento do exercício.
 
 ### Indicadores integralmente zerados
 
-Sete pares esfera/indicador têm zero em todas as linhas. Dois deles com 135 mil
-linhas cada:
+Sete pares esfera/indicador têm zero em todas as linhas. Os dois maiores:
 
 - Municipal 2.3, percentual do FUNDEB aplicado no ensino médio — município não
   mantém ensino médio;
