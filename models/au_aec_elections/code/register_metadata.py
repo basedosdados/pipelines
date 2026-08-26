@@ -21,13 +21,60 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from datetime import date
 from pathlib import Path
+
+import requests
 
 MCP_DIR = Path.home() / "Dropbox" / "BD" / "mcp"
 sys.path.insert(0, str(MCP_DIR))
 
 import server  # noqa: E402  — the databasis MCP module
+
+# The prod backend routinely takes 60-95s to answer a single query, and the MCP
+# module hardcodes a 60s timeout with no retry — so a full registration run reliably
+# dies partway through with a ReadTimeout. Give it room and retry with backoff.
+#
+# A retry after a timeout can re-apply a mutation the server already accepted. That is
+# safe here: tables are matched by slug, columns by name, and any duplicated
+# observation level, cloud table or coverage is removed by `drop_duplicates` on the
+# next pass over that table.
+BACKEND_TIMEOUT = 300
+BACKEND_TRIES = 5
+
+_original_post = requests.post
+
+
+def _patient_post(*args: object, **kwargs: object) -> requests.Response:
+    kwargs["timeout"] = BACKEND_TIMEOUT
+    for attempt in range(BACKEND_TRIES):
+        reason = ""
+        try:
+            response = _original_post(*args, **kwargs)
+            # A 502/504 from the gateway is the same overload as a client-side
+            # timeout, just reported from the other end. The MCP module turns any
+            # non-2xx into an exception, so it has to be caught here instead.
+            if response.status_code < 500:
+                return response
+            reason = f"HTTP {response.status_code}"
+        except (
+            requests.exceptions.ReadTimeout,
+            requests.exceptions.ConnectionError,
+        ):
+            if attempt == BACKEND_TRIES - 1:
+                raise
+            reason = "timeout"
+        if attempt == BACKEND_TRIES - 1:
+            return response
+        delay = 15 * 2**attempt
+        print(f"  [backend {reason} — retrying in {delay}s]", flush=True)
+        time.sleep(delay)
+    raise RuntimeError("unreachable")
+
+
+requests.post = _patient_post
+server.requests.post = _patient_post
 
 from pipelines.datasets.au_aec_elections import schema  # noqa: E402
 from pipelines.datasets.au_aec_elections.constants import (  # noqa: E402
