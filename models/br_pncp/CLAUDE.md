@@ -81,13 +81,25 @@ Every one of these was found by probing; none is stated in the OpenAPI spec.
    time. Measured, with no 429s at any level: 1 worker 8.5s/page, 2 workers 3.7, 3
    workers 3.1, 4 workers 2.7. The harvest runs 4 workers behind a shared pacer.
 
-   **The ceiling is roughly 4-6 simultaneous requests per source IP**, across all
-   endpoints, and it is a concurrency limit rather than a requests-per-second one — the
-   pacer sits at 0.05s during a healthy run and never binds. Measured by issuing extra
-   concurrent requests while a 4-worker harvest was running: every one of them came back
-   429 while the harvest itself continued at 200. So **4 workers is the setting**, not a
-   starting point to tune upward. The 429 body is an HTML F5-style "Limite de Requisições
-   Excedido" page with **no `Retry-After`**.
+   **The ceiling is a concurrency limit, not a requests-per-second one**, applied per
+   source IP across all endpoints. Measured by issuing extra concurrent requests while a
+   4-worker harvest was running: every one came back 429 while the harvest continued at
+   200. The 429 body is an HTML F5-style "Limite de Requisições Excedido" page with **no
+   `Retry-After`**.
+
+   **Use 3 workers.** 4 sits *on* the ceiling and is materially slower than 3 sitting
+   under it, which is counterintuitive enough to be worth stating plainly:
+
+   | workers | pacer in steady state | sustained rate |
+   |---|---|---|
+   | 4 | spiking to 6.4s | ~590 pages/hour |
+   | 3 | flat at 0.05s | ~1,300 pages/hour |
+
+   At 4 workers all four cross the ceiling together, each calls `penalise()`, and the
+   compounding (1.6^4) serialises every worker behind a ~6s global pacer. Because the
+   real limit is on concurrency, a *rate* penalty is the wrong instrument — it punishes
+   all workers for the ceiling being touched. `penalise` is therefore capped at 2.0s, and
+   the answer to a 429 is to run fewer workers rather than to back off harder.
 
    Exceeding it is worse than slow. A 5-worker attempt tripped 429s, which penalised the
    shared pacer up to its 8s ceiling and compounded with the per-window cooldowns; the

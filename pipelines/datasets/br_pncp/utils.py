@@ -135,8 +135,14 @@ class Throttle:
             time.sleep(delay)
 
     def penalise(self) -> None:
+        # Capped low on purpose. The API's limit is on *concurrency*, not rate,
+        # so a global rate penalty is a blunt instrument: when four workers cross
+        # the ceiling together they each penalise, compounding 1.6^4 in one burst
+        # and serialising every worker behind a ~6s pacer. Sustained throughput
+        # then collapsed to ~590 pages/hour. Staying below the ceiling and
+        # penalising gently is far faster than exceeding it and backing off hard.
         with self._lock:
-            self.interval = min(self.interval * 1.6, 8.0)
+            self.interval = min(self.interval * 1.3, 2.0)
 
     def relax(self) -> None:
         # Recover faster than the 5%/success the first version used: at an 8s
