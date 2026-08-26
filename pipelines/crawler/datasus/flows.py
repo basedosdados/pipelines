@@ -21,12 +21,9 @@ from pipelines.utils.metadata.domain import (
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
-    check_source_is_ahead_of_table_task,
     commit_source_update_task,
     poll_source_for_update_task,
-    register_source_coverage_task,
     register_table_materialization_task,
-    sync_table_coverage_task,
 )
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
@@ -39,7 +36,6 @@ def _run_cnes(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
@@ -57,19 +53,31 @@ def _run_cnes(
     )
     source_max_date = get_datasus_source_max_date(ftp_files)
 
-    register_source_coverage_task(
+    if not force_run:
+        has_new_data = poll_source_for_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=source_max_date,
+            env="prod",
+            date_format="%Y-%m",
+            compare_against="coverage",
+        )
+        if not has_new_data:
+            print("Fonte CNES sem novidade — encerrando")
+            return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
         dataset_id=dataset_id,
         table_id=table_id,
         source_max_date=source_max_date,
         env="prod",
         date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
     )
-
-    if not force_run and not check_source_is_ahead_of_table_task(
-        dataset_id=dataset_id, table_id=table_id, env="prod"
-    ):
-        print("Tabela CNES já cobre a fonte — encerrando")
-        return
 
     if not ftp_files:
         print("force_run=True mas FTP não retornou arquivos — encerrando")
@@ -99,7 +107,6 @@ def _run_cnes(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -118,12 +125,11 @@ def _run_cnes(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
     if update_metadata:
-        sync_table_coverage_task(
+        register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
             coverage=PartBdpro(
@@ -139,7 +145,6 @@ def _run_dbf_to_parquet(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
@@ -210,7 +215,6 @@ def _run_dbf_to_parquet(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -229,7 +233,6 @@ def _run_dbf_to_parquet(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -258,7 +261,6 @@ def _run_sinan(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
@@ -320,7 +322,6 @@ def _run_sinan(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -338,7 +339,6 @@ def _run_sinan(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 

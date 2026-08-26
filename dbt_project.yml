@@ -49,6 +49,9 @@ models:
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
+    au_aec_elections:
+      +materialized: table
+      +schema: au_aec_elections
     au_ato_abr:
       +materialized: table
       +schema: au_ato_abr
@@ -154,6 +157,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_bls_oes:
+      +materialized: table
+      +schema: us_bls_oes
     us_fed_fred:
       +materialized: table
       +schema: us_fed_fred
@@ -487,6 +493,9 @@ models:
     br_senado_dados_abertos:
       +materialized: table
       +schema: br_senado_dados_abertos
+    br_senado_dados_abertos_administrativos:
+      +materialized: table
+      +schema: br_senado_dados_abertos_administrativos
     br_sfb_sicar:
       +materialized: table
       +schema: br_sfb_sicar
@@ -568,6 +577,9 @@ models:
     world_oceanos_mapeamento:
       +materialized: table
       +schema: world_oceanos_mapeamento
+    world_oecd_piaac:
+      +materialized: table
+      +schema: world_oecd_piaac
     world_oecd_public_finance:
       +materialized: table
       +schema: world_oecd_public_finance
@@ -583,6 +595,9 @@ models:
     world_wb_mides:
       +materialized: table
       +schema: world_wb_mides
+    world_wil_wid:
+      +materialized: table
+      +schema: world_wil_wid
     world_wwf_hydrosheds:
       +materialized: table
       +schema: world_wwf_hydrosheds
