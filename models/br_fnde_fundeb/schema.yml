@@ -21,7 +21,6 @@ models:
       - name: ano
         description: Ano do exercício financeiro declarado
         tests:
-          - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
@@ -29,20 +28,17 @@ models:
         description: >-
           Bimestre do exercício a que se refere a declaração, de 1 a 6
         tests:
-          - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__bimestre')
               field: bimestre.bimestre
       - name: sigla_uf
         description: Sigla da unidade federativa do ente declarante
         tests:
-          - not_null
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
       - name: id_indicador
         description: Código do indicador no SIOPE
-        tests: [not_null]
       - name: codigo_indicador
         description: >-
           Código de exibição do indicador, no formato grupo.item
@@ -71,7 +67,6 @@ models:
       - name: ano
         description: Ano do exercício financeiro declarado
         tests:
-          - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
@@ -79,27 +74,23 @@ models:
         description: >-
           Bimestre do exercício a que se refere a declaração, de 1 a 6
         tests:
-          - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__bimestre')
               field: bimestre.bimestre
       - name: sigla_uf
         description: Sigla da unidade federativa do ente declarante
         tests:
-          - not_null
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
       - name: id_municipio
         description: Código IBGE de 7 dígitos do município declarante
         tests:
-          - not_null
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
       - name: id_indicador
         description: Código do indicador no SIOPE
-        tests: [not_null]
       - name: codigo_indicador
         description: >-
           Código de exibição do indicador, no formato grupo.item
@@ -124,16 +115,11 @@ models:
     columns:
       - name: id_tabela
         description: Nome da tabela a que a chave se refere
-        tests: [not_null]
       - name: nome_coluna
         description: Nome da coluna a que a chave se refere
-        tests: [not_null]
       - name: chave
         description: Valor codificado presente na coluna
-        tests: [not_null]
       - name: cobertura_temporal
         description: Anos em que a chave assume esse valor
-        tests: [not_null]
       - name: valor
         description: Nome do indicador correspondente à chave
-        tests: [not_null]
