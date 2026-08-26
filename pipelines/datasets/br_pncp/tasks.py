@@ -54,7 +54,7 @@ def clean_window(work_dir: str, input_dir: str, table: str) -> dict:
     summary = clean_table(Path(input_dir), output_dir, table, replace=False)
     summary["data_path"] = str(output_dir / table)
     print(
-        f"{table}: {summary['raw_rows']:,} raw -> {summary['deduped_rows']:,} rows "
+        f"{table}: {summary['raw_rows']:,} raw -> {summary['written_rows']:,} staging rows "
         f"across years {summary['years']}",
         flush=True,
     )
@@ -73,7 +73,7 @@ def build_dicionario_task(work_dir: str) -> dict:
     rows = build_dicionario(output_dir)
     return {
         "table": "dicionario",
-        "deduped_rows": rows,
+        "written_rows": rows,
         "years": [],
         "data_path": str(output_dir / "dicionario"),
     }

@@ -55,16 +55,11 @@ def main() -> int:
             args.input_dir, args.output_dir, table, replace=True
         )
         existing[table] = summary
-        collapsed = (
-            summary["raw_rows"]
-            - summary["deduped_rows"]
-            - summary["undated_dropped"]
-        )
         years = summary["years"]
         print(
-            f"{table}: raw={summary['raw_rows']:,} -> rows={summary['deduped_rows']:,} "
-            f"(duplicates collapsed={collapsed:,}, "
-            f"undated dropped={summary['undated_dropped']:,}) "
+            f"{table}: raw={summary['raw_rows']:,} "
+            f"-> staging rows={summary['written_rows']:,} "
+            f"(undated dropped={summary['undated_dropped']:,}) "
             f"years={years[0] if years else '-'}..{years[-1] if years else '-'}",
             flush=True,
         )

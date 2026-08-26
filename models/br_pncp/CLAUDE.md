@@ -123,13 +123,35 @@ If PNCP ever publishes an explicit data licence, record it here.
 - The partition column `ano` is written into the **directory name only**, not into the
   parquet file. Both would collide on read (`Field ano has incompatible types: string vs
   dictionary<values=int32>`).
-- Deduplication is by the record's PNCP control number, keeping the highest
-  `data_atualizacao`. PNCP re-publishes a record into every harvest window it was
-  touched in, so repeats across chunks are expected, not a bug.
+- **Deduplication happens in the dbt model, not in the cleaning step.** PNCP re-delivers
+  a record in every harvest window that touched it, so staging holds duplicates by
+  design; each model carries an unconditional
+  `QUALIFY row_number() over (partition by <pncp control number> order by
+  data_atualizacao desc) = 1`. Staging row counts are therefore larger than the
+  materialized tables, which is expected, not a loss.
+
+  An earlier version deduplicated in Python with a `{key: row}` dict. That is fine on a
+  small table and fatal here — contrato alone is 4.8M rows of 46 string columns, and it
+  exhausted the machine's RAM. The cleaning step now streams: rows buffer per partition
+  and flush to a numbered parquet part every `PNCP_BATCH_ROWS` (default 50,000), so peak
+  memory is bounded by the batch rather than the table. Measured at 443 MB. Several parts
+  per `ano=` directory are fine — a hive-partitioned external table reads every file in
+  the directory.
 - `dicionario` is derived from the cleaned data itself: most PNCP coded fields ship
   their label alongside the code (`modalidadeId` / `modalidadeNome`), so the dictionary
   cannot drift. Only `id_esfera`, `id_poder` and `tipo_pessoa_fornecedor` are
   hard-coded, because the API never labels them.
+
+## Verification so far
+
+The cleaning transform reproduces the source exactly where the backfill is complete:
+`contrato` yields **5,308 rows for 2021 and 40,645 for 2022**, matching the API's own
+`totalRegistros` for those years.
+
+`pipelines/datasets/br_pncp/tests/` covers the transform's silent-failure modes — NULL
+never becoming the literal `"nan"`, integers not acquiring a `.0` tail, the partition
+column staying out of the parquet file, PCA exploding to one row per item, and
+`replace=False` leaving untouched partitions alone.
 
 ## Test scoping
 

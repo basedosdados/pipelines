@@ -119,7 +119,7 @@ def br_pncp_flow(
                 work_dir=work_dir, input_dir=input_dir, table=table
             )
 
-        harvested = sum(s["deduped_rows"] for s in summaries.values())
+        harvested = sum(s["written_rows"] for s in summaries.values())
         if harvested == 0 and not force_run:
             print(
                 "Nenhum registro novo ou atualizado na fonte original",

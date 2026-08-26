@@ -509,51 +509,46 @@ def iter_raw(input_dir: Path, table: str):
 
 
 def clean_table(
-    input_dir: Path, output_dir: Path, table: str, replace: bool = True
+    input_dir: Path,
+    output_dir: Path,
+    table: str,
+    replace: bool = True,
+    batch_rows: int = int(os.environ.get("PNCP_BATCH_ROWS", "50000")),
 ) -> dict:
-    """Read every raw chunk for one table, dedupe, and write partitioned parquet.
+    """Stream one table's raw chunks into partitioned all-STRING parquet.
+
+    **Deduplication happens in the dbt model, not here.** An earlier version held
+    every row in a ``{key: row}`` dict to keep the latest ``data_atualizacao``,
+    which is fine for a small table and fatal for this one: contrato alone is
+    4.8M rows of 46 string columns, tens of GB of Python objects, and it
+    exhausted the machine's RAM. The models already carry an unconditional
+    ``QUALIFY row_number() ... = 1`` on the same key, so the in-memory pass was
+    duplicated work as well as a memory bomb. Staging therefore holds duplicates
+    by design and BigQuery collapses them.
+
+    Memory is bounded by ``batch_rows`` per open partition: rows accumulate per
+    year and flush to a numbered parquet part on reaching the threshold. Chunks
+    are read in chronological filename order, so typically only one or two years
+    are open at a time. Several parts per partition directory are fine — a
+    hive-partitioned external table reads every file in the directory.
 
     Args:
         input_dir: Root holding ``<table>/*.jsonl.gz``.
-        output_dir: Root to write ``<table>/ano=<year>/data.parquet`` under.
+        output_dir: Root to write ``<table>/ano=<year>/data_NNNN.parquet`` under.
         table: Table slug.
         replace: Remove the table's existing output tree first. True for the
             one-shot backfill, where the run produces the complete table. False
-            for an incremental pipeline run, which produces only the touched
-            partitions and must not delete the others.
+            for an incremental pipeline run, which produces only the partitions
+            its window touched and must not delete the others.
+        batch_rows: Rows buffered per partition before a part is written.
 
     Returns:
-        Summary with raw and written row counts and the years touched, so the
-        caller can assert the transform reproduced a known result.
+        Summary with raw and written row counts and the years touched. Note that
+        ``written_rows`` counts rows *before* deduplication, which is what
+        staging will contain; the materialized table will hold fewer.
     """
     columns = read_architecture(table)
     names = [c["name"] for c in columns]
-    key_cols, recency_col = DEDUP_KEYS[table]
-
-    # key -> row, keeping the most recently updated version. PNCP re-publishes a
-    # record into every window it was touched in, so the same id legitimately
-    # appears many times across chunks.
-    best: dict[tuple, dict] = {}
-    raw_rows = 0
-    undated = 0
-
-    for record in iter_raw(input_dir, table):
-        for row in flatten(record, table, columns):
-            raw_rows += 1
-            if row["ano"] is None:
-                undated += 1
-                continue
-            key = tuple(row.get(k) for k in key_cols)
-            incumbent = best.get(key)
-            if incumbent is None or (row.get(recency_col) or "") >= (
-                incumbent.get(recency_col) or ""
-            ):
-                best[key] = row
-
-    by_year: dict[str, list[dict]] = {}
-    for row in best.values():
-        by_year.setdefault(row["ano"], []).append(row)
-
     file_names = [n for n in names if n != "ano"]
     schema = pa.schema([(n, pa.string()) for n in file_names])
 
@@ -561,8 +556,18 @@ def clean_table(
     if replace and table_dir.exists():
         shutil.rmtree(table_dir)
 
+    buffers: dict[str, list[dict]] = {}
+    parts: dict[str, int] = {}
+    raw_rows = 0
     written = 0
-    for year, rows in sorted(by_year.items()):
+    undated = 0
+
+    def flush(year: str) -> int:
+        rows = buffers.pop(year, None)
+        if not rows:
+            return 0
+        index = parts.get(year, 0)
+        parts[year] = index + 1
         target = table_dir / f"ano={year}"
         target.mkdir(parents=True, exist_ok=True)
         arrays = [
@@ -571,17 +576,31 @@ def clean_table(
         ]
         pq.write_table(
             pa.Table.from_arrays(arrays, schema=schema),
-            target / "data.parquet",
+            target / f"data_{index:04d}.parquet",
             compression="snappy",
         )
-        written += len(rows)
+        return len(rows)
+
+    for record in iter_raw(input_dir, table):
+        for row in flatten(record, table, columns):
+            raw_rows += 1
+            year = row["ano"]
+            if year is None:
+                undated += 1
+                continue
+            buffers.setdefault(year, []).append(row)
+            if len(buffers[year]) >= batch_rows:
+                written += flush(year)
+
+    for year in sorted(buffers):
+        written += flush(year)
 
     return {
         "table": table,
         "raw_rows": raw_rows,
-        "deduped_rows": written,
+        "written_rows": written,
         "undated_dropped": undated,
-        "years": sorted(by_year),
+        "years": sorted(parts),
     }
 
 

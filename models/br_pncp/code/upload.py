@@ -11,6 +11,11 @@ The parquet is all-STRING by design (see ``utils.py``); the dbt model does the
 ``safe_cast``. Expected row counts come from ``output/clean_summary.json``, so
 the upload asserts against what the cleaning step actually produced rather than
 a number typed in by hand.
+
+Those counts are *pre-deduplication*: staging holds one row per record per
+harvest window that touched it, and the dbt models collapse them on the PNCP
+control number. The materialized tables will therefore be smaller than staging,
+which is expected, not a loss.
 """
 
 from __future__ import annotations
@@ -63,7 +68,7 @@ def expected_rows() -> dict[str, int]:
     if not summary_path.exists():
         raise SystemExit(f"missing {summary_path}; run clean.py first")
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
-    counts = {s["table"]: s["deduped_rows"] for s in summary}
+    counts = {s["table"]: s["written_rows"] for s in summary}
     dicionario = OUTPUT_ROOT / "dicionario" / "data.parquet"
     if dicionario.exists():
         import pyarrow.parquet as pq
