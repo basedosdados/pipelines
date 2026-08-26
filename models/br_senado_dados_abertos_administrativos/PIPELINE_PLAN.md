@@ -53,22 +53,32 @@ both is harmless (`insert_overwrite` is idempotent per partition). Time-series
 tables are re-extracted for the last two years on every run — cheap for CEAPS and
 supridos, ~13 monthly requests for payroll.
 
-## BD Pro — 6-month rolling window on the snapshots
+## BD Pro — rolling paywall on every time-tracked table
 
-Standard 6-month paywall. Applied where a clean rolling window exists: the 30
-`data_extracao` snapshots refresh daily, so `PartBdpro(free_lag=6 months)` on
-`data_extracao` — the most recent six months of snapshots are pro, older stay
-free. The window rolls itself via `register_table_materialization_task`.
+The rolling paywall covers **every table with a month-or-finer time column** (36
+of 40), each on its finest column; `register_table_materialization_task` rolls
+the window on every run. The two year-only series stay `AllFree` (a sub-year
+window is not expressible on a year column), and the two tables with no record
+time dimension — `senador` (a full-refresh dimension) and `dicionario` — take no
+coverage. All four stay free.
 
-The 10 year-partitioned series stay `AllFree`: a 6-month lag is not expressible
-on a year-only partition, and the payroll/expense series are a public good.
-`dicionario` has no date column and takes no coverage.
+| Group | Tables | Date column | Format | Tier |
+|---|---|---|---|---|
+| Snapshots | the 28 `data_extracao` tables | `data_extracao` | `YEAR_MD` | PartBdpro, 6-month lag |
+| Series with a `data` column | `despesa_ceaps`, `servidor_hora_extra_dia`, `suprido_ato_concessao`, `suprido_empenho`, `suprido_transacao`, `suprido_movimentacao` | `data` | `YEAR_MD` | PartBdpro, 6-month lag |
+| Monthly series | `servidor_remuneracao`, `servidor_hora_extra` | `ano` + `mes` | `YEAR_MONTH` | PartBdpro, 6-month lag |
+| Year-only series | `suprido_transacao_objeto`, `suprido_movimentacao_subtipo` | `ano` | `YEAR` | AllFree (no paywall) |
+
+For the series with real history (CEAPS to 2008, payroll to 2013) the paywall
+leaves most data free and covers only the recent tail; the snapshots have no
+history yet, so their free tier fills in as snapshots age past the lag.
 
 **Prerequisite before arming:** every `part_bdpro` table needs BOTH a free
 (`is_closed=False`) and a pro (`is_closed=True`) Coverage to pre-exist, or the
 first run hard-fails at `assert_coverage_topology`. The onboarding registered
-only the free Coverage on each snapshot, so the pro Coverage must be created on
-all 30 before the schedule is armed.
+only the free Coverage on each table, so the pro Coverage must be created on the
+**36** paywalled tables before the schedule is armed. The two `AllFree` year-only
+tables need only their existing free Coverage (and no pro Coverage).
 
 ## Update / Poll records
 
