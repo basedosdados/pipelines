@@ -34,6 +34,7 @@ def _tse_flow(table_id: str, cron: str | None):
     def _flow(
         dataset_id: str = "br_tse_eleicoes",
         table_id: str = table_id,
+        year: int | str = 2026,
         materialize_after_dump: bool = False,
         dbt_alias: bool = False,
         update_metadata: bool = True,
@@ -45,7 +46,7 @@ def _tse_flow(table_id: str, cron: str | None):
             prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
         )
 
-        flow = flows_control(table_id=table_id, mode="prod")
+        flow = flows_control(table_id=table_id, mode="prod", year=year)
         data_source_max_date = get_data_source_max_date(flow_class=flow)
 
         if not force_run:

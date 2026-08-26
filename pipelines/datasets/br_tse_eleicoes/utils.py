@@ -47,27 +47,27 @@ def add_ensino(instrucao: str) -> str:
     return instrucao
 
 
-def flows_catalog() -> dict:
+def flows_catalog(year: int | str) -> dict:
     catalog = {
         "candidatos": {
             "flow": Candidatos,
             "urls": tse_constants.CANDIDATOS_URLS.value,
-            "source": "consulta_cand_2026_BRASIL.csv",
+            "source": f"consulta_cand_{year}_BRASIL.csv",
         },
         "bens_candidato": {
             "flow": BensCandidato,
             "urls": [tse_constants.BENS_CANDIDATOS.value],
-            "source": "bem_candidato_2026_BRASIL.csv",
+            "source": f"bem_candidato_{year}_BRASIL.csv",
         },
         "despesas_candidato": {
             "flow": DespesasCandidato,
             "urls": [tse_constants.DESPESAS_RECEITAS.value],
-            "source": "despesas_contratadas_candidatos_2026_BRASIL.csv",
+            "source": f"despesas_contratadas_candidatos_{year}_BRASIL.csv",
         },
         "receitas_candidato": {
             "flow": ReceitasCandidato,
             "urls": [tse_constants.DESPESAS_RECEITAS.value],
-            "source": "receitas_candidatos_2026_BRASIL.csv",
+            "source": f"receitas_candidatos_{year}_BRASIL.csv",
         },
     }
 
@@ -75,15 +75,13 @@ def flows_catalog() -> dict:
 
 
 # Class Principal
-
-
 class BrTseEleicoes:
     def __init__(
         self,
         urls: list,
         table_id: str,
         source: str,
-        year: int = 2026,
+        year: int,
         mode: str = "dev",
     ):
         self.urls = urls
@@ -111,7 +109,7 @@ class BrTseEleicoes:
         Gets all csv files from a url and saves them to a directory.
         """
         for url in self.urls:
-            self.download_extract_zip(url)
+            self.download_extract_zip(url.format(year=self.year))
 
     def download_extract_zip(self, url: str, chunk_size=128) -> None:
         """
@@ -137,7 +135,13 @@ class BrTseEleicoes:
                 fd.write(chunk)
 
         with zipfile.ZipFile(save_path) as z:
-            z.extractall(self.path_input)
+            members = [
+                name
+                for name in z.namelist()
+                if name.upper().endswith("BRASIL.CSV")
+            ]
+            z.extractall(self.path_input, members=members)
+        # save_path.unlink()
 
         if not self.path_main:
             # pyrefly: ignore [bad-assignment]
@@ -178,13 +182,9 @@ class BrTseEleicoes:
 
         # pyrefly: ignore [missing-attribute]
         base = base.drop_duplicates()
-
         path_output = self.path_output / f"ano={self.year}"
-
         file_path = path_output / f"{self.table_id}.csv"
-
         path_output.mkdir(parents=True, exist_ok=True)
-
         base.to_csv(file_path, index=False)
 
     def form_df_base(self) -> None:
@@ -225,11 +225,8 @@ class Candidatos(BrTseEleicoes):
         temp_merge_left["id_candidato_bd"] = ""
 
         base = temp_merge_left.loc[:, tse_constants.ORDER.value.values()]
-
         base = base.fillna("")
-
         base.columns = tse_constants.ORDER.value.keys()
-
         base = base.replace(self.remove, regex=False)
 
         # Formatar datas
@@ -335,11 +332,8 @@ class DespesasCandidato(BrTseEleicoes):
         base = self.df_main.loc[:, tse_constants.ORDER_DESPESAS.value.values()]
 
         del self.df_main
-
         base = base.fillna("")
-
         base.columns = tse_constants.ORDER_DESPESAS.value.keys()
-
         base = base.replace(self.remove, regex=False)
 
         slug_columns_format = [
@@ -351,25 +345,20 @@ class DespesasCandidato(BrTseEleicoes):
             "descricao_cnae_2_fornecedor",
             "tipo_fornecedor",
         ]
-
         base[slug_columns_format] = base[slug_columns_format].applymap(slugify)
 
         # Formatar datas
-
         date_columns = [
             "data_eleicao",
             "data_despesa",
             "data_prestacao_contas",
         ]
-
         base[date_columns] = base[date_columns].applymap(conv_data)
-
         base.tipo_eleicao = base.tipo_eleicao.str.replace(
             rf"eleicoes municipais {self.year}(?!\s-\s)",
             "eleicao ordinaria",
             regex=True,
         )
-
         base["valor_despesa"] = base["valor_despesa"].str.replace(",", ".")
 
         return base
@@ -385,7 +374,6 @@ class ReceitasCandidato(BrTseEleicoes):
         )
 
         # Precisamos limpas alguns zero a esquerda
-
         for date_column in ["SG_UE", "CD_MUNICIPIO_DOADOR"]:
             # pyrefly: ignore [unsupported-operation]
             self.df_main[date_column] = self.df_main[date_column].str.lstrip(
@@ -424,13 +412,10 @@ class ReceitasCandidato(BrTseEleicoes):
         base = self.df_main.loc[:, tse_constants.ORDER_RECEITA.value.values()]
 
         del self.df_main
-
         base = base.fillna("")
-
         base.columns = tse_constants.ORDER_RECEITA.value.keys()
 
         # Remover nulos e não divulgaveis
-
         base = base.replace(self.remove, regex=False)
 
         # Gerar slugs
@@ -450,21 +435,17 @@ class ReceitasCandidato(BrTseEleicoes):
         base[slug_columns_format] = base[slug_columns_format].applymap(slugify)
 
         # Formatar colunas com datas
-
         date_columns = [
             "data_eleicao",
             "data_receita",
             "data_prestacao_contas",
         ]
-
         base[date_columns] = base[date_columns].applymap(conv_data)
-
         base.tipo_eleicao = base.tipo_eleicao.str.replace(
             rf"eleicoes municipais {self.year}(?!\s-\s)",
             "eleicao ordinaria",
             regex=True,
         )
-
         base["valor_receita"] = base["valor_receita"].str.replace(",", ".")
 
         return base

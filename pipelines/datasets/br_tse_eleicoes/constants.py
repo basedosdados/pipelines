@@ -31,8 +31,8 @@ class constants(Enum):
 
     # Candidtos
 
-    CANDIDATOS_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2026.zip"
-    COMPLEMENTR_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand_complementar/consulta_cand_complementar_2026.zip"
+    CANDIDATOS_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_{year}.zip"
+    COMPLEMENTR_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand_complementar/consulta_cand_complementar_{year}.zip"
 
     MUNICIPIOS_CSV = "https://storage.googleapis.com/basedosdados/staging/br_bd_diretorios_brasil/municipio/municipio.csv"
 
@@ -73,7 +73,7 @@ class constants(Enum):
 
     # Constantes BENS CANDIDATO
 
-    BENS_CANDIDATOS = "https://cdn.tse.jus.br/estatistica/sead/odsele/bem_candidato/bem_candidato_2026.zip"
+    BENS_CANDIDATOS = "https://cdn.tse.jus.br/estatistica/sead/odsele/bem_candidato/bem_candidato_{year}.zip"
 
     ORDER_BENS = {
         "id_eleicao": "CD_ELEICAO",
@@ -90,7 +90,7 @@ class constants(Enum):
 
     # Despesas Candidato
 
-    DESPESAS_RECEITAS = "https://cdn.tse.jus.br/estatistica/sead/odsele/prestacao_contas/prestacao_de_contas_eleitorais_candidatos_2026.zip"
+    DESPESAS_RECEITAS = "https://cdn.tse.jus.br/estatistica/sead/odsele/prestacao_contas/prestacao_de_contas_eleitorais_candidatos_{year}.zip"
 
     ORDER_DESPESAS = {
         "turno": "ST_TURNO",

@@ -16,8 +16,8 @@ T = TypeVar("T")
 
 @task
 # Classes de formatação
-def flows_control(table_id: str, mode: str) -> type[T]:
-    catalog = flows_catalog()
+def flows_control(table_id: str, mode: str, year: str | int) -> type[T]:
+    catalog = flows_catalog(year=year)
 
     # pyrefly: ignore [unsupported-operation]
     select_flow = catalog.get(table_id)["flow"]
@@ -25,6 +25,7 @@ def flows_control(table_id: str, mode: str) -> type[T]:
         # pyrefly: ignore [unsupported-operation]
         urls=catalog.get(table_id)["urls"],
         table_id=table_id,
+        year=year,
         # pyrefly: ignore [unsupported-operation]
         source=catalog.get(table_id)["source"],
         mode=mode,
