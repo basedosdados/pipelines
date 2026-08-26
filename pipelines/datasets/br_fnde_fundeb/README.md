@@ -241,9 +241,10 @@ A unidade varia por indicador — percentual em 57 dos 95 pares esfera/indicador
 reais em 36. Uma coluna `valor` única não teria `measurement_unit`, que a BD
 exige em coluna numérica.
 
-Cada linha preenche exatamente uma das duas colunas, então nenhuma das duas chega
-perto de ser integralmente não-nula. Por isso as duas entram em `ignore_values`
-no `not_null_proportion_multiple_columns`, que exige 95% nas demais colunas.
+Fora as duas linhas do grupo 5, tratadas na decisão 3, cada linha preenche
+exatamente uma das duas colunas — então nenhuma das duas chega perto de ser
+integralmente não-nula. Por isso as duas entram em `ignore_values` no
+`not_null_proportion_multiple_columns`, que exige 95% nas demais colunas.
 
 ### 3. Não existe coluna `valor_indice`
 
