@@ -3,7 +3,9 @@
 Test scoping is deliberate.  `financials_indicator` holds ~3.25 billion rows and
 `financials` is 290 columns wide, and
 `not_null_proportion_multiple_columns` expands to every column at compile time,
-so both are scoped to the most recent year.  Running them unscoped scans the
+so both are scoped to the most recent year.  The token is
+`__most_recent_year_en__`, not `__most_recent_year__`: the latter hardcodes the
+Portuguese partition column `ano` and fails here with "Unrecognized name: ano".  Running them unscoped scans the
 whole table and burns a large slice of the daily BigQuery byte quota for no
 extra signal.
 """
@@ -37,22 +39,54 @@ NOT_NULL = {
         "indicator_id",
     ],
 }
-# tables large enough that an unscoped test is a full-table scan
-SCOPED = {"financials", "financials_indicator"}
+# Only `financials_indicator` (2.85 billion rows) is scoped. `financials` is
+# wide but short -- 1.68M rows, ~3 GB a pass -- and scoping it to the most recent
+# year actively misled: 14 columns that are fully populated in 2011-2020 read as
+# empty in 2026, because the FDIC's loss-share programme has wound down. On a
+# 42-year panel the not-null-proportion test has to see the whole panel.
+SCOPED = {"financials_indicator"}
 
 # Columns that are legitimately almost always empty, exempted from the
 # not-null-proportion test rather than allowed to fail it.
 IGNORE_VALUES = {
     # deposit insurance only ends for an institution that lost it: 0.6% filled
     "institution": ["insurance_end_date"],
+    # Both are sparse because of who has to report them, not because anything
+    # failed to load, and both were checked against the whole 1984-2026 panel
+    # rather than one year:
+    #   the FDIC's own definition says the nondepository-lending item "IS NOT
+    #   REPORTED BY FORM 041 OR 051 FILERS", so only form 031 banks file it
+    #   (564 rows); foreign deposits exist only for banks with foreign offices
+    #   (29,036 rows).
+    "financials": [
+        "loans_to_nondep_financial_inst_con",
+        "total_deposits_for_ratio",
+    ],
 }
 
+# 234 of the 24,064 certificate numbers that appear in the financial data have
+# no row in the FDIC's own institution directory -- /financials returns 170
+# quarters for them while /institutions returns nothing. That is a gap in the
+# source, not the extraction, so the foreign key is allowed a small shortfall
+# rather than failing outright. 234/24,064 = 0.97% of certs, 0.65% of rows.
+CERT_SHORTFALL = 0.02
+
+# (table, column) -> (target model, target field, tolerated shortfall)
 RELATIONSHIPS = {
-    ("financials", "cert"): (f"{DATASET}__institution", "cert"),
-    ("financials_indicator", "cert"): (f"{DATASET}__institution", "cert"),
+    ("financials", "cert"): (
+        f"{DATASET}__institution",
+        "cert",
+        CERT_SHORTFALL,
+    ),
+    ("financials_indicator", "cert"): (
+        f"{DATASET}__institution",
+        "cert",
+        CERT_SHORTFALL,
+    ),
     ("financials_indicator", "indicator_id"): (
         f"{DATASET}__indicator",
         "indicator_id",
+        0.0,
     ),
 }
 
@@ -102,7 +136,7 @@ def model(table: str) -> dict:
         """
         if table not in SCOPED:
             return {}
-        return {"config": {"where": "__most_recent_year__"}}
+        return {"config": {"where": "__most_recent_year_en__"}}
 
     tests: list = [
         {
@@ -138,15 +172,30 @@ def model(table: str) -> dict:
             column_tests.append({"not_null": scoped} if scoped else "not_null")
         target = RELATIONSHIPS.get((table, row["name"]))
         if target:
-            column_tests.append(
-                {
-                    "relationships": {
-                        "to": f"ref('{target[0]}')",
-                        "field": target[1],
-                        **scope(),
+            to, field, shortfall = target
+            if shortfall:
+                # custom_relationships tolerates a documented shortfall;
+                # the built-in relationships test is all-or-nothing
+                column_tests.append(
+                    {
+                        "custom_relationships": {
+                            "to": f"ref('{to}')",
+                            "field": field,
+                            "proportion_allowed_failures": shortfall,
+                            **scope(),
+                        }
                     }
-                }
-            )
+                )
+            else:
+                column_tests.append(
+                    {
+                        "relationships": {
+                            "to": f"ref('{to}')",
+                            "field": field,
+                            **scope(),
+                        }
+                    }
+                )
         if column_tests:
             column["tests"] = column_tests
         columns.append(column)
