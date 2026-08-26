@@ -22,11 +22,18 @@ fix it. Three consequences shape everything below:
   completed runs unnoticed.
 
 The last two points cut against the first, and the resolution is not to split the
-difference. A green latest run always takes a flow **off the failing board** — it
-is not currently failing, which is what was asked. What a short green run does
-*not* establish is that the flow is *ingesting*; that is a separate question,
-belonging to the arming and ingest-rate lines of the report, never to a cluster
-block. Keep the two verdicts apart: "is it failing?" and "is it doing work?"
+difference. A green latest run takes a flow **off the failing board** — it is not
+currently failing, which is what was asked. What a green run does *not* establish
+is that the flow is *ingesting*, or that it wrote anything to **prod**: a run
+triggered `materialize_to_prod=False` exits green having only touched
+`basedosdados-dev`. Keep the verdicts apart — "is it failing?", "is it doing
+work?", and "does prod actually have the data?" — and never let a green answer to
+the first stand in for the other two.
+
+Prefect is authoritative for the first question only. For the third, the
+authority is BigQuery (`__TABLES__`) and the metadata checker, which is why a
+dataset can be absent from every failure list and still be broken from a user's
+point of view.
 
 The goal is successfully running flows in **prod**. Diagnosis is the means.
 
@@ -120,7 +127,8 @@ the report. This is not the same test as "a merged PR post-dates the failure": a
 merge is evidence of intent, a later green run is evidence of outcome. **Prefer
 the green run.** Where the two disagree, believe the run.
 
-Two traps when reading a "successful" run:
+Three traps when reading a "successful" run. Check all three — each catches a
+different way a green run can be worthless:
 
 - **Check the duration.** A 3–5 second completion is the poll guard returning
   early, not an ingest. That still counts as *not currently failing*, but it is
@@ -128,6 +136,24 @@ Two traps when reading a "successful" run:
 - **Check it is the same work.** A flow whose per-table deployment was removed,
   or that succeeded only on a narrower parameter set, has not necessarily
   recovered the failing path.
+- **Check it reached prod.** Read the run's *parameters*, not just its state. A
+  run triggered with `materialize_to_prod=False` (or the equivalent
+  `materialize_after_dump=False`) returns before the prod block: it uploads to
+  `basedosdados-dev`, runs `--target dev`, and exits green having never written
+  a production table. Duration does not catch this — such a run can do fifteen
+  minutes of genuine work.
+
+  In the logs, a run that reached prod shows **both** an upload to
+  `gs://basedosdados/staging/...` and `dbt run/test ... --target prod`. If you
+  see only `basedosdados-dev` and `--target dev`, the run was a dev validation,
+  and it is **not** evidence the pipeline is healthy — the prod tables may not
+  exist at all.
+
+  This is not hypothetical. On 2026-08-26 `mx_sesnsp_incidencia_delictiva` was
+  read as recovered from a green 14-minute run; the run was dev-only, and all
+  four of its ongoing prod tables did not exist in BigQuery. The backend was
+  serving metadata for tables that had never been built, and the alert came from
+  the metadata checker, not from Prefect.
 
 **Ingest rate** (optional, only on the `feat/pipeline-diagnostics` branch —
 `pipelines/diagnostics/` is not on `main` yet):
@@ -151,11 +177,16 @@ against arming state. A cluster that is covered by an open PR, or already fixed
 by a merged one, never reaches diagnosis.
 
 **Apply the recovered-flow filter first, before anything else in this phase.**
-Drop every flow whose most recent run succeeded. Run the filter on *flows*, not
-on clusters: one signature can span six flows of which four have recovered, and
-the cluster survives only for the two that have not. A cluster with no surviving
-flow is deleted outright — it is not a finding, and it does not get a block, a
-disposition, or a PR.
+Drop every flow whose most recent run succeeded **and reached prod**. Run the
+filter on *flows*, not on clusters: one signature can span six flows of which
+four have recovered, and the cluster survives only for the two that have not. A
+cluster with no surviving flow is deleted outright — it is not a finding, and it
+does not get a block, a disposition, or a PR.
+
+"Succeeded" here means the full test from Phase 1, not the state alone. A green
+**dev-only** run does not clear a flow off the board: it says the code no longer
+raises, not that production has data. Where the latest green run never reached
+prod, keep the flow and re-file it under the disposition below.
 
 What remains after this filter is the board. Everything else is history.
 
@@ -201,6 +232,14 @@ Assign every cluster one disposition, and say who owns it:
 - **Already in flight** — an open PR covers it. Name the PR number and its author,
   and do not start a competing branch. If the PR looks stalled or wrong, say so
   as a comment-worthy observation; do not fork it.
+- **Green but never reached prod** — the code is fixed and the latest run passed,
+  but that run was dev-only, so prod may hold stale data or no table at all. The
+  flow is not failing and there is nothing to fix; what is missing is a prod run.
+  Verify against BigQuery — `__TABLES__` for the dataset in `basedosdados` —
+  before describing the state, and report the per-table row counts you found
+  rather than inferring from the run. Triggering the prod run writes production
+  data and, for a `part_bdpro` table, issues Row Access Policies, so **ask
+  first**; it is the same class of decision as arming.
 
 There is deliberately **no "already fixed" disposition.** A flow whose latest run
 succeeded was removed in Phase 2 and never reaches triage. Do not reintroduce it
@@ -261,6 +300,10 @@ CLUSTER 1 — <class>: <signature>
 
 DISARMED WITH A CRON (not producing runs, so invisible above): <n>
   <flow> — last failure <date>, cause <class>, latest run <green|failing>
+
+GREEN BUT NEVER REACHED PROD (also invisible above): <n>
+  <flow> — latest run <id> <date> was dev-only; prod tables: <per-table row
+           counts from basedosdados.__TABLES__, or "missing">
 
 NOT VERIFIED: <what this run could not exercise>
 ```
