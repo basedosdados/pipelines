@@ -11,12 +11,17 @@ The dataset has two partition schemes (see [CLAUDE.md](CLAUDE.md)):
 | Shape | Tables | Partition | Refresh semantics |
 |---|---|---|---|
 | Snapshot | 30 tables (staff, contracting, colaboradores, gestão, senador dim) | `data_extracao` (DATE) | Each run stacks a **new dated snapshot** — the source exposes only current state, so the time dimension is ours (CNPJ model, as `br_cgu_sancoes` / `au_ato_abr`) |
-| Time series | `despesa_ceaps`, `servidor_remuneracao`, `servidor_hora_extra(_dia)`, six `suprido_*` (10 tables) | `ano` (INT64) | Each run **refreshes the current year** in place; historical years are stable |
+| Time series | `despesa_ceaps`, `servidor_remuneracao`, `servidor_hora_extra(_dia)`, six `suprido_*` (10 tables) | `ano` (INT64) | Each run **refreshes the last two years** (current + prior, to catch late-arriving data) in place; older years are stable |
 
 Both are served by the **same** mechanism, from `au_ato_abr`:
 
 1. The extract writes only the current window — for snapshots that is today's
-   snapshot; for the series it is the current year (`clean_all(years=[current])`).
+   snapshot; for the series it is the last two years
+   (`clean_all(years=[current-1, current])`). A table with no rows for the window
+   writes no parquet and is skipped (with `insert_overwrite`, skipping simply
+   leaves its existing partitions in prod). `dicionario` is likewise skipped per
+   run — it is rebuilt from the run's supridos, so a windowed extract would
+   shrink it; it is static and fully populated at onboarding.
 2. `upload_to_gcs(dump_mode="overwrite")` replaces the **staging** external table
    with that window.
 3. The dbt model is **incremental with `incremental_strategy="insert_overwrite"`**
@@ -40,12 +45,12 @@ fan-out, so one flow with two schedules covers both:
 
 | Cron (America/Sao_Paulo) | `sub_resources` | Builds |
 |---|---|---|
-| daily, `17 6 * * *` (minute chosen off the shared crontab) | `False` | senador dim, all snapshots, contratação **parents**, current-year series, dicionario |
+| daily, `17 6 * * 0,2-6` (minute chosen off the shared crontab) | `False` | senador dim, all snapshots, contratação **parents**, last-two-years series |
 | weekly, `23 6 * * 1` | `True` | the above **plus** the contratação children (item, garantia, pagamento(+documento_fiscal,+empenho), aditivo, ata_acionamento) |
 
 The weekly run is a superset; on Mondays it is the only run needed but running
 both is harmless (`insert_overwrite` is idempotent per partition). Time-series
-tables are re-extracted for the current year on every run — cheap for CEAPS and
+tables are re-extracted for the last two years on every run — cheap for CEAPS and
 supridos, ~13 monthly requests for payroll.
 
 ## BD Pro — 6-month rolling window on the snapshots

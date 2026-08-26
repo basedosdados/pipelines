@@ -7,13 +7,14 @@ two table shapes, both refreshed by one mechanism (see
 - 30 **snapshot** tables (``data_extracao``): each run stacks a new dated
   snapshot — the source exposes only current state, so the time dimension is
   ours (CNPJ model, as ``au_ato_abr``).
-- 10 **time-series** tables (``ano``): each run refreshes the current year in
-  place; historical years are stable.
+- 10 **time-series** tables (``ano``): each run refreshes the last two years in
+  place (current + prior, to catch late-arriving data); older years are stable.
 
 Both are served by overwriting the **staging** external table with the current
 window and letting the **incremental** dbt models (``insert_overwrite`` on the
 partition column) replace exactly that partition in prod, so history accumulates
-in prod, not staging. ``dicionario`` (no partition) is a full-refresh table.
+in prod, not staging. ``dicionario`` (a full-refresh table) and any table empty
+for the window are skipped per run — see ``_run``.
 
 Two module-level flows on mutually-exclusive days share one runner: the daily
 flow skips the contratação fan-out (``sub_resources=False``); the weekly Monday
@@ -98,13 +99,37 @@ def _run(
     work_dir = tempfile.mkdtemp(prefix="br_senado_adm_")
     try:
         output_dir = f"{work_dir}/output"
+        this_year = dt.date.today().year
         result = extract_and_clean(
             output_dir=output_dir,
             sub_resources=sub_resources,
-            year=dt.date.today().year,
+            # Last two years: refresh the current year and also catch late-arriving
+            # prior-year data (e.g. CEAPS reimbursements filed after year end).
+            years=[this_year - 1, this_year],
         )
-        tables = result["tables"]
+        counts = result["counts"]
         max_date = result["extracted_at"]
+
+        # Upload only tables that actually produced rows for this window. A table
+        # empty for the window writes no parquet (e.g. suprido_movimentacao has no
+        # rows in some years), so uploading it would raise FileNotFoundError; with
+        # insert_overwrite, skipping simply leaves its existing partitions in prod.
+        # dicionario is excluded too: it is rebuilt from the supridos in this run,
+        # so a windowed extract would shrink it — it is static reference data,
+        # fully populated at onboarding, and no test depends on it (a full-history
+        # refresh, if ever needed, is a separate manual run).
+        static_skip = {"dicionario"}
+        tables = [
+            t
+            for t in result["tables"]
+            if counts.get(t, 0) > 0 and t not in static_skip
+        ]
+        empty = [t for t in result["tables"] if counts.get(t, 0) == 0]
+        if empty:
+            print(
+                f"Skipping {len(empty)} table(s) empty for this window: {empty}"
+            )
+        print("Skipping dicionario (static reference; not refreshed per run)")
 
         # Upload staging (overwrite = the current window) + run every table, THEN
         # test every table. Cross-table tests (relationships, dictionary
@@ -168,7 +193,7 @@ def br_senado_dados_abertos_administrativos_daily_flow(
     update_metadata: bool = True,
     force_run: bool = False,
 ) -> None:
-    """Daily refresh — parents, snapshots and current-year series, no fan-out.
+    """Daily refresh — parents, snapshots and last-two-years series, no fan-out.
 
     Args:
         materialize_to_prod: Continue past dev to write the prod staging bucket
