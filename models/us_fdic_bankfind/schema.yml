@@ -213,27 +213,42 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, quarter, cert]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-    config:
-      where: __most_recent_year__
+          config:
+            where: __most_recent_year__
     columns:
       - name: year
         description: Calendar year of the quarterly report
-        tests: [not_null]
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year__
       - name: quarter
         description: Calendar quarter of the report, 1 to 4
-        tests: [not_null]
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year__
       - name: report_date
         description: Last day of the quarter the report covers
-        tests: [not_null]
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year__
       - name: cert
         description: FDIC certificate number identifying the institution
         tests:
-          - not_null
+          - not_null:
+              config:
+                where: __most_recent_year__
           - relationships:
               to: ref('us_fdic_bankfind__institution')
               field: cert
+              config:
+                where: __most_recent_year__
       - name: rssd_id
         description: Federal Reserve RSSD identifier of the institution
       - name: net_income_quarterly_netincq
@@ -880,33 +895,52 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, quarter, cert, indicator_id]
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-    config:
-      where: __most_recent_year__
+          config:
+            where: __most_recent_year__
     columns:
       - name: year
         description: Calendar year of the quarterly report
-        tests: [not_null]
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year__
       - name: quarter
         description: Calendar quarter of the report, 1 to 4
-        tests: [not_null]
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year__
       - name: report_date
         description: Last day of the quarter the report covers
-        tests: [not_null]
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year__
       - name: cert
         description: FDIC certificate number identifying the institution
         tests:
-          - not_null
+          - not_null:
+              config:
+                where: __most_recent_year__
           - relationships:
               to: ref('us_fdic_bankfind__institution')
               field: cert
+              config:
+                where: __most_recent_year__
       - name: indicator_id
         description: FDIC mnemonic of the reported line item
         tests:
-          - not_null
+          - not_null:
+              config:
+                where: __most_recent_year__
           - relationships:
               to: ref('us_fdic_bankfind__indicator')
               field: indicator_id
+              config:
+                where: __most_recent_year__
       - name: value
         description: Reported value of the line item

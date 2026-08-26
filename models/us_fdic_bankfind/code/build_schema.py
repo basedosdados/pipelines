@@ -84,28 +84,46 @@ def model(table: str) -> dict:
     with (ARCH / f"{table}.csv").open() as handle:
         rows = list(csv.DictReader(handle))
 
+    # `where` has to sit INSIDE each test, not on the model: a model-level
+    # config does not propagate, and the tests then ran unscoped -- a full scan
+    # of 2.4 billion rows on financials_indicator.
+    def scope() -> dict:
+        """A fresh config dict per test.
+
+        Sharing one dict makes PyYAML emit `&id002` / `*id002` anchors, which
+        are valid YAML but needlessly hard to read in a reviewed file.
+        """
+        if table not in SCOPED:
+            return {}
+        return {"config": {"where": "__most_recent_year__"}}
+
     tests: list = [
         {
             "dbt_utils.unique_combination_of_columns": {
-                "combination_of_columns": KEYS[table]
+                "combination_of_columns": KEYS[table],
+                **scope(),
             }
         },
-        {"not_null_proportion_multiple_columns": {"at_least": 0.05}},
+        {
+            "not_null_proportion_multiple_columns": {
+                "at_least": 0.05,
+                **scope(),
+            }
+        },
     ]
     entry: dict = {
         "name": f"{DATASET}__{table}",
         "description": DESCRIPTIONS[table],
         "tests": tests,
     }
-    if table in SCOPED:
-        entry["config"] = {"where": "__most_recent_year__"}
 
     columns = []
     for row in rows:
         column: dict = {"name": row["name"], "description": row["description"]}
         column_tests: list = []
         if row["name"] in NOT_NULL[table]:
-            column_tests.append("not_null")
+            scoped = scope()
+            column_tests.append({"not_null": scoped} if scoped else "not_null")
         target = RELATIONSHIPS.get((table, row["name"]))
         if target:
             column_tests.append(
@@ -113,6 +131,7 @@ def model(table: str) -> dict:
                     "relationships": {
                         "to": f"ref('{target[0]}')",
                         "field": target[1],
+                        **scope(),
                     }
                 }
             )
