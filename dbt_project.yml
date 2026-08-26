@@ -466,6 +466,9 @@ models:
     br_ons_estimativa_custos:
       +materialized: table
       +schema: br_ons_estimativa_custos
+    br_pncp:
+      +materialized: table
+      +schema: br_pncp
     br_poder360_pesquisas:
       +materialized: table
       +schema: br_poder360_pesquisas
