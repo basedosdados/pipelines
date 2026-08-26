@@ -32,6 +32,24 @@ datasets, and do not touch framework code.
 
 ## Procedure
 
+0. **Check nobody is already on it.** Even when the orchestrator says the cluster
+   is clear, re-check before you edit — this repo has many concurrent
+   contributors and minutes pass between triage and work.
+
+   ```bash
+   gh pr list --repo basedosdados/pipelines --state open --limit 100 \
+     --json number,title,headRefName,author \
+     --jq '.[] | "\(.number)\t\(.headRefName)\t\(.title)"'
+   gh pr list --repo basedosdados/pipelines --state merged --limit 60 \
+     --search "sort:updated-desc" --json number,title,mergedAt \
+     --jq '.[] | "\(.number)\t\(.mergedAt)\t\(.title)"'
+   ```
+
+   If an open PR covers this dataset, stop and report it rather than forking a
+   competing branch. If a *merged* PR post-dates the last failure, the fix is
+   already on `main` — verify that against the code, then report that the flow
+   needs arming, not fixing.
+
 1. **Read the real error.** `state_message` carries the outermost exception,
    which is usually a wrapper. Pull logs with `get_flow_run_logs` — start at
    `min_level="ERROR"`, then re-read unfiltered around the failure for the
@@ -80,10 +98,15 @@ datasets, and do not touch framework code.
      `flows.py`. If your fix is in `utils.py`/`tasks.py`/`constants.py`, say
      plainly that the dev-run gate does not apply and why.
 
-7. **Commit, do not push.** Commit on your branch with
-   `fix(<dataset_id>): <description>`. Report the branch and the push/PR command
-   for the orchestrator to hand up. Push and open the PR only if you were
-   explicitly told to.
+7. **Commit and, when told to ship, push and open the PR.** Commit on your branch
+   with `fix(<dataset_id>): <description>`. This repo's `.claude/settings.json`
+   permits `git push` and `gh pr create`; it **denies merging**, which is never
+   yours to do. Re-run the open-PR check from step 0 immediately before creating
+   the PR — the gap between starting work and opening it is long enough for
+   someone else to file one.
+
+   Apply the label that matches what changed: `deploy-flow` for `flows.py`,
+   `test-dev-model` for `models/**/*.sql`.
 
 ## Hard limits
 
@@ -94,6 +117,7 @@ datasets, and do not touch framework code.
 - Never run an unfiltered `count(*)` or full scan on a large BigQuery table,
   including EXTERNAL staging tables. Use `__TABLES__`, `INFORMATION_SCHEMA`, or
   a partition filter with `LIMIT`.
+- Never merge a PR, and never push to `main` or force-push a shared branch.
 - Stay inside your cluster's datasets. A fix that needs a framework change
   (`pipelines/utils`, `AGENTS.md`) is a separate PR — report it, do not make it.
 

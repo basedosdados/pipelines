@@ -148,6 +148,29 @@ do, and let the user decide. Watch that run.
 
 ## Branch, commit, PR
 
+### First: confirm nobody beat you to it
+
+Re-check immediately before branching, and again before opening the PR. Triage
+and work are minutes apart, and this repo has many concurrent contributors.
+
+```bash
+gh pr list --repo basedosdados/pipelines --state open --limit 100 \
+  --json number,title,headRefName,author \
+  --jq '.[] | "\(.number)\t\(.headRefName)\t\(.title)"'
+```
+
+Also scan recently merged PRs. A merged fix that post-dates the cluster's last
+failure means there is nothing to fix — the flow just is not running again,
+which is an arming question.
+
+```bash
+gh pr list --repo basedosdados/pipelines --state merged --limit 60 \
+  --search "sort:updated-desc" --json number,title,mergedAt \
+  --jq '.[] | "\(.number)\t\(.mergedAt)\t\(.title)"'
+```
+
+### Then: branch
+
 Branch prefix by change type — never a generic `claude/…`:
 
 | Prefix | For |
@@ -192,6 +215,12 @@ State the diagnosis, not just the change:
   `apply_row_access_policies` when a table is `part_bdpro`.
 
 ---
+
+## Merging is not yours
+
+This repo's `.claude/settings.json` allows `git push` and `gh pr create` and
+**denies** `gh pr merge`. Open the PR, report it, and stop. Someone reviews and
+merges it.
 
 ## After merge
 

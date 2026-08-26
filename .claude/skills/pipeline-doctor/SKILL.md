@@ -57,6 +57,36 @@ Note `updated` is stamped by the last `--all` deploy, i.e. the last merge to
 reported as such. For the real timestamp, see "Reading the stored arming
 state" in `references/fix-and-ship.md`.
 
+**Work already in flight — mandatory, and do it before diagnosing anything.**
+This is a live repo with many collaborators. Someone else is very likely already
+on the failure you are looking at, and a duplicate branch wastes their review
+time as well as yours.
+
+```bash
+gh pr list --repo basedosdados/pipelines --state open --limit 100 \
+  --json number,title,headRefName,labels,updatedAt,author \
+  --jq '.[] | "\(.number)\t\(.headRefName)\t\(.title)"'
+```
+
+Check **merged** PRs too, not only open ones:
+
+```bash
+gh pr list --repo basedosdados/pipelines --state merged --limit 60 \
+  --search "sort:updated-desc" \
+  --json number,title,headRefName,mergedAt \
+  --jq '.[] | "\(.number)\t\(.mergedAt)\t\(.title)"'
+```
+
+A merged fix whose merge time is **after** the cluster's last failure means the
+cluster is already fixed and the flow is simply not running again — usually
+because it was disarmed while it was failing and nobody re-armed it. That is not
+a bug to fix; it is an arming decision. `mx_sesnsp_incidencia_delictiva` was
+exactly this: its fix merged seven minutes after its final failure, and it sat
+paused for days looking broken.
+
+So for every cluster, compare three timestamps before calling it a bug: the last
+failure, the merge time of any related PR, and the deployment's arming state.
+
 **Ingest rate** (optional, only on the `feat/pipeline-diagnostics` branch —
 `pipelines/diagnostics/` is not on `main` yet):
 
@@ -73,6 +103,10 @@ substituting run state for ingest rate.
 One infrastructure fault shows up as N broken pipelines. Cluster the failures
 by their error signature *before* diagnosing, or you will write four PRs for
 one IAM grant.
+
+Then cross the clusters against the in-flight and merged PRs from Phase 1, and
+against arming state. A cluster that is covered by an open PR, or already fixed
+by a merged one, never reaches diagnosis.
 
 Cluster first on the taxonomy signature, then note which datasets each cluster
 spans. A cluster of one is fine; a cluster of six that all say
@@ -113,8 +147,11 @@ Assign every cluster one disposition, and say who owns it:
 - **Propose deactivation** — repeatedly failing, low value, no cheap fix. This
   is the team's legitimate capacity decision. **Propose it; never disarm a
   pipeline yourself without explicit approval.**
-- **Already in flight** — an open PR covers it. Check before starting:
-  `gh pr list --repo basedosdados/pipelines --state open --search "<dataset_id>"`.
+- **Already fixed** — a merged PR post-dates the last failure. No code change.
+  The open question is whether the deployment is armed; say so and stop.
+- **Already in flight** — an open PR covers it. Name the PR number and its author,
+  and do not start a competing branch. If the PR looks stalled or wrong, say so
+  as a comment-worthy observation; do not fork it.
 
 In `--report-only` mode (and by default when more than one cluster needs code
 changes), stop here and present the board. Ask before fixing at scale — a sweep
@@ -175,7 +212,8 @@ rather than implying the pipeline is proven end to end.
 The skill is designed to be re-run on a schedule. To keep successive runs from
 re-reporting the same thing:
 
-- **Dedupe against open PRs** before proposing any fix (Phase 4).
+- **Re-run the open/merged PR check every time** (Phase 1). On a shared repo the
+  in-flight set changes between runs more than the failure set does.
 - Keep a small state file at `~/.cache/bd-pipeline-doctor/state.json` recording
   each cluster's signature, first-seen date, and disposition. On a later run,
   report a known cluster as `unchanged since <date>` in one line instead of a

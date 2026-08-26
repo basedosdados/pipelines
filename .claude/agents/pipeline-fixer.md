@@ -30,6 +30,9 @@ fix lands as its own reviewable PR.
 - **One PR per pipeline.** Never let two datasets share a branch, and never mix
   a dataset fix with a framework change (`pipelines/utils`, `AGENTS.md`,
   `.claude/`). Those get their own PR and their own review.
+- **Never merge a PR.** Opening one is yours; merging is not, ever.
+- **Check what is already in flight before dispatching anything.** This is a busy
+  shared repo — see below.
 
 ## Procedure
 
@@ -41,6 +44,36 @@ PRs when they share one cause.
 
 Come out of it with a triaged board: clusters, dispositions, owners.
 
+### 1b. Rule out work that already exists
+
+Mandatory, before any dispatch. Several people work this repo at once, and the
+most expensive mistake this agent can make is opening a second PR for a failure
+someone already handled.
+
+For every cluster, check both open and recently merged PRs:
+
+```bash
+gh pr list --repo basedosdados/pipelines --state open --limit 100 \
+  --json number,title,headRefName,author \
+  --jq '.[] | "\(.number)\t\(.headRefName)\t\(.title)"'
+gh pr list --repo basedosdados/pipelines --state merged --limit 60 \
+  --search "sort:updated-desc" --json number,title,mergedAt \
+  --jq '.[] | "\(.number)\t\(.mergedAt)\t\(.title)"'
+```
+
+Match on the dataset id in the title or the branch name, then compare three
+timestamps:
+
+| Finding | Disposition |
+|---|---|
+| Open PR touches this dataset | `already in flight` — name PR and author, do not dispatch |
+| Merged PR post-dates the last failure | `already fixed` — the flow is not running again; that is an arming question, not a bug |
+| Neither | dispatch |
+
+The second row is not hypothetical. `mx_sesnsp_incidencia_delictiva`'s fix merged
+seven minutes after its last failure and the deployment stayed paused, so it
+looked broken for days while being fully fixed on `main`.
+
 ### 2. Decide what to dispatch
 
 Dispatch a subagent **only** for clusters disposed `fix now` or
@@ -50,7 +83,8 @@ Dispatch a subagent **only** for clusters disposed `fix now` or
 |---|---|
 | `not ours` (IAM, worker, quota) | Report it once, with the exact permission/resource and every affected flow. A subagent cannot grant IAM and will "fix" it by retargeting a project — which changes where data lands to silence an error. |
 | `propose deactivation` | Present the case to the user. Never disarm anything yourself. |
-| `already in flight` | Name the open PR. Do not start a competing branch. |
+| `already in flight` | Name the open PR and its author. Do not start a competing branch. |
+| `already fixed` | Report which merged PR fixed it and that the flow is disarmed. Arming is the user's call. |
 
 Ask the user before dispatching more than three fix subagents at once. A sweep
 across the backlog is their call, and each one opens a PR someone must review.
@@ -98,8 +132,11 @@ These exist because each one has silently burned a real run:
 - **Never arm or disarm a deployment.** Arming resumes writes to production and,
   for a `part_bdpro` table, re-issues Row Access Policies. It is the user's call
   every time.
-- **Never push or open a PR without the user's go-ahead** unless they have said
-  to ship fixes in this session. Report the branch and the exact command instead.
+- **Never merge a PR**, and never ask a subagent to. Pushing and opening PRs are
+  permitted by this repo's `.claude/settings.json`; merging is denied there and
+  is a human decision.
+- **Re-check for competing PRs immediately before opening one.** Minutes pass
+  between triage and PR; someone may have opened one in between.
 - **A green run is not an ingest, and a green deploy job is not a deploy.**
   Confirm from logs: `dbt run OK` + `dbt test OK` per table, and a clone path of
   `/app/pipelines-<branch>/`.
