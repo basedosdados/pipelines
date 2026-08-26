@@ -160,6 +160,9 @@ models:
     us_fed_fred:
       +materialized: table
       +schema: us_fed_fred
+    us_fhfa_hpi:
+      +materialized: table
+      +schema: us_fhfa_hpi
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force

@@ -1,0 +1,550 @@
+---
+version: 2
+models:
+  - name: us_fhfa_hpi__dicionario
+    description: >-
+      Dicionário de códigos das colunas categóricas do conjunto us_fhfa_hpi: variante do
+      índice (index_type) e base de dados de origem (index_flavor).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - cobertura_temporal
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the us_fhfa_hpi table the dictionary entry describes
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Name of the column the dictionary entry describes
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Code stored in the column
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage of the dictionary entry
+      - name: valor
+        description: >-
+          Label the code stands for
+  - name: us_fhfa_hpi__monthly_national
+    description: >-
+      Índice de preços de imóveis (HPI) da FHFA em frequência mensal para os Estados Unidos
+      e as nove divisões censitárias, estimado apenas com preços de compra. Uma linha por
+      lugar, ano, mês e variante do índice, com os valores com e sem ajuste sazonal.
+      Cobertura de janeiro de 1991 em diante.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - place_id
+            - index_type
+            - index_flavor
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [index_type, index_flavor]
+          dictionary_model: ref('us_fhfa_hpi__dicionario')
+    columns:
+      - name: year
+        description: >-
+          Reference year of the index value
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Reference month of the index value
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: place_id
+        description: >-
+          Place code: USA for the United States, or DV_ plus the Census division
+          abbreviation
+        tests: [not_null]
+      - name: place_name
+        description: >-
+          Name of the United States or of the Census division
+      - name: index_type
+        description: >-
+          Index variant: traditional, developmental, distress-free, non-metro or
+          manufactured
+        tests: [not_null]
+      - name: index_flavor
+        description: >-
+          Underlying transaction data: purchase-only, all-transactions or expanded-data
+        tests: [not_null]
+      - name: index_nsa
+        description: >-
+          House price index, not seasonally adjusted
+      - name: index_sa
+        description: >-
+          House price index, seasonally adjusted
+  - name: us_fhfa_hpi__quarterly_national
+    description: >-
+      Índice de preços de imóveis (HPI) da FHFA em frequência trimestral para os Estados
+      Unidos e as nove divisões censitárias. Uma linha por lugar, ano, trimestre e variante
+      do índice. Apenas a série all-transactions começa antes de 1991.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - quarter
+            - place_id
+            - index_type
+            - index_flavor
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [index_type, index_flavor]
+          dictionary_model: ref('us_fhfa_hpi__dicionario')
+    columns:
+      - name: year
+        description: >-
+          Reference year of the index value
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the index value
+        tests: [not_null]
+      - name: place_id
+        description: >-
+          Place code: USA for the United States, or DV_ plus the Census division
+          abbreviation
+        tests: [not_null]
+      - name: place_name
+        description: >-
+          Name of the United States or of the Census division
+      - name: index_type
+        description: >-
+          Index variant: traditional, developmental, distress-free, non-metro or
+          manufactured
+        tests: [not_null]
+      - name: index_flavor
+        description: >-
+          Underlying transaction data: purchase-only, all-transactions or expanded-data
+        tests: [not_null]
+      - name: index_nsa
+        description: >-
+          House price index, not seasonally adjusted
+      - name: index_sa
+        description: >-
+          House price index, seasonally adjusted
+  - name: us_fhfa_hpi__quarterly_state
+    description: >-
+      Índice de preços de imóveis (HPI) da FHFA em frequência trimestral para os 50 estados,
+      o Distrito de Columbia e Porto Rico. Uma linha por estado, ano, trimestre e variante
+      do índice. Inclui a série non-metro, que cobre a porção não metropolitana do estado.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - quarter
+            - state_abbreviation
+            - index_type
+            - index_flavor
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [index_type, index_flavor]
+          dictionary_model: ref('us_fhfa_hpi__dicionario')
+    columns:
+      - name: year
+        description: >-
+          Reference year of the index value
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the index value
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Two-letter abbreviation of the state, the District of Columbia or Puerto Rico
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+      - name: state_name
+        description: >-
+          Name of the state, the District of Columbia or Puerto Rico
+      - name: index_type
+        description: >-
+          Index variant: traditional, developmental, distress-free, non-metro or
+          manufactured
+        tests: [not_null]
+      - name: index_flavor
+        description: >-
+          Underlying transaction data: purchase-only, all-transactions or expanded-data
+        tests: [not_null]
+      - name: index_nsa
+        description: >-
+          House price index, not seasonally adjusted
+      - name: index_sa
+        description: >-
+          House price index, seasonally adjusted
+  - name: us_fhfa_hpi__quarterly_metro
+    description: >-
+      Índice de preços de imóveis (HPI) da FHFA em frequência trimestral para as áreas
+      estatísticas metropolitanas e divisões metropolitanas. Uma linha por área, ano,
+      trimestre e variante do índice, com o erro padrão relativo das séries expanded-data.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - quarter
+            - cbsa_id
+            - index_type
+            - index_flavor
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - note
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [index_type, index_flavor]
+          dictionary_model: ref('us_fhfa_hpi__dicionario')
+    columns:
+      - name: year
+        description: >-
+          Reference year of the index value
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the index value
+        tests: [not_null]
+      - name: cbsa_id
+        description: >-
+          Five-digit code of the Metropolitan Statistical Area or Metropolitan Division
+        tests: [not_null]
+      - name: cbsa_name
+        description: >-
+          Name of the Metropolitan Statistical Area or Metropolitan Division
+      - name: index_type
+        description: >-
+          Index variant: traditional, developmental, distress-free, non-metro or
+          manufactured
+        tests: [not_null]
+      - name: index_flavor
+        description: >-
+          Underlying transaction data: purchase-only, all-transactions or expanded-data
+        tests: [not_null]
+      - name: index_nsa
+        description: >-
+          House price index, not seasonally adjusted
+      - name: index_sa
+        description: >-
+          House price index, seasonally adjusted
+      - name: relative_standard_error
+        description: >-
+          Relative standard error of the index value
+      - name: note
+        description: >-
+          Footnote FHFA attaches to the index value
+  - name: us_fhfa_hpi__annual_national
+    description: >-
+      Índice anual de preços de imóveis dos Estados Unidos (índice em desenvolvimento da
+      FHFA, all-transactions, sem ajuste sazonal), de 1975 em diante. Uma linha por ano.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the index value
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: annual_change_percent
+        description: >-
+          Percentage change in the index from the previous year
+      - name: index_nsa
+        description: >-
+          Annual house price index, not seasonally adjusted, with the first year of the
+          series set to 100
+      - name: index_nsa_1990_base
+        description: >-
+          Annual house price index rescaled so that 1990 equals 100
+      - name: index_nsa_2000_base
+        description: >-
+          Annual house price index rescaled so that 2000 equals 100
+  - name: us_fhfa_hpi__annual_state
+    description: >-
+      Índice anual de preços de imóveis por estado (índice em desenvolvimento da FHFA, all-
+      transactions, sem ajuste sazonal), de 1975 em diante. Uma linha por estado e ano.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - state_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the index value
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_id
+        description: >-
+          Two-digit FIPS code of the state or the District of Columbia
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: state_abbreviation
+        description: >-
+          Two-letter abbreviation of the state or the District of Columbia
+      - name: state_name
+        description: >-
+          Name of the state or the District of Columbia
+      - name: annual_change_percent
+        description: >-
+          Percentage change in the index from the previous year
+      - name: index_nsa
+        description: >-
+          Annual house price index, not seasonally adjusted, with the first year of the
+          series set to 100
+      - name: index_nsa_1990_base
+        description: >-
+          Annual house price index rescaled so that 1990 equals 100
+      - name: index_nsa_2000_base
+        description: >-
+          Annual house price index rescaled so that 2000 equals 100
+  - name: us_fhfa_hpi__annual_cbsa
+    description: >-
+      Índice anual de preços de imóveis por Core Based Statistical Area (índice em
+      desenvolvimento da FHFA, all-transactions, sem ajuste sazonal), de 1975 em diante.
+      Inclui o resíduo não CBSA de cada estado, identificado pelo código FIPS estadual.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - cbsa_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the index value
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: cbsa_id
+        description: >-
+          Five-digit Core Based Statistical Area code, or a two-digit state FIPS code for
+          that state's non-CBSA remainder
+        tests: [not_null]
+      - name: cbsa_name
+        description: >-
+          Name of the Core Based Statistical Area or of the state's non-CBSA remainder
+      - name: annual_change_percent
+        description: >-
+          Percentage change in the index from the previous year
+      - name: index_nsa
+        description: >-
+          Annual house price index, not seasonally adjusted, with the first year of the
+          series set to 100
+      - name: index_nsa_1990_base
+        description: >-
+          Annual house price index rescaled so that 1990 equals 100
+      - name: index_nsa_2000_base
+        description: >-
+          Annual house price index rescaled so that 2000 equals 100
+  - name: us_fhfa_hpi__annual_county
+    description: >-
+      Índice anual de preços de imóveis por condado (índice em desenvolvimento da FHFA, all-
+      transactions, sem ajuste sazonal), de 1975 em diante. Uma linha por condado e ano.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - county_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the index value
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: county_id
+        description: >-
+          Five-digit FIPS code of the county or county equivalent
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+      - name: county_name
+        description: >-
+          Name of the county or county equivalent
+      - name: state_abbreviation
+        description: >-
+          Two-letter abbreviation of the state the county belongs to
+      - name: annual_change_percent
+        description: >-
+          Percentage change in the index from the previous year
+      - name: index_nsa
+        description: >-
+          Annual house price index, not seasonally adjusted, with the first year of the
+          series set to 100
+      - name: index_nsa_1990_base
+        description: >-
+          Annual house price index rescaled so that 1990 equals 100
+      - name: index_nsa_2000_base
+        description: >-
+          Annual house price index rescaled so that 2000 equals 100
+  - name: us_fhfa_hpi__annual_zip3
+    description: >-
+      Índice anual de preços de imóveis por prefixo de três dígitos do ZIP Code (índice em
+      desenvolvimento da FHFA, all-transactions, sem ajuste sazonal), de 1975 em diante.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - zip_code_3
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the index value
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: zip_code_3
+        description: >-
+          Three-digit USPS ZIP code prefix
+        tests: [not_null]
+      - name: annual_change_percent
+        description: >-
+          Percentage change in the index from the previous year
+      - name: index_nsa
+        description: >-
+          Annual house price index, not seasonally adjusted, with the first year of the
+          series set to 100
+      - name: index_nsa_1990_base
+        description: >-
+          Annual house price index rescaled so that 1990 equals 100
+      - name: index_nsa_2000_base
+        description: >-
+          Annual house price index rescaled so that 2000 equals 100
+  - name: us_fhfa_hpi__annual_zip5
+    description: >-
+      Índice anual de preços de imóveis por ZIP Code de cinco dígitos (índice em
+      desenvolvimento da FHFA, all-transactions, sem ajuste sazonal), de 1975 em diante.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - zip_code_5
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the index value
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: zip_code_5
+        description: >-
+          Five-digit USPS ZIP code
+        tests: [not_null]
+      - name: annual_change_percent
+        description: >-
+          Percentage change in the index from the previous year
+      - name: index_nsa
+        description: >-
+          Annual house price index, not seasonally adjusted, with the first year of the
+          series set to 100
+      - name: index_nsa_1990_base
+        description: >-
+          Annual house price index rescaled so that 1990 equals 100
+      - name: index_nsa_2000_base
+        description: >-
+          Annual house price index rescaled so that 2000 equals 100
+  - name: us_fhfa_hpi__annual_tract
+    description: >-
+      Índice anual de preços de imóveis por setor censitário (índice em desenvolvimento da
+      FHFA, all-transactions, sem ajuste sazonal), de 1975 em diante. A FHFA publica a linha
+      mesmo quando suprime o valor do índice por número insuficiente de revendas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - census_tract_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the index value
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: census_tract_id
+        description: >-
+          Eleven-digit census tract GEOID
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Two-letter abbreviation of the state the tract belongs to
+      - name: annual_change_percent
+        description: >-
+          Percentage change in the index from the previous year
+      - name: index_nsa
+        description: >-
+          Annual house price index, not seasonally adjusted, with the first year of the
+          series set to 100
+      - name: index_nsa_1990_base
+        description: >-
+          Annual house price index rescaled so that 1990 equals 100
+      - name: index_nsa_2000_base
+        description: >-
+          Annual house price index rescaled so that 2000 equals 100
