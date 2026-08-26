@@ -95,13 +95,23 @@ def ignore_values(
 
 def gen_sql(slug: str, spec: dict, frame: pd.DataFrame | None) -> str:
     part = spec["partition"]
+    # Partitioned models are incremental with insert_overwrite on the partition
+    # column: the recurring pipeline overwrites staging with only the current
+    # window (a new data_extracao snapshot, or the refreshed current ano), and
+    # insert_overwrite replaces exactly those partitions in prod while leaving
+    # every other partition — the accumulated history — untouched. No
+    # is_incremental() filter is needed because staging already holds only the
+    # window; the query returns it and insert_overwrite scopes the replacement.
+    # (Do not run these models with --full-refresh against a windowed staging: it
+    # would rebuild from the window alone and drop history. See PIPELINE_PLAN.md.)
     if part == "ano":
         start, end = partition_range(frame)
         cfg = (
             "{{\n    config(\n"
             f'        schema="{DATASET}",\n'
             f'        alias="{slug}",\n'
-            '        materialized="table",\n'
+            '        materialized="incremental",\n'
+            '        incremental_strategy="insert_overwrite",\n'
             "        partition_by={\n"
             f'            "field": "{part}",\n'
             '            "data_type": "int64",\n'
@@ -113,7 +123,8 @@ def gen_sql(slug: str, spec: dict, frame: pd.DataFrame | None) -> str:
             "{{\n    config(\n"
             f'        schema="{DATASET}",\n'
             f'        alias="{slug}",\n'
-            '        materialized="table",\n'
+            '        materialized="incremental",\n'
+            '        incremental_strategy="insert_overwrite",\n'
             "        partition_by={\n"
             f'            "field": "{part}",\n'
             '            "data_type": "date",\n'
