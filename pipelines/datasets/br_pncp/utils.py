@@ -31,12 +31,14 @@ Output conventions, both required downstream:
 
 from __future__ import annotations
 
+import concurrent.futures
 import csv
 import gzip
 import json
 import os
 import random
 import shutil
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -99,25 +101,49 @@ class ServerOverloadError(Exception):
     """The window is too large for the server to answer. Split it."""
 
 
+class RateLimitedError(Exception):
+    """The API is refusing requests for rate. Back off; do NOT split.
+
+    Splitting a rate-limited window is actively harmful: it replaces one
+    refused request with two, against the component that is already saying
+    it has had too many.
+    """
+
+
 class Throttle:
-    """Pacer with adaptive backoff after rate-limit responses."""
+    """Shared pacer with adaptive backoff, safe to call from several threads.
+
+    Requests are spread across worker threads to hide the API's 5-7s response
+    time, so the rate cap has to be enforced globally rather than per thread.
+    ``wait`` reserves the next slot under the lock and sleeps outside it, which
+    keeps the aggregate request rate at most ``1 / interval`` regardless of how
+    many workers are running.
+    """
 
     def __init__(self, min_interval: float = 0.35):
         self.base = min_interval
         self.interval = min_interval
-        self._last = 0.0
+        self._next_free = 0.0
+        self._lock = threading.Lock()
 
     def wait(self) -> None:
-        gap = time.monotonic() - self._last
-        if gap < self.interval:
-            time.sleep(self.interval - gap)
-        self._last = time.monotonic()
+        with self._lock:
+            start = max(time.monotonic(), self._next_free)
+            self._next_free = start + self.interval
+        delay = start - time.monotonic()
+        if delay > 0:
+            time.sleep(delay)
 
     def penalise(self) -> None:
-        self.interval = min(self.interval * 1.6, 8.0)
+        with self._lock:
+            self.interval = min(self.interval * 1.6, 8.0)
 
     def relax(self) -> None:
-        self.interval = max(self.base, self.interval * 0.95)
+        # Recover faster than the 5%/success the first version used: at an 8s
+        # penalised interval that took ~50 successes to return to baseline, which
+        # dominated the run long after the rate limiter had stopped complaining.
+        with self._lock:
+            self.interval = max(self.base, self.interval * 0.8)
 
 
 THROTTLE = Throttle(float(os.environ.get("PNCP_MIN_INTERVAL", "0.35")))
@@ -126,6 +152,7 @@ THROTTLE = Throttle(float(os.environ.get("PNCP_MIN_INTERVAL", "0.35")))
 def request(path: str, params: dict, max_tries: int = 6) -> dict:
     """One API call, with rate-limit backoff and overload detection."""
     url = BASE_URL + path + "?" + urllib.parse.urlencode(params)
+    rate_limited = False
     for attempt in range(max_tries):
         THROTTLE.wait()
         try:
@@ -146,6 +173,7 @@ def request(path: str, params: dict, max_tries: int = 6) -> dict:
         except urllib.error.HTTPError as exc:
             if exc.code == 429:
                 THROTTLE.penalise()
+                rate_limited = True
                 time.sleep(min(60, 5 * (attempt + 1)) + random.uniform(0, 2))
                 continue
             if exc.code in (500, 502, 503, 504):
@@ -166,6 +194,8 @@ def request(path: str, params: dict, max_tries: int = 6) -> dict:
                     f"transport failure on {url}"
                 ) from None
             time.sleep(4 * (attempt + 1))
+    if rate_limited:
+        raise RateLimitedError(f"rate limited on {url}")
     raise ServerOverloadError(f"exhausted retries on {url}")
 
 
@@ -204,6 +234,22 @@ def fetch_range(
         p_from: lo.strftime("%Y%m%d"),
         p_to: hi.strftime("%Y%m%d"),
     }
+    for cooldown in (60, 180, 420):
+        try:
+            return fetch_window(path, params)
+        except RateLimitedError:
+            print(
+                f"      .. rate limited on {lo}..{hi}, cooling down {cooldown}s",
+                flush=True,
+            )
+            time.sleep(cooldown)
+        except ServerOverloadError:
+            break
+    else:
+        raise RateLimitedError(
+            f"still rate limited on {lo}..{hi} after cooldowns"
+        )
+
     try:
         return fetch_window(path, params)
     except ServerOverloadError:
@@ -237,6 +283,7 @@ def harvest(
     start: date,
     end: date,
     path_override: str | None = None,
+    max_workers: int = int(os.environ.get("PNCP_WORKERS", "4")),
 ) -> int:
     """Download one table's records for [start, end] into gzipped NDJSON chunks.
 
@@ -250,6 +297,9 @@ def harvest(
         end: Last date of the harvest range, inclusive.
         path_override: Use this API path instead of the endpoint's default.
             The backfill passes the publication-date endpoints here.
+        max_workers: Windows fetched concurrently. The API answers a page in
+            5-7s, so the download is latency-bound; the shared throttle keeps
+            the aggregate request rate within the server's limit.
 
     Returns:
         Number of records downloaded in this call (skipped chunks count zero).
@@ -265,7 +315,7 @@ def harvest(
         else [{}]
     )
 
-    total = 0
+    jobs = []
     for lo, hi in windows(start, end, spec["window_days"]):
         for extra in combos:
             tag = f"{lo:%Y%m%d}_{hi:%Y%m%d}"
@@ -274,10 +324,33 @@ def harvest(
             target = input_dir / table / f"{tag}.jsonl.gz"
             if target.exists():
                 continue
-            records = fetch_range(path, spec["date_params"], lo, hi, extra)
-            write_chunk(target, records)
-            total += len(records)
-            print(f"  {table} {tag}: {len(records):>7,} rows", flush=True)
+            jobs.append((lo, hi, extra, tag, target))
+
+    if not jobs:
+        return 0
+
+    def run_job(job) -> int:
+        lo, hi, extra, tag, target = job
+        records = fetch_range(path, spec["date_params"], lo, hi, extra)
+        write_chunk(target, records)
+        print(f"  {table} {tag}: {len(records):>7,} rows", flush=True)
+        return len(records)
+
+    # Windows are independent and each writes its own chunk file, so they
+    # parallelise cleanly. The workers hide the API's 5-7s per-page latency;
+    # the shared THROTTLE still bounds the aggregate request rate, so raising
+    # this does not raise the rate against the server's limiter.
+    total = 0
+    if max_workers <= 1:
+        for job in jobs:
+            total += run_job(job)
+        return total
+
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=max_workers
+    ) as pool:
+        for count in pool.map(run_job, jobs):
+            total += count
     return total
 
 
