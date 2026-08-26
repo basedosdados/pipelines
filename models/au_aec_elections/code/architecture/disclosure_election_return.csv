@@ -1,0 +1,21 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Vários eventos podem compartilhar o mesmo ano,,Year of the electoral event,Año del evento electoral
+election_name,STRING,Nome do evento eleitoral ao qual a declaração se refere,,no,,,no,,Event,Name of the electoral event the return relates to,Nombre del evento electoral al que se refiere la declaración
+return_type,STRING,Se a declaração é de pessoa candidata ou de grupo do Senado,,yes,,,no,,Return Type (Candidate/Senate Group),Whether the return is for a candidate or a Senate group,Si la declaración es de persona candidata o de grupo del Senado
+name,STRING,Nome da pessoa candidata ou do grupo do Senado,,no,,,no,,Name,Name of the candidate or Senate group,Nombre de la persona candidata o del grupo del Senado
+party_id,STRING,Identificador do partido atribuído pela AEC,,no,,,no,,Party ID,AEC identifier of the party,Identificador del partido asignado por la AEC
+party_name,STRING,Nome do partido,,no,,,no,,Party Name,Name of the party,Nombre del partido
+electorate_name,STRING,Divisão eleitoral disputada,,no,,,no,,Electorate Name,Electoral division contested,División electoral disputada
+electorate_state,STRING,Estado ou território da divisão disputada,,no,,,no,,Electorate State,State or territory of the division contested,Estado o territorio de la división disputada
+nil_return,STRING,Indica se a declaração foi apresentada sem movimentação,,yes,,,no,,Nil Return,Whether the return was lodged as a nil return,Indica si la declaración se presentó sin movimientos
+amendment_number,STRING,Número da retificação da declaração,,no,,,no,,Amendment No,Amendment number of the return,Número de la rectificación de la declaración
+total_gift_value,FLOAT64,Valor total das doações recebidas,,no,,AUD,no,,Total Gift Value,Total value of gifts received,Valor total de las donaciones recibidas
+number_of_donors,INT64,Número de pessoas ou entidades doadoras declaradas,,no,,donor,no,,Number Of Donors,Number of donors reported,Número de personas o entidades donantes declaradas
+total_electoral_expenditure,FLOAT64,Total de despesas eleitorais declaradas,,no,,AUD,no,,Total Electoral Expenditure,Total electoral expenditure reported,Total de gastos electorales declarados
+discretionary_benefits_received,FLOAT64,Total de benefícios discricionários recebidos,,no,,AUD,no,,Discretionary Benefits Received,Total discretionary benefits received,Total de beneficios discrecionales recibidos
+broadcasting_cost,FLOAT64,Despesa com veiculação em rádio e televisão,,no,,AUD,no,,Broadcasting Cost,Expenditure on broadcasting,Gasto en radio y televisión
+publishing_cost,FLOAT64,Despesa com veiculação em mídia impressa,,no,,AUD,no,,Publishing Cost,Expenditure on publishing,Gasto en medios impresos
+display_ad_cost,FLOAT64,Despesa com publicidade externa,,no,,AUD,no,,Display Ad Cost,Expenditure on display advertising,Gasto en publicidad exterior
+direct_mailing_cost,FLOAT64,Despesa com mala direta,,no,,AUD,no,,Direct Mailing,Expenditure on direct mailing,Gasto en correo directo
+campaign_material_cost,FLOAT64,Despesa com material de campanha,,no,,AUD,no,,Campaign Material Costs,Expenditure on campaign material,Gasto en material de campaña
+opinion_poll_cost,FLOAT64,Despesa com pesquisas de opinião,,no,,AUD,no,,Opinion Polls,Expenditure on opinion polls,Gasto en encuestas de opinión
