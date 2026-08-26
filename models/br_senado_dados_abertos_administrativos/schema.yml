@@ -1,0 +1,1940 @@
+---
+version: 2
+models:
+  - name: br_senado_dados_abertos_administrativos__senador
+    description: >
+      Dimensão de identificação dos senadores e senadoras referenciados nas demais
+      tabelas do conjunto, com nome, sexo e, para os senadores em exercício, partido,
+      unidade da federação, mandato e data de nascimento. A identificação e os códigos
+      vêm do Serviço de Dados Abertos Legislativos do Senado Federal, cujo código
+      de parlamentar é o mesmo usado nos dados administrativos.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_senador]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_senador
+        description: >
+          Código identificador do senador, correspondente ao código de parlamentar
+          do Senado Federal
+        tests: [not_null]
+      - name: nome_parlamentar
+        description: >
+          Nome parlamentar do senador
+      - name: nome_completo
+        description: >
+          Nome civil completo do senador
+      - name: sexo
+        description: >
+          Sexo do senador
+      - name: sigla_uf
+        description: >
+          Sigla da unidade da federação pela qual o senador exerce o mandato, informada
+          apenas para senadores em exercício
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: sigla_partido
+        description: >
+          Sigla do partido do senador, informada apenas para senadores em exercício
+      - name: titular_suplente
+        description: >
+          Condição do senador no mandato, titular ou suplente, informada apenas para
+          senadores em exercício
+      - name: mandato
+        description: >
+          Período do mandato em exercício, no formato AAAA / AAAA, informado apenas
+          para senadores em exercício
+      - name: data_nascimento
+        description: >
+          Data de nascimento do senador, informada apenas para senadores em exercício
+      - name: email
+        description: >
+          Endereço eletrônico institucional do senador, informado apenas para senadores
+          em exercício
+      - name: indicador_em_exercicio
+        description: >
+          Indica se o senador está em exercício na data de extração
+  - name: br_senado_dados_abertos_administrativos__despesa_ceaps
+    description: >
+      Despesas reembolsadas pela Cota para o Exercício da Atividade Parlamentar dos
+      Senadores (CEAPS), documento a documento, com fornecedor, tipo de despesa e
+      valor reembolsado.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_despesa]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >
+          Mês de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_despesa
+        description: >
+          Código identificador da despesa
+        tests: [not_null]
+      - name: id_senador
+        description: >
+          Código identificador do senador, referenciando a tabela senador
+        tests:
+          - relationships:
+              to: ref('br_senado_dados_abertos_administrativos__senador')
+              field: id_senador
+              config:
+                where: id_senador is not null
+      - name: tipo_despesa
+        description: >
+          Natureza da despesa reembolsada
+      - name: tipo_documento
+        description: >
+          Espécie do documento fiscal apresentado
+      - name: documento
+        description: >
+          Número do documento fiscal apresentado
+      - name: data
+        description: >
+          Data de emissão do documento fiscal
+      - name: cpf_cnpj_fornecedor
+        description: >
+          CPF ou CNPJ do fornecedor
+      - name: nome_fornecedor
+        description: >
+          Razão social ou nome do fornecedor
+      - name: detalhamento
+        description: >
+          Detalhamento textual da despesa, quando informado
+      - name: valor_reembolsado
+        description: >
+          Valor reembolsado ao senador
+  - name: br_senado_dados_abertos_administrativos__senador_gabinete
+    description: >
+      Retrato do gabinete parlamentar de cada senador em exercício: endereço, telefones
+      e chefe de gabinete. A identificação do senador está na tabela senador.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, id_senador]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [fax]
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: id_senador
+        description: >
+          Código identificador do senador, referenciando a tabela senador
+        tests:
+          - relationships:
+              to: ref('br_senado_dados_abertos_administrativos__senador')
+              field: id_senador
+              config:
+                where: id_senador is not null
+      - name: endereco
+        description: >
+          Endereço do gabinete no complexo do Senado Federal
+      - name: telefones
+        description: >
+          Telefones de contato do gabinete
+      - name: fax
+        description: >
+          Fax do gabinete, quando informado
+      - name: chefe_gabinete
+        description: >
+          Nome do chefe de gabinete
+  - name: br_senado_dados_abertos_administrativos__senador_escritorio_apoio
+    description: >
+      Escritórios de apoio parlamentar mantidos pelos senadores nos estados, com o
+      setor responsável e o endereço declarado. A identificação do senador está na
+      tabela senador.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, id_senador, nome_escritorio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [sigla_setor]
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: id_senador
+        description: >
+          Código identificador do senador titular do escritório, referenciando a tabela
+          senador
+        tests:
+          - relationships:
+              to: ref('br_senado_dados_abertos_administrativos__senador')
+              field: id_senador
+              config:
+                where: id_senador is not null
+      - name: nome_escritorio
+        description: >
+          Denominação do escritório de apoio
+      - name: sigla_setor
+        description: >
+          Sigla do setor responsável, quando informada
+      - name: endereco
+        description: >
+          Endereço declarado do escritório de apoio
+      - name: telefone
+        description: >
+          Telefone de contato do escritório, quando informado
+  - name: br_senado_dados_abertos_administrativos__senador_auxilio_moradia
+    description: >
+      Indicação, por senador, de recebimento de auxílio-moradia e de ocupação de imóvel
+      funcional. A identificação do senador está na tabela senador.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, id_senador]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: id_senador
+        description: >
+          Código identificador do senador, referenciando a tabela senador, ausente
+          em um registro publicado pela fonte sem identificação
+        tests:
+          - relationships:
+              to: ref('br_senado_dados_abertos_administrativos__senador')
+              field: id_senador
+              config:
+                where: id_senador is not null
+      - name: indicador_auxilio_moradia
+        description: >
+          Indica se o senador recebe auxílio-moradia
+      - name: indicador_imovel_funcional
+        description: >
+          Indica se o senador ocupa imóvel funcional
+  - name: br_senado_dados_abertos_administrativos__senador_aposentado_pensionista
+    description: >
+      Ex-senadores aposentados e pensionistas de ex-senadores, empilhando os regimes
+      do Instituto de Previdência dos Congressistas (IPC) e do Plano de Seguridade
+      Social dos Congressistas (PSSC).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - nome
+            - tipo_beneficio
+            - regime
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [data_fim]
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: nome
+        description: >
+          Nome do beneficiário
+        tests: [not_null]
+      - name: tipo_beneficio
+        description: >
+          Espécie do benefício, aposentadoria ou pensão
+      - name: regime
+        description: >
+          Regime previdenciário de origem do benefício
+      - name: tipo
+        description: >
+          Descrição do vínculo tal como informada pela fonte
+      - name: data_inicio
+        description: >
+          Data de início do benefício
+      - name: data_fim
+        description: >
+          Data de encerramento do benefício, quando houver
+      - name: valor_remuneracao
+        description: >
+          Valor da remuneração do benefício, disponível apenas para os aposentados
+  - name: br_senado_dados_abertos_administrativos__servidor
+    description: >
+      Quadro completo de servidores do Senado Federal, ativos, aposentados e desligados,
+      com vínculo, situação, cargo, função, lotação e cessão. Superconjunto dos recortes
+      por situação e por tipo de vínculo oferecidos pela fonte.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, id_servidor]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [tipo_cessao, orgao_origem, orgao_destino]
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: id_servidor
+        description: >
+          Código sequencial identificador do servidor
+        tests: [not_null]
+      - name: nome
+        description: >
+          Nome do servidor
+      - name: vinculo
+        description: >
+          Tipo de vínculo do servidor com o Senado Federal
+      - name: situacao
+        description: >
+          Situação funcional do servidor
+      - name: cargo
+        description: >
+          Denominação do cargo ocupado
+      - name: especialidade
+        description: >
+          Especialidade do cargo, quando houver
+      - name: padrao
+        description: >
+          Padrão remuneratório do servidor na carreira
+      - name: codigo_categoria
+        description: >
+          Código da categoria funcional
+      - name: categoria
+        description: >
+          Denominação da categoria funcional
+      - name: codigo_funcao
+        description: >
+          Código da função comissionada exercida, quando houver
+      - name: funcao
+        description: >
+          Denominação da função comissionada exercida, quando houver
+      - name: sigla_lotacao
+        description: >
+          Sigla da unidade de lotação
+      - name: lotacao
+        description: >
+          Nome da unidade de lotação
+      - name: tipo_cessao
+        description: >
+          Tipo de cessão do servidor, quando cedido
+      - name: orgao_origem
+        description: >
+          Órgão de origem na cessão, quando houver
+      - name: orgao_destino
+        description: >
+          Órgão de destino na cessão, quando houver
+      - name: ano_admissao
+        description: >
+          Ano de admissão do servidor
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+  - name: br_senado_dados_abertos_administrativos__servidor_ativo
+    description: >
+      Servidores em atividade, com data de admissão, jornada semanal, afastamento,
+      isenção de ponto e a hierarquia administrativa completa da unidade de lotação.
+      Complementa a tabela `servidor`, que não traz esses campos. A fonte não expõe
+      identificador nesta consulta, de modo que a junção com `servidor` só é possível
+      pelo nome.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, nome, sigla_lotacao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: nome
+        description: >
+          Nome do servidor
+        tests: [not_null]
+      - name: tipo_vinculo
+        description: >
+          Tipo de vínculo do servidor com o Senado Federal
+      - name: cargo
+        description: >
+          Denominação do cargo ocupado
+      - name: categoria
+        description: >
+          Denominação da categoria funcional
+      - name: funcao
+        description: >
+          Denominação da função comissionada exercida, quando houver
+      - name: data_admissao
+        description: >
+          Data de admissão do servidor
+      - name: jornada_semanal_horas
+        description: >
+          Jornada de trabalho semanal contratada
+      - name: afastamento
+        description: >
+          Descrição do afastamento em curso, quando houver
+      - name: isencao_ponto
+        description: >
+          Fundamento da isenção de registro de ponto, quando houver
+      - name: sigla_lotacao
+        description: >
+          Sigla da unidade de lotação, extraída do nível mais profundo da hierarquia
+      - name: lotacao
+        description: >
+          Nome da unidade de lotação, extraído do nível mais profundo da hierarquia
+      - name: nivel_lotacao
+        description: >
+          Profundidade da unidade de lotação na hierarquia administrativa
+      - name: hierarquia_lotacao
+        description: >
+          Caminho hierárquico completo da unidade de lotação, do Senado Federal à
+          unidade, separado por barras
+  - name: br_senado_dados_abertos_administrativos__servidor_remuneracao
+    description: >
+      Folha de pagamento mensal dos servidores do Senado Federal, com as parcelas
+      remuneratórias, os descontos e a remuneração líquida, por servidor e tipo de
+      folha.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, id_remuneracao, tipo_folha]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >
+          Mês de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_remuneracao
+        description: >
+          Código sequencial identificador do registro de remuneração, repetido entre
+          tipos de folha do mesmo servidor e mês
+        tests: [not_null]
+      - name: nome
+        description: >
+          Nome do servidor
+      - name: tipo_folha
+        description: >
+          Tipo da folha de pagamento em que a remuneração foi processada
+      - name: remuneracao_basica
+        description: >
+          Remuneração básica do cargo efetivo
+      - name: vantagens_pessoais
+        description: >
+          Vantagens pessoais incorporadas
+      - name: funcao_comissionada
+        description: >
+          Valor recebido pelo exercício de função comissionada
+      - name: gratificacao_natalina
+        description: >
+          Gratificação natalina, correspondente ao décimo terceiro salário
+      - name: horas_extras
+        description: >
+          Valor pago a título de horas extras
+      - name: auxilios
+        description: >
+          Auxílios pagos ao servidor no mês
+      - name: diarias
+        description: >
+          Diárias pagas ao servidor no mês
+      - name: vantagens_indenizatorias
+        description: >
+          Vantagens de natureza indenizatória
+      - name: outras_eventuais
+        description: >
+          Outras parcelas eventuais
+      - name: abono_permanencia
+        description: >
+          Abono de permanência em serviço
+      - name: faltas
+        description: >
+          Desconto por faltas
+      - name: previdencia
+        description: >
+          Contribuição previdenciária descontada
+      - name: imposto_renda
+        description: >
+          Imposto de renda retido na fonte
+      - name: reversao_teto_constitucional
+        description: >
+          Valor revertido por aplicação do teto constitucional
+      - name: remuneracao_liquida
+        description: >
+          Remuneração líquida recebida no mês
+  - name: br_senado_dados_abertos_administrativos__servidor_hora_extra
+    description: >
+      Horas extras autorizadas por servidor e mês de prestação, com o valor total
+      pago e o mês em que o pagamento foi processado. O detalhamento diário está em
+      `servidor_hora_extra_dia`.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, id_hora_extra, mes_ano_prestacao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >
+          Mês de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_hora_extra
+        description: >
+          Código sequencial identificador do registro de horas extras
+        tests: [not_null]
+      - name: nome
+        description: >
+          Nome do servidor
+      - name: mes_ano_prestacao
+        description: >
+          Mês e ano em que as horas extras foram prestadas, no formato MM/AAAA
+      - name: mes_ano_pagamento
+        description: >
+          Mês e ano em que as horas extras foram pagas, no formato MM/AAAA
+      - name: valor_total
+        description: >
+          Valor total pago pelas horas extras do período
+  - name: br_senado_dados_abertos_administrativos__servidor_hora_extra_dia
+    description: >
+      Detalhamento diário das horas extras prestadas, com a quantidade de horas e
+      o setor de prestação. Junta-se a `servidor_hora_extra` pelo par `ano` e `id_hora_extra`.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_hora_extra
+            - mes_ano_prestacao
+            - data
+            - sigla_setor_prestacao
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: >
+          Mês de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_hora_extra
+        description: >
+          Código sequencial do registro de horas extras a que o dia pertence
+        tests: [not_null]
+      - name: mes_ano_prestacao
+        description: >
+          Mês e ano de prestação do registro a que o dia pertence, no formato MM/AAAA,
+          necessário porque o código sequencial se repete entre meses de prestação
+          pagos juntos
+        tests: [not_null]
+      - name: data
+        description: >
+          Dia em que as horas extras foram prestadas
+      - name: quantidade_horas
+        description: >
+          Quantidade de horas extras prestadas no dia
+      - name: sigla_setor_prestacao
+        description: >
+          Sigla do setor em que as horas extras foram prestadas
+      - name: setor_prestacao
+        description: >
+          Nome do setor em que as horas extras foram prestadas
+  - name: br_senado_dados_abertos_administrativos__servidor_aposentado
+    description: >
+      Servidores aposentados do Senado Federal, empilhando os quadros efetivo e comissionado,
+      com a data e o tipo de aposentadoria.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, matricula, tipo_quadro]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: matricula
+        description: >
+          Matrícula do servidor
+        tests: [not_null]
+      - name: tipo_quadro
+        description: >
+          Quadro de origem da aposentadoria, efetivo ou comissionado
+      - name: nome
+        description: >
+          Nome do servidor aposentado
+      - name: categoria
+        description: >
+          Denominação da categoria funcional
+      - name: cargo
+        description: >
+          Denominação do cargo ocupado na aposentadoria
+      - name: data_aposentadoria
+        description: >
+          Data em que a aposentadoria teve início
+      - name: tipo_aposentadoria
+        description: >
+          Modalidade da aposentadoria concedida
+  - name: br_senado_dados_abertos_administrativos__servidor_exonerado
+    description: >
+      Servidores desligados do Senado Federal, com a forma de vacância do cargo, a
+      data de entrada em exercício e a data da vacância.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, matricula, data_vacancia]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: matricula
+        description: >
+          Matrícula do servidor
+        tests: [not_null]
+      - name: nome
+        description: >
+          Nome do servidor exonerado
+      - name: forma_vacancia
+        description: >
+          Forma pela qual o cargo tornou-se vago
+      - name: data_exercicio
+        description: >
+          Data de entrada em exercício no cargo
+      - name: data_vacancia
+        description: >
+          Data em que o cargo tornou-se vago
+  - name: br_senado_dados_abertos_administrativos__servidor_cedido
+    description: >
+      Servidores em cessão, empilhando as cessões para o Senado Federal, as cessões
+      feitas pelo Senado a outros órgãos, as cessões da Infraero e os exercícios provisórios.
+      Os órgãos de origem e de destino são normalizados a partir do sentido da cessão,
+      que a fonte expressa apenas pelo endpoint consultado.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, matricula, tipo_cessao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: matricula
+        description: >
+          Matrícula do servidor
+        tests: [not_null]
+      - name: tipo_cessao
+        description: >
+          Sentido e natureza da cessão
+      - name: nome
+        description: >
+          Nome do servidor cedido
+      - name: orgao_origem
+        description: >
+          Órgão de origem do servidor cedido
+      - name: orgao_destino
+        description: >
+          Órgão de destino do servidor cedido
+      - name: cargo
+        description: >
+          Denominação do cargo do servidor, informada apenas nas cessões pelo Senado
+      - name: categoria
+        description: >
+          Denominação da categoria funcional, informada apenas nas cessões pelo Senado
+      - name: lotacao
+        description: >
+          Unidade de lotação no órgão de destino, quando informada
+      - name: data_exercicio
+        description: >
+          Data de entrada em exercício na cessão, quando informada
+  - name: br_senado_dados_abertos_administrativos__pensionista
+    description: >
+      Pensionistas de servidores do Senado Federal, com o fundamento legal da pensão,
+      o instituidor e as datas de óbito e de início do benefício.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, id_pensionista]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [codigo_funcao, funcao]
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: id_pensionista
+        description: >
+          Código sequencial identificador do pensionista
+        tests: [not_null]
+      - name: nome
+        description: >
+          Nome do pensionista
+      - name: vinculo
+        description: >
+          Vínculo do pensionista com o servidor instituidor
+      - name: fundamento
+        description: >
+          Fundamento legal da concessão da pensão
+      - name: nome_instituidor
+        description: >
+          Nome do servidor instituidor da pensão
+      - name: codigo_categoria
+        description: >
+          Código da categoria funcional do instituidor
+      - name: categoria
+        description: >
+          Denominação da categoria funcional do instituidor
+      - name: cargo
+        description: >
+          Denominação do cargo do instituidor
+      - name: codigo_funcao
+        description: >
+          Código da função comissionada do instituidor, quando houver
+      - name: funcao
+        description: >
+          Denominação da função comissionada do instituidor, quando houver
+      - name: ano_exercicio
+        description: >
+          Ano de exercício de referência do registro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data_obito
+        description: >
+          Data do óbito do instituidor, quando informada
+      - name: data_inicio_pensao
+        description: >
+          Data de início do pagamento da pensão
+  - name: br_senado_dados_abertos_administrativos__contratacao
+    description: >
+      Contratos, notas de empenho e atas de registro de preço firmados pelo Senado
+      Federal, com objeto, fornecedor, vigência, fundamentação legal e licitação de
+      origem. Os contratos são obtidos percorrendo todos os status, porque a consulta
+      sem filtro omite os encerrados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - tipo_contratacao
+            - id_contratacao
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: tipo_contratacao
+        description: >
+          Espécie do instrumento de contratação, que junto com o identificador forma
+          a chave da contratação
+        tests: [not_null]
+      - name: id_contratacao
+        description: >
+          Código identificador da contratação, único apenas dentro da mesma espécie
+        tests: [not_null]
+      - name: numero
+        description: >
+          Número da contratação
+      - name: numero_formatado
+        description: >
+          Número formatado da contratação, informado apenas para contratos
+      - name: status
+        description: >
+          Situação da contratação, informada apenas para contratos
+      - name: sigla_sub_especie
+        description: >
+          Sigla da subespécie do instrumento
+      - name: sub_especie
+        description: >
+          Denominação da subespécie do instrumento
+      - name: objeto
+        description: >
+          Objeto da contratação
+      - name: cpf_cnpj_empresa
+        description: >
+          CPF ou CNPJ da empresa contratada
+      - name: nome_empresa
+        description: >
+          Razão social da empresa contratada
+      - name: numero_licitacao
+        description: >
+          Número da licitação que originou a contratação, quando houver
+      - name: modalidade_licitacao
+        description: >
+          Modalidade da licitação que originou a contratação
+      - name: sigla_unidade_gestora
+        description: >
+          Sigla da unidade gestora, informada apenas para contratos
+      - name: unidade_gestora
+        description: >
+          Nome da unidade gestora, informada apenas para contratos
+      - name: fundamentacao_legal
+        description: >
+          Fundamentação legal da contratação
+      - name: processo_principal
+        description: >
+          Número do processo administrativo principal
+      - name: indicador_mao_de_obra
+        description: >
+          Indica se a contratação envolve cessão de mão de obra
+      - name: data_assinatura
+        description: >
+          Data de assinatura da contratação
+      - name: data_publicacao
+        description: >
+          Data de publicação do extrato da contratação
+      - name: data_inicio_vigencia
+        description: >
+          Data de início da vigência
+      - name: data_fim_vigencia
+        description: >
+          Data de término da vigência
+      - name: data_ultima_atualizacao
+        description: >
+          Data da última atualização do registro na fonte
+  - name: br_senado_dados_abertos_administrativos__contratacao_orgao_gestor
+    description: >
+      Órgãos responsáveis pela gestão de cada contratação, com o tipo de gestão exercida.
+      Uma contratação pode ter mais de um órgão gestor. O identificador de órgão publicado
+      pela fonte não é aproveitado: em metade dos registros ele repete o próprio código
+      da contratação, de modo que o órgão é identificado pela sigla.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - tipo_contratacao
+            - id_contratacao
+            - sigla_orgao_gestor
+            - tipo_gestao
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: tipo_contratacao
+        description: >
+          Espécie do instrumento de contratação, que junto com o identificador forma
+          a chave da contratação
+        tests: [not_null]
+      - name: id_contratacao
+        description: >
+          Código identificador da contratação, único apenas dentro da mesma espécie
+        tests: [not_null]
+      - name: sigla_orgao_gestor
+        description: >
+          Sigla do órgão gestor
+      - name: orgao_gestor
+        description: >
+          Nome do órgão gestor
+      - name: tipo_gestao
+        description: >
+          Tipo de gestão exercida pelo órgão sobre a contratação
+  - name: br_senado_dados_abertos_administrativos__contratacao_item
+    description: >
+      Itens que compõem cada contratação, com descrição e quantidade contratada.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - tipo_contratacao
+            - id_contratacao
+            - id_item
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: tipo_contratacao
+        description: >
+          Espécie do instrumento de contratação, que junto com o identificador forma
+          a chave da contratação
+        tests: [not_null]
+      - name: id_contratacao
+        description: >
+          Código identificador da contratação, único apenas dentro da mesma espécie
+        tests: [not_null]
+      - name: id_item
+        description: >
+          Código identificador do item
+        tests: [not_null]
+      - name: numero_item
+        description: >
+          Número de ordem do item dentro da contratação
+      - name: descricao
+        description: >
+          Descrição do item contratado
+      - name: quantidade
+        description: >
+          Quantidade contratada do item
+      - name: data_atualizacao
+        description: >
+          Data da última atualização do item na fonte
+  - name: br_senado_dados_abertos_administrativos__contratacao_garantia
+    description: >
+      Garantias prestadas pelas empresas contratadas, com tipo, valor e data de vencimento.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - tipo_contratacao
+            - id_contratacao
+            - id_garantia
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: tipo_contratacao
+        description: >
+          Espécie do instrumento de contratação, que junto com o identificador forma
+          a chave da contratação
+        tests: [not_null]
+      - name: id_contratacao
+        description: >
+          Código identificador da contratação, único apenas dentro da mesma espécie
+        tests: [not_null]
+      - name: id_garantia
+        description: >
+          Código identificador da garantia
+        tests: [not_null]
+      - name: tipo
+        description: >
+          Modalidade da garantia prestada
+      - name: valor
+        description: >
+          Valor da garantia prestada
+      - name: data_vencimento
+        description: >
+          Data de vencimento da garantia
+  - name: br_senado_dados_abertos_administrativos__contratacao_pagamento
+    description: >
+      Pagamentos efetuados no âmbito de cada contratação, com o valor cobrado, multas,
+      glosas e a descrição da despesa. Praticamente todos os pagamentos pertencem
+      a contratos encerrados, que só aparecem quando a consulta percorre os status.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - tipo_contratacao
+            - id_contratacao
+            - id_pagamento
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: tipo_contratacao
+        description: >
+          Espécie do instrumento de contratação, que junto com o identificador forma
+          a chave da contratação
+        tests: [not_null]
+      - name: id_contratacao
+        description: >
+          Código identificador da contratação, único apenas dentro da mesma espécie
+        tests: [not_null]
+      - name: id_pagamento
+        description: >
+          Código identificador do pagamento
+        tests: [not_null]
+      - name: descricao_despesa
+        description: >
+          Descrição da despesa paga
+      - name: valor_cobrado
+        description: >
+          Valor cobrado no pagamento
+      - name: multa
+        description: >
+          Valor de multa aplicada sobre o pagamento
+      - name: glosa
+        description: >
+          Valor glosado do pagamento
+      - name: observacao
+        description: >
+          Observação registrada sobre o pagamento
+  - name: br_senado_dados_abertos_administrativos__contratacao_documento_fiscal
+    description: >
+      Documentos fiscais vinculados a cada contratação, com número e datas de emissão
+      e vencimento. A fonte repete a lista integral de documentos da contratação em
+      cada um de seus pagamentos, de modo que os registros são deduplicados para o
+      nível da contratação, que é o seu verdadeiro grão.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - tipo_contratacao
+            - id_contratacao
+            - id_documento_fiscal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: tipo_contratacao
+        description: >
+          Espécie do instrumento de contratação, que junto com o identificador forma
+          a chave da contratação
+        tests: [not_null]
+      - name: id_contratacao
+        description: >
+          Código identificador da contratação, único apenas dentro da mesma espécie
+        tests: [not_null]
+      - name: id_documento_fiscal
+        description: >
+          Código identificador do documento fiscal
+        tests: [not_null]
+      - name: numero
+        description: >
+          Número do documento fiscal
+      - name: data_emissao
+        description: >
+          Data de emissão do documento fiscal
+      - name: data_vencimento
+        description: >
+          Data de vencimento do documento fiscal
+  - name: br_senado_dados_abertos_administrativos__contratacao_pagamento_empenho
+    description: >
+      Notas de empenho que lastreiam cada pagamento, com natureza da despesa, saldo
+      e valores empenhado e liquidado. Diferentemente dos documentos fiscais, os empenhos
+      variam de pagamento para pagamento.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - tipo_contratacao
+            - id_contratacao
+            - id_pagamento
+            - id_empenho
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: tipo_contratacao
+        description: >
+          Espécie do instrumento de contratação, que junto com o identificador forma
+          a chave da contratação
+        tests: [not_null]
+      - name: id_contratacao
+        description: >
+          Código identificador da contratação, único apenas dentro da mesma espécie
+        tests: [not_null]
+      - name: id_pagamento
+        description: >
+          Código identificador do pagamento a que o empenho se vincula
+        tests: [not_null]
+      - name: id_empenho
+        description: >
+          Número da nota de empenho
+        tests: [not_null]
+      - name: natureza_despesa
+        description: >
+          Natureza da despesa empenhada
+      - name: valor_empenhado
+        description: >
+          Valor empenhado na nota
+      - name: valor_liquidado
+        description: >
+          Valor liquidado da nota de empenho
+      - name: saldo
+        description: >
+          Saldo remanescente da nota de empenho
+  - name: br_senado_dados_abertos_administrativos__contrato_aditivo
+    description: >
+      Termos aditivos firmados sobre contratos, com número, valor e datas de assinatura
+      e publicação. Existem apenas para a espécie contratos.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, id_contratacao, id_aditivo]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: id_contratacao
+        description: >
+          Código identificador da contratação, único apenas dentro da mesma espécie
+        tests: [not_null]
+      - name: id_aditivo
+        description: >
+          Código identificador do termo aditivo
+        tests: [not_null]
+      - name: numero
+        description: >
+          Número do termo aditivo
+      - name: valor
+        description: >
+          Valor do termo aditivo
+      - name: data_assinatura
+        description: >
+          Data de assinatura do termo aditivo
+      - name: data_publicacao
+        description: >
+          Data de publicação do termo aditivo
+      - name: data_atualizacao
+        description: >
+          Data da última atualização do termo aditivo na fonte
+  - name: br_senado_dados_abertos_administrativos__ata_acionamento
+    description: >
+      Acionamentos das atas de registro de preço, com número e objeto do acionamento.
+      Existem apenas para a espécie atas de registro de preço.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - id_contratacao
+            - id_acionamento
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: id_contratacao
+        description: >
+          Código identificador da contratação, único apenas dentro da mesma espécie
+        tests: [not_null]
+      - name: id_acionamento
+        description: >
+          Código identificador do acionamento
+        tests: [not_null]
+      - name: numero
+        description: >
+          Número do acionamento
+      - name: objeto
+        description: >
+          Objeto do acionamento
+  - name: br_senado_dados_abertos_administrativos__licitacao
+    description: >
+      Licitações conduzidas pelo Senado Federal, com objeto, modalidade, data de abertura,
+      situação, edital e órgão de origem.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, id_licitacao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: id_licitacao
+        description: >
+          Código identificador da licitação
+        tests: [not_null]
+      - name: numero
+        description: >
+          Número da licitação
+      - name: modalidade
+        description: >
+          Modalidade da licitação
+      - name: situacao
+        description: >
+          Situação da licitação
+      - name: objeto
+        description: >
+          Objeto da licitação
+      - name: data_abertura
+        description: >
+          Data de abertura da licitação
+      - name: indicador_registro_preco
+        description: >
+          Indica se a licitação é para registro de preços
+      - name: orgao_origem
+        description: >
+          Órgão de origem da licitação
+      - name: edital
+        description: >
+          Referência ou endereço do edital da licitação
+  - name: br_senado_dados_abertos_administrativos__licitacao_detalhamento
+    description: >
+      Peças e documentos que detalham cada licitação, com tipo, descrição, data de
+      criação e link para o documento na fonte.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, id_licitacao, id_detalhamento]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: id_licitacao
+        description: >
+          Código identificador da licitação a que o detalhamento pertence
+        tests: [not_null]
+      - name: id_detalhamento
+        description: >
+          Código identificador do detalhamento
+        tests: [not_null]
+      - name: tipo
+        description: >
+          Tipo do documento de detalhamento
+      - name: descricao
+        description: >
+          Descrição do detalhamento
+      - name: data_criacao
+        description: >
+          Data de criação do detalhamento
+      - name: link
+        description: >
+          Endereço do documento de detalhamento na fonte
+  - name: br_senado_dados_abertos_administrativos__empresa
+    description: >
+      Empresas e pessoas físicas contratadas pelo Senado Federal, identificadas por
+      CPF ou CNPJ. As contratações de cada empresa estão em `contratacao`, ligadas
+      pelo CPF ou CNPJ.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, id_empresa]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: id_empresa
+        description: >
+          Código identificador da empresa na fonte
+        tests: [not_null]
+      - name: cpf_cnpj
+        description: >
+          CPF ou CNPJ do contratado, com o CPF parcialmente mascarado pela fonte quando
+          pessoa física
+      - name: nome
+        description: >
+          Razão social ou nome da empresa contratada
+  - name: br_senado_dados_abertos_administrativos__terceirizado
+    description: >
+      Trabalhadores terceirizados em atividade no Senado Federal, com a empresa contratada,
+      o contrato de origem e a unidade de lotação.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, cpf, nome, id_item_contrato]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: cpf
+        description: >
+          CPF do terceirizado, parcialmente mascarado pela fonte
+      - name: nome
+        description: >
+          Nome do terceirizado
+      - name: id_contrato
+        description: >
+          Código do contrato que ampara a terceirização
+      - name: numero_contrato
+        description: >
+          Número do contrato que ampara a terceirização
+      - name: id_item_contrato
+        description: >
+          Código do item do contrato ao qual o terceirizado está vinculado
+      - name: situacao
+        description: >
+          Situação do terceirizado no contrato
+      - name: empresa
+        description: >
+          Razão social da empresa contratada
+      - name: sigla_lotacao
+        description: >
+          Sigla da unidade de lotação
+      - name: lotacao
+        description: >
+          Nome da unidade de lotação
+  - name: br_senado_dados_abertos_administrativos__menor_aprendiz
+    description: >
+      Menores aprendizes em atividade no Senado Federal, com a empresa fornecedora
+      e o órgão de lotação.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, cpf, nome, fornecedor]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: cpf
+        description: >
+          CPF do menor aprendiz, parcialmente mascarado pela fonte, de modo que o
+          mesmo valor mascarado pode corresponder a pessoas distintas
+        tests: [not_null]
+      - name: nome
+        description: >
+          Nome do menor aprendiz
+      - name: situacao
+        description: >
+          Situação do menor aprendiz no contrato
+      - name: fornecedor
+        description: >
+          Razão social da empresa fornecedora
+      - name: sigla_orgao
+        description: >
+          Sigla do órgão de lotação
+      - name: orgao
+        description: >
+          Nome do órgão de lotação
+  - name: br_senado_dados_abertos_administrativos__estagiario
+    description: >
+      Estagiários em atividade no Senado Federal, com o curso em que estão matriculados
+      e o órgão de lotação.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, nome, sigla_orgao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: nome
+        description: >
+          Nome do estagiário
+        tests: [not_null]
+      - name: curso
+        description: >
+          Curso em que o estagiário está matriculado
+      - name: sigla_orgao
+        description: >
+          Sigla do órgão de lotação
+      - name: orgao
+        description: >
+          Nome do órgão de lotação
+  - name: br_senado_dados_abertos_administrativos__suprido_ato_concessao
+    description: >
+      Atos de concessão de suprimento de fundos, com o suprido responsável, o órgão
+      demandante, os prazos de aplicação e comprovação e os valores totais concedidos
+      e executados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, codigo_ato_concessao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [prazo_aplicacao, prazo_comprovacao]
+    columns:
+      - name: ano
+        description: >
+          Ano de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: codigo_ato_concessao
+        description: >
+          Código identificador do ato de concessão
+        tests: [not_null]
+      - name: codigo_suprido
+        description: >
+          Código identificador do suprido responsável
+      - name: nome_suprido
+        description: >
+          Nome do suprido responsável
+      - name: codigo_orgao
+        description: >
+          Código do órgão demandante
+      - name: sigla_orgao
+        description: >
+          Sigla do órgão demandante
+      - name: orgao
+        description: >
+          Nome do órgão demandante
+      - name: matricula_solicitante
+        description: >
+          Matrícula do servidor solicitante
+      - name: numero_processo
+        description: >
+          Número do processo administrativo do ato
+      - name: indicador_regime_especial
+        description: >
+          Indica se o ato foi concedido sob regime especial
+      - name: data
+        description: >
+          Data do ato de concessão
+      - name: data_publicacao_basf
+        description: >
+          Data de publicação do ato no Boletim Administrativo do Senado Federal
+      - name: prazo_aplicacao
+        description: >
+          Prazo final para aplicação dos recursos
+      - name: prazo_comprovacao
+        description: >
+          Prazo final para comprovação da aplicação
+      - name: data_aplicacao
+        description: >
+          Data em que os recursos foram aplicados
+      - name: data_comprovacao
+        description: >
+          Data em que a aplicação foi comprovada
+      - name: valor_total_elementos_despesa
+        description: >
+          Valor total dos elementos de despesa do ato
+      - name: valor_total_empenhos
+        description: >
+          Valor total empenhado no ato
+      - name: valor_total_transacoes
+        description: >
+          Valor total das transações realizadas
+      - name: valor_total_movimentacoes
+        description: >
+          Valor total das movimentações realizadas
+      - name: data_processamento
+        description: >
+          Momento do processamento do registro na fonte
+  - name: br_senado_dados_abertos_administrativos__suprido_empenho
+    description: >
+      Notas de empenho vinculadas a cada ato de concessão de suprimento de fundos,
+      com rubrica orçamentária e valores concedido e executado.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, codigo_ato_concessao, numero]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: codigo_ato_concessao
+        description: >
+          Código do ato de concessão a que o empenho se vincula
+        tests: [not_null]
+      - name: numero
+        description: >
+          Número da nota de empenho
+        tests: [not_null]
+      - name: rubrica
+        description: >
+          Rubrica orçamentária do empenho
+      - name: descricao
+        description: >
+          Descrição da rubrica orçamentária
+      - name: valor_concedido
+        description: >
+          Valor concedido no empenho
+      - name: valor_executado
+        description: >
+          Valor executado do empenho
+      - name: data
+        description: >
+          Data do empenho
+      - name: data_processamento
+        description: >
+          Momento do processamento do registro na fonte
+  - name: br_senado_dados_abertos_administrativos__suprido_transacao
+    description: >
+      Transações realizadas com recursos de suprimento de fundos, com fornecedor,
+      tipo de documento, rubricas e valor. O detalhamento por objeto está em `suprido_transacao_objeto`.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_transacao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_transacao
+        description: >
+          Código identificador da transação
+        tests: [not_null]
+      - name: codigo_ato_concessao
+        description: >
+          Código do ato de concessão a que a transação se vincula
+        tests: [not_null]
+      - name: tipo
+        description: >
+          Espécie do documento que ampara a transação
+      - name: numero
+        description: >
+          Número do documento que ampara a transação
+      - name: tipo_inscricao
+        description: >
+          Natureza da inscrição do fornecedor, pessoa física ou jurídica
+      - name: inscricao
+        description: >
+          CPF ou CNPJ do fornecedor
+      - name: fornecedor
+        description: >
+          Razão social ou nome do fornecedor
+      - name: rubricas
+        description: >
+          Rubricas orçamentárias associadas à transação, separadas por vírgula
+      - name: valor
+        description: >
+          Valor total da transação
+      - name: data
+        description: >
+          Data da transação
+      - name: data_processamento
+        description: >
+          Momento do processamento do registro na fonte
+  - name: br_senado_dados_abertos_administrativos__suprido_transacao_objeto
+    description: >
+      Objetos adquiridos em cada transação de suprimento de fundos, com tipo e subtipo
+      de despesa, quantidade e valores unitário e total.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_transacao, id_objeto]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_transacao
+        description: >
+          Código da transação a que o objeto pertence
+        tests: [not_null]
+      - name: id_objeto
+        description: >
+          Código identificador do objeto da transação
+        tests: [not_null]
+      - name: descricao_objeto
+        description: >
+          Descrição do objeto adquirido
+      - name: tipo_despesa
+        description: >
+          Tipo de despesa do objeto
+      - name: subtipo_despesa
+        description: >
+          Subtipo de despesa do objeto
+      - name: rubrica
+        description: >
+          Rubrica orçamentária do objeto
+      - name: quantidade
+        description: >
+          Quantidade adquirida do objeto
+      - name: valor_unitario
+        description: >
+          Valor unitário do objeto
+      - name: valor_total
+        description: >
+          Valor total do objeto na transação
+  - name: br_senado_dados_abertos_administrativos__suprido_movimentacao
+    description: >
+      Movimentações de recursos de suprimento de fundos, com fornecedor, tipo de documento,
+      rubricas e valor. O detalhamento por subtipo de despesa está em `suprido_movimentacao_subtipo`.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_movimentacao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_movimentacao
+        description: >
+          Código identificador da movimentação
+        tests: [not_null]
+      - name: codigo_ato_concessao
+        description: >
+          Código do ato de concessão a que a movimentação se vincula
+        tests: [not_null]
+      - name: tipo
+        description: >
+          Espécie do documento que ampara a movimentação
+      - name: numero
+        description: >
+          Número do documento que ampara a movimentação
+      - name: tipo_inscricao
+        description: >
+          Natureza da inscrição do fornecedor, pessoa física ou jurídica
+      - name: inscricao
+        description: >
+          CPF ou CNPJ do fornecedor
+      - name: fornecedor
+        description: >
+          Razão social ou nome do fornecedor
+      - name: rubricas
+        description: >
+          Rubricas orçamentárias associadas à movimentação, separadas por vírgula
+      - name: valor
+        description: >
+          Valor total da movimentação
+      - name: data
+        description: >
+          Data da movimentação
+      - name: data_processamento
+        description: >
+          Momento do processamento do registro na fonte
+  - name: br_senado_dados_abertos_administrativos__suprido_movimentacao_subtipo
+    description: >
+      Decomposição de cada movimentação de suprimento de fundos por tipo e subtipo
+      de despesa, com o valor imputado a cada rubrica.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_movimentacao, id_subtipo]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_movimentacao
+        description: >
+          Código da movimentação a que o subtipo pertence
+        tests: [not_null]
+      - name: id_subtipo
+        description: >
+          Código identificador do subtipo de despesa
+        tests: [not_null]
+      - name: tipo_despesa
+        description: >
+          Tipo de despesa
+      - name: subtipo_despesa
+        description: >
+          Subtipo de despesa
+      - name: rubrica
+        description: >
+          Rubrica orçamentária do subtipo de despesa
+      - name: valor
+        description: >
+          Valor imputado ao subtipo de despesa
+  - name: br_senado_dados_abertos_administrativos__quadro_pessoal
+    description: >
+      Quantitativos oficiais do quadro de pessoal do Senado Federal, consolidando
+      os seis relatórios de efetivo publicados pela fonte: cargos efetivos, funções
+      comissionadas, servidores estáveis e não estáveis, quantitativo de pessoal,
+      quantitativo de cargos e funções e quantitativo de senadores. Cada linha combina
+      o relatório de origem, uma combinação de dimensões e o período, e traz cada
+      medida em sua própria coluna. As variações percentuais publicadas pela fonte
+      são omitidas por serem deriváveis do par de períodos ANTERIOR e ATUAL.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - data_referencia
+            - quadro
+            - periodo
+            - categoria
+            - classe
+            - grupo
+            - cargo
+            - nivel
+            - especialidade
+            - referencia
+            - tabela_vencimento
+            - plano_carreira
+            - nivel_escolaridade
+            - padrao_nivel_referencia
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: data_referencia
+        description: >
+          Data de referência do quantitativo, informada apenas no quadro de senadores,
+          que a fonte publica como série histórica
+      - name: quadro
+        description: >
+          Relatório de efetivo de origem da linha
+        tests: [not_null]
+      - name: periodo
+        description: >
+          Período a que a medida se refere, atual ou anterior
+        tests: [not_null]
+      - name: categoria
+        description: >
+          Categoria funcional
+      - name: classe
+        description: >
+          Classe do cargo
+      - name: grupo
+        description: >
+          Grupo ocupacional
+      - name: cargo
+        description: >
+          Denominação do cargo
+      - name: nivel
+        description: >
+          Nível do cargo ou da função
+      - name: especialidade
+        description: >
+          Especialidade do cargo
+      - name: referencia
+        description: >
+          Referência da função comissionada
+      - name: tabela_vencimento
+        description: >
+          Tabela de vencimento aplicável
+      - name: plano_carreira
+        description: >
+          Plano de carreira
+      - name: nivel_escolaridade
+        description: >
+          Nível de escolaridade exigido
+      - name: padrao_nivel_referencia
+        description: >
+          Padrão, nível ou referência remuneratória
+      - name: quantidade_cargos
+        description: >
+          Quantidade de cargos autorizados
+      - name: quantidade_ocupados
+        description: >
+          Quantidade de cargos ocupados
+      - name: quantidade_vagos
+        description: >
+          Quantidade de cargos vagos
+      - name: quantidade_subtotal
+        description: >
+          Subtotal publicado pelo relatório de origem
+      - name: quantidade_total
+        description: >
+          Total publicado pelo relatório de origem
+      - name: quantidade_com_opcao
+        description: >
+          Quantidade de ocupantes com opção pela remuneração do cargo efetivo
+      - name: quantidade_sem_opcao
+        description: >
+          Quantidade de ocupantes sem opção pela remuneração do cargo efetivo
+      - name: quantidade_sem_vinculo
+        description: >
+          Quantidade de ocupantes sem vínculo efetivo com o Senado Federal
+      - name: quantidade_estaveis
+        description: >
+          Quantidade de servidores estáveis
+      - name: quantidade_nao_estaveis
+        description: >
+          Quantidade de servidores não estáveis
+      - name: quantidade_total_ativo
+        description: >
+          Quantidade total de pessoal ativo
+      - name: quantidade_aposentados
+        description: >
+          Quantidade de aposentados
+      - name: quantidade_instituidores_pensao
+        description: >
+          Quantidade de instituidores de pensão
+      - name: quantidade_beneficiarios_pensao
+        description: >
+          Quantidade de beneficiários de pensão
+      - name: quantidade_total_inativo
+        description: >
+          Quantidade total de pessoal inativo
+  - name: br_senado_dados_abertos_administrativos__diretor_coordenador
+    description: >
+      Titulares e substitutos das direções e coordenações do Senado Federal, com o
+      setor dirigido, sua posição na hierarquia administrativa e o contato do titular.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - sigla_setor
+            - matricula_titular
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: sigla_setor
+        description: >
+          Sigla do setor dirigido
+        tests: [not_null]
+      - name: setor
+        description: >
+          Nome do setor dirigido
+      - name: sigla_setor_superior
+        description: >
+          Sigla do setor imediatamente superior na hierarquia
+      - name: setor_superior
+        description: >
+          Nome do setor imediatamente superior na hierarquia
+      - name: matricula_titular
+        description: >
+          Matrícula do titular do setor
+      - name: nome_titular
+        description: >
+          Nome do titular do setor
+      - name: cargo_titular
+        description: >
+          Cargo ou função exercida pelo titular
+      - name: email_titular
+        description: >
+          Endereço eletrônico institucional do titular
+      - name: referencia_chefia
+        description: >
+          Referência da chefia exercida pelo titular
+      - name: matricula_substituto
+        description: >
+          Matrícula do substituto do titular
+      - name: nome_substituto
+        description: >
+          Nome do substituto do titular
+      - name: data_inicio_substituicao
+        description: >
+          Data de início da substituição, quando em curso
+      - name: data_fim_substituicao
+        description: >
+          Data de término da substituição, quando em curso
+      - name: telefone
+        description: >
+          Telefone de contato do setor
+      - name: endereco
+        description: >
+          Endereço do setor no complexo do Senado Federal
+  - name: br_senado_dados_abertos_administrativos__previsao_aposentadoria
+    description: >
+      Projeção da quantidade de servidores que adquirem direito à aposentadoria por
+      contribuição normal, por cargo, categoria e mês em que o direito é alcançado.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - cargo
+            - categoria
+            - ano_direito
+            - mes_direito
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >
+          Data em que o retrato foi extraído da API de dados abertos administrativos
+        tests: [not_null]
+      - name: cargo
+        description: >
+          Denominação do cargo
+        tests: [not_null]
+      - name: categoria
+        description: >
+          Denominação da categoria funcional
+      - name: ano_direito
+        description: >
+          Ano em que o direito à aposentadoria é alcançado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_direito
+        description: >
+          Mês em que o direito à aposentadoria é alcançado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: quantidade
+        description: >
+          Quantidade de servidores que alcançam o direito no período
+  - name: br_senado_dados_abertos_administrativos__dicionario
+    description: >
+      Dicionário de valores codificados das colunas categóricas do conjunto, incluindo
+      os cargos e as lotações publicados pela fonte como listas de referência.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela a que a coluna pertence
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: >
+          Valor codificado tal como armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal de validade do valor
+      - name: valor
+        description: >-
+          Significado do valor codificado
