@@ -47,13 +47,15 @@ def main() -> None:
     if args.download:
         download_all(input_dir)
 
-    counts = clean_all(input_dir, output_dir)
+    result = clean_all(input_dir, output_dir)
+    counts = result["counts"]
     total = sum(counts.values())
     print()
     for table, n in counts.items():
         print(f"{table:22s} {n:>10,}")
     print(f"{'TOTAL':22s} {total:>10,}")
-    print(f"\nmaster latest month: {master_max_period(input_dir)}")
+    print(f"\nmaster latest month: {result['max_year_month']}")
+    print(f"annual latest year:  {result['max_year']}")
 
 
 if __name__ == "__main__":

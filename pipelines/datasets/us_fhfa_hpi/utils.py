@@ -274,7 +274,51 @@ def write_partitioned(df: pd.DataFrame, table: str, output_dir: Path) -> Path:
     return tdir
 
 
-def clean_all(input_dir: Path, output_dir: Path) -> dict[str, int]:
+def clean_master(input_dir: Path, output_dir: Path) -> dict:
+    """Clean the master file into its four tables plus the dictionary.
+
+    Args:
+        input_dir: Directory holding ``hpi_master.csv``.
+        output_dir: Root output directory for the parquet tables.
+
+    Returns:
+        ``{"paths": {table: str}, "counts": {table: int}, "max_year_month": "YYYY-MM"}``.
+        Paths are strings so Prefect can serialize the task result.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    master = build_master(input_dir)
+    frames = {"dicionario": build_dicionario(master), **master}
+    paths, counts = {}, {}
+    for table in ["dicionario", *_MASTER_TABLES]:
+        paths[table] = str(write_partitioned(frames[table], table, output_dir))
+        counts[table] = len(frames[table])
+    monthly = frames["monthly_national"]
+    year = int(monthly["year"].max())
+    month = int(monthly.loc[monthly["year"] == year, "month"].max())
+    return {"paths": paths, "counts": counts, "max_year_month": f"{year:04d}-{month:02d}"}
+
+
+def clean_annual(input_dir: Path, output_dir: Path) -> dict:
+    """Clean the annual developmental index files into their seven tables.
+
+    Args:
+        input_dir: Directory holding the downloaded annual files.
+        output_dir: Root output directory for the parquet tables.
+
+    Returns:
+        ``{"paths": {table: str}, "counts": {table: int}, "max_year": "YYYY"}``.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    frames = build_annual(input_dir)
+    paths, counts = {}, {}
+    for table in _ANNUAL_FILES:
+        paths[table] = str(write_partitioned(frames[table], table, output_dir))
+        counts[table] = len(frames[table])
+    max_year = max(int(df["year"].max()) for df in frames.values())
+    return {"paths": paths, "counts": counts, "max_year": f"{max_year:04d}"}
+
+
+def clean_all(input_dir: Path, output_dir: Path) -> dict:
     """Clean every FHFA HPI file and write the partitioned parquet output.
 
     Args:
@@ -282,18 +326,16 @@ def clean_all(input_dir: Path, output_dir: Path) -> dict[str, int]:
         output_dir: Root output directory for the parquet tables.
 
     Returns:
-        Table slug -> row count written.
+        The merged result of :func:`clean_master` and :func:`clean_annual`.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    master = build_master(input_dir)
-    frames = {"dicionario": build_dicionario(master)}
-    frames.update(master)
-    frames.update(build_annual(input_dir))
-    counts = {}
-    for table in constants.TABLES.value:
-        write_partitioned(frames[table], table, output_dir)
-        counts[table] = len(frames[table])
-    return counts
+    m = clean_master(input_dir, output_dir)
+    a = clean_annual(input_dir, output_dir)
+    return {
+        "paths": {**m["paths"], **a["paths"]},
+        "counts": {**m["counts"], **a["counts"]},
+        "max_year_month": m["max_year_month"],
+        "max_year": a["max_year"],
+    }
 
 
 # ── source freshness ────────────────────────────────────────────────────────

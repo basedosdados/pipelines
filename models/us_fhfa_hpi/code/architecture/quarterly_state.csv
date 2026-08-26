@@ -1,7 +1,7 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
 year,INT64,Reference year of the index value,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,yr
 quarter,INT64,Reference quarter of the index value,,no,,quarter,no,,period
-state_abbreviation,STRING,"Two-letter abbreviation of the state, the District of Columbia or Puerto Rico",,no,br_bd_diretorios_us.state:abbreviation,,no,,place_id
+state_abbreviation,STRING,"Two-letter abbreviation of the state, the District of Columbia or Puerto Rico",,no,br_bd_diretorios_us.state:abbreviation,,no,"The dbt relationships test resolves against br_bd_diretorios_us.state:abbreviation (all 52 values are present there). The backend cannot store the link: directoryPrimaryKey only accepts a directory column flagged is_primary_key, and the state directory's key is id_state.",place_id
 state_name,STRING,"Name of the state, the District of Columbia or Puerto Rico",,no,,,no,,place_name
 index_type,STRING,"Index variant: traditional, developmental, distress-free, non-metro or manufactured",,yes,,,no,The traditional purchase-only seasonally adjusted index is the series FHFA reports in its press releases. non-metro covers the nonmetropolitan remainder of a state rather than the state as a whole; manufactured covers manufactured homes only.,hpi_type
 index_flavor,STRING,"Underlying transaction data: purchase-only, all-transactions or expanded-data",,yes,,,no,"The three flavours differ by the data feeding the repeat-sales regression, not by the statistical method. Only all-transactions runs before 1991.",hpi_flavor

@@ -184,6 +184,12 @@ TABLES["quarterly_state"] = [
         "STRING",
         "Two-letter abbreviation of the state, the District of Columbia or Puerto Rico",
         directory=DIR_STATE_ABBR,
+        observations=(
+            "The dbt relationships test resolves against br_bd_diretorios_us.state:abbreviation "
+            "(all 52 values are present there). The backend cannot store the link: "
+            "directoryPrimaryKey only accepts a directory column flagged is_primary_key, and the "
+            "state directory's key is id_state."
+        ),
         original_name="place_id",
     ),
     col(
