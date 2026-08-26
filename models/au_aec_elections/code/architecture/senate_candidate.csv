@@ -1,7 +1,7 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
 year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Vários eventos podem compartilhar o mesmo ano,,Year of the electoral event,Año del evento electoral
-election_id,STRING,Identificador do evento eleitoral atribuído pela AEC,,no,,,no,Corresponde ao Event ID usado nas URLs de results.aec.gov.au,,AEC identifier of the electoral event,Identificador del evento electoral asignado por la AEC
 state_abbreviation,STRING,Sigla do estado ou território,,no,br_bd_diretorios_au.state:abbreviation,,no,,StateAb,State or territory abbreviation,Sigla del estado o territorio
+election_id,STRING,Identificador do evento eleitoral atribuído pela AEC,,no,,,no,Corresponde ao Event ID usado nas URLs de results.aec.gov.au,,AEC identifier of the electoral event,Identificador del evento electoral asignado por la AEC
 candidate_id,STRING,Identificador da pessoa candidata atribuído pela AEC,,no,,,no,,CandidateID,AEC identifier of the candidate,Identificador de la persona candidata asignado por la AEC
 surname,STRING,Sobrenome da pessoa candidata,,no,,,no,,Surname,Surname of the candidate,Apellido de la persona candidata
 given_name,STRING,Prenome da pessoa candidata,,no,,,no,,GivenNm,Given name of the candidate,Nombre de pila de la persona candidata

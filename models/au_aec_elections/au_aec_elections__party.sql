@@ -14,8 +14,8 @@
 
 select
     safe_cast(year as int64) year,
-    safe_cast(election_id as string) election_id,
     safe_cast(state_abbreviation as string) state_abbreviation,
+    safe_cast(election_id as string) election_id,
     safe_cast(party_abbreviation as string) party_abbreviation,
     safe_cast(registered_party_abbreviation as string) registered_party_abbreviation,
     safe_cast(party_name as string) party_name

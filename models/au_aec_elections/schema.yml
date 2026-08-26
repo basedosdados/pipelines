@@ -21,6 +21,13 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+      - name: state_abbreviation
+        description: >-
+          Estado ou território ao qual o evento se restringe, quando aplicável
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
       - name: election_id
         description: >-
           Identificador do evento eleitoral atribuído pela AEC
@@ -35,13 +42,6 @@ models:
       - name: division_name
         description: >-
           Divisão eleitoral disputada, quando o evento se restringe a uma divisão
-      - name: state_abbreviation
-        description: >-
-          Estado ou território ao qual o evento se restringe, quando aplicável
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_au__state')
-              field: abbreviation
   - name: au_aec_elections__polling_place
     description: >-
       Locais de votação de cada evento eleitoral, com endereço e coordenadas. A eleição
@@ -62,10 +62,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: election_id
-        description: >-
-          Identificador do evento eleitoral atribuído pela AEC
-        tests: [not_null]
       - name: state_abbreviation
         description: >-
           Sigla do estado ou território
@@ -73,6 +69,10 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_au__state')
               field: abbreviation
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
       - name: division_id
         description: >-
           Identificador da divisão eleitoral federal atribuído pela AEC
@@ -89,6 +89,13 @@ models:
       - name: polling_place_name
         description: >-
           Nome do local de votação
+      - name: premises_state_abbreviation
+        description: >-
+          Sigla do estado do estabelecimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
       - name: premises_name
         description: >-
           Nome do estabelecimento que sedia o local de votação
@@ -104,13 +111,6 @@ models:
       - name: premises_suburb
         description: >-
           Bairro ou localidade do estabelecimento
-      - name: premises_state_abbreviation
-        description: >-
-          Sigla do estado do estabelecimento
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_au__state')
-              field: abbreviation
       - name: premises_postcode
         description: >-
           Código postal do estabelecimento
@@ -146,13 +146,13 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: election_id
-        description: >-
-          Identificador do evento eleitoral atribuído pela AEC
-        tests: [not_null]
       - name: state_abbreviation
         description: >-
           Estado ou território de registro do partido, ou NAT para registro nacional
+        tests: [not_null]
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
         tests: [not_null]
       - name: party_abbreviation
         description: >-
@@ -184,10 +184,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: election_id
-        description: >-
-          Identificador do evento eleitoral atribuído pela AEC
-        tests: [not_null]
       - name: state_abbreviation
         description: >-
           Sigla do estado ou território
@@ -195,6 +191,10 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_au__state')
               field: abbreviation
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
       - name: division_id
         description: >-
           Identificador da divisão eleitoral federal atribuído pela AEC
@@ -251,10 +251,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: election_id
-        description: >-
-          Identificador do evento eleitoral atribuído pela AEC
-        tests: [not_null]
       - name: state_abbreviation
         description: >-
           Sigla do estado ou território
@@ -262,6 +258,10 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_au__state')
               field: abbreviation
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
       - name: division_id
         description: >-
           Identificador da divisão eleitoral federal atribuído pela AEC
@@ -343,10 +343,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: election_id
-        description: >-
-          Identificador do evento eleitoral atribuído pela AEC
-        tests: [not_null]
       - name: state_abbreviation
         description: >-
           Sigla do estado ou território
@@ -354,6 +350,10 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_au__state')
               field: abbreviation
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
       - name: division_id
         description: >-
           Identificador da divisão eleitoral federal atribuído pela AEC
@@ -426,10 +426,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: election_id
-        description: >-
-          Identificador do evento eleitoral atribuído pela AEC
-        tests: [not_null]
       - name: state_abbreviation
         description: >-
           Sigla do estado ou território
@@ -437,6 +433,10 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_au__state')
               field: abbreviation
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
       - name: division_id
         description: >-
           Identificador da divisão eleitoral federal atribuído pela AEC
@@ -503,10 +503,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: election_id
-        description: >-
-          Identificador do evento eleitoral atribuído pela AEC
-        tests: [not_null]
       - name: state_abbreviation
         description: >-
           Sigla do estado ou território
@@ -514,6 +510,10 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_au__state')
               field: abbreviation
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
       - name: division_id
         description: >-
           Identificador da divisão eleitoral federal atribuído pela AEC
@@ -564,10 +564,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: election_id
-        description: >-
-          Identificador do evento eleitoral atribuído pela AEC
-        tests: [not_null]
       - name: state_abbreviation
         description: >-
           Sigla do estado ou território
@@ -575,6 +571,10 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_au__state')
               field: abbreviation
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
       - name: division_id
         description: >-
           Identificador da divisão eleitoral federal atribuído pela AEC
@@ -627,10 +627,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: election_id
-        description: >-
-          Identificador do evento eleitoral atribuído pela AEC
-        tests: [not_null]
       - name: state_abbreviation
         description: >-
           Sigla do estado ou território
@@ -638,6 +634,10 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_au__state')
               field: abbreviation
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
       - name: candidate_id
         description: >-
           Identificador da pessoa candidata atribuído pela AEC
@@ -688,10 +688,6 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: election_id
-        description: >-
-          Identificador do evento eleitoral atribuído pela AEC
-        tests: [not_null]
       - name: state_abbreviation
         description: >-
           Sigla do estado ou território
@@ -699,6 +695,10 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_au__state')
               field: abbreviation
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
       - name: division_id
         description: >-
           Identificador da divisão eleitoral federal atribuído pela AEC
@@ -768,6 +768,13 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
       - name: election_id
         description: >-
           Identificador do evento eleitoral atribuído pela AEC
@@ -776,13 +783,6 @@ models:
         description: >-
           Apuração à qual os totais se referem: Câmara, Senado ou referendo
         tests: [not_null]
-      - name: state_abbreviation
-        description: >-
-          Sigla do estado ou território
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_au__state')
-              field: abbreviation
       - name: division_id
         description: >-
           Identificador da divisão eleitoral federal atribuído pela AEC
@@ -855,6 +855,13 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
       - name: election_id
         description: >-
           Identificador do evento eleitoral atribuído pela AEC
@@ -863,13 +870,6 @@ models:
         description: >-
           Número da pergunta submetida a referendo
         tests: [not_null]
-      - name: state_abbreviation
-        description: >-
-          Sigla do estado ou território
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_au__state')
-              field: abbreviation
       - name: division_id
         description: >-
           Identificador da divisão eleitoral federal atribuído pela AEC

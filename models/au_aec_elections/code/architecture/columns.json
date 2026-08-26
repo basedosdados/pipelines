@@ -14,6 +14,19 @@
       "is_partition": true
     },
     {
+      "name": "state_abbreviation",
+      "bigquery_type": "STRING",
+      "description_pt": "Estado ou território ao qual o evento se restringe, quando aplicável",
+      "description_en": "State or territory the event is confined to, where applicable",
+      "description_es": "Estado o territorio al que se limita el evento, cuando corresponde",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": "br_bd_diretorios_au.state:abbreviation",
+      "has_sensitive_data": false,
+      "observations": "Vazio para eleições gerais e para o referendo, que são nacionais",
+      "is_partition": false
+    },
+    {
       "name": "election_id",
       "bigquery_type": "STRING",
       "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
@@ -64,19 +77,6 @@
       "has_sensitive_data": false,
       "observations": "Preenchido apenas para eleições suplementares",
       "is_partition": false
-    },
-    {
-      "name": "state_abbreviation",
-      "bigquery_type": "STRING",
-      "description_pt": "Estado ou território ao qual o evento se restringe, quando aplicável",
-      "description_en": "State or territory the event is confined to, where applicable",
-      "description_es": "Estado o territorio al que se limita el evento, cuando corresponde",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": "br_bd_diretorios_au.state:abbreviation",
-      "has_sensitive_data": false,
-      "observations": "Vazio para eleições gerais e para o referendo, que são nacionais",
-      "is_partition": false
     }
   ],
   "polling_place": [
@@ -94,19 +94,6 @@
       "is_partition": true
     },
     {
-      "name": "election_id",
-      "bigquery_type": "STRING",
-      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
-      "description_en": "AEC identifier of the electoral event",
-      "description_es": "Identificador del evento electoral asignado por la AEC",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": null,
-      "has_sensitive_data": false,
-      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
-      "is_partition": false
-    },
-    {
       "name": "state_abbreviation",
       "bigquery_type": "STRING",
       "description_pt": "Sigla do estado ou território",
@@ -117,6 +104,19 @@
       "directory_column": "br_bd_diretorios_au.state:abbreviation",
       "has_sensitive_data": false,
       "observations": null,
+      "is_partition": false
+    },
+    {
+      "name": "election_id",
+      "bigquery_type": "STRING",
+      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
+      "description_en": "AEC identifier of the electoral event",
+      "description_es": "Identificador del evento electoral asignado por la AEC",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": null,
+      "has_sensitive_data": false,
+      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
       "is_partition": false
     },
     {
@@ -180,6 +180,19 @@
       "measurement_unit": null,
       "covered_by_dictionary": false,
       "directory_column": null,
+      "has_sensitive_data": false,
+      "observations": null,
+      "is_partition": false
+    },
+    {
+      "name": "premises_state_abbreviation",
+      "bigquery_type": "STRING",
+      "description_pt": "Sigla do estado do estabelecimento",
+      "description_en": "State abbreviation of the premises",
+      "description_es": "Sigla del estado del establecimiento",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": "br_bd_diretorios_au.state:abbreviation",
       "has_sensitive_data": false,
       "observations": null,
       "is_partition": false
@@ -250,19 +263,6 @@
       "is_partition": false
     },
     {
-      "name": "premises_state_abbreviation",
-      "bigquery_type": "STRING",
-      "description_pt": "Sigla do estado do estabelecimento",
-      "description_en": "State abbreviation of the premises",
-      "description_es": "Sigla del estado del establecimiento",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": "br_bd_diretorios_au.state:abbreviation",
-      "has_sensitive_data": false,
-      "observations": null,
-      "is_partition": false
-    },
-    {
       "name": "premises_postcode",
       "bigquery_type": "STRING",
       "description_pt": "Código postal do estabelecimento",
@@ -317,19 +317,6 @@
       "is_partition": true
     },
     {
-      "name": "election_id",
-      "bigquery_type": "STRING",
-      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
-      "description_en": "AEC identifier of the electoral event",
-      "description_es": "Identificador del evento electoral asignado por la AEC",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": null,
-      "has_sensitive_data": false,
-      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
-      "is_partition": false
-    },
-    {
       "name": "state_abbreviation",
       "bigquery_type": "STRING",
       "description_pt": "Estado ou território de registro do partido, ou NAT para registro nacional",
@@ -340,6 +327,19 @@
       "directory_column": null,
       "has_sensitive_data": false,
       "observations": "Não referencia o diretório de estados: a AEC usa o valor NAT, que não é um estado, para partidos de registro nacional",
+      "is_partition": false
+    },
+    {
+      "name": "election_id",
+      "bigquery_type": "STRING",
+      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
+      "description_en": "AEC identifier of the electoral event",
+      "description_es": "Identificador del evento electoral asignado por la AEC",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": null,
+      "has_sensitive_data": false,
+      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
       "is_partition": false
     },
     {
@@ -397,19 +397,6 @@
       "is_partition": true
     },
     {
-      "name": "election_id",
-      "bigquery_type": "STRING",
-      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
-      "description_en": "AEC identifier of the electoral event",
-      "description_es": "Identificador del evento electoral asignado por la AEC",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": null,
-      "has_sensitive_data": false,
-      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
-      "is_partition": false
-    },
-    {
       "name": "state_abbreviation",
       "bigquery_type": "STRING",
       "description_pt": "Sigla do estado ou território",
@@ -420,6 +407,19 @@
       "directory_column": "br_bd_diretorios_au.state:abbreviation",
       "has_sensitive_data": false,
       "observations": null,
+      "is_partition": false
+    },
+    {
+      "name": "election_id",
+      "bigquery_type": "STRING",
+      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
+      "description_en": "AEC identifier of the electoral event",
+      "description_es": "Identificador del evento electoral asignado por la AEC",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": null,
+      "has_sensitive_data": false,
+      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
       "is_partition": false
     },
     {
@@ -568,19 +568,6 @@
       "is_partition": true
     },
     {
-      "name": "election_id",
-      "bigquery_type": "STRING",
-      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
-      "description_en": "AEC identifier of the electoral event",
-      "description_es": "Identificador del evento electoral asignado por la AEC",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": null,
-      "has_sensitive_data": false,
-      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
-      "is_partition": false
-    },
-    {
       "name": "state_abbreviation",
       "bigquery_type": "STRING",
       "description_pt": "Sigla do estado ou território",
@@ -591,6 +578,19 @@
       "directory_column": "br_bd_diretorios_au.state:abbreviation",
       "has_sensitive_data": false,
       "observations": null,
+      "is_partition": false
+    },
+    {
+      "name": "election_id",
+      "bigquery_type": "STRING",
+      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
+      "description_en": "AEC identifier of the electoral event",
+      "description_es": "Identificador del evento electoral asignado por la AEC",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": null,
+      "has_sensitive_data": false,
+      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
       "is_partition": false
     },
     {
@@ -843,19 +843,6 @@
       "is_partition": true
     },
     {
-      "name": "election_id",
-      "bigquery_type": "STRING",
-      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
-      "description_en": "AEC identifier of the electoral event",
-      "description_es": "Identificador del evento electoral asignado por la AEC",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": null,
-      "has_sensitive_data": false,
-      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
-      "is_partition": false
-    },
-    {
       "name": "state_abbreviation",
       "bigquery_type": "STRING",
       "description_pt": "Sigla do estado ou território",
@@ -866,6 +853,19 @@
       "directory_column": "br_bd_diretorios_au.state:abbreviation",
       "has_sensitive_data": false,
       "observations": null,
+      "is_partition": false
+    },
+    {
+      "name": "election_id",
+      "bigquery_type": "STRING",
+      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
+      "description_en": "AEC identifier of the electoral event",
+      "description_es": "Identificador del evento electoral asignado por la AEC",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": null,
+      "has_sensitive_data": false,
+      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
       "is_partition": false
     },
     {
@@ -1079,19 +1079,6 @@
       "is_partition": true
     },
     {
-      "name": "election_id",
-      "bigquery_type": "STRING",
-      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
-      "description_en": "AEC identifier of the electoral event",
-      "description_es": "Identificador del evento electoral asignado por la AEC",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": null,
-      "has_sensitive_data": false,
-      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
-      "is_partition": false
-    },
-    {
       "name": "state_abbreviation",
       "bigquery_type": "STRING",
       "description_pt": "Sigla do estado ou território",
@@ -1102,6 +1089,19 @@
       "directory_column": "br_bd_diretorios_au.state:abbreviation",
       "has_sensitive_data": false,
       "observations": null,
+      "is_partition": false
+    },
+    {
+      "name": "election_id",
+      "bigquery_type": "STRING",
+      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
+      "description_en": "AEC identifier of the electoral event",
+      "description_es": "Identificador del evento electoral asignado por la AEC",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": null,
+      "has_sensitive_data": false,
+      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
       "is_partition": false
     },
     {
@@ -1315,19 +1315,6 @@
       "is_partition": true
     },
     {
-      "name": "election_id",
-      "bigquery_type": "STRING",
-      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
-      "description_en": "AEC identifier of the electoral event",
-      "description_es": "Identificador del evento electoral asignado por la AEC",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": null,
-      "has_sensitive_data": false,
-      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
-      "is_partition": false
-    },
-    {
       "name": "state_abbreviation",
       "bigquery_type": "STRING",
       "description_pt": "Sigla do estado ou território",
@@ -1338,6 +1325,19 @@
       "directory_column": "br_bd_diretorios_au.state:abbreviation",
       "has_sensitive_data": false,
       "observations": null,
+      "is_partition": false
+    },
+    {
+      "name": "election_id",
+      "bigquery_type": "STRING",
+      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
+      "description_en": "AEC identifier of the electoral event",
+      "description_es": "Identificador del evento electoral asignado por la AEC",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": null,
+      "has_sensitive_data": false,
+      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
       "is_partition": false
     },
     {
@@ -1473,19 +1473,6 @@
       "is_partition": true
     },
     {
-      "name": "election_id",
-      "bigquery_type": "STRING",
-      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
-      "description_en": "AEC identifier of the electoral event",
-      "description_es": "Identificador del evento electoral asignado por la AEC",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": null,
-      "has_sensitive_data": false,
-      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
-      "is_partition": false
-    },
-    {
       "name": "state_abbreviation",
       "bigquery_type": "STRING",
       "description_pt": "Sigla do estado ou território",
@@ -1496,6 +1483,19 @@
       "directory_column": "br_bd_diretorios_au.state:abbreviation",
       "has_sensitive_data": false,
       "observations": null,
+      "is_partition": false
+    },
+    {
+      "name": "election_id",
+      "bigquery_type": "STRING",
+      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
+      "description_en": "AEC identifier of the electoral event",
+      "description_es": "Identificador del evento electoral asignado por la AEC",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": null,
+      "has_sensitive_data": false,
+      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
       "is_partition": false
     },
     {
@@ -1644,19 +1644,6 @@
       "is_partition": true
     },
     {
-      "name": "election_id",
-      "bigquery_type": "STRING",
-      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
-      "description_en": "AEC identifier of the electoral event",
-      "description_es": "Identificador del evento electoral asignado por la AEC",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": null,
-      "has_sensitive_data": false,
-      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
-      "is_partition": false
-    },
-    {
       "name": "state_abbreviation",
       "bigquery_type": "STRING",
       "description_pt": "Sigla do estado ou território",
@@ -1667,6 +1654,19 @@
       "directory_column": "br_bd_diretorios_au.state:abbreviation",
       "has_sensitive_data": false,
       "observations": null,
+      "is_partition": false
+    },
+    {
+      "name": "election_id",
+      "bigquery_type": "STRING",
+      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
+      "description_en": "AEC identifier of the electoral event",
+      "description_es": "Identificador del evento electoral asignado por la AEC",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": null,
+      "has_sensitive_data": false,
+      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
       "is_partition": false
     },
     {
@@ -1802,19 +1802,6 @@
       "is_partition": true
     },
     {
-      "name": "election_id",
-      "bigquery_type": "STRING",
-      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
-      "description_en": "AEC identifier of the electoral event",
-      "description_es": "Identificador del evento electoral asignado por la AEC",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": null,
-      "has_sensitive_data": false,
-      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
-      "is_partition": false
-    },
-    {
       "name": "state_abbreviation",
       "bigquery_type": "STRING",
       "description_pt": "Sigla do estado ou território",
@@ -1825,6 +1812,19 @@
       "directory_column": "br_bd_diretorios_au.state:abbreviation",
       "has_sensitive_data": false,
       "observations": null,
+      "is_partition": false
+    },
+    {
+      "name": "election_id",
+      "bigquery_type": "STRING",
+      "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
+      "description_en": "AEC identifier of the electoral event",
+      "description_es": "Identificador del evento electoral asignado por la AEC",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": null,
+      "has_sensitive_data": false,
+      "observations": "Corresponde ao Event ID usado nas URLs de results.aec.gov.au",
       "is_partition": false
     },
     {
@@ -2051,6 +2051,19 @@
       "is_partition": true
     },
     {
+      "name": "state_abbreviation",
+      "bigquery_type": "STRING",
+      "description_pt": "Sigla do estado ou território",
+      "description_en": "State or territory abbreviation",
+      "description_es": "Sigla del estado o territorio",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": "br_bd_diretorios_au.state:abbreviation",
+      "has_sensitive_data": false,
+      "observations": null,
+      "is_partition": false
+    },
+    {
       "name": "election_id",
       "bigquery_type": "STRING",
       "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
@@ -2072,19 +2085,6 @@
       "measurement_unit": null,
       "covered_by_dictionary": true,
       "directory_column": null,
-      "has_sensitive_data": false,
-      "observations": null,
-      "is_partition": false
-    },
-    {
-      "name": "state_abbreviation",
-      "bigquery_type": "STRING",
-      "description_pt": "Sigla do estado ou território",
-      "description_en": "State or territory abbreviation",
-      "description_es": "Sigla del estado o territorio",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": "br_bd_diretorios_au.state:abbreviation",
       "has_sensitive_data": false,
       "observations": null,
       "is_partition": false
@@ -2313,6 +2313,19 @@
       "is_partition": true
     },
     {
+      "name": "state_abbreviation",
+      "bigquery_type": "STRING",
+      "description_pt": "Sigla do estado ou território",
+      "description_en": "State or territory abbreviation",
+      "description_es": "Sigla del estado o territorio",
+      "measurement_unit": null,
+      "covered_by_dictionary": false,
+      "directory_column": "br_bd_diretorios_au.state:abbreviation",
+      "has_sensitive_data": false,
+      "observations": null,
+      "is_partition": false
+    },
+    {
       "name": "election_id",
       "bigquery_type": "STRING",
       "description_pt": "Identificador do evento eleitoral atribuído pela AEC",
@@ -2334,19 +2347,6 @@
       "measurement_unit": null,
       "covered_by_dictionary": false,
       "directory_column": null,
-      "has_sensitive_data": false,
-      "observations": null,
-      "is_partition": false
-    },
-    {
-      "name": "state_abbreviation",
-      "bigquery_type": "STRING",
-      "description_pt": "Sigla do estado ou território",
-      "description_en": "State or territory abbreviation",
-      "description_es": "Sigla del estado o territorio",
-      "measurement_unit": null,
-      "covered_by_dictionary": false,
-      "directory_column": "br_bd_diretorios_au.state:abbreviation",
       "has_sensitive_data": false,
       "observations": null,
       "is_partition": false

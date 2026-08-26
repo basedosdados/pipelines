@@ -358,6 +358,15 @@ TABLES: dict[str, list[Column]] = {}
 
 TABLES["election"] = [
     YEAR,
+    C(
+        "state_abbreviation",
+        "STRING",
+        "Estado ou território ao qual o evento se restringe, quando aplicável",
+        "State or territory the event is confined to, where applicable",
+        "Estado o territorio al que se limita el evento, cuando corresponde",
+        directory_column=DIR_STATE,
+        observations="Vazio para eleições gerais e para o referendo, que são nacionais",
+    ),
     ELECTION_ID,
     C(
         "election_name",
@@ -382,21 +391,12 @@ TABLES["election"] = [
         "División electoral disputada, cuando el evento abarca una sola división",
         observations="Preenchido apenas para eleições suplementares",
     ),
-    C(
-        "state_abbreviation",
-        "STRING",
-        "Estado ou território ao qual o evento se restringe, quando aplicável",
-        "State or territory the event is confined to, where applicable",
-        "Estado o territorio al que se limita el evento, cuando corresponde",
-        directory_column=DIR_STATE,
-        observations="Vazio para eleições gerais e para o referendo, que são nacionais",
-    ),
 ]
 
 TABLES["polling_place"] = [
     YEAR,
-    ELECTION_ID,
     STATE,
+    ELECTION_ID,
     DIVISION_ID,
     DIVISION_NAME,
     PP_ID,
@@ -416,6 +416,15 @@ TABLES["polling_place"] = [
         "Name of the polling place",
         "Nombre del local de votación",
         original_name="PollingPlaceNm",
+    ),
+    C(
+        "premises_state_abbreviation",
+        "STRING",
+        "Sigla do estado do estabelecimento",
+        "State abbreviation of the premises",
+        "Sigla del estado del establecimiento",
+        directory_column=DIR_STATE,
+        original_name="PremisesStateAb",
     ),
     C(
         "premises_name",
@@ -456,15 +465,6 @@ TABLES["polling_place"] = [
         "Suburb or locality of the premises",
         "Barrio o localidad del establecimiento",
         original_name="PremisesSuburb",
-    ),
-    C(
-        "premises_state_abbreviation",
-        "STRING",
-        "Sigla do estado do estabelecimento",
-        "State abbreviation of the premises",
-        "Sigla del estado del establecimiento",
-        directory_column=DIR_STATE,
-        original_name="PremisesStateAb",
     ),
     C(
         "premises_postcode",
@@ -510,8 +510,8 @@ PARTY_STATE = C(
 
 TABLES["party"] = [
     YEAR,
-    ELECTION_ID,
     PARTY_STATE,
+    ELECTION_ID,
     PARTY_AB,
     C(
         "registered_party_abbreviation",
@@ -533,8 +533,8 @@ TABLES["party"] = [
 
 TABLES["house_candidate"] = [
     YEAR,
-    ELECTION_ID,
     STATE,
+    ELECTION_ID,
     DIVISION_ID,
     DIVISION_NAME,
     CANDIDATE_ID,
@@ -549,8 +549,8 @@ TABLES["house_candidate"] = [
 
 TABLES["house_first_preference_division"] = [
     YEAR,
-    ELECTION_ID,
     STATE,
+    ELECTION_ID,
     DIVISION_ID,
     DIVISION_NAME,
     CANDIDATE_ID,
@@ -586,8 +586,8 @@ _PP_CANDIDATE_TAIL = [
 
 TABLES["house_first_preference_polling_place"] = [
     YEAR,
-    ELECTION_ID,
     STATE,
+    ELECTION_ID,
     DIVISION_ID,
     DIVISION_NAME,
     PP_ID,
@@ -598,8 +598,8 @@ TABLES["house_first_preference_polling_place"] = [
 
 TABLES["house_two_candidate_preferred_polling_place"] = [
     YEAR,
-    ELECTION_ID,
     STATE,
+    ELECTION_ID,
     DIVISION_ID,
     DIVISION_NAME,
     PP_ID,
@@ -610,8 +610,8 @@ TABLES["house_two_candidate_preferred_polling_place"] = [
 
 TABLES["house_two_party_preferred_division"] = [
     YEAR,
-    ELECTION_ID,
     STATE,
+    ELECTION_ID,
     DIVISION_ID,
     DIVISION_NAME,
     C(
@@ -627,8 +627,8 @@ TABLES["house_two_party_preferred_division"] = [
 
 TABLES["house_two_party_preferred_polling_place"] = [
     YEAR,
-    ELECTION_ID,
     STATE,
+    ELECTION_ID,
     DIVISION_ID,
     DIVISION_NAME,
     PP_ID,
@@ -638,8 +638,8 @@ TABLES["house_two_party_preferred_polling_place"] = [
 
 TABLES["senate_candidate"] = [
     YEAR,
-    ELECTION_ID,
     STATE,
+    ELECTION_ID,
     CANDIDATE_ID,
     SURNAME,
     GIVEN_NAME,
@@ -661,8 +661,8 @@ TABLES["senate_candidate"] = [
 
 TABLES["senate_first_preference_division"] = [
     YEAR,
-    ELECTION_ID,
     STATE,
+    ELECTION_ID,
     DIVISION_ID,
     DIVISION_NAME,
     C(
@@ -705,6 +705,7 @@ TABLES["senate_first_preference_division"] = [
 
 TABLES["division_summary"] = [
     YEAR,
+    STATE,
     ELECTION_ID,
     C(
         "chamber",
@@ -714,7 +715,6 @@ TABLES["division_summary"] = [
         "Conteo al que se refieren los totales: Cámara, Senado o referendo",
         covered_by_dictionary="yes",
     ),
-    STATE,
     DIVISION_ID,
     DIVISION_NAME,
     C(
@@ -781,6 +781,7 @@ TABLES["division_summary"] = [
 
 TABLES["referendum_polling_place"] = [
     YEAR,
+    STATE,
     ELECTION_ID,
     C(
         "question_number",
@@ -790,7 +791,6 @@ TABLES["referendum_polling_place"] = [
         "Número de la pregunta sometida a referendo",
         original_name="QuestionNo",
     ),
-    STATE,
     DIVISION_ID,
     C(
         "division_name",
