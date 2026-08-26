@@ -1,0 +1,65 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,"Ano da observação, em tempo universal coordenado (UTC)",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,validity_time
+mes,INT64,"Mês da observação, em tempo universal coordenado (UTC)",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,validity_time
+data,DATE,"Data da observação, em tempo universal coordenado (UTC)",,no,,,no,,validity_time
+hora,TIME,"Hora da observação, em tempo universal coordenado (UTC)",,no,,,no,,validity_time
+indicatif_omm,STRING,"Indicativo OMM da estação, de cinco dígitos",,no,,,no,"As estações do arquivo SYNOP passaram de 60 para 190 a partir de 2025, quando a Météo-France ampliou a rede publicada.",geo_id_wmo
+date_heure_traitement,DATETIME,Data e hora (UTC) da extração da medição das bases internas da Météo-France,,no,,,no,"Vazia nas observações anteriores a 2025, quando a fonte passou a publicar o campo.",reference_time
+date_heure_insertion,DATETIME,Data e hora (UTC) da inserção da medição do sensor nas bases internas da Météo-France,,no,,,no,"Vazia nas observações anteriores a 2025, quando a fonte passou a publicar o campo. Usada para desduplicar retransmissões da mesma medição.",insert_time
+pression_mer,INT64,Pressão atmosférica reduzida ao nível do mar,,no,,pascal,no,,pmer
+variation_pression_3h,INT64,Variação da pressão atmosférica nas últimas 3 horas,,no,,pascal,no,,tend
+type_tendance_barometrique,STRING,Tipo de tendência barométrica (tabela de código OMM 0200),,yes,,,no,A tabela OMM 0200 define apenas os valores 0 a 8. O valor 10 aparece em 109 das 4.750.246 observações preenchidas e não tem significado definido na fonte.,cod_tend
+direction_vent_moyen,INT64,"Direção do vento médio em 10 minutos, em graus a partir do norte geográfico",,no,,degree,no,,dd
+vitesse_vent_moyen,FLOAT64,Velocidade do vento médio em 10 minutos,,no,,meter / second,no,,ff
+temperature,FLOAT64,Temperatura do ar sob abrigo,,no,,kelvin,no,,t
+point_rosee,FLOAT64,Temperatura do ponto de orvalho,,no,,kelvin,no,,td
+humidite,INT64,Umidade relativa do ar,,no,,percent,no,,u
+visibilite_horizontale,FLOAT64,Visibilidade horizontal,,no,,meter,no,,vv
+temps_present,STRING,Tempo presente observado no momento da medição (tabela de código OMM 4677),,yes,,,no,"Os valores publicados seguem o descritor BUFR 0 20 003: 0 a 99 correspondem à tabela OMM 4677 (observação humana) e 100 ou mais à tabela OMM 4680 (estação automática). O arquivo 1996-2026 contém 121, 141 e 142.",ww
+temps_passe_1,STRING,"Tempo passado 1, observado no período anterior à medição (tabela de código OMM 4561)",,yes,,,no,Os valores publicados seguem o descritor BUFR 0 20 004: 0 a 9 correspondem à tabela OMM 4561 (observação humana) e 10 a 19 à tabela OMM 4531 (estação automática). O arquivo 1996-2026 contém 14.,w1
+temps_passe_2,STRING,"Tempo passado 2, observado no período anterior à medição (tabela de código OMM 4561)",,yes,,,no,Os valores publicados seguem o descritor BUFR 0 20 005: 0 a 9 correspondem à tabela OMM 4561 (observação humana) e 10 a 19 à tabela OMM 4531 (estação automática).,w2
+nebulosite_totale,FLOAT64,"Nebulosidade total, isto é, fração do céu coberta por nuvens",,no,,percent,no,,n
+nebulosite_etage_inferieur,INT64,Nebulosidade das nuvens do andar inferior,,no,,,no,"Publicada em octas, isto é, oitavos de céu coberto, de 0 a 8. A unidade de medida fica em branco por ser adimensional e não constar do vocabulário da plataforma.",nbas
+hauteur_base_nuages_inferieurs,INT64,Altura da base das nuvens do andar inferior,,no,,meter,no,,hbas
+type_nuages_etage_inferieur,STRING,Tipo das nuvens do andar inferior (tabela de código OMM 0513),,yes,,,no,"Os valores publicados seguem o descritor BUFR 0 20 012, no qual as nuvens do andar inferior ocupam a faixa 30 a 39 e o valor 62 indica nuvens invisíveis.",cl
+type_nuages_etage_moyen,STRING,Tipo das nuvens do andar médio (tabela de código OMM 0515),,yes,,,no,"Os valores publicados seguem o descritor BUFR 0 20 012, no qual as nuvens do andar médio ocupam a faixa 20 a 29 e o valor 61 indica nuvens invisíveis.",cm
+type_nuages_etage_superieur,STRING,Tipo das nuvens do andar superior (tabela de código OMM 0509),,yes,,,no,"Os valores publicados seguem o descritor BUFR 0 20 012, no qual as nuvens do andar superior ocupam a faixa 10 a 19 e o valor 60 indica nuvens invisíveis.",ch
+pression_station,INT64,Pressão atmosférica medida no nível da estação,,no,,pascal,no,,pres
+niveau_barometrique,INT64,Nível barométrico padrão ao qual o geopotencial se refere,,no,,pascal,no,,niv_bar
+geopotentiel,INT64,Geopotencial da superfície isobárica de referência,,no,,meter * meter / (second * second),no,,geop
+variation_pression_24h,INT64,Variação da pressão atmosférica nas últimas 24 horas,,no,,pascal,no,,tend24
+temperature_minimale_12h,FLOAT64,Temperatura mínima do ar nas últimas 12 horas,,no,,kelvin,no,,tn12
+temperature_minimale_24h,FLOAT64,Temperatura mínima do ar nas últimas 24 horas,,no,,kelvin,no,,tn24
+temperature_maximale_12h,FLOAT64,Temperatura máxima do ar nas últimas 12 horas,,no,,kelvin,no,,tx12
+temperature_maximale_24h,FLOAT64,Temperatura máxima do ar nas últimas 24 horas,,no,,kelvin,no,,tx24
+temperature_minimale_sol_12h,FLOAT64,Temperatura mínima do solo nas últimas 12 horas,,no,,kelvin,no,,tminsol
+methode_mesure_tw,STRING,Método de obtenção da temperatura do termômetro úmido (tabela de código OMM 3855),,yes,,,no,Preenchida em apenas 8 das 5.379.359 observações do arquivo 1996-2026.,sw
+temperature_thermometre_mouille,FLOAT64,Temperatura do termômetro úmido,,no,,kelvin,no,,tw
+rafale_10min,FLOAT64,Rajada máxima de vento nos últimos 10 minutos,,no,,meter / second,no,,raf10
+rafale_periode,FLOAT64,Rajada máxima de vento no período indicado em periode_mesure_rafale,,no,,meter / second,no,,rafper
+periode_mesure_rafale,FLOAT64,Período de medição da rajada registrada em rafale_periode,,no,,minute,no,,per
+etat_sol,STRING,Estado do solo sem neve (tabela de código OMM 0901),,yes,,,no,Os valores publicados seguem o descritor BUFR 0 20 062: 0 a 9 correspondem à tabela OMM 0901 (solo sem neve) e 10 a 19 à tabela OMM 0975 (solo com neve ou gelo).,etat_sol
+hauteur_neige,FLOAT64,"Altura total da camada de neve, gelo ou outro depósito no solo",,no,,meter,no,,ht_neige
+hauteur_neige_fraiche,FLOAT64,Altura da neve fresca acumulada no período indicado em periode_mesure_neige_fraiche,,no,,meter,no,,ssfrai
+periode_mesure_neige_fraiche,FLOAT64,"Período de medição da neve fresca, publicado pela fonte em décimos de hora",,no,,hour,no,"A fonte publica o período em décimos de hora, conforme o descritor técnico.",perssfrai
+precipitation_1h,FLOAT64,Precipitação acumulada na última hora,,no,,millimeter,no,,rr1
+precipitation_3h,FLOAT64,Precipitação acumulada nas últimas 3 horas,,no,,millimeter,no,,rr3
+precipitation_6h,FLOAT64,Precipitação acumulada nas últimas 6 horas,,no,,millimeter,no,,rr6
+precipitation_12h,FLOAT64,Precipitação acumulada nas últimas 12 horas,,no,,millimeter,no,,rr12
+precipitation_24h,FLOAT64,Precipitação acumulada nas últimas 24 horas,,no,,millimeter,no,,rr24
+phenomene_special_1,STRING,Fenômeno especial 1 observado na estação (tabela de código OMM 3778),,no,,,no,"O descritor técnico cita a tabela OMM 3778, mas a fonte publica códigos compostos nacionais de até quatro dígitos, fora do domínio dessa tabela. Nenhuma tabela pública de valor para rótulo foi localizada, por isso a coluna não é coberta pelo dicionário.",phenspe1
+phenomene_special_2,STRING,Fenômeno especial 2 observado na estação (tabela de código OMM 3778),,no,,,no,"O descritor técnico cita a tabela OMM 3778, mas a fonte publica códigos compostos nacionais de até quatro dígitos, fora do domínio dessa tabela. Nenhuma tabela pública de valor para rótulo foi localizada, por isso a coluna não é coberta pelo dicionário.",phenspe2
+phenomene_special_3,STRING,Fenômeno especial 3 observado na estação (tabela de código OMM 3778),,no,,,no,"O descritor técnico cita a tabela OMM 3778, mas a fonte publica códigos compostos nacionais de até quatro dígitos, fora do domínio dessa tabela. Nenhuma tabela pública de valor para rótulo foi localizada, por isso a coluna não é coberta pelo dicionário.",phenspe3
+phenomene_special_4,STRING,Fenômeno especial 4 observado na estação (tabela de código OMM 3778),,no,,,no,"O descritor técnico cita a tabela OMM 3778, mas a fonte publica códigos compostos nacionais de até quatro dígitos, fora do domínio dessa tabela. Nenhuma tabela pública de valor para rótulo foi localizada, por isso a coluna não é coberta pelo dicionário.",phenspe4
+nebulosite_couche_1,INT64,Nebulosidade da camada de nuvens 1,,no,,,no,"Publicada em octas, isto é, oitavos de céu coberto, de 0 a 8. A unidade de medida fica em branco por ser adimensional e não constar do vocabulário da plataforma.",nnuage1
+type_nuage_1,STRING,Tipo de nuvem da camada 1 (tabela de código OMM 0500),,yes,,,no,,ctype1
+hauteur_base_nuage_1,INT64,Altura da base da camada de nuvens 1,,no,,meter,no,,hnuage1
+nebulosite_couche_2,INT64,Nebulosidade da camada de nuvens 2,,no,,,no,"Publicada em octas, isto é, oitavos de céu coberto, de 0 a 8. A unidade de medida fica em branco por ser adimensional e não constar do vocabulário da plataforma.",nnuage2
+type_nuage_2,STRING,Tipo de nuvem da camada 2 (tabela de código OMM 0500),,yes,,,no,,ctype2
+hauteur_base_nuage_2,INT64,Altura da base da camada de nuvens 2,,no,,meter,no,,hnuage2
+nebulosite_couche_3,INT64,Nebulosidade da camada de nuvens 3,,no,,,no,"Publicada em octas, isto é, oitavos de céu coberto, de 0 a 8. A unidade de medida fica em branco por ser adimensional e não constar do vocabulário da plataforma.",nnuage3
+type_nuage_3,STRING,Tipo de nuvem da camada 3 (tabela de código OMM 0500),,yes,,,no,,ctype3
+hauteur_base_nuage_3,INT64,Altura da base da camada de nuvens 3,,no,,meter,no,,hnuage3
+nebulosite_couche_4,INT64,Nebulosidade da camada de nuvens 4,,no,,,no,"Publicada em octas, isto é, oitavos de céu coberto, de 0 a 8. A unidade de medida fica em branco por ser adimensional e não constar do vocabulário da plataforma.",nnuage4
+type_nuage_4,STRING,Tipo de nuvem da camada 4 (tabela de código OMM 0500),,yes,,,no,,ctype4
+hauteur_base_nuage_4,INT64,Altura da base da camada de nuvens 4,,no,,meter,no,,hnuage4

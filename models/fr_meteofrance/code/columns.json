@@ -1,0 +1,979 @@
+{
+  "synop": [
+    {
+      "name": "ano",
+      "bigquery_type": "INT64",
+      "description_pt": "Ano da observação, em tempo universal coordenado (UTC)",
+      "description_en": "Year of the observation, in coordinated universal time (UTC)",
+      "description_es": "Año de la observación, en tiempo universal coordinado (UTC)",
+      "covered_by_dictionary": false,
+      "is_partition": true,
+      "measurement_unit": "year",
+      "directory_column": "br_bd_diretorios_data_tempo.ano:ano"
+    },
+    {
+      "name": "mes",
+      "bigquery_type": "INT64",
+      "description_pt": "Mês da observação, em tempo universal coordenado (UTC)",
+      "description_en": "Month of the observation, in coordinated universal time (UTC)",
+      "description_es": "Mes de la observación, en tiempo universal coordinado (UTC)",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "month",
+      "directory_column": "br_bd_diretorios_data_tempo.mes:mes"
+    },
+    {
+      "name": "data",
+      "bigquery_type": "DATE",
+      "description_pt": "Data da observação, em tempo universal coordenado (UTC)",
+      "description_en": "Date of the observation, in coordinated universal time (UTC)",
+      "description_es": "Fecha de la observación, en tiempo universal coordinado (UTC)",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "hora",
+      "bigquery_type": "TIME",
+      "description_pt": "Hora da observação, em tempo universal coordenado (UTC)",
+      "description_en": "Time of the observation, in coordinated universal time (UTC)",
+      "description_es": "Hora de la observación, en tiempo universal coordinado (UTC)",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "indicatif_omm",
+      "bigquery_type": "STRING",
+      "description_pt": "Indicativo OMM da estação, de cinco dígitos",
+      "description_en": "Five-digit WMO station identifier",
+      "description_es": "Identificador OMM de la estación, de cinco dígitos",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "As estações do arquivo SYNOP passaram de 60 para 190 a partir de 2025, quando a Météo-France ampliou a rede publicada."
+    },
+    {
+      "name": "date_heure_traitement",
+      "bigquery_type": "DATETIME",
+      "description_pt": "Data e hora (UTC) da extração da medição das bases internas da Météo-France",
+      "description_en": "Date and time (UTC) the measurement was extracted from Météo-France internal databases",
+      "description_es": "Fecha y hora (UTC) de la extracción de la medición de las bases internas de Météo-France",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "Vazia nas observações anteriores a 2025, quando a fonte passou a publicar o campo."
+    },
+    {
+      "name": "date_heure_insertion",
+      "bigquery_type": "DATETIME",
+      "description_pt": "Data e hora (UTC) da inserção da medição do sensor nas bases internas da Météo-France",
+      "description_en": "Date and time (UTC) the sensor measurement was inserted into Météo-France internal databases",
+      "description_es": "Fecha y hora (UTC) de la inserción de la medición del sensor en las bases internas de Météo-France",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "Vazia nas observações anteriores a 2025, quando a fonte passou a publicar o campo. Usada para desduplicar retransmissões da mesma medição."
+    },
+    {
+      "name": "pression_mer",
+      "bigquery_type": "INT64",
+      "description_pt": "Pressão atmosférica reduzida ao nível do mar",
+      "description_en": "Atmospheric pressure reduced to mean sea level",
+      "description_es": "Presión atmosférica reducida al nivel del mar",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "pascal"
+    },
+    {
+      "name": "variation_pression_3h",
+      "bigquery_type": "INT64",
+      "description_pt": "Variação da pressão atmosférica nas últimas 3 horas",
+      "description_en": "Change in atmospheric pressure over the last 3 hours",
+      "description_es": "Variación de la presión atmosférica en las últimas 3 horas",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "pascal"
+    },
+    {
+      "name": "type_tendance_barometrique",
+      "bigquery_type": "STRING",
+      "description_pt": "Tipo de tendência barométrica (tabela de código OMM 0200)",
+      "description_en": "Characteristic of the pressure tendency (WMO code table 0200)",
+      "description_es": "Tipo de tendencia barométrica (tabla de código OMM 0200)",
+      "covered_by_dictionary": true,
+      "is_partition": false,
+      "observations": "A tabela OMM 0200 define apenas os valores 0 a 8. O valor 10 aparece em 109 das 4.750.246 observações preenchidas e não tem significado definido na fonte."
+    },
+    {
+      "name": "direction_vent_moyen",
+      "bigquery_type": "INT64",
+      "description_pt": "Direção do vento médio em 10 minutos, em graus a partir do norte geográfico",
+      "description_en": "Direction of the 10-minute mean wind, in degrees from true north",
+      "description_es": "Dirección del viento medio en 10 minutos, en grados desde el norte geográfico",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "vitesse_vent_moyen",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Velocidade do vento médio em 10 minutos",
+      "description_en": "Speed of the 10-minute mean wind",
+      "description_es": "Velocidad del viento medio en 10 minutos",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter / second"
+    },
+    {
+      "name": "temperature",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura do ar sob abrigo",
+      "description_en": "Air temperature in the shelter",
+      "description_es": "Temperatura del aire bajo abrigo",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "kelvin"
+    },
+    {
+      "name": "point_rosee",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura do ponto de orvalho",
+      "description_en": "Dew point temperature",
+      "description_es": "Temperatura del punto de rocío",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "kelvin"
+    },
+    {
+      "name": "humidite",
+      "bigquery_type": "INT64",
+      "description_pt": "Umidade relativa do ar",
+      "description_en": "Relative humidity of the air",
+      "description_es": "Humedad relativa del aire",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "percent"
+    },
+    {
+      "name": "visibilite_horizontale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Visibilidade horizontal",
+      "description_en": "Horizontal visibility",
+      "description_es": "Visibilidad horizontal",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter"
+    },
+    {
+      "name": "temps_present",
+      "bigquery_type": "STRING",
+      "description_pt": "Tempo presente observado no momento da medição (tabela de código OMM 4677)",
+      "description_en": "Present weather observed at the time of measurement (WMO code table 4677)",
+      "description_es": "Tiempo presente observado en el momento de la medición (tabla de código OMM 4677)",
+      "covered_by_dictionary": true,
+      "is_partition": false,
+      "observations": "Os valores publicados seguem o descritor BUFR 0 20 003: 0 a 99 correspondem à tabela OMM 4677 (observação humana) e 100 ou mais à tabela OMM 4680 (estação automática). O arquivo 1996-2026 contém 121, 141 e 142."
+    },
+    {
+      "name": "temps_passe_1",
+      "bigquery_type": "STRING",
+      "description_pt": "Tempo passado 1, observado no período anterior à medição (tabela de código OMM 4561)",
+      "description_en": "Past weather 1, observed in the period before the measurement (WMO code table 4561)",
+      "description_es": "Tiempo pasado 1, observado en el período anterior a la medición (tabla de código OMM 4561)",
+      "covered_by_dictionary": true,
+      "is_partition": false,
+      "observations": "Os valores publicados seguem o descritor BUFR 0 20 004: 0 a 9 correspondem à tabela OMM 4561 (observação humana) e 10 a 19 à tabela OMM 4531 (estação automática). O arquivo 1996-2026 contém 14."
+    },
+    {
+      "name": "temps_passe_2",
+      "bigquery_type": "STRING",
+      "description_pt": "Tempo passado 2, observado no período anterior à medição (tabela de código OMM 4561)",
+      "description_en": "Past weather 2, observed in the period before the measurement (WMO code table 4561)",
+      "description_es": "Tiempo pasado 2, observado en el período anterior a la medición (tabla de código OMM 4561)",
+      "covered_by_dictionary": true,
+      "is_partition": false,
+      "observations": "Os valores publicados seguem o descritor BUFR 0 20 005: 0 a 9 correspondem à tabela OMM 4561 (observação humana) e 10 a 19 à tabela OMM 4531 (estação automática)."
+    },
+    {
+      "name": "nebulosite_totale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Nebulosidade total, isto é, fração do céu coberta por nuvens",
+      "description_en": "Total cloud cover, that is, the fraction of the sky covered by clouds",
+      "description_es": "Nubosidad total, es decir, fracción del cielo cubierta por nubes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "percent"
+    },
+    {
+      "name": "nebulosite_etage_inferieur",
+      "bigquery_type": "INT64",
+      "description_pt": "Nebulosidade das nuvens do andar inferior",
+      "description_en": "Cloud cover of the low cloud layer",
+      "description_es": "Nubosidad de las nubes del piso inferior",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "Publicada em octas, isto é, oitavos de céu coberto, de 0 a 8. A unidade de medida fica em branco por ser adimensional e não constar do vocabulário da plataforma."
+    },
+    {
+      "name": "hauteur_base_nuages_inferieurs",
+      "bigquery_type": "INT64",
+      "description_pt": "Altura da base das nuvens do andar inferior",
+      "description_en": "Height of the base of the low clouds",
+      "description_es": "Altura de la base de las nubes del piso inferior",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter"
+    },
+    {
+      "name": "type_nuages_etage_inferieur",
+      "bigquery_type": "STRING",
+      "description_pt": "Tipo das nuvens do andar inferior (tabela de código OMM 0513)",
+      "description_en": "Type of the low clouds (WMO code table 0513)",
+      "description_es": "Tipo de las nubes del piso inferior (tabla de código OMM 0513)",
+      "covered_by_dictionary": true,
+      "is_partition": false,
+      "observations": "Os valores publicados seguem o descritor BUFR 0 20 012, no qual as nuvens do andar inferior ocupam a faixa 30 a 39 e o valor 62 indica nuvens invisíveis."
+    },
+    {
+      "name": "type_nuages_etage_moyen",
+      "bigquery_type": "STRING",
+      "description_pt": "Tipo das nuvens do andar médio (tabela de código OMM 0515)",
+      "description_en": "Type of the middle clouds (WMO code table 0515)",
+      "description_es": "Tipo de las nubes del piso medio (tabla de código OMM 0515)",
+      "covered_by_dictionary": true,
+      "is_partition": false,
+      "observations": "Os valores publicados seguem o descritor BUFR 0 20 012, no qual as nuvens do andar médio ocupam a faixa 20 a 29 e o valor 61 indica nuvens invisíveis."
+    },
+    {
+      "name": "type_nuages_etage_superieur",
+      "bigquery_type": "STRING",
+      "description_pt": "Tipo das nuvens do andar superior (tabela de código OMM 0509)",
+      "description_en": "Type of the high clouds (WMO code table 0509)",
+      "description_es": "Tipo de las nubes del piso superior (tabla de código OMM 0509)",
+      "covered_by_dictionary": true,
+      "is_partition": false,
+      "observations": "Os valores publicados seguem o descritor BUFR 0 20 012, no qual as nuvens do andar superior ocupam a faixa 10 a 19 e o valor 60 indica nuvens invisíveis."
+    },
+    {
+      "name": "pression_station",
+      "bigquery_type": "INT64",
+      "description_pt": "Pressão atmosférica medida no nível da estação",
+      "description_en": "Atmospheric pressure measured at station level",
+      "description_es": "Presión atmosférica medida al nivel de la estación",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "pascal"
+    },
+    {
+      "name": "niveau_barometrique",
+      "bigquery_type": "INT64",
+      "description_pt": "Nível barométrico padrão ao qual o geopotencial se refere",
+      "description_en": "Standard barometric level the geopotential refers to",
+      "description_es": "Nivel barométrico estándar al que se refiere el geopotencial",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "pascal"
+    },
+    {
+      "name": "geopotentiel",
+      "bigquery_type": "INT64",
+      "description_pt": "Geopotencial da superfície isobárica de referência",
+      "description_en": "Geopotential of the reference isobaric surface",
+      "description_es": "Geopotencial de la superficie isobárica de referencia",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter * meter / (second * second)"
+    },
+    {
+      "name": "variation_pression_24h",
+      "bigquery_type": "INT64",
+      "description_pt": "Variação da pressão atmosférica nas últimas 24 horas",
+      "description_en": "Change in atmospheric pressure over the last 24 hours",
+      "description_es": "Variación de la presión atmosférica en las últimas 24 horas",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "pascal"
+    },
+    {
+      "name": "temperature_minimale_12h",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura mínima do ar nas últimas 12 horas",
+      "description_en": "Minimum air temperature over the last 12 hours",
+      "description_es": "Temperatura mínima del aire en las últimas 12 horas",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "kelvin"
+    },
+    {
+      "name": "temperature_minimale_24h",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura mínima do ar nas últimas 24 horas",
+      "description_en": "Minimum air temperature over the last 24 hours",
+      "description_es": "Temperatura mínima del aire en las últimas 24 horas",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "kelvin"
+    },
+    {
+      "name": "temperature_maximale_12h",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura máxima do ar nas últimas 12 horas",
+      "description_en": "Maximum air temperature over the last 12 hours",
+      "description_es": "Temperatura máxima del aire en las últimas 12 horas",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "kelvin"
+    },
+    {
+      "name": "temperature_maximale_24h",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura máxima do ar nas últimas 24 horas",
+      "description_en": "Maximum air temperature over the last 24 hours",
+      "description_es": "Temperatura máxima del aire en las últimas 24 horas",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "kelvin"
+    },
+    {
+      "name": "temperature_minimale_sol_12h",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura mínima do solo nas últimas 12 horas",
+      "description_en": "Minimum ground temperature over the last 12 hours",
+      "description_es": "Temperatura mínima del suelo en las últimas 12 horas",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "kelvin"
+    },
+    {
+      "name": "methode_mesure_tw",
+      "bigquery_type": "STRING",
+      "description_pt": "Método de obtenção da temperatura do termômetro úmido (tabela de código OMM 3855)",
+      "description_en": "Method used to obtain the wet-bulb temperature (WMO code table 3855)",
+      "description_es": "Método de obtención de la temperatura del termómetro húmedo (tabla de código OMM 3855)",
+      "covered_by_dictionary": true,
+      "is_partition": false,
+      "observations": "Preenchida em apenas 8 das 5.379.359 observações do arquivo 1996-2026."
+    },
+    {
+      "name": "temperature_thermometre_mouille",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura do termômetro úmido",
+      "description_en": "Wet-bulb temperature",
+      "description_es": "Temperatura del termómetro húmedo",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "kelvin"
+    },
+    {
+      "name": "rafale_10min",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Rajada máxima de vento nos últimos 10 minutos",
+      "description_en": "Maximum wind gust over the last 10 minutes",
+      "description_es": "Racha máxima de viento en los últimos 10 minutos",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter / second"
+    },
+    {
+      "name": "rafale_periode",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Rajada máxima de vento no período indicado em periode_mesure_rafale",
+      "description_en": "Maximum wind gust over the period given in periode_mesure_rafale",
+      "description_es": "Racha máxima de viento en el período indicado en periode_mesure_rafale",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter / second"
+    },
+    {
+      "name": "periode_mesure_rafale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Período de medição da rajada registrada em rafale_periode",
+      "description_en": "Measurement period of the gust recorded in rafale_periode",
+      "description_es": "Período de medición de la racha registrada en rafale_periode",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "minute"
+    },
+    {
+      "name": "etat_sol",
+      "bigquery_type": "STRING",
+      "description_pt": "Estado do solo sem neve (tabela de código OMM 0901)",
+      "description_en": "State of the ground without snow (WMO code table 0901)",
+      "description_es": "Estado del suelo sin nieve (tabla de código OMM 0901)",
+      "covered_by_dictionary": true,
+      "is_partition": false,
+      "observations": "Os valores publicados seguem o descritor BUFR 0 20 062: 0 a 9 correspondem à tabela OMM 0901 (solo sem neve) e 10 a 19 à tabela OMM 0975 (solo com neve ou gelo)."
+    },
+    {
+      "name": "hauteur_neige",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Altura total da camada de neve, gelo ou outro depósito no solo",
+      "description_en": "Total depth of snow, ice or other deposit on the ground",
+      "description_es": "Altura total de la capa de nieve, hielo u otro depósito en el suelo",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter"
+    },
+    {
+      "name": "hauteur_neige_fraiche",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Altura da neve fresca acumulada no período indicado em periode_mesure_neige_fraiche",
+      "description_en": "Depth of fresh snow accumulated over the period given in periode_mesure_neige_fraiche",
+      "description_es": "Altura de la nieve fresca acumulada en el período indicado en periode_mesure_neige_fraiche",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter"
+    },
+    {
+      "name": "periode_mesure_neige_fraiche",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Período de medição da neve fresca, publicado pela fonte em décimos de hora",
+      "description_en": "Measurement period of the fresh snow, published by the source in tenths of an hour",
+      "description_es": "Período de medición de la nieve fresca, publicado por la fuente en décimas de hora",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "hour",
+      "observations": "A fonte publica o período em décimos de hora, conforme o descritor técnico."
+    },
+    {
+      "name": "precipitation_1h",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Precipitação acumulada na última hora",
+      "description_en": "Precipitation accumulated over the last hour",
+      "description_es": "Precipitación acumulada en la última hora",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "millimeter"
+    },
+    {
+      "name": "precipitation_3h",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Precipitação acumulada nas últimas 3 horas",
+      "description_en": "Precipitation accumulated over the last 3 hours",
+      "description_es": "Precipitación acumulada en las últimas 3 horas",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "millimeter"
+    },
+    {
+      "name": "precipitation_6h",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Precipitação acumulada nas últimas 6 horas",
+      "description_en": "Precipitation accumulated over the last 6 hours",
+      "description_es": "Precipitación acumulada en las últimas 6 horas",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "millimeter"
+    },
+    {
+      "name": "precipitation_12h",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Precipitação acumulada nas últimas 12 horas",
+      "description_en": "Precipitation accumulated over the last 12 hours",
+      "description_es": "Precipitación acumulada en las últimas 12 horas",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "millimeter"
+    },
+    {
+      "name": "precipitation_24h",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Precipitação acumulada nas últimas 24 horas",
+      "description_en": "Precipitation accumulated over the last 24 hours",
+      "description_es": "Precipitación acumulada en las últimas 24 horas",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "millimeter"
+    },
+    {
+      "name": "phenomene_special_1",
+      "bigquery_type": "STRING",
+      "description_pt": "Fenômeno especial 1 observado na estação (tabela de código OMM 3778)",
+      "description_en": "Special phenomenon 1 observed at the station (WMO code table 3778)",
+      "description_es": "Fenómeno especial 1 observado en la estación (tabla de código OMM 3778)",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "O descritor técnico cita a tabela OMM 3778, mas a fonte publica códigos compostos nacionais de até quatro dígitos, fora do domínio dessa tabela. Nenhuma tabela pública de valor para rótulo foi localizada, por isso a coluna não é coberta pelo dicionário."
+    },
+    {
+      "name": "phenomene_special_2",
+      "bigquery_type": "STRING",
+      "description_pt": "Fenômeno especial 2 observado na estação (tabela de código OMM 3778)",
+      "description_en": "Special phenomenon 2 observed at the station (WMO code table 3778)",
+      "description_es": "Fenómeno especial 2 observado en la estación (tabla de código OMM 3778)",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "O descritor técnico cita a tabela OMM 3778, mas a fonte publica códigos compostos nacionais de até quatro dígitos, fora do domínio dessa tabela. Nenhuma tabela pública de valor para rótulo foi localizada, por isso a coluna não é coberta pelo dicionário."
+    },
+    {
+      "name": "phenomene_special_3",
+      "bigquery_type": "STRING",
+      "description_pt": "Fenômeno especial 3 observado na estação (tabela de código OMM 3778)",
+      "description_en": "Special phenomenon 3 observed at the station (WMO code table 3778)",
+      "description_es": "Fenómeno especial 3 observado en la estación (tabla de código OMM 3778)",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "O descritor técnico cita a tabela OMM 3778, mas a fonte publica códigos compostos nacionais de até quatro dígitos, fora do domínio dessa tabela. Nenhuma tabela pública de valor para rótulo foi localizada, por isso a coluna não é coberta pelo dicionário."
+    },
+    {
+      "name": "phenomene_special_4",
+      "bigquery_type": "STRING",
+      "description_pt": "Fenômeno especial 4 observado na estação (tabela de código OMM 3778)",
+      "description_en": "Special phenomenon 4 observed at the station (WMO code table 3778)",
+      "description_es": "Fenómeno especial 4 observado en la estación (tabla de código OMM 3778)",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "O descritor técnico cita a tabela OMM 3778, mas a fonte publica códigos compostos nacionais de até quatro dígitos, fora do domínio dessa tabela. Nenhuma tabela pública de valor para rótulo foi localizada, por isso a coluna não é coberta pelo dicionário."
+    },
+    {
+      "name": "nebulosite_couche_1",
+      "bigquery_type": "INT64",
+      "description_pt": "Nebulosidade da camada de nuvens 1",
+      "description_en": "Cloud cover of cloud layer 1",
+      "description_es": "Nubosidad de la capa de nubes 1",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "Publicada em octas, isto é, oitavos de céu coberto, de 0 a 8. A unidade de medida fica em branco por ser adimensional e não constar do vocabulário da plataforma."
+    },
+    {
+      "name": "type_nuage_1",
+      "bigquery_type": "STRING",
+      "description_pt": "Tipo de nuvem da camada 1 (tabela de código OMM 0500)",
+      "description_en": "Cloud type of layer 1 (WMO code table 0500)",
+      "description_es": "Tipo de nube de la capa 1 (tabla de código OMM 0500)",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "hauteur_base_nuage_1",
+      "bigquery_type": "INT64",
+      "description_pt": "Altura da base da camada de nuvens 1",
+      "description_en": "Height of the base of cloud layer 1",
+      "description_es": "Altura de la base de la capa de nubes 1",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter"
+    },
+    {
+      "name": "nebulosite_couche_2",
+      "bigquery_type": "INT64",
+      "description_pt": "Nebulosidade da camada de nuvens 2",
+      "description_en": "Cloud cover of cloud layer 2",
+      "description_es": "Nubosidad de la capa de nubes 2",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "Publicada em octas, isto é, oitavos de céu coberto, de 0 a 8. A unidade de medida fica em branco por ser adimensional e não constar do vocabulário da plataforma."
+    },
+    {
+      "name": "type_nuage_2",
+      "bigquery_type": "STRING",
+      "description_pt": "Tipo de nuvem da camada 2 (tabela de código OMM 0500)",
+      "description_en": "Cloud type of layer 2 (WMO code table 0500)",
+      "description_es": "Tipo de nube de la capa 2 (tabla de código OMM 0500)",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "hauteur_base_nuage_2",
+      "bigquery_type": "INT64",
+      "description_pt": "Altura da base da camada de nuvens 2",
+      "description_en": "Height of the base of cloud layer 2",
+      "description_es": "Altura de la base de la capa de nubes 2",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter"
+    },
+    {
+      "name": "nebulosite_couche_3",
+      "bigquery_type": "INT64",
+      "description_pt": "Nebulosidade da camada de nuvens 3",
+      "description_en": "Cloud cover of cloud layer 3",
+      "description_es": "Nubosidad de la capa de nubes 3",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "Publicada em octas, isto é, oitavos de céu coberto, de 0 a 8. A unidade de medida fica em branco por ser adimensional e não constar do vocabulário da plataforma."
+    },
+    {
+      "name": "type_nuage_3",
+      "bigquery_type": "STRING",
+      "description_pt": "Tipo de nuvem da camada 3 (tabela de código OMM 0500)",
+      "description_en": "Cloud type of layer 3 (WMO code table 0500)",
+      "description_es": "Tipo de nube de la capa 3 (tabla de código OMM 0500)",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "hauteur_base_nuage_3",
+      "bigquery_type": "INT64",
+      "description_pt": "Altura da base da camada de nuvens 3",
+      "description_en": "Height of the base of cloud layer 3",
+      "description_es": "Altura de la base de la capa de nubes 3",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter"
+    },
+    {
+      "name": "nebulosite_couche_4",
+      "bigquery_type": "INT64",
+      "description_pt": "Nebulosidade da camada de nuvens 4",
+      "description_en": "Cloud cover of cloud layer 4",
+      "description_es": "Nubosidad de la capa de nubes 4",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "Publicada em octas, isto é, oitavos de céu coberto, de 0 a 8. A unidade de medida fica em branco por ser adimensional e não constar do vocabulário da plataforma."
+    },
+    {
+      "name": "type_nuage_4",
+      "bigquery_type": "STRING",
+      "description_pt": "Tipo de nuvem da camada 4 (tabela de código OMM 0500)",
+      "description_en": "Cloud type of layer 4 (WMO code table 0500)",
+      "description_es": "Tipo de nube de la capa 4 (tabla de código OMM 0500)",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "hauteur_base_nuage_4",
+      "bigquery_type": "INT64",
+      "description_pt": "Altura da base da camada de nuvens 4",
+      "description_en": "Height of the base of cloud layer 4",
+      "description_es": "Altura de la base de la capa de nubes 4",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter"
+    }
+  ],
+  "station_synop": [
+    {
+      "name": "indicatif_omm",
+      "bigquery_type": "STRING",
+      "description_pt": "Indicativo OMM da estação, de cinco dígitos",
+      "description_en": "Five-digit WMO station identifier",
+      "description_es": "Identificador OMM de la estación, de cinco dígitos",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "As estações do arquivo SYNOP passaram de 60 para 190 a partir de 2025, quando a Météo-France ampliou a rede publicada."
+    },
+    {
+      "name": "indicatif_wigos",
+      "bigquery_type": "STRING",
+      "description_pt": "Indicativo WIGOS da estação, no formato bloco-emissor-tipo-número",
+      "description_en": "WIGOS station identifier, in block-issuer-type-number form",
+      "description_es": "Identificador WIGOS de la estación, en formato bloque-emisor-tipo-número",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "nom_station",
+      "bigquery_type": "STRING",
+      "description_pt": "Nome usual da estação",
+      "description_en": "Common name of the station",
+      "description_es": "Nombre usual de la estación",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "latitude",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Latitude da estação, negativa ao sul do equador",
+      "description_en": "Latitude of the station, negative south of the equator",
+      "description_es": "Latitud de la estación, negativa al sur del ecuador",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "longitude",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Longitude da estação, negativa a oeste de Greenwich",
+      "description_en": "Longitude of the station, negative west of Greenwich",
+      "description_es": "Longitud de la estación, negativa al oeste de Greenwich",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "altitude",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Altitude da estação",
+      "description_en": "Altitude of the station, measured at the foot of the shelter or rain gauge",
+      "description_es": "Altitud del puesto, medida al pie del abrigo o del pluviómetro",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter"
+    },
+    {
+      "name": "date_ouverture",
+      "bigquery_type": "DATE",
+      "description_pt": "Data de abertura da estação",
+      "description_en": "Date the station was opened",
+      "description_es": "Fecha de apertura de la estación",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "annee_debut_observation",
+      "bigquery_type": "INT64",
+      "description_pt": "Primeiro ano em que a estação aparece no arquivo SYNOP",
+      "description_en": "First year the station appears in the SYNOP archive",
+      "description_es": "Primer año en que la estación aparece en el archivo SYNOP",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "year"
+    },
+    {
+      "name": "annee_fin_observation",
+      "bigquery_type": "INT64",
+      "description_pt": "Último ano em que a estação aparece no arquivo SYNOP",
+      "description_en": "Last year the station appears in the SYNOP archive",
+      "description_es": "Último año en que la estación aparece en el archivo SYNOP",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "year"
+    },
+    {
+      "name": "geolocalisation",
+      "bigquery_type": "GEOGRAPHY",
+      "description_pt": "Ponto geográfico da estação, em WGS 84",
+      "description_en": "Geographic point of the station, in WGS 84",
+      "description_es": "Punto geográfico de la estación, en WGS 84",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    }
+  ],
+  "station_climatologique": [
+    {
+      "name": "numero_poste",
+      "bigquery_type": "STRING",
+      "description_pt": "Número Météo-France do posto, de oito dígitos",
+      "description_en": "Eight-digit Météo-France station number",
+      "description_es": "Número Météo-France del puesto, de ocho dígitos",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "nom_poste",
+      "bigquery_type": "STRING",
+      "description_pt": "Nome usual do posto",
+      "description_en": "Common name of the station",
+      "description_es": "Nombre usual del puesto",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "id_departement",
+      "bigquery_type": "STRING",
+      "description_pt": "Código do departamento ou da coletividade ultramarina do posto",
+      "description_en": "Code of the department or overseas collectivity of the station",
+      "description_es": "Código del departamento o de la colectividad de ultramar del puesto",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "Segue a codificação da Météo-France, que difere do Code officiel géographique do INSEE em dois pontos: a Córsega recebe 20, e não 2A ou 2B, e as coletividades de além-mar 984, 986, 987 e 988 não constam do diretório francês.",
+      "directory_column": "br_bd_diretorios_fr.departement:id_departamento"
+    },
+    {
+      "name": "latitude",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Latitude do posto, negativa ao sul do equador",
+      "description_en": "Latitude of the station, negative south of the equator",
+      "description_es": "Latitud de la estación, negativa al sur del ecuador",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "longitude",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Longitude do posto, negativa a oeste de Greenwich",
+      "description_en": "Longitude of the station, negative west of Greenwich",
+      "description_es": "Longitud de la estación, negativa al oeste de Greenwich",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "altitude",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Altitude do posto, medida no pé do abrigo ou do pluviômetro",
+      "description_en": "Altitude of the station, measured at the foot of the shelter or rain gauge",
+      "description_es": "Altitud del puesto, medida al pie del abrigo o del pluviómetro",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter"
+    },
+    {
+      "name": "date_edition",
+      "bigquery_type": "DATE",
+      "description_pt": "Data de edição da ficha climatológica do posto",
+      "description_en": "Date the station's climatological sheet was issued",
+      "description_es": "Fecha de edición de la ficha climatológica del puesto",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "geolocalisation",
+      "bigquery_type": "GEOGRAPHY",
+      "description_pt": "Ponto geográfico do posto, em WGS 84",
+      "description_en": "Geographic point of the station, in WGS 84",
+      "description_es": "Punto geográfico de la estación, en WGS 84",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    }
+  ],
+  "normale_climatologique": [
+    {
+      "name": "numero_poste",
+      "bigquery_type": "STRING",
+      "description_pt": "Número Météo-France do posto, de oito dígitos",
+      "description_en": "Eight-digit Météo-France station number",
+      "description_es": "Número Météo-France del puesto, de ocho dígitos",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "indicateur",
+      "bigquery_type": "STRING",
+      "description_pt": "Código do indicador climatológico",
+      "description_en": "Code of the climatological indicator",
+      "description_es": "Código del indicador climatológico",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "periode",
+      "bigquery_type": "STRING",
+      "description_pt": "Período do indicador: mês de 01 a 12, ou annee para o valor anual",
+      "description_en": "Period of the indicator: month from 01 to 12, or annee for the annual value",
+      "description_es": "Período del indicador: mes de 01 a 12, o annee para el valor anual",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "valeur",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Valor do indicador no período, na unidade registrada em unite",
+      "description_en": "Value of the indicator in the period, in the unit recorded in unite",
+      "description_es": "Valor del indicador en el período, en la unidad registrada en unite",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "unite",
+      "bigquery_type": "STRING",
+      "description_pt": "Unidade de medida do valor",
+      "description_en": "Unit of measurement of the value",
+      "description_es": "Unidad de medida del valor",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "libelle_indicateur",
+      "bigquery_type": "STRING",
+      "description_pt": "Rótulo do indicador tal como publicado na ficha climatológica",
+      "description_en": "Label of the indicator as published in the climatological sheet",
+      "description_es": "Etiqueta del indicador tal como se publica en la ficha climatológica",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "annee_debut_reference",
+      "bigquery_type": "INT64",
+      "description_pt": "Primeiro ano do período de referência sobre o qual a normal foi calculada",
+      "description_en": "First year of the reference period the normal was computed over",
+      "description_es": "Primer año del período de referencia sobre el que se calculó la normal",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "year"
+    },
+    {
+      "name": "annee_fin_reference",
+      "bigquery_type": "INT64",
+      "description_pt": "Último ano do período de referência sobre o qual a normal foi calculada",
+      "description_en": "Last year of the reference period the normal was computed over",
+      "description_es": "Último año del período de referencia sobre el que se calculó la normal",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "year"
+    },
+    {
+      "name": "date_debut_record",
+      "bigquery_type": "DATE",
+      "description_pt": "Primeira data do período sobre o qual o recorde foi estabelecido",
+      "description_en": "First date of the period the record was established over",
+      "description_es": "Primera fecha del período sobre el que se estableció el récord",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "date_fin_record",
+      "bigquery_type": "DATE",
+      "description_pt": "Última data do período sobre o qual o recorde foi estabelecido",
+      "description_en": "Last date of the period the record was established over",
+      "description_es": "Última fecha del período sobre el que se estableció el récord",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "jour_record",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que o recorde foi observado",
+      "description_en": "Day of the month the record was observed",
+      "description_es": "Día del mes en que se observó el récord",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "annee_record",
+      "bigquery_type": "INT64",
+      "description_pt": "Ano em que o recorde foi observado",
+      "description_en": "Year the record was observed",
+      "description_es": "Año en que se observó el récord",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "year"
+    }
+  ],
+  "dicionario": [
+    {
+      "name": "id_tabela",
+      "bigquery_type": "STRING",
+      "description_pt": "Nome da tabela",
+      "description_en": "Name of the table",
+      "description_es": "Nombre de la tabla",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "nome_coluna",
+      "bigquery_type": "STRING",
+      "description_pt": "Nome da coluna",
+      "description_en": "Name of the column",
+      "description_es": "Nombre de la columna",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "chave",
+      "bigquery_type": "STRING",
+      "description_pt": "Chave, isto é, o valor codificado na coluna",
+      "description_en": "Key, that is, the coded value held in the column",
+      "description_es": "Clave, es decir, el valor codificado en la columna",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "cobertura_temporal",
+      "bigquery_type": "STRING",
+      "description_pt": "Cobertura temporal da chave",
+      "description_en": "Temporal coverage of the key",
+      "description_es": "Cobertura temporal de la clave",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "valor",
+      "bigquery_type": "STRING",
+      "description_pt": "Valor, isto é, o significado da chave",
+      "description_en": "Value, that is, the meaning of the key",
+      "description_es": "Valor, es decir, el significado de la clave",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    }
+  ]
+}

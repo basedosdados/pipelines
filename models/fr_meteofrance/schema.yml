@@ -1,0 +1,169 @@
+---
+version: 2
+models:
+  - name: fr_meteofrance__synop
+    description: >
+      Observações meteorológicas de superfície a cada três horas nas estações
+      SYNOP da França metropolitana e do ultramar, desde 1996. Uma linha por
+      estação e horário de medição. As unidades são as da fonte: temperaturas em
+      kelvin, pressões em pascal, precipitação em milímetros, vento em metros por
+      segundo. Retransmissões e correções da mesma medição foram desduplicadas
+      mantendo a inserção mais recente. Várias colunas são legitimamente esparsas,
+      por dependerem da instrumentação da estação.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data, hora, indicatif_omm]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - geopotentiel
+            - hauteur_base_nuage_4
+            - methode_mesure_tw
+            - nebulosite_couche_4
+            - niveau_barometrique
+            - phenomene_special_4
+            - temperature_thermometre_mouille
+            - type_nuage_3
+            - type_nuage_4
+      - custom_dictionary_coverage:
+          dictionary_model: ref('fr_meteofrance__dicionario')
+          columns_covered_by_dictionary:
+            - type_tendance_barometrique
+            - temps_present
+            - temps_passe_1
+            - temps_passe_2
+            - type_nuages_etage_inferieur
+            - type_nuages_etage_moyen
+            - type_nuages_etage_superieur
+            - methode_mesure_tw
+            - etat_sol
+            - type_nuage_1
+            - type_nuage_2
+            - type_nuage_3
+            - type_nuage_4
+    columns:
+      - name: ano
+        description: Ano da observação, em tempo universal coordenado (UTC)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês da observação, em tempo universal coordenado (UTC)
+        tests: [not_null]
+      - name: data
+        description: Data da observação, em tempo universal coordenado (UTC)
+        tests: [not_null]
+      - name: hora
+        description: Hora da observação, em tempo universal coordenado (UTC)
+        tests: [not_null]
+      - name: indicatif_omm
+        description: Indicativo OMM da estação, de cinco dígitos
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('fr_meteofrance__station_synop')
+              field: indicatif_omm
+  - name: fr_meteofrance__station_synop
+    description: >
+      Cadastro das estações que aparecem no arquivo SYNOP. Uma linha por estação.
+      A rede publicada passou de 60 para 190 estações em 2025, o que explica o
+      intervalo de observação curto de boa parte das linhas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [indicatif_omm]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: indicatif_omm
+        description: Indicativo OMM da estação, de cinco dígitos
+        tests: [not_null]
+      - name: nom_station
+        description: Nome usual da estação
+        tests: [not_null]
+      - name: geolocalisation
+        description: Ponto geográfico da estação, em WGS 84
+        tests: [not_null]
+  - name: fr_meteofrance__station_climatologique
+    description: >
+      Cadastro dos postos meteorológicos que possuem ficha climatológica
+      publicada. Uma linha por posto. O código de departamento segue a
+      codificação da Météo-France, que atribui 20 à Córsega em vez de 2A e 2B e
+      inclui coletividades de além-mar ausentes do Code officiel géographique.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [numero_poste]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: numero_poste
+        description: Número Météo-France do posto, de oito dígitos
+        tests: [not_null]
+      - name: nom_poste
+        description: Nome usual do posto
+        tests: [not_null]
+      - name: id_departement
+        description: Código do departamento ou da coletividade ultramarina do posto
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__departement')
+              field: id_departamento
+              ignore_values: ['20', '984', '986', '987', '988']
+      - name: geolocalisation
+        description: Ponto geográfico do posto, em WGS 84
+        tests: [not_null]
+  - name: fr_meteofrance__normale_climatologique
+    description: >
+      Normais climatológicas de 1991 a 2020 e recordes absolutos por posto
+      meteorológico, em formato longo. Uma linha por posto, indicador e período,
+      sendo o período um mês de 01 a 12 ou o valor anual. A unidade de cada valor
+      está na coluna unite, porque os indicadores têm unidades diferentes. As
+      colunas de recorde só estão preenchidas para os indicadores que são
+      recordes, e não para as médias.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [numero_poste, indicateur, periode]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('fr_meteofrance__dicionario')
+          columns_covered_by_dictionary: [indicateur, periode, unite]
+    columns:
+      - name: numero_poste
+        description: Número Météo-France do posto, de oito dígitos
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('fr_meteofrance__station_climatologique')
+              field: numero_poste
+      - name: indicateur
+        description: Código do indicador climatológico
+        tests: [not_null]
+      - name: periode
+        description: >
+          Período do indicador: mês de 01 a 12, ou annee para o valor anual
+        tests: [not_null]
+      - name: unite
+        description: Unidade de medida do valor
+        tests: [not_null]
+  - name: fr_meteofrance__dicionario
+    description: >
+      Dicionário das colunas codificadas do conjunto. Cobre as tabelas de código
+      da Organização Meteorológica Mundial usadas nas observações SYNOP e os
+      códigos de indicador, período e unidade das normais climatológicas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: Nome da tabela
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna
+        tests: [not_null]
+      - name: chave
+        description: Chave, isto é, o valor codificado na coluna
+        tests: [not_null]
+      - name: valor
+        description: Valor, isto é, o significado da chave
+        tests: [not_null]
