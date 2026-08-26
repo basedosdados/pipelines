@@ -8,14 +8,25 @@ argument-hint: "[<flow_name_substring>] [--days N] [--report-only | --fix] [--in
 
 Recurring pipelines in this repo fail for a handful of recurring reasons, and the
 team's capacity valve is to **disarm** a pipeline that keeps failing rather than
-fix it. Two consequences shape everything below:
+fix it. Three consequences shape everything below:
 
+- **Only what is failing *now* is a finding.** The failed-run list is a log, not
+  a worklist: it keeps showing errors that were fixed days ago. A flow whose most
+  recent run succeeded is out of scope — filter it out in Phase 2 and never give
+  it a cluster block. Report what is broken today, not what once broke.
 - **A quiet pipeline is not a healthy pipeline.** A disarmed deployment produces
   no runs, so it disappears from any failure list. Absence of failures is
   evidence of nothing. Always read arming state alongside run state.
 - **A green run is not an ingest.** The source-poll guard returns early and
   Prefect still records `COMPLETED`. `br_ibge_ipca` sat at 4 ingests across 60
   completed runs unnoticed.
+
+The last two points cut against the first, and the resolution is not to split the
+difference. A green latest run always takes a flow **off the failing board** — it
+is not currently failing, which is what was asked. What a short green run does
+*not* establish is that the flow is *ingesting*; that is a separate question,
+belonging to the arming and ingest-rate lines of the report, never to a cluster
+block. Keep the two verdicts apart: "is it failing?" and "is it doing work?"
 
 The goal is successfully running flows in **prod**. Diagnosis is the means.
 
@@ -26,7 +37,8 @@ Read `references/failure-taxonomy.md` before classifying anything, and
 
 ## Phase 1 — Survey
 
-Gather three views. Do not skip the second: it is the one nothing else reports.
+Gather four views. Do not skip the second (arming state — nothing else reports
+it) or the third (successful runs — it decides what is even a finding).
 
 **Failed runs** (Prefect 3, via the databasis MCP — never the retired
 `prefect.basedosdados.org` host):
@@ -87,6 +99,36 @@ paused for days looking broken.
 So for every cluster, compare three timestamps before calling it a bug: the last
 failure, the merge time of any related PR, and the deployment's arming state.
 
+A merged PR is a **weaker** signal than a later green run, and it is only ever
+corroborating evidence. Merges get reverted, fix the wrong table, or land behind
+a `flows.py` no-op deploy that never reached the worker. Use the merge to explain
+*why* a flow recovered; use the run to decide *whether* it did.
+
+**Successful runs — mandatory, and the filter that decides what is even on the
+board.** The target is *currently failing* pipelines. A flow that failed and has
+since succeeded is not a finding, however loud its error was.
+
+```
+mcp__databasis__list_flow_runs(state="Completed", limit=100)
+mcp__databasis__list_flow_runs(flow_name="<flow>", limit=20)   # per candidate flow
+```
+
+For every flow that appears in the failed list, find its **most recent run of any
+state**. If that run succeeded, the flow is healthy *now* and is out of scope —
+drop it before diagnosis, do not open a PR for it, and do not give it a block in
+the report. This is not the same test as "a merged PR post-dates the failure": a
+merge is evidence of intent, a later green run is evidence of outcome. **Prefer
+the green run.** Where the two disagree, believe the run.
+
+Two traps when reading a "successful" run:
+
+- **Check the duration.** A 3–5 second completion is the poll guard returning
+  early, not an ingest. That still counts as *not currently failing*, but it is
+  not proof the failing code path was re-exercised. Say which you saw.
+- **Check it is the same work.** A flow whose per-table deployment was removed,
+  or that succeeded only on a narrower parameter set, has not necessarily
+  recovered the failing path.
+
 **Ingest rate** (optional, only on the `feat/pipeline-diagnostics` branch —
 `pipelines/diagnostics/` is not on `main` yet):
 
@@ -107,6 +149,15 @@ one IAM grant.
 Then cross the clusters against the in-flight and merged PRs from Phase 1, and
 against arming state. A cluster that is covered by an open PR, or already fixed
 by a merged one, never reaches diagnosis.
+
+**Apply the recovered-flow filter first, before anything else in this phase.**
+Drop every flow whose most recent run succeeded. Run the filter on *flows*, not
+on clusters: one signature can span six flows of which four have recovered, and
+the cluster survives only for the two that have not. A cluster with no surviving
+flow is deleted outright — it is not a finding, and it does not get a block, a
+disposition, or a PR.
+
+What remains after this filter is the board. Everything else is history.
 
 Cluster first on the taxonomy signature, then note which datasets each cluster
 spans. A cluster of one is fine; a cluster of six that all say
@@ -147,11 +198,19 @@ Assign every cluster one disposition, and say who owns it:
 - **Propose deactivation** — repeatedly failing, low value, no cheap fix. This
   is the team's legitimate capacity decision. **Propose it; never disarm a
   pipeline yourself without explicit approval.**
-- **Already fixed** — a merged PR post-dates the last failure. No code change.
-  The open question is whether the deployment is armed; say so and stop.
 - **Already in flight** — an open PR covers it. Name the PR number and its author,
   and do not start a competing branch. If the PR looks stalled or wrong, say so
   as a comment-worthy observation; do not fork it.
+
+There is deliberately **no "already fixed" disposition.** A flow whose latest run
+succeeded was removed in Phase 2 and never reaches triage. Do not reintroduce it
+as a finding, a block, or a caveat — the reader asked for what is broken now, and
+a recovered flow is not that. It appears in the report only as a count on the
+`RECOVERED` line.
+
+The one case worth a sentence is a flow that is **fixed, green, and still
+disarmed**: there is no bug, but it is also not running. That is an arming
+question, so put it under `DISARMED WITH A CRON`, never in a cluster block.
 
 In `--report-only` mode (and by default when more than one cluster needs code
 changes), stop here and present the board. Ask before fixing at scale — a sweep
@@ -184,12 +243,16 @@ fix look shipped when it is not. In brief, per fix:
 Report in this shape, ranked by blast radius (datasets affected × whether prod
 data is stale):
 
+**Every cluster block describes a pipeline that is failing right now.** If its
+latest run was green, it does not belong here at any length.
+
 ```text
 === PIPELINE DOCTOR — <window>, prod pool ===
 Runs surveyed: N failed, M crashed | Deployments: A armed, P paused (C with a cron)
+Still failing: <n> flows in <k> clusters | Recovered since failing: <r> (not listed)
 
 CLUSTER 1 — <class>: <signature>
-  Flows:      <flow> (n failures, last <date>), ...
+  Flows:      <flow> (n failures, last <date>, latest run STILL FAILING), ...
   Cause:      <confirmed cause, and how it was confirmed>
   Disposition:<fix now | investigate | not ours | propose deactivation | in flight>
   Action:     <PR #, or the exact escalation>
@@ -197,10 +260,18 @@ CLUSTER 1 — <class>: <signature>
 ... one block per cluster ...
 
 DISARMED WITH A CRON (not producing runs, so invisible above): <n>
-  <flow> — last failure <date>, cause <class>
+  <flow> — last failure <date>, cause <class>, latest run <green|failing>
 
 NOT VERIFIED: <what this run could not exercise>
 ```
+
+The `Recovered` figure is a **count on one line, with no flow names**. Its job is
+to show the failed-run list was read and filtered, not to walk the reader through
+problems that no longer exist. Name a recovered flow only if the user asks.
+
+Every flow inside a cluster block carries an explicit "latest run" note, so a
+reader can see the currently-failing claim was checked per flow rather than
+assumed from the failure list.
 
 Always close with what was not verified. The prod upload and, for a
 `part_bdpro` table, `apply_row_access_policies` only execute on an armed prod
@@ -214,6 +285,12 @@ re-reporting the same thing:
 
 - **Re-run the open/merged PR check every time** (Phase 1). On a shared repo the
   in-flight set changes between runs more than the failure set does.
+- **Re-run the latest-run check every time too.** Recovery is the most common
+  change between two sweeps. A cluster carried in the state file must be
+  re-tested against the flow's newest run before it is reported again — and
+  dropped, with its state entry deleted, the moment that run is green. Stale
+  clusters resurfacing after they recovered is the main failure mode of running
+  this on a schedule.
 - Keep a small state file at `~/.cache/bd-pipeline-doctor/state.json` recording
   each cluster's signature, first-seen date, and disposition. On a later run,
   report a known cluster as `unchanged since <date>` in one line instead of a
