@@ -157,6 +157,9 @@ models:
     us_bls_oes:
       +materialized: table
       +schema: us_bls_oes
+    us_fdic_bankfind:
+      +materialized: table
+      +schema: us_fdic_bankfind
     us_fed_fred:
       +materialized: table
       +schema: us_fed_fred

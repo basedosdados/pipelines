@@ -20,7 +20,14 @@ from __future__ import annotations
 import csv
 import json
 import re
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+from pipelines.datasets.us_fdic_bankfind.institution_spec import (
+    SPEC,
+)
 
 HERE = Path(__file__).resolve().parent
 ARCH = HERE / "architecture"
@@ -249,8 +256,6 @@ def build_financials_indicator() -> None:
 
 
 def build_institution() -> None:
-    from institution_spec import SPEC
-
     rows = [
         row(
             "extraction_date",
@@ -365,6 +370,10 @@ def build_indicator(catalog: dict, wide: list[str]) -> None:
 
 if __name__ == "__main__":
     catalog = json.loads((HERE / "indicator_catalog.json").read_text())
+    # the dictionary decodes the long table, which carries numeric line items only
+    catalog = {
+        k: v for k, v in catalog.items() if v["source_type"] == "number"
+    }
     wide = json.loads((HERE / "wide_fields.json").read_text())
     wide = [c for c in wide if catalog[c]["is_flag"] == "no"]
     build_institution()
