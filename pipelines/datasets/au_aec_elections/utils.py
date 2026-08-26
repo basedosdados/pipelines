@@ -197,7 +197,7 @@ def read_aec_csv(path: Path) -> pd.DataFrame:
         next(reader)
         width = len(next(reader))
 
-    repaired = 0
+    repaired: int = 0
 
     def repair(row: list[str]) -> list[str] | None:
         nonlocal repaired
@@ -731,7 +731,8 @@ def _event_year(event: str | float | None) -> float | None:
 
 def _tidy(series: pd.Series) -> pd.Series:
     """Transparency CSVs pad some name fields with leading spaces."""
-    return series.astype("string").str.strip().replace({"": None})
+    stripped = series.astype("string").str.strip()
+    return stripped.mask(stripped == "")
 
 
 def _transparency_dir(root: Path, bundle: str) -> Path:
@@ -1271,7 +1272,7 @@ def write_partitioned(df: pd.DataFrame, table: str, output_dir: Path) -> int:
             compression="snappy",
         )
         written += len(chunk)
-    dropped = int(years.isna().sum())
+    dropped = years.isna().sum()
     if dropped:
         print(f"  WARNING {table}: {dropped} rows dropped for a missing year")
     return written
