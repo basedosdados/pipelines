@@ -308,7 +308,7 @@ def harvest(
     start: date,
     end: date,
     path_override: str | None = None,
-    max_workers: int = int(os.environ.get("PNCP_WORKERS", "4")),
+    max_workers: int = int(os.environ.get("PNCP_WORKERS", "3")),
 ) -> int:
     """Download one table's records for [start, end] into gzipped NDJSON chunks.
 
@@ -323,8 +323,10 @@ def harvest(
         path_override: Use this API path instead of the endpoint's default.
             The backfill passes the publication-date endpoints here.
         max_workers: Windows fetched concurrently. The API answers a page in
-            5-7s, so the download is latency-bound; the shared throttle keeps
-            the aggregate request rate within the server's limit.
+            5-8s, so the harvest is latency-bound and needs concurrency. Do not
+            raise this to 4: that sits on the API's concurrency ceiling and
+            measured 2x *slower* than 3, because all workers trip 429s together
+            and the compounding penalty serialises them.
 
     Returns:
         Number of records downloaded in this call (skipped chunks count zero).
