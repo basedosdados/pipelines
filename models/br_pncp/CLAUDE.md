@@ -144,9 +144,37 @@ If PNCP ever publishes an explicit data licence, record it here.
 
 ## Verification so far
 
-The cleaning transform reproduces the source exactly where the backfill is complete:
-`contrato` yields **5,308 rows for 2021 and 40,645 for 2022**, matching the API's own
-`totalRegistros` for those years.
+The whole chain — download, clean, upload, dbt — has been exercised end to end in dev on
+the partial `contrato` backfill (224,555 rows, 2021-09-06 to 2023-11-16), rather than
+only at the end:
+
+| check | result |
+|---|---|
+| row counts vs source | 2021 = 5,308, 2022 = 40,645 — exact match to the API's `totalRegistros` |
+| clean peak RSS | 443 MB, bounded by the batch, not the table |
+| upload to dev staging | 224,555 rows, 212 MB peak |
+| `dbt run` | incremental model created, 126.6 MiB processed |
+| materialized types | INTEGER / DATE / FLOAT / BOOLEAN all resolved from the all-STRING staging |
+| `safe_cast` loss | zero NULLs in `ano`, `valor_global`, `data_assinatura`, `indicador_receita` |
+| dedup key | `count(distinct id_contrato_pncp)` equals the row count |
+
+The row-count match is the load-bearing one: it shows the transform reproduces the
+source exactly for every year the backfill has completed, which no amount of green test
+output would establish on its own.
+
+Two environment notes. `dbt` needs `--profiles-dir ~/.dbt` locally — the repo's
+`profiles.yml` points at a container path (`/credentials-dev/dev.json`). And `dbt parse`
+alone takes several minutes across the repo's 1,151 models, so scope every invocation
+with `--select br_pncp...`.
+
+### Why staging parts are capped at 50,000 rows
+
+Beyond bounding memory in the cleaning step, this defuses a known repo-wide OOM.
+`bd.Table.create` derives the staging header via `_get_columns_from_data`, which takes
+`glob("**/*")[0]` — an arbitrary file, not a sorted first — and calls
+`pd.read_parquet()` on the whole thing purely to read column names. Other datasets work
+around it by prepending a 0-row `00_header.parquet`, which relies on glob order. Capping
+every part instead makes the read bounded whichever file is picked.
 
 `pipelines/datasets/br_pncp/tests/` covers the transform's silent-failure modes — NULL
 never becoming the literal `"nan"`, integers not acquiring a `.0` tail, the partition
