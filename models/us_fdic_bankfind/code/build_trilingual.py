@@ -32,11 +32,7 @@ def build(path: Path) -> tuple[int, int]:
         rows = list(csv.DictReader(handle))
         fields = list(rows[0]) if rows else []
 
-    out_fields = fields + [
-        "description_pt",
-        "description_en",
-        "description_es",
-    ]
+    out_fields = [*fields, "description_pt", "description_en", "description_es"]
     missing = 0
     for row in rows:
         english = row["description"]
