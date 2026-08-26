@@ -10,9 +10,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
+# The pure transform lives in the pipeline package, which is the canonical
+# home; this script is the one-shot onboarding front end for it.
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from utils import read_architecture
+from pipelines.datasets.br_pncp.utils import DEDUP_KEYS, read_architecture
 
 DATASET = "br_pncp"
 MODELS_DIR = Path(__file__).resolve().parents[1]
@@ -93,29 +95,57 @@ DESCRIPTIONS = {
 
 def sql_for(table: str) -> str:
     cols = read_architecture(table)
-    if table in PARTITIONED:
-        start, end = PARTITIONED[table]
-        partition = (
-            "        partition_by={\n"
-            '            "field": "ano",\n'
-            '            "data_type": "int64",\n'
-            f'            "range": {{"start": {start}, "end": {end}, "interval": 1}},\n'
-            "        },\n"
-        )
-    else:
-        partition = ""
+    key_cols, recency_col = DEDUP_KEYS.get(table, (None, None))
 
     selects = ",\n".join(
         f"    safe_cast({c['name']} as {c['bigquery_type'].lower()}) {c['name']}"
         for c in cols
     )
+
+    if table not in PARTITIONED:
+        # dicionario is small and derived; a full rebuild each run is cheaper
+        # than the machinery to make it incremental.
+        return (
+            "{{\n"
+            "    config(\n"
+            f'        schema="{DATASET}",\n'
+            f'        alias="{table}",\n'
+            '        materialized="table",\n'
+            "    )\n"
+            "}}\n\n\n"
+            "select\n"
+            f"{selects}\n"
+            "from\n"
+            f'    {{{{ set_datalake_project("{DATASET}_staging.{table}") }}}}\n'
+            "    as t\n"
+        )
+
+    start, end = PARTITIONED[table]
+    key = ", ".join(key_cols)
+
+    # Staging is append-only: each pipeline run adds the records it harvested,
+    # so the same PNCP control number appears once per run that touched it. The
+    # QUALIFY collapses those to the most recently updated version.
+    #
+    # The incremental filter scopes the run to the partitions the flow reports
+    # having touched, via the `pncp_years` var. It deliberately filters on the
+    # PARTITION rather than on data_atualizacao: insert_overwrite replaces each
+    # partition wholesale, so the SELECT must yield every row belonging to that
+    # year, not only the rows this run happened to harvest. Filtering on
+    # recency instead would overwrite the partition with just the delta and
+    # silently drop the rest of the year.
     return (
         "{{\n"
         "    config(\n"
         f'        schema="{DATASET}",\n'
         f'        alias="{table}",\n'
-        '        materialized="table",\n'
-        f"{partition}"
+        '        materialized="incremental",\n'
+        '        incremental_strategy="insert_overwrite",\n'
+        "        partition_by={\n"
+        '            "field": "ano",\n'
+        '            "data_type": "int64",\n'
+        f'            "range": {{"start": {start}, "end": {end}, "interval": 1}},\n'
+        "        },\n"
         "    )\n"
         "}}\n\n\n"
         "select\n"
@@ -123,6 +153,20 @@ def sql_for(table: str) -> str:
         "from\n"
         f'    {{{{ set_datalake_project("{DATASET}_staging.{table}") }}}}\n'
         "    as t\n"
+        # Falling back to no filter when the var is absent keeps a manual
+        # `dbt run` correct (a full rebuild) instead of emitting `in ()`.
+        "{% if is_incremental() and var('pncp_years', '') %}\n"
+        "    where\n"
+        "        safe_cast(ano as int64) in (\n"
+        "            {{ var('pncp_years') }}\n"
+        "        )\n"
+        "{% endif %}\n"
+        "qualify\n"
+        "    row_number() over (\n"
+        f"        partition by {key}\n"
+        f"        order by safe_cast({recency_col} as date) desc\n"
+        "    )\n"
+        "    = 1\n"
     )
 
 

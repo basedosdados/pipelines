@@ -2,7 +2,8 @@
     config(
         schema="br_pncp",
         alias="ata_registro_preco",
-        materialized="table",
+        materialized="incremental",
+        incremental_strategy="insert_overwrite",
         partition_by={
             "field": "ano",
             "data_type": "int64",
@@ -36,3 +37,11 @@ select
     safe_cast(data_publicacao as date) data_publicacao,
     safe_cast(data_atualizacao as date) data_atualizacao
 from {{ set_datalake_project("br_pncp_staging.ata_registro_preco") }} as t
+{% if is_incremental() and var("pncp_years", "") %}
+    where safe_cast(ano as int64) in ({{ var("pncp_years") }})
+{% endif %}
+qualify
+    row_number() over (
+        partition by id_ata_pncp order by safe_cast(data_atualizacao as date) desc
+    )
+    = 1

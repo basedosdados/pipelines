@@ -2,7 +2,8 @@
     config(
         schema="br_pncp",
         alias="contrato",
-        materialized="table",
+        materialized="incremental",
+        incremental_strategy="insert_overwrite",
         partition_by={
             "field": "ano",
             "data_type": "int64",
@@ -60,3 +61,11 @@ select
     safe_cast(valor_global as float64) valor_global,
     safe_cast(valor_acumulado as float64) valor_acumulado
 from {{ set_datalake_project("br_pncp_staging.contrato") }} as t
+{% if is_incremental() and var("pncp_years", "") %}
+    where safe_cast(ano as int64) in ({{ var("pncp_years") }})
+{% endif %}
+qualify
+    row_number() over (
+        partition by id_contrato_pncp order by safe_cast(data_atualizacao as date) desc
+    )
+    = 1
