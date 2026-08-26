@@ -13,6 +13,7 @@ models:
           combination_of_columns: [cert]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [insurance_end_date]
     columns:
       - name: extraction_date
         description: Date the institution directory was extracted from the FDIC API

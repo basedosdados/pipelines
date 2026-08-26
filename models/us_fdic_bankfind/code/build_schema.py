@@ -40,6 +40,13 @@ NOT_NULL = {
 # tables large enough that an unscoped test is a full-table scan
 SCOPED = {"financials", "financials_indicator"}
 
+# Columns that are legitimately almost always empty, exempted from the
+# not-null-proportion test rather than allowed to fail it.
+IGNORE_VALUES = {
+    # deposit insurance only ends for an institution that lost it: 0.6% filled
+    "institution": ["insurance_end_date"],
+}
+
 RELATIONSHIPS = {
     ("financials", "cert"): (f"{DATASET}__institution", "cert"),
     ("financials_indicator", "cert"): (f"{DATASET}__institution", "cert"),
@@ -107,6 +114,11 @@ def model(table: str) -> dict:
         {
             "not_null_proportion_multiple_columns": {
                 "at_least": 0.05,
+                **(
+                    {"ignore_values": IGNORE_VALUES[table]}
+                    if table in IGNORE_VALUES
+                    else {}
+                ),
                 **scope(),
             }
         },

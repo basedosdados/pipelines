@@ -99,9 +99,12 @@ def credentials_path() -> str:
     drift onto different identities.  The file itself is never opened here, only
     its path handed to gcloud.
     """
-    import tomli
+    try:
+        import tomllib  # stdlib from python 3.11
+    except ModuleNotFoundError:  # pragma: no cover
+        import tomli as tomllib
 
-    config = tomli.loads(
+    config = tomllib.loads(
         (Path.home() / ".basedosdados/config.toml").read_text()
     )
     return config["gcloud-projects"]["staging"]["credentials_path"]
