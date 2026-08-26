@@ -146,7 +146,11 @@ class Throttle:
             self.interval = max(self.base, self.interval * 0.8)
 
 
-THROTTLE = Throttle(float(os.environ.get("PNCP_MIN_INTERVAL", "0.35")))
+THROTTLE = Throttle(float(os.environ.get("PNCP_MIN_INTERVAL", "0.05")))
+
+# Per-page logging. A window takes minutes, so without it a healthy run and a
+# stalled one are indistinguishable from the outside.
+VERBOSE = os.environ.get("PNCP_VERBOSE", "1") == "1"
 
 
 def request(path: str, params: dict, max_tries: int = 6) -> dict:
@@ -199,10 +203,11 @@ def request(path: str, params: dict, max_tries: int = 6) -> dict:
     raise ServerOverloadError(f"exhausted retries on {url}")
 
 
-def fetch_window(path: str, params: dict) -> list[dict]:
+def fetch_window(path: str, params: dict, label: str = "") -> list[dict]:
     """Page through one window, raising ServerOverloadError if it is too large."""
     records: list[dict] = []
     page = 1
+    started = time.monotonic()
     while True:
         payload = request(
             path, {**params, "pagina": page, "tamanhoPagina": PAGE_SIZE}
@@ -210,6 +215,13 @@ def fetch_window(path: str, params: dict) -> list[dict]:
         batch = payload.get("data") or []
         records.extend(batch)
         total_pages = payload.get("totalPaginas") or 0
+        if VERBOSE and label:
+            print(
+                f"      {label} page {page}/{total_pages} "
+                f"(+{len(batch)}, {time.monotonic() - started:.0f}s, "
+                f"pacer {THROTTLE.interval:.2f}s)",
+                flush=True,
+            )
         if page >= total_pages or not batch:
             break
         page += 1
@@ -225,7 +237,12 @@ def windows(start: date, end: date, days: int):
 
 
 def fetch_range(
-    path: str, date_params: tuple[str, str], lo: date, hi: date, extra: dict
+    path: str,
+    date_params: tuple[str, str],
+    lo: date,
+    hi: date,
+    extra: dict,
+    label: str = "",
 ) -> list[dict]:
     """Fetch [lo, hi], halving the window whenever the server buckles."""
     p_from, p_to = date_params
@@ -236,7 +253,7 @@ def fetch_range(
     }
     for cooldown in (60, 180, 420):
         try:
-            return fetch_window(path, params)
+            return fetch_window(path, params, label)
         except RateLimitedError:
             print(
                 f"      .. rate limited on {lo}..{hi}, cooling down {cooldown}s",
@@ -251,7 +268,7 @@ def fetch_range(
         )
 
     try:
-        return fetch_window(path, params)
+        return fetch_window(path, params, label)
     except ServerOverloadError:
         if lo == hi:
             # A single day the server cannot serve. Report and continue rather
@@ -262,8 +279,10 @@ def fetch_range(
             return []
         mid = lo + (hi - lo) // 2
         print(f"      .. splitting {lo}..{hi} on {path}", flush=True)
-        return fetch_range(path, date_params, lo, mid, extra) + fetch_range(
-            path, date_params, mid + timedelta(days=1), hi, extra
+        return fetch_range(
+            path, date_params, lo, mid, extra, label
+        ) + fetch_range(
+            path, date_params, mid + timedelta(days=1), hi, extra, label
         )
 
 
@@ -331,7 +350,10 @@ def harvest(
 
     def run_job(job) -> int:
         lo, hi, extra, tag, target = job
-        records = fetch_range(path, spec["date_params"], lo, hi, extra)
+        print(f"  {table} {tag}: start", flush=True)
+        records = fetch_range(
+            path, spec["date_params"], lo, hi, extra, f"{table} {tag}"
+        )
         write_chunk(target, records)
         print(f"  {table} {tag}: {len(records):>7,} rows", flush=True)
         return len(records)

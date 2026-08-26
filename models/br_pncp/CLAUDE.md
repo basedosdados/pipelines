@@ -81,10 +81,17 @@ Every one of these was found by probing; none is stated in the OpenAPI spec.
    time. Measured, with no 429s at any level: 1 worker 8.5s/page, 2 workers 3.7, 3
    workers 3.1, 4 workers 2.7. The harvest runs 4 workers behind a shared pacer.
 
-   Rate limiting does exist and is per source IP across all endpoints — the 429 body is
-   an HTML F5-style "Limite de Requisições Excedido" page with **no `Retry-After`** — but
-   it only triggered when several unpaced scripts ran at once. Paced concurrency does not
-   trip it.
+   **The ceiling is roughly 4-6 simultaneous requests per source IP**, across all
+   endpoints, and it is a concurrency limit rather than a requests-per-second one — the
+   pacer sits at 0.05s during a healthy run and never binds. Measured by issuing extra
+   concurrent requests while a 4-worker harvest was running: every one of them came back
+   429 while the harvest itself continued at 200. So **4 workers is the setting**, not a
+   starting point to tune upward. The 429 body is an HTML F5-style "Limite de Requisições
+   Excedido" page with **no `Retry-After`**.
+
+   Exceeding it is worse than slow. A 5-worker attempt tripped 429s, which penalised the
+   shared pacer up to its 8s ceiling and compounded with the per-window cooldowns; the
+   harvest then went ~15 minutes without completing a single window and looked hung.
 
    The response to a 429 must be to **back off, never to split the window**: splitting
    replaces one refused request with two against the component already complaining. The
