@@ -61,7 +61,14 @@ def partition_paths(report_date: str) -> tuple[Path, Path]:
 
 
 def build_quarter(report_date: str) -> dict:
-    """Download and write one quarter.  Runs in a worker process."""
+    """Download and write one quarter.  Runs in a worker process.
+
+    Streams one field batch at a time: the long rows for each batch are appended
+    to an open ParquetWriter and the batch is dropped, while only the ~285 wide
+    columns are retained.  Holding the whole quarter instead needed ~2.5 GB per
+    worker on the early quarters and put the machine into swap.
+    """
+    import pyarrow as pa
     import pyarrow.parquet as pq
 
     wide_path, long_path = partition_paths(report_date)
@@ -71,38 +78,84 @@ def build_quarter(report_date: str) -> dict:
     reference = catalog()
     names = json.loads((HERE / "wide_column_names.json").read_text())
     batches = utils.financial_field_batches(utils.load_field_catalog(DOCS))
+    iso = pd.Timestamp(report_date).strftime("%Y-%m-%d")
 
-    raw = utils.fetch_quarter(report_date, batches)
-    if raw.empty:
+    long_columns = columns_of("financials_indicator")
+    long_schema = pa.schema([pa.field(n, pa.string()) for n in long_columns])
+    long_path.parent.mkdir(parents=True, exist_ok=True)
+    long_staged = long_path.with_suffix(".parquet.tmp")
+
+    keys: pd.DataFrame | None = None
+    wide: dict[str, pd.Series] = {}
+    long_rows = 0
+
+    writer = pq.ParquetWriter(long_staged, long_schema, compression="snappy")
+    try:
+        for batch in batches:
+            frame = utils.fetch_batch(report_date, batch)
+            if frame.empty:
+                continue
+            if keys is None:
+                keys = utils.quarter_keys(frame.index, iso)
+                wide |= {name: keys[name] for name in keys.columns}
+            else:
+                # every batch queries the same quarter, so the CERT sets match;
+                # reindex anyway so a short batch cannot silently misalign rows
+                frame = frame.reindex(keys["cert"].to_numpy())
+
+            piece = utils.melt_batch(frame, keys, reference)
+            if len(piece):
+                # sorted within the batch so the parquet dictionary encoding can
+                # do its job; batches are contiguous slices of the field list,
+                # so the file comes out close to globally sorted
+                piece = piece.sort_values(["indicator_id", "cert"])
+                writer.write_table(utils.to_string_table(piece, long_columns))
+                long_rows += len(piece)
+                del piece
+
+            for code in batch:
+                if code in names:
+                    unit = (
+                        "USD"
+                        if reference[code]["unit_of_measure"] == "USD_thousand"
+                        else ""
+                    )
+                    wide[names[code]] = utils.scale_series(
+                        frame[code], unit
+                    ).to_numpy()
+                if code == "RSSDID":
+                    wide["rssd_id"] = (
+                        frame[code].astype(str).str.strip().to_numpy()
+                    )
+            del frame
+    finally:
+        writer.close()
+
+    if keys is None:
+        long_staged.unlink(missing_ok=True)
         return {"report_date": report_date, "institutions": 0, "long_rows": 0}
 
-    iso = pd.Timestamp(report_date).strftime("%Y-%m-%d")
-    wide = utils.clean_financials(raw, iso, names, reference)
-    long = utils.clean_financials_indicator(raw, iso, reference)
-    del raw
+    long_staged.replace(long_path)
 
-    for frame, path, table in (
-        (wide, wide_path, "financials"),
-        # sorting by indicator groups equal values together, which lets the
-        # parquet dictionary encoding do its job: ~5.5 bytes a row
-        (
-            long.sort_values(["indicator_id", "cert"]),
-            long_path,
-            "financials_indicator",
-        ),
-    ):
-        path.parent.mkdir(parents=True, exist_ok=True)
-        table_arrow = utils.to_string_table(frame, columns_of(table))
-        # written to a temp name and renamed, so a run killed mid-write cannot
-        # leave a truncated parquet that the resume logic would then skip
-        staged = path.with_suffix(".parquet.tmp")
-        pq.write_table(table_arrow, staged, compression="snappy")
-        staged.replace(path)
+    wide.setdefault("rssd_id", pd.Series("", index=range(len(keys))))
+    for name in columns_of("financials"):
+        wide.setdefault(
+            name, pd.Series(pd.NA, index=range(len(keys)), dtype="Float64")
+        )
+    wide_frame = pd.DataFrame(wide)
+    wide_path.parent.mkdir(parents=True, exist_ok=True)
+    wide_staged = wide_path.with_suffix(".parquet.tmp")
+    pq.write_table(
+        utils.to_string_table(wide_frame, columns_of("financials")),
+        wide_staged,
+        compression="snappy",
+    )
+    wide_staged.replace(wide_path)
 
     return {
         "report_date": report_date,
-        "institutions": len(wide),
-        "long_rows": len(long),
+        "institutions": len(wide_frame),
+        "long_rows": long_rows,
     }
 
 

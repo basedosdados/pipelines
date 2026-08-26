@@ -138,30 +138,43 @@ def fetch_institutions() -> pd.DataFrame:
     return _fetch_page("institutions", {})
 
 
-def fetch_quarter(report_date: str, batches: list[list[str]]) -> pd.DataFrame:
-    """All reportable fields for one quarter, stitched across field batches."""
-    merged: pd.DataFrame | None = None
-    for batch in batches:
-        params = {
+def fetch_batch(report_date: str, batch: list[str]) -> pd.DataFrame:
+    """One field batch for one quarter, indexed by CERT.
+
+    Deliberately NOT stitched into a full 2,378-column frame. An early quarter
+    has 17,930 institutions, so the stitched frame holds ~43 million python
+    strings -- roughly 2.5 GB per worker, which drove the machine into swap and
+    made eight workers slower than five. Callers consume one batch at a time.
+    """
+    frame = _fetch_page(
+        "financials",
+        {
             "filters": f"REPDTE:{report_date}",
             "fields": ",".join(KEY_FIELDS + batch),
-        }
-        frame = _fetch_page("financials", params)
+        },
+    )
+    if frame.empty:
+        return frame
+    frame = frame.drop(columns=["ID", "REPDTE"], errors="ignore")
+    frame = frame.drop_duplicates(subset=["CERT"])
+    return frame.set_index("CERT")
+
+
+def fetch_quarter(report_date: str, batches: list[list[str]]) -> pd.DataFrame:
+    """All reportable fields for one quarter, stitched across field batches.
+
+    Memory-hungry by construction -- see `fetch_batch`. Used by the recurring
+    pipeline, which only ever touches the two most recent (smallest) quarters.
+    """
+    merged: pd.DataFrame | None = None
+    for batch in batches:
+        frame = fetch_batch(report_date, batch)
         if frame.empty:
             continue
-        frame = frame.drop(
-            columns=[c for c in ("ID",) if c in frame], errors="ignore"
-        )
-        frame = frame.drop_duplicates(subset=["CERT"])
-        if merged is None:
-            merged = frame
-        else:
-            merged = merged.merge(
-                frame.drop(columns=["REPDTE"], errors="ignore"),
-                on="CERT",
-                how="outer",
-            )
-    return merged if merged is not None else pd.DataFrame()
+        merged = frame if merged is None else merged.join(frame, how="outer")
+    if merged is None:
+        return pd.DataFrame()
+    return merged.reset_index()
 
 
 def to_string_table(frame: pd.DataFrame, columns: list[str]) -> pa.Table:
@@ -301,6 +314,80 @@ def clean_financials(
         )
         columns[name] = scale_series(frame[code], unit)
     return pd.DataFrame(columns, index=frame.index)
+
+
+def melt_batch(
+    frame: pd.DataFrame, keys: pd.DataFrame, catalog: dict
+) -> pd.DataFrame:
+    """Long-form rows for one field batch, dropping the items not reported.
+
+    `frame` is indexed by CERT and holds only this batch's columns, so peak
+    memory is one batch rather than one quarter.
+    """
+    codes = [
+        c
+        for c in frame.columns
+        if c in catalog and catalog[c]["source_type"] == "number"
+    ]
+    if not codes:
+        return pd.DataFrame(columns=LONG_COLUMNS)
+
+    pieces = []
+    certs = keys["cert"].to_numpy()
+    for start in range(0, len(codes), MELT_CHUNK):
+        chunk = codes[start : start + MELT_CHUNK]
+        text = frame[chunk].to_numpy(dtype="U32")
+        text[text == ""] = "nan"
+        numbers = text.astype(np.float64)
+        del text
+
+        numbers *= np.array(
+            [
+                THOUSANDS
+                if catalog[code]["unit_of_measure"] == "USD_thousand"
+                else 1
+                for code in chunk
+            ],
+            dtype=np.float64,
+        )
+        row_index, column_index = np.nonzero(~np.isnan(numbers))
+        if len(row_index) == 0:
+            continue
+        pieces.append(
+            pd.DataFrame(
+                {
+                    "cert": certs[row_index],
+                    "indicator_id": np.asarray(chunk, dtype=object)[
+                        column_index
+                    ],
+                    "value": numbers[row_index, column_index],
+                }
+            )
+        )
+        del numbers
+
+    if not pieces:
+        return pd.DataFrame(columns=LONG_COLUMNS)
+    long = pd.concat(pieces, ignore_index=True)
+    long.insert(0, "year", keys["year"].iloc[0])
+    long.insert(1, "quarter", keys["quarter"].iloc[0])
+    long.insert(2, "report_date", keys["report_date"].iloc[0])
+    return long
+
+
+def quarter_keys(
+    certs: pd.Index | pd.Series, report_date: str
+) -> pd.DataFrame:
+    """The year/quarter/report_date/cert key block for one quarter."""
+    stamp = pd.Timestamp(report_date)
+    return pd.DataFrame(
+        {
+            "year": str(stamp.year),
+            "quarter": str((stamp.month - 1) // 3 + 1),
+            "report_date": stamp.strftime("%Y-%m-%d"),
+            "cert": pd.Series(certs).astype(str).str.strip().to_numpy(),
+        }
+    )
 
 
 def clean_financials_indicator(
