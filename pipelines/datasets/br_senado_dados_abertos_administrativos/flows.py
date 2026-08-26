@@ -4,11 +4,12 @@ Senado Federal administrative open data (``adm.senado.gov.br``). The dataset has
 two table shapes, both refreshed by one mechanism (see
 ``models/br_senado_dados_abertos_administrativos/PIPELINE_PLAN.md``):
 
-- 30 **snapshot** tables (``data_extracao``): each run stacks a new dated
+- 28 **snapshot** tables (``data_extracao``): each run stacks a new dated
   snapshot — the source exposes only current state, so the time dimension is
   ours (CNPJ model, as ``au_ato_abr``).
 - 10 **time-series** tables (``ano``): each run refreshes the last two years in
   place (current + prior, to catch late-arriving data); older years are stable.
+  (``senador`` and ``dicionario`` are the remaining two of the 40 tables.)
 
 Both are served by overwriting the **staging** external table with the current
 window and letting the **incremental** dbt models (``insert_overwrite`` on the
@@ -40,6 +41,7 @@ from pipelines.utils.metadata.domain import (
     DateOnly,
     FreeLag,
     PartBdpro,
+    YearMonth,
     YearOnly,
 )
 from pipelines.utils.metadata.tasks import (
@@ -54,23 +56,64 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 
-# Coverage per table shape (see PIPELINE_PLAN.md).
-#   snapshots  -> PartBdpro 6-month rolling window on data_extracao
-#   series     -> AllFree on ano
-#   dicionario -> no coverage (no date column)
-_PART_BDPRO = PartBdpro(
-    date_column=DateOnly(col="data_extracao"),
-    date_format=DateFormat.YEAR_MD,
-    free_lag=FreeLag(unit="months", value=constants.FREE_LAG_MONTHS.value),
+# Coverage per table (see PIPELINE_PLAN.md). Tables with a month-or-finer time
+# column carry the 6-month BD Pro rolling window, on their finest date column; the
+# window rolls itself on every run. The two year-only series stay AllFree (a
+# sub-year rolling window is not expressible on a year column), and senador and
+# dicionario have no record time dimension and take no coverage (they keep their
+# onboarding free coverage).
+#
+#   snapshots (data_extracao)          -> PartBdpro day  (YEAR_MD), 6-month lag
+#   series with a `data` column        -> PartBdpro day  (YEAR_MD), 6-month lag
+#   monthly series (ano + mes)         -> PartBdpro month (YEAR_MONTH), 6-month lag
+#   year-only series (ano)             -> AllFree (no paywall)
+_FREE_LAG = FreeLag(unit="months", value=constants.FREE_LAG_MONTHS.value)
+
+
+def _part_bdpro(date_column, date_format) -> PartBdpro:
+    return PartBdpro(
+        date_column=date_column, date_format=date_format, free_lag=_FREE_LAG
+    )
+
+
+# The 10 ano-series, grouped by their finest time column.
+_SERIES_DAILY = (
+    "despesa_ceaps",
+    "servidor_hora_extra_dia",
+    "suprido_ato_concessao",
+    "suprido_empenho",
+    "suprido_transacao",
+    "suprido_movimentacao",
 )
-_ALL_FREE = AllFree(
-    date_column=YearOnly(col="ano"),
-    date_format=DateFormat.YEAR,
-)
+_SERIES_MONTHLY = ("servidor_remuneracao", "servidor_hora_extra")
+_SERIES_YEARLY = ("suprido_transacao_objeto", "suprido_movimentacao_subtipo")
+
 _COVERAGE = {
-    **{t: _PART_BDPRO for t in utils.SNAPSHOTS},
-    **{t: _ALL_FREE for t in utils.PARTITIONED},
+    # snapshots stack by data_extracao (day granularity)
+    **{
+        t: _part_bdpro(DateOnly(col="data_extracao"), DateFormat.YEAR_MD)
+        for t in utils.SNAPSHOTS
+    },
+    **{
+        t: _part_bdpro(DateOnly(col="data"), DateFormat.YEAR_MD)
+        for t in _SERIES_DAILY
+    },
+    **{
+        t: _part_bdpro(
+            YearMonth(year="ano", month="mes"), DateFormat.YEAR_MONTH
+        )
+        for t in _SERIES_MONTHLY
+    },
+    # year-only series: no paywall (year granularity has no sub-year window)
+    **{
+        t: AllFree(
+            date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
+        )
+        for t in _SERIES_YEARLY
+    },
 }
+# Every partitioned table is covered; senador and dicionario are not.
+assert set(_COVERAGE) == set(utils.SNAPSHOTS) | set(utils.PARTITIONED)
 # The table whose source Update anchors the dataset — any stable snapshot table.
 _ANCHOR_TABLE = "senador"
 
@@ -164,7 +207,9 @@ def _run(
         if update_metadata:
             for table in tables:
                 coverage = _COVERAGE.get(table)
-                if coverage is None:  # dicionario — no date column
+                if (
+                    coverage is None
+                ):  # senador / dicionario — no time dimension
                     continue
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
@@ -200,7 +245,8 @@ def br_senado_dados_abertos_administrativos_daily_flow(
             and run dbt ``target="prod"``. False exercises only the dev half —
             required for a safe test run, since the default writes production.
         update_metadata: After a prod materialization, refresh table coverage
-            (BD Pro rolling window on snapshots) and commit the source update.
+            (BD Pro rolling window on every time-tracked table) and commit the
+            source update.
             No effect when ``materialize_to_prod`` is False.
         force_run: Accepted for parity with the repo's flow signature; this
             snapshot pipeline has no poll gate, so it does not change behaviour.

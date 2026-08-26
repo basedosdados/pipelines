@@ -464,3 +464,65 @@ class TestSenadorNormalization:
         assert rows["3"]["indicador_em_exercicio"] == "nao"
         assert rows["3"]["sigla_uf"] is None
         assert rows["3"]["nome_completo"] == "Antonio C. Valadares"
+
+
+class TestCoverageMap:
+    """Every time-tracked table carries a valid BD Pro rolling window.
+
+    The paywall covers each table on its finest time column (data_extracao for
+    snapshots, data / ano+mes / ano for the series). A 6-month lag on a year-only
+    column would invert the pro range, so the two year-only series use a 1-year
+    lag; this pins that every spec computes a non-inverted pro range.
+    """
+
+    def test_covers_exactly_the_partitioned_tables(self):
+        from pipelines.datasets.br_senado_dados_abertos_administrativos import (
+            flows,
+            utils,
+        )
+
+        assert set(flows._COVERAGE) == set(utils.SNAPSHOTS) | set(
+            utils.PARTITIONED
+        )
+        assert "senador" not in flows._COVERAGE
+        assert "dicionario" not in flows._COVERAGE
+
+    def test_no_spec_inverts_the_pro_range(self):
+        import datetime as dt
+
+        from pipelines.datasets.br_senado_dados_abertos_administrativos import (
+            flows,
+        )
+        from pipelines.utils.metadata import policy
+        from pipelines.utils.metadata.domain import PartBdpro
+        from pipelines.utils.metadata.policy import CoverageIds
+
+        ids = CoverageIds(
+            free="11111111-1111-1111-1111-111111111111",
+            pro="22222222-2222-2222-2222-222222222222",
+        )
+        paywalled = [
+            s for s in flows._COVERAGE.values() if isinstance(s, PartBdpro)
+        ]
+        for spec in paywalled:
+            for src in (
+                dt.date(2026, 1, 1),
+                dt.date(2026, 7, 15),
+                dt.date(2026, 12, 31),
+            ):
+                ranges = policy.compute_coverage_ranges(spec, src, ids)
+                assert (
+                    ranges.pro is not None
+                )  # part_bdpro always has a pro range
+                pro = ranges.pro.model_dump(exclude_none=True)
+                start = (
+                    pro.get("startYear"),
+                    pro.get("startMonth", 1),
+                    pro.get("startDay", 1),
+                )
+                end = (
+                    pro.get("endYear"),
+                    pro.get("endMonth", 12),
+                    pro.get("endDay", 28),
+                )
+                assert start <= end, (spec.date_column, src, start, end)
