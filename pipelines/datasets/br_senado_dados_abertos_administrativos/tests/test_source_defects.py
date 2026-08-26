@@ -300,6 +300,27 @@ class TestStreamingWrites:
         utils.write_partitioned(rows(2026, 1), out, "despesa_ceaps", "ano")
         assert sorted(p.name for p in table_dir.iterdir()) == ["ano=2026"]
 
+    def test_empty_window_writes_no_parquet(self, tmp_path):
+        """A table with no rows for the window writes no parquet.
+
+        Time-series tables like suprido_movimentacao are genuinely empty in some
+        years. The recurring flow relies on this: it skips uploading any table
+        whose row count is 0, because upload_to_gcs raises FileNotFoundError on a
+        directory with no parquet. Pins the contract behind that skip.
+        """
+        from pipelines.datasets.br_senado_dados_abertos_administrativos import (
+            utils,
+        )
+
+        out = str(tmp_path)
+        utils.write_partitioned([], out, "suprido_movimentacao", "ano")
+
+        table_dir = tmp_path / "suprido_movimentacao"
+        parquet = (
+            list(table_dir.rglob("*.parquet")) if table_dir.exists() else []
+        )
+        assert parquet == [], "an empty window must produce no parquet file"
+
 
 class TestFanOutFailuresAreNotSilent:
     """A crawl that drops parents must say so, not return short data.
@@ -356,8 +377,10 @@ class TestSenadorNormalization:
 
         assert clean.norm_nome("Esperidião Amin") == "ESPERIDIAO AMIN"
         assert clean.norm_nome("  confúcio   moura ") == "CONFUCIO MOURA"
-        assert clean.norm_nome("---") is None
-        assert clean.norm_nome(None) is None
+        # Absent names fold to "" (no real name folds to empty, so an empty key
+        # never collides and a lookup on it simply misses).
+        assert clean.norm_nome("---") == ""
+        assert clean.norm_nome(None) == ""
 
     def test_gabinete_resolves_id_via_crosswalk_only(self, monkeypatch):
         from pipelines.datasets.br_senado_dados_abertos_administrativos import (
