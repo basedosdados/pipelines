@@ -1,0 +1,22 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Vários eventos podem compartilhar o mesmo ano,,Year of the electoral event,Año del evento electoral
+financial_year,STRING,"Exercício financeiro australiano da declaração, no formato original da AEC",,no,,,no,A AEC usa dois formatos ao longo do tempo: 1998-1999 até 2010-2011 e 2011-12 em diante,Financial Year,"Australian financial year of the return, in the AEC's original format","Ejercicio financiero australiano de la declaración, en el formato original de la AEC"
+return_type,STRING,Categoria da declaração no Transparency Register,,yes,,,no,,Return Type,Category of the return in the Transparency Register,Categoría de la declaración en el Transparency Register
+name,STRING,Nome da entidade declarante,,no,,,no,,Name,Name of the reporting entity,Nombre de la entidad declarante
+lodged_on_behalf_of,STRING,Entidade em nome da qual a declaração foi apresentada,,no,,,no,,Lodged on behalf of,Entity the return was lodged on behalf of,Entidad en cuyo nombre se presentó la declaración
+party_group,STRING,Agrupamento partidário ao qual a entidade pertence,,no,,,no,,Party Group,Party grouping the entity belongs to,Agrupación partidaria a la que pertenece la entidad
+associated_parties,STRING,Partidos aos quais a entidade associada está vinculada,,no,,,no,,AssociatedParties,Parties the associated entity is linked to,Partidos a los que está vinculada la entidad asociada
+client_type,STRING,Categoria da entidade no cadastro da AEC,,yes,,,no,,ClientType,Category of the entity in the AEC register,Categoría de la entidad en el registro de la AEC
+client_file_id,STRING,Identificador da entidade no cadastro da AEC,,no,,,no,,ClientFileId,Identifier of the entity in the AEC register,Identificador de la entidad en el registro de la AEC
+abn,STRING,Australian Business Number da entidade,,no,,,no,,ABN,Australian Business Number of the entity,Australian Business Number de la entidad
+acn,STRING,Australian Company Number da entidade,,no,,,no,,ACN,Australian Company Number of the entity,Australian Company Number de la entidad
+total_receipts,FLOAT64,Total de recebimentos declarados,,no,,AUD,no,,Total Receipts,Total receipts reported,Total de ingresos declarados
+total_payments,FLOAT64,Total de pagamentos declarados,,no,,AUD,no,,Total Payments,Total payments reported,Total de pagos declarados
+total_debts,FLOAT64,Total de dívidas declaradas,,no,,AUD,no,,Total Debts,Total debts reported,Total de deudas declaradas
+total_discretionary_benefits,FLOAT64,Total de benefícios discricionários declarados,,no,,AUD,no,,Total Discretionary Benefits,Total discretionary benefits reported,Total de beneficios discrecionales declarados
+capital_contributions,FLOAT64,Total de aportes de capital declarados,,no,,AUD,no,,Capital Contributions,Total capital contributions reported,Total de aportes de capital declarados
+total_donations_made,FLOAT64,Total de doações feitas,,no,,AUD,no,,Total Donations Made,Total donations made,Total de donaciones realizadas
+total_donations_received,FLOAT64,Total de doações recebidas,,no,,AUD,no,,Total Donations Received,Total donations received,Total de donaciones recibidas
+total_expenditure,FLOAT64,Total de despesas declaradas,,no,,AUD,no,,Total Expenditure,Total expenditure reported,Total de gastos declarados
+electoral_expenditure,FLOAT64,Total de despesas eleitorais declaradas,,no,,AUD,no,,Electoral Expenditure,Total electoral expenditure reported,Total de gastos electorales declarados
+number_of_donors,INT64,Número de pessoas ou entidades doadoras declaradas,,no,,donor,no,,Number of Donors,Number of donors reported,Número de personas o entidades donantes declaradas

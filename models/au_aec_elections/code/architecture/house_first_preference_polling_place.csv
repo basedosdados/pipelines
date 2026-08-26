@@ -1,0 +1,19 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Vários eventos podem compartilhar o mesmo ano,,Year of the electoral event,Año del evento electoral
+election_id,STRING,Identificador do evento eleitoral atribuído pela AEC,,no,,,no,Corresponde ao Event ID usado nas URLs de results.aec.gov.au,,AEC identifier of the electoral event,Identificador del evento electoral asignado por la AEC
+state_abbreviation,STRING,Sigla do estado ou território,,no,br_bd_diretorios_au.state:abbreviation,,no,,StateAb,State or territory abbreviation,Sigla del estado o territorio
+division_id,STRING,Identificador da divisão eleitoral federal atribuído pela AEC,,no,,,no,Identificador próprio da AEC; não corresponde ao código CED do ABS,DivisionID,AEC identifier of the Commonwealth electoral division,Identificador de la división electoral federal asignado por la AEC
+division_name,STRING,Nome da divisão eleitoral federal,,no,,,no,,DivisionNm,Name of the Commonwealth electoral division,Nombre de la división electoral federal
+polling_place_id,STRING,Identificador do local de votação atribuído pela AEC,,no,,,no,,PollingPlaceID,AEC identifier of the polling place,Identificador del local de votación asignado por la AEC
+polling_place_name,STRING,Nome do local de votação,,no,,,no,,PollingPlace,Name of the polling place,Nombre del local de votación
+candidate_id,STRING,Identificador da pessoa candidata atribuído pela AEC,,no,,,no,,CandidateID,AEC identifier of the candidate,Identificador de la persona candidata asignado por la AEC
+surname,STRING,Sobrenome da pessoa candidata,,no,,,no,,Surname,Surname of the candidate,Apellido de la persona candidata
+given_name,STRING,Prenome da pessoa candidata,,no,,,no,,GivenNm,Given name of the candidate,Nombre de pila de la persona candidata
+ballot_position,STRING,Posição da pessoa candidata na cédula,,no,,,no,Número de ordem; aritmética sobre ele não tem sentido,BallotPosition,Position of the candidate on the ballot paper,Posición de la persona candidata en la boleta
+party_abbreviation,STRING,Sigla do partido da pessoa candidata,,no,,,no,,PartyAb,Abbreviation of the candidate's party,Sigla del partido de la persona candidata
+party_name,STRING,Nome do partido da pessoa candidata,,no,,,no,,PartyNm,Name of the candidate's party,Nombre del partido de la persona candidata
+elected,STRING,Indica se a pessoa candidata foi eleita neste evento,,yes,,,no,,Elected,Whether the candidate was elected at this event,Indica si la persona candidata fue elegida en este evento
+historic_elected,STRING,Indica se a pessoa candidata ocupava a cadeira antes deste evento,,yes,,,no,,HistoricElected,Whether the candidate held the seat before this event,Indica si la persona candidata ocupaba el escaño antes de este evento
+sitting_member,STRING,Indica se a pessoa candidata era parlamentar em exercício,,yes,,,no,"Publicado apenas na eleição de 2004, que não traz elected nem historic_elected",SittingMemberFl,Whether the candidate was the sitting member,Indica si la persona candidata era parlamentaria en ejercicio
+ordinary_votes,INT64,Votos ordinários,,no,,vote,no,,OrdinaryVotes,Ordinary votes,Votos ordinarios
+swing,FLOAT64,Variação do percentual de votos em relação ao evento anterior,,no,,percent,no,Expresso em pontos percentuais,Swing,Change in vote share relative to the previous event,Variación del porcentaje de votos respecto al evento anterior

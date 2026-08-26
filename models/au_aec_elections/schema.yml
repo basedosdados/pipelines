@@ -1,0 +1,1185 @@
+---
+version: 2
+models:
+  - name: au_aec_elections__election
+    description: >-
+      Catálogo dos eventos eleitorais federais cobertos pelo conjunto: eleições gerais,
+      eleições suplementares, a eleição de Senado da Austrália Ocidental de 2014 e
+      o
+      referendo de 2023. Serve de chave para todas as demais tabelas por election_id.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [election_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
+      - name: election_name
+        description: >-
+          Nome do evento eleitoral
+      - name: election_type
+        description: >-
+          Tipo do evento: eleição geral, eleição suplementar, eleição de Senado ou
+          referendo
+      - name: division_name
+        description: >-
+          Divisão eleitoral disputada, quando o evento se restringe a uma divisão
+      - name: state_abbreviation
+        description: >-
+          Estado ou território ao qual o evento se restringe, quando aplicável
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+  - name: au_aec_elections__polling_place
+    description: >-
+      Locais de votação de cada evento eleitoral, com endereço e coordenadas. A eleição
+      de
+      2004 não publica latitude e longitude.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, election_id, polling_place_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [premises_address_2, premises_address_3]
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+      - name: division_id
+        description: >-
+          Identificador da divisão eleitoral federal atribuído pela AEC
+      - name: division_name
+        description: >-
+          Nome da divisão eleitoral federal
+      - name: polling_place_id
+        description: >-
+          Identificador do local de votação atribuído pela AEC
+        tests: [not_null]
+      - name: polling_place_type_id
+        description: >-
+          Código do tipo de local de votação
+      - name: polling_place_name
+        description: >-
+          Nome do local de votação
+      - name: premises_name
+        description: >-
+          Nome do estabelecimento que sedia o local de votação
+      - name: premises_address_1
+        description: >-
+          Primeira linha do endereço do estabelecimento
+      - name: premises_address_2
+        description: >-
+          Segunda linha do endereço do estabelecimento
+      - name: premises_address_3
+        description: >-
+          Terceira linha do endereço do estabelecimento
+      - name: premises_suburb
+        description: >-
+          Bairro ou localidade do estabelecimento
+      - name: premises_state_abbreviation
+        description: >-
+          Sigla do estado do estabelecimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+      - name: premises_postcode
+        description: >-
+          Código postal do estabelecimento
+      - name: latitude
+        description: >-
+          Latitude do local de votação
+      - name: longitude
+        description: >-
+          Longitude do local de votação
+  - name: au_aec_elections__party
+    description: >-
+      Partidos registrados em cada evento eleitoral, por estado. A AEC registra a
+      mesma
+      sigla sob mais de um nome em alguns estados, de modo que a sigla sozinha não
+      identifica a linha.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - state_abbreviation
+            - party_abbreviation
+            - registered_party_abbreviation
+            - party_name
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Estado ou território de registro do partido, ou NAT para registro nacional
+        tests: [not_null]
+      - name: party_abbreviation
+        description: >-
+          Sigla do partido da pessoa candidata
+        tests: [not_null]
+      - name: registered_party_abbreviation
+        description: >-
+          Sigla do partido tal como registrada na AEC
+      - name: party_name
+        description: >-
+          Nome do partido
+        tests: [not_null]
+  - name: au_aec_elections__house_candidate
+    description: >-
+      Pessoas candidatas à Câmara dos Representantes em cada evento eleitoral, com
+      partido, divisão e indicação de eleição.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, election_id, candidate_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [sitting_member]
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+      - name: division_id
+        description: >-
+          Identificador da divisão eleitoral federal atribuído pela AEC
+      - name: division_name
+        description: >-
+          Nome da divisão eleitoral federal
+      - name: candidate_id
+        description: >-
+          Identificador da pessoa candidata atribuído pela AEC
+        tests: [not_null]
+      - name: surname
+        description: >-
+          Sobrenome da pessoa candidata
+      - name: given_name
+        description: >-
+          Prenome da pessoa candidata
+      - name: party_abbreviation
+        description: >-
+          Sigla do partido da pessoa candidata
+      - name: party_name
+        description: >-
+          Nome do partido da pessoa candidata
+      - name: elected
+        description: >-
+          Indica se a pessoa candidata foi eleita neste evento
+      - name: historic_elected
+        description: >-
+          Indica se a pessoa candidata ocupava a cadeira antes deste evento
+      - name: sitting_member
+        description: >-
+          Indica se a pessoa candidata era parlamentar em exercício
+  - name: au_aec_elections__house_first_preference_division
+    description: >-
+      Votos de primeira preferência para a Câmara dos Representantes, por divisão,
+      pessoa
+      candidata e tipo de voto. Cobre apenas as eleições gerais: eleições suplementares
+      não publicam apuração por divisão.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - division_id
+            - candidate_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [sitting_member]
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+      - name: division_id
+        description: >-
+          Identificador da divisão eleitoral federal atribuído pela AEC
+        tests: [not_null]
+      - name: division_name
+        description: >-
+          Nome da divisão eleitoral federal
+      - name: candidate_id
+        description: >-
+          Identificador da pessoa candidata atribuído pela AEC
+        tests: [not_null]
+      - name: surname
+        description: >-
+          Sobrenome da pessoa candidata
+      - name: given_name
+        description: >-
+          Prenome da pessoa candidata
+      - name: ballot_position
+        description: >-
+          Posição da pessoa candidata na cédula
+      - name: party_abbreviation
+        description: >-
+          Sigla do partido da pessoa candidata
+      - name: party_name
+        description: >-
+          Nome do partido da pessoa candidata
+      - name: elected
+        description: >-
+          Indica se a pessoa candidata foi eleita neste evento
+      - name: historic_elected
+        description: >-
+          Indica se a pessoa candidata ocupava a cadeira antes deste evento
+      - name: sitting_member
+        description: >-
+          Indica se a pessoa candidata era parlamentar em exercício
+      - name: ordinary_votes
+        description: >-
+          Votos ordinários
+      - name: absent_votes
+        description: >-
+          Votos de ausentes
+      - name: provisional_votes
+        description: >-
+          Votos provisórios
+      - name: pre_poll_votes
+        description: >-
+          Votos antecipados
+      - name: postal_votes
+        description: >-
+          Votos por correio
+      - name: total_votes
+        description: >-
+          Total de votos
+      - name: swing
+        description: >-
+          Variação do percentual de votos em relação ao evento anterior
+  - name: au_aec_elections__house_first_preference_polling_place
+    description: >-
+      Votos ordinários de primeira preferência para a Câmara dos Representantes, por
+      local
+      de votação e pessoa candidata. Inclui eleições gerais e suplementares.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - division_id
+            - polling_place_id
+            - candidate_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [sitting_member]
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+      - name: division_id
+        description: >-
+          Identificador da divisão eleitoral federal atribuído pela AEC
+        tests: [not_null]
+      - name: division_name
+        description: >-
+          Nome da divisão eleitoral federal
+      - name: polling_place_id
+        description: >-
+          Identificador do local de votação atribuído pela AEC
+        tests: [not_null]
+      - name: polling_place_name
+        description: >-
+          Nome do local de votação
+      - name: candidate_id
+        description: >-
+          Identificador da pessoa candidata atribuído pela AEC
+        tests: [not_null]
+      - name: surname
+        description: >-
+          Sobrenome da pessoa candidata
+      - name: given_name
+        description: >-
+          Prenome da pessoa candidata
+      - name: ballot_position
+        description: >-
+          Posição da pessoa candidata na cédula
+      - name: party_abbreviation
+        description: >-
+          Sigla do partido da pessoa candidata
+      - name: party_name
+        description: >-
+          Nome do partido da pessoa candidata
+      - name: elected
+        description: >-
+          Indica se a pessoa candidata foi eleita neste evento
+      - name: historic_elected
+        description: >-
+          Indica se a pessoa candidata ocupava a cadeira antes deste evento
+      - name: sitting_member
+        description: >-
+          Indica se a pessoa candidata era parlamentar em exercício
+      - name: ordinary_votes
+        description: >-
+          Votos ordinários
+      - name: swing
+        description: >-
+          Variação do percentual de votos em relação ao evento anterior
+  - name: au_aec_elections__house_two_candidate_preferred_polling_place
+    description: >-
+      Apuração de preferência entre as duas pessoas candidatas mais votadas de cada
+      divisão, por local de votação. Inclui eleições gerais e suplementares.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - division_id
+            - polling_place_id
+            - candidate_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [sitting_member]
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+      - name: division_id
+        description: >-
+          Identificador da divisão eleitoral federal atribuído pela AEC
+        tests: [not_null]
+      - name: division_name
+        description: >-
+          Nome da divisão eleitoral federal
+      - name: polling_place_id
+        description: >-
+          Identificador do local de votação atribuído pela AEC
+        tests: [not_null]
+      - name: polling_place_name
+        description: >-
+          Nome do local de votação
+      - name: candidate_id
+        description: >-
+          Identificador da pessoa candidata atribuído pela AEC
+        tests: [not_null]
+      - name: surname
+        description: >-
+          Sobrenome da pessoa candidata
+      - name: given_name
+        description: >-
+          Prenome da pessoa candidata
+      - name: ballot_position
+        description: >-
+          Posição da pessoa candidata na cédula
+      - name: party_abbreviation
+        description: >-
+          Sigla do partido da pessoa candidata
+      - name: party_name
+        description: >-
+          Nome do partido da pessoa candidata
+      - name: elected
+        description: >-
+          Indica se a pessoa candidata foi eleita neste evento
+      - name: historic_elected
+        description: >-
+          Indica se a pessoa candidata ocupava a cadeira antes deste evento
+      - name: sitting_member
+        description: >-
+          Indica se a pessoa candidata era parlamentar em exercício
+      - name: ordinary_votes
+        description: >-
+          Votos ordinários
+      - name: swing
+        description: >-
+          Variação do percentual de votos em relação ao evento anterior
+  - name: au_aec_elections__house_two_party_preferred_division
+    description: >-
+      Apuração de preferência entre o Australian Labor Party e a coligação
+      Liberal/National, por divisão. Cobre apenas as eleições gerais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, election_id, division_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+      - name: division_id
+        description: >-
+          Identificador da divisão eleitoral federal atribuído pela AEC
+        tests: [not_null]
+      - name: division_name
+        description: >-
+          Nome da divisão eleitoral federal
+      - name: party_abbreviation
+        description: >-
+          Sigla do partido que venceu a divisão na apuração de dois partidos
+      - name: labor_votes
+        description: >-
+          Votos do Australian Labor Party na apuração de dois partidos
+      - name: labor_percentage
+        description: >-
+          Percentual do Australian Labor Party na apuração de dois partidos
+      - name: coalition_votes
+        description: >-
+          Votos da coligação Liberal/National na apuração de dois partidos
+      - name: coalition_percentage
+        description: >-
+          Percentual da coligação Liberal/National na apuração de dois partidos
+      - name: total_votes
+        description: >-
+          Total de votos
+      - name: swing
+        description: >-
+          Variação do percentual de votos em relação ao evento anterior
+  - name: au_aec_elections__house_two_party_preferred_polling_place
+    description: >-
+      Apuração de preferência entre o Australian Labor Party e a coligação
+      Liberal/National, por local de votação. Inclui eleições gerais e suplementares.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - division_id
+            - polling_place_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+      - name: division_id
+        description: >-
+          Identificador da divisão eleitoral federal atribuído pela AEC
+        tests: [not_null]
+      - name: division_name
+        description: >-
+          Nome da divisão eleitoral federal
+      - name: polling_place_id
+        description: >-
+          Identificador do local de votação atribuído pela AEC
+        tests: [not_null]
+      - name: polling_place_name
+        description: >-
+          Nome do local de votação
+      - name: labor_votes
+        description: >-
+          Votos do Australian Labor Party na apuração de dois partidos
+      - name: labor_percentage
+        description: >-
+          Percentual do Australian Labor Party na apuração de dois partidos
+      - name: coalition_votes
+        description: >-
+          Votos da coligação Liberal/National na apuração de dois partidos
+      - name: coalition_percentage
+        description: >-
+          Percentual da coligação Liberal/National na apuração de dois partidos
+      - name: total_votes
+        description: >-
+          Total de votos
+      - name: swing
+        description: >-
+          Variação do percentual de votos em relação ao evento anterior
+  - name: au_aec_elections__senate_candidate
+    description: >-
+      Pessoas candidatas ao Senado em cada evento eleitoral, com partido, estado e
+      ordem
+      de eleição para quem foi eleito.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, election_id, candidate_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [sitting_member, elected_order]
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+      - name: candidate_id
+        description: >-
+          Identificador da pessoa candidata atribuído pela AEC
+        tests: [not_null]
+      - name: surname
+        description: >-
+          Sobrenome da pessoa candidata
+      - name: given_name
+        description: >-
+          Prenome da pessoa candidata
+      - name: party_abbreviation
+        description: >-
+          Sigla do partido da pessoa candidata
+      - name: party_name
+        description: >-
+          Nome do partido da pessoa candidata
+      - name: elected
+        description: >-
+          Indica se a pessoa candidata foi eleita neste evento
+      - name: historic_elected
+        description: >-
+          Indica se a pessoa candidata ocupava a cadeira antes deste evento
+      - name: sitting_member
+        description: >-
+          Indica se a pessoa candidata era parlamentar em exercício
+      - name: elected_order
+        description: >-
+          Ordem em que a pessoa foi eleita para o Senado no estado
+  - name: au_aec_elections__senate_first_preference_division
+    description: >-
+      Votos de primeira preferência para o Senado, por divisão, grupo da cédula, pessoa
+      candidata e tipo de voto. Inclui as linhas acima da cédula.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - division_id
+            - candidate_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+      - name: division_id
+        description: >-
+          Identificador da divisão eleitoral federal atribuído pela AEC
+        tests: [not_null]
+      - name: division_name
+        description: >-
+          Nome da divisão eleitoral federal
+      - name: group_abbreviation
+        description: >-
+          Letra do grupo na cédula do Senado
+      - name: ballot_position
+        description: >-
+          Posição da pessoa candidata na cédula
+      - name: candidate_id
+        description: >-
+          Identificador da pessoa candidata atribuído pela AEC
+        tests: [not_null]
+      - name: candidate_details
+        description: >-
+          Descrição da pessoa candidata ou da linha acima da cédula
+      - name: party_abbreviation
+        description: >-
+          Sigla do partido da pessoa candidata
+      - name: party_name
+        description: >-
+          Nome do partido da pessoa candidata
+      - name: elected
+        description: >-
+          Indica se a pessoa candidata foi eleita neste evento
+      - name: historic_elected
+        description: >-
+          Indica se a pessoa candidata ocupava a cadeira antes deste evento
+      - name: ordinary_votes
+        description: >-
+          Votos ordinários
+      - name: absent_votes
+        description: >-
+          Votos de ausentes
+      - name: provisional_votes
+        description: >-
+          Votos provisórios
+      - name: pre_poll_votes
+        description: >-
+          Votos antecipados
+      - name: postal_votes
+        description: >-
+          Votos por correio
+      - name: total_votes
+        description: >-
+          Total de votos
+  - name: au_aec_elections__division_summary
+    description: >-
+      Inscrições, comparecimento, votos válidos e inválidos e composição por tipo
+      de voto,
+      por divisão e apuração. A coluna chamber separa Câmara, Senado e referendo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, election_id, chamber, division_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
+      - name: chamber
+        description: >-
+          Apuração à qual os totais se referem: Câmara, Senado ou referendo
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+      - name: division_id
+        description: >-
+          Identificador da divisão eleitoral federal atribuído pela AEC
+        tests: [not_null]
+      - name: division_name
+        description: >-
+          Nome da divisão eleitoral federal
+      - name: enrolment
+        description: >-
+          Número de pessoas inscritas na divisão
+      - name: turnout
+        description: >-
+          Número de pessoas que compareceram
+      - name: turnout_percentage
+        description: >-
+          Comparecimento como percentual das pessoas inscritas
+      - name: turnout_swing
+        description: >-
+          Variação do comparecimento em relação ao evento anterior
+      - name: ordinary_votes
+        description: >-
+          Votos ordinários
+      - name: absent_votes
+        description: >-
+          Votos de ausentes
+      - name: provisional_votes
+        description: >-
+          Votos provisórios
+      - name: pre_poll_votes
+        description: >-
+          Votos antecipados
+      - name: postal_votes
+        description: >-
+          Votos por correio
+      - name: formal_votes
+        description: >-
+          Votos válidos
+      - name: informal_votes
+        description: >-
+          Votos inválidos
+      - name: informal_percentage
+        description: >-
+          Votos inválidos como percentual do total apurado
+      - name: informal_swing
+        description: >-
+          Variação do percentual de votos inválidos em relação ao evento anterior
+      - name: total_votes
+        description: >-
+          Total de votos
+  - name: au_aec_elections__referendum_polling_place
+    description: >-
+      Votos pelo Sim e pelo Não no referendo de 2023 sobre a Voz Indígena ao Parlamento,
+      por local de votação.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - question_number
+            - division_id
+            - polling_place_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          Identificador do evento eleitoral atribuído pela AEC
+        tests: [not_null]
+      - name: question_number
+        description: >-
+          Número da pergunta submetida a referendo
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: abbreviation
+      - name: division_id
+        description: >-
+          Identificador da divisão eleitoral federal atribuído pela AEC
+        tests: [not_null]
+      - name: division_name
+        description: >-
+          Nome da divisão eleitoral federal
+      - name: polling_place_id
+        description: >-
+          Identificador do local de votação atribuído pela AEC
+        tests: [not_null]
+      - name: polling_place_name
+        description: >-
+          Nome do local de votação
+      - name: yes_votes
+        description: >-
+          Votos pelo Sim
+      - name: yes_percentage
+        description: >-
+          Percentual de votos pelo Sim sobre os votos válidos
+      - name: no_votes
+        description: >-
+          Votos pelo Não
+      - name: no_percentage
+        description: >-
+          Percentual de votos pelo Não sobre os votos válidos
+      - name: formal_votes
+        description: >-
+          Votos válidos
+      - name: formal_percentage
+        description: >-
+          Votos válidos como percentual do total apurado
+      - name: informal_votes
+        description: >-
+          Votos inválidos
+      - name: informal_percentage
+        description: >-
+          Votos inválidos como percentual do total apurado
+      - name: total_votes
+        description: >-
+          Total de votos
+  - name: au_aec_elections__disclosure_donation
+    description: >-
+      Doações individuais declaradas ao Transparency Register da AEC, reunindo as
+      declarações anuais, de eleição e de referendo. Cada linha é uma aresta
+      doador-recebedor; a coluna direction indica se a doação foi declarada por quem
+      doou
+      ou por quem recebeu, e a mesma doação pode constar dos dois lados.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [election_name]
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: disclosure_type
+        description: >-
+          Tipo de declaração: anual, de eleição ou de referendo
+      - name: financial_year
+        description: >-
+          Exercício financeiro australiano da declaração, no formato original da AEC
+      - name: election_name
+        description: >-
+          Nome do evento eleitoral ao qual a declaração se refere
+      - name: return_type
+        description: >-
+          Categoria da declaração no Transparency Register
+      - name: direction
+        description: >-
+          Lado da declaração de onde a doação foi extraída: declarada pelo doador
+          ou pelo
+          recebedor
+      - name: donor_name
+        description: >-
+          Nome de quem fez a doação
+      - name: recipient_name
+        description: >-
+          Nome de quem recebeu a doação
+      - name: donation_date
+        description: >-
+          Data da doação
+      - name: value
+        description: >-
+          Valor da doação em dólares australianos
+  - name: au_aec_elections__disclosure_receipt
+    description: >-
+      Recebimentos individuais declarados nas declarações anuais ao Transparency Register
+      da AEC, incluindo doações, contribuições de filiados e outros recebimentos.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: financial_year
+        description: >-
+          Exercício financeiro australiano da declaração, no formato original da AEC
+      - name: return_type
+        description: >-
+          Categoria da declaração no Transparency Register
+      - name: recipient_name
+        description: >-
+          Nome da entidade que declarou o recebimento
+      - name: received_from
+        description: >-
+          Nome de quem originou o recebimento
+      - name: receipt_type
+        description: >-
+          Natureza do recebimento declarado
+      - name: value
+        description: >-
+          Valor do recebimento em dólares australianos
+  - name: au_aec_elections__disclosure_return_annual
+    description: >-
+      Totais das declarações anuais apresentadas ao Transparency Register da AEC por
+      partidos, entidades associadas, terceiros, terceiros significativos, doadores
+      e
+      parlamentares. As colunas variam conforme o formulário, de modo que cada linha
+      preenche apenas as que se aplicam ao seu return_type. As cinco categorias de
+      despesa
+      eleitoral das declarações de terceiros não são carregadas.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - lodged_on_behalf_of
+            - party_group
+            - associated_parties
+            - client_type
+            - client_file_id
+            - abn
+            - acn
+            - total_expenditure
+            - electoral_expenditure
+            - number_of_donors
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: financial_year
+        description: >-
+          Exercício financeiro australiano da declaração, no formato original da AEC
+      - name: return_type
+        description: >-
+          Categoria da declaração no Transparency Register
+      - name: name
+        description: >-
+          Nome da entidade declarante
+      - name: lodged_on_behalf_of
+        description: >-
+          Entidade em nome da qual a declaração foi apresentada
+      - name: party_group
+        description: >-
+          Agrupamento partidário ao qual a entidade pertence
+      - name: associated_parties
+        description: >-
+          Partidos aos quais a entidade associada está vinculada
+      - name: client_type
+        description: >-
+          Categoria da entidade no cadastro da AEC
+      - name: client_file_id
+        description: >-
+          Identificador da entidade no cadastro da AEC
+      - name: abn
+        description: >-
+          Australian Business Number da entidade
+      - name: acn
+        description: >-
+          Australian Company Number da entidade
+      - name: total_receipts
+        description: >-
+          Total de recebimentos declarados
+      - name: total_payments
+        description: >-
+          Total de pagamentos declarados
+      - name: total_debts
+        description: >-
+          Total de dívidas declaradas
+      - name: total_discretionary_benefits
+        description: >-
+          Total de benefícios discricionários declarados
+      - name: capital_contributions
+        description: >-
+          Total de aportes de capital declarados
+      - name: total_donations_made
+        description: >-
+          Total de doações feitas
+      - name: total_donations_received
+        description: >-
+          Total de doações recebidas
+      - name: total_expenditure
+        description: >-
+          Total de despesas declaradas
+      - name: electoral_expenditure
+        description: >-
+          Total de despesas eleitorais declaradas
+      - name: number_of_donors
+        description: >-
+          Número de pessoas ou entidades doadoras declaradas
+  - name: au_aec_elections__disclosure_election_return
+    description: >-
+      Totais das declarações de eleição apresentadas por pessoas candidatas e grupos
+      do
+      Senado, com doações recebidas e despesa eleitoral aberta por categoria.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano do evento eleitoral
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_name
+        description: >-
+          Nome do evento eleitoral ao qual a declaração se refere
+      - name: return_type
+        description: >-
+          Se a declaração é de pessoa candidata ou de grupo do Senado
+      - name: name
+        description: >-
+          Nome da pessoa candidata ou do grupo do Senado
+      - name: party_id
+        description: >-
+          Identificador do partido atribuído pela AEC
+      - name: party_name
+        description: >-
+          Nome do partido
+      - name: electorate_name
+        description: >-
+          Divisão eleitoral disputada
+      - name: electorate_state
+        description: >-
+          Estado ou território da divisão disputada
+      - name: nil_return
+        description: >-
+          Indica se a declaração foi apresentada sem movimentação
+      - name: amendment_number
+        description: >-
+          Número da retificação da declaração
+      - name: total_gift_value
+        description: >-
+          Valor total das doações recebidas
+      - name: number_of_donors
+        description: >-
+          Número de pessoas ou entidades doadoras declaradas
+      - name: total_electoral_expenditure
+        description: >-
+          Total de despesas eleitorais declaradas
+      - name: discretionary_benefits_received
+        description: >-
+          Total de benefícios discricionários recebidos
+      - name: broadcasting_cost
+        description: >-
+          Despesa com veiculação em rádio e televisão
+      - name: publishing_cost
+        description: >-
+          Despesa com veiculação em mídia impressa
+      - name: display_ad_cost
+        description: >-
+          Despesa com publicidade externa
+      - name: direct_mailing_cost
+        description: >-
+          Despesa com mala direta
+      - name: campaign_material_cost
+        description: >-
+          Despesa com material de campanha
+      - name: opinion_poll_cost
+        description: >-
+          Despesa com pesquisas de opinião
+  - name: au_aec_elections__dicionario
+    description: >-
+      Correspondência entre as chaves codificadas das colunas do conjunto e o seu
+      significado.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug da tabela descrita pela entrada do dicionário
+      - name: nome_coluna
+        description: >-
+          Nome da coluna descrita pela entrada do dicionário
+      - name: chave
+        description: >-
+          Valor da chave codificada na coluna
+      - name: cobertura_temporal
+        description: >-
+          Cobertura temporal da entrada do dicionário
+      - name: valor
+        description: >-
+          Significado da chave codificada

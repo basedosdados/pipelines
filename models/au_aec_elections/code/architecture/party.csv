@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Vários eventos podem compartilhar o mesmo ano,,Year of the electoral event,Año del evento electoral
+election_id,STRING,Identificador do evento eleitoral atribuído pela AEC,,no,,,no,Corresponde ao Event ID usado nas URLs de results.aec.gov.au,,AEC identifier of the electoral event,Identificador del evento electoral asignado por la AEC
+state_abbreviation,STRING,"Estado ou território de registro do partido, ou NAT para registro nacional",,yes,,,no,"Não referencia o diretório de estados: a AEC usa o valor NAT, que não é um estado, para partidos de registro nacional",StateAb,"State or territory the party is registered in, or NAT for national registration","Estado o territorio de registro del partido, o NAT para registro nacional"
+party_abbreviation,STRING,Sigla do partido da pessoa candidata,,no,,,no,,PartyAb,Abbreviation of the candidate's party,Sigla del partido de la persona candidata
+registered_party_abbreviation,STRING,Sigla do partido tal como registrada na AEC,,no,,,no,,RegisteredPartyAb,Party abbreviation as registered with the AEC,Sigla del partido tal como está registrada en la AEC
+party_name,STRING,Nome do partido,,no,,,no,,PartyNm,Name of the party,Nombre del partido

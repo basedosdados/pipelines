@@ -1,0 +1,18 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Vários eventos podem compartilhar o mesmo ano,,Year of the electoral event,Año del evento electoral
+election_id,STRING,Identificador do evento eleitoral atribuído pela AEC,,no,,,no,Corresponde ao Event ID usado nas URLs de results.aec.gov.au,,AEC identifier of the electoral event,Identificador del evento electoral asignado por la AEC
+state_abbreviation,STRING,Sigla do estado ou território,,no,br_bd_diretorios_au.state:abbreviation,,no,,StateAb,State or territory abbreviation,Sigla del estado o territorio
+division_id,STRING,Identificador da divisão eleitoral federal atribuído pela AEC,,no,,,no,Identificador próprio da AEC; não corresponde ao código CED do ABS,DivisionID,AEC identifier of the Commonwealth electoral division,Identificador de la división electoral federal asignado por la AEC
+division_name,STRING,Nome da divisão eleitoral federal,,no,,,no,,DivisionNm,Name of the Commonwealth electoral division,Nombre de la división electoral federal
+polling_place_id,STRING,Identificador do local de votação atribuído pela AEC,,no,,,no,,PollingPlaceID,AEC identifier of the polling place,Identificador del local de votación asignado por la AEC
+polling_place_type_id,STRING,Código do tipo de local de votação,,yes,,,no,,PollingPlaceTypeID,Code for the type of polling place,Código del tipo de local de votación
+polling_place_name,STRING,Nome do local de votação,,no,,,no,,PollingPlaceNm,Name of the polling place,Nombre del local de votación
+premises_name,STRING,Nome do estabelecimento que sedia o local de votação,,no,,,no,,PremisesNm,Name of the premises hosting the polling place,Nombre del establecimiento que alberga el local de votación
+premises_address_1,STRING,Primeira linha do endereço do estabelecimento,,no,,,no,,PremisesAddress1,First line of the premises address,Primera línea de la dirección del establecimiento
+premises_address_2,STRING,Segunda linha do endereço do estabelecimento,,no,,,no,,PremisesAddress2,Second line of the premises address,Segunda línea de la dirección del establecimiento
+premises_address_3,STRING,Terceira linha do endereço do estabelecimento,,no,,,no,,PremisesAddress3,Third line of the premises address,Tercera línea de la dirección del establecimiento
+premises_suburb,STRING,Bairro ou localidade do estabelecimento,,no,,,no,,PremisesSuburb,Suburb or locality of the premises,Barrio o localidad del establecimiento
+premises_state_abbreviation,STRING,Sigla do estado do estabelecimento,,no,br_bd_diretorios_au.state:abbreviation,,no,,PremisesStateAb,State abbreviation of the premises,Sigla del estado del establecimiento
+premises_postcode,STRING,Código postal do estabelecimento,,no,,,no,,PremisesPostCode,Postcode of the premises,Código postal del establecimiento
+latitude,FLOAT64,Latitude do local de votação,,no,,degree,no,,Latitude,Latitude of the polling place,Latitud del local de votación
+longitude,FLOAT64,Longitude do local de votação,,no,,degree,no,,Longitude,Longitude of the polling place,Longitud del local de votación
