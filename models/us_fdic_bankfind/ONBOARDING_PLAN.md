@@ -111,3 +111,45 @@ refreshing monthly or more often; Call Reports are quarterly.
   than a `directory_column`.
 * `/failures`, `/sod` (Summary of Deposits) and `/locations` are further BankFind
   endpoints, not in scope here.
+
+## Metadata
+
+Registered on the **staging** backend (dev is down — see the repo memory), with
+the dataset `under_review` and the four tables `published`, so the dataset stays
+hidden from the production frontend until its PR merges.
+
+| Record | Value |
+|---|---|
+| organization | `fdic` — created here; the FDIC had no organization record |
+| dataset | `bankfind` |
+| raw data sources | two: the institutions and the financials endpoints |
+| tags | 5 existing + 2 created (`deposit`, `bank-supervision`) |
+| coverage | `us`, free; `1984-03 .. 2026-06` on the two quarterly tables |
+
+`code/register_metadata.py` does the whole registration and is idempotent. It
+calls the databasis MCP server's functions in-process rather than through the
+tool layer, because `financials` alone is 290 columns and passing that as a tool
+argument means pushing 137 KB of JSON through one call.
+
+Three backend behaviours it has to work around, all of which cost time the first
+time round:
+
+* **`create_update_*` is not idempotent for a table's child records.**
+  Observation levels, cloud tables, coverages and updates get a brand-new row
+  whenever `id` is omitted, so re-running the script multiplied them — eight
+  observation levels and four coverages on `financials`. The script now prunes
+  duplicates and passes existing ids.
+* **Duplicate coverages then break `create_update_table`**, with
+  `'TableForm' has no field named 'coverages_areas'` — an error that names
+  nothing relevant. It only shows up on tables whose coverages carry a datetime
+  range, which made it look table-specific rather than duplicate-specific.
+* **`get_dataset` caps a table's columns at 200**, so on `financials` the
+  partition column was simply absent from the listing and its `is_partition`
+  flag silently went unset. Column ids come from `_fetch_table_columns`
+  instead, whose ids are relay globals (`ColumnNode:<uuid>`).
+
+The architecture CSVs are also mirrored to Drive for review:
+<https://drive.google.com/drive/folders/1DF7OPwmR-zoTgDoL2Ojr-x0AQQqf0TKK>.
+They are plain CSVs, not Sheets: Drive refused the CSV→Sheet conversion on
+upload, and `bulk_upsert_columns(architecture_url=...)` only accepts a Sheet, so
+columns are registered from `columns_json` instead.
