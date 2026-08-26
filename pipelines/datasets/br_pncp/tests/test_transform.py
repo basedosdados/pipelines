@@ -434,3 +434,60 @@ class TestEmptyResultSignalling:
             utils.request("instrumentoscobranca/inclusao", {})
             == utils.EMPTY_PAGE
         )
+
+
+class TestPageSizePropagation:
+    """A per-endpoint page-size cap must survive every code path."""
+
+    def test_split_halves_keep_the_page_size(self, monkeypatch):
+        # The real bug: fetch_range's recursive split dropped page_size, so the
+        # halves reverted to the 500 default. instrumentoscobranca caps at 100
+        # and answered 400, failing 13 windows of an otherwise good harvest.
+        seen = []
+
+        def fake_fetch_window(path, params, label="", page_size=500):
+            seen.append(page_size)
+            # Force exactly one split, then succeed.
+            if len(seen) <= 2:
+                raise utils.ServerOverloadError("too big")
+            return []
+
+        monkeypatch.setattr(utils, "fetch_window", fake_fetch_window)
+        utils.fetch_range(
+            "instrumentoscobranca/inclusao",
+            ("dataInicial", "dataFinal"),
+            __import__("datetime").date(2025, 4, 10),
+            __import__("datetime").date(2025, 5, 9),
+            {},
+            "label",
+            page_size=100,
+        )
+        assert seen, "fetch_window was never called"
+        assert set(seen) == {100}, f"page_size leaked to {set(seen)}"
+
+    def test_harvest_passes_the_endpoints_configured_page_size(
+        self, monkeypatch
+    ):
+        seen = {}
+
+        def fake_fetch_range(
+            path, date_params, lo, hi, extra, label="", page_size=500
+        ):
+            seen[path] = page_size
+            return []
+
+        monkeypatch.setattr(utils, "fetch_range", fake_fetch_range)
+        import datetime
+
+        for table in ("instrumento_cobranca", "contrato"):
+            utils.harvest(
+                table=table,
+                input_dir=__import__("pathlib").Path(
+                    __import__("tempfile").mkdtemp()
+                ),
+                start=datetime.date(2025, 1, 1),
+                end=datetime.date(2025, 1, 5),
+                max_workers=1,
+            )
+        assert seen["instrumentoscobranca/inclusao"] == 100
+        assert seen["contratos/atualizacao"] == utils.PAGE_SIZE

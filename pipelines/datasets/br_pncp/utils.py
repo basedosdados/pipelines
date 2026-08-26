@@ -314,10 +314,19 @@ def fetch_range(
             return []
         mid = lo + (hi - lo) // 2
         print(f"      .. splitting {lo}..{hi} on {path}", flush=True)
+        # page_size must ride along: dropping it here silently reverts the
+        # split halves to the 500 default, which endpoints capped lower (e.g.
+        # instrumentoscobranca at 100) reject with 400.
         return fetch_range(
-            path, date_params, lo, mid, extra, label
+            path, date_params, lo, mid, extra, label, page_size
         ) + fetch_range(
-            path, date_params, mid + timedelta(days=1), hi, extra, label
+            path,
+            date_params,
+            mid + timedelta(days=1),
+            hi,
+            extra,
+            label,
+            page_size,
         )
 
 
