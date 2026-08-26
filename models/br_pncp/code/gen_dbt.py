@@ -238,6 +238,11 @@ def schema_yaml() -> str:
                 "codigo_pais_fornecedor",
                 "data_desejada",
                 "valor_orcamento_exercicio",
+                # Measured at >=95% NULL in the most recent year: PNCP only
+                # populates these for the small minority of contracts funded by
+                # a congressional amendment or arising from an ata adhesion.
+                "indicador_emenda_parlamentar",
+                "indicador_fruto_adesao",
             }
         ]
         if sparse:

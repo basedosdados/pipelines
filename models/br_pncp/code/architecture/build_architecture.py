@@ -34,7 +34,9 @@ HEADER = [
 ]
 
 DIR_ANO = "br_bd_diretorios_data_tempo.ano:ano"
-DIR_UF = "br_bd_diretorios_brasil.uf:sigla_uf"
+# The UF directory calls its key `sigla`, not `sigla_uf` — pointing the FK at
+# `sigla_uf` compiles but fails at run time with "Unrecognized name: sigla_uf".
+DIR_UF = "br_bd_diretorios_brasil.uf:sigla"
 DIR_MUN = "br_bd_diretorios_brasil.municipio:id_municipio"
 
 

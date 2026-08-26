@@ -190,3 +190,8 @@ BigQuery daily byte quota by itself.
 
 Relationship tests against `br_bd_diretorios_data_tempo__ano` use `field: ano.ano` — the
 time directory binds through a STRUCT, and the bare `field: ano` form never passes.
+
+The UF directory's key column is **`sigla`**, not `sigla_uf`. Pointing the foreign key at
+`sigla_uf` compiles fine and fails only at run time with `Unrecognized name: sigla_uf`.
+The repo's `.claude/rules/data-basis-style.md` documented the wrong column and has been
+corrected; every other dataset in the repo already used `field: sigla`.

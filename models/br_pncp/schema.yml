@@ -21,6 +21,7 @@ models:
             - codigo_unidade_subrogada
             - data_abertura_proposta
             - data_encerramento_proposta
+            - indicador_emenda_parlamentar
             - informacao_complementar
             - justificativa_presencial
             - link_sistema_origem
@@ -44,7 +45,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
-              field: sigla_uf
+              field: sigla
               config:
                 where: __most_recent_year__
       - name: id_municipio
@@ -191,6 +192,8 @@ models:
             - codigo_unidade_subrogada
             - id_ata_pncp
             - id_fornecedor_subcontratado
+            - indicador_emenda_parlamentar
+            - indicador_fruto_adesao
             - informacao_complementar
             - nome_fornecedor_subcontratado
             - nome_orgao_subrogado
@@ -213,7 +216,7 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
-              field: sigla_uf
+              field: sigla
               config:
                 where: __most_recent_year__
       - name: id_municipio
