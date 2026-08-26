@@ -40,95 +40,151 @@ DATASET_SLUG = (
     "elections"  # backend slug; the organization carries the au_aec prefix
 )
 
-AREA_AU = "8ad56723-923d-4e85-a725-9c84aca7fb7c"
-STATUS_PUBLISHED = "e16221de-ac30-4926-83d3-de219998dab3"
+AREA_AU_SLUG = "au"
+ENTITY_SLUGS = [
+    "year",
+    "state",
+    "district",
+    "electoral_booth",
+    "election",
+    "person",
+    "party",
+]
 
-ENTITY = {
-    "year": "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
-    "election": "1cf89a2d-6fd0-44af-a115-dc10dc5f0cb5",
-    "district": "031c0045-f144-4aea-b294-dcf91d0ac9c8",
-    "electoral_booth": "74ad2b0b-bba1-43b1-ac10-8cea360f6515",
-    "party": "fcee5475-ec7c-46c9-8000-b223e892932c",
-    "person": "b4e76213-888b-40ea-b877-d82ce76d71a2",
-    "state": "839765a7-9c7a-44bd-bb88-357cedba03f6",
-}
+# Reference ids happen to be identical across staging and prod today, but resolving
+# them by slug per environment means a divergence surfaces as a lookup failure here
+# rather than as metadata silently attached to the wrong entity.
+AREA_AU = ""
+STATUS_PUBLISHED = ""
+ENTITY: dict[str, str] = {}
+
+
+def resolve_reference_ids(env: str) -> None:
+    global AREA_AU, STATUS_PUBLISHED
+    ids = server.discover_ids(env=env, keys=["entity", "status"])
+    STATUS_PUBLISHED = ids["status"]["published"]
+    for slug in ENTITY_SLUGS:
+        entity_id = ids["entity"].get(slug)
+        if not entity_id:
+            raise SystemExit(f"entity {slug!r} not found on {env}")
+        ENTITY[slug] = entity_id
+    AREA_AU = server.lookup_id(env=env, slug=AREA_AU_SLUG, category="area")[
+        "id"
+    ]
+
 
 # table -> [(entity key, the column that identifies that level)]
-# Every level is linked to its identifying column: an unlinked level renders as
+#
+# List every entity dimension a row is broken down by, including each nested
+# geographic level — the house convention, cf. au_ato_taxation_statistics
+# (`individuals_postcode` = year, state, zip_code, item) and br_tse_eleicoes
+# (`detalhes_votacao_municipio_zona` = year, municipality, electoral_zone, ...).
+# Each level is linked to its identifying column: an unlinked level renders as
 # "Não informado" on the site.
+#
+# Party is deliberately a level only on `party`. Everywhere else the row is a
+# candidate or a place and the party is an attribute of it, not a dimension the
+# table is broken down by.
 OBSERVATION_LEVELS: dict[str, list[tuple[str, str]]] = {
-    "election": [("year", "year"), ("election", "election_id")],
+    "election": [
+        ("year", "year"),
+        ("state", "state_abbreviation"),
+        ("election", "election_id"),
+    ],
     "polling_place": [
         ("year", "year"),
-        ("election", "election_id"),
+        ("state", "state_abbreviation"),
+        ("district", "division_id"),
         ("electoral_booth", "polling_place_id"),
+        ("election", "election_id"),
     ],
     "party": [
         ("year", "year"),
+        ("state", "state_abbreviation"),
         ("election", "election_id"),
         ("party", "party_abbreviation"),
-        ("state", "state_abbreviation"),
     ],
     "house_candidate": [
         ("year", "year"),
+        ("state", "state_abbreviation"),
+        ("district", "division_id"),
         ("election", "election_id"),
         ("person", "candidate_id"),
     ],
     "house_first_preference_division": [
         ("year", "year"),
-        ("election", "election_id"),
+        ("state", "state_abbreviation"),
         ("district", "division_id"),
+        ("election", "election_id"),
         ("person", "candidate_id"),
     ],
     "house_first_preference_polling_place": [
         ("year", "year"),
-        ("election", "election_id"),
+        ("state", "state_abbreviation"),
+        ("district", "division_id"),
         ("electoral_booth", "polling_place_id"),
+        ("election", "election_id"),
         ("person", "candidate_id"),
     ],
     "house_two_candidate_preferred_polling_place": [
         ("year", "year"),
-        ("election", "election_id"),
+        ("state", "state_abbreviation"),
+        ("district", "division_id"),
         ("electoral_booth", "polling_place_id"),
+        ("election", "election_id"),
         ("person", "candidate_id"),
     ],
     "house_two_party_preferred_division": [
         ("year", "year"),
-        ("election", "election_id"),
+        ("state", "state_abbreviation"),
         ("district", "division_id"),
+        ("election", "election_id"),
     ],
     "house_two_party_preferred_polling_place": [
         ("year", "year"),
-        ("election", "election_id"),
+        ("state", "state_abbreviation"),
+        ("district", "division_id"),
         ("electoral_booth", "polling_place_id"),
+        ("election", "election_id"),
     ],
+    # The Senate is elected state-wide, so the state is the grain and there is no
+    # division level.
     "senate_candidate": [
         ("year", "year"),
+        ("state", "state_abbreviation"),
         ("election", "election_id"),
         ("person", "candidate_id"),
     ],
     "senate_first_preference_division": [
         ("year", "year"),
-        ("election", "election_id"),
+        ("state", "state_abbreviation"),
         ("district", "division_id"),
+        ("election", "election_id"),
         ("person", "candidate_id"),
     ],
     "division_summary": [
         ("year", "year"),
-        ("election", "election_id"),
+        ("state", "state_abbreviation"),
         ("district", "division_id"),
+        ("election", "election_id"),
     ],
     "referendum_polling_place": [
         ("year", "year"),
-        ("election", "election_id"),
+        ("state", "state_abbreviation"),
+        ("district", "division_id"),
         ("electoral_booth", "polling_place_id"),
+        ("election", "election_id"),
     ],
-    # The disclosure tables carry no event identifier, only the AEC's event label,
-    # so only the year level can be linked to a column.
+    # The disclosure tables carry no event identifier, only the AEC's event label.
+    # Only the election returns name an electorate.
     "disclosure_donation": [("year", "year")],
     "disclosure_receipt": [("year", "year")],
     "disclosure_return_annual": [("year", "year")],
-    "disclosure_election_return": [("year", "year")],
+    "disclosure_election_return": [
+        ("year", "year"),
+        ("state", "electorate_state"),
+        ("district", "electorate_name"),
+    ],
     "dicionario": [],
 }
 
@@ -265,6 +321,7 @@ def main() -> None:
     args = ap.parse_args()
 
     env = args.env
+    resolve_reference_ids(env)
     account_id = server.get_authenticated_account(env=env)["id"]
     today = date.today().isoformat() + "T00:00:00"
     targets = args.only or constants.TABLES.value
@@ -312,6 +369,7 @@ def main() -> None:
         for ol in node.get("observation_levels", []):
             by_entity.setdefault(ol["entity_id"], []).append(ol["id"])
         keep: set[str] = set()
+        ordered_ols: list[str] = []
         for entity_key, column_name in wanted:
             entity_id = ENTITY[entity_key]
             pool = by_entity.get(entity_id, [])
@@ -320,6 +378,7 @@ def main() -> None:
                 table_id=table_id, entity_id=entity_id, id=ol_id, env=env
             )["id"]
             keep.add(ol_id)
+            ordered_ols.append(ol_id)
             server.update_column(
                 column_id=column_ids[column_name],
                 column_name=column_name,
@@ -334,7 +393,16 @@ def main() -> None:
             for stale in ids:
                 if stale not in keep:
                     delete("DeleteObservationLevel", stale, env)
-        print(f"  observation levels: {len(wanted)}")
+        if ordered_ols:
+            # Creation order is not display order; set it explicitly so the levels
+            # read year -> state -> division -> polling place -> event -> person.
+            server.reorder_observation_levels(
+                table_id=table_id, ol_ids=ordered_ols, env=env
+            )
+        print(
+            f"  observation levels: "
+            f"{', '.join(e for e, _ in wanted) if wanted else '(none)'}"
+        )
 
         if table != "dicionario" and not wanted:
             server.update_column(
