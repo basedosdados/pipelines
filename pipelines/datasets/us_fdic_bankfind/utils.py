@@ -19,6 +19,7 @@ from __future__ import annotations
 import io
 import time
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -258,7 +259,7 @@ def clean_institutions(
     # assembled as a dict and built once: assigning 77 columns one by one
     # re-copies the block manager each time
     blank = pd.Series("", index=frame.index)
-    columns: dict[str, pd.Series] = {
+    columns: dict[str, Any] = {
         "extraction_date": pd.Series(extraction_date, index=frame.index)
     }
     for code, name, btype, _description, opts in spec:
@@ -301,7 +302,7 @@ def clean_financials(
         else pd.Series("", index=frame.index)
     )
     # built in one pass; 290 individual assignments fragment the frame badly
-    columns: dict[str, pd.Series] = {name: keys[name] for name in keys.columns}
+    columns: dict[str, Any] = {name: keys[name] for name in keys.columns}
     columns["rssd_id"] = rssd.astype(str).str.strip()
     for code, name in column_names.items():
         if code not in frame.columns:

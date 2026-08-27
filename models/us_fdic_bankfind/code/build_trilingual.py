@@ -19,8 +19,12 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from translations_financials import FINANCIALS  # noqa: E402
-from translations_structural import STRUCTURAL  # noqa: E402
+from translations_financials import (  # noqa: E402  # pyrefly: ignore [missing-import]
+    FINANCIALS,
+)
+from translations_structural import (  # noqa: E402  # pyrefly: ignore [missing-import]
+    STRUCTURAL,
+)
 
 TRANSLATIONS = {**STRUCTURAL, **FINANCIALS}
 SOURCE = HERE / "architecture"

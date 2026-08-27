@@ -32,10 +32,12 @@ import csv
 import datetime
 import json
 import sys
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any, cast
 
 sys.path.insert(0, str(Path.home() / "Dropbox/BD/mcp"))
-import server
+import server  # pyrefly: ignore [missing-import]  (resolved via sys.path above)
 
 DATASET_SLUG = "bankfind"
 GCP_DATASET = "us_fdic_bankfind"
@@ -283,9 +285,15 @@ COVERAGE_START = (1984, 3)  # 1984Q1
 COVERAGE_END = (2026, 6)  # 2026Q2
 
 
-def fn(name: str):
+def fn(name: str) -> Callable[..., Any]:
+    """The plain function behind an MCP tool.
+
+    FastMCP's decorator keeps the original callable on `.fn`; annotating the
+    return type keeps every call site type-checkable, since `getattr` alone is
+    `Any | None` to the checker.
+    """
     f = getattr(server, name)
-    return getattr(f, "fn", f)
+    return cast("Callable[..., Any]", getattr(f, "fn", f))
 
 
 def lookup(category: str, slug: str, env: str) -> str | None:

@@ -20,6 +20,7 @@ import os
 import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 
@@ -86,7 +87,7 @@ def build_quarter(report_date: str) -> dict:
     long_staged = long_path.with_suffix(".parquet.tmp")
 
     keys: pd.DataFrame | None = None
-    wide: dict[str, pd.Series] = {}
+    wide: dict[str, Any] = {}
     long_rows = 0
 
     writer = pq.ParquetWriter(long_staged, long_schema, compression="snappy")
