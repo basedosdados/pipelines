@@ -14,7 +14,7 @@ Os dados são publicados na Plataforma Antonieta de Barros, em dois produtos:
 
 | Produto | Conteúdo | Arquivo |
 |---|---|---|
-| 53 | 2021 a 2024 | `Indicadores_SIOPE_ate_2024.txt.gz` |
+| 53 | 2021 a 2025 | `Indicadores_SIOPE_ate_2025.txt.gz` |
 | 54 | exercício corrente | `Indicadores_SIOPE.txt.gz` |
 
 Páginas: [produto 53](https://www.fnde.gov.br/plataforma-antonieta-de-barros/dados/produtos-de-dados/visualizar/53)
@@ -26,32 +26,49 @@ O portal é uma SPA — a página não carrega link de download. O arquivo sai d
 GET https://www.fnde.gov.br/plataforma-antonieta-de-barros-api/products/data-products/{id}/artifact
 ```
 
-O metadado do produto vem em `/products/data-products/{id}`.
+O metadado do produto vem em `/products/data-products/{id}`, e o metadado do
+arquivo em:
+
+```text
+GET https://www.fnde.gov.br/plataforma-antonieta-de-barros-api/products/data-products/{id}/artifact-metadata
+
+{"size":2647140,"name":"Indicadores_SIOPE.txt.gz",
+ "lastUpdated":"2026-08-17T16:14:16Z","path":"exports/SIOPE/"}
+```
+
+O `lastUpdated` é a gravação do arquivo, e é o que a página do produto exibe em
+"Arquivo atualizado em" — convertida para o horário de Brasília. É o campo que o
+poll consulta.
 
 Três restrições da API que condicionam o download e o poll:
 
-- **`HEAD` responde 405** e a resposta não traz `Last-Modified`. Não há como
-  checar atualização sem baixar.
+- **`HEAD` responde 405** no endpoint do artefato, e a resposta do `GET` não traz
+  `Last-Modified` nem `Content-Length`.
 - **`Range` é ignorado.** Download interrompido recomeça do zero.
-- **O `updatedAt` do produto não acompanha o dado.** O campo marca a edição do
-  registro do produto, não a exportação do arquivo; a data da exportação está no
-  `DT_ATUALIZACAO` de dentro do arquivo. Um poll que leia o `updatedAt` perde
-  atualização.
+- **Nenhuma das duas datas do registro do produto acompanha o arquivo.** O
+  `updatedAt` do produto marca a edição do cadastro — mudou em 26/08/2026 porque
+  a descrição foi reescrita — e o `artifact.updatedAt` marcava 28/04/2026
+  enquanto o arquivo já era de 17/08/2026. Um poll que leia qualquer uma das
+  duas erra em uma das direções.
 
-O produto 54 comprimido tem cerca de 2,6 MB e baixa em segundos; o 53 tem 45 MB
-comprimidos e 1,4 GB expandidos. O 53 deve ser mantido comprimido e
+O `DT_ATUALIZACAO` de dentro do arquivo também não indica atualização: registra
+a extração do SIOPE, não a gravação do arquivo, e as duas divergem — na
+regravação de 17/08/2026 as linhas continuaram carimbadas 07/07/2026.
+
+O produto 54 comprimido tem cerca de 2,6 MB e baixa em segundos; o 53 tem 51 MB
+comprimidos e mais de 1 GB expandido. O 53 deve ser mantido comprimido e
 descomprimido em stream na limpeza.
 
-## 2025 não está publicado
+## O produto 54 traz só o exercício corrente
 
-O produto 54 se descreve como "Dados a partir de 2025", mas traz apenas o
-exercício corrente: um download do 54 feito enquanto 2025 corria trouxe 2025 e
-não 2026; hoje o mesmo endpoint traz 2026 e não 2025. O produto 53 vai de 2021 a
-2024, e seu artifact responde 404 desde 2026-08-25.
+Apesar de a descrição do produto 54 anunciar um intervalo, ele publica apenas o
+exercício corrente: um download feito enquanto 2025 corria trouxe 2025 e não
+2026; hoje o mesmo endpoint traz 2026 e não 2025. O ano que fecha migra para o
+produto 53, que na regravação de 17/08/2026 passou a ir de 2021 a 2025.
 
-**Nenhum dos dois produtos publica 2025 hoje.** 2025 entra na série pela cópia
-daquele download, carregada à mão como o histórico. Não se sabe se, e por onde, a
-fonte volta a publicá-lo — o flow lê apenas o produto do exercício corrente.
+Os anos anteriores da série vieram do 53 e de uma cópia do 54 baixada quando
+2025 era o exercício corrente, ambos carregados à mão. O flow lê apenas o
+produto do exercício corrente.
 
 ## Estrutura do arquivo
 
@@ -61,8 +78,8 @@ Texto separado por `;`, UTF-8, 14 colunas declaradas no cabeçalho:
 TIPO;NUM_ANO;NUM_PERI;COD_UF;SIG_UF;COD_MUNI;NOM_MUNI;COD_INDI;COD_EXIB;NOM_INDI;COD_GRUP;NOM_GRUP_INDI;VAL_INDI;DT_ATUALIZACAO
 ```
 
-O cabeçalho é idêntico nos dois produtos, e as armadilhas abaixo valem para os
-dois — uma função de limpeza serve para ambos.
+O cabeçalho é idêntico nos dois produtos, e as particularidades abaixo valem
+para os dois — uma função de limpeza serve para ambos.
 
 ### Linha estadual tem 12 campos, não 14
 
@@ -120,7 +137,7 @@ Municipal.
 ### `COD_INDI` não identifica o indicador sozinho
 
 27 códigos existem nas duas esferas, e **nos 27 o indicador é diferente**.
-Nenhum código quer dizer a mesma coisa nas duas.
+Nenhum código designa o mesmo indicador nas duas.
 
 | `COD_INDI` | Estadual | Municipal |
 |---|---|---|
@@ -313,8 +330,8 @@ reescreve o nome de um indicador, caso em que a limpeza registra um WARNING.
 | arquivo | o que faz |
 |---|---|
 | `constants.py` | identificadores, endpoints, mapas de índice e de unidade, e as 112 linhas do `dicionario` |
-| `utils.py` | download e limpeza, sem Prefect: `download_product`, `clean_all` e o que elas usam |
-| `tasks.py` | as `@task` que embrulham o `utils.py` |
+| `utils.py` | consulta de metadados, download e limpeza, sem Prefect: `source_update_date`, `download_product`, `clean_all` e o que elas usam |
+| `tasks.py` | as `@task` que envolvem as funções do `utils.py` |
 | `flows.py` | o flow do exercício corrente, agendado nos dias 5, 12, 19 e 26 |
 
 ## Anomalias da fonte

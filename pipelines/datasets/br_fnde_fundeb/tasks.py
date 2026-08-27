@@ -4,7 +4,28 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.br_fnde_fundeb.utils import clean_all, download_product
+from pipelines.datasets.br_fnde_fundeb.utils import (
+    clean_all,
+    download_product,
+    source_update_date,
+)
+
+
+@task(retries=2, retry_delay_seconds=60)
+def check_source_siope(product_id: int) -> str:
+    """Devolve a data de gravação do arquivo na fonte, sem baixá-lo.
+
+    Consulta os metadados do artefato, cuja resposta o poll compara com o
+    ``Table.Update.latest``: o arquivo só é baixado quando a plataforma o
+    regravou depois da última materialização.
+
+    Args:
+        product_id: Id do produto na plataforma — 53 ou 54.
+
+    Returns:
+        A data de gravação no formato de ``constants.DATE_FORMAT``.
+    """
+    return source_update_date(product_id)
 
 
 @task(retries=2, retry_delay_seconds=60)
@@ -37,8 +58,8 @@ def clean_siope(work_dir: str, source_path: str) -> dict:
 
     Returns:
         Um mapa slug da tabela para o diretório particionado, mais
-        ``"max_date"`` — o período máximo do arquivo, que alimenta o poll da
-        fonte.
+        ``"max_date"`` — o último bimestre presente no arquivo, registrado no
+        log da run.
     """
     output_dir = Path(work_dir) / "output"
     result = clean_all(Path(source_path), output_dir)

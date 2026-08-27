@@ -822,6 +822,8 @@ class constants(Enum):
     TABLE_DICTIONARY = "dicionario"
     ALL_TABLES = ["indicador_estadual", "indicador_municipal", "dicionario"]
 
+    WORK_DIR = "/tmp/br_fnde_fundeb"
+
     # Formato das datas trocadas com o backend (poll e update da fonte).
     DATE_FORMAT = "%Y-%m-%d"
 
@@ -833,17 +835,19 @@ class constants(Enum):
     # zero).
     API_BASE = "https://www.fnde.gov.br/plataforma-antonieta-de-barros-api"
     ARTIFACT_URL = "{api}/products/data-products/{product_id}/artifact"
+    ARTIFACT_METADATA_URL = (
+        "{api}/products/data-products/{product_id}/artifact-metadata"
+    )
     PRODUCT_URL = "{api}/products/data-products/{product_id}"
 
-    # Os dois produtos que compõem a série: o 53 cobre 2021 a 2024 com os 6
-    # bimestres fechados, o 54 cobre o exercício corrente. Nenhum dos dois
-    # publica 2025 (ver "O hiato de 2025" no README do conjunto).
+    # Os dois produtos que compõem a série: o 53 cobre os exercícios fechados,
+    # de 2021 a 2025, e o 54 cobre o exercício corrente.
     PRODUCT_HISTORY = 53
     PRODUCT_CURRENT = 54
 
     # Nome do arquivo dentro de cada produto, usado para nomear o download.
     PRODUCT_FILENAMES = {
-        53: "Indicadores_SIOPE_ate_2024.txt.gz",
+        53: "Indicadores_SIOPE_ate_2025.txt.gz",
         54: "Indicadores_SIOPE.txt.gz",
     }
 

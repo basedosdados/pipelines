@@ -1,8 +1,8 @@
 """Download e limpeza do br_fnde_fundeb — Indicadores do SIOPE.
 
-Funções sem import do Prefect: o `tasks.py` as embrulha, e uma carga executada
-fora do worker chama as mesmas tasks pelo `.fn()` — uma implementação, dois
-caminhos de execução.
+Funções sem import do Prefect: o `tasks.py` as converte em tasks, e uma carga
+executada fora do worker chama essas mesmas tasks pelo `.fn()`. As duas formas
+de execução compartilham uma única implementação.
 
 As particularidades da fonte tratadas aqui estão detalhadas na seção "Estrutura
 do arquivo" do README do conjunto:
@@ -16,9 +16,10 @@ do arquivo" do README do conjunto:
 import gzip
 from collections import defaultdict
 from collections.abc import Iterator
-from datetime import date
+from datetime import date, datetime
 from itertools import chain
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -28,14 +29,47 @@ from pipelines.datasets.br_fnde_fundeb.constants import constants
 from pipelines.utils.utils import log
 
 
+def source_update_date(product_id: int) -> str:
+    """Data em que a plataforma gravou o arquivo do produto.
+
+    É o mesmo `Arquivo atualizado em` que a página do produto exibe, servido em
+    UTC pelo endpoint de metadados do artefato e convertido para São Paulo.
+
+    Args:
+        product_id: Id do produto na plataforma — 53 ou 54.
+
+    Returns:
+        A data de gravação no formato de `constants.DATE_FORMAT`.
+    """
+    url = constants.ARTIFACT_METADATA_URL.value.format(
+        api=constants.API_BASE.value, product_id=product_id
+    )
+
+    response = requests.get(url, timeout=60)
+    response.raise_for_status()
+    metadata = response.json()
+
+    stored_at = datetime.fromisoformat(
+        metadata["lastUpdated"].replace("Z", "+00:00")
+    ).astimezone(ZoneInfo("America/Sao_Paulo"))
+    update_date = stored_at.strftime(constants.DATE_FORMAT.value)
+
+    log(
+        f"Produto {product_id}: {metadata['name']} gravado em "
+        f"{stored_at:%d/%m/%Y %H:%M:%S}, {metadata['size'] / 1024**2:.1f} MB"
+    )
+
+    return update_date
+
+
 def download_product(product_id: int, dest_dir: Path) -> Path:
     """Baixa o `.txt.gz` de um produto da Plataforma Antonieta de Barros.
 
-    O arquivo é mantido comprimido: o produto 53 tem 45 MB comprimidos e 1,4 GB
-    expandidos, e a limpeza lê em stream.
+    O arquivo é mantido comprimido: o produto 53 tem 51 MB comprimidos e mais de
+    1 GB expandido, e a limpeza lê em stream.
 
     Args:
-        product_id: Id do produto na plataforma — 53 (2021 a 2024) ou 54
+        product_id: Id do produto na plataforma — 53 (exercícios fechados) ou 54
             (exercício corrente).
         dest_dir: Diretório onde o arquivo é gravado; criado se não existir.
 
@@ -309,8 +343,8 @@ def warn_unknown_names(
 
     O `dicionario` é a lista fixa de ``constants.DICTIONARY_ROWS``, e uma
     reescrita de nome pela fonte a deixa desatualizada sem interromper a carga:
-    o dado sobe correto e só o rótulo fica errado. Esta comparação é o sinal de
-    que a lista precisa ser editada.
+    o dado sobe correto e só o rótulo fica errado. Esta comparação identifica
+    quando a lista precisa ser editada.
 
     Registra WARNING e não levanta erro, porque rótulo desatualizado não
     invalida linha de dado. Indicador inédito interrompe a execução antes daqui,
@@ -368,8 +402,8 @@ def clean_all(source_path: Path, output_dir: Path) -> dict:
 
     Returns:
         Um mapa slug da tabela -> diretório particionado, mais ``"max_date"``
-        com o período máximo encontrado no arquivo, que alimenta o poll da
-        fonte.
+        com o último bimestre encontrado no arquivo, registrado no log da
+        execução.
     """
 
     state, municipality, catalog = build_indicator_tables(source_path)
