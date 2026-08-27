@@ -162,7 +162,11 @@ first runs, or `assert_coverage_topology` hard-fails.
 | 7 dbt run + test | done — `dbt run` PASS=12, `dbt test` PASS=79 ERROR=0 against `basedosdados-dev` |
 | 8–9 metadata on staging | done — dataset `under_review`, org `fhfa` created, 12 tables, 84 columns, coverages, updates |
 | 9b publish on staging | done — dataset `published` on staging |
-| 10–14 | pending human approval at the verification checkpoint |
+| 10 prod metadata | done — org `fhfa`, 12 tables, 84 columns, coverages, updates; dataset `under_review` until the PR merges |
+| 11 PR | this PR |
+| 12 recurring pipeline | flows committed; the dev validation run needs the `deploy-flow` label on this PR |
+| 13 publish prod | after merge + table-approve + prod verification |
+| 14 delete scratch data | last action |
 
 ### Known backend limitation hit here
 
