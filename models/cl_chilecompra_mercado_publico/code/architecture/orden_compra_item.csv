@@ -13,7 +13,7 @@ indicador_compra_agil,STRING,Indica se a ordem foi emitida pela modalidade Compr
 codigo_tipo,STRING,Codigo do tipo de ordem de compra,,yes,,,no,,CodigoTipo
 sigla_tipo_abreviada,STRING,Sigla abreviada do tipo de ordem de compra,,yes,,,no,,CodigoAbreviadoTipoOC
 descripcion_tipo,STRING,Descricao do tipo de ordem de compra,,no,,,no,,DescripcionTipoOC
-id_plan_compra,STRING,Identificador do plano de compras associado,,no,,,no,"Presente apenas nos arquivos de 2007 a 2020, exceto 2017",idPlanDeCompra
+id_plan_compra,STRING,Identificador do plano de compras associado,,no,,,no,"Coluna presente no cabecalho de 2007 a 2020, exceto 2017, e ausente a partir de 2021. So e efetivamente preenchida a partir de 2019: nula em 100% das linhas em 2007-01 e 2010-06, em 10 de 505.159 linhas em 2015-06, e preenchida em cerca de 41% das linhas em 2019-06 e 2020-06",idPlanDeCompra
 codigo_estado,STRING,Codigo do estado da ordem de compra,,yes,,,no,,codigoEstado
 estado,STRING,Estado da ordem de compra,,yes,,,no,,Estado
 codigo_estado_proveedor,STRING,Codigo do estado da ordem segundo o fornecedor,,yes,,,no,,codigoEstadoProveedor

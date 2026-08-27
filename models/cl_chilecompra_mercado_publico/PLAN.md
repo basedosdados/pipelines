@@ -56,12 +56,63 @@ changed — a 480-request HEAD sweep is cheap and is the only correct trigger.
 8. **The publisher's own header has a duplicated name**, exported as
    `DescripcionCriteriosRequisitosSociales` and `...Sociales.1`.
 
-### Header signatures
+### Header signatures (all 472 files, not a sample)
 
-| Table | Files | Signatures | Union | Notes |
-|---|---|---|---|---|
-| OC | 40 | 3 (78 / 77 / 78 cols) | 79 | 2017 lacks both `idPlanDeCompra` and `Codigo_ConvenioMarco` |
-| LIC | 40 | 3 (106 / 105 / 110 cols) | 118 raw → ~112 logical after alias mapping | criterios ambientales/sociales added 2020+ |
+An initial survey of months 1 and 2 of each year found three signatures per table and
+put the boundaries in the wrong places. Sweeping every one of the 472 files gives four
+signatures per table, with boundaries that never fall in January:
+
+**Órdenes de compra**
+
+| Sig | Cols | Files | Months |
+|---|---|---|---|
+| 0 | 78 | 155 | 2007-01..2016-09 **and** 2017-08..2020-09 |
+| 1 | 77 | 3 | 2016-10..2016-12 |
+| 2 | 77 | 7 | 2017-01..2017-07 |
+| 3 | 78 | 71 | 2020-10..2026-08 |
+
+Note sig0 *returns* after a 22-month absence, and sig1 and sig2 have the same column
+count while differing in content. The transitions are: `Link` dropped 2016-10, restored
+2017-01 while `idPlanDeCompra` was dropped; `idPlanDeCompra` restored 2017-08; and
+`idPlanDeCompra` finally replaced by `Codigo_ConvenioMarco` in 2020-10.
+
+**Licitaciones**
+
+| Sig | Cols | Files | Months |
+|---|---|---|---|
+| 0 | 106 | 86 | 2007-01..2014-02 |
+| 1 | 111 | 2 | 2014-03..2014-04 |
+| 2 | 105 | 67 | 2014-05..2019-11 |
+| 3 | 110 | 81 | 2019-12..2026-08 |
+
+2019-12 drops `ValorTiempoRenovacion` and adds the six environmental/social criteria
+columns.
+
+Because the parser matches on header name rather than position, none of these boundaries
+need to be encoded anywhere. All 472 files were checked against the architecture plus the
+explicit exclusion list: zero unknown columns.
+
+### The 2014-03/2014-04 personal-data columns
+
+Signature 1 exists in exactly two files and carries nine columns naming individual
+public officials -- `RutUsuario`, `CodigoUsuario`, `NombreUsuario`, `CargoUsuario`,
+`NombreResponsablePago`, `EmailResponsablePago`, `NombreResponsableContrato`,
+`EmailResponsableContrato`, `FonoResponsableContrato`. They are fully populated there
+(about 4,000 distinct people across 1.5M rows) and absent from the other 234 files.
+
+They are **deliberately excluded**: including them would publish names, job titles,
+emails and telephone numbers that the rest of the procurement record does not, in a
+column that would be 99% null. Chile's Ley 19.628 governs this data and ChileCompra's
+own terms invoke it. The exclusion is an explicit constant, and any source column that
+is neither in an architecture table nor in that constant now raises rather than being
+quietly dropped.
+
+### A column that looked dead but is not
+
+`idPlanDeCompra` is null in 100% of rows in 2007-01 and 2010-06, and in all but 10 of
+505,159 rows in 2015-06 -- which reads like a dead column worth dropping. It is not: in
+2019-06 and 2020-06 it is populated in about 41% of rows with 865 distinct values. It is
+kept, and the architecture records exactly this.
 
 ## 3. Grain (measured on 2026-1)
 

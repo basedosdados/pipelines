@@ -60,6 +60,31 @@ HEADER_ALIASES = {
     "Descripción línea Adquisición": "Descripcion linea Adquisicion",
 }
 
+# Deliberately excluded from every table.
+#
+# lic-da/2014-3 and lic-da/2014-4 -- and only those two of the 236 licitaciones files --
+# carry nine extra columns naming individual public officials: their RUT, name, job
+# title, email and telephone. They are fully populated there (about 4,000 distinct
+# people across 1.5M rows each) and absent everywhere else, so including them would add
+# personal data that is 99% null and that the procurement record does not otherwise
+# publish. Chile's Ley 19.628 governs this kind of data and ChileCompra's own terms of
+# use invoke it.
+#
+# This is an explicit decision, not an oversight: any source column that is neither in
+# an architecture table nor listed here raises in _read_csv_from_zip, so a column the
+# publisher adds later cannot be dropped silently.
+EXCLUDED_COLUMNS = {
+    "RutUsuario",
+    "CodigoUsuario",
+    "NombreUsuario",
+    "CargoUsuario",
+    "NombreResponsablePago",
+    "EmailResponsablePago",
+    "NombreResponsableContrato",
+    "EmailResponsableContrato",
+    "FonoResponsableContrato",
+}
+
 # Which table each licitaciones column belongs to was determined empirically, by
 # measuring how many distinct values each column takes within one tender and within one
 # tender-item. See PLAN.md section 8.
@@ -163,7 +188,33 @@ def _read_csv_from_zip(path: Path) -> pd.DataFrame:
                 low_memory=False,
             )
     df.columns = [HEADER_ALIASES.get(c.strip(), c.strip()) for c in df.columns]
+    _assert_columns_known(df.columns, path.name)
     return df
+
+
+def _known_source_columns() -> set[str]:
+    known: set[str] = set()
+    for tables in TABLES_BY_KIND.values():
+        for table in tables:
+            arch = read_architecture(table)
+            known |= {s for s in arch["original_name"] if s}
+    return known | EXCLUDED_COLUMNS
+
+
+def _assert_columns_known(columns, filename: str) -> None:
+    """Refuse to silently drop a column the architecture does not know about.
+
+    The source has four header signatures per table across 2007-2026, and two of the
+    236 licitaciones files carry columns no other file has. A quiet projection onto the
+    architecture would hide the next such change instead of surfacing it.
+    """
+    unknown = sorted(set(columns) - _known_source_columns())
+    if unknown:
+        raise ValueError(
+            f"{filename}: source columns not present in any architecture table and not "
+            f"in EXCLUDED_COLUMNS: {unknown}. Add them to the architecture or to "
+            f"EXCLUDED_COLUMNS before loading this month."
+        )
 
 
 def _clean_strings(s: pd.Series) -> pd.Series:
