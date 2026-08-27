@@ -26,7 +26,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
-import yaml
+import yaml  # pyrefly: ignore [untyped-import]  (no stubs shipped)
 
 BASE_URL = "https://api.fdic.gov/banks"
 DOCS_URL = f"{BASE_URL}/docs"
