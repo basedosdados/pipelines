@@ -198,7 +198,16 @@ def _upload_to_gcs(
             st.delete_table(
                 mode="staging", bucket_name=bucket_name, not_found_ok=True
             )
-            tb.delete(mode="all")
+            # mode="staging", NÃO mode="all". A bd.Table resolve os projetos do
+            # BigQuery pelo config.toml do pod, não por bucket_name nem por
+            # billing_project_id — então mode="all" apaga a tabela
+            # MATERIALIZADA DE PRODUÇÃO `<config.prod>.<dataset>.<table>`,
+            # mesmo quando a chamada veio com bucket_name="basedosdados-dev".
+            # Foi assim que basedosdados.us_sec_edgar.dicionario se perdeu em
+            # 2026-08-19, e antes disso us_fed_fred. Nada aqui precisa que a
+            # tabela de prod suma: quem a governa é o dbt, que a recria com
+            # CREATE OR REPLACE.
+            tb.delete(mode="staging")
             print(f"Tabela anterior removida: {tb.table_full_name['staging']}")
         header_path = dump_header(
             data_path=data_path, source_format=source_format

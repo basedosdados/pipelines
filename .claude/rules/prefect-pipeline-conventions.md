@@ -79,6 +79,28 @@ newer than the registered `Update.latest`; `commit_source_update_task` writes th
 new `Update.latest` and must run **last**, only after prod succeeded. The poll
 guard makes a scheduled run a no-op until the source actually publishes.
 
+### Dev is a gate, not a validation mode — it runs on every run
+
+**The dev block sits *above* `if not materialize_to_prod: return`, unconditionally,
+on armed runs too.** `run_dbt` raises on a failed `run` or `test`, so a dev failure
+aborts the flow before a single byte is written to prod. That ordering is the whole
+point: `dbt test --target prod` runs *after* `dbt run --target prod` has already
+replaced the production table, so it reports damage rather than preventing it.
+
+Do not put the dev block inside the guard. It was moved there once, in #1875, to
+halve the BigQuery bytes an armed run bills — the saving is real, but it buys the
+bytes by removing the only pre-flight check on prod, and it was reverted. If the
+daily-quota pressure comes back, cut bytes somewhere that is not the gate: scoped
+tests (`config: where: __most_recent_year__`), incremental models, or a cheaper
+poll — never by letting prod build unrehearsed.
+
+Two shapes are equivalent and both fine: the explicit dev block then guard then
+prod block (most flows), or a `_materialize(target, bucket, …)` helper called twice
+with the guard between the calls (`br_bcb_ifdata`,
+`br_senado_dados_abertos_administrativos`). What is **not** fine is selecting the
+environment with a ternary — `bucket = "basedosdados" if materialize_to_prod else
+"basedosdados-dev"` — which produces one environment per run and no gate at all.
+
 **Run every table, then test every table — never interleave `run`/`test` per
 table.** Use `dbt_command="run"` in the first loop and `dbt_command="test"` in a
 second loop, per environment (do **not** use the combined `"run/test"` inside a
@@ -106,6 +128,18 @@ FK test. → `project_au_ato_abr`
 **`"overwrite"`** (drop + recreate — use for sources that ship the *full history*
 each release, like BLS flat files). No `"replace"`. `source_format="parquet"` is
 supported; `data_path` may be a hive-partitioned directory (`.../year=YYYY/data.parquet`).
+
+**`bucket_name` does not scope the BigQuery side.** `bd.Table` resolves both
+projects from the pod's `config.toml` (`gcloud-projects.{prod,staging}.name`), not
+from `bucket_name` or `billing_project_id` — so a call made with
+`bucket_name="basedosdados-dev"` still touches the *prod-configured* BigQuery
+projects. The `overwrite` branch of `_upload_to_gcs` used to call
+`tb.delete(mode="all")`, which therefore dropped the **materialized production
+table** from the dev half of a run: that is how `basedosdados.us_sec_edgar.dicionario`
+was lost on 2026-08-19, and it previously bit `us_fed_fred`. It now deletes
+`mode="staging"` only — dbt owns the prod table and recreates it with
+`CREATE OR REPLACE`. Keep it that way; `mode="all"` there is never correct.
+→ `project_dump_mode_overwrite_deletes_prod_table`
 
 ### Staging parquet must be all-STRING (current limitation)
 

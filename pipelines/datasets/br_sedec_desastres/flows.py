@@ -117,26 +117,22 @@ def br_sedec_desastres_flow(
 
         dump_mode = "append"
 
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
+        upload_to_gcs(
+            data_path=data_path,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados-dev",
+            dump_mode=dump_mode,
+            source_format="parquet",
+        )
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            target="dev",
+        )
+
         if not materialize_after_dump:
-            upload_to_gcs(
-                data_path=data_path,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                bucket_name="basedosdados-dev",
-                dump_mode=dump_mode,
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                dbt_command="run/test",
-                target="dev",
-            )
             return
 
         upload_to_gcs(

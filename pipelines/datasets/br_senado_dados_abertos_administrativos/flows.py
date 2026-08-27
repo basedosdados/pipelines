@@ -118,6 +118,40 @@ assert set(_COVERAGE) == set(utils.SNAPSHOTS) | set(utils.PARTITIONED)
 _ANCHOR_TABLE = "senador"
 
 
+def _materialize(
+    target: str, bucket: str, output_dir: str, tables: list[str]
+) -> None:
+    """Upload staging (overwrite = the current window) + run every table, THEN
+    test every table.
+
+    Cross-table tests (relationships, dictionary coverage) read sibling models,
+    so all siblings must exist before any test runs — never interleave run/test
+    per table.
+    """
+    for table in tables:
+        upload_to_gcs(
+            data_path=f"{output_dir}/{table}",
+            dataset_id=DATASET_ID,
+            table_id=table,
+            bucket_name=bucket,
+            dump_mode="overwrite",
+            source_format="parquet",
+        )
+        run_dbt(
+            dataset_id=DATASET_ID,
+            table_id=table,
+            dbt_command="run",
+            target=target,
+        )
+    for table in tables:
+        run_dbt(
+            dataset_id=DATASET_ID,
+            table_id=table,
+            dbt_command="test",
+            target=target,
+        )
+
+
 def _run(
     sub_resources: bool,
     materialize_to_prod: bool,
@@ -128,16 +162,13 @@ def _run(
 
     Snapshot-stacking has no "did the source update?" question — we snapshot on
     schedule — so there is no poll gate: every scheduled run produces a snapshot.
-    A prod run goes straight to prod (no redundant dev materialization, whose
-    bytes buy no signal — prod runs the same models and tests seconds later).
+    Every run materializes and tests in dev first; only then, and only when
+    ``materialize_to_prod`` is set, does it materialize in prod.
     """
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=_ANCHOR_TABLE
     )
-
-    bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
-    target = "prod" if materialize_to_prod else "dev"
 
     work_dir = tempfile.mkdtemp(prefix="br_senado_adm_")
     try:
@@ -174,35 +205,14 @@ def _run(
             )
         print("Skipping dicionario (static reference; not refreshed per run)")
 
-        # Upload staging (overwrite = the current window) + run every table, THEN
-        # test every table. Cross-table tests (relationships, dictionary
-        # coverage) read sibling models, so all siblings must exist before any
-        # test runs — never interleave run/test per table.
-        for table in tables:
-            upload_to_gcs(
-                data_path=f"{output_dir}/{table}",
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name=bucket,
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target=target,
-            )
-        for table in tables:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target=target,
-            )
+        # Dev first: the run and its tests must pass against basedosdados-dev
+        # before anything is written to prod.
+        _materialize("dev", "basedosdados-dev", output_dir, tables)
 
         if not materialize_to_prod:
             return
+
+        _materialize("prod", "basedosdados", output_dir, tables)
 
         if update_metadata:
             for table in tables:
