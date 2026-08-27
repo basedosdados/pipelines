@@ -1,0 +1,18 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Vários eventos podem compartilhar o mesmo ano,,Year of the electoral event,Año del evento electoral
+state_abbreviation,STRING,Sigla do estado ou território,,no,br_bd_diretorios_au.state:abbreviation,,no,,StateAb,State or territory abbreviation,Sigla del estado o territorio
+election_id,STRING,Identificador do evento eleitoral atribuído pela AEC,,no,,,no,Corresponde ao Event ID usado nas URLs de results.aec.gov.au,,AEC identifier of the electoral event,Identificador del evento electoral asignado por la AEC
+question_number,STRING,Número da pergunta submetida a referendo,,no,,,no,,QuestionNo,Number of the question put to referendum,Número de la pregunta sometida a referendo
+division_id,STRING,Identificador da divisão eleitoral federal atribuído pela AEC,,no,,,no,Identificador próprio da AEC; não corresponde ao código CED do ABS,DivisionID,AEC identifier of the Commonwealth electoral division,Identificador de la división electoral federal asignado por la AEC
+division_name,STRING,Nome da divisão eleitoral federal,,no,,,no,,DivisionName,Name of the Commonwealth electoral division,Nombre de la división electoral federal
+polling_place_id,STRING,Identificador do local de votação atribuído pela AEC,,no,,,no,,PollingPlaceId,AEC identifier of the polling place,Identificador del local de votación asignado por la AEC
+polling_place_name,STRING,Nome do local de votação,,no,,,no,,PollingPlaceNm,Name of the polling place,Nombre del local de votación
+yes_votes,INT64,Votos pelo Sim,,no,,vote,no,,YesVotes,Yes votes,Votos por el Sí
+yes_percentage,FLOAT64,Percentual de votos pelo Sim sobre os votos válidos,,no,,percent,no,,YesPercentage,Yes votes as a share of formal votes,Porcentaje de votos por el Sí sobre los votos válidos
+no_votes,INT64,Votos pelo Não,,no,,vote,no,,NoVotes,No votes,Votos por el No
+no_percentage,FLOAT64,Percentual de votos pelo Não sobre os votos válidos,,no,,percent,no,,NoPercentage,No votes as a share of formal votes,Porcentaje de votos por el No sobre los votos válidos
+formal_votes,INT64,Votos válidos,,no,,vote,no,,FormalVotes,Formal votes,Votos válidos
+formal_percentage,FLOAT64,Votos válidos como percentual do total apurado,,no,,percent,no,,FormalPercentage,Formal votes as a share of the total count,Votos válidos como porcentaje del total escrutado
+informal_votes,INT64,Votos inválidos,,no,,vote,no,,InformalVotes,Informal votes,Votos inválidos
+informal_percentage,FLOAT64,Votos inválidos como percentual do total apurado,,no,,percent,no,,InformalPercentage,Informal votes as a share of the total count,Votos inválidos como porcentaje del total escrutado
+total_votes,INT64,Total de votos,,no,,vote,no,,TotalVotes,Total votes,Total de votos

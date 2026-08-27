@@ -49,6 +49,9 @@ models:
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
+    au_aec_elections:
+      +materialized: table
+      +schema: au_aec_elections
     au_ato_abr:
       +materialized: table
       +schema: au_ato_abr

@@ -236,6 +236,12 @@ project-excludes = [
   # Same policy: br_bd_diretorios_mundo ISCO/ISIC directory build/upload code is
   # standalone one-shot `.py` run via `uv run`, outside the typed framework.
   "models/br_bd_diretorios_mundo/code",
+  # Same policy: au_aec_elections onboarding code is standalone one-shot `.py` run
+  # via `uv run` (clean.py, upload.py, validate.py, build_*.py), and
+  # register_metadata.py drives the databasis MCP module through
+  # `sys.path.insert` — unresolvable from the repo root. The pure transform lives
+  # in the typed `pipelines/datasets/au_aec_elections/`, which is checked.
+  "models/au_aec_elections/code",
   "models/au_geoscape_gnaf/code",
   "models/us_cms_open_payments/code",
   "models/us_fec_campaign_finance/code",
