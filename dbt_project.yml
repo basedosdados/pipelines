@@ -49,6 +49,9 @@ models:
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
+    au_aec_elections:
+      +materialized: table
+      +schema: au_aec_elections
     au_ato_abr:
       +materialized: table
       +schema: au_ato_abr
@@ -115,6 +118,9 @@ models:
     br_bd_diretorios_brasil:
       +materialized: table
       +schema: br_bd_diretorios_brasil
+    br_bd_diretorios_cl:
+      +materialized: table
+      +schema: br_bd_diretorios_cl
     br_bd_diretorios_de:
       +materialized: table
       +schema: br_bd_diretorios_de
@@ -157,9 +163,15 @@ models:
     us_bls_oes:
       +materialized: table
       +schema: us_bls_oes
+    us_fdic_bankfind:
+      +materialized: table
+      +schema: us_fdic_bankfind
     us_fed_fred:
       +materialized: table
       +schema: us_fed_fred
+    us_fhfa_hpi:
+      +materialized: table
+      +schema: us_fhfa_hpi
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force
