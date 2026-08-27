@@ -54,7 +54,12 @@ def build(path: Path) -> tuple[int, int]:
 
     TARGET.mkdir(parents=True, exist_ok=True)
     with (TARGET / path.name).open("w", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=out_fields)
+        # csv.writer defaults to CRLF; the repo's mixed-line-ending hook
+        # rewrites that to LF, so pre-commit.ci reformatted all four files
+        # after the first push. Emitting LF here keeps regeneration stable.
+        writer = csv.DictWriter(
+            handle, fieldnames=out_fields, lineterminator="\n"
+        )
         writer.writeheader()
         writer.writerows(rows)
     return len(rows), missing

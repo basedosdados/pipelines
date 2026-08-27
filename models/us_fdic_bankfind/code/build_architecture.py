@@ -142,7 +142,10 @@ def row(name, btype, description, **kw) -> list[str]:
 def write(table: str, rows: list[list[str]]) -> None:
     ARCH.mkdir(parents=True, exist_ok=True)
     with (ARCH / f"{table}.csv").open("w", newline="") as handle:
-        writer = csv.writer(handle)
+        # csv.writer defaults to CRLF; the repo's mixed-line-ending hook
+        # rewrites that to LF, so pre-commit.ci reformatted all four files
+        # after the first push. Emitting LF here keeps regeneration stable.
+        writer = csv.writer(handle, lineterminator="\n")
         writer.writerow(HEADER)
         writer.writerows(rows)
     print(f"{table:<22} {len(rows):>4} columns")
