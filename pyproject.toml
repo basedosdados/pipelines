@@ -236,6 +236,12 @@ project-excludes = [
   # Same policy: br_bd_diretorios_mundo ISCO/ISIC directory build/upload code is
   # standalone one-shot `.py` run via `uv run`, outside the typed framework.
   "models/br_bd_diretorios_mundo/code",
+  # Same policy: au_aec_elections onboarding code is standalone one-shot `.py` run
+  # via `uv run` (clean.py, upload.py, validate.py, build_*.py), and
+  # register_metadata.py drives the databasis MCP module through
+  # `sys.path.insert` — unresolvable from the repo root. The pure transform lives
+  # in the typed `pipelines/datasets/au_aec_elections/`, which is checked.
+  "models/au_aec_elections/code",
   "models/au_geoscape_gnaf/code",
   "models/us_cms_open_payments/code",
   "models/us_fec_campaign_finance/code",
@@ -248,6 +254,18 @@ project-excludes = [
   # typed `pipelines/` framework. The shared transform lives in the typed
   # pipelines/datasets/us_bls_oes/ and is type-checked there.
   "models/us_bls_oes/code",
+  # Same policy: us_fdic_bankfind onboarding code is standalone `.py`
+  # (catalog.py, build_*.py, download_and_clean.py, upload.py, validate.py,
+  # register_metadata.py run via `uv run`) — one-shot onboarding code outside
+  # the typed `pipelines/` framework. The pure transform lives in
+  # pipelines/datasets/us_fdic_bankfind/utils.py and is type-checked there.
+  "models/us_fdic_bankfind/code",
+  # Same policy: br_bd_diretorios_cl onboarding code is standalone one-shot `.py`
+  # (clean.py, upload.py run via `uv run --with ...`) outside the typed
+  # `pipelines/` framework. It also imports `pdfplumber`, an optional dependency
+  # used only by the `--validate` name cross-check and deliberately kept out of
+  # pyproject, since the directory is a static one-off load with no pipeline.
+  "models/br_bd_diretorios_cl/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
