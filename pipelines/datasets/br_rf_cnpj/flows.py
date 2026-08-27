@@ -35,7 +35,6 @@ def _rf_cnpj_flow(table_id: str, cron: str):
         dataset_id: str = "br_rf_cnpj",
         table_id: str = table_id,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -63,7 +62,6 @@ def _rf_cnpj_flow(table_id: str, cron: str):
             materialize_after_dump: If True, also upload to the prod bucket, run
                 dbt against `target`, and register metadata (subject to
                 `update_metadata`). If False, stop after the dev dump and dbt run.
-            dbt_alias: Passed through to `run_dbt`'s `dbt_alias` argument.
             update_metadata: If True (and `materialize_after_dump` is True),
                 register the table's coverage/materialization and commit the
                 source's max date after a successful prod run.
@@ -158,7 +156,6 @@ def _rf_cnpj_flow(table_id: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            dbt_alias=dbt_alias,
             target="dev",
         )
 
@@ -177,7 +174,6 @@ def _rf_cnpj_flow(table_id: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            dbt_alias=dbt_alias,
             target=target,
         )
 
@@ -208,7 +204,6 @@ def _rf_cnpj_flow(table_id: str, cron: str):
                 dataset_id="br_bd_diretorios_brasil",
                 table_id="empresa",
                 dbt_command="run/test",
-                dbt_alias=dbt_alias,
                 target=target,
             )
             download_data_to_gcs(
