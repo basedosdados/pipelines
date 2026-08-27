@@ -8,8 +8,8 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.crawler.rf_cnpj.constants import constants as constants_cnpj
-from pipelines.crawler.rf_cnpj.utils import (
+from pipelines.datasets.br_rf_cnpj.constants import constants as constants_cnpj
+from pipelines.datasets.br_rf_cnpj.utils import (
     build_paths,
     data_url,
     download_unzip_csv,
