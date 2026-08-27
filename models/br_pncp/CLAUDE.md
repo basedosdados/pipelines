@@ -187,6 +187,15 @@ If PNCP ever publishes an explicit data licence, record it here.
 
 ## Cleaning notes
 
+- **A few numeric fields are pt-BR formatted strings, not JSON numbers.**
+  `notaFiscalEletronica.valorNotaFiscal` arrives as `"4.920,00"` — dot thousands
+  separator, comma decimal. `float()` rejects it, so `valor_nota_fiscal` was silently
+  100% NULL while every sibling field from the same nested object was 25.3% populated.
+  That contrast is the tell worth remembering: when one column of a nested block is empty
+  and its neighbours are not, suspect the parse, not the source. `as_number` now
+  normalises the pt-BR form.
+
+
 - Staging parquet is **all-STRING**, cast through arrow (never `astype(str)`, which
   writes the literal `"nan"` for NULL). Real types are applied before the string cast so
   an INT64 year serialises as `"2025"`, not `"2025.0"`.

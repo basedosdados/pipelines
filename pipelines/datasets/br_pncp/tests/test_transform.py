@@ -491,3 +491,27 @@ class TestPageSizePropagation:
             )
         assert seen["instrumentoscobranca/inclusao"] == 100
         assert seen["contratos/atualizacao"] == utils.PAGE_SIZE
+
+
+class TestBrazilianNumberFormat:
+    """A few PNCP numeric fields are pt-BR formatted strings, not JSON numbers."""
+
+    def test_money_string_with_thousands_and_decimal_comma(self):
+        # notaFiscalEletronica.valorNotaFiscal arrives as "4.920,00". float()
+        # rejects it, so the column was 100% NULL while its siblings were 25%
+        # populated — a silent loss that safe_cast could never recover.
+        assert utils.convert("4.920,00", "FLOAT64") == "4920.0"
+        assert utils.convert("1.060,40", "FLOAT64") == "1060.4"
+        assert utils.convert("118,40", "FLOAT64") == "118.4"
+        assert utils.convert("64,35", "FLOAT64") == "64.35"
+
+    def test_plain_numeric_strings_still_parse(self):
+        assert utils.convert("124650.0", "FLOAT64") == "124650.0"
+        assert utils.convert("2025", "INT64") == "2025"
+
+    def test_json_numbers_are_unaffected(self):
+        assert utils.convert(124650.0, "FLOAT64") == "124650.0"
+        assert utils.convert(198.99, "FLOAT64") == "198.99"
+
+    def test_a_large_pt_br_amount(self):
+        assert utils.convert("1.234.567,89", "FLOAT64") == "1234567.89"

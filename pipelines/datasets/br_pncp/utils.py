@@ -488,8 +488,25 @@ def as_date(value):
 
 
 def as_number(value, integer: bool):
+    """Parse a numeric value, including PNCP's pt-BR formatted money strings.
+
+    Most numeric fields arrive as JSON numbers, but a few are strings in
+    Brazilian format — ``notaFiscalEletronica.valorNotaFiscal`` is ``"4.920,00"``
+    meaning 4920.00, with ``.`` as the thousands separator and ``,`` as the
+    decimal mark. ``float()`` rejects that, so the column silently arrived 100%
+    NULL while its sibling fields were populated.
+    """
     if value in (None, ""):
         return None
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return None
+        # A comma can only be the decimal mark here: pt-BR never uses it for
+        # thousands. Strip the dot separators, then normalise the comma.
+        if "," in text:
+            text = text.replace(".", "").replace(",", ".")
+        value = text
     try:
         number = float(value)
     except (TypeError, ValueError):
