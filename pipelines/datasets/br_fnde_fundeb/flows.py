@@ -57,16 +57,6 @@ def br_fnde_fundeb_flow(
 
     Encerra sem baixar nada quando a plataforma não regravou o arquivo desde a
     última materialização.
-
-    Args:
-        dataset_id: Id do conjunto no BigQuery.
-        materialize_to_prod: Sobe e materializa também em produção, depois de
-            dev. `False` exercita apenas a metade de dev, para uma execução de
-            teste.
-        update_metadata: Registra a cobertura das tabelas no backend após a
-            materialização em produção. Sem efeito quando `materialize_to_prod`
-            é `False`.
-        force_run: Executa mesmo que o poll não acuse arquivo novo.
     """
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
