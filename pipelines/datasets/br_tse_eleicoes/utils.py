@@ -192,8 +192,6 @@ class BrTseEleicoes:
 
 
 # Classes Dos Flows
-
-
 class Candidatos(BrTseEleicoes):
     # pyrefly: ignore [bad-override]
     def form_df_base(self) -> pd.DataFrame:
@@ -230,14 +228,12 @@ class Candidatos(BrTseEleicoes):
         base = base.replace(self.remove, regex=False)
 
         # Formatar datas
-
         base["data_eleicao"] = base["data_eleicao"].apply(conv_data)
         base["data_nascimento"] = base["data_nascimento"].apply(
             lambda date: conv_data(date, birth=True)
         )
 
         # Formatar Colunas com slug
-
         slug_columns_format = [
             "tipo_eleicao",
             "cargo",
@@ -251,16 +247,13 @@ class Candidatos(BrTseEleicoes):
         ]
 
         base[slug_columns_format] = base[slug_columns_format].applymap(slugify)
-
         base["instrucao"] = base["instrucao"].apply(add_ensino)
 
         # Colocar nomes como title como dados em produção
-
         for column_to_format in ["municipio_nascimento", "nome", "nome_urna"]:
             base[column_to_format] = base[column_to_format].str.title()
 
         # trocar `brasileira nata` para `brasileira`
-
         base["nacionalidade"] = base["nacionalidade"].str.replace(
             "brasileira nata", "brasileira"
         )
@@ -283,8 +276,7 @@ class BensCandidato(BrTseEleicoes):
             },
         )
 
-        self.df_main["id_candidato_bd"] = ""
-
+        self.df_main["titulo_eleitoral_candidato"] = ""
         base = self.df_main.loc[:, tse_constants.ORDER_BENS.value.values()]
         base.columns = tse_constants.ORDER_BENS.value.keys()
 
@@ -321,6 +313,7 @@ class DespesasCandidato(BrTseEleicoes):
         vazios = [
             "tipo_despesa",
             "cnpj_candidato",
+            "titulo_eleitoral_candidato",
             "especie_recurso",
             "fonte_recurso",
             "id_candidato_bd",
@@ -389,11 +382,9 @@ class ReceitasCandidato(BrTseEleicoes):
         )
 
         # Preparar as colunas vazias
-
         vazios = [
-            "id_candidato_bd",
             "cnpj_candidato",
-            "titulo_eleitor_candidato",
+            "titulo_eleitoral_candidato",
             "situacao_receita",
             "cpf_cnpj_doador_orig",
             "nome_doador_orig",
