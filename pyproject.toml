@@ -254,6 +254,12 @@ project-excludes = [
   # typed `pipelines/` framework. The shared transform lives in the typed
   # pipelines/datasets/us_bls_oes/ and is type-checked there.
   "models/us_bls_oes/code",
+  # Same policy: us_fdic_bankfind onboarding code is standalone `.py`
+  # (catalog.py, build_*.py, download_and_clean.py, upload.py, validate.py,
+  # register_metadata.py run via `uv run`) — one-shot onboarding code outside
+  # the typed `pipelines/` framework. The pure transform lives in
+  # pipelines/datasets/us_fdic_bankfind/utils.py and is type-checked there.
+  "models/us_fdic_bankfind/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
