@@ -1,0 +1,522 @@
+---
+version: 2
+models:
+  - name: cl_chilecompra_mercado_publico__orden_compra_item
+    description: >
+      Ordens de compra do Mercado Publico do Chile no nivel de linha de item, de 2007
+      a hoje.
+      Cada linha e um item de uma ordem de compra emitida por um organismo publico
+      a um
+      fornecedor. A chave logica e (codigo_orden_compra, id_item). Conforme a propria
+      ChileCompra, o arquivo de descarga massiva inclui ordens de compra que sao excluidas
+      das
+      estatisticas oficiais por conterem erros de valor ou de tipo de moeda, de modo
+      que
+      agregados calculados aqui nao coincidem com as cifras publicadas pela ChileCompra.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [codigo_orden_compra, id_item]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year__
+          ignore_values:
+            - id_plan_compra
+            - codigo_convenio_marco
+            - fecha_cancelacion
+            - fecha_solicitud_cancelacion
+            - promedio_calificacion
+            - cantidad_evaluacion
+            - codigo_licitacion
+    columns:
+      - name: ano
+        description: Ano de envio da ordem de compra
+        tests: [not_null]
+      - name: mes
+        description: Mes de envio da ordem de compra
+        tests: [not_null]
+      - name: id_orden_compra
+        description: Identificador interno da ordem de compra no Mercado Publico
+      - name: codigo_orden_compra
+        description: Codigo publico da ordem de compra, no formato <unidade>-<correlativo>-<tipo><ano>
+        tests: [not_null]
+      - name: url
+        description: Endereco da ficha da ordem de compra no Mercado Publico
+      - name: nombre
+        description: Nome da ordem de compra
+      - name: descripcion
+        description: Descricao e observacoes da ordem de compra
+      - name: sigla_tipo
+        description: Sigla do tipo de ordem de compra
+      - name: procedencia
+        description: Procedimento de compra que originou a ordem
+      - name: indicador_trato_directo
+        description: Indica se a ordem foi emitida por trato direto
+      - name: indicador_compra_agil
+        description: Indica se a ordem foi emitida pela modalidade Compra Agil
+      - name: codigo_tipo
+        description: Codigo do tipo de ordem de compra
+      - name: sigla_tipo_abreviada
+        description: Sigla abreviada do tipo de ordem de compra
+      - name: descripcion_tipo
+        description: Descricao do tipo de ordem de compra
+      - name: id_plan_compra
+        description: Identificador do plano de compras associado
+      - name: codigo_estado
+        description: Codigo do estado da ordem de compra
+      - name: estado
+        description: Estado da ordem de compra
+      - name: codigo_estado_proveedor
+        description: Codigo do estado da ordem segundo o fornecedor
+      - name: estado_proveedor
+        description: Estado da ordem segundo o fornecedor
+      - name: fecha_creacion
+        description: Data de criacao da ordem de compra
+      - name: fecha_envio
+        description: Data de envio da ordem de compra ao fornecedor
+      - name: fecha_solicitud_cancelacion
+        description: Data da solicitacao de cancelamento
+      - name: fecha_ultima_modificacion
+        description: Data da ultima modificacao da ordem de compra
+      - name: fecha_aceptacion
+        description: Data de aceitacao da ordem pelo fornecedor
+      - name: fecha_cancelacion
+        description: Data de cancelamento da ordem de compra
+      - name: indicador_items
+        description: Indica se a ordem de compra possui itens detalhados
+      - name: promedio_calificacion
+        description: Nota media atribuida ao fornecedor nesta ordem de compra
+      - name: cantidad_evaluacion
+        description: Quantidade de avaliacoes registradas para a ordem de compra
+      - name: moneda
+        description: Moeda em que a ordem de compra foi emitida
+      - name: monto_total
+        description: Valor total da ordem de compra na moeda de emissao
+      - name: monto_total_clp
+        description: Valor total da ordem de compra convertido para pesos chilenos
+      - name: monto_impuestos
+        description: Valor dos impostos da ordem de compra
+      - name: tipo_impuesto
+        description: Tipo de imposto aplicado a ordem de compra
+      - name: monto_descuentos
+        description: Valor dos descontos da ordem de compra
+      - name: monto_cargos
+        description: Valor dos encargos da ordem de compra
+      - name: monto_total_neto
+        description: Valor total liquido da ordem de compra
+      - name: porcentaje_iva
+        description: Aliquota de IVA aplicada a ordem de compra
+      - name: codigo_unidad_compra
+        description: Codigo da unidade compradora
+      - name: rut_unidad_compra
+        description: RUT da unidade compradora
+      - name: nombre_unidad_compra
+        description: Nome da unidade compradora
+      - name: codigo_organismo
+        description: Codigo do organismo publico comprador
+      - name: nombre_organismo
+        description: Nome do organismo publico comprador
+      - name: sector
+        description: Setor do Estado a que pertence o organismo comprador
+      - name: actividad_comprador
+        description: Atividades economicas declaradas pela unidade compradora
+      - name: ciudad_unidad_compra
+        description: Cidade da unidade compradora
+      - name: region_unidad_compra
+        description: Regiao da unidade compradora
+      - name: pais_unidad_compra
+        description: Pais da unidade compradora
+      - name: codigo_proveedor
+        description: Codigo do fornecedor
+      - name: rut_proveedor
+        description: RUT do fornecedor
+      - name: nombre_proveedor
+        description: Nome do fornecedor
+      - name: codigo_sucursal_proveedor
+        description: Codigo da filial do fornecedor
+      - name: nombre_sucursal_proveedor
+        description: Nome da filial do fornecedor
+      - name: actividad_proveedor
+        description: Atividade economica declarada pelo fornecedor
+      - name: comuna_proveedor
+        description: Comuna do fornecedor
+      - name: region_proveedor
+        description: Regiao do fornecedor
+      - name: pais_proveedor
+        description: Pais do fornecedor
+      - name: financiamiento
+        description: Fonte de financiamento da compra
+      - name: pais
+        description: Pais de origem do produto ou servico
+      - name: codigo_tipo_despacho
+        description: Codigo do tipo de despacho
+      - name: codigo_forma_pago
+        description: Codigo da forma de pagamento
+      - name: forma_pago
+        description: Descricao da forma de pagamento
+      - name: codigo_licitacion
+        description: Codigo da licitacao que originou a ordem de compra
+      - name: codigo_convenio_marco
+        description: Codigo do convenio marco que originou a ordem de compra
+      - name: id_item
+        description: Identificador da linha de item dentro da ordem de compra
+        tests: [not_null]
+      - name: codigo_categoria
+        description: Codigo da categoria do item
+      - name: categoria
+        description: Categoria do item, com a hierarquia completa de rubros
+      - name: codigo_producto_onu
+        description: Codigo UNSPSC do produto ou servico
+      - name: nombre_producto_generico
+        description: Nome generico do produto ou servico
+      - name: rubro_n1
+        description: Rubro UNSPSC de primeiro nivel
+      - name: rubro_n2
+        description: Rubro UNSPSC de segundo nivel
+      - name: rubro_n3
+        description: Rubro UNSPSC de terceiro nivel
+      - name: especificacion_comprador
+        description: Especificacao do item informada pelo comprador
+      - name: especificacion_proveedor
+        description: Especificacao do item informada pelo fornecedor
+      - name: cantidad
+        description: Quantidade contratada do item
+      - name: unidad_medida
+        description: Unidade de medida do item
+      - name: moneda_item
+        description: Moeda da linha de item
+      - name: precio_neto
+        description: Preco unitario liquido do item
+      - name: monto_cargos_item
+        description: Valor dos encargos da linha de item
+      - name: monto_descuentos_item
+        description: Valor dos descontos da linha de item
+      - name: monto_impuestos_item
+        description: Valor dos impostos da linha de item
+      - name: monto_linea_neto
+        description: Valor total liquido da linha de item
+  - name: cl_chilecompra_mercado_publico__licitacion_item
+    description: >
+      Licitacoes do Mercado Publico do Chile no nivel de linha de item, de 2007 a
+      hoje. Cada
+      linha e um item de uma licitacao, com todos os atributos do processo licitatorio.
+      A chave
+      logica e (codigo_licitacion, codigo_item). As propostas recebidas em cada item
+      estao na
+      tabela licitacion_oferta.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [codigo_licitacion, codigo_item]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year__
+          ignore_values:
+            - valor_tiempo_renovacion
+            - sector
+            - indicador_criterios_ambientales
+            - descripcion_criterios_ambientales
+            - indicador_criterios_sociales
+            - descripcion_criterios_sociales
+            - descripcion_criterios_sociales_2
+            - criterios_evaluacion
+            - fecha_visita_terreno
+            - direccion_visita
+            - fecha_entrega_antecedentes
+            - direccion_entrega
+            - fecha_tiempo_evaluacion
+            - periodo_tiempo_renovacion
+            - fecha_adjudicacion
+            - fecha_aprobacion
+    columns:
+      - name: ano
+        description: Ano de publicacao da licitacao
+        tests: [not_null]
+      - name: mes
+        description: Mes de publicacao da licitacao
+        tests: [not_null]
+      - name: codigo_licitacion
+        description: Codigo publico da licitacao, no formato <unidade>-<correlativo>-<tipo><ano>
+        tests: [not_null]
+      - name: codigo_item
+        description: Codigo da linha de item da licitacao
+        tests: [not_null]
+      - name: id_licitacion
+        description: Identificador interno da licitacao no Mercado Publico
+      - name: url
+        description: Endereco da ficha da licitacao no Mercado Publico
+      - name: nombre
+        description: Nome da licitacao
+      - name: descripcion
+        description: Descricao da licitacao
+      - name: tipo_adquisicion
+        description: Tipo de aquisicao da licitacao
+      - name: codigo_estado
+        description: Codigo do estado da licitacao
+      - name: estado
+        description: Estado da licitacao
+      - name: codigo_estado_licitacion
+        description: Codigo detalhado do estado da licitacao
+      - name: codigo_organismo
+        description: Codigo do organismo publico licitante
+      - name: nombre_organismo
+        description: Nome do organismo publico licitante
+      - name: sector
+        description: Setor do Estado a que pertence o organismo licitante
+      - name: rut_unidad_compra
+        description: RUT da unidade compradora
+      - name: codigo_unidad_compra
+        description: Codigo da unidade compradora
+      - name: nombre_unidad_compra
+        description: Nome da unidade compradora
+      - name: direccion_unidad_compra
+        description: Endereco da unidade compradora
+      - name: comuna_unidad_compra
+        description: Comuna da unidade compradora
+      - name: region_unidad_compra
+        description: Regiao da unidade compradora
+      - name: indicador_informada
+        description: Indica se a licitacao foi informada
+      - name: codigo_tipo
+        description: Codigo do tipo de licitacao
+      - name: sigla_tipo
+        description: Sigla do tipo de licitacao
+      - name: tipo_convocatoria
+        description: Tipo de convocatoria da licitacao
+      - name: codigo_moneda
+        description: Codigo da moeda da licitacao
+      - name: moneda
+        description: Moeda da licitacao
+      - name: moneda_oferta
+        description: Moeda em que as propostas sao apresentadas
+      - name: cantidad_etapas
+        description: Quantidade de etapas da licitacao
+      - name: estado_etapas
+        description: Estado das etapas da licitacao
+      - name: toma_razon
+        description: Indica se a licitacao esta sujeita a toma de razao pela Contraloria
+      - name: estado_publicidad_ofertas
+        description: Estado de publicidade das propostas
+      - name: justificacion_publicidad
+        description: Justificativa do regime de publicidade das propostas
+      - name: estado_cs
+        description: Estado do convenio de suministro associado
+      - name: codigo_contrato
+        description: Codigo do tipo de contrato
+      - name: indicador_obras
+        description: Indica se a licitacao e de obras
+      - name: cantidad_reclamos
+        description: Quantidade de reclamacoes registradas na licitacao
+      - name: fecha_creacion
+        description: Data de criacao da licitacao
+      - name: fecha_publicacion
+        description: Data de publicacao da licitacao
+      - name: fecha_cierre
+        description: Data de encerramento do recebimento de propostas
+      - name: fecha_inicio
+        description: Data de inicio da licitacao
+      - name: fecha_final
+        description: Data final da licitacao
+      - name: fecha_pub_respuestas
+        description: Data de publicacao das respostas as consultas
+      - name: fecha_acto_apertura_tecnica
+        description: Data do ato de abertura tecnica
+      - name: fecha_acto_apertura_economica
+        description: Data do ato de abertura economica
+      - name: fecha_adjudicacion
+        description: Data de adjudicacao da licitacao
+      - name: fecha_estimada_adjudicacion
+        description: Data estimada de adjudicacao
+      - name: fecha_soporte_fisico
+        description: Data de entrega de antecedentes em suporte fisico
+      - name: fecha_tiempo_evaluacion
+        description: Data limite do periodo de avaliacao
+      - name: unidad_tiempo_evaluacion
+        description: Unidade de tempo do periodo de avaliacao
+      - name: fecha_estimada_firma
+        description: Data estimada de assinatura do contrato
+      - name: fechas_usuario
+        description: Datas adicionais informadas pelo usuario
+      - name: fecha_visita_terreno
+        description: Data da visita a campo
+      - name: direccion_visita
+        description: Endereco da visita a campo
+      - name: fecha_entrega_antecedentes
+        description: Data de entrega de antecedentes
+      - name: direccion_entrega
+        description: Endereco de entrega de antecedentes
+      - name: estimacion
+        description: Tipo de estimativa do valor da licitacao
+      - name: fuente_financiamiento
+        description: Fonte de financiamento da licitacao
+      - name: visibilidad_monto
+        description: Indica se o valor estimado e publico
+      - name: monto_estimado
+        description: Valor estimado da licitacao
+      - name: monto_estimado_adjudicado
+        description: Valor estimado adjudicado da licitacao
+      - name: justificacion_monto_estimado
+        description: Justificativa do valor estimado
+      - name: tiempo
+        description: Prazo da licitacao
+      - name: unidad_tiempo
+        description: Unidade de tempo do prazo da licitacao
+      - name: modalidad
+        description: Modalidade da licitacao
+      - name: tipo_pago
+        description: Tipo de pagamento previsto
+      - name: prohibicion_contratacion
+        description: Declaracao de proibicao de contratacao
+      - name: subcontratacion
+        description: Indica se a subcontratacao e permitida
+      - name: unidad_tiempo_duracion_contrato
+        description: Unidade de tempo da duracao do contrato
+      - name: tiempo_duracion_contrato
+        description: Duracao prevista do contrato
+      - name: tipo_duracion_contrato
+        description: Tipo de duracao do contrato
+      - name: observacion_contrato
+        description: Observacoes sobre o contrato
+      - name: extension_plazo
+        description: Indica se ha prorrogacao de prazo
+      - name: indicador_base_tipo
+        description: Indica se a licitacao usa bases tipo
+      - name: unidad_tiempo_contrato
+        description: Unidade de tempo do contrato da licitacao
+      - name: valor_tiempo_renovacion
+        description: Valor do periodo de renovacao do contrato
+      - name: periodo_tiempo_renovacion
+        description: Unidade do periodo de renovacao do contrato
+      - name: indicador_renovable
+        description: Indica se o contrato e renovavel
+      - name: tipo_aprobacion
+        description: Tipo do ato administrativo de aprovacao
+      - name: numero_aprobacion
+        description: Numero do ato administrativo de aprovacao
+      - name: fecha_aprobacion
+        description: Data do ato administrativo de aprovacao
+      - name: cantidad_oferentes
+        description: Quantidade de proponentes na licitacao
+      - name: indicador_criterios_ambientales
+        description: Indica se a licitacao aplica criterios ou requisitos ambientais
+      - name: descripcion_criterios_ambientales
+        description: Descricao dos criterios ou requisitos ambientais
+      - name: indicador_criterios_sociales
+        description: Indica se a licitacao aplica criterios ou requisitos sociais
+      - name: descripcion_criterios_sociales
+        description: Descricao dos criterios ou requisitos sociais
+      - name: descripcion_criterios_sociales_2
+        description: Segunda descricao dos criterios ou requisitos sociais
+      - name: criterios_evaluacion
+        description: Criterios de avaliacao das propostas, separados por ponto e virgula
+      - name: correlativo_item
+        description: Numero correlativo da linha de item dentro da licitacao
+      - name: codigo_producto_onu
+        description: Codigo UNSPSC do produto ou servico
+      - name: rubro_n1
+        description: Rubro UNSPSC de primeiro nivel
+      - name: rubro_n2
+        description: Rubro UNSPSC de segundo nivel
+      - name: rubro_n3
+        description: Rubro UNSPSC de terceiro nivel
+      - name: nombre_producto_generico
+        description: Nome generico do produto ou servico
+      - name: nombre_linea
+        description: Nome da linha de aquisicao
+      - name: descripcion_linea
+        description: Descricao da linha de aquisicao
+      - name: unidad_medida
+        description: Unidade de medida do item
+      - name: cantidad
+        description: Quantidade solicitada do item
+  - name: cl_chilecompra_mercado_publico__licitacion_oferta
+    description: >
+      Propostas recebidas nas licitacoes do Mercado Publico do Chile, de 2007 a hoje.
+      Cada
+      linha e a proposta de um fornecedor para uma linha de item de uma licitacao,
+      incluindo as
+      propostas nao vencedoras. A chave logica e (codigo_licitacion, codigo_item,
+      codigo_proveedor, nombre_oferta). Os atributos do processo licitatorio estao
+      na tabela
+      licitacion_item.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - codigo_licitacion
+            - codigo_item
+            - codigo_proveedor
+            - nombre_oferta
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year__
+          ignore_values:
+            - estado_final_oferta
+            - unidad_medida_oferta
+            - cantidad_adjudicada
+            - monto_linea_adjudicada
+            - fecha_envio_oferta
+    columns:
+      - name: ano
+        description: Ano de publicacao da licitacao
+        tests: [not_null]
+      - name: mes
+        description: Mes de publicacao da licitacao
+        tests: [not_null]
+      - name: codigo_licitacion
+        description: Codigo publico da licitacao, no formato <unidade>-<correlativo>-<tipo><ano>
+        tests: [not_null]
+      - name: codigo_item
+        description: Codigo da linha de item da licitacao
+        tests: [not_null]
+      - name: codigo_proveedor
+        description: Codigo do fornecedor proponente
+        tests: [not_null]
+      - name: nombre_oferta
+        description: Nome da proposta apresentada
+        tests: [not_null]
+      - name: codigo_sucursal_proveedor
+        description: Codigo da filial do fornecedor proponente
+      - name: rut_proveedor
+        description: RUT do fornecedor proponente
+      - name: nombre_proveedor
+        description: Nome de fantasia do fornecedor proponente
+      - name: razon_social_proveedor
+        description: Razao social do fornecedor proponente
+      - name: descripcion_oferta_proveedor
+        description: Descricao da proposta informada pelo fornecedor
+      - name: estado_oferta
+        description: Estado da proposta
+      - name: estado_final_oferta
+        description: Estado final da proposta
+      - name: indicador_oferta_seleccionada
+        description: Indica se a proposta foi a selecionada para a linha de item
+      - name: cantidad_ofertada
+        description: Quantidade ofertada na proposta
+      - name: unidad_medida_oferta
+        description: Unidade de medida da quantidade ofertada
+      - name: monto_unitario_oferta
+        description: Valor unitario ofertado
+      - name: monto_total_ofertado
+        description: Valor total ofertado na linha
+      - name: cantidad_adjudicada
+        description: Quantidade adjudicada ao fornecedor na linha
+      - name: monto_linea_adjudicada
+        description: Valor adjudicado na linha de item
+      - name: fecha_envio_oferta
+        description: Data de envio da proposta
+  - name: cl_chilecompra_mercado_publico__dicionario
+    description: >
+      Dicionario de valores codificados das tabelas do dataset, com a
+      traducao de cada chave para o rotulo publicado pela ChileCompra.
+    columns:
+      - name: id_tabela
+        description: Nome da tabela a que se refere a chave
+      - name: nome_coluna
+        description: Nome da coluna a que se refere a chave
+      - name: chave
+        description: Valor codificado tal como aparece na coluna
+      - name: cobertura_temporal
+        description: Cobertura temporal da chave
+      - name: valor
+        description: Rotulo correspondente a chave

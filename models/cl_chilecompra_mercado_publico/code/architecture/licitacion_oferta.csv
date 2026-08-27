@@ -1,0 +1,22 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de publicacao da licitacao,,no,,year,no,"Coluna de particao, derivada de fecha_publicacion",
+mes,INT64,Mes de publicacao da licitacao,,no,,month,no,"Coluna de particao, derivada de fecha_publicacion",
+codigo_licitacion,STRING,"Codigo publico da licitacao, no formato <unidade>-<correlativo>-<tipo><ano>",,no,,,no,Chave logica; liga a orden_compra_item.codigo_licitacion,CodigoExterno
+codigo_item,STRING,Codigo da linha de item da licitacao,,no,,,no,Compoe a chave logica junto de codigo_licitacion,Codigoitem
+codigo_proveedor,STRING,Codigo do fornecedor proponente,,no,,,no,Compoe a chave logica,CodigoProveedor
+nombre_oferta,STRING,Nome da proposta apresentada,,no,,,no,Compoe a chave logica,Nombre de la Oferta
+codigo_sucursal_proveedor,STRING,Codigo da filial do fornecedor proponente,,no,,,no,,CodigoSucursalProveedor
+rut_proveedor,STRING,RUT do fornecedor proponente,,no,,,no,Formato com pontos e digito verificador,RutProveedor
+nombre_proveedor,STRING,Nome de fantasia do fornecedor proponente,,no,,,no,,NombreProveedor
+razon_social_proveedor,STRING,Razao social do fornecedor proponente,,no,,,no,,RazonSocialProveedor
+descripcion_oferta_proveedor,STRING,Descricao da proposta informada pelo fornecedor,,no,,,no,,DescripcionProveedor
+estado_oferta,STRING,Estado da proposta,,yes,,,no,,Estado Oferta
+estado_final_oferta,STRING,Estado final da proposta,,yes,,,no,Presente apenas nos arquivos de 2007 a 2014,Estado final Oferta
+indicador_oferta_seleccionada,STRING,Indica se a proposta foi a selecionada para a linha de item,,yes,,,no,,Oferta seleccionada
+cantidad_ofertada,FLOAT64,Quantidade ofertada na proposta,,no,,,no,A unidade e dada pela coluna unidad_medida_oferta,Cantidad Ofertada
+unidad_medida_oferta,STRING,Unidade de medida da quantidade ofertada,,no,,,no,Presente apenas nos arquivos de 2007 a 2014; chega como UnidadMedida.1,UnidadMedida.1
+monto_unitario_oferta,FLOAT64,Valor unitario ofertado,,no,,,no,A unidade e dada pela coluna moneda_oferta em licitacion_item,MontoUnitarioOferta
+monto_total_ofertado,FLOAT64,Valor total ofertado na linha,,no,,,no,A unidade e dada pela coluna moneda_oferta em licitacion_item,Valor Total Ofertado
+cantidad_adjudicada,FLOAT64,Quantidade adjudicada ao fornecedor na linha,,no,,,no,A unidade e dada pela coluna unidad_medida em licitacion_item,CantidadAdjudicada
+monto_linea_adjudicada,FLOAT64,Valor adjudicado na linha de item,,no,,,no,A unidade e dada pela coluna moneda_oferta em licitacion_item,MontoLineaAdjudica
+fecha_envio_oferta,DATE,Data de envio da proposta,,no,,,no,Valor 1900-01-01 na origem indica ausencia e e convertido para nulo,FechaEnvioOferta
