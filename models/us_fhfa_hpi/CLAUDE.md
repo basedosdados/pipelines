@@ -64,6 +64,16 @@ Not linked, each for a checked reason:
 | `zip_code_3`, `zip_code_5` | USPS ZIP codes, not ZCTAs — `zcta_2020` is a different universe |
 | `census_tract_id` | FHFA builds the tract index on 2010 tract boundaries (WP 16-04); only `census_tract_2020` exists |
 
+## Naming conventions applied here
+
+- **Table display names carry no em dash.** The geography goes in parentheses, singular,
+  matching the table's observation level: `Índice anual (estado)`, `Índice trimestral
+  (área metropolitana)`. The trilingual names are recorded in `code/table_metadata.json`,
+  which is the reference when re-registering on another backend.
+- **`state_abbreviation` precedes the finer geography identifier** it qualifies, in both
+  the architecture and BigQuery: `annual_county` is `year, state_abbreviation, county_id,
+  county_name, …` and `annual_tract` is `year, state_abbreviation, census_tract_id, …`.
+
 ## Where things live
 
 - transform: `pipelines/datasets/us_fhfa_hpi/utils.py` (pure, shared with the pipeline)

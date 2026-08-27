@@ -406,6 +406,9 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+      - name: state_abbreviation
+        description: >-
+          Two-letter abbreviation of the state the county belongs to
       - name: county_id
         description: >-
           Five-digit FIPS code of the county or county equivalent
@@ -417,9 +420,6 @@ models:
       - name: county_name
         description: >-
           Name of the county or county equivalent
-      - name: state_abbreviation
-        description: >-
-          Two-letter abbreviation of the state the county belongs to
       - name: annual_change_percent
         description: >-
           Percentage change in the index from the previous year
@@ -528,13 +528,13 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+      - name: state_abbreviation
+        description: >-
+          Two-letter abbreviation of the state the tract belongs to
       - name: census_tract_id
         description: >-
           Eleven-digit census tract GEOID
         tests: [not_null]
-      - name: state_abbreviation
-        description: >-
-          Two-letter abbreviation of the state the tract belongs to
       - name: annual_change_percent
         description: >-
           Percentage change in the index from the previous year

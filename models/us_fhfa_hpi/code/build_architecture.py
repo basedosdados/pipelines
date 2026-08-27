@@ -349,6 +349,12 @@ TABLES["annual_cbsa"] = [
 TABLES["annual_county"] = [
     YEAR_ANNUAL,
     col(
+        "state_abbreviation",
+        "STRING",
+        "Two-letter abbreviation of the state the county belongs to",
+        original_name="State",
+    ),
+    col(
         "county_id",
         "STRING",
         "Five-digit FIPS code of the county or county equivalent",
@@ -360,12 +366,6 @@ TABLES["annual_county"] = [
         "STRING",
         "Name of the county or county equivalent",
         original_name="County",
-    ),
-    col(
-        "state_abbreviation",
-        "STRING",
-        "Two-letter abbreviation of the state the county belongs to",
-        original_name="State",
     ),
     *ANNUAL_TAIL,
 ]
@@ -401,6 +401,12 @@ TABLES["annual_zip5"] = [
 TABLES["annual_tract"] = [
     YEAR_ANNUAL,
     col(
+        "state_abbreviation",
+        "STRING",
+        "Two-letter abbreviation of the state the tract belongs to",
+        original_name="state_abbr",
+    ),
+    col(
         "census_tract_id",
         "STRING",
         "Eleven-digit census tract GEOID",
@@ -409,12 +415,6 @@ TABLES["annual_tract"] = [
             "link to br_bd_diretorios_us.census_tract_2020 is declared"
         ),
         original_name="tract",
-    ),
-    col(
-        "state_abbreviation",
-        "STRING",
-        "Two-letter abbreviation of the state the tract belongs to",
-        original_name="state_abbr",
     ),
     *ANNUAL_TAIL,
 ]

@@ -15,9 +15,9 @@
 
 select
     safe_cast(year as int64) year,
+    safe_cast(state_abbreviation as string) state_abbreviation,
     safe_cast(county_id as string) county_id,
     safe_cast(county_name as string) county_name,
-    safe_cast(state_abbreviation as string) state_abbreviation,
     safe_cast(annual_change_percent as float64) annual_change_percent,
     safe_cast(index_nsa as float64) index_nsa,
     safe_cast(index_nsa_1990_base as float64) index_nsa_1990_base,
