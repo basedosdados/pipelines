@@ -70,3 +70,14 @@ Not linked, each for a checked reason:
 - bootstrap: `code/clean_data.py` → `~/Downloads/us_fhfa_hpi_data/{input,output}`
 - schema source of truth: `code/architecture/*.csv`; `code/build_dbt.py` regenerates the models
 - upload: `code/upload.py` (dev only — prod tables come from table-approve on merge)
+
+## Running dbt locally
+
+`profiles.yml` reads the service account from `BD_SERVICE_ACCOUNT_DEV` and falls back to
+`/credentials-dev/dev.json`, which only exists on the deployed worker. Locally:
+
+```
+BD_SERVICE_ACCOUNT_DEV="$HOME/.basedosdados/credentials/staging.json" uv run dbt run --select us_fhfa_hpi
+```
+
+The first parse of this repo takes ~13 minutes; later runs reuse `target/partial_parse.msgpack`.
