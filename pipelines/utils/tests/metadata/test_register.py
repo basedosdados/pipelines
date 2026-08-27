@@ -222,11 +222,13 @@ def test_part_bdpro_writes_coverages_table_update_and_rap():
     assert len(bq.rap_calls) == 1
 
 
-def test_part_bdpro_history_less_writes_non_inverting_free_range():
-    # Regressão: snapshot sem história (min == max == hoje). O range free antes
-    # invertia (início gravado > free_end) e o backend recusava a escrita. Agora
-    # o orquestrador lê o início da série (read_min_date) e emite um free
-    # completo e travado em free_end — start <= end.
+def test_part_bdpro_history_less_writes_non_inverting_free_range() -> None:
+    """Regressão: um snapshot sem história (min == max) não inverte o free.
+
+    Antes o range free invertia (início gravado > free_end) e o backend recusava
+    a escrita. Agora o orquestrador lê o início da série (read_min_date) e emite
+    um free completo e travado em free_end, com start <= end.
+    """
     client = FakeMetadataClient(
         coverage_ids=CoverageIds(
             free="ffffffff-ffff-4fff-8fff-ffffffffffff",

@@ -19,6 +19,8 @@ sem que este conftest dependa deles.
 
 from __future__ import annotations
 
+import datetime
+
 import pytest
 
 
@@ -183,7 +185,10 @@ class FakeBQ:
         min_date=None,
     ):
         self._max_date = max_date
-        self._min_date = min_date
+        # Sem min_date explícito, usa max_date: assim um teste part_bdpro que só
+        # passa max_date ainda exercita o caminho de produção (source_start não
+        # nulo), e não o ramo legado source_start=None de compute_coverage_ranges.
+        self._min_date = max_date if min_date is None else min_date
         self._last_modified = last_modified
         self._can_read = can_read
         self.rap_calls: list[tuple] = []
@@ -191,7 +196,20 @@ class FakeBQ:
     def read_max_date(self, dataset_id, table_id, coverage):
         return self._max_date
 
-    def read_min_date(self, dataset_id, table_id, coverage):
+    def read_min_date(
+        self, dataset_id: str, table_id: str, coverage
+    ) -> datetime.date | None:
+        """Devolve o início da série configurado (espelha `read_min_date` real).
+
+        Args:
+            dataset_id: ID do dataset (ignorado pelo fake).
+            table_id: ID da tabela (ignorado pelo fake).
+            coverage: `CoverageSpec` da tabela (ignorado pelo fake).
+
+        Returns:
+            A data mínima configurada — `min_date`, ou `max_date` quando aquele
+            não foi informado.
+        """
         return self._min_date
 
     def last_modified(self, dataset_id, table_id):

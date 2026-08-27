@@ -46,7 +46,8 @@ def test_read_max_date_translates_and_parses(mock_extract):
 
 
 @patch("pipelines.utils.metadata.bq.extract_first_date_from_bq")
-def test_read_min_date_translates_and_parses(mock_extract):
+def test_read_min_date_translates_and_parses(mock_extract) -> None:
+    """read_min_date traduz o DateColumn e faz o parse simétrico a read_max_date."""
     mock_extract.return_value = "2000-10-19"
     bq = BigQueryReader(billing_project_id="proj", bq_project="basedosdados")
 

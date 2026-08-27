@@ -78,6 +78,12 @@ class FreeLag(BaseModel):
 class _CoverageBase(BaseModel):
     date_column: DateColumn
     date_format: DateFormat
+    # Passo da série, em unidades da granularidade de `date_format` — o "(N)" da
+    # notação de cobertura da BD ("2004(1)2022"). Quase sempre 1 (série contínua
+    # anual/mensal/diária), mas nem sempre: eleições brasileiras são bienais, com
+    # `interval=2`. Cada `DateTimeRange` gravado carrega este valor, então uma
+    # série bienal precisa declará-lo aqui — senão a escrita o fixaria em 1.
+    interval: int = Field(default=1, ge=1)
 
     @model_validator(mode="after")
     def _column_matches_format(self) -> _CoverageBase:

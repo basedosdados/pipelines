@@ -150,12 +150,14 @@ def compute_coverage_ranges(
         raise ValueError("NonHistorical não usa compute_coverage_ranges")
 
     fmt = spec.date_format
+    interval = spec.interval  # passo da série (o "(N)" da notação); ver domain
 
     if isinstance(spec, AllFree):
         return CoverageRanges(
             free=DateTimeRangeInput(
                 # pyrefly: ignore [bad-argument-type]
                 coverage=coverage_ids.free,
+                interval=interval,
                 **_components(source_end, fmt, "end"),
             ),
             free_end=source_end,
@@ -166,6 +168,7 @@ def compute_coverage_ranges(
             pro=DateTimeRangeInput(
                 # pyrefly: ignore [bad-argument-type]
                 coverage=coverage_ids.pro,
+                interval=interval,
                 **_components(source_end, fmt, "end"),
             )
         )
@@ -185,11 +188,13 @@ def compute_coverage_ranges(
     free = DateTimeRangeInput(
         # pyrefly: ignore [bad-argument-type]
         coverage=coverage_ids.free,
+        interval=interval,
         **free_fields,
     )
     pro = DateTimeRangeInput(
         # pyrefly: ignore [bad-argument-type]
         coverage=coverage_ids.pro,
+        interval=interval,
         **_components(source_end, fmt, "end"),
         # free termina em free_end inclusive, então pro começa no período
         # seguinte: as coberturas são mutuamente exclusivas.
