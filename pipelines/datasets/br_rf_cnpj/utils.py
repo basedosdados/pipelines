@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 from httpx import AsyncClient, HTTPError
 from tqdm import tqdm
 
-from pipelines.crawler.rf_cnpj.constants import constants as constants_cnpj
+from pipelines.datasets.br_rf_cnpj.constants import constants as constants_cnpj
 from pipelines.utils.utils import log
 
 ufs = constants_cnpj.UFS.value
