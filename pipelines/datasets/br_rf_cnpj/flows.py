@@ -93,6 +93,8 @@ def _rf_cnpj_flow(table_id: str, cron: str):
             prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
         )
 
+        # Cada table_id, tem uma lista de tabelas, que são os arquivos necessários ao flow (como 'sub-tabelas' que compõe aquela identificada por table_id)
+        # Necessário apenas para o dicionário, que faz uso de mais de um tipo de arquivo.
         tabelas = constants_cnpj.TABLES.value[table_id]
 
         folder_date, last_modified_date = get_data_source_max_date(folder_date)
