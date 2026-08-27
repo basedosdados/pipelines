@@ -220,8 +220,6 @@ class Candidatos(BrTseEleicoes):
             how="left",
         )
 
-        temp_merge_left["id_candidato_bd"] = ""
-
         base = temp_merge_left.loc[:, tse_constants.ORDER.value.values()]
         base = base.fillna("")
         base.columns = tse_constants.ORDER.value.keys()
@@ -316,7 +314,6 @@ class DespesasCandidato(BrTseEleicoes):
             "titulo_eleitoral_candidato",
             "especie_recurso",
             "fonte_recurso",
-            "id_candidato_bd",
             "esfera_partidaria_fornecedor",
         ]
 
