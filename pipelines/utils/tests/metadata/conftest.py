@@ -180,14 +180,19 @@ class FakeBQ:
         max_date=None,
         last_modified=None,
         can_read=True,
+        min_date=None,
     ):
         self._max_date = max_date
+        self._min_date = min_date
         self._last_modified = last_modified
         self._can_read = can_read
         self.rap_calls: list[tuple] = []
 
     def read_max_date(self, dataset_id, table_id, coverage):
         return self._max_date
+
+    def read_min_date(self, dataset_id, table_id, coverage):
+        return self._min_date
 
     def last_modified(self, dataset_id, table_id):
         return self._last_modified

@@ -45,6 +45,21 @@ def test_read_max_date_translates_and_parses(mock_extract):
     assert args[4] == "proj"  # billing_project_id
 
 
+@patch("pipelines.utils.metadata.bq.extract_first_date_from_bq")
+def test_read_min_date_translates_and_parses(mock_extract):
+    mock_extract.return_value = "2000-10-19"
+    bq = BigQueryReader(billing_project_id="proj", bq_project="basedosdados")
+
+    out = bq.read_min_date("br_x", "tab", _daily())
+
+    assert out == datetime.date(2000, 10, 19)
+    # tradução: DateOnly → {"date":"data"} e formato "%Y-%m-%d"
+    args = mock_extract.call_args.args
+    assert args[2] == "%Y-%m-%d"
+    assert args[3] == {"date": "data"}
+    assert args[4] == "proj"  # billing_project_id
+
+
 @patch("pipelines.utils.metadata.bq.update_date_from_bq_metadata")
 def test_last_modified_delegates(mock_lm):
     mock_lm.return_value = datetime.datetime(2026, 6, 2, 10, 0)

@@ -58,6 +58,28 @@ def test_datetimerange_bad_coverage_uuid():
         DateTimeRangeInput(coverage=BAD_UUID, endYear=2026)
 
 
+def test_datetimerange_interval_defaults_to_one_and_is_emitted():
+    # O backend exige `interval` ao CRIAR um range com início e fim; sem ele,
+    # o upsert só conseguia UPDATE. O default 1 tem de sair no payload (não é
+    # None, então sobrevive ao model_dump(exclude_none=True)).
+    dto = DateTimeRangeInput(
+        coverage=UUID, startYear=2026, startMonth=1, endYear=2026, endMonth=6
+    )
+    assert dto.interval == 1
+    assert dto.model_dump(exclude_none=True)["interval"] == 1
+
+
+def test_datetimerange_interval_respects_explicit_value():
+    dto = DateTimeRangeInput(coverage=UUID, endYear=2026, interval=3)
+    assert dto.interval == 3
+
+
+@pytest.mark.parametrize("bad", [0, -1])
+def test_datetimerange_interval_must_be_positive(bad):
+    with pytest.raises(ValidationError):
+        DateTimeRangeInput(coverage=UUID, endYear=2026, interval=bad)
+
+
 # --- PollInput: FK, ISO 8601, defaults ----------------------------------------
 def test_poll_input_valid():
     dto = PollInput(rawDataSource=UUID, latest="2026-06-01", entity=UUID)

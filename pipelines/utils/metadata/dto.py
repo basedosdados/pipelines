@@ -22,6 +22,7 @@ UUIDStr = Annotated[str, Field(pattern=r"^[0-9a-f-]{36}$")]
 Year = Annotated[int, Field(ge=1900, le=2100)]
 Month = Annotated[int, Field(ge=1, le=12)]
 Day = Annotated[int, Field(ge=1, le=31)]
+Interval = Annotated[int, Field(ge=1)]
 
 
 def _to_iso8601(value: object) -> str:
@@ -46,7 +47,15 @@ IsoDateStr = Annotated[str, BeforeValidator(_to_iso8601)]
 
 
 class DateTimeRangeInput(BaseModel):
-    """Payload de `CreateUpdateDateTimeRange` (Coverage.DateTimeRange)."""
+    """Payload de `CreateUpdateDateTimeRange` (Coverage.DateTimeRange).
+
+    `interval` é sempre enviado (default 1). O backend o **exige** ao criar um
+    range com início e fim ("Interval must exist in ranges with start and end
+    dates"); sem ele, `upsert_coverage_datetime_range` só conseguia UPDATE de um
+    range já existente, nunca CREATE. Todo range no banco tem interval=1, então
+    enviá-lo sempre é o comportamento correto e alinhado ao que o MCP de
+    onboarding já faz.
+    """
 
     coverage: UUIDStr
     startYear: Year | None = None
@@ -55,6 +64,7 @@ class DateTimeRangeInput(BaseModel):
     endYear: Year | None = None
     endMonth: Month | None = None
     endDay: Day | None = None
+    interval: Interval = 1
 
     @model_validator(mode="after")
     def _shape_consistent(self) -> DateTimeRangeInput:

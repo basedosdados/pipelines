@@ -222,6 +222,39 @@ def test_part_bdpro_writes_coverages_table_update_and_rap():
     assert len(bq.rap_calls) == 1
 
 
+def test_part_bdpro_history_less_writes_non_inverting_free_range():
+    # Regressão: snapshot sem história (min == max == hoje). O range free antes
+    # invertia (início gravado > free_end) e o backend recusava a escrita. Agora
+    # o orquestrador lê o início da série (read_min_date) e emite um free
+    # completo e travado em free_end — start <= end.
+    client = FakeMetadataClient(
+        coverage_ids=CoverageIds(
+            free="ffffffff-ffff-4fff-8fff-ffffffffffff",
+            pro="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        )
+    )
+    spec = PartBdpro(
+        date_column=DateOnly(col="data_extracao"),
+        date_format=DateFormat.YEAR_MD,
+    )
+    bq = FakeBQ(
+        max_date=datetime.date(2026, 8, 25),
+        min_date=datetime.date(2026, 8, 25),  # 1 único snapshot
+        last_modified=datetime.datetime(2026, 8, 26),
+        can_read=True,
+    )
+    register_table_materialization(client, bq, "br_x", "tab", spec)
+
+    # primeiro write "coverage" é o range free (ranges.to_list() = [free, pro])
+    free_dto = next(
+        args[0] for entity, args, _ in client.writes if entity == "coverage"
+    )
+    start = (free_dto.startYear, free_dto.startMonth, free_dto.startDay)
+    end = (free_dto.endYear, free_dto.endMonth, free_dto.endDay)
+    assert start <= end  # não invertido
+    assert start == end == (2026, 2, 25)  # colapsado em free_end
+
+
 def test_all_free_writes_only_free_coverage_and_table_update_no_rap():
     client = FakeMetadataClient(
         coverage_ids=CoverageIds(
