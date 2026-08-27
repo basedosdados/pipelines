@@ -55,15 +55,20 @@ class constants(Enum):
     # publications.
     #
     # ``window_days`` — the initial window size. ``fetch_range`` halves any
-    # window the server refuses, so these are starting points sized to keep a
-    # result set well under the depth at which paging starts timing out, not
-    # hard limits.
+    # window the server refuses, so these are starting points, not hard limits.
+    #
+    # Size them so a window stays SHALLOW, not merely servable. Per-page latency
+    # grows with offset depth: measured ~7s/page on 30-page windows against
+    # ~21s/page on 190-page ones, so a window three times larger costs far more
+    # than three times as much. contrato keeps 15 only because 111 chunks were
+    # already harvested at that size and the window size is baked into the chunk
+    # filenames — re-sizing it would discard that work.
     ENDPOINTS = {
         "contratacao": {
             "path": "contratacoes/atualizacao",
             "date_params": ("dataInicial", "dataFinal"),
             "by_modalidade": True,
-            "window_days": 30,
+            "window_days": 10,
         },
         "contrato": {
             "path": "contratos/atualizacao",
@@ -95,7 +100,7 @@ class constants(Enum):
             "path": "pca/atualizacao",
             "date_params": ("dataInicio", "dataFim"),
             "by_modalidade": False,
-            "window_days": 30,
+            "window_days": 7,
         },
     }
 
