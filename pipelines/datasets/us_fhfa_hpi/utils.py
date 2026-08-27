@@ -267,6 +267,7 @@ def write_partitioned(df: pd.DataFrame, table: str, output_dir: Path) -> Path:
         _write(df, tdir / "data.parquet")
     else:
         for year, g in df.groupby("year", sort=True):
+            # pyrefly: ignore [bad-argument-type]
             pdir = tdir / f"year={int(year)}"
             pdir.mkdir(parents=True, exist_ok=True)
             _write(g, pdir / "data.parquet")
