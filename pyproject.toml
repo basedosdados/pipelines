@@ -260,6 +260,12 @@ project-excludes = [
   # the typed `pipelines/` framework. The pure transform lives in
   # pipelines/datasets/us_fdic_bankfind/utils.py and is type-checked there.
   "models/us_fdic_bankfind/code",
+  # Same policy: br_bd_diretorios_cl onboarding code is standalone one-shot `.py`
+  # (clean.py, upload.py run via `uv run --with ...`) outside the typed
+  # `pipelines/` framework. It also imports `pdfplumber`, an optional dependency
+  # used only by the `--validate` name cross-check and deliberately kept out of
+  # pyproject, since the directory is a static one-off load with no pipeline.
+  "models/br_bd_diretorios_cl/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",

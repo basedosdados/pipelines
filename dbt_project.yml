@@ -118,6 +118,9 @@ models:
     br_bd_diretorios_brasil:
       +materialized: table
       +schema: br_bd_diretorios_brasil
+    br_bd_diretorios_cl:
+      +materialized: table
+      +schema: br_bd_diretorios_cl
     br_bd_diretorios_de:
       +materialized: table
       +schema: br_bd_diretorios_de
