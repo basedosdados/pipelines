@@ -73,6 +73,39 @@ def _coverage_month(report_date: str) -> str:
     return pd.Timestamp(report_date).strftime("%Y-%m")
 
 
+def _materialize(
+    target: str, bucket: str, paths: dict[str, str], tables: list[str]
+) -> None:
+    """Sobe a staging e roda TODAS as tabelas antes de testar qualquer uma.
+
+    Os testes de `relationships` de `financials_indicator` leem os modelos
+    `institution` e `indicator`, que precisam já existir — por isso run e test
+    são dois laços separados, nunca intercalados por tabela.
+    """
+    for table in tables:
+        upload_to_gcs(
+            data_path=paths[table],
+            dataset_id=DATASET_ID,
+            table_id=table,
+            bucket_name=bucket,
+            dump_mode="append",
+            source_format="parquet",
+        )
+        run_dbt(
+            dataset_id=DATASET_ID,
+            table_id=table,
+            dbt_command="run",
+            target=target,
+        )
+    for table in tables:
+        run_dbt(
+            dataset_id=DATASET_ID,
+            table_id=table,
+            dbt_command="test",
+            target=target,
+        )
+
+
 @flow(name="us_fdic_bankfind", log_prints=True)
 def us_fdic_bankfind_flow(
     materialize_to_prod: bool = True,
@@ -130,39 +163,18 @@ def us_fdic_bankfind_flow(
         paths |= build_recent_quarters(work_dir=work_dir)
         tables = constants.ALL_TABLES.value
 
-        # The dev pass is the pre-arm validation path, not part of a production
-        # run: it rebuilds every table in basedosdados-dev, which nothing
-        # downstream reads. Prod runs the same models and tests seconds later.
-        bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
-        target = "prod" if materialize_to_prod else "dev"
+        # Dev primeiro: o run e os testes têm que passar contra
+        # basedosdados-dev antes de qualquer coisa ser escrita em prod.
+        # run_dbt levanta quando run ou test falha, então uma falha aqui aborta
+        # o flow sem tocar em prod.
+        _materialize("dev", "basedosdados-dev", paths, tables)
 
-        # Upload and run every table BEFORE testing any of them: the
-        # relationships tests on financials_indicator read the institution and
-        # indicator models, which must already exist.
-        for table in tables:
-            upload_to_gcs(
-                data_path=paths[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name=bucket,
-                dump_mode="append",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target=target,
-            )
-        for table in tables:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target=target,
-            )
+        if not materialize_to_prod:
+            return
 
-        if materialize_to_prod and update_metadata:
+        _materialize("prod", "basedosdados", paths, tables)
+
+        if update_metadata:
             for table, coverage in _COVERAGE.items():
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
