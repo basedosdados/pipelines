@@ -515,3 +515,43 @@ class TestBrazilianNumberFormat:
 
     def test_a_large_pt_br_amount(self):
         assert utils.convert("1.234.567,89", "FLOAT64") == "1234567.89"
+
+
+class TestSplitOnlyWhenTheWindowIsTooLarge:
+    """Splitting discards fetched pages, so only page-1 failures should split."""
+
+    def test_page_one_failure_propagates_so_the_caller_splits(
+        self, monkeypatch
+    ):
+        def always_overloaded(path, params, max_tries=6):
+            raise utils.ServerOverloadError("500")
+
+        monkeypatch.setattr(utils, "request", always_overloaded)
+        import pytest
+
+        with pytest.raises(utils.ServerOverloadError):
+            utils.fetch_window("contratos", {}, "label")
+
+    def test_a_deep_page_gets_a_bigger_retry_budget(self, monkeypatch):
+        # The budget is what keeps a transient 504 at page 101 from discarding
+        # the 100 pages already collected.
+        budgets = []
+
+        def record(path, params, max_tries=6):
+            budgets.append((params["pagina"], max_tries))
+            page = params["pagina"]
+            return {
+                "data": [{"x": page}],
+                "totalRegistros": 3,
+                "totalPaginas": 3,
+            }
+
+        monkeypatch.setattr(utils, "request", record)
+        rows = utils.fetch_window("contratos", {}, "label")
+        assert len(rows) == 3
+        assert budgets[0] == (1, 4), (
+            "page 1 should fail fast so the split happens"
+        )
+        assert all(b > 4 for _, b in budgets[1:]), (
+            "deep pages need a bigger budget"
+        )

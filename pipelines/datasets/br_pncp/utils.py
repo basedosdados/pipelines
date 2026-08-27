@@ -207,9 +207,11 @@ def request(path: str, params: dict, max_tries: int = 6) -> dict:
                 time.sleep(min(60, 5 * (attempt + 1)) + random.uniform(0, 2))
                 continue
             if exc.code in (500, 502, 503, 504):
-                # Retry a couple of times; a persistent failure means the result
-                # set is too large and the caller must split the window.
-                if attempt >= 2:
+                # How hard to try is the caller's call: a 5xx on page 1 means
+                # the window is too large and should be split quickly, whereas
+                # one deep in a large result set is transient and worth waiting
+                # out. See fetch_window.
+                if attempt >= max_tries - 1:
                     raise ServerOverloadError(f"{exc.code} on {url}") from exc
                 time.sleep(4 * (attempt + 1))
                 continue
@@ -243,8 +245,15 @@ def fetch_window(
     page = 1
     started = time.monotonic()
     while True:
+        # A 5xx on page 1 means the window is genuinely too large, so fail fast
+        # and let the caller split. A 5xx on a later page is transient load on a
+        # deep offset — splitting there would throw away every page already
+        # fetched and restart both halves from page 1, which is how a 168-page
+        # window turns into hours of repeated work.
         payload = request(
-            path, {**params, "pagina": page, "tamanhoPagina": page_size}
+            path,
+            {**params, "pagina": page, "tamanhoPagina": page_size},
+            max_tries=4 if page == 1 else 12,
         )
         batch = payload.get("data") or []
         records.extend(batch)
