@@ -151,7 +151,6 @@ def _run_operacoes_exportacao_bens(
     table_id: str,
     materialize_after_dump: bool,
     update_metadata: bool,
-    target: str,
     force_run: bool,
 ) -> None:
     """
@@ -164,7 +163,6 @@ def _run_operacoes_exportacao_bens(
         table_id (str): ID da tabela no GCP/BigQuery.
         materialize_after_dump (bool): se False, para apos o dbt em dev (nao toca prod).
         update_metadata (bool): se True, registra materializacao e commita o Update da fonte.
-        target (str): target do dbt na etapa de prod.
         force_run (bool): ignora o early-return quando nao ha novidade.
     """
     # pyrefly: ignore [unused-coroutine]
@@ -232,7 +230,7 @@ def _run_operacoes_exportacao_bens(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        target=target,
+        target="prod",
     )
 
     if update_metadata:

@@ -78,7 +78,7 @@ Conjunto CKAN `operacoes-exportacao`, recurso `0cfe4594-44bf-48a8-a79a-686fc2d0d
 - **A fonte não publica valores.** O BNDES omite os montantes por sigilo de preço unitário dos bens, então a tabela não tem nenhuma coluna monetária — é um catálogo de operações. Por isso `parse_decimal_ptbr` não é usado aqui.
 - **Sem chave primária, e sem `unique_combination_of_columns`** — igual às irmãs. Nenhuma combinação de colunas identifica a linha: 47 linhas são idênticas a outra em todas as 21 colunas da fonte. `id_operacao` tem 1.888 valores distintos em 2.321 linhas; o prefixo `id_` marca a entidade, não unicidade. A repetição é estrutural (subcréditos da mesma operação, e mais de um contrato/desconto de título por operação — o que também explica datas diferentes para o mesmo número).
 - **`id_operacao` tem dois formatos.** 796 linhas trazem só o número de 7 dígitos (117 com zero à esquerda significativo) e 1.525 vêm como `numero_base/desdobramento` (`2272455/0001`). Os desdobramentos são exclusivos do produto `BNDES EXIM PÓS-EMBARQUE - EXIM AUTOMÁTICO` — a linha em que o BNDES desconta carta de crédito emitida por banco estrangeiro credenciado, que analisa o crédito do importador e assume o risco comercial, em vez de o próprio BNDES analisar cada operação. A correspondência com `produto` é exata. O dicionário os atribui a "cada número base poder ter um exportador/importador diferente", mas isso só se confirma em 25 das 210 bases com mais de um desdobramento (o importador não é publicado). Fica STRING, sem desmembrar.
-- **`setor_subsetor_de_atividade` vira `setor_bndes` + `subsetor_bndes`, cortando no ÚLTIMO `/`.** O corte no primeiro separador estaria errado: o próprio setor pode conter barra (`COMERCIO/SERVICOS/<subsetor>`, 106 linhas). Pelo último `/` os setores são `INDUSTRIA`, `COMERCIO/SERVICOS` e `COMERCIO`; 9 linhas não têm barra e ficam sem subsetor. É agrupamento estatístico próprio do BNDES ("agrupamentos de códigos das seções e divisões da CNAE"), então **não vira FK de CNAE** — mesma decisão da `operacoes_indiretas_automaticas`.
+- **`setor_subsetor_de_atividade` vira `setor_bndes` + `subsetor_bndes`, casando o setor por prefixo** (detalhe e validação na subseção abaixo). É agrupamento estatístico próprio do BNDES ("agrupamentos de códigos das seções e divisões da CNAE"), então **não vira FK de CNAE** — mesma decisão da `operacoes_indiretas_automaticas`.
 - **`tipo_garantia` é multivalorado e precisa de normalização.** A operação pode combinar vários tipos, separados por `/`, e a fonte varia o espaçamento e a caixa (`Real / Pessoal` e `Real/ Pessoal`; `Seguro de crédito/FGE`, `Seguro de Crédito / FGE` e `Seguro de crédito/ FGE`). O `clean` padroniza o separador de combinação para ` / `, protegendo antes os rótulos que têm barra no próprio nome (`Seguro de crédito/FGE`, `CCR/ALADI`) — 15 grafias viram 11 valores. É a primeira normalização de grafia do conjunto.
 - **Geografia pelo diretório:** `sigla_uf` direto da fonte; `pais_destino` (NOME) fica como `nome_pais_destino` no staging e vira **`sigla_pais_destino`** (ISO 3166-1 alfa-3) no dbt, por join normalizado (maiúsculas, sem acento) contra `br_bd_diretorios_mundo.pais` — mesmo desenho que a `operacoes_administracao_publica` usa para município. A coluna é `sigla_`, e não `id_`, porque a chave do diretório é `sigla_iso3`; não existe `id_pais`. `DIVERSOS` (82 linhas) vira NA; dos 25 países, 24 casam automaticamente e só `PAISES BAIXOS(HOLAN)` entra por CASE (no diretório o nome é "Holanda", `NLD`).
 - **`sigla_moeda` normalizada para ISO**: a fonte traz `US$ COMPRA` e `EUR C`.
@@ -86,6 +86,34 @@ Conjunto CKAN `operacoes-exportacao`, recurso `0cfe4594-44bf-48a8-a79a-686fc2d0d
 - **Tipos do dicionário oficial não são confiáveis** (mesmo padrão do erro de unidade em `operacoes_administracao_publica`): ele declara `CNPJ do Exportador` como `int64` — o CSV traz `88.611.835/0001-29`, com pontuação — e `Numero da operacao` como `Int64`, que contém `/` e zeros à esquerda. Ambos são STRING.
 - Quatro colunas são constantes na série inteira (`area_operacional`, `modalidade_apoio`, `forma_apoio`, `categoria`) e permanecem no schema. O dicionário explica: toda operação de financiamento à exportação do BNDES é reembolsável, e toda a base é do produto BNDES Exim Pós-embarque (o Exim Automático é a indicação adicional em `produto`).
 - Cobertura pública → `AllFree`, sem paywall BD Pro.
+
+### Corte de `setor_subsetor_de_atividade`
+
+Nenhum separador serve de corte fixo: `COMERCIO/SERVICOS` tem barra no próprio nome e aparece tanto sozinho quanto seguido de subsetor. O `clean` casa o início do valor contra os setores conhecidos (`constants_exportacao_bens.SETORES`, do rótulo mais longo para o mais curto) e trata o resto como subsetor; valor que não comece por um setor conhecido levanta exceção, porque significa que a fonte mudou os rótulos.
+
+Amostra do arquivo de 2026-06, uma linha de cada forma do campo (2.202, 106, 4 e 9 linhas, nessa ordem).
+
+**Antes do tratamento** — o que a fonte publica:
+
+| `numero_da_operacao` | `data_da_contratacao` | `exportador` | `setor_subsetor_de_atividade` |
+| --- | --- | --- | --- |
+| 0704109 | 2002-01-08 | SCHULZ S/A | `INDUSTRIA/METALURGIA` |
+| 1972983 | 2009-09-04 | A L HECHER MADEIRAS LTDA | `COMERCIO/SERVICOS/COMERCIO VAREJISTA` |
+| 1712455 | 2008-01-30 | A.R.G. S.A. | `COMERCIO/SERVICOS` |
+| 0893599 | 2002-04-17 | TRAMONTINA FARROUPILHA SA INDUSTRIA METALURGICA | `INDUSTRIA` |
+
+**Depois do tratamento** — as duas colunas da tabela final, com o que o corte no último `/` daria:
+
+| `id_operacao` | `setor_bndes` | `subsetor_bndes` | Corte no último `/` |
+| --- | --- | --- | --- |
+| 0704109 | `INDUSTRIA` | `METALURGIA` | igual |
+| 1972983 | `COMERCIO/SERVICOS` | `COMERCIO VAREJISTA` | igual |
+| 1712455 | `COMERCIO/SERVICOS` | nulo | `COMERCIO` + `SERVICOS` ❌ |
+| 0893599 | `INDUSTRIA` | nulo | igual |
+
+O corte no último `/` acerta as outras três formas; só erra na terceira, em que o setor composto vem sozinho — ali ele cria um setor `COMERCIO` e um subsetor `SERVICOS` que não existem na fonte, e a tabela fecha com 3 setores e 28 subsetores em vez dos 2 e 27 reais.
+
+**Validação** (2.321 linhas, arquivo de 2026-06): recompondo `setor_bndes` + `/` + `subsetor_bndes` chega-se ao valor original em todas as 2.321 linhas, ou seja, o corte não descarta nem inventa caractere. Nenhuma linha fica sem setor e 13 ficam sem subsetor (as 9 `INDUSTRIA` e as 4 `COMERCIO/SERVICOS` publicadas sem subsetor). Resultado: 2 setores (`INDUSTRIA` 2.211, `COMERCIO/SERVICOS` 110) e 27 subsetores.
 
 ### Notas para descrição de coluna
 

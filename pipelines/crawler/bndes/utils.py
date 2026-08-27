@@ -14,6 +14,7 @@ chamador (url ou table_id), nao tem default fixo aqui.
 Passo a passo de implementacao de cada funcao: ver task_davi/ROADMAP.md, secao 2.
 """
 
+import re
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -500,22 +501,39 @@ def clean_administracao_publica(csv_path: Path, output_dir: Path) -> Path:
 
 def _split_setor_subsetor(setor_subsetor: pd.Series) -> pd.DataFrame:
     """
-    Separa o campo composto `SETOR/SUBSETOR` no ULTIMO "/".
+    Separa o campo composto `SETOR/SUBSETOR` casando o setor por prefixo.
 
-    O corte e no ultimo separador porque o proprio setor pode conter barra
-    ("COMERCIO/SERVICOS/<subsetor>"). Valor sem barra e setor puro, com
-    subsetor nulo.
+    Nem o primeiro nem o ultimo "/" servem de corte: `COMERCIO/SERVICOS` tem
+    barra no proprio nome e aparece tanto sozinho quanto seguido de subsetor
+    (`COMERCIO/SERVICOS/COMERCIO VAREJISTA`). O setor e casado contra
+    SETORES, do rotulo mais longo para o mais curto, e o resto e o subsetor.
 
     Args:
         setor_subsetor (pd.Series): coluna original concatenada.
 
     Returns:
         pd.DataFrame: colunas `setor_bndes` e `subsetor_bndes`.
-    """
-    partes = setor_subsetor.str.rsplit("/", n=1, expand=True)
 
-    if partes.shape[1] == 1:
-        partes[1] = pd.NA
+    Raises:
+        ValueError: quando algum valor nao comeca por um setor conhecido.
+    """
+    setores = sorted(
+        constants_exportacao_bens.SETORES.value, key=len, reverse=True
+    )
+    padrao = "|".join(re.escape(setor) for setor in setores)
+
+    partes = setor_subsetor.str.extract(rf"^({padrao})(?:/(.+))?$")
+
+    desconhecidos = setor_subsetor[partes[0].isna()].unique()
+    if len(desconhecidos):
+        raise ValueError(
+            f"{len(desconhecidos)} valor(es) de setor_subsetor_de_atividade "
+            f"fora dos setores conhecidos {setores}: "
+            f"{sorted(desconhecidos)[:5]}. A fonte mudou os rotulos e o clean "
+            "precisa ser revisto."
+        )
+
+    partes = partes.astype("string")
 
     return partes.rename(columns={0: "setor_bndes", 1: "subsetor_bndes"})
 

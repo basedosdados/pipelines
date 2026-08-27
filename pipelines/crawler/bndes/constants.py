@@ -446,6 +446,10 @@ class constants_exportacao_bens(Enum):
 
     ROTULOS_COMPOSTOS = ("Seguro de crédito/FGE", "CCR/ALADI")
 
+    # setores publicados em setor_subsetor_de_atividade; COMERCIO/SERVICOS tem
+    # "/" no proprio nome, entao o corte do subsetor casa o setor por prefixo
+    SETORES = ("COMERCIO/SERVICOS", "INDUSTRIA")
+
     ORDER_COLUMNS = [
         "ano",
         "data_contratacao",

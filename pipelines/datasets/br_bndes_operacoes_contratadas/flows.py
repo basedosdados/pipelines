@@ -125,7 +125,6 @@ def br_bndes_operacoes_contratadas__operacoes_exportacao_bens(
     table_id: str = "operacoes_exportacao_bens",
     materialize_after_dump: bool = True,
     update_metadata: bool = True,
-    target: str = "prod",
     force_run: bool = False,
 ) -> None:
     _run_operacoes_exportacao_bens(
@@ -133,7 +132,6 @@ def br_bndes_operacoes_contratadas__operacoes_exportacao_bens(
         table_id=table_id,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
-        target=target,
         force_run=force_run,
     )
 
