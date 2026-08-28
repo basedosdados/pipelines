@@ -346,7 +346,7 @@ def fetch_range(
             # empty body or a 404, all of which come back as EMPTY_PAGE.
             raise ServerOverloadError(
                 f"unrecoverable single day {lo} on {path}"
-            )
+            ) from None
         mid = lo + (hi - lo) // 2
         print(f"      .. splitting {lo}..{hi} on {path}", flush=True)
         # page_size must ride along: dropping it here silently reverts the
