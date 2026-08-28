@@ -26,7 +26,9 @@ HEADER = [
 
 # Directory foreign keys used across the dataset.
 DIR_ANO = "br_bd_diretorios_data_tempo.ano:ano"
-DIR_UF = "br_bd_diretorios_brasil.uf:sigla_uf"
+# The UF directory names its key column `sigla`, not `sigla_uf`; binding to
+# the latter fails with "Unrecognized name: sigla_uf; Did you mean sigla?".
+DIR_UF = "br_bd_diretorios_brasil.uf:sigla"
 DIR_MUNICIPIO = "br_bd_diretorios_brasil.municipio:id_municipio"
 
 BRL = "BRL"

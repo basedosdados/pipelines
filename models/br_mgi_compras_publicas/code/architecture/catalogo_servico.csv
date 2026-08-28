@@ -10,7 +10,7 @@ nome_grupo,STRING,Nome do grupo de serviço,,no,,,no,,nomeGrupo,Name of the serv
 codigo_classe,STRING,Código da classe de serviço,,no,,,no,,codigoClasse,Code of the service class,Código de la clase de servicio
 nome_classe,STRING,Nome da classe de serviço,,no,,,no,,nomeClasse,Name of the service class,Nombre de la clase de servicio
 codigo_subclasse,STRING,Código da subclasse de serviço,,no,,,no,Preenchido para menos de 1% dos itens,codigoSubclasse,Code of the service subclass,Código de la subclase de servicio
-nome_subclasse,STRING,Nome da subclasse de serviço,,no,,,no,,nomeSubclasse,Name of the service subclass,Nombre de la subclase de servicio
+nome_subclasse,STRING,Nome da subclasse de serviço,,no,,,no,"Preenchido para menos de 4% dos itens, como codigo_subclasse",nomeSubclasse,Name of the service subclass,Nombre de la subclase de servicio
 nome_servico,STRING,Nome do item de serviço,,no,,,no,,nomeServico,Name of the service item,Nombre del artículo de servicio
 codigo_cpc,STRING,Código da Central Product Classification correspondente ao serviço,,no,,,no,,codigoCpc,Central Product Classification code matching the service,Código de la Central Product Classification correspondiente al servicio
 indicador_exclusivo_central_compras,BOOLEAN,Indica se o serviço é de contratação exclusiva pela Central de Compras,,no,,,no,,exclusivoCentralCompras,Whether the service may be contracted only by the Central Purchasing Office,Indica si el servicio es de contratación exclusiva por la Central de Compras

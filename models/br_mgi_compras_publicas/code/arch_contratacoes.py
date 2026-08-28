@@ -31,6 +31,7 @@ CONTRATACAO = [
         "Sigla da unidade da federação da unidade compradora",
         en="Abbreviation of the purchasing unit's federative unit",
         es="Sigla de la unidad federativa de la unidad compradora",
+        obs="O valor EX identifica unidades sediadas no exterior",
         directory=DIR_UF,
         original="unidadeOrgaoUfSigla",
     ),

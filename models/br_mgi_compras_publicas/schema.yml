@@ -26,7 +26,9 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
-              field: sigla_uf
+              field: sigla
+              config:
+                where: sigla_uf != 'EX'
       - name: id_municipio
         description: >-
           Código IBGE de 7 dígitos do município da unidade compradora
@@ -196,6 +198,10 @@ models:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - descricao_ncm
+            - percentual_margem_preferencia_adicional
+            - percentual_margem_preferencia_normal
           config:
             where: __most_recent_year__
     columns:
@@ -357,6 +363,16 @@ models:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - amparo_legal_criterio_desempate
+            - amparo_legal_margem_preferencia
+            - data_cotacao_moeda_estrangeira
+            - id_amparo_legal_margem_preferencia
+            - id_moeda_estrangeira
+            - id_pais_origem_produto_servico
+            - motivo_cancelamento
+            - timezone_cotacao_moeda_estrangeira
+            - valor_nominal_moeda_estrangeira
           config:
             where: __most_recent_year__
     columns:
@@ -725,6 +741,9 @@ models:
             - numero_contrato
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - numero_controle_pncp_contrato
+            - total_despesas_acessorias
     columns:
       - name: ano
         description: >-
@@ -1086,6 +1105,7 @@ models:
           combination_of_columns: [id_compra]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [codigo_uasg, numero]
     columns:
       - name: ano
         description: >-
@@ -1271,6 +1291,7 @@ models:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [fornecedor_vencedor, tratamento_diferenciado]
           config:
             where: __most_recent_year__
     columns:
@@ -1352,6 +1373,7 @@ models:
           combination_of_columns: [id_compra]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [data_publicacao, lei, objeto_licitacao]
     columns:
       - name: ano
         description: >-
@@ -1442,6 +1464,13 @@ models:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - cpf_responsavel_declaracao_dispensa
+            - cpf_responsavel_publicacao
+            - cpf_responsavel_ratificacao
+            - data_publicacao
+            - fabricante
+            - objeto_licitacao
           config:
             where: __most_recent_year__
     columns:
@@ -1643,6 +1672,7 @@ models:
           combination_of_columns: [data_extracao, codigo_uasg]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [nome_unidade_espelho]
     columns:
       - name: data_extracao
         description: >-
@@ -1654,7 +1684,9 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
-              field: sigla_uf
+              field: sigla
+              config:
+                where: sigla_uf != 'EX'
       - name: id_municipio
         description: >-
           Código IBGE de 7 dígitos do município onde a UASG está sediada
@@ -1736,6 +1768,7 @@ models:
             - nome_razao_social
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [cnpj]
     columns:
       - name: data_extracao
         description: >-
@@ -1747,7 +1780,9 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
-              field: sigla_uf
+              field: sigla
+              config:
+                where: sigla_uf != 'EX'
       - name: cnpj
         description: >-
           CNPJ do fornecedor pessoa jurídica
@@ -1796,6 +1831,7 @@ models:
           combination_of_columns: [data_extracao, codigo_item]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [descricao_ncm]
     columns:
       - name: data_extracao
         description: >-
@@ -1853,6 +1889,7 @@ models:
           combination_of_columns: [data_extracao, codigo_servico]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [codigo_subclasse, nome_subclasse]
     columns:
       - name: data_extracao
         description: >-

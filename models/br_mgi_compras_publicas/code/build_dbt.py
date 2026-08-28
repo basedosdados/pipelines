@@ -31,9 +31,11 @@ DIRECTORY_TESTS = {
         "br_bd_diretorios_data_tempo__ano",
         "ano.ano",
     ),
-    "br_bd_diretorios_brasil.uf:sigla_uf": (
+    # The UF directory names its key column `sigla`. Binding to `sigla_uf`
+    # fails with "Unrecognized name: sigla_uf; Did you mean sigla?".
+    "br_bd_diretorios_brasil.uf:sigla": (
         "br_bd_diretorios_brasil__uf",
-        "sigla_uf",
+        "sigla",
     ),
     "br_bd_diretorios_brasil.municipio:id_municipio": (
         "br_bd_diretorios_brasil__municipio",
@@ -46,6 +48,25 @@ DIRECTORY_TESTS = {
 # multi-million-row table it alone can eat a meaningful slice of the daily
 # BigQuery quota.
 SCOPED_TEST_CONFIG = "        config:\n          where: __most_recent_year__\n"
+
+
+# Phrases the architecture uses to record that a column is empty or nearly so
+# at source. Deriving the null-proportion exclusions from these keeps the tests
+# and the documented expectations from drifting apart.
+EMPTY_MARKERS = (
+    "Integralmente vazia",
+    "Preenchido para menos de",
+    "Vazio para",
+)
+
+
+def sparse_columns(columns: list[dict[str, str]]) -> list[str]:
+    """Columns the architecture already documents as empty or nearly empty."""
+    return [
+        c["name"]
+        for c in columns
+        if any(marker in c["observations"] for marker in EMPTY_MARKERS)
+    ]
 
 
 def read_architecture(table: str) -> list[dict[str, str]]:
@@ -143,10 +164,9 @@ def build_schema_entry(table: str) -> str:
         )
     out.append("      - not_null_proportion_multiple_columns:")
     out.append("          at_least: 0.05")
-    if spec.ignore_values:
-        out.append(
-            f"          ignore_values: [{', '.join(spec.ignore_values)}]"
-        )
+    ignore = sorted(set(sparse_columns(columns)) | set(spec.ignore_values))
+    if ignore:
+        out.append(f"          ignore_values: [{', '.join(ignore)}]")
     if scoped:
         out.append(
             scoped.rstrip("\n")
@@ -179,6 +199,13 @@ def build_schema_entry(table: str) -> str:
             out.append("          - relationships:")
             out.append(f"              to: ref('{ref}')")
             out.append(f"              field: {field}")
+            if name == "sigla_uf":
+                # UASGs abroad -- embassies, consulates, military attaches --
+                # carry the pseudo-unit EX, which the 27-entry UF directory
+                # cannot hold. It is real source data, not a defect, so the
+                # join is scoped rather than the rows dropped.
+                out.append("              config:")
+                out.append("                where: sigla_uf != 'EX'")
             continue
         if tests:
             out.append(f"        tests: [{', '.join(tests)}]")

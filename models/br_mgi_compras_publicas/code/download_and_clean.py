@@ -226,6 +226,12 @@ def main() -> int:
     parser.add_argument(
         "--consolidate", action="store_true", help="only consolidate chunks"
     )
+    parser.add_argument(
+        "--prune-chunks",
+        action="store_true",
+        help="delete each table's chunks once consolidated; halves peak disk but "
+        "makes a later re-consolidation require re-harvesting",
+    )
     parser.add_argument("--workers", type=int, default=None)
     parser.add_argument(
         "--probe-orgaos",

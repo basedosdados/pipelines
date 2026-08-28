@@ -168,6 +168,8 @@ UNIDADE_ADMINISTRATIVA = [
         "Sigla da unidade da federação onde a UASG está sediada",
         en="Abbreviation of the federative unit where the UASG is based",
         es="Sigla de la unidad federativa donde la UASG está ubicada",
+        obs="O valor EX identifica unidades sediadas no exterior, como embaixadas e "
+        "consulados, e não corresponde a nenhuma unidade da federação",
         directory=DIR_UF,
         original="siglaUf",
     ),
@@ -670,6 +672,7 @@ CATALOGO_SERVICO = [
         "Nome da subclasse de serviço",
         en="Name of the service subclass",
         es="Nombre de la subclase de servicio",
+        obs="Preenchido para menos de 4% dos itens, como codigo_subclasse",
         original="nomeSubclasse",
     ),
     c(
