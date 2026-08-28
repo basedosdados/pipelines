@@ -23,6 +23,70 @@ searches on and Brazilian budget vocabulary has no clean English equivalent:
 
 from __future__ import annotations
 
+# Column notes: source anomalies and caveats, keyed by (table slug, column).
+#
+# These live in the backend's `observations` field, NOT in `description`. A description
+# says what the column holds; a caveat about a bad exercise or a typo in the source is a
+# note about the data, and burying it in the description makes the description unreadable
+# and the caveat easy to miss. Both are per-language.
+OBSERVATIONS: dict[tuple[str, str], tuple[str, str, str]] = {
+    ("licitacao", "valor_referencia"): (
+        "Contém erros de digitação da fonte. Em Minas Gerais, o processo "
+        "1561122 000030/2011 registra R$81,76 trilhões contra um valor homologado de "
+        "R$4,58 milhões, e sozinho responde por 99,8% do total do estado. Filtre "
+        "valores extremos antes de agregar.",
+        "Contains typing errors from the source. In Minas Gerais, process "
+        "1561122 000030/2011 records R$81.76 trillion against an awarded amount of "
+        "R$4.58 million, and on its own accounts for 99.8% of the state total. Filter "
+        "extreme values before aggregating.",
+        "Contiene errores de digitación de la fuente. En Minas Gerais, el proceso "
+        "1561122 000030/2011 registra R$81,76 billones frente a un valor adjudicado de "
+        "R$4,58 millones, y por sí solo representa el 99,8% del total del estado. "
+        "Filtre valores extremos antes de agregar.",
+    ),
+    ("despesa", "valor_empenhado"): (
+        "Contém anomalias da fonte. Em Pernambuco, o exercício de 2009 não reconcilia "
+        "em escala com os anos vizinhos e não deve ser usado para comparações de "
+        "nível, e 36 linhas do período 2008-2010 trazem valores-sentinela de quinze "
+        "dígitos. Filtre valores extremos antes de agregar.",
+        "Contains source anomalies. In Pernambuco, the 2009 budget year does not "
+        "reconcile in scale with neighbouring years and must not be used for level "
+        "comparisons, and 36 rows in 2008-2010 carry fifteen-digit sentinel values. "
+        "Filter extreme values before aggregating.",
+        "Contiene anomalías de la fuente. En Pernambuco, el ejercicio de 2009 no "
+        "reconcilia en escala con los años vecinos y no debe usarse para comparaciones "
+        "de nivel, y 36 filas del período 2008-2010 traen valores centinela de quince "
+        "dígitos. Filtre valores extremos antes de agregar.",
+    ),
+    ("despesa", "valor_liquidado"): (
+        "Contém anomalias da fonte. Em Pernambuco, o exercício de 2009 não reconcilia "
+        "em escala com os anos vizinhos e não deve ser usado para comparações de "
+        "nível, e 36 linhas do período 2008-2010 trazem valores-sentinela de quinze "
+        "dígitos. Filtre valores extremos antes de agregar.",
+        "Contains source anomalies. In Pernambuco, the 2009 budget year does not "
+        "reconcile in scale with neighbouring years and must not be used for level "
+        "comparisons, and 36 rows in 2008-2010 carry fifteen-digit sentinel values. "
+        "Filter extreme values before aggregating.",
+        "Contiene anomalías de la fuente. En Pernambuco, el ejercicio de 2009 no "
+        "reconcilia en escala con los años vecinos y no debe usarse para comparaciones "
+        "de nivel, y 36 filas del período 2008-2010 traen valores centinela de quince "
+        "dígitos. Filtre valores extremos antes de agregar.",
+    ),
+}
+
+# `quantidade` has no fixed unit, so it carries none; the note says why in place of one.
+_QUANTIDADE = (
+    "Sem unidade de medida fixa: a unidade varia por item e é publicada na coluna "
+    "unidade_medida. Não some quantidades de itens diferentes.",
+    "No fixed unit of measurement: the unit varies per item and is published in the "
+    "unidade_medida column. Do not sum quantities across different items.",
+    "Sin unidad de medida fija: la unidad varía por ítem y se publica en la columna "
+    "unidade_medida. No sume cantidades de ítems diferentes.",
+)
+OBSERVATIONS[("licitacao_item", "quantidade")] = _QUANTIDADE
+OBSERVATIONS[("licitacao_participante", "quantidade")] = _QUANTIDADE
+
+
 # Portuguese -> (English, Spanish)
 DESCRIPTIONS: dict[str, tuple[str, str]] = {
     # --- temporal ---------------------------------------------------------------
@@ -610,54 +674,17 @@ DESCRIPTIONS: dict[str, tuple[str, str]] = {
         "Initial appropriation amount, in current reais",
         "Monto de la asignación inicial, en reales corrientes",
     ),
-    (
-        "Valor de referência estimado pelo órgão em reais correntes. Contém erros de "
-        "digitação da fonte. Em Minas Gerais, o processo 1561122 000030/2011 registra "
-        "R$81,76 trilhões contra um valor homologado de R$4,58 milhões, e sozinho "
-        "responde por 99,8% do total do estado. Filtre valores extremos antes de agregar"
-    ): (
-        "Reference amount estimated by the agency, in current reais. Contains typing "
-        "errors from the source. In Minas Gerais, process 1561122 000030/2011 records "
-        "R$81.76 trillion against an awarded amount of R$4.58 million, and on its own "
-        "accounts for 99.8% of the state total. Filter extreme values before "
-        "aggregating",
-        "Monto de referencia estimado por el órgano, en reales corrientes. Contiene "
-        "errores de digitación de la fuente. En Minas Gerais, el proceso "
-        "1561122 000030/2011 registra R$81,76 billones frente a un valor adjudicado de "
-        "R$4,58 millones, y por sí solo representa el 99,8% del total del estado. "
-        "Filtre valores extremos antes de agregar",
+    "Valor de referência estimado pelo órgão em reais correntes": (
+        "Reference amount estimated by the agency, in current reais",
+        "Monto de referencia estimado por el órgano, en reales corrientes",
     ),
-    (
-        "Valor empenhado em reais correntes. Contém anomalias da fonte. Em Pernambuco, "
-        "o exercício de 2009 não reconcilia em escala com os anos vizinhos e não deve "
-        "ser usado para comparações de nível, e 36 linhas do período 2008-2010 trazem "
-        "valores-sentinela de quinze dígitos. Filtre valores extremos antes de agregar"
-    ): (
-        "Committed amount, in current reais. Contains source anomalies. In Pernambuco, "
-        "the 2009 budget year does not reconcile in scale with neighbouring years and "
-        "must not be used for level comparisons, and 36 rows in 2008-2010 carry "
-        "fifteen-digit sentinel values. Filter extreme values before aggregating",
-        "Monto comprometido, en reales corrientes. Contiene anomalías de la fuente. En "
-        "Pernambuco, el ejercicio de 2009 no reconcilia en escala con los años vecinos "
-        "y no debe usarse para comparaciones de nivel, y 36 filas del período 2008-2010 "
-        "traen valores centinela de quince dígitos. Filtre valores extremos antes de "
-        "agregar",
+    "Valor empenhado em reais correntes": (
+        "Committed amount, in current reais",
+        "Monto comprometido, en reales corrientes",
     ),
-    (
-        "Valor liquidado em reais correntes. Contém anomalias da fonte. Em Pernambuco, "
-        "o exercício de 2009 não reconcilia em escala com os anos vizinhos e não deve "
-        "ser usado para comparações de nível, e 36 linhas do período 2008-2010 trazem "
-        "valores-sentinela de quinze dígitos. Filtre valores extremos antes de agregar"
-    ): (
-        "Verified amount, in current reais. Contains source anomalies. In Pernambuco, "
-        "the 2009 budget year does not reconcile in scale with neighbouring years and "
-        "must not be used for level comparisons, and 36 rows in 2008-2010 carry "
-        "fifteen-digit sentinel values. Filter extreme values before aggregating",
-        "Monto liquidado, en reales corrientes. Contiene anomalías de la fuente. En "
-        "Pernambuco, el ejercicio de 2009 no reconcilia en escala con los años vecinos "
-        "y no debe usarse para comparaciones de nivel, y 36 filas del período 2008-2010 "
-        "traen valores centinela de quince dígitos. Filtre valores extremos antes de "
-        "agregar",
+    "Valor liquidado em reais correntes": (
+        "Verified amount, in current reais",
+        "Monto liquidado, en reales corrientes",
     ),
     "Valor empenhado no mês em reais correntes": (
         "Amount committed in the month, in current reais",

@@ -30,7 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import yaml  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
-from translations import DESCRIPTIONS  # noqa: E402
+from translations import DESCRIPTIONS, OBSERVATIONS  # noqa: E402
 
 DATASET = "br_bd_execucao_estadual"
 PROJECT = "basedosdados-dev"
@@ -127,6 +127,15 @@ def build(slug: str, pt: dict[str, str], types: dict[str, str]) -> list[dict]:
             col["measurement_unit"] = BRL
         if name in DIRECTORY:
             col["directory_column"] = DIRECTORY[name]
+        # Caveats go in observations, never in the description: a description says what
+        # the column holds, a caveat is a note about the data.
+        note = OBSERVATIONS.get((slug, name))
+        if note:
+            (
+                col["observations_pt"],
+                col["observations_en"],
+                col["observations_es"],
+            ) = note
         payload.append(col)
 
     if missing_translation:
@@ -159,9 +168,10 @@ def main() -> None:
         units = sum(1 for c in payload if c.get("measurement_unit"))
         coded = sum(1 for c in payload if c["covered_by_dictionary"])
         sens = sum(1 for c in payload if c["has_sensitive_data"])
+        obs = sum(1 for c in payload if c.get("observations_pt"))
         print(
             f"{slug:24} {len(payload):>3} cols  unit={units:>2} "
-            f"dict={coded:>2} sensitive={sens}"
+            f"dict={coded:>2} sensitive={sens} obs={obs}"
         )
 
     Path(args.out).write_text(json.dumps(result, ensure_ascii=False, indent=1))

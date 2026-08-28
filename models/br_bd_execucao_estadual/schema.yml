@@ -102,19 +102,9 @@ models:
       - name: tipo_documento
         description: Tipo do documento contábil que registrou o movimento
       - name: valor_empenhado
-        description: >
-          Valor empenhado em reais correntes. Contém anomalias da fonte. Em Pernambuco,
-          o exercício de 2009 não
-          reconcilia em escala com os anos vizinhos e não deve ser usado para comparações
-          de nível, e 36 linhas do período 2008-2010 trazem valores-sentinela de quinze
-          dígitos. Filtre valores extremos antes de agregar
+        description: Valor empenhado em reais correntes
       - name: valor_liquidado
-        description: >
-          Valor liquidado em reais correntes. Contém anomalias da fonte. Em Pernambuco,
-          o exercício de 2009 não
-          reconcilia em escala com os anos vizinhos e não deve ser usado para comparações
-          de nível, e 36 linhas do período 2008-2010 trazem valores-sentinela de quinze
-          dígitos. Filtre valores extremos antes de agregar
+        description: Valor liquidado em reais correntes
       - name: valor_pago
         description: Valor pago em reais correntes
   - name: br_bd_execucao_estadual__licitacao
@@ -188,13 +178,7 @@ models:
       - name: situacao
         description: Situação do processo de contratação
       - name: valor_referencia
-        description: >
-          Valor de referência estimado pelo órgão em reais correntes. Contém erros
-          de
-          digitação da fonte. Em Minas Gerais, o processo 1561122 000030/2011 registra
-          R$81,76 trilhões contra um valor homologado de R$4,58 milhões, e sozinho
-          responde por 99,8% do total do estado. Filtre valores extremos antes de
-          agregar
+        description: Valor de referência estimado pelo órgão em reais correntes
       - name: valor_homologado
         description: Valor homologado ao final do processo em reais correntes
       - name: url_edital
