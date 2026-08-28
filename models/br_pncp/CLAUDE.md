@@ -533,3 +533,20 @@ list is kept at `~/Downloads/br_pncp_data/deleted_empty_chunks.json`.
 **When reviewing a finished harvest, audit for empty chunks.** They are
 legitimate only where the source genuinely has no data for the period;
 anywhere else they are the signature of this class of bug.
+
+## Temporal coverage differs per table — do not register 2021 for all of them
+
+Each table starts when PNCP began carrying that kind of record, not when the
+portal launched. Registering a uniform 2021 start would overstate coverage on
+the site. Measured from the cleaned output, not assumed:
+
+| table | first year with data | note |
+|---|---|---|
+| `contrato` | 2021 | 3,317,418 staging rows at 305/305 windows |
+| `instrumento_cobranca` | **2025** | nothing in 2021-2024; the API answers those windows with 404 "Nenhum instrumento de Cobrança encontrado" |
+| `ata_registro_preco` | TBD | 2021 windows are all genuinely empty |
+| `contratacao` | TBD | not yet harvested |
+
+Read the real min and max from the cleaned parquet before registering
+`create_update_datetime_range`, per table. Fill this table in as each one
+completes.
