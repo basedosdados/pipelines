@@ -37,6 +37,8 @@ select
     safe_cast(t.num_item_catalogo_formatado as string) as codigo_catalogo,
     safe_cast(t.desc_tip_item_mat as string) as grupo_material_servico,
     safe_cast(t.tipo_item as string) as classe_material_servico,
+    -- A Bahia não classifica o item licitado por item de despesa; Minas classifica.
+    cast(null as string) as item_despesa,
     cast(null as string) as unidade_medida,
     cast(null as date) as data_homologacao,
     safe_cast(replace(t.quantidade, ',', '.') as float64) as quantidade,
@@ -55,3 +57,7 @@ select
     cast(null as string) as tipo_documento_vencedor
 from
     {{ set_datalake_project("br_bd_execucao_estadual_staging.ba_licitacao_item") }} as t
+-- Esta exportação também repete o próprio cabeçalho uma vez dentro dos dados, como a de
+-- fornecedores. A linha vinha com `ano` nulo (o id do processo termina em "Aquisição",
+-- não em quatro dígitos) e um item descrito como "Nome do Item Completo".
+where t.processo_de_aquisicao != 'Processo de Aquisição'

@@ -15,10 +15,21 @@ models:
       linha; estados cuja fonte publica apenas agregados estão em despesa_mensal e
       despesa_anual. A granularidade temporal varia por estado, e Pernambuco não publica
       data nem mês, apenas o exercício, de modo que um filtro por mês exclui PE.
+    # Sem teste de unicidade, e isso é deliberado: a tabela não tem chave de linha. Em
+    # 2023 Minas Gerais publica 9,3% de linhas integralmente idênticas (mesmo empenho,
+    # documento, data e valor), o que a fonte permite. Não são multiplicação do modelo:
+    # code/validate_mg.py e code/validate_pe.py conferem contagem de linhas e somas de
+    # valor contra o staging bruto, e é essa conferência -- não um teste de unicidade --
+    # que protege contra fan-out de junção.
+    #
+    # O teste de proporção é restrito ao ano mais recente de propósito: ele varre TODAS
+    # as colunas, e a tabela tem 26 GB.
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [id_licitacao_bd, id_licitacao, modalidade_licitacao]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano do exercício orçamentário ao qual a despesa pertence
@@ -114,6 +125,11 @@ models:
       à
       execução orçamentária pela tabela relacionamentos, quando a fonte publica o
       vínculo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_licitacao_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
     columns:
       - name: ano
         description: Ano de abertura do processo de contratação
@@ -185,9 +201,21 @@ models:
         description: Endereço eletrônico do edital do processo
   - name: br_bd_execucao_estadual__licitacao_item
     description: >
-      Itens licitados pelos governos estaduais. Uma linha por item de processo, com
-      quantidade, unidade de medida, preço unitário de referência e preço unitário
-      homologado, além do fornecedor vencedor.
+      Itens licitados pelos governos estaduais, com quantidade, unidade de medida,
+      preço
+      unitário de referência e preço unitário homologado, além do fornecedor vencedor
+      quando a fonte o publica na linha do item. O grão difere entre estados: na Bahia
+      é
+      uma linha por item numerado do processo; em Minas Gerais é uma linha por compra
+      de
+      um produto catalogado dentro do processo, e o mesmo produto pode aparecer mais
+      de
+      uma vez no mesmo processo, com fornecedor, lote ou preço diferentes.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_item_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
     columns:
       - name: ano
         description: Ano de referência do item licitado
@@ -202,10 +230,17 @@ models:
         description: Número do processo licitatório no sistema de origem
       - name: id_item_bd
         description: >
-          Identificador único do item construído pela Data Basis, no formato
-          <sigla_uf>-<processo>-<item>
+          Identificador único do item construído pela Data Basis. Na Bahia é
+          <sigla_uf>-<processo>-<sequência do item>; em Minas Gerais é
+          <sigla_uf>-<processo>-<produto catalogado>-<ocorrência>, porque a fonte
+          não
+          numera os itens e o mesmo produto pode ser comprado mais de uma vez no mesmo
+          processo
       - name: id_item
-        description: Número sequencial do item dentro do processo
+        description: >
+          Número do item dentro do processo, conforme a fonte. Nulo em Minas Gerais,
+          que
+          não publica numeração de item
       - name: descricao
         description: Descrição do material ou serviço licitado
       - name: codigo_catalogo
@@ -214,6 +249,11 @@ models:
         description: Grupo do material ou serviço no catálogo do estado
       - name: classe_material_servico
         description: Classe do material ou serviço no catálogo do estado
+      - name: item_despesa
+        description: >
+          Código do item de despesa a que o item licitado pertence, no mesmo espaço
+          de
+          códigos de despesa.item_despesa. Preenchido apenas em Minas Gerais
       - name: unidade_medida
         description: Unidade de medida em que o item foi cotado
       - name: data_homologacao
@@ -243,6 +283,22 @@ models:
       vínculo de forma explícita. A relação é de muitos para muitos: um processo pode
       gerar
       vários empenhos.
+    # A ponte é única em todas as suas colunas -- nenhuma linha repetida entre as
+    # 1.292.948. Como nada aqui é deduplicado de propósito (a relação é muitos para
+    # muitos), o teste cobre a linha inteira: qualquer repetição indicaria multiplicação
+    # por junção, não um vínculo legítimo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - sigla_uf
+            - id_licitacao_bd
+            - id_licitacao_origem
+            - id_empenho
+            - numero_empenho
+            - instrumento_orcamentario
+            - dotacao_orcamentaria
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
     columns:
       - name: sigla_uf
         description: Sigla da unidade da federação do governo estadual
@@ -276,6 +332,16 @@ models:
       código é a chave: os códigos não são comparáveis entre estados, exceto função
       e
       subfunção, que seguem a classificação funcional federal.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - sigla_uf
+            - id_tabela
+            - nome_coluna
+            - chave
+            - valor
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
     columns:
       - name: id_tabela
         description: Nome da tabela à qual a coluna codificada pertence
@@ -300,6 +366,21 @@ models:
       com dotação inicial e atual, empenhado, liquidado e pago. Não confundir com
       despesa,
       que é em nível de documento, nem com despesa_anual, que é anual e traz o credor.
+    # A dotação não identifica a linha: 4,3% das linhas repetem a combinação abaixo com
+    # valores diferentes, porque a fonte publica mais de um lançamento para a mesma
+    # dotação no mesmo mês. A tolerância existe para isso; o teste ainda pega uma
+    # multiplicação grosseira por junção.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - sigla_uf
+            - ano
+            - mes
+            - dotacao_orcamentaria
+            - id_unidade_gestora
+          proportion_allowed_failures: 0.06
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
     columns:
       - name: ano
         description: Ano do exercício orçamentário
@@ -372,6 +453,15 @@ models:
       valor
       a credor. Permite saber quem foi empenhado, quando e sob qual instrumento
       orçamentário, mas não quanto.
+    # 1,7% das linhas repetem (empenho, credor): a fonte lança o mesmo empenho mais de
+    # uma vez para o mesmo credor, em pedidos distintos. Nenhuma linha é idêntica em
+    # todas as colunas.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [sigla_uf, ano, numero_empenho, id_credor]
+          proportion_allowed_failures: 0.03
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
     columns:
       - name: ano
         description: Ano do exercício orçamentário
@@ -413,6 +503,14 @@ models:
       o valor
       cotado, o valor homologado e a situação do fornecedor naquele item. Inclui os
       fornecedores derrotados, o que permite medir concorrência.
+    # 0,16% das linhas repetem (item, fornecedor) -- o mesmo fornecedor cotando duas
+    # vezes o mesmo item -- e 238 linhas são idênticas em todas as colunas, na fonte.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [sigla_uf, id_item_bd, documento]
+          proportion_allowed_failures: 0.01
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
     columns:
       - name: ano
         description: Ano do processo de aquisição

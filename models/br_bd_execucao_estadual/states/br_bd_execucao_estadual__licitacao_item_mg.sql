@@ -2,9 +2,10 @@
 
 -- Minas Gerais tender items, mapped onto the canonical `licitacao_item` schema.
 --
--- Source: `ft_compras` in the SIAD/MG `compras_contratos` model -- 2,138,523 rows,
--- one per
--- (process, item), from 2010.
+-- Source: `ft_compras` in the SIAD/MG `compras_contratos` model -- 2,138,523 rows from
+-- 2010. One row per purchase of a catalogued product within a process; the same product
+-- can appear more than once in one process. NOT one row per (process, item number) --
+-- see the note on `id_item` below, which is what that misreading cost.
 --
 -- The row carries both the *reference* price the state estimated and the *homologated*
 -- price it actually awarded, at unit and total level, plus the winning supplier. That
@@ -24,14 +25,39 @@ select
     'MG' as sigla_uf,
     concat('MG-', f.id_processo) as id_licitacao_bd,
     safe_cast(p.cd_processo_formatado as string) as id_licitacao,
-    -- `id_item` is the sequence within the process, so the process must be part of
-    -- the key.
-    concat('MG-', f.id_processo, '-', f.id_item) as id_item_bd,
-    safe_cast(f.id_item as string) as id_item,
+    -- CUIDADO: `ft_compras.id_item` NÃO é o número do item dentro do processo. É chave
+    -- estrangeira para `dm_item` -- o ITEM DE DESPESA (MEDICAMENTOS, MATERIAL DE
+    -- ESCRITÓRIO), a mesma classificação que `despesa.item_despesa` carrega. São 188
+    -- valores distintos em 2,1 milhões de linhas, e todos os 188 casam com `dm_item`.
+    -- Lido como número do item, produzia um `id_item_bd` com 4,28 linhas por chave.
+    --
+    -- O item de fato é o produto catalogado, `id_item_matserv` (102.653 distintos). Mas
+    -- nem (processo, produto) é único: 11,7% das linhas são compras repetidas do mesmo
+    -- produto no mesmo processo, com fornecedor, lote, quantidade ou preço diferentes
+    -- --
+    -- linhas legítimas, não duplicatas. Por isso a ocorrência entra na chave. Numerar
+    -- dentro de (processo, produto), e não dentro do processo, mantém o id estável
+    -- quando a fonte republica: incluir um produto novo não renumera os demais.
+    concat(
+        'MG-',
+        f.id_processo,
+        '-',
+        f.id_item_matserv,
+        '-',
+        row_number() over (
+            partition by f.id_processo, f.id_item_matserv
+            order by f.id_contratado, f.vr_homologado, f.qt_item_pedido
+        )
+    ) as id_item_bd,
+    -- MG não publica número de item dentro do processo; a Bahia publica (`num_item`).
+    cast(null as string) as id_item,
     safe_cast(coalesce(im.nome, ms.nome) as string) as descricao,
     safe_cast(im.cd_item_matserv as string) as codigo_catalogo,
     safe_cast(gm.nome as string) as grupo_material_servico,
     safe_cast(cm.nome as string) as classe_material_servico,
+    -- O item de despesa que `id_item` de fato aponta, no mesmo espaço de códigos de
+    -- `despesa.item_despesa` e já coberto pelo `dicionario`.
+    safe_cast(it.cd_item as string) as item_despesa,
     safe_cast(um.nome as string) as unidade_medida,
     safe_cast(f.dt_item_homologa as date) as data_homologacao,
     safe_cast(f.qt_item_pedido as float64) as quantidade,
@@ -75,3 +101,6 @@ left join
     {{ set_datalake_project("br_bd_execucao_estadual_staging.mg_dm_unidade_medida") }}
     as um
     on f.id_unidade_medida = um.id_unidade_medida
+left join
+    {{ set_datalake_project("br_bd_execucao_estadual_staging.mg_dm_item") }} as it
+    on f.id_item = it.id_item
