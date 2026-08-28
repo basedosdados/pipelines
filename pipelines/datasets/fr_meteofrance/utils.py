@@ -169,7 +169,7 @@ def read_synop_year(path: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
     validity = pd.to_datetime(
         df["validity_time"], format="ISO8601", utc=True, errors="coerce"
     )
-    bad = int(validity.isna().sum())
+    bad = validity.isna().sum()
     if bad:
         raise ValueError(f"{path}: {bad} rows with unparseable validity_time")
 
@@ -313,14 +313,21 @@ def clean_station_synop(
 
 
 def _points(df: pd.DataFrame) -> pd.Series:
-    return df.apply(
-        lambda r: (
-            None
-            if pd.isna(r["longitude"]) or pd.isna(r["latitude"])
-            else f"POINT({r['longitude']} {r['latitude']})"
-        ),
-        axis=1,
+    """WKT points, NULL where either coordinate is missing.
+
+    Vectorised rather than a row-wise apply: the lambda returned `None` for a
+    missing coordinate, which types as `str | None` where pandas wants
+    `NAType | str`. Masking keeps the gaps as pd.NA, which is also what the
+    all-STRING parquet cast expects.
+    """
+    point = (
+        "POINT("
+        + df["longitude"].astype("string")
+        + " "
+        + df["latitude"].astype("string")
+        + ")"
     )
+    return point.mask(df["longitude"].isna() | df["latitude"].isna())
 
 
 # ── climatological sheets (fiches) ───────────────────────────────────────────
@@ -529,7 +536,10 @@ def parse_fiche(path) -> tuple[dict, list[dict]]:
                 slug, unit = SECTIONS[section]
                 libelle = section
 
-            block = [
+            # Annotated: `date_record`, `jour_record` and `annee_record` start
+            # as None and are filled in by a later "Date" row, so an inferred
+            # value type of None would reject those assignments.
+            block: list[dict] = [
                 {
                     "numero_poste": station["numero_poste"],
                     "indicateur": slug,
