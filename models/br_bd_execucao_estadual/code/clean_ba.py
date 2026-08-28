@@ -12,17 +12,15 @@ from __future__ import annotations
 
 import argparse
 import csv
-import re
 import shutil
 import sys
-import unicodedata
 import zipfile
 from pathlib import Path
 
 import duckdb
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import BA_TABLES, INPUT_DIR, OUTPUT_DIR
+from constants import BA_TABLES, INPUT_DIR, OUTPUT_DIR, normalise_column
 
 BA_INPUT = INPUT_DIR / "ba"
 EXTRACT_DIR = BA_INPUT / "extracted"
@@ -49,23 +47,6 @@ def _header(path: Path) -> list[str]:
     return [c.strip().strip('"') for c in line.split(";")]
 
 
-def normalise(name: str) -> str:
-    """A BigQuery-legal column name.
-
-    BA's procurement views use human column headings -- "N° da Licitação", "Processo de
-    Aquisição", "Nome do Item Completo" -- with spaces, accents and a degree sign.
-    BigQuery requires column names to match [A-Za-z_][A-Za-z_0-9]*, so loading the parquet
-    as published would fail. Accents are folded to ASCII, everything else becomes an
-    underscore, and the result is lowercased, so `dm_processo` and `VW_PROC_...` end up
-    with names in the same style as MG's.
-    """
-    folded = unicodedata.normalize("NFKD", name)
-    ascii_only = folded.encode("ascii", "ignore").decode("ascii")
-    slug = re.sub(r"[^0-9a-zA-Z]+", "_", ascii_only).strip("_").lower()
-    slug = re.sub(r"_+", "_", slug)
-    return slug or "coluna"
-
-
 def _relation(path: Path, header: list[str] | None = None) -> str:
     """A duckdb relation over one BA view, dialect declared rather than sniffed.
 
@@ -84,7 +65,8 @@ def _relation(path: Path, header: list[str] | None = None) -> str:
     """
     repaired = path.stem.endswith("_repaired")
     columns = ", ".join(
-        f"'{normalise(c)}': 'VARCHAR'" for c in (header or _header(path))
+        f"'{normalise_column(c)}': 'VARCHAR'"
+        for c in (header or _header(path))
     )
     return (
         f"read_csv('{path}', delim=';', header={str(not repaired).lower()}, "

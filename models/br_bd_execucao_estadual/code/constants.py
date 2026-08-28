@@ -4,9 +4,31 @@ State-government budget execution and procurement. One section per UF, because t
 sources have nothing in common beyond what they describe.
 """
 
+import re
+import unicodedata
 from pathlib import Path
 
 DATASET_ID = "br_bd_execucao_estadual"
+
+
+def normalise_column(name: str) -> str:
+    """A BigQuery-legal column name.
+
+    Several sources publish human column headings, and BigQuery accepts none of them:
+    spaces and accents are rejected outright ("N° da Licitação", BA), a '.' in a parquet
+    field name fails the load with `Character '.' found in field name` ("Cod. Acao", PE's
+    legacy export), and a name may not begin with a digit ("13.02 - Razao Social", also
+    PE). Accents fold to ASCII, everything else becomes an underscore, a leading digit
+    gets an underscore prefix, and the result is lowercased.
+    """
+    folded = unicodedata.normalize("NFKD", name)
+    ascii_only = folded.encode("ascii", "ignore").decode("ascii")
+    slug = re.sub(r"[^0-9a-zA-Z]+", "_", ascii_only).strip("_").lower()
+    slug = re.sub(r"_+", "_", slug)
+    if not slug:
+        return "coluna"
+    return f"_{slug}" if slug[0].isdigit() else slug
+
 
 # Scratch lives outside the repo and outside Dropbox: multi-GB, fully reproducible,
 # and deleted at the end of onboarding (see .claude/rules/onboarding-workflow.md).

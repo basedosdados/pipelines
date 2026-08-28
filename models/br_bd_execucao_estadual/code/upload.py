@@ -119,6 +119,28 @@ def upload_table(slug: str, gcs: storage.Client, bq: bigquery.Client) -> int:
     )
     job.result()
 
+    # A wildcard parquet load infers ONE schema. If the files disagree, BigQuery keeps the
+    # columns of whichever it resolves to and loads every other file's rows as all-NULL --
+    # reporting the full row count while doing it, so the load looks clean. PE's export
+    # changed schema twice and lost 25 columns this way, taking 1,031,326 rows with it.
+    # Compare the loaded schema against the union of what was uploaded.
+    local_cols: set[str] = set()
+    for path in files:
+        local_cols |= set(pq.read_schema(path).names)
+    loaded = {
+        f.name
+        for f in bq.get_table(
+            f"{BILLING_PROJECT}.{DATASET_ID}_staging.{slug}"
+        ).schema
+    }
+    dropped = local_cols - loaded
+    if dropped:
+        raise ValueError(
+            f"{slug}: BigQuery dropped {len(dropped)} column(s) present in the parquet: "
+            f"{sorted(dropped)}. The files do not share one schema -- split them into "
+            "separate staging tables, or write them with a common schema."
+        )
+
     n = next(
         iter(
             bq.query(
@@ -127,7 +149,7 @@ def upload_table(slug: str, gcs: storage.Client, bq: bigquery.Client) -> int:
             ).result()
         )
     ).n
-    print(f"  {slug}: {n:,} rows", flush=True)
+    print(f"  {slug}: {n:,} rows, {len(loaded)} cols", flush=True)
     if n == 0:
         raise ValueError(f"{slug}: loaded 0 rows")
     return n
