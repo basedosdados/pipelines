@@ -134,7 +134,7 @@ only the 190 internationally-reported stations.
 |---|---|---|---|
 | `quotidienne` | 136,882,034 | `date`, `numero_poste` | 138 |
 | `mensuelle` | 5,300,711 | `annee`, `mois`, `numero_poste` | 159 |
-| `poste` | 14,746 | `numero_poste` | 7 |
+| `poste` | 14,751 | `numero_poste` | 7 |
 
 Both fact tables are partitioned by `annee` over **1688–2031** and clustered by
 `numero_poste`. The **monthly** series starts in 1688 and the **daily** one in
@@ -162,8 +162,9 @@ therefore reads Météo-France's own text. Two columns still need explicit overr
 
 **The station register must be built from BOTH series.** A station can appear in the
 monthly files and not the daily ones, or the reverse. `clim_clean.py` originally built
-`poste` as a by-product of whichever series it cleaned, so `--only quot` silently wrote
-a register missing 1,733 monthly-only stations. It is now its own pass over all 939
+`poste` as a by-product of whichever series it cleaned: `--only quot` wrote a
+register missing 1,738 monthly-only stations, and `--only mens` one missing 5
+daily-only stations. Only the union (14,751) is right. It is now its own pass over all 939
 source files and the only writer of `poste`.
 
 **`ECOULEMENTM` is dropped.** The source labels it *champ inutilisé* and it is 100%
@@ -175,7 +176,7 @@ and codes, not quantities, so STRING + dictionary-covered per the house rule.
 
 **`poste.id_departement` misses 8 codes.** `20` (Corsica, COG uses 2A/2B), `99`
 (outside France) and five overseas codes are absent from `br_bd_diretorios_fr` —
-771 of 14,746 postes. One of them, `975` (Saint-Pierre-et-Miquelon), is a genuine
+771 of 14,751 postes. One of them, `975` (Saint-Pierre-et-Miquelon), is a genuine
 **gap in the directory** rather than a Météo-France invention and would be worth
 adding there.
 

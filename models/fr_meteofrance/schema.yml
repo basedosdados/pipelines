@@ -219,6 +219,171 @@ models:
       - name: geolocalisation
         description: Ponto geográfico do posto, em WGS 84
         tests: [not_null]
+  - name: fr_meteofrance__quotidienne
+    description: >
+      Série climatológica diária da Météo-France, por posto, desde a abertura de
+      cada um. Uma linha por posto e dia, com precipitação, temperatura, vento,
+      umidade, insolação, radiação, neve, temperatura do solo e do mar, e os
+      indicadores de ocorrência de fenômenos (neve, nevoeiro, trovoada, granizo,
+      orvalho, geada, relâmpago). Cada medição vem acompanhada de um código de
+      qualidade. As unidades são as da fonte. Os arquivos RR-T-Vent e
+      autres-parametres da fonte são unidos por junção externa em
+      (numero_poste, date).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [date, numero_poste]
+          config:
+            where: __most_recent_year_fr__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_fr__
+          # Measured against the latest partition, which is what the test scans.
+          ignore_values:
+            - direction_rafale_maximale_2m
+            - duree_humectation
+            - hauteur_base_sous_300m
+            - hauteur_neige_fraiche
+            - heure_rafale_maximale_2m
+            - indice_uv_maximal
+            - nebulosite_maximale_sous_300m
+            - occurrence_eclair
+            - occurrence_grele
+            - occurrence_gresil
+            - occurrence_rosee
+            - occurrence_sol_enneige
+            - occurrence_verglas
+            - qualite_direction_rafale_maximale_2m
+            - qualite_duree_humectation
+            - qualite_hauteur_base_sous_300m
+            - qualite_hauteur_neige_fraiche
+            - qualite_heure_rafale_maximale_2m
+            - qualite_indice_uv_maximal
+            - qualite_nebulosite_maximale_sous_300m
+            - qualite_occurrence_eclair
+            - qualite_occurrence_grele
+            - qualite_occurrence_gresil
+            - qualite_occurrence_rosee
+            - qualite_occurrence_sol_enneige
+            - qualite_occurrence_verglas
+            - qualite_rafale_maximale_2m
+            - qualite_rayonnement_diffus
+            - qualite_rayonnement_direct
+            - qualite_rayonnement_infrarouge
+            - qualite_rayonnement_ultraviolet
+            - qualite_temperature_mer_maximale
+            - qualite_temperature_mer_minimale
+            - qualite_vitesse_vent_moyenne_2m
+            - rafale_maximale_2m
+            - rayonnement_diffus
+            - rayonnement_direct
+            - rayonnement_infrarouge
+            - rayonnement_ultraviolet
+            - temperature_mer_maximale
+            - temperature_mer_minimale
+            - vitesse_vent_moyenne_2m
+      - custom_dictionary_coverage:
+          config:
+            where: __most_recent_year_fr__
+          dictionary_model: ref('fr_meteofrance__dicionario')
+          columns_covered_by_dictionary:
+            - qualite_precipitation
+            - qualite_temperature_minimale
+            - qualite_heure_temperature_minimale
+            - qualite_temperature_maximale
+            - qualite_heure_temperature_maximale
+            - qualite_temperature_moyenne
+            - qualite_temperature_moyenne_min_max
+            - qualite_amplitude_thermique
+            - qualite_temperature_minimale_sol_10cm
+            - qualite_temperature_minimale_sol_50cm
+            - qualite_duree_gel
+            - qualite_vitesse_vent_moyenne_10m
+            - qualite_vitesse_vent_moyenne_2m
+            - qualite_vitesse_vent_maximale_moyennee_10m
+            - qualite_direction_vent_maximal_moyenne_10m
+            - qualite_heure_vitesse_vent_maximale_moyennee_10m
+            - qualite_rafale_maximale_10m
+            - qualite_direction_rafale_maximale_10m
+            - qualite_heure_rafale_maximale_10m
+            - qualite_rafale_maximale_2m
+            - qualite_direction_rafale_maximale_2m
+            - qualite_heure_rafale_maximale_2m
+            - qualite_rafale_maximale_3s_10m
+            - qualite_direction_rafale_maximale_3s_10m
+            - qualite_heure_rafale_maximale_3s_10m
+            - qualite_duree_precipitation
+            - qualite_duree_humectation
+            - qualite_pression_mer_moyenne
+            - qualite_pression_mer_minimale
+            - qualite_duree_insolation
+            - qualite_rayonnement_global
+            - qualite_rayonnement_diffus
+            - qualite_rayonnement_direct
+            - qualite_rayonnement_infrarouge
+            - qualite_rayonnement_ultraviolet
+            - qualite_indice_uv_maximal
+            - qualite_fraction_insolation
+            - qualite_humidite_minimale
+            - qualite_heure_humidite_minimale
+            - qualite_humidite_maximale
+            - qualite_heure_humidite_maximale
+            - qualite_humidite_moyenne
+            - qualite_duree_humidite_inf_40
+            - qualite_duree_humidite_sup_80
+            - qualite_tension_vapeur_moyenne
+            - qualite_evapotranspiration_penman_monteith
+            - qualite_evapotranspiration_point_grille
+            - qualite_hauteur_neige_fraiche
+            - qualite_hauteur_neige_maximale
+            - qualite_hauteur_neige_06h
+            - occurrence_neige
+            - qualite_occurrence_neige
+            - occurrence_brouillard
+            - qualite_occurrence_brouillard
+            - occurrence_orage
+            - qualite_occurrence_orage
+            - occurrence_gresil
+            - qualite_occurrence_gresil
+            - occurrence_grele
+            - qualite_occurrence_grele
+            - occurrence_rosee
+            - qualite_occurrence_rosee
+            - occurrence_verglas
+            - qualite_occurrence_verglas
+            - occurrence_sol_enneige
+            - qualite_occurrence_sol_enneige
+            - occurrence_gelee_blanche
+            - qualite_occurrence_gelee_blanche
+            - occurrence_fumee
+            - qualite_occurrence_fumee
+            - occurrence_brume
+            - qualite_occurrence_brume
+            - occurrence_eclair
+            - qualite_occurrence_eclair
+            - qualite_nebulosite_maximale_sous_300m
+            - qualite_hauteur_base_sous_300m
+            - qualite_temperature_mer_minimale
+            - qualite_temperature_mer_maximale
+    columns:
+      - name: annee
+        description: Ano da observação
+        tests: [not_null]
+      - name: mois
+        description: Mês da observação
+        tests: [not_null]
+      - name: date
+        description: Data da observação
+        tests: [not_null]
+      - name: numero_poste
+        description: Número Météo-France do posto de observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('fr_meteofrance__poste')
+              field: numero_poste
+              config:
+                where: __most_recent_year_fr__
   - name: fr_meteofrance__mensuelle
     description: >
       Série climatológica mensal da Météo-France, por posto, desde a abertura de
