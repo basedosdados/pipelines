@@ -320,6 +320,9 @@ def br_sfb_sicar_flow(
         # deterministic, so a failure there is a real bug to surface.
         skipped: list[str] = []
         built_themes: list[str] = []
+        # Temas que precisam de build em prod — executados só depois que dev
+        # inteiro rodou e passou nos testes.
+        prod_pending: list[str] = []
         for table in themes:
             polygon = TABLE_TO_POLYGON[table]
             theme_root = f"{output_dir}/{table}"
@@ -415,15 +418,14 @@ def br_sfb_sicar_flow(
                     dbt_command="run",
                     target="dev",
                 )
+            # O build de prod NÃO acontece aqui: fica pendente até dev ter
+            # rodado e passado nos testes. A staging de prod já está no bucket,
+            # então adiar só reordena as invocações do dbt — a resumabilidade
+            # por UF continua intacta.
             if materialize_to_prod and (
                 fresh_prod or not _bq_table_exists(prod_bucket, table)
             ):
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run",
-                    target="prod",
-                )
+                prod_pending.append(table)
 
         if skipped:
             print(
@@ -457,13 +459,26 @@ def br_sfb_sicar_flow(
                 dbt_command="test",
                 target="dev",
             )
-            if materialize_to_prod:
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="test",
-                    target="prod",
-                )
+
+        # Só agora prod: dev inteiro construído e testado. Se qualquer teste de
+        # dev acima falhar, run_dbt levanta e nenhuma tabela de prod é tocada.
+        if not materialize_to_prod:
+            return
+
+        for table in prod_pending:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="run",
+                target="prod",
+            )
+        for table in built_themes:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
+                target="prod",
+            )
 
         if update_metadata and materialize_to_prod:
             for table in built_themes:

@@ -116,35 +116,33 @@ def us_bls_oes_flow(
             materialize_after_dump=materialize_to_prod,
         )
 
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests both tables in
-        # basedosdados-dev, which nothing downstream reads.
+        for table in TABLES:
+            upload_to_gcs(
+                data_path=result[table],
+                dataset_id=DATASET_ID,
+                table_id=table,
+                bucket_name="basedosdados-dev",
+                dump_mode="append",
+                source_format="parquet",
+            )
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="run",
+                target="dev",
+            )
+        # Every table is built before any is tested: the dictionary-coverage
+        # test reads the sibling `dicionario` model, so interleaving run and
+        # test per table fails in a clean environment.
+        for table in TABLES:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
+                target="dev",
+            )
+
         if not materialize_to_prod:
-            for table in TABLES:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode="append",
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run",
-                    target="dev",
-                )
-            # Every table is built before any is tested: the dictionary-coverage
-            # test reads the sibling `dicionario` model, so interleaving run and
-            # test per table fails in a clean environment.
-            for table in TABLES:
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="test",
-                    target="dev",
-                )
             return
 
         for table in TABLES:

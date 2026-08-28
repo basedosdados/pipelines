@@ -182,38 +182,34 @@ def us_fec_campaign_finance_flow(
 
         tables = [t for t in constants.ALL_TABLES.value if t in result]
 
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
+        # Run every table, THEN test every table — never interleave per table. The
+        # custom_dictionary_coverage tests read the sibling dicionario model, so a
+        # per-table run/test would test a table before its sibling exists in a clean
+        # environment. Same class of bug as us_fed_fred's observation<->series FK.
+        for table in tables:
+            upload_to_gcs(
+                data_path=result[table],
+                dataset_id=DATASET_ID,
+                table_id=table,
+                bucket_name="basedosdados-dev",
+                dump_mode="append",
+                source_format="parquet",
+            )
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="run",
+                target="dev",
+            )
+        for table in tables:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
+                target="dev",
+            )
+
         if not materialize_to_prod:
-            # Run every table, THEN test every table — never interleave per table. The
-            # custom_dictionary_coverage tests read the sibling dicionario model, so a
-            # per-table run/test would test a table before its sibling exists in a clean
-            # environment. Same class of bug as us_fed_fred's observation<->series FK.
-            for table in tables:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode="append",
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run",
-                    target="dev",
-                )
-            for table in tables:
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="test",
-                    target="dev",
-                )
             return
 
         # Prod: upload + run ALL tables first, THEN test (see the dev-phase note).
