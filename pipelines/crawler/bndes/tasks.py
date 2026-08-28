@@ -15,10 +15,12 @@ from pipelines.constants import constants as global_constants
 from pipelines.crawler.bndes.constants import (
     constants,
     constants_administracao_publica,
+    constants_exportacao_bens,
 )
 from pipelines.crawler.bndes.utils import (
     clean,
     clean_administracao_publica,
+    clean_exportacao_bens,
     download_csv,
     get_source_last_modified,
 )
@@ -138,5 +140,59 @@ def clean_and_partition_administracao_publica(csv_path: str) -> str:
     )
 
     clean_administracao_publica(csv_path=Path(csv_path), output_dir=output_dir)
+
+    return str(output_dir)
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def get_source_max_date_exportacao_bens() -> datetime:
+    """
+    Le o last_modified do recurso CKAN de operacoes_exportacao_bens (poll).
+
+    Returns:
+        datetime: data/hora da ultima publicacao do CSV no portal.
+    """
+    return get_source_last_modified(
+        constants_exportacao_bens.RESOURCE_SHOW_URL.value
+    )
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def download_exportacao_bens_csv() -> str:
+    """
+    Baixa o CSV de operacoes_exportacao_bens para o INPUT_PATH.
+
+    Returns:
+        str: caminho local do CSV baixado.
+    """
+    dest = (
+        Path(constants_exportacao_bens.INPUT_PATH.value)
+        / constants_exportacao_bens.CSV_FILENAME.value
+    )
+
+    downloaded_file_path = download_csv(
+        dest=dest, url=constants_exportacao_bens.DOWNLOAD_URL.value
+    )
+
+    return str(downloaded_file_path)
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def clean_and_partition_exportacao_bens(csv_path: str) -> str:
+    """
+    Limpa o CSV de operacoes_exportacao_bens e grava Parquet por ano.
+
+    Args:
+        csv_path (str): caminho do CSV baixado.
+
+    Returns:
+        str: raiz das particoes gravadas (output_dir), p/ o upload_to_gcs.
+    """
+    output_dir = (
+        Path(constants_exportacao_bens.OUTPUT_PATH.value)
+        / constants_exportacao_bens.TABLE_ID.value
+    )
+
+    clean_exportacao_bens(csv_path=Path(csv_path), output_dir=output_dir)
 
     return str(output_dir)
