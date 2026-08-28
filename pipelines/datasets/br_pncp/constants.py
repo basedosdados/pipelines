@@ -33,9 +33,18 @@ class constants(Enum):
         _REPO_ROOT / "models" / "br_pncp" / "code" / "architecture"
     )
 
-    # tamanhoPagina is capped at 500 on most endpoints (and floored at 10), but
-    # instrumentoscobranca caps at 100 and answers 400 "Tamanho de página
-    # inválido" above it. The cap is per endpoint; see ENDPOINTS["page_size"].
+    # tamanhoPagina is floored at 10 everywhere, but its ceiling is PER
+    # ENDPOINT and exceeding it is a flat 400, not a clamp. From the OpenAPI
+    # spec (https://pncp.gov.br/api/consulta/v3/api-docs), verified 2026-08-28:
+    #
+    #     /v1/contratos, /v1/contratos/atualizacao      500
+    #     /v1/atas, /v1/atas/atualizacao                500
+    #     /v1/pca/atualizacao                           500
+    #     /v1/instrumentoscobranca/inclusao             100
+    #     /v1/contratacoes/publicacao, .../atualizacao   50
+    #
+    # This default is the common case; anything lower is declared per endpoint
+    # as ENDPOINTS[...]["page_size"] and covered by a test.
     PAGE_SIZE = 500
 
     # PNCP publishes from 2021 (Lei 14.133/2021).
@@ -69,6 +78,12 @@ class constants(Enum):
             "date_params": ("dataInicial", "dataFinal"),
             "by_modalidade": True,
             "window_days": 10,
+            # BOTH contratacoes endpoints cap tamanhoPagina at 50, not the
+            # 500 every other endpoint allows -- declared in the OpenAPI spec
+            # at /api/consulta/v3/api-docs and enforced with a flat 400
+            # "Tamanho de página inválido". Without this the table cannot be
+            # harvested at all: every window fails on its first request.
+            "page_size": 50,
         },
         "contrato": {
             "path": "contratos/atualizacao",

@@ -628,3 +628,54 @@ class TestWindowResize:
         assert self._tags(
             date(2021, 1, 1), date(2021, 3, 1), 15
         ) == self._tags(date(2021, 1, 1), date(2021, 3, 1), 15, None)
+
+
+class TestPageSizeWithinApiLimits:
+    """tamanhoPagina above an endpoint's ceiling is a flat 400, not a clamp.
+
+    Only ``instrumentoscobranca`` was known to be capped; the contratacoes
+    pair caps at 50, so the default 500 made every contratacao window fail on
+    its first request -- the whole table unharvestable. These bounds come from
+    the PNCP OpenAPI spec (/api/consulta/v3/api-docs), read 2026-08-28.
+    """
+
+    # path prefix -> documented maximum tamanhoPagina
+    DOCUMENTED_MAX = {
+        "contratos": 500,
+        "contratos/atualizacao": 500,
+        "atas": 500,
+        "atas/atualizacao": 500,
+        "pca/atualizacao": 500,
+        "instrumentoscobranca/inclusao": 100,
+        "contratacoes/publicacao": 50,
+        "contratacoes/atualizacao": 50,
+    }
+    MIN = 10
+
+    def _effective(self, spec):
+        return spec.get("page_size", constants.PAGE_SIZE.value)
+
+    def test_every_endpoint_page_size_is_within_its_documented_range(self):
+        for table, spec in constants.ENDPOINTS.value.items():
+            size = self._effective(spec)
+            cap = self.DOCUMENTED_MAX[spec["path"]]
+            assert self.MIN <= size <= cap, (
+                f"{table} requests tamanhoPagina={size} against "
+                f"{spec['path']}, which allows {self.MIN}..{cap}"
+            )
+
+    def test_backfill_paths_are_also_within_range(self):
+        # The backfill swaps the path but keeps the endpoint's page_size, so
+        # the override has to be legal for BOTH paths of a table.
+        for table, path in constants.BACKFILL_PATHS.value.items():
+            size = self._effective(constants.ENDPOINTS.value[table])
+            cap = self.DOCUMENTED_MAX[path]
+            assert self.MIN <= size <= cap, (
+                f"{table} backfills from {path} with tamanhoPagina={size}, "
+                f"which allows {self.MIN}..{cap}"
+            )
+
+    def test_contratacoes_is_the_tightest_cap(self):
+        # Guards the specific regression: a well-meaning "just use the
+        # default" edit here breaks the largest table in the dataset.
+        assert self._effective(constants.ENDPOINTS.value["contratacao"]) <= 50
