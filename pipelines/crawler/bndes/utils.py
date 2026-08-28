@@ -14,6 +14,7 @@ chamador (url ou table_id), nao tem default fixo aqui.
 Passo a passo de implementacao de cada funcao: ver task_davi/ROADMAP.md, secao 2.
 """
 
+import re
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -27,6 +28,7 @@ import pyarrow.parquet as pq
 from pipelines.crawler.bndes.constants import (
     constants,
     constants_administracao_publica,
+    constants_exportacao_bens,
 )
 from pipelines.utils.utils import log
 
@@ -478,6 +480,172 @@ def clean_administracao_publica(csv_path: Path, output_dir: Path) -> Path:
         table = pa.Table.from_pandas(
             group[columns],
             schema=constants_administracao_publica.SCHEMA.value,
+            preserve_index=False,
+        )
+
+        # pyrefly: ignore [bad-argument-type]
+        table_path = output_dir / f"ano={int(year)}"
+
+        table_path.mkdir(parents=True, exist_ok=True)
+
+        pq.write_table(
+            table, table_path / "data.parquet", compression="snappy"
+        )
+
+    log(
+        f"Limpeza concluída: {len(df)} linhas em {df['ano'].nunique()} "
+        f"partições (anos) -> {output_dir}"
+    )
+    return output_dir
+
+
+def _split_setor_subsetor(setor_subsetor: pd.Series) -> pd.DataFrame:
+    """
+    Separa o campo composto `SETOR/SUBSETOR` casando o setor por prefixo.
+
+    Nem o primeiro nem o ultimo "/" servem de corte: `COMERCIO/SERVICOS` tem
+    barra no proprio nome e aparece tanto sozinho quanto seguido de subsetor
+    (`COMERCIO/SERVICOS/COMERCIO VAREJISTA`). O setor e casado contra
+    SETORES, do rotulo mais longo para o mais curto, e o resto e o subsetor.
+
+    Args:
+        setor_subsetor (pd.Series): coluna original concatenada.
+
+    Returns:
+        pd.DataFrame: colunas `setor_bndes` e `subsetor_bndes`.
+
+    Raises:
+        ValueError: quando algum valor nao comeca por um setor conhecido.
+    """
+    setores = sorted(
+        constants_exportacao_bens.SETORES.value, key=len, reverse=True
+    )
+    padrao = "|".join(re.escape(setor) for setor in setores)
+
+    partes = setor_subsetor.str.extract(rf"^({padrao})(?:/(.+))?$")
+
+    desconhecidos = setor_subsetor[partes[0].isna()].unique()
+    if len(desconhecidos):
+        raise ValueError(
+            f"{len(desconhecidos)} valor(es) de setor_subsetor_de_atividade "
+            f"fora dos setores conhecidos {setores}: "
+            f"{sorted(desconhecidos)[:5]}. A fonte mudou os rotulos e o clean "
+            "precisa ser revisto."
+        )
+
+    partes = partes.astype("string")
+
+    return partes.rename(columns={0: "setor_bndes", 1: "subsetor_bndes"})
+
+
+def _normalize_garantia(garantia: pd.Series) -> pd.Series:
+    """
+    Unifica as grafias de `tipo_garantia`.
+
+    Padroniza o separador de tipos combinados para " / ", protegendo antes os
+    rotulos de ROTULOS_COMPOSTOS, que tem "/" no proprio nome.
+
+    Args:
+        garantia (pd.Series): coluna original.
+
+    Returns:
+        pd.Series: coluna com as grafias unificadas.
+    """
+    protegida = garantia.str.replace(
+        "Seguro de Crédito", "Seguro de crédito", regex=False
+    )
+
+    for rotulo in constants_exportacao_bens.ROTULOS_COMPOSTOS.value:
+        esquerda, direita = rotulo.split("/")
+        protegida = protegida.str.replace(
+            rf"{esquerda}\s*/\s*{direita}",
+            rotulo.replace("/", "\x00"),
+            regex=True,
+        )
+
+    padronizada = protegida.str.replace(r"\s*/\s*", " / ", regex=True)
+
+    return padronizada.str.replace("\x00", "/", regex=False)
+
+
+def _transform_exportacao_bens(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Limpa o CSV de operacoes_exportacao_bens (tudo string na entrada).
+
+    Renomeia para os nomes BD, quebra setor_subsetor em setor_bndes/
+    subsetor_bndes, normaliza tipo_garantia e sigla_moeda, anula o pais
+    indefinido e deriva o ano da contratacao.
+
+    Args:
+        df (pd.DataFrame): CSV cru lido com dtype=str.
+
+    Returns:
+        pd.DataFrame: colunas de ORDER_COLUMNS (inclui `ano`).
+
+    Raises:
+        ValueError: quando alguma data_contratacao nao casa com %Y-%m-%d.
+    """
+    df = df.rename(columns=constants_exportacao_bens.RENAME.value)
+
+    df = df.apply(lambda c: c.str.strip())
+
+    df[["setor_bndes", "subsetor_bndes"]] = _split_setor_subsetor(
+        df["setor_subsetor"]
+    )
+
+    df["tipo_garantia"] = _normalize_garantia(df["tipo_garantia"])
+
+    df["sigla_moeda"] = df["sigla_moeda"].replace(
+        constants_exportacao_bens.MOEDA.value
+    )
+
+    df["nome_pais_destino"] = df["nome_pais_destino"].replace(
+        constants_exportacao_bens.PAIS_DESTINO_INDEFINIDO.value, pd.NA
+    )
+
+    df["ano"] = pd.to_datetime(
+        df["data_contratacao"], format="%Y-%m-%d", errors="coerce"
+    ).dt.year.astype("Int64")
+
+    n_sem_ano = int(df["ano"].isna().sum())
+    if n_sem_ano:
+        raise ValueError(
+            f"{n_sem_ano} linha(s) com data_contratacao fora do formato "
+            "%Y-%m-%d: o ano particiona o parquet, entao a fonte mudou de "
+            "formato e o clean precisa ser revisto."
+        )
+
+    return df[constants_exportacao_bens.ORDER_COLUMNS.value]
+
+
+def clean_exportacao_bens(csv_path: Path, output_dir: Path) -> Path:
+    """
+    Le o CSV de operacoes_exportacao_bens e grava Parquet particionado por ano.
+
+    Arquivo pequeno -> le inteiro (sem chunk). Grava
+    output_dir/ano=<ano>/data.parquet com constants_exportacao_bens.SCHEMA
+    (staging all-string).
+
+    Args:
+        csv_path (Path): CSV bruto baixado.
+        output_dir (Path): raiz de saida; grava output_dir/ano=<ano>/data.parquet.
+
+    Returns:
+        Path: `output_dir`.
+    """
+    shutil.rmtree(output_dir, ignore_errors=True)
+    df = pd.read_csv(csv_path, sep=";", encoding="cp1252", dtype=str)
+
+    df = _transform_exportacao_bens(df)
+
+    columns = [
+        c for c in constants_exportacao_bens.ORDER_COLUMNS.value if c != "ano"
+    ]
+
+    for year, group in df.groupby("ano"):
+        table = pa.Table.from_pandas(
+            group[columns],
+            schema=constants_exportacao_bens.SCHEMA.value,
             preserve_index=False,
         )
 
