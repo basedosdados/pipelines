@@ -1,5 +1,5 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
-annee,INT64,Ano da observação,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"O arquivo remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",AAAAMMJJ
+annee,INT64,Ano da observação,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"A série diária remonta a 1º de maio de 1786, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",AAAAMMJJ
 mois,INT64,Mês da observação,,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,AAAAMMJJ
 date,DATE,Data da observação,,no,,,no,,AAAAMMJJ
 numero_poste,STRING,"Número Météo-France do posto, de oito dígitos",,no,,,no,,NUM_POSTE

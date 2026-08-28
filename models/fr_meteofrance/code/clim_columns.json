@@ -9,7 +9,9 @@
       "covered_by_dictionary": false,
       "is_partition": true,
       "measurement_unit": "year",
-      "observations": "O arquivo remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",
+      "observations_pt": "A série diária remonta a 1º de maio de 1786, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",
+      "observations_en": "The daily series reaches back to 1 May 1786, long before the modern network: years before 1900 have very few stations.",
+      "observations_es": "La serie diaria se remonta al 1 de mayo de 1786, mucho antes de la red moderna: los años anteriores a 1900 tienen muy pocos puestos.",
       "directory_column": "br_bd_diretorios_data_tempo.ano:ano"
     },
     {
@@ -1302,7 +1304,9 @@
       "covered_by_dictionary": false,
       "is_partition": true,
       "measurement_unit": "year",
-      "observations": "O arquivo remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",
+      "observations_pt": "A série mensal remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",
+      "observations_en": "The monthly series reaches back to 1688, long before the modern network: years before 1900 have very few stations.",
+      "observations_es": "La serie mensual se remonta a 1688, mucho antes de la red moderna: los años anteriores a 1900 tienen muy pocos puestos.",
       "directory_column": "br_bd_diretorios_data_tempo.ano:ano"
     },
     {
@@ -2877,7 +2881,9 @@
       "description_es": "Código del departamento o de la colectividad de ultramar del puesto",
       "covered_by_dictionary": false,
       "is_partition": false,
-      "observations": "Segue a codificação da Météo-France, que difere do Code officiel géographique do INSEE. Oito códigos não constam do diretório br_bd_diretorios_fr, cobrindo 771 dos 14.746 postos: 20 (Córsega, que no COG é 2A e 2B), 99 (postos fora da França) e as coletividades de além-mar 975, 984, 985, 986, 987 e 988. O caso de 975, São Pedro e Miquelão, é uma lacuna do próprio diretório, e não uma invenção da Météo-France.",
+      "observations_pt": "Segue a codificação da Météo-France, que difere do Code officiel géographique do INSEE. Oito códigos não constam do diretório br_bd_diretorios_fr, cobrindo 771 dos 14.751 postos: 20 (Córsega, que no COG é 2A e 2B), 99 (postos fora da França) e as coletividades de além-mar 975, 984, 985, 986, 987 e 988. O caso de 975, São Pedro e Miquelão, é uma lacuna do próprio diretório, e não uma invenção da Météo-France.",
+      "observations_en": "Follows Météo-France's own coding, which differs from INSEE's Code officiel géographique. Eight codes are absent from the br_bd_diretorios_fr directory, covering 771 of the 14,751 stations: 20 (Corsica, which the COG splits into 2A and 2B), 99 (stations outside France) and the overseas collectivities 975, 984, 985, 986, 987 and 988. The 975 case, Saint-Pierre-et-Miquelon, is a gap in the directory itself rather than a Météo-France invention.",
+      "observations_es": "Sigue la codificación de Météo-France, que difiere del Code officiel géographique del INSEE. Ocho códigos no constan en el directorio br_bd_diretorios_fr, cubriendo 771 de los 14.751 puestos: 20 (Córcega, que en el COG es 2A y 2B), 99 (puestos fuera de Francia) y las colectividades de ultramar 975, 984, 985, 986, 987 y 988. El caso de 975, San Pedro y Miquelón, es una laguna del propio directorio, y no una invención de Météo-France.",
       "directory_column": "br_bd_diretorios_fr.departement:id_departamento"
     },
     {

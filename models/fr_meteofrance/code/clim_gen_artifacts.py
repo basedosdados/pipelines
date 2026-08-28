@@ -218,18 +218,67 @@ POSTE = [
 ]
 
 OBSERVATIONS = {
-    "id_departement": (
-        "Segue a codificação da Météo-France, que difere do Code officiel géographique do "
-        "INSEE. Oito códigos não constam do diretório br_bd_diretorios_fr, cobrindo 771 dos "
-        "14.746 postos: 20 (Córsega, que no COG é 2A e 2B), 99 (postos fora da França) e as "
-        "coletividades de além-mar 975, 984, 985, 986, 987 e 988. O caso de 975, São Pedro e "
-        "Miquelão, é uma lacuna do próprio diretório, e não uma invenção da Météo-France."
-    ),
-    "annee": (
-        "O arquivo remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 "
-        "têm pouquíssimos postos."
-    ),
+    ("id_departement", None): {
+        "pt": (
+            "Segue a codificação da Météo-France, que difere do Code officiel géographique "
+            "do INSEE. Oito códigos não constam do diretório br_bd_diretorios_fr, cobrindo "
+            "771 dos 14.751 postos: 20 (Córsega, que no COG é 2A e 2B), 99 (postos fora da "
+            "França) e as coletividades de além-mar 975, 984, 985, 986, 987 e 988. O caso de "
+            "975, São Pedro e Miquelão, é uma lacuna do próprio diretório, e não uma invenção "
+            "da Météo-France."
+        ),
+        "en": (
+            "Follows Météo-France's own coding, which differs from INSEE's Code officiel "
+            "géographique. Eight codes are absent from the br_bd_diretorios_fr directory, "
+            "covering 771 of the 14,751 stations: 20 (Corsica, which the COG splits into 2A "
+            "and 2B), 99 (stations outside France) and the overseas collectivities 975, 984, "
+            "985, 986, 987 and 988. The 975 case, Saint-Pierre-et-Miquelon, is a gap in the "
+            "directory itself rather than a Météo-France invention."
+        ),
+        "es": (
+            "Sigue la codificación de Météo-France, que difiere del Code officiel "
+            "géographique del INSEE. Ocho códigos no constan en el directorio "
+            "br_bd_diretorios_fr, cubriendo 771 de los 14.751 puestos: 20 (Córcega, que en el "
+            "COG es 2A y 2B), 99 (puestos fuera de Francia) y las colectividades de ultramar "
+            "975, 984, 985, 986, 987 y 988. El caso de 975, San Pedro y Miquelón, es una "
+            "laguna del propio directorio, y no una invención de Météo-France."
+        ),
+    },
+    # The two series start in different centuries, so the note is per table.
+    ("annee", "quotidienne"): {
+        "pt": (
+            "A série diária remonta a 1º de maio de 1786, muito antes da rede moderna: os "
+            "anos anteriores a 1900 têm pouquíssimos postos."
+        ),
+        "en": (
+            "The daily series reaches back to 1 May 1786, long before the modern network: "
+            "years before 1900 have very few stations."
+        ),
+        "es": (
+            "La serie diaria se remonta al 1 de mayo de 1786, mucho antes de la red moderna: "
+            "los años anteriores a 1900 tienen muy pocos puestos."
+        ),
+    },
+    ("annee", "mensuelle"): {
+        "pt": (
+            "A série mensal remonta a 1688, muito antes da rede moderna: os anos anteriores "
+            "a 1900 têm pouquíssimos postos."
+        ),
+        "en": (
+            "The monthly series reaches back to 1688, long before the modern network: years "
+            "before 1900 have very few stations."
+        ),
+        "es": (
+            "La serie mensual se remonta a 1688, mucho antes de la red moderna: los años "
+            "anteriores a 1900 tienen muy pocos puestos."
+        ),
+    },
 }
+
+
+def observation(name, table):
+    """Observation note for a column, per language. Table-specific wins."""
+    return OBSERVATIONS.get((name, table)) or OBSERVATIONS.get((name, None))
 
 
 def header(path):
@@ -278,7 +327,7 @@ def write_architecture(spec):
                         DIRECTORY.get(name, ""),
                         unit,
                         "no",
-                        OBSERVATIONS.get(name, ""),
+                        (observation(name, table) or {}).get("pt", ""),
                         original,
                     ]
                 )
@@ -336,7 +385,7 @@ def write_architecture_i18n(spec, out_dir):
                         DIRECTORY.get(name, ""),
                         unit,
                         "no",
-                        OBSERVATIONS.get(name, ""),
+                        (observation(name, table) or {}).get("pt", ""),
                         obs_en.get(name, ""),
                         obs_es.get(name, ""),
                     ]
@@ -412,8 +461,9 @@ def write_columns_json(spec):
             }
             if unit:
                 e["measurement_unit"] = unit
-            if OBSERVATIONS.get(name):
-                e["observations"] = OBSERVATIONS[name]
+            if obs := observation(name, table):
+                for lang, text in obs.items():
+                    e[f"observations_{lang}"] = text
             if DIRECTORY.get(name):
                 e["directory_column"] = DIRECTORY[name]
             entries.append(e)
