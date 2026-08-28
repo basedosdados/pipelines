@@ -374,6 +374,52 @@ def _execute_query_in_bigquery(
     extract_job.result()
 
 
+def _table_expects_bdpro_paywall(dataset_id: str, table_id: str) -> bool:
+    """Diz se a tabela deveria estar paywalled, segundo o backend.
+
+    A verdade é a Coverage "pro" (`isClosed=True`) registrada no backend — não a
+    presença da row access policy, que o `CREATE OR REPLACE TABLE` do dbt apaga a
+    cada `dbt run`.
+
+    Args:
+        dataset_id: GCP dataset id (ex.: `br_senado_dados_abertos_administrativos`).
+        table_id: slug da tabela.
+
+    Returns:
+        True se existe Coverage pro (ou se não foi possível determinar — o padrão
+        é fechar, nunca vazar).
+    """
+    from pipelines.utils.utils import log
+
+    try:
+        backend = bd.Backend(
+            graphql_url="https://api.basedosdados.org/api/v1/graphql"
+        )
+        django_table_id = backend._get_table_id_from_name(
+            gcp_dataset_id=dataset_id, gcp_table_id=table_id
+        )
+        data = backend._execute_query(
+            f"""query {{ allTable(id: "{django_table_id}") {{
+                edges {{ node {{ coverages {{ edges {{ node {{
+                    isClosed }} }} }} }} }} }} }}"""
+        )
+        items = data.get("allTable", {}).get("items", [])
+        if not items:
+            log(
+                "Tabela não encontrada no backend — assumindo paywall "
+                "(fail closed), export open ignorado"
+            )
+            return True
+        coverages = items[0].get("coverages", []) or []
+        return any(c.get("isClosed") for c in coverages)
+    except Exception as e:
+        log(
+            f"Não foi possível consultar as Coverages no backend ({e}) — "
+            "assumindo paywall (fail closed), export open ignorado"
+        )
+        return True
+
+
 @task(retries=2, retry_delay_seconds=30)
 def download_data_to_gcs(
     dataset_id: str,
@@ -455,6 +501,25 @@ def download_data_to_gcs(
         bdpro = True
         log("Row access policy bdpro_filter removida temporariamente")
     except NotFound:
+        # A policy pode faltar por dois motivos muito diferentes: a tabela é
+        # aberta, ou o `CREATE OR REPLACE TABLE` do `dbt run` acabou de apagar
+        # as policies desta tabela paywalled. Sem desempatar, o export open
+        # abaixo publicaria a janela BD Pro inteira. Quem desempata é o backend.
+        if _table_expects_bdpro_paywall(dataset_id, table_id):
+            log(
+                "Tabela tem Coverage pro mas está sem row access policy "
+                "bdpro_filter (provavelmente apagada pelo CREATE OR REPLACE do "
+                "dbt run) — export open IGNORADO para não publicar dados BD "
+                "Pro; exportando apenas BDPro"
+            )
+            _execute_query_in_bigquery(
+                billing_project_id,
+                query,
+                f"{url_closed}{dataset_id}/{table_id}/{table_id}_bdpro.csv.gz",
+                location,
+            )
+            log("Exportação BDPro concluída")
+            return
         log("Sem row access policy bdpro_filter — todos os dados são abertos")
     except Exception as e:
         raise ValueError(f"Erro ao remover bdpro_filter: {e}") from e
