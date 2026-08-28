@@ -603,6 +603,7 @@ ATA_REGISTRO_PRECO = [
         "Data e hora da exclusão da ata do PNCP",
         en="Timestamp when the price record was deleted from PNCP",
         es="Fecha y hora de la exclusión del acta del PNCP",
+        obs="Preenchida apenas nos registros excluídos, menos de 2% do total",
         original="dataHoraExclusao",
     ),
 ]
@@ -897,6 +898,7 @@ ATA_REGISTRO_PRECO_ITEM = [
         "Data e hora da exclusão do item do PNCP",
         en="Timestamp when the item was deleted from PNCP",
         es="Fecha y hora de la exclusión del ítem del PNCP",
+        obs="Preenchida apenas nos registros excluídos, menos de 2% do total",
         original="dataHoraExclusao",
     ),
 ]

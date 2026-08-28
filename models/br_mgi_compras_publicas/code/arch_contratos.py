@@ -352,6 +352,7 @@ CONTRATO = [
         "Data e hora da exclusão do contrato",
         en="Timestamp when the contract was deleted",
         es="Fecha y hora de la exclusión del contrato",
+        obs="Preenchida apenas nos registros excluídos, menos de 2% do total",
         original="dataHoraExclusao",
     ),
 ]
@@ -535,6 +536,7 @@ CONTRATO_ITEM = [
         "Data e hora da exclusão do item do contrato",
         en="Timestamp when the contract item was deleted",
         es="Fecha y hora de la exclusión del ítem del contrato",
+        obs="Preenchida apenas nos registros excluídos, menos de 2% do total",
         original="dataHoraExclusaoItem",
     ),
     c(
@@ -543,6 +545,7 @@ CONTRATO_ITEM = [
         "Data e hora da exclusão do contrato",
         en="Timestamp when the contract was deleted",
         es="Fecha y hora de la exclusión del contrato",
+        obs="Preenchida apenas nos registros excluídos, menos de 2% do total",
         original="dataHoraExclusaoContrato",
     ),
 ]

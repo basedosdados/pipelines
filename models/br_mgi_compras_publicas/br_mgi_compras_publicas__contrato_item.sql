@@ -82,16 +82,14 @@ qualify
             tipo_item,
             codigo_item,
             descricao_item,
-            quantidade_item,
-            valor_unitario_item,
-            valor_total_item,
-            valor_global,
+            cast(quantidade_item as string),
+            cast(valor_unitario_item as string),
+            cast(valor_total_item as string),
+            cast(valor_global as string),
             indicador_contrato_excluido,
             indicador_item_excluido,
             data_vigencia_inicial,
             data_vigencia_final,
-            data_hora_inclusao,
-            data_hora_exclusao_item,
             data_hora_exclusao_contrato
         order by data_hora_inclusao desc
     )

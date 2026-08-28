@@ -57,6 +57,8 @@ EMPTY_MARKERS = (
     "Integralmente vazia",
     "Preenchido para menos de",
     "Vazio para",
+    "apenas nos registros excluídos",
+    "apenas nas contratações sub-rogadas",
 )
 
 
@@ -124,8 +126,15 @@ def build_sql(table: str) -> str:
         # partition is tidier but destroys data, because BigQuery groups every
         # NULL into a single partition and several of these keys are nullable --
         # on ata items that would have discarded 15,907 legitimate records.
+        # BigQuery refuses to PARTITION BY a FLOAT64 expression, so monetary and
+        # quantity columns are compared as text. Equal values render equally, so
+        # the dedup is unaffected.
         partition_columns = [
-            c["name"] for c in columns if c["name"] not in spec.dedup_exclude
+            f"cast({c['name']} as string)"
+            if c["bigquery_type"] == "FLOAT64"
+            else c["name"]
+            for c in columns
+            if c["name"] not in spec.dedup_exclude
         ]
         joined = ",\n            ".join(partition_columns)
         sql += (
@@ -180,7 +189,8 @@ def build_schema_entry(table: str) -> str:
         )
     out.append("      - not_null_proportion_multiple_columns:")
     out.append("          at_least: 0.05")
-    ignore = sorted(set(sparse_columns(columns)) | set(spec.ignore_values))
+    sparse = set(sparse_columns(columns))
+    ignore = sorted(sparse | set(spec.ignore_values))
     if ignore:
         out.append(f"          ignore_values: [{', '.join(ignore)}]")
     if scoped:
@@ -199,12 +209,14 @@ def build_schema_entry(table: str) -> str:
             + _yaml_block(column["description"], "          ")
         )
         tests: list[str] = []
-        # A nullable key column cannot carry not_null. Where the source leaves
-        # the key blank the tolerance is non-zero, and the relaxed uniqueness
-        # test covers it instead.
-        if name == spec.partition or (
-            name in spec.key and not spec.unique_tolerance
-        ):
+        # A nullable key column cannot carry not_null. Two ways a key column is
+        # nullable here: the source leaves it blank for some rows, in which case
+        # the tolerance is non-zero and the relaxed uniqueness test covers it;
+        # or the column is one of a mutually exclusive pair, like fornecedor's
+        # cnpj and cpf, which the architecture already documents as empty for
+        # the other kind of record.
+        nullable_key = spec.unique_tolerance or name in sparse
+        if name == spec.partition or (name in spec.key and not nullable_key):
             tests.append("not_null")
         directory = column["directory_column"]
         # Relationships tests scan the whole model; on the multi-million-row

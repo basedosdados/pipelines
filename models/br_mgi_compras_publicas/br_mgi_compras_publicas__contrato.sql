@@ -89,16 +89,14 @@ qualify
             objeto,
             informacoes_complementares,
             unidades_requisitantes,
-            valor_global,
+            cast(valor_global as string),
             numero_parcelas,
-            valor_parcela,
-            valor_acumulado,
-            total_despesas_acessorias,
+            cast(valor_parcela as string),
+            cast(valor_acumulado as string),
+            cast(total_despesas_acessorias as string),
             indicador_contrato_excluido,
             data_vigencia_inicial,
-            data_vigencia_final,
-            data_hora_inclusao,
-            data_hora_exclusao
+            data_vigencia_final
         order by data_hora_inclusao desc
     )
     = 1

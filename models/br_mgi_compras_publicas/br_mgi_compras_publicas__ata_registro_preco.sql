@@ -61,7 +61,7 @@ qualify
             status_ata,
             objeto,
             quantidade_itens,
-            valor_total,
+            cast(valor_total as string),
             link_ata_pncp,
             link_compra_pncp,
             indicador_ata_excluida,

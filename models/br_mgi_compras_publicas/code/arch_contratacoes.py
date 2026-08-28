@@ -182,6 +182,7 @@ CONTRATACAO = [
         "Razão social do órgão sub-rogado",
         en="Corporate name of the subrogated body",
         es="Razón social del órgano subrogado",
+        obs="Preenchido apenas nas contratações sub-rogadas, cerca de 0,3% do total",
         original="orgaoSubrogadoRazaoSocial",
     ),
     c(
@@ -191,6 +192,7 @@ CONTRATACAO = [
         en="Federative sphere of the subrogated body",
         es="Esfera federativa del órgano subrogado",
         dic=True,
+        obs="Preenchido apenas nas contratações sub-rogadas, cerca de 0,3% do total",
         original="orgaoSubrogadoEsferaId",
     ),
     c(
@@ -200,6 +202,7 @@ CONTRATACAO = [
         en="Branch of government of the subrogated body",
         es="Poder del órgano subrogado",
         dic=True,
+        obs="Preenchido apenas nas contratações sub-rogadas, cerca de 0,3% do total",
         original="orgaoSubrogadoPoderId",
     ),
     c(
@@ -208,6 +211,7 @@ CONTRATACAO = [
         "Código da UASG sub-rogada",
         en="Code of the subrogated UASG",
         es="Código de la UASG subrogada",
+        obs="Preenchido apenas nas contratações sub-rogadas, cerca de 0,3% do total",
         original="unidadeSubrogadaCodigoUnidade",
     ),
     c(
@@ -216,6 +220,7 @@ CONTRATACAO = [
         "Nome da UASG sub-rogada",
         en="Name of the subrogated UASG",
         es="Nombre de la UASG subrogada",
+        obs="Preenchido apenas nas contratações sub-rogadas, cerca de 0,3% do total",
         original="unidadeSubrogadaNomeUnidade",
     ),
     c(
@@ -224,6 +229,7 @@ CONTRATACAO = [
         "Sigla da unidade da federação da UASG sub-rogada",
         en="Federative unit abbreviation of the subrogated UASG",
         es="Sigla de la unidad federativa de la UASG subrogada",
+        obs="Preenchido apenas nas contratações sub-rogadas, cerca de 0,3% do total",
         original="unidadeSubrogadaUfSigla",
     ),
     c(
@@ -232,6 +238,7 @@ CONTRATACAO = [
         "Código IBGE do município da UASG sub-rogada",
         en="IBGE municipality code of the subrogated UASG",
         es="Código IBGE del municipio de la UASG subrogada",
+        obs="Preenchido apenas nas contratações sub-rogadas, cerca de 0,3% do total",
         original="unidadeSubrogadaCodigoIbge",
     ),
     c(
@@ -240,6 +247,7 @@ CONTRATACAO = [
         "Nome do município da UASG sub-rogada",
         en="Municipality name of the subrogated UASG",
         es="Nombre del municipio de la UASG subrogada",
+        obs="Preenchido apenas nas contratações sub-rogadas, cerca de 0,3% do total",
         original="unidadeSubrogadaMunicipioNome",
     ),
     c(

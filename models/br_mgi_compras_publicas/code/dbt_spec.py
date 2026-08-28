@@ -53,6 +53,19 @@ TABLES: dict[str, DbtTable] = {
         key=["numero_controle_pncp"],
         year_range=R_14133,
         dedup_order="data_atualizacao_pncp",
+        # Subrogation -- another body taking the procurement over -- happens in
+        # 0.34% of contratacoes, so every subrogado column is empty for the rest.
+        ignore_values=[
+            "cnpj_orgao_subrogado",
+            "nome_orgao_subrogado",
+            "esfera_subrogado",
+            "poder_subrogado",
+            "codigo_unidade_subrogada",
+            "nome_unidade_subrogada",
+            "sigla_uf_subrogada",
+            "id_municipio_subrogada",
+            "nome_municipio_subrogada",
+        ],
         description=(
             "Contratações públicas realizadas sob a Lei 14.133/2021 e divulgadas no PNCP "
             "por meio do Compras.gov.br, de 2021 em diante. Uma linha por contratação, "
@@ -115,10 +128,22 @@ TABLES: dict[str, DbtTable] = {
     "contrato": DbtTable(
         dedup_order="data_hora_inclusao",
         key=["codigo_orgao", "codigo_unidade_gestora", "numero_contrato"],
+        dedup_exclude=["data_hora_inclusao", "data_hora_exclusao"],
+        # A unidade gestora reuses a contract number across procurements: 2.26%
+        # of keys repeat with differing content. Adding id_compra cuts that to
+        # 0.34% but leaves 4,285 rows with a null key, which is the worse trade.
+        unique_tolerance=0.03,
+        ignore_values=[
+            "codigo_subcategoria",
+            "subcategoria",
+            "data_hora_exclusao",
+        ],
         year_range=R_CONTRATO,
         description=(
             "Contratos administrativos registrados no SIASG, de 2010 em diante. Uma linha "
-            "por contrato, com vigência, fornecedor e valores"
+            "por contrato, com vigência, fornecedor e valores. Uma unidade gestora reutiliza "
+            "o número do contrato entre contratações, de modo que cerca de 2% das chaves se "
+            "repetem com conteúdo divergente, e o teste de unicidade admite essa proporção"
         ),
     ),
     "contrato_item": DbtTable(
@@ -129,6 +154,8 @@ TABLES: dict[str, DbtTable] = {
             "numero_contrato",
             "numero_item",
         ],
+        dedup_exclude=["data_hora_inclusao", "data_hora_exclusao_item"],
+        unique_tolerance=0.03,
         year_range=R_CONTRATO,
         description=(
             "Itens dos contratos administrativos registrados no SIASG. Uma linha por item "
@@ -176,6 +203,8 @@ TABLES: dict[str, DbtTable] = {
     "compra_sem_licitacao": DbtTable(
         dedup_order="data_alteracao",
         key=["id_compra"],
+        # 91 of 5.2M keys repeat with differing content, 0.002%.
+        unique_tolerance=0.001,
         year_range=R_LEGADO,
         description=(
             "Dispensas e inexigibilidades de licitação sob a Lei 8.666/1993, de 1997 a "

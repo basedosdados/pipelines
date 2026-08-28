@@ -195,13 +195,39 @@ def upload_table(table: str) -> None:
     print(f"[{table}] uploaded and verified: {actual:,} rows")
 
 
+def upload_with_retry(table: str, attempts: int = 4) -> None:
+    """Upload one table, retrying transient network failures.
+
+    Long uploads run for minutes and the underlying client does not retry: a
+    single `RemoteDisconnected` partway through a multi-table run aborted it and
+    left the remaining tables untouched. The upload itself is idempotent -- the
+    staging prefix and table are replaced -- so a retry is safe.
+    """
+    import time
+
+    from requests.exceptions import ConnectionError as RequestsConnectionError
+
+    for attempt in range(1, attempts + 1):
+        try:
+            upload_table(table)
+            return
+        except (RequestsConnectionError, OSError) as exc:
+            if attempt == attempts:
+                raise
+            wait = 10 * attempt
+            print(
+                f"[{table}] {type(exc).__name__} on attempt {attempt}; retrying in {wait}s"
+            )
+            time.sleep(wait)
+
+
 def main() -> int:
     tables = sys.argv[1:] or [t for t in TABLES if (output_dir() / t).exists()]
     unknown = [t for t in tables if t not in TABLES]
     if unknown:
         raise SystemExit(f"unknown tables: {unknown}")
     for table in tables:
-        upload_table(table)
+        upload_with_retry(table)
     print(
         f"\nuploaded {len(tables)} table(s) to {BILLING_PROJECT}.{DATASET_ID}_staging"
     )

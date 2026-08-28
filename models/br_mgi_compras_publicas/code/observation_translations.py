@@ -25,9 +25,12 @@ OBSERVATIONS: dict[str, tuple[str, str]] = {
         "The source publishes no IBGE municipality code, only the name, spelled inconsistently",
         "La fuente no publica el código IBGE del municipio, solo el nombre, con grafía inconsistente",
     ),
-    "A fonte publica o CPF parcialmente mascarado, no formato ***007562**": (
-        "The source publishes the taxpayer number partly masked, as ***007562**",
-        "La fuente publica el CPF parcialmente enmascarado, en el formato ***007562**",
+    "Vazio para fornecedores pessoa jurídica, que são identificados em cnpj. A fonte "
+    "publica o CPF parcialmente mascarado, no formato ***007562**": (
+        "Empty for corporate suppliers, who are identified in cnpj. The source publishes "
+        "the taxpayer number partly masked, as ***007562**",
+        "Vacío para proveedores persona jurídica, que se identifican en cnpj. La fuente "
+        "publica el CPF parcialmente enmascarado, en el formato ***007562**",
     ),
     "A fonte publica o CPF parcialmente mascarado, no formato ***308103**": (
         "The source publishes the taxpayer number partly masked, as ***308103**",
@@ -288,6 +291,14 @@ OBSERVATIONS: dict[str, tuple[str, str]] = {
     "PF pessoa física, PJ pessoa jurídica, PE pessoa estrangeira": (
         "PF individual, PJ legal entity, PE foreign person",
         "PF persona física, PJ persona jurídica, PE persona extranjera",
+    ),
+    "Preenchida apenas nos registros excluídos, menos de 2% do total": (
+        "Filled only for deleted records, under 2% of the total",
+        "Completada solo en los registros excluidos, menos del 2% del total",
+    ),
+    "Preenchido apenas nas contratações sub-rogadas, cerca de 0,3% do total": (
+        "Filled only for subrogated procurements, about 0.3% of the total",
+        "Completado solo en las contrataciones subrogadas, cerca del 0,3% del total",
     ),
     "Preenchido apenas quando o item é material": (
         "Filled only when the item is a material",

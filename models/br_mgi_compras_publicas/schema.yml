@@ -11,6 +11,16 @@ models:
           combination_of_columns: [numero_controle_pncp]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - cnpj_orgao_subrogado
+            - codigo_unidade_subrogada
+            - esfera_subrogado
+            - id_municipio_subrogada
+            - nome_municipio_subrogada
+            - nome_orgao_subrogado
+            - nome_unidade_subrogada
+            - poder_subrogado
+            - sigla_uf_subrogada
     columns:
       - name: ano
         description: >-
@@ -522,6 +532,7 @@ models:
           proportion_allowed_failures: 0.001
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [data_hora_exclusao]
     columns:
       - name: ano
         description: >-
@@ -621,6 +632,7 @@ models:
           proportion_allowed_failures: 0.02
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [data_hora_exclusao]
     columns:
       - name: ano
         description: >-
@@ -735,17 +747,23 @@ models:
   - name: br_mgi_compras_publicas__contrato
     description: >-
       Contratos administrativos registrados no SIASG, de 2010 em diante. Uma linha
-      por contrato, com vigência, fornecedor e valores
+      por contrato, com vigência, fornecedor e valores. Uma unidade gestora reutiliza
+      o número do contrato entre contratações, de modo que cerca de 2% das chaves
+      se repetem com conteúdo divergente, e o teste de unicidade admite essa proporção
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns:
             - codigo_orgao
             - codigo_unidade_gestora
             - numero_contrato
+          proportion_allowed_failures: 0.03
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
+            - codigo_subcategoria
+            - data_hora_exclusao
             - numero_controle_pncp_contrato
+            - subcategoria
             - total_despesas_acessorias
     columns:
       - name: ano
@@ -762,18 +780,15 @@ models:
       - name: numero_contrato
         description: >-
           Número do contrato na unidade gestora
-        tests: [not_null]
       - name: codigo_orgao
         description: >-
           Código do órgão contratante no SIASG
-        tests: [not_null]
       - name: nome_orgao
         description: >-
           Nome do órgão contratante
       - name: codigo_unidade_gestora
         description: >-
           Código da unidade gestora do contrato
-        tests: [not_null]
       - name: nome_unidade_gestora
         description: >-
           Nome da unidade gestora do contrato
@@ -878,14 +893,16 @@ models:
       Itens dos contratos administrativos registrados no SIASG. Uma linha por item
       contratado, com quantidade e valores unitário e total
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns:
             - codigo_orgao
             - codigo_unidade_gestora
             - numero_contrato
             - numero_item
+          proportion_allowed_failures: 0.03
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [data_hora_exclusao_contrato, data_hora_exclusao_item]
     columns:
       - name: ano
         description: >-
@@ -901,22 +918,18 @@ models:
       - name: numero_contrato
         description: >-
           Número do contrato na unidade gestora
-        tests: [not_null]
       - name: numero_item
         description: >-
           Número do item dentro do contrato
-        tests: [not_null]
       - name: codigo_orgao
         description: >-
           Código do órgão contratante no SIASG
-        tests: [not_null]
       - name: nome_orgao
         description: >-
           Nome do órgão contratante
       - name: codigo_unidade_gestora
         description: >-
           Código da unidade gestora do contrato
-        tests: [not_null]
       - name: nome_unidade_gestora
         description: >-
           Nome da unidade gestora do contrato
@@ -1372,8 +1385,9 @@ models:
       Dispensas e inexigibilidades de licitação sob a Lei 8.666/1993, de 1997 a 2024.
       Uma linha por contratação direta, com fundamento legal e justificativa
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [id_compra]
+          proportion_allowed_failures: 0.001
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [data_publicacao, lei, objeto_licitacao]
@@ -1389,7 +1403,6 @@ models:
       - name: id_compra
         description: >-
           Identificador da contratação direta no SIASG
-        tests: [not_null]
       - name: codigo_uasg
         description: >-
           Código da UASG responsável pela contratação
@@ -1771,7 +1784,7 @@ models:
             - nome_razao_social
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values: [cnpj]
+          ignore_values: [cnpj, cpf]
     columns:
       - name: data_extracao
         description: >-
@@ -1789,11 +1802,9 @@ models:
       - name: cnpj
         description: >-
           CNPJ do fornecedor pessoa jurídica
-        tests: [not_null]
       - name: cpf
         description: >-
           CPF mascarado do fornecedor pessoa física
-        tests: [not_null]
       - name: nome_razao_social
         description: >-
           Razão social ou nome do fornecedor

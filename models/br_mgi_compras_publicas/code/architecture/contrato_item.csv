@@ -33,5 +33,5 @@ indicador_item_excluido,BOOLEAN,Indica se o item do contrato foi excluído,,no,,
 data_vigencia_inicial,DATE,Data de início da vigência do contrato,,no,,,no,,dataVigenciaInicial,Start date of the contract's validity,Fecha de inicio de la vigencia del contrato
 data_vigencia_final,DATE,Data de término da vigência do contrato,,no,,,no,,dataVigenciaFinal,End date of the contract's validity,Fecha de término de la vigencia del contrato
 data_hora_inclusao,DATETIME,Data e hora de inclusão do item no sistema,,no,,,no,,dataHoraInclusao,Timestamp when the item was added to the system,Fecha y hora de inclusión del ítem en el sistema
-data_hora_exclusao_item,DATETIME,Data e hora da exclusão do item do contrato,,no,,,no,,dataHoraExclusaoItem,Timestamp when the contract item was deleted,Fecha y hora de la exclusión del ítem del contrato
-data_hora_exclusao_contrato,DATETIME,Data e hora da exclusão do contrato,,no,,,no,,dataHoraExclusaoContrato,Timestamp when the contract was deleted,Fecha y hora de la exclusión del contrato
+data_hora_exclusao_item,DATETIME,Data e hora da exclusão do item do contrato,,no,,,no,"Preenchida apenas nos registros excluídos, menos de 2% do total",dataHoraExclusaoItem,Timestamp when the contract item was deleted,Fecha y hora de la exclusión del ítem del contrato
+data_hora_exclusao_contrato,DATETIME,Data e hora da exclusão do contrato,,no,,,no,"Preenchida apenas nos registros excluídos, menos de 2% do total",dataHoraExclusaoContrato,Timestamp when the contract was deleted,Fecha y hora de la exclusión del contrato

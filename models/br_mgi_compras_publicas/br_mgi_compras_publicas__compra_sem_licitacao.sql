@@ -65,7 +65,7 @@ qualify
             nome_uasg,
             codigo_orgao_superior,
             lei,
-            valor_estimado,
+            cast(valor_estimado as string),
             indicador_pertence_14133,
             data_declaracao_dispensa,
             data_ratificacao,

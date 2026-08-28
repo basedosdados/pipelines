@@ -376,7 +376,8 @@ FORNECEDOR = [
         en="Masked taxpayer number (CPF) of the individual supplier",
         es="CPF enmascarado del proveedor persona física",
         sensitive=True,
-        obs="A fonte publica o CPF parcialmente mascarado, no formato ***007562**",
+        obs="Vazio para fornecedores pessoa jurídica, que são identificados em cnpj. "
+        "A fonte publica o CPF parcialmente mascarado, no formato ***007562**",
         original="cpf",
     ),
     c(

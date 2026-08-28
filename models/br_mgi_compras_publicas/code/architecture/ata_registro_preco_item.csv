@@ -33,4 +33,4 @@ data_vigencia_inicial,DATE,Data de início da vigência da ata,,no,,,no,,dataVig
 data_vigencia_final,DATE,Data de término da vigência da ata,,no,,,no,,dataVigenciaFinal,End date of the price record's validity,Fecha de término de la vigencia del acta
 data_hora_inclusao,DATETIME,Data e hora de inclusão do item no PNCP,,no,,,no,,dataHoraInclusao,Timestamp when the item was added to PNCP,Fecha y hora de inclusión del ítem en el PNCP
 data_hora_atualizacao,DATETIME,Data e hora da última atualização do item no PNCP,,no,,,no,,dataHoraAtualizacao,Timestamp of the last update to the item on PNCP,Fecha y hora de la última actualización del ítem en el PNCP
-data_hora_exclusao,DATETIME,Data e hora da exclusão do item do PNCP,,no,,,no,,dataHoraExclusao,Timestamp when the item was deleted from PNCP,Fecha y hora de la exclusión del ítem del PNCP
+data_hora_exclusao,DATETIME,Data e hora da exclusão do item do PNCP,,no,,,no,"Preenchida apenas nos registros excluídos, menos de 2% do total",dataHoraExclusao,Timestamp when the item was deleted from PNCP,Fecha y hora de la exclusión del ítem del PNCP
