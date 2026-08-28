@@ -244,6 +244,20 @@ OBSERVATIONS = {
             "laguna del propio directorio, y no una invención de Météo-France."
         ),
     },
+    ("indice_uv_maximal", None): {
+        "pt": (
+            "Índice UV da OMS, adimensional por construção, e por isso a única coluna "
+            "numérica da tabela sem unidade de medida."
+        ),
+        "en": (
+            "WHO UV index, dimensionless by construction, and therefore the only numeric "
+            "column in the table without a measurement unit."
+        ),
+        "es": (
+            "Índice UV de la OMS, adimensional por construcción, y por eso la única columna "
+            "numérica de la tabla sin unidad de medida."
+        ),
+    },
     # The two series start in different centuries, so the note is per table.
     ("annee", "quotidienne"): {
         "pt": (

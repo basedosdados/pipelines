@@ -75,7 +75,7 @@ rayonnement_infrarouge,FLOAT64,Soma das radiações infravermelhas horárias,,no
 qualite_rayonnement_infrarouge,STRING,Código de qualidade de rayonnement_infrarouge,,yes,,,no,,QINFRART
 rayonnement_ultraviolet,FLOAT64,Acumulado diário de radiação ultravioleta,,no,,joule_per_square_centimeter,no,,UV
 qualite_rayonnement_ultraviolet,STRING,Código de qualidade de rayonnement_ultraviolet,,yes,,,no,,QUV
-indice_uv_maximal,FLOAT64,Máximo dos índices UV horários,,no,,,no,,UV_INDICEX
+indice_uv_maximal,FLOAT64,Máximo dos índices UV horários,,no,,,no,"Índice UV da OMS, adimensional por construção, e por isso a única coluna numérica da tabela sem unidade de medida.",UV_INDICEX
 qualite_indice_uv_maximal,STRING,Código de qualidade de indice_uv_maximal,,yes,,,no,,QUV_INDICEX
 fraction_insolation,FLOAT64,Fração de insolação em relação à duração do dia,,no,,percent,no,,SIGMA
 qualite_fraction_insolation,STRING,Código de qualidade de fraction_insolation,,yes,,,no,,QSIGMA

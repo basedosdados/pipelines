@@ -124,7 +124,7 @@ nombre_valeurs_vitesse_vent_moyenne_10m,INT64,Número de valores diários presen
 duree_insolation_totale,FLOAT64,Soma mensal das durações diárias de insolação,,no,,minute,no,,INST
 qualite_duree_insolation_totale,STRING,Código de qualidade de duree_insolation_totale,,yes,,,no,,QINST
 nombre_valeurs_duree_insolation,INT64,Número de valores diários presentes de duree_insolation no mês,,no,,day,no,,NBINST
-nombre_jours_sigma0,INT64,Número de dias no mês com SIGMA = 0% (SIGMA est la fraction d'insolation par rapport à la durée du jour),,no,,day,no,,NBSIGMA0
+nombre_jours_sigma0,INT64,"Número de dias no mês com SIGMA = 0%, sendo SIGMA a fração de insolação em relação à duração do dia",,no,,day,no,,NBSIGMA0
 nombre_jours_sigma20,INT64,Número de dias no mês com SIGMA ≤ 20%,,no,,day,no,,NBSIGMA20
 nombre_jours_sigma80,INT64,Número de dias no mês com SIGMA ≥ 80%,,no,,day,no,,NBSIGMA80
 rayonnement_global_total,FLOAT64,Soma mensal da radiação global diária,,no,,joule_per_square_centimeter,no,,GLOT

@@ -870,8 +870,37 @@ RE_NBJOURS = re.compile(r"^nombre de jours?\b", re.I)
 # The formula ones ("RR >= 1.0 mm") are the source's parameter code and read the
 # same in any language; these would otherwise leave raw French inside the
 # Portuguese, English and Spanish descriptions.
+def _needs_translation(condition):
+    """True when a day-count condition contains prose rather than a comparison."""
+    words = re.findall(r"[A-Za-zÀ-ÿ]{3,}", condition)
+    return any(w.lower() not in _SYMBOLIC for w in words)
+
+
+# Tokens that carry no language: parameter names and unit spellings.
+_SYMBOLIC = {
+    "sigma",
+    "rrs",
+    "neigetot",
+    "hneigef",
+    "fxi",
+    "fxy",
+    "tms",
+    "tni",
+    "tns",
+    "txi",
+    "txs",
+    "mmm",
+    "cms",
+}
+
 NBJ_CONDITIONS = {
     "nombre_jours_gelee": ("geada branca", "hoar frost", "escarcha"),
+    "nombre_jours_sigma0": (
+        "SIGMA = 0%, sendo SIGMA a fração de insolação em relação à duração do dia",
+        "SIGMA = 0%, where SIGMA is the sunshine fraction relative to day length",
+        "SIGMA = 0%, siendo SIGMA la fracción de insolación respecto a la duración "
+        "del día",
+    ),
     "nombre_jours_tms24": (
         "temperatura média diária ≥ 24°C",
         "daily mean temperature ≥ 24°C",
@@ -1046,7 +1075,19 @@ def _expand_body(cols, params, flags, descriptors, assigned):
         if RE_NBJOURS.match(fr):
             target = f"nombre_jours_{slug(col.removeprefix('NBJ').removeprefix('NB'))}"
             raw = _condition(fr)
-            pt, en, es = NBJ_CONDITIONS.get(target, (raw, raw, raw))
+            if target in NBJ_CONDITIONS:
+                pt, en, es = NBJ_CONDITIONS[target]
+            else:
+                # A condition that is a bare comparison ("TX >= 30°C") needs no
+                # translation. Anything with prose words does, and falling back
+                # would ship the French into all three languages -- so refuse.
+                if _needs_translation(raw):
+                    raise ValueError(
+                        f"{col} -> {target}: prose condition {raw!r} has no "
+                        "NBJ_CONDITIONS entry; add one rather than shipping the "
+                        "French in every language."
+                    )
+                pt = en = es = raw
             out.append(
                 (
                     target,

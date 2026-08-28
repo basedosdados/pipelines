@@ -727,7 +727,10 @@
       "description_en": "Maximum of the hourly UV indices",
       "description_es": "Máximo de los índices UV horarios",
       "covered_by_dictionary": false,
-      "is_partition": false
+      "is_partition": false,
+      "observations_pt": "Índice UV da OMS, adimensional por construção, e por isso a única coluna numérica da tabela sem unidade de medida.",
+      "observations_en": "WHO UV index, dimensionless by construction, and therefore the only numeric column in the table without a measurement unit.",
+      "observations_es": "Índice UV de la OMS, adimensional por construcción, y por eso la única columna numérica de la tabla sin unidad de medida."
     },
     {
       "name": "qualite_indice_uv_maximal",
@@ -2523,9 +2526,9 @@
     {
       "name": "nombre_jours_sigma0",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com SIGMA = 0% (SIGMA est la fraction d'insolation par rapport à la durée du jour)",
-      "description_en": "Number of days in the month with SIGMA = 0% (SIGMA est la fraction d'insolation par rapport à la durée du jour)",
-      "description_es": "Número de días en el mes con SIGMA = 0% (SIGMA est la fraction d'insolation par rapport à la durée du jour)",
+      "description_pt": "Número de dias no mês com SIGMA = 0%, sendo SIGMA a fração de insolação em relação à duração do dia",
+      "description_en": "Number of days in the month with SIGMA = 0%, where SIGMA is the sunshine fraction relative to day length",
+      "description_es": "Número de días en el mes con SIGMA = 0%, siendo SIGMA la fracción de insolación respecto a la duración del día",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
