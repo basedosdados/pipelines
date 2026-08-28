@@ -467,3 +467,555 @@ QUOT_DROP = {
 # Station attributes lifted out of the fact tables into `poste`.
 STATION_COLS = ["NOM_USUEL", "LAT", "LON", "ALTI"]
 KEY_COLS = ["NUM_POSTE"]
+
+
+# Monthly base parameters. `AB` = absolute extreme over the month, `_ME` =
+# estimated, `M` on the tail = monthly mean. Units are the source's own.
+MENS_PARAMS = {
+    "RR": (
+        "precipitation_totale",
+        "FLOAT64",
+        "millimeter",
+        "Precipitação acumulada no mês",
+        "Precipitation accumulated over the month",
+        "Precipitación acumulada en el mes",
+    ),
+    "RR_ME": (
+        "precipitation_totale_estimee",
+        "FLOAT64",
+        "millimeter",
+        "Precipitação acumulada no mês, estimada",
+        "Estimated precipitation accumulated over the month",
+        "Precipitación acumulada en el mes, estimada",
+    ),
+    "RRAB": (
+        "precipitation_quotidienne_maximale",
+        "FLOAT64",
+        "millimeter",
+        "Precipitação máxima caída em 24 horas no mês",
+        "Maximum precipitation fallen in 24 hours during the month",
+        "Precipitación máxima caída en 24 horas en el mes",
+    ),
+    "PMERM": (
+        "pression_mer_moyenne",
+        "FLOAT64",
+        "hectopascal",
+        "Média mensal das pressões diárias médias reduzidas ao nível do mar",
+        "Monthly mean of the daily mean pressures reduced to mean sea level",
+        "Media mensual de las presiones diarias medias reducidas al nivel del mar",
+    ),
+    "PMERMINAB": (
+        "pression_mer_minimale_absolue",
+        "FLOAT64",
+        "hectopascal",
+        "Mínimo absoluto mensal das pressões diárias médias reduzidas ao nível do mar",
+        "Monthly absolute minimum of the daily mean pressures reduced to mean sea level",
+        "Mínimo absoluto mensual de las presiones diarias medias reducidas al nivel del mar",
+    ),
+    "TX": (
+        "temperature_maximale_moyenne",
+        "FLOAT64",
+        "celsius_degree",
+        "Média mensal das temperaturas máximas diárias",
+        "Monthly mean of the daily maximum temperatures",
+        "Media mensual de las temperaturas máximas diarias",
+    ),
+    "TX_ME": (
+        "temperature_maximale_moyenne_estimee",
+        "FLOAT64",
+        "celsius_degree",
+        "Média mensal estimada das temperaturas máximas diárias",
+        "Estimated monthly mean of the daily maximum temperatures",
+        "Media mensual estimada de las temperaturas máximas diarias",
+    ),
+    "TXAB": (
+        "temperature_maximale_absolue",
+        "FLOAT64",
+        "celsius_degree",
+        "Máximo absoluto mensal das temperaturas máximas diárias",
+        "Monthly absolute maximum of the daily maximum temperatures",
+        "Máximo absoluto mensual de las temperaturas máximas diarias",
+    ),
+    "TXMIN": (
+        "temperature_maximale_la_plus_basse",
+        "FLOAT64",
+        "celsius_degree",
+        "Mínimo mensal das temperaturas máximas diárias",
+        "Monthly minimum of the daily maximum temperatures",
+        "Mínimo mensual de las temperaturas máximas diarias",
+    ),
+    "TN": (
+        "temperature_minimale_moyenne",
+        "FLOAT64",
+        "celsius_degree",
+        "Média mensal das temperaturas mínimas diárias",
+        "Monthly mean of the daily minimum temperatures",
+        "Media mensual de las temperaturas mínimas diarias",
+    ),
+    "TN_ME": (
+        "temperature_minimale_moyenne_estimee",
+        "FLOAT64",
+        "celsius_degree",
+        "Média mensal estimada das temperaturas mínimas diárias",
+        "Estimated monthly mean of the daily minimum temperatures",
+        "Media mensual estimada de las temperaturas mínimas diarias",
+    ),
+    "TNAB": (
+        "temperature_minimale_absolue",
+        "FLOAT64",
+        "celsius_degree",
+        "Mínimo absoluto mensal das temperaturas mínimas diárias",
+        "Monthly absolute minimum of the daily minimum temperatures",
+        "Mínimo absoluto mensual de las temperaturas mínimas diarias",
+    ),
+    "TNMAX": (
+        "temperature_minimale_la_plus_haute",
+        "FLOAT64",
+        "celsius_degree",
+        "Máximo mensal das temperaturas mínimas diárias",
+        "Monthly maximum of the daily minimum temperatures",
+        "Máximo mensual de las temperaturas mínimas diarias",
+    ),
+    "TAMPLIM": (
+        "amplitude_thermique_moyenne",
+        "FLOAT64",
+        "celsius_degree",
+        "Média mensal das amplitudes térmicas diárias",
+        "Monthly mean of the daily temperature ranges",
+        "Media mensual de las amplitudes térmicas diarias",
+    ),
+    "TAMPLIAB": (
+        "amplitude_thermique_absolue",
+        "FLOAT64",
+        "celsius_degree",
+        "Máximo absoluto mensal das amplitudes térmicas diárias",
+        "Monthly absolute maximum of the daily temperature ranges",
+        "Máximo absoluto mensual de las amplitudes térmicas diarias",
+    ),
+    "TM": (
+        "temperature_moyenne_min_max",
+        "FLOAT64",
+        "celsius_degree",
+        "Média mensal das médias diárias entre a temperatura mínima e a máxima",
+        "Monthly mean of the daily means of the minimum and maximum temperature",
+        "Media mensual de las medias diarias entre la temperatura mínima y la máxima",
+    ),
+    "TMM": (
+        "temperature_moyenne",
+        "FLOAT64",
+        "celsius_degree",
+        "Média mensal das temperaturas médias diárias",
+        "Monthly mean of the daily mean temperatures",
+        "Media mensual de las temperaturas medias diarias",
+    ),
+    "TMMIN": (
+        "temperature_moyenne_min_max_minimale",
+        "FLOAT64",
+        "celsius_degree",
+        "Mínimo mensal das médias diárias entre a temperatura mínima e a máxima",
+        "Monthly minimum of the daily means of the minimum and maximum temperature",
+        "Mínimo mensual de las medias diarias entre la temperatura mínima y la máxima",
+    ),
+    "TMMAX": (
+        "temperature_moyenne_min_max_maximale",
+        "FLOAT64",
+        "celsius_degree",
+        "Máximo mensal das médias diárias entre a temperatura mínima e a máxima",
+        "Monthly maximum of the daily means of the minimum and maximum temperature",
+        "Máximo mensual de las medias diarias entre la temperatura mínima y la máxima",
+    ),
+    "UNAB": (
+        "humidite_minimale_absolue",
+        "FLOAT64",
+        "percent",
+        "Mínimo absoluto mensal das umidades relativas mínimas diárias",
+        "Monthly absolute minimum of the daily minimum relative humidities",
+        "Mínimo absoluto mensual de las humedades relativas mínimas diarias",
+    ),
+    "UXAB": (
+        "humidite_maximale_absolue",
+        "FLOAT64",
+        "percent",
+        "Máximo absoluto mensal das umidades relativas máximas diárias",
+        "Monthly absolute maximum of the daily maximum relative humidities",
+        "Máximo absoluto mensual de las humedades relativas máximas diarias",
+    ),
+    "UMM": (
+        "humidite_moyenne",
+        "FLOAT64",
+        "percent",
+        "Média mensal das umidades relativas médias diárias",
+        "Monthly mean of the daily mean relative humidities",
+        "Media mensual de las humedades relativas medias diarias",
+    ),
+    "TSVM": (
+        "tension_vapeur_moyenne",
+        "FLOAT64",
+        "hectopascal",
+        "Média mensal da tensão de vapor",
+        "Monthly mean vapour pressure",
+        "Media mensual de la tensión de vapor",
+    ),
+    "ETP": (
+        "evapotranspiration_totale",
+        "FLOAT64",
+        "millimeter",
+        "Soma das evapotranspirações potenciais decendiais de Penman-Monteith",
+        "Sum of the ten-day Penman-Monteith potential evapotranspiration values",
+        "Suma de las evapotranspiraciones potenciales decenales de Penman-Monteith",
+    ),
+    "FXIAB": (
+        "rafale_maximale_absolue_10m",
+        "FLOAT64",
+        "meter / second",
+        "Máximo absoluto mensal da rajada máxima diária do vento instantâneo, a 10 m do solo",
+        "Monthly absolute maximum of the daily maximum instantaneous wind gust, at 10 m",
+        "Máximo absoluto mensual de la racha máxima diaria del viento instantáneo, a 10 m",
+    ),
+    "DXIAB": (
+        "direction_rafale_maximale_absolue_10m",
+        "INT64",
+        "degree",
+        "Direção da rajada registrada em rafale_maximale_absolue_10m, na rosa de 360 graus",
+        "Direction of the gust recorded in rafale_maximale_absolue_10m, on the 360-degree rose",
+        "Dirección de la racha registrada en rafale_maximale_absolue_10m, en la rosa de 360 grados",
+    ),
+    "FXI3SAB": (
+        "rafale_maximale_3s_absolue_10m",
+        "FLOAT64",
+        "meter / second",
+        "Máximo absoluto mensal da rajada máxima diária do vento medida em 3 segundos, a 10 m do solo",
+        "Monthly absolute maximum of the daily maximum 3-second mean wind gust, at 10 m",
+        "Máximo absoluto mensual de la racha máxima diaria del viento medida en 3 segundos, a 10 m",
+    ),
+    "DXI3SAB": (
+        "direction_rafale_maximale_3s_absolue_10m",
+        "INT64",
+        "degree",
+        "Direção da rajada registrada em rafale_maximale_3s_absolue_10m, na rosa de 360 graus",
+        "Direction of the gust recorded in rafale_maximale_3s_absolue_10m, on the 360-degree rose",
+        "Dirección de la racha registrada en rafale_maximale_3s_absolue_10m, en la rosa de 360 grados",
+    ),
+    "FXYAB": (
+        "vitesse_vent_maximale_moyennee_absolue_10m",
+        "FLOAT64",
+        "meter / second",
+        "Máximo absoluto mensal da velocidade máxima diária do vento medida em 10 minutos, a 10 m do solo",
+        "Monthly absolute maximum of the daily maximum 10-minute mean wind speed, at 10 m",
+        "Máximo absoluto mensual de la velocidad máxima diaria del viento medida en 10 minutos, a 10 m",
+    ),
+    "DXYAB": (
+        "direction_vent_maximal_moyenne_absolue_10m",
+        "INT64",
+        "degree",
+        "Direção do vento registrado em vitesse_vent_maximale_moyennee_absolue_10m, na rosa de 360 graus",
+        "Direction of the wind recorded in vitesse_vent_maximale_moyennee_absolue_10m, on the 360-degree rose",
+        "Dirección del viento registrado en vitesse_vent_maximale_moyennee_absolue_10m, en la rosa de 360 grados",
+    ),
+    "FFM": (
+        "vitesse_vent_moyenne_10m",
+        "FLOAT64",
+        "meter / second",
+        "Média mensal da velocidade média diária do vento medida em 10 minutos, a 10 m do solo",
+        "Monthly mean of the daily mean 10-minute mean wind speed, at 10 m",
+        "Media mensual de la velocidad media diaria del viento medida en 10 minutos, a 10 m",
+    ),
+    "INST": (
+        "duree_insolation_totale",
+        "FLOAT64",
+        "minute",
+        "Soma mensal das durações diárias de insolação",
+        "Monthly sum of the daily sunshine durations",
+        "Suma mensual de las duraciones diarias de insolación",
+    ),
+    "GLOT": (
+        "rayonnement_global_total",
+        "FLOAT64",
+        "joule_per_square_centimeter",
+        "Soma mensal da radiação global diária",
+        "Monthly sum of the daily global radiation",
+        "Suma mensual de la radiación global diaria",
+    ),
+    "DIFT": (
+        "rayonnement_diffus_total",
+        "FLOAT64",
+        "joule_per_square_centimeter",
+        "Soma mensal da radiação difusa diária",
+        "Monthly sum of the daily diffuse radiation",
+        "Suma mensual de la radiación difusa diaria",
+    ),
+    "DIRT": (
+        "rayonnement_direct_total",
+        "FLOAT64",
+        "joule_per_square_centimeter",
+        "Soma mensal da radiação direta diária",
+        "Monthly sum of the daily direct radiation",
+        "Suma mensual de la radiación directa diaria",
+    ),
+    "HNEIGEFTOT": (
+        "hauteur_neige_fraiche_totale",
+        "FLOAT64",
+        "centimeter",
+        "Soma mensal da altura de neve fresca caída em 24 horas",
+        "Monthly sum of the depth of fresh snow fallen over 24 hours",
+        "Suma mensual de la altura de nieve fresca caída en 24 horas",
+    ),
+    "HNEIGEFAB": (
+        "hauteur_neige_fraiche_maximale",
+        "FLOAT64",
+        "centimeter",
+        "Máximo absoluto mensal da altura de neve fresca caída em 24 horas",
+        "Monthly absolute maximum of the depth of fresh snow fallen over 24 hours",
+        "Máximo absoluto mensual de la altura de nieve fresca caída en 24 horas",
+    ),
+    "NEIGETOTM": (
+        "hauteur_neige_moyenne",
+        "FLOAT64",
+        "centimeter",
+        "Média mensal da espessura total de neve medida diariamente às 06h UTC",
+        "Monthly mean of the total snow depth measured daily at 06:00 UTC",
+        "Media mensual del espesor total de nieve medido diariamente a las 06h UTC",
+    ),
+    "NEIGETOTAB": (
+        "hauteur_neige_maximale",
+        "FLOAT64",
+        "centimeter",
+        "Máximo absoluto mensal da espessura máxima diária de neve",
+        "Monthly absolute maximum of the daily maximum snow depth",
+        "Máximo absoluto mensual del espesor máximo diario de nieve",
+    ),
+}
+
+
+# --- family expansion -------------------------------------------------------
+# Météo-France's own descriptors carry a French sentence for every column. The
+# four families below are mechanical, so their trilingual descriptions are
+# templated from the base parameter they qualify rather than hand-written; only
+# the ~99 base parameters above are authored by hand.
+
+import json  # noqa: E402
+import re  # noqa: E402
+import unicodedata  # noqa: E402
+
+DESCRIPTORS = "/tmp/mf_descriptors.json"
+
+
+def slug(text: str) -> str:
+    t = (
+        text.lower()
+        .replace("≥", " sup ")
+        .replace("≤", " inf ")
+        .replace("°c", "c")
+    )
+    t = unicodedata.normalize("NFKD", t).encode("ascii", "ignore").decode()
+    t = re.sub(r"[^a-z0-9]+", "_", t).strip("_")
+    return re.sub(r"_+", "_", t)
+
+
+def _condition(french: str) -> str:
+    """``nombre de jours avec RR ≥ 1.0 mm`` -> ``RR ≥ 1.0 mm``."""
+    m = re.search(r"nombre de jours? (?:avec |de )?(.*)", french, re.I)
+    return (m.group(1) if m else french).strip()
+
+
+# Columns whose French description does not name a single parameter, so the
+# family regexes cannot resolve them.
+OVERRIDES = {
+    # "nombre de valeurs présentes de hauteur de précipitation quotidienne" —
+    # prose rather than a parameter token, so the family regex cannot match it.
+    "NBRR": (
+        "nombre_valeurs_precipitation",
+        "INT64",
+        "day",
+        "Número de valores diários presentes de precipitação no mês",
+        "Number of daily precipitation values present in the month",
+        "Número de valores diarios presentes de precipitación en el mes",
+    ),
+    # "nombre de valeurs présentes du couple (TN, TX) quotidien" — the count of
+    # days on which BOTH the daily minimum and maximum are present, which is
+    # what temperature_moyenne_min_max is computed from.
+    "NBTM": (
+        "nombre_valeurs_temperature_moyenne_min_max",
+        "INT64",
+        "day",
+        "Número de dias no mês em que a temperatura mínima e a máxima estão ambas presentes",
+        "Number of days in the month on which both the minimum and the maximum temperature are present",
+        "Número de días en el mes en que la temperatura mínima y la máxima están ambas presentes",
+    ),
+}
+
+
+def _ref(name, known):
+    """Target name for a referenced source parameter, whichever table defines it."""
+    if name in known:
+        return known[name][0]
+    if name in QUOT_PARAMS:
+        return QUOT_PARAMS[name][0]
+    if name in MENS_PARAMS:
+        return MENS_PARAMS[name][0]
+    if name in QUOT_FLAGS:
+        return QUOT_FLAGS[name][0]
+    return slug(name)
+
+
+RE_HEURE = re.compile(r"^heure de ([A-Z0-9_]+)", re.I)
+RE_NBVAL = re.compile(
+    r"nombre de valeurs pr.sentes (?:de|du) ([A-Z][A-Z0-9_]*) quotidien"
+)
+RE_JOUR = re.compile(r"^jour du ([A-Z][A-Z0-9_]*)")
+RE_NBJOURS = re.compile(r"^nombre de jours?\b", re.I)
+
+
+def _ref_daily(name, known):
+    """Like :func:`_ref`, but the daily table wins — for the NB* counts."""
+    if name in QUOT_PARAMS:
+        return QUOT_PARAMS[name][0]
+    return _ref(name, known)
+
+
+def expand(cols, params, flags, descriptors):
+    """Yield one schema row per source column, in source order.
+
+    Family membership is decided from Météo-France's own French description
+    rather than from the column name. Name-munging is not enough: ``HXY`` is
+    "heure de FXY" and ``NBUM`` is "nombre de valeurs présentes de UM
+    quotidienne", so the referenced parameter is spelled differently from the
+    prefix-stripped column.
+
+    Returns tuples of
+    ``(target, bigquery_type, unit, covered_by_dictionary, pt, en, es, original)``.
+    """
+    known = dict(params)
+    out = []
+    for col in cols:
+        if col in QUOT_DROP or col in STATION_COLS or col in KEY_COLS:
+            continue
+        if col in ("AAAAMMJJ", "AAAAMM"):
+            continue
+        fr = descriptors.get(col, "")
+
+        if col in known:
+            tgt, typ, unit, pt, en, es = known[col]
+            out.append((tgt, typ, unit, False, pt, en, es, col))
+            continue
+        if col in flags:
+            tgt, pt_w, en_w, es_w = flags[col]
+            out.append(
+                (
+                    tgt,
+                    "STRING",
+                    "",
+                    True,
+                    f"Ocorrência de {pt_w} no dia, codificada como 0 ou 1",
+                    f"Occurrence of {en_w} on the day, coded 0 or 1",
+                    f"Ocurrencia de {es_w} en el día, codificada como 0 o 1",
+                    col,
+                )
+            )
+            continue
+        if col.startswith("Q") and col[1:] in cols:
+            ref = _ref(col[1:], known)
+            out.append(
+                (
+                    f"qualite_{ref}",
+                    "STRING",
+                    "",
+                    True,
+                    f"Código de qualidade de {ref}",
+                    f"Quality code of {ref}",
+                    f"Código de calidad de {ref}",
+                    col,
+                )
+            )
+            continue
+
+        m = RE_HEURE.match(fr)
+        if m:
+            ref = _ref(m.group(1), known)
+            out.append(
+                (
+                    f"heure_{ref}",
+                    "STRING",
+                    "",
+                    False,
+                    f"Hora em que {ref} foi observado, no formato hhmm publicado pela fonte",
+                    f"Time at which {ref} was observed, in the hhmm form the source publishes",
+                    f"Hora en que se observó {ref}, en el formato hhmm publicado por la fuente",
+                    col,
+                )
+            )
+            continue
+
+        m = RE_NBVAL.search(fr)
+        if m:
+            # These count DAILY values present in the month ("de TX
+            # quotidienne"), so the reference resolves against the daily
+            # parameter table first. Resolving against the monthly table would
+            # name NBTX after the monthly mean rather than the daily maximum.
+            ref = _ref_daily(m.group(1), known)
+            out.append(
+                (
+                    f"nombre_valeurs_{ref}",
+                    "INT64",
+                    "day",
+                    False,
+                    f"Número de valores diários presentes de {ref} no mês",
+                    f"Number of daily {ref} values present in the month",
+                    f"Número de valores diarios presentes de {ref} en el mes",
+                    col,
+                )
+            )
+            continue
+
+        if RE_NBJOURS.match(fr):
+            cond = _condition(fr)
+            out.append(
+                (
+                    f"nombre_jours_{slug(col.removeprefix('NBJ').removeprefix('NB'))}",
+                    "INT64",
+                    "day",
+                    False,
+                    f"Número de dias no mês com {cond}",
+                    f"Number of days in the month with {cond}",
+                    f"Número de días en el mes con {cond}",
+                    col,
+                )
+            )
+            continue
+
+        m = RE_JOUR.match(fr)
+        if m or col.endswith("DAT"):
+            base = m.group(1) if m else col[:-3]
+            ref = _ref(
+                base if base in known else base.removesuffix("AB"), known
+            )
+            out.append(
+                (
+                    f"jour_{ref}",
+                    "INT64",
+                    "day",
+                    False,
+                    f"Dia do mês em que {ref} foi observado",
+                    f"Day of the month on which {ref} was observed",
+                    f"Día del mes en que se observó {ref}",
+                    col,
+                )
+            )
+            continue
+
+        if col in OVERRIDES:
+            tgt, typ, unit, pt, en, es = OVERRIDES[col]
+            out.append((tgt, typ, unit, False, pt, en, es, col))
+            continue
+
+        out.append((slug(col), "STRING", "", False, fr, fr, fr, col))
+    return out
+
+
+def descriptors():
+    with open(DESCRIPTORS, encoding="utf-8") as fh:
+        d = json.load(fh)
+    merged = {}
+    for v in d.values():
+        merged.update(v)
+    return merged
