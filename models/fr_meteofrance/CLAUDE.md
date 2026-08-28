@@ -188,11 +188,35 @@ span ~175 years, so partitioning staging by year emits tens of thousands of tiny
 staging anyway. Keeping the source's own dept × period unit also makes the incremental
 refresh natural: Météo-France only rewrites the `latest-<years>` files.
 
+### Refreshing only the slice that moves
+
+The archive ships per département in three period slices — `avant-1949`,
+`previous-1950-2024` and `latest-<years>` — and **only the last one is rewritten**
+as observations land. `fr_meteofrance_climatologie_base_flow` therefore re-cleans
+and re-uploads `latest-*` alone: staging objects are named
+`<dept>_<period>.parquet`, so that upload overwrites those objects in place and
+leaves the historical slices untouched. That is ~4M daily rows a month instead of
+137M.
+
+It still **downloads** every slice, because `poste` is the union over both series
+and all slices. Rebuilt from the refreshed slice alone it would silently drop
+every station that has stopped reporting — the same class of bug as the
+`--only quot` register.
+
 ### Code
 
-`clim_schema.py` (99 hand-authored parameters + the family expander),
-`clim_download.py`, `clim_clean.py`, `clim_gen_artifacts.py`, `clim_upload.py`.
-Scratch data lives under `~/Downloads/fr_meteofrance_clim/` (`MFC_INPUT` / `MFC_OUTPUT`).
+`clim_gen_artifacts.py` and `clim_upload.py` live under `models/`; the transform
+itself does **not**. Per the DRY rule it has one copy, in
+`pipelines/datasets/fr_meteofrance/clim_schema.py` (99 hand-authored parameters +
+the family expander) and `clim_utils.py` (download + clean), and
+`models/fr_meteofrance/code/clim_download.py` and `clim_clean.py` are thin CLIs
+over it. Scratch data lives under `~/Downloads/fr_meteofrance_clim/`
+(`MFC_INPUT` / `MFC_OUTPUT`).
+
+Note this puts the transform under **pyrefly** for the first time — the repo
+excludes `models/<ds>/code` from type checking, so two real errors only surfaced
+on the move. Run `uv run pyrefly check pipelines/datasets/fr_meteofrance/` after
+touching it; the pre-commit hook matches no files in a worktree.
 
 ## Not onboarded (worth a follow-up)
 
@@ -209,12 +233,13 @@ Météo-France publishes 122 datasets on data.gouv.fr. The big omissions, all `l
 
 ## Recurring pipeline
 
-`pipelines/datasets/fr_meteofrance/` — **two** flows, because the source has two cadences:
+`pipelines/datasets/fr_meteofrance/` — **three** flows, because the source has three cadences:
 
 | flow | cron (BRT) | what it does |
 |---|---|---|
 | `fr_meteofrance_synop_flow` | `23 7 * * *` (daily) | downloads only the current year's `synop_<year>.csv.gz` and replaces that one `annee=` partition |
 | `fr_meteofrance_climatologie_flow` | `37 7 6,7,8,9 * *` (monthly) | re-downloads every sheet and the full SYNOP history; rebuilds the normals, both station registers, the dictionary and all of `synop` |
+| `fr_meteofrance_climatologie_base_flow` | `51 7 8,9,10,11 * *` (monthly) | refreshes `quotidienne`, `mensuelle` and `poste` from the climatological archive |
 
 The monthly flow re-downloads all 31 SYNOP years because `station_synop` carries each station's
 first and last observation year, which one year cannot give. That doubles as a monthly full
@@ -240,9 +265,13 @@ most recent six months become BD Pro, everything older stays free. `normale_clim
 stays `AllFree` despite its monthly reissue: its content is a fixed 1991–2020 statistic that
 does not advance, so a rolling window would paywall the tail of 2020 forever.
 
+`quotidienne` and `mensuelle` take the same treatment for the same reason: they refresh
+monthly and their content genuinely advances, unlike the normals. `poste` has no date
+column and takes no spec.
+
 `assert_coverage_topology` **hard-fails** unless a pro Coverage (`is_closed=True`) plus its
-`DateTimeRange` already exists on `synop`. Today the table has only the free Coverage, so this
-must be created before the flow is armed:
+`DateTimeRange` already exists on the table. Today `synop`, `quotidienne` and `mensuelle`
+each have only the free Coverage, so all three must be created before the flows are armed:
 
 ```
 create_update_coverage(table_id=<synop>, area_id=<fr>, is_closed=True, env="prod")
