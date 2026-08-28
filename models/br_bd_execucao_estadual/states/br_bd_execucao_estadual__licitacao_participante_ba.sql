@@ -41,7 +41,9 @@ select
         regexp_replace(t.cpf_cnpj_formatado, r'[^0-9]', '') as string
     ) as documento,
     safe_cast(t.desc_situacao_fornec as string) as situacao,
-    case when t.desc_situacao_fornec = 'Vencedor' then 1 else 0 end as vencedor,
+    -- BOOLEAN, não 0/1: é uma bandeira derivada de `situacao`, sem valor-sentinela a
+    -- preservar, e um flag inteiro seria um booleano disfarçado de quantidade.
+    t.desc_situacao_fornec = 'Vencedor' as vencedor,
     safe_cast(replace(t.qtd_pedida, ',', '.') as float64) as quantidade,
     safe_cast(replace(t.val_item_cotado, ',', '.') as float64) as valor_unitario_cotado,
     safe_cast(replace(t.val_total_cotado, ',', '.') as float64) as valor_total_cotado,

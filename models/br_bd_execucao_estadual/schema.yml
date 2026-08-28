@@ -538,9 +538,12 @@ models:
           habilitado
       - name: vencedor
         description: >
-          Indica se o fornecedor venceu o item, derivado da situação e da existência
-          de
-          valor homologado, já que a fonte não publica o indicador diretamente
+          Indica se o fornecedor venceu o item, conforme a situação publicada pela
+          fonte.
+          Não é inferido a partir do valor homologado: 84% das linhas marcadas como
+          Perdedor também trazem valor homologado positivo, porque a coluna registra
+          o
+          valor do item e não o que aquele fornecedor recebeu
       - name: quantidade
         description: Quantidade pedida do item
       - name: valor_unitario_cotado
