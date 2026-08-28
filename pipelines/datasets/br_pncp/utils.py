@@ -47,6 +47,7 @@ import urllib.parse
 import urllib.request
 from datetime import date, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -271,10 +272,28 @@ def fetch_window(
     return records
 
 
-def windows(start: date, end: date, days: int):
+def windows(
+    start: date,
+    end: date,
+    days: int,
+    resize: tuple[date, int] | None = None,
+):
+    """Yield inclusive [lo, hi] windows tiling [start, end].
+
+    ``resize`` is ``(boundary, days_after)``: windows starting on or after
+    ``boundary`` use the smaller size. This exists so a table that is already
+    partly harvested can switch to shallower windows for the *remaining*
+    period without renaming a single existing chunk.
+
+    The boundary MUST fall exactly on an edge of the original tiling. Off by
+    one day and every later tag shifts, nothing on disk matches, and the whole
+    table silently re-downloads from scratch.
+    """
     cur = start
+    boundary, small = resize if resize else (None, days)
     while cur <= end:
-        stop = min(cur + timedelta(days=days - 1), end)
+        width = small if (boundary is not None and cur >= boundary) else days
+        stop = min(cur + timedelta(days=width - 1), end)
         yield cur, stop
         cur = stop + timedelta(days=1)
 
@@ -378,7 +397,10 @@ def harvest(
     Returns:
         Number of records downloaded in this call (skipped chunks count zero).
     """
-    spec = ENDPOINTS[table]
+    # ENDPOINTS values are heterogeneous (str, bool, int, tuple), so an
+    # inferred type is a union that nothing can be indexed or int()ed
+    # out of. Name the shape once here instead of casting at each use.
+    spec: dict[str, Any] = ENDPOINTS[table]
     path = path_override or spec["path"]
     combos = (
         [
@@ -390,7 +412,13 @@ def harvest(
     )
 
     jobs = []
-    for lo, hi in windows(start, end, spec["window_days"]):
+    raw_resize = spec.get("resize")
+    resize: tuple[date, int] | None = (
+        (date.fromisoformat(str(raw_resize[0])), int(raw_resize[1]))
+        if raw_resize
+        else None
+    )
+    for lo, hi in windows(start, end, int(spec["window_days"]), resize):
         for extra in combos:
             tag = f"{lo:%Y%m%d}_{hi:%Y%m%d}"
             if extra:
@@ -416,7 +444,7 @@ def harvest(
                 hi,
                 extra,
                 f"{table} {tag}",
-                spec.get("page_size", PAGE_SIZE),
+                int(spec.get("page_size", PAGE_SIZE)),
             )
         except Exception as exc:
             # Deliberately broad. A harvest runs for hours; one window that

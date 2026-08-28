@@ -75,12 +75,27 @@ class constants(Enum):
             "date_params": ("dataInicial", "dataFinal"),
             "by_modalidade": False,
             "window_days": 15,
+            # 2021-01-01..2025-08-07 is already on disk as 112 contiguous
+            # 15-day chunks, and a chunk's filename IS its window, so that
+            # stretch can never be re-sized. Everything after it is still
+            # un-harvested, and 15 days there means ~190 pages per window --
+            # deep offsets, where a page costs ~14-20s against ~8s in the
+            # first dozen. Measured on the live API, not assumed.
+            #
+            # 2025-08-08 is exactly the next window edge after the last
+            # harvested chunk (20250724_20250807). Shifting it by one day
+            # would renumber every later tag and silently re-download all 112.
+            "resize": ("2025-08-08", 2),
         },
+        # 7 days answers HTTP 500 ("Failed to obtain JDBC Connection",
+        # Hikari pool exhausted) while the same request for a single day
+        # returns fine -- measured 2026-08-28, ~1,090 records/day, so 2 days
+        # is ~5 pages and stays in the cheap end of the latency curve.
         "ata_registro_preco": {
             "path": "atas/atualizacao",
             "date_params": ("dataInicial", "dataFinal"),
             "by_modalidade": False,
-            "window_days": 7,
+            "window_days": 2,
         },
         "instrumento_cobranca": {
             "path": "instrumentoscobranca/inclusao",

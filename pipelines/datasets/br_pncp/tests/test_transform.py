@@ -8,11 +8,14 @@ like the real PNCP payloads.
 from __future__ import annotations
 
 import gzip
+import itertools
 import json
+from datetime import date, timedelta
 
 import pyarrow.dataset as ds
 
 from pipelines.datasets.br_pncp import utils
+from pipelines.datasets.br_pncp.constants import constants
 
 
 class TestValueConversion:
@@ -555,3 +558,73 @@ class TestSplitOnlyWhenTheWindowIsTooLarge:
         assert all(b > 4 for _, b in budgets[1:]), (
             "deep pages need a bigger budget"
         )
+
+
+class TestWindowResize:
+    """A chunk's filename IS its window, so resizing must not shift old tags.
+
+    Getting the boundary wrong does not fail loudly -- every later tag shifts,
+    nothing on disk matches, and the harvest silently re-downloads days of
+    already-captured data. These tests are the only thing standing between a
+    one-character edit and that outcome.
+    """
+
+    def _tags(self, start, end, days, resize=None):
+        return [
+            f"{lo:%Y%m%d}_{hi:%Y%m%d}"
+            for lo, hi in utils.windows(start, end, days, resize)
+        ]
+
+    def test_windows_tile_the_range_without_gap_or_overlap(self):
+        wins = list(
+            utils.windows(
+                date(2021, 1, 1), date(2026, 8, 28), 15, (date(2025, 8, 8), 2)
+            )
+        )
+        assert wins[0][0] == date(2021, 1, 1)
+        assert wins[-1][1] == date(2026, 8, 28)
+        for (_, hi), (lo, _) in itertools.pairwise(wins):
+            assert lo == hi + timedelta(days=1)
+
+    def test_resize_leaves_every_pre_boundary_tag_identical(self):
+        start, end, boundary = (
+            date(2021, 1, 1),
+            date(2026, 8, 28),
+            date(2025, 8, 8),
+        )
+        plain = self._tags(start, end, 15)
+        resized = self._tags(start, end, 15, (boundary, 2))
+        shared = [t for t in plain if t < boundary.strftime("%Y%m%d")]
+        assert resized[: len(shared)] == shared
+        # ...and the 112th window is the last 15-day one, ending the day
+        # before the boundary.
+        assert shared[-1] == "20250724_20250807"
+        assert len(shared) == 112
+
+    def test_boundary_falls_on_an_original_window_edge(self):
+        # If this fails, the boundary in constants.py is off and every
+        # harvested contrato chunk would be re-downloaded.
+        spec = constants.ENDPOINTS.value["contrato"]
+        boundary = date.fromisoformat(spec["resize"][0])
+        edges = {
+            lo
+            for lo, _ in utils.windows(
+                date(2021, 1, 1), date(2026, 8, 28), spec["window_days"]
+            )
+        }
+        assert boundary in edges
+
+    def test_post_boundary_windows_use_the_small_size(self):
+        wins = [
+            (lo, hi)
+            for lo, hi in utils.windows(
+                date(2021, 1, 1), date(2026, 8, 28), 15, (date(2025, 8, 8), 2)
+            )
+            if lo >= date(2025, 8, 8)
+        ]
+        assert all((hi - lo).days == 1 for lo, hi in wins[:-1])
+
+    def test_no_resize_behaves_exactly_as_before(self):
+        assert self._tags(
+            date(2021, 1, 1), date(2021, 3, 1), 15
+        ) == self._tags(date(2021, 1, 1), date(2021, 3, 1), 15, None)

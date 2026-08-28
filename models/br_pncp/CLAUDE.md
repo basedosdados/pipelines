@@ -322,3 +322,50 @@ The UF directory's key column is **`sigla`**, not `sigla_uf`. Pointing the forei
 `sigla_uf` compiles fine and fails only at run time with `Unrecognized name: sigla_uf`.
 The repo's `.claude/rules/data-basis-style.md` documented the wrong column and has been
 corrected; every other dataset in the repo already used `field: sigla`.
+
+## Backend IDs resolved (staging, 2026-08-28)
+
+The dataset id `br_pncp` has no organization segment. That is deliberate and
+follows `br_jota`, the repo's other two-segment Brazilian dataset: the name is
+single-segment when the organization *is* the thing being published. PNCP is a
+portal in its own right, so it gets its own organization rather than being filed
+under `mgi`.
+
+| Reference | Slug | ID (staging) |
+|---|---|---|
+| organization | `pncp` | `9c03ec3a-d302-442c-9073-15760370599e` |
+| area | `br` | `5503dd29-4d9b-483b-ae09-63dc8ed28875` |
+| status | `under_review` | `47208305-325a-4da9-9222-ac6849405b78` |
+| status | `published` | `e16221de-ac30-4926-83d3-de219998dab3` |
+| theme | `government` | `6dd730bb-89ab-4dba-a1bf-a25ca1c35003` |
+| theme | `economics` | `ad6a413a-e882-4dd6-a497-8a62eec8511b` |
+| license | `cc_by` | `92211312-c1b7-4d21-80c5-fd6715b70e22` |
+| availability | `online` | `dd396d7d-0264-4c1f-bf0d-6efe2dc89cbe` |
+
+Entities for observation levels: `procurement`
+`4cce9a0f-b438-442c-bb94-444445cb1a2d`, `contract`
+`38e7435c-f2d1-4ddd-b010-283d0eb77f6c`, `item`
+`5713c2f7-70d3-48f9-9b4c-5c531dc467ba`, `year`
+`e1bf146e-b6bb-4b65-bee7-c800876e80a5`, `municipality`
+`460cf58b-63a7-4fb7-910f-4ca8ea58c25e`.
+
+### Tags
+
+Seven, all already in the vocabulary — no new tag needs to be created or flagged:
+
+| Slug | ID (staging) |
+|---|---|
+| `licitacao` | `4b76d0d7-7a4b-4a73-a2c5-33a08853dc77` |
+| `contrato` | `0831b835-2079-44f3-b5e8-3f598435bbe0` |
+| `compra` | `c6416645-6aeb-43d4-a60c-8a5fddaf959a` |
+| `administracao_publica` | `94b742db-a2c2-468b-b83e-2f223bb98fe7` |
+| `financas_publicas` | `5dce4b1d-131b-452a-a419-bdd587a8c272` |
+| `despesa` | `2195dbbf-7f5f-437c-a71e-e1aab0ac2337` |
+| `transparencia` | `8b187427-519e-48cb-b0a6-5380086edf3b` |
+
+Deliberately NOT tagged: `governo` (restates the `government` theme), `federal`
+and `municipio` (geography/level, and wrong anyway — PNCP spans all three
+levels), and the near-duplicates `financas` / `financa_publicas` / `gasto`.
+
+IDs differ per backend. Re-resolve every one of these on prod before
+registering there; the organization in particular must be created again.
