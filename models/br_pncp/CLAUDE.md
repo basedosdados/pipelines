@@ -8,11 +8,18 @@ one-day sample of `contrato`, 71% of records were municipal, 13% state and 13% f
 Coverage starts 2021 (Lei 14.133/2021), but adoption ramps steeply — 5.3k contratos in
 2021 against 2.02M in 2025.
 
-## Status: PAUSED mid-backfill (2026-08-28)
+## Status: backfill RUNNING (resumed 2026-08-28 12:18)
 
 Everything except the historical download is done and verified. The backfill is
 resumable: chunks are written atomically and skipped when present, so re-running the
 same command picks up exactly where it stopped.
+
+Measured throughput after the window-depth fix is ~825 pages/hr, against
+~220 before it. Remaining estimate **22-30 hours**, and the spread is
+honest rather than decorative: `contratacao` is crossed with 14 modalidades
+and has never been harvested, so its page count is the one number here that
+is extrapolated rather than measured. `contrato` (~5h) and
+`ata_registro_preco` (~5.5h) are sized from real probes.
 
 **Resume with:**
 
