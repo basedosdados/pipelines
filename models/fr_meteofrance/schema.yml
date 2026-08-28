@@ -260,7 +260,41 @@ models:
           dictionary_model: ref('fr_meteofrance__dicionario')
           columns_covered_by_dictionary:
             - qualite_precipitation_totale
+            - qualite_precipitation_quotidienne_maximale
+            - qualite_pression_mer_moyenne
+            - qualite_pression_mer_minimale_absolue
+            - qualite_temperature_maximale_moyenne
+            - qualite_temperature_maximale_absolue
+            - qualite_temperature_maximale_la_plus_basse
+            - qualite_temperature_minimale_moyenne
+            - qualite_temperature_minimale_absolue
+            - qualite_temperature_minimale_la_plus_haute
+            - qualite_amplitude_thermique_moyenne
+            - qualite_amplitude_thermique_absolue
+            - qualite_temperature_moyenne_min_max
             - qualite_temperature_moyenne
+            - qualite_temperature_moyenne_min_max_minimale
+            - qualite_temperature_moyenne_min_max_maximale
+            - qualite_humidite_minimale_absolue
+            - qualite_humidite_maximale_absolue
+            - qualite_humidite_moyenne
+            - qualite_tension_vapeur_moyenne
+            - qualite_evapotranspiration_totale
+            - qualite_rafale_maximale_absolue_10m
+            - qualite_direction_rafale_maximale_absolue_10m
+            - qualite_rafale_maximale_3s_absolue_10m
+            - qualite_direction_rafale_maximale_3s_absolue_10m
+            - qualite_vitesse_vent_maximale_moyennee_absolue_10m
+            - qualite_direction_vent_maximal_moyenne_absolue_10m
+            - qualite_vitesse_vent_moyenne_10m
+            - qualite_duree_insolation_totale
+            - qualite_rayonnement_global_total
+            - qualite_rayonnement_diffus_total
+            - qualite_rayonnement_direct_total
+            - qualite_hauteur_neige_fraiche_totale
+            - qualite_hauteur_neige_fraiche_maximale
+            - qualite_hauteur_neige_moyenne
+            - qualite_hauteur_neige_maximale
     columns:
       - name: annee
         description: Ano da observação
