@@ -878,6 +878,12 @@ ATA = concat(
             "Whether other agencies may join the record",
             "Indica si el acta admite adhesión por otros órganos",
             original="possibilidadeAdesao",
+            obs=(
+                "PNCP only began populating this field during 2026: sampled "
+                "non-null in 0/13 records for 2022-09-08 and 0/500 for "
+                "2025-03-11, against 347/500 for 2026-06-10. Expect it empty "
+                "for historical years"
+            ),
         ),
         col(
             "data_assinatura",
