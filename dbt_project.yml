@@ -292,6 +292,9 @@ models:
     br_fgv_igp:
       +materialized: table
       +schema: br_fgv_igp
+    br_fnde_fundeb:
+      +materialized: table
+      +schema: br_fnde_fundeb
     br_geobr_mapas:
       +materialized: table
       +schema: br_geobr_mapas
