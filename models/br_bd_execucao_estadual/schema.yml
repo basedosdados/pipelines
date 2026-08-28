@@ -1,0 +1,96 @@
+---
+version: 2
+models:
+  - name: br_bd_execucao_estadual__despesa
+    description: >
+      Execução orçamentária dos governos estaduais brasileiros em nível de transação.
+      Cada
+      linha corresponde a um documento de empenho combinado a uma linha orçamentária,
+      com
+      os valores empenhado, liquidado e pago. Dados extraídos dos sistemas financeiros
+      de
+      cada estado (SIAFI/MG, FIPLAN/BA, e-Fisco/PE) e harmonizados em um esquema comum.
+      Não inclui estados cuja fonte publica apenas agregados anuais, que estão na
+      tabela
+      despesa_anual.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [id_licitacao_bd, id_licitacao, modalidade_licitacao]
+    columns:
+      - name: ano
+        description: Ano do exercício orçamentário ao qual a despesa pertence
+        tests: [not_null]
+      - name: mes
+        description: Mês de referência do movimento
+      - name: data
+        description: Data de emissão do empenho
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: orgao
+        description: Código do órgão ou unidade orçamentária responsável pela despesa
+      - name: nome_orgao
+        description: Nome do órgão ou unidade orçamentária
+      - name: id_unidade_gestora
+        description: Código da unidade gestora executora da despesa
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora executora da despesa
+      - name: id_empenho_bd
+        description: >
+          Identificador único do empenho construído pela Data Basis, no formato
+          <sigla_uf><ano>-<identificador de origem>
+      - name: id_empenho
+        description: Identificador do empenho no sistema de origem
+      - name: numero_empenho
+        description: Número da nota de empenho atribuído pela unidade executora
+      - name: tipo_empenho
+        description: Tipo do empenho, como ordinário, estimado ou global
+      - name: descricao
+        description: Descrição da finalidade do gasto informada na origem
+      - name: id_licitacao_bd
+        description: >
+          Identificador único do processo licitatório associado ao empenho, construído
+          pela Data Basis. Preenchido apenas quando a fonte publica o vínculo entre
+          licitação e empenho
+      - name: id_licitacao
+        description: Número do processo licitatório no sistema de origem
+      - name: modalidade_licitacao
+        description: Modalidade do processo de contratação que originou a despesa
+      - name: documento_credor
+        description: >
+          CPF ou CNPJ do credor. CPFs são divulgados de forma parcialmente mascarada
+          pela
+          fonte
+      - name: nome_credor
+        description: Nome ou razão social do credor
+      - name: tipo_documento_credor
+        description: Tipo do documento de identificação do credor
+      - name: funcao
+        description: Código da função de governo, conforme a classificação funcional
+      - name: subfuncao
+        description: Código da subfunção de governo, conforme a classificação funcional
+      - name: programa
+        description: Código do programa orçamentário
+      - name: acao
+        description: Código da ação orçamentária
+      - name: categoria_economica
+        description: Código da categoria econômica da despesa
+      - name: grupo_despesa
+        description: Código do grupo de natureza da despesa
+      - name: modalidade_aplicacao
+        description: Código da modalidade de aplicação dos recursos
+      - name: elemento_despesa
+        description: Código do elemento de despesa
+      - name: item_despesa
+        description: Código do item de despesa, detalhamento do elemento
+      - name: fonte_recurso
+        description: Código da fonte de recursos que financia a despesa
+      - name: tipo_documento
+        description: Tipo do documento contábil que registrou o movimento
+      - name: valor_empenhado
+        description: Valor empenhado em reais correntes
+      - name: valor_liquidado
+        description: Valor liquidado em reais correntes
+      - name: valor_pago
+        description: Valor pago em reais correntes

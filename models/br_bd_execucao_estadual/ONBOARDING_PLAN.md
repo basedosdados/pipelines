@@ -1,0 +1,100 @@
+# br_bd_execucao_estadual — Execução Orçamentária e Compras dos Governos Estaduais
+
+Transaction-level budget execution and procurement for **Brazilian state governments**.
+The state-level sibling of MiDES (`world_wb_mides`), which covers *municipalities* via the
+state Courts of Accounts. This dataset covers the **state executives' own spending**, taken
+from each state's own transparency portal over its financial system (SIAFI-MG, FIPLAN-BA,
+e-Fisco-PE, SIAFEM-SP).
+
+**Status:** in progress. MG is the reference implementation.
+
+---
+
+## 1. Why this is not just "MiDES with a different filter"
+
+MiDES scrapes state Courts of Accounts (TCEs), which audit *municipalities*. Nothing in it
+describes what a state government itself spends. The sources here are a different universe:
+each state publishes its own executive's ledger, on its own portal, in its own shape. The
+harmonization problem is the same; the inputs are not.
+
+## 2. Source inventory
+
+| UF | Source | System | Coverage | Update | Access |
+|----|--------|--------|----------|--------|--------|
+| MG | `dados.mg.gov.br` CKAN (`despesa`, `compras_contratos`, `portal_*`) | SIAFI/MG, SIAD | execução **2002–2026**, compras **2010+** | daily D+1 (dimensional), weekly (portal) | bulk CSV.gz, CC-BY-4.0 |
+| BA | `dados.ba.gov.br` CKAN (`despesas`, `licitacoes`, `contratos`, `notas-fiscais`) | FIPLAN, SIMPAS/SAEB | despesa **2013+**, licitação **2009+** | daily D-1 | bulk ZIP |
+| PE | `dados.pe.gov.br` CKAN (`todas-despesas-detalhadas`, `all-pagamentos`) | e-Fisco | **2008–2026** | annual snapshots + current year | bulk CSV, cc-by |
+| SP | SIGEO Lei 131 (`fazenda.sp.gov.br/SigeoLei131`) | SIAFEM/SP | **2010–2026** | daily | WebForms scrape → CSV export |
+
+A browser User-Agent is required on `dados.mg.gov.br` (bare curl gets 403).
+
+## 3. The grain problem, and how this dataset answers it
+
+The four sources do **not** share a grain:
+
+| UF | Execution grain | Creditor | Empenho id | Date | Tender link |
+|----|----------------|----------|------------|------|-------------|
+| MG | empenho × budget line × document | CNPJ/CPF (0.5% anonymised) | yes | monthly | **native** (`fl_compras_empenho`, 1.1M links) |
+| BA | month × budget line; creditor + empenho no. in a separate view | CNPJ + razão social | yes | monthly | **native** (item → `NUM_INSTRUMENTO_ORCAMENTO`) |
+| PE | empenho document | yes (some pseudo-codes) | yes | to confirm | none (modality only) |
+| SP | credor × budget line × **year** | CPF/CNPJ | **no** | **year only** | none (modality only) |
+
+SP cannot populate a transaction table: it has no document id and no sub-annual date.
+Forcing it in would leave every SP row null in exactly the columns that make the table
+useful, while looking like transaction data to anyone filtering `sigla_uf = 'SP'`.
+
+**Decision:** transaction-grain states go in `despesa`; annual-aggregate sources go in
+`despesa_anual`. Nothing is silently null, and neither table lies about what it holds.
+
+### Divergence from MiDES worth knowing
+
+MiDES splits execution into three tables (`empenho`, `liquidacao`, `pagamento`) because its
+TCE sources publish three separate ledgers. **All four state sources here instead publish the
+phases as columns on one row** (`vr_empenhado` / `vr_liquidado` / `vr_pago`). So this dataset
+uses a single `despesa` table with phase value columns. Splitting it three ways would triple
+the rows and fabricate documents and dates that the sources do not contain.
+
+Union-compatibility with MiDES is therefore not automatic. If it is wanted later, it is a
+view over `despesa` that unpivots the three value columns — cheap, and reversible. The
+reverse (recovering one row per line from three fabricated tables) is not.
+
+## 4. Tables
+
+| Table | Grain | States |
+|-------|-------|--------|
+| `despesa` | empenho document × budget line, with `valor_empenhado`/`liquidado`/`pago` | MG, BA, PE |
+| `despesa_anual` | credor × budget line × year, six phase columns | SP |
+| `licitacao` | one tender / procurement process | MG, BA |
+| `licitacao_item` | item within a tender | MG, BA |
+| `licitacao_participante` | bidder × item, with outcome | BA |
+| `relacionamentos` | tender ↔ empenho bridge | MG, BA |
+| `orgao_unidade_gestora` | organisational directory | all |
+| `dicionario` | value → label for every coded column | all |
+
+Partitioned by `ano` (INT64), clustered by `sigla_uf`.
+
+## 5. Relationship to `br_pncp`
+
+PNCP covers procurement for all government levels from **2021** (Lei 14.133). The marginal
+value here is (1) **budget execution**, which PNCP does not carry at all, and (2) pre-2021
+procurement history — back to 2010 (MG) and 2009 (BA). State procurement from 2021 is
+retained deliberately: the state portals carry item- and bidder-level detail that PNCP does
+not, so the overlap is not pure duplication.
+
+## 6. Build order
+
+1. **MG** — richest source, native tender→empenho bridge; fixes the harmonized schema.
+2. **BA** — second full test, and the only source with bidder-level participation.
+3. **PE** — long history, execution only.
+4. **SP** — scraper + `despesa_anual`.
+5. RS / CE / RJ / DF — blocked from a foreign IP, need a Brazilian VPN.
+
+## 7. Known constraints
+
+- `dados.mg.gov.br` returns **403** without a browser User-Agent.
+- SP's SIGEO requires an exact postback order: year → **phase** → órgão → search → export.
+  The Credor / Licitação / Item / Município fields do not exist in the DOM until an execution
+  phase is ticked. Export is a `btnExcel` form POST, not a GET.
+- MG anonymises 6,653 of 1.46M creditors (0.5%, all CPF) as
+  `INFORMACAO COM RESTRICAO DE ACESSO`; CNPJs are always named.
+- RS, CE, RJ and DF portals time out or 403 from outside Brazil.
