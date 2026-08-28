@@ -456,3 +456,31 @@ The OpenAPI spec has 12 endpoints and none serves files; PNCP's documented
 open-data access is the REST API. `dados.gov.br` carries
 `compras-publicas-do-governo-federal`, which is Compras.gov.br (federal
 only) and therefore not a substitute for PNCP's three-level coverage.
+
+## Cleaning verified at scale (2026-08-28)
+
+The cleaning step is the one that previously exhausted RAM and killed the
+machine, because it accumulated every row in a dict before writing. It now
+streams to per-partition parquet parts. Re-verified against 185 contrato
+chunks (603 MB gzipped NDJSON), mid-harvest:
+
+```
+contrato: raw=3,317,418 -> staging rows=3,317,418 (undated dropped=0) years=2021..2026
+252s wall, maximum resident set size 574,603,264 (548 MB)
+```
+
+RSS held at 230-290 MB through the run and peaked at 548 MB on 3.3M rows, so
+it is bounded by the per-partition buffer rather than by the table. `raw` and
+`written` are equal and nothing was dropped for a missing date.
+
+Output checked directly rather than assumed:
+
+- 70 parquet parts across `ano=2021..2026`
+- 45 columns, **every one STRING** (the architecture's 46 minus `ano`)
+- `ano` absent from the file schema -- it is the hive partition only, which
+  is what the earlier `ArrowTypeError: Field ano has incompatible types`
+  came from
+- SNAPPY, and the part row counts sum to exactly the 3,317,418 reported
+
+Re-run after the harvest completes; this was a mid-flight snapshot, not the
+final table.
