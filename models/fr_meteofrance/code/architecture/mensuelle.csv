@@ -1,0 +1,160 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+annee,INT64,Ano da observação,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"O arquivo diário remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",AAAAMM
+mois,INT64,Mês da observação,,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,AAAAMM
+numero_poste,STRING,"Número Météo-France do posto, de oito dígitos",,no,,,no,,NUM_POSTE
+precipitation_totale,FLOAT64,Precipitação acumulada no mês,,no,,millimeter,no,,RR
+qualite_precipitation_totale,STRING,Código de qualidade de precipitation_totale,,yes,,,no,,QRR
+nombre_valeurs_precipitation,INT64,Número de valores diários presentes de precipitação no mês,,no,,day,no,,NBRR
+precipitation_totale_estimee,FLOAT64,"Precipitação acumulada no mês, estimada",,no,,millimeter,no,,RR_ME
+precipitation_quotidienne_maximale,FLOAT64,Precipitação máxima caída em 24 horas no mês,,no,,millimeter,no,,RRAB
+qualite_precipitation_quotidienne_maximale,STRING,Código de qualidade de precipitation_quotidienne_maximale,,yes,,,no,,QRRAB
+jour_precipitation_quotidienne_maximale,INT64,Dia do mês em que precipitation_quotidienne_maximale foi observado,,no,,day,no,,RRABDAT
+nombre_jours_rr1,INT64,Número de dias no mês com RR ≥ 1.0 mm,,no,,day,no,,NBJRR1
+nombre_jours_rr5,INT64,Número de dias no mês com RR ≥ 5.0 mm,,no,,day,no,,NBJRR5
+nombre_jours_rr10,INT64,Número de dias no mês com RR ≥ 10.0 mm,,no,,day,no,,NBJRR10
+nombre_jours_rr30,INT64,Número de dias no mês com RR ≥ 30.0 mm,,no,,day,no,,NBJRR30
+nombre_jours_rr50,INT64,Número de dias no mês com RR ≥ 50.0 mm,,no,,day,no,,NBJRR50
+nombre_jours_rr100,INT64,Número de dias no mês com RR ≥ 100.0 mm,,no,,day,no,,NBJRR100
+pression_mer_moyenne,FLOAT64,Média mensal das pressões diárias médias reduzidas ao nível do mar,,no,,hectopascal,no,,PMERM
+qualite_pression_mer_moyenne,STRING,Código de qualidade de pression_mer_moyenne,,yes,,,no,,QPMERM
+nombre_valeurs_pression_mer_moyenne,INT64,Número de valores diários presentes de pression_mer_moyenne no mês,,no,,day,no,,NBPMERM
+pression_mer_minimale_absolue,FLOAT64,Mínimo absoluto mensal das pressões diárias médias reduzidas ao nível do mar,,no,,hectopascal,no,,PMERMINAB
+qualite_pression_mer_minimale_absolue,STRING,Código de qualidade de pression_mer_minimale_absolue,,yes,,,no,,QPMERMINAB
+jour_pression_mer_minimale_absolue,INT64,Dia do mês em que pression_mer_minimale_absolue foi observado,,no,,day,no,,PMERMINABDAT
+temperature_maximale_moyenne,FLOAT64,Média mensal das temperaturas máximas diárias,,no,,celsius_degree,no,,TX
+qualite_temperature_maximale_moyenne,STRING,Código de qualidade de temperature_maximale_moyenne,,yes,,,no,,QTX
+nombre_valeurs_temperature_maximale,INT64,Número de valores diários presentes de temperature_maximale no mês,,no,,day,no,,NBTX
+temperature_maximale_moyenne_estimee,FLOAT64,Média mensal estimada das temperaturas máximas diárias,,no,,celsius_degree,no,,TX_ME
+temperature_maximale_absolue,FLOAT64,Máximo absoluto mensal das temperaturas máximas diárias,,no,,celsius_degree,no,,TXAB
+qualite_temperature_maximale_absolue,STRING,Código de qualidade de temperature_maximale_absolue,,yes,,,no,,QTXAB
+jour_temperature_maximale_absolue,INT64,Dia do mês em que temperature_maximale_absolue foi observado,,no,,day,no,,TXDAT
+temperature_maximale_la_plus_basse,FLOAT64,Mínimo mensal das temperaturas máximas diárias,,no,,celsius_degree,no,,TXMIN
+qualite_temperature_maximale_la_plus_basse,STRING,Código de qualidade de temperature_maximale_la_plus_basse,,yes,,,no,,QTXMIN
+jour_temperature_maximale_la_plus_basse,INT64,Dia do mês em que temperature_maximale_la_plus_basse foi observado,,no,,day,no,,TXMINDAT
+nombre_jours_tx0,INT64,Número de dias no mês com TX ≤ 0°C,,no,,day,no,,NBJTX0
+nombre_jours_tx25,INT64,Número de dias no mês com TX ≥ 25°C,,no,,day,no,,NBJTX25
+nombre_jours_tx30,INT64,Número de dias no mês com TX ≥ 30°C,,no,,day,no,,NBJTX30
+nombre_jours_tx35,INT64,Número de dias no mês com TX ≥ 35°C,,no,,day,no,,NBJTX35
+nombre_jours_txi20,INT64,Número de dias no mês com TX ≤ 20°C,,no,,day,no,,NBJTXI20
+nombre_jours_txi27,INT64,Número de dias no mês com TX ≤ 27°C,,no,,day,no,,NBJTXI27
+nombre_jours_txs32,INT64,Número de dias no mês com TX ≥ 32°C,,no,,day,no,,NBJTXS32
+temperature_minimale_moyenne,FLOAT64,Média mensal das temperaturas mínimas diárias,,no,,celsius_degree,no,,TN
+qualite_temperature_minimale_moyenne,STRING,Código de qualidade de temperature_minimale_moyenne,,yes,,,no,,QTN
+nombre_valeurs_temperature_minimale,INT64,Número de valores diários presentes de temperature_minimale no mês,,no,,day,no,,NBTN
+temperature_minimale_moyenne_estimee,FLOAT64,Média mensal estimada das temperaturas mínimas diárias,,no,,celsius_degree,no,,TN_ME
+temperature_minimale_absolue,FLOAT64,Mínimo absoluto mensal das temperaturas mínimas diárias,,no,,celsius_degree,no,,TNAB
+qualite_temperature_minimale_absolue,STRING,Código de qualidade de temperature_minimale_absolue,,yes,,,no,,QTNAB
+jour_temperature_minimale_absolue,INT64,Dia do mês em que temperature_minimale_absolue foi observado,,no,,day,no,,TNDAT
+temperature_minimale_la_plus_haute,FLOAT64,Máximo mensal das temperaturas mínimas diárias,,no,,celsius_degree,no,,TNMAX
+qualite_temperature_minimale_la_plus_haute,STRING,Código de qualidade de temperature_minimale_la_plus_haute,,yes,,,no,,QTNMAX
+jour_temperature_minimale_la_plus_haute,INT64,Dia do mês em que temperature_minimale_la_plus_haute foi observado,,no,,day,no,,TNMAXDAT
+nombre_jours_tn5,INT64,Número de dias no mês com TN ≤ -5°C,,no,,day,no,,NBJTN5
+nombre_jours_tn10,INT64,Número de dias no mês com TN ≤ -10°C,,no,,day,no,,NBJTN10
+nombre_jours_tni10,INT64,Número de dias no mês com TN ≤ +10°C,,no,,day,no,,NBJTNI10
+nombre_jours_tni15,INT64,Número de dias no mês com TN ≤ +15°C,,no,,day,no,,NBJTNI15
+nombre_jours_tni20,INT64,Número de dias no mês com TN ≤ +20°C,,no,,day,no,,NBJTNI20
+nombre_jours_tns20,INT64,Número de dias no mês com TN ≥ +20°C,,no,,day,no,,NBJTNS20
+nombre_jours_tns25,INT64,Número de dias no mês com TN ≥ +25°C,,no,,day,no,,NBJTNS25
+nombre_jours_gelee,INT64,Número de dias no mês com gelée,,no,,day,no,,NBJGELEE
+amplitude_thermique_moyenne,FLOAT64,Média mensal das amplitudes térmicas diárias,,no,,celsius_degree,no,,TAMPLIM
+qualite_amplitude_thermique_moyenne,STRING,Código de qualidade de amplitude_thermique_moyenne,,yes,,,no,,QTAMPLIM
+amplitude_thermique_absolue,FLOAT64,Máximo absoluto mensal das amplitudes térmicas diárias,,no,,celsius_degree,no,,TAMPLIAB
+qualite_amplitude_thermique_absolue,STRING,Código de qualidade de amplitude_thermique_absolue,,yes,,,no,,QTAMPLIAB
+jour_amplitude_thermique_absolue,INT64,Dia do mês em que amplitude_thermique_absolue foi observado,,no,,day,no,,TAMPLIABDAT
+nombre_valeurs_amplitude_thermique,INT64,Número de valores diários presentes de amplitude_thermique no mês,,no,,day,no,,NBTAMPLI
+temperature_moyenne_min_max,FLOAT64,Média mensal das médias diárias entre a temperatura mínima e a máxima,,no,,celsius_degree,no,,TM
+qualite_temperature_moyenne_min_max,STRING,Código de qualidade de temperature_moyenne_min_max,,yes,,,no,,QTM
+nombre_valeurs_temperature_moyenne_min_max,INT64,Número de dias no mês em que a temperatura mínima e a máxima estão ambas presentes,,no,,day,no,,NBTM
+temperature_moyenne,FLOAT64,Média mensal das temperaturas médias diárias,,no,,celsius_degree,no,,TMM
+qualite_temperature_moyenne,STRING,Código de qualidade de temperature_moyenne,,yes,,,no,,QTMM
+nombre_valeurs_temperature_moyenne,INT64,Número de valores diários presentes de temperature_moyenne no mês,,no,,day,no,,NBTMM
+nombre_jours_tms24,INT64,Número de dias no mês com TM quotidienne ≥ 24°C,,no,,day,no,,NBJTMS24
+temperature_moyenne_min_max_minimale,FLOAT64,Mínimo mensal das médias diárias entre a temperatura mínima e a máxima,,no,,celsius_degree,no,,TMMIN
+qualite_temperature_moyenne_min_max_minimale,STRING,Código de qualidade de temperature_moyenne_min_max_minimale,,yes,,,no,,QTMMIN
+jour_temperature_moyenne_min_max_minimale,INT64,Dia do mês em que temperature_moyenne_min_max_minimale foi observado,,no,,day,no,,TMMINDAT
+temperature_moyenne_min_max_maximale,FLOAT64,Máximo mensal das médias diárias entre a temperatura mínima e a máxima,,no,,celsius_degree,no,,TMMAX
+qualite_temperature_moyenne_min_max_maximale,STRING,Código de qualidade de temperature_moyenne_min_max_maximale,,yes,,,no,,QTMMAX
+jour_temperature_moyenne_min_max_maximale,INT64,Dia do mês em que temperature_moyenne_min_max_maximale foi observado,,no,,day,no,,TMMAXDAT
+humidite_minimale_absolue,FLOAT64,Mínimo absoluto mensal das umidades relativas mínimas diárias,,no,,percent,no,,UNAB
+qualite_humidite_minimale_absolue,STRING,Código de qualidade de humidite_minimale_absolue,,yes,,,no,,QUNAB
+jour_humidite_minimale_absolue,INT64,Dia do mês em que humidite_minimale_absolue foi observado,,no,,day,no,,UNABDAT
+nombre_valeurs_humidite_minimale,INT64,Número de valores diários presentes de humidite_minimale no mês,,no,,day,no,,NBUN
+humidite_maximale_absolue,FLOAT64,Máximo absoluto mensal das umidades relativas máximas diárias,,no,,percent,no,,UXAB
+qualite_humidite_maximale_absolue,STRING,Código de qualidade de humidite_maximale_absolue,,yes,,,no,,QUXAB
+jour_humidite_maximale_absolue,INT64,Dia do mês em que humidite_maximale_absolue foi observado,,no,,day,no,,UXABDAT
+nombre_valeurs_humidite_maximale,INT64,Número de valores diários presentes de humidite_maximale no mês,,no,,day,no,,NBUX
+humidite_moyenne,FLOAT64,Média mensal das umidades relativas médias diárias,,no,,percent,no,,UMM
+qualite_humidite_moyenne,STRING,Código de qualidade de humidite_moyenne,,yes,,,no,,QUMM
+nombre_valeurs_humidite_moyenne,INT64,Número de valores diários presentes de humidite_moyenne no mês,,no,,day,no,,NBUM
+tension_vapeur_moyenne,FLOAT64,Média mensal da tensão de vapor,,no,,hectopascal,no,,TSVM
+qualite_tension_vapeur_moyenne,STRING,Código de qualidade de tension_vapeur_moyenne,,yes,,,no,,QTSVM
+nombre_valeurs_tsv,INT64,Número de valores diários presentes de tsv no mês,,no,,day,no,,NBTSVM
+evapotranspiration_totale,FLOAT64,Soma das evapotranspirações potenciais decendiais de Penman-Monteith,,no,,millimeter,no,,ETP
+qualite_evapotranspiration_totale,STRING,Código de qualidade de evapotranspiration_totale,,yes,,,no,,QETP
+rafale_maximale_absolue_10m,FLOAT64,"Máximo absoluto mensal da rajada máxima diária do vento instantâneo, a 10 m do solo",,no,,meter / second,no,,FXIAB
+qualite_rafale_maximale_absolue_10m,STRING,Código de qualidade de rafale_maximale_absolue_10m,,yes,,,no,,QFXIAB
+direction_rafale_maximale_absolue_10m,INT64,"Direção da rajada registrada em rafale_maximale_absolue_10m, na rosa de 360 graus",,no,,degree,no,,DXIAB
+qualite_direction_rafale_maximale_absolue_10m,STRING,Código de qualidade de direction_rafale_maximale_absolue_10m,,yes,,,no,,QDXIAB
+jour_rafale_maximale_absolue_10m,INT64,Dia do mês em que rafale_maximale_absolue_10m foi observado,,no,,day,no,,FXIDAT
+nombre_jours_ff10,INT64,Número de dias no mês com FXI ≥ 10 m/s,,no,,day,no,,NBJFF10
+nombre_jours_ff16,INT64,Número de dias no mês com FXI ≥ 16 m/s,,no,,day,no,,NBJFF16
+nombre_jours_ff28,INT64,Número de dias no mês com FXI ≥ 28 m/s,,no,,day,no,,NBJFF28
+nombre_valeurs_rafale_maximale_10m,INT64,Número de valores diários presentes de rafale_maximale_10m no mês,,no,,day,no,,NBFXI
+rafale_maximale_3s_absolue_10m,FLOAT64,"Máximo absoluto mensal da rajada máxima diária do vento medida em 3 segundos, a 10 m do solo",,no,,meter / second,no,,FXI3SAB
+qualite_rafale_maximale_3s_absolue_10m,STRING,Código de qualidade de rafale_maximale_3s_absolue_10m,,yes,,,no,,QFXI3SAB
+direction_rafale_maximale_3s_absolue_10m,INT64,"Direção da rajada registrada em rafale_maximale_3s_absolue_10m, na rosa de 360 graus",,no,,degree,no,,DXI3SAB
+qualite_direction_rafale_maximale_3s_absolue_10m,STRING,Código de qualidade de direction_rafale_maximale_3s_absolue_10m,,yes,,,no,,QDXI3SAB
+jour_rafale_maximale_3s_absolue_10m,INT64,Dia do mês em que rafale_maximale_3s_absolue_10m foi observado,,no,,day,no,,FXI3SDAT
+nombre_jours_fxi3s10,INT64,Número de dias no mês com FXI3S ≥ 10 m/s,,no,,day,no,,NBJFXI3S10
+nombre_jours_fxi3s16,INT64,Número de dias no mês com FXI3S ≥ 16 m/s,,no,,day,no,,NBJFXI3S16
+nombre_jours_fxi3s28,INT64,Número de dias no mês com FXI3S ≥ 28 m/s,,no,,day,no,,NBJFXI3S28
+nombre_valeurs_rafale_maximale_3s_10m,INT64,Número de valores diários presentes de rafale_maximale_3s_10m no mês,,no,,day,no,,NBFXI3S
+vitesse_vent_maximale_moyennee_absolue_10m,FLOAT64,"Máximo absoluto mensal da velocidade máxima diária do vento medida em 10 minutos, a 10 m do solo",,no,,meter / second,no,,FXYAB
+qualite_vitesse_vent_maximale_moyennee_absolue_10m,STRING,Código de qualidade de vitesse_vent_maximale_moyennee_absolue_10m,,yes,,,no,,QFXYAB
+direction_vent_maximal_moyenne_absolue_10m,INT64,"Direção do vento registrado em vitesse_vent_maximale_moyennee_absolue_10m, na rosa de 360 graus",,no,,degree,no,,DXYAB
+qualite_direction_vent_maximal_moyenne_absolue_10m,STRING,Código de qualidade de direction_vent_maximal_moyenne_absolue_10m,,yes,,,no,,QDXYAB
+jour_vitesse_vent_maximale_moyennee_absolue_10m,INT64,Dia do mês em que vitesse_vent_maximale_moyennee_absolue_10m foi observado,,no,,day,no,,FXYABDAT
+nombre_jours_fxy8,INT64,Número de dias no mês com FXY ≥ 8 m/s,,no,,day,no,,NBJFXY8
+nombre_jours_fxy10,INT64,Número de dias no mês com FXY ≥ 10 m/s,,no,,day,no,,NBJFXY10
+nombre_jours_fxy15,INT64,Número de dias no mês com FXY ≥ 15 m/s,,no,,day,no,,NBJFXY15
+nombre_valeurs_vitesse_vent_maximale_moyennee_10m,INT64,Número de valores diários presentes de vitesse_vent_maximale_moyennee_10m no mês,,no,,day,no,,NBFXY
+vitesse_vent_moyenne_10m,FLOAT64,"Média mensal da velocidade média diária do vento medida em 10 minutos, a 10 m do solo",,no,,meter / second,no,,FFM
+qualite_vitesse_vent_moyenne_10m,STRING,Código de qualidade de vitesse_vent_moyenne_10m,,yes,,,no,,QFFM
+nombre_valeurs_vitesse_vent_moyenne_10m,INT64,Número de valores diários presentes de vitesse_vent_moyenne_10m no mês,,no,,day,no,,NBFFM
+duree_insolation_totale,FLOAT64,Soma mensal das durações diárias de insolação,,no,,minute,no,,INST
+qualite_duree_insolation_totale,STRING,Código de qualidade de duree_insolation_totale,,yes,,,no,,QINST
+nombre_valeurs_duree_insolation,INT64,Número de valores diários presentes de duree_insolation no mês,,no,,day,no,,NBINST
+nombre_jours_sigma0,INT64,Número de dias no mês com SIGMA = 0% (SIGMA est la fraction d'insolation par rapport à la durée du jour),,no,,day,no,,NBSIGMA0
+nombre_jours_sigma20,INT64,Número de dias no mês com SIGMA ≤ 20%,,no,,day,no,,NBSIGMA20
+nombre_jours_sigma80,INT64,Número de dias no mês com SIGMA ≥ 80%,,no,,day,no,,NBSIGMA80
+rayonnement_global_total,FLOAT64,Soma mensal da radiação global diária,,no,,joule_per_square_centimeter,no,,GLOT
+qualite_rayonnement_global_total,STRING,Código de qualidade de rayonnement_global_total,,yes,,,no,,QGLOT
+nombre_valeurs_rayonnement_global,INT64,Número de valores diários presentes de rayonnement_global no mês,,no,,day,no,,NBGLOT
+rayonnement_diffus_total,FLOAT64,Soma mensal da radiação difusa diária,,no,,joule_per_square_centimeter,no,,DIFT
+qualite_rayonnement_diffus_total,STRING,Código de qualidade de rayonnement_diffus_total,,yes,,,no,,QDIFT
+nombre_valeurs_rayonnement_diffus,INT64,Número de valores diários presentes de rayonnement_diffus no mês,,no,,day,no,,NBDIFT
+rayonnement_direct_total,FLOAT64,Soma mensal da radiação direta diária,,no,,joule_per_square_centimeter,no,,DIRT
+qualite_rayonnement_direct_total,STRING,Código de qualidade de rayonnement_direct_total,,yes,,,no,,QDIRT
+nombre_valeurs_rayonnement_direct,INT64,Número de valores diários presentes de rayonnement_direct no mês,,no,,day,no,,NBDIRT
+hauteur_neige_fraiche_totale,FLOAT64,Soma mensal da altura de neve fresca caída em 24 horas,,no,,centimeter,no,,HNEIGEFTOT
+qualite_hauteur_neige_fraiche_totale,STRING,Código de qualidade de hauteur_neige_fraiche_totale,,yes,,,no,,QHNEIGEFTOT
+hauteur_neige_fraiche_maximale,FLOAT64,Máximo absoluto mensal da altura de neve fresca caída em 24 horas,,no,,centimeter,no,,HNEIGEFAB
+qualite_hauteur_neige_fraiche_maximale,STRING,Código de qualidade de hauteur_neige_fraiche_maximale,,yes,,,no,,QHNEIGEFAB
+jour_hauteur_neige_fraiche_maximale,INT64,Dia do mês em que hauteur_neige_fraiche_maximale foi observado,,no,,day,no,,HNEIGEFDAT
+nombre_valeurs_hauteur_neige_fraiche,INT64,Número de valores diários presentes de hauteur_neige_fraiche no mês,,no,,day,no,,NBHNEIGEF
+nombre_jours_neig,INT64,Número de dias no mês com précipitation de neige,,no,,day,no,,NBJNEIG
+nombre_jours_hneigef1,INT64,Número de dias no mês com chutes de neige en 24h supérieures à 1 cm (à partir de HNEIGEF quotidienne),,no,,day,no,,NBJHNEIGEF1
+nombre_jours_hneigef5,INT64,Número de dias no mês com chutes de neige en 24h supérieures à 5 cm (à partir de HNEIGEF quotidienne),,no,,day,no,,NBJHNEIGEF5
+nombre_jours_hneigef10,INT64,Número de dias no mês com chutes de neige en 24h supérieures à 10 cm (à partir de HNEIGEF quotidienne),,no,,day,no,,NBJHNEIGEF10
+nombre_jours_solng,INT64,Número de dias no mês com sol couvert de neige (à partir de SOLNEIGE quotidien),,no,,day,no,,NBJSOLNG
+hauteur_neige_moyenne,FLOAT64,Média mensal da espessura total de neve medida diariamente às 06h UTC,,no,,centimeter,no,,NEIGETOTM
+qualite_hauteur_neige_moyenne,STRING,Código de qualidade de hauteur_neige_moyenne,,yes,,,no,,QNEIGETOTM
+hauteur_neige_maximale,FLOAT64,Máximo absoluto mensal da espessura máxima diária de neve,,no,,centimeter,no,,NEIGETOTAB
+qualite_hauteur_neige_maximale,STRING,Código de qualidade de hauteur_neige_maximale,,yes,,,no,,QNEIGETOTAB
+jour_hauteur_neige_maximale,INT64,Dia do mês em que hauteur_neige_maximale foi observado,,no,,day,no,,NEIGETOTABDAT
+nombre_jours_neigetot1,INT64,Número de dias no mês com enneigement supérieur à 1cm (à partir de NEIGETOTX quotidienne),,no,,day,no,,NBJNEIGETOT1
+nombre_jours_neigetot10,INT64,Número de dias no mês com enneigement supérieur à 10cm (à partir de NEIGETOTX quotidienne),,no,,day,no,,NBJNEIGETOT10
+nombre_jours_neigetot30,INT64,Número de dias no mês com enneigement supérieur à 30cm (à partir de NEIGETOTX quotidienne),,no,,day,no,,NBJNEIGETOT30
+nombre_jours_grel,INT64,Número de dias no mês com présents avec grêle,,no,,day,no,,NBJGREL
+nombre_jours_orag,INT64,Número de dias no mês com présents avec orage,,no,,day,no,,NBJORAG
+nombre_jours_brou,INT64,Número de dias no mês com présents avec brouillard,,no,,day,no,,NBJBROU

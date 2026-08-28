@@ -311,3 +311,439 @@ normale_climatologique,indicateur,temperature_minimale_absolue,,La température 
 normale_climatologique,indicateur,temperature_minimale_moyenne,,Température minimale (Moyenne en °C)
 normale_climatologique,indicateur,temperature_moyenne,,Température moyenne (Moyenne en °C)
 normale_climatologique,indicateur,vitesse_vent_moyenne,,Vitesse du vent moyenné sur 10 mn (Moyenne en m/s)
+quotidienne,qualite_precipitation,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_precipitation,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_precipitation,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_precipitation,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_temperature_minimale,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_temperature_minimale,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_temperature_minimale,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_temperature_minimale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_htn,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_htn,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_htn,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_htn,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_temperature_maximale,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_temperature_maximale,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_temperature_maximale,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_temperature_maximale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_htx,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_htx,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_htx,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_htx,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_temperature_moyenne,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_temperature_moyenne,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_temperature_moyenne,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_temperature_moyenne,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_temperature_moyenne_min_max,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_temperature_moyenne_min_max,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_temperature_moyenne_min_max,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_temperature_moyenne_min_max,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_amplitude_thermique,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_amplitude_thermique,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_amplitude_thermique,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_amplitude_thermique,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_temperature_minimale_sol_10cm,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_temperature_minimale_sol_10cm,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_temperature_minimale_sol_10cm,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_temperature_minimale_sol_10cm,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_temperature_minimale_sol_50cm,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_temperature_minimale_sol_50cm,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_temperature_minimale_sol_50cm,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_temperature_minimale_sol_50cm,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_duree_gel,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_duree_gel,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_duree_gel,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_duree_gel,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_vitesse_vent_moyenne_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_vitesse_vent_moyenne_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_vitesse_vent_moyenne_10m,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_vitesse_vent_moyenne_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_vitesse_vent_moyenne_2m,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_vitesse_vent_moyenne_2m,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_vitesse_vent_moyenne_2m,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_vitesse_vent_moyenne_2m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_vitesse_vent_maximale_moyennee_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_vitesse_vent_maximale_moyennee_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_vitesse_vent_maximale_moyennee_10m,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_vitesse_vent_maximale_moyennee_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_direction_vent_maximal_moyenne_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_direction_vent_maximal_moyenne_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_direction_vent_maximal_moyenne_10m,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_direction_vent_maximal_moyenne_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_hxy,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_hxy,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_hxy,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_hxy,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_rafale_maximale_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_rafale_maximale_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_rafale_maximale_10m,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_rafale_maximale_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_direction_rafale_maximale_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_direction_rafale_maximale_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_direction_rafale_maximale_10m,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_direction_rafale_maximale_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_hxi,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_hxi,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_hxi,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_hxi,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_rafale_maximale_2m,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_rafale_maximale_2m,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_rafale_maximale_2m,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_rafale_maximale_2m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_direction_rafale_maximale_2m,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_direction_rafale_maximale_2m,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_direction_rafale_maximale_2m,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_direction_rafale_maximale_2m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_hxi2,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_hxi2,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_hxi2,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_hxi2,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_rafale_maximale_3s_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_rafale_maximale_3s_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_rafale_maximale_3s_10m,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_rafale_maximale_3s_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_direction_rafale_maximale_3s_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_direction_rafale_maximale_3s_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_direction_rafale_maximale_3s_10m,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_direction_rafale_maximale_3s_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_hxi3s,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_hxi3s,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_hxi3s,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_hxi3s,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_duree_precipitation,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_duree_precipitation,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_duree_precipitation,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_duree_precipitation,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_duree_humectation,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_duree_humectation,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_duree_humectation,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_duree_humectation,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_pression_mer_moyenne,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_pression_mer_moyenne,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_pression_mer_moyenne,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_pression_mer_moyenne,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_pression_mer_minimale,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_pression_mer_minimale,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_pression_mer_minimale,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_pression_mer_minimale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_duree_insolation,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_duree_insolation,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_duree_insolation,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_duree_insolation,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_rayonnement_global,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_rayonnement_global,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_rayonnement_global,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_rayonnement_global,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_rayonnement_diffus,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_rayonnement_diffus,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_rayonnement_diffus,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_rayonnement_diffus,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_rayonnement_direct,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_rayonnement_direct,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_rayonnement_direct,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_rayonnement_direct,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_rayonnement_infrarouge,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_rayonnement_infrarouge,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_rayonnement_infrarouge,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_rayonnement_infrarouge,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_rayonnement_ultraviolet,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_rayonnement_ultraviolet,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_rayonnement_ultraviolet,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_rayonnement_ultraviolet,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_indice_uv_maximal,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_indice_uv_maximal,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_indice_uv_maximal,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_indice_uv_maximal,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_fraction_insolation,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_fraction_insolation,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_fraction_insolation,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_fraction_insolation,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_humidite_minimale,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_humidite_minimale,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_humidite_minimale,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_humidite_minimale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_hun,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_hun,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_hun,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_hun,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_humidite_maximale,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_humidite_maximale,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_humidite_maximale,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_humidite_maximale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_hux,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_hux,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_hux,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_hux,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_humidite_moyenne,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_humidite_moyenne,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_humidite_moyenne,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_humidite_moyenne,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_duree_humidite_inf_40,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_duree_humidite_inf_40,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_duree_humidite_inf_40,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_duree_humidite_inf_40,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_duree_humidite_sup_80,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_duree_humidite_sup_80,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_duree_humidite_sup_80,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_duree_humidite_sup_80,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_tension_vapeur_moyenne,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_tension_vapeur_moyenne,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_tension_vapeur_moyenne,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_tension_vapeur_moyenne,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_evapotranspiration_penman_monteith,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_evapotranspiration_penman_monteith,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_evapotranspiration_penman_monteith,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_evapotranspiration_penman_monteith,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_evapotranspiration_point_grille,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_evapotranspiration_point_grille,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_evapotranspiration_point_grille,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_evapotranspiration_point_grille,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_hauteur_neige_fraiche,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_hauteur_neige_fraiche,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_hauteur_neige_fraiche,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_hauteur_neige_fraiche,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_hauteur_neige_maximale,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_hauteur_neige_maximale,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_hauteur_neige_maximale,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_hauteur_neige_maximale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_hauteur_neige_06h,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_hauteur_neige_06h,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_hauteur_neige_06h,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_hauteur_neige_06h,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,occurrence_neige,0,,Phénomène non observé
+quotidienne,occurrence_neige,1,,Phénomène observé
+quotidienne,qualite_occurrence_neige,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_occurrence_neige,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_occurrence_neige,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_occurrence_neige,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,occurrence_brouillard,0,,Phénomène non observé
+quotidienne,occurrence_brouillard,1,,Phénomène observé
+quotidienne,qualite_occurrence_brouillard,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_occurrence_brouillard,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_occurrence_brouillard,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_occurrence_brouillard,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,occurrence_orage,0,,Phénomène non observé
+quotidienne,occurrence_orage,1,,Phénomène observé
+quotidienne,qualite_occurrence_orage,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_occurrence_orage,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_occurrence_orage,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_occurrence_orage,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,occurrence_gresil,0,,Phénomène non observé
+quotidienne,occurrence_gresil,1,,Phénomène observé
+quotidienne,qualite_occurrence_gresil,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_occurrence_gresil,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_occurrence_gresil,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_occurrence_gresil,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,occurrence_grele,0,,Phénomène non observé
+quotidienne,occurrence_grele,1,,Phénomène observé
+quotidienne,qualite_occurrence_grele,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_occurrence_grele,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_occurrence_grele,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_occurrence_grele,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,occurrence_rosee,0,,Phénomène non observé
+quotidienne,occurrence_rosee,1,,Phénomène observé
+quotidienne,qualite_occurrence_rosee,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_occurrence_rosee,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_occurrence_rosee,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_occurrence_rosee,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,occurrence_verglas,0,,Phénomène non observé
+quotidienne,occurrence_verglas,1,,Phénomène observé
+quotidienne,qualite_occurrence_verglas,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_occurrence_verglas,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_occurrence_verglas,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_occurrence_verglas,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,occurrence_sol_enneige,0,,Phénomène non observé
+quotidienne,occurrence_sol_enneige,1,,Phénomène observé
+quotidienne,qualite_occurrence_sol_enneige,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_occurrence_sol_enneige,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_occurrence_sol_enneige,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_occurrence_sol_enneige,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,occurrence_gelee_blanche,0,,Phénomène non observé
+quotidienne,occurrence_gelee_blanche,1,,Phénomène observé
+quotidienne,qualite_occurrence_gelee_blanche,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_occurrence_gelee_blanche,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_occurrence_gelee_blanche,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_occurrence_gelee_blanche,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,occurrence_fumee,0,,Phénomène non observé
+quotidienne,occurrence_fumee,1,,Phénomène observé
+quotidienne,qualite_occurrence_fumee,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_occurrence_fumee,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_occurrence_fumee,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_occurrence_fumee,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,occurrence_brume,0,,Phénomène non observé
+quotidienne,occurrence_brume,1,,Phénomène observé
+quotidienne,qualite_occurrence_brume,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_occurrence_brume,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_occurrence_brume,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_occurrence_brume,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,occurrence_eclair,0,,Phénomène non observé
+quotidienne,occurrence_eclair,1,,Phénomène observé
+quotidienne,qualite_occurrence_eclair,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_occurrence_eclair,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_occurrence_eclair,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_occurrence_eclair,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_nebulosite_maximale_sous_300m,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_nebulosite_maximale_sous_300m,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_nebulosite_maximale_sous_300m,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_nebulosite_maximale_sous_300m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_hauteur_base_sous_300m,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_hauteur_base_sous_300m,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_hauteur_base_sous_300m,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_hauteur_base_sous_300m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_temperature_mer_minimale,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_temperature_mer_minimale,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_temperature_mer_minimale,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_temperature_mer_minimale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,qualite_temperature_mer_maximale,0,,"Donnée protégée, validée définitivement par le climatologue"
+quotidienne,qualite_temperature_mer_maximale,1,,Donnée validée par contrôle automatique ou par le climatologue
+quotidienne,qualite_temperature_mer_maximale,2,,"Donnée douteuse, en cours de vérification"
+quotidienne,qualite_temperature_mer_maximale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_precipitation_totale,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_precipitation_totale,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_precipitation_totale,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_precipitation_totale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_precipitation_quotidienne_maximale,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_precipitation_quotidienne_maximale,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_precipitation_quotidienne_maximale,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_precipitation_quotidienne_maximale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_pression_mer_moyenne,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_pression_mer_moyenne,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_pression_mer_moyenne,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_pression_mer_moyenne,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_pression_mer_minimale_absolue,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_pression_mer_minimale_absolue,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_pression_mer_minimale_absolue,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_pression_mer_minimale_absolue,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_temperature_maximale_moyenne,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_temperature_maximale_moyenne,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_temperature_maximale_moyenne,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_temperature_maximale_moyenne,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_temperature_maximale_absolue,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_temperature_maximale_absolue,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_temperature_maximale_absolue,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_temperature_maximale_absolue,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_temperature_maximale_la_plus_basse,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_temperature_maximale_la_plus_basse,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_temperature_maximale_la_plus_basse,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_temperature_maximale_la_plus_basse,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_temperature_minimale_moyenne,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_temperature_minimale_moyenne,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_temperature_minimale_moyenne,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_temperature_minimale_moyenne,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_temperature_minimale_absolue,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_temperature_minimale_absolue,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_temperature_minimale_absolue,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_temperature_minimale_absolue,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_temperature_minimale_la_plus_haute,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_temperature_minimale_la_plus_haute,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_temperature_minimale_la_plus_haute,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_temperature_minimale_la_plus_haute,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_amplitude_thermique_moyenne,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_amplitude_thermique_moyenne,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_amplitude_thermique_moyenne,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_amplitude_thermique_moyenne,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_amplitude_thermique_absolue,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_amplitude_thermique_absolue,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_amplitude_thermique_absolue,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_amplitude_thermique_absolue,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_temperature_moyenne_min_max,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_temperature_moyenne_min_max,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_temperature_moyenne_min_max,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_temperature_moyenne_min_max,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_temperature_moyenne,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_temperature_moyenne,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_temperature_moyenne,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_temperature_moyenne,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_temperature_moyenne_min_max_minimale,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_temperature_moyenne_min_max_minimale,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_temperature_moyenne_min_max_minimale,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_temperature_moyenne_min_max_minimale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_temperature_moyenne_min_max_maximale,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_temperature_moyenne_min_max_maximale,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_temperature_moyenne_min_max_maximale,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_temperature_moyenne_min_max_maximale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_humidite_minimale_absolue,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_humidite_minimale_absolue,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_humidite_minimale_absolue,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_humidite_minimale_absolue,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_humidite_maximale_absolue,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_humidite_maximale_absolue,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_humidite_maximale_absolue,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_humidite_maximale_absolue,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_humidite_moyenne,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_humidite_moyenne,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_humidite_moyenne,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_humidite_moyenne,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_tension_vapeur_moyenne,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_tension_vapeur_moyenne,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_tension_vapeur_moyenne,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_tension_vapeur_moyenne,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_evapotranspiration_totale,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_evapotranspiration_totale,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_evapotranspiration_totale,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_evapotranspiration_totale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_rafale_maximale_absolue_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_rafale_maximale_absolue_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_rafale_maximale_absolue_10m,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_rafale_maximale_absolue_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_direction_rafale_maximale_absolue_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_direction_rafale_maximale_absolue_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_direction_rafale_maximale_absolue_10m,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_direction_rafale_maximale_absolue_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_rafale_maximale_3s_absolue_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_rafale_maximale_3s_absolue_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_rafale_maximale_3s_absolue_10m,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_rafale_maximale_3s_absolue_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_direction_rafale_maximale_3s_absolue_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_direction_rafale_maximale_3s_absolue_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_direction_rafale_maximale_3s_absolue_10m,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_direction_rafale_maximale_3s_absolue_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_vitesse_vent_maximale_moyennee_absolue_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_vitesse_vent_maximale_moyennee_absolue_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_vitesse_vent_maximale_moyennee_absolue_10m,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_vitesse_vent_maximale_moyennee_absolue_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_direction_vent_maximal_moyenne_absolue_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_direction_vent_maximal_moyenne_absolue_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_direction_vent_maximal_moyenne_absolue_10m,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_direction_vent_maximal_moyenne_absolue_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_vitesse_vent_moyenne_10m,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_vitesse_vent_moyenne_10m,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_vitesse_vent_moyenne_10m,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_vitesse_vent_moyenne_10m,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_duree_insolation_totale,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_duree_insolation_totale,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_duree_insolation_totale,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_duree_insolation_totale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_rayonnement_global_total,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_rayonnement_global_total,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_rayonnement_global_total,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_rayonnement_global_total,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_rayonnement_diffus_total,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_rayonnement_diffus_total,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_rayonnement_diffus_total,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_rayonnement_diffus_total,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_rayonnement_direct_total,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_rayonnement_direct_total,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_rayonnement_direct_total,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_rayonnement_direct_total,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_hauteur_neige_fraiche_totale,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_hauteur_neige_fraiche_totale,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_hauteur_neige_fraiche_totale,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_hauteur_neige_fraiche_totale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_hauteur_neige_fraiche_maximale,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_hauteur_neige_fraiche_maximale,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_hauteur_neige_fraiche_maximale,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_hauteur_neige_fraiche_maximale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_hauteur_neige_moyenne,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_hauteur_neige_moyenne,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_hauteur_neige_moyenne,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_hauteur_neige_moyenne,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+mensuelle,qualite_hauteur_neige_maximale,0,,"Donnée protégée, validée définitivement par le climatologue"
+mensuelle,qualite_hauteur_neige_maximale,1,,Donnée validée par contrôle automatique ou par le climatologue
+mensuelle,qualite_hauteur_neige_maximale,2,,"Donnée douteuse, en cours de vérification"
+mensuelle,qualite_hauteur_neige_maximale,9,,"Donnée filtrée, ayant passé les contrôles de premier niveau"
+quotidienne,mode_obtention_rafale_3s,0,,Non calculé
+quotidienne,mode_obtention_rafale_3s,1,,Calculé à partir d'une fonction de transfert
+quotidienne,mode_obtention_direction_rafale_3s,0,,Mesuré
+quotidienne,mode_obtention_direction_rafale_3s,1,,Assimilé à la direction de la rafale instantanée

@@ -1,0 +1,139 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+annee,INT64,Ano da observação,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"O arquivo diário remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",AAAAMMJJ
+mois,INT64,Mês da observação,,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,AAAAMMJJ
+date,DATE,Data da observação,,no,,,no,,AAAAMMJJ
+numero_poste,STRING,"Número Météo-France do posto, de oito dígitos",,no,,,no,,NUM_POSTE
+precipitation,FLOAT64,"Precipitação acumulada em 24 horas, das 06h UTC do dia J às 06h UTC do dia J+1, atribuída ao dia J",,no,,millimeter,no,,RR
+qualite_precipitation,STRING,Código de qualidade de precipitation,,yes,,,no,,QRR
+temperature_minimale,FLOAT64,Temperatura mínima sob abrigo,,no,,celsius_degree,no,,TN
+qualite_temperature_minimale,STRING,Código de qualidade de temperature_minimale,,yes,,,no,,QTN
+heure_temperature_minimale,STRING,"Hora em que temperature_minimale foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HTN
+qualite_htn,STRING,Código de qualidade de htn,,yes,,,no,,QHTN
+temperature_maximale,FLOAT64,Temperatura máxima sob abrigo,,no,,celsius_degree,no,,TX
+qualite_temperature_maximale,STRING,Código de qualidade de temperature_maximale,,yes,,,no,,QTX
+heure_temperature_maximale,STRING,"Hora em que temperature_maximale foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HTX
+qualite_htx,STRING,Código de qualidade de htx,,yes,,,no,,QHTX
+temperature_moyenne,FLOAT64,Média diária das temperaturas horárias sob abrigo,,no,,celsius_degree,no,,TM
+qualite_temperature_moyenne,STRING,Código de qualidade de temperature_moyenne,,yes,,,no,,QTM
+temperature_moyenne_min_max,FLOAT64,Média diária entre a temperatura mínima e a máxima,,no,,celsius_degree,no,,TNTXM
+qualite_temperature_moyenne_min_max,STRING,Código de qualidade de temperature_moyenne_min_max,,yes,,,no,,QTNTXM
+amplitude_thermique,FLOAT64,"Amplitude térmica diária, isto é, a diferença entre a temperatura máxima e a mínima",,no,,celsius_degree,no,,TAMPLI
+qualite_amplitude_thermique,STRING,Código de qualidade de amplitude_thermique,,yes,,,no,,QTAMPLI
+temperature_minimale_sol_10cm,FLOAT64,Temperatura mínima diária a 10 cm acima do solo,,no,,celsius_degree,no,,TNSOL
+qualite_temperature_minimale_sol_10cm,STRING,Código de qualidade de temperature_minimale_sol_10cm,,yes,,,no,,QTNSOL
+temperature_minimale_sol_50cm,FLOAT64,Temperatura mínima diária a 50 cm acima do solo,,no,,celsius_degree,no,,TN50
+qualite_temperature_minimale_sol_50cm,STRING,Código de qualidade de temperature_minimale_sol_50cm,,yes,,,no,,QTN50
+duree_gel,FLOAT64,"Duração de geada sob abrigo, isto é, o tempo com temperatura igual ou inferior a 0 °C",,no,,minute,no,,DG
+qualite_duree_gel,STRING,Código de qualidade de duree_gel,,yes,,,no,,QDG
+vitesse_vent_moyenne_10m,FLOAT64,"Média diária da velocidade do vento medida em 10 minutos, a 10 m do solo",,no,,meter / second,no,,FFM
+qualite_vitesse_vent_moyenne_10m,STRING,Código de qualidade de vitesse_vent_moyenne_10m,,yes,,,no,,QFFM
+vitesse_vent_moyenne_2m,FLOAT64,"Média diária da velocidade do vento medida em 10 minutos, a 2 m do solo",,no,,meter / second,no,,FF2M
+qualite_vitesse_vent_moyenne_2m,STRING,Código de qualidade de vitesse_vent_moyenne_2m,,yes,,,no,,QFF2M
+vitesse_vent_maximale_moyennee_10m,FLOAT64,"Máximo diário da velocidade máxima horária do vento medida em 10 minutos, a 10 m do solo",,no,,meter / second,no,,FXY
+qualite_vitesse_vent_maximale_moyennee_10m,STRING,Código de qualidade de vitesse_vent_maximale_moyennee_10m,,yes,,,no,,QFXY
+direction_vent_maximal_moyenne_10m,INT64,"Direção do vento registrado em vitesse_vent_maximale_moyennee_10m, na rosa de 360 graus",,no,,degree,no,,DXY
+qualite_direction_vent_maximal_moyenne_10m,STRING,Código de qualidade de direction_vent_maximal_moyenne_10m,,yes,,,no,,QDXY
+heure_vitesse_vent_maximale_moyennee_10m,STRING,"Hora em que vitesse_vent_maximale_moyennee_10m foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HXY
+qualite_hxy,STRING,Código de qualidade de hxy,,yes,,,no,,QHXY
+rafale_maximale_10m,FLOAT64,"Máximo diário da rajada máxima horária do vento instantâneo, a 10 m do solo",,no,,meter / second,no,,FXI
+qualite_rafale_maximale_10m,STRING,Código de qualidade de rafale_maximale_10m,,yes,,,no,,QFXI
+direction_rafale_maximale_10m,INT64,"Direção da rajada registrada em rafale_maximale_10m, na rosa de 360 graus",,no,,degree,no,,DXI
+qualite_direction_rafale_maximale_10m,STRING,Código de qualidade de direction_rafale_maximale_10m,,yes,,,no,,QDXI
+heure_rafale_maximale_10m,STRING,"Hora em que rafale_maximale_10m foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HXI
+qualite_hxi,STRING,Código de qualidade de hxi,,yes,,,no,,QHXI
+rafale_maximale_2m,FLOAT64,"Máximo diário da rajada máxima horária do vento instantâneo, a 2 m do solo",,no,,meter / second,no,,FXI2
+qualite_rafale_maximale_2m,STRING,Código de qualidade de rafale_maximale_2m,,yes,,,no,,QFXI2
+direction_rafale_maximale_2m,INT64,"Direção da rajada registrada em rafale_maximale_2m, na rosa de 360 graus",,no,,degree,no,,DXI2
+qualite_direction_rafale_maximale_2m,STRING,Código de qualidade de direction_rafale_maximale_2m,,yes,,,no,,QDXI2
+heure_rafale_maximale_2m,STRING,"Hora em que rafale_maximale_2m foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HXI2
+qualite_hxi2,STRING,Código de qualidade de hxi2,,yes,,,no,,QHXI2
+rafale_maximale_3s_10m,FLOAT64,"Máximo diário da rajada máxima horária do vento medida em 3 segundos, a 10 m do solo",,no,,meter / second,no,,FXI3S
+qualite_rafale_maximale_3s_10m,STRING,Código de qualidade de rafale_maximale_3s_10m,,yes,,,no,,QFXI3S
+direction_rafale_maximale_3s_10m,INT64,"Direção da rajada registrada em rafale_maximale_3s_10m, na rosa de 360 graus",,no,,degree,no,,DXI3S
+qualite_direction_rafale_maximale_3s_10m,STRING,Código de qualidade de direction_rafale_maximale_3s_10m,,yes,,,no,,QDXI3S
+heure_rafale_maximale_3s_10m,STRING,"Hora em que rafale_maximale_3s_10m foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HXI3S
+qualite_hxi3s,STRING,Código de qualidade de hxi3s,,yes,,,no,,QHXI3S
+duree_precipitation,FLOAT64,Duração das precipitações,,no,,minute,no,,DRR
+qualite_duree_precipitation,STRING,Código de qualidade de duree_precipitation,,yes,,,no,,QDRR
+mode_obtention_rafale_3s,STRING,Modo de obtenção da rajada de 3 segundos: medida ou calculada por função de transferência,,no,,,no,,STATUS_FXI3S
+mode_obtention_direction_rafale_3s,STRING,Modo de obtenção da direção da rajada de 3 segundos: medida ou assimilada à direção da rajada instantânea,,no,,,no,,STATUS_DXI3S
+duree_humectation,FLOAT64,"Duração de humectação, isto é, o tempo com a superfície molhada",,no,,minute,no,,DHUMEC
+qualite_duree_humectation,STRING,Código de qualidade de duree_humectation,,yes,,,no,,QDHUMEC
+pression_mer_moyenne,FLOAT64,Média diária das pressões horárias reduzidas ao nível do mar,,no,,hectopascal,no,,PMERM
+qualite_pression_mer_moyenne,STRING,Código de qualidade de pression_mer_moyenne,,yes,,,no,,QPMERM
+pression_mer_minimale,FLOAT64,Mínimo diário das pressões horárias mínimas reduzidas ao nível do mar,,no,,hectopascal,no,,PMERMIN
+qualite_pression_mer_minimale,STRING,Código de qualidade de pression_mer_minimale,,yes,,,no,,QPMERMIN
+duree_insolation,FLOAT64,Duração diária de insolação,,no,,minute,no,,INST
+qualite_duree_insolation,STRING,Código de qualidade de duree_insolation,,yes,,,no,,QINST
+rayonnement_global,FLOAT64,Radiação global diária,,no,,joule_per_square_centimeter,no,,GLOT
+qualite_rayonnement_global,STRING,Código de qualidade de rayonnement_global,,yes,,,no,,QGLOT
+rayonnement_diffus,FLOAT64,Radiação difusa diária,,no,,joule_per_square_centimeter,no,,DIFT
+qualite_rayonnement_diffus,STRING,Código de qualidade de rayonnement_diffus,,yes,,,no,,QDIFT
+rayonnement_direct,FLOAT64,Radiação direta diária,,no,,joule_per_square_centimeter,no,,DIRT
+qualite_rayonnement_direct,STRING,Código de qualidade de rayonnement_direct,,yes,,,no,,QDIRT
+rayonnement_infrarouge,FLOAT64,Soma das radiações infravermelhas horárias,,no,,joule_per_square_centimeter,no,,INFRART
+qualite_rayonnement_infrarouge,STRING,Código de qualidade de rayonnement_infrarouge,,yes,,,no,,QINFRART
+rayonnement_ultraviolet,FLOAT64,Acumulado diário de radiação ultravioleta,,no,,joule_per_square_centimeter,no,,UV
+qualite_rayonnement_ultraviolet,STRING,Código de qualidade de rayonnement_ultraviolet,,yes,,,no,,QUV
+indice_uv_maximal,FLOAT64,Máximo dos índices UV horários,,no,,,no,,UV_INDICEX
+qualite_indice_uv_maximal,STRING,Código de qualidade de indice_uv_maximal,,yes,,,no,,QUV_INDICEX
+fraction_insolation,FLOAT64,Fração de insolação em relação à duração do dia,,no,,percent,no,,SIGMA
+qualite_fraction_insolation,STRING,Código de qualidade de fraction_insolation,,yes,,,no,,QSIGMA
+humidite_minimale,FLOAT64,Mínimo diário das umidades relativas mínimas horárias,,no,,percent,no,,UN
+qualite_humidite_minimale,STRING,Código de qualidade de humidite_minimale,,yes,,,no,,QUN
+heure_humidite_minimale,STRING,"Hora em que humidite_minimale foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HUN
+qualite_hun,STRING,Código de qualidade de hun,,yes,,,no,,QHUN
+humidite_maximale,FLOAT64,Máximo diário das umidades relativas máximas horárias,,no,,percent,no,,UX
+qualite_humidite_maximale,STRING,Código de qualidade de humidite_maximale,,yes,,,no,,QUX
+heure_humidite_maximale,STRING,"Hora em que humidite_maximale foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HUX
+qualite_hux,STRING,Código de qualidade de hux,,yes,,,no,,QHUX
+humidite_moyenne,FLOAT64,Média diária das umidades relativas horárias,,no,,percent,no,,UM
+qualite_humidite_moyenne,STRING,Código de qualidade de humidite_moyenne,,yes,,,no,,QUM
+duree_humidite_inf_40,FLOAT64,Duração com umidade relativa igual ou inferior a 40%,,no,,minute,no,,DHUMI40
+qualite_duree_humidite_inf_40,STRING,Código de qualidade de duree_humidite_inf_40,,yes,,,no,,QDHUMI40
+duree_humidite_sup_80,FLOAT64,Duração com umidade relativa igual ou superior a 80%,,no,,minute,no,,DHUMI80
+qualite_duree_humidite_sup_80,STRING,Código de qualidade de duree_humidite_sup_80,,yes,,,no,,QDHUMI80
+tension_vapeur_moyenne,FLOAT64,Tensão de vapor média,,no,,hectopascal,no,,TSVM
+qualite_tension_vapeur_moyenne,STRING,Código de qualidade de tension_vapeur_moyenne,,yes,,,no,,QTSVM
+evapotranspiration_penman_monteith,FLOAT64,Evapotranspiração potencial diária de Penman-Monteith,,no,,millimeter,no,,ETPMON
+qualite_evapotranspiration_penman_monteith,STRING,Código de qualidade de evapotranspiration_penman_monteith,,yes,,,no,,QETPMON
+evapotranspiration_point_grille,FLOAT64,Evapotranspiração potencial de Penman-Monteith calculada no ponto de grade mais próximo,,no,,millimeter,no,,ETPGRILLE
+qualite_evapotranspiration_point_grille,STRING,Código de qualidade de evapotranspiration_point_grille,,yes,,,no,,QETPGRILLE
+hauteur_neige_fraiche,FLOAT64,"Altura de neve fresca caída em 24 horas e ainda presente no solo às 06h UTC, atribuída ao dia J",,no,,centimeter,no,,HNEIGEF
+qualite_hauteur_neige_fraiche,STRING,Código de qualidade de hauteur_neige_fraiche,,yes,,,no,,QHNEIGEF
+hauteur_neige_maximale,FLOAT64,"Espessura máxima diária de neve, entre 01h e 24h UTC",,no,,centimeter,no,,NEIGETOTX
+qualite_hauteur_neige_maximale,STRING,Código de qualidade de hauteur_neige_maximale,,yes,,,no,,QNEIGETOTX
+hauteur_neige_06h,FLOAT64,Espessura total de neve no solo medida às 06h UTC,,no,,centimeter,no,,NEIGETOT06
+qualite_hauteur_neige_06h,STRING,Código de qualidade de hauteur_neige_06h,,yes,,,no,,QNEIGETOT06
+occurrence_neige,STRING,"Ocorrência de neve no dia, codificada como 0 ou 1",,yes,,,no,,NEIG
+qualite_occurrence_neige,STRING,Código de qualidade de occurrence_neige,,yes,,,no,,QNEIG
+occurrence_brouillard,STRING,"Ocorrência de nevoeiro no dia, codificada como 0 ou 1",,yes,,,no,,BROU
+qualite_occurrence_brouillard,STRING,Código de qualidade de occurrence_brouillard,,yes,,,no,,QBROU
+occurrence_orage,STRING,"Ocorrência de trovoada no dia, codificada como 0 ou 1",,yes,,,no,,ORAG
+qualite_occurrence_orage,STRING,Código de qualidade de occurrence_orage,,yes,,,no,,QORAG
+occurrence_gresil,STRING,"Ocorrência de granizo miúdo no dia, codificada como 0 ou 1",,yes,,,no,,GRESIL
+qualite_occurrence_gresil,STRING,Código de qualidade de occurrence_gresil,,yes,,,no,,QGRESIL
+occurrence_grele,STRING,"Ocorrência de granizo no dia, codificada como 0 ou 1",,yes,,,no,,GRELE
+qualite_occurrence_grele,STRING,Código de qualidade de occurrence_grele,,yes,,,no,,QGRELE
+occurrence_rosee,STRING,"Ocorrência de orvalho no dia, codificada como 0 ou 1",,yes,,,no,,ROSEE
+qualite_occurrence_rosee,STRING,Código de qualidade de occurrence_rosee,,yes,,,no,,QROSEE
+occurrence_verglas,STRING,"Ocorrência de gelo negro no dia, codificada como 0 ou 1",,yes,,,no,,VERGLAS
+qualite_occurrence_verglas,STRING,Código de qualidade de occurrence_verglas,,yes,,,no,,QVERGLAS
+occurrence_sol_enneige,STRING,"Ocorrência de solo coberto de neve no dia, codificada como 0 ou 1",,yes,,,no,,SOLNEIGE
+qualite_occurrence_sol_enneige,STRING,Código de qualidade de occurrence_sol_enneige,,yes,,,no,,QSOLNEIGE
+occurrence_gelee_blanche,STRING,"Ocorrência de geada branca no dia, codificada como 0 ou 1",,yes,,,no,,GELEE
+qualite_occurrence_gelee_blanche,STRING,Código de qualidade de occurrence_gelee_blanche,,yes,,,no,,QGELEE
+occurrence_fumee,STRING,"Ocorrência de fumaça no dia, codificada como 0 ou 1",,yes,,,no,,FUMEE
+qualite_occurrence_fumee,STRING,Código de qualidade de occurrence_fumee,,yes,,,no,,QFUMEE
+occurrence_brume,STRING,"Ocorrência de bruma no dia, codificada como 0 ou 1",,yes,,,no,,BRUME
+qualite_occurrence_brume,STRING,Código de qualidade de occurrence_brume,,yes,,,no,,QBRUME
+occurrence_eclair,STRING,"Ocorrência de relâmpago no dia, codificada como 0 ou 1",,yes,,,no,,ECLAIR
+qualite_occurrence_eclair,STRING,Código de qualidade de occurrence_eclair,,yes,,,no,,QECLAIR
+nebulosite_maximale_sous_300m,INT64,Nebulosidade máxima superior a 4 oitavos com base abaixo de 300 m,,no,,,no,,NB300
+qualite_nebulosite_maximale_sous_300m,STRING,Código de qualidade de nebulosite_maximale_sous_300m,,yes,,,no,,QNB300
+hauteur_base_sous_300m,FLOAT64,Altura mínima da base da nebulosidade registrada em nebulosite_maximale_sous_300m,,no,,meter,no,,BA300
+qualite_hauteur_base_sous_300m,STRING,Código de qualidade de hauteur_base_sous_300m,,yes,,,no,,QBA300
+temperature_mer_minimale,FLOAT64,Temperatura mínima diária da água do mar,,no,,celsius_degree,no,,TMERMIN
+qualite_temperature_mer_minimale,STRING,Código de qualidade de temperature_mer_minimale,,yes,,,no,,QTMERMIN
+temperature_mer_maximale,FLOAT64,Temperatura máxima diária da água do mar,,no,,celsius_degree,no,,TMERMAX
+qualite_temperature_mer_maximale,STRING,Código de qualidade de temperature_mer_maximale,,yes,,,no,,QTMERMAX

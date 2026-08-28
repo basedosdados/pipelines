@@ -384,11 +384,84 @@ def add_indicateurs():
     add("normale_climatologique", "indicateur", sorted(labels.items()))
 
 
+# --- Données climatologiques de base ----------------------------------------
+# The daily and monthly series attach a quality code to every measurement, and
+# the daily series carries a dozen 0/1 occurrence flags. Both families are
+# generated from the schema map rather than listed by hand.
+QUALITE = [
+    ("0", "Donnée protégée, validée définitivement par le climatologue"),
+    ("1", "Donnée validée par contrôle automatique ou par le climatologue"),
+    ("2", "Donnée douteuse, en cours de vérification"),
+    ("9", "Donnée filtrée, ayant passé les contrôles de premier niveau"),
+]
+OCCURRENCE = [("0", "Phénomène non observé"), ("1", "Phénomène observé")]
+MODE_RAFALE = [
+    ("0", "Non calculé"),
+    ("1", "Calculé à partir d'une fonction de transfert"),
+]
+MODE_DIRECTION_RAFALE = [
+    ("0", "Mesuré"),
+    ("1", "Assimilé à la direction de la rafale instantanée"),
+]
+
+
+def add_climatologie():
+    """Quality codes and occurrence flags for `quotidienne` and `mensuelle`."""
+    import gzip
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import clim_schema as cs
+
+    inp = Path(
+        os.path.expanduser(
+            os.environ.get(
+                "MFC_INPUT", "~/Downloads/fr_meteofrance_clim/input"
+            )
+        )
+    )
+
+    def header(path):
+        with gzip.open(path, "rt", encoding="utf-8") as fh:
+            return fh.readline().strip().split(";")
+
+    d = cs.descriptors()
+    quot_a = header(next((inp / "quot").glob("*_RR-T-Vent.csv.gz")))
+    quot_b = header(next((inp / "quot").glob("*_autres-parametres.csv.gz")))
+    mens = header(next((inp / "mens").glob("*.csv.gz")))
+
+    spec = {
+        "quotidienne": cs.expand(
+            quot_a + [c for c in quot_b if c not in quot_a],
+            cs.QUOT_PARAMS,
+            cs.QUOT_FLAGS,
+            d,
+        ),
+        "mensuelle": cs.expand(mens, cs.MENS_PARAMS, {}, d),
+    }
+    for table, rows in spec.items():
+        for name, _t, _u, is_dict, *_rest in rows:
+            if not is_dict:
+                continue
+            if name.startswith("qualite_"):
+                add(table, name, QUALITE)
+            elif name.startswith("occurrence_"):
+                add(table, name, OCCURRENCE)
+    add("quotidienne", "mode_obtention_rafale_3s", MODE_RAFALE)
+    add(
+        "quotidienne",
+        "mode_obtention_direction_rafale_3s",
+        MODE_DIRECTION_RAFALE,
+    )
+
+
 if __name__ == "__main__":
     import sys
 
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     add_indicateurs()
+    add_climatologie()
 
     df = pd.DataFrame(
         rows,

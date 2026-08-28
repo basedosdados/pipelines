@@ -1,0 +1,2923 @@
+{
+  "quotidienne": [
+    {
+      "name": "annee",
+      "bigquery_type": "INT64",
+      "description_pt": "Ano da observação",
+      "description_en": "Year of the observation",
+      "description_es": "Año de la observación",
+      "covered_by_dictionary": false,
+      "is_partition": true,
+      "measurement_unit": "year",
+      "observations": "O arquivo diário remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",
+      "directory_column": "br_bd_diretorios_data_tempo.ano:ano"
+    },
+    {
+      "name": "mois",
+      "bigquery_type": "INT64",
+      "description_pt": "Mês da observação",
+      "description_en": "Month of the observation",
+      "description_es": "Mes de la observación",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "month",
+      "directory_column": "br_bd_diretorios_data_tempo.mes:mes"
+    },
+    {
+      "name": "date",
+      "bigquery_type": "DATE",
+      "description_pt": "Data da observação",
+      "description_en": "Date of the observation",
+      "description_es": "Fecha de la observación",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "numero_poste",
+      "bigquery_type": "STRING",
+      "description_pt": "Número Météo-France do posto, de oito dígitos",
+      "description_en": "Eight-digit Météo-France station number",
+      "description_es": "Número Météo-France del puesto, de ocho dígitos",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "precipitation",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Precipitação acumulada em 24 horas, das 06h UTC do dia J às 06h UTC do dia J+1, atribuída ao dia J",
+      "description_en": "Precipitation accumulated over 24 hours, from 06:00 UTC on day J to 06:00 UTC on day J+1, assigned to day J",
+      "description_es": "Precipitación acumulada en 24 horas, de las 06h UTC del día J a las 06h UTC del día J+1, asignada al día J",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "millimeter"
+    },
+    {
+      "name": "qualite_precipitation",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de precipitation",
+      "description_en": "Quality code of precipitation",
+      "description_es": "Código de calidad de precipitation",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "temperature_minimale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura mínima sob abrigo",
+      "description_en": "Minimum temperature in the shelter",
+      "description_es": "Temperatura mínima bajo abrigo",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_minimale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_minimale",
+      "description_en": "Quality code of temperature_minimale",
+      "description_es": "Código de calidad de temperature_minimale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "heure_temperature_minimale",
+      "bigquery_type": "STRING",
+      "description_pt": "Hora em que temperature_minimale foi observado, no formato hhmm publicado pela fonte",
+      "description_en": "Time at which temperature_minimale was observed, in the hhmm form the source publishes",
+      "description_es": "Hora en que se observó temperature_minimale, en el formato hhmm publicado por la fuente",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_htn",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de htn",
+      "description_en": "Quality code of htn",
+      "description_es": "Código de calidad de htn",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "temperature_maximale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura máxima sob abrigo",
+      "description_en": "Maximum temperature in the shelter",
+      "description_es": "Temperatura máxima bajo abrigo",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_maximale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_maximale",
+      "description_en": "Quality code of temperature_maximale",
+      "description_es": "Código de calidad de temperature_maximale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "heure_temperature_maximale",
+      "bigquery_type": "STRING",
+      "description_pt": "Hora em que temperature_maximale foi observado, no formato hhmm publicado pela fonte",
+      "description_en": "Time at which temperature_maximale was observed, in the hhmm form the source publishes",
+      "description_es": "Hora en que se observó temperature_maximale, en el formato hhmm publicado por la fuente",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_htx",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de htx",
+      "description_en": "Quality code of htx",
+      "description_es": "Código de calidad de htx",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "temperature_moyenne",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média diária das temperaturas horárias sob abrigo",
+      "description_en": "Daily mean of the hourly temperatures in the shelter",
+      "description_es": "Media diaria de las temperaturas horarias bajo abrigo",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_moyenne",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_moyenne",
+      "description_en": "Quality code of temperature_moyenne",
+      "description_es": "Código de calidad de temperature_moyenne",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "temperature_moyenne_min_max",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média diária entre a temperatura mínima e a máxima",
+      "description_en": "Daily mean of the minimum and maximum temperature",
+      "description_es": "Media diaria entre la temperatura mínima y la máxima",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_moyenne_min_max",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_moyenne_min_max",
+      "description_en": "Quality code of temperature_moyenne_min_max",
+      "description_es": "Código de calidad de temperature_moyenne_min_max",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "amplitude_thermique",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Amplitude térmica diária, isto é, a diferença entre a temperatura máxima e a mínima",
+      "description_en": "Daily temperature range, that is, the maximum minus the minimum temperature",
+      "description_es": "Amplitud térmica diaria, es decir, la diferencia entre la temperatura máxima y la mínima",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_amplitude_thermique",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de amplitude_thermique",
+      "description_en": "Quality code of amplitude_thermique",
+      "description_es": "Código de calidad de amplitude_thermique",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "temperature_minimale_sol_10cm",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura mínima diária a 10 cm acima do solo",
+      "description_en": "Daily minimum temperature 10 cm above the ground",
+      "description_es": "Temperatura mínima diaria a 10 cm sobre el suelo",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_minimale_sol_10cm",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_minimale_sol_10cm",
+      "description_en": "Quality code of temperature_minimale_sol_10cm",
+      "description_es": "Código de calidad de temperature_minimale_sol_10cm",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "temperature_minimale_sol_50cm",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura mínima diária a 50 cm acima do solo",
+      "description_en": "Daily minimum temperature 50 cm above the ground",
+      "description_es": "Temperatura mínima diaria a 50 cm sobre el suelo",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_minimale_sol_50cm",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_minimale_sol_50cm",
+      "description_en": "Quality code of temperature_minimale_sol_50cm",
+      "description_es": "Código de calidad de temperature_minimale_sol_50cm",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "duree_gel",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Duração de geada sob abrigo, isto é, o tempo com temperatura igual ou inferior a 0 °C",
+      "description_en": "Duration of frost in the shelter, that is, the time at or below 0 °C",
+      "description_es": "Duración de helada bajo abrigo, es decir, el tiempo con temperatura igual o inferior a 0 °C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "minute"
+    },
+    {
+      "name": "qualite_duree_gel",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de duree_gel",
+      "description_en": "Quality code of duree_gel",
+      "description_es": "Código de calidad de duree_gel",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "vitesse_vent_moyenne_10m",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média diária da velocidade do vento medida em 10 minutos, a 10 m do solo",
+      "description_en": "Daily mean of the 10-minute mean wind speed, at 10 m",
+      "description_es": "Media diaria de la velocidad del viento medida en 10 minutos, a 10 m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter / second"
+    },
+    {
+      "name": "qualite_vitesse_vent_moyenne_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de vitesse_vent_moyenne_10m",
+      "description_en": "Quality code of vitesse_vent_moyenne_10m",
+      "description_es": "Código de calidad de vitesse_vent_moyenne_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "vitesse_vent_moyenne_2m",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média diária da velocidade do vento medida em 10 minutos, a 2 m do solo",
+      "description_en": "Daily mean of the 10-minute mean wind speed, at 2 m",
+      "description_es": "Media diaria de la velocidad del viento medida en 10 minutos, a 2 m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter / second"
+    },
+    {
+      "name": "qualite_vitesse_vent_moyenne_2m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de vitesse_vent_moyenne_2m",
+      "description_en": "Quality code of vitesse_vent_moyenne_2m",
+      "description_es": "Código de calidad de vitesse_vent_moyenne_2m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "vitesse_vent_maximale_moyennee_10m",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo diário da velocidade máxima horária do vento medida em 10 minutos, a 10 m do solo",
+      "description_en": "Daily maximum of the hourly maximum 10-minute mean wind speed, at 10 m",
+      "description_es": "Máximo diario de la velocidad máxima horaria del viento medida en 10 minutos, a 10 m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter / second"
+    },
+    {
+      "name": "qualite_vitesse_vent_maximale_moyennee_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de vitesse_vent_maximale_moyennee_10m",
+      "description_en": "Quality code of vitesse_vent_maximale_moyennee_10m",
+      "description_es": "Código de calidad de vitesse_vent_maximale_moyennee_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "direction_vent_maximal_moyenne_10m",
+      "bigquery_type": "INT64",
+      "description_pt": "Direção do vento registrado em vitesse_vent_maximale_moyennee_10m, na rosa de 360 graus",
+      "description_en": "Direction of the wind recorded in vitesse_vent_maximale_moyennee_10m, on the 360-degree rose",
+      "description_es": "Dirección del viento registrado en vitesse_vent_maximale_moyennee_10m, en la rosa de 360 grados",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "qualite_direction_vent_maximal_moyenne_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de direction_vent_maximal_moyenne_10m",
+      "description_en": "Quality code of direction_vent_maximal_moyenne_10m",
+      "description_es": "Código de calidad de direction_vent_maximal_moyenne_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "heure_vitesse_vent_maximale_moyennee_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Hora em que vitesse_vent_maximale_moyennee_10m foi observado, no formato hhmm publicado pela fonte",
+      "description_en": "Time at which vitesse_vent_maximale_moyennee_10m was observed, in the hhmm form the source publishes",
+      "description_es": "Hora en que se observó vitesse_vent_maximale_moyennee_10m, en el formato hhmm publicado por la fuente",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_hxy",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hxy",
+      "description_en": "Quality code of hxy",
+      "description_es": "Código de calidad de hxy",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "rafale_maximale_10m",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo diário da rajada máxima horária do vento instantâneo, a 10 m do solo",
+      "description_en": "Daily maximum of the hourly maximum instantaneous wind gust, at 10 m",
+      "description_es": "Máximo diario de la racha máxima horaria del viento instantáneo, a 10 m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter / second"
+    },
+    {
+      "name": "qualite_rafale_maximale_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de rafale_maximale_10m",
+      "description_en": "Quality code of rafale_maximale_10m",
+      "description_es": "Código de calidad de rafale_maximale_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "direction_rafale_maximale_10m",
+      "bigquery_type": "INT64",
+      "description_pt": "Direção da rajada registrada em rafale_maximale_10m, na rosa de 360 graus",
+      "description_en": "Direction of the gust recorded in rafale_maximale_10m, on the 360-degree rose",
+      "description_es": "Dirección de la racha registrada en rafale_maximale_10m, en la rosa de 360 grados",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "qualite_direction_rafale_maximale_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de direction_rafale_maximale_10m",
+      "description_en": "Quality code of direction_rafale_maximale_10m",
+      "description_es": "Código de calidad de direction_rafale_maximale_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "heure_rafale_maximale_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Hora em que rafale_maximale_10m foi observado, no formato hhmm publicado pela fonte",
+      "description_en": "Time at which rafale_maximale_10m was observed, in the hhmm form the source publishes",
+      "description_es": "Hora en que se observó rafale_maximale_10m, en el formato hhmm publicado por la fuente",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_hxi",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hxi",
+      "description_en": "Quality code of hxi",
+      "description_es": "Código de calidad de hxi",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "rafale_maximale_2m",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo diário da rajada máxima horária do vento instantâneo, a 2 m do solo",
+      "description_en": "Daily maximum of the hourly maximum instantaneous wind gust, at 2 m",
+      "description_es": "Máximo diario de la racha máxima horaria del viento instantáneo, a 2 m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter / second"
+    },
+    {
+      "name": "qualite_rafale_maximale_2m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de rafale_maximale_2m",
+      "description_en": "Quality code of rafale_maximale_2m",
+      "description_es": "Código de calidad de rafale_maximale_2m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "direction_rafale_maximale_2m",
+      "bigquery_type": "INT64",
+      "description_pt": "Direção da rajada registrada em rafale_maximale_2m, na rosa de 360 graus",
+      "description_en": "Direction of the gust recorded in rafale_maximale_2m, on the 360-degree rose",
+      "description_es": "Dirección de la racha registrada en rafale_maximale_2m, en la rosa de 360 grados",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "qualite_direction_rafale_maximale_2m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de direction_rafale_maximale_2m",
+      "description_en": "Quality code of direction_rafale_maximale_2m",
+      "description_es": "Código de calidad de direction_rafale_maximale_2m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "heure_rafale_maximale_2m",
+      "bigquery_type": "STRING",
+      "description_pt": "Hora em que rafale_maximale_2m foi observado, no formato hhmm publicado pela fonte",
+      "description_en": "Time at which rafale_maximale_2m was observed, in the hhmm form the source publishes",
+      "description_es": "Hora en que se observó rafale_maximale_2m, en el formato hhmm publicado por la fuente",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_hxi2",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hxi2",
+      "description_en": "Quality code of hxi2",
+      "description_es": "Código de calidad de hxi2",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "rafale_maximale_3s_10m",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo diário da rajada máxima horária do vento medida em 3 segundos, a 10 m do solo",
+      "description_en": "Daily maximum of the hourly maximum 3-second mean wind gust, at 10 m",
+      "description_es": "Máximo diario de la racha máxima horaria del viento medida en 3 segundos, a 10 m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter / second"
+    },
+    {
+      "name": "qualite_rafale_maximale_3s_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de rafale_maximale_3s_10m",
+      "description_en": "Quality code of rafale_maximale_3s_10m",
+      "description_es": "Código de calidad de rafale_maximale_3s_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "direction_rafale_maximale_3s_10m",
+      "bigquery_type": "INT64",
+      "description_pt": "Direção da rajada registrada em rafale_maximale_3s_10m, na rosa de 360 graus",
+      "description_en": "Direction of the gust recorded in rafale_maximale_3s_10m, on the 360-degree rose",
+      "description_es": "Dirección de la racha registrada en rafale_maximale_3s_10m, en la rosa de 360 grados",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "qualite_direction_rafale_maximale_3s_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de direction_rafale_maximale_3s_10m",
+      "description_en": "Quality code of direction_rafale_maximale_3s_10m",
+      "description_es": "Código de calidad de direction_rafale_maximale_3s_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "heure_rafale_maximale_3s_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Hora em que rafale_maximale_3s_10m foi observado, no formato hhmm publicado pela fonte",
+      "description_en": "Time at which rafale_maximale_3s_10m was observed, in the hhmm form the source publishes",
+      "description_es": "Hora en que se observó rafale_maximale_3s_10m, en el formato hhmm publicado por la fuente",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_hxi3s",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hxi3s",
+      "description_en": "Quality code of hxi3s",
+      "description_es": "Código de calidad de hxi3s",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "duree_precipitation",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Duração das precipitações",
+      "description_en": "Duration of the precipitation",
+      "description_es": "Duración de las precipitaciones",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "minute"
+    },
+    {
+      "name": "qualite_duree_precipitation",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de duree_precipitation",
+      "description_en": "Quality code of duree_precipitation",
+      "description_es": "Código de calidad de duree_precipitation",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "mode_obtention_rafale_3s",
+      "bigquery_type": "STRING",
+      "description_pt": "Modo de obtenção da rajada de 3 segundos: medida ou calculada por função de transferência",
+      "description_en": "How the 3-second gust was obtained: measured, or derived through a transfer function",
+      "description_es": "Modo de obtención de la racha de 3 segundos: medida o calculada por función de transferencia",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "mode_obtention_direction_rafale_3s",
+      "bigquery_type": "STRING",
+      "description_pt": "Modo de obtenção da direção da rajada de 3 segundos: medida ou assimilada à direção da rajada instantânea",
+      "description_en": "How the 3-second gust direction was obtained: measured, or taken from the instantaneous gust direction",
+      "description_es": "Modo de obtención de la dirección de la racha de 3 segundos: medida o asimilada a la dirección de la racha instantánea",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "duree_humectation",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Duração de humectação, isto é, o tempo com a superfície molhada",
+      "description_en": "Duration of leaf wetness, that is, the time the surface stays wet",
+      "description_es": "Duración de humectación, es decir, el tiempo con la superficie mojada",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "minute"
+    },
+    {
+      "name": "qualite_duree_humectation",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de duree_humectation",
+      "description_en": "Quality code of duree_humectation",
+      "description_es": "Código de calidad de duree_humectation",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "pression_mer_moyenne",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média diária das pressões horárias reduzidas ao nível do mar",
+      "description_en": "Daily mean of the hourly pressures reduced to mean sea level",
+      "description_es": "Media diaria de las presiones horarias reducidas al nivel del mar",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "hectopascal"
+    },
+    {
+      "name": "qualite_pression_mer_moyenne",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de pression_mer_moyenne",
+      "description_en": "Quality code of pression_mer_moyenne",
+      "description_es": "Código de calidad de pression_mer_moyenne",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "pression_mer_minimale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Mínimo diário das pressões horárias mínimas reduzidas ao nível do mar",
+      "description_en": "Daily minimum of the hourly minimum pressures reduced to mean sea level",
+      "description_es": "Mínimo diario de las presiones horarias mínimas reducidas al nivel del mar",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "hectopascal"
+    },
+    {
+      "name": "qualite_pression_mer_minimale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de pression_mer_minimale",
+      "description_en": "Quality code of pression_mer_minimale",
+      "description_es": "Código de calidad de pression_mer_minimale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "duree_insolation",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Duração diária de insolação",
+      "description_en": "Daily sunshine duration",
+      "description_es": "Duración diaria de insolación",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "minute"
+    },
+    {
+      "name": "qualite_duree_insolation",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de duree_insolation",
+      "description_en": "Quality code of duree_insolation",
+      "description_es": "Código de calidad de duree_insolation",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "rayonnement_global",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Radiação global diária",
+      "description_en": "Daily global radiation",
+      "description_es": "Radiación global diaria",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "joule_per_square_centimeter"
+    },
+    {
+      "name": "qualite_rayonnement_global",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de rayonnement_global",
+      "description_en": "Quality code of rayonnement_global",
+      "description_es": "Código de calidad de rayonnement_global",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "rayonnement_diffus",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Radiação difusa diária",
+      "description_en": "Daily diffuse radiation",
+      "description_es": "Radiación difusa diaria",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "joule_per_square_centimeter"
+    },
+    {
+      "name": "qualite_rayonnement_diffus",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de rayonnement_diffus",
+      "description_en": "Quality code of rayonnement_diffus",
+      "description_es": "Código de calidad de rayonnement_diffus",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "rayonnement_direct",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Radiação direta diária",
+      "description_en": "Daily direct radiation",
+      "description_es": "Radiación directa diaria",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "joule_per_square_centimeter"
+    },
+    {
+      "name": "qualite_rayonnement_direct",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de rayonnement_direct",
+      "description_en": "Quality code of rayonnement_direct",
+      "description_es": "Código de calidad de rayonnement_direct",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "rayonnement_infrarouge",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Soma das radiações infravermelhas horárias",
+      "description_en": "Sum of the hourly infrared radiation",
+      "description_es": "Suma de las radiaciones infrarrojas horarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "joule_per_square_centimeter"
+    },
+    {
+      "name": "qualite_rayonnement_infrarouge",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de rayonnement_infrarouge",
+      "description_en": "Quality code of rayonnement_infrarouge",
+      "description_es": "Código de calidad de rayonnement_infrarouge",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "rayonnement_ultraviolet",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Acumulado diário de radiação ultravioleta",
+      "description_en": "Daily cumulative ultraviolet radiation",
+      "description_es": "Acumulado diario de radiación ultravioleta",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "joule_per_square_centimeter"
+    },
+    {
+      "name": "qualite_rayonnement_ultraviolet",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de rayonnement_ultraviolet",
+      "description_en": "Quality code of rayonnement_ultraviolet",
+      "description_es": "Código de calidad de rayonnement_ultraviolet",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "indice_uv_maximal",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo dos índices UV horários",
+      "description_en": "Maximum of the hourly UV indices",
+      "description_es": "Máximo de los índices UV horarios",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_indice_uv_maximal",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de indice_uv_maximal",
+      "description_en": "Quality code of indice_uv_maximal",
+      "description_es": "Código de calidad de indice_uv_maximal",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "fraction_insolation",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Fração de insolação em relação à duração do dia",
+      "description_en": "Sunshine fraction relative to day length",
+      "description_es": "Fracción de insolación respecto a la duración del día",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "percent"
+    },
+    {
+      "name": "qualite_fraction_insolation",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de fraction_insolation",
+      "description_en": "Quality code of fraction_insolation",
+      "description_es": "Código de calidad de fraction_insolation",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "humidite_minimale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Mínimo diário das umidades relativas mínimas horárias",
+      "description_en": "Daily minimum of the hourly minimum relative humidities",
+      "description_es": "Mínimo diario de las humedades relativas mínimas horarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "percent"
+    },
+    {
+      "name": "qualite_humidite_minimale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de humidite_minimale",
+      "description_en": "Quality code of humidite_minimale",
+      "description_es": "Código de calidad de humidite_minimale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "heure_humidite_minimale",
+      "bigquery_type": "STRING",
+      "description_pt": "Hora em que humidite_minimale foi observado, no formato hhmm publicado pela fonte",
+      "description_en": "Time at which humidite_minimale was observed, in the hhmm form the source publishes",
+      "description_es": "Hora en que se observó humidite_minimale, en el formato hhmm publicado por la fuente",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_hun",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hun",
+      "description_en": "Quality code of hun",
+      "description_es": "Código de calidad de hun",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "humidite_maximale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo diário das umidades relativas máximas horárias",
+      "description_en": "Daily maximum of the hourly maximum relative humidities",
+      "description_es": "Máximo diario de las humedades relativas máximas horarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "percent"
+    },
+    {
+      "name": "qualite_humidite_maximale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de humidite_maximale",
+      "description_en": "Quality code of humidite_maximale",
+      "description_es": "Código de calidad de humidite_maximale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "heure_humidite_maximale",
+      "bigquery_type": "STRING",
+      "description_pt": "Hora em que humidite_maximale foi observado, no formato hhmm publicado pela fonte",
+      "description_en": "Time at which humidite_maximale was observed, in the hhmm form the source publishes",
+      "description_es": "Hora en que se observó humidite_maximale, en el formato hhmm publicado por la fuente",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_hux",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hux",
+      "description_en": "Quality code of hux",
+      "description_es": "Código de calidad de hux",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "humidite_moyenne",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média diária das umidades relativas horárias",
+      "description_en": "Daily mean of the hourly relative humidities",
+      "description_es": "Media diaria de las humedades relativas horarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "percent"
+    },
+    {
+      "name": "qualite_humidite_moyenne",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de humidite_moyenne",
+      "description_en": "Quality code of humidite_moyenne",
+      "description_es": "Código de calidad de humidite_moyenne",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "duree_humidite_inf_40",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Duração com umidade relativa igual ou inferior a 40%",
+      "description_en": "Duration with relative humidity at or below 40%",
+      "description_es": "Duración con humedad relativa igual o inferior al 40%",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "minute"
+    },
+    {
+      "name": "qualite_duree_humidite_inf_40",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de duree_humidite_inf_40",
+      "description_en": "Quality code of duree_humidite_inf_40",
+      "description_es": "Código de calidad de duree_humidite_inf_40",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "duree_humidite_sup_80",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Duração com umidade relativa igual ou superior a 80%",
+      "description_en": "Duration with relative humidity at or above 80%",
+      "description_es": "Duración con humedad relativa igual o superior al 80%",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "minute"
+    },
+    {
+      "name": "qualite_duree_humidite_sup_80",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de duree_humidite_sup_80",
+      "description_en": "Quality code of duree_humidite_sup_80",
+      "description_es": "Código de calidad de duree_humidite_sup_80",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "tension_vapeur_moyenne",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Tensão de vapor média",
+      "description_en": "Mean vapour pressure",
+      "description_es": "Tensión de vapor media",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "hectopascal"
+    },
+    {
+      "name": "qualite_tension_vapeur_moyenne",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de tension_vapeur_moyenne",
+      "description_en": "Quality code of tension_vapeur_moyenne",
+      "description_es": "Código de calidad de tension_vapeur_moyenne",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "evapotranspiration_penman_monteith",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Evapotranspiração potencial diária de Penman-Monteith",
+      "description_en": "Daily Penman-Monteith potential evapotranspiration",
+      "description_es": "Evapotranspiración potencial diaria de Penman-Monteith",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "millimeter"
+    },
+    {
+      "name": "qualite_evapotranspiration_penman_monteith",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de evapotranspiration_penman_monteith",
+      "description_en": "Quality code of evapotranspiration_penman_monteith",
+      "description_es": "Código de calidad de evapotranspiration_penman_monteith",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "evapotranspiration_point_grille",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Evapotranspiração potencial de Penman-Monteith calculada no ponto de grade mais próximo",
+      "description_en": "Penman-Monteith potential evapotranspiration computed at the nearest grid point",
+      "description_es": "Evapotranspiración potencial de Penman-Monteith calculada en el punto de rejilla más cercano",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "millimeter"
+    },
+    {
+      "name": "qualite_evapotranspiration_point_grille",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de evapotranspiration_point_grille",
+      "description_en": "Quality code of evapotranspiration_point_grille",
+      "description_es": "Código de calidad de evapotranspiration_point_grille",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "hauteur_neige_fraiche",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Altura de neve fresca caída em 24 horas e ainda presente no solo às 06h UTC, atribuída ao dia J",
+      "description_en": "Depth of fresh snow fallen over 24 hours and still on the ground at 06:00 UTC, assigned to day J",
+      "description_es": "Altura de nieve fresca caída en 24 horas y aún presente en el suelo a las 06h UTC, asignada al día J",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "centimeter"
+    },
+    {
+      "name": "qualite_hauteur_neige_fraiche",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hauteur_neige_fraiche",
+      "description_en": "Quality code of hauteur_neige_fraiche",
+      "description_es": "Código de calidad de hauteur_neige_fraiche",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "hauteur_neige_maximale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Espessura máxima diária de neve, entre 01h e 24h UTC",
+      "description_en": "Daily maximum snow depth, between 01:00 and 24:00 UTC",
+      "description_es": "Espesor máximo diario de nieve, entre las 01h y las 24h UTC",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "centimeter"
+    },
+    {
+      "name": "qualite_hauteur_neige_maximale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hauteur_neige_maximale",
+      "description_en": "Quality code of hauteur_neige_maximale",
+      "description_es": "Código de calidad de hauteur_neige_maximale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "hauteur_neige_06h",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Espessura total de neve no solo medida às 06h UTC",
+      "description_en": "Total snow depth on the ground measured at 06:00 UTC",
+      "description_es": "Espesor total de nieve en el suelo medido a las 06h UTC",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "centimeter"
+    },
+    {
+      "name": "qualite_hauteur_neige_06h",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hauteur_neige_06h",
+      "description_en": "Quality code of hauteur_neige_06h",
+      "description_es": "Código de calidad de hauteur_neige_06h",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "occurrence_neige",
+      "bigquery_type": "STRING",
+      "description_pt": "Ocorrência de neve no dia, codificada como 0 ou 1",
+      "description_en": "Occurrence of snow on the day, coded 0 or 1",
+      "description_es": "Ocurrencia de nieve en el día, codificada como 0 o 1",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_occurrence_neige",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de occurrence_neige",
+      "description_en": "Quality code of occurrence_neige",
+      "description_es": "Código de calidad de occurrence_neige",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "occurrence_brouillard",
+      "bigquery_type": "STRING",
+      "description_pt": "Ocorrência de nevoeiro no dia, codificada como 0 ou 1",
+      "description_en": "Occurrence of fog on the day, coded 0 or 1",
+      "description_es": "Ocurrencia de niebla en el día, codificada como 0 o 1",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_occurrence_brouillard",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de occurrence_brouillard",
+      "description_en": "Quality code of occurrence_brouillard",
+      "description_es": "Código de calidad de occurrence_brouillard",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "occurrence_orage",
+      "bigquery_type": "STRING",
+      "description_pt": "Ocorrência de trovoada no dia, codificada como 0 ou 1",
+      "description_en": "Occurrence of thunderstorm on the day, coded 0 or 1",
+      "description_es": "Ocurrencia de tormenta en el día, codificada como 0 o 1",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_occurrence_orage",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de occurrence_orage",
+      "description_en": "Quality code of occurrence_orage",
+      "description_es": "Código de calidad de occurrence_orage",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "occurrence_gresil",
+      "bigquery_type": "STRING",
+      "description_pt": "Ocorrência de granizo miúdo no dia, codificada como 0 ou 1",
+      "description_en": "Occurrence of ice pellets on the day, coded 0 or 1",
+      "description_es": "Ocurrencia de granizo menudo en el día, codificada como 0 o 1",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_occurrence_gresil",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de occurrence_gresil",
+      "description_en": "Quality code of occurrence_gresil",
+      "description_es": "Código de calidad de occurrence_gresil",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "occurrence_grele",
+      "bigquery_type": "STRING",
+      "description_pt": "Ocorrência de granizo no dia, codificada como 0 ou 1",
+      "description_en": "Occurrence of hail on the day, coded 0 or 1",
+      "description_es": "Ocurrencia de granizo en el día, codificada como 0 o 1",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_occurrence_grele",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de occurrence_grele",
+      "description_en": "Quality code of occurrence_grele",
+      "description_es": "Código de calidad de occurrence_grele",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "occurrence_rosee",
+      "bigquery_type": "STRING",
+      "description_pt": "Ocorrência de orvalho no dia, codificada como 0 ou 1",
+      "description_en": "Occurrence of dew on the day, coded 0 or 1",
+      "description_es": "Ocurrencia de rocío en el día, codificada como 0 o 1",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_occurrence_rosee",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de occurrence_rosee",
+      "description_en": "Quality code of occurrence_rosee",
+      "description_es": "Código de calidad de occurrence_rosee",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "occurrence_verglas",
+      "bigquery_type": "STRING",
+      "description_pt": "Ocorrência de gelo negro no dia, codificada como 0 ou 1",
+      "description_en": "Occurrence of black ice on the day, coded 0 or 1",
+      "description_es": "Ocurrencia de hielo negro en el día, codificada como 0 o 1",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_occurrence_verglas",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de occurrence_verglas",
+      "description_en": "Quality code of occurrence_verglas",
+      "description_es": "Código de calidad de occurrence_verglas",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "occurrence_sol_enneige",
+      "bigquery_type": "STRING",
+      "description_pt": "Ocorrência de solo coberto de neve no dia, codificada como 0 ou 1",
+      "description_en": "Occurrence of snow-covered ground on the day, coded 0 or 1",
+      "description_es": "Ocurrencia de suelo cubierto de nieve en el día, codificada como 0 o 1",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_occurrence_sol_enneige",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de occurrence_sol_enneige",
+      "description_en": "Quality code of occurrence_sol_enneige",
+      "description_es": "Código de calidad de occurrence_sol_enneige",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "occurrence_gelee_blanche",
+      "bigquery_type": "STRING",
+      "description_pt": "Ocorrência de geada branca no dia, codificada como 0 ou 1",
+      "description_en": "Occurrence of hoar frost on the day, coded 0 or 1",
+      "description_es": "Ocurrencia de escarcha en el día, codificada como 0 o 1",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_occurrence_gelee_blanche",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de occurrence_gelee_blanche",
+      "description_en": "Quality code of occurrence_gelee_blanche",
+      "description_es": "Código de calidad de occurrence_gelee_blanche",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "occurrence_fumee",
+      "bigquery_type": "STRING",
+      "description_pt": "Ocorrência de fumaça no dia, codificada como 0 ou 1",
+      "description_en": "Occurrence of smoke on the day, coded 0 or 1",
+      "description_es": "Ocurrencia de humo en el día, codificada como 0 o 1",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_occurrence_fumee",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de occurrence_fumee",
+      "description_en": "Quality code of occurrence_fumee",
+      "description_es": "Código de calidad de occurrence_fumee",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "occurrence_brume",
+      "bigquery_type": "STRING",
+      "description_pt": "Ocorrência de bruma no dia, codificada como 0 ou 1",
+      "description_en": "Occurrence of mist on the day, coded 0 or 1",
+      "description_es": "Ocurrencia de bruma en el día, codificada como 0 o 1",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_occurrence_brume",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de occurrence_brume",
+      "description_en": "Quality code of occurrence_brume",
+      "description_es": "Código de calidad de occurrence_brume",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "occurrence_eclair",
+      "bigquery_type": "STRING",
+      "description_pt": "Ocorrência de relâmpago no dia, codificada como 0 ou 1",
+      "description_en": "Occurrence of lightning on the day, coded 0 or 1",
+      "description_es": "Ocurrencia de relámpago en el día, codificada como 0 o 1",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_occurrence_eclair",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de occurrence_eclair",
+      "description_en": "Quality code of occurrence_eclair",
+      "description_es": "Código de calidad de occurrence_eclair",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nebulosite_maximale_sous_300m",
+      "bigquery_type": "INT64",
+      "description_pt": "Nebulosidade máxima superior a 4 oitavos com base abaixo de 300 m",
+      "description_en": "Maximum cloud cover above 4 eighths with a base below 300 m",
+      "description_es": "Nubosidad máxima superior a 4 octavos con base por debajo de 300 m",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "qualite_nebulosite_maximale_sous_300m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de nebulosite_maximale_sous_300m",
+      "description_en": "Quality code of nebulosite_maximale_sous_300m",
+      "description_es": "Código de calidad de nebulosite_maximale_sous_300m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "hauteur_base_sous_300m",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Altura mínima da base da nebulosidade registrada em nebulosite_maximale_sous_300m",
+      "description_en": "Minimum base height of the cloud recorded in nebulosite_maximale_sous_300m",
+      "description_es": "Altura mínima de la base de la nubosidad registrada en nebulosite_maximale_sous_300m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter"
+    },
+    {
+      "name": "qualite_hauteur_base_sous_300m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hauteur_base_sous_300m",
+      "description_en": "Quality code of hauteur_base_sous_300m",
+      "description_es": "Código de calidad de hauteur_base_sous_300m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "temperature_mer_minimale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura mínima diária da água do mar",
+      "description_en": "Daily minimum sea water temperature",
+      "description_es": "Temperatura mínima diaria del agua del mar",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_mer_minimale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_mer_minimale",
+      "description_en": "Quality code of temperature_mer_minimale",
+      "description_es": "Código de calidad de temperature_mer_minimale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "temperature_mer_maximale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Temperatura máxima diária da água do mar",
+      "description_en": "Daily maximum sea water temperature",
+      "description_es": "Temperatura máxima diaria del agua del mar",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_mer_maximale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_mer_maximale",
+      "description_en": "Quality code of temperature_mer_maximale",
+      "description_es": "Código de calidad de temperature_mer_maximale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    }
+  ],
+  "mensuelle": [
+    {
+      "name": "annee",
+      "bigquery_type": "INT64",
+      "description_pt": "Ano da observação",
+      "description_en": "Year of the observation",
+      "description_es": "Año de la observación",
+      "covered_by_dictionary": false,
+      "is_partition": true,
+      "measurement_unit": "year",
+      "observations": "O arquivo diário remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",
+      "directory_column": "br_bd_diretorios_data_tempo.ano:ano"
+    },
+    {
+      "name": "mois",
+      "bigquery_type": "INT64",
+      "description_pt": "Mês da observação",
+      "description_en": "Month of the observation",
+      "description_es": "Mes de la observación",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "month",
+      "directory_column": "br_bd_diretorios_data_tempo.mes:mes"
+    },
+    {
+      "name": "numero_poste",
+      "bigquery_type": "STRING",
+      "description_pt": "Número Météo-France do posto, de oito dígitos",
+      "description_en": "Eight-digit Météo-France station number",
+      "description_es": "Número Météo-France del puesto, de ocho dígitos",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "precipitation_totale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Precipitação acumulada no mês",
+      "description_en": "Precipitation accumulated over the month",
+      "description_es": "Precipitación acumulada en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "millimeter"
+    },
+    {
+      "name": "qualite_precipitation_totale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de precipitation_totale",
+      "description_en": "Quality code of precipitation_totale",
+      "description_es": "Código de calidad de precipitation_totale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nombre_valeurs_precipitation",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de precipitação no mês",
+      "description_en": "Number of daily precipitation values present in the month",
+      "description_es": "Número de valores diarios presentes de precipitación en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "precipitation_totale_estimee",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Precipitação acumulada no mês, estimada",
+      "description_en": "Estimated precipitation accumulated over the month",
+      "description_es": "Precipitación acumulada en el mes, estimada",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "millimeter"
+    },
+    {
+      "name": "precipitation_quotidienne_maximale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Precipitação máxima caída em 24 horas no mês",
+      "description_en": "Maximum precipitation fallen in 24 hours during the month",
+      "description_es": "Precipitación máxima caída en 24 horas en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "millimeter"
+    },
+    {
+      "name": "qualite_precipitation_quotidienne_maximale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de precipitation_quotidienne_maximale",
+      "description_en": "Quality code of precipitation_quotidienne_maximale",
+      "description_es": "Código de calidad de precipitation_quotidienne_maximale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_precipitation_quotidienne_maximale",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que precipitation_quotidienne_maximale foi observado",
+      "description_en": "Day of the month on which precipitation_quotidienne_maximale was observed",
+      "description_es": "Día del mes en que se observó precipitation_quotidienne_maximale",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_rr1",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com RR ≥ 1.0 mm",
+      "description_en": "Number of days in the month with RR ≥ 1.0 mm",
+      "description_es": "Número de días en el mes con RR ≥ 1.0 mm",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_rr5",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com RR ≥ 5.0 mm",
+      "description_en": "Number of days in the month with RR ≥ 5.0 mm",
+      "description_es": "Número de días en el mes con RR ≥ 5.0 mm",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_rr10",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com RR ≥ 10.0 mm",
+      "description_en": "Number of days in the month with RR ≥ 10.0 mm",
+      "description_es": "Número de días en el mes con RR ≥ 10.0 mm",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_rr30",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com RR ≥ 30.0 mm",
+      "description_en": "Number of days in the month with RR ≥ 30.0 mm",
+      "description_es": "Número de días en el mes con RR ≥ 30.0 mm",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_rr50",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com RR ≥ 50.0 mm",
+      "description_en": "Number of days in the month with RR ≥ 50.0 mm",
+      "description_es": "Número de días en el mes con RR ≥ 50.0 mm",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_rr100",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com RR ≥ 100.0 mm",
+      "description_en": "Number of days in the month with RR ≥ 100.0 mm",
+      "description_es": "Número de días en el mes con RR ≥ 100.0 mm",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "pression_mer_moyenne",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média mensal das pressões diárias médias reduzidas ao nível do mar",
+      "description_en": "Monthly mean of the daily mean pressures reduced to mean sea level",
+      "description_es": "Media mensual de las presiones diarias medias reducidas al nivel del mar",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "hectopascal"
+    },
+    {
+      "name": "qualite_pression_mer_moyenne",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de pression_mer_moyenne",
+      "description_en": "Quality code of pression_mer_moyenne",
+      "description_es": "Código de calidad de pression_mer_moyenne",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nombre_valeurs_pression_mer_moyenne",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de pression_mer_moyenne no mês",
+      "description_en": "Number of daily pression_mer_moyenne values present in the month",
+      "description_es": "Número de valores diarios presentes de pression_mer_moyenne en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "pression_mer_minimale_absolue",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Mínimo absoluto mensal das pressões diárias médias reduzidas ao nível do mar",
+      "description_en": "Monthly absolute minimum of the daily mean pressures reduced to mean sea level",
+      "description_es": "Mínimo absoluto mensual de las presiones diarias medias reducidas al nivel del mar",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "hectopascal"
+    },
+    {
+      "name": "qualite_pression_mer_minimale_absolue",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de pression_mer_minimale_absolue",
+      "description_en": "Quality code of pression_mer_minimale_absolue",
+      "description_es": "Código de calidad de pression_mer_minimale_absolue",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_pression_mer_minimale_absolue",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que pression_mer_minimale_absolue foi observado",
+      "description_en": "Day of the month on which pression_mer_minimale_absolue was observed",
+      "description_es": "Día del mes en que se observó pression_mer_minimale_absolue",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "temperature_maximale_moyenne",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média mensal das temperaturas máximas diárias",
+      "description_en": "Monthly mean of the daily maximum temperatures",
+      "description_es": "Media mensual de las temperaturas máximas diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_maximale_moyenne",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_maximale_moyenne",
+      "description_en": "Quality code of temperature_maximale_moyenne",
+      "description_es": "Código de calidad de temperature_maximale_moyenne",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nombre_valeurs_temperature_maximale",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de temperature_maximale no mês",
+      "description_en": "Number of daily temperature_maximale values present in the month",
+      "description_es": "Número de valores diarios presentes de temperature_maximale en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "temperature_maximale_moyenne_estimee",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média mensal estimada das temperaturas máximas diárias",
+      "description_en": "Estimated monthly mean of the daily maximum temperatures",
+      "description_es": "Media mensual estimada de las temperaturas máximas diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "temperature_maximale_absolue",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo absoluto mensal das temperaturas máximas diárias",
+      "description_en": "Monthly absolute maximum of the daily maximum temperatures",
+      "description_es": "Máximo absoluto mensual de las temperaturas máximas diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_maximale_absolue",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_maximale_absolue",
+      "description_en": "Quality code of temperature_maximale_absolue",
+      "description_es": "Código de calidad de temperature_maximale_absolue",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_temperature_maximale_absolue",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que temperature_maximale_absolue foi observado",
+      "description_en": "Day of the month on which temperature_maximale_absolue was observed",
+      "description_es": "Día del mes en que se observó temperature_maximale_absolue",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "temperature_maximale_la_plus_basse",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Mínimo mensal das temperaturas máximas diárias",
+      "description_en": "Monthly minimum of the daily maximum temperatures",
+      "description_es": "Mínimo mensual de las temperaturas máximas diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_maximale_la_plus_basse",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_maximale_la_plus_basse",
+      "description_en": "Quality code of temperature_maximale_la_plus_basse",
+      "description_es": "Código de calidad de temperature_maximale_la_plus_basse",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_temperature_maximale_la_plus_basse",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que temperature_maximale_la_plus_basse foi observado",
+      "description_en": "Day of the month on which temperature_maximale_la_plus_basse was observed",
+      "description_es": "Día del mes en que se observó temperature_maximale_la_plus_basse",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_tx0",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TX ≤ 0°C",
+      "description_en": "Number of days in the month with TX ≤ 0°C",
+      "description_es": "Número de días en el mes con TX ≤ 0°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_tx25",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TX ≥ 25°C",
+      "description_en": "Number of days in the month with TX ≥ 25°C",
+      "description_es": "Número de días en el mes con TX ≥ 25°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_tx30",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TX ≥ 30°C",
+      "description_en": "Number of days in the month with TX ≥ 30°C",
+      "description_es": "Número de días en el mes con TX ≥ 30°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_tx35",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TX ≥ 35°C",
+      "description_en": "Number of days in the month with TX ≥ 35°C",
+      "description_es": "Número de días en el mes con TX ≥ 35°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_txi20",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TX ≤ 20°C",
+      "description_en": "Number of days in the month with TX ≤ 20°C",
+      "description_es": "Número de días en el mes con TX ≤ 20°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_txi27",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TX ≤ 27°C",
+      "description_en": "Number of days in the month with TX ≤ 27°C",
+      "description_es": "Número de días en el mes con TX ≤ 27°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_txs32",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TX ≥ 32°C",
+      "description_en": "Number of days in the month with TX ≥ 32°C",
+      "description_es": "Número de días en el mes con TX ≥ 32°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "temperature_minimale_moyenne",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média mensal das temperaturas mínimas diárias",
+      "description_en": "Monthly mean of the daily minimum temperatures",
+      "description_es": "Media mensual de las temperaturas mínimas diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_minimale_moyenne",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_minimale_moyenne",
+      "description_en": "Quality code of temperature_minimale_moyenne",
+      "description_es": "Código de calidad de temperature_minimale_moyenne",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nombre_valeurs_temperature_minimale",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de temperature_minimale no mês",
+      "description_en": "Number of daily temperature_minimale values present in the month",
+      "description_es": "Número de valores diarios presentes de temperature_minimale en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "temperature_minimale_moyenne_estimee",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média mensal estimada das temperaturas mínimas diárias",
+      "description_en": "Estimated monthly mean of the daily minimum temperatures",
+      "description_es": "Media mensual estimada de las temperaturas mínimas diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "temperature_minimale_absolue",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Mínimo absoluto mensal das temperaturas mínimas diárias",
+      "description_en": "Monthly absolute minimum of the daily minimum temperatures",
+      "description_es": "Mínimo absoluto mensual de las temperaturas mínimas diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_minimale_absolue",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_minimale_absolue",
+      "description_en": "Quality code of temperature_minimale_absolue",
+      "description_es": "Código de calidad de temperature_minimale_absolue",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_temperature_minimale_absolue",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que temperature_minimale_absolue foi observado",
+      "description_en": "Day of the month on which temperature_minimale_absolue was observed",
+      "description_es": "Día del mes en que se observó temperature_minimale_absolue",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "temperature_minimale_la_plus_haute",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo mensal das temperaturas mínimas diárias",
+      "description_en": "Monthly maximum of the daily minimum temperatures",
+      "description_es": "Máximo mensual de las temperaturas mínimas diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_minimale_la_plus_haute",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_minimale_la_plus_haute",
+      "description_en": "Quality code of temperature_minimale_la_plus_haute",
+      "description_es": "Código de calidad de temperature_minimale_la_plus_haute",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_temperature_minimale_la_plus_haute",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que temperature_minimale_la_plus_haute foi observado",
+      "description_en": "Day of the month on which temperature_minimale_la_plus_haute was observed",
+      "description_es": "Día del mes en que se observó temperature_minimale_la_plus_haute",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_tn5",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TN ≤ -5°C",
+      "description_en": "Number of days in the month with TN ≤ -5°C",
+      "description_es": "Número de días en el mes con TN ≤ -5°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_tn10",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TN ≤ -10°C",
+      "description_en": "Number of days in the month with TN ≤ -10°C",
+      "description_es": "Número de días en el mes con TN ≤ -10°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_tni10",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TN ≤ +10°C",
+      "description_en": "Number of days in the month with TN ≤ +10°C",
+      "description_es": "Número de días en el mes con TN ≤ +10°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_tni15",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TN ≤ +15°C",
+      "description_en": "Number of days in the month with TN ≤ +15°C",
+      "description_es": "Número de días en el mes con TN ≤ +15°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_tni20",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TN ≤ +20°C",
+      "description_en": "Number of days in the month with TN ≤ +20°C",
+      "description_es": "Número de días en el mes con TN ≤ +20°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_tns20",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TN ≥ +20°C",
+      "description_en": "Number of days in the month with TN ≥ +20°C",
+      "description_es": "Número de días en el mes con TN ≥ +20°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_tns25",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TN ≥ +25°C",
+      "description_en": "Number of days in the month with TN ≥ +25°C",
+      "description_es": "Número de días en el mes con TN ≥ +25°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_gelee",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com gelée",
+      "description_en": "Number of days in the month with gelée",
+      "description_es": "Número de días en el mes con gelée",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "amplitude_thermique_moyenne",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média mensal das amplitudes térmicas diárias",
+      "description_en": "Monthly mean of the daily temperature ranges",
+      "description_es": "Media mensual de las amplitudes térmicas diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_amplitude_thermique_moyenne",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de amplitude_thermique_moyenne",
+      "description_en": "Quality code of amplitude_thermique_moyenne",
+      "description_es": "Código de calidad de amplitude_thermique_moyenne",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "amplitude_thermique_absolue",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo absoluto mensal das amplitudes térmicas diárias",
+      "description_en": "Monthly absolute maximum of the daily temperature ranges",
+      "description_es": "Máximo absoluto mensual de las amplitudes térmicas diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_amplitude_thermique_absolue",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de amplitude_thermique_absolue",
+      "description_en": "Quality code of amplitude_thermique_absolue",
+      "description_es": "Código de calidad de amplitude_thermique_absolue",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_amplitude_thermique_absolue",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que amplitude_thermique_absolue foi observado",
+      "description_en": "Day of the month on which amplitude_thermique_absolue was observed",
+      "description_es": "Día del mes en que se observó amplitude_thermique_absolue",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_valeurs_amplitude_thermique",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de amplitude_thermique no mês",
+      "description_en": "Number of daily amplitude_thermique values present in the month",
+      "description_es": "Número de valores diarios presentes de amplitude_thermique en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "temperature_moyenne_min_max",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média mensal das médias diárias entre a temperatura mínima e a máxima",
+      "description_en": "Monthly mean of the daily means of the minimum and maximum temperature",
+      "description_es": "Media mensual de las medias diarias entre la temperatura mínima y la máxima",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_moyenne_min_max",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_moyenne_min_max",
+      "description_en": "Quality code of temperature_moyenne_min_max",
+      "description_es": "Código de calidad de temperature_moyenne_min_max",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nombre_valeurs_temperature_moyenne_min_max",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês em que a temperatura mínima e a máxima estão ambas presentes",
+      "description_en": "Number of days in the month on which both the minimum and the maximum temperature are present",
+      "description_es": "Número de días en el mes en que la temperatura mínima y la máxima están ambas presentes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "temperature_moyenne",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média mensal das temperaturas médias diárias",
+      "description_en": "Monthly mean of the daily mean temperatures",
+      "description_es": "Media mensual de las temperaturas medias diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_moyenne",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_moyenne",
+      "description_en": "Quality code of temperature_moyenne",
+      "description_es": "Código de calidad de temperature_moyenne",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nombre_valeurs_temperature_moyenne",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de temperature_moyenne no mês",
+      "description_en": "Number of daily temperature_moyenne values present in the month",
+      "description_es": "Número de valores diarios presentes de temperature_moyenne en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_tms24",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com TM quotidienne ≥ 24°C",
+      "description_en": "Number of days in the month with TM quotidienne ≥ 24°C",
+      "description_es": "Número de días en el mes con TM quotidienne ≥ 24°C",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "temperature_moyenne_min_max_minimale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Mínimo mensal das médias diárias entre a temperatura mínima e a máxima",
+      "description_en": "Monthly minimum of the daily means of the minimum and maximum temperature",
+      "description_es": "Mínimo mensual de las medias diarias entre la temperatura mínima y la máxima",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_moyenne_min_max_minimale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_moyenne_min_max_minimale",
+      "description_en": "Quality code of temperature_moyenne_min_max_minimale",
+      "description_es": "Código de calidad de temperature_moyenne_min_max_minimale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_temperature_moyenne_min_max_minimale",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que temperature_moyenne_min_max_minimale foi observado",
+      "description_en": "Day of the month on which temperature_moyenne_min_max_minimale was observed",
+      "description_es": "Día del mes en que se observó temperature_moyenne_min_max_minimale",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "temperature_moyenne_min_max_maximale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo mensal das médias diárias entre a temperatura mínima e a máxima",
+      "description_en": "Monthly maximum of the daily means of the minimum and maximum temperature",
+      "description_es": "Máximo mensual de las medias diarias entre la temperatura mínima y la máxima",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "celsius_degree"
+    },
+    {
+      "name": "qualite_temperature_moyenne_min_max_maximale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de temperature_moyenne_min_max_maximale",
+      "description_en": "Quality code of temperature_moyenne_min_max_maximale",
+      "description_es": "Código de calidad de temperature_moyenne_min_max_maximale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_temperature_moyenne_min_max_maximale",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que temperature_moyenne_min_max_maximale foi observado",
+      "description_en": "Day of the month on which temperature_moyenne_min_max_maximale was observed",
+      "description_es": "Día del mes en que se observó temperature_moyenne_min_max_maximale",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "humidite_minimale_absolue",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Mínimo absoluto mensal das umidades relativas mínimas diárias",
+      "description_en": "Monthly absolute minimum of the daily minimum relative humidities",
+      "description_es": "Mínimo absoluto mensual de las humedades relativas mínimas diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "percent"
+    },
+    {
+      "name": "qualite_humidite_minimale_absolue",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de humidite_minimale_absolue",
+      "description_en": "Quality code of humidite_minimale_absolue",
+      "description_es": "Código de calidad de humidite_minimale_absolue",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_humidite_minimale_absolue",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que humidite_minimale_absolue foi observado",
+      "description_en": "Day of the month on which humidite_minimale_absolue was observed",
+      "description_es": "Día del mes en que se observó humidite_minimale_absolue",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_valeurs_humidite_minimale",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de humidite_minimale no mês",
+      "description_en": "Number of daily humidite_minimale values present in the month",
+      "description_es": "Número de valores diarios presentes de humidite_minimale en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "humidite_maximale_absolue",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo absoluto mensal das umidades relativas máximas diárias",
+      "description_en": "Monthly absolute maximum of the daily maximum relative humidities",
+      "description_es": "Máximo absoluto mensual de las humedades relativas máximas diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "percent"
+    },
+    {
+      "name": "qualite_humidite_maximale_absolue",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de humidite_maximale_absolue",
+      "description_en": "Quality code of humidite_maximale_absolue",
+      "description_es": "Código de calidad de humidite_maximale_absolue",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_humidite_maximale_absolue",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que humidite_maximale_absolue foi observado",
+      "description_en": "Day of the month on which humidite_maximale_absolue was observed",
+      "description_es": "Día del mes en que se observó humidite_maximale_absolue",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_valeurs_humidite_maximale",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de humidite_maximale no mês",
+      "description_en": "Number of daily humidite_maximale values present in the month",
+      "description_es": "Número de valores diarios presentes de humidite_maximale en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "humidite_moyenne",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média mensal das umidades relativas médias diárias",
+      "description_en": "Monthly mean of the daily mean relative humidities",
+      "description_es": "Media mensual de las humedades relativas medias diarias",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "percent"
+    },
+    {
+      "name": "qualite_humidite_moyenne",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de humidite_moyenne",
+      "description_en": "Quality code of humidite_moyenne",
+      "description_es": "Código de calidad de humidite_moyenne",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nombre_valeurs_humidite_moyenne",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de humidite_moyenne no mês",
+      "description_en": "Number of daily humidite_moyenne values present in the month",
+      "description_es": "Número de valores diarios presentes de humidite_moyenne en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "tension_vapeur_moyenne",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média mensal da tensão de vapor",
+      "description_en": "Monthly mean vapour pressure",
+      "description_es": "Media mensual de la tensión de vapor",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "hectopascal"
+    },
+    {
+      "name": "qualite_tension_vapeur_moyenne",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de tension_vapeur_moyenne",
+      "description_en": "Quality code of tension_vapeur_moyenne",
+      "description_es": "Código de calidad de tension_vapeur_moyenne",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nombre_valeurs_tsv",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de tsv no mês",
+      "description_en": "Number of daily tsv values present in the month",
+      "description_es": "Número de valores diarios presentes de tsv en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "evapotranspiration_totale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Soma das evapotranspirações potenciais decendiais de Penman-Monteith",
+      "description_en": "Sum of the ten-day Penman-Monteith potential evapotranspiration values",
+      "description_es": "Suma de las evapotranspiraciones potenciales decenales de Penman-Monteith",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "millimeter"
+    },
+    {
+      "name": "qualite_evapotranspiration_totale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de evapotranspiration_totale",
+      "description_en": "Quality code of evapotranspiration_totale",
+      "description_es": "Código de calidad de evapotranspiration_totale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "rafale_maximale_absolue_10m",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo absoluto mensal da rajada máxima diária do vento instantâneo, a 10 m do solo",
+      "description_en": "Monthly absolute maximum of the daily maximum instantaneous wind gust, at 10 m",
+      "description_es": "Máximo absoluto mensual de la racha máxima diaria del viento instantáneo, a 10 m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter / second"
+    },
+    {
+      "name": "qualite_rafale_maximale_absolue_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de rafale_maximale_absolue_10m",
+      "description_en": "Quality code of rafale_maximale_absolue_10m",
+      "description_es": "Código de calidad de rafale_maximale_absolue_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "direction_rafale_maximale_absolue_10m",
+      "bigquery_type": "INT64",
+      "description_pt": "Direção da rajada registrada em rafale_maximale_absolue_10m, na rosa de 360 graus",
+      "description_en": "Direction of the gust recorded in rafale_maximale_absolue_10m, on the 360-degree rose",
+      "description_es": "Dirección de la racha registrada en rafale_maximale_absolue_10m, en la rosa de 360 grados",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "qualite_direction_rafale_maximale_absolue_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de direction_rafale_maximale_absolue_10m",
+      "description_en": "Quality code of direction_rafale_maximale_absolue_10m",
+      "description_es": "Código de calidad de direction_rafale_maximale_absolue_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_rafale_maximale_absolue_10m",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que rafale_maximale_absolue_10m foi observado",
+      "description_en": "Day of the month on which rafale_maximale_absolue_10m was observed",
+      "description_es": "Día del mes en que se observó rafale_maximale_absolue_10m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_ff10",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com FXI ≥ 10 m/s",
+      "description_en": "Number of days in the month with FXI ≥ 10 m/s",
+      "description_es": "Número de días en el mes con FXI ≥ 10 m/s",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_ff16",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com FXI ≥ 16 m/s",
+      "description_en": "Number of days in the month with FXI ≥ 16 m/s",
+      "description_es": "Número de días en el mes con FXI ≥ 16 m/s",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_ff28",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com FXI ≥ 28 m/s",
+      "description_en": "Number of days in the month with FXI ≥ 28 m/s",
+      "description_es": "Número de días en el mes con FXI ≥ 28 m/s",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_valeurs_rafale_maximale_10m",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de rafale_maximale_10m no mês",
+      "description_en": "Number of daily rafale_maximale_10m values present in the month",
+      "description_es": "Número de valores diarios presentes de rafale_maximale_10m en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "rafale_maximale_3s_absolue_10m",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo absoluto mensal da rajada máxima diária do vento medida em 3 segundos, a 10 m do solo",
+      "description_en": "Monthly absolute maximum of the daily maximum 3-second mean wind gust, at 10 m",
+      "description_es": "Máximo absoluto mensual de la racha máxima diaria del viento medida en 3 segundos, a 10 m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter / second"
+    },
+    {
+      "name": "qualite_rafale_maximale_3s_absolue_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de rafale_maximale_3s_absolue_10m",
+      "description_en": "Quality code of rafale_maximale_3s_absolue_10m",
+      "description_es": "Código de calidad de rafale_maximale_3s_absolue_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "direction_rafale_maximale_3s_absolue_10m",
+      "bigquery_type": "INT64",
+      "description_pt": "Direção da rajada registrada em rafale_maximale_3s_absolue_10m, na rosa de 360 graus",
+      "description_en": "Direction of the gust recorded in rafale_maximale_3s_absolue_10m, on the 360-degree rose",
+      "description_es": "Dirección de la racha registrada en rafale_maximale_3s_absolue_10m, en la rosa de 360 grados",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "qualite_direction_rafale_maximale_3s_absolue_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de direction_rafale_maximale_3s_absolue_10m",
+      "description_en": "Quality code of direction_rafale_maximale_3s_absolue_10m",
+      "description_es": "Código de calidad de direction_rafale_maximale_3s_absolue_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_rafale_maximale_3s_absolue_10m",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que rafale_maximale_3s_absolue_10m foi observado",
+      "description_en": "Day of the month on which rafale_maximale_3s_absolue_10m was observed",
+      "description_es": "Día del mes en que se observó rafale_maximale_3s_absolue_10m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_fxi3s10",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com FXI3S ≥ 10 m/s",
+      "description_en": "Number of days in the month with FXI3S ≥ 10 m/s",
+      "description_es": "Número de días en el mes con FXI3S ≥ 10 m/s",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_fxi3s16",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com FXI3S ≥ 16 m/s",
+      "description_en": "Number of days in the month with FXI3S ≥ 16 m/s",
+      "description_es": "Número de días en el mes con FXI3S ≥ 16 m/s",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_fxi3s28",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com FXI3S ≥ 28 m/s",
+      "description_en": "Number of days in the month with FXI3S ≥ 28 m/s",
+      "description_es": "Número de días en el mes con FXI3S ≥ 28 m/s",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_valeurs_rafale_maximale_3s_10m",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de rafale_maximale_3s_10m no mês",
+      "description_en": "Number of daily rafale_maximale_3s_10m values present in the month",
+      "description_es": "Número de valores diarios presentes de rafale_maximale_3s_10m en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "vitesse_vent_maximale_moyennee_absolue_10m",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo absoluto mensal da velocidade máxima diária do vento medida em 10 minutos, a 10 m do solo",
+      "description_en": "Monthly absolute maximum of the daily maximum 10-minute mean wind speed, at 10 m",
+      "description_es": "Máximo absoluto mensual de la velocidad máxima diaria del viento medida en 10 minutos, a 10 m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter / second"
+    },
+    {
+      "name": "qualite_vitesse_vent_maximale_moyennee_absolue_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de vitesse_vent_maximale_moyennee_absolue_10m",
+      "description_en": "Quality code of vitesse_vent_maximale_moyennee_absolue_10m",
+      "description_es": "Código de calidad de vitesse_vent_maximale_moyennee_absolue_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "direction_vent_maximal_moyenne_absolue_10m",
+      "bigquery_type": "INT64",
+      "description_pt": "Direção do vento registrado em vitesse_vent_maximale_moyennee_absolue_10m, na rosa de 360 graus",
+      "description_en": "Direction of the wind recorded in vitesse_vent_maximale_moyennee_absolue_10m, on the 360-degree rose",
+      "description_es": "Dirección del viento registrado en vitesse_vent_maximale_moyennee_absolue_10m, en la rosa de 360 grados",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "qualite_direction_vent_maximal_moyenne_absolue_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de direction_vent_maximal_moyenne_absolue_10m",
+      "description_en": "Quality code of direction_vent_maximal_moyenne_absolue_10m",
+      "description_es": "Código de calidad de direction_vent_maximal_moyenne_absolue_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_vitesse_vent_maximale_moyennee_absolue_10m",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que vitesse_vent_maximale_moyennee_absolue_10m foi observado",
+      "description_en": "Day of the month on which vitesse_vent_maximale_moyennee_absolue_10m was observed",
+      "description_es": "Día del mes en que se observó vitesse_vent_maximale_moyennee_absolue_10m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_fxy8",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com FXY ≥ 8 m/s",
+      "description_en": "Number of days in the month with FXY ≥ 8 m/s",
+      "description_es": "Número de días en el mes con FXY ≥ 8 m/s",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_fxy10",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com FXY ≥ 10 m/s",
+      "description_en": "Number of days in the month with FXY ≥ 10 m/s",
+      "description_es": "Número de días en el mes con FXY ≥ 10 m/s",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_fxy15",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com FXY ≥ 15 m/s",
+      "description_en": "Number of days in the month with FXY ≥ 15 m/s",
+      "description_es": "Número de días en el mes con FXY ≥ 15 m/s",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_valeurs_vitesse_vent_maximale_moyennee_10m",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de vitesse_vent_maximale_moyennee_10m no mês",
+      "description_en": "Number of daily vitesse_vent_maximale_moyennee_10m values present in the month",
+      "description_es": "Número de valores diarios presentes de vitesse_vent_maximale_moyennee_10m en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "vitesse_vent_moyenne_10m",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média mensal da velocidade média diária do vento medida em 10 minutos, a 10 m do solo",
+      "description_en": "Monthly mean of the daily mean 10-minute mean wind speed, at 10 m",
+      "description_es": "Media mensual de la velocidad media diaria del viento medida en 10 minutos, a 10 m",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter / second"
+    },
+    {
+      "name": "qualite_vitesse_vent_moyenne_10m",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de vitesse_vent_moyenne_10m",
+      "description_en": "Quality code of vitesse_vent_moyenne_10m",
+      "description_es": "Código de calidad de vitesse_vent_moyenne_10m",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nombre_valeurs_vitesse_vent_moyenne_10m",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de vitesse_vent_moyenne_10m no mês",
+      "description_en": "Number of daily vitesse_vent_moyenne_10m values present in the month",
+      "description_es": "Número de valores diarios presentes de vitesse_vent_moyenne_10m en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "duree_insolation_totale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Soma mensal das durações diárias de insolação",
+      "description_en": "Monthly sum of the daily sunshine durations",
+      "description_es": "Suma mensual de las duraciones diarias de insolación",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "minute"
+    },
+    {
+      "name": "qualite_duree_insolation_totale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de duree_insolation_totale",
+      "description_en": "Quality code of duree_insolation_totale",
+      "description_es": "Código de calidad de duree_insolation_totale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nombre_valeurs_duree_insolation",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de duree_insolation no mês",
+      "description_en": "Number of daily duree_insolation values present in the month",
+      "description_es": "Número de valores diarios presentes de duree_insolation en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_sigma0",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com SIGMA = 0% (SIGMA est la fraction d'insolation par rapport à la durée du jour)",
+      "description_en": "Number of days in the month with SIGMA = 0% (SIGMA est la fraction d'insolation par rapport à la durée du jour)",
+      "description_es": "Número de días en el mes con SIGMA = 0% (SIGMA est la fraction d'insolation par rapport à la durée du jour)",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_sigma20",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com SIGMA ≤ 20%",
+      "description_en": "Number of days in the month with SIGMA ≤ 20%",
+      "description_es": "Número de días en el mes con SIGMA ≤ 20%",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_sigma80",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com SIGMA ≥ 80%",
+      "description_en": "Number of days in the month with SIGMA ≥ 80%",
+      "description_es": "Número de días en el mes con SIGMA ≥ 80%",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "rayonnement_global_total",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Soma mensal da radiação global diária",
+      "description_en": "Monthly sum of the daily global radiation",
+      "description_es": "Suma mensual de la radiación global diaria",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "joule_per_square_centimeter"
+    },
+    {
+      "name": "qualite_rayonnement_global_total",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de rayonnement_global_total",
+      "description_en": "Quality code of rayonnement_global_total",
+      "description_es": "Código de calidad de rayonnement_global_total",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nombre_valeurs_rayonnement_global",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de rayonnement_global no mês",
+      "description_en": "Number of daily rayonnement_global values present in the month",
+      "description_es": "Número de valores diarios presentes de rayonnement_global en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "rayonnement_diffus_total",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Soma mensal da radiação difusa diária",
+      "description_en": "Monthly sum of the daily diffuse radiation",
+      "description_es": "Suma mensual de la radiación difusa diaria",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "joule_per_square_centimeter"
+    },
+    {
+      "name": "qualite_rayonnement_diffus_total",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de rayonnement_diffus_total",
+      "description_en": "Quality code of rayonnement_diffus_total",
+      "description_es": "Código de calidad de rayonnement_diffus_total",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nombre_valeurs_rayonnement_diffus",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de rayonnement_diffus no mês",
+      "description_en": "Number of daily rayonnement_diffus values present in the month",
+      "description_es": "Número de valores diarios presentes de rayonnement_diffus en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "rayonnement_direct_total",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Soma mensal da radiação direta diária",
+      "description_en": "Monthly sum of the daily direct radiation",
+      "description_es": "Suma mensual de la radiación directa diaria",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "joule_per_square_centimeter"
+    },
+    {
+      "name": "qualite_rayonnement_direct_total",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de rayonnement_direct_total",
+      "description_en": "Quality code of rayonnement_direct_total",
+      "description_es": "Código de calidad de rayonnement_direct_total",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "nombre_valeurs_rayonnement_direct",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de rayonnement_direct no mês",
+      "description_en": "Number of daily rayonnement_direct values present in the month",
+      "description_es": "Número de valores diarios presentes de rayonnement_direct en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "hauteur_neige_fraiche_totale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Soma mensal da altura de neve fresca caída em 24 horas",
+      "description_en": "Monthly sum of the depth of fresh snow fallen over 24 hours",
+      "description_es": "Suma mensual de la altura de nieve fresca caída en 24 horas",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "centimeter"
+    },
+    {
+      "name": "qualite_hauteur_neige_fraiche_totale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hauteur_neige_fraiche_totale",
+      "description_en": "Quality code of hauteur_neige_fraiche_totale",
+      "description_es": "Código de calidad de hauteur_neige_fraiche_totale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "hauteur_neige_fraiche_maximale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo absoluto mensal da altura de neve fresca caída em 24 horas",
+      "description_en": "Monthly absolute maximum of the depth of fresh snow fallen over 24 hours",
+      "description_es": "Máximo absoluto mensual de la altura de nieve fresca caída en 24 horas",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "centimeter"
+    },
+    {
+      "name": "qualite_hauteur_neige_fraiche_maximale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hauteur_neige_fraiche_maximale",
+      "description_en": "Quality code of hauteur_neige_fraiche_maximale",
+      "description_es": "Código de calidad de hauteur_neige_fraiche_maximale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_hauteur_neige_fraiche_maximale",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que hauteur_neige_fraiche_maximale foi observado",
+      "description_en": "Day of the month on which hauteur_neige_fraiche_maximale was observed",
+      "description_es": "Día del mes en que se observó hauteur_neige_fraiche_maximale",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_valeurs_hauteur_neige_fraiche",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de valores diários presentes de hauteur_neige_fraiche no mês",
+      "description_en": "Number of daily hauteur_neige_fraiche values present in the month",
+      "description_es": "Número de valores diarios presentes de hauteur_neige_fraiche en el mes",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_neig",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com précipitation de neige",
+      "description_en": "Number of days in the month with précipitation de neige",
+      "description_es": "Número de días en el mes con précipitation de neige",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_hneigef1",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com chutes de neige en 24h supérieures à 1 cm (à partir de HNEIGEF quotidienne)",
+      "description_en": "Number of days in the month with chutes de neige en 24h supérieures à 1 cm (à partir de HNEIGEF quotidienne)",
+      "description_es": "Número de días en el mes con chutes de neige en 24h supérieures à 1 cm (à partir de HNEIGEF quotidienne)",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_hneigef5",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com chutes de neige en 24h supérieures à 5 cm (à partir de HNEIGEF quotidienne)",
+      "description_en": "Number of days in the month with chutes de neige en 24h supérieures à 5 cm (à partir de HNEIGEF quotidienne)",
+      "description_es": "Número de días en el mes con chutes de neige en 24h supérieures à 5 cm (à partir de HNEIGEF quotidienne)",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_hneigef10",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com chutes de neige en 24h supérieures à 10 cm (à partir de HNEIGEF quotidienne)",
+      "description_en": "Number of days in the month with chutes de neige en 24h supérieures à 10 cm (à partir de HNEIGEF quotidienne)",
+      "description_es": "Número de días en el mes con chutes de neige en 24h supérieures à 10 cm (à partir de HNEIGEF quotidienne)",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_solng",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com sol couvert de neige (à partir de SOLNEIGE quotidien)",
+      "description_en": "Number of days in the month with sol couvert de neige (à partir de SOLNEIGE quotidien)",
+      "description_es": "Número de días en el mes con sol couvert de neige (à partir de SOLNEIGE quotidien)",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "hauteur_neige_moyenne",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Média mensal da espessura total de neve medida diariamente às 06h UTC",
+      "description_en": "Monthly mean of the total snow depth measured daily at 06:00 UTC",
+      "description_es": "Media mensual del espesor total de nieve medido diariamente a las 06h UTC",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "centimeter"
+    },
+    {
+      "name": "qualite_hauteur_neige_moyenne",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hauteur_neige_moyenne",
+      "description_en": "Quality code of hauteur_neige_moyenne",
+      "description_es": "Código de calidad de hauteur_neige_moyenne",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "hauteur_neige_maximale",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Máximo absoluto mensal da espessura máxima diária de neve",
+      "description_en": "Monthly absolute maximum of the daily maximum snow depth",
+      "description_es": "Máximo absoluto mensual del espesor máximo diario de nieve",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "centimeter"
+    },
+    {
+      "name": "qualite_hauteur_neige_maximale",
+      "bigquery_type": "STRING",
+      "description_pt": "Código de qualidade de hauteur_neige_maximale",
+      "description_en": "Quality code of hauteur_neige_maximale",
+      "description_es": "Código de calidad de hauteur_neige_maximale",
+      "covered_by_dictionary": true,
+      "is_partition": false
+    },
+    {
+      "name": "jour_hauteur_neige_maximale",
+      "bigquery_type": "INT64",
+      "description_pt": "Dia do mês em que hauteur_neige_maximale foi observado",
+      "description_en": "Day of the month on which hauteur_neige_maximale was observed",
+      "description_es": "Día del mes en que se observó hauteur_neige_maximale",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_neigetot1",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com enneigement supérieur à 1cm (à partir de NEIGETOTX quotidienne)",
+      "description_en": "Number of days in the month with enneigement supérieur à 1cm (à partir de NEIGETOTX quotidienne)",
+      "description_es": "Número de días en el mes con enneigement supérieur à 1cm (à partir de NEIGETOTX quotidienne)",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_neigetot10",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com enneigement supérieur à 10cm (à partir de NEIGETOTX quotidienne)",
+      "description_en": "Number of days in the month with enneigement supérieur à 10cm (à partir de NEIGETOTX quotidienne)",
+      "description_es": "Número de días en el mes con enneigement supérieur à 10cm (à partir de NEIGETOTX quotidienne)",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_neigetot30",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com enneigement supérieur à 30cm (à partir de NEIGETOTX quotidienne)",
+      "description_en": "Number of days in the month with enneigement supérieur à 30cm (à partir de NEIGETOTX quotidienne)",
+      "description_es": "Número de días en el mes con enneigement supérieur à 30cm (à partir de NEIGETOTX quotidienne)",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_grel",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com présents avec grêle",
+      "description_en": "Number of days in the month with présents avec grêle",
+      "description_es": "Número de días en el mes con présents avec grêle",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_orag",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com présents avec orage",
+      "description_en": "Number of days in the month with présents avec orage",
+      "description_es": "Número de días en el mes con présents avec orage",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    },
+    {
+      "name": "nombre_jours_brou",
+      "bigquery_type": "INT64",
+      "description_pt": "Número de dias no mês com présents avec brouillard",
+      "description_en": "Number of days in the month with présents avec brouillard",
+      "description_es": "Número de días en el mes con présents avec brouillard",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "day"
+    }
+  ],
+  "poste": [
+    {
+      "name": "numero_poste",
+      "bigquery_type": "STRING",
+      "description_pt": "Número Météo-France do posto, de oito dígitos",
+      "description_en": "Eight-digit Météo-France station number",
+      "description_es": "Número Météo-France del puesto, de ocho dígitos",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "nom_poste",
+      "bigquery_type": "STRING",
+      "description_pt": "Nome usual do posto",
+      "description_en": "Common name of the station",
+      "description_es": "Nombre usual del puesto",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    },
+    {
+      "name": "id_departement",
+      "bigquery_type": "STRING",
+      "description_pt": "Código do departamento ou da coletividade ultramarina do posto",
+      "description_en": "Code of the department or overseas collectivity of the station",
+      "description_es": "Código del departamento o de la colectividad de ultramar del puesto",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "observations": "Segue a codificação da Météo-France, que difere do Code officiel géographique do INSEE: a Córsega recebe 20, e as coletividades de além-mar 984, 986, 987 e 988 não constam do diretório francês.",
+      "directory_column": "br_bd_diretorios_fr.departement:id_departamento"
+    },
+    {
+      "name": "latitude",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Latitude do posto, negativa ao sul do equador",
+      "description_en": "Latitude of the station, negative south of the equator",
+      "description_es": "Latitud del puesto, negativa al sur del ecuador",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "longitude",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Longitude do posto, negativa a oeste de Greenwich",
+      "description_en": "Longitude of the station, negative west of Greenwich",
+      "description_es": "Longitud del puesto, negativa al oeste de Greenwich",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "degree"
+    },
+    {
+      "name": "altitude",
+      "bigquery_type": "FLOAT64",
+      "description_pt": "Altitude do pé do abrigo, ou do pluviômetro quando não há abrigo",
+      "description_en": "Altitude of the station, measured at the foot of the shelter or rain gauge",
+      "description_es": "Altitud del puesto, medida al pie del abrigo o del pluviómetro",
+      "covered_by_dictionary": false,
+      "is_partition": false,
+      "measurement_unit": "meter"
+    },
+    {
+      "name": "geolocalisation",
+      "bigquery_type": "GEOGRAPHY",
+      "description_pt": "Ponto geográfico do posto, em WGS 84",
+      "description_en": "Geographic point of the station, in WGS 84",
+      "description_es": "Punto geográfico del puesto, en WGS 84",
+      "covered_by_dictionary": false,
+      "is_partition": false
+    }
+  ]
+}
