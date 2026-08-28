@@ -9,7 +9,7 @@
       "covered_by_dictionary": false,
       "is_partition": true,
       "measurement_unit": "year",
-      "observations": "O arquivo diário remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",
+      "observations": "O arquivo remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",
       "directory_column": "br_bd_diretorios_data_tempo.ano:ano"
     },
     {
@@ -1302,7 +1302,7 @@
       "covered_by_dictionary": false,
       "is_partition": true,
       "measurement_unit": "year",
-      "observations": "O arquivo diário remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",
+      "observations": "O arquivo remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",
       "directory_column": "br_bd_diretorios_data_tempo.ano:ano"
     },
     {
@@ -1848,9 +1848,9 @@
     {
       "name": "nombre_jours_gelee",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com gelée",
-      "description_en": "Number of days in the month with gelée",
-      "description_es": "Número de días en el mes con gelée",
+      "description_pt": "Número de dias no mês com geada branca",
+      "description_en": "Number of days in the month with hoar frost",
+      "description_es": "Número de días en el mes con escarcha",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
@@ -1974,9 +1974,9 @@
     {
       "name": "nombre_jours_tms24",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com TM quotidienne ≥ 24°C",
-      "description_en": "Number of days in the month with TM quotidienne ≥ 24°C",
-      "description_es": "Número de días en el mes con TM quotidienne ≥ 24°C",
+      "description_pt": "Número de dias no mês com temperatura média diária ≥ 24°C",
+      "description_en": "Number of days in the month with daily mean temperature ≥ 24°C",
+      "description_es": "Número de días en el mes con temperatura media diaria ≥ 24°C",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
@@ -2694,9 +2694,9 @@
     {
       "name": "nombre_jours_neig",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com précipitation de neige",
-      "description_en": "Number of days in the month with précipitation de neige",
-      "description_es": "Número de días en el mes con précipitation de neige",
+      "description_pt": "Número de dias no mês com precipitação de neve",
+      "description_en": "Number of days in the month with snowfall",
+      "description_es": "Número de días en el mes con precipitación de nieve",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
@@ -2704,9 +2704,9 @@
     {
       "name": "nombre_jours_hneigef1",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com chutes de neige en 24h supérieures à 1 cm (à partir de HNEIGEF quotidienne)",
-      "description_en": "Number of days in the month with chutes de neige en 24h supérieures à 1 cm (à partir de HNEIGEF quotidienne)",
-      "description_es": "Número de días en el mes con chutes de neige en 24h supérieures à 1 cm (à partir de HNEIGEF quotidienne)",
+      "description_pt": "Número de dias no mês com queda de neve em 24 horas superior a 1 cm",
+      "description_en": "Number of days in the month with snowfall over 24 hours above 1 cm",
+      "description_es": "Número de días en el mes con nevada en 24 horas superior a 1 cm",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
@@ -2714,9 +2714,9 @@
     {
       "name": "nombre_jours_hneigef5",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com chutes de neige en 24h supérieures à 5 cm (à partir de HNEIGEF quotidienne)",
-      "description_en": "Number of days in the month with chutes de neige en 24h supérieures à 5 cm (à partir de HNEIGEF quotidienne)",
-      "description_es": "Número de días en el mes con chutes de neige en 24h supérieures à 5 cm (à partir de HNEIGEF quotidienne)",
+      "description_pt": "Número de dias no mês com queda de neve em 24 horas superior a 5 cm",
+      "description_en": "Number of days in the month with snowfall over 24 hours above 5 cm",
+      "description_es": "Número de días en el mes con nevada en 24 horas superior a 5 cm",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
@@ -2724,9 +2724,9 @@
     {
       "name": "nombre_jours_hneigef10",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com chutes de neige en 24h supérieures à 10 cm (à partir de HNEIGEF quotidienne)",
-      "description_en": "Number of days in the month with chutes de neige en 24h supérieures à 10 cm (à partir de HNEIGEF quotidienne)",
-      "description_es": "Número de días en el mes con chutes de neige en 24h supérieures à 10 cm (à partir de HNEIGEF quotidienne)",
+      "description_pt": "Número de dias no mês com queda de neve em 24 horas superior a 10 cm",
+      "description_en": "Number of days in the month with snowfall over 24 hours above 10 cm",
+      "description_es": "Número de días en el mes con nevada en 24 horas superior a 10 cm",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
@@ -2734,9 +2734,9 @@
     {
       "name": "nombre_jours_solng",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com sol couvert de neige (à partir de SOLNEIGE quotidien)",
-      "description_en": "Number of days in the month with sol couvert de neige (à partir de SOLNEIGE quotidien)",
-      "description_es": "Número de días en el mes con sol couvert de neige (à partir de SOLNEIGE quotidien)",
+      "description_pt": "Número de dias no mês com solo coberto de neve",
+      "description_en": "Number of days in the month with snow-covered ground",
+      "description_es": "Número de días en el mes con suelo cubierto de nieve",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
@@ -2792,9 +2792,9 @@
     {
       "name": "nombre_jours_neigetot1",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com enneigement supérieur à 1cm (à partir de NEIGETOTX quotidienne)",
-      "description_en": "Number of days in the month with enneigement supérieur à 1cm (à partir de NEIGETOTX quotidienne)",
-      "description_es": "Número de días en el mes con enneigement supérieur à 1cm (à partir de NEIGETOTX quotidienne)",
+      "description_pt": "Número de dias no mês com espessura de neve superior a 1 cm",
+      "description_en": "Number of days in the month with snow depth above 1 cm",
+      "description_es": "Número de días en el mes con espesor de nieve superior a 1 cm",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
@@ -2802,9 +2802,9 @@
     {
       "name": "nombre_jours_neigetot10",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com enneigement supérieur à 10cm (à partir de NEIGETOTX quotidienne)",
-      "description_en": "Number of days in the month with enneigement supérieur à 10cm (à partir de NEIGETOTX quotidienne)",
-      "description_es": "Número de días en el mes con enneigement supérieur à 10cm (à partir de NEIGETOTX quotidienne)",
+      "description_pt": "Número de dias no mês com espessura de neve superior a 10 cm",
+      "description_en": "Number of days in the month with snow depth above 10 cm",
+      "description_es": "Número de días en el mes con espesor de nieve superior a 10 cm",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
@@ -2812,9 +2812,9 @@
     {
       "name": "nombre_jours_neigetot30",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com enneigement supérieur à 30cm (à partir de NEIGETOTX quotidienne)",
-      "description_en": "Number of days in the month with enneigement supérieur à 30cm (à partir de NEIGETOTX quotidienne)",
-      "description_es": "Número de días en el mes con enneigement supérieur à 30cm (à partir de NEIGETOTX quotidienne)",
+      "description_pt": "Número de dias no mês com espessura de neve superior a 30 cm",
+      "description_en": "Number of days in the month with snow depth above 30 cm",
+      "description_es": "Número de días en el mes con espesor de nieve superior a 30 cm",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
@@ -2822,9 +2822,9 @@
     {
       "name": "nombre_jours_grel",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com présents avec grêle",
-      "description_en": "Number of days in the month with présents avec grêle",
-      "description_es": "Número de días en el mes con présents avec grêle",
+      "description_pt": "Número de dias no mês com granizo",
+      "description_en": "Number of days in the month with hail",
+      "description_es": "Número de días en el mes con granizo",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
@@ -2832,9 +2832,9 @@
     {
       "name": "nombre_jours_orag",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com présents avec orage",
-      "description_en": "Number of days in the month with présents avec orage",
-      "description_es": "Número de días en el mes con présents avec orage",
+      "description_pt": "Número de dias no mês com trovoada",
+      "description_en": "Number of days in the month with thunderstorm",
+      "description_es": "Número de días en el mes con tormenta",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
@@ -2842,9 +2842,9 @@
     {
       "name": "nombre_jours_brou",
       "bigquery_type": "INT64",
-      "description_pt": "Número de dias no mês com présents avec brouillard",
-      "description_en": "Number of days in the month with présents avec brouillard",
-      "description_es": "Número de días en el mes con présents avec brouillard",
+      "description_pt": "Número de dias no mês com nevoeiro",
+      "description_en": "Number of days in the month with fog",
+      "description_es": "Número de días en el mes con niebla",
       "covered_by_dictionary": false,
       "is_partition": false,
       "measurement_unit": "day"
@@ -2877,7 +2877,7 @@
       "description_es": "Código del departamento o de la colectividad de ultramar del puesto",
       "covered_by_dictionary": false,
       "is_partition": false,
-      "observations": "Segue a codificação da Météo-France, que difere do Code officiel géographique do INSEE: a Córsega recebe 20, e as coletividades de além-mar 984, 986, 987 e 988 não constam do diretório francês.",
+      "observations": "Segue a codificação da Météo-France, que difere do Code officiel géographique do INSEE. Oito códigos não constam do diretório br_bd_diretorios_fr, cobrindo 771 dos 14.746 postos: 20 (Córsega, que no COG é 2A e 2B), 99 (postos fora da França) e as coletividades de além-mar 975, 984, 985, 986, 987 e 988. O caso de 975, São Pedro e Miquelão, é uma lacuna do próprio diretório, e não uma invenção da Météo-France.",
       "directory_column": "br_bd_diretorios_fr.departement:id_departamento"
     },
     {

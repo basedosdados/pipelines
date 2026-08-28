@@ -1,5 +1,5 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
-annee,INT64,Ano da observação,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"O arquivo diário remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",AAAAMM
+annee,INT64,Ano da observação,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"O arquivo remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 têm pouquíssimos postos.",AAAAMM
 mois,INT64,Mês da observação,,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,AAAAMM
 numero_poste,STRING,"Número Météo-France do posto, de oito dígitos",,no,,,no,,NUM_POSTE
 precipitation_totale,FLOAT64,Precipitação acumulada no mês,,no,,millimeter,no,,RR
@@ -55,7 +55,7 @@ nombre_jours_tni15,INT64,Número de dias no mês com TN ≤ +15°C,,no,,day,no,,
 nombre_jours_tni20,INT64,Número de dias no mês com TN ≤ +20°C,,no,,day,no,,NBJTNI20
 nombre_jours_tns20,INT64,Número de dias no mês com TN ≥ +20°C,,no,,day,no,,NBJTNS20
 nombre_jours_tns25,INT64,Número de dias no mês com TN ≥ +25°C,,no,,day,no,,NBJTNS25
-nombre_jours_gelee,INT64,Número de dias no mês com gelée,,no,,day,no,,NBJGELEE
+nombre_jours_gelee,INT64,Número de dias no mês com geada branca,,no,,day,no,,NBJGELEE
 amplitude_thermique_moyenne,FLOAT64,Média mensal das amplitudes térmicas diárias,,no,,celsius_degree,no,,TAMPLIM
 qualite_amplitude_thermique_moyenne,STRING,Código de qualidade de amplitude_thermique_moyenne,,yes,,,no,,QTAMPLIM
 amplitude_thermique_absolue,FLOAT64,Máximo absoluto mensal das amplitudes térmicas diárias,,no,,celsius_degree,no,,TAMPLIAB
@@ -68,7 +68,7 @@ nombre_valeurs_temperature_moyenne_min_max,INT64,Número de dias no mês em que 
 temperature_moyenne,FLOAT64,Média mensal das temperaturas médias diárias,,no,,celsius_degree,no,,TMM
 qualite_temperature_moyenne,STRING,Código de qualidade de temperature_moyenne,,yes,,,no,,QTMM
 nombre_valeurs_temperature_moyenne,INT64,Número de valores diários presentes de temperature_moyenne no mês,,no,,day,no,,NBTMM
-nombre_jours_tms24,INT64,Número de dias no mês com TM quotidienne ≥ 24°C,,no,,day,no,,NBJTMS24
+nombre_jours_tms24,INT64,Número de dias no mês com temperatura média diária ≥ 24°C,,no,,day,no,,NBJTMS24
 temperature_moyenne_min_max_minimale,FLOAT64,Mínimo mensal das médias diárias entre a temperatura mínima e a máxima,,no,,celsius_degree,no,,TMMIN
 qualite_temperature_moyenne_min_max_minimale,STRING,Código de qualidade de temperature_moyenne_min_max_minimale,,yes,,,no,,QTMMIN
 jour_temperature_moyenne_min_max_minimale,INT64,Dia do mês em que temperature_moyenne_min_max_minimale foi observado,,no,,day,no,,TMMINDAT
@@ -142,19 +142,19 @@ hauteur_neige_fraiche_maximale,FLOAT64,Máximo absoluto mensal da altura de neve
 qualite_hauteur_neige_fraiche_maximale,STRING,Código de qualidade de hauteur_neige_fraiche_maximale,,yes,,,no,,QHNEIGEFAB
 jour_hauteur_neige_fraiche_maximale,INT64,Dia do mês em que hauteur_neige_fraiche_maximale foi observado,,no,,day,no,,HNEIGEFDAT
 nombre_valeurs_hauteur_neige_fraiche,INT64,Número de valores diários presentes de hauteur_neige_fraiche no mês,,no,,day,no,,NBHNEIGEF
-nombre_jours_neig,INT64,Número de dias no mês com précipitation de neige,,no,,day,no,,NBJNEIG
-nombre_jours_hneigef1,INT64,Número de dias no mês com chutes de neige en 24h supérieures à 1 cm (à partir de HNEIGEF quotidienne),,no,,day,no,,NBJHNEIGEF1
-nombre_jours_hneigef5,INT64,Número de dias no mês com chutes de neige en 24h supérieures à 5 cm (à partir de HNEIGEF quotidienne),,no,,day,no,,NBJHNEIGEF5
-nombre_jours_hneigef10,INT64,Número de dias no mês com chutes de neige en 24h supérieures à 10 cm (à partir de HNEIGEF quotidienne),,no,,day,no,,NBJHNEIGEF10
-nombre_jours_solng,INT64,Número de dias no mês com sol couvert de neige (à partir de SOLNEIGE quotidien),,no,,day,no,,NBJSOLNG
+nombre_jours_neig,INT64,Número de dias no mês com precipitação de neve,,no,,day,no,,NBJNEIG
+nombre_jours_hneigef1,INT64,Número de dias no mês com queda de neve em 24 horas superior a 1 cm,,no,,day,no,,NBJHNEIGEF1
+nombre_jours_hneigef5,INT64,Número de dias no mês com queda de neve em 24 horas superior a 5 cm,,no,,day,no,,NBJHNEIGEF5
+nombre_jours_hneigef10,INT64,Número de dias no mês com queda de neve em 24 horas superior a 10 cm,,no,,day,no,,NBJHNEIGEF10
+nombre_jours_solng,INT64,Número de dias no mês com solo coberto de neve,,no,,day,no,,NBJSOLNG
 hauteur_neige_moyenne,FLOAT64,Média mensal da espessura total de neve medida diariamente às 06h UTC,,no,,centimeter,no,,NEIGETOTM
 qualite_hauteur_neige_moyenne,STRING,Código de qualidade de hauteur_neige_moyenne,,yes,,,no,,QNEIGETOTM
 hauteur_neige_maximale,FLOAT64,Máximo absoluto mensal da espessura máxima diária de neve,,no,,centimeter,no,,NEIGETOTAB
 qualite_hauteur_neige_maximale,STRING,Código de qualidade de hauteur_neige_maximale,,yes,,,no,,QNEIGETOTAB
 jour_hauteur_neige_maximale,INT64,Dia do mês em que hauteur_neige_maximale foi observado,,no,,day,no,,NEIGETOTABDAT
-nombre_jours_neigetot1,INT64,Número de dias no mês com enneigement supérieur à 1cm (à partir de NEIGETOTX quotidienne),,no,,day,no,,NBJNEIGETOT1
-nombre_jours_neigetot10,INT64,Número de dias no mês com enneigement supérieur à 10cm (à partir de NEIGETOTX quotidienne),,no,,day,no,,NBJNEIGETOT10
-nombre_jours_neigetot30,INT64,Número de dias no mês com enneigement supérieur à 30cm (à partir de NEIGETOTX quotidienne),,no,,day,no,,NBJNEIGETOT30
-nombre_jours_grel,INT64,Número de dias no mês com présents avec grêle,,no,,day,no,,NBJGREL
-nombre_jours_orag,INT64,Número de dias no mês com présents avec orage,,no,,day,no,,NBJORAG
-nombre_jours_brou,INT64,Número de dias no mês com présents avec brouillard,,no,,day,no,,NBJBROU
+nombre_jours_neigetot1,INT64,Número de dias no mês com espessura de neve superior a 1 cm,,no,,day,no,,NBJNEIGETOT1
+nombre_jours_neigetot10,INT64,Número de dias no mês com espessura de neve superior a 10 cm,,no,,day,no,,NBJNEIGETOT10
+nombre_jours_neigetot30,INT64,Número de dias no mês com espessura de neve superior a 30 cm,,no,,day,no,,NBJNEIGETOT30
+nombre_jours_grel,INT64,Número de dias no mês com granizo,,no,,day,no,,NBJGREL
+nombre_jours_orag,INT64,Número de dias no mês com trovoada,,no,,day,no,,NBJORAG
+nombre_jours_brou,INT64,Número de dias no mês com nevoeiro,,no,,day,no,,NBJBROU

@@ -25,6 +25,23 @@ INPUT = Path(
     )
 )
 
+# bulk_upsert_columns reads these headers when given a URL; the per-language
+# variants matter because a bare `description` is written to Portuguese only.
+ARCH_HEADER_I18N = [
+    "name",
+    "bigquery_type",
+    "description_pt",
+    "description_en",
+    "description_es",
+    "covered_by_dictionary",
+    "directory_column",
+    "measurement_unit",
+    "has_sensitive_data",
+    "observations_pt",
+    "observations_en",
+    "observations_es",
+]
+
 ARCH_HEADER = [
     "name",
     "bigquery_type",
@@ -203,12 +220,14 @@ POSTE = [
 OBSERVATIONS = {
     "id_departement": (
         "Segue a codificação da Météo-France, que difere do Code officiel géographique do "
-        "INSEE: a Córsega recebe 20, e as coletividades de além-mar 984, 986, 987 e 988 não "
-        "constam do diretório francês."
+        "INSEE. Oito códigos não constam do diretório br_bd_diretorios_fr, cobrindo 771 dos "
+        "14.746 postos: 20 (Córsega, que no COG é 2A e 2B), 99 (postos fora da França) e as "
+        "coletividades de além-mar 975, 984, 985, 986, 987 e 988. O caso de 975, São Pedro e "
+        "Miquelão, é uma lacuna do próprio diretório, e não uma invenção da Météo-France."
     ),
     "annee": (
-        "O arquivo diário remonta a 1688, muito antes da rede moderna: os anos anteriores a "
-        "1900 têm pouquíssimos postos."
+        "O arquivo remonta a 1688, muito antes da rede moderna: os anos anteriores a 1900 "
+        "têm pouquíssimos postos."
     ),
 }
 
@@ -264,6 +283,65 @@ def write_architecture(spec):
                     ]
                 )
         print(f"  architecture/{table}.csv  ({len(rows)} columns)")
+
+
+def write_architecture_i18n(spec, out_dir):
+    """Per-language architecture CSVs, for `bulk_upsert_columns(architecture_url=...)`.
+
+    Written outside the repo (the scratch tree) because they exist only to be
+    uploaded to Drive and read back by the backend; the committed architecture
+    CSVs remain the single reviewable schema.
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    obs_en = {
+        "id_departement": (
+            "Follows Meteo-France's own coding, which differs from the INSEE Code officiel "
+            "geographique. Eight codes are absent from br_bd_diretorios_fr, covering 771 of "
+            "the 14,746 stations: 20 (Corsica, split into 2A and 2B by the COG), 99 (stations "
+            "outside France) and the overseas collectivities 975, 984, 985, 986, 987 and 988. "
+            "The 975 case, Saint-Pierre-et-Miquelon, is a gap in the directory itself."
+        ),
+        "annee": (
+            "The archive reaches back to 1688, long before the modern network: years before "
+            "1900 carry very few stations."
+        ),
+    }
+    obs_es = {
+        "id_departement": (
+            "Sigue la codificacion de Meteo-France, que difiere del Code officiel geographique "
+            "del INSEE. Ocho codigos no constan en br_bd_diretorios_fr, cubriendo 771 de los "
+            "14.746 puestos: 20 (Corcega, que en el COG es 2A y 2B), 99 (puestos fuera de "
+            "Francia) y las colectividades de ultramar 975, 984, 985, 986, 987 y 988. El caso "
+            "de 975, San Pedro y Miquelon, es una laguna del propio directorio."
+        ),
+        "annee": (
+            "El archivo se remonta a 1688, mucho antes de la red moderna: los anos anteriores "
+            "a 1900 tienen muy pocos puestos."
+        ),
+    }
+    for table, rows in spec.items():
+        path = out_dir / f"{table}.csv"
+        with path.open("w", newline="", encoding="utf-8") as fh:
+            w = csv.writer(fh)
+            w.writerow(ARCH_HEADER_I18N)
+            for name, btype, unit, is_dict, pt, en, es, _original in rows:
+                w.writerow(
+                    [
+                        name,
+                        btype,
+                        pt,
+                        en,
+                        es,
+                        "yes" if is_dict else "no",
+                        DIRECTORY.get(name, ""),
+                        unit,
+                        "no",
+                        OBSERVATIONS.get(name, ""),
+                        obs_en.get(name, ""),
+                        obs_es.get(name, ""),
+                    ]
+                )
+        print(f"  i18n {path}")
 
 
 def write_models(spec):
@@ -349,5 +427,13 @@ def write_columns_json(spec):
 if __name__ == "__main__":
     spec = tables()
     write_architecture(spec)
+    write_architecture_i18n(
+        spec,
+        Path(
+            os.path.expanduser(
+                "~/Downloads/fr_meteofrance_clim/architecture_i18n"
+            )
+        ),
+    )
     write_models(spec)
     write_columns_json(spec)

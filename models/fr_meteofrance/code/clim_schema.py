@@ -866,6 +866,63 @@ RE_JOUR = re.compile(r"^jour du ([A-Z][A-Z0-9_]*)")
 RE_NBJOURS = re.compile(r"^nombre de jours?\b", re.I)
 
 
+# "Nombre de jours avec ..." conditions that are prose rather than a formula.
+# The formula ones ("RR >= 1.0 mm") are the source's parameter code and read the
+# same in any language; these would otherwise leave raw French inside the
+# Portuguese, English and Spanish descriptions.
+NBJ_CONDITIONS = {
+    "nombre_jours_gelee": ("geada branca", "hoar frost", "escarcha"),
+    "nombre_jours_tms24": (
+        "temperatura média diária ≥ 24°C",
+        "daily mean temperature ≥ 24°C",
+        "temperatura media diaria ≥ 24°C",
+    ),
+    "nombre_jours_neig": (
+        "precipitação de neve",
+        "snowfall",
+        "precipitación de nieve",
+    ),
+    "nombre_jours_hneigef1": (
+        "queda de neve em 24 horas superior a 1 cm",
+        "snowfall over 24 hours above 1 cm",
+        "nevada en 24 horas superior a 1 cm",
+    ),
+    "nombre_jours_hneigef5": (
+        "queda de neve em 24 horas superior a 5 cm",
+        "snowfall over 24 hours above 5 cm",
+        "nevada en 24 horas superior a 5 cm",
+    ),
+    "nombre_jours_hneigef10": (
+        "queda de neve em 24 horas superior a 10 cm",
+        "snowfall over 24 hours above 10 cm",
+        "nevada en 24 horas superior a 10 cm",
+    ),
+    "nombre_jours_solng": (
+        "solo coberto de neve",
+        "snow-covered ground",
+        "suelo cubierto de nieve",
+    ),
+    "nombre_jours_neigetot1": (
+        "espessura de neve superior a 1 cm",
+        "snow depth above 1 cm",
+        "espesor de nieve superior a 1 cm",
+    ),
+    "nombre_jours_neigetot10": (
+        "espessura de neve superior a 10 cm",
+        "snow depth above 10 cm",
+        "espesor de nieve superior a 10 cm",
+    ),
+    "nombre_jours_neigetot30": (
+        "espessura de neve superior a 30 cm",
+        "snow depth above 30 cm",
+        "espesor de nieve superior a 30 cm",
+    ),
+    "nombre_jours_grel": ("granizo", "hail", "granizo"),
+    "nombre_jours_orag": ("trovoada", "thunderstorm", "tormenta"),
+    "nombre_jours_brou": ("nevoeiro", "fog", "niebla"),
+}
+
+
 def _ref_daily(name, known):
     """Like :func:`_ref`, but the daily table wins — for the NB* counts."""
     if name in QUOT_PARAMS:
@@ -968,16 +1025,18 @@ def expand(cols, params, flags, descriptors):
             continue
 
         if RE_NBJOURS.match(fr):
-            cond = _condition(fr)
+            target = f"nombre_jours_{slug(col.removeprefix('NBJ').removeprefix('NB'))}"
+            raw = _condition(fr)
+            pt, en, es = NBJ_CONDITIONS.get(target, (raw, raw, raw))
             out.append(
                 (
-                    f"nombre_jours_{slug(col.removeprefix('NBJ').removeprefix('NB'))}",
+                    target,
                     "INT64",
                     "day",
                     False,
-                    f"Número de dias no mês com {cond}",
-                    f"Number of days in the month with {cond}",
-                    f"Número de días en el mes con {cond}",
+                    f"Número de dias no mês com {pt}",
+                    f"Number of days in the month with {en}",
+                    f"Número de días en el mes con {es}",
                     col,
                 )
             )
