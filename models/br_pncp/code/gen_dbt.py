@@ -252,6 +252,30 @@ def schema_yaml() -> str:
             out.append("          ignore_values:")
             out.extend(f"            - {name}" for name in sorted(set(sparse)))
 
+        # Every value in a dictionary-covered column must have a `chave` in
+        # the dicionario. Without this the dicionario can ship incomplete and
+        # nothing notices: it is DERIVED from the fact tables, so building it
+        # before a table is harvested silently yields zero keys for that
+        # table's codes, and the other tests all still pass.
+        covered = [
+            c["name"]
+            for c in cols
+            if (c.get("covered_by_dictionary") or "").strip().lower() == "yes"
+        ]
+        if covered:
+            out.append("      - custom_dictionary_coverage:")
+            out.append(
+                f"          dictionary_model: ref('{DATASET}__dicionario')"
+            )
+            out.append(
+                "          columns_covered_by_dictionary: ["
+                + ", ".join(covered)
+                + "]"
+            )
+            if scoped:
+                out.append("          config:")
+                out.append("            where: __most_recent_year__")
+
         out.append("    columns:")
         for c in cols:
             out.append(f"      - name: {c['name']}")

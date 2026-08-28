@@ -28,6 +28,11 @@ models:
             - nome_orgao_subrogado
             - nome_unidade_subrogada
             - valor_total_homologado
+      - custom_dictionary_coverage:
+          dictionary_model: ref('br_pncp__dicionario')
+          columns_covered_by_dictionary: [id_esfera, id_poder, id_modalidade, id_modo_disputa, id_situacao_compra, id_tipo_instrumento_convocatorio, codigo_amparo_legal]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: >
@@ -199,6 +204,11 @@ models:
             - nome_orgao_subrogado
             - nome_unidade_subrogada
             - valor_acumulado
+      - custom_dictionary_coverage:
+          dictionary_model: ref('br_pncp__dicionario')
+          columns_covered_by_dictionary: [id_esfera, id_poder, id_tipo_contrato, id_categoria_processo, tipo_pessoa_fornecedor]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: >
@@ -472,6 +482,11 @@ models:
             where: __most_recent_year__
           ignore_values:
             - observacao
+      - custom_dictionary_coverage:
+          dictionary_model: ref('br_pncp__dicionario')
+          columns_covered_by_dictionary: [id_tipo_instrumento_cobranca]
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: >
