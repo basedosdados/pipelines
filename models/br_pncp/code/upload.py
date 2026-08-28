@@ -33,6 +33,10 @@ import basedosdados as bd  # noqa: E402
 import google.cloud.storage as gcs  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+from pipelines.datasets.br_pncp.constants import constants  # noqa: E402
+
 BILLING_PROJECT = "basedosdados-dev"  # DEV ONLY — never prod
 DATASET_ID = "br_pncp"
 DATA_ROOT = Path(
@@ -41,13 +45,19 @@ DATA_ROOT = Path(
 OUTPUT_ROOT = DATA_ROOT / "output"
 
 # Smallest first, so a credentials or convention problem surfaces cheaply.
-TABLE_ORDER = [
+# Derived from constants rather than hardcoded: a deferred table (see
+# constants.DEFERRED_TABLES) has no cleaned output, and uploading it would
+# create an empty staging table that the dbt model then reads.
+_PREFERRED = [
     "dicionario",
     "instrumento_cobranca",
-    "plano_contratacao_anual",
     "ata_registro_preco",
     "contratacao",
     "contrato",
+]
+_SCOPED = set(constants.ALL_TABLES.value)
+TABLE_ORDER = [t for t in _PREFERRED if t in _SCOPED] + [
+    t for t in constants.ALL_TABLES.value if t not in _PREFERRED
 ]
 
 # Requester-pays bucket: force user_project onto every bucket handle.

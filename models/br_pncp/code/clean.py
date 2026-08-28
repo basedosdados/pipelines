@@ -19,6 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
+from pipelines.datasets.br_pncp.constants import constants
 from pipelines.datasets.br_pncp.utils import DEDUP_KEYS, clean_table
 
 DATA_DIR = Path(
@@ -31,7 +32,12 @@ def main() -> int:
     ap.add_argument(
         "--tables",
         nargs="*",
-        default=list(DEDUP_KEYS),
+        # DEDUP_KEYS still carries the deferred table, so scope the default
+        # to what this onboarding actually harvests. It stays selectable by
+        # name for the follow-up backfill.
+        default=[
+            t for t in DEDUP_KEYS if t in set(constants.FACT_TABLES.value)
+        ],
         choices=list(DEDUP_KEYS),
     )
     ap.add_argument("--input-dir", type=Path, default=DATA_DIR / "input")
