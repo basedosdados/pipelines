@@ -376,3 +376,59 @@ levels), and the near-duplicates `financas` / `financa_publicas` / `gasto`.
 
 IDs differ per backend. Re-resolve every one of these on prod before
 registering there; the organization in particular must be created again.
+
+## Measured API behaviour (2026-08-28)
+
+Everything here was measured against the live API, not inferred. It is the
+basis for the window sizes and the worker count, so re-measure before
+changing either.
+
+### tamanhoPagina is capped PER ENDPOINT, and exceeding it is a 400
+
+From the OpenAPI spec at `https://pncp.gov.br/api/consulta/v3/api-docs`
+(fetchable without credentials, unlike the gov.br portal pages, which answer
+401 to anything that is not a browser):
+
+| endpoint | max | min |
+|---|---|---|
+| `/v1/contratos`, `/v1/contratos/atualizacao` | 500 | 10 |
+| `/v1/atas`, `/v1/atas/atualizacao` | 500 | 10 |
+| `/v1/pca/atualizacao` | 500 | 10 |
+| `/v1/instrumentoscobranca/inclusao` | 100 | 10 |
+| `/v1/contratacoes/publicacao`, `/v1/contratacoes/atualizacao` | **50** | 10 |
+
+There is no clamping: above the cap the endpoint answers
+`400 Tamanho de página inválido` and returns nothing. `contratacao`
+inherited the 500 default and would have failed every window on its first
+request. A test now asserts each configured size against this table, for
+both a table's pipeline path and its backfill path.
+
+### Latency depends on pagination depth, but only where pages are large
+
+| endpoint | page size | s/page | depth penalty |
+|---|---|---|---|
+| `contratos` | 500 | ~8 shallow, 14-20 deep | yes, ~2.5x by page 120+ |
+| `contratacoes/publicacao` | 50 | ~3.0, flat to page 120+ | none observed |
+
+So the two tables want opposite treatment, and guessing one from the other
+is how the estimate went wrong twice. `contrato` needs windows kept shallow
+(hence the `resize`); `contratacao` does not, and its 10-day windows stand.
+
+Per record, `contrato` moves ~36 rec/s and `contratacao` ~17 rec/s -- the
+smaller page cap costs roughly 2x, not the 10x the page count suggests.
+
+### Concurrency ceiling is about 6 in-flight requests
+
+At 9 concurrent, half the requests return 500. At 6, all succeed but median
+latency roughly doubles, so total throughput barely moves -- the API is
+capacity-bound. **Three workers is the right number**; raising it converts
+throughput into window splits, which discard fetched pages. This supersedes
+the earlier explanation that the 4-worker slowdown was only the pacer
+compounding.
+
+### No bulk download exists
+
+The OpenAPI spec has 12 endpoints and none serves files; PNCP's documented
+open-data access is the REST API. `dados.gov.br` carries
+`compras-publicas-do-governo-federal`, which is Compras.gov.br (federal
+only) and therefore not a substitute for PNCP's three-level coverage.
