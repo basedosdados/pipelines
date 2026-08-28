@@ -49,7 +49,10 @@ CONTRATACAO = [
         "Identificador da contratação no SIASG",
         en="Identifier of the procurement in SIASG",
         es="Identificador de la contratación en el SIASG",
-        obs="Concatena código da UASG, modalidade e número da compra. Chave primária da tabela",
+        obs="Concatena código da UASG, modalidade e número da compra. NÃO é único: uma "
+        "mesma chave do SIASG pode corresponder a dezenas de contratações distintas no "
+        "PNCP, cada uma com seu número de controle e data de publicação. A chave primária "
+        "da tabela é numero_controle_pncp",
         original="idCompra",
     ),
     c(
@@ -58,7 +61,8 @@ CONTRATACAO = [
         "Número de controle da contratação no PNCP",
         en="PNCP control number of the procurement",
         es="Número de control de la contratación en el PNCP",
-        obs="Formato CNPJ-1-sequencial/ano. Chave de junção com o conjunto br_pncp",
+        obs="Formato CNPJ-1-sequencial/ano. Chave primária da tabela e chave de junção "
+        "com o conjunto br_pncp",
         original="numeroControlePNCP",
     ),
     c(
