@@ -20,6 +20,21 @@
 -- Every state model must project the canonical columns in THIS order: the union in the
 -- parent resolves positionally, so a reordered or missing column silently shifts values
 -- into the wrong field. Columns the source does not publish are explicit typed NULLs.
+--
+-- KNOWN SOURCE ERROR, passed through deliberately: process `1561122 000030/2011`
+-- (INTENDENCIA DA CIDADE ADMINISTRATIVA, coffee and hot drinks vending) carries
+-- `vr_referencia = 81755995676572.81` -- R$81.76 TRILLION -- against a homologated
+-- value of
+-- R$4,582,816.48. It is a data-entry error in MG's published file, verified against
+-- the raw
+-- CSV, not a parsing artefact. That single row is 99.8% of MG's entire valor_referencia
+-- total (R$81.92tn); without it the total is R$167.9bn, against R$193.9bn homologated.
+--
+-- It is NOT nulled here. Staging mirrors the source, and silently editing a published
+-- value
+-- is worse than a documented outlier. Anyone aggregating `valor_referencia` for MG must
+-- filter it -- the median is R$3,327.75 and the 99th percentile R$4.37M, so a simple
+-- upper bound removes it along with the 14 other rows above R$1bn.
 select
     safe_cast(extract(year from safe_cast(dt_cad_processo as date)) as int64) as ano,
     safe_cast(extract(month from safe_cast(dt_cad_processo as date)) as int64) as mes,
