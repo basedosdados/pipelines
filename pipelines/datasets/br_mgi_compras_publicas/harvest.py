@@ -274,7 +274,7 @@ def harvest_table(
     since: dt.date | None = None,
     today: dt.date | None = None,
     extraction_date: dt.date | None = None,
-    progress_every: int = 200,
+    progress_every: int | None = None,
 ) -> dict[str, int]:
     """Harvest one table into resumable parquet chunks."""
     spec = TABLE_SPECS[table]
@@ -293,6 +293,9 @@ def harvest_table(
         len(planned) - len(todo),
     )
 
+    # Report often enough that a long table shows movement, without spamming
+    # a table with thousands of jobs.
+    every = progress_every or max(1, min(50, len(todo) // 20 or 1))
     rows = 0
     failures = 0
     session_pool = [build_session() for _ in range(workers)]
@@ -320,7 +323,7 @@ def harvest_table(
             except Exception:
                 failures += 1
                 logger.exception("%s: job %s failed", table, job.chunk_id)
-            if done % progress_every == 0:
+            if done % every == 0:
                 logger.info(
                     "%s: %d/%d jobs, %d rows", table, done, len(todo), rows
                 )
