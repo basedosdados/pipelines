@@ -25,10 +25,13 @@ from prefect import flow
 
 from pipelines.datasets.fr_meteofrance.constants import constants
 from pipelines.datasets.fr_meteofrance.tasks import (
+    clean_climatologie_task,
     clean_normales_task,
     clean_synop_task,
+    download_climatologie_task,
     download_fiches_task,
     download_synop,
+    max_climatologie_date,
 )
 from pipelines.utils.metadata.domain import (
     AllFree,
@@ -36,6 +39,7 @@ from pipelines.utils.metadata.domain import (
     DateOnly,
     FreeLag,
     PartBdpro,
+    YearMonth,
     YearOnly,
 )
 from pipelines.utils.metadata.tasks import (
@@ -81,6 +85,29 @@ _COVERAGE = {
         date_column=YearOnly(col="annee_fin_reference"),
         date_format=DateFormat.YEAR,
     ),
+    # The climatological archive advances every month -- new days and new months
+    # are appended -- so unlike `normale_climatologique` it does move, and the
+    # monthly-or-more-often rule applies. `poste` has no date column and takes
+    # no spec.
+    "quotidienne": PartBdpro(
+        date_column=DateOnly(col="date"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
+    ),
+    "mensuelle": PartBdpro(
+        date_column=YearMonth(year="annee", month="mois"),
+        date_format=DateFormat.YEAR_MONTH,
+        free_lag=FreeLag(unit="months", value=6),
+    ),
+}
+
+# Coverage specs used by each flow, so one flow never rewrites another's ranges.
+_SYNOP_COVERAGE = {"synop": _COVERAGE["synop"]}
+_CLIMATOLOGIE_COVERAGE = {
+    k: _COVERAGE[k] for k in ("synop", "normale_climatologique")
+}
+_CLIMATOLOGIE_BASE_COVERAGE = {
+    k: _COVERAGE[k] for k in ("quotidienne", "mensuelle")
 }
 
 
@@ -267,7 +294,95 @@ def fr_meteofrance_climatologie_flow(
         _materialize(tables, bucket="basedosdados", target="prod")
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table, coverage in _CLIMATOLOGIE_COVERAGE.items():
+                register_table_materialization_task(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    coverage=coverage,
+                    env="prod",
+                    bq_project="basedosdados",
+                )
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
+
+
+@flow(name="fr_meteofrance_climatologie_base", log_prints=True)
+def fr_meteofrance_climatologie_base_flow(
+    materialize_to_prod: bool = True,
+    update_metadata: bool = True,
+    force_run: bool = False,
+) -> None:
+    """Refresh the daily and monthly climatological archive and the station register.
+
+    Météo-France republishes this archive per département in three period slices
+    — ``avant-1949``, ``previous-1950-2024`` and ``latest-<years>`` — and only
+    the last one changes as observations land. The flow downloads all of them
+    (the station register is the union over every slice and both series, so
+    rebuilding it from the refreshed slice alone would drop stations that
+    stopped reporting) but re-cleans and re-uploads only ``latest-*``. Staging
+    objects are named ``<dept>_<period>.parquet``, so that upload overwrites
+    those objects in place; ``dump_mode="append"`` leaves the historical slices
+    alone, where ``"overwrite"`` would drop the whole staging table — and drops
+    the prod table even from a dev run.
+
+    Args:
+        materialize_to_prod: Continue past the dev materialization to write the
+            prod staging bucket and run dbt against ``target="prod"``. Set False
+            to exercise only the dev half.
+        update_metadata: After a successful prod materialization, register table
+            coverage and commit the source update.
+        force_run: Materialize even when the source poll reports no new edition.
+    """
+    # pyrefly: ignore [unused-coroutine]
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=DATASET_ID, table_id="quotidienne"
+    )
+
+    work_dir = tempfile.mkdtemp(prefix="fr_meteofrance_clim_base_")
+    try:
+        input_dir = download_climatologie_task(work_dir=work_dir)
+        tables = clean_climatologie_task(
+            work_dir=work_dir, input_dir=input_dir
+        )
+        max_date = max_climatologie_date(tables["quotidienne"])
+
+        has_new_data = poll_source_for_update_task(
+            dataset_id=DATASET_ID,
+            table_id="quotidienne",
+            source_max_date=max_date,
+            env="prod",
+            date_format="%Y-%m-%d",
+            compare_against="coverage",
+        )
+        if not has_new_data and not force_run:
+            return
+
+        commit_source_update_task(
+            dataset_id=DATASET_ID,
+            table_id="quotidienne",
+            source_max_date=max_date,
+            env="prod",
+            date_format="%Y-%m-%d",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_to_prod,
+        )
+
+        # poste first: quotidienne's relationships test reads it as a sibling,
+        # and mensuelle/quotidienne dictionary coverage reads `dicionario`,
+        # which the climatologie flow owns and does not change here.
+        ordered = {
+            slug: tables[slug]
+            for slug in constants.CLIMATOLOGIE_BASE_TABLES.value
+        }
+
+        if not materialize_to_prod:
+            _materialize(ordered, bucket="basedosdados-dev", target="dev")
+            return
+
+        _materialize(ordered, bucket="basedosdados", target="prod")
+
+        if update_metadata:
+            for table, coverage in _CLIMATOLOGIE_BASE_COVERAGE.items():
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
@@ -298,3 +413,15 @@ fr_meteofrance_climatologie_flow.deploy_schedules = [
 # Cleans 31 years of SYNOP plus 1,576 sheets; give the worker headroom.
 # pyrefly: ignore [missing-attribute]
 fr_meteofrance_climatologie_flow.job_variables = {"memory": "8Gi"}
+
+# The archive is reissued monthly, a few days into the month. 07:51 BRT is a
+# minute nothing else in the repo uses; the source-poll guard no-ops until a new
+# edition appears.
+# pyrefly: ignore [missing-attribute]
+fr_meteofrance_climatologie_base_flow.deploy_schedules = [
+    {"cron": "51 7 8,9,10,11 * *", "timezone": "America/Sao_Paulo"}
+]
+# Downloads ~940 archives and rebuilds the station register from all of them,
+# but only re-cleans the latest slice (~4M daily rows, not 137M).
+# pyrefly: ignore [missing-attribute]
+fr_meteofrance_climatologie_base_flow.job_variables = {"memory": "12Gi"}

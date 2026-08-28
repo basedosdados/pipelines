@@ -5,6 +5,7 @@ from pathlib import Path
 
 from prefect import task
 
+from pipelines.datasets.fr_meteofrance import clim_schema, clim_utils
 from pipelines.datasets.fr_meteofrance.constants import constants
 from pipelines.datasets.fr_meteofrance.utils import (
     clean_normales,
@@ -96,3 +97,97 @@ def clean_normales_task(work_dir: str, fiche_dir: str) -> dict:
         "max_date": result["max_date"],
         "rows": result["rows"],
     }
+
+
+@task(retries=2, retry_delay_seconds=60)
+def download_climatologie_task(work_dir: str) -> str:
+    """Download the full daily and monthly climatological archives.
+
+    Every period slice is fetched, not just the one that changes: the station
+    register is the union over both series and all slices, so rebuilding it from
+    the refreshed slice alone would drop stations that stopped reporting.
+
+    Args:
+        work_dir: Directory to download into; files land in ``<work_dir>/input``.
+
+    Returns:
+        The input directory path, as a string.
+    """
+    input_dir = Path(work_dir) / "input"
+    clim_utils.INPUT = input_dir
+    for kind in ("mens", "quot"):
+        clim_utils.download(kind)
+    return str(input_dir)
+
+
+@task
+def clean_climatologie_task(work_dir: str, input_dir: str) -> dict:
+    """Clean the climatological archive into partitioned parquet.
+
+    Only the ``latest-<years>`` slice is re-cleaned. Météo-France rewrites that
+    slice alone as observations land, and staging objects are named
+    ``<dept>_<period>.parquet``, so uploading it overwrites those objects in
+    place and leaves the two historical slices on GCS untouched. Re-cleaning all
+    of it would mean 137 million rows a month to rewrite the same bytes.
+
+    ``poste`` is the exception and is always rebuilt in full — see
+    :func:`download_climatologie_task`.
+
+    Args:
+        work_dir: Directory to write into; parquet lands in ``<work_dir>/output``.
+        input_dir: Directory holding the downloaded ``.csv.gz`` archives.
+
+    Returns:
+        Mapping of table slug to the parquet directory for that table.
+    """
+    output_dir = Path(work_dir) / "output"
+    clim_utils.INPUT = Path(input_dir)
+    clim_utils.OUTPUT = output_dir
+
+    descriptors = clim_schema.descriptors()
+    sink: dict = {}
+    mens = clim_utils.clean_mens(descriptors, sink, only_latest=True)
+    quot = clim_utils.clean_quot(descriptors, sink, only_latest=True)
+    poste = clim_utils.build_poste()
+    print(
+        f"climatologie: quotidienne {quot:,} rows, mensuelle {mens:,} rows, "
+        f"poste {poste:,} rows (latest slice only; poste rebuilt in full)"
+    )
+    return {
+        "poste": str(output_dir / "poste"),
+        "mensuelle": str(output_dir / "mensuelle"),
+        "quotidienne": str(output_dir / "quotidienne"),
+    }
+
+
+@task
+def max_climatologie_date(quotidienne_dir: str) -> str:
+    """Latest observation date in the refreshed daily slice, as ``YYYY-MM-DD``.
+
+    Read from the cleaned parquet rather than from BigQuery, so the poll
+    compares what the source just published against what is registered. Staging
+    is all-STRING by house convention, so ``date`` is already an ISO string and
+    sorts lexicographically.
+
+    Args:
+        quotidienne_dir: Directory of cleaned ``quotidienne`` parquet.
+
+    Returns:
+        The maximum observation date.
+    """
+    import pyarrow.parquet as pq
+
+    # Read the column's row-group statistics rather than the data: the footer
+    # already carries per-group max values, so this touches no row.
+    latest = None
+    for path in sorted(Path(quotidienne_dir).glob("*.parquet")):
+        metadata = pq.ParquetFile(path).metadata
+        index = metadata.schema.names.index("date")
+        for group in range(metadata.num_row_groups):
+            stats = metadata.row_group(group).column(index).statistics
+            value = stats.max if stats is not None else None
+            if value and (latest is None or value > latest):
+                latest = value
+    if latest is None:
+        raise ValueError(f"no observation dates found under {quotidienne_dir}")
+    return latest

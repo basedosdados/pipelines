@@ -412,7 +412,7 @@ def add_climatologie():
     from pathlib import Path
 
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    import clim_schema as cs
+    from pipelines.datasets.fr_meteofrance import clim_schema as cs
 
     inp = Path(
         os.path.expanduser(

@@ -56,6 +56,11 @@ class constants(Enum):
         "dicionario",
     ]
 
+    # Tables refreshed by the climatological-archive flow. The station register
+    # is rebuilt from every source file, not just the refreshed slice, so it is
+    # listed here rather than derived from whichever series ran.
+    CLIMATOLOGIE_BASE_TABLES = ["poste", "mensuelle", "quotidienne"]
+
     ARCHITECTURE_DIR = (
         _REPO_ROOT / "models" / "fr_meteofrance" / "code" / "architecture"
     )
