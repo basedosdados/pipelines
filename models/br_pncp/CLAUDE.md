@@ -8,6 +8,54 @@ one-day sample of `contrato`, 71% of records were municipal, 13% state and 13% f
 Coverage starts 2021 (Lei 14.133/2021), but adoption ramps steeply — 5.3k contratos in
 2021 against 2.02M in 2025.
 
+## Status: PAUSED mid-backfill (2026-08-28)
+
+Everything except the historical download is done and verified. The backfill is
+resumable: chunks are written atomically and skipped when present, so re-running the
+same command picks up exactly where it stopped.
+
+**Resume with:**
+
+```bash
+PNCP_DATA_DIR=~/Downloads/br_pncp_data PNCP_MIN_INTERVAL=0.05 PNCP_WORKERS=3 \
+  uv run python models/br_pncp/code/download.py \
+  --tables contrato ata_registro_preco contratacao plano_contratacao_anual instrumento_cobranca
+```
+
+Do not raise `PNCP_WORKERS` above 3 — see the concurrency note below; 4 measured 2x
+slower.
+
+**Harvested so far** (`~/Downloads/br_pncp_data/input`, 441 MB):
+
+| table | state |
+|---|---|
+| `contrato` | 112 chunks, 2021-01 .. ~2025-09 (windows through 2026-08 remain) |
+| `instrumento_cobranca` | complete, 73,202 records, **13 windows still to re-run** |
+| `ata_registro_preco`, `contratacao`, `plano_contratacao_anual` | not started |
+
+The 13 `instrumento_cobranca` gaps failed under the page-size bug fixed in
+`22edb965d`; they left no chunk files, so the resume command re-fetches exactly them.
+
+**Estimated remaining: ~40 hours** — `contrato` ~10h, `contratacao` ~11h, `pca` ~14h,
+`atas` ~3h, gaps ~1.5h. `pca` is ~35% of that and is the obvious scope lever if the
+backfill needs to be shorter; older annual plans are already executed.
+
+**Verified in dev, complete:**
+
+| model | staging | materialized | dbt test |
+|---|---|---|---|
+| `contrato` | 224,555 | 224,555 | 7/7 |
+| `instrumento_cobranca` | 73,202 | 59,312 | 5/5 |
+
+`contrato` row counts match the source exactly for the years the backfill completed
+(2021 = 5,308; 2022 = 40,645). 35 unit tests pass.
+
+**Next steps after the backfill finishes:** clean + upload the remaining three tables,
+rebuild `dicionario` (it derives from the fact tables, so it must be rebuilt last), run
+`dbt run` then `dbt test` across all six models, then register metadata in dev — which
+needs a `pncp` **organization created first**, as none exists. Stop at the verification
+checkpoint before anything touches prod.
+
 ## Tables
 
 | table | grain | partition | backfill endpoint | pipeline endpoint |
