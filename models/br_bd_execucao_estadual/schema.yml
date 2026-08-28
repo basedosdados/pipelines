@@ -238,3 +238,166 @@ models:
         description: >-
           Intervalo de exercícios em que aquele rótulo esteve vigente, na notação
           inicio(intervalo)fim
+  - name: br_bd_execucao_estadual__despesa_mensal
+    description: >
+      Execução orçamentária mensal por linha orçamentária, para estados cuja fonte
+      publica
+      os valores sem identificar o credor. Uma linha por mês, dotação e unidade executora,
+      com dotação inicial e atual, empenhado, liquidado e pago. Não confundir com
+      despesa,
+      que é em nível de documento, nem com despesa_anual, que é anual e traz o credor.
+    columns:
+      - name: ano
+        description: Ano do exercício orçamentário
+        tests: [not_null]
+      - name: mes
+        description: Mês do exercício orçamentário
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: orgao
+        description: Código do órgão orçamentário
+      - name: nome_orgao
+        description: Nome do órgão orçamentário
+      - name: unidade_orcamentaria
+        description: Código da unidade orçamentária
+      - name: nome_unidade_orcamentaria
+        description: Nome da unidade orçamentária
+      - name: id_unidade_gestora
+        description: Código da unidade gestora executora da despesa
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora executora da despesa
+      - name: poder
+        description: Poder ao qual o órgão pertence
+      - name: dotacao_orcamentaria
+        description: Número da conta de dotação orçamentária anual
+      - name: funcao
+        description: Código da função de governo
+      - name: subfuncao
+        description: Código da subfunção de governo
+      - name: programa
+        description: Código do programa de governo
+      - name: acao
+        description: Código da ação de governo
+      - name: categoria_economica
+        description: Código da categoria econômica da despesa
+      - name: grupo_despesa
+        description: Código do grupo de natureza da despesa
+      - name: modalidade_aplicacao
+        description: Código da modalidade de aplicação dos recursos
+      - name: elemento_despesa
+        description: Código do elemento de despesa
+      - name: subelemento_despesa
+        description: Código do subelemento de despesa
+      - name: fonte_recurso
+        description: Código da fonte de recursos
+      - name: destinacao_recurso
+        description: Código da destinação de recursos
+      - name: regiao
+        description: Código da região orçamentária de aplicação
+      - name: valor_dotacao_inicial
+        description: Valor da dotação inicial em reais correntes
+      - name: valor_dotacao_atual
+        description: Valor da dotação atualizada em reais correntes
+      - name: valor_empenhado
+        description: Valor empenhado no mês em reais correntes
+      - name: valor_liquidado
+        description: Valor liquidado no mês em reais correntes
+      - name: valor_pago
+        description: Valor pago no mês em reais correntes
+      - name: valor_descentralizacao_recebida
+        description: Valor recebido por descentralização em reais correntes
+      - name: valor_descentralizacao_concedida
+        description: Valor concedido por descentralização em reais correntes
+  - name: br_bd_execucao_estadual__empenho_credor
+    description: >
+      Empenhos e seus credores, sem valores. Existe para estados cuja fonte publica
+      o
+      credor em uma base separada da base de valores, sem chave que permita atribuir
+      valor
+      a credor. Permite saber quem foi empenhado, quando e sob qual instrumento
+      orçamentário, mas não quanto.
+    columns:
+      - name: ano
+        description: Ano do exercício orçamentário
+        tests: [not_null]
+      - name: mes
+        description: Mês do pedido de empenho
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: numero_empenho
+        description: Número do empenho no sistema orçamentário do estado
+      - name: instrumento_orcamentario
+        description: Número do instrumento orçamentário que originou o empenho
+      - name: tipo_empenho
+        description: Código do tipo de empenho
+      - name: tipo_despesa
+        description: Código do tipo de despesa
+      - name: id_credor
+        description: Código do credor no sistema de origem
+      - name: nome_credor
+        description: Nome ou razão social do credor
+      - name: documento_credor_formatado
+        description: CPF ou CNPJ do credor com máscara, como publicado pela fonte
+      - name: documento_credor
+        description: CPF ou CNPJ do credor apenas com dígitos
+      - name: data_pedido
+        description: Data do pedido de empenho
+      - name: data_autorizacao
+        description: Data e hora da autorização do empenho
+      - name: processo_sei
+        description: Número do processo no sistema eletrônico de informações
+      - name: dotacao_orcamentaria
+        description: >
+          Chave de dotação orçamentária do empenho. Não permite atribuir valores por
+          credor: há cerca de seis empenhos por dotação
+  - name: br_bd_execucao_estadual__licitacao_participante
+    description: >
+      Participantes de licitações estaduais. Uma linha por item e fornecedor, com
+      o valor
+      cotado, o valor homologado e a situação do fornecedor naquele item. Inclui os
+      fornecedores derrotados, o que permite medir concorrência.
+    columns:
+      - name: ano
+        description: Ano do processo de aquisição
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: id_licitacao_bd
+        description: Identificador único do processo licitatório construído pela Data
+          Basis
+      - name: id_item_bd
+        description: Identificador único do item construído pela Data Basis
+      - name: id_item
+        description: Número do item dentro do processo
+      - name: razao_social
+        description: Nome ou razão social do fornecedor participante
+      - name: documento_formatado
+        description: CPF ou CNPJ do fornecedor com máscara, como publicado pela fonte
+      - name: documento
+        description: CPF ou CNPJ do fornecedor apenas com dígitos
+      - name: situacao
+        description: >
+          Situação do fornecedor naquele item, como classificado, desclassificado
+          ou
+          habilitado
+      - name: vencedor
+        description: >
+          Indica se o fornecedor venceu o item, derivado da situação e da existência
+          de
+          valor homologado, já que a fonte não publica o indicador diretamente
+      - name: quantidade
+        description: Quantidade pedida do item
+      - name: valor_unitario_cotado
+        description: Valor unitário cotado pelo fornecedor em reais correntes
+      - name: valor_total_cotado
+        description: Valor total cotado pelo fornecedor em reais correntes
+      - name: valor_unitario_homologado
+        description: Valor unitário homologado ao fornecedor em reais correntes
+      - name: valor_total_homologado
+        description: Valor total homologado ao fornecedor em reais correntes
+      - name: categoria
+        description: Categoria do processo de aquisição

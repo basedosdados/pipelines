@@ -17,3 +17,6 @@
 -- Ligam-se à execução por `relacionamentos`, quando a fonte publica o vínculo.
 select *
 from {{ ref("br_bd_execucao_estadual__licitacao_mg") }}
+union all
+select *
+from {{ ref("br_bd_execucao_estadual__licitacao_ba") }}

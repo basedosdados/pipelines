@@ -20,3 +20,6 @@
 -- o que torna `valor_unitario` comparável ao campo homônimo de MiDES.
 select *
 from {{ ref("br_bd_execucao_estadual__licitacao_item_mg") }}
+union all
+select *
+from {{ ref("br_bd_execucao_estadual__licitacao_item_ba") }}

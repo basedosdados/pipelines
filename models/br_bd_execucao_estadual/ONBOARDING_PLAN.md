@@ -32,19 +32,36 @@ A browser User-Agent is required on `dados.mg.gov.br` (bare curl gets 403).
 
 The four sources do **not** share a grain:
 
-| UF | Execution grain | Creditor | Empenho id | Date | Tender link |
-|----|----------------|----------|------------|------|-------------|
-| MG | empenho × budget line × document | CNPJ/CPF (0.5% anonymised) | yes | monthly | **native** (`fl_compras_empenho`, 1.1M links) |
-| BA | month × budget line; creditor + empenho no. in a separate view | CNPJ + razão social | yes | monthly | **native** (item → `NUM_INSTRUMENTO_ORCAMENTO`) |
+| UF | Execution grain | Creditor **on the value row** | Empenho id | Date | Tender link |
+|----|----------------|------------------------------|------------|------|-------------|
+| MG | empenho × budget line × document | yes, CNPJ/CPF (0.5% anonymised) | yes | monthly | **native** (`fl_compras_empenho`, 1.1M links) |
+| BA | month × budget line | **no** | **no** | monthly | **native** (item → `NUM_INSTRUMENTO_ORCAMENTO`) |
 | PE | empenho document | yes (some pseudo-codes) | yes | to confirm | none (modality only) |
-| SP | credor × budget line × **year** | CPF/CNPJ | **no** | **year only** | none (modality only) |
+| SP | credor × budget line × **year** | yes, CPF/CNPJ | **no** | **year only** | none (modality only) |
 
-SP cannot populate a transaction table: it has no document id and no sub-annual date.
-Forcing it in would leave every SP row null in exactly the columns that make the table
-useful, while looking like transaction data to anyone filtering `sigla_uf = 'SP'`.
+**Only MG is transaction grain.** Two states fail it for different reasons, and both were
+verified rather than assumed:
 
-**Decision:** transaction-grain states go in `despesa`; annual-aggregate sources go in
-`despesa_anual`. Nothing is silently null, and neither table lies about what it holds.
+*SP* has no document id and no sub-annual date at all. Forcing it into `despesa` would leave
+every SP row null in exactly the columns that make the table useful, while looking like
+transaction data to anyone filtering `sigla_uf = 'SP'`.
+
+*BA* looks like it qualifies and does not. It publishes empenho numbers and CNPJs — but in a
+**different view from the money**. `VW_PAINEL_DESPESA` carries the values at month ×
+budget-line grain with no creditor and no empenho number; `VW_PROCESSO_SEI` carries the
+empenho number and CNPJ with no values, and only from 2019. The sole key between them is the
+dotação, and **1,091,372 empenhos map to 185,969 dotação keys** — about six empenhos per
+dotação against one value row per dotação-month. Attributing money to a creditor across that
+key needs an allocation rule the source does not publish, so it would be invention.
+
+**Decision:** one table per grain, and no table that lies about what it holds.
+
+| Table | Grain | State |
+|---|---|---|
+| `despesa` | empenho document × budget line | MG (PE pending) |
+| `despesa_mensal` | month × budget line, no creditor | BA, 2013+ |
+| `despesa_anual` | credor × budget line × year | SP, 2010+ |
+| `empenho_credor` | empenho × creditor, **no values** | BA, 2019+ |
 
 ### Divergence from MiDES worth knowing
 

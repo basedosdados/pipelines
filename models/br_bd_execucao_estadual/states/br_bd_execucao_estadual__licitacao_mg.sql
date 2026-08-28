@@ -16,6 +16,10 @@
 -- The label is unambiguous on its own; a numeric recode is not, so the dicionario
 -- carries
 -- the crosswalk instead.
+--
+-- Every state model must project the canonical columns in THIS order: the union in the
+-- parent resolves positionally, so a reordered or missing column silently shifts values
+-- into the wrong field. Columns the source does not publish are explicit typed NULLs.
 select
     safe_cast(extract(year from safe_cast(dt_cad_processo as date)) as int64) as ano,
     safe_cast(extract(month from safe_cast(dt_cad_processo as date)) as int64) as mes,
@@ -24,14 +28,26 @@ select
     safe_cast(orgao as string) as nome_orgao,
     concat('MG-', id_processo) as id_licitacao_bd,
     safe_cast(cd_processo_formatado as string) as id_licitacao,
+    cast(null as string) as numero_licitacao,
     safe_cast(dt_cad_processo as date) as data_abertura,
+    cast(null as date) as data_publicacao,
+    cast(null as date) as data_homologacao,
     safe_cast(objeto as string) as descricao_objeto,
     safe_cast(procedimento as string) as modalidade,
     safe_cast(tp_licitacao as string) as tipo,
     safe_cast(criterio_julgamento as string) as criterio_julgamento,
     safe_cast(situacao as string) as situacao,
+    cast(null as string) as poder,
+    cast(null as string) as forma_contratacao,
+    cast(null as string) as categoria,
+    -- MG does not flag registro de preços in its open procurement model. Left NULL
+    -- rather
+    -- than inferred from the procedure label, which would not be the same thing.
+    cast(null as string) as registro_preco,
+    cast(null as string) as grupo,
     safe_cast(vr_referencia as float64) as valor_referencia,
     safe_cast(vr_homologado as float64) as valor_homologado,
-    safe_cast(nullif(url_edital, '') as string) as url_edital
+    safe_cast(nullif(url_edital, '') as string) as url_edital,
+    cast(null as string) as processo_sei
 from {{ set_datalake_project("br_bd_execucao_estadual_staging.mg_dm_processo") }} as t
 where dt_cad_processo is not null
