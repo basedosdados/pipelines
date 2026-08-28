@@ -82,6 +82,21 @@ _COVERAGE = {
 }
 
 
+def coverage_registrations(tables):
+    """Pair each materialised table with the coverage spec to register.
+
+    Driven by the tables a run actually materialised, NOT by _COVERAGE.
+    Iterating the spec dict would try to register a DEFERRED table (see
+    constants.DEFERRED_TABLES): registration reads the table's max date
+    straight from BigQuery, so it fails on a table with no data, no dbt model
+    and no BigQuery table at all.
+
+    Tables with no spec are skipped rather than raising -- `dicionario` is in
+    the run scope and deliberately has none, having no date column.
+    """
+    return [(t, _COVERAGE[t]) for t in tables if t in _COVERAGE]
+
+
 @flow(name="br_pncp", log_prints=True)
 def br_pncp_flow(
     materialize_to_prod: bool = True,
@@ -219,7 +234,7 @@ def br_pncp_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table, coverage in coverage_registrations(tables):
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,

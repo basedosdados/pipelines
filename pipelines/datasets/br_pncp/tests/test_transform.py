@@ -755,3 +755,54 @@ class TestDeferredTableScope:
         models = self._repo_root() / "models" / "br_pncp"
         for table in constants.ALL_TABLES.value:
             assert (models / f"br_pncp__{table}.sql").exists()
+
+
+class TestCoverageRegistrationScope:
+    """Coverage must be registered for exactly the tables a run materialises.
+
+    Two ways to get this wrong, both only visible on a prod run:
+    registering a DEFERRED table (the task reads its max date from BigQuery,
+    where it does not exist), or blowing up on `dicionario`, which is in the
+    run scope but deliberately has no coverage because it has no date column.
+    """
+
+    def _coverage(self):
+        from pipelines.datasets.br_pncp import flows
+
+        return flows._COVERAGE
+
+    def test_no_deferred_table_is_in_the_registration_scope(self):
+        for table in constants.DEFERRED_TABLES.value:
+            assert table not in constants.ALL_TABLES.value
+
+    def test_every_scoped_table_either_has_coverage_or_is_dicionario(self):
+        cov = self._coverage()
+        for table in constants.ALL_TABLES.value:
+            assert table in cov or table == "dicionario", (
+                f"{table} is materialised but has no coverage spec and is "
+                "not the dicionario exemption"
+            )
+
+    def test_dicionario_has_no_coverage_spec(self):
+        assert "dicionario" not in self._coverage()
+
+    def test_registration_skips_tables_without_a_spec(self):
+        # Exercises the flow's own selection, not a copy of it.
+        from pipelines.datasets.br_pncp.flows import coverage_registrations
+
+        registered = [
+            t for t, _ in coverage_registrations(constants.ALL_TABLES.value)
+        ]
+        assert "dicionario" not in registered
+        assert set(registered) == set(constants.FACT_TABLES.value)
+
+    def test_registration_never_includes_a_deferred_table(self):
+        from pipelines.datasets.br_pncp.flows import coverage_registrations
+
+        # Even if a deferred table were passed in by mistake, it has no place
+        # in the run scope -- assert the scope itself excludes it.
+        registered = [
+            t for t, _ in coverage_registrations(constants.ALL_TABLES.value)
+        ]
+        for table in constants.DEFERRED_TABLES.value:
+            assert table not in registered
