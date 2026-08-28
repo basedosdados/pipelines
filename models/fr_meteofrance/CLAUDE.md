@@ -132,14 +132,14 @@ only the 190 internationally-reported stations.
 
 | table | rows | key | cols |
 |---|---|---|---|
-| `quotidienne` | ~230 M | `date`, `numero_poste` | 138 |
+| `quotidienne` | 136,882,034 | `date`, `numero_poste` | 138 |
 | `mensuelle` | 5,300,711 | `annee`, `mois`, `numero_poste` | 159 |
 | `poste` | 14,746 | `numero_poste` | 7 |
 
 Both fact tables are partitioned by `annee` over **1688–2031** and clustered by
-`numero_poste`. 1688 is not a typo — the daily archive really does reach that far
-back, and the range must cover it or BigQuery drops early rows into
-`__UNPARTITIONED__`.
+`numero_poste`. The **monthly** series starts in 1688 and the **daily** one in
+1786-05-01 — neither is a typo, and the range must cover the earlier of the two or
+BigQuery drops those rows into `__UNPARTITIONED__`.
 
 ### Things that will bite you
 
@@ -159,6 +159,12 @@ TX**AB**", the day of the absolute extreme.
 `NBUM` references `UM`, which does not exist in the monthly file. `clim_schema.expand`
 therefore reads Météo-France's own text. Two columns still need explicit overrides:
 `NBTM` ("du couple (TN, TX)") and `NBRR` (prose rather than a parameter token).
+
+**The station register must be built from BOTH series.** A station can appear in the
+monthly files and not the daily ones, or the reverse. `clim_clean.py` originally built
+`poste` as a by-product of whichever series it cleaned, so `--only quot` silently wrote
+a register missing 1,733 monthly-only stations. It is now its own pass over all 939
+source files and the only writer of `poste`.
 
 **`ECOULEMENTM` is dropped.** The source labels it *champ inutilisé* and it is 100%
 null in the sampled data.

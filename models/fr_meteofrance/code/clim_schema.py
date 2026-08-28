@@ -933,14 +933,29 @@ def _ref_daily(name, known):
 def expand(cols, params, flags, descriptors):
     """Yield one schema row per source column, in source order.
 
+    Runs :func:`_expand_body` twice. The first pass names every column; the
+    second re-runs it with those names available, so a quality code resolves to
+    the *derived* name of the column it qualifies. Without it ``QHTN`` becomes
+    ``qualite_htn`` — the raw source token leaking into all three languages —
+    rather than ``qualite_heure_temperature_minimale``.
+
+    Returns tuples of
+    ``(target, bigquery_type, unit, covered_by_dictionary, pt, en, es, original)``.
+    """
+    first = _expand_body(cols, params, flags, descriptors, {})
+    return _expand_body(
+        cols, params, flags, descriptors, {r[7]: r[0] for r in first}
+    )
+
+
+def _expand_body(cols, params, flags, descriptors, assigned):
+    """One naming pass.
+
     Family membership is decided from Météo-France's own French description
     rather than from the column name. Name-munging is not enough: ``HXY`` is
     "heure de FXY" and ``NBUM`` is "nombre de valeurs présentes de UM
     quotidienne", so the referenced parameter is spelled differently from the
     prefix-stripped column.
-
-    Returns tuples of
-    ``(target, bigquery_type, unit, covered_by_dictionary, pt, en, es, original)``.
     """
     known = dict(params)
     out = []
@@ -971,7 +986,11 @@ def expand(cols, params, flags, descriptors):
             )
             continue
         if col.startswith("Q") and col[1:] in cols:
-            ref = _ref(col[1:], known)
+            # Resolve against names already assigned in this pass, so a quality
+            # code on a derived column (heure_*) picks up the derived name
+            # rather than falling through to the raw source token: QHTN is the
+            # quality of heure_temperature_minimale, not of "htn".
+            ref = assigned.get(col[1:]) or _ref(col[1:], known)
             out.append(
                 (
                     f"qualite_{ref}",

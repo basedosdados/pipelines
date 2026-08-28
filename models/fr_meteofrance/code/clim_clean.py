@@ -235,6 +235,36 @@ def clean_mens(descriptors, sink: dict) -> int:
     return total
 
 
+def build_poste() -> int:
+    """Rebuild the station register from every daily and monthly source file.
+
+    Reads only the five register columns, so it is far cheaper than a full
+    clean, and it is the ONLY writer of `poste` — see the note in main().
+    """
+    sink: dict = {}
+    for kind, pattern, regex in (
+        ("quot", "quot/*.csv.gz", RE_QUOT),
+        ("mens", "mens/*.csv.gz", RE_MENS),
+    ):
+        files = sorted(INPUT.glob(pattern))
+        for i, f in enumerate(files, 1):
+            m = regex.match(f.name)
+            if not m:
+                raise ValueError(f"unrecognised file name: {f.name}")
+            df = pd.read_csv(
+                f,
+                sep=";",
+                dtype=str,
+                low_memory=False,
+                na_values=[""],
+                usecols=["NUM_POSTE", "NOM_USUEL", "LAT", "LON", "ALTI"],
+            )
+            collect_poste(df, m.group("dep"), sink)
+            if i % 100 == 0:
+                print(f"  [{i}/{len(files)}] poste from {kind}", flush=True)
+    return write_poste(sink)
+
+
 def write_poste(sink: dict) -> int:
     df = pd.DataFrame(sink.values())
     for col in ("latitude", "longitude", "altitude"):
@@ -257,7 +287,7 @@ def write_poste(sink: dict) -> int:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--only", choices=["quot", "mens"])
+    parser.add_argument("--only", choices=["quot", "mens", "poste"])
     args = parser.parse_args()
     descriptors = cs.descriptors()
     sink: dict = {}
@@ -266,7 +296,13 @@ def main():
         print("mensuelle:", f"{clean_mens(descriptors, sink):,} rows")
     if args.only in (None, "quot"):
         print("quotidienne:", f"{clean_quot(descriptors, sink):,} rows")
-    print("poste:", f"{write_poste(sink):,} rows")
+    if args.only in (None, "poste"):
+        # Always rebuilt from EVERY source file, never from whichever series
+        # this run happened to touch: a station can appear in the monthly
+        # series and not the daily one, or the reverse. Building it as a
+        # by-product of `--only quot` silently dropped 1,733 monthly-only
+        # stations.
+        print("poste:", f"{build_poste():,} rows")
 
 
 if __name__ == "__main__":

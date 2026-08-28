@@ -23,11 +23,15 @@ select
     safe_cast(temperature_minimale as float64) temperature_minimale,
     safe_cast(qualite_temperature_minimale as string) qualite_temperature_minimale,
     safe_cast(heure_temperature_minimale as string) heure_temperature_minimale,
-    safe_cast(qualite_htn as string) qualite_htn,
+    safe_cast(
+        qualite_heure_temperature_minimale as string
+    ) qualite_heure_temperature_minimale,
     safe_cast(temperature_maximale as float64) temperature_maximale,
     safe_cast(qualite_temperature_maximale as string) qualite_temperature_maximale,
     safe_cast(heure_temperature_maximale as string) heure_temperature_maximale,
-    safe_cast(qualite_htx as string) qualite_htx,
+    safe_cast(
+        qualite_heure_temperature_maximale as string
+    ) qualite_heure_temperature_maximale,
     safe_cast(temperature_moyenne as float64) temperature_moyenne,
     safe_cast(qualite_temperature_moyenne as string) qualite_temperature_moyenne,
     safe_cast(temperature_moyenne_min_max as float64) temperature_moyenne_min_max,
@@ -69,7 +73,9 @@ select
     safe_cast(
         heure_vitesse_vent_maximale_moyennee_10m as string
     ) heure_vitesse_vent_maximale_moyennee_10m,
-    safe_cast(qualite_hxy as string) qualite_hxy,
+    safe_cast(
+        qualite_heure_vitesse_vent_maximale_moyennee_10m as string
+    ) qualite_heure_vitesse_vent_maximale_moyennee_10m,
     safe_cast(rafale_maximale_10m as float64) rafale_maximale_10m,
     safe_cast(qualite_rafale_maximale_10m as string) qualite_rafale_maximale_10m,
     safe_cast(direction_rafale_maximale_10m as int64) direction_rafale_maximale_10m,
@@ -77,7 +83,9 @@ select
         qualite_direction_rafale_maximale_10m as string
     ) qualite_direction_rafale_maximale_10m,
     safe_cast(heure_rafale_maximale_10m as string) heure_rafale_maximale_10m,
-    safe_cast(qualite_hxi as string) qualite_hxi,
+    safe_cast(
+        qualite_heure_rafale_maximale_10m as string
+    ) qualite_heure_rafale_maximale_10m,
     safe_cast(rafale_maximale_2m as float64) rafale_maximale_2m,
     safe_cast(qualite_rafale_maximale_2m as string) qualite_rafale_maximale_2m,
     safe_cast(direction_rafale_maximale_2m as int64) direction_rafale_maximale_2m,
@@ -85,7 +93,9 @@ select
         qualite_direction_rafale_maximale_2m as string
     ) qualite_direction_rafale_maximale_2m,
     safe_cast(heure_rafale_maximale_2m as string) heure_rafale_maximale_2m,
-    safe_cast(qualite_hxi2 as string) qualite_hxi2,
+    safe_cast(
+        qualite_heure_rafale_maximale_2m as string
+    ) qualite_heure_rafale_maximale_2m,
     safe_cast(rafale_maximale_3s_10m as float64) rafale_maximale_3s_10m,
     safe_cast(qualite_rafale_maximale_3s_10m as string) qualite_rafale_maximale_3s_10m,
     safe_cast(
@@ -95,7 +105,9 @@ select
         qualite_direction_rafale_maximale_3s_10m as string
     ) qualite_direction_rafale_maximale_3s_10m,
     safe_cast(heure_rafale_maximale_3s_10m as string) heure_rafale_maximale_3s_10m,
-    safe_cast(qualite_hxi3s as string) qualite_hxi3s,
+    safe_cast(
+        qualite_heure_rafale_maximale_3s_10m as string
+    ) qualite_heure_rafale_maximale_3s_10m,
     safe_cast(duree_precipitation as float64) duree_precipitation,
     safe_cast(qualite_duree_precipitation as string) qualite_duree_precipitation,
     safe_cast(mode_obtention_rafale_3s as string) mode_obtention_rafale_3s,
@@ -129,11 +141,15 @@ select
     safe_cast(humidite_minimale as float64) humidite_minimale,
     safe_cast(qualite_humidite_minimale as string) qualite_humidite_minimale,
     safe_cast(heure_humidite_minimale as string) heure_humidite_minimale,
-    safe_cast(qualite_hun as string) qualite_hun,
+    safe_cast(
+        qualite_heure_humidite_minimale as string
+    ) qualite_heure_humidite_minimale,
     safe_cast(humidite_maximale as float64) humidite_maximale,
     safe_cast(qualite_humidite_maximale as string) qualite_humidite_maximale,
     safe_cast(heure_humidite_maximale as string) heure_humidite_maximale,
-    safe_cast(qualite_hux as string) qualite_hux,
+    safe_cast(
+        qualite_heure_humidite_maximale as string
+    ) qualite_heure_humidite_maximale,
     safe_cast(humidite_moyenne as float64) humidite_moyenne,
     safe_cast(qualite_humidite_moyenne as string) qualite_humidite_moyenne,
     safe_cast(duree_humidite_inf_40 as float64) duree_humidite_inf_40,

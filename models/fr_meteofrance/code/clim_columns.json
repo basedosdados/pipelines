@@ -89,11 +89,11 @@
       "is_partition": false
     },
     {
-      "name": "qualite_htn",
+      "name": "qualite_heure_temperature_minimale",
       "bigquery_type": "STRING",
-      "description_pt": "Código de qualidade de htn",
-      "description_en": "Quality code of htn",
-      "description_es": "Código de calidad de htn",
+      "description_pt": "Código de qualidade de heure_temperature_minimale",
+      "description_en": "Quality code of heure_temperature_minimale",
+      "description_es": "Código de calidad de heure_temperature_minimale",
       "covered_by_dictionary": true,
       "is_partition": false
     },
@@ -126,11 +126,11 @@
       "is_partition": false
     },
     {
-      "name": "qualite_htx",
+      "name": "qualite_heure_temperature_maximale",
       "bigquery_type": "STRING",
-      "description_pt": "Código de qualidade de htx",
-      "description_en": "Quality code of htx",
-      "description_es": "Código de calidad de htx",
+      "description_pt": "Código de qualidade de heure_temperature_maximale",
+      "description_en": "Quality code of heure_temperature_maximale",
+      "description_es": "Código de calidad de heure_temperature_maximale",
       "covered_by_dictionary": true,
       "is_partition": false
     },
@@ -334,11 +334,11 @@
       "is_partition": false
     },
     {
-      "name": "qualite_hxy",
+      "name": "qualite_heure_vitesse_vent_maximale_moyennee_10m",
       "bigquery_type": "STRING",
-      "description_pt": "Código de qualidade de hxy",
-      "description_en": "Quality code of hxy",
-      "description_es": "Código de calidad de hxy",
+      "description_pt": "Código de qualidade de heure_vitesse_vent_maximale_moyennee_10m",
+      "description_en": "Quality code of heure_vitesse_vent_maximale_moyennee_10m",
+      "description_es": "Código de calidad de heure_vitesse_vent_maximale_moyennee_10m",
       "covered_by_dictionary": true,
       "is_partition": false
     },
@@ -390,11 +390,11 @@
       "is_partition": false
     },
     {
-      "name": "qualite_hxi",
+      "name": "qualite_heure_rafale_maximale_10m",
       "bigquery_type": "STRING",
-      "description_pt": "Código de qualidade de hxi",
-      "description_en": "Quality code of hxi",
-      "description_es": "Código de calidad de hxi",
+      "description_pt": "Código de qualidade de heure_rafale_maximale_10m",
+      "description_en": "Quality code of heure_rafale_maximale_10m",
+      "description_es": "Código de calidad de heure_rafale_maximale_10m",
       "covered_by_dictionary": true,
       "is_partition": false
     },
@@ -446,11 +446,11 @@
       "is_partition": false
     },
     {
-      "name": "qualite_hxi2",
+      "name": "qualite_heure_rafale_maximale_2m",
       "bigquery_type": "STRING",
-      "description_pt": "Código de qualidade de hxi2",
-      "description_en": "Quality code of hxi2",
-      "description_es": "Código de calidad de hxi2",
+      "description_pt": "Código de qualidade de heure_rafale_maximale_2m",
+      "description_en": "Quality code of heure_rafale_maximale_2m",
+      "description_es": "Código de calidad de heure_rafale_maximale_2m",
       "covered_by_dictionary": true,
       "is_partition": false
     },
@@ -502,11 +502,11 @@
       "is_partition": false
     },
     {
-      "name": "qualite_hxi3s",
+      "name": "qualite_heure_rafale_maximale_3s_10m",
       "bigquery_type": "STRING",
-      "description_pt": "Código de qualidade de hxi3s",
-      "description_en": "Quality code of hxi3s",
-      "description_es": "Código de calidad de hxi3s",
+      "description_pt": "Código de qualidade de heure_rafale_maximale_3s_10m",
+      "description_en": "Quality code of heure_rafale_maximale_3s_10m",
+      "description_es": "Código de calidad de heure_rafale_maximale_3s_10m",
       "covered_by_dictionary": true,
       "is_partition": false
     },
@@ -784,11 +784,11 @@
       "is_partition": false
     },
     {
-      "name": "qualite_hun",
+      "name": "qualite_heure_humidite_minimale",
       "bigquery_type": "STRING",
-      "description_pt": "Código de qualidade de hun",
-      "description_en": "Quality code of hun",
-      "description_es": "Código de calidad de hun",
+      "description_pt": "Código de qualidade de heure_humidite_minimale",
+      "description_en": "Quality code of heure_humidite_minimale",
+      "description_es": "Código de calidad de heure_humidite_minimale",
       "covered_by_dictionary": true,
       "is_partition": false
     },
@@ -821,11 +821,11 @@
       "is_partition": false
     },
     {
-      "name": "qualite_hux",
+      "name": "qualite_heure_humidite_maximale",
       "bigquery_type": "STRING",
-      "description_pt": "Código de qualidade de hux",
-      "description_en": "Quality code of hux",
-      "description_es": "Código de calidad de hux",
+      "description_pt": "Código de qualidade de heure_humidite_maximale",
+      "description_en": "Quality code of heure_humidite_maximale",
+      "description_es": "Código de calidad de heure_humidite_maximale",
       "covered_by_dictionary": true,
       "is_partition": false
     },

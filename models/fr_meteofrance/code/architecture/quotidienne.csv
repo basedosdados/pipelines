@@ -8,11 +8,11 @@ qualite_precipitation,STRING,Código de qualidade de precipitation,,yes,,,no,,QR
 temperature_minimale,FLOAT64,Temperatura mínima sob abrigo,,no,,celsius_degree,no,,TN
 qualite_temperature_minimale,STRING,Código de qualidade de temperature_minimale,,yes,,,no,,QTN
 heure_temperature_minimale,STRING,"Hora em que temperature_minimale foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HTN
-qualite_htn,STRING,Código de qualidade de htn,,yes,,,no,,QHTN
+qualite_heure_temperature_minimale,STRING,Código de qualidade de heure_temperature_minimale,,yes,,,no,,QHTN
 temperature_maximale,FLOAT64,Temperatura máxima sob abrigo,,no,,celsius_degree,no,,TX
 qualite_temperature_maximale,STRING,Código de qualidade de temperature_maximale,,yes,,,no,,QTX
 heure_temperature_maximale,STRING,"Hora em que temperature_maximale foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HTX
-qualite_htx,STRING,Código de qualidade de htx,,yes,,,no,,QHTX
+qualite_heure_temperature_maximale,STRING,Código de qualidade de heure_temperature_maximale,,yes,,,no,,QHTX
 temperature_moyenne,FLOAT64,Média diária das temperaturas horárias sob abrigo,,no,,celsius_degree,no,,TM
 qualite_temperature_moyenne,STRING,Código de qualidade de temperature_moyenne,,yes,,,no,,QTM
 temperature_moyenne_min_max,FLOAT64,Média diária entre a temperatura mínima e a máxima,,no,,celsius_degree,no,,TNTXM
@@ -34,25 +34,25 @@ qualite_vitesse_vent_maximale_moyennee_10m,STRING,Código de qualidade de vitess
 direction_vent_maximal_moyenne_10m,INT64,"Direção do vento registrado em vitesse_vent_maximale_moyennee_10m, na rosa de 360 graus",,no,,degree,no,,DXY
 qualite_direction_vent_maximal_moyenne_10m,STRING,Código de qualidade de direction_vent_maximal_moyenne_10m,,yes,,,no,,QDXY
 heure_vitesse_vent_maximale_moyennee_10m,STRING,"Hora em que vitesse_vent_maximale_moyennee_10m foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HXY
-qualite_hxy,STRING,Código de qualidade de hxy,,yes,,,no,,QHXY
+qualite_heure_vitesse_vent_maximale_moyennee_10m,STRING,Código de qualidade de heure_vitesse_vent_maximale_moyennee_10m,,yes,,,no,,QHXY
 rafale_maximale_10m,FLOAT64,"Máximo diário da rajada máxima horária do vento instantâneo, a 10 m do solo",,no,,meter / second,no,,FXI
 qualite_rafale_maximale_10m,STRING,Código de qualidade de rafale_maximale_10m,,yes,,,no,,QFXI
 direction_rafale_maximale_10m,INT64,"Direção da rajada registrada em rafale_maximale_10m, na rosa de 360 graus",,no,,degree,no,,DXI
 qualite_direction_rafale_maximale_10m,STRING,Código de qualidade de direction_rafale_maximale_10m,,yes,,,no,,QDXI
 heure_rafale_maximale_10m,STRING,"Hora em que rafale_maximale_10m foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HXI
-qualite_hxi,STRING,Código de qualidade de hxi,,yes,,,no,,QHXI
+qualite_heure_rafale_maximale_10m,STRING,Código de qualidade de heure_rafale_maximale_10m,,yes,,,no,,QHXI
 rafale_maximale_2m,FLOAT64,"Máximo diário da rajada máxima horária do vento instantâneo, a 2 m do solo",,no,,meter / second,no,,FXI2
 qualite_rafale_maximale_2m,STRING,Código de qualidade de rafale_maximale_2m,,yes,,,no,,QFXI2
 direction_rafale_maximale_2m,INT64,"Direção da rajada registrada em rafale_maximale_2m, na rosa de 360 graus",,no,,degree,no,,DXI2
 qualite_direction_rafale_maximale_2m,STRING,Código de qualidade de direction_rafale_maximale_2m,,yes,,,no,,QDXI2
 heure_rafale_maximale_2m,STRING,"Hora em que rafale_maximale_2m foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HXI2
-qualite_hxi2,STRING,Código de qualidade de hxi2,,yes,,,no,,QHXI2
+qualite_heure_rafale_maximale_2m,STRING,Código de qualidade de heure_rafale_maximale_2m,,yes,,,no,,QHXI2
 rafale_maximale_3s_10m,FLOAT64,"Máximo diário da rajada máxima horária do vento medida em 3 segundos, a 10 m do solo",,no,,meter / second,no,,FXI3S
 qualite_rafale_maximale_3s_10m,STRING,Código de qualidade de rafale_maximale_3s_10m,,yes,,,no,,QFXI3S
 direction_rafale_maximale_3s_10m,INT64,"Direção da rajada registrada em rafale_maximale_3s_10m, na rosa de 360 graus",,no,,degree,no,,DXI3S
 qualite_direction_rafale_maximale_3s_10m,STRING,Código de qualidade de direction_rafale_maximale_3s_10m,,yes,,,no,,QDXI3S
 heure_rafale_maximale_3s_10m,STRING,"Hora em que rafale_maximale_3s_10m foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HXI3S
-qualite_hxi3s,STRING,Código de qualidade de hxi3s,,yes,,,no,,QHXI3S
+qualite_heure_rafale_maximale_3s_10m,STRING,Código de qualidade de heure_rafale_maximale_3s_10m,,yes,,,no,,QHXI3S
 duree_precipitation,FLOAT64,Duração das precipitações,,no,,minute,no,,DRR
 qualite_duree_precipitation,STRING,Código de qualidade de duree_precipitation,,yes,,,no,,QDRR
 mode_obtention_rafale_3s,STRING,Modo de obtenção da rajada de 3 segundos: medida ou calculada por função de transferência,,no,,,no,,STATUS_FXI3S
@@ -82,11 +82,11 @@ qualite_fraction_insolation,STRING,Código de qualidade de fraction_insolation,,
 humidite_minimale,FLOAT64,Mínimo diário das umidades relativas mínimas horárias,,no,,percent,no,,UN
 qualite_humidite_minimale,STRING,Código de qualidade de humidite_minimale,,yes,,,no,,QUN
 heure_humidite_minimale,STRING,"Hora em que humidite_minimale foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HUN
-qualite_hun,STRING,Código de qualidade de hun,,yes,,,no,,QHUN
+qualite_heure_humidite_minimale,STRING,Código de qualidade de heure_humidite_minimale,,yes,,,no,,QHUN
 humidite_maximale,FLOAT64,Máximo diário das umidades relativas máximas horárias,,no,,percent,no,,UX
 qualite_humidite_maximale,STRING,Código de qualidade de humidite_maximale,,yes,,,no,,QUX
 heure_humidite_maximale,STRING,"Hora em que humidite_maximale foi observado, no formato hhmm publicado pela fonte",,no,,,no,,HUX
-qualite_hux,STRING,Código de qualidade de hux,,yes,,,no,,QHUX
+qualite_heure_humidite_maximale,STRING,Código de qualidade de heure_humidite_maximale,,yes,,,no,,QHUX
 humidite_moyenne,FLOAT64,Média diária das umidades relativas horárias,,no,,percent,no,,UM
 qualite_humidite_moyenne,STRING,Código de qualidade de humidite_moyenne,,yes,,,no,,QUM
 duree_humidite_inf_40,FLOAT64,Duração com umidade relativa igual ou inferior a 40%,,no,,minute,no,,DHUMI40
