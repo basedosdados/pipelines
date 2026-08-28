@@ -195,13 +195,31 @@ The archive ships per département in three period slices — `avant-1949`,
 as observations land. `fr_meteofrance_climatologie_base_flow` therefore re-cleans
 and re-uploads `latest-*` alone: staging objects are named
 `<dept>_<period>.parquet`, so that upload overwrites those objects in place and
-leaves the historical slices untouched. That is ~4M daily rows a month instead of
-137M.
+leaves the historical slices untouched.
+
+That makes the **cleaning** incremental, not the whole run: a validated dev run
+re-cleaned 1,382,983 daily and 46,277 monthly rows in 3.5 minutes, but `dbt run`
+still rebuilds the full 136.9M-row table from the whole staging prefix (2m14s),
+because the model is `materialized="table"` over the entire external table. The
+saving is in the clean step, which is the part that would otherwise take hours.
+
+Re-uploading the **whole** slice, rather than appending only new dates, is
+deliberate: Météo-France revises recent days as well as adding them. The
+validated run added 2,439 daily rows of which only 132 were the new date
+(2026-08-27); the rest were revisions to earlier days in the same slice.
 
 It still **downloads** every slice, because `poste` is the union over both series
 and all slices. Rebuilt from the refreshed slice alone it would silently drop
 every station that has stopped reporting — the same class of bug as the
-`--only quot` register.
+`--only quot` register. That rebuild is the run's slowest step (~14 minutes for
+939 files); the validated run reproduced 14,751 postes exactly.
+
+**The field descriptors are committed, not fetched per run.**
+`clim_descriptors.json` sits beside `clim_schema.py`. It used to be read from
+`/tmp/mf_descriptors.json`, which nothing in the repo produced — the first dev
+run died on it in four minutes. `clim_utils.fetch_descriptors()` regenerates it
+from Météo-France's `*_descriptif_champs.csv` resources; pin it rather than
+fetch per run, because `expand()` derives column names from that French text.
 
 ### Code
 
