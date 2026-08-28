@@ -484,3 +484,42 @@ Output checked directly rather than assumed:
 
 Re-run after the harvest completes; this was a mid-flight snapshot, not the
 final table.
+
+## Silent data loss: empty chunks (found and fixed 2026-08-28)
+
+A chunk file that exists is skipped on every later run -- that is what makes
+the backfill resumable, and it is also what made this dangerous.
+
+`fetch_range` used to return `[]` for a single day it could not fetch, which
+is indistinguishable from "this day has no records". `run_job` wrote that as
+an empty chunk, and every subsequent run skipped it. **One transient 500
+became permanent data loss, reported as success.**
+
+It had already fired. `instrumento_cobranca` held 51 empty chunks out of 56,
+and the API answers several of those exact windows with a server error
+rather than a no-data response:
+
+```
+20230121..20230219   HTTP 500 Erro na comunicação com o banco de dados
+20240121..20240219   HTTP 404 Nenhum instrumento de Cobrança encontrado
+20250121..20250219   HTTP 500 Erro na comunicação com o banco de dados
+20260121..20260219   totalRegistros=17991
+```
+
+Only the 404 deserves an empty chunk. The two 500s are the server breaking,
+and the old code recorded them identically.
+
+**The fix**: an unservable single day now raises, so the window is marked
+failed, no chunk is written, and the next run retries it. A day that truly
+has no records never reaches that path -- PNCP signals no-data with 204, an
+empty body, or a 404, all of which become `EMPTY_PAGE` and still write their
+(legitimately empty) chunk, so empty ranges are not re-fetched forever.
+
+**Remediation**: every empty chunk was deleted and re-harvested under the
+fixed code -- 51 for `instrumento_cobranca`, 31 for `ata_registro_preco`, 16
+for `contrato` (the latter two all in 2021, before PNCP carried data). The
+list is kept at `~/Downloads/br_pncp_data/deleted_empty_chunks.json`.
+
+**When reviewing a finished harvest, audit for empty chunks.** They are
+legitimate only where the source genuinely has no data for the period;
+anywhere else they are the signature of this class of bug.
