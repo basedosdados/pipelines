@@ -371,3 +371,52 @@ def write_poste(sink: dict) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(to_string_table(df, order), path, compression="snappy")
     return len(df)
+
+
+RE_COLUMN_NAME = re.compile(r"[A-Z][A-Z0-9_]*")
+
+DESCRIPTOR_FILES = (
+    "Q_descriptif_champs_RR-T-Vent.csv",
+    "Q_descriptif_champs_autres-parametres.csv",
+    "MENSQ_descriptif_champs.csv",
+)
+
+
+def fetch_descriptors() -> dict:
+    """Download Météo-France's own field descriptions, keyed by source file.
+
+    These are the `*_descriptif_champs.csv` resources published alongside the
+    archive: one `NAME : description francaise` per line. `clim_schema.expand`
+    reads them to decide family membership, because the column name alone is
+    not enough (`HXY` is "heure de FXY").
+
+    Returns ``{filename: {column: french description}}``.
+    """
+    out: dict[str, dict] = {}
+    for dataset_id in DATASETS.values():
+        url = f"https://www.data.gouv.fr/api/1/datasets/{dataset_id}/"
+        with urllib.request.urlopen(url, timeout=120) as fh:
+            payload = json.load(fh)
+        for resource in payload.get("resources", []):
+            name = resource["url"].rsplit("/", 1)[-1]
+            if name not in DESCRIPTOR_FILES:
+                continue
+            with urllib.request.urlopen(resource["url"], timeout=180) as fh:
+                text = fh.read().decode("utf-8")
+            fields = {}
+            for line in text.splitlines():
+                key, sep, desc = line.partition(":")
+                key = key.strip()
+                # Each file ends with a prose legend for the quality codes
+                # ("Les valeurs du code qualite sont les suivantes", then
+                # "0 : ...", "1 : ..."). Those parse as key/value pairs too, so
+                # keep only real column names: uppercase, no spaces.
+                if sep and RE_COLUMN_NAME.fullmatch(key):
+                    fields[key] = desc.strip()
+            out[name] = fields
+    missing = set(DESCRIPTOR_FILES) - set(out)
+    if missing:
+        raise RuntimeError(
+            f"descriptor files not published: {sorted(missing)}"
+        )
+    return out

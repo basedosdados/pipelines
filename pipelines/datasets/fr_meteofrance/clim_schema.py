@@ -796,8 +796,14 @@ MENS_PARAMS = {
 import json  # noqa: E402
 import re  # noqa: E402
 import unicodedata  # noqa: E402
+from pathlib import Path  # noqa: E402
 
-DESCRIPTORS = "/tmp/mf_descriptors.json"
+# Météo-France's own field descriptions, committed rather than fetched at run
+# time. `expand` decides family membership from this text, so a silent upstream
+# rewording would silently rename columns; pinning it means a change shows up as
+# a reviewable diff. Refresh with
+# `clim_utils.fetch_descriptors()` -> `clim_gen_artifacts.py --refresh-descriptors`.
+DESCRIPTORS = Path(__file__).with_name("clim_descriptors.json")
 
 
 def slug(text: str) -> str:
