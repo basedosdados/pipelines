@@ -19,7 +19,7 @@ select
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(id_municipio as string) id_municipio,
     safe_cast(id_municipio_tse as string) id_municipio_tse,
-    e.titulo_eleitoral,
+    safe_cast(titulo_eleitoral_candidato as string) titulo_eleitoral_candidato,
     safe_cast(sequencial_candidato as string) sequencial_candidato,
     safe_cast(numero_candidato as string) numero_candidato,
     safe_cast(cnpj_candidato as string) cnpj_candidato,
@@ -73,13 +73,7 @@ select
     safe_cast(sequencial_prestador_contas as string) sequencial_prestador_contas,
     safe_cast(cnpj_prestador_contas as string) cnpj_prestador_contas,
     safe_cast(entrega_conjunto as string) entrega_conjunto
-from {{ set_datalake_project("br_tse_eleicoes_staging.receitas_candidato") }} as t
-left join
-    (
-        select distinct sequencial, titulo_eleitoral
-        from {{ set_datalake_project("br_tse_eleicoes.candidatos") }}
-    ) as e
-    on t.sequencial_candidato = e.sequencial
-
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.receitas_candidato") }} as t
     -- Rematerialized from the refactored pipeline (PR #1476).
     

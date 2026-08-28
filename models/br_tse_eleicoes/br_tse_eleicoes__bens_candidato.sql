@@ -19,18 +19,12 @@ select
     safe_cast(id_eleicao as string) id_eleicao,
     safe_cast(tipo_eleicao as string) tipo_eleicao,
     safe_cast(data_eleicao as date) data_eleicao,
-    e.titulo_eleitoral,
+    safe_cast(titulo_eleitoral_candidato as string) titulo_eleitoral_candidato,
     safe_cast(sequencial_candidato as string) sequencial_candidato,
     safe_cast(tipo_item as string) tipo_item,
     safe_cast(descricao_item as string) descricao_item,
     safe_cast(valor_item as float64) valor_item
-from {{ set_datalake_project("br_tse_eleicoes_staging.bens_candidato") }} as t
-left join
-    (
-        select distinct sequencial, titulo_eleitoral
-        from {{ set_datalake_project("br_tse_eleicoes.candidatos") }}
-    ) as e
-    on t.sequencial_candidato = e.sequencial
-
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.bens_candidato") }} as t
     -- Rematerialized from the refactored pipeline (PR #1476).
     

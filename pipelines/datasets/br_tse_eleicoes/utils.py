@@ -213,6 +213,11 @@ class Candidatos(BrTseEleicoes):
             "0"
         )  # Precisamos limpas alguns zero a esquerda
 
+        # Eleições de abrangência estadual ou federal não possuem "SG_UE" numérico e sim SG_UF
+        temp_merge_left.loc[
+            ~temp_merge_left["SG_UE"].astype(str).str.isdigit(), "SG_UE"
+        ] = None
+
         temp_merge_left = temp_merge_left.merge(
             municipios,
             left_on="SG_UE",
@@ -307,17 +312,7 @@ class DespesasCandidato(BrTseEleicoes):
             right_on="id_municipio_tse",
             how="left",
         )
-
-        vazios = [
-            "tipo_despesa",
-            "cnpj_candidato",
-            "titulo_eleitoral_candidato",
-            "especie_recurso",
-            "fonte_recurso",
-            "esfera_partidaria_fornecedor",
-        ]
-
-        self.df_main[vazios] = ""
+        self.df_main[tse_constants.VAZIOS_DESPESA.value] = ""
 
         base = self.df_main.loc[:, tse_constants.ORDER_DESPESAS.value.values()]
 
@@ -379,23 +374,7 @@ class ReceitasCandidato(BrTseEleicoes):
         )
 
         # Preparar as colunas vazias
-        vazios = [
-            "cnpj_candidato",
-            "titulo_eleitoral_candidato",
-            "situacao_receita",
-            "cpf_cnpj_doador_orig",
-            "nome_doador_orig",
-            "nome_doador_orig_rf",
-            "tipo_doador_orig",
-            "descricao_cnae_2_doador_orig",
-            "nome_administrador",
-            "cpf_administrador",
-            "numero_recibo_eleitoral",
-            "numero_documento",
-            "entrega_conjunto",
-        ]
-
-        self.df_main[vazios] = ""
+        self.df_main[tse_constants.VAZIOS_RECEITA.value] = ""
 
         base = self.df_main.loc[:, tse_constants.ORDER_RECEITA.value.values()]
 

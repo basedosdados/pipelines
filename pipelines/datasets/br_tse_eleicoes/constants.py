@@ -135,8 +135,16 @@ class constants(Enum):
         "cargo_fornecedor": "DS_CARGO_FORNECEDOR",
     }
 
-    # Receitas Candidato
+    VAZIOS_DESPESA = [
+        "tipo_despesa",
+        "cnpj_candidato",
+        "titulo_eleitoral_candidato",
+        "especie_recurso",
+        "fonte_recurso",
+        "esfera_partidaria_fornecedor",
+    ]
 
+    # Receitas Candidato
     ORDER_RECEITA = {
         "turno": "ST_TURNO",
         "id_eleicao": "CD_ELEICAO",
@@ -191,3 +199,19 @@ class constants(Enum):
         "cnpj_prestador_contas": "NR_CNPJ_PRESTADOR_CONTA",
         "entrega_conjunto": "entrega_conjunto",
     }
+
+    VAZIOS_RECEITA = [
+        "cnpj_candidato",
+        "titulo_eleitoral_candidato",
+        "situacao_receita",
+        "cpf_cnpj_doador_orig",
+        "nome_doador_orig",
+        "nome_doador_orig_rf",
+        "tipo_doador_orig",
+        "descricao_cnae_2_doador_orig",
+        "nome_administrador",
+        "cpf_administrador",
+        "numero_recibo_eleitoral",
+        "numero_documento",
+        "entrega_conjunto",
+    ]
