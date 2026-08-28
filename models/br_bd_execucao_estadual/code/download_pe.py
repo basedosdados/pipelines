@@ -32,10 +32,15 @@ from constants import (
 PE_INPUT = INPUT_DIR / "pe"
 CHUNK = 1 << 20
 
-# despesas_detalhadas_2023_20231230.csv -> ("despesas_detalhadas", 2023)
-FILENAME_RE = re.compile(
-    r"^(?P<kind>[a-z_]+?)_?(?P<year>(19|20)\d{2})[_.]", re.I
-)
+# The year can appear after the kind or before it -- PE has renamed its files at least
+# once and the old convention survives for the oldest exercises:
+#     despesas_detalhadas_2023_20231230.csv   -> 2023
+#     pagamentos_2016_30042019.csv            -> 2016
+#     2009-base-despesa.csv                   -> 2009   (year FIRST)
+# A pattern assuming kind-then-year silently skipped 2009 and 2010, losing two of
+# nineteen exercises with nothing but a log line to show for it. Match a four-digit year
+# anywhere in the name instead, and let the caller assert the expected span.
+YEAR_RE = re.compile(r"(?<!\d)(?P<year>(?:19|20)\d{2})(?!\d)")
 
 
 def plan(session: requests.Session) -> dict[str, str]:
@@ -49,11 +54,17 @@ def plan(session: requests.Session) -> dict[str, str]:
             name = url.rsplit("/", 1)[-1]
             if not name.lower().endswith(".csv"):
                 continue
-            m = FILENAME_RE.match(name)
-            if not m:
-                print(f"  [skip] unparsed name: {name}")
+            # The first plausible exercise year in the name wins; trailing extraction
+            # stamps like "_20231230" are excluded by the range check below.
+            years = [
+                int(m.group("year"))
+                for m in YEAR_RE.finditer(name)
+                if PE_FIRST_YEAR <= int(m.group("year")) <= PE_LAST_YEAR
+            ]
+            if not years:
+                print(f"  [skip] no exercise year in name: {name}")
                 continue
-            year = int(m.group("year"))
+            year = years[0]
             if not PE_FIRST_YEAR <= year <= PE_LAST_YEAR:
                 continue
             kind = "pagamento" if "pagamento" in name.lower() else "despesa"
@@ -90,6 +101,21 @@ def main(retries: int = 3) -> None:
 
     pending = plan(session)
     print(f"{len(pending)} files")
+
+    # A missing exercise must be loud. The download that first ran this dropped 2009 and
+    # 2010 because their files are named year-first, and the only evidence was one
+    # skipped-name line in a long log.
+    for kind in ("despesa", "pagamento"):
+        have = {
+            int(n.split("_")[1].split(".")[0])
+            for n in pending
+            if n.startswith(kind)
+        }
+        gaps = [
+            y for y in range(PE_FIRST_YEAR, PE_LAST_YEAR + 1) if y not in have
+        ]
+        if gaps:
+            print(f"  WARNING {kind}: no file found for {gaps}")
     for attempt in range(1, retries + 1):
         failed = {}
         for name, url in sorted(pending.items()):

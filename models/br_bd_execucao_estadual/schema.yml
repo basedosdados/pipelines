@@ -124,8 +124,31 @@ models:
           formato <sigla_uf>-<identificador de origem>
       - name: id_licitacao
         description: Número do processo licitatório no sistema de origem
+      - name: numero_licitacao
+        description: >
+          Número da licitação atribuído pelo estado, distinto do número do processo
+          de
+          aquisição. Publicado apenas pela Bahia
       - name: data_abertura
         description: Data de cadastro ou abertura do processo
+      - name: data_publicacao
+        description: Data de publicação do edital no diário oficial
+      - name: data_homologacao
+        description: Data de homologação do resultado do processo
+      - name: poder
+        description: Poder ao qual pertence o órgão solicitante
+      - name: forma_contratacao
+        description: Forma de contratação adotada, como licitação ou contratação direta
+      - name: categoria
+        description: Categoria do processo de aquisição atribuída pelo estado
+      - name: registro_preco
+        description: >
+          Indica se o processo é um registro de preços, em que uma licitação autoriza
+          compras parceladas ao longo de um período. Publicado apenas pela Bahia
+      - name: grupo
+        description: Grupo de materiais ou serviços objeto do processo
+      - name: processo_sei
+        description: Número do processo no sistema eletrônico de informações do estado
       - name: descricao_objeto
         description: Descrição do objeto da contratação
       - name: modalidade
@@ -220,7 +243,20 @@ models:
       - name: id_licitacao_origem
         description: Identificador do processo licitatório no sistema de origem
       - name: id_empenho
-        description: Identificador do empenho no sistema de origem
+        description: >
+          Identificador interno do empenho no sistema de origem. Preenchido por Minas
+          Gerais, que publica o vínculo diretamente
+      - name: numero_empenho
+        description: >
+          Número do empenho no sistema orçamentário do estado. Preenchido pela Bahia,
+          que
+          não possui identificador interno e liga o processo ao empenho pelo instrumento
+          orçamentário
+      - name: instrumento_orcamentario
+        description: >
+          Número do instrumento orçamentário que liga o item da licitação ao empenho,
+          na
+          Bahia
       - name: dotacao_orcamentaria
         description: Dotação orçamentária que vincula o processo ao empenho
   - name: br_bd_execucao_estadual__dicionario
