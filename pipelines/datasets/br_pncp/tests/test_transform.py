@@ -716,8 +716,9 @@ class TestDeferredTableScope:
     """
 
     def _repo_root(self):
-        import pipelines.datasets.br_pncp.constants as c
         from pathlib import Path
+
+        import pipelines.datasets.br_pncp.constants as c
 
         return Path(c.__file__).resolve().parents[3]
 
