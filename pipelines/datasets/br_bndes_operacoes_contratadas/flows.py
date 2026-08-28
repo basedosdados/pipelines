@@ -170,6 +170,6 @@ def br_bndes_operacoes_contratadas__operacoes_exportacao_servicos(
 
 
 # Sem cron, ao contrário das irmãs: a série da fonte termina em 2015-04-28 e
-# não recebe operação nova há dez anos. A tabela entra como carga única, por
+# não recebe operação nova desde então. A tabela entra como carga única, por
 # disparo manual. Se a fonte voltar a publicar, basta acrescentar
 # deploy_schedules aqui — o resto do flow já está pronto para o poll.

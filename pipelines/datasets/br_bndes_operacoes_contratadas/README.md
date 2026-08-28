@@ -137,7 +137,7 @@ Mesmo conjunto CKAN `operacoes-exportacao` da irmã de bens, recurso `d158033b-f
 
 ### Carga única, sem cron
 
-**A série termina em 2015 e não recebe operação nova há dez anos.** O recurso segue sendo republicado no CKAN (`last_modified` de 2025-07-09), mas isso é republicação do arquivo, não cobertura nova. O `@flow` existe e está completo, com poll e tudo o mais, mas **sem `deploy_schedules`** — roda por disparo manual. Se a fonte voltar a publicar, acrescentar o `deploy_schedules` basta. O precedente no repositório é o `br_ms_sinan`, o único outro flow sem cron.
+**A série termina em 2015-04-28 e não recebe operação nova desde então.** O recurso segue sendo republicado no CKAN (`last_modified` de 2025-07-09), mas isso é republicação do arquivo, não cobertura nova. O `@flow` existe e está completo, com poll e tudo o mais, mas **sem `deploy_schedules`** — roda por disparo manual. Se a fonte voltar a publicar, acrescentar o `deploy_schedules` basta. O precedente no repositório é o `br_ms_sinan`, o único outro flow sem cron.
 
 ### Decisões de modelagem
 
