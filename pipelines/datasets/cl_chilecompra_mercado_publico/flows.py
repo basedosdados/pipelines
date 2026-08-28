@@ -75,6 +75,7 @@ def cl_chilecompra_mercado_publico_flow(
         update_metadata: write coverage, table Update and raw-source Update records.
     """
     logger = get_run_logger()
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="mercado_publico"
     )
@@ -198,7 +199,9 @@ def cl_chilecompra_mercado_publico_flow(
 # orders every day, so a daily run would re-ingest ~19 month-files and fully rebuild an
 # 80M-row table each time. Monday 18:23 São Paulo is comfortably after the publisher's
 # 12:00-14:00 Chile rebuild window, and the minute is one no other flow uses.
+# pyrefly: ignore [missing-attribute]
 cl_chilecompra_mercado_publico_flow.deploy_schedules = [
     {"cron": "23 18 * * 1", "timezone": "America/Sao_Paulo"}
 ]
+# pyrefly: ignore [missing-attribute]
 cl_chilecompra_mercado_publico_flow.job_variables = {"memory": "16Gi"}
