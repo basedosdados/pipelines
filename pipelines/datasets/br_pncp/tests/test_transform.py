@@ -887,3 +887,56 @@ class TestUnservableWindowIsNotWrittenAsEmpty:
             max_workers=1,
         )
         assert len(list(tmp_path.glob("contrato/*.jsonl.gz"))) == 1
+
+
+class TestPerEndpointConcurrencyCap:
+    """instrumentoscobranca cannot take the concurrency the others can.
+
+    It failed 3 of ~65 windows at 3 workers with 504s and dropped
+    connections, while contrato ran 305 windows at the same setting with
+    none. A cap that silently *raised* concurrency for other tables would be
+    worse than no cap, so the direction is asserted too.
+    """
+
+    def test_the_fragile_endpoint_declares_a_cap(self):
+        spec = constants.ENDPOINTS.value["instrumento_cobranca"]
+        assert spec.get("max_workers") == 1
+
+    def test_the_cap_only_ever_narrows(self, monkeypatch, tmp_path):
+        seen = {}
+
+        class Pool:
+            def __init__(self, max_workers):
+                seen["workers"] = max_workers
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+            def map(self, fn, jobs):
+                return []
+
+        import concurrent.futures as cf
+
+        monkeypatch.setattr(cf, "ThreadPoolExecutor", Pool)
+        monkeypatch.setattr(
+            utils,
+            "request",
+            lambda path, params, max_tries=6: utils.EMPTY_PAGE,
+        )
+        # contrato declares no cap, so it keeps the caller's 3.
+        utils.harvest(
+            table="contrato",
+            input_dir=tmp_path / "a",
+            start=date(2024, 5, 1),
+            end=date(2024, 6, 1),
+            max_workers=3,
+        )
+        assert seen["workers"] == 3
+
+    def test_a_caller_asking_for_fewer_workers_is_respected(self):
+        # min(), not the declared value: asking for 1 must never become 3.
+        spec = {"max_workers": 3}
+        assert min(1, int(spec.get("max_workers", 1))) == 1

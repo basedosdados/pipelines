@@ -119,6 +119,12 @@ class constants(Enum):
             "window_days": 30,
             # 200 and 500 are rejected with 400 "Tamanho de página inválido".
             "page_size": 100,
+            # The most fragile endpoint PNCP exposes: at 3 workers it failed
+            # 3 of ~65 windows with 504s and dropped connections, while
+            # contrato ran 305 windows at the same concurrency with zero
+            # failures. The same windows serve fine when it is not being hit
+            # in parallel, so the limit is on this endpoint, not on us.
+            "max_workers": 1,
         },
         # NOTE: this endpoint paginates over *items*, not plans. Each page
         # returns one plan record carrying up to tamanhoPagina items, and

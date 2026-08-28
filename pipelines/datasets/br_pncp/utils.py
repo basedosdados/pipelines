@@ -472,6 +472,10 @@ def harvest(
     # parallelise cleanly. The workers hide the API's 5-7s per-page latency;
     # the shared THROTTLE still bounds the aggregate request rate, so raising
     # this does not raise the rate against the server's limiter.
+    # An endpoint may cap concurrency below the global setting. Never raise
+    # it above what the caller asked for -- this only ever narrows.
+    max_workers = min(max_workers, int(spec.get("max_workers", max_workers)))
+
     total = 0
     if max_workers <= 1:
         for job in jobs:
