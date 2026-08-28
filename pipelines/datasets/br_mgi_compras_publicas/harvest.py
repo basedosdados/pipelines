@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import datetime as dt
 import logging
-from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
@@ -38,9 +37,12 @@ from pipelines.datasets.br_mgi_compras_publicas.utils import (
 logger = logging.getLogger(__name__)
 
 PAGE_SIZE = constants.PAGE_SIZE.value
-#: Pages per chunk when an endpoint cannot be split by date. Keeps a single
-#: chunk near 100k rows so an interrupted run loses minutes, not hours.
-PAGES_PER_BLOCK = 200
+#: Pages per job when an endpoint cannot be split by date. Small enough that
+#: the work fans out across workers, large enough that chunk files stay chunky.
+#: Endpoints with no date filter are otherwise a single sequential stream --
+#: licitacao_item modalidade 1 alone is ~7,000 pages at ~11s each, which is
+#: about 21 hours in one thread.
+PAGES_PER_BLOCK = 50
 
 
 @dataclass(frozen=True)
@@ -64,12 +66,59 @@ def _year_range(spec: TableSpec, today: dt.date) -> tuple[int, int]:
     return first, last
 
 
+def count_pages(
+    session: requests.Session, spec: TableSpec, params: dict[str, Any]
+) -> int:
+    """Pages this query spans, from the envelope's own totals."""
+    envelope = fetch_page(
+        session, spec.path, {**params, "pagina": 1, "tamanhoPagina": PAGE_SIZE}
+    )
+    total = int(envelope.get("totalRegistros") or 0)
+    if total <= 0:
+        return 0
+    return -(-total // PAGE_SIZE)  # ceil
+
+
+def _page_range_jobs(
+    session: requests.Session,
+    spec: TableSpec,
+    chunk_id: str,
+    params: dict[str, Any],
+) -> list[Job]:
+    """Split one paginated query into independent page-range jobs."""
+    pages = count_pages(session, spec, params)
+    if pages == 0:
+        return [
+            Job(
+                spec.table,
+                f"{chunk_id}__p00001",
+                params,
+                page_from=1,
+                page_to=1,
+            )
+        ]
+    jobs = []
+    for start in range(1, pages + 1, PAGES_PER_BLOCK):
+        stop = min(start + PAGES_PER_BLOCK - 1, pages)
+        jobs.append(
+            Job(
+                spec.table,
+                f"{chunk_id}__p{start:05d}",
+                params,
+                page_from=start,
+                page_to=stop,
+            )
+        )
+    return jobs
+
+
 def plan_jobs(
     spec: TableSpec,
     *,
     today: dt.date | None = None,
     orgaos: list[str] | None = None,
     since: dt.date | None = None,
+    session: requests.Session | None = None,
 ) -> list[Job]:
     """Enumerate every job needed to cover `spec`.
 
@@ -120,15 +169,12 @@ def plan_jobs(
             )
 
     elif spec.window is WindowKind.MODALIDADE:
-        # No date filter exists; the stream is walked in page blocks so a long
-        # run stays resumable.
+        # No date filter exists, so the only way to parallelise is by page range.
+        planner = session or build_session()
         for modalidade in spec.modalidades:
-            jobs.append(
-                Job(
-                    spec.table,
-                    f"m{modalidade}",
-                    {**spec.params, spec.modalidade_param: modalidade},
-                )
+            params = {**spec.params, spec.modalidade_param: modalidade}
+            jobs.extend(
+                _page_range_jobs(planner, spec, f"m{modalidade}", params)
             )
 
     elif spec.window is WindowKind.ORGAO:
@@ -153,52 +199,22 @@ def plan_jobs(
                 )
 
     elif spec.window is WindowKind.SNAPSHOT:
+        planner = session or build_session()
         if spec.snapshot_param:
             for value in spec.snapshot_values:
-                jobs.append(
-                    Job(
-                        spec.table,
-                        f"s{value}",
-                        {**spec.params, spec.snapshot_param: value},
-                    )
+                params = {**spec.params, spec.snapshot_param: value}
+                jobs.extend(
+                    _page_range_jobs(planner, spec, f"s{value}", params)
                 )
         else:
-            jobs.append(Job(spec.table, "all", dict(spec.params)))
+            jobs.extend(
+                _page_range_jobs(planner, spec, "all", dict(spec.params))
+            )
 
     else:  # pragma: no cover -- WindowKind is exhaustive
         raise ValueError(f"unhandled window kind {spec.window}")
 
     return jobs
-
-
-def _iter_blocks(
-    session: requests.Session,
-    path: str,
-    params: dict[str, Any],
-    *,
-    pages_per_block: int,
-) -> Iterator[tuple[int, list[dict[str, Any]]]]:
-    """Walk an endpoint, yielding `(block_index, rows)` every `pages_per_block`."""
-    page = 1
-    block = 0
-    buffer: list[dict[str, Any]] = []
-    while True:
-        envelope = fetch_page(
-            session,
-            path,
-            {**params, "pagina": page, "tamanhoPagina": PAGE_SIZE},
-        )
-        rows = envelope.get("resultado") or []
-        buffer.extend(rows)
-        done = not rows or envelope.get("paginasRestantes", 0) <= 0
-        if done or page % pages_per_block == 0:
-            if buffer or done:
-                yield block, buffer
-            buffer = []
-            block += 1
-        if done:
-            return
-        page += 1
 
 
 def run_job(
@@ -210,44 +226,30 @@ def run_job(
     *,
     extraction_date: dt.date | None = None,
 ) -> int:
-    """Execute one job, writing its chunk(s). Returns rows written.
+    """Execute one job, writing exactly one chunk. Returns rows written.
 
     A job that returns nothing still writes an empty chunk, so a resumed run
     does not re-query windows already known to be empty -- which, for the
-    per-orgao contrato loop, is 94% of them.
+    per-orgao contrato loop, is about 94% of them.
     """
     from pipelines.datasets.br_mgi_compras_publicas.utils import clean_records
 
-    chunked = spec.window in (WindowKind.MODALIDADE, WindowKind.SNAPSHOT)
-    total = 0
-    if chunked:
-        for block, rows in _iter_blocks(
-            session, spec.path, job.params, pages_per_block=PAGES_PER_BLOCK
-        ):
-            path = job.chunk_path(output_dir).with_name(
-                f"{job.chunk_id}__b{block:05d}.parquet"
-            )
-            if path.exists():
-                continue
-            cleaned = clean_records(
-                spec,
-                rows,
-                columns,
-                year_fallback=job.year_fallback,
-                extraction_date=extraction_date,
-            )
-            total += write_chunk(cleaned, columns, path)
-        # Marker so a resumed run knows the stream was walked to the end.
-        marker = job.chunk_path(output_dir).with_name(f"{job.chunk_id}__DONE")
-        marker.parent.mkdir(parents=True, exist_ok=True)
-        marker.write_text(str(total))
-        return total
-
     rows: list[dict[str, Any]] = []
-    for _, block_rows in _iter_blocks(
-        session, spec.path, job.params, pages_per_block=10**9
-    ):
-        rows.extend(block_rows)
+    page = job.page_from
+    while True:
+        envelope = fetch_page(
+            session,
+            spec.path,
+            {**job.params, "pagina": page, "tamanhoPagina": PAGE_SIZE},
+        )
+        page_rows = envelope.get("resultado") or []
+        rows.extend(page_rows)
+        if not page_rows or envelope.get("paginasRestantes", 0) <= 0:
+            break
+        if job.page_to is not None and page >= job.page_to:
+            break
+        page += 1
+
     cleaned = clean_records(
         spec,
         rows,
@@ -260,19 +262,7 @@ def run_job(
 
 def pending_jobs(jobs: list[Job], output_dir: Path) -> list[Job]:
     """Drop jobs whose chunk is already on disk."""
-    out = []
-    for job in jobs:
-        spec = TABLE_SPECS[job.table]
-        if spec.window in (WindowKind.MODALIDADE, WindowKind.SNAPSHOT):
-            marker = job.chunk_path(output_dir).with_name(
-                f"{job.chunk_id}__DONE"
-            )
-            if marker.exists():
-                continue
-        elif job.chunk_path(output_dir).exists():
-            continue
-        out.append(job)
-    return out
+    return [job for job in jobs if not job.chunk_path(output_dir).exists()]
 
 
 def harvest_table(
@@ -289,7 +279,10 @@ def harvest_table(
     """Harvest one table into resumable parquet chunks."""
     spec = TABLE_SPECS[table]
     columns = load_architecture(table)
-    planned = plan_jobs(spec, today=today, orgaos=orgaos, since=since)
+    planner = build_session()
+    planned = plan_jobs(
+        spec, today=today, orgaos=orgaos, since=since, session=planner
+    )
     todo = pending_jobs(planned, output_dir)
     workers = max_workers or constants.MAX_WORKERS.value
     logger.info(

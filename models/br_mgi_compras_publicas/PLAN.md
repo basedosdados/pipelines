@@ -57,7 +57,7 @@ Instância (225), Fiocruz (147). Defence is roughly a third of federal volume.
 Largest state buyers are São Paulo's secretarias and USP/Unesp/Unicamp; largest
 non-classified is EBSERH (344).
 
-## 2. Redundancy — 77 endpoints collapse to 13 tables
+## 2. Redundancy — 77 endpoints collapse to 19 tables
 
 ### Dropped as redundant or empty
 
@@ -91,31 +91,13 @@ transacts through the Compras.gov.br platform.
 serves them in bulk by date window. That is the entire reason this dataset earns its
 place next to `br_pncp`, and it should be said plainly in the dataset description.
 
-## 3. Proposed tables (13)
+## 3. Table list
 
-Fact tables, partitioned by `ano`:
-
-1. `contratacao` — 932k · `ano` from `dataPublicacaoPncp`
-2. `contratacao_item` — ~7.6M · `ano` from `dataInclusaoPncp`
-3. `contratacao_item_resultado` — ~5.7M · `ano` from `dataResultadoPncp`
-4. `ata_registro_preco` — 385k · `ano` from `dataVigenciaInicial`
-5. `ata_registro_preco_item` — ~2.5M · same
-6. `contrato` — ~1M · `ano` from `dataVigenciaInicial`
-7. `contrato_item` — ~2M · same
-
-Registries, snapshot (partitioned by `data_extracao`):
-
-8. `orgao` — 11,872 active (+ inactive)
-9. `unidade_administrativa` (UASG) — 21,970 active (+ inactive)
-10. `fornecedor` — 826,570 · CNAE, porte, natureza jurídica, `habilitadoLicitar` (SICAF)
-11. `catalogo_material` (CATMAT) — 343,880, hierarchy denormalised
-12. `catalogo_servico` (CATSER) — 3,096, hierarchy denormalised
-13. `dicionario` — modalidade (SIASG ↔ PNCP), amparo legal, situação, esfera, poder,
-    critério de julgamento, tipo de benefício, porte, modo de disputa
-
-Directory FKs: `id_municipio` → `br_bd_diretorios_brasil.municipio` (via
-`unidadeOrgaoCodigoIbge`), `sigla_uf` → `.uf`, `ano` → `br_bd_diretorios_data_tempo.ano`.
-Supplier `cnpj` links to `br_rf_cnpj`.
+Superseded by section 7, which is the authoritative list once legado was folded
+in. Directory foreign keys are unchanged: `id_municipio` →
+`br_bd_diretorios_brasil.municipio` (via `unidadeOrgaoCodigoIbge`), `sigla_uf` →
+`.uf`, `ano` → `br_bd_diretorios_data_tempo.ano`, and supplier `cnpj` links to
+`br_rf_cnpj`.
 
 ## 4. API constraints that shape the harvest
 
@@ -313,17 +295,49 @@ Legado adds its own `modalidade` set (1 Convite, 2 Tomada de Preços, 3 Concorr�
 99 RDC) — keyed separately from the 14.133 set, which reuses the same integers for
 different things.
 
-## 8. Total cost
+## 8. Total cost — revised after measuring the rate limiter
+
+The API rate-limits with HTTP 429 (no `Retry-After` header; the cooldown is named in
+the body), and **the ceiling differs about sevenfold by module**:
+
+| Module | Converged rate |
+|---|---|
+| `modulo-legado`, `modulo-uasg`, `modulo-material` | ~4 req/s |
+| **`modulo-contratos`** | **~0.6 req/s** |
+
+The client paces each module with its own AIMD limiter, and a 429 does not consume
+the retry budget reserved for genuine transient errors — otherwise the slow module
+aborts the whole harvest.
+
+### The contrato loop was the problem
+
+`/modulo-contratos/` requires `codigoOrgao`, has no date-only entry point, and is
+still bound by the universal 365-day window cap. The naive loop is 11,872 orgaos x
+16 years = ~190k requests, which at 0.6 req/s is **89.5 hours**.
+
+Measured on a random 90-orgao sample, **only 6% of registered orgaos hold any
+contract** (5 of 90; all five had 2024 contracts and none were history-only). So the
+loop probes each orgao once on the densest year and expands only the hits, unioned
+with orgaos already visible in harvested procurement — every contract originates in
+some compra, and the harvest covers all procurement from 1997, so that second source
+is free. That turns ~190k requests into roughly 12k-24k.
 
 | Phase | Hours |
 |---|---|
-| 14.133 facts (contratação, itens, resultados, atas, contratos) | 25–35 |
-| Registries + catálogos | ~1 |
-| Legado tier A | ~22 |
-| **Backfill subtotal** | **~50–58** |
+| Registries and catalogues | ~1 |
+| 14.133 contratacao, itens, resultados, atas | ~6 |
+| Legado tier A excluding endpoint 2 | ~14 |
+| Legado endpoint 2, tier A modalidades (4.8M rows, server-bound at 178 rows/s) | ~8 |
+| **contrato + contrato_item** (probe + expansion, both on the 0.6 req/s module) | **~12-24** |
+| **Backfill subtotal** | **~41-53** |
 | Legado tier B (optional, background) | +77 |
 
-All windows resumable and written atomically, following `br_pncp`.
+### Disk
+
+Measured 82-330 bytes/row of all-STRING snappy parquet, so tier A is about **10 GB of
+chunks and 10 GB consolidated**. The machine had 31 GiB free at 97% utilisation when
+this ran, which fits but is not comfortable; `--prune-chunks` drops each table's
+chunks once consolidated and holds the peak near 11 GB.
 
 ## 9. Recurring pipeline
 

@@ -26,6 +26,7 @@ import datetime as dt
 import json
 import logging
 import os
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -45,6 +46,7 @@ from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
     harvest_table,
     list_registered_orgaos,
     orgaos_from_chunks,
+    plan_jobs,
     probe_contrato_orgaos,
 )
 from pipelines.datasets.br_mgi_compras_publicas.utils import (  # noqa: E402
@@ -135,25 +137,49 @@ def resolve_orgaos(output_dir: Path, *, probe: bool) -> list[str]:
     return codes
 
 
-def consolidate(table: str, output_dir: Path) -> dict[str, int]:
+def consolidate(
+    table: str,
+    output_dir: Path,
+    *,
+    jobs: list | None = None,
+    prune: bool = False,
+) -> dict[str, int]:
     """Merge a table's chunks into hive-partitioned output.
 
-    Streams through pyarrow's dataset writer rather than concatenating in
-    memory: contratacao_item alone is millions of rows.
+    Consolidates the chunks of the *planned job set* rather than whatever
+    parquet happens to sit in the directory. Globbing would silently fold in
+    chunks left by an earlier run whose job identifiers differed, double
+    counting rows; reading the plan instead also surfaces chunks that are
+    missing rather than quietly shipping a short table.
+
+    Streams through pyarrow's dataset writer: contratacao_item alone is
+    millions of rows.
     """
     chunk_dir = output_dir / "_chunks" / table
-    if not chunk_dir.is_dir():
-        return {"rows": 0, "files": 0}
-    files = sorted(chunk_dir.glob("*.parquet"))
+    if jobs is not None:
+        files = [job.chunk_path(output_dir) for job in jobs]
+        missing = [f for f in files if not f.exists()]
+        if missing:
+            logger.error(
+                "%s: %d of %d planned chunks are missing; refusing to consolidate "
+                "a partial table (first missing: %s)",
+                table,
+                len(missing),
+                len(files),
+                missing[0].name,
+            )
+            return {"rows": 0, "files": 0, "missing": len(missing)}
+    else:
+        if not chunk_dir.is_dir():
+            return {"rows": 0, "files": 0, "missing": 0}
+        files = sorted(chunk_dir.glob("*.parquet"))
     if not files:
-        return {"rows": 0, "files": 0}
+        return {"rows": 0, "files": 0, "missing": 0}
 
     columns = [c.name for c in load_architecture(table)]
     partition_key = "ano" if "ano" in columns else "data_extracao"
     target = output_dir / "output" / table
     if target.exists():
-        import shutil
-
         shutil.rmtree(target)
 
     dataset = ds.dataset(files, format="parquet")
@@ -181,7 +207,12 @@ def consolidate(table: str, output_dir: Path) -> dict[str, int]:
         len(files),
         target,
     )
-    return {"rows": rows, "files": len(files)}
+    if prune:
+        # Halves peak disk. Only safe once the consolidated output exists, and
+        # it does cost a full re-harvest of this table if it is later needed.
+        shutil.rmtree(chunk_dir)
+        logger.info("%s: pruned chunk directory", table)
+    return {"rows": rows, "files": len(files), "missing": 0}
 
 
 def main() -> int:
@@ -222,9 +253,21 @@ def main() -> int:
         parser.error(f"unknown tables: {unknown}")
 
     if args.consolidate:
+        planner = build_session()
+        failed = 0
         for table in tables:
-            consolidate(table, output_dir)
-        return 0
+            spec = TABLE_SPECS[table]
+            orgaos = (
+                resolve_orgaos(output_dir, probe=False)
+                if spec.window == "orgao"
+                else None
+            )
+            jobs = plan_jobs(spec, orgaos=orgaos, session=planner)
+            stats = consolidate(
+                table, output_dir, jobs=jobs, prune=args.prune_chunks
+            )
+            failed += stats.get("missing", 0) > 0
+        return 1 if failed else 0
 
     extraction_date = dt.date.today()
     summary: dict[str, dict[str, int]] = {}
