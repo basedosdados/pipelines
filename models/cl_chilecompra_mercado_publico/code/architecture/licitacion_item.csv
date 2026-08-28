@@ -7,34 +7,34 @@ id_licitacion,STRING,Identificador interno da licitacao no Mercado Publico,,no,,
 url,STRING,Endereco da ficha da licitacao no Mercado Publico,,no,,,no,,Link
 nombre,STRING,Nome da licitacao,,no,,,no,,Nombre
 descripcion,STRING,Descricao da licitacao,,no,,,no,,Descripcion
-tipo_adquisicion,STRING,Tipo de aquisicao da licitacao,,yes,,,no,Cabecalho grafado com acento ate 2014 e sem acento a partir de 2015,Tipo de Adquisicion
+tipo_adquisicion,STRING,Tipo de aquisicao da licitacao,,no,,,no,Cabecalho grafado com acento ate 2014 e sem acento a partir de 2015,Tipo de Adquisicion
 codigo_estado,STRING,Codigo do estado da licitacao,,yes,,,no,,CodigoEstado
-estado,STRING,Estado da licitacao,,yes,,,no,,Estado
+estado,STRING,Estado da licitacao,,no,,,no,,Estado
 codigo_estado_licitacion,STRING,Codigo detalhado do estado da licitacao,,yes,,,no,,CodigoEstadoLicitacion
 codigo_organismo,STRING,Codigo do organismo publico licitante,,no,,,no,,CodigoOrganismo
 nombre_organismo,STRING,Nome do organismo publico licitante,,no,,,no,,NombreOrganismo
-sector,STRING,Setor do Estado a que pertence o organismo licitante,,yes,,,no,Ausente nos arquivos de 2007 a 2014,sector
+sector,STRING,Setor do Estado a que pertence o organismo licitante,,no,,,no,Ausente nos arquivos de 2007 a 2014,sector
 rut_unidad_compra,STRING,RUT da unidade compradora,,no,,,no,Formato com pontos e digito verificador,RutUnidad
 codigo_unidad_compra,STRING,Codigo da unidade compradora,,no,,,no,,CodigoUnidad
 nombre_unidad_compra,STRING,Nome da unidade compradora,,no,,,no,,NombreUnidad
 direccion_unidad_compra,STRING,Endereco da unidade compradora,,no,,,no,,DireccionUnidad
 comuna_unidad_compra,STRING,Comuna da unidade compradora,,no,,,no,,ComunaUnidad
 region_unidad_compra,STRING,Regiao da unidade compradora,,no,,,no,Espacos finais removidos na limpeza,RegionUnidad
-indicador_informada,STRING,Indica se a licitacao foi informada,,yes,,,no,,Informada
+indicador_informada,STRING,Indica se a licitacao foi informada,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",Informada
 codigo_tipo,STRING,Codigo do tipo de licitacao,,yes,,,no,,CodigoTipo
 sigla_tipo,STRING,Sigla do tipo de licitacao,,yes,,,no,"Ex.: LR, LE, LQ, LP",Tipo
-tipo_convocatoria,STRING,Tipo de convocatoria da licitacao,,yes,,,no,,TipoConvocatoria
+tipo_convocatoria,STRING,Tipo de convocatoria da licitacao,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",TipoConvocatoria
 codigo_moneda,STRING,Codigo da moeda da licitacao,,yes,,,no,,CodigoMoneda
-moneda,STRING,Moeda da licitacao,,yes,,,no,Cabecalho grafado com acento ate 2014 e sem acento a partir de 2015,Moneda Adquisicion
-moneda_oferta,STRING,Moeda em que as propostas sao apresentadas,,yes,,,no,"Constante por licitacao, apesar do nome sugerir nivel de proposta",Moneda de la Oferta
+moneda,STRING,Moeda da licitacao,,no,,,no,Cabecalho grafado com acento ate 2014 e sem acento a partir de 2015,Moneda Adquisicion
+moneda_oferta,STRING,Moeda em que as propostas sao apresentadas,,no,,,no,"Constante por licitacao, apesar do nome sugerir nivel de proposta",Moneda de la Oferta
 cantidad_etapas,INT64,Quantidade de etapas da licitacao,,no,,stage,no,,Etapas
-estado_etapas,STRING,Estado das etapas da licitacao,,yes,,,no,,EstadoEtapas
-toma_razon,STRING,Indica se a licitacao esta sujeita a toma de razao pela Contraloria,,yes,,,no,,TomaRazon
-estado_publicidad_ofertas,STRING,Estado de publicidade das propostas,,yes,,,no,,EstadoPublicidadOfertas
+estado_etapas,STRING,Estado das etapas da licitacao,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",EstadoEtapas
+toma_razon,STRING,Indica se a licitacao esta sujeita a toma de razao pela Contraloria,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",TomaRazon
+estado_publicidad_ofertas,STRING,Estado de publicidade das propostas,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",EstadoPublicidadOfertas
 justificacion_publicidad,STRING,Justificativa do regime de publicidade das propostas,,no,,,no,,JustificacionPublicidad
-estado_cs,STRING,Estado do convenio de suministro associado,,yes,,,no,,EstadoCS
-codigo_contrato,STRING,Codigo do tipo de contrato,,yes,,,no,,Contrato
-indicador_obras,STRING,Indica se a licitacao e de obras,,yes,,,no,,Obras
+estado_cs,STRING,Estado do convenio de suministro associado,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",EstadoCS
+codigo_contrato,STRING,Codigo do tipo de contrato,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",Contrato
+indicador_obras,STRING,Indica se a licitacao e de obras,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",Obras
 cantidad_reclamos,INT64,Quantidade de reclamacoes registradas na licitacao,,no,,claim,no,,CantidadReclamos
 fecha_creacion,DATE,Data de criacao da licitacao,,no,,,no,Valor 1900-01-01 na origem indica ausencia e e convertido para nulo,FechaCreacion
 fecha_publicacion,DATE,Data de publicacao da licitacao,,no,,,no,Define as particoes ano e mes,FechaPublicacion
@@ -48,42 +48,42 @@ fecha_adjudicacion,DATE,Data de adjudicacao da licitacao,,no,,,no,,FechaAdjudica
 fecha_estimada_adjudicacion,DATE,Data estimada de adjudicacao,,no,,,no,,FechaEstimadaAdjudicacion
 fecha_soporte_fisico,DATE,Data de entrega de antecedentes em suporte fisico,,no,,,no,,FechaSoporteFisico
 fecha_tiempo_evaluacion,DATE,Data limite do periodo de avaliacao,,no,,,no,,FechaTiempoEvaluacion
-unidad_tiempo_evaluacion,STRING,Unidade de tempo do periodo de avaliacao,,yes,,,no,,UnidadTiempoEvaluacion
+unidad_tiempo_evaluacion,STRING,Unidade de tempo do periodo de avaliacao,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",UnidadTiempoEvaluacion
 fecha_estimada_firma,DATE,Data estimada de assinatura do contrato,,no,,,no,,FechaEstimadaFirma
 fechas_usuario,STRING,Datas adicionais informadas pelo usuario,,no,,,no,,FechasUsuario
 fecha_visita_terreno,DATE,Data da visita a campo,,no,,,no,,FechaVisitaTerreno
 direccion_visita,STRING,Endereco da visita a campo,,no,,,no,,DireccionVisita
 fecha_entrega_antecedentes,DATE,Data de entrega de antecedentes,,no,,,no,,FechaEntregaAntecedentes
 direccion_entrega,STRING,Endereco de entrega de antecedentes,,no,,,no,,DireccionEntrega
-estimacion,STRING,Tipo de estimativa do valor da licitacao,,yes,,,no,,Estimacion
+estimacion,STRING,Tipo de estimativa do valor da licitacao,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",Estimacion
 fuente_financiamiento,STRING,Fonte de financiamento da licitacao,,no,,,no,,FuenteFinanciamiento
-visibilidad_monto,STRING,Indica se o valor estimado e publico,,yes,,,no,,VisibilidadMonto
+visibilidad_monto,STRING,Indica se o valor estimado e publico,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",VisibilidadMonto
 monto_estimado,FLOAT64,Valor estimado da licitacao,,no,,,no,A unidade e dada pela coluna moneda,MontoEstimado
 monto_estimado_adjudicado,FLOAT64,Valor estimado adjudicado da licitacao,,no,,,no,A unidade e dada pela coluna moneda; constante por licitacao,Monto Estimado Adjudicado
 justificacion_monto_estimado,STRING,Justificativa do valor estimado,,no,,,no,,JustificacionMontoEstimado
 tiempo,INT64,Prazo da licitacao,,no,,time_unit,no,Unidade dada pela coluna unidad_tiempo,Tiempo
-unidad_tiempo,STRING,Unidade de tempo do prazo da licitacao,,yes,,,no,,UnidadTiempo
-modalidad,STRING,Modalidade da licitacao,,yes,,,no,,Modalidad
-tipo_pago,STRING,Tipo de pagamento previsto,,yes,,,no,,TipoPago
+unidad_tiempo,STRING,Unidade de tempo do prazo da licitacao,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",UnidadTiempo
+modalidad,STRING,Modalidade da licitacao,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",Modalidad
+tipo_pago,STRING,Tipo de pagamento previsto,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",TipoPago
 prohibicion_contratacion,STRING,Declaracao de proibicao de contratacao,,no,,,no,,ProhibicionContratacion
-subcontratacion,STRING,Indica se a subcontratacao e permitida,,yes,,,no,,SubContratacion
-unidad_tiempo_duracion_contrato,STRING,Unidade de tempo da duracao do contrato,,yes,,,no,,UnidadTiempoDuracionContrato
+subcontratacion,STRING,Indica se a subcontratacao e permitida,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",SubContratacion
+unidad_tiempo_duracion_contrato,STRING,Unidade de tempo da duracao do contrato,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",UnidadTiempoDuracionContrato
 tiempo_duracion_contrato,INT64,Duracao prevista do contrato,,no,,time_unit,no,Unidade dada pela coluna unidad_tiempo_duracion_contrato,TiempoDuracionContrato
-tipo_duracion_contrato,STRING,Tipo de duracao do contrato,,yes,,,no,,TipoDuracionContrato
+tipo_duracion_contrato,STRING,Tipo de duracao do contrato,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",TipoDuracionContrato
 observacion_contrato,STRING,Observacoes sobre o contrato,,no,,,no,,ObservacionContrato
-extension_plazo,STRING,Indica se ha prorrogacao de prazo,,yes,,,no,,ExtensionPlazo
-indicador_base_tipo,STRING,Indica se a licitacao usa bases tipo,,yes,,,no,,EsBaseTipo
-unidad_tiempo_contrato,STRING,Unidade de tempo do contrato da licitacao,,yes,,,no,,UnidadTiempoContratoLicitacion
+extension_plazo,STRING,Indica se ha prorrogacao de prazo,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",ExtensionPlazo
+indicador_base_tipo,STRING,Indica se a licitacao usa bases tipo,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",EsBaseTipo
+unidad_tiempo_contrato,STRING,Unidade de tempo do contrato da licitacao,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",UnidadTiempoContratoLicitacion
 valor_tiempo_renovacion,INT64,Valor do periodo de renovacao do contrato,,no,,time_unit,no,Presente apenas nos arquivos de 2007 a 2019,ValorTiempoRenovacion
-periodo_tiempo_renovacion,STRING,Unidade do periodo de renovacao do contrato,,yes,,,no,,PeriodoTiempoRenovacion
-indicador_renovable,STRING,Indica se o contrato e renovavel,,yes,,,no,,EsRenovable
-tipo_aprobacion,STRING,Tipo do ato administrativo de aprovacao,,yes,,,no,,TipoAprobacion
+periodo_tiempo_renovacion,STRING,Unidade do periodo de renovacao do contrato,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",PeriodoTiempoRenovacion
+indicador_renovable,STRING,Indica se o contrato e renovavel,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",EsRenovable
+tipo_aprobacion,STRING,Tipo do ato administrativo de aprovacao,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",TipoAprobacion
 numero_aprobacion,STRING,Numero do ato administrativo de aprovacao,,no,,,no,,NumeroAprobacion
 fecha_aprobacion,DATE,Data do ato administrativo de aprovacao,,no,,,no,,FechaAprobacion
 cantidad_oferentes,INT64,Quantidade de proponentes na licitacao,,no,,bidder,no,,NumeroOferentes
-indicador_criterios_ambientales,STRING,Indica se a licitacao aplica criterios ou requisitos ambientais,,yes,,,no,Presente apenas nos arquivos a partir de 2020,CriteriosRequisitosAmbientales
+indicador_criterios_ambientales,STRING,Indica se a licitacao aplica criterios ou requisitos ambientais,,no,,,no,Presente apenas nos arquivos a partir de 2020,CriteriosRequisitosAmbientales
 descripcion_criterios_ambientales,STRING,Descricao dos criterios ou requisitos ambientais,,no,,,no,Presente apenas nos arquivos a partir de 2020,DescripcionCriteriosRequisitosAmbientales
-indicador_criterios_sociales,STRING,Indica se a licitacao aplica criterios ou requisitos sociais,,yes,,,no,Presente apenas nos arquivos a partir de 2020,CriteriosRequisitosSociales
+indicador_criterios_sociales,STRING,Indica se a licitacao aplica criterios ou requisitos sociais,,no,,,no,Presente apenas nos arquivos a partir de 2020,CriteriosRequisitosSociales
 descripcion_criterios_sociales,STRING,Descricao dos criterios ou requisitos sociais,,no,,,no,Presente apenas nos arquivos a partir de 2020,DescripcionCriteriosRequisitosSociales
 descripcion_criterios_sociales_2,STRING,Segunda descricao dos criterios ou requisitos sociais,,no,,,no,A fonte exporta duas colunas com o mesmo nome; a segunda chega como DescripcionCriteriosRequisitosSociales.1,DescripcionCriteriosRequisitosSociales.1
 criterios_evaluacion,STRING,"Criterios de avaliacao das propostas, separados por ponto e virgula",,no,,,no,A fonte lista os mesmos criterios em ordens diferentes; os itens sao ordenados alfabeticamente na limpeza,CriteriosEvaluacion

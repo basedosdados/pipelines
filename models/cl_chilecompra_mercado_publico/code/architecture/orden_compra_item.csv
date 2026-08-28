@@ -7,31 +7,31 @@ url,STRING,Endereco da ficha da ordem de compra no Mercado Publico,,no,,,no,,Lin
 nombre,STRING,Nome da ordem de compra,,no,,,no,,Nombre
 descripcion,STRING,Descricao e observacoes da ordem de compra,,no,,,no,Nome de origem contem erro de digitacao (Obervaciones),Descripcion/Obervaciones
 sigla_tipo,STRING,Sigla do tipo de ordem de compra,,yes,,,no,,Tipo
-procedencia,STRING,Procedimento de compra que originou a ordem,,yes,,,no,,ProcedenciaOC
-indicador_trato_directo,STRING,Indica se a ordem foi emitida por trato direto,,yes,,,no,,EsTratoDirecto
-indicador_compra_agil,STRING,Indica se a ordem foi emitida pela modalidade Compra Agil,,yes,,,no,Modalidade criada em 2020,EsCompraAgil
+procedencia,STRING,Procedimento de compra que originou a ordem,,no,,,no,,ProcedenciaOC
+indicador_trato_directo,STRING,Indica se a ordem foi emitida por trato direto,,no,,,no,,EsTratoDirecto
+indicador_compra_agil,STRING,Indica se a ordem foi emitida pela modalidade Compra Agil,,no,,,no,Modalidade criada em 2020,EsCompraAgil
 codigo_tipo,STRING,Codigo do tipo de ordem de compra,,yes,,,no,,CodigoTipo
 sigla_tipo_abreviada,STRING,Sigla abreviada do tipo de ordem de compra,,yes,,,no,,CodigoAbreviadoTipoOC
 descripcion_tipo,STRING,Descricao do tipo de ordem de compra,,no,,,no,,DescripcionTipoOC
 id_plan_compra,STRING,Identificador do plano de compras associado,,no,,,no,"Coluna presente no cabecalho de 2007 a 2020, exceto 2017, e ausente a partir de 2021. So e efetivamente preenchida a partir de 2019: nula em 100% das linhas em 2007-01 e 2010-06, em 10 de 505.159 linhas em 2015-06, e preenchida em cerca de 41% das linhas em 2019-06 e 2020-06",idPlanDeCompra
 codigo_estado,STRING,Codigo do estado da ordem de compra,,yes,,,no,,codigoEstado
-estado,STRING,Estado da ordem de compra,,yes,,,no,,Estado
+estado,STRING,Estado da ordem de compra,,no,,,no,,Estado
 codigo_estado_proveedor,STRING,Codigo do estado da ordem segundo o fornecedor,,yes,,,no,,codigoEstadoProveedor
-estado_proveedor,STRING,Estado da ordem segundo o fornecedor,,yes,,,no,,EstadoProveedor
+estado_proveedor,STRING,Estado da ordem segundo o fornecedor,,no,,,no,,EstadoProveedor
 fecha_creacion,DATE,Data de criacao da ordem de compra,,no,,,no,Valor 1900-01-01 na origem indica ausencia e e convertido para nulo,FechaCreacion
 fecha_envio,DATE,Data de envio da ordem de compra ao fornecedor,,no,,,no,Define as particoes ano e mes,FechaEnvio
 fecha_solicitud_cancelacion,DATE,Data da solicitacao de cancelamento,,no,,,no,,FechaSolicitudCancelacion
 fecha_ultima_modificacion,DATE,Data da ultima modificacao da ordem de compra,,no,,,no,,fechaUltimaModificacion
 fecha_aceptacion,DATE,Data de aceitacao da ordem pelo fornecedor,,no,,,no,,FechaAceptacion
 fecha_cancelacion,DATE,Data de cancelamento da ordem de compra,,no,,,no,,FechaCancelacion
-indicador_items,STRING,Indica se a ordem de compra possui itens detalhados,,yes,,,no,,tieneItems
+indicador_items,STRING,Indica se a ordem de compra possui itens detalhados,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",tieneItems
 promedio_calificacion,FLOAT64,Nota media atribuida ao fornecedor nesta ordem de compra,,no,,score,no,,PromedioCalificacion
 cantidad_evaluacion,INT64,Quantidade de avaliacoes registradas para a ordem de compra,,no,,evaluation,no,,CantidadEvaluacion
 moneda,STRING,Moeda em que a ordem de compra foi emitida,,yes,,,no,Predominantemente CLP; CLF e UTM sao unidades indexadas a inflacao,TipoMonedaOC
 monto_total,FLOAT64,Valor total da ordem de compra na moeda de emissao,,no,,,no,A unidade e dada pela coluna moneda; use monto_total_clp para comparacoes,MontoTotalOC
 monto_total_clp,FLOAT64,Valor total da ordem de compra convertido para pesos chilenos,,no,,CLP,no,Conversao feita pela propria fonte,MontoTotalOC_PesosChilenos
 monto_impuestos,FLOAT64,Valor dos impostos da ordem de compra,,no,,,no,A unidade e dada pela coluna moneda,Impuestos
-tipo_impuesto,STRING,Tipo de imposto aplicado a ordem de compra,,yes,,,no,,TipoImpuesto
+tipo_impuesto,STRING,Tipo de imposto aplicado a ordem de compra,,no,,,no,,TipoImpuesto
 monto_descuentos,FLOAT64,Valor dos descontos da ordem de compra,,no,,,no,A unidade e dada pela coluna moneda,Descuentos
 monto_cargos,FLOAT64,Valor dos encargos da ordem de compra,,no,,,no,A unidade e dada pela coluna moneda,Cargos
 monto_total_neto,FLOAT64,Valor total liquido da ordem de compra,,no,,,no,A unidade e dada pela coluna moneda,TotalNetoOC
@@ -41,7 +41,7 @@ rut_unidad_compra,STRING,RUT da unidade compradora,,no,,,no,Formato com pontos e
 nombre_unidad_compra,STRING,Nome da unidade compradora,,no,,,no,,UnidadCompra
 codigo_organismo,STRING,Codigo do organismo publico comprador,,no,,,no,,CodigoOrganismoPublico
 nombre_organismo,STRING,Nome do organismo publico comprador,,no,,,no,,OrganismoPublico
-sector,STRING,Setor do Estado a que pertence o organismo comprador,,yes,,,no,,sector
+sector,STRING,Setor do Estado a que pertence o organismo comprador,,no,,,no,,sector
 actividad_comprador,STRING,Atividades economicas declaradas pela unidade compradora,,no,,,no,Multiplos valores separados por barra vertical,ActividadComprador
 ciudad_unidad_compra,STRING,Cidade da unidade compradora,,no,,,no,,CiudadUnidadCompra
 region_unidad_compra,STRING,Regiao da unidade compradora,,no,,,no,Espacos finais removidos na limpeza,RegionUnidadCompra
@@ -57,7 +57,7 @@ region_proveedor,STRING,Regiao do fornecedor,,no,,,no,Espacos finais removidos n
 pais_proveedor,STRING,Pais do fornecedor,,no,,,no,,PaisProveedor
 financiamiento,STRING,Fonte de financiamento da compra,,no,,,no,,Financiamiento
 pais,STRING,Pais de origem do produto ou servico,,no,,,no,,Pais
-codigo_tipo_despacho,STRING,Codigo do tipo de despacho,,yes,,,no,,TipoDespacho
+codigo_tipo_despacho,STRING,Codigo do tipo de despacho,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",TipoDespacho
 codigo_forma_pago,STRING,Codigo da forma de pagamento,,yes,,,no,,FormaPago
 forma_pago,STRING,Descricao da forma de pagamento,,no,,,no,,Forma de Pago
 codigo_licitacion,STRING,Codigo da licitacao que originou a ordem de compra,,no,,,no,Chave de ligacao com as tabelas licitacion_item e licitacion_oferta,CodigoLicitacion

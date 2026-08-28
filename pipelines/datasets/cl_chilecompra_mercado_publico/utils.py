@@ -15,6 +15,7 @@ The files are MONTHLY, not semestral -- ``<month>`` runs 1..12.
 from __future__ import annotations
 
 import io
+import time
 import zipfile
 from pathlib import Path
 
@@ -22,6 +23,8 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 BASE_URL = "https://transparenciachc.blob.core.windows.net"
 CONTAINER = {"orden_compra": "oc-da", "licitacion": "lic-da"}
@@ -121,6 +124,28 @@ def month_url(kind: str, year: int, month: int) -> str:
     return f"{BASE_URL}/{CONTAINER[kind]}/{year}-{month}.zip"
 
 
+def _session(total_retries: int = 5) -> requests.Session:
+    """HTTP session that retries connection errors and 5xx with exponential backoff.
+
+    The blob host intermittently refuses connections and stalls mid-transfer. Without
+    this, such a blip turns a slow month into a failed one -- on the first full run it
+    cost 467 of 472 files.
+    """
+    session = requests.Session()
+    retry = Retry(
+        total=total_retries,
+        connect=total_retries,
+        read=total_retries,
+        backoff_factor=2,
+        status_forcelist=(429, 500, 502, 503, 504),
+        allowed_methods=frozenset(["GET", "HEAD"]),
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
+
+
 def head_month(
     kind: str, year: int, month: int, timeout: int = 60
 ) -> dict | None:
@@ -130,7 +155,7 @@ def head_month(
     stored state: ChileCompra rewrites *old* months retroactively, so "only refresh the
     current month" would miss real revisions.
     """
-    r = requests.head(month_url(kind, year, month), timeout=timeout)
+    r = _session().head(month_url(kind, year, month), timeout=timeout)
     if r.status_code == 404:
         return None
     r.raise_for_status()
@@ -144,21 +169,54 @@ def head_month(
     }
 
 
-def download_month(kind: str, year: int, month: int, dest_dir: Path) -> Path:
-    """Stream one monthly ZIP to disk. Returns the local path."""
+def download_month(
+    kind: str,
+    year: int,
+    month: int,
+    dest_dir: Path,
+    attempts: int = 4,
+    read_timeout: int = 120,
+) -> Path:
+    """Stream one monthly ZIP to disk, verifying the byte count. Returns the path.
+
+    ``read_timeout`` applies per chunk, not per file: a stalled socket then fails in two
+    minutes and is retried, instead of holding the run for the length of a file-wide
+    timeout. The first full run lost four hours to single months this way.
+
+    A truncated transfer is caught here by comparing against Content-Length. Left
+    undetected it surfaces much later as an unhelpful zip or parser error.
+    """
     dest_dir = Path(dest_dir)
     dest_dir.mkdir(parents=True, exist_ok=True)
     out = dest_dir / f"{kind}_{year}-{month:02d}.zip"
     tmp = out.with_suffix(".zip.part")
-    with requests.get(
-        month_url(kind, year, month), stream=True, timeout=900
-    ) as r:
-        r.raise_for_status()
-        with open(tmp, "wb") as fh:
-            for chunk in r.iter_content(chunk_size=1 << 20):
-                fh.write(chunk)
-    tmp.rename(out)
-    return out
+    url = month_url(kind, year, month)
+
+    last_error: Exception | None = None
+    for attempt in range(1, attempts + 1):
+        try:
+            with _session().get(
+                url, stream=True, timeout=(30, read_timeout)
+            ) as response:
+                response.raise_for_status()
+                expected = int(response.headers.get("Content-Length", 0))
+                written = 0
+                with open(tmp, "wb") as handle:
+                    for chunk in response.iter_content(chunk_size=1 << 20):
+                        handle.write(chunk)
+                        written += len(chunk)
+            if expected and written != expected:
+                raise OSError(
+                    f"{url}: truncated download, got {written} of {expected} bytes"
+                )
+            tmp.rename(out)
+            return out
+        except Exception as exc:  # noqa: BLE001 - retried below, re-raised if terminal
+            last_error = exc
+            tmp.unlink(missing_ok=True)
+            if attempt < attempts:
+                time.sleep(min(60, 5 * 2 ** (attempt - 1)))
+    raise RuntimeError(f"{url}: failed after {attempts} attempts") from last_error
 
 
 def _read_csv_from_zip(path: Path) -> pd.DataFrame:
