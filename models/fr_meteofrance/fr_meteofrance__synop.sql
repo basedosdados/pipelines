@@ -4,7 +4,7 @@
         alias="synop",
         materialized="table",
         partition_by={
-            "field": "ano",
+            "field": "annee",
             "data_type": "int64",
             "range": {"start": 1996, "end": 2031, "interval": 1},
         },
@@ -14,10 +14,10 @@
 
 
 select
-    safe_cast(ano as int64) ano,
-    safe_cast(mes as int64) mes,
-    safe_cast(data as date) data,
-    safe_cast(hora as time) hora,
+    safe_cast(annee as int64) annee,
+    safe_cast(mois as int64) mois,
+    safe_cast(date as date) date,
+    safe_cast(heure as time) heure,
     safe_cast(indicatif_omm as string) indicatif_omm,
     safe_cast(date_heure_traitement as datetime) date_heure_traitement,
     safe_cast(date_heure_insertion as datetime) date_heure_insertion,

@@ -7,19 +7,19 @@ Columns that appear in more than one table share a description.
 
 EN_ES = {
     # --- shared scaffolding ---
-    "ano": (
+    "annee": (
         "Year of the observation, in coordinated universal time (UTC)",
         "Año de la observación, en tiempo universal coordinado (UTC)",
     ),
-    "mes": (
+    "mois": (
         "Month of the observation, in coordinated universal time (UTC)",
         "Mes de la observación, en tiempo universal coordinado (UTC)",
     ),
-    "data": (
+    "date": (
         "Date of the observation, in coordinated universal time (UTC)",
         "Fecha de la observación, en tiempo universal coordinado (UTC)",
     ),
-    "hora": (
+    "heure": (
         "Time of the observation, in coordinated universal time (UTC)",
         "Hora de la observación, en tiempo universal coordinado (UTC)",
     ),

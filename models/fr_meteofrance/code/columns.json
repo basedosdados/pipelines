@@ -1,7 +1,7 @@
 {
   "synop": [
     {
-      "name": "ano",
+      "name": "annee",
       "bigquery_type": "INT64",
       "description_pt": "Ano da observação, em tempo universal coordenado (UTC)",
       "description_en": "Year of the observation, in coordinated universal time (UTC)",
@@ -12,7 +12,7 @@
       "directory_column": "br_bd_diretorios_data_tempo.ano:ano"
     },
     {
-      "name": "mes",
+      "name": "mois",
       "bigquery_type": "INT64",
       "description_pt": "Mês da observação, em tempo universal coordenado (UTC)",
       "description_en": "Month of the observation, in coordinated universal time (UTC)",
@@ -23,7 +23,7 @@
       "directory_column": "br_bd_diretorios_data_tempo.mes:mes"
     },
     {
-      "name": "data",
+      "name": "date",
       "bigquery_type": "DATE",
       "description_pt": "Data da observação, em tempo universal coordenado (UTC)",
       "description_en": "Date of the observation, in coordinated universal time (UTC)",
@@ -32,7 +32,7 @@
       "is_partition": false
     },
     {
-      "name": "hora",
+      "name": "heure",
       "bigquery_type": "TIME",
       "description_pt": "Hora da observação, em tempo universal coordenado (UTC)",
       "description_en": "Time of the observation, in coordinated universal time (UTC)",

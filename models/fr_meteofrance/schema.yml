@@ -12,7 +12,7 @@ models:
       por dependerem da instrumentação da estação.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [data, hora, indicatif_omm]
+          combination_of_columns: [date, heure, indicatif_omm]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -42,20 +42,20 @@ models:
             - type_nuage_3
             - type_nuage_4
     columns:
-      - name: ano
+      - name: annee
         description: Ano da observação, em tempo universal coordenado (UTC)
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: mes
+      - name: mois
         description: Mês da observação, em tempo universal coordenado (UTC)
         tests: [not_null]
-      - name: data
+      - name: date
         description: Data da observação, em tempo universal coordenado (UTC)
         tests: [not_null]
-      - name: hora
+      - name: heure
         description: Hora da observação, em tempo universal coordenado (UTC)
         tests: [not_null]
       - name: indicatif_omm

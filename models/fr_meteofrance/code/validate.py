@@ -33,16 +33,16 @@ def synop():
         df = pd.read_parquet(f)
         for col in df.columns:
             nonnull[col] += df[col].notna().sum()
-        k = pd.MultiIndex.from_frame(df[["data", "hora", "indicatif_omm"]])
+        k = pd.MultiIndex.from_frame(df[["date", "heure", "indicatif_omm"]])
         dup += len(k) - k.nunique()
         keys.update(df["indicatif_omm"].unique())
         for c in CODED:
             codes[c].update(df[c].dropna().unique())
-        lo, hi = df["data"].min(), df["data"].max()
+        lo, hi = df["date"].min(), df["date"].max()
         dmin = lo if dmin is None else min(dmin, lo)
         dmax = hi if dmax is None else max(dmax, hi)
 
-    print(f"  duplicate (data, hora, indicatif_omm) keys: {dup}")
+    print(f"  duplicate (date, heure, indicatif_omm) keys: {dup}")
     print(f"  stations: {len(keys)}   coverage: {dmin} .. {dmax}")
     sparse = sorted(c for c, n in nonnull.items() if n / total < 0.05)
     print(f"  columns under 5% non-null ({len(sparse)}):")

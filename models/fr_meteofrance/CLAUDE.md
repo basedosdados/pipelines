@@ -9,9 +9,17 @@ redistributable including commercially. Registered as `cc_by`, the same mapping
 `fr_insee_sirene` uses, because the platform vocabulary has no LO 2.0 entry and Etalab
 declares LO 2.0 compatible with CC BY 4.0.
 
-Data language French → **French column names and table slugs**, with the BD-standard temporal
-scaffolding (`ano`, `mes`, `data`, `hora`) keeping its house name, exactly as in
-`fr_insee_sirene`. Descriptions are PT/EN/ES.
+Data language French → **French column names and table slugs throughout**, including the
+temporal scaffolding: `annee`, `mois`, `date`, `heure`. This **departs from
+`fr_insee_sirene`**, which kept `ano`/`data` in Portuguese; the French spelling was chosen
+deliberately for this dataset. Descriptions are PT/EN/ES.
+
+The single exception is `dicionario`, whose columns (`id_tabela`, `nome_coluna`, `chave`,
+`cobertura_temporal`, `valor`) are hard-coded in the generic `custom_dictionary_coverage`
+test and cannot be renamed without breaking it.
+
+`date` and `heure` are safe as bare BigQuery identifiers — `DATE` is a type name but not a
+reserved keyword, and `safe_cast(date as date) date` parses (verified against BigQuery).
 
 ## Sources
 
@@ -27,7 +35,7 @@ The legacy `donneespubliques.meteofrance.fr/donnees_libres/Txt/Synop/...` URLs a
 
 | table | rows | key | grain |
 |---|---|---|---|
-| `synop` | 5,367,183 | `data`, `hora`, `indicatif_omm` | station × 3-hourly observation, partitioned by `ano` (1996–2026), clustered by `indicatif_omm` |
+| `synop` | 5,367,183 | `date`, `heure`, `indicatif_omm` | station × 3-hourly observation, partitioned by `annee` (1996–2026), clustered by `indicatif_omm` |
 | `station_synop` | 190 | `indicatif_omm` | SYNOP station |
 | `normale_climatologique` | 402,831 | `numero_poste`, `indicateur`, `periode` | station × indicator × month-or-year, long format |
 | `station_climatologique` | 1,576 | `numero_poste` | climatological station |
@@ -131,6 +139,45 @@ Météo-France publishes 122 datasets on data.gouv.fr. The big omissions, all `l
 
 ## Recurring pipeline
 
-Not built yet. The source rewrites the current year's `synop_<year>.csv.gz` daily and reissues
-the fiches monthly, so a daily flow re-downloading the current year and overwriting its
-partition is the natural shape. See `.claude/rules/prefect-pipeline-conventions.md`.
+`pipelines/datasets/fr_meteofrance/` — **two** flows, because the source has two cadences:
+
+| flow | cron (BRT) | what it does |
+|---|---|---|
+| `fr_meteofrance_synop_flow` | `23 7 * * *` (daily) | downloads only the current year's `synop_<year>.csv.gz` and replaces that one `annee=` partition |
+| `fr_meteofrance_climatologie_flow` | `37 7 6,7,8,9 * *` (monthly) | re-downloads every sheet and the full SYNOP history; rebuilds the normals, both station registers, the dictionary and all of `synop` |
+
+The monthly flow re-downloads all 31 SYNOP years because `station_synop` carries each station's
+first and last observation year, which one year cannot give. That doubles as a monthly full
+rebuild and repairs any partition a daily run left stale.
+
+`dump_mode="append"` on both, never `"overwrite"` — overwrite drops the whole staging table, and
+drops the prod table even from a dev run.
+
+**The transform is not duplicated.** `pipelines/datasets/fr_meteofrance/utils.py` holds the only
+copy; `models/fr_meteofrance/code/clean.py` is a thin CLI that imports it, and column order and
+types are read from the architecture CSVs rather than a second schema. Verified byte-identical
+against the bootstrap output: 0 differing cells on `synop` 2024 (170,871 rows),
+`normale_climatologique` (402,831) and `station_climatologique` (1,576).
+
+The `dicionario` is **not** rebuilt from the sheets by the pipeline. It materializes the
+committed `code/dicionario.csv`, so a newly published indicator fails
+`custom_dictionary_coverage` and a human writes the label rather than a script inventing one.
+
+### Before arming: `synop` needs a BD Pro coverage
+
+`synop` refreshes daily, so per the house rule it carries `PartBdpro(free_lag=6 months)` — the
+most recent six months become BD Pro, everything older stays free. `normale_climatologique`
+stays `AllFree` despite its monthly reissue: its content is a fixed 1991–2020 statistic that
+does not advance, so a rolling window would paywall the tail of 2020 forever.
+
+`assert_coverage_topology` **hard-fails** unless a pro Coverage (`is_closed=True`) plus its
+`DateTimeRange` already exists on `synop`. Today the table has only the free Coverage, so this
+must be created before the flow is armed:
+
+```
+create_update_coverage(table_id=<synop>, area_id=<fr>, is_closed=True, env="prod")
+create_update_datetime_range(coverage_id=<new>, start_year=…, is_closed=True, env="prod")
+```
+
+A dev validation run (`materialize_to_prod=False`) does **not** need it — the metadata tasks are
+skipped on that path.

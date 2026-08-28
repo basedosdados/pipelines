@@ -43,8 +43,8 @@ ARCH_HEADER = [
 ]
 
 DIRECTORY = {
-    "ano": "br_bd_diretorios_data_tempo.ano:ano",
-    "mes": "br_bd_diretorios_data_tempo.mes:mes",
+    "annee": "br_bd_diretorios_data_tempo.ano:ano",
+    "mois": "br_bd_diretorios_data_tempo.mes:mes",
     "id_departement": "br_bd_diretorios_fr.departement:id_departamento",
 }
 
@@ -60,10 +60,10 @@ SYNOP_ARCH = [
         d,
         desc,
         {
-            "ano": "validity_time",
-            "mes": "validity_time",
-            "data": "validity_time",
-            "hora": "validity_time",
+            "annee": "validity_time",
+            "mois": "validity_time",
+            "date": "validity_time",
+            "heure": "validity_time",
             "indicatif_omm": "geo_id_wmo",
             "date_heure_traitement": "reference_time",
             "date_heure_insertion": "insert_time",
@@ -118,7 +118,7 @@ COVERAGE = {
 
 PARTITION = {
     "synop": {
-        "field": "ano",
+        "field": "annee",
         "data_type": "int64",
         "range": {"start": 1996, "end": 2031, "interval": 1},
     },
@@ -165,7 +165,7 @@ def columns_json():
                 "description_en": en,
                 "description_es": es,
                 "covered_by_dictionary": is_dict,
-                "is_partition": name == "ano" and table == "synop",
+                "is_partition": name == "annee" and table == "synop",
             }
             if unit:
                 entry["measurement_unit"] = unit

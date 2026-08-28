@@ -4,9 +4,12 @@ Single source of truth for column names, BigQuery types, units and descriptions.
 The architecture CSVs, the cleaning code and the dbt models are all generated
 from here, so a rename happens in exactly one place.
 
-Naming rule (same as ``fr_insee_sirene``): the BD-standard temporal scaffolding
-(``ano``, ``mes``, ``data``, ``hora``) keeps its house name; every column that
-comes from the source is named in French, the language of the data.
+Naming rule: **every** column is named in French, the language of the data —
+including the temporal scaffolding (``annee``, ``mois``, ``date``, ``heure``),
+which departs from ``fr_insee_sirene``, where those kept their Portuguese house
+names. The one exception is ``dicionario``, whose column names
+(``id_tabela``, ``nome_coluna``, ``chave``, ``valor``) are hard-coded in the
+generic ``custom_dictionary_coverage`` test and cannot be renamed.
 
 Descriptor: OBSERVATIONS_Descriptif_Technique_Données_SYNOP_OMM.pdf (2026-04-20).
 Units are the source's own — temperature in kelvin, pressure in pascal — never
@@ -469,28 +472,28 @@ SYNOP_COLUMNS = [
 # Leading columns of the `synop` table, ahead of SYNOP_COLUMNS.
 SYNOP_LEADING = [
     (
-        "ano",
+        "annee",
         "INT64",
         "year",
         False,
         "Ano da observação, em tempo universal coordenado (UTC)",
     ),
     (
-        "mes",
+        "mois",
         "INT64",
         "month",
         False,
         "Mês da observação, em tempo universal coordenado (UTC)",
     ),
     (
-        "data",
+        "date",
         "DATE",
         "",
         False,
         "Data da observação, em tempo universal coordenado (UTC)",
     ),
     (
-        "hora",
+        "heure",
         "TIME",
         "",
         False,

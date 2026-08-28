@@ -1,8 +1,8 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
-ano,INT64,"Ano da observação, em tempo universal coordenado (UTC)",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,validity_time
-mes,INT64,"Mês da observação, em tempo universal coordenado (UTC)",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,validity_time
-data,DATE,"Data da observação, em tempo universal coordenado (UTC)",,no,,,no,,validity_time
-hora,TIME,"Hora da observação, em tempo universal coordenado (UTC)",,no,,,no,,validity_time
+annee,INT64,"Ano da observação, em tempo universal coordenado (UTC)",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,validity_time
+mois,INT64,"Mês da observação, em tempo universal coordenado (UTC)",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,validity_time
+date,DATE,"Data da observação, em tempo universal coordenado (UTC)",,no,,,no,,validity_time
+heure,TIME,"Hora da observação, em tempo universal coordenado (UTC)",,no,,,no,,validity_time
 indicatif_omm,STRING,"Indicativo OMM da estação, de cinco dígitos",,no,,,no,"As estações do arquivo SYNOP passaram de 60 para 190 a partir de 2025, quando a Météo-France ampliou a rede publicada.",geo_id_wmo
 date_heure_traitement,DATETIME,Data e hora (UTC) da extração da medição das bases internas da Météo-France,,no,,,no,"Vazia nas observações anteriores a 2025, quando a fonte passou a publicar o campo.",reference_time
 date_heure_insertion,DATETIME,Data e hora (UTC) da inserção da medição do sensor nas bases internas da Météo-France,,no,,,no,"Vazia nas observações anteriores a 2025, quando a fonte passou a publicar o campo. Usada para desduplicar retransmissões da mesma medição.",insert_time

@@ -365,7 +365,11 @@ add("normale_climatologique", "unite", UNITES)
 
 def add_indicateurs():
     """Indicator labels are carried by the fiches themselves; reuse them verbatim."""
-    import parse_ficheclim
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+    from pipelines.datasets.fr_meteofrance.utils import parse_all_fiches
 
     directory = (
         os.path.expanduser(
@@ -373,7 +377,7 @@ def add_indicateurs():
         )
         + "/ficheclim"
     )
-    _stations, normals = parse_ficheclim.parse_all(directory)
+    _stations, normals = parse_all_fiches(directory)
     labels = {}
     for r in normals:
         labels.setdefault(r["indicateur"], r["libelle_indicateur"])
