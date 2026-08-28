@@ -91,9 +91,19 @@ models:
       - name: tipo_documento
         description: Tipo do documento contábil que registrou o movimento
       - name: valor_empenhado
-        description: Valor empenhado em reais correntes
+        description: >
+          Valor empenhado em reais correntes. Contém anomalias da fonte. Em Pernambuco,
+          o exercício de 2009 não
+          reconcilia em escala com os anos vizinhos e não deve ser usado para comparações
+          de nível, e 36 linhas do período 2008-2010 trazem valores-sentinela de quinze
+          dígitos. Filtre valores extremos antes de agregar
       - name: valor_liquidado
-        description: Valor liquidado em reais correntes
+        description: >
+          Valor liquidado em reais correntes. Contém anomalias da fonte. Em Pernambuco,
+          o exercício de 2009 não
+          reconcilia em escala com os anos vizinhos e não deve ser usado para comparações
+          de nível, e 36 linhas do período 2008-2010 trazem valores-sentinela de quinze
+          dígitos. Filtre valores extremos antes de agregar
       - name: valor_pago
         description: Valor pago em reais correntes
   - name: br_bd_execucao_estadual__licitacao

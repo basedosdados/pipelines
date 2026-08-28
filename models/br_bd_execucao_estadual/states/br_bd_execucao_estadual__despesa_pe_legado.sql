@@ -33,6 +33,29 @@
 -- Column order must match br_bd_execucao_estadual__despesa_mg exactly: the parent union
 -- resolves positionally.
 --
+-- KNOWN SOURCE ANOMALY IN 2009, passed through unaltered. That exercise's values
+-- carry no
+-- decimal separator at all, and its scale does not reconcile in either direction:
+-- `empenhado` totals R$2.93bn against R$21.5bn in 2011 (seven times too low), while
+-- `pago`
+-- totals R$2.42tn against R$1.4-2.0bn in 2008 and 2010 (about a thousand times too
+-- high).
+-- If the values were centavos, `pago` would land at a plausible R$24bn -- but
+-- `empenhado`
+-- would then be R$29M, which is absurd. The two columns do not share a consistent
+-- scale,
+-- so no single unit correction can be right and none is applied.
+--
+-- 36 rows across the legacy era also carry fifteen-digit sentinels (`999999999999091`
+-- and
+-- similar) which alone contribute R$15 quadrillion to the paid total.
+--
+-- Both are left as published: staging mirrors the source, and editing a published
+-- value is
+-- worse than a documented anomaly. Anyone aggregating PE before 2011 must filter
+-- extremes
+-- and should treat 2009 as unusable for level comparisons.
+--
 -- The source headings are normalised to BigQuery-legal names at load time, so
 -- "Numero Empenho (NE)" is read here as numero_empenho_ne and "13.02 - Razao Social" as
 -- _13_02_razao_social. BigQuery rejects a '.' in a parquet field name outright and will
@@ -103,8 +126,19 @@ select
     safe_cast(cod_subacao as string) as item_despesa,
     safe_cast(cod_fonte_recursos as string) as fonte_recurso,
     cast(null as string) as tipo_documento,
-    -- Legacy files use the same US number format as the modern ones.
-    safe_cast(trim(vl_empenhado) as float64) as valor_empenhado,
-    safe_cast(trim(vl_liquidado) as float64) as valor_liquidado,
-    safe_cast(trim(vl_pago) as float64) as valor_pago
+    -- The legacy files are BRAZILIAN-formatted ("1.353,96"), where 2011+ are plain US
+    -- (" 43200.0"). Same state, different eras. Casting the legacy values as US
+    -- silently
+    -- NULLs every one that carries a separator -- 26% of 2008 and 24% of 2010 -- which
+    -- reads as sparse data rather than as a parsing bug, because the separator-free
+    -- integers in the same column cast fine either way.
+    safe_cast(
+        replace(replace(trim(vl_empenhado), '.', ''), ',', '.') as float64
+    ) as valor_empenhado,
+    safe_cast(
+        replace(replace(trim(vl_liquidado), '.', ''), ',', '.') as float64
+    ) as valor_liquidado,
+    safe_cast(
+        replace(replace(trim(vl_pago), '.', ''), ',', '.') as float64
+    ) as valor_pago
 from fonte

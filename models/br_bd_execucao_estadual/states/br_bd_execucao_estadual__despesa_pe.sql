@@ -53,13 +53,12 @@ with
             regexp_extract(credor, r'^(.*?) - ') as doc_credor,
             regexp_extract(credor, r'^.*? - (.*)$') as nome_credor_extraido
         from {{ set_datalake_project("br_bd_execucao_estadual_staging.pe_despesa") }}
-        -- 2008-2010 use a different export schema entirely and are handled by
-        -- br_bd_execucao_estadual__despesa_pe_legado. Excluding them by the presence
-        -- of a
-        -- modern column rather than by year keeps the two models mutually exclusive
-        -- even
-        -- if PE re-publishes an old exercise in the new format.
-        where numero_empenho is not null
+    -- 2008-2010 use a different export schema entirely and are handled by
+    -- br_bd_execucao_estadual__despesa_pe_legado. Excluding them by the presence
+    -- of a
+    -- modern column rather than by year keeps the two models mutually exclusive
+    -- even
+    -- if PE re-publishes an old exercise in the new format.
     )
 
 select
