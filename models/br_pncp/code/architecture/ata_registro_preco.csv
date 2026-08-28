@@ -14,7 +14,7 @@ codigo_unidade_subrogada,STRING,Código da unidade administrativa sub-rogada,,no
 nome_unidade_subrogada,STRING,Nome da unidade administrativa sub-rogada,,no,,,no,,nomeUnidadeOrgaoSubrogado,Name of the subrogated administrative unit,Nombre de la unidad administrativa subrogada
 objeto_contratacao,STRING,Descrição do objeto da contratação registrada na ata,,no,,,no,,objetoContratacao,Description of the object of the tender recorded in the price registration record,Descripción del objeto de la contratación registrada en el acta
 indicador_cancelado,BOOLEAN,Indica se a ata foi cancelada,,no,,,no,,cancelado,Whether the record has been cancelled,Indica si el acta fue cancelada
-indicador_possibilidade_adesao,BOOLEAN,Indica se a ata admite adesão por outros órgãos,,no,,,no,,possibilidadeAdesao,Whether other agencies may join the record,Indica si el acta admite adhesión por otros órganos
+indicador_possibilidade_adesao,BOOLEAN,Indica se a ata admite adesão por outros órgãos,,no,,,no,"PNCP only began populating this field during 2026: sampled non-null in 0/13 records for 2022-09-08 and 0/500 for 2025-03-11, against 347/500 for 2026-06-10. Expect it empty for historical years",possibilidadeAdesao,Whether other agencies may join the record,Indica si el acta admite adhesión por otros órganos
 data_assinatura,DATE,Data de assinatura da ata,,no,,,no,,dataAssinatura,Date the record was signed,Fecha de firma del acta
 data_vigencia_inicio,DATE,Data de início da vigência da ata,,no,,,no,,vigenciaInicio,Start date of the record's term,Fecha de inicio de la vigencia del acta
 data_vigencia_fim,DATE,Data de término da vigência da ata,,no,,,no,,vigenciaFim,End date of the record's term,Fecha de término de la vigencia del acta
