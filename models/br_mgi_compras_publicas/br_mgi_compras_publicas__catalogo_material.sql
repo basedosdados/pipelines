@@ -34,6 +34,22 @@ from
     {{ set_datalake_project("br_mgi_compras_publicas_staging.catalogo_material") }} as t
 qualify
     row_number() over (
-        partition by data_extracao, codigo_item order by data_hora_atualizacao desc
+        partition by
+            data_extracao,
+            codigo_item,
+            codigo_grupo,
+            nome_grupo,
+            codigo_classe,
+            nome_classe,
+            codigo_pdm,
+            nome_pdm,
+            codigo_ncm,
+            descricao_ncm,
+            descricao_item,
+            indicador_item_sustentavel,
+            indicador_aplica_margem_preferencia,
+            indicador_item_ativo,
+            data_hora_atualizacao
+        order by data_hora_atualizacao desc
     )
     = 1

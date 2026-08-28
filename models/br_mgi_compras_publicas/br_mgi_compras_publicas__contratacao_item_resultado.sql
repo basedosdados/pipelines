@@ -84,7 +84,50 @@ from
     }} as t
 qualify
     row_number() over (
-        partition by id_compra_item, sequencial_resultado
+        partition by
+            ano,
+            sigla_uf,
+            id_compra,
+            id_compra_item,
+            sequencial_resultado,
+            numero_controle_pncp,
+            id_contratacao_pncp,
+            numero_item_pncp,
+            cnpj_orgao,
+            codigo_unidade,
+            id_fornecedor,
+            nome_fornecedor,
+            tipo_pessoa,
+            codigo_pais,
+            id_porte_fornecedor,
+            porte_fornecedor,
+            id_natureza_juridica,
+            natureza_juridica,
+            ordem_classificacao_srp,
+            id_situacao_resultado,
+            situacao_resultado,
+            motivo_cancelamento,
+            quantidade_homologada,
+            valor_unitario_homologado,
+            valor_total_homologado,
+            percentual_desconto,
+            id_amparo_legal_margem_preferencia,
+            amparo_legal_margem_preferencia,
+            id_amparo_legal_criterio_desempate,
+            amparo_legal_criterio_desempate,
+            id_moeda_estrangeira,
+            valor_nominal_moeda_estrangeira,
+            data_cotacao_moeda_estrangeira,
+            timezone_cotacao_moeda_estrangeira,
+            id_pais_origem_produto_servico,
+            indicador_subcontratacao,
+            indicador_aplicacao_margem_preferencia,
+            indicador_aplicacao_beneficio_meepp,
+            indicador_aplicacao_criterio_desempate,
+            data_resultado_pncp,
+            data_inclusao_pncp,
+            data_atualizacao_pncp,
+            data_cancelamento_pncp
         order by data_atualizacao_pncp desc
     )
     = 1

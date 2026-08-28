@@ -23,9 +23,22 @@ class DbtTable:
     #: columns legitimately empty, excluded from the null-proportion test
     ignore_values: list[str] = field(default_factory=list)
     #: column ordering the dedup, newest kept. The API repeats records across
-    #: pages -- on contratacao 1.19% of rows were byte-identical repeats -- so
-    #: every model deduplicates on its key.
+    #: pages -- on contratacao 1.19% of rows were byte-identical repeats, on ata
+    #: items 22% -- so every model deduplicates.
+    #:
+    #: The dedup partitions on the row's own content rather than on the key,
+    #: excluding the volatile timestamps below. Partitioning on the key looks
+    #: tidier but silently destroys data: `numero_controle_pncp_ata` is null for
+    #: 15,908 ata item rows, and BigQuery groups every null into one partition,
+    #: so `row_number() = 1` would have discarded 15,907 legitimate records.
     dedup_order: str = ""
+    #: timestamp columns excluded from the dedup partition, so two recordings of
+    #: the same logical row a second apart collapse to one
+    dedup_exclude: list[str] = field(default_factory=list)
+    #: share of duplicate keys the source genuinely contains. Above zero the
+    #: model uses the relaxed uniqueness test, and the reason is stated in the
+    #: table description.
+    unique_tolerance: float = 0.0
     #: one-line description used for the model and the backend
     description: str = ""
 
@@ -67,12 +80,19 @@ TABLES: dict[str, DbtTable] = {
         ),
     ),
     "ata_registro_preco": DbtTable(
-        key=["numero_controle_pncp_ata"],
+        # numero_controle_pncp_ata is null for 2,799 atas (0.68%), so it cannot
+        # be the key; this pair is the only candidate with no nulls at all.
+        key=["id_compra", "numero_ata_registro_preco"],
         dedup_order="data_hora_atualizacao",
+        dedup_exclude=["data_hora_inclusao", "data_hora_atualizacao"],
+        unique_tolerance=0.001,
         year_range=R_ARP,
         description=(
             "Atas de registro de preços firmadas a partir de contratações da Lei "
-            "14.133/2021. Uma linha por ata"
+            "14.133/2021. Uma linha por ata. A fonte não atribui número de controle no "
+            "PNCP a 0,68% das atas, portanto a chave é o par id_compra e "
+            "numero_ata_registro_preco; cerca de 0,01% das atas ainda repetem essa chave "
+            "com conteúdo divergente, e o teste de unicidade admite essa proporção"
         ),
     ),
     "ata_registro_preco_item": DbtTable(
@@ -82,10 +102,14 @@ TABLES: dict[str, DbtTable] = {
             "classificacao_fornecedor",
         ],
         dedup_order="data_hora_atualizacao",
+        dedup_exclude=["data_hora_inclusao", "data_hora_atualizacao"],
+        unique_tolerance=0.02,
         year_range=R_ARP,
         description=(
             "Itens das atas de registro de preços, com o fornecedor registrado, o preço "
-            "unitário e o limite de adesão. Uma linha por fornecedor classificado em cada item"
+            "unitário e o limite de adesão. Uma linha por fornecedor classificado em cada "
+            "item. Cerca de 1% dos itens repetem a chave com conteúdo divergente na fonte, "
+            "e o teste de unicidade admite essa proporção"
         ),
     ),
     "contrato": DbtTable(

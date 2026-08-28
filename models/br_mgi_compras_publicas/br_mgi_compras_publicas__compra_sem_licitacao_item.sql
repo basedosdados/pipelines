@@ -65,4 +65,49 @@ from
             "br_mgi_compras_publicas_staging.compra_sem_licitacao_item"
         )
     }} as t
-qualify row_number() over (partition by id_compra_item order by data_alteracao desc) = 1
+qualify
+    row_number() over (
+        partition by
+            ano,
+            id_compra,
+            id_compra_item,
+            numero_item_material,
+            codigo_uasg,
+            codigo_orgao,
+            numero_aviso,
+            numero_processo,
+            codigo_modalidade,
+            quantidade_total_item,
+            objeto_licitacao,
+            fundamento_legal,
+            justificativa,
+            nome_responsavel_declaracao_dispensa,
+            cargo_responsavel_declaracao_dispensa,
+            nome_responsavel_ratificacao,
+            cargo_responsavel_ratificacao,
+            modalidade,
+            numero_inciso,
+            tipo_item,
+            codigo_conjunto_materiais,
+            nome_conjunto_materiais,
+            codigo_servico,
+            nome_servico,
+            descricao_detalhada,
+            marca_material,
+            fabricante,
+            unidade_medida,
+            quantidade_material,
+            valor_estimado,
+            valor_estimado_item,
+            tipo_fornecedor_vencedor,
+            nome_fornecedor_vencedor,
+            cnpj_vencedor,
+            cpf_vencedor,
+            cpf_responsavel_declaracao_dispensa,
+            cpf_responsavel_ratificacao,
+            cpf_responsavel_publicacao,
+            data_publicacao,
+            data_alteracao
+        order by data_alteracao desc
+    )
+    = 1

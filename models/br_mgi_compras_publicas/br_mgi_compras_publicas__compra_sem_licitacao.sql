@@ -44,4 +44,33 @@ select
 from
     {{ set_datalake_project("br_mgi_compras_publicas_staging.compra_sem_licitacao") }}
     as t
-qualify row_number() over (partition by id_compra order by data_alteracao desc) = 1
+qualify
+    row_number() over (
+        partition by
+            ano,
+            id_compra,
+            codigo_uasg,
+            codigo_orgao,
+            numero_aviso,
+            numero_processo,
+            codigo_modalidade,
+            quantidade_total_item,
+            objeto_licitacao,
+            fundamento_legal,
+            justificativa,
+            nome_responsavel_declaracao_dispensa,
+            cargo_responsavel_declaracao_dispensa,
+            nome_responsavel_ratificacao,
+            cargo_responsavel_ratificacao,
+            nome_uasg,
+            codigo_orgao_superior,
+            lei,
+            valor_estimado,
+            indicador_pertence_14133,
+            data_declaracao_dispensa,
+            data_ratificacao,
+            data_publicacao,
+            data_alteracao
+        order by data_alteracao desc
+    )
+    = 1

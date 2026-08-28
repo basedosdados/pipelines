@@ -35,6 +35,24 @@ select
 from {{ set_datalake_project("br_mgi_compras_publicas_staging.catalogo_servico") }} as t
 qualify
     row_number() over (
-        partition by data_extracao, codigo_servico order by data_hora_atualizacao desc
+        partition by
+            data_extracao,
+            codigo_servico,
+            codigo_secao,
+            nome_secao,
+            codigo_divisao,
+            nome_divisao,
+            codigo_grupo,
+            nome_grupo,
+            codigo_classe,
+            nome_classe,
+            codigo_subclasse,
+            nome_subclasse,
+            nome_servico,
+            codigo_cpc,
+            indicador_exclusivo_central_compras,
+            indicador_servico_ativo,
+            data_hora_atualizacao
+        order by data_hora_atualizacao desc
     )
     = 1

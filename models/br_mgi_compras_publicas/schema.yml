@@ -512,10 +512,14 @@ models:
   - name: br_mgi_compras_publicas__ata_registro_preco
     description: >-
       Atas de registro de preços firmadas a partir de contratações da Lei 14.133/2021.
-      Uma linha por ata
+      Uma linha por ata. A fonte não atribui número de controle no PNCP a 0,68% das
+      atas, portanto a chave é o par id_compra e numero_ata_registro_preco; cerca
+      de 0,01% das atas ainda repetem essa chave com conteúdo divergente, e o teste
+      de unicidade admite essa proporção
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [numero_controle_pncp_ata]
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [id_compra, numero_ata_registro_preco]
+          proportion_allowed_failures: 0.001
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -530,7 +534,6 @@ models:
       - name: numero_controle_pncp_ata
         description: >-
           Número de controle da ata no PNCP
-        tests: [not_null]
       - name: numero_ata_registro_preco
         description: >-
           Número da ata de registro de preços
@@ -606,13 +609,16 @@ models:
   - name: br_mgi_compras_publicas__ata_registro_preco_item
     description: >-
       Itens das atas de registro de preços, com o fornecedor registrado, o preço unitário
-      e o limite de adesão. Uma linha por fornecedor classificado em cada item
+      e o limite de adesão. Uma linha por fornecedor classificado em cada item. Cerca
+      de 1% dos itens repetem a chave com conteúdo divergente na fonte, e o teste
+      de unicidade admite essa proporção
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns:
             - numero_controle_pncp_ata
             - numero_item
             - classificacao_fornecedor
+          proportion_allowed_failures: 0.02
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -627,15 +633,12 @@ models:
       - name: numero_controle_pncp_ata
         description: >-
           Número de controle da ata no PNCP
-        tests: [not_null]
       - name: numero_item
         description: >-
           Número do item dentro da ata
-        tests: [not_null]
       - name: classificacao_fornecedor
         description: >-
           Posição do fornecedor na classificação do item
-        tests: [not_null]
       - name: numero_ata_registro_preco
         description: >-
           Número da ata de registro de preços

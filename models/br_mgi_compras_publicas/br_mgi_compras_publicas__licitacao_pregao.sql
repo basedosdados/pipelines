@@ -37,4 +37,32 @@ select
     safe_cast(data_resultado as datetime) data_resultado,
     safe_cast(data_alteracao as datetime) data_alteracao
 from {{ set_datalake_project("br_mgi_compras_publicas_staging.licitacao_pregao") }} as t
-qualify row_number() over (partition by id_compra order by data_alteracao desc) = 1
+qualify
+    row_number() over (
+        partition by
+            ano,
+            id_compra,
+            numero,
+            codigo_uasg,
+            nome_uasg,
+            codigo_orgao,
+            nome_orgao,
+            numero_processo,
+            numero_portaria,
+            situacao_pregao,
+            tipo_pregao,
+            tipo_pregao_compra,
+            objeto,
+            valor_estimado_total,
+            valor_homologado_total,
+            indicador_pertence_14133,
+            data_portaria,
+            data_edital,
+            data_inicio_proposta,
+            data_fim_proposta,
+            data_encerramento,
+            data_resultado,
+            data_alteracao
+        order by data_alteracao desc
+    )
+    = 1

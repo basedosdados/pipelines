@@ -73,5 +73,56 @@ select
     safe_cast(data_resultado as datetime) data_resultado
 from {{ set_datalake_project("br_mgi_compras_publicas_staging.contratacao_item") }} as t
 qualify
-    row_number() over (partition by id_compra_item order by data_atualizacao_pncp desc)
+    row_number() over (
+        partition by
+            ano,
+            id_compra,
+            id_compra_item,
+            numero_controle_pncp,
+            id_contratacao_pncp,
+            cnpj_orgao,
+            codigo_unidade,
+            numero_item_pncp,
+            numero_item_compra,
+            numero_grupo,
+            tipo_item,
+            nome_tipo_item,
+            codigo_item_catalogo,
+            codigo_grupo,
+            codigo_classe,
+            codigo_pdm,
+            nome_pdm,
+            codigo_ncm,
+            descricao_ncm,
+            descricao_resumida,
+            descricao_detalhada,
+            unidade_medida,
+            id_item_categoria,
+            item_categoria,
+            id_criterio_julgamento,
+            criterio_julgamento,
+            id_situacao_item,
+            situacao_item,
+            id_tipo_beneficio,
+            tipo_beneficio,
+            quantidade,
+            valor_unitario_estimado,
+            valor_total,
+            quantidade_resultado,
+            valor_unitario_resultado,
+            valor_total_resultado,
+            id_fornecedor,
+            nome_fornecedor,
+            percentual_margem_preferencia_normal,
+            percentual_margem_preferencia_adicional,
+            indicador_orcamento_sigiloso,
+            indicador_incentivo_produtivo_basico,
+            indicador_margem_preferencia_normal,
+            indicador_margem_preferencia_adicional,
+            indicador_tem_resultado,
+            data_inclusao_pncp,
+            data_atualizacao_pncp,
+            data_resultado
+        order by data_atualizacao_pncp desc
+    )
     = 1

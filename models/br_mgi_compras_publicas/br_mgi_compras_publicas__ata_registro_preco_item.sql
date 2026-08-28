@@ -56,7 +56,40 @@ from
     }} as t
 qualify
     row_number() over (
-        partition by numero_controle_pncp_ata, numero_item, classificacao_fornecedor
+        partition by
+            ano,
+            numero_controle_pncp_ata,
+            numero_item,
+            classificacao_fornecedor,
+            numero_ata_registro_preco,
+            numero_controle_pncp_compra,
+            id_compra,
+            numero_compra,
+            ano_compra,
+            codigo_unidade_gerenciadora,
+            nome_unidade_gerenciadora,
+            codigo_modalidade_compra,
+            modalidade_compra,
+            codigo_item,
+            descricao_item,
+            tipo_item,
+            codigo_pdm,
+            nome_pdm,
+            id_fornecedor,
+            nome_fornecedor,
+            situacao_sicaf,
+            quantidade_homologada_item,
+            quantidade_homologada_vencedor,
+            quantidade_empenhada,
+            maximo_adesao,
+            valor_unitario,
+            valor_total,
+            percentual_maior_desconto,
+            indicador_item_excluido,
+            data_assinatura,
+            data_vigencia_inicial,
+            data_vigencia_final,
+            data_hora_exclusao
         order by data_hora_atualizacao desc
     )
     = 1

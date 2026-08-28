@@ -41,4 +41,36 @@ select
     safe_cast(indicador_sustentavel as string) indicador_sustentavel,
     safe_cast(data_alteracao as datetime) data_alteracao
 from {{ set_datalake_project("br_mgi_compras_publicas_staging.licitacao_item") }} as t
-qualify row_number() over (partition by id_compra_item order by data_alteracao desc) = 1
+qualify
+    row_number() over (
+        partition by
+            ano,
+            id_compra,
+            id_compra_item,
+            numero_licitacao,
+            numero_item_licitacao,
+            codigo_uasg,
+            nome_uasg,
+            numero_aviso,
+            codigo_modalidade,
+            modalidade,
+            codigo_item_material,
+            nome_material,
+            codigo_item_servico,
+            nome_servico,
+            descricao_item,
+            unidade,
+            quantidade,
+            valor_estimado,
+            criterio_julgamento,
+            beneficio,
+            cnpj_fornecedor,
+            nome_fornecedor,
+            cpf_vencedor,
+            nome_vencedor_pessoa_fisica,
+            indicador_decreto_7174,
+            indicador_sustentavel,
+            data_alteracao
+        order by data_alteracao desc
+    )
+    = 1

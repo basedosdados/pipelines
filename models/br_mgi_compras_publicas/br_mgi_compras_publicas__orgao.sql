@@ -34,6 +34,25 @@ select
 from {{ set_datalake_project("br_mgi_compras_publicas_staging.orgao") }} as t
 qualify
     row_number() over (
-        partition by data_extracao, codigo_orgao order by data_hora_movimento desc
+        partition by
+            data_extracao,
+            codigo_orgao,
+            cnpj_orgao,
+            nome_orgao,
+            nome_mnemonico_orgao,
+            codigo_orgao_vinculado,
+            cnpj_orgao_vinculado,
+            nome_orgao_vinculado,
+            codigo_orgao_superior,
+            cnpj_orgao_superior,
+            nome_orgao_superior,
+            codigo_tipo_administracao,
+            nome_tipo_administracao,
+            poder,
+            esfera,
+            indicador_uso_sisg,
+            indicador_orgao_ativo,
+            data_hora_movimento
+        order by data_hora_movimento desc
     )
     = 1

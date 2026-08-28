@@ -42,6 +42,13 @@ class ComprasApiError(RuntimeError):
 # There is no Retry-After header, so the delay has to be read out of the message.
 _RETRY_SECONDS = re.compile(r"in (\d+) seconds?", re.IGNORECASE)
 
+#: Longest a single 429 may park a worker. The API asks for up to 26 seconds,
+#: but the substantive response to being throttled is cutting the request rate,
+#: which `penalise()` does immediately and for every subsequent request. Serving
+#: the full cooldown on top of that idles eight workers for the same overshoot
+#: and was measured to cost roughly a 40x slowdown on /modulo-contratos/.
+THROTTLE_SLEEP_CAP = 10.0
+
 
 def retry_after_seconds(
     response: requests.Response, default: float = 30.0
@@ -71,6 +78,15 @@ class AdaptiveRateLimiter:
 
     Pacing is global across worker threads, so raising `MAX_WORKERS` changes how
     much work is in flight, not how fast requests are issued.
+
+    The constants are a compromise found by measurement, in both directions.
+    Too timid a climb (+0.05 per 20 successes against a halving decrease) needs
+    1,400 clean requests to recover from a single 429, and pinned `modulo-legado`
+    at 1.4 req/s when a fixed 3 req/s serves 96 consecutive requests with no 429
+    at all. Too bold a pair (+0.2 per 10 against a 0.8 decrease) keeps the rate
+    grazing the limit, and since each 429 costs a cooldown, `modulo-contratos`
+    collapsed from 34 completed jobs a minute to under one. What makes probing
+    upward affordable is capping that cooldown -- see `THROTTLE_SLEEP_CAP`.
     """
 
     def __init__(
@@ -78,8 +94,8 @@ class AdaptiveRateLimiter:
         rate: float = 4.0,
         min_rate: float = 0.2,
         max_rate: float = 8.0,
-        increase: float = 0.05,
-        decrease: float = 0.5,
+        increase: float = 0.15,
+        decrease: float = 0.7,
         successes_before_increase: int = 20,
     ) -> None:
         self._lock = threading.Lock()
@@ -91,10 +107,17 @@ class AdaptiveRateLimiter:
         self._successes_before_increase = successes_before_increase
         self._successes = 0
         self._next_slot = 0.0
+        self._throttled = 0
+        self._served = 0
 
     @property
     def rate(self) -> float:
         return self._rate
+
+    @property
+    def stats(self) -> tuple[int, int]:
+        """(requests served, times rate-limited) since the process started."""
+        return self._served, self._throttled
 
     def acquire(self) -> None:
         """Block until this thread may issue its request."""
@@ -112,6 +135,7 @@ class AdaptiveRateLimiter:
 
     def penalise(self) -> None:
         with self._lock:
+            self._throttled += 1
             self._successes = 0
             self._rate = max(self._min_rate, self._rate * self._decrease)
             # Push the next slot out so in-flight threads do not immediately
@@ -122,6 +146,7 @@ class AdaptiveRateLimiter:
 
     def reward(self) -> None:
         with self._lock:
+            self._served += 1
             self._successes += 1
             if self._successes >= self._successes_before_increase:
                 self._successes = 0
@@ -141,10 +166,20 @@ def limiter_for(path: str) -> AdaptiveRateLimiter:
         return _LIMITERS[module]
 
 
-def limiter_rates() -> dict[str, float]:
-    """Current converged rate per module, for logging."""
+def limiter_rates() -> dict[str, str]:
+    """Converged rate and throttle share per module, for logging.
+
+    The throttle share is the number worth watching: a module sitting at a low
+    rate with almost no 429s is being paced too conservatively, which is exactly
+    the failure the AIMD constants were retuned to avoid.
+    """
     with _LIMITERS_LOCK:
-        return {name: round(lim.rate, 2) for name, lim in _LIMITERS.items()}
+        out = {}
+        for name, lim in _LIMITERS.items():
+            served, throttled = lim.stats
+            share = 100 * throttled / max(served + throttled, 1)
+            out[name] = f"{lim.rate:.2f}/s {share:.0f}%429"
+        return out
 
 
 def build_session() -> requests.Session:
@@ -198,7 +233,12 @@ def fetch_page(
             # aborts the harvest.
             limiter.penalise()
             throttled += 1
-            time.sleep(retry_after_seconds(response, default=5.0))
+            time.sleep(
+                min(
+                    retry_after_seconds(response, default=5.0),
+                    THROTTLE_SLEEP_CAP,
+                )
+            )
             last_error = ComprasApiError(f"429 from {path}")
             continue
 

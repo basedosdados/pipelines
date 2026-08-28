@@ -118,15 +118,20 @@ def build_sql(table: str) -> str:
         + "    as t\n"
     )
     if spec.dedup_order:
-        # The API repeats records across pages: 1.19% of contratacao rows came
-        # back as byte-identical duplicates of the same numero_controle_pncp,
-        # and 6.6% of atas. Deduplicating here rather than during cleaning keeps
-        # the model idempotent, so a re-harvested or overlapping staging load
-        # cannot inflate the published table.
+        # The API repeats records across pages, and sometimes records the same
+        # logical row twice a second apart. Partition on the row's own content,
+        # excluding those volatile timestamps, rather than on the key: keying the
+        # partition is tidier but destroys data, because BigQuery groups every
+        # NULL into a single partition and several of these keys are nullable --
+        # on ata items that would have discarded 15,907 legitimate records.
+        partition_columns = [
+            c["name"] for c in columns if c["name"] not in spec.dedup_exclude
+        ]
+        joined = ",\n            ".join(partition_columns)
         sql += (
             "qualify\n"
             "    row_number() over (\n"
-            f"        partition by {', '.join(spec.key)}\n"
+            f"        partition by\n            {joined}\n"
             f"        order by {spec.dedup_order} desc\n"
             "    )\n"
             "    = 1\n"
@@ -154,8 +159,19 @@ def build_schema_entry(table: str) -> str:
     out = [f"  - name: {DATASET}__{table}"]
     out.append("    description: " + _yaml_block(spec.description, "      "))
     out.append("    tests:")
-    out.append("      - dbt_utils.unique_combination_of_columns:")
-    out.append(f"          combination_of_columns: [{', '.join(spec.key)}]")
+    if spec.unique_tolerance:
+        out.append("      - custom_unique_combinations_of_columns:")
+        out.append(
+            f"          combination_of_columns: [{', '.join(spec.key)}]"
+        )
+        out.append(
+            f"          proportion_allowed_failures: {spec.unique_tolerance}"
+        )
+    else:
+        out.append("      - dbt_utils.unique_combination_of_columns:")
+        out.append(
+            f"          combination_of_columns: [{', '.join(spec.key)}]"
+        )
     if scoped:
         out.append(
             scoped.rstrip("\n")
@@ -183,7 +199,12 @@ def build_schema_entry(table: str) -> str:
             + _yaml_block(column["description"], "          ")
         )
         tests: list[str] = []
-        if name in spec.key or name == spec.partition:
+        # A nullable key column cannot carry not_null. Where the source leaves
+        # the key blank the tolerance is non-zero, and the relaxed uniqueness
+        # test covers it instead.
+        if name == spec.partition or (
+            name in spec.key and not spec.unique_tolerance
+        ):
             tests.append("not_null")
         directory = column["directory_column"]
         # Relationships tests scan the whole model; on the multi-million-row

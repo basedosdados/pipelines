@@ -56,7 +56,43 @@ select
 from {{ set_datalake_project("br_mgi_compras_publicas_staging.contrato_item") }} as t
 qualify
     row_number() over (
-        partition by codigo_orgao, codigo_unidade_gestora, numero_contrato, numero_item
+        partition by
+            ano,
+            numero_controle_pncp_contrato,
+            numero_contrato,
+            numero_item,
+            codigo_orgao,
+            nome_orgao,
+            codigo_unidade_gestora,
+            nome_unidade_gestora,
+            codigo_unidade_gestora_origem,
+            nome_unidade_gestora_origem,
+            codigo_unidade_realizadora_compra,
+            nome_unidade_realizadora_compra,
+            id_compra,
+            numero_controle_pncp_compra,
+            numero_compra,
+            codigo_modalidade_compra,
+            modalidade_compra,
+            id_fornecedor,
+            nome_fornecedor,
+            processo,
+            esfera,
+            poder,
+            tipo_item,
+            codigo_item,
+            descricao_item,
+            quantidade_item,
+            valor_unitario_item,
+            valor_total_item,
+            valor_global,
+            indicador_contrato_excluido,
+            indicador_item_excluido,
+            data_vigencia_inicial,
+            data_vigencia_final,
+            data_hora_inclusao,
+            data_hora_exclusao_item,
+            data_hora_exclusao_contrato
         order by data_hora_inclusao desc
     )
     = 1

@@ -30,6 +30,21 @@ select
 from {{ set_datalake_project("br_mgi_compras_publicas_staging.fornecedor") }} as t
 qualify
     row_number() over (
-        partition by data_extracao, cnpj, cpf, nome_razao_social order by cnpj desc
+        partition by
+            data_extracao,
+            sigla_uf,
+            cnpj,
+            cpf,
+            nome_razao_social,
+            codigo_cnae,
+            nome_cnae,
+            id_natureza_juridica,
+            natureza_juridica,
+            id_porte_empresa,
+            porte_empresa,
+            nome_municipio,
+            indicador_habilitado_licitar,
+            indicador_fornecedor_ativo
+        order by cnpj desc
     )
     = 1

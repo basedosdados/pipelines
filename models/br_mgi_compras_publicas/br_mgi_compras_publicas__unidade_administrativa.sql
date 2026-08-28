@@ -41,6 +41,30 @@ from
     as t
 qualify
     row_number() over (
-        partition by data_extracao, codigo_uasg order by data_hora_movimento desc
+        partition by
+            data_extracao,
+            sigla_uf,
+            id_municipio,
+            codigo_uasg,
+            codigo_orgao,
+            cnpj_orgao,
+            cnpj_orgao_vinculado,
+            cnpj_orgao_superior,
+            cnpj_uasg,
+            nome_uasg,
+            codigo_municipio_siasg,
+            nome_municipio,
+            codigo_unidade_polo,
+            nome_unidade_polo,
+            codigo_unidade_espelho,
+            nome_unidade_espelho,
+            codigo_siorg,
+            indicador_uso_sisg,
+            indicador_adesao_siasg,
+            indicador_uasg_cadastradora,
+            indicador_uasg_ativa,
+            data_implantacao_sidec,
+            data_hora_movimento
+        order by data_hora_movimento desc
     )
     = 1
