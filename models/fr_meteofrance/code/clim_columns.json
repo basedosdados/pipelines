@@ -1228,7 +1228,8 @@
       "description_en": "Maximum cloud cover above 4 eighths with a base below 300 m",
       "description_es": "Nubosidad máxima superior a 4 octavos con base por debajo de 300 m",
       "covered_by_dictionary": false,
-      "is_partition": false
+      "is_partition": false,
+      "measurement_unit": "okta"
     },
     {
       "name": "qualite_nebulosite_maximale_sous_300m",

@@ -390,7 +390,7 @@ QUOT_PARAMS = {
     "NB300": (
         "nebulosite_maximale_sous_300m",
         "INT64",
-        "",
+        "okta",
         "Nebulosidade máxima superior a 4 oitavos com base abaixo de 300 m",
         "Maximum cloud cover above 4 eighths with a base below 300 m",
         "Nubosidad máxima superior a 4 octavos con base por debajo de 300 m",

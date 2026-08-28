@@ -129,7 +129,7 @@ occurrence_brume,STRING,"Ocorrência de bruma no dia, codificada como 0 ou 1",,y
 qualite_occurrence_brume,STRING,Código de qualidade de occurrence_brume,,yes,,,no,,QBRUME
 occurrence_eclair,STRING,"Ocorrência de relâmpago no dia, codificada como 0 ou 1",,yes,,,no,,ECLAIR
 qualite_occurrence_eclair,STRING,Código de qualidade de occurrence_eclair,,yes,,,no,,QECLAIR
-nebulosite_maximale_sous_300m,INT64,Nebulosidade máxima superior a 4 oitavos com base abaixo de 300 m,,no,,,no,,NB300
+nebulosite_maximale_sous_300m,INT64,Nebulosidade máxima superior a 4 oitavos com base abaixo de 300 m,,no,,okta,no,,NB300
 qualite_nebulosite_maximale_sous_300m,STRING,Código de qualidade de nebulosite_maximale_sous_300m,,yes,,,no,,QNB300
 hauteur_base_sous_300m,FLOAT64,Altura mínima da base da nebulosidade registrada em nebulosite_maximale_sous_300m,,no,,meter,no,,BA300
 qualite_hauteur_base_sous_300m,STRING,Código de qualidade de hauteur_base_sous_300m,,yes,,,no,,QBA300
