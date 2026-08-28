@@ -126,6 +126,14 @@ class constants(Enum):
         # slices of the same plan, so paging through and exploding on `itens`
         # yields each item exactly once — verified against pages 1 and 2 of
         # 2025-03-01..10, which shared zero numeroItem values.
+        # WARNING: 7 is a FLOOR, not a tuning knob. A 1-day window answers
+        # HTTP 200 with a zero-length body -- no error, no records -- while
+        # the same request over 7 days returns 44,054 items across 89 pages
+        # (measured 2026-06-01..07). Shrinking this the way ata_registro_preco
+        # was shrunk yields a silently EMPTY table, not a slower one.
+        #
+        # Note also that dates here must be YYYYMMDD: the dashed form returns
+        # the same empty body rather than a 400.
         "plano_contratacao_anual": {
             "path": "pca/atualizacao",
             "date_params": ("dataInicio", "dataFim"),

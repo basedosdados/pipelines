@@ -679,3 +679,28 @@ class TestPageSizeWithinApiLimits:
         # Guards the specific regression: a well-meaning "just use the
         # default" edit here breaks the largest table in the dataset.
         assert self._effective(constants.ENDPOINTS.value["contratacao"]) <= 50
+
+
+class TestPcaWindowFloor:
+    """A PCA window under 7 days returns an empty body, not fewer rows.
+
+    This is the opposite of every other table, where a smaller window is
+    merely slower. Shrinking it produces a table that is silently empty while
+    the harvest reports success, so the floor is asserted rather than left as
+    a comment.
+    """
+
+    def test_pca_window_is_at_least_seven_days(self):
+        spec = constants.ENDPOINTS.value["plano_contratacao_anual"]
+        assert spec["window_days"] >= 7, (
+            "PCA windows under 7 days return HTTP 200 with a zero-length "
+            "body; this would empty the table without failing"
+        )
+
+    def test_pca_dates_are_formatted_without_dashes(self):
+        # The dashed form is also accepted-and-empty rather than rejected.
+        lo, hi = next(
+            iter(utils.windows(date(2025, 6, 1), date(2025, 6, 7), 7))
+        )
+        assert f"{lo:%Y%m%d}" == "20250601"
+        assert "-" not in f"{lo:%Y%m%d}{hi:%Y%m%d}"
