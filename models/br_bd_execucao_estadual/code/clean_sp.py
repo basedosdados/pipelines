@@ -55,7 +55,13 @@ COLUMNS = {
 def _relation(paths: str) -> str:
     cols = ", ".join(f"'{k}': '{v}'" for k, v in COLUMNS.items())
     return (
-        f"read_csv('{paths}', header=true, auto_detect=false, encoding='latin-1', "
+        # cp1252, NOT latin-1. 162 of the 509 exports carry bytes in 0x80-0x9F -- the
+        # curly apostrophe in "MA PLACAS ART'S E GRAVACOES" is 0x92 -- which are
+        # undefined in strict latin-1, and duckdb rejects the file outright rather than
+        # substituting. Note duckdb spells it `cp1252`; `windows-1252` is not accepted.
+        # `utf-8` would be accepted here and is WRONG: duckdb passes the bytes through
+        # unvalidated, silently mangling every accented character in the file.
+        f"read_csv('{paths}', header=true, auto_detect=false, encoding='cp1252', "
         f"quote='\"', escape='\"', ignore_errors=false, columns={{{cols}}}, "
         "filename=true)"
     )
@@ -89,7 +95,9 @@ def clean(con: duckdb.DuckDBPyConnection) -> int:
         con.execute(
             f"COPY (SELECT * EXCLUDE (_trailing, filename), "
             f"       '{year}' AS ano, "
-            f"       regexp_extract(filename, r'despesa_\\d{{4}}_(\\w+)\\.csv$', 1) "
+            # duckdb has no r'' raw-string prefix -- that is BigQuery syntax. A plain
+            # SQL string passes the backslashes through to the regex engine unchanged.
+            f"       regexp_extract(filename, 'despesa_\\d{{4}}_(\\w+)\\.csv$', 1) "
             f"           AS orgao_arquivo "
             f"      FROM {rel}) "
             f"TO '{out}' (FORMAT PARQUET, COMPRESSION SNAPPY)"

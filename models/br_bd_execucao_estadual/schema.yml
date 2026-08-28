@@ -498,6 +498,78 @@ models:
         description: Valor recebido por descentralização em reais correntes
       - name: valor_descentralizacao_concedida
         description: Valor concedido por descentralização em reais correntes
+  - name: br_bd_execucao_estadual__despesa_anual
+    description: >
+      Execução orçamentária anual por credor e linha orçamentária, para estados cuja
+      fonte publica apenas agregados anuais. Uma linha por exercício, órgão, unidade
+      gestora, fonte de recursos, credor e natureza da despesa, com empenhado,
+      liquidado, pago e pago de restos a pagar. Existe porque São Paulo não publica
+      número de documento nem data infra-anual. Não confundir com despesa, que é em
+      nível de documento, nem com despesa_mensal, que é mensal e não traz credor.
+    # 0,04% das linhas repetem a combinação abaixo com valores diferentes: o SIGEO
+    # devolve mais de uma linha para a mesma dotação quando o detalhe que as separa não
+    # está entre as colunas exportadas. Nenhuma linha é idêntica em todas as colunas.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - sigla_uf
+            - ano
+            - orgao
+            - id_unidade_gestora
+            - fonte_recurso
+            - documento_credor
+            - natureza_despesa
+          proportion_allowed_failures: 0.01
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano do exercício orçamentário
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: orgao
+        description: Código do órgão orçamentário
+      - name: nome_orgao
+        description: Nome do órgão orçamentário
+      - name: id_unidade_gestora
+        description: Código da unidade gestora executora da despesa
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora executora da despesa
+      - name: fonte_recurso
+        description: Código da fonte de recursos
+      - name: nome_fonte_recurso
+        description: Nome da fonte de recursos
+      - name: natureza_despesa
+        description: >
+          Código da natureza da despesa, com oito dígitos reunindo categoria econômica,
+          grupo, modalidade de aplicação, elemento e subelemento. Mais detalhado que
+          a
+          coluna elemento_despesa das demais tabelas
+      - name: nome_natureza_despesa
+        description: Nome da natureza da despesa
+      - name: documento_credor
+        description: >
+          CPF ou CNPJ do credor. São Paulo publica os CPF sem máscara, diferentemente
+          de
+          Minas Gerais, que os oculta, e de Pernambuco, que os mascara
+      - name: nome_credor
+        description: Nome ou razão social do credor
+      - name: tipo_documento_credor
+        description: >
+          Tipo do identificador do credor, derivado do seu formato: CNPJ, CPF,
+          UNIDADE_GESTORA ou OUTRO
+      - name: valor_empenhado
+        description: Valor empenhado em reais correntes
+      - name: valor_liquidado
+        description: Valor liquidado em reais correntes
+      - name: valor_pago
+        description: Valor pago em reais correntes
+      - name: valor_pago_restos
+        description: >
+          Valor pago no exercício referente a restos a pagar de exercícios anteriores,
+          mantido separado de valor_pago para não duplicar a contagem no ano do empenho
   - name: br_bd_execucao_estadual__empenho_credor
     description: >
       Empenhos e seus credores, sem valores. Existe para estados cuja fonte publica

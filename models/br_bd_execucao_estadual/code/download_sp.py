@@ -194,6 +194,21 @@ class Sigeo:
         return r.content
 
 
+def _orgao_of(content: bytes) -> str | None:
+    """The órgão code the export actually contains, or None if it has no data rows.
+
+    The first field of every data row is "<code> - <name>". An export with only a header
+    (the órgão had no spending that exercise) returns None, which is not a mismatch.
+    """
+    for line in content.decode("latin-1", "replace").splitlines()[1:]:
+        if not line.strip():
+            continue
+        head = line.split(",", 1)[0].strip().strip('"')
+        code = head.split(" - ", 1)[0].strip()
+        return code or None
+    return None
+
+
 def main(
     first_year: int = SP_FIRST_YEAR,
     last_year: int = SP_LAST_YEAR,
@@ -213,12 +228,34 @@ def main(
             dest = SP_INPUT / f"despesa_{year}_{code}.csv"
             if dest.exists() and dest.stat().st_size > 0:
                 continue
-            try:
-                # SIGEO is stateful per session; a fresh one per query keeps a failure
-                # from poisoning every subsequent export with stale viewstate.
-                content = Sigeo().query(year, code)
-            except (requests.RequestException, RuntimeError) as exc:
-                print(f"  {year} {code} {label}: {exc}")
+            content = None
+            # SIGEO can answer with a DIFFERENT órgão than the one requested -- a stale
+            # postback surviving into the export. It happened twice in the 2010-2026
+            # scrape (2014/41000 returned 39000, 2015/51000 returned 09000), and it is
+            # silent: the file is well formed and full of real rows, just the wrong
+            # body's. Left unchecked it loses the requested órgão's year entirely. So the
+            # export is verified against what was asked for, and a mismatch is retried on
+            # a fresh session rather than written.
+            for attempt in range(2):
+                try:
+                    # SIGEO is stateful per session; a fresh one per query keeps a
+                    # failure from poisoning every subsequent export with stale
+                    # viewstate.
+                    candidate = Sigeo().query(year, code)
+                except (requests.RequestException, RuntimeError) as exc:
+                    print(f"  {year} {code} {label}: {exc}")
+                    break
+                got = _orgao_of(candidate)
+                if got is None or got == code:
+                    content = candidate
+                    break
+                print(
+                    f"  {year} {code} {label}: export returned órgão {got}, "
+                    f"retrying{' once' if attempt == 0 else ''}",
+                    flush=True,
+                )
+                time.sleep(pause)
+            if content is None:
                 failures.append(f"{year}/{code}")
                 continue
             dest.write_bytes(content)

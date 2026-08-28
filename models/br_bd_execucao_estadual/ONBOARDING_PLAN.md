@@ -6,8 +6,8 @@ state Courts of Accounts. This dataset covers the **state executives' own spendi
 from each state's own transparency portal over its financial system (SIAFI-MG, FIPLAN-BA,
 e-Fisco-PE, SIAFEM-SP).
 
-**Status:** MG, BA and PE built, validated and registered on staging (9 tables,
-105.9M rows). SP is still being scraped and adds `despesa_anual`.
+**Status:** complete. MG, BA, PE and SP built, validated and registered on staging
+(10 tables, 110.8M rows, dbt 38/38).
 
 ---
 
@@ -61,7 +61,7 @@ key needs an allocation rule the source does not publish, so it would be inventi
 |---|---|---|
 | `despesa` | empenho document × budget line | MG 2002+, PE 2008+ |
 | `despesa_mensal` | month × budget line, no creditor | BA, 2013+ |
-| `despesa_anual` | credor × budget line × year | SP 2010+, pending |
+| `despesa_anual` | credor × budget line × year | SP 2010+ |
 | `empenho_credor` | empenho × creditor, **no values** | BA, 2019+ |
 
 ### Divergence from MiDES worth knowing
@@ -90,7 +90,7 @@ would be a filter over `despesa` that invents a document the state never issued.
 
 ## 4. Tables
 
-Nine tables are built. `despesa_anual` is pending the SP scrape;
+All ten tables are built.
 `orgao_unidade_gestora` was dropped — no source publishes an organisational directory
 separable from its fact tables, so the órgão fields stay denormalised on each row.
 
@@ -105,9 +105,9 @@ separable from its fact tables, so the órgão fields stay denormalised on each 
 | `licitacao_participante` | bidder × item, with outcome | BA | 1,828,922 |
 | `relacionamentos` | tender ↔ empenho bridge | MG, BA | 1,292,948 |
 | `dicionario` | value → label for every coded column | MG | 11,962 |
-| `despesa_anual` *(pending)* | credor × budget line × year | SP | — |
+| `despesa_anual` | credor × budget line × year | SP | 4,786,505 |
 
-105.9M rows. Partitioned by `ano` (INT64), clustered by `sigla_uf`;
+110.8M rows. Partitioned by `ano` (INT64), clustered by `sigla_uf`;
 `dicionario` and `relacionamentos` carry no date column and are unpartitioned.
 
 **Bahia is deliberately split across two tables rather than folded into `despesa`.** The
@@ -129,7 +129,7 @@ not, so the overlap is not pure duplication.
 1. **MG** — richest source, native tender→empenho bridge; fixes the harmonized schema.
 2. **BA** — second full test, and the only source with bidder-level participation.
 3. **PE** — long history, execution only.
-4. **SP** — scraper + `despesa_anual`.
+4. **SP** — scraper + `despesa_anual`. Done.
 5. RS / CE / RJ / DF — blocked from a foreign IP, need a Brazilian VPN.
 
 ## 7. Known constraints

@@ -89,6 +89,56 @@ OBSERVATIONS[("licitacao_participante", "quantidade")] = _QUANTIDADE
 
 # Portuguese -> (English, Spanish)
 DESCRIPTIONS: dict[str, tuple[str, str]] = {
+    # --- annual execution (despesa_anual, SP only) ------------------------------
+    "Nome da fonte de recursos": (
+        "Name of the funding source",
+        "Nombre de la fuente de recursos",
+    ),
+    (
+        "Código da natureza da despesa, com oito dígitos reunindo categoria econômica, "
+        "grupo, modalidade de aplicação, elemento e subelemento. Mais detalhado que a "
+        "coluna elemento_despesa das demais tabelas"
+    ): (
+        "Expenditure nature code, eight digits combining economic category, group, "
+        "application modality, element and subelement. More detailed than the "
+        "elemento_despesa column in the other tables",
+        "Código de la naturaleza del gasto, con ocho dígitos que reúnen categoría "
+        "económica, grupo, modalidad de aplicación, elemento y subelemento. Más "
+        "detallado que la columna elemento_despesa de las demás tablas",
+    ),
+    "Nome da natureza da despesa": (
+        "Name of the expenditure nature",
+        "Nombre de la naturaleza del gasto",
+    ),
+    (
+        "CPF ou CNPJ do credor. São Paulo publica os CPF sem máscara, diferentemente de "
+        "Minas Gerais, que os oculta, e de Pernambuco, que os mascara"
+    ): (
+        "Creditor's CPF or CNPJ. São Paulo publishes CPFs unmasked, unlike Minas Gerais, "
+        "which redacts them, and Pernambuco, which masks them",
+        "CPF o CNPJ del acreedor. São Paulo publica los CPF sin máscara, a diferencia de "
+        "Minas Gerais, que los oculta, y de Pernambuco, que los enmascara",
+    ),
+    (
+        "Tipo do identificador do credor, derivado do seu formato: CNPJ, CPF, "
+        "UNIDADE_GESTORA ou OUTRO"
+    ): (
+        "Type of the creditor's identifier, derived from its format: CNPJ, CPF, "
+        "UNIDADE_GESTORA or OUTRO",
+        "Tipo del identificador del acreedor, derivado de su formato: CNPJ, CPF, "
+        "UNIDADE_GESTORA u OUTRO",
+    ),
+    (
+        "Valor pago no exercício referente a restos a pagar de exercícios anteriores, "
+        "mantido separado de valor_pago para não duplicar a contagem no ano do empenho"
+    ): (
+        "Amount paid in the year against commitments carried over from earlier years, "
+        "kept separate from valor_pago so it is not double-counted in the year the "
+        "commitment belongs to",
+        "Monto pagado en el ejercicio correspondiente a restos por pagar de ejercicios "
+        "anteriores, mantenido separado de valor_pago para no duplicar el conteo en el "
+        "año del compromiso",
+    ),
     # --- payment (pagamento, PE only) -------------------------------------------
     "Ano do exercício em que o pagamento foi lançado": (
         "Budget year in which the payment was recorded",
