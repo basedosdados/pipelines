@@ -14,12 +14,18 @@
 -- documentation of what the field means varies by TCE, so BA's single consistent
 -- vocabulary is the cleaner instrument.
 --
--- `vencedor` is derived rather than published: BA marks the situação, not a boolean.
--- The
--- rule is deliberately narrow -- a supplier counts as the winner of an item when its
--- situação is not a rejection AND it has a homologated value, since a homologated
--- amount
--- is what an award actually is. Anything else is left 0 rather than guessed.
+-- `vencedor` reads BA's own label and derives nothing. The vocabulary is exactly three
+-- values -- Vencedor (777,824), Perdedor (676,580), Desclassificado (371,154) -- so the
+-- flag is just `situacao = 'Vencedor'`.
+--
+-- An earlier version inferred it instead, as "not rejected AND has a homologated
+-- value".
+-- That was wrong: **84% of Perdedor rows also carry a positive val_total_homologado**
+-- (569,079 of 676,580), because the column records the item's homologated amount rather
+-- than what that particular bidder was awarded. The inferred flag marked 73% of all
+-- rows
+-- as winners and 1.67 winners per item, where the published label gives 0.96 -- roughly
+-- one per item, as it must be. Do not re-derive this.
 select
     safe_cast(right(t.processo_de_aquisicao, 4) as int64) as ano,
     'BA' as sigla_uf,
@@ -35,14 +41,7 @@ select
         regexp_replace(t.cpf_cnpj_formatado, r'[^0-9]', '') as string
     ) as documento,
     safe_cast(t.desc_situacao_fornec as string) as situacao,
-    case
-        when
-            lower(t.desc_situacao_fornec) not like '%desclassificad%'
-            and lower(t.desc_situacao_fornec) not like '%inabilitad%'
-            and safe_cast(replace(t.val_total_homologado, ',', '.') as float64) > 0
-        then 1
-        else 0
-    end as vencedor,
+    case when t.desc_situacao_fornec = 'Vencedor' then 1 else 0 end as vencedor,
     safe_cast(replace(t.qtd_pedida, ',', '.') as float64) as quantidade,
     safe_cast(replace(t.val_item_cotado, ',', '.') as float64) as valor_unitario_cotado,
     safe_cast(replace(t.val_total_cotado, ',', '.') as float64) as valor_total_cotado,
@@ -59,3 +58,7 @@ from
             "br_bd_execucao_estadual_staging.ba_licitacao_participante"
         )
     }} as t
+-- The export repeats its own header once inside the data; drop that row rather than
+-- let it
+-- surface as a supplier named after a column.
+where t.desc_situacao_fornec != 'DESC_SITUACAO_FORNEC'
