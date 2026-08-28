@@ -344,3 +344,18 @@ chunks once consolidated and holds the peak near 11 GB.
 Daily, per section 5. Legado needs no daily refresh — an annual re-pull is enough
 (records do carry a live `dt_alteracao`; 2015 rows were last touched 2025-04-24).
 The 14.133 poll guard will no-op until the source clears its 2026-07-23 stall.
+
+## 10. Auxiliary files: none
+
+The source publishes data and a machine-readable OpenAPI spec, and nothing else.
+`dadosabertos.compras.gov.br` redirects straight to the Swagger UI, and the
+gov.br dados-abertos page for Compras is a 404. There is no codebook,
+questionnaire or technical manual to bundle.
+
+The spec is genuine documentation, but it is dataset-level rather than
+table-level, and it is already reachable from the raw data source URL registered
+in the backend. Copying it into nineteen identical per-table bundles would add
+noise, not access. Step 6b is therefore skipped deliberately, not overlooked.
+
+The coded columns are documented instead through the `dicionario` table, built
+from the code/name pairs the API's own payloads carry.
