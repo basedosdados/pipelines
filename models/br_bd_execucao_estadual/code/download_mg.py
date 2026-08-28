@@ -78,9 +78,25 @@ def main(retries: int = 3) -> None:
     # dados.mg.gov.br returns 403 to a bare requests/curl User-Agent.
     session.headers.update({"User-Agent": BROWSER_UA})
 
+    # Six dimension tables (dm_acao, dm_programa, dm_unidade_orc, dm_item_desp,
+    # dm_elemento_desp, dm_tempo_diario) are published by BOTH `despesa` and
+    # `compras_contratos` under the same file name, with different contents: the despesa
+    # copy is a superset, because compras only lists the classifications that appear in a
+    # purchase (dm_acao 409,170 B vs 397,037 B). They share one surrogate-id space, so the
+    # superset serves both models.
+    #
+    # First package wins, and `MG_PACKAGES` is ordered `despesa` first for exactly that
+    # reason. Made explicit here rather than left to dict iteration order, which would
+    # otherwise be silently load-bearing.
     wanted: dict[str, str] = {}
     for package in MG_PACKAGES:
-        wanted.update(resource_urls(session, package))
+        for name, url in resource_urls(session, package).items():
+            if name in wanted:
+                print(
+                    f"  [skip] {name}: already taken from an earlier package"
+                )
+                continue
+            wanted[name] = url
     print(f"{len(wanted)} resources across {len(MG_PACKAGES)} packages")
 
     pending = dict(wanted)

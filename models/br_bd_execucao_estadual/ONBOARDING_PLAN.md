@@ -98,3 +98,35 @@ not, so the overlap is not pure duplication.
 - MG anonymises 6,653 of 1.46M creditors (0.5%, all CPF) as
   `INFORMACAO COM RESTRICAO DE ACESSO`; CNPJs are always named.
 - RS, CE, RJ and DF portals time out or 403 from outside Brazil.
+
+## 8. MG validation, as built (2026-08-28, dev)
+
+`dbt run --select br_bd_execucao_estadual` → PASS=4, ERROR=0. `despesa` builds 80,258,756
+rows in 50s. `code/validate_mg.py` reconciles it against the raw staging fact table:
+
+| check | result |
+|---|---|
+| row count | 80,258,756 = 80,258,756 exact |
+| distinct empenhos | 14,778,423 = 14,778,423 exact |
+| sum empenhado / liquidado / pago | agree to a relative 1.2e-14 |
+| dimension key uniqueness | all 15 joined keys unique |
+| coverage: credor, documento, funcao, subfuncao, programa, acao, elemento, fonte, orgao | 100% |
+| coverage: data, numero_empenho, unidade_gestora | 99.23% |
+| coverage: id_licitacao_bd | 11.72% |
+
+Two numbers deserve their explanation rather than a footnote:
+
+**99.23%, not 100%, on the empenho-derived columns.** 616,833 fact rows (0.7686%) carry an
+`id_empenho` that is absent from MG's own `dm_empenho` dimension. The gap is spread evenly
+across all 25 exercises, which rules out a missing or truncated file — it is a referential
+gap in the published source. Those rows are kept, with `data`, `numero_empenho`,
+`tipo_empenho`, `descricao` and `id_unidade_gestora` null; their values are intact, which is
+why the money totals still reconcile.
+
+**11.72% on the tender link is expected, not a defect.** Only spending that went through a
+purchase process has a tender at all — payroll, debt service and transfers never do. The
+figure is reported and not gated for that reason.
+
+The money totals are compared on relative difference rather than exactly. Summing 80M
+float64 values in a different order changes the last cent, and BigQuery promises no order;
+the observed gap is R$0.01 on R$1.8 trillion.

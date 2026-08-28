@@ -94,3 +94,147 @@ models:
         description: Valor liquidado em reais correntes
       - name: valor_pago
         description: Valor pago em reais correntes
+  - name: br_bd_execucao_estadual__licitacao
+    description: >
+      Processos licitatórios e demais procedimentos de contratação realizados pelos
+      governos estaduais brasileiros. Uma linha por processo, com objeto, modalidade,
+      critério de julgamento, situação e os valores de referência e homologado. Liga-se
+      à
+      execução orçamentária pela tabela relacionamentos, quando a fonte publica o
+      vínculo.
+    columns:
+      - name: ano
+        description: Ano de abertura do processo de contratação
+        tests: [not_null]
+      - name: mes
+        description: Mês de abertura do processo de contratação
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: orgao
+        description: Código do órgão ou entidade responsável pela contratação
+      - name: nome_orgao
+        description: Nome do órgão ou entidade responsável pela contratação
+      - name: id_licitacao_bd
+        description: >
+          Identificador único do processo licitatório construído pela Data Basis,
+          no
+          formato <sigla_uf>-<identificador de origem>
+      - name: id_licitacao
+        description: Número do processo licitatório no sistema de origem
+      - name: data_abertura
+        description: Data de cadastro ou abertura do processo
+      - name: descricao_objeto
+        description: Descrição do objeto da contratação
+      - name: modalidade
+        description: >
+          Procedimento de contratação, como pregão, concorrência, dispensa ou
+          inexigibilidade, no vocabulário da fonte
+      - name: tipo
+        description: Tipo da licitação, como menor preço ou melhor técnica
+      - name: criterio_julgamento
+        description: Critério de julgamento das propostas, por item ou por lote
+      - name: situacao
+        description: Situação do processo de contratação
+      - name: valor_referencia
+        description: Valor de referência estimado pelo órgão em reais correntes
+      - name: valor_homologado
+        description: Valor homologado ao final do processo em reais correntes
+      - name: url_edital
+        description: Endereço eletrônico do edital do processo
+  - name: br_bd_execucao_estadual__licitacao_item
+    description: >
+      Itens licitados pelos governos estaduais. Uma linha por item de processo, com
+      quantidade, unidade de medida, preço unitário de referência e preço unitário
+      homologado, além do fornecedor vencedor.
+    columns:
+      - name: ano
+        description: Ano de referência do item licitado
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: id_licitacao_bd
+        description: Identificador único do processo licitatório construído pela Data
+          Basis
+      - name: id_licitacao
+        description: Número do processo licitatório no sistema de origem
+      - name: id_item_bd
+        description: >
+          Identificador único do item construído pela Data Basis, no formato
+          <sigla_uf>-<processo>-<item>
+      - name: id_item
+        description: Número sequencial do item dentro do processo
+      - name: descricao
+        description: Descrição do material ou serviço licitado
+      - name: codigo_catalogo
+        description: Código do item no catálogo de materiais e serviços do estado
+      - name: grupo_material_servico
+        description: Grupo do material ou serviço no catálogo do estado
+      - name: classe_material_servico
+        description: Classe do material ou serviço no catálogo do estado
+      - name: unidade_medida
+        description: Unidade de medida em que o item foi cotado
+      - name: data_homologacao
+        description: Data de homologação do item
+      - name: quantidade
+        description: Quantidade solicitada do item
+      - name: valor_unitario_referencia
+        description: Preço unitário de referência estimado pelo órgão em reais correntes
+      - name: valor_referencia
+        description: Valor total de referência do item em reais correntes
+      - name: valor_unitario
+        description: Preço unitário homologado em reais correntes
+      - name: valor_total
+        description: Valor total homologado do item em reais correntes
+      - name: valor_atualizado
+        description: Valor total do item atualizado em reais correntes
+      - name: documento_vencedor
+        description: CPF ou CNPJ do fornecedor vencedor
+      - name: nome_vencedor
+        description: Nome ou razão social do fornecedor vencedor
+      - name: tipo_documento_vencedor
+        description: Tipo do documento de identificação do fornecedor vencedor
+  - name: br_bd_execucao_estadual__relacionamentos
+    description: >
+      Ponte entre processos licitatórios e empenhos. Existe apenas onde a fonte publica
+      o
+      vínculo de forma explícita. A relação é de muitos para muitos: um processo pode
+      gerar
+      vários empenhos.
+    columns:
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: id_licitacao_bd
+        description: Identificador único do processo licitatório construído pela Data
+          Basis
+      - name: id_licitacao_origem
+        description: Identificador do processo licitatório no sistema de origem
+      - name: id_empenho
+        description: Identificador do empenho no sistema de origem
+      - name: dotacao_orcamentaria
+        description: Dotação orçamentária que vincula o processo ao empenho
+  - name: br_bd_execucao_estadual__dicionario
+    description: >
+      Dicionário de valores codificados das demais tabelas. O par formado por estado
+      e
+      código é a chave: os códigos não são comparáveis entre estados, exceto função
+      e
+      subfunção, que seguem a classificação funcional federal.
+    columns:
+      - name: id_tabela
+        description: Nome da tabela à qual a coluna codificada pertence
+      - name: sigla_uf
+        description: Sigla da unidade da federação a que o código se refere
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna codificada
+      - name: chave
+        description: Valor da chave codificada presente na coluna
+      - name: valor
+        description: Descrição do valor da chave codificada
+      - name: cobertura_temporal
+        description: >-
+          Intervalo de exercícios em que aquele rótulo esteve vigente, na notação
+          inicio(intervalo)fim

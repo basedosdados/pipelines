@@ -58,10 +58,29 @@ MG_STATIC_TABLES = {
     "dm_tipo_documento": "mg_dm_tipo_documento",
     "dm_situacao_op_desp": "mg_dm_situacao_op",
     "fl_despesa_pgto": "mg_fl_despesa_pgto",
-    # procurement (compras_contratos)
+    # procurement (compras_contratos). `ft_compras` is the item-level fact: 2.1M rows,
+    # one per (process, item), with quantity, unit reference and homologated prices, and
+    # the winning supplier -- so it feeds both `licitacao_item` and the winner side of
+    # `licitacao_participante`, neither of which the despesa model can produce.
+    "ft_compras": "mg_ft_compras",
+    "ft_compras_contrato": "mg_ft_compras_contrato",
     "dm_processo": "mg_dm_processo",
+    "dm_contratado": "mg_dm_contratado",
+    "dm_contrato": "mg_dm_contrato",
     "dm_item_matserv": "mg_dm_item_matserv",
+    "dm_material_servico": "mg_dm_material_servico",
+    "dm_grupo_matserv": "mg_dm_grupo_matserv",
+    "dm_classe_matserv": "mg_dm_classe_matserv",
+    "dm_unidade_medida": "mg_dm_unidade_medida",
     "dm_linha_fornec": "mg_dm_linha_fornec",
+    "dm_tipo_licitacao": "mg_dm_tipo_licitacao",
+    "dm_procedimento": "mg_dm_procedimento",
+    "dm_situacao_proc": "mg_dm_situacao_proc",
+    "dm_situacao_cont": "mg_dm_situacao_cont",
+    "dm_orgao_demanda": "mg_dm_orgao_demanda",
+    "dm_orgao_contrato": "mg_dm_orgao_contrato",
+    "dm_municipio": "mg_dm_municipio",
+    "dm_tempo_diario": "mg_dm_tempo",
     "fl_compras_empenho": "mg_fl_compras_empenho",
     "dm_empenho_desp_compras_empenho": "mg_dm_empenho_compras",
 }

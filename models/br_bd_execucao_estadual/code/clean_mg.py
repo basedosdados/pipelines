@@ -85,7 +85,14 @@ def clean_static(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
 
 
 def clean_yearly(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
-    srcs = sorted(MG_INPUT.glob(f"{stem}_*.csv.gz"))
+    # The year suffix must be matched digit-by-digit, not with a bare `*`. MG ships
+    # `dm_empenho_desp_compras_empenho.csv.gz` -- the procurement subset of the same
+    # dimension, with an IDENTICAL schema -- alongside `dm_empenho_desp_<ano>.csv.gz`.
+    # A `{stem}_*` glob swallows it, `union_by_name` accepts it without complaint, and
+    # `mg_dm_empenho` ends up with 1,098,339 duplicate id_empenho values that then fan the
+    # fact table out through the join and inflate every total. Nothing raises; the only
+    # symptom is "26 files" where 25 exercises were expected.
+    srcs = sorted(MG_INPUT.glob(f"{stem}_[0-9][0-9][0-9][0-9].csv.gz"))
     if not srcs:
         print(f"  SKIP {stem}: not downloaded")
         return 0
