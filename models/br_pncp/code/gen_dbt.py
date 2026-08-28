@@ -19,12 +19,15 @@ from pipelines.datasets.br_pncp.utils import DEDUP_KEYS, read_architecture
 DATASET = "br_pncp"
 MODELS_DIR = Path(__file__).resolve().parents[1]
 
+# plano_contratacao_anual is deliberately absent: it is deferred to a
+# follow-up backfill (see constants.DEFERRED_TABLES), and shipping a dbt model
+# whose staging table does not exist would abort table-approve for the whole
+# PR. Re-add it here and re-run this script when its data lands.
 TABLES = [
     "contratacao",
     "contrato",
     "ata_registro_preco",
     "instrumento_cobranca",
-    "plano_contratacao_anual",
     "dicionario",
 ]
 

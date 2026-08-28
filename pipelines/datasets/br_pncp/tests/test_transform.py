@@ -704,3 +704,53 @@ class TestPcaWindowFloor:
         )
         assert f"{lo:%Y%m%d}" == "20250601"
         assert "-" not in f"{lo:%Y%m%d}{hi:%Y%m%d}"
+
+
+class TestDeferredTableScope:
+    """plano_contratacao_anual is deferred, and the two halves must agree.
+
+    The dangerous direction is a dbt model existing for a table that is not
+    harvested: table-approve materialises every model in a PR, so one model
+    with no staging table aborts the entire prod materialisation -- not just
+    its own. The reverse (harvested but no model) merely wastes time.
+    """
+
+    def _repo_root(self):
+        import pipelines.datasets.br_pncp.constants as c
+        from pathlib import Path
+
+        return Path(c.__file__).resolve().parents[3]
+
+    def test_no_table_is_silently_dropped(self):
+        covered = set(constants.FACT_TABLES.value) | set(
+            constants.DEFERRED_TABLES.value
+        )
+        assert set(constants.ENDPOINTS.value) == covered
+
+    def test_deferred_tables_are_not_in_the_run_scope(self):
+        for table in constants.DEFERRED_TABLES.value:
+            assert table not in constants.FACT_TABLES.value
+            assert table not in constants.ALL_TABLES.value
+
+    def test_all_tables_is_the_fact_tables_plus_dicionario(self):
+        assert constants.ALL_TABLES.value == [
+            *constants.FACT_TABLES.value,
+            "dicionario",
+        ]
+
+    def test_a_deferred_table_has_no_dbt_model(self):
+        models = self._repo_root() / "models" / "br_pncp"
+        for table in constants.DEFERRED_TABLES.value:
+            sql = models / f"br_pncp__{table}.sql"
+            assert not sql.exists(), (
+                f"{sql.name} exists for a deferred table; table-approve would "
+                "try to materialise it with no staging data and abort the "
+                "whole PR"
+            )
+            schema = (models / "schema.yml").read_text(encoding="utf-8")
+            assert f"br_pncp__{table}" not in schema
+
+    def test_every_scoped_table_does_have_a_model(self):
+        models = self._repo_root() / "models" / "br_pncp"
+        for table in constants.ALL_TABLES.value:
+            assert (models / f"br_pncp__{table}.sql").exists()

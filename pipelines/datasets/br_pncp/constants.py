@@ -151,11 +151,23 @@ class constants(Enum):
         "contrato": "contratos",
     }
 
+    # DEFERRED, not dropped. plano_contratacao_anual is ~76h of API time on
+    # its own -- roughly twice the other four tables combined -- because
+    # /v1/pca/atualizacao serves ~40s pages and the cheaper year-keyed
+    # /v1/pca/ endpoint times out on every classification code tried. It is
+    # backfilled as a separate follow-up run and added to the dataset then.
+    #
+    # Everything for it stays in place: its ENDPOINTS entry, architecture CSV,
+    # flatten/EXPLODE handling and dicionario mapping. Only the harvest,
+    # upload and dbt scope exclude it, so the onboarding PR carries no dbt
+    # model whose staging table does not exist -- table-approve materialises
+    # every model in a PR and would abort the whole run on that one.
+    DEFERRED_TABLES = ["plano_contratacao_anual"]
+
     # Fact tables, smallest first — the order the upload and dbt steps use, so a
     # configuration problem surfaces on a cheap table.
     FACT_TABLES = [
         "instrumento_cobranca",
-        "plano_contratacao_anual",
         "ata_registro_preco",
         "contratacao",
         "contrato",
@@ -164,7 +176,6 @@ class constants(Enum):
     # dicionario is derived from the fact tables, so it is rebuilt last.
     ALL_TABLES = [
         "instrumento_cobranca",
-        "plano_contratacao_anual",
         "ata_registro_preco",
         "contratacao",
         "contrato",
