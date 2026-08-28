@@ -22,7 +22,7 @@ harmonization problem is the same; the inputs are not.
 | UF | Source | System | Coverage | Update | Access |
 |----|--------|--------|----------|--------|--------|
 | MG | `dados.mg.gov.br` CKAN (`despesa`, `compras_contratos`, `portal_*`) | SIAFI/MG, SIAD | execução **2002–2026**, compras **2010+** | daily D+1 (dimensional), weekly (portal) | bulk CSV.gz, CC-BY-4.0 |
-| BA | `dados.ba.gov.br` CKAN (`despesas`, `licitacoes`, `contratos`, `notas-fiscais`) | FIPLAN, SIMPAS/SAEB | despesa **2013+**, licitação **2009+** | daily D-1 | bulk ZIP |
+| BA | `dados.ba.gov.br` CKAN (`despesas`, `licitacoes`, `contratos`, `notas-fiscais`) | FIPLAN, SIMPAS/SAEB | despesa **2013+**, licitação **2004+** | daily D-1 | bulk ZIP |
 | PE | `dados.pe.gov.br` CKAN (`todas-despesas-detalhadas`, `all-pagamentos`) | e-Fisco | **2008–2026** | annual snapshots + current year | bulk CSV, cc-by |
 | SP | SIGEO Lei 131 (`fazenda.sp.gov.br/SigeoLei131`) | SIAFEM/SP | **2010–2026** | daily | WebForms scrape → CSV export |
 
