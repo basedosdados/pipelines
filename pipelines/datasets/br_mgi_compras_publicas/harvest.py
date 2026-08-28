@@ -341,18 +341,20 @@ def harvest_table(
 # Orgao discovery for the contrato tables
 # --------------------------------------------------------------------------
 
-#: Densest year for contract starts, used as the single probe year.
-CONTRATO_PROBE_YEAR = 2025
+#: The densest recent 365 days of contract starts, straddling two calendar
+#: years so the single probe is not pinned to one. It stops before the feed
+#: stalled on 2026-07-23, so the window is complete.
+CONTRATO_PROBE_WINDOW = ("2024-07-01", "2025-06-30")
 
 
 def orgaos_from_chunks(output_dir: Path) -> set[str]:
     """Orgao codes already visible in harvested chunks.
 
-    Every contract originates in some procurement, and the harvest covers all
-    procurement from 1997, so this is close to the full set of orgaos that can
-    hold a contract. It is not provably complete -- a carona contract is signed
-    by an orgao other than the one that ran the ata -- which is why the probe
-    below exists as a second source.
+    Used to widen the probe's candidate list, not to shortcut it: 3,094 orgao
+    codes appear in harvested contratacoes without existing in the orgao
+    registry at all, and most orgaos hold no contract, so these still have to be
+    probed. Expanding an unprobed orgao across every year would cost 17 requests
+    to learn nothing.
     """
     import pyarrow.parquet as pq
 
@@ -381,19 +383,26 @@ def probe_contrato_orgaos(
     session: requests.Session,
     candidates: list[str],
     *,
-    year: int = CONTRATO_PROBE_YEAR,
+    window: tuple[str, str] = CONTRATO_PROBE_WINDOW,
     max_workers: int = 8,
 ) -> set[str]:
-    """Return the candidates that hold at least one contract in `year`.
+    """Return the candidates holding at least one contract in `window`.
 
-    Only about 6% of the 11,872 registered orgaos hold any contract, so probing
-    once and expanding only the hits turns a 190k-request loop into roughly
-    12k-24k. The probe is one request per orgao and the results are cached by
-    the caller, since contrato and contrato_item share the same set.
+    Only 3-6% of orgaos hold any contract, so probing once and expanding only
+    the hits turns a 250k-request loop into roughly 30k. One request per orgao;
+    the caller caches the result because contrato and contrato_item share it.
+
+    A single recent window could in principle miss an orgao whose contracts are
+    all historical. Measured against that: of 390 orgaos sampled across two
+    draws, 12 hold contracts, and every one of them also holds recent ones --
+    including all 7 found by probing 2015 alone. No history-only orgao was
+    observed, so the residual risk is small but not zero, and it is why the
+    window straddles two calendar years rather than pinning to one.
     """
     spec = TABLE_SPECS["contrato"]
     assert spec.date_params
     lo_param, hi_param = spec.date_params
+    lo, hi = window
 
     def probe(orgao: str) -> tuple[str, int]:
         envelope = fetch_page(
@@ -401,8 +410,8 @@ def probe_contrato_orgaos(
             spec.path,
             {
                 "codigoOrgao": orgao,
-                lo_param: f"{year}-01-01",
-                hi_param: f"{year}-12-31",
+                lo_param: lo,
+                hi_param: hi,
                 "pagina": 1,
                 "tamanhoPagina": 10,
             },

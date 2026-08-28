@@ -43,6 +43,7 @@ from pipelines.datasets.br_mgi_compras_publicas.api import (  # noqa: E402
     limiter_rates,
 )
 from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
+    CONTRATO_PROBE_WINDOW,
     harvest_table,
     list_registered_orgaos,
     orgaos_from_chunks,
@@ -90,10 +91,16 @@ def data_dir() -> Path:
 def resolve_orgaos(output_dir: Path, *, probe: bool) -> list[str]:
     """Orgao codes to iterate for the contrato tables, cached on disk.
 
-    Two sources, unioned. Orgaos already visible in harvested procurement, which
-    costs nothing; and optionally a one-request-per-orgao probe of the registry,
-    which costs about 11,900 requests once but catches carona contracts signed
-    by an orgao that ran no procurement of its own.
+    The candidate list is the orgao registry widened by every orgao code seen in
+    harvested procurement -- 3,094 of those do not exist in the registry at all.
+    Every candidate is then probed once, and only the ones holding a contract are
+    expanded across the years.
+
+    Probing the data-derived orgaos matters as much as probing the registry.
+    Appearing in a contratacao says nothing about holding a contract, and most
+    orgaos hold none: expanding an unprobed orgao costs 17 requests to learn
+    nothing, which on 4,800 of them is roughly 38 hours at this module's 0.6
+    req/s.
     """
     cache = output_dir / "_meta" / "contrato_orgaos.json"
     if cache.exists():
@@ -102,38 +109,50 @@ def resolve_orgaos(output_dir: Path, *, probe: bool) -> list[str]:
         return codes
 
     from_data = {str(code) for code in orgaos_from_chunks(output_dir)}
-    logger.info("orgao list: %d seen in harvested procurement", len(from_data))
+    session = build_session()
+    registered = set(list_registered_orgaos(session))
+    candidates = sorted(registered | from_data)
+    logger.info(
+        "orgao candidates: %d registered + %d seen in harvested procurement "
+        "(%d of those unregistered) = %d to probe",
+        len(registered),
+        len(from_data),
+        len(from_data - registered),
+        len(candidates),
+    )
 
-    hits: set[str] = set()
-    if probe:
-        session = build_session()
-        registered = list_registered_orgaos(session)
-        candidates = [code for code in registered if code not in from_data]
-        logger.info(
-            "probing %d registered orgaos not already seen (of %d registered)",
-            len(candidates),
-            len(registered),
-        )
-        hits = probe_contrato_orgaos(session, candidates)
-        logger.info(
-            "probe found %d additional orgaos holding contracts", len(hits)
+    if not probe:
+        raise SystemExit(
+            "contrato needs --probe-orgaos: expanding every candidate across all "
+            f"years is {len(candidates) * 17:,} requests at ~0.6 req/s"
         )
 
-    codes = sorted(from_data | hits)
+    hits = probe_contrato_orgaos(session, candidates)
+    logger.info(
+        "probe: %d of %d orgaos hold a contract (%.1f%%)",
+        len(hits),
+        len(candidates),
+        100 * len(hits) / max(len(candidates), 1),
+    )
+
+    codes = sorted(hits)
     cache.parent.mkdir(parents=True, exist_ok=True)
     cache.write_text(
         json.dumps(
             {
                 "orgaos": codes,
+                "candidates": len(candidates),
+                "registered": len(registered),
                 "from_harvested_data": len(from_data),
-                "from_probe": len(hits),
-                "probed": probe,
+                "probe_window": list(CONTRATO_PROBE_WINDOW),
                 "built_at": dt.datetime.now().isoformat(timespec="seconds"),
             },
             indent=1,
         )
     )
-    logger.info("orgao list: %d total, cached at %s", len(codes), cache)
+    logger.info(
+        "orgao list: %d with contracts, cached at %s", len(codes), cache
+    )
     return codes
 
 
