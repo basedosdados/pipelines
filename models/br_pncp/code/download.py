@@ -9,8 +9,15 @@ uses: it wants each record filed under the year it was published, and the
 publication endpoints page more predictably over a fixed history. Every other
 table has no publication-date endpoint and uses the same path either way.
 
+PASS AN EXPLICIT ``--end`` FOR A MULTI-DAY BACKFILL. ``--end`` defaults to
+today, and a chunk's filename is its window, so when the date rolls over the
+final partial window is renamed and re-fetched: wasted work, an orphaned
+chunk, and a spurious failure report. Pinning the cutoff keeps the window set
+stable across restarts. Anything after the cutoff is picked up by the
+recurring pipeline's lookback, which is what the handover is for.
+
 Usage:
-    uv run python models/br_pncp/code/download.py [--tables ...] [--start ...]
+    uv run python models/br_pncp/code/download.py --end 2026-08-28 [--tables ...]
 """
 
 from __future__ import annotations

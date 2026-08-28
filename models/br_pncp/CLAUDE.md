@@ -534,6 +534,18 @@ list is kept at `~/Downloads/br_pncp_data/deleted_empty_chunks.json`.
 legitimate only where the source genuinely has no data for the period;
 anywhere else they are the signature of this class of bug.
 
+## Backfill cutoff is pinned to 2026-08-28
+
+Always pass `--end` explicitly. It defaults to today, and a chunk's filename
+IS its window, so when the date rolls over mid-backfill the final partial
+window is renamed and re-fetched -- wasted work, an orphaned chunk, and a
+spurious failure report. Observed on `instrumento_cobranca`, whose tail
+window went from `20260803_20260828` to `20260803_20260829` overnight and
+then failed.
+
+Everything after the cutoff is the recurring pipeline's job: its lookback
+window covers the handover.
+
 ## Temporal coverage differs per table — do not register 2021 for all of them
 
 Each table starts when PNCP began carrying that kind of record, not when the
