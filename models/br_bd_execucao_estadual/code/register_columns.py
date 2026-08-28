@@ -73,6 +73,7 @@ SENSITIVE = {
     "documento",
     "documento_formatado",
     "documento_vencedor",
+    "documento_credor_empenho",
 }
 
 

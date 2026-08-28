@@ -89,6 +89,108 @@ OBSERVATIONS[("licitacao_participante", "quantidade")] = _QUANTIDADE
 
 # Portuguese -> (English, Spanish)
 DESCRIPTIONS: dict[str, tuple[str, str]] = {
+    # --- payment (pagamento, PE only) -------------------------------------------
+    "Ano do exercício em que o pagamento foi lançado": (
+        "Budget year in which the payment was recorded",
+        "Año del ejercicio en que se registró el pago",
+    ),
+    "Mês do lançamento do pagamento": (
+        "Month the payment was recorded",
+        "Mes del registro del pago",
+    ),
+    "Data do lançamento do pagamento": (
+        "Date the payment was recorded",
+        "Fecha del registro del pago",
+    ),
+    (
+        "Identificador único do pagamento construído pela Data Basis, no formato "
+        "<sigla_uf>-<ordem bancária>-<sequência dentro da ordem>, porque uma ordem "
+        "bancária paga vários empenhos e não identifica a linha sozinha. Vinte linhas "
+        "de 2025 não têm ordem bancária, apenas empenho e valor, e recebem o marcador "
+        "SEMOB no lugar do número"
+    ): (
+        "Unique payment identifier built by Data Basis, in the format "
+        "<sigla_uf>-<bank order>-<sequence within the order>, because one bank order "
+        "pays several commitments and does not identify the line on its own. Twenty "
+        "rows in 2025 have no bank order, only a commitment and a value, and carry the "
+        "marker SEMOB in place of the number",
+        "Identificador único del pago construido por Data Basis, en el formato "
+        "<sigla_uf>-<orden bancaria>-<secuencia dentro de la orden>, porque una orden "
+        "bancaria paga varios compromisos y no identifica la línea por sí sola. Veinte "
+        "filas de 2025 no tienen orden bancaria, solo compromiso y valor, y llevan el "
+        "marcador SEMOB en lugar del número",
+    ),
+    "Número da ordem bancária que efetuou o pagamento": (
+        "Number of the bank order that made the payment",
+        "Número de la orden bancaria que efectuó el pago",
+    ),
+    (
+        "Identificador do empenho pago, no mesmo formato de despesa.id_empenho_bd, "
+        "para ligar o pagamento à execução orçamentária"
+    ): (
+        "Identifier of the commitment paid, in the same format as "
+        "despesa.id_empenho_bd, to link the payment to budget execution",
+        "Identificador del compromiso pagado, en el mismo formato de "
+        "despesa.id_empenho_bd, para vincular el pago a la ejecución presupuestaria",
+    ),
+    "Número da nota de empenho paga": (
+        "Number of the commitment note paid",
+        "Número de la nota de compromiso pagada",
+    ),
+    (
+        "Situação da ordem bancária. Nem toda linha é dinheiro que saiu do tesouro: "
+        "além de PAGA, ocorrem DEVOLVIDA, CANCELADA, DEVOLVIDA APOS PAGTO, AJUSTADA, "
+        "ENVIADA e GERADA"
+    ): (
+        "Status of the bank order. Not every row is money that left the treasury: "
+        "besides PAGA (paid), the values DEVOLVIDA (returned), CANCELADA (cancelled), "
+        "DEVOLVIDA APOS PAGTO (returned after payment), AJUSTADA (adjusted), ENVIADA "
+        "(sent) and GERADA (generated) also occur",
+        "Situación de la orden bancaria. No toda fila es dinero que salió del tesoro: "
+        "además de PAGA, ocurren DEVOLVIDA, CANCELADA, DEVOLVIDA APOS PAGTO, AJUSTADA, "
+        "ENVIADA y GERADA",
+    ),
+    "Nome da unidade gestora que emitiu a ordem bancária": (
+        "Name of the managing unit that issued the bank order",
+        "Nombre de la unidad gestora que emitió la orden bancaria",
+    ),
+    (
+        "CPF ou CNPJ de quem recebeu a ordem bancária, apenas a parte anterior ao "
+        "nome. Nem sempre é um documento: o estado emite pseudocódigos para "
+        "beneficiários sem CNPJ"
+    ): (
+        "CPF or CNPJ of whoever received the bank order, taken as the part before the "
+        "name. It is not always a document: the state issues pseudo-codes for payees "
+        "without a CNPJ",
+        "CPF o CNPJ de quien recibió la orden bancaria, solo la parte anterior al "
+        "nombre. No siempre es un documento: el estado emite seudocódigos para "
+        "beneficiarios sin CNPJ",
+    ),
+    "Nome ou razão social de quem recebeu a ordem bancária": (
+        "Name or legal name of whoever received the bank order",
+        "Nombre o razón social de quien recibió la orden bancaria",
+    ),
+    (
+        "CPF ou CNPJ do credor nomeado no empenho, que difere do credor da ordem "
+        "bancária em cerca de metade das linhas"
+    ): (
+        "CPF or CNPJ of the creditor named on the commitment, which differs from the "
+        "bank order's payee in about half of the rows",
+        "CPF o CNPJ del acreedor nombrado en el compromiso, que difiere del acreedor de "
+        "la orden bancaria en cerca de la mitad de las filas",
+    ),
+    "Nome ou razão social do credor nomeado no empenho": (
+        "Name or legal name of the creditor named on the commitment",
+        "Nombre o razón social del acreedor nombrado en el compromiso",
+    ),
+    "Finalidade do pagamento informada na ordem bancária": (
+        "Purpose of the payment as stated on the bank order",
+        "Finalidad del pago informada en la orden bancaria",
+    ),
+    "Valor da ordem bancária em reais correntes": (
+        "Amount of the bank order, in current reais",
+        "Monto de la orden bancaria, en reales corrientes",
+    ),
     # --- temporal ---------------------------------------------------------------
     "Ano de abertura do processo de contratação": (
         "Year the procurement process was opened",

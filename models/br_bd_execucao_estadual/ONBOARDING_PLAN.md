@@ -6,8 +6,8 @@ state Courts of Accounts. This dataset covers the **state executives' own spendi
 from each state's own transparency portal over its financial system (SIAFI-MG, FIPLAN-BA,
 e-Fisco-PE, SIAFEM-SP).
 
-**Status:** MG, BA and PE built, validated and registered on staging (8 tables,
-95.2M rows, dbt 30/30). SP is still being scraped and adds `despesa_anual`.
+**Status:** MG, BA and PE built, validated and registered on staging (9 tables,
+105.9M rows). SP is still being scraped and adds `despesa_anual`.
 
 ---
 
@@ -67,24 +67,37 @@ key needs an allocation rule the source does not publish, so it would be inventi
 ### Divergence from MiDES worth knowing
 
 MiDES splits execution into three tables (`empenho`, `liquidacao`, `pagamento`) because its
-TCE sources publish three separate ledgers. **All four state sources here instead publish the
-phases as columns on one row** (`vr_empenhado` / `vr_liquidado` / `vr_pago`). So this dataset
-uses a single `despesa` table with phase value columns. Splitting it three ways would triple
-the rows and fabricate documents and dates that the sources do not contain.
+TCE sources publish three separate ledgers. **The state expense exports here instead publish
+the phases as columns on one row** (`vr_empenhado` / `vr_liquidado` / `vr_pago`). So `despesa`
+keeps the three phases as columns. Splitting it three ways would triple the rows and
+fabricate documents and dates the sources do not contain.
 
-Union-compatibility with MiDES is therefore not automatic. If it is wanted later, it is a
-view over `despesa` that unpivots the three value columns — cheap, and reversible. The
-reverse (recovering one row per line from three fabricated tables) is not.
+`despesa` is therefore closest to MiDES's **`empenho`**, not its `pagamento`: 68.1% of MG
+rows and 21.8% of PE's carry no payment at all, so naming it `pagamento` would mislabel some
+55 million rows that were committed and never paid.
+
+**`pagamento` exists separately, and only for PE**, because PE is the one source that
+publishes a payment *document*: `all-pagamentos` gives the ordem bancária with its own
+number, date, value, payee and a link to the empenho. That is a real ledger, not a projection
+of a column, so it is a real table. It is also the only sub-annual timing available for PE
+from 2011 on, since the expense export drops the date that year.
+
+**`liquidacao` / `verificacao` cannot be built from any source here.** No state publishes a
+verification document. MG's `fl_despesa_pgto` is 29.9M rows of two columns — a payment
+sequence and a status, with no value, date or empenho — and a CKAN search returns no
+liquidação dataset on MG or PE. Only the `valor_liquidado` column exists, so such a table
+would be a filter over `despesa` that invents a document the state never issued.
 
 ## 4. Tables
 
-Eight tables are built. `despesa_anual` is pending the SP scrape;
+Nine tables are built. `despesa_anual` is pending the SP scrape;
 `orgao_unidade_gestora` was dropped — no source publishes an organisational directory
 separable from its fact tables, so the órgão fields stay denormalised on each row.
 
 | Table | Grain | States | Rows |
 |-------|-------|--------|------|
 | `despesa` | empenho document × budget line, with `valor_empenhado`/`liquidado`/`pago` | MG, PE | 85,214,849 |
+| `pagamento` | payment document (ordem bancária) × empenho line | PE | 10,710,893 |
 | `despesa_mensal` | month × budget line, values without creditor | BA | 2,219,353 |
 | `empenho_credor` | empenho × creditor, creditor without values | BA | 1,091,372 |
 | `licitacao` | one tender / procurement process | MG, BA | 519,598 |
@@ -94,7 +107,7 @@ separable from its fact tables, so the órgão fields stay denormalised on each 
 | `dicionario` | value → label for every coded column | MG | 11,962 |
 | `despesa_anual` *(pending)* | credor × budget line × year | SP | — |
 
-95.2M rows, 28.7 GB. Partitioned by `ano` (INT64), clustered by `sigla_uf`;
+105.9M rows. Partitioned by `ano` (INT64), clustered by `sigla_uf`;
 `dicionario` and `relacionamentos` carry no date column and are unpartitioned.
 
 **Bahia is deliberately split across two tables rather than folded into `despesa`.** The

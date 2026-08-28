@@ -260,6 +260,75 @@ models:
         description: Nome ou razão social do fornecedor vencedor
       - name: tipo_documento_vencedor
         description: Tipo do documento de identificação do fornecedor vencedor
+  - name: br_bd_execucao_estadual__pagamento
+    description: >
+      Pagamentos dos governos estaduais no nível do documento de pagamento (ordem
+      bancária). Uma linha por lançamento, com data, valor, credor e o vínculo com
+      o
+      empenho. Equivale à tabela pagamento do MiDES e existe apenas para Pernambuco,
+      a
+      única fonte do conjunto que publica execução em nível de documento de pagamento.
+      Uma mesma ordem bancária paga vários empenhos. A soma de valor_pago não equivale
+      a
+      despesa.valor_pago: aquela é o total pago do empenho no exercício, esta traz
+      cada
+      ordem bancária, incluindo lançamentos devolvidos e cancelados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_pagamento_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano do exercício em que o pagamento foi lançado
+        tests: [not_null]
+      - name: mes
+        description: Mês do lançamento do pagamento
+      - name: data
+        description: Data do lançamento do pagamento
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: id_pagamento_bd
+        description: >
+          Identificador único do pagamento construído pela Data Basis, no formato
+          <sigla_uf>-<ordem bancária>-<sequência dentro da ordem>, porque uma ordem
+          bancária paga vários empenhos e não identifica a linha sozinha. Vinte linhas
+          de 2025 não têm ordem bancária, apenas empenho e valor, e recebem o marcador
+          SEMOB no lugar do número
+      - name: numero_ordem_bancaria
+        description: Número da ordem bancária que efetuou o pagamento
+      - name: id_empenho_bd
+        description: >
+          Identificador do empenho pago, no mesmo formato de despesa.id_empenho_bd,
+          para
+          ligar o pagamento à execução orçamentária
+      - name: numero_empenho
+        description: Número da nota de empenho paga
+      - name: situacao
+        description: >
+          Situação da ordem bancária. Nem toda linha é dinheiro que saiu do tesouro:
+          além de PAGA, ocorrem DEVOLVIDA, CANCELADA, DEVOLVIDA APOS PAGTO, AJUSTADA,
+          ENVIADA e GERADA
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora que emitiu a ordem bancária
+      - name: documento_credor
+        description: >
+          CPF ou CNPJ de quem recebeu a ordem bancária, apenas a parte anterior ao
+          nome. Nem sempre é um documento: o estado emite pseudocódigos para
+          beneficiários sem CNPJ
+      - name: nome_credor
+        description: Nome ou razão social de quem recebeu a ordem bancária
+      - name: documento_credor_empenho
+        description: >
+          CPF ou CNPJ do credor nomeado no empenho, que difere do credor da ordem
+          bancária em cerca de metade das linhas
+      - name: nome_credor_empenho
+        description: Nome ou razão social do credor nomeado no empenho
+      - name: descricao
+        description: Finalidade do pagamento informada na ordem bancária
+      - name: valor_pago
+        description: Valor da ordem bancária em reais correntes
   - name: br_bd_execucao_estadual__relacionamentos
     description: >
       Ponte entre processos licitatórios e empenhos. Existe apenas onde a fonte publica
