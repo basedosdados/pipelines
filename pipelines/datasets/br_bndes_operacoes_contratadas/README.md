@@ -9,7 +9,8 @@ Tabelas:
 | `operacoes_indiretas_automaticas` | operação (forma indireta automática) | ✅ |
 | `operacoes_administracao_publica` | operação com ente da Administração Pública Direta | ✅ |
 | `operacoes_exportacao_bens` | subcrédito de operação de exportação pós-embarque de bens | ✅ |
-| `operacoes_nao_automaticas` | subcrédito (forma direta e indireta não automática) | ❌ (só modelo dbt) |
+| `operacoes_exportacao_servicos` | subcrédito de operação de exportação pós-embarque de serviços de engenharia | ⏸️ (flow sem cron — carga única) |
+| `operacoes_nao_automaticas` | subcrédito (forma direta e indireta não automática) | ✅ |
 
 ## Estrutura (compartilhada)
 
@@ -122,6 +123,42 @@ O corte no último `/` acerta as outras três formas; só erra na terceira, em q
 - `custo_financeiro` pode ser composto (variação cambial + indexador); em `Taxa de juros em moeda estrangeira` a taxa é só variação cambial + juros.
 - `modalidade_operacional`: `Supplier` = desconto de títulos de crédito; `Buyer` = apenas contrato de financiamento.
 
+## operacoes_exportacao_servicos
+
+### O que é
+
+Operações de financiamento à **exportação pós-embarque de serviços de engenharia**, destinadas a obras executadas no exterior por empresas brasileiras. Grão = **subcrédito**, mesma definição da irmã de bens: 146 operações em 652 linhas, e o somatório das linhas com o mesmo `id_operacao` equivale ao valor total da operação. Cobertura nacional, **1998-07-24 a 2015-04-28**.
+
+### Fonte
+
+Mesmo conjunto CKAN `operacoes-exportacao` da irmã de bens, recurso `d158033b-f6cb-4609-9717-a9cb2ff7ffc5`, com dicionário de dados próprio (recurso `184b2403-71ad-47ca-9e12-e55970bafc5d`). Sinal de atualização = `last_modified` do recurso.
+
+**Baixa pelo `/datastore/dump`, não pelo `result.url` do `resource_show`.** Os dois caminhos servem o mesmo conteúdo (conferido célula a célula); o dump vem UTF-8, com decimal em ponto e data ISO, enquanto o download direto vem cp1252 com decimal em vírgula. O dump dispensa a conversão decimal — por isso `parse_decimal_ptbr` não é usado aqui, apesar de esta ser a primeira tabela do conjunto com valores.
+
+### Carga única, sem cron
+
+**A série termina em 2015 e não recebe operação nova há dez anos.** O recurso segue sendo republicado no CKAN (`last_modified` de 2025-07-09), mas isso é republicação do arquivo, não cobertura nova. O `@flow` existe e está completo, com poll e tudo o mais, mas **sem `deploy_schedules`** — roda por disparo manual. Se a fonte voltar a publicar, acrescentar o `deploy_schedules` basta. O precedente no repositório é o `br_ms_sinan`, o único outro flow sem cron.
+
+### Decisões de modelagem
+
+As 21 colunas comuns às duas tabelas de exportação seguem as decisões já tomadas na irmã de bens (`setor_subsetor` desmembrado casando o setor por prefixo, `id_operacao` STRING, geografia pelo diretório, sem `unique_combination_of_columns`). A lista de setores conhecidos é própria de cada tabela: aqui o agrupamento se escreve `COMERCIO E SERVICOS`, contra `COMERCIO/SERVICOS` em bens. O que difere:
+
+- **A fonte publica valores aqui, e em dólar.** `valor_operacao`, `valor_desembolsado`, `taxa_juros` e `prazo_meses` vêm preenchidos em 100% das linhas — são as quatro colunas que bens não tem. `moeda_sigla` é `US$ COMPRA` em toda a série, então `measurement_unit = USD` nas duas colunas monetárias (em bens o campo tem dois valores).
+- **`descricao_da_operacao` é texto livre, não categórico.** Em bens a coluna tem 2 valores e virou `tipo_operacao`; aqui tem 146 — uma descrição de obra por operação —, então vira `descricao_operacao`. As duas tabelas divergem no nome porque divergem no conteúdo.
+- **`tipo_garantia` normaliza em CAIXA ALTA.** Mesma mecânica da irmã (`_normalize_garantia`), mas os rótulos compostos são publicados aqui em maiúscula (`SEGURO DE CRÉDITO/FGE`, `CCR/ALADI`), então cada tabela passa os seus. 6 grafias viram 5 valores.
+- **Cinco linhas trazem o byte `0x90` no meio de uma palavra**, em quatro grafias que corrompem a mesma palavra de formas diferentes (`HIDREL\x90ETRICA`, `HIDREL\x90TRICA`, `PERIF\x90ÉRICA`, `PERIFE\x90RICA`) — ora no lugar da letra acentuada, ora ao lado dela. Não há regra genérica que acerte as quatro, então a correção é um mapa explícito em `DESCRICAO_CORRECOES` e o `clean` **falha alto** se sobrar `0x90` em alguma linha.
+- **Contagem de linhas como contraprova do download.** O `/datastore/dump` responde `Transfer-Encoding: chunked`, sem `Content-Length`, e ignora `Range` — o `download_csv` roda com `validate_size=False` e não consegue conferir bytes. No lugar disso, o `clean` compara as linhas lidas com o `total` que a API do datastore declara (`assert_row_count`).
+- **Nove colunas são constantes na série** (contra quatro em bens), incluindo `setor_subsetor_de_atividade`, `fonte_recurso` e `custo_financeiro`. Todas sobem: os valores são verdadeiros, a constância é desta fatia e não do campo, e a simetria com a irmã mantém o `union` direto.
+- **Nenhum país fica sem correspondência**: 15 países, todos casando contra `br_bd_diretorios_mundo.pais` pela normalização já usada em bens. Não existe `DIVERSOS` aqui, e o `CASE` de `PAISES BAIXOS(HOLAN)` não é necessário.
+- Cobertura pública → `AllFree`, sem paywall BD Pro.
+
+### Notas para descrição de coluna
+
+- `cnpj_exportador` e `nome_exportador` **não são 1:1** (19 CNPJs, 20 nomes): consórcios são registrados sob o CNPJ da empresa líder, com as consorciadas no nome.
+- `taxa_juros` varia entre os subcréditos de uma mesma operação conforme a data de embarque ou de prestação em cada liberação — média simples entre linhas não faz sentido sem ponderar pelo valor.
+- `custo_financeiro` é `TAXA FIXA EM US$` em toda a série, então `taxa_juros` é a taxa total.
+- `tipo_mutuario` é quase sempre público aqui (642 contra 10), inverso de bens.
+
 ## operacoes_nao_automaticas
 
-Operações contratadas na forma **direta e indireta não automática**; cada contrato pode ter um ou mais subcréditos e **cada linha é um subcrédito** (grão = subcrédito). Existe como **modelo dbt** (arquivo `.sql` e entrada no `schema.yml` em `models/br_bndes_operacoes_contratadas/`), onboardada anteriormente e **fora** do crawler deste repo — **não tem pipeline recorrente** aqui. Contexto detalhado não documentado neste README.
+Operações contratadas na forma **direta e indireta não automática**; cada contrato pode ter um ou mais subcréditos e **cada linha é um subcrédito** (grão = subcrédito). Onboardada antes desta sprint; o crawler a atende pelo config genérico `constants.TABLES_CONFIGS`, com o mesmo `_run_operacoes` da `operacoes_indiretas_automaticas`. Decisões de modelagem não documentadas neste README.

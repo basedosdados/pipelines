@@ -11,6 +11,7 @@ from pipelines.crawler.bndes.flows import (
     _run_operacoes,
     _run_operacoes_administracao_publica,
     _run_operacoes_exportacao_bens,
+    _run_operacoes_exportacao_servicos,
 )
 
 
@@ -140,3 +141,35 @@ def br_bndes_operacoes_contratadas__operacoes_exportacao_bens(
 br_bndes_operacoes_contratadas__operacoes_exportacao_bens.deploy_schedules = [
     {"cron": "0 6 * * 1", "timezone": "America/Sao_Paulo"}
 ]
+
+
+@flow(
+    name="br_bndes_operacoes_contratadas__operacoes_exportacao_servicos",
+    log_prints=True,
+    description=(
+        "Dump da tabela operacoes_exportacao_servicos "
+        "do dataset br_bndes_operacoes_contratadas."
+    ),
+)
+def br_bndes_operacoes_contratadas__operacoes_exportacao_servicos(
+    dataset_id: str = "br_bndes_operacoes_contratadas",
+    table_id: str = "operacoes_exportacao_servicos",
+    materialize_after_dump: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    _run_operacoes_exportacao_servicos(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        materialize_after_dump=materialize_after_dump,
+        update_metadata=update_metadata,
+        target=target,
+        force_run=force_run,
+    )
+
+
+# Sem cron, ao contrário das irmãs: a série da fonte termina em 2015-04-28 e
+# não recebe operação nova há dez anos. A tabela entra como carga única, por
+# disparo manual. Se a fonte voltar a publicar, basta acrescentar
+# deploy_schedules aqui — o resto do flow já está pronto para o poll.
