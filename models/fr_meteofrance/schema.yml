@@ -182,3 +182,102 @@ models:
       - name: valor
         description: Valor, isto é, o significado da chave
         tests: [not_null]
+  - name: fr_meteofrance__poste
+    description: >
+      Cadastro dos postos da base climatológica da Météo-France, muito mais amplo
+      que o das fichas climatológicas: cobre todo posto que já registrou uma
+      observação diária ou mensal, desde a abertura. Uma linha por posto, com o
+      número de oito dígitos, o nome usual, o departamento, as coordenadas e a
+      altitude. Um posto pode ser deslocado ao longo do tempo; o cadastro guarda
+      a posição mais recente publicada.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [numero_poste]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: numero_poste
+        description: Número Météo-France do posto, de oito dígitos
+        tests: [not_null]
+      - name: nom_poste
+        description: Nome usual do posto
+        tests: [not_null]
+      - name: id_departement
+        description: Código do departamento ou da coletividade ultramarina do posto
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__departement')
+              field: id_departamento
+              # Météo-France's own coding, not the INSEE COG: 20 for Corsica
+              # rather than 2A/2B, 99 for stations outside France, and five
+              # overseas codes the directory does not carry — including 975
+              # (Saint-Pierre-et-Miquelon), which is a genuine gap in
+              # br_bd_diretorios_fr rather than a Météo-France invention.
+              # 771 of 14,746 postes.
+              ignore_values: ['20', '99', '975', '984', '985', '986', '987', '988']
+      - name: geolocalisation
+        description: Ponto geográfico do posto, em WGS 84
+        tests: [not_null]
+  - name: fr_meteofrance__mensuelle
+    description: >
+      Série climatológica mensal da Météo-France, por posto, desde a abertura de
+      cada um. Uma linha por posto e mês, com precipitação, temperatura, vento,
+      umidade, insolação, radiação, neve e as contagens de dias que ultrapassam
+      cada limiar. Cada medição vem acompanhada de um código de qualidade. As
+      unidades são as da fonte.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [annee, mois, numero_poste]
+          config:
+            where: __most_recent_year_fr__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_fr__
+          # Measured against the latest partition, which is what the test scans.
+          ignore_values:
+            - hauteur_neige_fraiche_maximale
+            - hauteur_neige_fraiche_totale
+            - jour_hauteur_neige_fraiche_maximale
+            - nombre_jours_grel
+            - nombre_jours_hneigef1
+            - nombre_jours_hneigef10
+            - nombre_jours_hneigef5
+            - nombre_jours_solng
+            - precipitation_totale_estimee
+            - qualite_hauteur_neige_fraiche_maximale
+            - qualite_hauteur_neige_fraiche_totale
+            - qualite_rayonnement_diffus_total
+            - qualite_rayonnement_direct_total
+            - rayonnement_diffus_total
+            - rayonnement_direct_total
+            - temperature_maximale_moyenne_estimee
+            - temperature_minimale_moyenne_estimee
+      - custom_dictionary_coverage:
+          config:
+            where: __most_recent_year_fr__
+          dictionary_model: ref('fr_meteofrance__dicionario')
+          columns_covered_by_dictionary:
+            - qualite_precipitation_totale
+            - qualite_temperature_moyenne
+    columns:
+      - name: annee
+        description: Ano da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mois
+        description: Mês da observação
+        tests: [not_null]
+      - name: numero_poste
+        description: Número Météo-France do posto, de oito dígitos
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('fr_meteofrance__poste')
+              field: numero_poste
+              config:
+                where: __most_recent_year_fr__

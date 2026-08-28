@@ -124,6 +124,69 @@ example sheet. The 1,576 per-station PDF sheets are link-only.
 bucket is requester-pays, which is the documented platform-wide defect affecting all 84
 production tables that use this field — not something specific to this dataset.
 
+## Données climatologiques de base (quotidienne / mensuelle / poste)
+
+The second product in this dataset: Météo-France's full climatological archive,
+per département, for every station since it opened. Separate from SYNOP, which is
+only the 190 internationally-reported stations.
+
+| table | rows | key | cols |
+|---|---|---|---|
+| `quotidienne` | ~230 M | `date`, `numero_poste` | 138 |
+| `mensuelle` | 5,300,711 | `annee`, `mois`, `numero_poste` | 159 |
+| `poste` | 14,746 | `numero_poste` | 7 |
+
+Both fact tables are partitioned by `annee` over **1688–2031** and clustered by
+`numero_poste`. 1688 is not a typo — the daily archive really does reach that far
+back, and the range must cover it or BigQuery drops early rows into
+`__UNPARTITIONED__`.
+
+### Things that will bite you
+
+**The daily series ships as two files that must be OUTER-joined.** `RR-T-Vent` and
+`autres-parametres` share the `(NUM_POSTE, AAAAMMJJ)` key, but neither is a superset:
+in département 01 alone, 6,833 keys exist only on the autres side. A left join
+silently drops them.
+
+**The `NB*` counts reference the DAILY parameter, not the monthly one.** `NBTX` is
+"nombre de valeurs présentes de TX *quotidienne*" — the number of days with a maximum
+temperature, not a count of monthly means. Naming it after the monthly `TX` (which is
+the monthly *mean* of daily maxima) would be wrong. Likewise `TXDAT` is "jour du
+TX**AB**", the day of the absolute extreme.
+
+**Family membership is decided from the French descriptor, not the column name.**
+`HXY` is "heure de FXY" — stripping the `H` gives `XY`, which is not a column.
+`NBUM` references `UM`, which does not exist in the monthly file. `clim_schema.expand`
+therefore reads Météo-France's own text. Two columns still need explicit overrides:
+`NBTM` ("du couple (TN, TX)") and `NBRR` (prose rather than a parameter token).
+
+**`ECOULEMENTM` is dropped.** The source labels it *champ inutilisé* and it is 100%
+null in the sampled data.
+
+**Occurrence flags and quality codes are STRING.** `NEIG`, `BROU`, `ORAG` and the rest
+are 0/1 codes, and every measurement carries a `Q*` quality code (0/1/2/9) — booleans
+and codes, not quantities, so STRING + dictionary-covered per the house rule.
+
+**`poste.id_departement` misses 8 codes.** `20` (Corsica, COG uses 2A/2B), `99`
+(outside France) and five overseas codes are absent from `br_bd_diretorios_fr` —
+771 of 14,746 postes. One of them, `975` (Saint-Pierre-et-Miquelon), is a genuine
+**gap in the directory** rather than a Météo-France invention and would be worth
+adding there.
+
+### Staging layout
+
+One parquet per (département, period), **not** hive-partitioned by year. These series
+span ~175 years, so partitioning staging by year emits tens of thousands of tiny files
+— slow to write, slow for BigQuery, and pointless since the dbt model full-scans
+staging anyway. Keeping the source's own dept × period unit also makes the incremental
+refresh natural: Météo-France only rewrites the `latest-<years>` files.
+
+### Code
+
+`clim_schema.py` (99 hand-authored parameters + the family expander),
+`clim_download.py`, `clim_clean.py`, `clim_gen_artifacts.py`, `clim_upload.py`.
+Scratch data lives under `~/Downloads/fr_meteofrance_clim/` (`MFC_INPUT` / `MFC_OUTPUT`).
+
 ## Not onboarded (worth a follow-up)
 
 Météo-France publishes 122 datasets on data.gouv.fr. The big omissions, all `lov2`:
