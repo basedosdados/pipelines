@@ -13,6 +13,7 @@ import json
 from datetime import date, timedelta
 
 import pyarrow.dataset as ds
+import pytest
 
 from pipelines.datasets.br_pncp import utils
 from pipelines.datasets.br_pncp.constants import constants
@@ -806,3 +807,83 @@ class TestCoverageRegistrationScope:
         ]
         for table in constants.DEFERRED_TABLES.value:
             assert table not in registered
+
+
+class TestUnservableWindowIsNotWrittenAsEmpty:
+    """A window the API cannot serve must leave NO chunk behind.
+
+    The failure being guarded is silent and permanent: writing an empty chunk
+    for an unservable day means every later run skips it (the file exists),
+    so one transient outage quietly costs that day's records forever while
+    the harvest keeps reporting success. A day with genuinely no records
+    never reaches this path -- the API says so with 204, an empty body or a
+    404, all of which become EMPTY_PAGE.
+    """
+
+    def _always_fails(self, monkeypatch):
+        def boom(path, params, max_tries=6):
+            raise utils.ServerOverloadError("500")
+
+        monkeypatch.setattr(utils, "request", boom)
+
+    def test_a_single_unservable_day_raises_rather_than_returning_empty(
+        self, monkeypatch
+    ):
+        self._always_fails(monkeypatch)
+        with pytest.raises(utils.ServerOverloadError):
+            utils.fetch_range(
+                "contratos",
+                ("dataInicial", "dataFinal"),
+                date(2024, 5, 1),
+                date(2024, 5, 1),
+                {},
+            )
+
+    def test_a_wider_unservable_window_also_raises_after_splitting(
+        self, monkeypatch
+    ):
+        self._always_fails(monkeypatch)
+        with pytest.raises(utils.ServerOverloadError):
+            utils.fetch_range(
+                "contratos",
+                ("dataInicial", "dataFinal"),
+                date(2024, 5, 1),
+                date(2024, 5, 4),
+                {},
+            )
+
+    def test_harvest_writes_no_chunk_for_a_window_it_could_not_fetch(
+        self, monkeypatch, tmp_path
+    ):
+        self._always_fails(monkeypatch)
+        written = utils.harvest(
+            table="contrato",
+            input_dir=tmp_path,
+            start=date(2024, 5, 1),
+            end=date(2024, 5, 2),
+            max_workers=1,
+        )
+        assert written == 0
+        assert list(tmp_path.glob("contrato/*.jsonl.gz")) == [], (
+            "an unservable window left a chunk behind; the next run would "
+            "skip it and the data would be lost permanently"
+        )
+
+    def test_a_genuinely_empty_window_still_writes_its_chunk(
+        self, monkeypatch, tmp_path
+    ):
+        # The other half of the contract: "no records" is a real answer and
+        # must be recorded, or every run re-fetches every empty window.
+        monkeypatch.setattr(
+            utils,
+            "request",
+            lambda path, params, max_tries=6: utils.EMPTY_PAGE,
+        )
+        utils.harvest(
+            table="contrato",
+            input_dir=tmp_path,
+            start=date(2024, 5, 1),
+            end=date(2024, 5, 2),
+            max_workers=1,
+        )
+        assert len(list(tmp_path.glob("contrato/*.jsonl.gz"))) == 1

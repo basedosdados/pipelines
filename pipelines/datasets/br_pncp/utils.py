@@ -334,12 +334,19 @@ def fetch_range(
         return fetch_window(path, params, label, page_size)
     except ServerOverloadError:
         if lo == hi:
-            # A single day the server cannot serve. Report and continue rather
-            # than aborting the whole harvest.
-            print(
-                f"      !! unrecoverable single day {lo} on {path}", flush=True
+            # A single day the server cannot serve. RAISE rather than return
+            # [], because returning would be indistinguishable from "this day
+            # genuinely has no records" -- run_job would write an empty chunk,
+            # and every later run skips a chunk that exists. One transient 500
+            # would become permanent, silent data loss reported as success.
+            #
+            # Raising instead marks the window failed, writes no chunk, and
+            # leaves it to be retried by the next run. A day that truly has no
+            # records never reaches here: the API signals that with 204, an
+            # empty body or a 404, all of which come back as EMPTY_PAGE.
+            raise ServerOverloadError(
+                f"unrecoverable single day {lo} on {path}"
             )
-            return []
         mid = lo + (hi - lo) // 2
         print(f"      .. splitting {lo}..{hi} on {path}", flush=True)
         # page_size must ride along: dropping it here silently reverts the
