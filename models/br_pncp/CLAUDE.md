@@ -450,6 +450,16 @@ throughput into window splits, which discard fetched pages. This supersedes
 the earlier explanation that the 4-worker slowdown was only the pacer
 compounding.
 
+### instrumentoscobranca is fragile beyond the shared ceiling
+
+The ~6 in-flight ceiling is API-wide, but this one endpoint is tighter still.
+At 3 workers it failed 3 of ~65 windows with 504s and dropped connections,
+while `contrato` ran 305 windows at the same concurrency with none. The same
+windows serve fine when the endpoint is not being hit in parallel, and it
+also carries the lowest page-size cap (100). It is therefore pinned to a
+single worker via `ENDPOINTS[...]["max_workers"]`, which `harvest()` applies
+as `min(caller, endpoint)` so a cap can only narrow.
+
 ### No bulk download exists
 
 The OpenAPI spec has 12 endpoints and none serves files; PNCP's documented
