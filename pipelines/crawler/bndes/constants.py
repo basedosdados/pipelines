@@ -385,3 +385,123 @@ class constants_administracao_publica(Enum):
             ]
         ]
     )
+
+
+class constants_exportacao_bens(Enum):
+    """
+    Config da 3a tabela do conjunto: operacoes_exportacao_bens.
+
+    Fonte: conjunto CKAN "operacoes-exportacao", recurso de pos-embarque bens.
+    Decisoes de modelagem no README do conjunto.
+    """
+
+    DATASET_ID = "br_bndes_operacoes_contratadas"
+    LAST_MODIFIED_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
+    TABLE_ID = "operacoes_exportacao_bens"
+    CKAN_RESOURCE_ID = "0cfe4594-44bf-48a8-a79a-686fc2d0db95"
+
+    RESOURCE_SHOW_URL = (
+        "https://dadosabertos.bndes.gov.br/api/3/action/resource_show"
+        "?id=0cfe4594-44bf-48a8-a79a-686fc2d0db95"
+    )
+    DOWNLOAD_URL = (
+        "https://dadosabertos.bndes.gov.br/dataset/"
+        "f27e48cd-653b-4bfa-bc4f-08b637793873/resource/"
+        "0cfe4594-44bf-48a8-a79a-686fc2d0db95/download/"
+        "operacoes-exportacao-operacoes-de-exportacao-pos-embarque-bens.csv"
+    )
+    INPUT_PATH = "/tmp/input/br_bndes_operacoes_contratadas/"
+    OUTPUT_PATH = "/tmp/output/br_bndes_operacoes_contratadas/"
+    CSV_FILENAME = "operacoes_exportacao_bens.csv"
+
+    RENAME = {
+        "exportador": "nome_exportador",
+        "cnpj_do_exportador": "cnpj_exportador",
+        "porte_do_exportador": "porte_exportador",
+        "descricao_da_operacao": "tipo_operacao",
+        "uf": "sigla_uf",
+        "pais_destino_das_exportacoes": "nome_pais_destino",
+        "numero_da_operacao": "id_operacao",
+        "data_da_contratacao": "data_contratacao",
+        "moeda_sigla": "sigla_moeda",
+        "fonte_de_recursos_desembolsos": "fonte_recurso",
+        "custo_financeiro": "custo_financeiro",
+        "setor_subsetor_de_atividade": "setor_subsetor",
+        "area_operacional": "area_operacional",
+        "modalidade_de_apoio": "modalidade_apoio",
+        "forma_de_apoio": "forma_apoio",
+        "produto": "produto",
+        "modalidade_operacional": "modalidade_operacional",
+        "mutuario": "tipo_mutuario",
+        "categoria": "categoria",
+        "situacao_da_operacao": "situacao_operacao",
+        "tipo_de_garantia": "tipo_garantia",
+    }
+
+    MOEDA = {"US$ COMPRA": "USD", "EUR C": "EUR"}
+
+    # unico valor de pais_destino_das_exportacoes que nao nomeia um pais
+    # (82 linhas); o clean troca por NA.
+    PAIS_DESTINO_INDEFINIDO = "DIVERSOS"
+
+    ROTULOS_COMPOSTOS = ("Seguro de crédito/FGE", "CCR/ALADI")
+
+    # setores publicados em setor_subsetor_de_atividade; COMERCIO/SERVICOS tem
+    # "/" no proprio nome, entao o corte do subsetor casa o setor por prefixo
+    SETORES = ("COMERCIO/SERVICOS", "INDUSTRIA")
+
+    ORDER_COLUMNS = [
+        "ano",
+        "data_contratacao",
+        "sigla_uf",
+        "nome_pais_destino",
+        "id_operacao",
+        "cnpj_exportador",
+        "nome_exportador",
+        "porte_exportador",
+        "tipo_operacao",
+        "categoria",
+        "modalidade_operacional",
+        "tipo_mutuario",
+        "produto",
+        "modalidade_apoio",
+        "forma_apoio",
+        "area_operacional",
+        "fonte_recurso",
+        "custo_financeiro",
+        "sigla_moeda",
+        "setor_bndes",
+        "subsetor_bndes",
+        "tipo_garantia",
+        "situacao_operacao",
+    ]
+
+    SCHEMA = pa.schema(
+        [
+            (col, pa.string())
+            for col in [
+                "data_contratacao",
+                "sigla_uf",
+                "nome_pais_destino",
+                "id_operacao",
+                "cnpj_exportador",
+                "nome_exportador",
+                "porte_exportador",
+                "tipo_operacao",
+                "categoria",
+                "modalidade_operacional",
+                "tipo_mutuario",
+                "produto",
+                "modalidade_apoio",
+                "forma_apoio",
+                "area_operacional",
+                "fonte_recurso",
+                "custo_financeiro",
+                "sigla_moeda",
+                "setor_bndes",
+                "subsetor_bndes",
+                "tipo_garantia",
+                "situacao_operacao",
+            ]
+        ]
+    )
