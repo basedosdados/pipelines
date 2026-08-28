@@ -25,15 +25,62 @@ PE_INPUT = INPUT_DIR / "pe"
 # despesa_2023.csv / pagamento_2023.csv, written by download_pe.py
 NAME_RE = re.compile(r"^(?P<kind>despesa|pagamento)_(?P<year>\d{4})\.csv$")
 
+# Enough of the file to settle the dialect without reading gigabytes.
+PROBE_BYTES = 4 << 20
+
 KIND_TABLE = {"despesa": "pe_despesa", "pagamento": "pe_pagamento"}
 
 
+def probe(path: Path) -> tuple[str, str]:
+    """Detect this file's encoding and delimiter by reading it, not by guessing.
+
+    PE's export is not internally consistent -- across the 19 exercises the encoding, the
+    line ending and the separator all vary, with no pattern that tracks the year:
+
+        2008 latin-1 ';'    2009 latin-1 ','    2010 latin-1 ';'
+        2011 utf-8   ';'    2012 utf-8   ','    2015 utf-8   ';'
+        2018 utf-8   ','    2019+ utf-8  ';'
+
+    Two traps, both of which produced a wrong answer here before this was written properly:
+
+    * **Do not test UTF-8 on a fixed-size slice.** Cutting at an arbitrary byte offset can
+      split a multi-byte character, so the decode fails and a perfectly good UTF-8 file
+      (2015) is misread as latin-1. An incremental decoder is fed the chunk and only
+      `final=True` at real EOF, so a partial trailing sequence is not an error.
+    * **Python's latin-1 decodes ANY byte sequence**, so "try utf-8, else latin-1" always
+      answers latin-1 on failure without establishing anything. duckdb's latin-1 is
+      stricter and rejects what Python accepts, which surfaces as
+      `Invalid Input Error: File is not latin-1 encoded` -- an error about the *reader*,
+      not the file. UTF-8 is therefore tested positively and latin-1 used only as the
+      residual.
+    """
+    import codecs
+
+    decoder = codecs.getincrementaldecoder("utf-8")()
+    is_utf8 = True
+    with path.open("rb") as fh:
+        chunk = fh.read(PROBE_BYTES)
+        at_eof = len(chunk) < PROBE_BYTES
+        try:
+            decoder.decode(chunk, final=at_eof)
+        except UnicodeDecodeError:
+            is_utf8 = False
+    encoding = "utf-8" if is_utf8 else "latin-1"
+
+    # The delimiter is whichever candidate dominates the header line.
+    first = chunk.split(b"\n", 1)[0]
+    delimiter = ";" if first.count(b";") >= first.count(b",") else ","
+    return encoding, delimiter
+
+
 def _relation(path: Path) -> str:
-    # PE quotes most fields and uses ';'-free commas; the sniffer gets the dialect right,
-    # but the types must still be forced to VARCHAR so BR-formatted values survive intact.
+    # Types are forced to VARCHAR so the source's own number format survives intact; the
+    # per-state normalisation happens in dbt, where it is visible.
+    encoding, delimiter = probe(path)
     return (
-        f"read_csv('{path}', header=true, all_varchar=true, "
-        "quote='\"', escape='\"', ignore_errors=false, union_by_name=true)"
+        f"read_csv('{path}', header=true, all_varchar=true, delim='{delimiter}', "
+        f"encoding='{encoding}', quote='\"', escape='\"', ignore_errors=false, "
+        "union_by_name=true)"
     )
 
 
