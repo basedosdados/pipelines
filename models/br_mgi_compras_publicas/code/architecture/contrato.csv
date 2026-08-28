@@ -1,0 +1,40 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+ano,INT64,Ano de início da vigência do contrato,2021(1)2026,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de particionamento, derivada de data_vigencia_inicial",,Year the contract's validity starts,Año de inicio de la vigencia del contrato
+numero_controle_pncp_contrato,STRING,Número de controle do contrato no PNCP,,no,,,no,"Vazio para cerca de 80% dos contratos, que antecedem a obrigatoriedade de publicação no PNCP ou não foram enviados",numeroControlePncpContrato,PNCP control number of the contract,Número de control del contrato en el PNCP
+numero_contrato,STRING,Número do contrato na unidade gestora,,no,,,no,Com codigo_orgao e codigo_unidade_gestora forma a chave primária,numeroContrato,Contract number within the managing unit,Número del contrato en la unidad gestora
+codigo_orgao,STRING,Código do órgão contratante no SIASG,,no,,,no,,codigoOrgao,SIASG code of the contracting body,Código del órgano contratante en el SIASG
+nome_orgao,STRING,Nome do órgão contratante,,no,,,no,,nomeOrgao,Name of the contracting body,Nombre del órgano contratante
+codigo_unidade_gestora,STRING,Código da unidade gestora do contrato,,no,,,no,,codigoUnidadeGestora,Code of the unit managing the contract,Código de la unidad gestora del contrato
+nome_unidade_gestora,STRING,Nome da unidade gestora do contrato,,no,,,no,,nomeUnidadeGestora,Name of the unit managing the contract,Nombre de la unidad gestora del contrato
+codigo_unidade_gestora_origem,STRING,Código da unidade gestora de origem do contrato,,no,,,no,,codigoUnidadeGestoraOrigemContrato,Code of the unit the contract originated in,Código de la unidad gestora de origen del contrato
+nome_unidade_gestora_origem,STRING,Nome da unidade gestora de origem do contrato,,no,,,no,,nomeUnidadeGestoraOrigemContrato,Name of the unit the contract originated in,Nombre de la unidad gestora de origen del contrato
+codigo_unidade_realizadora_compra,STRING,Código da unidade que realizou a contratação,,no,,,no,,codigoUnidadeRealizadoraCompra,Code of the unit that ran the procurement,Código de la unidad que realizó la contratación
+nome_unidade_realizadora_compra,STRING,Nome da unidade que realizou a contratação,,no,,,no,,nomeUnidadeRealizadoraCompra,Name of the unit that ran the procurement,Nombre de la unidad que realizó la contratación
+id_compra,STRING,Identificador da contratação de origem no SIASG,,no,,,no,Junta com a tabela contratacao,idCompra,Identifier of the originating procurement in SIASG,Identificador de la contratación de origen en el SIASG
+numero_controle_pncp_compra,STRING,Número de controle da contratação de origem no PNCP,,no,,,no,,numeroControlePncpCompra,PNCP control number of the originating procurement,Número de control de la contratación de origen en el PNCP
+numero_compra,STRING,Número da contratação de origem,,no,,,no,,numeroCompra,Number of the originating procurement,Número de la contratación de origen
+codigo_modalidade_compra,STRING,Código da modalidade da contratação de origem,,yes,,,no,,codigoModalidadeCompra,Code of the originating procurement's modality,Código de la modalidad de la contratación de origen
+modalidade_compra,STRING,Modalidade da contratação de origem,,no,,,no,,nomeModalidadeCompra,Modality of the originating procurement,Modalidad de la contratación de origen
+id_fornecedor,STRING,CNPJ ou CPF do fornecedor contratado,,no,,,no,,niFornecedor,Taxpayer number of the contracted supplier,CNPJ o CPF del proveedor contratado
+nome_fornecedor,STRING,Nome ou razão social do fornecedor contratado,,no,,,no,,nomeRazaoSocialFornecedor,Name of the contracted supplier,Nombre o razón social del proveedor contratado
+processo,STRING,Número do processo administrativo do contrato,,no,,,no,,processo,Administrative case number of the contract,Número del proceso administrativo del contrato
+receita_despesa,STRING,Indica se o contrato gera receita ou despesa,,yes,,,no,"D despesa, R receita, S sem ônus",receitaDespesa,Whether the contract generates revenue or expenditure,Indica si el contrato genera ingreso o gasto
+codigo_tipo,STRING,Código do tipo de contrato,,yes,,,no,,codigoTipo,Code of the contract type,Código del tipo de contrato
+tipo,STRING,"Tipo de contrato, como contrato, credenciamento ou termo aditivo",,no,,,no,,nomeTipo,"Contract type, such as contract, accreditation or amendment","Tipo de contrato, como contrato, acreditación o adenda"
+codigo_categoria,STRING,Código da categoria do contrato,,yes,,,no,,codigoCategoria,Code of the contract category,Código de la categoría del contrato
+categoria,STRING,"Categoria do contrato, como compras, serviços ou obras",,no,,,no,,nomeCategoria,"Contract category, such as purchases, services or works","Categoría del contrato, como compras, servicios u obras"
+codigo_subcategoria,STRING,Código da subcategoria do contrato,,yes,,,no,,codigoSubcategoria,Code of the contract subcategory,Código de la subcategoría del contrato
+subcategoria,STRING,Subcategoria do contrato,,no,,,no,,nomeSubcategoria,Contract subcategory,Subcategoría del contrato
+objeto,STRING,Descrição do objeto do contrato,,no,,,no,,objeto,Description of the contract's subject matter,Descripción del objeto del contrato
+informacoes_complementares,STRING,Informações complementares do contrato,,no,,,no,,informacoesComplementares,Supplementary information about the contract,Información complementaria del contrato
+unidades_requisitantes,STRING,Códigos das unidades requisitantes do contrato,,no,,,no,Lista separada por vírgula quando há mais de uma unidade,unidadesRequisitantes,Codes of the units that requested the contract,Códigos de las unidades solicitantes del contrato
+valor_global,FLOAT64,Valor global do contrato,,no,,BRL,no,,valorGlobal,Global value of the contract,Valor global del contrato
+numero_parcelas,INT64,Número de parcelas do contrato,,no,,unit,no,,numeroParcelas,Number of instalments in the contract,Número de cuotas del contrato
+valor_parcela,FLOAT64,Valor de cada parcela do contrato,,no,,BRL,no,,valorParcela,Value of each contract instalment,Valor de cada cuota del contrato
+valor_acumulado,FLOAT64,"Valor acumulado do contrato, incluindo aditivos",,no,,BRL,no,,valorAcumulado,"Accumulated value of the contract, including amendments","Valor acumulado del contrato, incluyendo adendas"
+total_despesas_acessorias,FLOAT64,Total de despesas acessórias do contrato,,no,,BRL,no,Integralmente vazia nas amostras verificadas em 2026-08,totalDespesasAcessorias,Total ancillary expenses of the contract,Total de gastos accesorios del contrato
+indicador_contrato_excluido,BOOLEAN,Indica se o contrato foi excluído,,no,,,no,,contratoExcluido,Whether the contract was deleted,Indica si el contrato fue excluido
+data_vigencia_inicial,DATE,Data de início da vigência do contrato,,no,,,no,,dataVigenciaInicial,Start date of the contract's validity,Fecha de inicio de la vigencia del contrato
+data_vigencia_final,DATE,Data de término da vigência do contrato,,no,,,no,,dataVigenciaFinal,End date of the contract's validity,Fecha de término de la vigencia del contrato
+data_hora_inclusao,DATETIME,Data e hora de inclusão do contrato no sistema,,no,,,no,,dataHoraInclusao,Timestamp when the contract was added to the system,Fecha y hora de inclusión del contrato en el sistema
+data_hora_exclusao,DATETIME,Data e hora da exclusão do contrato,,no,,,no,,dataHoraExclusao,Timestamp when the contract was deleted,Fecha y hora de la exclusión del contrato

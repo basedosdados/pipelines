@@ -1,0 +1,18 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+data_extracao,DATE,Data em que o registro foi extraído da API Compras.gov.br,,no,,,no,"Coluna de particionamento. A fonte publica apenas o estado corrente do cadastro, sem histórico, portanto cada extração é uma fotografia",,Date on which the record was extracted from the Compras.gov.br API,Fecha en que el registro fue extraído de la API Compras.gov.br
+codigo_servico,STRING,Código do item de serviço no CATSER,,no,,,no,,codigoServico,Code of the service item in CATSER,Código del artículo de servicio en el CATSER
+codigo_secao,STRING,Código da seção de serviço,,no,,,no,,codigoSecao,Code of the service section,Código de la sección de servicio
+nome_secao,STRING,Nome da seção de serviço,,no,,,no,,nomeSecao,Name of the service section,Nombre de la sección de servicio
+codigo_divisao,STRING,Código da divisão de serviço,,no,,,no,,codigoDivisao,Code of the service division,Código de la división de servicio
+nome_divisao,STRING,Nome da divisão de serviço,,no,,,no,,nomeDivisao,Name of the service division,Nombre de la división de servicio
+codigo_grupo,STRING,Código do grupo de serviço,,no,,,no,,codigoGrupo,Code of the service group,Código del grupo de servicio
+nome_grupo,STRING,Nome do grupo de serviço,,no,,,no,,nomeGrupo,Name of the service group,Nombre del grupo de servicio
+codigo_classe,STRING,Código da classe de serviço,,no,,,no,,codigoClasse,Code of the service class,Código de la clase de servicio
+nome_classe,STRING,Nome da classe de serviço,,no,,,no,,nomeClasse,Name of the service class,Nombre de la clase de servicio
+codigo_subclasse,STRING,Código da subclasse de serviço,,no,,,no,Preenchido para menos de 1% dos itens,codigoSubclasse,Code of the service subclass,Código de la subclase de servicio
+nome_subclasse,STRING,Nome da subclasse de serviço,,no,,,no,,nomeSubclasse,Name of the service subclass,Nombre de la subclase de servicio
+nome_servico,STRING,Nome do item de serviço,,no,,,no,,nomeServico,Name of the service item,Nombre del artículo de servicio
+codigo_cpc,STRING,Código da Central Product Classification correspondente ao serviço,,no,,,no,,codigoCpc,Central Product Classification code matching the service,Código de la Central Product Classification correspondiente al servicio
+indicador_exclusivo_central_compras,BOOLEAN,Indica se o serviço é de contratação exclusiva pela Central de Compras,,no,,,no,,exclusivoCentralCompras,Whether the service may be contracted only by the Central Purchasing Office,Indica si el servicio es de contratación exclusiva por la Central de Compras
+indicador_servico_ativo,BOOLEAN,Indica se o serviço está ativo no catálogo,,no,,,no,,statusServico,Whether the service is active in the catalogue,Indica si el servicio está activo en el catálogo
+data_hora_atualizacao,DATETIME,Data e hora da última atualização do serviço no catálogo,,no,,,no,,dataHoraAtualizacao,Timestamp of the last update to the catalogue service,Fecha y hora de la última actualización del servicio en el catálogo
