@@ -8,7 +8,7 @@ one-day sample of `contrato`, 71% of records were municipal, 13% state and 13% f
 Coverage starts 2021 (Lei 14.133/2021), but adoption ramps steeply — 5.3k contratos in
 2021 against 2.02M in 2025.
 
-## Status: backfill RUNNING (resumed 2026-08-28 12:18)
+## Status: backfill RUNNING, five tables (2026-08-28)
 
 Everything except the historical download is done and verified. The backfill is
 resumable: chunks are written atomically and skipped when present, so re-running the
@@ -62,6 +62,30 @@ rebuild `dicionario` (it derives from the fact tables, so it must be rebuilt las
 `dbt run` then `dbt test` across all six models, then register metadata in dev — which
 needs a `pncp` **organization created first**, as none exists. Stop at the verification
 checkpoint before anything touches prod.
+
+## Scope: five tables now, PCA later
+
+`plano_contratacao_anual` is **deferred to a follow-up backfill**, agreed with
+the user on 2026-08-28. It costs ~76h of API time by itself, about twice the
+other four tables combined, and there is no cheaper route: `/v1/pca/atualizacao`
+serves ~40s pages (measured 39.3s for one 500-item page) and the year-keyed
+`/v1/pca/` endpoint times out on every `codigoClassificacaoSuperior` tried.
+
+Shipping the other five gets the dataset through dev validation, metadata and
+PR in ~40h rather than ~118h.
+
+**Everything for PCA stays in the codebase** -- its `ENDPOINTS` entry,
+architecture CSV, `flatten`/`EXPLODE` handling and `dicionario` mapping. Only
+the harvest, upload and dbt scope exclude it, via `constants.DEFERRED_TABLES`.
+
+To pick it up later: add `plano_contratacao_anual` back to `FACT_TABLES`,
+`ALL_TABLES` and `gen_dbt.TABLES`, re-run `gen_dbt.py`, harvest it, then
+register the table. The `TestDeferredTableScope` tests keep the two halves
+honest in the meantime.
+
+**Its dbt model is deliberately absent and that is load-bearing.**
+table-approve materialises every model in a PR, so one model whose staging
+table does not exist aborts the entire prod materialisation, not just its own.
 
 ## Tables
 
