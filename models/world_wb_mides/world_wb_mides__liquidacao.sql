@@ -64,7 +64,4 @@ from
         union all
         select *
         from {{ ref("world_wb_mides__liquidacao_sc") }}
-        union all
-        select *
-        from {{ ref("world_wb_mides__liquidacao_to") }}
     )
