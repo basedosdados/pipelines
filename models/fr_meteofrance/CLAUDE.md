@@ -99,7 +99,7 @@ values in 5.4M rows). They are listed in the `not_null_proportion_multiple_colum
 - `build_dicionario.py` — the BUFR/WMO code tables, in French.
 - `gen_artifacts.py` — regenerates `architecture/*.csv`, the five dbt models and `columns.json`.
   **Run it after any schema change** so architecture, SQL and metadata cannot drift, then run
-  `uv run pre-commit run --files models/fr_meteofrance/...` — it emits unformatted SQL that
+  `uv run pre-commit run --files models/fr_meteofrance/*.sql models/fr_meteofrance/code/*.py` — it emits unformatted SQL that
   `sqlfmt` rewrites.
 - `validate.py` — key uniqueness, coverage, sparsity, dictionary coverage. Run before uploading.
 - `upload.py` — uploads to `basedosdados-dev.fr_meteofrance_staging`, verifying row counts

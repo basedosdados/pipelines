@@ -1,4 +1,13 @@
-"""Validate the cleaned parquet before upload: keys, coverage, sparsity, dictionary."""
+"""Validate the cleaned parquet before upload: keys, coverage, sparsity, dictionary.
+
+    uv run python models/fr_meteofrance/code/validate.py
+
+**Exits non-zero when a check fails.** Every check used to print and return, so a
+run that found 12,000 duplicate keys was indistinguishable from a clean one by
+exit status — and this script is the gate before uploading to BigQuery. Sparsity
+is reported but never fails: columns legitimately under 5% non-null are expected
+here and are declared in `schema.yml`'s `ignore_values`.
+"""
 
 import os
 import sys
@@ -19,7 +28,8 @@ OUTPUT = Path(
 CODED = [tgt for _s, tgt, _t, _u, is_dict, _d in SYNOP_COLUMNS if is_dict]
 
 
-def synop():
+def synop() -> tuple[dict, int]:
+    """Report SYNOP shape and return ``(coded values seen, failure count)``."""
     files = sorted((OUTPUT / "synop").rglob("*.parquet"))
     total = sum(pq.ParquetFile(f).metadata.num_rows for f in files)
     print(f"synop: {len(files)} partitions, {total:,} rows")
@@ -48,10 +58,11 @@ def synop():
     print(f"  columns under 5% non-null ({len(sparse)}):")
     for c in sparse:
         print(f"    {c:38s} {nonnull[c] / total:6.4%}")
-    return codes
+    return codes, dup
 
 
-def dictionary(codes):
+def dictionary(codes) -> int:
+    """Report dictionary coverage and return the number of uncovered values."""
     d = pd.read_parquet(OUTPUT / "dicionario" / "data.parquet")
     print(f"\ndicionario: {len(d):,} rows")
     missing = 0
@@ -76,11 +87,16 @@ def dictionary(codes):
         )
         gap = set(nm[col].dropna()) - known
         if gap:
+            missing += len(gap)
             print(f"  UNCOVERED normale_climatologique.{col}: {sorted(gap)}")
+    return missing
 
 
-def others():
+def others() -> int:
+    """Report the register and normals tables; return the failure count."""
+    failures = 0
     st = pd.read_parquet(OUTPUT / "station_synop" / "data.parquet")
+    failures += int(st["indicatif_omm"].duplicated().sum())
     print(
         f"\nstation_synop: {len(st)} rows, "
         f"{st['indicatif_omm'].duplicated().sum()} duplicate keys, "
@@ -88,6 +104,7 @@ def others():
     )
 
     sc = pd.read_parquet(OUTPUT / "station_climatologique" / "data.parquet")
+    failures += int(sc["numero_poste"].duplicated().sum())
     print(
         f"station_climatologique: {len(sc)} rows, "
         f"{sc['numero_poste'].duplicated().sum()} duplicate keys"
@@ -95,6 +112,7 @@ def others():
 
     nm = pd.read_parquet(OUTPUT / "normale_climatologique" / "data.parquet")
     key = nm[["numero_poste", "indicateur", "periode"]]
+    failures += len(key) - len(key.drop_duplicates())
     print(
         f"normale_climatologique: {len(nm):,} rows, "
         f"{len(key) - len(key.drop_duplicates()):,} duplicate keys, "
@@ -102,9 +120,14 @@ def others():
     )
     orphans = set(nm["numero_poste"]) - set(sc["numero_poste"])
     print(f"  normals with no station row: {len(orphans)}")
+    return failures + len(orphans)
 
 
 if __name__ == "__main__":
-    codes = synop()
-    others()
-    dictionary(codes)
+    codes, failures = synop()
+    failures += others()
+    failures += dictionary(codes)
+    if failures:
+        print(f"\nVALIDATION FAILED: {failures} problems")
+        raise SystemExit(1)
+    print("\nvalidation OK")

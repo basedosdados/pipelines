@@ -108,14 +108,6 @@ TABLES = {
     "dicionario": DICIONARIO_ARCH,
 }
 
-COVERAGE = {
-    "synop": "1996(1)2026",
-    "station_synop": "1996(1)2026",
-    "station_climatologique": "1991(1)2020",
-    "normale_climatologique": "1991(1)2020",
-    "dicionario": "",
-}
-
 PARTITION = {
     "synop": {
         "field": "annee",
@@ -139,6 +131,9 @@ def write_architecture():
                         name,
                         btype,
                         desc,
+                        # temporal_coverage is per COLUMN, and empty means
+                        # "same as the parent table" -- true of every column
+                        # here, so filling it in would only add noise.
                         "",
                         "yes" if is_dict else "no",
                         DIRECTORY.get(name, ""),
