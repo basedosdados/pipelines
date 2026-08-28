@@ -6,7 +6,8 @@ state Courts of Accounts. This dataset covers the **state executives' own spendi
 from each state's own transparency portal over its financial system (SIAFI-MG, FIPLAN-BA,
 e-Fisco-PE, SIAFEM-SP).
 
-**Status:** in progress. MG is the reference implementation.
+**Status:** MG, BA and PE built, validated and registered on staging (8 tables,
+95.2M rows, dbt 30/30). SP is still being scraped and adds `despesa_anual`.
 
 ---
 
@@ -36,7 +37,7 @@ The four sources do **not** share a grain:
 |----|----------------|------------------------------|------------|------|-------------|
 | MG | empenho × budget line × document | yes, CNPJ/CPF (0.5% anonymised) | yes | monthly | **native** (`fl_compras_empenho`, 1.1M links) |
 | BA | month × budget line | **no** | **no** | monthly | **native** (item → `NUM_INSTRUMENTO_ORCAMENTO`) |
-| PE | empenho document | yes (some pseudo-codes) | yes | to confirm | none (modality only) |
+| PE | empenho document | yes (some pseudo-codes) | yes | **year only** (2011+); dates exist 2008-2010 | none (modality only) |
 | SP | credor × budget line × **year** | yes, CPF/CNPJ | **no** | **year only** | none (modality only) |
 
 **Only MG is transaction grain.** Two states fail it for different reasons, and both were
@@ -58,9 +59,9 @@ key needs an allocation rule the source does not publish, so it would be inventi
 
 | Table | Grain | State |
 |---|---|---|
-| `despesa` | empenho document × budget line | MG (PE pending) |
+| `despesa` | empenho document × budget line | MG 2002+, PE 2008+ |
 | `despesa_mensal` | month × budget line, no creditor | BA, 2013+ |
-| `despesa_anual` | credor × budget line × year | SP, 2010+ |
+| `despesa_anual` | credor × budget line × year | SP 2010+, pending |
 | `empenho_credor` | empenho × creditor, **no values** | BA, 2019+ |
 
 ### Divergence from MiDES worth knowing
@@ -77,24 +78,36 @@ reverse (recovering one row per line from three fabricated tables) is not.
 
 ## 4. Tables
 
-| Table | Grain | States |
-|-------|-------|--------|
-| `despesa` | empenho document × budget line, with `valor_empenhado`/`liquidado`/`pago` | MG, BA, PE |
-| `despesa_anual` | credor × budget line × year, six phase columns | SP |
-| `licitacao` | one tender / procurement process | MG, BA |
-| `licitacao_item` | item within a tender | MG, BA |
-| `licitacao_participante` | bidder × item, with outcome | BA |
-| `relacionamentos` | tender ↔ empenho bridge | MG, BA |
-| `orgao_unidade_gestora` | organisational directory | all |
-| `dicionario` | value → label for every coded column | all |
+Eight tables are built. `despesa_anual` is pending the SP scrape;
+`orgao_unidade_gestora` was dropped — no source publishes an organisational directory
+separable from its fact tables, so the órgão fields stay denormalised on each row.
 
-Partitioned by `ano` (INT64), clustered by `sigla_uf`.
+| Table | Grain | States | Rows |
+|-------|-------|--------|------|
+| `despesa` | empenho document × budget line, with `valor_empenhado`/`liquidado`/`pago` | MG, PE | 85,214,849 |
+| `despesa_mensal` | month × budget line, values without creditor | BA | 2,219,353 |
+| `empenho_credor` | empenho × creditor, creditor without values | BA | 1,091,372 |
+| `licitacao` | one tender / procurement process | MG, BA | 519,598 |
+| `licitacao_item` | purchase of one item within a tender | MG, BA | 3,079,475 |
+| `licitacao_participante` | bidder × item, with outcome | BA | 1,828,922 |
+| `relacionamentos` | tender ↔ empenho bridge | MG, BA | 1,292,948 |
+| `dicionario` | value → label for every coded column | MG | 11,962 |
+| `despesa_anual` *(pending)* | credor × budget line × year | SP | — |
+
+95.2M rows, 28.7 GB. Partitioned by `ano` (INT64), clustered by `sigla_uf`;
+`dicionario` and `relacionamentos` carry no date column and are unpartitioned.
+
+**Bahia is deliberately split across two tables rather than folded into `despesa`.** The
+source publishes the values in one view (by month and appropriation, no creditor) and the
+creditors in another (by empenho, no values), and the only key between them is the
+appropriation, at about six empenhos per appropriation. Attributing value to creditor
+through that key would need an apportionment rule the source does not provide.
 
 ## 5. Relationship to `br_pncp`
 
 PNCP covers procurement for all government levels from **2021** (Lei 14.133). The marginal
 value here is (1) **budget execution**, which PNCP does not carry at all, and (2) pre-2021
-procurement history — back to 2010 (MG) and 2009 (BA). State procurement from 2021 is
+procurement history — back to 2010 (MG) and 2004 (BA). State procurement from 2021 is
 retained deliberately: the state portals carry item- and bidder-level detail that PNCP does
 not, so the overlap is not pure duplication.
 
