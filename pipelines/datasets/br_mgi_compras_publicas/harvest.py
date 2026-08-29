@@ -188,29 +188,29 @@ def plan_jobs(
                 f"{spec.table} is partitioned by (year, orgao); pass year_orgaos "
                 "derived from the harvested parent table"
             )
-        planner = session or build_session()
+        # One job per (year, orgao), paginating to exhaustion -- deliberately
+        # NOT split into page-range blocks. Splitting requires a count_pages
+        # call per partition, and plan_jobs counts sequentially: 10,242 probes
+        # at ~3s each is 8.5h of single-threaded planning before a single row
+        # is fetched, which costs more than it saves. The partitions are small
+        # by construction (10,209 of 10,242 are under 100 pages), so a whole
+        # partition is already a reasonable resumable unit.
         for year in range(first_year, last_year + 1):
             if since and year < since.year:
                 continue
             for orgao in year_orgaos.get(year, []):
-                params = {
-                    **spec.params,
-                    spec.year_param: year,
-                    spec.orgao_param: orgao,
-                }
-                for job in _page_range_jobs(
-                    planner, spec, f"y{year}__o{orgao}", params
-                ):
-                    jobs.append(
-                        Job(
-                            job.table,
-                            job.chunk_id,
-                            job.params,
-                            year_fallback=year,
-                            page_from=job.page_from,
-                            page_to=job.page_to,
-                        )
+                jobs.append(
+                    Job(
+                        spec.table,
+                        f"y{year}__o{orgao}",
+                        {
+                            **spec.params,
+                            spec.year_param: year,
+                            spec.orgao_param: orgao,
+                        },
+                        year_fallback=year,
                     )
+                )
 
     elif spec.window is WindowKind.MODALIDADE:
         # No date filter exists, so the only way to parallelise is by page range.
