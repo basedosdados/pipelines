@@ -241,6 +241,29 @@ tier A.
 - **Tier B (+77h, background):** endpoint 2 for modalidades 5, 6, 7, closing the gap.
   Until it lands, `licitacao_item` carries a `observations` note naming the omission.
 
+### Eight workers is the ceiling -- do not raise it
+
+Measured twice, in both directions. Endpoint 2 is slower at 12 workers than at 8
+(148 vs 178 rows/s). Endpoint 5 was measured again on 2026-08-29 by counting
+completed chunks over a clean window, the same way on both sides:
+
+| Workers | Jobs | Window | Rate |
+|---|---|---|---|
+| 8 | 16 | 12.0 min | **1.33/min** |
+| 24 | 1 | 14.5 min | 0.07/min |
+
+Twenty-four workers is roughly **19x slower**, not faster. Pushing the offered rate
+past the module ceiling triggers continuous 429s; the AIMD limiter then cuts
+multiplicatively toward its floor and climbs back slowly, so the rate collapses and
+stays collapsed. The harvest is latency-bound at 8 workers *and* already sitting at
+the ceiling -- those are not contradictory, and the arithmetic showing the limiter
+never blocks at 8 workers says nothing about headroom above it.
+
+The trap is that the flattering reading is easy to produce by accident: counting all
+chunk files conflates stale chunks from a superseded plan and the previous process's
+in-flight work. Count only files matching the current plan, over a clean window,
+before and after.
+
 ### Legado date ranges are CLOSED, not half-open
 
 The 14.133 module uses `[inicial, final)`; **legado uses `[inicial, final]`**. Verified:
