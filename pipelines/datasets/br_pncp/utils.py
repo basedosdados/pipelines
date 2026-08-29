@@ -679,6 +679,15 @@ def clean_table(
             for an incremental pipeline run, which produces only the partitions
             its window touched and must not delete the others.
         batch_rows: Rows buffered per partition before a part is written.
+            Caps BOTH local memory and the size of each staging parquet, and
+            the second one matters as much as the first. table-approve's
+            save_header_files runs pd.read_parquet on the lexicographically
+            FIRST blob in a table's staging prefix -- it only wants column
+            names but loads the whole file -- and OOM-kills the CI runner on
+            a large one, so no prod table gets built at all. At 50k rows a
+            part is ~6 MB, four orders of magnitude below the threshold where
+            that has been observed to fail. Do not raise this into the
+            millions without pre-seeding a 0-row 00_header.parquet.
 
     Returns:
         Summary with raw and written row counts and the years touched. Note that

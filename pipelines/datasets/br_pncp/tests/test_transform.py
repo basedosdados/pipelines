@@ -940,3 +940,52 @@ class TestPerEndpointConcurrencyCap:
         # min(), not the declared value: asking for 1 must never become 3.
         spec = {"max_workers": 3}
         assert min(1, int(spec.get("max_workers", 1))) == 1
+
+
+class TestStagingPartSizeStaysSmall:
+    """Part size protects two different things, only one of them local.
+
+    The obvious one is this machine's RAM during cleaning. The other is CI:
+    table-approve reads the lexicographically first staging parquet with
+    pd.read_parquet purely to learn column names, and OOM-kills the runner
+    on a large file -- which builds NO prod tables at all, for any table in
+    the PR. Both are bounded by the same batch size.
+    """
+
+    MAX_SAFE_BATCH = 200_000
+
+    def _default_batch(self):
+        import inspect
+
+        sig = inspect.signature(utils.clean_table)
+        return sig.parameters["batch_rows"].default
+
+    def test_the_default_batch_is_small_enough_for_table_approve(self):
+        assert self._default_batch() <= self.MAX_SAFE_BATCH
+
+    def test_parts_are_flushed_at_the_batch_size(self, tmp_path):
+        # Two partitions, each over the batch, must yield several parts
+        # rather than one file per year.
+        input_dir, output_dir = tmp_path / "in", tmp_path / "out"
+        target = input_dir / "contrato"
+        target.mkdir(parents=True)
+        with gzip.open(target / "w.jsonl.gz", "wt", encoding="utf-8") as fh:
+            for i in range(25):
+                fh.write(
+                    json.dumps(
+                        {
+                            "numeroControlePNCP": f"X-{i}/2024",
+                            "dataPublicacaoPncp": "2024-05-01T00:00:00",
+                            "dataAtualizacaoGlobal": "2024-05-01T00:00:00",
+                        }
+                    )
+                    + "\n"
+                )
+        utils.clean_table(input_dir, output_dir, "contrato", batch_rows=10)
+        parts = sorted(
+            (output_dir / "contrato" / "ano=2024").glob("*.parquet")
+        )
+        assert len(parts) >= 3, (
+            f"expected the writer to flush every 10 rows, got {len(parts)} "
+            "part(s) -- it is buffering the whole partition"
+        )
