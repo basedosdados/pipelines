@@ -59,7 +59,11 @@ class constants(Enum):
     MAX_WORKERS = 8
 
     REQUEST_TIMEOUT = 300
-    MAX_RETRIES = 5
+    # Backoff is capped at 60s per attempt, so 8 gives about 3 minutes of
+    # patience -- enough to ride out a brief network blip. A job that still
+    # fails is not data loss: consolidate refuses to run with missing chunks,
+    # and a re-run re-plans exactly the jobs whose chunks are absent.
+    MAX_RETRIES = 8
 
     # Rate limiting is paced, not failed: a 429 must not consume the budget
     # reserved for genuine transient errors. /modulo-contratos/ returns 429

@@ -221,9 +221,16 @@ def fetch_page(
             response = session.get(url, params=params, timeout=timeout)
         except (
             requests.RequestException
-        ) as exc:  # connection reset, read timeout
+        ) as exc:  # connection reset, read timeout, DNS failure
             last_error = exc
             attempt += 1
+            # Drop the pooled connections before retrying. A transient network
+            # fault leaves dead sockets in the pool, and requests will happily
+            # hand them out again: after one such blip a harvest kept running
+            # but crawled for hours, each request paying a full timeout on a
+            # socket that could never answer. close() is cheap -- the next
+            # request just opens a new connection.
+            session.close()
             _sleep(attempt)
             continue
 
