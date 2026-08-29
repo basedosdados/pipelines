@@ -241,6 +241,30 @@ tier A.
 - **Tier B (+77h, background):** endpoint 2 for modalidades 5, 6, 7, closing the gap.
   Until it lands, `licitacao_item` carries a `observations` note naming the omission.
 
+### Endpoint 6 rescans on OFFSET, so it is partitioned by (year, orgao)
+
+The 4.5h estimate above was measured on shallow pages and is wrong. Endpoint 6's
+latency grows with page depth -- measured on year 2002: page 1 = 3.9s, page 250 =
+2.4s, page 1000 = 25.8s, page 2000 = 36.9s -- and a year-only query for 2002 is
+2,541 pages. Modelled over the real per-year page counts (31,491 pages total):
+
+| Assumption | Serial | At 8 workers |
+|---|---|---|
+| flat 3s/page (what the original estimate assumed) | 26.2h | 3.3h |
+| **measured depth-dependent latency** | **81.7h** | **10.2h** ideal, ~29h observed |
+
+Years over 1,000 pages carry 88% of the cost. `tamanhoPagina` is capped at 500 and
+`co_modalidade_licitacao` does not help (dispensa is 98.4% of 2002), so the only
+lever is a finer partition. The endpoint accepts `co_orgao`, and the parent table
+is already harvested, so its distinct (ano, codigo_orgao) pairs are exactly the
+partitions needed -- 10,242 of them, of which 10,209 imply under 100 pages. That
+puts nearly every query back in the flat regime: about 34.8h serial, ~4.3h at 8
+workers.
+
+**Verified lossless before adopting**: for 2002, the 199 per-orgao totals sum to
+1,270,238 -- exactly the year total, zero delta, zero errors. `codigo_orgao` is
+non-null for all 5,235,889 parent rows, so no compra is unreachable.
+
 ### Eight workers is the ceiling -- do not raise it
 
 Measured twice, in both directions. Endpoint 2 is slower at 12 workers than at 8

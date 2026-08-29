@@ -60,6 +60,8 @@ class TableSpec:
     #: values iterated over `codigoModalidade` (14.133) or `modalidade` (legado)
     modalidades: tuple[int, ...] = ()
     modalidade_param: str = "codigoModalidade"
+    #: name of the orgao parameter, for YEAR_ORGAO endpoints
+    orgao_param: str = "co_orgao"
     #: snapshot endpoints iterate one parameter over a fixed set of values
     snapshot_param: str | None = None
     snapshot_values: tuple[str, ...] = ()
@@ -198,9 +200,17 @@ TABLE_SPECS: dict[str, TableSpec] = {
     ),
     "compra_sem_licitacao_item": TableSpec(
         table="compra_sem_licitacao_item",
+        # Partitioned by year AND orgao, unlike its parent. A year-only query
+        # paginates far too deep to be affordable: this endpoint rescans on
+        # OFFSET, so page 1 costs 3s and page 2000 costs 37s, and 2002 alone is
+        # 2,541 pages. Splitting by the (year, orgao) pairs already present in
+        # the harvested parent keeps 10,209 of 10,242 partitions under 100
+        # pages, where latency is flat. Measured: 81.7h of serial work becomes
+        # about 34.8h. See PLAN.md.
         path="/modulo-legado/6_consultarCompraItensSemLicitacao",
-        window=WindowKind.YEAR,
+        window=WindowKind.YEAR_ORGAO,
         year_param="dt_ano_aviso_licitacao",
+        orgao_param="co_orgao",
         first_year=_L0,
         last_year=_L1,
     ),

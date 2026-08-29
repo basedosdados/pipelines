@@ -35,6 +35,9 @@ class WindowKind(StrEnum):
     ORGAO = "orgao"  # iterate codigoOrgao; date range spans everything
     MODALIDADE = "modalidade"  # no date filter at all; iterate modalidade
     SNAPSHOT = "snapshot"  # registries and catalogues, no temporal key
+    # a year plus an orgao code. Used where a year-only query paginates too
+    # deep to be affordable -- see the note on compra_sem_licitacao_item.
+    YEAR_ORGAO = "year_orgao"
 
 
 class constants(Enum):

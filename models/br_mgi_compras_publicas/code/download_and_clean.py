@@ -45,6 +45,7 @@ from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
     orgaos_from_chunks,
     plan_jobs,
     probe_contrato_orgaos,
+    year_orgao_pairs,
 )
 from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
     consolidate_table as consolidate,
@@ -204,10 +205,20 @@ def main() -> int:
             spec = TABLE_SPECS[table]
             orgaos = (
                 resolve_orgaos(output_dir, probe=False)
-                if spec.window == "orgao"
+                if spec.window.value == "orgao"
                 else None
             )
-            jobs = plan_jobs(spec, orgaos=orgaos, session=planner)
+            year_orgaos = (
+                year_orgao_pairs(output_dir)
+                if spec.window.value == "year_orgao"
+                else None
+            )
+            jobs = plan_jobs(
+                spec,
+                orgaos=orgaos,
+                year_orgaos=year_orgaos,
+                session=planner,
+            )
             stats = consolidate(
                 table, output_dir, jobs=jobs, prune=args.prune_chunks
             )
@@ -219,14 +230,18 @@ def main() -> int:
     for table in tables:
         spec = TABLE_SPECS[table]
         orgaos = None
+        year_orgaos = None
         if spec.window.value == "orgao":
             orgaos = resolve_orgaos(output_dir, probe=args.probe_orgaos)
+        elif spec.window.value == "year_orgao":
+            year_orgaos = year_orgao_pairs(output_dir)
         started = time.time()
         summary[table] = harvest_table(
             table,
             output_dir,
             max_workers=args.workers,
             orgaos=orgaos,
+            year_orgaos=year_orgaos,
             extraction_date=extraction_date,
         )
         summary[table]["seconds"] = int(time.time() - started)

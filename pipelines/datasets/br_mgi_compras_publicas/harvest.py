@@ -120,6 +120,7 @@ def plan_jobs(
     *,
     today: dt.date | None = None,
     orgaos: list[str] | None = None,
+    year_orgaos: dict[int, list[str]] | None = None,
     since: dt.date | None = None,
     session: requests.Session | None = None,
 ) -> list[Job]:
@@ -179,6 +180,37 @@ def plan_jobs(
                         page_to=job.page_to,
                     )
                 )
+
+    elif spec.window is WindowKind.YEAR_ORGAO:
+        assert spec.year_param and spec.orgao_param
+        if year_orgaos is None:
+            raise ValueError(
+                f"{spec.table} is partitioned by (year, orgao); pass year_orgaos "
+                "derived from the harvested parent table"
+            )
+        planner = session or build_session()
+        for year in range(first_year, last_year + 1):
+            if since and year < since.year:
+                continue
+            for orgao in year_orgaos.get(year, []):
+                params = {
+                    **spec.params,
+                    spec.year_param: year,
+                    spec.orgao_param: orgao,
+                }
+                for job in _page_range_jobs(
+                    planner, spec, f"y{year}__o{orgao}", params
+                ):
+                    jobs.append(
+                        Job(
+                            job.table,
+                            job.chunk_id,
+                            job.params,
+                            year_fallback=year,
+                            page_from=job.page_from,
+                            page_to=job.page_to,
+                        )
+                    )
 
     elif spec.window is WindowKind.MODALIDADE:
         # No date filter exists, so the only way to parallelise is by page range.
@@ -283,6 +315,7 @@ def harvest_table(
     *,
     max_workers: int | None = None,
     orgaos: list[str] | None = None,
+    year_orgaos: dict[int, list[str]] | None = None,
     since: dt.date | None = None,
     today: dt.date | None = None,
     extraction_date: dt.date | None = None,
@@ -293,7 +326,12 @@ def harvest_table(
     columns = load_architecture(table)
     planner = build_session()
     planned = plan_jobs(
-        spec, today=today, orgaos=orgaos, since=since, session=planner
+        spec,
+        today=today,
+        orgaos=orgaos,
+        year_orgaos=year_orgaos,
+        since=since,
+        session=planner,
     )
     todo = pending_jobs(planned, output_dir)
     workers = max_workers or constants.MAX_WORKERS.value
@@ -554,3 +592,41 @@ def consolidate_table(
         shutil.rmtree(chunk_dir)
         logger.info("%s: pruned chunk directory", table)
     return {"rows": rows, "files": len(files), "missing": 0}
+
+
+def year_orgao_pairs(
+    output_dir: Path, parent_table: str = "compra_sem_licitacao"
+) -> dict[int, list[str]]:
+    """(year -> orgao codes) taken from an already-harvested parent table.
+
+    A child endpoint that only accepts `dt_ano_aviso_licitacao` paginates too
+    deep to harvest a whole year at once. Its parent carries the orgao of every
+    compra, so the parent's distinct (ano, codigo_orgao) pairs are exactly the
+    partitions the child needs -- no guessing, and no probing for empty ones.
+    """
+    root = output_dir / "output" / parent_table
+    if not root.is_dir():
+        raise FileNotFoundError(
+            f"{parent_table} must be consolidated before {root.name} can be "
+            "partitioned by (year, orgao); run --consolidate on it first"
+        )
+    table = ds.dataset(root, format="parquet", partitioning="hive").to_table(
+        columns=["ano", "codigo_orgao"]
+    )
+    pairs: dict[int, set[str]] = {}
+    for year, orgao in zip(
+        table.column("ano").to_pylist(),
+        table.column("codigo_orgao").to_pylist(),
+        strict=True,
+    ):
+        if year is None or not orgao:
+            continue
+        pairs.setdefault(int(year), set()).add(str(orgao))
+    out = {y: sorted(v) for y, v in sorted(pairs.items())}
+    logger.info(
+        "%s: %d (year, orgao) partitions across %d years",
+        parent_table,
+        sum(len(v) for v in out.values()),
+        len(out),
+    )
+    return out
