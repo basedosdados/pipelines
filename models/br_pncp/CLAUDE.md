@@ -552,12 +552,24 @@ Each table starts when PNCP began carrying that kind of record, not when the
 portal launched. Registering a uniform 2021 start would overstate coverage on
 the site. Measured from the cleaned output, not assumed:
 
-| table | first year with data | note |
-|---|---|---|
-| `contrato` | 2021 | 3,317,418 staging rows at 305/305 windows |
-| `instrumento_cobranca` | **2025** | nothing in 2021-2024; the API answers those windows with 404 "Nenhum instrumento de Cobrança encontrado" |
-| `ata_registro_preco` | TBD | 2021 windows are all genuinely empty |
-| `contratacao` | TBD | not yet harvested |
+| table | first year | staging rows | note |
+|---|---|---|---|
+| `contrato` | 2021 | 4,707,847 | 305/305 windows, 0 missing |
+| `instrumento_cobranca` | **2025** | 215,382 | 69/69 windows; nothing in 2021-2024, where the API answers 404 "Nenhum instrumento de Cobrança encontrado" |
+| `ata_registro_preco` | TBD | -- | 2021 windows are genuinely empty |
+| `contratacao` | TBD | -- | not yet harvested |
+
+`contrato` by year, which is the shape PNCP adoption should produce and so
+doubles as a sanity check:
+
+| 2021 | 2022 | 2023 | 2024 | 2025 | 2026 (to Aug) |
+|---|---|---|---|---|---|
+| 5,308 | 40,645 | 242,957 | 1,010,769 | 2,023,341 | 1,384,827 |
+
+Lei 14.133 became mandatory in April 2023, which is where the curve turns.
+2026 annualises to ~2.1M, consistent with 2025. The 2021 and 2022 counts
+reproduce the earlier dev-table validation exactly, so the re-harvest after
+the empty-chunk fix did not perturb what was already correct.
 
 Read the real min and max from the cleaned parquet before registering
 `create_update_datetime_range`, per table. Fill this table in as each one
