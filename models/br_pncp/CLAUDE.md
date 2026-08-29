@@ -562,3 +562,31 @@ the site. Measured from the cleaned output, not assumed:
 Read the real min and max from the cleaned parquet before registering
 `create_update_datetime_range`, per table. Fill this table in as each one
 completes.
+
+## A backfill is not done until a re-run reports zero failures
+
+Windows fail transiently -- PNCP returns 504s and dropped connections under
+load, and a window that fails writes no chunk. That is by design (see the
+empty-chunk section), and it means **the last run of a backfill must be one
+that harvests nothing**:
+
+```bash
+PNCP_DATA_DIR=~/Downloads/br_pncp_data PNCP_WORKERS=3 \
+  uv run python models/br_pncp/code/download.py --end 2026-08-28
+```
+
+Re-run until every table reports `0 new records this run` and no `FAILED`
+lines. Everything already on disk is skipped, so a sweep over a complete
+backfill costs one page-1 request per window and nothing else.
+
+Evidence this is not paranoia: all three `instrumento_cobranca` windows that
+failed at 3 workers succeeded on the retry at 1, and `ata_registro_preco`
+window `20210105_20210106` failed on a day that is almost certainly empty.
+Transient means transient in both directions.
+
+Then verify coverage per table rather than trusting the counts:
+
+```python
+# expected window tags vs what is on disk -- must be 0 missing, 0 orphaned
+utils.windows(start, end, spec["window_days"], resize)
+```
