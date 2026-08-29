@@ -26,7 +26,6 @@ import datetime as dt
 import json
 import logging
 import os
-import shutil
 import sys
 import time
 from pathlib import Path
@@ -34,9 +33,6 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
-
-import pyarrow.dataset as ds  # noqa: E402
-import pyarrow.parquet as pq  # noqa: E402
 
 from pipelines.datasets.br_mgi_compras_publicas.api import (  # noqa: E402
     build_session,
@@ -50,9 +46,11 @@ from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
     plan_jobs,
     probe_contrato_orgaos,
 )
+from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
+    consolidate_table as consolidate,
+)
 from pipelines.datasets.br_mgi_compras_publicas.utils import (  # noqa: E402
     TABLE_SPECS,
-    load_architecture,
 )
 
 logger = logging.getLogger("br_mgi_compras_publicas")
@@ -154,84 +152,6 @@ def resolve_orgaos(output_dir: Path, *, probe: bool) -> list[str]:
         "orgao list: %d with contracts, cached at %s", len(codes), cache
     )
     return codes
-
-
-def consolidate(
-    table: str,
-    output_dir: Path,
-    *,
-    jobs: list | None = None,
-    prune: bool = False,
-) -> dict[str, int]:
-    """Merge a table's chunks into hive-partitioned output.
-
-    Consolidates the chunks of the *planned job set* rather than whatever
-    parquet happens to sit in the directory. Globbing would silently fold in
-    chunks left by an earlier run whose job identifiers differed, double
-    counting rows; reading the plan instead also surfaces chunks that are
-    missing rather than quietly shipping a short table.
-
-    Streams through pyarrow's dataset writer: contratacao_item alone is
-    millions of rows.
-    """
-    chunk_dir = output_dir / "_chunks" / table
-    if jobs is not None:
-        files = [job.chunk_path(output_dir) for job in jobs]
-        missing = [f for f in files if not f.exists()]
-        if missing:
-            logger.error(
-                "%s: %d of %d planned chunks are missing; refusing to consolidate "
-                "a partial table (first missing: %s)",
-                table,
-                len(missing),
-                len(files),
-                missing[0].name,
-            )
-            return {"rows": 0, "files": 0, "missing": len(missing)}
-    else:
-        if not chunk_dir.is_dir():
-            return {"rows": 0, "files": 0, "missing": 0}
-        files = sorted(chunk_dir.glob("*.parquet"))
-    if not files:
-        return {"rows": 0, "files": 0, "missing": 0}
-
-    columns = [c.name for c in load_architecture(table)]
-    partition_key = "ano" if "ano" in columns else "data_extracao"
-    target = output_dir / "output" / table
-    if target.exists():
-        shutil.rmtree(target)
-
-    dataset = ds.dataset(files, format="parquet")
-    rows = sum(pq.read_metadata(f).num_rows for f in files)
-    ds.write_dataset(
-        dataset,
-        target,
-        format="parquet",
-        partitioning=ds.partitioning(
-            dataset.schema.empty_table().select([partition_key]).schema,
-            flavor="hive",
-        ),
-        existing_data_behavior="overwrite_or_ignore",
-        file_options=ds.ParquetFileFormat().make_write_options(
-            compression="snappy"
-        ),
-        max_rows_per_file=2_000_000,
-        max_rows_per_group=200_000,
-        basename_template="data-{i}.parquet",
-    )
-    logger.info(
-        "%s: consolidated %d rows from %d chunks -> %s",
-        table,
-        rows,
-        len(files),
-        target,
-    )
-    if prune:
-        # Halves peak disk. Only safe once the consolidated output exists, and
-        # it does cost a full re-harvest of this table if it is later needed.
-        shutil.rmtree(chunk_dir)
-        logger.info("%s: pruned chunk directory", table)
-    return {"rows": rows, "files": len(files), "missing": 0}
 
 
 def main() -> int:

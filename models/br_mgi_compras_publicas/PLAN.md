@@ -345,6 +345,31 @@ Daily, per section 5. Legado needs no daily refresh — an annual re-pull is eno
 (records do carry a live `dt_alteracao`; 2015 rows were last touched 2025-04-24).
 The 14.133 poll guard will no-op until the source clears its 2026-07-23 stall.
 
+### The content dedup is correct for a backfill and wrong for an append
+
+Every model deduplicates by partitioning on the row's own content (excluding the
+volatile timestamps) rather than on the key, because partitioning on the key
+destroys rows wherever the key is null -- see `dbt_spec.py`. That is right for the
+one-shot backfill, where each logical row is fetched exactly once and the only
+duplicates are the API's byte-identical page repeats.
+
+**It does not survive an incremental append.** A contratacao re-fetched after a
+revision differs in `data_atualizacao_pncp` and in whatever field changed, so the
+two versions land in different dedup partitions, both survive, and the key then
+appears twice -- failing `unique_combination_of_columns`. The daily flow cannot
+simply append a trailing window on top of the existing table.
+
+Two strategies, chosen per table by whether the key is a real key:
+
+| Tables | Strategy |
+|---|---|
+| `unique_tolerance == 0` (contratacao, the three item tables, licitacao, licitacao_pregao, compra_sem_licitacao_item) | Add a second dedup stage: within each non-null key keep the newest by `dedup_order`. Null-key rows bypass it, so the ata-item failure mode does not return. Append becomes safe and idempotent. |
+| `unique_tolerance > 0` (contrato, contrato_item, ata_*, compra_sem_licitacao) | The key is **not** a real key -- a unidade gestora genuinely reuses a contract number across procurements, and key-deduping those would delete distinct contracts. These need partition-scoped overwrite: re-harvest the whole affected `ano` partition and replace it, never append into it. |
+
+Deliberately **not** applied before the verification checkpoint: the models as they
+stand are correct for the data as loaded and pass 46/46 tests, and changing dedup
+semantics is not something to do while the harvest still blocks a full re-test.
+
 ## 10. Auxiliary files: none
 
 The source publishes data and a machine-readable OpenAPI spec, and nothing else.
