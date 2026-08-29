@@ -266,6 +266,13 @@ project-excludes = [
   # used only by the `--validate` name cross-check and deliberately kept out of
   # pyproject, since the directory is a static one-off load with no pipeline.
   "models/br_bd_diretorios_cl/code",
+  # Same policy: fr_meteofrance onboarding code is standalone one-shot `.py`
+  # (gen_artifacts.py, probe_codes.py, validate.py, clim_gen_artifacts.py,
+  # clim_upload.py run via `uv run`) using bare `import schema_map` /
+  # `import descriptions_i18n` resolved via sys.path — unresolvable from the
+  # repo root. The shared transform lives in the typed
+  # pipelines/datasets/fr_meteofrance/ and is type-checked there.
+  "models/fr_meteofrance/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
