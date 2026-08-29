@@ -156,17 +156,26 @@ def plan_jobs(
 
     elif spec.window is WindowKind.YEAR:
         assert spec.year_param
+        planner = session or build_session()
         for year in range(first_year, last_year + 1):
             if since and year < since.year:
                 continue
-            jobs.append(
-                Job(
-                    spec.table,
-                    f"y{year}",
-                    {**spec.params, spec.year_param: year},
-                    year_fallback=year,
+            params = {**spec.params, spec.year_param: year}
+            # A year is the smallest window this endpoint accepts, and a busy
+            # one runs to 2,540 pages -- hours of work that would checkpoint
+            # only at the very end. Splitting it by page range makes an
+            # interrupted run cost minutes instead of the whole table.
+            for job in _page_range_jobs(planner, spec, f"y{year}", params):
+                jobs.append(
+                    Job(
+                        job.table,
+                        job.chunk_id,
+                        job.params,
+                        year_fallback=year,
+                        page_from=job.page_from,
+                        page_to=job.page_to,
+                    )
                 )
-            )
 
     elif spec.window is WindowKind.MODALIDADE:
         # No date filter exists, so the only way to parallelise is by page range.
