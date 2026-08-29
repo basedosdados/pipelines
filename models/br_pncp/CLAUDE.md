@@ -590,3 +590,22 @@ Then verify coverage per table rather than trusting the counts:
 # expected window tags vs what is on disk -- must be 0 missing, 0 orphaned
 utils.windows(start, end, spec["window_days"], resize)
 ```
+
+## Known limitation: dedup is within a partition
+
+The models dedupe with `qualify row_number() over (partition by <pncp id>
+order by data_atualizacao desc) = 1`, and `insert_overwrite` replaces whole
+`ano` partitions. Both are keyed on `ano`, which is derived from the
+publication date.
+
+That is correct as long as a record's publication date never changes. If
+PNCP ever corrects one across a year boundary, the record lands in a new
+partition while the old copy survives in the previous one, and the
+`unique_combination_of_columns: [ano, <pncp id>]` test will not catch it --
+each copy is unique within its own year.
+
+Not engineered around, because the alternative (deduping across the whole
+table on every run) costs a full scan of a multi-million-row table on every
+refresh to fix an event that may never occur. Recorded so that a future
+duplicate-control-number report has an explanation rather than looking like
+a dedup bug.
