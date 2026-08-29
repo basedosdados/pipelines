@@ -130,6 +130,9 @@ models:
     fr_insee_sirene:
       +materialized: table
       +schema: fr_insee_sirene
+    fr_meteofrance:
+      +materialized: table
+      +schema: fr_meteofrance
     br_bd_diretorios_in:
       +materialized: table
       +schema: br_bd_diretorios_in
