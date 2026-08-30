@@ -652,3 +652,26 @@ the dbt model depends on.
 
 No `00_header.parquet` is needed (see the part-size section): the largest
 part is 50,000 rows / 6 MB.
+
+## Running dbt and the upload locally
+
+Two different credential mechanisms, and neither is picked up by default:
+
+```bash
+# upload.py -> basedosdados / google-cloud-storage
+export GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json
+
+# dbt -> profiles.yml reads BD_SERVICE_ACCOUNT_DEV, whose default is the CI
+# path /credentials-dev/dev.json, which does not exist on a laptop
+export BD_SERVICE_ACCOUNT_DEV=~/.basedosdados/credentials/staging.json
+```
+
+Without the second, dbt fails with
+`Database Error [Errno 2] No such file or directory: '/credentials-dev/dev.json'`
+before running anything, which reads like a dbt problem rather than a
+missing environment variable.
+
+Note the repo's `profiles.yml` uses `BD_SERVICE_ACCOUNT_DEV` for the **prod**
+target too; that looks like a copy-paste slip upstream. It does not matter
+here, since prod is materialised by table-approve on merge and never from a
+laptop.
