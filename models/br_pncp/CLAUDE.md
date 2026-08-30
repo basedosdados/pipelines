@@ -556,7 +556,7 @@ the site. Measured from the cleaned output, not assumed:
 |---|---|---|---|
 | `contrato` | 2021 | 4,707,847 | 305/305 windows, 0 missing |
 | `instrumento_cobranca` | **2025** | 215,382 | 69/69 windows; nothing in 2021-2024, where the API answers 404 "Nenhum instrumento de Cobrança encontrado" |
-| `ata_registro_preco` | TBD | -- | 2021 windows are genuinely empty |
+| `ata_registro_preco` | 2022 | 1,137,524 | 1032/1033 windows; 2021 is genuinely empty, so the table starts in 2022 |
 | `contratacao` | TBD | -- | not yet harvested |
 
 `contrato` by year, which is the shape PNCP adoption should produce and so
@@ -565,6 +565,12 @@ doubles as a sanity check:
 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 (to Aug) |
 |---|---|---|---|---|---|
 | 5,308 | 40,645 | 242,957 | 1,010,769 | 2,023,341 | 1,384,827 |
+
+`ata_registro_preco` by year, the same shape:
+
+| 2022 | 2023 | 2024 | 2025 | 2026 (to Aug) |
+|---|---|---|---|---|
+| 205 | 37,194 | 302,487 | 483,117 | 314,521 |
 
 Lei 14.133 became mandatory in April 2023, which is where the curve turns.
 2026 annualises to ~2.1M, consistent with 2025. The 2021 and 2022 counts
