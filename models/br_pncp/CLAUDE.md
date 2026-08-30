@@ -675,3 +675,35 @@ Note the repo's `profiles.yml` uses `BD_SERVICE_ACCOUNT_DEV` for the **prod**
 target too; that looks like a copy-paste slip upstream. It does not matter
 here, since prod is materialised by table-approve on merge and never from a
 laptop.
+
+## Materialized in dev, and the dedup checked (2026-08-31)
+
+`dbt run` on the three finished models: PASS=3, ERROR=0 (contrato 5.2 GiB
+processed in 47s).
+
+| model | staging | materialized | collapsed |
+|---|---|---|---|
+| `contrato` | 4,707,847 | 4,707,847 | 0% |
+| `ata_registro_preco` | 1,137,524 | 1,137,524 | 0% |
+| `instrumento_cobranca` | 215,382 | 179,463 | 16.7% |
+
+**0% is the expected answer for the first two, not a sign the dedup is
+inert.** Each is harvested by a date that pins a record to exactly one
+window -- publication date for `contrato`, `dataAtualizacaoGlobal` for
+`ata` -- so no record is delivered twice and the `QUALIFY` has nothing to
+collapse. It also means `id_contrato_pncp` and `id_ata_pncp` are already
+unique within a partition.
+
+**The 16.7% on `instrumento_cobranca` was verified rather than assumed**,
+because a composite key (cnpj_orgao, ano_contrato, sequencial_contrato,
+sequencial_instrumento_cobranca) could silently merge distinct records:
+
+```
+keys with duplicates                      33,068
+rows collapsed by dedup                   35,919
+  keys whose rows genuinely DIFFER             0
+```
+
+Every collapsed row is byte-identical to the one kept, so the key is
+merging true duplicates and nothing is lost. Re-run that check if the key
+ever changes.
