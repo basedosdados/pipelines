@@ -627,3 +627,28 @@ table on every run) costs a full scan of a multi-million-row table on every
 refresh to fix an event that may never occur. Recorded so that a future
 duplicate-control-number report has an explanation rather than looking like
 a dedup bug.
+
+## Dev staging loaded (2026-08-31)
+
+Three of the four fact tables are complete and in `basedosdados-dev`, each
+row count asserted against what the cleaning step reported rather than eyeballed:
+
+| staging table | rows |
+|---|---|
+| `br_pncp_staging.contrato` | 4,707,847 |
+| `br_pncp_staging.ata_registro_preco` | 1,137,524 |
+| `br_pncp_staging.instrumento_cobranca` | 215,382 |
+
+`contratacao` and `dicionario` follow when the harvest lands. Uploading early
+was deliberate: the upload path had never run at this scale, and a
+credentials or convention problem is much cheaper to find now than after
+another 30 hours of harvesting.
+
+Schema verified on the external table rather than assumed: 23 columns, every
+one STRING, and **`ano` surfaces as a column** even though it is excluded
+from the parquet files. That round trip -- hive partition in the directory
+name, column on the external table -- is what `safe_cast(ano as int64)` in
+the dbt model depends on.
+
+No `00_header.parquet` is needed (see the part-size section): the largest
+part is 50,000 rows / 6 MB.
