@@ -129,13 +129,20 @@ def build_sql(table: str) -> str:
         # BigQuery refuses to PARTITION BY a FLOAT64 expression, so monetary and
         # quantity columns are compared as text. Equal values render equally, so
         # the dedup is unaffected.
-        partition_columns = [
-            f"cast({c['name']} as string)"
-            if c["bigquery_type"] == "FLOAT64"
-            else c["name"]
-            for c in columns
-            if c["name"] not in spec.dedup_exclude
-        ]
+        if spec.dedup_by_key:
+            # This endpoint revises a row in place and re-serves it in a later
+            # window, so the same item arrives twice with genuinely different
+            # content. Only the newest state is wanted; content-based dedup
+            # would keep both and double count the item.
+            partition_columns = list(spec.key)
+        else:
+            partition_columns = [
+                f"cast({c['name']} as string)"
+                if c["bigquery_type"] == "FLOAT64"
+                else c["name"]
+                for c in columns
+                if c["name"] not in spec.dedup_exclude
+            ]
         joined = ",\n            ".join(partition_columns)
         sql += (
             "qualify\n"

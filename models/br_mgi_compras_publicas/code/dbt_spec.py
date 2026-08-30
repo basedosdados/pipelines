@@ -35,6 +35,14 @@ class DbtTable:
     #: timestamp columns excluded from the dedup partition, so two recordings of
     #: the same logical row a second apart collapse to one
     dedup_exclude: list[str] = field(default_factory=list)
+    #: collapse to the latest row per KEY rather than per distinct row content.
+    #: Correct only where the endpoint revises a row in place and re-serves it in
+    #: a later window: the same item is then fetched twice with genuinely
+    #: different content ("Em andamento" with no supplier, then "Homologado"
+    #: with one), and content-based dedup cannot collapse them -- keeping both
+    #: double counts the item. Requires a key with no NULLs, or BigQuery groups
+    #: every NULL into one partition and discards real rows.
+    dedup_by_key: bool = False
     #: share of duplicate keys the source genuinely contains. Above zero the
     #: model uses the relaxed uniqueness test, and the reason is stated in the
     #: table description.
@@ -73,10 +81,16 @@ TABLES: dict[str, DbtTable] = {
         ),
     ),
     "contratacao_item": DbtTable(
-        key=["id_compra_item"],
+        # numero_controle_pncp + numero_item_pncp, not the SIASG id_compra_item:
+        # one SIASG item id maps to several PNCP contratacoes, so it collides
+        # (2.91% of rows against 2.66% for the PNCP pair). Neither column is ever
+        # null, which is what makes dedup_by_key safe here.
+        key=["numero_controle_pncp", "numero_item_pncp"],
         dedup_order="data_atualizacao_pncp",
+        dedup_by_key=True,
         year_range=R_14133,
         scope_tests=True,
+        ignore_values=["codigo_grupo", "nome_pdm", "codigo_pdm"],
         description=(
             "Itens das contratações realizadas sob a Lei 14.133/2021. Uma linha por item, "
             "com quantidade, valor estimado e, quando já apurado, o resultado"

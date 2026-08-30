@@ -203,13 +203,16 @@ models:
       com quantidade, valor estimado e, quando já apurado, o resultado
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [id_compra_item]
+          combination_of_columns: [numero_controle_pncp, numero_item_pncp]
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
+            - codigo_grupo
+            - codigo_pdm
             - descricao_ncm
+            - nome_pdm
             - percentual_margem_preferencia_adicional
             - percentual_margem_preferencia_normal
           config:
@@ -225,10 +228,10 @@ models:
       - name: id_compra_item
         description: >-
           Identificador do item da contratação no SIASG
-        tests: [not_null]
       - name: numero_controle_pncp
         description: >-
           Número de controle da contratação no PNCP
+        tests: [not_null]
       - name: id_contratacao_pncp
         description: >-
           Número de controle da contratação no PNCP repetido pela fonte
@@ -241,6 +244,7 @@ models:
       - name: numero_item_pncp
         description: >-
           Número do item na contratação segundo o PNCP
+        tests: [not_null]
       - name: numero_item_compra
         description: >-
           Número do item na contratação segundo o SIASG

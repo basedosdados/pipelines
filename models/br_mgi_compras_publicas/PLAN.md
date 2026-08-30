@@ -241,6 +241,25 @@ tier A.
 - **Tier B (+77h, background):** endpoint 2 for modalidades 5, 6, 7, closing the gap.
   Until it lands, `licitacao_item` carries a `observations` note naming the omission.
 
+### Items are revised in place, so item tables dedup by KEY, not by content
+
+`contratacao_item` arrives twice for the same item when it is revised between
+harvest windows -- once "Em andamento" with no supplier, once "Homologado" with
+one and a different `data_atualizacao_pncp`. The two rows differ in real content,
+so the content-based dedup used elsewhere cannot collapse them, and keeping both
+**double counts the item's spending**. Measured: none of the 206k duplicate keys
+were timestamp-only variants, and 186,764 of them sit in the in-flight year 2026,
+which matches the 78-day median revision lag recorded above.
+
+Such a table sets `dedup_by_key=True`, collapsing to the newest row per key. That
+is safe only where the key has no NULLs -- BigQuery groups every NULL into one
+partition, which is what would have destroyed 15,907 ata item rows.
+
+The key is `numero_controle_pncp` + `numero_item_pncp`, not the SIASG
+`id_compra_item`: one SIASG item id maps to several PNCP contratacoes (2.91% of
+rows collide, against 2.66% for the PNCP pair, and 0 nulls in either). This is the
+same collision that moved the parent table's key off `id_compra`.
+
 ### Endpoint 6 rescans on OFFSET, so it is partitioned by (year, orgao)
 
 The 4.5h estimate above was measured on shallow pages and is wrong. Endpoint 6's
