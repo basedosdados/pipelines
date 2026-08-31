@@ -2,6 +2,8 @@
 Shared run logic for DATASUS pipelines (CNES, SIA, SIH, SINAN) — Prefect 3.
 """
 
+from typing import Literal
+
 from pipelines.crawler.datasus.tasks import (
     access_ftp_download_files_async,
     check_files_to_parse,
@@ -147,9 +149,8 @@ def _run_dbf_to_parquet(
     materialize_after_dump: bool,
     update_metadata: bool,
     target: str,
+    fonte_label: Literal["SIA", "SIH"],
     force_run: bool,
-    source_format: str,
-    fonte_label: str,
     year_month_to_extract: str = "",
 ) -> None:
     """Shared logic for SIA/SIH (DBF→Parquet pipeline)."""
@@ -209,7 +210,7 @@ def _run_dbf_to_parquet(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
-        source_format=source_format,
+        source_format="parquet",
     )
     run_dbt(
         dataset_id=dataset_id,
@@ -227,7 +228,7 @@ def _run_dbf_to_parquet(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
-        source_format=source_format,
+        source_format="parquet",
     )
     run_dbt(
         dataset_id=dataset_id,
@@ -250,11 +251,11 @@ def _run_dbf_to_parquet(
 
 
 def _run_siasus(**kwargs) -> None:
-    _run_dbf_to_parquet(source_format="csv", fonte_label="SIA", **kwargs)
+    _run_dbf_to_parquet(fonte_label="SIA", **kwargs)
 
 
 def _run_sihsus(**kwargs) -> None:
-    _run_dbf_to_parquet(source_format="parquet", fonte_label="SIH", **kwargs)
+    _run_dbf_to_parquet(fonte_label="SIH", **kwargs)
 
 
 def _run_sinan(
