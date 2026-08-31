@@ -71,11 +71,29 @@ def fetch(args, attempts: int = 5) -> tuple[str, bool]:
                 urllib.request.urlopen(url, timeout=900) as r,
                 tmp.open("wb") as fh,
             ):
+                expected = r.headers.get("Content-Length")
+                written = 0
                 while chunk := r.read(1 << 20):
                     fh.write(chunk)
+                    written += len(chunk)
+            # A clean mid-transfer close makes read() return b'' and the loop
+            # exit NORMALLY -- no exception, so the retry below never fires and
+            # a short file gets renamed over the real one. That is how a
+            # truncated .csv.gz reached build_poste and blew up as
+            # "EOFError: Compressed file ended before the end-of-stream marker".
+            # Comparing against Content-Length turns a silent truncation back
+            # into a retryable error.
+            if expected is not None and written != int(expected):
+                raise OSError(
+                    f"{dest.name}: truncated, got {written:,} of "
+                    f"{int(expected):,} bytes"
+                )
             tmp.rename(dest)
             return dest.name, True
         except Exception as exc:  # retry every transport error
+            # Never leave a partial file behind: the resume check above treats
+            # any non-empty file as complete.
+            tmp.unlink(missing_ok=True)
             if attempt == attempts:
                 raise RuntimeError(
                     f"{dest.name}: giving up after {attempts} tries"
