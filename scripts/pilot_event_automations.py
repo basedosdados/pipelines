@@ -62,6 +62,7 @@ def upsert_automation(client, spec: dict) -> None:
 
     if existing is None:
         created = desired.create()
+        # pyrefly: ignore [missing-attribute]
         print(f"Automação criada: {created.name} (id={created.id})")
     else:
         existing.trigger = desired.trigger

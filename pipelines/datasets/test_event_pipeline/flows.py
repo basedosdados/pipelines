@@ -50,6 +50,7 @@ def check_update_flow(
     )
 
 
+# pyrefly: ignore [missing-attribute]
 check_update_flow.deploy_tags = deploy_tags(DATASET_ID, "check_update")
 
 
@@ -64,6 +65,7 @@ def flow_download_flow(download_params: str) -> None:
     emit_flow_download_completed(mat_test_params=mat_test_params)
 
 
+# pyrefly: ignore [missing-attribute]
 flow_download_flow.deploy_tags = deploy_tags(DATASET_ID, "flow_download")
 
 
@@ -77,4 +79,5 @@ def mat_test_flow(mat_test_params: str) -> None:
     simulate_mat_test(mat_test_params=mat_test_params)
 
 
+# pyrefly: ignore [missing-attribute]
 mat_test_flow.deploy_tags = deploy_tags(DATASET_ID, "mat_test")

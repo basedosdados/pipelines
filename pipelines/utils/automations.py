@@ -11,7 +11,7 @@ import json
 
 from prefect.automations import Automation
 from prefect.events.actions import RunDeployment
-from prefect.events.schemas.automations import EventTrigger
+from prefect.events.schemas.automations import EventTrigger, Posture
 from prefect.events.schemas.events import ResourceSpecification
 
 
@@ -88,7 +88,7 @@ def build_chained_automation(
             match=ResourceSpecification(
                 {"prefect.resource.id": [dataset_resource_id(dataset_id)]}
             ),
-            posture="Reactive",
+            posture=Posture.Reactive,
             threshold=1,
             within=0,
         ),
