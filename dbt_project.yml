@@ -286,9 +286,9 @@ models:
     br_datahackers_state_data:
       +materialized: table
       +schema: br_datahackers_state_data
-    br_denatran_frota:
+    br_senatran_estatisticas:
       +materialized: table
-      +schema: br_denatran_frota
+      +schema: br_senatran_estatisticas
     br_fbsp_absp:
       +materialized: table
       +schema: br_fbsp_absp
