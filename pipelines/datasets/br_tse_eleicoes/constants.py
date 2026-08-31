@@ -31,14 +31,14 @@ class constants(Enum):
 
     # Candidtos
 
-    CANDIDATOS24_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2024.zip"
-    COMPLEMENTR24_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand_complementar/consulta_cand_complementar_2024.zip"
+    CANDIDATOS_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_{year}.zip"
+    COMPLEMENTR_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand_complementar/consulta_cand_complementar_{year}.zip"
 
     MUNICIPIOS_CSV = "https://storage.googleapis.com/basedosdados/staging/br_bd_diretorios_brasil/municipio/municipio.csv"
 
-    QUERY_MUNIPIPIOS = "select id_municipio, id_municipio_tse from `basedosdados.br_bd_diretorios_brasil.municipio`"
+    QUERY_MUNICIPIOS = "select id_municipio, id_municipio_tse from `basedosdados.br_bd_diretorios_brasil.municipio`"
 
-    CANDIDATOS_URLS = [CANDIDATOS24_ZIP, COMPLEMENTR24_ZIP]
+    CANDIDATOS_URLS = [CANDIDATOS_ZIP, COMPLEMENTR_ZIP]
 
     ORDER = {
         "id_eleicao": "CD_ELEICAO_x",
@@ -47,9 +47,8 @@ class constants(Enum):
         "sigla_uf": "SG_UF",
         "id_municipio": "id_municipio",
         "id_municipio_tse": "SG_UE",
-        "id_candidato_bd": "id_candidato_bd",
-        "cpf": "NR_CPF_CANDIDATO",
         "titulo_eleitoral": "NR_TITULO_ELEITORAL_CANDIDATO",
+        "cpf": "NR_CPF_CANDIDATO",
         "sequencial": "SQ_CANDIDATO",
         "numero": "NR_CANDIDATO",
         "nome": "NM_CANDIDATO",
@@ -73,24 +72,23 @@ class constants(Enum):
 
     # Constantes BENS CANDIDATO
 
-    BENS_CANDIDATOS24 = "https://cdn.tse.jus.br/estatistica/sead/odsele/bem_candidato/bem_candidato_2024.zip"
-
+    BENS_CANDIDATOS = "https://cdn.tse.jus.br/estatistica/sead/odsele/bem_candidato/bem_candidato_{year}.zip"
+    QUERY_TITUTLO = "select distinct sequencial, titulo_eleitoral from `{mode}.br_tse_eleicoes.candidatos` where ano={year}"
     ORDER_BENS = {
         "id_eleicao": "CD_ELEICAO",
         "tipo_eleicao": "NM_TIPO_ELEICAO",
         "data_eleicao": "DT_ELEICAO",
         "sigla_uf": "SG_UF",
         "sequencial_candidato": "SQ_CANDIDATO",
-        "id_candidato_bd": "id_candidato_bd",
-        "id_tipo_item": "CD_TIPO_BEM_CANDIDATO",
         "tipo_item": "DS_TIPO_BEM_CANDIDATO",
         "descricao_item": "DS_BEM_CANDIDATO",
         "valor_item": "VR_BEM_CANDIDATO",
+        "titulo_eleitoral_candidato": "titulo_eleitoral_candidato",
     }
 
     # Despesas Candidato
 
-    DESPESAS_RECEITAS24 = "https://cdn.tse.jus.br/estatistica/sead/odsele/prestacao_contas/prestacao_de_contas_eleitorais_candidatos_2024.zip"
+    DESPESAS_RECEITAS = "https://cdn.tse.jus.br/estatistica/sead/odsele/prestacao_contas/prestacao_de_contas_eleitorais_candidatos_{year}.zip"
 
     ORDER_DESPESAS = {
         "turno": "ST_TURNO",
@@ -100,15 +98,12 @@ class constants(Enum):
         "sigla_uf": "SG_UF",
         "id_municipio": "id_municipio",
         "id_municipio_tse": "SG_UE",
+        "titulo_eleitoral_candidato": "titulo_eleitoral_candidato",
         "sequencial_candidato": "SQ_CANDIDATO",
         "numero_candidato": "NR_CANDIDATO",
-        "cpf_candidato": "NR_CPF_CANDIDATO",
-        "id_candidato_bd": "id_candidato_bd",
-        "nome_candidato": "NM_CANDIDATO",
-        "cpf_vice_suplente": "NR_CPF_VICE_CANDIDATO",
+        "cnpj_candidato": "cnpj_candidato",
         "numero_partido": "NR_PARTIDO",
         "sigla_partido": "SG_PARTIDO",
-        "nome_partido": "NM_PARTIDO",
         "cargo": "DS_CARGO",
         "sequencial_despesa": "SQ_DESPESA",
         "data_despesa": "DT_DESPESA",
@@ -120,7 +115,6 @@ class constants(Enum):
         "data_prestacao_contas": "DT_PRESTACAO_CONTAS",
         "sequencial_prestador_contas": "SQ_PRESTADOR_CONTAS",
         "cnpj_prestador_contas": "NR_CNPJ_PRESTADOR_CONTA",
-        "cnpj_candidato": "cnpj_candidato",
         "tipo_documento": "DS_TIPO_DOCUMENTO",
         "numero_documento": "NR_DOCUMENTO",
         "especie_recurso": "especie_recurso",
@@ -138,12 +132,19 @@ class constants(Enum):
         "numero_candidato_fornecedor": "NR_CANDIDATO_FORNECEDOR",
         "numero_partido_fornecedor": "NR_PARTIDO_FORNECEDOR",
         "sigla_partido_fornecedor": "SG_PARTIDO_FORNECEDOR",
-        "nome_partido_fornecedor": "NM_PARTIDO_FORNECEDOR",
         "cargo_fornecedor": "DS_CARGO_FORNECEDOR",
     }
 
-    # Receitas Candidato
+    VAZIOS_DESPESA = [
+        "tipo_despesa",
+        "cnpj_candidato",
+        "titulo_eleitoral_candidato",
+        "especie_recurso",
+        "fonte_recurso",
+        "esfera_partidaria_fornecedor",
+    ]
 
+    # Receitas Candidato
     ORDER_RECEITA = {
         "turno": "ST_TURNO",
         "id_eleicao": "CD_ELEICAO",
@@ -152,16 +153,11 @@ class constants(Enum):
         "sigla_uf": "SG_UF",
         "id_municipio": "id_municipio",
         "id_municipio_tse": "SG_UE",
+        "titulo_eleitoral_candidato": "titulo_eleitoral_candidato",
         "sequencial_candidato": "SQ_CANDIDATO",
         "numero_candidato": "NR_CANDIDATO",
-        "cpf_candidato": "NR_CPF_CANDIDATO",
         "cnpj_candidato": "cnpj_candidato",
-        "titulo_eleitor_candidato": "titulo_eleitor_candidato",
-        "id_candidato_bd": "id_candidato_bd",
-        "nome_candidato": "NM_CANDIDATO",
-        "cpf_vice_suplente": "NR_CPF_VICE_CANDIDATO",
         "numero_partido": "NR_PARTIDO",
-        "nome_partido": "NM_PARTIDO",
         "sigla_partido": "SG_PARTIDO",
         "cargo": "DS_CARGO",
         "sequencial_receita": "SQ_RECEITA",
@@ -182,7 +178,6 @@ class constants(Enum):
         "cargo_candidato_doador": "DS_CARGO_CANDIDATO_DOADOR",
         "numero_partido_doador": "NR_PARTIDO_DOADOR",
         "sigla_partido_doador": "SG_PARTIDO_DOADOR",
-        "nome_partido_doador": "NM_PARTIDO_DOADOR",
         "esfera_partidaria_doador": "DS_ESFERA_PARTIDARIA_DOADOR",
         "numero_candidato_doador": "NR_CANDIDATO_DOADOR",
         "cnae_2_doador": "CD_CNAE_DOADOR",
@@ -204,3 +199,19 @@ class constants(Enum):
         "cnpj_prestador_contas": "NR_CNPJ_PRESTADOR_CONTA",
         "entrega_conjunto": "entrega_conjunto",
     }
+
+    VAZIOS_RECEITA = [
+        "cnpj_candidato",
+        "titulo_eleitoral_candidato",
+        "situacao_receita",
+        "cpf_cnpj_doador_orig",
+        "nome_doador_orig",
+        "nome_doador_orig_rf",
+        "tipo_doador_orig",
+        "descricao_cnae_2_doador_orig",
+        "nome_administrador",
+        "cpf_administrador",
+        "numero_recibo_eleitoral",
+        "numero_documento",
+        "entrega_conjunto",
+    ]
