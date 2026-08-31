@@ -266,6 +266,12 @@ project-excludes = [
   # used only by the `--validate` name cross-check and deliberately kept out of
   # pyproject, since the directory is a static one-off load with no pipeline.
   "models/br_bd_diretorios_cl/code",
+  # Same policy: br_bd_execucao_estadual onboarding code is standalone one-shot
+  # `.py` (download_*.py, clean_*.py, upload.py, validate_*.py,
+  # register_columns.py run via `uv run`) using bare `import constants` /
+  # `import translations` resolved via sys.path.insert — unresolvable from the
+  # repo root. One-shot onboarding code outside the typed `pipelines/` framework.
+  "models/br_bd_execucao_estadual/code",
   # Same policy: fr_meteofrance onboarding code is standalone one-shot `.py`
   # (gen_artifacts.py, probe_codes.py, validate.py, clim_gen_artifacts.py,
   # clim_upload.py run via `uv run`) using bare `import schema_map` /
