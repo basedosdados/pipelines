@@ -42,6 +42,7 @@ def _run_senatran(
     update_metadata: bool,
     target: str,
     force_run: bool,
+    backfill_start: str | None = None,
 ) -> None:
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
@@ -56,12 +57,15 @@ def _run_senatran(
         _source_first_available_date,
         source_first_available_date_str,
     ) = get_latest_date_task(
-        table_id=table_id, dataset_id=dataset_id, input_dir=input_dir
+        table_id=table_id,
+        dataset_id=dataset_id,
+        input_dir=input_dir,
+        backfill_start=backfill_start,
     )
 
     print(f"First available date: {source_first_available_date_str}")
 
-    if not force_run:
+    if not force_run and not backfill_start:
         has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
@@ -167,6 +171,7 @@ def br_senatran_estatisticas__uf_tipo(
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
+    backfill_start: str | None = None,
 ) -> None:
     _run_senatran(
         dataset_id=dataset_id,
@@ -177,6 +182,7 @@ def br_senatran_estatisticas__uf_tipo(
         update_metadata=update_metadata,
         target=target,
         force_run=force_run,
+        backfill_start=backfill_start,
     )
 
 
@@ -191,6 +197,7 @@ def br_senatran_estatisticas__municipio_tipo(
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
+    backfill_start: str | None = None,
 ) -> None:
     _run_senatran(
         dataset_id=dataset_id,
@@ -201,6 +208,7 @@ def br_senatran_estatisticas__municipio_tipo(
         update_metadata=update_metadata,
         target=target,
         force_run=force_run,
+        backfill_start=backfill_start,
     )
 
 

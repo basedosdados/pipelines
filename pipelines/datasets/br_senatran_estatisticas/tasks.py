@@ -323,24 +323,40 @@ def treat_municipio_tipo_task(
 
 @task
 def get_latest_date_task(
-    table_id: str, dataset_id: str, input_dir: str | Path
+    table_id: str,
+    dataset_id: str,
+    input_dir: str | Path,
+    backfill_start: str | None = None,
 ) -> tuple[list, list, int | None, str | None]:
     """Task to extract the latest data from available on the data source
     Args:
         table_id (str): table_id from BQ
         dataset_id (str): table_id from BQ
+        backfill_start (str | None): "%Y-%m" seed for a full backfill. When set,
+            the registered table coverage is ignored and the walk starts at the
+            month AFTER this one. Use to rebuild a table from scratch without
+            rewinding the coverage recorded on the production backend.
 
     Returns:
         [year, month]: most recente date
     """
-    backend = bd.Backend(graphql_url=get_url("prod"))
+    if backfill_start:
+        senatran_data = datetime.datetime.strptime(
+            backfill_start, "%Y-%m"
+        ).date()
+        log(
+            f"Backfill mode: walking from {backfill_start} onwards, "
+            "ignoring the coverage registered on the backend"
+        )
+    else:
+        backend = bd.Backend(graphql_url=get_url("prod"))
 
-    senatran_data = get_api_most_recent_date(
-        table_id=table_id,
-        dataset_id=dataset_id,
-        date_format="%Y-%m",
-        backend=backend,
-    )
+        senatran_data = get_api_most_recent_date(
+            table_id=table_id,
+            dataset_id=dataset_id,
+            date_format="%Y-%m",
+            backend=backend,
+        )
 
     log(f"{senatran_data}")
     year = senatran_data.year
