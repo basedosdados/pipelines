@@ -526,14 +526,12 @@ models:
   - name: br_mgi_compras_publicas__ata_registro_preco
     description: >-
       Atas de registro de preços firmadas a partir de contratações da Lei 14.133/2021.
-      Uma linha por ata. A fonte não atribui número de controle no PNCP a 0,68% das
-      atas, portanto a chave é o par id_compra e numero_ata_registro_preco; cerca
-      de 0,01% das atas ainda repetem essa chave com conteúdo divergente, e o teste
-      de unicidade admite essa proporção
+      Uma linha por ata, no estado mais recente informado pela fonte. A fonte não
+      atribui número de controle no PNCP a 0,68% das atas, portanto a chave é o par
+      id_compra e numero_ata_registro_preco
     tests:
-      - custom_unique_combinations_of_columns:
+      - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_compra, numero_ata_registro_preco]
-          proportion_allowed_failures: 0.001
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [data_hora_exclusao]
@@ -552,12 +550,14 @@ models:
       - name: numero_ata_registro_preco
         description: >-
           Número da ata de registro de preços
+        tests: [not_null]
       - name: numero_controle_pncp_compra
         description: >-
           Número de controle da contratação de origem no PNCP
       - name: id_compra
         description: >-
           Identificador da contratação de origem no SIASG
+        tests: [not_null]
       - name: numero_compra
         description: >-
           Número da contratação de origem
@@ -1401,7 +1401,7 @@ models:
     tests:
       - custom_unique_combinations_of_columns:
           combination_of_columns: [id_compra]
-          proportion_allowed_failures: 0.001
+          proportion_allowed_failures: 0.0001
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [data_publicacao, lei, objeto_licitacao]

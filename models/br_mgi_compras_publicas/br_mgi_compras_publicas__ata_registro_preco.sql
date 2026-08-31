@@ -44,31 +44,7 @@ from
     as t
 qualify
     row_number() over (
-        partition by
-            ano,
-            numero_controle_pncp_ata,
-            numero_ata_registro_preco,
-            numero_controle_pncp_compra,
-            id_compra,
-            numero_compra,
-            ano_compra,
-            codigo_unidade_gerenciadora,
-            nome_unidade_gerenciadora,
-            codigo_orgao,
-            nome_orgao,
-            codigo_modalidade_compra,
-            modalidade_compra,
-            status_ata,
-            objeto,
-            quantidade_itens,
-            cast(valor_total as string),
-            link_ata_pncp,
-            link_compra_pncp,
-            indicador_ata_excluida,
-            data_assinatura,
-            data_vigencia_inicial,
-            data_vigencia_final,
-            data_hora_exclusao
+        partition by id_compra, numero_ata_registro_preco
         order by data_hora_atualizacao desc
     )
     = 1

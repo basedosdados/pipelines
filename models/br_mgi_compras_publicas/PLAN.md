@@ -273,8 +273,16 @@ states are kept and any sum over the table double counts.
 | ata_registro_preco_item | 2% tolerance | 91% differ only in `indicador_item_excluido` | key-dedup, **no tolerance**, -581,070 rows |
 | contrato_item | 3% tolerance, really 13.5% dup | 90% differ only in `indicador_item_excluido` | key-dedup, **no tolerance** |
 | contrato | 3% tolerance | genuinely different contracts (objeto 95%, valor 92%) | tighter key + `id_compra`, 0.38% dup, 1% tolerance |
+| ata_registro_preco | 0.1% tolerance | all 55 repeats differ in `data_hora_atualizacao`, 38 in the exclusion flag | key-dedup, **no tolerance** |
+| compra_sem_licitacao | 0.1% tolerance | NOT revisions -- only 10 of 91 differ in `data_alteracao` | content dedup kept, tolerance tightened 60x to 0.0001 |
 
-Only `contrato` was real: a unidade gestora reuses a contract number across
+`contrato` is the only table that still carries a tolerance, and `compra_sem_licitacao`
+the only other one where the repeats are not revisions. A tolerance also has to be
+set near what the source actually contains: `compra_sem_licitacao`'s 0.001 permitted
+5,236 duplicates against 91 observed, so the problem could have grown sixty-fold
+without turning the test red.
+
+The `contrato` case is the one to be careful with: a unidade gestora reuses a contract number across
 procurements, so those rows must **not** be collapsed. Adding `id_compra` to the
 key cuts the repeats from 2.94% to 0.38%, and the 4,244 rows with no `id_compra`
 are scoped out of the test rather than dropped.

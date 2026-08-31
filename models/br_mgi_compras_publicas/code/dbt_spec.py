@@ -120,14 +120,17 @@ TABLES: dict[str, DbtTable] = {
         key=["id_compra", "numero_ata_registro_preco"],
         dedup_order="data_hora_atualizacao",
         dedup_exclude=["data_hora_inclusao", "data_hora_atualizacao"],
-        unique_tolerance=0.001,
+        # Same revision pattern as the item table, at small scale: all 55 of the
+        # repeated keys differ in data_hora_atualizacao and 38 in
+        # indicador_ata_excluida. Both key columns are non-null by construction,
+        # so the collapse needs no fallback and the tolerance goes away.
+        dedup_by_key=True,
         year_range=R_ARP,
         description=(
             "Atas de registro de preços firmadas a partir de contratações da Lei "
-            "14.133/2021. Uma linha por ata. A fonte não atribui número de controle no "
-            "PNCP a 0,68% das atas, portanto a chave é o par id_compra e "
-            "numero_ata_registro_preco; cerca de 0,01% das atas ainda repetem essa chave "
-            "com conteúdo divergente, e o teste de unicidade admite essa proporção"
+            "14.133/2021. Uma linha por ata, no estado mais recente informado pela fonte. "
+            "A fonte não atribui número de controle no PNCP a 0,68% das atas, portanto a "
+            "chave é o par id_compra e numero_ata_registro_preco"
         ),
     ),
     "ata_registro_preco_item": DbtTable(
@@ -251,8 +254,15 @@ TABLES: dict[str, DbtTable] = {
     "compra_sem_licitacao": DbtTable(
         dedup_order="data_alteracao",
         key=["id_compra"],
-        # 91 of 5.2M keys repeat with differing content, 0.002%.
-        unique_tolerance=0.001,
+        # 91 of 5.2M keys repeat, 0.0017%. Unlike the item and ata tables these
+        # are NOT revisions: only 10 of the 91 differ in data_alteracao, while
+        # 17 differ in valor and 13 in objeto. Collapsing by key would pick one
+        # of two genuinely different records on an ordering that is arbitrary
+        # for 81 of them, so content dedup stands. The tolerance is set just
+        # above what the source actually contains, so a regression trips it --
+        # the previous 0.001 permitted 5,236 duplicates, sixty times the real
+        # number, and would have stayed green while the problem grew.
+        unique_tolerance=0.0001,
         year_range=R_LEGADO,
         description=(
             "Dispensas e inexigibilidades de licitação sob a Lei 8.666/1993, de 1997 a "
