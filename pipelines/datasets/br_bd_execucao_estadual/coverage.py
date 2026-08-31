@@ -45,20 +45,24 @@ NO_RANGE = {"relacionamentos", "dicionario"}
 def _coverage_id_for_area(client, table_pk: str, area_slug: str) -> str | None:
     """The id of this table's Coverage for one area.
 
-    Filtered by area as well as table, which is exactly the refinement
-    `_query_id` asks for when a table has more than one coverage.
+    Every coverage on the table is fetched and matched on the area slug here, rather
+    than filtered server-side: `allCoverage` exposes `area_Id` but no `area_Slug`, and
+    resolving the slug to an id first would cost a second round trip to save nothing.
+    A table has one or two coverages, so the list is tiny.
     """
     query = """
-    query($table_Id: ID, $area_Slug: String) {
-      allCoverage(table_Id: $table_Id, area_Slug: $area_Slug) {
-        edges { node { _id } }
+    query($table_Id: ID) {
+      allCoverage(table_Id: $table_Id) {
+        edges { node { _id area { slug } } }
       }
     }
     """
-    response = client._execute(
-        query, {"table_Id": table_pk, "area_Slug": area_slug}
-    )
-    nodes = response["allCoverage"]["items"]
+    response = client._execute(query, {"table_Id": table_pk})
+    nodes = [
+        n
+        for n in response["allCoverage"]["items"]
+        if (n.get("area") or {}).get("slug") == area_slug
+    ]
     if len(nodes) > 1:
         raise ValueError(
             f"{DATASET_ID}.{table_pk}: {len(nodes)} coverages for area {area_slug}; "
@@ -74,7 +78,12 @@ def _span(
     state: str,
     monthly: bool,
 ):
-    """min/max exercise for one state, and the max real month when there is one.
+    """min/max exercise for one state, and the latest real month when there is one.
+
+    The month is taken as `max(ano * 100 + mes)`, NOT `max(mes)`. Minas Gerais'
+    procurement ends in March 2024, and its busiest month across the whole series is
+    December: `max(mes)` returns 12 and would advertise nine months of coverage that
+    do not exist. Only the year-month pair is meaningful.
 
     `mes` is filtered to 1-12 rather than taken raw: Pernambuco's legacy rows carry
     accounting periods 0 and 13, and a coverage ending in month 13 is not a date.
@@ -82,7 +91,9 @@ def _span(
     from google.cloud import bigquery
 
     columns = "min(ano) lo, max(ano) hi" + (
-        ", max(if(mes between 1 and 12, mes, null)) mes_hi" if monthly else ""
+        ", max(if(mes between 1 and 12, ano * 100 + mes, null)) ym_hi"
+        if monthly
+        else ""
     )
     client = bigquery.Client(project=billing_project)
     rows = list(
@@ -128,10 +139,16 @@ def refresh_state_coverage(
         "startYear": int(row["lo"]),
         "endYear": int(row["hi"]),
     }
-    if monthly and row["mes_hi"] is not None:
-        # The start month is left as registered: the first exercise's opening month
-        # does not move, while the end month advances every refresh.
-        payload["endMonth"] = int(row["mes_hi"])
+    # The start month is left as registered: the first exercise's opening month does
+    # not move, while the end month advances every refresh. The end month is only
+    # meaningful when the latest month observed actually falls in the last year --
+    # otherwise the final exercise carries no usable month and the range stays annual.
+    if (
+        monthly
+        and row["ym_hi"] is not None
+        and row["ym_hi"] // 100 == row["hi"]
+    ):
+        payload["endMonth"] = int(row["ym_hi"] % 100)
     client.upsert_coverage_datetime_range(DateTimeRangeInput(**payload))
     span = f"{row['lo']}..{row['hi']}"
     return f"{table_id}/{state}: coverage now {span}"
