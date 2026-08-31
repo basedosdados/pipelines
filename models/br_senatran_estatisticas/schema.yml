@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: br_denatran_frota__municipio_tipo
+  - name: br_senatran_estatisticas__municipio_tipo
     description: Frota de veículos por município e tipo
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -43,7 +43,7 @@ models:
         description: Tipo de veículo
       - name: quantidade
         description: Quantidade de veículos
-  - name: br_denatran_frota__uf_tipo
+  - name: br_senatran_estatisticas__uf_tipo
     description: Frota de veículos por Unidade da Federação (UF) e tipo
     tests:
       - dbt_utils.unique_combination_of_columns:
