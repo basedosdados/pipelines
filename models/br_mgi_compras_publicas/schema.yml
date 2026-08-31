@@ -372,7 +372,10 @@ models:
       classificado em cada item, com quantidade e valor homologados
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [id_compra_item, sequencial_resultado]
+          combination_of_columns:
+            - numero_controle_pncp
+            - numero_item_pncp
+            - sequencial_resultado
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
@@ -405,7 +408,6 @@ models:
       - name: id_compra_item
         description: >-
           Identificador do item da contratação no SIASG
-        tests: [not_null]
       - name: sequencial_resultado
         description: >-
           Número sequencial do resultado dentro do item
@@ -413,12 +415,14 @@ models:
       - name: numero_controle_pncp
         description: >-
           Número de controle da contratação no PNCP
+        tests: [not_null]
       - name: id_contratacao_pncp
         description: >-
           Número de controle da contratação no PNCP repetido pela fonte
       - name: numero_item_pncp
         description: >-
           Número do item na contratação segundo o PNCP
+        tests: [not_null]
       - name: cnpj_orgao
         description: >-
           CNPJ do órgão comprador

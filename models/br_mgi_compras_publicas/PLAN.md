@@ -290,6 +290,13 @@ are scoped out of the test rather than dropped.
 **A tolerance on a uniqueness test is a bug report, not a setting.** Each one here
 was covering a defect that changes reported spending.
 
+**A scoped test does not validate the key.** `scope_tests` limits the uniqueness
+test to the most recent partition, which is the right cost trade on a multi-million
+row table but means a key defect in earlier years passes green. `contratacao_item_resultado`
+passed its scoped test while carrying 3,442 duplicate keys across the full table,
+all of them differing in `numero_controle_pncp`. Run `check_key.py`, which is
+unscoped, on every scoped table before believing its key.
+
 **Do not compare key cardinalities with `FORMAT`.** BigQuery's `FORMAT` returns
 NULL when an argument is NULL and `COUNT(DISTINCT)` then drops those rows, which
 made a five-column key look *less* selective than the four-column key it contains

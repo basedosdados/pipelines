@@ -105,9 +105,19 @@ TABLES: dict[str, DbtTable] = {
         ),
     ),
     "contratacao_item_resultado": DbtTable(
-        # id_compra_item collides across PNCP contratacoes on its own, but paired
-        # with sequencial_resultado it is unique here -- verified, no tolerance.
-        key=["id_compra_item", "sequencial_resultado"],
+        # The PNCP-native triple, not the SIASG id_compra_item: the SIASG id
+        # collides across PNCP contratacoes here too, on 3,442 keys that all
+        # differ in numero_controle_pncp. The triple is exactly unique --
+        # 6,046,928 distinct across 6,046,928 rows, no nulls in any part.
+        #
+        # The scoped uniqueness test did not catch this: scope_tests limits it to
+        # the most recent partition, so a key defect in earlier years passes
+        # silently. check_key.py is unscoped and is what found it.
+        key=[
+            "numero_controle_pncp",
+            "numero_item_pncp",
+            "sequencial_resultado",
+        ],
         dedup_order="data_atualizacao_pncp",
         year_range=R_14133,
         scope_tests=True,
