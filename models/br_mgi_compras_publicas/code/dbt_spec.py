@@ -43,6 +43,11 @@ class DbtTable:
     #: double counts the item. Requires a key with no NULLs, or BigQuery groups
     #: every NULL into one partition and discards real rows.
     dedup_by_key: bool = False
+    #: the key may be NULL. Rows with a null key fall back to partitioning on
+    #: their own content, so identical repeats still collapse while genuinely
+    #: distinct rows survive -- BigQuery would otherwise group every null into a
+    #: single partition and keep exactly one of them.
+    dedup_key_nullable: bool = False
     #: share of duplicate keys the source genuinely contains. Above zero the
     #: model uses the relaxed uniqueness test, and the reason is stated in the
     #: table description.
@@ -130,13 +135,18 @@ TABLES: dict[str, DbtTable] = {
         ],
         dedup_order="data_hora_atualizacao",
         dedup_exclude=["data_hora_inclusao", "data_hora_atualizacao"],
-        unique_tolerance=0.02,
+        # The source revises an item and re-serves it: 91% of the repeated keys
+        # differ only in indicador_item_excluido, the rest in fornecedor, price
+        # or vigencia. Keeping both states double counts the item, so the newest
+        # wins. numero_controle_pncp_ata is null for 15,908 rows, hence the
+        # nullable fallback.
+        dedup_by_key=True,
+        dedup_key_nullable=True,
         year_range=R_ARP,
         description=(
             "Itens das atas de registro de preços, com o fornecedor registrado, o preço "
             "unitário e o limite de adesão. Uma linha por fornecedor classificado em cada "
-            "item. Cerca de 1% dos itens repetem a chave com conteúdo divergente na fonte, "
-            "e o teste de unicidade admite essa proporção"
+            "item, no estado mais recente informado pela fonte"
         ),
     ),
     "contrato": DbtTable(

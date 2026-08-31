@@ -624,16 +624,17 @@ models:
   - name: br_mgi_compras_publicas__ata_registro_preco_item
     description: >-
       Itens das atas de registro de preços, com o fornecedor registrado, o preço unitário
-      e o limite de adesão. Uma linha por fornecedor classificado em cada item. Cerca
-      de 1% dos itens repetem a chave com conteúdo divergente na fonte, e o teste
-      de unicidade admite essa proporção
+      e o limite de adesão. Uma linha por fornecedor classificado em cada item, no
+      estado mais recente informado pela fonte
     tests:
-      - custom_unique_combinations_of_columns:
+      - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - numero_controle_pncp_ata
             - numero_item
             - classificacao_fornecedor
-          proportion_allowed_failures: 0.02
+          config:
+            where: numero_controle_pncp_ata is not null and numero_item is not null
+              and classificacao_fornecedor is not null
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [data_hora_exclusao]

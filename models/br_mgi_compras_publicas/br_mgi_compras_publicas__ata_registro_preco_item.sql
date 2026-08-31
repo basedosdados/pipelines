@@ -57,39 +57,53 @@ from
 qualify
     row_number() over (
         partition by
-            ano,
             numero_controle_pncp_ata,
             numero_item,
             classificacao_fornecedor,
-            numero_ata_registro_preco,
-            numero_controle_pncp_compra,
-            id_compra,
-            numero_compra,
-            ano_compra,
-            codigo_unidade_gerenciadora,
-            nome_unidade_gerenciadora,
-            codigo_modalidade_compra,
-            modalidade_compra,
-            codigo_item,
-            descricao_item,
-            tipo_item,
-            codigo_pdm,
-            nome_pdm,
-            id_fornecedor,
-            nome_fornecedor,
-            situacao_sicaf,
-            cast(quantidade_homologada_item as string),
-            cast(quantidade_homologada_vencedor as string),
-            cast(quantidade_empenhada as string),
-            cast(maximo_adesao as string),
-            cast(valor_unitario as string),
-            cast(valor_total as string),
-            cast(percentual_maior_desconto as string),
-            indicador_item_excluido,
-            data_assinatura,
-            data_vigencia_inicial,
-            data_vigencia_final,
-            data_hora_exclusao
+            case
+                when
+                    numero_controle_pncp_ata is null
+                    or numero_item is null
+                    or classificacao_fornecedor is null
+                then
+                    to_json_string(
+                        struct(
+                            ano,
+                            numero_controle_pncp_ata,
+                            numero_item,
+                            classificacao_fornecedor,
+                            numero_ata_registro_preco,
+                            numero_controle_pncp_compra,
+                            id_compra,
+                            numero_compra,
+                            ano_compra,
+                            codigo_unidade_gerenciadora,
+                            nome_unidade_gerenciadora,
+                            codigo_modalidade_compra,
+                            modalidade_compra,
+                            codigo_item,
+                            descricao_item,
+                            tipo_item,
+                            codigo_pdm,
+                            nome_pdm,
+                            id_fornecedor,
+                            nome_fornecedor,
+                            situacao_sicaf,
+                            quantidade_homologada_item,
+                            quantidade_homologada_vencedor,
+                            quantidade_empenhada,
+                            maximo_adesao,
+                            valor_unitario,
+                            valor_total,
+                            percentual_maior_desconto,
+                            indicador_item_excluido,
+                            data_assinatura,
+                            data_vigencia_inicial,
+                            data_vigencia_final,
+                            data_hora_exclusao
+                        )
+                    )
+            end
         order by data_hora_atualizacao desc
     )
     = 1

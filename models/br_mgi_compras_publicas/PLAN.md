@@ -260,6 +260,29 @@ The key is `numero_controle_pncp` + `numero_item_pncp`, not the SIASG
 rows collide, against 2.66% for the PNCP pair, and 0 nulls in either). This is the
 same collision that moved the parent table's key off `id_compra`.
 
+### The ata item tolerance was hiding the same revision bug
+
+`ata_registro_preco_item` passed only because of a 2% duplicate-key tolerance I
+had attributed to source noise. It was not noise. Of the repeated keys, 91% differ
+only in `indicador_item_excluido` -- the item was later removed from the ata --
+and the rest in fornecedor, unit price or vigencia. Quantities never differ. The
+table was carrying superseded states as separate rows, so any sum over it double
+counted.
+
+With `dedup_by_key` the table collapses 2,693,186 staging rows to 2,112,116, and
+the key is now asserted unique with **no tolerance at all**. 581,070 rows (21.6%)
+were superseded revisions.
+
+Two details make it safe on a nullable key:
+
+* rows whose key is incomplete fall back to partitioning on their own content, so
+  the 4,718 rows with no `numero_controle_pncp_ata` and the 8,651 with no
+  `numero_item` survive instead of collapsing to one;
+* `not_null` is not asserted on a key that is nullable by design, and the
+  uniqueness test is scoped to rows that actually have a key.
+
+A tolerance on a uniqueness test is worth treating as a bug report, not a setting.
+
 ### Endpoint 6 rescans on OFFSET, so it is partitioned by (year, orgao)
 
 The 4.5h estimate above was measured on shallow pages and is wrong. Endpoint 6's

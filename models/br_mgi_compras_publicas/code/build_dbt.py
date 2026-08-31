@@ -135,6 +135,21 @@ def build_sql(table: str) -> str:
             # content. Only the newest state is wanted; content-based dedup
             # would keep both and double count the item.
             partition_columns = list(spec.key)
+            if spec.dedup_key_nullable:
+                # Rows whose key is null cannot be collapsed by key -- BigQuery
+                # puts every null in one partition and would keep a single row
+                # out of all of them. Those fall back to their own content, so
+                # exact repeats still collapse and distinct rows survive.
+                content = ", ".join(
+                    c["name"]
+                    for c in columns
+                    if c["name"] not in spec.dedup_exclude
+                )
+                guard = " or ".join(f"{k} is null" for k in spec.key)
+                partition_columns.append(
+                    f"case when {guard} then to_json_string("
+                    f"struct({content})) end"
+                )
         else:
             partition_columns = [
                 f"cast({c['name']} as string)"
@@ -188,6 +203,14 @@ def build_schema_entry(table: str) -> str:
         out.append(
             f"          combination_of_columns: [{', '.join(spec.key)}]"
         )
+        if spec.dedup_key_nullable and not scoped:
+            # The key is unique among the rows that have one. Rows with a null
+            # key are kept deliberately -- they are real records the source
+            # never assigned an identifier -- and BigQuery groups every null
+            # together, so an unscoped test reads them as one giant duplicate.
+            guard = " and ".join(f"{k} is not null" for k in spec.key)
+            out.append("          config:")
+            out.append(f"            where: {guard}")
     if scoped:
         out.append(
             scoped.rstrip("\n")
@@ -222,7 +245,9 @@ def build_schema_entry(table: str) -> str:
         # or the column is one of a mutually exclusive pair, like fornecedor's
         # cnpj and cpf, which the architecture already documents as empty for
         # the other kind of record.
-        nullable_key = spec.unique_tolerance or name in sparse
+        nullable_key = (
+            spec.unique_tolerance or spec.dedup_key_nullable or name in sparse
+        )
         if name == spec.partition or (name in spec.key and not nullable_key):
             tests.append("not_null")
         directory = column["directory_column"]
