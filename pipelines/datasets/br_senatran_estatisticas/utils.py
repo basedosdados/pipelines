@@ -1,5 +1,5 @@
 """
-General purpose functions for the br_denatran_frota project.
+General purpose functions for the br_senatran_estatisticas project.
 """
 
 import datetime
@@ -19,8 +19,8 @@ from dateutil import relativedelta
 from rarfile import RarFile
 from string_utils import asciify
 
-from pipelines.datasets.br_denatran_frota.constants import (
-    constants as denatran_constants,
+from pipelines.datasets.br_senatran_estatisticas.constants import (
+    constants as senatran_constants,
 )
 from pipelines.utils.utils import log, to_partitions
 
@@ -61,9 +61,9 @@ def guess_header(
     """
     possible_headers = []
     if type_of_file == DenatranType.UF:
-        expected_header = denatran_constants.UF_TIPO_HEADER.value
+        expected_header = senatran_constants.UF_TIPO_HEADER.value
     elif type_of_file == DenatranType.Municipio:
-        expected_header = denatran_constants.MUNICIPIO_TIPO_HEADER.value
+        expected_header = senatran_constants.MUNICIPIO_TIPO_HEADER.value
     else:
         raise ValueError("Unrecognized type of dataframe.")
     current_header = [c for c in df.columns]
@@ -241,8 +241,8 @@ def fix_suggested_nome_ibge(row: tuple[str, ...]) -> str:
     key = (row[0], row[1])
     if (not isinstance(row[0], str)) or (not isinstance(row[1], str)):
         raise ValueError("This is not a valid key to be checked.")
-    if key in denatran_constants.SUBSTITUTIONS.value:
-        return denatran_constants.SUBSTITUTIONS.value[key]
+    if key in senatran_constants.SUBSTITUTIONS.value:
+        return senatran_constants.SUBSTITUTIONS.value[key]
     else:
         return row[-1]
 
@@ -317,7 +317,7 @@ def download_file(url: str, filename: str) -> None:
 
     new_url = url.replace("arquivos-denatran", "arquivos-senatran")
     log(new_url)
-    response = requests.get(new_url, headers=denatran_constants.HEADERS.value)
+    response = requests.get(new_url, headers=senatran_constants.HEADERS.value)
     response.raise_for_status()
     # Save the contents of the response to a file
     with open(filename, "wb") as f:
@@ -341,7 +341,7 @@ def verify_file(
     log(f"Verify {url}")
     new_url = url.replace("arquivos-denatran", "arquivos-senatran")
     log(new_url)
-    response = requests.get(new_url, headers=denatran_constants.HEADERS.value)
+    response = requests.get(new_url, headers=senatran_constants.HEADERS.value)
     return response.status_code == 200
 
 
@@ -426,7 +426,7 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
         ## Make file path pre 2012
         else:
             if file_info["type_of_file"] == DenatranType.UF:
-                raw_filename = denatran_constants.UF_TIPO_BASIC_FILENAME.value
+                raw_filename = senatran_constants.UF_TIPO_BASIC_FILENAME.value
                 if year > 2005:
                     regex_to_search = r"UF\s+([^\s\d]+\s*)*([12]\d{3})"
                 else:
@@ -435,7 +435,7 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
                     )
             elif file_info["type_of_file"] == DenatranType.Municipio:
                 raw_filename = (
-                    denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value
+                    senatran_constants.MUNIC_TIPO_BASIC_FILENAME.value
                 )
                 if year > 2003:
                     regex_to_search = rf"Munic\.?\s*(.*?)\s*\.?{year}"
@@ -453,9 +453,9 @@ def make_file_path(file_info: dict, ext: bool = True) -> str:
                     month_value = int(match.group(1))
                 else:
                     month_in_file = match.group(1).lower().replace(".", "")
-                    month_value = denatran_constants.MONTHS.value.get(
+                    month_value = senatran_constants.MONTHS.value.get(
                         str(month_in_file).lower()
-                    ) or denatran_constants.MONTHS_SHORT.value.get(
+                    ) or senatran_constants.MONTHS_SHORT.value.get(
                         str(month_in_file).lower()
                     )
                 if file_info["file_extension"] == "":
@@ -499,8 +499,8 @@ def extract_links_post_2012(
         year (int): A year starting from 2013 onwards.
         month (int): A month from 1 to 12.
     """
-    url = f"{denatran_constants.BASE_URL_POST_2012.value}/frota-de-veiculos-{year}"
-    response = requests.get(url, headers=denatran_constants.HEADERS.value)
+    url = f"{senatran_constants.BASE_URL_POST_2012.value}/frota-de-veiculos-{year}"
+    response = requests.get(url, headers=senatran_constants.HEADERS.value)
     soup = BeautifulSoup(response.text, "html.parser")
 
     ## First level of html elements
@@ -577,7 +577,7 @@ def extract_links_post_2012(
                 year=int(matched_year),
                 month=int(
                     # pyrefly: ignore [bad-argument-type]
-                    denatran_constants.MONTHS.value.get(
+                    senatran_constants.MONTHS.value.get(
                         str(matched_month).lower()
                     )
                 ),
@@ -603,7 +603,7 @@ def extract_links_post_2012(
                     if (
                         match
                         and (search_uf or search_municipio)
-                        and denatran_constants.MONTHS.value.get(
+                        and senatran_constants.MONTHS.value.get(
                             str(matched_month).lower()
                         )
                         == int(month)  # pyrefly: ignore [unnecessary-type-conversion]
