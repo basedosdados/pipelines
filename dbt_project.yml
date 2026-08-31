@@ -130,6 +130,9 @@ models:
     fr_insee_sirene:
       +materialized: table
       +schema: fr_insee_sirene
+    fr_meteofrance:
+      +materialized: table
+      +schema: fr_meteofrance
     br_bd_diretorios_in:
       +materialized: table
       +schema: br_bd_diretorios_in
@@ -291,9 +294,9 @@ models:
     br_datahackers_state_data:
       +materialized: table
       +schema: br_datahackers_state_data
-    br_denatran_frota:
+    br_senatran_estatisticas:
       +materialized: table
-      +schema: br_denatran_frota
+      +schema: br_senatran_estatisticas
     br_fbsp_absp:
       +materialized: table
       +schema: br_fbsp_absp

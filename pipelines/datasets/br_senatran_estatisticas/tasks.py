@@ -11,10 +11,10 @@ from dateutil.relativedelta import relativedelta
 from prefect import task
 from string_utils import asciify
 
-from pipelines.datasets.br_denatran_frota.constants import (
-    constants as denatran_constants,
+from pipelines.datasets.br_senatran_estatisticas.constants import (
+    constants as senatran_constants,
 )
-from pipelines.datasets.br_denatran_frota.utils import (
+from pipelines.datasets.br_senatran_estatisticas.utils import (
     DenatranType,
     call_downloader,
     change_df_header,
@@ -35,8 +35,8 @@ from pipelines.utils.utils import log
 
 @task
 def build_paths() -> tuple[Path, Path]:
-    input_dir = Path("tmp/br_denatran_frota/input")
-    output_dir = Path("tmp/br_denatran_frota/output")
+    input_dir = Path("tmp/br_senatran_estatisticas/input")
+    output_dir = Path("tmp/br_senatran_estatisticas/output")
     input_dir.mkdir(exist_ok=True, parents=True)
     output_dir.mkdir(exist_ok=True, parents=True)
     return input_dir, output_dir
@@ -62,7 +62,7 @@ def crawl_task(
     year = source_max_date.year
     month = source_max_date.month
 
-    if month not in denatran_constants.MONTHS.value.values():
+    if month not in senatran_constants.MONTHS.value.values():
         raise ValueError("Mês inválido.")
     log("Downloading file")
     table_dir = os.path.join(str(temp_dir), table_id)
@@ -85,7 +85,7 @@ def crawl_task(
             return False
 
     else:
-        url = f"{denatran_constants.BASE_URL_PRE_2012.value}/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
+        url = f"{senatran_constants.BASE_URL_PRE_2012.value}/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
         filename = f"{year_dir_name}/dados_anuais.zip"
         download_file(url, filename)
         if year < 2010:
@@ -164,8 +164,8 @@ def treat_uf_tipo_task(file: str, output_dir: str | Path) -> pl.DataFrame:
     """
 
     log(f"------- Cleaning {file}")
-    valid_ufs = list(denatran_constants.DICT_UFS.value.keys()) + list(
-        denatran_constants.DICT_UFS.value.values()
+    valid_ufs = list(senatran_constants.DICT_UFS.value.keys()) + list(
+        senatran_constants.DICT_UFS.value.values()
     )
     filename = os.path.split(file)[1]
 
@@ -203,7 +203,7 @@ def treat_uf_tipo_task(file: str, output_dir: str | Path) -> pl.DataFrame:
     clean_df = clean_df.replace(" -   ", 0)
 
     # Create a reverse dictionary to replace uf names with uf sigla
-    reverse_dict = {v: k for k, v in denatran_constants.DICT_UFS.value.items()}
+    reverse_dict = {v: k for k, v in senatran_constants.DICT_UFS.value.items()}
     clean_df["sigla_uf"] = clean_df["sigla_uf"].map(reverse_dict)
 
     # clean_df.replace()
@@ -297,7 +297,7 @@ def treat_municipio_tipo_task(
             "warning",
         )
     dfs = []
-    for uf in denatran_constants.DICT_UFS.value:
+    for uf in senatran_constants.DICT_UFS.value:
         dfs.append(treat_uf(new_pl_df, bd_municipios, uf))
     # pyrefly: ignore [bad-specialization]
     full_pl_df = pl.concat(dfs)
@@ -335,16 +335,16 @@ def get_latest_date_task(
     """
     backend = bd.Backend(graphql_url=get_url("prod"))
 
-    denatran_data = get_api_most_recent_date(
+    senatran_data = get_api_most_recent_date(
         table_id=table_id,
         dataset_id=dataset_id,
         date_format="%Y-%m",
         backend=backend,
     )
 
-    log(f"{denatran_data}")
-    year = denatran_data.year
-    month = denatran_data.month
+    log(f"{senatran_data}")
+    year = senatran_data.year
+    month = senatran_data.month
     today = datetime.datetime.now().date()
 
     dates = []
@@ -385,7 +385,7 @@ def get_latest_date_task(
                 log(e, "error")
                 raise
         else:
-            url = f"{denatran_constants.BASE_URL_PRE_2012.value}/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
+            url = f"{senatran_constants.BASE_URL_PRE_2012.value}/{year}/frota{'_' if year > 2008 else ''}{year}.zip"
             if verify_file(url):
                 date_return = datetime.datetime(year, month, 1)
                 str_return = date_return.strftime("%Y-%m")
@@ -403,7 +403,7 @@ def get_latest_date_task(
                 year, month = update_yearmonth(year, month)
 
     if len(dates) == 0:
-        date_return = denatran_data
+        date_return = senatran_data
         str_return = date_return.strftime("%Y-%m")
         dates = [date_return]
         dates_str = [str_return]
@@ -414,6 +414,6 @@ def get_latest_date_task(
 
 
 @task
-def get_denatran_date(filename: str) -> datetime.date:
+def get_senatran_date(filename: str) -> datetime.date:
     year, month = get_year_month_from_filename(filename)
     return datetime.date(year, month, 1)
