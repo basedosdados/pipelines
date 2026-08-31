@@ -4,6 +4,7 @@ State-government budget execution and procurement. One section per UF, because t
 sources have nothing in common beyond what they describe.
 """
 
+import os
 import re
 import unicodedata
 from pathlib import Path
@@ -32,7 +33,16 @@ def normalise_column(name: str) -> str:
 
 # Scratch lives outside the repo and outside Dropbox: multi-GB, fully reproducible,
 # and deleted at the end of onboarding (see .claude/rules/onboarding-workflow.md).
-DATA_DIR = Path.home() / "Downloads" / "br_state_budget_data"
+#
+# EXEC_ESTADUAL_DATA_DIR overrides it, which is what the Prefect flow sets: a worker
+# has no ~/Downloads worth writing to, and each flow run wants its own temp dir so a
+# retry cannot inherit a half-written file from the run before it.
+DATA_DIR = Path(
+    os.environ.get(
+        "EXEC_ESTADUAL_DATA_DIR",
+        str(Path.home() / "Downloads" / "br_state_budget_data"),
+    )
+)
 INPUT_DIR = DATA_DIR / "input"
 OUTPUT_DIR = DATA_DIR / "output"
 
