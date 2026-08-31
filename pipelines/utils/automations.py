@@ -25,6 +25,11 @@ def event_name(etapa: str) -> str:
     return f"{etapa}.completed"
 
 
+def etapa_tag(etapa: str) -> str:
+    """etapa: check_update | flow_download | mat_test"""
+    return f"etapa:{etapa}"
+
+
 def deploy_tags(dataset_id: str, etapa: str) -> list[str]:
     """
     Tags de deploy que marcam um flow como parte de uma cadeia de
@@ -32,9 +37,12 @@ def deploy_tags(dataset_id: str, etapa: str) -> list[str]:
     (pros datasets reais, não só o piloto) encontra qual deployment
     corresponde a qual etapa de qual dataset, em vez de precisar de nomes
     de deployment hardcoded. Usar em `<flow>.deploy_tags = [...]` no
-    `flows.py` do dataset.
+    `flows.py` do dataset. O Prefect anexa essas tags automaticamente como
+    related resources em qualquer evento emitido durante a execução do
+    deployment — é isso que `build_chained_automation` usa no
+    `match_related`, não só o nome do evento.
     """
-    return [f"etapa:{etapa}", f"dataset:{dataset_id}"]
+    return [etapa_tag(etapa), f"dataset:{dataset_id}"]
 
 
 def encode_params(params: dict) -> str:
@@ -80,6 +88,15 @@ def build_chained_automation(
     `<etapa>.completed` pro resource do dataset, dispara o deployment
     downstream passando `payload_fields` do payload do evento como
     parâmetros do flow.
+
+    `match_related` exige que o evento tenha vindo de um flow run cujo
+    deployment carrega a tag `etapa:<upstream_etapa>` (anexada
+    automaticamente pelo Prefect como related resource, via
+    `deploy_tags` — ver `deploy_tags()`/`.github/scripts/deploy_flows.py`).
+    Isso evita que a automação dispare por engano se algum dia existir
+    outro evento com o mesmo nome vindo de um deployment sem essa tag —
+    o nome do evento sozinho não bastaria como garantia de que veio da
+    etapa certa.
     """
     return Automation(
         name=name,
@@ -87,6 +104,14 @@ def build_chained_automation(
             expect={event_name(upstream_etapa)},
             match=ResourceSpecification(
                 {"prefect.resource.id": [dataset_resource_id(dataset_id)]}
+            ),
+            match_related=ResourceSpecification(
+                {
+                    "prefect.resource.role": ["tag"],
+                    "prefect.resource.id": [
+                        f"prefect.tag.{etapa_tag(upstream_etapa)}"
+                    ],
+                }
             ),
             posture=Posture.Reactive,
             threshold=1,
