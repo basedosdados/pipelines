@@ -1,13 +1,13 @@
 """
-Flows para br_denatran_frota — Prefect 3.
+Flows para br_senatran_estatisticas — Prefect 3.
 """
 
 from prefect import flow
 
-from pipelines.datasets.br_denatran_frota.constants import (
-    constants as denatran_constants,
+from pipelines.datasets.br_senatran_estatisticas.constants import (
+    constants as senatran_constants,
 )
-from pipelines.datasets.br_denatran_frota.tasks import (
+from pipelines.datasets.br_senatran_estatisticas.tasks import (
     build_paths,
     crawl_task,
     get_desired_file_task,
@@ -32,7 +32,7 @@ from pipelines.utils.tasks import (
 )
 
 
-def _run_denatran(
+def _run_senatran(
     *,
     dataset_id: str,
     table_id: str,
@@ -157,21 +157,21 @@ def _run_denatran(
 
 
 @flow(
-    name="br_denatran_frota__uf_tipo",
+    name="br_senatran_estatisticas__uf_tipo",
     log_prints=True,
 )
-def br_denatran_frota__uf_tipo(
-    dataset_id: str = "br_denatran_frota",
+def br_senatran_estatisticas__uf_tipo(
+    dataset_id: str = "br_senatran_estatisticas",
     table_id: str = "uf_tipo",
     materialize_after_dump: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    _run_denatran(
+    _run_senatran(
         dataset_id=dataset_id,
         table_id=table_id,
-        filetype=denatran_constants.UF_TIPO_BASIC_FILENAME.value,
+        filetype=senatran_constants.UF_TIPO_BASIC_FILENAME.value,
         treat_task=treat_uf_tipo_task,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
@@ -181,21 +181,21 @@ def br_denatran_frota__uf_tipo(
 
 
 @flow(
-    name="br_denatran_frota__municipio_tipo",
+    name="br_senatran_estatisticas__municipio_tipo",
     log_prints=True,
 )
-def br_denatran_frota__municipio_tipo(
-    dataset_id: str = "br_denatran_frota",
+def br_senatran_estatisticas__municipio_tipo(
+    dataset_id: str = "br_senatran_estatisticas",
     table_id: str = "municipio_tipo",
     materialize_after_dump: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    _run_denatran(
+    _run_senatran(
         dataset_id=dataset_id,
         table_id=table_id,
-        filetype=denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value,
+        filetype=senatran_constants.MUNIC_TIPO_BASIC_FILENAME.value,
         treat_task=treat_municipio_tipo_task,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
@@ -205,10 +205,10 @@ def br_denatran_frota__municipio_tipo(
 
 
 # pyrefly: ignore [missing-attribute]
-br_denatran_frota__uf_tipo.deploy_schedules = [
+br_senatran_estatisticas__uf_tipo.deploy_schedules = [
     {"cron": "0 21 10-30 * *", "timezone": "America/Sao_Paulo"}
 ]
 # pyrefly: ignore [missing-attribute]
-br_denatran_frota__municipio_tipo.deploy_schedules = [
+br_senatran_estatisticas__municipio_tipo.deploy_schedules = [
     {"cron": "20 21 10-30 * *", "timezone": "America/Sao_Paulo"}
 ]
