@@ -55,8 +55,11 @@ class Layout:
     """Um recorte da frota publicado mensalmente."""
 
     table_id: str
-    #: token que identifica o recorte no nome do arquivo, já normalizado
-    token: str
+    #: tokens que identificam o recorte no nome do arquivo, já normalizados.
+    #: Vários porque o gov.br renomeia os recortes entre anos — p.ex. o mesmo
+    #: recorte aparece como `ano_de_fabricacao_e_modelo` (2017),
+    #: `ano_fab_mod` e `ano_fab_modelo` (2021).
+    tokens: tuple[str, ...]
     #: nomes finais das colunas de dimensão, na ordem em que aparecem
     dimensions: tuple[str, ...]
     #: tokens que, se presentes, desqualificam o arquivo
@@ -66,8 +69,43 @@ class Layout:
 LAYOUTS: dict[str, Layout] = {
     "municipio_combustivel": Layout(
         table_id="municipio_combustivel",
-        token="combustivel",
+        tokens=("combustivel",),
         dimensions=("combustivel",),
+    ),
+    "municipio_cor": Layout(
+        table_id="municipio_cor",
+        tokens=("cor",),
+        dimensions=("cor",),
+    ),
+    "municipio_potencia": Layout(
+        table_id="municipio_potencia",
+        tokens=("potencia",),
+        dimensions=("potencia",),
+    ),
+    "municipio_restricao": Layout(
+        table_id="municipio_restricao",
+        tokens=("restricao",),
+        dimensions=("restricao",),
+    ),
+    "municipio_cep": Layout(
+        table_id="municipio_cep",
+        tokens=("cep",),
+        dimensions=("cep",),
+    ),
+    "municipio_ano_fabricacao_modelo": Layout(
+        table_id="municipio_ano_fabricacao_modelo",
+        tokens=(
+            "ano_fab",
+            "ano_fab_mod",
+            "ano_fab_modelo",
+            "ano_de_fabricacao",
+        ),
+        dimensions=("ano_modelo", "ano_fabricacao"),
+    ),
+    "municipio_tipo_especie_eixos": Layout(
+        table_id="municipio_tipo_especie_eixos",
+        tokens=("especie", "tipoespecieeixo", "tipo_especie_eixos"),
+        dimensions=("tipo_veiculo", "especie", "eixos"),
     ),
 }
 
@@ -121,7 +159,12 @@ def extract_breakdown_links(
             continue
         filename = href.rsplit("/", 1)[-1]
         normalized = normalize(filename)
-        if layout.token not in normalized:
+        # Casamento por token delimitado, não por substring: "cor" e "cep" são
+        # curtos e casariam dentro de "recorte", "concept" etc.
+        if not any(
+            re.search(rf"(?:^|_){re.escape(t)}(?:_|$)", normalized)
+            for t in layout.tokens
+        ):
             continue
         if any(bad in normalized for bad in layout.excludes):
             continue
@@ -149,17 +192,71 @@ def extract_breakdown_links(
     return resolved
 
 
+class UnsupportedArchiveError(RuntimeError):
+    """Arquivo compactado que não conseguimos abrir neste ambiente."""
+
+
+def _spreadsheet_from_archive(path: Path) -> Path:
+    """Extrai a planilha de dentro de um .zip/.rar e devolve seu caminho.
+
+    Os recortes de 2013, 2015 e 2016 vêm compactados; de 2017 em diante são
+    .xlsx direto. O ``rarfile`` depende de um binário externo (unrar/bsdtar) que
+    existe no worker mas nem sempre localmente — por isso a falha é sinalizada
+    com :class:`UnsupportedArchiveError`, para o backfill pular o mês em vez de
+    abortar os outros 150.
+    """
+    from zipfile import ZipFile
+
+    extension = path.suffix.lower().lstrip(".")
+    if extension == "zip":
+        opener = ZipFile
+    elif extension == "rar":
+        from rarfile import RarFile
+
+        opener = RarFile
+    else:
+        raise ValueError(f"Extensão não suportada: {extension}")
+
+    destino = path.parent / f"{path.stem}_extraido"
+    destino.mkdir(parents=True, exist_ok=True)
+    try:
+        with opener(path) as arquivo:  # type: ignore[operator]
+            arquivo.extractall(path=destino)
+    except Exception as erro:
+        raise UnsupportedArchiveError(
+            f"Não foi possível extrair {path.name}: {erro}"
+        ) from erro
+
+    planilhas = [
+        f
+        for f in sorted(destino.rglob("*"))
+        if f.suffix.lower() in {".xlsx", ".xls"}
+    ]
+    if not planilhas:
+        raise UnsupportedArchiveError(
+            f"Nenhuma planilha dentro de {path.name}"
+        )
+    return planilhas[0]
+
+
 def read_breakdown(path: str | Path, layout: Layout) -> pl.DataFrame:
     """Lê um arquivo de recorte e devolve colunas já renomeadas.
 
-    O nome da planilha varia (``Layout C``, ``Layout D `` com espaço à direita),
-    então pegamos a primeira aba que não seja o glossário.
+    Aceita .xlsx/.xls direto ou compactado em .zip/.rar. O nome da planilha
+    varia (``Layout C``, ``Layout D `` com espaço à direita), então pegamos a
+    primeira aba que não seja o glossário.
     """
+    path = Path(path)
+    if path.suffix.lower() in {".zip", ".rar"}:
+        path = _spreadsheet_from_archive(path)
     excel = pd.ExcelFile(path)
     sheets = [s for s in excel.sheet_names if normalize(str(s)) != "glossario"]
     if not sheets:
         raise ValueError(f"Nenhuma aba de dados em {path}")
-    frame = pd.read_excel(path, sheet_name=sheets[0])
+    # dtype=str em tudo: o CEP vem com zeros à esquerda que o pandas destrói ao
+    # inferir int (069900 -> 69900), e o staging é all-STRING por convenção de
+    # qualquer forma — o safe_cast do modelo dbt decide o tipo final.
+    frame = pd.read_excel(path, sheet_name=sheets[0], dtype=str)
 
     expected = 2 + len(layout.dimensions) + 1
     if frame.shape[1] < expected:

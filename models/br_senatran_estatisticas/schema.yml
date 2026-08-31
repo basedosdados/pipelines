@@ -112,3 +112,267 @@ models:
         description: Tipo de combustível do veículo
       - name: quantidade
         description: Quantidade de veículos
+  - name: br_senatran_estatisticas__municipio_cor
+    description: >
+      Frota de veículos por município e cor, com dados mensais a partir de 2014. Fonte:
+      recorte C das estatísticas de frota da SENATRAN.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, id_municipio, cor]
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: mes
+        description: Mês
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_year_month__
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__
+      - name: cor
+        description: Cor do veículo
+      - name: quantidade
+        description: Quantidade de veículos
+  - name: br_senatran_estatisticas__municipio_potencia
+    description: >
+      Frota de veículos por município e potência do motor, com dados mensais a partir
+      de 2013. Fonte: recorte E das estatísticas de frota da SENATRAN.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, id_municipio, potencia]
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: mes
+        description: Mês
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_year_month__
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__
+      - name: potencia
+        description: Potência do veículo conforme informada pela fonte; 0 indica não
+          informado
+      - name: quantidade
+        description: Quantidade de veículos
+  - name: br_senatran_estatisticas__municipio_restricao
+    description: >
+      Frota de veículos por município e tipo de restrição, com dados mensais a partir
+      de 2013. Fonte: recorte H das estatísticas de frota da SENATRAN.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, id_municipio, restricao]
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: mes
+        description: Mês
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_year_month__
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__
+      - name: restricao
+        description: Tipo de restrição sobre o veículo
+      - name: quantidade
+        description: Quantidade de veículos
+  - name: br_senatran_estatisticas__municipio_cep
+    description: >
+      Frota de veículos por município e CEP, com dados mensais a partir de 2014. Fonte:
+      recorte A das estatísticas de frota da SENATRAN.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, mes, id_municipio, cep]
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: mes
+        description: Mês
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_year_month__
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__
+      - name: cep
+        description: CEP informado no registro do veículo; 0 indica não informado
+      - name: quantidade
+        description: Quantidade de veículos
+  - name: br_senatran_estatisticas__municipio_ano_fabricacao_modelo
+    description: >
+      Frota de veículos por município, ano de fabricação e ano do modelo, com dados
+      mensais a partir de 2015. Fonte: recorte F das estatísticas de frota da SENATRAN.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - id_municipio
+            - ano_modelo
+            - ano_fabricacao
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: mes
+        description: Mês
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_year_month__
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__
+      - name: ano_modelo
+        description: Ano do modelo do veículo
+      - name: ano_fabricacao
+        description: Ano de fabricação do veículo conforme o CRV
+      - name: quantidade
+        description: Quantidade de veículos
+  - name: br_senatran_estatisticas__municipio_tipo_especie_eixos
+    description: >
+      Frota de veículos por município, tipo, espécie e número de eixos, com dados
+      mensais a partir de 2013. Fonte: recorte G das estatísticas de frota da SENATRAN.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - id_municipio
+            - tipo_veiculo
+            - especie
+            - eixos
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: mes
+        description: Mês
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: __most_recent_year_month__
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              config:
+                where: __most_recent_year_month__
+      - name: tipo_veiculo
+        description: Tipo do veículo
+      - name: especie
+        description: Espécie do veículo
+      - name: eixos
+        description: Número de eixos conforme informado pela fonte; 0 indica não informado
+      - name: quantidade
+        description: Quantidade de veículos
