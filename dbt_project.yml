@@ -148,6 +148,14 @@ models:
     br_bd_diretorios_mx:
       +materialized: table
       +schema: br_bd_diretorios_mx
+    br_bd_execucao_estadual:
+      +materialized: table
+      +schema: br_bd_execucao_estadual
+      # One ephemeral model per state, unioned by the published parent. Ephemeral keeps
+      # compiled SQL, published tables and storage identical to a single monolith while
+      # letting each state be reviewed and rebuilt on its own.
+      states:
+        +materialized: ephemeral
     mx_sesnsp_incidencia_delictiva:
       +materialized: table
       +schema: mx_sesnsp_incidencia_delictiva
