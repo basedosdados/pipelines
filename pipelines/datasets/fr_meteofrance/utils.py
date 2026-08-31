@@ -85,11 +85,28 @@ def _synop_schema():
 
 # ── download ─────────────────────────────────────────────────────────────────
 def _get(url: str, dest: Path, timeout: int = 600) -> Path:
+    """Download `url` to `dest`, writing the response body byte for byte.
+
+    `decode_content=False` is load-bearing, not a micro-optimisation. Three of
+    the 1,576 climatological sheets -- FICHECLIM_10372001, _13108004 and
+    _81192005 -- are stored on the OVH bucket with `Content-Encoding: gzip`
+    object metadata while their bodies are plain text. `requests.iter_content`
+    honours that header and dies decompressing text:
+
+        ContentDecodingError: Received response with content-encoding: gzip,
+        but failed to decode it. Error -3 ... incorrect header check
+
+    Setting `Accept-Encoding: identity` does NOT help -- the header comes from
+    S3 object metadata and is sent regardless. Reading the raw stream ignores
+    it. That is also correct for the real `.csv.gz` archives, which the bucket
+    serves with no `Content-Encoding` at all, so their gzip bytes must reach
+    disk untouched.
+    """
     dest.parent.mkdir(parents=True, exist_ok=True)
     with requests.get(url, stream=True, timeout=timeout) as r:
         r.raise_for_status()
         with dest.open("wb") as fh:
-            for chunk in r.iter_content(chunk_size=1 << 20):
+            for chunk in r.raw.stream(1 << 20, decode_content=False):
                 fh.write(chunk)
     return dest
 
