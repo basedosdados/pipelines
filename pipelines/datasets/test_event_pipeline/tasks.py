@@ -36,9 +36,10 @@ def emit_check_update_completed(
 
 
 @task
-def simulate_download(download_params: str) -> str:
+def simulate_download(download_params: str) -> dict:
     """
     Stand-in for a real download — just proves the params arrived intact.
+    Returns the fields mat_test needs downstream.
     """
     params = decode_params(download_params)
     reference_date = params["reference_date"]
@@ -48,4 +49,26 @@ def simulate_download(download_params: str) -> str:
         f"[simulate_download] source_url={source_url} "
         f"reference_date={reference_date} -> {download_path}"
     )
-    return download_path
+    return {"reference_date": reference_date, "download_path": download_path}
+
+
+@task
+def emit_flow_download_completed(mat_test_params: dict) -> None:
+    """Emits the event Automation 2 listens for, same shape as emit_check_update_completed."""
+    emit_event(
+        event=event_name("flow_download"),
+        resource={"prefect.resource.id": dataset_resource_id(DATASET_ID)},
+        payload={"mat_test_params": encode_params(mat_test_params)},
+    )
+
+
+@task
+def simulate_mat_test(mat_test_params: str) -> None:
+    """
+    Stand-in for materialize + test — just proves the params arrived intact.
+    """
+    params = decode_params(mat_test_params)
+    print(
+        f"[simulate_mat_test] reference_date={params['reference_date']} "
+        f"download_path={params['download_path']} -> materializado e testado (simulado)"
+    )

@@ -7,6 +7,8 @@ encadear flows via evento, passando parâmetros computados em runtime
 parâmetros trafegam como um dict serializado (JSON), não como campos fixos
 — assim o conjunto de campos que o downstream precisa pode variar sem
 precisar redesenhar a automação.
+
+Cadeia: check_update -> (Automação 1) -> flow_download -> (Automação 2) -> mat_test.
 """
 
 from datetime import UTC, datetime
@@ -16,7 +18,9 @@ from prefect import flow
 from pipelines.datasets.test_event_pipeline.constants import DATASET_ID
 from pipelines.datasets.test_event_pipeline.tasks import (
     emit_check_update_completed,
+    emit_flow_download_completed,
     simulate_download,
+    simulate_mat_test,
 )
 from pipelines.utils.automations import deploy_tags
 
@@ -56,7 +60,21 @@ def flow_download_flow(download_params: str) -> None:
     manualmente com os parâmetros na mão (rerun/debug, sem passar pelo
     check_update) — nesse caso, montar o JSON à mão.
     """
-    simulate_download(download_params=download_params)
+    mat_test_params = simulate_download(download_params=download_params)
+    emit_flow_download_completed(mat_test_params=mat_test_params)
 
 
 flow_download_flow.deploy_tags = deploy_tags(DATASET_ID, "flow_download")
+
+
+@flow(name="test_event_pipeline: mat_test", log_prints=True)
+def mat_test_flow(mat_test_params: str) -> None:
+    """
+    Disparado pela Automação 2 via evento `flow_download.completed`, ou
+    manualmente (rerun/debug) montando o JSON à mão. Etapa terminal — não
+    emite evento nenhum.
+    """
+    simulate_mat_test(mat_test_params=mat_test_params)
+
+
+mat_test_flow.deploy_tags = deploy_tags(DATASET_ID, "mat_test")
