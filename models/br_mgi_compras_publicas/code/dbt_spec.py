@@ -184,7 +184,7 @@ TABLES: dict[str, DbtTable] = {
             "Contratos administrativos registrados no SIASG, de 2010 em diante. Uma linha "
             "por contrato, com vigência, fornecedor e valores. Uma unidade gestora reutiliza "
             "o número do contrato entre contratações, de modo que a chave inclui a compra de "
-            "origem; cerca de 0,8% das chaves ainda se repetem com conteúdo divergente na "
+            "origem; cerca de 0,3% das chaves ainda se repetem com conteúdo divergente na "
             "fonte, e o teste de unicidade admite essa proporção"
         ),
     ),

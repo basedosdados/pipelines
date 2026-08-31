@@ -68,9 +68,10 @@ TABLES: dict[str, TableMeta] = {
         "Ata de registro de preços",
         "Price record",
         "Acta de registro de precios",
-        "Price records established from Law 14,133/2021 procurements. One row per price record",
+        "Price records established from Law 14,133/2021 procurements. One row per price "
+        "record, in the most recent state reported by the source",
         "Actas de registro de precios establecidas a partir de contrataciones de la Ley "
-        "14.133/2021. Una fila por acta",
+        "14.133/2021. Una fila por acta, en el estado más reciente informado por la fuente",
         {"agreement": "numero_controle_pncp_ata", "year": "ano"},
         (2023, 1, 2027, 12),
     ),
@@ -79,9 +80,11 @@ TABLES: dict[str, TableMeta] = {
         "Price record item",
         "Ítem del acta de registro de precios",
         "Items of the price records, with the registered supplier, the unit price and the "
-        "piggyback limit. One row per supplier ranked on each item",
+        "piggyback limit. One row per supplier ranked on each item, in the most recent state "
+        "reported by the source",
         "Ítems de las actas de registro de precios, con el proveedor registrado, el precio "
-        "unitario y el límite de adhesión. Una fila por proveedor clasificado en cada ítem",
+        "unitario y el límite de adhesión. Una fila por proveedor clasificado en cada ítem, en "
+        "el estado más reciente informado por la fuente",
         {
             "agreement": "numero_controle_pncp_ata",
             "item": "numero_item",
@@ -94,9 +97,11 @@ TABLES: dict[str, TableMeta] = {
         "Contract",
         "Contrato",
         "Administrative contracts recorded in SIASG, from 2010 onwards. One row per contract, "
-        "with its term, supplier and values",
+        "with its term, supplier and values. A management unit reuses a contract number across "
+        "procurements, so the key includes the originating procurement",
         "Contratos administrativos registrados en el SIASG, desde 2010. Una fila por contrato, "
-        "con su vigencia, proveedor y valores",
+        "con su vigencia, proveedor y valores. Una unidad gestora reutiliza el número del "
+        "contrato entre contrataciones, por lo que la clave incluye la compra de origen",
         {"contract": "numero_contrato", "year": "ano"},
         (2010, 1, 2026, 7),
     ),
@@ -105,9 +110,11 @@ TABLES: dict[str, TableMeta] = {
         "Contract item",
         "Ítem del contrato",
         "Items of the administrative contracts recorded in SIASG. One row per contracted item, "
-        "with quantity and unit and total values",
+        "with quantity and unit and total values, in the most recent state reported by the "
+        "source",
         "Ítems de los contratos administrativos registrados en el SIASG. Una fila por ítem "
-        "contratado, con cantidad y valores unitario y total",
+        "contratado, con cantidad y valores unitario y total, en el estado más reciente "
+        "informado por la fuente",
         {"contract": "numero_contrato", "item": "numero_item", "year": "ano"},
         (2010, 1, 2026, 7),
     ),
