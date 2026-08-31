@@ -454,10 +454,11 @@ with
         {% if is_incremental() %}
             where
                 not exists (
-                    select 1 form {{ this }} as materializado
+                    select 1
+                    from {{ this }} as materializado
                     where
                         materializado.ano = safe_cast(t.ano as int64)
-                        and materializado.trimestre = safe_cast(t.trimeste as int64)
+                        and materializado.trimestre = safe_cast(t.trimestre as int64)
                 )
         {% endif %}
     )
