@@ -37,7 +37,7 @@ from pipelines.utils.to_download.tasks import download_async
 def br_ibge_pnadc__microdados(
     dataset_id: str = "br_ibge_pnadc",
     table_id: str = "microdados",
-    materialize_after_dump: bool = False,
+    materialize_after_dump: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,

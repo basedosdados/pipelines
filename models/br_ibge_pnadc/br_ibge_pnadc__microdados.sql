@@ -453,9 +453,11 @@ with
         from {{ set_datalake_project("br_ibge_pnadc_staging.microdados") }} as t
         {% if is_incremental() %}
             where
-                date(safe_cast(ano as int64), safe_cast(trimestre as int64), 1) > (
-                    select max(date(cast(ano as int64), cast(trimestre as int64), 1))
-                    from {{ this }}
+                not exists (
+                    select 1 form {{ this }} as materializado
+                    where
+                        materializado.ano = safe_cast(t.ano as int64)
+                        and materializado.trimestre = safe_cast(t.trimeste as int64)
                 )
         {% endif %}
     )
