@@ -15,7 +15,9 @@ from pipelines.utils.automations import (
 
 
 @task
-def emit_check_update_completed(has_new_data: bool, download_params: dict) -> None:
+def emit_check_update_completed(
+    has_new_data: bool, download_params: dict
+) -> None:
     """
     Emits the event Automation 1 listens for, carrying whatever fields
     flow_download needs downstream (serializados via `encode_params` — ver

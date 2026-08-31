@@ -9,7 +9,7 @@ parâmetros trafegam como um dict serializado (JSON), não como campos fixos
 precisar redesenhar a automação.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from prefect import flow
 
@@ -36,10 +36,13 @@ def check_update_flow(
     entrada) — é o valor que prova que a propagação via `emit_event`
     carrega dado computado em runtime, não só o que foi passado de fora.
     """
-    reference_date = datetime.now(timezone.utc).date().isoformat()
+    reference_date = datetime.now(UTC).date().isoformat()
     emit_check_update_completed(
         has_new_data=has_new_data,
-        download_params={"reference_date": reference_date, "source_url": source_url},
+        download_params={
+            "reference_date": reference_date,
+            "source_url": source_url,
+        },
     )
 
 
