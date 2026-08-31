@@ -753,15 +753,19 @@ models:
     description: >-
       Contratos administrativos registrados no SIASG, de 2010 em diante. Uma linha
       por contrato, com vigência, fornecedor e valores. Uma unidade gestora reutiliza
-      o número do contrato entre contratações, de modo que cerca de 2% das chaves
-      se repetem com conteúdo divergente, e o teste de unicidade admite essa proporção
+      o número do contrato entre contratações, de modo que a chave inclui a compra
+      de origem; cerca de 0,8% das chaves ainda se repetem com conteúdo divergente
+      na fonte, e o teste de unicidade admite essa proporção
     tests:
       - custom_unique_combinations_of_columns:
           combination_of_columns:
             - codigo_orgao
             - codigo_unidade_gestora
             - numero_contrato
-          proportion_allowed_failures: 0.03
+            - id_compra
+          proportion_allowed_failures: 0.01
+          config:
+            where: id_compra is not null
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -896,15 +900,20 @@ models:
   - name: br_mgi_compras_publicas__contrato_item
     description: >-
       Itens dos contratos administrativos registrados no SIASG. Uma linha por item
-      contratado, com quantidade e valores unitário e total
+      contratado, com quantidade e valores unitário e total, no estado mais recente
+      informado pela fonte
     tests:
-      - custom_unique_combinations_of_columns:
+      - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - codigo_orgao
             - codigo_unidade_gestora
             - numero_contrato
+            - id_compra
             - numero_item
-          proportion_allowed_failures: 0.03
+          config:
+            where: codigo_orgao is not null and codigo_unidade_gestora is not null
+              and numero_contrato is not null and id_compra is not null and numero_item
+              is not null
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [data_hora_exclusao_contrato, data_hora_exclusao_item]

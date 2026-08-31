@@ -48,6 +48,9 @@ class DbtTable:
     #: distinct rows survive -- BigQuery would otherwise group every null into a
     #: single partition and keep exactly one of them.
     dedup_key_nullable: bool = False
+    #: restrict the uniqueness test to rows matching this predicate. Used where
+    #: part of the key is legitimately absent on a minority of rows.
+    unique_where: str = ""
     #: share of duplicate keys the source genuinely contains. Above zero the
     #: model uses the relaxed uniqueness test, and the reason is stated in the
     #: table description.
@@ -151,12 +154,23 @@ TABLES: dict[str, DbtTable] = {
     ),
     "contrato": DbtTable(
         dedup_order="data_hora_inclusao",
-        key=["codigo_orgao", "codigo_unidade_gestora", "numero_contrato"],
+        # A unidade gestora reuses a contract number across procurements, so the
+        # contract number alone is not a key: 2.94% of the three-column keys
+        # repeat, and those repeats differ in objeto (95%), valor (92%) and
+        # fornecedor (89%) -- genuinely different contracts, not revisions, so
+        # they must not be collapsed. Adding id_compra identifies the
+        # procurement and cuts the repeats to 0.84%; the 4,244 rows with no
+        # id_compra are scoped out of the test rather than dropped. The residual
+        # still differs in objeto and valor, so a small tolerance stands.
+        key=[
+            "codigo_orgao",
+            "codigo_unidade_gestora",
+            "numero_contrato",
+            "id_compra",
+        ],
         dedup_exclude=["data_hora_inclusao", "data_hora_exclusao"],
-        # A unidade gestora reuses a contract number across procurements: 2.26%
-        # of keys repeat with differing content. Adding id_compra cuts that to
-        # 0.34% but leaves 4,285 rows with a null key, which is the worse trade.
-        unique_tolerance=0.03,
+        unique_tolerance=0.01,
+        unique_where="id_compra is not null",
         ignore_values=[
             "codigo_subcategoria",
             "subcategoria",
@@ -166,24 +180,34 @@ TABLES: dict[str, DbtTable] = {
         description=(
             "Contratos administrativos registrados no SIASG, de 2010 em diante. Uma linha "
             "por contrato, com vigência, fornecedor e valores. Uma unidade gestora reutiliza "
-            "o número do contrato entre contratações, de modo que cerca de 2% das chaves se "
-            "repetem com conteúdo divergente, e o teste de unicidade admite essa proporção"
+            "o número do contrato entre contratações, de modo que a chave inclui a compra de "
+            "origem; cerca de 0,8% das chaves ainda se repetem com conteúdo divergente na "
+            "fonte, e o teste de unicidade admite essa proporção"
         ),
     ),
     "contrato_item": DbtTable(
         dedup_order="data_hora_inclusao",
+        # Same revision pattern as the ata items: 90% of the repeated keys differ
+        # only in indicador_item_excluido and 97% in the inclusion timestamp, so
+        # the source re-serves an item after revising it and keeping both double
+        # counts. id_compra is part of the key because a unidade gestora reuses a
+        # contract number across procurements, as on the parent table; it is null
+        # for 161,166 rows, hence the nullable fallback.
         key=[
             "codigo_orgao",
             "codigo_unidade_gestora",
             "numero_contrato",
+            "id_compra",
             "numero_item",
         ],
         dedup_exclude=["data_hora_inclusao", "data_hora_exclusao_item"],
-        unique_tolerance=0.03,
+        dedup_by_key=True,
+        dedup_key_nullable=True,
         year_range=R_CONTRATO,
         description=(
             "Itens dos contratos administrativos registrados no SIASG. Uma linha por item "
-            "contratado, com quantidade e valores unitário e total"
+            "contratado, com quantidade e valores unitário e total, no estado mais recente "
+            "informado pela fonte"
         ),
     ),
     "licitacao": DbtTable(

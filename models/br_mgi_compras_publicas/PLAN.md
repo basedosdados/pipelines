@@ -260,28 +260,32 @@ The key is `numero_controle_pncp` + `numero_item_pncp`, not the SIASG
 rows collide, against 2.66% for the PNCP pair, and 0 nulls in either). This is the
 same collision that moved the parent table's key off `id_compra`.
 
-### The ata item tolerance was hiding the same revision bug
+### Every duplicate-key tolerance was hiding a revision bug
 
-`ata_registro_preco_item` passed only because of a 2% duplicate-key tolerance I
-had attributed to source noise. It was not noise. Of the repeated keys, 91% differ
-only in `indicador_item_excluido` -- the item was later removed from the ata --
-and the rest in fornecedor, unit price or vigencia. Quantities never differ. The
-table was carrying superseded states as separate rows, so any sum over it double
-counted.
+Four tables shipped "green" behind duplicate-key tolerances I had written off as
+source noise. Checking what actually varied inside each repeated key showed three
+of the four were revisions -- the source revises a row and re-serves it, so both
+states are kept and any sum over the table double counts.
 
-With `dedup_by_key` the table collapses 2,693,186 staging rows to 2,112,116, and
-the key is now asserted unique with **no tolerance at all**. 581,070 rows (21.6%)
-were superseded revisions.
+| table | was | diagnosis | now |
+|---|---|---|---|
+| contratacao_item | 2.9% dup, key `id_compra_item` | lifecycle revision ("Em andamento" -> "Homologado", supplier appears) | key-dedup, **no tolerance** |
+| ata_registro_preco_item | 2% tolerance | 91% differ only in `indicador_item_excluido` | key-dedup, **no tolerance**, -581,070 rows |
+| contrato_item | 3% tolerance, really 13.5% dup | 90% differ only in `indicador_item_excluido` | key-dedup, **no tolerance** |
+| contrato | 3% tolerance | genuinely different contracts (objeto 95%, valor 92%) | tighter key + `id_compra`, 0.38% dup, 1% tolerance |
 
-Two details make it safe on a nullable key:
+Only `contrato` was real: a unidade gestora reuses a contract number across
+procurements, so those rows must **not** be collapsed. Adding `id_compra` to the
+key cuts the repeats from 2.94% to 0.38%, and the 4,244 rows with no `id_compra`
+are scoped out of the test rather than dropped.
 
-* rows whose key is incomplete fall back to partitioning on their own content, so
-  the 4,718 rows with no `numero_controle_pncp_ata` and the 8,651 with no
-  `numero_item` survive instead of collapsing to one;
-* `not_null` is not asserted on a key that is nullable by design, and the
-  uniqueness test is scoped to rows that actually have a key.
+**A tolerance on a uniqueness test is a bug report, not a setting.** Each one here
+was covering a defect that changes reported spending.
 
-A tolerance on a uniqueness test is worth treating as a bug report, not a setting.
+**Do not compare key cardinalities with `FORMAT`.** BigQuery's `FORMAT` returns
+NULL when an argument is NULL and `COUNT(DISTINCT)` then drops those rows, which
+made a five-column key look *less* selective than the four-column key it contains
+-- an impossibility that is the tell. Use `to_json_string(struct(...))`.
 
 ### Endpoint 6 rescans on OFFSET, so it is partitioned by (year, orgao)
 

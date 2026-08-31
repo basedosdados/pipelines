@@ -57,40 +57,58 @@ from {{ set_datalake_project("br_mgi_compras_publicas_staging.contrato_item") }}
 qualify
     row_number() over (
         partition by
-            ano,
-            numero_controle_pncp_contrato,
-            numero_contrato,
-            numero_item,
             codigo_orgao,
-            nome_orgao,
             codigo_unidade_gestora,
-            nome_unidade_gestora,
-            codigo_unidade_gestora_origem,
-            nome_unidade_gestora_origem,
-            codigo_unidade_realizadora_compra,
-            nome_unidade_realizadora_compra,
+            numero_contrato,
             id_compra,
-            numero_controle_pncp_compra,
-            numero_compra,
-            codigo_modalidade_compra,
-            modalidade_compra,
-            id_fornecedor,
-            nome_fornecedor,
-            processo,
-            esfera,
-            poder,
-            tipo_item,
-            codigo_item,
-            descricao_item,
-            cast(quantidade_item as string),
-            cast(valor_unitario_item as string),
-            cast(valor_total_item as string),
-            cast(valor_global as string),
-            indicador_contrato_excluido,
-            indicador_item_excluido,
-            data_vigencia_inicial,
-            data_vigencia_final,
-            data_hora_exclusao_contrato
+            numero_item,
+            case
+                when
+                    codigo_orgao is null
+                    or codigo_unidade_gestora is null
+                    or numero_contrato is null
+                    or id_compra is null
+                    or numero_item is null
+                then
+                    to_json_string(
+                        struct(
+                            ano,
+                            numero_controle_pncp_contrato,
+                            numero_contrato,
+                            numero_item,
+                            codigo_orgao,
+                            nome_orgao,
+                            codigo_unidade_gestora,
+                            nome_unidade_gestora,
+                            codigo_unidade_gestora_origem,
+                            nome_unidade_gestora_origem,
+                            codigo_unidade_realizadora_compra,
+                            nome_unidade_realizadora_compra,
+                            id_compra,
+                            numero_controle_pncp_compra,
+                            numero_compra,
+                            codigo_modalidade_compra,
+                            modalidade_compra,
+                            id_fornecedor,
+                            nome_fornecedor,
+                            processo,
+                            esfera,
+                            poder,
+                            tipo_item,
+                            codigo_item,
+                            descricao_item,
+                            quantidade_item,
+                            valor_unitario_item,
+                            valor_total_item,
+                            valor_global,
+                            indicador_contrato_excluido,
+                            indicador_item_excluido,
+                            data_vigencia_inicial,
+                            data_vigencia_final,
+                            data_hora_exclusao_contrato
+                        )
+                    )
+            end
         order by data_hora_inclusao desc
     )
     = 1

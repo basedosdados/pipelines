@@ -198,17 +198,22 @@ def build_schema_entry(table: str) -> str:
         out.append(
             f"          proportion_allowed_failures: {spec.unique_tolerance}"
         )
+        if spec.unique_where and not scoped:
+            out.append("          config:")
+            out.append(f"            where: {spec.unique_where}")
     else:
         out.append("      - dbt_utils.unique_combination_of_columns:")
         out.append(
             f"          combination_of_columns: [{', '.join(spec.key)}]"
         )
-        if spec.dedup_key_nullable and not scoped:
+        if (spec.dedup_key_nullable or spec.unique_where) and not scoped:
             # The key is unique among the rows that have one. Rows with a null
             # key are kept deliberately -- they are real records the source
             # never assigned an identifier -- and BigQuery groups every null
             # together, so an unscoped test reads them as one giant duplicate.
-            guard = " and ".join(f"{k} is not null" for k in spec.key)
+            guard = spec.unique_where or " and ".join(
+                f"{k} is not null" for k in spec.key
+            )
             out.append("          config:")
             out.append(f"            where: {guard}")
     if scoped:
@@ -246,7 +251,10 @@ def build_schema_entry(table: str) -> str:
         # cnpj and cpf, which the architecture already documents as empty for
         # the other kind of record.
         nullable_key = (
-            spec.unique_tolerance or spec.dedup_key_nullable or name in sparse
+            spec.unique_tolerance
+            or spec.dedup_key_nullable
+            or name in sparse
+            or (spec.unique_where and name in spec.unique_where)
         )
         if name == spec.partition or (name in spec.key and not nullable_key):
             tests.append("not_null")
