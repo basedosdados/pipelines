@@ -989,3 +989,107 @@ class TestStagingPartSizeStaysSmall:
             f"expected the writer to flush every 10 rows, got {len(parts)} "
             "part(s) -- it is buffering the whole partition"
         )
+
+
+class TestDeepPageFailureDoesNotSplit:
+    """Splitting on a deep-page failure discards everything already fetched.
+
+    Both halves restart from page 1, so a window that died at page 153 of 238
+    throws away an hour and then repeats it on each half -- and the halves
+    split again. Observed cascading four levels deep on contratacao, which
+    took the harvest from ~40 chunks/hr to ~1.
+    """
+
+    def _fail_at(self, monkeypatch, bad_page, total=200):
+        calls = {"n": 0}
+
+        def fake(path, params, max_tries=6):
+            calls["n"] += 1
+            if params["pagina"] == bad_page:
+                raise utils.ServerOverloadError("500")
+            return {
+                "data": [{"numeroControlePNCP": f"X-{params['pagina']}/2024"}],
+                "totalPaginas": total,
+                "totalRegistros": total,
+            }
+
+        monkeypatch.setattr(utils, "request", fake)
+        return calls
+
+    def test_a_deep_page_failure_raises_deep_page_error(self, monkeypatch):
+        self._fail_at(monkeypatch, bad_page=5)
+        with pytest.raises(utils.DeepPageError):
+            utils.fetch_window("contratacoes/publicacao", {}, "label")
+
+    def test_fetch_range_does_not_split_on_a_deep_page_failure(
+        self, monkeypatch
+    ):
+        self._fail_at(monkeypatch, bad_page=5)
+        with pytest.raises(utils.DeepPageError):
+            utils.fetch_range(
+                "contratacoes/publicacao",
+                ("dataInicial", "dataFinal"),
+                date(2024, 5, 1),
+                date(2024, 5, 10),
+                {},
+            )
+
+    def test_a_page_one_failure_still_splits(self, monkeypatch):
+        # The split is correct there: nothing has been fetched to lose, and
+        # page 1 failing is the signal that the window is too large. It ends
+        # in ServerOverloadError once it reaches a single unservable day --
+        # what matters is that it narrowed the range on the way down.
+        seen = []
+
+        def fake(path, params, max_tries=6):
+            seen.append((params["dataInicial"], params["dataFinal"]))
+            raise utils.ServerOverloadError("500")
+
+        monkeypatch.setattr(utils, "request", fake)
+        with pytest.raises(utils.ServerOverloadError):
+            utils.fetch_range(
+                "contratacoes/publicacao",
+                ("dataInicial", "dataFinal"),
+                date(2024, 5, 1),
+                date(2024, 5, 4),
+                {},
+            )
+        spans = {(lo, hi) for lo, hi in seen}
+        assert ("20240501", "20240504") in spans, "the full window was tried"
+        assert len(spans) > 1, (
+            "a page-1 failure must narrow the window; only deep pages are "
+            "exempt from splitting"
+        )
+
+    def test_deep_page_error_is_not_a_server_overload_error(self):
+        # fetch_range splits on ServerOverloadError, so inheriting from it
+        # would silently reintroduce the whole problem.
+        assert not issubclass(utils.DeepPageError, utils.ServerOverloadError)
+
+
+class TestContratacaoResizeBoundary:
+    def test_boundary_is_on_an_original_window_edge(self):
+        spec = constants.ENDPOINTS.value["contratacao"]
+        boundary = date.fromisoformat(spec["resize"][0])
+        edges = {
+            lo
+            for lo, _ in utils.windows(
+                date(2021, 1, 1), date(2026, 8, 28), spec["window_days"]
+            )
+        }
+        assert boundary in edges, (
+            "an off-edge boundary renames every later window and re-downloads "
+            "everything already harvested"
+        )
+
+    def test_post_boundary_windows_are_small(self):
+        spec = constants.ENDPOINTS.value["contratacao"]
+        rz = (date.fromisoformat(spec["resize"][0]), spec["resize"][1])
+        wins = [
+            (lo, hi)
+            for lo, hi in utils.windows(
+                date(2021, 1, 1), date(2026, 8, 28), spec["window_days"], rz
+            )
+            if lo >= rz[0]
+        ]
+        assert all((hi - lo).days <= 1 for lo, hi in wins[:-1])

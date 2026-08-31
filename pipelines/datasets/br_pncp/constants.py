@@ -78,6 +78,13 @@ class constants(Enum):
             "date_params": ("dataInicial", "dataFinal"),
             "by_modalidade": True,
             "window_days": 10,
+            # Windows through 2024-05-24 are already harvested at 10 days and
+            # their names are their windows, so that stretch is frozen. After
+            # it, 10 days is too big: modalidade 6 and 8 reach 238-380 pages
+            # in 2024+ and, under rate limiting, die deep -- page 153 of 238
+            # after 63 minutes -- which used to discard the lot and split.
+            # 2 days keeps every window near ~50 pages so it finishes.
+            "resize": ("2024-05-25", 2),
             # BOTH contratacoes endpoints cap tamanhoPagina at 50, not the
             # 500 every other endpoint allows -- declared in the OpenAPI spec
             # at /api/consulta/v3/api-docs and enforced with a flat 400

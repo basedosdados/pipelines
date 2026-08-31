@@ -100,6 +100,20 @@ EXPLODE = {"plano_contratacao_anual": "itens"}
 # --------------------------------------------------------------------------- #
 
 
+class DeepPageError(Exception):
+    """A page past the first exhausted its retries.
+
+    Deliberately NOT a ServerOverloadError: fetch_range splits on that, and
+    splitting here is the expensive mistake. Every page already fetched is
+    discarded and both halves restart from page 1, so a window that died at
+    page 153 of 238 throws away an hour and then does it again on each half.
+    Observed cascading four levels deep on contratacao.
+
+    The window is failed instead -- no chunk is written, so the next run
+    retries it whole.
+    """
+
+
 class ServerOverloadError(Exception):
     """The window is too large for the server to answer. Split it."""
 
@@ -244,6 +258,7 @@ def fetch_window(
     """Page through one window, raising ServerOverloadError if it is too large."""
     records: list[dict] = []
     page = 1
+    total_pages_seen = 0
     started = time.monotonic()
     while True:
         # A 5xx on page 1 means the window is genuinely too large, so fail fast
@@ -251,14 +266,26 @@ def fetch_window(
         # deep offset — splitting there would throw away every page already
         # fetched and restart both halves from page 1, which is how a 168-page
         # window turns into hours of repeated work.
-        payload = request(
-            path,
-            {**params, "pagina": page, "tamanhoPagina": page_size},
-            max_tries=4 if page == 1 else 12,
-        )
+        try:
+            payload = request(
+                path,
+                {**params, "pagina": page, "tamanhoPagina": page_size},
+                max_tries=4 if page == 1 else 12,
+            )
+        except (ServerOverloadError, RateLimitedError) as exc:
+            # Page 1 failing means the window really is too big -- let the
+            # caller split. Any later page failing is transient load on a
+            # deep offset, and splitting would discard everything fetched
+            # so far, so fail the window and let the next run retry it.
+            if page == 1:
+                raise
+            raise DeepPageError(
+                f"{label or path} gave up at page {page}/{total_pages_seen}"
+            ) from None
         batch = payload.get("data") or []
         records.extend(batch)
         total_pages = payload.get("totalPaginas") or 0
+        total_pages_seen = total_pages or total_pages_seen
         if VERBOSE and label:
             print(
                 f"      {label} page {page}/{total_pages} "
