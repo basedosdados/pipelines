@@ -43,7 +43,9 @@ AUTOMATIONS = [
 
 
 def upsert_automation(client, spec: dict) -> None:
-    deployment = client.read_deployment_by_name(spec["downstream_deployment_name"])
+    deployment = client.read_deployment_by_name(
+        spec["downstream_deployment_name"]
+    )
 
     desired = build_chained_automation(
         name=spec["name"],
