@@ -38,7 +38,6 @@ def _tse_flow(table_id: str, cron: str | None):
         materialize_after_dump: bool = True,
         dbt_alias: bool = True,
         update_metadata: bool = True,
-        target: str = "prod",
         force_run: bool = False,
     ) -> None:
         # pyrefly: ignore [unused-coroutine]
@@ -108,7 +107,7 @@ def _tse_flow(table_id: str, cron: str | None):
             table_id=table_id,
             dbt_command="run/test",
             dbt_alias=dbt_alias,
-            target=target,
+            target="prod",
         )
 
         if update_metadata:
@@ -135,7 +134,15 @@ def _tse_flow(table_id: str, cron: str | None):
 
 
 # Schedules eram comentados no Prefect 0 — mantém sem cron por enquanto.
-br_tse_eleicoes__candidatos = _tse_flow("candidatos", None)
-br_tse_eleicoes__bens_candidato = _tse_flow("bens_candidato", None)
-br_tse_eleicoes__despesas_candidato = _tse_flow("despesas_candidato", None)
-br_tse_eleicoes__receitas_candidato = _tse_flow("receitas_candidato", None)
+br_tse_eleicoes__candidatos = _tse_flow(
+    table_id="candidatos", cron="0 5 * * *"
+)
+br_tse_eleicoes__bens_candidato = _tse_flow(
+    table_id="bens_candidato", cron="30 5 * * *"
+)
+br_tse_eleicoes__despesas_candidato = _tse_flow(
+    table_id="despesas_candidato", cron="0 6 * * *"
+)
+br_tse_eleicoes__receitas_candidato = _tse_flow(
+    table_id="receitas_candidato", cron="30 6 * * *"
+)
