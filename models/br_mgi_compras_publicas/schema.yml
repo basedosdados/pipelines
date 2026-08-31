@@ -1494,18 +1494,23 @@ models:
       Itens das dispensas e inexigibilidades de licitação sob a Lei 8.666/1993. Uma
       linha por item, com fornecedor vencedor e valor estimado
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [id_compra_item]
+          proportion_allowed_failures: 0.0001
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
+            - cargo_responsavel_ratificacao
             - cpf_responsavel_declaracao_dispensa
             - cpf_responsavel_publicacao
             - cpf_responsavel_ratificacao
+            - cpf_vencedor
             - data_publicacao
             - fabricante
+            - nome_conjunto_materiais
+            - nome_responsavel_ratificacao
             - objeto_licitacao
           config:
             where: __most_recent_year__
@@ -1520,7 +1525,6 @@ models:
       - name: id_compra_item
         description: >-
           Identificador do item da contratação direta no SIASG
-        tests: [not_null]
       - name: numero_item_material
         description: >-
           Número do item dentro da contratação

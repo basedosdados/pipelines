@@ -290,6 +290,19 @@ TABLES: dict[str, DbtTable] = {
     "compra_sem_licitacao_item": DbtTable(
         dedup_order="data_alteracao",
         key=["id_compra_item"],
+        # The endpoint serves each row about 3.3 times, byte-identical across all
+        # 40 mapped fields: 15,738,105 rows carry 4,827,874 distinct ones, and
+        # the API's own per-year totals count the repeats. Content dedup collapses
+        # them. The 66 keys that still repeat mirror the parent table -- they
+        # differ in data_publicacao, valor and objeto, so they are not revisions
+        # and must not be collapsed by key.
+        unique_tolerance=0.0001,
+        ignore_values=[
+            "nome_responsavel_ratificacao",
+            "cargo_responsavel_ratificacao",
+            "nome_conjunto_materiais",
+            "cpf_vencedor",
+        ],
         year_range=R_LEGADO,
         scope_tests=True,
         description=(

@@ -290,6 +290,15 @@ are scoped out of the test rather than dropped.
 **A tolerance on a uniqueness test is a bug report, not a setting.** Each one here
 was covering a defect that changes reported spending.
 
+**Endpoint 6 serves every row about 3.3 times.** `compra_sem_licitacao_item` returns
+15,738,105 rows carrying only 4,827,874 distinct ones, byte-identical across all 40
+mapped fields, and the API's own per-year totals count the repeats -- which is why
+the harvest reconciles to 15,738,105 against a stated 15,738,108 while the model
+holds 4.83M. Content dedup collapses them and nothing is lost: the architecture maps
+all 40 source fields, so there is no projection hiding a difference. A model far
+smaller than its staging table is worth checking against `count(distinct
+to_json_string(t))` before assuming data loss.
+
 **A scoped test does not validate the key.** `scope_tests` limits the uniqueness
 test to the most recent partition, which is the right cost trade on a multi-million
 row table but means a key defect in earlier years passes green. `contratacao_item_resultado`
