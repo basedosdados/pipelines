@@ -272,7 +272,7 @@ def fetch_window(
                 {**params, "pagina": page, "tamanhoPagina": page_size},
                 max_tries=4 if page == 1 else 12,
             )
-        except (ServerOverloadError, RateLimitedError) as exc:
+        except (ServerOverloadError, RateLimitedError):
             # Page 1 failing means the window really is too big -- let the
             # caller split. Any later page failing is transient load on a
             # deep offset, and splitting would discard everything fetched
