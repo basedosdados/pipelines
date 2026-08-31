@@ -10,6 +10,8 @@ where to put it.
 
 The scratch directory is handed in per run through ``EXEC_ESTADUAL_DATA_DIR``, so a
 worker never writes to ``~/Downloads`` and a retry cannot inherit a half-written file.
+It is also empty at the start of every run, which is why "refresh only the open
+exercise" is expressed as an argument to the downloader and never as disk state.
 """
 
 from __future__ import annotations
@@ -44,27 +46,19 @@ def output_dir(work_dir: str, table: str) -> Path:
     return Path(work_dir) / "output" / table
 
 
-def stale_current_year(work_dir: str, state: str, year: int) -> int:
-    """Delete the open exercise's raw files so the downloader re-fetches them.
+def _years(year: int, full: bool) -> set[int] | None:
+    """Which exercises to fetch: just the open one, or all of them.
 
-    The downloaders skip any file already on disk, which is what makes them resumable.
-    For a recurring refresh that is the wrong behaviour for the CURRENT exercise: it is
-    the only one the state still rewrites. Removing it is what turns "resume" into
-    "refresh", and it is confined to the open year so the other twenty-odd are not
-    re-downloaded daily.
+    None means "every year", which is what a full refresh wants.
 
-    Bahia and São Paulo are not handled here -- BA ships whole-dataset ZIPs with no
-    per-year file to delete, and SP is re-scraped per (exercise, órgão) by the caller.
+    This is passed DOWN to the downloader rather than implemented by deleting files
+    here, and the distinction is the whole point. Every flow run gets a fresh
+    ``mkdtemp``, so there is never anything on disk to delete and never anything for
+    the downloaders' skip-if-present check to skip: an "incremental" run that relied on
+    disk state would quietly re-fetch all 9.2 GB of Minas Gerais and Pernambuco every
+    single day, succeed, and report perfectly plausible row counts.
     """
-    directory = input_dir(work_dir, state)
-    if not directory.exists():
-        return 0
-    removed = 0
-    for path in directory.iterdir():
-        if path.is_file() and str(year) in path.name:
-            path.unlink()
-            removed += 1
-    return removed
+    return None if full else {year}
 
 
 def refresh_mg(work_dir: str, year: int, full: bool) -> None:
@@ -75,10 +69,10 @@ def refresh_mg(work_dir: str, year: int, full: bool) -> None:
     # pyrefly: ignore [missing-import]
     import download_mg
 
-    if not full:
-        n = stale_current_year(work_dir, "mg", year)
-        print(f"MG: dropped {n} file(s) for {year} so they refresh")
-    download_mg.main()
+    download_mg.main(years=_years(year, full))
+    # The cleaners convert whatever is on disk, one output parquet per source file
+    # under a deterministic name, so a year-scoped run rewrites `data_<year>.parquet`
+    # and leaves every earlier exercise in the bucket untouched.
     clean_mg.main()
 
 
@@ -111,10 +105,7 @@ def refresh_pe(work_dir: str, year: int, full: bool) -> None:
     # pyrefly: ignore [missing-import]
     import download_pe
 
-    if not full:
-        n = stale_current_year(work_dir, "pe", year)
-        print(f"PE: dropped {n} file(s) for {year} so they refresh")
-    download_pe.main()
+    download_pe.main(years=_years(year, full))
     # Both kinds, because `despesa` and `pagamento` are separate CKAN packages that
     # both republish the open exercise.
     clean_pe.main()
@@ -138,7 +129,6 @@ def refresh_sp(work_dir: str, year: int, full: bool) -> None:
     if full:
         download_sp.main()
     else:
-        stale_current_year(work_dir, "sp", year)
         download_sp.main(first_year=year, last_year=year)
     clean_sp.main()
 

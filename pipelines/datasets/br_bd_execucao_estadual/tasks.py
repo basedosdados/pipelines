@@ -21,8 +21,9 @@ def refresh_state(
 
     Retried twice: three of the four sources are plain HTTP file fetches that fail
     transiently, and São Paulo's WebForms scrape drops sessions. The downloaders skip
-    files already on disk, so a retry resumes rather than starting over -- except for
-    the open exercise, which the refresher deliberately invalidates first.
+    files already on disk, so a retry within a run resumes rather than starting over.
+    Across runs there is nothing to resume from: `work_dir` is a fresh mkdtemp, which
+    is why the year scope is an argument to the downloader and not a disk state.
     """
     REFRESHERS[state](work_dir, year, full_refresh)
     built = built_tables(work_dir, state)
@@ -32,12 +33,18 @@ def refresh_state(
             "here would upload nothing and leave the prod staging prefix stale, "
             "which looks like success."
         )
-    expected = set(constants.STAGING_BY_STATE.value[state])
-    missing = expected - set(built)
-    if missing:
-        print(
-            f"{state}: WARNING {len(missing)} staging table(s) empty: {sorted(missing)}"
-        )
+    # Only a full refresh is expected to produce every mirror. An incremental run
+    # rebuilds one exercise, so a source with nothing in the open year legitimately
+    # yields no parquet -- Pernambuco's `despesa_legado` covers 2008-2010 and will
+    # never appear again. Warning on that daily would train the reader to ignore it.
+    if full_refresh:
+        expected = set(constants.STAGING_BY_STATE.value[state])
+        missing = expected - set(built)
+        if missing:
+            print(
+                f"{state}: WARNING {len(missing)} staging table(s) empty: "
+                f"{sorted(missing)}"
+            )
     print(f"{state}: {len(built)} staging tables ready")
     return {k: str(v) for k, v in built.items()}
 
