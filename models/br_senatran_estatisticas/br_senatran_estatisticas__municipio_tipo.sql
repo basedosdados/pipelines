@@ -13,7 +13,7 @@
             },
         },
         cluster_by=["mes"],
-        pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
+        pre_hook="{% if adapter.get_relation(this.database, this.schema, this.identifier) %}DROP ALL ROW ACCESS POLICIES ON {{ this }}{% else %}SELECT 1{% endif %}",
     )
 }}
 
