@@ -453,7 +453,9 @@ with
         from {{ set_datalake_project("br_ibge_pnadc_staging.microdados") }} as t
         {% if is_incremental() %}
             where
-                not exists (
+                t.ano is not null
+                and t.trimestre is not null
+                and not exists (
                     select 1
                     from {{ this }} as materializado
                     where
