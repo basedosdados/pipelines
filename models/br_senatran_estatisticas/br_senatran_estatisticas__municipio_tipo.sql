@@ -1,7 +1,7 @@
 {{
     config(
         alias="municipio_tipo",
-        schema="br_denatran_frota",
+        schema="br_senatran_estatisticas",
         materialization="incremental",
         partition_by={
             "field": "ano",
@@ -50,7 +50,12 @@ with
                 else tipo_veiculo
             end as tipo_veiculo2,
             quantidade
-        from {{ set_datalake_project("br_denatran_frota_staging.municipio_tipo") }}
+        from
+            {{
+                set_datalake_project(
+                    "br_senatran_estatisticas_staging.municipio_tipo"
+                )
+            }}
     )
 
 select

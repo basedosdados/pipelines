@@ -7,7 +7,7 @@ from enum import Enum
 
 class constants(Enum):
     """
-    Constant values for the br_denatran_frota project
+    Constant values for the br_senatran_estatisticas project
     """
 
     BASE_URL_PRE_2012 = "https://www.gov.br/transportes/pt-br/assuntos/transito/arquivos-senatran/estatisticas/renavam"
@@ -30,7 +30,7 @@ class constants(Enum):
 
     MONTHS_SHORT = {month[:3]: number for month, number in MONTHS.items()}
 
-    DATASET = "br_denatran_frota"
+    DATASET = "br_senatran_estatisticas"
     HEADERS = {
         "sec-ch-ua": '"Not=A?Brand";v="99", "Google Chrome";v="151", "Chromium";v="151"',
         "sec-ch-ua-mobile": "?0",
