@@ -2,6 +2,8 @@
 Flows para br_senatran_estatisticas — Prefect 3.
 """
 
+from pathlib import Path
+
 from prefect import flow
 
 from pipelines.datasets.br_senatran_estatisticas.constants import (
@@ -10,8 +12,10 @@ from pipelines.datasets.br_senatran_estatisticas.constants import (
 from pipelines.datasets.br_senatran_estatisticas.tasks import (
     build_paths,
     crawl_task,
+    get_breakdown_months_task,
     get_desired_file_task,
     get_latest_date_task,
+    treat_breakdown_task,
     treat_municipio_tipo_task,
     treat_uf_tipo_task,
 )
@@ -131,6 +135,7 @@ def _run_senatran(
     if not materialize_after_dump:
         return
 
+    # pyrefly: ignore [no-matching-overload]
     upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -219,4 +224,157 @@ br_senatran_estatisticas__uf_tipo.deploy_schedules = [
 # pyrefly: ignore [missing-attribute]
 br_senatran_estatisticas__municipio_tipo.deploy_schedules = [
     {"cron": "20 21 10-30 * *", "timezone": "America/Sao_Paulo"}
+]
+
+
+def _run_breakdown(
+    *,
+    dataset_id: str,
+    table_id: str,
+    layout_key: str,
+    materialize_after_dump: bool,
+    update_metadata: bool,
+    target: str,
+    force_run: bool,
+    backfill_start: str | None,
+) -> None:
+    """Executa um recorte da frota (combustível, cor, potência…).
+
+    Difere de ``_run_senatran`` só no par baixar/limpar: os recortes vêm de um
+    único XLSX por mês, já em formato longo, então não passam pelo
+    ``crawl_task``/``get_desired_file_task`` do par município/UF x tipo.
+    """
+    # pyrefly: ignore [unused-coroutine]
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    )
+
+    input_dir, output_dir = build_paths()
+
+    datas, urls = get_breakdown_months_task(
+        table_id=table_id,
+        dataset_id=dataset_id,
+        layout_key=layout_key,
+        backfill_start=backfill_start,
+    )
+
+    if not datas:
+        print("Não há novas atualizações na fonte original")
+        return
+
+    source_max_date_str = max(datas).strftime("%Y-%m")
+
+    if not force_run and not backfill_start:
+        has_new_data = poll_source_for_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=source_max_date_str,
+            env="prod",
+            date_format="%Y-%m",
+            compare_against="coverage",
+        )
+        if not has_new_data:
+            print("Não há novas atualizações na fonte original")
+            return
+
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date_str,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
+
+    filepath: Path | None = None
+    for data, url in zip(datas, urls, strict=True):
+        filepath = treat_breakdown_task(
+            url=url,
+            year=data.year,
+            month=data.month,
+            layout_key=layout_key,
+            input_dir=input_dir,
+            output_dir=output_dir,
+        )
+
+    if filepath is None:
+        raise RuntimeError("Nenhum mês foi processado — nada a subir")
+
+    # pyrefly: ignore [no-matching-overload]
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
+        source_format="parquet",
+    )
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    # pyrefly: ignore [no-matching-overload]
+    upload_to_gcs(
+        data_path=filepath,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+        source_format="parquet",
+    )
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            coverage=PartBdpro(
+                date_column=YearMonth(year="ano", month="mes"),
+                date_format=DateFormat.YEAR_MONTH,
+            ),
+            env="prod",
+            bq_project="basedosdados",
+        )
+
+
+@flow(
+    name="br_senatran_estatisticas__municipio_combustivel",
+    log_prints=True,
+)
+def br_senatran_estatisticas__municipio_combustivel(
+    dataset_id: str = "br_senatran_estatisticas",
+    table_id: str = "municipio_combustivel",
+    materialize_after_dump: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+    backfill_start: str | None = None,
+) -> None:
+    _run_breakdown(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        layout_key="municipio_combustivel",
+        materialize_after_dump=materialize_after_dump,
+        update_metadata=update_metadata,
+        target=target,
+        force_run=force_run,
+        backfill_start=backfill_start,
+    )
+
+
+# pyrefly: ignore [missing-attribute]
+br_senatran_estatisticas__municipio_combustivel.deploy_schedules = [
+    {"cron": "40 21 10-30 * *", "timezone": "America/Sao_Paulo"}
 ]
