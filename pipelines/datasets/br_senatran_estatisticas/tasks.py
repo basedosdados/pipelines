@@ -323,24 +323,40 @@ def treat_municipio_tipo_task(
 
 @task
 def get_latest_date_task(
-    table_id: str, dataset_id: str, input_dir: str | Path
+    table_id: str,
+    dataset_id: str,
+    input_dir: str | Path,
+    backfill_start: str | None = None,
 ) -> tuple[list, list, int | None, str | None]:
     """Task to extract the latest data from available on the data source
     Args:
         table_id (str): table_id from BQ
         dataset_id (str): table_id from BQ
+        backfill_start (str | None): "%Y-%m" seed for a full backfill. When set,
+            the registered table coverage is ignored and the walk starts at the
+            month AFTER this one. Use to rebuild a table from scratch without
+            rewinding the coverage recorded on the production backend.
 
     Returns:
         [year, month]: most recente date
     """
-    backend = bd.Backend(graphql_url=get_url("prod"))
+    if backfill_start:
+        senatran_data = datetime.datetime.strptime(
+            backfill_start, "%Y-%m"
+        ).date()
+        log(
+            f"Backfill mode: walking from {backfill_start} onwards, "
+            "ignoring the coverage registered on the backend"
+        )
+    else:
+        backend = bd.Backend(graphql_url=get_url("prod"))
 
-    senatran_data = get_api_most_recent_date(
-        table_id=table_id,
-        dataset_id=dataset_id,
-        date_format="%Y-%m",
-        backend=backend,
-    )
+        senatran_data = get_api_most_recent_date(
+            table_id=table_id,
+            dataset_id=dataset_id,
+            date_format="%Y-%m",
+            backend=backend,
+        )
 
     log(f"{senatran_data}")
     year = senatran_data.year
@@ -417,3 +433,89 @@ def get_latest_date_task(
 def get_senatran_date(filename: str) -> datetime.date:
     year, month = get_year_month_from_filename(filename)
     return datetime.date(year, month, 1)
+
+
+@task
+def get_breakdown_months_task(
+    table_id: str,
+    dataset_id: str,
+    layout_key: str,
+    backfill_start: str | None = None,
+) -> tuple[list, list]:
+    """Meses de um recorte ainda não ingeridos.
+
+    Com ``backfill_start`` ("%Y-%m") ignora a cobertura registrada no backend e
+    percorre tudo a partir daquele mês — é como se reconstrói uma tabela do zero
+    sem mexer na cobertura de um dataset em produção.
+    """
+    from pipelines.datasets.br_senatran_estatisticas.breakdowns import (
+        LAYOUTS,
+        available_months,
+    )
+
+    layout = LAYOUTS[layout_key]
+    if backfill_start:
+        inicio = datetime.datetime.strptime(backfill_start, "%Y-%m").date()
+        log(f"Backfill: percorrendo a partir de {backfill_start}")
+    else:
+        backend = bd.Backend(graphql_url=get_url("prod"))
+        inicio = get_api_most_recent_date(
+            table_id=table_id,
+            dataset_id=dataset_id,
+            date_format="%Y-%m",
+            backend=backend,
+        )
+
+    encontrados = available_months(layout, start_after=inicio)
+    datas = [datetime.datetime(a, m, 1) for a, m, _ in encontrados]
+    urls = [u for _, _, u in encontrados]
+    log(f"{len(datas)} meses disponíveis para {layout.table_id}")
+    return datas, urls
+
+
+@task
+def treat_breakdown_task(
+    url: str,
+    year: int,
+    month: int,
+    layout_key: str,
+    input_dir: str | Path,
+    output_dir: str | Path,
+) -> Path:
+    """Baixa, limpa e grava um mês de um recorte como parquet particionado."""
+    from pipelines.datasets.br_senatran_estatisticas.breakdowns import (
+        LAYOUTS,
+        clean_breakdown,
+        download,
+        read_breakdown,
+    )
+
+    layout = LAYOUTS[layout_key]
+    arquivo = download(url, input_dir)
+    log(f"------- Baixado {arquivo.name}")
+
+    municipios = pl.from_pandas(
+        bd.read_sql(
+            "select nome, id_municipio, sigla_uf "
+            "from `basedosdados.br_bd_diretorios_brasil.municipio`",
+            from_file=True,
+        )
+    )
+
+    bruto = read_breakdown(arquivo, layout)
+    final, descartadas = clean_breakdown(
+        bruto, layout, year, month, municipios
+    )
+    sem_id = final.filter(pl.col("id_municipio").is_null()).height
+    if sem_id:
+        raise ValueError(
+            f"{arquivo.name}: {sem_id} linhas sem id_municipio — "
+            "adicione o município em constants.SUBSTITUTIONS"
+        )
+    log(
+        f"------- {layout.table_id} {year}-{month:02d}: {final.height} linhas "
+        f"({descartadas} descartadas)"
+    )
+    return output_file_to_parquet(
+        final, table_id=layout.table_id, output_dir=output_dir
+    )
