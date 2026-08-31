@@ -58,8 +58,21 @@ def report(table: str) -> None:
         f"count(distinct cast({c} as string)) as n_{c}" for c in others
     )
     varies = ",\n    ".join(f"countif(n_{c} > 1) as {c}" for c in others)
+    # A table whose key is legitimately absent on some rows keeps those rows by
+    # partitioning them on their own content, and its dbt test is scoped to the
+    # rows that have a key. Report on the same population the test does: lumping
+    # the two together makes the expected fallback rows look like a defect and,
+    # worse, would let a real defect hide among them.
+    scope = spec.unique_where or (
+        " and ".join(f"{k} is not null" for k in spec.key)
+        if spec.dedup_key_nullable
+        else ""
+    )
+    where = f"where {scope}" if scope else ""
     sql = f"""
-with t as (select *, to_json_string(struct({key})) k from `{DATASET}.{table}`),
+with t as (
+  select *, to_json_string(struct({key})) k from `{DATASET}.{table}` {where}
+),
 d as (select k from t group by k having count(*) > 1),
 per_key as (
   select k,
@@ -77,6 +90,20 @@ from per_key
         f"{table}: {dups:,} duplicate keys in {total:,} rows "
         f"({100 * dups / max(total, 1):.4f}%)  key = [{key}]"
     )
+    if scope:
+        excluded = next(
+            iter(
+                client.query(
+                    f"select count(*) n from `{DATASET}.{table}` "
+                    f"where not ({scope})"
+                ).result()
+            )
+        )["n"]
+        print(f"  counted over: {scope}")
+        print(
+            f"  ({excluded:,} further rows have no complete key and are kept on "
+            "their own content, by design)"
+        )
     if not dups:
         print("  no repeated keys")
         return
