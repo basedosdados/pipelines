@@ -105,10 +105,18 @@ TABLES: dict[str, DbtTable] = {
         ),
     ),
     "contratacao_item_resultado": DbtTable(
+        # id_compra_item collides across PNCP contratacoes on its own, but paired
+        # with sequencial_resultado it is unique here -- verified, no tolerance.
         key=["id_compra_item", "sequencial_resultado"],
         dedup_order="data_atualizacao_pncp",
         year_range=R_14133,
         scope_tests=True,
+        # Cancellation and tie-break fields only apply to the rare result that
+        # was cancelled or decided on a tie-break: 98-99% empty by nature.
+        ignore_values=[
+            "id_amparo_legal_criterio_desempate",
+            "data_cancelamento_pncp",
+        ],
         description=(
             "Resultados dos itens das contratações da Lei 14.133/2021. Uma linha por "
             "fornecedor classificado em cada item, com quantidade e valor homologados"

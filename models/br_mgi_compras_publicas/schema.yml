@@ -380,7 +380,9 @@ models:
           ignore_values:
             - amparo_legal_criterio_desempate
             - amparo_legal_margem_preferencia
+            - data_cancelamento_pncp
             - data_cotacao_moeda_estrangeira
+            - id_amparo_legal_criterio_desempate
             - id_amparo_legal_margem_preferencia
             - id_moeda_estrangeira
             - id_pais_origem_produto_servico
