@@ -47,9 +47,17 @@ def output_dir(work_dir: str, table: str) -> Path:
 
 
 def _years(year: int, full: bool) -> set[int] | None:
-    """Which exercises to fetch: just the open one, or all of them.
+    """Which exercises to fetch: the open ones, or all of them.
 
     None means "every year", which is what a full refresh wants.
+
+    TWO years, not one. A Brazilian exercise stays open well into the following
+    calendar year -- restos a pagar are settled, empenhos are adjusted, and the state
+    reissues the whole file. Pernambuco demonstrated this while the pipeline was being
+    tested: on 2026-08-31 it withdrew its 2026 despesas resource entirely and
+    re-uploaded `despesas_detalhadas_2025_20251231.csv` the same afternoon. A refresh
+    scoped to the calendar year alone would have looked for 2026, found nothing, and
+    never picked up the 2025 revision -- correct-looking, quiet, and wrong.
 
     This is passed DOWN to the downloader rather than implemented by deleting files
     here, and the distinction is the whole point. Every flow run gets a fresh
@@ -58,7 +66,7 @@ def _years(year: int, full: bool) -> set[int] | None:
     disk state would quietly re-fetch all 9.2 GB of Minas Gerais and Pernambuco every
     single day, succeed, and report perfectly plausible row counts.
     """
-    return None if full else {year}
+    return None if full else {year, year - 1}
 
 
 def refresh_mg(work_dir: str, year: int, full: bool) -> None:
