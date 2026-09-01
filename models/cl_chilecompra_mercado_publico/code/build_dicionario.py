@@ -83,7 +83,9 @@ DOCUMENTED = {
 
 
 def _partition_files(root: Path, table: str) -> list[str]:
-    return sorted(glob.glob(f"{root}/output/{table}/**/data.parquet", recursive=True))
+    return sorted(
+        glob.glob(f"{root}/output/{table}/**/data.parquet", recursive=True)
+    )
 
 
 def _collect(root: Path, table: str, code: str, label: str) -> pd.DataFrame:
@@ -135,7 +137,8 @@ def main() -> int:
     currency = {
         r["chave"]: r["valor"]
         for r in rows
-        if r["id_tabela"] == "licitacion_item" and r["nome_coluna"] == "codigo_moneda"
+        if r["id_tabela"] == "licitacion_item"
+        and r["nome_coluna"] == "codigo_moneda"
     }
     for table, column in CROSS_TABLE_CURRENCY:
         if not currency:
@@ -159,7 +162,13 @@ def main() -> int:
     with open(out, "w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=["id_tabela", "nome_coluna", "chave", "cobertura_temporal", "valor"],
+            fieldnames=[
+                "id_tabela",
+                "nome_coluna",
+                "chave",
+                "cobertura_temporal",
+                "valor",
+            ],
             lineterminator="\n",
         )
         writer.writeheader()
@@ -167,12 +176,16 @@ def main() -> int:
     print(f"\nwrote {out} with {len(rows)} entries")
 
     # Any column still flagged but absent from the dictionary must lose the flag.
-    print("\nflagged columns with NO dictionary entries "
-          "(set covered_by_dictionary=no for these):")
+    print(
+        "\nflagged columns with NO dictionary entries "
+        "(set covered_by_dictionary=no for these):"
+    )
     for table in ("orden_compra_item", "licitacion_item", "licitacion_oferta"):
         arch = utils.read_architecture(table)
         flagged = [
-            r.name for r in arch.itertuples() if r.covered_by_dictionary == "yes"
+            r.name
+            for r in arch.itertuples()
+            if r.covered_by_dictionary == "yes"
         ]
         missing = [c for c in flagged if (table, c) not in covered]
         if missing:
