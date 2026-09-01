@@ -6,6 +6,7 @@ Flow de transferência de arquivos do bucket basedosdados-dev para basedosdados
 from __future__ import annotations
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.utils.materialize_prod.tasks import (
     download_files_from_bucket_folders,
@@ -110,11 +111,12 @@ def transfer_files_to_prod_flow(
     env: str = "prod",
     bq_project: str = "basedosdados",
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Materialização Prod: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Materialização Prod: ",
+            dataset_id=dataset_id,
+            table_id=table_id,
+        )
     )
 
     output_filepath = download_files_from_bucket_folders(
