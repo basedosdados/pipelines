@@ -8,7 +8,7 @@ from pathlib import Path
 from prefect import task
 from prefect.deployments import run_deployment
 
-from pipelines.datasets.test_event_pipeline.constants import DATASET_ID
+from pipelines.datasets.test_event_pipeline.constants import PREFECT_DATASET_ID
 from pipelines.utils.stage_dispatch import deployment_name
 
 
@@ -30,8 +30,8 @@ def write_reference_date_csv(reference_date: str) -> str:
 
 @task
 def dispatch_mat_test(
-    backend_dataset_id: str,
-    backend_table_id: str,
+    dataset_id: str,
+    table_id: str,
     coverage: dict,
     env: str,
     bq_project: str,
@@ -45,10 +45,10 @@ def dispatch_mat_test(
     o `mat_test_flow` os recebe tipados e o Pydantic valida sozinho.
     """
     run_deployment(
-        name=deployment_name(DATASET_ID, "mat_test"),
+        name=deployment_name(PREFECT_DATASET_ID, "mat_test"),
         parameters={
-            "dataset_id": backend_dataset_id,
-            "table_id": backend_table_id,
+            "dataset_id": dataset_id,
+            "table_id": table_id,
             "coverage": coverage,
             "env": env,
             "bq_project": bq_project,

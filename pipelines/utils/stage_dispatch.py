@@ -50,9 +50,9 @@ def deployment_name(dataset_id: str, etapa: str) -> str:
 
 
 def check_update_and_dispatch(
+    prefect_dataset_id: str,
     dataset_id: str,
-    backend_dataset_id: str,
-    backend_table_id: str,
+    table_id: str,
     reference_date: datetime.date,
     next_etapa: str = "flow_download",
     env: str = "prod",
@@ -70,13 +70,19 @@ def check_update_and_dispatch(
     filho na árvore de execução do Prefect UI). Devolve `has_new_data` — o
     flow só precisa decidir o que logar, não repetir poll+commit+dispatch.
 
+    `dataset_id`/`table_id` são a identidade real no backend/BigQuery.
+    `prefect_dataset_id` é só a convenção de nome usada pelo `deployment_name()`
+    pra resolver qual deployment chamar em seguida — as duas coisas podem
+    divergir (ex. o piloto: `prefect_dataset_id="test_event_pipeline"`,
+    `dataset_id="test_dataset"`), por isso não têm o mesmo nome de parâmetro.
+
     `poll_source_for_update_task`/`commit_source_update_task` vêm de
     `pipelines.utils.metadata.tasks` — o mesmo par usado pelos datasets
     reais (ver `br_bcb_estban/flows.py`).
     """
     has_new_data = poll_source_for_update_task(
-        dataset_id=backend_dataset_id,
-        table_id=backend_table_id,
+        dataset_id=dataset_id,
+        table_id=table_id,
         source_max_date=reference_date,
         env=env,
         date_format=date_format,
@@ -86,8 +92,8 @@ def check_update_and_dispatch(
         return False
 
     commit_source_update_task(
-        dataset_id=backend_dataset_id,
-        table_id=backend_table_id,
+        dataset_id=dataset_id,
+        table_id=table_id,
         source_max_date=reference_date,
         env=env,
         date_format=date_format,
@@ -98,7 +104,7 @@ def check_update_and_dispatch(
         **(extra_download_params or {}),
     }
     run_deployment(
-        name=deployment_name(dataset_id, next_etapa),
+        name=deployment_name(prefect_dataset_id, next_etapa),
         parameters={"download_params": download_params},
         timeout=0,
         as_subflow=True,
