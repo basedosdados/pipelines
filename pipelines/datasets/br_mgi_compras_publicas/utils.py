@@ -171,7 +171,12 @@ TABLE_SPECS: dict[str, TableSpec] = {
     "licitacao_item_pregao": TableSpec(
         table="licitacao_item_pregao",
         path="/modulo-legado/4_consultarItensPregoes",
-        window=WindowKind.CLOSED,
+        # HALF_OPEN, unlike every other legado endpoint. Verified against the
+        # source: dt_hom_inicial=dt_hom_final returns 0 rows, while endpoints 1
+        # and 3 return real rows for the same single-day query. Treating this one
+        # as CLOSED covered only 4 days of each 5-day window and silently lost
+        # 20% of the table -- 5.66M rows, uniform across every year.
+        window=WindowKind.HALF_OPEN,
         date_params=("dt_hom_inicial", "dt_hom_final"),
         year_field="dt_hom",
         step_days=5,
