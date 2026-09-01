@@ -243,8 +243,15 @@ def read_breakdown(path: str | Path, layout: Layout) -> pl.DataFrame:
     """Lê um arquivo de recorte e devolve colunas já renomeadas.
 
     Aceita .xlsx/.xls direto ou compactado em .zip/.rar. O nome da planilha
-    varia (``Layout C``, ``Layout D `` com espaço à direita), então pegamos a
-    primeira aba que não seja o glossário.
+    varia (``Layout C``, ``Layout D `` com espaço à direita), então usamos toda
+    aba que não seja o glossário.
+
+    **Todas as abas, não só a primeira.** Quando o recorte passa de 999.999
+    linhas a fonte continua numa segunda aba — ``Layout E`` mais
+    ``Continuação_Layout E`` no recorte de potência. Ler só a primeira perde a
+    cauda do arquivo, que é ordenado por UF: em 2026-07 isso deixava de fora
+    Sergipe, Tocantins e São Paulo a partir de Lençóis Paulista, 554 municípios
+    ao todo, sem erro nenhum.
     """
     path = Path(path)
     if path.suffix.lower() in {".zip", ".rar"}:
@@ -256,21 +263,28 @@ def read_breakdown(path: str | Path, layout: Layout) -> pl.DataFrame:
     # dtype=str em tudo: o CEP vem com zeros à esquerda que o pandas destrói ao
     # inferir int (069900 -> 69900), e o staging é all-STRING por convenção de
     # qualquer forma — o safe_cast do modelo dbt decide o tipo final.
-    frame = pd.read_excel(path, sheet_name=sheets[0], dtype=str)
-
     expected = 2 + len(layout.dimensions) + 1
-    if frame.shape[1] < expected:
-        raise ValueError(
-            f"{path}: esperava >= {expected} colunas para o recorte "
-            f"{layout.table_id}, encontrou {frame.shape[1]}"
-        )
-    frame = frame.iloc[:, :expected]
-    frame.columns = [
-        "nome_uf",
-        "nome_denatran",
-        *layout.dimensions,
-        "quantidade",
-    ]
+    colunas = ["nome_uf", "nome_denatran", *layout.dimensions, "quantidade"]
+
+    partes = []
+    for aba in sheets:
+        parte = pd.read_excel(path, sheet_name=aba, dtype=str)
+        if parte.shape[1] < expected:
+            raise ValueError(
+                f"{path} [{aba}]: esperava >= {expected} colunas para o "
+                f"recorte {layout.table_id}, encontrou {parte.shape[1]}"
+            )
+        # Recortar e renomear por posição *antes* de juntar: o cabeçalho muda
+        # de grafia entre meses (`Município` vs `MUNICIPIO`), e `pd.concat`
+        # alinha por nome — juntar as abas cruas produziria colunas extras
+        # cheias de NaN em vez de empilhar as linhas.
+        parte = parte.iloc[:, :expected]
+        parte.columns = colunas
+        partes.append(parte)
+
+    frame = (
+        partes[0] if len(partes) == 1 else pd.concat(partes, ignore_index=True)
+    )
     return pl.from_pandas(frame.astype(str))
 
 
