@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2012, "end": 2025, "interval": 1},
+            "range": {"start": 2012, "end": 2031, "interval": 1},
         },
         cluster_by="sigla_uf",
         labels={"tema": "economia"},
@@ -453,14 +453,9 @@ with
         from {{ set_datalake_project("br_ibge_pnadc_staging.microdados") }} as t
         {% if is_incremental() %}
             where
-                t.ano is not null
-                and t.trimestre is not null
-                and not exists (
-                    select 1
-                    from {{ this }} as materializado
-                    where
-                        materializado.ano = safe_cast(t.ano as int64)
-                        and materializado.trimestre = safe_cast(t.trimestre as int64)
+                date(safe_cast(ano as int64), safe_cast(trimestre as int64), 1) > (
+                    select max(date(cast(ano as int64), cast(trimestre as int64), 1))
+                    from {{ this }}
                 )
         {% endif %}
     )
