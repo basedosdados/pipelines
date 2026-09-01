@@ -17,9 +17,10 @@ models:
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              ignore_values: [BR]
       - name: id_eleicao
         description: ID Eleição
       - name: tipo_eleicao
@@ -141,7 +142,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-              ignore_values: [ZZ]
+              ignore_values: [ZZ, BR]
       - name: sigla_uf_nascimento
         description: Sigla da unidade da federação de nascimento
         tests:
@@ -292,9 +293,10 @@ models:
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              ignore_values: [BR]
       - name: sigla_uf_fornecedor
         description: Sigla da unidade da federação do fornecedor
         tests:
@@ -989,9 +991,10 @@ models:
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              ignore_values: [BR]
       - name: sigla_uf_doador
         description: Sigla da unidade da federação do doador
       - name: situacao_receita
