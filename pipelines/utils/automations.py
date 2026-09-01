@@ -181,7 +181,9 @@ def check_update_and_emit(
     }
     emit_event(
         event=event_name(upstream_etapa),
-        resource={"prefect.resource.id": dataset_resource_id(resource_dataset_id)},
+        resource={
+            "prefect.resource.id": dataset_resource_id(resource_dataset_id)
+        },
         payload={"download_params": encode_params(download_params)},
     )
     return True

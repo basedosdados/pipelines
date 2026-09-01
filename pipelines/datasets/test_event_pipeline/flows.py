@@ -29,7 +29,11 @@ from pipelines.datasets.test_event_pipeline.tasks import (
     emit_flow_download_completed,
     write_reference_date_csv,
 )
-from pipelines.utils.automations import check_update_and_emit, decode_params, deploy_tags
+from pipelines.utils.automations import (
+    check_update_and_emit,
+    decode_params,
+    deploy_tags,
+)
 from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 from pipelines.utils.tasks import upload_to_gcs
 

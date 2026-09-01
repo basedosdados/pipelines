@@ -9,7 +9,11 @@ from prefect import task
 from prefect.events.utilities import emit_event
 
 from pipelines.datasets.test_event_pipeline.constants import DATASET_ID
-from pipelines.utils.automations import dataset_resource_id, encode_params, event_name
+from pipelines.utils.automations import (
+    dataset_resource_id,
+    encode_params,
+    event_name,
+)
 
 
 @task
