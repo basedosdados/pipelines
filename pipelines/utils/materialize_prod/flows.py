@@ -91,7 +91,7 @@ def _build_coverage(
 def transfer_files_to_prod_flow(
     dataset_id: str = "br_cgu_beneficios_cidadao",
     table_id: str = "novo_bolsa_familia",
-    folders: list[str] | None = None,
+    folders: list[str] | None = None,  # None = tabela sem partição (staging direto)
     source_bucket: str = "basedosdados-dev",
     download_billing_project: str = "basedosdados",
     materialize_after_dump: bool = True,
@@ -108,9 +108,6 @@ def transfer_files_to_prod_flow(
     env: str = "prod",
     bq_project: str = "basedosdados",
 ) -> None:
-    if folders is None:
-        folders = ["mes_competencia=202306", "mes_competencia=202305"]
-
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Materialização Prod: ",
