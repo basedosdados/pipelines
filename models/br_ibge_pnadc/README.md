@@ -107,42 +107,53 @@ Revisão também não é capturada pelo modelo: o predicado incremental só acei
 acima do máximo já materializado, então um trimestre republicado é ignorado. Para
 reprocessá-lo é preciso apagar a partição antes de rodar.
 
-## Estado das duas stagings
+## As duas stagings são independentes
 
-`gs://basedosdados/staging/...` é **cópia byte a byte** de `gs://basedosdados-dev/staging/...`,
-feita em 2026-07-28. Conferido em quatro trimestres de épocas diferentes. Por isso um
-`--full-refresh` em dev é ensaio fiel do que um `--full-refresh` em prod produz.
+O flow escreve nos dois buckets em passos separados, e o de prod fica atrás da porta do
+`materialize_after_dump`:
+
+```python
+upload_to_gcs(..., bucket_name="basedosdados-dev", ...)   # sempre
+if not materialize_after_dump:
+    return
+upload_to_gcs(..., bucket_name="basedosdados", ...)       # só depois da porta
+```
+
+Então um run com `materialize_after_dump=False` deposita o trimestre só em dev, e as duas
+divergem. Conferir a contagem de partições nos dois buckets antes de qualquer
+`--full-refresh` — a listagem de pastas é a fonte da verdade sobre as colunas `ano` e
+`trimestre` da external table, e custa zero:
+
+```bash
+gcloud storage ls --billing-project=basedosdados-dev \
+  "gs://<bucket>/staging/br_ibge_pnadc/microdados/ano=*/" | grep -c 'trimestre='
+```
 
 As duas trazem zero à esquerda só a partir do 4º trimestre de 2021 — antes disso o dado já
-foi gravado sem ele.
+foi gravado sem ele. Por consequência o corte de zero à esquerda do modelo é **idempotente**
+na série antiga: reconstruir do zero reproduz os mesmos valores, `V4010` incluído.
 
-Nenhuma das duas tem 2024 T3 e T4. Esses dois trimestres existem **apenas** como linha
-materializada na tabela de prod (479.778 e 469.334 linhas), sem arquivo correspondente em
-lugar nenhum. Enquanto for assim, `--full-refresh` em prod apaga 949.112 linhas
-irrecuperáveis.
+## Full-refresh: só com a staging completa, e antes dos metadados
+
+`--full-refresh` reconstrói a tabela a partir da staging, e nada mais. Trimestre que está na
+tabela mas não na staging **desaparece** — não é o storage que perde dado, é a tabela que é
+refeita a partir dele.
+
+E o full-refresh **não reaplica row access policies**. Numa tabela `part_bdpro` como esta,
+rodar o full-refresh depois do run de metadados derruba o paywall e expõe a janela BD Pro,
+sem nenhum sinal de erro. A ordem é full-refresh primeiro, run com `update_metadata=True`
+depois.
+
+Sem credencial local para prod: deployment "BD template: Executa DBT model" com
+`flags="--full-refresh"`.
 
 ## Pendências
 
-- **TODO(pnadc-backfill):** completar as duas stagings com 2024 T3 e T4, rodando o flow com
-  `year`/`quarter` (ver o TODO em `pipelines/crawler/ibge_pnadc/tasks.py`). Resultado
-  esperado: 58 trimestres em cada bucket, de 2012 T1 a 2026 T2.
-- **TODO(pnadc-backfill):** com a staging completa, medir o que um `--full-refresh` mudaria,
-  em dev primeiro. O corte de zero à esquerda passa a valer para a série toda, e a tabela
-  hoje é inconsistente nesse ponto — os trimestres materializados antes do #1856 mantêm o
-  zero, os de depois não. Guardar a assinatura por trimestre (contagem, e quantas linhas
-  começam com `0` em `V4010`, `V2005`, `VD4009`) antes do full-refresh e comparar depois.
-  O `V4010` é o que importa: zero semântico, decisão do time é não normalizar (#1699).
-- **TODO(pnadc-backfill):** só então `--full-refresh` em prod, junto com a troca do `end` do
-  `partition_by` (ver o TODO no `.sql`). Sem credencial local: deployment
-  "BD template: Executa DBT model" com `flags="--full-refresh"`.
-- **Buraco em prod:** a tabela de prod não tem 2025 T4 nem 2026 T2. O 2025 T4 está nas duas
-  stagings desde 2026-07-28, mas o predicado incremental o ignora porque 2026 T1 foi
-  materializado antes. O full-refresh acima é o que fecha os dois.
-- **Flow do dicionário:** `materialize_after_dump` ainda nasce `False` em
+- **Flow do dicionário:** `materialize_after_dump` nasce `False` em
   `br_ibge_pnadc__dicionario`, então prod não recebe dicionário novo desde a migração para o
   Prefect 3.
 - **BD Pro:** `microdados` é `PartBdpro` (janela móvel, `free_lag` de 6 meses). A Coverage
-  **pro** (`is_closed=True`) e seu DateTimeRange já existem em prod, então
+  **pro** (`is_closed=True`) e seu DateTimeRange existem em prod, então
   `assert_coverage_topology` passa. O primeiro run com `update_metadata=True` encurta a
   cobertura free para 2025-09 e aplica as row access policies pela primeira vez. Slug no
   backend é `pnadc`, não `br_ibge_pnadc`.
