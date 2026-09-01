@@ -408,7 +408,7 @@ def clean_breakdown(
         ]
     )
     final = final.with_columns(
-        [pl.col(dim).str.strip().alias(dim) for dim in layout.dimensions]
+        [pl.col(dim).str.strip_chars().alias(dim) for dim in layout.dimensions]
     )
 
     # Somar depois de aparar. A fonte emite variantes so de espaco do mesmo
