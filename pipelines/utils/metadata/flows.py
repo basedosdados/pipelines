@@ -48,7 +48,9 @@ update_temporal_coverage.deploy_schedules = []
 
 
 @flow(name="mat_test", log_prints=True)
-def mat_test_flow(dataset_id: str, table_id: str, mat_test_params: str) -> None:
+def mat_test_flow(
+    dataset_id: str, table_id: str, mat_test_params: str
+) -> None:
     """
     Materializa e testa (dbt run/test) e atualiza a coverage da tabela no
     backend (`register_table_materialization_task`, chamado direto — não
