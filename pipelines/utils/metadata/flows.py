@@ -100,7 +100,7 @@ def mat_test_flow(mat_test_params: str) -> None:
             folders=params.get("partition_folders"),
             source_bucket="basedosdados-dev",
             download_billing_project=params.get(
-                "download_billing_project", "basedosdados-dev"
+                "download_billing_project", "basedosdados"
             ),
             materialize_after_dump=True,
             update_metadata=False,
