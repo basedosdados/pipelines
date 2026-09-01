@@ -57,12 +57,12 @@ def mat_test_flow(
 ) -> None:
     """
     Materializa e testa (dbt run/test) e atualiza a coverage da tabela no
-    backend (`register_table_materialization_task`, chamado direto — não
-    via `update_temporal_coverage`, que é um `@flow` sem retry configurado
-    e perderia o retry automático que a task já tem) — sempre a mesma
-    sequência, então este flow é genérico e reaproveitado por
-    qualquer dataset/tabela como Automação 2 (flow_download -> mat_test) na
-    cadeia de eventos da issue #1867 (basedosdados/pipelines#1867).
+    backend (`register_table_materialization_task`, chamado direto — mantém
+    o retry da própria task, que se perderia atrás de um `@flow` wrapper
+    sem retry configurado) — sempre a mesma sequência, então este flow é
+    genérico e reaproveitado por qualquer dataset/tabela como Automação 2
+    (flow_download -> mat_test) na cadeia de eventos da issue #1867
+    (basedosdados/pipelines#1867).
 
     `dataset_id`/`table_id` são parâmetros de flow de verdade, não campos
     escondidos dentro de `mat_test_params` — são strings simples (sem o
@@ -71,11 +71,26 @@ def mat_test_flow(
     aparecer soltos: dá pra nomear o flow run com eles
     (`rename_flow_run_dataset_table`) e ficam visíveis direto na lista de
     runs do Prefect, não só depois de abrir e decodificar o JSON.
+    `rename_flow_run_dataset_table` é uma `@task` async — chamada sem
+    `await` de um flow síncrono ela só cria uma coroutine e descarta (o
+    rename nunca acontece, sem erro nem log — mesmo bug presente em vários
+    outros flows do repositório que chamam essa task); por isso o
+    `run_coro_as_sync(...)` em volta, que efetivamente roda a coroutine e
+    espera o resultado.
 
     O resto (coverage, env, bq_project, prefect_mode, targets,
     partition_folders) continua em `mat_test_params` (JSON) — esses sim
     variam em estrutura/tipo o suficiente pra não valer a pena virar
-    parâmetro solto de cada um.
+    parâmetro solto de cada um. `coverage` chega de `decode_params` como
+    dict puro (json.loads não reconstrói união discriminada nenhuma) —
+    `_coverage_adapter.validate_python(...)` (module-level `TypeAdapter(CoverageSpec)`)
+    reconstrói a instância certa (`AllFree`/`AllBdpro`/`PartBdpro`/`NonHistorical`)
+    antes de passar pra `register_table_materialization_task`, que espera
+    um `CoverageSpec` de verdade (usa `.date_column`/`.date_format`
+    internamente). Sem isso, quebra com `AttributeError` só depois do dbt
+    já ter rodado — essa validação existia de graça enquanto a coverage
+    passava pelo parâmetro tipado de `update_temporal_coverage`; chamando
+    a task direto, deixou de existir e precisou ser refeita aqui.
 
     Sempre roda `run_dbt(target="dev")` primeiro — se falhar, a exceção
     propaga e aborta o flow antes de qualquer coisa tocar prod (mesma
