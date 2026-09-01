@@ -82,7 +82,9 @@ def mat_test_flow(mat_test_params: str) -> None:
     table_id = params["table_id"]
     targets = params.get("targets", ["dev", "prod"])
 
-    log(f"[mat_test] materializando {dataset_id}.{table_id} (targets={targets})")
+    log(
+        f"[mat_test] materializando {dataset_id}.{table_id} (targets={targets})"
+    )
 
     run_dbt(
         dataset_id=dataset_id,
