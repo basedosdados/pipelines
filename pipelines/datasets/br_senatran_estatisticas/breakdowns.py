@@ -407,9 +407,28 @@ def clean_breakdown(
             "quantidade",
         ]
     )
-    return final.with_columns(
+    final = final.with_columns(
         [pl.col(dim).str.strip().alias(dim) for dim in layout.dimensions]
-    ), len(descartadas)
+    )
+
+    # Somar depois de aparar. A fonte emite variantes so de espaco do mesmo
+    # rotulo -- `'0'` e `'0    '` no recorte de CEP, `'GASOLINA'` e
+    # `'GASOLINA '` no de combustivel -- que viram a mesma chave assim que o
+    # `strip` roda, e ai `(ano, mes, id_municipio, <dimensoes>)` deixa de ser
+    # unica e o teste do dbt reprova a tabela inteira. Medido: 38 chaves
+    # repetidas em municipio_cep 2026-07 e 7 em municipio_combustivel, sempre
+    # a linha cheia mais uma de quantidade 1. Somar preserva o total.
+    chave = ["ano", "mes", "sigla_uf", "id_municipio", *layout.dimensions]
+    final = final.group_by(chave, maintain_order=True).agg(
+        # `sum` devolve 0 quando o grupo e todo nulo; um quantidade ausente
+        # tem que continuar ausente, nao virar zero.
+        pl.when(pl.col("quantidade").is_null().all())
+        .then(None)
+        .otherwise(pl.col("quantidade").sum())
+        .alias("quantidade")
+    )
+
+    return final, len(descartadas)
 
 
 def reference_date(year: int, month: int) -> datetime.date:
