@@ -46,6 +46,9 @@ ENCODING_ERRORS = "replace"
 # Rows per parquet row group. See write_partitioned.
 ROW_GROUP_SIZE = 50_000
 
+# Source rows held in memory at once while parsing. See clean_month.
+CHUNK_ROWS = 200_000
+
 # Values the publisher uses to mean "absent".
 NULL_TOKENS = {"", " ", "NA", "N/A", "NULL", "null", "-"}
 NULL_DATE = "1900-01-01"
@@ -211,19 +214,22 @@ def download_month(
                 )
             tmp.rename(out)
             return out
-        except Exception as exc:  # noqa: BLE001 - retried below, re-raised if terminal
+        except Exception as exc:
             last_error = exc
             tmp.unlink(missing_ok=True)
             if attempt < attempts:
                 time.sleep(min(60, 5 * 2 ** (attempt - 1)))
-    raise RuntimeError(f"{url}: failed after {attempts} attempts") from last_error
+    raise RuntimeError(
+        f"{url}: failed after {attempts} attempts"
+    ) from last_error
 
 
-def _read_csv_from_zip(path: Path) -> pd.DataFrame:
-    """Read the single CSV inside a monthly ZIP.
+def _iter_csv_chunks(path: Path, chunk_rows: int = CHUNK_ROWS):
+    """Yield the CSV inside a monthly ZIP in row chunks, as all-string frames.
 
     Everything arrives as string; typing happens in the dbt model. The parser must be a
-    real CSV parser -- quoted fields contain both embedded ``;`` and embedded newlines.
+    real CSV parser -- quoted fields contain both embedded ``;`` and embedded newlines,
+    so the file cannot be split on line boundaries.
     """
     with zipfile.ZipFile(path) as zf:
         names = [n for n in zf.namelist() if n.lower().endswith(".csv")]
@@ -235,7 +241,7 @@ def _read_csv_from_zip(path: Path) -> pd.DataFrame:
             text = io.TextIOWrapper(
                 raw, encoding=ENCODING, errors=ENCODING_ERRORS, newline=""
             )
-            df = pd.read_csv(
+            reader = pd.read_csv(
                 text,
                 sep=";",
                 quotechar='"',
@@ -244,10 +250,23 @@ def _read_csv_from_zip(path: Path) -> pd.DataFrame:
                 na_values=[],
                 engine="c",
                 low_memory=False,
+                chunksize=chunk_rows,
             )
-    df.columns = [HEADER_ALIASES.get(c.strip(), c.strip()) for c in df.columns]
-    _assert_columns_known(df.columns, path.name)
-    return df
+            checked = False
+            for chunk in reader:
+                chunk.columns = [
+                    HEADER_ALIASES.get(c.strip(), c.strip())
+                    for c in chunk.columns
+                ]
+                if not checked:
+                    _assert_columns_known(chunk.columns, path.name)
+                    checked = True
+                yield chunk
+
+
+def _read_csv_from_zip(path: Path) -> pd.DataFrame:
+    """Whole-file read. Kept for ad-hoc inspection; the loader uses _iter_csv_chunks."""
+    return pd.concat(_iter_csv_chunks(path), ignore_index=True)
 
 
 def _known_source_columns() -> set[str]:
@@ -368,10 +387,37 @@ def build_table(raw: pd.DataFrame, table: str) -> pd.DataFrame:
     return out.reindex(columns=list(arch["name"]))
 
 
-def clean_month(kind: str, zip_path: Path) -> dict[str, pd.DataFrame]:
-    """Turn one monthly ZIP into one frame per table it feeds."""
-    raw = _read_csv_from_zip(Path(zip_path))
-    return {t: build_table(raw, t) for t in TABLES_BY_KIND[kind]}
+def clean_month(
+    kind: str, zip_path: Path, chunk_rows: int = CHUNK_ROWS
+) -> dict[str, pd.DataFrame]:
+    """Turn one monthly ZIP into one frame per table it feeds.
+
+    Read in chunks rather than whole. The largest month, lic-da/2014-3, is 1.5M rows
+    across 111 columns; held at once as pandas object strings that is roughly 11 GB,
+    which does not fit alongside everything else on a 16 GB machine. Projecting each
+    chunk onto the output tables first keeps the peak to the chunk plus the accumulated
+    (much narrower) results.
+    """
+    tables = TABLES_BY_KIND[kind]
+    parts: dict[str, list[pd.DataFrame]] = {t: [] for t in tables}
+
+    for raw in _iter_csv_chunks(Path(zip_path), chunk_rows):
+        for table in tables:
+            parts[table].append(build_table(raw, table))
+
+    out = {}
+    for table in tables:
+        frame = (
+            pd.concat(parts[table], ignore_index=True)
+            if parts[table]
+            else build_table(pd.DataFrame(), table)
+        )
+        # De-duplicate again after concatenating: build_table only sees one chunk, so a
+        # pair of duplicate rows split across a chunk boundary survives until here.
+        out[table] = frame.drop_duplicates(
+            subset=PRIMARY_KEYS[table]
+        ).reset_index(drop=True)
+    return out
 
 
 def arrow_schema(table: str) -> pa.Schema:
