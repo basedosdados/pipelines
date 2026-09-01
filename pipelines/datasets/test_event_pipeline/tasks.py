@@ -6,14 +6,10 @@ import csv
 from pathlib import Path
 
 from prefect import task
-from prefect.events.utilities import emit_event
+from prefect.deployments import run_deployment
 
 from pipelines.datasets.test_event_pipeline.constants import DATASET_ID
-from pipelines.utils.automations import (
-    dataset_resource_id,
-    encode_params,
-    event_name,
-)
+from pipelines.utils.automations import deployment_name
 
 
 @task
@@ -33,22 +29,34 @@ def write_reference_date_csv(reference_date: str) -> str:
 
 
 @task
-def emit_flow_download_completed(
-    backend_dataset_id: str, backend_table_id: str, mat_test_params: dict
+def dispatch_mat_test(
+    backend_dataset_id: str,
+    backend_table_id: str,
+    coverage: dict,
+    env: str,
+    bq_project: str,
+    prefect_mode: str,
+    targets: list[str],
 ) -> None:
     """
-    Emits the event Automation 2 listens for. `dataset_id`/`table_id` vão
-    soltos no payload (não dentro de `mat_test_params`) — são strings
-    simples, sem o problema de tipo que o Jinja tem com dict, e o
-    `mat_test_flow` genérico os recebe como parâmetro de verdade (não
-    escondidos dentro do JSON), pra aparecer no nome do flow run.
+    Dispara o `mat_test_flow` genérico via `run_deployment()`
+    (`timeout=0` — não espera terminar). `dataset_id`/`table_id`/`coverage`/
+    etc. vão como parâmetros nativos (dict de verdade, não string JSON) —
+    o `mat_test_flow` os recebe tipados e o Pydantic valida sozinho (mesmo
+    mecanismo que já funcionava pro `update_temporal_coverage` antes desta
+    etapa virar automação/evento).
     """
-    emit_event(
-        event=event_name("flow_download"),
-        resource={"prefect.resource.id": dataset_resource_id(DATASET_ID)},
-        payload={
+    run_deployment(
+        name=deployment_name(DATASET_ID, "mat_test"),
+        parameters={
             "dataset_id": backend_dataset_id,
             "table_id": backend_table_id,
-            "mat_test_params": encode_params(mat_test_params),
+            "coverage": coverage,
+            "env": env,
+            "bq_project": bq_project,
+            "prefect_mode": prefect_mode,
+            "targets": targets,
         },
+        timeout=0,
+        as_subflow=True,
     )
