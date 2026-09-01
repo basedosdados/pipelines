@@ -148,7 +148,6 @@ def _run_dbf_to_parquet(
     table_id: str,
     materialize_after_dump: bool,
     update_metadata: bool,
-    target: str,
     fonte_label: Literal["SIA", "SIH"],
     force_run: bool,
     year_month_to_extract: str = "",
@@ -234,7 +233,7 @@ def _run_dbf_to_parquet(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        target=target,
+        target="prod",
     )
 
     if update_metadata:
