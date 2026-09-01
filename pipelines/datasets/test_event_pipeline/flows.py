@@ -13,8 +13,8 @@ dev e prod + atualização da coverage no backend) é feita pelo
 pra qualquer tabela, só os parâmetros mudam.
 
 Cadeia: check_update -> (run_deployment) -> flow_download -> (run_deployment) -> mat_test (genérico).
-Cada etapa dispara a próxima direto no código (`pipelines/utils/automations.py`),
-sem Automation/evento — ver `run-deployment-vs-automacao.md` (D:\\docs\\pipelines).
+Cada etapa dispara a próxima direto no código
+(`pipelines/utils/stage_dispatch.py`).
 """
 
 from datetime import UTC, datetime
@@ -31,8 +31,11 @@ from pipelines.datasets.test_event_pipeline.tasks import (
     dispatch_mat_test,
     write_reference_date_csv,
 )
-from pipelines.utils.automations import check_update_and_dispatch, deploy_tags
 from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
+from pipelines.utils.stage_dispatch import (
+    check_update_and_dispatch,
+    deploy_tags,
+)
 from pipelines.utils.tasks import upload_to_gcs
 
 
@@ -42,19 +45,18 @@ def check_update_flow() -> None:
     Checagem real: compara a data de hoje contra a coverage registrada no
     backend pra `test_dataset.test_event_pipeline`. Todo o poll + commit +
     dispatch fica em `check_update_and_dispatch`
-    (`pipelines/utils/automations.py`) — outros datasets com o mesmo
+    (`pipelines/utils/stage_dispatch.py`) — outros datasets com o mesmo
     padrão de check_update chamam o mesmo helper, sem repetir essa
     sequência em cada flow.
     """
     reference_date = datetime.now(UTC).date()
 
     check_update_and_dispatch(
-        resource_dataset_id=DATASET_ID,
+        dataset_id=DATASET_ID,
         backend_dataset_id=BACKEND_DATASET_ID,
         backend_table_id=BACKEND_TABLE_ID,
         reference_date=reference_date,
-        upstream_etapa="check_update",
-        downstream_etapa="flow_download",
+        next_etapa="flow_download",
         env=BACKEND_ENV,
     )
 

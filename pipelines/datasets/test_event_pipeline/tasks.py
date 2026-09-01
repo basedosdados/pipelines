@@ -9,7 +9,7 @@ from prefect import task
 from prefect.deployments import run_deployment
 
 from pipelines.datasets.test_event_pipeline.constants import DATASET_ID
-from pipelines.utils.automations import deployment_name
+from pipelines.utils.stage_dispatch import deployment_name
 
 
 @task
@@ -42,9 +42,7 @@ def dispatch_mat_test(
     Dispara o `mat_test_flow` genérico via `run_deployment()`
     (`timeout=0` — não espera terminar). `dataset_id`/`table_id`/`coverage`/
     etc. vão como parâmetros nativos (dict de verdade, não string JSON) —
-    o `mat_test_flow` os recebe tipados e o Pydantic valida sozinho (mesmo
-    mecanismo que já funcionava pro `update_temporal_coverage` antes desta
-    etapa virar automação/evento).
+    o `mat_test_flow` os recebe tipados e o Pydantic valida sozinho.
     """
     run_deployment(
         name=deployment_name(DATASET_ID, "mat_test"),

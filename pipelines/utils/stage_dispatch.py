@@ -4,11 +4,7 @@ Building blocks compartilhados pra encadear flows via `run_deployment()`
 
 Centraliza a convenção de nome de deployment, pra cada dataset novo não
 duplicar essa string — só chama `deployment_name()` e `run_deployment()`
-com parâmetros nativos (dict/tipo real), sem Jinja/JSON de payload.
-
-Substituiu o mecanismo anterior baseado em `Automation`/`emit_event` — ver
-`run-deployment-vs-automacao.md` (D:\\docs\\pipelines) pra comparação e
-motivação da troca.
+com parâmetros nativos (dict/tipo real).
 """
 
 import datetime
@@ -28,10 +24,10 @@ def etapa_tag(etapa: str) -> str:
 
 def deploy_tags(dataset_id: str, etapa: str) -> list[str]:
     """
-    Tags de deploy — não têm mais função na cadeia de disparo em si
-    (`run_deployment()` resolve o deployment por nome, não por tag), mas
-    continuam úteis pra achar deployments relacionados no Prefect UI/CI
-    sem precisar abrir cada `flows.py`. Usar em `<flow>.deploy_tags = [...]`.
+    Tags de deploy pra achar deployments relacionados no Prefect UI/CI
+    (ex. "todo deployment de etapa:mat_test", "todo deployment do dataset
+    X") sem precisar abrir cada `flows.py`. Usar em
+    `<flow>.deploy_tags = [...]`.
     """
     return [etapa_tag(etapa), f"dataset:{dataset_id}"]
 
@@ -54,12 +50,11 @@ def deployment_name(dataset_id: str, etapa: str) -> str:
 
 
 def check_update_and_dispatch(
-    resource_dataset_id: str,
+    dataset_id: str,
     backend_dataset_id: str,
     backend_table_id: str,
     reference_date: datetime.date,
-    upstream_etapa: str = "check_update",
-    downstream_etapa: str = "flow_download",
+    next_etapa: str = "flow_download",
     env: str = "prod",
     date_format: str = "%Y-%m-%d",
     extra_download_params: dict | None = None,
@@ -69,12 +64,11 @@ def check_update_and_dispatch(
     em cada dataset: `poll_source_for_update_task` decide se há dado novo
     comparando `reference_date` contra a coverage registrada no backend; se
     houver, comita o Update (`commit_source_update_task`) e dispara o
-    deployment de `downstream_etapa` do mesmo dataset via `run_deployment()`
-    (`timeout=0` — não espera o flow downstream terminar, mesma garantia de
-    isolamento de recurso entre etapas que a automação dava;
-    `as_subflow=True` — aparece linkado como filho na árvore de execução do
-    Prefect UI). Devolve `has_new_data` — o flow só precisa decidir o que
-    logar, não repetir poll+commit+dispatch.
+    deployment de `next_etapa` do mesmo dataset via `run_deployment()`
+    (`timeout=0` — não espera o flow seguinte terminar, cada etapa continua
+    isolada em seu próprio pod; `as_subflow=True` — aparece linkado como
+    filho na árvore de execução do Prefect UI). Devolve `has_new_data` — o
+    flow só precisa decidir o que logar, não repetir poll+commit+dispatch.
 
     `poll_source_for_update_task`/`commit_source_update_task` vêm de
     `pipelines.utils.metadata.tasks` — o mesmo par usado pelos datasets
@@ -104,7 +98,7 @@ def check_update_and_dispatch(
         **(extra_download_params or {}),
     }
     run_deployment(
-        name=deployment_name(resource_dataset_id, downstream_etapa),
+        name=deployment_name(dataset_id, next_etapa),
         parameters={"download_params": download_params},
         timeout=0,
         as_subflow=True,

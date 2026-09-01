@@ -66,18 +66,12 @@ def mat_test_flow(
     sem retry configurado) — sempre a mesma sequência, então este flow é
     genérico e reaproveitado por qualquer dataset/tabela, disparado ao
     final de `flow_download` via `run_deployment()` (issue #1867,
-    basedosdados/pipelines#1867 — ver `pipelines/utils/automations.py` e
-    `run-deployment-vs-automacao.md`).
+    basedosdados/pipelines#1867 — ver `pipelines/utils/stage_dispatch.py`).
 
     Todos os parâmetros são tipados de verdade — `coverage: CoverageSpec`
     é validado pelo Pydantic automaticamente no momento em que o flow run
-    é criado (mesmo mecanismo que já funcionava de graça em
-    `update_temporal_coverage`), sem precisar de nenhum `TypeAdapter`
-    manual: isso só era necessário quando os parâmetros viajavam
-    serializados como uma única string JSON pra contornar a limitação do
-    Jinja das automações (Jinja nunca preserva tipo nativo) — com
-    `run_deployment()`, `parameters` é um dict nativo, então essa
-    limitação não existe mais.
+    é criado, mesmo mecanismo que já funciona de graça em
+    `update_temporal_coverage`.
 
     `dataset_id`/`table_id` continuam parâmetros soltos (não dentro de um
     dict maior) pra aparecer visíveis direto na lista de runs do Prefect e
