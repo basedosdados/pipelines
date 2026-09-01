@@ -10,6 +10,8 @@ Pydantic no parsing do parâmetro do flow.
 """
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
+from pydantic import TypeAdapter
 
 from pipelines.utils.automations import decode_params
 from pipelines.utils.materialize_prod.flows import transfer_files_to_prod_flow
@@ -19,6 +21,8 @@ from pipelines.utils.metadata.tasks import (
 )
 from pipelines.utils.tasks import rename_flow_run_dataset_table, run_dbt
 from pipelines.utils.utils import log
+
+_coverage_adapter = TypeAdapter(CoverageSpec)
 
 
 @flow(
@@ -90,9 +94,10 @@ def mat_test_flow(
     staging inteiro. Tabelas sem partição (como o piloto) não precisam
     desse campo.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Mat Test: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Mat Test: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     params = decode_params(mat_test_params)
@@ -126,7 +131,7 @@ def mat_test_flow(
     register_table_materialization_task(
         dataset_id=dataset_id,
         table_id=table_id,
-        coverage=params["coverage"],
+        coverage=_coverage_adapter.validate_python(params["coverage"]),
         env=params.get("env", "prod"),
         bq_project=params.get("bq_project", "basedosdados"),
         prefect_mode=params.get("prefect_mode", "prod"),
