@@ -17,7 +17,7 @@ from pipelines.utils.metadata.domain import CoverageSpec
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
 )
-from pipelines.utils.tasks import run_dbt
+from pipelines.utils.tasks import rename_flow_run_dataset_table, run_dbt
 from pipelines.utils.utils import log
 
 
@@ -48,17 +48,28 @@ update_temporal_coverage.deploy_schedules = []
 
 
 @flow(name="mat_test", log_prints=True)
-def mat_test_flow(mat_test_params: str) -> None:
+def mat_test_flow(dataset_id: str, table_id: str, mat_test_params: str) -> None:
     """
     Materializa e testa (dbt run/test) e atualiza a coverage da tabela no
-    backend (via `update_temporal_coverage`, chamado como subflow) — sempre
-    a mesma sequência, então este flow é genérico e reaproveitado por
+    backend (`register_table_materialization_task`, chamado direto — não
+    via `update_temporal_coverage`, que é um `@flow` sem retry configurado
+    e perderia o retry automático que a task já tem) — sempre a mesma
+    sequência, então este flow é genérico e reaproveitado por
     qualquer dataset/tabela como Automação 2 (flow_download -> mat_test) na
-    cadeia de eventos da issue #1867 (basedosdados/pipelines#1867): tudo
-    que varia por dataset (dataset_id, table_id, coverage, env, bq_project,
-    prefect_mode) vem do payload do evento (`mat_test_params`, JSON — ver
-    `pipelines/utils/automations.py::encode_params`), não de código
-    hardcoded aqui.
+    cadeia de eventos da issue #1867 (basedosdados/pipelines#1867).
+
+    `dataset_id`/`table_id` são parâmetros de flow de verdade, não campos
+    escondidos dentro de `mat_test_params` — são strings simples (sem o
+    problema de tipo que o Jinja das automações tem com dict aninhado, ver
+    `pipelines/utils/automations.py::encode_params`), então valem a pena
+    aparecer soltos: dá pra nomear o flow run com eles
+    (`rename_flow_run_dataset_table`) e ficam visíveis direto na lista de
+    runs do Prefect, não só depois de abrir e decodificar o JSON.
+
+    O resto (coverage, env, bq_project, prefect_mode, targets,
+    partition_folders) continua em `mat_test_params` (JSON) — esses sim
+    variam em estrutura/tipo o suficiente pra não valer a pena virar
+    parâmetro solto de cada um.
 
     Sempre roda `run_dbt(target="dev")` primeiro — se falhar, a exceção
     propaga e aborta o flow antes de qualquer coisa tocar prod (mesma
@@ -77,9 +88,12 @@ def mat_test_flow(mat_test_params: str) -> None:
     staging inteiro. Tabelas sem partição (como o piloto) não precisam
     desse campo.
     """
+    # pyrefly: ignore [unused-coroutine]
+    rename_flow_run_dataset_table(
+        prefix="Mat Test: ", dataset_id=dataset_id, table_id=table_id
+    )
+
     params = decode_params(mat_test_params)
-    dataset_id = params["dataset_id"]
-    table_id = params["table_id"]
     targets = params.get("targets", ["dev", "prod"])
 
     log(
@@ -107,7 +121,7 @@ def mat_test_flow(mat_test_params: str) -> None:
             dbt_command="run/test",
         )
 
-    update_temporal_coverage(
+    register_table_materialization_task(
         dataset_id=dataset_id,
         table_id=table_id,
         coverage=params["coverage"],

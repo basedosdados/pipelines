@@ -33,10 +33,22 @@ def write_reference_date_csv(reference_date: str) -> str:
 
 
 @task
-def emit_flow_download_completed(mat_test_params: dict) -> None:
-    """Emits the event Automation 2 listens for."""
+def emit_flow_download_completed(
+    backend_dataset_id: str, backend_table_id: str, mat_test_params: dict
+) -> None:
+    """
+    Emits the event Automation 2 listens for. `dataset_id`/`table_id` vão
+    soltos no payload (não dentro de `mat_test_params`) — são strings
+    simples, sem o problema de tipo que o Jinja tem com dict, e o
+    `mat_test_flow` genérico os recebe como parâmetro de verdade (não
+    escondidos dentro do JSON), pra aparecer no nome do flow run.
+    """
     emit_event(
         event=event_name("flow_download"),
         resource={"prefect.resource.id": dataset_resource_id(DATASET_ID)},
-        payload={"mat_test_params": encode_params(mat_test_params)},
+        payload={
+            "dataset_id": backend_dataset_id,
+            "table_id": backend_table_id,
+            "mat_test_params": encode_params(mat_test_params),
+        },
     )

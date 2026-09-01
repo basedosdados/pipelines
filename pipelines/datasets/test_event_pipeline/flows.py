@@ -87,9 +87,9 @@ def flow_download_flow(download_params: str) -> None:
     )
 
     emit_flow_download_completed(
+        backend_dataset_id=BACKEND_DATASET_ID,
+        backend_table_id=BACKEND_TABLE_ID,
         mat_test_params={
-            "dataset_id": BACKEND_DATASET_ID,
-            "table_id": BACKEND_TABLE_ID,
             "coverage": AllFree(
                 date_column=DateOnly(col="reference_date"),
                 date_format=DateFormat.YEAR_MD,
@@ -101,7 +101,7 @@ def flow_download_flow(download_params: str) -> None:
             # agora roda no pool basedosdados (prod), então "prod" aqui
             # exercita transfer_files_to_prod_flow de verdade.
             "targets": ["dev", "prod"],
-        }
+        },
     )
 
 
