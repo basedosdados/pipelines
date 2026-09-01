@@ -7,12 +7,19 @@ parâmetro, pra cada automação nova (uma por par de flows encadeados) não
 duplicar essas strings — só monta e chama `build_chained_automation`.
 """
 
+import datetime
 import json
 
 from prefect.automations import Automation
 from prefect.events.actions import RunDeployment
 from prefect.events.schemas.automations import EventTrigger, Posture
 from prefect.events.schemas.events import ResourceSpecification
+from prefect.events.utilities import emit_event
+
+from pipelines.utils.metadata.tasks import (
+    commit_source_update_task,
+    poll_source_for_update_task,
+)
 
 
 def dataset_resource_id(dataset_id: str) -> str:
@@ -124,3 +131,57 @@ def build_chained_automation(
             )
         ],
     )
+
+
+def check_update_and_emit(
+    resource_dataset_id: str,
+    backend_dataset_id: str,
+    backend_table_id: str,
+    reference_date: datetime.date,
+    upstream_etapa: str = "check_update",
+    env: str = "prod",
+    date_format: str = "%Y-%m-%d",
+    extra_download_params: dict | None = None,
+) -> bool:
+    """
+    Encapsula o padrão real de check_update, pra não repetir essa sequência
+    em cada dataset: `poll_source_for_update_task` decide se há dado novo
+    comparando `reference_date` contra a coverage registrada no backend; se
+    houver, comita o Update (`commit_source_update_task`) e emite o evento
+    `<upstream_etapa>.completed` com `download_params` (`reference_date` +
+    `extra_download_params`). Devolve `has_new_data` — o flow só precisa
+    decidir o que logar, não repetir poll+commit+emit.
+
+    `poll_source_for_update_task`/`commit_source_update_task` vêm de
+    `pipelines.utils.metadata.tasks` — o mesmo par usado pelos datasets
+    reais (ver `br_bcb_estban/flows.py`).
+    """
+    has_new_data = poll_source_for_update_task(
+        dataset_id=backend_dataset_id,
+        table_id=backend_table_id,
+        source_max_date=reference_date,
+        env=env,
+        date_format=date_format,
+        compare_against="coverage",
+    )
+    if not has_new_data:
+        return False
+
+    commit_source_update_task(
+        dataset_id=backend_dataset_id,
+        table_id=backend_table_id,
+        source_max_date=reference_date,
+        env=env,
+        date_format=date_format,
+    )
+
+    download_params = {
+        "reference_date": reference_date.isoformat(),
+        **(extra_download_params or {}),
+    }
+    emit_event(
+        event=event_name(upstream_etapa),
+        resource={"prefect.resource.id": dataset_resource_id(resource_dataset_id)},
+        payload={"download_params": encode_params(download_params)},
+    )
+    return True

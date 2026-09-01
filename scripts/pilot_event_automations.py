@@ -34,9 +34,7 @@ AUTOMATIONS = [
     {
         "name": "test-event-pipeline: flow_download -> mat_test",
         "upstream_etapa": "flow_download",
-        "downstream_deployment_name": (
-            "test_event_pipeline: mat_test/mat_test_flow"
-        ),
+        "downstream_deployment_name": "mat_test/mat_test_flow",  # genérico, ver pipelines/utils/metadata/flows.py
         "payload_fields": ["mat_test_params"],
     },
 ]
