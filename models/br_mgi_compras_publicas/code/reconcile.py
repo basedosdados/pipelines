@@ -36,11 +36,38 @@ DATA = Path.home() / "Downloads" / "br_mgi_compras_publicas_data"
 #: through the endpoint's own date parameters; "year_param" sends the year as a
 #: single integer; "modalidade" has no date filter at all.
 SOURCES: dict[str, tuple] = {
+    # codigoModalidade is REQUIRED here; omitting it returns 404 "Resource not
+    # found", which reads like a wrong path rather than a missing argument.
     "contratacao": (
         "/modulo-contratacoes/1_consultarContratacoes_PNCP_14133",
         ("dataPublicacaoPncpInicial", "dataPublicacaoPncpFinal"),
         "year_range_half_open",
         range(2021, 2027),
+        constants.MODALIDADES_14133.value,
+    ),
+    "contratacao_item": (
+        "/modulo-contratacoes/2_consultarItensContratacoes_PNCP_14133",
+        ("dataInclusaoPncpInicial", "dataInclusaoPncpFinal"),
+        "year_range_half_open",
+        range(2021, 2027),
+    ),
+    "contratacao_item_resultado": (
+        "/modulo-contratacoes/3_consultarResultadoItensContratacoes_PNCP_14133",
+        ("dataResultadoPncpInicial", "dataResultadoPncpFinal"),
+        "year_range_half_open",
+        range(2021, 2027),
+    ),
+    "ata_registro_preco": (
+        "/modulo-arp/1_consultarARP",
+        ("dataVigenciaInicialMin", "dataVigenciaInicialMax"),
+        "year_range_half_open",
+        range(2023, 2028),
+    ),
+    "ata_registro_preco_item": (
+        "/modulo-arp/2_consultarARPItem",
+        ("dataVigenciaInicialMin", "dataVigenciaInicialMax"),
+        "year_range_half_open",
+        range(2023, 2028),
     ),
     "licitacao": (
         "/modulo-legado/1_consultarLicitacao",
@@ -89,36 +116,57 @@ def _session() -> requests.Session:
     return s
 
 
+def _one_total(
+    session: requests.Session, path: str, query: dict
+) -> int | None:
+    """totalRegistros for a single query, or None if the source will not say."""
+    for _ in range(4):
+        try:
+            r = session.get(f"{BASE}{path}", params=query, timeout=240)
+            if r.status_code == 200:
+                return int((r.json() or {}).get("totalRegistros") or 0)
+            if r.status_code == 429:
+                time.sleep(8)
+                continue
+        except requests.RequestException:
+            pass
+        time.sleep(4)
+    return None
+
+
 def source_total(session: requests.Session, table: str) -> int | None:
-    path, params, kind, values = SOURCES[table]
+    entry = SOURCES[table]
+    path, params, kind, values = entry[:4]
+    # Some endpoints gate on a modalidade that is *required*; omitting it
+    # returns 404 "Resource not found", which reads like a wrong path rather
+    # than a missing argument.
+    modalidades = entry[4] if len(entry) > 4 else (None,)
     total = 0
-    for v in values:
-        query: dict = {"pagina": 1, "tamanhoPagina": 10}
-        if kind == "year_param" or kind == "modalidade":
-            query[params[0]] = v
-        else:
-            end = (
-                f"{v + 1}-01-01"
-                if kind.endswith("half_open")
-                else f"{v}-12-31"
-            )
-            query[params[0]], query[params[1]] = f"{v}-01-01", end
-        for attempt in range(4):
-            try:
-                r = session.get(f"{BASE}{path}", params=query, timeout=240)
-                if r.status_code == 200:
-                    total += int((r.json() or {}).get("totalRegistros") or 0)
-                    break
-                if r.status_code == 429:
-                    time.sleep(8)
-                    continue
-            except requests.RequestException:
-                pass
-            time.sleep(4)
-        else:
-            print(f"    ! {table}: {v} unreadable, total is a lower bound")
-            return None
-        time.sleep(0.3)
+    for value in values:
+        for modalidade in modalidades:
+            query: dict = {"pagina": 1, "tamanhoPagina": 10}
+            if modalidade is not None:
+                query["codigoModalidade"] = modalidade
+            if kind in ("year_param", "modalidade"):
+                query[params[0]] = value
+            else:
+                end_date = (
+                    f"{value + 1}-01-01"
+                    if kind.endswith("half_open")
+                    else f"{value}-12-31"
+                )
+                query[params[0]] = f"{value}-01-01"
+                query[params[1]] = end_date
+            got = _one_total(session, path, query)
+            if got is None:
+                print(
+                    f"    ! {table}: {value}"
+                    f"{'' if modalidade is None else f'/{modalidade}'} "
+                    "unreadable, cannot compare"
+                )
+                return None
+            total += got
+            time.sleep(0.3)
     return total
 
 

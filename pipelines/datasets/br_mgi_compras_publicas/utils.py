@@ -113,7 +113,13 @@ TABLE_SPECS: dict[str, TableSpec] = {
     "ata_registro_preco": TableSpec(
         table="ata_registro_preco",
         path="/modulo-arp/1_consultarARP",
-        window=WindowKind.HALF_OPEN,
+        # CLOSED: dataVigenciaInicialMax is inclusive -- a single-day query
+        # returns rows, and (d, d+1) equals (d) + (d+1). Treating it as
+        # HALF_OPEN sends last+1 and fetches one extra day per window, which
+        # overlaps the next window: measured at +20.5% redundant rows on the
+        # item table at step 5. Harmless to the data -- every day is still
+        # covered and the dedup collapses the overlap -- but wasted work.
+        window=WindowKind.CLOSED,
         date_params=("dataVigenciaInicialMin", "dataVigenciaInicialMax"),
         year_field="dataVigenciaInicial",
         step_days=15,
@@ -123,7 +129,13 @@ TABLE_SPECS: dict[str, TableSpec] = {
     "ata_registro_preco_item": TableSpec(
         table="ata_registro_preco_item",
         path="/modulo-arp/2_consultarARPItem",
-        window=WindowKind.HALF_OPEN,
+        # CLOSED: dataVigenciaInicialMax is inclusive -- a single-day query
+        # returns rows, and (d, d+1) equals (d) + (d+1). Treating it as
+        # HALF_OPEN sends last+1 and fetches one extra day per window, which
+        # overlaps the next window: measured at +20.5% redundant rows on the
+        # item table at step 5. Harmless to the data -- every day is still
+        # covered and the dedup collapses the overlap -- but wasted work.
+        window=WindowKind.CLOSED,
         date_params=("dataVigenciaInicialMin", "dataVigenciaInicialMax"),
         year_field="dataVigenciaInicial",
         step_days=5,

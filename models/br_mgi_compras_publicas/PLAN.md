@@ -358,6 +358,33 @@ chunk files conflates stale chunks from a superseded plan and the previous proce
 in-flight work. Count only files matching the current plan, over a clean window,
 before and after.
 
+### Every date endpoint's boundary was verified one at a time
+
+"Legado is CLOSED" was true of the endpoints it was measured on and **false for
+endpoint 4**, which cost 21% of `licitacao_item_pregao` silently. Each endpoint's
+boundary is now established by the same one-line experiment -- query a single day,
+`inicial == final`:
+
+| Endpoint | single-day query | boundary | spec |
+|---|---|---|---|
+| `1_consultarLicitacao` | 255 rows | inclusive | CLOSED |
+| `3_consultarPregoes` | 273 rows | inclusive | CLOSED |
+| **`4_consultarItensPregoes`** | **0 rows** | **exclusive** | **HALF_OPEN** |
+| `arp/1_consultarARP` | 246 rows | inclusive | CLOSED |
+| `arp/2_consultarARPItem` | 1,078 rows | inclusive | CLOSED |
+
+The two failure modes are not symmetric, which is why only one of them was
+noticed:
+
+* **CLOSED spec against an exclusive endpoint under-fetches** -- one day in every
+  window is never requested. Uniform, silent, and invisible to every dbt test.
+* **HALF_OPEN spec against an inclusive endpoint over-fetches** -- windows overlap
+  by a day and the dedup collapses it. Measured at +20.5% wasted requests on the
+  ARP item table; the data stays complete.
+
+Only the first loses data, so a table is never trusted on tests alone -- see the
+reconciliation rule below.
+
 ### Legado date ranges are CLOSED, not half-open
 
 The 14.133 module uses `[inicial, final)`; **legado uses `[inicial, final]`**. Verified:
