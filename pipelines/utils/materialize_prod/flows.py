@@ -95,6 +95,7 @@ def transfer_files_to_prod_flow(
     source_bucket: str = "basedosdados-dev",
     download_billing_project: str = "basedosdados",
     materialize_after_dump: bool = True,
+    dbt_command: str = "run",
     # Interface de metadados — opt-in (desligada por padrão).
     update_metadata: bool = False,
     coverage_tier: str = "all_free",  # all_free|all_bdpro|part_bdpro|non_historical
@@ -141,7 +142,7 @@ def transfer_files_to_prod_flow(
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
-        dbt_command="run",
+        dbt_command=dbt_command,
         target="prod",
     )
 

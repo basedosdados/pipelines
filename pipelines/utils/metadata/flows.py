@@ -102,6 +102,7 @@ def mat_test_flow(mat_test_params: str) -> None:
             ),
             materialize_after_dump=True,
             update_metadata=False,
+            dbt_command="run/test",
         )
 
     update_temporal_coverage(
