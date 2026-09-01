@@ -249,7 +249,11 @@ def main(env: str, status: str) -> int:
         url=RAW_SOURCE["url"],
         availability_id=availability_id,
         license_id=license_id,
-        area_ids=[area_id],
+        # No area_ids: a raw data source carries no geographic coverage in this
+        # backend, unlike a table. Passing it is a TypeError, not a no-op.
+        contains_api=True,
+        is_free=True,
+        requires_registration=False,
         status_id=status_id,
         env=env,
     )["id"]
@@ -299,12 +303,24 @@ def main(env: str, status: str) -> int:
         result = fn("bulk_upsert_columns")(
             table_id=table_id, columns_json=columns_payload(table), env=env
         )
+        # bulk_upsert_columns reports counts, not ids, and update_column needs
+        # the id. _fetch_table_columns uses the uncapped allColumn query rather
+        # than get_dataset's nested columns(first: 200), which silently truncates
+        # on a wide table.
+        # allColumn returns Relay global ids ("ColumnNode:<uuid>"), while
+        # update_column wants the bare uuid -- passing the prefixed form fails
+        # with "não é um UUID válido" naming no field.
+        column_ids = {
+            c["name"]: c["id"].split(":", 1)[-1]
+            for c in fn("_fetch_table_columns")(table_id=table_id, env=env)
+        }
 
         # bulk_upsert_columns does not link observation levels, and
         # update_column's booleans default to False -- so is_partition has to be
         # re-passed here or the bulk step's flag is silently cleared.
         for column_name, level_id in level_ids.items():
             fn("update_column")(
+                column_id=column_ids[column_name],
                 column_name=column_name,
                 table_id=table_id,
                 observation_level_id=level_id,
@@ -313,6 +329,7 @@ def main(env: str, status: str) -> int:
             )
         if spec.partition and spec.partition not in level_ids:
             fn("update_column")(
+                column_id=column_ids[spec.partition],
                 column_name=spec.partition,
                 table_id=table_id,
                 is_partition=True,
@@ -353,8 +370,9 @@ def main(env: str, status: str) -> int:
             f"levels={len(level_ids)}"
         )
 
+    # reorder_tables keys on the dataset SLUG, not its id.
     fn("reorder_tables")(
-        dataset_id=dataset_id, table_slugs=TABLE_ORDER, env=env
+        dataset_slug=DATASET["slug"], table_slugs=TABLE_ORDER, env=env
     )
     print(f"\nregistered {len(table_ids)} tables in {env}")
     return 0
