@@ -23,8 +23,8 @@ select
     safe_cast(mes as int64) mes,
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(id_municipio as string) id_municipio,
-    safe_cast(ano_modelo as int64) ano_modelo,
-    safe_cast(ano_fabricacao as int64) ano_fabricacao,
+    safe_cast(lower(ano_modelo) as string) ano_modelo,
+    safe_cast(lower(ano_fabricacao) as string) ano_fabricacao,
     safe_cast(quantidade as int64) quantidade
 from
     {{

@@ -320,9 +320,15 @@ models:
               config:
                 where: __most_recent_year_month__
       - name: ano_modelo
-        description: Ano do modelo do veículo
+        description: >
+          Ano do modelo do veículo. A fonte usa esta coluna também para os
+          sentinelas "não identificado", "não se aplica" e "sem informação",
+          então ela é STRING — como INT64 esses valores viravam NULL
+          silenciosamente
       - name: ano_fabricacao
-        description: Ano de fabricação do veículo conforme o CRV
+        description: >
+          Ano de fabricação do veículo conforme o CRV. STRING pelo mesmo
+          motivo de ano_modelo: 4,5% das linhas trazem sentinelas textuais
       - name: quantidade
         description: Quantidade de veículos
   - name: br_senatran_estatisticas__municipio_tipo_especie_eixos
