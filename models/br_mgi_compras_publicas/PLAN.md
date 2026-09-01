@@ -358,6 +358,23 @@ chunk files conflates stale chunks from a superseded plan and the previous proce
 in-flight work. Count only files matching the current plan, over a clean window,
 before and after.
 
+### The API reports its own database trouble as HTTP 400
+
+`Erro ao efetuar a consulta Could not open JPA EntityManager for transaction` is
+the source's connection pool momentarily exhausted, and it arrives as a **400**,
+not a 5xx. A client that treats every 400 as a contract violation gives up
+instantly on a failure that would clear in seconds: this failed **649 of 1,900
+jobs in one run**, a third of the table, while the log showed zero 504s and zero
+timeouts.
+
+`fetch_page` now retries a 400 whose body names a server-side fault and still
+fails fast on the real contract violations -- page size out of range, window over
+365 days -- which no amount of retrying would fix.
+
+The lesson generalises past this API: a status code is a claim about *whose*
+fault it is, and a server under load will sometimes get that claim wrong. Read
+the body before deciding a failure is permanent.
+
 ### Every date endpoint's boundary was verified one at a time
 
 "Legado is CLOSED" was true of the endpoints it was measured on and **false for

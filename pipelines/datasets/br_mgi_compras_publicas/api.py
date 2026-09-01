@@ -42,6 +42,13 @@ class ComprasApiError(RuntimeError):
 # There is no Retry-After header, so the delay has to be read out of the message.
 _RETRY_SECONDS = re.compile(r"in (\d+) seconds?", re.IGNORECASE)
 
+#: 400 bodies that describe a server-side failure rather than a bad request.
+#: The API surfaces its own persistence errors this way.
+_TRANSIENT_400 = re.compile(
+    r"EntityManager|Erro ao efetuar a consulta|JDBC|transaction|timeout",
+    re.IGNORECASE,
+)
+
 #: Longest a single 429 may park a worker. The API asks for up to 26 seconds,
 #: but the substantive response to being throttled is cutting the request rate,
 #: which `penalise()` does immediately and for every subsequent request. Serving
@@ -250,8 +257,23 @@ def fetch_page(
             continue
 
         if response.status_code == 400:
-            # Client errors here are contract violations (page size out of
-            # range, window over 365 days) and are served as plain text.
+            # Most 400s here are genuine contract violations -- page size out of
+            # range, window over 365 days -- and retrying them is pointless.
+            #
+            # But the API also reports its own database trouble as a 400, e.g.
+            # "Erro ao efetuar a consulta Could not open JPA EntityManager for
+            # transaction", which is its connection pool momentarily exhausted.
+            # That is transient and must be retried: treating it as a contract
+            # violation once failed 649 of 1,900 jobs in a single run, because
+            # each one gave up instantly instead of waiting for the server to
+            # recover.
+            if _TRANSIENT_400.search(response.text or ""):
+                last_error = ComprasApiError(
+                    f"400 (server-side) from {path}: {response.text[:160]}"
+                )
+                attempt += 1
+                _sleep(attempt)
+                continue
             raise ComprasApiError(
                 f"400 from {path}: {response.text[:300]} params={params}"
             )
