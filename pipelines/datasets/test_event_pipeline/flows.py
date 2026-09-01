@@ -122,4 +122,6 @@ def flow_download_flow(download_params: dict) -> None:
 
 
 # pyrefly: ignore [missing-attribute]
-flow_download_flow.deploy_tags = deploy_tags(PREFECT_DATASET_ID, "flow_download")
+flow_download_flow.deploy_tags = deploy_tags(
+    PREFECT_DATASET_ID, "flow_download"
+)
