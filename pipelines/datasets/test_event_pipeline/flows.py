@@ -97,10 +97,10 @@ def flow_download_flow(download_params: str) -> None:
             "env": BACKEND_ENV,
             "bq_project": "basedosdados-dev",
             "prefect_mode": "dev",
-            # test_event_pipeline não existe em basedosdados (prod real) —
-            # só materializa em dev pra não tentar escrever no projeto de
-            # produção de verdade.
-            "targets": ["dev"],
+            # Teste real do caminho dev->prod (issue #1867): mat_test_flow
+            # agora roda no pool basedosdados (prod), então "prod" aqui
+            # exercita transfer_files_to_prod_flow de verdade.
+            "targets": ["dev", "prod"],
         }
     )
 
