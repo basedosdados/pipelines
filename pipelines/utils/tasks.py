@@ -72,6 +72,85 @@ def _bq_safe_column_name(name: str) -> str:
     return re.sub(r"[^0-9a-zA-Z_]", "_", name)
 
 
+# Projeto BigQuery da staging que corresponde a cada bucket, na mesma
+# convenção do macro `set_datalake_project`: o alvo `dev` do dbt lê
+# `basedosdados-dev` e o alvo `prod` lê `basedosdados-staging`.
+_STAGING_PROJECT_BY_BUCKET = {
+    "basedosdados-dev": "basedosdados-dev",
+    "basedosdados": "basedosdados-staging",
+}
+
+
+def _leg_owns_staging_table(tb: bd.Table, bucket_name: str) -> bool:
+    """Diz se esta perna do flow é a dona da definição da tabela externa.
+
+    O projeto BigQuery da staging vem do `config.toml` do pod, não do
+    `bucket_name`, e é o mesmo nas duas pernas: `basedosdados-dev` no worker
+    de dev, `basedosdados-staging` no de prod. Só uma das pernas casa com o
+    projeto em que está escrevendo — a outra mexe numa tabela que nunca vai
+    ler, e é essa que não pode alterar a definição.
+
+    Args:
+        tb: tabela `basedosdados` já instanciada, apontando para a staging.
+        bucket_name: bucket para onde esta perna vai escrever.
+
+    Returns:
+        `True` quando o projeto da staging é o par do bucket.
+    """
+    esperado = _STAGING_PROJECT_BY_BUCKET.get(bucket_name)
+    return esperado is not None and (
+        tb.client["bigquery_staging"].project == esperado
+    )
+
+
+def _sync_staging_uris(tb: bd.Table, bucket_name: str) -> None:
+    """Aponta a tabela externa da staging para o bucket em que esta perna escreve.
+
+    Como a perna de dev roda primeiro, no worker de prod a tabela externa de
+    `basedosdados-staging` nasce apontando para `gs://basedosdados-dev/...`:
+    é a perna de dev que cai no ramo `tb.create`, e a de prod encontra
+    `table_exists` verdadeiro e segue sem olhar as URIs. O dbt de prod passa
+    então a materializar a partir do bucket de dev — números certos, origem
+    errada.
+
+    Só a definição é alterada. Nada é escrito nem apagado no GCS: recriar a
+    tabela chamaria `Storage.delete_table` e levaria o histórico junto.
+
+    Args:
+        tb: tabela `basedosdados` já instanciada, apontando para a staging.
+        bucket_name: bucket para onde esta perna vai escrever.
+    """
+    if not _leg_owns_staging_table(tb, bucket_name):
+        return
+
+    esperado = tb.uri.format(dataset=tb.dataset_id, table=tb.table_id)
+    prefixo = esperado.removesuffix("*")
+
+    client = tb.client["bigquery_staging"]
+    table = client.get_table(tb.table_full_name["staging"])
+    config = table.external_data_configuration
+
+    if config is None or list(config.source_uris) == [esperado]:
+        return
+
+    anterior = list(config.source_uris)
+    config.source_uris = [esperado]
+
+    # O getter devolve uma cópia — sem reatribuir, a mudança se perde.
+    hive = config.hive_partitioning
+    if hive is not None:
+        hive.source_uri_prefix = prefixo
+        config.hive_partitioning = hive
+
+    table.external_data_configuration = config
+    client.update_table(table, ["external_data_configuration"])
+
+    print(
+        f"Tabela externa {tb.table_full_name['staging']} reapontada para "
+        f"{anterior} -> {[esperado]}"
+    )
+
+
 def _sync_staging_schema(
     tb: bd.Table,
     data_path: str | Path,
@@ -193,6 +272,7 @@ def _upload_to_gcs(
                 data_path=data_path,
                 source_format=source_format,
             )
+            _sync_staging_uris(tb=tb, bucket_name=bucket_name)
 
     elif dump_mode == "overwrite":
         if tb.table_exists(mode="staging"):
