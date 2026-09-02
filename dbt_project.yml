@@ -576,6 +576,9 @@ models:
     us_census_acs:
       +materialized: table
       +schema: us_census_acs
+    us_ed_college_scorecard:
+      +materialized: table
+      +schema: us_ed_college_scorecard
     us_ed_ipeds:
       +materialized: table
       +schema: us_ed_ipeds

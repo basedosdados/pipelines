@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência da coorte, conforme o arquivo anual publicado pela fonte",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento,
+unitid,STRING,"Código de identificação da instituição no IPEDS (UNITID). Mesma chave da tabela us_ed_ipeds; como lá o tipo é INT64, o cruzamento exige safe_cast(unitid as int64)",,no,,,no,,UNITID
+variable_name,STRING,"Nome da variável publicada pela fonte (ex.: MD_EARN_WNE_P10). Definição, rótulo e unidade estão na tabela variable",,no,,,no,,
+value,FLOAT64,"Valor numérico publicado. A unidade depende da variável; ver a tabela variable. Nulo quando a fonte publicou um intervalo, uma data, um rótulo textual ou a supressão por sigilo; nesses casos o conteúdo está em value_raw",,no,,,no,A unidade varia conforme a variável; ver a coluna measurement_unit da tabela variable,
+value_raw,STRING,"Conteúdo publicado quando não é um número: PrivacySuppressed (célula suprimida por sigilo), um intervalo de arredondamento como 0.30-0.39 ou <=0.10 (colunas BBRR), uma data MM/DD/AAAA ou um rótulo textual. Nulo quando value está preenchido",,no,,,no,,

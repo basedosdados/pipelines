@@ -1,0 +1,92 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência da coorte, conforme o arquivo anual publicado pela fonte",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento,
+unitid,STRING,"Código de identificação da instituição no IPEDS (UNITID). Mesma chave da tabela us_ed_ipeds; como lá o tipo é INT64, o cruzamento exige safe_cast(unitid as int64)",,no,,,no,"Identificador; a aritmética não faz sentido, por isso STRING",UNITID
+opeid8,STRING,"Código OPE de 8 dígitos da instituição, atribuído pelo Escritório de Educação Superior",,no,,,no,,OPEID
+opeid6,STRING,"Código OPE de 6 dígitos da instituição, comum a todos os campi de uma mesma entidade",,no,,,no,,OPEID6
+federal_school_code,STRING,Código federal da instituição usado no formulário FAFSA,,no,,,no,,FEDSCHCD
+institution_name,STRING,Nome da instituição,,no,,,no,,INSTNM
+institution_alias,STRING,Nomes alternativos e siglas pelos quais a instituição é conhecida,,no,,,no,,ALIAS
+institution_url,STRING,Endereço do sítio eletrônico da instituição,,no,,,no,,INSTURL
+net_price_calculator_url,STRING,Endereço da calculadora de preço líquido da instituição,,no,,,no,,NPCURL
+address,STRING,Endereço da instituição,,no,,,no,,ADDR
+city,STRING,Município da instituição,,no,,,no,,CITY
+state_abbreviation,STRING,Sigla do estado norte-americano em que a instituição está localizada,,no,,,no,,STABBR
+zip_code,STRING,Código postal (ZIP) da instituição,,no,,,no,,ZIP
+state_fips,STRING,Código FIPS do estado em que a instituição está localizada,,no,,,no,,ST_FIPS
+region,STRING,Região do IPEDS em que a instituição está localizada,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,REGION
+locale,STRING,"Grau de urbanização do local da instituição, segundo a classificação do NCES",,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,LOCALE
+locale_degree_urbanization,STRING,Grau de urbanização agregado do local da instituição,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,LOCALE2
+latitude,FLOAT64,Latitude da instituição em graus decimais,,no,,degrees,no,,LATITUDE
+longitude,FLOAT64,Longitude da instituição em graus decimais,,no,,degrees,no,,LONGITUDE
+control,STRING,"Natureza administrativa da instituição, conforme o IPEDS",,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,CONTROL
+control_peps,STRING,"Natureza administrativa da instituição, conforme o sistema PEPS",,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,CONTROL_PEPS
+ownership_peps,STRING,"Tipo de mantenedora da instituição, conforme o sistema PEPS",,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,SCHTYPE
+scorecard_sector,STRING,Setor da instituição segundo a classificação do College Scorecard,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,SCORECARD_SECTOR
+institution_level,STRING,Nível da instituição segundo as características institucionais do IPEDS,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,ICLEVEL
+predominant_degree,STRING,Grau predominante concedido pela instituição na graduação,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,PREDDEG
+predominant_degree_recoded,STRING,"Grau predominante concedido, com os códigos 0 e 4 recodificados",,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,SCH_DEG
+highest_degree,STRING,Grau mais alto concedido pela instituição,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,HIGHDEG
+main_campus,STRING,Indica se a unidade é o campus principal da instituição,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,MAIN
+branch_campuses,INT64,Número de campi da instituição,,no,,unit,no,,NUMBRANCH
+carnegie_basic,STRING,Classificação Carnegie básica da instituição,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,CCBASIC
+carnegie_undergraduate_profile,STRING,Perfil de graduação da instituição na classificação Carnegie,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,CCUGPROF
+carnegie_size_setting,STRING,Porte e regime de residência da instituição na classificação Carnegie,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,CCSIZSET
+online_only,STRING,Indica se a instituição oferece exclusivamente ensino a distância,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,DISTANCEONLY
+currently_operating,STRING,Indica se a instituição estava em funcionamento no ano de referência,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,CURROPER
+open_admissions_policy,STRING,Indica se a instituição adota política de admissão aberta,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,OPENADMP
+religious_affiliation,STRING,Afiliação religiosa da instituição,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,RELAFFIL
+men_only,STRING,Indica se a instituição atende exclusivamente homens,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,MENONLY
+women_only,STRING,Indica se a instituição atende exclusivamente mulheres,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,WOMENONLY
+historically_black,STRING,Indica se a instituição é uma faculdade ou universidade historicamente negra,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,HBCU
+predominantly_black,STRING,Indica se a instituição é classificada como predominantemente negra,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,PBI
+alaska_native_hawaiian_serving,STRING,Indica se a instituição atende predominantemente nativos do Alasca ou nativos havaianos,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,ANNHI
+tribal_college,STRING,Indica se a instituição é uma faculdade tribal,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,TRIBAL
+asian_pacific_islander_serving,STRING,"Indica se a instituição atende predominantemente asiático-americanos, nativos americanos ou nativos das ilhas do Pacífico",,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,AANAPII
+hispanic_serving,STRING,Indica se a instituição atende predominantemente estudantes hispânicos,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,HSI
+native_american_non_tribal,STRING,Indica se a instituição atende predominantemente nativos americanos sem ser uma faculdade tribal,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,NANTI
+accreditor_name,STRING,Nome da agência acreditadora da instituição,,no,,,no,,ACCREDAGENCY
+accreditor_code,STRING,Código da agência acreditadora da instituição,,no,,,no,,ACCREDCODE
+title_iv_eligibility_type,STRING,Tipo de elegibilidade da instituição ao Título IV da Lei do Ensino Superior,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,OPEFLAG
+title_iv_approval_date,DATE,Data de aprovação da instituição para o Título IV,,no,,,no,Convertida de MM/DD/AAAA para ISO na limpeza,T4APPROVALDATE
+heightened_cash_monitoring,STRING,Indica se a instituição está sob monitoramento reforçado de repasses (Heightened Cash Monitoring 2),,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,HCM2
+dol_provider,STRING,Indica se a instituição é provedora registrada junto ao Departamento do Trabalho,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,DOLPROVIDER
+undergraduate_enrollment,INT64,Número de estudantes de graduação matriculados em cursos de grau,,no,,person,no,,UGDS
+undergraduate_enrollment_all,INT64,"Número total de estudantes de graduação, incluindo os não matriculados em cursos de grau",,no,,person,no,,UG
+tuition_revenue_per_fte,INT64,Receita líquida de mensalidades por estudante equivalente a tempo integral,,no,,USD,no,,TUITFTE
+instructional_expenditure_per_fte,INT64,Despesa com ensino por estudante equivalente a tempo integral,,no,,USD,no,,INEXPFTE
+average_faculty_salary,INT64,Salário mensal médio do corpo docente,,no,,USD,no,,AVGFACSAL
+full_time_faculty_rate,FLOAT64,"Proporção do corpo docente contratada em tempo integral, de 0 a 1",,no,,ratio,no,,PFTFAC
+endowment_begin,INT64,Valor do fundo patrimonial da instituição no início do exercício,,no,,USD,no,,ENDOWBEGIN
+endowment_end,INT64,Valor do fundo patrimonial da instituição no fim do exercício,,no,,USD,no,,ENDOWEND
+admission_rate,FLOAT64,"Taxa de admissão da instituição, de 0 a 1",,no,,ratio,no,,ADM_RATE
+admission_rate_all_campuses,FLOAT64,"Taxa de admissão agregada por código OPE de 6 dígitos, de 0 a 1",,no,,ratio,no,,ADM_RATE_ALL
+admission_rate_suppressed,FLOAT64,"Taxa de admissão com supressão aplicada a coortes pequenas, de 0 a 1",,no,,ratio,no,,ADM_RATE_SUPP
+test_score_requirement,STRING,Exigência da instituição quanto a notas de exames padronizados na admissão,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,ADMCON7
+sat_average,FLOAT64,Nota média no SAT entre os estudantes admitidos,,no,,score_point,no,,SAT_AVG
+sat_average_all_campuses,FLOAT64,Nota média no SAT agregada por código OPE de 6 dígitos,,no,,score_point,no,,SAT_AVG_ALL
+sat_reading_p25,STRING,"Nota de leitura crítica no SAT entre os estudantes admitidos, no percentil 25",,no,,,no,,SATVR25
+sat_reading_p50,STRING,"Nota de leitura crítica no SAT entre os estudantes admitidos, na mediana",,no,,,no,,SATVR50
+sat_reading_p75,STRING,"Nota de leitura crítica no SAT entre os estudantes admitidos, no percentil 75",,no,,,no,,SATVR75
+sat_reading_midpoint,STRING,"Nota de leitura crítica no SAT entre os estudantes admitidos, no ponto médio",,no,,,no,,SATVRMID
+sat_math_p25,STRING,"Nota de matemática no SAT entre os estudantes admitidos, no percentil 25",,no,,,no,,SATMT25
+sat_math_p50,STRING,"Nota de matemática no SAT entre os estudantes admitidos, na mediana",,no,,,no,,SATMT50
+sat_math_p75,STRING,"Nota de matemática no SAT entre os estudantes admitidos, no percentil 75",,no,,,no,,SATMT75
+sat_math_midpoint,STRING,"Nota de matemática no SAT entre os estudantes admitidos, no ponto médio",,no,,,no,,SATMTMID
+sat_writing_p25,STRING,"Nota de redação no SAT entre os estudantes admitidos, no percentil 25",,no,,,no,,SATWR25
+sat_writing_p75,STRING,"Nota de redação no SAT entre os estudantes admitidos, no percentil 75",,no,,,no,,SATWR75
+sat_writing_midpoint,STRING,"Nota de redação no SAT entre os estudantes admitidos, no ponto médio",,no,,,no,,SATWRMID
+act_composite_p25,STRING,"Nota composta no ACT entre os estudantes admitidos, no percentil 25",,no,,,no,,ACTCM25
+act_composite_p50,STRING,"Nota composta no ACT entre os estudantes admitidos, na mediana",,no,,,no,,ACTCM50
+act_composite_p75,STRING,"Nota composta no ACT entre os estudantes admitidos, no percentil 75",,no,,,no,,ACTCM75
+act_composite_midpoint,STRING,"Nota composta no ACT entre os estudantes admitidos, no ponto médio",,no,,,no,,ACTCMMID
+act_english_p25,STRING,"Nota de inglês no ACT entre os estudantes admitidos, no percentil 25",,no,,,no,,ACTEN25
+act_english_p50,STRING,"Nota de inglês no ACT entre os estudantes admitidos, na mediana",,no,,,no,,ACTEN50
+act_english_p75,STRING,"Nota de inglês no ACT entre os estudantes admitidos, no percentil 75",,no,,,no,,ACTEN75
+act_english_midpoint,STRING,"Nota de inglês no ACT entre os estudantes admitidos, no ponto médio",,no,,,no,,ACTENMID
+act_math_p25,STRING,"Nota de matemática no ACT entre os estudantes admitidos, no percentil 25",,no,,,no,,ACTMT25
+act_math_p50,STRING,"Nota de matemática no ACT entre os estudantes admitidos, na mediana",,no,,,no,,ACTMT50
+act_math_p75,STRING,"Nota de matemática no ACT entre os estudantes admitidos, no percentil 75",,no,,,no,,ACTMT75
+act_math_midpoint,STRING,"Nota de matemática no ACT entre os estudantes admitidos, no ponto médio",,no,,,no,,ACTMTMID
+act_writing_p25,STRING,"Nota de redação no ACT entre os estudantes admitidos, no percentil 25",,no,,,no,,ACTWR25
+act_writing_p75,STRING,"Nota de redação no ACT entre os estudantes admitidos, no percentil 75",,no,,,no,,ACTWR75
+act_writing_midpoint,STRING,"Nota de redação no ACT entre os estudantes admitidos, no ponto médio",,no,,,no,,ACTWRMID
