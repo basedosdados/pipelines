@@ -534,6 +534,7 @@ models:
             - rev_fed_state_math_sci_teach
             - rev_fed_state_drug_free
             - rev_cares_act_relief_serv
+            - rev_cares_act_relief_esf_rwp
           config:
             where: __most_recent_year_en__
       - custom_dictionary_coverage:

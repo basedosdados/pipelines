@@ -71,6 +71,8 @@ SCOPE_TO_RECENT_YEAR = {
 #: scopes itself to. The last year carrying data is noted against each,
 #: measured from the loaded table. A column listed here should never be empty
 #: everywhere -- if one ever is, that is a real defect this exclusion hides.
+#: Checked at load: no column of any table is empty across the whole panel.
+#: Regenerate the list with code/check_discontinued.py after a refresh.
 IGNORE_IN_PROPORTION = {
     "school": [
         "direct_certification",
@@ -110,6 +112,7 @@ IGNORE_IN_PROPORTION = {
         "rev_fed_state_math_sci_teach",  # 2018
         "rev_fed_state_drug_free",  # 2018
         "rev_cares_act_relief_serv",  # 2019
+        "rev_cares_act_relief_esf_rwp",  # 2019
     ],
     # No CCD code set is time-limited, so the column is empty by construction.
     "dicionario": ["cobertura_temporal"],
