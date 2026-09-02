@@ -13,10 +13,13 @@ models:
           proportion_allowed_failures: 0.001
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          # The source stopped populating these during 2011; they are empty
+          # from 2012 on, and the test scopes to the most recent year.
           ignore_values:
             - subdebate_title
             - role
             - first_speech
+            - in_government
             - time_stamp
             - debate_type
           config:
