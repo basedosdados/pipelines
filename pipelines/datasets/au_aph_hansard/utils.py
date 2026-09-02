@@ -757,6 +757,11 @@ def parse_openaustralia_day(
                 chamber=chamber,
                 speech_order=str(order),
                 talk_type=_clean(element.get("talktype")),
+                # ParlInfo stores the same string in debate_type and
+                # debate_title, and OpenAustralia's major-heading carries it
+                # verbatim: on 2026-02-09 both give BILLS x51 and STATEMENTS BY
+                # MEMBERS x48. So this column is not lost by the source switch.
+                debate_type=debate_title,
                 debate_title=debate_title,
                 subdebate_title=subdebate_title,
                 speaker_name=_clean(element.get("speakername")),
