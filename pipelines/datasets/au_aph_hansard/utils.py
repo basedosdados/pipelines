@@ -45,7 +45,13 @@ MIRROR = constants.MIRROR_RAW_URL.value
 
 
 def http_get(url: str, timeout: int = 120, retries: int = 4) -> bytes:
-    """GET with retry/backoff. Raises the final error if every attempt fails."""
+    """GET with retry/backoff on transient failures only.
+
+    A 4xx other than 429 is a settled answer - the server understood and
+    refused - so retrying it cannot help and only multiplies load on the
+    source. Retrying 403 four times turned a 490-probe run into 1,960 rejected
+    requests against aph.gov.au.
+    """
     last: Exception | None = None
     for attempt in range(retries):
         try:
@@ -53,7 +59,7 @@ def http_get(url: str, timeout: int = 120, retries: int = 4) -> bytes:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 return resp.read()
         except urllib.error.HTTPError as exc:
-            if exc.code == 404:
+            if 400 <= exc.code < 500 and exc.code != 429:
                 raise
             last = exc
         except Exception as exc:
