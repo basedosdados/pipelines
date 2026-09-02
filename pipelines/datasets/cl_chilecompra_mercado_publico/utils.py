@@ -14,8 +14,10 @@ The files are MONTHLY, not semestral -- ``<month>`` runs 1..12.
 
 from __future__ import annotations
 
+import functools
 import io
 import time
+import unicodedata
 import zipfile
 from pathlib import Path
 
@@ -104,6 +106,32 @@ TABLES_BY_KIND = {
     "orden_compra": ["orden_compra_item"],
     "licitacion": ["licitacion_item", "licitacion_oferta"],
 }
+
+CROSSWALK_PATH = ARCHITECTURE_DIR.parent / "geografia_crosswalk.csv"
+
+# ChileCompra publishes región and comuna as free text, never as a código único
+# territorial, so the link to br_bd_diretorios_cl is a name lookup. The mapping lives in
+# a checked-in crosswalk rather than fuzzy matching at load time: fuzzy matching would
+# quietly return a different answer as the data drifts, while a table returns the same
+# answer or none at all. Columns here are (source name column, kind, derived id column).
+GEOGRAPHY_LINKS = {
+    "orden_compra_item": [
+        ("region_unidad_compra", "region", "id_region_unidad_compra"),
+        ("region_proveedor", "region", "id_region_proveedor"),
+        ("comuna_proveedor", "comuna", "id_comuna_proveedor"),
+    ],
+    "licitacion_item": [
+        ("region_unidad_compra", "region", "id_region_unidad_compra"),
+        ("comuna_unidad_compra", "comuna", "id_comuna_unidad_compra"),
+    ],
+    "licitacion_oferta": [],
+}
+
+# Deliberately no "region de la " entry: several directory names begin with their
+# article ("La Araucania", "Los Lagos"), so stripping it would turn "Region de la
+# Araucania" into "araucania" and miss "la araucania".
+REGION_PREFIXES = ("region del ", "region de ", "region ")
+
 
 PRIMARY_KEYS = {
     "orden_compra_item": ["codigo_orden_compra", "id_item"],
@@ -343,6 +371,46 @@ def _sort_semicolon_list(s: pd.Series) -> pd.Series:
     return s.map(_one).astype("string")
 
 
+def _fold(value: str) -> str:
+    """Lower-case, drop accents, normalise the acute-accent apostrophe, collapse space."""
+    text = unicodedata.normalize("NFD", str(value))
+    text = "".join(c for c in text if unicodedata.category(c) != "Mn")
+    text = text.lower().replace("\u00b4", "'").replace(".", "")
+    return " ".join(text.split())
+
+
+def _strip_region_prefix(folded: str) -> str:
+    for prefix in REGION_PREFIXES:
+        if folded.startswith(prefix):
+            return folded[len(prefix) :].strip()
+    return folded
+
+
+@functools.lru_cache(maxsize=1)
+def geography_crosswalk() -> dict[str, dict[str, str]]:
+    """{kind: {normalised name: CUT id}} read from the checked-in crosswalk."""
+    frame = pd.read_csv(CROSSWALK_PATH, dtype=str)
+    out: dict[str, dict[str, str]] = {"region": {}, "comuna": {}}
+    for row in frame.itertuples():
+        out[row.tipo][row.nombre_normalizado] = row.id
+    return out
+
+
+def resolve_geography(series: pd.Series, kind: str) -> pd.Series:
+    """Map a free-text región or comuna name onto its CUT id, NA when unmatched."""
+    table = geography_crosswalk()[kind]
+    folded = series.astype("string").map(
+        lambda v: pd.NA if pd.isna(v) else _fold(v), na_action=None
+    )
+    if kind == "region":
+        folded = folded.map(
+            lambda v: pd.NA if pd.isna(v) else _strip_region_prefix(v)
+        )
+    return folded.map(lambda v: table.get(v) if not pd.isna(v) else pd.NA).astype(
+        "string"
+    )
+
+
 def build_table(raw: pd.DataFrame, table: str) -> pd.DataFrame:
     """Project one raw monthly frame onto one architecture table.
 
@@ -372,6 +440,10 @@ def build_table(raw: pd.DataFrame, table: str) -> pd.DataFrame:
             out[name] = _sort_semicolon_list(_clean_strings(s))
         else:
             out[name] = _clean_strings(s)
+
+    for source_col, kind, id_col in GEOGRAPHY_LINKS.get(table, []):
+        if source_col in out.columns:
+            out[id_col] = resolve_geography(out[source_col], kind)
 
     part_src = PARTITION_SOURCE[table]
     part = (

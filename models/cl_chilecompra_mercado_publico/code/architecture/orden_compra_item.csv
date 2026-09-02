@@ -44,6 +44,7 @@ nombre_organismo,STRING,Nome do organismo publico comprador,,no,,,no,,OrganismoP
 sector,STRING,Setor do Estado a que pertence o organismo comprador,,no,,,no,,sector
 actividad_comprador,STRING,Atividades economicas declaradas pela unidade compradora,,no,,,no,Multiplos valores separados por barra vertical,ActividadComprador
 ciudad_unidad_compra,STRING,Cidade da unidade compradora,,no,,,no,,CiudadUnidadCompra
+id_region_unidad_compra,STRING,Codigo unico territorial (CUT) da regiao da unidade compradora,,no,br_bd_diretorios_cl.region:id_region,,no,Derivado do nome publicado pela fonte via a tabela de correspondencia code/geografia_crosswalk.csv; a fonte nao publica o codigo unico territorial,
 region_unidad_compra,STRING,Regiao da unidade compradora,,no,,,no,Espacos finais removidos na limpeza,RegionUnidadCompra
 pais_unidad_compra,STRING,Pais da unidade compradora,,no,,,no,,PaisUnidadCompra
 codigo_proveedor,STRING,Codigo do fornecedor,,no,,,no,,CodigoProveedor
@@ -52,7 +53,9 @@ nombre_proveedor,STRING,Nome do fornecedor,,no,,,no,,NombreProveedor
 codigo_sucursal_proveedor,STRING,Codigo da filial do fornecedor,,no,,,no,,CodigoSucursal
 nombre_sucursal_proveedor,STRING,Nome da filial do fornecedor,,no,,,no,,Sucursal
 actividad_proveedor,STRING,Atividade economica declarada pelo fornecedor,,no,,,no,,ActividadProveedor
+id_comuna_proveedor,STRING,Codigo unico territorial (CUT) da comuna do fornecedor,,no,br_bd_diretorios_cl.comuna:id_comuna,,no,Derivado do nome publicado pela fonte via a tabela de correspondencia code/geografia_crosswalk.csv; a fonte nao publica o codigo unico territorial,
 comuna_proveedor,STRING,Comuna do fornecedor,,no,,,no,,ComunaProveedor
+id_region_proveedor,STRING,Codigo unico territorial (CUT) da regiao do fornecedor,,no,br_bd_diretorios_cl.region:id_region,,no,Derivado do nome publicado pela fonte via a tabela de correspondencia code/geografia_crosswalk.csv; a fonte nao publica o codigo unico territorial,
 region_proveedor,STRING,Regiao do fornecedor,,no,,,no,Espacos finais removidos na limpeza,RegionProveedor
 pais_proveedor,STRING,Pais do fornecedor,,no,,,no,,PaisProveedor
 financiamiento,STRING,Fonte de financiamento da compra,,no,,,no,,Financiamiento

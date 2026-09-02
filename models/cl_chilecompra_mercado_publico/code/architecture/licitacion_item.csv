@@ -18,7 +18,9 @@ rut_unidad_compra,STRING,RUT da unidade compradora,,no,,,no,Formato com pontos e
 codigo_unidad_compra,STRING,Codigo da unidade compradora,,no,,,no,,CodigoUnidad
 nombre_unidad_compra,STRING,Nome da unidade compradora,,no,,,no,,NombreUnidad
 direccion_unidad_compra,STRING,Endereco da unidade compradora,,no,,,no,,DireccionUnidad
+id_comuna_unidad_compra,STRING,Codigo unico territorial (CUT) da comuna da unidade compradora,,no,br_bd_diretorios_cl.comuna:id_comuna,,no,Derivado do nome publicado pela fonte via a tabela de correspondencia code/geografia_crosswalk.csv; a fonte nao publica o codigo unico territorial,
 comuna_unidad_compra,STRING,Comuna da unidade compradora,,no,,,no,,ComunaUnidad
+id_region_unidad_compra,STRING,Codigo unico territorial (CUT) da regiao da unidade compradora,,no,br_bd_diretorios_cl.region:id_region,,no,Derivado do nome publicado pela fonte via a tabela de correspondencia code/geografia_crosswalk.csv; a fonte nao publica o codigo unico territorial,
 region_unidad_compra,STRING,Regiao da unidade compradora,,no,,,no,Espacos finais removidos na limpeza,RegionUnidad
 indicador_informada,STRING,Indica se a licitacao foi informada,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",Informada
 codigo_tipo,STRING,Codigo do tipo de licitacao,,yes,,,no,,CodigoTipo
