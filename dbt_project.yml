@@ -585,6 +585,9 @@ models:
     us_sec_edgar:
       +materialized: table
       +schema: us_sec_edgar
+    us_stanford_dime:
+      +materialized: table
+      +schema: us_stanford_dime
     us_census_acs:
       +materialized: table
       +schema: us_census_acs
