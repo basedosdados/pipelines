@@ -32,6 +32,7 @@ from pipelines.datasets.us_dot_bts_ontime.utils import (
     month_iter,
     open_month_zip,
     read_arch,
+    write_header_stub,
     write_month_parquet,
     write_reference_parquet,
 )
@@ -118,6 +119,9 @@ def main() -> None:
                 cov_path.write_text(json.dumps(coverage, indent=1))
 
     cov_path.write_text(json.dumps(coverage, indent=1))
+
+    stub = write_header_stub(OUT)
+    print(f"header stub: {stub}", flush=True)
 
     print("building reference tables ...", flush=True)
     lk = DATA / "input" / "lookups"

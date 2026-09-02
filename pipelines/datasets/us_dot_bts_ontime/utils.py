@@ -620,3 +620,29 @@ def latest_available_month(
     raise RuntimeError(
         f"no published month found in the {back} months before {today}"
     )
+
+
+def write_header_stub(output_dir: Path) -> Path | None:
+    """Prepend a 0-row parquet to the earliest partition of ``flight``.
+
+    The GitHub table-approve action's ``save_header_files`` runs ``pd.read_parquet``
+    on the *first* parquet file of a staging table; on a large file that OOMs CI and
+    prod materialization never runs at all. ``00_header.parquet`` sorts ahead of
+    ``data_YYYY_MM.parquet``, so it is read instead.
+
+    It goes *inside* the earliest ``year=`` partition rather than at the table root,
+    so hive partition discovery still sees every file under a partition directory.
+    """
+    partitions = sorted((output_dir / "flight").glob("year=*"))
+    if not partitions:
+        return None
+    first = partitions[0]
+    data = sorted(first.glob("data_*.parquet"))
+    if not data:
+        return None
+    stub = first / "00_header.parquet"
+    schema = pq.ParquetFile(data[0]).schema_arrow
+    pq.write_table(
+        pa.Table.from_pylist([], schema=schema), stub, compression="snappy"
+    )
+    return stub
