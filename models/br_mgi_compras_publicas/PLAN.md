@@ -358,6 +358,41 @@ chunk files conflates stale chunks from a superseded plan and the previous proce
 in-flight work. Count only files matching the current plan, over a clean window,
 before and after.
 
+### licitacao_item ships 58,890 rows short, and why no workaround was taken
+
+Two page-range blocks -- `m1__p06951` (pages 6951-6998 of Convite) and
+`m3__p00701` (Tomada de Preços) -- are the deepest pages in the dataset, and the
+endpoint returns 504 for them. Tried and failed: 8 workers, 2 workers, 1 worker,
+across three runs over roughly five hours. A single patient request does succeed
+on such a page (40.3s at a 400s timeout), so the pages exist; the gateway simply
+will not serve them under a harvest.
+
+**Partitioning endpoint 2 by `uasg` was tested and rejected**, which is the
+interesting part. It is the same trick that rescued endpoint 6, and it looks
+obviously right -- until the losslessness check:
+
+| uasg source | modalidade 3 coverage | gap vs the modalidade's own total |
+|---|---|---|
+| `licitacao` header table | 1,773 uasg | **-9,364** (2.5%) |
+| + uasgs seen in harvested items (+161) | 1,934 uasg | **-6,477** (1.7%) |
+
+Every transient failure in those runs was retried individually and recovered, so
+the remainder is a real hole: uasgs hold modalidade-3 items while appearing in
+neither the header table nor our items. The registry does not close it either --
+it has 45,334 uasgs but is **not a superset**, since 49 header uasgs are absent
+from it. A complete list would be registry ∪ header ∪ items, about 45,500 uasgs
+per modalidade, i.e. ~91,000 probe requests for the two modalidades, and *still*
+unverifiable for retired uasgs.
+
+So the workaround for a 1.23% gap could not be shown to lose less than 1.7%. The
+gap is documented in the table's description in all three languages instead, and
+`consolidate_table` grew an explicit `allow_missing` flag: the guard against
+shipping a short table stays on by default and the exception has to be asked for,
+with the absent chunks named in the log.
+
+Tier B subsumes this gap. It re-reads these modalidades exhaustively against
+endpoint 2 and is the honest route to completeness, at ~77h.
+
 ### The API reports its own database trouble as HTTP 400
 
 `Erro ao efetuar a consulta Could not open JPA EntityManager for transaction` is

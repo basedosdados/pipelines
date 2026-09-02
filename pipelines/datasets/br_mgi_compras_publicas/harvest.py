@@ -522,6 +522,7 @@ def consolidate_table(
     *,
     jobs: list[Job] | None = None,
     prune: bool = False,
+    allow_missing: bool = False,
 ) -> dict[str, int]:
     """Merge a table's chunks into hive-partitioned parquet.
 
@@ -538,6 +539,19 @@ def consolidate_table(
     if jobs is not None:
         files = [job.chunk_path(output_dir) for job in jobs]
         missing = [f for f in files if not f.exists()]
+        if missing and allow_missing:
+            # A documented, accepted gap -- never a default. The caller has to
+            # ask for this explicitly, and what is missing is named in the log so
+            # it cannot pass unnoticed.
+            logger.warning(
+                "%s: consolidating WITHOUT %d of %d chunks, by explicit request: %s",
+                table,
+                len(missing),
+                len(files),
+                ", ".join(f.stem for f in missing[:10]),
+            )
+            files = [f for f in files if f.exists()]
+            missing = []
         if missing:
             logger.error(
                 "%s: %d of %d planned chunks are missing; refusing to "

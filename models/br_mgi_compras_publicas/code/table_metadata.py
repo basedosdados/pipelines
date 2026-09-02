@@ -145,9 +145,16 @@ TABLES: dict[str, TableMeta] = {
         "Tender item",
         "Ítem de la licitación",
         "Items of the tenders run under Law 8,666/1993. One row per tendered item, with "
-        "quantity, estimated value and the winning supplier",
+        "quantity, estimated value and the winning supplier. 58,890 items (1.23%) of the "
+        "Convite and Tomada de Preços modalities are missing, whose deepest pages the "
+        "source does not serve; items of the Pregão, Dispensa and Inexigibilidade "
+        "modalities are in the licitacao_item_pregao and compra_sem_licitacao_item tables",
         "Ítems de las licitaciones realizadas bajo la Ley 8.666/1993. Una fila por ítem "
-        "licitado, con cantidad, valor estimado y proveedor adjudicatario",
+        "licitado, con cantidad, valor estimado y proveedor adjudicatario. Faltan 58.890 "
+        "ítems (1,23%) de las modalidades Convite y Tomada de Preços, cuyas páginas más "
+        "profundas la fuente no entrega; los ítems de las modalidades Pregón, Dispensa e "
+        "Inexigibilidad están en las tablas licitacao_item_pregao y "
+        "compra_sem_licitacao_item",
         {"procurement": "id_compra", "item": "id_compra_item", "year": "ano"},
         (1997, 1, 2025, 12),
     ),

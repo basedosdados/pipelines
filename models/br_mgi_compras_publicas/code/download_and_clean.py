@@ -167,6 +167,13 @@ def main() -> int:
         "--consolidate", action="store_true", help="only consolidate chunks"
     )
     parser.add_argument(
+        "--allow-missing",
+        action="store_true",
+        help="consolidate even if planned chunks are absent; the missing chunks "
+        "are named in the log. Only for a gap that is documented in the table's "
+        "description",
+    )
+    parser.add_argument(
         "--prune-chunks",
         action="store_true",
         help="delete each table's chunks once consolidated; halves peak disk but "
@@ -220,7 +227,11 @@ def main() -> int:
                 session=planner,
             )
             stats = consolidate(
-                table, output_dir, jobs=jobs, prune=args.prune_chunks
+                table,
+                output_dir,
+                jobs=jobs,
+                prune=args.prune_chunks,
+                allow_missing=args.allow_missing,
             )
             failed += stats.get("missing", 0) > 0
         return 1 if failed else 0

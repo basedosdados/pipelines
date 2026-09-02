@@ -254,9 +254,18 @@ TABLES: dict[str, DbtTable] = {
         key=["id_compra_item"],
         year_range=R_LEGADO,
         scope_tests=True,
+        # Two page-range blocks -- the deepest pages of as modalidades Convite and
+        # Tomada de Preços -- could not be read: the endpoint returns 504 for them
+        # under every concurrency tried, across repeated attempts. Partitioning by
+        # UASG was tested as a workaround and rejected: no UASG list we can build
+        # covers every item, so it would have lost 1.7% while fixing 1.23%.
         description=(
             "Itens das licitações realizadas sob a Lei 8.666/1993. Uma linha por item "
-            "licitado, com quantidade, valor estimado e fornecedor vencedor"
+            "licitado, com quantidade, valor estimado e fornecedor vencedor. Faltam "
+            "58.890 itens (1,23%) das modalidades Convite e Tomada de Preços, cujas "
+            "páginas mais profundas a fonte não entrega; e os itens das modalidades "
+            "Pregão, Dispensa e Inexigibilidade, disponíveis nas tabelas "
+            "licitacao_item_pregao e compra_sem_licitacao_item"
         ),
     ),
     "licitacao_item_pregao": DbtTable(
