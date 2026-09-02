@@ -96,11 +96,17 @@ CODEBOOK_ORGANIZATION_DONORS = 3_300_000
 # diverges eight times more than 2022.
 #
 # 2022 is confirmed, not inferred. The file was re-downloaded (13,321,011,803
-# bytes, the same size as the original fetch) and counted with Python's csv
-# module — an entirely separate parser from the DuckDB ingest — giving
-# 144,245,910 records, identical to what was loaded. Both cycles also show
-# perfect transaction_id uniqueness with no blank ids and no wrong-cycle rows,
-# which a record-splitting bug could not produce.
+# bytes, the same size as the original fetch) and counted two independent ways:
+#
+#   physical lines                     144,246,131
+#   minus the header and 220 newlines
+#     inside quoted fields                    -221
+#   csv records (python csv module)    144,245,910   == what DuckDB loaded
+#
+# So the file really does carry 144,246,131 lines where the codebook claims
+# 143,540,873. Both cycles also show perfect transaction_id uniqueness with no
+# blank ids and no wrong-cycle rows, the opposite of what a record-splitting bug
+# would leave behind.
 VERIFIED_ABOVE_CODEBOOK = {
     2022: 144_245_910,
     2024: 210_900_861,
