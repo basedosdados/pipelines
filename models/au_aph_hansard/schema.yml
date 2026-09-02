@@ -13,8 +13,15 @@ models:
           proportion_allowed_failures: 0.001
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          # The source stopped populating these during 2011; they are empty
-          # from 2012 on, and the test scopes to the most recent year.
+          # Two separate reasons a column is legitimately empty in the most
+          # recent year, which is the only year this test scopes to.
+          #
+          # ParlInfo stopped populating role, first_speech and in_government
+          # during 2011; they are empty from 2012 on.
+          #
+          # OpenAustralia, which sources 2026 onwards, does not carry the
+          # parliament/session/period numbers or the printed page. Those are
+          # null by design of the source switch, not by defect.
           ignore_values:
             - subdebate_title
             - role
@@ -22,6 +29,10 @@ models:
             - in_government
             - time_stamp
             - debate_type
+            - parliament_number
+            - session_number
+            - period_number
+            - page_number
           config:
             where: __most_recent_year_en__
       - custom_dictionary_coverage:
@@ -98,6 +109,15 @@ models:
           combination_of_columns: [date, chamber]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          # OpenAustralia sources 2026 onwards and carries none of the
+          # transcript-header fields, so these are null by design of the
+          # source switch rather than by defect.
+          ignore_values:
+            - parliament_number
+            - session_number
+            - period_number
+            - is_proof
+            - page_count
           config:
             where: __most_recent_year_en__
     columns:

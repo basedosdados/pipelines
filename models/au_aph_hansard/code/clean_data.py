@@ -23,6 +23,7 @@ import pyarrow.parquet as pq
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
+from pipelines.datasets.au_aph_hansard.constants import constants
 from pipelines.datasets.au_aph_hansard.utils import (
     parse_sitting_day,
 )
@@ -50,17 +51,25 @@ def write_partition(
     table: str,
     year: str,
     columns: list[str],
-    part: str = "data",
+    part: str | None = None,
 ) -> int:
     """Write one year of one table as an all-STRING Parquet partition.
 
-    ``part`` names the file within the partition directory. A hive partition may
-    hold several files, so naming the file after the source directory means a
-    misfiled transcript writing into another year's partition adds a file rather
-    than clobbering that year's data.
+    ``part`` names the file within the partition directory, and defaults to the
+    shared ``PARTITION_FILE`` constant the recurring pipeline also uses.
+
+    Both writers must agree on that name. ``upload_to_gcs`` runs with
+    ``dump_mode="append"``, which overwrites a blob of the same name but leaves
+    two files side by side when the names differ - the onboarding wrote
+    ``part-<year>.parquet`` and the pipeline ``data.parquet``, so year=2026
+    ended up holding both and every row was counted twice.
+
+    Passing ``part`` explicitly is still allowed, so a transcript misfiled into
+    another year's partition adds a file rather than clobbering that year.
     """
     if not rows:
         return 0
+    part = part or constants.PARTITION_FILE.value.format(year=year)
     # `year` is the hive partition key, so it is not repeated inside the file.
     payload = [column for column in columns if column != "year"]
     schema = pa.schema([pa.field(name, pa.string()) for name in payload])
@@ -73,9 +82,7 @@ def write_partition(
     )
     destination = OUTPUT_DIR / table / f"year={year}"
     destination.mkdir(parents=True, exist_ok=True)
-    pq.write_table(
-        table_arrow, destination / f"{part}.parquet", compression="snappy"
-    )
+    pq.write_table(table_arrow, destination / part, compression="snappy")
     return len(rows)
 
 
@@ -167,7 +174,11 @@ def clean(
                 )
             for year, subset in grouped.items():
                 write_partition(
-                    subset, table, year, columns, part=f"part-{year_dir}"
+                    subset,
+                    table,
+                    year,
+                    columns,
+                    part=constants.PARTITION_FILE.value.format(year=year_dir),
                 )
         print(
             f"  {year_dir}: {len(days):>4} days, {len(speeches):>7,} utterances",
