@@ -106,3 +106,61 @@ publication timestamp — and it sidesteps the known bug where a wall-clock
 
 `lag=2` on the table Update: BTS publishes month M around M+2 (2026-06 landed
 2026-08-12). The source-anchored Update leaves `lag` unset by convention.
+
+---
+
+# Prod IDs
+
+Written by `promote_to_prod.py`, which reads each table's descriptions back out of
+staging and writes them to prod so the two cannot drift through a transcription
+slip. Only IDs are restated, because those genuinely differ.
+
+**Not every reference ID differs.** `status`, `availability`, `theme`, `area` and
+the `year`/`month` entities carry the *same* UUIDs in both backends; `license`
+does not. Assuming either way is a mistake — re-resolve.
+
+| Object | Prod ID | Note |
+|---|---|---|
+| Organization `bts` | `7df30b19-a296-4832-8323-3f257b643d32` | created |
+| Entity `flight` | `7902d189-c638-41f8-9f82-27a52964cdb5` | created |
+| Entity `airport` | `fafdaceb-4b59-4349-a510-c9615f77c0d3` | created |
+| Dataset | `3f7c078a-008e-407f-bbc7-45153d9a9b5e` | `under_review` |
+| Raw source — on-time | `20fdfeac-a0c7-4f78-a640-ff1ba50fe6f7` | linked to `flight` |
+| Raw source — lookups | `2d81ea46-c467-4eeb-99db-10ca16d28fbd` | linked to `airport`, `dicionario` |
+| Account (`published_by`) | `4` | staging uses `57` |
+| License `cc0` | `afd7b13d-98f5-4023-9cb3-e9b91b1962ca` | **differs** from staging |
+
+| Table | Prod id | Cloud table | Coverage(s) | Update |
+|---|---|---|---|---|
+| `flight` | `694708a7-b3ad-4305-9a4e-1b4875cccdec` | `c704128e-df70-42d8-85ca-7568ee1062fc` | free `3a98a5d5-f70b-4157-ac47-e478bf8d796f` (range `996e6bf8-d97d-4e9a-916e-47f31c5d57a2`), pro `646dab7a-9a0d-40ca-86cb-66a5cd272e23` (range `895b4f20-faf7-4ed0-ae45-fcb5445d9b49`) | table `8e8be609-e4e5-40e9-bb74-b5d1b70ee132`, source `dc3fd5d3-68cf-4cc1-821c-d4fd5c56a3dc` |
+| `airport` | `0e81ae86-df55-4267-a751-5bd2b34ea007` | `f2d7dad5-15bb-45c5-81f2-9b067b35fd7f` | `ab639fa1-91e2-4d7c-97a9-59ba5b46af72` | — |
+| `dicionario` | `b636f4b3-8e8d-484d-a00f-8fb4e330ef39` | `83342d11-6d36-4518-9134-3c08d9a3012e` | `c7654a8b-94b9-4e55-96f3-4aa512a4f304` | — |
+
+Observation levels: `flight` → flight `b3bd24c8-96fc-4937-8773-f71e5e80c1b5`,
+year `716737eb-2c92-41a6-a876-70bf7f42a451`; `airport` → airport
+`7cdc506c-0744-4940-be20-82d926f47dff`.
+
+## Tags: same UUIDs, different slugs
+
+Prod renames the tag slugs to English but keeps the UUIDs, so the ids from the
+staging table above are reused verbatim.
+
+| Staging slug | Prod slug | Shared id |
+|---|---|---|
+| `aviacao` | `aviation` | `bc8dc154-6dc4-4916-b99c-e103d955a7c6` |
+| `voo` | `flight` | `320335eb-b021-4349-bd58-352d53c78322` |
+| `aeroporto` | `airport` | `9717a33c-1823-4bef-b473-87e56d18f620` |
+| `atraso` | `delay` | `987ed618-8c6b-4152-9b3d-c030bec89eb4` |
+| `trafego_aereo` | `air_traffic` | `3e4d2ded-d920-4387-8f12-b0229b9ea7ad` |
+| `aviao` | `airplane` | `febe38b4-5c92-4b41-95b5-707bf78ef4b5` |
+
+## Outstanding before the prod publish
+
+1. The PR must merge and the **table-approve** action must materialise
+   `basedosdados.us_dot_bts_ontime.*` — the prod cloud tables above point at
+   tables that do not exist yet.
+2. The auxiliary bundles must be copied to
+   `gs://basedosdados/auxiliary_files/us_dot_bts_ontime/<table>/auxiliary_files.zip`.
+   A dev service account is refused (`serviceusage.services.use` denied), so this
+   needs prod credentials. The prod URL is already registered on the tables.
+3. Only then flip the dataset `under_review` → `published`.
