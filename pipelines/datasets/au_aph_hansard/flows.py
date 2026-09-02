@@ -31,6 +31,14 @@ proof transcript later replaced by the official one is corrected in place.
 Uploads therefore use ``dump_mode="append"``: the year partition being rebuilt
 overwrites its own blob, and the 1901-2024 partitions are left untouched.
 
+That only holds while every writer names a year's parquet identically, which is
+why the name comes from a single ``PARTITION_FILE`` constant shared with the
+one-shot onboarding code. ``append`` overwrites a blob of the same name but
+leaves two files side by side when the names differ, and the partition is then
+read twice: the onboarding wrote ``part-<year>.parquet`` and this flow wrote
+``data.parquet``, which doubled 2026 - 170 sitting-day rows for 85 sitting days.
+If you change the filename here, change it there in the same commit.
+
 **Every table is AllFree.** The source is CC BY-NC-ND, whose NonCommercial term
 rules out putting any of this behind BD Pro, so there is no rolling paywall
 window here and no Row Access Policy is ever issued.
