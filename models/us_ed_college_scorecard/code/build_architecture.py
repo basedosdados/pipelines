@@ -132,10 +132,19 @@ SUPPRESSION_NOTE_PT = (
     "nesta tabela larga não é possível distingui-las de células nunca coletadas"
 )
 
+# Kept short on purpose: it repeats on 32 columns, and the table description
+# carries the full explanation.
 BAND_NOTE_PT = (
-    "A fonte publica esta coluna ora como proporção, ora como intervalo de "
-    "arredondamento (ex.: 0.30-0.39, <=0.10) para evitar reidentificação; por isso o "
-    "tipo é STRING. Nos arquivos de 2015-2022, 64% dos valores publicados são intervalos"
+    "Publicada ora como proporção, ora como intervalo de arredondamento "
+    "(ex.: 0.30-0.39, <=0.10); por isso o tipo é STRING"
+)
+BAND_NOTE_EN = (
+    "Published sometimes as a proportion and sometimes as a rounding interval "
+    "(e.g. 0.30-0.39, <=0.10), hence the STRING type"
+)
+BAND_NOTE_ES = (
+    "Publicada a veces como proporción y a veces como intervalo de redondeo "
+    "(ej.: 0.30-0.39, <=0.10); por eso el tipo es STRING"
 )
 
 
