@@ -88,8 +88,12 @@ def au_aph_hansard_flow(
         max_date = result["max_date"]
 
         if not max_date:
-            print("no transcripts found in the rebuild window; nothing to do")
-            return
+            # download_hansard already refuses to return an empty harvest, so
+            # reaching here means transcripts parsed to no usable date.
+            raise RuntimeError(
+                "transcripts were downloaded but none yielded a sitting date; "
+                "refusing to report success"
+            )
 
         # Parliament sits roughly 20 weeks a year, so most daily runs find
         # nothing new and stop here.

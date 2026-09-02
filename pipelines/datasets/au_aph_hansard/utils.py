@@ -143,11 +143,23 @@ def load_sitting_day_index() -> list[dict]:
     return list(csv.DictReader(io.StringIO(raw)))
 
 
+class ProbeError(Exception):
+    """ParlInfo could not be asked whether a chamber sat on a given day.
+
+    Deliberately distinct from a None return. A refused request and "the
+    chamber did not sit" are completely different answers, and collapsing them
+    is how a run reports Completed after ingesting nothing: every probe 403s,
+    each is read as a quiet no, and the flow concludes Parliament never sat.
+    """
+
+
 def find_sitting_day_xml(house: str, day: date) -> str | None:
     """Locate a sitting day's XML via a one-day ParlInfo search.
 
-    Returns the relative ``toc_unixml`` path, or None when the chamber did not
-    sit. Used for 2006 onwards, where the published index stops.
+    Returns the relative ``toc_unixml`` path, or None when ParlInfo answered
+    and the chamber did not sit. Raises ProbeError when ParlInfo could not be
+    reached or refused the request - never None, so the caller cannot mistake a
+    failure for a negative answer.
     """
     dataset = CHAMBERS[house]["modern"]
     stamp = f"{day.day:02d}%2F{day.month:02d}%2F{day.year}"
@@ -158,8 +170,12 @@ def find_sitting_day_xml(house: str, day: date) -> str | None:
     )
     try:
         html = http_get(url).decode("utf-8", "ignore")
-    except urllib.error.HTTPError:
-        return None
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            return None
+        raise ProbeError(f"{house} {day}: HTTP {exc.code}") from exc
+    except Exception as exc:
+        raise ProbeError(f"{house} {day}: {type(exc).__name__}") from exc
     match = re.search(r'href="([^"]*toc_unixml[^"]*)"', html)
     return match.group(1).split(";fileType")[0] if match else None
 

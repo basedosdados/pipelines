@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import csv
 import shutil
-from collections import defaultdict
+from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 from pathlib import Path
+from threading import Lock
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -15,6 +16,7 @@ from prefect import task
 
 from pipelines.datasets.au_aph_hansard.constants import constants
 from pipelines.datasets.au_aph_hansard.utils import (
+    ProbeError,
     build_download_url,
     daterange,
     find_sitting_day_xml,
@@ -70,26 +72,71 @@ def download_hansard(work_dir: str, today: date | None = None) -> dict:
         f"probing {len(targets):,} chamber-days across {_years_to_rebuild(today)}"
     )
 
+    outcomes: Counter[str] = Counter()
+    failures: list[str] = []
+    lock = Lock()
+
     def grab(item: tuple[str, date]) -> str | None:
         house, day = item
-        relative = find_sitting_day_xml(house, day)
+        try:
+            relative = find_sitting_day_xml(house, day)
+        except ProbeError as exc:
+            with lock:
+                outcomes["probe_failed"] += 1
+                if len(failures) < 5:
+                    failures.append(str(exc))
+            return None
         if relative is None:
+            with lock:
+                outcomes["did_not_sit"] += 1
             return None
         try:
             payload = http_get(build_download_url(relative))
         except Exception as exc:
-            print(f"  {house} {day}: download failed ({type(exc).__name__})")
+            with lock:
+                outcomes["download_failed"] += 1
+                if len(failures) < 5:
+                    failures.append(
+                        f"{house} {day}: download {type(exc).__name__}"
+                    )
             return None
         if not is_hansard_xml(payload):
             # ParlInfo serves a "Missing File" HTML page with HTTP 200.
+            with lock:
+                outcomes["not_a_transcript"] += 1
             return None
         dest = input_dir / house / str(day.year) / f"{day.isoformat()}.xml"
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(payload)
+        with lock:
+            outcomes["downloaded"] += 1
         return str(dest)
 
     with ThreadPoolExecutor(max_workers=6) as pool:
         found = [path for path in pool.map(grab, targets) if path]
+
+    print(f"probe outcomes: {dict(outcomes)}")
+    for line in failures:
+        print(f"  ! {line}")
+
+    # A refused probe is not an answer. Failing here is the whole point: the
+    # previous version mapped every failure to "did not sit", so a run in which
+    # ParlInfo refused all 490 probes reported Completed having ingested
+    # nothing, which is indistinguishable from a quiet parliamentary recess.
+    broken = outcomes["probe_failed"] + outcomes["download_failed"]
+    if broken:
+        raise RuntimeError(
+            f"{broken} of {len(targets)} probes/downloads failed against ParlInfo "
+            f"— refusing to report success on a partial harvest. First failures: "
+            f"{failures[:5]}"
+        )
+    if not found:
+        raise RuntimeError(
+            f"no transcripts found across {len(targets)} chamber-days in "
+            f"{_years_to_rebuild(today)}. Parliament sits ~50-80 days per chamber "
+            f"per year, so an empty year-to-date window means the probe is broken, "
+            f"not that the chambers never sat."
+        )
 
     print(f"downloaded {len(found):,} sitting-day transcripts")
     return {"input_dir": str(input_dir), "count": len(found)}
