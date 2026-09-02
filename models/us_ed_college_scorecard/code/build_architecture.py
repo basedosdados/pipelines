@@ -108,6 +108,19 @@ INSTITUTION_QUANTITIES = {
     "sat_average_all_campuses": ("FLOAT64", "score_point"),
 }
 
+# Every SAT/ACT percentile and midpoint is a score, so arithmetic on it is
+# meaningful and it takes a numeric type with a unit -- the same treatment as
+# the two average columns above.
+for _exam, _parts in (
+    ("sat", ("reading", "math", "writing")),
+    ("act", ("composite", "english", "math", "writing")),
+):
+    for _part in _parts:
+        for _stat in ("p25", "p50", "p75", "midpoint"):
+            INSTITUTION_QUANTITIES.setdefault(
+                f"{_exam}_{_part}_{_stat}", ("FLOAT64", "score_point")
+            )
+
 FOS_UNITID_NOTE_PT = (
     "Nulo em 58.103 linhas (3,3%): a fonte também publica linhas agregadas por "
     "entidade, identificadas apenas por opeid6 e com UNITID igual a NA. Essas linhas "
@@ -221,9 +234,6 @@ def build_institution(by_source, covered):
                     dictionary="yes"
                     if ("institution", name) in covered
                     else "no",
-                    observations=SUPPRESSION_NOTE_PT
-                    if ("institution", name) in covered
-                    else "",
                 )
             )
         i18n_rows.append(("institution", name, pt, en, es))

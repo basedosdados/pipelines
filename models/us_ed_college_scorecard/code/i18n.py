@@ -521,7 +521,7 @@ def _score(exam, part, stat):
         ),
         "math": ("de matemática", "math", "de matemáticas"),
         "writing": ("de redação", "writing", "de redacción"),
-        "composite": ("composta", "cumulative", "compuesta"),
+        "composite": ("composta", "cumulative", "compuesto"),
         "english": ("de inglês", "English", "de inglés"),
     }[part]
     return (
