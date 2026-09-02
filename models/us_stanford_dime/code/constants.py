@@ -72,3 +72,18 @@ CODEBOOK_ROWS = {
     2022: 143540873,
     2024: 202886167,
 }
+
+# Figures the codebook states in prose, for sanity-checking the tables that have
+# no per-file row count. Section 1 of the v4.0 codebook: "ideal point estimates
+# for 173,171 candidates and 42,702 political committees as recipients and 41.5
+# million individuals and 3.3 million organizations as donors."
+#
+# These describe rows *included in the CFscore scaling*, so they are lower
+# bounds on the tables here: `recipient` is built from dime_recipients_all,
+# which also carries recipients excluded from the scaling, and it is
+# recipient-by-cycle rather than one row per recipient. Treat a large shortfall
+# as a signal, not an equality to assert.
+CODEBOOK_SCALED_CANDIDATES = 173_171
+CODEBOOK_SCALED_COMMITTEES = 42_702
+CODEBOOK_INDIVIDUAL_DONORS = 41_500_000
+CODEBOOK_ORGANIZATION_DONORS = 3_300_000

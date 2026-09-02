@@ -111,6 +111,15 @@ counting distinct economic transactions rather than filings should exclude rows
 where that column is set; the tables keep them, because dropping them would be a
 judgement the source deliberately left to the reader.
 
+**The recipient table reproduces the codebook's headline counts.** Filtering
+to `included_in_scaling = '1'` gives 173,515 distinct candidates and 42,933
+distinct committees, against the 173,171 and 42,702 the codebook states in
+section 1 — within 0.2% and 0.5%. That is an independent check: the codebook
+describes `dime_recipients`, while this table is built from the larger
+`dime_recipients_all` and recovers the smaller set through the flag. The small
+excess is expected, since the codebook counts recipients that received an ideal
+point while the flag marks those that met the inclusion requirements.
+
 **`icpsr_id` is the recipient key.** The codebook says so and it verifies: zero
 duplicates across 910,156 rows. `(cycle, recipient_id)` does not work — 11% of
 rows duplicate it, since a recipient can contest more than one seat in a cycle.
