@@ -145,9 +145,17 @@ PRIMARY_KEYS = {
 }
 
 
+@functools.lru_cache(maxsize=8)
 def read_architecture(table: str) -> pd.DataFrame:
     """Return the architecture CSV for ``table``: the single source of truth for
-    column order, types and the mapping back to the source header."""
+    column order, types and the mapping back to the source header.
+
+    Cached for two reasons. It is called once per table per chunk, so a licitaciones
+    month re-read these files a dozen-odd times, and they sit on a Dropbox-synced path.
+    More importantly it pins the schema for the whole run: editing an architecture while
+    a load is in flight is exactly what produces partitions that disagree on their
+    columns, which the upload step then has to refuse.
+    """
     return pd.read_csv(ARCHITECTURE_DIR / f"{table}.csv", dtype=str).fillna("")
 
 
