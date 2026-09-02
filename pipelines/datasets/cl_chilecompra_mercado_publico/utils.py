@@ -371,7 +371,7 @@ def _sort_semicolon_list(s: pd.Series) -> pd.Series:
     return s.map(_one).astype("string")
 
 
-def _fold(value: str) -> str:
+def _fold(value: object) -> str:
     """Lower-case, drop accents, normalise the acute-accent apostrophe, collapse space."""
     text = unicodedata.normalize("NFD", str(value))
     text = "".join(c for c in text if unicodedata.category(c) != "Mn")
@@ -392,7 +392,7 @@ def geography_crosswalk() -> dict[str, dict[str, str]]:
     frame = pd.read_csv(CROSSWALK_PATH, dtype=str)
     out: dict[str, dict[str, str]] = {"region": {}, "comuna": {}}
     for row in frame.itertuples():
-        out[row.tipo][row.nombre_normalizado] = row.id
+        out[str(row.tipo)][str(row.nombre_normalizado)] = str(row.id)
     return out
 
 
@@ -406,9 +406,9 @@ def resolve_geography(series: pd.Series, kind: str) -> pd.Series:
         folded = folded.map(
             lambda v: pd.NA if pd.isna(v) else _strip_region_prefix(v)
         )
-    return folded.map(lambda v: table.get(v) if not pd.isna(v) else pd.NA).astype(
-        "string"
-    )
+    return folded.map(
+        lambda v: table.get(v) if not pd.isna(v) else pd.NA
+    ).astype("string")
 
 
 def build_table(raw: pd.DataFrame, table: str) -> pd.DataFrame:

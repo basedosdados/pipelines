@@ -66,7 +66,7 @@ REGION_ALIASES = {
 REGION_PREFIXES = ("region del ", "region de ", "region ")
 
 
-def fold(value: str) -> str:
+def fold(value: object) -> str:
     """Lower-case, strip accents, normalise the acute-accent apostrophe, collapse space."""
     text = unicodedata.normalize("NFD", str(value))
     text = "".join(c for c in text if unicodedata.category(c) != "Mn")
@@ -109,7 +109,9 @@ def main() -> int:
         ).result()
     }
     if len({fold(v) for v in comunas.values()}) != len(comunas):
-        raise SystemExit("comuna names are not unique; a name lookup would be ambiguous")
+        raise SystemExit(
+            "comuna names are not unique; a name lookup would be ambiguous"
+        )
 
     rows = []
     for cut, name in sorted(regions.items()):
@@ -135,14 +137,18 @@ def main() -> int:
 
     with open(OUT, "w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle, lineterminator="\n")
-        writer.writerow(["tipo", "nombre_normalizado", "id", "nombre_directorio"])
+        writer.writerow(
+            ["tipo", "nombre_normalizado", "id", "nombre_directorio"]
+        )
         writer.writerows(deduped)
 
     n_region = sum(1 for r in deduped if r[0] == "region")
     n_comuna = sum(1 for r in deduped if r[0] == "comuna")
     print(f"wrote {OUT}")
     print(f"  region entries: {n_region} ({len(regions)} directory + aliases)")
-    print(f"  comuna entries: {n_comuna} ({len(comunas)} directory + {len(COMUNA_ALIASES)} aliases)")
+    print(
+        f"  comuna entries: {n_comuna} ({len(comunas)} directory + {len(COMUNA_ALIASES)} aliases)"
+    )
     print(f"  deliberately unresolved: {sorted(COMUNA_UNRESOLVED)}")
     return 0
 

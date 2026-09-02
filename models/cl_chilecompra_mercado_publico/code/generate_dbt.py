@@ -120,7 +120,7 @@ def write_models() -> None:
     for table in TABLES:
         arch = utils.read_architecture(table)
         casts = [
-            "    " + CAST[r.bigquery_type].format(c=r.name)
+            "    " + CAST[str(r.bigquery_type)].format(c=r.name)
             for r in arch.itertuples()
         ]
         sql = (
@@ -200,7 +200,7 @@ def write_schema() -> None:
                 if r.name in keys or r.name in ("ano", "mes")
                 else []
             )
-            directory = DIRECTORY_MODEL.get(r.directory_column)
+            directory = DIRECTORY_MODEL.get(str(r.directory_column))
             if tests and not directory:
                 out.append("        tests: [not_null]")
             elif tests or directory:
