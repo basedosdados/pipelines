@@ -58,13 +58,20 @@ PART_SIZE = "900mb"
 
 
 def _connect(
-    memory_limit: str = "6GB", threads: int = 4
+    memory_limit: str | None = None, threads: int | None = None
 ) -> duckdb.DuckDBPyConnection:
     """Open a DuckDB connection configured for out-of-core work.
 
     ``preserve_insertion_order=false`` is required: without it a COPY over a
     multi-GB CSV buffers the whole scan and RAM climbs into the tens of GB.
+
+    The limits default to 6 GB and 4 threads and are overridable through
+    ``DIME_DUCKDB_MEMORY`` and ``DIME_DUCKDB_THREADS``, so a second job can be
+    run alongside the backfill on a machine that cannot afford two full-size
+    DuckDB processes.
     """
+    memory_limit = memory_limit or os.environ.get("DIME_DUCKDB_MEMORY", "6GB")
+    threads = threads or int(os.environ.get("DIME_DUCKDB_THREADS", "4"))
     con = duckdb.connect()
     con.execute("SET preserve_insertion_order=false")
     con.execute(f"SET memory_limit='{memory_limit}'")
@@ -312,6 +319,26 @@ def clean_contributor_cycle() -> tuple[int, list[Path]]:
     return total, files
 
 
+def _with_repair(fn, src: Path, label: str):
+    """Run a clean step, repairing the source once if it is not valid UTF-8.
+
+    The same stray-byte problem that affects the contribution cycles affects the
+    contributor file — one line carries a bare 0x3F-adjacent sequence inside a
+    street address. Every entry point needs the repair, not just the backfill.
+    """
+    try:
+        return fn()
+    except duckdb.InvalidInputException as exc:
+        if "utf-8" not in str(exc).lower():
+            raise
+        bad = sanitize_source(src)
+        print(
+            f"  {label}: source had {bad} invalid-UTF-8 line(s), repaired",
+            flush=True,
+        )
+        return fn()
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument(
@@ -368,17 +395,27 @@ def main() -> None:
             if args.drop_input:
                 (INPUT / f"contribDB_{cycle}.csv.gz").unlink(missing_ok=True)
     elif args.table == "recipient":
-        n, files = clean_simple(
-            "recipient", "dime_recipients_all_1979_2024.csv.gz", parallel=False
+        name = "dime_recipients_all_1979_2024.csv.gz"
+        n, files = _with_repair(
+            lambda: clean_simple("recipient", name, parallel=False),
+            INPUT / name,
+            "recipient",
         )
         print(f"recipient: {n:,} rows -> {len(files)} file(s)")
     elif args.table == "contributor":
-        n, files = clean_simple(
-            "contributor", "dime_contributors_1979_2024.csv.gz", parallel=False
+        name = "dime_contributors_1979_2024.csv.gz"
+        n, files = _with_repair(
+            lambda: clean_simple("contributor", name, parallel=False),
+            INPUT / name,
+            "contributor",
         )
         print(f"contributor: {n:,} rows -> {len(files)} file(s)")
     else:
-        n, files = clean_contributor_cycle()
+        n, files = _with_repair(
+            clean_contributor_cycle,
+            INPUT / "dime_contributors_1979_2024.csv.gz",
+            "contributor_cycle",
+        )
         print(f"contributor_cycle: {n:,} rows -> {len(files)} file(s)")
 
 
