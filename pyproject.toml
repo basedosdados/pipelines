@@ -218,6 +218,10 @@ project-excludes = [
   "models/world_aiddata_gcdf/code",
   "models/us_fed_fred/code",
   "models/br_senado_dados_abertos_administrativos/code",
+  # Same policy: the us_stanford_dime onboarding scripts are standalone `.py`
+  # using bare sys.path-relative imports (`import architecture`, `import clean`)
+  # that pyrefly cannot resolve from the repo root.
+  "models/us_stanford_dime/code",
   # Same policy: br_sfb_sicar onboarding code is standalone `.py` (architecture.py,
   # gen_*.py, bootstrap_clean.py use bare `import architecture`/`import clean`,
   # sys.path-relative), unresolvable from the repo root. The pure transform is
