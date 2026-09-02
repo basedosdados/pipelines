@@ -30,20 +30,24 @@ A `chile` tag exists (`52e56a56-0c26-4674-9cf0-9d290f226bff`) and is deliberatel
 as the dataset's `Coverage`/`area`. Likewise `governo` is skipped because the
 `government` theme already covers it.
 
-## Still to create
+## Created on staging (2026-09-02)
 
-- **Organization `chilecompra`** — does not exist. Dirección de Compras y Contratación
-  Pública, Ministerio de Hacienda, Chile. `area_id` = the `cl` id above,
-  website `https://www.chilecompra.cl`.
-- **License `libre_uso_cl`** — does not exist. ChileCompra publishes no CC licence; the
-  terms permit reuse with mandatory attribution ("deberán indicar claramente que la
-  fuente de los datos es la Dirección ChileCompra") and contemplate commercial use.
-  Mirrors the existing `libre_uso_mx` precedent. Approved by the user.
+| Kind | Slug | ID |
+|---|---|---|
+| organization | `chilecompra` | `d460a2df-df48-4d41-8660-29f298dee108` |
+| license | `libre_uso_cl` | `c902369b-1310-45f4-a624-934b43adaa0f` |
 
-## Blocked
+`libre_uso_cl` mirrors the existing `libre_uso_mx` precedent: ChileCompra publishes no
+CC licence, but its terms permit reuse with mandatory attribution ("deberán indicar
+claramente que la fuente de los datos es la Dirección ChileCompra") and contemplate
+commercial use. URL points at the terms page itself, since there is no licence deed.
 
-`directory_column` is blank in all three architecture CSVs pending
-`br_bd_diretorios_cl`. ChileCompra publishes región and comuna as **names only** (e.g.
-`"Región del Maule "`, with a trailing space that the cleaning step strips) and never as
-CUT codes, so the FK will have to match on name unless the directory carries name
-variants.
+Both still need creating on **prod** before the prod promotion — reference IDs differ
+per backend.
+
+## Geography directory (resolved)
+
+`br_bd_diretorios_cl` exists: dataset `1c24b829-616b-48f7-8824-9d34b0de5b10`, with
+`region` (`id_region`, 16 rows), `provincia` and `comuna` (`id_comuna`, 346 rows).
+The architecture now carries five `directory_column` FKs onto it, populated from the
+name-to-CUT crosswalk in `code/geografia_crosswalk.csv`.
