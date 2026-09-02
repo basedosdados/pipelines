@@ -234,6 +234,14 @@ project-excludes = [
   # unresolvable from the repo root. One-shot onboarding code, not the typed
   # `pipelines/` framework, consistent with the model-ETL-not-type-checked policy.
   "models/world_oecd_piaac/code",
+  # Same policy: us_dot_bts_ontime onboarding code is standalone one-shot `.py`
+  # (download.py, clean.py, upload.py, validate.py, register_columns.py,
+  # link_observation_levels.py, promote_to_prod.py) run via `uv run`. It uses bare
+  # `import gen_columns_json` resolved through sys.path.insert, and
+  # importlib.util.spec_from_file_location for the databasis MCP module — neither
+  # resolvable from the repo root. The recurring pipeline's own transform lives in
+  # the type-checked `pipelines/datasets/us_dot_bts_ontime/`, which is NOT excluded.
+  "models/us_dot_bts_ontime/code",
   # Same policy: br_bd_diretorios_mundo ISCO/ISIC directory build/upload code is
   # standalone one-shot `.py` run via `uv run`, outside the typed framework.
   "models/br_bd_diretorios_mundo/code",
