@@ -28,6 +28,10 @@ models:
             - shared_time
             - virtual
             - csa_id
+            - bureau_indian_education
+            - title_i_status
+            - title_i_eligible
+            - magnet
           config:
             where: __most_recent_year_en__
       - custom_dictionary_coverage:
@@ -242,7 +246,16 @@ models:
           combination_of_columns: [year, agency_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values: [cmsa_id, necta_id, supervisory_union_number, csa_id]
+          ignore_values:
+            - cmsa_id
+            - necta_id
+            - supervisory_union_number
+            - csa_id
+            - agency_charter_indicator
+            - bureau_indian_education
+            - spec_ed_students
+            - english_language_learners
+            - migrant_students
           config:
             where: __most_recent_year_en__
       - custom_dictionary_coverage:
@@ -513,7 +526,14 @@ models:
             where: agency_id is not null or census_id is not null
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values: [census_id]
+          ignore_values:
+            - census_id
+            - rev_fed_arra
+            - exp_current_arra
+            - outlay_capital_arra
+            - rev_fed_state_math_sci_teach
+            - rev_fed_state_drug_free
+            - rev_cares_act_relief_serv
           config:
             where: __most_recent_year_en__
       - custom_dictionary_coverage:

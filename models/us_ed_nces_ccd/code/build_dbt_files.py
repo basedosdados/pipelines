@@ -63,8 +63,14 @@ SCOPE_TO_RECENT_YEAR = {
     "district_finance",
 }
 
-#: Columns that are legitimately empty over most of the panel and would drag the
-#: 5% non-null floor below threshold.
+#: Columns the non-null proportion test cannot speak for.
+#:
+#: Two kinds, and the difference matters. Some are sparse across the whole
+#: panel. Others are **discontinued series**: richly populated historically,
+#: then reported no longer, so they are empty in the single year the test
+#: scopes itself to. The last year carrying data is noted against each,
+#: measured from the loaded table. A column listed here should never be empty
+#: everywhere -- if one ever is, that is a real defect this exclusion hides.
 IGNORE_IN_PROPORTION = {
     "school": [
         "direct_certification",
@@ -78,14 +84,33 @@ IGNORE_IN_PROPORTION = {
         "shared_time",
         "virtual",
         "csa_id",
+        # discontinued; last year with data in the comment
+        "bureau_indian_education",  # 2015
+        "title_i_status",  # 2021
+        "title_i_eligible",  # 2021
+        "magnet",  # 2021
     ],
     "school_district": [
         "cmsa_id",
         "necta_id",
         "supervisory_union_number",
         "csa_id",
+        "agency_charter_indicator",  # 2015
+        "bureau_indian_education",  # 2015
+        "spec_ed_students",  # 2021
+        "english_language_learners",  # 2021
+        "migrant_students",  # 2007
     ],
-    "district_finance": ["census_id"],
+    "district_finance": [
+        "census_id",
+        # the ARRA stimulus ended; these Title programmes were discontinued
+        "rev_fed_arra",  # 2013
+        "exp_current_arra",  # 2013
+        "outlay_capital_arra",  # 2013
+        "rev_fed_state_math_sci_teach",  # 2018
+        "rev_fed_state_drug_free",  # 2018
+        "rev_cares_act_relief_serv",  # 2019
+    ],
     # No CCD code set is time-limited, so the column is empty by construction.
     "dicionario": ["cobertura_temporal"],
 }
