@@ -85,13 +85,24 @@ to `250000301636` in every table so the join holds.
 
 **The US school and district directories are a single-year snapshot.**
 `br_bd_diretorios_us.school` and `.school_district` are built from the 2023-24
-CCD directory only, so they describe schools open in that year and nothing
-else. `school_id` and `agency_id` here carry the `directory_column` link,
-because the semantic relationship is right, but **no dbt `relationships` test
-is attached** — a 39-year panel contains every school that has since closed,
-and the test would fail on all of them. Making the link enforceable would mean
-rebuilding those directory tables as the union across all CCD years, or
-versioning them by year the way `br_bd_diretorios_au` versions ASGS.
+CCD directory only, so they describe institutions open in that year and nothing
+else. Measured against this panel:
+
+| | ever in panel | in directory | unmatched |
+|---|---|---|---|
+| schools | 166,354 | 102,274 | **64,080 (38.5%)** |
+| districts | 26,729 | 19,637 | **7,092 (26.5%)** |
+
+Every directory row matches, and the 2023 slice matches 100% — the gap is
+entirely institutions that closed or merged before 2023-24.
+
+`school_id` and `agency_id` carry the `directory_column` link, because the
+semantic relationship is right, but **no dbt `relationships` test is
+attached**: it would fail on 64,080 school ids. Making the link enforceable
+means rebuilding those directory tables as the union across all CCD years, or
+versioning them by year the way `br_bd_diretorios_au` versions ASGS. That is a
+change to the directory, not to this dataset, so it is flagged rather than
+made here.
 
 **`state_id` is not a strict foreign key either.** The CCD extends the state
 FIPS list with codes for jurisdictions that are not states — 58 (Department of
