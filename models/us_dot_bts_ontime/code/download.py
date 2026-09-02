@@ -42,6 +42,7 @@ def fetch(ym: tuple[int, int]) -> tuple[tuple[int, int], str]:
     dest = RAW / f"ontime_{year}_{month:02d}.zip"
     if dest.exists() and dest.stat().st_size > 100_000:
         return ym, "skip"
+    dest.unlink(missing_ok=True)
     session = _session()
     for attempt in range(4):
         try:

@@ -67,6 +67,37 @@ def _session() -> requests.Session:
 # --------------------------------------------------------------------------
 # download
 # --------------------------------------------------------------------------
+def _write_verified_zip(response, dest: Path, label: str) -> Path:
+    """Stream a response to `dest`, but only keep it if it is a readable archive.
+
+    A truncated transfer still carries a zip content-type, so checking the header
+    is not enough: one month out of 465 arrived as an 11 MB fragment that failed
+    only later, at clean time. Validating here turns that into a retryable
+    download error instead of a corrupt file that looks downloaded.
+    """
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    tmp = dest.with_suffix(".part")
+    with open(tmp, "wb") as fh:
+        for chunk in response.iter_content(1 << 20):
+            fh.write(chunk)
+    try:
+        with zipfile.ZipFile(tmp) as z:
+            members = [n for n in z.namelist() if n.lower().endswith(".csv")]
+            if len(members) != 1:
+                raise RuntimeError(f"expected 1 csv member, found {members}")
+            if z.getinfo(members[0]).file_size < 1_000_000:
+                raise RuntimeError(
+                    f"csv member is only {z.getinfo(members[0]).file_size} bytes"
+                )
+    except Exception as exc:
+        tmp.unlink(missing_ok=True)
+        raise RuntimeError(
+            f"{label}: downloaded file is not a usable archive ({exc})"
+        ) from exc
+    tmp.replace(dest)
+    return dest
+
+
 def download_month_prezip(
     year: int, month: int, dest: Path, session=None
 ) -> Path:
@@ -79,13 +110,7 @@ def download_month_prezip(
         raise RuntimeError(
             f"{year}-{month:02d}: PREZIP returned HTML, not a zip ({url})"
         )
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    tmp = dest.with_suffix(".part")
-    with open(tmp, "wb") as fh:
-        for chunk in r.iter_content(1 << 20):
-            fh.write(chunk)
-    tmp.replace(dest)
-    return dest
+    return _write_verified_zip(r, dest, f"{year}-{month:02d}")
 
 
 def download_month_form(
@@ -160,13 +185,7 @@ def download_month_form(
         raise RuntimeError(
             f"{year}-{month:02d}: form returned {r.headers.get('content-type')}, not a zip"
         )
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    tmp = dest.with_suffix(".part")
-    with open(tmp, "wb") as fh:
-        for chunk in r.iter_content(1 << 20):
-            fh.write(chunk)
-    tmp.replace(dest)
-    return dest
+    return _write_verified_zip(r, dest, f"{year}-{month:02d}")
 
 
 def download_month(year: int, month: int, dest: Path, session=None) -> Path:
