@@ -45,7 +45,13 @@ MIRROR = constants.MIRROR_RAW_URL.value
 
 
 def http_get(url: str, timeout: int = 120, retries: int = 4) -> bytes:
-    """GET with retry/backoff. Raises the final error if every attempt fails."""
+    """GET with retry/backoff on transient failures only.
+
+    A 4xx other than 429 is a settled answer - the server understood and
+    refused - so retrying it cannot help and only multiplies load on the
+    source. Retrying 403 four times turned a 490-probe run into 1,960 rejected
+    requests against aph.gov.au.
+    """
     last: Exception | None = None
     for attempt in range(retries):
         try:
@@ -53,7 +59,7 @@ def http_get(url: str, timeout: int = 120, retries: int = 4) -> bytes:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 return resp.read()
         except urllib.error.HTTPError as exc:
-            if exc.code == 404:
+            if 400 <= exc.code < 500 and exc.code != 429:
                 raise
             last = exc
         except Exception as exc:
@@ -143,11 +149,23 @@ def load_sitting_day_index() -> list[dict]:
     return list(csv.DictReader(io.StringIO(raw)))
 
 
+class ProbeError(Exception):
+    """ParlInfo could not be asked whether a chamber sat on a given day.
+
+    Deliberately distinct from a None return. A refused request and "the
+    chamber did not sit" are completely different answers, and collapsing them
+    is how a run reports Completed after ingesting nothing: every probe 403s,
+    each is read as a quiet no, and the flow concludes Parliament never sat.
+    """
+
+
 def find_sitting_day_xml(house: str, day: date) -> str | None:
     """Locate a sitting day's XML via a one-day ParlInfo search.
 
-    Returns the relative ``toc_unixml`` path, or None when the chamber did not
-    sit. Used for 2006 onwards, where the published index stops.
+    Returns the relative ``toc_unixml`` path, or None when ParlInfo answered
+    and the chamber did not sit. Raises ProbeError when ParlInfo could not be
+    reached or refused the request - never None, so the caller cannot mistake a
+    failure for a negative answer.
     """
     dataset = CHAMBERS[house]["modern"]
     stamp = f"{day.day:02d}%2F{day.month:02d}%2F{day.year}"
@@ -158,8 +176,12 @@ def find_sitting_day_xml(house: str, day: date) -> str | None:
     )
     try:
         html = http_get(url).decode("utf-8", "ignore")
-    except urllib.error.HTTPError:
-        return None
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            return None
+        raise ProbeError(f"{house} {day}: HTTP {exc.code}") from exc
+    except Exception as exc:
+        raise ProbeError(f"{house} {day}: {type(exc).__name__}") from exc
     match = re.search(r'href="([^"]*toc_unixml[^"]*)"', html)
     return match.group(1).split(";fileType")[0] if match else None
 
@@ -601,3 +623,186 @@ def parse_sitting_day(
     _fill_speaker_attributes(rows)
     day["source_url"] = source_url
     return day, rows
+
+
+# ---------------------------------------------------------------------------
+# OpenAustralia mirror (recurring pipeline source)
+# ---------------------------------------------------------------------------
+#
+# ParlInfo answers the Prefect worker with HTTP 403 on every request while
+# serving the identical code and headers from an Australian connection, so the
+# block is on the worker's egress IP rather than anything the code can change.
+# OpenAustralia publishes a parsed mirror of the same Hansard, built for bulk
+# access, covering 2006 onwards.
+#
+# It is a *fourth* layout, and a lossy one: the debate XML carries no
+# parliament/session/period number, no page number, no debate type, and no
+# in-government or first-speech flag. Electorate and party are recovered by
+# joining the speaker id against OpenAustralia's own rosters.
+
+_OA_DATE_FILE = re.compile(r"^(\d{4}-\d{2}-\d{2})\.xml$")
+
+
+def list_openaustralia_days(house: str) -> dict[str, str]:
+    """Map ISO date -> file URL for every sitting day the mirror publishes.
+
+    One directory listing per chamber replaces the 490 single-day ParlInfo
+    searches the previous implementation made per run.
+    """
+    directory = constants.OPENAUSTRALIA_DIRS.value[house]
+    base = f"{constants.OPENAUSTRALIA_BASE.value}/{directory}/"
+    html = http_get(base).decode("utf-8", "ignore")
+    days: dict[str, str] = {}
+    for href in re.findall(r'href="([^"?][^"]*\.xml)"', html):
+        match = _OA_DATE_FILE.match(href)
+        if match:
+            days[match.group(1)] = base + href
+    return days
+
+
+def load_openaustralia_roster() -> dict[str, dict[str, str | None]]:
+    """Speaker id -> electorate and party, from OpenAustralia's rosters.
+
+    The debate XML names the speaker but not their seat or party. The rosters
+    carry both, keyed by the same "member count" the speaker id encodes.
+
+    ``party`` is the roster's *most recent* party, not the affiliation held on
+    the day of the speech. For a pipeline appending the current year that is
+    almost always the same thing, but it is not contemporaneous, and office
+    holders are recorded by office (the Speaker shows as SPK, not their party).
+    """
+    roster: dict[str, dict[str, str | None]] = {}
+    sources = (
+        ("representatives.csv", 0),
+        ("senators.csv", constants.OPENAUSTRALIA_SENATOR_ID_OFFSET.value),
+    )
+    for filename, offset in sources:
+        url = f"{constants.OPENAUSTRALIA_ROSTER.value}/{filename}"
+        text = http_get(url).decode("utf-8", "ignore")
+        for row in csv.DictReader(io.StringIO(text)):
+            raw_id = (row.get("member count") or "").strip()
+            if not raw_id.isdigit():
+                continue
+            # Senators sit in the House's own division column only when they
+            # have one; otherwise the state or territory is the constituency.
+            seat = (row.get("Division") or "").strip() or (
+                row.get("State/Territory") or ""
+            ).strip()
+            roster[str(int(raw_id) + offset)] = {
+                "name": _clean(row.get("name")),
+                "electorate": _clean(seat),
+                "party": _clean(row.get("Most recent party")),
+            }
+    return roster
+
+
+def parse_openaustralia_day(
+    xml_bytes: bytes,
+    house: str,
+    source_url: str,
+    roster: dict[str, dict[str, str | None]] | None = None,
+) -> tuple[dict, list[dict]]:
+    """Parse one OpenAustralia debate file into the dataset's row schema.
+
+    The file is a flat sequence of headings and speeches in document order, so
+    the current major and minor heading are carried forward as each speech is
+    reached. Columns the mirror does not carry are left null rather than
+    guessed.
+    """
+    root = load_xml(xml_bytes)
+    if root is None or root.tag != "debates":
+        raise ValueError("not an OpenAustralia debates file")
+
+    roster = roster if roster is not None else {}
+    chamber = CHAMBERS[house]["chamber_name"]
+    sitting_date = None
+    match = re.search(r"(\d{4}-\d{2}-\d{2})", source_url)
+    if match:
+        sitting_date = match.group(1)
+
+    rows: list[dict] = []
+    debate_title = subdebate_title = None
+    order = 0
+
+    for element in root.iter():
+        if not isinstance(element.tag, str):
+            continue
+        if element.tag == "major-heading":
+            debate_title = _clean("".join(element.itertext()))
+            subdebate_title = None
+            continue
+        if element.tag == "minor-heading":
+            subdebate_title = _clean("".join(element.itertext()))
+            continue
+        if element.tag != "speech":
+            continue
+
+        order += 1
+        speaker_id = (element.get("speakerid") or "").rsplit("/", 1)[
+            -1
+        ] or None
+        person = roster.get(speaker_id or "", {})
+        body = _clean("".join(element.itertext()))
+        stamp = _clean(element.get("time"))
+        if stamp and re.fullmatch(r"\d{1,2}:\d{2}", stamp):
+            hour, minute = stamp.split(":")
+            stamp = f"{int(hour):02d}:{minute}"
+        else:
+            stamp = _time_from_body(body)
+
+        rows.append(
+            _row(
+                year=sitting_date[:4] if sitting_date else None,
+                date=sitting_date,
+                chamber=chamber,
+                speech_order=str(order),
+                talk_type=_clean(element.get("talktype")),
+                # ParlInfo stores the same string in debate_type and
+                # debate_title, and OpenAustralia's major-heading carries it
+                # verbatim: on 2026-02-09 both give BILLS x51 and STATEMENTS BY
+                # MEMBERS x48. So this column is not lost by the source switch.
+                debate_type=debate_title,
+                debate_title=debate_title,
+                subdebate_title=subdebate_title,
+                speaker_name=_clean(element.get("speakername")),
+                speaker_id=speaker_id,
+                electorate=person.get("electorate"),
+                party=person.get("party"),
+                time_stamp=stamp,
+                body=body,
+                word_count=str(len(body.split())) if body else "0",
+            )
+        )
+
+    day = {
+        "year": sitting_date[:4] if sitting_date else None,
+        "date": sitting_date,
+        "chamber": chamber,
+        "parliament_number": None,
+        "session_number": None,
+        "period_number": None,
+        "is_proof": None,
+        "speech_count": str(len(rows)),
+        "page_count": None,
+        "source_url": source_url,
+    }
+    return day, rows
+
+
+def parse_any(
+    xml_bytes: bytes,
+    house: str,
+    source_url: str,
+    roster: dict[str, dict[str, str | None]] | None = None,
+) -> tuple[dict, list[dict]]:
+    """Parse a transcript from either source, dispatching on the root element.
+
+    ``hansard`` is ParlInfo in any of its three layouts; ``debates`` is the
+    OpenAustralia mirror. Both yield the same row schema.
+    """
+    root = load_xml(xml_bytes)
+    if root is None or not isinstance(root.tag, str):
+        raise ValueError("not XML")
+    if root.tag == "debates":
+        return parse_openaustralia_day(xml_bytes, house, source_url, roster)
+    return parse_sitting_day(xml_bytes, house, source_url)
