@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Slug of the us_ed_nces_ccd table the dictionary entry describes,,no,,,no,,
+nome_coluna,STRING,Name of the column the dictionary entry describes,,no,,,no,,
+chave,STRING,Code stored in the column,,no,,,no,,
+cobertura_temporal,STRING,Temporal coverage of the dictionary entry,,no,,,no,,
+valor,STRING,Label the code stands for,,no,,,no,,
