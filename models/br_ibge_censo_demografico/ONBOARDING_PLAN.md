@@ -68,8 +68,10 @@ Local scratch was deleted after a size-verified sync (`code/sync_gcs.py`).
 Do **not** call `bd.Table` (that lands in `basedosdados-dev`). Skip the
 `allUsers` GRANT post-hook. Directory FK tests wait for the official lake.
 
-Official-lake upload of `dicionario` must **append** 2022 rows to the
-historical staging table, not replace 1970–2010.
+The published `dicionario` model unions 1970–2010 rows from
+`basedosdados.br_ibge_censo_demografico.dicionario` with 2022 rows from
+staging (`id_tabela` like `%_2022`). Official staging can stay 2022-only
+for this table; do not replace the historical prod dictionary.
 
 ## Drive / metadata
 

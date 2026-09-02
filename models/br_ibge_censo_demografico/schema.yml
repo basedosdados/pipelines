@@ -12411,9 +12411,12 @@ models:
         description: Total do rendimento nominal mensal das pessoas  responsáveis
           moradoras em domicílios particulares  permanentes do sexo feminino
   - name: br_ibge_censo_demografico__dicionario
-    description: Dicionário para tradução dos códigos do conjunto br_ibge_censo_demografico.
-      Para taduzir códigos compartilhados entre instituições, como id_municipio, buscar
-      por diretórios
+    description: >
+      Dicionário para tradução dos códigos do conjunto br_ibge_censo_demografico
+      (1970–2010 e 2022). Categorias 1/2/3… das variáveis de questionário ficam
+      aqui (id_tabela, nome_coluna, chave, cobertura_temporal, valor), não no
+      schema das tabelas de microdados. Para códigos compartilhados entre
+      instituições, como id_municipio e sigla_uf, buscar por diretórios.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
