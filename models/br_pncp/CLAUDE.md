@@ -707,3 +707,27 @@ rows collapsed by dedup                   35,919
 Every collapsed row is byte-identical to the one kept, so the key is
 merging true duplicates and nothing is lost. Re-run that check if the key
 ever changes.
+
+## Sustained rate limiting, and backing off (2026-09-02)
+
+After five days of continuous harvesting, PNCP is limiting us hard. Per-page
+time went from ~3s at the start to **~55s**, with the shared pacer backed off
+to 0.66-0.89s and 16 cooldowns (60/180/420s sleeps) recorded. Throughput
+settled at 30-35 chunks/hr, which put the remaining `contratacao` work at
+about six days.
+
+**The pacer is a shared, aggregate limiter, not per worker.** `THROTTLE`
+gates every request in the process, so `PNCP_MIN_INTERVAL` sets the total
+request rate and `PNCP_WORKERS` only sets how many can be in flight at once.
+That is why the response to being limited is to raise the interval, not to
+cut workers.
+
+Running with `PNCP_WORKERS=2 PNCP_MIN_INTERVAL=1.0` — an aggregate ceiling of
+~1 request/second. The bet is that a sustained penalty is costing far more
+than the nominal rate reduction: at ~55s/page across 3 workers we were
+achieving roughly 0.05 req/s, so even a strict 1 req/s ceiling would be an
+order of magnitude better. Measure before believing it.
+
+Related: 120 windows are queued as failed and need a sweep run once the main
+pass completes. They write no chunk, so re-running the same command picks
+them up.
