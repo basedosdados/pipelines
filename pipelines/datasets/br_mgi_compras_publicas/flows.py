@@ -156,6 +156,7 @@ def br_mgi_compras_publicas_diario_flow(
     revision_window_days: int = REVISION_WINDOW_DAYS,
 ) -> None:
     """Refresh the Lei 14.133 modules and the contract registry."""
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="diario"
     )
@@ -170,6 +171,7 @@ def br_mgi_compras_publicas_semanal_flow(
     output_dir: str = "/tmp/br_mgi_compras_publicas",
 ) -> None:
     """Re-snapshot the registries, catalogues and dicionario."""
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="semanal"
     )
@@ -181,11 +183,15 @@ def br_mgi_compras_publicas_semanal_flow(
 # Minute chosen off the hour and away from the slots already in use: piling
 # every pipeline onto :00 makes them compete for BigQuery slots and fail
 # together if the daily quota trips.
+# pyrefly: ignore [missing-attribute]
 br_mgi_compras_publicas_diario_flow.deploy_schedules = [
     {"cron": "37 5 * * *", "timezone": "America/Sao_Paulo"}
 ]
+# pyrefly: ignore [missing-attribute]
 br_mgi_compras_publicas_semanal_flow.deploy_schedules = [
     {"cron": "12 4 * * 0", "timezone": "America/Sao_Paulo"}
 ]
+# pyrefly: ignore [missing-attribute]
 br_mgi_compras_publicas_diario_flow.job_variables = {"memory": "8Gi"}
+# pyrefly: ignore [missing-attribute]
 br_mgi_compras_publicas_semanal_flow.job_variables = {"memory": "8Gi"}
