@@ -1,0 +1,653 @@
+---
+version: 2
+models:
+  - name: us_stanford_dime__contribution
+    description: >-
+      Itemized records of political contributions to federal, state and local
+      elections in the United States, from the 1980 to the 2024 election cycle.
+      Each row is one transaction between a donor and a recipient, carrying the
+      DIME contributor and recipient identifiers, the geocoded donor location,
+      and the common-space CFscores of both parties. Records sourced from
+      CRP/NIMSP are excluded from the public release and so are absent here.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [cycle, transaction_id]
+          config:
+            where: cycle = 2024
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - back_reference_transaction_id
+            - contributor_suffix
+            - is_corporation
+          config:
+            where: cycle = 2014
+    columns:
+      - name: cycle
+        description: >-
+          Two-year election cycle during which the contribution was recorded.
+          Partition column. Cycles are even years; the 1980 cycle covers 1979-1980
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+              config:
+                where: cycle = 2014
+      - name: transaction_id
+        description: >-
+          Unique identifier of the contribution record, assigned by DIME. Primary
+          key within a cycle
+        tests: [not_null]
+      - name: contributor_id
+        description: >-
+          Unique identifier of the contributor, assigned by DIME entity resolution.
+          Stable across election cycles and levels of government; joins to the
+          contributor table
+        tests: [not_null]
+      - name: recipient_id
+        description: >-
+          Unique identifier of the recipient candidate or committee, assigned by
+          DIME. Stable across cycles, offices and levels of government; joins to the
+          recipient table
+      - name: efec_transaction_id_original
+        description: >-
+          Original transaction identifier from the FEC electronic filing. Empty for
+          state and local records
+      - name: efec_committee_id_original
+        description: >-
+          Original committee identifier from the FEC electronic filing. Empty for
+          state and local records
+      - name: back_reference_transaction_id
+        description: >-
+          Identifier of an earlier record in the database that this record repeats.
+          Points at transaction_id; use it to drop duplicate entries
+      - name: date
+        description: >-
+          Date on which the contribution was transacted
+      - name: amount
+        description: >-
+          Dollar amount of the contribution. Nominal dollars, not adjusted for
+          inflation. Negative values occur on refunds and corrections
+      - name: transaction_type
+        description: >-
+          FEC code for the type of transaction. Non-FEC codes 15S, 15L, 15PD, PF and
+          PFR are assigned by DIME for state and local records
+      - name: election_type
+        description: >-
+          Type of election the contribution was made for
+      - name: seat
+        description: >-
+          Elected office sought by the recipient. Readable labels of the form
+          level:office, for example federal:house or state:lower. Offices prefixed
+          'local:' are not standardized, so the value space is open-ended (139
+          distinct values observed)
+      - name: contributor_name
+        description: >-
+          Full name of the contributor, cleaned and standardized by DIME. Last name
+          first; suffix and title removed
+      - name: contributor_last_name
+        description: >-
+          Last name of the contributor. Empty for committees and organizations
+      - name: contributor_first_name
+        description: >-
+          First name of the contributor. Empty for committees and organizations
+      - name: contributor_middle_name
+        description: >-
+          Middle name or initial of the contributor
+      - name: contributor_suffix
+        description: >-
+          Name suffix of the contributor. For example Jr., Sr., III
+      - name: contributor_title
+        description: >-
+          Title of the contributor. For example Mr., Mrs., Dr., Esq.
+      - name: contributor_full_first_name
+        description: >-
+          First name, middle name, suffix and title of the contributor concatenated
+      - name: contributor_type
+        description: >-
+          Whether the contributor is an individual or an organization
+      - name: contributor_gender
+        description: >-
+          Gender of the contributor. Imputed by DIME from first-name gender ratios
+          reported by the U.S. Census and from gendered titles; not self-reported
+      - name: contributor_address
+        description: >-
+          Street address reported by the contributor
+      - name: contributor_city
+        description: >-
+          City reported by the contributor
+      - name: contributor_state
+        description: >-
+          Two-letter state abbreviation reported by the contributor. Includes
+          territories and foreign codes, so it is not restricted to the 50 states
+          plus DC and is not linked to the state directory
+      - name: contributor_zipcode
+        description: >-
+          ZIP code reported by the contributor. Five or nine digits depending on the
+          filing
+      - name: contributor_district
+        description: >-
+          Congressional district the contributor's geocode falls in. Two-letter
+          state abbreviation followed by the district number. District boundaries
+          are those in force for the cycle, so the code is not comparable across
+          redistricting cycles
+      - name: census_tract_id
+        description: >-
+          Census tract the contributor's geocode falls in. Eleven-digit GEOID. Tract
+          vintage follows the decennial boundaries in force for the cycle, so it is
+          not linked to a single-vintage census tract directory
+      - name: latitude
+        description: >-
+          Latitude of the contributor's geocoded address. Geocoded with the Pelias
+          geocoder; consistent per contributor_id across records with varying
+          address completeness
+      - name: longitude
+        description: >-
+          Longitude of the contributor's geocoded address. Geocoded with the Pelias
+          geocoder
+      - name: gis_confidence
+        description: >-
+          Confidence in the accuracy of the geocoded coordinates, from 0 to 1
+      - name: contributor_occupation
+        description: >-
+          Occupation reported by the contributor. Cleaned and standardized by DIME
+      - name: contributor_employer
+        description: >-
+          Employer reported by the contributor. Cleaned and standardized by DIME
+      - name: occupation_standardized
+        description: >-
+          Industry category the reported occupation was mapped to. Assigned by DIME;
+          populated for a minority of records
+      - name: is_corporation
+        description: >-
+          Whether the contributing committee is a corporation or trade organization.
+          Applies to committees only; these donors are excluded from the CFscore
+          estimation
+      - name: recipient_name
+        description: >-
+          Name of the recipient candidate or committee
+      - name: recipient_party
+        description: >-
+          Party of the recipient. Match against the recipient table for more
+          detailed party codings
+      - name: recipient_type
+        description: >-
+          Whether the recipient is a candidate or a committee
+      - name: recipient_state
+        description: >-
+          Two-letter state abbreviation of the recipient. Not linked to the state
+          directory because it includes non-state codes
+      - name: contributor_cfscore
+        description: >-
+          Common-space CFscore of the contributor. Ideal point estimated from the
+          contributor's giving; negative is liberal, positive is conservative.
+          Repeated on every record of the same contributor
+      - name: candidate_cfscore
+        description: >-
+          Common-space CFscore of the recipient. Ideal point estimated from the
+          donations the recipient received; negative is liberal, positive is
+          conservative
+      - name: excluded_from_scaling
+        description: >-
+          Whether the record was excluded from the CFscore estimation. Stored as 0
+          or 1 in the source
+      - name: efec_memo
+        description: >-
+          Memo field from the FEC electronic filing
+      - name: efec_memo2
+        description: >-
+          Auxiliary memo field from the FEC electronic filing
+      - name: efec_organization_original
+        description: >-
+          Original recipient name from the FEC electronic filing
+      - name: efec_form_type
+        description: >-
+          Form type of the FEC electronic filing the record came from
+  - name: us_stanford_dime__recipient
+    description: >-
+      Candidates and committees that received political contributions, one row
+      per recipient per election cycle, from 1980 to 2024. Carries fundraising
+      totals, election outcomes, candidate characteristics and the full set of
+      DIME ideology measures: CFscores, DW-DIME, the composite score and
+      DW-NOMINATE. Includes recipients that did not meet the requirements for
+      the CFscore scaling, flagged by included_in_scaling.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [icpsr_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - district_cycle
+            - district_presidential_vote_share
+            - dw_nominate_1
+            - dw_nominate_1_period
+            - dw_nominate_2
+            - dw_nominate_2_period
+            - general_vote_share
+            - icpsr_id_after_switch
+            - icpsr_id_before_switch
+            - interest_group_category
+            - irt_cfscore
+            - primary_vote_share
+            - primary_winner
+            - runoff_election_status
+            - special_election_status
+            - suffix
+            - title
+    columns:
+      - name: cycle
+        description: >-
+          Two-year election cycle the entry refers to. Partition column
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: recipient_id
+        description: >-
+          Unique identifier of the candidate or committee, assigned by DIME. Stable
+          across cycles, offices and levels of government; joins to the contribution
+          table
+        tests: [not_null]
+      - name: contributor_id
+        description: >-
+          Identifier of the same person in the contributor database. Links a
+          candidate to their own personal contributions. Partially populated: a
+          missing value does not mean the candidate made no contributions
+      - name: election
+        description: >-
+          Election cycle prefixed by the two-letter state code. Federal candidates
+          take 'fd' as the state code, for example fd1980
+      - name: icpsr_id
+        description: >-
+          Adjusted ICPSR legislator identifier with the election cycle appended. Row
+          identifier. Candidates who never served in Congress get identifiers
+          derived from their FEC, NIMSP or state agency candidate identifier
+        tests: [not_null]
+      - name: icpsr2_id
+        description: >-
+          Adjusted ICPSR legislator identifier without the cycle suffix. Party
+          switchers are assigned a new value after switching
+      - name: candidate_id
+        description: >-
+          Candidate identifier assigned by the FEC or the state reporting agency
+      - name: fec_committee_id
+        description: >-
+          Committee identifier assigned by the FEC or the state reporting agency
+      - name: nimsp_id
+        description: >-
+          Candidate identifier assigned by CRP/NIMSP
+      - name: icpsr_id_before_switch
+        description: >-
+          ICPSR identifier held before switching parties. Populated for party
+          switchers only
+      - name: icpsr_id_after_switch
+        description: >-
+          ICPSR identifier held after switching parties. Populated for party
+          switchers only
+      - name: fec_year
+        description: >-
+          Year of the election the campaign targets, as listed by the FEC. Can be
+          later than the cycle, as for senators fundraising during their first four
+          years in office
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: name
+        description: >-
+          Name of the candidate or committee
+      - name: last_name
+        description: >-
+          Last name of the candidate
+      - name: first_name
+        description: >-
+          First name of the candidate
+      - name: middle_name
+        description: >-
+          Middle name of the candidate. The source codebook mislabels this field as
+          the first name
+      - name: full_first_name
+        description: >-
+          First name, middle name, suffix and title of the candidate concatenated
+      - name: title
+        description: >-
+          Title of the candidate. For example Mr., Mrs., Dr., Esq.
+      - name: suffix
+        description: >-
+          Name suffix of the candidate
+      - name: candidate_gender
+        description: >-
+          Gender of the candidate. Imputed for all candidates except those who
+          served in Congress. Four rows carry the value with literal quote marks,
+          an
+          escaping artefact left in the source
+      - name: party
+        description: >-
+          Party of the candidate or committee
+      - name: party_original
+        description: >-
+          Party held before a party switch. Populated for party switchers only
+      - name: state
+        description: >-
+          Two-letter state abbreviation of the candidate or committee. Not linked
+          to
+          the state directory because it includes non-state codes
+      - name: seat
+        description: >-
+          Office sought by the candidate. Committees are listed as federal:committee
+          or state:committee
+      - name: district
+        description: >-
+          District code of the seat sought. Two-letter state code followed by the
+          district number; Senate candidates take 'S' followed by the year the seat
+          is up
+      - name: district_cycle
+        description: >-
+          District and cycle the candidate contested. For example 1980_MS_S
+      - name: incumbency_status
+        description: >-
+          Incumbency status of the candidate
+      - name: recipient_cfscore
+        description: >-
+          Common-space CFscore of the recipient. Ideal point estimated from
+          donations received; negative is liberal, positive is conservative.
+          Constant across cycles for a recipient
+      - name: recipient_cfscore_dynamic
+        description: >-
+          Cycle-specific CFscore of the recipient. Re-estimated each cycle holding
+          contributor scores constant
+      - name: contributor_cfscore
+        description: >-
+          CFscore of the recipient estimated from their own personal donations
+      - name: dw_dime
+        description: >-
+          DW-DIME score of the recipient. Roll-call score inferred from
+          contributions by supervised machine learning (Bonica 2018)
+      - name: composite_score
+        description: >-
+          Composite ideological score of the recipient. Combines contributions,
+          roll-call votes and other sources by multiple overimputation; new in
+          version 4.0
+      - name: dw_nominate_1
+        description: >-
+          First-dimension common-space DW-NOMINATE score. From voteview.com, based
+          on a joint scaling of the 1st to 117th Congresses
+      - name: dw_nominate_2
+        description: >-
+          Second-dimension common-space DW-NOMINATE score. From voteview.com
+      - name: dw_nominate_1_period
+        description: >-
+          First-dimension Nokken-Poole period-specific DW-NOMINATE score. From
+          voteview.com. House and Senate are scaled separately, so the two chambers
+          are not directly comparable
+      - name: dw_nominate_2_period
+        description: >-
+          Second-dimension Nokken-Poole period-specific DW-NOMINATE score. From
+          voteview.com
+      - name: irt_cfscore
+        description: >-
+          Ideal point of the recipient from an IRT count model applied to PAC data.
+          See Bonica (2013)
+      - name: number_of_givers
+        description: >-
+          Number of distinct donors who gave to the recipient during the cycle
+      - name: number_of_givers_total
+        description: >-
+          Number of distinct donors who gave to the recipient over their whole
+          career
+      - name: total_receipts
+        description: >-
+          Total contributions raised during the cycle. Nominal dollars
+      - name: total_disbursements
+        description: >-
+          Total campaign disbursements during the cycle. Nominal dollars
+      - name: total_individual_contributions
+        description: >-
+          Total itemized contributions from individuals raised during the cycle.
+          Nominal dollars
+      - name: total_unitemized
+        description: >-
+          Total unitemized contributions from individuals raised during the cycle.
+          Nominal dollars
+      - name: total_pac_contributions
+        description: >-
+          Total raised from PACs and other committees during the cycle. Nominal
+          dollars
+      - name: total_party_contributions
+        description: >-
+          Total raised from party committees during the cycle. Nominal dollars
+      - name: total_contributions_from_candidate
+        description: >-
+          Total raised from the candidate's own contributions during the cycle.
+          Nominal dollars
+      - name: independent_expenditure_support
+        description: >-
+          Total independent expenditures made to support the candidate. Nominal
+          dollars
+      - name: independent_expenditure_oppose
+        description: >-
+          Total independent expenditures made to oppose the candidate. Nominal
+          dollars
+      - name: primary_vote_share
+        description: >-
+          Vote share won in the primary election, as reported by the FEC. Coded for
+          federal congressional candidates only
+      - name: primary_winner
+        description: >-
+          Outcome of the primary election. Coded for federal congressional
+          candidates only
+      - name: general_vote_share
+        description: >-
+          Vote share won in the general election, as reported by the FEC
+      - name: general_winner
+        description: >-
+          Outcome of the general election. Federal outcomes come from the FEC, state
+          outcomes from NIMSP
+      - name: special_election_status
+        description: >-
+          Outcome of the special election, as coded by the FEC. The source uses '?'
+          for an unrecorded outcome, which is kept rather than nulled
+      - name: runoff_election_status
+        description: >-
+          Outcome of the run-off election, as coded by the FEC. The source uses '?'
+          for an unrecorded outcome, which is kept rather than nulled
+      - name: district_presidential_vote_share
+        description: >-
+          Two-party vote share won by the Democratic presidential nominee in the
+          district. Measured at the most recent or concurrent presidential election
+      - name: fec_candidate_status
+        description: >-
+          Status of the candidate's campaign as assigned by the FEC
+      - name: recipient_type
+        description: >-
+          Whether the recipient is a candidate or a committee
+      - name: interest_group_category
+        description: >-
+          FEC interest group category of the committee
+      - name: committee_type
+        description: >-
+          FEC code for the type of committee
+      - name: included_in_scaling
+        description: >-
+          Whether the recipient met the requirements for inclusion in the CFscore
+          estimation. Stored as 0 or 1 in the source. Recipients with value 0 are
+          absent from the smaller dime_recipients file
+      - name: nimsp_party
+        description: >-
+          Party name assigned by NIMSP. Spelled-out party names, not codes, and not
+          normalized at source: DEMOCRATIC and DEMOCRAT both occur
+      - name: nimsp_incumbency_status
+        description: >-
+          Incumbency status assigned by NIMSP
+      - name: nimsp_district
+        description: >-
+          District number assigned by NIMSP
+      - name: nimsp_office
+        description: >-
+          State office sought, as coded by NIMSP
+      - name: nimsp_candidate_status
+        description: >-
+          Election outcome as recorded by NIMSP. Readable phrases, not normalized
+          at
+          source: both 'Lost - General Election' and 'Lost-General' occur
+  - name: us_stanford_dime__contributor
+    description: >-
+      Individuals and organizations that made political contributions between
+      1979 and 2024, one row per donor, resolved to a stable identifier across
+      election cycles and levels of government. Carries the donor's CFscore, the
+      attributes reported on their most recent contribution, and the window of
+      cycles over which they were active.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [contributor_id]
+          proportion_allowed_failures: 0.00001000
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [is_corporation]
+    columns:
+      - name: contributor_id
+        description: >-
+          Unique identifier of the contributor, assigned by DIME entity resolution.
+          Joins to the contribution and contributor_cycle tables
+      - name: contributor_type
+        description: >-
+          Whether the contributor is an individual or an organization
+      - name: contributor_gender
+        description: >-
+          Gender of the contributor. Imputed by DIME from first-name gender ratios
+          and gendered titles; not self-reported
+      - name: is_corporation
+        description: >-
+          Whether the contributor is a corporation or trade organization. Applies
+          to
+          committees only; these donors are excluded from the CFscore estimation
+      - name: contributor_cfscore
+        description: >-
+          Common-space CFscore of the contributor. Negative is liberal, positive is
+          conservative. Donors who gave to a single recipient are assigned that
+          recipient's ideal point
+      - name: is_projected
+        description: >-
+          Whether the contributor was projected onto the space rather than estimated
+          within it. Stored as 0 or 1 in the source. Value 1 covers corporate and
+          trade-affiliated committees and donors who gave to a single recipient,
+          whose scores are less reliable
+      - name: number_distinct_recipients
+        description: >-
+          Number of distinct recipients in the scaling that received contributions
+          from the donor. The number of observations behind the ideal point. Eight
+          or more distinct recipients is typically enough for a reliable estimate
+      - name: first_cycle_active
+        description: >-
+          First election cycle in which the donor was recorded as active
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+              config:
+                where: first_cycle_active != 9999
+      - name: last_cycle_active
+        description: >-
+          Last election cycle in which the donor was recorded as active
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: most_recent_name
+        description: >-
+          Name reported by the contributor on their most recent record
+      - name: most_recent_address
+        description: >-
+          Street address reported by the contributor on their most recent record
+      - name: most_recent_city
+        description: >-
+          City reported by the contributor on their most recent record
+      - name: most_recent_state
+        description: >-
+          Two-letter state abbreviation reported on the most recent record. Includes
+          territories and foreign codes, so it is not linked to the state directory
+      - name: most_recent_zipcode
+        description: >-
+          ZIP code reported by the contributor on their most recent record. Five or
+          nine digits depending on the filing
+      - name: most_recent_latitude
+        description: >-
+          Latitude geocoded from the most recent record
+      - name: most_recent_longitude
+        description: >-
+          Longitude geocoded from the most recent record
+      - name: most_recent_occupation
+        description: >-
+          Occupation reported by the contributor on their most recent record
+      - name: most_recent_employer
+        description: >-
+          Employer reported by the contributor on their most recent record
+      - name: most_recent_transaction_id
+        description: >-
+          Identifier of the contributor's most recent contribution record. Joins to
+          transaction_id in the contribution table
+      - name: most_recent_transaction_date
+        description: >-
+          Date of the contributor's most recent contribution record
+  - name: us_stanford_dime__contributor_cycle
+    description: >-
+      Total amount contributed by each donor in each election cycle, from 1980
+      to 2024. Reshaped from the wide amount-per-cycle columns of the DIME
+      contributor file; a donor-cycle pair with no giving is absent rather than
+      stored as a zero.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [cycle, contributor_id]
+          proportion_allowed_failures: 0.00001000
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: cycle
+        description: >-
+          Two-year election cycle the amount refers to. Partition column
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: contributor_id
+        description: >-
+          Unique identifier of the contributor, assigned by DIME entity resolution.
+          Joins to the contributor and contribution tables
+      - name: amount
+        description: >-
+          Total amount contributed by the donor during the cycle. Nominal dollars.
+          Reshaped from the amount.<cycle> columns of the source contributor file;
+          cycles in which the donor gave nothing are not stored as rows
+        tests: [not_null]
+  - name: us_stanford_dime__dicionario
+    description: >-
+      Dictionary mapping the codes stored in the coded columns of the
+      us_stanford_dime tables to their labels.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the us_stanford_dime table the dictionary entry describes
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Name of the column the dictionary entry describes
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Code stored in the column
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage of the dictionary entry
+      - name: valor
+        description: >-
+          Label the code stands for
+        tests: [not_null]
