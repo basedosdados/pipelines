@@ -37,7 +37,7 @@ OUT = Path(__file__).resolve().parent / "sparsity.json"
 THRESHOLD = 0.05
 
 # Partition filter per table, so a huge table is not scanned whole.
-WHERE = {"contribution": f"where cycle = '{gen_dbt.TEST_CYCLE}'"}
+WHERE = {"contribution": f"where cycle = '{gen_dbt.SPARSITY_CYCLE}'"}
 
 
 def measure(table: str, client: bigquery.Client) -> dict:

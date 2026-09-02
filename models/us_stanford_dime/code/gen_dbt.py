@@ -32,8 +32,19 @@ MODEL_DIR = CODE_DIR.parent
 DATASET = "us_stanford_dime"
 SPARSITY_FILE = CODE_DIR / "sparsity.json"
 
-# Cycle the expensive contribution tests are scoped to.
-TEST_CYCLE = 2024
+# Cycles the expensive contribution tests are scoped to. Both are pinned rather
+# than following the data, which is honest here because DIME v4.0 is a static
+# release with no pipeline to advance them.
+#
+# They differ because the two tests have very different cost profiles.
+# not_null_proportion_multiple_columns sums NULLs across all 45 columns in one
+# pass, so it is scoped to the smallest cycle in which every column is
+# meaningfully populated: efec_memo is 36.6% non-null in 2014 but only 0.9% in
+# 2008, so an older scope would exempt a column that is genuinely there.
+# unique_combination_of_columns touches two columns, so it can afford the
+# newest and largest partition, which is where a key collision is likeliest.
+SPARSITY_CYCLE = 2014
+UNIQUENESS_CYCLE = 2024
 
 PARTITIONED = {
     "contribution": (1980, 2030),
@@ -171,7 +182,8 @@ def schema_yml() -> str:
     for table in arch.TABLES:
         cols = arch.TABLES[table]
         scoped = table == "contribution"
-        where = f'"cycle = {TEST_CYCLE}"'
+        uniq_where = f'"cycle = {UNIQUENESS_CYCLE}"'
+        sparse_where = f'"cycle = {SPARSITY_CYCLE}"'
         out.append(f"  - name: {DATASET}__{table}")
         out.append(
             f"    description: {_yaml_block(TABLE_DESCRIPTION[table], 6)}"
@@ -183,7 +195,7 @@ def schema_yml() -> str:
         )
         if scoped:
             out.append("          config:")
-            out.append(f"            where: {where}")
+            out.append(f"            where: {uniq_where}")
         ignore = sorted(sparsity.get(table, {}).get("sparse", []))
         out.append("      - not_null_proportion_multiple_columns:")
         out.append("          at_least: 0.05")
@@ -193,7 +205,7 @@ def schema_yml() -> str:
                 out.append(f"            - {c}")
         if scoped:
             out.append("          config:")
-            out.append(f"            where: {where}")
+            out.append(f"            where: {sparse_where}")
         out.append("    columns:")
         for col in cols:
             (
@@ -233,7 +245,7 @@ def schema_yml() -> str:
                     out.append(f"              field: {inner}")
                     if scoped:
                         out.append("              config:")
-                        out.append(f"                where: {where}")
+                        out.append(f"                where: {sparse_where}")
     return "\n".join(out) + "\n"
 
 

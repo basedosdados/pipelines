@@ -17,7 +17,7 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
-            where: cycle = 2024
+            where: cycle = 2014
     columns:
       - name: cycle
         description: >-
@@ -29,7 +29,7 @@ models:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
               config:
-                where: cycle = 2024
+                where: cycle = 2014
       - name: transaction_id
         description: >-
           Unique identifier of the contribution record, assigned by DIME. Primary
