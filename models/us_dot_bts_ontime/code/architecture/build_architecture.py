@@ -41,9 +41,180 @@ HEADER = [
     "original_name",
     "description_en",
     "description_es",
+    "observations_en",
+    "observations_es",
 ]
 
 MIN = "minute"
+
+
+# Observations are authored in English at the call sites above and translated here,
+# so each string is written exactly once. The CSV's `observations` column carries
+# Portuguese — the same convention `description` follows — with English and Spanish
+# in their own columns. A language left blank shows blank on the site for those
+# readers, which is how thousands of production columns ended up PT-only.
+OBSERVATIONS = {
+    "Clock label in HHMM, not a quantity.": (
+        "Rótulo de horário em HHMM, não uma quantidade.",
+        "Etiqueta de hora en HHMM, no una cantidad.",
+    ),
+    "Clock label in HHMM as published, kept as STRING so the leading zero survives "
+    "and no arithmetic is implied.": (
+        "Rótulo de horário em HHMM como publicado, mantido como STRING para preservar "
+        "o zero à esquerda e não sugerir aritmética.",
+        "Etiqueta de hora en HHMM tal como se publica, mantenida como STRING para "
+        "preservar el cero inicial y no sugerir aritmética.",
+    ),
+    "A boolean published as 0.00/1.00, so STRING.": (
+        "Booleano publicado como 0.00/1.00, portanto STRING.",
+        "Booleano publicado como 0.00/1.00, por lo tanto STRING.",
+    ),
+    "Parsed from the source description.": (
+        "Extraído da descrição da fonte.",
+        "Extraído de la descripción de la fuente.",
+    ),
+    "Stable across time, unlike the airport code. Resolved by the `airport` table in "
+    "this dataset; no US airport directory exists yet.": (
+        "Estável ao longo do tempo, ao contrário do código do aeroporto. Resolvido "
+        "pela tabela `airport` deste conjunto; ainda não existe um diretório de "
+        "aeroportos dos Estados Unidos.",
+        "Estable a lo largo del tiempo, a diferencia del código del aeropuerto. Se "
+        "resuelve con la tabla `airport` de este conjunto; aún no existe un "
+        "directorio de aeropuertos de los Estados Unidos.",
+    ),
+    "Changes when airport attributes such as name or coordinates change.": (
+        "Muda quando atributos do aeroporto, como nome ou coordenadas, mudam.",
+        "Cambia cuando cambian atributos del aeropuerto, como el nombre o las "
+        "coordenadas.",
+    ),
+    "Consolidates airports serving the same city market.": (
+        "Consolida aeroportos que atendem ao mesmo mercado urbano.",
+        "Consolida aeropuertos que sirven al mismo mercado urbano.",
+    ),
+    "Includes Canadian provinces and US territories.": (
+        "Inclui províncias canadenses e territórios dos Estados Unidos.",
+        "Incluye provincias canadienses y territorios de los Estados Unidos.",
+    ),
+    "Derived. HHMM 2400 is normalised to 00:00:00.": (
+        "Derivado. O valor HHMM 2400 é normalizado para 00:00:00.",
+        "Derivado. El valor HHMM 2400 se normaliza a 00:00:00.",
+    ),
+    "Derived, in destination local time. HHMM 2400 is normalised to 00:00:00.": (
+        "Derivado, na hora local do destino. O valor HHMM 2400 é normalizado para "
+        "00:00:00.",
+        "Derivado, en hora local del destino. El valor HHMM 2400 se normaliza a "
+        "00:00:00.",
+    ),
+    "Joins to origin_airport_id and destination_airport_id in `flight`.": (
+        "Liga-se a origin_airport_id e destination_airport_id na tabela `flight`.",
+        "Se une a origin_airport_id y destination_airport_id en la tabla `flight`.",
+    ),
+    "Filled only for airports in the United States and its territories; null for "
+    "foreign airports, which carry country_name instead.": (
+        "Preenchido apenas para aeroportos dos Estados Unidos e seus territórios; nulo "
+        "para aeroportos estrangeiros, que trazem country_name.",
+        "Se completa solo para aeropuertos de los Estados Unidos y sus territorios; "
+        "nulo para aeropuertos extranjeros, que traen country_name.",
+    ),
+    "Null for US airports, which carry state_abbreviation instead.": (
+        "Nulo para aeroportos dos Estados Unidos, que trazem state_abbreviation.",
+        "Nulo para aeropuertos de los Estados Unidos, que traen state_abbreviation.",
+    ),
+    "Kept verbatim so the parsed columns can always be audited against the source.": (
+        "Mantido literalmente para que as colunas extraídas possam sempre ser "
+        "auditadas contra a fonte.",
+        "Se mantiene literal para que las columnas extraídas siempre puedan auditarse "
+        "contra la fuente.",
+    ),
+    "Partition column.": ("Coluna de partição.", "Columna de partición."),
+    "Derivable from month; kept as published.": (
+        "Derivável do mês; mantida como publicada.",
+        "Derivable del mes; se mantiene como se publica.",
+    ),
+    "A weekday label rather than a quantity, so STRING.": (
+        "Rótulo de dia da semana, não uma quantidade, portanto STRING.",
+        "Etiqueta de día de la semana, no una cantidad, por lo tanto STRING.",
+    ),
+    "When a code has been reused, earlier users carry a numeric suffix such as PA(1). "
+    "This is the field to use for analysis across a range of years.": (
+        "Quando um código foi reutilizado, os usuários anteriores recebem um sufixo "
+        "numérico como PA(1). Este é o campo a usar em análises que cobrem vários anos.",
+        "Cuando un código fue reutilizado, los usuarios anteriores llevan un sufijo "
+        "numérico como PA(1). Este es el campo a usar en análisis que cubren varios "
+        "años.",
+    ),
+    "One identifier per DOT certificate, stable regardless of code, name or holding "
+    "company.": (
+        "Um identificador por certificado do DOT, estável independentemente de código, "
+        "nome ou empresa controladora.",
+        "Un identificador por certificado del DOT, estable independientemente del "
+        "código, el nombre o la empresa controladora.",
+    ),
+    "Not unique over time; the same code has been assigned to different carriers. Use "
+    "reporting_carrier for analysis.": (
+        "Não é único ao longo do tempo; o mesmo código já foi atribuído a empresas "
+        "diferentes. Use reporting_carrier nas análises.",
+        "No es único a lo largo del tiempo; el mismo código se ha asignado a distintas "
+        "aerolíneas. Use reporting_carrier en los análisis.",
+    ),
+    "An identifier, not a quantity.": (
+        "Um identificador, não uma quantidade.",
+        "Un identificador, no una cantidad.",
+    ),
+    "Airport codes can be reused over time; join on origin_airport_id for analysis "
+    "across a range of years.": (
+        "Códigos de aeroporto podem ser reutilizados ao longo do tempo; use "
+        "origin_airport_id em análises que cobrem vários anos.",
+        "Los códigos de aeropuerto pueden reutilizarse con el tiempo; use "
+        "origin_airport_id en análisis que cubren varios años.",
+    ),
+    "Airport codes can be reused over time; join on destination_airport_id for "
+    "analysis across a range of years.": (
+        "Códigos de aeroporto podem ser reutilizados ao longo do tempo; use "
+        "destination_airport_id em análises que cobrem vários anos.",
+        "Los códigos de aeropuerto pueden reutilizarse con el tiempo; use "
+        "destination_airport_id en análisis que cubren varios años.",
+    ),
+    "Derived by combining flight_date with scheduled_departure_time. This is the only "
+    "well-defined datetime in the table: arrival clocks are in destination local time "
+    "and may fall on the following day, and the source carries no timezone, so no "
+    "arrival datetime is derived.": (
+        "Derivado da combinação de flight_date com scheduled_departure_time. É o único "
+        "datetime bem definido da tabela: os horários de chegada estão na hora local do "
+        "destino e podem cair no dia seguinte, e a fonte não traz fuso horário, de modo "
+        "que nenhum datetime de chegada é derivado.",
+        "Derivado de combinar flight_date con scheduled_departure_time. Es el único "
+        "datetime bien definido de la tabla: las horas de llegada están en hora local "
+        "del destino y pueden caer al día siguiente, y la fuente no trae zona horaria, "
+        "por lo que no se deriva ningún datetime de llegada.",
+    ),
+    "Populated only for cancelled flights.": (
+        "Preenchido apenas para voos cancelados.",
+        "Se completa solo para vuelos cancelados.",
+    ),
+    "Null for every diverted flight; see diverted_actual_elapsed_time.": (
+        "Nulo para todo voo desviado; veja diverted_actual_elapsed_time.",
+        "Nulo para todo vuelo desviado; véase diverted_actual_elapsed_time.",
+    ),
+    "Always 1; the record grain is one flight.": (
+        "Sempre 1; a granularidade do registro é um voo.",
+        "Siempre 1; la granularidad del registro es un vuelo.",
+    ),
+    "actual_elapsed_time is null for diverted flights; this column carries the value "
+    "instead.": (
+        "actual_elapsed_time é nulo para voos desviados; esta coluna traz o valor.",
+        "actual_elapsed_time es nulo para vuelos desviados; esta columna trae el valor.",
+    ),
+    "arrival_delay is null for diverted flights; this column carries the value "
+    "instead.": (
+        "arrival_delay é nulo para voos desviados; esta coluna traz o valor.",
+        "arrival_delay es nulo para vuelos desviados; esta columna trae el valor.",
+    ),
+    "Zero when the diverted flight reached its destination.": (
+        "Zero quando o voo desviado alcançou seu destino.",
+        "Cero cuando el vuelo desviado alcanzó su destino.",
+    ),
+}
 
 
 def col(
@@ -70,10 +241,14 @@ def col(
         "directory_column": direc,
         "measurement_unit": unit,
         "has_sensitive_data": sens,
+        # Authored in English; main() rewrites this to Portuguese and fills the
+        # `observations_en`/`observations_es` columns from OBSERVATIONS.
         "observations": obs,
         "original_name": orig,
         "description_en": en,
         "description_es": es,
+        "observations_en": obs,
+        "observations_es": "",
     }
 
 
@@ -933,9 +1108,21 @@ def main() -> None:
                     raise SystemExit(
                         f"{name}.{c['name']}: {k} must start capitalised"
                     )
+        for c in cols:
+            note = c["observations_en"]
+            if not note:
+                continue
+            if note not in OBSERVATIONS:
+                raise SystemExit(
+                    f"{name}.{c['name']}: observation has no translation:\n  {note}"
+                )
+            c["observations"], c["observations_es"] = OBSERVATIONS[note]
+
         out = HERE / f"{name}.csv"
         with open(out, "w", newline="", encoding="utf-8") as fh:
-            w = csv.DictWriter(fh, fieldnames=HEADER)
+            # lineterminator="\n": csv defaults to CRLF, which the repo's
+            # mixed-line-ending hook rewrites, making regeneration non-idempotent.
+            w = csv.DictWriter(fh, fieldnames=HEADER, lineterminator="\n")
             w.writeheader()
             w.writerows(cols)
         print(f"{out.name}: {len(cols)} columns")
