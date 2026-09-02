@@ -128,6 +128,32 @@ are covered by the dicionario instead.
 Carrier and airport codes go to the dicionario rather than a directory because
 no US airline or airport directory exists yet. Noted on the columns.
 
+## The row key is not a global primary key
+
+`[flight_date, reporting_carrier, flight_number, origin, destination,
+scheduled_departure_time]` identifies a row across almost the whole series, but not
+quite everywhere. Measured, not assumed:
+
+| Year | Rows | Duplicate keys |
+|---|---|---|
+| 1987 | 1,311,826 | 135 (0.0103%) |
+| 1995 | 439,423 | 0 |
+| 2003 | 6,488,540 | 36 (0.0006%) |
+| 2010 | 6,450,117 | 0 |
+| 2019 | 7,422,037 | 0 |
+| 2026 | 607,577 | 0 |
+
+The cause is a source characteristic, not a cleaning fault: **a diverted flight is
+recorded as two rows** — one leg flagged `diverted = 1` reaching a different
+airport, one completing to the scheduled destination — with the same tail number.
+Dropping `destination` from the key makes this far worse (2003 goes from 36 to
+3,127 duplicates), which is how the two-segment shape was identified.
+
+The dbt uniqueness test is scoped to the most recent year, where the count is
+exactly zero, and the residual is stated in the table description rather than
+tested away. Scoping is also a cost decision: an unscoped uniqueness test on a
+232M-row, 114-column table would scan the whole table on every run.
+
 ## BD Pro
 
 `flight` refreshes monthly, so it takes the house rolling window:

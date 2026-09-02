@@ -40,7 +40,11 @@ TABLE_DESCRIPTION = {
         "na chegada, cancelamentos, desvios e a atribuição do atraso por causa. "
         "As causas do atraso existem a partir de junho de 2003 e as colunas de "
         "desvio a partir de 2008; antes disso são nulas por ausência na fonte, "
-        "não por ausência de atraso."
+        "não por ausência de atraso. A combinação de data, empresa aérea, número "
+        "do voo, origem, destino e horário programado de partida identifica uma "
+        "linha em praticamente toda a série, mas não é uma chave primária global: "
+        "voos desviados são registrados como dois trechos e produzem duplicatas "
+        "residuais de até 0,01% em 1987 e 0,0006% em 2003."
     ),
     "airport": (
         "Aeroportos identificados pelo US DOT na base de pontualidade, com "
@@ -63,7 +67,8 @@ TESTS = {
         tests:
           - dbt_utils.unique_combination_of_columns:
               combination_of_columns:
-                [flight_date, reporting_carrier, flight_number, origin, scheduled_departure_time]
+                [flight_date, reporting_carrier, flight_number, origin, destination,
+                 scheduled_departure_time]
               config:
                 where: __most_recent_year_en__
           - not_null_proportion_multiple_columns:

@@ -10,7 +10,11 @@ models:
       chegada, cancelamentos, desvios e a atribuição do atraso por causa. As
       causas do atraso existem a partir de junho de 2003 e as colunas de desvio
       a partir de 2008; antes disso são nulas por ausência na fonte, não por
-      ausência de atraso.
+      ausência de atraso. A combinação de data, empresa aérea, número do voo,
+      origem, destino e horário programado de partida identifica uma linha em
+      praticamente toda a série, mas não é uma chave primária global: voos
+      desviados são registrados como dois trechos e produzem duplicatas
+      residuais de até 0,01% em 1987 e 0,0006% em 2003.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -18,6 +22,7 @@ models:
             - reporting_carrier
             - flight_number
             - origin
+            - destination
             - scheduled_departure_time
           config:
             where: __most_recent_year_en__
