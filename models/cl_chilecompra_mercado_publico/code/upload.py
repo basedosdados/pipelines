@@ -74,7 +74,46 @@ def expected_rows(root: Path) -> dict[str, int]:
 
 
 def partition_count(root: Path, table: str) -> int:
-    return len(
+    return len(_partition_files(root, table))
+
+
+def assert_one_schema(root: Path, table: str) -> None:
+    """Refuse to upload a table whose partitions disagree on their columns.
+
+    The staging external table is built from ONE file's header and then reads every
+    parquet under the prefix, so a partition with different columns is read against the
+    wrong schema -- silently, as nulls or a type error far downstream. This happens for
+    a real reason: whenever the architecture gains a column, every partition written
+    before that change is stale until the loader is re-run with --force. Cheap to check,
+    expensive to discover in BigQuery.
+    """
+    import pyarrow.parquet as pq
+
+    signatures: dict[tuple[str, ...], list[str]] = {}
+    for path in _partition_files(root, table):
+        names = tuple(pq.ParquetFile(path).schema_arrow.names)
+        signatures.setdefault(names, []).append(path)
+    if len(signatures) <= 1:
+        return
+    main = max(signatures, key=lambda k: len(signatures[k]))
+    lines = []
+    for names, files in signatures.items():
+        if names == main:
+            continue
+        missing = [c for c in main if c not in names]
+        example = files[0].split("output/")[-1]
+        lines.append(
+            f"    {len(files)} partition(s) missing {missing} (e.g. {example})"
+        )
+    raise ValueError(
+        f"{table}: partitions disagree on their schema, refusing to upload.\n"
+        + "\n".join(lines)
+        + "\n    Re-run the loader with --force so every partition is rebuilt."
+    )
+
+
+def _partition_files(root: Path, table: str) -> list[str]:
+    return sorted(
         glob.glob(f"{root}/output/{table}/**/data.parquet", recursive=True)
     )
 
@@ -85,6 +124,7 @@ def upload_table(
     path = root / "output" / table
     if not path.exists():
         raise FileNotFoundError(f"missing output path: {path}")
+    assert_one_schema(root, table)
     parts = partition_count(root, table)
     print(f"  {parts} partition file(s) under {path}", flush=True)
 
