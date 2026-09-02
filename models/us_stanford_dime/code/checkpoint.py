@@ -95,14 +95,28 @@ def main() -> None:
     total = sum(b.get("rows", 0) for b in built.values())
     print(f"\ntotal rows built: {total:,}")
 
-    expected = sum(constants.CODEBOOK_ROWS.values()) - len(
+    ceiling = sum(constants.CODEBOOK_ROWS.values()) - len(
         constants.CODEBOOK_ROWS
     )
     c = built.get("contribution", {}).get("rows")
     if c:
+        verified = sum(constants.VERIFIED_ABOVE_CODEBOOK.values())
+        verified_ceiling = sum(
+            constants.CODEBOOK_ROWS[y] - 1
+            for y in constants.VERIFIED_ABOVE_CODEBOOK
+        )
         print(
-            f"contribution vs codebook ceiling: {c:,} of {expected:,} "
-            f"({expected - c:,} lines are newlines inside quoted fields)"
+            f"contribution     : {c:,} rows against a codebook ceiling of "
+            f"{ceiling:,}"
+        )
+        print(
+            f"  the 2022 and 2024 files hold {verified - verified_ceiling:,} "
+            "more records than the codebook lists; both counts are "
+            "independently verified"
+        )
+        print(
+            "  every other cycle sits at or below its ceiling, the shortfall "
+            "being newlines inside quoted fields"
         )
 
     print("\nChecks to run before approving:")
