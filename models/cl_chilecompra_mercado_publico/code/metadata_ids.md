@@ -51,3 +51,40 @@ per backend.
 `region` (`id_region`, 16 rows), `provincia` and `comuna` (`id_comuna`, 346 rows).
 The architecture now carries five `directory_column` FKs onto it, populated from the
 name-to-CUT crosswalk in `code/geografia_crosswalk.csv`.
+
+## Traps to respect when registering
+
+**Link exactly ONE raw data source per table.** `client._raw_source_id` resolves a
+table's source through `_query_id`, which raises when a table has two or more
+(`allRawdatasource: mais de um nó encontrado`). Both `poll_source_for_update_task` and
+`commit_source_update_task` go through it, so a table with two sources cannot run the
+recurring pipeline at all — it fails at the first poll. There are two natural sources
+here (the `oc-da` and `lic-da` containers); link the matching one to each table and
+record the other at dataset level only.
+
+**Link each observation level to its identifying column**, or the site renders the
+level's columns as "Não informado". `bulk_upsert_columns` does not do this — it needs a
+separate `update_column(..., observation_level_id=...)` per grain column. And
+`update_column`'s boolean args default to `False`, so re-pass `is_partition=True` on
+`ano`/`mes` in the same call or it silently clears them.
+
+**No `is_primary_key` on these tables.** That flag is reserved for directory tables.
+The logical keys are expressed through `directory_column` links and enforced in dbt by
+`dbt_utils.unique_combination_of_columns`.
+
+**Datetime ranges need month granularity.** These tables are monthly, so registering
+year-only bounds understates coverage and renders wrong. Read the real min/max from the
+data, not from the year partitions: `start_year`/`start_month` and `end_year`/`end_month`.
+
+**`Update.latest` semantics differ by anchor.** The table-anchored Update is a wall
+clock (when we refreshed); the raw-source Update is the source's **max coverage date**
+(e.g. `2026-08-01`), not today.
+
+## Coverage tier
+
+All three tables refresh weekly, so the house rule paywalls the recent window:
+`PartBdpro` with a 6-month free lag. That requires **both** a free Coverage
+(`is_closed=False`) and a pro Coverage (`is_closed=True`) to exist before the pipeline
+runs, or `assert_coverage_topology` hard-fails. Set `is_closed` on the `DateTimeRange`
+too, matching its Coverage, and keep the ranges non-overlapping — free ends inclusive,
+pro starts the next month.
