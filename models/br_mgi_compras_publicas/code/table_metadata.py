@@ -294,6 +294,10 @@ DATASET = {
         "de gobierno: 43% de las contrataciones son federales, 31% estatales y 25% municipales."
     ),
     "themes": ["government", "economics"],
+    # Staging carries Portuguese tag slugs while prod carries English ones, so
+    # the same concepts resolve under different names. Keyed by environment
+    # rather than translated at the call site, because a missing tag aborts
+    # registration outright.
     "tags": [
         "licitacao",
         "contrato",
@@ -304,6 +308,17 @@ DATASET = {
         "preco",
         "empresa",
     ],
+    "tags_prod": [
+        "public_procurement",
+        "contract",
+        "purchase",
+        "public_administration",
+        "spending",
+        "transparency",
+        "price",
+        "company",
+    ],
+
 }
 
 #: Order the tables are presented on the site: the 14.133 regime first, then the

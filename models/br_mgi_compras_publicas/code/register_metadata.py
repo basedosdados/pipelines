@@ -199,12 +199,13 @@ def main(env: str, status: str) -> int:
     availability_id = lookup("availability", AVAILABILITY_SLUG, env)
     area_id = lookup("area", AREA_SLUG, env)
     theme_ids = [lookup("theme", slug, env) for slug in DATASET["themes"]]
-    tag_ids = [lookup("tag", slug, env) for slug in DATASET["tags"]]
+    tag_slugs = DATASET["tags_prod"] if env == "prod" else DATASET["tags"]
+    tag_ids = [lookup("tag", slug, env) for slug in tag_slugs]
     if not all([account_id, status_id, org_id, license_id, area_id]):
         print("could not resolve a required reference id")
         return 1
     missing_tags = [
-        s for s, i in zip(DATASET["tags"], tag_ids, strict=True) if not i
+        s for s, i in zip(tag_slugs, tag_ids, strict=True) if not i
     ]
     if missing_tags:
         print(f"tags not found in {env}: {missing_tags}")
