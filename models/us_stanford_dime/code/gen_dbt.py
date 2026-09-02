@@ -84,11 +84,20 @@ UNIQUE_ALLOWANCE = {
     "contributor_cycle": 0.00001,
 }
 
-# Directory foreign keys with a documented sentinel to skip. DIME uses 9999 for
-# an unknown first active cycle on 666,508 contributor rows; last_cycle_active
-# carries no sentinel and needs no exemption.
-DIRECTORY_IGNORE = {
-    ("contributor", "first_cycle_active"): ["9999"],
+# Directory foreign keys whose column carries a sentinel the directory cannot
+# contain. DIME uses 9999 for an unknown first active cycle on 666,508
+# contributor rows; last_cycle_active carries no sentinel and keeps the strict
+# test.
+#
+# This is a plain `relationships` test with a `where` filter rather than
+# `custom_relationships` with `ignore_values`. That macro renders its ignore
+# list as quoted strings unconditionally — `not in ('9999')` — so on an INT64
+# column BigQuery rejects it with "No matching signature for operator IN for
+# argument types INT64 and {STRING}". The macro is only usable on STRING
+# columns; filtering in the test config sidesteps that without touching shared
+# code, and still checks the other 43.5M rows.
+DIRECTORY_WHERE = {
+    ("contributor", "first_cycle_active"): "first_cycle_active != 9999",
 }
 
 TABLE_DESCRIPTION = {
@@ -261,11 +270,8 @@ def schema_yml() -> str:
                 if directory:
                     ref, field = directory.split(":")
                     ds, tbl = ref.split(".")
-                    ignore = DIRECTORY_IGNORE.get((table, name))
-                    kind = (
-                        "custom_relationships" if ignore else "relationships"
-                    )
-                    out.append(f"          - {kind}:")
+                    dir_where = DIRECTORY_WHERE.get((table, name))
+                    out.append("          - relationships:")
                     out.append(f"              to: ref('{ds}__{tbl}')")
                     # The time directory stores ano as a STRUCT, so the test has
                     # to bind to the inner field rather than the column.
@@ -275,10 +281,10 @@ def schema_yml() -> str:
                         else field
                     )
                     out.append(f"              field: {inner}")
-                    if ignore:
-                        vals = ", ".join(f"'{v}'" for v in ignore)
-                        out.append(f"              ignore_values: [{vals}]")
-                    if scoped:
+                    if dir_where:
+                        out.append("              config:")
+                        out.append(f'                where: "{dir_where}"')
+                    elif scoped:
                         out.append("              config:")
                         out.append(f"                where: {sparse_where}")
     return "\n".join(out) + "\n"

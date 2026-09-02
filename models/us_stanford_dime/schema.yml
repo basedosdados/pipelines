@@ -543,10 +543,11 @@ models:
         description: >-
           First election cycle in which the donor was recorded as active
         tests:
-          - custom_relationships:
+          - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-              ignore_values: ['9999']
+              config:
+                where: first_cycle_active != 9999
       - name: last_cycle_active
         description: >-
           Last election cycle in which the donor was recorded as active
