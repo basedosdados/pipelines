@@ -86,11 +86,14 @@ _OBS_I18N = {
         "Texto libre; no validado por el CMS",
     ),
     "Value 6 means the organization's other names are listed in the other_name "
-    "table rather than in this column": (
+    "table; the main file's matching name field is suppressed by CMS and is "
+    "not loaded": (
         "O valor 6 indica que os outros nomes da organização estão na tabela "
-        "other_name, e não nesta coluna",
+        "other_name; o campo de nome correspondente do arquivo principal é "
+        "suprimido pelo CMS e não é carregado",
         "El valor 6 indica que los otros nombres de la organización están en la "
-        "tabla other_name, y no en esta columna",
+        "tabla other_name; el campo de nombre correspondiente del archivo "
+        "principal está suprimido por el CMS y no se carga",
     ),
     "Derived: the Healthcare Provider Taxonomy Code whose primary switch is Y. "
     "Code labels are published by NUCC and are not redistributed here": (
@@ -357,17 +360,6 @@ PROVIDER = [
         orig="Provider Credential Text",
     ),
     c(
-        "other_organization_name",
-        "STRING",
-        "Outro nome da organização prestadora, como nome fantasia ou razão "
-        "social anterior",
-        "Other name of the provider organization, such as a doing-business-as "
-        "or former legal business name",
-        "Otro nombre de la organización proveedora, como nombre comercial o "
-        "razón social anterior",
-        orig="Provider Other Organization Name",
-    ),
-    c(
         "other_organization_name_type_code",
         "STRING",
         "Tipo do outro nome da organização",
@@ -375,7 +367,8 @@ PROVIDER = [
         "Tipo del otro nombre de la organización",
         dict_=True,
         obs="Value 6 means the organization's other names are listed in the "
-        "other_name table rather than in this column",
+        "other_name table; the main file's matching name field is suppressed "
+        "by CMS and is not loaded",
         orig="Provider Other Organization Name Type Code",
     ),
     c(

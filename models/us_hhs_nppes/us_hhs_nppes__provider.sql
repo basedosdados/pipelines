@@ -24,7 +24,6 @@ select
     safe_cast(name_prefix as string) name_prefix,
     safe_cast(name_suffix as string) name_suffix,
     safe_cast(credential as string) credential,
-    safe_cast(other_organization_name as string) other_organization_name,
     safe_cast(
         other_organization_name_type_code as string
     ) other_organization_name_type_code,

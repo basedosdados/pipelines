@@ -10,8 +10,7 @@ middle_name,STRING,Nome do meio do prestador pessoa física,,no,,,yes,,Provider 
 name_prefix,STRING,"Prefixo do nome do prestador (por exemplo Dr., Mr., Ms.)",,no,,,no,,Provider Name Prefix Text
 name_suffix,STRING,"Sufixo do nome do prestador (por exemplo Jr., Sr., III)",,no,,,no,,Provider Name Suffix Text
 credential,STRING,"Credenciais profissionais declaradas pelo prestador (por exemplo MD, DO, RN)",,no,,,no,Free text; not validated by CMS,Provider Credential Text
-other_organization_name,STRING,"Outro nome da organização prestadora, como nome fantasia ou razão social anterior",,no,,,no,,Provider Other Organization Name
-other_organization_name_type_code,STRING,Tipo do outro nome da organização,,yes,,,no,Value 6 means the organization's other names are listed in the other_name table rather than in this column,Provider Other Organization Name Type Code
+other_organization_name_type_code,STRING,Tipo do outro nome da organização,,yes,,,no,Value 6 means the organization's other names are listed in the other_name table; the main file's matching name field is suppressed by CMS and is not loaded,Provider Other Organization Name Type Code
 other_last_name,STRING,Outro sobrenome do prestador pessoa física,,no,,,yes,,Provider Other Last Name
 other_first_name,STRING,Outro primeiro nome do prestador pessoa física,,no,,,yes,,Provider Other First Name
 other_middle_name,STRING,Outro nome do meio do prestador pessoa física,,no,,,yes,,Provider Other Middle Name

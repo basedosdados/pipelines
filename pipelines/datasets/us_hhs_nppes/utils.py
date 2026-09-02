@@ -312,7 +312,37 @@ SUPPRESSED_SOURCE_COLUMNS = {
     "Employer Identification Number (EIN)": "suppressed by CMS; every row reads <UNAVAIL>",
     "Parent Organization TIN": "suppressed by CMS; every row reads <UNAVAIL>",
     "NPI Deactivation Reason Code": "not publicly disseminated; every row is empty",
+    "Provider Other Organization Name": (
+        "suppressed by CMS; every populated row reads <UNAVAIL>, and the real "
+        "other names live in the other_name table (type code 6 points there)"
+    ),
 }
+
+#: CMS writes this sentinel into columns it suppresses. A kept column made
+#: entirely of it is a column we would be shipping empty, so the transform
+#: checks the data rather than trusting the list above to stay current.
+UNAVAILABLE_SENTINEL = "<UNAVAIL>"
+
+
+def _assert_not_all_suppressed(table: pa.Table, name: str) -> None:
+    """Fail if a column's every non-null value is the suppression sentinel.
+
+    CMS suppresses fields by filling them with ``<UNAVAIL>`` rather than by
+    dropping them, and it has done so to a field that reads like real data
+    (``Provider Other Organization Name``). Such a column would otherwise ship
+    as a wall of ``<UNAVAIL>`` and no test would notice.
+    """
+    for col in table.column_names:
+        arr = table[col]
+        if arr.null_count == len(arr):
+            continue
+        distinct = pc.unique(pc.drop_null(arr))  # pyrefly: ignore [missing-attribute]
+        if len(distinct) == 1 and distinct[0].as_py() == UNAVAILABLE_SENTINEL:
+            raise RuntimeError(
+                f"{name}.{col} is entirely {UNAVAILABLE_SENTINEL}: CMS suppresses "
+                "this field, so drop it from the architecture"
+            )
+
 
 TAXONOMY_SLOTS = 15
 IDENTIFIER_SLOTS = 50
@@ -416,7 +446,10 @@ def clean_main(
                 primary,
             )
         data["primary_taxonomy_code"] = primary
-        w_prov.write(pa.table(data).select(prov_cols))
+        provider_batch = pa.table(data).select(prov_cols)
+        if w_prov.rows == 0:
+            _assert_not_all_suppressed(provider_batch, "provider")
+        w_prov.write(provider_batch)
 
         # ---- taxonomy (melt 15 slots) ---------------------------------
         parts = []

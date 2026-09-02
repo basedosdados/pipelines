@@ -28,7 +28,6 @@ models:
             - other_middle_name
             - other_name_prefix
             - other_name_suffix
-            - other_organization_name
             - parent_organization_legal_business_name
             - reactivation_date
             - replacement_npi
@@ -84,10 +83,6 @@ models:
         description: >
           Credenciais profissionais declaradas pelo prestador (por exemplo MD, DO,
           RN)
-      - name: other_organization_name
-        description: >
-          Outro nome da organização prestadora, como nome fantasia ou razão social
-          anterior
       - name: other_organization_name_type_code
         description: >
           Tipo do outro nome da organização
@@ -450,7 +445,7 @@ models:
             - extraction_date
             - npi
             - endpoint_type
-            - endpoint
+            - endpoint_address
             - endpoint_description
             - use_code
             - other_use_description
@@ -489,7 +484,7 @@ models:
       - name: endpoint_type
         description: >
           Tipo do endpoint eletrônico de troca de informações de saúde
-      - name: endpoint
+      - name: endpoint_address
         description: >
           Endereço do endpoint eletrônico, como um endereço Direct ou uma URL de
           serviço
