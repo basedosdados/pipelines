@@ -121,6 +121,9 @@ models:
     br_bd_diretorios_cl:
       +materialized: table
       +schema: br_bd_diretorios_cl
+    cl_res_empresas:
+      +materialized: table
+      +schema: cl_res_empresas
     br_bd_diretorios_de:
       +materialized: table
       +schema: br_bd_diretorios_de
@@ -579,6 +582,9 @@ models:
     us_census_acs:
       +materialized: table
       +schema: us_census_acs
+    us_ed_college_scorecard:
+      +materialized: table
+      +schema: us_ed_college_scorecard
     us_ed_ipeds:
       +materialized: table
       +schema: us_ed_ipeds
