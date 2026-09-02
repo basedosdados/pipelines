@@ -18,7 +18,12 @@ from prefect import flow
 
 from pipelines.datasets.cl_res_empresas.constants import constants
 from pipelines.datasets.cl_res_empresas.tasks import clean_res, download_res
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearMonth
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    FreeLag,
+    PartBdpro,
+    YearMonth,
+)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -38,17 +43,22 @@ DATASET_ID = constants.DATASET_ID.value
 # table is built — never interleaved per table.
 TABLES = ["dicionario", "sociedad"]
 
-# The source data is CC BY and fully public, so the whole series stays free.
-# `dicionario` has no date column and takes no coverage spec at all.
+# `sociedad` refreshes monthly, so it carries the BD Pro rolling window: the
+# most recent 6 months are pro-only, everything older is free. Each run
+# recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges and
+# re-issues the BigQuery Row Access Policies, so the window slides forward on
+# its own. The dbt model is untouched — the paywall lives in the RAPs.
 #
-# If this table is ever moved behind the BD Pro rolling window, swapping this
-# for PartBdpro is NOT sufficient on its own: a pro Coverage (is_closed=True)
-# must already exist on the table in the backend, or assert_coverage_topology
-# raises before anything is written.
+# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
+# Coverage to already exist on the table, or assert_coverage_topology raises
+# before anything is written. Both were registered at onboarding.
+#
+# `dicionario` has no date column and takes no coverage spec at all.
 _COVERAGE = {
-    "sociedad": AllFree(
+    "sociedad": PartBdpro(
         date_column=YearMonth(year="ano", month="mes"),
         date_format=DateFormat.YEAR_MONTH,
+        free_lag=FreeLag(unit="months", value=6),
     ),
 }
 
