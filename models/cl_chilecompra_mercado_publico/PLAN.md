@@ -191,3 +191,73 @@ one month at a time, so peak disk stays near a single file (~600 MB) rather than
 
 Splitting `licitacion` avoids repeating ~62 tender-level columns on every one of the ~16
 bid rows per tender. `orden_compra_item.codigo_licitacion` joins to the licitacion tables.
+
+## 9. Geography: linking to br_bd_diretorios_cl
+
+ChileCompra publishes región and comuna as free text and never as a código único
+territorial, so the directory link is a name lookup. It lives in a checked-in crosswalk
+(`code/geografia_crosswalk.csv`, built by `code/build_geografia_crosswalk.py`) rather
+than fuzzy matching at load time: fuzzy matching quietly returns a different answer as
+the data drifts, while a table returns the same answer or none.
+
+Five derived columns carry the FK: `id_region_unidad_compra` and `id_comuna_unidad_compra`
+on both `orden_compra_item` and `licitacion_item`, plus `id_region_proveedor` and
+`id_comuna_proveedor` on `orden_compra_item`.
+
+**Buyer and supplier geography are not the same kind of field.** Buyer geography comes
+controlled by the system and resolves to a CUT for 100% of non-null rows. Supplier
+geography is self-reported free text and resolves for about 97%, with an irreducible
+tail — `CUARTA REGION`, `DECIMA LOS LAGOS`, `Santiago, Maipu`, `Extranjero`. The id
+columns are best-effort and each says so; the verbatim published value is always kept in
+the adjacent name column. This only shows up if you test a year after 2010: the 2007
+months sampled first have clean supplier values throughout.
+
+Four classes of mismatch had to be handled, all found by diffing real values against the
+directory rather than guessed:
+
+| Problem | Example |
+|---|---|
+| Source truncates at 35 characters | `Región Aysén del General Carlos Iba` |
+| Acute accent U+00B4 where an apostrophe belongs | `...Bernardo O´Higgins` |
+| Alternative names | `Puerto Natales` for `Natales` |
+| Orthographic variants | `Llay-Llay`/`Llaillay`, `Til Til`/`Tiltil`, `La Calera`/`Calera` |
+
+One trap worth stating plainly: **`"region de la "` must not be stripped as a prefix.**
+Several directory names begin with their article (`La Araucanía`, `Los Lagos`), so
+stripping it turns `Región de la Araucanía` into `araucania` and misses `la araucania`.
+Only `region del `, `region de ` and `region ` are stripped.
+
+Comuna names were verified unique nationally (346 distinct of 346) before relying on a
+name lookup at all. `Arica 1` is deliberately left unresolved: it is a branch designator
+leaking into the comuna field, not a comuna.
+
+## 10. Two performance traps hit during the load
+
+**Whole-file parsing would have OOMed.** `lic-da/2014-3` is 1.5M rows across 111 columns;
+held at once as pandas object strings that is roughly 11 GB, which does not fit on a
+16 GB machine. Parsing in 200k-row chunks and projecting each chunk onto the output
+tables first drops the measured peak on that file to 1.00 GB. Verified byte-identical to
+the whole-file path on both kinds, with frame equality rather than row counts. De-duplication
+runs again after concatenating, since a duplicate pair straddling a chunk boundary would
+otherwise survive.
+
+**Folding geography per row cost 5x.** `resolve_geography` originally ran three chained
+`.map()` calls over every row, each boxing the element and calling `pd.isna` plus
+`unicodedata.normalize`. A column of 350k rows holds a few hundred distinct place names,
+so the work was O(rows) where O(distinct) suffices. One month went from 83s to 419s;
+folding uniques and applying a single `.map(dict)` restored it to 80s.
+
+## 11. Verification status
+
+| Check | Result |
+|---|---|
+| Header coverage | all 472 files, zero unknown columns |
+| Key uniqueness | 0 duplicates on all three tables |
+| Chunked vs whole-file parity | frame-equal on both kinds |
+| Geography resolution | región 14/14, 13/13, 14/14; comuna 342/342, 105/106 |
+| dbt parse | 4 models, 27 tests, 5 relationships resolving to the real directory |
+| Unit tests | 20 passing, no network |
+| pyrefly | 0 diagnostics (3 suppressed, the standard Prefect trio) |
+
+Not yet done: BigQuery upload, dbt run/test against real data, metadata registration,
+auxiliary-file upload, PR.
