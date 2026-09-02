@@ -149,7 +149,10 @@ def main() -> None:
         ceiling = constants.CODEBOOK_ROWS[cycle] - 1
         gap = ceiling - rows
         if rows > ceiling:
-            flag = f"  <-- ABOVE codebook ceiling {ceiling:,}"
+            if constants.VERIFIED_ABOVE_CODEBOOK.get(cycle) == rows:
+                flag = f"  (above codebook by {rows - ceiling:+,}; verified)"
+            else:
+                flag = f"  <-- ABOVE codebook ceiling {ceiling:,}"
         elif gap > max(50, ceiling * 0.001):
             flag = f"  <-- {gap:,} SHORT of codebook ceiling {ceiling:,}"
         else:

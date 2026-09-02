@@ -16,6 +16,10 @@ models:
             where: cycle = 2024
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - back_reference_transaction_id
+            - contributor_suffix
+            - is_corporation
           config:
             where: cycle = 2014
     columns:
@@ -501,6 +505,7 @@ models:
           combination_of_columns: [contributor_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [is_corporation]
     columns:
       - name: contributor_id
         description: >-

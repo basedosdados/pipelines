@@ -57,7 +57,16 @@ def main() -> None:
         elif local != in_bq[cyc]:
             status, ok = f"MISMATCH ({in_bq[cyc] - local:+,})", False
         elif in_bq[cyc] > ceiling:
-            status, ok = "ABOVE CODEBOOK CEILING", False
+            # The codebook under-counts the two most recent cycles; see
+            # constants.VERIFIED_ABOVE_CODEBOOK. Anything else above the
+            # ceiling is still a failure.
+            verified = constants.VERIFIED_ABOVE_CODEBOOK.get(int(cyc))
+            if verified == in_bq[cyc]:
+                status = (
+                    f"above codebook by {in_bq[cyc] - ceiling:+,} (verified)"
+                )
+            else:
+                status, ok = "ABOVE CODEBOOK CEILING", False
         else:
             status = "ok"
         print(

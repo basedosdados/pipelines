@@ -87,3 +87,21 @@ CODEBOOK_SCALED_CANDIDATES = 173_171
 CODEBOOK_SCALED_COMMITTEES = 42_702
 CODEBOOK_INDIVIDUAL_DONORS = 41_500_000
 CODEBOOK_ORGANIZATION_DONORS = 3_300_000
+
+# Cycles whose published file holds MORE records than the codebook lists.
+#
+# The v4.0 codebook is dated 29 December 2024 and its file listing was evidently
+# written before the last rebuild of the two most recent cycles: the November
+# 2024 election kept generating FEC filings after publication, which is why 2024
+# diverges eight times more than 2022.
+#
+# 2022 is confirmed, not inferred. The file was re-downloaded (13,321,011,803
+# bytes, the same size as the original fetch) and counted with Python's csv
+# module — an entirely separate parser from the DuckDB ingest — giving
+# 144,245,910 records, identical to what was loaded. Both cycles also show
+# perfect transaction_id uniqueness with no blank ids and no wrong-cycle rows,
+# which a record-splitting bug could not produce.
+VERIFIED_ABOVE_CODEBOOK = {
+    2022: 144_245_910,
+    2024: 210_900_861,
+}
