@@ -1,0 +1,9 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Fall year of the school year the record refers to (2020 denotes school year 2020-21),,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,year
+school_id,STRING,NCES school identification number (12 characters: 7-character LEAID followed by a 5-digit school number),,no,br_bd_diretorios_us.school:id_school,,no,Zero-padded to 12 characters on load. The single 11-character value in the source (25000031636) is corrected to 250000301636.,ncessch
+agency_id,STRING,"NCES local education agency (school district) identification number, or LEAID (7 characters: 2-digit state FIPS followed by a 5-digit agency number)",,no,br_bd_diretorios_us.school_district:id_school_district,,no,Zero-padded to 7 characters on load; the source strips leading zeros in the enrollment extracts.,leaid
+state_id,STRING,State FIPS code as reported by the CCD,,yes,,,no,"Zero-padded to 2 characters. The CCD extends the state FIPS list with codes for jurisdictions that are not states (58 Department of Defense schools overseas, 59 Bureau of Indian Education, 61 and 63 Department of Defense domestic and overseas areas), so this column is not a strict foreign key into the state directory.",fips
+grade,STRING,Grade the enrollment count refers to,,yes,,,no,"-1 is prekindergarten and is a real category, not a missing code. 99 is the total across grades.",grade
+race,STRING,Race or ethnicity the enrollment count refers to,,yes,,,no,99 is the total across race and ethnicity groups. The CCD moved from five race categories to the current seven in 2008-09; category 7 (two or more races) does not appear before then.,race
+sex,STRING,Sex the enrollment count refers to,,yes,,,no,99 is the total across sexes.,sex
+enrollment,INT64,"Students enrolled in the school in the given grade, race and sex cell",,no,,person,no,,enrollment
