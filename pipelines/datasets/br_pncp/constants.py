@@ -91,6 +91,21 @@ class constants(Enum):
             # "Tamanho de página inválido". Without this the table cannot be
             # harvested at all: every window fails on its first request.
             "page_size": 50,
+            # PNCP's usable concurrency is not a constant, and this number
+            # has already expired once. Measured 2026-09-03, each over 24-25
+            # minutes on the same windows, right after an hour-long API
+            # outage:
+            #
+            #     3 workers -> 139 pages/hr, 6 failures, pacer 0.55s
+            #     2 workers ->   0 pages/hr, 1 failure,  3 splits
+            #     1 worker  -> 458 pages/hr, 0 failures, pacer at its floor
+            #
+            # Concurrency was manufacturing 5xx, and each 5xx costs up to ~5
+            # minutes of retry backoff, so two requests in flight did *less*
+            # than one. On 2026-08-28 the same measurement said 3 was right
+            # and 9 was too many -- that was true then. Re-measure before
+            # changing this; do not reason from either number.
+            "max_workers": 1,
         },
         "contrato": {
             "path": "contratos/atualizacao",
