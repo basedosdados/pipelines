@@ -806,3 +806,9 @@ def parse_any(
     if root.tag == "debates":
         return parse_openaustralia_day(xml_bytes, house, source_url, roster)
     return parse_sitting_day(xml_bytes, house, source_url)
+
+
+def openaustralia_day_url(house: str, day: str) -> str:
+    """Canonical mirror URL for one sitting day, e.g. house='senate', day='2026-08-20'."""
+    directory = constants.OPENAUSTRALIA_DIRS.value[house]
+    return f"{constants.OPENAUSTRALIA_BASE.value}/{directory}/{day}.xml"
