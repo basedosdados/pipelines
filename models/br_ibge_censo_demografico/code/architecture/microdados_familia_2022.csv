@@ -1,0 +1,25 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência do Censo Demográfico,,no,br_bd_diretorios_data_tempo.ano:ano,,no,"Coluna de partição; só no path hive, não no parquet",
+sigla_uf,STRING,Unidade da Federação,,no,br_bd_diretorios_brasil.uf:sigla,,no,Convertido do código IBGE de 2 dígitos para sigla_uf,F0020
+id_regiao,STRING,Grande Região,,yes,,,no,,F0010
+controle,STRING,Controle,,no,,,no,Identificador; aritmética sem sentido,F0100
+numero_ordem,STRING,Número de ordem da Família,,no,,,no,Identificador; aritmética sem sentido,F0101
+peso_amostral,FLOAT64,Peso Amostral (Versão acesso Público),,no,,,no,Peso amostral adimensional do arquivo público,F0110
+situacao_setor,STRING,Situação do Setor,,yes,,,no,,F0120
+f0130,STRING,Espécie da unidade visitada,,yes,,,no,,F0130
+situacao_domicilio,STRING,Situação do domicílio,,yes,,,no,,F0140
+f0150,STRING,"Família, identificação",,yes,,,no,,F0150
+f0160,INT64,"Pessoas na família, número",,no,,person,no,,F0160
+f0170,STRING,Sexo do responsável pela família única ou convivente principal [Para as famílias conviventes secundárias a variável ficará em branco],,yes,,,no,,F0170
+f0180,STRING,"Idade em anos do responsável pela família única ou convivente principal, categoria [Para as famílias conviventes secundárias a variável ficará em branco]",,yes,,,no,,F0180
+f0190,STRING,Nível de instrução do responsável pela família única ou convivente principal [Para as famílias conviventes secundárias a variável ficará em branco],,yes,,,no,,F0190
+f0200,STRING,Cor ou raça do responsável pela família única ou convivente principal [Para as famílias conviventes secundárias a variável ficará em branco],,yes,,,no,,F0200
+f0210,STRING,"Família únicas e conviventes principais, tipologia [Para as famílias conviventes secundárias a variável ficará em branco]",,yes,,,no,,F0210
+f0220,STRING,"Famílias conviventes secundárias, tipologia [Para as famílias únicas ou conviventes principais a variável ficará em branco]",,yes,,,no,,F0220
+f0230,INT64,"Filhos menores de 10 anos ou não economicamente ativos das Famílias únicas e conviventes principais, número [Para as famílias conviventes secundárias a variável ficará em branco]",,no,,person,no,,F0230
+f0240,INT64,"Integrantes da família, homens, número",,no,,person,no,,F0240
+f0250,INT64,"Integrantes da família, mulheres, número",,no,,person,no,,F0250
+f0260,FLOAT64,Rendimento familiar per capita,,no,,BRL,no,,F0260
+f0270,INT64,"Rendimento familiar, participação",,no,,BRL,no,,F0270
+mf0190,STRING,MARCA DE IMPUTAÇÃO NA F019,,yes,,,no,Marca de imputação do IBGE,MF0190
+mf0200,STRING,MARCA DE IMPUTAÇÃO NA F0200,,yes,,,no,Marca de imputação do IBGE,MF0200

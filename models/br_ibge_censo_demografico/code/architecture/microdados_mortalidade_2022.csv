@@ -1,0 +1,16 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência do Censo Demográfico,,no,br_bd_diretorios_data_tempo.ano:ano,,no,"Coluna de partição; só no path hive, não no parquet",
+sigla_uf,STRING,Unidade da Federação,,no,br_bd_diretorios_brasil.uf:sigla,,no,Convertido do código IBGE de 2 dígitos para sigla_uf,M0020
+id_regiao,STRING,Grande Região,,yes,,,no,,M0010
+controle,STRING,Controle,,no,,,no,Identificador; aritmética sem sentido,M0100
+numero_ordem,STRING,Número de ordem da pessoa falecida,,no,,,no,Identificador; aritmética sem sentido,M0101
+peso_amostral,FLOAT64,Peso Amostral (Versão acesso Público),,no,,,no,Peso amostral adimensional do arquivo público,M0110
+situacao_setor,STRING,Situação do Setor,,yes,,,no,,M0120
+m0130,STRING,Espécie da unidade visitada,,yes,,,no,,M0130
+situacao_domicilio,STRING,Situação do domicílio,,yes,,,no,,M0140
+m0150,STRING,"Ano de ocorrência do óbito de morador do domicílio, categoria",,yes,,,no,,M0150
+m0160,STRING,"Sexo da pessoa falecida do domicílio, categoria",,yes,,,no,,M0160
+m0170,STRING,"Pessoa falecida, idade calculada, categoria",,yes,,,no,,M0170
+mm0150,STRING,MARCA DE IMPUTAÇÃO NA M0150,,yes,,,no,Marca de imputação do IBGE,MM0150
+mm0160,STRING,MARCA DE IMPUTAÇÃO NA M0160,,yes,,,no,Marca de imputação do IBGE,MM0160
+mm0170,STRING,MARCA DE IMPUTAÇÃO NA M0170,,yes,,,no,Marca de imputação do IBGE,MM0170
