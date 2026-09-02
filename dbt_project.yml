@@ -121,6 +121,9 @@ models:
     br_bd_diretorios_cl:
       +materialized: table
       +schema: br_bd_diretorios_cl
+    cl_res_empresas:
+      +materialized: table
+      +schema: cl_res_empresas
     br_bd_diretorios_de:
       +materialized: table
       +schema: br_bd_diretorios_de
