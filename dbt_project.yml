@@ -210,6 +210,9 @@ models:
     us_fec_campaign_finance:
       +materialized: table
       +schema: us_fec_campaign_finance
+    us_dot_bts_ontime:
+      +materialized: table
+      +schema: us_dot_bts_ontime
     us_nature_gerda:
       +materialized: table
       +schema: us_nature_gerda
