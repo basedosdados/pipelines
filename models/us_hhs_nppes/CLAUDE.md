@@ -17,12 +17,12 @@ Worker sizing: `"memory": "8Gi"`.
 ## Tables
 | table | partition | materialization | coverage tier | columns |
 |---|---|---|---|---|
-| `provider` | `extraction_date` (date) | incremental | part_bdpro | 54 |
-| `taxonomy` | `extraction_date` (date) | incremental | part_bdpro | 9 |
-| `other_identifier` | `extraction_date` (date) | incremental | part_bdpro | 7 |
-| `other_name` | `extraction_date` (date) | incremental | part_bdpro | 5 |
-| `practice_location` | `extraction_date` (date) | incremental | part_bdpro | 11 |
-| `endpoint` | `extraction_date` (date) | incremental | part_bdpro | 17 |
+| `provider` | `extraction_date` (date) | incremental | all_free | 53 |
+| `taxonomy` | `extraction_date` (date) | incremental | all_free | 9 |
+| `other_identifier` | `extraction_date` (date) | incremental | all_free | 7 |
+| `other_name` | `extraction_date` (date) | incremental | all_free | 5 |
+| `practice_location` | `extraction_date` (date) | incremental | all_free | 11 |
+| `endpoint` | `extraction_date` (date) | incremental | all_free | 17 |
 | `dicionario` | — | table | — | 5 |
 
 ## Where the code lives
@@ -76,3 +76,7 @@ interleaving run/test per table fails in a clean environment.
 `taxonomy_code` labels are **not** shipped. The NUCC taxonomy code set is
 AMA-copyrighted and requires a licence for commercial use; see the open decision
 in `ONBOARDING_PLAN.md`.
+
+All tables are `AllFree` while the panel is one snapshot deep. Moving to
+`PartBdpro` later also requires creating a pro Coverage on each data table, or
+`assert_coverage_topology` hard-fails — see `ONBOARDING_PLAN.md`.
