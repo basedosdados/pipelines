@@ -235,13 +235,38 @@ def _text_of(element, skip: set[str]) -> str:
     return " ".join(parts)
 
 
-def _utterance_text(talk, parent, breaks: set[str]) -> str | None:
+def _opens_utterance(element) -> bool:
+    """Whether an element is, or contains, the start of another utterance.
+
+    Checked structurally rather than against a list of tag names. The source
+    wraps utterances in more elements than any fixed list captures - SPEECH,
+    INTERJECT, CONTINUE, QUESTION, ANSWER, and in the 1991-1997 files a bare
+    PARA - and each wrapper emits its own row. Absorbing one into a previous
+    speaker's body therefore double-counts the text: before this check, a 1992
+    sitting day parsed to 53.7x the text actually in the file, and the 1990s
+    partitions were forty times the size of comparable 1980s ones.
+    """
+    if not isinstance(element.tag, str):
+        return False
+    if element.tag.lower() == "talk.start":
+        return True
+    return any(
+        isinstance(node.tag, str) and node.tag.lower() == "talk.start"
+        for node in element.iter()
+    )
+
+
+def _utterance_text(talk, parent) -> str | None:
     """Text of one utterance: the talk element plus its trailing siblings.
 
-    Stops at the next element that opens a new utterance, so a speaker's
-    continuation paragraphs are captured but a nested interjection is not.
+    A speaker's continuation paragraphs are captured; anything that opens
+    another utterance ends the run, so no text is attributed to two speakers.
     """
-    parts = [_text_of(talk, skip={"talker"})]
+    # Prune nested utterances at any depth: a TALK.START inside another
+    # TALK.START emits its own row, so including its text here attributes the
+    # same words to two speakers. The 1997 files nest them up to 371 levels
+    # deep, which is what made that year parse to 9x its own text.
+    parts = [_text_of(talk, skip={"talker", "talk.start"})]
     if parent is not None:
         children = [c for c in parent if isinstance(c.tag, str)]
         try:
@@ -249,9 +274,9 @@ def _utterance_text(talk, parent, breaks: set[str]) -> str | None:
         except ValueError:
             start = len(children)
         for sibling in children[start + 1 :]:
-            if sibling.tag.lower() in breaks:
+            if _opens_utterance(sibling):
                 break
-            parts.append(_text_of(sibling, skip=set()))
+            parts.append(_text_of(sibling, skip={"talk.start"}))
     return _clean(" ".join(parts))
 
 
@@ -357,9 +382,7 @@ def _parse_lowercase(root, chamber: str) -> tuple[dict, list[dict]]:
             "continue": "continuation",
         }.get(parent_tag, "speech")
 
-        body = _utterance_text(
-            talk, parent, breaks={"talk.start", "interjection", "continue"}
-        )
+        body = _utterance_text(talk, parent)
 
         debate_title = subdebate_title = debate_type = None
         for anc in talk.iterancestors():
@@ -445,9 +468,7 @@ def _parse_uppercase(root, chamber: str) -> tuple[dict, list[dict]]:
             return _clean(node.text) if node is not None else None
 
         speech_attrs = parent.attrib if parent_tag == "SPEECH" else {}
-        body = _utterance_text(
-            talk, parent, breaks={"talk.start", "interject"}
-        )
+        body = _utterance_text(talk, parent)
 
         debate_title = subdebate_title = debate_type = None
         for anc in talk.iterancestors():
