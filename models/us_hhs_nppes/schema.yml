@@ -1,0 +1,555 @@
+---
+version: 2
+models:
+  - name: us_hhs_nppes__provider
+    description: >
+      Cadastro de prestadores de serviços de saúde dos Estados Unidos, com uma
+      linha por Identificador Nacional de Prestador (NPI) em cada extração mensal.
+      Traz o tipo de entidade (pessoa física ou organização), nomes, endereços de
+      correspondência e do local de atendimento principal, taxonomia primária,
+      responsável autorizado e as datas de atribuição, atualização, certificação,
+      desativação e reativação do NPI. Cada extração é uma fotografia completa do
+      cadastro e as extrações são empilhadas, formando um painel.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [extraction_date, npi]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Legitimately sparse: these fields are
+          # optional in the NPI application.
+          ignore_values:
+            - authorized_official_name_suffix
+            - deactivation_date
+            - name_suffix
+            - other_credential
+            - other_first_name
+            - other_last_name
+            - other_last_name_type_code
+            - other_middle_name
+            - other_name_prefix
+            - other_name_suffix
+            - other_organization_name
+            - parent_organization_legal_business_name
+            - reactivation_date
+            - replacement_npi
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - entity_type_code
+            - other_organization_name_type_code
+            - other_last_name_type_code
+            - sex_code
+            - is_sole_proprietor
+            - is_organization_subpart
+            - mailing_address_country_code
+            - practice_address_country_code
+          dictionary_model: ref('us_hhs_nppes__dicionario')
+    columns:
+      - name: extraction_date
+        description: >
+          Data de referência do snapshot mensal do NPPES; cada extração é uma
+          fotografia completa do cadastro e as extrações são empilhadas
+        tests: [not_null]
+      - name: npi
+        description: >
+          Identificador Nacional de Prestador (NPI), código numérico de 10 dígitos
+          que
+          identifica de forma única o prestador de serviços de saúde
+        tests: [not_null]
+      - name: replacement_npi
+        description: >
+          NPI que substituiu este registro quando o prestador recebeu um novo
+          identificador
+      - name: entity_type_code
+        description: >
+          Tipo de entidade: pessoa física (1) ou organização (2)
+      - name: organization_name
+        description: >
+          Razão social da organização prestadora (entidades do tipo 2)
+      - name: last_name
+        description: >
+          Sobrenome legal do prestador pessoa física
+      - name: first_name
+        description: >
+          Primeiro nome do prestador pessoa física
+      - name: middle_name
+        description: >
+          Nome do meio do prestador pessoa física
+      - name: name_prefix
+        description: >
+          Prefixo do nome do prestador (por exemplo Dr., Mr., Ms.)
+      - name: name_suffix
+        description: >
+          Sufixo do nome do prestador (por exemplo Jr., Sr., III)
+      - name: credential
+        description: >
+          Credenciais profissionais declaradas pelo prestador (por exemplo MD, DO,
+          RN)
+      - name: other_organization_name
+        description: >
+          Outro nome da organização prestadora, como nome fantasia ou razão social
+          anterior
+      - name: other_organization_name_type_code
+        description: >
+          Tipo do outro nome da organização
+      - name: other_last_name
+        description: >
+          Outro sobrenome do prestador pessoa física
+      - name: other_first_name
+        description: >
+          Outro primeiro nome do prestador pessoa física
+      - name: other_middle_name
+        description: >
+          Outro nome do meio do prestador pessoa física
+      - name: other_name_prefix
+        description: >
+          Prefixo do outro nome do prestador
+      - name: other_name_suffix
+        description: >
+          Sufixo do outro nome do prestador
+      - name: other_credential
+        description: >
+          Credenciais associadas ao outro nome do prestador
+      - name: other_last_name_type_code
+        description: >
+          Tipo do outro sobrenome do prestador pessoa física
+      - name: sex_code
+        description: >
+          Sexo declarado do prestador pessoa física
+      - name: is_sole_proprietor
+        description: >
+          Indica se o prestador pessoa física é um empresário individual
+      - name: is_organization_subpart
+        description: >
+          Indica se a organização é uma subparte de outra organização
+      - name: parent_organization_legal_business_name
+        description: >
+          Razão social da organização controladora, quando a organização é uma
+          subparte
+      - name: mailing_address_line_1
+        description: >
+          Primeira linha do endereço de correspondência do prestador
+      - name: mailing_address_line_2
+        description: >
+          Segunda linha do endereço de correspondência do prestador
+      - name: mailing_address_city
+        description: >
+          Município do endereço de correspondência do prestador
+      - name: mailing_address_state
+        description: >
+          Sigla de duas letras do estado do endereço de correspondência do prestador
+      - name: mailing_address_postal_code
+        description: >
+          Código postal (ZIP) do endereço de correspondência do prestador, de 5 ou
+          9
+          dígitos
+      - name: mailing_address_country_code
+        description: >
+          Código ISO de duas letras do país do endereço de correspondência do
+          prestador
+      - name: mailing_address_telephone_number
+        description: >
+          Telefone do endereço de correspondência do prestador
+      - name: mailing_address_fax_number
+        description: >
+          Fax do endereço de correspondência do prestador
+      - name: practice_address_line_1
+        description: >
+          Primeira linha do endereço do local de atendimento principal do prestador
+      - name: practice_address_line_2
+        description: >
+          Segunda linha do endereço do local de atendimento principal do prestador
+      - name: practice_address_city
+        description: >
+          Município do endereço do local de atendimento principal do prestador
+      - name: practice_address_state
+        description: >
+          Sigla de duas letras do estado do endereço do local de atendimento principal
+          do prestador
+      - name: practice_address_postal_code
+        description: >
+          Código postal (ZIP) do endereço do local de atendimento principal do
+          prestador, de 5 ou 9 dígitos
+      - name: practice_address_country_code
+        description: >
+          Código ISO de duas letras do país do endereço do local de atendimento
+          principal do prestador
+      - name: practice_address_telephone_number
+        description: >
+          Telefone do endereço do local de atendimento principal do prestador
+      - name: practice_address_fax_number
+        description: >
+          Fax do endereço do local de atendimento principal do prestador
+      - name: primary_taxonomy_code
+        description: >
+          Código de taxonomia primária do prestador, isto é, a taxonomia marcada como
+          primária entre as até 15 informadas
+      - name: authorized_official_last_name
+        description: >
+          Sobrenome do responsável autorizado pela organização
+      - name: authorized_official_first_name
+        description: >
+          Primeiro nome do responsável autorizado pela organização
+      - name: authorized_official_middle_name
+        description: >
+          Nome do meio do responsável autorizado pela organização
+      - name: authorized_official_name_prefix
+        description: >
+          Prefixo do nome do responsável autorizado
+      - name: authorized_official_name_suffix
+        description: >
+          Sufixo do nome do responsável autorizado
+      - name: authorized_official_credential
+        description: >
+          Credenciais do responsável autorizado
+      - name: authorized_official_title_or_position
+        description: >
+          Cargo ou função do responsável autorizado na organização
+      - name: authorized_official_telephone_number
+        description: >
+          Telefone do responsável autorizado
+      - name: enumeration_date
+        description: >
+          Data em que o NPI foi atribuído ao prestador
+      - name: last_update_date
+        description: >
+          Data da última atualização do registro do prestador no NPPES
+      - name: certification_date
+        description: >
+          Data em que o prestador certificou pela última vez que os dados do registro
+          estão corretos
+      - name: deactivation_date
+        description: >
+          Data em que o NPI foi desativado
+      - name: reactivation_date
+        description: >
+          Data em que o NPI desativado voltou a ser ativo
+  - name: us_hhs_nppes__taxonomy
+    description: >
+      Taxonomias de prestador de serviços de saúde declaradas por cada NPI, com
+      uma linha por taxonomia (até 15 por prestador). Traz o código de taxonomia,
+      o indicador de taxonomia primária, o número e o estado da licença
+      profissional associada e o grupo de taxonomia. Normaliza o grupo repetido de
+      60 colunas do arquivo original.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [extraction_date, npi, taxonomy_sequence]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - is_primary_taxonomy
+            - taxonomy_group_code
+          dictionary_model: ref('us_hhs_nppes__dicionario')
+    columns:
+      - name: extraction_date
+        description: >
+          Data de referência do snapshot mensal do NPPES; cada extração é uma
+          fotografia completa do cadastro e as extrações são empilhadas
+        tests: [not_null]
+      - name: npi
+        description: >
+          Identificador Nacional de Prestador (NPI), código numérico de 10 dígitos
+          que
+          identifica de forma única o prestador de serviços de saúde
+        tests: [not_null]
+      - name: taxonomy_sequence
+        description: >
+          Posição da taxonomia na lista de até 15 taxonomias informadas pelo prestador
+        tests: [not_null]
+      - name: taxonomy_code
+        description: >
+          Código de taxonomia de prestador de serviços de saúde, de 10 caracteres,
+          que
+          identifica a especialidade ou o tipo de prestador
+      - name: is_primary_taxonomy
+        description: >
+          Indica se esta é a taxonomia primária do prestador; há no máximo uma por
+          NPI
+      - name: license_number
+        description: >
+          Número da licença profissional associada a esta taxonomia
+      - name: license_state_code
+        description: >
+          Sigla de duas letras do estado que emitiu a licença profissional
+      - name: taxonomy_group_code
+        description: >
+          Código do grupo de taxonomia declarado pela organização
+      - name: taxonomy_group_name
+        description: >
+          Descrição do grupo de taxonomia exatamente como declarada na fonte
+  - name: us_hhs_nppes__other_identifier
+    description: >
+      Outros identificadores atribuídos ao prestador por planos de saúde,
+      anteriores ou paralelos ao NPI, com uma linha por identificador (até 50 por
+      prestador). Traz o identificador, o tipo do emissor, o estado do plano
+      Medicaid emissor quando aplicável e o nome do emissor. Normaliza o grupo
+      repetido de 200 colunas do arquivo original.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [extraction_date, npi, identifier_sequence]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [other_identifier_type_code]
+          dictionary_model: ref('us_hhs_nppes__dicionario')
+    columns:
+      - name: extraction_date
+        description: >
+          Data de referência do snapshot mensal do NPPES; cada extração é uma
+          fotografia completa do cadastro e as extrações são empilhadas
+        tests: [not_null]
+      - name: npi
+        description: >
+          Identificador Nacional de Prestador (NPI), código numérico de 10 dígitos
+          que
+          identifica de forma única o prestador de serviços de saúde
+        tests: [not_null]
+      - name: identifier_sequence
+        description: >
+          Posição do identificador na lista de até 50 outros identificadores
+          informados pelo prestador
+        tests: [not_null]
+      - name: other_identifier
+        description: >
+          Outro identificador do prestador atribuído por um plano de saúde, anterior
+          ou paralelo ao NPI
+      - name: other_identifier_type_code
+        description: >
+          Tipo do emissor do outro identificador
+      - name: other_identifier_state_code
+        description: >
+          Sigla de duas letras do estado do plano Medicaid emissor, quando aplicável
+      - name: other_identifier_issuer
+        description: >
+          Nome do plano de saúde que emitiu o outro identificador
+  - name: us_hhs_nppes__other_name
+    description: >
+      Outros nomes associados a organizações prestadoras (NPIs do tipo 2), como
+      nomes fantasia e razões sociais anteriores, com uma linha por nome.
+      Corresponde ao arquivo de referência Other Name distribuído junto com o
+      arquivo mensal.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - extraction_date
+            - npi
+            - other_organization_name
+            - other_organization_name_type_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [other_organization_name_type_code]
+          dictionary_model: ref('us_hhs_nppes__dicionario')
+    columns:
+      - name: extraction_date
+        description: >
+          Data de referência do snapshot mensal do NPPES; cada extração é uma
+          fotografia completa do cadastro e as extrações são empilhadas
+        tests: [not_null]
+      - name: npi
+        description: >
+          Identificador Nacional de Prestador (NPI), código numérico de 10 dígitos
+          que
+          identifica de forma única o prestador de serviços de saúde
+        tests: [not_null]
+      - name: other_organization_name
+        description: >
+          Outro nome associado à organização prestadora
+        tests: [not_null]
+      - name: other_organization_name_type_code
+        description: >
+          Tipo do outro nome da organização
+      - name: created_date
+        description: >
+          Data em que o outro nome foi registrado no NPPES
+  - name: us_hhs_nppes__practice_location
+    description: >
+      Locais de atendimento secundários do prestador, isto é, todos os endereços
+      de prática além do principal, com uma linha por local. Traz endereço,
+      município, estado, código postal, país, telefone, ramal e fax. Corresponde
+      ao arquivo de referência Practice Location distribuído junto com o arquivo
+      mensal.
+    tests:
+      # Checked after the model's SELECT DISTINCT: the
+      # source repeats byte-identical rows per NPI.
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - extraction_date
+            - npi
+            - address_line_1
+            - address_line_2
+            - address_city
+            - address_state
+            - address_postal_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Legitimately sparse: these fields are
+          # optional in the NPI application.
+          ignore_values: [telephone_extension]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [address_country_code]
+          dictionary_model: ref('us_hhs_nppes__dicionario')
+    columns:
+      - name: extraction_date
+        description: >
+          Data de referência do snapshot mensal do NPPES; cada extração é uma
+          fotografia completa do cadastro e as extrações são empilhadas
+        tests: [not_null]
+      - name: npi
+        description: >
+          Identificador Nacional de Prestador (NPI), código numérico de 10 dígitos
+          que
+          identifica de forma única o prestador de serviços de saúde
+        tests: [not_null]
+      - name: address_line_1
+        description: >
+          Primeira linha do endereço do local de atendimento secundário
+        tests: [not_null]
+      - name: address_line_2
+        description: >
+          Segunda linha do endereço do local de atendimento secundário
+      - name: address_city
+        description: >
+          Município do local de atendimento secundário
+      - name: address_state
+        description: >
+          Sigla de duas letras do estado do local de atendimento secundário
+      - name: address_postal_code
+        description: >
+          Código postal (ZIP) do local de atendimento secundário, de 5 ou 9 dígitos
+      - name: address_country_code
+        description: >
+          Código ISO de duas letras do país do local de atendimento secundário
+      - name: telephone_number
+        description: >
+          Telefone do local de atendimento secundário
+      - name: telephone_extension
+        description: >
+          Ramal telefônico do local de atendimento secundário
+      - name: fax_number
+        description: >
+          Fax do local de atendimento secundário
+  - name: us_hhs_nppes__endpoint
+    description: >
+      Endpoints eletrônicos de troca de informações de saúde associados a cada
+      NPI, com uma linha por endpoint. Traz o tipo e o endereço do endpoint, a
+      finalidade de uso, o tipo de conteúdo e, quando o endpoint pertence a uma
+      organização afiliada, a razão social e o endereço dessa organização.
+      Corresponde ao arquivo de referência Endpoint distribuído junto com o
+      arquivo mensal.
+    tests:
+      # Checked after the model's SELECT DISTINCT: the
+      # source repeats byte-identical rows per NPI.
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - extraction_date
+            - npi
+            - endpoint_type
+            - endpoint
+            - use_code
+            - content_type
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - endpoint_type
+            - use_code
+            - content_type
+            - affiliation
+            - affiliation_address_country_code
+          dictionary_model: ref('us_hhs_nppes__dicionario')
+    columns:
+      - name: extraction_date
+        description: >
+          Data de referência do snapshot mensal do NPPES; cada extração é uma
+          fotografia completa do cadastro e as extrações são empilhadas
+        tests: [not_null]
+      - name: npi
+        description: >
+          Identificador Nacional de Prestador (NPI), código numérico de 10 dígitos
+          que
+          identifica de forma única o prestador de serviços de saúde
+        tests: [not_null]
+      - name: endpoint_type
+        description: >
+          Tipo do endpoint eletrônico de troca de informações de saúde
+      - name: endpoint
+        description: >
+          Endereço do endpoint eletrônico, como um endereço Direct ou uma URL de
+          serviço
+        tests: [not_null]
+      - name: endpoint_description
+        description: >
+          Descrição livre do endpoint informada pelo prestador
+      - name: use_code
+        description: >
+          Finalidade de uso do endpoint
+      - name: other_use_description
+        description: >
+          Descrição da finalidade de uso quando o código de uso é OTHER
+      - name: content_type
+        description: >
+          Tipo de conteúdo trocado pelo endpoint
+      - name: other_content_description
+        description: >
+          Descrição do tipo de conteúdo quando o tipo de conteúdo é OTHER
+      - name: affiliation
+        description: >
+          Indica se o endpoint pertence a outra organização à qual o prestador é
+          afiliado
+      - name: affiliation_legal_business_name
+        description: >
+          Razão social da organização afiliada dona do endpoint
+      - name: affiliation_address_line_1
+        description: >
+          Primeira linha do endereço da organização afiliada
+      - name: affiliation_address_line_2
+        description: >
+          Segunda linha do endereço da organização afiliada
+      - name: affiliation_address_city
+        description: >
+          Município da organização afiliada
+      - name: affiliation_address_state
+        description: >
+          Sigla de duas letras do estado da organização afiliada
+      - name: affiliation_address_postal_code
+        description: >
+          Código postal da organização afiliada
+      - name: affiliation_address_country_code
+        description: >
+          Código do país da organização afiliada
+  - name: us_hhs_nppes__dicionario
+    description: >
+      Dicionário de valores codificados das tabelas de us_hhs_nppes, com uma linha
+      por par de chave e descrição. As entradas reproduzem o documento Data
+      Dissemination Code Values publicado pelo CMS. Os códigos de taxonomia não
+      constam aqui: o conjunto é mantido pela NUCC e licenciado pela AMA para uso
+      comercial.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Legitimately sparse: these fields are
+          # optional in the NPI application.
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >
+          Slug da tabela de us_hhs_nppes que a entrada do dicionário descreve
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna que a entrada do dicionário descreve
+        tests: [not_null]
+      - name: chave
+        description: >
+          Valor codificado (chave) exatamente como armazenado nos dados
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal da entrada do dicionário
+      - name: valor
+        description: >
+          Descrição legível do valor codificado
+        tests: [not_null]

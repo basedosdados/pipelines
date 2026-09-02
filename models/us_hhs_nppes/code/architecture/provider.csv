@@ -1,0 +1,55 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+extraction_date,DATE,Data de referência do snapshot mensal do NPPES; cada extração é uma fotografia completa do cadastro e as extrações são empilhadas,,no,,,no,Partition column; taken from the end of the source file name date range,(file name date range)
+npi,STRING,"Identificador Nacional de Prestador (NPI), código numérico de 10 dígitos que identifica de forma única o prestador de serviços de saúde",,no,,,no,,NPI
+replacement_npi,STRING,NPI que substituiu este registro quando o prestador recebeu um novo identificador,,no,,,no,,Replacement NPI
+entity_type_code,STRING,Tipo de entidade: pessoa física (1) ou organização (2),,yes,,,no,"Empty for deactivated NPIs, which carry only npi and deactivation_date",Entity Type Code
+organization_name,STRING,Razão social da organização prestadora (entidades do tipo 2),,no,,,no,,Provider Organization Name (Legal Business Name)
+last_name,STRING,Sobrenome legal do prestador pessoa física,,no,,,yes,,Provider Last Name (Legal Name)
+first_name,STRING,Primeiro nome do prestador pessoa física,,no,,,yes,,Provider First Name
+middle_name,STRING,Nome do meio do prestador pessoa física,,no,,,yes,,Provider Middle Name
+name_prefix,STRING,"Prefixo do nome do prestador (por exemplo Dr., Mr., Ms.)",,no,,,no,,Provider Name Prefix Text
+name_suffix,STRING,"Sufixo do nome do prestador (por exemplo Jr., Sr., III)",,no,,,no,,Provider Name Suffix Text
+credential,STRING,"Credenciais profissionais declaradas pelo prestador (por exemplo MD, DO, RN)",,no,,,no,Free text; not validated by CMS,Provider Credential Text
+other_organization_name,STRING,"Outro nome da organização prestadora, como nome fantasia ou razão social anterior",,no,,,no,,Provider Other Organization Name
+other_organization_name_type_code,STRING,Tipo do outro nome da organização,,yes,,,no,Value 6 means the organization's other names are listed in the other_name table rather than in this column,Provider Other Organization Name Type Code
+other_last_name,STRING,Outro sobrenome do prestador pessoa física,,no,,,yes,,Provider Other Last Name
+other_first_name,STRING,Outro primeiro nome do prestador pessoa física,,no,,,yes,,Provider Other First Name
+other_middle_name,STRING,Outro nome do meio do prestador pessoa física,,no,,,yes,,Provider Other Middle Name
+other_name_prefix,STRING,Prefixo do outro nome do prestador,,no,,,no,,Provider Other Name Prefix Text
+other_name_suffix,STRING,Sufixo do outro nome do prestador,,no,,,no,,Provider Other Name Suffix Text
+other_credential,STRING,Credenciais associadas ao outro nome do prestador,,no,,,no,,Provider Other Credential Text
+other_last_name_type_code,STRING,Tipo do outro sobrenome do prestador pessoa física,,yes,,,no,,Provider Other Last Name Type Code
+sex_code,STRING,Sexo declarado do prestador pessoa física,,yes,,,no,,Provider Sex Code
+is_sole_proprietor,STRING,Indica se o prestador pessoa física é um empresário individual,,yes,,,no,,Is Sole Proprietor
+is_organization_subpart,STRING,Indica se a organização é uma subparte de outra organização,,yes,,,no,,Is Organization Subpart
+parent_organization_legal_business_name,STRING,"Razão social da organização controladora, quando a organização é uma subparte",,no,,,no,,Parent Organization LBN
+mailing_address_line_1,STRING,Primeira linha do endereço de correspondência do prestador,,no,,,yes,,Provider First Line Business Mailing Address
+mailing_address_line_2,STRING,Segunda linha do endereço de correspondência do prestador,,no,,,yes,,Provider Second Line Business Mailing Address
+mailing_address_city,STRING,Município do endereço de correspondência do prestador,,no,,,no,,Provider Business Mailing Address City Name
+mailing_address_state,STRING,Sigla de duas letras do estado do endereço de correspondência do prestador,,no,br_bd_diretorios_us.state:abbreviation,,no,"Also carries Canadian provinces, US military codes (AA/AE/AP) and ZZ for foreign addresses, which are outside the US state directory",Provider Business Mailing Address State Name
+mailing_address_postal_code,STRING,"Código postal (ZIP) do endereço de correspondência do prestador, de 5 ou 9 dígitos",,no,,,no,"USPS standard; 9-digit ZIP+4 when furnished, unpunctuated",Provider Business Mailing Address Postal Code
+mailing_address_country_code,STRING,Código ISO de duas letras do país do endereço de correspondência do prestador,,yes,,,no,,Provider Business Mailing Address Country Code (If outside U.S.)
+mailing_address_telephone_number,STRING,Telefone do endereço de correspondência do prestador,,no,,,yes,,Provider Business Mailing Address Telephone Number
+mailing_address_fax_number,STRING,Fax do endereço de correspondência do prestador,,no,,,yes,,Provider Business Mailing Address Fax Number
+practice_address_line_1,STRING,Primeira linha do endereço do local de atendimento principal do prestador,,no,,,yes,,Provider First Line Business Practice Location Address
+practice_address_line_2,STRING,Segunda linha do endereço do local de atendimento principal do prestador,,no,,,yes,,Provider Second Line Business Practice Location Address
+practice_address_city,STRING,Município do endereço do local de atendimento principal do prestador,,no,,,no,,Provider Business Practice Location Address City Name
+practice_address_state,STRING,Sigla de duas letras do estado do endereço do local de atendimento principal do prestador,,no,br_bd_diretorios_us.state:abbreviation,,no,"Also carries Canadian provinces, US military codes (AA/AE/AP) and ZZ for foreign addresses, which are outside the US state directory",Provider Business Practice Location Address State Name
+practice_address_postal_code,STRING,"Código postal (ZIP) do endereço do local de atendimento principal do prestador, de 5 ou 9 dígitos",,no,,,no,"USPS standard; 9-digit ZIP+4 when furnished, unpunctuated",Provider Business Practice Location Address Postal Code
+practice_address_country_code,STRING,Código ISO de duas letras do país do endereço do local de atendimento principal do prestador,,yes,,,no,,Provider Business Practice Location Address Country Code (If outside U.S.)
+practice_address_telephone_number,STRING,Telefone do endereço do local de atendimento principal do prestador,,no,,,yes,,Provider Business Practice Location Address Telephone Number
+practice_address_fax_number,STRING,Fax do endereço do local de atendimento principal do prestador,,no,,,yes,,Provider Business Practice Location Address Fax Number
+primary_taxonomy_code,STRING,"Código de taxonomia primária do prestador, isto é, a taxonomia marcada como primária entre as até 15 informadas",,no,,,no,Derived: the Healthcare Provider Taxonomy Code whose primary switch is Y. Code labels are published by NUCC and are not redistributed here,Healthcare Provider Taxonomy Code_1..15 (where switch = Y)
+authorized_official_last_name,STRING,Sobrenome do responsável autorizado pela organização,,no,,,yes,,Authorized Official Last Name
+authorized_official_first_name,STRING,Primeiro nome do responsável autorizado pela organização,,no,,,yes,,Authorized Official First Name
+authorized_official_middle_name,STRING,Nome do meio do responsável autorizado pela organização,,no,,,yes,,Authorized Official Middle Name
+authorized_official_name_prefix,STRING,Prefixo do nome do responsável autorizado,,no,,,no,,Authorized Official Name Prefix Text
+authorized_official_name_suffix,STRING,Sufixo do nome do responsável autorizado,,no,,,no,,Authorized Official Name Suffix Text
+authorized_official_credential,STRING,Credenciais do responsável autorizado,,no,,,no,,Authorized Official Credential Text
+authorized_official_title_or_position,STRING,Cargo ou função do responsável autorizado na organização,,no,,,no,,Authorized Official Title or Position
+authorized_official_telephone_number,STRING,Telefone do responsável autorizado,,no,,,yes,,Authorized Official Telephone Number
+enumeration_date,DATE,Data em que o NPI foi atribuído ao prestador,,no,,,no,,Provider Enumeration Date
+last_update_date,DATE,Data da última atualização do registro do prestador no NPPES,,no,,,no,,Last Update Date
+certification_date,DATE,Data em que o prestador certificou pela última vez que os dados do registro estão corretos,,no,,,no,,Certification Date
+deactivation_date,DATE,Data em que o NPI foi desativado,,no,,,no,Deactivated NPIs that were not reactivated carry only npi and this date; every other column is blank,NPI Deactivation Date
+reactivation_date,DATE,Data em que o NPI desativado voltou a ser ativo,,no,,,no,,NPI Reactivation Date

@@ -1,0 +1,72 @@
+{
+  "provider": {
+    "name_pt": "Prestador",
+    "name_en": "Provider",
+    "name_es": "Proveedor",
+    "description_pt": "Cadastro de prestadores de serviços de saúde dos Estados Unidos, com uma linha por Identificador Nacional de Prestador (NPI) em cada extração mensal. Traz o tipo de entidade (pessoa física ou organização), nomes, endereços de correspondência e do local de atendimento principal, taxonomia primária, responsável autorizado e as datas de atribuição, atualização, certificação, desativação e reativação do NPI. Cada extração é uma fotografia completa do cadastro e as extrações são empilhadas, formando um painel.",
+    "description_en": "Registry of United States health care providers, with one row per National Provider Identifier (NPI) in each monthly extraction. Carries entity type (individual or organization), names, mailing and primary practice location addresses, primary taxonomy, authorized official, and the NPI's enumeration, update, certification, deactivation and reactivation dates. Each extraction is a full photograph of the registry and extractions are stacked into a panel.",
+    "description_es": "Registro de proveedores de servicios de salud de los Estados Unidos, con una fila por Identificador Nacional de Proveedor (NPI) en cada extracción mensual. Incluye el tipo de entidad (persona física u organización), nombres, direcciones postal y del lugar de atención principal, taxonomía primaria, responsable autorizado y las fechas de asignación, actualización, certificación, desactivación y reactivación del NPI. Cada extracción es una fotografía completa del registro y las extracciones se apilan formando un panel.",
+    "unique_key": ["extraction_date", "npi"],
+    "not_null": ["extraction_date", "npi"]
+  },
+  "taxonomy": {
+    "name_pt": "Taxonomia",
+    "name_en": "Taxonomy",
+    "name_es": "Taxonomía",
+    "description_pt": "Taxonomias de prestador de serviços de saúde declaradas por cada NPI, com uma linha por taxonomia (até 15 por prestador). Traz o código de taxonomia, o indicador de taxonomia primária, o número e o estado da licença profissional associada e o grupo de taxonomia. Normaliza o grupo repetido de 60 colunas do arquivo original.",
+    "description_en": "Health care provider taxonomies reported by each NPI, one row per taxonomy (up to 15 per provider). Carries the taxonomy code, the primary-taxonomy flag, the associated professional license number and state, and the taxonomy group. Normalizes the source file's 60-column repeating group.",
+    "description_es": "Taxonomías de proveedor de servicios de salud declaradas por cada NPI, con una fila por taxonomía (hasta 15 por proveedor). Incluye el código de taxonomía, el indicador de taxonomía primaria, el número y el estado de la licencia profesional asociada y el grupo de taxonomía. Normaliza el grupo repetido de 60 columnas del archivo original.",
+    "unique_key": ["extraction_date", "npi", "taxonomy_sequence"],
+    "not_null": ["extraction_date", "npi", "taxonomy_sequence"]
+  },
+  "other_identifier": {
+    "name_pt": "Outros identificadores",
+    "name_en": "Other identifiers",
+    "name_es": "Otros identificadores",
+    "description_pt": "Outros identificadores atribuídos ao prestador por planos de saúde, anteriores ou paralelos ao NPI, com uma linha por identificador (até 50 por prestador). Traz o identificador, o tipo do emissor, o estado do plano Medicaid emissor quando aplicável e o nome do emissor. Normaliza o grupo repetido de 200 colunas do arquivo original.",
+    "description_en": "Other identifiers assigned to the provider by health plans, predating or running alongside the NPI, one row per identifier (up to 50 per provider). Carries the identifier, the issuer type, the issuing Medicaid plan's state when applicable, and the issuer name. Normalizes the source file's 200-column repeating group.",
+    "description_es": "Otros identificadores asignados al proveedor por planes de salud, anteriores o paralelos al NPI, con una fila por identificador (hasta 50 por proveedor). Incluye el identificador, el tipo de emisor, el estado del plan Medicaid emisor cuando corresponde y el nombre del emisor. Normaliza el grupo repetido de 200 columnas del archivo original.",
+    "unique_key": ["extraction_date", "npi", "identifier_sequence"],
+    "not_null": ["extraction_date", "npi", "identifier_sequence"]
+  },
+  "other_name": {
+    "name_pt": "Outros nomes",
+    "name_en": "Other names",
+    "name_es": "Otros nombres",
+    "description_pt": "Outros nomes associados a organizações prestadoras (NPIs do tipo 2), como nomes fantasia e razões sociais anteriores, com uma linha por nome. Corresponde ao arquivo de referência Other Name distribuído junto com o arquivo mensal.",
+    "description_en": "Other names associated with provider organizations (type 2 NPIs), such as doing-business-as names and former legal business names, one row per name. Corresponds to the Other Name reference file shipped with the monthly bundle.",
+    "description_es": "Otros nombres asociados a organizaciones proveedoras (NPI de tipo 2), como nombres comerciales y razones sociales anteriores, con una fila por nombre. Corresponde al archivo de referencia Other Name distribuido junto con el archivo mensual.",
+    "unique_key": ["extraction_date", "npi", "other_organization_name", "other_organization_name_type_code"],
+    "not_null": ["extraction_date", "npi", "other_organization_name"]
+  },
+  "practice_location": {
+    "name_pt": "Locais de atendimento",
+    "name_en": "Practice locations",
+    "name_es": "Lugares de atención",
+    "description_pt": "Locais de atendimento secundários do prestador, isto é, todos os endereços de prática além do principal, com uma linha por local. Traz endereço, município, estado, código postal, país, telefone, ramal e fax. Corresponde ao arquivo de referência Practice Location distribuído junto com o arquivo mensal.",
+    "description_en": "Secondary practice locations of the provider, that is, every practice address other than the primary one, one row per location. Carries address, city, state, postal code, country, telephone, extension and fax. Corresponds to the Practice Location reference file shipped with the monthly bundle.",
+    "description_es": "Lugares de atención secundarios del proveedor, es decir, todas las direcciones de práctica además de la principal, con una fila por lugar. Incluye dirección, ciudad, estado, código postal, país, teléfono, extensión y fax. Corresponde al archivo de referencia Practice Location distribuido junto con el archivo mensual.",
+    "unique_key": ["extraction_date", "npi", "address_line_1", "address_line_2", "address_city", "address_state", "address_postal_code"],
+    "not_null": ["extraction_date", "npi", "address_line_1"]
+  },
+  "endpoint": {
+    "name_pt": "Endpoints eletrônicos",
+    "name_en": "Electronic endpoints",
+    "name_es": "Endpoints electrónicos",
+    "description_pt": "Endpoints eletrônicos de troca de informações de saúde associados a cada NPI, com uma linha por endpoint. Traz o tipo e o endereço do endpoint, a finalidade de uso, o tipo de conteúdo e, quando o endpoint pertence a uma organização afiliada, a razão social e o endereço dessa organização. Corresponde ao arquivo de referência Endpoint distribuído junto com o arquivo mensal.",
+    "description_en": "Electronic health information exchange endpoints associated with each NPI, one row per endpoint. Carries the endpoint's type and address, its intended use, the content type and, when the endpoint belongs to an affiliated organization, that organization's legal business name and address. Corresponds to the Endpoint reference file shipped with the monthly bundle.",
+    "description_es": "Endpoints electrónicos de intercambio de información de salud asociados a cada NPI, con una fila por endpoint. Incluye el tipo y la dirección del endpoint, la finalidad de uso, el tipo de contenido y, cuando el endpoint pertenece a una organización afiliada, la razón social y la dirección de esa organización. Corresponde al archivo de referencia Endpoint distribuido junto con el archivo mensual.",
+    "unique_key": ["extraction_date", "npi", "endpoint_type", "endpoint", "use_code", "content_type"],
+    "not_null": ["extraction_date", "npi", "endpoint"]
+  },
+  "dicionario": {
+    "name_pt": "Dicionário",
+    "name_en": "Dictionary",
+    "name_es": "Diccionario",
+    "description_pt": "Dicionário de valores codificados das tabelas de us_hhs_nppes, com uma linha por par de chave e descrição. As entradas reproduzem o documento Data Dissemination Code Values publicado pelo CMS. Os códigos de taxonomia não constam aqui: o conjunto é mantido pela NUCC e licenciado pela AMA para uso comercial.",
+    "description_en": "Dictionary of coded values used across the us_hhs_nppes tables, one row per key and description pair. Entries reproduce the Data Dissemination Code Values document published by CMS. Taxonomy codes are absent: that code set is maintained by NUCC and licensed by the AMA for commercial use.",
+    "description_es": "Diccionario de valores codificados de las tablas de us_hhs_nppes, con una fila por par de clave y descripción. Las entradas reproducen el documento Data Dissemination Code Values publicado por el CMS. Los códigos de taxonomía no figuran aquí: el conjunto es mantenido por la NUCC y licenciado por la AMA para uso comercial.",
+    "unique_key": ["id_tabela", "nome_coluna", "chave"],
+    "not_null": ["id_tabela", "nome_coluna", "chave", "valor"]
+  }
+}
