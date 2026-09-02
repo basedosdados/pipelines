@@ -112,6 +112,7 @@ def main() -> None:
     if not state["cycles"]:
         upload.write_header_blob("contribution")
 
+    failed: list[int] = []
     for cycle in cycles:
         key = str(cycle)
         if key in state["cycles"]:
@@ -120,20 +121,28 @@ def main() -> None:
             )
             continue
         t0 = time.time()
-        download_cycle(cycle)
         try:
-            rows, parts = upload.stream_cycle(cycle)
-        except upload.ConversionError:
-            # Almost always a stray non-UTF-8 byte in the source. Repair the
-            # file once and retry; a second failure is a real problem.
-            removed = clean.sanitize_source(
-                clean.INPUT / f"contribDB_{cycle}.csv.gz"
-            )
+            download_cycle(cycle)
+            try:
+                rows, parts = upload.stream_cycle(cycle)
+            except upload.ConversionError:
+                # Almost always a stray non-UTF-8 byte in the source. Repair
+                # the file once and retry; a second failure is a real problem.
+                removed = clean.sanitize_source(
+                    clean.INPUT / f"contribDB_{cycle}.csv.gz"
+                )
+                print(
+                    f"  cycle {cycle}: source had {removed} invalid-UTF-8 line(s), repaired",
+                    flush=True,
+                )
+                rows, parts = upload.stream_cycle(cycle)
+        except Exception as exc:
             print(
-                f"  cycle {cycle}: source had {removed} invalid-UTF-8 line(s), repaired",
+                f"cycle {cycle}: FAILED ({type(exc).__name__}: {exc})",
                 flush=True,
             )
-            rows, parts = upload.stream_cycle(cycle)
+            failed.append(cycle)
+            continue
         # The codebook figure counts physical lines, so it is an upper bound on
         # the record count: the header is one line and some fields carry newlines
         # inside quotes. Flag only a shortfall too large to be embedded newlines.
@@ -155,11 +164,16 @@ def main() -> None:
 
     total = sum(v["rows"] for v in state["cycles"].values())
     print(f"\ncycles complete: {len(state['cycles'])}/{len(clean.CYCLES)}")
+    if failed:
+        print(f"cycles FAILED   : {failed} — re-run to retry them")
     print(f"rows uploaded  : {total:,}")
     if len(state["cycles"]) == len(clean.CYCLES):
         print(
             f"codebook total : {sum(constants.CODEBOOK_ROWS.values()) - len(clean.CYCLES):,}"
         )
+
+    if failed:
+        raise SystemExit(f"{len(failed)} cycle(s) failed: {failed}")
 
     if args.load:
         loaded = upload.load_staging_table("contribution")

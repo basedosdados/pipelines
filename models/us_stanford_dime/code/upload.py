@@ -39,6 +39,8 @@ from pathlib import Path
 import google.cloud.storage as gcs
 import pyarrow as pa
 import pyarrow.parquet as pq
+import requests
+from google.api_core import exceptions as google_exceptions
 from google.cloud import bigquery
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -50,6 +52,9 @@ BUCKET = "basedosdados-dev"
 DATASET_ID = "us_stanford_dime"
 STAGING_DATASET = f"{DATASET_ID}_staging"
 CHUNK_SIZE = 256 * 1024 * 1024
+# Per-request ceiling. A 900 MB part over a slow link needs well beyond the
+# library's default.
+UPLOAD_TIMEOUT = 600
 
 _orig_bucket = gcs.Client.bucket
 
@@ -70,13 +75,48 @@ def staging_prefix(table: str) -> str:
 
 
 def upload_blob(
-    local: Path, blob_name: str, client: gcs.Client | None = None
+    local: Path,
+    blob_name: str,
+    client: gcs.Client | None = None,
+    attempts: int = 6,
 ) -> None:
-    """Stream one local file to GCS without loading it into memory."""
+    """Stream one local file to GCS without loading it into memory.
+
+    Retries on transport failures. The backfill uploads roughly ninety parts
+    over several hours, and a single dropped socket used to abort the whole
+    run: a write timeout raised straight out of ``upload_from_filename`` and
+    killed cycle 2008 after fourteen cycles had already landed.
+
+    Each attempt builds a fresh blob. One that failed part-way holds a dead
+    resumable-upload session, and retrying on it fails again immediately.
+    """
     client = client or _storage()
-    blob = client.bucket(BUCKET).blob(blob_name)
-    blob.chunk_size = CHUNK_SIZE
-    blob.upload_from_filename(str(local))
+    last: Exception | None = None
+    for attempt in range(attempts):
+        try:
+            blob = client.bucket(BUCKET).blob(blob_name)
+            blob.chunk_size = CHUNK_SIZE
+            blob.upload_from_filename(str(local), timeout=UPLOAD_TIMEOUT)
+            return
+        except (
+            requests.exceptions.RequestException,
+            google_exceptions.GoogleAPICallError,
+            google_exceptions.RetryError,
+            ConnectionError,
+            TimeoutError,
+            OSError,
+        ) as exc:
+            last = exc
+            wait = min(120, 5 * 2**attempt)
+            print(
+                f"  upload {blob_name} failed ({type(exc).__name__}); "
+                f"retry {attempt + 1}/{attempts} in {wait}s",
+                flush=True,
+            )
+            time.sleep(wait)
+    raise RuntimeError(
+        f"giving up on {blob_name} after {attempts} attempts"
+    ) from last
 
 
 def write_header_blob(table: str, client: gcs.Client | None = None) -> None:
