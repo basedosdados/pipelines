@@ -335,6 +335,7 @@ models:
             - npi
             - other_organization_name
             - other_organization_name_type_code
+            - created_date
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage:
@@ -381,6 +382,10 @@ models:
             - address_city
             - address_state
             - address_postal_code
+            - address_country_code
+            - telephone_number
+            - telephone_extension
+            - fax_number
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           # Legitimately sparse: these fields are
@@ -446,8 +451,19 @@ models:
             - npi
             - endpoint_type
             - endpoint
+            - endpoint_description
             - use_code
+            - other_use_description
             - content_type
+            - other_content_description
+            - affiliation
+            - affiliation_legal_business_name
+            - affiliation_address_line_1
+            - affiliation_address_line_2
+            - affiliation_address_city
+            - affiliation_address_state
+            - affiliation_address_postal_code
+            - affiliation_address_country_code
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage:

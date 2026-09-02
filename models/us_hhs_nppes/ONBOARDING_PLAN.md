@@ -98,6 +98,37 @@ columns = 55 flat + taxonomy×15 (4 columns each) + other identifier×50
   `ZZ` (foreign), which are outside the directory by design. 145 distinct values
   appear against an official list of 60.
 
+### What the dbt tests caught
+
+The first `dbt test` run failed three tests, and chasing them turned up two
+defects that no aggregate row-count check would have found.
+
+1. **`endpoint` was a column named after its own table.** dbt compiles model
+   refs as `` `proj`.`ds`.`endpoint` ``, so the trailing identifier is also the
+   table alias and an unqualified `endpoint` in a test resolves to the **whole
+   row struct**, not the column. Its `not_null` test therefore passed while the
+   column had 7 NULLs, and its uniqueness test passed while the same key had
+   13,598 duplicate groups. The column is now `endpoint_address`.
+
+2. **The CMS mask was applied too widely.** The Data Dissemination readme
+   documents masking (`$$$$$$$$$`, `*********`, `=========`) for exactly two
+   field families — provider license number and other provider identifier. The
+   transform applied it to every column, which nulled seven legitimate (if junk)
+   `Endpoint` values that are literally `*`, `**`, `***` or `$$$$`. The mask is
+   now scoped to the two documented fields.
+
+Three smaller corrections came from the same run:
+
+- `PW` (Palau) appears as a **country** code, but the source's own country table
+  (Code Values section 1.10) lists it only as a state code. Eight territory and
+  freely-associated-state codes that are valid ISO 3166-1 alpha-2 countries were
+  added to the dictionary; `DC` and `ZZ` were not, since they are not countries.
+- `other_name` needs `created_date` in its key: the source records the same
+  (npi, name, type) with different creation dates, 135,926 times.
+- `practice_location` and `endpoint` have no source key at all. Their keys are
+  the full column list, which after the model's `SELECT DISTINCT` is unique by
+  construction and guards that `DISTINCT` against being removed.
+
 ### Taxonomy code labels are deliberately absent — open decision
 
 `taxonomy_code` is stored, but its **labels are not**. The Health Care Provider
@@ -126,8 +157,14 @@ there is a single snapshot, so the free/pro split is degenerate; both Coverages
 are still created up front, because `assert_coverage_topology` hard-fails a
 `part_bdpro` run when the pro Coverage is missing.
 
-`free_lag` is set to 6 months, matching `br_rf_cnpj` and `au_ato_abr`. Confirm
-before arming.
+`free_lag` is set to 6 months, matching `br_rf_cnpj` and `au_ato_abr`.
+**Confirm it before arming**, because with a single onboarded snapshot the
+6-month lag puts `free_end` (2026-02-09) *before* the only snapshot (2026-08-09),
+which is the inverted-free-range condition that bit
+`br_senado_dados_abertos_administrativos` at go-live. Either shorten the lag
+(e.g. one month) or wait until several snapshots have accumulated. At onboarding
+the free Coverage holds the single snapshot and the pro Coverage exists with no
+range, which is the honest state: nothing is paywalled until the pipeline runs.
 
 ## Files
 

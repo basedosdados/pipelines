@@ -884,8 +884,12 @@ ENDPOINT = [
         dict_=True,
         orig="Endpoint Type",
     ),
+    # Named `endpoint_address`, not `endpoint`: a column sharing its table's
+    # name resolves to the table's row struct in BigQuery when referenced
+    # unqualified, which silently neuters every dbt test that names it — the
+    # not_null and uniqueness tests both passed vacuously before the rename.
     c(
-        "endpoint",
+        "endpoint_address",
         "STRING",
         "Endereço do endpoint eletrônico, como um endereço Direct ou uma URL de "
         "serviço",

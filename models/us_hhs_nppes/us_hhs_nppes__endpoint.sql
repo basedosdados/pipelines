@@ -18,7 +18,7 @@ select distinct
     safe_cast(extraction_date as date) extraction_date,
     safe_cast(npi as string) npi,
     safe_cast(endpoint_type as string) endpoint_type,
-    safe_cast(endpoint as string) endpoint,
+    safe_cast(endpoint_address as string) endpoint_address,
     safe_cast(endpoint_description as string) endpoint_description,
     safe_cast(use_code as string) use_code,
     safe_cast(other_use_description as string) other_use_description,

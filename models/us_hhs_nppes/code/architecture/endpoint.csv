@@ -2,7 +2,7 @@ name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory
 extraction_date,DATE,Data de referência do snapshot mensal do NPPES; cada extração é uma fotografia completa do cadastro e as extrações são empilhadas,,no,,,no,Partition column; taken from the end of the source file name date range,(file name date range)
 npi,STRING,"Identificador Nacional de Prestador (NPI), código numérico de 10 dígitos que identifica de forma única o prestador de serviços de saúde",,no,,,no,,NPI
 endpoint_type,STRING,Tipo do endpoint eletrônico de troca de informações de saúde,,yes,,,no,,Endpoint Type
-endpoint,STRING,"Endereço do endpoint eletrônico, como um endereço Direct ou uma URL de serviço",,no,,,no,,Endpoint
+endpoint_address,STRING,"Endereço do endpoint eletrônico, como um endereço Direct ou uma URL de serviço",,no,,,no,,Endpoint
 endpoint_description,STRING,Descrição livre do endpoint informada pelo prestador,,no,,,no,,Endpoint Description
 use_code,STRING,Finalidade de uso do endpoint,,yes,,,no,,Use Code
 other_use_description,STRING,Descrição da finalidade de uso quando o código de uso é OTHER,,no,,,no,,Other Use Description

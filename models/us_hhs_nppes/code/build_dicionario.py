@@ -117,6 +117,24 @@ COUNTRY_COLUMNS = [
 ]
 
 
+# NPPES also puts US territories and freely associated states in the country
+# fields, but its own country table (section 1.10) omits them — they appear only
+# in the state-code table (1.9). PW turned up in the August 2026 file and broke
+# dictionary coverage; the rest are the same class of code and are added with it.
+# All eight are valid ISO 3166-1 alpha-2 country codes. DC and ZZ from that table
+# are deliberately excluded: they are not countries.
+_TERRITORY_COUNTRIES = {
+    "AS": "American Samoa",
+    "FM": "Micronesia, Federated States of",
+    "GU": "Guam",
+    "MH": "Marshall Islands",
+    "MP": "Northern Mariana Islands",
+    "PR": "Puerto Rico",
+    "PW": "Palau",
+    "VI": "Virgin Islands, U.S.",
+}
+
+
 def parse_countries(codevalues_txt: Path) -> dict[str, str]:
     text = codevalues_txt.read_text(encoding="utf-8", errors="replace")
     block = re.search(
@@ -135,6 +153,8 @@ def parse_countries(codevalues_txt: Path) -> dict[str, str]:
         raise SystemExit(
             f"Only parsed {len(out)} country codes; expected ~236"
         )
+    for code, name in _TERRITORY_COUNTRIES.items():
+        out.setdefault(code, name)
     return out
 
 

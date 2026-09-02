@@ -58,6 +58,7 @@ provider,mailing_address_country_code,AN,,Netherlands Antilles
 provider,mailing_address_country_code,AO,,Angola
 provider,mailing_address_country_code,AQ,,Antarctica
 provider,mailing_address_country_code,AR,,Argentina
+provider,mailing_address_country_code,AS,,American Samoa
 provider,mailing_address_country_code,AT,,Austria
 provider,mailing_address_country_code,AU,,Australia
 provider,mailing_address_country_code,AW,,Aruba
@@ -117,6 +118,7 @@ provider,mailing_address_country_code,ET,,Ethiopia
 provider,mailing_address_country_code,FI,,Finland
 provider,mailing_address_country_code,FJ,,Fiji
 provider,mailing_address_country_code,FK,,Falkland Islands (Malvinas)
+provider,mailing_address_country_code,FM,,"Micronesia, Federated States of"
 provider,mailing_address_country_code,FO,,Faroe Islands
 provider,mailing_address_country_code,FR,,France
 provider,mailing_address_country_code,GA,,Gabon
@@ -135,6 +137,7 @@ provider,mailing_address_country_code,GQ,,Equatorial Guinea
 provider,mailing_address_country_code,GR,,Greece
 provider,mailing_address_country_code,GS,,South Georgia and the South Sandwich Islands
 provider,mailing_address_country_code,GT,,Guatemala
+provider,mailing_address_country_code,GU,,Guam
 provider,mailing_address_country_code,GW,,Guinea-Bissau
 provider,mailing_address_country_code,GY,,Guyana
 provider,mailing_address_country_code,HK,,Hong Kong
@@ -183,11 +186,13 @@ provider,mailing_address_country_code,MA,,Morocco
 provider,mailing_address_country_code,MC,,Monaco
 provider,mailing_address_country_code,MD,,"Moldova, Republic of"
 provider,mailing_address_country_code,MG,,Madagascar
+provider,mailing_address_country_code,MH,,Marshall Islands
 provider,mailing_address_country_code,MK,,"Macedonia, the Former Yugoslav Republic of"
 provider,mailing_address_country_code,ML,,Mali
 provider,mailing_address_country_code,MM,,Myanmar
 provider,mailing_address_country_code,MN,,Mongolia
 provider,mailing_address_country_code,MO,,Macao
+provider,mailing_address_country_code,MP,,Northern Mariana Islands
 provider,mailing_address_country_code,MQ,,Martinique
 provider,mailing_address_country_code,MR,,Mauritania
 provider,mailing_address_country_code,MS,,Montserrat
@@ -220,8 +225,10 @@ provider,mailing_address_country_code,PK,,Pakistan
 provider,mailing_address_country_code,PL,,Poland
 provider,mailing_address_country_code,PM,,Saint Pierre and Miquelon
 provider,mailing_address_country_code,PN,,Pitcairn
+provider,mailing_address_country_code,PR,,Puerto Rico
 provider,mailing_address_country_code,PS,,"Palestinian Territory, Occupied"
 provider,mailing_address_country_code,PT,,Portugal
+provider,mailing_address_country_code,PW,,Palau
 provider,mailing_address_country_code,PY,,Paraguay
 provider,mailing_address_country_code,QA,,Qatar
 provider,mailing_address_country_code,RE,,Reunion
@@ -273,6 +280,7 @@ provider,mailing_address_country_code,VA,,Holy See (Vatican City State)
 provider,mailing_address_country_code,VC,,Saint Vincent and the Grenadines
 provider,mailing_address_country_code,VE,,Venezuela
 provider,mailing_address_country_code,VG,,"Virgin Islands, British"
+provider,mailing_address_country_code,VI,,"Virgin Islands, U.S."
 provider,mailing_address_country_code,VN,,Viet Nam
 provider,mailing_address_country_code,VU,,Vanuatu
 provider,mailing_address_country_code,WF,,Wallis and Futuna
@@ -294,6 +302,7 @@ provider,practice_address_country_code,AN,,Netherlands Antilles
 provider,practice_address_country_code,AO,,Angola
 provider,practice_address_country_code,AQ,,Antarctica
 provider,practice_address_country_code,AR,,Argentina
+provider,practice_address_country_code,AS,,American Samoa
 provider,practice_address_country_code,AT,,Austria
 provider,practice_address_country_code,AU,,Australia
 provider,practice_address_country_code,AW,,Aruba
@@ -353,6 +362,7 @@ provider,practice_address_country_code,ET,,Ethiopia
 provider,practice_address_country_code,FI,,Finland
 provider,practice_address_country_code,FJ,,Fiji
 provider,practice_address_country_code,FK,,Falkland Islands (Malvinas)
+provider,practice_address_country_code,FM,,"Micronesia, Federated States of"
 provider,practice_address_country_code,FO,,Faroe Islands
 provider,practice_address_country_code,FR,,France
 provider,practice_address_country_code,GA,,Gabon
@@ -371,6 +381,7 @@ provider,practice_address_country_code,GQ,,Equatorial Guinea
 provider,practice_address_country_code,GR,,Greece
 provider,practice_address_country_code,GS,,South Georgia and the South Sandwich Islands
 provider,practice_address_country_code,GT,,Guatemala
+provider,practice_address_country_code,GU,,Guam
 provider,practice_address_country_code,GW,,Guinea-Bissau
 provider,practice_address_country_code,GY,,Guyana
 provider,practice_address_country_code,HK,,Hong Kong
@@ -419,11 +430,13 @@ provider,practice_address_country_code,MA,,Morocco
 provider,practice_address_country_code,MC,,Monaco
 provider,practice_address_country_code,MD,,"Moldova, Republic of"
 provider,practice_address_country_code,MG,,Madagascar
+provider,practice_address_country_code,MH,,Marshall Islands
 provider,practice_address_country_code,MK,,"Macedonia, the Former Yugoslav Republic of"
 provider,practice_address_country_code,ML,,Mali
 provider,practice_address_country_code,MM,,Myanmar
 provider,practice_address_country_code,MN,,Mongolia
 provider,practice_address_country_code,MO,,Macao
+provider,practice_address_country_code,MP,,Northern Mariana Islands
 provider,practice_address_country_code,MQ,,Martinique
 provider,practice_address_country_code,MR,,Mauritania
 provider,practice_address_country_code,MS,,Montserrat
@@ -456,8 +469,10 @@ provider,practice_address_country_code,PK,,Pakistan
 provider,practice_address_country_code,PL,,Poland
 provider,practice_address_country_code,PM,,Saint Pierre and Miquelon
 provider,practice_address_country_code,PN,,Pitcairn
+provider,practice_address_country_code,PR,,Puerto Rico
 provider,practice_address_country_code,PS,,"Palestinian Territory, Occupied"
 provider,practice_address_country_code,PT,,Portugal
+provider,practice_address_country_code,PW,,Palau
 provider,practice_address_country_code,PY,,Paraguay
 provider,practice_address_country_code,QA,,Qatar
 provider,practice_address_country_code,RE,,Reunion
@@ -509,6 +524,7 @@ provider,practice_address_country_code,VA,,Holy See (Vatican City State)
 provider,practice_address_country_code,VC,,Saint Vincent and the Grenadines
 provider,practice_address_country_code,VE,,Venezuela
 provider,practice_address_country_code,VG,,"Virgin Islands, British"
+provider,practice_address_country_code,VI,,"Virgin Islands, U.S."
 provider,practice_address_country_code,VN,,Viet Nam
 provider,practice_address_country_code,VU,,Vanuatu
 provider,practice_address_country_code,WF,,Wallis and Futuna
@@ -530,6 +546,7 @@ practice_location,address_country_code,AN,,Netherlands Antilles
 practice_location,address_country_code,AO,,Angola
 practice_location,address_country_code,AQ,,Antarctica
 practice_location,address_country_code,AR,,Argentina
+practice_location,address_country_code,AS,,American Samoa
 practice_location,address_country_code,AT,,Austria
 practice_location,address_country_code,AU,,Australia
 practice_location,address_country_code,AW,,Aruba
@@ -589,6 +606,7 @@ practice_location,address_country_code,ET,,Ethiopia
 practice_location,address_country_code,FI,,Finland
 practice_location,address_country_code,FJ,,Fiji
 practice_location,address_country_code,FK,,Falkland Islands (Malvinas)
+practice_location,address_country_code,FM,,"Micronesia, Federated States of"
 practice_location,address_country_code,FO,,Faroe Islands
 practice_location,address_country_code,FR,,France
 practice_location,address_country_code,GA,,Gabon
@@ -607,6 +625,7 @@ practice_location,address_country_code,GQ,,Equatorial Guinea
 practice_location,address_country_code,GR,,Greece
 practice_location,address_country_code,GS,,South Georgia and the South Sandwich Islands
 practice_location,address_country_code,GT,,Guatemala
+practice_location,address_country_code,GU,,Guam
 practice_location,address_country_code,GW,,Guinea-Bissau
 practice_location,address_country_code,GY,,Guyana
 practice_location,address_country_code,HK,,Hong Kong
@@ -655,11 +674,13 @@ practice_location,address_country_code,MA,,Morocco
 practice_location,address_country_code,MC,,Monaco
 practice_location,address_country_code,MD,,"Moldova, Republic of"
 practice_location,address_country_code,MG,,Madagascar
+practice_location,address_country_code,MH,,Marshall Islands
 practice_location,address_country_code,MK,,"Macedonia, the Former Yugoslav Republic of"
 practice_location,address_country_code,ML,,Mali
 practice_location,address_country_code,MM,,Myanmar
 practice_location,address_country_code,MN,,Mongolia
 practice_location,address_country_code,MO,,Macao
+practice_location,address_country_code,MP,,Northern Mariana Islands
 practice_location,address_country_code,MQ,,Martinique
 practice_location,address_country_code,MR,,Mauritania
 practice_location,address_country_code,MS,,Montserrat
@@ -692,8 +713,10 @@ practice_location,address_country_code,PK,,Pakistan
 practice_location,address_country_code,PL,,Poland
 practice_location,address_country_code,PM,,Saint Pierre and Miquelon
 practice_location,address_country_code,PN,,Pitcairn
+practice_location,address_country_code,PR,,Puerto Rico
 practice_location,address_country_code,PS,,"Palestinian Territory, Occupied"
 practice_location,address_country_code,PT,,Portugal
+practice_location,address_country_code,PW,,Palau
 practice_location,address_country_code,PY,,Paraguay
 practice_location,address_country_code,QA,,Qatar
 practice_location,address_country_code,RE,,Reunion
@@ -745,6 +768,7 @@ practice_location,address_country_code,VA,,Holy See (Vatican City State)
 practice_location,address_country_code,VC,,Saint Vincent and the Grenadines
 practice_location,address_country_code,VE,,Venezuela
 practice_location,address_country_code,VG,,"Virgin Islands, British"
+practice_location,address_country_code,VI,,"Virgin Islands, U.S."
 practice_location,address_country_code,VN,,Viet Nam
 practice_location,address_country_code,VU,,Vanuatu
 practice_location,address_country_code,WF,,Wallis and Futuna
@@ -766,6 +790,7 @@ endpoint,affiliation_address_country_code,AN,,Netherlands Antilles
 endpoint,affiliation_address_country_code,AO,,Angola
 endpoint,affiliation_address_country_code,AQ,,Antarctica
 endpoint,affiliation_address_country_code,AR,,Argentina
+endpoint,affiliation_address_country_code,AS,,American Samoa
 endpoint,affiliation_address_country_code,AT,,Austria
 endpoint,affiliation_address_country_code,AU,,Australia
 endpoint,affiliation_address_country_code,AW,,Aruba
@@ -825,6 +850,7 @@ endpoint,affiliation_address_country_code,ET,,Ethiopia
 endpoint,affiliation_address_country_code,FI,,Finland
 endpoint,affiliation_address_country_code,FJ,,Fiji
 endpoint,affiliation_address_country_code,FK,,Falkland Islands (Malvinas)
+endpoint,affiliation_address_country_code,FM,,"Micronesia, Federated States of"
 endpoint,affiliation_address_country_code,FO,,Faroe Islands
 endpoint,affiliation_address_country_code,FR,,France
 endpoint,affiliation_address_country_code,GA,,Gabon
@@ -843,6 +869,7 @@ endpoint,affiliation_address_country_code,GQ,,Equatorial Guinea
 endpoint,affiliation_address_country_code,GR,,Greece
 endpoint,affiliation_address_country_code,GS,,South Georgia and the South Sandwich Islands
 endpoint,affiliation_address_country_code,GT,,Guatemala
+endpoint,affiliation_address_country_code,GU,,Guam
 endpoint,affiliation_address_country_code,GW,,Guinea-Bissau
 endpoint,affiliation_address_country_code,GY,,Guyana
 endpoint,affiliation_address_country_code,HK,,Hong Kong
@@ -891,11 +918,13 @@ endpoint,affiliation_address_country_code,MA,,Morocco
 endpoint,affiliation_address_country_code,MC,,Monaco
 endpoint,affiliation_address_country_code,MD,,"Moldova, Republic of"
 endpoint,affiliation_address_country_code,MG,,Madagascar
+endpoint,affiliation_address_country_code,MH,,Marshall Islands
 endpoint,affiliation_address_country_code,MK,,"Macedonia, the Former Yugoslav Republic of"
 endpoint,affiliation_address_country_code,ML,,Mali
 endpoint,affiliation_address_country_code,MM,,Myanmar
 endpoint,affiliation_address_country_code,MN,,Mongolia
 endpoint,affiliation_address_country_code,MO,,Macao
+endpoint,affiliation_address_country_code,MP,,Northern Mariana Islands
 endpoint,affiliation_address_country_code,MQ,,Martinique
 endpoint,affiliation_address_country_code,MR,,Mauritania
 endpoint,affiliation_address_country_code,MS,,Montserrat
@@ -928,8 +957,10 @@ endpoint,affiliation_address_country_code,PK,,Pakistan
 endpoint,affiliation_address_country_code,PL,,Poland
 endpoint,affiliation_address_country_code,PM,,Saint Pierre and Miquelon
 endpoint,affiliation_address_country_code,PN,,Pitcairn
+endpoint,affiliation_address_country_code,PR,,Puerto Rico
 endpoint,affiliation_address_country_code,PS,,"Palestinian Territory, Occupied"
 endpoint,affiliation_address_country_code,PT,,Portugal
+endpoint,affiliation_address_country_code,PW,,Palau
 endpoint,affiliation_address_country_code,PY,,Paraguay
 endpoint,affiliation_address_country_code,QA,,Qatar
 endpoint,affiliation_address_country_code,RE,,Reunion
@@ -981,6 +1012,7 @@ endpoint,affiliation_address_country_code,VA,,Holy See (Vatican City State)
 endpoint,affiliation_address_country_code,VC,,Saint Vincent and the Grenadines
 endpoint,affiliation_address_country_code,VE,,Venezuela
 endpoint,affiliation_address_country_code,VG,,"Virgin Islands, British"
+endpoint,affiliation_address_country_code,VI,,"Virgin Islands, U.S."
 endpoint,affiliation_address_country_code,VN,,Viet Nam
 endpoint,affiliation_address_country_code,VU,,Vanuatu
 endpoint,affiliation_address_country_code,WF,,Wallis and Futuna

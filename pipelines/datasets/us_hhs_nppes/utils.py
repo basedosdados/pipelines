@@ -178,10 +178,12 @@ def architecture_columns(
 # --------------------------------------------------------------------------
 
 # CMS masks numbers providers wrongly entered into FOIA-disclosable fields:
-# SSN -> "$$$$$$$$$", ITIN -> "*********", EIN -> "=========". The suppressed
-# EIN and parent-organization TIN columns are filled with "<UNAVAIL>". None of
-# these carry information, so they become null.
-_MASK_RE = r"^(\$+|\*+|=+|<UNAVAIL>)$"
+# SSN -> "$$$$$$$$$", ITIN -> "*********", EIN -> "=========". Per the Data
+# Dissemination readme this applies to exactly two field families — the provider
+# license number and the other provider identifier — so the mask is applied only
+# there. Blanket application also nulled legitimate (if junk) values elsewhere,
+# e.g. seven Endpoint rows whose value is literally "*" or "$$$$".
+_MASK_RE = r"^(\$+|\*+|=+)$"
 
 
 def _null_masked(arr: pa.Array) -> pa.Array:
@@ -395,7 +397,7 @@ def clean_main(
             elif name == "primary_taxonomy_code":
                 continue  # derived below
             else:
-                a = _null_masked(_blank_to_null(col[prov_src[name]]))
+                a = _blank_to_null(col[prov_src[name]])
                 data[name] = _mdy_to_iso(a) if name in DATE_COLUMNS else a
 
         # Primary taxonomy: the code in the slot whose switch is Y. At most one
@@ -436,18 +438,20 @@ def clean_main(
             )
             # The group field concatenates a 10-char code and a free-text label.
             grp_code = pc.if_else(  # pyrefly: ignore [missing-attribute]
-                pc.is_valid(grp), pc.utf8_slice_codeunits(grp, 0, 10), grp
+                pc.is_valid(grp),  # pyrefly: ignore [missing-attribute]
+                pc.utf8_slice_codeunits(grp, 0, 10),  # pyrefly: ignore [missing-attribute]
+                grp,  # pyrefly: ignore [missing-attribute]
             )  # pyrefly: ignore [missing-attribute]
             grp_name = pc.if_else(  # pyrefly: ignore [missing-attribute]
                 pc.is_valid(grp),  # pyrefly: ignore [missing-attribute]
-                pc.utf8_trim_whitespace(
-                    pc.utf8_slice_codeunits(grp, 10, 1 << 20)
+                pc.utf8_trim_whitespace(  # pyrefly: ignore [missing-attribute]
+                    pc.utf8_slice_codeunits(grp, 10, 1 << 20)  # pyrefly: ignore [missing-attribute]
                 ),  # pyrefly: ignore [missing-attribute]
                 grp,
             )
-            keep = pc.or_(
+            keep = pc.or_(  # pyrefly: ignore [missing-attribute]
                 pc.or_(pc.is_valid(code), pc.is_valid(lic)),  # pyrefly: ignore [missing-attribute]
-                pc.is_valid(grp),
+                pc.is_valid(grp),  # pyrefly: ignore [missing-attribute]
             )  # pyrefly: ignore [missing-attribute]
             if not pc.any(keep).as_py():  # pyrefly: ignore [missing-attribute]
                 continue
@@ -542,7 +546,7 @@ def clean_reference(
             if name == "extraction_date":
                 data[name] = _const(extraction_date, n)
             else:
-                a = _null_masked(_blank_to_null(col[src[name]]))
+                a = _blank_to_null(col[src[name]])
                 data[name] = _mdy_to_iso(a) if name in DATE_COLUMNS else a
         w.write(pa.table(data).select(cols))
     return w.close()
