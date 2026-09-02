@@ -397,18 +397,21 @@ def geography_crosswalk() -> dict[str, dict[str, str]]:
 
 
 def resolve_geography(series: pd.Series, kind: str) -> pd.Series:
-    """Map a free-text región or comuna name onto its CUT id, NA when unmatched."""
+    """Map a free-text región or comuna name onto its CUT id, NA when unmatched.
+
+    Folds each *distinct* value once rather than each row. A column of 350k rows holds
+    only a few hundred distinct place names; folding per row cost millions of
+    unicodedata.normalize calls per month and took one month from 52s to 419s.
+    """
     table = geography_crosswalk()[kind]
-    folded = series.astype("string").map(
-        lambda v: pd.NA if pd.isna(v) else _fold(v), na_action=None
-    )
-    if kind == "region":
-        folded = folded.map(
-            lambda v: pd.NA if pd.isna(v) else _strip_region_prefix(v)
-        )
-    return folded.map(
-        lambda v: table.get(v) if not pd.isna(v) else pd.NA
-    ).astype("string")
+    values = series.astype("string")
+    mapping: dict[str, str | None] = {}
+    for raw in values.dropna().unique():
+        folded = _fold(raw)
+        if kind == "region":
+            folded = _strip_region_prefix(folded)
+        mapping[str(raw)] = table.get(folded)
+    return values.map(mapping).astype("string")
 
 
 def build_table(raw: pd.DataFrame, table: str) -> pd.DataFrame:
