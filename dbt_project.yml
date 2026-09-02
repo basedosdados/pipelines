@@ -183,6 +183,9 @@ models:
     us_fhfa_hpi:
       +materialized: table
       +schema: us_fhfa_hpi
+    au_aph_hansard:
+      +materialized: table
+      +schema: au_aph_hansard
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force
