@@ -70,7 +70,7 @@ def fold(value: object) -> str:
     """Lower-case, strip accents, normalise the acute-accent apostrophe, collapse space."""
     text = unicodedata.normalize("NFD", str(value))
     text = "".join(c for c in text if unicodedata.category(c) != "Mn")
-    text = text.lower().replace("´", "'").replace(".", "")
+    text = text.lower().replace("\u00b4", "'").replace(".", "")
     return " ".join(text.split())
 
 
