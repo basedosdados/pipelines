@@ -59,6 +59,13 @@ class constants(Enum):
     # Earliest sitting day the mirror carries.
     OPENAUSTRALIA_FIRST_YEAR = 2006
 
+    # Both writers must name a year's parquet identically. upload_to_gcs uses
+    # dump_mode="append", which overwrites a blob of the same name but happily
+    # keeps two files side by side when the names differ - the onboarding wrote
+    # part-<year>.parquet and the pipeline data.parquet, so year=2026 ended up
+    # with both and every row counted twice.
+    PARTITION_FILE = "part-{year}.parquet"
+
     FIRST_YEAR = 1901
 
     # Index-based enumeration covers this span; later years are probed date by date.
