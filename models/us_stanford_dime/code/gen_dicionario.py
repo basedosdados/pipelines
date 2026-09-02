@@ -24,6 +24,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import architecture as arch
 import clean
 
 OUT = clean.OUTPUT / "dicionario"
@@ -227,6 +228,32 @@ ENTRIES = [
 COVERAGE = "1980(2)2024"
 
 
+def check_consistency() -> None:
+    """Fail if the dictionary and the architecture disagree about coverage.
+
+    ``covered_by_dictionary = yes`` is a promise that this table defines the
+    column's codes. A column flagged without an entry sends the reader to an
+    empty lookup; an entry for an unflagged column is dead weight the site never
+    surfaces. Neither shows up in a dbt test, so it is checked here.
+    """
+    flagged = {
+        (table, col[0])
+        for table, cols in arch.TABLES.items()
+        for col in cols
+        if col[4] == "yes"
+    }
+    covered = {(table, col) for table, col, _ in ENTRIES}
+    missing = sorted(flagged - covered)
+    extra = sorted(covered - flagged)
+    if missing or extra:
+        raise SystemExit(
+            f"dictionary/architecture mismatch\n"
+            f"  flagged but not defined: {missing}\n"
+            f"  defined but not flagged: {extra}"
+        )
+    print(f"coverage check: {len(flagged)} coded columns, all defined")
+
+
 def build() -> list[dict]:
     rows = []
     for table, column, mapping in ENTRIES:
@@ -244,6 +271,7 @@ def build() -> list[dict]:
 
 
 def main() -> None:
+    check_consistency()
     rows = build()
     OUT.mkdir(parents=True, exist_ok=True)
     csv_path = OUT / "dicionario.csv"
