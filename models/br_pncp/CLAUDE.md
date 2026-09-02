@@ -8,6 +8,46 @@ one-day sample of `contrato`, 71% of records were municipal, 13% state and 13% f
 Coverage starts 2021 (Lei 14.133/2021), but adoption ramps steeply — 5.3k contratos in
 2021 against 2.02M in 2025.
 
+## Status: PAUSED — PNCP consulta API is down (2026-09-02)
+
+The harvest is stopped because the API stopped answering, not because of
+anything here. Measured 2026-09-02 23:0x:
+
+| endpoint | result |
+|---|---|
+| `pncp.gov.br/app/` (web app) | HTTP 200 in 1.8s |
+| `/api/consulta/v3/api-docs` (static spec) | timeout, no status |
+| `/api/consulta/v1/contratos` | timeout, no status |
+
+Our IP reaches PNCP fine and the site is healthy; the whole `/api/consulta`
+service is unresponsive, including a static spec document that fetched fine
+two days earlier. That is an outage, not a block on us.
+
+**This reframes the "rate limiting" above.** The 429s and cooldowns were
+real, but the slide from ~3s to ~55s per page over five days, and then to no
+response at all, reads as the API degrading toward this outage rather than
+as a penalty aimed at us. Do not conclude the harvest was being punished for
+its request rate; the evidence does not support that reading.
+
+Nothing was lost. Chunks are atomic and failures write nothing:
+
+    contratacao 2809   ata_registro_preco 1032
+    contrato     305   instrumento_cobranca 69
+
+**To resume once the API answers again:**
+
+```bash
+PNCP_DATA_DIR=~/Downloads/br_pncp_data PNCP_MIN_INTERVAL=1.0 PNCP_WORKERS=2 \
+  PNCP_VERBOSE=1 uv run python models/br_pncp/code/download.py \
+  --end 2026-08-28 --tables contratacao ata_registro_preco \
+  instrumento_cobranca contrato
+```
+
+Re-run it a second time afterwards as a sweep: ~120 windows are queued as
+failed, and since they write no chunk the same command retries exactly
+those. Start gently (the settings above) and only raise the rate if the API
+is clearly healthy.
+
 ## Status: backfill RUNNING, five tables (2026-08-28)
 
 Everything except the historical download is done and verified. The backfill is
