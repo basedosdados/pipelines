@@ -19,6 +19,7 @@ from pipelines.datasets.au_aph_hansard.utils import (
     http_get,
     list_openaustralia_days,
     load_openaustralia_roster,
+    openaustralia_day_url,
     parse_any,
 )
 
@@ -133,7 +134,10 @@ def clean_hansard(work_dir: str, input_dir: str) -> dict:
     for path in sorted(Path(input_dir).rglob("*.xml")):
         house = path.relative_to(Path(input_dir)).parts[0]
         try:
-            day, rows = parse_any(path.read_bytes(), house, path.name, roster)
+            # Record where the transcript came from, not its local filename:
+            # source_url is how a reader tells which source built a sitting day.
+            source_url = openaustralia_day_url(house, path.stem)
+            day, rows = parse_any(path.read_bytes(), house, source_url, roster)
         except Exception as exc:
             print(f"  unparsed {path.name}: {type(exc).__name__}")
             continue
@@ -163,9 +167,8 @@ def clean_hansard(work_dir: str, input_dir: str) -> dict:
             )
             partition = base / f"year={year}"
             partition.mkdir(parents=True, exist_ok=True)
-            pq.write_table(
-                arrow, partition / "data.parquet", compression="snappy"
-            )
+            filename = constants.PARTITION_FILE.value.format(year=year)
+            pq.write_table(arrow, partition / filename, compression="snappy")
         return str(base)
 
     result = {
