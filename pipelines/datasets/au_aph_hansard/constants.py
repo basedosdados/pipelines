@@ -37,6 +37,28 @@ class constants(Enum):
         },
     }
 
+    # OpenAustralia mirror, used by the recurring pipeline. ParlInfo answers the
+    # Prefect worker with HTTP 403 on every request - verified 2026-09-02, 490 of
+    # 490 probes - while serving the same code and headers from an Australian
+    # connection, so the block is on the worker's egress IP. OpenAustralia
+    # publishes a parsed mirror of the same Hansard, built for bulk access.
+    OPENAUSTRALIA_BASE = "https://data.openaustralia.org.au/scrapedxml"
+    OPENAUSTRALIA_DIRS = {
+        "hofreps": "representatives_debates",
+        "senate": "senate_debates",
+    }
+    # Speaker rosters, which carry the electorate and party the debate XML omits.
+    OPENAUSTRALIA_ROSTER = (
+        "https://raw.githubusercontent.com/openaustralia/"
+        "openaustralia-parser/master/data"
+    )
+    # OpenAustralia inherits the UK codebase's namespaces: representatives are
+    # `member/<n>` and senators `lord/<100000 + n>`, both indexing the same
+    # "member count" column in the rosters.
+    OPENAUSTRALIA_SENATOR_ID_OFFSET = 100000
+    # Earliest sitting day the mirror carries.
+    OPENAUSTRALIA_FIRST_YEAR = 2006
+
     FIRST_YEAR = 1901
 
     # Index-based enumeration covers this span; later years are probed date by date.
