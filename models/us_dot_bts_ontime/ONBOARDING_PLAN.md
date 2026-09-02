@@ -104,20 +104,40 @@ than assumed, and recorded in `temporal_coverage` and the column notes:
 
 | Columns | Present from |
 |---|---|
-| Delay attribution (carrier / weather / NAS / security / late aircraft) | 2003-06 |
-| Diversion detail (`diversion_*`, `first_departure_time`, gate times) | 2008 |
-| Taxi times, wheels off/on, air time, tail number | see `--report` output |
+| Taxi times, wheels off/on, air time, tail number | 1995 |
+| Delay attribution (carrier / weather / NAS / security / late aircraft), cancellation code | 2003 |
+| Diversion detail (`diversion_1_*`, `diversion_2_*`, gate times, `first_departure_time`) | 2008 |
+| `diversion_3_*` | 2009, and sparse |
+| `diversion_4_*`, `diversion_5_*` (16 columns) | **never** — no flight in 39 years was diverted four times |
 
-A user aggregating `carrier_delay` across 1987-2026 without this will read the
-first sixteen years as "no carrier delay".
+A user aggregating `carrier_delay` across 1987-2026 without this reads the first
+sixteen years as "no carrier delay".
+
+Because `temporal_coverage` is not a writable column field on the backend, the
+break is *also* stated in each column's `observations`, in all three languages —
+otherwise it would live only in the architecture CSV and never reach the site.
 
 ## Tables
 
+Row counts are the loaded and verified figures, not estimates.
+
 | Table | Grain | Rows |
 |---|---|---|
-| `flight` | one scheduled flight | ~232M |
+| `flight` | one scheduled flight | 234,378,366 |
 | `airport` | one airport | 6,903 |
 | `dicionario` | one coded value | 53,175 |
+
+`flight` spans 1987-10-01 to 2026-06-30 across 40 years and 465 monthly files
+(8.9 GB parquet). Rows by decade, which is also the check that the 1990s really
+arrived through the form route:
+
+| Decade | Rows | Years | With delay cause | With tail number |
+|---|---|---|---|---|
+| 1980s | 11,555,122 | 3 | 0 | 0 |
+| 1990s | 52,694,390 | 10 | 0 | 27,003,866 |
+| 2000s | 65,737,983 | 10 | 9,704,015 | 65,165,257 |
+| 2010s | 62,561,043 | 10 | 11,608,288 | 62,384,681 |
+| 2020s | 41,829,828 | 7 | 7,943,071 | 41,565,622 |
 
 `airport` is parsed from `L_AIRPORT_ID`, whose description packs
 `City, XX: Name`. `L_AIRPORT` (the airport *code* lookup) is deliberately not
@@ -166,3 +186,25 @@ or `assert_coverage_topology` hard-fails.
 Monthly, roughly a two-month publication lag (2026-06 landed 2026-08-12). The
 recurring pipeline polls PREZIP only — the form route is onboarding-only, since
 every month the pipeline will ever want is prezipped.
+
+## Auxiliary files
+
+Per-table bundles hold the BTS record layout (the authoritative definition of all
+109 published fields) and the lookup tables that decode the categorical columns,
+plus a README with citation, per-file provenance and download dates.
+
+They are uploaded to **`basedosdados-dev`**, not the prod bucket: the prod bucket
+refuses the local dev service account (`serviceusage.services.use` denied), and
+registering the prod URL would advertise an object that does not exist. Copying
+them to prod is part of the prod promotion, by someone holding prod credentials.
+
+**The published links do not resolve for the public**, verified rather than
+assumed — an anonymous fetch returns HTTP 400:
+
+```xml
+<Error><Code>UserProjectMissing</Code>
+<Message>Bucket is a requester pays bucket but no user project provided.</Message></Error>
+```
+
+This affects every production table using the field, not just this dataset. The
+fix is one bucket setting, not a per-dataset hosting decision.
