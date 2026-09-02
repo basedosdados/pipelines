@@ -1,0 +1,147 @@
+---
+version: 2
+models:
+  - name: au_aph_hansard__speech
+    description: >
+      Falas proferidas no Parlamento da Austrália, uma linha por intervenção
+      contínua de um mesmo orador — o início de um discurso, um aparte ou a
+      retomada da palavra após um aparte. Cobre a Câmara dos Representantes e o
+      Senado de 1901 em diante, a partir das transcrições oficiais do Hansard.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [date, chamber, speech_order]
+          proportion_allowed_failures: 0.001
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - subdebate_title
+            - role
+            - first_speech
+            - time_stamp
+            - debate_type
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('au_aph_hansard__dicionario')
+          columns_covered_by_dictionary:
+            - talk_type
+            - in_government
+            - first_speech
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: Ano do dia de sessão
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: date
+        description: Data do dia de sessão em que a fala foi proferida
+        tests: [not_null]
+      - name: chamber
+        description: Câmara em que a fala foi proferida
+        tests: [not_null]
+      - name: parliament_number
+        description: Número ordinal do Parlamento em exercício
+      - name: session_number
+        description: Número ordinal da sessão dentro do Parlamento
+      - name: period_number
+        description: Número ordinal do período de sessões dentro da sessão
+      - name: speech_order
+        description: Posição sequencial da fala dentro do dia de sessão
+        tests: [not_null]
+      - name: speaker_id
+        description: >
+          Identificador atribuído pelo Parlamento ao orador. Ainda não vinculado
+          a um diretório; um diretório de pessoas da Austrália está previsto
+      - name: talk_type
+        description: >
+          Tipo de intervenção — início de discurso, aparte ou retomada da palavra
+        tests: [not_null]
+      - name: debate_type
+        description: Categoria de matéria atribuída ao debate pelo Hansard
+      - name: debate_title
+        description: Título do debate sob o qual a fala foi registrada
+      - name: subdebate_title
+        description: Título do subdebate sob o qual a fala foi registrada
+      - name: speaker_name
+        description: Nome do orador conforme registrado na transcrição
+      - name: electorate
+        description: Distrito eleitoral ou estado representado pelo orador
+      - name: party
+        description: Partido político do orador
+      - name: role
+        description: Cargo parlamentar ou ministerial ocupado pelo orador
+      - name: in_government
+        description: Indica se o orador pertencia ao partido governante à época
+      - name: first_speech
+        description: Indica se a fala é o discurso inaugural do orador na câmara
+      - name: time_stamp
+        description: Horário de início da fala, no formato HH:MM
+      - name: page_number
+        description: Página do Hansard impresso em que a fala começa
+      - name: body
+        description: Texto integral da fala
+      - name: word_count
+        description: Número de tokens separados por espaço no texto da fala
+  - name: au_aph_hansard__sitting_day
+    description: >
+      Dias de sessão do Parlamento da Austrália, uma linha por câmara por dia,
+      com os metadados do cabeçalho da transcrição e a origem do arquivo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [date, chamber]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: Ano do dia de sessão
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: date
+        description: Data em que a câmara se reuniu
+        tests: [not_null]
+      - name: chamber
+        description: Câmara que se reuniu
+        tests: [not_null]
+      - name: parliament_number
+        description: Número ordinal do Parlamento em exercício
+      - name: session_number
+        description: Número ordinal da sessão dentro do Parlamento
+      - name: period_number
+        description: Número ordinal do período de sessões dentro da sessão
+      - name: is_proof
+        description: >
+          Indica se a transcrição é uma versão preliminar, sujeita a revisão
+      - name: speech_count
+        description: Número de falas registradas para a câmara no dia
+      - name: page_count
+        description: Número de páginas do Hansard impresso na transcrição
+      - name: source_url
+        description: URL de onde a transcrição foi obtida
+  - name: au_aph_hansard__dicionario
+    description: >
+      Dicionário com as traduções dos valores codificados das colunas
+      categóricas das tabelas do conjunto.
+    columns:
+      - name: id_tabela
+        description: Nome da tabela a que pertence a coluna codificada
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: Valor armazenado na coluna codificada
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Cobertura temporal em que a chave assume este significado
+      - name: valor
+        description: Significado da chave
+        tests: [not_null]

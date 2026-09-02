@@ -1,0 +1,23 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the sitting day,1901(1)2026,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column. Derived from the sitting date,date
+date,DATE,Date of the sitting day on which the utterance was made,,no,,,no,,date
+chamber,STRING,Chamber in which the utterance was made,,no,,,no,"Two values: House of Representatives, Senate. Stored as readable labels rather than codes",chamber
+parliament_number,STRING,Ordinal number of the Parliament in session,,no,,,no,"Stored as STRING because it labels a Parliament rather than measuring a quantity; arithmetic on it is meaningless",parliament.no
+session_number,STRING,Ordinal number of the session within the Parliament,,no,,,no,,session.no
+period_number,STRING,Ordinal number of the sitting period within the session,,no,,,no,,period.no
+speech_order,STRING,Sequential position of the utterance within the sitting day,,no,,,no,"Sequence number, counted from 1 in document order. Stored as STRING because it is a position label, not a quantity",
+speaker_id,STRING,Identifier assigned by the Parliament to the speaker,,no,,,no,"Not yet linked to a directory. An Australian person directory is planned; until it exists this is an unresolved identifier. Identifier schemes differ by era: alphabetic codes before 1998, numeric codes in recent years, and the same person may carry more than one",name.id
+talk_type,STRING,Kind of utterance,,yes,,,no,"speech is an opening turn, interjection is an interruption by another member, continuation is the original speaker resuming after an interjection",
+debate_type,STRING,Category of business assigned to the debate by Hansard,,no,,,no,"Free-text category from the source; values are not standardised across eras",type
+debate_title,STRING,Title of the debate under which the utterance was recorded,,no,,,no,,title
+subdebate_title,STRING,Title of the subdebate under which the utterance was recorded,,no,,,no,"Null when the utterance sits directly under a debate with no subdebate",title
+speaker_name,STRING,Name of the speaker as recorded in the transcript,,no,,,no,"Formatting varies by era: Mr MACDONALD-PATERSON in early transcripts, surname-first in recent ones. Not normalised",name
+electorate,STRING,Electorate or state the speaker represents,,no,,,no,"For members of the House this is a division; for senators it is a state or territory",electorate
+party,STRING,Political party of the speaker,,no,,,no,"Recorded inconsistently before 1998. Some historic transcripts store a career party history rather than the affiliation held on the day",party
+role,STRING,Parliamentary or ministerial office held by the speaker,,no,,,no,"Populated mainly for 1901-1997; largely absent from recent transcripts, where office appears inside the body text instead",role
+in_government,STRING,Whether the speaker belonged to the governing party at the time,,yes,,,no,"Boolean stored as a 0/1 code so that blanks in the source stay distinguishable from a genuine No",in.gov
+first_speech,STRING,Whether the utterance is the speaker's first speech to the chamber,,yes,,,no,"Boolean stored as a 0/1 code. Not populated for 1981-1997, where the source has no equivalent field",first.speech
+time_stamp,STRING,Clock time at which the utterance began,,no,,,no,"HH:MM, 24-hour. Taken from the source field where present, otherwise recovered from the time prefix in the body text. Absent from transcripts before 1981, which did not record times",time.stamp
+page_number,STRING,Page of the printed Hansard on which the utterance begins,,no,,,no,"Stored as STRING because it is a page label, not a quantity",page.no
+body,STRING,Full text of the utterance,,no,,,no,"Verbatim transcript text with whitespace collapsed. Recent transcripts embed a speaker and time prefix at the start of the text, for example Mr ALBANESE (Grayndler-Prime Minister) (09:32):",
+word_count,INT64,Number of whitespace-separated tokens in the utterance text,,no,,word,no,"Derived, not from the source. Counts tokens rather than dictionary words",

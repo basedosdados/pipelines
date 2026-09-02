@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Name of the table the coded column belongs to,,no,,,no,,
+nome_coluna,STRING,Name of the coded column,,no,,,no,,
+chave,STRING,Value stored in the coded column,,no,,,no,,
+cobertura_temporal,STRING,Temporal coverage over which the key carries this meaning,,no,,,no,,
+valor,STRING,Meaning of the key,,no,,,no,,

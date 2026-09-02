@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the sitting day,1901(1)2026,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column. Derived from the sitting date,date
+date,DATE,Date on which the chamber sat,,no,,,no,,date
+chamber,STRING,Chamber that sat,,no,,,no,"Two values: House of Representatives, Senate. One row per chamber per sitting day",chamber
+parliament_number,STRING,Ordinal number of the Parliament in session,,no,,,no,"Stored as STRING because it labels a Parliament rather than measuring a quantity",parliament.no
+session_number,STRING,Ordinal number of the session within the Parliament,,no,,,no,,session.no
+period_number,STRING,Ordinal number of the sitting period within the session,,no,,,no,,period.no
+is_proof,STRING,Whether the transcript is a proof version rather than the official record,,yes,,,no,"Boolean stored as a 0/1 code. Proof transcripts are published on the sitting day and may be revised before the official version appears",proof
+speech_count,INT64,Number of utterances recorded for the chamber on the day,,no,,utterance,no,"Derived by counting rows in the speech table for this chamber and date",
+page_count,INT64,Number of printed Hansard pages recorded in the transcript header,,no,,page,no,"Taken from the source header. Reported as 0 in recent transcripts, which are not paginated the same way",page.no
+source_url,STRING,URL the transcript was retrieved from,,no,,,no,"Points at the ParlInfo download path, or at the GLAM Workbench mirror for sitting days ParlInfo no longer serves",
