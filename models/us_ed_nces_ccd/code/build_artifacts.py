@@ -142,6 +142,13 @@ def build_dictionary(
                     "-3",
                 ):
                     continue
+                # The dictionary key must be the form actually stored. A
+                # padded identifier (state_id -> "06") does not match the
+                # source's bare label key ("6"), and the coverage test fails
+                # on every single-digit state.
+                width = schema.PAD.get(col.name)
+                if width:
+                    code = code.zfill(width)
                 key = (table.slug, col.name, code)
                 if key in seen:
                     continue

@@ -1,13 +1,13 @@
 id_tabela,nome_coluna,chave,cobertura_temporal,valor
-school,state_id,1,,Alabama
-school,state_id,2,,Alaska
-school,state_id,3,,American Samoa
-school,state_id,4,,Arizona
-school,state_id,5,,Arkansas
-school,state_id,6,,California
-school,state_id,7,,Canal Zone
-school,state_id,8,,Colorado
-school,state_id,9,,Connecticut
+school,state_id,01,,Alabama
+school,state_id,02,,Alaska
+school,state_id,03,,American Samoa
+school,state_id,04,,Arizona
+school,state_id,05,,Arkansas
+school,state_id,06,,California
+school,state_id,07,,Canal Zone
+school,state_id,08,,Colorado
+school,state_id,09,,Connecticut
 school,state_id,10,,Delaware
 school,state_id,11,,District of Columbia
 school,state_id,12,,Florida
@@ -189,15 +189,15 @@ school,lunch_program,2,,Yes under the Community Eligibility Provision (CEP)
 school,lunch_program,3,,Yes under Provision 1
 school,lunch_program,4,,Yes under Provision 2
 school,lunch_program,5,,Yes under Provision 3
-school_district,state_id,1,,Alabama
-school_district,state_id,2,,Alaska
-school_district,state_id,3,,American Samoa
-school_district,state_id,4,,Arizona
-school_district,state_id,5,,Arkansas
-school_district,state_id,6,,California
-school_district,state_id,7,,Canal Zone
-school_district,state_id,8,,Colorado
-school_district,state_id,9,,Connecticut
+school_district,state_id,01,,Alabama
+school_district,state_id,02,,Alaska
+school_district,state_id,03,,American Samoa
+school_district,state_id,04,,Arizona
+school_district,state_id,05,,Arkansas
+school_district,state_id,06,,California
+school_district,state_id,07,,Canal Zone
+school_district,state_id,08,,Colorado
+school_district,state_id,09,,Connecticut
 school_district,state_id,10,,Delaware
 school_district,state_id,11,,District of Columbia
 school_district,state_id,12,,Florida
@@ -354,15 +354,15 @@ school_district,highest_grade_offered,12,,12
 school_district,highest_grade_offered,13,,13
 school_district,highest_grade_offered,14,,Adult education
 school_district,highest_grade_offered,15,,Ungraded
-school_enrollment,state_id,1,,Alabama
-school_enrollment,state_id,2,,Alaska
-school_enrollment,state_id,3,,American Samoa
-school_enrollment,state_id,4,,Arizona
-school_enrollment,state_id,5,,Arkansas
-school_enrollment,state_id,6,,California
-school_enrollment,state_id,7,,Canal Zone
-school_enrollment,state_id,8,,Colorado
-school_enrollment,state_id,9,,Connecticut
+school_enrollment,state_id,01,,Alabama
+school_enrollment,state_id,02,,Alaska
+school_enrollment,state_id,03,,American Samoa
+school_enrollment,state_id,04,,Arizona
+school_enrollment,state_id,05,,Arkansas
+school_enrollment,state_id,06,,California
+school_enrollment,state_id,07,,Canal Zone
+school_enrollment,state_id,08,,Colorado
+school_enrollment,state_id,09,,Connecticut
 school_enrollment,state_id,10,,Delaware
 school_enrollment,state_id,11,,District of Columbia
 school_enrollment,state_id,12,,Florida
@@ -469,15 +469,15 @@ school_enrollment,sex,2,,Female
 school_enrollment,sex,3,,Gender Not-Identified
 school_enrollment,sex,9,,Unknown
 school_enrollment,sex,99,,Total
-staff,state_id,1,,Alabama
-staff,state_id,2,,Alaska
-staff,state_id,3,,American Samoa
-staff,state_id,4,,Arizona
-staff,state_id,5,,Arkansas
-staff,state_id,6,,California
-staff,state_id,7,,Canal Zone
-staff,state_id,8,,Colorado
-staff,state_id,9,,Connecticut
+staff,state_id,01,,Alabama
+staff,state_id,02,,Alaska
+staff,state_id,03,,American Samoa
+staff,state_id,04,,Arizona
+staff,state_id,05,,Arkansas
+staff,state_id,06,,California
+staff,state_id,07,,Canal Zone
+staff,state_id,08,,Colorado
+staff,state_id,09,,Connecticut
 staff,state_id,10,,Delaware
 staff,state_id,11,,District of Columbia
 staff,state_id,12,,Florida
@@ -576,15 +576,15 @@ staff,staff_category,support_staff_students_without_psychologists,,"Student supp
 staff,staff_category,support_staff_other,,Other support services staff
 staff,staff_category,other_staff,,Other staff
 staff,staff_category,staff_total,,All staff
-district_finance,state_id,1,,Alabama
-district_finance,state_id,2,,Alaska
-district_finance,state_id,3,,American Samoa
-district_finance,state_id,4,,Arizona
-district_finance,state_id,5,,Arkansas
-district_finance,state_id,6,,California
-district_finance,state_id,7,,Canal Zone
-district_finance,state_id,8,,Colorado
-district_finance,state_id,9,,Connecticut
+district_finance,state_id,01,,Alabama
+district_finance,state_id,02,,Alaska
+district_finance,state_id,03,,American Samoa
+district_finance,state_id,04,,Arizona
+district_finance,state_id,05,,Arkansas
+district_finance,state_id,06,,California
+district_finance,state_id,07,,Canal Zone
+district_finance,state_id,08,,Colorado
+district_finance,state_id,09,,Connecticut
 district_finance,state_id,10,,Delaware
 district_finance,state_id,11,,District of Columbia
 district_finance,state_id,12,,Florida
