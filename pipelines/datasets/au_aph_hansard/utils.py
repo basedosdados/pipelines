@@ -206,25 +206,32 @@ def _clean(text: str | None) -> str | None:
 
 
 def _text_of(element, skip: set[str]) -> str:
-    """Concatenate an element's text, skipping named child subtrees."""
+    """Concatenate an element's text, skipping named child subtrees.
+
+    Iterative rather than recursive on purpose. Some transcripts nest more than
+    1,000 levels deep - a 1997 Senate file does - which overruns Python's
+    recursion limit. The caller catches the error and drops the whole sitting
+    day, so a recursive walk loses real data silently.
+    """
     parts: list[str] = []
+    stack: list[tuple[bool, object]] = [(False, element)]
 
-    def walk(node) -> None:
-        for child in node:
-            if not isinstance(child.tag, str):
-                if child.tail:
-                    parts.append(child.tail)
-                continue
-            if child.tag.lower() not in skip:
-                if child.text:
-                    parts.append(child.text)
-                walk(child)
+    while stack:
+        is_text, item = stack.pop()
+        if is_text:
+            parts.append(item)  # type: ignore[arg-type]
+            continue
+        node = item
+        pending: list[tuple[bool, object]] = []
+        if node.text:  # type: ignore[union-attr]
+            pending.append((True, node.text))  # type: ignore[union-attr]
+        for child in node:  # type: ignore[union-attr]
+            if isinstance(child.tag, str) and child.tag.lower() not in skip:
+                pending.append((False, child))
             if child.tail:
-                parts.append(child.tail)
+                pending.append((True, child.tail))
+        stack.extend(reversed(pending))
 
-    if element.text:
-        parts.append(element.text)
-    walk(element)
     return " ".join(parts)
 
 
@@ -499,6 +506,59 @@ def _parse_uppercase(root, chamber: str) -> tuple[dict, list[dict]]:
     return day, rows
 
 
+_CARRIED_FIELDS = ("electorate", "party", "role")
+
+
+def _fill_speaker_attributes(rows: list[dict]) -> int:
+    """Complete each speaker's attributes from elsewhere in the same sitting day.
+
+    The source states a member's electorate and party on the opening turn of a
+    speech and then leaves them blank on that member's interjections and
+    continuations. Left alone, ``electorate`` is populated on only about 10% of
+    1901 rows and ``party`` on 13%, even though the transcript names the member
+    every time.
+
+    So for each ``speaker_id`` within the day, take the non-null value the
+    source itself gives somewhere on that day and apply it to that member's
+    other rows. This is completion, not imputation: a member's electorate and
+    party cannot change within a sitting day, and the value is the source's own.
+
+    Keyed on ``speaker_id`` rather than the enclosing speech on purpose — a
+    ``continue`` element does not always belong to the member who opened the
+    speech, so inheriting from the parent would attribute one member's party to
+    another.
+    """
+
+    def key_of(row: dict) -> str | None:
+        """Identify the speaker. Falls back to the exact name where the era
+        gives no id - the 1981-1997 layout carries NAMEID on speeches but not
+        on interjections. Exact-string only, since name forms vary across
+        eras ("Mr SCHOLES" vs "Scholes The Hon G.G.D.") and loose matching
+        would attribute one member's party to another."""
+        return row.get("speaker_id") or row.get("speaker_name")
+
+    known: dict[str, dict[str, str]] = {}
+    for row in rows:
+        speaker = key_of(row)
+        if not speaker:
+            continue
+        seen = known.setdefault(speaker, {})
+        for field in _CARRIED_FIELDS:
+            if row.get(field) and field not in seen:
+                seen[field] = row[field]
+
+    filled = 0
+    for row in rows:
+        speaker = key_of(row)
+        if not speaker or speaker not in known:
+            continue
+        for field, value in known[speaker].items():
+            if not row.get(field):
+                row[field] = value
+                filled += 1
+    return filled
+
+
 def parse_sitting_day(
     xml_bytes: bytes, house: str, source_url: str
 ) -> tuple[dict, list[dict]]:
@@ -517,5 +577,6 @@ def parse_sitting_day(
         day, rows = _parse_uppercase(root, chamber)
     else:
         day, rows = _parse_lowercase(root, chamber)
+    _fill_speaker_attributes(rows)
     day["source_url"] = source_url
     return day, rows

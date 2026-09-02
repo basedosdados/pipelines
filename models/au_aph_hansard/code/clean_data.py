@@ -79,7 +79,11 @@ def write_partition(
     return len(rows)
 
 
-def clean(only_year: str | None = None) -> dict:
+def clean(
+    only_year: str | None = None,
+    min_year: int | None = None,
+    max_year: int | None = None,
+) -> dict:
     """Parse every staged transcript, one year at a time.
 
     Year-at-a-time rather than all-at-once: the full corpus is roughly two
@@ -95,6 +99,11 @@ def clean(only_year: str | None = None) -> dict:
         year_dir = path.parent.name
         if only_year and year_dir != only_year:
             continue
+        if year_dir.isdigit():
+            if min_year and int(year_dir) < min_year:
+                continue
+            if max_year and int(year_dir) > max_year:
+                continue
         by_year[year_dir].append(path)
 
     total = sum(len(v) for v in by_year.values())
@@ -234,9 +243,11 @@ def write_dictionary() -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--year", default=None)
+    parser.add_argument("--min-year", type=int, default=None)
+    parser.add_argument("--max-year", type=int, default=None)
     args = parser.parse_args()
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    stats = clean(args.year)
+    stats = clean(args.year, args.min_year, args.max_year)
     print(f"\ndone: {stats}")
 
 
