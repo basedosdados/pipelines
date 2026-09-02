@@ -94,6 +94,6 @@ until those MCPs work. Cloud-table URLs must name `basedosdados` /
 - [ ] Discover + metadata dev
 - [ ] Checkpoint / approval
 - [ ] Metadata prod
-- [ ] PR
+- [x] PR — draft https://github.com/basedosdados/pipelines/pull/1960
 - [ ] Official lake + `table-approve` (later)
 - [ ] Cleanup `~/Downloads/br_ibge_censo_demografico_data/`
