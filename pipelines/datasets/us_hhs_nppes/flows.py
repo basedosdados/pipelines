@@ -28,10 +28,9 @@ from pipelines.datasets.us_hhs_nppes.tasks import (
     download_nppes,
 )
 from pipelines.utils.metadata.domain import (
+    AllFree,
     DateFormat,
     DateOnly,
-    FreeLag,
-    PartBdpro,
 )
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -48,26 +47,24 @@ DATASET_ID = constants.DATASET_ID.value
 
 # Coverage spec per table.
 #
-# NPPES refreshes monthly, so the six data tables carry the BD Pro rolling
-# window: the most recent `free_lag` of snapshots are pro-only, older snapshots
-# stay free. Each run recomputes free_end = source_end - free_lag, rewrites both
-# DateTimeRanges and re-issues the BigQuery Row Access Policies, so the window
-# slides forward without intervention.
+# All tables are **AllFree** for now. NPPES refreshes monthly, so the house rule
+# would paywall the most recent window to BD Pro — but that rule assumes a series
+# long enough to split. With a single onboarded snapshot, a 6-month free_lag puts
+# free_end (2026-02-09) *before* the only snapshot (2026-08-09), producing an
+# inverted free range and locking the whole dataset behind Pro. That is the
+# go-live failure br_senado_dados_abertos_administrativos hit.
 #
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written. Both are created at metadata registration; verify
-# they are present before arming.
+# Switch to PartBdpro once several snapshots have accumulated. That change is not
+# just this dict: `assert_coverage_topology` requires all_free to have a free
+# Coverage and **no pro**, and part_bdpro to have both — so the pro Coverage must
+# be created on each table in the same change, or the first run hard-fails.
 #
 # `dicionario` has no date column, so it takes no coverage spec.
-_PART_BDPRO = PartBdpro(
+_ALL_FREE = AllFree(
     date_column=DateOnly(col="extraction_date"),
     date_format=DateFormat.YEAR_MD,
-    free_lag=FreeLag(unit="months", value=6),
 )
-_COVERAGE = {
-    table: _PART_BDPRO for table in constants.PARTITIONED_TABLES.value
-}
+_COVERAGE = {table: _ALL_FREE for table in constants.PARTITIONED_TABLES.value}
 
 
 @flow(name="us_hhs_nppes", log_prints=True)
