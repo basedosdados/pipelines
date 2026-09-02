@@ -250,9 +250,16 @@ def clean_contributor_cycle() -> tuple[int, list[Path]]:
     """Reshape the wide ``amount.<cycle>`` columns into one row per donor-cycle.
 
     The source contributor file carries 23 ``amount.YYYY`` columns, one per
-    election cycle, and most are zero. Cycles in which a donor gave nothing are
-    dropped rather than stored, which is what makes the long form smaller than
-    the wide one it replaces.
+    election cycle, and most are zero. Only cycles in which the donor actually
+    gave are kept, which is what makes the long form smaller than the wide one
+    it replaces.
+
+    The reshape is a DuckDB ``UNPIVOT``, deliberately. The obvious alternative —
+    a 23-branch ``UNION ALL``, one per amount column — reads the 3 GB gzipped
+    source once per branch, and writing one output file per cycle re-evaluates
+    every branch each time: about 550 full scans for a job that needs one.
+    ``UNPIVOT`` also drops NULLs on its own, so only the explicit zero filter is
+    left to write.
     """
     src = INPUT / "dime_contributors_1979_2024.csv.gz"
     if not src.exists():
@@ -269,36 +276,40 @@ def clean_contributor_cycle() -> tuple[int, list[Path]]:
         raise RuntimeError(
             "no amount.<cycle> columns found in the contributor file"
         )
-    reader = _read_csv(src, header)
-    con.execute(f"create or replace view src as select * from {reader}")
+    cycles = [c.split(".")[-1] for c in amount_cols]
 
-    unions = []
-    for col in amount_cols:
-        cycle = col.split(".")[-1]
-        unions.append(
-            f"select cast({cycle} as varchar) as cycle, "
-            f"nullif(trim(\"bonica.cid\"), '') as contributor_id, "
-            f"cast(try_cast(nullif(trim(\"{col}\"), '') as double) as varchar) as amount "
-            f"from src where try_cast(nullif(trim(\"{col}\"), '') as double) is not null "
-            f"and try_cast(nullif(trim(\"{col}\"), '') as double) != 0"
-        )
+    # The contributor file carries quoted newlines inside free-text name fields,
+    # which the parallel scanner cannot split safely.
     con.execute(
-        "create or replace view clean as " + "\nunion all\n".join(unions)
+        "create or replace view src as select * from "
+        + _read_csv(src, header, parallel=False)
     )
+    wide = ",\n        ".join(
+        f'try_cast(nullif(trim("{col}"), \'\') as double) as "{cycle}"'
+        for col, cycle in zip(amount_cols, cycles, strict=True)
+    )
+    quoted = ", ".join(f'"{c}"' for c in cycles)
+    con.execute(f"""
+        create or replace view clean as
+        select
+            cast(cycle as varchar) as cycle,
+            contributor_id,
+            cast(amount as varchar) as amount
+        from (
+            select
+                nullif(trim("bonica.cid"), '') as contributor_id,
+                {wide}
+            from src
+        ) unpivot (amount for cycle in ({quoted}))
+        where amount != 0
+    """)
 
-    total = con.execute("select count(*) from clean").fetchone()[0]
-    written: list[Path] = []
-    # Reshaping is a full re-scan per part, so write per source cycle instead.
-    for col in amount_cols:
-        cycle = col.split(".")[-1]
-        dest = out_dir / f"contributor_cycle_{cycle}.parquet"
-        con.execute(
-            f"copy (select * from clean where cycle = '{cycle}') to '{dest}' "
-            "(format parquet, compression snappy)"
-        )
-        written.append(dest)
+    files = _copy_split(con, out_dir, "contributor_cycle")
+    total = con.execute(
+        f"select count(*) from read_parquet('{out_dir}/*.parquet')"
+    ).fetchone()[0]
     con.close()
-    return total, written
+    return total, files
 
 
 def main() -> None:
