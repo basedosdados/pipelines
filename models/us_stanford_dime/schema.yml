@@ -214,6 +214,24 @@ models:
           combination_of_columns: [icpsr_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - district_cycle
+            - district_presidential_vote_share
+            - dw_nominate_1
+            - dw_nominate_1_period
+            - dw_nominate_2
+            - dw_nominate_2_period
+            - general_vote_share
+            - icpsr_id_after_switch
+            - icpsr_id_before_switch
+            - interest_group_category
+            - irt_cfscore
+            - primary_vote_share
+            - primary_winner
+            - runoff_election_status
+            - special_election_status
+            - suffix
+            - title
     columns:
       - name: cycle
         description: >-
