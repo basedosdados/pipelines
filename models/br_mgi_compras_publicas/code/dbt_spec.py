@@ -254,18 +254,32 @@ TABLES: dict[str, DbtTable] = {
         key=["id_compra_item"],
         year_range=R_LEGADO,
         scope_tests=True,
-        # Two page-range blocks -- the deepest pages of as modalidades Convite and
-        # Tomada de Preços -- could not be read: the endpoint returns 504 for them
-        # under every concurrency tried, across repeated attempts. Partitioning by
-        # UASG was tested as a workaround and rejected: no UASG list we can build
-        # covers every item, so it would have lost 1.7% while fixing 1.23%.
+        # Four page-range blocks could not be read; the endpoint returns 504 for
+        # them under every concurrency tried, across repeated attempts:
+        #
+        #   Convite                     3,475,000 of 3,498,690   -23,690 (0.7%)
+        #   Concorrência                  350,000 of   372,183   -22,183 (6.0%)
+        #   Concorrência Internacional          0 of     7,366    -7,366 (100%)
+        #   Concurso                            0 of     5,651    -5,651 (100%)
+        #
+        # The last two are absent entirely rather than truncated, which is the
+        # part a reader has to be told: filtering for them returns nothing. They
+        # are not deep-pagination failures -- both are tiny (15 and 12 pages) --
+        # but a job is all-or-nothing, so one unreadable page discards the whole
+        # block. A patient sequential fetch reaches 6,500 of Concorrência
+        # Internacional's 7,366 rows, failing only on pages 13 and 15.
+        #
+        # Partitioning by UASG was tested as a workaround and rejected: no UASG
+        # list that can be built from local data covers every item, so it would
+        # have lost 1.7% while fixing 1.23%. Tier B subsumes the gap.
         description=(
             "Itens das licitações realizadas sob a Lei 8.666/1993. Uma linha por item "
             "licitado, com quantidade, valor estimado e fornecedor vencedor. Faltam "
-            "58.890 itens (1,23%) das modalidades Convite e Tomada de Preços, cujas "
-            "páginas mais profundas a fonte não entrega; e os itens das modalidades "
-            "Pregão, Dispensa e Inexigibilidade, disponíveis nas tabelas "
-            "licitacao_item_pregao e compra_sem_licitacao_item"
+            "58.890 itens (1,23%) que a fonte não entrega: 23.690 de Convite (0,7% da "
+            "modalidade), 22.183 de Concorrência (6,0%), e a totalidade de Concorrência "
+            "Internacional (7.366) e de Concurso (5.651), que portanto não aparecem nesta "
+            "tabela. Os itens das modalidades Pregão, Dispensa e Inexigibilidade estão "
+            "nas tabelas licitacao_item_pregao e compra_sem_licitacao_item"
         ),
     ),
     "licitacao_item_pregao": DbtTable(

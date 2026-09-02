@@ -145,16 +145,19 @@ TABLES: dict[str, TableMeta] = {
         "Tender item",
         "Ítem de la licitación",
         "Items of the tenders run under Law 8,666/1993. One row per tendered item, with "
-        "quantity, estimated value and the winning supplier. 58,890 items (1.23%) of the "
-        "Convite and Tomada de Preços modalities are missing, whose deepest pages the "
-        "source does not serve; items of the Pregão, Dispensa and Inexigibilidade "
-        "modalities are in the licitacao_item_pregao and compra_sem_licitacao_item tables",
+        "quantity, estimated value and the winning supplier. 58,890 items (1.23%) are "
+        "missing because the source does not serve them: 23,690 from Convite (0.7% of the "
+        "modality), 22,183 from Concorrência (6.0%), and the whole of Concorrência "
+        "Internacional (7,366) and Concurso (5,651), which therefore do not appear in this "
+        "table at all. Items of the Pregão, Dispensa and Inexigibilidade modalities are in "
+        "the licitacao_item_pregao and compra_sem_licitacao_item tables",
         "Ítems de las licitaciones realizadas bajo la Ley 8.666/1993. Una fila por ítem "
         "licitado, con cantidad, valor estimado y proveedor adjudicatario. Faltan 58.890 "
-        "ítems (1,23%) de las modalidades Convite y Tomada de Preços, cuyas páginas más "
-        "profundas la fuente no entrega; los ítems de las modalidades Pregón, Dispensa e "
-        "Inexigibilidad están en las tablas licitacao_item_pregao y "
-        "compra_sem_licitacao_item",
+        "ítems (1,23%) que la fuente no entrega: 23.690 de Convite (0,7% de la modalidad), "
+        "22.183 de Concorrência (6,0%), y la totalidad de Concorrência Internacional "
+        "(7.366) y de Concurso (5.651), que por lo tanto no aparecen en esta tabla. Los "
+        "ítems de las modalidades Pregón, Dispensa e Inexigibilidad están en las tablas "
+        "licitacao_item_pregao y compra_sem_licitacao_item",
         {"procurement": "id_compra", "item": "id_compra_item", "year": "ano"},
         (1997, 1, 2025, 12),
     ),

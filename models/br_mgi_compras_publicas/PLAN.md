@@ -360,9 +360,27 @@ before and after.
 
 ### licitacao_item ships 58,890 rows short, and why no workaround was taken
 
-Two page-range blocks -- `m1__p06951` (pages 6951-6998 of Convite) and
-`m3__p00701` (Tomada de Preços) -- are the deepest pages in the dataset, and the
-endpoint returns 504 for them. Tried and failed: 8 workers, 2 workers, 1 worker,
+Four page-range blocks could not be read, and they are not one problem but two:
+
+| modalidade | harvested | source | missing |
+|---|---|---|---|
+| Convite | 3,475,000 | 3,498,690 | -23,690 (0.7%) |
+| Concorrência | 350,000 | 372,183 | -22,183 (6.0%) |
+| **Concorrência Internacional** | **0** | 7,366 | **-7,366 (100%)** |
+| **Concurso** | **0** | 5,651 | **-5,651 (100%)** |
+
+The first two are the deepest pages in the dataset and the endpoint returns 504
+for them. The last two are **absent entirely**, which is what a reader has to be
+told -- filtering for them returns nothing at all, and a description that only
+mentions truncation would mislead. They are not deep-pagination failures: both
+are tiny, 15 and 12 pages. They fail because **a job is all-or-nothing** -- one
+unreadable page raises and the whole block is discarded -- so a patient
+sequential fetch reaches 6,500 of Concorrência Internacional's 7,366 rows,
+failing only on pages 13 and 15.
+
+Writing partial chunks would recover ~11,000 of those rows, and was deliberately
+not built: it introduces data that is short while looking whole, which is the
+exact failure this dataset has already been bitten by twice. Tried and failed: 8 workers, 2 workers, 1 worker,
 across three runs over roughly five hours. A single patient request does succeed
 on such a page (40.3s at a 400s timeout), so the pages exist; the gateway simply
 will not serve them under a harvest.
