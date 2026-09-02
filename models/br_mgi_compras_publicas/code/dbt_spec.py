@@ -48,6 +48,10 @@ class DbtTable:
     #: distinct rows survive -- BigQuery would otherwise group every null into a
     #: single partition and keep exactly one of them.
     dedup_key_nullable: bool = False
+    #: the partition column is legitimately null on some rows, so it carries no
+    #: not_null test. Only for a table whose partition is derived rather than
+    #: read from a date field.
+    partition_nullable: bool = False
     #: restrict the uniqueness test to rows matching this predicate. Used where
     #: part of the key is legitimately absent on a minority of rows.
     unique_where: str = ""
@@ -253,7 +257,28 @@ TABLES: dict[str, DbtTable] = {
         dedup_order="data_alteracao",
         key=["id_compra_item"],
         year_range=R_LEGADO,
-        scope_tests=True,
+        # Not scoped. The year is derived from id_compra rather than read from a
+        # date, and a handful of malformed ids yield stray years -- 2024 holds a
+        # single row -- so the "most recent partition" the scoped test reads is
+        # a sample of one and every sparse column trips. Testing the whole table
+        # is both meaningful and affordable at 4.7M rows.
+        scope_tests=False,
+        # 394 ids do not encode a usable year (they end in 0001, 1905, 1916 and
+        # the like), so those rows land in the null partition rather than being
+        # dropped. The derivation is otherwise sound: it agrees with licitacao's
+        # own publication year on 98.75% of the 1.42M rows that can be joined,
+        # and the residual is the procurement year differing from the
+        # publication year across a new-year boundary.
+        partition_nullable=True,
+        # 1,219 of 4.74M keys repeat (0.026%), differing in valor_estimado (66%),
+        # fornecedor (65%) and the item's own description (58%) -- distinct items
+        # sharing an id, as on compra_sem_licitacao, not revisions to collapse.
+        # The tolerance sits just above the observed rate so a regression trips
+        # it rather than hiding inside it.
+        unique_tolerance=0.0005,
+        # A natural person wins a legado tender rarely, so the CPF and personal
+        # name columns are 99.8% empty across the whole table.
+        ignore_values=["cpf_vencedor", "nome_vencedor_pessoa_fisica"],
         # Four page-range blocks could not be read; the endpoint returns 504 for
         # them under every concurrency tried, across repeated attempts:
         #

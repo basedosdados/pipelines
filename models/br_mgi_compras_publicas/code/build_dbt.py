@@ -256,7 +256,10 @@ def build_schema_entry(table: str) -> str:
             or name in sparse
             or (spec.unique_where and name in spec.unique_where)
         )
-        if name == spec.partition or (name in spec.key and not nullable_key):
+        partition_gets_not_null = (
+            name == spec.partition and not spec.partition_nullable
+        )
+        if partition_gets_not_null or (name in spec.key and not nullable_key):
             tests.append("not_null")
         directory = column["directory_column"]
         # Relationships tests scan the whole model; on the multi-million-row

@@ -1221,28 +1221,32 @@ models:
   - name: br_mgi_compras_publicas__licitacao_item
     description: >-
       Itens das licitações realizadas sob a Lei 8.666/1993. Uma linha por item licitado,
-      com quantidade, valor estimado e fornecedor vencedor
+      com quantidade, valor estimado e fornecedor vencedor. Faltam 58.890 itens (1,23%)
+      que a fonte não entrega: 23.690 de Convite (0,7% da modalidade), 22.183 de Concorrência
+      (6,0%), e a totalidade de Concorrência Internacional (7.366) e de Concurso (5.651),
+      que portanto não aparecem nesta tabela. Os itens das modalidades Pregão, Dispensa
+      e Inexigibilidade estão nas tabelas licitacao_item_pregao e compra_sem_licitacao_item
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [id_compra_item]
-          config:
-            where: __most_recent_year__
+          proportion_allowed_failures: 0.0005
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          config:
-            where: __most_recent_year__
+          ignore_values: [cpf_vencedor, nome_vencedor_pessoa_fisica]
     columns:
       - name: ano
         description: >-
           Ano de realização da licitação
-        tests: [not_null]
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: id_compra
         description: >-
           Identificador da licitação no SIASG
       - name: id_compra_item
         description: >-
           Identificador do item da licitação no SIASG
-        tests: [not_null]
       - name: numero_licitacao
         description: >-
           Número da licitação publicado pela fonte
