@@ -35,7 +35,10 @@ def main():
     print(f"Input:  {INPUT_DIR}")
     print(f"Output: {OUTPUT_DIR}")
     t0 = time.time()
-    result = clean_all(INPUT_DIR, OUTPUT_DIR)
+    # write_header=True: the one-shot onboarding upload needs the 0-row
+    # 00_header.parquet guard for table-approve. The recurring pipeline must
+    # NOT have it — see PartitionWriter.
+    result = clean_all(INPUT_DIR, OUTPUT_DIR, write_header=True)
     print("=== DONE ===")
     print(f"elapsed: {time.time() - t0:,.0f}s")
     print("extraction_date:", result["extraction_date"])

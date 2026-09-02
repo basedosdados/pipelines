@@ -233,13 +233,14 @@ class PartitionWriter:
     data file, which keeps the table-approve CI step from loading a large
     parquet whole (see project_table_approve_parquet_header_oom).
 
-    That header is written **last**, in :meth:`close`, even though it sorts
-    first. ``upload_to_gcs`` recreates the staging external table while the
-    upload is still in flight, and BigQuery fixes the table's schema from
-    whatever files it can see: if the 0-row header is the only one, every column
-    resolves to INT64 and the dbt model then fails with
-    ``Invalid cast from INT64 to DATE``. Writing it after the data files means it
-    is never alone in the prefix.
+    That header is **only for the one-shot onboarding upload** (``write_header``),
+    never for the recurring pipeline. ``upload_to_gcs`` builds the staging
+    table's schema in ``gcs.dump_header``, which walks the output directory,
+    takes the first parquet file it finds and reads
+    ``read_row_group(0).slice(0, 1)``. It picks the 0-row header, infers the
+    schema from an empty frame, and every column comes back INT64 — the dbt
+    model then fails with ``Invalid cast from INT64 to DATE``. Leaving the header
+    out of the pipeline's output makes ``dump_header`` read a real data file.
     """
 
     #: Written into the directory name, never into the file body — BigQuery's
@@ -253,6 +254,7 @@ class PartitionWriter:
         columns: list[str],
         extraction_date: str | None,
         chunk_rows: int | None = None,
+        write_header: bool = False,
     ):
         self.columns = (
             [c for c in columns if c != self.PARTITION_COL]
@@ -270,6 +272,7 @@ class PartitionWriter:
         self.buffered = 0
         self.seq = 0
         self.rows = 0
+        self.write_header = write_header
 
     def write(self, table: pa.Table) -> None:
         if table.num_rows == 0:
@@ -294,12 +297,13 @@ class PartitionWriter:
 
     def close(self) -> int:
         self._flush()
-        # Written last on purpose — see the class docstring.
-        pq.write_table(
-            self.schema.empty_table(),
-            self.dir / "00_header.parquet",
-            compression="snappy",
-        )
+        if self.write_header:
+            # Onboarding upload only — see the class docstring.
+            pq.write_table(
+                self.schema.empty_table(),
+                self.dir / "00_header.parquet",
+                compression="snappy",
+            )
         return self.rows
 
 
@@ -392,6 +396,7 @@ def clean_main(
     extraction_date: str,
     arch_dir: Path | None = None,
     block_size: int | None = None,
+    write_header: bool = False,
 ) -> dict[str, int]:
     """Stream the 330-column main file into provider + taxonomy + other_identifier."""
     prov_cols = architecture_columns("provider", arch_dir)
@@ -414,10 +419,26 @@ def clean_main(
         if miss not in hset:
             raise RuntimeError(f"expected suppressed column {miss!r} is gone")
 
-    w_prov = PartitionWriter(out_dir, "provider", prov_cols, extraction_date)
-    w_tax = PartitionWriter(out_dir, "taxonomy", tax_cols, extraction_date)
+    w_prov = PartitionWriter(
+        out_dir,
+        "provider",
+        prov_cols,
+        extraction_date,
+        write_header=write_header,
+    )
+    w_tax = PartitionWriter(
+        out_dir,
+        "taxonomy",
+        tax_cols,
+        extraction_date,
+        write_header=write_header,
+    )
     w_oid = PartitionWriter(
-        out_dir, "other_identifier", oid_cols, extraction_date
+        out_dir,
+        "other_identifier",
+        oid_cols,
+        extraction_date,
+        write_header=write_header,
     )
 
     while True:
@@ -561,6 +582,7 @@ def clean_reference(
     extraction_date: str,
     arch_dir: Path | None = None,
     block_size: int | None = None,
+    write_header: bool = False,
 ) -> int:
     """Clean one of the three companion reference files (other_name / pl / endpoint)."""
     cols = architecture_columns(table, arch_dir)
@@ -575,7 +597,9 @@ def clean_reference(
                 f"{table}.{name}: source column {src[name]!r} not in "
                 f"{Path(csv_path).name}"
             )
-    w = PartitionWriter(out_dir, table, cols, extraction_date)
+    w = PartitionWriter(
+        out_dir, table, cols, extraction_date, write_header=write_header
+    )
     while True:
         try:
             batch = reader.read_next_batch()
@@ -602,7 +626,10 @@ DICIONARIO_CSV = constants.ARCHITECTURE_DIR.value.parent / "dicionario.csv"
 
 
 def clean_dicionario(
-    out_dir: Path, arch_dir: Path | None = None, source_csv: Path | None = None
+    out_dir: Path,
+    arch_dir: Path | None = None,
+    source_csv: Path | None = None,
+    write_header: bool = False,
 ) -> int:
     """Convert the committed dictionary CSV to parquet. Not partitioned."""
     cols = architecture_columns("dicionario", arch_dir)
@@ -615,7 +642,9 @@ def clean_dicionario(
             column_types={c: pa.string() for c in cols},
         ),
     )
-    w = PartitionWriter(out_dir, "dicionario", cols, None)
+    w = PartitionWriter(
+        out_dir, "dicionario", cols, None, write_header=write_header
+    )
     w.write(table)
     return w.close()
 
@@ -625,11 +654,18 @@ def clean_all(
     output_dir: Path,
     arch_dir: Path | None = None,
     block_size: int | None = None,
+    write_header: bool = False,
 ) -> dict:
     """Clean one monthly bundle into partitioned, all-STRING parquet.
 
     ``input_dir`` must hold the monthly ZIP (or its already-extracted CSVs).
     Returns row counts per table and the snapshot's ``extraction_date``.
+
+    ``write_header`` adds the 0-row ``00_header.parquet`` guard that keeps the
+    table-approve CI step from loading a large parquet whole. Only the one-shot
+    onboarding upload wants it: ``upload_to_gcs`` would otherwise infer the whole
+    staging schema from that empty file and type every column INT64. See
+    :class:`PartitionWriter`.
     """
     input_dir, output_dir = Path(input_dir), Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -662,7 +698,12 @@ def clean_all(
         f"({paths['main'].stat().st_size / 1e9:.1f} GB)"
     )
     counts = clean_main(
-        paths["main"], output_dir, extraction_date, arch_dir, block_size
+        paths["main"],
+        output_dir,
+        extraction_date,
+        arch_dir,
+        block_size,
+        write_header=write_header,
     )
     for table, n in counts.items():
         print(f"  {table:<20} {n:>12,} rows")
@@ -674,9 +715,12 @@ def clean_all(
             extraction_date,
             arch_dir,
             block_size,
+            write_header=write_header,
         )
         print(f"  {table:<20} {counts[table]:>12,} rows")
-    counts["dicionario"] = clean_dicionario(output_dir, arch_dir)
+    counts["dicionario"] = clean_dicionario(
+        output_dir, arch_dir, write_header=write_header
+    )
     print(f"  {'dicionario':<20} {counts['dicionario']:>12,} rows")
     result: dict = {
         "counts": counts,
