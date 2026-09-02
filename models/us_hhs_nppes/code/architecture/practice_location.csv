@@ -1,0 +1,12 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+extraction_date,DATE,Data de referência do snapshot mensal do NPPES; cada extração é uma fotografia completa do cadastro e as extrações são empilhadas,,no,,,no,Partition column; taken from the end of the source file name date range,(file name date range)
+npi,STRING,"Identificador Nacional de Prestador (NPI), código numérico de 10 dígitos que identifica de forma única o prestador de serviços de saúde",,no,,,no,,NPI
+address_line_1,STRING,Primeira linha do endereço do local de atendimento secundário,,no,,,yes,,Provider Secondary Practice Location Address- Address Line 1
+address_line_2,STRING,Segunda linha do endereço do local de atendimento secundário,,no,,,yes,,Provider Secondary Practice Location Address-  Address Line 2
+address_city,STRING,Município do local de atendimento secundário,,no,,,no,,Provider Secondary Practice Location Address - City Name
+address_state,STRING,Sigla de duas letras do estado do local de atendimento secundário,,no,br_bd_diretorios_us.state:abbreviation,,no,,Provider Secondary Practice Location Address - State Name
+address_postal_code,STRING,"Código postal (ZIP) do local de atendimento secundário, de 5 ou 9 dígitos",,no,,,no,,Provider Secondary Practice Location Address - Postal Code
+address_country_code,STRING,Código ISO de duas letras do país do local de atendimento secundário,,yes,,,no,,Provider Secondary Practice Location Address - Country Code (If outside U.S.)
+telephone_number,STRING,Telefone do local de atendimento secundário,,no,,,yes,,Provider Secondary Practice Location Address - Telephone Number
+telephone_extension,STRING,Ramal telefônico do local de atendimento secundário,,no,,,yes,,Provider Secondary Practice Location Address - Telephone Extension
+fax_number,STRING,Fax do local de atendimento secundário,,no,,,yes,,Provider Practice Location Address - Fax Number

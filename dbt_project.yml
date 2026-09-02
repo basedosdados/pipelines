@@ -207,6 +207,9 @@ models:
     us_cms_open_payments:
       +materialized: table
       +schema: us_cms_open_payments
+    us_hhs_nppes:
+      +materialized: table
+      +schema: us_hhs_nppes
     us_fec_campaign_finance:
       +materialized: table
       +schema: us_fec_campaign_finance
