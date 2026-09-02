@@ -149,15 +149,37 @@ def source_total(session: requests.Session, table: str) -> int | None:
                 query["codigoModalidade"] = modalidade
             if kind in ("year_param", "modalidade"):
                 query[params[0]] = value
+                spans = [None]
             else:
-                end_date = (
-                    f"{value + 1}-01-01"
-                    if kind.endswith("half_open")
-                    else f"{value}-12-31"
-                )
-                query[params[0]] = f"{value}-01-01"
-                query[params[1]] = end_date
-            got = _one_total(session, path, query)
+                # Split each year in half. A whole year is 366 days on a leap
+                # year and the API caps a window at 365, so the naive form fails
+                # exactly on leap years -- silently, since the failure looks like
+                # any other unreadable year.
+                #
+                # The upper bound must also match the endpoint's own semantics:
+                # asking a half-open endpoint for Y-01-01..Y-12-31 excludes 31
+                # December, which understated endpoint 4's total by ~47,000 rows
+                # across 26 years and made a correct harvest look like an
+                # over-fetch.
+                if kind.endswith("half_open"):
+                    spans = [
+                        (f"{value}-01-01", f"{value}-07-01"),
+                        (f"{value}-07-01", f"{value + 1}-01-01"),
+                    ]
+                else:
+                    spans = [
+                        (f"{value}-01-01", f"{value}-06-30"),
+                        (f"{value}-07-01", f"{value}-12-31"),
+                    ]
+            got = 0
+            for span in spans:
+                if span is not None:
+                    query[params[0]], query[params[1]] = span
+                part = _one_total(session, path, query)
+                if part is None:
+                    got = None
+                    break
+                got += part
             if got is None:
                 print(
                     f"    ! {table}: {value}"
