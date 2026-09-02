@@ -285,11 +285,9 @@ def clean_contributor_cycle() -> tuple[int, list[Path]]:
         )
     cycles = [c.split(".")[-1] for c in amount_cols]
 
-    # The contributor file carries quoted newlines inside free-text name fields,
-    # which the parallel scanner cannot split safely.
     con.execute(
         "create or replace view src as select * from "
-        + _read_csv(src, header, parallel=False)
+        + _read_csv(src, header, parallel=True)
     )
     wide = ",\n        ".join(
         f'try_cast(nullif(trim("{col}"), \'\') as double) as "{cycle}"'
@@ -405,7 +403,7 @@ def main() -> None:
     elif args.table == "contributor":
         name = "dime_contributors_1979_2024.csv.gz"
         n, files = _with_repair(
-            lambda: clean_simple("contributor", name, parallel=False),
+            lambda: clean_simple("contributor", name, parallel=True),
             INPUT / name,
             "contributor",
         )
