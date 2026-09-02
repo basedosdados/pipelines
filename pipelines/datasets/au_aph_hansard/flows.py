@@ -4,6 +4,27 @@ Flows for au_aph_hansard — Prefect 3.
 Australian Parliament Hansard: every speech, interjection and continuation in
 the House of Representatives and the Senate.
 
+**Source: OpenAustralia's mirror, not ParlInfo.** ParlInfo answers this worker
+with HTTP 403 on every request - 490 of 490 probes on 2026-09-02 - while
+serving the identical code and headers from an Australian connection, so the
+block is on the egress IP and nothing in the code can lift it. OpenAustralia
+publishes a parsed mirror of the same Hansard, built for bulk access, covering
+2006 onwards.
+
+Two consequences, both deliberate and visible in the data:
+
+* The mirror carries no parliament/session/period number, no page number and no
+  debate type, so those are null on days sourced from it. Electorate and party
+  are recovered by joining OpenAustralia's own rosters; ``party`` there is the
+  *most recent* party rather than the affiliation held on the day.
+* ``speaker_id`` changes scheme - OpenAustralia's member ids, not ParlInfo's.
+  Because the rebuild works on whole years, a year is wholly one source or the
+  other, never a mix.
+
+Measured against ParlInfo for 2026-08-20, the mirror yields 5% fewer words in
+the House and 15% fewer in the Senate: its parser targets member speech and
+drops some procedural text.
+
 The run rebuilds whole year partitions rather than appending single sitting
 days, which makes it idempotent — a re-run cannot double-count a day, and a
 proof transcript later replaced by the official one is corrected in place.
@@ -88,8 +109,12 @@ def au_aph_hansard_flow(
         max_date = result["max_date"]
 
         if not max_date:
-            print("no transcripts found in the rebuild window; nothing to do")
-            return
+            # download_hansard already refuses to return an empty harvest, so
+            # reaching here means transcripts parsed to no usable date.
+            raise RuntimeError(
+                "transcripts were downloaded but none yielded a sitting date; "
+                "refusing to report success"
+            )
 
         # Parliament sits roughly 20 weeks a year, so most daily runs find
         # nothing new and stop here.
