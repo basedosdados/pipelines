@@ -121,6 +121,9 @@ models:
     br_bd_diretorios_cl:
       +materialized: table
       +schema: br_bd_diretorios_cl
+    cl_res_empresas:
+      +materialized: table
+      +schema: cl_res_empresas
     br_bd_diretorios_de:
       +materialized: table
       +schema: br_bd_diretorios_de
@@ -183,6 +186,9 @@ models:
     us_fhfa_hpi:
       +materialized: table
       +schema: us_fhfa_hpi
+    au_aph_hansard:
+      +materialized: table
+      +schema: au_aph_hansard
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force
@@ -201,9 +207,15 @@ models:
     us_cms_open_payments:
       +materialized: table
       +schema: us_cms_open_payments
+    us_hhs_nppes:
+      +materialized: table
+      +schema: us_hhs_nppes
     us_fec_campaign_finance:
       +materialized: table
       +schema: us_fec_campaign_finance
+    us_dot_bts_ontime:
+      +materialized: table
+      +schema: us_dot_bts_ontime
     us_nature_gerda:
       +materialized: table
       +schema: us_nature_gerda
@@ -573,12 +585,21 @@ models:
     us_sec_edgar:
       +materialized: table
       +schema: us_sec_edgar
+    us_stanford_dime:
+      +materialized: table
+      +schema: us_stanford_dime
     us_census_acs:
       +materialized: table
       +schema: us_census_acs
+    us_ed_college_scorecard:
+      +materialized: table
+      +schema: us_ed_college_scorecard
     us_ed_ipeds:
       +materialized: table
       +schema: us_ed_ipeds
+    us_ed_nces_ccd:
+      +materialized: table
+      +schema: us_ed_nces_ccd
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections
