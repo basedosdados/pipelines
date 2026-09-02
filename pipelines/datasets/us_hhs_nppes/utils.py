@@ -229,9 +229,17 @@ class PartitionWriter:
     """Append record batches to ``<out>/<table>/extraction_date=<d>/`` .
 
     Files are chunked so peak RAM stays bounded and the *first* blob in the
-    staging prefix is small. A 0-row ``00_header.parquet`` is written first and
-    sorts ahead of every data file, which keeps the table-approve CI step from
-    loading a large parquet whole (see project_table_approve_parquet_header_oom).
+    staging prefix is small. A 0-row ``00_header.parquet`` sorts ahead of every
+    data file, which keeps the table-approve CI step from loading a large
+    parquet whole (see project_table_approve_parquet_header_oom).
+
+    That header is written **last**, in :meth:`close`, even though it sorts
+    first. ``upload_to_gcs`` recreates the staging external table while the
+    upload is still in flight, and BigQuery fixes the table's schema from
+    whatever files it can see: if the 0-row header is the only one, every column
+    resolves to INT64 and the dbt model then fails with
+    ``Invalid cast from INT64 to DATE``. Writing it after the data files means it
+    is never alone in the prefix.
     """
 
     #: Written into the directory name, never into the file body — BigQuery's
@@ -262,11 +270,6 @@ class PartitionWriter:
         self.buffered = 0
         self.seq = 0
         self.rows = 0
-        pq.write_table(
-            self.schema.empty_table(),
-            self.dir / "00_header.parquet",
-            compression="snappy",
-        )
 
     def write(self, table: pa.Table) -> None:
         if table.num_rows == 0:
@@ -291,6 +294,12 @@ class PartitionWriter:
 
     def close(self) -> int:
         self._flush()
+        # Written last on purpose — see the class docstring.
+        pq.write_table(
+            self.schema.empty_table(),
+            self.dir / "00_header.parquet",
+            compression="snappy",
+        )
         return self.rows
 
 
@@ -645,9 +654,18 @@ def clean_all(
         }
 
     extraction_date = extraction_date_from_name(paths["main"])
+    # The flow sets log_prints=True, so these reach the Prefect run log. The
+    # main file alone takes ~10 minutes and is otherwise completely silent.
+    print(f"cleaning NPPES snapshot {extraction_date}")
+    print(
+        f"  main file: {paths['main'].name} "
+        f"({paths['main'].stat().st_size / 1e9:.1f} GB)"
+    )
     counts = clean_main(
         paths["main"], output_dir, extraction_date, arch_dir, block_size
     )
+    for table, n in counts.items():
+        print(f"  {table:<20} {n:>12,} rows")
     for table in ("other_name", "practice_location", "endpoint"):
         counts[table] = clean_reference(
             paths[table],
@@ -657,7 +675,9 @@ def clean_all(
             arch_dir,
             block_size,
         )
+        print(f"  {table:<20} {counts[table]:>12,} rows")
     counts["dicionario"] = clean_dicionario(output_dir, arch_dir)
+    print(f"  {'dicionario':<20} {counts['dicionario']:>12,} rows")
     result: dict = {
         "counts": counts,
         "extraction_date": extraction_date,
