@@ -200,7 +200,18 @@ FIELD_OF_STUDY_RENAMES = {
     "DISTANCE": "distance_education",
 }
 
-FIELD_OF_STUDY_KEY = ["year", "unitid", "cip_code", "credential_level"]
+# The source also publishes entity-level rows identified only by OPEID6, with
+# UNITID = 'NA' (58,103 rows, 3.3%). They carry real debt and earnings data, so
+# they are kept -- which means opeid6 is part of the grain and unitid is
+# nullable. Only this five-column key is unique; dropping opeid6 leaves 50,722
+# duplicate keys.
+FIELD_OF_STUDY_KEY = [
+    "year",
+    "opeid6",
+    "unitid",
+    "cip_code",
+    "credential_level",
+]
 
 
 def bd_name_field_of_study(raw: str) -> str:

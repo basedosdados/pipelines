@@ -67,9 +67,7 @@ select
     safe_cast(undergraduate_enrollment as int64) undergraduate_enrollment,
     safe_cast(undergraduate_enrollment_all as int64) undergraduate_enrollment_all,
     safe_cast(tuition_revenue_per_fte as int64) tuition_revenue_per_fte,
-    safe_cast(
-        instructional_expenditure_per_fte as int64
-    ) instructional_expenditure_per_fte,
+    safe_cast(instructional_expenditure_per_fte as int64) instructional_expenditure_per_fte,
     safe_cast(average_faculty_salary as int64) average_faculty_salary,
     safe_cast(full_time_faculty_rate as float64) full_time_faculty_rate,
     safe_cast(endowment_begin as int64) endowment_begin,
@@ -106,4 +104,6 @@ select
     safe_cast(act_writing_p25 as string) act_writing_p25,
     safe_cast(act_writing_p75 as string) act_writing_p75,
     safe_cast(act_writing_midpoint as string) act_writing_midpoint
-from {{ set_datalake_project("us_ed_college_scorecard_staging.institution") }} as t
+from
+    {{ set_datalake_project("us_ed_college_scorecard_staging.institution") }}
+    as t

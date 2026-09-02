@@ -68,6 +68,14 @@ ARCH_COLUMNS = [
 
 TIME_DIRECTORY = "br_bd_diretorios_data_tempo.ano:ano"
 
+# The house US directory already types UNITID as STRING, so the STRING choice
+# here matches it; only the older us_ed_ipeds dataset types the key as INT64.
+DIRECTORY = {
+    "unitid": "br_bd_diretorios_us.higher_education_institution:id_institution",
+    "state_abbreviation": "br_bd_diretorios_us.state:abbreviation",
+    "state_fips": "br_bd_diretorios_us.state:id_state",
+}
+
 # Institution columns whose value set is documented in the `dicionario` table.
 DICT_COVERED = {
     "control",
@@ -123,6 +131,12 @@ INSTITUTION_QUANTITIES = {
     "sat_average": ("FLOAT64", "score_point"),
     "sat_average_all_campuses": ("FLOAT64", "score_point"),
 }
+
+FOS_UNITID_NOTE_PT = (
+    "Nulo em 58.103 linhas (3,3%): a fonte também publica linhas agregadas por "
+    "entidade, identificadas apenas por opeid6 e com UNITID igual a NA. Essas linhas "
+    "trazem dados reais e por isso foram mantidas; a chave da tabela inclui opeid6"
+)
 
 SUPPRESSION_NOTE_PT = (
     "Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; "
@@ -203,6 +217,7 @@ def build_institution(by_source):
                     "STRING",
                     pt,
                     original=raw,
+                    directory=DIRECTORY["unitid"],
                     observations="Identificador; a aritmética não faz sentido, por isso STRING",
                 )
             )
@@ -226,6 +241,7 @@ def build_institution(by_source):
                     "STRING",
                     pt,
                     original=raw,
+                    directory=DIRECTORY.get(name, ""),
                     dictionary="yes" if name in DICT_COVERED else "no",
                     observations=SUPPRESSION_NOTE_PT
                     if name in DICT_COVERED
@@ -251,7 +267,15 @@ def build_long(table):
                 )
             )
         elif name == "unitid":
-            rows.append(row(name, "STRING", pt, original="UNITID"))
+            rows.append(
+                row(
+                    name,
+                    "STRING",
+                    pt,
+                    original="UNITID",
+                    directory=DIRECTORY["unitid"],
+                )
+            )
         elif name == "value":
             rows.append(
                 row(
@@ -289,6 +313,8 @@ def fos_type_and_unit(bd_name, entry):
     # BAND_NOTE_PT. Typed FLOAT64 they would safe_cast to NULL silently.
     if upper.startswith("BBRR") and not upper.endswith("_N"):
         return "STRING", ""
+    if upper.startswith("IPEDSCOUNT"):
+        return "INT64", "unit"
     if re.search(
         r"(_N|COUNT\d?|CNTOVER150|IPEDSCOUNT\d|_GT_THRESHOLD_\d+YR|"
         r"_HIGH_CRED_\d+YR|_IN_STATE_\d+YR)$",
@@ -319,9 +345,16 @@ def build_field_of_study(by_source, fos_header):
         name = spec.bd_name_field_of_study(raw)
         entry = by_source.get("P_" + raw.upper()) or by_source[raw.upper()]
         pt, en, es = i18n.translate_fos(entry.get("description") or "")
+        if name == "unitid":
+            # Keep the IPEDS-join note identical in all three languages; the
+            # source's own one-line label loses it in English.
+            pt, en, es = i18n.UNITID
         bq, unit = fos_type_and_unit(name, entry)
+        directory = DIRECTORY.get(name, "")
         note = ""
-        if raw.upper().startswith("BBRR") and not raw.upper().endswith("_N"):
+        if name == "unitid":
+            note = FOS_UNITID_NOTE_PT
+        elif raw.upper().startswith("BBRR") and not raw.upper().endswith("_N"):
             note = BAND_NOTE_PT
         elif bq != "STRING":
             note = SUPPRESSION_NOTE_PT
@@ -332,6 +365,7 @@ def build_field_of_study(by_source, fos_header):
                 pt,
                 original=raw.upper(),
                 unit=unit,
+                directory=directory,
                 observations=note,
                 dictionary="yes"
                 if name

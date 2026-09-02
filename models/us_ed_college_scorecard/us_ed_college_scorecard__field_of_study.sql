@@ -8,7 +8,7 @@
             "data_type": "int64",
             "range": {"start": 2015, "end": 2027, "interval": 1},
         },
-        cluster_by=["cip_code"],
+        cluster_by=['cip_code'],
     )
 }}
 
@@ -193,4 +193,6 @@ select
     safe_cast(earn_mdn_4yr_nat as float64) earn_mdn_4yr_nat,
     safe_cast(earn_p25_4yr_nat as float64) earn_p25_4yr_nat,
     safe_cast(earn_p75_4yr_nat as float64) earn_p75_4yr_nat
-from {{ set_datalake_project("us_ed_college_scorecard_staging.field_of_study") }} as t
+from
+    {{ set_datalake_project("us_ed_college_scorecard_staging.field_of_study") }}
+    as t

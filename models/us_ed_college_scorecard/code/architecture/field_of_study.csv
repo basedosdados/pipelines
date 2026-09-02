@@ -1,6 +1,6 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
 year,INT64,"Ano de referência da coorte, conforme o arquivo anual publicado pela fonte",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento; corresponde ao segundo ano letivo da coorte agrupada publicada pela fonte,
-unitid,STRING,"Código de identificação da instituição no IPEDS (UNITID). Mesma chave da tabela us_ed_ipeds; como lá o tipo é INT64, o cruzamento exige safe_cast(unitid as int64)",,no,,,no,,UNITID
+unitid,STRING,"Código de identificação da instituição no IPEDS (UNITID). Mesma chave da tabela us_ed_ipeds; como lá o tipo é INT64, o cruzamento exige safe_cast(unitid as int64)",,no,br_bd_diretorios_us.higher_education_institution:id_institution,,no,"Nulo em 58.103 linhas (3,3%): a fonte também publica linhas agregadas por entidade, identificadas apenas por opeid6 e com UNITID igual a NA. Essas linhas trazem dados reais e por isso foram mantidas; a chave da tabela inclui opeid6",UNITID
 opeid6,STRING,Código OPE de 6 dígitos da instituição,,no,,,no,,OPEID6
 institution_name,STRING,Nome da instituição,,no,,,no,,INSTNM
 control,STRING,Natureza administrativa da instituição,,yes,,,no,,CONTROL
@@ -9,8 +9,8 @@ cip_code,STRING,Código CIP de 4 dígitos da área de formação,,no,,,no,,CIPCO
 cip_description,STRING,Nome da área de formação correspondente ao código CIP,,no,,,no,,CIPDESC
 credential_level,STRING,Nível da credencial concedida,,yes,,,no,,CREDLEV
 credential_description,STRING,Nome do nível da credencial concedida,,no,,,no,,CREDDESC
-ipedscount1,INT64,Número de diplomas concedidos no primeiro ano da coorte agrupada de endividamento,,no,,person,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,IPEDSCOUNT1
-ipedscount2,INT64,Número de diplomas concedidos no segundo ano da coorte agrupada de endividamento,,no,,person,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,IPEDSCOUNT2
+ipedscount1,INT64,Número de diplomas concedidos no primeiro ano da coorte agrupada de endividamento,,no,,unit,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,IPEDSCOUNT1
+ipedscount2,INT64,Número de diplomas concedidos no segundo ano da coorte agrupada de endividamento,,no,,unit,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,IPEDSCOUNT2
 debt_all_stgp_any_n,INT64,Número de tomadores usado no cálculo da média e da mediana d a dívida de empréstimos Stafford e Grad PLUS desembolsada no conjunto das instituições,,no,,person,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,DEBT_ALL_STGP_ANY_N
 debt_all_stgp_any_mean,FLOAT64,Média d a dívida de empréstimos Stafford e Grad PLUS desembolsada no conjunto das instituições,,no,,USD,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,DEBT_ALL_STGP_ANY_MEAN
 debt_all_stgp_any_mdn,FLOAT64,Mediana d a dívida de empréstimos Stafford e Grad PLUS desembolsada no conjunto das instituições,,no,,USD,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,DEBT_ALL_STGP_ANY_MDN

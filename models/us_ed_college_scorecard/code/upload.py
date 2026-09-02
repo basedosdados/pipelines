@@ -2,12 +2,26 @@
 """
 Upload the cleaned College Scorecard parquet to BigQuery dev.
 
-Uploads one table at a time, smallest first, and verifies the row count in
-BigQuery against the count written by clean_data.py. Stops on the first
-mismatch rather than continuing with a half-loaded dataset.
+Streams each partition to GCS and then issues one server-side load job per
+table, rather than calling ``bd.Table.create``. ``Table.create`` reads the
+whole parquet into pandas and stringifies it before dumping to GCS, which on
+a 135.8M-row table balloons RSS into the tens of GB; streaming keeps memory
+flat regardless of table size. See [[reference_bd_table_create_ram_blowup]].
+
+The GCS layout is the same one ``bd.Storage`` would write --
+``staging/<gcp_dataset_id>/<table>/year=YYYY/data.parquet`` -- so the
+table-approve job finds the files at merge time. Keeping the hive directories
+costs nothing here because ``year`` is also a real column inside every file
+(house convention, cf. us_bls_cpi.write_partitioned), so the load job reads it
+from the data and never needs the directory name.
+
+Row counts are verified in BigQuery against clean_stats.json after each load,
+and the run stops on the first mismatch rather than continuing with a
+half-loaded dataset.
 
 Usage:
-    uv run python models/us_ed_college_scorecard/code/upload.py [table_slug ...]
+    GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
+        uv run python models/us_ed_college_scorecard/code/upload.py [table ...]
 """
 
 import json
@@ -18,14 +32,15 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-import basedosdados as bd  # noqa: E402
-import google.cloud.storage as gcs  # noqa: E402
 import pyarrow as pa  # noqa: E402
 import pyarrow.parquet as pq  # noqa: E402
-from google.cloud import bigquery  # noqa: E402
+from google.cloud import bigquery, storage  # noqa: E402
 
-BILLING_PROJECT = "basedosdados-dev"
+PROJECT = "basedosdados-dev"
+BUCKET = "basedosdados-dev"
 DATASET_ID = "us_ed_college_scorecard"
+CHUNK_SIZE = 256 * 1024 * 1024
+
 CODE_DIR = pathlib.Path(__file__).resolve().parent
 OUTPUT_ROOT = pathlib.Path(
     os.environ.get(
@@ -34,26 +49,17 @@ OUTPUT_ROOT = pathlib.Path(
     )
 )
 
-# The bucket is requester-pays, so every bucket handle needs a billing project.
-_orig_bucket = gcs.Client.bucket
-
-
-def _patched_bucket(self, bucket_name, user_project=None):
-    return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
-
-
-gcs.Client.bucket = _patched_bucket
-
 
 def write_zero_row_header(table_dir):
     """Prepend a 0-row parquet so table-approve reads a tiny first file.
 
-    The prod table-approve job builds its schema from the FIRST parquet under
-    the staging prefix and loads it into memory; on a multi-GB first partition
-    that OOMs the runner. A 0-row file sorting before every partition
-    directory fixes it and costs nothing.
+    The prod table-approve job builds its schema from the first parquet under
+    the staging prefix and loads that file into memory; on a multi-hundred-MB
+    first partition it OOMs the runner. A 0-row file sorting before every
+    ``year=`` directory fixes it and costs nothing.
+    See [[project_table_approve_parquet_header_oom]].
     """
-    partitions = sorted(p for p in table_dir.glob("year=*/data.parquet"))
+    partitions = sorted(table_dir.glob("year=*/data.parquet"))
     if not partitions:
         return
     header = table_dir / "00_header.parquet"
@@ -63,51 +69,78 @@ def write_zero_row_header(table_dir):
     )
 
 
-def upload_table(slug, expected_rows):
-    path = OUTPUT_ROOT / slug
-    if not path.exists():
-        raise FileNotFoundError(f"missing output path: {path}")
-    write_zero_row_header(path)
-
-    storage = bd.Storage(dataset_id=DATASET_ID, table_id=slug)
-    try:
-        storage.delete_table(mode="staging", not_found_ok=True)
-    except Exception as exc:
-        print(f"  [warn] staging prefix cleanup: {exc}")
-
-    bd.Table(dataset_id=DATASET_ID, table_id=slug).create(
-        path=str(path),
-        source_format="parquet",
-        if_table_exists="replace",
-        if_storage_data_exists="replace",
-        if_dataset_exists="pass",
+def local_files(table):
+    root = OUTPUT_ROOT / table
+    write_zero_row_header(root)
+    return sorted(root.glob("year=*/data.parquet")) or sorted(
+        root.glob("*.parquet")
     )
 
-    client = bigquery.Client(project=BILLING_PROJECT)
-    query = f"select count(*) as n from `{BILLING_PROJECT}.{DATASET_ID}_staging.{slug}`"
-    loaded = next(iter(client.query(query).result())).n
-    ok = loaded == expected_rows
-    print(
-        f"  {slug}: {loaded:,} rows in BigQuery (expected {expected_rows:,}) — "
-        f"{'OK' if ok else 'ROW MISMATCH'}"
+
+def upload_to_gcs(bucket, table, files):
+    """Stream each partition to GCS; returns the gs:// URIs that were written."""
+    root = OUTPUT_ROOT / table
+    uris = []
+    for path in files:
+        key = f"staging/{DATASET_ID}/{table}/{path.relative_to(root)}"
+        blob = bucket.blob(key)
+        blob.chunk_size = CHUNK_SIZE
+        blob.upload_from_filename(str(path))
+        uris.append(f"gs://{BUCKET}/{key}")
+    return uris
+
+
+def load_table(bq, table, uris):
+    """Load the staged parquet into a native staging table.
+
+    A load job cannot overwrite an EXTERNAL table, which is what
+    ``bd.Table.create`` leaves behind, so any existing table is dropped first.
+    dbt reads either kind, and table-approve rebuilds prod staging itself.
+    """
+    target = f"{PROJECT}.{DATASET_ID}_staging.{table}"
+    bq.query(f"drop table if exists `{target}`").result()
+    job = bq.load_table_from_uri(
+        uris,
+        target,
+        job_config=bigquery.LoadJobConfig(
+            source_format=bigquery.SourceFormat.PARQUET,
+            write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
+        ),
     )
-    if not ok:
-        raise ValueError(f"{slug}: {loaded:,} != {expected_rows:,}")
-    return loaded
+    job.result()
+    return next(
+        iter(bq.query(f"select count(*) as n from `{target}`").result())
+    ).n
 
 
 def main():
-    stats = json.loads((CODE_DIR / "clean_stats.json").read_text())
-    tables = sorted(stats["rows"].items(), key=lambda kv: kv[1])
+    expected = json.loads((CODE_DIR / "clean_stats.json").read_text())["rows"]
     only = set(sys.argv[1:])
-    for slug, expected in tables:
-        if only and slug not in only:
-            continue
-        print(f"=== {slug} ===", flush=True)
-        try:
-            upload_table(slug, expected)
-        except Exception as exc:
-            print(f"  FAILED: {type(exc).__name__}: {exc}")
+    tables = [
+        t
+        for t, _ in sorted(expected.items(), key=lambda kv: kv[1])
+        if not only or t in only
+    ]
+
+    gcs = storage.Client(project=PROJECT)
+    bucket = gcs.bucket(BUCKET, user_project=PROJECT)  # requester-pays
+    bq = bigquery.Client(project=PROJECT)
+
+    for table in tables:
+        files = local_files(table)
+        print(
+            f"=== {table}: {len(files)} files, {expected[table]:,} rows expected",
+            flush=True,
+        )
+        uris = upload_to_gcs(bucket, table, files)
+        loaded = load_table(bq, table, uris)
+        ok = loaded == expected[table]
+        print(
+            f"    loaded {loaded:,} rows — {'OK' if ok else 'ROW MISMATCH'}",
+            flush=True,
+        )
+        if not ok:
+            print(f"    FAILED: {loaded:,} != {expected[table]:,}")
             sys.exit(1)
     print("ALL TABLES UPLOADED")
 

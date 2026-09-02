@@ -12,6 +12,7 @@ Usage:
 """
 
 import csv
+import json
 import logging
 import pathlib
 import sys
@@ -41,12 +42,22 @@ for _t in LONG_TABLES:
 
 UNPARTITIONED = ("variable", "dicionario")
 
+# Key columns that are legitimately nullable, so they take no not_null test.
+NULLABLE_KEY = {("field_of_study", "unitid")}
+
+# Columns below the 5% non-null floor, measured on the cleaned output by
+# code/sparse_columns.json. They are legitimately sparse -- institution
+# characteristics that the source only populates in recent cohort files, and
+# field-of-study measures published for a small subset of programs -- so they
+# are excluded from the not_null_proportion floor rather than lowering it.
+SPARSE = json.loads((CODE_DIR / "sparse_columns.json").read_text())
+
 CLUSTER_BY = {t: ["variable_name"] for t in LONG_TABLES}
 CLUSTER_BY["field_of_study"] = ["cip_code"]
 
 PRIMARY_KEY = {
     "institution": ["year", "unitid"],
-    "field_of_study": ["year", "unitid", "cip_code", "credential_level"],
+    "field_of_study": spec.FIELD_OF_STUDY_KEY,
     "variable": ["variable_name", "source_file"],
     "dicionario": ["id_tabela", "nome_coluna", "chave"],
     **{t: ["year", "unitid", "variable_name"] for t in LONG_TABLES},
@@ -114,7 +125,10 @@ TABLE_DESCRIPTION = {
         "monthly loan payment, median earnings at 1 to 5 years after completion by "
         "subgroup, and borrower-based repayment status. This is the table that pairs "
         "earnings with major. Borrower-based repayment columns (BBRR*) are STRING because "
-        "the source publishes them as rounding intervals as often as numbers."
+        "the source publishes them as rounding intervals as often as numbers. The source "
+        "also publishes entity-level rows identified only by opeid6, with unitid null "
+        "(58,103 rows, 3.3%); they carry real debt and earnings data and are kept, which "
+        "is why opeid6 is part of the key and unitid is nullable here."
     ),
     "variable": (
         "Catalogue of every variable published in the College Scorecard institution-level "
@@ -215,6 +229,7 @@ def build_schema(tables, arch, i18n_map):
         ignore = [
             r["name"] for r in rows if r["name"] in ("value", "value_raw")
         ]
+        ignore += [c for c in SPARSE.get(table, []) if c not in ignore]
         out.append("      - not_null_proportion_multiple_columns:")
         out.append("          at_least: 0.05")
         if ignore:
@@ -229,7 +244,10 @@ def build_schema(tables, arch, i18n_map):
                 yaml_block(i18n_map[(table, name)]["description_en"], 10)
             )
             tests = []
-            if name in PRIMARY_KEY[table]:
+            if (
+                name in PRIMARY_KEY[table]
+                and (table, name) not in NULLABLE_KEY
+            ):
                 tests.append("not_null")
             if name == "year" and table not in UNPARTITIONED:
                 out.append("        tests:")

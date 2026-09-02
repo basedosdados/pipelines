@@ -1,6 +1,6 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
 year,INT64,"Ano de referência da coorte, conforme o arquivo anual publicado pela fonte",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento,
-unitid,STRING,"Código de identificação da instituição no IPEDS (UNITID). Mesma chave da tabela us_ed_ipeds; como lá o tipo é INT64, o cruzamento exige safe_cast(unitid as int64)",,no,,,no,"Identificador; a aritmética não faz sentido, por isso STRING",UNITID
+unitid,STRING,"Código de identificação da instituição no IPEDS (UNITID). Mesma chave da tabela us_ed_ipeds; como lá o tipo é INT64, o cruzamento exige safe_cast(unitid as int64)",,no,br_bd_diretorios_us.higher_education_institution:id_institution,,no,"Identificador; a aritmética não faz sentido, por isso STRING",UNITID
 opeid8,STRING,"Código OPE de 8 dígitos da instituição, atribuído pelo Escritório de Educação Superior",,no,,,no,,OPEID
 opeid6,STRING,"Código OPE de 6 dígitos da instituição, comum a todos os campi de uma mesma entidade",,no,,,no,,OPEID6
 federal_school_code,STRING,Código federal da instituição usado no formulário FAFSA,,no,,,no,,FEDSCHCD
@@ -10,9 +10,9 @@ institution_url,STRING,Endereço do sítio eletrônico da instituição,,no,,,no
 net_price_calculator_url,STRING,Endereço da calculadora de preço líquido da instituição,,no,,,no,,NPCURL
 address,STRING,Endereço da instituição,,no,,,no,,ADDR
 city,STRING,Município da instituição,,no,,,no,,CITY
-state_abbreviation,STRING,Sigla do estado norte-americano em que a instituição está localizada,,no,,,no,,STABBR
+state_abbreviation,STRING,Sigla do estado norte-americano em que a instituição está localizada,,no,br_bd_diretorios_us.state:abbreviation,,no,,STABBR
 zip_code,STRING,Código postal (ZIP) da instituição,,no,,,no,,ZIP
-state_fips,STRING,Código FIPS do estado em que a instituição está localizada,,no,,,no,,ST_FIPS
+state_fips,STRING,Código FIPS do estado em que a instituição está localizada,,no,br_bd_diretorios_us.state:id_state,,no,,ST_FIPS
 region,STRING,Região do IPEDS em que a instituição está localizada,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,REGION
 locale,STRING,"Grau de urbanização do local da instituição, segundo a classificação do NCES",,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,LOCALE
 locale_degree_urbanization,STRING,Grau de urbanização agregado do local da instituição,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,LOCALE2
