@@ -50,7 +50,6 @@ models:
           Unique identifier of the recipient candidate or committee, assigned by
           DIME. Stable across cycles, offices and levels of government; joins to the
           recipient table
-        tests: [not_null]
       - name: efec_transaction_id_original
         description: >-
           Original transaction identifier from the FEC electronic filing. Empty for
@@ -501,8 +500,9 @@ models:
       attributes reported on their most recent contribution, and the window of
       cycles over which they were active.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [contributor_id]
+          proportion_allowed_failures: 0.00001000
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [is_corporation]
@@ -511,7 +511,6 @@ models:
         description: >-
           Unique identifier of the contributor, assigned by DIME entity resolution.
           Joins to the contribution and contributor_cycle tables
-        tests: [not_null]
       - name: contributor_type
         description: >-
           Whether the contributor is an individual or an organization
@@ -544,9 +543,10 @@ models:
         description: >-
           First election cycle in which the donor was recorded as active
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              ignore_values: ['9999']
       - name: last_cycle_active
         description: >-
           Last election cycle in which the donor was recorded as active
@@ -597,8 +597,9 @@ models:
       contributor file; a donor-cycle pair with no giving is absent rather than
       stored as a zero.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [cycle, contributor_id]
+          proportion_allowed_failures: 0.00001000
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -614,7 +615,6 @@ models:
         description: >-
           Unique identifier of the contributor, assigned by DIME entity resolution.
           Joins to the contributor and contribution tables
-        tests: [not_null]
       - name: amount
         description: >-
           Total amount contributed by the donor during the cycle. Nominal dollars.

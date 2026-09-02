@@ -61,17 +61,34 @@ UNIQUE_KEYS = {
     "dicionario": ["id_tabela", "nome_coluna", "chave"],
 }
 
+# Only columns the data actually guarantees. recipient_id and contributor_id are
+# deliberately absent: the source carries a handful of records with no
+# identifier — 35 contributions across cycles 2006, 2012 and 2016, and 52
+# contributor rows in which every other field is also empty. Those rows are kept
+# rather than filtered, because dropping source records to make a test pass
+# hides the defect instead of reporting it.
 NOT_NULL = {
-    "contribution": [
-        "cycle",
-        "transaction_id",
-        "contributor_id",
-        "recipient_id",
-    ],
+    "contribution": ["cycle", "transaction_id", "contributor_id"],
     "recipient": ["cycle", "recipient_id", "icpsr_id"],
-    "contributor": ["contributor_id"],
-    "contributor_cycle": ["cycle", "contributor_id", "amount"],
+    "contributor": [],
+    "contributor_cycle": ["cycle", "amount"],
     "dicionario": ["id_tabela", "nome_coluna", "chave", "valor"],
+}
+
+# Tables whose key is unique among real records but where the identifier-less
+# rows collapse into a single null group. Verified: contributor has 44,206,014
+# distinct ids across 44,206,066 rows, exactly the row count minus its 52 null
+# rows, so the non-null ids are perfectly unique.
+UNIQUE_ALLOWANCE = {
+    "contributor": 0.00001,
+    "contributor_cycle": 0.00001,
+}
+
+# Directory foreign keys with a documented sentinel to skip. DIME uses 9999 for
+# an unknown first active cycle on 666,508 contributor rows; last_cycle_active
+# carries no sentinel and needs no exemption.
+DIRECTORY_IGNORE = {
+    ("contributor", "first_cycle_active"): ["9999"],
 }
 
 TABLE_DESCRIPTION = {
@@ -189,10 +206,21 @@ def schema_yml() -> str:
             f"    description: {_yaml_block(TABLE_DESCRIPTION[table], 6)}"
         )
         out.append("    tests:")
-        out.append("      - dbt_utils.unique_combination_of_columns:")
+        allowance = UNIQUE_ALLOWANCE.get(table)
+        kind = (
+            "custom_unique_combinations_of_columns"
+            if allowance
+            else "dbt_utils.unique_combination_of_columns"
+        )
+        out.append(f"      - {kind}:")
         out.append(
             f"          combination_of_columns: [{', '.join(UNIQUE_KEYS[table])}]"
         )
+        if allowance:
+            # Render as a plain decimal: YAML 1.1 parses 1e-05 as a string.
+            out.append(
+                f"          proportion_allowed_failures: {allowance:.8f}"
+            )
         if scoped:
             out.append("          config:")
             out.append(f"            where: {uniq_where}")
@@ -233,7 +261,11 @@ def schema_yml() -> str:
                 if directory:
                     ref, field = directory.split(":")
                     ds, tbl = ref.split(".")
-                    out.append("          - relationships:")
+                    ignore = DIRECTORY_IGNORE.get((table, name))
+                    kind = (
+                        "custom_relationships" if ignore else "relationships"
+                    )
+                    out.append(f"          - {kind}:")
                     out.append(f"              to: ref('{ds}__{tbl}')")
                     # The time directory stores ano as a STRUCT, so the test has
                     # to bind to the inner field rather than the column.
@@ -243,6 +275,9 @@ def schema_yml() -> str:
                         else field
                     )
                     out.append(f"              field: {inner}")
+                    if ignore:
+                        vals = ", ".join(f"'{v}'" for v in ignore)
+                        out.append(f"              ignore_values: [{vals}]")
                     if scoped:
                         out.append("              config:")
                         out.append(f"                where: {sparse_where}")

@@ -102,7 +102,17 @@ def _select_expr(table: str) -> str:
         elif bq_type == "FLOAT64":
             expr = f"cast(try_cast({clean} as double) as varchar)"
         elif bq_type == "DATE":
-            expr = f"cast(try_cast({clean} as date) as varchar)"
+            # Clamp to what BigQuery's DATE can represent. DIME uses
+            # '0000-01-01' as a missing-date sentinel; DuckDB parses year 0 as
+            # 1 BC (ISO 8601) and renders it '0001-01-01 (BC)', which BigQuery
+            # rejects. Without this the value survives into staging as a string
+            # and only becomes NULL when safe_cast fails in the model, so
+            # staging and the built table disagree for no good reason.
+            expr = (
+                f"cast(case when try_cast({clean} as date) "
+                f"between date '0001-01-01' and date '9999-12-31' "
+                f"then try_cast({clean} as date) end as varchar)"
+            )
         else:
             expr = clean
         parts.append(f"{expr} as {name}")
