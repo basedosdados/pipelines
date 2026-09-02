@@ -90,6 +90,18 @@ def upload_to_gcs(bucket, table, files):
     return uris
 
 
+def ensure_dataset(bq, dataset_id):
+    """Create the BigQuery dataset if it does not exist yet.
+
+    `bd.Table.create` would have created it as a side effect; the streaming
+    path does not, so the first load job otherwise fails with a bare
+    "Dataset ... was not found in location US".
+    """
+    ref = bigquery.Dataset(f"{PROJECT}.{dataset_id}")
+    ref.location = "US"
+    bq.create_dataset(ref, exists_ok=True)
+
+
 def load_table(bq, table, uris):
     """Load the staged parquet into a native staging table.
 
@@ -125,6 +137,7 @@ def main():
     gcs = storage.Client(project=PROJECT)
     bucket = gcs.bucket(BUCKET, user_project=PROJECT)  # requester-pays
     bq = bigquery.Client(project=PROJECT)
+    ensure_dataset(bq, f"{DATASET_ID}_staging")
 
     for table in tables:
         files = local_files(table)

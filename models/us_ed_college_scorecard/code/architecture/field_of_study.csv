@@ -3,7 +3,7 @@ year,INT64,"Ano de referência da coorte, conforme o arquivo anual publicado pel
 unitid,STRING,"Código de identificação da instituição no IPEDS (UNITID). Mesma chave da tabela us_ed_ipeds; como lá o tipo é INT64, o cruzamento exige safe_cast(unitid as int64)",,no,br_bd_diretorios_us.higher_education_institution:id_institution,,no,"Nulo em 58.103 linhas (3,3%): a fonte também publica linhas agregadas por entidade, identificadas apenas por opeid6 e com UNITID igual a NA. Essas linhas trazem dados reais e por isso foram mantidas; a chave da tabela inclui opeid6",UNITID
 opeid6,STRING,Código OPE de 6 dígitos da instituição,,no,,,no,,OPEID6
 institution_name,STRING,Nome da instituição,,no,,,no,,INSTNM
-control,STRING,Natureza administrativa da instituição,,yes,,,no,,CONTROL
+control,STRING,Natureza administrativa da instituição,,no,,,no,,CONTROL
 main_campus,STRING,Indica se a unidade é o campus principal da instituição,,yes,,,no,,MAIN
 cip_code,STRING,Código CIP de 4 dígitos da área de formação,,no,,,no,,CIPCODE
 cip_description,STRING,Nome da área de formação correspondente ao código CIP,,no,,,no,,CIPDESC

@@ -76,41 +76,17 @@ DIRECTORY = {
     "state_fips": "br_bd_diretorios_us.state:id_state",
 }
 
-# Institution columns whose value set is documented in the `dicionario` table.
-DICT_COVERED = {
-    "control",
-    "control_peps",
-    "ownership_peps",
-    "scorecard_sector",
-    "institution_level",
-    "predominant_degree",
-    "predominant_degree_recoded",
-    "highest_degree",
-    "main_campus",
-    "carnegie_basic",
-    "carnegie_undergraduate_profile",
-    "carnegie_size_setting",
-    "online_only",
-    "currently_operating",
-    "open_admissions_policy",
-    "religious_affiliation",
-    "men_only",
-    "women_only",
-    "historically_black",
-    "predominantly_black",
-    "alaska_native_hawaiian_serving",
-    "tribal_college",
-    "asian_pacific_islander_serving",
-    "hispanic_serving",
-    "native_american_non_tribal",
-    "title_iv_eligibility_type",
-    "heightened_cash_monitoring",
-    "dol_provider",
-    "region",
-    "locale",
-    "locale_degree_urbanization",
-    "test_score_requirement",
-}
+
+# Which (table, column) pairs the `dicionario` table actually documents. Read
+# from the dictionary clean_data.py generates rather than hand-listed, so the
+# covered_by_dictionary flag cannot drift out of step with the dictionary --
+# which is how `control_peps` and `field_of_study.control` came to be flagged
+# as coded when their cleaned values are already labels.
+def dictionary_covered():
+    path = pathlib.Path(__file__).resolve().parent / "dicionario_labels.csv"
+    with open(path, newline="") as fh:
+        return {(r["id_tabela"], r["nome_coluna"]) for r in csv.DictReader(fh)}
+
 
 # (type, unit) for the wide institution columns that are genuine quantities.
 INSTITUTION_QUANTITIES = {
@@ -195,7 +171,7 @@ def row(
 # ------------------------------------------------------------ per-table CSV
 
 
-def build_institution(by_source):
+def build_institution(by_source, covered):
     rows, i18n_rows = [], []
     for name, raw in spec.INSTITUTION_COLUMNS:
         pt, en, es = i18n.INSTITUTION[name]
@@ -242,9 +218,11 @@ def build_institution(by_source):
                     pt,
                     original=raw,
                     directory=DIRECTORY.get(name, ""),
-                    dictionary="yes" if name in DICT_COVERED else "no",
+                    dictionary="yes"
+                    if ("institution", name) in covered
+                    else "no",
                     observations=SUPPRESSION_NOTE_PT
-                    if name in DICT_COVERED
+                    if ("institution", name) in covered
                     else "",
                 )
             )
@@ -326,7 +304,7 @@ def fos_type_and_unit(bd_name, entry):
     return "FLOAT64", "USD"
 
 
-def build_field_of_study(by_source, fos_header):
+def build_field_of_study(by_source, fos_header, covered):
     rows, i18n_rows = [], []
     pt, en, es = i18n.YEAR
     rows.append(
@@ -368,13 +346,7 @@ def build_field_of_study(by_source, fos_header):
                 directory=directory,
                 observations=note,
                 dictionary="yes"
-                if name
-                in (
-                    "control",
-                    "main_campus",
-                    "credential_level",
-                    "distance_education",
-                )
+                if ("field_of_study", name) in covered
                 else "no",
             )
         )
@@ -487,15 +459,16 @@ Cohort years loaded: {years[0]}-{years[-1]} ({len(years)} institution files,
 def main():
     ARCH_DIR.mkdir(parents=True, exist_ok=True)
     by_source, file_years = load_dictionary()
+    covered = dictionary_covered()
     inst_header = header(sorted(RAW_DIR.glob("MERGED*_PP.csv"))[-1])
     fos_header = header(sorted(RAW_DIR.glob("FieldOfStudyData*_PP.csv"))[-1])
 
     tables = {}
     all_i18n = []
     for builder, name in (
-        (lambda: build_institution(by_source), "institution"),
+        (lambda: build_institution(by_source, covered), "institution"),
         (
-            lambda: build_field_of_study(by_source, fos_header),
+            lambda: build_field_of_study(by_source, fos_header, covered),
             "field_of_study",
         ),
         (lambda: build_catalogue("variable", i18n.VARIABLE_TABLE), "variable"),

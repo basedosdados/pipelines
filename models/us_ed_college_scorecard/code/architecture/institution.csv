@@ -19,12 +19,12 @@ locale_degree_urbanization,STRING,Grau de urbanização agregado do local da ins
 latitude,FLOAT64,Latitude da instituição em graus decimais,,no,,degrees,no,,LATITUDE
 longitude,FLOAT64,Longitude da instituição em graus decimais,,no,,degrees,no,,LONGITUDE
 control,STRING,"Natureza administrativa da instituição, conforme o IPEDS",,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,CONTROL
-control_peps,STRING,"Natureza administrativa da instituição, conforme o sistema PEPS",,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,CONTROL_PEPS
+control_peps,STRING,"Natureza administrativa da instituição, conforme o sistema PEPS",,no,,,no,,CONTROL_PEPS
 ownership_peps,STRING,"Tipo de mantenedora da instituição, conforme o sistema PEPS",,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,SCHTYPE
-scorecard_sector,STRING,Setor da instituição segundo a classificação do College Scorecard,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,SCORECARD_SECTOR
+scorecard_sector,STRING,Setor da instituição segundo a classificação do College Scorecard,,no,,,no,,SCORECARD_SECTOR
 institution_level,STRING,Nível da instituição segundo as características institucionais do IPEDS,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,ICLEVEL
 predominant_degree,STRING,Grau predominante concedido pela instituição na graduação,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,PREDDEG
-predominant_degree_recoded,STRING,"Grau predominante concedido, com os códigos 0 e 4 recodificados",,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,SCH_DEG
+predominant_degree_recoded,STRING,"Grau predominante concedido, com os códigos 0 e 4 recodificados",,no,,,no,,SCH_DEG
 highest_degree,STRING,Grau mais alto concedido pela instituição,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,HIGHDEG
 main_campus,STRING,Indica se a unidade é o campus principal da instituição,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,MAIN
 branch_campuses,INT64,Número de campi da instituição,,no,,unit,no,,NUMBRANCH
@@ -48,7 +48,7 @@ accreditor_name,STRING,Nome da agência acreditadora da instituição,,no,,,no,,
 accreditor_code,STRING,Código da agência acreditadora da instituição,,no,,,no,,ACCREDCODE
 title_iv_eligibility_type,STRING,Tipo de elegibilidade da instituição ao Título IV da Lei do Ensino Superior,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,OPEFLAG
 title_iv_approval_date,DATE,Data de aprovação da instituição para o Título IV,,no,,,no,Convertida de MM/DD/AAAA para ISO na limpeza,T4APPROVALDATE
-heightened_cash_monitoring,STRING,Indica se a instituição está sob monitoramento reforçado de repasses (Heightened Cash Monitoring 2),,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,HCM2
+heightened_cash_monitoring,STRING,Indica se a instituição está sob monitoramento reforçado de repasses (Heightened Cash Monitoring 2),,no,,,no,,HCM2
 dol_provider,STRING,Indica se a instituição é provedora registrada junto ao Departamento do Trabalho,,yes,,,no,Células suprimidas por sigilo (PrivacySuppressed) foram convertidas em nulo; nesta tabela larga não é possível distingui-las de células nunca coletadas,DOLPROVIDER
 undergraduate_enrollment,INT64,Número de estudantes de graduação matriculados em cursos de grau,,no,,person,no,,UGDS
 undergraduate_enrollment_all,INT64,"Número total de estudantes de graduação, incluindo os não matriculados em cursos de grau",,no,,person,no,,UG

@@ -357,6 +357,53 @@ def build_variable_table(by_source, inst_header, fos_header):
     return pd.DataFrame(rows)
 
 
+# Columns the published workbook lists value labels for, but whose cleaned
+# values are ALREADY those labels rather than the codes. A dictionary entry
+# for them would map codes the column never contains, so they are excluded
+# here and carry covered_by_dictionary = no in the architecture.
+LABEL_VALUED = {("institution", "control_peps"), ("field_of_study", "control")}
+
+# `credential_level` is taken from the data instead of the workbook: the
+# workbook ships with the October 2024 release and documents 6 levels, while
+# the June 2026 field-of-study files use 9. The table carries its own label
+# column, so the pairs are read straight off it and are complete by
+# construction.
+DATA_DERIVED = {
+    ("field_of_study", "credential_level"): "credential_description"
+}
+
+# Columns resolved through a Data Basis directory rather than this dataset's
+# dictionary. House rule: a directory-referenced column is never
+# covered_by_dictionary, so its labels do not belong in `dicionario` either.
+DIRECTORY_RESOLVED = {("institution", "state_fips")}
+
+
+def dicionario_from_data(table, code_column, label_column):
+    """Distinct code -> label pairs read from a cleaned table."""
+    pairs = {}
+    for path in sorted((OUTPUT_DIR / table).glob("year=*/data.parquet")):
+        tbl = pq.read_table(path, columns=[code_column, label_column])
+        for code, label in zip(
+            tbl.column(code_column).to_pylist(),
+            tbl.column(label_column).to_pylist(),
+            strict=True,
+        ):
+            if code is not None and label:
+                pairs.setdefault(str(code), str(label))
+    return [
+        {
+            "id_tabela": table,
+            "nome_coluna": code_column,
+            "chave": code,
+            "cobertura_temporal": "",
+            "valor": label,
+        }
+        for code, label in sorted(
+            pairs.items(), key=lambda kv: (len(kv[0]), kv[0])
+        )
+    ]
+
+
 def build_dicionario():
     """Value -> label pairs, from the published data dictionary workbook."""
     # pyrefly: ignore [untyped-import]
@@ -388,6 +435,11 @@ def build_dicionario():
                     continue  # variable lives in a long table; see `variable`
             else:
                 col = spec.bd_name_field_of_study(current)
+            if (
+                table,
+                col,
+            ) in LABEL_VALUED | DATA_DERIVED.keys() | DIRECTORY_RESOLVED:
+                continue
             rows.append(
                 {
                     "id_tabela": table,
@@ -397,7 +449,14 @@ def build_dicionario():
                     "valor": str(r[ilab]).strip() if r[ilab] else "",
                 }
             )
-    return pd.DataFrame(rows).drop_duplicates()
+    for (table, code_column), label_column in DATA_DERIVED.items():
+        rows += dicionario_from_data(table, code_column, label_column)
+    frame = pd.DataFrame(rows).drop_duplicates()
+    # Written next to the code as well, so build_architecture can set
+    # covered_by_dictionary from what the dictionary actually contains
+    # rather than from a hand-maintained list that can drift out of step.
+    frame.to_csv(CODE_DIR / "dicionario_labels.csv", index=False)
+    return frame
 
 
 # --------------------------------------------------------------------- main
