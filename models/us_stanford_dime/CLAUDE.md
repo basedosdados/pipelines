@@ -102,6 +102,15 @@ unscoped on 861M rows they would burn a large slice of the daily BigQuery
 quota. Both are pinned to `cycle = 2024` on `contribution`. A literal is honest
 here because the dataset is static.
 
+**`transaction_id` is unique within a cycle, and repeats are flagged not
+removed.** Measured on the full 2014 cycle: 33,467,414 rows, 33,467,414 distinct
+transaction ids. Separately, 685,459 of those rows (2.0%) carry a
+`back_reference_transaction_id`, DIME's marker for a record that repeats an
+earlier one — each repeat still has its own id, so uniqueness holds. A user
+counting distinct economic transactions rather than filings should exclude rows
+where that column is set; the tables keep them, because dropping them would be a
+judgement the source deliberately left to the reader.
+
 **`icpsr_id` is the recipient key.** The codebook says so and it verifies: zero
 duplicates across 910,156 rows. `(cycle, recipient_id)` does not work — 11% of
 rows duplicate it, since a recipient can contest more than one seat in a cycle.
