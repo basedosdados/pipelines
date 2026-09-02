@@ -217,6 +217,88 @@ OBSERVATIONS = {
 }
 
 
+# Measured coverage, not assumed. Produced by
+# `clean.py --report`, which counts non-null values per column per year across all
+# 465 monthly files, and pasted here so the architecture is reproducible from the
+# repo alone. A column absent from this map spans the whole table (1987-2026) and
+# leaves `temporal_coverage` blank, which is the notation for "same as the table".
+#
+# These breaks are the difference between "no delay was attributed to weather in
+# 1995" and "the field did not exist in 1995". A reader aggregating carrier_delay
+# across the full series without them silently reads sixteen years as zero.
+COVERAGE = {
+    "tail_number": "1995(1)2026",
+    "taxi_out": "1995(1)2026",
+    "wheels_off_time": "1995(1)2026",
+    "wheels_on_time": "1995(1)2026",
+    "taxi_in": "1995(1)2026",
+    "cancellation_code": "2003(1)2026",
+    "air_time": "1995(1)2026",
+    "carrier_delay": "2003(1)2026",
+    "weather_delay": "2003(1)2026",
+    "national_air_system_delay": "2003(1)2026",
+    "security_delay": "2003(1)2026",
+    "late_aircraft_delay": "2003(1)2026",
+    "first_departure_time": "2008(1)2026",
+    "total_additional_gate_time": "2008(1)2026",
+    "longest_additional_gate_time": "2008(1)2026",
+    "diverted_airport_landings": "2008(1)2026",
+    "diverted_reached_destination": "2008(1)2026",
+    "diverted_actual_elapsed_time": "2008(1)2026",
+    "diverted_arrival_delay": "2008(1)2026",
+    "diverted_distance": "2008(1)2026",
+    "diversion_1_airport": "2008(1)2026",
+    "diversion_1_airport_id": "2008(1)2026",
+    "diversion_1_airport_seq_id": "2008(1)2026",
+    "diversion_1_wheels_on_time": "2008(1)2026",
+    "diversion_1_total_gate_time": "2008(1)2026",
+    "diversion_1_longest_gate_time": "2008(1)2026",
+    "diversion_1_wheels_off_time": "2008(1)2026",
+    "diversion_1_tail_number": "2008(1)2026",
+    "diversion_2_airport": "2008(1)2026",
+    "diversion_2_airport_id": "2008(1)2026",
+    "diversion_2_airport_seq_id": "2008(1)2026",
+    "diversion_2_wheels_on_time": "2008(1)2026",
+    "diversion_2_total_gate_time": "2008(1)2026",
+    "diversion_2_longest_gate_time": "2008(1)2026",
+    "diversion_2_wheels_off_time": "2008(1)2026",
+    "diversion_2_tail_number": "2008(1)2026",
+    "diversion_3_airport": "2009(1)2025",
+    "diversion_3_airport_id": "2009(1)2026",
+    "diversion_3_airport_seq_id": "2009(1)2026",
+    "diversion_3_wheels_on_time": "2009(1)2025",
+    "diversion_3_total_gate_time": "2009(1)2025",
+    "diversion_3_longest_gate_time": "2009(1)2025",
+    "diversion_3_wheels_off_time": "2019(1)2025",
+    "diversion_3_tail_number": "2019(1)2025",
+}
+
+# Published by BTS in every monthly file, but never populated in 1987-2026: a
+# flight diverted four or five times has not occurred in the series. They are kept
+# because they are documented source fields and cost nothing in parquet, and are
+# excluded from the null-proportion test rather than being silently empty.
+NEVER_POPULATED = tuple(
+    f"diversion_{n}_{f}"
+    for n in (4, 5)
+    for f in (
+        "airport",
+        "airport_id",
+        "airport_seq_id",
+        "wheels_on_time",
+        "total_gate_time",
+        "longest_gate_time",
+        "wheels_off_time",
+        "tail_number",
+    )
+)
+
+NEVER_POPULATED_NOTE = (
+    "Published by BTS but never populated between 1987 and 2026",
+    "Publicado pelo BTS mas nunca preenchido entre 1987 e 2026",
+    "Publicado por el BTS pero nunca completado entre 1987 y 2026",
+)
+
+
 def col(
     name,
     typ,
@@ -1108,6 +1190,9 @@ def main() -> None:
                     raise SystemExit(
                         f"{name}.{c['name']}: {k} must start capitalised"
                     )
+        # Translate first, then append the never-populated note in each language.
+        # Appending before translating would leave the English sentence sitting in
+        # the Portuguese column and drop it from the Spanish one.
         for c in cols:
             note = c["observations_en"]
             if not note:
@@ -1117,6 +1202,43 @@ def main() -> None:
                     f"{name}.{c['name']}: observation has no translation:\n  {note}"
                 )
             c["observations"], c["observations_es"] = OBSERVATIONS[note]
+
+        if name == "flight":
+            en_note, pt_note, es_note = NEVER_POPULATED_NOTE
+            for c in cols:
+                if c["name"] in COVERAGE:
+                    cov = COVERAGE[c["name"]]
+                    c["temporal_coverage"] = cov
+                    # Also stated in the observations. `temporal_coverage` is not a
+                    # writable column field on the backend, so a break recorded only
+                    # there never reaches the site — and the whole point of measuring
+                    # it is that a reader can see why the column is empty.
+                    start = cov.split("(")[0]
+                    for key, note in (
+                        (
+                            "observations",
+                            f"Preenchido a partir de {start}; nulo antes disso porque o "
+                            f"campo não era coletado",
+                        ),
+                        (
+                            "observations_en",
+                            f"Populated from {start}; null before that because the field "
+                            f"was not collected",
+                        ),
+                        (
+                            "observations_es",
+                            f"Completado a partir de {start}; nulo antes porque el campo "
+                            f"no se recolectaba",
+                        ),
+                    ):
+                        c[key] = f"{c[key]} {note}" if c[key] else note
+                if c["name"] in NEVER_POPULATED:
+                    for key, note in (
+                        ("observations", pt_note),
+                        ("observations_en", en_note),
+                        ("observations_es", es_note),
+                    ):
+                        c[key] = f"{c[key]} {note}" if c[key] else note
 
         out = HERE / f"{name}.csv"
         with open(out, "w", newline="", encoding="utf-8") as fh:
