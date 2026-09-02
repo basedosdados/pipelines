@@ -11,6 +11,9 @@ them.
 
 from __future__ import annotations
 
+import shutil
+import tempfile
+
 from prefect import flow, get_run_logger
 
 from pipelines.datasets.cl_chilecompra_mercado_publico.constants import (
@@ -41,7 +44,6 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 ALL_TABLES = constants.ALL_TABLES.value
-SCRATCH_ROOT = "/tmp/cl_chilecompra_mercado_publico"
 
 # Every table refreshes weekly, so the house rule paywalls the most recent window of
 # each one and leaves everything older free.
@@ -80,119 +82,127 @@ def cl_chilecompra_mercado_publico_flow(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="mercado_publico"
     )
 
-    manifest = survey_source_task()
-    max_date = source_max_date_task(manifest)
-    logger.info(
-        "source exposes %d monthly files, latest coverage %s",
-        len(manifest),
-        max_date,
-    )
-
-    # Recorded for metadata hygiene (it writes the Poll), but deliberately NOT the gate:
-    # a retroactive rewrite of a closed month leaves the source's max coverage date
-    # unchanged, so gating on it would make the pipeline ignore real revisions.
-    poll_source_for_update_task(
-        dataset_id=DATASET_ID,
-        table_id="orden_compra_item",
-        source_max_date=max_date,
-        env="prod",
-        date_format="%Y-%m-%d",
-    )
-
-    stale = select_stale_months_task(manifest, lookback_days, force_all)
-    logger.info(
-        "%d month-files modified within %d days: %s",
-        len(stale),
-        lookback_days,
-        [f"{e['kind']} {e['year']}-{e['month']:02d}" for e in stale],
-    )
-    if not stale and not force_run:
-        logger.info("Não há novas atualizações na fonte original")
-        return
-
-    ingested = []
-    for entry in stale:
-        ingested.append(download_and_clean_task(entry, SCRATCH_ROOT))
-    logger.info("ingested %d month-files: %s", len(ingested), ingested)
-
-    touched = sorted(
-        {t for e in stale for t in constants.TABLES.value[e["kind"]]}
-    )
-    output_root = f"{SCRATCH_ROOT}/output"
-
-    # dev: upload and run every table first, then test. Interleaving run and test per
-    # table fails cross-table tests whose sibling model has not been built yet.
-    for table in touched:
-        upload_to_gcs(
-            data_path=f"{output_root}/{table}",
-            dataset_id=DATASET_ID,
-            table_id=table,
-            bucket_name="basedosdados-dev",
-            # append, never overwrite: overwrite drops the staging *and* production
-            # table. Partition paths are deterministic, so re-uploading a revised month
-            # replaces exactly that partition's file.
-            dump_mode="append",
-            source_format="parquet",
-        )
-        run_dbt(
-            dataset_id=DATASET_ID,
-            table_id=table,
-            dbt_command="run",
-            target="dev",
-        )
-    for table in touched:
-        run_dbt(
-            dataset_id=DATASET_ID,
-            table_id=table,
-            dbt_command="test",
-            target="dev",
+    scratch_root = tempfile.mkdtemp(prefix="cl_chilecompra_")
+    try:
+        manifest = survey_source_task()
+        max_date = source_max_date_task(manifest)
+        logger.info(
+            "source exposes %d monthly files, latest coverage %s",
+            len(manifest),
+            max_date,
         )
 
-    if not materialize_to_prod:
-        return
-
-    for table in touched:
-        upload_to_gcs(
-            data_path=f"{output_root}/{table}",
+        # Recorded for metadata hygiene (it writes the Poll), but deliberately NOT the gate:
+        # a retroactive rewrite of a closed month leaves the source's max coverage date
+        # unchanged, so gating on it would make the pipeline ignore real revisions.
+        poll_source_for_update_task(
             dataset_id=DATASET_ID,
-            table_id=table,
-            bucket_name="basedosdados",
-            dump_mode="append",
-            source_format="parquet",
-        )
-        run_dbt(
-            dataset_id=DATASET_ID,
-            table_id=table,
-            dbt_command="run",
-            target="prod",
-        )
-    for table in touched:
-        run_dbt(
-            dataset_id=DATASET_ID,
-            table_id=table,
-            dbt_command="test",
-            target="prod",
-        )
-
-    if not update_metadata:
-        return
-
-    for table in touched:
-        register_table_materialization_task(
-            dataset_id=DATASET_ID,
-            table_id=table,
-            coverage=COVERAGE[table],
+            table_id="orden_compra_item",
+            source_max_date=max_date,
             env="prod",
-            bq_project="basedosdados",
+            date_format="%Y-%m-%d",
         )
-    # Last, and only after production succeeded.
-    commit_source_update_task(
-        dataset_id=DATASET_ID,
-        table_id="orden_compra_item",
-        source_max_date=max_date,
-        env="prod",
-        date_format="%Y-%m-%d",
-    )
+
+        stale = select_stale_months_task(manifest, lookback_days, force_all)
+        logger.info(
+            "%d month-files modified within %d days: %s",
+            len(stale),
+            lookback_days,
+            [f"{e['kind']} {e['year']}-{e['month']:02d}" for e in stale],
+        )
+        if not stale and not force_run:
+            logger.info("Não há novas atualizações na fonte original")
+            return
+
+        ingested = []
+        for entry in stale:
+            ingested.append(download_and_clean_task(entry, scratch_root))
+        logger.info("ingested %d month-files: %s", len(ingested), ingested)
+
+        touched = sorted(
+            {t for e in stale for t in constants.TABLES.value[e["kind"]]}
+        )
+        output_root = f"{scratch_root}/output"
+
+        # dev: upload and run every table first, then test. Interleaving run and test per
+        # table fails cross-table tests whose sibling model has not been built yet.
+        for table in touched:
+            upload_to_gcs(
+                data_path=f"{output_root}/{table}",
+                dataset_id=DATASET_ID,
+                table_id=table,
+                bucket_name="basedosdados-dev",
+                # append, never overwrite: overwrite drops the staging *and* production
+                # table. Partition paths are deterministic, so re-uploading a revised month
+                # replaces exactly that partition's file.
+                dump_mode="append",
+                source_format="parquet",
+            )
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="run",
+                target="dev",
+            )
+        for table in touched:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
+                target="dev",
+            )
+
+        if not materialize_to_prod:
+            return
+
+        for table in touched:
+            upload_to_gcs(
+                data_path=f"{output_root}/{table}",
+                dataset_id=DATASET_ID,
+                table_id=table,
+                bucket_name="basedosdados",
+                dump_mode="append",
+                source_format="parquet",
+            )
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="run",
+                target="prod",
+            )
+        for table in touched:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
+                target="prod",
+            )
+
+        if not update_metadata:
+            return
+
+        for table in touched:
+            register_table_materialization_task(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                coverage=COVERAGE[table],
+                env="prod",
+                bq_project="basedosdados",
+            )
+        # Last, and only after production succeeded.
+        commit_source_update_task(
+            dataset_id=DATASET_ID,
+            table_id="orden_compra_item",
+            source_max_date=max_date,
+            env="prod",
+            date_format="%Y-%m-%d",
+        )
+
+    finally:
+        # Covers the early returns as well as any exception. The k8s pool gives each
+        # run a fresh pod, but a process or local worker reuses its filesystem, and a
+        # run can materialise ~19 months of parquet.
+        shutil.rmtree(scratch_root, ignore_errors=True)
 
 
 # Weekly rather than daily: ChileCompra rewrites a 15-month trailing window of purchase
