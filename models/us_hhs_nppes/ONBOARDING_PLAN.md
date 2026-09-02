@@ -147,24 +147,26 @@ Two ways forward, for the maintainers to choose:
 
 Until then the codes join cleanly to any external NUCC copy the user holds.
 
-## Tier: PartBdpro
+## Tier: AllFree (for now)
 
-Monthly refresh ⇒ by the house rule, the recent snapshot window is paywalled to
-BD Pro and older snapshots stay free. The rolling window and the BigQuery Row
-Access Policies are applied by the recurring pipeline
-(`register_table_materialization_task`), not by the static onboard. At onboarding
-there is a single snapshot, so the free/pro split is degenerate; both Coverages
-are still created up front, because `assert_coverage_topology` hard-fails a
-`part_bdpro` run when the pro Coverage is missing.
+Every table is **AllFree**. The house rule paywalls the most recent window of any
+table refreshing monthly or more often, but that rule assumes a series long
+enough to split. With a single onboarded snapshot a 6-month `free_lag` puts
+`free_end` (2026-02-09) *before* the only snapshot (2026-08-09): the free range
+inverts and the whole dataset ends up behind BD Pro. That is the go-live failure
+`br_senado_dados_abertos_administrativos` hit.
 
-`free_lag` is set to 6 months, matching `br_rf_cnpj` and `au_ato_abr`.
-**Confirm it before arming**, because with a single onboarded snapshot the
-6-month lag puts `free_end` (2026-02-09) *before* the only snapshot (2026-08-09),
-which is the inverted-free-range condition that bit
-`br_senado_dados_abertos_administrativos` at go-live. Either shorten the lag
-(e.g. one month) or wait until several snapshots have accumulated. At onboarding
-the free Coverage holds the single snapshot and the pro Coverage exists with no
-range, which is the honest state: nothing is paywalled until the pipeline runs.
+**Revisit once several snapshots have accumulated.** Switching to
+`PartBdpro(free_lag=...)` is a two-part change, and doing only the first half
+breaks the first run:
+
+1. `_COVERAGE` in `pipelines/datasets/us_hhs_nppes/flows.py`.
+2. A **pro Coverage** (`is_closed=True`) on each of the six data tables.
+   `assert_coverage_topology` requires `all_free` to have a free Coverage and
+   **no pro**, and `part_bdpro` to have both.
+
+Under `AllFree`, `needs_row_access_policy` is False, so the pipeline issues no
+BigQuery Row Access Policies and there is no paywall to go live.
 
 ## Files
 
