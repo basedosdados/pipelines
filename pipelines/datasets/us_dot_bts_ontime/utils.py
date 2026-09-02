@@ -284,7 +284,7 @@ def _hhmm_to_micros(arr: pa.Array) -> pa.Array:
     hh = pc.cast(pc.utf8_slice_codeunits(padded, 0, 2), pa.int64())  # pyrefly: ignore
     mm = pc.cast(pc.utf8_slice_codeunits(padded, 2, 4), pa.int64())  # pyrefly: ignore
     micros = pc.multiply(  # pyrefly: ignore
-        pc.add(pc.multiply(hh, 3600), pc.multiply(mm, 60)),
+        pc.add(pc.multiply(hh, 3600), pc.multiply(mm, 60)),  # pyrefly: ignore
         1_000_000,  # pyrefly: ignore
     )
     # 2400 -> 00:00; anything else out of range (bad minutes) becomes null.
@@ -294,7 +294,7 @@ def _hhmm_to_micros(arr: pa.Array) -> pa.Array:
         micros,
     )
     in_range = pc.and_(  # pyrefly: ignore
-        pc.greater_equal(micros, 0),
+        pc.greater_equal(micros, 0),  # pyrefly: ignore
         pc.less(micros, 24 * 3600 * 1_000_000),  # pyrefly: ignore
     )
     micros = pc.if_else(in_range, micros, pa.nulls(len(arr), pa.int64()))  # pyrefly: ignore
@@ -378,7 +378,7 @@ def clean_month(raw: bytes) -> pa.Table:
     cols["scheduled_departure_datetime_local"] = pc.if_else(  # pyrefly: ignore
         pc.is_valid(seconds),  # pyrefly: ignore
         pc.cast(
-            pc.add(pc.cast(base, pa.int64()), seconds),
+            pc.add(pc.cast(base, pa.int64()), seconds),  # pyrefly: ignore
             pa.timestamp("us"),  # pyrefly: ignore
         ),
         pa.nulls(len(base), pa.timestamp("us")),
@@ -586,3 +586,37 @@ def write_reference_parquet(
     out = tdir / "data.parquet"
     pq.write_table(at, out, compression="snappy")
     return out
+
+
+# --------------------------------------------------------------------------
+# recurring pipeline helpers
+# --------------------------------------------------------------------------
+def month_exists_prezip(year: int, month: int, session=None) -> bool:
+    """Whether the prezipped archive for this month is published yet."""
+    s = session or _session()
+    url = constants.PREZIP_URL.value.format(year=year, month=month)
+    r = s.head(url, timeout=(30, 120), allow_redirects=True)
+    return r.status_code == 200 and "zip" in r.headers.get("content-type", "")
+
+
+def latest_available_month(
+    today: tuple[int, int], back: int = 8, session=None
+):
+    """The most recent month BTS has published, searching backwards from `today`.
+
+    BTS runs roughly two months behind, so this walks back from the current month
+    until a prezipped archive answers. Only PREZIP is probed: every month the
+    recurring pipeline will ever want is prezipped, and the on-demand form route
+    exists solely to backfill the 1990s during onboarding.
+    """
+    s = session or _session()
+    y, m = today
+    for _ in range(back):
+        if month_exists_prezip(y, m, session=s):
+            return y, m
+        m -= 1
+        if m == 0:
+            y, m = y - 1, 12
+    raise RuntimeError(
+        f"no published month found in the {back} months before {today}"
+    )
