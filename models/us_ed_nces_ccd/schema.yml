@@ -29,7 +29,7 @@ models:
             - virtual
             - csa_id
           config:
-            where: __most_recent_year__
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - state_id
@@ -244,7 +244,7 @@ models:
           at_least: 0.05
           ignore_values: [cmsa_id, necta_id, supervisory_union_number, csa_id]
           config:
-            where: __most_recent_year__
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - state_id
@@ -412,7 +412,7 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
-            where: __most_recent_year__
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [state_id, grade, race, sex]
           dictionary_model: ref('us_ed_nces_ccd__dicionario')
@@ -469,7 +469,7 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
-            where: __most_recent_year__
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [state_id, staff_category]
           dictionary_model: ref('us_ed_nces_ccd__dicionario')
@@ -508,12 +508,14 @@ models:
       items exist only from 2019 onward.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, agency_id]
+          combination_of_columns: [year, agency_id, census_id]
+          config:
+            where: agency_id is not null or census_id is not null
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [census_id]
           config:
-            where: __most_recent_year__
+            where: __most_recent_year_en__
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [state_id]
           dictionary_model: ref('us_ed_nces_ccd__dicionario')
@@ -1030,6 +1032,7 @@ models:
           combination_of_columns: [id_tabela, nome_coluna, chave]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [cobertura_temporal]
     columns:
       - name: id_tabela
         description: >-

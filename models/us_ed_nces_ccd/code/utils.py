@@ -18,10 +18,13 @@ literal "nan", and integer-valued columns serialise as "1959" rather than
 
 from __future__ import annotations
 
+import csv
+import json
 import os
 import shutil
 import time
 import urllib.request
+from collections.abc import Iterator
 from pathlib import Path
 
 import duckdb
@@ -324,3 +327,101 @@ from {_read(values_csv)}
 """
     _copy_to_parquet(con, query, out_root / "dicionario")
     return _row_count(con, query)
+
+
+# ---------------------------------------------------------------------------
+# API fallback for a corrupt bulk extract
+# ---------------------------------------------------------------------------
+
+#: Years whose bulk enrollment CSV is unusable and must come from the API.
+#:
+#: The 1987 file writes 726,746 of its 883,551 `ncessch` values in Excel
+#: scientific notation ("1.00008E+11"), rounded to six significant digits. That
+#: collapses thousands of distinct schools onto one identifier -- 1,665 schools
+#: onto 04.30003E+11 alone -- and the school number is not recoverable from the
+#: row, since only the LEAID survives. The portal's own API returns the correct
+#: 12-character ids for the same year and the same 883,551 rows, so the defect
+#: is in the CSV export, not the data.
+API_FALLBACK_YEARS = frozenset({1987})
+
+API_BASE = "https://educationdata.urban.org/api/v1/schools/ccd/enrollment"
+
+#: Grade path segments the API accepts, in the order the CSV lists them.
+#: Prekindergarten is `grade-pk`, not `grade--1`, which returns HTTP 500.
+API_GRADES = [
+    "grade-pk",
+    *[f"grade-{n}" for n in range(13)],
+    "grade-15",
+    "grade-99",
+]
+
+#: Columns of the bulk CSV, reproduced so the API output is a drop-in
+#: replacement for the transform that reads it.
+ENROLLMENT_CSV_COLUMNS = [
+    "year",
+    "ncessch",
+    "ncessch_num",
+    "leaid",
+    "fips",
+    "grade",
+    "race",
+    "sex",
+    "enrollment",
+]
+
+
+def _api_pages(url: str, attempts: int = 5) -> Iterator[list[dict]]:
+    """Yield each page of an Urban API result set, following `next`."""
+    next_url: str | None = url
+    while next_url:
+        payload: dict = {}
+        for attempt in range(1, attempts + 1):
+            try:
+                req = urllib.request.Request(
+                    next_url, headers={"User-Agent": "Mozilla/5.0"}
+                )
+                with urllib.request.urlopen(req, timeout=180) as fh:
+                    payload = json.load(fh)
+                break
+            except Exception:
+                if attempt == attempts:
+                    raise
+                time.sleep(5 * attempt)
+        yield payload["results"]
+        next_url = payload.get("next")
+
+
+def download_enrollment_via_api(year: int, dest: Path | None = None) -> Path:
+    """Rebuild one year of the enrollment extract from the API, as CSV.
+
+    Writes the same columns in the same order as the bulk file, so
+    :func:`clean_enrollment` reads it without knowing the difference. The
+    `/race/` sub-endpoint is used for every grade: where a year has no race
+    detail it simply returns the race=99 rows, so one code path covers both.
+    """
+    dest = dest or (input_dir() / ENROLLMENT_FILE.format(year=year))
+    if dest.exists() and dest.stat().st_size > 0:
+        return dest
+
+    tmp = dest.with_suffix(dest.suffix + ".part")
+    written = 0
+    with tmp.open("w", newline="", encoding="utf-8") as fh:
+        writer = csv.DictWriter(
+            fh, fieldnames=ENROLLMENT_CSV_COLUMNS, extrasaction="ignore"
+        )
+        writer.writeheader()
+        for grade in API_GRADES:
+            url = f"{API_BASE}/{year}/{grade}/race/?limit=10000"
+            for rows in _api_pages(url):
+                writer.writerows(rows)
+                written += len(rows)
+    tmp.rename(dest)
+    print(f"  {year}: {written:,} rows rebuilt from the API")
+    return dest
+
+
+def fetch_enrollment(year: int) -> Path:
+    """The enrollment extract for one year, from whichever source is sound."""
+    if year in API_FALLBACK_YEARS:
+        return download_enrollment_via_api(year)
+    return download(ENROLLMENT_FILE.format(year=year))

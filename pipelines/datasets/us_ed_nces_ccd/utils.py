@@ -109,10 +109,7 @@ def clean_year(input_dir: Path, output_dir: Path, year: int) -> dict[str, str]:
         transform.clean_staff(con, lea_csv, output_dir, year)
         out["staff"] = str(output_dir / "staff")
 
-        enrollment_csv = transform.download(
-            transform.ENROLLMENT_FILE.format(year=year),
-            input_dir / transform.ENROLLMENT_FILE.format(year=year),
-        )
+        enrollment_csv = transform.fetch_enrollment(year)
         transform.clean_enrollment(con, enrollment_csv, output_dir, year)
         out["school_enrollment"] = str(output_dir / "school_enrollment")
     finally:

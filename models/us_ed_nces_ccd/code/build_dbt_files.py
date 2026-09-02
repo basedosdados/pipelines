@@ -27,8 +27,18 @@ UNIQUE_KEY = {
     "school_district": ["year", "agency_id"],
     "school_enrollment": ["year", "school_id", "grade", "race", "sex"],
     "staff": ["year", "agency_id", "staff_category"],
-    "district_finance": ["year", "agency_id"],
+    # A district appears once per fiscal year, but 1,988 F-33 records carry no
+    # NCES LEAID -- Census-reported education agencies NCES never matched --
+    # and are distinguished only by the Census government id.
+    "district_finance": ["year", "agency_id", "census_id"],
     "dicionario": ["id_tabela", "nome_coluna", "chave"],
+}
+
+#: Rows the uniqueness test cannot speak for, and why.
+UNIQUE_WHERE = {
+    # Four rows (2014 and 2016) carry neither identifier and so cannot be told
+    # apart at all. They are excluded rather than left to fail forever.
+    "district_finance": "agency_id is not null or census_id is not null",
 }
 
 #: Columns that must never be null.
@@ -76,6 +86,8 @@ IGNORE_IN_PROPORTION = {
         "csa_id",
     ],
     "district_finance": ["census_id"],
+    # No CCD code set is time-limited, so the column is empty by construction.
+    "dicionario": ["cobertura_temporal"],
 }
 
 MODEL_TEMPLATE = """{{{{
@@ -147,10 +159,14 @@ def model_schema(table: schema.Table) -> str:
 
     tests = []
     key = UNIQUE_KEY[table.slug]
-    tests.append(
-        "      - dbt_utils.unique_combination_of_columns:\n"
-        f"          combination_of_columns: {json.dumps(key)}"
-    )
+    unique = [
+        "      - dbt_utils.unique_combination_of_columns:",
+        f"          combination_of_columns: {json.dumps(key)}",
+    ]
+    if table.slug in UNIQUE_WHERE:
+        unique.append("          config:")
+        unique.append(f'            where: "{UNIQUE_WHERE[table.slug]}"')
+    tests.append("\n".join(unique))
     prop = [
         "      - not_null_proportion_multiple_columns:",
         "          at_least: 0.05",
@@ -161,7 +177,7 @@ def model_schema(table: schema.Table) -> str:
         prop += [f"            - {c}" for c in ignore]
     if table.slug in SCOPE_TO_RECENT_YEAR:
         prop.append("          config:")
-        prop.append("            where: __most_recent_year__")
+        prop.append("            where: __most_recent_year_en__")
     tests.append("\n".join(prop))
 
     # `custom_dictionary_coverage` is a model-level test: it derives id_tabela

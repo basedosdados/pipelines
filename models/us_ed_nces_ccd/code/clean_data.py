@@ -144,7 +144,7 @@ def main() -> None:
                 log.info(f"  enrollment {y}: already converted, skipping")
                 continue
             t0 = time.time()
-            utils.download(utils.ENROLLMENT_FILE.format(year=y))
+            src = utils.fetch_enrollment(y)
             n = utils.clean_enrollment(con, src, out, y)
             total += n
             size_mb = src.stat().st_size / 1e6

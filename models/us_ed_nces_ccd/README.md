@@ -81,6 +81,30 @@ same reason — normalising them through a numeric cast turns ZIP `01005` into
 (Ashfield-Plainfield Regional, Massachusetts, 1986); it is corrected explicitly
 to `250000301636` in every table so the join holds.
 
+## Source defects corrected on load
+
+**The 1987 enrollment bulk CSV is unusable and is fetched from the API
+instead.** 726,746 of its 883,551 rows write `ncessch` in Excel scientific
+notation (`1.00008E+11`), rounded to six significant digits, which collapses
+thousands of schools onto one identifier — 1,665 schools onto `04.30003E+11`
+alone. Only the LEAID survives, so the school number cannot be recovered from
+the row. The portal's own API returns correct 12-character ids for the same
+year and exactly the same 883,551 rows, so the defect is in the CSV export.
+`utils.API_FALLBACK_YEARS` routes that year through the API; every other year
+uses the bulk file. Re-check this when the portal republishes: if the CSV is
+fixed, the fallback can be dropped.
+
+**Two F-33 debt columns carry swapped labels.** The source labels
+`debt_shortterm_outstand_beg_FY` "at end of fiscal year" and
+`debt_shortterm_outstand_end_FY` "at beginning of", contradicting both the
+column names and the correctly-labelled long-term columns. The names are
+followed and the discrepancy is recorded in each column's notes.
+
+**One school-year row carries an 11-character `ncessch`.**
+Ashfield-Plainfield Regional, Massachusetts, 1986. Left-padding it would imply
+state FIPS 02 (Alaska); it is corrected to `250000301636` in every table so the
+join to `school` holds.
+
 ## Known gaps
 
 **The US school and district directories are a single-year snapshot.**
