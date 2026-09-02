@@ -282,7 +282,13 @@ def build_long(table):
 
 
 def fos_type_and_unit(bd_name, entry):
-    """Type a field-of-study column by what its values actually are."""
+    """Type a field-of-study column by what its values actually are.
+
+    The order matters. Counts are recognised before money because several
+    count columns carry a measure word in the middle of the name rather than
+    at the end -- EARN_COUNT_NWNE_HI_1YR is a headcount, not dollars -- and an
+    end-anchored rule silently types them as USD.
+    """
     upper = bd_name.upper()
     if bd_name in (
         "unitid",
@@ -303,14 +309,15 @@ def fos_type_and_unit(bd_name, entry):
         return "STRING", ""
     if upper.startswith("IPEDSCOUNT"):
         return "INT64", "unit"
-    if re.search(
-        r"(_N|COUNT\d?|CNTOVER150|IPEDSCOUNT\d|_GT_THRESHOLD_\d+YR|"
-        r"_HIGH_CRED_\d+YR|_IN_STATE_\d+YR)$",
-        upper,
+    # Headcounts: borrower and student counts, and counts of graduates over a
+    # threshold, in a state, or holding a higher credential.
+    if (
+        "COUNT" in upper
+        or "CNTOVER150" in upper
+        or upper.endswith("_N")
+        or re.search(r"_(GT_THRESHOLD|HIGH_CRED|IN_STATE)_\d+YR$", upper)
     ):
         return "INT64", "person"
-    if "MDN10YRPAY" in upper:
-        return "FLOAT64", "USD"
     return "FLOAT64", "USD"
 
 
