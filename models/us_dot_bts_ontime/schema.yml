@@ -1,0 +1,502 @@
+---
+version: 2
+models:
+  - name: us_dot_bts_ontime__flight
+    description: >
+      Desempenho de pontualidade de cada voo doméstico regular dos Estados
+      Unidos reportado ao Bureau of Transportation Statistics, uma linha por voo
+      programado desde outubro de 1987. Traz empresa aérea, aeroportos de origem
+      e destino, horários programados e efetivos, atrasos na partida e na
+      chegada, cancelamentos, desvios e a atribuição do atraso por causa. As
+      causas do atraso existem a partir de junho de 2003 e as colunas de desvio
+      a partir de 2008; antes disso são nulas por ausência na fonte, não por
+      ausência de atraso.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - flight_date
+            - reporting_carrier
+            - flight_number
+            - origin
+            - scheduled_departure_time
+          config:
+            where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - cancellation_code
+            - first_departure_time
+            - total_additional_gate_time
+            - longest_additional_gate_time
+            - diverted_reached_destination
+            - diverted_actual_elapsed_time
+            - diverted_arrival_delay
+            - diverted_distance
+            - diversion_1_airport
+            - diversion_1_airport_id
+            - diversion_1_airport_seq_id
+            - diversion_1_wheels_on_time
+            - diversion_1_total_gate_time
+            - diversion_1_longest_gate_time
+            - diversion_1_wheels_off_time
+            - diversion_1_tail_number
+            - diversion_2_airport
+            - diversion_2_airport_id
+            - diversion_2_airport_seq_id
+            - diversion_2_wheels_on_time
+            - diversion_2_total_gate_time
+            - diversion_2_longest_gate_time
+            - diversion_2_wheels_off_time
+            - diversion_2_tail_number
+            - diversion_3_airport
+            - diversion_3_airport_id
+            - diversion_3_airport_seq_id
+            - diversion_3_wheels_on_time
+            - diversion_3_total_gate_time
+            - diversion_3_longest_gate_time
+            - diversion_3_wheels_off_time
+            - diversion_3_tail_number
+            - diversion_4_airport
+            - diversion_4_airport_id
+            - diversion_4_airport_seq_id
+            - diversion_4_wheels_on_time
+            - diversion_4_total_gate_time
+            - diversion_4_longest_gate_time
+            - diversion_4_wheels_off_time
+            - diversion_4_tail_number
+            - diversion_5_airport
+            - diversion_5_airport_id
+            - diversion_5_airport_seq_id
+            - diversion_5_wheels_on_time
+            - diversion_5_total_gate_time
+            - diversion_5_longest_gate_time
+            - diversion_5_wheels_off_time
+            - diversion_5_tail_number
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - cancellation_code
+            - distance_group
+            - day_of_week
+          dictionary_model: ref('us_dot_bts_ontime__dicionario')
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: >
+          Ano do voo programado
+        tests: [not_null]
+      - name: quarter
+        description: >
+          Trimestre do voo programado, de 1 a 4
+      - name: month
+        description: >
+          Mês do voo programado, de 1 a 12
+        tests: [not_null]
+      - name: day_of_month
+        description: >
+          Dia do mês do voo programado
+      - name: day_of_week
+        description: >
+          Dia da semana do voo programado, com 1 para segunda-feira
+      - name: flight_date
+        description: >
+          Data do voo programado, na hora local do aeroporto de origem
+        tests: [not_null]
+      - name: reporting_carrier
+        description: >
+          Código único da empresa aérea que reportou o voo
+        tests: [not_null]
+      - name: reporting_carrier_airline_id
+        description: >
+          Identificador numérico da empresa aérea atribuído pelo US DOT
+      - name: reporting_carrier_iata_code
+        description: >
+          Código IATA da empresa aérea que reportou o voo
+      - name: tail_number
+        description: >
+          Prefixo de registro da aeronave
+      - name: flight_number
+        description: >
+          Número do voo atribuído pela empresa aérea
+      - name: origin_airport_id
+        description: >
+          Identificador numérico do aeroporto de origem atribuído pelo US DOT
+      - name: origin_airport_seq_id
+        description: >
+          Identificador da versão datada do aeroporto de origem
+      - name: origin_city_market_id
+        description: >
+          Identificador do mercado urbano de origem atribuído pelo US DOT
+      - name: origin
+        description: >
+          Código do aeroporto de origem
+        tests: [not_null]
+      - name: origin_city_name
+        description: >
+          Cidade do aeroporto de origem
+      - name: origin_state_abbreviation
+        description: >
+          Sigla da unidade federativa do aeroporto de origem
+      - name: origin_state_fips
+        description: >
+          Código FIPS do estado do aeroporto de origem
+      - name: origin_state_name
+        description: >
+          Nome do estado do aeroporto de origem
+      - name: origin_world_area_code
+        description: >
+          Código de área mundial do aeroporto de origem
+      - name: destination_airport_id
+        description: >
+          Identificador numérico do aeroporto de destino atribuído pelo US DOT
+      - name: destination_airport_seq_id
+        description: >
+          Identificador da versão datada do aeroporto de destino
+      - name: destination_city_market_id
+        description: >
+          Identificador do mercado urbano de destino atribuído pelo US DOT
+      - name: destination
+        description: >
+          Código do aeroporto de destino
+        tests: [not_null]
+      - name: destination_city_name
+        description: >
+          Cidade do aeroporto de destino
+      - name: destination_state_abbreviation
+        description: >
+          Sigla da unidade federativa do aeroporto de destino
+      - name: destination_state_fips
+        description: >
+          Código FIPS do estado do aeroporto de destino
+      - name: destination_state_name
+        description: >
+          Nome do estado do aeroporto de destino
+      - name: destination_world_area_code
+        description: >
+          Código de área mundial do aeroporto de destino
+      - name: scheduled_departure_time
+        description: >
+          Horário de partida programado (hora local, HHMM)
+      - name: scheduled_departure_time_local
+        description: >
+          Horário de partida programado como hora do dia, derivado de
+          scheduled_departure_time
+      - name: scheduled_departure_datetime_local
+        description: >
+          Data e hora de partida programada na hora local do aeroporto de origem
+      - name: departure_time
+        description: >
+          Horário de partida efetivo (hora local, HHMM)
+      - name: departure_time_local
+        description: >
+          Horário de partida efetivo como hora do dia, derivado de
+          departure_time
+      - name: departure_delay
+        description: >
+          Diferença entre a partida efetiva e a programada; partidas adiantadas
+          são negativas
+      - name: departure_delay_minutes
+        description: >
+          Atraso na partida com partidas adiantadas fixadas em zero
+      - name: departure_delay_15min
+        description: >
+          Indica se a partida atrasou 15 minutos ou mais, com 1 para sim
+      - name: departure_delay_group
+        description: >
+          Faixa de atraso na partida, em intervalos de 15 minutos
+      - name: scheduled_departure_time_block
+        description: >
+          Faixa horária da partida programada, em intervalos de uma hora
+      - name: taxi_out
+        description: >
+          Tempo de taxiamento na saída
+      - name: wheels_off_time
+        description: >
+          Horário de decolagem (hora local, HHMM)
+      - name: wheels_on_time
+        description: >
+          Horário de aterrissagem (hora local, HHMM)
+      - name: taxi_in
+        description: >
+          Tempo de taxiamento na chegada
+      - name: scheduled_arrival_time
+        description: >
+          Horário de chegada programado (hora local, HHMM)
+      - name: scheduled_arrival_time_local
+        description: >
+          Horário de chegada programado como hora do dia, derivado de
+          scheduled_arrival_time
+      - name: arrival_time
+        description: >
+          Horário de chegada efetivo (hora local, HHMM)
+      - name: arrival_time_local
+        description: >
+          Horário de chegada efetivo como hora do dia, derivado de arrival_time
+      - name: arrival_delay
+        description: >
+          Diferença entre a chegada efetiva e a programada; chegadas adiantadas
+          são negativas
+      - name: arrival_delay_minutes
+        description: >
+          Atraso na chegada com chegadas adiantadas fixadas em zero
+      - name: arrival_delay_15min
+        description: >
+          Indica se a chegada atrasou 15 minutos ou mais, com 1 para sim
+      - name: arrival_delay_group
+        description: >
+          Faixa de atraso na chegada, em intervalos de 15 minutos
+      - name: scheduled_arrival_time_block
+        description: >
+          Faixa horária da chegada programada, em intervalos de uma hora
+      - name: cancelled
+        description: >
+          Indica se o voo foi cancelado, com 1 para sim
+      - name: cancellation_code
+        description: >
+          Motivo do cancelamento do voo
+      - name: diverted
+        description: >
+          Indica se o voo foi desviado, com 1 para sim
+      - name: scheduled_elapsed_time
+        description: >
+          Duração programada do voo
+      - name: actual_elapsed_time
+        description: >
+          Duração efetiva do voo
+      - name: air_time
+        description: >
+          Tempo de voo entre a decolagem e a aterrissagem
+      - name: flights
+        description: >
+          Número de voos representados pelo registro
+      - name: distance
+        description: >
+          Distância entre os aeroportos de origem e destino
+      - name: distance_group
+        description: >
+          Faixa de distância do trecho, em intervalos de 250 milhas
+      - name: carrier_delay
+        description: >
+          Minutos de atraso atribuídos à empresa aérea
+      - name: weather_delay
+        description: >
+          Minutos de atraso atribuídos ao clima
+      - name: national_air_system_delay
+        description: >
+          Minutos de atraso atribuídos ao sistema nacional de espaço aéreo
+      - name: security_delay
+        description: >
+          Minutos de atraso atribuídos à segurança
+      - name: late_aircraft_delay
+        description: >
+          Minutos de atraso atribuídos ao atraso da aeronave no trecho anterior
+      - name: first_departure_time
+        description: >
+          Primeiro horário de saída do portão no aeroporto de origem (hora
+          local, HHMM)
+      - name: total_additional_gate_time
+        description: >
+          Tempo total fora do portão em retorno ao portão ou voo cancelado
+      - name: longest_additional_gate_time
+        description: >
+          Maior tempo contínuo fora do portão em retorno ao portão ou voo
+          cancelado
+      - name: diverted_airport_landings
+        description: >
+          Número de pousos em aeroportos de desvio
+      - name: diverted_reached_destination
+        description: >
+          Indica se o voo desviado alcançou o destino programado, com 1 para sim
+      - name: diverted_actual_elapsed_time
+        description: >
+          Duração do voo desviado que alcançou o destino programado
+      - name: diverted_arrival_delay
+        description: >
+          Atraso na chegada do voo desviado que alcançou o destino programado
+      - name: diverted_distance
+        description: >
+          Distância entre o destino programado e o aeroporto final de desvio
+      - name: diversion_1_airport
+        description: >
+          Código do aeroporto do 1º pouso de desvio
+      - name: diversion_1_airport_id
+        description: >
+          Identificador do aeroporto do 1º pouso de desvio
+      - name: diversion_1_airport_seq_id
+        description: >
+          Identificador datado do aeroporto do 1º pouso de desvio
+      - name: diversion_1_wheels_on_time
+        description: >
+          Horário de pouso (hora local, HHMM) no 1º aeroporto de desvio
+      - name: diversion_1_total_gate_time
+        description: >
+          Tempo total fora do portão no 1º aeroporto de desvio
+      - name: diversion_1_longest_gate_time
+        description: >
+          Maior tempo contínuo fora do portão no 1º aeroporto de desvio
+      - name: diversion_1_wheels_off_time
+        description: >
+          Horário de decolagem (hora local, HHMM) no 1º aeroporto de desvio
+      - name: diversion_1_tail_number
+        description: >
+          Prefixo da aeronave no 1º pouso de desvio
+      - name: diversion_2_airport
+        description: >
+          Código do aeroporto do 2º pouso de desvio
+      - name: diversion_2_airport_id
+        description: >
+          Identificador do aeroporto do 2º pouso de desvio
+      - name: diversion_2_airport_seq_id
+        description: >
+          Identificador datado do aeroporto do 2º pouso de desvio
+      - name: diversion_2_wheels_on_time
+        description: >
+          Horário de pouso (hora local, HHMM) no 2º aeroporto de desvio
+      - name: diversion_2_total_gate_time
+        description: >
+          Tempo total fora do portão no 2º aeroporto de desvio
+      - name: diversion_2_longest_gate_time
+        description: >
+          Maior tempo contínuo fora do portão no 2º aeroporto de desvio
+      - name: diversion_2_wheels_off_time
+        description: >
+          Horário de decolagem (hora local, HHMM) no 2º aeroporto de desvio
+      - name: diversion_2_tail_number
+        description: >
+          Prefixo da aeronave no 2º pouso de desvio
+      - name: diversion_3_airport
+        description: >
+          Código do aeroporto do 3º pouso de desvio
+      - name: diversion_3_airport_id
+        description: >
+          Identificador do aeroporto do 3º pouso de desvio
+      - name: diversion_3_airport_seq_id
+        description: >
+          Identificador datado do aeroporto do 3º pouso de desvio
+      - name: diversion_3_wheels_on_time
+        description: >
+          Horário de pouso (hora local, HHMM) no 3º aeroporto de desvio
+      - name: diversion_3_total_gate_time
+        description: >
+          Tempo total fora do portão no 3º aeroporto de desvio
+      - name: diversion_3_longest_gate_time
+        description: >
+          Maior tempo contínuo fora do portão no 3º aeroporto de desvio
+      - name: diversion_3_wheels_off_time
+        description: >
+          Horário de decolagem (hora local, HHMM) no 3º aeroporto de desvio
+      - name: diversion_3_tail_number
+        description: >
+          Prefixo da aeronave no 3º pouso de desvio
+      - name: diversion_4_airport
+        description: >
+          Código do aeroporto do 4º pouso de desvio
+      - name: diversion_4_airport_id
+        description: >
+          Identificador do aeroporto do 4º pouso de desvio
+      - name: diversion_4_airport_seq_id
+        description: >
+          Identificador datado do aeroporto do 4º pouso de desvio
+      - name: diversion_4_wheels_on_time
+        description: >
+          Horário de pouso (hora local, HHMM) no 4º aeroporto de desvio
+      - name: diversion_4_total_gate_time
+        description: >
+          Tempo total fora do portão no 4º aeroporto de desvio
+      - name: diversion_4_longest_gate_time
+        description: >
+          Maior tempo contínuo fora do portão no 4º aeroporto de desvio
+      - name: diversion_4_wheels_off_time
+        description: >
+          Horário de decolagem (hora local, HHMM) no 4º aeroporto de desvio
+      - name: diversion_4_tail_number
+        description: >
+          Prefixo da aeronave no 4º pouso de desvio
+      - name: diversion_5_airport
+        description: >
+          Código do aeroporto do 5º pouso de desvio
+      - name: diversion_5_airport_id
+        description: >
+          Identificador do aeroporto do 5º pouso de desvio
+      - name: diversion_5_airport_seq_id
+        description: >
+          Identificador datado do aeroporto do 5º pouso de desvio
+      - name: diversion_5_wheels_on_time
+        description: >
+          Horário de pouso (hora local, HHMM) no 5º aeroporto de desvio
+      - name: diversion_5_total_gate_time
+        description: >
+          Tempo total fora do portão no 5º aeroporto de desvio
+      - name: diversion_5_longest_gate_time
+        description: >
+          Maior tempo contínuo fora do portão no 5º aeroporto de desvio
+      - name: diversion_5_wheels_off_time
+        description: >
+          Horário de decolagem (hora local, HHMM) no 5º aeroporto de desvio
+      - name: diversion_5_tail_number
+        description: >
+          Prefixo da aeronave no 5º pouso de desvio
+  - name: us_dot_bts_ontime__airport
+    description: >
+      Aeroportos identificados pelo US DOT na base de pontualidade, com cidade,
+      estado ou país e nome do aeroporto extraídos da tabela de consulta oficial
+      do BTS. Serve de referência para as colunas origin_airport_id e
+      destination_airport_id da tabela flight.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [airport_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [state_abbreviation, country_name]
+    columns:
+      - name: airport_id
+        description: >
+          Identificador numérico do aeroporto atribuído pelo US DOT
+        tests: [not_null]
+      - name: city_name
+        description: >
+          Cidade servida pelo aeroporto
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território dos Estados Unidos
+      - name: country_name
+        description: >
+          País do aeroporto quando situado fora dos Estados Unidos
+      - name: airport_name
+        description: >
+          Nome do aeroporto
+      - name: airport_description
+        description: >
+          Descrição do aeroporto exatamente como publicada pelo BTS
+  - name: us_dot_bts_ontime__dicionario
+    description: >
+      Dicionário dos valores codificados das colunas categóricas do conjunto,
+      montado a partir das tabelas de consulta publicadas pelo BTS.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela que contém a coluna traduzida
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna traduzida
+        tests: [not_null]
+      - name: chave
+        description: >
+          Valor codificado presente na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal do par chave-valor
+      - name: valor
+        description: >
+          Significado do valor codificado
+        tests: [not_null]

@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+id_tabela,STRING,Nome da tabela que contém a coluna traduzida,,no,,,no,,,Name of the table holding the translated column,Nombre de la tabla que contiene la columna traducida
+nome_coluna,STRING,Nome da coluna traduzida,,no,,,no,,,Name of the translated column,Nombre de la columna traducida
+chave,STRING,Valor codificado presente na coluna,,no,,,no,,,Coded value present in the column,Valor codificado presente en la columna
+cobertura_temporal,STRING,Cobertura temporal do par chave-valor,,no,,,no,,,Temporal coverage of the key-value pair,Cobertura temporal del par clave-valor
+valor,STRING,Significado do valor codificado,,no,,,no,,,Meaning of the coded value,Significado del valor codificado
