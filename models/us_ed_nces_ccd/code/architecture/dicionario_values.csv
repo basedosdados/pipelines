@@ -1,0 +1,658 @@
+id_tabela,nome_coluna,chave,cobertura_temporal,valor
+school,state_id,1,,Alabama
+school,state_id,2,,Alaska
+school,state_id,3,,American Samoa
+school,state_id,4,,Arizona
+school,state_id,5,,Arkansas
+school,state_id,6,,California
+school,state_id,7,,Canal Zone
+school,state_id,8,,Colorado
+school,state_id,9,,Connecticut
+school,state_id,10,,Delaware
+school,state_id,11,,District of Columbia
+school,state_id,12,,Florida
+school,state_id,13,,Georgia
+school,state_id,14,,Guam
+school,state_id,15,,Hawaii
+school,state_id,16,,Idaho
+school,state_id,17,,Illinois
+school,state_id,18,,Indiana
+school,state_id,19,,Iowa
+school,state_id,20,,Kansas
+school,state_id,21,,Kentucky
+school,state_id,22,,Louisiana
+school,state_id,23,,Maine
+school,state_id,24,,Maryland
+school,state_id,25,,Massachusetts
+school,state_id,26,,Michigan
+school,state_id,27,,Minnesota
+school,state_id,28,,Mississippi
+school,state_id,29,,Missouri
+school,state_id,30,,Montana
+school,state_id,31,,Nebraska
+school,state_id,32,,Nevada
+school,state_id,33,,New Hampshire
+school,state_id,34,,New Jersey
+school,state_id,35,,New Mexico
+school,state_id,36,,New York
+school,state_id,37,,North Carolina
+school,state_id,38,,North Dakota
+school,state_id,39,,Ohio
+school,state_id,40,,Oklahoma
+school,state_id,41,,Oregon
+school,state_id,42,,Pennsylvania
+school,state_id,43,,Puerto Rico
+school,state_id,44,,Rhode Island
+school,state_id,45,,South Carolina
+school,state_id,46,,South Dakota
+school,state_id,47,,Tennessee
+school,state_id,48,,Texas
+school,state_id,49,,Utah
+school,state_id,50,,Vermont
+school,state_id,51,,Virginia
+school,state_id,52,,Virgin Islands of the US
+school,state_id,53,,Washington
+school,state_id,54,,West Virginia
+school,state_id,55,,Wisconsin
+school,state_id,56,,Wyoming
+school,state_id,58,,Department of Defense Dependent Schools (overseas)
+school,state_id,59,,Bureau of Indian Education
+school,state_id,60,,American Samoa
+school,state_id,61,,Department of Defense Dependent Schools (domestic)
+school,state_id,63,,Department of Defense Education Activity
+school,state_id,64,,Federated States of Micronesia
+school,state_id,65,,Mariana Islands waters (including Guam)
+school,state_id,66,,Guam
+school,state_id,67,,Johnston Atoll
+school,state_id,68,,Marshall Islands
+school,state_id,69,,Northern Mariana Islands
+school,state_id,70,,Palau
+school,state_id,71,,Midway Islands
+school,state_id,72,,Puerto Rico
+school,state_id,74,,US Minor Outlying Islands
+school,state_id,75,,"Atlantic coast from North Carolina to Florida, and the coasts of Puerto Rico and Virgin Islands"
+school,state_id,76,,Navassa Island
+school,state_id,78,,Virgin Islands of the US
+school,state_id,79,,Wake Island
+school,state_id,81,,Baker Island
+school,state_id,84,,Howland Island
+school,state_id,86,,Jarvis Island
+school,state_id,89,,Kingman Reef
+school,state_id,95,,Palmyra Atoll
+school,urban_centric_locale,1,,Large city
+school,urban_centric_locale,2,,Midsize city
+school,urban_centric_locale,3,,Urban fringe of large city
+school,urban_centric_locale,4,,Urban fringe of midsize city
+school,urban_centric_locale,5,,Large town
+school,urban_centric_locale,6,,Small town
+school,urban_centric_locale,7,,"Rural, outside CBSA"
+school,urban_centric_locale,8,,"Rural, inside CBSA"
+school,urban_centric_locale,9,,Not assigned
+school,urban_centric_locale,11,,"City, large"
+school,urban_centric_locale,12,,"City, midsize"
+school,urban_centric_locale,13,,"City, small"
+school,urban_centric_locale,21,,"Suburb, large"
+school,urban_centric_locale,22,,"Suburb, midsize"
+school,urban_centric_locale,23,,"Suburb, small"
+school,urban_centric_locale,31,,"Town, fringe"
+school,urban_centric_locale,32,,"Town, distant"
+school,urban_centric_locale,33,,"Town, remote"
+school,urban_centric_locale,41,,"Rural, fringe"
+school,urban_centric_locale,42,,"Rural, distant"
+school,urban_centric_locale,43,,"Rural, remote"
+school,school_level,0,,Prekindergarten
+school,school_level,1,,Primary
+school,school_level,2,,Middle
+school,school_level,3,,High
+school,school_level,4,,Other
+school,school_level,5,,Ungraded
+school,school_level,6,,Adult Education
+school,school_level,7,,Secondary
+school,school_type,1,,Regular school
+school,school_type,2,,Special education school
+school,school_type,3,,Vocational school
+school,school_type,4,,Other/alternative school
+school,school_type,5,,Reportable program
+school,school_status,1,,Open
+school,school_status,2,,Closed
+school,school_status,3,,New
+school,school_status,4,,Added
+school,school_status,5,,Changed agency
+school,school_status,6,,Inactive
+school,school_status,7,,Future
+school,school_status,8,,Reopened
+school,lowest_grade_offered,0,,Kindergarten
+school,lowest_grade_offered,1,,1
+school,lowest_grade_offered,2,,2
+school,lowest_grade_offered,3,,3
+school,lowest_grade_offered,4,,4
+school,lowest_grade_offered,5,,5
+school,lowest_grade_offered,6,,6
+school,lowest_grade_offered,7,,7
+school,lowest_grade_offered,8,,8
+school,lowest_grade_offered,9,,9
+school,lowest_grade_offered,10,,10
+school,lowest_grade_offered,11,,11
+school,lowest_grade_offered,12,,12
+school,lowest_grade_offered,13,,13
+school,lowest_grade_offered,14,,Adult education
+school,lowest_grade_offered,15,,Ungraded
+school,highest_grade_offered,0,,Kindergarten
+school,highest_grade_offered,1,,1
+school,highest_grade_offered,2,,2
+school,highest_grade_offered,3,,3
+school,highest_grade_offered,4,,4
+school,highest_grade_offered,5,,5
+school,highest_grade_offered,6,,6
+school,highest_grade_offered,7,,7
+school,highest_grade_offered,8,,8
+school,highest_grade_offered,9,,9
+school,highest_grade_offered,10,,10
+school,highest_grade_offered,11,,11
+school,highest_grade_offered,12,,12
+school,highest_grade_offered,13,,13
+school,highest_grade_offered,14,,Adult education
+school,highest_grade_offered,15,,Ungraded
+school,bureau_indian_education,1,,Yes
+school,bureau_indian_education,0,,No
+school,title_i_status,1,,School is eligible for Title I Targeted Assistance (TAS) but provides no program
+school,title_i_status,2,,School is eligible for Title I Targeted Assistance (TAS) and provides TAS program
+school,title_i_status,3,,School is eligible for Title I Schoolwide program (SWP) and provides Targeted Assistance program (TAS)
+school,title_i_status,4,,School is eligible for Title I Schoolwide program (SWP) but provides no program
+school,title_i_status,5,,School is eligible for Title I Schoolwide program (SWP) and provides Title I Schoolwide program
+school,title_i_status,6,,School is not eligible for either Title I Targeted Assistance or Schoolwide program
+school,title_i_eligible,1,,Yes
+school,title_i_eligible,0,,No
+school,title_i_schoolwide,1,,Yes
+school,title_i_schoolwide,0,,No
+school,charter,1,,Yes
+school,charter,0,,No
+school,magnet,1,,Yes
+school,magnet,0,,No
+school,shared_time,1,,Yes
+school,shared_time,0,,No
+school,virtual,0,,No
+school,virtual,1,,Yes
+school,virtual,2,,Virtual with face to face options
+school,virtual,3,,Supplemental virtual
+school,elem_cedp,1,,Yes
+school,elem_cedp,0,,No
+school,middle_cedp,1,,Yes
+school,middle_cedp,0,,No
+school,high_cedp,1,,Yes
+school,high_cedp,0,,No
+school,ungrade_cedp,1,,Yes
+school,ungrade_cedp,0,,No
+school,lunch_program,0,,No
+school,lunch_program,1,,Yes participating without using any Provision or the CEP
+school,lunch_program,2,,Yes under the Community Eligibility Provision (CEP)
+school,lunch_program,3,,Yes under Provision 1
+school,lunch_program,4,,Yes under Provision 2
+school,lunch_program,5,,Yes under Provision 3
+school_district,state_id,1,,Alabama
+school_district,state_id,2,,Alaska
+school_district,state_id,3,,American Samoa
+school_district,state_id,4,,Arizona
+school_district,state_id,5,,Arkansas
+school_district,state_id,6,,California
+school_district,state_id,7,,Canal Zone
+school_district,state_id,8,,Colorado
+school_district,state_id,9,,Connecticut
+school_district,state_id,10,,Delaware
+school_district,state_id,11,,District of Columbia
+school_district,state_id,12,,Florida
+school_district,state_id,13,,Georgia
+school_district,state_id,14,,Guam
+school_district,state_id,15,,Hawaii
+school_district,state_id,16,,Idaho
+school_district,state_id,17,,Illinois
+school_district,state_id,18,,Indiana
+school_district,state_id,19,,Iowa
+school_district,state_id,20,,Kansas
+school_district,state_id,21,,Kentucky
+school_district,state_id,22,,Louisiana
+school_district,state_id,23,,Maine
+school_district,state_id,24,,Maryland
+school_district,state_id,25,,Massachusetts
+school_district,state_id,26,,Michigan
+school_district,state_id,27,,Minnesota
+school_district,state_id,28,,Mississippi
+school_district,state_id,29,,Missouri
+school_district,state_id,30,,Montana
+school_district,state_id,31,,Nebraska
+school_district,state_id,32,,Nevada
+school_district,state_id,33,,New Hampshire
+school_district,state_id,34,,New Jersey
+school_district,state_id,35,,New Mexico
+school_district,state_id,36,,New York
+school_district,state_id,37,,North Carolina
+school_district,state_id,38,,North Dakota
+school_district,state_id,39,,Ohio
+school_district,state_id,40,,Oklahoma
+school_district,state_id,41,,Oregon
+school_district,state_id,42,,Pennsylvania
+school_district,state_id,43,,Puerto Rico
+school_district,state_id,44,,Rhode Island
+school_district,state_id,45,,South Carolina
+school_district,state_id,46,,South Dakota
+school_district,state_id,47,,Tennessee
+school_district,state_id,48,,Texas
+school_district,state_id,49,,Utah
+school_district,state_id,50,,Vermont
+school_district,state_id,51,,Virginia
+school_district,state_id,52,,Virgin Islands of the US
+school_district,state_id,53,,Washington
+school_district,state_id,54,,West Virginia
+school_district,state_id,55,,Wisconsin
+school_district,state_id,56,,Wyoming
+school_district,state_id,58,,Department of Defense Dependent Schools (overseas)
+school_district,state_id,59,,Bureau of Indian Education
+school_district,state_id,60,,American Samoa
+school_district,state_id,61,,Department of Defense Dependent Schools (domestic)
+school_district,state_id,63,,Department of Defense Education Activity
+school_district,state_id,64,,Federated States of Micronesia
+school_district,state_id,65,,Mariana Islands waters (including Guam)
+school_district,state_id,66,,Guam
+school_district,state_id,67,,Johnston Atoll
+school_district,state_id,68,,Marshall Islands
+school_district,state_id,69,,Northern Mariana Islands
+school_district,state_id,70,,Palau
+school_district,state_id,71,,Midway Islands
+school_district,state_id,72,,Puerto Rico
+school_district,state_id,74,,US Minor Outlying Islands
+school_district,state_id,75,,"Atlantic coast from North Carolina to Florida, and the coasts of Puerto Rico and Virgin Islands"
+school_district,state_id,76,,Navassa Island
+school_district,state_id,78,,Virgin Islands of the US
+school_district,state_id,79,,Wake Island
+school_district,state_id,81,,Baker Island
+school_district,state_id,84,,Howland Island
+school_district,state_id,86,,Jarvis Island
+school_district,state_id,89,,Kingman Reef
+school_district,state_id,95,,Palmyra Atoll
+school_district,cbsa_type,1,,Metropolitan statistical area
+school_district,cbsa_type,2,,Micropolitan statistical area
+school_district,urban_centric_locale,1,,Large city
+school_district,urban_centric_locale,2,,Midsize city
+school_district,urban_centric_locale,3,,Urban fringe of large city
+school_district,urban_centric_locale,4,,Urban fringe of midsize city
+school_district,urban_centric_locale,5,,Large town
+school_district,urban_centric_locale,6,,Small town
+school_district,urban_centric_locale,7,,"Rural, outside CBSA"
+school_district,urban_centric_locale,8,,"Rural, inside CBSA"
+school_district,urban_centric_locale,9,,Not assigned
+school_district,urban_centric_locale,11,,"City, large"
+school_district,urban_centric_locale,12,,"City, midsize"
+school_district,urban_centric_locale,13,,"City, small"
+school_district,urban_centric_locale,21,,"Suburb, large"
+school_district,urban_centric_locale,22,,"Suburb, midsize"
+school_district,urban_centric_locale,23,,"Suburb, small"
+school_district,urban_centric_locale,31,,"Town, fringe"
+school_district,urban_centric_locale,32,,"Town, distant"
+school_district,urban_centric_locale,33,,"Town, remote"
+school_district,urban_centric_locale,41,,"Rural, fringe"
+school_district,urban_centric_locale,42,,"Rural, distant"
+school_district,urban_centric_locale,43,,"Rural, remote"
+school_district,agency_type,1,,Regular local school district
+school_district,agency_type,2,,Local school district that is a component of a supervisory union
+school_district,agency_type,3,,Supervisory union
+school_district,agency_type,4,,Regional education service agency
+school_district,agency_type,5,,State-operated agency
+school_district,agency_type,6,,Federally operated agency
+school_district,agency_type,7,,Charter agency
+school_district,agency_type,8,,Other education agency
+school_district,agency_type,9,,Specialized public school district
+school_district,agency_level,0,,Prekindergarten
+school_district,agency_level,1,,Primary
+school_district,agency_level,2,,Middle
+school_district,agency_level,3,,High
+school_district,agency_level,4,,Other
+school_district,agency_level,5,,Ungraded
+school_district,agency_level,6,,Adult Education
+school_district,agency_level,7,,Secondary
+school_district,agency_charter_indicator,1,,All charter schools
+school_district,agency_charter_indicator,2,,Some charter schools
+school_district,agency_charter_indicator,3,,No charter schools
+school_district,boundary_change_indicator,1,,No change; operational
+school_district,boundary_change_indicator,2,,Closed
+school_district,boundary_change_indicator,3,,New
+school_district,boundary_change_indicator,4,,Added
+school_district,boundary_change_indicator,5,,Significant change in geographical boundaries or instructional responsibility
+school_district,boundary_change_indicator,6,,Temporarily closed
+school_district,boundary_change_indicator,7,,Future
+school_district,boundary_change_indicator,8,,Reopened
+school_district,bureau_indian_education,1,,Yes
+school_district,bureau_indian_education,0,,No
+school_district,lowest_grade_offered,0,,Kindergarten
+school_district,lowest_grade_offered,1,,1
+school_district,lowest_grade_offered,2,,2
+school_district,lowest_grade_offered,3,,3
+school_district,lowest_grade_offered,4,,4
+school_district,lowest_grade_offered,5,,5
+school_district,lowest_grade_offered,6,,6
+school_district,lowest_grade_offered,7,,7
+school_district,lowest_grade_offered,8,,8
+school_district,lowest_grade_offered,9,,9
+school_district,lowest_grade_offered,10,,10
+school_district,lowest_grade_offered,11,,11
+school_district,lowest_grade_offered,12,,12
+school_district,lowest_grade_offered,13,,13
+school_district,lowest_grade_offered,14,,Adult education
+school_district,lowest_grade_offered,15,,Ungraded
+school_district,highest_grade_offered,0,,Kindergarten
+school_district,highest_grade_offered,1,,1
+school_district,highest_grade_offered,2,,2
+school_district,highest_grade_offered,3,,3
+school_district,highest_grade_offered,4,,4
+school_district,highest_grade_offered,5,,5
+school_district,highest_grade_offered,6,,6
+school_district,highest_grade_offered,7,,7
+school_district,highest_grade_offered,8,,8
+school_district,highest_grade_offered,9,,9
+school_district,highest_grade_offered,10,,10
+school_district,highest_grade_offered,11,,11
+school_district,highest_grade_offered,12,,12
+school_district,highest_grade_offered,13,,13
+school_district,highest_grade_offered,14,,Adult education
+school_district,highest_grade_offered,15,,Ungraded
+school_enrollment,state_id,1,,Alabama
+school_enrollment,state_id,2,,Alaska
+school_enrollment,state_id,3,,American Samoa
+school_enrollment,state_id,4,,Arizona
+school_enrollment,state_id,5,,Arkansas
+school_enrollment,state_id,6,,California
+school_enrollment,state_id,7,,Canal Zone
+school_enrollment,state_id,8,,Colorado
+school_enrollment,state_id,9,,Connecticut
+school_enrollment,state_id,10,,Delaware
+school_enrollment,state_id,11,,District of Columbia
+school_enrollment,state_id,12,,Florida
+school_enrollment,state_id,13,,Georgia
+school_enrollment,state_id,14,,Guam
+school_enrollment,state_id,15,,Hawaii
+school_enrollment,state_id,16,,Idaho
+school_enrollment,state_id,17,,Illinois
+school_enrollment,state_id,18,,Indiana
+school_enrollment,state_id,19,,Iowa
+school_enrollment,state_id,20,,Kansas
+school_enrollment,state_id,21,,Kentucky
+school_enrollment,state_id,22,,Louisiana
+school_enrollment,state_id,23,,Maine
+school_enrollment,state_id,24,,Maryland
+school_enrollment,state_id,25,,Massachusetts
+school_enrollment,state_id,26,,Michigan
+school_enrollment,state_id,27,,Minnesota
+school_enrollment,state_id,28,,Mississippi
+school_enrollment,state_id,29,,Missouri
+school_enrollment,state_id,30,,Montana
+school_enrollment,state_id,31,,Nebraska
+school_enrollment,state_id,32,,Nevada
+school_enrollment,state_id,33,,New Hampshire
+school_enrollment,state_id,34,,New Jersey
+school_enrollment,state_id,35,,New Mexico
+school_enrollment,state_id,36,,New York
+school_enrollment,state_id,37,,North Carolina
+school_enrollment,state_id,38,,North Dakota
+school_enrollment,state_id,39,,Ohio
+school_enrollment,state_id,40,,Oklahoma
+school_enrollment,state_id,41,,Oregon
+school_enrollment,state_id,42,,Pennsylvania
+school_enrollment,state_id,43,,Puerto Rico
+school_enrollment,state_id,44,,Rhode Island
+school_enrollment,state_id,45,,South Carolina
+school_enrollment,state_id,46,,South Dakota
+school_enrollment,state_id,47,,Tennessee
+school_enrollment,state_id,48,,Texas
+school_enrollment,state_id,49,,Utah
+school_enrollment,state_id,50,,Vermont
+school_enrollment,state_id,51,,Virginia
+school_enrollment,state_id,52,,Virgin Islands of the US
+school_enrollment,state_id,53,,Washington
+school_enrollment,state_id,54,,West Virginia
+school_enrollment,state_id,55,,Wisconsin
+school_enrollment,state_id,56,,Wyoming
+school_enrollment,state_id,58,,Department of Defense Dependent Schools (overseas)
+school_enrollment,state_id,59,,Bureau of Indian Education
+school_enrollment,state_id,60,,American Samoa
+school_enrollment,state_id,61,,Department of Defense Dependent Schools (domestic)
+school_enrollment,state_id,63,,Department of Defense Education Activity
+school_enrollment,state_id,64,,Federated States of Micronesia
+school_enrollment,state_id,65,,Mariana Islands waters (including Guam)
+school_enrollment,state_id,66,,Guam
+school_enrollment,state_id,67,,Johnston Atoll
+school_enrollment,state_id,68,,Marshall Islands
+school_enrollment,state_id,69,,Northern Mariana Islands
+school_enrollment,state_id,70,,Palau
+school_enrollment,state_id,71,,Midway Islands
+school_enrollment,state_id,72,,Puerto Rico
+school_enrollment,state_id,74,,US Minor Outlying Islands
+school_enrollment,state_id,75,,"Atlantic coast from North Carolina to Florida, and the coasts of Puerto Rico and Virgin Islands"
+school_enrollment,state_id,76,,Navassa Island
+school_enrollment,state_id,78,,Virgin Islands of the US
+school_enrollment,state_id,79,,Wake Island
+school_enrollment,state_id,81,,Baker Island
+school_enrollment,state_id,84,,Howland Island
+school_enrollment,state_id,86,,Jarvis Island
+school_enrollment,state_id,89,,Kingman Reef
+school_enrollment,state_id,95,,Palmyra Atoll
+school_enrollment,grade,-1,,Pre-K
+school_enrollment,grade,0,,Kindergarten
+school_enrollment,grade,1,,1
+school_enrollment,grade,2,,2
+school_enrollment,grade,3,,3
+school_enrollment,grade,4,,4
+school_enrollment,grade,5,,5
+school_enrollment,grade,6,,6
+school_enrollment,grade,7,,7
+school_enrollment,grade,8,,8
+school_enrollment,grade,9,,9
+school_enrollment,grade,10,,10
+school_enrollment,grade,11,,11
+school_enrollment,grade,12,,12
+school_enrollment,grade,13,,13
+school_enrollment,grade,14,,Adult education
+school_enrollment,grade,15,,Ungraded
+school_enrollment,grade,99,,Total
+school_enrollment,grade,999,,Not specified
+school_enrollment,race,1,,White
+school_enrollment,race,2,,Black
+school_enrollment,race,3,,Hispanic
+school_enrollment,race,4,,Asian
+school_enrollment,race,5,,American Indian or Alaska Native
+school_enrollment,race,6,,Native Hawaiian or other Pacific Islander
+school_enrollment,race,7,,Two or more races
+school_enrollment,race,8,,Nonresident alien
+school_enrollment,race,9,,Unknown
+school_enrollment,race,20,,Other
+school_enrollment,race,99,,Total
+school_enrollment,sex,1,,Male
+school_enrollment,sex,2,,Female
+school_enrollment,sex,3,,Gender Not-Identified
+school_enrollment,sex,9,,Unknown
+school_enrollment,sex,99,,Total
+staff,state_id,1,,Alabama
+staff,state_id,2,,Alaska
+staff,state_id,3,,American Samoa
+staff,state_id,4,,Arizona
+staff,state_id,5,,Arkansas
+staff,state_id,6,,California
+staff,state_id,7,,Canal Zone
+staff,state_id,8,,Colorado
+staff,state_id,9,,Connecticut
+staff,state_id,10,,Delaware
+staff,state_id,11,,District of Columbia
+staff,state_id,12,,Florida
+staff,state_id,13,,Georgia
+staff,state_id,14,,Guam
+staff,state_id,15,,Hawaii
+staff,state_id,16,,Idaho
+staff,state_id,17,,Illinois
+staff,state_id,18,,Indiana
+staff,state_id,19,,Iowa
+staff,state_id,20,,Kansas
+staff,state_id,21,,Kentucky
+staff,state_id,22,,Louisiana
+staff,state_id,23,,Maine
+staff,state_id,24,,Maryland
+staff,state_id,25,,Massachusetts
+staff,state_id,26,,Michigan
+staff,state_id,27,,Minnesota
+staff,state_id,28,,Mississippi
+staff,state_id,29,,Missouri
+staff,state_id,30,,Montana
+staff,state_id,31,,Nebraska
+staff,state_id,32,,Nevada
+staff,state_id,33,,New Hampshire
+staff,state_id,34,,New Jersey
+staff,state_id,35,,New Mexico
+staff,state_id,36,,New York
+staff,state_id,37,,North Carolina
+staff,state_id,38,,North Dakota
+staff,state_id,39,,Ohio
+staff,state_id,40,,Oklahoma
+staff,state_id,41,,Oregon
+staff,state_id,42,,Pennsylvania
+staff,state_id,43,,Puerto Rico
+staff,state_id,44,,Rhode Island
+staff,state_id,45,,South Carolina
+staff,state_id,46,,South Dakota
+staff,state_id,47,,Tennessee
+staff,state_id,48,,Texas
+staff,state_id,49,,Utah
+staff,state_id,50,,Vermont
+staff,state_id,51,,Virginia
+staff,state_id,52,,Virgin Islands of the US
+staff,state_id,53,,Washington
+staff,state_id,54,,West Virginia
+staff,state_id,55,,Wisconsin
+staff,state_id,56,,Wyoming
+staff,state_id,58,,Department of Defense Dependent Schools (overseas)
+staff,state_id,59,,Bureau of Indian Education
+staff,state_id,60,,American Samoa
+staff,state_id,61,,Department of Defense Dependent Schools (domestic)
+staff,state_id,63,,Department of Defense Education Activity
+staff,state_id,64,,Federated States of Micronesia
+staff,state_id,65,,Mariana Islands waters (including Guam)
+staff,state_id,66,,Guam
+staff,state_id,67,,Johnston Atoll
+staff,state_id,68,,Marshall Islands
+staff,state_id,69,,Northern Mariana Islands
+staff,state_id,70,,Palau
+staff,state_id,71,,Midway Islands
+staff,state_id,72,,Puerto Rico
+staff,state_id,74,,US Minor Outlying Islands
+staff,state_id,75,,"Atlantic coast from North Carolina to Florida, and the coasts of Puerto Rico and Virgin Islands"
+staff,state_id,76,,Navassa Island
+staff,state_id,78,,Virgin Islands of the US
+staff,state_id,79,,Wake Island
+staff,state_id,81,,Baker Island
+staff,state_id,84,,Howland Island
+staff,state_id,86,,Jarvis Island
+staff,state_id,89,,Kingman Reef
+staff,state_id,95,,Palmyra Atoll
+staff,staff_category,teachers_prek,,Prekindergarten teachers
+staff,staff_category,teachers_kindergarten,,Kindergarten teachers
+staff,staff_category,teachers_elementary,,Elementary school teachers
+staff,staff_category,teachers_secondary,,Secondary school teachers
+staff,staff_category,teachers_ungraded,,Ungraded teachers
+staff,staff_category,teachers_total,,All teachers
+staff,staff_category,instructional_aides,,Instructional aides and paraprofessionals
+staff,staff_category,coordinators,,Instructional coordinators and supervisors
+staff,staff_category,guidance_counselors_elementary,,Elementary school guidance counselors
+staff,staff_category,guidance_counselors_secondary,,Secondary school guidance counselors
+staff,staff_category,guidance_counselors_other,,Other guidance counselors
+staff,staff_category,guidance_counselors_total,,All guidance counselors
+staff,staff_category,school_counselors,,School counselors
+staff,staff_category,school_psychologists,,School psychologists
+staff,staff_category,librarian_specialists,,Librarians and media specialists
+staff,staff_category,librarian_support_staff,,Library and media support staff
+staff,staff_category,lea_administrators,,Local education agency administrators
+staff,staff_category,lea_admin_support_staff,,Local education agency administrative support staff
+staff,staff_category,lea_staff_total,,All staff based at the local education agency
+staff,staff_category,school_administrators,,School administrators
+staff,staff_category,school_admin_support_staff,,School administrative support staff
+staff,staff_category,school_staff_total,,All staff based at schools
+staff,staff_category,support_staff_students,,Student support services staff
+staff,staff_category,support_staff_students_without_psychologists,,"Student support services staff, excluding psychologists"
+staff,staff_category,support_staff_other,,Other support services staff
+staff,staff_category,other_staff,,Other staff
+staff,staff_category,staff_total,,All staff
+district_finance,state_id,1,,Alabama
+district_finance,state_id,2,,Alaska
+district_finance,state_id,3,,American Samoa
+district_finance,state_id,4,,Arizona
+district_finance,state_id,5,,Arkansas
+district_finance,state_id,6,,California
+district_finance,state_id,7,,Canal Zone
+district_finance,state_id,8,,Colorado
+district_finance,state_id,9,,Connecticut
+district_finance,state_id,10,,Delaware
+district_finance,state_id,11,,District of Columbia
+district_finance,state_id,12,,Florida
+district_finance,state_id,13,,Georgia
+district_finance,state_id,14,,Guam
+district_finance,state_id,15,,Hawaii
+district_finance,state_id,16,,Idaho
+district_finance,state_id,17,,Illinois
+district_finance,state_id,18,,Indiana
+district_finance,state_id,19,,Iowa
+district_finance,state_id,20,,Kansas
+district_finance,state_id,21,,Kentucky
+district_finance,state_id,22,,Louisiana
+district_finance,state_id,23,,Maine
+district_finance,state_id,24,,Maryland
+district_finance,state_id,25,,Massachusetts
+district_finance,state_id,26,,Michigan
+district_finance,state_id,27,,Minnesota
+district_finance,state_id,28,,Mississippi
+district_finance,state_id,29,,Missouri
+district_finance,state_id,30,,Montana
+district_finance,state_id,31,,Nebraska
+district_finance,state_id,32,,Nevada
+district_finance,state_id,33,,New Hampshire
+district_finance,state_id,34,,New Jersey
+district_finance,state_id,35,,New Mexico
+district_finance,state_id,36,,New York
+district_finance,state_id,37,,North Carolina
+district_finance,state_id,38,,North Dakota
+district_finance,state_id,39,,Ohio
+district_finance,state_id,40,,Oklahoma
+district_finance,state_id,41,,Oregon
+district_finance,state_id,42,,Pennsylvania
+district_finance,state_id,43,,Puerto Rico
+district_finance,state_id,44,,Rhode Island
+district_finance,state_id,45,,South Carolina
+district_finance,state_id,46,,South Dakota
+district_finance,state_id,47,,Tennessee
+district_finance,state_id,48,,Texas
+district_finance,state_id,49,,Utah
+district_finance,state_id,50,,Vermont
+district_finance,state_id,51,,Virginia
+district_finance,state_id,52,,Virgin Islands of the US
+district_finance,state_id,53,,Washington
+district_finance,state_id,54,,West Virginia
+district_finance,state_id,55,,Wisconsin
+district_finance,state_id,56,,Wyoming
+district_finance,state_id,58,,Department of Defense Dependent Schools (overseas)
+district_finance,state_id,59,,Bureau of Indian Education
+district_finance,state_id,60,,American Samoa
+district_finance,state_id,61,,Department of Defense Dependent Schools (domestic)
+district_finance,state_id,63,,Department of Defense Education Activity
+district_finance,state_id,64,,Federated States of Micronesia
+district_finance,state_id,65,,Mariana Islands waters (including Guam)
+district_finance,state_id,66,,Guam
+district_finance,state_id,67,,Johnston Atoll
+district_finance,state_id,68,,Marshall Islands
+district_finance,state_id,69,,Northern Mariana Islands
+district_finance,state_id,70,,Palau
+district_finance,state_id,71,,Midway Islands
+district_finance,state_id,72,,Puerto Rico
+district_finance,state_id,74,,US Minor Outlying Islands
+district_finance,state_id,75,,"Atlantic coast from North Carolina to Florida, and the coasts of Puerto Rico and Virgin Islands"
+district_finance,state_id,76,,Navassa Island
+district_finance,state_id,78,,Virgin Islands of the US
+district_finance,state_id,79,,Wake Island
+district_finance,state_id,81,,Baker Island
+district_finance,state_id,84,,Howland Island
+district_finance,state_id,86,,Jarvis Island
+district_finance,state_id,89,,Kingman Reef
+district_finance,state_id,95,,Palmyra Atoll
