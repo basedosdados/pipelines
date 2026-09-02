@@ -54,9 +54,13 @@ def main() -> None:
         )
 
     # Mirror the scope measure_sparsity used, so the two sides are comparable.
+    # cycle is INT64 in the built table and STRING in staging, so the two
+    # predicates are not interchangeable.
     where = ""
+    staging_where = ""
     if table == "contribution":
         where = f"where cycle = {gen_dbt.SPARSITY_CYCLE}"
+        staging_where = f"where cycle = '{gen_dbt.SPARSITY_CYCLE}'"
 
     cols = arch.column_names(table)
     sel = ", ".join(f"countif({c} is not null) as {c}" for c in cols)
@@ -79,14 +83,41 @@ def main() -> None:
         f"already billed); built side billed {(job.total_bytes_billed or 0) / 1e9:.2f} GB\n"
     )
 
+    # A DATE shortfall is expected where the source uses an unrepresentable
+    # sentinel: DIME writes '0000-01-01' for a missing date, DuckDB reads year 0
+    # as 1 BC, and BigQuery's DATE cannot hold it. Count those on the staging
+    # side so the shortfall is explained rather than merely reported. One extra
+    # single-column scan, and only when a DATE column actually looks short.
+    unrepresentable: dict[str, int] = {}
+    date_cols = [c[0] for c in arch.TABLES[table] if c[1] == "DATE"]
+    short_dates = [c for c in date_cols if row.get(c, 0) < raw.get(c, 0)]
+    if short_dates:
+        sel = ", ".join(
+            f"countif({c} is not null and {c} != '' "
+            f"and safe_cast({c} as datetime) is null) as {c}"
+            for c in short_dates
+        )
+        j2 = client.query(
+            f"select {sel} from `{PROJECT}.{DATASET}_staging.{table}` "
+            f"{staging_where}"
+        )
+        unrepresentable = dict(next(iter(j2.result())).items())
+        print(
+            f"  sentinel scan billed {(j2.total_bytes_billed or 0) / 1e9:.2f} GB\n"
+        )
+
     print(f"{'column':<38} {'type':<8} {'staging':>14} {'built':>14}  status")
     ok = raw_n == built_n
     for col in arch.TABLES[table]:
         name, bq_type = col[0], col[1]
         r, b = raw.get(name, 0), row.get(name, 0)
         if b < r:
-            status = f"CAST LOSS {r - b:,}"
-            ok = False
+            sentinel = unrepresentable.get(name)
+            if sentinel is not None and sentinel == r - b:
+                status = f"-{sentinel:,} unrepresentable sentinel (explained)"
+            else:
+                status = f"CAST LOSS {r - b:,}"
+                ok = False
         elif r == 0:
             status = "empty in source"
         else:
