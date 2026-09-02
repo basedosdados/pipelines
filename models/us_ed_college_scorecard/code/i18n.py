@@ -816,7 +816,15 @@ def translate_fos(label):
     for phrase, pt_r, es_r in FOS_GLOSSARY:
         pt = pt.replace(phrase, pt_r)
         es = es.replace(phrase, es_r)
-    for a, b in (("  ", " "), (" ,", ","), (" .", ".")):
+    for a, b in (
+        ("d a ", "da "),
+        ("d o ", "do "),
+        ("d as ", "das "),
+        ("d os ", "dos "),
+        ("  ", " "),
+        (" ,", ","),
+        (" .", "."),
+    ):
         pt = pt.replace(a, b)
         es = es.replace(a, b)
     pt = pt[:1].upper() + pt[1:]

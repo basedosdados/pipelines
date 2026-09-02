@@ -344,8 +344,6 @@ def build_field_of_study(by_source, fos_header, covered):
             note = FOS_UNITID_NOTE_PT
         elif raw.upper().startswith("BBRR") and not raw.upper().endswith("_N"):
             note = BAND_NOTE_PT
-        elif bq != "STRING":
-            note = SUPPRESSION_NOTE_PT
         rows.append(
             row(
                 name,
