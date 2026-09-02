@@ -1,0 +1,66 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+cycle,INT64,Two-year election cycle the entry refers to,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,cycle
+recipient_id,STRING,"Unique identifier of the candidate or committee, assigned by DIME",,no,,,no,"Stable across cycles, offices and levels of government; joins to the contribution table",bonica.rid
+contributor_id,STRING,Identifier of the same person in the contributor database,,no,,,no,Links a candidate to their own personal contributions. Partially populated: a missing value does not mean the candidate made no contributions,bonica.cid
+election,STRING,Election cycle prefixed by the two-letter state code,,no,,,no,"Federal candidates take 'fd' as the state code, for example fd1980",election
+icpsr_id,STRING,Adjusted ICPSR legislator identifier with the election cycle appended,,no,,,no,"Row identifier. Candidates who never served in Congress get identifiers derived from their FEC, NIMSP or state agency candidate identifier",ICPSR
+icpsr2_id,STRING,Adjusted ICPSR legislator identifier without the cycle suffix,,no,,,no,Party switchers are assigned a new value after switching,ICPSR2
+candidate_id,STRING,Candidate identifier assigned by the FEC or the state reporting agency,,no,,,no,,Cand.ID
+fec_committee_id,STRING,Committee identifier assigned by the FEC or the state reporting agency,,no,,,no,,FEC.ID
+nimsp_id,STRING,Candidate identifier assigned by CRP/NIMSP,,no,,,no,,NID
+icpsr_id_before_switch,STRING,ICPSR identifier held before switching parties,,no,,,no,Populated for party switchers only,before.switch.ICPSR
+icpsr_id_after_switch,STRING,ICPSR identifier held after switching parties,,no,,,no,Populated for party switchers only,after.switch.ICPSR
+fec_year,INT64,"Year of the election the campaign targets, as listed by the FEC",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Can be later than the cycle, as for senators fundraising during their first four years in office",fecyear
+name,STRING,Name of the candidate or committee,,no,,,no,,name
+last_name,STRING,Last name of the candidate,,no,,,no,,lname
+first_name,STRING,First name of the candidate,,no,,,no,,fname
+middle_name,STRING,Middle name of the candidate,,no,,,no,The source codebook mislabels this field as the first name,mname
+full_first_name,STRING,"First name, middle name, suffix and title of the candidate concatenated",,no,,,no,,ffname
+title,STRING,Title of the candidate,,no,,,no,"For example Mr., Mrs., Dr., Esq.",title
+suffix,STRING,Name suffix of the candidate,,no,,,no,,suffix
+candidate_gender,STRING,Gender of the candidate,,yes,,,no,"Imputed for all candidates except those who served in Congress. Four rows carry the value with literal quote marks, an escaping artefact left in the source",cand.gender
+party,STRING,Party of the candidate or committee,,yes,,,no,,party
+party_original,STRING,Party held before a party switch,,yes,,,no,Populated for party switchers only,party.orig
+state,STRING,Two-letter state abbreviation of the candidate or committee,,no,,,no,Not linked to the state directory because it includes non-state codes,state
+seat,STRING,Office sought by the candidate,,no,,,no,Committees are listed as federal:committee or state:committee,seat
+district,STRING,District code of the seat sought,,no,,,no,Two-letter state code followed by the district number; Senate candidates take 'S' followed by the year the seat is up,district
+district_cycle,STRING,District and cycle the candidate contested,,no,,,no,For example 1980_MS_S,distcyc
+incumbency_status,STRING,Incumbency status of the candidate,,yes,,,no,,ico.status
+recipient_cfscore,FLOAT64,Common-space CFscore of the recipient,,no,,score_point,no,"Ideal point estimated from donations received; negative is liberal, positive is conservative. Constant across cycles for a recipient",recipient.cfscore
+recipient_cfscore_dynamic,FLOAT64,Cycle-specific CFscore of the recipient,,no,,score_point,no,Re-estimated each cycle holding contributor scores constant,recipient.cfscore.dyn
+contributor_cfscore,FLOAT64,CFscore of the recipient estimated from their own personal donations,,no,,score_point,no,,contributor.cfscore
+dw_dime,FLOAT64,DW-DIME score of the recipient,,no,,score_point,no,Roll-call score inferred from contributions by supervised machine learning (Bonica 2018),dwdime
+composite_score,FLOAT64,Composite ideological score of the recipient,,no,,score_point,no,"Combines contributions, roll-call votes and other sources by multiple overimputation; new in version 4.0",composite.score
+dw_nominate_1,FLOAT64,First-dimension common-space DW-NOMINATE score,,no,,score_point,no,"From voteview.com, based on a joint scaling of the 1st to 117th Congresses",dwnom1
+dw_nominate_2,FLOAT64,Second-dimension common-space DW-NOMINATE score,,no,,score_point,no,From voteview.com,dwnom2
+dw_nominate_1_period,FLOAT64,First-dimension Nokken-Poole period-specific DW-NOMINATE score,,no,,score_point,no,"From voteview.com. House and Senate are scaled separately, so the two chambers are not directly comparable",ps.dwnom1
+dw_nominate_2_period,FLOAT64,Second-dimension Nokken-Poole period-specific DW-NOMINATE score,,no,,score_point,no,From voteview.com,ps.dwnom2
+irt_cfscore,FLOAT64,Ideal point of the recipient from an IRT count model applied to PAC data,,no,,score_point,no,See Bonica (2013),irt.cfscore
+number_of_givers,INT64,Number of distinct donors who gave to the recipient during the cycle,,no,,person,no,,num.givers
+number_of_givers_total,INT64,Number of distinct donors who gave to the recipient over their whole career,,no,,person,no,,num.givers.total
+total_receipts,FLOAT64,Total contributions raised during the cycle,,no,,USD,no,Nominal dollars,total.receipts
+total_disbursements,FLOAT64,Total campaign disbursements during the cycle,,no,,USD,no,Nominal dollars,total.disbursements
+total_individual_contributions,FLOAT64,Total itemized contributions from individuals raised during the cycle,,no,,USD,no,Nominal dollars,total.indiv.contribs
+total_unitemized,FLOAT64,Total unitemized contributions from individuals raised during the cycle,,no,,USD,no,Nominal dollars,total.unitemized
+total_pac_contributions,FLOAT64,Total raised from PACs and other committees during the cycle,,no,,USD,no,Nominal dollars,total.pac.contribs
+total_party_contributions,FLOAT64,Total raised from party committees during the cycle,,no,,USD,no,Nominal dollars,total.party.contribs
+total_contributions_from_candidate,FLOAT64,Total raised from the candidate's own contributions during the cycle,,no,,USD,no,Nominal dollars,total.contribs.from.candidate
+independent_expenditure_support,FLOAT64,Total independent expenditures made to support the candidate,,no,,USD,no,Nominal dollars,ind.exp.support
+independent_expenditure_oppose,FLOAT64,Total independent expenditures made to oppose the candidate,,no,,USD,no,Nominal dollars,ind.exp.oppose
+primary_vote_share,FLOAT64,"Vote share won in the primary election, as reported by the FEC",,no,,percent,no,Coded for federal congressional candidates only,prim.vote.pct
+primary_winner,STRING,Outcome of the primary election,,yes,,,no,Coded for federal congressional candidates only,pwinner
+general_vote_share,FLOAT64,"Vote share won in the general election, as reported by the FEC",,no,,percent,no,,gen.vote.pct
+general_winner,STRING,Outcome of the general election,,yes,,,no,"Federal outcomes come from the FEC, state outcomes from NIMSP",gwinner
+special_election_status,STRING,"Outcome of the special election, as coded by the FEC",,yes,,,no,"The source uses '?' for an unrecorded outcome, which is kept rather than nulled",s.elec.stat
+runoff_election_status,STRING,"Outcome of the run-off election, as coded by the FEC",,yes,,,no,"The source uses '?' for an unrecorded outcome, which is kept rather than nulled",r.elec.stat
+district_presidential_vote_share,FLOAT64,Two-party vote share won by the Democratic presidential nominee in the district,,no,,percent,no,Measured at the most recent or concurrent presidential election,district.pres.vs
+fec_candidate_status,STRING,Status of the candidate's campaign as assigned by the FEC,,yes,,,no,,fec.cand.status
+recipient_type,STRING,Whether the recipient is a candidate or a committee,,yes,,,no,,recipient.type
+interest_group_category,STRING,FEC interest group category of the committee,,yes,,,no,,igcat
+committee_type,STRING,FEC code for the type of committee,,yes,,,no,,comtype
+included_in_scaling,STRING,Whether the recipient met the requirements for inclusion in the CFscore estimation,,yes,,,no,Stored as 0 or 1 in the source. Recipients with value 0 are absent from the smaller dime_recipients file,included_in_scaling
+nimsp_party,STRING,Party name assigned by NIMSP,,no,,,no,"Spelled-out party names, not codes, and not normalized at source: DEMOCRATIC and DEMOCRAT both occur",nimsp.party
+nimsp_incumbency_status,STRING,Incumbency status assigned by NIMSP,,yes,,,no,,nimsp.candidate.ICO.code
+nimsp_district,STRING,District number assigned by NIMSP,,no,,,no,,nimsp.district
+nimsp_office,STRING,"State office sought, as coded by NIMSP",,no,,,no,,nimsp.office
+nimsp_candidate_status,STRING,Election outcome as recorded by NIMSP,,no,,,no,"Readable phrases, not normalized at source: both 'Lost - General Election' and 'Lost-General' occur",nimsp.candidate.status
