@@ -582,6 +582,9 @@ models:
     us_ed_ipeds:
       +materialized: table
       +schema: us_ed_ipeds
+    us_ed_nces_ccd:
+      +materialized: table
+      +schema: us_ed_nces_ccd
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections
