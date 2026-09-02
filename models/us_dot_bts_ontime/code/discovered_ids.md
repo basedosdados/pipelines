@@ -56,3 +56,53 @@ are deliberately absent, since both are already structured metadata.
 `discover_ids` and `lookup_id` fail for `entity_category`: the client queries
 `allEntityCategory` but the backend field is `allEntitycategory`. Query the
 GraphQL endpoint directly until the client is fixed.
+
+## Tables and their records (staging)
+
+`create_update_*` is NOT idempotent without an `id`: re-running without one
+creates a duplicate observation level, cloud table, coverage or update, and
+duplicate coverages then break `CreateUpdateTable`. Pass these ids to update.
+
+| Table | id | cloud table | observation levels |
+|---|---|---|---|
+| `flight` | `245b6498-5295-44df-8f4d-62496f2ba898` | `66b75297-1676-4c68-bc9e-14570a492e90` | flight `5b869f8d-4369-4b41-9a41-08081b17cf51`, year `bb44a10c-1f01-49ee-b850-bbd0181e28fc` |
+| `airport` | `2a0d9769-c080-4a84-a77e-016996a3fae8` | `10b4dd33-4f3d-483a-bbca-259ddff90f09` | airport `6c322fad-39ad-4ad0-9ccf-f048cd68f4f1` |
+| `dicionario` | `fe828676-962b-4354-9605-fb83acd2b3b3` | `f90c8426-0bd5-4183-ae86-1fd2564a80be` | none |
+
+## Coverage
+
+`flight` is `PartBdpro(free_lag=6 months)`, so it carries **both** a free and a pro
+Coverage. The pipeline's `assert_coverage_topology` hard-fails before writing
+anything if either is missing. Note the counterintuitive polarity: free is
+`is_closed=False`, pro is `is_closed=True`, and the flag is set on the
+`DateTimeRange` as well as the Coverage.
+
+The two ranges are mutually exclusive: free ends at `free_end` *inclusive*, so pro
+starts the following month.
+
+| Table | Coverage | `is_closed` | id | DateTimeRange | id |
+|---|---|---|---|---|---|
+| `flight` | free | `False` | `c017d4e2-29a9-433f-bc83-d5dc44590dc2` | 1987-10 .. 2025-12 | `c9413d79-228b-4fca-995e-42d312084e9b` |
+| `flight` | pro | `True` | `9556d92f-95d8-46a9-8451-6bbdad77f53e` | 2026-01 .. 2026-06 | `9707ca13-55b1-4247-8590-d2c374df1d1f` |
+| `airport` | free | `False` | `83d91d0a-d45e-474c-8f33-8f922cebe57d` | none (no date column) | — |
+| `dicionario` | free | `False` | `772d8ed9-4447-467b-afbd-877686c4c116` | none (no date column) | — |
+
+The ranges are month-granular, not year-only: the table really spans 1987-10 to
+2026-06, and a year-only range would understate both endpoints.
+
+The flow polls with `compare_against="coverage"`, which reads
+`Coverage.DateTimeRange` rather than `Table.Update.latest`. That is the correct
+setting here because `source_max_date` is a competency (`YYYY-MM`), not a
+publication timestamp — and it sidesteps the known bug where a wall-clock
+`Table.Update.latest` makes the poll report "no new data" indefinitely.
+
+## Update records
+
+| Record | Anchor | `latest` | Meaning | id |
+|---|---|---|---|---|
+| `Update` | table `flight` | `2026-09-02` | wall clock: when we refreshed | `235fe13b-0603-4f7e-b99a-b1c7732e50e8` |
+| `Update` | raw source (on-time) | `2026-06-01` | coverage date: what BTS published | `fad41f76-aa4c-4135-8db8-71e8c2479663` |
+| `Poll` | raw source (on-time) | written by the first pipeline run | wall clock: when we looked | — |
+
+`lag=2` on the table Update: BTS publishes month M around M+2 (2026-06 landed
+2026-08-12). The source-anchored Update leaves `lag` unset by convention.
