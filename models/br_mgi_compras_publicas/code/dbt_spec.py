@@ -264,6 +264,13 @@ TABLES: dict[str, DbtTable] = {
         key=["id_compra_item"],
         year_range=R_LEGADO,
         scope_tests=True,
+        # A negotiated value only exists once the pregao reaches negotiation, so
+        # the column is ~96% empty in the most recent partition -- which is the
+        # only partition the scoped test reads.
+        ignore_values=["valor_negociado"],
+        # Full-table check: 8 keys of 24,794,084 repeat with different item
+        # descriptions and bids -- a source anomaly at 0.00003%, below any
+        # tolerance worth expressing. The scoped test never sees them.
         description=(
             "Resultado dos itens dos pregões da Lei 8.666/1993, com menor lance, valor "
             "negociado e valor homologado. Uma linha por item homologado"
