@@ -7,7 +7,8 @@ models:
       institution's identity, location, control and degree level, accreditation and
       Title IV eligibility, minority-serving designations, undergraduate enrollment,
       institutional finance, and the full admissions block (admission rate, SAT and
-      ACT score distributions). `unitid` is the IPEDS UNITID, so this table joins to
+      ACT score distributions). `unitid` is the IPEDS UNITID, so this table joins
+      to
       the us_ed_ipeds dataset; that dataset types the key as INT64, so the join
       needs safe_cast(unitid as int64). Every other institution-level measure
       published by the source is in the long tables of this dataset, one per
@@ -18,7 +19,7 @@ models:
       becomes null.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['year', 'unitid']
+          combination_of_columns: [year, unitid]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -75,7 +76,8 @@ models:
       - name: unitid
         description: >-
           IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
-          that dataset types it as INT64, so joining requires safe_cast(unitid as int64)
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
         tests: [not_null]
       - name: opeid8
         description: >-
@@ -209,7 +211,8 @@ models:
           Whether the institution predominantly serves Hispanic students
       - name: native_american_non_tribal
         description: >-
-          Whether the institution predominantly serves Native Americans without being a
+          Whether the institution predominantly serves Native Americans without being
+          a
           tribal college
       - name: accreditor_name
         description: >-
@@ -361,12 +364,10 @@ models:
       two wide tables it becomes null.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['year', 'unitid', 'variable_name']
+          combination_of_columns: [year, unitid, variable_name]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - value
-            - value_raw
+          ignore_values: [value, value_raw]
     columns:
       - name: year
         description: >-
@@ -379,7 +380,8 @@ models:
       - name: unitid
         description: >-
           IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
-          that dataset types it as INT64, so joining requires safe_cast(unitid as int64)
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
         tests: [not_null]
       - name: variable_name
         description: >-
@@ -393,7 +395,8 @@ models:
       - name: value
         description: >-
           Published numeric value. The unit depends on the variable; see the variable
-          table. Null when the source published an interval, a date, a text label or a
+          table. Null when the source published an interval, a date, a text label
+          or a
           privacy suppression instead; in those cases the content is in value_raw
       - name: value_raw
         description: >-
@@ -412,12 +415,10 @@ models:
       becomes null.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['year', 'unitid', 'variable_name']
+          combination_of_columns: [year, unitid, variable_name]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - value
-            - value_raw
+          ignore_values: [value, value_raw]
     columns:
       - name: year
         description: >-
@@ -430,7 +431,8 @@ models:
       - name: unitid
         description: >-
           IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
-          that dataset types it as INT64, so joining requires safe_cast(unitid as int64)
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
         tests: [not_null]
       - name: variable_name
         description: >-
@@ -444,7 +446,8 @@ models:
       - name: value
         description: >-
           Published numeric value. The unit depends on the variable; see the variable
-          table. Null when the source published an interval, a date, a text label or a
+          table. Null when the source published an interval, a date, a text label
+          or a
           privacy suppression instead; in those cases the content is in value_raw
       - name: value_raw
         description: >-
@@ -464,12 +467,10 @@ models:
       becomes null.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['year', 'unitid', 'variable_name']
+          combination_of_columns: [year, unitid, variable_name]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - value
-            - value_raw
+          ignore_values: [value, value_raw]
     columns:
       - name: year
         description: >-
@@ -482,7 +483,8 @@ models:
       - name: unitid
         description: >-
           IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
-          that dataset types it as INT64, so joining requires safe_cast(unitid as int64)
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
         tests: [not_null]
       - name: variable_name
         description: >-
@@ -496,7 +498,8 @@ models:
       - name: value
         description: >-
           Published numeric value. The unit depends on the variable; see the variable
-          table. Null when the source published an interval, a date, a text label or a
+          table. Null when the source published an interval, a date, a text label
+          or a
           privacy suppression instead; in those cases the content is in value_raw
       - name: value_raw
         description: >-
@@ -514,12 +517,10 @@ models:
       was never collected; in the two wide tables it becomes null.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['year', 'unitid', 'variable_name']
+          combination_of_columns: [year, unitid, variable_name]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - value
-            - value_raw
+          ignore_values: [value, value_raw]
     columns:
       - name: year
         description: >-
@@ -532,7 +533,8 @@ models:
       - name: unitid
         description: >-
           IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
-          that dataset types it as INT64, so joining requires safe_cast(unitid as int64)
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
         tests: [not_null]
       - name: variable_name
         description: >-
@@ -546,7 +548,8 @@ models:
       - name: value
         description: >-
           Published numeric value. The unit depends on the variable; see the variable
-          table. Null when the source published an interval, a date, a text label or a
+          table. Null when the source published an interval, a date, a text label
+          or a
           privacy suppression instead; in those cases the content is in value_raw
       - name: value_raw
         description: >-
@@ -560,18 +563,18 @@ models:
       11 years after entry, the share earning above a high-school-graduate
       threshold, and earnings disaggregated by family income, gender and completion
       status. One row per institution, year and source variable. Suppression: the
-      source withholds small cells as 'PrivacySuppressed'. In the long tables such a
-      cell is kept as a row with value null and value_raw 'PrivacySuppressed', so a
+      source withholds small cells as 'PrivacySuppressed'. In the long tables such
+      a
+      cell is kept as a row with value null and value_raw 'PrivacySuppressed', so
+      a
       withheld value stays distinguishable from one that was never collected; in the
       two wide tables it becomes null.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['year', 'unitid', 'variable_name']
+          combination_of_columns: [year, unitid, variable_name]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - value
-            - value_raw
+          ignore_values: [value, value_raw]
     columns:
       - name: year
         description: >-
@@ -584,7 +587,8 @@ models:
       - name: unitid
         description: >-
           IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
-          that dataset types it as INT64, so joining requires safe_cast(unitid as int64)
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
         tests: [not_null]
       - name: variable_name
         description: >-
@@ -598,7 +602,8 @@ models:
       - name: value
         description: >-
           Published numeric value. The unit depends on the variable; see the variable
-          table. Null when the source published an interval, a date, a text label or a
+          table. Null when the source published an interval, a date, a text label
+          or a
           privacy suppression instead; in those cases the content is in value_raw
       - name: value_raw
         description: >-
@@ -620,12 +625,10 @@ models:
       becomes null.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['year', 'unitid', 'variable_name']
+          combination_of_columns: [year, unitid, variable_name]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - value
-            - value_raw
+          ignore_values: [value, value_raw]
     columns:
       - name: year
         description: >-
@@ -638,7 +641,8 @@ models:
       - name: unitid
         description: >-
           IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
-          that dataset types it as INT64, so joining requires safe_cast(unitid as int64)
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
         tests: [not_null]
       - name: variable_name
         description: >-
@@ -652,7 +656,8 @@ models:
       - name: value
         description: >-
           Published numeric value. The unit depends on the variable; see the variable
-          table. Null when the source published an interval, a date, a text label or a
+          table. Null when the source published an interval, a date, a text label
+          or a
           privacy suppression instead; in those cases the content is in value_raw
       - name: value_raw
         description: >-
@@ -671,12 +676,10 @@ models:
       becomes null.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['year', 'unitid', 'variable_name']
+          combination_of_columns: [year, unitid, variable_name]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - value
-            - value_raw
+          ignore_values: [value, value_raw]
     columns:
       - name: year
         description: >-
@@ -689,7 +692,8 @@ models:
       - name: unitid
         description: >-
           IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
-          that dataset types it as INT64, so joining requires safe_cast(unitid as int64)
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
         tests: [not_null]
       - name: variable_name
         description: >-
@@ -703,7 +707,8 @@ models:
       - name: value
         description: >-
           Published numeric value. The unit depends on the variable; see the variable
-          table. Null when the source published an interval, a date, a text label or a
+          table. Null when the source published an interval, a date, a text label
+          or a
           privacy suppression instead; in those cases the content is in value_raw
       - name: value_raw
         description: >-
@@ -728,7 +733,12 @@ models:
       becomes null.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['year', 'opeid6', 'unitid', 'cip_code', 'credential_level']
+          combination_of_columns:
+            - year
+            - opeid6
+            - unitid
+            - cip_code
+            - credential_level
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -869,7 +879,8 @@ models:
       - name: unitid
         description: >-
           IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
-          that dataset types it as INT64, so joining requires safe_cast(unitid as int64)
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
       - name: opeid6
         description: >-
           6-digit OPE ID for institution
@@ -925,7 +936,8 @@ models:
           Median Stafford and Grad PLUS loan debt disbursed at this institution
       - name: debt_all_pp_any_n
         description: >-
-          Student recipient count for average/median Parent PLUS loan debt disbursed at
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          at
           all institutions
       - name: debt_all_pp_any_mean
         description: >-
@@ -935,7 +947,8 @@ models:
           Median Parent PLUS loan debt disbursed at all institutions
       - name: debt_all_pp_eval_n
         description: >-
-          Student recipient count for average/median Parent PLUS loan debt disbursed at
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          at
           this institution
       - name: debt_all_pp_eval_mean
         description: >-
@@ -967,7 +980,8 @@ models:
           Median Stafford and Grad PLUS loan debt disbursed to males at this institution
       - name: debt_male_pp_any_n
         description: >-
-          Student recipient count for average/median Parent PLUS loan debt disbursed to
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
           males at all institutions
       - name: debt_male_pp_any_mean
         description: >-
@@ -977,7 +991,8 @@ models:
           Median Parent PLUS loan debt disbursed to males at all institutions
       - name: debt_male_pp_eval_n
         description: >-
-          Student recipient count for average/median Parent PLUS loan debt disbursed to
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
           males at this institution
       - name: debt_male_pp_eval_mean
         description: >-
@@ -1011,7 +1026,8 @@ models:
           institution
       - name: debt_notmale_pp_any_n
         description: >-
-          Student recipient count for average/median Parent PLUS loan debt disbursed to
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
           non-males at all institutions
       - name: debt_notmale_pp_any_mean
         description: >-
@@ -1021,7 +1037,8 @@ models:
           Median Parent PLUS loan debt disbursed to non-males at all institutions
       - name: debt_notmale_pp_eval_n
         description: >-
-          Student recipient count for average/median Parent PLUS loan debt disbursed to
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
           non-males at this institution
       - name: debt_notmale_pp_eval_mean
         description: >-
@@ -1035,11 +1052,13 @@ models:
           to Pell recipients at all institutions
       - name: debt_pell_stgp_any_mean
         description: >-
-          Average Stafford and Grad PLUS loan debt disbursed to Pell recipients at all
+          Average Stafford and Grad PLUS loan debt disbursed to Pell recipients at
+          all
           institutions
       - name: debt_pell_stgp_any_mdn
         description: >-
-          Median Stafford and Grad PLUS loan debt disbursed to Pell recipients at all
+          Median Stafford and Grad PLUS loan debt disbursed to Pell recipients at
+          all
           institutions
       - name: debt_pell_stgp_eval_n
         description: >-
@@ -1047,15 +1066,18 @@ models:
           to Pell recipients at this institution
       - name: debt_pell_stgp_eval_mean
         description: >-
-          Average Stafford and Grad PLUS loan debt disbursed to Pell recipients at this
+          Average Stafford and Grad PLUS loan debt disbursed to Pell recipients at
+          this
           institution
       - name: debt_pell_stgp_eval_mdn
         description: >-
-          Median Stafford and Grad PLUS loan debt disbursed to Pell recipients at this
+          Median Stafford and Grad PLUS loan debt disbursed to Pell recipients at
+          this
           institution
       - name: debt_pell_pp_any_n
         description: >-
-          Student recipient count for average/median Parent PLUS loan debt disbursed to
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
           Pell recipients at all institutions
       - name: debt_pell_pp_any_mean
         description: >-
@@ -1065,7 +1087,8 @@ models:
           Median Parent PLUS loan debt disbursed to Pell recipients at all institutions
       - name: debt_pell_pp_eval_n
         description: >-
-          Student recipient count for average/median Parent PLUS loan debt disbursed to
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
           Pell recipients at this institution
       - name: debt_pell_pp_eval_mean
         description: >-
@@ -1079,11 +1102,13 @@ models:
           to non-Pell-recipients at all institutions
       - name: debt_nopell_stgp_any_mean
         description: >-
-          Average Stafford and Grad PLUS loan debt disbursed to non-Pell-recipients at
+          Average Stafford and Grad PLUS loan debt disbursed to non-Pell-recipients
+          at
           all institutions
       - name: debt_nopell_stgp_any_mdn
         description: >-
-          Median Stafford and Grad PLUS loan debt disbursed to non-Pell-recipients at
+          Median Stafford and Grad PLUS loan debt disbursed to non-Pell-recipients
+          at
           all institutions
       - name: debt_nopell_stgp_eval_n
         description: >-
@@ -1091,15 +1116,18 @@ models:
           to non-Pell-recipients at this institution
       - name: debt_nopell_stgp_eval_mean
         description: >-
-          Average Stafford and Grad PLUS loan debt disbursed to non-Pell-recipients at
+          Average Stafford and Grad PLUS loan debt disbursed to non-Pell-recipients
+          at
           this institution
       - name: debt_nopell_stgp_eval_mdn
         description: >-
-          Median Stafford and Grad PLUS loan debt disbursed to non-Pell-recipients at
+          Median Stafford and Grad PLUS loan debt disbursed to non-Pell-recipients
+          at
           this institution
       - name: debt_nopell_pp_any_n
         description: >-
-          Student recipient count for average/median Parent PLUS loan debt disbursed to
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
           non-Pell-recipients at all institutions
       - name: debt_nopell_pp_any_mean
         description: >-
@@ -1111,7 +1139,8 @@ models:
           institutions
       - name: debt_nopell_pp_eval_n
         description: >-
-          Student recipient count for average/median Parent PLUS loan debt disbursed to
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
           non-Pell-recipients at this institution
       - name: debt_nopell_pp_eval_mean
         description: >-
@@ -1123,11 +1152,13 @@ models:
           institution
       - name: debt_all_pp_any_mdn10yrpay
         description: >-
-          Median estimated monthly payment for Parent PLUS loan debt disbursed at all
+          Median estimated monthly payment for Parent PLUS loan debt disbursed at
+          all
           institutions
       - name: debt_all_pp_eval_mdn10yrpay
         description: >-
-          Median estimated monthly payment for Parent PLUS loan debt disbursed at this
+          Median estimated monthly payment for Parent PLUS loan debt disbursed at
+          this
           institution
       - name: debt_all_stgp_any_mdn10yrpay
         description: >-
@@ -1143,7 +1174,8 @@ models:
           highest credential
       - name: earn_cntover150_hi_1yr
         description: >-
-          Number of graduates working and not enrolled who earned more than 150% of the
+          Number of graduates working and not enrolled who earned more than 150% of
+          the
           single-person household poverty threshold 1 year after completing highest
           credential
       - name: earn_count_wne_hi_1yr
@@ -1160,7 +1192,8 @@ models:
           highest credential
       - name: earn_cntover150_hi_2yr
         description: >-
-          Number of graduates working and not enrolled who earned more than 150% of the
+          Number of graduates working and not enrolled who earned more than 150% of
+          the
           single-person household poverty threshold 2 years after completing highest
           credential
       - name: earn_count_wne_hi_2yr
@@ -1247,11 +1280,13 @@ models:
           enrolled 1 year after completing
       - name: earn_pell_wne_mdn_1yr
         description: >-
-          Median earnings of graduates who received a Pell Grant and were working and
+          Median earnings of graduates who received a Pell Grant and were working
+          and
           not enrolled 1 year after completing
       - name: earn_count_nopell_wne_1yr
         description: >-
-          Number of graduates who did not receive a Pell Grant and were working and not
+          Number of graduates who did not receive a Pell Grant and were working and
+          not
           enrolled 1 year after completing
       - name: earn_nopell_wne_mdn_1yr
         description: >-
@@ -1284,7 +1319,8 @@ models:
           credential
       - name: earn_cntover150_3yr
         description: >-
-          Number of graduates working and not enrolled who earned more than 150% of the
+          Number of graduates working and not enrolled who earned more than 150% of
+          the
           single-person household poverty threshold 3 years after completing highest
           credential
       - name: earn_count_pell_ne_3yr
@@ -1293,11 +1329,13 @@ models:
           after completing highest credential
       - name: earn_pell_ne_mdn_3yr
         description: >-
-          Median earnings of graduates who received a Pell Grant and were not enrolled 3
+          Median earnings of graduates who received a Pell Grant and were not enrolled
+          3
           years after completing highest credential
       - name: earn_count_nopell_ne_3yr
         description: >-
-          Number of graduates who did not receive a Pell Grant and were not enrolled 3
+          Number of graduates who did not receive a Pell Grant and were not enrolled
+          3
           years after completing highest credential
       - name: earn_nopell_ne_mdn_3yr
         description: >-
@@ -1334,11 +1372,13 @@ models:
           earned more than a high school graduate
       - name: earn_count_high_cred_1yr
         description: >-
-          Number of graduates working and not enrolled 1 year after completing who went
+          Number of graduates working and not enrolled 1 year after completing who
+          went
           on to earn a higher credential
       - name: earn_in_state_1yr
         description: >-
-          Number of graduates working and not enrolled 1 year after completing who were
+          Number of graduates working and not enrolled 1 year after completing who
+          were
           employed within the same state as the institution
       - name: earn_count_nwne_4yr
         description: >-
@@ -1359,11 +1399,13 @@ models:
           enrolled 4 year after completing
       - name: earn_pell_wne_mdn_4yr
         description: >-
-          Median earnings of graduates who received a Pell Grant and were working and
+          Median earnings of graduates who received a Pell Grant and were working
+          and
           not enrolled 4 year after completing
       - name: earn_count_nopell_wne_4yr
         description: >-
-          Number of graduates who did not receive a Pell Grant and were working and not
+          Number of graduates who did not receive a Pell Grant and were working and
+          not
           enrolled 4 year after completing
       - name: earn_nopell_wne_mdn_4yr
         description: >-
@@ -1385,11 +1427,13 @@ models:
           completing
       - name: earn_count_high_cred_4yr
         description: >-
-          Number of graduates working and not enrolled 4 years after completing who went
+          Number of graduates working and not enrolled 4 years after completing who
+          went
           on to earn a higher credential
       - name: earn_in_state_4yr
         description: >-
-          Number of graduates working and not enrolled 4 years after completing who were
+          Number of graduates working and not enrolled 4 years after completing who
+          were
           employed within the same state as the institution
       - name: bbrr1_fed_comp_n
         description: >-
@@ -1483,11 +1527,13 @@ models:
           enrolled 5 year after completing
       - name: earn_pell_wne_mdn_5yr
         description: >-
-          Median earnings of graduates who received a Pell Grant and were working and
+          Median earnings of graduates who received a Pell Grant and were working
+          and
           not enrolled 5 year after completing
       - name: earn_count_nopell_wne_5yr
         description: >-
-          Number of graduates who did not receive a Pell Grant and were working and not
+          Number of graduates who did not receive a Pell Grant and were working and
+          not
           enrolled 5 year after completing
       - name: earn_nopell_wne_mdn_5yr
         description: >-
@@ -1509,11 +1555,13 @@ models:
           completing
       - name: earn_count_high_cred_5yr
         description: >-
-          Number of graduates working and not enrolled 5 years after completing who went
+          Number of graduates working and not enrolled 5 years after completing who
+          went
           on to earn a higher credential
       - name: earn_in_state_5yr
         description: >-
-          Number of graduates working and not enrolled 5 years after completing who were
+          Number of graduates working and not enrolled 5 years after completing who
+          were
           employed within the same state as the institution
       - name: earn_count_wne_4yr_nat
         description: >-
@@ -1525,11 +1573,13 @@ models:
           after completing
       - name: earn_p25_4yr_nat
         description: >-
-          25th percentile earnings of graduates in the nation working and not enrolled 4
+          25th percentile earnings of graduates in the nation working and not enrolled
+          4
           year after completing
       - name: earn_p75_4yr_nat
         description: >-
-          75th percentile earnings of graduates in the nation working and not enrolled 4
+          75th percentile earnings of graduates in the nation working and not enrolled
+          4
           year after completing
   - name: us_ed_college_scorecard__variable
     description: >-
@@ -1540,7 +1590,7 @@ models:
       variable_name column of the long tables.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['variable_name', 'source_file']
+          combination_of_columns: [variable_name, source_file]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -1571,7 +1621,7 @@ models:
       tables, as published in the official data dictionary workbook.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['id_tabela', 'nome_coluna', 'chave']
+          combination_of_columns: [id_tabela, nome_coluna, chave]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:

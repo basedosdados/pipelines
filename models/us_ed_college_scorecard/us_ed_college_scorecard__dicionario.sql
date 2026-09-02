@@ -13,6 +13,4 @@ select
     safe_cast(chave as string) chave,
     safe_cast(cobertura_temporal as string) cobertura_temporal,
     safe_cast(valor as string) valor
-from
-    {{ set_datalake_project("us_ed_college_scorecard_staging.dicionario") }}
-    as t
+from {{ set_datalake_project("us_ed_college_scorecard_staging.dicionario") }} as t
