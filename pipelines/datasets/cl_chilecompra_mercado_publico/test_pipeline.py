@@ -74,7 +74,7 @@ def test_publisher_window_shape_is_selected():
         ("Región de la Araucanía", "09"),
         ("Región Aysén del General Carlos Iba", "11"),  # truncated at 35 chars
         (
-            "Región del Libertador General Bernardo O´Higgins",
+            "Región del Libertador General Bernardo O\u00b4Higgins",
             "06",
         ),  # acute accent
         ("Región Metropolitana de Santiago.", "13"),  # trailing period
