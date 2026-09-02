@@ -68,7 +68,7 @@
     "key_unique": true,
     "missing_columns": [],
     "partitions": 1,
-    "rows": 308,
+    "rows": 247,
     "rows_match_clean": true,
     "sparse_columns": []
   },
