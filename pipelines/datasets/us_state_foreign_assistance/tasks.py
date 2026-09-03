@@ -1,5 +1,6 @@
 """Prefect 3 tasks for us_state_foreign_assistance — thin wrappers over utils.py."""
 
+import shutil
 from pathlib import Path
 
 import basedosdados as bd
@@ -41,8 +42,15 @@ def clean_source(work_dir: str, input_dir: str) -> dict:
     """
     output_dir = Path(work_dir) / "output"
     counts = clean_all(
-        Path(input_dir), output_dir, memory_limit="10GB", threads=4
+        Path(input_dir),
+        output_dir,
+        memory_limit="6GB",
+        threads=4,
+        db_path=Path(work_dir) / "duckdb.db",
     )
+    # The raw CSVs are 3.8 GB and nothing downstream reads them; free the pod's
+    # ephemeral disk before the upload.
+    shutil.rmtree(input_dir, ignore_errors=True)
     result: dict = {t: str(output_dir / t) for t in counts}
     result["rows"] = counts
     return result

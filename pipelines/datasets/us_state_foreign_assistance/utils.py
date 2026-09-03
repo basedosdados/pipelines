@@ -324,11 +324,28 @@ def _scalar(
     return row[0]
 
 
-def _connect(memory_limit: str, threads: int) -> duckdb.DuckDBPyConnection:
-    con = duckdb.connect()
+def _connect(
+    memory_limit: str, threads: int, db_path: Path
+) -> duckdb.DuckDBPyConnection:
+    """Open an **on-disk** DuckDB database, with spill space beside it.
+
+    The transform materialises the 3.75 GB source CSV as a table (it is read
+    several times: once per fiscal-year partition, plus once for the dictionary),
+    which does not fit in RAM. An in-memory database cannot page that out and the
+    process is OOM-killed the moment the container's limit binds — which is
+    exactly what happened on the first Kubernetes run, while the same code passed
+    locally, where DuckDB had swap and a writable temp dir to fall back on.
+
+    Backing the database with a file keeps resident memory near ``memory_limit``
+    and puts everything else on the pod's ephemeral disk.
+    """
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    db_path.unlink(missing_ok=True)
+    con = duckdb.connect(str(db_path))
     con.execute(f"set memory_limit='{memory_limit}'")
     con.execute(f"set threads={threads}")
     con.execute("set preserve_insertion_order=false")
+    con.execute(f"set temp_directory='{db_path.parent / 'duckdb_spill'}'")
     return con
 
 
@@ -387,14 +404,30 @@ def _write_year_files(
 def clean_all(
     input_dir: Path,
     output_dir: Path,
-    memory_limit: str = "12GB",
+    memory_limit: str = "6GB",
     threads: int = 4,
+    db_path: Path | None = None,
 ) -> dict[str, int]:
     """Transform both raw CSVs into the three output tables.
 
-    Returns the row count written per table.
+    Args:
+        input_dir: Directory holding the two downloaded CSVs.
+        output_dir: Root for ``<table>/<table>_<year>.parquet``.
+        memory_limit: DuckDB buffer-pool ceiling. Keep it well under the
+            container's memory limit — DuckDB's resident set exceeds this
+            somewhat, and the process is killed outright if the container's
+            limit binds.
+        threads: DuckDB worker threads.
+        db_path: Where to put the on-disk DuckDB database and its spill
+            directory. Defaults to ``<output_dir>/../duckdb.db``. Must be on a
+            filesystem with room for roughly the size of the source CSV.
+
+    Returns:
+        The row count written per table.
     """
-    con = _connect(memory_limit, threads)
+    if db_path is None:
+        db_path = output_dir.parent / "duckdb.db"
+    con = _connect(memory_limit, threads, db_path)
     counts: dict[str, int] = {}
     dict_parts: list[str] = []
 
@@ -444,6 +477,11 @@ def clean_all(
     )
     counts["dicionario"] = _scalar(con, "select count(*) from dic")
     con.close()
+    # The database and its spill are pure scratch and together weigh about as
+    # much as the source CSV. Drop them before the upload step, which needs the
+    # pod's remaining ephemeral disk.
+    db_path.unlink(missing_ok=True)
+    shutil.rmtree(db_path.parent / "duckdb_spill", ignore_errors=True)
     return counts
 
 

@@ -33,7 +33,7 @@ DATA_DIR = Path(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-download", action="store_true")
-    parser.add_argument("--memory-limit", default="12GB")
+    parser.add_argument("--memory-limit", default="6GB")
     parser.add_argument("--threads", type=int, default=4)
     args = parser.parse_args()
 
