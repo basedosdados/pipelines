@@ -27,6 +27,17 @@ UPDATED = "2026-09-03"
 AT_LEAST = 0.05
 
 STATE_DIR = "ref('br_bd_diretorios_us__state')"
+# Share of state values allowed outside the US state directory, per table.
+STATE_TOLERANCE = {
+    "organization": "0.005",
+    "revocation": "0.005",
+    "return_financial": "0.001",
+}
+STATE_EXCEPTION_PT = (
+    " Exceção: no teste de relacionamento com o diretório de estados dos EUA, "
+    "até {pct} das linhas podem ter estado fora do diretório (endereços no "
+    "exterior e códigos digitados incorretamente)."
+)
 YEAR_DIR = "ref('br_bd_diretorios_data_tempo__ano')"
 
 
@@ -105,11 +116,14 @@ def model_sql(table: str, cols: list[dict]) -> str:
             "-- Restricted to the filings kept in return_financial (one per ein,\n"
             "-- year and form_type), so amended or re-released returns do not\n"
             "-- list their officers twice.\n"
+            "-- A filing re-released in a later IRS batch carries the same\n"
+            "-- object_id twice in staging; one copy of each person row is kept.\n"
             f"select\n{body}\nfrom {src} as t\n"
             "where\n"
             "    safe_cast(object_id as string) in (\n"
             f"        select object_id from {{{{ ref('{DATASET}__return_financial') }}}}\n"
             "    )\n"
+            "qualify row_number() over (partition by object_id, line_number) = 1\n"
         )
     if table == "revocation":
         return (
@@ -178,7 +192,11 @@ def schema_yml(
     for table, meta in tables.items():
         cols = read_arch(table)
         out.append(f"  - name: {DATASET}__{table}")
-        out.append(f"    description: {block(meta['description_pt'], 6)}")
+        desc = meta["description_pt"]
+        if table in STATE_TOLERANCE:
+            pct = f"{float(STATE_TOLERANCE[table]) * 100:g}%"
+            desc += STATE_EXCEPTION_PT.format(pct=pct)
+        out.append(f"    description: {block(desc, 6)}")
         out.append("    tests:")
         out.append("      - dbt_utils.unique_combination_of_columns:")
         out.append(
@@ -235,28 +253,17 @@ def relationship(table: str, c: dict) -> list[str] | None:
             "              field: ano.ano",
         ]
     if d.startswith("br_bd_diretorios_us.state"):
-        if table == "return_financial" and c["name"] == "state":
-            # Foreign filers carry a province name; US addresses only.
-            return [
-                "          - relationships:",
-                f"              to: {STATE_DIR}",
-                "              field: abbreviation",
-                "              config:",
-                "                where: country is null",
-            ]
-        if table in ("organization", "revocation"):
-            # International records (eo_xx / foreign revocations) carry
-            # non-US codes; a small share is tolerated and documented.
-            return [
-                "          - custom_relationships:",
-                f"              to: {STATE_DIR}",
-                "              field: abbreviation",
-                "              proportion_allowed_failures: 0.005",
-            ]
+        # Foreign addresses (province names, eo_xx records) and a handful of
+        # mistyped codes fall outside the US state directory; a small share
+        # is tolerated and documented in the model description.
+        # ``ignore_values`` also switches on the macro's ``is not null`` filter;
+        # without it every null state counts as a missing parent.
         return [
-            "          - relationships:",
+            "          - custom_relationships:",
             f"              to: {STATE_DIR}",
             "              field: abbreviation",
+            "              ignore_values: ['XX']",
+            f"              proportion_allowed_failures: {STATE_TOLERANCE[table]}",
         ]
     raise SystemExit(f"unknown directory {d}")
 

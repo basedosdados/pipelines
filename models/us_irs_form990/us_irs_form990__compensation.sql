@@ -15,6 +15,8 @@
 -- Restricted to the filings kept in return_financial (one per ein,
 -- year and form_type), so amended or re-released returns do not
 -- list their officers twice.
+-- A filing re-released in a later IRS batch carries the same
+-- object_id twice in staging; one copy of each person row is kept.
 select
     safe_cast(year as int64) year,
     safe_cast(ein as string) ein,
@@ -48,3 +50,4 @@ from {{ set_datalake_project("us_irs_form990_staging.compensation") }} as t
 where
     safe_cast(object_id as string)
     in (select object_id from {{ ref("us_irs_form990__return_financial") }})
+qualify row_number() over (partition by object_id, line_number) = 1

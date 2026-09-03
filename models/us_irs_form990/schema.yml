@@ -11,7 +11,10 @@ models:
       receita da última declaração apresentada. Cada extração é uma fotografia
       completa do cadastro e as extrações são empilhadas, formando um painel. Não
       inclui igrejas e outras organizações que não precisam solicitar
-      reconhecimento de isenção nem organizações com isenção revogada.
+      reconhecimento de isenção nem organizações com isenção revogada. Exceção: false
+      teste de relacionamento com o diretório de estados dos EUA, até 0.5% das
+      linhas podem ter estado fora do diretório (endereços no exterior e códigos
+      digitados incorretamente).
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [extraction_date, ein]
@@ -61,6 +64,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_us__state')
               field: abbreviation
+              ignore_values: [XX]
               proportion_allowed_failures: 0.005
       - name: zip_code
         description: >
@@ -144,7 +148,9 @@ models:
       a mais recente é mantida. Cerca de 176 mil declarações indexadas pelo IRS no
       ano de divulgação de 2022 (34% dos Form 990 e 990-EZ daquele ano) não
       constam dos arquivos ZIP do IRS e, portanto, também não constam desta
-      tabela.
+      tabela. Exceção: no teste de relacionamento com o diretório de estados dos
+      EUA, até 0.1% das linhas podem ter estado fora do diretório (endereços no
+      exterior e códigos digitados incorretamente).
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, ein, form_type]
@@ -226,11 +232,11 @@ models:
         description: >
           Estado do endereço da organização (sigla USPS)
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_us__state')
               field: abbreviation
-              config:
-                where: country is null
+              ignore_values: [XX]
+              proportion_allowed_failures: 0.001
       - name: zip_code
         description: >
           CEP (ZIP) ou código postal estrangeiro
@@ -247,9 +253,11 @@ models:
         description: >
           Estado de domicílio legal
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_us__state')
               field: abbreviation
+              ignore_values: [XX]
+              proportion_allowed_failures: 0.001
       - name: organization_type
         description: >
           Forma jurídica: corporation, trust, association ou other
@@ -478,7 +486,9 @@ models:
       publicada mensalmente pelo IRS, com uma linha por EIN e data de revogação:
       nome, endereço, subseção de isenção, data de vigência, data de publicação e
       data de restabelecimento da isenção, quando houve. Substituída integralmente
-      a cada atualização.
+      a cada atualização. Exceção: no teste de relacionamento com o diretório de
+      estados dos EUA, até 0.5% das linhas podem ter estado fora do diretório
+      (endereços no exterior e códigos digitados incorretamente).
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ein, revocation_date]
@@ -511,6 +521,7 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_us__state')
               field: abbreviation
+              ignore_values: [XX]
               proportion_allowed_failures: 0.005
       - name: zip_code
         description: >
