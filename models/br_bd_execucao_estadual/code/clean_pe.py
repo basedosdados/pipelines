@@ -167,7 +167,7 @@ def harmonise(
         con.execute(
             f"COPY (SELECT * FROM read_parquet('{d}/data_*.parquet', "
             f"                                 union_by_name=true) "
-            f"      WHERE ano = {year}) "
+            f"      WHERE ano = '{year}') "
             f"TO '{tmp}' (FORMAT PARQUET, COMPRESSION SNAPPY)"
         )
     for part in parts:
@@ -220,7 +220,11 @@ def clean(
         # authority for which exercise the row was published under; the empenho year is
         # recovered separately in dbt.
         con.execute(
-            f"COPY (SELECT {year} AS ano, * FROM {_relation(path)}) "
+            # Quoted so `ano` is VARCHAR like every other column: `all_varchar` makes
+            # the source columns strings, but a bare {year} literal is an INTEGER, and
+            # that one typed column is enough for BigQuery to reject the whole file
+            # against the all-STRING schema dump_header declares.
+            f"COPY (SELECT '{year}' AS ano, * FROM {_relation(path)}) "
             f"TO '{out}' (FORMAT PARQUET, COMPRESSION SNAPPY)"
         )
         n = con.execute(
