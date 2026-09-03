@@ -176,7 +176,7 @@ class Sigeo:
             dict(query, **{SP_CTL + "btnPesquisar": "Pesquisar"})
         ).text
         if "gdvDespesas" not in searched:
-            raise RuntimeError(
+            raise NoResultGridError(
                 f"{year}/{orgao}: search returned no result grid"
             )
         self.html = searched
@@ -209,6 +209,21 @@ def _orgao_of(content: bytes) -> str | None:
     return None
 
 
+class NoResultGridError(RuntimeError):
+    """SIGEO answered normally, with no expenditure for that (exercise, órgão).
+
+    Distinct from every other failure mode on purpose. Órgãos are queried as a full
+    year x órgão grid, but a secretariat only answers for the exercises in which it
+    existed -- SECRETARIA DE GESTAO E GOVERNO DIGITAL has nothing in 2010. Treating
+    that as a fetch failure aborts the whole scrape, which is what happened on the
+    first production run: 35 empty pairs out of 544, and the run died having already
+    downloaded 509 good files.
+
+    509 + 35 = 544 is the whole grid, and 509 is exactly what the onboarding scrape
+    produced, so these are the same legitimately-empty pairs, not lost data.
+    """
+
+
 def main(
     first_year: int = SP_FIRST_YEAR,
     last_year: int = SP_LAST_YEAR,
@@ -223,6 +238,7 @@ def main(
     )
 
     failures: list[str] = []
+    empty: list[str] = []
     for year in years:
         for code, label in orgaos:
             dest = SP_INPUT / f"despesa_{year}_{code}.csv"
@@ -242,6 +258,11 @@ def main(
                     # failure from poisoning every subsequent export with stale
                     # viewstate.
                     candidate = Sigeo().query(year, code)
+                except NoResultGridError as exc:
+                    # Expected for a body that did not exist in that exercise.
+                    print(f"  {year} {code} {label}: {exc}")
+                    empty.append(f"{year}/{code}")
+                    break
                 except (requests.RequestException, RuntimeError) as exc:
                     print(f"  {year} {code} {label}: {exc}")
                     break
@@ -256,16 +277,42 @@ def main(
                 )
                 time.sleep(pause)
             if content is None:
-                failures.append(f"{year}/{code}")
+                if f"{year}/{code}" not in empty:
+                    failures.append(f"{year}/{code}")
                 continue
             dest.write_bytes(content)
             print(f"  {year} {code}: {len(content) / 1024:.0f} KB", flush=True)
             time.sleep(pause)
 
+    attempted = len(years) * len(orgaos)
+    if empty:
+        print(
+            f"EMPTY {len(empty)} of {attempted} (exercise, órgão) pairs "
+            f"had no expenditure: {sorted(empty)}"
+        )
+    # An empty is normal; empty EVERYWHERE means SIGEO changed under us and the grid
+    # detection now matches nothing. Only the total case is treated as broken: a large
+    # empty share is legitimate early in an exercise, when most órgãos have not spent
+    # yet, and an incremental run attempts a single year -- refusing on a majority
+    # would fail every January for no reason.
+    if attempted and len(empty) == attempted:
+        print(
+            f"REFUSING: all {attempted} pairs came back empty — that is a broken "
+            "scrape, not a sparse grid"
+        )
+        raise SystemExit(1)
+    if empty and len(empty) > attempted // 2:
+        print(
+            f"  WARNING {len(empty)}/{attempted} pairs empty — high, but accepted; "
+            "expected early in an exercise"
+        )
     if failures:
         print(f"FAILED {len(failures)}: {failures}")
         raise SystemExit(1)
-    print("SP download complete")
+    print(
+        f"SP download complete ({attempted - len(empty)} with data, "
+        f"{len(empty)} legitimately empty)"
+    )
 
 
 if __name__ == "__main__":
