@@ -11,7 +11,7 @@ pra um `flows.py` de dataset novo na variante padrão (check_update e
 flow_download separados): encapsula o boilerplate repetido entre os dois
 estágios (rename do flow run, poll/commit/dispatch, dispatch pro
 mat_test), recebendo só a lógica específica do dataset (`check_fn`,
-`download_fn`). Ver `pipelines/datasets/test_event_pipeline/flows.py`
+`download_fn`). Ver `pipelines/datasets/test_dataset/flows.py`
 pra um exemplo de uso.
 """
 
@@ -78,21 +78,22 @@ class DownloadResult:
     partition_folders: list[str] | None = None
 
 
-def etapa_tag(etapa: Etapa) -> str:
-    return f"etapa:{etapa}"
-
-
 def deploy_tags(dataset_id: str, etapa: Etapa) -> list[str]:
     """
     Tags de deploy pra achar deployments relacionados no Prefect UI/CI
-    (ex. "todo deployment de etapa:mat_test", "todo deployment do dataset
-    X") sem precisar abrir cada `flows.py`. Usar em
-    `<flow>.deploy_tags = [...]`.
+    (ex. "todo deployment de mat_test", "todo deployment do dataset X")
+    sem precisar abrir cada `flows.py`. Usar em `<flow>.deploy_tags = [...]`.
+
+    A tag da etapa é só o nome dela (`check_update`/`flow_download`/
+    `mat_test`), sem prefixo — `dataset:X` já deixa claro que a outra tag
+    é a etapa, o `etapa:` na frente só poluía sem agregar.
     """
-    return [etapa_tag(etapa), f"dataset:{dataset_id}"]
+    return [str(etapa), f"dataset:{dataset_id}"]
 
 
-def deployment_name(dataset_id: str, etapa: Etapa) -> str:
+def deployment_name(
+    dataset_id: str, etapa: Etapa, deployment: str | None = None
+) -> str:
     """
     Resolve o identificador `"<flow name>/<deployment name>"` de um
     deployment por convenção — o mesmo formato aceito por
@@ -101,12 +102,23 @@ def deployment_name(dataset_id: str, etapa: Etapa) -> str:
     `mat_test` é genérico (um deployment só, compartilhado por todos os
     datasets, ver `pipelines/utils/metadata/flows.py`) — nome fixo. As
     outras etapas seguem o padrão de `@flow(name="<dataset_id>: <etapa>")`
-    numa função `<etapa>_flow` (mesma convenção usada em
-    `pipelines/datasets/test_event_pipeline/flows.py`).
+    numa função `<etapa>_flow` — default de `deployment` quando não
+    informado.
+
+    `deployment`: sobrescreve a segunda metade (depois da barra) quando a
+    variável do flow não se chama literalmente `<etapa>_flow`. Necessário
+    quando vários datasets/pilotos compartilham o mesmo arquivo
+    `flows.py` — `deploy_flows.py` descobre flows pelo nome da variável
+    no módulo (`vars(module)`), então duas pipelines no mesmo arquivo não
+    podem ter as duas uma variável `check_update_flow` (a segunda
+    sobrescreveria a primeira no namespace do módulo, e o
+    `deploy_flows.py` nunca veria a primeira). Cada uma precisa de um
+    nome de variável próprio, e esse nome precisa bater com o que foi de
+    fato implantado — ver `pipelines/datasets/test_dataset/flows.py`.
     """
     if etapa == Etapa.MAT_TEST:
         return "mat_test/mat_test_flow"
-    return f"{dataset_id}: {etapa}/{etapa}_flow"
+    return f"{dataset_id}: {etapa}/{deployment or f'{etapa}_flow'}"
 
 
 def check_update_and_dispatch(
@@ -115,6 +127,7 @@ def check_update_and_dispatch(
     table_id: str,
     reference_date: datetime.date,
     next_etapa: Etapa = Etapa.FLOW_DOWNLOAD,
+    next_deployment: str | None = None,
     env: str = "prod",
     date_format: str = "%Y-%m-%d",
     extra_download_params: dict | None = None,
@@ -135,6 +148,10 @@ def check_update_and_dispatch(
     pra resolver qual deployment chamar em seguida — as duas coisas podem
     divergir (ex. o piloto: `prefect_dataset_id="test_event_pipeline"`,
     `dataset_id="test_dataset"`), por isso não têm o mesmo nome de parâmetro.
+
+    `next_deployment` repassa pro `deployment_name()` — só precisa ser
+    informado quando a variável do flow de `next_etapa` não se chama
+    literalmente `<etapa>_flow` (ver docstring de `deployment_name`).
 
     `poll_source_for_update_task`/`commit_source_update_task` vêm de
     `pipelines.utils.metadata.tasks` — o mesmo par usado pelos datasets
@@ -164,7 +181,7 @@ def check_update_and_dispatch(
         **(extra_download_params or {}),
     }
     run_deployment(
-        name=deployment_name(prefect_dataset_id, next_etapa),
+        name=deployment_name(prefect_dataset_id, next_etapa, next_deployment),
         parameters={"download_params": download_params},
         timeout=0,
         as_subflow=True,
@@ -186,7 +203,7 @@ def dispatch_mat_test(
     `mat_test_flow` os recebe tipados e o Pydantic valida sozinho.
 
     Generalizado a partir do que era `dispatch_mat_test` só dentro de
-    `pipelines/datasets/test_event_pipeline/tasks.py` — qualquer dataset na
+    `pipelines/datasets/test_dataset/tasks.py` — qualquer dataset na
     variante padrão usa este, não precisa reescrever.
     """
     run_deployment(
@@ -250,6 +267,24 @@ class CheckThenDownloadPipeline:
         def flow_download_flow(download_params: dict) -> None:
             _pipeline.run_download(download_params)
         flow_download_flow.deploy_tags = deploy_tags(PREFECT_DATASET_ID, Etapa.FLOW_DOWNLOAD)
+
+    Quando vários pilotos/datasets dividem o mesmo `flows.py` (`deploy_flows.py`
+    descobre flows pelo nome da variável no módulo, então duas pipelines no
+    mesmo arquivo não podem ter as duas uma variável `flow_download_flow` —
+    ver `pipelines/datasets/test_dataset/flows.py`), sete
+    `flow_download_deployment` **depois** que o flow existir, a partir do
+    `__name__` da própria função — não repita o nome como string solta no
+    construtor (a função ainda não existe nesse ponto, e duas grafias do
+    mesmo nome podem divergir silenciosamente, o mesmo risco que o
+    `Etapa(StrEnum)` evita):
+
+        _pipeline = CheckThenDownloadPipeline(...)
+
+        @flow(name=f"{PREFECT_DATASET_ID}: flow_download", log_prints=True)
+        def meu_flow_download_flow(download_params: dict) -> None:
+            _pipeline.run_download(download_params)
+        meu_flow_download_flow.deploy_tags = deploy_tags(...)
+        _pipeline.flow_download_deployment = meu_flow_download_flow.fn.__name__
     """
 
     def __init__(
@@ -262,6 +297,7 @@ class CheckThenDownloadPipeline:
         prefect_dataset_id: str | None = None,
         env: str = "prod",
         date_format: str = "%Y-%m-%d",
+        flow_download_deployment: str | None = None,
     ) -> None:
         self.dataset_id = dataset_id
         self.table_id = table_id
@@ -270,6 +306,7 @@ class CheckThenDownloadPipeline:
         self.prefect_dataset_id = prefect_dataset_id or dataset_id
         self.env = env
         self.date_format = date_format
+        self.flow_download_deployment = flow_download_deployment
 
     def run_check_update(self) -> bool:
         """Corpo completo do estágio check_update. Devolve `has_new_data`."""
@@ -288,6 +325,7 @@ class CheckThenDownloadPipeline:
             dataset_id=self.dataset_id,
             table_id=self.table_id,
             reference_date=result.reference_date,
+            next_deployment=self.flow_download_deployment,
             env=self.env,
             date_format=self.date_format,
             extra_download_params=result.extra_download_params,
