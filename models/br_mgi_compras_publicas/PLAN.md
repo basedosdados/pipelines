@@ -598,3 +598,59 @@ noise, not access. Step 6b is therefore skipped deliberately, not overlooked.
 
 The coded columns are documented instead through the `dicionario` table, built
 from the code/name pairs the API's own payloads carry.
+
+## Dev run of the weekly flow (2026-09-03)
+
+`br_mgi_compras_publicas.semanal`, run `lyrical-lion`
+(`448898e9-3344-40c2-b956-8e21adc1756c`), dev pool, 01:32–04:27 UTC (2h55m),
+triggered with `materialize_to_prod=False, update_metadata=False`.
+
+**Result: every task Completed, 0 failed.** `run_dbt` raises on any node with
+status `error`/`fail` (`pipelines/utils/tasks.py:327-332`), so a clean flow is
+positive evidence that `dbt test` passed, not merely that nothing crashed.
+
+Structure verified by task timing: 12 upload/run tasks (04:03–04:16) precede
+6 test tasks (04:18–04:27). The run-all-then-test-all separation holds, so no
+cross-table test reads a sibling that has not been built yet.
+
+Harvest parity against the onboarding parquet in `~/Downloads`:
+
+| table | onboarding | dev run | delta |
+|---|---:|---:|---|
+| `orgao` | 11,872 | 11,872 | 0 |
+| `unidade_administrativa` | 45,334 | 45,334 | 0 |
+| `fornecedor` | 962,016 | 962,016 | 0 |
+| `catalogo_material` | 343,880 | 344,727 | +847 |
+| `catalogo_servico` | 3,096 | 3,101 | +5 |
+
+The two catalogs grew because they are live registries; that growth is the
+evidence the flow re-fetches rather than replaying a cached harvest. `orgao`
+also matches the 11,872 active órgãos recorded at onboarding.
+
+`unidade_administrativa` lands 35,597 rows from 45,334 harvested. The model
+dedups on *every* column, so the 9,737 dropped rows are byte-identical
+duplicates returned by the paginated snapshot endpoint — no distinguishable
+record is lost.
+
+`dicionario` rebuilt to 82 key/value pairs, exercising the `KeyError` that the
+1-tuple→string `STATIC` key change fixed.
+
+### What this run does NOT prove
+
+- **Chunk clearing is unexercised.** `refresh_table` deletes stale chunks from a
+  prior run in the same `output_dir`; this run used a fresh directory, so the
+  branch never executed and no "cleared N chunk(s)" line appears. It needs a
+  second run against the same directory.
+- **The prod half is untouched** — `materialize_to_prod=False`. The prod upload
+  and the Row Access Policies for the `PartBdpro` daily tables run for the first
+  time on the first armed run.
+- **The daily flow has not been dev-run**, so the 462-órgão `contrato` loop is
+  exercised only by the onboarding harvest, not by the flow that will run it.
+
+### `fornecedor` throughput
+
+An earlier note in this session claimed `fornecedor` plans 2 jobs and is
+structurally sequential. That was wrong: `SNAPSHOT` goes through
+`_page_range_jobs` (`harvest.py:246-257`), so the 2 snapshot values fan out to
+40 jobs. The 2h15m it takes is the AIMD throttle across ~1,900 pages, not a
+missing fan-out — nothing to fix.
