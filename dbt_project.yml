@@ -58,6 +58,9 @@ models:
     au_ato_taxation_statistics:
       +materialized: table
       +schema: au_ato_taxation_statistics
+    au_doe_higher_education_finances:
+      +materialized: table
+      +schema: au_doe_higher_education_finances
     au_geoscape_gnaf:
       +materialized: table
       +schema: au_geoscape_gnaf
